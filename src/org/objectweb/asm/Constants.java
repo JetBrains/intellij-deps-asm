@@ -56,7 +56,6 @@ public interface Constants {
 
   // types for NEWARRAY
 
-  int T_CLASS = 2;
   int T_BOOLEAN = 4;
   int T_CHAR = 5;
   int T_FLOAT = 6;

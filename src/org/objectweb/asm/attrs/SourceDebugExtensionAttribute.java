@@ -36,8 +36,6 @@ import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Label;
 
-import java.util.Map;
-
 /**
  * The SourceDebugExtension attribute is an optional attribute defined in JSR-045
  * in the attributes table of the ClassFile structure. There can be no more than one
@@ -74,9 +72,7 @@ import java.util.Map;
  * @author Eugene Kuleshov
  */
 
-public class SourceDebugExtensionAttribute
-  extends Attribute implements Dumpable
- {
+public class SourceDebugExtensionAttribute extends Attribute {
 
   public String debugExtension;
 
@@ -98,12 +94,6 @@ public class SourceDebugExtensionAttribute
                               int len, int maxStack, int maxLocals) {
     byte[] b = putUTF8(debugExtension);
     return new ByteVector().putByteArray(b, 0, b.length);
-  }
-
-  public void dump (StringBuffer buf, String varName, Map labelNames) {
-    buf.append("SourceDebugExtensionAttribute ").append(varName)
-      .append(" = new SourceDebugExtensionAttribute(\"")
-      .append(debugExtension).append("\");\n");
   }
 
   private String readUTF8 (ClassReader cr, int index, int utfLen) {

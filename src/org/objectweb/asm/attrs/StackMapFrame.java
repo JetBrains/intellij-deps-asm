@@ -33,7 +33,6 @@ package org.objectweb.asm.attrs;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import org.objectweb.asm.ByteVector;
@@ -158,62 +157,6 @@ public class StackMapFrame {
           break;
           
       }
-    }
-  }
-
-  public void dump (StringBuffer buf, String varName, Map labelNames) {
-    declareLabel(buf, labelNames, label);
-    buf.append("{ // StackMapFrame.dump()\n");
-    
-    buf.append("StackMapFrame ").append(varName).append( " = new StackMapFrame();\n");
-    
-    buf.append(varName).append(".label = ")
-      .append(labelNames.get(label)).append(";\n");
-
-    dumpTypeInfo(buf, varName, labelNames, locals, "locals");
-    dumpTypeInfo(buf, varName, labelNames, stack, "stack");
-
-    buf.append( "cvAttr.frames.add(").append(varName).append(");\n");
-    buf.append("}\n");
-  }
-
-  private void dumpTypeInfo (StringBuffer buf, String varName, 
-                              Map labelNames, List infos, String field) {
-    if (infos.size() > 0) {
-      buf.append("{ // StackMapFrame.dumpTypeInfo()\n");
-      for (int i = 0; i < infos.size(); i++) {
-        StackMapType typeInfo = (StackMapType)infos.get(i);
-        String localName = varName + "Info" + i;
-        int type = typeInfo.getType();
-        buf.append("StackMapType ").append(localName)
-          .append(" = StackMapType.getTypeInfo( StackMapType.ITEM_")
-          .append(StackMapType.ITEM_NAMES[type]).append(");\n");
-
-        switch (type) {
-          case StackMapType.ITEM_Object:  //
-            buf.append(localName).append(".setObject(\"")
-              .append(typeInfo.getObject()).append("\");\n");
-            break;
-
-          case StackMapType.ITEM_Uninitialized:  //
-            declareLabel(buf, labelNames, typeInfo.getLabel());
-            buf.append(localName).append(".setLabel(")
-              .append(labelNames.get(typeInfo.getLabel())).append(");\n");
-            break;
-        }
-        buf.append(varName).append(".").append(field)
-          .append(".add(").append(localName).append(");\n");
-      }
-      buf.append("}\n");
-    }
-  }
-
-  public static void declareLabel (StringBuffer buf, Map labelNames, Label l) {
-    String name = (String)labelNames.get(l);
-    if (name == null) {
-      name = "l" + labelNames.size();
-      labelNames.put(l, name);
-      buf.append("Label ").append(name).append(" = new Label();\n");
     }
   }
 

@@ -30,8 +30,6 @@
 
 package org.objectweb.asm.attrs;
 
-import java.util.Map;
-
 import org.objectweb.asm.Attribute;
 import org.objectweb.asm.ByteVector;
 import org.objectweb.asm.ClassReader;
@@ -85,7 +83,7 @@ import org.objectweb.asm.Label;
  * @author Eugene Kuleshov
  */
 
-public class EnclosingMethodAttribute extends Attribute implements Dumpable {
+public class EnclosingMethodAttribute extends Attribute {
   
   public String owner;
   public String name;
@@ -116,22 +114,13 @@ public class EnclosingMethodAttribute extends Attribute implements Dumpable {
   protected ByteVector write (ClassWriter cw, byte[] code,
                               int len, int maxStack, int maxLocals) {
     return new ByteVector().putShort(cw.newClass(owner))
-            .putShort(cw.newNameType(name, desc));
-  }
-
-  public void dump (StringBuffer buf, String varName, Map labelNames) {
-    buf.append("EnclosingMethodAttribute ").append(varName)
-      .append(" = new EnclosingMethodAttribute(\"")
-      .append(owner).append(",")
-      .append(name).append(",")
-      .append(desc).append("\");\n");
+      .putShort(cw.newNameType(name, desc));
   }
 
   public String toString () {
     return new StringBuffer("owner:").append( owner)
       .append(" name:").append(name)
       .append(" desc:").append(desc).toString();
-  }
-  
+  } 
 }
 

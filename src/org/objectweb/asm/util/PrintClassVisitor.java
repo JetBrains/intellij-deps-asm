@@ -32,15 +32,15 @@ package org.objectweb.asm.util;
 
 import org.objectweb.asm.Attribute;
 import org.objectweb.asm.ClassVisitor;
-import org.objectweb.asm.attrs.AnnotationDefaultAttribute;
-import org.objectweb.asm.attrs.EnclosingMethodAttribute;
-import org.objectweb.asm.attrs.RuntimeInvisibleAnnotations;
-import org.objectweb.asm.attrs.RuntimeInvisibleParameterAnnotations;
-import org.objectweb.asm.attrs.RuntimeVisibleAnnotations;
-import org.objectweb.asm.attrs.RuntimeVisibleParameterAnnotations;
-import org.objectweb.asm.attrs.SignatureAttribute;
-import org.objectweb.asm.attrs.SourceDebugExtensionAttribute;
-import org.objectweb.asm.attrs.StackMapAttribute;
+import org.objectweb.asm.util.attrs.AnnotationDefaultAttribute;
+import org.objectweb.asm.util.attrs.EnclosingMethodAttribute;
+import org.objectweb.asm.util.attrs.RuntimeInvisibleAnnotations;
+import org.objectweb.asm.util.attrs.RuntimeInvisibleParameterAnnotations;
+import org.objectweb.asm.util.attrs.RuntimeVisibleAnnotations;
+import org.objectweb.asm.util.attrs.RuntimeVisibleParameterAnnotations;
+import org.objectweb.asm.util.attrs.SignatureAttribute;
+import org.objectweb.asm.util.attrs.SourceDebugExtensionAttribute;
+import org.objectweb.asm.util.attrs.StackMapAttribute;
 
 import java.io.PrintWriter;
 import java.util.ArrayList;
@@ -53,18 +53,6 @@ import java.util.List;
  */
 
 public abstract class PrintClassVisitor implements ClassVisitor {
-
-  public static final Attribute[] DEFAULT_ATTRIBUTES = new Attribute[] {
-    new AnnotationDefaultAttribute(),
-    new RuntimeInvisibleAnnotations(),
-    new RuntimeInvisibleParameterAnnotations(),
-    new RuntimeVisibleAnnotations(),
-    new RuntimeVisibleParameterAnnotations(),
-    new StackMapAttribute(),
-    new SourceDebugExtensionAttribute(),
-    new SignatureAttribute(),
-    new EnclosingMethodAttribute()
-  };
 
   /**
    * The text to be printed. Since the code of methods is not necessarily
@@ -125,6 +113,24 @@ public abstract class PrintClassVisitor implements ClassVisitor {
       } else {
         pw.print(o.toString());
       }
+    }
+  }
+
+  public static Attribute[] getDefaultAttributes () {
+    try {
+      return new Attribute[] {
+        new AnnotationDefaultAttribute(),
+        new RuntimeInvisibleAnnotations(),
+        new RuntimeInvisibleParameterAnnotations(),
+        new RuntimeVisibleAnnotations(),
+        new RuntimeVisibleParameterAnnotations(),
+        new StackMapAttribute(),
+        new SourceDebugExtensionAttribute(),
+        new SignatureAttribute(),
+        new EnclosingMethodAttribute()
+      };
+    } catch (Exception e) {
+      return new Attribute[0];
     }
   }
 }

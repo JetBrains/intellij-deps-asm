@@ -140,25 +140,6 @@ import org.objectweb.asm.Type;
 
 public class AnnotationMemberValue {
 
-  private static final String TAGS = "BCDFIJSZsec@[";
-
-  private static final Class[] TYPES = new Class[]{
-    Byte.class,
-    Character.class,
-    Double.class,
-    Float.class,
-    Integer.class,
-    Long.class,
-    Short.class,
-    Boolean.class,
-    String.class,
-    EnumConstValue.class, // should we use java.lang.Enum in the future?
-    Type.class,
-    Annotation.class,
-    AnnotationMemberValue[].class};
-
-  // private int tag;
-
   private Object value;
 
   public AnnotationMemberValue () {
@@ -169,10 +150,46 @@ public class AnnotationMemberValue {
   }
 
   public int getTag () {
-    for (int i = 0; i < TYPES.length; i++) {
-      if (value.getClass().equals(TYPES[i])) return TAGS.charAt(i);
+    if (value instanceof Byte) {
+      return 'B';
     }
-    return -1;
+    if (value instanceof Character) {
+      return 'C';
+    }
+    if (value instanceof Double) {
+      return 'D';
+    }
+    if (value instanceof Float) {
+      return 'F';
+    }
+    if (value instanceof Integer) {
+      return 'I';
+    }
+    if (value instanceof Long) {
+      return 'J';
+    }
+    if (value instanceof Short) {
+      return 'S';
+    }
+    if (value instanceof Boolean) {
+      return 'Z';
+    }
+    if (value instanceof String) {
+      return 's';
+    }
+    if (value instanceof EnumConstValue) {
+      return 'e';
+    }
+    if (value instanceof Type) {
+      return 'c';
+    }
+    if (value instanceof Annotation) {
+      return '@';
+    }
+    if (value instanceof AnnotationMemberValue[]) {
+      return '[';
+    }
+    return -1;    
   }
 
   public Object getValue () {
@@ -248,6 +265,7 @@ public class AnnotationMemberValue {
    * @param cw the class to which this attribute must be added. This parameter
    *      can be used to add to the constant pool of this class the items that
    *      corresponds to this attribute.
+   * @return bv.
    */
 
   public ByteVector write (ByteVector bv, ClassWriter cw) {
@@ -270,7 +288,8 @@ public class AnnotationMemberValue {
         break;
 
       case 'e':  // enum_const_value
-        ((EnumConstValue)value).write(bv, cw);
+        bv.putShort(cw.newUTF8(((EnumConstValue)value).typeName));
+        bv.putShort(cw.newUTF8(((EnumConstValue)value).constName));
         break;
 
       case 'c':  // class_info
@@ -290,93 +309,6 @@ public class AnnotationMemberValue {
         break;
     }
     return bv;
-  }
-
-  public void dump (StringBuffer buf, String valName) {
-    int tag = getTag();
-    String objName = valName.concat("obj");
-    switch (tag) {
-      case 'B':  // pointer to CONSTANT_Byte
-        buf.append("Object ").append(objName)
-          .append(" = new Byte(").append(value).append(");\n");
-        break;
-
-      case 'C':  // pointer to CONSTANT_Char
-        buf.append("Object ").append(objName)
-          .append(" = new Character((char)").append(value).append(");\n");
-        break;
-
-      case 'D':  // pointer to CONSTANT_Double
-        buf.append("Object ").append(objName)
-          .append(" = new Double((double)").append(value).append(");\n");
-        break;
-
-      case 'F':  // pointer to CONSTANT_Float
-        buf.append("Object ").append(objName)
-          .append(" = new Float((float)").append(value).append(");\n");
-        break;
-
-      case 'I':  // pointer to CONSTANT_Integer
-        buf.append("Object ").append(objName)
-          .append(" = new Integer((int)").append(value).append(");\n");
-        break;
-
-      case 'J':  // pointer to CONSTANT_Long
-        buf.append("Object ").append(objName)
-          .append(" = new Long((long)").append(value).append(");\n");
-        break;
-
-      case 'S':  // pointer to CONSTANT_Short
-        buf.append("Object ").append(objName)
-          .append(" = new Short((short)").append(value).append(");\n");
-        break;
-
-      case 'Z':  // pointer to CONSTANT_Boolean
-        buf.append("Object ").append(objName)
-          .append(" = new Boolean(").append(value).append(");\n");
-        break;
-
-      case 's':  // pointer to CONSTANT_Utf8
-        buf.append("Object ").append(objName)
-          .append(" = \"").append(value).append("\";\n");
-        break;
-
-      case 'e':  // enum_const_value
-        EnumConstValue e = (EnumConstValue)value;
-        buf.append("Object ").append(objName)
-          .append(" = new AnnotationMemberValue.EnumConstValue(\"")
-          .append(e.typeName).append("\", \"").append(e.constName)
-          .append("\"));\n");
-        break;
-
-      case 'c':  // class_info
-        Type t = (Type)value;
-        buf.append("Object ").append(objName).
-          append(" = Type.getType(\"" + t.getDescriptor() + "\");\n");
-        break;
-
-      case '@':  // annotation_value
-        ((Annotation)value).dump(buf, objName);
-        break;
-
-      case '[':  // array_value
-        AnnotationMemberValue[] v = (AnnotationMemberValue[])value;
-        buf.append("AnnotationMemberValue[] ").append(objName)
-          .append(" = new AnnotationMemberValue[")
-          .append(v.length).append("]\n;");
-        buf.append("{\n");
-        buf.append("Object av = null;\n");
-        for (int i = 0; i < v.length; i++) {
-          v[i].dump(buf, objName + i);
-          buf.append(objName)
-            .append("[").append(i).append("] = ").append(objName + i);
-        }
-        buf.append("};\n");
-        break;
-    }
-
-    buf.append("AnnotationMemberValue ").append(valName);
-    buf.append(" = new AnnotationMemberValue( ").append(objName).append(");\n");
   }
 
   /**
@@ -443,17 +375,6 @@ public class AnnotationMemberValue {
       this.typeName = typeName;
       this.constName = constName;
     }
-
-    public void write (ByteVector bv, ClassWriter cw) {
-      // TODO verify the data structures
-      bv.putShort(cw.newUTF8(typeName));
-      bv.putShort(cw.newUTF8(constName));
-    }
-
-    // public boolean equals( Object o) {
-    //   EnumConstValue v = ( EnumConstValue) o;
-    //   return v.constName.equals( )
-    // }
 
     public String toString () {
       // TODO verify print enum

@@ -36,8 +36,6 @@ import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Label;
 
-import java.util.Map;
-
 /**
  * The AnnotationDefault attribute is a variable length attribute in the
  * attributes table of certain method_info structures, namely those representing
@@ -77,7 +75,7 @@ import java.util.Map;
  * @author Eugene Kuleshov
  */
 
-public class AnnotationDefaultAttribute extends Attribute implements Dumpable {
+public class AnnotationDefaultAttribute extends Attribute {
 
   public AnnotationMemberValue defaultValue;
 
@@ -96,14 +94,6 @@ public class AnnotationDefaultAttribute extends Attribute implements Dumpable {
   protected ByteVector write (ClassWriter cw, byte[] code,
                               int len, int maxStack, int maxLocals) {
     return defaultValue.write(new ByteVector(), cw);
-  }
-
-  public void dump (StringBuffer buf, String varName, Map labelNames) {
-    buf.append("AnnotationDefaultAttribute ").append(varName)
-      .append(" = new AnnotationDefaultAttribute();\n");
-    defaultValue.dump(buf, varName + "Val");
-    buf.append(varName).append(".defaultValue = ")
-      .append(varName).append("Val;\n");
   }
 
   /**

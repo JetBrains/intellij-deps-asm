@@ -28,30 +28,25 @@
  * THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.objectweb.asm.attrs;
+package org.objectweb.asm.util.attrs;
 
 import java.util.Map;
 
 /**
- * Dumpable interface has to be implemented by the Attribute class
- * in order to support DumpClassVisitor and DumpCodeVisitor.
- *
- * Implementation should print the ASM code that generates
- * attribute data structures for current attribute state.
+ * An {@link ASMifiable} 
+ * {@link org.objectweb.asm.attrs.RuntimeVisibleAnnotations} sub class.
  *
  * @author Eugene Kuleshov
  */
 
-public interface Dumpable {
+public class RuntimeVisibleAnnotations 
+  extends org.objectweb.asm.attrs.RuntimeVisibleAnnotations 
+  implements ASMifiable
+{
 
-  /**
-   * Dump attribute data into ASM code.
-   *
-   * @param buf A buffer used for printing java code.
-   * @param varName name of the variable in a printed code used to store
-   *      attribute instance.
-   * @param labelNames map of label instances to their names.
-   */
-
-  void dump (StringBuffer buf, String varName, Map labelNames);
+  public void asmify (StringBuffer buf, String varName, Map labelNames) {
+    buf.append("RuntimeVisibleAnnotations ").append(varName)
+      .append(" = new RuntimeVisibleAnnotations();\n");
+    AnnotationDefaultAttribute.asmifyAnnotations(buf, varName, annotations);
+  }
 }

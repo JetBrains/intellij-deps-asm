@@ -32,7 +32,6 @@ package org.objectweb.asm.attrs;
 
 import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.Map;
 
 import org.objectweb.asm.Attribute;
 import org.objectweb.asm.ByteVector;
@@ -140,7 +139,7 @@ import org.objectweb.asm.Label;
  * @author Eugene Kuleshov
  */
 
-public class StackMapAttribute extends Attribute implements Dumpable {
+public class StackMapAttribute extends Attribute {
 
   static final int MAX_SIZE = 65535;
 
@@ -201,20 +200,6 @@ public class StackMapAttribute extends Attribute implements Dumpable {
       ((StackMapFrame)frames.get(i)).getLabels(labels);
     }
     return (Label[])labels.toArray(new Label[labels.size()]);
-  }
-
-  public void dump (StringBuffer buf, String varName, Map labelNames) {
-    buf.append("{\n");
-    buf.append("StackMapAttribute ").append(varName).append("Attr");
-    buf.append(" = new StackMapAttribute();\n");
-    if (frames.size() > 0) {
-      for (int i = 0; i < frames.size(); i++) {
-        ((StackMapFrame)frames.get(i))
-          .dump(buf, varName + "frame" + i, labelNames);
-      }
-    }
-    buf.append(varName).append(".visitAttribute(").append(varName);
-    buf.append("Attr);\n}\n");
   }
 
   public String toString () {

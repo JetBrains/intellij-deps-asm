@@ -137,22 +137,6 @@ public class Annotation {
     }
   }
 
-  public void dump (StringBuffer buf, String varName) {
-    buf.append("Annotation ").append(varName).append(" = new Annotation();\n");
-    buf.append(varName).append(".type = \"").append(type).append("\";\n");
-    if (memberValues.size() > 0) {
-      buf.append("{\n");
-      for (int i = 0; i < memberValues.size(); i++) {
-        Object[] values = (Object[])memberValues.get(i);
-        String val = varName + "val" + i;
-        ((AnnotationMemberValue)values[1]).dump(buf, val);
-        buf.append(varName).append(".add( \"")
-          .append(values[0]).append("\", ").append(val).append(");\n");
-      }
-      buf.append("}\n");
-    }
-  }
-
   /**
    * Utility method to read List of annotations. Each element of annotations
    * List will have Annotation instance.
@@ -245,33 +229,6 @@ public class Annotation {
       writeAnnotations(bv, (List)parameters.get(i), cw);
     }
     return bv;
-  }
-
-  public static void dumpAnnotations (StringBuffer buf,
-                                      String varName, List annotations) {
-    if (annotations.size() > 0) {
-      buf.append("{\n");
-      for (int i = 0; i < annotations.size(); i++) {
-        String val = varName + "ann" + i;
-        ((Annotation)annotations.get(i)).dump(buf, val);
-        buf.append(varName).append(".add( ").append(val).append(");\n");
-      }
-      buf.append("}\n");
-    }
-  }
-
-  public static void dumpParameterAnnotations (StringBuffer buf,
-                                               String varName,
-                                               List parameters) {
-    if (parameters.size() > 0) {
-      buf.append("{\n");
-      for (int i = 0; i < parameters.size(); i++) {
-        String val = varName + "param" + i;
-        dumpAnnotations(buf, val, (List)parameters.get(i));
-        buf.append(varName).append(".add( ").append(val).append(");\n");
-      }
-      buf.append("}\n");
-    }
   }
 
   /**

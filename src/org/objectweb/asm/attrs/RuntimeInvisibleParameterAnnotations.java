@@ -32,7 +32,6 @@ package org.objectweb.asm.attrs;
 
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 
 import org.objectweb.asm.Attribute;
 import org.objectweb.asm.ByteVector;
@@ -112,9 +111,7 @@ import org.objectweb.asm.Label;
  * @author Eugene Kuleshov
  */
 
-public class RuntimeInvisibleParameterAnnotations
-  extends Attribute implements Dumpable
-{
+public class RuntimeInvisibleParameterAnnotations extends Attribute {
 
   public List parameters = new LinkedList();
 
@@ -134,12 +131,6 @@ public class RuntimeInvisibleParameterAnnotations
                               int len, int maxStack, int maxLocals) {
     return Annotation.writeParametersAnnotations(
       new ByteVector(), parameters, cw);
-  }
-
-  public void dump (StringBuffer buf, String varName, Map labelNames) {
-    buf.append("RuntimeInvisibleParameterAnnotations ").append(varName)
-      .append(" = new RuntimeInvisibleParameterAnnotations();\n");
-    Annotation.dumpParameterAnnotations(buf, varName, parameters);
   }
 
   public String toString () {

@@ -30,8 +30,6 @@
 
 package org.objectweb.asm.attrs;
 
-import java.util.Map;
-
 import org.objectweb.asm.Attribute;
 import org.objectweb.asm.ByteVector;
 import org.objectweb.asm.ClassReader;
@@ -90,7 +88,7 @@ import org.objectweb.asm.Label;
  * @author Eugene Kuleshov
  */
 
-public class SignatureAttribute extends Attribute implements Dumpable {
+public class SignatureAttribute extends Attribute {
 
   public String signature;
 
@@ -111,12 +109,6 @@ public class SignatureAttribute extends Attribute implements Dumpable {
   protected ByteVector write (ClassWriter cw, byte[] code,
                               int len, int maxStack, int maxLocals) {
     return new ByteVector().putShort(cw.newUTF8(signature));
-  }
-
-  public void dump (StringBuffer buf, String varName, Map labelNames) {
-    buf.append("SignatureAttribute ").append(varName)
-      .append(" = new SignatureAttribute(\"")
-      .append(signature).append("\");\n");
   }
 
   public String toString () {

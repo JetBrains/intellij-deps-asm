@@ -32,18 +32,18 @@ package org.objectweb.asm.util;
 
 import org.objectweb.asm.Label;
 import org.objectweb.asm.Attribute;
-import org.objectweb.asm.attrs.Dumpable;
+import org.objectweb.asm.util.attrs.ASMifiable;
 
 import java.util.HashMap;
 
 /**
- * A {@link PrintCodeVisitor PrintCodeVisitor} that prints the ASM code that
+ * A {@link PrintCodeVisitor} that prints the ASM code that
  * generates the code it visits.
  * 
  * @author Eric Bruneton, Eugene Kuleshov
  */
 
-public class DumpCodeVisitor extends PrintCodeVisitor {
+public class ASMifierCodeVisitor extends PrintCodeVisitor {
 
   /**
    * The label names. This map associate String values to Label keys.
@@ -52,10 +52,10 @@ public class DumpCodeVisitor extends PrintCodeVisitor {
   private final HashMap labelNames;
 
   /**
-   * Constructs a new {@link DumpCodeVisitor DumpCodeVisitor} object.
+   * Constructs a new {@link ASMifierCodeVisitor} object.
    */
 
-  public DumpCodeVisitor () {
+  public ASMifierCodeVisitor () {
     this.labelNames = new HashMap();
   }
 
@@ -85,7 +85,7 @@ public class DumpCodeVisitor extends PrintCodeVisitor {
     buf.append("cv.visitTypeInsn(").
       append(OPCODES[opcode]).
       append(", ");
-    DumpClassVisitor.appendConstant(buf, desc);
+    ASMifierClassVisitor.appendConstant(buf, desc);
     buf.append(");\n");
   }
 
@@ -98,11 +98,11 @@ public class DumpCodeVisitor extends PrintCodeVisitor {
     buf.append("cv.visitFieldInsn(")
       .append(OPCODES[opcode])
       .append(", ");
-    DumpClassVisitor.appendConstant(buf, owner);
+    ASMifierClassVisitor.appendConstant(buf, owner);
     buf.append(", ");
-    DumpClassVisitor.appendConstant(buf, name);
+    ASMifierClassVisitor.appendConstant(buf, name);
     buf.append(", ");
-    DumpClassVisitor.appendConstant(buf, desc);
+    ASMifierClassVisitor.appendConstant(buf, desc);
     buf.append(");\n");
   }
 
@@ -115,11 +115,11 @@ public class DumpCodeVisitor extends PrintCodeVisitor {
     buf.append("cv.visitMethodInsn(")
       .append(OPCODES[opcode])
       .append(", ");
-    DumpClassVisitor.appendConstant(buf, owner);
+    ASMifierClassVisitor.appendConstant(buf, owner);
     buf.append(", ");
-    DumpClassVisitor.appendConstant(buf, name);
+    ASMifierClassVisitor.appendConstant(buf, name);
     buf.append(", ");
-    DumpClassVisitor.appendConstant(buf, desc);
+    ASMifierClassVisitor.appendConstant(buf, desc);
     buf.append(");\n");
   }
 
@@ -141,7 +141,7 @@ public class DumpCodeVisitor extends PrintCodeVisitor {
 
   public void printLdcInsn (final Object cst) {
     buf.append("cv.visitLdcInsn(");
-    DumpClassVisitor.appendConstant(buf, cst);
+    ASMifierClassVisitor.appendConstant(buf, cst);
     buf.append(");\n");
   }
 
@@ -204,7 +204,7 @@ public class DumpCodeVisitor extends PrintCodeVisitor {
 
   public void printMultiANewArrayInsn (final String desc, final int dims) {
     buf.append("cv.visitMultiANewArrayInsn(");
-    DumpClassVisitor.appendConstant(buf, desc);
+    ASMifierClassVisitor.appendConstant(buf, desc);
     buf.append(", ")
       .append(dims)
       .append(");\n");
@@ -223,7 +223,7 @@ public class DumpCodeVisitor extends PrintCodeVisitor {
     buf.append(", ");
     appendLabel(handler);
     buf.append(", ");
-    DumpClassVisitor.appendConstant(buf, type);
+    ASMifierClassVisitor.appendConstant(buf, type);
     buf.append(");\n");
   }
 
@@ -243,9 +243,9 @@ public class DumpCodeVisitor extends PrintCodeVisitor {
     final int index)
   {
     buf.append("cv.visitLocalVariable(");
-    DumpClassVisitor.appendConstant(buf, name);
+    ASMifierClassVisitor.appendConstant(buf, name);
     buf.append(", ");
-    DumpClassVisitor.appendConstant(buf, desc);
+    ASMifierClassVisitor.appendConstant(buf, desc);
     buf.append(", ");
     appendLabel(start);
     buf.append(", ");
@@ -262,9 +262,9 @@ public class DumpCodeVisitor extends PrintCodeVisitor {
   }
 
   public void printAttribute (final Attribute attr) {
-    if (attr instanceof Dumpable) {
+    if (attr instanceof ASMifiable) {
       buf.append("// CODE ATTRIBUTE\n");
-      ((Dumpable)attr).dump(buf, "cv", labelNames);
+      ((ASMifiable)attr).asmify(buf, "cv", labelNames);
     } else {
       buf.append("// WARNING! skipped a non standard code attribute of type \"");
       buf.append(attr.type).append("\"\n");

@@ -121,10 +121,10 @@ public class TraceClassVisitor extends PrintClassVisitor {
     } else {
       cr = new ClassReader(args[0]);
     }
-    cr.accept(new TraceClassVisitor(null, new PrintWriter(System.out)),
-              PrintClassVisitor.DEFAULT_ATTRIBUTES, true);
+    cr.accept(new TraceClassVisitor(
+      null, new PrintWriter(System.out)), getDefaultAttributes(), true);
   }
-
+  
   /**
    * Constructs a new {@link TraceClassVisitor TraceClassVisitor} object.
    *

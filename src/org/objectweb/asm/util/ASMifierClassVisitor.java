@@ -38,7 +38,7 @@ import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.CodeVisitor;
 import org.objectweb.asm.Constants;
 import org.objectweb.asm.Type;
-import org.objectweb.asm.attrs.Dumpable;
+import org.objectweb.asm.util.attrs.ASMifiable;
 
 /**
  * A {@link PrintClassVisitor PrintClassVisitor} that prints the ASM code that
@@ -48,7 +48,7 @@ import org.objectweb.asm.attrs.Dumpable;
  * <li>write the Java source code equivalent to the bytecode you want to
  * generate;</li>
  * <li>compile it with <tt>javac</tt>;</li>
- * <li>make a {@link DumpClassVisitor DumpClassVisitor} visit this compiled
+ * <li>make a {@link ASMifierClassVisitor} visit this compiled
  * class (see the {@link #main main} method);</li>
  * <li>edit the generated source code, if necessary.</li>
  * </ul>
@@ -109,7 +109,7 @@ import org.objectweb.asm.attrs.Dumpable;
  * @author Eric Bruneton, Eugene Kuleshov
  */
 
-public class DumpClassVisitor extends PrintClassVisitor {
+public class ASMifierClassVisitor extends PrintClassVisitor {
 
   private static final int ACCESS_CLASS = 262144;
   private static final int ACCESS_FIELD = 524288;
@@ -118,7 +118,7 @@ public class DumpClassVisitor extends PrintClassVisitor {
    * Prints the ASM source code to generate the given class to the standard
    * output.
    * <p>
-   * Usage: DumpClassVisitor
+   * Usage: ASMifierClassVisitor
    * &lt;fully qualified class name or class file name&gt;
    *
    * @param args the command line arguments.
@@ -130,7 +130,7 @@ public class DumpClassVisitor extends PrintClassVisitor {
   public static void main (final String[] args) throws Exception {
     if (args.length == 0) {
       System.err.println("Prints the ASM code to generate the given class.");
-      System.err.println("Usage: DumpClassVisitor " +
+      System.err.println("Usage: ASMifierClassVisitor " +
                          "<fully qualified class name or class file name>");
       System.exit(-1);
     }
@@ -140,17 +140,17 @@ public class DumpClassVisitor extends PrintClassVisitor {
     } else {
       cr = new ClassReader(args[0]);
     }
-    cr.accept(new DumpClassVisitor(new PrintWriter(System.out)),
-              PrintClassVisitor.DEFAULT_ATTRIBUTES, true);
+    cr.accept(new ASMifierClassVisitor(
+      new PrintWriter(System.out)), getDefaultAttributes(), true);
   }
 
   /**
-   * Constructs a new {@link DumpClassVisitor DumpClassVisitor} object.
+   * Constructs a new {@link ASMifierClassVisitor} object.
    *
    * @param pw the print writer to be used to print the class.
    */
 
-  public DumpClassVisitor (final PrintWriter pw) {
+  public ASMifierClassVisitor (final PrintWriter pw) {
     super(pw);
   }
 
@@ -226,8 +226,8 @@ public class DumpClassVisitor extends PrintClassVisitor {
       Attribute a = attrs;
       int n = 1;
       while (a != null) {
-        if (a instanceof Dumpable) {
-          ((Dumpable)a).dump(buf, "attrs" + n, null);
+        if (a instanceof ASMifiable) {
+          ((ASMifiable)a).asmify(buf, "attrs" + n, null);
           if (n > 1) {
             buf.append("attrs" + (n - 1) + " = attrs" + n + ";\n");
           }
@@ -274,8 +274,8 @@ public class DumpClassVisitor extends PrintClassVisitor {
       Attribute a = attrs;
       int n = 1;
       while (a != null) {
-        if (a instanceof Dumpable) {
-          ((Dumpable)a).dump(buf, "attrs" + n, null);
+        if (a instanceof ASMifiable) {
+          ((ASMifiable)a).asmify(buf, "attrs" + n, null);
           if (n > 1) {
             buf.append("attrs" + (n - 1) + " = attrs" + n + ";\n");
           }
@@ -312,7 +312,7 @@ public class DumpClassVisitor extends PrintClassVisitor {
     }
 
     text.add(buf.toString());
-    PrintCodeVisitor pcv = new DumpCodeVisitor();
+    PrintCodeVisitor pcv = new ASMifierCodeVisitor();
     text.add(pcv.getText());
     text.add("}\n");
     return pcv;
@@ -320,10 +320,10 @@ public class DumpClassVisitor extends PrintClassVisitor {
 
   public void visitAttribute (final Attribute attr) {
     buf.setLength(0);
-    if (attr instanceof Dumpable) {
+    if (attr instanceof ASMifiable) {
       buf.append("{\n");
       buf.append("// CLASS ATRIBUTE\n");
-      ((Dumpable)attr).dump(buf, "attr", null);
+      ((ASMifiable)attr).asmify(buf, "attr", null);
       buf.append("cw.visitAttribute(attr);\n");
       buf.append("}\n");
     } else {

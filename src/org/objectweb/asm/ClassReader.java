@@ -1001,15 +1001,27 @@ public class ClassReader {
   {
     int i;
     switch (readByte(v++)) {
-      case 'B':  // pointer to CONSTANT_Byte
-      case 'C':  // pointer to CONSTANT_Char
-      case 'D':  // pointer to CONSTANT_Double
-      case 'F':  // pointer to CONSTANT_Float
       case 'I':  // pointer to CONSTANT_Integer
       case 'J':  // pointer to CONSTANT_Long
-      case 'S':  // pointer to CONSTANT_Short
-      case 'Z':  // pointer to CONSTANT_Boolean
+      case 'F':  // pointer to CONSTANT_Float
+      case 'D':  // pointer to CONSTANT_Double
         av.visit(name, readConst(readUnsignedShort(v), buf));
+        v += 2;
+        break;     
+      case 'B':  // pointer to CONSTANT_Byte
+        av.visit(name, new Byte((byte)readInt(items[readUnsignedShort(v)])));
+        v += 2;
+        break;
+      case 'Z':  // pointer to CONSTANT_Boolean
+        av.visit(name, readInt(items[readUnsignedShort(v)]) == 0 ? Boolean.FALSE : Boolean.TRUE);
+        v += 2;
+        break;
+      case 'S':  // pointer to CONSTANT_Short
+        av.visit(name, new Short((short)readInt(items[readUnsignedShort(v)])));
+        v += 2;
+        break;
+      case 'C':  // pointer to CONSTANT_Char
+        av.visit(name, new Character((char)readInt(items[readUnsignedShort(v)])));
         v += 2;
         break;
       case 's':  // pointer to CONSTANT_Utf8
@@ -1038,7 +1050,7 @@ public class ClassReader {
 			  bv[i] = (byte)readInt(items[readUnsignedShort(v)]);
 			  v += 3;
 	        }
-		    av.visit(name, bv);
+		    av.visit(name, bv); --v;
 		    break;
 	      case 'Z':
 		    boolean[] zv = new boolean[size];
@@ -1046,7 +1058,7 @@ public class ClassReader {
 			  zv[i] = readInt(items[readUnsignedShort(v)]) != 0;
 			  v += 3;
 	        }
-		    av.visit(name, zv);
+		    av.visit(name, zv); --v;
 		    break;         
 	      case 'S':
 		    short[] sv = new short[size];
@@ -1054,7 +1066,7 @@ public class ClassReader {
 			  sv[i] = (short)readInt(items[readUnsignedShort(v)]);
 			  v += 3;
 	        }
-		    av.visit(name, sv);
+		    av.visit(name, sv); --v;
 		    break;
 	      case 'C':
 		    char[] cv = new char[size];
@@ -1062,7 +1074,7 @@ public class ClassReader {
 			  cv[i] = (char)readInt(items[readUnsignedShort(v)]);
 			  v += 3;
 	        }
-		    av.visit(name, cv);
+		    av.visit(name, cv); --v;
 		    break;	          
 	      case 'I':
 		    int[] iv = new int[size];
@@ -1070,7 +1082,7 @@ public class ClassReader {
 			  iv[i] = readInt(items[readUnsignedShort(v)]);
 			  v += 3;
 	        }
-		    av.visit(name, iv);
+		    av.visit(name, iv); --v;
 	        break;
 	      case 'J':
 		    long[] lv = new long[size];
@@ -1078,7 +1090,7 @@ public class ClassReader {
 			  lv[i] = readLong(items[readUnsignedShort(v)]);
 			  v += 3;
 	        }
-		    av.visit(name, lv);
+		    av.visit(name, lv); --v;
 		    break;
 	      case 'F':
 		    float[] fv = new float[size];
@@ -1086,7 +1098,7 @@ public class ClassReader {
 			  fv[i] = Float.intBitsToFloat(readInt(items[readUnsignedShort(v)]));
 			  v += 3;
 	        }
-		    av.visit(name, fv);
+		    av.visit(name, fv); --v;
 		    break;
 	      case 'D':
 		    double[] dv = new double[size];
@@ -1094,7 +1106,7 @@ public class ClassReader {
 			  dv[i] = Double.longBitsToDouble(readLong(items[readUnsignedShort(v)]));
 			  v += 3;
 	        }
-		    av.visit(name, dv);
+		    av.visit(name, dv); --v;
 		    break;
 	      default:
 	        v--;

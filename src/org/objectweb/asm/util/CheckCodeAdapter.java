@@ -35,6 +35,7 @@ import org.objectweb.asm.CodeAdapter;
 import org.objectweb.asm.CodeVisitor;
 import org.objectweb.asm.Constants;
 import org.objectweb.asm.Attribute;
+import org.objectweb.asm.Type;
 
 import java.util.HashMap;
 
@@ -382,7 +383,9 @@ public class CheckCodeAdapter extends CodeAdapter {
 
   public void visitLdcInsn (final Object cst) {
     checkEnd();
-    checkConstant(cst);
+    if (!(cst instanceof Type)) {
+      checkConstant(cst);
+    }
     cv.visitLdcInsn(cst);
   }
 

@@ -37,6 +37,7 @@ import org.objectweb.asm.Attribute;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.CodeVisitor;
 import org.objectweb.asm.Constants;
+import org.objectweb.asm.Type;
 import org.objectweb.asm.attrs.Dumpable;
 
 /**
@@ -509,6 +510,10 @@ public class DumpClassVisitor extends PrintClassVisitor {
         }
       }
       buf.append("\"");
+    } else if (cst instanceof Type) {
+      buf.append("Type.getType(\"");
+      buf.append(((Type)cst).getDescriptor());
+      buf.append("\")");
     } else if (cst instanceof Integer) {
       buf.append("new Integer(")
         .append(cst)

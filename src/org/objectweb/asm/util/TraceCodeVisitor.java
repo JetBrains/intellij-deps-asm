@@ -33,6 +33,7 @@ package org.objectweb.asm.util;
 import org.objectweb.asm.CodeVisitor;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.Attribute;
+import org.objectweb.asm.Type;
 
 import java.util.HashMap;
 
@@ -183,6 +184,8 @@ public class TraceCodeVisitor extends PrintCodeVisitor {
     buf.append("    LDC ");
     if (cst instanceof String) {
       buf.append("\"").append(cst).append("\"");
+    } else if (cst instanceof Type) {
+      buf.append(((Type)cst).getDescriptor() + ".class");
     } else {
       buf.append(cst);
     }

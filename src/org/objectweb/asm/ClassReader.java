@@ -940,9 +940,9 @@ public class ClassReader {
    * @param buf buffer to be used to read the item. This buffer must be
    *      sufficiently large. It is not automatically resized.
    * @return the {@link java.lang.Integer Integer}, {@link java.lang.Float
-   *      Float}, {@link java.lang.Long Long}, {@link java.lang.Double Double}
-   *      or {@link String String} corresponding to the given constant pool
-   *      item.
+   *      Float}, {@link java.lang.Long Long}, {@link java.lang.Double Double},
+   *      {@link String String} or {@link Type Type} corresponding to the given 
+   *      constant pool item.
    */
 
   public Object readConst (final int item, final char[] buf) {
@@ -956,6 +956,8 @@ public class ClassReader {
         return new Long(readLong(index));
       case ClassWriter.DOUBLE:
         return new Double(Double.longBitsToDouble(readLong(index)));
+      case ClassWriter.CLASS:
+        return Type.getType(readUTF8(index, buf)); 
       //case ClassWriter.STR:
       default:
         return readUTF8(index, buf);

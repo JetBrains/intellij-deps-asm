@@ -831,7 +831,7 @@ public class CodeWriter implements CodeVisitor {
   }
 
   public void visitLdcInsn (final Object cst) {
-    Item i = cw.newCst(cst);
+    Item i = cw.newConstItem(cst);
     if (computeMaxs) {
       int size;
       // computes the stack size variation

@@ -567,7 +567,7 @@ public class ClassWriter implements ClassVisitor {
     fields.putShort(attributeCount);
     if (value != null) {
       fields.putShort(newUTF8("ConstantValue"));
-      fields.putInt(2).putShort(newCst(value).index);
+      fields.putInt(2).putShort(newConstItem(value).index);
     }
     if ((access & Constants.ACC_SYNTHETIC) != 0) {
       fields.putShort(newUTF8("Synthetic")).putInt(0);
@@ -691,11 +691,11 @@ public class ClassWriter implements ClassVisitor {
    * @param cst the value of the constant to be added to the constant pool. This
    *      parameter must be an {@link java.lang.Integer Integer}, a {@link
    *      java.lang.Float Float}, a {@link java.lang.Long Long}, a {@link
-          java.lang.Double Double} or a {@link String String}.
+   *      java.lang.Double Double}, a {@link String String} or a {@link Type}.
    * @return a new or already existing constant item with the given value.
    */
 
-  Item newCst (final Object cst) {
+  Item newConstItem (final Object cst) {
     if (cst instanceof Integer) {
       int val = ((Integer)cst).intValue();
       return newInteger(val);
@@ -710,6 +710,8 @@ public class ClassWriter implements ClassVisitor {
       return newDouble(val);
     } else if (cst instanceof String) {
       return newString((String)cst);
+    } else if (cst instanceof Type) {
+      return newClassItem(((Type)cst).getDescriptor());
     } else {
       throw new IllegalArgumentException("value " + cst);
     }
@@ -730,7 +732,7 @@ public class ClassWriter implements ClassVisitor {
    */
 
   public int newConst (final Object cst) {
-    return newCst(cst).index;
+    return newConstItem(cst).index;
   }
 
   /**
@@ -765,6 +767,20 @@ public class ClassWriter implements ClassVisitor {
    */
 
   public int newClass (final String value) {
+    return newClassItem(value).index;
+  }
+
+  /**
+   * Adds a class reference to the constant pool of the class being build. Does
+   * nothing if the constant pool already contains a similar item. <i>This
+   * method is intended for {@link Attribute} sub classes, and is normally not
+   * needed by class generators or adapters.</i>
+   *
+   * @param value the internal name of the class.
+   * @return a new or already existing class reference item.
+   */
+  
+  private Item newClassItem (final String value) {
     key2.set(CLASS, value, null, null);
     Item result = get(key2);
     if (result == null) {
@@ -772,7 +788,7 @@ public class ClassWriter implements ClassVisitor {
       result = new Item(index++, key2);
       put(result);
     }
-    return result.index;
+    return result;
   }
 
   /**

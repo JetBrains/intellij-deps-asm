@@ -1038,7 +1038,6 @@ public class ClassReader {
         v = readAnnotationValues(v, buf, av.visitAnnotation(name, desc));
         break;
       case '[':  // array_value
-        // support for arrays: TODO should we keep this? 
         int size = readUnsignedShort(v); v += 2;
         switch( readByte( v++)) {
         case 'B':

@@ -149,7 +149,6 @@ final class AnnotationWriter implements AnnotationVisitor {
       for (int i = 0; i < v.length; i++) {
         bv.put12('B', cw.newInteger(v[i]).index);
       }
-    // support for arrays: TODO should we keep this? 
     } else if (value instanceof boolean[]) {
       boolean[] v = (boolean[])value;
       bv.put12('[', v.length);

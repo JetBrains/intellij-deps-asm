@@ -158,7 +158,6 @@ public class ASMifierAbstractVisitor extends AbstractVisitor {
       buf.append("new Long(").append(cst).append("L)");
     } else if (cst instanceof Double) {
       buf.append("new Double(\"").append(cst).append("\")");      
-      // support for arrays: TODO should we keep this? 
     } else if (cst instanceof byte[]) {
       byte[] v = (byte[])cst;
       buf.append("new byte[] {");

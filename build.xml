@@ -79,7 +79,7 @@
   <!-- ================================== -->
 
   <target name="check" unless="paths.configured">
-    <echo message="The 'build' section in the 'build.properties' file must be configured"/>
+    <echo message="The 'build.properties' file must be configured"/>
     <fail/>
   </target>
 
@@ -176,14 +176,15 @@
         <exclude name="build.xml"/>
       </fileset>
     </copy>
-  </target>
 
-  <target name="dist" depends="jar,jdoc,examples">
     <copy todir="${out.dist}">
       <fileset dir=".">
         <include name="externals/*.jar"/>
       </fileset>
     </copy>
+  </target>
+
+  <target name="dist" depends="jar,jdoc,examples">
     <zip zipFile="${out.dist}/src.zip" basedir="${src}"/>
   </target>
 

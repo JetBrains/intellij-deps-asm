@@ -83,7 +83,7 @@
   <!-- ================================== -->
   
   <target name="check" unless="test.paths.configured">
-    <echo message="The 'test' section in the 'build.properties' file must be configured"/>
+    <echo message="The 'build.properties' file must be configured"/>
     <fail/>
   </target>
   

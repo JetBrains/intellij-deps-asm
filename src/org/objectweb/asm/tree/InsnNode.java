@@ -116,6 +116,8 @@ public class InsnNode extends AbstractInsnNode {
 
   /**
    * Makes the given code visitor visit this instruction.
+   * 
+   * @param cv a code visitor. 
    */
 
   public void accept (final CodeVisitor cv) {

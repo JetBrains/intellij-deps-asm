@@ -1568,7 +1568,6 @@ public class CodeWriter implements CodeVisitor {
           v = u;
           u = u + 4 - (v & 3);
           // reads and copies instruction
-          int source = newCode.length;
           newCode.putByte(Constants.TABLESWITCH);
           while (newCode.length % 4 != 0) {
             newCode.putByte(0);
@@ -1591,7 +1590,6 @@ public class CodeWriter implements CodeVisitor {
           v = u;
           u = u + 4 - (v & 3);
           // reads and copies instruction
-          source = newCode.length;
           newCode.putByte(Constants.LOOKUPSWITCH);
           while (newCode.length % 4 != 0) {
             newCode.putByte(0);

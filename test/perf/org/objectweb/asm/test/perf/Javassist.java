@@ -68,7 +68,6 @@ public class Javassist extends ALL {
     CtClass cc = pool.makeClass(is);
     CtMethod[] ms = cc.getDeclaredMethods();
     for (int j = 0; j < ms.length; ++j) {
-      CtMethod m = ms[j];
       if (skipDebug) {
         // is there a mean to remove the debug attributes?
       }

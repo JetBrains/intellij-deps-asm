@@ -31,10 +31,8 @@
 package org.objectweb.asm.test.perf;
 
 import serp.bytecode.BCClass;
-import serp.bytecode.BCField;
 import serp.bytecode.BCMethod;
 import serp.bytecode.Code;
-import serp.bytecode.Instruction;
 import serp.bytecode.Project;
 
 import java.io.InputStream;
@@ -65,13 +63,13 @@ public class SERP extends ALL {
       p.removeClass(c);
     }
     c = p.loadClass(is);
-    BCField[] fields = c.getDeclaredFields();
+    c.getDeclaredFields();
     BCMethod[] methods = c.getDeclaredMethods();
     for (int i = 0; i < methods.length; ++i) {
       Code code = methods[i].getCode(false);
       if (code != null) {
         while (code.hasNext()) {
-          Instruction ins = code.next();
+          code.next();
         }
         if (compute) {
           code.calculateMaxStack();
@@ -89,7 +87,7 @@ public class SERP extends ALL {
       p.removeClass(c);
     }
     c = p.loadClass(is);
-    BCField[] fields = c.getDeclaredFields();
+    c.getDeclaredFields();
     if (!c.isInterface()) {
       c.declareField("_counter", "I");
     }

@@ -58,7 +58,6 @@ public class BCEL extends ALL implements Constants {
   {
     JavaClass jc = new ClassParser(is, name + ".class").parse();
     ClassGen cg = new ClassGen(jc);
-    String cName = cg.getClassName();
     ConstantPoolGen cp = cg.getConstantPool();
     Method[] ms = cg.getMethods();
     for (int j = 0; j < ms.length; ++j) {
@@ -93,7 +92,6 @@ public class BCEL extends ALL implements Constants {
   {
     JavaClass jc = new ClassParser(is, name + ".class").parse();
     ClassGen cg = new ClassGen(jc);
-    String cName = cg.getClassName();
     ConstantPoolGen cp = cg.getConstantPool();
     if (!cg.isInterface()) {
       FieldGen fg = new FieldGen(ACC_PUBLIC, Type.getType("I"), "_counter", cp);

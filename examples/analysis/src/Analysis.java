@@ -87,7 +87,7 @@ public class Analysis implements Constants {
     }
   }
   
-  /**
+  /*
    * Detects unused xSTORE instructions, i.e. xSTORE instructions without at 
    * least one xLOAD corresponding instruction in their successor instructions
    * (in the control flow graph).
@@ -140,7 +140,7 @@ public class Analysis implements Constants {
     return ok;
   }
   
-  /**
+  /*
    * Test for the above method, with three useless xSTORE instructions.
    */
   

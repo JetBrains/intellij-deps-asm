@@ -71,7 +71,7 @@ public class Compile extends ClassLoader {
 
 abstract class Exp implements Constants {
 
-  /**
+  /*
    * Returns the byte code of an Expression class corresponding to this
    * expression.
    */
@@ -101,7 +101,7 @@ abstract class Exp implements Constants {
     return cw.toByteArray();
   }
 
-  /**
+  /*
    * Compile this expression. This method must append to the given code
    * writer the byte code that evaluates and pushes on the stack the
    * value of this expression.

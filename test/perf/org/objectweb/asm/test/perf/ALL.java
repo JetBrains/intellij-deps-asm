@@ -167,7 +167,6 @@ public abstract class ALL extends ClassLoader  {
           ALL loader = newInstance();
           zip = new ZipFile(args[i]);
           Enumeration entries = zip.entries();
-          double t = System.currentTimeMillis();
           while (entries.hasMoreElements()) {
             String s = ((ZipEntry)entries.nextElement()).getName();
             if (s.endsWith(".class")) {

@@ -354,7 +354,6 @@ public class Analyzer implements Constants {
       throw new RuntimeException("Execution can fall off end of the code");
     } else {
       Frame oldFrame = frames[insn];
-      Subroutine oldSubroutine = subroutines[insn];
       boolean changes = false;
 
       afterRET.merge(beforeJSR, access);

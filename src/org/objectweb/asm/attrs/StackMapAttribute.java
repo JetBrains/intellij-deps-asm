@@ -152,6 +152,14 @@ public class StackMapAttribute extends Attribute implements Dumpable {
     super( "StackMap");
   }
 
+  public StackMapFrame getFrame( Label label) {
+    for( int i = 0; i<frames.size(); i++) {
+      StackMapFrame frame = ( StackMapFrame) frames.get( i);
+      if( frame.label==label) return frame;
+    }
+    return null;
+  }
+  
   protected Attribute read( ClassReader cr, int off, int len,
                             char[] buf, int codeOff, Label[] labels) {
     StackMapAttribute attr = new StackMapAttribute();

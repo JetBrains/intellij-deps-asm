@@ -136,10 +136,10 @@ public class ASMAnnotationDefaultAttribute extends AnnotationDefaultAttribute
       return "new Character((char)"+((int)((Character)value).charValue())+")"; 
 
     } else if (value instanceof Double) {
-      return "new Double("+value+"d)"; 
+      return "new Double(\""+value+"\")"; 
 
     } else if (value instanceof Float) {
-      return "new Float("+value+"f)"; 
+      return "new Float(\""+value+"\")"; 
 
     } else if (value instanceof Long) {
       return "new Long("+value+"L)"; 

@@ -591,17 +591,15 @@ public class ASMifierClassVisitor extends PrintClassVisitor {
         .append(cst)
         .append(")");
     } else if (cst instanceof Float) {
-      buf.append("new Float(")
-        .append(cst)
-        .append("F)");
+      buf.append("new Float(\"")
+        .append(cst).append("\")");
     } else if (cst instanceof Long) {
       buf.append("new Long(")
         .append(cst)
         .append("L)");
     } else if (cst instanceof Double) {
-      buf.append("new Double(")
-        .append(cst)
-        .append(")");
+      buf.append("new Double(\"")
+        .append(cst).append("\")");
     }
   }
 }

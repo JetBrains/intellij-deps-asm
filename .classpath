@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="src" path="examples/annotations/src"/>
 	<classpathentry kind="src" path="test/conform"/>
 	<classpathentry kind="src" path="test/perf"/>
 	<classpathentry kind="src" path="examples/helloworld/src"/>

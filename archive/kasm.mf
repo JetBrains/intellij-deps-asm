@@ -1,4 +1,0 @@
-Manifest-Version: 1.0
-Implementation-Title: "kASM (reduced version of ASM, for code generation only)"
-Implementation-Version: "@product.version@"
-Implementation-Vendor: "France Telecom R&D"

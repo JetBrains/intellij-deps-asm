@@ -1,4 +1,0 @@
-Manifest-Version: 1.0
-Implementation-Title: "ASM Attribute classes"
-Implementation-Version: "@product.version@"
-Implementation-Vendor: "France Telecom R&D"

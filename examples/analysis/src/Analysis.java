@@ -35,7 +35,6 @@ import java.util.Set;
 
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.Opcodes;
-import org.objectweb.asm.Label;
 import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.IincInsnNode;
@@ -87,11 +86,7 @@ public class Analysis implements Opcodes {
           };
           for (int j = 0; j < method.instructions.size(); ++j) {
             Object insn = method.instructions.get(j);
-            if (insn instanceof AbstractInsnNode) {
-              ((AbstractInsnNode)insn).accept(mv);
-            } else {
-              mv.visitLabel((Label)insn);
-            }
+            ((AbstractInsnNode)insn).accept(mv);
           }
           mv.visitMaxs(0, 0);
         }
@@ -114,19 +109,17 @@ public class Analysis implements Opcodes {
     Set stores = new HashSet();
     for (int i = 0; i < m.instructions.size(); ++i) {
       Object insn = m.instructions.get(i);
-      if (insn instanceof AbstractInsnNode) {
-        int opcode = ((AbstractInsnNode)insn).getOpcode();
-        if ((opcode >= ILOAD && opcode <= ALOAD) || opcode == IINC) {
-          int var = (opcode == IINC ? ((IincInsnNode)insn).var : ((VarInsnNode)insn).var);
-          Frame f = frames[i];
-          if (f != null) {
-            Set s = ((DataflowValue)f.getLocal(var)).insns;
-            Iterator j = s.iterator();
-            while (j.hasNext()) {
-              insn = j.next();
-              if (insn instanceof VarInsnNode) {
-                stores.add(insn);
-              }
+      int opcode = ((AbstractInsnNode)insn).getOpcode();
+      if ((opcode >= ILOAD && opcode <= ALOAD) || opcode == IINC) {
+        int var = (opcode == IINC ? ((IincInsnNode)insn).var : ((VarInsnNode)insn).var);
+        Frame f = frames[i];
+        if (f != null) {
+          Set s = ((DataflowValue)f.getLocal(var)).insns;
+          Iterator j = s.iterator();
+          while (j.hasNext()) {
+            insn = j.next();
+            if (insn instanceof VarInsnNode) {
+              stores.add(insn);
             }
           }
         }

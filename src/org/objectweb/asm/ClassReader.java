@@ -168,10 +168,7 @@ public class ClassReader {
    */
 
   public ClassReader (final String name) throws IOException {
-    this((ClassReader.class.getClassLoader() == null
-            ? ClassLoader.getSystemClassLoader()
-            : ClassReader.class.getClassLoader())
-            .getSystemResourceAsStream(name.replace('.','/') + ".class"));
+    this(ClassLoader.getSystemResourceAsStream(name.replace('.','/') + ".class"));
   }
 
   /**

@@ -5,7 +5,6 @@
 	<classpathentry kind="src" path="test/perf"/>
 	<classpathentry kind="src" path="examples/adapt/src"/>
 	<classpathentry kind="src" path="examples/analysis/src"/>
-	<classpathentry kind="src" path="examples/annotations/src"/>
 	<classpathentry kind="src" path="examples/attributes/src"/>
 	<classpathentry kind="src" path="examples/compile/src"/>
 	<classpathentry kind="src" path="examples/helloworld/src"/>

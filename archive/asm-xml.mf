@@ -1,0 +1,6 @@
+Manifest-Version: 1.0
+Implementation-Title: "ASM XML classes"
+Implementation-Version: "1.4.3"
+Implementation-Vendor: "Eugene Kuleshov"
+Class-path: asm.jar asm-util.jar asm-attrs.jar
+Main-class: org.objectweb.asm.xml.Processor

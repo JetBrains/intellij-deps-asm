@@ -86,8 +86,14 @@ import org.objectweb.asm.ClassWriter;
 
 public class Annotation {
 
+  /**
+   * Annotation class name.
+   */
   public String type;
 
+  /**
+   * <code>List</code> of <code>Object[]{name, value}</code> pairs.
+   */
   public List elementValues = new ArrayList();
 
   public void add (String name, Object value) {

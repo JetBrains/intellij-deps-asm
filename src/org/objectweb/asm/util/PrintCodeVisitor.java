@@ -278,7 +278,7 @@ public abstract class PrintCodeVisitor implements CodeVisitor {
    * Constructs a new {@link PrintCodeVisitor PrintCodeVisitor} object.
    */
 
-  public PrintCodeVisitor () {
+  protected PrintCodeVisitor () {
     this.buf = new StringBuffer();
     this.text = new ArrayList();
   }

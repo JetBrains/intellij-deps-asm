@@ -101,7 +101,7 @@ public abstract class PrintClassVisitor implements ClassVisitor {
    * @param pw the print writer to be used to print the class.
    */
 
-  public PrintClassVisitor (final PrintWriter pw) {
+  protected PrintClassVisitor (final PrintWriter pw) {
     this.text = new ArrayList();
     this.buf = new StringBuffer();
     this.pw = pw;

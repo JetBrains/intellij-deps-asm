@@ -180,7 +180,7 @@ class Constant {
     final String strVal2,
     final String strVal3)
   {
-    this.type = (char)type;
+    this.type = type;
     this.strVal1 = strVal1;
     this.strVal2 = strVal2;
     this.strVal3 = strVal3;

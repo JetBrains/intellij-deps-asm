@@ -81,7 +81,7 @@ public class CheckMethodAdapter extends MethodAdapter {
       "BBBBBBBBBBBBBBBHHHHHHHHHHHHHHHHDKLBBBBBBFFFFGGGGAECEBBEEBBAMHHAA";
     TYPE = new int[s.length()];
     for (int i = 0; i < TYPE.length; ++i) {
-      TYPE[i] = (int)(s.charAt(i) - 'A' - 1);
+      TYPE[i] = (s.charAt(i) - 'A' - 1);
     }
   }
   

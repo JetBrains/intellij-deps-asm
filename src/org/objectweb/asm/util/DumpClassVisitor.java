@@ -329,25 +329,25 @@ public class DumpClassVisitor extends PrintClassVisitor {
       buf.append("ACC_ABSTRACT");
       first = false;
     }
-    if ((access & Constants.ACC_STRICT) != 0) {
-      if (!first) {
-        buf.append(" + ");
-      }
-      buf.append("ACC_STRICT");
-      first = false;
-    }
-    if ((access & Constants.ACC_STRICT) != 0) {
-      if (!first) {
-        buf.append(" + ");
-      }
-      buf.append("ACC_STRICT");
-      first = false;
-    }
     if ((access & Constants.ACC_INTERFACE) != 0) {
       if (!first) {
         buf.append(" + ");
       }
       buf.append("ACC_INTERFACE");
+      first = false;
+    }
+    if ((access & Constants.ACC_STRICT) != 0) {
+      if (!first) {
+        buf.append(" + ");
+      }
+      buf.append("ACC_STRICT");
+      first = false;
+    }
+    if ((access & Constants.ACC_SYNTHETIC) != 0) {
+      if (!first) {
+        buf.append(" + ");
+      }
+      buf.append("ACC_SYNTHETIC");
       first = false;
     }
     if ((access & Constants.ACC_DEPRECATED) != 0) {

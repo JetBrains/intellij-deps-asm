@@ -113,7 +113,9 @@ public abstract class Attribute {
     int off,
     int len,
     char[] buf,
-    Label[] labels);
+    Label[] labels,
+    int maxStack,
+    int maxLocals);
 
   /**
    * Returns the byte array form of this attribute.

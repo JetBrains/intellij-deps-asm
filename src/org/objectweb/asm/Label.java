@@ -137,6 +137,12 @@ public class Label {
   public Label () {
   }
 
+  public int getOffset() {
+    if( !resolved) 
+      throw new IllegalStateException( "Label offset position has not been resolved yet");
+    return position;
+  }
+  
   // --------------------------------------------------------------------------
   // Methods to compute offsets and to manage forward references
   // --------------------------------------------------------------------------

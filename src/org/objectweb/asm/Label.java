@@ -164,11 +164,7 @@ public class Label {
       if (wideOffset) {
         out.put4(position - source);
       } else {
-        int offset = position - source;
-        if (offset < Short.MIN_VALUE || offset > Short.MAX_VALUE) {
-          throw new RuntimeException("GOTO_W and JSR_W not yet implemented");
-        }
-        out.put2(offset);
+        out.put2(position - source);
       }
     } else {
       if (wideOffset) {
@@ -218,11 +214,21 @@ public class Label {
    * @param owner the code writer that calls this method.
    * @param position the position of this label in the bytecode.
    * @param data the bytecode of the method.
+   * @return <tt>true</tt> if a blank that was left for this label was to small
+   *      to store the offset. In such a case the corresponding jump instruction
+   *      is replaced with a pseudo instruction (using unused opcodes) using an
+   *      unsigned two bytes offset. These pseudo instructions will need to be
+   *      replaced with true instructions with wider offsets (4 bytes instead of
+   *      2). This is done in {@link CodeWriter#resizeInstructions}.
    * @throws IllegalArgumentException if this label has already been resolved,
    *      or if it has not been created by the given code writer.
    */
 
-  void resolve (final CodeWriter owner, final int position, final byte[] data) {
+  boolean resolve (
+    final CodeWriter owner,
+    final int position,
+    final byte[] data)
+  {
     if (CodeWriter.CHECK) {
       if (this.owner == null) {
         this.owner = owner;
@@ -231,6 +237,7 @@ public class Label {
         throw new IllegalArgumentException();
       }
     }
+    boolean needUpdate = false;
     this.resolved = true;
     this.position = position;
     int i = 0;
@@ -241,7 +248,21 @@ public class Label {
       if (source >= 0) {
         offset = position - source;
         if (offset < Short.MIN_VALUE || offset > Short.MAX_VALUE) {
-          throw new RuntimeException("GOTO_W and JSR_W not yet implemented");
+          // changes the opcode of the jump instruction, in order to be able to
+          // find it later (see resizeInstructions in CodeWriter). These
+          // temporary opcodes are similar to jump instruction opcodes, except
+          // that the 2 bytes offset is unsigned (and can therefore represent
+          // values from 0 to 65535, which is sufficient since the size of a
+          // method is limited to 65535 bytes).
+          int opcode = data[reference - 1] & 0xFF;
+          if (opcode <= Constants.JSR) {
+            // changes IFEQ ... JSR to opcodes 202 to 217 (inclusive)
+            data[reference - 1] = (byte)(opcode + 49);
+          } else {
+            // changes IFNULL and IFNONNULL to opcodes 218 and 219 (inclusive)
+            data[reference - 1] = (byte)(opcode + 20);
+          }
+          needUpdate = true;
         }
         data[reference++] = (byte)(offset >>> 8);
         data[reference] = (byte)offset;
@@ -253,5 +274,6 @@ public class Label {
         data[reference] = (byte)offset;
       }
     }
+    return needUpdate;
   }
 }

@@ -76,112 +76,112 @@ public class ClassReader {
   private int header;
 
   /**
-   * The type of instructions without any operand.
+   * The type of instructions without any label.
    */
 
-  private final static int NOARG_INSN = 0;
+  final static int NOARG_INSN = 0;
 
   /**
-   * The type of instructions with an signed byte operand.
+   * The type of instructions with an signed byte label.
    */
 
-  private final static int SBYTE_INSN = 1;
+  final static int SBYTE_INSN = 1;
 
   /**
-   * The type of instructions with an signed short operand.
+   * The type of instructions with an signed short label.
    */
 
-  private final static int SHORT_INSN = 2;
+  final static int SHORT_INSN = 2;
 
   /**
-   * The type of instructions with a local variable index operand.
+   * The type of instructions with a local variable index label.
    */
 
-  private final static int VAR_INSN = 3;
+  final static int VAR_INSN = 3;
 
   /**
-   * The type of instructions with an implicit local variable index operand.
+   * The type of instructions with an implicit local variable index label.
    */
 
-  private final static int IMPLVAR_INSN = 4;
+  final static int IMPLVAR_INSN = 4;
 
   /**
    * The type of instructions with a type descriptor argument.
    */
 
-  private final static int TYPE_INSN = 5;
+  final static int TYPE_INSN = 5;
 
   /**
    * The type of field and method invocations instructions.
    */
 
-  private final static int FIELDORMETH_INSN = 6;
+  final static int FIELDORMETH_INSN = 6;
 
   /**
    * The type of the INVOKEINTERFACE instruction.
    */
 
-  private final static int ITFMETH_INSN = 7;
+  final static int ITFMETH_INSN = 7;
 
   /**
-   * The type of instructions with a 2 bytes bytecode offset operand.
+   * The type of instructions with a 2 bytes bytecode offset label.
    */
 
-  private final static int LABEL_INSN = 8;
+  final static int LABEL_INSN = 8;
 
   /**
-   * The type of instructions with a 4 bytes bytecode offset operand.
+   * The type of instructions with a 4 bytes bytecode offset label.
    */
 
-  private final static int LABELW_INSN = 9;
+  final static int LABELW_INSN = 9;
 
   /**
    * The type of the LDC instruction.
    */
 
-  private final static int LDC_INSN = 10;
+  final static int LDC_INSN = 10;
 
   /**
    * The type of the LDC_W and LDC2_W instructions.
    */
 
-  private final static int LDCW_INSN = 11;
+  final static int LDCW_INSN = 11;
 
   /**
    * The type of the IINC instruction.
    */
 
-  private final static int IINC_INSN = 12;
+  final static int IINC_INSN = 12;
 
   /**
    * The type of the TABLESWITCH instruction.
    */
 
-  private final static int TABL_INSN = 13;
+  final static int TABL_INSN = 13;
 
   /**
    * The type of the LOOKUPSWITCH instruction.
    */
 
-  private final static int LOOK_INSN = 14;
+  final static int LOOK_INSN = 14;
 
   /**
    * The type of the MULTIANEWARRAY instruction.
    */
 
-  private final static int MANA_INSN = 15;
+  final static int MANA_INSN = 15;
 
   /**
    * The type of the WIDE instruction.
    */
 
-  private final static int WIDE_INSN = 16;
+  final static int WIDE_INSN = 16;
 
   /**
    * The instruction types of all JVM opcodes.
    */
 
-  private static byte[] TYPE;
+  static byte[] TYPE;
 
   // --------------------------------------------------------------------------
   // Static initializer
@@ -193,11 +193,12 @@ public class ClassReader {
 
   static {
     int i;
-    byte[] b = new byte[202];
+    byte[] b = new byte[220];
     String s =
       "AAAAAAAAAAAAAAAABCKLLDDDDDEEEEEEEEEEEEEEEEEEEEAAAAAAAADDDDDEEEEEEEEE" +
       "EEEEEEEEEEEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAMAAA" +
-      "AAAAAAAAAAAAAAAAAIIIIIIIIIIIIIIIIDNOAAAAAAGGGGGGGHAFBFAAFFAAQPIIJJ";
+      "AAAAAAAAAAAAAAAAAIIIIIIIIIIIIIIIIDNOAAAAAAGGGGGGGHAFBFAAFFAAQPIIJJII" +
+      "IIIIIIIIIIIIIIII";
     for (i = 0; i < b.length; ++i) {
       b[i] = (byte)(s.charAt(i) - 'A');
     }
@@ -247,6 +248,10 @@ public class ClassReader {
     b[Constants.IFNONNULL] = LABEL_INSN;
     b[200] = LABELW_INSN; // GOTO_W
     b[201] = LABELW_INSN; // JSR_W
+    // temporary opcodes used internally by ASM - see Label and CodeWriter
+    for (i = 202; i < 220; ++i) {
+      b[i] = LABEL_INSN;
+    }
 
     // LDC(_W) instructions
     b[Constants.LDC] = LDC_INSN;

@@ -392,7 +392,7 @@ public class ClassWriter implements ClassVisitor {
     // arraycopy operations in the ByteVector.enlarge() method
     ByteVector out = new ByteVector(size);
     out.put4(0xCAFEBABE).put2(3).put2(45);
-    out.put2(index).putByteArray(pool.data, pool.length);
+    out.put2(index).putByteArray(pool.data, 0, pool.length);
     out.put2(access).put2(name.index).put2(superName.index);
     out.put2(interfaceCount);
     for (int i = 0; i < interfaceCount; ++i) {
@@ -400,7 +400,7 @@ public class ClassWriter implements ClassVisitor {
     }
     out.put2(fieldCount);
     if (fields != null) {
-      out.putByteArray(fields.data, fields.length);
+      out.putByteArray(fields.data, 0, fields.length);
     }
     out.put2(nbMethods);
     cb = firstMethod;
@@ -418,7 +418,7 @@ public class ClassWriter implements ClassVisitor {
     if (innerClasses != null) {
       out.put2(newUTF8("InnerClasses").index);
       out.put4(innerClasses.length + 2).put2(innerClassesCount);
-      out.putByteArray(innerClasses.data, innerClasses.length);
+      out.putByteArray(innerClasses.data, 0, innerClasses.length);
     }
     return out.data;
   }

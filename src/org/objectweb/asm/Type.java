@@ -20,6 +20,7 @@
  * Contact: Eric.Bruneton@rd.francetelecom.com
  *
  * Author: Eric Bruneton
+ * with contributions from: Chris Nokleberg
  */
 
 package org.objectweb.asm;
@@ -687,5 +688,43 @@ public class Type {
           return opcode + 4;
       }
     }
+  }
+
+  // --------------------------------------------------------------------------
+  // Equals and hashcode
+  // --------------------------------------------------------------------------
+
+  public boolean equals (Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || !(o instanceof Type)) {
+      return false;
+    }
+    Type t = (Type)o;
+    if (sort != t.sort) {
+      return false;
+    }
+    if (sort == Type.OBJECT || sort == Type.ARRAY) {
+      if (len != t.len) {
+        return false;
+      }
+      for (int i = off, j = t.off, end = i + len; i < end; i++, j++) {
+        if (buf[i] != t.buf[j]) {
+          return false;
+        }
+      }
+    }
+    return true;
+  }
+
+  public int hashCode () {
+    int hc = 13 * sort;
+    if (sort == Type.OBJECT || sort == Type.ARRAY) {
+      for (int i = off, end = i + len; i < end; i++) {
+        hc = 17 * (hc + buf[i]);
+      }
+    }
+    return hc;
   }
 }

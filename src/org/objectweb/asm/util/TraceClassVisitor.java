@@ -32,9 +32,6 @@ package org.objectweb.asm.util;
 
 import java.io.FileInputStream;
 import java.io.PrintWriter;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
 
 import org.objectweb.asm.AnnotationVisitor;
 import org.objectweb.asm.Attribute;
@@ -456,134 +453,104 @@ public class TraceClassVisitor extends TraceAbstractVisitor
    * Java class declaration based on information from sigature value. 
    */
   public static final class ClassSignatureDecompiler implements ClassSignatureVisitor {
-    private List formalParams = new ArrayList();
-    
-    private TypeDecompiler superClass;
-    private List interfaces = new ArrayList();
+    private StringBuffer buf = new StringBuffer();
 
+    private boolean seenInterfaceBound = false;
+    private boolean seenParameter = false;
+    private boolean seenInterface = false;
+    
     private boolean isInterface;
     private String className;
 
     
     public ClassSignatureDecompiler( int access, String name) {
-      this.isInterface = ( access | Opcodes.ACC_INTERFACE)!=0;
+      this.isInterface = ( access & Opcodes.ACC_INTERFACE)!=0;
       this.className = name;
     }
 
     public void visitFormalTypeParameter( String name) {
-      formalParams.add( new FormalParam( name));
+      buf.append( seenParameter ? ", " : "<").append( name);
+      seenParameter = true;
     }
 
     public TypeSignatureVisitor visitClassBound() {
-      FormalParam param = ( FormalParam) formalParams.get( formalParams.size()-1);
-      TypeDecompiler boundDecompiler = new TypeDecompiler();
-      param.classBound = boundDecompiler;
-      return boundDecompiler;
+      return new TypeDecompiler( buf, " extends ");
     }
 
     public TypeSignatureVisitor visitInterfaceBound() {
-      FormalParam param = ( FormalParam) formalParams.get( formalParams.size()-1);
-      TypeDecompiler boundDecompiler = new TypeDecompiler();
-      param.interfaceBounds.add( boundDecompiler);
-      return boundDecompiler;
+      String s = seenInterfaceBound ? ", " : ( isInterface ? " extends " : " implements ");
+      seenInterfaceBound = true;
+      return new TypeDecompiler( buf, s);
     }
 
     
     public TypeSignatureVisitor visitSuperclass() {
-      superClass = new TypeDecompiler();
-      return superClass;
+      if( seenParameter) {
+        buf.append( ">");
+        seenParameter = false;
+      }
+      return new TypeDecompiler( buf, " extends ");
     }
 
     public TypeSignatureVisitor visitInterface() {
-      TypeSignatureVisitor i = new TypeDecompiler();
-      interfaces.add( i);
-      return i;
+      if( seenParameter) {
+        buf.append( ">");
+        seenParameter = false;
+      }
+      String s = seenInterface ? ", " : ( isInterface ? " extends " : " implements ");
+      seenInterface = true;
+      return new TypeDecompiler( buf, s);
     }
 
     public String toString() {
-      StringBuffer sb = new StringBuffer();
-      
-      if( formalParams.size()>0) {
-        sb.append( "<");
-        String d = "";
-        for( Iterator it = formalParams.iterator(); it.hasNext();) {
-          sb.append( d).append( it.next().toString());
-          d = ", ";
-        }
-        sb.append( ">");
-      }
-      
-      if( superClass!=null && !"java/lang/Object".equals( superClass.type)) {
-        sb.append( " extends ").append( superClass.toString());
-      }
-      if( this.interfaces.size()>0) {
-        // TODO should use "extends" for interfaces
-        // sb.append( isInterface ? " extends " : " implements ");
-        sb.append( " implements ");
-        String d = "";
-        for( Iterator it = this.interfaces.iterator(); it.hasNext();) {
-          sb.append( d).append( it.next().toString());
-          d = ", ";
-        }
-      }
-      return sb.toString();
+      return buf.toString();
     }
   }
 
   
   public static final class TypeDecompiler extends TypeSignatureAdapter {
-    public String type;
-    public List arguments = new ArrayList();
+    private final StringBuffer buf;
+    private final String s;
+    private boolean seenArguments;
     
+    public TypeDecompiler( StringBuffer buf, String s) {
+      this.buf = buf;
+      this.s = s;
+    }
+
     public void visitClassType( String name) {
-      type = name;
+      if( !"java/lang/Object".equals( name)) {
+        buf.append( s).append( name.replace( '/', '.'));
+      }
     }
     
     public TypeSignatureVisitor visitTypeArgument( char tag) {
-      TypeArgumentDecompiler argument = new TypeArgumentDecompiler(tag);
-      arguments.add(argument);
-      return argument;
+      buf.append( seenArguments ? ", " : "<");
+      seenArguments = true;
+      return new TypeArgumentDecompiler( tag, buf);
     }
     
-    public String toString() {
-      StringBuffer sb = new StringBuffer( type.replace( '/', '.'));
-      if( arguments.size()>0) {
-        sb.append( "<");
-        String d = "";
-        for( Iterator it = arguments.iterator(); it.hasNext();) {
-          sb.append( d).append( it.next().toString());
-          d = ", ";
-        }
-        sb.append( ">");
+    public void visitEnd() {
+      if( seenArguments) {
+        buf.append( ">");
       }
-      return sb.toString();
     }
-
   }
   
   
   public static final class TypeArgumentDecompiler extends TypeSignatureAdapter {
-    public char tag;
-    public String typeVariable;
+    private final StringBuffer buf;
 
-    public TypeArgumentDecompiler( char tag) {
-      this.tag = tag;
+    public TypeArgumentDecompiler( char tag, StringBuffer buf) {
+      this.buf = buf;
+      if( tag!='=') {
+        // TODO expand tag
+        buf.append( "[").append( tag).append( "]");
+      }
     }
 
     public void visitTypeVariable( String name) {
-      typeVariable = name;
-    }
-
-    public String toString() {
-      StringBuffer sb = new StringBuffer();
-      if( tag!='=') {
-        // TODO expand tag
-        sb.append( "[").append( tag).append( "]");
-      }
-      if( typeVariable!=null) {
-        sb.append( typeVariable);
-      }
-      return sb.toString();
+      buf.append( name);
     }
     
   }
@@ -625,31 +592,5 @@ public class TraceClassVisitor extends TraceAbstractVisitor
 
   }
 
-  
-  public static class FormalParam {
-    public String name;
-    public TypeDecompiler classBound;
-    public List interfaceBounds = new ArrayList();
-
-    public FormalParam( String name) {
-      this.name = name;
-    }
-
-    public String toString() {
-      StringBuffer sb = new StringBuffer();
-      sb.append( name);
-      if( classBound!=null && !"java/lang/Object".equals( classBound.type)) {
-        sb.append( " extends ").append( classBound.toString());
-      }
-      if( interfaceBounds.size()>0) {
-        sb.append( " implements");
-        for( Iterator it2 = interfaceBounds.iterator(); it2.hasNext();) {
-          TypeDecompiler boundDecompiler = ( TypeDecompiler) it2.next();
-          sb.append( " ").append( boundDecompiler.toString());
-        }
-      }
-      return sb.toString();
-    }
-  }
-
 }
+

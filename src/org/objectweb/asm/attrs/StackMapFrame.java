@@ -48,7 +48,10 @@ import org.objectweb.asm.Label;
 
 /**
  * StackMapFrame is used by {@link StackMapAttribute} to hold state of the stack and 
- * local variables for a single execution branch. 
+ * local variables for a single execution branch.
+ * 
+ * <i>Note that Long and Double types are represented by two entries in locals and stack.
+ * Second entry sohould be always of type Top.</i>
  * 
  * @see <a href="http://www.jcp.org/en/jsr/detail?id=139">JSR 139 : Connected Limited Device Configuration 1.1</a>
  * 
@@ -103,6 +106,11 @@ public class StackMapFrame {
       StackMapTypeInfo typeInfo = StackMapTypeInfo.getTypeInfo( itemType);
       info.add( typeInfo);
       switch( itemType) {
+        case StackMapTypeInfo.ITEM_Long:  //
+        case StackMapTypeInfo.ITEM_Double:  //
+          info.add( StackMapTypeInfo.getTypeInfo( StackMapTypeInfo.ITEM_Top));
+          break;
+
         case StackMapTypeInfo.ITEM_Object:  //
           typeInfo.setObject( cr.readClass( off, buf));
           off += 2;
@@ -126,6 +134,12 @@ public class StackMapFrame {
       StackMapTypeInfo typeInfo = ( StackMapTypeInfo) info.get( j);
       bv = new ByteVector().putByte( typeInfo.getType());
       switch( typeInfo.getType()) {
+        case StackMapTypeInfo.ITEM_Long:  //
+        case StackMapTypeInfo.ITEM_Double:  //
+          // skip Top in the stack/locals after long/double
+          j++;  
+          break;
+
         case StackMapTypeInfo.ITEM_Object:  //
           bv.putShort( cw.newClass( typeInfo.getObject()));
           break;

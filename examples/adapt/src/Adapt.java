@@ -35,7 +35,7 @@ import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.lang.reflect.Method;
 
-public class Adapt extends ClassLoader implements Constants {
+public class Adapt extends ClassLoader {
 
   protected synchronized Class loadClass (
     final String name,

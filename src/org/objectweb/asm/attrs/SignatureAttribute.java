@@ -44,26 +44,23 @@ import org.objectweb.asm.Label;
  * The Signature Attribute introduced in JSR-14 (Adding Generics to the 
  * Java Programming Language) and also defined in the Java Virtual Machine 
  * Specification, 3rd edition draft. 
- * 
+ * <p>
  * Classfiles need to carry generic type information in a backwards 
  * compatible way. This is accomplished by introducing a new "Signature" 
  * attribute for classes, methods and fields. The structure of this
  * attribute is as follows:
- * 
  * <pre>
  *   "Signature" (u4 attr-length, u2 signature-index)
  * </pre>
- * 
  * When used as an attribute of a method or field, a signature gives the 
  * full (possibly generic) type of that method or field. 
  * When used as a class attribute, a signature indicates the type 
  * parameters of the class, followed by its supertype, followed by 
  * all its interfaces.
- * 
+ * <p>
  * The type syntax in signatures is extended to parameterized types and 
  * type variables. There is also a new signature syntax for formal type 
  * parameters. The syntax extensions for signature strings are as follows:
- * 
  * <pre>
  *   MethodOrFieldSignature ::= TypeSignature
  *   ClassSignature        ::= ParameterPartOpt super_TypeSignature interface_TypeSignatures
@@ -108,12 +105,12 @@ public class SignatureAttribute extends Attribute {
     return signature;
   }
 
-  protected Attribute read( ClassReader cr, int off, int len, char[] buf, 
-        Label[] labels, int maxStack, int maxLocals) {
+  protected Attribute read(ClassReader cr, int off, int len, int codeOff, char[] buf, Label[] labels) {
     return new SignatureAttribute( cr.readUTF8( off, buf));
   }
 
-  protected ByteVector write( ClassWriter cw, byte[] code, int len) {
+  protected ByteVector write( ClassWriter cw, byte[] code, 
+        int len, int maxStack, int maxLocals) {
     return new ByteVector().putShort( cw.newUTF8( signature));
   }
 

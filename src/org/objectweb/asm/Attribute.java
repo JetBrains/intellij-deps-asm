@@ -79,15 +79,19 @@ public abstract class Attribute {
    * @param labels the array that must be completed with the labels contained in
    *      the attribute.
    */
-
+  /*
   protected void analyze (
     ClassReader cr,
     int off,
     int len,
-    Label[] labels)
+    char[] buf,
+    Label[] labels,
+    int maxStack,
+    int maxLocals)
   {
     // does nothing
   }
+  */
 
   /**
    * Reads a {@link #type type} attribute. This method must return a <i>new</i>
@@ -108,14 +112,8 @@ public abstract class Attribute {
    *      bytes.
    */
 
-  protected abstract Attribute read (
-    ClassReader cr,
-    int off,
-    int len,
-    char[] buf,
-    Label[] labels,
-    int maxStack,
-    int maxLocals);
+  protected abstract Attribute read ( ClassReader cr, int off, int len,
+      int codeOff, char[] buf, Label[] labels);
 
   /**
    * Returns the byte array form of this attribute.
@@ -132,7 +130,8 @@ public abstract class Attribute {
    * @return the byte array form of this attribute.
    */
 
-  protected abstract ByteVector write (ClassWriter cw, byte[] code, int len);
+  protected abstract ByteVector write (ClassWriter cw, byte[] code, int len, 
+      int maxStack, int maxLocals);
 
   /**
    * Returns the length of the attribute list that begins with this attribute.
@@ -165,12 +164,13 @@ public abstract class Attribute {
    *      includes the size of the attribute headers.
    */
 
-  final int getSize (final ClassWriter cw, final byte[] code, final int len) {
+  final int getSize (final ClassWriter cw, final byte[] code, 
+        final int len, final int maxStack, final int maxLocals) {
     int size = 0;
     Attribute attr = this;
     while (attr != null) {
       cw.newUTF8(attr.type);
-      size += attr.write(cw, code, len).length + 6;
+      size += attr.write(cw, code, len, maxStack, maxLocals).length + 6;
       attr = attr.next;
     }
     return size;
@@ -190,15 +190,11 @@ public abstract class Attribute {
    * @param out where the attributes must be written.
    */
 
-  final void put (
-    final ClassWriter cw,
-    final byte[] code,
-    final int len,
-    final ByteVector out)
-  {
+  final void put ( final ClassWriter cw, final byte[] code, final int len,
+        final int maxStack, final int maxLocals, final ByteVector out) {
     Attribute attr = this;
     while (attr != null) {
-      ByteVector b = attr.write(cw, code, len);
+      ByteVector b = attr.write(cw, code, len, maxStack, maxLocals);
       out.putShort(cw.newUTF8(attr.type)).putInt(b.length);
       out.putByteArray(b.data, 0, b.length);
       attr = attr.next;

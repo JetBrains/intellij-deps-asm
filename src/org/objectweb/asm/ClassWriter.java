@@ -553,8 +553,8 @@ public class ClassWriter implements ClassVisitor {
       fields.putShort(newUTF8("Deprecated")).putInt(0);
     }
     if (attrs != null) {
-      attrs.getSize(this, null, 0);
-      attrs.put(this, null, 0, fields);
+      attrs.getSize(this, null, 0, -1, -1);
+      attrs.put(this, null, 0, -1, -1, fields);
     }
   }
 
@@ -616,7 +616,7 @@ public class ClassWriter implements ClassVisitor {
     }
     if (attrs != null) {
       attributeCount += attrs.getCount();
-      size += attrs.getSize(this, null, 0);
+      size += attrs.getSize(this, null, 0, -1, -1);
     }
     size += pool.length;
     // allocates a byte vector of this size, in order to avoid unnecessary
@@ -652,7 +652,7 @@ public class ClassWriter implements ClassVisitor {
       out.putByteArray(innerClasses.data, 0, innerClasses.length);
     }
     if (attrs != null) {
-      attrs.put(this, null, 0, out);
+      attrs.put(this, null, 0, -1, -1, out);
     }
     return out.data;
   }

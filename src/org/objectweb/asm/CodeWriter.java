@@ -1185,7 +1185,7 @@ public class CodeWriter implements CodeVisitor {
         size += 8 + lineNumber.length;
       }
       if (cattrs != null) {
-        size += cattrs.getSize(cw, code.data, code.length);
+        size += cattrs.getSize(cw, code.data, code.length, -1, -1);
       }
     }
     if (exceptionCount > 0) {
@@ -1201,7 +1201,7 @@ public class CodeWriter implements CodeVisitor {
       size += 6;
     }
     if (attrs != null) {
-      size += attrs.getSize(cw, null, 0);
+      size += attrs.getSize(cw, null, 0, -1, -1);
     }
     return size;
   }
@@ -1241,7 +1241,7 @@ public class CodeWriter implements CodeVisitor {
         size += 8 + lineNumber.length;
       }
       if (cattrs != null) {
-        size += cattrs.getSize(cw, code.data, code.length);
+        size += cattrs.getSize(cw, code.data, code.length, -1, -1);
       }
       out.putShort(cw.newUTF8("Code")).putInt(size);
       out.putShort(maxStack).putShort(maxLocals);
@@ -1272,7 +1272,7 @@ public class CodeWriter implements CodeVisitor {
         out.putByteArray(lineNumber.data, 0, lineNumber.length);
       }
       if (cattrs != null) {
-        cattrs.put(cw, code.data, code.length, out);
+        cattrs.put(cw, code.data, code.length, maxLocals, maxStack, out);
       }
     }
     if (exceptionCount > 0) {
@@ -1289,7 +1289,7 @@ public class CodeWriter implements CodeVisitor {
       out.putShort(cw.newUTF8("Deprecated")).putInt(0);
     }
     if (attrs != null) {
-      attrs.put(cw, null, 0, out);
+      attrs.put(cw, null, 0, -1, -1, out);
     }
   }
 

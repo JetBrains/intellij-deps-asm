@@ -46,7 +46,6 @@ import org.objectweb.asm.Label;
  * in the attributes table of the ClassFile structure. There can be no more than one
  * SourceDebugExtension attribute in the attributes table of a given ClassFile
  * structure. The SourceDebugExtension attribute has the following format:
- * 
  * <pre>
  *   SourceDebugExtension_attribute {
  *     u2 attribute_name_index;
@@ -54,9 +53,7 @@ import org.objectweb.asm.Label;
  *     u1 debug_extension[attribute_length];
  *   }
  * </pre>
- * 
  * The items of the SourceDebugExtension_attribute structure are as follows:
- * 
  * <dl>
  * <dt>attribute_name_index</dt> 
  * <dd>The value of the attribute_name_index item must be a valid index into the 
@@ -96,14 +93,13 @@ public class SourceDebugExtensionAttribute extends Attribute {
     return debugExtension;
   }
   
-  protected Attribute read( ClassReader cr, int off, int len, char[] buf, 
-        Label[] labels, int maxStack, int maxLocals) {
+  protected Attribute read(ClassReader cr, int off, int len, int codeOff, char[] buf, Label[] labels) {
     return new SourceDebugExtensionAttribute( cr.readUTF8( off, buf));
   }
 
-  protected ByteVector write( ClassWriter cw, byte[] code, int len) {
+  protected ByteVector write(ClassWriter cw, byte[] code, int len, int maxStack, int maxLocals) {
     return new ByteVector().putUTF8( debugExtension);
   }
-  
+
 }
 

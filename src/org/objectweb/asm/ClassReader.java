@@ -299,7 +299,7 @@ public class ClassReader {
       } else if (attrName.equals("InnerClasses")) {
         w = v + 6;
       } else {
-        attr = readAttribute(attrs, attrName, v + 6, readInt(v + 2), c, null, -1, -1);
+        attr = readAttribute(attrs, attrName, v + 6, readInt(v + 2), -1, c, null);
         if (attr != null) {
           attr.next = clattrs;
           clattrs = attr;
@@ -344,7 +344,7 @@ public class ClassReader {
         } else if (attrName.equals("Deprecated")) {
           access |= Constants.ACC_DEPRECATED;
         } else {
-          attr = readAttribute(attrs, attrName, u + 6, readInt(u + 2), c, null, -1, -1);
+          attr = readAttribute(attrs, attrName, u + 6, readInt(u + 2), -1, c, null);
           if (attr != null) {
             attr.next = fattrs;
             fattrs = attr;
@@ -382,7 +382,7 @@ public class ClassReader {
         } else if (attrName.equals("Deprecated")) {
           access |= Constants.ACC_DEPRECATED;
         } else {
-          attr = readAttribute(attrs, attrName, u, attrSize, c, null, -1, -1);
+          attr = readAttribute(attrs, attrName, u, attrSize, -1, c, null);
           if (attr != null) {
             attr.next = mattrs;
             mattrs = attr;
@@ -555,7 +555,8 @@ public class ClassReader {
           } else {
             for (k = 0; k < attrs.length; ++k) {
               if (attrs[k].type.equals(attrName)) {
-                attrs[k].analyze(this, v + 6, readInt(v + 2), labels);
+                // analyze labels if it is required
+                attrs[k].read(this, v + 6, readInt(v + 2), codeStart-8, c, labels);
               }
             }
           }
@@ -738,8 +739,7 @@ public class ClassReader {
               }
             }
           } else {
-            attr = readAttribute(
-              attrs, attrName, v + 6, readInt(v + 2), c, labels, maxStack, maxLocals);
+            attr = readAttribute( attrs, attrName, v + 6, readInt(v + 2), codeStart-8, c, labels);
             if (attr != null) {
               cv.visitAttribute(attr);
             }
@@ -943,19 +943,11 @@ public class ClassReader {
    *      attribute.
    */
 
-  public Attribute readAttribute (
-    final Attribute[] attrs,
-    final String type,
-    final int off,
-    final int len,
-    final char[] buf,
-    final Label[] labels, 
-    int maxStack, 
-    int maxLocals)
-  {
+  public Attribute readAttribute ( final Attribute[] attrs, final String type, final int off, 
+        final int len, final int codeOff, final char[] buf, final Label[] labels) {
     for (int i = 0; i < attrs.length; ++i) {
       if (attrs[i].type.equals(type)) {
-        return attrs[i].read(this, off, len, buf, labels, maxStack, maxLocals);
+        return attrs[i].read(this, off, len, codeOff, buf, labels);
       }
     }
     return null;

@@ -177,8 +177,9 @@ public class ASMifierClassVisitor extends PrintClassVisitor {
   {
     text.add("import org.objectweb.asm.*;\n");
     text.add("import org.objectweb.asm.attrs.*;\n");
+    text.add("import java.util.*;\n");
     text.add("import java.io.FileOutputStream;\n\n");
-    text.add("public class Dump implements Constants {\n\n");
+    text.add("public class "+name+"Dump implements Constants {\n\n");
     text.add("public static void main (String[] args) throws Exception {\n\n");
     text.add("ClassWriter cw = new ClassWriter(false);\n");
     text.add("CodeVisitor cv;\n\n");
@@ -243,9 +244,9 @@ public class ASMifierClassVisitor extends PrintClassVisitor {
       int n = 1;
       while (a != null) {
         if (a instanceof ASMifiable) {
-          ((ASMifiable)a).asmify(buf, "attrs" + n, null);
+          ((ASMifiable)a).asmify(buf, "fieldAttrs" + n, null);
           if (n > 1) {
-            buf.append("attrs" + (n - 1) + " = attrs" + n + ";\n");
+            buf.append("fieldAttrs" + (n - 1) + " = fieldAttrs" + n + ";\n");
           }
         } else {
           buf.append("// WARNING! skipped non standard field attribute of type ");
@@ -268,7 +269,7 @@ public class ASMifierClassVisitor extends PrintClassVisitor {
     if (attrs==null) {
       buf.append(", null);\n\n");
     } else {
-      buf.append(", attrs1);\n\n");
+      buf.append(", fieldAttrs1);\n\n");
     }
 
     text.add(buf.toString());
@@ -291,9 +292,9 @@ public class ASMifierClassVisitor extends PrintClassVisitor {
       int n = 1;
       while (a != null) {
         if (a instanceof ASMifiable) {
-          ((ASMifiable)a).asmify(buf, "attrs" + n, null);
+          ((ASMifiable)a).asmify(buf, "methodAttrs" + n, null);
           if (n > 1) {
-            buf.append("attrs" + (n - 1) + " = attrs" + n + ";\n");
+            buf.append("methodAttrs" + (n - 1) + ".next = methodAttrs" + n + ";\n");
           }
         } else {
           buf.append("// WARNING! skipped non standard method attribute of type ");
@@ -324,7 +325,7 @@ public class ASMifierClassVisitor extends PrintClassVisitor {
     if (attrs==null) {
       buf.append(", null);\n");
     } else {
-      buf.append(", attrs1);\n");
+      buf.append(", methodAttrs1);\n");
     }
 
     text.add(buf.toString());

@@ -261,7 +261,7 @@ public class ClassReader {
     String superClassName = v == 0 ? null : readUTF8(v, c);
     String[] implementedItfs = new String[readUnsignedShort(u + 6)];
     String sourceFile = null;
-    boolean clattrs = false;
+    Attribute clattrs = null;
     w = 0;
     u += 8;
     for (i = 0; i < implementedItfs.length; ++i) {
@@ -286,7 +286,6 @@ public class ClassReader {
       }
     }
     // reads the class's attributes
-    int clattrsoff = v;
     i = readUnsignedShort(v); v += 2;
     for ( ; i > 0; --i) {
       String attrName = readUTF8(v, c);
@@ -299,7 +298,12 @@ public class ClassReader {
       } else if (attrName.equals("InnerClasses")) {
         w = v + 6;
       } else {
-        clattrs = true;
+        attr = readAttribute(
+            attrs, attrName, v + 6, readInt(v + 2), c, -1, null);
+        if (attr != null) {
+          attr.next = clattrs;
+          clattrs = attr;
+        }
       }
       v += 6 + readInt(v + 2);
     }
@@ -753,24 +757,19 @@ public class ClassReader {
       }
     }
     // visits the class attributes
-    if( clattrs) {
-      v = clattrsoff;
-      i = readUnsignedShort(v); v += 2;
-      for ( ; i > 0; --i) {
-        String attrName = readUTF8(v, c);
-        if (attrName.equals("SourceFile") ||
-            attrName.equals("Deprecated") || 
-            attrName.equals("Synthetic") ||
-            attrName.equals("InnerClasses")) 
-          continue;
-
-        attr = readAttribute(
-             attrs, attrName, v + 6, readInt(v + 2), c, -1, null);
-        if (attr != null) {
-          classVisitor.visitAttribute(attr);
-        }
-        v += 6 + readInt(v + 2);
-      }      
+    Attribute last = null;
+    attr = clattrs;
+    while (attr != null) {
+      Attribute next = attr.next;
+      attr.next = last;
+      last = attr;
+      attr = next;
+    }    
+    while (last != null) {
+      attr = last.next;
+      last.next = null;
+      classVisitor.visitAttribute(last);
+      last = attr;
     }
     // visits the end of the class
     classVisitor.visitEnd();

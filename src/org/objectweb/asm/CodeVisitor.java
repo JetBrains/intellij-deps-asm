@@ -89,8 +89,8 @@ public interface CodeVisitor {
    * @param opcode the opcode of the local variable instruction to be visited.
    *      This opcode is either ILOAD, LLOAD, FLOAD, DLOAD, ALOAD, ISTORE,
    *      LSTORE, FSTORE, DSTORE, ASTORE or RET.
-   * @param var the operand of the instuction to be visited. This operand is the
-   *      index of a local variable.
+   * @param var the operand of the instruction to be visited. This operand is
+   *      the index of a local variable.
    */
 
   void visitVarInsn (int opcode, int var);
@@ -101,7 +101,7 @@ public interface CodeVisitor {
    *
    * @param opcode the opcode of the type instruction to be visited. This opcode
    *      is either NEW, ANEWARRAY, CHECKCAST or INSTANCEOF.
-   * @param desc the operand of the instuction to be visited. This operand is
+   * @param desc the operand of the instruction to be visited. This operand is
    *      a type descriptor (see {@link Type Type}).
    */
 
@@ -144,7 +144,7 @@ public interface CodeVisitor {
    *      is either IFEQ, IFNE, IFLT, IFGE, IFGT, IFLE, IF_ICMPEQ, IF_ICMPNE,
    *      IF_ICMPLT, IF_ICMPGE, IF_ICMPGT, IF_ICMPLE, IF_ACMPEQ, IF_ACMPNE,
    *      GOTO, JSR, IFNULL or IFNONNULL.
-   * @param label the operand of the instuction to be visited. This operand is
+   * @param label the operand of the instruction to be visited. This operand is
    *      a label that designates the instruction to which the jump instruction
    *      may jump.
    */
@@ -191,7 +191,7 @@ public interface CodeVisitor {
    * @param max the maximum key value.
    * @param dflt beginning of the default handler block.
    * @param labels beginnings of the handler blocks. <tt>labels[i]</tt> is the
-   *      beginning of the handler block for the <tt>keys[i]</tt> key.
+   *      beginning of the handler block for the <tt>min + i</tt> key.
    */
 
   void visitTableSwitchInsn (int min, int max, Label dflt, Label labels[]);

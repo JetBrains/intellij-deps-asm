@@ -1,6 +1,7 @@
 /***
- * Julia: France Telecom's implementation of the Fractal API
- * Copyright (C) 2001-2002 France Telecom R&D
+ * ASM: a very small and fast Java bytecode manipulation framework
+ * Copyright (C) 2000 INRIA, France Telecom
+ * Copyright (C) 2002 France Telecom
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public

@@ -88,7 +88,9 @@ public interface ClassVisitor {
    *      <tt>null</tt> if the field does not have an initial value, must be an
    *      {@link java.lang.Integer Integer}, a {@link java.lang.Float Float}, a
    *      {@link java.lang.Long Long}, a {@link java.lang.Double Double} or a
-   *      {@link String String}.
+   *      {@link String String}. <em>This parameter is only used for static
+   *      fields</em>. Its value is ignored for non static fields, which must be
+   *      initialized through bytecode instructions in constructors or methods.
    */
 
   void visitField (int access, String name, String desc, Object value);

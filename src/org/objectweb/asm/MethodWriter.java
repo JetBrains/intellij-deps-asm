@@ -1341,7 +1341,7 @@ class MethodWriter implements MethodVisitor {
       }
       if (localVarType != null) {
         out.putShort(cw.newUTF8("LocalVariableTypeTable"));
-        out.putInt(localVarType.length + 2).putShort(localVarCount);
+        out.putInt(localVarType.length + 2).putShort(localVarTypeCount);
         out.putByteArray(localVarType.data, 0, localVarType.length);
       }
       if (lineNumber != null) {

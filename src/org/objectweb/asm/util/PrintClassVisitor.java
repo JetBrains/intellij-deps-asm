@@ -37,6 +37,7 @@ package org.objectweb.asm.util;
 import org.objectweb.asm.Attribute;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.attrs.AnnotationDefaultAttribute;
+import org.objectweb.asm.attrs.EnclosingMethodAttribute;
 import org.objectweb.asm.attrs.RuntimeInvisibleAnnotations;
 import org.objectweb.asm.attrs.RuntimeInvisibleParameterAnnotations;
 import org.objectweb.asm.attrs.RuntimeVisibleAnnotations;
@@ -62,7 +63,8 @@ public abstract class PrintClassVisitor implements ClassVisitor {
           new RuntimeVisibleParameterAnnotations(),
           new StackMapAttribute(),
           new SourceDebugExtensionAttribute(),
-          new SignatureAttribute()
+          new SignatureAttribute(),
+          new EnclosingMethodAttribute()
         };
   
   /**

@@ -43,7 +43,7 @@ import java.util.zip.ZipOutputStream;
 
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassWriter;
-import org.objectweb.asm.adapters.NullVisitor;
+import org.objectweb.asm.commons.EmptyVisitor;
 
 /**
  * @author Eric Bruneton
@@ -86,7 +86,7 @@ public abstract class ALLPerfTest extends ClassLoader  {
       long t = System.currentTimeMillis();
       for (int j = 0; j < classes.size(); ++j) {
         byte[] b = (byte[])classes.get(j);
-        new ClassReader(b).accept(new NullVisitor(), false);
+        new ClassReader(b).accept(new EmptyVisitor(), false);
       }
       t = System.currentTimeMillis() - t;
       System.out.println("Time to deserialize " + classes.size() + " classes = " + t + " ms");

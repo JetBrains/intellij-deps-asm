@@ -761,7 +761,7 @@ public class ClassReader {
               v += 3;
               break;
             case ClassWriter.LABELW_INSN:
-              mv.visitJumpInsn(opcode, labels[w + readInt(v + 1)]);
+              mv.visitJumpInsn(opcode - 33, labels[w + readInt(v + 1)]);
               v += 5;
               break;
             case ClassWriter.WIDE_INSN:

@@ -59,13 +59,11 @@ import org.objectweb.asm.Label;
  * <dd>The value of the attribute_name_index item must be a valid index into the
  *     constant_pool table. The constant_pool entry at that index must be a
  *     CONSTANT_Utf8_info structure representing the string "SourceDebugExtension".</dd>
- *
  * <dt>attribute_length</dt>
  * <dd>The value of the attribute_length item indicates the length of
  *     the attribute, excluding the initial six bytes. The value of the
  *     attribute_length item is thus the number of bytes in the debug_extension[]
  *     item.</dd>
- *
  * <dt>debug_extension[]</dt>
  * <dd>The debug_extension array holds a string, which must be in UTF-8 format.
  *     There is no terminating zero byte. The string in the debug_extension item

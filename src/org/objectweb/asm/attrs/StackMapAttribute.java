@@ -146,7 +146,7 @@ public class StackMapAttribute extends Attribute {
   }
 
   protected Attribute read( ClassReader cr, int off, int len, char[] buf, 
-        Label[] labels, int maxStackk, int maxLocals) {
+        Label[] labels, int maxStack, int maxLocals) {
     StackMapAttribute attr = new StackMapAttribute();
     short size = cr.readShort( off =+ 2);
     for( int i = 0; i<size; i++) {
@@ -155,15 +155,8 @@ public class StackMapAttribute extends Attribute {
       StackMapFrame frame = new StackMapFrame( labels[ n]);
       attr.frames.add( frame);
 
-      n = cr.readUnsignedShort( off =+ 2);
-      for( int j = 0; j<n; j++) {
-        off = readTypeInfo( cr, off, frame.locals, labels, buf);
-      }
-      
-      n = cr.readUnsignedShort( off =+ 2);
-      for( int j = 0; j<n; j++) {
-        off = readTypeInfo( cr, off, frame.stack, labels, buf);
-      }
+      off = readTypeInfo( cr, off, frame.locals, labels, buf, maxLocals);
+      off = readTypeInfo( cr, off, frame.stack, labels, buf, maxStack);
     }
     
     return attr;
@@ -177,14 +170,15 @@ public class StackMapAttribute extends Attribute {
       // TODO write frame.label;
       // bv.writeShort( frame.label.getOffset());
       
+    	writeTypeInfo( bv, cw, frame.locals);
+      writeTypeInfo( bv, cw, frame.stack);
+
       bv.putShort( frame.locals.size());
       for( int j = 0; j<frame.locals.size(); j++) {
-      	writeTypeInfo( bv, cw, ( StackMapTypeInfo) frame.locals.get(j));
       }
       
       bv.putShort( frame.stack.size());
       for( int j = 0; j<frame.stack.size(); j++) {
-        writeTypeInfo( bv, cw, ( StackMapTypeInfo) frame.stack.get(j));
       }
     }
     return bv;
@@ -195,35 +189,42 @@ public class StackMapAttribute extends Attribute {
     super.analyze(cr, off, len, labels);
   }
   
-  private int readTypeInfo( ClassReader cr, int offset, List locals, Label[] labels, char[] buf) {
-    int itemType = cr.readUnsignedShort( offset++) & 0xff;
-    StackMapTypeInfo typeInfo = StackMapTypeInfo.getTypeInfo( itemType);
-    locals.add( typeInfo);
-    switch( itemType) {
-      case StackMapTypeInfo.ITEM_Object:  //
-        typeInfo.setObject( cr.readClass( offset =+ 2, buf));
-        break;        
-      
-      case StackMapTypeInfo.ITEM_Uninitialized:  //
-        int o = cr.readUnsignedShort( offset =+ 2);
-        if( labels[ o]==null) labels[ o] = new Label();
-        typeInfo.setLabel( labels[ o]);
-        break;
+  private int readTypeInfo( ClassReader cr, int off, List locals, Label[] labels, char[] buf, int max) {
+    int n = max>65535 ? cr.readUnsignedShort( off =+ 2) : cr.readInt( off =+ 4);
+    for( int j = 0; j<n; j++) {
+      int itemType = cr.readUnsignedShort( off++) & 0xff;
+      StackMapTypeInfo typeInfo = StackMapTypeInfo.getTypeInfo( itemType);
+      locals.add( typeInfo);
+      switch( itemType) {
+        case StackMapTypeInfo.ITEM_Object:  //
+          typeInfo.setObject( cr.readClass( off =+ 2, buf));
+          break;        
+        
+        case StackMapTypeInfo.ITEM_Uninitialized:  //
+          int o = cr.readUnsignedShort( off =+ 2);
+          if( labels[ o]==null) labels[ o] = new Label();
+          typeInfo.setLabel( labels[ o]);
+          break;
+      }
     }
-    return offset;
+    return off;
   }
   
-  private void writeTypeInfo( ByteVector bv, ClassWriter cw, StackMapTypeInfo typeInfo) {
-    bv = new ByteVector().putByte( typeInfo.getType());
-    switch( typeInfo.getType()) {
-      case StackMapTypeInfo.ITEM_Object:  //
-        bv.putShort( cw.newClass( typeInfo.getObject()));
-        break;        
-        
-      case StackMapTypeInfo.ITEM_Uninitialized:  //
-        // TODO write label from typeInfo.getOffset()
-        // bv.putShort( typeInfo.getLabel().getOffset()...);
-        break;
+  private void writeTypeInfo( ByteVector bv, ClassWriter cw, List locals) {
+    bv.putShort( locals.size());
+    for( int j = 0; j<locals.size(); j++) {
+      StackMapTypeInfo typeInfo = ( StackMapTypeInfo) locals.get( j);     
+      bv = new ByteVector().putByte( typeInfo.getType());
+      switch( typeInfo.getType()) {
+        case StackMapTypeInfo.ITEM_Object:  //
+          bv.putShort( cw.newClass( typeInfo.getObject()));
+          break;        
+          
+         case StackMapTypeInfo.ITEM_Uninitialized:  //
+           // TODO write label from typeInfo.getOffset()
+           // bv.putShort( typeInfo.getLabel().getOffset()...);
+           break;
+      }
     }
   }
 

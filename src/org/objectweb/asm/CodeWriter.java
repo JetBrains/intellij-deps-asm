@@ -137,7 +137,7 @@ public class CodeWriter implements CodeVisitor {
   private ByteVector lineNumber;
 
   /**
-   * Indicates if some jump instructions are two small and need to be resized.
+   * Indicates if some jump instructions are too small and need to be resized.
    */
 
   private boolean resize;
@@ -148,7 +148,7 @@ public class CodeWriter implements CodeVisitor {
   // block", and one edge per "jump" from one basic block to another. Each node
   // (i.e., each basic block) is represented by the Label object that
   // corresponds to the first instruction of this basic block. Each node also
-  // stores the list of it successors in the graph, as a linked list of Edge
+  // stores the list of its successors in the graph, as a linked list of Edge
   // objects.
   // --------------------------------------------------------------------------
 
@@ -1269,7 +1269,7 @@ public class CodeWriter implements CodeVisitor {
    *      plus one (or, in other words, by the index of the <i>first</i> byte of
    *      the <i>next</i> instruction).
    * @param sizes the number of bytes to be <i>added</i> to the above
-   *      instructions. More precisely, for each i < <tt>len</tt>,
+   *      instructions. More precisely, for each i &lt; <tt>len</tt>,
    *      <tt>sizes</tt>[i] bytes will be added at the end of the instruction
    *      designated by <tt>indexes</tt>[i] or, if <tt>sizes</tt>[i] is
    *      negative, the <i>last</i> |<tt>sizes[i]</tt>| bytes of the instruction

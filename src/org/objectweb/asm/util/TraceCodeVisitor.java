@@ -334,10 +334,8 @@ public class TraceCodeVisitor extends PrintCodeVisitor {
   }
 
   public void printAttribute (final Attribute attr) {
-    buf.append("    CODE ATTRIBUTE ")
-      .append(attr.type)
-      .append("\n");
-
+    buf.append("    CODE ATTRIBUTE ").append(attr.type).append( " : ").append( attr.toString()).append("\n");
+    
     if (cv != null) {
       cv.visitAttribute(attr);
     }

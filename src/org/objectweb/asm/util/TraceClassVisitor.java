@@ -34,13 +34,14 @@
 
 package org.objectweb.asm.util;
 
+import java.io.FileInputStream;
+import java.io.PrintWriter;
+
+import org.objectweb.asm.Attribute;
+import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.CodeVisitor;
 import org.objectweb.asm.Constants;
-import org.objectweb.asm.ClassReader;
-import org.objectweb.asm.Attribute;
-
-import java.io.PrintWriter;
 
 /**
  * A {@link PrintClassVisitor PrintClassVisitor} that prints a disassembled
@@ -114,8 +115,10 @@ public class TraceClassVisitor extends PrintClassVisitor {
       System.err.println("Usage: TraceClassVisitor <fully qualified class name>");
       System.exit(-1);
     }
-    ClassReader cr = new ClassReader(args[0]);
-    cr.accept(new TraceClassVisitor(null, new PrintWriter(System.out)), true);
+    // ClassReader cr = new ClassReader(args[0]);
+    ClassReader cr = new ClassReader( new FileInputStream( args[0]));
+    cr.accept(new TraceClassVisitor(null, new PrintWriter(System.out)),  
+        PrintClassVisitor.DEFAULT_ATTRIBUTES, true);
   }
 
   /**
@@ -145,9 +148,12 @@ public class TraceClassVisitor extends PrintClassVisitor {
     if (sourceFile != null) {
       buf.append("// compiled from ").append(sourceFile).append("\n");
     }
+    buf.append("// access flags ").append(access).append("\n");
     appendAccess(access & ~Constants.ACC_SUPER);
     if ((access & Constants.ACC_INTERFACE) != 0) {
       buf.append("interface ");
+    } else if ((access & Constants.ACC_ENUM) != 0) {
+      buf.append("enum ");
     } else {
       buf.append("class ");
     }
@@ -203,8 +209,12 @@ public class TraceClassVisitor extends PrintClassVisitor {
     if ((access & Constants.ACC_DEPRECATED) != 0) {
       buf.append("  // DEPRECATED\n");
     }
+    buf.append("  // access flags ").append(access).append("\n");
     buf.append("  ");
     appendAccess(access);
+    if ((access & Constants.ACC_ENUM) != 0) {
+      buf.append("enum ");
+    }
     buf.append(desc)
       .append(" ")
       .append(name);
@@ -218,10 +228,10 @@ public class TraceClassVisitor extends PrintClassVisitor {
     }
     Attribute attr = attrs;
     while (attr != null) {
-      buf.append(" , FIELD ATTRIBUTE ").append(attr.type);
+      buf.append("  FIELD ATTRIBUTE ").append(attr.type).append( " : ").append( attr.toString()).append("\n");
       attr = attr.next;
     }
-    buf.append("\n\n");
+    buf.append("\n");
     text.add(buf.toString());
 
     if (cv != null) {
@@ -240,8 +250,18 @@ public class TraceClassVisitor extends PrintClassVisitor {
     if ((access & Constants.ACC_DEPRECATED) != 0) {
       buf.append("  // DEPRECATED\n");
     }
+    buf.append("  // access flags ").append(access).append("\n");
     buf.append("  ");
     appendAccess(access);
+    if ((access & Constants.ACC_NATIVE) != 0) {
+      buf.append("native ");
+    }
+    if ((access & Constants.ACC_VARARGS) != 0) {
+      buf.append("varargs ");
+    }
+    if ((access & Constants.ACC_BRIDGE) != 0) {
+      buf.append("bridge ");
+    }
     buf.append(name).
       append(" ").
       append(desc);
@@ -256,9 +276,7 @@ public class TraceClassVisitor extends PrintClassVisitor {
     Attribute attr = attrs;
     while (attr != null) {
       buf.setLength(0);
-      buf.append("    METHOD ATTRIBUTE ")
-        .append(attr.type)
-        .append("\n");
+      buf.append("    METHOD ATTRIBUTE ").append(attr.type).append( " : ").append( attr.toString()).append("\n");
       text.add(buf.toString());
       attr = attr.next;
     }
@@ -276,9 +294,7 @@ public class TraceClassVisitor extends PrintClassVisitor {
 
   public void visitAttribute (final Attribute attr) {
     buf.setLength(0);
-    buf.append("  CLASS ATTRIBUTE ")
-      .append(attr.type)
-      .append("\n");
+    buf.append("  CLASS ATTRIBUTE ").append(attr.type).append( " : ").append( attr.toString()).append("\n");
     text.add(buf.toString());
 
     if (cv != null) {
@@ -328,9 +344,9 @@ public class TraceClassVisitor extends PrintClassVisitor {
     if ((access & Constants.ACC_TRANSIENT) != 0) {
       buf.append("transient ");
     }
-    if ((access & Constants.ACC_NATIVE) != 0) {
-      buf.append("native ");
-    }
+    // if ((access & Constants.ACC_NATIVE) != 0) {
+    //   buf.append("native ");
+    // }
     if ((access & Constants.ACC_ABSTRACT) != 0) {
       buf.append("abstract ");
     }

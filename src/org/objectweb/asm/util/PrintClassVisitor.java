@@ -34,7 +34,16 @@
 
 package org.objectweb.asm.util;
 
+import org.objectweb.asm.Attribute;
 import org.objectweb.asm.ClassVisitor;
+import org.objectweb.asm.attrs.AnnotationDefaultAttribute;
+import org.objectweb.asm.attrs.RuntimeInvisibleAnnotations;
+import org.objectweb.asm.attrs.RuntimeInvisibleParameterAnnotations;
+import org.objectweb.asm.attrs.RuntimeVisibleAnnotations;
+import org.objectweb.asm.attrs.RuntimeVisibleParameterAnnotations;
+import org.objectweb.asm.attrs.SignatureAttribute;
+import org.objectweb.asm.attrs.SourceDebugExtensionAttribute;
+import org.objectweb.asm.attrs.StackMapAttribute;
 
 import java.io.PrintWriter;
 import java.util.ArrayList;
@@ -45,7 +54,17 @@ import java.util.List;
  */
 
 public abstract class PrintClassVisitor implements ClassVisitor {
-
+  public static final Attribute[] DEFAULT_ATTRIBUTES = new Attribute[] { 
+          new AnnotationDefaultAttribute(),
+          new RuntimeInvisibleAnnotations(),    
+          new RuntimeInvisibleParameterAnnotations(),    
+          new RuntimeVisibleAnnotations(),    
+          new RuntimeVisibleParameterAnnotations(),
+          new StackMapAttribute(),
+          new SourceDebugExtensionAttribute(),
+          new SignatureAttribute()
+        };
+  
   /**
    * The text to be printed. Since the code of methods is not necessarily
    * visited in sequential order, one method after the other, but can be

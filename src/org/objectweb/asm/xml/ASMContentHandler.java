@@ -100,28 +100,42 @@ public class ASMContentHandler extends DefaultHandler implements Opcodes {
   protected Map labels;
   
   private static final String BASE = "class";
-  private final Rule[] RULES = { 
-      new ClassRule( BASE), 
-      new InterfaceRule( BASE+"/interfaces/interface"),
-      new InterfacesRule( BASE+"/interfaces"),
-      new FieldRule( BASE+"/field"),
-      new MethodRule( BASE+"/method"),
-      new ExceptionRule( BASE+"/method/exceptions/exception"),
-      new ExceptionsRule( BASE+"/method/exceptions"),
-      new InnerClassRule( BASE+"/innerclass"),
-	  
-      new OpcodesRule( BASE+"/method/code/"),  // opcodes
+  
+  private final RuleSet RULES = new RuleSet(); 
+  {    
+      RULES.add( BASE, new ClassRule());
+      RULES.add( BASE+"/interfaces/interface", new InterfaceRule());
+      RULES.add( BASE+"/interfaces", new InterfacesRule());
+      RULES.add( BASE+"/innerclass", new InnerClassRule());
+      RULES.add( BASE+"/source", new SourceRule());
+      RULES.add( BASE+"/field", new FieldRule());
       
-      new TableSwitchRule( BASE+"/method/code/TABLESWITCH"),
-      new TableSwitchLabelRule( BASE+"/method/code/TABLESWITCH/label"),
-      new LookupSwitchRule( BASE+"/method/code/LOOKUPSWITCH"),
-      new LookupSwitchLabelRule( BASE+"/method/code/LOOKUPSWITCH/label"),
+      RULES.add( BASE+"/method", new MethodRule());
+      RULES.add( BASE+"/method/exceptions/exception", new ExceptionRule());
+      RULES.add( BASE+"/method/exceptions", new ExceptionsRule());
 
-      new LabelRule( BASE+"/method/code/Label"),
-      new TryCatchRule( BASE+"/method/code/TryCatch"),
-      new LineNumberRule( BASE+"/method/code/LineNumber"),
-      new LocalVarRule( BASE+"/method/code/LocalVar"),
-      new MaxRule( BASE+"/method/code/Max")
+      RULES.add( BASE+"/method/annotationDefault", new AnnotationDefaultRule());
+
+      RULES.add( BASE+"/method/code/", new OpcodesRule());  // opcodes
+      
+      RULES.add( BASE+"/method/code/TABLESWITCH", new TableSwitchRule());
+      RULES.add( BASE+"/method/code/TABLESWITCH/label", new TableSwitchLabelRule());
+      RULES.add( BASE+"/method/code/LOOKUPSWITCH", new LookupSwitchRule());
+      RULES.add( BASE+"/method/code/LOOKUPSWITCH/label", new LookupSwitchLabelRule());
+
+      RULES.add( BASE+"/method/code/Label", new LabelRule());
+      RULES.add( BASE+"/method/code/TryCatch", new TryCatchRule());
+      RULES.add( BASE+"/method/code/LineNumber", new LineNumberRule());
+      RULES.add( BASE+"/method/code/LocalVar", new LocalVarRule());
+      RULES.add( BASE+"/method/code/Max", new MaxRule());
+
+      
+      RULES.add( "*/annotation", new AnnotationRule());
+      RULES.add( "*/parameterAnnotation", new AnnotationParameterRule());
+      RULES.add( "*/annotationValue", new AnnotationValueRule());
+      RULES.add( "*/annotationValueAnnotation", new AnnotationValueAnnotationRule());
+      RULES.add( "*/annotationValueEnum", new AnnotationValueEnumRule());
+      RULES.add( "*/annotationValueArray", new AnnotationValueArrayRule());
     };
   
   private static interface OpcodeGroup {
@@ -354,11 +368,8 @@ public class ASMContentHandler extends DefaultHandler implements Opcodes {
     match = sb.toString();
 
     // Fire "begin" events for all relevant rules
-    for( int i = 0; i < RULES.length; i++) {
-      if( RULES[ i].match( match, name)) {
-        RULES[ i].begin( name, list);
-      }
-    }
+    Rule r = RULES.match( match);
+    if( r!=null) r.begin(name, list);
   }
 
   /**
@@ -383,11 +394,8 @@ public class ASMContentHandler extends DefaultHandler implements Opcodes {
     }
 
     // Fire "end" events for all relevant rules in reverse order
-    for( int i = 0; i < RULES.length; i++) {
-      if( RULES[ i].match( match, name)) {
-        RULES[ i].end( name);
-      }
-    }
+    Rule r = RULES.match( match);
+    if( r!=null) r.end(name);
 
     // Recover the previous match expression
     int slash = match.lastIndexOf( '/');
@@ -453,28 +461,30 @@ public class ASMContentHandler extends DefaultHandler implements Opcodes {
   }
 
 
+  public static final class RuleSet {
+    private Map rules = new HashMap();
+    
+    public void add( String path, Rule rule) {
+      rules.put(path, rule);
+    }
+
+    public Rule match( String path) {
+      // TODO
+      return null;
+    }
+    
+  }
+
+  
   /**
    * Rule 
    */
   private abstract class Rule {
-    protected String path;
-
-    public Rule( String path) {
-      this.path = path;
-    }
-
-    public final String getPath() {
-      return path;
-    }
 
     public void begin( String name, Attributes attrs) {
     }
     
     public void end( String name) {
-    }
-
-    public boolean match( String match, String element) {
-      return path.equals( match);
     }
 
     protected final Object getValue( String desc, String val) {
@@ -537,10 +547,6 @@ public class ASMContentHandler extends DefaultHandler implements Opcodes {
       return lbl;
     }
     
-    public String toString() {
-      return path;
-    }
-
     // TODO move to stack
     protected final MethodVisitor getCodeVisitor() {
       if( mw==null) {
@@ -584,10 +590,6 @@ public class ASMContentHandler extends DefaultHandler implements Opcodes {
    * ClassRule
    */
   private final class ClassRule extends Rule {
-
-    public ClassRule( String path) {
-      super( path);
-    }
     
     public final void begin( String name, Attributes attrs) {
       int major = Integer.parseInt( attrs.getValue( "major"));
@@ -605,16 +607,21 @@ public class ASMContentHandler extends DefaultHandler implements Opcodes {
     }
 
   }
+  
+  private final class SourceRule extends Rule {
+    
+    public void begin( String name, Attributes attrs) {
+      String file = attrs.getValue( "file");
+      String debug = attrs.getValue( "debug");
+      cw.visitSource(file, debug);
+    }
+  }
 
 
   /**
    * InterfaceRule 
    */
   private final class InterfaceRule extends Rule {
-
-    public InterfaceRule( String path) {
-      super( path);
-    }
 
     public final void begin( String name, Attributes attrs) {
       (( List) (( Map) peek()).get( "interfaces")).add( attrs.getValue( "name"));
@@ -627,10 +634,6 @@ public class ASMContentHandler extends DefaultHandler implements Opcodes {
    * InterfacesRule
    */
   private final class InterfacesRule extends Rule {
-
-    public InterfacesRule( String path) {
-      super( path);
-    }
 
     public final void end( String element) {
       Map vals = ( Map) pop();
@@ -651,10 +654,6 @@ public class ASMContentHandler extends DefaultHandler implements Opcodes {
    * FieldRule
    */
   private final class FieldRule extends Rule {
-
-    public FieldRule( String path) {
-      super( path);
-    }
 
     public final void begin( String element, Attributes attrs) {
       int access = getAccess( attrs.getValue( "access"));
@@ -678,10 +677,6 @@ public class ASMContentHandler extends DefaultHandler implements Opcodes {
    */
   private final class MethodRule extends Rule {
 
-    public MethodRule( String path) {
-      super( path);
-    }
-    
     public final void begin( String name, Attributes attrs) {
       labels = new HashMap();
       Map vals = new HashMap();
@@ -703,14 +698,10 @@ public class ASMContentHandler extends DefaultHandler implements Opcodes {
 
   
   /**
-   * MethodRule
+   * InnerClassRule
    */
   private final class InnerClassRule extends Rule {
 
-    public InnerClassRule( String path) {
-      super( path);
-    }
-    
     public final void begin( String element, Attributes attrs) {
       int access = getAccess( attrs.getValue( "access"));
       String name = attrs.getValue( "name");
@@ -719,10 +710,10 @@ public class ASMContentHandler extends DefaultHandler implements Opcodes {
       cw.visitInnerClass( name, outerName, innerName, access);
     }
     
-    public final void end( String name) {
-      mw = null;
-      labels = null;
-    }
+    // public final void end( String name) {
+    //   mw = null;
+    //   labels = null;
+    // }
     
   }
 
@@ -731,10 +722,6 @@ public class ASMContentHandler extends DefaultHandler implements Opcodes {
    * ExceptionRule 
    */
   private final class ExceptionRule extends Rule {
-
-    public ExceptionRule( String path) {
-      super( path);
-    }
 
     public final void begin( String name, Attributes attrs) {
       (( List) (( Map) peek()).get( "exceptions")).add( attrs.getValue( "name"));
@@ -747,10 +734,6 @@ public class ASMContentHandler extends DefaultHandler implements Opcodes {
    * ExceptionsRule
    */
   private final class ExceptionsRule extends Rule {
-
-    public ExceptionsRule( String path) {
-      super( path);
-    }
 
     public final void end( String element) {
       Map vals = ( Map) pop();
@@ -771,10 +754,6 @@ public class ASMContentHandler extends DefaultHandler implements Opcodes {
    * TableSwitchRule
    */
   private class TableSwitchRule extends Rule {
-
-    public TableSwitchRule( String path) {
-      super( path);
-    }
 
     public final void begin( String name, Attributes attrs) {
       Map vals = new HashMap();
@@ -802,10 +781,6 @@ public class ASMContentHandler extends DefaultHandler implements Opcodes {
    */
   private final class TableSwitchLabelRule extends Rule {
 
-    public TableSwitchLabelRule( String path) {
-      super( path);
-    }
-  
     public final void begin( String name, Attributes attrs) {
       (( List) (( Map) peek()).get( "labels")).add( getLabel( attrs.getValue( "name")));
     }
@@ -817,10 +792,6 @@ public class ASMContentHandler extends DefaultHandler implements Opcodes {
    * LookupSwitchRule
    */
   private final class LookupSwitchRule extends Rule {
-
-    public LookupSwitchRule( String path) {
-      super( path);
-    }
 
     public final void begin( String name, Attributes attrs) {
       Map vals = new HashMap();
@@ -850,10 +821,6 @@ public class ASMContentHandler extends DefaultHandler implements Opcodes {
    */
   private final class LookupSwitchLabelRule extends Rule {
 
-    public LookupSwitchLabelRule( String path) {
-      super( path);
-    }
-  
     public final void begin( String name, Attributes attrs) {
       Map vals = ( Map) peek();
       (( List) vals.get( "labels")).add( getLabel( attrs.getValue( "name")));
@@ -868,10 +835,6 @@ public class ASMContentHandler extends DefaultHandler implements Opcodes {
    */
   private final class LabelRule extends Rule {
 
-    public LabelRule( String path) {
-      super( path);
-    }
-
     public final void begin( String name, Attributes attrs) {
       getCodeVisitor().visitLabel( getLabel( attrs.getValue( "name")));
     }
@@ -883,10 +846,6 @@ public class ASMContentHandler extends DefaultHandler implements Opcodes {
    * TryCatchRule
    */
   private final class TryCatchRule extends Rule {
-
-    public TryCatchRule( String path) {
-      super( path);
-    }
 
     public final void begin( String name, Attributes attrs) {
       Label start = getLabel( attrs.getValue( "start"));
@@ -904,10 +863,6 @@ public class ASMContentHandler extends DefaultHandler implements Opcodes {
    */
   private final class LineNumberRule extends Rule {
 
-    public LineNumberRule( String path) {
-      super( path);
-    }
-
     public final void begin( String name, Attributes attrs) {
       int line = Integer.parseInt( attrs.getValue( "line"));
       Label start = getLabel( attrs.getValue( "start"));
@@ -921,10 +876,6 @@ public class ASMContentHandler extends DefaultHandler implements Opcodes {
    * LocalVarRule
    */
   private final class LocalVarRule extends Rule {
-
-    public LocalVarRule( String path) {
-      super( path);
-    }
 
     public final void begin( String element, Attributes attrs) {
       String name = attrs.getValue( "name");
@@ -944,13 +895,9 @@ public class ASMContentHandler extends DefaultHandler implements Opcodes {
    */
   private final class OpcodesRule extends Rule {
 
-    public OpcodesRule( String path) {
-      super( path);
-    }
-
-    public boolean match( String match, String element) {
-      return match.startsWith( path) && OPCODES.containsKey( element);
-    }
+    // public boolean match( String match, String element) {
+    //   return match.startsWith( path) && OPCODES.containsKey( element);
+    // }
     
     public final void begin( String element, Attributes attrs) {
       Opcode o = (( Opcode) OPCODES.get( element));
@@ -1010,10 +957,6 @@ public class ASMContentHandler extends DefaultHandler implements Opcodes {
    */
   private final class MaxRule extends Rule {
 
-    public MaxRule( String path) {
-      super( path);
-    }
-
     public final void begin( String element, Attributes attrs) {
       int maxStack = Integer.parseInt( attrs.getValue( "maxStack"));
       int maxLocals = Integer.parseInt( attrs.getValue( "maxLocals"));
@@ -1022,7 +965,36 @@ public class ASMContentHandler extends DefaultHandler implements Opcodes {
 
   }
 
+  
+  private final class AnnotationRule extends Rule {
+    // TODO
+  }
+  
+  private final class AnnotationParameterRule extends Rule {
+    // TODO
+  }
 
+  private final class AnnotationValueRule extends Rule {
+    // TODO
+  }
+  
+  private final class AnnotationValueArrayRule extends Rule {
+    // TODO
+  }
+  
+  private final class AnnotationValueEnumRule extends Rule {
+    // TODO
+  }
+  
+  private final class AnnotationValueAnnotationRule extends Rule {
+    // TODO
+  }
+  
+  private final class AnnotationDefaultRule extends Rule {
+    // TODO
+  }
+
+  
   /**
    * Opcode
    */

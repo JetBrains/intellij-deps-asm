@@ -319,7 +319,7 @@ public class BasicVerifier extends BasicInterpreter {
         break;
       case AASTORE:
         expected1 = value1;
-        expected3 = getElementValue(value1);
+        expected3 = BasicValue.REFERENCE_VALUE;
         break;
       default:
         throw new RuntimeException("Internal error.");

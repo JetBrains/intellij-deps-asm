@@ -41,6 +41,10 @@
   <property name="test.perf"      value="${test}/perf"/>
 
   <target name="properties">
+    <condition property="java5">
+      <available classname="java.lang.annotation.Annotation"/> 
+    </condition>
+      
     <condition property="test.conform.exist">
       <available file="${test.conform}"/>
     </condition>
@@ -109,6 +113,8 @@
     <javac srcdir="${test.conform}" destdir="${out.test}">
       <classpath refid="test.classpath"/>
       <include name="**/*.java"/>
+      <exclude name="annotations/**/*.java" unless="java5"/>
+      <exclude name="**/AnnotationTest.java" unless="java5"/>
     </javac>
   </target>
 

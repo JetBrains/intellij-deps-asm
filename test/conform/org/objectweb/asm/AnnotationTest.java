@@ -1,15 +1,24 @@
+/*
+ * Copyright area
+ */
 
-package annotations;
+package org.objectweb.asm;
 
 import java.lang.annotation.Annotation;
 
+import annotations.ValueAttrAnnotation;
+import annotations.Values;
+import annotations.ValuesAnnotation;
+import annotations.ValuesDump;
+import annotations.ValuesEnum;
+
 import junit.framework.TestCase;
 
-public class ValuesTest extends TestCase {
+public class AnnotationTest extends TestCase {
 
   private ValuesAnnotation a;
 
-  public ValuesTest (String name) {
+  public AnnotationTest (String name) {
     super(name);
   }
 
@@ -179,4 +188,3 @@ public class ValuesTest extends TestCase {
     }
   }
 }
-

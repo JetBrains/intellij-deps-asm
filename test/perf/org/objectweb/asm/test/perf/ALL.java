@@ -61,7 +61,7 @@ public abstract class ALL extends ClassLoader  {
   static boolean skipDebug;
 
   public static void main (String[] args) throws Exception {
-    System.out.println("Comparing ASM, BCEL and SERP performances...");
+    System.out.println("Comparing ASM, BCEL, SERP and Javassist performances...");
     System.out.println("This may take 20 to 30 minutes\n");
     // measures performances
     System.out.println("ASM PERFORMANCES\n");
@@ -73,7 +73,10 @@ public abstract class ALL extends ClassLoader  {
     System.out.println("\nSERP PERFORMANCES\n");
     new SERP().perfs(args);
     double[][] serpPerfs = perfs;
-
+    System.out.println("\nJavassist PERFORMANCES\n");
+    new Javassist().perfs(args);
+    double[][] javassistPerfs = perfs;
+    
     // prints results
     System.out.println("\nGLOBAL RESULTS");
     System.out.println("\nWITH DEBUG INFORMATION\n");
@@ -105,6 +108,13 @@ public abstract class ALL extends ClassLoader  {
           System.out.print((float)(serpPerfs[step][mode]/serpPerfs[step][0]));
           System.out.print(")");
         }
+        System.out.print(" ");
+        System.out.print((float)javassistPerfs[step][mode] + " ms");
+        if (mode > 0) {
+          System.out.print(" (*");
+          System.out.print((float)(javassistPerfs[step][mode]/javassistPerfs[step][0]));
+          System.out.print(")");
+        }
         System.out.println();
       }
       if (step == 0) {
@@ -115,7 +125,7 @@ public abstract class ALL extends ClassLoader  {
     System.out.println("\nRELATIVE RESULTS");
     System.out.println("\nWITH DEBUG INFORMATION\n");
     for (int step = 0; step < 2; ++step) {
-      System.err.println("[MEASURE      ASM       BCEL      SERP]");
+      System.err.println("[MEASURE      ASM       BCEL      SERP Javassist]");
       for (mode = 1; mode < 4; ++mode) {
         int base;
         switch (mode) {
@@ -132,6 +142,10 @@ public abstract class ALL extends ClassLoader  {
         double g = serpPerfs[step][mode] - serpPerfs[step][base];
         System.out.print((float)g + " ms (*");
         System.out.print((float)(g/ref));
+        System.out.print(")");
+        double h = javassistPerfs[step][mode] - javassistPerfs[step][base];
+        System.out.print((float)h + " ms (*");
+        System.out.print((float)(h/ref));
         System.out.print(")");
         System.out.println();
       }

@@ -73,6 +73,7 @@
       <and>
         <isset property="bcel.path"/>
         <isset property="serp.path"/>
+        <isset property="javassist.path"/>
         <isset property="class.samples"/>
       </and>
     </condition>
@@ -94,6 +95,7 @@
       <pathelement location="${out.test}"/>
       <pathelement path="${bcel.path}"/>
       <pathelement path="${serp.path}"/>  
+      <pathelement path="${javassist.path}"/>
     </path>
   </target>
   

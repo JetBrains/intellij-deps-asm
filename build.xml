@@ -242,8 +242,8 @@
         <exclude name="**/lib"/>
         <exclude name="web/**"/>
         <exclude name="web"/>
-        <exclude name="output/**"/>
-        <exclude name="output"/>
+        <exclude name="**/output/**"/>
+        <exclude name="**/output"/>
         <exclude name="CVSROOT/**"/>
         <exclude name="CVSROOT"/>
       </tarfileset>

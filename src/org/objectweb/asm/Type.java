@@ -103,55 +103,55 @@ public class Type {
    * The <tt>void</tt> type.
    */
 
-  private final static Type VOID_TYPE = new Type(VOID);
+  public final static Type VOID_TYPE = new Type(VOID);
 
   /**
    * The <tt>boolean</tt> type.
    */
 
-  private final static Type BOOLEAN_TYPE = new Type(BOOLEAN);
+  public final static Type BOOLEAN_TYPE = new Type(BOOLEAN);
 
   /**
    * The <tt>char</tt> type.
    */
 
-  private final static Type CHAR_TYPE = new Type(CHAR);
+  public final static Type CHAR_TYPE = new Type(CHAR);
 
   /**
    * The <tt>byte</tt> type.
    */
 
-  private final static Type BYTE_TYPE = new Type(BYTE);
+  public final static Type BYTE_TYPE = new Type(BYTE);
 
   /**
    * The <tt>short</tt> type.
    */
 
-  private final static Type SHORT_TYPE = new Type(SHORT);
+  public final static Type SHORT_TYPE = new Type(SHORT);
 
   /**
    * The <tt>int</tt> type.
    */
 
-  private final static Type INT_TYPE = new Type(INT);
+  public final static Type INT_TYPE = new Type(INT);
 
   /**
    * The <tt>float</tt> type.
    */
 
-  private final static Type FLOAT_TYPE = new Type(FLOAT);
+  public final static Type FLOAT_TYPE = new Type(FLOAT);
 
   /**
    * The <tt>long</tt> type.
    */
 
-  private final static Type LONG_TYPE = new Type(LONG);
+  public final static Type LONG_TYPE = new Type(LONG);
 
   /**
    * The <tt>double</tt> type.
    */
 
-  private final static Type DOUBLE_TYPE = new Type(DOUBLE);
+  public final static Type DOUBLE_TYPE = new Type(DOUBLE);
 
   // --------------------------------------------------------------------------
   // Fields
@@ -231,6 +231,39 @@ public class Type {
   }
 
   /**
+   * Returns the Java type corresponding to the given class.
+   *
+   * @param c a class.
+   * @return the Java type corresponding to the given class.
+   */
+
+  public static Type getType (final Class c) {
+    if (c.isPrimitive()) {
+      if (c == Integer.TYPE) {
+        return INT_TYPE;
+      } else if (c == Void.TYPE) {
+        return VOID_TYPE;
+      } else if (c == Boolean.TYPE) {
+        return BOOLEAN_TYPE;
+      } else if (c == Byte.TYPE) {
+        return BYTE_TYPE;
+      } else if (c == Character.TYPE) {
+        return CHAR_TYPE;
+      } else if (c == Short.TYPE) {
+        return SHORT_TYPE;
+      } else if (c == Double.TYPE) {
+        return DOUBLE_TYPE;
+      } else if (c == Float.TYPE) {
+        return FLOAT_TYPE;
+      } else /*if (c == Long.TYPE)*/ {
+        return LONG_TYPE;
+      }
+    } else {
+      return getType(getDescriptor(c));
+    }
+  }
+
+  /**
    * Returns the Java types corresponding to the argument types of the given
    * method descriptor.
    *
@@ -267,6 +300,24 @@ public class Type {
   }
 
   /**
+   * Returns the Java types corresponding to the argument types of the given
+   * method.
+   *
+   * @param method a method.
+   * @return the Java types corresponding to the argument types of the given
+   *      method.
+   */
+
+  public static Type[] getArgumentTypes (final Method method) {
+    Class[] classes = method.getParameterTypes();
+    Type[] types = new Type[classes.length];
+    for (int i = classes.length - 1; i >= 0; --i) {
+      types[i] = getType(classes[i]);
+    }
+    return types;
+  }
+
+  /**
    * Returns the Java type corresponding to the return type of the given
    * method descriptor.
    *
@@ -278,6 +329,19 @@ public class Type {
   public static Type getReturnType (final String methodDescriptor) {
     char[] buf = methodDescriptor.toCharArray();
     return getType(buf, methodDescriptor.indexOf(')') + 1);
+  }
+
+  /**
+   * Returns the Java type corresponding to the return type of the given
+   * method.
+   *
+   * @param method a method.
+   * @return the Java type corresponding to the return type of the given
+   *      method.
+   */
+
+  public static Type getReturnType (final Method method) {
+    return getType(method.getReturnType());
   }
 
   /**
@@ -394,31 +458,6 @@ public class Type {
   }
 
   /**
-   * Returns the internal name of the given class. The internal name of a class
-   * is its fully qualified name, where '.' are replaced by '/'.
-   *
-   * @param c an object class.
-   * @return the internal name of the given class.
-   */
-
-  public static String getInternalName (final Class c) {
-    return c.getName().replace('.', '/');
-  }
-
-  /**
-   * Returns the descriptor corresponding to the given Java type.
-   *
-   * @param c an object class, a primitive class or an array class.
-   * @return the descriptor corresponding to the given class.
-   */
-
-  public static String getDescriptor (final Class c) {
-    StringBuffer buf = new StringBuffer();
-    getDescriptor(buf, c);
-    return buf.toString();
-  }
-
-  /**
    * Returns the descriptor corresponding to the given argument and return
    * types.
    *
@@ -439,25 +478,6 @@ public class Type {
     }
     buf.append(')');
     returnType.getDescriptor(buf);
-    return buf.toString();
-  }
-
-  /**
-   * Returns the descriptor corresponding to the given method.
-   *
-   * @param m a {@link Method Method} object.
-   * @return the descriptor of the given method.
-   */
-
-  public static String getMethodDescriptor (final Method m) {
-    Class[] parameters = m.getParameterTypes();
-    StringBuffer buf = new StringBuffer();
-    buf.append('(');
-    for (int i = 0; i < parameters.length; ++i) {
-      getDescriptor(buf, parameters[i]);
-    }
-    buf.append(')');
-    getDescriptor(buf, m.getReturnType());
     return buf.toString();
   }
 
@@ -483,6 +503,55 @@ public class Type {
       //case OBJECT:
       default:      buf.append(this.buf, off, len);
     }
+  }
+
+  // --------------------------------------------------------------------------
+  // Direct conversion from classes to type descriptors,
+  // without intermediate Type objects
+  // --------------------------------------------------------------------------
+
+  /**
+   * Returns the internal name of the given class. The internal name of a class
+   * is its fully qualified name, where '.' are replaced by '/'.
+   *
+   * @param c an object class.
+   * @return the internal name of the given class.
+   */
+
+  public static String getInternalName (final Class c) {
+    return c.getName().replace('.', '/');
+  }
+
+  /**
+   * Returns the descriptor corresponding to the given Java type.
+   *
+   * @param c an object class, a primitive class or an array class.
+   * @return the descriptor corresponding to the given class.
+   */
+
+  public static String getDescriptor (final Class c) {
+    StringBuffer buf = new StringBuffer();
+    getDescriptor(buf, c);
+    return buf.toString();
+  }
+
+  /**
+   * Returns the descriptor corresponding to the given method.
+   *
+   * @param m a {@link Method Method} object.
+   * @return the descriptor of the given method.
+   */
+
+  public static String getMethodDescriptor (final Method m) {
+    Class[] parameters = m.getParameterTypes();
+    StringBuffer buf = new StringBuffer();
+    buf.append('(');
+    for (int i = 0; i < parameters.length; ++i) {
+      getDescriptor(buf, parameters[i]);
+    }
+    buf.append(')');
+    getDescriptor(buf, m.getReturnType());
+    return buf.toString();
   }
 
   /**
@@ -518,7 +587,7 @@ public class Type {
         }
         buf.append(car);
         return;
-      } if (d.isArray()) {
+      } else if (d.isArray()) {
         buf.append('[');
         d = d.getComponentType();
       } else {

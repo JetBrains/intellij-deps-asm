@@ -84,7 +84,17 @@ public class CheckClassAdapter extends ClassAdapter {
       start = true;
     }
     checkState();
-    checkAccess(access, 1 + 2 + 4 + 16 + 512 + 1024 + 32 + 65536 + 131072);
+    checkAccess(
+      access,
+      Constants.ACC_PUBLIC + 
+      Constants.ACC_FINAL +   
+      Constants.ACC_SUPER +   
+      Constants.ACC_INTERFACE +   
+      Constants.ACC_ABSTRACT +   
+      Constants.ACC_SYNTHETIC +   
+      Constants.ACC_ANNOTATION +
+      Constants.ACC_ENUM +
+      Constants.ACC_DEPRECATED);
     CheckCodeAdapter.checkInternalName(name, "class name");
     if (name.equals("java/lang/Object")) {
       if (superName != null) {
@@ -123,7 +133,18 @@ public class CheckClassAdapter extends ClassAdapter {
     if (innerName != null) {
       CheckCodeAdapter.checkIdentifier(innerName, "inner class name");
     }
-    checkAccess(access, 1 + 2 + 4 + 8 + 16 + 512 + 1024 + 32);
+    checkAccess(
+      access, 
+      Constants.ACC_PUBLIC +
+      Constants.ACC_PRIVATE +
+      Constants.ACC_PROTECTED +
+      Constants.ACC_STATIC +
+      Constants.ACC_FINAL +
+      Constants.ACC_INTERFACE +
+      Constants.ACC_ABSTRACT +
+      Constants.ACC_SYNTHETIC +
+      Constants.ACC_ANNOTATION +
+      Constants.ACC_ENUM);
     cv.visitInnerClass(name, outerName, innerName, access);
   }
 
@@ -135,7 +156,18 @@ public class CheckClassAdapter extends ClassAdapter {
     final Attribute attrs)
   {
     checkState();
-    checkAccess(access, 1 + 2 + 4 + 8 + 16 + 64 + 128 + 65536 + 131072);
+    checkAccess(
+      access, 
+      Constants.ACC_PUBLIC +
+      Constants.ACC_PRIVATE +
+      Constants.ACC_PROTECTED +
+      Constants.ACC_STATIC +
+      Constants.ACC_FINAL +
+      Constants.ACC_VOLATILE +
+      Constants.ACC_TRANSIENT +
+      Constants.ACC_SYNTHETIC +
+      Constants.ACC_ENUM +
+      Constants.ACC_DEPRECATED);
     CheckCodeAdapter.checkIdentifier(name, "field name");
     CheckCodeAdapter.checkDesc(desc, false);
     if (value != null) {
@@ -153,7 +185,20 @@ public class CheckClassAdapter extends ClassAdapter {
   {
     checkState();
     checkAccess(
-      access, 1 + 2 + 4 + 8 + 16 + 32 + 256 + 1024 + 2048 + 65536 + 131072);
+      access, 
+      Constants.ACC_PUBLIC +
+      Constants.ACC_PRIVATE +
+      Constants.ACC_PROTECTED +
+      Constants.ACC_STATIC +
+      Constants.ACC_FINAL +
+      Constants.ACC_SYNCHRONIZED +
+      Constants.ACC_BRIDGE +
+      Constants.ACC_VARARGS +
+      Constants.ACC_NATIVE +
+      Constants.ACC_ABSTRACT +
+      Constants.ACC_STRICT +
+      Constants.ACC_SYNTHETIC +
+      Constants.ACC_DEPRECATED);
     CheckCodeAdapter.checkMethodIdentifier(name, "method name");
     CheckCodeAdapter.checkMethodDesc(desc);
     if (exceptions != null) {

@@ -39,8 +39,7 @@ import org.objectweb.asm.Label;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.attrs.Annotation;
 import org.objectweb.asm.attrs.AnnotationDefaultAttribute;
-import org.objectweb.asm.attrs.AnnotationElementValue;
-import org.objectweb.asm.attrs.AnnotationElementValue.EnumConstValue;
+import org.objectweb.asm.attrs.Annotation.EnumConstValue;
 
 /**
  * An {@link ASMifiable} {@link AnnotationDefaultAttribute} sub class.
@@ -67,9 +66,9 @@ public class ASMAnnotationDefaultAttribute extends AnnotationDefaultAttribute
   public void asmify (StringBuffer buf, String varName, Map labelNames) {
     buf.append("AnnotationDefaultAttribute ").append(varName)
       .append(" = new AnnotationDefaultAttribute();\n");
-    asmify(defaultValue, buf, varName + "Val");
+    String val = asmify(defaultValue, buf, varName + "Val"); 
     buf.append(varName).append(".defaultValue = ")
-      .append(varName).append("Val;\n");
+      .append(val).append(";\n");
   }
   
   static void asmifyAnnotations (StringBuffer buf, String varName, List annotations) {
@@ -107,15 +106,14 @@ public class ASMAnnotationDefaultAttribute extends AnnotationDefaultAttribute
   }
 
   static void asmify (Annotation a, StringBuffer buf, String varName) {
-    buf.append("Annotation ").append(varName).append(" = new Annotation();\n");
-    buf.append(varName).append(".type = \"").append(a.type).append("\";\n");
+    buf.append("Annotation ").append(varName)
+    	.append(" = new Annotation(\"").append(a.type).append("\");\n");
     List elementValues = a.elementValues;
     if (elementValues.size() > 0) {
       buf.append("{\n");
       for (int i = 0; i < elementValues.size(); i++) {
         Object[] values = (Object[])elementValues.get(i);
-        String val = varName + "val" + i;
-        asmify((AnnotationElementValue)values[1], buf, val);
+        String val = asmify(values[1], buf, varName + "val" + i);
         buf.append(varName).append(".add( \"")
           .append(values[0]).append("\", ").append(val).append(");\n");
       }
@@ -123,91 +121,57 @@ public class ASMAnnotationDefaultAttribute extends AnnotationDefaultAttribute
     }
   }
 
-  static void asmify (AnnotationElementValue val, StringBuffer buf, String valName) {
-    int tag = val.getTag();
-    Object value = val.getValue();
-    String objName = valName.concat("obj");
-    switch (tag) {
-      case 'B':  // pointer to CONSTANT_Byte
-        buf.append("Object ").append(objName)
-          .append(" = new Byte(").append(value).append(");\n");
-        break;
+  static String asmify (Object value, StringBuffer buf, String valName) {
+    if (value instanceof String) {
+      return "\""+value+"\"";
 
-      case 'C':  // pointer to CONSTANT_Char
-        buf.append("Object ").append(objName)
-          .append(" = new Character((char)").append(value).append(");\n");
-        break;
+    } else if (value instanceof Integer) {
+      return "new Integer((int)"+value+")"; 
+      	
+    } else if (value instanceof Byte) {
+      return "new Byte("+value+")"; 
 
-      case 'D':  // pointer to CONSTANT_Double
-        buf.append("Object ").append(objName)
-          .append(" = new Double((double)").append(value).append(");\n");
-        break;
+    } else if (value instanceof Character) {
+      return "new Character((char)"+value+")"; 
 
-      case 'F':  // pointer to CONSTANT_Float
-        buf.append("Object ").append(objName)
-          .append(" = new Float((float)").append(value).append(");\n");
-        break;
+    } else if (value instanceof Double) {
+      return "new Double((double)"+value+")"; 
 
-      case 'I':  // pointer to CONSTANT_Integer
-        buf.append("Object ").append(objName)
-          .append(" = new Integer((int)").append(value).append(");\n");
-        break;
+    } else if (value instanceof Float) {
+      return "new Float((float)"+value+")"; 
 
-      case 'J':  // pointer to CONSTANT_Long
-        buf.append("Object ").append(objName)
-          .append(" = new Long((long)").append(value).append(");\n");
-        break;
+    } else if (value instanceof Long) {
+      return "new Long((long)"+value+")"; 
 
-      case 'S':  // pointer to CONSTANT_Short
-        buf.append("Object ").append(objName)
-          .append(" = new Short((short)").append(value).append(");\n");
-        break;
+    } else if (value instanceof Short) {
+      return "new Short((short)"+value+")"; 
 
-      case 'Z':  // pointer to CONSTANT_Boolean
-        buf.append("Object ").append(objName)
-          .append(" = new Boolean(").append(value).append(");\n");
-        break;
+    } else if (value instanceof Boolean) {
+      return "new Boolean("+value+")"; 
 
-      case 's':  // pointer to CONSTANT_Utf8
-        buf.append("Object ").append(objName)
-          .append(" = \"").append(value).append("\";\n");
-        break;
+    } else if (value instanceof EnumConstValue) {
+      EnumConstValue e = (EnumConstValue) value;
+      return "new Annotation.EnumConstValue(\""+e.typeName+"\", \""+e.constName+"\")";
 
-      case 'e':  // enum_const_value
-        EnumConstValue e = (EnumConstValue)value;
-        buf.append("Object ").append(objName)
-          .append(" = new AnnotationElementValue.EnumConstValue(\"")
-          .append(e.typeName).append("\", \"").append(e.constName)
-          .append("\"));\n");
-        break;
+    } else if (value instanceof Type) {
+      Type t = (Type)value;
+      return "Type.getType(\""+t.getDescriptor()+"\"";
 
-      case 'c':  // class_info
-        Type t = (Type)value;
-        buf.append("Object ").append(objName).
-          append(" = Type.getType(\"" + t.getDescriptor() + "\");\n");
-        break;
+    } else if (value instanceof Annotation) {
+      asmify((Annotation)value, buf, valName);
+      return valName;
 
-      case '@':  // annotation_value
-        asmify((Annotation)value, buf, objName);
-        break;
-
-      case '[':  // array_value
-        AnnotationElementValue[] v = (AnnotationElementValue[])value;
-        buf.append("AnnotationElementValue[] ").append(objName)
-          .append(" = new AnnotationElementValue[")
-          .append(v.length).append("]\n;");
-        buf.append("{\n");
-        buf.append("Object av = null;\n");
-        for (int i = 0; i < v.length; i++) {
-          asmify(v[i], buf, objName + i);
-          buf.append(objName)
-            .append("[").append(i).append("] = ").append(objName + i);
-        }
-        buf.append("};\n");
-        break;
+    } else if (value instanceof Object[]) {
+      Object[] v = (Object[])value;
+      buf.append("Object[] ").append(valName)
+        .append(" = new Object[").append(v.length).append("];\n");
+      for (int i = 0; i < v.length; i++) {
+        String val = asmify(v[i], buf, valName+"["+i+"]");
+        buf.append(valName+"["+i+"] = ").append(val).append(";\n");
+      }
+      return valName;
+      
     }
-
-    buf.append("AnnotationElementValue ").append(valName);
-    buf.append(" = new AnnotationElementValue( ").append(objName).append(");\n");
+    return null;
   }
 }

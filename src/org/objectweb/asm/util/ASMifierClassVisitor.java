@@ -175,11 +175,16 @@ public class ASMifierClassVisitor extends PrintClassVisitor {
     final String[] interfaces,
     final String sourceFile)
   {
+    int n = name.lastIndexOf( "/");
+    if( n>-1) {
+      text.add("package asm."+name.substring( 0, n).replace( '/', '.')+";\n");
+    }
+    
     text.add("import org.objectweb.asm.*;\n");
     text.add("import org.objectweb.asm.attrs.*;\n");
     text.add("import java.util.*;\n");
     text.add("import java.io.FileOutputStream;\n\n");
-    text.add("public class "+name+"Dump implements Constants {\n\n");
+    text.add("public class "+(n==-1 ? name : name.substring( n+1))+"Dump implements Constants {\n\n");
     text.add("public static void main (String[] args) throws Exception {\n\n");
     text.add("ClassWriter cw = new ClassWriter(false);\n");
     text.add("CodeVisitor cv;\n\n");
@@ -262,21 +267,22 @@ public class ASMifierClassVisitor extends PrintClassVisitor {
   {
     buf.setLength(0);
 
+    int n = 1;
     if (attrs != null) {
+      buf.append("{\n");
       buf.append("// FIELD ATTRIBUTES\n");
       Attribute a = attrs;
-      int n = 1;
       while (a != null) {
         if (a instanceof ASMifiable) {
           ((ASMifiable)a).asmify(buf, "fieldAttrs" + n, null);
           if (n > 1) {
             buf.append("fieldAttrs" + (n - 1) + " = fieldAttrs" + n + ";\n");
           }
+	      n++;
         } else {
           buf.append("// WARNING! skipped non standard field attribute of type ");
           buf.append(a.type).append("\n");
         }
-        n++;
         a = a.next;
       }
     }
@@ -290,10 +296,11 @@ public class ASMifierClassVisitor extends PrintClassVisitor {
     buf.append(", ");
     appendConstant(buf, value);
 
-    if (attrs==null) {
+    if (n==1) {
       buf.append(", null);\n\n");
     } else {
-      buf.append(", fieldAttrs1);\n\n");
+      buf.append(", fieldAttrs1);\n");
+      buf.append("}\n\n");
     }
 
     text.add(buf.toString());
@@ -310,21 +317,21 @@ public class ASMifierClassVisitor extends PrintClassVisitor {
 
     buf.append("{\n");
 
+    int n = 1;
     if (attrs != null) {
       buf.append("// METHOD ATTRIBUTES\n");
       Attribute a = attrs;
-      int n = 1;
       while (a != null) {
         if (a instanceof ASMifiable) {
           ((ASMifiable)a).asmify(buf, "methodAttrs" + n, null);
           if (n > 1) {
             buf.append("methodAttrs" + (n - 1) + ".next = methodAttrs" + n + ";\n");
           }
+          n++;
         } else {
           buf.append("// WARNING! skipped non standard method attribute of type ");
           buf.append(a.type).append("\n");
         }
-        n++;
         a = a.next;
       }
     }
@@ -346,7 +353,7 @@ public class ASMifierClassVisitor extends PrintClassVisitor {
     } else {
       buf.append("null");
     }
-    if (attrs==null) {
+    if (n==1) {
       buf.append(", null);\n");
     } else {
       buf.append(", methodAttrs1);\n");
@@ -542,10 +549,22 @@ public class ASMifierClassVisitor extends PrintClassVisitor {
         char c = s.charAt(i);
         if (c == '\n') {
           buf.append("\\n");
+        } else if (c == '\r') {
+            buf.append("\\r");
         } else if (c == '\\') {
           buf.append("\\\\");
         } else if (c == '"') {
           buf.append("\\\"");
+        } else if( c<0x20 || c>0x7f) {
+          buf.append( "\\u");
+          if( c<0x10) {
+            buf.append( "000");
+          } else if( c<0x100) {
+            buf.append( "00");
+          } else if( c<0x1000) {
+            buf.append( "0");
+          }
+          buf.append( Integer.toString( c, 16));
         } else {
           buf.append(c);
         }

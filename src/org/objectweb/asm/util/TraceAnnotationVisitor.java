@@ -43,8 +43,16 @@ import org.objectweb.asm.Type;
 public class TraceAnnotationVisitor extends TraceAbstractVisitor
   implements AnnotationVisitor
 {
-  private int valueNumber = 0;
+ 
+  /**
+   * The {@link AnnotationVisitor} to which this visitor delegates calls. 
+   * May be <tt>null</tt>.
+   */
+  
+  protected AnnotationVisitor av;
 
+  private int valueNumber = 0;
+  
   /**
    * Constructs a new {@link TraceAnnotationVisitor}.
    */
@@ -85,7 +93,6 @@ public class TraceAnnotationVisitor extends TraceAbstractVisitor
       visitLong(((Long)value).longValue());
     } else if (value instanceof Double) {
       visitDouble(((Double)value).doubleValue());
-
     } else if (value.getClass().isArray()) {
       buf.append('{');
       if( value instanceof byte[]) {
@@ -94,49 +101,42 @@ public class TraceAnnotationVisitor extends TraceAbstractVisitor
           appendComa(i);
           visitByte(v[i]);
         }
-
       } else if (value instanceof boolean[]) {
         boolean[] v = (boolean[])value;
         for (int i = 0; i < v.length; i++) {
           appendComa(i);
           visitBoolean(v[i]);
         }
-
       } else if (value instanceof short[]) {
         short[] v = (short[])value;
         for (int i = 0; i < v.length; i++) {
           appendComa(i);
           visitShort(v[i]);
         }
-
       } else if (value instanceof char[]) {
         char[] v = (char[])value;
         for (int i = 0; i < v.length; i++) {
           appendComa(i);
           visitChar(v[i]);
         }
-
       } else if (value instanceof int[]) {
         int[] v = (int[])value;
         for (int i = 0; i < v.length; i++) {
           appendComa(i);
           visitInt(v[i]);
         }
-
       } else if (value instanceof long[]) {
         long[] v = (long[])value;
         for (int i = 0; i < v.length; i++) {
           appendComa(i);
           visitLong(v[i]);
         }
-
       } else if (value instanceof float[]) {
         float[] v = (float[])value;
         for (int i = 0; i < v.length; i++) {
           appendComa(i);
           visitFloat(v[i]);
         }
-
       } else if (value instanceof double[]) {
         double[] v = (double[])value;
         for (int i = 0; i < v.length; i++) {
@@ -145,13 +145,15 @@ public class TraceAnnotationVisitor extends TraceAbstractVisitor
         }
       }
       buf.append('}');
-
     } else {
       buf.append(value);
-
     }
 
     text.add(buf.toString());
+    
+    if (av != null) {
+      av.visit(name, value);
+    }
   }
 
   private void visitInt( int value) {
@@ -208,6 +210,10 @@ public class TraceAnnotationVisitor extends TraceAbstractVisitor
     //appendDescriptor(TYPE_DECLARATION, Type.getType(desc).getClassName());
     buf.append('.').append(value);
     text.add(buf.toString());
+    
+    if (av != null) {
+      av.visitEnum(name, desc, value);
+    }
   }
 
   public AnnotationVisitor visitAnnotation (
@@ -227,6 +233,9 @@ public class TraceAnnotationVisitor extends TraceAbstractVisitor
     TraceAnnotationVisitor tav = createTraceAnnotationVisitor();
     text.add(tav.getText());
     text.add(")");
+    if (av != null) {
+      tav.av = av.visitAnnotation(name, desc);
+    }
     return tav;
   }
 
@@ -241,11 +250,16 @@ public class TraceAnnotationVisitor extends TraceAbstractVisitor
     TraceAnnotationVisitor tav = createTraceAnnotationVisitor();
     text.add(tav.getText());
     text.add("}");
+    if (av != null) {
+      tav.av = av.visitArray(name);
+    }
     return tav;
   }
 
   public void visitEnd () {
-      // does nothing
+    if (av != null) {
+      av.visitEnd();
+    }
   }
 
   // --------------------------------------------------------------------------
@@ -261,5 +275,4 @@ public class TraceAnnotationVisitor extends TraceAbstractVisitor
       buf.append(", ");
     }
   }
-
 }

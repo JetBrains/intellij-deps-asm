@@ -101,6 +101,13 @@ public class TraceClassVisitor extends TraceAbstractVisitor
 {
 
   /**
+   * The {@link ClassVisitor} to which this visitor delegates calls. 
+   * May be <tt>null</tt>.
+   */
+
+  protected final ClassVisitor cv;
+
+  /**
    * The print writer to be used to print the class.
    */
 
@@ -158,6 +165,19 @@ public class TraceClassVisitor extends TraceAbstractVisitor
    */
 
   public TraceClassVisitor (final PrintWriter pw) {
+    this(null, pw);
+  }
+  
+  /**
+   * Constructs a new {@link TraceClassVisitor}.
+   *
+   * @param cv the {@link ClassVisitor} to which this visitor delegates calls. 
+   *      May be <tt>null</tt>.
+   * @param pw the print writer to be used to print the class.
+   */
+
+  public TraceClassVisitor (final ClassVisitor cv, final PrintWriter pw) {
+    this.cv = cv;
     this.pw = pw;
   }
 
@@ -224,6 +244,10 @@ public class TraceClassVisitor extends TraceAbstractVisitor
     buf.append(" {\n\n");
 
     text.add(buf.toString());
+    
+    if (cv != null) {
+      cv.visit(version, access, name, signature, superName, interfaces);
+    }
   }
 
   public void visitSource (final String file, final String debug) {
@@ -236,6 +260,10 @@ public class TraceClassVisitor extends TraceAbstractVisitor
     }
     if (buf.length() > 0) {
       text.add(buf.toString());
+    }
+    
+    if (cv != null) {
+      cv.visitSource(file, debug);
     }
   }
 
@@ -251,6 +279,10 @@ public class TraceClassVisitor extends TraceAbstractVisitor
     appendDescriptor(METHOD_DESCRIPTOR, desc);
     buf.append('\n');
     text.add(buf.toString());
+    
+    if (cv != null) {
+      cv.visitOuterClass(owner, name, desc);
+    }
   }
 
   public AnnotationVisitor visitAnnotation (
@@ -258,12 +290,20 @@ public class TraceClassVisitor extends TraceAbstractVisitor
     final boolean visible)
   {
     text.add("\n");
-    return super.visitAnnotation(desc, visible);
+    AnnotationVisitor tav = super.visitAnnotation(desc, visible);
+    if (cv != null) {
+      ((TraceAnnotationVisitor)tav).av = cv.visitAnnotation(desc, visible);
+    }
+    return tav;
   }
 
   public void visitAttribute (final Attribute attr) {
     text.add("\n");
     super.visitAttribute(attr);
+    
+    if (cv != null) {
+      cv.visitAttribute(attr);
+    }
   }
 
   public void visitInnerClass (
@@ -285,6 +325,10 @@ public class TraceClassVisitor extends TraceAbstractVisitor
     }
     buf.append('\n');
     text.add(buf.toString());
+    
+    if (cv != null) {
+      cv.visitInnerClass(name, outerName, innerName, access);
+    }
   }
 
   public FieldVisitor visitField (
@@ -333,6 +377,11 @@ public class TraceClassVisitor extends TraceAbstractVisitor
 
     TraceFieldVisitor tav = createTraceFieldVisitor();
     text.add(tav.getText());
+
+    if (cv != null) {
+      tav.fv = cv.visitField(access, name, desc, signature, value);
+    }
+    
     return tav;
   }
 
@@ -391,9 +440,14 @@ public class TraceClassVisitor extends TraceAbstractVisitor
 
     buf.append('\n');
     text.add(buf.toString());
-
+    
     TraceMethodVisitor tcv = createTraceMethodVisitor();
     text.add(tcv.getText());
+
+    if (cv != null) {
+      tcv.mv = cv.visitMethod(access, name, desc, signature, exceptions);
+    }
+
     return tcv;
   }
 
@@ -402,6 +456,10 @@ public class TraceClassVisitor extends TraceAbstractVisitor
 
     printList(pw, text);
     pw.flush();
+    
+    if (cv != null) {
+      cv.visitEnd();
+    }
   }
 
   // --------------------------------------------------------------------------
@@ -458,7 +516,4 @@ public class TraceClassVisitor extends TraceAbstractVisitor
       buf.append("strictfp ");
     }
   }
-
-
 }
-

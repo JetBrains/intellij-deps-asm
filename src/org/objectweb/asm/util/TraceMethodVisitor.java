@@ -50,6 +50,13 @@ public class TraceMethodVisitor extends TraceAbstractVisitor
 {
 
   /**
+   * The {@link MethodVisitor} to which this visitor delegates calls. 
+   * May be <tt>null</tt>.
+   */
+
+  protected MethodVisitor mv;
+
+  /**
    * Tab for bytecode instructions.
    */
 
@@ -72,13 +79,25 @@ public class TraceMethodVisitor extends TraceAbstractVisitor
    */
 
   protected final HashMap labelNames;
-
+  
   /**
    * Constructs a new {@link TraceMethodVisitor}.
    */
 
   public TraceMethodVisitor () {
+    this(null);
+  }
+
+  /**
+   * Constructs a new {@link TraceMethodVisitor}.
+   * 
+   * @param mv the {@link MethodVisitor} to which this visitor delegates calls. 
+   *      May be <tt>null</tt>.
+   */
+
+  public TraceMethodVisitor (final MethodVisitor mv) {
     this.labelNames = new HashMap();
+    this.mv = mv;
   }
 
   // --------------------------------------------------------------------------
@@ -90,6 +109,9 @@ public class TraceMethodVisitor extends TraceAbstractVisitor
     TraceAnnotationVisitor tav = new TraceAnnotationVisitor();
     text.add(tav.getText());
     text.add("\n");
+    if (mv != null) {
+      tav.av = mv.visitAnnotationDefault();
+    }
     return tav;
   }
 
@@ -108,17 +130,26 @@ public class TraceMethodVisitor extends TraceAbstractVisitor
     text.add(visible ? ") // parameter " : ") // invisible, parameter ");
     text.add(new Integer(parameter));
     text.add("\n");
+    if (mv != null) {
+      tav.av = mv.visitParameterAnnotation(parameter, desc, visible);
+    }
     return tav;
   }
 
   public void visitCode () {
-      // does nothing
+    if (mv != null) {
+      mv.visitCode();
+    }
   }
 
   public void visitInsn (final int opcode) {
     buf.setLength(0);
     buf.append(tab2).append(OPCODES[opcode]).append('\n');
     text.add(buf.toString());
+    
+    if (mv != null) {
+      mv.visitInsn(opcode);
+    }
   }
 
   public void visitIntInsn (final int opcode, final int operand) {
@@ -128,6 +159,10 @@ public class TraceMethodVisitor extends TraceAbstractVisitor
       .append(' ').append(operand)
       .append('\n');
     text.add(buf.toString());
+    
+    if (mv != null) {
+      mv.visitIntInsn(opcode, operand);
+    }
   }
 
   public void visitVarInsn (final int opcode, final int var) {
@@ -138,6 +173,10 @@ public class TraceMethodVisitor extends TraceAbstractVisitor
       .append(var)
       .append('\n');
     text.add(buf.toString());
+    
+    if (mv != null) {
+      mv.visitVarInsn(opcode, var);
+    }
   }
 
   public void visitTypeInsn (final int opcode, final String desc) {
@@ -150,6 +189,10 @@ public class TraceMethodVisitor extends TraceAbstractVisitor
     }
     buf.append('\n');
     text.add(buf.toString());
+    
+    if (mv != null) {
+      mv.visitTypeInsn(opcode, desc);
+    }
   }
 
   public void visitFieldInsn (
@@ -165,6 +208,10 @@ public class TraceMethodVisitor extends TraceAbstractVisitor
     appendDescriptor(FIELD_DESCRIPTOR, desc);
     buf.append('\n');
     text.add(buf.toString());
+    
+    if (mv != null) {
+      mv.visitFieldInsn(opcode, owner, name, desc);
+    }
   }
 
   public void visitMethodInsn (
@@ -180,6 +227,10 @@ public class TraceMethodVisitor extends TraceAbstractVisitor
     appendDescriptor(METHOD_DESCRIPTOR, desc);
     buf.append('\n');
     text.add(buf.toString());
+    
+    if (mv != null) {
+      mv.visitMethodInsn(opcode, owner, name, desc);
+    }
   }
 
   public void visitJumpInsn (final int opcode, final Label label) {
@@ -188,6 +239,10 @@ public class TraceMethodVisitor extends TraceAbstractVisitor
     appendLabel(label);
     buf.append('\n');
     text.add(buf.toString());
+    
+    if (mv != null) {
+      mv.visitJumpInsn(opcode, label);
+    }
   }
 
   public void visitLabel (final Label label) {
@@ -196,6 +251,10 @@ public class TraceMethodVisitor extends TraceAbstractVisitor
     appendLabel(label);
     buf.append('\n');
     text.add(buf.toString());
+    
+    if (mv != null) {
+      mv.visitLabel(label);
+    }
   }
 
   public void visitLdcInsn (final Object cst) {
@@ -214,6 +273,10 @@ public class TraceMethodVisitor extends TraceAbstractVisitor
     }
     buf.append('\n');
     text.add(buf.toString());
+    
+    if (mv != null) {
+      mv.visitLdcInsn(cst);
+    }
   }
 
   public void visitIincInsn (final int var, final int increment) {
@@ -225,6 +288,10 @@ public class TraceMethodVisitor extends TraceAbstractVisitor
       .append(increment)
       .append('\n');
     text.add(buf.toString());
+    
+    if (mv != null) {
+      mv.visitIincInsn(var, increment);
+    }
   }
 
   public void visitTableSwitchInsn (
@@ -244,6 +311,10 @@ public class TraceMethodVisitor extends TraceAbstractVisitor
     appendLabel(dflt);
     buf.append('\n');
     text.add(buf.toString());
+    
+    if (mv != null) {
+      mv.visitTableSwitchInsn(min, max, dflt, labels);
+    }
   }
 
   public void visitLookupSwitchInsn (
@@ -262,6 +333,10 @@ public class TraceMethodVisitor extends TraceAbstractVisitor
     appendLabel(dflt);
     buf.append('\n');
     text.add(buf.toString());
+    
+    if (mv != null) {
+      mv.visitLookupSwitchInsn(dflt, keys, labels);
+    }
   }
 
   public void visitMultiANewArrayInsn (final String desc, final int dims) {
@@ -270,6 +345,10 @@ public class TraceMethodVisitor extends TraceAbstractVisitor
     appendDescriptor(FIELD_DESCRIPTOR, desc);
     buf.append(' ').append(dims).append('\n');
     text.add(buf.toString());
+    
+    if (mv != null) {
+      mv.visitMultiANewArrayInsn(desc, dims);
+    }
   }
 
   public void visitTryCatchBlock (
@@ -289,6 +368,10 @@ public class TraceMethodVisitor extends TraceAbstractVisitor
     appendDescriptor(INTERNAL_NAME, type);
     buf.append('\n');
     text.add(buf.toString());
+    
+    if (mv != null) {
+      mv.visitTryCatchBlock(start, end, handler, type);
+    }
   }
 
   public void visitLocalVariable (
@@ -319,6 +402,10 @@ public class TraceMethodVisitor extends TraceAbstractVisitor
            .append( sv.getDeclaration()).append('\n');
     }
     text.add(buf.toString());
+    
+    if (mv != null) {
+      mv.visitLocalVariable(name, desc, signature, start, end, index);
+    }
   }
 
   public void visitLineNumber (final int line, final Label start) {
@@ -327,6 +414,10 @@ public class TraceMethodVisitor extends TraceAbstractVisitor
     appendLabel(start);
     buf.append('\n');
     text.add(buf.toString());
+    
+    if (mv != null) {
+      mv.visitLineNumber(line, start);
+    }
   }
 
   public void visitMaxs (final int maxStack, final int maxLocals) {
@@ -339,6 +430,10 @@ public class TraceMethodVisitor extends TraceAbstractVisitor
       .append(maxLocals)
       .append('\n');
     text.add(buf.toString());
+    
+    if (mv != null) {
+      mv.visitMaxs(maxStack, maxLocals);
+    }
   }
 
   // --------------------------------------------------------------------------

@@ -1,0 +1,37 @@
+<project name="conform" default="test">
+
+  <target name="test" depends="junit,junitreport">
+  </target>
+
+  <target name="junit">
+    <mkdir dir="${out.test}/reports"/>
+    <junit fork="yes" printsummary="yes"
+           errorproperty="test.failed"
+           failureproperty="test.failed">
+      <batchtest fork="yes" todir="${out.test}/reports">
+        <fileset dir="${test}/conform">
+          <include name="**/*Test.java"/>
+        </fileset>
+      </batchtest>
+      <formatter type="xml"/>
+      <classpath>
+        <pathelement location="${out.build}"/>
+        <pathelement location="${out.test}"/>
+        <fileset dir="${test}">
+          <include name="lib/*.jar"/>
+        </fileset>
+      </classpath>
+    </junit>
+  
+  </target>
+
+  <target name="junitreport">
+    <junitreport todir="${out.test}/reports">
+      <fileset dir="${out.test}/reports">
+        <include name="TEST-*.xml"/>
+      </fileset>
+      <report todir="${out.test}/reports"/>
+    </junitreport>
+  </target>
+
+</project>

@@ -52,19 +52,19 @@ public class Attribute {
    * (i.e. attr.b[...] = ...; is forbidden, but attr.b = ...; is allowed)</i>.
    */
 
-  public byte[] b;
+  protected byte[] b;
 
   /**
    * Index of the first byte of this attribute in {@link #b b}.
    */
 
-  public int off;
+  protected int off;
 
   /**
    * Length of this attributes, in bytes.
    */
 
-  public int len;
+  protected int len;
 
   /**
    * The next attribute in this attribute list. May be <tt>null</tt>.
@@ -81,7 +81,7 @@ public class Attribute {
    * @param len length of the attributes, in bytes.
    */
 
-  public Attribute (
+  protected Attribute (
     final String type,
     final byte[] b,
     final int off,

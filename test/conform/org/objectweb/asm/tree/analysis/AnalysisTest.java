@@ -52,8 +52,8 @@ import org.objectweb.asm.xml.RoundtripTest;
 public class AnalysisTest extends TestCase {
   
   private String className;
-  
-  public AnalysisTest(String className) {
+    
+  public AnalysisTest (String className) {
     super("testAnalysis");
     this.className = className;
   }
@@ -67,7 +67,7 @@ public class AnalysisTest extends TestCase {
     ZipEntry ze = null;
     while ((ze = zis.getNextEntry()) != null) {
       if (ze.getName().endsWith(".class")) {
-        suite.addTest(new RoundtripTest(u.substring(0, n + 2).concat(ze.getName())));
+        suite.addTest(new AnalysisTest(u.substring(0, n + 2).concat(ze.getName())));
       }
     }
     return suite;

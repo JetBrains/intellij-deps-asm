@@ -38,6 +38,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.objectweb.asm.ClassWriter;
+import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Label;
@@ -82,9 +83,17 @@ public class ASMContentHandler extends DefaultHandler implements Opcodes {
    */
   protected ClassWriter cw;
   /**
-   * Current instance of the {@link MethodVisitor CodeVisitor} used to write method bytecode
+   * TODO move to stack
+   * Current instance of the {@link MethodVisitor MethodVisitor} used to write method bytecode
    */
   protected MethodVisitor mw;
+
+  /**
+   * TODO move to stack
+   * Current instance of the {@link FieldVisitor FieldVisitor} used to write method bytecode
+   */
+  private FieldVisitor fw;
+  
   /**
    * Map of the active {@link Label Label} instances for current method.
    */
@@ -532,13 +541,15 @@ public class ASMContentHandler extends DefaultHandler implements Opcodes {
       return path;
     }
 
+    // TODO move to stack
     protected final MethodVisitor getCodeVisitor() {
       if( mw==null) {
         Map vals = ( Map) pop();
         int access = Integer.parseInt(( String) vals.get( "access"), 16);
         String name = ( String) vals.get( "name");
+        String signature = ( String) vals.get( "signature");
         String desc = ( String) vals.get( "desc");
-        mw = cw.visitMethod( access, name, desc, null, null);
+        mw = cw.visitMethod( access, name, desc, signature, null);
       }
       return mw;
     }
@@ -626,10 +637,11 @@ public class ASMContentHandler extends DefaultHandler implements Opcodes {
       int version = (( Integer)vals.get( "version")).intValue();
       int access = getAccess(( String) vals.get( "access"));
       String name = ( String) vals.get( "name");
+      String signature = ( String) vals.get( "signature");
       String parent = ( String) vals.get( "parent");
-      String source = ( String) vals.get( "source");
+      // TODO String source = ( String) vals.get( "source");
       String[] interfaces = ( String[])(( List) vals.get( "interfaces")).toArray( new String[ 0]);
-      cw.visit( version, access, name, parent, interfaces, source);
+      cw.visit( version, access, name, signature, parent, interfaces);
     }
     
   }
@@ -647,9 +659,15 @@ public class ASMContentHandler extends DefaultHandler implements Opcodes {
     public final void begin( String element, Attributes attrs) {
       int access = getAccess( attrs.getValue( "access"));
       String name = attrs.getValue( "name");
+      String signature = attrs.getValue( "signature");
       String desc = attrs.getValue( "desc");
       Object value = getValue( desc, attrs.getValue( "value"));
-      cw.visitField( access, name, desc, value, null);
+      // TODO put fw into stack
+      fw = cw.visitField( access, name, desc, signature, value);
+    }
+    
+    public void end( String name) {
+      // TODO remove fw from stack
     }
 
   }
@@ -670,6 +688,7 @@ public class ASMContentHandler extends DefaultHandler implements Opcodes {
       vals.put( "access", attrs.getValue( "access"));
       vals.put( "name", attrs.getValue( "name"));
       vals.put( "desc", attrs.getValue( "desc"));
+      vals.put( "signature", attrs.getValue( "signature"));
       vals.put( "exceptions", new ArrayList());
       push( vals);  
       // values will be extracted in ExceptionsRule.end();
@@ -738,9 +757,11 @@ public class ASMContentHandler extends DefaultHandler implements Opcodes {
       int access = getAccess(( String) vals.get( "access"));
       String name = ( String) vals.get( "name");
       String desc = ( String) vals.get( "desc");
+      String signature = ( String) vals.get( "signature");
       String[] exceptions = ( String[])(( List) vals.get( "exceptions")).toArray( new String[ 0]);
       
-      mw = cw.visitMethod( access, name, desc, exceptions, null);
+      // TODO move mw into stack
+      mw = cw.visitMethod( access, name, desc, signature, exceptions);
     }
     
   }
@@ -908,10 +929,11 @@ public class ASMContentHandler extends DefaultHandler implements Opcodes {
     public final void begin( String element, Attributes attrs) {
       String name = attrs.getValue( "name");
       String desc = attrs.getValue( "desc");
+      String signature = attrs.getValue( "signature");
       Label start = getLabel( attrs.getValue( "start"));
       Label end = getLabel( attrs.getValue( "end"));
       int var = Integer.parseInt( attrs.getValue( "var"));
-      getCodeVisitor().visitLocalVariable( name, desc, start, end, var);
+      getCodeVisitor().visitLocalVariable( name, desc, signature, start, end, var);
     }
 
   }

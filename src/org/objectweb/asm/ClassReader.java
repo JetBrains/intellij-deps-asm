@@ -302,6 +302,8 @@ public class ClassReader {
         sourceFile = readUTF8(v + 6, c);
       } else if (attrName.equals("Deprecated")) {
         access |= Constants.ACC_DEPRECATED;
+      } else if (attrName.equals("Synthetic")) {
+        access |= Constants.ACC_SYNTHETIC;
       } else if (attrName.equals("InnerClasses")) {
         w = v + 6;
       } else {

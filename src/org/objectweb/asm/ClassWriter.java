@@ -520,6 +520,9 @@ public class ClassWriter implements ClassVisitor {
     if ((access & Constants.ACC_DEPRECATED) != 0) {
       newUTF8("Deprecated");
     }
+    if ((access & Constants.ACC_SYNTHETIC) != 0) {
+      newUTF8("Synthetic");
+    }
   }
 
   public void visitInnerClass (
@@ -633,6 +636,10 @@ public class ClassWriter implements ClassVisitor {
       ++attributeCount;
       size += 6;
     }
+    if ((access & Constants.ACC_SYNTHETIC) != 0) {
+      ++attributeCount;
+      size += 6;
+    }
     if (innerClasses != null) {
       ++attributeCount;
       size += 8 + innerClasses.length;
@@ -668,6 +675,9 @@ public class ClassWriter implements ClassVisitor {
     }
     if ((access & Constants.ACC_DEPRECATED) != 0) {
       out.putShort(newUTF8("Deprecated")).putInt(0);
+    }
+    if ((access & Constants.ACC_SYNTHETIC) != 0) {
+      out.putShort(newUTF8("Synthetic")).putInt(0);
     }
     if (innerClasses != null) {
       out.putShort(newUTF8("InnerClasses"));

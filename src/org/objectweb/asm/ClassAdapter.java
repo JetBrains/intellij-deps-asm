@@ -38,7 +38,7 @@ public class ClassAdapter implements ClassVisitor {
    * calls.
    */
 
-  protected final ClassVisitor cv;
+  protected ClassVisitor cv;
 
   /**
    * Constructs a new {@link ClassAdapter ClassAdapter} object.

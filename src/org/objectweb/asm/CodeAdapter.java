@@ -37,7 +37,7 @@ public class CodeAdapter implements CodeVisitor {
    * The {@link CodeVisitor CodeVisitor} to which this adapter delegates calls.
    */
 
-  protected final CodeVisitor cv;
+  protected CodeVisitor cv;
 
   /**
    * Constructs a new {@link CodeAdapter CodeAdapter} object.

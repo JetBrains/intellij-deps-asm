@@ -29,7 +29,7 @@ package org.objectweb.asm;
  * for jump, goto, and switch instructions, and for try catch blocks.
  */
 
-public final class Label {
+public class Label {
 
   /**
    * The code writer to which this label belongs, or <tt>null</tt> if unknown.

@@ -93,7 +93,7 @@ public class RoundtripTest extends TestCase {
     // Templates templates = saxtf.newTemplates( new StreamSource( getClass().getResourceAsStream( "copy.xsl")));
     // TransformerHandler handler = saxtf.newTransformerHandler( templates);
     TransformerHandler handler = saxtf.newTransformerHandler();
-    handler.setResult( new SAXResult( new ASMContentHandler( bos, true)));
+    handler.setResult( new SAXResult( new ASMContentHandler( bos, false)));
     handler.startDocument();
     ClassReader cr = new ClassReader( classData);
     cr.accept( new SAXClassAdapter( handler, cr.getVersion(), false), false);

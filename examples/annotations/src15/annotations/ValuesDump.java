@@ -1,74 +1,85 @@
 package annotations;
 import org.objectweb.asm.*;
-import org.objectweb.asm.attrs.*;
-import java.util.*;
-
-public class ValuesDump implements Constants {
+public class ValuesDump implements Opcodes {
 
 public static byte[] dump () throws Exception {
 
 ClassWriter cw = new ClassWriter(false);
-CodeVisitor cv;
+FieldVisitor fv;
+MethodVisitor mv;
+AnnotationVisitor av0;
 
-cw.visit(V1_5, ACC_PUBLIC + ACC_SUPER, "annotations/Values", "java/lang/Object", null, "Values.java");
+cw.visit(V1_5, ACC_PUBLIC + ACC_SUPER, "annotations/Values", null, "java/lang/Object", null);
+
+cw.visitSource("Values.java", null);
 
 {
-cv = cw.visitMethod(ACC_PUBLIC, "<init>", "()V", null, null);
-cv.visitVarInsn(ALOAD, 0);
-cv.visitMethodInsn(INVOKESPECIAL, "java/lang/Object", "<init>", "()V");
-cv.visitInsn(RETURN);
-cv.visitMaxs(1, 1);
+av0 = cw.visitAnnotation("Lannotations/ValuesAnnotation;", true);
+av0.visit("byteValue", new Byte((byte)1));
+av0.visit("charValue", new Character((char)65));
+av0.visit("booleanValue", new Boolean(true));
+av0.visit("intValue", new Integer(1));
+av0.visit("shortValue", new Short((short)1));
+av0.visit("longValue", new Long(1L));
+av0.visit("floatValue", new Float(1.0F));
+av0.visit("doubleValue", new Double(1.0));
+av0.visit("stringValue", "A");
+av0.visitEnum("enumValue", "Lannotations/ValuesEnum;", "ONE");
+{
+AnnotationVisitor av1 = av0.visitAnnotation("annotationValue", "Lannotations/ValueAttrAnnotation;");
+av1.visit("value", "annotation");
+av1.visitEnd();
+}
+av0.visit("classValue", Type.getType("Lannotations/Values;"));
+av0.visit("byteArrayValue", new byte[] {1,-1});
+av0.visit("charArrayValue", new char[] {(char)99,(char)98,(char)65535});
+av0.visit("booleanArrayValue", new boolean[] {true,false});
+av0.visit("intArrayValue", new int[] {1,-1});
+av0.visit("shortArrayValue", new short[] {(short)1,(short)-1});
+av0.visit("longArrayValue", new long[] {1L,-1L});
+av0.visit("floatArrayValue", new float[] {1.0f,-1.0f});
+av0.visit("doubleArrayValue", new double[] {1.0d,-1.0d});
+{
+AnnotationVisitor av1 = av0.visitArray("stringArrayValue");
+av1.visit(null, "aa");
+av1.visit(null, "bb");
+av1.visitEnd();
 }
 {
-// CLASS ATRIBUTE
-RuntimeVisibleAnnotations attr = new RuntimeVisibleAnnotations();
-{
-Annotation attrann0 = new Annotation("Lannotations/ValuesAnnotation;");
-attrann0.add( "byteValue", new Byte((byte)1));
-attrann0.add( "charValue", new Character((char)65));
-attrann0.add( "booleanValue", new Boolean(true));
-attrann0.add( "intValue", new Integer(1));
-attrann0.add( "shortValue", new Short((short)1));
-attrann0.add( "longValue", new Long(1L));
-attrann0.add( "floatValue", new Float(1.0f));
-attrann0.add( "doubleValue", new Double(1.0d));
-attrann0.add( "stringValue", "A");
-attrann0.add( "enumValue", new Annotation.EnumConstValue("Lannotations/ValuesEnum;", "ONE"));
-Annotation attrann0val10 = new Annotation("Lannotations/ValueAttrAnnotation;");
-attrann0val10.add( "value", "annotation");
-attrann0.add( "annotationValue", attrann0val10);
-attrann0.add( "classValue", Type.getType("Lannotations/Values;"));
-attrann0.add( "byteArrayValue", new byte[] {1, -1});
-attrann0.add( "charArrayValue", new char[] {(char)99, (char)98, (char)65535});
-attrann0.add( "booleanArrayValue", new boolean[] {true, false});
-attrann0.add( "intArrayValue", new int[] {1, -1});
-attrann0.add( "shortArrayValue", new short[] {(short)1, (short)-1});
-attrann0.add( "longArrayValue", new long[] {1L, -1L});
-attrann0.add( "floatArrayValue", new float[] {1.0f, -1.0f});
-attrann0.add( "doubleArrayValue", new double[] {1.0d, -1.0d});
-Object[] attrann0val20 = new Object[2];
-attrann0val20[0] = "aa";
-attrann0val20[1] = "bb";
-attrann0.add( "stringArrayValue", attrann0val20);
-Object[] attrann0val21 = new Object[2];
-attrann0val21[0] = new Annotation.EnumConstValue("Lannotations/ValuesEnum;", "ONE");
-attrann0val21[1] = new Annotation.EnumConstValue("Lannotations/ValuesEnum;", "TWO");
-attrann0.add( "enumArrayValue", attrann0val21);
-Object[] attrann0val22 = new Object[2];
-Annotation attrann0val22Arr0 = new Annotation("Lannotations/ValueAttrAnnotation;");
-attrann0val22Arr0.add( "value", "annotation1");
-attrann0val22[0] = attrann0val22Arr0;
-Annotation attrann0val22Arr1 = new Annotation("Lannotations/ValueAttrAnnotation;");
-attrann0val22Arr1.add( "value", "annotation2");
-attrann0val22[1] = attrann0val22Arr1;
-attrann0.add( "annotationArrayValue", attrann0val22);
-Object[] attrann0val23 = new Object[2];
-attrann0val23[0] = Type.getType("Lannotations/Values;");
-attrann0val23[1] = Type.getType("Lannotations/Values;");
-attrann0.add( "classArrayValue", attrann0val23);
-attr.annotations.add( attrann0);
+AnnotationVisitor av1 = av0.visitArray("enumArrayValue");
+av1.visitEnum(null, "Lannotations/ValuesEnum;", "ONE");
+av1.visitEnum(null, "Lannotations/ValuesEnum;", "TWO");
+av1.visitEnd();
 }
-cw.visitAttribute(attr);
+{
+AnnotationVisitor av1 = av0.visitArray("annotationArrayValue");
+{
+AnnotationVisitor av2 = av1.visitAnnotation(null, "Lannotations/ValueAttrAnnotation;");
+av2.visit("value", "annotation1");
+av2.visitEnd();
+}
+{
+AnnotationVisitor av2 = av1.visitAnnotation(null, "Lannotations/ValueAttrAnnotation;");
+av2.visit("value", "annotation2");
+av2.visitEnd();
+}
+av1.visitEnd();
+}
+{
+AnnotationVisitor av1 = av0.visitArray("classArrayValue");
+av1.visit(null, Type.getType("Lannotations/Values;"));
+av1.visit(null, Type.getType("Lannotations/Values;"));
+av1.visitEnd();
+}
+av0.visitEnd();
+}
+{
+mv = cw.visitMethod(ACC_PUBLIC, "<init>", "()V", null, null);
+mv.visitVarInsn(ALOAD, 0);
+mv.visitMethodInsn(INVOKESPECIAL, "java/lang/Object", "<init>", "()V");
+mv.visitInsn(RETURN);
+mv.visitMaxs(1, 1);
+mv.visitEnd();
 }
 cw.visitEnd();
 

@@ -1,46 +1,75 @@
 <project default="run">
 
-  <target name="init">
-    <mkdir dir="classes"/>
-    <mkdir dir="reports"/>
-  </target>
-  
-  <target name="clean">
-    <delete dir="classes"/>
-    <delete dir="reports"/>
-  </target>
+  <!-- directory definition -->
 
-  <target name="build" depends="init">
-    <javac srcdir="src15" destdir="classes" target="1.5" source="1.5" debug="yes">
-      <classpath>
-        <pathelement location="../../output/build"/>
-      </classpath>
-    </javac>
-  </target>
-  
-  <target name="run" depends="build">
-    <junit fork="no" printsummary="yes" showoutput="yes" 
+  <property name="src"          value="${basedir}/src15"/>
+  <property name="build"        value="${basedir}/build"/>
+  <property name="reports"      value="${basedir}/reports"/>
+
+  <property file="${basedir}/../etc/build.properties"/>
+  <property file="${basedir}/etc/build.properties"/>
+  <property file="${basedir}/etc/execute.properties"/>
+
+  <!-- Building of a path which contains external jars -->
+
+  <path id="classpath">
+    <pathelement path="${asm.path}"/>
+    <pathelement path="${asm.tree.path}"/>
+    <pathelement path="${asm.analysis.path}"/>
+    <pathelement path="${asm.attrs.path}"/>
+    <pathelement path="${asm.util.path}"/>
+    <fileset dir="${basedir}">
+      <include name="lib/**/*.jar"/>
+    </fileset>
+    <fileset dir="${basedir}/..">
+      <include name="lib/**/*.jar"/>
+    </fileset>
+    <pathelement location="${build}"/>
+  </path>
+
+  <!-- ================================== -->
+  <!--              EXECUTE               -->
+  <!-- ================================== -->
+
+  <target name="execute" depends="compile">
+    <mkdir dir="${reports}"/>
+    <junit fork="no" 
+           printsummary="yes" 
+           showoutput="yes" 
            errorproperty="test.failed"
            failureproperty="test.failed">
-      <batchtest fork="no" todir="reports">
-        <fileset dir="src15">
+      <batchtest fork="no" todir="${reports}">
+        <fileset dir="${src}">
           <include name="**/*Test.java"/>
         </fileset>
       </batchtest>
       <formatter type="brief"/>
-      <classpath>
-        <pathelement location="classes"/>
-        <pathelement location=""/>
-        <pathelement location="../../output/build"/>
-        <fileset dir="../../test/lib">
-          <include name="*.jar"/>
-        </fileset>
-      </classpath>
+      <classpath refid="classpath"/>
     </junit>
-    
-    <loadfile property="report.file" srcfile="reports/TEST-annotations.ValuesTest.txt"/>
+    <loadfile property="report.file" srcfile="${reports}/TEST-annotations.ValuesTest.txt"/>
     <echo message="${report.file}"/>
   </target>
+
+  <!-- ================================== -->
+  <!--              COMPILE               -->
+  <!-- ================================== -->
+
+  <target name="compile">
+    <mkdir dir="${build}"/>
+    <javac srcdir="${src}" destdir="${build}" target="1.5" source="1.5" debug="on">
+      <classpath refid="classpath"/>
+      <include name="**/*.java"/>
+    </javac>
+  </target>
+
+  <!-- ================================== -->
+  <!--               CLEAN                -->
+  <!-- ================================== -->
+
+  <target name="clean">
+    <delete dir="${build}"/>
+    <delete dir="${reports}"/>
+  </target> 
 
 </project>
 

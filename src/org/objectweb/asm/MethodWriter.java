@@ -635,6 +635,9 @@ class MethodWriter implements MethodVisitor {
     }
   }
 
+  public void visitCode () {
+  }
+  
   public void visitInsn (final int opcode) {
     if (computeMaxs) {
       // updates current and max stack sizes

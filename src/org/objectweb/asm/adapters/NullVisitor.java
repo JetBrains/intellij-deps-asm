@@ -116,6 +116,9 @@ public class NullVisitor implements
     return this;
   }
 
+  public void visitCode () {
+  }
+  
   public void visitInsn (int opcode) {
   }
 

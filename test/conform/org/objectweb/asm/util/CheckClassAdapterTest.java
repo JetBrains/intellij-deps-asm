@@ -35,7 +35,7 @@ import junit.framework.TestSuite;
 import org.objectweb.asm.AbstractTest;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassVisitor;
-import org.objectweb.asm.EmptyClassVisitor;
+import org.objectweb.asm.adapters.NullVisitor;
 
 /**
  * CheckClassAdapter tests.
@@ -51,7 +51,7 @@ public class CheckClassAdapterTest extends AbstractTest {
   
   public void test () throws Exception {
     ClassReader cr = new ClassReader(is);
-    ClassVisitor cv = new CheckClassAdapter(new EmptyClassVisitor());
+    ClassVisitor cv = new CheckClassAdapter(new NullVisitor());
     cr.accept(cv, false);
   }
 }

@@ -226,6 +226,9 @@ public class MethodNode extends MemberNode implements MethodVisitor {
     return an;
   }
   
+  public void visitCode () {
+  }
+  
   public void visitInsn (final int opcode) {
     instructions.add(InsnNode.getByOpcode(opcode));
   }
@@ -392,6 +395,7 @@ public class MethodNode extends MemberNode implements MethodVisitor {
     }
     // visits the method's code
     if (mv != null && instructions.size() > 0) {
+      mv.visitCode();
       // visits instructions
       for (i = 0; i < instructions.size(); ++i) {
         ((AbstractInsnNode)instructions.get(i)).accept(mv);

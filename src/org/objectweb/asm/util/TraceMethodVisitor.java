@@ -109,6 +109,9 @@ public class TraceMethodVisitor extends TraceAbstractVisitor
     text.add("\n");
     return tav;
   }
+  
+  public void visitCode () {
+  }
 
   public void visitInsn (final int opcode) {
     buf.setLength(0);

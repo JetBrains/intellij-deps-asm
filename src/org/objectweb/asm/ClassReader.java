@@ -718,6 +718,7 @@ public class ClassReader {
         }
 
         // 2nd phase: visits each instruction
+        mv.visitCode();
         v = codeStart;
         Label l;
         while (v < codeEnd) {

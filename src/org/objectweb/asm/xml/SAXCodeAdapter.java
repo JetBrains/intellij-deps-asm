@@ -71,6 +71,9 @@ public final class SAXCodeAdapter extends SAXAdapter implements MethodVisitor {
     }  
   }
 
+  public final void visitCode() {
+  }
+  
   public final void visitInsn( int opcode) {
     addElement( AbstractVisitor.OPCODES[ opcode], new AttributesImpl());
   }

@@ -34,15 +34,15 @@ package org.objectweb.asm;
  * A visitor to visit a Java method. The methods of this interface must be 
  * called in the following order: [ <tt>visitAnnotationDefault</tt> ]
  * ( <tt>visitAnnotation</tt> | <tt>visitParameterAnnotation</tt> | 
- * <tt>visitAttribute</tt> )* [ ( <tt>visit</tt><i>X</i>Insn</tt> |
- * <tt>visitLabel</tt> | <tt>visitTryCatchBlock</tt> | 
- * <tt>visitLocalVariable</tt> | <tt>visitLineNumber</tt>)* <tt>visitMaxs</tt> ]
- * <tt>visitEnd</tt>. In addition, the <tt>visit</tt><i>X</i>Insn</tt> and
- * <tt>visitLabel</tt> methods must be called in the sequential order of the 
- * bytecode instructions of the visited code, and the 
- * <tt>visitTryCatchBlock</tt>, <tt>visitLocalVariable</tt> and 
- * <tt>visitLineNumber</tt> methods must be called after the labels passed as 
- * arguments have been visited.
+ * <tt>visitAttribute</tt> )* [ <tt>visitCode</tt> ( 
+ * <tt>visit</tt><i>X</i>Insn</tt> | <tt>visitLabel</tt> | 
+ * <tt>visitTryCatchBlock</tt> | <tt>visitLocalVariable</tt> | 
+ * <tt>visitLineNumber</tt>)* <tt>visitMaxs</tt> ] <tt>visitEnd</tt>. In 
+ * addition, the <tt>visit</tt><i>X</i>Insn</tt> and <tt>visitLabel</tt> methods 
+ * must be called in the sequential order of the bytecode instructions of the 
+ * visited code, and the <tt>visitTryCatchBlock</tt>, 
+ * <tt>visitLocalVariable</tt> and <tt>visitLineNumber</tt> methods must be 
+ * called after the labels passed as arguments have been visited.
  *
  * @author Eric Bruneton
  */
@@ -97,6 +97,12 @@ public interface MethodVisitor {
 
   void visitAttribute (Attribute attr);
 
+  /**
+   * Starts the visit of the method's code, if any (i.e. non abstract method). 
+   */
+  
+  void visitCode ();
+  
   // -------------------------------------------------------------------------
   // Normal instructions
   // -------------------------------------------------------------------------

@@ -92,6 +92,10 @@ public class ASMifierMethodVisitor extends ASMifierAbstractVisitor
     return av;
   }
 
+  public void visitCode () {
+    text.add("mv.visitCode();");
+  }
+  
   public void visitInsn (final int opcode) {
     buf.setLength(0);
     buf.append("mv.visitInsn(")

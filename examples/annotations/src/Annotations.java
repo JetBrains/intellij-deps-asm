@@ -30,6 +30,8 @@
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.objectweb.asm.AnnotationVisitor;
 import org.objectweb.asm.ClassAdapter;
@@ -71,6 +73,8 @@ public class Annotations {
         MethodVisitor v = cv.visitMethod(access, name, desc, signature, exceptions);
         return new MethodAdapter(v) {
           
+          private List params = new ArrayList();
+          
           public AnnotationVisitor visitParameterAnnotation (
             final int parameter, 
             final String desc, 
@@ -79,7 +83,15 @@ public class Annotations {
             AnnotationVisitor av;
             av = mv.visitParameterAnnotation(parameter, desc, visible);
             if (desc.equals("LNotNull;")) {
-              int var = ((access & Opcodes.ACC_STATIC) == 0) ? 1 : 0;
+              params.add(new Integer(parameter));
+            }
+            return av;
+          }
+          
+          public void visitCode () {
+            int var = ((access & Opcodes.ACC_STATIC) == 0) ? 1 : 0;
+            for (int p = 0; p < params.size(); ++p) {
+              int parameter = ((Integer)params.get(p)).intValue();
               for (int i = 0; i < parameter; ++i) {
                 var += args[i].getSize();
               }
@@ -95,7 +107,6 @@ public class Annotations {
               mv.visitInsn(Opcodes.ATHROW);
               mv.visitLabel(end);
             }
-            return av;
           }
         };
       }

@@ -441,21 +441,38 @@ public class Type {
   }
 
   /**
-   * Returns the name of the class corresponding to this object type.
-   * This method should only be used for an object type.
+   * Returns the name of the class corresponding to this type.
    *
-   * @return the fully qualified name of the class corresponding to this object
-   *      type.
+   * @return the fully qualified name of the class corresponding to this type.
    */
 
   public String getClassName () {
-    return new String(buf, off + 1, len - 2).replace('/', '.');
+    switch (sort) {
+      case VOID:    return "void";
+      case BOOLEAN: return "boolean";
+      case CHAR:    return "char";
+      case BYTE:    return "byte";
+      case SHORT:   return "short";
+      case INT:     return "int";
+      case FLOAT:   return "float";
+      case LONG:    return "long";
+      case DOUBLE:  return "double";
+      case ARRAY:   
+        StringBuffer b = new StringBuffer(getElementType().getClassName());
+        for (int i = getDimensions(); i > 0; --i) {
+          b.append("[]");
+        }
+        return b.toString();
+      //case OBJECT:
+      default:      
+        return new String(buf, off + 1, len - 2).replace('/', '.');
+    }
   }
 
   /**
    * Returns the internal name of the class corresponding to this object type.
    * The internal name of a class is its fully qualified name, where '.' are
-   * replaced by '/'.   * This method should only be used for an object type.
+   * replaced by '/'. This method should only be used for an object type.
    *
    * @return the internal name of the class corresponding to this object type.
    */

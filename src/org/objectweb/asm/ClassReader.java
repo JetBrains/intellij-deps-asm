@@ -261,7 +261,7 @@ public class ClassReader {
     String superClassName = v == 0 ? null : readUTF8(v, c);
     String[] implementedItfs = new String[readUnsignedShort(u + 6)];
     String sourceFile = null;
-    Attribute clattrs = null;
+    boolean clattrs = false;
     w = 0;
     u += 8;
     for (i = 0; i < implementedItfs.length; ++i) {
@@ -286,6 +286,7 @@ public class ClassReader {
       }
     }
     // reads the class's attributes
+    int clattrsoff = v;
     i = readUnsignedShort(v); v += 2;
     for ( ; i > 0; --i) {
       String attrName = readUTF8(v, c);
@@ -298,12 +299,7 @@ public class ClassReader {
       } else if (attrName.equals("InnerClasses")) {
         w = v + 6;
       } else {
-        attr = readAttribute(
-          attrs, attrName, v + 6, readInt(v + 2), c, -1, null);
-        if (attr != null) {
-          attr.next = clattrs;
-          clattrs = attr;
-        }
+        clattrs = true;
       }
       v += 6 + readInt(v + 2);
     }
@@ -757,11 +753,24 @@ public class ClassReader {
       }
     }
     // visits the class attributes
-    while (clattrs != null) {
-      attr = clattrs.next;
-      clattrs.next = null;
-      classVisitor.visitAttribute(clattrs);
-      clattrs = attr;
+    if( clattrs) {
+      v = clattrsoff;
+      i = readUnsignedShort(v); v += 2;
+      for ( ; i > 0; --i) {
+        String attrName = readUTF8(v, c);
+        if (attrName.equals("SourceFile") ||
+            attrName.equals("Deprecated") || 
+            attrName.equals("Synthetic") ||
+            attrName.equals("InnerClasses")) 
+          continue;
+
+        attr = readAttribute(
+             attrs, attrName, v + 6, readInt(v + 2), c, -1, null);
+        if (attr != null) {
+          classVisitor.visitAttribute(attr);
+        }
+        v += 6 + readInt(v + 2);
+      }      
     }
     // visits the end of the class
     classVisitor.visitEnd();

@@ -32,6 +32,10 @@ package org.objectweb.asm.util.attrs;
 
 import java.util.Map;
 
+import org.objectweb.asm.Attribute;
+import org.objectweb.asm.ClassReader;
+import org.objectweb.asm.Label;
+
 /**
  * An {@link ASMifiable} 
  * {@link org.objectweb.asm.attrs.SourceDebugExtensionAttribute} sub class.
@@ -43,6 +47,18 @@ public class SourceDebugExtensionAttribute
   extends org.objectweb.asm.attrs.SourceDebugExtensionAttribute
   implements ASMifiable 
 {
+
+  protected Attribute read (ClassReader cr, int off,
+    int len, char[] buf, int codeOff, Label[] labels) 
+  {
+    org.objectweb.asm.attrs.SourceDebugExtensionAttribute attr = 
+      (org.objectweb.asm.attrs.SourceDebugExtensionAttribute)super.read(
+        cr, off, len, buf, codeOff, labels);
+    
+    SourceDebugExtensionAttribute result = new SourceDebugExtensionAttribute();
+    result.debugExtension = attr.debugExtension;
+    return result;
+  }
 
   public void asmify (StringBuffer buf, String varName, Map labelNames) {
     buf.append("SourceDebugExtensionAttribute ").append(varName)

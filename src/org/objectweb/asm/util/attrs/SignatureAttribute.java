@@ -32,6 +32,10 @@ package org.objectweb.asm.util.attrs;
 
 import java.util.Map;
 
+import org.objectweb.asm.Attribute;
+import org.objectweb.asm.ClassReader;
+import org.objectweb.asm.Label;
+
 /**
  * An {@link ASMifiable} {@link org.objectweb.asm.attrs.SignatureAttribute}
  * sub class.
@@ -44,6 +48,18 @@ public class SignatureAttribute
   implements ASMifiable 
 {
     
+  protected Attribute read (ClassReader cr, int off,
+    int len, char[] buf, int codeOff, Label[] labels) 
+  {
+    org.objectweb.asm.attrs.SignatureAttribute attr = 
+      (org.objectweb.asm.attrs.SignatureAttribute)super.read(
+        cr, off, len, buf, codeOff, labels);
+    
+    SignatureAttribute result = new SignatureAttribute();
+    result.signature = attr.signature;
+    return result;
+  }
+
   public void asmify (StringBuffer buf, String varName, Map labelNames) {
     buf.append("SignatureAttribute ").append(varName)
     .append(" = new SignatureAttribute(\"")

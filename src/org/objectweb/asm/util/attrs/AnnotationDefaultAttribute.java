@@ -33,6 +33,9 @@ package org.objectweb.asm.util.attrs;
 import java.util.List;
 import java.util.Map;
 
+import org.objectweb.asm.Attribute;
+import org.objectweb.asm.ClassReader;
+import org.objectweb.asm.Label;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.attrs.Annotation;
 import org.objectweb.asm.attrs.AnnotationMemberValue;
@@ -50,6 +53,18 @@ public class AnnotationDefaultAttribute
   implements ASMifiable  
 {
 
+  protected Attribute read (ClassReader cr, int off,
+    int len, char[] buf, int codeOff, Label[] labels) 
+  {
+    org.objectweb.asm.attrs.AnnotationDefaultAttribute attr = 
+      (org.objectweb.asm.attrs.AnnotationDefaultAttribute)super.read(
+        cr, off, len, buf, codeOff, labels);
+    
+    AnnotationDefaultAttribute result = new AnnotationDefaultAttribute();
+    result.defaultValue = attr.defaultValue;
+    return result;
+  }
+   
   public void asmify (StringBuffer buf, String varName, Map labelNames) {
     buf.append("AnnotationDefaultAttribute ").append(varName)
       .append(" = new AnnotationDefaultAttribute();\n");

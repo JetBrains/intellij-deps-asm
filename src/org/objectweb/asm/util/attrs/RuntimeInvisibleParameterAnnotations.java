@@ -32,6 +32,10 @@ package org.objectweb.asm.util.attrs;
 
 import java.util.Map;
 
+import org.objectweb.asm.Attribute;
+import org.objectweb.asm.ClassReader;
+import org.objectweb.asm.Label;
+
 /**
  * An {@link ASMifiable} 
  * {@link org.objectweb.asm.attrs.RuntimeInvisibleParameterAnnotations}
@@ -44,6 +48,18 @@ public class RuntimeInvisibleParameterAnnotations
   extends org.objectweb.asm.attrs.RuntimeInvisibleParameterAnnotations 
   implements ASMifiable 
 {
+
+  protected Attribute read (ClassReader cr, int off,
+    int len, char[] buf, int codeOff, Label[] labels) 
+  {
+    org.objectweb.asm.attrs.RuntimeInvisibleParameterAnnotations attr = 
+      (org.objectweb.asm.attrs.RuntimeInvisibleParameterAnnotations)super.read(
+        cr, off, len, buf, codeOff, labels);
+    
+    RuntimeInvisibleParameterAnnotations result = new RuntimeInvisibleParameterAnnotations();
+    result.parameters = attr.parameters;
+    return result;
+  }
 
   public void asmify (StringBuffer buf, String varName, Map labelNames) {
     buf.append("RuntimeInvisibleParameterAnnotations ").append(varName)

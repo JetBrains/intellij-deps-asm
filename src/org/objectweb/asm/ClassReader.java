@@ -551,6 +551,7 @@ public class ClassReader {
                 if (labels[label] == null) {
                   labels[label] = new Label();
                 }
+                labels[label].line = readUnsignedShort(w + 2);
                 w += 4;
               }
             }
@@ -577,6 +578,9 @@ public class ClassReader {
           l = labels[w];
           if (l != null) {
             cv.visitLabel(l);
+            if (!skipDebug && l.line > 0) {
+              cv.visitLineNumber(l.line, l);
+            }
           }
           int opcode = b[v] & 0xFF;
           switch (ClassWriter.TYPE[opcode]) {
@@ -711,7 +715,7 @@ public class ClassReader {
           }
           v += 8;
         }
-        // visits the local variable and line number tables
+        // visits the local variable table
         j = readUnsignedShort(v); v += 2;
         if (!skipDebug) {
           for ( ; j > 0; --j) {
@@ -731,15 +735,6 @@ public class ClassReader {
                   end,
                   readUnsignedShort(w + 8));
                 w += 10;
-              }
-            } else if (attrName.equals("LineNumberTable")) {
-              k = readUnsignedShort(v + 6);
-              w = v + 8;
-              for ( ; k > 0; --k) {
-                cv.visitLineNumber(
-                  readUnsignedShort(w + 2),
-                  labels[readUnsignedShort(w)]);
-                w += 4;
               }
             }
             v += 6 + readInt(v + 2);

@@ -46,6 +46,12 @@ public class Label {
   CodeWriter owner;
 
   /**
+   * The line number corresponding to this label, if known.
+   */
+
+  int line;
+  
+  /**
    * Indicates if the position of this label is known.
    */
 

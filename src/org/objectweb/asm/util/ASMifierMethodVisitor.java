@@ -49,12 +49,6 @@ public class ASMifierMethodVisitor extends ASMifierAbstractVisitor
 {
 
   /**
-   * The label names. This map associates String values to Label keys.
-   */
-
-  private final HashMap labelNames;
-
-  /**
    * Constructs a new {@link ASMifierMethodVisitor} object.
    */
 

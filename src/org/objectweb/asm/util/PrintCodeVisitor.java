@@ -480,7 +480,8 @@ public abstract class PrintCodeVisitor implements CodeVisitor {
    * @param opcode the opcode of the type instruction to be printed. This opcode
    *      is either NEW, ANEWARRAY, CHECKCAST or INSTANCEOF.
    * @param desc the operand of the instruction to be printed. This operand is
-   *      a type descriptor (see {@link Type Type}).
+   *      must be a fully qualified class name in internal form, or a the type
+   *      descriptor of an array type (see {@link org.objectweb.asm.Type Type}).
    */
 
   public abstract void printTypeInsn (final int opcode, final String desc);
@@ -492,9 +493,10 @@ public abstract class PrintCodeVisitor implements CodeVisitor {
    * @param opcode the opcode of the type instruction to be printed. This opcode
    *      is either GETSTATIC, PUTSTATIC, GETFIELD or PUTFIELD.
    * @param owner the internal name of the field's owner class (see {@link
-   *      Type#getInternalName getInternalName}).
+   *      org.objectweb.asm.Type#getInternalName getInternalName}).
    * @param name the field's name.
-   * @param desc the field's descriptor (see {@link Type Type}).
+   * @param desc the field's descriptor (see {@link org.objectweb.asm.Type
+   *      Type}).
    */
 
   public abstract void printFieldInsn (
@@ -511,9 +513,10 @@ public abstract class PrintCodeVisitor implements CodeVisitor {
    *      is either INVOKEVIRTUAL, INVOKESPECIAL, INVOKESTATIC or
    *      INVOKEINTERFACE.
    * @param owner the internal name of the method's owner class (see {@link
-   *      Type#getInternalName getInternalName}).
+   *      org.objectweb.asm.Type#getInternalName getInternalName}).
    * @param name the method's name.
-   * @param desc the method's descriptor (see {@link Type Type}).
+   * @param desc the method's descriptor (see {@link org.objectweb.asm.Type
+   *      Type}).
    */
 
   public abstract void printMethodInsn (
@@ -599,7 +602,8 @@ public abstract class PrintCodeVisitor implements CodeVisitor {
   /**
    * Prints a MULTIANEWARRAY instruction.
    *
-   * @param desc an array type descriptor (see {@link Type Type}).
+   * @param desc an array type descriptor (see {@link org.objectweb.asm.Type
+   *      Type}).
    * @param dims number of dimensions of the array to allocate.
    */
 

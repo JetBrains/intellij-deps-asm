@@ -1,4 +1,4 @@
-This directory is the base directory of the product. 
+This directory is the base directory of the product.
 It contains(*) the following items:
 
 - archive: ant files to build the jar(s) of the product,

@@ -141,25 +141,24 @@ public class ASMifierAbstractVisitor extends AbstractVisitor {
       buf.append("Type.getType(\"");
       buf.append(((Type)cst).getDescriptor());
       buf.append("\")");
+    } else if (cst instanceof Byte) {
+      buf.append("new Byte((byte)").append(cst).append(")"); 
+    } else if (cst instanceof Boolean) {
+      buf.append("new Boolean(").append(cst).append(")"); 
+    } else if (cst instanceof Short) {
+      buf.append("new Short((short)").append(cst).append(")"); 
+    } else if (cst instanceof Character) {
+      int c = (int)((Character)cst).charValue();
+      buf.append("new Character((char)").append(c).append(")"); 
     } else if (cst instanceof Integer) {
       buf.append("new Integer(").append(cst).append(")");
     } else if (cst instanceof Float) {
-      Float f = (Float)cst;
-      if (f.isInfinite() || f.isNaN()) {
-        buf.append("new Float(\"").append(cst).append("\")");
-      } else {
-        buf.append("new Float(").append(cst).append("F)");
-      }
+      buf.append("new Float(\"").append(cst).append("\")");
     } else if (cst instanceof Long) {
       buf.append("new Long(").append(cst).append("L)");
     } else if (cst instanceof Double) {
-      Double d = (Double)cst;
-      if (d.isInfinite() || d.isNaN()) {
-        buf.append("new Double(\"").append(cst).append("\")");
-      } else {
-        buf.append("new Double(").append(cst).append(")");
-      }
-    // support for arrays: TODO should we keep this? 
+      buf.append("new Double(\"").append(cst).append("\")");      
+      // support for arrays: TODO should we keep this? 
     } else if (cst instanceof byte[]) {
       byte[] v = (byte[])cst;
       buf.append("new byte[] {");

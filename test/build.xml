@@ -150,8 +150,8 @@
   <!-- ============================= -->
 
   <target name="testAll" depends="compile" if="test.all">
-    <!--multipleAnt dir="${test.conform}" inheritRefs="true"/>
-    <multipleAnt dir="${test.deviance}" inheritRefs="true"/>
+    <multipleAnt dir="${test.conform}" inheritRefs="true"/>
+    <!--multipleAnt dir="${test.deviance}" inheritRefs="true"/>
     <multipleAnt dir="${test.thread}" inheritRefs="true"/>
     <multipleAnt dir="${test.stress}" inheritRefs="true"/-->
     <multipleAnt dir="${test.perf}" inheritRefs="true"/>
@@ -166,8 +166,8 @@
   </target>
 
   <target name="testName" depends="compile" if="test.name">
-    <!--multipleAnt dir="${test.conform}" target="${test.name}" inheritRefs="true"/>
-    <multipleAnt dir="${test.deviance}" target="${test.name}" inheritRefs="true"/>
+    <multipleAnt dir="${test.conform}" target="${test.name}" inheritRefs="true"/>
+    <!--multipleAnt dir="${test.deviance}" target="${test.name}" inheritRefs="true"/>
     <multipleAnt dir="${test.thread}" target="${test.name}" inheritRefs="true"/>
     <multipleAnt dir="${test.stress}" target="${test.name}" inheritRefs="true"/-->
     <multipleAnt dir="${test.perf}" target="${test.name}" inheritRefs="true"/>

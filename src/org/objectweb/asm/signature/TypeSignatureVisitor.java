@@ -47,6 +47,24 @@ package org.objectweb.asm.signature;
 public interface TypeSignatureVisitor {
 
   /**
+   * Wildcard for an "extends" type argument. 
+   */
+  
+  char EXTENDS = '+';
+
+  /**
+   * Wildcard for a "super" type argument.
+   */
+  
+  char SUPER = '-';
+
+  /**
+   * Wildcard for a normal type argument.
+   */
+  
+  char NONE = '=';
+
+  /**
    * Visits a signature corresponding to a primitive type.
    * 
    * @param descriptor the descriptor of the primitive type, or 'V' for 
@@ -97,7 +115,7 @@ public interface TypeSignatureVisitor {
   /**
    * Visits a type argument of the last visited class or inner class type.
    *  
-   * @param wildcard '+', '-' or '='.
+   * @param wildcard '+' for "extends" , '-' for "super" or '=' for "".
    * @return a non null visitor to visit the signature of the type argument. 
    */
   

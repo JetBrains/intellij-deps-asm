@@ -1424,7 +1424,7 @@ class MethodWriter implements MethodVisitor {
    *      negative, the <i>last</i> |<tt>sizes[i]</tt>| bytes of the instruction
    *      will be removed (the instruction size <i>must not</i> become negative
    *      or null). The gaps introduced by this method must be filled in
-   *      "manually" in the array returned by the {@link #getCode getCode}
+   *      "manually" in {@link #code code}
    *      method.
    * @param len the number of instruction to be resized. Must be smaller than or
    *      equal to <tt>indexes</tt>.length and <tt>sizes</tt>.length.

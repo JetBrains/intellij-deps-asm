@@ -40,19 +40,19 @@ package org.objectweb.asm.tree.analysis;
 
 public class BasicValue implements Value {
   
-  private final static int UNINITIALIZED = 0;
+  public final static int UNINITIALIZED = 0;
   
-  private final static int INT = 1;
+  public final static int INT = 1;
   
-  private final static int FLOAT = 2;
+  public final static int FLOAT = 2;
   
-  private final static int LONG = 3;
+  public final static int LONG = 3;
   
-  private final static int DOUBLE = 4;
+  public final static int DOUBLE = 4;
   
-  private final static int REFERENCE = 5;
+  public final static int REFERENCE = 5;
   
-  private final static int RETURNADDRESS = 6;
+  public final static int RETURNADDRESS = 6;
   
   public final static Value UNINITIALIZED_VALUE = new BasicValue(UNINITIALIZED);
   

@@ -37,6 +37,14 @@
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
 <xsl:output method="xml" encoding="ASCII" indent="yes"/>
 
+<!--
+  Class name must not be removed!
+-->
+<xsl:template match="//class/@name">
+  <xsl:attribute name="name"><xsl:value-of select="."/></xsl:attribute>
+</xsl:template>
+
+
 <xsl:template match="@*">
   <xsl:attribute name="{name()}"/>
 </xsl:template>

@@ -106,7 +106,7 @@
   <!-- ==========    COMPILE    ========== -->
   <!-- =================================== -->
 
-  <target name="compile" depends="init">
+  <target name="compile.normal" depends="init" unless="debug">
     <mkdir dir="${out.build}/tmp"/>
     <javac destdir="${out.build}/tmp" optimize="on">
       <classpath>
@@ -123,15 +123,20 @@
       <arg value="${out.build}/tmp"/> 
       <arg value="${out.build}"/> 
     </java> 
-    <!--mkdir dir="${out.build}"/>
+  </target>
+
+  <target name="compile.debug" depends="init" if="debug">
+    <mkdir dir="${out.build}"/>
     <javac destdir="${out.build}" debug="on">
       <classpath>
         <pathelement location="${out.build}"/>
       </classpath> 
       <src path="${src}"/>
       <include name="**/*.java"/>
-    </javac-->
+    </javac>
   </target>
+
+  <target name="compile" depends="compile.normal,compile.debug"/>
 
   <!-- =================================== -->
   <!-- ==========      TEST     ========== -->

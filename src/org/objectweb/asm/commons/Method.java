@@ -35,11 +35,31 @@ import java.util.Map;
 
 import org.objectweb.asm.Type;
 
+/**
+ * A named method descriptor.
+
+ * @author Juozas Baliuka
+ * @author Chris Nokleberg
+ * @author Eric Bruneton
+ */
+
 public class Method {
   
+  /**
+   * The method name.
+   */
+
   private final String name;
 
+  /**
+   * The method descriptor.
+   */
+
   private final String desc;
+
+  /**
+   * Maps primitive Java type names to their descriptors.
+   */
 
   private final static Map DESCRIPTORS;
   
@@ -56,18 +76,42 @@ public class Method {
     DESCRIPTORS.put("boolean", "Z");
   }
   
+  /**
+   * Creates a new {@link Method}.
+   *
+   * @param name the method's name.
+   * @param desc the method's descriptor.
+   */
+
   public Method (final String name, final String desc) {
     this.name = name;
     this.desc = desc;
   }
 
+  /**
+   * Creates a new {@link Method}.
+   *
+   * @param name the method's name.
+   * @param returnType the method's return type.
+   * @param argumentTypes the method's argument types.
+   */
+
   public Method (
-    final String name, 
+    final String name,
     final Type returnType,
-    final Type[] argumentTypes) 
+    final Type[] argumentTypes)
   {
     this(name, Type.getMethodDescriptor(returnType, argumentTypes));
   }
+
+  /**
+   * Returns a {@link Method} corresponding to the given Java method
+   * declaration.
+   *
+   * @param method a Java method declaration, without argument names, of the
+   *     form "returnType name (argumentType1, ... argumentTypeN)", where the
+   *     types are in plain Java (e.g. "int", "float", "java.util.List", ...).
+   */
 
   public static Method getMethod (final String method) {
     int space = method.indexOf(' ');
@@ -113,17 +157,41 @@ public class Method {
     }
   }
 
+  /**
+   * Returns the name of the method described by this object.
+   *
+   * @return the name of the method described by this object.
+   */
+
   public String getName () {
     return name;
   }
+
+  /**
+   * Returns the descriptor of the method described by this object.
+   *
+   * @return the descriptor of the method described by this object.
+   */
 
   public String getDescriptor () {
     return desc;
   }
 
+  /**
+   * Returns the return type of the method described by this object.
+   *
+   * @return the return type of the method described by this object.
+   */
+
   public Type getReturnType () {
     return Type.getReturnType(desc);
   }
+
+  /**
+   * Returns the argument types of the method described by this object.
+   *
+   * @return the argument types of the method described by this object.
+   */
 
   public Type[] getArgumentTypes () {
     return Type.getArgumentTypes(desc);

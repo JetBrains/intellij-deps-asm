@@ -192,7 +192,7 @@ public class Processor {
     int i = 0;
     ZipEntry ze = null;
     while(( ze = zis.getNextEntry())!=null) {
-      update( ze.getName());
+      update( ze.getName(), n++);
       if( isClassEntry( ze)) {
         processEntry( zis, ze, inDocHandlerFactory);
       } else {
@@ -256,8 +256,8 @@ public class Processor {
       
       }
     } catch( Exception ex) {
-      update( ze.getName());
-      update( ex);
+      update( ze.getName(), 0);
+      update( ex, 0);
     }
   }
 
@@ -333,7 +333,7 @@ public class Processor {
    *  (non-Javadoc)
    * @see java.util.Observer#update(java.util.Observable, java.lang.Object)
    */
-  public void update( Object arg) {
+  public void update( Object arg, int n) {
     if( arg instanceof Throwable) {
       (( Throwable) arg).printStackTrace();
     } else {
@@ -341,7 +341,6 @@ public class Processor {
         System.err.println( n+" "+arg);
       }
     }
-    n++;
   }
   
   public static void main( String[] args) throws Exception {

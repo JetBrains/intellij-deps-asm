@@ -40,6 +40,12 @@ package org.objectweb.asm;
 public class Label {
 
   /**
+   * The line number corresponding to this label, if known.
+   */
+  
+  int line;
+  
+  /**
    * Indicates if the position of this label is known.
    */
 

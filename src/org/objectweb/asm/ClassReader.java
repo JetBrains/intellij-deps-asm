@@ -666,7 +666,6 @@ public class ClassReader {
         // parses the local variable, line number tables, and code attributes
         int varTable = 0;
         int varTypeTable = 0;
-        int lineTable = 0;
         cattrs = null;
         j = readUnsignedShort(v); v += 2;
         for ( ; j > 0; --j) {
@@ -692,7 +691,6 @@ public class ClassReader {
             varTypeTable = v + 6;
           } else if (attrName.equals("LineNumberTable")) {
             if (!skipDebug) {
-              lineTable = v + 6;
               k = readUnsignedShort(v + 6);
               w = v + 8;
               for ( ; k > 0; --k) {
@@ -700,6 +698,7 @@ public class ClassReader {
                 if (labels[label] == null) {
                   labels[label] = new Label();
                 }
+                labels[label].line = readUnsignedShort(w + 2);
                 w += 4;
               }
             }
@@ -726,6 +725,9 @@ public class ClassReader {
           l = labels[w];
           if (l != null) {
             mv.visitLabel(l);
+            if (!skipDebug && l.line > 0) {
+                mv.visitLineNumber(l.line, l);
+            }
           }
           int opcode = b[v] & 0xFF;
           switch (ClassWriter.TYPE[opcode]) {
@@ -860,7 +862,7 @@ public class ClassReader {
           }
           v += 8;
         }
-        // visits the local variable and line number tables
+        // visits the local variable tables
         if (!skipDebug && varTable != 0) {
           int[] typeTable = null;
           if (varTypeTable != 0) {
@@ -898,16 +900,6 @@ public class ClassReader {
               labels[start + length],
               index);
             w += 10;
-          }
-        }
-        if (!skipDebug && lineTable != 0) {
-          w = lineTable;
-          k = readUnsignedShort(w); w += 2;
-          for ( ; k > 0; --k) {
-            mv.visitLineNumber(
-              readUnsignedShort(w + 2),
-              labels[readUnsignedShort(w)]);
-            w += 4;
           }
         }
         // visits the other attributes

@@ -93,7 +93,7 @@ public class ASMifierMethodVisitor extends ASMifierAbstractVisitor
   }
 
   public void visitCode () {
-    text.add("mv.visitCode();");
+    text.add("mv.visitCode();\n");
   }
   
   public void visitInsn (final int opcode) {

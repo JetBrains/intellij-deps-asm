@@ -95,6 +95,8 @@ public class Attribute {
 
   /**
    * Constructs a new empty attribute.
+   *
+   * @param type the type of the attribute.
    */
 
   public Attribute (final String type) {

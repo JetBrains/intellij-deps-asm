@@ -805,6 +805,7 @@ public class ClassWriter implements ClassVisitor {
    * @param owner the internal name of the method's owner class.
    * @param name the method's name.
    * @param desc the method's descriptor.
+   * @param itf <tt>true</tt> if <tt>owner</tt> is an interface.
    * @return the index of a new or already existing method reference item.
    */
 

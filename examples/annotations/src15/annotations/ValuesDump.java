@@ -1,6 +1,7 @@
 package annotations;
 import org.objectweb.asm.*;
 import org.objectweb.asm.attrs.*;
+import java.util.*;
 
 public class ValuesDump implements Constants {
 
@@ -37,14 +38,14 @@ Annotation attrann0val10 = new Annotation("Lannotations/ValueAttrAnnotation;");
 attrann0val10.add( "value", "annotation");
 attrann0.add( "annotationValue", attrann0val10);
 attrann0.add( "classValue", Type.getType("Lannotations/Values;"));
-attrann0.add( "byteArrayValue", new byte[] {1, 2});
-attrann0.add( "charArrayValue", new char[] {(char)99, (char)98, (char)3});
+attrann0.add( "byteArrayValue", new byte[] {1, -1});
+attrann0.add( "charArrayValue", new char[] {(char)99, (char)98, (char)65535});
 attrann0.add( "booleanArrayValue", new boolean[] {true, false});
-attrann0.add( "intArrayValue", new int[] {1, 2});
-attrann0.add( "shortArrayValue", new short[] {(short)1, (short)2});
-attrann0.add( "longArrayValue", new long[] {1L, 2L});
-attrann0.add( "floatArrayValue", new float[] {1.0f, 2.0f});
-attrann0.add( "doubleArrayValue", new double[] {1.0d, 2.0d});
+attrann0.add( "intArrayValue", new int[] {1, -1});
+attrann0.add( "shortArrayValue", new short[] {(short)1, (short)-1});
+attrann0.add( "longArrayValue", new long[] {1L, -1L});
+attrann0.add( "floatArrayValue", new float[] {1.0f, -1.0f});
+attrann0.add( "doubleArrayValue", new double[] {1.0d, -1.0d});
 Object[] attrann0val20 = new Object[2];
 attrann0val20[0] = "aa";
 attrann0val20[1] = "bb";

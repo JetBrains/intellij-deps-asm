@@ -73,14 +73,14 @@ public class ValuesTest extends TestCase {
   public void testByteArrayValue() {
     byte[] bs = a.byteArrayValue();
     assertEquals( 1, bs[0]);
-    assertEquals( 2, bs[1]);
+    assertEquals( -1, bs[1]);
   }
 
   public void testCharArrayValue() {
     char[] bs = a.charArrayValue();
     assertEquals( 'c', bs[0]);
     assertEquals( 'b', bs[1]);
-    assertEquals( 3, bs[2]);
+    assertEquals((char) -1, bs[2]);
   }
 
   public void testBooleanArrayValue() {
@@ -92,31 +92,31 @@ public class ValuesTest extends TestCase {
   public void testIntArrayValue() {
     int[] bs = a.intArrayValue();
     assertEquals( 1, bs[0]);
-    assertEquals( 2, bs[1]);
+    assertEquals( -1, bs[1]);
   }
 
   public void testShortArrayValue() {
     short[] bs = a.shortArrayValue();
     assertEquals( 1, bs[0]);
-    assertEquals( 2, bs[1]);
+    assertEquals( -1, bs[1]);
   }
 
   public void testLongArrayValue() {
     long[] bs = a.longArrayValue();
     assertEquals( 1L, bs[0]);
-    assertEquals( 2L, bs[1]);
+    assertEquals( -1L, bs[1]);
   }
 
   public void testFloatArrayValue() {
     float[] bs = a.floatArrayValue();
     assertEquals( 1.0f, bs[0], 0.1f);
-    assertEquals( 2.0f, bs[1], 0.1f);
+    assertEquals( -1.0f, bs[1], 0.1f);
   }
 
   public void testDoubleArrayValue() {
     double[] bs = a.doubleArrayValue();
     assertEquals( 1.0d, bs[0], 0.1d);
-    assertEquals( 2.0d, bs[1], 0.1d);
+    assertEquals( -1.0d, bs[1], 0.1d);
   }
 
   public void testStringArrayValue() {

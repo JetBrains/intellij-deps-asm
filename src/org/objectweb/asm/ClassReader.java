@@ -1047,79 +1047,87 @@ public class ClassReader {
       case '[':  // array_value
         // support for arrays: TODO should we keep this? 
         int size = readUnsignedShort(v); v += 2;
-        switch (readByte(v++)) {
-	      case 'B':
-		    byte[] bv = new byte[size];
-		    for (i = 0; i < size; i++) {
-			  bv[i] = (byte)readInt(items[readUnsignedShort(v)]);
-			  v += 3;
-	        }
-		    av.visit(name, bv); --v;
-		    break;
-	      case 'Z':
-		    boolean[] zv = new boolean[size];
-		    for (i = 0; i < size; i++) {
-			  zv[i] = readInt(items[readUnsignedShort(v)]) != 0;
-			  v += 3;
-	        }
-		    av.visit(name, zv); --v;
-		    break;         
-	      case 'S':
-		    short[] sv = new short[size];
-		    for (i = 0; i < size; i++) {
-			  sv[i] = (short)readInt(items[readUnsignedShort(v)]);
-			  v += 3;
-	        }
-		    av.visit(name, sv); --v;
-		    break;
-	      case 'C':
-		    char[] cv = new char[size];
-		    for (i = 0; i < size; i++) {
-			  cv[i] = (char)readInt(items[readUnsignedShort(v)]);
-			  v += 3;
-	        }
-		    av.visit(name, cv); --v;
-		    break;	          
-	      case 'I':
-		    int[] iv = new int[size];
-		    for (i = 0; i < size; i++) {
-			  iv[i] = readInt(items[readUnsignedShort(v)]);
-			  v += 3;
-	        }
-		    av.visit(name, iv); --v;
-	        break;
-	      case 'J':
-		    long[] lv = new long[size];
-		    for (i = 0; i < size; i++) {
-			  lv[i] = readLong(items[readUnsignedShort(v)]);
-			  v += 3;
-	        }
-		    av.visit(name, lv); --v;
-		    break;
-	      case 'F':
-		    float[] fv = new float[size];
-		    for (i = 0; i < size; i++) {
-			  fv[i] = Float.intBitsToFloat(readInt(items[readUnsignedShort(v)]));
-			  v += 3;
-	        }
-		    av.visit(name, fv); --v;
-		    break;
-	      case 'D':
-		    double[] dv = new double[size];
-		    for (i = 0; i < size; i++) {
-			  dv[i] = Double.longBitsToDouble(readLong(items[readUnsignedShort(v)]));
-			  v += 3;
-	        }
-		    av.visit(name, dv); --v;
-		    break;
-	      default:
-	        v--;
-	        AnnotationVisitor aav = av.visitArray(name);
-	        for (i = size ; i > 0; --i) {
-	          v = readAnnotationValue(v, buf, null, aav);
-	        }
-	        aav.visitEnd();
-        }
+        switch( readByte( v++)) {
+        case 'B':
+          byte[] bv = new byte[ size];
+          for( i = 0; i < size; i++) {
+            bv[ i] = ( byte) readInt( items[ readUnsignedShort( v)]);
+            v += 3;
+          }
+          av.visit( name, bv);
+          --v;
+          break;
+        case 'Z':
+          boolean[] zv = new boolean[ size];
+          for( i = 0; i < size; i++) {
+            zv[ i] = readInt( items[ readUnsignedShort( v)]) != 0;
+            v += 3;
+          }
+          av.visit( name, zv);
+          --v;
+          break;
+        case 'S':
+          short[] sv = new short[ size];
+          for( i = 0; i < size; i++) {
+            sv[ i] = ( short) readInt( items[ readUnsignedShort( v)]);
+            v += 3;
+          }
+          av.visit( name, sv);
+          --v;
+          break;
+        case 'C':
+          char[] cv = new char[ size];
+          for( i = 0; i < size; i++) {
+            cv[ i] = ( char) readInt( items[ readUnsignedShort( v)]);
+            v += 3;
+          }
+          av.visit( name, cv);
+          --v;
+          break;
+        case 'I':
+          int[] iv = new int[ size];
+          for( i = 0; i < size; i++) {
+            iv[ i] = readInt( items[ readUnsignedShort( v)]);
+            v += 3;
+          }
+          av.visit( name, iv);
+          --v;
+          break;
+        case 'J':
+          long[] lv = new long[ size];
+          for( i = 0; i < size; i++) {
+            lv[ i] = readLong( items[ readUnsignedShort( v)]);
+            v += 3;
+          }
+          av.visit( name, lv);
+          --v;
+          break;
+        case 'F':
+          float[] fv = new float[ size];
+          for( i = 0; i < size; i++) {
+            fv[ i] = Float.intBitsToFloat( readInt( items[ readUnsignedShort( v)]));
+            v += 3;
+          }
+          av.visit( name, fv);
+          --v;
+          break;
+        case 'D':
+          double[] dv = new double[ size];
+          for( i = 0; i < size; i++) {
+            dv[ i] = Double.longBitsToDouble( readLong( items[ readUnsignedShort( v)]));
+            v += 3;
+          }
+          av.visit( name, dv);
+          --v;
+          break;
+        default:
+          v--;
+          AnnotationVisitor aav = av.visitArray( name);
+          for( i = size; i > 0; --i) {
+            v = readAnnotationValue( v, buf, null, aav);
+          }
+          aav.visitEnd();
+      }
     }
     return v;
   }

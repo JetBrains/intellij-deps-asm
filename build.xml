@@ -231,6 +231,8 @@
         <exclude name="**/externals"/>
         <exclude name="**/lib/**"/>
         <exclude name="**/lib"/>
+        <exclude name="eclipse/**"/>
+        <exclude name="eclipse"/>
         <exclude name="web/**"/>
         <exclude name="web"/>
         <exclude name="**/output/**"/>

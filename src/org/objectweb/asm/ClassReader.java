@@ -779,6 +779,20 @@ public class ClassReader {
   // --------------------------------------------------------------------------
 
   /**
+   * Returns the start index of the constant pool item in {@link #b b}, plus 
+   * one. <i>This method is intended for {@link Attribute} sub classes, and is 
+   * normally not needed by class generators or adapters.</i>
+   * 
+   * @param item the index a constant pool item.
+   * @return the start index of the constant pool item in {@link #b b}, plus 
+   *      one.
+   */
+  
+  public int getItem (final int item) {
+    return items[item];
+  }
+  
+  /**
    * Reads a byte value in {@link #b b}. <i>This method is intended
    * for {@link Attribute} sub classes, and is normally not needed by class
    * generators or adapters.</i>

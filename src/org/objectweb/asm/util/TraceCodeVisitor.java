@@ -174,7 +174,7 @@ public class TraceCodeVisitor extends PrintCodeVisitor {
   public void printLabel (final Label label) {
     buf.append("   ");
     appendLabel(label);
-    buf.append(":\n");
+    buf.append(":  // ").append( label).append( "\n");
 
     if (cv != null) {
       cv.visitLabel(label);

@@ -39,7 +39,7 @@ package org.objectweb.asm;
  * a DataOutputStream on top of a ByteArrayOutputStream, but is more efficient.
  */
 
-public final class ByteVector {
+public class ByteVector {
 
   /**
    * The content of this vector.

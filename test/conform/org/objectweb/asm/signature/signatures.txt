@@ -243,6 +243,8 @@ C Lsun/reflect/generics/scope/AbstractScope<Ljava/lang/reflect/Constructor;>;
 C Lsun/reflect/generics/scope/AbstractScope<Ljava/lang/reflect/Method;>;
 C Lsun/util/PreHashedMap<Ljava/lang/String;>;
 C Lsun/util/PreHashedMap<Ljava/nio/charset/Charset;>;
+M ()V^TE;
+M ()V^TE;^TF;
 M ()Ljava/lang/Class<*>;
 M ()Ljava/lang/Class<+Ljava/lang/Enum;>;
 M ()Ljava/lang/Class<+Ljava/lang/Object;>;

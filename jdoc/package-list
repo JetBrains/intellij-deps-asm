@@ -74,3 +74,5 @@ org.omg.CosNaming
 org.omg.CosNaming.NamingContextPackage
 org.omg.SendingContext
 org.omg.stub.java.rmi
+org.xml.sax
+org.xml.sax.helpers

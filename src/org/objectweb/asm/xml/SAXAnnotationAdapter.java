@@ -43,7 +43,6 @@ import org.xml.sax.helpers.AttributesImpl;
  */
 public class SAXAnnotationAdapter extends SAXAdapter implements AnnotationVisitor {
   private final String elementName;
-  private final int visible;
   
 
   public SAXAnnotationAdapter( ContentHandler h, String elementName, int visible, String name, String desc) {
@@ -57,7 +56,6 @@ public class SAXAnnotationAdapter extends SAXAdapter implements AnnotationVisito
   private SAXAnnotationAdapter( ContentHandler h, String elementName, int visible, String desc, String name, int parameter) {
     super( h);
     this.elementName = elementName;
-    this.visible = visible;
     
     AttributesImpl att = new AttributesImpl();
     if( name!=null) att.addAttribute( "", "name", "name", "", name);

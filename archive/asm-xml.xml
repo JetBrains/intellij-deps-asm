@@ -2,7 +2,7 @@
   <target name="dist">
     <jar jarfile="${out.dist.lib}/asm-xml.jar"
          basedir="${out.build}"
-         manifest="${archive}/asm-xml.mf">
+         manifest="${out.tmp}/asm-xml.mf">
       <include name="org/objectweb/asm/xml/*.class"/>
     </jar>
   </target>

@@ -87,30 +87,29 @@ public class SimpleVerifier extends BasicVerifier {
     Type type = ((BasicValue)value).getType();
     if (expectedType == null) {
       return type == null;
-    } else {
-      switch (expectedType.getSort()) {
-        case Type.INT:
-        case Type.FLOAT:
-        case Type.LONG:
-        case Type.DOUBLE:
-          return type == expectedType;
-        case Type.ARRAY:
-        case Type.OBJECT:
-          if (expectedType.getDescriptor().equals("Lnull;")) {
-            return type.getSort() == Type.OBJECT || type.getSort() == Type.ARRAY;
-          }
-          Class expectedClass = getClass(expectedType);
-          if (type.getDescriptor().equals("Lnull;")) {
-            return !expectedClass.isPrimitive();
-          } else if (type.getSort() == Type.OBJECT || type.getSort() == Type.ARRAY) {
-            Class actualClass = getClass(type);
-            return expectedClass.isAssignableFrom(actualClass);
-          } else {
-            return false;
-          }
-        default:
-          throw new RuntimeException("Internal error");
-      }
+    }
+    switch (expectedType.getSort()) {
+      case Type.INT:
+      case Type.FLOAT:
+      case Type.LONG:
+      case Type.DOUBLE:
+        return type == expectedType;
+      case Type.ARRAY:
+      case Type.OBJECT:
+        if (expectedType.getDescriptor().equals("Lnull;")) {
+          return type.getSort() == Type.OBJECT || type.getSort() == Type.ARRAY;
+        }
+        Class expectedClass = getClass(expectedType);
+        if (type.getDescriptor().equals("Lnull;")) {
+          return !expectedClass.isPrimitive();
+        } else if (type.getSort() == Type.OBJECT || type.getSort() == Type.ARRAY) {
+          Class actualClass = getClass(type);
+          return expectedClass.isAssignableFrom(actualClass);
+        } else {
+          return false;
+        }
+      default:
+        throw new RuntimeException("Internal error");
     }
   }
 
@@ -140,9 +139,8 @@ public class SimpleVerifier extends BasicVerifier {
           do {
             if (c == null || c.isInterface()) {
               return BasicValue.REFERENCE_VALUE;
-            } else {
-              c = c.getSuperclass();
             }
+            c = c.getSuperclass();
             if (c.isAssignableFrom(d)) {
               return newValue(Type.getType(c));
             }
@@ -158,9 +156,8 @@ public class SimpleVerifier extends BasicVerifier {
     try {
       if (t.getSort() == Type.ARRAY) {
         return Class.forName(t.getDescriptor().replace('/', '.'));
-      } else {
-        return Class.forName(t.getClassName());
       }
+      return Class.forName(t.getClassName());
     } catch (ClassNotFoundException e) {
       throw new RuntimeException(e.toString());
     }

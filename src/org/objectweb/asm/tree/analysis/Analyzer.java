@@ -198,11 +198,10 @@ public class Analyzer implements Opcodes {
             if (subroutine == null) {
               throw new AnalyzerException(
                 "RET instruction outside of a sub routine");
-            } else {
-              for (int i = 0; i < subroutine.callers.size(); ++i) {
-                int caller = indexes.get(subroutine.callers.get(i));
-                merge(caller + 1, frames[caller], current, subroutine.access);
-              }
+            }
+            for (int i = 0; i < subroutine.callers.size(); ++i) {
+              int caller = indexes.get(subroutine.callers.get(i));
+              merge(caller + 1, frames[caller], current, subroutine.access);
             }
           } else if (insnOpcode != ATHROW && (insnOpcode < IRETURN || insnOpcode > RETURN)) {
             if (subroutine != null) {
@@ -335,34 +334,34 @@ public class Analyzer implements Opcodes {
   {
     if (insn > n - 1) {
       throw new AnalyzerException("Execution can fall off end of the code");
+    }
+    
+    Frame oldFrame = frames[insn];
+    Subroutine oldSubroutine = subroutines[insn];
+    boolean changes = false;
+
+    if (oldFrame == null) {
+      frames[insn] = newFrame(frame);
+      changes = true;
     } else {
-      Frame oldFrame = frames[insn];
-      Subroutine oldSubroutine = subroutines[insn];
-      boolean changes = false;
+      changes |= oldFrame.merge(frame, interpreter);
+    }
 
-      if (oldFrame == null) {
-        frames[insn] = newFrame(frame);
+    newControlFlowEdge(frame, oldFrame);
+    
+    if (oldSubroutine == null) {
+      if (subroutine != null) {
+        subroutines[insn] = subroutine.copy();
         changes = true;
-      } else {
-        changes |= oldFrame.merge(frame, interpreter);
       }
-
-      newControlFlowEdge(frame, oldFrame);
-      
-      if (oldSubroutine == null) {
-        if (subroutine != null) {
-          subroutines[insn] = subroutine.copy();
-          changes = true;
-        }
-      } else {
-        if (subroutine != null) {
-          changes |= oldSubroutine.merge(subroutine);
-        }
+    } else {
+      if (subroutine != null) {
+        changes |= oldSubroutine.merge(subroutine);
       }
-      if (changes && !queued[insn]) {
-        queued[insn] = true;
-        queue[top++] = insn;
-      }
+    }
+    if (changes && !queued[insn]) {
+      queued[insn] = true;
+      queue[top++] = insn;
     }
   }
 
@@ -374,25 +373,25 @@ public class Analyzer implements Opcodes {
   {
     if (insn > n - 1) {
       throw new AnalyzerException("Execution can fall off end of the code");
-    } else {
-      Frame oldFrame = frames[insn];
-      boolean changes = false;
+    }
+    
+    Frame oldFrame = frames[insn];
+    boolean changes = false;
 
-      afterRET.merge(beforeJSR, access);
-      
-      if (oldFrame == null) {
-        frames[insn] = newFrame(afterRET);
-        changes = true;
-      } else {  
-        changes |= oldFrame.merge(afterRET, access);
-      }
-      
-      newControlFlowEdge(afterRET, oldFrame);
+    afterRET.merge(beforeJSR, access);
+    
+    if (oldFrame == null) {
+      frames[insn] = newFrame(afterRET);
+      changes = true;
+    } else {  
+      changes |= oldFrame.merge(afterRET, access);
+    }
+    
+    newControlFlowEdge(afterRET, oldFrame);
 
-      if (changes && !queued[insn]) {
-        queued[insn] = true;
-        queue[top++] = insn;
-      }
+    if (changes && !queued[insn]) {
+      queued[insn] = true;
+      queue[top++] = insn;
     }
   }
 

@@ -896,6 +896,7 @@ public class ClassReader {
               labels[start],
               labels[start + length],
               index);
+            w += 10;
           }
         }
         if (!skipDebug && lineTable != 0) {
@@ -918,7 +919,10 @@ public class ClassReader {
         // visits the max stack and max locals values
         mv.visitMaxs(maxStack, maxLocals);
       }
-      mv.visitEnd();
+      
+      if (mv != null) {
+        mv.visitEnd();
+      }
     }
 
     // visits the end of the class

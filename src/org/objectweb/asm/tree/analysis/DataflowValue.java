@@ -30,9 +30,9 @@
 
 package org.objectweb.asm.tree.analysis;
 
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.objectweb.asm.tree.AbstractInsnNode;
 
@@ -45,44 +45,41 @@ import org.objectweb.asm.tree.AbstractInsnNode;
 
 public class DataflowValue implements Value {
 
+  /**
+   * The size of this value.
+   */
+  
   public final int size;
   
-  public final AbstractInsnNode insn;
+  /**
+   * The instructions that can produce this value. For example, for the Java 
+   * code below, the instructions that can produce the value of <tt>i</tt>
+   * at line 5 are the txo ISTORE instructions at line 1 and 3:
+   * <pre>
+   * 1: i = 0;
+   * 2: if (...) {
+   * 3:   i = 1;
+   * 4: }
+   * 5: return i;
+   * </pre>
+   * This field is a set of {@link AbstractInsnNode} objects. 
+   */
   
-  public final List values;
+  public final Set insns;
+  
+  public DataflowValue (final int size) {
+    this(size, Collections.EMPTY_SET);
+  }
   
   public DataflowValue (final int size, final AbstractInsnNode insn) {
-    this(size, insn, Collections.EMPTY_LIST);
-  }
-  
-  public DataflowValue (
-    final int size, 
-    final AbstractInsnNode insn, 
-    final Value value) 
-  {
-    this(size, insn, new ArrayList());
-    values.add(value);
-  }
-  
-  public DataflowValue (
-    final int size, 
-    final AbstractInsnNode insn, 
-    final Value value1,
-    final Value value2) 
-  {
-    this(size, insn, new ArrayList());
-    values.add(value1);
-    values.add(value2);
-  }
-  
-  public DataflowValue (
-    final int size, 
-    final AbstractInsnNode insn, 
-    final List values) 
-  {
     this.size = size;
-    this.insn = insn;
-    this.values = values;
+    this.insns = new HashSet();
+    this.insns.add(insn);
+  }
+  
+  public DataflowValue (final int size, final Set insns) {
+    this.size = size;
+    this.insns = insns;
   }
   
   public int getSize () {
@@ -90,13 +87,18 @@ public class DataflowValue implements Value {
   }
 
   public Value merge (final Value value) {
-    if (size != value.getSize()) {
-      return new DataflowValue(1, insn, values);
+    DataflowValue v = (DataflowValue)value;
+    if (size != v.size || !insns.equals(v.insns)) {
+      Set s = new HashSet();
+      s.addAll(insns);
+      s.addAll(v.insns);
+      return new DataflowValue(Math.min(size, v.size), s);
     }
     return this;
   }
 
   public boolean equals (final Value value) {
-    return size == value.getSize();
+    DataflowValue v = (DataflowValue)value;
+    return size == v.size && insns.equals(v.insns);
   }
 }

@@ -48,7 +48,7 @@ import org.objectweb.asm.tree.MethodInsnNode;
 public class DataflowInterpreter implements Constants, Interpreter {
 
   public Value newValue (final Type type) {
-    return new DataflowValue(type == null ? 1 : type.getSize(), null);
+    return new DataflowValue(type == null ? 1 : type.getSize());
   }
 
   public Value newOperation (final AbstractInsnNode insn) {
@@ -74,7 +74,7 @@ public class DataflowInterpreter implements Constants, Interpreter {
   }
 
   public Value copyOperation (final AbstractInsnNode insn, final Value value) {
-    return new DataflowValue(value.getSize(), insn, value);
+    return new DataflowValue(value.getSize(), insn);
   }
 
   public Value unaryOperation (final AbstractInsnNode insn, final Value value) {
@@ -96,7 +96,7 @@ public class DataflowInterpreter implements Constants, Interpreter {
       default:
         size = 1;
     }
-    return new DataflowValue(size, insn, value);
+    return new DataflowValue(size, insn);
   }
 
   public Value binaryOperation (
@@ -129,7 +129,7 @@ public class DataflowInterpreter implements Constants, Interpreter {
       default:
         size = 1;
     }
-    return new DataflowValue(size, insn, value1, value2);
+    return new DataflowValue(size, insn);
   }
 
   public Value ternaryOperation (
@@ -138,7 +138,7 @@ public class DataflowInterpreter implements Constants, Interpreter {
     final Value value2,
     final Value value3) 
   {
-    return new DataflowValue(1, insn, value1, value2);
+    return new DataflowValue(1, insn);
   }
   
   public Value naryOperation (final AbstractInsnNode insn, final List values) {
@@ -148,6 +148,6 @@ public class DataflowInterpreter implements Constants, Interpreter {
     } else {
       size = Type.getReturnType(((MethodInsnNode)insn).desc).getSize();
     }
-    return new DataflowValue(size, insn, values);
+    return new DataflowValue(size, insn);
   }
 }

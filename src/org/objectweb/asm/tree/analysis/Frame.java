@@ -53,16 +53,16 @@ import org.objectweb.asm.tree.VarInsnNode;
 public class Frame {
   
   /**
-   * The local variables of this frame.
+   * The local variables and operand stack of this frame.
    */
   
-  private Value[] locals;
+  private Value[] values;
   
   /**
-   * The operand stack of this frame.
+   * The number of local variables of this frame.
    */
   
-  private Value[] stack;
+  private int locals;
 
   /**
    * The number of elements in the operand stack.
@@ -78,8 +78,8 @@ public class Frame {
    */
   
   public Frame (final int nLocals, final int nStack) {
-    this.locals = new Value[nLocals];
-    this.stack = new Value[nStack];
+    this.values = new Value[nLocals+nStack];
+    this.locals = nLocals;
   }
   
   /**
@@ -89,7 +89,7 @@ public class Frame {
    */
   
   public Frame (final Frame src) {
-    this(src.locals.length, src.stack.length);
+    this(src.locals, src.values.length - src.locals);
     init(src);
   }
   
@@ -101,8 +101,7 @@ public class Frame {
    */
   
   public Frame init (final Frame src) {
-    System.arraycopy(src.locals, 0, locals, 0, locals.length);
-    System.arraycopy(src.stack, 0, stack, 0, src.top);
+    System.arraycopy(src.values, 0, values, 0, values.length);
     top = src.top;
     return this;
   }
@@ -114,7 +113,7 @@ public class Frame {
    */
   
   public int getLocals () {
-    return locals.length;
+    return locals;
   }
   
   /**
@@ -126,10 +125,10 @@ public class Frame {
    */
   
   public Value getLocal (final int i) throws AnalyzerException {
-    if (i >= locals.length) {
+    if (i >= locals) {
       throw new AnalyzerException("Trying to access an inexistant local variable");
     }
-    return locals[i];
+    return values[i];
   }
   
   /**
@@ -141,10 +140,10 @@ public class Frame {
    */
   
   public void setLocal (final int i, final Value value) throws AnalyzerException {
-    if (i >= locals.length) {
+    if (i >= locals) {
       throw new AnalyzerException("Trying to access an inexistant local variable");
     }
-    locals[i] = value;
+    values[i] = value;
   }
 
   /**
@@ -170,7 +169,7 @@ public class Frame {
     if (i >= top) {
       throw new AnalyzerException("Trying to access an inexistant stack element");
     }
-    return stack[i];
+    return values[i + locals];
   }
   
   /**
@@ -192,7 +191,7 @@ public class Frame {
     if (top == 0) {
       throw new AnalyzerException("Cannot pop operand off an empty stack.");
     }
-    return stack[--top];
+    return values[--top + locals];
   }
   
   /**
@@ -203,10 +202,10 @@ public class Frame {
    */
   
   public void push (final Value value) throws AnalyzerException {
-    if (top >= stack.length) {
+    if (top + locals >= values.length) {
       throw new AnalyzerException("Insufficient maximum stack size.");
     }
-    stack[top++] = value;
+    values[top++ + locals] = value;
   }
   
   public void execute (
@@ -632,17 +631,10 @@ public class Frame {
       throw new AnalyzerException("Incompatible stack heights");
     }
     boolean changes = false;
-    for (int i = 0; i < locals.length; ++i) {
-      Value v = interpreter.merge(locals[i], frame.locals[i]);
-      if (v != locals[i]) {
-        locals[i] = v;
-        changes |= true;
-      }
-    }
-    for (int i = 0; i < top; ++i) {
-      Value v = interpreter.merge(stack[i], frame.stack[i]);
-      if (v != stack[i]) {
-        stack[i] = v;
+    for (int i = 0; i < locals + top; ++i) {
+      Value v = interpreter.merge(values[i], frame.values[i]);
+      if (v != values[i]) {
+        values[i] = v;
         changes |= true;
       }
     }
@@ -661,9 +653,9 @@ public class Frame {
   
   public boolean merge (final Frame frame, final boolean[] access) {
     boolean changes = false;
-    for (int i = 0; i < locals.length; ++i) {
-      if (!access[i] && !locals[i].equals(frame.locals[i])) {
-        locals[i] = frame.locals[i];
+    for (int i = 0; i < locals; ++i) {
+      if (!access[i] && !values[i].equals(frame.values[i])) {
+        values[i] = frame.values[i];
         changes = true;
       }
     }
@@ -678,12 +670,12 @@ public class Frame {
   
   public String toString () {
     StringBuffer b = new StringBuffer();
-    for (int i = 0; i < locals.length; ++i) {
-      b.append(locals[i]);
+    for (int i = 0; i < locals; ++i) {
+      b.append(values[i]);
     }
     b.append(' ');
     for (int i = 0; i < top; ++i) {
-      b.append(stack[i].toString());
+      b.append(values[i + locals].toString());
     }
     return b.toString();
   }

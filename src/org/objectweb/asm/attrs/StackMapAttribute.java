@@ -155,7 +155,7 @@ public class StackMapAttribute extends Attribute implements Dumpable {
   protected Attribute read( ClassReader cr, int off, int len,
                             char[] buf, int codeOff, Label[] labels) {
     StackMapAttribute attr = new StackMapAttribute();
-    // TODO verify that codeSize is correct (see note in spec!)
+    // note that this is not the size of Code attribute
     int codeSize = cr.readInt( codeOff + 4);
     int size = 0;
     if( codeSize>MAX_SIZE) {

@@ -183,8 +183,7 @@ public class ASMifierClassVisitor extends PrintClassVisitor {
     
     text.add("import org.objectweb.asm.*;\n");
     text.add("import org.objectweb.asm.attrs.*;\n");
-    text.add("import java.util.*;\n");
-    text.add("import java.io.FileOutputStream;\n\n");
+    text.add("import java.util.*;\n\n");
     text.add("public class "+(n==-1 ? name : name.substring( n+1))+"Dump implements Constants {\n\n");
     text.add("public static byte[] dump () throws Exception {\n\n");
     text.add("ClassWriter cw = new ClassWriter(false);\n");

@@ -295,7 +295,7 @@ public class ASMContentHandler extends DefaultHandler implements Constants {
    * Constructs a new {@link ASMContentHandler ASMContentHandler} object.
    * 
    * @param os output stream to write generated class. 
-   * @param computeMaxs <tt>true</tt> if the maximum stack size and the maximum
+   * @param computeMax <tt>true</tt> if the maximum stack size and the maximum
    *      number of local variables must be automatically computed. 
    *      This value is passed to {@link ClassWriter ClassWriter}
    *      instance.

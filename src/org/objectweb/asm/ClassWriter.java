@@ -983,7 +983,7 @@ public class ClassWriter implements ClassVisitor {
    * @return the index of a new or already existing name and type item.
    */
 
-  private int newNameType (final String name, final String desc) {
+  public int newNameType (final String name, final String desc) {
     key2.set(NAME_TYPE, name, desc, null);
     Item result = get(key2);
     if (result == null) {

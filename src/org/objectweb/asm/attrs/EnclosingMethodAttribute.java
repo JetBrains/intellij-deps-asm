@@ -86,37 +86,51 @@ import org.objectweb.asm.Label;
  */
 
 public class EnclosingMethodAttribute extends Attribute implements Dumpable {
-
-  // TODO update from adding generics 2.5ea (CONSTANT_Class_info + CONSTANT_NameAndType_info) 
   
-  public String methodDescriptor;
+  public String owner;
+  public String name;
+  public String desc;
 
   public EnclosingMethodAttribute () {
     super("EnclosingMethod");
   }
-
-  public EnclosingMethodAttribute (String methodDescriptor) {
+  
+  public EnclosingMethodAttribute (String owner, String name, String desc) {
     this();
-    this.methodDescriptor = methodDescriptor;
+    this.owner = owner;
+    this.name = name;
+    this.desc = desc;
   }
 
   protected Attribute read (ClassReader cr, int off,
                             int len, char[] buf, int codeOff, Label[] labels) {
-    return new EnclosingMethodAttribute(cr.readUTF8(off, buf));
+    // CONSTANT_Class_info
+    String owner = cr.readClass( off, buf);
+    // CONSTANT_NameAndType_info (skip CONSTANT_NameAndType tag)
+    String name = cr.readUTF8( off + 3, buf);
+    String desc = cr.readUTF8( off + 5, buf);
+    return new EnclosingMethodAttribute( owner, name, desc);
   }
 
   protected ByteVector write (ClassWriter cw, byte[] code,
                               int len, int maxStack, int maxLocals) {
-    return new ByteVector().putShort(cw.newUTF8(methodDescriptor));
+    return new ByteVector().putShort(cw.newClass(owner))
+            .putShort(cw.newNameType(name, desc));
   }
 
   public void dump (StringBuffer buf, String varName, Map labelNames) {
     buf.append("EnclosingMethodAttribute ").append(varName)
       .append(" = new EnclosingMethodAttribute(\"")
-      .append(methodDescriptor).append("\");\n");
+      .append(owner).append(",")
+      .append(name).append(",")
+      .append(desc).append("\");\n");
   }
 
   public String toString () {
-    return methodDescriptor;
+    return new StringBuffer("owner:").append( owner)
+      .append(" name:").append(name)
+      .append(" desc:").append(desc).toString();
   }
+  
 }
+

@@ -103,18 +103,22 @@ public class EnclosingMethodAttribute extends Attribute {
   protected Attribute read (ClassReader cr, int off,
                             int len, char[] buf, int codeOff, Label[] labels) {
     // CONSTANT_Class_info
-    String owner = cr.readClass( off, buf);
+    String o = cr.readClass( off, buf);
     // CONSTANT_NameAndType_info (skip CONSTANT_NameAndType tag)
     int index = cr.getItem(cr.readUnsignedShort(off + 2));
-    String name = cr.readUTF8(index, buf);
-    String desc = cr.readUTF8(index + 2, buf);
-    return new EnclosingMethodAttribute( owner, name, desc);
+    String n = null;
+    String d = null;
+    if( index!=0) {
+	    n = cr.readUTF8(index, buf);
+	    d = cr.readUTF8(index + 2, buf);
+    }
+    return new EnclosingMethodAttribute( o, n, d);
   }
 
   protected ByteVector write (ClassWriter cw, byte[] code,
                               int len, int maxStack, int maxLocals) {
     return new ByteVector().putShort(cw.newClass(owner))
-      .putShort(cw.newNameType(name, desc));
+      .putShort( name==null || desc==null ? 0 : cw.newNameType(name, desc));
   }
 
   public String toString () {

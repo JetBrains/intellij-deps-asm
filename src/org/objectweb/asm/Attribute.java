@@ -233,12 +233,15 @@ public class Attribute {
     Attribute attr = this;
     while (attr != null) {
       if (attr.isUnknown()) {
-        throw new IllegalArgumentException(
-          "Unknown attribute type: " + attr.type);
+        if (cw.checkAttributes) {
+          throw new IllegalArgumentException(
+            "Unknown attribute type: " + attr.type);
+        }
+      } else {
+        ByteVector b = attr.write(cw, code, len, maxStack, maxLocals);
+        out.putShort(cw.newUTF8(attr.type)).putInt(b.length);
+        out.putByteArray(b.data, 0, b.length);
       }
-      ByteVector b = attr.write(cw, code, len, maxStack, maxLocals);
-      out.putShort(cw.newUTF8(attr.type)).putInt(b.length);
-      out.putByteArray(b.data, 0, b.length);
       attr = attr.next;
     }
   }

@@ -403,6 +403,13 @@ public class ClassWriter implements ClassVisitor {
 
   private boolean computeMaxs;
 
+
+  /**
+   * <tt>true</tt> to test that all attributes are known.
+   */
+  
+  boolean checkAttributes;
+
   // --------------------------------------------------------------------------
   // Static initializer
   // --------------------------------------------------------------------------
@@ -497,6 +504,22 @@ public class ClassWriter implements ClassVisitor {
   // --------------------------------------------------------------------------
 
   /**
+   * Constructs a new {@link ClassWriter ClassWriter} object.
+   *
+   * @param computeMaxs <tt>true</tt> if the maximum stack size and the maximum
+   *      number of local variables must be automatically computed. If this flag
+   *      is <tt>true</tt>, then the arguments of the {@link
+   *      CodeVisitor#visitMaxs visitMaxs} method of the {@link CodeVisitor
+   *      CodeVisitor} returned by the {@link #visitMethod visitMethod} method
+   *      will be ignored, and computed automatically from the signature and
+   *      the bytecode of each method.
+   */
+
+  public ClassWriter (final boolean computeMaxs) {
+    this(computeMaxs, false);
+  }
+
+  /**
    * Constructs a new {@link ClassWriter} object.
    *
    * @param computeMaxs <tt>true</tt> if the maximum stack size and the maximum
@@ -506,9 +529,15 @@ public class ClassWriter implements ClassVisitor {
    *      {@link MethodVisitor} returned by the {@link #visitMethod visitMethod} method
    *      will be ignored, and computed automatically from the signature and
    *      the bytecode of each method.
+   * @param skipUnknownAttributes <tt>true</tt> to silently ignore unknown 
+   *      attributes, or <tt>false</tt> to throw an exception if an unknown
+   *      attribute is found.
    */
 
-  public ClassWriter (final boolean computeMaxs) {
+  public ClassWriter (
+    final boolean computeMaxs,
+    final boolean skipUnknownAttributes) 
+  {
     index = 1;
     pool = new ByteVector();
     items = new Item[256];
@@ -517,6 +546,7 @@ public class ClassWriter implements ClassVisitor {
     key2 = new Item();
     key3 = new Item();
     this.computeMaxs = computeMaxs;
+    this.checkAttributes = !skipUnknownAttributes;
   }
 
   // --------------------------------------------------------------------------

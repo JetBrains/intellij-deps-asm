@@ -22,6 +22,10 @@
       <link href="${jdk.url}" offline="true" packagelistLoc="${jdoc}"/>
 
     </javadoc>
+
+    <copy todir="${jdoc.dir}">
+      <fileset dir="${src}" includes="**/*.dtd"/>
+    </copy>
   </target>
 
 </project>

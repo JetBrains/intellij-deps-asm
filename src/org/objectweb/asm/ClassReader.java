@@ -487,6 +487,7 @@ public class ClassReader {
       classVisitor.visitField(access, fieldName, fieldDesc, value);
     }
 
+    // visits the methods
     i = readUnsignedShort(u); u += 2;
     for ( ; i > 0; --i) {
       access = readUnsignedShort(u);
@@ -854,6 +855,8 @@ public class ClassReader {
         cv.visitMaxs(maxStack, maxLocals);
       }
     }
+    // visits the end of the class
+    classVisitor.visitEnd();
   }
 
   // --------------------------------------------------------------------------

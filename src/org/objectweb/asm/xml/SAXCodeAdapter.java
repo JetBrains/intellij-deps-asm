@@ -33,15 +33,18 @@ package org.objectweb.asm.xml;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.objectweb.asm.AnnotationVisitor;
 import org.objectweb.asm.Attribute;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.Type;
+import org.objectweb.asm.util.AbstractVisitor;
 import org.xml.sax.Attributes;
 import org.xml.sax.ContentHandler;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.AttributesImpl;
+
 
 /**
  * A {@link MethodVisitor} that generates SAX 2.0 events from the visited 
@@ -60,32 +63,37 @@ public final class SAXCodeAdapter implements MethodVisitor {
    * Constructs a new {@link SAXCodeAdapter SAXCodeAdapter} object.
    * 
    * @param h content handler that will be used to send SAX 2.0 events. 
+   * @param access
    */
-  public SAXCodeAdapter( ContentHandler h) {
+  public SAXCodeAdapter( ContentHandler h, int access) {
     this.h = h;
     labelNames = new HashMap();
+
+    if(( access & ( Opcodes.ACC_ABSTRACT | Opcodes.ACC_INTERFACE | Opcodes.ACC_NATIVE))==0) {
+      addStart( "code", new AttributesImpl());
+    }  
   }
 
   public final void visitInsn( int opcode) {
-    addElement( PrintCodeVisitor.OPCODES[ opcode], new AttributesImpl());
+    addElement( AbstractVisitor.OPCODES[ opcode], new AttributesImpl());
   }
 
   public final void visitIntInsn( int opcode, int operand) {
     AttributesImpl attrs = new AttributesImpl();
     attrs.addAttribute( "", "value", "value", "", Integer.toString( operand));
-    addElement( PrintCodeVisitor.OPCODES[ opcode], attrs);
+    addElement( AbstractVisitor.OPCODES[ opcode], attrs);
   }
 
   public final void visitVarInsn( int opcode, int var) {
     AttributesImpl attrs = new AttributesImpl();
     attrs.addAttribute( "", "var", "var", "", Integer.toString( var));
-    addElement( PrintCodeVisitor.OPCODES[ opcode], attrs);
+    addElement( AbstractVisitor.OPCODES[ opcode], attrs);
   }
 
   public final void visitTypeInsn( int opcode, String desc) {
     AttributesImpl attrs = new AttributesImpl();
     attrs.addAttribute( "", "desc", "desc", "", desc);
-    addElement( PrintCodeVisitor.OPCODES[ opcode], attrs);
+    addElement( AbstractVisitor.OPCODES[ opcode], attrs);
   }
 
   public final void visitFieldInsn( int opcode, String owner, String name, String desc) {
@@ -93,7 +101,7 @@ public final class SAXCodeAdapter implements MethodVisitor {
     attrs.addAttribute( "", "owner", "owner", "", owner);
     attrs.addAttribute( "", "name", "name", "", name);
     attrs.addAttribute( "", "desc", "desc", "", desc);
-    addElement( PrintCodeVisitor.OPCODES[ opcode], attrs);
+    addElement( AbstractVisitor.OPCODES[ opcode], attrs);
   }
 
   public final void visitMethodInsn( int opcode, String owner, String name, String desc) {
@@ -101,13 +109,13 @@ public final class SAXCodeAdapter implements MethodVisitor {
     attrs.addAttribute( "", "owner", "owner", "", owner);
     attrs.addAttribute( "", "name", "name", "", name);
     attrs.addAttribute( "", "desc", "desc", "", desc);
-    addElement( PrintCodeVisitor.OPCODES[ opcode], attrs);
+    addElement( AbstractVisitor.OPCODES[ opcode], attrs);
   }
 
   public final void visitJumpInsn( int opcode, Label label) {
     AttributesImpl attrs = new AttributesImpl();
     attrs.addAttribute( "", "label", "label", "", getLabel( label));
-    addElement( PrintCodeVisitor.OPCODES[ opcode], attrs);
+    addElement( AbstractVisitor.OPCODES[ opcode], attrs);
   }
 
   public final void visitLabel( Label label) {
@@ -120,14 +128,14 @@ public final class SAXCodeAdapter implements MethodVisitor {
     AttributesImpl attrs = new AttributesImpl();
     attrs.addAttribute( "", "cst", "cst", "", SAXClassAdapter.encode( cst.toString()));
     attrs.addAttribute( "", "desc", "desc", "", Type.getDescriptor( cst.getClass()));
-    addElement( PrintCodeVisitor.OPCODES[ Opcodes.LDC], attrs);
+    addElement( AbstractVisitor.OPCODES[ Opcodes.LDC], attrs);
   }
 
   public final void visitIincInsn( int var, int increment) {
     AttributesImpl attrs = new AttributesImpl();
     attrs.addAttribute( "", "var", "var", "", Integer.toString( var));
     attrs.addAttribute( "", "inc", "inc", "", Integer.toString( increment));
-    addElement( PrintCodeVisitor.OPCODES[ Opcodes.IINC], attrs);
+    addElement( AbstractVisitor.OPCODES[ Opcodes.IINC], attrs);
   }
 
   public final void visitTableSwitchInsn( int min, int max, Label dflt, Label[] labels) {
@@ -135,7 +143,7 @@ public final class SAXCodeAdapter implements MethodVisitor {
     attrs.addAttribute( "", "min", "min", "", Integer.toString( min));
     attrs.addAttribute( "", "max", "max", "", Integer.toString( max));
     attrs.addAttribute( "", "dflt", "dflt", "", getLabel( dflt));
-    String o = PrintCodeVisitor.OPCODES[ Opcodes.TABLESWITCH];
+    String o = AbstractVisitor.OPCODES[ Opcodes.TABLESWITCH];
     addStart( o, attrs);
     for( int i = 0; i < labels.length; i++) {
       AttributesImpl att2 = new AttributesImpl();
@@ -148,7 +156,7 @@ public final class SAXCodeAdapter implements MethodVisitor {
   public final void visitLookupSwitchInsn( Label dflt, int[] keys, Label[] labels) {
     AttributesImpl att = new AttributesImpl();
     att.addAttribute( "", "dflt", "dflt", "", getLabel( dflt));
-    String o = PrintCodeVisitor.OPCODES[ Opcodes.LOOKUPSWITCH];
+    String o = AbstractVisitor.OPCODES[ Opcodes.LOOKUPSWITCH];
     addStart( o, att);
     for( int i = 0; i < labels.length; i++) {
       AttributesImpl att2 = new AttributesImpl();
@@ -163,7 +171,7 @@ public final class SAXCodeAdapter implements MethodVisitor {
     AttributesImpl attrs = new AttributesImpl();
     attrs.addAttribute( "", "desc", "desc", "", desc);
     attrs.addAttribute( "", "dims", "dims", "", Integer.toString( dims));
-    addElement( PrintCodeVisitor.OPCODES[ Opcodes.MULTIANEWARRAY], attrs);
+    addElement( AbstractVisitor.OPCODES[ Opcodes.MULTIANEWARRAY], attrs);
   }
 
   public final void visitTryCatchBlock( Label start, Label end, Label handler, String type) {
@@ -182,14 +190,13 @@ public final class SAXCodeAdapter implements MethodVisitor {
     addElement( "Max", attrs);
 
     addEnd( "code");
-    addEnd( "method");
-    // TODO ensure it it is ok to close method element here
   }
 
-  public final void visitLocalVariable( String name, String desc, Label start, Label end, int index) {
+  public void visitLocalVariable( String name, String desc, String signature, Label start, Label end, int index) {
     AttributesImpl attrs = new AttributesImpl();
     attrs.addAttribute( "", "name", "name", "", name);
     attrs.addAttribute( "", "desc", "desc", "", desc);
+    attrs.addAttribute( "", "signature", "signature", "", SAXClassAdapter.encode(signature));
     attrs.addAttribute( "", "start", "start", "", getLabel( start));
     attrs.addAttribute( "", "end", "end", "", getLabel( end));
     attrs.addAttribute( "", "var", "var", "", Integer.toString( index));
@@ -203,10 +210,29 @@ public final class SAXCodeAdapter implements MethodVisitor {
     addElement( "LineNumber", attrs);
   }
 
+
+  public AnnotationVisitor visitAnnotationDefault() {
+    return new SAXAnnotationAdapter( h, "annotationDefault", null, null);
+  }
+  
+  public AnnotationVisitor visitAnnotation( String desc, boolean visible) {
+    return new SAXAnnotationAdapter( h, visible ? "visibleAnnotation" : "invisibleAnnotation", null, desc);
+  }
+  
+  public AnnotationVisitor visitParameterAnnotation( int parameter, String desc, boolean visible) {
+    return new SAXAnnotationAdapter( h, visible ? "visibleParameterAnnotation" : "invisibleParameterAnnotation", parameter, desc);
+  }
+  
+  public void visitEnd() {
+    addEnd( "method");
+  }
+  
+  
   public final void visitAttribute( Attribute attr) {
     // TODO Auto-generated SAXCodeAdapter.visitAttribute
   }
 
+  
   private final String getLabel( Label label) {
     String name = (String) labelNames.get( label);
     if( name==null) {

@@ -44,7 +44,7 @@ import org.objectweb.asm.Label;
  * 
  * @author Eugene Kuleshov
  */
-public class StackMapTypeInfo {
+public class StackMapType {
   public static final int ITEM_Top = 0;
   public static final int ITEM_Integer = 1;
   public static final int ITEM_Float = 2;
@@ -62,7 +62,7 @@ public class StackMapTypeInfo {
   private Label offset = null;
   private String object = null;
 
-  private StackMapTypeInfo( int type) {
+  private StackMapType( int type) {
     this.type = type;
   }
 
@@ -70,8 +70,8 @@ public class StackMapTypeInfo {
     return type;
   }
 
-  public static StackMapTypeInfo getTypeInfo( int itemType) {
-    return new StackMapTypeInfo( itemType);
+  public static StackMapType getTypeInfo( int itemType) {
+    return new StackMapType( itemType);
   }
 
   public void setLabel(Label offset) {

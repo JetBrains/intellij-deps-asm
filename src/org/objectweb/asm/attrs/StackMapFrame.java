@@ -86,8 +86,8 @@ public class StackMapFrame {
 
   private void getTypeInfoLabels( Set labels, List info) {
     for( Iterator it = info.iterator(); it.hasNext(); ) {
-      StackMapTypeInfo typeInfo = ( StackMapTypeInfo) it.next();
-      if( typeInfo.getType()==StackMapTypeInfo.ITEM_Uninitialized)
+      StackMapType typeInfo = ( StackMapType) it.next();
+      if( typeInfo.getType()==StackMapType.ITEM_Uninitialized)
         labels.add( typeInfo.getLabel());
     }    
   }
@@ -103,20 +103,20 @@ public class StackMapFrame {
     }
     for( int j = 0; j<n; j++) {
       int itemType = cr.readByte( off++);
-      StackMapTypeInfo typeInfo = StackMapTypeInfo.getTypeInfo( itemType);
+      StackMapType typeInfo = StackMapType.getTypeInfo( itemType);
       info.add( typeInfo);
       switch( itemType) {
-        case StackMapTypeInfo.ITEM_Long:  //
-        case StackMapTypeInfo.ITEM_Double:  //
-          info.add( StackMapTypeInfo.getTypeInfo( StackMapTypeInfo.ITEM_Top));
+        case StackMapType.ITEM_Long:  //
+        case StackMapType.ITEM_Double:  //
+          info.add( StackMapType.getTypeInfo( StackMapType.ITEM_Top));
           break;
 
-        case StackMapTypeInfo.ITEM_Object:  //
+        case StackMapType.ITEM_Object:  //
           typeInfo.setObject( cr.readClass( off, buf));
           off += 2;
           break;
 
-        case StackMapTypeInfo.ITEM_Uninitialized:  //
+        case StackMapType.ITEM_Uninitialized:  //
           int o = cr.readUnsignedShort( off);
           off += 2;
           if( labels[ o]==null) labels[ o] = new Label();
@@ -131,20 +131,20 @@ public class StackMapFrame {
     if( max>StackMapAttribute.MAX_SIZE) bv.putInt( info.size());
     else bv.putShort( info.size());
     for( int j = 0; j<info.size(); j++) {
-      StackMapTypeInfo typeInfo = ( StackMapTypeInfo) info.get( j);
+      StackMapType typeInfo = ( StackMapType) info.get( j);
       bv = new ByteVector().putByte( typeInfo.getType());
       switch( typeInfo.getType()) {
-        case StackMapTypeInfo.ITEM_Long:  //
-        case StackMapTypeInfo.ITEM_Double:  //
+        case StackMapType.ITEM_Long:  //
+        case StackMapType.ITEM_Double:  //
           // skip Top in the stack/locals after long/double
           j++;  
           break;
 
-        case StackMapTypeInfo.ITEM_Object:  //
+        case StackMapType.ITEM_Object:  //
           bv.putShort( cw.newClass( typeInfo.getObject()));
           break;
 
-         case StackMapTypeInfo.ITEM_Uninitialized:  //
+         case StackMapType.ITEM_Uninitialized:  //
            bv.putShort( typeInfo.getLabel().getOffset());
            break;
       }
@@ -163,19 +163,19 @@ public class StackMapFrame {
     if( infos.size()>0) {
       buf.append( "{\n"); 
       for( int i = 0; i<infos.size(); i++) {
-        StackMapTypeInfo typeInfo = ( StackMapTypeInfo) infos.get( i);
+        StackMapType typeInfo = ( StackMapType) infos.get( i);
         String localName = varName+"Info"+i;
         int type = typeInfo.getType();
-        buf.append( "StackMapTypeInfo ").append( localName)
-           .append( " = new StackMapTypeInfo( StackMapTypeInfo.ITEM_")
-           .append( StackMapTypeInfo.ITEM_NAMES[ type]).append(");\n");
+        buf.append( "StackMapType ").append( localName)
+           .append( " = new StackMapType( StackMapType.ITEM_")
+           .append( StackMapType.ITEM_NAMES[ type]).append(");\n");
         
         switch( type) {
-          case StackMapTypeInfo.ITEM_Object:  //
+          case StackMapType.ITEM_Object:  //
             buf.append( localName).append( ".setObject(").append( typeInfo.getObject()).append(");\n"); 
             break;
 
-          case StackMapTypeInfo.ITEM_Uninitialized:  //
+          case StackMapType.ITEM_Uninitialized:  //
             declareLabel( buf, labelNames, typeInfo.getLabel());
             buf.append( localName).append( ".setLabel(").append( labelNames.get( typeInfo.getLabel())).append( ");\n");
             break;

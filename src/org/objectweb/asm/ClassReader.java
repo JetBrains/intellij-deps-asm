@@ -409,7 +409,8 @@ public class ClassReader {
     u = header;
     int access = readUnsignedShort(u);
     String className = readClass(u + 2);
-    String superClassName = readClass(u + 4);
+    v = items[readUnsignedShort(u + 4)];
+    String superClassName = v == 0 ? null : readUTF8(v);
     String[] implementedItfs = new String[readUnsignedShort(u + 6)];
     String sourceFile = null;
     w = 0;

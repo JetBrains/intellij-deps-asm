@@ -77,7 +77,20 @@ public class CheckClassAdapter extends ClassAdapter {
     checkState();
     checkAccess(access, 1 + 2 + 4 + 16 + 512 + 1024 + 32 + 65536 + 131072);
     CheckCodeAdapter.checkInternalName(name, "class name");
-    CheckCodeAdapter.checkInternalName(superName, "super class name");
+    if (name.equals("java/lang/Object")) {
+      if (superName != null) {
+        throw new IllegalArgumentException(
+          "The super class name of the Object class must be 'null'");
+      }
+    } else {
+      CheckCodeAdapter.checkInternalName(superName, "super class name");
+    }
+    if ((access & Constants.ACC_INTERFACE) != 0) {
+      if (!superName.equals("java/lang/Object")) {
+        throw new IllegalArgumentException(
+          "The super class name of interfaces must be 'java/lang/Object'");
+      }
+    }
     if (interfaces != null) {
       for (int i = 0; i < interfaces.length; ++i) {
         CheckCodeAdapter.checkInternalName(

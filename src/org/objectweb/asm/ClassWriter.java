@@ -134,14 +134,14 @@ public class ClassWriter implements ClassVisitor {
    * The constant pool item that contains the internal name of this class.
    */
 
-  private Item name;
+  private int name;
 
   /**
    * The constant pool item that contains the internal name of the super class
    * of this class.
    */
 
-  private Item superName;
+  private int superName;
 
   /**
    * Number of interfaces implemented or extended by this class or interface.
@@ -268,8 +268,8 @@ public class ClassWriter implements ClassVisitor {
     final String sourceFile)
   {
     this.access = access;
-    this.name = newClass(name);
-    this.superName = newClass(superName);
+    this.name = newClass(name).index;
+    this.superName = superName == null ? 0 : newClass(superName).index;
     if (interfaces != null && interfaces.length > 0) {
       interfaceCount = interfaces.length;
       this.interfaces = new int[interfaceCount];
@@ -393,7 +393,7 @@ public class ClassWriter implements ClassVisitor {
     ByteVector out = new ByteVector(size);
     out.put4(0xCAFEBABE).put2(3).put2(45);
     out.put2(index).putByteArray(pool.data, 0, pool.length);
-    out.put2(access).put2(name.index).put2(superName.index);
+    out.put2(access).put2(name).put2(superName);
     out.put2(interfaceCount);
     for (int i = 0; i < interfaceCount; ++i) {
       out.put2(interfaces[i]);

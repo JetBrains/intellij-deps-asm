@@ -140,7 +140,7 @@ public class TraceClassVisitor extends PrintClassVisitor {
       buf.append("class ");
     }
     buf.append(name).append(" ");
-    if (!superName.equals("java/lang/Object")) {
+    if (superName != null && !superName.equals("java/lang/Object")) {
       buf.append("extends ").append(superName).append(" ");
     }
     if (interfaces != null && interfaces.length > 0) {

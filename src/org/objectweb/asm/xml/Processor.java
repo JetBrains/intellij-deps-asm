@@ -125,7 +125,7 @@ public class Processor extends Observable implements Observer {
   private boolean computeMax;
   
   private int n = 0;
-
+  
   
   public Processor( int inRepresenation, int outRepresentation, 
         InputStream input, OutputStream output, Source xslt, boolean computeMax) {
@@ -186,7 +186,7 @@ public class Processor extends Observable implements Observer {
     }
     ContentHandlerFactory inDocHandlerFactory = new SubdocumentHandlerFactory( inDocHandler);   
 
-    if( inRepresentation!=SINGLE_XML) {
+    if( inDocHandler!=null && inRepresentation!=SINGLE_XML) {
       inDocHandler.startDocument();
       inDocHandler.startElement( "", "classes", "classes", new AttributesImpl());
     }
@@ -207,7 +207,7 @@ public class Processor extends Observable implements Observer {
       notifyObservers( ze.getName());
     }
     
-    if( inRepresentation!=SINGLE_XML) {
+    if( inDocHandler!=null && inRepresentation!=SINGLE_XML) {
       inDocHandler.endElement( "", "classes", "classes");
       inDocHandler.endDocument();
     }
@@ -315,15 +315,18 @@ public class Processor extends Observable implements Observer {
 
   private byte[] readEntry(ZipInputStream zis, ZipEntry ze) throws IOException {
     long size = ze.getSize();
+    int n;
     if (size > -1) {
       byte[] buff = new byte[(int) size];
-      zis.read(buff);
+      int k = 0;
+      while(( n = zis.read(buff, k, buff.length-k)) != -1) {
+        k += n;
+      }
       return buff;
     } else {
       ByteArrayOutputStream bos = new ByteArrayOutputStream();
-      byte[] buff = new byte[2048];
-      int n;
-      while ((n = zis.read(buff)) != -1) {
+      byte[] buff = new byte[4096];
+      while(( n = zis.read(buff)) != -1) {
         bos.write(buff, 0, n);
       }
       return bos.toByteArray();
@@ -577,7 +580,7 @@ public class Processor extends Observable implements Observer {
 
         writeIdent();
         w.write( "<".concat( qName));
-        if( atts!=null || atts.getLength()>0) writeAttributes( atts);
+        if( atts!=null && atts.getLength()>0) writeAttributes( atts);
 
         if( !optimizeEmptyElements) {
           w.write( ">\n");

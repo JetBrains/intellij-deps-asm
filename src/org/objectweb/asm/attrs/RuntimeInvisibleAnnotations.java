@@ -30,7 +30,7 @@
 
 package org.objectweb.asm.attrs;
 
-import java.util.LinkedList;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.objectweb.asm.Attribute;
@@ -94,7 +94,7 @@ import org.objectweb.asm.Label;
 
 public class RuntimeInvisibleAnnotations extends Attribute {
 
-  public List annotations = new LinkedList();
+  public List annotations = new ArrayList();
 
   public RuntimeInvisibleAnnotations () {
     super("RuntimeInvisibleAnnotations");

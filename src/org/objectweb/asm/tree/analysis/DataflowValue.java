@@ -37,14 +37,15 @@ import java.util.List;
 import org.objectweb.asm.tree.AbstractInsnNode;
 
 /**
- * TODO.
+ * A {@link Value} that is represented by its type in a two types type system.
+ * This type system distinguishes the ONEWORD and TWOWORDS types.
  * 
  * @author Eric Bruneton
  */
 
 public class DataflowValue implements Value {
 
-  private int size;
+  public final int size;
   
   public final AbstractInsnNode insn;
   

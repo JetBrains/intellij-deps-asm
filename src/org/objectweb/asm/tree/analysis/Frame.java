@@ -31,28 +31,63 @@
 package org.objectweb.asm.tree.analysis;
 
 /**
- * TODO.
+ * A symbolic execution stack frame. A stack frame contains a set of local 
+ * variable slots, and an operand stack. Warning: long and double values are 
+ * represented by <i>two</i> slots in local variables, and by <i>one</i> slot 
+ * in the operand stack.
  * 
  * @author Eric Bruneton
  */
 
 public class Frame {
   
+  /**
+   * The local variables of this frame.
+   */
+  
   private Value[] locals;
+  
+  /**
+   * The operand stack of this frame.
+   */
   
   private Value[] stack;
 
+  /**
+   * The number of elements in the operand stack.
+   */
+  
   private int top;
+  
+  /**
+   * Constructs a new frame with the given size.
+   *  
+   * @param nLocals the maximum number of local variables of the frame.
+   * @param nStack the maximum stack size of the frame.
+   */
   
   public Frame (final int nLocals, final int nStack) {
     this.locals = new Value[nLocals];
     this.stack = new Value[nStack];
   }
-    
+  
+  /**
+   * Constructs a new frame that is identical to the given frame.
+   * 
+   * @param src a frame. 
+   */
+  
   public Frame (final Frame src) {
     this(src.locals.length, src.stack.length);
     init(src);
   }
+  
+  /**
+   * Copies the state of the given frame into this frame.
+   * 
+   * @param src a frame.
+   * @return this frame.
+   */
   
   public Frame init (final Frame src) {
     System.arraycopy(src.locals, 0, locals, 0, locals.length);
@@ -61,29 +96,82 @@ public class Frame {
     return this;
   }
   
+  /**
+   * Returns the maximum number of local variables of this frame.
+   * 
+   * @return the maximum number of local variables of this frame.
+   */
+  
   public int getLocals () {
     return locals.length;
   }
   
-  public Value getLocal (int i) {
+  /**
+   * Returns the value of the given local variable.
+   * 
+   * @param i a local variable index.
+   * @return the value of the given local variable.
+   */
+  
+  public Value getLocal (final int i) {
+    if (i >= locals.length) {
+      throw new RuntimeException("Trying to access an inexistant local variable");
+    }
     return locals[i];
   }
   
-  public void setLocal (int i, Value value) {
+  /**
+   * Sets the value of the given local variable.
+   * 
+   * @param i a local variable index.
+   * @param value the new value of this local variable.
+   */
+  
+  public void setLocal (final int i, final Value value) {
+    if (i >= locals.length) {
+      throw new RuntimeException("Trying to access an inexistant local variable");
+    }
     locals[i] = value;
   }
+
+  /**
+   * Returns the number of values in the operand stack of this frame. Long and
+   * double values are treated as single values.
+   * 
+   * @return the number of values in the operand stack of this frame.
+   */
   
   public int getStackSize () {
     return top;
   }
   
-  public Value getStack (int i) {
+  /**
+   * Returns the value of the given operand stack slot.
+   * 
+   * @param i the index of an operand stack slot.
+   * @return the value of the given operand stack slot.
+   */
+  
+  public Value getStack (final int i) {
+    if (i >= top) {
+      throw new RuntimeException("Trying to access an inexistant stack element");
+    }
     return stack[i];
   }
+  
+  /**
+   * Clears the operand stack of this frame.
+   */
   
   public void clearStack () {
     top = 0;
   }
+
+  /**
+   * Pops a value from the operand stack of this frame.
+   * 
+   * @return the value that has been popped from the stack.
+   */
   
   public Value pop () {
     if (top == 0) {
@@ -92,12 +180,26 @@ public class Frame {
     return stack[--top];
   }
   
+  /**
+   * Pushes a value into the operand stack of this frame.
+   * 
+   * @param value the value that must be pushed into the stack.
+   */
+  
   public void push (final Value value) {
     if (top >= stack.length) {
       throw new RuntimeException("Insufficient maximum stack size.");
     }
     stack[top++] = value;
   }
+  
+  /**
+   * Merges this frame with the given frame.
+   *  
+   * @param frame a frame.
+   * @return <tt>true</tt> if this frame has been changed as a result of the
+   *      merge operation, or <tt>false</tt> otherwise.
+   */
   
   boolean merge (final Frame frame) {
     if (top != frame.top) {
@@ -121,16 +223,32 @@ public class Frame {
     return changes;
   }
   
-  boolean merge (final Frame beforeJSR, final boolean[] access) {
+  /**
+   * Merges this frame with the given frame (case of a RET instruction).
+
+   * @param frame a frame
+   * @param access the local variables that have been accessed by the 
+   *     subroutine to which the RET instruction corresponds.
+   * @return <tt>true</tt> if this frame has been changed as a result of the
+   *      merge operation, or <tt>false</tt> otherwise.
+   */
+  
+  boolean merge (final Frame frame, final boolean[] access) {
     boolean changes = false;
     for (int i = 0; i < locals.length; ++i) {
-      if (!access[i] && !locals[i].equals(beforeJSR.locals[i])) {
-        locals[i] = beforeJSR.locals[i];
+      if (!access[i] && !locals[i].equals(frame.locals[i])) {
+        locals[i] = frame.locals[i];
         changes = true;
       }
     }
     return changes;
   }
+  
+  /**
+   * Returns a string representation of this frame.
+   * 
+   * @return a string representation of this frame.
+   */
   
   public String toString () {
     StringBuffer b = new StringBuffer();

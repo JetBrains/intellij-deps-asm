@@ -49,7 +49,7 @@ import org.objectweb.asm.tree.TryCatchBlockNode;
 import org.objectweb.asm.tree.VarInsnNode;
 
 /**
- * TODO.
+ * A semantic bytecode analyzer.
  * 
  * @author Eric Bruneton
  */
@@ -74,9 +74,28 @@ public class Analyzer implements Constants {
 
   private int top;
 
+  /**
+   * Constructs a new {@link Analyzer}.
+   * 
+   * @param interpreter the interpreter to be used to symbolically interpret 
+   *      the bytecode instructions.
+   */
+  
   public Analyzer (final Interpreter interpreter) {
     this.interpreter = interpreter;
   }
+  
+  /**
+   * Analyzes the given method.
+   * 
+   * @param c the class to which the method belongs.
+   * @param m the method to be analyzed.
+   * @return the symbolic state of the execution stack frame at each bytecode
+   *     instruction of the method. The size of the returned array is equal to 
+   *     the number of instructions (and labels) of the method. A given frame is
+   *     <tt>null</tt> if and only if the corresponding instruction cannot be
+   *     reached (dead code).  
+   */
   
   public Frame[] analyze (final ClassNode c, final MethodNode m) {
     n = m.instructions.size();
@@ -226,9 +245,26 @@ public class Analyzer implements Constants {
     return frames;
   }
 
+  /**
+   * Returns the index of the given instruction.
+   * 
+   * @param insn a {@link Label} or {@link AbstractInsnNode} of the last 
+   *      recently analyzed method.
+   * @return the index of the given instruction of the last recently analyzed 
+   *      method. 
+   */
+  
   public int getIndex (final Object insn) {
     return indexes.get(insn); 
   }
+  
+  /**
+   * Returns the exception handlers for the given instruction.
+   *   
+   * @param insn the index of an instruction of the last recently analyzed 
+   *      method.
+   * @return a list of {@link TryCatchBlockNode} objects.
+   */
   
   public List getHandlers (final int insn) {
     return handlers[insn];
@@ -269,7 +305,6 @@ public class Analyzer implements Constants {
       case FLOAD:
       case DLOAD:
       case ALOAD:
-        // TODO check that value type is ok with opcode
         f.push(interpreter.copyOperation(insn, f.getLocal(((VarInsnNode)insn).var)));
         break;
       case IALOAD:
@@ -289,8 +324,7 @@ public class Analyzer implements Constants {
       case FSTORE:
       case DSTORE:
       case ASTORE:
-        value1 = f.pop();
-        // TODO test that value type is ok with opcode 
+        value1 = interpreter.copyOperation(insn, f.pop());
         var = ((VarInsnNode)insn).var;
         f.setLocal(var, value1);
         if (value1.getSize() == 2) {

@@ -40,7 +40,7 @@ import org.objectweb.asm.tree.LdcInsnNode;
 import org.objectweb.asm.tree.MethodInsnNode;
 
 /**
- * TODO.
+ * An {@link Interpreter} for {@link DataflowValue} values.
  * 
  * @author Eric Bruneton
  */

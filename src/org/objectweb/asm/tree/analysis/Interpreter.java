@@ -36,7 +36,12 @@ import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.AbstractInsnNode;
 
 /**
- * TODO.
+ * A semantic bytecode interpreter. More precisely, this interpreter only 
+ * manages the computation of values from other values: it does not manage the
+ * transfer of values to or from the stack, and to or from the local variables.
+ * This separation allows a generic bytecode {@link Analyzer} to work with 
+ * various semantic interpreters, without needing to duplicate the code to
+ * simulate the transfer of values.
  * 
  * @author Eric Bruneton
  */
@@ -44,16 +49,19 @@ import org.objectweb.asm.tree.AbstractInsnNode;
 public interface Interpreter {
   
   /**
-   * TODO. 
+   * Creates a new value that represents the given type. 
    *       
-   * @param type null = uninitialized value
-   * @return
+   * @param type a primitive or reference type, or <tt>null</tt> to represent an
+   *      uninitialized value.
+   * @return a value that represents the given type. The size of the returned 
+   *      value must be equal to the size of the given type. 
    */
   
   Value newValue (Type type);
   
   /**
-   * TODO. Called for the following opcodes:
+   * Interprets a bytecode instruction without arguments. This method is called 
+   * for the following opcodes:
    * 
    * ACONST_NULL, 
    * ICONST_M1, ICONST_0, ICONST_1, ICONST_2, ICONST_3, ICONST_4, ICONST_5,
@@ -63,24 +71,32 @@ public interface Interpreter {
    * GETSTATIC,
    * NEW
    * 
-   * @param insn
-   * @return
+   * @param insn the bytecode instruction to be interpreted.
+   * @return the result of the interpretation of the given instruction.
    */
   
   Value newOperation (AbstractInsnNode insn);
   
   /**
-   * TODO. 
+   * Interprets a bytecode instruction that moves a value on the stack or to or
+   * from local variables. This method is called for the following opcodes:
    * 
-   * @param insn
-   * @param value
-   * @return
+   * ILOAD, LLOAD, FLOAD, DLOAD, ALOAD, ISTORE, LSTORE, FSTORE, DSTORE, ASTORE,
+   * DUP, DUP_X1, DUP_X2, DUP2, DUP2_X1, DUP2_X2,
+   * SWAP
+   *
+   * @param insn the bytecode instruction to be interpreted.
+   * @param value the value that must be moved by the instruction.
+   * @return the result of the interpretation of the given instruction. The 
+   *      returned value must be {@link Value#equals(Value) equal} to the given 
+   *      value.
    */
   
   Value copyOperation (AbstractInsnNode insn, Value value);
   
   /**
-   * TODO. Called for the following opcodes:
+   * Interprets a bytecode instruction with a single argument. This method is 
+   * called for the following opcodes:
    * 
    * INEG, LNEG, FNEG, DNEG,
    * IINC,
@@ -98,15 +114,16 @@ public interface Interpreter {
    * MONITORENTER, MONITOREXIT,
    * IFNULL, IFNONNULL
    * 
-   * @param insn
-   * @param value
-   * @return
+   * @param insn the bytecode instruction to be interpreted.
+   * @param value the argument of the instruction to be interpreted.
+   * @return the result of the interpretation of the given instruction.
    */
   
   Value unaryOperation (AbstractInsnNode insn, Value value);
   
   /**
-   * TODO. Called for the following opcodes:
+   * Interprets a bytecode instruction with two arguments. This method is 
+   * called for the following opcodes:
    * 
    * IALOAD, LALOAD, FALOAD, DALOAD, AALOAD, BALOAD, CALOAD, SALOAD,
    * IADD, LADD, FADD, DADD, ISUB, LSUB, FSUB, DSUB, IMUL, LMUL, FMUL, DMUL,
@@ -118,36 +135,39 @@ public interface Interpreter {
    * IF_ACMPEQ, IF_ACMPNE,
    * PUTFIELD
    *
-   * @param insn
-   * @param value1
-   * @param value2
-   * @return
+   * @param insn the bytecode instruction to be interpreted.
+   * @param value1 the first argument of the instruction to be interpreted.
+   * @param value2 the second argument of the instruction to be interpreted.
+   * @return the result of the interpretation of the given instruction.
    */
   
   Value binaryOperation (AbstractInsnNode insn, Value value1, Value value2);
   
   /**
-   * TODO. Called for the following opcodes:
+   * Interprets a bytecode instruction with three arguments. This method is 
+   * called for the following opcodes:
    * 
    * IASTORE, LASTORE, FASTORE, DASTORE, AASTORE, BASTORE, CASTORE, SASTORE
    *
-   * @param insn
-   * @param value1
-   * @param value2
-   * @return
+   * @param insn the bytecode instruction to be interpreted.
+   * @param value1 the first argument of the instruction to be interpreted.
+   * @param value2 the second argument of the instruction to be interpreted.
+   * @param value3 the third argument of the instruction to be interpreted.
+   * @return the result of the interpretation of the given instruction.
    */
   
   Value ternaryOperation (AbstractInsnNode insn, Value value1, Value value2, Value value3);
 
   /**
-   * TODO. Called for the following opcodes:
+   * Interprets a bytecode instruction with a variable number of arguments. 
+   * This method is called for the following opcodes:
    * 
    * INVOKEVIRTUAL, INVOKESPECIAL, INVOKESTATIC, INVOKEINTERFACE,
    * MULTIANEWARRAY
    * 
-   * @param insn
-   * @param values
-   * @return
+   * @param insn the bytecode instruction to be interpreted.
+   * @param values the arguments of the instruction to be interpreted.
+   * @return the result of the interpretation of the given instruction.
    */
   
   Value naryOperation (AbstractInsnNode insn, List values);

@@ -31,13 +31,42 @@
 package org.objectweb.asm.tree.analysis;
 
 /**
- * TODO.
+ * An immutable symbolic value for semantic interpretation of bytecode.
  * 
  * @author Eric Bruneton
  */
 
 public interface Value {
+  
+  /**
+   * Returns the size of this value in words.
+   * 
+   * @return either 1 or 2.
+   */
+  
   int getSize ();
+  
+  /**
+   * Merges this value and the given value. The merge operation must return
+   * a value that represents both values (for instance, if the two values are
+   * two types, the merged value must be a common super type of the two types.
+   * If the two values are integer intervals, the merged value must be an 
+   * interval that contains the previous ones. Likewise for other types of 
+   * values).  
+   * 
+   * @param value a value.
+   * @return the merged value. If the merged value is equal to this value, this
+   *      method <i>must</i> return <tt>this</tt>.
+   */
+  
   Value merge (Value value);
+  
+  /**
+   * Compares this value with the given value.
+   * 
+   * @param value a value.
+   * @return <tt>true</tt> if the values are equals, <tt>false</tt> otherwise.
+   */
+  
   boolean equals (Value value);
 }

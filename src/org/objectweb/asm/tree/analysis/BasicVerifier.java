@@ -38,13 +38,52 @@ import org.objectweb.asm.tree.FieldInsnNode;
 import org.objectweb.asm.tree.MethodInsnNode;
 
 /**
- * TODO.
+ * An extended {@link BasicInterpreter} that checks that bytecode instructions 
+ * are correctly used. 
  * 
  * @author Eric Bruneton
  */
 
 public class BasicVerifier extends BasicInterpreter {
 
+  public Value copyOperation (final AbstractInsnNode insn, final Value value) {
+    Value type;
+    switch (insn.getOpcode()) {
+      case ILOAD:
+      case ISTORE:
+        type = BasicValue.INT_VALUE;
+        break;
+      case FLOAD:
+      case FSTORE:
+        type = BasicValue.FLOAT_VALUE;
+        break;
+      case LLOAD:
+      case LSTORE:
+        type = BasicValue.LONG_VALUE;
+        break;
+      case DLOAD:
+      case DSTORE:
+        type = BasicValue.DOUBLE_VALUE;
+        break;
+      case ALOAD:
+        type = BasicValue.REFERENCE_VALUE;
+        break;
+      case ASTORE:
+        if (value != BasicValue.REFERENCE_VALUE && 
+            value != BasicValue.RETURNADDRESS_VALUE) 
+        {
+          throw new RuntimeException("Wrong types on stack.");
+        }
+        return value;
+      default:
+        return value;
+    }
+    if (value != type) {
+      throw new RuntimeException("Wrong types on stack.");
+    }
+    return value;
+  }
+  
   public Value unaryOperation (final AbstractInsnNode insn, final Value value) {
     Value type;
     switch (insn.getOpcode()) {

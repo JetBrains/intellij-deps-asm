@@ -126,8 +126,8 @@ public class Analyzer implements Constants {
     }
 
     // initializes the data structures for the control flow analysis algorithm
-    Frame current = new Frame(m.maxLocals, m.maxStack);
-    Frame handler = new Frame(m.maxLocals, m.maxStack);
+    Frame current = newFrame(m.maxLocals, m.maxStack);
+    Frame handler = newFrame(m.maxLocals, m.maxStack);
     Type[] args = Type.getArgumentTypes(m.desc);
     int local = 0;
     if ((m.access & ACC_STATIC) == 0) {
@@ -267,7 +267,43 @@ public class Analyzer implements Constants {
   public List getHandlers (final int insn) {
     return handlers[insn];
   }
+  
+  /**
+   * Constructs a new frame with the given size.
+   *  
+   * @param nLocals the maximum number of local variables of the frame.
+   * @param nStack the maximum stack size of the frame.
+   * @return the created frame.
+   */
+  
+  protected Frame newFrame (final int nLocals, final int nStack) {
+    return new Frame(nLocals, nStack);
+  }
+  
+  /**
+   * Constructs a new frame that is identical to the given frame.
+   * 
+   * @param src a frame. 
+   * @return the created frame.
+   */
+  
+  protected Frame newFrame (final Frame src) {
+    return new Frame(src);
+  }
+  
+  /**
+   * Creates a control flow graph edge. The default implementation of this
+   * method does nothing. It can be overriden in order to construct the control
+   * flow graph of a method (this method is called by the 
+   * {@link #analyze analyze} method during its visit of the method's code).
+   *    
+   * @param frame the frame corresponding to an instruction.
+   * @param successor the frame corresponding to a successor instruction.
+   */
 
+  protected void newControlFlowEdge (final Frame frame, final Frame successor) {
+  }
+  
   // -------------------------------------------------------------------------
     
   private void merge (
@@ -283,12 +319,14 @@ public class Analyzer implements Constants {
       boolean changes = false;
 
       if (oldFrame == null) {
-        frames[insn] = new Frame(frame);
+        frames[insn] = newFrame(frame);
         changes = true;
       } else {
         changes |= oldFrame.merge(frame);
       }
 
+      newControlFlowEdge(frame, oldFrame);
+      
       if (oldSubroutine == null) {
         if (subroutine != null) {
           subroutines[insn] = subroutine.copy();
@@ -322,11 +360,13 @@ public class Analyzer implements Constants {
       afterRET.merge(beforeJSR, access);
       
       if (oldFrame == null) {
-        frames[insn] = new Frame(afterRET);
+        frames[insn] = newFrame(afterRET);
         changes = true;
       } else {  
         changes |= oldFrame.merge(afterRET, access);
       }
+      
+      newControlFlowEdge(afterRET, oldFrame);
 
       if (changes && !queued[insn]) {
         queued[insn] = true;

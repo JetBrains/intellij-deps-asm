@@ -35,7 +35,7 @@ However, this class adapter has a cost: it makes ASM bigger and slower. Indeed
 it requires more than twenty new classes, and multiplies the time needed to
 transform a class by almost two (it is almost two times faster to read, "modify"
 and write a class with a ClassAdapter than with a TreeClassAdapter). This is why
-this class adapter is bundled in an optional <tt>asmtree.jar</tt> library that
+this class adapter is bundled in an optional <tt>asm-tree.jar</tt> library that
 is separated from (but requires) the <tt>asm.jar</tt> library, which contains
 the core ASM framework. This is also why <i><font color="red">it is recommanded
 not to use this class adapter when it is possible</font></i>.

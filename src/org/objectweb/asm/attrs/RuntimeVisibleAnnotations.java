@@ -1,9 +1,10 @@
-/* $Id: RuntimeVisibleAnnotations.java,v 1.2 2003-11-29 06:33:14 ekuleshov Exp $ */
+/* $Id: RuntimeVisibleAnnotations.java,v 1.3 2003-12-02 05:18:37 ekuleshov Exp $ */
 
 package org.objectweb.asm.attrs;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import org.objectweb.asm.Attribute;
 import org.objectweb.asm.ByteVector;
@@ -73,6 +74,11 @@ public class RuntimeVisibleAnnotations extends Attribute {
 
   protected ByteVector write( ClassWriter cw, byte[] code, int len, int maxStack, int maxLocals) {
     return Annotation.writeAnnotations( new ByteVector(), annotations, cw);
+  }
+  
+  public void dump( StringBuffer buf, String varName, Map labelNames) {
+    buf.append( "RuntimeVisibleAnnotations ").append( varName).append( " = new RuntimeVisibleAnnotations();\n");
+    Annotation.dumpAnnotations( buf, varName, annotations);
   }
   
   /**

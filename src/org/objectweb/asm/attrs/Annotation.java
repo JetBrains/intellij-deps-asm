@@ -34,11 +34,8 @@
 
 package org.objectweb.asm.attrs;
 
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 
 import org.objectweb.asm.ByteVector;
 import org.objectweb.asm.ClassReader;
@@ -91,7 +88,11 @@ import org.objectweb.asm.ClassWriter;
  */
 public class Annotation {
   public String type;
-  public Map memberValuePairs = new HashMap();
+  public List memberValues = new LinkedList();
+  
+  public void add( String name, Object value) {
+    memberValues.add( new Object[] { name, value});
+  }
   
   /**
    * Reads annotation data structures.
@@ -106,15 +107,13 @@ public class Annotation {
    */
   public int read( ClassReader cr, int off, char[] buf) {
     type = cr.readClass( off, buf);
-    off += 2;
-    int numMemberValuePairs = cr.readUnsignedShort( off);
-    off += 2;
+    int numMemberValuePairs = cr.readUnsignedShort( off + 2);
+    off += 4;
     for( int i = 0; i<numMemberValuePairs; i++) {
       String memberName = cr.readUTF8( off, buf);
-      off += 2;
       AnnotationMemberValue value = new AnnotationMemberValue(); 
-      off = value.read( cr, off, buf);
-      memberValuePairs.put( memberName, value);
+      off = value.read( cr, off + 2, buf);
+      memberValues.add( new Object[] { memberName, value});
     }
     return off;
   }
@@ -129,14 +128,28 @@ public class Annotation {
    */
   public void write( ByteVector bv, ClassWriter cw) {
     bv.putShort( cw.newClass( type));
-    bv.putShort( memberValuePairs.size());
-    for( Iterator it = memberValuePairs.keySet().iterator(); it.hasNext(); ) {
-    	String memberName = ( String) it.next();
-      AnnotationMemberValue value = ( AnnotationMemberValue) memberValuePairs.get( memberName);
-    	value.write( bv, cw);
+    bv.putShort( memberValues.size());
+    for( int i = 0; i<memberValues.size(); i++) {
+    	Object[] value = ( Object[]) memberValues.get( i);
+      bv.putShort( cw.newUTF8(( String) value[ 0]));
+    	(( AnnotationMemberValue) value[ 1]).write( bv, cw);
     }    
   }
 
+  public void dump( StringBuffer buf, String varName) {
+    buf.append( "Annotation ").append( varName).append( " = new Annotation();\n");
+    buf.append( varName).append( ".type = \"").append( type).append( "\";\n");
+    if( memberValues.size()>0) {
+      buf.append( "{\n");
+      for( int i = 0; i<memberValues.size(); i++) {
+        Object[] values = ( Object[]) memberValues.get( i);
+        String val = varName+"val"+i;
+        (( AnnotationMemberValue) values[ 1]).dump( buf, val);
+        buf.append( varName).append( ".add( \"").append( values[ 0]).append( "\", ").append( val).append( ");\n");
+      }
+      buf.append( "}\n");
+    }
+  }
   
   /**
    * Utility method to read List of annotations. Each element of annotations List
@@ -222,14 +235,39 @@ public class Annotation {
     return bv;
   }
   
+  public static void dumpAnnotations( StringBuffer buf, String varName, List annotations) {
+    if( annotations.size()>0) {
+      buf.append( "{\n");
+      for( int i = 0; i<annotations.size(); i++) {
+        String val = varName+"ann"+i;
+        ((Annotation) annotations.get(i)).dump( buf, val);
+        buf.append( varName).append( ".add( ").append( val).append( ");\n");
+      }
+      buf.append( "}\n");
+    }
+  }
+
+  public static void dumpParameterAnnotations( StringBuffer buf, String varName, List parameters) {
+    // TODO implement method Annotation.dumpParameterAnnotations
+    if( parameters.size()>0) {
+      buf.append( "{\n");
+      for( int i = 0; i<parameters.size(); i++) {
+        String val = varName+"param"+i;
+        dumpAnnotations(buf, val, ( List) parameters.get( i));
+        buf.append( varName).append( ".add( ").append( val).append( ");\n");
+      }
+      buf.append( "}\n");
+    }
+  }
+
   /**
    * Returns annotation values in the format described in JSR-175 for Java source code.
    */
   public static String stringAnnotations( List annotations) {
     StringBuffer sb = new StringBuffer();
     if( annotations.size()>0) {
-      for( Iterator it = annotations.iterator(); it.hasNext(); ) {
-        sb.append( '\n').append( it.next());
+      for( int i = 0; i<annotations.size(); i++) {
+        sb.append( '\n').append( annotations.get( i));
       }
     }
     return sb.toString();
@@ -241,8 +279,8 @@ public class Annotation {
   public static String stringParameterAnnotations( List parameters) {
     StringBuffer sb = new StringBuffer();
     String sep = "";
-    for( Iterator it = parameters.iterator(); it.hasNext(); ) {
-      sb.append( sep).append( stringAnnotations(( List) it.next()));
+    for( int i = 0; i<parameters.size(); i++ ) {
+      sb.append( sep).append( stringAnnotations(( List) parameters.get( i)));
       sep = ", ";
     }
     return sb.toString();
@@ -254,17 +292,16 @@ public class Annotation {
   public String toString() {
     StringBuffer sb = new StringBuffer( "@").append( type);
     // shorthand syntax for marker annotation
-    if( memberValuePairs.size()>0) {
+    if( memberValues.size()>0) {
       sb.append( " ( ");
       String sep = "";
-      for( Iterator it = memberValuePairs.keySet().iterator(); it.hasNext(); ) {
-      	String memberName = ( String) it.next();
-        AnnotationMemberValue value = (AnnotationMemberValue) memberValuePairs.get( memberName);
+      for( int i = 0; i<memberValues.size(); i++) {
+      	Object[] value = ( Object[]) memberValues.get( i);
         // using shorthand syntax for single-member annotation
-        if( memberValuePairs.size()>1) {
-          sb.append( sep).append( memberName).append( " = ");
+        if( memberValues.size()>1) {
+          sb.append( sep).append( value[ 0]).append( " = ");
         }
-        sb.append( value);
+        sb.append( value[ 1]);
       	sep = ", ";
       }
       sb.append( " )");

@@ -34,12 +34,10 @@
 
 package org.objectweb.asm.attrs;
 
-import java.util.LinkedList;
-import java.util.List;
-
 import org.objectweb.asm.ByteVector;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassWriter;
+import org.objectweb.asm.Type;
 
 
 /**
@@ -142,8 +140,42 @@ import org.objectweb.asm.ClassWriter;
  * @author Eugene Kuleshov 
  */
 public class AnnotationMemberValue {
-  public int tag;
-  public Object value;
+  private static final String TAGS = "BCDFIJSZsec@[";
+  private static final Class[] TYPES = new Class[] {
+			Byte.class,
+      Character.class,
+      Double.class,
+      Float.class,
+      Integer.class,
+      Long.class,
+      Short.class,
+      Boolean.class,
+      String.class,
+      EnumConstValue.class,  // should we use java.lang.Enum in the future?
+      Type.class,
+      Annotation.class,
+      AnnotationMemberValue[].class};
+  
+  // private int tag;
+  private Object value;
+  
+  public AnnotationMemberValue() {
+  }
+  
+  public AnnotationMemberValue( Object value) {
+    this.value = value;
+  }
+  
+  public int getTag() {
+    for( int i = 0; i<TYPES.length; i++) {
+      if( value.getClass().equals( TYPES[ i])) return TAGS.charAt( i);
+    }
+    return -1;
+  }
+  
+  public Object getValue() {
+    return value;
+  }
   
   /**
    * Reads member_value data structures.
@@ -157,7 +189,7 @@ public class AnnotationMemberValue {
    * @return offset position in bytecode after reading annotation
    */
   public int read( ClassReader cr, int off, char[] buf) {
-    tag = cr.b[ off++] & 0xff;
+    int tag = cr.readUnsignedShort( off++) >> 8;
     switch( tag) {
       case 'B':  // pointer to CONSTANT_Byte
       case 'C':  // pointer to CONSTANT_Char
@@ -174,16 +206,16 @@ public class AnnotationMemberValue {
       case 's':  // pointer to CONSTANT_Utf8
         value = cr.readUTF8( off, buf); 
         off += 2;
-        break;
-        
+        break;        
         
       case 'e':  // enum_const_value
-        value = new EnumConstValue( cr.readClass( off, buf), cr.readClass( off+2, buf));
+        // TODO verify the data structures
+        value = new EnumConstValue( cr.readUTF8( off, buf), cr.readUTF8( off+2, buf));
         off += 4;
         break;
          
       case 'c':  // class_info
-        value = cr.readClass( off, buf);
+        value = Type.getType( cr.readClass( off, buf));
         off += 2;
         break;
         
@@ -193,13 +225,13 @@ public class AnnotationMemberValue {
         break;
          
       case '[':  // array_value
-        value = new LinkedList();
         int size = cr.readUnsignedShort( off);
         off += 2;
+        AnnotationMemberValue[] v = new AnnotationMemberValue[ size];
+        value = v;
         for( int i = 0; i<size; i++) {
-          AnnotationMemberValue member = new AnnotationMemberValue();
-          off = member.read( cr, off, buf);
-          (( List) value).add( member);
+          v[ i] = new AnnotationMemberValue();
+          off = v[ i].read( cr, off, buf);
         }
         break;
     }
@@ -215,6 +247,7 @@ public class AnnotationMemberValue {
    *      corresponds to this attribute.
    */
   public ByteVector write( ByteVector bv, ClassWriter cw) {
+    int tag = getTag();
     bv.putByte( tag);
     switch( tag) {
       case 'B':  // pointer to CONSTANT_Byte
@@ -237,7 +270,7 @@ public class AnnotationMemberValue {
         break;
 
       case 'c':  // class_info
-        bv.putShort( cw.newClass(( String) value));
+        bv.putShort( cw.newClass((( Type) value).getDescriptor()));
         break;
 
       case '@':  // annotation_value
@@ -245,14 +278,86 @@ public class AnnotationMemberValue {
         break;
 
       case '[':  // array_value
-        List lst = ( List) value;
-        bv.putShort( lst.size());
-        for( int i = 0; i<lst.size(); i++) {
-          (( AnnotationMemberValue) lst.get( i)).write( bv, cw);
+        AnnotationMemberValue[] v = ( AnnotationMemberValue[]) value;
+        bv.putShort( v.length);
+        for( int i = 0; i<v.length; i++) {
+          v[ i].write( bv, cw);
         }
         break;
     }
     return bv;
+  }
+
+  public void dump(StringBuffer buf, String valName) {
+    int tag = getTag();
+    String objName = valName.concat( "obj");
+    switch( tag) {
+      case 'B':  // pointer to CONSTANT_Byte
+        buf.append( "Object "+objName+" = new Byte( "+value+");\n");
+        break;
+        
+      case 'C':  // pointer to CONSTANT_Char
+        buf.append( "Object "+objName+" = new Character(( char) "+value+");\n");
+        break;
+        
+      case 'D':  // pointer to CONSTANT_Double
+        buf.append( "Object "+objName+" = new Double(( double) "+value+");\n");
+        break;
+        
+      case 'F':  // pointer to CONSTANT_Float
+        buf.append( "Object "+objName+" = new Float(( float) "+value+");\n");
+        break;
+        
+      case 'I':  // pointer to CONSTANT_Integer
+        buf.append( "Object "+objName+" = new Integer(( int) "+value+");\n");
+        break;
+        
+      case 'J':  // pointer to CONSTANT_Long
+        buf.append( "Object "+objName+" = new Long(( long) "+value+");\n");
+        break;
+       
+      case 'S':  // pointer to CONSTANT_Short
+        buf.append( "Object "+objName+" = new Short(( short) "+value+");\n");
+        break;
+        
+      case 'Z':  // pointer to CONSTANT_Boolean 
+        buf.append( "Object "+objName+" = new Boolean( "+value+");\n");
+        break;
+         
+      case 's':  // pointer to CONSTANT_Utf8
+        buf.append( "Object "+objName+" = \""+value+"\";\n");
+        break;
+            
+      case 'e':  // enum_const_value
+        EnumConstValue e = ( EnumConstValue) value;
+        buf.append( "Object "+objName+" = new AnnotationMemberValue.EnumConstValue( \""+e.typeName+"\", \""+e.constName+"\"));\n");
+        break;
+
+      case 'c':  // class_info
+        Type t = ( Type) value;
+        buf.append( "Object "+objName+" = Type.getType( \""+t.getDescriptor()+"\");\n");
+        break;
+
+      case '@':  // annotation_value
+        (( Annotation) value).dump( buf, objName);
+        break;
+
+      case '[':  // array_value
+        AnnotationMemberValue[] v = ( AnnotationMemberValue[]) value;
+        buf.append( "AnnotationMemberValue[] ").append( objName);
+        buf.append( " = new AnnotationMemberValue[ ").append( v.length).append( "]\n;");
+        buf.append( "{\n");
+        buf.append( "Object av = null;\n");
+        for( int i = 0; i<v.length; i++) {
+          v[ i].dump( buf, objName+i);
+          buf.append( objName).append( "[").append( i).append( "] = ").append( objName+i);
+        }
+        buf.append( "};\n");
+        break;
+    }
+
+    buf.append( "AnnotationMemberValue ").append( valName);
+    buf.append( " = new AnnotationMemberValue( ").append( objName).append( ");\n");
   }
 
   /**
@@ -260,7 +365,8 @@ public class AnnotationMemberValue {
    */
   public String toString() {
     StringBuffer sb = new StringBuffer();
-    // TODO   
+    // TODO
+    int tag = getTag();
     switch( tag) {
       case 's':  // pointer to CONSTANT_Utf8
         sb.append( '"').append( value).append( '"');
@@ -289,16 +395,16 @@ public class AnnotationMemberValue {
         break;
 
       case '[':  // array_value
-        List lst = ( List) value;
-        if( lst.size()>0) {
+        AnnotationMemberValue[] v = ( AnnotationMemberValue[]) value;
+        if( v.length>0) {
           sb.append( "{ ");
           String sep = "";
-          for( int i = 0; i<lst.size(); i++) {
-            sb.append( sep).append( lst.get( i).toString());
+          for( int i = 0; i<v.length; i++) {
+            sb.append( sep).append( v[ i].toString());
             sep = ", ";
           }          
           sb.append( " }");
-         }
+        }
         break;
     }    
     return sb.toString();
@@ -318,9 +424,15 @@ public class AnnotationMemberValue {
     }
     
     public void write( ByteVector bv, ClassWriter cw) {
-      bv.putShort( cw.newClass( typeName));
-      bv.putShort( cw.newClass( constName));
+      // TODO verify the data structures
+      bv.putShort( cw.newUTF8( typeName));
+      bv.putShort( cw.newUTF8( constName));
     }
+    
+    // public boolean equals( Object o) {
+    //   EnumConstValue v = ( EnumConstValue) o;
+    //   return v.constName.equals( )
+    // }
     
     public String toString() {
       // TODO verify print enum

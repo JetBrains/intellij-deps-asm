@@ -1,9 +1,10 @@
-/* $Id: RuntimeInvisibleAnnotations.java,v 1.2 2003-11-29 06:33:14 ekuleshov Exp $ */
+/* $Id: RuntimeInvisibleAnnotations.java,v 1.3 2003-12-02 05:18:37 ekuleshov Exp $ */
 
 package org.objectweb.asm.attrs;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import org.objectweb.asm.Attribute;
 import org.objectweb.asm.ByteVector;
@@ -63,7 +64,7 @@ import org.objectweb.asm.Label;
  * 
  * @author Eugene Kuleshov 
  */
-public class RuntimeInvisibleAnnotations extends Attribute {
+public class RuntimeInvisibleAnnotations extends Attribute implements Dumpable {
   public List annotations = new LinkedList();
   
   public RuntimeInvisibleAnnotations() {
@@ -80,12 +81,17 @@ public class RuntimeInvisibleAnnotations extends Attribute {
     return Annotation.writeAnnotations( new ByteVector(), annotations, cw);
   }
   
+  public void dump( StringBuffer buf, String varName, Map labelNames) {
+    buf.append( "RuntimeInvisibleAnnotations ").append( varName).append( " = new RuntimeInvisibleAnnotations();\n");
+    Annotation.dumpAnnotations( buf, varName, annotations);
+  }
+  
   /**
    * Returns value in the format described in JSR-175 for Java source code.
    */
   public String toString() {
     return Annotation.stringAnnotations( annotations);
   }
-  
+
 }
 

@@ -1,9 +1,10 @@
-/* $Id: RuntimeVisibleParameterAnnotations.java,v 1.2 2003-11-29 06:33:14 ekuleshov Exp $ */
+/* $Id: RuntimeVisibleParameterAnnotations.java,v 1.3 2003-12-02 05:18:37 ekuleshov Exp $ */
 
 package org.objectweb.asm.attrs;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import org.objectweb.asm.Attribute;
 import org.objectweb.asm.ByteVector;
@@ -74,7 +75,7 @@ import org.objectweb.asm.Label;
  * 
  * @author Eugene Kuleshov
  */
-public class RuntimeVisibleParameterAnnotations extends Attribute {
+public class RuntimeVisibleParameterAnnotations extends Attribute implements Dumpable {
   public List parameters = new LinkedList();
   
   public RuntimeVisibleParameterAnnotations() {
@@ -91,6 +92,11 @@ public class RuntimeVisibleParameterAnnotations extends Attribute {
     return Annotation.writeParametersAnnotations( new ByteVector(), parameters, cw);
   }
 
+  public void dump( StringBuffer buf, String varName, Map labelNames) {
+    buf.append( "RuntimeVisibleParameterAnnotations ").append( varName).append( " = new RuntimeVisibleParameterAnnotations();\n");
+    Annotation.dumpParameterAnnotations( buf, varName, parameters);
+  }
+  
   public String toString() {
     return Annotation.stringParameterAnnotations( parameters);
   }

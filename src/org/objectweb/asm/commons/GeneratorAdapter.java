@@ -34,6 +34,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
@@ -220,6 +221,51 @@ public class GeneratorAdapter extends LocalVariablesSorter {
     this.localTypes = new ArrayList();
   }
 
+  /**
+   * Creates a new {@link GeneratorAdapter}.
+   *
+   * @param access access flags of the adapted method.
+   * @param method the adapted method.
+   * @param signature the signature of the adapted method 
+   *      (may be <tt>null</tt>).
+   * @param exceptions the exceptions thrown by the adapted method 
+   *      (may be <tt>null</tt>).
+   * @param cv the class visitor to which this adapter delegates calls.
+   */
+
+  public GeneratorAdapter (
+    final int access,
+    final Method method,
+    final String signature,
+    final Type[] exceptions,
+    final ClassVisitor cv)
+  {
+    this(access, method, cv.visitMethod(
+      access, 
+      method.getName(), 
+      method.getDescriptor(), 
+      signature, 
+      getInternalNames(exceptions)));
+  }
+  
+  /**
+   * Returns the internal names of the given types. 
+   * 
+   * @param types a set of types.
+   * @return the internal names of the given types.
+   */
+  
+  private static String[] getInternalNames (final Type[] types) {
+    if (types == null) {
+      return null;
+    }
+    String[] names = new String[types.length];
+    for (int i = 0; i < names.length; ++i) {
+      names[i] = types[i].getInternalName();
+    }
+    return names;
+  }
+  
   // --------------------------------------------------------------------------
   // Instructions to push constants on the stack
   // --------------------------------------------------------------------------
@@ -440,7 +486,7 @@ public class GeneratorAdapter extends LocalVariablesSorter {
 
   public int newLocal (final Type type) {
     localTypes.add(type);
-    return super.newLocal(type.getSize());
+    return super.newLocal(type.getSize()) - firstLocal;
   }
 
   /**
@@ -1342,7 +1388,7 @@ public class GeneratorAdapter extends LocalVariablesSorter {
    */
 
   public void endMethod () {
-    if ((access & Opcodes.ACC_ABSTRACT) != 0) {
+    if ((access & Opcodes.ACC_ABSTRACT) == 0) {
       mv.visitMaxs(0, 0);
     }
   }

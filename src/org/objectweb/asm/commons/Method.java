@@ -127,9 +127,9 @@ public class Method {
     do {
       p = method.indexOf(',', start);
       if (p == -1) {
-        map(method.substring(start, end).trim());
+        sb.append(map(method.substring(start, end).trim()));
       } else {
-        map(method.substring(start, p).trim());
+        sb.append(map(method.substring(start, p).trim()));
         start = p + 1;
       }
     } while (p != -1);

@@ -244,6 +244,21 @@ public class Analyzer implements Constants {
   }
 
   /**
+   * Returns the symbolic stack frame for each instruction of the last recently
+   * analyzed method.
+   * 
+   * @return the symbolic state of the execution stack frame at each bytecode
+   *     instruction of the method. The size of the returned array is equal to 
+   *     the number of instructions (and labels) of the method. A given frame is
+   *     <tt>null</tt> if the corresponding instruction cannot be reached, or if
+   *     an error occured during the analysis of the method.
+   */
+  
+  public Frame[] getFrames () {
+    return frames;
+  }
+  
+  /**
    * Returns the index of the given instruction.
    * 
    * @param insn a {@link Label} or {@link AbstractInsnNode} of the last 

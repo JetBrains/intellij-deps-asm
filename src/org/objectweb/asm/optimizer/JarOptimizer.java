@@ -81,6 +81,7 @@ public class JarOptimizer {
         out.closeEntry();
       }
       out.close();
+      zf.close();
       f.delete();
       g.renameTo(f);
     }

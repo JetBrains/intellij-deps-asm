@@ -38,33 +38,13 @@ package org.objectweb.asm;
  * A non standard class, field, method or code attribute.
  */
 
-public class Attribute {
+public abstract class Attribute {
 
   /**
    * The type of this attribute.
    */
 
-  public String type;
-
-  /**
-   * The byte array that contains the value of this attribute. <i>The content of
-   * this array must not be modified, although the array itself can be changed
-   * (i.e. attr.b[...] = ...; is forbidden, but attr.b = ...; is allowed)</i>.
-   */
-
-  protected byte[] b;
-
-  /**
-   * Index of the first byte of this attribute in {@link #b b}.
-   */
-
-  protected int off;
-
-  /**
-   * Length of this attributes, in bytes.
-   */
-
-  protected int len;
+  public final String type;
 
   /**
    * The next attribute in this attribute list. May be <tt>null</tt>.
@@ -73,35 +53,84 @@ public class Attribute {
   public Attribute next;
 
   /**
-   * Constructs a new {@link Attribute}.
-   *
-   * @param type the type of the attribute.
-   * @param b byte array that contains the value of the attribute.
-   * @param off index of the first byte of the attribute in <tt>b</tt>.
-   * @param len length of the attributes, in bytes.
-   */
-
-  protected Attribute (
-    final String type,
-    final byte[] b,
-    final int off,
-    final int len)
-  {
-    this.type = type;
-    this.b = b;
-    this.off = off;
-    this.len = len;
-  }
-
-  /**
    * Constructs a new empty attribute.
    *
    * @param type the type of the attribute.
    */
 
   public Attribute (final String type) {
-    this(type, null, 0, 0);
+    this.type = type;
   }
+
+  /**
+   * Analyzes a {@link #type type} attribute and finds the corresponding labels.
+   * This method must analyze the attribute in the given class reader, at the
+   * given offset (whose type is equal to {@link #type type}), and must add to
+   * given label array the labels that corresponds to the bytecode offsets
+   * contained in the attribute (if there are such offsets, and if the
+   * corresponding labels do not already exist). The default implementation of
+   * this method, which is only called for code attributes, does nothing.
+   *
+   * @param cr the class that contains the attribute to be analyzed.
+   * @param off index of the first byte of the attribute's content in {@link
+   *      ClassReader#b cr.b}. The 6 attribute header bytes, containing the type
+   *      and the length of the attribute, are not taken into account here.
+   * @param len the length of the attribute's content.
+   * @param labels the array that must be completed with the labels contained in
+   *      the attribute.
+   */
+
+  protected void analyze (
+    ClassReader cr,
+    int off,
+    int len,
+    Label[] labels)
+  {
+    // does nothing
+  }
+
+  /**
+   * Reads a {@link #type type} attribute. This method must return a <i>new</i>
+   * {@link Attribute} object, of type {@link #type type}, corresponding to the
+   * <tt>len</tt> bytes starting at the given offset, in the given class reader.
+   *
+   * @param cr the class that contains the attribute to be read.
+   * @param off index of the first byte of the attribute's content in {@link
+   *      ClassReader#b cr.b}. The 6 attribute header bytes, containing the type
+   *      and the length of the attribute, are not taken into account here.
+   * @param len the length of the attribute's content.
+   * @param buf buffer to be used to call {@link ClassReader#readUTF8 readUTF8},
+   *      {@link ClassReader#readClass readClass} or {@link
+   *      ClassReader#readConst readConst}..
+   * @param labels the labels of the method's code, or <tt>null</tt> if the
+   *      attribute to be read is not a code attribute.
+   * @return a <i>new</i> {@link Attribute} object corresponding to the given
+   *      bytes.
+   */
+
+  protected abstract Attribute read (
+    ClassReader cr,
+    int off,
+    int len,
+    char[] buf,
+    Label[] labels);
+
+  /**
+   * Returns the byte array form of this attribute.
+   *
+   * @param cw the class to which this attribute must be added. This parameter
+   *      can be used to add to the constant pool of this class the items that
+   *      corresponds to this attribute.
+   * @param code the bytecode of the method corresponding to this code
+   *      attribute, or <tt>null</tt> if this attribute is not a code
+   *      attributes.
+   * @param len the length of the bytecode of the method corresponding to this
+   *      code attribute, or <tt>null</tt> if this attribute is not a code
+   *      attribute.
+   * @return the byte array form of this attribute.
+   */
+
+  protected abstract ByteVector write (ClassWriter cw, byte[] code, int len);
 
   /**
    * Returns the length of the attribute list that begins with this attribute.
@@ -123,18 +152,23 @@ public class Attribute {
    * Returns the size of all the attributes in this attribute list.
    *
    * @param cw the class writer to be used to convert the attributes into byte
-   *      arrays, with the {@link ClassWriter#writeAttribute writeAttribute}
-   *      method.
+   *      arrays, with the {@link #write write} method.
+   * @param code the bytecode of the method corresponding to these code
+   *      attributes, or <tt>null</tt> if these attributes are not code
+   *      attributes.
+   * @param len the length of the bytecode of the method corresponding to these
+   *      code attributes, or <tt>null</tt> if these attributes are not code
+   *      attributes.
    * @return the size of all the attributes in this attribute list. This size
    *      includes the size of the attribute headers.
    */
 
-  final int getSize (final ClassWriter cw) {
+  final int getSize (final ClassWriter cw, final byte[] code, final int len) {
     int size = 0;
     Attribute attr = this;
     while (attr != null) {
       cw.newUTF8(attr.type);
-      size += cw.writeAttribute(attr).length + 6;
+      size += attr.write(cw, code, len).length + 6;
       attr = attr.next;
     }
     return size;
@@ -144,17 +178,27 @@ public class Attribute {
    * Writes all the attributes of this attribute list in the given byte vector.
    *
    * @param cw the class writer to be used to convert the attributes into byte
-   *      arrays, with the {@link ClassWriter#writeAttribute writeAttribute}
-   *      method.
+   *      arrays, with the {@link #write write} method.
+   * @param code the bytecode of the method corresponding to these code
+   *      attributes, or <tt>null</tt> if these attributes are not code
+   *      attributes.
+   * @param len the length of the bytecode of the method corresponding to these
+   *      code attributes, or <tt>null</tt> if these attributes are not code
+   *      attributes.
    * @param out where the attributes must be written.
    */
 
-  final void put (final ClassWriter cw, final ByteVector out) {
+  final void put (
+    final ClassWriter cw,
+    final byte[] code,
+    final int len,
+    final ByteVector out)
+  {
     Attribute attr = this;
     while (attr != null) {
-      byte[] b = cw.writeAttribute(attr);
-      out.put2(cw.newUTF8(attr.type)).put4(b.length);
-      out.putByteArray(b, 0, b.length);
+      ByteVector b = attr.write(cw, code, len);
+      out.putShort(cw.newUTF8(attr.type)).putInt(b.length);
+      out.putByteArray(b.data, 0, b.length);
       attr = attr.next;
     }
   }

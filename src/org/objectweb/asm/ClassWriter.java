@@ -126,7 +126,7 @@ public class ClassWriter implements ClassVisitor {
    * The constant pool's hash table data.
    */
 
-  private Item[] table;
+  private Item[] items;
 
   /**
    * The threshold of the constant pool's hash table.
@@ -228,19 +228,19 @@ public class ClassWriter implements ClassVisitor {
   private Attribute attrs;
 
   /**
-   * A reusable key used to look for items in the hash {@link #table table}.
+   * A reusable key used to look for items in the hash {@link #items items}.
    */
 
   Item key;
 
   /**
-   * A reusable key used to look for items in the hash {@link #table table}.
+   * A reusable key used to look for items in the hash {@link #items items}.
    */
 
   Item key2;
 
   /**
-   * A reusable key used to look for items in the hash {@link #table table}.
+   * A reusable key used to look for items in the hash {@link #items items}.
    */
 
   Item key3;
@@ -461,8 +461,8 @@ public class ClassWriter implements ClassVisitor {
   public ClassWriter (final boolean computeMaxs) {
     index = 1;
     pool = new ByteVector();
-    table = new Item[64];
-    threshold = (int)(0.75d*table.length);
+    items = new Item[64];
+    threshold = (int)(0.75d*items.length);
     key = new Item();
     key2 = new Item();
     key3 = new Item();
@@ -510,10 +510,10 @@ public class ClassWriter implements ClassVisitor {
       innerClasses = new ByteVector();
     }
     ++innerClassesCount;
-    innerClasses.put2(name == null ? 0 : newClass(name));
-    innerClasses.put2(outerName == null ? 0 : newClass(outerName));
-    innerClasses.put2(innerName == null ? 0 : newUTF8(innerName));
-    innerClasses.put2(access);
+    innerClasses.putShort(name == null ? 0 : newClass(name));
+    innerClasses.putShort(outerName == null ? 0 : newClass(outerName));
+    innerClasses.putShort(innerName == null ? 0 : newUTF8(innerName));
+    innerClasses.putShort(access);
   }
 
   public void visitField (
@@ -527,7 +527,7 @@ public class ClassWriter implements ClassVisitor {
     if (fields == null) {
       fields = new ByteVector();
     }
-    fields.put2(access).put2(newUTF8(name)).put2(newUTF8(desc));
+    fields.putShort(access).putShort(newUTF8(name)).putShort(newUTF8(desc));
     int attributeCount = 0;
     if (value != null) {
       ++attributeCount;
@@ -541,20 +541,20 @@ public class ClassWriter implements ClassVisitor {
     if (attrs != null) {
       attributeCount += attrs.getCount();
     }
-    fields.put2(attributeCount);
+    fields.putShort(attributeCount);
     if (value != null) {
-      fields.put2(newUTF8("ConstantValue"));
-      fields.put4(2).put2(newConst(value).index);
+      fields.putShort(newUTF8("ConstantValue"));
+      fields.putInt(2).putShort(newCst(value).index);
     }
     if ((access & Constants.ACC_SYNTHETIC) != 0) {
-      fields.put2(newUTF8("Synthetic")).put4(0);
+      fields.putShort(newUTF8("Synthetic")).putInt(0);
     }
     if ((access & Constants.ACC_DEPRECATED) != 0) {
-      fields.put2(newUTF8("Deprecated")).put4(0);
+      fields.putShort(newUTF8("Deprecated")).putInt(0);
     }
     if (attrs != null) {
-      attrs.getSize(this);
-      attrs.put(this, fields);
+      attrs.getSize(this, null, 0);
+      attrs.put(this, null, 0, fields);
     }
   }
 
@@ -616,43 +616,43 @@ public class ClassWriter implements ClassVisitor {
     }
     if (attrs != null) {
       attributeCount += attrs.getCount();
-      size += attrs.getSize(this);
+      size += attrs.getSize(this, null, 0);
     }
     size += pool.length;
     // allocates a byte vector of this size, in order to avoid unnecessary
     // arraycopy operations in the ByteVector.enlarge() method
     ByteVector out = new ByteVector(size);
-    out.put4(0xCAFEBABE).put2(3).put2(45);
-    out.put2(index).putByteArray(pool.data, 0, pool.length);
-    out.put2(access).put2(name).put2(superName);
-    out.put2(interfaceCount);
+    out.putInt(0xCAFEBABE).putShort(3).putShort(45);
+    out.putShort(index).putByteArray(pool.data, 0, pool.length);
+    out.putShort(access).putShort(name).putShort(superName);
+    out.putShort(interfaceCount);
     for (int i = 0; i < interfaceCount; ++i) {
-      out.put2(interfaces[i]);
+      out.putShort(interfaces[i]);
     }
-    out.put2(fieldCount);
+    out.putShort(fieldCount);
     if (fields != null) {
       out.putByteArray(fields.data, 0, fields.length);
     }
-    out.put2(nbMethods);
+    out.putShort(nbMethods);
     cb = firstMethod;
     while (cb != null) {
       cb.put(out);
       cb = cb.next;
     }
-    out.put2(attributeCount);
+    out.putShort(attributeCount);
     if (sourceFile != 0) {
-      out.put2(newUTF8("SourceFile")).put4(2).put2(sourceFile);
+      out.putShort(newUTF8("SourceFile")).putInt(2).putShort(sourceFile);
     }
     if ((access & Constants.ACC_DEPRECATED) != 0) {
-      out.put2(newUTF8("Deprecated")).put4(0);
+      out.putShort(newUTF8("Deprecated")).putInt(0);
     }
     if (innerClasses != null) {
-      out.put2(newUTF8("InnerClasses"));
-      out.put4(innerClasses.length + 2).put2(innerClassesCount);
+      out.putShort(newUTF8("InnerClasses"));
+      out.putInt(innerClasses.length + 2).putShort(innerClassesCount);
       out.putByteArray(innerClasses.data, 0, innerClasses.length);
     }
     if (attrs != null) {
-      attrs.put(this, out);
+      attrs.put(this, null, 0, out);
     }
     return out.data;
   }
@@ -672,7 +672,7 @@ public class ClassWriter implements ClassVisitor {
    * @return a new or already existing constant item with the given value.
    */
 
-  Item newConst (final Object cst) {
+  Item newCst (final Object cst) {
     if (cst instanceof Integer) {
       int val = ((Integer)cst).intValue();
       return newInteger(val);
@@ -704,8 +704,8 @@ public class ClassWriter implements ClassVisitor {
    *      value.
    */
 
-  protected int newCst (final Object cst) {
-    return newConst(cst).index;
+  public int newConst (final Object cst) {
+    return newCst(cst).index;
   }
 
   /**
@@ -716,11 +716,11 @@ public class ClassWriter implements ClassVisitor {
    * @return the index of a new or already existing UTF8 item.
    */
 
-  protected int newUTF8 (final String value) {
+  public int newUTF8 (final String value) {
     key.set(UTF8, value, null, null);
     Item result = get(key);
     if (result == null) {
-      pool.put1(UTF8).putUTF(value);
+      pool.putByte(UTF8).putUTF8(value);
       result = new Item(index++, key);
       put(result);
     }
@@ -735,7 +735,7 @@ public class ClassWriter implements ClassVisitor {
    * @return the index of a new or already existing class reference item.
    */
 
-  protected int newClass (final String value) {
+  public int newClass (final String value) {
     key2.set(CLASS, value, null, null);
     Item result = get(key2);
     if (result == null) {
@@ -756,7 +756,7 @@ public class ClassWriter implements ClassVisitor {
    * @return the index of a new or already existing field reference item.
    */
 
-  protected int newField (
+  public int newField (
     final String owner,
     final String name,
     final String desc)
@@ -809,7 +809,7 @@ public class ClassWriter implements ClassVisitor {
    * @return the index of a new or already existing method reference item.
    */
 
-  protected int newMethod (
+  public int newMethod (
     final String owner,
     final String name,
     final String desc,
@@ -830,7 +830,7 @@ public class ClassWriter implements ClassVisitor {
     key.set(value);
     Item result = get(key);
     if (result == null) {
-      pool.put1(INT).put4(value);
+      pool.putByte(INT).putInt(value);
       result = new Item(index++, key);
       put(result);
     }
@@ -849,7 +849,7 @@ public class ClassWriter implements ClassVisitor {
     key.set(value);
     Item result = get(key);
     if (result == null) {
-      pool.put1(FLOAT).put4(Float.floatToIntBits(value));
+      pool.putByte(FLOAT).putInt(Float.floatToIntBits(value));
       result = new Item(index++, key);
       put(result);
     }
@@ -868,7 +868,7 @@ public class ClassWriter implements ClassVisitor {
     key.set(value);
     Item result = get(key);
     if (result == null) {
-      pool.put1(LONG).put8(value);
+      pool.putByte(LONG).putLong(value);
       result = new Item(index, key);
       put(result);
       index += 2;
@@ -888,7 +888,7 @@ public class ClassWriter implements ClassVisitor {
     key.set(value);
     Item result = get(key);
     if (result == null) {
-      pool.put1(DOUBLE).put8(Double.doubleToLongBits(value));
+      pool.putByte(DOUBLE).putLong(Double.doubleToLongBits(value));
       result = new Item(index, key);
       put(result);
       index += 2;
@@ -924,7 +924,7 @@ public class ClassWriter implements ClassVisitor {
    * @return the index of a new or already existing name and type item.
    */
 
-  protected int newNameType (final String name, final String desc) {
+  private int newNameType (final String name, final String desc) {
     key2.set(NAME_TYPE, name, desc, null);
     Item result = get(key2);
     if (result == null) {
@@ -945,13 +945,13 @@ public class ClassWriter implements ClassVisitor {
    */
 
   private Item get (final Item key) {
-    Item tab[] = table;
-    int hashCode = key.hashCode;
-    int index = (hashCode & 0x7FFFFFFF) % tab.length;
-    for (Item i = tab[index]; i != null; i = i.next) {
-      if (i.hashCode == hashCode && key.isEqualTo(i)) {
+    int h = key.hashCode;
+    Item i = items[(h & 0x7FFFFFFF) % items.length];
+    while (i != null) {
+      if (i.hashCode == h && key.isEqualTo(i)) {
         return i;
       }
+      i = i.next;
     }
     return null;
   }
@@ -965,25 +965,23 @@ public class ClassWriter implements ClassVisitor {
 
   private void put (final Item i) {
     if (index > threshold) {
-      int oldCapacity = table.length;
-      Item oldMap[] = table;
-      int newCapacity = oldCapacity * 2 + 1;
-      Item newMap[] = new Item[newCapacity];
-      threshold = (int)(newCapacity * 0.75);
-      table = newMap;
-      for (int j = oldCapacity; j-- > 0; ) {
-        for (Item old = oldMap[j]; old != null; ) {
-          Item e = old;
-          old = old.next;
-          int index = (e.hashCode & 0x7FFFFFFF) % newCapacity;
-          e.next = newMap[index];
-          newMap[index] = e;
+      Item[] newItems = new Item[items.length * 2 + 1];
+      for (int l = items.length - 1; l >= 0; --l) {
+        Item j = items[l];
+        while (j != null) {
+          int index = (j.hashCode & 0x7FFFFFFF) % newItems.length;
+          Item k = j.next;
+          j.next = newItems[index];
+          newItems[index] = j;
+          j = k;
         }
       }
+      items = newItems;
+      threshold = (int)(items.length * 0.75);
     }
-    int index = (i.hashCode & 0x7FFFFFFF) % table.length;
-    i.next = table[index];
-    table[index] = i;
+    int index = (i.hashCode & 0x7FFFFFFF) % items.length;
+    i.next = items[index];
+    items[index] = i;
   }
 
   /**
@@ -995,30 +993,6 @@ public class ClassWriter implements ClassVisitor {
    */
 
   private void put122 (final int b, final int s1, final int s2) {
-    pool.put12(b, s1).put2(s2);
-  }
-
-  // --------------------------------------------------------------------------
-  // Attributes support
-  // --------------------------------------------------------------------------
-
-  /**
-   * Converts the content of the given attribute to a byte array.
-   *
-   * @param attr the attribute that must be converted to a byte array.
-   * @return a byte array containing the content of the given attribute (and
-   *      this content only, i.e. the 6 attribute header bytes must not be
-   *      included in the returned array).
-   */
-
-  protected byte[] writeAttribute (final Attribute attr) {
-    if (attr.b == null) {
-      throw new IllegalArgumentException(
-        "Unsupported attribute type: " + attr.type);
-    } else {
-      byte[] b = new byte[attr.len];
-      System.arraycopy(attr.b, attr.off, b, 0, attr.len);
-      return b;
-    }
+    pool.put12(b, s1).putShort(s2);
   }
 }

@@ -1,0 +1,187 @@
+<!--
+ ! ASM: a very small and fast Java bytecode manipulation framework
+ ! Copyright (c) 2000,2002,2003 INRIA, France Telecom
+ ! All rights reserved.
+ !
+ ! Redistribution and use in source and binary forms, with or without
+ ! modification, are permitted provided that the following conditions
+ ! are met:
+ ! 1. Redistributions of source code must retain the above copyright
+ !    notice, this list of conditions and the following disclaimer.
+ ! 2. Redistributions in binary form must reproduce the above copyright
+ !    notice, this list of conditions and the following disclaimer in the
+ !    documentation and/or other materials provided with the distribution.
+ ! 3. Neither the name of the copyright holders nor the names of its
+ !    contributors may be used to endorse or promote products derived from
+ !    this software without specific prior written permission.
+ !
+ ! THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ ! AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ ! IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ ! ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
+ ! LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ ! CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+ ! SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ ! INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ ! CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ ! ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
+ ! THE POSSIBILITY OF SUCH DAMAGE.
+-->
+<project name="test" default="test">
+
+  <property name="test.conform"   value="${test}/conform"/>
+  <property name="test.deviance"  value="${test}/deviance"/>
+  <property name="test.thread" 		value="${test}/thread"/>
+  <property name="test.stress" 		value="${test}/stress"/>
+  <property name="test.perf" 			value="${test}/perf"/>
+
+  <path id="classpath">
+    <pathelement location="${out.build}"/>
+    <pathelement location="${out.test}"/>
+    <fileset dir="${test}">
+      <include name="lib/*.jar"/>
+    </fileset>
+  </path>
+
+  <!-- ==================================== -->
+  <!-- =========== COMPILATION ============ -->
+  <!-- ==================================== -->
+
+  <target name="compile">
+    <mkdir dir="${out.test}"/>
+    <condition property="test.conform.dir.exist">
+      <available file="${test.conform}"/>
+    </condition>
+    <antcall target="compile.test.conform"/>
+
+    <condition property="test.deviance.dir.exist">
+      <available file="${test.deviance}"/>
+    </condition>
+    <antcall target="compile.test.deviance"/>
+
+    <condition property="test.thread.dir.exist">
+      <available file="${test.thread}"/>
+    </condition>
+    <antcall target="compile.test.thread"/>
+
+    <condition property="test.stress.dir.exist">
+      <available file="${test.stress}"/>
+    </condition>
+    <antcall target="compile.test.stress"/>
+
+    <condition property="test.perf.dir.exist">
+      <available file="${test.perf}"/>
+    </condition>
+    <antcall target="compile.test.perf"/>
+  </target>
+
+  <!-- Compile the code of the conformance tests -->
+  <target name="compile.test.conform" if="test.conform.dir.exist">
+    <javac srcdir="${test.conform}" destdir="${out.test}">
+      <classpath refid="classpath"/>
+      <include name="**/*.java"/>
+    </javac>
+  </target>
+
+  <!-- Compile the code of the deviance tests -->
+  <target name="compile.test.deviance" if="test.deviance.dir.exist">
+    <javac srcdir="${test.deviance}" destdir="${out.test}">
+      <classpath refid="classpath"/>
+      <include name="**/*.java"/>
+    </javac>
+  </target>
+
+  <!-- Compile the code of the multithreading tests -->
+  <target name="compile.test.thread" if="test.thread.dir.exist">
+    <javac srcdir="${test.thread}" destdir="${out.test}">
+      <classpath refid="classpath"/>
+      <include name="**/*.java"/>
+    </javac>
+  </target>
+
+  <!-- Compile the code of the stress tests -->
+  <target name="compile.test.stress" if="test.stress.dir.exist">
+    <javac srcdir="${test.stress}" destdir="${out.test}">
+      <classpath refid="classpath"/>
+      <include name="**/*.java"/>
+    </javac>
+  </target>
+
+  <!-- Compile the code of the performance tests -->
+  <target name="compile.test.perf" if="test.perf.dir.exist">
+    <javac srcdir="${test.perf}" destdir="${out.test}">
+      <classpath refid="classpath"/>
+      <include name="**/*.java"/>
+    </javac>
+  </target>
+
+  <!-- ============================== -->
+  <!-- =========== JUNIT ============ -->
+  <!-- ============================== -->
+
+  <target name="junit" description="run tests with JUnit">
+    <java classname="junit.swingui.TestRunner" fork="yes">
+      <classpath refid="classpath"/>
+    </java>
+  </target>
+
+  <!-- ============================= -->
+  <!-- =========== TEST ============ -->
+  <!-- ============================= -->
+
+  <target name="test" depends="compile" description="run tests">
+    <mkdir dir="${out.test}"/>
+    <antcall target="testAll"/>
+    <antcall target="testType"/>
+    <antcall target="testGroup"/>
+    <antcall target="testName"/>
+  </target>
+
+  <target name="checkTest">
+    <property name="test.type.check" value="$${test.type}"/>
+    <property name="test.group.check" value="$${test.group}"/>
+    <property name="test.name.check" value="$${test.name}"/>
+    <condition property="test.all">
+      <and>
+        <equals arg1="${test.type.check}" arg2="${test.type}"/>
+        <equals arg1="${test.group.check}" arg2="${test.group}"/>
+        <equals arg1="${test.name.check}" arg2="${test.name}"/>
+      </and>
+    </condition>
+  </target>
+
+  <!-- All test -->
+  <target name="testAll" depends="checkTest" if="test.all">
+    <!--multipleAnt dir="${test.conform}" inheritRefs="true"/>
+    <multipleAnt dir="${test.deviance}" inheritRefs="true"/>
+    <multipleAnt dir="${test.thread}" inheritRefs="true"/>
+    <multipleAnt dir="${test.stress}" inheritRefs="true"/-->
+    <multipleAnt dir="${test.perf}" inheritRefs="true"/>
+  </target>
+
+  <!-- Only a type of test: conform, deviance, stress, thread, or perf.
+  The test.type properties contains the directory name of
+  the test type ex: ant -Dtest.type=conform test
+	-->
+  <target name="testType" if="test.type">
+    <multipleAnt dir="${test}/${test.type}" inheritRefs="true"/>
+  </target>
+
+  <!-- Only a group of test: The default target of the xml file is called
+  the test.group contains the xml file name with directory
+  ex: ant -Dtest.group=test/conform/toto.xml test
+  => calls the default target of the file ${test}/conform/toto.xml
+	-->
+  <target name="testGroup" if="test.group">
+    <ant antfile="${test.group}" inheritRefs="true"/>
+  </target>
+
+  <!-- Only a single test: a target specified -->
+  <target name="testName" if="test.name">
+    <!--multipleAnt dir="${test.conform}" target="${test.name}" inheritRefs="true"/>
+    <multipleAnt dir="${test.deviance}" target="${test.name}" inheritRefs="true"/>
+    <multipleAnt dir="${test.thread}" target="${test.name}" inheritRefs="true"/>
+    <multipleAnt dir="${test.stress}" target="${test.name}" inheritRefs="true"/-->
+    <multipleAnt dir="${test.perf}" target="${test.name}" inheritRefs="true"/>
+  </target>
+</project>

@@ -701,10 +701,17 @@ public class Type {
   }
 
   // --------------------------------------------------------------------------
-  // Equals and hashcode
+  // Equals, hashCode and toString
   // --------------------------------------------------------------------------
 
-  public boolean equals (Object o) {
+  /**
+   * Tests if the given object is equal to this type.
+   *
+   * @param o the object to be compared to this type.
+   * @return <tt>true</tt> if the given object is equal to this type.
+   */
+
+  public boolean equals (final Object o) {
     if (this == o) {
       return true;
     }
@@ -728,6 +735,12 @@ public class Type {
     return true;
   }
 
+  /**
+   * Returns a hash code value for this type.
+   *
+   * @return a hash code value for this type.
+   */
+
   public int hashCode () {
     int hc = 13 * sort;
     if (sort == Type.OBJECT || sort == Type.ARRAY) {
@@ -736,5 +749,15 @@ public class Type {
       }
     }
     return hc;
+  }
+
+  /**
+   * Returns a string representation of this type.
+   *
+   * @return the descriptor of this type.
+   */
+
+  public String toString () {
+    return getDescriptor();
   }
 }

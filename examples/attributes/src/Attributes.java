@@ -39,21 +39,21 @@ import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.CodeVisitor;
 import org.objectweb.asm.Constants;
+import org.objectweb.asm.Label;
+import org.objectweb.asm.ByteVector;
 import org.objectweb.asm.util.TraceClassVisitor;
 
 import java.io.FileOutputStream;
 import java.io.PrintWriter;
-import java.io.InputStream;
-import java.io.IOException;
 
 public class Attributes extends ClassLoader {
 
   public static void main (final String args[]) throws Exception {
     // loads the original class and adapts it
-    ClassReader cr = new MyClassReader("CommentAttribute");
-    ClassWriter cw = new MyClassWriter(false);
+    ClassReader cr = new ClassReader("CommentAttribute");
+    ClassWriter cw = new ClassWriter(false);
     ClassVisitor cv = new AddCommentClassAdapter(cw);
-    cr.accept(cv, false);
+    cr.accept(cv, new Attribute[] { new CommentAttribute("") }, false);
     byte[] b = cw.toByteArray();
 
     // stores the adapted class on disk
@@ -62,9 +62,9 @@ public class Attributes extends ClassLoader {
     fos.close();
 
     // "disassembles" the adapted class
-    cr = new MyClassReader(b);
+    cr = new ClassReader(b);
     cv = new TraceClassVisitor(null, new PrintWriter(System.out));
-    cr.accept(cv, false);
+    cr.accept(cv, new Attribute[] { new CommentAttribute("") }, false);
   }
 }
 
@@ -138,48 +138,18 @@ class CommentAttribute extends Attribute {
   public String getComment () {
     return comment;
   }
-}
 
-class MyClassReader extends ClassReader {
-
-  public MyClassReader (final byte[] b) {
-    super(b);
-  }
-
-  public MyClassReader (final InputStream is) throws IOException {
-    super(is);
-  }
-
-  public MyClassReader (final String name) throws IOException {
-    super(name);
-  }
-
-  protected Attribute readAttribute (
-    final String type,
-    final int off,
-    final int len,
-    final char[] buf)
+  protected Attribute read (
+    ClassReader cr,
+    int off,
+    int len,
+    char[] buf,
+    Label[] labels)
   {
-    if (type.equals("Comment")) {
-      return new CommentAttribute(readUTF8(off, buf));
-    } else {
-      return super.readAttribute(type, off, len, buf);
-    }
-  }
-}
-
-class MyClassWriter extends ClassWriter {
-
-  public MyClassWriter (final boolean computeMaxs) {
-    super(computeMaxs);
+    return new CommentAttribute(cr.readUTF8(off, buf));
   }
 
-  protected byte[] writeAttribute (final Attribute attr) {
-    if (attr instanceof CommentAttribute) {
-      int item = newUTF8(((CommentAttribute)attr).getComment());
-      return new byte[] { (byte)(item >>> 8), (byte)item };
-    } else {
-      return super.writeAttribute(attr);
-    }
+  protected ByteVector write (ClassWriter cw, byte[] code, int len) {
+    return new ByteVector().putShort(cw.newUTF8(comment));
   }
 }

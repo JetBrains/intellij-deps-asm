@@ -172,17 +172,17 @@ public class Label {
     }
     if (resolved) {
       if (wideOffset) {
-        out.put4(position - source);
+        out.putInt(position - source);
       } else {
-        out.put2(position - source);
+        out.putShort(position - source);
       }
     } else {
       if (wideOffset) {
         addReference(-1 - source, out.length);
-        out.put4(-1);
+        out.putInt(-1);
       } else {
         addReference(source, out.length);
-        out.put2(-1);
+        out.putShort(-1);
       }
     }
   }
@@ -285,5 +285,19 @@ public class Label {
       }
     }
     return needUpdate;
+  }
+
+  // --------------------------------------------------------------------------
+  // Overriden Object methods
+  // --------------------------------------------------------------------------
+
+  /**
+   * Returns a string representation of this label.
+   *
+   * @return a string representation of this label.
+   */
+
+  public String toString () {
+    return "L" + System.identityHashCode(this);
   }
 }

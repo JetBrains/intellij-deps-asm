@@ -51,7 +51,7 @@ public class ClassReader {
    * modified.</i>
    */
 
-  protected final byte[] b;
+  public final byte[] b;
 
   /**
    * The start index of each constant pool item in {@link #b b}, plus one. The
@@ -227,6 +227,29 @@ public class ClassReader {
     final ClassVisitor classVisitor,
     final boolean skipDebug)
   {
+    accept(classVisitor, new Attribute[0], skipDebug);
+  }
+
+  /**
+   * Makes the given visitor visit the Java class of this {@link ClassReader
+   * ClassReader}. This class is the one specified in the constructor (see
+   * {@link #ClassReader ClassReader}).
+   *
+   * @param classVisitor the visitor that must visit this class.
+   * @param attrs prototypes of the attributes that must be parsed during the
+   *      visit of the class. Any attribute whose type is not equal to the type
+   *      of one the prototypes will be ignored.
+   * @param skipDebug <tt>true</tt> if the debug information of the class must
+   *      not be visited. In this case the {@link CodeVisitor#visitLocalVariable
+   *      visitLocalVariable} and {@link CodeVisitor#visitLineNumber
+   *      visitLineNumber} methods will not be called.
+   */
+
+  public void accept (
+    final ClassVisitor classVisitor,
+    final Attribute[] attrs,
+    final boolean skipDebug)
+  {
     byte[] b = this.b;                     // the bytecode array
     char[] c = new char[maxStringLength];  // buffer used to read strings
     int i, j, k;                           // loop variables
@@ -276,7 +299,7 @@ public class ClassReader {
       } else if (attrName.equals("InnerClasses")) {
         w = v + 6;
       } else {
-        attr = readAttribute(attrName, v + 6, readInt(v + 2), c);
+        attr = readAttribute(attrs, attrName, v + 6, readInt(v + 2), c, null);
         if (attr != null) {
           attr.next = clattrs;
           clattrs = attr;
@@ -321,7 +344,7 @@ public class ClassReader {
         } else if (attrName.equals("Deprecated")) {
           access |= Constants.ACC_DEPRECATED;
         } else {
-          attr = readAttribute(attrName, u + 6, readInt(u + 2), c);
+          attr = readAttribute(attrs, attrName, u + 6, readInt(u + 2), c, null);
           if (attr != null) {
             attr.next = fattrs;
             fattrs = attr;
@@ -359,7 +382,7 @@ public class ClassReader {
         } else if (attrName.equals("Deprecated")) {
           access |= Constants.ACC_DEPRECATED;
         } else {
-          attr = readAttribute(attrName, u, attrSize, c);
+          attr = readAttribute(attrs, attrName, u, attrSize, c, null);
           if (attr != null) {
             attr.next = mattrs;
             mattrs = attr;
@@ -497,12 +520,12 @@ public class ClassReader {
           }
           v += 8;
         }
-        if (!skipDebug) {
-          // parses the local variable and line number tables
-          j = readUnsignedShort(v); v += 2;
-          for ( ; j > 0; --j) {
-            String attrName = readUTF8(v, c);
-            if (attrName.equals("LocalVariableTable")) {
+        // parses the local variable, line number tables, and code attributes
+        j = readUnsignedShort(v); v += 2;
+        for ( ; j > 0; --j) {
+          String attrName = readUTF8(v, c);
+          if (attrName.equals("LocalVariableTable")) {
+            if (!skipDebug) {
               k = readUnsignedShort(v + 6);
               w = v + 8;
               for ( ; k > 0; --k) {
@@ -516,7 +539,9 @@ public class ClassReader {
                 }
                 w += 10;
               }
-            } else if (attrName.equals("LineNumberTable")) {
+            }
+          } else if (attrName.equals("LineNumberTable")) {
+            if (!skipDebug) {
               k = readUnsignedShort(v + 6);
               w = v + 8;
               for ( ; k > 0; --k) {
@@ -527,8 +552,14 @@ public class ClassReader {
                 w += 4;
               }
             }
-            v += 6 + readInt(v + 2);
+          } else {
+            for (k = 0; k < attrs.length; ++k) {
+              if (attrs[k].type.equals(attrName)) {
+                attrs[k].analyze(this, v + 6, readInt(v + 2), labels);
+              }
+            }
           }
+          v += 6 + readInt(v + 2);
         }
 
         // 2nd phase: visits each instruction
@@ -707,7 +738,8 @@ public class ClassReader {
               }
             }
           } else {
-            attr = readAttribute(attrName, v + 6, readInt(v + 2), c);
+            attr = readAttribute(
+              attrs, attrName, v + 6, readInt(v + 2), c, labels);
             if (attr != null) {
               cv.visitAttribute(attr);
             }
@@ -738,7 +770,7 @@ public class ClassReader {
    * @return the read value.
    */
 
-  protected int readUnsignedShort (final int index) {
+  public int readUnsignedShort (final int index) {
     byte[] b = this.b;
     return ((b[index] & 0xFF) << 8) | (b[index + 1] & 0xFF);
   }
@@ -750,7 +782,7 @@ public class ClassReader {
    * @return the read value.
    */
 
-  protected short readShort (final int index) {
+  public short readShort (final int index) {
     byte[] b = this.b;
     return (short)(((b[index] & 0xFF) << 8) | (b[index + 1] & 0xFF));
   }
@@ -762,7 +794,7 @@ public class ClassReader {
    * @return the read value.
    */
 
-  protected int readInt (final int index) {
+  public int readInt (final int index) {
     byte[] b = this.b;
     return ((b[index] & 0xFF) << 24) |
            ((b[index + 1] & 0xFF) << 16) |
@@ -777,14 +809,14 @@ public class ClassReader {
    * @return the read value.
    */
 
-  protected long readLong (final int index) {
+  public long readLong (final int index) {
     long l1 = readInt(index);
     long l0 = readInt(index + 4) & 0xFFFFFFFFL;
     return (l1 << 32) | l0;
   }
 
   /**
-   * Reads an UTF8 constant pool item in {@link #b b}.
+   * Reads an UTF8 string constant pool item in {@link #b b}.
    *
    * @param index the start index of an unsigned short value in {@link #b b},
    *      whose value is the index of an UTF8 constant pool item.
@@ -793,7 +825,7 @@ public class ClassReader {
    * @return the String corresponding to the specified UTF8 item.
    */
 
-  protected String readUTF8 (int index, final char[] buf) {
+  public String readUTF8 (int index, final char[] buf) {
     // consults cache
     int item = readUnsignedShort(index);
     String s = strings[item];
@@ -854,7 +886,7 @@ public class ClassReader {
    * @return the String corresponding to the specified class item.
    */
 
-  protected String readClass (final int index, final char[] buf) {
+  public String readClass (final int index, final char[] buf) {
     // computes the start index of the CONSTANT_Class item in b
     // and reads the CONSTANT_Utf8 item designated by
     // the first two bytes of this CONSTANT_Class item
@@ -873,7 +905,7 @@ public class ClassReader {
    *      item.
    */
 
-  protected Object readConst (final int item, final char[] buf) {
+  public Object readConst (final int item, final char[] buf) {
     int index = items[item];
     switch (b[index - 1]) {
       case ClassWriter.INT:
@@ -892,26 +924,38 @@ public class ClassReader {
 
   /**
    * Reads an attribute in {@link #b b}. The default implementation of this
-   * method returns instances of the {@link Attribute} class for all attributes.
+   * method returns <tt>null</tt> for all attributes.
    *
+   * @param attrs prototypes of the attributes that must be parsed during the
+   *      visit of the class. Any attribute whose type is not equal to the type
+   *      of one the prototypes will be ignored.
    * @param type the type of the attribute.
-   * @param off the first byte of the attribute's content in {@link #b b}. The
-   *      6 attribute header bytes, containing the type and the length of the
-   *      attribute, are not taken into account here (they have already been
-   *      read).
+   * @param off index of the first byte of the attribute's content in {@link #b
+   *      b}. The 6 attribute header bytes, containing the type and the length
+   *      of the attribute, are not taken into account here (they have already
+   *      been read).
    * @param len the length of the attribute's content.
    * @param buf buffer to be used to call {@link #readUTF8 readUTF8}, {@link
    *      #readClass readClass} or {@link #readConst readConst}.
+   * @param labels the labels of the method's code, or <tt>null</tt> if the
+   *      attribute to be read is not a code attribute.
    * @return the attribute that has been read, or <tt>null</tt> to skip this
    *      attribute.
    */
 
-  protected Attribute readAttribute (
+  public Attribute readAttribute (
+    final Attribute[] attrs,
     final String type,
     final int off,
     final int len,
-    final char[] buf)
+    final char[] buf,
+    final Label[] labels)
   {
-    return new Attribute(type, b, off, len);
+    for (int i = 0; i < attrs.length; ++i) {
+      if (attrs[i].type.equals(type)) {
+        return attrs[i].read(this, off, len, buf, labels);
+      }
+    }
+    return null;
   }
 }

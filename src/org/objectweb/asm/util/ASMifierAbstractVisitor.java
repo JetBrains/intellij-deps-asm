@@ -148,7 +148,7 @@ public class ASMifierAbstractVisitor extends AbstractVisitor {
     } else if (cst instanceof Short) {
       buf.append("new Short((short)").append(cst).append(")"); 
     } else if (cst instanceof Character) {
-      int c = (int)((Character)cst).charValue();
+      int c = ((Character)cst).charValue();
       buf.append("new Character((char)").append(c).append(")"); 
     } else if (cst instanceof Integer) {
       buf.append("new Integer(").append(cst).append(")");

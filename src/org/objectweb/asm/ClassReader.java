@@ -323,7 +323,7 @@ public class ClassReader {
         int item = readUnsignedShort(v + 8);
         if (item != 0) {
           enclosingName = readUTF8(items[item], c);
-          enclosingDesc = readUTF8(items[item], c);
+          enclosingDesc = readUTF8(items[item]+2, c);
         }
       } else if (attrName.equals("RuntimeVisibleAnnotations")) {
         anns = v + 6;

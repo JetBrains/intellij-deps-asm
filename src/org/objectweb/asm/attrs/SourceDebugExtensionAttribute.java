@@ -55,35 +55,35 @@ import org.objectweb.asm.Label;
  * </pre>
  * The items of the SourceDebugExtension_attribute structure are as follows:
  * <dl>
- * <dt>attribute_name_index</dt> 
- * <dd>The value of the attribute_name_index item must be a valid index into the 
- *     constant_pool table. The constant_pool entry at that index must be a 
+ * <dt>attribute_name_index</dt>
+ * <dd>The value of the attribute_name_index item must be a valid index into the
+ *     constant_pool table. The constant_pool entry at that index must be a
  *     CONSTANT_Utf8_info structure representing the string "SourceDebugExtension".</dd>
- * 
- * <dt>attribute_length</dt> 
+ *
+ * <dt>attribute_length</dt>
  * <dd>The value of the attribute_length item indicates the length of
  *     the attribute, excluding the initial six bytes. The value of the
  *     attribute_length item is thus the number of bytes in the debug_extension[]
  *     item.</dd>
- *   
- * <dt>debug_extension[]</dt> 
- * <dd>The debug_extension array holds a string, which must be in UTF-8 format. 
- *     There is no terminating zero byte. The string in the debug_extension item 
- *     will be interpreted as extended debugging information. The content of this 
+ *
+ * <dt>debug_extension[]</dt>
+ * <dd>The debug_extension array holds a string, which must be in UTF-8 format.
+ *     There is no terminating zero byte. The string in the debug_extension item
+ *     will be interpreted as extended debugging information. The content of this
  *     string has no semantic effect on the Java Virtual Machine.</dd>
  * </dl>
- * 
+ *
  * @see <a href="http://www.jcp.org/en/jsr/detail?id=45">JSR-045: Debugging Support for Other Languages</a>
- * 
+ *
  * @author Eugene Kuleshov
  */
 public class SourceDebugExtensionAttribute extends Attribute {
   private String debugExtension;
-  
+
   public SourceDebugExtensionAttribute() {
     super( "SourceDebugExtension");
   }
-  
+
   public SourceDebugExtensionAttribute( String debugExtension) {
     this();
     this.debugExtension = debugExtension;
@@ -92,8 +92,8 @@ public class SourceDebugExtensionAttribute extends Attribute {
   public String getDebugExtension() {
     return debugExtension;
   }
-  
-  protected Attribute read(ClassReader cr, int off, int len, int codeOff, char[] buf, Label[] labels) {
+
+  protected Attribute read(ClassReader cr, int off, int len, char[] buf, int codeOff, Label[] labels) {
     return new SourceDebugExtensionAttribute( cr.readUTF8( off, buf));
   }
 

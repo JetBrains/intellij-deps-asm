@@ -41,25 +41,25 @@ import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Label;
 
 /**
- * The Signature Attribute introduced in JSR-14 (Adding Generics to the 
- * Java Programming Language) and also defined in the Java Virtual Machine 
- * Specification, 3rd edition draft. 
+ * The Signature Attribute introduced in JSR-14 (Adding Generics to the
+ * Java Programming Language) and also defined in the Java Virtual Machine
+ * Specification, 3rd edition draft.
  * <p>
- * Classfiles need to carry generic type information in a backwards 
- * compatible way. This is accomplished by introducing a new "Signature" 
+ * Classfiles need to carry generic type information in a backwards
+ * compatible way. This is accomplished by introducing a new "Signature"
  * attribute for classes, methods and fields. The structure of this
  * attribute is as follows:
  * <pre>
  *   "Signature" (u4 attr-length, u2 signature-index)
  * </pre>
- * When used as an attribute of a method or field, a signature gives the 
- * full (possibly generic) type of that method or field. 
- * When used as a class attribute, a signature indicates the type 
- * parameters of the class, followed by its supertype, followed by 
+ * When used as an attribute of a method or field, a signature gives the
+ * full (possibly generic) type of that method or field.
+ * When used as a class attribute, a signature indicates the type
+ * parameters of the class, followed by its supertype, followed by
  * all its interfaces.
  * <p>
- * The type syntax in signatures is extended to parameterized types and 
- * type variables. There is also a new signature syntax for formal type 
+ * The type syntax in signatures is extended to parameterized types and
+ * type variables. There is also a new signature syntax for formal type
  * parameters. The syntax extensions for signature strings are as follows:
  * <pre>
  *   MethodOrFieldSignature ::= TypeSignature
@@ -82,11 +82,11 @@ import org.objectweb.asm.Label;
  *   ParameterPart         ::= '<' ParameterSignature ParameterSignatures '>'
  *   ParameterSignatures   ::= ParameterSignatures ParameterSignature
  *                             |
- *   ParameterSignature ::= Ident ':' bound_TypeSignature 
+ *   ParameterSignature ::= Ident ':' bound_TypeSignature
  * </pre>
- * 
+ *
  * @see <a href="http://www.jcp.org/en/jsr/detail?id=14">JSR 14 : Add Generic Types To The JavaTM Programming Language</a>
- * 
+ *
  * @author Eugene Kuleshov
  */
 public class SignatureAttribute extends Attribute {
@@ -95,21 +95,21 @@ public class SignatureAttribute extends Attribute {
   public SignatureAttribute() {
     super( "Signature");
   }
-    
+
   public SignatureAttribute( String signature) {
     this();
     this.signature = signature;
   }
-  
+
   public String getSignature() {
     return signature;
   }
 
-  protected Attribute read(ClassReader cr, int off, int len, int codeOff, char[] buf, Label[] labels) {
+  protected Attribute read(ClassReader cr, int off, int len, char[] buf, int codeOff, Label[] labels) {
     return new SignatureAttribute( cr.readUTF8( off, buf));
   }
 
-  protected ByteVector write( ClassWriter cw, byte[] code, 
+  protected ByteVector write( ClassWriter cw, byte[] code,
         int len, int maxStack, int maxLocals) {
     return new ByteVector().putShort( cw.newUTF8( signature));
   }

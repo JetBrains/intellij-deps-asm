@@ -1185,7 +1185,7 @@ public class CodeWriter implements CodeVisitor {
         size += 8 + lineNumber.length;
       }
       if (cattrs != null) {
-        size += cattrs.getSize(cw, code.data, code.length, -1, -1);
+        size += cattrs.getSize(cw, code.data, code.length, maxStack, maxLocals);
       }
     }
     if (exceptionCount > 0) {
@@ -1241,7 +1241,7 @@ public class CodeWriter implements CodeVisitor {
         size += 8 + lineNumber.length;
       }
       if (cattrs != null) {
-        size += cattrs.getSize(cw, code.data, code.length, -1, -1);
+        size += cattrs.getSize(cw, code.data, code.length, maxStack, maxLocals);
       }
       out.putShort(cw.newUTF8("Code")).putInt(size);
       out.putShort(maxStack).putShort(maxLocals);
@@ -1682,6 +1682,19 @@ public class CodeWriter implements CodeVisitor {
         writeShort(b, u, getNewOffset(
           allIndexes, allSizes, 0, readUnsignedShort(b, u)));
         u += 4;
+      }
+    }
+    // updates the labels of the other attributes
+    while (cattrs != null) {
+      Label[] labels = cattrs.getLabels();
+      if (labels != null) {
+        for (i = labels.length - 1; i >= 0; --i) {
+          if (!labels[i].resized) {
+            labels[i].position =
+              getNewOffset(allIndexes, allSizes, 0, labels[i].position);
+            labels[i].resized = true;
+          }
+        }
       }
     }
 

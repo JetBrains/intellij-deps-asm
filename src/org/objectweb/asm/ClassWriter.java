@@ -695,6 +695,8 @@ public class ClassWriter implements ClassVisitor {
   /**
    * Adds a number or string constant to the constant pool of the class being
    * build. Does nothing if the constant pool already contains a similar item.
+   * <i>This method is intended for {@link Attribute} sub classes, and is
+   * normally not needed by class generators or adapters.</i>
    *
    * @param cst the value of the constant to be added to the constant pool. This
    *      parameter must be an {@link java.lang.Integer Integer}, a {@link
@@ -710,7 +712,9 @@ public class ClassWriter implements ClassVisitor {
 
   /**
    * Adds an UTF8 string to the constant pool of the class being build. Does
-   * nothing if the constant pool already contains a similar item.
+   * nothing if the constant pool already contains a similar item. <i>This
+   * method is intended for {@link Attribute} sub classes, and is normally not
+   * needed by class generators or adapters.</i>
    *
    * @param value the String value.
    * @return the index of a new or already existing UTF8 item.
@@ -729,7 +733,9 @@ public class ClassWriter implements ClassVisitor {
 
   /**
    * Adds a class reference to the constant pool of the class being build. Does
-   * nothing if the constant pool already contains a similar item.
+   * nothing if the constant pool already contains a similar item. <i>This
+   * method is intended for {@link Attribute} sub classes, and is normally not
+   * needed by class generators or adapters.</i>
    *
    * @param value the internal name of the class.
    * @return the index of a new or already existing class reference item.
@@ -748,7 +754,9 @@ public class ClassWriter implements ClassVisitor {
 
   /**
    * Adds a field reference to the constant pool of the class being build. Does
-   * nothing if the constant pool already contains a similar item.
+   * nothing if the constant pool already contains a similar item. <i>This
+   * method is intended for {@link Attribute} sub classes, and is normally not
+   * needed by class generators or adapters.</i>
    *
    * @param owner the internal name of the field's owner class.
    * @param name the field's name.
@@ -800,7 +808,9 @@ public class ClassWriter implements ClassVisitor {
 
   /**
    * Adds a method reference to the constant pool of the class being build. Does
-   * nothing if the constant pool already contains a similar item.
+   * nothing if the constant pool already contains a similar item. <i>This
+   * method is intended for {@link Attribute} sub classes, and is normally not 
+   * needed by class generators or adapters.</i>
    *
    * @param owner the internal name of the method's owner class.
    * @param name the method's name.

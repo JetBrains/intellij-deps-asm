@@ -56,14 +56,14 @@ import org.objectweb.asm.Label;
  * The format of the stack map in the class file is given below. In the following,
  * <ul>
  * <li>if the length of the method's byte code1 is 65535 or less, then <tt>uoffset</tt>
- *     represents the type u2; otherwise <tt>uoffset</tt> represents the type u4.</li> 
- * <li>If the maximum number of local variables for the method is 65535 or less, 
- *     then <tt>ulocalvar</tt> represents the type u2; otherwise <tt>ulocalvar</tt> 
+ *     represents the type u2; otherwise <tt>uoffset</tt> represents the type u4.</li>
+ * <li>If the maximum number of local variables for the method is 65535 or less,
+ *     then <tt>ulocalvar</tt> represents the type u2; otherwise <tt>ulocalvar</tt>
  *     represents the type u4.</li>
  * <li>If the maximum size of the operand stack is 65535 or less, then <tt>ustack</tt>
  *     represents the type u2; otherwise ustack represents the type u4.</li>
  * </ul>
- * 
+ *
  * <pre>
  *   stack_map { // attribute StackMap
  *     u2 attribute_name_index;
@@ -82,9 +82,9 @@ import org.objectweb.asm.Label;
  *     verification_type_info stack[number_of_stack_items];
  *   }
  * </pre>
- * The <tt>verification_type_info</tt> structure consists of a one-byte tag 
- * followed by zero or more bytes, giving more information about the tag. 
- * Each <tt>verification_type_info</tt> structure specifies the verification 
+ * The <tt>verification_type_info</tt> structure consists of a one-byte tag
+ * followed by zero or more bytes, giving more information about the tag.
+ * Each <tt>verification_type_info</tt> structure specifies the verification
  * type of one or two locations.
  * <pre>
  *   union verification_type_info {
@@ -98,73 +98,73 @@ import org.objectweb.asm.Label;
  *     Object_variable_info;
  *     Uninitialized_variable_info;
  *   }
- *   
+ *
  *   Top_variable_info {
  *     u1 tag = ITEM_Top; // 0
  *   }
- *   
+ *
  *   Integer_variable_info {
  *     u1 tag = ITEM_Integer; // 1
  *   }
- *   
+ *
  *   Float_variable_info {
  *     u1 tag = ITEM_Float; // 2
  *   }
- *   
+ *
  *   Long_variable_info {
  *     u1 tag = ITEM_Long; // 4
  *   }
- *   
+ *
  *   Double_variable_info {
  *     u1 tag = ITEM_Double; // 3
  *   }
- *   
+ *
  *   Null_variable_info {
  *     u1 tag = ITEM_Null; // 5
  *   }
- *   
+ *
  *   UninitializedThis_variable_info {
  *     u1 tag = ITEM_UninitializedThis; // 6
  *   }
- *   
+ *
  *   Object_variable_info {
  *     u1 tag = ITEM_Object; // 7
  *     u2 cpool_index;
  *   }
- *   
+ *
  *   Uninitialized_variable_info {
  *     u1 tag = ITEM_Uninitialized // 8
  *     uoffset offset;
  *   }
  * </pre>
- * 
- * 
+ *
+ *
  * @author Eugene Kuleshov
  */
 public class StackMapAttribute extends Attribute {
   private static final int MAX_SIZE = 65535;
-  
+
   public List frames = new LinkedList();
-  
+
   public StackMapAttribute() {
     super( "StackMap");
   }
 
-  protected Attribute read( ClassReader cr, int off, int len, 
-        int codeOff, char[] buf, Label[] labels) {
+  protected Attribute read( ClassReader cr, int off, int len,
+                            char[] buf, int codeOff, Label[] labels) {
     StackMapAttribute attr = new StackMapAttribute();
     int codeSize = cr.readInt( codeOff + 4);
     int size = codeSize>MAX_SIZE ? cr.readInt( off += 2) : cr.readShort( off =+ 2);
     for( int i = 0; i<size; i++) {
       int n = cr.readUnsignedShort( off =+ 2);
-      if( labels[ n]==null) labels[ n] = new Label();      
+      if( labels[ n]==null) labels[ n] = new Label();
       StackMapFrame frame = new StackMapFrame( labels[ n]);
       attr.frames.add( frame);
 
       off = readTypeInfo( cr, off, frame.locals, labels, buf, cr.readUnsignedShort( codeOff+2));  //  maxLocals
       off = readTypeInfo( cr, off, frame.stack, labels, buf, cr.readUnsignedShort( codeOff));  // maxStack
     }
-    
+
     return attr;
   }
 
@@ -175,13 +175,13 @@ public class StackMapAttribute extends Attribute {
     for( int i = 0; i<frames.size(); i++) {
       StackMapFrame frame = ( StackMapFrame) frames.get( i);
       bv.putShort( frame.label.getOffset());
-      
+
       writeTypeInfo( bv, cw, frame.locals, maxLocals);
       writeTypeInfo( bv, cw, frame.stack, maxStack);
     }
     return bv;
   }
-  
+
   private int readTypeInfo( ClassReader cr, int off, List locals, Label[] labels, char[] buf, int max) {
     int n = max>MAX_SIZE ? cr.readInt( off =+ 4) : cr.readUnsignedShort( off =+ 2);
     for( int j = 0; j<n; j++) {
@@ -191,8 +191,8 @@ public class StackMapAttribute extends Attribute {
       switch( itemType) {
         case StackMapTypeInfo.ITEM_Object:  //
           typeInfo.setObject( cr.readClass( off =+ 2, buf));
-          break;        
-        
+          break;
+
         case StackMapTypeInfo.ITEM_Uninitialized:  //
           int o = cr.readUnsignedShort( off =+ 2);
           if( labels[ o]==null) labels[ o] = new Label();
@@ -202,18 +202,18 @@ public class StackMapAttribute extends Attribute {
     }
     return off;
   }
-  
+
   private void writeTypeInfo( ByteVector bv, ClassWriter cw, List locals, int max) {
     if( max>MAX_SIZE) bv.putInt( locals.size());
     else bv.putShort( locals.size());
     for( int j = 0; j<locals.size(); j++) {
-      StackMapTypeInfo typeInfo = ( StackMapTypeInfo) locals.get( j);     
+      StackMapTypeInfo typeInfo = ( StackMapTypeInfo) locals.get( j);
       bv = new ByteVector().putByte( typeInfo.getType());
       switch( typeInfo.getType()) {
         case StackMapTypeInfo.ITEM_Object:  //
           bv.putShort( cw.newClass( typeInfo.getObject()));
-          break;        
-          
+          break;
+
          case StackMapTypeInfo.ITEM_Uninitialized:  //
            bv.putShort( typeInfo.getLabel().getOffset());
            break;
@@ -228,6 +228,6 @@ public class StackMapAttribute extends Attribute {
     sb.append( "\n]");
     return sb.toString();
   }
-  
+
 }
 

@@ -144,12 +144,19 @@ class CommentAttribute extends Attribute {
     int off,
     int len,
     char[] buf,
+    int codeOff,
     Label[] labels)
   {
     return new CommentAttribute(cr.readUTF8(off, buf));
   }
 
-  protected ByteVector write (ClassWriter cw, byte[] code, int len) {
+  protected ByteVector write (
+    ClassWriter cw,
+    byte[] code,
+    int len,
+    int maxStack,
+    int maxLocals)
+  {
     return new ByteVector().putShort(cw.newUTF8(comment));
   }
 }

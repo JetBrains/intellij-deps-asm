@@ -176,14 +176,14 @@
     <!-- copy all files and all non empty directories available in the doc -->
     <!-- directory into dist/doc -->
 
-    <copy todir="${out.dist.doc}"
+    <!--copy todir="${out.dist.doc}"
       preservelastmodified="yes"
       includeEmptyDirs="false">
       <fileset dir="${doc}">
         <include name="**/*"/>
         <exclude name="**/*.fig"/>
       </fileset>
-    </copy>
+    </copy-->
 
     <!-- create all jars -->
 

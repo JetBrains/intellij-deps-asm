@@ -60,6 +60,12 @@ public class Label {
   int position;
 
   /**
+   * If the label position has been updated, after instruction resizing.
+   */
+
+  boolean resized;
+
+  /**
    * Number of forward references to this label, times two.
    */
 
@@ -137,15 +143,27 @@ public class Label {
   public Label () {
   }
 
-  public int getOffset() {
-    if( !resolved) 
-      throw new IllegalStateException( "Label offset position has not been resolved yet");
-    return position;
-  }
-  
   // --------------------------------------------------------------------------
   // Methods to compute offsets and to manage forward references
   // --------------------------------------------------------------------------
+
+  /**
+   * Returns the offset corresponding to this label. This offset is computed
+   * from the start of the method's bytecode. <i>This method is intended for
+   * {@link Attribute} sub classes, and is normally not needed by class
+   * generators or adapters.</i>
+   *
+   * @return the offset corresponding to this label.
+   * @throws IllegalStateException if this label is not resolved yet.
+   */
+
+  public int getOffset () {
+    if (!resolved) {
+      throw new IllegalStateException(
+        "Label offset position has not been resolved yet");
+    }
+    return position;
+  }
 
   /**
    * Puts a reference to this label in the bytecode of a method. If the position

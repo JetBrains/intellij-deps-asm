@@ -63,35 +63,15 @@ public abstract class Attribute {
   }
 
   /**
-   * Analyzes a {@link #type type} attribute and finds the corresponding labels.
-   * This method must analyze the attribute in the given class reader, at the
-   * given offset (whose type is equal to {@link #type type}), and must add to
-   * given label array the labels that corresponds to the bytecode offsets
-   * contained in the attribute (if there are such offsets, and if the
-   * corresponding labels do not already exist). The default implementation of
-   * this method, which is only called for code attributes, does nothing.
+   * Returns the labels corresponding to this attribute.
    *
-   * @param cr the class that contains the attribute to be analyzed.
-   * @param off index of the first byte of the attribute's content in {@link
-   *      ClassReader#b cr.b}. The 6 attribute header bytes, containing the type
-   *      and the length of the attribute, are not taken into account here.
-   * @param len the length of the attribute's content.
-   * @param labels the array that must be completed with the labels contained in
-   *      the attribute.
+   * @return the labels corresponding to this attribute, or <tt>null</tt> if
+   *      this attribute is not a code attribute that contains labels.
    */
-  /*
-  protected void analyze (
-    ClassReader cr,
-    int off,
-    int len,
-    char[] buf,
-    Label[] labels,
-    int maxStack,
-    int maxLocals)
-  {
-    // does nothing
+  
+  protected Label[] getLabels () {
+    return null;
   }
-  */
 
   /**
    * Reads a {@link #type type} attribute. This method must return a <i>new</i>
@@ -105,15 +85,19 @@ public abstract class Attribute {
    * @param len the length of the attribute's content.
    * @param buf buffer to be used to call {@link ClassReader#readUTF8 readUTF8},
    *      {@link ClassReader#readClass readClass} or {@link
-   *      ClassReader#readConst readConst}..
+   *      ClassReader#readConst readConst}.
+   * @param codeOff index of the first byte of code's attribute content in
+   *      {@link ClassReader#b cr.b}, or -1 if the attribute to be read is not a
+   *      code attribute. The 6 attribute header bytes, containing the type and
+   *      the length of the attribute, are not taken into account here.
    * @param labels the labels of the method's code, or <tt>null</tt> if the
    *      attribute to be read is not a code attribute.
    * @return a <i>new</i> {@link Attribute} object corresponding to the given
    *      bytes.
    */
 
-  protected abstract Attribute read ( ClassReader cr, int off, int len,
-      int codeOff, char[] buf, Label[] labels);
+  protected abstract Attribute read (
+    ClassReader cr, int off, int len, char[] buf, int codeOff, Label[] labels);
 
   /**
    * Returns the byte array form of this attribute.
@@ -127,11 +111,16 @@ public abstract class Attribute {
    * @param len the length of the bytecode of the method corresponding to this
    *      code attribute, or <tt>null</tt> if this attribute is not a code
    *      attribute.
+   * @param maxStack the maximum stack size of the method corresponding to this
+   *      code attribute, or -1 if this attribute is not a code attribute.
+   * @param maxLocals the maximum number of local variables of the method
+   *      corresponding to this code attribute, or -1 if this attribute is not
+   *      a code attribute.
    * @return the byte array form of this attribute.
    */
 
-  protected abstract ByteVector write (ClassWriter cw, byte[] code, int len, 
-      int maxStack, int maxLocals);
+  protected abstract ByteVector write (
+    ClassWriter cw, byte[] code, int len, int maxStack, int maxLocals);
 
   /**
    * Returns the length of the attribute list that begins with this attribute.
@@ -160,12 +149,22 @@ public abstract class Attribute {
    * @param len the length of the bytecode of the method corresponding to these
    *      code attributes, or <tt>null</tt> if these attributes are not code
    *      attributes.
+   * @param maxStack the maximum stack size of the method corresponding to these
+   *      code attributes, or -1 if these attributes are not code attributes.
+   * @param maxLocals the maximum number of local variables of the method
+   *      corresponding to these code attributes, or -1 if these attributes are
+   *      not code attributes.
    * @return the size of all the attributes in this attribute list. This size
    *      includes the size of the attribute headers.
    */
 
-  final int getSize (final ClassWriter cw, final byte[] code, 
-        final int len, final int maxStack, final int maxLocals) {
+  final int getSize (
+    final ClassWriter cw,
+    final byte[] code,
+    final int len,
+    final int maxStack,
+    final int maxLocals)
+  {
     int size = 0;
     Attribute attr = this;
     while (attr != null) {
@@ -187,11 +186,22 @@ public abstract class Attribute {
    * @param len the length of the bytecode of the method corresponding to these
    *      code attributes, or <tt>null</tt> if these attributes are not code
    *      attributes.
+   * @param maxStack the maximum stack size of the method corresponding to these
+   *      code attributes, or -1 if these attributes are not code attributes.
+   * @param maxLocals the maximum number of local variables of the method
+   *      corresponding to these code attributes, or -1 if these attributes are
+   *      not code attributes.
    * @param out where the attributes must be written.
    */
 
-  final void put ( final ClassWriter cw, final byte[] code, final int len,
-        final int maxStack, final int maxLocals, final ByteVector out) {
+  final void put (
+    final ClassWriter cw,
+    final byte[] code,
+    final int len,
+    final int maxStack,
+    final int maxLocals,
+    final ByteVector out)
+  {
     Attribute attr = this;
     while (attr != null) {
       ByteVector b = attr.write(cw, code, len, maxStack, maxLocals);

@@ -344,6 +344,13 @@
     <delete dir="${dist}"/>
     <delete dir="${zip}"/>
     <delete dir="${testResult.dir}"/>
+    <condition property="web.exist">
+      <available file="${web}/build.xml"/>
+    </condition>
+    <antcall target="clean.web"/>
+  </target>
+
+  <target name="clean.web" if="web.exist">
     <ant dir="${web}" target="clean"/>
   </target>
 

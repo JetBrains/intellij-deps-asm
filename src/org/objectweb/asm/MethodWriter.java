@@ -1371,7 +1371,7 @@ class MethodWriter implements MethodVisitor {
     }
     if (annd != null) {
       out.putShort(cw.newUTF8("AnnotationDefault"));
-      out.putInt(6 + annd.length);
+      out.putInt(annd.length);
       out.putByteArray(annd.data, 0, annd.length);
     }
     if (anns != null) {

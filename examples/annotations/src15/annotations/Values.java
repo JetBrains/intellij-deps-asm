@@ -1,3 +1,4 @@
+
 package annotations;
 
 
@@ -30,6 +31,23 @@ package annotations;
   annotationArrayValue = {@ValueAttrAnnotation( "annotation1"), @ValueAttrAnnotation( "annotation2")},
   classArrayValue = {Values.class, Values.class}
 )
+@ValueAttrAnnotation1( "classAnnotation1")
+@ValueAttrAnnotation2( "classAnnotation2")
 public class Values {
+
+  @ValueAttrAnnotation1( "fieldAnnotation1")
+  @ValueAttrAnnotation2( "fieldAnnotation2")
+  public String testfield = "test";
+
+  @ValueAttrAnnotation1( "methodAnnotation1")
+  @ValueAttrAnnotation2( "methodAnnotation2")
+  public void testMethod( 
+      @ValueAttrAnnotation1( "param1Annotation1") 
+      @ValueAttrAnnotation2( "param1Annotation2") String param1, 
+      @ValueAttrAnnotation1( "param2Annotation1") 
+      @ValueAttrAnnotation2( "param2Annotation2") int param2) {
+    // @ValueAttrAnnotation( "codeAnnotation")
+  }
+
 }
 

@@ -21,8 +21,8 @@ av0.visit("booleanValue", new Boolean(true));
 av0.visit("intValue", new Integer(1));
 av0.visit("shortValue", new Short((short)1));
 av0.visit("longValue", new Long(1L));
-av0.visit("floatValue", new Float(1.0F));
-av0.visit("doubleValue", new Double(1.0));
+av0.visit("floatValue", new Float("1.0"));
+av0.visit("doubleValue", new Double("1.0"));
 av0.visit("stringValue", "A");
 av0.visitEnum("enumValue", "Lannotations/ValuesEnum;", "ONE");
 {
@@ -74,11 +74,74 @@ av1.visitEnd();
 av0.visitEnd();
 }
 {
+av0 = cw.visitAnnotation("Lannotations/ValueAttrAnnotation1;", true);
+av0.visit("value", "classAnnotation1");
+av0.visitEnd();
+}
+{
+av0 = cw.visitAnnotation("Lannotations/ValueAttrAnnotation2;", true);
+av0.visit("value", "classAnnotation2");
+av0.visitEnd();
+}
+{
+fv = cw.visitField(ACC_PUBLIC, "testfield", "Ljava/lang/String;", null, null);
+{
+av0 = fv.visitAnnotation("Lannotations/ValueAttrAnnotation1;", true);
+av0.visit("value", "fieldAnnotation1");
+av0.visitEnd();
+}
+{
+av0 = fv.visitAnnotation("Lannotations/ValueAttrAnnotation2;", true);
+av0.visit("value", "fieldAnnotation2");
+av0.visitEnd();
+}
+fv.visitEnd();
+}
+{
 mv = cw.visitMethod(ACC_PUBLIC, "<init>", "()V", null, null);
 mv.visitVarInsn(ALOAD, 0);
 mv.visitMethodInsn(INVOKESPECIAL, "java/lang/Object", "<init>", "()V");
+mv.visitVarInsn(ALOAD, 0);
+mv.visitLdcInsn("test");
+mv.visitFieldInsn(PUTFIELD, "annotations/Values", "testfield", "Ljava/lang/String;");
 mv.visitInsn(RETURN);
-mv.visitMaxs(1, 1);
+mv.visitMaxs(2, 1);
+mv.visitEnd();
+}
+{
+mv = cw.visitMethod(ACC_PUBLIC, "testMethod", "(Ljava/lang/String;I)V", null, null);
+{
+av0 = mv.visitAnnotation("Lannotations/ValueAttrAnnotation1;", true);
+av0.visit("value", "methodAnnotation1");
+av0.visitEnd();
+}
+{
+av0 = mv.visitAnnotation("Lannotations/ValueAttrAnnotation2;", true);
+av0.visit("value", "methodAnnotation2");
+av0.visitEnd();
+}
+{
+av0 = mv.visitParameterAnnotation(2, "Lannotations/ValueAttrAnnotation1;", true);
+av0.visit("value", "param1Annotation1");
+av0.visitEnd();
+}
+{
+av0 = mv.visitParameterAnnotation(2, "Lannotations/ValueAttrAnnotation2;", true);
+av0.visit("value", "param1Annotation2");
+av0.visitEnd();
+}
+{
+av0 = mv.visitParameterAnnotation(1, "Lannotations/ValueAttrAnnotation1;", true);
+av0.visit("value", "param2Annotation1");
+av0.visitEnd();
+}
+{
+av0 = mv.visitParameterAnnotation(1, "Lannotations/ValueAttrAnnotation2;", true);
+av0.visit("value", "param2Annotation2");
+av0.visitEnd();
+}
+mv.visitInsn(RETURN);
+mv.visitMaxs(0, 3);
 mv.visitEnd();
 }
 cw.visitEnd();

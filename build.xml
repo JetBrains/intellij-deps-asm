@@ -135,11 +135,19 @@
   </target>
 
   <target name="jar" depends="dist.init,compile">
-    <multipleAnt dir="${archive}" />
+    <multipleAnt dir="${archive}"/>
   </target>
 
   <target name="jdoc" depends="init,dist.init">
-    <multipleAnt dir="${jdoc}" />
+    <copy todir="${out.dist.doc}"
+          preservelastmodified="yes"
+          includeEmptyDirs="false">
+      <fileset dir="${doc}">
+        <include name="**/*"/>
+        <exclude name="**/*.fig"/>
+      </fileset>
+    </copy>
+    <multipleAnt dir="${jdoc}"/>
   </target>
 
   <target name="examples" depends="init,dist.init" if="examples.exist">
@@ -171,6 +179,11 @@
   </target>
 
   <target name="dist" depends="jar,jdoc,examples">
+    <copy todir="${out.dist}">
+      <fileset dir=".">
+        <include name="externals/*.jar"/>
+      </fileset>
+    </copy>
     <zip zipFile="${out.dist}/src.zip" basedir="${src}"/>
   </target>
 

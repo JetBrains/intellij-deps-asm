@@ -89,6 +89,7 @@
   
   <target name="init" depends="properties,check">  
     <path id="test.classpath">
+      <path refid="classpath"/>
       <pathelement location="${out.build}"/>
       <pathelement location="${out.test}"/>
       <pathelement path="${bcel.path}"/>

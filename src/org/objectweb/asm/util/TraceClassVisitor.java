@@ -576,7 +576,7 @@ public class TraceClassVisitor extends TraceAbstractVisitor
 
     public String toString() {
       StringBuffer sb = new StringBuffer();
-      if( tag!=' ') {
+      if( tag!='=') {
         // TODO expand tag
         sb.append( "[").append( tag).append( "]");
       }
@@ -608,6 +608,10 @@ public class TraceClassVisitor extends TraceAbstractVisitor
     }
 
     public TypeSignatureVisitor visitArrayType() {
+      throw new IllegalStateException( getClass().getName());
+    }
+
+    public void visitTypeArgument() {
       throw new IllegalStateException( getClass().getName());
     }
 

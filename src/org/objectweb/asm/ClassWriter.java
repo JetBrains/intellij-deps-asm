@@ -509,10 +509,10 @@ public class ClassWriter implements ClassVisitor {
    * @param computeMaxs <tt>true</tt> if the maximum stack size and the maximum
    *      number of local variables must be automatically computed. If this flag
    *      is <tt>true</tt>, then the arguments of the {@link
-   *      CodeVisitor#visitMaxs visitMaxs} method of the {@link CodeVisitor
-   *      CodeVisitor} returned by the {@link #visitMethod visitMethod} method
-   *      will be ignored, and computed automatically from the signature and
-   *      the bytecode of each method.
+   *      MethodVisitor#visitMaxs visitMaxs} method of the {@link MethodVisitor} 
+   *      returned by the {@link #visitMethod visitMethod} method will be 
+   *      ignored, and computed automatically from the signature and the 
+   *      bytecode of each method.
    */
 
   public ClassWriter (final boolean computeMaxs) {
@@ -526,9 +526,9 @@ public class ClassWriter implements ClassVisitor {
    *      number of local variables must be automatically computed. If this flag
    *      is <tt>true</tt>, then the arguments of the
    *      {@link MethodVisitor#visitMaxs visitMaxs} method of the
-   *      {@link MethodVisitor} returned by the {@link #visitMethod visitMethod} method
-   *      will be ignored, and computed automatically from the signature and
-   *      the bytecode of each method.
+   *      {@link MethodVisitor} returned by the {@link #visitMethod visitMethod} 
+   *      method will be ignored, and computed automatically from the signature 
+   *      and the bytecode of each method.
    * @param skipUnknownAttributes <tt>true</tt> to silently ignore unknown 
    *      attributes, or <tt>false</tt> to throw an exception if an unknown
    *      attribute is found.

@@ -124,7 +124,9 @@
   <!-- ==================================== -->
 
   <target name="compile.test.conform" depends="init" if="test.conform.exist">
-    <javac srcdir="${test.conform}" destdir="${out.test}" debug="on">
+    <javac srcdir="${test.conform}" destdir="${out.test}" 
+        debug="on" debuglevel="lines,vars,source" 
+        source="1.5" target="1.5">
       <classpath refid="test.classpath"/>
       <include name="**/*.java"/>
       <exclude name="annotations/**/*.java" unless="java5"/>
@@ -133,28 +135,28 @@
   </target>
 
   <target name="compile.test.deviance" depends="init" if="test.deviance.exist">
-    <javac srcdir="${test.deviance}" destdir="${out.test}" debug="on">
+    <javac srcdir="${test.deviance}" destdir="${out.test}" debug="on" source="1.3" target="1.2">
       <classpath refid="test.classpath"/>
       <include name="**/*.java"/>
     </javac>
   </target>
 
   <target name="compile.test.thread" depends="init" if="test.thread.exist">
-    <javac srcdir="${test.thread}" destdir="${out.test}" debug="on">
+    <javac srcdir="${test.thread}" destdir="${out.test}" debug="on" source="1.3" target="1.2">
       <classpath refid="test.classpath"/>
       <include name="**/*.java"/>
     </javac>
   </target>
 
   <target name="compile.test.stress" depends="init" if="test.stress.exist">
-    <javac srcdir="${test.stress}" destdir="${out.test}" debug="on">
+    <javac srcdir="${test.stress}" destdir="${out.test}" debug="on" source="1.3" target="1.2">
       <classpath refid="test.classpath"/>
       <include name="**/*.java"/>
     </javac>
   </target>
 
   <target name="compile.test.perf" depends="init" if="test.perf.exist">
-    <javac srcdir="${test.perf}" destdir="${out.test}" debug="on">
+    <javac srcdir="${test.perf}" destdir="${out.test}" debug="on" source="1.3" target="1.2">
       <classpath refid="test.classpath"/>
       <include name="**/*.java"/>
       <exclude name="**/xml/*.java"/>

@@ -101,7 +101,7 @@ public class TraceClassVisitor extends PrintClassVisitor {
   /**
    * Prints a disassembled view of the given class to the standard output.
    * <p>
-   * Usage: TraceClassVisitor &lt;fully qualified class name&gt;
+   * Usage: TraceClassVisitor &lt;fully qualified class name or class file name &gt;
    *
    * @param args the command line arguments.
    *
@@ -112,12 +112,16 @@ public class TraceClassVisitor extends PrintClassVisitor {
   public static void main (final String[] args) throws Exception {
     if (args.length == 0) {
       System.err.println("Prints a disassembled view of the given class.");
-      System.err.println("Usage: TraceClassVisitor <fully qualified class name>");
+      System.err.println("Usage: TraceClassVisitor <fully qualified class name or class file name>");
       System.exit(-1);
     }
-    // ClassReader cr = new ClassReader(args[0]);
-    ClassReader cr = new ClassReader( new FileInputStream( args[0]));
-    cr.accept(new TraceClassVisitor(null, new PrintWriter(System.out)),  
+    ClassReader cr;
+    if (args[0].endsWith(".class")) {
+      cr = new ClassReader(new FileInputStream( args[0]));
+    } else {
+      cr = new ClassReader(args[0]);
+    }
+    cr.accept(new TraceClassVisitor(null, new PrintWriter(System.out)),
         PrintClassVisitor.DEFAULT_ATTRIBUTES, true);
   }
 

@@ -113,12 +113,12 @@ import org.objectweb.asm.attrs.Dumpable;
 public class DumpClassVisitor extends PrintClassVisitor {
   private static final int ACCESS_CLASS = 262144;
   private static final int ACCESS_FIELD = 524288;
-  
+
   /**
    * Prints the ASM source code to generate the given class to the standard
    * output.
    * <p>
-   * Usage: DumpClassVisitor &lt;fully qualified class name&gt;
+   * Usage: DumpClassVisitor &lt;fully qualified class name or class file name&gt;
    *
    * @param args the command line arguments.
    *
@@ -129,11 +129,15 @@ public class DumpClassVisitor extends PrintClassVisitor {
   public static void main (final String[] args) throws Exception {
     if (args.length == 0) {
       System.err.println("Prints the ASM code to generate the given class.");
-      System.err.println("Usage: DumpClassVisitor <fully qualified class name>");
+      System.err.println("Usage: DumpClassVisitor <fully qualified class name or class file name>");
       System.exit(-1);
     }
-    // ClassReader cr = new ClassReader(args[0]);
-    ClassReader cr = new ClassReader( new FileInputStream( args[0]));
+    ClassReader cr;
+    if (args[0].endsWith(".class")) {
+      cr = new ClassReader(new FileInputStream(args[0]));
+    } else {
+      cr = new ClassReader(args[0]);
+    }
     cr.accept(new DumpClassVisitor(new PrintWriter(System.out)), PrintClassVisitor.DEFAULT_ATTRIBUTES, true);
   }
 
@@ -232,7 +236,7 @@ public class DumpClassVisitor extends PrintClassVisitor {
         a = a.next;
       }
     }
-    
+
     buf.append("cw.visitField(");
     appendAccess(access | ACCESS_FIELD);
     buf.append(", ");
@@ -241,7 +245,7 @@ public class DumpClassVisitor extends PrintClassVisitor {
     appendConstant(buf, desc);
     buf.append(", ");
     appendConstant(buf, value);
-    
+
     if( attrs==null) {
       buf.append(", null);\n\n");
     } else {
@@ -261,7 +265,7 @@ public class DumpClassVisitor extends PrintClassVisitor {
     buf.setLength(0);
 
     buf.append("{\n");
-    
+
     if( attrs!=null) {
       buf.append("// METHOD ATTRIBUTES\n");
       Attribute a = attrs;
@@ -280,7 +284,7 @@ public class DumpClassVisitor extends PrintClassVisitor {
         a = a.next;
       }
     }
-    
+
     buf.append("cv = cw.visitMethod(");
     appendAccess(access);
     buf.append(", ");
@@ -303,7 +307,7 @@ public class DumpClassVisitor extends PrintClassVisitor {
     } else {
       buf.append(", attrs1);\n");
     }
-    
+
     text.add(buf.toString());
     PrintCodeVisitor pcv = new DumpCodeVisitor();
     text.add(pcv.getText());
@@ -395,7 +399,7 @@ public class DumpClassVisitor extends PrintClassVisitor {
       buf.append("ACC_VOLATILE");
       first = false;
     }
-    if ((access & Constants.ACC_BRIDGE) != 0 && 
+    if ((access & Constants.ACC_BRIDGE) != 0 &&
         (access & ACCESS_CLASS) == 0 && (access & ACCESS_FIELD) == 0) {
       if (!first) {
         buf.append(" + ");
@@ -403,7 +407,7 @@ public class DumpClassVisitor extends PrintClassVisitor {
       buf.append("ACC_BRIDGE");
       first = false;
     }
-    if ((access & Constants.ACC_VARARGS) != 0 && 
+    if ((access & Constants.ACC_VARARGS) != 0 &&
         (access & ACCESS_CLASS) == 0 && (access & ACCESS_FIELD) == 0) {
       if (!first) {
         buf.append(" + ");
@@ -418,7 +422,7 @@ public class DumpClassVisitor extends PrintClassVisitor {
       buf.append("ACC_TRANSIENT");
       first = false;
     }
-    if ((access & Constants.ACC_NATIVE) != 0 && 
+    if ((access & Constants.ACC_NATIVE) != 0 &&
         (access & ACCESS_CLASS) == 0 &&
         (access & ACCESS_FIELD) == 0) {
       if (!first) {
@@ -427,7 +431,7 @@ public class DumpClassVisitor extends PrintClassVisitor {
       buf.append("ACC_NATIVE");
       first = false;
     }
-    if ((access & Constants.ACC_ENUM) != 0 && 
+    if ((access & Constants.ACC_ENUM) != 0 &&
          ((access & ACCESS_CLASS) != 0 || (access & ACCESS_FIELD) != 0)) {
       if (!first) {
         buf.append(" + ");

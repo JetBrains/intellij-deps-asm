@@ -210,7 +210,7 @@ public class TraceClassVisitor extends TraceAbstractVisitor
       SignatureReader r = new SignatureReader( signature);
       r.acceptClass( signatureVisitor);
       
-      buf.append( signatureVisitor.toString());
+      buf.append( signatureVisitor.getDeclaration());
       
     } else {
       buf.append(' ');
@@ -306,12 +306,29 @@ public class TraceClassVisitor extends TraceAbstractVisitor
       buf.append(tab).append("// DEPRECATED\n");
     }
     buf.append(tab).append("// access flags ").append(access).append('\n');
+
+    if( signature!=null) {
+      buf.append( "// signature ").append( signature).append( "\n");
+    }
+    
     buf.append(tab);
     appendAccess(access);
     if ((access & Opcodes.ACC_ENUM) != 0) {
       buf.append("enum ");
     }
-    appendDescriptor(FIELD_DESCRIPTOR, desc);
+    
+    if( signature!=null) {
+      TraceSignatureVisitor signatureVisitor = new TraceSignatureVisitor( access);
+
+      SignatureReader r = new SignatureReader( signature);
+      r.acceptClass( signatureVisitor);
+      
+      buf.append( signatureVisitor.getDeclaration());
+      
+    } else {
+      appendDescriptor(FIELD_DESCRIPTOR, desc);
+    }
+    
     buf.append(' ').append(name);
     if (value != null) {
       buf.append(" = ");
@@ -321,10 +338,7 @@ public class TraceClassVisitor extends TraceAbstractVisitor
         buf.append(value);
       }
     }
-    if (signature != null) {
-      buf.append("// ");
-      appendDescriptor(FIELD_SIGNATURE, signature);
-    }
+
     buf.append('\n');
     text.add(buf.toString());
 
@@ -346,6 +360,11 @@ public class TraceClassVisitor extends TraceAbstractVisitor
       buf.append(tab).append("// DEPRECATED\n");
     }
     buf.append(tab).append("// access flags ").append(access).append('\n');
+    if (signature != null) {
+      buf.append(tab).append("// ");
+      appendDescriptor(METHOD_SIGNATURE, signature);
+    }
+
     buf.append(tab);
     appendAccess(access);
     if ((access & Opcodes.ACC_NATIVE) != 0) {
@@ -357,19 +376,32 @@ public class TraceClassVisitor extends TraceAbstractVisitor
     if ((access & Opcodes.ACC_BRIDGE) != 0) {
       buf.append("bridge ");
     }
-    buf.append(name).append(' ');
-    appendDescriptor(METHOD_DESCRIPTOR, desc);
-    if (exceptions != null && exceptions.length > 0) {
-      buf.append(" throws ");
-      for (int i = 0; i < exceptions.length; ++i) {
-        appendDescriptor(INTERNAL_NAME, exceptions[i]);
-        buf.append(' ');
+    
+    if( signature!=null) {
+      TraceSignatureVisitor v = new TraceSignatureVisitor( 0);
+      SignatureReader r = new SignatureReader( signature);
+      r.acceptMethod(v);
+      String declaration = v.getDeclaration();
+      String returnType = v.getReturnType();
+      // TODO exception descriptor
+      
+      buf.append( returnType).append( ' ').append( name);
+      appendDescriptor( METHOD_DESCRIPTOR, declaration);
+      
+    } else {
+      buf.append( name).append( ' ');
+      appendDescriptor( METHOD_DESCRIPTOR, desc);
+
+    }
+
+    if( exceptions != null && exceptions.length > 0) {
+      buf.append( " throws ");
+      for( int i = 0; i < exceptions.length; ++i) {
+        appendDescriptor( INTERNAL_NAME, exceptions[ i]);
+        buf.append( ' ');
       }
     }
-    if (signature != null) {
-      buf.append("// ");
-      appendDescriptor(METHOD_SIGNATURE, signature);
-    }
+    
     buf.append('\n');
     text.add(buf.toString());
 

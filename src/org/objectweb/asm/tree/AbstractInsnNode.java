@@ -128,7 +128,6 @@ public abstract class AbstractInsnNode {
    * Constructs a new {@link AbstractInsnNode}.
    *
    * @param opcode the opcode of the instruction to be constructed.
-   * @param type the type of the instruction to be constructed.
    */
 
   protected AbstractInsnNode (final int opcode) {

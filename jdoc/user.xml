@@ -19,6 +19,7 @@
       <sourcepath path="${src}"/>
       <package name="org.objectweb.asm"/>
       <package name="org.objectweb.asm.attrs"/>
+      <package name="org.objectweb.asm.adapters"/>
       <package name="org.objectweb.asm.tree"/>
       <package name="org.objectweb.asm.tree.analysis"/>
       <package name="org.objectweb.asm.util"/>

@@ -184,11 +184,6 @@ public class SignatureReader {
         for (;;) {
           switch (c = signature.charAt(pos++)) {
             case '.':
-              start = pos;
-              visited = false;
-              inner = true;
-              break;
-
             case ';':
               if (!visited) {
                 name = signature.substring(start, pos - 1);
@@ -198,8 +193,14 @@ public class SignatureReader {
                   v.visitClassType(name);
                 }
               }
-              v.visitEnd();
-              return pos;
+              if (c == ';') {
+                v.visitEnd();
+                return pos;
+              }
+              start = pos;
+              visited = false;
+              inner = true;
+              break;
 
             case '<':
               name = signature.substring(start, pos - 1);

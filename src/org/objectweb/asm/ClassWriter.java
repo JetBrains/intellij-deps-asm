@@ -111,6 +111,12 @@ public class ClassWriter implements ClassVisitor {
   final static int UTF8 = 1;
 
   /**
+   * Minor and major version numbers of the class to be generated.
+   */
+
+  private int version;
+
+  /**
    * Index of the next item to be added in the constant pool.
    */
 
@@ -459,6 +465,24 @@ public class ClassWriter implements ClassVisitor {
    */
 
   public ClassWriter (final boolean computeMaxs) {
+    this(computeMaxs, 45, 3);
+  }
+
+  /**
+   * Constructs a new {@link ClassWriter ClassWriter} object.
+   *
+   * @param computeMaxs <tt>true</tt> if the maximum stack size and the maximum
+   *      number of local variables must be automatically computed. If this flag
+   *      is <tt>true</tt>, then the arguments of the {@link
+   *      CodeVisitor#visitMaxs visitMaxs} method of the {@link CodeVisitor
+   *      CodeVisitor} returned by the {@link #visitMethod visitMethod} method
+   *      will be ignored, and computed automatically from the signature and
+   *      the bytecode of each method.
+   * @param major the major version of the class to be generated.
+   * @param minor the minor version of the class to be generated.
+   */
+
+  public ClassWriter (final boolean computeMaxs, final int major, final int minor) {
     index = 1;
     pool = new ByteVector();
     items = new Item[64];
@@ -467,6 +491,7 @@ public class ClassWriter implements ClassVisitor {
     key2 = new Item();
     key3 = new Item();
     this.computeMaxs = computeMaxs;
+    this.version = minor << 16 | major;
   }
 
   // --------------------------------------------------------------------------
@@ -622,7 +647,7 @@ public class ClassWriter implements ClassVisitor {
     // allocates a byte vector of this size, in order to avoid unnecessary
     // arraycopy operations in the ByteVector.enlarge() method
     ByteVector out = new ByteVector(size);
-    out.putInt(0xCAFEBABE).putShort(3).putShort(45);
+    out.putInt(0xCAFEBABE).putInt(version);
     out.putShort(index).putByteArray(pool.data, 0, pool.length);
     out.putShort(access).putShort(name).putShort(superName);
     out.putShort(interfaceCount);

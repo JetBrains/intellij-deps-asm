@@ -213,6 +213,16 @@ public class ClassReader {
   // --------------------------------------------------------------------------
 
   /**
+   * Returns the major and minor version numbers of this class.
+   *
+   * @return the <tt>int</tt> array { major version, minor version }  
+   */
+
+  public int[] getVersion () {
+    return new int[] { readShort(6), readShort(4) };
+  }
+
+  /**
    * Makes the given visitor visit the Java class of this {@link ClassReader
    * ClassReader}. This class is the one specified in the constructor (see
    * {@link #ClassReader ClassReader}).

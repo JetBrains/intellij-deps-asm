@@ -182,7 +182,7 @@ import org.objectweb.asm.Type;
 public class Annotation {
 
   /**
-   * Annotation class name.
+   * A fully qualified class name in internal form (see {@link Type Type}).
    */
   public String type;
   
@@ -536,7 +536,7 @@ public class Annotation {
           sb.append("{");
           String sep2 = "";
 	      for( int j = 0; j < v.length; j++) {
-            sb.append(v[ j]).append(sep2);
+            sb.append(sep2).append(v[ j]);
             sep2 = ", ";
           }
 	      sb.append("}");

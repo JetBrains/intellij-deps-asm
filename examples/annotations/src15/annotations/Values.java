@@ -41,6 +41,7 @@ public class Values {
 
   @ValueAttrAnnotation1( "methodAnnotation1")
   @ValueAttrAnnotation2( "methodAnnotation2")
+  @ValueAttrAnnotation()
   public void testMethod( 
       @ValueAttrAnnotation1( "param1Annotation1") 
       @ValueAttrAnnotation2( "param1Annotation2") String param1, 

@@ -1333,12 +1333,12 @@ public class CodeWriter implements CodeVisitor {
         int opcode = b[u] & 0xFF;  // opcode of current instruction
         int insert = 0;            // bytes to be added after this instruction
 
-        switch (ClassReader.TYPE[opcode]) {
-          case ClassReader.NOARG_INSN:
-          case ClassReader.IMPLVAR_INSN:
+        switch (ClassWriter.TYPE[opcode]) {
+          case ClassWriter.NOARG_INSN:
+          case ClassWriter.IMPLVAR_INSN:
             u += 1;
             break;
-          case ClassReader.LABEL_INSN:
+          case ClassWriter.LABEL_INSN:
             if (opcode > 201) {
               // converts temporary opcodes 202 to 217 (inclusive), 218 and 219
               // to IFEQ ... JSR (inclusive), IFNULL and IFNONNULL
@@ -1367,10 +1367,10 @@ public class CodeWriter implements CodeVisitor {
             }
             u += 3;
             break;
-          case ClassReader.LABELW_INSN:
+          case ClassWriter.LABELW_INSN:
             u += 5;
             break;
-          case ClassReader.TABL_INSN:
+          case ClassWriter.TABL_INSN:
             if (state == 1) {
               // true number of bytes to be added (or removed) from this
               // instruction = (future number of padding bytes - current number
@@ -1391,7 +1391,7 @@ public class CodeWriter implements CodeVisitor {
             u = u + 4 - (u & 3);
             u += 4*(readInt(b, u + 8) - readInt(b, u + 4) + 1) + 12;
             break;
-          case ClassReader.LOOK_INSN:
+          case ClassWriter.LOOK_INSN:
             if (state == 1) {
               // like TABL_INSN
               newOffset = getNewOffset(allIndexes, allSizes, 0, u);
@@ -1405,7 +1405,7 @@ public class CodeWriter implements CodeVisitor {
             u = u + 4 - (u & 3);
             u += 8*readInt(b, u + 4) + 8;
             break;
-          case ClassReader.WIDE_INSN:
+          case ClassWriter.WIDE_INSN:
             opcode = b[u + 1] & 0xFF;
             if (opcode == Constants.IINC) {
               u += 6;
@@ -1413,22 +1413,22 @@ public class CodeWriter implements CodeVisitor {
               u += 4;
             }
             break;
-          case ClassReader.VAR_INSN:
-          case ClassReader.SBYTE_INSN:
-          case ClassReader.LDC_INSN:
+          case ClassWriter.VAR_INSN:
+          case ClassWriter.SBYTE_INSN:
+          case ClassWriter.LDC_INSN:
             u += 2;
             break;
-          case ClassReader.SHORT_INSN:
-          case ClassReader.LDCW_INSN:
-          case ClassReader.FIELDORMETH_INSN:
-          case ClassReader.TYPE_INSN:
-          case ClassReader.IINC_INSN:
+          case ClassWriter.SHORT_INSN:
+          case ClassWriter.LDCW_INSN:
+          case ClassWriter.FIELDORMETH_INSN:
+          case ClassWriter.TYPE_INSN:
+          case ClassWriter.IINC_INSN:
             u += 3;
             break;
-          case ClassReader.ITFMETH_INSN:
+          case ClassWriter.ITFMETH_INSN:
             u += 5;
             break;
-          // case ClassReader.MANA_INSN:
+          // case ClassWriter.MANA_INSN:
           default:
             u += 4;
             break;
@@ -1474,13 +1474,13 @@ public class CodeWriter implements CodeVisitor {
         }
       }
       int opcode = b[u] & 0xFF;
-      switch (ClassReader.TYPE[opcode]) {
-        case ClassReader.NOARG_INSN:
-        case ClassReader.IMPLVAR_INSN:
+      switch (ClassWriter.TYPE[opcode]) {
+        case ClassWriter.NOARG_INSN:
+        case ClassWriter.IMPLVAR_INSN:
           newCode.put1(opcode);
           u += 1;
           break;
-        case ClassReader.LABEL_INSN:
+        case ClassWriter.LABEL_INSN:
           if (opcode > 201) {
             // changes temporary opcodes 202 to 217 (inclusive), 218 and 219
             // to IFEQ ... JSR (inclusive), IFNULL and IFNONNULL
@@ -1512,14 +1512,14 @@ public class CodeWriter implements CodeVisitor {
           }
           u += 3;
           break;
-        case ClassReader.LABELW_INSN:
+        case ClassWriter.LABELW_INSN:
           label = u + readInt(b, u + 1);
           newOffset = getNewOffset(allIndexes, allSizes, u, label);
           newCode.put1(opcode);
           newCode.put4(newOffset);
           u += 5;
           break;
-        case ClassReader.TABL_INSN:
+        case ClassWriter.TABL_INSN:
           // skips 0 to 3 padding bytes
           v = u;
           u = u + 4 - (v & 3);
@@ -1542,7 +1542,7 @@ public class CodeWriter implements CodeVisitor {
             newCode.put4(newOffset);
           }
           break;
-        case ClassReader.LOOK_INSN:
+        case ClassWriter.LOOK_INSN:
           // skips 0 to 3 padding bytes
           v = u;
           u = u + 4 - (v & 3);
@@ -1564,7 +1564,7 @@ public class CodeWriter implements CodeVisitor {
             newCode.put4(newOffset);
           }
           break;
-        case ClassReader.WIDE_INSN:
+        case ClassWriter.WIDE_INSN:
           opcode = b[u + 1] & 0xFF;
           if (opcode == Constants.IINC) {
             newCode.putByteArray(b, u, 6);
@@ -1574,21 +1574,21 @@ public class CodeWriter implements CodeVisitor {
             u += 4;
           }
           break;
-        case ClassReader.VAR_INSN:
-        case ClassReader.SBYTE_INSN:
-        case ClassReader.LDC_INSN:
+        case ClassWriter.VAR_INSN:
+        case ClassWriter.SBYTE_INSN:
+        case ClassWriter.LDC_INSN:
           newCode.putByteArray(b, u, 2);
           u += 2;
           break;
-        case ClassReader.SHORT_INSN:
-        case ClassReader.LDCW_INSN:
-        case ClassReader.FIELDORMETH_INSN:
-        case ClassReader.TYPE_INSN:
-        case ClassReader.IINC_INSN:
+        case ClassWriter.SHORT_INSN:
+        case ClassWriter.LDCW_INSN:
+        case ClassWriter.FIELDORMETH_INSN:
+        case ClassWriter.TYPE_INSN:
+        case ClassWriter.IINC_INSN:
           newCode.putByteArray(b, u, 3);
           u += 3;
           break;
-        case ClassReader.ITFMETH_INSN:
+        case ClassWriter.ITFMETH_INSN:
           newCode.putByteArray(b, u, 5);
           u += 5;
           break;

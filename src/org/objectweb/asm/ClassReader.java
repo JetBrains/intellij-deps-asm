@@ -75,203 +75,6 @@ public class ClassReader {
 
   private int header;
 
-  /**
-   * The type of instructions without any label.
-   */
-
-  final static int NOARG_INSN = 0;
-
-  /**
-   * The type of instructions with an signed byte label.
-   */
-
-  final static int SBYTE_INSN = 1;
-
-  /**
-   * The type of instructions with an signed short label.
-   */
-
-  final static int SHORT_INSN = 2;
-
-  /**
-   * The type of instructions with a local variable index label.
-   */
-
-  final static int VAR_INSN = 3;
-
-  /**
-   * The type of instructions with an implicit local variable index label.
-   */
-
-  final static int IMPLVAR_INSN = 4;
-
-  /**
-   * The type of instructions with a type descriptor argument.
-   */
-
-  final static int TYPE_INSN = 5;
-
-  /**
-   * The type of field and method invocations instructions.
-   */
-
-  final static int FIELDORMETH_INSN = 6;
-
-  /**
-   * The type of the INVOKEINTERFACE instruction.
-   */
-
-  final static int ITFMETH_INSN = 7;
-
-  /**
-   * The type of instructions with a 2 bytes bytecode offset label.
-   */
-
-  final static int LABEL_INSN = 8;
-
-  /**
-   * The type of instructions with a 4 bytes bytecode offset label.
-   */
-
-  final static int LABELW_INSN = 9;
-
-  /**
-   * The type of the LDC instruction.
-   */
-
-  final static int LDC_INSN = 10;
-
-  /**
-   * The type of the LDC_W and LDC2_W instructions.
-   */
-
-  final static int LDCW_INSN = 11;
-
-  /**
-   * The type of the IINC instruction.
-   */
-
-  final static int IINC_INSN = 12;
-
-  /**
-   * The type of the TABLESWITCH instruction.
-   */
-
-  final static int TABL_INSN = 13;
-
-  /**
-   * The type of the LOOKUPSWITCH instruction.
-   */
-
-  final static int LOOK_INSN = 14;
-
-  /**
-   * The type of the MULTIANEWARRAY instruction.
-   */
-
-  final static int MANA_INSN = 15;
-
-  /**
-   * The type of the WIDE instruction.
-   */
-
-  final static int WIDE_INSN = 16;
-
-  /**
-   * The instruction types of all JVM opcodes.
-   */
-
-  static byte[] TYPE;
-
-  // --------------------------------------------------------------------------
-  // Static initializer
-  // --------------------------------------------------------------------------
-
-  /**
-   * Computes the instruction types of JVM opcodes.
-   */
-
-  static {
-    int i;
-    byte[] b = new byte[220];
-    String s =
-      "AAAAAAAAAAAAAAAABCKLLDDDDDEEEEEEEEEEEEEEEEEEEEAAAAAAAADDDDDEEEEEEEEE" +
-      "EEEEEEEEEEEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAMAAA" +
-      "AAAAAAAAAAAAAAAAAIIIIIIIIIIIIIIIIDNOAAAAAAGGGGGGGHAFBFAAFFAAQPIIJJII" +
-      "IIIIIIIIIIIIIIII";
-    for (i = 0; i < b.length; ++i) {
-      b[i] = (byte)(s.charAt(i) - 'A');
-    }
-    TYPE = b;
-
-    /* code to generate the above string
-
-    // SBYTE_INSN instructions
-    b[Constants.NEWARRAY] = SBYTE_INSN;
-    b[Constants.BIPUSH] = SBYTE_INSN;
-
-    // SHORT_INSN instructions
-    b[Constants.SIPUSH] = SHORT_INSN;
-
-    // (IMPL)VAR_INSN instructions
-    b[Constants.RET] = VAR_INSN;
-    for (i = Constants.ILOAD; i <= Constants.ALOAD; ++i) {
-      b[i] = VAR_INSN;
-    }
-    for (i = Constants.ISTORE; i <= Constants.ASTORE; ++i) {
-      b[i] = VAR_INSN;
-    }
-    for (i = 26; i <= 45; ++i) { // ILOAD_0 to ALOAD_3
-      b[i] = IMPLVAR_INSN;
-    }
-    for (i = 59; i <= 78; ++i) { // ISTORE_0 to ASTORE_3
-      b[i] = IMPLVAR_INSN;
-    }
-
-    // TYPE_INSN instructions
-    b[Constants.NEW] = TYPE_INSN;
-    b[Constants.ANEWARRAY] = TYPE_INSN;
-    b[Constants.CHECKCAST] = TYPE_INSN;
-    b[Constants.INSTANCEOF] = TYPE_INSN;
-
-    // (Set)FIELDORMETH_INSN instructions
-    for (i = Constants.GETSTATIC; i <= Constants.INVOKESTATIC; ++i) {
-      b[i] = FIELDORMETH_INSN;
-    }
-    b[Constants.INVOKEINTERFACE] = ITFMETH_INSN;
-
-    // LABEL(W)_INSN instructions
-    for (i = Constants.IFEQ; i <= Constants.JSR; ++i) {
-      b[i] = LABEL_INSN;
-    }
-    b[Constants.IFNULL] = LABEL_INSN;
-    b[Constants.IFNONNULL] = LABEL_INSN;
-    b[200] = LABELW_INSN; // GOTO_W
-    b[201] = LABELW_INSN; // JSR_W
-    // temporary opcodes used internally by ASM - see Label and CodeWriter
-    for (i = 202; i < 220; ++i) {
-      b[i] = LABEL_INSN;
-    }
-
-    // LDC(_W) instructions
-    b[Constants.LDC] = LDC_INSN;
-    b[19] = LDCW_INSN; // LDC_W
-    b[20] = LDCW_INSN; // LDC2_W
-
-    // special instructions
-    b[Constants.IINC] = IINC_INSN;
-    b[Constants.TABLESWITCH] = TABL_INSN;
-    b[Constants.LOOKUPSWITCH] = LOOK_INSN;
-    b[Constants.MULTIANEWARRAY] = MANA_INSN;
-    b[196] = WIDE_INSN; // WIDE
-
-    for (i = 0; i < b.length; ++i) {
-      System.err.print((char)('A' + b[i]));
-    }
-    System.err.println();
-    */
-  }
-
   // --------------------------------------------------------------------------
   // Constructors
   // --------------------------------------------------------------------------
@@ -283,12 +86,24 @@ public class ClassReader {
    */
 
   public ClassReader (final byte[] b) {
+    this(b, 0, b.length);
+  }
+
+  /**
+   * Constructs a new {@link ClassReader ClassReader} object.
+   *
+   * @param b the bytecode of the class to be read.
+   * @param off the start offset of the class data.
+   * @param len the length of the class data.
+   */
+
+  public ClassReader (final byte[] b, final int off, final int len) {
     this.b = b;
     // parses the constant pool
-    items = new int[readUnsignedShort(8)];
+    items = new int[readUnsignedShort(off + 8)];
     strings = new String[items.length];
     int max = 0;
-    int index = 10;
+    int index = off + 10;
     for (int i = 1; i < items.length; ++i) {
       items[i] = index + 1;
       int tag = b[index];
@@ -546,26 +361,26 @@ public class ClassReader {
         Label[] labels = new Label[codeLength + 1];
         while (v < codeEnd) {
           int opcode = b[v] & 0xFF;
-          switch (TYPE[opcode]) {
-            case NOARG_INSN:
-            case IMPLVAR_INSN:
+          switch (ClassWriter.TYPE[opcode]) {
+            case ClassWriter.NOARG_INSN:
+            case ClassWriter.IMPLVAR_INSN:
               v += 1;
               break;
-            case LABEL_INSN:
+            case ClassWriter.LABEL_INSN:
               label = v - codeStart + readShort(v + 1);
               if (labels[label] == null) {
                 labels[label] = new Label();
               }
               v += 3;
               break;
-            case LABELW_INSN:
+            case ClassWriter.LABELW_INSN:
               label = v - codeStart + readInt(v + 1);
               if (labels[label] == null) {
                 labels[label] = new Label();
               }
               v += 5;
               break;
-            case WIDE_INSN:
+            case ClassWriter.WIDE_INSN:
               opcode = b[v + 1] & 0xFF;
               if (opcode == Constants.IINC) {
                 v += 6;
@@ -573,7 +388,7 @@ public class ClassReader {
                 v += 4;
               }
               break;
-            case TABL_INSN:
+            case ClassWriter.TABL_INSN:
               // skips 0 to 3 padding bytes
               w = v - codeStart;
               v = v + 4 - (w & 3);
@@ -591,7 +406,7 @@ public class ClassReader {
                 }
               }
               break;
-            case LOOK_INSN:
+            case ClassWriter.LOOK_INSN:
               // skips 0 to 3 padding bytes
               w = v - codeStart;
               v = v + 4 - (w & 3);
@@ -609,19 +424,19 @@ public class ClassReader {
                 }
               }
               break;
-            case VAR_INSN:
-            case SBYTE_INSN:
-            case LDC_INSN:
+            case ClassWriter.VAR_INSN:
+            case ClassWriter.SBYTE_INSN:
+            case ClassWriter.LDC_INSN:
               v += 2;
               break;
-            case SHORT_INSN:
-            case LDCW_INSN:
-            case FIELDORMETH_INSN:
-            case TYPE_INSN:
-            case IINC_INSN:
+            case ClassWriter.SHORT_INSN:
+            case ClassWriter.LDCW_INSN:
+            case ClassWriter.FIELDORMETH_INSN:
+            case ClassWriter.TYPE_INSN:
+            case ClassWriter.IINC_INSN:
               v += 3;
               break;
-            case ITFMETH_INSN:
+            case ClassWriter.ITFMETH_INSN:
               v += 5;
               break;
             // case MANA_INSN:
@@ -691,12 +506,12 @@ public class ClassReader {
             cv.visitLabel(l);
           }
           int opcode = b[v] & 0xFF;
-          switch (TYPE[opcode]) {
-            case NOARG_INSN:
+          switch (ClassWriter.TYPE[opcode]) {
+            case ClassWriter.NOARG_INSN:
               cv.visitInsn(opcode);
               v += 1;
               break;
-            case IMPLVAR_INSN:
+            case ClassWriter.IMPLVAR_INSN:
               if (opcode > Constants.ISTORE) {
                 opcode -= 59; //ISTORE_0
                 cv.visitVarInsn(Constants.ISTORE + (opcode >> 2), opcode & 0x3);
@@ -706,15 +521,15 @@ public class ClassReader {
               }
               v += 1;
               break;
-            case LABEL_INSN:
+            case ClassWriter.LABEL_INSN:
               cv.visitJumpInsn(opcode, labels[w + readShort(v + 1)]);
               v += 3;
               break;
-            case LABELW_INSN:
+            case ClassWriter.LABELW_INSN:
               cv.visitJumpInsn(opcode, labels[w + readInt(v + 1)]);
               v += 5;
               break;
-            case WIDE_INSN:
+            case ClassWriter.WIDE_INSN:
               opcode = b[v + 1] & 0xFF;
               if (opcode == Constants.IINC) {
                 cv.visitIincInsn(readUnsignedShort(v + 2), readShort(v + 4));
@@ -724,7 +539,7 @@ public class ClassReader {
                 v += 4;
               }
               break;
-            case TABL_INSN:
+            case ClassWriter.TABL_INSN:
               // skips 0 to 3 padding bytes
               v = v + 4 - (w & 3);
               // reads instruction
@@ -738,7 +553,7 @@ public class ClassReader {
               }
               cv.visitTableSwitchInsn(min, max, labels[label], table);
               break;
-            case LOOK_INSN:
+            case ClassWriter.LOOK_INSN:
               // skips 0 to 3 padding bytes
               v = v + 4 - (w & 3);
               // reads instruction
@@ -752,28 +567,28 @@ public class ClassReader {
               }
               cv.visitLookupSwitchInsn(labels[label], keys, values);
               break;
-            case VAR_INSN:
+            case ClassWriter.VAR_INSN:
               cv.visitVarInsn(opcode, b[v + 1] & 0xFF);
               v += 2;
               break;
-            case SBYTE_INSN:
+            case ClassWriter.SBYTE_INSN:
               cv.visitIntInsn(opcode, b[v + 1]);
               v += 2;
               break;
-            case SHORT_INSN:
+            case ClassWriter.SHORT_INSN:
               cv.visitIntInsn(opcode, readShort(v + 1));
               v += 3;
               break;
-            case LDC_INSN:
+            case ClassWriter.LDC_INSN:
               cv.visitLdcInsn(readConst(b[v + 1] & 0xFF));
               v += 2;
               break;
-            case LDCW_INSN:
+            case ClassWriter.LDCW_INSN:
               cv.visitLdcInsn(readConst(readUnsignedShort(v + 1)));
               v += 3;
               break;
-            case FIELDORMETH_INSN:
-            case ITFMETH_INSN:
+            case ClassWriter.FIELDORMETH_INSN:
+            case ClassWriter.ITFMETH_INSN:
               int cpIndex = items[readUnsignedShort(v + 1)];
               String iowner = readClass(cpIndex);
               cpIndex = items[readUnsignedShort(cpIndex + 2)];
@@ -790,11 +605,11 @@ public class ClassReader {
                 v += 3;
               }
               break;
-            case TYPE_INSN:
+            case ClassWriter.TYPE_INSN:
               cv.visitTypeInsn(opcode, readClass(v + 1));
               v += 3;
               break;
-            case IINC_INSN:
+            case ClassWriter.IINC_INSN:
               cv.visitIincInsn(b[v + 1] & 0xFF, b[v + 2]);
               v += 3;
               break;

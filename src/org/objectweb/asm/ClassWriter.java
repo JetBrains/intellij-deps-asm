@@ -229,6 +229,203 @@ public class ClassWriter implements ClassVisitor {
 
   Item key3;
 
+  /**
+   * The type of instructions without any label.
+   */
+
+  final static int NOARG_INSN = 0;
+
+  /**
+   * The type of instructions with an signed byte label.
+   */
+
+  final static int SBYTE_INSN = 1;
+
+  /**
+   * The type of instructions with an signed short label.
+   */
+
+  final static int SHORT_INSN = 2;
+
+  /**
+   * The type of instructions with a local variable index label.
+   */
+
+  final static int VAR_INSN = 3;
+
+  /**
+   * The type of instructions with an implicit local variable index label.
+   */
+
+  final static int IMPLVAR_INSN = 4;
+
+  /**
+   * The type of instructions with a type descriptor argument.
+   */
+
+  final static int TYPE_INSN = 5;
+
+  /**
+   * The type of field and method invocations instructions.
+   */
+
+  final static int FIELDORMETH_INSN = 6;
+
+  /**
+   * The type of the INVOKEINTERFACE instruction.
+   */
+
+  final static int ITFMETH_INSN = 7;
+
+  /**
+   * The type of instructions with a 2 bytes bytecode offset label.
+   */
+
+  final static int LABEL_INSN = 8;
+
+  /**
+   * The type of instructions with a 4 bytes bytecode offset label.
+   */
+
+  final static int LABELW_INSN = 9;
+
+  /**
+   * The type of the LDC instruction.
+   */
+
+  final static int LDC_INSN = 10;
+
+  /**
+   * The type of the LDC_W and LDC2_W instructions.
+   */
+
+  final static int LDCW_INSN = 11;
+
+  /**
+   * The type of the IINC instruction.
+   */
+
+  final static int IINC_INSN = 12;
+
+  /**
+   * The type of the TABLESWITCH instruction.
+   */
+
+  final static int TABL_INSN = 13;
+
+  /**
+   * The type of the LOOKUPSWITCH instruction.
+   */
+
+  final static int LOOK_INSN = 14;
+
+  /**
+   * The type of the MULTIANEWARRAY instruction.
+   */
+
+  final static int MANA_INSN = 15;
+
+  /**
+   * The type of the WIDE instruction.
+   */
+
+  final static int WIDE_INSN = 16;
+
+  /**
+   * The instruction types of all JVM opcodes.
+   */
+
+  static byte[] TYPE;
+
+  // --------------------------------------------------------------------------
+  // Static initializer
+  // --------------------------------------------------------------------------
+
+  /**
+   * Computes the instruction types of JVM opcodes.
+   */
+
+  static {
+    int i;
+    byte[] b = new byte[220];
+    String s =
+      "AAAAAAAAAAAAAAAABCKLLDDDDDEEEEEEEEEEEEEEEEEEEEAAAAAAAADDDDDEEEEEEEEE" +
+      "EEEEEEEEEEEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAMAAA" +
+      "AAAAAAAAAAAAAAAAAIIIIIIIIIIIIIIIIDNOAAAAAAGGGGGGGHAFBFAAFFAAQPIIJJII" +
+      "IIIIIIIIIIIIIIII";
+    for (i = 0; i < b.length; ++i) {
+      b[i] = (byte)(s.charAt(i) - 'A');
+    }
+    TYPE = b;
+
+    /* code to generate the above string
+
+    // SBYTE_INSN instructions
+    b[Constants.NEWARRAY] = SBYTE_INSN;
+    b[Constants.BIPUSH] = SBYTE_INSN;
+
+    // SHORT_INSN instructions
+    b[Constants.SIPUSH] = SHORT_INSN;
+
+    // (IMPL)VAR_INSN instructions
+    b[Constants.RET] = VAR_INSN;
+    for (i = Constants.ILOAD; i <= Constants.ALOAD; ++i) {
+      b[i] = VAR_INSN;
+    }
+    for (i = Constants.ISTORE; i <= Constants.ASTORE; ++i) {
+      b[i] = VAR_INSN;
+    }
+    for (i = 26; i <= 45; ++i) { // ILOAD_0 to ALOAD_3
+      b[i] = IMPLVAR_INSN;
+    }
+    for (i = 59; i <= 78; ++i) { // ISTORE_0 to ASTORE_3
+      b[i] = IMPLVAR_INSN;
+    }
+
+    // TYPE_INSN instructions
+    b[Constants.NEW] = TYPE_INSN;
+    b[Constants.ANEWARRAY] = TYPE_INSN;
+    b[Constants.CHECKCAST] = TYPE_INSN;
+    b[Constants.INSTANCEOF] = TYPE_INSN;
+
+    // (Set)FIELDORMETH_INSN instructions
+    for (i = Constants.GETSTATIC; i <= Constants.INVOKESTATIC; ++i) {
+      b[i] = FIELDORMETH_INSN;
+    }
+    b[Constants.INVOKEINTERFACE] = ITFMETH_INSN;
+
+    // LABEL(W)_INSN instructions
+    for (i = Constants.IFEQ; i <= Constants.JSR; ++i) {
+      b[i] = LABEL_INSN;
+    }
+    b[Constants.IFNULL] = LABEL_INSN;
+    b[Constants.IFNONNULL] = LABEL_INSN;
+    b[200] = LABELW_INSN; // GOTO_W
+    b[201] = LABELW_INSN; // JSR_W
+    // temporary opcodes used internally by ASM - see Label and CodeWriter
+    for (i = 202; i < 220; ++i) {
+      b[i] = LABEL_INSN;
+    }
+
+    // LDC(_W) instructions
+    b[Constants.LDC] = LDC_INSN;
+    b[19] = LDCW_INSN; // LDC_W
+    b[20] = LDCW_INSN; // LDC2_W
+
+    // special instructions
+    b[Constants.IINC] = IINC_INSN;
+    b[Constants.TABLESWITCH] = TABL_INSN;
+    b[Constants.LOOKUPSWITCH] = LOOK_INSN;
+    b[Constants.MULTIANEWARRAY] = MANA_INSN;
+    b[196] = WIDE_INSN; // WIDE
+
+    for (i = 0; i < b.length; ++i) {
+      System.err.print((char)('A' + b[i]));
+    }
+    System.err.println();
+    */
+  }
+
   // --------------------------------------------------------------------------
   // Constructor
   // --------------------------------------------------------------------------

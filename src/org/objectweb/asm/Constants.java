@@ -65,7 +65,9 @@ public interface Constants {
   int ACC_ANNOTATION =   0x2000; // class
   int ACC_ENUM =         0x4000; // class(?) field
   
-  int ACC_DEPRECATED =   131072; // ASM specific pseudo access flag
+  // ASM specific pseudo access flags
+  
+  int ACC_DEPRECATED =   131072; // class, field, method
 
   // types for NEWARRAY
 

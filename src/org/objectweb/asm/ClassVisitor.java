@@ -46,14 +46,14 @@ public interface ClassVisitor {
    *
    * @param access the class's access flags (see {@link Constants}). This
    *      parameter also indicates if the class is deprecated.
-   * @param name the internal name of the class (see {@link Type#getInternalName
+   * @param name the internal name of the class (see {@link Type#getInternalName()
    *      getInternalName}).
    * @param superName the internal of name of the super class (see {@link
-   *      Type#getInternalName getInternalName}). For interfaces, the super
+   *      Type#getInternalName() getInternalName}). For interfaces, the super
    *      class is {@link Object}. May be <tt>null</tt>, but only for the {@link
    *      Object java.lang.Object} class.
    * @param interfaces the internal names of the class's interfaces (see {@link
-   *      Type#getInternalName getInternalName}). May be <tt>null</tt>.
+   *      Type#getInternalName() getInternalName}). May be <tt>null</tt>.
    * @param sourceFile the name of the source file from which this class was
    *      compiled. May be <tt>null</tt>.
    */
@@ -70,9 +70,9 @@ public interface ClassVisitor {
    * necessarily a member of the class being visited.
    *
    * @param name the internal name of an inner class (see {@link
-   *      Type#getInternalName getInternalName}).
+   *      Type#getInternalName() getInternalName}).
    * @param outerName the internal name of the class to which the inner class
-   *      belongs (see {@link Type#getInternalName getInternalName}). May be
+   *      belongs (see {@link Type#getInternalName() getInternalName}). May be
    *      <tt>null</tt>.
    * @param innerName the (simple) name of the inner class inside its enclosing
    *      class. May be <tt>null</tt> for anonymous inner classes.
@@ -123,7 +123,7 @@ public interface ClassVisitor {
    * @param name the method's name.
    * @param desc the method's descriptor (see {@link Type Type}).
    * @param exceptions the internal names of the method's exception
-   *      classes (see {@link Type#getInternalName getInternalName}). May be
+   *      classes (see {@link Type#getInternalName() getInternalName}). May be
    *      <tt>null</tt>.
    * @param attrs the non standard method attributes, linked together by their
    *      <tt>next</tt> field. May be <tt>null</tt>.

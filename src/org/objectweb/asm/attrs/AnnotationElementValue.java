@@ -200,7 +200,7 @@ public class AnnotationElementValue {
    * @param cr the class that contains the attribute to be read.
    * @param off index of the first byte of the data structure.
    * @param buf buffer to be used to call {@link ClassReader#readUTF8 readUTF8},
-   *      {@link ClassReader#readClass readClass} or {@link
+   *      {@link ClassReader#readClass(int,char[]) readClass} or {@link
    *      ClassReader#readConst readConst}.
    *
    * @return offset position in bytecode after reading annotation
@@ -311,6 +311,8 @@ public class AnnotationElementValue {
 
   /**
    * Returns value in the format described in JSR-175 for Java source code.
+   * 
+   * @return value in the format described in JSR-175 for Java source code.
    */
 
   public String toString () {

@@ -114,6 +114,8 @@ public class RuntimeInvisibleAnnotations extends Attribute {
 
   /**
    * Returns value in the format described in JSR-175 for Java source code.
+   * 
+   * @return value in the format described in JSR-175 for Java source code.
    */
 
   public String toString () {

@@ -54,14 +54,14 @@ public class ClassNode {
 
   /**
    * The internal name of the class (see {@link
-   * org.objectweb.asm.Type#getInternalName getInternalName}).
+   * org.objectweb.asm.Type#getInternalName() getInternalName}).
    */
 
   public String name;
 
   /**
    * The internal of name of the super class (see {@link
-   * org.objectweb.asm.Type#getInternalName getInternalName}). For interfaces,
+   * org.objectweb.asm.Type#getInternalName() getInternalName}). For interfaces,
    * the super class is {@link Object}. May be <tt>null</tt>, but only for the
    * {@link Object java.lang.Object} class.
    */
@@ -70,7 +70,7 @@ public class ClassNode {
 
   /**
    * The internal names of the class's interfaces (see {@link
-   * org.objectweb.asm.Type#getInternalName getInternalName}). This list is a
+   * org.objectweb.asm.Type#getInternalName() getInternalName}). This list is a
    * list of {@link String} objects.
    */
 
@@ -117,12 +117,12 @@ public class ClassNode {
    *      org.objectweb.asm.Constants}). This parameter also indicates if the
    *      class is deprecated.
    * @param name the internal name of the class (see {@link
-   *      org.objectweb.asm.Type#getInternalName getInternalName}).
+   *      org.objectweb.asm.Type#getInternalName() getInternalName}).
    * @param superName the internal of name of the super class (see {@link
-   *      org.objectweb.asm.Type#getInternalName getInternalName}). For
+   *      org.objectweb.asm.Type#getInternalName() getInternalName}). For
    *      interfaces, the super class is {@link Object}.
    * @param interfaces the internal names of the class's interfaces (see {@link
-   *      org.objectweb.asm.Type#getInternalName getInternalName}). May be
+   *      org.objectweb.asm.Type#getInternalName() getInternalName}). May be
    *      <tt>null</tt>.
    * @param sourceFile the name of the source file from which this class was
    *      compiled. May be <tt>null</tt>.

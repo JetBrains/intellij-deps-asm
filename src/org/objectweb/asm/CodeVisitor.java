@@ -123,7 +123,7 @@ public interface CodeVisitor {
    * @param opcode the opcode of the type instruction to be visited. This opcode
    *      is either GETSTATIC, PUTSTATIC, GETFIELD or PUTFIELD.
    * @param owner the internal name of the field's owner class (see {@link
-   *      Type#getInternalName getInternalName}).
+   *      Type#getInternalName() getInternalName}).
    * @param name the field's name.
    * @param desc the field's descriptor (see {@link Type Type}).
    */
@@ -138,7 +138,7 @@ public interface CodeVisitor {
    *      is either INVOKEVIRTUAL, INVOKESPECIAL, INVOKESTATIC or
    *      INVOKEINTERFACE.
    * @param owner the internal name of the method's owner class (see {@link
-   *      Type#getInternalName getInternalName}).
+   *      Type#getInternalName() getInternalName}).
    * @param name the method's name.
    * @param desc the method's descriptor (see {@link Type Type}).
    */

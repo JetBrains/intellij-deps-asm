@@ -508,7 +508,7 @@ public abstract class PrintCodeVisitor implements CodeVisitor {
    * @param opcode the opcode of the type instruction to be printed. This opcode
    *      is either GETSTATIC, PUTSTATIC, GETFIELD or PUTFIELD.
    * @param owner the internal name of the field's owner class (see {@link
-   *      org.objectweb.asm.Type#getInternalName getInternalName}).
+   *      org.objectweb.asm.Type#getInternalName() getInternalName}).
    * @param name the field's name.
    * @param desc the field's descriptor (see {@link org.objectweb.asm.Type
    *      Type}).
@@ -528,7 +528,7 @@ public abstract class PrintCodeVisitor implements CodeVisitor {
    *      is either INVOKEVIRTUAL, INVOKESPECIAL, INVOKESTATIC or
    *      INVOKEINTERFACE.
    * @param owner the internal name of the method's owner class (see {@link
-   *      org.objectweb.asm.Type#getInternalName getInternalName}).
+   *      org.objectweb.asm.Type#getInternalName() getInternalName}).
    * @param name the method's name.
    * @param desc the method's descriptor (see {@link org.objectweb.asm.Type
    *      Type}).

@@ -82,7 +82,7 @@ public abstract class Attribute {
    *      and the length of the attribute, are not taken into account here.
    * @param len the length of the attribute's content.
    * @param buf buffer to be used to call {@link ClassReader#readUTF8 readUTF8},
-   *      {@link ClassReader#readClass readClass} or {@link
+   *      {@link ClassReader#readClass(int,char[]) readClass} or {@link
    *      ClassReader#readConst readConst}.
    * @param codeOff index of the first byte of code's attribute content in
    *      {@link ClassReader#b cr.b}, or -1 if the attribute to be read is not a

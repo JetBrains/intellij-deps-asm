@@ -100,7 +100,7 @@ public class Annotation {
    * @param cr the class that contains the attribute to be read.
    * @param off index of the first byte of the data structure.
    * @param buf buffer to be used to call {@link ClassReader#readUTF8 readUTF8},
-   *      {@link ClassReader#readClass readClass} or {@link
+   *      {@link ClassReader#readClass(int,char[]) readClass} or {@link
    *      ClassReader#readConst readConst}.
    *
    * @return offset position in bytecode after reading annotation
@@ -146,7 +146,7 @@ public class Annotation {
    * @param cr the class that contains the attribute to be read.
    * @param off index of the first byte of the data structure.
    * @param buf buffer to be used to call {@link ClassReader#readUTF8 readUTF8},
-   *      {@link ClassReader#readClass readClass} or {@link
+   *      {@link ClassReader#readClass(int,char[]) readClass} or {@link
    *      ClassReader#readConst readConst}.
    *
    * @return offset position in bytecode after reading annotations
@@ -173,7 +173,7 @@ public class Annotation {
    * @param cr the class that contains the attribute to be read.
    * @param off index of the first byte of the data structure.
    * @param buf buffer to be used to call {@link ClassReader#readUTF8 readUTF8},
-   *      {@link ClassReader#readClass readClass} or {@link
+   *      {@link ClassReader#readClass(int,char[]) readClass} or {@link
    *      ClassReader#readConst readConst}.
    */
 
@@ -235,6 +235,10 @@ public class Annotation {
   /**
    * Returns annotation values in the format described in JSR-175 for Java
    * source code.
+   * 
+   * @param annotations a list of annotations.
+   * @return annotation values in the format described in JSR-175 for Java
+   *      source code.
    */
 
   public static String stringAnnotations (List annotations) {
@@ -250,6 +254,10 @@ public class Annotation {
   /**
    * Returns parameter annotation values in the format described in JSR-175
    * for Java source code.
+   * 
+   * @param parameters a list of parameter annotations.
+   * @return parameter annotation values in the format described in JSR-175
+   *      for Java source code.
    */
 
   public static String stringParameterAnnotations (List parameters) {
@@ -264,6 +272,8 @@ public class Annotation {
 
   /**
    * Returns value in the format described in JSR-175 for Java source code.
+   * 
+   * @return value in the format described in JSR-175 for Java source code.
    */
 
   public String toString () {

@@ -220,7 +220,7 @@ public class ClassReader {
   /**
    * Makes the given visitor visit the Java class of this {@link ClassReader
    * ClassReader}. This class is the one specified in the constructor (see
-   * {@link #ClassReader ClassReader}).
+   * {@link #ClassReader(byte[]) ClassReader}).
    *
    * @param classVisitor the visitor that must visit this class.
    * @param skipDebug <tt>true</tt> if the debug information of the class must
@@ -239,7 +239,7 @@ public class ClassReader {
   /**
    * Makes the given visitor visit the Java class of this {@link ClassReader
    * ClassReader}. This class is the one specified in the constructor (see
-   * {@link #ClassReader ClassReader}).
+   * {@link #ClassReader(byte[]) ClassReader}).
    *
    * @param classVisitor the visitor that must visit this class.
    * @param attrs prototypes of the attributes that must be parsed during the
@@ -995,7 +995,7 @@ public class ClassReader {
    *      been read).
    * @param len the length of the attribute's content.
    * @param buf buffer to be used to call {@link #readUTF8 readUTF8}, {@link
-   *      #readClass readClass} or {@link #readConst readConst}.
+   *      #readClass(int,char[]) readClass} or {@link #readConst readConst}.
    * @param codeOff index of the first byte of code's attribute content in
    *      {@link #b b}, or -1 if the attribute to be read is not a code
    *      attribute. The 6 attribute header bytes, containing the type and the

@@ -68,7 +68,7 @@ public class MethodNode {
 
   /**
    * The internal names of the method's exception classes (see {@link
-   * org.objectweb.asm.Type#getInternalName getInternalName}). This list is a
+   * org.objectweb.asm.Type#getInternalName() getInternalName}). This list is a
    * list of {@link String} objects.
    */
 
@@ -136,7 +136,7 @@ public class MethodNode {
    * @param desc the method's descriptor (see {@link org.objectweb.asm.Type
    *      Type}).
    * @param exceptions the internal names of the method's exception
-   *      classes (see {@link org.objectweb.asm.Type#getInternalName
+   *      classes (see {@link org.objectweb.asm.Type#getInternalName()
    *      getInternalName}). May be <tt>null</tt>.
    * @param attrs the non standard attributes of the method.
    */

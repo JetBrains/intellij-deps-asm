@@ -294,5 +294,8 @@ public class TraceClassVisitor extends PrintClassVisitor {
     if ((access & Constants.ACC_ABSTRACT) != 0) {
       buf.append("abstract ");
     }
+    if ((access & Constants.ACC_STRICT) != 0) {
+      buf.append("strictfp ");
+    }
   }
 }

@@ -128,7 +128,8 @@ public class CheckClassAdapter extends ClassAdapter {
     final String[] exceptions)
   {
     checkState();
-    checkAccess(access, 1 + 2 + 4 + 8 + 16 + 32 + 256 + 1024 + 65536 + 131072);
+    checkAccess(
+      access, 1 + 2 + 4 + 8 + 16 + 32 + 256 + 1024 + 2048 + 65536 + 131072);
     CheckCodeAdapter.checkMethodIdentifier(name, "method name");
     CheckCodeAdapter.checkMethodDesc(desc);
     if (exceptions != null) {

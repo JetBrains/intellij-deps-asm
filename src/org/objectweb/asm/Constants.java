@@ -49,6 +49,7 @@ public interface Constants {
   int ACC_NATIVE = 256;
   int ACC_INTERFACE = 512;
   int ACC_ABSTRACT = 1024;
+  int ACC_STRICT = 2048;
   int ACC_SUPER = 32;
 
   int ACC_SYNTHETIC = 65536;

@@ -48,25 +48,25 @@ import org.objectweb.asm.tree.TreeClassAdapter;
  * @author Eric Bruneton, Eugene Kuleshov
  */
 
-public class AnalysisTest2 extends TestCase {
+public class VerifierTest extends TestCase {
   
   private String className;
     
-  public AnalysisTest2 (String className) {
+  public VerifierTest (String className) {
     super("testAnalysis");
     this.className = className;
   }
   
   public static TestSuite suite () throws Exception {
-    TestSuite suite = new TestSuite(AnalysisTest2.class.getName());
-    Class c = AnalysisTest2.class;
+    TestSuite suite = new TestSuite(VerifierTest.class.getName());
+    Class c = VerifierTest.class;
     String u = c.getResource("/java/lang/String.class").toString();
     int n = u.indexOf('!');
     ZipInputStream zis = new ZipInputStream(new URL(u.substring(4, n)).openStream());
     ZipEntry ze = null;
     while ((ze = zis.getNextEntry()) != null) {
       if (ze.getName().endsWith(".class")) {
-        suite.addTest(new AnalysisTest2(u.substring(0, n + 2).concat(ze.getName())));
+        suite.addTest(new VerifierTest(u.substring(0, n + 2).concat(ze.getName())));
       }
     }
     return suite;

@@ -158,7 +158,9 @@ public class Attribute {
     int count = 0;
     Attribute attr = this;
     while (attr != null) {
-      count += 1;
+      if (!attr.isUnknown()) {
+        count += 1;
+      }
       attr = attr.next;
     }
     return count;

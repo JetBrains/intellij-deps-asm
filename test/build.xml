@@ -74,7 +74,6 @@
         <isset property="bcel.path"/>
         <isset property="serp.path"/>
         <isset property="javassist.path"/>
-        <isset property="class.samples"/>
       </and>
     </condition>
   </target>

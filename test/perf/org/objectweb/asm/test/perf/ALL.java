@@ -159,8 +159,6 @@ public abstract class ALL extends ClassLoader  {
     // prepares zip files, if necessary
     if (!(new File(args[0] + "classes1.zip").exists())) {
       System.out.println("Preparing zip files from " + args[1] + "...");
-      System.out.println(
-        "(see the 'class-samples' property in 'build.properties')");
       for (int step = 0; step < 2; ++step) {
         dst = new ZipOutputStream(
           new FileOutputStream(args[0] + "classes" + (step + 1) + ".zip"));

@@ -9,7 +9,7 @@
         </fileset>
       </classpath>
       <arg value="${out.test}/"/>
-      <arg value="${class.samples}"/>
+      <arg value="${java.home}/../lib/tools.jar"/>
     </java>
   </target>
 </project>

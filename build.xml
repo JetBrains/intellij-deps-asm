@@ -183,6 +183,7 @@
         <exclude name="build.xml"/>
       </fileset>
     </copy>
+    <replace dir="${out.dist.examples}/etc" token="@product.version@" value="${product.version}"/>
 
     <copy todir="${out.dist}">
       <fileset dir=".">

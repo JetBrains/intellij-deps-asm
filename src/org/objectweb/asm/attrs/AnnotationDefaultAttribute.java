@@ -96,5 +96,12 @@ public class AnnotationDefaultAttribute extends Attribute {
     return defaultValue.write( new ByteVector(), cw);
   }
 
+  /**
+   * Returns value in the format described in JSR-175 for Java source code.
+   */
+  public String toString() {
+    return "default "+defaultValue;
+  }
+  
 }
 

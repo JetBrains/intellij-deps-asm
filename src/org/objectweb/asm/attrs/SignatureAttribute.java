@@ -114,5 +114,9 @@ public class SignatureAttribute extends Attribute {
     return new ByteVector().putShort( cw.newUTF8( signature));
   }
 
+  public String toString() {
+    return signature;
+  }
+  
 }
 

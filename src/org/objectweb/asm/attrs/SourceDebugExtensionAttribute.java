@@ -92,12 +92,18 @@ public class SourceDebugExtensionAttribute extends Attribute {
   }
 
   protected Attribute read(ClassReader cr, int off, int len, char[] buf, int codeOff, Label[] labels) {
+    // TODO this is wrong! Fix it!
     return new SourceDebugExtensionAttribute( cr.readUTF8( off, buf));
   }
 
   protected ByteVector write(ClassWriter cw, byte[] code, int len, int maxStack, int maxLocals) {
+    // TODO this is wrong! Fix it!
     return new ByteVector().putUTF8( debugExtension);
   }
 
+  public String toString() {
+    return debugExtension;
+  }
+  
 }
 

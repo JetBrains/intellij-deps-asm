@@ -1,4 +1,4 @@
-/* $Id: RuntimeInvisibleParameterAnnotations.java,v 1.1 2003-11-28 03:43:01 ekuleshov Exp $ */
+/* $Id: RuntimeInvisibleParameterAnnotations.java,v 1.2 2003-11-29 06:33:14 ekuleshov Exp $ */
 
 package org.objectweb.asm.attrs;
 
@@ -98,5 +98,9 @@ public class RuntimeInvisibleParameterAnnotations extends Attribute {
     return Annotation.writeParametersAnnotations( new ByteVector(), parameters, cw);
   }
 
+  public String toString() {
+    return Annotation.stringParameterAnnotations( parameters);
+  }
+  
 }
 

@@ -1,4 +1,4 @@
-/* $Id: RuntimeVisibleAnnotations.java,v 1.1 2003-11-28 03:43:01 ekuleshov Exp $ */
+/* $Id: RuntimeVisibleAnnotations.java,v 1.2 2003-11-29 06:33:14 ekuleshov Exp $ */
 
 package org.objectweb.asm.attrs;
 
@@ -73,6 +73,13 @@ public class RuntimeVisibleAnnotations extends Attribute {
 
   protected ByteVector write( ClassWriter cw, byte[] code, int len, int maxStack, int maxLocals) {
     return Annotation.writeAnnotations( new ByteVector(), annotations, cw);
+  }
+  
+  /**
+   * Returns value in the format described in JSR-175 for Java source code.
+   */
+  public String toString() {
+    return Annotation.stringAnnotations( annotations);
   }
   
 }

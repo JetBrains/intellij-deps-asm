@@ -59,7 +59,8 @@ public class StackMapFrame {
   public List stack = new LinkedList();
 
   public int read( ClassReader cr, int off, char[] buf, int codeOff, Label[] labels) {
-    int n = cr.readUnsignedShort( off =+ 2);
+    int n = cr.readUnsignedShort( off);
+    off += 2;
     if( labels[ n]==null) labels[ n] = new Label();
     label = labels[ n];
     off = readTypeInfo( cr, off, locals, labels, buf, cr.readUnsignedShort( codeOff+2));  //  maxLocals
@@ -88,18 +89,27 @@ public class StackMapFrame {
   }
 
   private int readTypeInfo( ClassReader cr, int off, List info, Label[] labels, char[] buf, int max) {
-    int n = max>StackMapAttribute.MAX_SIZE ? cr.readInt( off =+ 4) : cr.readUnsignedShort( off =+ 2);
+    int n = 0;
+    if( max>StackMapAttribute.MAX_SIZE) {
+       n = cr.readInt( off);
+       off += 4;
+    } else {
+       n = cr.readUnsignedShort( off);
+       off += 4;
+    }
     for( int j = 0; j<n; j++) {
       int itemType = cr.readUnsignedShort( off++) & 0xff;
       StackMapTypeInfo typeInfo = StackMapTypeInfo.getTypeInfo( itemType);
       info.add( typeInfo);
       switch( itemType) {
         case StackMapTypeInfo.ITEM_Object:  //
-          typeInfo.setObject( cr.readClass( off =+ 2, buf));
+          typeInfo.setObject( cr.readClass( off, buf));
+          off += 2;
           break;
 
          case StackMapTypeInfo.ITEM_Uninitialized:  //
-           int o = cr.readUnsignedShort( off =+ 2);
+           int o = cr.readUnsignedShort( off);
+           off += 2;
            if( labels[ o]==null) labels[ o] = new Label();
            typeInfo.setLabel( labels[ o]);
            break;

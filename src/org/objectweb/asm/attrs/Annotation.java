@@ -105,10 +105,13 @@ public class Annotation {
    * @return offset position in bytecode after reading annotation
    */
   public int read( ClassReader cr, int off, char[] buf) {
-    type = cr.readClass( off =+ 2, buf);
-    int numMemberValuePairs = cr.readUnsignedShort( off =+ 2);
+    type = cr.readClass( off, buf);
+    off += 2;
+    int numMemberValuePairs = cr.readUnsignedShort( off);
+    off += 2;
     for( int i = 0; i<numMemberValuePairs; i++) {
-      String memberName = cr.readUTF8( off =+ 2, buf);
+      String memberName = cr.readUTF8( off, buf);
+      off += 2;
       AnnotationMemberValue value = new AnnotationMemberValue(); 
       off = value.read( cr, off, buf);
       memberValuePairs.put( memberName, value);
@@ -149,7 +152,8 @@ public class Annotation {
    * @return offset position in bytecode after reading annotations
    */
   public static int readAnnotations( List annotations, ClassReader cr, int off, char[] buf) {
-    int size = cr.readUnsignedShort( off =+ 2);
+    int size = cr.readUnsignedShort( off);
+    off += 2;
     for( int i = 0; i<size; i++) {
       Annotation ann = new Annotation();
       off = ann.read( cr, off, buf);
@@ -216,6 +220,56 @@ public class Annotation {
     for( int i = 0; i<parameters.size(); i++)
       writeAnnotations( bv, ( List) parameters.get( i), cw);
     return bv;
+  }
+  
+  /**
+   * Returns annotation values in the format described in JSR-175 for Java source code.
+   */
+  public static String stringAnnotations( List annotations) {
+    StringBuffer sb = new StringBuffer();
+    if( annotations.size()>0) {
+      for( Iterator it = annotations.iterator(); it.hasNext(); ) {
+        sb.append( '\n').append( it.next());
+      }
+    }
+    return sb.toString();
+  }
+
+  /**
+   * Returns parameter annotation values in the format described in JSR-175 for Java source code.
+   */
+  public static String stringParameterAnnotations( List parameters) {
+    StringBuffer sb = new StringBuffer();
+    String sep = "";
+    for( Iterator it = parameters.iterator(); it.hasNext(); ) {
+      sb.append( sep).append( stringAnnotations(( List) it.next()));
+      sep = ", ";
+    }
+    return sb.toString();
+  }
+
+  /**
+   * Returns value in the format described in JSR-175 for Java source code.
+   */
+  public String toString() {
+    StringBuffer sb = new StringBuffer( "@").append( type);
+    // shorthand syntax for marker annotation
+    if( memberValuePairs.size()>0) {
+      sb.append( " ( ");
+      String sep = "";
+      for( Iterator it = memberValuePairs.keySet().iterator(); it.hasNext(); ) {
+      	String memberName = ( String) it.next();
+        AnnotationMemberValue value = (AnnotationMemberValue) memberValuePairs.get( memberName);
+        // using shorthand syntax for single-member annotation
+        if( memberValuePairs.size()>1) {
+          sb.append( sep).append( memberName).append( " = ");
+        }
+        sb.append( value);
+      	sep = ", ";
+      }
+      sb.append( " )");
+    }
+    return sb.toString();
   }
 
 }

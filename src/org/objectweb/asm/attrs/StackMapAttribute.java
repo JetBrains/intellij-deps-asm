@@ -157,8 +157,16 @@ public class StackMapAttribute extends Attribute {
   protected Attribute read( ClassReader cr, int off, int len,
                             char[] buf, int codeOff, Label[] labels) {
     StackMapAttribute attr = new StackMapAttribute();
+    // TODO verify that codeSize is correct (see note in spec!)
     int codeSize = cr.readInt( codeOff + 4);
-    int size = codeSize>MAX_SIZE ? cr.readInt( off += 2) : cr.readShort( off =+ 2);
+    int size = 0;
+    if( codeSize>MAX_SIZE) {
+       cr.readInt( off);
+       off += 4;
+    } else {
+       cr.readShort( off);
+       off += 2;
+    }
     for( int i = 0; i<size; i++) {
       StackMapFrame frame = new StackMapFrame();
       off = frame.read( cr, off, buf, codeOff, labels);    

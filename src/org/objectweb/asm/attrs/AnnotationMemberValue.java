@@ -167,16 +167,24 @@ public class AnnotationMemberValue {
       case 'J':  // pointer to CONSTANT_Long
       case 'S':  // pointer to CONSTANT_Short
       case 'Z':  // pointer to CONSTANT_Boolean 
-      case 's':  // pointer to CONSTANT_Utf8
-        value = cr.readConst( cr.readUnsignedShort( off =+ 2), buf); 
+        value = cr.readConst( cr.readUnsignedShort( off), buf); 
+        off += 2;
         break;
         
+      case 's':  // pointer to CONSTANT_Utf8
+        value = cr.readUTF8( off, buf); 
+        off += 2;
+        break;
+        
+        
       case 'e':  // enum_const_value
-        value = new EnumConstValue( cr.readClass( off =+ 2, buf), cr.readClass( off =+ 2, buf));
+        value = new EnumConstValue( cr.readClass( off, buf), cr.readClass( off+2, buf));
+        off += 4;
         break;
          
       case 'c':  // class_info
-        value = cr.readClass( off =+ 2, buf);
+        value = cr.readClass( off, buf);
+        off += 2;
         break;
         
       case '@':  // annotation_value
@@ -186,10 +194,11 @@ public class AnnotationMemberValue {
          
       case '[':  // array_value
         value = new LinkedList();
-        int size = cr.readUnsignedShort( off =+ 2);      
+        int size = cr.readUnsignedShort( off);
+        off += 2;
         for( int i = 0; i<size; i++) {
-        	AnnotationMemberValue member = new AnnotationMemberValue();
-          member.read( cr, off, buf);
+          AnnotationMemberValue member = new AnnotationMemberValue();
+          off = member.read( cr, off, buf);
           (( List) value).add( member);
         }
         break;
@@ -216,10 +225,13 @@ public class AnnotationMemberValue {
       case 'J':  // pointer to CONSTANT_Long
       case 'S':  // pointer to CONSTANT_Short
       case 'Z':  // pointer to CONSTANT_Boolean 
-      case 's':  // pointer to CONSTANT_Utf8
         bv.putShort( cw.newConst( value));
         break;
-                
+
+      case 's':  // pointer to CONSTANT_Utf8
+        bv.putShort( cw.newUTF8(( String) value));
+        break;
+        
       case 'e':  // enum_const_value
         (( EnumConstValue) value).write( bv, cw);
         break;
@@ -243,6 +255,55 @@ public class AnnotationMemberValue {
     return bv;
   }
 
+  /**
+   * Returns value in the format described in JSR-175 for Java source code.
+   */
+  public String toString() {
+    StringBuffer sb = new StringBuffer();
+    // TODO   
+    switch( tag) {
+      case 's':  // pointer to CONSTANT_Utf8
+        sb.append( '"').append( value).append( '"');
+        break;
+
+      case 'B':  // pointer to CONSTANT_Byte
+      case 'C':  // pointer to CONSTANT_Char
+      case 'D':  // pointer to CONSTANT_Double
+      case 'F':  // pointer to CONSTANT_Float
+      case 'I':  // pointer to CONSTANT_Integer
+      case 'J':  // pointer to CONSTANT_Long
+      case 'S':  // pointer to CONSTANT_Short
+      case 'Z':  // pointer to CONSTANT_Boolean 
+      case 'e':  // enum_const_value
+         sb.append( value);
+         break;
+
+      case 'c':  // class_info
+        // TODO verify if the following is correct
+        sb.append( value);
+        break;
+
+      case '@':  // annotation_value
+        // TODO verify if the following is correct
+        sb.append( value);
+        break;
+
+      case '[':  // array_value
+        List lst = ( List) value;
+        if( lst.size()>0) {
+          sb.append( "{ ");
+          String sep = "";
+          for( int i = 0; i<lst.size(); i++) {
+            sb.append( sep).append( lst.get( i).toString());
+            sep = ", ";
+          }          
+          sb.append( " }");
+         }
+        break;
+    }    
+    return sb.toString();
+  }
+  
   
   /**
    * Container class used to store enum_const_value structure.
@@ -260,6 +321,12 @@ public class AnnotationMemberValue {
       bv.putShort( cw.newClass( typeName));
       bv.putShort( cw.newClass( constName));
     }
+    
+    public String toString() {
+      // TODO verify print enum
+      return typeName+"."+constName;
+    }
+    
   }
 
 }

@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
-	<classpathentry kind="src" path="examples/adapt/src"/>
-	<classpathentry kind="src" path="examples/analysis/src"/>
-	<classpathentry kind="src" path="examples/attributes/src"/>
-	<classpathentry kind="src" path="examples/compile/src"/>
-	<classpathentry kind="src" path="examples/helloworld/src"/>
-	<classpathentry kind="src" path="examples/xml"/>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="src" path="test/conform"/>
 	<classpathentry kind="src" path="test/perf"/>
+	<classpathentry kind="src" path="examples/helloworld/src"/>
+	<classpathentry kind="src" path="examples/compile/src"/>
+	<classpathentry kind="src" path="examples/adapt/src"/>
+	<classpathentry kind="src" path="examples/analysis/src"/>
+	<classpathentry kind="src" path="examples/attributes/src"/>
+	<classpathentry kind="src" path="examples/xml"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="var" path="JUNIT_HOME/junit.jar"/>
 	<classpathentry kind="lib" path="test/lib/bcel.jar"/>

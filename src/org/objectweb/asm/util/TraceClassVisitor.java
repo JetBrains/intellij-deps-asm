@@ -171,8 +171,10 @@ public class TraceClassVisitor extends PrintClassVisitor {
     }
     buf.append("// access flags ").append(access).append("\n");
     appendAccess(access & ~Constants.ACC_SUPER);
-    if ((access & Constants.ACC_INTERFACE) != 0) {
-      buf.append("interface ");
+    if ((access & Constants.ACC_ANNOTATION) != 0) {
+      buf.append("@interface ");
+    } else if ((access & Constants.ACC_INTERFACE) != 0) {
+        buf.append("interface ");
     } else if ((access & Constants.ACC_ENUM) != 0) {
       buf.append("enum ");
     } else {
@@ -209,9 +211,12 @@ public class TraceClassVisitor extends PrintClassVisitor {
       .append(outerName)
       .append(" ")
       .append(innerName)
-      .append(" ")
-      .append(access)
-      .append("\n");
+      .append(" ");
+    appendAccess(access & ~Constants.ACC_SUPER);
+    if ((access & Constants.ACC_ENUM) != 0) {
+      buf.append("enum ");
+    }
+    buf.append("\n");
     text.add(buf.toString());
 
     if (cv != null) {

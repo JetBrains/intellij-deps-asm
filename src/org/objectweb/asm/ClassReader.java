@@ -975,12 +975,12 @@ public class ClassReader {
   }
 
   /**
-   * Reads an attribute in {@link #b b}. The default implementation of this
-   * method returns <tt>null</tt> for all attributes.
+   * Reads an attribute in {@link #b b}.
    *
    * @param attrs prototypes of the attributes that must be parsed during the
    *      visit of the class. Any attribute whose type is not equal to the type
-   *      of one the prototypes will be ignored.
+   *      of one the prototypes is ignored (i.e. an empty {@link Attribute}
+   *      instance is returned).
    * @param type the type of the attribute.
    * @param off index of the first byte of the attribute's content in {@link #b
    *      b}. The 6 attribute header bytes, containing the type and the length
@@ -1013,6 +1013,6 @@ public class ClassReader {
         return attrs[i].read(this, off, len, buf, codeOff, labels);
       }
     }
-    return null;
+    return new Attribute(type);
   }
 }

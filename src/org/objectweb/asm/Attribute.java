@@ -36,7 +36,7 @@ package org.objectweb.asm;
  * @author Eric Bruneton, Eugene Kuleshov
  */
 
-public abstract class Attribute {
+public class Attribute {
 
   /**
    * The type of this attribute.
@@ -60,6 +60,17 @@ public abstract class Attribute {
     this.type = type;
   }
 
+  /**
+   * Returns <tt>true</tt> if this type of attribute is unknown.
+   * 
+   * @return <tt>true</tt> if the class of this object is equal to 
+   *      {@link Attribute}.
+   */
+  
+  public boolean isUnknown () {
+    return getClass().getName().equals("org.objectweb.asm.Attribute");
+  }
+  
   /**
    * Returns the labels corresponding to this attribute.
    *
@@ -94,8 +105,11 @@ public abstract class Attribute {
    *      bytes.
    */
 
-  protected abstract Attribute read (
-    ClassReader cr, int off, int len, char[] buf, int codeOff, Label[] labels);
+  protected Attribute read (
+    ClassReader cr, int off, int len, char[] buf, int codeOff, Label[] labels)
+  {
+    return new Attribute(type);
+  }
 
   /**
    * Returns the byte array form of this attribute.
@@ -117,8 +131,11 @@ public abstract class Attribute {
    * @return the byte array form of this attribute.
    */
 
-  protected abstract ByteVector write (
-    ClassWriter cw, byte[] code, int len, int maxStack, int maxLocals);
+  protected ByteVector write (
+    ClassWriter cw, byte[] code, int len, int maxStack, int maxLocals)
+  {
+    return new ByteVector();
+  }
 
   /**
    * Returns the length of the attribute list that begins with this attribute.
@@ -203,6 +220,9 @@ public abstract class Attribute {
     Attribute attr = this;
     while (attr != null) {
       ByteVector b = attr.write(cw, code, len, maxStack, maxLocals);
+      if (cw.checkAttributes && b.length == 0) {
+        throw new RuntimeException("Unknown attribute type: " + attr.type);
+      }
       out.putShort(cw.newUTF8(attr.type)).putInt(b.length);
       out.putByteArray(b.data, 0, b.length);
       attr = attr.next;

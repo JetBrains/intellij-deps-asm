@@ -1036,7 +1036,6 @@ class MethodWriter implements MethodVisitor {
   {
     if (signature != null) {
       if (localVarType == null) {
-        cw.newUTF8("LocalVariableTypeTable");
         localVarType = new ByteVector();
       }
       ++localVarTypeCount;
@@ -1048,7 +1047,6 @@ class MethodWriter implements MethodVisitor {
         .putShort(index);
     }
     if (localVar == null) {
-      cw.newUTF8("LocalVariableTable");
       localVar = new ByteVector();
     }
     ++localVarCount;
@@ -1062,7 +1060,6 @@ class MethodWriter implements MethodVisitor {
 
   public void visitLineNumber (final int line, final Label start) {
     if (lineNumber == null) {
-      cw.newUTF8("LineNumberTable");
       lineNumber = new ByteVector();
     }
     ++lineNumberCount;
@@ -1198,12 +1195,15 @@ class MethodWriter implements MethodVisitor {
       cw.newUTF8("Code");
       size += 18 + code.length + 8 * catchCount;
       if (localVar != null) {
+        cw.newUTF8("LocalVariableTable");
         size += 8 + localVar.length;
       }
       if (localVarType != null) {
+        cw.newUTF8("LocalVariableTypeTable");
         size += 8 + localVarType.length;
       }
       if (lineNumber != null) {
+        cw.newUTF8("LineNumberTable");
         size += 8 + lineNumber.length;
       }
       if (cattrs != null) {
@@ -1221,6 +1221,16 @@ class MethodWriter implements MethodVisitor {
     if ((access & Opcodes.ACC_DEPRECATED) != 0) {
       cw.newUTF8("Deprecated");
       size += 6;
+    }
+    if (cw.version == Opcodes.V1_4) {
+      if ((access & Opcodes.ACC_VARARGS) != 0) {
+        cw.newUTF8("Varargs");
+        size += 6;
+      }
+      if ((access & Opcodes.ACC_BRIDGE) != 0) {
+        cw.newUTF8("Bridge");
+        size += 6;
+      }
     }
     if (signature != 0) {
       cw.newUTF8("Signature");
@@ -1279,6 +1289,14 @@ class MethodWriter implements MethodVisitor {
     }
     if ((access & Opcodes.ACC_DEPRECATED) != 0) {
       ++attributeCount;
+    }
+    if (cw.version == Opcodes.V1_4) {
+      if ((access & Opcodes.ACC_VARARGS) != 0) {
+        ++attributeCount;
+      }
+      if ((access & Opcodes.ACC_BRIDGE) != 0) {
+        ++attributeCount;
+      }
     }
     if (signature != 0) {
       ++attributeCount;
@@ -1368,6 +1386,14 @@ class MethodWriter implements MethodVisitor {
     }
     if ((access & Opcodes.ACC_DEPRECATED) != 0) {
       out.putShort(cw.newUTF8("Deprecated")).putInt(0);
+    }
+    if (cw.version == Opcodes.V1_4) {
+      if ((access & Opcodes.ACC_VARARGS) != 0) {
+        out.putShort(cw.newUTF8("Varargs")).putInt(0);
+      }
+      if ((access & Opcodes.ACC_BRIDGE) != 0) {
+        out.putShort(cw.newUTF8("Bridge")).putInt(0);
+      }
     }
     if (signature != 0) {
       out.putShort(cw.newUTF8("Signature")).putInt(2).putShort(signature);

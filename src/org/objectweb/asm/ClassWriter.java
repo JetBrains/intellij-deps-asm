@@ -220,7 +220,7 @@ public class ClassWriter implements ClassVisitor {
    * Minor and major version numbers of the class to be generated.
    */
 
-  private int version;
+  int version;
 
   /**
    * Index of the next item to be added in the constant pool.
@@ -535,7 +535,6 @@ public class ClassWriter implements ClassVisitor {
     this.access = access;
     this.name = newClass(name);
     if (signature != null) {
-      newUTF8("Signature");
       this.signature = newUTF8(signature);
     }
     this.superName = superName == null ? 0 : newClass(superName);
@@ -546,21 +545,13 @@ public class ClassWriter implements ClassVisitor {
         this.interfaces[i] = newClass(interfaces[i]);
       }
     }
-    if ((access & Opcodes.ACC_DEPRECATED) != 0) {
-      newUTF8("Deprecated");
-    }
-    if ((access & Opcodes.ACC_SYNTHETIC) != 0) {
-      newUTF8("Synthetic");
-    }
   }
 
   public void visitSource (final String file, final String debug) {
     if (file != null) {
-      newUTF8("SourceFile");
       sourceFile = newUTF8(file);
     }
     if (debug != null) {
-      newUTF8("SourceDebugExtension");
       sourceDebug = new ByteVector();
       sourceDebug.putUTF8(debug);
     }
@@ -571,7 +562,6 @@ public class ClassWriter implements ClassVisitor {
     final String name,
     final String desc)
   {
-    newUTF8("EnclosingMethod");
     enclosingMethodOwner = newClass(owner);
     if (name != null && desc != null) {
       enclosingMethod = newNameType(name, desc);
@@ -605,7 +595,6 @@ public class ClassWriter implements ClassVisitor {
     final int access)
   {
     if (innerClasses == null) {
-      newUTF8("InnerClasses");
       innerClasses = new ByteVector();
     }
     ++innerClassesCount;
@@ -669,30 +658,49 @@ public class ClassWriter implements ClassVisitor {
     if (signature != 0) {
       ++attributeCount;
       size += 8;
+      newUTF8("Signature");
     }
     if (sourceFile != 0) {
       ++attributeCount;
       size += 8;
+      newUTF8("SourceFile");
     }
     if (sourceDebug != null) {
       ++attributeCount;
       size += sourceDebug.length;
+      newUTF8("SourceDebugExtension");
     }
     if (enclosingMethodOwner != 0) {
       ++attributeCount;
       size += 10;
+      newUTF8("EnclosingMethod");
     }
     if ((access & Opcodes.ACC_DEPRECATED) != 0) {
       ++attributeCount;
       size += 6;
+      newUTF8("Deprecated");
     }
     if ((access & Opcodes.ACC_SYNTHETIC) != 0) {
       ++attributeCount;
       size += 6;
+      newUTF8("Synthetic");
+    }
+    if (version == Opcodes.V1_4) {
+      if ((access & Opcodes.ACC_ANNOTATION) != 0) {
+        ++attributeCount;
+        size += 6;
+        newUTF8("Annotation");
+      }
+      if ((access & Opcodes.ACC_ENUM) != 0) {
+        ++attributeCount;
+        size += 6;
+        newUTF8("Enum");
+      }
     }
     if (innerClasses != null) {
       ++attributeCount;
       size += 8 + innerClasses.length;
+      newUTF8("InnerClasses");
     }
     if (anns != null) {
       ++attributeCount;
@@ -752,6 +760,14 @@ public class ClassWriter implements ClassVisitor {
     }
     if ((access & Opcodes.ACC_SYNTHETIC) != 0) {
       out.putShort(newUTF8("Synthetic")).putInt(0);
+    }
+    if (version == Opcodes.V1_4) {
+      if ((access & Opcodes.ACC_ANNOTATION) != 0) {
+        out.putShort(newUTF8("Annotation")).putInt(0);
+      }
+      if ((access & Opcodes.ACC_ENUM) != 0) {
+        out.putShort(newUTF8("Enum")).putInt(0);
+      }
     }
     if (innerClasses != null) {
       out.putShort(newUTF8("InnerClasses"));

@@ -118,8 +118,8 @@ public final class SAXClassAdapter extends SAXAdapter implements ClassVisitor {
     if( name!=null) att.addAttribute( "", "name", "name", "", name);
     if( signature!=null) att.addAttribute( "", "signature", "signature", "", encode( signature));
     if( superName!=null) att.addAttribute( "", "parent", "parent", "", superName);
-    att.addAttribute( "", "major", "major", "", new Integer(version & 0xFFFF).toString());
-    att.addAttribute( "", "minor", "minor", "", new Integer(version >>> 16).toString());
+    att.addAttribute( "", "major", "major", "", Integer.toString(version & 0xFFFF));
+    att.addAttribute( "", "minor", "minor", "", Integer.toString(version >>> 16));
     addStart( "class", att);
     
     addStart( "interfaces", new AttributesImpl());

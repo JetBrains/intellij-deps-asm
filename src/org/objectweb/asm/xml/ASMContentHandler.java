@@ -34,6 +34,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -44,6 +45,7 @@ import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Label;
+import org.objectweb.asm.Type;
 
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
@@ -109,7 +111,7 @@ public class ASMContentHandler extends DefaultHandler implements Opcodes {
 
       RULES.add( BASE+"/method/annotationDefault", new AnnotationDefaultRule());
 
-      RULES.add( BASE+"/method/code/", new OpcodesRule());  // opcodes
+      RULES.add( BASE+"/method/code/*", new OpcodesRule());  // opcodes
       
       RULES.add( BASE+"/method/code/TABLESWITCH", new TableSwitchRule());
       RULES.add( BASE+"/method/code/TABLESWITCH/label", new TableSwitchLabelRule());
@@ -122,7 +124,6 @@ public class ASMContentHandler extends DefaultHandler implements Opcodes {
       RULES.add( BASE+"/method/code/LocalVar", new LocalVarRule());
       RULES.add( BASE+"/method/code/Max", new MaxRule());
 
-      
       RULES.add( "*/annotation", new AnnotationRule());
       RULES.add( "*/parameterAnnotation", new AnnotationParameterRule());
       RULES.add( "*/annotationValue", new AnnotationValueRule());
@@ -361,7 +362,7 @@ public class ASMContentHandler extends DefaultHandler implements Opcodes {
     match = sb.toString();
 
     // Fire "begin" events for all relevant rules
-    Rule r = RULES.match( match);
+    Rule r = ( Rule) RULES.match( match);
     if( r!=null) r.begin(name, list);
   }
 
@@ -387,7 +388,7 @@ public class ASMContentHandler extends DefaultHandler implements Opcodes {
     }
 
     // Fire "end" events for all relevant rules in reverse order
-    Rule r = RULES.match( match);
+    Rule r = ( Rule) RULES.match( match);
     if( r!=null) r.end(name);
 
     // Recover the previous match expression
@@ -456,13 +457,41 @@ public class ASMContentHandler extends DefaultHandler implements Opcodes {
 
   public static final class RuleSet {
     private Map rules = new HashMap();
+    private List lpatterns = new ArrayList();
+    private List rpatterns = new ArrayList();
     
-    public void add( String path, Rule rule) {
-      rules.put(path, rule);
+    public void add( String path, Object rule) {
+      String pattern = path;
+      if( path.startsWith( "*/")) {
+        pattern = path.substring( 1);
+        lpatterns.add( pattern);
+      } else if( path.endsWith( "/*")) {
+        pattern = path.substring( 0, path.length()-1);
+        rpatterns.add( pattern);
+      }
+      rules.put(pattern, rule);
     }
 
-    public Rule match( String path) {
-      // TODO
+    public Object match( String path) {
+      if( rules.containsKey(path)) {
+        return rules.get(path);
+      }
+      
+      int n = path.lastIndexOf( '/');
+      for( Iterator it = lpatterns.iterator(); it.hasNext();) {
+        String pattern = ( String) it.next();
+        if( path.substring( n).endsWith(pattern)) {
+          return rules.get(pattern);
+        }        
+      }
+
+      for( Iterator it = rpatterns.iterator(); it.hasNext();) {
+        String pattern = ( String) it.next();
+        if( path.startsWith(pattern)) {
+          return rules.get(pattern);
+        }        
+      }
+      
       return null;
     }
     
@@ -472,7 +501,7 @@ public class ASMContentHandler extends DefaultHandler implements Opcodes {
   /**
    * Rule 
    */
-  private abstract class Rule {
+  protected abstract class Rule {
 
     public void begin( String name, Attributes attrs) {
     }
@@ -485,15 +514,58 @@ public class ASMContentHandler extends DefaultHandler implements Opcodes {
       if( val!=null) {
         if( desc.equals( "Ljava/lang/String;")) {
           value =  decode( val);
-        } else if( desc.equals( "Ljava/lang/Integer;") || 
-            desc.equals( "Z") || desc.equals( "B") || desc.equals( "C") || desc.equals( "I") || desc.equals( "S")) {
+        } else if( "Ljava/lang/Integer;".equals( desc) ||
+            "I".equals( desc) || "S".equals( desc) || "B".equals( desc) || "C".equals( desc) || desc.equals( "Z")) {
           value = new Integer( val);
-        } else if( desc.equals( "Ljava/lang/Long;") || desc.equals( "J")) {
+        
+        } else if( "Ljava/lang/Short;".equals( desc)) {
+          value = new Short( val);
+        
+        } else if( "Ljava/lang/Byte;".equals( desc)) { 
+          value = new Byte( val);
+          
+        } else if( "Ljava/lang/Character;".equals( desc)) {
+          value = new Character( decode( val).charAt( 0));
+          
+        } else if( "Ljava/lang/Boolean;".equals( desc)) {
+          value = Boolean.valueOf( val);
+
+        /*        
+        } else if( "Ljava/lang/Integer;".equals( desc) || desc.equals( "I")) {
+          value = new Integer( val);
+        } else if( "Ljava/lang/Character;".equals( desc) || desc.equals( "C")) {
+          value = new Character( decode( val).charAt( 0));
+        } else if( "Ljava/lang/Short;".equals( desc) || desc.equals( "S")) {
+          value = Short.valueOf( val);
+        } else if( "Ljava/lang/Byte;".equals( desc) || desc.equals( "B")) {
+          value = Byte.valueOf( val);
+        */
+        } else if( "Ljava/lang/Long;".equals( desc) || desc.equals( "J")) {
           value = new Long( val);
-        } else if( desc.equals( "Ljava/lang/Float;") || desc.equals( "F")) {
+        } else if( "Ljava/lang/Float;".equals( desc) || desc.equals( "F")) {
           value = new Float( val);
-        } else if( desc.equals( "Ljava/lang/Double;") || desc.equals( "D")) {
+        } else if( "Ljava/lang/Double;".equals( desc) || desc.equals( "D")) {
           value = new Double( val);
+        } else if( Type.getDescriptor( Type.class).equals( desc)) {
+          value = Type.getType( val);
+        /*
+        } else if( "[I".equals( desc)) {
+          value = new int[ 0];  // TODO
+        } else if( "[C".equals( desc)) {
+          value = new char[ 0];  // TODO
+        } else if( "[Z".equals( desc)) {
+          value = new boolean[ 0];  // TODO
+        } else if( "[S".equals( desc)) {
+          value = new short[ 0];  // TODO
+        } else if( "[B".equals( desc)) {
+          value = new byte[ 0];  // TODO
+        } else if( "[J".equals( desc)) {
+          value = new long[ 0];  // TODO
+        } else if( "[F".equals( desc)) {
+          value = new float[ 0];  // TODO
+        } else if( "[D".equals( desc)) {
+          value = new double[ 0];  // TODO
+        */
         } else {
           throw new RuntimeException( "Invalid value:"+val+" desc:"+desc+" ctx:"+this);
         }
@@ -598,6 +670,7 @@ public class ASMContentHandler extends DefaultHandler implements Opcodes {
       vals.put( "name", attrs.getValue( "name"));
       vals.put( "parent", attrs.getValue( "parent"));
       vals.put( "source", attrs.getValue( "source"));
+      vals.put( "signature", attrs.getValue( "signature"));
       vals.put( "interfaces", new ArrayList());
       push( vals);  
       // values will be extracted in InterfacesRule.end();
@@ -642,6 +715,7 @@ public class ASMContentHandler extends DefaultHandler implements Opcodes {
       String parent = ( String) vals.get( "parent");
       String[] interfaces = ( String[])(( List) vals.get( "interfaces")).toArray( new String[ 0]);
       cw.visit( version, access, name, signature, parent, interfaces);
+      push(cw);
     }
     
   }
@@ -960,7 +1034,7 @@ public class ASMContentHandler extends DefaultHandler implements Opcodes {
     
     public void begin( String name, Attributes attrs) {
       String desc = attrs.getValue( "desc");
-      boolean visible = Boolean.getBoolean( attrs.getValue( "visible"));
+      boolean visible = Boolean.valueOf( attrs.getValue( "visible")).booleanValue();
 
       Object v = peek();
       if( v instanceof ClassVisitor) {
@@ -984,7 +1058,7 @@ public class ASMContentHandler extends DefaultHandler implements Opcodes {
     public void begin( String name, Attributes attrs) {
       int parameter = Integer.parseInt( attrs.getValue( "parameter"));
       String desc = attrs.getValue( "desc");
-      boolean visible = Boolean.getBoolean( attrs.getValue( "visible"));
+      boolean visible = Boolean.valueOf( attrs.getValue( "visible")).booleanValue();
 
       push(((MethodVisitor) peek()).visitParameterAnnotation(parameter, desc, visible));
     }

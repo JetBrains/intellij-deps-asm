@@ -73,23 +73,6 @@
     <pathelement location="${out.build}"/>
   </path>
 
-  <!--path id="externals.classpath">
-    <fileset dir="${basedir}">
-      <include name="externals/**/*.jar"/>
-    </fileset>
-    <pathelement location="${build}"/>
-  </path>
-
-  <path id="tests.classpath">
-    <fileset dir="${basedir}">
-      <include name="externals/**/*.jar"/>
-    </fileset>
-    <fileset dir="${test.lib}">
-      <include name="**/*.jar"/>
-    </fileset>
-    <pathelement location="${build}"/>
-  </path-->
-
   <!-- ================================== -->
   <!-- ======== TARGET DEFINITION ======= -->
   <!-- ================================== -->

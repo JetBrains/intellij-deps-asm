@@ -91,16 +91,88 @@ public class SourceDebugExtensionAttribute extends Attribute {
     return debugExtension;
   }
 
-  protected Attribute read(ClassReader cr, int off, int len, char[] buf, int codeOff, Label[] labels) {
-    // TODO this is wrong! Fix it!
-    return new SourceDebugExtensionAttribute( cr.readUTF8( off, buf));
+  protected Attribute read( ClassReader cr, int off, int len, char[] buf, int codeOff, Label[] labels) {
+    return new SourceDebugExtensionAttribute( readUTF8( cr, off, len, buf));
   }
 
-  protected ByteVector write(ClassWriter cw, byte[] code, int len, int maxStack, int maxLocals) {
-    // TODO this is wrong! Fix it!
-    return new ByteVector().putUTF8( debugExtension);
+  protected ByteVector write( ClassWriter cw, byte[] code, int len, int maxStack, int maxLocals) {
+    byte[] b = putUTF8( debugExtension);
+    return new ByteVector().putByteArray( b, 0, b.length);
   }
 
+  private String readUTF8( ClassReader cr, int index, int utfLen, char[] buf) {
+    int endIndex = index + utfLen;
+    byte[] b = cr.b;
+    int strLen = 0;
+    int c, d, e;
+    while( index < endIndex) {
+      c = b[ index++] & 0xFF;
+      switch( c >> 4) {
+        case 0:
+        case 1:
+        case 2:
+        case 3:
+        case 4:
+        case 5:
+        case 6:
+        case 7:
+          // 0xxxxxxx
+          buf[ strLen++] = (char) c;
+          break;
+        
+        case 12:
+        case 13:
+          // 110x xxxx   10xx xxxx
+          d = b[ index++];
+          buf[strLen++] = ( char) ((( c & 0x1F) << 6) | ( d & 0x3F));
+          break;
+   
+        default:
+          // 1110 xxxx  10xx xxxx  10xx xxxx
+          d = b[ index++];
+          e = b[ index++];
+          buf[ strLen++] = ( char)((( c & 0x0F) << 12) | (( d & 0x3F) << 6) | ( e & 0x3F));
+          break;
+      }
+    }
+    
+    return new String( buf, 0, strLen);    
+  }
+  
+  private byte[] putUTF8( String s) {
+    int charLength = s.length();
+    int byteLength = 0;
+    for (int i = 0; i < charLength; ++i) {
+      char c = s.charAt(i);
+      if (c >= '\001' && c <= '\177') {
+        byteLength++;
+      } else if (c > '\u07FF') {
+        byteLength += 3;
+      } else {
+        byteLength += 2;
+      }
+    }
+    if (byteLength > 65535) {
+      throw new IllegalArgumentException();
+    }
+
+    byte[] data = new byte[ byteLength];
+    for( int i = 0; i < charLength; ) {
+      char c = s.charAt(i);
+      if (c >= '\001' && c <= '\177') {
+        data[ i++] = (byte)c;
+      } else if (c > '\u07FF') {
+        data[ i++] = (byte)(0xE0 | c >> 12 & 0xF);
+        data[ i++] = (byte)(0x80 | c >> 6 & 0x3F);
+        data[ i++] = (byte)(0x80 | c & 0x3F);
+      } else {
+        data[ i++] = (byte)(0xC0 | c >> 6 & 0x1F);
+        data[ i++] = (byte)(0x80 | c & 0x3F);
+      }
+    }
+    return data;
+  }
+  
   public String toString() {
     return debugExtension;
   }

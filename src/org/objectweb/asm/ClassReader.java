@@ -767,8 +767,10 @@ public class ClassReader {
     }
     // visits the class attributes
     while (clattrs != null) {
+      attr = clattrs.next;
+      clattrs.next = null;
       classVisitor.visitAttribute(clattrs);
-      clattrs = clattrs.next;
+      clattrs = attr;
     }
     // visits the end of the class
     classVisitor.visitEnd();

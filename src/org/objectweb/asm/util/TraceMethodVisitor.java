@@ -34,6 +34,7 @@ import org.objectweb.asm.AnnotationVisitor;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.Type;
+import org.objectweb.asm.signature.SignatureReader;
 
 import java.util.HashMap;
 
@@ -305,12 +306,17 @@ public class TraceMethodVisitor extends TraceAbstractVisitor
     appendLabel(start);
     buf.append(' ');
     appendLabel(end);
-    buf.append(' ').append(index);
+    buf.append(' ').append(index).append('\n');
+
     if(signature != null){
-        buf.append(' ');
+        buf.append(tab2);
         appendDescriptor(FIELD_SIGNATURE, signature);
-    } else {
-        buf.append('\n');
+
+        TraceSignatureVisitor sv = new TraceSignatureVisitor(0);
+        SignatureReader r = new SignatureReader( signature);
+        r.acceptType( sv);
+        buf.append(tab2).append("// declaration: ")
+           .append( sv.getDeclaration()).append('\n');
     }
     text.add(buf.toString());
   }

@@ -1,4 +1,4 @@
-/* $Id: TraceSignatureVisitorTest.java,v 1.4 2005-01-24 11:17:24 ebruneton Exp $ */
+/* $Id: TraceSignatureVisitorTest.java,v 1.5 2005-02-04 04:00:01 ekuleshov Exp $ */
 
 package org.objectweb.asm.util;
 
@@ -17,7 +17,7 @@ import org.objectweb.asm.signature.SignatureReader;
  */
 public class TraceSignatureVisitorTest extends TestCase {
   private static String[] DATA = {
-      "C|E|<E extends java.lang.Enum<E>>|" +
+      "C|E|<E extends java.lang.Enum<E>> implements java.lang.Comparable<E>, java.io.Serializable|" +
           "<E:Ljava/lang/Enum<TE;>;>Ljava/lang/Object;Ljava/lang/Comparable<TE;>;Ljava/io/Serializable;",
       "C|I|<D extends java.lang.reflect.GenericDeclaration> extends java.lang.reflect.Type|" +
           "<D::Ljava/lang/reflect/GenericDeclaration;>Ljava/lang/Object;Ljava/lang/reflect/Type;",
@@ -35,28 +35,31 @@ public class TraceSignatureVisitorTest extends TestCase {
           "Ljava/util/Hashtable<**>;",
       "F|C|java.util.concurrent.atomic.AtomicReferenceFieldUpdater<java.io.BufferedInputStream, byte[]>|" +
           "Ljava/util/concurrent/atomic/AtomicReferenceFieldUpdater<Ljava/io/BufferedInputStream;[B>;",
-      "M|C|(java.lang.String, java.lang.Class<?>, java.lang.reflect.Method[], java.lang.reflect.Method, java.lang.reflect.Method) throws IntrospectionException|" +
+      "M|C|(java.lang.String, java.lang.Class<?>, java.lang.reflect.Method[], java.lang.reflect.Method, java.lang.reflect.Method)|" +
           "(Ljava/lang/String;Ljava/lang/Class<*>;[Ljava/lang/reflect/Method;Ljava/lang/reflect/Method;Ljava/lang/reflect/Method;)V",
       "F|C|AA<byte[][]>|" +
           "LAA<[[B>;",
       "F|C|AA<java.util.Map<java.lang.String, java.lang.String>[][]>|" +
-          "LAA<[[Ljava/util/Map<Ljava/lang/String;Ljava/lang/String;>;>;"
+          "LAA<[[Ljava/util/Map<Ljava/lang/String;Ljava/lang/String;>;>;",
+      "M|C|()|" +
+          "()V^TE;"
     };
-  
+
+
   public static TestSuite suite() {
     TestSuite suite = new TestSuite( TraceSignatureVisitorTest.class.getName());
-    
+
     for( int i = 0; i < DATA.length; i++) {
       suite.addTest( new TraceSignatureVisitorTest( new TestData( DATA[ i])));
     }
-    
+
     return suite;
   }
-  
-  
+
+
   private TestData data;
-  
-  
+
+
   private TraceSignatureVisitorTest( TestData data) {
     super( "testSignature");
     this.data = data;
@@ -71,15 +74,15 @@ public class TraceSignatureVisitorTest extends TestCase {
       case 'F':  r.acceptType( d);    break;
       case 'M':  r.accept( d);  break;
     }
-    
+
     assertEquals( data.declaration, d.getDeclaration());
   }
-  
+
   public String getName() {
     return super.getName()+" "+data.signature;
   }
 
-  
+
   private static class TestData {
     public final char type;
     public final int access;
@@ -89,7 +92,7 @@ public class TraceSignatureVisitorTest extends TestCase {
     private TestData( String data) {
       StringTokenizer st = new StringTokenizer( data, "|");
       this.type = st.nextToken().charAt( 0);
-      
+
       String acc = st.nextToken();
       switch( acc.charAt( 0)) {
         case 'E':  this.access = Opcodes.ACC_ENUM;       break;
@@ -97,11 +100,11 @@ public class TraceSignatureVisitorTest extends TestCase {
         case 'A':  this.access = Opcodes.ACC_ANNOTATION; break;
         default:   this.access = 0;
       }
-      
+
       this.declaration = st.nextToken();
       this.signature = st.nextToken();
     }
   }
-  
+
 }
 

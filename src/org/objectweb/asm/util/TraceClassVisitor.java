@@ -189,6 +189,13 @@ public class TraceClassVisitor extends TraceAbstractVisitor
     buf.append("// access flags ").append(access).append('\n');
 
     appendDescriptor(CLASS_SIGNATURE, signature);
+    if( signature!=null) {
+      TraceSignatureVisitor sv = new TraceSignatureVisitor( access);
+      SignatureReader r = new SignatureReader( signature);
+      r.accept( sv);
+      buf.append( "// declaration: ")
+         .append(name).append( sv.getDeclaration()).append('\n');
+    }
 
     appendAccess(access & ~Opcodes.ACC_SUPER);
     if ((access & Opcodes.ACC_ANNOTATION) != 0) {
@@ -202,24 +209,16 @@ public class TraceClassVisitor extends TraceAbstractVisitor
     }
     appendDescriptor(INTERNAL_NAME, name);
 
-    if( signature!=null) {
-      TraceSignatureVisitor signatureVisitor = new TraceSignatureVisitor( access);
-      SignatureReader r = new SignatureReader( signature);
-      r.accept( signatureVisitor);
-      appendDescriptor(CLASS_DECLARATION, signatureVisitor.getDeclaration());
-    } else {
+    if (superName != null && !superName.equals("java/lang/Object")) {
+      buf.append(" extends ");
+      appendDescriptor(INTERNAL_NAME, superName);
       buf.append(' ');
-      if (superName != null && !superName.equals("java/lang/Object")) {
-        buf.append("extends ");
-        appendDescriptor(INTERNAL_NAME, superName);
+    }
+    if (interfaces != null && interfaces.length > 0) {
+      buf.append(" implements ");
+      for (int i = 0; i < interfaces.length; ++i) {
+        appendDescriptor(INTERNAL_NAME, interfaces[i]);
         buf.append(' ');
-      }
-      if (interfaces != null && interfaces.length > 0) {
-        buf.append("implements ");
-        for (int i = 0; i < interfaces.length; ++i) {
-          appendDescriptor(INTERNAL_NAME, interfaces[i]);
-          buf.append(' ');
-        }
       }
     }
     buf.append(" {\n\n");
@@ -301,22 +300,24 @@ public class TraceClassVisitor extends TraceAbstractVisitor
       buf.append(tab).append("// DEPRECATED\n");
     }
     buf.append(tab).append("// access flags ").append(access).append('\n');
-    appendDescriptor(FIELD_SIGNATURE, signature);
+    if( signature!=null) {
+      buf.append(tab);
+      appendDescriptor(FIELD_SIGNATURE, signature);
+
+      TraceSignatureVisitor sv = new TraceSignatureVisitor(0);
+      SignatureReader r = new SignatureReader( signature);
+      r.acceptType( sv);
+      buf.append(tab).append("// declaration: ")
+         .append( sv.getDeclaration()).append('\n');
+    }
+
     buf.append(tab);
     appendAccess(access);
     if ((access & Opcodes.ACC_ENUM) != 0) {
       buf.append("enum ");
     }
 
-    if( signature!=null) {
-      TraceSignatureVisitor signatureVisitor = new TraceSignatureVisitor(0);
-      SignatureReader r = new SignatureReader( signature);
-      r.accept( signatureVisitor);
-      appendDescriptor( TYPE_DECLARATION, signatureVisitor.getDeclaration());
-    } else {
-      appendDescriptor( FIELD_DESCRIPTOR, desc);
-    }
-
+    appendDescriptor( FIELD_DESCRIPTOR, desc);
     buf.append(' ').append(name);
     if (value != null) {
       buf.append(" = ");
@@ -348,9 +349,25 @@ public class TraceClassVisitor extends TraceAbstractVisitor
       buf.append(tab).append("// DEPRECATED\n");
     }
     buf.append(tab).append("// access flags ").append(access).append('\n');
+    buf.append(tab);
     appendDescriptor(METHOD_SIGNATURE, signature);
 
-    buf.append(tab);
+    if( signature!=null) {
+      TraceSignatureVisitor v = new TraceSignatureVisitor(0);
+      SignatureReader r = new SignatureReader( signature);
+      r.accept(v);
+      String genericDecl = v.getDeclaration();
+      String genericReturn = v.getReturnType();
+      String genericExceptions = v.getExceptions();
+
+      buf.append(tab).append( "// declaration: ").append( genericReturn)
+         .append(' ').append( name).append(genericDecl);
+      if( genericExceptions!=null) {
+        buf.append( " throws ").append( genericExceptions);
+      }
+      buf.append('\n');
+    }
+
     appendAccess(access);
     if ((access & Opcodes.ACC_NATIVE) != 0) {
       buf.append("native ");
@@ -362,23 +379,8 @@ public class TraceClassVisitor extends TraceAbstractVisitor
       buf.append("bridge ");
     }
 
-    if( signature != null ) {
-      TraceSignatureVisitor v = new TraceSignatureVisitor(0);
-      SignatureReader r = new SignatureReader( signature);
-      r.accept(v);
-      String declaration = v.getDeclaration();
-      String returnType = v.getReturnType();
-      // TODO exception descriptor
-
-      buf.append(' ').append(name);
-      appendDescriptor( PARAMETERS_DECLARATION, declaration);
-      buf.append(" : ");
-      appendDescriptor( TYPE_DECLARATION, returnType);
-    } else {
-      buf.append( name);
-      appendDescriptor( METHOD_DESCRIPTOR, desc);
-    }
-
+    buf.append( name);
+    appendDescriptor( METHOD_DESCRIPTOR, desc);
     if( exceptions != null && exceptions.length > 0) {
       buf.append( " throws ");
       for( int i = 0; i < exceptions.length; ++i) {

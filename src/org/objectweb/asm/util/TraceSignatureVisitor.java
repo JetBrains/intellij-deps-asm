@@ -35,15 +35,16 @@ import org.objectweb.asm.signature.SignatureVisitor;
 
 public class TraceSignatureVisitor implements SignatureVisitor {
 
-  private StringBuffer buf = new StringBuffer();
+  private StringBuffer declaration;
 
   private boolean isInterface;
   private boolean seenFormalParameter;
   private boolean seenInterfaceBound;
   private boolean seenParameter;
   private boolean seenInterface;
-  private boolean seenException;
-  private TraceSignatureVisitor returnVisitor;
+
+  private StringBuffer returnType;
+  private StringBuffer exceptions;
 
   /**
    * Stack used to keep track of class types that have arguments. Each element
@@ -66,11 +67,15 @@ public class TraceSignatureVisitor implements SignatureVisitor {
 
   public TraceSignatureVisitor( int access) {
     isInterface = ( access & Opcodes.ACC_INTERFACE)!=0;
-    this.buf = new StringBuffer();
+    this.declaration = new StringBuffer();
+  }
+
+  private TraceSignatureVisitor( StringBuffer buf) {
+    this.declaration = buf;
   }
 
   public void visitFormalTypeParameter (String name) {
-    buf.append(seenFormalParameter ? ", " : "<").append(name);
+    declaration.append(seenFormalParameter ? ", " : "<").append(name);
     seenFormalParameter = true;
     seenInterfaceBound = false;
   }
@@ -106,9 +111,9 @@ public class TraceSignatureVisitor implements SignatureVisitor {
     endFormals();
     if (!seenParameter) {
       seenParameter = true;
-      buf.append('(');
+      declaration.append('(');
     } else {
-      buf.append(", ");
+      declaration.append(", ");
     }
     startType();
     return this;
@@ -117,39 +122,43 @@ public class TraceSignatureVisitor implements SignatureVisitor {
   public SignatureVisitor visitReturnType () {
     endFormals();
     if (!seenParameter) {
-      buf.append('(');
+      declaration.append('(');
     }
-    buf.append(')');
-    return returnVisitor = new TraceSignatureVisitor(0);
+    declaration.append(')');
+    returnType = new StringBuffer();
+    return new TraceSignatureVisitor( returnType);
   }
 
   public SignatureVisitor visitExceptionType () {
-    buf.append(seenException ? ", " : " throws ");
-    seenException = true;
-    startType();
-    return this;
+    if( exceptions==null) {
+      exceptions = new StringBuffer();
+    } else {
+      exceptions.append( ", ");
+    }
+    // startType();
+    return new TraceSignatureVisitor( exceptions);
   }
 
   public void visitBaseType (char descriptor) {
     switch( descriptor) {
       case 'V':
-        buf.append( "void");  break;
+        declaration.append( "void");  break;
       case 'B':
-        buf.append( "byte");  break;
+        declaration.append( "byte");  break;
       case 'J':
-        buf.append( "long");  break;
+        declaration.append( "long");  break;
       case 'Z':
-        buf.append( "boolean");  break;
+        declaration.append( "boolean");  break;
       case 'I':
-        buf.append( "int");  break;
+        declaration.append( "int");  break;
       case 'S':
-        buf.append( "short");  break;
+        declaration.append( "short");  break;
       case 'C':
-        buf.append( "char");  break;
+        declaration.append( "char");  break;
       case 'F':
-        buf.append( "float");  break;
+        declaration.append( "float");  break;
       case 'D':
-        buf.append( "double");  break;
+        declaration.append( "double");  break;
       default:
         throw new IllegalArgumentException( "Invalid descriptor "+descriptor);
     }
@@ -157,7 +166,7 @@ public class TraceSignatureVisitor implements SignatureVisitor {
   }
 
   public void visitTypeVariable (String name) {
-    buf.append(name);
+    declaration.append(name);
     endType();
   }
 
@@ -169,7 +178,7 @@ public class TraceSignatureVisitor implements SignatureVisitor {
 
   public void visitClassType (String name) {
     if (!"java/lang/Object".equals(name)) {
-      buf.append(separator).append(name.replace('/', '.'));
+      declaration.append(separator).append(name.replace('/', '.'));
     }
     separator = "";
     argumentStack *= 2;
@@ -182,25 +191,25 @@ public class TraceSignatureVisitor implements SignatureVisitor {
   public void visitTypeArgument () {
     if (argumentStack%2 == 0) {
       ++argumentStack;
-      buf.append("<");
+      declaration.append("<");
     } else {
-      buf.append(", ");
+      declaration.append(", ");
     }
-    buf.append( "?");
+    declaration.append( "?");
   }
 
   public SignatureVisitor visitTypeArgument (char tag) {
     if (argumentStack%2 == 0) {
       ++argumentStack;
-      buf.append("<");
+      declaration.append("<");
     } else {
-      buf.append(", ");
+      declaration.append(", ");
     }
 
     if( tag==SignatureVisitor.EXTENDS) {
-      buf.append( "? extends ");
+      declaration.append( "? extends ");
     } else if( tag==SignatureVisitor.SUPER) {
-      buf.append( "? super ");
+      declaration.append( "? super ");
     }
 
     startType();
@@ -209,25 +218,31 @@ public class TraceSignatureVisitor implements SignatureVisitor {
 
   public void visitEnd () {
     if (argumentStack%2 == 1) {
-      buf.append(">");
+      declaration.append(">");
     }
     argumentStack /= 2;
     endType();
   }
 
+
   public String getDeclaration () {
-    return buf.toString();
+    return declaration.toString();
   }
 
   public String getReturnType () {
-    return returnVisitor.getDeclaration();
+    return returnType==null ? null : returnType.toString();
   }
+
+  public String getExceptions() {
+    return exceptions==null ? null : exceptions.toString();
+  }
+
 
   // -----------------------------------------------
 
   private void endFormals () {
     if (seenFormalParameter) {
-      buf.append(">");
+      declaration.append(">");
       seenFormalParameter = false;
     }
   }
@@ -240,7 +255,7 @@ public class TraceSignatureVisitor implements SignatureVisitor {
     if (arrayStack%2 == 1) {
       while (arrayStack%2 == 1) {
         arrayStack /= 2;
-        buf.append("[]");
+        declaration.append("[]");
       }
     } else {
       arrayStack /= 2;

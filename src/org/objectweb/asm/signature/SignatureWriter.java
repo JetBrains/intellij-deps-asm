@@ -73,7 +73,7 @@ public class SignatureWriter implements SignatureVisitor {
   }
   
   // --------------------------------------------------------------------------
-  // Implementation of the AbstractSignatureVisitor interface
+  // Implementation of the SignatureVisitor interface
   // --------------------------------------------------------------------------
 
   public void visitFormalTypeParameter (String name) {
@@ -94,10 +94,6 @@ public class SignatureWriter implements SignatureVisitor {
     return this;
   }
 
-  // --------------------------------------------------------------------------
-  // Implementation of the ClassSignatureVisitor interface
-  // --------------------------------------------------------------------------
-
   public SignatureVisitor visitSuperclass () {
     endFormals();
     return this;
@@ -106,10 +102,6 @@ public class SignatureWriter implements SignatureVisitor {
   public SignatureVisitor visitInterface () {
     return this;
   }
-
-  // --------------------------------------------------------------------------
-  // Implementation of the MethodSignatureVisitor interface
-  // --------------------------------------------------------------------------
 
   public SignatureVisitor visitParameterType () {
     endFormals();
@@ -133,10 +125,6 @@ public class SignatureWriter implements SignatureVisitor {
     buf.append('^');
     return this;
   }
-
-  // --------------------------------------------------------------------------
-  // Implementation of the TypeSignatureVisitor interface
-  // --------------------------------------------------------------------------
 
   public void visitBaseType (char descriptor) {
     buf.append(descriptor);

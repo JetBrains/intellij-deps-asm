@@ -173,7 +173,6 @@ public class MethodNode extends MemberNode implements MethodVisitor {
     this.desc = desc;
     this.signature = signature;
     this.exceptions = new ArrayList(exceptions == null ? 0 : exceptions.length);
-    int params = Type.getArgumentTypes(desc).length;
     boolean isAbstract = (access & Opcodes.ACC_ABSTRACT) != 0;
     this.instructions = new ArrayList(isAbstract ? 0 : 24);
     if (!isAbstract) {
@@ -228,23 +227,19 @@ public class MethodNode extends MemberNode implements MethodVisitor {
   }
   
   public void visitInsn (final int opcode) {
-    AbstractInsnNode n = InsnNode.getByOpcode(opcode);
-    instructions.add(n);
+    instructions.add(InsnNode.getByOpcode(opcode));
   }
 
   public void visitIntInsn (final int opcode, final int operand) {
-    AbstractInsnNode n = new IntInsnNode(opcode, operand);
-    instructions.add(n);
+    instructions.add(new IntInsnNode(opcode, operand));
   }
 
   public void visitVarInsn (final int opcode, final int var) {
-    AbstractInsnNode n = new VarInsnNode(opcode, var);
-    instructions.add(n);
+    instructions.add(new VarInsnNode(opcode, var));
   }
 
   public void visitTypeInsn (final int opcode, final String desc) {
-    AbstractInsnNode n = new TypeInsnNode(opcode, desc);
-    instructions.add(n);
+    instructions.add(new TypeInsnNode(opcode, desc));
   }
 
   public void visitFieldInsn (
@@ -253,8 +248,7 @@ public class MethodNode extends MemberNode implements MethodVisitor {
     final String name,
     final String desc)
   {
-    AbstractInsnNode n = new FieldInsnNode(opcode, owner, name, desc);
-    instructions.add(n);
+    instructions.add(new FieldInsnNode(opcode, owner, name, desc));
   }
 
   public void visitMethodInsn (
@@ -263,13 +257,11 @@ public class MethodNode extends MemberNode implements MethodVisitor {
     final String name,
     final String desc)
   {
-    AbstractInsnNode n = new MethodInsnNode(opcode, owner, name, desc);
-    instructions.add(n);
+    instructions.add(new MethodInsnNode(opcode, owner, name, desc));
   }
 
   public void visitJumpInsn (final int opcode, final Label label) {
-    AbstractInsnNode n = new JumpInsnNode(opcode, label);
-    instructions.add(n);
+    instructions.add(new JumpInsnNode(opcode, label));
   }
 
   public void visitLabel (final Label label) {
@@ -277,13 +269,11 @@ public class MethodNode extends MemberNode implements MethodVisitor {
   }
 
   public void visitLdcInsn (final Object cst) {
-    AbstractInsnNode n = new LdcInsnNode(cst);
-    instructions.add(n);
+    instructions.add(new LdcInsnNode(cst));
   }
 
   public void visitIincInsn (final int var, final int increment) {
-    AbstractInsnNode n = new IincInsnNode(var, increment);
-    instructions.add(n);
+    instructions.add(new IincInsnNode(var, increment));
   }
 
   public void visitTableSwitchInsn (
@@ -292,8 +282,7 @@ public class MethodNode extends MemberNode implements MethodVisitor {
     final Label dflt,
     final Label labels[])
   {
-    AbstractInsnNode n = new TableSwitchInsnNode(min, max, dflt, labels);
-    instructions.add(n);
+    instructions.add(new TableSwitchInsnNode(min, max, dflt, labels));
   }
 
   public void visitLookupSwitchInsn (
@@ -301,13 +290,11 @@ public class MethodNode extends MemberNode implements MethodVisitor {
     final int keys[],
     final Label labels[])
   {
-    AbstractInsnNode n = new LookupSwitchInsnNode(dflt, keys, labels);
-    instructions.add(n);
+    instructions.add(new LookupSwitchInsnNode(dflt, keys, labels));
   }
 
   public void visitMultiANewArrayInsn (final String desc, final int dims) {
-    AbstractInsnNode n = new MultiANewArrayInsnNode(desc, dims);
-    instructions.add(n);
+    instructions.add(new MultiANewArrayInsnNode(desc, dims));
   }
 
   public void visitTryCatchBlock (
@@ -316,8 +303,7 @@ public class MethodNode extends MemberNode implements MethodVisitor {
     final Label handler,
     final String type)
   {
-    TryCatchBlockNode n = new TryCatchBlockNode(start, end, handler, type);
-    tryCatchBlocks.add(n);
+    tryCatchBlocks.add(new TryCatchBlockNode(start, end, handler, type));
   }
 
   public void visitLocalVariable (
@@ -328,20 +314,18 @@ public class MethodNode extends MemberNode implements MethodVisitor {
     final Label end,
     final int index)
   {
-    LocalVariableNode n;
-    n = new LocalVariableNode(name, desc, signature, start, end, index);
     if (localVariables == null) {
       localVariables = new ArrayList(1);
     }
-    localVariables.add(n);
+    localVariables.add(
+        new LocalVariableNode(name, desc, signature, start, end, index));
   }
 
   public void visitLineNumber (final int line, final Label start) {
-    LineNumberNode n = new LineNumberNode(line, start);
     if (lineNumbers == null) {
       lineNumbers = new ArrayList(1);
     }
-    lineNumbers.add(n);
+    lineNumbers.add(new LineNumberNode(line, start));
   }
   
   public void visitMaxs (final int maxStack, final int maxLocals) {

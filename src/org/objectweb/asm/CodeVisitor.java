@@ -179,7 +179,8 @@ public interface CodeVisitor {
    * @param cst the constant to be loaded on the stack. This parameter must be
    *      a non null {@link java.lang.Integer Integer}, a {@link java.lang.Float
    *      Float}, a {@link java.lang.Long Long}, a {@link java.lang.Double
-   *      Double} or a {@link String String}.
+   *      Double} a {@link String String} (or a {@link Type Type} for 
+   *      <tt>.class</tt> constants, for classes whose version is 49.0 or more).
    */
 
   void visitLdcInsn (Object cst);

@@ -26,10 +26,11 @@
 Provides a small and fast bytecode manipulation framework.
 
 <p>
-The ASM framework is organized around the {@link org.objectweb.asm.ClassVisitor
-ClassVisitor} and {@link org.objectweb.asm.CodeVisitor CodeVisitor} interfaces,
-which allows one to visit the fields and methods of a class, including the
-bytecode instructions of each method.
+The <a href="http://www.objectweb.org/asm">ASM</a> framework is organized
+around the {@link org.objectweb.asm.ClassVisitor ClassVisitor} and {@link
+org.objectweb.asm.CodeVisitor CodeVisitor} interfaces, which allows one to
+visit the fields and methods of a class, including the bytecode instructions of
+each method.
 
 <p>
 In addition to these two main interfaces, ASM provides a {@link
@@ -64,7 +65,8 @@ all work to other visitors. See the "adapt" example in the ASM distribution
 for more details about class modification.
 
 <p>
-The size of the ASM library is only 22KB, which is much more smaller than
+The size of the core ASM library, <tt>asm.jar</tt>, is only 22KB, which is much
+more smaller than
 the size of the <a href="http://jakarta.apache.org/bcel">BCEL</a> library (350KB
 without the class verifier), and than the size of the
 <a href="http://serp.sourceforge.net">SERP</a> library (150KB). ASM is also
@@ -73,5 +75,6 @@ transformation process is of the order of 60% with ASM, 700% or more with BCEL,
 and 1100% or more with SERP (see the <tt>test/perf</tt> directory in the ASM
 distribution)!
 
+@since ASM 1.3
 </body>
 </html>

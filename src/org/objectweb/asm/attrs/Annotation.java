@@ -671,7 +671,7 @@ public class Annotation {
       bv.putShort(v.length);
       for (int i = 0; i < v.length; i++) {
         bv.putByte('D');
-        bv.putShort(cw.newConstDoule(v[i]));
+        bv.putShort(cw.newConstDouble(v[i]));
       }
       
     } else {

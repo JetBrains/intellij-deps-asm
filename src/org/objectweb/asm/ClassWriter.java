@@ -782,7 +782,7 @@ public class ClassWriter implements ClassVisitor {
     return newFloat(f).index;
   }
 
-  public int newConstDoule (final double d) {
+  public int newConstDouble (final double d) {
     return newDouble(d).index;
   }
 

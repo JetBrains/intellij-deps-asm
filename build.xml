@@ -62,18 +62,18 @@
     <condition property="examples.exist">
       <available file="${examples}"/>
     </condition>
-    
+
     <condition property="web.exist">
       <available file="${web}/build.xml"/>
     </condition>
-  
+
     <condition property="paths.configured">
       <and>
         <isset property="objectweb.ant.tasks.path"/>
       </and>
     </condition>
   </target>
-  
+
   <!-- ================================== -->
   <!-- ========  INITIALIZATION   ======= -->
   <!-- ================================== -->
@@ -83,24 +83,24 @@
     <fail/>
   </target>
 
-  <target name="init" depends="properties,check">  
+  <target name="init" depends="properties,check">
     <taskdef name="multipleAnt"
-      classname="org.objectweb.util.ant.MultipleAnt"
-      classpath="${objectweb.ant.tasks.path}"/>
-    
+             classname="org.objectweb.util.ant.MultipleAnt"
+             classpath="${objectweb.ant.tasks.path}"/>
+
     <taskdef name="javadocMultipleLink"
-      classname="org.objectweb.util.ant.JavadocMultipleLink"
-      classpath="${objectweb.ant.tasks.path}"/>
-    
+             classname="org.objectweb.util.ant.JavadocMultipleLink"
+             classpath="${objectweb.ant.tasks.path}"/>
+
     <taskdef name="multipleCopy"
-      classname="org.objectweb.util.ant.MultipleCopy"
-      classpath="${objectweb.ant.tasks.path}"/>
+             classname="org.objectweb.util.ant.MultipleCopy"
+             classpath="${objectweb.ant.tasks.path}"/>
 
     <path id="classpath">
       <pathelement location="${out.build}"/>
     </path>
   </target>
-  
+
   <!-- =================================== -->
   <!-- ==========    COMPILE    ========== -->
   <!-- =================================== -->
@@ -153,8 +153,8 @@
   <target name="examples" depends="init,dist.init" if="examples.exist">
     <mkdir dir="${out.dist.examples}"/>
     <copy todir="${out.dist.examples}"
-      preservelastmodified="yes"
-      includeEmptyDirs="yes">
+          preservelastmodified="yes"
+          includeEmptyDirs="yes">
       <fileset dir="${examples}">
         <exclude name="common"/>
         <exclude name="common/**/*"/>
@@ -162,9 +162,9 @@
     </copy>
 
     <multipleCopy file="${examples}/common/build.xml"
-      toDir="${out.dist.examples}"
-      notReplace="yes"
-      preservelastmodified="yes">
+                  toDir="${out.dist.examples}"
+                  notReplace="yes"
+                  preservelastmodified="yes">
       <include name="*"/>
       <exclude name="etc"/>
       <exclude name="lib"/>
@@ -192,10 +192,9 @@
   <!-- =================================== -->
 
   <target name="example" depends="jar,examples">
-    <ant
-      inheritAll="false"
-      dir="${out.dist.examples}/${example.name}"
-      target="execute"/>
+    <ant inheritAll="false"
+         dir="${out.dist.examples}/${example.name}"
+         target="execute"/>
   </target>
 
   <!-- =================================== -->

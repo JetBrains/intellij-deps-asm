@@ -53,7 +53,8 @@ public class ClassNode {
   /**
    * The internal of name of the super class (see {@link
    * org.objectweb.asm.Type#getInternalName getInternalName}). For interfaces,
-   * the super class is {@link Object}.
+   * the super class is {@link Object}. May be <tt>null</tt>, but only for the
+   * {@link Object java.lang.Object} class.
    */
 
   public String superName;

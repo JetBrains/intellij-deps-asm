@@ -1,0 +1,29 @@
+This directory contains xml files which describe the build of jars.
+The following rules describe the convention to write such an xml file:
+
+- An xml file must describe only one jar file.
+
+- The name of the xml file is also the name of the jar:
+  org_bar_foo.xml describes the content of the org_bar_foo.jar.
+
+- Among the elements which are included into a jar, you must specify
+  a manifest. It is adviced to store the manifest file in this directory.
+  the manifest file can shared be by several jars. The name of the manifest
+  file must be similar to the name of the jar file.
+
+- Only the default task is called on a xml file.
+
+- The jar file must be produced into the ${dist.lib} directory.
+
+Sample xml file:
+
+<project name="foo" default="dist">
+  <target name="dist">
+    <jar jarfile="${dist.lib}/org_bar_foo.jar"
+         basedir="${build}"
+         manifest="${archive}/bar.mf">
+      <include name="**/*.class"/>
+      <include name="**/*.vm"/>
+    </jar>
+  </target>
+</project>

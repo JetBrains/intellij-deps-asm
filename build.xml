@@ -1,0 +1,431 @@
+<!--
+ ! This library is free software; you can redistribute it and/or
+ ! modify it under the terms of the GNU Lesser General Public
+ ! License as published by the Free Software Foundation; either
+ ! version 2 of the License, or (at your option) any later version.
+ !
+ ! This library is distributed in the hope that it will be useful,
+ ! but WITHOUT ANY WARRANTY; without even the implied warranty of
+ ! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ ! Lesser General Public License for more details.
+ !
+ ! You should have received a copy of the GNU Lesser General Public
+ ! License along with this library; if not, write to the Free Software
+ ! Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ !
+ ! Contact: sebastien.chassande@inrialpes.fr
+-->
+
+<project name="ASM" default="compile">
+
+<!-- ======================================================================= -->
+<!-- This file requires the org.objectweb.util.ant.MultipleAnt class         -->
+<!-- This file requires the org.objectweb.util.ant.MultipleCopy class        -->
+<!-- This file requires the org.objectweb.util.ant.JavadocMultipleLink class -->
+<!-- ======================================================================= -->
+
+  <!--
+   ! load the following user properties from a file:
+   ! - build.compiler: wich compiler do you want use ? (optional)
+   ! - build: where do you want generate compilate object ?
+   ! - dist: where do you want put the distribution ?
+   ! - testResult: where do you want put the test results ?
+  -->
+
+  <property file="build.properties"/>
+
+  <!-- ==================================== -->
+  <!-- ======== PROPERTY DEFINITION ======= -->
+  <!-- ==================================== -->
+
+  <property name="src"              value="${basedir}/src"/>
+  <property name="doc"              value="${basedir}/doc"/>
+  <property name="jdoc"             value="${basedir}/jdoc"/>
+  <property name="web"              value="${basedir}/web"/>
+  <property name="examples"         value="${basedir}/examples"/>
+  <property name="examples.common"  value="${examples}/common"/>
+  <property name="tst"              value="${basedir}/test"/>
+  <property name="tstConform"       value="${tst}/conform"/>
+  <property name="tstDeviance"      value="${tst}/deviance"/>
+  <property name="tstThread"        value="${tst}/thread"/>
+  <property name="tstStress"        value="${tst}/stress"/>
+  <property name="tstPerf"          value="${tst}/perf"/>
+  <property name="config"           value="${basedir}/config"/>
+  <property name="archive"          value="${basedir}/archive"/>
+  <property name="jdoc.links"       value=""/>
+  <property name="zip"              value="../zip"/>
+
+  <property name="dist.lib"       value="${dist}/lib"/>
+  <property name="dist.doc"       value="${dist}/doc"/>
+  <property name="dist.jdoc"      value="${dist.doc}/javadoc"/>
+  <property name="dist.examples"  value="${dist}/examples"/>
+
+  <!-- Build a path that contains the external jars -->
+
+  <path id="externals.classpath">
+    <pathelement path="${classpath}"/>
+    <fileset dir="${basedir}">
+      <include name="externals/**/*.jar"/>
+    </fileset>
+    <pathelement location="${build}"/>
+  </path>
+
+  <!-- ================================== -->
+  <!-- ======== TARGET DEFINITION ======= -->
+  <!-- ================================== -->
+
+  <taskdef name="multipleAnt"
+           classname="org.objectweb.util.ant.MultipleAnt"
+           classpath="${config}/ow_util_ant_tasks.jar"/>
+
+  <taskdef name="javadocMultipleLink"
+           classname="org.objectweb.util.ant.JavadocMultipleLink"
+           classpath="${config}/ow_util_ant_tasks.jar"/>
+
+  <taskdef name="multipleCopy"
+           classname="org.objectweb.util.ant.MultipleCopy"
+           classpath="${config}/ow_util_ant_tasks.jar"/>
+
+  <!-- ==================================== -->
+  <!-- ==========     HELP       ========== -->
+  <!-- ==================================== -->
+
+  <target name="help">
+    <echo message="The available targets are the following:"/>
+    <echo message="  compile: compiles the product into ${build}"/>
+    <echo message="  dist: creates the product's distributions into ${dist}"/>
+    <echo message="  zip: creates the product's distributions zip files into ${zip}"/>
+    <echo message="  clean: removes all generated files."/>
+    <echo message="  jar: creates all jars in ${dist.lib}"/>
+    <echo message="  test: run all tests"/>
+    <echo message=""/>
+    <echo message="There are some options to run tests:"/>
+    <echo message="  -Dtest.group=&lt;group name&gt;  Only a group of test: The default target of"/>
+    <echo message="    the xml file is called the test.group contains the xml file name with"/>
+    <echo message="    directory ex: ant -Dtest.group=conform/toto test =&gt; calls the default"/>
+    <echo message="    target of the file ${test}/conform/toto.xml"/>
+    <echo message="  -Dtest.type=&lt;type name&gt;  Only a type of test: conform, deviance, stress,"/>
+    <echo message="    thread or perf. The test.type properties contains the directory name of"/>
+    <echo message="    the test type ex: ant -Dtest.type=conform test"/>
+    <echo message="  -Dtest.name=&lt;test name&gt;  Only a single test. The target &lt;test name&gt; is called"/>
+  </target>
+
+  <!-- =================================== -->
+  <!-- ==========    COMPILE    ========== -->
+  <!-- =================================== -->
+
+  <target name="compile">
+    <mkdir dir="${build}"/>
+
+    <antcall target="compile.source.core"/>
+
+    <condition property="test.conform.dir.exist">
+      <available file="${tstConform}"/>
+    </condition>
+    <antcall target="compile.test.conform"/>
+
+    <condition property="test.deviance.dir.exist">
+      <available file="${tstDeviance}"/>
+    </condition>
+    <antcall target="compile.test.deviance"/>
+
+    <condition property="test.thread.dir.exist">
+      <available file="${tstThread}"/>
+    </condition>
+    <antcall target="compile.test.thread"/>
+
+    <condition property="test.stress.dir.exist">
+      <available file="${tstStress}"/>
+    </condition>
+    <antcall target="compile.test.stress"/>
+
+    <condition property="test.perf.dir.exist">
+      <available file="${tstPerf}"/>
+    </condition>
+    <antcall target="compile.test.perf"/>
+  </target>
+
+  <!-- Compile the main code of the product -->
+
+  <target name="compile.source.core">
+    <mkdir dir="${build}"/>
+    <javac srcdir="${src}" destdir="${build}" optimize="on">
+      <classpath refid="externals.classpath"/>
+      <include name="**/*.java"/>
+    </javac>
+  </target>
+
+  <!-- Compile the code of the conformance tests -->
+
+  <target name="compile.test.conform" if="test.conform.dir.exist">
+    <javac srcdir="${tstConform}" destdir="${build}">
+      <classpath refid="externals.classpath"/>
+      <include name="**/*.java"/>
+    </javac>
+  </target>
+
+  <!-- Compile the code of the deviance tests -->
+
+  <target name="compile.test.deviance" if="test.deviance.dir.exist">
+    <javac srcdir="${tstDeviance}" destdir="${build}">
+      <classpath refid="externals.classpath"/>
+      <include name="**/*.java"/>
+    </javac>
+  </target>
+
+  <!-- Compile the code of the multithreading tests -->
+
+  <target name="compile.test.thread" if="test.thread.dir.exist">
+    <javac srcdir="${tstThread}" destdir="${build}">
+      <classpath refid="externals.classpath"/>
+      <include name="**/*.java"/>
+    </javac>
+  </target>
+
+  <!-- Compile the code of the stress tests -->
+
+  <target name="compile.test.stress" if="test.stress.dir.exist">
+    <javac srcdir="${tstStress}" destdir="${build}">
+      <classpath refid="externals.classpath"/>
+      <include name="**/*.java"/>
+    </javac>
+  </target>
+
+  <!-- Compile the code of the performance tests -->
+
+  <target name="compile.test.perf" if="test.perf.dir.exist">
+    <javac srcdir="${tstPerf}" destdir="${build}">
+      <classpath>
+        <path refid="externals.classpath"/>
+        <pathelement location="${BCEL}"/>
+        <pathelement location="${SERP}"/>
+      </classpath>
+      <include name="**/*.java"/>
+    </javac>
+  </target>
+
+  <!-- =================================== -->
+  <!-- ==========      WEB      ========== -->
+  <!-- =================================== -->
+
+  <target name="web" depends="zip">
+    <ant dir="${web}"/>
+  </target>
+
+  <!-- =================================== -->
+  <!-- ==========      DIST     ========== -->
+  <!-- =================================== -->
+
+  <!-- Produce a distribution (jars, javadocs, examples and scripts) -->
+
+  <target name="dist">
+
+    <mkdir dir="${dist}"/>
+    <mkdir dir="${dist.doc}"/>
+
+    <!-- create a zip of the src directory, in the dist directory -->
+
+    <zip zipFile="${dist}/src.zip" basedir="${src}"/>
+
+    <!-- copy all files and all non empty directories available in the doc -->
+    <!-- directory into dist/doc -->
+
+    <copy todir="${dist.doc}"
+          preservelastmodified="yes"
+					includeEmptyDirs="false">
+      <fileset dir="${doc}">
+        <include name="**/*"/>
+      </fileset>
+    </copy>
+
+    <!-- create all jars -->
+
+    <antcall target="jar"/>
+
+    <!-- create all javadoc-->
+
+    <antcall target="jdoc"/>
+
+    <!-- distribute the examples if they exist -->
+
+    <condition property="examples.dir.exist">
+      <available file="${examples}"/>
+    </condition>
+    <antcall target="dist.examples"/>
+  </target>
+
+  <!-- Distribute the example -->
+
+  <target name="dist.examples" if="examples.dir.exist">
+
+    <mkdir dir="${dist.examples}"/>
+
+    <!-- Copy the examples -->
+
+    <copy todir="${dist.examples}"
+          preservelastmodified="yes"
+          includeEmptyDirs="yes">
+      <fileset dir="${examples}">
+        <exclude name="common"/>
+        <exclude name="common/**/*"/>
+      </fileset>
+    </copy>
+
+    <!-- Copy the common build.xml into each examples if a build.xml -->
+    <!-- doest not already exist                                     -->
+
+    <multipleCopy file="${examples}/common/build.xml"
+                  toDir="${dist.examples}"
+                  notReplace="yes"
+                  preservelastmodified="yes">
+      <include name="*"/>
+      <exclude name="etc"/>
+      <exclude name="lib"/>
+    </multipleCopy>
+
+    <!-- Copy the common part of the examples -->
+
+    <copy toDir="${dist.examples}" preservelastmodified="yes">
+      <fileset dir="${examples.common}">
+        <include name="**/*"/>
+        <exclude name="build.xml"/>
+      </fileset>
+    </copy>
+
+  </target>
+
+  <!-- calls the default target of each xml file in ${archive} directory -->
+
+  <target name="jar" depends="compile">
+    <mkdir dir="${dist.lib}"/>
+    <!-- copies the external libraries -->
+    <copy todir="${dist}">
+      <fileset dir=".">
+        <include name="externals/*.jar"/>
+      </fileset>
+    </copy>
+		<!-- creates the project's libraries -->
+    <multipleAnt dir="${archive}" />
+  </target>
+
+  <!-- calls the default target of each xml file in ${jdoc} directory -->
+
+  <target name="jdoc">
+    <mkdir dir="${dist.jdoc}"/>
+    <multipleAnt dir="${jdoc}" />
+  </target>
+
+  <!-- =================================== -->
+  <!-- ==========     ZIP       ========== -->
+  <!-- =================================== -->
+
+  <!-- creates zip files of the different distribution (source, binaries) -->
+
+  <target name="zip" depends="dist">
+    <mkdir dir="${zip}"/>
+    <zip zipFile="${zip}/${product.name}_${product.version}_src.zip">
+      <zipfileset dir="${basedir}" prefix="${product.name}/dev">
+         <exclude name="web/**/*"/>
+      </zipfileset>
+    </zip>
+    <zip zipFile="${zip}/${product.name}_${product.version}_bin.zip">
+      <zipfileset dir="${dist}" prefix="${product.name}"/>
+    </zip>
+  </target>
+
+  <!-- =================================== -->
+  <!-- ==========     CLEAN     ========== -->
+  <!-- =================================== -->
+
+  <!-- remove all directories -->
+
+  <target name="clean">
+    <delete dir="${build}"/>
+    <delete dir="${dist}"/>
+    <delete dir="${zip}"/>
+    <delete dir="${testResult.dir}"/>
+    <ant dir="${web}" target="clean"/>
+  </target>
+
+  <!-- =================================== -->
+  <!-- ==========      TEST     ========== -->
+  <!-- =================================== -->
+
+  <target name="test" depends="jar">
+    <mkdir dir="${testResult.dir}"/>
+    <antcall target="testAll"/>
+    <antcall target="testType"/>
+    <antcall target="testGroup"/>
+    <antcall target="testName"/>
+  </target>
+
+  <!-- All tests -->
+
+  <target name="testAll" depends="checkTest" if="test.all">
+    <multipleAnt dir="${tstConform}"/>
+    <multipleAnt dir="${tstDeviance}"/>
+    <multipleAnt dir="${tstThread}"/>
+    <multipleAnt dir="${tstStress}"/>
+    <multipleAnt dir="${tstPerf}"/>
+  </target>
+
+  <target name="checkTest">
+    <property name="test.type.check" value="$${test.type}"/>
+    <property name="test.group.check" value="$${test.group}"/>
+    <property name="test.name.check" value="$${test.name}"/>
+    <condition property="test.all">
+      <and>
+        <equals arg1="${test.type.check}" arg2="${test.type}"/>
+        <equals arg1="${test.group.check}" arg2="${test.group}"/>
+        <equals arg1="${test.name.check}" arg2="${test.name}"/>
+      </and>
+    </condition>
+  </target>
+
+  <!--
+   ! Only a type of test: conform, deviance, stress, thread, or perf.
+   ! The test.type property contains the directory name of the test type.
+   ! example: ant -Dtest.type=conform test
+  -->
+
+  <target name="testType" if="test.type">
+    <multipleAnt dir="${tst}/${test.type}"/>
+  </target>
+
+  <!--
+   ! Only a group of test: The default target of the xml file is called.
+   ! The test.group property contains the xml file name with directory.
+   ! example: ant -Dtest.group=conform/toto test
+   ! => calls the default target of the file ${test}/conform/toto.xml
+  -->
+
+  <target name="testGroup" if="test.group">
+    <ant antfile="${tst}/${test.group}.xml"/>
+  </target>
+
+  <!-- Only a single test: a target is specified -->
+
+  <target name="testName" if="test.name">
+    <multipleAnt dir="${tstConform}" target="${test.name}"/>
+    <multipleAnt dir="${tstDeviance}" target="${test.name}"/>
+    <multipleAnt dir="${tstThread}" target="${test.name}"/>
+    <multipleAnt dir="${tstStress}" target="${test.name}"/>
+    <multipleAnt dir="${tstPerf}" target="${test.name}"/>
+  </target>
+
+  <!-- =================================== -->
+  <!-- ==========    EXAMPLES   ========== -->
+  <!-- =================================== -->
+
+	<target name="example" depends="jar">
+	  <condition property="examples.dir.exist">
+      <available file="${examples}"/>
+    </condition>
+		<antcall target="dist.examples"/>
+    <ant
+		  inheritAll="false"
+			dir="${dist.examples}/${example.name}"
+			target="execute"/>
+	</target>
+
+</project>

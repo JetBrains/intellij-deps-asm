@@ -1,0 +1,76 @@
+<!--
+ ! This library is free software; you can redistribute it and/or
+ ! modify it under the terms of the GNU Lesser General Public
+ ! License as published by the Free Software Foundation; either
+ ! version 2 of the License, or (at your option) any later version.
+ !
+ ! This library is distributed in the hope that it will be useful,
+ ! but WITHOUT ANY WARRANTY; without even the implied warranty of
+ ! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ ! Lesser General Public License for more details.
+ !
+ ! You should have received a copy of the GNU Lesser General Public
+ ! License along with this library; if not, write to the Free Software
+ ! Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ !
+ ! Contact: sebastien.chassande@inrialpes.fr
+-->
+
+<project name="Examples" default="compile">
+
+  <!-- directory definition -->
+
+  <property name="src"          value="${basedir}/src"/>
+  <property name="build"        value="${basedir}/build"/>
+
+  <property file="${basedir}/../etc/build.properties"/>
+  <property file="${basedir}/etc/build.properties"/>
+  <property file="${basedir}/etc/execute.properties"/>
+
+  <!-- Building of a path which contains external jars -->
+
+  <path id="classpath">
+    <fileset dir="${basedir}">
+      <include name="lib/**/*.jar"/>
+    </fileset>
+    <fileset dir="${basedir}/..">
+      <include name="lib/**/*.jar"/>
+    </fileset>
+    <fileset dir="${basedir}/../..">
+      <include name="externals/**/*.jar"/>
+      <include name="lib/**/*.jar"/>
+    </fileset>
+    <pathelement location="${build}"/>
+  </path>
+
+  <!-- ================================== -->
+  <!--              EXECUTE               -->
+  <!-- ================================== -->
+
+  <target name="execute" depends="compile">
+    <java classname="${run.classname}"
+      classpathref="classpath" fork="yes" failonerror="yes">
+       <arg line="${run.parameters}"/>
+    </java>
+  </target>
+
+  <!-- ================================== -->
+  <!--              COMPILE               -->
+  <!-- ================================== -->
+
+  <target name="compile">
+	  <mkdir dir="${build}"/>
+    <javac srcdir="${src}" destdir="${build}" debug="on">
+      <classpath refid="classpath"/>
+      <include name="**/*.java"/>
+    </javac>
+  </target>
+
+  <!-- ================================== -->
+  <!--               CLEAN                -->
+  <!-- ================================== -->
+
+  <target name="clean">
+    <delete dir="${build}"/>
+  </target>
+</project>

@@ -28,7 +28,7 @@
  ! THE POSSIBILITY OF SUCH DAMAGE.
 -->
 
-<project name="ASM" default="shrink">
+<project name="ASM" default="compile">
 
   <!-- ==================================== -->
   <!-- ======== PROPERTY DEFINITION ======= -->

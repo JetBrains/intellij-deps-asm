@@ -58,7 +58,7 @@ public abstract class Attribute {
    * @param type the type of the attribute.
    */
 
-  public Attribute (final String type) {
+  protected Attribute (final String type) {
     this.type = type;
   }
 

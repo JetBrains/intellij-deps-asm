@@ -8,6 +8,7 @@
       <batchtest fork="yes" todir="${out.test}/reports">
         <fileset dir="${test}/conform">
           <include name="**/SignatureTest.java"/>
+          <include name="**/TraceSignatureVisitorTest.java"/>
         </fileset>
       </batchtest>
       <formatter type="xml"/>

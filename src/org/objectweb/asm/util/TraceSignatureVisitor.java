@@ -36,15 +36,14 @@ import org.objectweb.asm.signature.SignatureVisitor;
 public class TraceSignatureVisitor implements SignatureVisitor {
 
   private StringBuffer buf = new StringBuffer();
-  private StringBuffer returnBuf = null;
 
   private boolean isInterface;
-  private boolean seenFormalParameter = false;
-  private boolean seenInterfaceBound = false;
-  private boolean seenParameter = false;
-  private boolean seenInterface = false;
-  private boolean seenException = false;
-  private boolean seenArray = false;
+  private boolean seenFormalParameter;
+  private boolean seenInterfaceBound;
+  private boolean seenParameter;
+  private boolean seenInterface;
+  private boolean seenException;
+  private TraceSignatureVisitor returnVisitor;
 
   /**
    * Stack used to keep track of class types that have arguments. Each element
@@ -54,6 +53,14 @@ public class TraceSignatureVisitor implements SignatureVisitor {
 
   private int argumentStack;
 
+  /**
+   * Stack used to keep track of array class types. Each element
+   * of this stack is a boolean encoded in one bit. The top of the stack is the
+   * lowest order bit. Pushing false = *2, pushing true = *2+1, popping = /2.
+   */
+
+  private int arrayStack;
+
   private String separator = "";
 
 
@@ -61,15 +68,7 @@ public class TraceSignatureVisitor implements SignatureVisitor {
     isInterface = ( access & Opcodes.ACC_INTERFACE)!=0;
     this.buf = new StringBuffer();
   }
-  
-  public TraceSignatureVisitor( int access, StringBuffer buf) {
-    isInterface = ( access & Opcodes.ACC_INTERFACE)!=0;
-    this.buf = buf;
-  }
-  
 
-  // AbstractSignatureVisitor
-  
   public void visitFormalTypeParameter (String name) {
     buf.append(seenFormalParameter ? ", " : "<").append(name);
     seenFormalParameter = true;
@@ -78,33 +77,31 @@ public class TraceSignatureVisitor implements SignatureVisitor {
 
   public SignatureVisitor visitClassBound () {
     separator = " extends ";
+    startType();
     return this;
   }
 
   public SignatureVisitor visitInterfaceBound () {
     separator = seenInterfaceBound ? ", " : (isInterface ? " extends " : " implements ");
     seenInterfaceBound = true;
+    startType();
     return this;
   }
 
-  
-  // ClassSignatureVisitor
-  
   public SignatureVisitor visitSuperclass () {
     endFormals();
     separator = " extends ";
+    startType();
     return this;
   }
 
   public SignatureVisitor visitInterface () {
     separator = seenInterface ? ", " : (isInterface ? " extends " : " implements ");
     seenInterface = true;
+    startType();
     return this;
   }
 
-  
-  // MethodsignatureVisitor
-  
   public SignatureVisitor visitParameterType () {
     endFormals();
     if (!seenParameter) {
@@ -113,6 +110,7 @@ public class TraceSignatureVisitor implements SignatureVisitor {
     } else {
       buf.append(", ");
     }
+    startType();
     return this;
   }
 
@@ -122,20 +120,16 @@ public class TraceSignatureVisitor implements SignatureVisitor {
       buf.append('(');
     }
     buf.append(')');
-    
-    returnBuf = new StringBuffer();
-    return new TraceSignatureVisitor( 0, returnBuf);
+    return returnVisitor = new TraceSignatureVisitor(0);
   }
 
   public SignatureVisitor visitExceptionType () {
     buf.append(seenException ? ", " : " throws ");
     seenException = true;
+    startType();
     return this;
   }
 
-  
-  // TypeSignatureVisitor
-  
   public void visitBaseType (char descriptor) {
     switch( descriptor) {
       case 'V':
@@ -159,15 +153,17 @@ public class TraceSignatureVisitor implements SignatureVisitor {
       default:
         throw new IllegalArgumentException( "Invalid descriptor "+descriptor);
     }
+    endType();
   }
 
   public void visitTypeVariable (String name) {
     buf.append(name);
+    endType();
   }
 
   public SignatureVisitor visitArrayType () {
-    // TODO where [] must be added? requires to return a new TraceSignatureVisitor instance?
-    seenArray = true;
+    startType();
+    arrayStack |= 1;
     return this;
   }
 
@@ -206,21 +202,17 @@ public class TraceSignatureVisitor implements SignatureVisitor {
     } else if( tag==SignatureVisitor.SUPER) {
       buf.append( "? super ");
     }
-    
+
+    startType();
     return this;
   }
 
   public void visitEnd () {
-    // TODO add an array stack?
-    if( seenArray) {
-      buf.append( "[]");
-      seenArray = false;
-    } else {
-      if (argumentStack%2 == 1) {
-        buf.append(">");
-      }
-      argumentStack /= 2;
+    if (argumentStack%2 == 1) {
+      buf.append(">");
     }
+    argumentStack /= 2;
+    endType();
   }
 
   public String getDeclaration () {
@@ -228,7 +220,7 @@ public class TraceSignatureVisitor implements SignatureVisitor {
   }
 
   public String getReturnType () {
-    return returnBuf.toString();
+    return returnVisitor.getDeclaration();
   }
 
   // -----------------------------------------------
@@ -237,6 +229,21 @@ public class TraceSignatureVisitor implements SignatureVisitor {
     if (seenFormalParameter) {
       buf.append(">");
       seenFormalParameter = false;
+    }
+  }
+
+  private void startType () {
+    arrayStack *= 2;
+  }
+
+  private void endType () {
+    if (arrayStack%2 == 1) {
+      while (arrayStack%2 == 1) {
+        arrayStack /= 2;
+        buf.append("[]");
+      }
+    } else {
+      arrayStack /= 2;
     }
   }
 }

@@ -348,6 +348,7 @@ public class DumpClassVisitor extends PrintClassVisitor {
         buf.append(" + ");
       }
       buf.append("ACC_DEPRECATED");
+      first = false;
     }
     if (first) {
       buf.append("0");

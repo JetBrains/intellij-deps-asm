@@ -30,6 +30,17 @@
 
 package org.objectweb.asm.tree.analysis;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import org.objectweb.asm.Constants;
+import org.objectweb.asm.Type;
+import org.objectweb.asm.tree.AbstractInsnNode;
+import org.objectweb.asm.tree.IincInsnNode;
+import org.objectweb.asm.tree.MethodInsnNode;
+import org.objectweb.asm.tree.MultiANewArrayInsnNode;
+import org.objectweb.asm.tree.VarInsnNode;
+
 /**
  * A symbolic execution stack frame. A stack frame contains a set of local 
  * variable slots, and an operand stack. Warning: long and double values are 
@@ -193,6 +204,411 @@ public class Frame {
     stack[top++] = value;
   }
   
+  public void execute (
+    final AbstractInsnNode insn, final Interpreter interpreter) 
+  {
+    Value value1, value2, value3, value4;
+    List values;
+    int var;
+    
+    switch (insn.getOpcode()) {
+      case Constants.NOP:
+        break;
+      case Constants.ACONST_NULL:
+      case Constants.ICONST_M1:
+      case Constants.ICONST_0:
+      case Constants.ICONST_1:
+      case Constants.ICONST_2:
+      case Constants.ICONST_3:
+      case Constants.ICONST_4:
+      case Constants.ICONST_5:
+      case Constants.LCONST_0:
+      case Constants.LCONST_1:
+      case Constants.FCONST_0:
+      case Constants.FCONST_1:
+      case Constants.FCONST_2:
+      case Constants.DCONST_0:
+      case Constants.DCONST_1:
+      case Constants.BIPUSH:
+      case Constants.SIPUSH:
+      case Constants.LDC:
+        push(interpreter.newOperation(insn));
+        break;
+      case Constants.ILOAD:
+      case Constants.LLOAD:
+      case Constants.FLOAD:
+      case Constants.DLOAD:
+      case Constants.ALOAD:
+        push(interpreter.copyOperation(insn, getLocal(((VarInsnNode)insn).var)));
+        break;
+      case Constants.IALOAD:
+      case Constants.LALOAD:
+      case Constants.FALOAD:
+      case Constants.DALOAD:
+      case Constants.AALOAD:
+      case Constants.BALOAD:
+      case Constants.CALOAD:
+      case Constants.SALOAD:
+        value2 = pop();
+        value1 = pop();
+        push(interpreter.binaryOperation(insn, value1, value2));
+        break;
+      case Constants.ISTORE:
+      case Constants.LSTORE:
+      case Constants.FSTORE:
+      case Constants.DSTORE:
+      case Constants.ASTORE:
+        value1 = interpreter.copyOperation(insn, pop());
+        var = ((VarInsnNode)insn).var;
+        setLocal(var, value1);
+        if (value1.getSize() == 2) {
+          setLocal(var + 1, interpreter.newValue(null));
+        }
+        if (var > 0 && getLocal(var - 1).getSize() == 2) {
+          setLocal(var - 1, interpreter.newValue(null));
+        }
+        break;
+      case Constants.IASTORE:
+      case Constants.LASTORE:
+      case Constants.FASTORE:
+      case Constants.DASTORE:
+      case Constants.AASTORE:
+      case Constants.BASTORE:
+      case Constants.CASTORE:
+      case Constants.SASTORE:
+        value3 = pop();
+        value2 = pop();
+        value1 = pop();
+        interpreter.ternaryOperation(insn, value1, value2, value3);
+        break;
+      case Constants.POP:
+        if (pop().getSize() == 2) {
+          throw new RuntimeException("Illegal use of POP");
+        }
+        break;
+      case Constants.POP2:
+        if (pop().getSize() == 1) {
+          if (pop().getSize() != 1) {
+            throw new RuntimeException("Illegal use of POP2");
+          }
+        }
+        break;
+      case Constants.DUP:
+        value1 = pop();
+        if (value1.getSize() != 1) {
+          throw new RuntimeException("Illegal use of DUP");
+        }
+        push(interpreter.copyOperation(insn, value1));
+        push(interpreter.copyOperation(insn, value1));
+        break;
+      case Constants.DUP_X1:
+        value1 = pop();
+        value2 = pop();
+        if (value1.getSize() != 1 || value2.getSize() != 1) {
+          throw new RuntimeException("Illegal use of DUP_X1");
+        }
+        push(interpreter.copyOperation(insn, value1));
+        push(interpreter.copyOperation(insn, value2));
+        push(interpreter.copyOperation(insn, value1));
+        break;
+      case Constants.DUP_X2:
+        value1 = pop();
+        if (value1.getSize() == 1) {
+          value2 = pop();
+          if (value2.getSize() == 1) {
+            value3 = pop();
+            if (value3.getSize() == 1) {
+              push(interpreter.copyOperation(insn, value1));
+              push(interpreter.copyOperation(insn, value3));
+              push(interpreter.copyOperation(insn, value2));
+              push(interpreter.copyOperation(insn, value1));
+              break;
+            }
+          } else {
+            push(interpreter.copyOperation(insn, value1));
+            push(interpreter.copyOperation(insn, value2));
+            push(interpreter.copyOperation(insn, value1));
+            break;
+          }
+        }
+        throw new RuntimeException("Illegal use of DUP_X2");
+      case Constants.DUP2:
+        value1 = pop();
+        if (value1.getSize() == 1) {
+          value2 = pop();
+          if (value2.getSize() == 1) {
+            push(interpreter.copyOperation(insn, value2));
+            push(interpreter.copyOperation(insn, value1));
+            push(interpreter.copyOperation(insn, value2));
+            push(interpreter.copyOperation(insn, value1));
+            break;
+          }
+        } else {
+          push(interpreter.copyOperation(insn, value1));
+          push(interpreter.copyOperation(insn, value1));
+          break;
+        }
+        throw new RuntimeException("Illegal use of DUP2");
+      case Constants.DUP2_X1:
+        value1 = pop();
+        if (value1.getSize() == 1) {
+          value2 = pop();
+          if (value2.getSize() == 1) {
+            value3 = pop();
+            if (value3.getSize() == 1) {
+              push(interpreter.copyOperation(insn, value2));
+              push(interpreter.copyOperation(insn, value1));
+              push(interpreter.copyOperation(insn, value3));
+              push(interpreter.copyOperation(insn, value2));
+              push(interpreter.copyOperation(insn, value1));
+              break;
+            }
+          }
+        } else {
+          value2 = pop();
+          if (value2.getSize() == 1) {
+            push(interpreter.copyOperation(insn, value1));
+            push(interpreter.copyOperation(insn, value2));
+            push(interpreter.copyOperation(insn, value1));
+            break;
+          }
+        }
+        throw new RuntimeException("Illegal use of DUP2_X1");
+      case Constants.DUP2_X2:
+        value1 = pop();
+        if (value1.getSize() == 1) {
+          value2 = pop();
+          if (value2.getSize() == 1) {
+            value3 = pop();
+            if (value3.getSize() == 1) {
+              value4 = pop();
+              if (value4.getSize() == 1) {
+                push(interpreter.copyOperation(insn, value2));
+                push(interpreter.copyOperation(insn, value1));
+                push(interpreter.copyOperation(insn, value4));
+                push(interpreter.copyOperation(insn, value3));
+                push(interpreter.copyOperation(insn, value2));
+                push(interpreter.copyOperation(insn, value1));
+                break;
+              }
+            } else {
+              push(interpreter.copyOperation(insn, value2));
+              push(interpreter.copyOperation(insn, value1));
+              push(interpreter.copyOperation(insn, value3));
+              push(interpreter.copyOperation(insn, value2));
+              push(interpreter.copyOperation(insn, value1));
+              break;
+            }
+          }
+        } else {
+          value2 = pop();
+          if (value2.getSize() == 1) {
+            value3 = pop();
+            if (value3.getSize() == 1) {
+              push(interpreter.copyOperation(insn, value1));
+              push(interpreter.copyOperation(insn, value3));
+              push(interpreter.copyOperation(insn, value2));
+              push(interpreter.copyOperation(insn, value1));
+              break;
+            }
+          } else {
+            push(interpreter.copyOperation(insn, value1));
+            push(interpreter.copyOperation(insn, value2));
+            push(interpreter.copyOperation(insn, value1));
+            break;
+          }
+        }
+        throw new RuntimeException("Illegal use of DUP2_X2");
+      case Constants.SWAP:
+        value2 = pop();
+        value1 = pop();
+        if (value1.getSize() != 1 || value2.getSize() != 1) {
+          throw new RuntimeException("Illegal use of SWAP");
+        }
+        push(interpreter.copyOperation(insn, value2));
+        push(interpreter.copyOperation(insn, value1));
+        break;
+      case Constants.IADD:
+      case Constants.LADD:
+      case Constants.FADD:
+      case Constants.DADD:
+      case Constants.ISUB:
+      case Constants.LSUB:
+      case Constants.FSUB:
+      case Constants.DSUB:
+      case Constants.IMUL:
+      case Constants.LMUL:
+      case Constants.FMUL:
+      case Constants.DMUL:
+      case Constants.IDIV:
+      case Constants.LDIV:
+      case Constants.FDIV:
+      case Constants.DDIV:
+      case Constants.IREM:
+      case Constants.LREM:
+      case Constants.FREM:
+      case Constants.DREM:
+        value2 = pop();
+        value1 = pop();
+        push(interpreter.binaryOperation(insn, value1, value2));
+        break;
+      case Constants.INEG:
+      case Constants.LNEG:
+      case Constants.FNEG:
+      case Constants.DNEG:
+        push(interpreter.unaryOperation(insn, pop()));
+        break;
+      case Constants.ISHL:
+      case Constants.LSHL:
+      case Constants.ISHR:
+      case Constants.LSHR:
+      case Constants.IUSHR:
+      case Constants.LUSHR:
+      case Constants.IAND:
+      case Constants.LAND:
+      case Constants.IOR:
+      case Constants.LOR:
+      case Constants.IXOR:
+      case Constants.LXOR:
+        value2 = pop();
+        value1 = pop();
+        push(interpreter.binaryOperation(insn, value1, value2));
+        break;
+      case Constants.IINC:
+        var = ((IincInsnNode)insn).var;
+        setLocal(var, interpreter.unaryOperation(insn, getLocal(var)));
+        break;
+      case Constants.I2L:
+      case Constants.I2F:
+      case Constants.I2D:
+      case Constants.L2I:
+      case Constants.L2F:
+      case Constants.L2D:
+      case Constants.F2I:
+      case Constants.F2L:
+      case Constants.F2D:
+      case Constants.D2I:
+      case Constants.D2L:
+      case Constants.D2F:
+      case Constants.I2B:
+      case Constants.I2C:
+      case Constants.I2S:
+        push(interpreter.unaryOperation(insn, pop()));
+        break;
+      case Constants.LCMP:
+      case Constants.FCMPL:
+      case Constants.FCMPG:
+      case Constants.DCMPL:
+      case Constants.DCMPG:
+        value2 = pop();
+        value1 = pop();
+        push(interpreter.binaryOperation(insn, value1, value2));
+        break;
+      case Constants.IFEQ:
+      case Constants.IFNE:
+      case Constants.IFLT:
+      case Constants.IFGE:
+      case Constants.IFGT:
+      case Constants.IFLE:
+        interpreter.unaryOperation(insn, pop());
+        break;
+      case Constants.IF_ICMPEQ:
+      case Constants.IF_ICMPNE:
+      case Constants.IF_ICMPLT:
+      case Constants.IF_ICMPGE:
+      case Constants.IF_ICMPGT:
+      case Constants.IF_ICMPLE:
+      case Constants.IF_ACMPEQ:
+      case Constants.IF_ACMPNE:
+        value2 = pop();
+        value1 = pop();
+        interpreter.binaryOperation(insn, value1, value2);
+        break;
+      case Constants.GOTO:
+        break;
+      case Constants.JSR:
+        push(interpreter.newOperation(insn));
+        break;
+      case Constants.RET:
+        break;
+      case Constants.TABLESWITCH:
+      case Constants.LOOKUPSWITCH:
+      case Constants.IRETURN:
+      case Constants.LRETURN:
+      case Constants.FRETURN:
+      case Constants.DRETURN:
+      case Constants.ARETURN:
+        interpreter.unaryOperation(insn, pop());
+        break;
+      case Constants.RETURN:
+        break;
+      case Constants.GETSTATIC:
+        push(interpreter.newOperation(insn));
+        break;
+      case Constants.PUTSTATIC:
+        interpreter.unaryOperation(insn, pop());
+        break;
+      case Constants.GETFIELD:
+        push(interpreter.unaryOperation(insn, pop()));
+        break;
+      case Constants.PUTFIELD:
+        value2 = pop();
+        value1 = pop();
+        interpreter.binaryOperation(insn, value1, value2);
+        break;
+      case Constants.INVOKEVIRTUAL:
+      case Constants.INVOKESPECIAL:
+      case Constants.INVOKESTATIC:
+      case Constants.INVOKEINTERFACE:
+        values = new ArrayList();
+        String desc = ((MethodInsnNode)insn).desc;
+        for (int i = Type.getArgumentTypes(desc).length; i > 0; --i) {
+          values.add(0, pop());
+        }
+        if (insn.getOpcode() != Constants.INVOKESTATIC) {
+          values.add(0, pop());
+        }
+        if (Type.getReturnType(desc) == Type.VOID_TYPE) {
+          interpreter.naryOperation(insn, values);
+        } else {
+          push(interpreter.naryOperation(insn, values));
+        }
+        break;
+      case Constants.NEW:
+        push(interpreter.newOperation(insn));
+        break;
+      case Constants.NEWARRAY:
+      case Constants.ANEWARRAY:
+      case Constants.ARRAYLENGTH:
+        push(interpreter.unaryOperation(insn, pop()));
+        break;
+      case Constants.ATHROW:
+        interpreter.unaryOperation(insn, pop());
+        break;
+      case Constants.CHECKCAST:
+      case Constants.INSTANCEOF:
+        push(interpreter.unaryOperation(insn, pop()));
+        break;
+      case Constants.MONITORENTER:
+      case Constants.MONITOREXIT:
+        interpreter.unaryOperation(insn, pop());
+        break;
+      case Constants.MULTIANEWARRAY:
+        values = new ArrayList();
+        for (int i = ((MultiANewArrayInsnNode)insn).dims; i > 0; --i) {
+          values.add(0, pop());
+        }
+        push(interpreter.naryOperation(insn, values));
+        break;
+      case Constants.IFNULL:
+      case Constants.IFNONNULL:
+        interpreter.unaryOperation(insn, pop());
+        break;
+      default:
+        throw new RuntimeException("Illegal opcode");
+    }
+  }
+
   /**
    * Merges this frame with the given frame.
    *  

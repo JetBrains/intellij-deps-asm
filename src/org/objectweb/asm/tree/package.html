@@ -1,0 +1,45 @@
+<html>
+<!--
+ * ASM: a very small and fast Java bytecode manipulation framework
+ * Copyright (C) 2000 INRIA, France Telecom
+ * Copyright (C) 2002 France Telecom
+ *
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 2 of the License, or (at your option) any later version.
+ *
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *
+ * Contact: Eric.Bruneton@rd.francetelecom.com
+ *
+ * Author: Eric Bruneton
+-->
+<body>
+Provides an ASM class adapter that constructs a tree representation of the
+classes it visits. This class adapter can be useful to implement "complex"
+class manipulation operations, i.e., operations that would be very hard to
+implement without using a tree representation (such as optimizing the number
+of local variables used by a method).
+
+<p>
+
+However, this class adapter has a cost: it makes ASM bigger and slower. Indeed
+it requires more than twenty new classes, and multiplies the time needed to
+transform a class by almost two (it is almost two times faster to read, "modify"
+and write a class with a ClassAdapter than with a TreeClassAdapter). This is why
+this class adapter is bundled in an optional <tt>asmtree.jar</tt> library that
+is separated from (but requires) the <tt>asm.jar</tt> library, which contains
+the core ASM framework. This is also why <i><font color="red">it is recommanded
+not to use this class adapter when it is possible</font></i>.
+
+@since ASM 1.3.3
+</body>
+</html>

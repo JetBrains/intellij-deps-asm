@@ -1,0 +1,4 @@
+Manifest-Version: 1.0
+Implementation-Title: "ASM Tree class visitor"
+Implementation-Version: "1.3.2"
+Implementation-Vendor: "France Telecom R&D"

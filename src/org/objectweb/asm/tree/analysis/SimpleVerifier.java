@@ -134,8 +134,19 @@ public class SimpleVerifier extends BasicVerifier {
           if (d.isAssignableFrom(c)) {
             return w;
           }
-          // TODO find common super type
-          return BasicValue.REFERENCE_VALUE;
+          // TODO case of array classes of the same dimension
+          // TODO should we look also for a common super interface?
+          //      problem: there may be several possible common super interfaces
+          do {
+            if (c == null || c.isInterface()) {
+              return BasicValue.REFERENCE_VALUE;
+            } else {
+              c = c.getSuperclass();
+            }
+            if (c.isAssignableFrom(d)) {
+              return newValue(Type.getType(c));
+            }
+          } while (true);
         }
       }
       return BasicValue.UNINITIALIZED_VALUE;

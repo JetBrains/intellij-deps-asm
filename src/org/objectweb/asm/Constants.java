@@ -54,9 +54,14 @@ public interface Constants {
   int ACC_STATIC = 8;
   int ACC_FINAL = 16;
   int ACC_SYNCHRONIZED = 32;
-  int ACC_VOLATILE = 64;
-  int ACC_TRANSIENT = 128;
-  int ACC_NATIVE = 256;
+  int ACC_VOLATILE = 64;    // fields
+  int ACC_BRIDGE = 64;      // methods
+  int ACC_VARARGS = 128;    // methods
+  int ACC_TRANSIENT = 128;  // fields
+  int ACC_NATIVE = 256;     // methods
+  int ACC_ENUM = 256;       // classes and fields
+  // TODO find out what is the value for ACC_ANNOTATION constant
+  
   int ACC_INTERFACE = 512;
   int ACC_ABSTRACT = 1024;
   int ACC_STRICT = 2048;

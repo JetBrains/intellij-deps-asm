@@ -180,7 +180,7 @@ public class TreeCodeAdapter extends CodeAdapter {
   }
 
   public void visitAttribute (final Attribute attr) {
-    attr.next = methodNode.attrs;
-    methodNode.attrs = attr;
+    attr.next = methodNode.codeAttrs;
+    methodNode.codeAttrs = attr;
   }
 }

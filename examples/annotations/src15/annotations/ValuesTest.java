@@ -18,7 +18,14 @@ public class ValuesTest extends TestCase {
         .getClassLoader());
     Class c = cl.loadClass("annotations.Values");
     Annotation[] annotations = c.getAnnotations();
-    a = (ValuesAnnotation)annotations[0];
+    for (int i = 0; i < annotations.length; ++i) {
+      if (annotations[i] instanceof ValuesAnnotation) {
+        a = (ValuesAnnotation)annotations[i];
+      }
+    }
+    if (a == null) {
+      fail();
+    }
   }
 
   public void testByteValue () {

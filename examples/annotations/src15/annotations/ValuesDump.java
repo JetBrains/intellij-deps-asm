@@ -121,12 +121,12 @@ av0.visit("value", "methodAnnotation2");
 av0.visitEnd();
 }
 {
-av0 = mv.visitParameterAnnotation(2, "Lannotations/ValueAttrAnnotation1;", true);
+av0 = mv.visitParameterAnnotation(0, "Lannotations/ValueAttrAnnotation1;", true);
 av0.visit("value", "param1Annotation1");
 av0.visitEnd();
 }
 {
-av0 = mv.visitParameterAnnotation(2, "Lannotations/ValueAttrAnnotation2;", true);
+av0 = mv.visitParameterAnnotation(0, "Lannotations/ValueAttrAnnotation2;", true);
 av0.visit("value", "param1Annotation2");
 av0.visitEnd();
 }

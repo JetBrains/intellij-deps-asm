@@ -150,7 +150,7 @@ public class StackMapFrame {
     }
     for (int j = 0; j < info.size(); j++) {
       StackMapType typeInfo = (StackMapType)info.get(j);
-      bv = new ByteVector().putByte(typeInfo.getType());
+      bv.putByte(typeInfo.getType());
       switch (typeInfo.getType()) {
         case StackMapType.ITEM_Long:  //
         case StackMapType.ITEM_Double:  //

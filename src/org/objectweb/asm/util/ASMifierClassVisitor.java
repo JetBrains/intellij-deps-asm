@@ -113,6 +113,7 @@ public class ASMifierClassVisitor extends PrintClassVisitor {
 
   private static final int ACCESS_CLASS = 262144;
   private static final int ACCESS_FIELD = 524288;
+  private static final int ACCESS_INNER = 1048576;
 
   /**
    * Prints the ASM source code to generate the given class to the standard
@@ -185,7 +186,7 @@ public class ASMifierClassVisitor extends PrintClassVisitor {
     text.add("import java.util.*;\n");
     text.add("import java.io.FileOutputStream;\n\n");
     text.add("public class "+(n==-1 ? name : name.substring( n+1))+"Dump implements Constants {\n\n");
-    text.add("public static void main (String[] args) throws Exception {\n\n");
+    text.add("public static byte[] dump () throws Exception {\n\n");
     text.add("ClassWriter cw = new ClassWriter(false);\n");
     text.add("CodeVisitor cv;\n\n");
 
@@ -253,7 +254,7 @@ public class ASMifierClassVisitor extends PrintClassVisitor {
     buf.append(", ");
     appendConstant(buf, innerName);
     buf.append(", ");
-    appendAccess(access);
+    appendAccess(access | ACCESS_INNER);
     buf.append(");\n\n");
     text.add(buf.toString());
   }
@@ -383,9 +384,10 @@ public class ASMifierClassVisitor extends PrintClassVisitor {
 
   public void visitEnd () {
     text.add("cw.visitEnd();\n\n");
-    text.add("FileOutputStream os = new FileOutputStream(\"Dumped.class\");\n");
-    text.add("os.write(cw.toByteArray());\n");
-    text.add("os.close();\n");
+    // text.add("FileOutputStream os = new FileOutputStream(\"Dumped.class\");\n");
+    // text.add("os.write(cw.toByteArray());\n");
+    // text.add("os.close();\n");
+    text.add("return cw.toByteArray();\n");
     text.add("}\n");
     text.add("}\n");
     super.visitEnd();
@@ -466,7 +468,8 @@ public class ASMifierClassVisitor extends PrintClassVisitor {
       buf.append("ACC_VARARGS");
       first = false;
     }
-    if ((access & Constants.ACC_TRANSIENT) != 0) {
+    if ((access & Constants.ACC_TRANSIENT) != 0 &&
+        (access & ACCESS_FIELD) != 0) {
       if (!first) {
         buf.append(" + ");
       }
@@ -483,11 +486,21 @@ public class ASMifierClassVisitor extends PrintClassVisitor {
       first = false;
     }
     if ((access & Constants.ACC_ENUM) != 0 &&
-         ((access & ACCESS_CLASS) != 0 || (access & ACCESS_FIELD) != 0)) {
+         ((access & ACCESS_CLASS) != 0 || 
+          (access & ACCESS_FIELD) != 0 || 
+          (access & ACCESS_INNER) != 0)) {
       if (!first) {
         buf.append(" + ");
       }
       buf.append("ACC_ENUM");
+      first = false;
+    }
+    if ((access & Constants.ACC_ANNOTATION) != 0 &&
+        ((access & ACCESS_CLASS) != 0)) {
+      if (!first) {
+        buf.append(" + ");
+      }
+      buf.append("ACC_ANNOTATION");
       first = false;
     }
     if ((access & Constants.ACC_ABSTRACT) != 0) {

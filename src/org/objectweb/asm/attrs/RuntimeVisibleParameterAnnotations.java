@@ -113,8 +113,8 @@ public class RuntimeVisibleParameterAnnotations extends Attribute {
 
   protected Attribute read (ClassReader cr, int off,
                             int len, char[] buf, int codeOff, Label[] labels) {
-    RuntimeInvisibleParameterAnnotations atr =
-      new RuntimeInvisibleParameterAnnotations();
+    RuntimeVisibleParameterAnnotations atr =
+      new RuntimeVisibleParameterAnnotations();
     Annotation.readParameterAnnotations(atr.parameters, cr, off, buf);
     return atr;
   }

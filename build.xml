@@ -208,7 +208,7 @@
   <!-- ==========      WEB      ========== -->
   <!-- =================================== -->
 
-  <target name="web" depends="zip">
+  <target name="web">
     <ant dir="${web}"/>
   </target>
 
@@ -232,7 +232,7 @@
 
     <copy todir="${dist.doc}"
           preservelastmodified="yes"
-					includeEmptyDirs="false">
+          includeEmptyDirs="false">
       <fileset dir="${doc}">
         <include name="**/*"/>
       </fileset>
@@ -304,7 +304,7 @@
         <include name="externals/*.jar"/>
       </fileset>
     </copy>
-		<!-- creates the project's libraries -->
+    <!-- creates the project's libraries -->
     <multipleAnt dir="${archive}" />
   </target>
 
@@ -417,15 +417,15 @@
   <!-- ==========    EXAMPLES   ========== -->
   <!-- =================================== -->
 
-	<target name="example" depends="jar">
-	  <condition property="examples.dir.exist">
+  <target name="example" depends="jar">
+    <condition property="examples.dir.exist">
       <available file="${examples}"/>
     </condition>
-		<antcall target="dist.examples"/>
+    <antcall target="dist.examples"/>
     <ant
-		  inheritAll="false"
-			dir="${dist.examples}/${example.name}"
-			target="execute"/>
-	</target>
+      inheritAll="false"
+      dir="${dist.examples}/${example.name}"
+      target="execute"/>
+  </target>
 
 </project>

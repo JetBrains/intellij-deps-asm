@@ -39,10 +39,11 @@ import java.net.URLClassLoader;
 
 import junit.framework.TestSuite;
 
-import net.janino.ClassLoaderIClassLoader;
-import net.janino.IClassLoader;
-import net.janino.Parser;
-import net.janino.Scanner;
+import org.codehaus.janino.ClassLoaderIClassLoader;
+import org.codehaus.janino.DebuggingInformation;
+import org.codehaus.janino.IClassLoader;
+import org.codehaus.janino.Parser;
+import org.codehaus.janino.Scanner;
 
 import org.objectweb.asm.AbstractTest;
 import org.objectweb.asm.ClassReader;
@@ -78,7 +79,14 @@ public class ASMifierTest extends AbstractTest {
 
     String generated = sw.toString();
     
-    byte[] generatorClassData = COMPILER.compile(n, generated);
+    byte[] generatorClassData;
+    try {
+      generatorClassData = COMPILER.compile( n, generated);
+    } catch( Exception ex) {
+      System.err.println( generated);
+      System.err.println( "------------------");
+      throw ex;
+    }
     
     Class c = LOADER.defineClass("asm." + n + "Dump", generatorClassData);
     Method m = c.getMethod("dump", new Class[0]);
@@ -101,7 +109,7 @@ public class ASMifierTest extends AbstractTest {
 
     public byte[] compile(String name, String source) throws Exception {
       Parser p = new Parser(new Scanner(name, new StringReader(source)));
-      return p.parseCompilationUnit().compile(CL, 0)[0].toByteArray();
+      return p.parseCompilationUnit().compile(CL, DebuggingInformation.ALL)[0].toByteArray();
     }
   }
 }

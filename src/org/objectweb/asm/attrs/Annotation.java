@@ -38,16 +38,16 @@ import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassWriter;
 
 /**
- * Annotation data contains an annotated type and its array of the member-value
+ * Annotation data contains an annotated type and its array of the element-value
  * pairs. Structure is in the following format:
  * <pre>
  *   annotation {
  *     u2 type_index;
- *     u2 num_member_value_pairs;
+ *     u2 num_element_value_pairs;
  *     {
- *       u2 member_name_index;
- *       member_value value;
- *     } member_value_pairs[num_member_value_pairs];
+ *       u2 element_name_index;
+ *       element_value value;
+ *     } element_value_pairs[num_element_value_pairs];
  *   }
  * </pre>
  * The items of the annotation structure are as follows:
@@ -58,22 +58,22 @@ import org.objectweb.asm.ClassWriter;
  *     structure representing a field descriptor representing the annotation 
  *     interface corresponding to the annotation represented by this annotation 
  *     structure.</dd>
- * <dt>num_member_value_pairs</dt>
- * <dd>The value of the num_member_value_pairs item gives the number of member-value
+ * <dt>num_element_value_pairs</dt>
+ * <dd>The value of the num_element_value_pairs item gives the number of element-value
  *     pairs in the annotation represented by this annotation structure. Note that a
- *     maximum of 65535 member-value pairs may be contained in a single annotation.</dd>
- * <dt>member_value_pairs</dt>
- * <dd>Each value of the member_value_pairs table represents a single member-value
+ *     maximum of 65535 element-value pairs may be contained in a single annotation.</dd>
+ * <dt>element_value_pairs</dt>
+ * <dd>Each value of the element_value_pairs table represents a single element-value
  *     pair in the annotation represented by this annotation structure.
- *     Each member_value_pairs entry contains the following two items:
- *     <dt>member_name_index</dt>
- *     <dd>The value of the member_name_index item must be a valid index into the
+ *     Each element_value_pairs entry contains the following two items:
+ *     <dt>element_name_index</dt>
+ *     <dd>The value of the element_name_index item must be a valid index into the
  *         constant_pool table. The constant_pool entry at that index must be a
  *         CONSTANT_Utf8_info structure representing the name of the annotation type
- *         member corresponding to this member_value_pairs entry.</dd>
+ *         element corresponding to this element_value_pairs entry.</dd>
  *     <dt>value</dt>
- *     <dd>The value item represents the value in the member-value pair represented by
- *         this member_value_pairs entry.</dd>
+ *     <dd>The value item represents the value in the element-value pair represented by
+ *         this element_value_pairs entry.</dd>
  *     </dl>
  *     </dd>
  * </dl>
@@ -88,10 +88,10 @@ public class Annotation {
 
   public String type;
 
-  public List memberValues = new ArrayList();
+  public List elementValues = new ArrayList();
 
   public void add (String name, Object value) {
-    memberValues.add(new Object[]{name, value});
+    elementValues.add(new Object[]{name, value});
   }
 
   /**
@@ -108,13 +108,13 @@ public class Annotation {
 
   public int read (ClassReader cr, int off, char[] buf) {
     type = cr.readUTF8(off, buf);
-    int numMemberValuePairs = cr.readUnsignedShort(off + 2);
+    int numElementValuePairs = cr.readUnsignedShort(off + 2);
     off += 4;
-    for (int i = 0; i < numMemberValuePairs; i++) {
-      String memberName = cr.readUTF8(off, buf);
-      AnnotationMemberValue value = new AnnotationMemberValue();
+    for (int i = 0; i < numElementValuePairs; i++) {
+      String elementName = cr.readUTF8(off, buf);
+      AnnotationElementValue value = new AnnotationElementValue();
       off = value.read(cr, off + 2, buf);
-      memberValues.add(new Object[]{memberName, value});
+      elementValues.add(new Object[]{elementName, value});
     }
     return off;
   }
@@ -130,11 +130,11 @@ public class Annotation {
 
   public void write (ByteVector bv, ClassWriter cw) {
     bv.putShort(cw.newUTF8(type));
-    bv.putShort(memberValues.size());
-    for (int i = 0; i < memberValues.size(); i++) {
-      Object[] value = (Object[])memberValues.get(i);
+    bv.putShort(elementValues.size());
+    for (int i = 0; i < elementValues.size(); i++) {
+      Object[] value = (Object[])elementValues.get(i);
       bv.putShort(cw.newUTF8((String)value[0]));
-      ((AnnotationMemberValue)value[1]).write(bv, cw);
+      ((AnnotationElementValue)value[1]).write(bv, cw);
     }
   }
 
@@ -269,13 +269,13 @@ public class Annotation {
   public String toString () {
     StringBuffer sb = new StringBuffer("@").append(type);
     // shorthand syntax for marker annotation
-    if (memberValues.size() > 0) {
+    if (elementValues.size() > 0) {
       sb.append(" ( ");
       String sep = "";
-      for (int i = 0; i < memberValues.size(); i++) {
-        Object[] value = (Object[])memberValues.get(i);
-        // using shorthand syntax for single-member annotation
-        if ( !( memberValues.size()==1 || "value".equals( memberValues.get( 0)))) {
+      for (int i = 0; i < elementValues.size(); i++) {
+        Object[] value = (Object[])elementValues.get(i);
+        // using shorthand syntax for single-element annotation
+        if ( !( elementValues.size()==1 || "value".equals( elementValues.get( 0)))) {
           sb.append(sep).append(value[0]).append(" = ");
         }
         sb.append(value[1]);

@@ -38,8 +38,8 @@ import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.attrs.Annotation;
-import org.objectweb.asm.attrs.AnnotationMemberValue;
-import org.objectweb.asm.attrs.AnnotationMemberValue.EnumConstValue;
+import org.objectweb.asm.attrs.AnnotationElementValue;
+import org.objectweb.asm.attrs.AnnotationElementValue.EnumConstValue;
 
 /**
  * An {@link ASMifiable} 
@@ -100,13 +100,13 @@ public class AnnotationDefaultAttribute
   static void asmify (Annotation a, StringBuffer buf, String varName) {
     buf.append("Annotation ").append(varName).append(" = new Annotation();\n");
     buf.append(varName).append(".type = \"").append(a.type).append("\";\n");
-    List memberValues = a.memberValues;
-    if (memberValues.size() > 0) {
+    List elementValues = a.elementValues;
+    if (elementValues.size() > 0) {
       buf.append("{\n");
-      for (int i = 0; i < memberValues.size(); i++) {
-        Object[] values = (Object[])memberValues.get(i);
+      for (int i = 0; i < elementValues.size(); i++) {
+        Object[] values = (Object[])elementValues.get(i);
         String val = varName + "val" + i;
-        asmify((AnnotationMemberValue)values[1], buf, val);
+        asmify((AnnotationElementValue)values[1], buf, val);
         buf.append(varName).append(".add( \"")
           .append(values[0]).append("\", ").append(val).append(");\n");
       }
@@ -114,7 +114,7 @@ public class AnnotationDefaultAttribute
     }
   }
 
-  static void asmify (AnnotationMemberValue val, StringBuffer buf, String valName) {
+  static void asmify (AnnotationElementValue val, StringBuffer buf, String valName) {
     int tag = val.getTag();
     Object value = val.getValue();
     String objName = valName.concat("obj");
@@ -167,7 +167,7 @@ public class AnnotationDefaultAttribute
       case 'e':  // enum_const_value
         EnumConstValue e = (EnumConstValue)value;
         buf.append("Object ").append(objName)
-          .append(" = new AnnotationMemberValue.EnumConstValue(\"")
+          .append(" = new AnnotationElementValue.EnumConstValue(\"")
           .append(e.typeName).append("\", \"").append(e.constName)
           .append("\"));\n");
         break;
@@ -183,9 +183,9 @@ public class AnnotationDefaultAttribute
         break;
 
       case '[':  // array_value
-        AnnotationMemberValue[] v = (AnnotationMemberValue[])value;
-        buf.append("AnnotationMemberValue[] ").append(objName)
-          .append(" = new AnnotationMemberValue[")
+        AnnotationElementValue[] v = (AnnotationElementValue[])value;
+        buf.append("AnnotationElementValue[] ").append(objName)
+          .append(" = new AnnotationElementValue[")
           .append(v.length).append("]\n;");
         buf.append("{\n");
         buf.append("Object av = null;\n");
@@ -198,7 +198,7 @@ public class AnnotationDefaultAttribute
         break;
     }
 
-    buf.append("AnnotationMemberValue ").append(valName);
-    buf.append(" = new AnnotationMemberValue( ").append(objName).append(");\n");
+    buf.append("AnnotationElementValue ").append(valName);
+    buf.append(" = new AnnotationElementValue( ").append(objName).append(");\n");
   }
 }

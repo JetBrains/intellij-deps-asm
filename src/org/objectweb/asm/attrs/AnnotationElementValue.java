@@ -36,16 +36,14 @@ import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Type;
 
 /**
- * TODO update from adding generics 2.5ea
- * 
- * The member_value structure is a discriminated union representing the value of a
- * member-value pair. It is used to represent values in all class file attributes
+ * The element_value structure is a discriminated union representing the value of a
+ * element-value pair. It is used to represent values in all class file attributes
  * that describe annotations ( RuntimeVisibleAnnotations, RuntimeInvisibleAnnotations,
  * RuntimeVisibleParameterAnnotations, and RuntimeInvisibleParameterAnnotations).
  * <p>
- * The member_value structure has the following format:
+ * The element_value structure has the following format:
  * <pre>
- *   member_value {
+ *   element_value {
  *     u1 tag;
  *     union {
  *       u2   const_value_index;
@@ -57,20 +55,20 @@ import org.objectweb.asm.Type;
  *       annotation annotation_value;
  *       {
  *         u2    num_values;
- *         member_value values[num_values];
+ *         element_value values[num_values];
  *       } array_value;
  *     } value;
  *   }
  * </pre>
- * The items of the member_value structure are as follows:
+ * The items of the element_value structure are as follows:
  * <dl>
  * <dt>tag</dt>
- * <dd>The tag item indicates the member type of this member-value pair. The letters
+ * <dd>The tag item indicates the type of this annotation element-value pair. The letters
  *     'B', 'C', 'D', 'F', 'I', 'J', 'S', and 'Z' indicate a primitive type. These
  *     letters are interpreted as BaseType characters (Table 4.2). The other legal
  *     values for tag are listed with their interpretations in this table:
  *     <pre>
- *     tag  value Member Type
+ *     tag  value Element Type
  *     's'  String
  *     'e'  enum constant
  *     'c'  class
@@ -98,12 +96,12 @@ import org.objectweb.asm.Type;
  *     <dd>The value of the type_name_index item must be a valid index into the
  *         constant_pool table. The constant_pool entry at that index must be a
  *         CONSTANT_Utf8_info structure representing the binary name (JLS 13.1) of the
- *         type of the enum constant represented by this member_value structure.</dd>
+ *         type of the enum constant represented by this element_value structure.</dd>
  *     <dt>const_name_index</dt>
  *     <dd>The value of the const_name_index item must be a valid index into the
  *         constant_pool table. The constant_pool entry at that index must be a
  *         CONSTANT_Utf8_info structure representing the simple name of the enum
- *         constant represented by this member_value structure.</dd>
+ *         constant represented by this element_value structure.</dd>
  *     </dl>
  *     </dd>
  *   <dt>class_info_index</dt>
@@ -111,9 +109,9 @@ import org.objectweb.asm.Type;
  *       class_info_index item must be a valid index into the constant_pool table.
  *       The constant_pool entry at that index must be a CONSTANT_Utf8_info 
  *       structure representing the return descriptor of the type that is 
- *       reified by the class represented by this member_value structure.</dd>
+ *       reified by the class represented by this element_value structure.</dd>
  *   <dt>annotation_value</dt>
- *   <dd>The annotation_value item is used if the tag item is '@'. The member_value
+ *   <dd>The annotation_value item is used if the tag item is '@'. The element_value
  *       structure represents a "nested" {@link org.objectweb.asm.attrs.Annotation annotation}.</dd>
  *   <dt>array_value</dt>
  *   <dd>The array_value item is used if the tag item is '['. The array_value item
@@ -121,11 +119,11 @@ import org.objectweb.asm.Type;
  *     <dl>
  *     <dt>num_values</dt>
  *     <dd>The value of the num_values item gives the number of elements in the
- *         array-typed value represented by this member_value structure. Note that a
- *         maximum of 65535 elements are permitted in an array-typed member value.</dd>
+ *         array-typed value represented by this element_value structure. Note that a
+ *         maximum of 65535 elements are permitted in an array-typed element value.</dd>
  *     <dt>values</dt>
  *     <dd>Each element of the values table gives the value of an element of the
- *         array-typed value represented by this {@link AnnotationMemberValue member_value structure}.</dd>
+ *         array-typed value represented by this {@link AnnotationElementValue element_value structure}.</dd>
  *     </dl>
  *     </dd>
  *   </dl>
@@ -138,14 +136,14 @@ import org.objectweb.asm.Type;
  * @author Eugene Kuleshov
  */
 
-public class AnnotationMemberValue {
+public class AnnotationElementValue {
 
   private Object value;
 
-  public AnnotationMemberValue () {
+  public AnnotationElementValue () {
   }
 
-  public AnnotationMemberValue (Object value) {
+  public AnnotationElementValue (Object value) {
     this.value = value;
   }
 
@@ -186,7 +184,7 @@ public class AnnotationMemberValue {
     if (value instanceof Annotation) {
       return '@';
     }
-    if (value instanceof AnnotationMemberValue[]) {
+    if (value instanceof AnnotationElementValue[]) {
       return '[';
     }
     return -1;    
@@ -197,7 +195,7 @@ public class AnnotationMemberValue {
   }
 
   /**
-   * Reads member_value data structures.
+   * Reads element_value data structures.
    *
    * @param cr the class that contains the attribute to be read.
    * @param off index of the first byte of the data structure.
@@ -247,10 +245,10 @@ public class AnnotationMemberValue {
       case '[':  // array_value
         int size = cr.readUnsignedShort(off);
         off += 2;
-        AnnotationMemberValue[] v = new AnnotationMemberValue[size];
+        AnnotationElementValue[] v = new AnnotationElementValue[size];
         value = v;
         for (int i = 0; i < size; i++) {
-          v[i] = new AnnotationMemberValue();
+          v[i] = new AnnotationElementValue();
           off = v[i].read(cr, off, buf);
         }
         break;
@@ -259,7 +257,7 @@ public class AnnotationMemberValue {
   }
 
   /**
-   * Writes member_value data structures.
+   * Writes element_value data structures.
    *
    * @param bv the byte array form to store data structures.
    * @param cw the class to which this attribute must be added. This parameter
@@ -301,7 +299,7 @@ public class AnnotationMemberValue {
         break;
 
       case '[':  // array_value
-        AnnotationMemberValue[] v = (AnnotationMemberValue[])value;
+        AnnotationElementValue[] v = (AnnotationElementValue[])value;
         bv.putShort(v.length);
         for (int i = 0; i < v.length; i++) {
           v[i].write(bv, cw);
@@ -346,7 +344,7 @@ public class AnnotationMemberValue {
         break;
 
       case '[':  // array_value
-        AnnotationMemberValue[] v = (AnnotationMemberValue[])value;
+        AnnotationElementValue[] v = (AnnotationElementValue[])value;
         if (v.length > 0) {
           sb.append("{ ");
           String sep = "";

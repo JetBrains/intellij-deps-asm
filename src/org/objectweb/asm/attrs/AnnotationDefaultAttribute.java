@@ -39,9 +39,9 @@ import org.objectweb.asm.Label;
 /**
  * The AnnotationDefault attribute is a variable length attribute in the
  * attributes table of certain method_info structures, namely those representing
- * members of annotation types. The AnnotationDefault attribute records the
- * default value for the member represented by the method_info structure. Each
- * method_info structures representing a member of an annotation types may contain
+ * elements of annotation types. The AnnotationDefault attribute records the
+ * default value for the element represented by the method_info structure. Each
+ * method_info structures representing an element of an annotation types may contain
  * at most one AnnotationDefault attribute. The JVM must make this default value
  * available so it can be applied by appropriate reflective APIs.
  * <p>
@@ -50,7 +50,7 @@ import org.objectweb.asm.Label;
  *    AnnotationDefault_attribute {
  *      u2 attribute_name_index;
  *      u4 attribute_length;
- *      member_value default_value;
+ *      element_value default_value;
  *    }
  * </pre>
  * The items of the AnnotationDefault structure are as follows:
@@ -65,7 +65,7 @@ import org.objectweb.asm.Label;
  *     thus dependent on the default value.</dd>
  * <dt>default_value</dt>
  * <dd>The default_value item represents the default value of the annotation type
- *     {@link org.objectweb.asm.attrs.AnnotationMemberValue member} whose default
+ *     {@link org.objectweb.asm.attrs.AnnotationElementValue element} whose default
  *     value is represented by this AnnotationDefault attribute.</dd>
  * </dl>
  *
@@ -77,7 +77,7 @@ import org.objectweb.asm.Label;
 
 public class AnnotationDefaultAttribute extends Attribute {
 
-  public AnnotationMemberValue defaultValue;
+  public AnnotationElementValue defaultValue;
 
   public AnnotationDefaultAttribute () {
     super("AnnotationDefault");
@@ -86,7 +86,7 @@ public class AnnotationDefaultAttribute extends Attribute {
   protected Attribute read (ClassReader cr, int off,
                             int len, char[] buf, int codeOff, Label[] labels) {
     AnnotationDefaultAttribute ann = new AnnotationDefaultAttribute();
-    ann.defaultValue = new AnnotationMemberValue();
+    ann.defaultValue = new AnnotationElementValue();
     ann.defaultValue.read(cr, off, buf);
     return ann;
   }

@@ -42,6 +42,7 @@ public class TraceSignatureVisitor implements
 {
 
   private StringBuffer buf = new StringBuffer();
+  private StringBuffer returnBuf = null;
 
   private boolean isInterface;
   private boolean seenFormalParameter = false;
@@ -64,7 +65,16 @@ public class TraceSignatureVisitor implements
 
   public TraceSignatureVisitor( int access) {
     isInterface = ( access & Opcodes.ACC_INTERFACE)!=0;
+    this.buf = new StringBuffer();
   }
+  
+  public TraceSignatureVisitor( int access, StringBuffer buf) {
+    isInterface = ( access & Opcodes.ACC_INTERFACE)!=0;
+    this.buf = buf;
+  }
+  
+
+  // AbstractSignatureVisitor
   
   public void visitFormalTypeParameter (String name) {
     buf.append(seenFormalParameter ? ", " : "<").append(name);
@@ -83,6 +93,9 @@ public class TraceSignatureVisitor implements
     return this;
   }
 
+  
+  // ClassSignatureVisitor
+  
   public TypeSignatureVisitor visitSuperclass () {
     endFormals();
     separator = " extends ";
@@ -95,6 +108,9 @@ public class TraceSignatureVisitor implements
     return this;
   }
 
+  
+  // MethodsignatureVisitor
+  
   public TypeSignatureVisitor visitParameterType () {
     endFormals();
     if (!seenParameter) {
@@ -112,7 +128,9 @@ public class TraceSignatureVisitor implements
       buf.append('(');
     }
     buf.append(')');
-    return this;
+    
+    returnBuf = new StringBuffer();
+    return new TraceSignatureVisitor( 0, returnBuf);
   }
 
   public TypeSignatureVisitor visitExceptionType () {
@@ -121,6 +139,9 @@ public class TraceSignatureVisitor implements
     return this;
   }
 
+  
+  // TypeSignatureVisitor
+  
   public void visitBaseType (char descriptor) {
     switch( descriptor) {
       case 'V':
@@ -135,6 +156,8 @@ public class TraceSignatureVisitor implements
         buf.append( "int");  break;
       case 'S':
         buf.append( "short");  break;
+      case 'C':
+        buf.append( "char");  break;
       case 'F':
         buf.append( "float");  break;
       case 'D':
@@ -151,7 +174,7 @@ public class TraceSignatureVisitor implements
   public TypeSignatureVisitor visitArrayType () {
     // TODO where [] must be added? requires to return a new TraceSignatureVisitor instance?
     seenArray = true;
-    return this;  
+    return this;
   }
 
   public void visitClassType (String name) {
@@ -206,8 +229,12 @@ public class TraceSignatureVisitor implements
     }
   }
 
-  public String toString () {
+  public String getDeclaration () {
     return buf.toString();
+  }
+
+  public String getReturnType () {
+    return returnBuf.toString();
   }
 
   // -----------------------------------------------

@@ -1,4 +1,4 @@
-/* $Id: TraceSignatureVisitorTest.java,v 1.1 2005-01-19 04:44:35 ekuleshov Exp $ */
+/* $Id: TraceSignatureVisitorTest.java,v 1.2 2005-01-20 11:13:56 ekuleshov Exp $ */
 
 package org.objectweb.asm.util;
 
@@ -72,7 +72,7 @@ public class TraceSignatureVisitorTest extends TestCase {
       case 'M':  r.acceptMethod( d);  break;
     }
     
-    assertEquals( data.declaration, d.toString());
+    assertEquals( data.declaration, d.getDeclaration());
   }
   
   public String getName() {

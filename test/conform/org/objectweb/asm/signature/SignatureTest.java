@@ -79,10 +79,8 @@ public class SignatureTest extends TestCase {
       SignatureReader rdr = new SignatureReader(signature);
       switch (line.charAt(0)) {
         case 'C':
-          rdr.acceptClass(wrt);
-          break;
         case 'M':
-          rdr.acceptMethod(wrt);
+          rdr.accept(wrt);
           break;
         case 'T':
           rdr.acceptType(wrt);

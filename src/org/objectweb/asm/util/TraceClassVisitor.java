@@ -208,7 +208,7 @@ public class TraceClassVisitor extends TraceAbstractVisitor
       TraceSignatureVisitor signatureVisitor = new TraceSignatureVisitor( access);
 
       SignatureReader r = new SignatureReader( signature);
-      r.acceptClass( signatureVisitor);
+      r.accept( signatureVisitor);
       
       buf.append( signatureVisitor.getDeclaration());
       
@@ -321,7 +321,7 @@ public class TraceClassVisitor extends TraceAbstractVisitor
       TraceSignatureVisitor signatureVisitor = new TraceSignatureVisitor( access);
 
       SignatureReader r = new SignatureReader( signature);
-      r.acceptClass( signatureVisitor);
+      r.accept( signatureVisitor);
       
       buf.append( signatureVisitor.getDeclaration());
       
@@ -380,7 +380,7 @@ public class TraceClassVisitor extends TraceAbstractVisitor
     if( signature!=null) {
       TraceSignatureVisitor v = new TraceSignatureVisitor( 0);
       SignatureReader r = new SignatureReader( signature);
-      r.acceptMethod(v);
+      r.accept(v);
       String declaration = v.getDeclaration();
       String returnType = v.getReturnType();
       // TODO exception descriptor

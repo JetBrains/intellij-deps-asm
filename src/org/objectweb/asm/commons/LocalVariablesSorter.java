@@ -28,7 +28,7 @@
  * THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.objectweb.asm.adapters;
+package org.objectweb.asm.commons;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -49,15 +49,15 @@ import org.objectweb.asm.Type;
  * @author Chris Nokleberg
  */
 
-public class Remapper extends MethodAdapter {
+public class LocalVariablesSorter extends MethodAdapter {
 
   private Map locals = new HashMap();
   
-  private int firstLocal;
+  protected final int firstLocal;
 
   private int nextLocal;
   
-  public Remapper (final int access, final String desc, final MethodVisitor mv) {
+  public LocalVariablesSorter (final int access, final String desc, final MethodVisitor mv) {
     super(mv);
     Type[] args = Type.getArgumentTypes(desc);
     nextLocal = ((Opcodes.ACC_STATIC & access) != 0) ? 0 : 1;
@@ -103,7 +103,7 @@ public class Remapper extends MethodAdapter {
 
   // -------------
   
-  protected int nextLocal (final int size) {
+  protected int newLocal (final int size) {
     int var = nextLocal;
     nextLocal += size;
     return var;
@@ -116,7 +116,7 @@ public class Remapper extends MethodAdapter {
     Integer key = new Integer(size == 2 ? ~var : var);
     Integer value = (Integer)locals.get(key);
     if (value == null) {
-      value = new Integer(nextLocal(size));
+      value = new Integer(newLocal(size));
       locals.put(key, value);
     }
     return value.intValue();

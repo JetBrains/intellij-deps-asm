@@ -28,7 +28,7 @@
  * THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.objectweb.asm.adapters;
+package org.objectweb.asm.commons;
 
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
@@ -103,7 +103,7 @@ import org.objectweb.asm.Opcodes;
  * @author Rajendra Inamdar, Vishal Vishnoi
  */
 
-public class SVUIDAdder extends ClassAdapter {
+public class SerialVersionUIDAdder extends ClassAdapter {
 
   /**
    * Flag that indicates if we need to compute SVUID.
@@ -160,12 +160,12 @@ public class SVUIDAdder extends ClassAdapter {
   protected Collection svuidMethods;
 
   /**
-   * Creates a new {@link SVUIDAdder}.
+   * Creates a new {@link SerialVersionUIDAdder}.
    *
    * @param cv a {@link ClassVisitor} to which this visitor will delegate calls.
    */
   
-  public SVUIDAdder (final ClassVisitor cv){
+  public SerialVersionUIDAdder (final ClassVisitor cv){
     super(cv);
     svuidFields = new ArrayList();    
     svuidConstructors = new ArrayList();
@@ -300,8 +300,12 @@ public class SVUIDAdder extends ClassAdapter {
    * Returns the value of SVUID if the class doesn't have one already. Please
    * note that 0 is returned if the class already has SVUID, thus use 
    * <code>isHasSVUID</code> to determine if the class already had an SVUID.
-   * @return Returns the serila version UID
+   * 
+   * @return Returns the serial version UID
+   * @throws IOException
+   * @throws NoSuchAlgorithmException
    */
+  
   protected long computeSVUID () throws IOException, NoSuchAlgorithmException {
     if (hasSVUID) {
       return 0;
@@ -465,4 +469,3 @@ public class SVUIDAdder extends ClassAdapter {
     }
   }
 }
-

@@ -28,7 +28,7 @@
  * THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.objectweb.asm.adapters;
+package org.objectweb.asm.commons;
 
 import org.objectweb.asm.AnnotationVisitor;
 import org.objectweb.asm.Attribute;
@@ -43,7 +43,7 @@ import org.objectweb.asm.MethodVisitor;
  * @author Eric Bruneton
  */
 
-public class NullVisitor implements 
+public class EmptyVisitor implements 
   ClassVisitor, 
   FieldVisitor, 
   MethodVisitor, 

@@ -32,7 +32,7 @@ package org.objectweb.asm;
 
 import junit.framework.TestSuite;
 
-import org.objectweb.asm.adapters.NullVisitor;
+import org.objectweb.asm.commons.EmptyVisitor;
 
 /**
  * ClassReader tests.
@@ -47,6 +47,6 @@ public class ClassReaderTest extends AbstractTest {
   }
   
   public void test () throws Exception {
-    new ClassReader(is).accept(new NullVisitor(), false);
+    new ClassReader(is).accept(new EmptyVisitor(), false);
   }
 }

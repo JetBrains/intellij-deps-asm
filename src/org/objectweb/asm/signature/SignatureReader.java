@@ -31,7 +31,8 @@
 package org.objectweb.asm.signature;
 
 /**
- * A signature parser to make a signature visitor visit an existing signature.
+ * A type signature parser to make a signature visitor visit an existing 
+ * signature.
  *
  * @author Thomas Hallgren
  * @author Eric Bruneton
@@ -48,8 +49,8 @@ public class SignatureReader {
   /**
    * Constructs a {@link SignatureReader} for the given signature.
    *
-   * @param signature A <i>ClassSignature</i>, <i>FieldTypeSignature</i>, or
-   *      <i>MethodTypeSignature</i>.
+   * @param signature A <i>ClassSignature</i>, <i>MethodTypeSignature</i>, or 
+   *      <i>FieldTypeSignature</i>.
    */
 
   public SignatureReader (final String signature) {
@@ -61,44 +62,60 @@ public class SignatureReader {
    * This signature is the one specified in the constructor (see
    * {@link #SignatureReader(String) SignatureReader}). This method is intended 
    * to be called on a {@link SignatureReader} that was created using a 
-   * <i>ClassSignature</i>, such as the  <code>signature</code> parameter of 
-   * the {@link org.objectweb.asm.ClassVisitor#visit ClassVisitor.visit} method.
+   * <i>ClassSignature</i> (such as the  <code>signature</code> parameter of 
+   * the {@link org.objectweb.asm.ClassVisitor#visit ClassVisitor.visit} 
+   * method) or a <i>MethodTypeSignature</i> (such as the <code>signature</code> 
+   * parameter of the 
+   * {@link org.objectweb.asm.ClassVisitor#visitMethod ClassVisitor.visitMethod} 
+   * method).
    *
    * @param v the visitor that must visit this signature.
    */
 
-  public void acceptClass (final ClassSignatureVisitor v) {
+  public void accept (final SignatureVisitor v) {
     String signature = this.signature;
     int len = signature.length();
-    int pos = formalTypeParameters(signature, v);
-    pos = parseType(signature, pos, v.visitSuperclass());
-    while (pos < len) {
-      pos = parseType(signature, pos, v.visitInterface());
+    int pos;
+    char c;
+    
+    if (signature.charAt(0) == '<') {
+      pos = 2;
+      do {
+        int end = signature.indexOf(':', pos);
+        v.visitFormalTypeParameter(signature.substring(pos - 1, end));
+        pos = end + 1;
+        
+        c = signature.charAt(pos);
+        if (c == 'L' || c == '[' || c == 'T') {
+          pos = parseType(signature, pos, v.visitClassBound());
+        }
+        
+        for (;;) {
+          if ((c = signature.charAt(pos++)) == ':') {
+            pos = parseType(signature, pos, v.visitInterfaceBound());
+          } else {
+            break;
+          }
+        }
+      } while (c != '>');
+    } else {
+      pos = 0;
     }
-  }
-
-  /**
-   * Makes the given visitor visit the signature of this {@link SignatureReader}.
-   * This signature is the one specified in the constructor (see
-   * {@link #SignatureReader(String) SignatureReader}). This method is intended 
-   * to be called on a {@link SignatureReader} that was created using a 
-   * <i>MethodTypeSignature</i>, such as the  <code>signature</code> parameter 
-   * of the {@link org.objectweb.asm.ClassVisitor#visitMethod 
-   * ClassVisitor.visitMethod} method.
-   *
-   * @param v the visitor that must visit this signature.
-   */
-
-  public void acceptMethod (final MethodSignatureVisitor v) {
-    String signature = this.signature;
-    int len = signature.length();
-    int pos = formalTypeParameters(signature, v) + 1;
-    while (signature.charAt(pos) != ')') {
-      pos = parseType(signature, pos, v.visitParameterType());
-    }
-    pos = parseType(signature, pos + 1, v.visitReturnType());
-    while (pos < len) {
-      pos = parseType(signature, pos + 1, v.visitExceptionType());
+    
+    if (signature.charAt(pos) == '(') {
+      pos = pos + 1;
+      while (signature.charAt(pos) != ')') {
+        pos = parseType(signature, pos, v.visitParameterType());
+      }
+      pos = parseType(signature, pos + 1, v.visitReturnType());
+      while (pos < len) {
+        pos = parseType(signature, pos + 1, v.visitExceptionType());
+      }
+    } else {
+      pos = parseType(signature, pos, v.visitSuperclass());
+      while (pos < len) {
+        pos = parseType(signature, pos, v.visitInterface());
+      }
     }
   }
 
@@ -116,7 +133,7 @@ public class SignatureReader {
    * @param v the visitor that must visit this signature.
    */
 
-  public void acceptType (final TypeSignatureVisitor v) {
+  public void acceptType (final SignatureVisitor v) {
     parseType(this.signature, 0, v);
   }
 
@@ -132,7 +149,7 @@ public class SignatureReader {
   private static int parseType (
     final String signature, 
     int pos, 
-    final TypeSignatureVisitor v)
+    final SignatureVisitor v)
   {
     char c;
     int start, end;
@@ -212,47 +229,5 @@ public class SignatureReader {
           }
         }
     }
-  }
-
-  /**
-   * Parses optional formal type parameters and makes the given visitor visit 
-   * them.
-   * 
-   * @param signature a string containing the parameters that must be parsed.
-   * @param v the visitor that must visit these parameters.
-   * @return the index of the first character after the parsed parameters.
-   */
-
-  private static int formalTypeParameters (
-    final String signature, 
-    final AbstractSignatureVisitor v) 
-  {
-    if (signature.charAt(0) != '<') {
-      return 0;
-    }
-
-    char c;
-    int pos = 2;
-
-    do {
-      int end = signature.indexOf(':', pos);
-      v.visitFormalTypeParameter(signature.substring(pos - 1, end));
-      pos = end + 1;
-
-      c = signature.charAt(pos);
-      if (c == 'L' || c == '[' || c == 'T') {
-        pos = parseType(signature, pos, v.visitClassBound());
-      }
-
-      for (;;) {
-        if ((c = signature.charAt(pos++)) == ':') {
-          pos = parseType(signature, pos, v.visitInterfaceBound());
-        } else {
-          break;
-        }
-      }
-    } while (c != '>');
-
-    return pos;
   }
 }

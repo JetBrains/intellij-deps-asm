@@ -31,15 +31,9 @@
 package org.objectweb.asm.util;
 
 import org.objectweb.asm.Opcodes;
-import org.objectweb.asm.signature.ClassSignatureVisitor;
-import org.objectweb.asm.signature.MethodSignatureVisitor;
-import org.objectweb.asm.signature.TypeSignatureVisitor;
+import org.objectweb.asm.signature.SignatureVisitor;
 
-public class TraceSignatureVisitor implements
-  ClassSignatureVisitor,
-  MethodSignatureVisitor,
-  TypeSignatureVisitor
-{
+public class TraceSignatureVisitor implements SignatureVisitor {
 
   private StringBuffer buf = new StringBuffer();
   private StringBuffer returnBuf = null;
@@ -82,12 +76,12 @@ public class TraceSignatureVisitor implements
     seenInterfaceBound = false;
   }
 
-  public TypeSignatureVisitor visitClassBound () {
+  public SignatureVisitor visitClassBound () {
     separator = " extends ";
     return this;
   }
 
-  public TypeSignatureVisitor visitInterfaceBound () {
+  public SignatureVisitor visitInterfaceBound () {
     separator = seenInterfaceBound ? ", " : (isInterface ? " extends " : " implements ");
     seenInterfaceBound = true;
     return this;
@@ -96,13 +90,13 @@ public class TraceSignatureVisitor implements
   
   // ClassSignatureVisitor
   
-  public TypeSignatureVisitor visitSuperclass () {
+  public SignatureVisitor visitSuperclass () {
     endFormals();
     separator = " extends ";
     return this;
   }
 
-  public TypeSignatureVisitor visitInterface () {
+  public SignatureVisitor visitInterface () {
     separator = seenInterface ? ", " : (isInterface ? " extends " : " implements ");
     seenInterface = true;
     return this;
@@ -111,7 +105,7 @@ public class TraceSignatureVisitor implements
   
   // MethodsignatureVisitor
   
-  public TypeSignatureVisitor visitParameterType () {
+  public SignatureVisitor visitParameterType () {
     endFormals();
     if (!seenParameter) {
       seenParameter = true;
@@ -122,7 +116,7 @@ public class TraceSignatureVisitor implements
     return this;
   }
 
-  public TypeSignatureVisitor visitReturnType () {
+  public SignatureVisitor visitReturnType () {
     endFormals();
     if (!seenParameter) {
       buf.append('(');
@@ -133,7 +127,7 @@ public class TraceSignatureVisitor implements
     return new TraceSignatureVisitor( 0, returnBuf);
   }
 
-  public TypeSignatureVisitor visitExceptionType () {
+  public SignatureVisitor visitExceptionType () {
     buf.append(seenException ? ", " : " throws ");
     seenException = true;
     return this;
@@ -171,7 +165,7 @@ public class TraceSignatureVisitor implements
     buf.append(name);
   }
 
-  public TypeSignatureVisitor visitArrayType () {
+  public SignatureVisitor visitArrayType () {
     // TODO where [] must be added? requires to return a new TraceSignatureVisitor instance?
     seenArray = true;
     return this;
@@ -199,7 +193,7 @@ public class TraceSignatureVisitor implements
     buf.append( "?");
   }
 
-  public TypeSignatureVisitor visitTypeArgument (char tag) {
+  public SignatureVisitor visitTypeArgument (char tag) {
     if (argumentStack%2 == 0) {
       ++argumentStack;
       buf.append("<");
@@ -207,9 +201,9 @@ public class TraceSignatureVisitor implements
       buf.append(", ");
     }
 
-    if( tag==TypeSignatureVisitor.EXTENDS) {
+    if( tag==SignatureVisitor.EXTENDS) {
       buf.append( "? extends ");
-    } else if( tag==TypeSignatureVisitor.SUPER) {
+    } else if( tag==SignatureVisitor.SUPER) {
       buf.append( "? super ");
     }
     

@@ -1,4 +1,4 @@
-/* $Id: TraceSignatureVisitorTest.java,v 1.2 2005-01-20 11:13:56 ekuleshov Exp $ */
+/* $Id: TraceSignatureVisitorTest.java,v 1.3 2005-01-24 08:21:40 ebruneton Exp $ */
 
 package org.objectweb.asm.util;
 
@@ -67,9 +67,9 @@ public class TraceSignatureVisitorTest extends TestCase {
     SignatureReader r = new SignatureReader( data.signature);
 
     switch( data.type) {
-      case 'C':  r.acceptClass( d);   break;
+      case 'C':  r.accept( d);   break;
       case 'F':  r.acceptType( d);    break;
-      case 'M':  r.acceptMethod( d);  break;
+      case 'M':  r.accept( d);  break;
     }
     
     assertEquals( data.declaration, d.getDeclaration());

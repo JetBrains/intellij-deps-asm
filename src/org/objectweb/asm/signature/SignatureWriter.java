@@ -37,11 +37,7 @@ package org.objectweb.asm.signature;
  * @author Eric Bruneton
  */
 
-public class SignatureWriter implements
-  ClassSignatureVisitor,
-  MethodSignatureVisitor,
-  TypeSignatureVisitor
-{
+public class SignatureWriter implements SignatureVisitor {
 
   /**
    * Buffer used to construct the signature.
@@ -89,11 +85,11 @@ public class SignatureWriter implements
     buf.append(':');
   }
 
-  public TypeSignatureVisitor visitClassBound () {
+  public SignatureVisitor visitClassBound () {
     return this;
   }
 
-  public TypeSignatureVisitor visitInterfaceBound () {
+  public SignatureVisitor visitInterfaceBound () {
     buf.append(':');
     return this;
   }
@@ -102,12 +98,12 @@ public class SignatureWriter implements
   // Implementation of the ClassSignatureVisitor interface
   // --------------------------------------------------------------------------
 
-  public TypeSignatureVisitor visitSuperclass () {
+  public SignatureVisitor visitSuperclass () {
     endFormals();
     return this;
   }
 
-  public TypeSignatureVisitor visitInterface () {
+  public SignatureVisitor visitInterface () {
     return this;
   }
 
@@ -115,7 +111,7 @@ public class SignatureWriter implements
   // Implementation of the MethodSignatureVisitor interface
   // --------------------------------------------------------------------------
 
-  public TypeSignatureVisitor visitParameterType () {
+  public SignatureVisitor visitParameterType () {
     endFormals();
     if (!hasParameters) {
       hasParameters = true;
@@ -124,7 +120,7 @@ public class SignatureWriter implements
     return this;
   }
 
-  public TypeSignatureVisitor visitReturnType () {
+  public SignatureVisitor visitReturnType () {
     endFormals();
     if (!hasParameters) {
       buf.append('(');
@@ -133,7 +129,7 @@ public class SignatureWriter implements
     return this;
   }
 
-  public TypeSignatureVisitor visitExceptionType () {
+  public SignatureVisitor visitExceptionType () {
     buf.append('^');
     return this;
   }
@@ -152,7 +148,7 @@ public class SignatureWriter implements
     buf.append(';');
   }
 
-  public TypeSignatureVisitor visitArrayType () {
+  public SignatureVisitor visitArrayType () {
     buf.append('[');
     return this;
   }
@@ -178,7 +174,7 @@ public class SignatureWriter implements
     buf.append('*');
   }
 
-  public TypeSignatureVisitor visitTypeArgument (char wildcard) {
+  public SignatureVisitor visitTypeArgument (char wildcard) {
     if (argumentStack%2 == 0) {
       ++argumentStack;
       buf.append('<');

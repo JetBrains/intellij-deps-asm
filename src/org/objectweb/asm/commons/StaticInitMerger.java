@@ -28,45 +28,74 @@
  * THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.objectweb.asm.signature;
+package org.objectweb.asm.commons;
+
+import org.objectweb.asm.ClassAdapter;
+import org.objectweb.asm.ClassVisitor;
+import org.objectweb.asm.MethodVisitor;
+import org.objectweb.asm.Opcodes;
 
 /**
- * A visitor to visit the signature of a method. The methods of this interface 
- * must be called in the following order: 
- * ( <tt>visitFormalTypeParameter</tt> 
- *   <tt>visitClassBound</tt>? 
- *   <tt>visitInterfaceBound</tt>* )*
- * <tt>visitParameterType</tt>* 
- * <tt>visitReturnType</tt> 
- * <tt>visitExceptionType</tt>*.
+ * A {@link ClassAdapter} that merges clinit methods into a single one.
  * 
- * @author Thomas Hallgren
- * @author Eric Bruneton 
+ * @author Eric Bruneton
  */
 
-public interface MethodSignatureVisitor extends AbstractSignatureVisitor {
+public class StaticInitMerger extends ClassAdapter {
 
-  /** 
-   * Visits the type of a method parameter.
-   * 
-   * @return a non null visitor to visit the signature of the parameter type.
-   */
+  private String name;
   
-  TypeSignatureVisitor visitParameterType ();
+  private MethodVisitor clinit;
 
-  /**
-   * Visits the return type of the method.
-   *  
-   * @return a non null visitor to visit the signature of the return type.
-   */
+  private String prefix;
   
-  TypeSignatureVisitor visitReturnType ();
+  private int counter;
+  
+  public StaticInitMerger (final String prefix, final ClassVisitor cv) {
+    super(cv);
+    this.prefix = prefix;
+  }
 
-  /**
-   * Visits the type of a method exception.
-   * 
-   * @return a non null visitor to visit the signature of the exception type.
-   */
+  public void visit (
+    final int version,
+    final int access, 
+    final String name, 
+    final String signature,
+    final String superName, 
+    final String[] interfaces) 
+  {
+    cv.visit(version, access, name, signature, superName, interfaces);
+    this.name = name;
+  }
   
-  TypeSignatureVisitor visitExceptionType ();
+  public MethodVisitor visitMethod (
+    final int access, 
+    final String name, 
+    final String desc,
+    final String signature, 
+    final String[] exceptions) 
+  {
+    MethodVisitor mv;
+    if (name.equals("<clinit>")) {
+      int a = Opcodes.ACC_PRIVATE + Opcodes.ACC_STATIC;
+      String n = prefix + counter++;
+      mv = cv.visitMethod(a, n, desc, signature, exceptions);
+      
+      if (clinit == null) {
+        clinit = cv.visitMethod(a, name, desc, null, null);
+      }
+      clinit.visitMethodInsn(Opcodes.INVOKESTATIC, this.name, n, desc);
+    } else {
+      mv = cv.visitMethod(access, name, desc, signature, exceptions);
+    }
+    return mv;
+  }
+
+  public void visitEnd () {
+    if (clinit != null) {
+      clinit.visitInsn(Opcodes.RETURN);
+      clinit.visitMaxs(0, 0);
+    }
+    cv.visitEnd();
+  }
 }

@@ -185,8 +185,32 @@ public class ASMifierClassVisitor extends PrintClassVisitor {
     text.add("CodeVisitor cv;\n\n");
 
     buf.setLength(0);
-    buf.append("cw.visit(");
-    buf.append(version);
+    buf.append("cw.visit(");    
+    switch(version) {
+      case Constants.V1_1:
+        buf.append("V1_1");
+        break;
+      
+      case Constants.V1_2:
+        buf.append("V1_2");
+        break;
+      
+      case Constants.V1_3:
+        buf.append("V1_3");
+        break;
+      
+      case Constants.V1_4:
+        buf.append("V1_4");
+        break;
+      
+      case Constants.V1_5:
+        buf.append("V1_5");
+        break;
+  
+      default:
+        buf.append(version);
+        break;
+    }
     buf.append(", ");
     appendAccess(access | ACCESS_CLASS);
     buf.append(", ");

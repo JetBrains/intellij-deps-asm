@@ -74,6 +74,7 @@
         <isset property="bcel.path"/>
         <isset property="serp.path"/>
         <isset property="javassist.path"/>
+        <isset property="janino.path"/>
       </and>
     </condition>
   </target>
@@ -95,6 +96,7 @@
       <pathelement path="${bcel.path}"/>
       <pathelement path="${serp.path}"/>  
       <pathelement path="${javassist.path}"/>
+      <pathelement path="${janino.path}"/>
     </path>
   </target>
   

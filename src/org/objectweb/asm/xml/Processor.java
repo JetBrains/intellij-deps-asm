@@ -39,7 +39,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
-import java.io.PrintWriter;
 import java.io.Writer;
 import java.util.Observable;
 import java.util.Observer;
@@ -47,7 +46,6 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
-import javax.xml.transform.Result;
 import javax.xml.transform.Source;
 import javax.xml.transform.Templates;
 import javax.xml.transform.TransformerConfigurationException;
@@ -57,11 +55,10 @@ import javax.xml.transform.sax.SAXResult;
 import javax.xml.transform.sax.SAXSource;
 import javax.xml.transform.sax.SAXTransformerFactory;
 import javax.xml.transform.sax.TransformerHandler;
-import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 
 import org.objectweb.asm.ClassReader;
-import org.objectweb.asm.util.TraceClassVisitor;
+
 import org.xml.sax.Attributes;
 import org.xml.sax.ContentHandler;
 import org.xml.sax.InputSource;
@@ -75,7 +72,7 @@ import org.xml.sax.helpers.XMLReaderFactory;
 
 /**
  * Processor is a command line tool that can be used for
- * bytecode waving using XSL transformation.
+ * bytecode waving directed by XSL transformation.
  * <p>
  * In order to use a concrete XSLT engine, system property
  * <tt>javax.xml.transform.TransformerFactory</tt> must be set to
@@ -112,48 +109,43 @@ import org.xml.sax.helpers.XMLReaderFactory;
  * 
  * @author Eugene Kuleshov
  */
-public class Processor extends Observable {
-  private static final String XML2XML = "xml2xml";
-  private static final String CODE2CODE = "code2code";
-  private static final String XML2CODE = "xml2code";
-  private static final String CODE2XML = "code2xml";
-  private static final String CODE2ASM = "code2asm";
+public class Processor extends Observable implements Observer {
+  public static final int BYTECODE = 1;
+  public static final int MULTI_XML = 2;
+  public static final int SINGLE_XML = 3;
 
-  private String command = null;
+  private static final String SINGLE_XML_NAME = "classes.xml";
+
+  private int inRepresentation;
+  private int outRepresentation;
+  
   private InputStream input = null;
   private OutputStream output = null;
   private Source xslt = null;
   private boolean computeMax;
-  private boolean singleDocument;
   
+  private int n = 0;
+
   
-  public Processor( String command, InputStream input, OutputStream output, Source xslt, boolean computeMax, boolean singleDocument) {
-  	this.command = command;
-  	this.input = input;
+  public Processor( int inRepresenation, int outRepresentation, 
+        InputStream input, OutputStream output, Source xslt, boolean computeMax) {
+    this.inRepresentation = inRepresenation;
+    this.outRepresentation = outRepresentation;
+    this.input = input;
   	this.output = output;
   	this.xslt = xslt;
     this.computeMax = computeMax;
-    this.singleDocument = singleDocument;
   }
 	
-  private void process() throws TransformerException, IOException, SAXException {
+  private int process() throws TransformerException, IOException, SAXException {
     ZipInputStream zis = new ZipInputStream( input);
-    ZipOutputStream zos = new ZipOutputStream( new BufferedOutputStream( output));
-    OutputStreamWriter osw = new OutputStreamWriter( zos);
-    
-    /*
-    XSLTC xsltc = new XSLTC();
-    xsltc.init();
-    xsltc.setOutputType( XSLTC.FILE_OUTPUT);
-    xsltc.setTemplateInlining(true);
-    xsltc.compile( c.getResource( "copy.xsl"));
-    System.err.println( xsltc.getClassName());
-    */
+    final ZipOutputStream zos = new ZipOutputStream( new BufferedOutputStream( output));
+    final OutputStreamWriter osw = new OutputStreamWriter( zos);
     
     Thread.currentThread().setContextClassLoader( getClass().getClassLoader());
     
     TransformerFactory tf = TransformerFactory.newInstance();
-    if( !tf.getFeature( SAXSource.FEATURE) || !tf.getFeature( SAXResult.FEATURE)) return;
+    if( !tf.getFeature( SAXSource.FEATURE) || !tf.getFeature( SAXResult.FEATURE)) return 0;
     
     SAXTransformerFactory saxtf = ( SAXTransformerFactory) tf;
     Templates templates = null;
@@ -161,70 +153,76 @@ public class Processor extends Observable {
       templates = saxtf.newTemplates( xslt);
     }
     
-    ZipEntry outputEntry = null;
-    SubdocumentHandler rootHandler = null;
-    ContentHandlerFactory handlerFactory = null;
-    if( singleDocument) {
-      outputEntry = new ZipEntry( "classes.xml");
-      zos.putNextEntry( outputEntry);
-      
-      // rootHandler = new SAXWriter( new OutputStreamWriter( zos));
-      rootHandler = new SubdocumentHandler( "class", new SAXWriter( osw, false), getHandlerFactory( zos, saxtf, templates));
-      rootHandler.startDocument();
-      rootHandler.startElement( "", "classes", "classes", new AttributesImpl());
-      osw.flush();
-      
-      handlerFactory = new SubdocumentHandlerFactory( rootHandler);   
 
-    } else {
-      handlerFactory = getHandlerFactory( zos, saxtf, templates);
+    // configuring outHandlerFactory ///////////////////////////////////////////////////////
+
+    EntryElement entryElement = getEntryElement( zos);
+
+    ContentHandler outDocHandler = null;    
+    switch( outRepresentation) {
+      case BYTECODE:
+        outDocHandler = new OutputSlicingHandler( new ASMContentHandlerFactory( zos, computeMax), entryElement, false);
+        break;
+      
+      case MULTI_XML:
+        outDocHandler = new OutputSlicingHandler( new SAXWriterFactory( osw, true), entryElement, true);
+        break;
     
+      case SINGLE_XML:
+        ZipEntry outputEntry = new ZipEntry( SINGLE_XML_NAME);
+        zos.putNextEntry( outputEntry);
+        outDocHandler = new SAXWriter( osw, false);
+        break;
+
     }
     
-    long l1 = System.currentTimeMillis();
+    // configuring inputDocHandlerFactory /////////////////////////////////////////////////
+    ContentHandler inDocHandler = null;
+    if( templates==null) {
+      inDocHandler = outDocHandler;
+    } else {
+      inDocHandler = new InputSlicingHandler( "class", outDocHandler, 
+          new TransformerHandlerFactory( saxtf, templates, outDocHandler));
+    }
+    ContentHandlerFactory inDocHandlerFactory = new SubdocumentHandlerFactory( inDocHandler);   
 
+    if( inRepresentation!=SINGLE_XML) {
+      inDocHandler.startDocument();
+      inDocHandler.startElement( "", "classes", "classes", new AttributesImpl());
+    }
+    
     int n = 0;
     ZipEntry ze = null;
     while(( ze = zis.getNextEntry())!=null) {
-      if( !singleDocument) {
-        outputEntry = new ZipEntry( getName( ze));
-        zos.putNextEntry( outputEntry);
-      }
-
       if( isClassEntry( ze)) {
-        processEntry( zis, ze, zos, handlerFactory);
+        processEntry( zis, ze, inDocHandlerFactory);
       } else {
-        copyEntry( zis, zos);
-      }
-      zos.flush();
-      if( !singleDocument) {
-        zos.closeEntry();
-      }
+        OutputStream os = entryElement.openEntry( getName( ze));
+        copyEntry( zis, os);
+        entryElement.closeEntry();
+      }      
       
       n++;
-      if(( n % 100)==0) {
-        setChanged();
-        notifyObservers( Integer.toString( n));
-      }
+      setChanged();
+      notifyObservers( ze.getName());
     }
-    long l2 = System.currentTimeMillis();
+    
+    if( inRepresentation!=SINGLE_XML) {
+      inDocHandler.endElement( "", "classes", "classes");
+      inDocHandler.endDocument();
+    }
 
-    if( singleDocument) {
-      rootHandler.endElement( "", "classes", "classes");
-      rootHandler.endDocument();
-      osw.flush();
-      
+    if( outRepresentation==SINGLE_XML) {
       zos.closeEntry();
     }
     zos.flush();
     zos.close();
-
-    setChanged();
-    notifyObservers( ""+( l2-l1)+"ms "+(1000f*n/( l2-l1))+"files/sec");
+    
+    return n;
   }
 
   private void copyEntry( InputStream is, OutputStream os) throws IOException {
-    if( singleDocument) return;
+    if( outRepresentation==SINGLE_XML) return;
       
     byte[] buff = new byte[2048];
     int n;
@@ -234,28 +232,31 @@ public class Processor extends Observable {
   }
 
   private boolean isClassEntry( ZipEntry ze) {
-    return ze.getName().endsWith( ".class") || ze.getName().endsWith( ".class.xml");
+    String name = ze.getName();
+    return inRepresentation==SINGLE_XML && name.equals( SINGLE_XML_NAME) || 
+        name.endsWith( ".class") || name.endsWith( ".class.xml");
   }
 
-  private void processEntry( ZipInputStream zis, ZipEntry ze, OutputStream os, ContentHandlerFactory handlerFactory) {
+  private void processEntry( final ZipInputStream zis, ZipEntry ze, ContentHandlerFactory handlerFactory) {
     ContentHandler handler = handlerFactory.createContentHandler();
     try {
-      if( CODE2CODE.equals( command) || CODE2XML.equals( command)) {
-        ClassReader cr = new ClassReader( readEntry( zis, ze));
-        cr.accept( new SAXClassAdapter( handler, cr.getVersion(), singleDocument), false);
-      
-      } else if( CODE2ASM.equals( command)) {
+      /*
+      if( CODE2ASM.equals( command)) {
+        // read bytecode and process it with TraceClassVisitor  
         ClassReader cr = new ClassReader( readEntry( zis, ze));
         cr.accept( new TraceClassVisitor( null, new PrintWriter( os)), false);
-        
-      } else {
+      */
+      boolean singleInputDocument = inRepresentation==SINGLE_XML;
+      if( inRepresentation==BYTECODE) {  // read bytecode and process it with handler
+        ClassReader cr = new ClassReader( readEntry( zis, ze));
+        cr.accept( new SAXClassAdapter( handler, cr.getVersion(), singleInputDocument), false);
+      
+      } else {  // read XML and process it with handler  
         XMLReader reader = XMLReaderFactory.createXMLReader();
-        reader.setContentHandler( handler);
-        if( singleDocument) {
-          reader.parse( new InputSource( zis));
-        } else {
-          reader.parse( new InputSource( new ByteArrayInputStream( readEntry(zis, ze))));
-        }      
+        reader.setContentHandler( handler);        
+        reader.parse( new InputSource( singleInputDocument ? 
+            ( InputStream) new ProtectedInputStream( zis) : new ByteArrayInputStream( readEntry( zis, ze))));
+      
       }
     } catch( Exception ex) {
       setChanged();
@@ -265,36 +266,49 @@ public class Processor extends Observable {
     }
   }
 
+  private EntryElement getEntryElement( ZipOutputStream zos) {
+    if( outRepresentation==SINGLE_XML) {
+      return new SingleDocElement( zos);
+    } else {
+      return new ZipEntryElement( zos);
+    }
+  }
+
+  /*
   private ContentHandlerFactory getHandlerFactory( OutputStream os, SAXTransformerFactory saxtf, Templates templates) {
     ContentHandlerFactory factory = null;
     if( templates==null) {
-      // handler = saxtf.newTransformerHandler();
-      if( CODE2CODE.equals( command) || XML2CODE.equals( command)) {
+      if( outputRepresentation==BYTECODE) {
+        // factory used to write bytecode 
         factory = new ASMContentHandlerFactory( os, computeMax);
       } else {
+        // factory used to write XML
         factory = new SAXWriterFactory( os, true); 
       }      
     } else {
-      if( CODE2CODE.equals( command) || XML2CODE.equals( command)) {
+      if( outputRepresentation==BYTECODE) {
+        // factory used to transform and then write bytecode 
         factory = new ASMTransformerHandlerFactory( saxtf, templates, os, computeMax);
       } else {
-        factory = new TransformerHandlerFactory( saxtf, templates, os, singleDocument);
+        // factory used to transform and then write XML 
+        factory = new TransformerHandlerFactory( saxtf, templates, os, outputRepresentation==SINGLE_XML);
       }
     }
     
     return factory;
   }
+  */
 
   private String getName( ZipEntry ze) {
     String name = ze.getName();
     if( isClassEntry( ze)) {
-      if( XML2CODE.equals( command)) {
+      if( inRepresentation!=BYTECODE && outRepresentation==BYTECODE) {
         name = name.substring( 0, name.length()-4);  // .class.xml to .class
-      } else if( CODE2XML.equals( command)) {
+      } else if( inRepresentation==BYTECODE && outRepresentation!=BYTECODE) {
         name = name.concat( ".xml");  // .class to .class.xml
-      } else if( CODE2ASM.equals( command)) {
-        name = name.substring( 0, name.length()-6).concat( ".asm");
       }
+      // } else if( CODE2ASM.equals( command)) {
+      //   name = name.substring( 0, name.length()-6).concat( ".asm");
     } 
     return name;
   }
@@ -316,16 +330,38 @@ public class Processor extends Observable {
     }
   }
   
+
+  /*
+   *  (non-Javadoc)
+   * @see java.util.Observer#update(java.util.Observable, java.lang.Object)
+   */
+  public void update( Observable o, Object arg) {
+    if( arg instanceof Throwable) {
+      (( Throwable) arg).printStackTrace();
+    } else {
+      if(( n % 100)==0) {
+        System.err.println( n+" "+arg);
+      }
+    }
+    n++;
+  }
   
   public static void main( String[] args) throws Exception {
-    String command = null;
+    if( args.length<2) {
+      showUsage();
+      return;
+    }
+    
+    int inRepresentation = getRepresentation( args[ 0]);
+    int outRepresentation = getRepresentation( args[ 1]);
+    
     InputStream is = null;
     OutputStream os = null;
-    Source xslt = null;
-    boolean computeMax = false;
-    boolean singleDocument = false;
     
-    for( int i = 0; i<args.length; i++) {
+    Source xslt = null;
+    boolean computeMax = true;
+    
+    for( int i = 2; i<args.length; i++) {
       if( "-in".equals( args[ i])) {
         is = new FileInputStream( args[ ++i]);    
       
@@ -335,26 +371,8 @@ public class Processor extends Observable {
       } else if( "-xslt".equals( args[ i])) {
         xslt = new StreamSource( new FileInputStream( args[ ++i]));    
       
-      } else if( CODE2XML.equals( args[ i])) {
-        command = CODE2XML;
-      
-      } else if( CODE2CODE.equals( args[ i])) {
-        command = CODE2CODE;
-      
-      } else if( CODE2ASM.equals( args[ i])) {
-        command = CODE2ASM;
-      
-      } else if( XML2CODE.equals( args[ i])) {
-        command = XML2CODE;
-      
-      } else if( XML2XML.equals( args[ i])) {
-        command = XML2XML;
-      
       } else if( "-computemax".equals( args[ i].toLowerCase())) {
         computeMax = true;
-      
-      } else if( "-singledocument".equals( args[ i].toLowerCase())) {
-        singleDocument = true;
       
       } else {
         showUsage();
@@ -363,29 +381,83 @@ public class Processor extends Observable {
       }
     }
     
-    if( command==null || is==null || os==null) {
+    if( is==null || os==null || inRepresentation==0 || outRepresentation==0) {
       showUsage();
       return;
     }
     
-    Processor m = new Processor( command, is, os, xslt, computeMax, singleDocument);
-    m.addObserver( new Observer() {
-      public void update( Observable o, Object arg) {
-        if( arg instanceof Throwable) {
-          (( Throwable) arg).printStackTrace();
-        } else {
-          System.err.println( arg);
-        }
-      } });
-    m.process();
+    Processor m = new Processor( inRepresentation, outRepresentation, is, os, xslt, computeMax);
+    m.addObserver( m);
+    
+    long l1 = System.currentTimeMillis();
+    int n = m.process();
+    long l2 = System.currentTimeMillis();
+    System.err.println( n);
+    System.err.println( ""+( l2-l1)+"ms  "+(1000f*n/( l2-l1))+" files/sec");
+  }
+
+  private static int getRepresentation( String s) {
+    if( "code".equals( s)) {
+      return BYTECODE;
+    } else if( "xml".equals( s)) {
+      return MULTI_XML;
+    } else if( "singlexml".equals( s)) {
+      return SINGLE_XML;
+    }    
+    return 0;
   }
 
   private static void showUsage() {
-    System.err.println( "Usage: Main <command> -in <input jar> -out <output jar> [-xslt <xslt fiel>]");
-    System.err.println( "  <command> is one of "+CODE2XML+", "+XML2CODE+", "+XML2XML+", "+CODE2XML+", "+CODE2ASM);
+    System.err.println( "Usage: Main <in format> <out format> [-computemax] -in <input jar> -out <output jar> [-xslt <xslt fiel>]");
+    System.err.println( "  <in format> and <out format> - code | xml | singlexml");
   }
 
   
+  /**
+   * IputStream wrapper class used to protect input streams from being
+   * closed by some stupid XML parsers. 
+   */
+  private static final class ProtectedInputStream extends InputStream {
+    private final InputStream is;
+
+    private ProtectedInputStream( InputStream is) {
+      super();
+      this.is = is;
+    }
+
+    public void close() throws IOException {
+    }
+
+    public int read() throws IOException {
+      return is.read();
+    }
+
+    public int read( byte[] b, int off, int len) throws IOException {
+      return is.read( b, off, len);
+    }
+
+    public int available() throws IOException {
+      return is.available();
+    }
+  }
+
+
+  /**
+   * A {@link ContentHandlerFactory ContentHandlerFactory} is used to create 
+   * {@link org.xml.sax.ContentHandler ContentHandler} instances for concrete context.
+   */
+  private static interface ContentHandlerFactory {
+
+    /**
+     * Creates an instance of the content handler.
+     * 
+     * @return content handler
+     */
+    ContentHandler createContentHandler();
+    
+  }
+
+
   /**
    * SAXWriterFactory
    */
@@ -393,8 +465,8 @@ public class Processor extends Observable {
     private Writer w;
     private boolean optimizeEmptyElements;
   
-    public SAXWriterFactory( OutputStream os, boolean optimizeEmptyElements) {
-      this.w = new OutputStreamWriter( os);
+    public SAXWriterFactory( Writer w, boolean optimizeEmptyElements) {
+      this.w = w;
       this.optimizeEmptyElements = optimizeEmptyElements;
     }
     
@@ -404,52 +476,25 @@ public class Processor extends Observable {
     
   }
   
+  
   /**
    * ASMContentHandlerFactory
    */
   private static final class ASMContentHandlerFactory implements ContentHandlerFactory {
-    private Writer w;
-    private boolean computeMax;
-  
-    public ASMContentHandlerFactory( OutputStream os, boolean computeMax) {
-      this.w = new OutputStreamWriter( os);
-      this.computeMax = computeMax;
-    }
-    
-    public ContentHandler createContentHandler() {
-      return new SAXWriter( w, computeMax);
-    }
-    
-  }
-  
-  /**
-   * ASMTransformerHandlerFactory
-   */
-  private static final class ASMTransformerHandlerFactory implements ContentHandlerFactory {
-    private SAXTransformerFactory saxtf;
-    private Templates templates;
     private OutputStream os;
     private boolean computeMax;
   
-    public ASMTransformerHandlerFactory(SAXTransformerFactory saxtf, Templates templates, 
-          OutputStream os, boolean computeMax) {
-      this.saxtf = saxtf;
-      this.templates = templates;
+    public ASMContentHandlerFactory( OutputStream os, boolean computeMax) {
       this.os = os;
       this.computeMax = computeMax;
     }
     
     public ContentHandler createContentHandler() {
-      try {
-        TransformerHandler handler = saxtf.newTransformerHandler( templates);
-        handler.setResult( new SAXResult( new ASMContentHandler( os, computeMax)));
-        return handler;
-      } catch( TransformerConfigurationException ex) {
-        throw new RuntimeException( ex.toString());
-      }
+      return new ASMContentHandler( os, computeMax);
     }
     
   }
+  
   
   /**
    * TransformerHandlerFactory
@@ -457,32 +502,19 @@ public class Processor extends Observable {
   private static final class TransformerHandlerFactory implements ContentHandlerFactory {
     private SAXTransformerFactory saxtf;
     private Templates templates;
-    private OutputStream os;
-    private boolean singleDocument;
+    private ContentHandler outputHandler;
   
-    public TransformerHandlerFactory(SAXTransformerFactory saxtf, Templates templates, 
-          OutputStream os, boolean singleDocument) {
+    public TransformerHandlerFactory( SAXTransformerFactory saxtf, Templates templates, ContentHandler outputHandler) {
       this.saxtf = saxtf;
       this.templates = templates;
-      this.os = os;
-      this.singleDocument = singleDocument;
+      this.outputHandler = outputHandler;
     }
     
     public ContentHandler createContentHandler() {
-      Result result;
-      if( singleDocument) {
-        SAXWriter saxWriter = new  SAXWriter( new OutputStreamWriter( os), true);
-        result = new SAXResult( saxWriter);
-        (( SAXResult) result).setLexicalHandler( saxWriter);
-      } else {
-        result = new StreamResult( os);
-      }
-  
       try {
         TransformerHandler handler = saxtf.newTransformerHandler( templates);
-        handler.setResult( result);
+        handler.setResult( new SAXResult( outputHandler));
         return handler;
-  
       } catch( TransformerConfigurationException ex) {
         throw new RuntimeException( ex.toString());
       }
@@ -496,7 +528,7 @@ public class Processor extends Observable {
   private static final class SubdocumentHandlerFactory implements ContentHandlerFactory {
     private ContentHandler subdocumentHandler;
 
-    public SubdocumentHandlerFactory( SubdocumentHandler subdocumentHandler) {
+    public SubdocumentHandlerFactory( ContentHandler subdocumentHandler) {
       this.subdocumentHandler = subdocumentHandler;
     }
     
@@ -621,7 +653,6 @@ public class Processor extends Observable {
     }
 
     
-    
     private void writeAttributes( Attributes atts) throws IOException {
       StringBuffer sb = new StringBuffer();
       int len = atts.getLength();
@@ -689,6 +720,219 @@ public class Processor extends Observable {
         w.write( ">\n");
       }
       openElement = false;
+    }
+    
+  }
+  
+  
+  /**
+   * A {@link org.xml.sax.ContentHandler ContentHandler} that splits XML documents
+   * into smaller chunks. Each chunk is processed by the nested 
+   * {@link org.xml.sax.ContentHandler ContentHandler} obtained from 
+   * {@link java.net.ContentHandlerFactory ContentHandlerFactory}. 
+   * This is useful for running XSLT engine against large XML document that will 
+   * hardly fit into the memory all together.
+   * <p>
+   * TODO use complete path for subdocumentRoot
+   */
+  private static class InputSlicingHandler extends DefaultHandler {
+    private String subdocumentRoot;
+    private ContentHandler rootHandler;
+    private ContentHandlerFactory subdocumentHandlerFactory;
+    
+    private boolean subdocument = false;
+    private ContentHandler subdocumentHandler;
+
+    /**
+     * Constructs a new {@link InputSlicingHandler SubdocumentHandler} object.
+     * 
+     * @param subdocumentRoot name/path to the root element of the subdocument 
+     * @param rootHandler content handler for the entire document (subdocument envelope).
+     * @param subdocumentHandlerFactory a {@link ContentHandlerFactory ContentHandlerFactory}
+     *      used to create {@link ContentHandler ContentHandler} instances for subdocuments.
+     */
+    public InputSlicingHandler( String subdocumentRoot, ContentHandler rootHandler, 
+          ContentHandlerFactory subdocumentHandlerFactory) {
+      this.subdocumentRoot = subdocumentRoot;
+      this.rootHandler = rootHandler;
+      this.subdocumentHandlerFactory = subdocumentHandlerFactory;
+    }
+    
+    public void startElement( String namespaceURI, String localName, String qName, Attributes list) throws SAXException {
+      if( localName.equals( subdocumentRoot)) {
+        subdocumentHandler = subdocumentHandlerFactory.createContentHandler();
+        subdocumentHandler.startDocument();
+        subdocument = true;
+      }
+      if( subdocument) { 
+        subdocumentHandler.startElement( namespaceURI, localName, qName, list);
+      } else if( rootHandler!=null) {
+        rootHandler.startElement( namespaceURI, localName, qName, list);
+      }
+    }
+    
+    public void endElement( String namespaceURI, String localName, String qName) throws SAXException {
+      if( subdocument) {
+        subdocumentHandler.endElement( namespaceURI, localName, qName);
+        if( localName.equals( subdocumentRoot)) {
+          subdocumentHandler.endDocument();
+          subdocument = false;
+        }
+      } else if( rootHandler!=null) {
+        rootHandler.endElement( namespaceURI, localName, qName);
+      }
+    }
+    
+    public void startDocument() throws SAXException {
+      if( rootHandler!=null) {
+        rootHandler.startDocument();
+      }
+    }
+
+    public void endDocument() throws SAXException {
+      if( rootHandler!=null) {
+        rootHandler.endDocument();
+        
+      }
+    }
+    
+    public void characters( char[] buff, int offset, int size) throws SAXException {
+      if( subdocument) {
+        subdocumentHandler.characters(buff, offset, size);
+      } else if( rootHandler!=null) {
+        rootHandler.characters(buff, offset, size);
+      }
+    }
+    
+  }
+
+  
+  /**
+   * A {@link org.xml.sax.ContentHandler ContentHandler} that splits XML documents
+   * into smaller chunks. Each chunk is processed by the nested 
+   * {@link org.xml.sax.ContentHandler ContentHandler} obtained from 
+   * {@link java.net.ContentHandlerFactory ContentHandlerFactory}. 
+   * This is useful for running XSLT engine against large XML document that will 
+   * hardly fit into the memory all together.
+   * <p>
+   * TODO use complete path for subdocumentRoot
+   */
+  private static class OutputSlicingHandler extends DefaultHandler {
+    private String subdocumentRoot;
+    private ContentHandlerFactory subdocumentHandlerFactory;
+    private EntryElement entryElement;
+    private boolean isXml;
+    
+    private boolean subdocument = false;
+    private ContentHandler subdocumentHandler;
+
+    /**
+     * Constructs a new {@link OutputSlicingHandler SubdocumentHandler} object.
+     * 
+     * @param subdocumentRoot name/path to the root element of the subdocument 
+     * @param rootHandler content handler for the entire document (subdocument envelope).
+     * @param subdocumentHandlerFactory a {@link ContentHandlerFactory ContentHandlerFactory}
+     *      used to create {@link ContentHandler ContentHandler} instances for subdocuments.
+     */
+    public OutputSlicingHandler( ContentHandlerFactory subdocumentHandlerFactory, 
+          EntryElement entryElement, boolean isXml) {
+      this.subdocumentRoot = "class";
+      this.subdocumentHandlerFactory = subdocumentHandlerFactory;
+      this.entryElement = entryElement;
+      this.isXml = isXml;
+    }
+    
+    public void startElement( String namespaceURI, String localName, String qName, Attributes list) throws SAXException {
+      if( localName.equals( subdocumentRoot)) {
+        String name = list.getValue( "name");
+        if( name==null || name.length()==0) throw new SAXException( "Class element without name attribute.");
+        try {
+          entryElement.openEntry( isXml ? name.concat( ".class.xml") : name.concat( ".class"));
+        } catch( IOException ex) {
+          throw new SAXException( ex.toString(), ex);
+        }
+        subdocumentHandler = subdocumentHandlerFactory.createContentHandler();
+        subdocumentHandler.startDocument();
+        subdocument = true;
+      }
+      if( subdocument) { 
+        subdocumentHandler.startElement( namespaceURI, localName, qName, list);
+      }
+    }
+    
+    public void endElement( String namespaceURI, String localName, String qName) throws SAXException {
+      if( subdocument) {
+        subdocumentHandler.endElement( namespaceURI, localName, qName);
+        if( localName.equals( subdocumentRoot)) {
+          subdocumentHandler.endDocument();
+          subdocument = false;
+          try {
+            entryElement.closeEntry();
+          } catch( IOException ex) {
+            throw new SAXException( ex.toString(), ex);
+          }
+        }
+      }
+    }
+    
+    public void startDocument() throws SAXException {
+    }
+
+    public void endDocument() throws SAXException {
+    }
+    
+    public void characters( char[] buff, int offset, int size) throws SAXException {
+      if( subdocument) {
+        subdocumentHandler.characters(buff, offset, size);
+      }
+    }
+    
+  }
+
+  
+  private static interface EntryElement {
+
+    OutputStream openEntry( String name) throws IOException;
+
+    void closeEntry() throws IOException;
+    
+  }
+
+
+  private static final class SingleDocElement implements EntryElement {
+    private OutputStream os;
+
+    public SingleDocElement( OutputStream os) {
+      this.os = os;
+    }
+    
+    public OutputStream openEntry( String name) throws IOException {
+      return os;
+    }
+    
+    public void closeEntry() throws IOException {
+      os.flush();
+    }
+    
+  }
+
+  
+  private static final class ZipEntryElement implements EntryElement {
+    private ZipOutputStream zos;
+
+    public ZipEntryElement( ZipOutputStream zos) {
+      this.zos = zos;
+    }
+    
+    public OutputStream openEntry( String name) throws IOException {
+      ZipEntry entry = new ZipEntry( name);
+      zos.putNextEntry( entry);
+      return zos;
+    }
+    
+    public void closeEntry() throws IOException {
+      zos.flush();
+      zos.closeEntry();
     }
     
   }

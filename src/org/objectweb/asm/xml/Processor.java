@@ -189,9 +189,10 @@ public class Processor {
       inDocHandler.startElement( "", "classes", "classes", new AttributesImpl());
     }
     
-    int n = 0;
+    int i = 0;
     ZipEntry ze = null;
     while(( ze = zis.getNextEntry())!=null) {
+      update( ze.getName());
       if( isClassEntry( ze)) {
         processEntry( zis, ze, inDocHandlerFactory);
       } else {
@@ -200,8 +201,7 @@ public class Processor {
         entryElement.closeEntry();
       }      
       
-      n++;
-      update( ze.getName());
+      i++;
     }
     
     if( inDocHandler!=null && inRepresentation!=SINGLE_XML) {
@@ -215,16 +215,16 @@ public class Processor {
     zos.flush();
     zos.close();
     
-    return n;
+    return i;
   }
 
   private void copyEntry( InputStream is, OutputStream os) throws IOException {
     if( outRepresentation==SINGLE_XML) return;
       
     byte[] buff = new byte[2048];
-    int n;
-    while ((n = is.read(buff)) != -1) {
-      os.write(buff, 0, n);
+    int i;
+    while ((i = is.read(buff)) != -1) {
+      os.write(buff, 0, i);
     }
   }
 
@@ -264,9 +264,8 @@ public class Processor {
   private EntryElement getEntryElement( ZipOutputStream zos) {
     if( outRepresentation==SINGLE_XML) {
       return new SingleDocElement( zos);
-    } else {
-      return new ZipEntryElement( zos);
     }
+    return new ZipEntryElement( zos);
   }
 
   /*
@@ -318,15 +317,15 @@ public class Processor {
       // }
       zis.read(buff);
       return buff;
-    } else {
-      ByteArrayOutputStream bos = new ByteArrayOutputStream();
-      byte[] buff = new byte[4096];
-      int n;
-      while(( n = zis.read(buff)) != -1) {
-        bos.write(buff, 0, n);
-      }
-      return bos.toByteArray();
     }
+    
+    ByteArrayOutputStream bos = new ByteArrayOutputStream();
+    byte[] buff = new byte[4096];
+    int i;
+    while(( i = zis.read(buff)) != -1) {
+      bos.write(buff, 0, i);
+    }
+    return bos.toByteArray();
   }
   
 

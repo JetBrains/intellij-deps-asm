@@ -333,7 +333,7 @@ public class Processor {
    *  (non-Javadoc)
    * @see java.util.Observer#update(java.util.Observable, java.lang.Object)
    */
-  public void update( Object arg, int n) {
+  protected void update( Object arg, int n) {
     if( arg instanceof Throwable) {
       (( Throwable) arg).printStackTrace();
     } else {
@@ -389,7 +389,7 @@ public class Processor {
     int n = m.process();
     long l2 = System.currentTimeMillis();
     System.err.println( n);
-    System.err.println( ""+( l2-l1)+"ms  "+(1000f*n/( l2-l1))+" files/sec");
+    System.err.println( ""+( l2-l1)+"ms  "+(1000f*n/( l2-l1))+" resources/sec");
   }
 
   private static int getRepresentation( String s) {

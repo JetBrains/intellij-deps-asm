@@ -92,7 +92,7 @@ public class SourceDebugExtensionAttribute extends Attribute {
   }
 
   protected Attribute read( ClassReader cr, int off, int len, char[] buf, int codeOff, Label[] labels) {
-    return new SourceDebugExtensionAttribute( readUTF8( cr, off, len, buf));
+    return new SourceDebugExtensionAttribute( readUTF8( cr, off, len));
   }
 
   protected ByteVector write( ClassWriter cw, byte[] code, int len, int maxStack, int maxLocals) {
@@ -100,9 +100,10 @@ public class SourceDebugExtensionAttribute extends Attribute {
     return new ByteVector().putByteArray( b, 0, b.length);
   }
 
-  private String readUTF8( ClassReader cr, int index, int utfLen, char[] buf) {
+  private String readUTF8( ClassReader cr, int index, int utfLen) {
     int endIndex = index + utfLen;
     byte[] b = cr.b;
+    char[] buf = new char[utfLen];
     int strLen = 0;
     int c, d, e;
     while( index < endIndex) {
@@ -119,14 +120,14 @@ public class SourceDebugExtensionAttribute extends Attribute {
           // 0xxxxxxx
           buf[ strLen++] = (char) c;
           break;
-        
+
         case 12:
         case 13:
           // 110x xxxx   10xx xxxx
           d = b[ index++];
           buf[strLen++] = ( char) ((( c & 0x1F) << 6) | ( d & 0x3F));
           break;
-   
+
         default:
           // 1110 xxxx  10xx xxxx  10xx xxxx
           d = b[ index++];
@@ -135,10 +136,10 @@ public class SourceDebugExtensionAttribute extends Attribute {
           break;
       }
     }
-    
-    return new String( buf, 0, strLen);    
+
+    return new String( buf, 0, strLen);
   }
-  
+
   private byte[] putUTF8( String s) {
     int charLength = s.length();
     int byteLength = 0;
@@ -152,10 +153,9 @@ public class SourceDebugExtensionAttribute extends Attribute {
         byteLength += 2;
       }
     }
-    if (byteLength > 65535) {
+    /*if (byteLength > 65535) {
       throw new IllegalArgumentException();
-    }
-
+    }*/
     byte[] data = new byte[ byteLength];
     for( int i = 0; i < charLength; ) {
       char c = s.charAt(i);
@@ -172,10 +172,9 @@ public class SourceDebugExtensionAttribute extends Attribute {
     }
     return data;
   }
-  
+
   public String toString() {
     return debugExtension;
   }
-  
 }
 

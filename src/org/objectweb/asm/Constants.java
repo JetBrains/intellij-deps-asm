@@ -48,26 +48,26 @@ public interface Constants {
 
   // access flags
 
-  int ACC_PUBLIC = 1;
-  int ACC_PRIVATE = 2;
-  int ACC_PROTECTED = 4;
-  int ACC_STATIC = 8;
-  int ACC_FINAL = 16;
-  int ACC_SYNCHRONIZED = 32;
-  int ACC_VOLATILE = 64;    // fields
-  int ACC_BRIDGE = 64;      // methods
-  int ACC_VARARGS = 128;    // methods
-  int ACC_TRANSIENT = 128;  // fields
-  int ACC_NATIVE = 256;     // methods
-  int ACC_ENUM = 256;       // classes and fields
-  // TODO find out what is the value for ACC_ANNOTATION constant
+  int ACC_PUBLIC = 1;         // class, field, method
+  int ACC_PRIVATE = 2;        // class, field, method
+  int ACC_PROTECTED = 4;      // class, field, method
+  int ACC_STATIC = 8;         //        field, method
+  int ACC_FINAL = 16;         // class, field, method
+  int ACC_SYNCHRONIZED = 32;  //               method
+  int ACC_VOLATILE = 64;      //        field
+  int ACC_BRIDGE = 64;        //               methods
+  int ACC_VARARGS = 128;      //               methods
+  int ACC_TRANSIENT = 128;    //        field
+  int ACC_NATIVE = 256;       //               methods
+  int ACC_ENUM = 256;         // class(?) field
+  int ACC_ANNOTATION = 2048;  // class
   
-  int ACC_INTERFACE = 512;
-  int ACC_ABSTRACT = 1024;
-  int ACC_STRICT = 2048;
-  int ACC_SUPER = 32;
+  int ACC_INTERFACE = 512;    // class
+  int ACC_ABSTRACT = 1024;    // class,        method
+  int ACC_STRICT = 2048;      //               method 
+  int ACC_SUPER = 32;         // class
 
-  int ACC_SYNTHETIC = 65536;
+  int ACC_SYNTHETIC = 65536;  // class, field, method (0x1000)
   int ACC_DEPRECATED = 131072;
 
   // types for NEWARRAY

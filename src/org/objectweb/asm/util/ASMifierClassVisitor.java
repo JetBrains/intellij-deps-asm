@@ -60,18 +60,18 @@ import org.objectweb.asm.Type;
  * <pre>
  * import org.objectweb.asm.*;
  * public class HelloDump implements Opcodes {
- * 
+ *
  * public static byte[] dump () throws Exception {
- * 
+ *
  * ClassWriter cw = new ClassWriter(false);
  * FieldVisitor fv;
  * MethodVisitor mv;
  * AnnotationVisitor av0;
- * 
+ *
  * cw.visit(49, ACC_PUBLIC + ACC_SUPER, "Hello", null, "java/lang/Object", null);
- * 
+ *
  * cw.visitSource("Hello.java", null);
- * 
+ *
  * {
  * mv = cw.visitMethod(ACC_PUBLIC, "<init>", "()V", null, null);
  * mv.visitVarInsn(ALOAD, 0);
@@ -90,7 +90,7 @@ import org.objectweb.asm.Type;
  * mv.visitEnd();
  * }
  * cw.visitEnd();
- * 
+ *
  * return cw.toByteArray();
  * }
  * }
@@ -132,7 +132,7 @@ public class ASMifierClassVisitor extends ASMifierAbstractVisitor
   /**
    * Pseudo access flag used to distinguish inner class flags.
    */
-   
+
   private static final int ACCESS_INNER = 1048576;
 
   /**
@@ -212,7 +212,7 @@ public class ASMifierClassVisitor extends ASMifierAbstractVisitor
     int n = name.lastIndexOf('/');
     if (n != -1) {
       text.add("package asm." + name.substring(0, n).replace('/', '.') + ";\n");
-      simpleName = name.substring(n+1); 
+      simpleName = name.substring(n+1);
     } else {
       simpleName = name;
     }
@@ -225,7 +225,7 @@ public class ASMifierClassVisitor extends ASMifierAbstractVisitor
     text.add("AnnotationVisitor av0;\n\n");
 
     buf.setLength(0);
-    buf.append("cw.visit(");    
+    buf.append("cw.visit(");
     switch(version) {
       case Opcodes.V1_1:
         buf.append("V1_1");
@@ -500,8 +500,8 @@ public class ASMifierClassVisitor extends ASMifierAbstractVisitor
       first = false;
     }
     if ((access & Opcodes.ACC_ENUM) != 0 &&
-         ((access & ACCESS_CLASS) != 0 || 
-          (access & ACCESS_FIELD) != 0 || 
+         ((access & ACCESS_CLASS) != 0 ||
+          (access & ACCESS_FIELD) != 0 ||
           (access & ACCESS_INNER) != 0)) {
       if (!first) {
         buf.append(" + ");
@@ -570,6 +570,7 @@ public class ASMifierClassVisitor extends ASMifierAbstractVisitor
       buf.append("null");
     } else if (cst instanceof String) {
       String s = (String)cst;
+      /*
       buf.append("\"");
       for (int i = 0; i < s.length(); ++i) {
         char c = s.charAt(i);
@@ -596,10 +597,12 @@ public class ASMifierClassVisitor extends ASMifierAbstractVisitor
         }
       }
       buf.append("\"");
+      */
+      AbstractVisitor.appendString(buf, s);
     } else if (cst instanceof Type) {
-      buf.append("Type.getType(\"");
-      buf.append(((Type)cst).getDescriptor());
-      buf.append("\")");
+      buf.append("Type.getType(\"")
+        .append(((Type)cst).getDescriptor())
+        .append("\")");
     } else if (cst instanceof Integer) {
       buf.append("new Integer(")
         .append(cst)

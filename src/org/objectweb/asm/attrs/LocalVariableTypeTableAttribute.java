@@ -173,8 +173,9 @@ public class LocalVariableTypeTableAttribute extends Attribute {
     bv.putShort( types.size());
     for( int i = 0; i < types.size(); i++) {
       LocalVariableType t = ( LocalVariableType) types.get(i);
-      bv.putShort( t.getStart().getOffset());
-      bv.putShort( t.getEnd().getOffset());
+      int startOffset = t.getStart().getOffset();
+      bv.putShort( startOffset);
+      bv.putShort( t.getEnd().getOffset()-startOffset);
       bv.putUTF8( t.getName());
       bv.putUTF8( t.getSignature());
       bv.putShort( t.getIndex());

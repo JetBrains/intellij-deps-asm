@@ -55,18 +55,19 @@ import java.util.List;
  */
 
 public abstract class PrintClassVisitor implements ClassVisitor {
-  public static final Attribute[] DEFAULT_ATTRIBUTES = new Attribute[] { 
-          new AnnotationDefaultAttribute(),
-          new RuntimeInvisibleAnnotations(),    
-          new RuntimeInvisibleParameterAnnotations(),    
-          new RuntimeVisibleAnnotations(),    
-          new RuntimeVisibleParameterAnnotations(),
-          new StackMapAttribute(),
-          new SourceDebugExtensionAttribute(),
-          new SignatureAttribute(),
-          new EnclosingMethodAttribute()
-        };
-  
+
+  public static final Attribute[] DEFAULT_ATTRIBUTES = new Attribute[] {
+    new AnnotationDefaultAttribute(),
+    new RuntimeInvisibleAnnotations(),
+    new RuntimeInvisibleParameterAnnotations(),
+    new RuntimeVisibleAnnotations(),
+    new RuntimeVisibleParameterAnnotations(),
+    new StackMapAttribute(),
+    new SourceDebugExtensionAttribute(),
+    new SignatureAttribute(),
+    new EnclosingMethodAttribute()
+  };
+
   /**
    * The text to be printed. Since the code of methods is not necessarily
    * visited in sequential order, one method after the other, but can be
@@ -112,7 +113,7 @@ public abstract class PrintClassVisitor implements ClassVisitor {
   }
 
   /**
-   * Prints the given string tree to {@link pw pw}.
+   * Prints the given string tree to {@link #pw pw}.
    *
    * @param l a string tree, i.e., a string list that can contain other string
    *      lists, and so on recursively.

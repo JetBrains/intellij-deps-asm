@@ -101,7 +101,8 @@ public class TraceClassVisitor extends PrintClassVisitor {
   /**
    * Prints a disassembled view of the given class to the standard output.
    * <p>
-   * Usage: TraceClassVisitor &lt;fully qualified class name or class file name &gt;
+   * Usage: TraceClassVisitor
+   * &lt;fully qualified class name or class file name &gt;
    *
    * @param args the command line arguments.
    *
@@ -112,17 +113,18 @@ public class TraceClassVisitor extends PrintClassVisitor {
   public static void main (final String[] args) throws Exception {
     if (args.length == 0) {
       System.err.println("Prints a disassembled view of the given class.");
-      System.err.println("Usage: TraceClassVisitor <fully qualified class name or class file name>");
+      System.err.println("Usage: TraceClassVisitor " +
+                         "<fully qualified class name or class file name>");
       System.exit(-1);
     }
     ClassReader cr;
     if (args[0].endsWith(".class")) {
-      cr = new ClassReader(new FileInputStream( args[0]));
+      cr = new ClassReader(new FileInputStream(args[0]));
     } else {
       cr = new ClassReader(args[0]);
     }
     cr.accept(new TraceClassVisitor(null, new PrintWriter(System.out)),
-        PrintClassVisitor.DEFAULT_ATTRIBUTES, true);
+              PrintClassVisitor.DEFAULT_ATTRIBUTES, true);
   }
 
   /**
@@ -232,7 +234,8 @@ public class TraceClassVisitor extends PrintClassVisitor {
     }
     Attribute attr = attrs;
     while (attr != null) {
-      buf.append("  FIELD ATTRIBUTE ").append(attr.type).append( " : ").append( attr.toString()).append("\n");
+      buf.append("  FIELD ATTRIBUTE ").append(attr.type).append(" : ")
+        .append(attr.toString()).append("\n");
       attr = attr.next;
     }
     buf.append("\n");
@@ -280,7 +283,8 @@ public class TraceClassVisitor extends PrintClassVisitor {
     Attribute attr = attrs;
     while (attr != null) {
       buf.setLength(0);
-      buf.append("    METHOD ATTRIBUTE ").append(attr.type).append( " : ").append( attr.toString()).append("\n");
+      buf.append("    METHOD ATTRIBUTE ").append(attr.type).append(" : ")
+        .append(attr.toString()).append("\n");
       text.add(buf.toString());
       attr = attr.next;
     }
@@ -298,7 +302,8 @@ public class TraceClassVisitor extends PrintClassVisitor {
 
   public void visitAttribute (final Attribute attr) {
     buf.setLength(0);
-    buf.append("  CLASS ATTRIBUTE ").append(attr.type).append( " : ").append( attr.toString()).append("\n");
+    buf.append("  CLASS ATTRIBUTE ").append(attr.type).append(" : ")
+      .append(attr.toString()).append("\n");
     text.add(buf.toString());
 
     if (cv != null) {

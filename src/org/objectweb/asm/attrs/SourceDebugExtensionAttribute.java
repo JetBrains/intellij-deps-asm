@@ -40,6 +40,7 @@ import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Label;
 
+import java.util.Map;
 
 /**
  * The SourceDebugExtension attribute is an optional attribute defined in JSR-045
@@ -71,44 +72,53 @@ import org.objectweb.asm.Label;
  *     string has no semantic effect on the Java Virtual Machine.</dd>
  * </dl>
  *
- * @see <a href="http://www.jcp.org/en/jsr/detail?id=45">JSR-045: Debugging Support for Other Languages</a>
+ * @see <a href="http://www.jcp.org/en/jsr/detail?id=45">JSR-045: Debugging
+ * Support for Other Languages</a>
  *
  * @author Eugene Kuleshov
  */
-public class SourceDebugExtensionAttribute extends Attribute {
-  private String debugExtension;
 
-  public SourceDebugExtensionAttribute() {
-    super( "SourceDebugExtension");
+public class SourceDebugExtensionAttribute
+  extends Attribute implements Dumpable
+ {
+
+  public String debugExtension;
+
+  public SourceDebugExtensionAttribute () {
+    super("SourceDebugExtension");
   }
 
-  public SourceDebugExtensionAttribute( String debugExtension) {
+  public SourceDebugExtensionAttribute (String debugExtension) {
     this();
     this.debugExtension = debugExtension;
   }
 
-  public String getDebugExtension() {
-    return debugExtension;
+  protected Attribute read (ClassReader cr, int off,
+                            int len, char[] buf, int codeOff, Label[] labels) {
+    return new SourceDebugExtensionAttribute(readUTF8(cr, off, len));
   }
 
-  protected Attribute read( ClassReader cr, int off, int len, char[] buf, int codeOff, Label[] labels) {
-    return new SourceDebugExtensionAttribute( readUTF8( cr, off, len));
+  protected ByteVector write (ClassWriter cw, byte[] code,
+                              int len, int maxStack, int maxLocals) {
+    byte[] b = putUTF8(debugExtension);
+    return new ByteVector().putByteArray(b, 0, b.length);
   }
 
-  protected ByteVector write( ClassWriter cw, byte[] code, int len, int maxStack, int maxLocals) {
-    byte[] b = putUTF8( debugExtension);
-    return new ByteVector().putByteArray( b, 0, b.length);
+  public void dump (StringBuffer buf, String varName, Map labelNames) {
+    buf.append("SourceDebugExtensionAttribute ").append(varName)
+      .append(" = new SourceDebugExtensionAttribute(\"")
+      .append(debugExtension).append("\");\n");
   }
 
-  private String readUTF8( ClassReader cr, int index, int utfLen) {
+  private String readUTF8 (ClassReader cr, int index, int utfLen) {
     int endIndex = index + utfLen;
     byte[] b = cr.b;
     char[] buf = new char[utfLen];
     int strLen = 0;
     int c, d, e;
-    while( index < endIndex) {
-      c = b[ index++] & 0xFF;
-      switch( c >> 4) {
+    while (index < endIndex) {
+      c = b[index++] & 0xFF;
+      switch (c >> 4) {
         case 0:
         case 1:
         case 2:
@@ -118,29 +128,29 @@ public class SourceDebugExtensionAttribute extends Attribute {
         case 6:
         case 7:
           // 0xxxxxxx
-          buf[ strLen++] = (char) c;
+          buf[strLen++] = (char)c;
           break;
 
         case 12:
         case 13:
           // 110x xxxx   10xx xxxx
-          d = b[ index++];
-          buf[strLen++] = ( char) ((( c & 0x1F) << 6) | ( d & 0x3F));
+          d = b[index++];
+          buf[strLen++] = (char)(((c & 0x1F) << 6) | (d & 0x3F));
           break;
 
         default:
           // 1110 xxxx  10xx xxxx  10xx xxxx
-          d = b[ index++];
-          e = b[ index++];
-          buf[ strLen++] = ( char)((( c & 0x0F) << 12) | (( d & 0x3F) << 6) | ( e & 0x3F));
+          d = b[index++];
+          e = b[index++];
+          buf[strLen++] = (char)(((c & 0x0F) << 12) | ((d & 0x3F) << 6) | (e & 0x3F));
           break;
       }
     }
 
-    return new String( buf, 0, strLen);
+    return new String(buf, 0, strLen);
   }
 
-  private byte[] putUTF8( String s) {
+  private byte[] putUTF8 (String s) {
     int charLength = s.length();
     int byteLength = 0;
     for (int i = 0; i < charLength; ++i) {
@@ -156,25 +166,24 @@ public class SourceDebugExtensionAttribute extends Attribute {
     /*if (byteLength > 65535) {
       throw new IllegalArgumentException();
     }*/
-    byte[] data = new byte[ byteLength];
-    for( int i = 0; i < charLength; ) {
+    byte[] data = new byte[byteLength];
+    for (int i = 0; i < charLength;) {
       char c = s.charAt(i);
       if (c >= '\001' && c <= '\177') {
-        data[ i++] = (byte)c;
+        data[i++] = (byte)c;
       } else if (c > '\u07FF') {
-        data[ i++] = (byte)(0xE0 | c >> 12 & 0xF);
-        data[ i++] = (byte)(0x80 | c >> 6 & 0x3F);
-        data[ i++] = (byte)(0x80 | c & 0x3F);
+        data[i++] = (byte)(0xE0 | c >> 12 & 0xF);
+        data[i++] = (byte)(0x80 | c >> 6 & 0x3F);
+        data[i++] = (byte)(0x80 | c & 0x3F);
       } else {
-        data[ i++] = (byte)(0xC0 | c >> 6 & 0x1F);
-        data[ i++] = (byte)(0x80 | c & 0x3F);
+        data[i++] = (byte)(0xC0 | c >> 6 & 0x1F);
+        data[i++] = (byte)(0x80 | c & 0x3F);
       }
     }
     return data;
   }
 
-  public String toString() {
+  public String toString () {
     return debugExtension;
   }
 }
-

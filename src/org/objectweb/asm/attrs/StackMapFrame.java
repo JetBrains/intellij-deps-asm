@@ -45,162 +45,183 @@ import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Label;
 
-
 /**
- * StackMapFrame is used by {@link StackMapAttribute} to hold state of the stack and 
- * local variables for a single execution branch.
- * 
- * <i>Note that Long and Double types are represented by two entries in locals and stack.
- * Second entry sohould be always of type Top.</i>
- * 
- * @see <a href="http://www.jcp.org/en/jsr/detail?id=139">JSR 139 : Connected Limited Device Configuration 1.1</a>
- * 
+ * StackMapFrame is used by {@link StackMapAttribute} to hold state of the stack
+ * and local variables for a single execution branch.
+ *
+ * <i>Note that Long and Double types are represented by two entries in locals
+ * and stack. Second entry sohould be always of type Top.</i>
+ *
+ * @see <a href="http://www.jcp.org/en/jsr/detail?id=139">JSR 139 : Connected
+ * Limited Device Configuration 1.1</a>
+ *
  * @author Eugene Kuleshov
  */
+
 public class StackMapFrame {
+
   public Label label;
+
   public List locals = new LinkedList();
+
   public List stack = new LinkedList();
 
-  public int read( ClassReader cr, int off, char[] buf, int codeOff, Label[] labels) {
-    int n = cr.readUnsignedShort( off);
+  public int read (ClassReader cr,
+                   int off, char[] buf, int codeOff, Label[] labels) {
+    int n = cr.readUnsignedShort(off);
     off += 2;
-    if( labels[ n]==null) labels[ n] = new Label();
-    label = labels[ n];
-    off = readTypeInfo( cr, off, locals, labels, buf, cr.readUnsignedShort( codeOff+2));  //  maxLocals
-    off = readTypeInfo( cr, off, stack, labels, buf, cr.readUnsignedShort( codeOff));  // maxStack
+    if (labels[n] == null) {
+      labels[n] = new Label();
+    }
+    label = labels[n];
+    off = readTypeInfo(cr, off, locals, labels, buf,
+                       cr.readUnsignedShort(codeOff + 2));  //  maxLocals
+    off = readTypeInfo(cr, off, stack, labels, buf,
+                       cr.readUnsignedShort(codeOff));  // maxStack
     return off;
   }
 
-  public void write( ClassWriter cw, int maxStack, int maxLocals, ByteVector bv) {
-    bv.putShort( label.getOffset());
-    writeTypeInfo( bv, cw, locals, maxLocals);
-    writeTypeInfo( bv, cw, stack, maxStack);
+  public void write (ClassWriter cw,
+                     int maxStack, int maxLocals, ByteVector bv) {
+    bv.putShort(label.getOffset());
+    writeTypeInfo(bv, cw, locals, maxLocals);
+    writeTypeInfo(bv, cw, stack, maxStack);
   }
 
-  public void getLabels( Set labels) {
-    labels.add( label);
-    getTypeInfoLabels( labels, locals);    
-    getTypeInfoLabels( labels, stack);    
-   }
-
-  private void getTypeInfoLabels( Set labels, List info) {
-    for( Iterator it = info.iterator(); it.hasNext(); ) {
-      StackMapType typeInfo = ( StackMapType) it.next();
-      if( typeInfo.getType()==StackMapType.ITEM_Uninitialized)
-        labels.add( typeInfo.getLabel());
-    }    
+  public void getLabels (Set labels) {
+    labels.add(label);
+    getTypeInfoLabels(labels, locals);
+    getTypeInfoLabels(labels, stack);
   }
 
-  private int readTypeInfo( ClassReader cr, int off, List info, Label[] labels, char[] buf, int max) {
-    int n = 0;
-    if( max>StackMapAttribute.MAX_SIZE) {
-       n = cr.readInt( off);
-       off += 4;
-    } else {
-       n = cr.readUnsignedShort( off);
-       off += 2;
+  private void getTypeInfoLabels (Set labels, List info) {
+    for (Iterator it = info.iterator(); it.hasNext();) {
+      StackMapType typeInfo = (StackMapType)it.next();
+      if (typeInfo.getType() == StackMapType.ITEM_Uninitialized) {
+        labels.add(typeInfo.getLabel());
+      }
     }
-    for( int j = 0; j<n; j++) {
-      int itemType = cr.readByte( off++);
-      StackMapType typeInfo = StackMapType.getTypeInfo( itemType);
-      info.add( typeInfo);
-      switch( itemType) {
+  }
+
+  private int readTypeInfo (ClassReader cr, int off,
+                            List info, Label[] labels, char[] buf, int max) {
+    int n = 0;
+    if (max > StackMapAttribute.MAX_SIZE) {
+      n = cr.readInt(off);
+      off += 4;
+    } else {
+      n = cr.readUnsignedShort(off);
+      off += 2;
+    }
+    for (int j = 0; j < n; j++) {
+      int itemType = cr.readByte(off++);
+      StackMapType typeInfo = StackMapType.getTypeInfo(itemType);
+      info.add(typeInfo);
+      switch (itemType) {
         case StackMapType.ITEM_Long:  //
         case StackMapType.ITEM_Double:  //
-          info.add( StackMapType.getTypeInfo( StackMapType.ITEM_Top));
+          info.add(StackMapType.getTypeInfo(StackMapType.ITEM_Top));
           break;
 
         case StackMapType.ITEM_Object:  //
-          typeInfo.setObject( cr.readClass( off, buf));
+          typeInfo.setObject(cr.readClass(off, buf));
           off += 2;
           break;
 
         case StackMapType.ITEM_Uninitialized:  //
-          int o = cr.readUnsignedShort( off);
+          int o = cr.readUnsignedShort(off);
           off += 2;
-          if( labels[ o]==null) labels[ o] = new Label();
-          typeInfo.setLabel( labels[ o]);
+          if (labels[o] == null) {
+            labels[o] = new Label();
+          }
+          typeInfo.setLabel(labels[o]);
           break;
       }
     }
     return off;
   }
-  
-  private void writeTypeInfo( ByteVector bv, ClassWriter cw, List info, int max) {
-    if( max>StackMapAttribute.MAX_SIZE) bv.putInt( info.size());
-    else bv.putShort( info.size());
-    for( int j = 0; j<info.size(); j++) {
-      StackMapType typeInfo = ( StackMapType) info.get( j);
-      bv = new ByteVector().putByte( typeInfo.getType());
-      switch( typeInfo.getType()) {
+
+  private void writeTypeInfo (ByteVector bv,
+                              ClassWriter cw, List info, int max) {
+    if (max > StackMapAttribute.MAX_SIZE) {
+      bv.putInt(info.size());
+    } else {
+      bv.putShort(info.size());
+    }
+    for (int j = 0; j < info.size(); j++) {
+      StackMapType typeInfo = (StackMapType)info.get(j);
+      bv = new ByteVector().putByte(typeInfo.getType());
+      switch (typeInfo.getType()) {
         case StackMapType.ITEM_Long:  //
         case StackMapType.ITEM_Double:  //
           // skip Top in the stack/locals after long/double
-          j++;  
+          j++;
           break;
 
         case StackMapType.ITEM_Object:  //
-          bv.putShort( cw.newClass( typeInfo.getObject()));
+          bv.putShort(cw.newClass(typeInfo.getObject()));
           break;
 
-         case StackMapType.ITEM_Uninitialized:  //
-           bv.putShort( typeInfo.getLabel().getOffset());
-           break;
+        case StackMapType.ITEM_Uninitialized:  //
+          bv.putShort(typeInfo.getLabel().getOffset());
+          break;
       }
     }
   }
-  
-  public void dump( StringBuffer buf, String varName, Map labelNames) {
-    declareLabel( buf, labelNames, label);
-    buf.append( varName).append( ".label = ").append( labelNames.get(label)).append( ";\n");
-    
+
+  public void dump (StringBuffer buf, String varName, Map labelNames) {
+    declareLabel(buf, labelNames, label);
+    buf.append(varName).append(".label = ")
+      .append(labelNames.get(label)).append(";\n");
+
     dumpTypeInfo(buf, varName, labelNames, locals);
     dumpTypeInfo(buf, varName, labelNames, stack);
   }
 
-  private void dumpTypeInfo(StringBuffer buf, String varName, Map labelNames, List infos) {
-    if( infos.size()>0) {
-      buf.append( "{\n"); 
-      for( int i = 0; i<infos.size(); i++) {
-        StackMapType typeInfo = ( StackMapType) infos.get( i);
-        String localName = varName+"Info"+i;
+  private void dumpTypeInfo (StringBuffer buf,
+                             String varName, Map labelNames, List infos) {
+    if (infos.size() > 0) {
+      buf.append("{\n");
+      for (int i = 0; i < infos.size(); i++) {
+        StackMapType typeInfo = (StackMapType)infos.get(i);
+        String localName = varName + "Info" + i;
         int type = typeInfo.getType();
-        buf.append( "StackMapType ").append( localName)
-           .append( " = new StackMapType( StackMapType.ITEM_")
-           .append( StackMapType.ITEM_NAMES[ type]).append(");\n");
-        
-        switch( type) {
+        buf.append("StackMapType ").append(localName)
+          .append(" = new StackMapType( StackMapType.ITEM_")
+          .append(StackMapType.ITEM_NAMES[type]).append(");\n");
+
+        switch (type) {
           case StackMapType.ITEM_Object:  //
-            buf.append( localName).append( ".setObject(").append( typeInfo.getObject()).append(");\n"); 
+            buf.append(localName).append(".setObject(")
+              .append(typeInfo.getObject()).append(");\n");
             break;
 
           case StackMapType.ITEM_Uninitialized:  //
-            declareLabel( buf, labelNames, typeInfo.getLabel());
-            buf.append( localName).append( ".setLabel(").append( labelNames.get( typeInfo.getLabel())).append( ");\n");
+            declareLabel(buf, labelNames, typeInfo.getLabel());
+            buf.append(localName).append(".setLabel(")
+              .append(labelNames.get(typeInfo.getLabel())).append(");\n");
             break;
         }
-        buf.append( varName).append( ".add(").append( localName).append( ");\n");
+        buf.append(varName).append(".add(").append(localName).append(");\n");
       }
-      buf.append( "}\n"); 
+      buf.append("}\n");
     }
   }
 
-  public static void declareLabel( StringBuffer buf, Map labelNames, Label l) {
+  public static void declareLabel (StringBuffer buf, Map labelNames, Label l) {
     String name = (String)labelNames.get(l);
-    if( name==null) {
-      name = "l"+labelNames.size();
-      labelNames.put( l, name);
+    if (name == null) {
+      name = "l" + labelNames.size();
+      labelNames.put(l, name);
       buf.append("Label ").append(name).append(" = new Label();\n");
     }
   }
-  
-  public String toString() {
-    StringBuffer sb = new StringBuffer( "Frame:L"+System.identityHashCode( label));
-    sb.append( " locals").append( locals);
-    sb.append( " stack").append( stack);
+
+  public String toString () {
+    StringBuffer sb = new StringBuffer("Frame:L");
+    sb.append(System.identityHashCode(label));
+    sb.append(" locals").append(locals);
+    sb.append(" stack").append(stack);
     return sb.toString();
   }
-
 }
-

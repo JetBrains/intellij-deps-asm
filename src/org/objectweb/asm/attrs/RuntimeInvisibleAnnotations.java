@@ -1,4 +1,36 @@
-/* $Id: RuntimeInvisibleAnnotations.java,v 1.3 2003-12-02 05:18:37 ekuleshov Exp $ */
+/**
+ * ASM: a very small and fast Java bytecode manipulation framework
+ * Copyright (c) 2000,2002,2003 INRIA, France Telecom
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ * 1. Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in the
+ *    documentation and/or other materials provided with the distribution.
+ * 3. Neither the name of the copyright holders nor the names of its
+ *    contributors may be used to endorse or promote products derived from
+ *    this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
+ * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
+ * THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ * Contact: Eric.Bruneton@rd.francetelecom.com
+ *
+ * Author: Eric Bruneton
+ */
 
 package org.objectweb.asm.attrs;
 
@@ -11,7 +43,6 @@ import org.objectweb.asm.ByteVector;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Label;
-
 
 /**
  * The RuntimeInvisibleAnnotations attribute is similar to the
@@ -29,7 +60,7 @@ import org.objectweb.asm.Label;
  * RuntimeInvisibleAnnotations attribute, which records all the runtime-invisible
  * Java programming language annotations on the corresponding program element.
  * <p>
- * The RuntimeInvisibleAnnotations attribute has the following format: 
+ * The RuntimeInvisibleAnnotations attribute has the following format:
  * <pre>
  *   RuntimeInvisibleAnnotations_attribute {
  *     u2 attribute_name_index;
@@ -38,7 +69,7 @@ import org.objectweb.asm.Label;
  *     annotation annotations[num_annotations];
  *   }
  * </pre>
- * The items of the RuntimeInvisibleAnnotations structure are as follows: 
+ * The items of the RuntimeInvisibleAnnotations structure are as follows:
  * <dl>
  * <dt>attribute_name_index</dt>
  * <dd>The value of the attribute_name_index item must be a valid index into the
@@ -59,39 +90,44 @@ import org.objectweb.asm.Label;
  * <dd>Each value of the annotations table represents a single runtime-invisible
  *     {@link org.objectweb.asm.attrs.Annotation annotation} on a program element.</dd>
  * </dl>
- * 
- * @see <a href="http://www.jcp.org/en/jsr/detail?id=175">JSR 175 : A Metadata Facility for the Java Programming Language</a>
- * 
- * @author Eugene Kuleshov 
+ *
+ * @see <a href="http://www.jcp.org/en/jsr/detail?id=175">JSR 175 : A Metadata
+ * Facility for the Java Programming Language</a>
+ *
+ * @author Eugene Kuleshov
  */
+
 public class RuntimeInvisibleAnnotations extends Attribute implements Dumpable {
+
   public List annotations = new LinkedList();
-  
-  public RuntimeInvisibleAnnotations() {
-    super( "RuntimeInvisibleAnnotations");
+
+  public RuntimeInvisibleAnnotations () {
+    super("RuntimeInvisibleAnnotations");
   }
 
-  protected Attribute read( ClassReader cr, int off, int len, char[] buf, int codeOff, Label[] labels) {
+  protected Attribute read (ClassReader cr, int off,
+                            int len, char[] buf, int codeOff, Label[] labels) {
     RuntimeInvisibleAnnotations atr = new RuntimeInvisibleAnnotations();
-    Annotation.readAnnotations( atr.annotations, cr, off, buf);
+    Annotation.readAnnotations(atr.annotations, cr, off, buf);
     return atr;
   }
 
-  protected ByteVector write( ClassWriter cw, byte[] code, int len, int maxStack, int maxLocals) {
-    return Annotation.writeAnnotations( new ByteVector(), annotations, cw);
+  protected ByteVector write (ClassWriter cw, byte[] code,
+                              int len, int maxStack, int maxLocals) {
+    return Annotation.writeAnnotations(new ByteVector(), annotations, cw);
   }
-  
-  public void dump( StringBuffer buf, String varName, Map labelNames) {
-    buf.append( "RuntimeInvisibleAnnotations ").append( varName).append( " = new RuntimeInvisibleAnnotations();\n");
-    Annotation.dumpAnnotations( buf, varName, annotations);
+
+  public void dump (StringBuffer buf, String varName, Map labelNames) {
+    buf.append("RuntimeInvisibleAnnotations ").append(varName)
+      .append(" = new RuntimeInvisibleAnnotations();\n");
+    Annotation.dumpAnnotations(buf, varName, annotations);
   }
-  
+
   /**
    * Returns value in the format described in JSR-175 for Java source code.
    */
-  public String toString() {
-    return Annotation.stringAnnotations( annotations);
+
+  public String toString () {
+    return Annotation.stringAnnotations(annotations);
   }
-
 }
-

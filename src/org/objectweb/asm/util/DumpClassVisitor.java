@@ -73,7 +73,7 @@ import org.objectweb.asm.attrs.Dumpable;
  * cw.visit(ACC_PUBLIC + ACC_SUPER, "Hello", "java/lang/Object", null, "Hello.java");
  *
  * {
- * cv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC, "main", "([Ljava/lang/String;)V", null);
+ * cv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC, "main", "([Ljava/lang/String;)V", null, null);
  * cv.visitFieldInsn(GETSTATIC, "java/lang/System", "out", "Ljava/io/PrintStream;");
  * cv.visitLdcInsn("hello");
  * cv.visitMethodInsn(INVOKEVIRTUAL, "java/io/PrintStream", "println", "(Ljava/lang/String;)V");
@@ -81,7 +81,7 @@ import org.objectweb.asm.attrs.Dumpable;
  * cv.visitMaxs(2, 1);
  * }
  * {
- * cv = cw.visitMethod(ACC_PUBLIC, "&lt;init&gt;", "()V", null);
+ * cv = cw.visitMethod(ACC_PUBLIC, "&lt;init&gt;", "()V", null, null);
  * cv.visitVarInsn(ALOAD, 0);
  * cv.visitMethodInsn(INVOKESPECIAL, "java/lang/Object", "&lt;init&gt;", "()V");
  * cv.visitInsn(RETURN);
@@ -111,6 +111,7 @@ import org.objectweb.asm.attrs.Dumpable;
  */
 
 public class DumpClassVisitor extends PrintClassVisitor {
+
   private static final int ACCESS_CLASS = 262144;
   private static final int ACCESS_FIELD = 524288;
 
@@ -118,7 +119,8 @@ public class DumpClassVisitor extends PrintClassVisitor {
    * Prints the ASM source code to generate the given class to the standard
    * output.
    * <p>
-   * Usage: DumpClassVisitor &lt;fully qualified class name or class file name&gt;
+   * Usage: DumpClassVisitor
+   * &lt;fully qualified class name or class file name&gt;
    *
    * @param args the command line arguments.
    *
@@ -129,7 +131,8 @@ public class DumpClassVisitor extends PrintClassVisitor {
   public static void main (final String[] args) throws Exception {
     if (args.length == 0) {
       System.err.println("Prints the ASM code to generate the given class.");
-      System.err.println("Usage: DumpClassVisitor <fully qualified class name or class file name>");
+      System.err.println("Usage: DumpClassVisitor " +
+                         "<fully qualified class name or class file name>");
       System.exit(-1);
     }
     ClassReader cr;
@@ -138,7 +141,8 @@ public class DumpClassVisitor extends PrintClassVisitor {
     } else {
       cr = new ClassReader(args[0]);
     }
-    cr.accept(new DumpClassVisitor(new PrintWriter(System.out)), PrintClassVisitor.DEFAULT_ATTRIBUTES, true);
+    cr.accept(new DumpClassVisitor(new PrintWriter(System.out)),
+              PrintClassVisitor.DEFAULT_ATTRIBUTES, true);
   }
 
   /**
@@ -218,19 +222,19 @@ public class DumpClassVisitor extends PrintClassVisitor {
   {
     buf.setLength(0);
 
-    if( attrs!=null) {
+    if (attrs != null) {
       buf.append("// FIELD ATTRIBUTES\n");
       Attribute a = attrs;
       int n = 1;
-      while( a!=null) {
-        if( a instanceof Dumpable) {
-          (( Dumpable) a).dump( buf, "attrs"+n, null);
-          if( n>1) {
-            buf.append("attrs"+( n-1)+" = attrs"+n+";\n");
+      while (a != null) {
+        if (a instanceof Dumpable) {
+          ((Dumpable)a).dump(buf, "attrs" + n, null);
+          if (n > 1) {
+            buf.append("attrs" + (n - 1) + " = attrs" + n + ";\n");
           }
         } else {
           buf.append("// WARNING! skipped non standard field attribute of type ");
-          buf.append( a.type).append("\n");
+          buf.append(a.type).append("\n");
         }
         n++;
         a = a.next;
@@ -246,7 +250,7 @@ public class DumpClassVisitor extends PrintClassVisitor {
     buf.append(", ");
     appendConstant(buf, value);
 
-    if( attrs==null) {
+    if (attrs==null) {
       buf.append(", null);\n\n");
     } else {
       buf.append(", attrs1);\n\n");
@@ -266,19 +270,19 @@ public class DumpClassVisitor extends PrintClassVisitor {
 
     buf.append("{\n");
 
-    if( attrs!=null) {
+    if (attrs != null) {
       buf.append("// METHOD ATTRIBUTES\n");
       Attribute a = attrs;
       int n = 1;
-      while( a!=null) {
-        if( a instanceof Dumpable) {
-          (( Dumpable) a).dump( buf, "attrs"+n, null);
-          if( n>1) {
-            buf.append("attrs"+( n-1)+" = attrs"+n+";\n");
+      while (a != null) {
+        if (a instanceof Dumpable) {
+          ((Dumpable)a).dump(buf, "attrs" + n, null);
+          if (n > 1) {
+            buf.append("attrs" + (n - 1) + " = attrs" + n + ";\n");
           }
         } else {
           buf.append("// WARNING! skipped non standard method attribute of type ");
-          buf.append( a.type).append("\n");
+          buf.append(a.type).append("\n");
         }
         n++;
         a = a.next;
@@ -302,7 +306,7 @@ public class DumpClassVisitor extends PrintClassVisitor {
     } else {
       buf.append("null");
     }
-    if( attrs==null) {
+    if (attrs==null) {
       buf.append(", null);\n");
     } else {
       buf.append(", attrs1);\n");
@@ -317,11 +321,11 @@ public class DumpClassVisitor extends PrintClassVisitor {
 
   public void visitAttribute (final Attribute attr) {
     buf.setLength(0);
-    if( attr instanceof Dumpable) {
+    if (attr instanceof Dumpable) {
       buf.append("{\n");
       buf.append("// CLASS ATRIBUTE\n");
-      (( Dumpable) attr).dump( buf, "attr", null);
-      buf.append( "cw.visitAttribute( attr);\n");
+      ((Dumpable)attr).dump(buf, "attr", null);
+      buf.append("cw.visitAttribute(attr);\n");
       buf.append("}\n");
     } else {
       buf.append("// WARNING! skipped a non standard class attribute of type \"");

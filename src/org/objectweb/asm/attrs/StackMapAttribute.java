@@ -44,7 +44,6 @@ import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Label;
 
-
 /**
  * StackMapAttribute is used by CDLC preverifier and also by javac compiller
  * starting from J2SE 1.5. Definition is given in appendix "CLDC Byte Code
@@ -139,83 +138,95 @@ import org.objectweb.asm.Label;
  *   }
  * </pre>
  *
- * @see <a href="http://www.jcp.org/en/jsr/detail?id=139">JSR 139 : Connected Limited Device Configuration 1.1</a>
- * 
+ * @see <a href="http://www.jcp.org/en/jsr/detail?id=139">JSR 139 : Connected
+ * Limited Device Configuration 1.1</a>
+ *
  * @author Eugene Kuleshov
  */
+
 public class StackMapAttribute extends Attribute implements Dumpable {
+
   static final int MAX_SIZE = 65535;
 
   public LinkedList frames = new LinkedList();
 
-  public StackMapAttribute() {
-    super( "StackMap");
+  public StackMapAttribute () {
+    super("StackMap");
   }
 
-  public StackMapFrame getFrame( Label label) {
-    for( int i = 0; i<frames.size(); i++) {
-      StackMapFrame frame = ( StackMapFrame) frames.get( i);
-      if( frame.label==label) return frame;
+  public StackMapFrame getFrame (Label label) {
+    for (int i = 0; i < frames.size(); i++) {
+      StackMapFrame frame = (StackMapFrame)frames.get(i);
+      if (frame.label == label) {
+        return frame;
+      }
     }
     return null;
   }
-  
-  protected Attribute read( ClassReader cr, int off, int len,
+
+  protected Attribute read (ClassReader cr, int off, int len,
                             char[] buf, int codeOff, Label[] labels) {
     StackMapAttribute attr = new StackMapAttribute();
     // note that this is not the size of Code attribute
-    int codeSize = cr.readInt( codeOff + 4);
+    int codeSize = cr.readInt(codeOff + 4);
     int size = 0;
-    if( codeSize>MAX_SIZE) {
-       size = cr.readInt( off);
-       off += 4;
+    if (codeSize > MAX_SIZE) {
+      size = cr.readInt(off);
+      off += 4;
     } else {
-       size = cr.readShort( off);
-       off += 2;
+      size = cr.readShort(off);
+      off += 2;
     }
-    for( int i = 0; i<size; i++) {
+    for (int i = 0; i < size; i++) {
       StackMapFrame frame = new StackMapFrame();
-      off = frame.read( cr, off, buf, codeOff, labels);    
-      attr.frames.add( frame);
+      off = frame.read(cr, off, buf, codeOff, labels);
+      attr.frames.add(frame);
     }
     return attr;
   }
 
-  protected ByteVector write( ClassWriter cw, byte[] code, int len, int maxStack, int maxLocals) {
+  protected ByteVector write (ClassWriter cw, byte[] code,
+                              int len, int maxStack, int maxLocals) {
     ByteVector bv = new ByteVector();
-    if( code.length>MAX_SIZE) bv.putInt( frames.size());
-    else bv.putShort( frames.size());
-    for( int i = 0; i<frames.size(); i++) {
-      (( StackMapFrame) frames.get( i)).write( cw, maxStack, maxLocals, bv);
+    if (code.length > MAX_SIZE) {
+      bv.putInt(frames.size());
+    } else {
+      bv.putShort(frames.size());
+    }
+    for (int i = 0; i < frames.size(); i++) {
+      ((StackMapFrame)frames.get(i)).write(cw, maxStack, maxLocals, bv);
     }
     return bv;
   }
-  
-  protected Label[] getLabels() {
+
+  protected Label[] getLabels () {
     HashSet labels = new HashSet();
-    for( int i = 0; i<frames.size(); i++)
-    	(( StackMapFrame) frames.get( i)).getLabels( labels);
-    return ( Label[]) labels.toArray( new Label[ labels.size()]);
-  }
-  
-  public void dump(StringBuffer buf, String varName, Map labelNames) {
-    buf.append( "{\n");
-    buf.append( "StackMapAttribute ").append( varName+"Attr").append( " = new StackMapAttribute();\n");
-    if( frames.size()>0) {
-      for( int i = 0; i<frames.size(); i++)
-        (( StackMapFrame) frames.get( i)).dump( buf, varName+"frame"+i, labelNames);
+    for (int i = 0; i < frames.size(); i++) {
+      ((StackMapFrame)frames.get(i)).getLabels(labels);
     }
-    buf.append( varName).append( ".visitAttribute(").append( varName+"Attr").append( ");\n");
-    buf.append( "}\n");
+    return (Label[])labels.toArray(new Label[labels.size()]);
   }
-  
-  public String toString() {
-    StringBuffer sb = new StringBuffer( "StackMap[");
-    for( int i = 0; i<frames.size(); i++)
-      sb.append( '\n').append( '[').append( frames.get( i)).append( ']');
-    sb.append( "\n]");
+
+  public void dump (StringBuffer buf, String varName, Map labelNames) {
+    buf.append("{\n");
+    buf.append("StackMapAttribute ").append(varName).append("Attr");
+    buf.append(" = new StackMapAttribute();\n");
+    if (frames.size() > 0) {
+      for (int i = 0; i < frames.size(); i++) {
+        ((StackMapFrame)frames.get(i))
+          .dump(buf, varName + "frame" + i, labelNames);
+      }
+    }
+    buf.append(varName).append(".visitAttribute(").append(varName);
+    buf.append("Attr);\n}\n");
+  }
+
+  public String toString () {
+    StringBuffer sb = new StringBuffer("StackMap[");
+    for (int i = 0; i < frames.size(); i++) {
+      sb.append('\n').append('[').append(frames.get(i)).append(']');
+    }
+    sb.append("\n]");
     return sb.toString();
   }
-
 }
-

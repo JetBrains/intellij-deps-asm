@@ -88,42 +88,42 @@ import org.objectweb.asm.Label;
  *   ParameterSignature ::= Ident ':' bound_TypeSignature
  * </pre>
  *
- * @see <a href="http://www.jcp.org/en/jsr/detail?id=14">JSR 14 : Add Generic Types To The JavaTM Programming Language</a>
+ * @see <a href="http://www.jcp.org/en/jsr/detail?id=14">JSR 14 : Add Generic
+ * Types To The JavaTM Programming Language</a>
  *
  * @author Eugene Kuleshov
  */
-public class SignatureAttribute extends Attribute implements Dumpable {
-  private String signature;
 
-  public SignatureAttribute() {
-    super( "Signature");
+public class SignatureAttribute extends Attribute implements Dumpable {
+
+  public String signature;
+
+  public SignatureAttribute () {
+    super("Signature");
   }
 
-  public SignatureAttribute( String signature) {
+  public SignatureAttribute (String signature) {
     this();
     this.signature = signature;
   }
 
-  public String getSignature() {
+  protected Attribute read (ClassReader cr, int off,
+                            int len, char[] buf, int codeOff, Label[] labels) {
+    return new SignatureAttribute(cr.readUTF8(off, buf));
+  }
+
+  protected ByteVector write (ClassWriter cw, byte[] code,
+                              int len, int maxStack, int maxLocals) {
+    return new ByteVector().putShort(cw.newUTF8(signature));
+  }
+
+  public void dump (StringBuffer buf, String varName, Map labelNames) {
+    buf.append("SignatureAttribute ").append(varName)
+      .append(" = new SignatureAttribute(\"")
+      .append(signature).append("\");\n");
+  }
+
+  public String toString () {
     return signature;
   }
-
-  protected Attribute read(ClassReader cr, int off, int len, char[] buf, int codeOff, Label[] labels) {
-    return new SignatureAttribute( cr.readUTF8( off, buf));
-  }
-
-  protected ByteVector write( ClassWriter cw, byte[] code,
-        int len, int maxStack, int maxLocals) {
-    return new ByteVector().putShort( cw.newUTF8( signature));
-  }
-
-  public void dump( StringBuffer buf, String varName, Map labelNames) {
-    buf.append( "SignatureAttribute ").append( varName).append( " = new SignatureAttribute(\""+signature+"\"));\n");
-  }
-  
-  public String toString() {
-    return signature;
-  }
-  
 }
-

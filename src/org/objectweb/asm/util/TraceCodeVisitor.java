@@ -174,7 +174,7 @@ public class TraceCodeVisitor extends PrintCodeVisitor {
   public void printLabel (final Label label) {
     buf.append("   ");
     appendLabel(label);
-    buf.append(":  // ").append( label).append( "\n");
+    buf.append(":  // ").append(label).append("\n");
 
     if (cv != null) {
       cv.visitLabel(label);
@@ -334,8 +334,9 @@ public class TraceCodeVisitor extends PrintCodeVisitor {
   }
 
   public void printAttribute (final Attribute attr) {
-    buf.append("    CODE ATTRIBUTE ").append(attr.type).append( " : ").append( attr.toString()).append("\n");
-    
+    buf.append("    CODE ATTRIBUTE ").append(attr.type).append(" : ")
+      .append(attr.toString()).append("\n");
+
     if (cv != null) {
       cv.visitAttribute(attr);
     }

@@ -44,10 +44,10 @@ import org.objectweb.asm.Label;
 
 
 /**
- * The EnclosingMethod attribute is an optional fixed-length attribute 
- * in the attributes table of the ClassFile structure. A class must 
- * have an EnclosingMethod attribute if and only if it is a local 
- * class or an anonymous class. A class may have no more than one 
+ * The EnclosingMethod attribute is an optional fixed-length attribute
+ * in the attributes table of the ClassFile structure. A class must
+ * have an EnclosingMethod attribute if and only if it is a local
+ * class or an anonymous class. A class may have no more than one
  * EnclosingMethod attribute.
  * <p>
  * The EnclosingMethod attribute has the following format:
@@ -63,53 +63,53 @@ import org.objectweb.asm.Label;
  * <dt>attribute_name_index</dt>
  * <dd>The value of the attribute_name_index item must be a valid index
  * into the constant_pool table. The constant_pool entry at that index
- * must be a CONSTANT_Utf8_info structure representing the string 
+ * must be a CONSTANT_Utf8_info structure representing the string
  * "EnclosingMethod".</dd>
  * <dt>attribute_length</dt>
  * <dd>The value of the attribute_length item is zero.</dd>
  * <dt>method_descriptor_index</dt>
- * <dd>The value of the method_descriptor_index item must be a valid 
- * index into the constant_pool table. The constant_pool entry at that 
- * index must be a CONSTANT_Utf8_info structure representing a valid 
+ * <dd>The value of the method_descriptor_index item must be a valid
+ * index into the constant_pool table. The constant_pool entry at that
+ * index must be a CONSTANT_Utf8_info structure representing a valid
  * method descriptor (JLS 4.4.3). It is the responsibility of the
  * Java compiler to ensure that the method identified via the
  * method_descriptor_index is indeed the closest lexically enclosing
  * method of the class that contains this EnclosingMethod attribute.</dd>
  * </dl>
- * 
+ *
  * @author Eugene Kuleshov
  */
+
 public class EnclosingMethodAttribute extends Attribute implements Dumpable {
-  private String methodDescriptor;
-  
-  public EnclosingMethodAttribute() {
-    super( "EnclosingMethod");
+
+  public String methodDescriptor;
+
+  public EnclosingMethodAttribute () {
+    super("EnclosingMethod");
   }
-  
-  public EnclosingMethodAttribute( String methodDescriptor) {
+
+  public EnclosingMethodAttribute (String methodDescriptor) {
     this();
     this.methodDescriptor = methodDescriptor;
   }
 
-  public String getMethodDescriptor() {
-    return this.methodDescriptor;
-  }
-  
-  protected Attribute read( ClassReader cr, int off, int len, char[] buf, int codeOff, Label[] labels) {
-    return new EnclosingMethodAttribute( cr.readUTF8( off, buf));
+  protected Attribute read (ClassReader cr, int off,
+                            int len, char[] buf, int codeOff, Label[] labels) {
+    return new EnclosingMethodAttribute(cr.readUTF8(off, buf));
   }
 
-  protected ByteVector write( ClassWriter cw, byte[] code, int len, int maxStack, int maxLocals) {
-    return new ByteVector().putShort( cw.newUTF8( methodDescriptor));
+  protected ByteVector write (ClassWriter cw, byte[] code,
+                              int len, int maxStack, int maxLocals) {
+    return new ByteVector().putShort(cw.newUTF8(methodDescriptor));
   }
 
-  public void dump( StringBuffer buf, String varName, Map labelNames) {
-    buf.append( "EnclosingMethodAttribute ").append( varName).append( " = new EnclosingMethodAttribute(\""+methodDescriptor+"\"));\n");
+  public void dump (StringBuffer buf, String varName, Map labelNames) {
+    buf.append("EnclosingMethodAttribute ").append(varName)
+      .append(" = new EnclosingMethodAttribute(\"")
+      .append(methodDescriptor).append("\");\n");
   }
-  
-  public String toString() {
+
+  public String toString () {
     return methodDescriptor;
   }
-  
 }
-

@@ -40,6 +40,7 @@ import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Label;
 
+import java.util.Map;
 
 /**
  * The AnnotationDefault attribute is a variable length attribute in the
@@ -50,7 +51,7 @@ import org.objectweb.asm.Label;
  * at most one AnnotationDefault attribute. The JVM must make this default value
  * available so it can be applied by appropriate reflective APIs.
  * <p>
- * The AnnotationDefault attribute has the following format: 
+ * The AnnotationDefault attribute has the following format:
  * <pre>
  *    AnnotationDefault_attribute {
  *      u2 attribute_name_index;
@@ -58,7 +59,7 @@ import org.objectweb.asm.Label;
  *      member_value default_value;
  *    }
  * </pre>
- * The items of the AnnotationDefault structure are as follows: 
+ * The items of the AnnotationDefault structure are as follows:
  * <dl>
  * <dt>attribute_name_index</dt>
  * <dd>The value of the attribute_name_index item must be a valid index into the
@@ -70,38 +71,50 @@ import org.objectweb.asm.Label;
  *     thus dependent on the default value.</dd>
  * <dt>default_value</dt>
  * <dd>The default_value item represents the default value of the annotation type
- *     {@link org.objectweb.asm.attrs.AnnotationMemberValue member} whose default 
+ *     {@link org.objectweb.asm.attrs.AnnotationMemberValue member} whose default
  *     value is represented by this AnnotationDefault attribute.</dd>
  * </dl>
- * 
- * @see <a href="http://www.jcp.org/en/jsr/detail?id=175">JSR 175 : A Metadata Facility for the Java Programming Language</a>
- * 
+ *
+ * @see <a href="http://www.jcp.org/en/jsr/detail?id=175">JSR 175 : A Metadata
+ * Facility for the Java Programming Language</a>
+ *
  * @author Eugene Kuleshov
  */
-public class AnnotationDefaultAttribute extends Attribute {
+
+public class AnnotationDefaultAttribute extends Attribute implements Dumpable {
+
   public AnnotationMemberValue defaultValue;
-  
-  public AnnotationDefaultAttribute() {
-    super( "AnnotationDefault");
+
+  public AnnotationDefaultAttribute () {
+    super("AnnotationDefault");
   }
 
-  protected Attribute read( ClassReader cr, int off, int len, char[] buf, int codeOff, Label[] labels) {
+  protected Attribute read (ClassReader cr, int off,
+                            int len, char[] buf, int codeOff, Label[] labels) {
     AnnotationDefaultAttribute ann = new AnnotationDefaultAttribute();
     ann.defaultValue = new AnnotationMemberValue();
-    ann.defaultValue.read( cr, off, buf);
-    return ann; 
+    ann.defaultValue.read(cr, off, buf);
+    return ann;
   }
 
-  protected ByteVector write( ClassWriter cw, byte[] code, int len, int maxStack, int maxLocals) {
-    return defaultValue.write( new ByteVector(), cw);
+  protected ByteVector write (ClassWriter cw, byte[] code,
+                              int len, int maxStack, int maxLocals) {
+    return defaultValue.write(new ByteVector(), cw);
+  }
+
+  public void dump (StringBuffer buf, String varName, Map labelNames) {
+    buf.append("AnnotationDefaultAttribute ").append(varName)
+      .append(" = new AnnotationDefaultAttribute();\n");
+    defaultValue.dump(buf, varName + "Val");
+    buf.append(varName).append(".defaultValue = ")
+      .append(varName).append("Val;\n");
   }
 
   /**
    * Returns value in the format described in JSR-175 for Java source code.
    */
-  public String toString() {
-    return "default "+defaultValue;
-  }
-  
-}
 
+  public String toString () {
+    return "default " + defaultValue;
+  }
+}

@@ -1,11 +1,7 @@
 
 package annotations;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
 import java.lang.annotation.Annotation;
-import java.net.URL;
 
 import junit.framework.TestCase;
 
@@ -15,30 +11,47 @@ public class ValuesTest extends TestCase {
   private ValuesAnnotation a;
 
   protected void setUp() throws Exception {
-    Annotation[] annotations = getValuesClass().getAnnotations();
+    TestClassLoader cl = new TestClassLoader( "annotations.Values", getClass().getClassLoader());
+    Class c = cl.loadClass( "annotations.Values");
+    Annotation[] annotations = c.getAnnotations();
     a = ( ValuesAnnotation) annotations[ 0];
   }
 
-  private Class getValuesClass() throws Exception {
-    try {
-      TestClassLoader cl = new TestClassLoader( "annotations.Values", getClass().getClassLoader());
-      return cl.loadClass( "annotations.Values");
-      
-    } catch( Exception e) {
-      e.printStackTrace();
-      throw e;
-    }
-    // return Values.class;
-  }
 
   public void testByteValue() {
     assertEquals( 1, a.byteValue());
   }
 
-  public void testByteArrayValue() {
-    byte[] bs = a.byteArrayValue();
-    assertEquals( 1, bs[0]);
-    assertEquals( 2, bs[1]);
+  public void testCharValue() {
+    assertEquals( 'A', a.charValue());
+  }
+
+  public void testBooleanValue() {
+    assertEquals( true, a.booleanValue());
+  }
+
+  public void testIntValue() {
+    assertEquals( 1, a.intValue());
+  }
+
+  public void testShortValue() {
+    assertEquals( 1, a.shortValue());
+  }
+
+  public void testLongValue() {
+    assertEquals( 1L, a.longValue());
+  }
+
+  public void testFloatValue() {
+    assertEquals( 1.0f, a.floatValue(), 0.1f);
+  }
+
+  public void testDoubleValue() {
+    assertEquals( 1.0d, a.doubleValue(), 0.1d);
+  }
+
+  public void testStringValue() {
+    assertEquals( "A", a.stringValue());
   }
 
   public void testAnnotationValue() {
@@ -46,6 +59,90 @@ public class ValuesTest extends TestCase {
     assertEquals( "annotation", ann.value());
   }
 
+  public void testEnumValue() {
+    ValuesEnum en = a.enumValue();
+    assertEquals( ValuesEnum.ONE, en);
+  }
+  
+  public void testClassValue() {
+    Class c = a.classValue();
+    assertEquals( Values.class.getName(), c.getName());
+  }
+  
+  
+  public void testByteArrayValue() {
+    byte[] bs = a.byteArrayValue();
+    assertEquals( 1, bs[0]);
+    assertEquals( 2, bs[1]);
+  }
+
+  public void testCharArrayValue() {
+    char[] bs = a.charArrayValue();
+    assertEquals( 'c', bs[0]);
+    assertEquals( 'b', bs[1]);
+    assertEquals( 3, bs[2]);
+  }
+
+  public void testBooleanArrayValue() {
+    boolean[] bs = a.booleanArrayValue();
+    assertEquals( true, bs[0]);
+    assertEquals( false, bs[1]);
+  }
+
+  public void testIntArrayValue() {
+    int[] bs = a.intArrayValue();
+    assertEquals( 1, bs[0]);
+    assertEquals( 2, bs[1]);
+  }
+
+  public void testShortArrayValue() {
+    short[] bs = a.shortArrayValue();
+    assertEquals( 1, bs[0]);
+    assertEquals( 2, bs[1]);
+  }
+
+  public void testLongArrayValue() {
+    long[] bs = a.longArrayValue();
+    assertEquals( 1L, bs[0]);
+    assertEquals( 2L, bs[1]);
+  }
+
+  public void testFloatArrayValue() {
+    float[] bs = a.floatArrayValue();
+    assertEquals( 1.0f, bs[0], 0.1f);
+    assertEquals( 2.0f, bs[1], 0.1f);
+  }
+
+  public void testDoubleArrayValue() {
+    double[] bs = a.doubleArrayValue();
+    assertEquals( 1.0d, bs[0], 0.1d);
+    assertEquals( 2.0d, bs[1], 0.1d);
+  }
+
+  public void testStringArrayValue() {
+    String[] s = a.stringArrayValue();
+    assertEquals( "aa", s[0]);
+    assertEquals( "bb", s[1]);
+  }
+
+  public void testAnnotationArrayValue() {
+    ValueAttrAnnotation[] ann = a.annotationArrayValue();
+    assertEquals( "annotation1", ann[0].value());
+    assertEquals( "annotation2", ann[1].value());
+  }
+
+  public void testEnumArrayValue() {
+    ValuesEnum[] en = a.enumArrayValue();
+    assertEquals( ValuesEnum.ONE, en[0]);
+    assertEquals( ValuesEnum.TWO, en[1]);
+  }
+  
+  public void testClassArrayValue() {
+    Class[] c = a.classArrayValue();
+    assertEquals( Values.class.getName(), c[0].getName());
+    assertEquals( Values.class.getName(), c[1].getName());
+  }
+  
   
   private static final class TestClassLoader extends ClassLoader {
     private final String className;
@@ -61,31 +158,19 @@ public class ValuesTest extends TestCase {
       if( className.equals( name)) {
         try {
           byte[] bytecode = ValuesDump.dump();
-          System.err.println("LOADED "+name);
           return super.defineClass( className, bytecode, 0, bytecode.length);            
         
         } catch( Exception ex) {
           ex.printStackTrace();
           throw new ClassNotFoundException( "Load error: "+ex.toString(), ex);
         
-        }
-        
+        }        
       }
       
       return loader.loadClass( name);
     }
 
-    
-    public static byte[] getCode( InputStream is) throws IOException {
-      ByteArrayOutputStream bos = new ByteArrayOutputStream();
-      byte[] buff = new byte[ 1024];
-      int n = -1;
-      while(( n = is.read( buff))>-1) bos.write( buff, 0, n);
-      return bos.toByteArray();
-    }
-    
   }
-  
   
 }
 

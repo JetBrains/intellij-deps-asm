@@ -14,7 +14,7 @@
   </target>
   
   <target name="run" depends="build">
-    <junit fork="no" printsummary="yes"
+    <junit fork="no" printsummary="yes" showoutput="yes" 
            errorproperty="test.failed"
            failureproperty="test.failed">
       <batchtest fork="no" todir="reports">
@@ -22,7 +22,7 @@
           <include name="**/*Test.java"/>
         </fileset>
       </batchtest>
-      <formatter type="xml"/>
+      <formatter type="brief"/>
       <classpath>
         <pathelement location="classes"/>
         <pathelement location=""/>
@@ -32,6 +32,9 @@
         </fileset>
       </classpath>
     </junit>
+    
+    <loadfile property="report.file" srcfile="reports/TEST-annotations.ValuesTest.txt"/>
+    <echo message="${report.file}}"/>
   </target>
 
 </project>

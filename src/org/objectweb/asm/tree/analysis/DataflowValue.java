@@ -30,8 +30,6 @@
 
 package org.objectweb.asm.tree.analysis;
 
-import java.util.Collections;
-import java.util.HashSet;
 import java.util.Set;
 
 import org.objectweb.asm.tree.AbstractInsnNode;
@@ -68,13 +66,12 @@ public class DataflowValue implements Value {
   public final Set insns;
   
   public DataflowValue (final int size) {
-    this(size, Collections.EMPTY_SET);
+    this(size, SmallSet.EMPTY_SET);
   }
   
   public DataflowValue (final int size, final AbstractInsnNode insn) {
     this.size = size;
-    this.insns = new HashSet();
-    this.insns.add(insn);
+    this.insns = new SmallSet(insn, null);
   }
   
   public DataflowValue (final int size, final Set insns) {

@@ -156,7 +156,15 @@ public class DataflowInterpreter implements Opcodes, Interpreter {
   public Value merge (final Value v, final Value w) {
     DataflowValue dv = (DataflowValue)v;
     DataflowValue dw = (DataflowValue)w;
-    if (dv.size != dw.size || !dv.insns.equals(dw.insns)) {
+    if (dv.insns instanceof SmallSet && dw.insns instanceof SmallSet) {
+      Set s = ((SmallSet)dv.insns).union((SmallSet)dw.insns);
+      if (s == dv.insns && dv.size == dw.size) {
+        return v;
+      } else {
+        return new DataflowValue(Math.min(dv.size, dw.size), s);
+      }
+    }
+    if (dv.size != dw.size || !dv.insns.containsAll(dw.insns)) {
       Set s = new HashSet();
       s.addAll(dv.insns);
       s.addAll(dw.insns);

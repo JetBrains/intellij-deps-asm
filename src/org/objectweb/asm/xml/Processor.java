@@ -128,18 +128,18 @@ public class Processor extends Observable implements Observer {
   
   
   public Processor( int inRepresenation, int outRepresentation, 
-        InputStream input, OutputStream output, Source xslt, boolean computeMax) {
+        InputStream input, OutputStream output, Source xslt) {
     this.inRepresentation = inRepresenation;
     this.outRepresentation = outRepresentation;
     this.input = input;
   	this.output = output;
   	this.xslt = xslt;
-    this.computeMax = computeMax;
+    this.computeMax = true;
   }
 	
-  private int process() throws TransformerException, IOException, SAXException {
+  public int process() throws TransformerException, IOException, SAXException {
     ZipInputStream zis = new ZipInputStream( input);
-    final ZipOutputStream zos = new ZipOutputStream( new BufferedOutputStream( output));
+    final ZipOutputStream zos = new ZipOutputStream( output);
     final OutputStreamWriter osw = new OutputStreamWriter( zos);
     
     Thread.currentThread().setContextClassLoader( getClass().getClassLoader());
@@ -315,17 +315,18 @@ public class Processor extends Observable implements Observer {
 
   private byte[] readEntry(ZipInputStream zis, ZipEntry ze) throws IOException {
     long size = ze.getSize();
-    int n;
     if (size > -1) {
       byte[] buff = new byte[(int) size];
-      int k = 0;
-      while(( n = zis.read(buff, k, buff.length-k)) != -1) {
-        k += n;
-      }
+      // int k = 0;
+      // while(( n = zis.read(buff, k, buff.length-k)) > 0) {
+      //   k += n;
+      // }
+      zis.read(buff);
       return buff;
     } else {
       ByteArrayOutputStream bos = new ByteArrayOutputStream();
       byte[] buff = new byte[4096];
+      int n;
       while(( n = zis.read(buff)) != -1) {
         bos.write(buff, 0, n);
       }
@@ -362,20 +363,20 @@ public class Processor extends Observable implements Observer {
     OutputStream os = null;
     
     Source xslt = null;
-    boolean computeMax = true;
+    // boolean computeMax = true;
     
     for( int i = 2; i<args.length; i++) {
       if( "-in".equals( args[ i])) {
         is = new FileInputStream( args[ ++i]);    
       
       } else if( "-out".equals( args[ i])) {
-        os = new FileOutputStream( args[ ++i]);    
+        os = new BufferedOutputStream( new FileOutputStream( args[ ++i]));    
       
       } else if( "-xslt".equals( args[ i])) {
         xslt = new StreamSource( new FileInputStream( args[ ++i]));    
       
-      } else if( "-computemax".equals( args[ i].toLowerCase())) {
-        computeMax = true;
+      // } else if( "-computemax".equals( args[ i].toLowerCase())) {
+      //   computeMax = true;
       
       } else {
         showUsage();
@@ -389,7 +390,7 @@ public class Processor extends Observable implements Observer {
       return;
     }
     
-    Processor m = new Processor( inRepresentation, outRepresentation, is, os, xslt, computeMax);
+    Processor m = new Processor( inRepresentation, outRepresentation, is, os, xslt);
     m.addObserver( m);
     
     long l1 = System.currentTimeMillis();
@@ -411,7 +412,7 @@ public class Processor extends Observable implements Observer {
   }
 
   private static void showUsage() {
-    System.err.println( "Usage: Main <in format> <out format> [-computemax] -in <input jar> -out <output jar> [-xslt <xslt fiel>]");
+    System.err.println( "Usage: Main <in format> <out format> -in <input jar> -out <output jar> [-xslt <xslt fiel>]");
     System.err.println( "  <in format> and <out format> - code | xml | singlexml");
   }
 
@@ -762,13 +763,13 @@ public class Processor extends Observable implements Observer {
     }
     
     public void startElement( String namespaceURI, String localName, String qName, Attributes list) throws SAXException {
-      if( localName.equals( subdocumentRoot)) {
-        subdocumentHandler = subdocumentHandlerFactory.createContentHandler();
-        subdocumentHandler.startDocument();
-        subdocument = true;
-      }
       if( subdocument) { 
         subdocumentHandler.startElement( namespaceURI, localName, qName, list);
+      } else if( localName.equals( subdocumentRoot)) {
+        subdocumentHandler = subdocumentHandlerFactory.createContentHandler();
+        subdocumentHandler.startDocument();
+        subdocumentHandler.startElement( namespaceURI, localName, qName, list);
+        subdocument = true;
       } else if( rootHandler!=null) {
         rootHandler.startElement( namespaceURI, localName, qName, list);
       }
@@ -846,7 +847,9 @@ public class Processor extends Observable implements Observer {
     }
     
     public void startElement( String namespaceURI, String localName, String qName, Attributes list) throws SAXException {
-      if( localName.equals( subdocumentRoot)) {
+      if( subdocument) { 
+        subdocumentHandler.startElement( namespaceURI, localName, qName, list);
+      } else if( localName.equals( subdocumentRoot)) {
         String name = list.getValue( "name");
         if( name==null || name.length()==0) throw new SAXException( "Class element without name attribute.");
         try {
@@ -856,10 +859,8 @@ public class Processor extends Observable implements Observer {
         }
         subdocumentHandler = subdocumentHandlerFactory.createContentHandler();
         subdocumentHandler.startDocument();
-        subdocument = true;
-      }
-      if( subdocument) { 
         subdocumentHandler.startElement( namespaceURI, localName, qName, list);
+        subdocument = true;
       }
     }
     

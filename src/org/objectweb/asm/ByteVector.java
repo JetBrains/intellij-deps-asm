@@ -274,7 +274,9 @@ final class ByteVector {
    */
 
   private void enlarge (final int size) {
-    byte[] newData = new byte[Math.max(2*data.length, length + size)];
+    int length1 = 2 * data.length;
+    int length2 = length + size;
+    byte[] newData = new byte[length1 > length2 ? length1 : length2];
     System.arraycopy(data, 0, newData, 0, length);
     data = newData;
   }

@@ -45,7 +45,8 @@ import org.objectweb.asm.Label;
 /**
  * The Signature Attribute introduced in JSR-14 (Adding Generics to the
  * Java Programming Language) and also defined in the Java Virtual Machine
- * Specification, 3rd edition draft.
+ * Specification, 3rd edition draft. This atribute is used for classes,
+ * fields and methods.
  * <p>
  * Classfiles need to carry generic type information in a backwards
  * compatible way. This is accomplished by introducing a new "Signature"

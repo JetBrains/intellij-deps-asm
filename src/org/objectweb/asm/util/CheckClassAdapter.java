@@ -41,6 +41,7 @@ import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Attribute;
+import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.MethodNode;
 import org.objectweb.asm.tree.ClassNode;
@@ -106,7 +107,11 @@ public class CheckClassAdapter extends ClassAdapter {
     for (int i = 0; i < methods.size(); ++i) {
       MethodNode method = (MethodNode)methods.get(i);
       if (method.instructions.size() > 0) {
-        Analyzer a = new Analyzer(new SimpleVerifier());
+        Analyzer a = new Analyzer(
+          new SimpleVerifier(
+            Type.getType("L" + cn.name + ";"), 
+            Type.getType("L" + cn.superName + ";"), 
+            (cn.access & Opcodes.ACC_INTERFACE) != 0));
         try {
           a.analyze(cn.name, method);
           continue;

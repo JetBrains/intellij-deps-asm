@@ -43,6 +43,51 @@ import org.objectweb.asm.Type;
 
 public class SimpleVerifier extends BasicVerifier {
 
+  /**
+   * The class that is verified.
+   */
+  
+  private final Type currentClass;
+  
+  /**
+   * The super class of the class that is verified. 
+   */
+  
+  private final Type currentSuperClass;
+  
+  /**
+   * If the class that is verified is an interface.
+   */
+  
+  private final boolean isInterface;
+  
+  /**
+   * Constructs a new {@link SimpleVerifier}.
+   */
+  
+  public SimpleVerifier () {
+    this(null, null, false);
+  }
+  
+  /**
+   * Constructs a new {@link SimpleVerifier} to verify a specific class. This
+   * class will not be loaded into the JVM since it may be incorrect.
+   *  
+   * @param currentClass the class that is verified. 
+   * @param currentSuperClass the super class of the class that is verified. 
+   * @param isInterface if the class that is verified is an interface.
+   */
+  
+  public SimpleVerifier (
+    final Type currentClass, 
+    final Type currentSuperClass,
+    final boolean isInterface) 
+  {
+    this.currentClass = currentClass;
+    this.currentSuperClass = currentSuperClass;
+    this.isInterface = isInterface;
+  }
+  
   public Value newValue (final Type type) {
     Value v = super.newValue(type);
     if (v == BasicValue.REFERENCE_VALUE) {
@@ -99,12 +144,10 @@ public class SimpleVerifier extends BasicVerifier {
         if (expectedType.getDescriptor().equals("Lnull;")) {
           return type.getSort() == Type.OBJECT || type.getSort() == Type.ARRAY;
         }
-        Class expectedClass = getClass(expectedType);
         if (type.getDescriptor().equals("Lnull;")) {
-          return !expectedClass.isPrimitive();
+          return true;
         } else if (type.getSort() == Type.OBJECT || type.getSort() == Type.ARRAY) {
-          Class actualClass = getClass(type);
-          return expectedClass.isAssignableFrom(actualClass);
+          return isAssignableFrom(expectedType, type);
         } else {
           return false;
         }
@@ -125,24 +168,22 @@ public class SimpleVerifier extends BasicVerifier {
           if (u.getDescriptor().equals("Lnull;")) {
             return v;
           }
-          Class c = getClass(t);
-          Class d = getClass(u);
-          if (c.isAssignableFrom(d)) {
+          if (isAssignableFrom(t, u)) {
             return v;
           }
-          if (d.isAssignableFrom(c)) {
+          if (isAssignableFrom(u, t)) {
             return w;
           }
           // TODO case of array classes of the same dimension
           // TODO should we look also for a common super interface?
           //      problem: there may be several possible common super interfaces
           do {
-            if (c == null || c.isInterface()) {
+            if (t == null || isInterface(t)) {
               return BasicValue.REFERENCE_VALUE;
             }
-            c = c.getSuperclass();
-            if (c.isAssignableFrom(d)) {
-              return newValue(Type.getType(c));
+            t = getSuperClass(t);
+            if (isAssignableFrom(t, u)) {
+              return newValue(t);
             }
           } while (true);
         }
@@ -150,6 +191,34 @@ public class SimpleVerifier extends BasicVerifier {
       return BasicValue.UNINITIALIZED_VALUE;
     }
     return v;
+  }
+
+  private boolean isInterface (final Type t) {
+    if (currentClass != null && t.equals(currentClass)) {
+      return isInterface;
+    }
+    return getClass(t).isInterface();
+  }
+  
+  private Type getSuperClass (final Type t) {
+    if (currentClass != null && t.equals(currentClass)) {
+      return currentSuperClass;
+    }
+    Class c = getClass(t).getSuperclass();
+    return c == null ? null : Type.getType(c);
+  }
+  
+  private boolean isAssignableFrom (final Type t, final Type u) {
+    if (t.equals(u)) {
+      return true;
+    }
+    if (currentClass != null && t.equals(currentClass)) {
+      return isAssignableFrom(t, getSuperClass(u));
+    }
+    if (currentClass != null && u.equals(currentClass)) {
+      return isAssignableFrom(t, currentSuperClass);
+    }
+    return getClass(t).isAssignableFrom(getClass(u));
   }
 
   protected Class getClass (final Type t) {

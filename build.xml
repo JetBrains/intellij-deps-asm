@@ -326,6 +326,8 @@
     <zip zipFile="${zip}/${product.name}_${product.version}_src.zip">
       <zipfileset dir="${basedir}" prefix="${product.name}/dev">
          <exclude name="web/**/*"/>
+         <exclude name="CVSROOT/**/*"/>
+         <exclude name="CVSROOT"/>
       </zipfileset>
     </zip>
     <zip zipFile="${zip}/${product.name}_${product.version}_bin.zip">

@@ -1,0 +1,42 @@
+<project>
+  <pomVersion>3</pomVersion>
+
+  <id>@product.name@</id>
+  <name>@product.name@</name>
+  <groupId>asm</groupId>
+  <currentVersion>@product.version@</currentVersion>
+  
+  <organization>
+    <name>ObjectWeb</name>
+    <url>http://www.objectweb.org/</url>
+  </organization>
+  <inceptionYear>2000</inceptionYear>
+
+  <shortDescription>A very small and fast Java bytecode manipulation framework</shortDescription>
+  <url>http://asm.objectweb.org/</url>
+
+  <developers>
+    <developer>
+      <name>Eric Bruneton</name>
+      <id>ebruneton</id>
+      <email>Eric.Bruneton@rd.francetelecom.com</email>
+      <roles>
+        <role>Creator</role>
+        <role>Java Developer</role>
+      </roles>
+    </developer>
+    <developer>
+      <name>Eugene Kuleshov</name>
+      <id>eu</id>
+      <email>eu@javatx.org</email>
+      <roles>
+        <role>Java Developer</role>
+      </roles>
+    </developer>
+  </developers>
+
+  <dependencies/>
+
+  <build/>
+
+</project>

@@ -1,6 +1,8 @@
 <project name="asm" default="dist">
   <target name="dist">
-    <jar jarfile="${out.dist.lib}/asm-xml-${product.version}.jar"
+    <property name="product.id" value="asm-xml"/>
+
+    <jar jarfile="${out.dist.lib}/${product.id}-${product.version}.jar"
          basedir="${out.build}">
       <include name="org/objectweb/asm/xml/*.class"/>
       <manifest>
@@ -11,5 +13,9 @@
         <attribute name="Main-class" value="org.objectweb.asm.xml.Processor"/>
       </manifest>
     </jar>
+
+    <copy file="${archive}/maven-pom-template.xml" toFile="${out.dist.lib}/${product.id}-${product.version}.xml"/>
+    <replace file="${out.dist.lib}/${product.id}-${product.version}.xml" token="@product.name@" value="${product.id}"/>
+    <replace file="${out.dist.lib}/${product.id}-${product.version}.xml" token="@product.version@" value="${product.version}"/>
   </target>
 </project>

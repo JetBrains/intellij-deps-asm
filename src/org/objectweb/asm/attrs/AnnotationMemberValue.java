@@ -189,7 +189,7 @@ public class AnnotationMemberValue {
    * @return offset position in bytecode after reading annotation
    */
   public int read( ClassReader cr, int off, char[] buf) {
-    int tag = cr.readUnsignedShort( off++) >> 8;
+    int tag = cr.readByte( off++);
     switch( tag) {
       case 'B':  // pointer to CONSTANT_Byte
       case 'C':  // pointer to CONSTANT_Char

@@ -102,7 +102,7 @@ public class StackMapFrame {
        off += 2;
     }
     for( int j = 0; j<n; j++) {
-      int itemType = cr.readUnsignedShort( off++) >> 8;
+      int itemType = cr.readByte( off++);
       StackMapTypeInfo typeInfo = StackMapTypeInfo.getTypeInfo( itemType);
       info.add( typeInfo);
       switch( itemType) {

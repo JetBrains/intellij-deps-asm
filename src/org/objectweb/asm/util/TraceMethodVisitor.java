@@ -51,21 +51,21 @@ public class TraceMethodVisitor extends TraceAbstractVisitor
   /**
    * Tab for bytecode instructions.
    */
-  
+
   protected String tab2 = "    ";
-  
+
   /**
    * Tab for table and lookup switch instructions.
    */
-  
+
   protected String tab3 = "      ";
-  
+
   /**
    * Tab for labels.
    */
-  
+
   protected String ltab = "   ";
-  
+
   /**
    * The label names. This map associate String values to Label keys.
    */
@@ -109,8 +109,9 @@ public class TraceMethodVisitor extends TraceAbstractVisitor
     text.add("\n");
     return tav;
   }
-  
+
   public void visitCode () {
+      // does nothing
   }
 
   public void visitInsn (final int opcode) {
@@ -159,7 +160,7 @@ public class TraceMethodVisitor extends TraceAbstractVisitor
     buf.setLength(0);
     buf.append(tab2).append(OPCODES[opcode]).append(' ');
     appendDescriptor(INTERNAL_NAME, owner);
-    buf.append(' ').append(name).append(' ');
+    buf.append('.').append(name).append(" : ");
     appendDescriptor(FIELD_DESCRIPTOR, desc);
     buf.append('\n');
     text.add(buf.toString());
@@ -174,7 +175,7 @@ public class TraceMethodVisitor extends TraceAbstractVisitor
     buf.setLength(0);
     buf.append(tab2).append(OPCODES[opcode]).append(' ');
     appendDescriptor(INTERNAL_NAME, owner);
-    buf.append(' ').append(name).append(' ');
+    buf.append('.').append(name).append(' ');
     appendDescriptor(METHOD_DESCRIPTOR, desc);
     buf.append('\n');
     text.add(buf.toString());
@@ -288,7 +289,7 @@ public class TraceMethodVisitor extends TraceAbstractVisitor
     buf.append('\n');
     text.add(buf.toString());
   }
-  
+
   public void visitLocalVariable (
     final String name,
     final String desc,
@@ -301,14 +302,16 @@ public class TraceMethodVisitor extends TraceAbstractVisitor
     buf.append(tab2).append("LOCALVARIABLE ").append(name).append(' ');
     appendDescriptor(FIELD_DESCRIPTOR, desc);
     buf.append(' ');
-    if(signature != null){
-        appendDescriptor(FIELD_SIGNATURE, signature);
-    }
-    buf.append(' ');
     appendLabel(start);
     buf.append(' ');
     appendLabel(end);
-    buf.append(' ').append(index).append('\n');
+    buf.append(' ').append(index);
+    if(signature != null){
+        buf.append(' ');
+        appendDescriptor(FIELD_SIGNATURE, signature);
+    } else {
+        buf.append('\n');
+    }
     text.add(buf.toString());
   }
 

@@ -1806,7 +1806,7 @@ public class CodeWriter implements CodeVisitor {
    * @return the current size of the bytecode of this method.
    */
 
-  protected int getCodeSize () {
+  public int getCodeSize () {
     return code.length;
   }
 
@@ -1820,7 +1820,7 @@ public class CodeWriter implements CodeVisitor {
    *      getCodeSize} (exclusive).
    */
 
-  protected byte[] getCode () {
+  public byte[] getCode () {
     return code.data;
   }
 }

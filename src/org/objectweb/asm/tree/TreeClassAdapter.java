@@ -128,6 +128,8 @@ public class TreeClassAdapter extends ClassAdapter {
   }
 
   public void visitEnd () {
-    classNode.accept(cv);
+    if( cv!=null) {
+      classNode.accept(cv);
+    }
   }
 }

@@ -26,10 +26,6 @@
  * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
  * THE POSSIBILITY OF SUCH DAMAGE.
- *
- * Contact: Eric.Bruneton@rd.francetelecom.com
- *
- * Author: Eric Bruneton
  */
 
 package org.objectweb.asm.util;
@@ -51,6 +47,8 @@ import java.util.HashMap;
  * For example, in a method whose signature is <tt>void m ()</tt>, the invalid
  * instruction IRETURN, or the invalid sequence IADD L2I will <i>not</i> be
  * detected by this code adapter.
+ * 
+ * @author Eric Bruneton
  */
 
 public class CheckCodeAdapter extends CodeAdapter {

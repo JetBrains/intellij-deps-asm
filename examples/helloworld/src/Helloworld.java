@@ -26,15 +26,15 @@
  * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
  * THE POSSIBILITY OF SUCH DAMAGE.
- *
- * Contact: Eric.Bruneton@rd.francetelecom.com
- *
- * Author: Eric Bruneton
  */
 
 import org.objectweb.asm.*;
 import java.lang.reflect.*;
 import java.io.FileOutputStream;
+
+/**
+ * @author Eric Bruneton
+ */
 
 public class Helloworld extends ClassLoader implements Constants {
 

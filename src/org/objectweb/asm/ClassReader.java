@@ -26,10 +26,6 @@
  * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
  * THE POSSIBILITY OF SUCH DAMAGE.
- *
- * Contact: Eric.Bruneton@rd.francetelecom.com
- *
- * Author: Eric Bruneton
  */
 
 package org.objectweb.asm;
@@ -42,6 +38,8 @@ import java.io.IOException;
  * existing class. This class parses a byte array conforming to the Java class
  * file format and calls the appropriate visit methods of a given class visitor
  * for each field, method and bytecode instruction encountered.
+ * 
+ * @author Eric Bruneton
  */
 
 public class ClassReader {

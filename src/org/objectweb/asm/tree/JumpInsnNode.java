@@ -26,10 +26,6 @@
  * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
  * THE POSSIBILITY OF SUCH DAMAGE.
- *
- * Contact: Eric.Bruneton@rd.francetelecom.com
- *
- * Author: Eric Bruneton
  */
 
 package org.objectweb.asm.tree;
@@ -40,6 +36,8 @@ import org.objectweb.asm.CodeVisitor;
 /**
  * A node that represents a jump instruction. A jump instruction is an
  * instruction that may jump to another instruction.
+ * 
+ * @author Eric Bruneton
  */
 
 public class JumpInsnNode extends AbstractInsnNode {

@@ -26,10 +26,6 @@
  * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
  * THE POSSIBILITY OF SUCH DAMAGE.
- *
- * Contact: Eric.Bruneton@rd.francetelecom.com
- *
- * Author: Eric Bruneton
  */
 
 package org.objectweb.asm;
@@ -42,6 +38,8 @@ package org.objectweb.asm;
  * opcodes are therefore not defined in this interface. Likewise for LDC,
  * automatically replaced by LDC_W or LDC2_W when necessary, WIDE, GOTO_W and
  * JSR_W.
+ * 
+ * @author Eric Bruneton, Eugene Kuleshov
  */
 
 public interface Constants {

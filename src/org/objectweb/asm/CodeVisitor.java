@@ -26,10 +26,6 @@
  * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
  * THE POSSIBILITY OF SUCH DAMAGE.
- *
- * Contact: Eric.Bruneton@rd.francetelecom.com
- *
- * Author: Eric Bruneton
  */
 
 package org.objectweb.asm;
@@ -43,6 +39,8 @@ package org.objectweb.asm;
  * visitLocalVariable} and {@link #visitLineNumber visitLineNumber} methods may
  * be called in any order, at any time (provided the labels passed as arguments
  * have already been visited with {@link #visitLabel visitLabel}).
+ * 
+ * @author Eric Bruneton
  */
 
 public interface CodeVisitor {

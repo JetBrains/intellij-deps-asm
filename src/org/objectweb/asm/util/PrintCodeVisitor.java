@@ -26,10 +26,6 @@
  * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
  * THE POSSIBILITY OF SUCH DAMAGE.
- *
- * Contact: Eric.Bruneton@rd.francetelecom.com
- *
- * Author: Eric Bruneton
  */
 
 package org.objectweb.asm.util;
@@ -49,6 +45,8 @@ import java.util.List;
  * print code visitor, one must implement the <tt>print</tt><i>XXX</i> methods
  * in a sub class of this class. Each method should print the instructions it
  * visits in {@link #buf buf}.
+ * 
+ * @author Eric Bruneton, Eugene Kuleshov
  */
 
 public abstract class PrintCodeVisitor implements CodeVisitor {

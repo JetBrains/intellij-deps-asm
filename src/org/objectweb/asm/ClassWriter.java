@@ -26,10 +26,6 @@
  * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
  * THE POSSIBILITY OF SUCH DAMAGE.
- *
- * Contact: Eric.Bruneton@rd.francetelecom.com
- *
- * Author: Eric Bruneton
  */
 
 package org.objectweb.asm;
@@ -40,6 +36,8 @@ package org.objectweb.asm;
  * file format. It can be used alone, to generate a Java class "from scratch",
  * or with one or more {@link ClassReader ClassReader} and adapter class
  * visitor to generate a modified class from one or more existing Java classes.
+ * 
+ * @author Eric Bruneton
  */
 
 public class ClassWriter implements ClassVisitor {

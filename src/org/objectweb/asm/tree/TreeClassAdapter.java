@@ -26,10 +26,6 @@
  * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
  * THE POSSIBILITY OF SUCH DAMAGE.
- *
- * Contact: Eric.Bruneton@rd.francetelecom.com
- *
- * Author: Eric Bruneton
  */
 
 package org.objectweb.asm.tree;
@@ -59,6 +55,8 @@ import org.objectweb.asm.Attribute;
  *   classNode.accept(cv);
  * }
  * </pre>
+ * 
+ * @author Eric Bruneton
  */
 
 public class TreeClassAdapter extends ClassAdapter {

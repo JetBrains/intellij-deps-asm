@@ -26,10 +26,6 @@
  * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
  * THE POSSIBILITY OF SUCH DAMAGE.
- *
- * Contact: Eric.Bruneton@rd.francetelecom.com
- *
- * Author: Eric Bruneton
  */
 
 import org.objectweb.asm.ClassAdapter;
@@ -45,6 +41,10 @@ import org.objectweb.asm.Attribute;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.lang.reflect.Method;
+
+/**
+ * @author Eric Bruneton
+ */
 
 public class Adapt extends ClassLoader {
 

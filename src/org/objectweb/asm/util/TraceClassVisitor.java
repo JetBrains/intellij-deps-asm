@@ -543,7 +543,7 @@ public class TraceClassVisitor extends TraceAbstractVisitor
 
     public TypeArgumentDecompiler( char tag, StringBuffer buf) {
       this.buf = buf;
-      if( tag!='=') {
+      if( tag!=TypeSignatureVisitor.NONE) {
         // TODO expand tag
         buf.append( "[").append( tag).append( "]");
       }

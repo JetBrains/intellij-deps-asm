@@ -68,13 +68,10 @@ public class AttrsRoundtripTest extends TestCase {
   public static TestSuite suite() throws Exception {
     TestSuite suite = new TestSuite( AttrsRoundtripTest.class.getName());
 
-    /*
-    Class c = RoundtripTest.class;
-    String u = c.getResource( "/java/lang/String.class").toString();
-    int n = u.indexOf( '!');
-    URL u = new URL( u.substring( 4, n));
-    */
-    URL u = new File( "C:\\j2sdk1.5.0\\jre\\lib\\rt.jar").toURL();
+    Class c = AttrsRoundtripTest.class;
+    String s = c.getResource( "/java/lang/String.class").toString();
+    int n = s.indexOf( '!');
+    URL u = new URL( s.substring( 4, n));
     
     ZipInputStream zis = new ZipInputStream( u.openStream());
     ZipEntry ze = null;    

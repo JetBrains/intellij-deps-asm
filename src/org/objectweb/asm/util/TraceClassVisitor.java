@@ -101,6 +101,7 @@ public class TraceClassVisitor extends PrintClassVisitor {
     if (args.length == 0) {
       System.err.println("Prints a disassembled view of the given class.");
       System.err.println("Usage: TraceClassVisitor <fully qualified class name>");
+      System.exit(-1);
     }
     ClassReader cr = new ClassReader(args[0]);
     cr.accept(new TraceClassVisitor(null, new PrintWriter(System.out)), true);

@@ -40,6 +40,8 @@ import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Type;
 
 /**
+ * TODO update from adding generics 2.5ea
+ * 
  * The member_value structure is a discriminated union representing the value of a
  * member-value pair. It is used to represent values in all class file attributes
  * that describe annotations ( RuntimeVisibleAnnotations, RuntimeInvisibleAnnotations,
@@ -387,7 +389,6 @@ public class AnnotationMemberValue {
 
   public String toString () {
     StringBuffer sb = new StringBuffer();
-    // TODO
     int tag = getTag();
     switch (tag) {
       case 's':  // pointer to CONSTANT_Utf8

@@ -44,18 +44,18 @@ import org.objectweb.asm.Label;
 
 
 /**
- * The EnclosingMethod attribute is an optional fixed-length attribute
- * in the attributes table of the ClassFile structure. A class must
- * have an EnclosingMethod attribute if and only if it is a local
- * class or an anonymous class. A class may have no more than one
- * EnclosingMethod attribute.
- * <p>
+ * The EnclosingMethod attribute is an optional fixed-length attribute in 
+ * the attributes table of the ClassFile structure. A class must have an 
+ * EnclosingMethod attribute if and only if it is a local class or an 
+ * anonymous class. A class may have no more than one EnclosingMethod attribute.
+ * 
  * The EnclosingMethod attribute has the following format:
  * <pre>
  *   EnclosingMethod_attribute {
- *     u2 attribute_name;
+ *     u2 attribute_name_index;
  *     u4 attribute_length;
- *     u2 method_descriptor_index;
+ *     u2 class_index
+ *     u2 method_index;
  *   }
  * </pre>
  * The items of the EnclosingMethod_attribute structure are as follows:
@@ -63,18 +63,27 @@ import org.objectweb.asm.Label;
  * <dt>attribute_name_index</dt>
  * <dd>The value of the attribute_name_index item must be a valid index
  * into the constant_pool table. The constant_pool entry at that index
- * must be a CONSTANT_Utf8_info structure representing the string
- * "EnclosingMethod".</dd>
+ * must be a CONSTANT_Utf8_info structure representing the
+ * string "EnclosingMethod".</dd>
  * <dt>attribute_length</dt>
- * <dd>The value of the attribute_length item is zero.</dd>
- * <dt>method_descriptor_index</dt>
- * <dd>The value of the method_descriptor_index item must be a valid
+ * <dd>The value of the attribute_length item is four.</dd>
+ * <dt>class_index</dt>
+ * <dd>The value of the class_index item must be a valid index into the
+ * constant_pool table. The constant_pool entry at that index must be a
+ * CONSTANT_Class_info structure representing the
+ * innermost class that encloses the declaration of the current class.</dd>
+ * <dt>method_index</dt>
+ * <dd>If the current class is not immediately enclosed by a method or
+ * constructor, then the value of the method_index item must be zero.
+ * Otherwise, the value of the method_index item must be a valid
  * index into the constant_pool table. The constant_pool entry at that
- * index must be a CONSTANT_Utf8_info structure representing a valid
- * method descriptor (JLS 4.4.3). It is the responsibility of the
- * Java compiler to ensure that the method identified via the
- * method_descriptor_index is indeed the closest lexically enclosing
- * method of the class that contains this EnclosingMethod attribute.</dd>
+ * index must be a CONSTANT_NameAndType_info structure
+ * representing a the name and type of a method in the class
+ * referenced by the class_index attribute above. It is the
+ * responsibility of the Java compiler to ensure that the method
+ * identified via the method_index is indeed the closest lexically
+ * enclosing method of the class that contains this EnclosingMethod
+ * attribute.</dd>
  * </dl>
  *
  * @author Eugene Kuleshov
@@ -82,6 +91,8 @@ import org.objectweb.asm.Label;
 
 public class EnclosingMethodAttribute extends Attribute implements Dumpable {
 
+  // TODO update from adding generics 2.5ea (CONSTANT_Class_info + CONSTANT_NameAndType_info) 
+  
   public String methodDescriptor;
 
   public EnclosingMethodAttribute () {

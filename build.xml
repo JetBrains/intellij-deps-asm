@@ -145,6 +145,16 @@
   </target>
 
   <target name="jar" depends="dist.init,compile">
+    <tstamp>
+      <format property="product.build.time" pattern="yyyyMMdd.HHmmss"/>
+    </tstamp>
+    <condition property="product.artifact" value="${product.version}">
+      <not><isset property="product.snapshot"/></not>
+    </condition>
+    <condition property="product.artifact" value="${product.build.time}">
+      <isset property="product.snapshot"/>
+    </condition>
+
     <multipleAnt dir="${archive}"/>
     <java classname="org.objectweb.asm.optimizer.JarOptimizer">
       <classpath refid="classpath"/>

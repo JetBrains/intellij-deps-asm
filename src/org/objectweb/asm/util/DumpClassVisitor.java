@@ -115,6 +115,7 @@ public class DumpClassVisitor extends PrintClassVisitor {
     if (args.length == 0) {
       System.err.println("Prints the ASM code to generate the given class.");
       System.err.println("Usage: DumpClassVisitor <fully qualified class name>");
+      System.exit(-1);
     }
     ClassReader cr = new ClassReader(args[0]);
     cr.accept(new DumpClassVisitor(new PrintWriter(System.out)), true);
@@ -234,6 +235,7 @@ public class DumpClassVisitor extends PrintClassVisitor {
     text.add(buf.toString());
     PrintCodeVisitor pcv = new DumpCodeVisitor();
     text.add(pcv.getText());
+    text.add("}\n");
     return pcv;
   }
 
@@ -346,6 +348,9 @@ public class DumpClassVisitor extends PrintClassVisitor {
         buf.append(" + ");
       }
       buf.append("ACC_DEPRECATED");
+    }
+    if (first) {
+      buf.append("0");
     }
   }
 

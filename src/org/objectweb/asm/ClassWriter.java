@@ -720,6 +720,18 @@ public class ClassWriter implements ClassVisitor {
     if (cst instanceof Integer) {
       int val = ((Integer)cst).intValue();
       return newInteger(val);
+    } else if (cst instanceof Byte) {
+      int val = ((Byte)cst).intValue();
+      return newInteger(val);
+    } else if (cst instanceof Character) {
+      int val = ((Character)cst).charValue();
+      return newInteger(val);
+    } else if (cst instanceof Short) {
+      int val = ((Short)cst).intValue();
+      return newInteger(val);
+    } else if (cst instanceof Boolean) {
+      int val = ((Boolean)cst).booleanValue() ? 1 : 0;
+      return newInteger(val);
     } else if (cst instanceof Float) {
       float val = ((Float)cst).floatValue();
       return newFloat(val);
@@ -756,6 +768,22 @@ public class ClassWriter implements ClassVisitor {
 
   public int newConst (final Object cst) {
     return newConstItem(cst).index;
+  }
+
+  public int newConstInt (final int i) {
+    return newInteger(i).index;
+  }
+
+  public int newConstLong (final long l) {
+    return newLong(l).index;
+  }
+
+  public int newConstFloat (final float f) {
+    return newFloat(f).index;
+  }
+
+  public int newConstDoule (final double d) {
+    return newDouble(d).index;
   }
 
   /**

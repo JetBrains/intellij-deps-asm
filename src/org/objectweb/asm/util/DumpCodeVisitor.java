@@ -266,7 +266,7 @@ public class DumpCodeVisitor extends PrintCodeVisitor {
   public void printAttribute (final Attribute attr) {
     if( attr instanceof Dumpable) {
       buf.append("// CODE ATTRIBUTE\n");
-      (( Dumpable) attr).dump( buf, "attr", labelNames);
+      (( Dumpable) attr).dump( buf, "cv", labelNames);
     } else {  
       buf.append("// WARNING! skipped a non standard code attribute of type \"");
       buf.append(attr.type).append("\"\n");

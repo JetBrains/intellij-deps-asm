@@ -121,12 +121,13 @@ public class Frame {
    * 
    * @param i a local variable index.
    * @return the value of the given local variable.
-   * @throws AnalyzerException if the variable does not exist.
+   * @throws IndexOutOfBoundsException if the variable does not exist.
    */
   
-  public Value getLocal (final int i) throws AnalyzerException {
+  public Value getLocal (final int i) throws IndexOutOfBoundsException {
     if (i >= locals) {
-      throw new AnalyzerException("Trying to access an inexistant local variable");
+      throw new IndexOutOfBoundsException(
+          "Trying to access an inexistant local variable");
     }
     return values[i];
   }
@@ -136,12 +137,15 @@ public class Frame {
    * 
    * @param i a local variable index.
    * @param value the new value of this local variable.
-   * @throws AnalyzerException if the variable does not exist.
+   * @throws IndexOutOfBoundsException if the variable does not exist.
    */
   
-  public void setLocal (final int i, final Value value) throws AnalyzerException {
+  public void setLocal (final int i, final Value value) 
+    throws IndexOutOfBoundsException 
+  {
     if (i >= locals) {
-      throw new AnalyzerException("Trying to access an inexistant local variable");
+      throw new IndexOutOfBoundsException(
+          "Trying to access an inexistant local variable");
     }
     values[i] = value;
   }
@@ -162,12 +166,13 @@ public class Frame {
    * 
    * @param i the index of an operand stack slot.
    * @return the value of the given operand stack slot.
-   * @throws AnalyzerException if the operand stack slot does not exist.
+   * @throws IndexOutOfBoundsException if the operand stack slot does not exist.
    */
   
-  public Value getStack (final int i) throws AnalyzerException {
+  public Value getStack (final int i) throws IndexOutOfBoundsException {
     if (i >= top) {
-      throw new AnalyzerException("Trying to access an inexistant stack element");
+      throw new IndexOutOfBoundsException(
+          "Trying to access an inexistant stack element");
     }
     return values[i + locals];
   }
@@ -184,12 +189,13 @@ public class Frame {
    * Pops a value from the operand stack of this frame.
    * 
    * @return the value that has been popped from the stack.
-   * @throws AnalyzerException if the operand stack is empty.
+   * @throws IndexOutOfBoundsException if the operand stack is empty.
    */
   
-  public Value pop () throws AnalyzerException {
+  public Value pop () throws IndexOutOfBoundsException {
     if (top == 0) {
-      throw new AnalyzerException("Cannot pop operand off an empty stack.");
+      throw new IndexOutOfBoundsException(
+          "Cannot pop operand off an empty stack.");
     }
     return values[--top + locals];
   }
@@ -198,12 +204,12 @@ public class Frame {
    * Pushes a value into the operand stack of this frame.
    * 
    * @param value the value that must be pushed into the stack.
-   * @throws AnalyzerException if the operand stack is full.
+   * @throws IndexOutOfBoundsException if the operand stack is full.
    */
   
-  public void push (final Value value) throws AnalyzerException {
+  public void push (final Value value) throws IndexOutOfBoundsException {
     if (top + locals >= values.length) {
-      throw new AnalyzerException("Insufficient maximum stack size.");
+      throw new IndexOutOfBoundsException("Insufficient maximum stack size.");
     }
     values[top++ + locals] = value;
   }

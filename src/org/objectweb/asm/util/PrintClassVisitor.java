@@ -37,36 +37,56 @@ import java.util.List;
 
 public abstract class PrintClassVisitor implements ClassVisitor {
 
-  protected final ArrayList dump;
+  /**
+   * The text to be printed. Since the code of methods is not necessarily
+   * visited in sequential order, one method after the other, but can be
+   * interlaced (some instructions from method one, then some instructions from
+   * method two, then some instructions from method one again...), it is not
+   * possible to print the visited instructions directly to a sequential
+   * stream. A class is therefore printed in a two steps process: a string tree
+   * is constructed during the visit, and printed to a sequential stream at the
+   * end of the visit. This string tree is stored in this field, as a string
+   * list that can contain other string lists, which can themselves contain
+   * other string lists, and so on.
+   */
+
+  protected final List text;
+
+  /**
+   * A buffer that can be used to create strings.
+   */
+
+  protected final StringBuffer buf;
+
+  /**
+   * The print writer to be used to print the class.
+   */
 
   protected final PrintWriter pw;
 
   /**
    * Constructs a new {@link PrintClassVisitor PrintClassVisitor} object.
    *
-   * @param pw the print writer to be used to print the trace.
+   * @param pw the print writer to be used to print the class.
    */
 
   public PrintClassVisitor (final PrintWriter pw) {
-    this.dump = new ArrayList();
+    this.text = new ArrayList();
+    this.buf = new StringBuffer();
     this.pw = pw;
   }
 
-  public CodeVisitor visitMethod (
-    final int access,
-    final String name,
-    final String desc,
-    final String[] exceptions)
-  {
-    PrintCodeVisitor pcv = printMethod(access, name, desc, exceptions);
-    dump.add(pcv.getText());
-    return pcv;
-  }
-
   public void visitEnd () {
-    printList(dump);
+    printList(text);
     pw.flush();
   }
+
+  /**
+   * Prints the given string tree to {@link pw pw}.
+   *
+   * @param l a string tree, i.e., a string list that can contain other string
+   *      lists, and so on recursively.
+   */
 
   private void printList (final List l) {
     for (int i = 0; i < l.size(); ++i) {
@@ -78,10 +98,4 @@ public abstract class PrintClassVisitor implements ClassVisitor {
       }
     }
   }
-
-  public abstract PrintCodeVisitor printMethod (
-    final int access,
-    final String name,
-    final String desc,
-    final String[] exceptions);
 }

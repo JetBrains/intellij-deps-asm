@@ -36,7 +36,16 @@ import java.util.HashMap;
 
 public class TraceCodeVisitor extends PrintCodeVisitor {
 
-  private final CodeVisitor cv;
+  /**
+   * The {@link CodeVisitor CodeVisitor} to which this visitor delegates calls.
+   * May be <tt>null</tt>.
+   */
+
+  protected final CodeVisitor cv;
+
+  /**
+   * The label names. This map associate String values to Label keys.
+   */
 
   private final HashMap labelNames;
 
@@ -312,6 +321,13 @@ public class TraceCodeVisitor extends PrintCodeVisitor {
       cv.visitLineNumber(line, start);
     }
   }
+
+  /**
+   * Appends the name of the given label to {@link #buf buf}. Creates a new
+   * label name if the given label does not yet have one.
+   *
+   * @param l a label.
+   */
 
   private void appendLabel (final Label l) {
     String name = (String)labelNames.get(l);

@@ -26,6 +26,7 @@ package org.objectweb.asm.util;
 
 import org.objectweb.asm.Constants;
 import org.objectweb.asm.ClassReader;
+import org.objectweb.asm.CodeVisitor;
 
 import java.io.PrintWriter;
 
@@ -43,6 +44,8 @@ import java.io.PrintWriter;
  * </ul>
  * The source code printed when visiting the <tt>Hello</tt> class is the
  * following:
+ * <p>
+ * <blockquote>
  * <pre>
  * import org.objectweb.asm.*;
  * import java.io.FileOutputStream;
@@ -79,7 +82,10 @@ import java.io.PrintWriter;
  * }
  * }
  * </pre>
+ * </blockquote>
  * where <tt>Hello</tt> is defined by:
+ * <p>
+ * <blockquote>
  * <pre>
  * public class Hello {
  *
@@ -88,17 +94,21 @@ import java.io.PrintWriter;
  *   }
  * }
  * </pre>
+ * </blockquote>
  */
 
 public class DumpClassVisitor extends PrintClassVisitor {
-
-  private StringBuffer buf;
 
   /**
    * Prints the ASM source code to generate the given class to the standard
    * output.
    * <p>
    * Usage: DumpClassVisitor &lt;fully qualified class name&gt;
+   *
+   * @param args the command line arguments.
+   *
+   * @throws Exception if the class cannot be found, or if an IO exception
+   *      occurs.
    */
 
   public static void main (final String[] args) throws Exception {
@@ -113,12 +123,11 @@ public class DumpClassVisitor extends PrintClassVisitor {
   /**
    * Constructs a new {@link DumpClassVisitor DumpClassVisitor} object.
    *
-   * @param pw the print writer to be used to print the trace.
+   * @param pw the print writer to be used to print the class.
    */
 
   public DumpClassVisitor (final PrintWriter pw) {
     super(pw);
-    buf = new StringBuffer();
   }
 
   public void visit (
@@ -128,12 +137,12 @@ public class DumpClassVisitor extends PrintClassVisitor {
     final String[] interfaces,
     final String sourceFile)
   {
-    dump.add("import org.objectweb.asm.*;\n");
-    dump.add("import java.io.FileOutputStream;\n\n");
-    dump.add("public class Dump implements Constants {\n\n");
-    dump.add("public static void main (String[] args) throws Exception {\n\n");
-    dump.add("ClassWriter cw = new ClassWriter(false);\n");
-    dump.add("CodeVisitor cv;\n\n");
+    text.add("import org.objectweb.asm.*;\n");
+    text.add("import java.io.FileOutputStream;\n\n");
+    text.add("public class Dump implements Constants {\n\n");
+    text.add("public static void main (String[] args) throws Exception {\n\n");
+    text.add("ClassWriter cw = new ClassWriter(false);\n");
+    text.add("CodeVisitor cv;\n\n");
 
     buf.setLength(0);
     buf.append("cw.visit(");
@@ -156,7 +165,7 @@ public class DumpClassVisitor extends PrintClassVisitor {
     buf.append(", ");
     appendConstant(buf, sourceFile);
     buf.append(");\n\n");
-    dump.add(buf.toString());
+    text.add(buf.toString());
   }
 
   public void visitInnerClass (
@@ -175,7 +184,7 @@ public class DumpClassVisitor extends PrintClassVisitor {
     buf.append(", ");
     appendAccess(access);
     buf.append(");\n\n");
-    dump.add(buf.toString());
+    text.add(buf.toString());
   }
 
   public void visitField (
@@ -194,10 +203,10 @@ public class DumpClassVisitor extends PrintClassVisitor {
     buf.append(", ");
     appendConstant(buf, value);
     buf.append(");\n\n");
-    dump.add(buf.toString());
+    text.add(buf.toString());
   }
 
-  public PrintCodeVisitor printMethod (
+  public CodeVisitor visitMethod (
     final int access,
     final String name,
     final String desc,
@@ -222,19 +231,28 @@ public class DumpClassVisitor extends PrintClassVisitor {
       buf.append("null);");
     }
     buf.append("\n");
-    dump.add(buf.toString());
-    return new DumpCodeVisitor();
+    text.add(buf.toString());
+    PrintCodeVisitor pcv = new DumpCodeVisitor();
+    text.add(pcv.getText());
+    return pcv;
   }
 
   public void visitEnd () {
-    dump.add("cw.visitEnd();\n\n");
-    dump.add("FileOutputStream os = new FileOutputStream(\"Dumped.class\");\n");
-    dump.add("os.write(cw.toByteArray());\n");
-    dump.add("os.close();\n");
-    dump.add("}\n");
-    dump.add("}\n");
+    text.add("cw.visitEnd();\n\n");
+    text.add("FileOutputStream os = new FileOutputStream(\"Dumped.class\");\n");
+    text.add("os.write(cw.toByteArray());\n");
+    text.add("os.close();\n");
+    text.add("}\n");
+    text.add("}\n");
     super.visitEnd();
   }
+
+  /**
+   * Appends a string representation of the given access modifiers to {@link
+   * #buf buf}.
+   *
+   * @param access some access modifiers.
+   */
 
   void appendAccess (final int access) {
     boolean first = true;
@@ -323,6 +341,15 @@ public class DumpClassVisitor extends PrintClassVisitor {
       buf.append("ACC_DEPRECATED");
     }
   }
+
+  /**
+   * Appends a string representation of the given constant to the given buffer.
+   *
+   * @param buf a string buffer.
+   * @param cst an {@link java.lang.Integer Integer}, {@link java.lang.Float
+   *      Float}, {@link java.lang.Long Long}, {@link java.lang.Double Double}
+   *      or {@link String String} object. May be <tt>null</tt>.
+   */
 
   static void appendConstant (final StringBuffer buf, final Object cst) {
     if (cst == null) {

@@ -39,6 +39,8 @@ import java.io.PrintWriter;
  * given point in this chain. This may be uselful for debugging purposes.
  * <p>
  * The trace printed when visiting the <tt>Hello</tt> class is the following:
+ * <p>
+ * <blockquote>
  * <pre>
  * // compiled from Hello.java
  * public class Hello {
@@ -60,7 +62,10 @@ import java.io.PrintWriter;
  *
  * }
  * </pre>
+ * </blockquote>
  * where <tt>Hello</tt> is defined by:
+ * <p>
+ * <blockquote>
  * <pre>
  * public class Hello {
  *
@@ -69,18 +74,27 @@ import java.io.PrintWriter;
  *   }
  * }
  * </pre>
+ * </blockquote>
  */
 
 public class TraceClassVisitor extends PrintClassVisitor {
 
-  private final StringBuffer buf;
+  /**
+   * The {@link ClassVisitor ClassVisitor} to which this visitor delegates
+   * calls. May be <tt>null</tt>.
+   */
 
-  private final ClassVisitor cv;
+  protected final ClassVisitor cv;
 
   /**
    * Prints a disassembled view of the given class to the standard output.
    * <p>
    * Usage: TraceClassVisitor &lt;fully qualified class name&gt;
+   *
+   * @param args the command line arguments.
+   *
+   * @throws Exception if the class cannot be found, or if an IO exception
+   *      occurs.
    */
 
   public static void main (final String[] args) throws Exception {
@@ -97,12 +111,11 @@ public class TraceClassVisitor extends PrintClassVisitor {
    *
    * @param cv the class visitor to which this adapter must delegate calls. May
    *      be <tt>null</tt>.
-   * @param pw the print writer to be used to print the trace.
+   * @param pw the print writer to be used to print the class.
    */
 
   public TraceClassVisitor (final ClassVisitor cv, final PrintWriter pw) {
     super(pw);
-    this.buf = new StringBuffer();
     this.cv = cv;
   }
 
@@ -137,7 +150,7 @@ public class TraceClassVisitor extends PrintClassVisitor {
       }
     }
     buf.append("{\n\n");
-    dump.add(buf.toString());
+    text.add(buf.toString());
 
     if (cv != null) {
       cv.visit(access, name, superName, interfaces, sourceFile);
@@ -160,7 +173,7 @@ public class TraceClassVisitor extends PrintClassVisitor {
       .append(" ")
       .append(access)
       .append("\n");
-    dump.add(buf.toString());
+    text.add(buf.toString());
 
     if (cv != null) {
       cv.visitInnerClass(name, outerName, innerName, access);
@@ -191,14 +204,14 @@ public class TraceClassVisitor extends PrintClassVisitor {
       }
     }
     buf.append("\n\n");
-    dump.add(buf.toString());
+    text.add(buf.toString());
 
     if (cv != null) {
       cv.visitField(access, name, desc, value);
     }
   }
 
-  public PrintCodeVisitor printMethod (
+  public CodeVisitor visitMethod (
     final int access,
     final String name,
     final String desc,
@@ -220,7 +233,7 @@ public class TraceClassVisitor extends PrintClassVisitor {
       }
     }
     buf.append("\n");
-    dump.add(buf.toString());
+    text.add(buf.toString());
 
     CodeVisitor cv;
     if (this.cv != null) {
@@ -228,11 +241,13 @@ public class TraceClassVisitor extends PrintClassVisitor {
     } else {
       cv = null;
     }
-    return new TraceCodeVisitor(cv);
+    PrintCodeVisitor pcv = new TraceCodeVisitor(cv);
+    text.add(pcv.getText());
+    return pcv;
   }
 
   public void visitEnd () {
-    dump.add("}\n");
+    text.add("}\n");
 
     if (cv != null) {
       cv.visitEnd();
@@ -240,6 +255,13 @@ public class TraceClassVisitor extends PrintClassVisitor {
 
     super.visitEnd();
   }
+
+  /**
+   * Appends a string representation of the given access modifiers to {@link
+   * #buf buf}.
+   *
+   * @param access some access modifiers.
+   */
 
   private void appendAccess (final int access) {
     if ((access & Constants.ACC_PUBLIC) != 0) {

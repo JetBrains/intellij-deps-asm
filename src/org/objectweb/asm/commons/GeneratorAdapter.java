@@ -318,6 +318,8 @@ public class GeneratorAdapter extends LocalVariablesSorter {
    * variables array.
    *
    * @param arg the index of a method argument.
+   * @return the index of the given method argument in the frame's local
+   *      variables array.
    */
 
   private int getArgIndex (final int arg) {
@@ -1053,9 +1055,9 @@ public class GeneratorAdapter extends LocalVariablesSorter {
    * Generates a get field or set field instruction.
    *
    * @param opcode the instruction's opcode.
-   * @param owner the class in which the field is defined.
+   * @param ownerType the class in which the field is defined.
    * @param name the name of the field.
-   * @param type the type of the field.
+   * @param fieldType the type of the field.
    */
 
   private void fieldInsn (
@@ -1127,7 +1129,7 @@ public class GeneratorAdapter extends LocalVariablesSorter {
    * Generates an invoke method instruction.
    *
    * @param opcode the instruction's opcode.
-   * @param owner the class in which the method is defined.
+   * @param type the class in which the method is defined.
    * @param method the method to be invoked.
    */
 

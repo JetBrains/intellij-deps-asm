@@ -37,7 +37,6 @@ import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.xml.sax.ContentHandler;
-import org.xml.sax.SAXException;
 import org.xml.sax.helpers.AttributesImpl;
 
 
@@ -52,8 +51,7 @@ import org.xml.sax.helpers.AttributesImpl;
  * 
  * @author Eugene Kuleshov
  */
-public final class SAXClassAdapter implements ClassVisitor {
-  private ContentHandler h;
+public final class SAXClassAdapter extends SAXAdapter implements ClassVisitor {
   private boolean singleDocument;
 
   /**
@@ -65,14 +63,10 @@ public final class SAXClassAdapter implements ClassVisitor {
    *   {@link ContentHandler#endDocument() endDocument()} events.
    */
   public SAXClassAdapter( ContentHandler h, boolean singleDocument) {
-    this.h = h;
+    super( h);
     this.singleDocument = singleDocument;
     if( !singleDocument) {
-      try {
-        h.startDocument();
-      } catch( SAXException ex) {
-        throw new RuntimeException( ex.getException());
-      }
+      addDocumentStart();
     }
   }
 
@@ -81,30 +75,20 @@ public final class SAXClassAdapter implements ClassVisitor {
       return;
     }
     
-    AttributesImpl attrs = new AttributesImpl();
-    if( source!=null) attrs.addAttribute( "", "file", "file", "", encode(source));
-    if( debug!=null) attrs.addAttribute( "", "debug", "debug", "", encode(debug));
+    AttributesImpl att = new AttributesImpl();
+    if( source!=null) att.addAttribute( "", "file", "file", "", encode(source));
+    if( debug!=null) att.addAttribute( "", "debug", "debug", "", encode(debug));
 
-    try {
-      h.startElement( "", "source", "source", attrs);
-      h.endElement( "", "source", "source");
-    } catch( SAXException ex) {
-      throw new RuntimeException( ex.getException());
-    }
+    addElement( "source", att);
   }
 
   public void visitOuterClass( String owner, String name, String desc) {
-    AttributesImpl attrs = new AttributesImpl();
-    attrs.addAttribute( "", "owner", "owner", "", owner);
-    if( name!=null) attrs.addAttribute( "", "name", "name", "", name);
-    if( desc!=null) attrs.addAttribute( "", "desc", "desc", "", desc);
+    AttributesImpl att = new AttributesImpl();
+    att.addAttribute( "", "owner", "owner", "", owner);
+    if( name!=null) att.addAttribute( "", "name", "name", "", name);
+    if( desc!=null) att.addAttribute( "", "desc", "desc", "", desc);
 
-    try {
-      h.startElement( "", "outerClass", "outerClass", attrs);
-      h.endElement( "", "outerClass", "outerClass");
-    } catch( SAXException ex) {
-      throw new RuntimeException( ex.getException());
-    }
+    addElement( "outerClass", att);
   }
   
   public final void visitAttribute( Attribute attr) {
@@ -113,47 +97,41 @@ public final class SAXClassAdapter implements ClassVisitor {
   
   public AnnotationVisitor visitAnnotation( String desc, boolean visible) {
     // TODO Auto-generated method stub
-    return new SAXAnnotationAdapter(h, visible ? "visibleAnnotation" : "invisibleAnnotation", null, desc);
+    return new SAXAnnotationAdapter(getContentHandler(), visible ? "visibleAnnotation" : "invisibleAnnotation", null, desc);
   }
 
   public void visit( int version, int access, String name, String signature, String superName, String[] interfaces) {
-    try {
-      StringBuffer sb = new StringBuffer();
-      if(( access & Opcodes.ACC_PUBLIC)!=0) sb.append( "public ");
-      if(( access & Opcodes.ACC_PRIVATE)!=0) sb.append( "private ");
-      if(( access & Opcodes.ACC_PROTECTED)!=0) sb.append( "protected ");
-      if(( access & Opcodes.ACC_FINAL)!=0) sb.append( "final ");
-      if(( access & Opcodes.ACC_SUPER)!=0) sb.append( "super ");
-      if(( access & Opcodes.ACC_INTERFACE)!=0) sb.append( "interface ");
-      if(( access & Opcodes.ACC_ABSTRACT)!=0) sb.append( "abstract ");
-      if(( access & Opcodes.ACC_SYNTHETIC)!=0) sb.append( "synthetic ");
-      if(( access & Opcodes.ACC_ANNOTATION)!=0) sb.append( "annotation ");
-      if(( access & Opcodes.ACC_ENUM)!=0) sb.append( "enum ");
-      if(( access & Opcodes.ACC_DEPRECATED)!=0) sb.append( "deprecated ");
-      
-      AttributesImpl attrs = new AttributesImpl();
-      attrs.addAttribute( "", "access", "access", "", sb.toString());
-      if( name!=null) attrs.addAttribute( "", "name", "name", "", name);
-      if( signature!=null) attrs.addAttribute( "", "signature", "signature", "", encode( signature));
-      if( superName!=null) attrs.addAttribute( "", "parent", "parent", "", superName);
-      attrs.addAttribute( "", "major", "major", "", new Integer(version & 0xFFFF).toString());
-      attrs.addAttribute( "", "minor", "minor", "", new Integer(version >>> 16).toString());
-      h.startElement( "", "class", "class", attrs);
-      
-      h.startElement( "", "interfaces", "interfaces", new AttributesImpl());
-      if( interfaces!=null && interfaces.length>0) {
-        for( int i = 0; i < interfaces.length; i++) {
-          AttributesImpl attrs2 = new AttributesImpl();
-          attrs2.addAttribute( "", "name", "name", "", interfaces[ i]);
-          h.startElement( "", "interface", "interface", attrs2);
-          h.endElement( "", "interface", "interface");
-        }
+    StringBuffer sb = new StringBuffer();
+    if(( access & Opcodes.ACC_PUBLIC)!=0) sb.append( "public ");
+    if(( access & Opcodes.ACC_PRIVATE)!=0) sb.append( "private ");
+    if(( access & Opcodes.ACC_PROTECTED)!=0) sb.append( "protected ");
+    if(( access & Opcodes.ACC_FINAL)!=0) sb.append( "final ");
+    if(( access & Opcodes.ACC_SUPER)!=0) sb.append( "super ");
+    if(( access & Opcodes.ACC_INTERFACE)!=0) sb.append( "interface ");
+    if(( access & Opcodes.ACC_ABSTRACT)!=0) sb.append( "abstract ");
+    if(( access & Opcodes.ACC_SYNTHETIC)!=0) sb.append( "synthetic ");
+    if(( access & Opcodes.ACC_ANNOTATION)!=0) sb.append( "annotation ");
+    if(( access & Opcodes.ACC_ENUM)!=0) sb.append( "enum ");
+    if(( access & Opcodes.ACC_DEPRECATED)!=0) sb.append( "deprecated ");
+    
+    AttributesImpl att = new AttributesImpl();
+    att.addAttribute( "", "access", "access", "", sb.toString());
+    if( name!=null) att.addAttribute( "", "name", "name", "", name);
+    if( signature!=null) att.addAttribute( "", "signature", "signature", "", encode( signature));
+    if( superName!=null) att.addAttribute( "", "parent", "parent", "", superName);
+    att.addAttribute( "", "major", "major", "", new Integer(version & 0xFFFF).toString());
+    att.addAttribute( "", "minor", "minor", "", new Integer(version >>> 16).toString());
+    addStart( "class", att);
+    
+    addStart( "interfaces", new AttributesImpl());
+    if( interfaces!=null && interfaces.length>0) {
+      for( int i = 0; i < interfaces.length; i++) {
+        AttributesImpl att2 = new AttributesImpl();
+        att2.addAttribute( "", "name", "name", "", interfaces[ i]);
+        addElement( "interface", att2);
       }
-	    h.endElement( "", "interfaces", "interfaces");
-      
-    } catch( SAXException ex) {
-      throw new RuntimeException( ex.getException());
     }
+    addEnd( "interfaces");
   }
 
   public FieldVisitor visitField( int access, String name, String desc, String signature, Object value) {
@@ -178,7 +156,7 @@ public final class SAXClassAdapter implements ClassVisitor {
       att.addAttribute( "", "value", "value", "", encode( value.toString()));
     }
 
-    return new SAXFieldAdapter( h, att);
+    return new SAXFieldAdapter( getContentHandler(), att);
   }
 
   public MethodVisitor visitMethod( int access, String name, String desc, String signature, String[] exceptions) {
@@ -197,29 +175,23 @@ public final class SAXClassAdapter implements ClassVisitor {
     if(( access & Opcodes.ACC_SYNTHETIC)!=0) sb.append( "synthetic ");
     if(( access & Opcodes.ACC_DEPRECATED)!=0) sb.append( "deprecated ");
     
-    try {
-      AttributesImpl att = new AttributesImpl();
-      att.addAttribute( "", "access", "access", "", sb.toString());
-      att.addAttribute( "", "name", "name", "", name);
-      att.addAttribute( "", "desc", "desc", "", desc);
-      h.startElement( "", "method", "method", att);
+    AttributesImpl att = new AttributesImpl();
+    att.addAttribute( "", "access", "access", "", sb.toString());
+    att.addAttribute( "", "name", "name", "", name);
+    att.addAttribute( "", "desc", "desc", "", desc);
+    addStart( "method", att);
 
-      h.startElement( "", "exceptions", "exceptions", new AttributesImpl());
-      if( exceptions!=null && exceptions.length>0) {
-        for( int i = 0; i < exceptions.length; i++) {
-          AttributesImpl att2 = new AttributesImpl();
-          att2.addAttribute( "", "name", "name", "", exceptions[ i]);
-          h.startElement( "", "exception", "exception", att2);
-          h.endElement( "", "exception", "exception");
-        }
+    addStart( "exceptions", new AttributesImpl());
+    if( exceptions!=null && exceptions.length>0) {
+      for( int i = 0; i < exceptions.length; i++) {
+        AttributesImpl att2 = new AttributesImpl();
+        att2.addAttribute( "", "name", "name", "", exceptions[ i]);
+        addElement( "exception", att2);
       }
-      h.endElement( "", "exceptions", "exceptions");
-      
-    } catch( SAXException ex) {
-      throw new RuntimeException( ex.toString());
     }
+    addEnd( "exceptions");
     
-    return new SAXCodeAdapter( h, access);
+    return new SAXCodeAdapter( getContentHandler(), access);
   }
 
   public final void visitInnerClass( String name, String outerName, String innerName, int access) {
@@ -237,31 +209,18 @@ public final class SAXClassAdapter implements ClassVisitor {
     if(( access & Opcodes.ACC_ENUM)!=0) sb.append( "enum ");
     if(( access & Opcodes.ACC_DEPRECATED)!=0) sb.append( "deprecated ");
     
-    try {
-      AttributesImpl attrs = new AttributesImpl();
-      attrs.addAttribute( "", "access", "access", "", sb.toString());
-      if( name!=null) attrs.addAttribute( "", "name", "name", "", name);
-      if( outerName!=null) attrs.addAttribute( "", "outerName", "outerName", "", outerName);
-      if( innerName!=null) attrs.addAttribute( "", "innerName", "innerName", "", innerName);
-      h.startElement( "", "innerclass", "innerclass", attrs);
-      h.endElement( "", "innerclass", "innerclass");
-    
-    } catch( SAXException ex) {
-      throw new RuntimeException( ex.toString());
-    
-    }
+    AttributesImpl att = new AttributesImpl();
+    att.addAttribute( "", "access", "access", "", sb.toString());
+    if( name!=null) att.addAttribute( "", "name", "name", "", name);
+    if( outerName!=null) att.addAttribute( "", "outerName", "outerName", "", outerName);
+    if( innerName!=null) att.addAttribute( "", "innerName", "innerName", "", innerName);
+    addElement( "innerclass", att);
   }
 
   public final void visitEnd() {
-    try {
-      h.endElement( "", "class", "class");
-      if( !singleDocument) {
-        h.endDocument();
-      }
-    } catch( SAXException ex) {
-      ex.getException().printStackTrace();
-      ex.printStackTrace();
-      throw new RuntimeException( ex.toString());
+    addEnd( "class");
+    if( !singleDocument) {
+      addDocumentEnd();
     }
   }
   

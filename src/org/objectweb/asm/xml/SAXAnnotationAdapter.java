@@ -33,7 +33,6 @@ package org.objectweb.asm.xml;
 import org.objectweb.asm.AnnotationVisitor;
 import org.objectweb.asm.Type;
 import org.xml.sax.ContentHandler;
-import org.xml.sax.SAXException;
 import org.xml.sax.helpers.AttributesImpl;
 
 
@@ -42,8 +41,7 @@ import org.xml.sax.helpers.AttributesImpl;
  *
  * @author Eugene Kuleshov
  */
-public class SAXAnnotationAdapter implements AnnotationVisitor {
-  private final ContentHandler h;
+public class SAXAnnotationAdapter extends SAXAdapter implements AnnotationVisitor {
   private final String elementName;
   
 
@@ -56,57 +54,46 @@ public class SAXAnnotationAdapter implements AnnotationVisitor {
   }
 
   private SAXAnnotationAdapter( ContentHandler h, String elementName, String desc, String name, int parameter) {
-    this.h = h;
+    super( h);
     this.elementName = elementName;
     
     AttributesImpl att = new AttributesImpl();
     if( name!=null) att.addAttribute( "", "name", "name", "", name);
     if( parameter!=-1) att.addAttribute( "", "parameter", "parameter", "", Integer.toString(parameter));
     if( desc!=null) att.addAttribute( "", "desc", "desc", "", desc);
-    
-    try {
-      h.startElement( "", elementName, elementName, att);
-    } catch( SAXException ex) {
-      throw new RuntimeException( ex.toString());
-    }
+   
+    addStart(elementName, att);
   }
 
   
   public void visit( String name, Object value) {
-    visitEnum(name, Type.getDescriptor( value.getClass()), value.toString());
+    // TODO implement proper handling of primitive arrays
+    addValueElement( "value", name, Type.getDescriptor( value.getClass()), value.toString());
   }
 
   public void visitEnum( String name, String desc, String value) {
+    addValueElement( "valueEnum", name, desc, value);
+  }
+
+  public AnnotationVisitor visitAnnotation( String name, String desc) {
+    return new SAXAnnotationAdapter(getContentHandler(), "valueAnnotation", name, desc);
+  }
+
+  public AnnotationVisitor visitArray( String name) {
+    return new SAXAnnotationAdapter(getContentHandler(), "valueArray", name, null);
+  }
+
+  public void visitEnd() {
+    addEnd(elementName);
+  }
+
+  private void addValueElement( String element, String name, String desc, String value) {
     AttributesImpl att = new AttributesImpl();
     if( name!=null) att.addAttribute( "", "name", "name", "", name);
     if( desc!=null) att.addAttribute( "", "desc", "desc", "", desc);
     if( value!=null) att.addAttribute( "", "value", "value", "", SAXClassAdapter.encode( value));
-    
-    try {
-      // TODO finalize element name for annotation values
-      h.startElement( "", "value", "value", att);
-      h.endElement( "", "value", "value");
-    } catch( SAXException ex) {
-      throw new RuntimeException( ex.toString());
-    }
-  }
 
-  public AnnotationVisitor visitAnnotation( String name, String desc) {
-    // TODO finalize element name for annotation values
-    return new SAXAnnotationAdapter(h, "valueAnnotation", name, desc);
-  }
-
-  public AnnotationVisitor visitArray( String name) {
-    // TODO Auto-generated method stub
-    return new SAXAnnotationAdapter(h, "arrayValue", name, null);
-  }
-
-  public void visitEnd() {
-    try {
-      h.endElement( "", elementName, elementName);
-    } catch( SAXException ex) {
-      throw new RuntimeException( ex.toString());
-    }
+    addElement(element, att);
   }
 
 }

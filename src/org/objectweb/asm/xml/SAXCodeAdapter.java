@@ -40,9 +40,7 @@ import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.util.AbstractVisitor;
-import org.xml.sax.Attributes;
 import org.xml.sax.ContentHandler;
-import org.xml.sax.SAXException;
 import org.xml.sax.helpers.AttributesImpl;
 
 
@@ -55,8 +53,7 @@ import org.xml.sax.helpers.AttributesImpl;
  * 
  * @author Eugene Kuleshov
  */
-public final class SAXCodeAdapter implements MethodVisitor {
-  private ContentHandler h;
+public final class SAXCodeAdapter extends SAXAdapter implements MethodVisitor {
   private Map labelNames;
 
   /**
@@ -66,7 +63,7 @@ public final class SAXCodeAdapter implements MethodVisitor {
    * @param access
    */
   public SAXCodeAdapter( ContentHandler h, int access) {
-    this.h = h;
+    super( h);
     labelNames = new HashMap();
 
     if(( access & ( Opcodes.ACC_ABSTRACT | Opcodes.ACC_INTERFACE | Opcodes.ACC_NATIVE))==0) {
@@ -196,7 +193,7 @@ public final class SAXCodeAdapter implements MethodVisitor {
     AttributesImpl attrs = new AttributesImpl();
     attrs.addAttribute( "", "name", "name", "", name);
     attrs.addAttribute( "", "desc", "desc", "", desc);
-    attrs.addAttribute( "", "signature", "signature", "", SAXClassAdapter.encode(signature));
+    if( signature!=null) attrs.addAttribute( "", "signature", "signature", "", SAXClassAdapter.encode(signature));
     attrs.addAttribute( "", "start", "start", "", getLabel( start));
     attrs.addAttribute( "", "end", "end", "", getLabel( end));
     attrs.addAttribute( "", "var", "var", "", Integer.toString( index));
@@ -212,15 +209,15 @@ public final class SAXCodeAdapter implements MethodVisitor {
 
 
   public AnnotationVisitor visitAnnotationDefault() {
-    return new SAXAnnotationAdapter( h, "annotationDefault", null, null);
+    return new SAXAnnotationAdapter( getContentHandler(), "annotationDefault", null, null);
   }
   
   public AnnotationVisitor visitAnnotation( String desc, boolean visible) {
-    return new SAXAnnotationAdapter( h, visible ? "visibleAnnotation" : "invisibleAnnotation", null, desc);
+    return new SAXAnnotationAdapter( getContentHandler(), visible ? "visibleAnnotation" : "invisibleAnnotation", null, desc);
   }
   
   public AnnotationVisitor visitParameterAnnotation( int parameter, String desc, boolean visible) {
-    return new SAXAnnotationAdapter( h, visible ? "visibleParameterAnnotation" : "invisibleParameterAnnotation", parameter, desc);
+    return new SAXAnnotationAdapter( getContentHandler(), visible ? "visibleParameterAnnotation" : "invisibleParameterAnnotation", parameter, desc);
   }
   
   public void visitEnd() {
@@ -240,27 +237,6 @@ public final class SAXCodeAdapter implements MethodVisitor {
       labelNames.put( label, name);
     }
     return name;
-  }
-  
-  private final void addElement( String name, Attributes attrs) {
-    addStart( name, attrs);
-    addEnd( name);
-  }
-
-  private final void addStart( String name, Attributes attrs) {
-    try {
-      h.startElement( "", name, name, attrs);
-    } catch( SAXException ex) {
-      throw new RuntimeException( ex.toString());
-    }
-  }
-
-  private final void addEnd( String name) {
-    try {
-      h.endElement( "", name, name);
-    } catch( SAXException ex) {
-      throw new RuntimeException( ex.toString());
-    }
   }
 
 }

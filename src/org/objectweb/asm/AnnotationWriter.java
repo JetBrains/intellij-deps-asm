@@ -234,9 +234,11 @@ final class AnnotationWriter implements AnnotationVisitor {
   }
   
   public void visitEnd () {
-    byte[] data = parent.data;
-    data[offset] = (byte)(size >>> 8);
-    data[offset+1] = (byte)size;
+    if( parent!=null) {
+      byte[] data = parent.data;
+      data[offset] = (byte)(size >>> 8);
+      data[offset+1] = (byte)size;
+    }
   }
 
   // --------------------------------------------------------------------------

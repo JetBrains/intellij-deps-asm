@@ -193,13 +193,12 @@ public class ClassReader {
           b = c;
         }
         return b;
-      } else {
-        len += n;
-        if (len == b.length) {
-          byte[] c = new byte[b.length + 1000];
-          System.arraycopy(b, 0, c, 0, len);
-          b = c;
-        }
+      }
+      len += n;
+      if (len == b.length) {
+        byte[] c = new byte[b.length + 1000];
+        System.arraycopy(b, 0, c, 0, len);
+        b = c;
       }
     }
   }
@@ -521,7 +520,9 @@ public class ClassReader {
 
       if (mv != null) {
         if (dann != 0) {
-          readAnnotationValue(dann, c, null, mv.visitAnnotationDefault());
+          AnnotationVisitor dv = mv.visitAnnotationDefault();
+          readAnnotationValue(dann, c, null, dv);
+          dv.visitEnd();
         }
         for (j = 1; j >= 0; --j) {
           w = j == 0 ? ianns : anns;

@@ -645,15 +645,13 @@ public class Type {
   public int getOpcode (final int opcode) {
     if (opcode == Constants.IALOAD || opcode == Constants.IASTORE) {
       switch (sort) {
-        case VOID:
-          return opcode + 5;
         case BOOLEAN:
         case BYTE:
-          return opcode + 6;
+          return opcode + 5;
         case CHAR:
-          return opcode + 7;
+          return opcode + 6;
         case SHORT:
-          return opcode + 8;
+          return opcode + 7;
         case INT:
           return opcode;
         case FLOAT:

@@ -1,0 +1,9 @@
+<project name="asm" default="dist">
+  <target name="dist">
+    <jar jarfile="${dist.lib}/asmutil.jar"
+         basedir="${build}"
+         manifest="${archive}/asmutil.mf">
+      <include name="org/objectweb/asm/util/*.class"/>
+    </jar>
+  </target>
+</project>

@@ -299,6 +299,7 @@
   <target name="dist.deb" depends="jar">
 
     <exec dir="${basedir}" executable="fakeroot" failonerror="true">
+      <arg value="/bin/sh"/>
       <arg value="${basedir}/debian/create-package.sh"/>
       <arg value="${basedir}"/>
       <arg value="${dist.lib}"/>

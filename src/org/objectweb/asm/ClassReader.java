@@ -61,12 +61,10 @@ public class ClassReader {
   private String[] strings;
 
   /**
-   * A common buffer used to parse strings in the constant pool. This common
-   * buffer eliminates the need to create a new temporary buffer each time
-   * readUTF8 is called, and therefore improves performances.
+   * Maximum length of the strings contained in the constant pool of the class.
    */
 
-  private char[] buf;
+  private int maxStringLength;
 
   /**
    * Start index of the class header information (access, name...) in {@link #b
@@ -134,7 +132,7 @@ public class ClassReader {
       }
       index += size;
     }
-    buf = new char[max];
+    maxStringLength = max;
     // the class header information starts just after the constant pool
     header = index;
   }
@@ -218,22 +216,23 @@ public class ClassReader {
     final ClassVisitor classVisitor,
     final boolean skipDebug)
   {
-    byte[] b = this.b;  // the bytecode array
-    int i, j, k;        // loop variables
-    int u, v, w;        // indexes in b
+    byte[] b = this.b;                     // the bytecode array
+    char[] c = new char[maxStringLength];  // buffer used to read strings
+    int i, j, k;                           // loop variables
+    int u, v, w;                           // indexes in b
 
     // visits the header
     u = header;
     int access = readUnsignedShort(u);
-    String className = readClass(u + 2);
+    String className = readClass(u + 2, c);
     v = items[readUnsignedShort(u + 4)];
-    String superClassName = v == 0 ? null : readUTF8(v);
+    String superClassName = v == 0 ? null : readUTF8(v, c);
     String[] implementedItfs = new String[readUnsignedShort(u + 6)];
     String sourceFile = null;
     w = 0;
     u += 8;
     for (i = 0; i < implementedItfs.length; ++i) {
-      implementedItfs[i] = readClass(u); u += 2;
+      implementedItfs[i] = readClass(u, c); u += 2;
     }
     // skips fields and methods
     v = u;
@@ -256,9 +255,9 @@ public class ClassReader {
     // reads the class's attributes
     i = readUnsignedShort(v); v += 2;
     for ( ; i > 0; --i) {
-      String attrName = readUTF8(v);
+      String attrName = readUTF8(v, c);
       if (attrName.equals("SourceFile")) {
-        sourceFile = readUTF8(v + 6);
+        sourceFile = readUTF8(v + 6, c);
       } else if (attrName.equals("Deprecated")) {
         access |= Constants.ACC_DEPRECATED;
       } else if (attrName.equals("InnerClasses")) {
@@ -275,9 +274,9 @@ public class ClassReader {
       i = readUnsignedShort(w); w += 2;
       for ( ; i > 0; --i) {
         classVisitor.visitInnerClass(
-          readUnsignedShort(w) == 0 ? null : readClass(w),
-          readUnsignedShort(w + 2) == 0 ? null : readClass(w + 2),
-          readUnsignedShort(w + 4) == 0 ? null : readUTF8(w + 4),
+          readUnsignedShort(w) == 0 ? null : readClass(w, c),
+          readUnsignedShort(w + 2) == 0 ? null : readClass(w + 2, c),
+          readUnsignedShort(w + 4) == 0 ? null : readUTF8(w + 4, c),
           readUnsignedShort(w + 6));
         w += 8;
       }
@@ -287,14 +286,14 @@ public class ClassReader {
     i = readUnsignedShort(u); u += 2;
     for ( ; i > 0; --i) {
       access = readUnsignedShort(u);
-      String fieldName = readUTF8(u + 2);
-      String fieldDesc = readUTF8(u + 4);
+      String fieldName = readUTF8(u + 2, c);
+      String fieldDesc = readUTF8(u + 4, c);
       // visits the field's attributes and looks for a ConstantValue attribute
       int fieldValueItem = 0;
       j = readUnsignedShort(u + 6);
       u += 8;
       for ( ; j > 0; --j) {
-        String attrName = readUTF8(u);
+        String attrName = readUTF8(u, c);
         if (attrName.equals("ConstantValue")) {
           fieldValueItem = readUnsignedShort(u + 6);
         } else if (attrName.equals("Synthetic")) {
@@ -305,7 +304,7 @@ public class ClassReader {
         u += 6 + readInt(u + 2);
       }
       // reads the field's value, if any
-      Object value = (fieldValueItem == 0 ? null : readConst(fieldValueItem));
+      Object value = (fieldValueItem == 0 ? null : readConst(fieldValueItem, c));
       // visits the field
       classVisitor.visitField(access, fieldName, fieldDesc, value);
     }
@@ -314,15 +313,15 @@ public class ClassReader {
     i = readUnsignedShort(u); u += 2;
     for ( ; i > 0; --i) {
       access = readUnsignedShort(u);
-      String methName = readUTF8(u + 2);
-      String methDesc = readUTF8(u + 4);
+      String methName = readUTF8(u + 2, c);
+      String methDesc = readUTF8(u + 4, c);
       // looks for Code and Exceptions attributes
       j = readUnsignedShort(u + 6);
       u += 8;
       v = 0;
       w = 0;
       for ( ; j > 0; --j) {
-        String attrName = readUTF8(u); u += 2;
+        String attrName = readUTF8(u, c); u += 2;
         int attrSize = readInt(u); u += 4;
         if (attrName.equals("Code")) {
           v = u;
@@ -342,7 +341,7 @@ public class ClassReader {
       } else {
         exceptions = new String[readUnsignedShort(w)]; w += 2;
         for (j = 0; j < exceptions.length; ++j) {
-          exceptions[j] = readClass(w); w += 2;
+          exceptions[j] = readClass(w, c); w += 2;
         }
       }
 
@@ -468,7 +467,7 @@ public class ClassReader {
           // parses the local variable and line number tables
           j = readUnsignedShort(v); v += 2;
           for ( ; j > 0; --j) {
-            String attrName = readUTF8(v);
+            String attrName = readUTF8(v, c);
             if (attrName.equals("LocalVariableTable")) {
               k = readUnsignedShort(v + 6);
               w = v + 8;
@@ -582,20 +581,20 @@ public class ClassReader {
               v += 3;
               break;
             case ClassWriter.LDC_INSN:
-              cv.visitLdcInsn(readConst(b[v + 1] & 0xFF));
+              cv.visitLdcInsn(readConst(b[v + 1] & 0xFF, c));
               v += 2;
               break;
             case ClassWriter.LDCW_INSN:
-              cv.visitLdcInsn(readConst(readUnsignedShort(v + 1)));
+              cv.visitLdcInsn(readConst(readUnsignedShort(v + 1), c));
               v += 3;
               break;
             case ClassWriter.FIELDORMETH_INSN:
             case ClassWriter.ITFMETH_INSN:
               int cpIndex = items[readUnsignedShort(v + 1)];
-              String iowner = readClass(cpIndex);
+              String iowner = readClass(cpIndex, c);
               cpIndex = items[readUnsignedShort(cpIndex + 2)];
-              String iname = readUTF8(cpIndex);
-              String idesc = readUTF8(cpIndex + 2);
+              String iname = readUTF8(cpIndex, c);
+              String idesc = readUTF8(cpIndex + 2, c);
               if (opcode < Constants.INVOKEVIRTUAL) {
                 cv.visitFieldInsn(opcode, iowner, iname, idesc);
               } else {
@@ -608,7 +607,7 @@ public class ClassReader {
               }
               break;
             case ClassWriter.TYPE_INSN:
-              cv.visitTypeInsn(opcode, readClass(v + 1));
+              cv.visitTypeInsn(opcode, readClass(v + 1, c));
               v += 3;
               break;
             case ClassWriter.IINC_INSN:
@@ -617,7 +616,7 @@ public class ClassReader {
               break;
             // case MANA_INSN:
             default:
-              cv.visitMultiANewArrayInsn(readClass(v + 1), b[v + 3] & 0xFF);
+              cv.visitMultiANewArrayInsn(readClass(v + 1, c), b[v + 3] & 0xFF);
               v += 4;
               break;
           }
@@ -636,7 +635,7 @@ public class ClassReader {
           if (type == 0) {
             cv.visitTryCatchBlock(start, end, handler, null);
           } else {
-            cv.visitTryCatchBlock(start, end, handler, readUTF8(items[type]));
+            cv.visitTryCatchBlock(start, end, handler, readUTF8(items[type], c));
           }
           v += 8;
         }
@@ -644,7 +643,7 @@ public class ClassReader {
           // visits the local variable and line number tables
           j = readUnsignedShort(v); v += 2;
           for ( ; j > 0; --j) {
-            String attrName = readUTF8(v);
+            String attrName = readUTF8(v, c);
             if (attrName.equals("LocalVariableTable")) {
               k = readUnsignedShort(v + 6);
               w = v + 8;
@@ -654,8 +653,8 @@ public class ClassReader {
                 label += readUnsignedShort(w + 2);
                 Label end = labels[label];
                 cv.visitLocalVariable(
-                  readUTF8(w + 4),
-                  readUTF8(w + 6),
+                  readUTF8(w + 4, c),
+                  readUTF8(w + 6, c),
                   start,
                   end,
                   readUnsignedShort(w + 8));
@@ -743,10 +742,12 @@ public class ClassReader {
    *
    * @param index the start index of an unsigned short value in {@link #b b},
    *      whose value is the index of an CONSTANT_Utf8 constant pool item.
+   * @param buf buffer to be used to read the item. This buffer must be
+   *      sufficiently large. It is not automatically resized.
    * @return the String corresponding to the specified CONSTANT_Utf8 item.
    */
 
-  private String readUTF8 (int index) {
+  private String readUTF8 (int index, final char[] buf) {
     // consults cache
     int item = readUnsignedShort(index);
     String s = strings[item];
@@ -802,28 +803,32 @@ public class ClassReader {
    *
    * @param index the start index of an unsigned short value in {@link #b b},
    *      whose value is the index of a CONSTANT_Class constant pool item.
+   * @param buf buffer to be used to read the item. This buffer must be
+   *      sufficiently large. It is not automatically resized.
    * @return the String corresponding to the CONSTANT_Utf8 corresponding to the
    *      specified CONSTANT_Class item.
    */
 
-  private String readClass (final int index) {
+  private String readClass (final int index, final char[] buf) {
     // computes the start index of the CONSTANT_Class item in b
     // and reads the CONSTANT_Utf8 item designated by
     // the first two bytes of this CONSTANT_Class item
-    return readUTF8(items[readUnsignedShort(index)]);
+    return readUTF8(items[readUnsignedShort(index)], buf);
   }
 
   /**
    * Reads a numeric or string constant pool item in {@link #b b}.
    *
    * @param item the index of a constant pool item.
+   * @param buf buffer to be used to read the item. This buffer must be
+   *      sufficiently large. It is not automatically resized.
    * @return the {@link java.lang.Integer Integer}, {@link java.lang.Float
    *      Float}, {@link java.lang.Long Long}, {@link java.lang.Double Double}
    *      or {@link String String} corresponding to the given constant pool
    *      item.
    */
 
-  private Object readConst (final int item) {
+  private Object readConst (final int item, final char[] buf) {
     int index = items[item];
     switch (b[index - 1]) {
       case ClassWriter.INT:
@@ -836,7 +841,7 @@ public class ClassReader {
         return new Double(Double.longBitsToDouble(readLong(index)));
       //case ClassWriter.STR:
       default:
-        return readUTF8(index);
+        return readUTF8(index, buf);
     }
   }
 }

@@ -220,18 +220,17 @@ public class Attribute {
     final int maxLocals,
     final ByteVector out)
   {
-    Attribute attr = this;
-    while (attr != null) {
-      ByteVector b = attr.write(cw, code, len, maxStack, maxLocals);
-      if (b.length == 0) {
-        if (cw.checkAttributes) {
-          throw new IllegalArgumentException("Unknown attribute type " + attr.type);
-        }
-      } else {
-        out.putShort(cw.newUTF8(attr.type)).putInt(b.length);
-        out.putByteArray(b.data, 0, b.length);
+    if (next != null) {
+      next.put(cw, code, len, maxStack, maxLocals, out);
+    }
+    ByteVector b = write(cw, code, len, maxStack, maxLocals);
+    if (b.length == 0) {
+      if (cw.checkAttributes) {
+        throw new IllegalArgumentException("Unknown attribute type " + type);
       }
-      attr = attr.next;
+    } else {
+      out.putShort(cw.newUTF8(type)).putInt(b.length);
+      out.putByteArray(b.data, 0, b.length);
     }
   }
 }

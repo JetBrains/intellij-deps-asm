@@ -31,12 +31,17 @@
 package org.objectweb.asm.test.perf;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.FileOutputStream;
 import java.util.Enumeration;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipOutputStream;
+
+import org.objectweb.asm.ClassReader;
+import org.objectweb.asm.ClassWriter;
+import org.objectweb.asm.EmptyClassVisitor;
 
 /**
  * @author Eric Bruneton
@@ -61,6 +66,56 @@ public abstract class ALL extends ClassLoader  {
   static boolean skipDebug;
 
   public static void main (String[] args) throws Exception {
+    ZipFile zip = new ZipFile(System.getProperty("java.home") + "/lib/rt.jar");
+    
+    for (int i = 0; i < 5; ++i) {
+      int n = 0;
+      long t = System.currentTimeMillis();
+      Enumeration entries = zip.entries();
+      while (entries.hasMoreElements()) {
+        ZipEntry e = (ZipEntry)entries.nextElement();
+        String s = e.getName();
+        if (s.endsWith(".class")) {
+          s = s.substring(0, s.length() - 6).replace('/', '.');
+          InputStream is = zip.getInputStream(e);
+          readClass(is);
+          ++n;
+        }
+      }
+      t = System.currentTimeMillis() - t;
+      System.out.println("Time to read " + n + " classes = " + t + " ms");
+      
+      t = System.currentTimeMillis();
+      entries = zip.entries();
+      while (entries.hasMoreElements()) {
+        ZipEntry e = (ZipEntry)entries.nextElement();
+        String s = e.getName();
+        if (s.endsWith(".class")) {
+          s = s.substring(0, s.length() - 6).replace('/', '.');
+          InputStream is = zip.getInputStream(e);
+          new ClassReader(is).accept(new EmptyClassVisitor(), false);
+        }
+      }
+      t = System.currentTimeMillis() - t;
+      System.out.println("Time to deserialze " + n + " classes = " + t + " ms");
+      
+      t = System.currentTimeMillis();
+      entries = zip.entries();
+      while (entries.hasMoreElements()) {
+        ZipEntry e = (ZipEntry)entries.nextElement();
+        String s = e.getName();
+        if (s.endsWith(".class")) {
+          s = s.substring(0, s.length() - 6).replace('/', '.');
+          InputStream is = zip.getInputStream(e);
+          ClassWriter cw = new ClassWriter(false);
+          new ClassReader(is).accept(cw, false);
+          cw.toByteArray();
+        }
+      }
+      t = System.currentTimeMillis() - t;
+      System.out.println("Time to deserialze and reserialze " + n + " classes = " + t + " ms\n");
+    }
+    
     System.out.println("Comparing ASM, BCEL, SERP and Javassist performances...");
     System.out.println("This may take 20 to 30 minutes\n");
     // measures performances
@@ -239,6 +294,32 @@ public abstract class ALL extends ClassLoader  {
       }
       if (step == 0) {
         System.out.println("\nWITHOUT DEBUG INFORMATION\n");
+      }
+    }
+  }
+
+  private static byte[] readClass (final InputStream is) throws IOException {
+    if (is == null) {
+      throw new IOException("Class not found");
+    }
+    byte[] b = new byte[is.available()];
+    int len = 0;
+    while (true) {
+      int n = is.read(b, len, b.length - len);
+      if (n == -1) {
+        if (len < b.length) {
+          byte[] c = new byte[len];
+          System.arraycopy(b, 0, c, 0, len);
+          b = c;
+        }
+        return b;
+      } else {
+        len += n;
+        if (len == b.length) {
+          byte[] c = new byte[b.length + 1000];
+          System.arraycopy(b, 0, c, 0, len);
+          b = c;
+        }
       }
     }
   }

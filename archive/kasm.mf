@@ -1,4 +1,4 @@
 Manifest-Version: 1.0
 Implementation-Title: "kASM (reduced version of ASM, for code generation only)"
-Implementation-Version: "1.4.1"
+Implementation-Version: "1.4.3"
 Implementation-Vendor: "France Telecom R&D"

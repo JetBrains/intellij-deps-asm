@@ -40,8 +40,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
-import java.util.Observable;
-import java.util.Observer;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
@@ -109,7 +107,7 @@ import org.xml.sax.helpers.XMLReaderFactory;
  * 
  * @author Eugene Kuleshov
  */
-public class Processor extends Observable implements Observer {
+public class Processor {
   public static final int BYTECODE = 1;
   public static final int MULTI_XML = 2;
   public static final int SINGLE_XML = 3;
@@ -203,8 +201,7 @@ public class Processor extends Observable implements Observer {
       }      
       
       n++;
-      setChanged();
-      notifyObservers( ze.getName());
+      update( ze.getName());
     }
     
     if( inDocHandler!=null && inRepresentation!=SINGLE_XML) {
@@ -259,10 +256,8 @@ public class Processor extends Observable implements Observer {
       
       }
     } catch( Exception ex) {
-      setChanged();
-      notifyObservers( ze.getName());
-      setChanged();
-      notifyObservers( ex);
+      update( ze.getName());
+      update( ex);
     }
   }
 
@@ -339,7 +334,7 @@ public class Processor extends Observable implements Observer {
    *  (non-Javadoc)
    * @see java.util.Observer#update(java.util.Observable, java.lang.Object)
    */
-  public void update( Observable o, Object arg) {
+  public void update( Object arg) {
     if( arg instanceof Throwable) {
       (( Throwable) arg).printStackTrace();
     } else {
@@ -391,7 +386,6 @@ public class Processor extends Observable implements Observer {
     }
     
     Processor m = new Processor( inRepresentation, outRepresentation, is, os, xslt);
-    m.addObserver( m);
     
     long l1 = System.currentTimeMillis();
     int n = m.process();

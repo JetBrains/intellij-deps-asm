@@ -34,15 +34,13 @@ import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.Observable;
-import java.util.Observer;
 
+import javax.xml.transform.Source;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.stream.StreamSource;
 
@@ -61,6 +59,11 @@ public class ALL {
         "org.apache.xalan.processor.TransformerFactoryImpl",
       };
 
+  private static final String[] TEMPLATES = { 
+        "copy.xsl",
+        "linenumbers.xsl",
+        "profile.xsl",
+      };
   
   public static void main( String[] args) throws Exception {
     System.err.println("Comparing XSLT performance for ASM XSLT");
@@ -72,17 +75,19 @@ public class ALL {
       return;
     }
     
+    /*
     File[] templates = examplesDir.listFiles( new FilenameFilter() {
         public boolean accept( File dir, String name) {
           return name.endsWith( ".xsl");
         }
       });
+    */
     
     for( int i = 0; i < ENGINES.length; i++) {
       System.err.println( ENGINES[ i]);
       process( null, ENGINES[ i]);
-      for( int j = 0; j < templates.length; j++) {
-        process( templates[ j].getAbsolutePath(), ENGINES[ i]);
+      for( int j = 0; j < TEMPLATES.length; j++) {
+        process( new File( examplesDir, TEMPLATES[ j]).getAbsolutePath(), ENGINES[ i]);
       }
       System.err.println();
     }
@@ -133,8 +138,7 @@ public class ALL {
 
     long l1 = System.currentTimeMillis();
 
-    Processor p = new Processor( Processor.BYTECODE, outRep, is, os, xslt);
-    p.addObserver( new DotObserver());
+    Processor p = new DotObserver( Processor.BYTECODE, outRep, is, os, xslt);
     int n = p.process();
 
     /*
@@ -157,10 +161,15 @@ public class ALL {
     System.err.println( "  " + outRep + " " + name + "  " + ( l2 - l1) + "ms  "+(1000f*n/( l2-l1)));
   }
 
-  private static final class DotObserver implements Observer {
+  
+  private static final class DotObserver extends Processor {
     private int n = 0;
 
-    public void update( Observable o, Object arg) {
+    public DotObserver(int inRepresenation, int outRepresentation, InputStream input, OutputStream output, Source xslt) {
+      super(inRepresenation, outRepresentation, input, output, xslt);
+    }    
+    
+    public void update( Object arg) {
       n++;
       if(( n%1000)==0) {
         System.err.print( ""+( n/1000));

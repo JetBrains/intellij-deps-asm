@@ -79,7 +79,7 @@ public class Annotations {
             AnnotationVisitor av;
             av = mv.visitParameterAnnotation(parameter, desc, visible);
             if (desc.equals("LNotNull;")) {
-              int var = 0;
+              int var = ((access & Opcodes.ACC_STATIC) == 0) ? 1 : 0;
               for (int i = 0; i < parameter; ++i) {
                 var += args[i].getSize();
               }

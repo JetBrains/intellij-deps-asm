@@ -65,7 +65,7 @@ public class Analysis implements Opcodes {
         if (!analyze(cn, method)) {
           Analyzer a = new Analyzer(new BasicVerifier());
           try {
-            a.analyze(cn, method);
+            a.analyze(cn.name, method);
           } catch (Exception ignored) {
           }
           final Frame[] frames = a.getFrames();
@@ -102,7 +102,7 @@ public class Analysis implements Opcodes {
 
   public static boolean analyze (ClassNode c, MethodNode m) throws Exception {
     Analyzer a = new Analyzer(new DataflowInterpreter());
-    Frame[] frames = a.analyze(c, m);
+    Frame[] frames = a.analyze(c.name, m);
 
     // for each xLOAD instruction, we find the xSTORE instructions that can
     // produce the value loaded by this instruction, and we put them in 'stores'

@@ -60,7 +60,7 @@ public class BasicVerifierTest extends AbstractTest {
       MethodNode method = (MethodNode)methods.get(i);      
       if (method.instructions.size() > 0) {
         Analyzer a = new Analyzer(new BasicVerifier());
-        a.analyze(cn, method);
+        a.analyze(cn.name, method);
       }
     }
   }

@@ -37,7 +37,6 @@ import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.AbstractInsnNode;
-import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.IincInsnNode;
 import org.objectweb.asm.tree.JumpInsnNode;
 import org.objectweb.asm.tree.LabelNode;
@@ -87,7 +86,7 @@ public class Analyzer implements Opcodes {
   /**
    * Analyzes the given method.
    * 
-   * @param c the class to which the method belongs.
+   * @param owner the internal name of the class to which the method belongs.
    * @param m the method to be analyzed.
    * @return the symbolic state of the execution stack frame at each bytecode
    *     instruction of the method. The size of the returned array is equal to 
@@ -97,7 +96,7 @@ public class Analyzer implements Opcodes {
    * @throws AnalyzerException if a problem occurs during the analysis.
    */
   
-  public Frame[] analyze (final ClassNode c, final MethodNode m) 
+  public Frame[] analyze (final String owner, final MethodNode m) 
     throws AnalyzerException
   {
     n = m.instructions.size();
@@ -139,7 +138,7 @@ public class Analyzer implements Opcodes {
     Type[] args = Type.getArgumentTypes(m.desc);
     int local = 0;
     if ((m.access & ACC_STATIC) == 0) {
-      Type ctype = Type.getType("L" + c.name + ";");
+      Type ctype = Type.getType("L" + owner + ";");
       current.setLocal(local++, interpreter.newValue(ctype));
     }
     for (int i = 0; i < args.length; ++i) {

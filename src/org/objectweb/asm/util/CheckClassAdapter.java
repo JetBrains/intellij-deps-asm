@@ -109,7 +109,7 @@ public class CheckClassAdapter extends ClassAdapter {
       if (method.instructions.size() > 0) {
         Analyzer a = new Analyzer(new SimpleVerifier());
         try {
-          a.analyze(cn, method);
+          a.analyze(cn.name, method);
           continue;
         } catch (Exception e) {
           e.printStackTrace();

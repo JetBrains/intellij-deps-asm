@@ -22,48 +22,72 @@
  * Author: Eric Bruneton
  */
 
-import org.objectweb.asm.*;
-import java.lang.reflect.*;
+import org.objectweb.asm.ClassAdapter;
+import org.objectweb.asm.ClassReader;
+import org.objectweb.asm.ClassVisitor;
+import org.objectweb.asm.ClassWriter;
+import org.objectweb.asm.CodeAdapter;
+import org.objectweb.asm.CodeVisitor;
+import org.objectweb.asm.Constants;
+import org.objectweb.asm.Type;
+
 import java.io.FileOutputStream;
-import java.io.BufferedInputStream;
-import java.io.FileInputStream;
+import java.io.InputStream;
+import java.lang.reflect.Method;
 
 public class Adapt extends ClassLoader implements Constants {
 
+  protected synchronized Class loadClass (
+    final String name,
+    final boolean resolve) throws ClassNotFoundException
+  {
+    if (name.startsWith("java.")) {
+      System.err.println(
+        "Adapt: loading class '" + name + "' without on the fly adaptation");
+      return super.loadClass(name, resolve);
+    } else {
+      System.err.println(
+        "Adapt: loading class '" + name + "' with on the fly adaptation");
+    }
+
+    // gets an input stream to read the bytecode of the class
+    String resource = name.replace('.','/') + ".class";
+    InputStream is = getResourceAsStream(resource);
+    byte[] b;
+
+    // adapts the class on the fly
+    try {
+      ClassReader cr = new ClassReader(is);
+      ClassWriter cw = new ClassWriter(false);
+      ClassVisitor cv = new TraceFieldClassAdapter(cw);
+      cr.accept(cv, false);
+      b = cw.toByteArray();
+    } catch (Exception e) {
+      throw new ClassNotFoundException(name, e);
+    }
+
+    // optional: stores the adapted class on disk
+    try {
+      FileOutputStream fos = new FileOutputStream(resource + ".adapted");
+      fos.write(b);
+      fos.close();
+    } catch (Exception e) {
+    }
+
+    // returns the adapted class
+    return defineClass(name, b, 0, b.length);
+  }
+
   public static void main (final String args[]) throws Exception {
-    // loads the orginal class and adapts it
-    ClassReader cr = new ClassReader("ArraySet");
-    ClassWriter cw = new ClassWriter(false);
-    ClassVisitor cv = new TraceFieldClassAdapter(cw);
-    cr.accept(cv, false);
-    byte[] b = cw.toByteArray();
-
-    // stores the adapted class on disk
-    FileOutputStream fos = new FileOutputStream("ArraySet.class.adapted");
-    fos.write(b);
-    fos.close();
-
-    // dynamically loads the adapted class
-    Adapt loader = new Adapt();
-    Class arraySetClass = loader.defineClass("ArraySet", b, 0, b.length);
-
-    // uses the adapted class
-    Set s = (Set)arraySetClass.newInstance();
-    System.err.println("add 1");
-    s.add(1);
-    System.err.println("add 1");
-    s.add(1);
-    System.err.println("add 2");
-    s.add(2);
-    System.err.println("add 4");
-    s.add(4);
-    System.err.println("add 8");
-    s.add(8);
-    System.err.println("contains 3 = " + s.contains(3));
-    System.err.println("contains 1 = " + s.contains(1));
-    System.err.println("remove 1");
-    s.remove(1);
-    System.err.println("contains 1 = " + s.contains(1));
+    // loads the application class (in args[0]) with an Adapt class loader
+    ClassLoader loader = new Adapt();
+    Class c = loader.loadClass(args[0]);
+    // calls the 'main' static method of this class with the
+    // application arguments (in args[1] ... args[n]) as parameter
+    Method m = c.getMethod("main", new Class[] {String[].class});
+    String[] applicationArgs = new String[args.length - 1];
+    System.arraycopy(args, 1, applicationArgs, 0, applicationArgs.length);
+    m.invoke(null, new Object[] {applicationArgs});
   }
 }
 

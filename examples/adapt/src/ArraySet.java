@@ -22,7 +22,7 @@
  * Author: Eric Bruneton
  */
 
-public class ArraySet implements Set {
+public class ArraySet {
 
   private int[] values = new int[3];
 
@@ -62,5 +62,26 @@ public class ArraySet implements Set {
       ++i;
     }
     size = j;
+  }
+
+  // test method
+
+  public static void main (String[] args) {
+    ArraySet s = new ArraySet();
+    System.err.println("add 1");
+    s.add(1);
+    System.err.println("add 1");
+    s.add(1);
+    System.err.println("add 2");
+    s.add(2);
+    System.err.println("add 4");
+    s.add(4);
+    System.err.println("add 8");
+    s.add(8);
+    System.err.println("contains 3 = " + s.contains(3));
+    System.err.println("contains 1 = " + s.contains(1));
+    System.err.println("remove 1");
+    s.remove(1);
+    System.err.println("contains 1 = " + s.contains(1));
   }
 }

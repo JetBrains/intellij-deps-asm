@@ -402,18 +402,34 @@ public class Annotation {
     Object value = null;
     int tag = cr.readByte(off[ 0]++);
     switch (tag) {
-      case 'B':  // pointer to CONSTANT_Byte
-      case 'C':  // pointer to CONSTANT_Char
-      case 'D':  // pointer to CONSTANT_Double
-      case 'F':  // pointer to CONSTANT_Float
       case 'I':  // pointer to CONSTANT_Integer
       case 'J':  // pointer to CONSTANT_Long
-      case 'S':  // pointer to CONSTANT_Short
-      case 'Z':  // pointer to CONSTANT_Boolean
+      case 'D':  // pointer to CONSTANT_Double
+      case 'F':  // pointer to CONSTANT_Float
         value = cr.readConst(cr.readUnsignedShort(off[0]), buf);
         off[0] += 2;
         break;
 
+      case 'B':  // pointer to CONSTANT_Byte
+        value = new Byte(( byte) cr.readInt( cr.getItem( cr.readUnsignedShort(off[0]))));
+        off[0] += 2;
+        break;
+        
+      case 'C':  // pointer to CONSTANT_Char
+        value = new Character(( char) cr.readInt( cr.getItem( cr.readUnsignedShort(off[0]))));
+        off[0] += 2;
+        break;
+        
+      case 'S':  // pointer to CONSTANT_Short
+        value = new Short(( short) cr.readInt( cr.getItem( cr.readUnsignedShort(off[0]))));
+        off[0] += 2;
+        break;
+        
+      case 'Z':  // pointer to CONSTANT_Boolean
+        value = cr.readInt( cr.getItem( cr.readUnsignedShort(off[0])))==0 ? Boolean.FALSE : Boolean.TRUE;
+        off[0] += 2;
+        break;
+        
       case 's':  // pointer to CONSTANT_Utf8
         value = cr.readUTF8(off[0], buf);
         off[0] += 2;
@@ -438,12 +454,113 @@ public class Annotation {
       case '[':  // array_value
         int size = cr.readUnsignedShort(off[0]);
         off[0] += 2;
-        Object[] v = new Object[ size];
-        value = v;
-        for (int i = 0; i < size; i++) {
-          v[i] = readValue(cr, off, buf);
+        int childTag = cr.readByte( off[ 0]);
+        switch( childTag) {
+	      case 'I':  // pointer to CONSTANT_Integer
+            {
+		      int[] v = new int[ size];
+		      for( int i = 0; i < size; i++) {
+			    off[ 0]++;  // skip element tag		      
+			    v[ i] = cr.readInt( cr.getItem( cr.readUnsignedShort(off[0])));
+			    off[ 0] += 2;
+	          }
+		      value = v;
+            }
+	        break;
+	        
+	      case 'J':  // pointer to CONSTANT_Long
+            {
+		      long[] v = new long[ size];
+		      for( int i = 0; i < size; i++) {
+			    off[ 0]++;  // skip element tag		      
+			    v[ i] = cr.readLong( cr.getItem( cr.readUnsignedShort(off[0])));
+			    off[ 0] += 2;
+	          }
+		      value = v;
+            }
+	        break;
+	        
+	      case 'D':  // pointer to CONSTANT_Double
+            {
+		      double[] v = new double[ size];
+		      for( int i = 0; i < size; i++) {
+			    off[ 0]++;  // skip element tag		      
+			    v[ i] = Double.longBitsToDouble( cr.readLong( cr.getItem( cr.readUnsignedShort(off[0]))));
+			    off[ 0] += 2;
+	          }
+		      value = v;
+            }
+	        break;
+	        
+	      case 'F':  // pointer to CONSTANT_Float
+	        {
+	          float[] v = new float[ size];
+	          for( int i = 0; i < size; i++) {
+		        off[ 0]++;  // skip element tag		      
+		        v[ i] = Float.intBitsToFloat( cr.readInt( cr.getItem( cr.readUnsignedShort(off[0]))));
+		        off[ 0] += 2;
+              }
+	          value = v;
+	        }
+	        break;
+	
+	      case 'B':  // pointer to CONSTANT_Byte
+            {
+		      byte[] v = new byte[ size];
+		      for( int i = 0; i < size; i++) {
+			    off[ 0]++;  // skip element tag		      
+			    v[ i] = ( byte) cr.readInt( cr.getItem( cr.readUnsignedShort(off[0])));
+			    off[ 0] += 2;
+	          }
+		      value = v;
+            }
+	        break;
+	          
+	      case 'C':  // pointer to CONSTANT_Char
+            {
+		      char[] v = new char[ size];
+		      for( int i = 0; i < size; i++) {
+			    off[ 0]++;  // skip element tag		      
+			    v[ i] = ( char) cr.readInt( cr.getItem( cr.readUnsignedShort(off[0])));
+			    off[ 0] += 2;
+	          }
+		      value = v;
+            }
+	        break;
+	          
+	      case 'S':  // pointer to CONSTANT_Short
+            {
+		      short[] v = new short[ size];
+		      for( int i = 0; i < size; i++) {
+			    off[ 0]++;  // skip element tag		      
+			    v[ i] = ( short) cr.readInt( cr.getItem( cr.readUnsignedShort(off[0])));
+			    off[ 0] += 2;
+	          }
+		      value = v;
+            }
+	        break;
+	          
+	      case 'Z':  // pointer to CONSTANT_Boolean
+            {
+		      boolean[] v = new boolean[ size];
+		      for( int i = 0; i < size; i++) {
+			    off[ 0]++;  // skip element tag		      
+			    v[ i] = cr.readInt( cr.getItem( cr.readUnsignedShort(off[0])))!=0;
+			    off[ 0] += 2;
+	          }
+		      value = v;
+            }
+	        break;
+	          
+          default:
+	        Object[] v = new Object[ size];
+	        value = v;
+	        for (int i = 0; i < size; i++) {
+	          v[i] = readValue(cr, off, buf);
+	        }
+	        break;
         }
-        break;
+        
     }
     return value;
   }
@@ -485,6 +602,78 @@ public class Annotation {
         writeValue(bv, v[i], cw);
       }
     
+    } else if( value instanceof byte[]) {
+      bv.putByte('[');
+      byte[] v = (byte[])value;
+      bv.putShort(v.length);
+      for (int i = 0; i < v.length; i++) {
+        bv.putByte('B');
+        bv.putShort(cw.newConstInt(v[i]));
+      }
+      
+    } else if( value instanceof short[]) {
+      bv.putByte('[');
+      short[] v = (short[])value;
+      bv.putShort(v.length);
+      for (int i = 0; i < v.length; i++) {
+        bv.putByte('S');
+        bv.putShort(cw.newConstInt(v[i]));
+      }
+      
+    } else if( value instanceof int[]) {
+      bv.putByte('[');
+      int[] v = (int[])value;
+      bv.putShort(v.length);
+      for (int i = 0; i < v.length; i++) {
+        bv.putByte('I');
+        bv.putShort(cw.newConstInt(v[i]));
+      }
+      
+    } else if( value instanceof char[]) {
+      bv.putByte('[');
+      char[] v = (char[])value;
+      bv.putShort(v.length);
+      for (int i = 0; i < v.length; i++) {
+        bv.putByte('C');
+        bv.putShort(cw.newConstInt(v[i]));
+      }
+      
+    } else if( value instanceof boolean[]) {
+      bv.putByte('[');
+      boolean[] v = (boolean[])value;
+      bv.putShort(v.length);
+      for (int i = 0; i < v.length; i++) {
+        bv.putByte('Z');
+        bv.putShort(cw.newConstInt(v[i] ? 1 : 0));
+      }
+      
+    } else if( value instanceof long[]) {
+      bv.putByte('[');
+      long[] v = (long[])value;
+      bv.putShort(v.length);
+      for (int i = 0; i < v.length; i++) {
+        bv.putByte('J');
+        bv.putShort(cw.newConstLong(v[i]));
+      }
+      
+    } else if( value instanceof float[]) {
+      bv.putByte('[');
+      float[] v = (float[])value;
+      bv.putShort(v.length);
+      for (int i = 0; i < v.length; i++) {
+        bv.putByte('F');
+        bv.putShort(cw.newConstFloat(v[i]));
+      }
+      
+    } else if( value instanceof double[]) {
+      bv.putByte('[');
+      double[] v = (double[])value;
+      bv.putShort(v.length);
+      for (int i = 0; i < v.length; i++) {
+        bv.putByte('D');
+        bv.putShort(cw.newConstDoule(v[i]));
+      }
+      
     } else {
   	  int tag = -1;
       if (value instanceof Integer) {

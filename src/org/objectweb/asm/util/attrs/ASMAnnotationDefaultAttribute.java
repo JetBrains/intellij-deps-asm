@@ -127,22 +127,22 @@ public class ASMAnnotationDefaultAttribute extends AnnotationDefaultAttribute
       return "\""+value+"\"";
 
     } else if (value instanceof Integer) {
-      return "new Integer((int)"+value+")"; 
+      return "new Integer("+value+")"; 
       	
     } else if (value instanceof Byte) {
-      return "new Byte("+value+")"; 
+      return "new Byte((byte)"+value+")"; 
 
     } else if (value instanceof Character) {
-      return "new Character((char)"+value+")"; 
+      return "new Character((char)"+((int)((Character)value).charValue())+")"; 
 
     } else if (value instanceof Double) {
-      return "new Double((double)"+value+")"; 
+      return "new Double("+value+"d)"; 
 
     } else if (value instanceof Float) {
-      return "new Float((float)"+value+")"; 
+      return "new Float("+value+"f)"; 
 
     } else if (value instanceof Long) {
-      return "new Long((long)"+value+")"; 
+      return "new Long("+value+"L)"; 
 
     } else if (value instanceof Short) {
       return "new Short((short)"+value+")"; 
@@ -170,8 +170,99 @@ public class ASMAnnotationDefaultAttribute extends AnnotationDefaultAttribute
         buf.append(valName+"["+i+"] = ").append(val).append(";\n");
       }
       return valName;
+    
+    } else if( value instanceof byte[]) {
+      byte[] v = (byte[])value;
+      StringBuffer sb = new StringBuffer( "new byte[] {");
+	  String sep = "";
+      for (int i = 0; i < v.length; i++) {
+	    sb.append(sep).append(v[i]);
+	    sep = ", ";
+	  }
+	  sb.append("}");
+      return sb.toString();
+      
+    } else if( value instanceof char[]) {
+      char[] v = (char[])value;
+      StringBuffer sb = new StringBuffer( "new char[] {");
+	  String sep = "";
+      for (int i = 0; i < v.length; i++) {
+	    sb.append(sep).append("(char)").append((int)v[i]);
+	    sep = ", ";
+	  }
+	  sb.append("}");
+      return sb.toString();
+      
+    } else if( value instanceof short[]) {
+      short[] v = (short[])value;
+      StringBuffer sb = new StringBuffer( "new short[] {");
+	  String sep = "";
+      for (int i = 0; i < v.length; i++) {
+	    sb.append(sep).append("(short)").append(v[i]);
+	    sep = ", ";
+	  }
+	  sb.append("}");
+      return sb.toString();
+      
+    } else if( value instanceof long[]) {
+      long[] v = (long[])value;
+      StringBuffer sb = new StringBuffer( "new long[] {");
+	  String sep = "";
+      for (int i = 0; i < v.length; i++) {
+	    sb.append(sep).append(v[i]).append("L");
+	    sep = ", ";
+	  }
+	  sb.append("}");
+      return sb.toString();
+      
+    } else if( value instanceof int[]) {
+      int[] v = (int[])value;
+      StringBuffer sb = new StringBuffer( "new int[] {");
+	  String sep = "";
+      for (int i = 0; i < v.length; i++) {
+	    sb.append(sep).append(v[i]);
+	    sep = ", ";
+	  }
+	  sb.append("}");
+      return sb.toString();
+      
+    } else if( value instanceof boolean[]) {
+      boolean[] v = (boolean[])value;
+      StringBuffer sb = new StringBuffer( "new boolean[] {");
+	  String sep = "";
+      for (int i = 0; i < v.length; i++) {
+	    sb.append(sep).append(v[i]);
+	    sep = ", ";
+	  }
+	  sb.append("}");
+      return sb.toString();
+      
+    } else if( value instanceof float[]) {
+      float[] v = (float[])value;
+      StringBuffer sb = new StringBuffer( "new float[] {");
+	  String sep = "";
+      for (int i = 0; i < v.length; i++) {
+	    sb.append(sep).append(v[i]).append("f");
+	    sep = ", ";
+	  }
+	  sb.append("}");
+      return sb.toString();
+      
+    } else if( value instanceof double[]) {
+      double[] v = (double[])value;
+      StringBuffer sb = new StringBuffer( "new double[] {");
+	  String sep = "";
+      for (int i = 0; i < v.length; i++) {
+	    sb.append(sep).append(v[i]).append("d");
+	    sep = ", ";
+	  }
+	  sb.append("}");
+      return sb.toString();
+      
+    } else {
+      throw new IllegalArgumentException( "Invalid value: "+value.getClass().getName()+" : "+value);
       
     }
-    return null;
+    // return null;
   }
 }

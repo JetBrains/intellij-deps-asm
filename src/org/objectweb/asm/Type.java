@@ -413,7 +413,7 @@ public class Type {
    */
 
   public static String getDescriptor (final Class c) {
-	  StringBuffer buf = new StringBuffer();
+    StringBuffer buf = new StringBuffer();
     getDescriptor(buf, c);
     return buf.toString();
   }
@@ -451,7 +451,7 @@ public class Type {
 
   public static String getMethodDescriptor (final Method m) {
     Class[] parameters = m.getParameterTypes();
-		StringBuffer buf = new StringBuffer();
+    StringBuffer buf = new StringBuffer();
     buf.append('(');
     for (int i = 0; i < parameters.length; ++i) {
       getDescriptor(buf, parameters[i]);
@@ -465,7 +465,7 @@ public class Type {
    * Appends the descriptor corresponding to this Java type to the given string
    * buffer.
    *
-	 * @param buf the string buffer to which the descriptor must be appended.
+   * @param buf the string buffer to which the descriptor must be appended.
    */
 
   private void getDescriptor (final StringBuffer buf) {
@@ -488,7 +488,7 @@ public class Type {
   /**
    * Appends the descriptor of the given class to the given string buffer.
    *
-	 * @param buf the string buffer to which the descriptor must be appended.
+   * @param buf the string buffer to which the descriptor must be appended.
    * @param c the class whose descriptor must be computed.
    */
 

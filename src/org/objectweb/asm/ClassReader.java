@@ -400,7 +400,7 @@ public class ClassReader {
     int i, j, k;        // loop variables
     int u, v, w;        // indexes in b
 
-		// visits the header
+    // visits the header
     u = header;
     int access = readUnsignedShort(u);
     String className = readClass(u + 2);
@@ -774,10 +774,10 @@ public class ClassReader {
               String iname = readUTF8(cpIndex);
               String idesc = readUTF8(cpIndex + 2);
               if (opcode < Constants.INVOKEVIRTUAL) {
-								cv.visitFieldInsn(opcode, iowner, iname, idesc);
-							} else {
-								cv.visitMethodInsn(opcode, iowner, iname, idesc);
-							}
+                cv.visitFieldInsn(opcode, iowner, iname, idesc);
+              } else {
+                cv.visitMethodInsn(opcode, iowner, iname, idesc);
+              }
               if (opcode == Constants.INVOKEINTERFACE) {
                 v += 5;
               } else {

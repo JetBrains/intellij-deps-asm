@@ -1,6 +1,6 @@
 <project name="perf" default="test">
   <target name="test">
-		<java classname="org.objectweb.asm.test.perf.ALL" fork="yes">
+    <java classname="org.objectweb.asm.test.perf.ALL" fork="yes">
       <classpath>
         <pathelement location="${build}"/>
         <pathelement location="${BCEL}"/>
@@ -9,5 +9,5 @@
       <arg value="${testResult.dir}/"/>
       <arg value="${class-samples}"/>
     </java>
-	</target>
+  </target>
 </project>

@@ -228,8 +228,8 @@ public interface CodeVisitor {
    * @param handler beginning of the exception handler's code.
    * @param type name of the type of exceptions handled by the handler,
    *      or <tt>null</tt> to catch any exceptions (for "finally" blocks).
-	 * @throws IllegalArgumentException if one of the labels has not already been
-	 *      visited by this visitor (by the {@link #visitLabel visitLabel}
+   * @throws IllegalArgumentException if one of the labels has not already been
+   *      visited by this visitor (by the {@link #visitLabel visitLabel}
    *      method).
    */
 
@@ -259,8 +259,8 @@ public interface CodeVisitor {
    * @param end the last instruction corresponding to the scope of this
    *      local variable (exclusive).
    * @param index the local variable's index.
-	 * @throws IllegalArgumentException if one of the labels has not already been
-	 *      visited by this visitor (by the {@link #visitLabel visitLabel}
+   * @throws IllegalArgumentException if one of the labels has not already been
+   *      visited by this visitor (by the {@link #visitLabel visitLabel}
    *      method).
    */
 
@@ -277,8 +277,8 @@ public interface CodeVisitor {
    * @param line a line number. This number refers to the source file
    *      from which the class was compiled.
    * @param start the first instruction corresponding to this line number.
-	 * @throws IllegalArgumentException if <tt>start</tt> has not already been
-	 *      visited by this visitor (by the {@link #visitLabel visitLabel}
+   * @throws IllegalArgumentException if <tt>start</tt> has not already been
+   *      visited by this visitor (by the {@link #visitLabel visitLabel}
    *      method).
    */
 

@@ -335,9 +335,9 @@ public class ClassWriter implements ClassVisitor {
     if ((access & Constants.ACC_DEPRECATED) != 0) {
       fields.put2(newUTF8("Deprecated").index).put4(0);
     }
-	}
+  }
 
-	public CodeVisitor visitMethod (
+  public CodeVisitor visitMethod (
     final int access,
     final String name,
     final String desc,
@@ -365,14 +365,14 @@ public class ClassWriter implements ClassVisitor {
     if (fields != null) {
       size += fields.length;
     }
-		int nbMethods = 0;
-		CodeWriter cb = firstMethod;
-		while (cb != null) {
-		  ++nbMethods;
+    int nbMethods = 0;
+    CodeWriter cb = firstMethod;
+    while (cb != null) {
+      ++nbMethods;
       size += cb.getSize();
-			cb = cb.next;
+      cb = cb.next;
     }
-		size += pool.length;
+    size += pool.length;
     int attributeCount = 0;
     if (sourceFile != null) {
       ++attributeCount;
@@ -402,9 +402,9 @@ public class ClassWriter implements ClassVisitor {
     }
     out.put2(nbMethods);
     cb = firstMethod;
-		while (cb != null) {
+    while (cb != null) {
       cb.put(out);
-			cb = cb.next;
+      cb = cb.next;
     }
     out.put2(attributeCount);
     if (sourceFile != null) {
@@ -439,18 +439,18 @@ public class ClassWriter implements ClassVisitor {
   Item newCst (final Object cst) {
     if (cst instanceof Integer) {
       int val = ((Integer)cst).intValue();
-		  return newInteger(val);
+      return newInteger(val);
     } else if (cst instanceof Float) {
       float val = ((Float)cst).floatValue();
-		  return newFloat(val);
+      return newFloat(val);
     } else if (cst instanceof Long) {
       long val = ((Long)cst).longValue();
-		  return newLong(val);
+      return newLong(val);
     } else if (cst instanceof Double) {
       double val = ((Double)cst).doubleValue();
-		  return newDouble(val);
+      return newDouble(val);
     } else if (cst instanceof String) {
-		  return newString((String)cst);
+      return newString((String)cst);
     } else {
       throw new IllegalArgumentException("value " + cst);
     }
@@ -688,11 +688,11 @@ public class ClassWriter implements ClassVisitor {
 
   /**
    * Returns the constant pool's hash table item which is equal to the given
-	 * item.
+   * item.
    *
    * @param key a constant pool item.
    * @return the constant pool's hash table item which is equal to the given
-	 *      item, or <tt>null</tt> if there is no such item.
+   *      item, or <tt>null</tt> if there is no such item.
    */
 
   private Item get (final Item key) {
@@ -709,31 +709,31 @@ public class ClassWriter implements ClassVisitor {
 
   /**
    * Puts the given item in the constant pool's hash table. The hash table
-	 * <i>must</i> not already contains this item.
+   * <i>must</i> not already contains this item.
    *
    * @param i the item to be added to the constant pool's hash table.
    */
 
   private void put (final Item i) {
     if (index > threshold) {
-			int oldCapacity = table.length;
-			Item oldMap[] = table;
-			int newCapacity = oldCapacity * 2 + 1;
-			Item newMap[] = new Item[newCapacity];
-			threshold = (int)(newCapacity * 0.75);
-			table = newMap;
-			for (int j = oldCapacity; j-- > 0; ) {
-				for (Item old = oldMap[j]; old != null; ) {
-					Item e = old;
-					old = old.next;
-					int index = (e.hashCode & 0x7FFFFFFF) % newCapacity;
-					e.next = newMap[index];
-					newMap[index] = e;
-				}
-			}
-		}
+      int oldCapacity = table.length;
+      Item oldMap[] = table;
+      int newCapacity = oldCapacity * 2 + 1;
+      Item newMap[] = new Item[newCapacity];
+      threshold = (int)(newCapacity * 0.75);
+      table = newMap;
+      for (int j = oldCapacity; j-- > 0; ) {
+        for (Item old = oldMap[j]; old != null; ) {
+          Item e = old;
+          old = old.next;
+          int index = (e.hashCode & 0x7FFFFFFF) % newCapacity;
+          e.next = newMap[index];
+          newMap[index] = e;
+        }
+      }
+    }
     int index = (i.hashCode & 0x7FFFFFFF) % table.length;
-		i.next = table[index];
+    i.next = table[index];
     table[index] = i;
   }
 

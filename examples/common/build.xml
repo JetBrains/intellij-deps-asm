@@ -59,7 +59,7 @@
   <!-- ================================== -->
 
   <target name="compile">
-	  <mkdir dir="${build}"/>
+    <mkdir dir="${build}"/>
     <javac srcdir="${src}" destdir="${build}" debug="on">
       <classpath refid="classpath"/>
       <include name="**/*.java"/>

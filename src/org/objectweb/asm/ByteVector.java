@@ -70,12 +70,12 @@ final class ByteVector {
    */
 
   public ByteVector put1 (final int b) {
-		int length = this.length;
+    int length = this.length;
     if (length + 1 > data.length) {
       enlarge(1);
     }
     data[length++] = (byte)b;
-		this.length = length;
+    this.length = length;
     return this;
   }
 
@@ -89,14 +89,14 @@ final class ByteVector {
    */
 
   public ByteVector put11 (final int b1, final int b2) {
-	  int length = this.length;
+    int length = this.length;
     if (length + 2 > data.length) {
       enlarge(2);
     }
-		byte[] data = this.data;
+    byte[] data = this.data;
     data[length++] = (byte)b1;
     data[length++] = (byte)b2;
-		this.length = length;
+    this.length = length;
     return this;
   }
 
@@ -109,14 +109,14 @@ final class ByteVector {
    */
 
   public ByteVector put2 (final int s) {
-	  int length = this.length;
+    int length = this.length;
     if (length + 2 > data.length) {
       enlarge(2);
     }
-		byte[] data = this.data;
+    byte[] data = this.data;
     data[length++] = (byte)(s >>> 8);
     data[length++] = (byte)s;
-		this.length = length;
+    this.length = length;
     return this;
   }
 
@@ -130,15 +130,15 @@ final class ByteVector {
    */
 
   public ByteVector put12 (final int b, final int s) {
-	  int length = this.length;
+    int length = this.length;
     if (length + 3 > data.length) {
       enlarge(3);
     }
-		byte[] data = this.data;
+    byte[] data = this.data;
     data[length++] = (byte)b;
     data[length++] = (byte)(s >>> 8);
     data[length++] = (byte)s;
-		this.length = length;
+    this.length = length;
     return this;
   }
 
@@ -178,12 +178,12 @@ final class ByteVector {
       enlarge(8);
     }
     byte[] data = this.data;
-		int i = (int)(l >>> 32);
+    int i = (int)(l >>> 32);
     data[length++] = (byte)(i >>> 24);
     data[length++] = (byte)(i >>> 16);
     data[length++] = (byte)(i >>> 8);
     data[length++] = (byte)i;
-		i = (int)l;
+    i = (int)l;
     data[length++] = (byte)(i >>> 24);
     data[length++] = (byte)(i >>> 16);
     data[length++] = (byte)(i >>> 8);

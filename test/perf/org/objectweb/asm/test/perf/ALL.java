@@ -104,7 +104,7 @@ public abstract class ALL extends ClassLoader  {
     System.out.println("\nRELATIVE RESULTS");
     System.out.println("\nWITH DEBUG INFORMATION\n");
     for (int step = 0; step < 2; ++step) {
-			System.err.println("[MEASURE      ASM       BCEL      SERP]");
+      System.err.println("[MEASURE      ASM       BCEL      SERP]");
       for (mode = 1; mode < 4; ++mode) {
         int base;
         switch (mode) {
@@ -280,7 +280,7 @@ public abstract class ALL extends ClassLoader  {
   }
 
   private static void gc () {
-  	try {
+    try {
       Runtime.getRuntime().gc();
       Thread.currentThread().sleep(50);
       Runtime.getRuntime().gc();

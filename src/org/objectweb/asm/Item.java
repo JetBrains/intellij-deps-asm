@@ -91,25 +91,25 @@ final class Item {
 
   String strVal3;
 
-	/**
-	 * The hash code value of this constant pool item.
-	 */
+  /**
+   * The hash code value of this constant pool item.
+   */
 
-	int hashCode;
+  int hashCode;
 
-	/**
-	 * Link to another constant pool item, used for collision lists in the
-	 * constant pool's hash table.
-	 */
+  /**
+   * Link to another constant pool item, used for collision lists in the
+   * constant pool's hash table.
+   */
 
-	Item next;
+  Item next;
 
   /**
    * Constructs an uninitialized {@link Item Item} object.
    */
 
   Item () {
-	}
+  }
 
   /**
    * Constructs a copy of the given item.
@@ -128,7 +128,7 @@ final class Item {
     strVal1 = i.strVal1;
     strVal2 = i.strVal2;
     strVal3 = i.strVal3;
-		hashCode = i.hashCode;
+    hashCode = i.hashCode;
   }
 
   /**
@@ -203,16 +203,16 @@ final class Item {
       case ClassWriter.STR:
       case ClassWriter.CLASS:
         hashCode = type + strVal1.hashCode();
-				return;
+        return;
       case ClassWriter.NAME_TYPE:
         hashCode = type + strVal1.hashCode()*strVal2.hashCode();
-				return;
+        return;
       //case ClassWriter.FIELD:
       //case ClassWriter.METH:
       //case ClassWriter.IMETH:
       default:
         hashCode = type + strVal1.hashCode()*strVal2.hashCode()*strVal3.hashCode();
-				return;
+        return;
     }
   }
 
@@ -225,32 +225,32 @@ final class Item {
    */
 
   boolean isEqualTo (final Item i) {
-		if (i.type == type) {
-			switch (type) {
-				case ClassWriter.INT:
-					return i.intVal == intVal;
-				case ClassWriter.LONG:
-					return i.longVal == longVal;
-				case ClassWriter.FLOAT:
-					return i.floatVal == floatVal;
-				case ClassWriter.DOUBLE:
-					return i.doubleVal == doubleVal;
-				case ClassWriter.UTF8:
-				case ClassWriter.STR:
-				case ClassWriter.CLASS:
-					return i.strVal1.equals(strVal1);
-				case ClassWriter.NAME_TYPE:
-					return i.strVal1.equals(strVal1) &&
-					       i.strVal2.equals(strVal2);
-				//case ClassWriter.FIELD:
-				//case ClassWriter.METH:
-				//case ClassWriter.IMETH:
-				default:
-					return i.strVal1.equals(strVal1) &&
-					       i.strVal2.equals(strVal2) &&
-								 i.strVal3.equals(strVal3);
-			}
-		}
+    if (i.type == type) {
+      switch (type) {
+        case ClassWriter.INT:
+          return i.intVal == intVal;
+        case ClassWriter.LONG:
+          return i.longVal == longVal;
+        case ClassWriter.FLOAT:
+          return i.floatVal == floatVal;
+        case ClassWriter.DOUBLE:
+          return i.doubleVal == doubleVal;
+        case ClassWriter.UTF8:
+        case ClassWriter.STR:
+        case ClassWriter.CLASS:
+          return i.strVal1.equals(strVal1);
+        case ClassWriter.NAME_TYPE:
+          return i.strVal1.equals(strVal1) &&
+                 i.strVal2.equals(strVal2);
+        //case ClassWriter.FIELD:
+        //case ClassWriter.METH:
+        //case ClassWriter.IMETH:
+        default:
+          return i.strVal1.equals(strVal1) &&
+                 i.strVal2.equals(strVal2) &&
+                 i.strVal3.equals(strVal3);
+      }
+    }
     return false;
   }
 }

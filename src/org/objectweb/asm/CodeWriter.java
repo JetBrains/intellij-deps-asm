@@ -33,18 +33,18 @@ package org.objectweb.asm;
 class CodeWriter implements CodeVisitor {
 
   /**
-	 * <tt>true</tt> if preconditions must be checked at runtime or not.
-	 */
+   * <tt>true</tt> if preconditions must be checked at runtime or not.
+   */
 
   final static boolean CHECK = false;
 
-	/**
-	 * Next code writer (see {@link ClassWriter#firstMethod firstMethod}).
-	 */
+  /**
+   * Next code writer (see {@link ClassWriter#firstMethod firstMethod}).
+   */
 
   CodeWriter next;
 
-	/**
+  /**
    * The class writer to which this method must be added.
    */
 
@@ -568,7 +568,7 @@ class CodeWriter implements CodeVisitor {
     } else { // BIPUSH or NEWARRAY
       code.put11(opcode, operand);
     }
-	}
+  }
 
   public void visitVarInsn (final int opcode, final int var) {
     if (computeMaxs) {
@@ -627,7 +627,7 @@ class CodeWriter implements CodeVisitor {
     }
     // adds the instruction to the bytecode of the method
     code.put12(opcode, cw.newClass(desc).index);
-	}
+  }
 
   public void visitFieldInsn (
     final int opcode,
@@ -702,7 +702,7 @@ class CodeWriter implements CodeVisitor {
       stackSize = size;
     }
     // adds the instruction to the bytecode of the method
-		if (opcode == Constants.INVOKEINTERFACE) {
+    if (opcode == Constants.INVOKEINTERFACE) {
       if (!computeMaxs) {
         if (argSize == 0) {
           argSize = getArgumentsAndReturnSizes(desc);
@@ -713,16 +713,16 @@ class CodeWriter implements CodeVisitor {
     } else {
       code.put12(opcode, i.index);
     }
-	}
+  }
 
   public void visitJumpInsn (final int opcode, final Label label) {
-		if (CHECK) {
-			if (label.owner == null) {
-				label.owner = this;
-		  } else if (label.owner != this) {
-				throw new IllegalArgumentException();
-			}
-		}
+    if (CHECK) {
+      if (label.owner == null) {
+        label.owner = this;
+      } else if (label.owner != this) {
+        throw new IllegalArgumentException();
+      }
+    }
     if (computeMaxs) {
       if (opcode == Constants.GOTO) {
         // no stack change, but end of current block (with one new successor)
@@ -747,20 +747,20 @@ class CodeWriter implements CodeVisitor {
     // adds the instruction to the bytecode of the method
     code.put1(opcode);
     label.put(
-		  this,
+      this,
       code,
       code.length - 1,
       false);
-	}
+  }
 
   public void visitLabel (final Label label) {
     if (CHECK) {
-			if (label.owner == null) {
-				label.owner = this;
-		  } else if (label.owner != this) {
-				throw new IllegalArgumentException();
-			}
-		}
+      if (label.owner == null) {
+        label.owner = this;
+      } else if (label.owner != this) {
+        throw new IllegalArgumentException();
+      }
+    }
     if (computeMaxs) {
       if (currentBlock != null) {
         // ends current block (with one new successor)
@@ -775,7 +775,7 @@ class CodeWriter implements CodeVisitor {
     }
     // resolves previous forward references to label, if any
     label.resolve(this, code.length, code.data);
-	}
+  }
 
   public void visitLdcInsn (final Object cst) {
     Item i = cw.newCst(cst);
@@ -802,7 +802,7 @@ class CodeWriter implements CodeVisitor {
     } else {
       code.put11(Constants.LDC, index);
     }
-	}
+  }
 
   public void visitIincInsn (final int var, final int increment) {
     if (computeMaxs) {
@@ -818,7 +818,7 @@ class CodeWriter implements CodeVisitor {
     } else {
       code.put1(Constants.IINC).put11(var, increment);
     }
-	}
+  }
 
   public void visitTableSwitchInsn (
     final int min,
@@ -850,7 +850,7 @@ class CodeWriter implements CodeVisitor {
     for (int i = 0; i < labels.length; ++i) {
       labels[i].put(this, code, source, true);
     }
-	}
+  }
 
   public void visitLookupSwitchInsn (
     final Label dflt,
@@ -882,7 +882,7 @@ class CodeWriter implements CodeVisitor {
       code.put4(keys[i]);
       labels[i].put(this, code, source, true);
     }
-	}
+  }
 
   public void visitMultiANewArrayInsn (final String desc, final int dims) {
     if (computeMaxs) {
@@ -891,9 +891,9 @@ class CodeWriter implements CodeVisitor {
       stackSize += 1 - dims;
     }
     // adds the instruction to the bytecode of the method
-		Item classItem = cw.newClass(desc);
+    Item classItem = cw.newClass(desc);
     code.put12(Constants.MULTIANEWARRAY, classItem.index).put1(dims);
-	}
+  }
 
   public void visitTryCatchBlock (
     final Label start,
@@ -902,12 +902,12 @@ class CodeWriter implements CodeVisitor {
     final String type)
   {
     if (CHECK) {
-		  if (start.owner != this || end.owner != this || handler.owner != this) {
+      if (start.owner != this || end.owner != this || handler.owner != this) {
         throw new IllegalArgumentException();
-			}
-		  if (!start.resolved || !end.resolved || !handler.resolved) {
+      }
+      if (!start.resolved || !end.resolved || !handler.resolved) {
         throw new IllegalArgumentException();
-		  }
+      }
     }
     if (computeMaxs) {
       // pushes handler block onto the stack of blocks to be visited
@@ -918,15 +918,15 @@ class CodeWriter implements CodeVisitor {
         blockStack = handler;
       }
     }
-		++catchCount;
-		if (catchTable == null) {
-			catchTable = new ByteVector();
-		}
-		catchTable.put2(start.position);
-		catchTable.put2(end.position);
-		catchTable.put2(handler.position);
-		catchTable.put2(type != null ? cw.newClass(type).index : 0);
-	}
+    ++catchCount;
+    if (catchTable == null) {
+      catchTable = new ByteVector();
+    }
+    catchTable.put2(start.position);
+    catchTable.put2(end.position);
+    catchTable.put2(handler.position);
+    catchTable.put2(type != null ? cw.newClass(type).index : 0);
+  }
 
   public void visitMaxs (final int maxStack, final int maxLocals) {
     if (computeMaxs) {
@@ -980,7 +980,7 @@ class CodeWriter implements CodeVisitor {
       this.maxStack = maxStack;
       this.maxLocals = maxLocals;
     }
-	}
+  }
 
   public void visitLocalVariable (
     final String name,
@@ -990,12 +990,12 @@ class CodeWriter implements CodeVisitor {
     final int index)
   {
     if (CHECK) {
-		  if (start.owner != this || !start.resolved) {
+      if (start.owner != this || !start.resolved) {
         throw new IllegalArgumentException();
-		  }
-		  if (end.owner != this || !end.resolved) {
+      }
+      if (end.owner != this || !end.resolved) {
         throw new IllegalArgumentException();
-		  }
+      }
     }
     if (localVar == null) {
       cw.newUTF8("LocalVariableTable");
@@ -1011,9 +1011,9 @@ class CodeWriter implements CodeVisitor {
 
   public void visitLineNumber (final int line, final Label start) {
     if (CHECK) {
-		  if (start.owner != this || !start.resolved) {
+      if (start.owner != this || !start.resolved) {
         throw new IllegalArgumentException();
-		  }
+      }
     }
     if (lineNumber == null) {
       cw.newUTF8("LineNumberTable");
@@ -1103,7 +1103,7 @@ class CodeWriter implements CodeVisitor {
   // Utility methods: dump bytecode array
   // --------------------------------------------------------------------------
 
-	/**
+  /**
    * Returns the size of the bytecode of this method.
    *
    * @return the size of the bytecode of this method.
@@ -1112,7 +1112,7 @@ class CodeWriter implements CodeVisitor {
   final int getSize () {
     int size = 8;
     if (code.length > 0) {
-		  cw.newUTF8("Code");
+      cw.newUTF8("Code");
       size += 18 + code.length + 8 * catchCount;
       if (localVar != null) {
         size += 8 + localVar.length;
@@ -1122,7 +1122,7 @@ class CodeWriter implements CodeVisitor {
       }
     }
     if (exceptionCount > 0) {
-		  cw.newUTF8("Exceptions");
+      cw.newUTF8("Exceptions");
       size += 8 + 2 * exceptionCount;
     }
     if ((access & Constants.ACC_SYNTHETIC) != 0) {

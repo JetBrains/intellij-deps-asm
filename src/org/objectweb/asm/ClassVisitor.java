@@ -104,7 +104,7 @@ public interface ClassVisitor {
    * @param exceptions the internal names of the method's exception
    *      classes (see {@link Type#getInternalName getInternalName}). May be
    *      <tt>null</tt>.
-	 * @return an object to visit the byte code of the method, or <tt>null</tt> if
+   * @return an object to visit the byte code of the method, or <tt>null</tt> if
    *      this class visitor is not interested in visiting the code of this
    *      method.
    */

@@ -32,8 +32,8 @@ package org.objectweb.asm;
 public final class Label {
 
   /**
-	 * The code writer to which this label belongs, or <tt>null</tt> if unknown.
-	 */
+   * The code writer to which this label belongs, or <tt>null</tt> if unknown.
+   */
 
   CodeWriter owner;
 
@@ -125,7 +125,7 @@ public final class Label {
    */
 
   public Label () {
-	}
+  }
 
   // --------------------------------------------------------------------------
   // Methods to compute offsets and to manage forward references
@@ -137,29 +137,29 @@ public final class Label {
    * Otherwise, a null offset is written and a new forward reference is declared
    * for this label.
    *
-	 * @param owner the code writer that calls this method.
+   * @param owner the code writer that calls this method.
    * @param out the bytecode of the method.
    * @param source the position of first byte of the bytecode instruction that
    *      contains this label.
    * @param wideOffset <tt>true</tt> if the reference must be stored in 4 bytes,
    *      or <tt>false</tt> if it must be stored with 2 bytes.
-	 * @throws IllegalArgumentException if this label has not been created by the
-	 *      given code writer.
+   * @throws IllegalArgumentException if this label has not been created by the
+   *      given code writer.
    */
 
   void put (
-	  final CodeWriter owner,
-		final ByteVector out,
-		final int source,
-		final boolean wideOffset)
+    final CodeWriter owner,
+    final ByteVector out,
+    final int source,
+    final boolean wideOffset)
   {
-	  if (CodeWriter.CHECK) {
+    if (CodeWriter.CHECK) {
       if (this.owner == null) {
         this.owner = owner;
       } else if (this.owner != owner) {
-		    throw new IllegalArgumentException();
+        throw new IllegalArgumentException();
       }
-		}
+    }
     if (resolved) {
       if (wideOffset) {
         out.put4(position - source);
@@ -215,10 +215,10 @@ public final class Label {
    * position becomes known. This method fills in the blanks that where left in
    * the bytecode by each forward reference previously added to this label.
    *
-	 * @param owner the code writer that calls this method.
+   * @param owner the code writer that calls this method.
    * @param position the position of this label in the bytecode.
    * @param data the bytecode of the method.
-	 * @throws IllegalArgumentException if this label has already been resolved,
+   * @throws IllegalArgumentException if this label has already been resolved,
    *      or if it has not been created by the given code writer.
    */
 
@@ -228,10 +228,10 @@ public final class Label {
         this.owner = owner;
       }
       if (resolved || this.owner != owner) {
-		    throw new IllegalArgumentException();
+        throw new IllegalArgumentException();
       }
-		}
-		this.resolved = true;
+    }
+    this.resolved = true;
     this.position = position;
     int i = 0;
     while (i < referenceCount) {

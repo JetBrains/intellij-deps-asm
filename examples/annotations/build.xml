@@ -1,0 +1,38 @@
+<project default="run">
+
+  <target name="init">
+    <mkdir dir="classes"/>
+    <mkdir dir="reports"/>
+  </target>
+  
+  <target name="build" depends="init">
+    <javac srcdir="src15" destdir="classes" target="1.5" source="1.5" debug="yes">
+      <classpath>
+        <pathelement location="../../output/build"/>
+      </classpath>
+    </javac>
+  </target>
+  
+  <target name="run" depends="build">
+    <junit fork="no" printsummary="yes"
+           errorproperty="test.failed"
+           failureproperty="test.failed">
+      <batchtest fork="no" todir="reports">
+        <fileset dir="src15">
+          <include name="**/*Test.java"/>
+        </fileset>
+      </batchtest>
+      <formatter type="xml"/>
+      <classpath>
+        <pathelement location="classes"/>
+        <pathelement location=""/>
+        <pathelement location="../../output/build"/>
+        <fileset dir="../../test/lib">
+          <include name="*.jar"/>
+        </fileset>
+      </classpath>
+    </junit>
+  </target>
+
+</project>
+

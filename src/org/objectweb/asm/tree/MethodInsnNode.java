@@ -79,7 +79,7 @@ public class MethodInsnNode extends AbstractInsnNode {
     final String name,
     final String desc)
   {
-    super(opcode, METHOD_INSN);
+    super(opcode);
     this.owner = owner;
     this.name = name;
     this.desc = desc;
@@ -98,5 +98,9 @@ public class MethodInsnNode extends AbstractInsnNode {
 
   public void accept (final MethodVisitor mv) {
     mv.visitMethodInsn(opcode, owner, name, desc);
+  }
+
+  public int getType () {
+    return METHOD_INSN;
   }
 }

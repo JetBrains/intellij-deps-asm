@@ -62,12 +62,16 @@ public class MultiANewArrayInsnNode extends AbstractInsnNode {
    */
 
   public MultiANewArrayInsnNode (final String desc, final int dims) {
-    super(Opcodes.MULTIANEWARRAY, MULTIANEWARRAY_INSN);
+    super(Opcodes.MULTIANEWARRAY);
     this.desc = desc;
     this.dims = dims;
   }
 
   public void accept (final MethodVisitor mv) {
     mv.visitMultiANewArrayInsn(desc, dims);
+  }
+
+  public int getType () {
+    return MULTIANEWARRAY_INSN;
   }
 }

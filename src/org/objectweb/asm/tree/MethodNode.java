@@ -96,14 +96,14 @@ public class MethodNode extends MemberNode implements MethodVisitor {
   
   /**
    * The runtime visible parameter annotations of this method. These lists are
-   * lists of {@link AnnotationNode} objects.
+   * lists of {@link AnnotationNode} objects. May be <tt>null</tt>.
    */
   
   public List[] visibleParameterAnnotations;
   
   /**
    * The runtime invisible parameter annotations of this method. These lists are
-   * lists of {@link AnnotationNode} objects.
+   * lists of {@link AnnotationNode} objects. May be <tt>null</tt>.
    */
   
   public List[] invisibleParameterAnnotations;
@@ -136,17 +136,17 @@ public class MethodNode extends MemberNode implements MethodVisitor {
 
   /**
    * The local variables of this method. This list is a list of 
-   * {@link LocalVariableNode} objects.
+   * {@link LocalVariableNode} objects. May be <tt>null</tt>
    */
 
-  public final List localVariables;
+  public List localVariables;
 
   /**
    * The line numbers of this method. This list is a list of
-   * {@link LineNumberNode} objects.
+   * {@link LineNumberNode} objects. May be <tt>null</tt>
    */
 
-  public final List lineNumbers;
+  public List lineNumbers;
 
   /**
    * Constructs a new {@link MethodNode}.
@@ -172,18 +172,15 @@ public class MethodNode extends MemberNode implements MethodVisitor {
     this.name = name;
     this.desc = desc;
     this.signature = signature;
-    this.exceptions = new ArrayList();
+    this.exceptions = new ArrayList(exceptions == null ? 0 : exceptions.length);
     int params = Type.getArgumentTypes(desc).length;
-    this.visibleParameterAnnotations = new List[params];
-    this.invisibleParameterAnnotations = new List[params];
-    for (int i = 0; i < params; ++i) {
-      this.visibleParameterAnnotations[i] = new ArrayList();
-      this.invisibleParameterAnnotations[i] = new ArrayList();
+    boolean isAbstract = (access & Opcodes.ACC_ABSTRACT) != 0;
+    this.instructions = new ArrayList(isAbstract ? 0 : 24);
+    if (!isAbstract) {
+      this.localVariables = new ArrayList(5);
+      this.lineNumbers = new ArrayList(5);
     }
-    this.instructions = new ArrayList();
     this.tryCatchBlocks = new ArrayList();
-    this.localVariables = new ArrayList();
-    this.lineNumbers = new ArrayList();
     if (exceptions != null) {
       this.exceptions.addAll(Arrays.asList(exceptions));
     }    
@@ -194,7 +191,7 @@ public class MethodNode extends MemberNode implements MethodVisitor {
   // --------------------------------------------------------------------------
 
   public AnnotationVisitor visitAnnotationDefault () {
-    return new AnnotationNode(new ArrayList() {
+    return new AnnotationNode(new ArrayList(0) {
       public boolean add (Object o) {
         annotationDefault = o;
         return super.add(o);
@@ -209,15 +206,29 @@ public class MethodNode extends MemberNode implements MethodVisitor {
   {
     AnnotationNode an = new AnnotationNode(desc);
     if (visible) {
+      if (visibleParameterAnnotations == null) {
+        int params = Type.getArgumentTypes(desc).length;
+        visibleParameterAnnotations = new List[params];
+      }
+      if (visibleParameterAnnotations[parameter] == null) {
+        visibleParameterAnnotations[parameter] = new ArrayList(1);
+      }
       visibleParameterAnnotations[parameter].add(an);
     } else {
+      if (invisibleParameterAnnotations == null) {
+        int params = Type.getArgumentTypes(desc).length;
+        invisibleParameterAnnotations = new List[params];
+      }
+      if (invisibleParameterAnnotations[parameter] == null) {
+        invisibleParameterAnnotations[parameter] = new ArrayList(1);
+      }
       invisibleParameterAnnotations[parameter].add(an);
     }
     return an;
   }
   
   public void visitInsn (final int opcode) {
-    AbstractInsnNode n = new InsnNode(opcode);
+    AbstractInsnNode n = InsnNode.getByOpcode(opcode);
     instructions.add(n);
   }
 
@@ -319,11 +330,17 @@ public class MethodNode extends MemberNode implements MethodVisitor {
   {
     LocalVariableNode n;
     n = new LocalVariableNode(name, desc, signature, start, end, index);
+    if (localVariables == null) {
+      localVariables = new ArrayList(1);
+    }
     localVariables.add(n);
   }
 
   public void visitLineNumber (final int line, final Label start) {
     LineNumberNode n = new LineNumberNode(line, start);
+    if (lineNumbers == null) {
+      lineNumbers = new ArrayList(1);
+    }
     lineNumbers.add(n);
   }
   
@@ -347,35 +364,46 @@ public class MethodNode extends MemberNode implements MethodVisitor {
     this.exceptions.toArray(exceptions);
     MethodVisitor mv = cv.visitMethod(access, name, desc, signature, exceptions);
     // visits the method attributes
-    int i, j;
+    int i, j, n;
     if (annotationDefault != null) {
       AnnotationVisitor av = mv.visitAnnotationDefault();
       AnnotationNode.accept(av, null, annotationDefault);
       av.visitEnd();
     }
-    for (i = 0; i < visibleAnnotations.size(); ++i) {
+    n = visibleAnnotations == null ? 0 : visibleAnnotations.size();
+    for (i = 0; i < n; ++i) {
       AnnotationNode an = (AnnotationNode)visibleAnnotations.get(i); 
       an.accept(mv.visitAnnotation(an.desc, true));
     }
-    for (i = 0; i < invisibleAnnotations.size(); ++i) {
+    n = invisibleAnnotations == null ? 0 : invisibleAnnotations.size();
+    for (i = 0; i < n; ++i) {
       AnnotationNode an = (AnnotationNode)invisibleAnnotations.get(i); 
       an.accept(mv.visitAnnotation(an.desc, false));
     }
-    for (i = 0; i < visibleParameterAnnotations.length; ++i) {
+    n = visibleParameterAnnotations == null ? 0 : visibleParameterAnnotations.length;
+    for (i = 0; i < n; ++i) {
       List l = visibleParameterAnnotations[i];
+      if (l == null) {
+        continue;
+      }
       for (j = 0; j < l.size(); ++j) {
         AnnotationNode an = (AnnotationNode)l.get(j);
         an.accept(mv.visitParameterAnnotation(i, an.desc, true));
       }
     }
-    for (i = 0; i < invisibleParameterAnnotations.length; ++i) {
+    n = invisibleParameterAnnotations == null ? 0 : invisibleParameterAnnotations.length;
+    for (i = 0; i < n; ++i) {
       List l = invisibleParameterAnnotations[i];
+      if (l == null) {
+        continue;
+      }
       for (j = 0; j < l.size(); ++j) {
         AnnotationNode an = (AnnotationNode)l.get(j);
         an.accept(mv.visitParameterAnnotation(i, an.desc, false));
       }
     }
-    for (i = 0; i < attrs.size(); ++i) {
+    n = attrs == null ? 0 : attrs.size();
+    for (i = 0; i < n; ++i) {
       mv.visitAttribute((Attribute)attrs.get(i));
     }
     // visits the method's code
@@ -389,11 +417,13 @@ public class MethodNode extends MemberNode implements MethodVisitor {
         ((TryCatchBlockNode)tryCatchBlocks.get(i)).accept(mv);
       }
       // visits local variables
-      for (i = 0; i < localVariables.size(); ++i) {
+      n = localVariables == null ? 0 : localVariables.size();
+      for (i = 0; i < n; ++i) {
         ((LocalVariableNode)localVariables.get(i)).accept(mv);
       }
       // visits line numbers
-      for (i = 0; i < lineNumbers.size(); ++i) {
+      n = lineNumbers == null ? 0 : lineNumbers.size();
+      for (i = 0; i < n; ++i) {
         ((LineNumberNode)lineNumbers.get(i)).accept(mv);
       }
       // visits maxs

@@ -61,12 +61,16 @@ public class IincInsnNode extends AbstractInsnNode {
    */
 
   public IincInsnNode (final int var, final int incr) {
-    super(Opcodes.IINC, IINC_INSN);
+    super(Opcodes.IINC);
     this.var = var;
     this.incr = incr;
   }
 
   public void accept (final MethodVisitor mv) {
     mv.visitIincInsn(var, incr);
+  }
+
+  public int getType () {
+    return IINC_INSN;
   }
 }

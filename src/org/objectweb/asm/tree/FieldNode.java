@@ -113,16 +113,19 @@ public class FieldNode extends MemberNode implements FieldVisitor {
 
   public void accept (final ClassVisitor cv) {
     FieldVisitor fv = cv.visitField(access, name, desc, signature, value);
-    int i;
-    for (i = 0; i < visibleAnnotations.size(); ++i) {
+    int i, n;
+    n = visibleAnnotations == null ? 0 : visibleAnnotations.size();
+    for (i = 0; i < n; ++i) {
       AnnotationNode an = (AnnotationNode)visibleAnnotations.get(i);
       an.accept(fv.visitAnnotation(an.desc, true));
     }
-    for (i = 0; i < invisibleAnnotations.size(); ++i) {
+    n = invisibleAnnotations == null ? 0 : invisibleAnnotations.size();
+    for (i = 0; i < n; ++i) {
       AnnotationNode an = (AnnotationNode)invisibleAnnotations.get(i);
       an.accept(fv.visitAnnotation(an.desc, false));
     }
-    for (i = 0; i < attrs.size(); ++i) {
+    n = attrs == null ? 0 : attrs.size();
+    for (i = 0; i < n; ++i) {
       fv.visitAttribute((Attribute)attrs.get(i));
     }
     fv.visitEnd();

@@ -79,10 +79,10 @@ public class LookupSwitchInsnNode extends AbstractInsnNode {
     final int[] keys,
     final Label[] labels)
   {
-    super(Opcodes.LOOKUPSWITCH, LOOKUPSWITCH_INSN);
+    super(Opcodes.LOOKUPSWITCH);
     this.dflt = dflt;
-    this.keys = new ArrayList();
-    this.labels = new ArrayList();
+    this.keys = new ArrayList(keys == null ? 0 : keys.length);
+    this.labels = new ArrayList(labels == null ? 0 : labels.length);
     if (keys != null) {
       for (int i = 0; i < keys.length; ++i) {
         this.keys.add(new Integer(keys[i]));
@@ -101,5 +101,9 @@ public class LookupSwitchInsnNode extends AbstractInsnNode {
     Label[] labels = new Label[this.labels.size()];
     this.labels.toArray(labels);
     mv.visitLookupSwitchInsn(dflt, keys, labels);
+  }
+
+  public int getType () {
+    return LOOKUPSWITCH_INSN;
   }
 }

@@ -57,7 +57,8 @@ public class AnnotationNode implements AnnotationVisitor {
    * {@link Short}, {@link Integer}, {@link Long}, {@link Float}, 
    * {@link Double}, {@link String} or {@link Type}, or an two elements String
    * array (for enumeration values), a {@link AnnotationNode}, or a 
-   * {@link List} of values of one of the preceding types.
+   * {@link List} of values of one of the preceding types. The list may be 
+   * <tt>null</tt> if there is no name value pair.
    */
   
   public List values;
@@ -70,7 +71,6 @@ public class AnnotationNode implements AnnotationVisitor {
   
   public AnnotationNode (final String desc) {
     this.desc = desc;
-    this.values = new ArrayList(); 
   }
   
   /**
@@ -88,6 +88,9 @@ public class AnnotationNode implements AnnotationVisitor {
   // --------------------------------------------------------------------------
   
   public void visit (final String name, final Object value) {
+    if (values == null) {
+      values = new ArrayList(this.desc != null ? 2 : 1);
+  	}
     if (this.desc != null) {
       values.add(name);
     }
@@ -99,6 +102,9 @@ public class AnnotationNode implements AnnotationVisitor {
     final String desc, 
     final String value)
   {
+  	if (values == null) {
+  	  values = new ArrayList(this.desc != null ? 2 : 1);
+  	}
     if (this.desc != null) {
       values.add(name);
     }
@@ -109,6 +115,9 @@ public class AnnotationNode implements AnnotationVisitor {
     final String name, 
     final String desc) 
   {
+    if (values == null) {
+  	  values = new ArrayList(this.desc != null ? 2 : 1);
+  	}
     if (this.desc != null) {
       values.add(name);
     }
@@ -118,6 +127,9 @@ public class AnnotationNode implements AnnotationVisitor {
   }
 
   public AnnotationVisitor visitArray (final String name) {
+    if (values == null) {
+      values = new ArrayList(this.desc != null ? 2 : 1);
+    }
     if (this.desc != null) {
       values.add(name);
     }
@@ -140,11 +152,13 @@ public class AnnotationNode implements AnnotationVisitor {
    */
   
   public void accept (final AnnotationVisitor av) {
-    for (int i = 0; i < values.size(); i += 2) {
-      String name = (String)values.get(i);
-      Object value = values.get(i + 1);
-      accept(av, name, value);
-    }
+    if (values != null) {
+  	  for (int i = 0; i < values.size(); i += 2) {
+  	    String name = (String)values.get(i);
+  	    Object value = values.get(i + 1);
+  	    accept(av, name, value);
+  	  }
+  	}
     av.visitEnd();
   }
   

@@ -39,12 +39,27 @@ import org.objectweb.asm.MethodVisitor;
  */
 
 public class InsnNode extends AbstractInsnNode {
+  
+  private final static InsnNode[] INSNS;
+  
+  static {
+    INSNS = new InsnNode[255];
+    for (int i = 0; i < INSNS.length; ++i) {
+      INSNS[i] = new InsnNode(i);
+    }
+  }
+  
+  public final static InsnNode getByOpcode (final int opcode) {
+    return INSNS[opcode];
+  }
 
   /**
    * Constructs a new {@link InsnNode}.
    *
    * @param opcode the opcode of the instruction to be constructed. This opcode
-   *      must be NOP, ACONST_NULL
+   *      must be NOP, ACONST_NULL, ICONST_M1, ICONST_0, ICONST_1, ICONST_2,
+   *      ICONST_3, ICONST_4, ICONST_5, LCONST_0, LCONST_1, FCONST_0, FCONST_1,
+   *      FCONST_2, DCONST_0, DCONST_1,
    *
    *      IALOAD, LALOAD, FALOAD, DALOAD, AALOAD, BALOAD, CALOAD, SALOAD,
    *      IASTORE, LASTORE, FASTORE, DASTORE, AASTORE, BASTORE, CASTORE,
@@ -71,15 +86,17 @@ public class InsnNode extends AbstractInsnNode {
    *      MONITORENTER, or MONITOREXIT.
    */
 
-  public InsnNode (final int opcode) {
-    super(opcode, INSN);
+  private InsnNode (final int opcode) {
+    super(opcode);
   }
 
   /**
    * Sets the opcode of this instruction.
    *
    * @param opcode the new instruction opcode. This opcode must be NOP,
-   *      ACONST_NULL
+   *      ACONST_NULL, ICONST_M1, ICONST_0, ICONST_1, ICONST_2,
+   *      ICONST_3, ICONST_4, ICONST_5, LCONST_0, LCONST_1, FCONST_0, FCONST_1,
+   *      FCONST_2, DCONST_0, DCONST_1,
    *
    *      IALOAD, LALOAD, FALOAD, DALOAD, AALOAD, BALOAD, CALOAD, SALOAD,
    *      IASTORE, LASTORE, FASTORE, DASTORE, AASTORE, BASTORE, CASTORE,
@@ -107,7 +124,7 @@ public class InsnNode extends AbstractInsnNode {
    */
 
   public void setOpcode (final int opcode) {
-    this.opcode = opcode;
+    throw new IllegalAccessError();
   }
 
   /**
@@ -118,5 +135,9 @@ public class InsnNode extends AbstractInsnNode {
 
   public void accept (final MethodVisitor mv) {
     mv.visitInsn(opcode);
+  }
+
+  public int getType () {
+    return INSN;
   }
 }

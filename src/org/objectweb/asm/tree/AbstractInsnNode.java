@@ -125,21 +125,14 @@ public abstract class AbstractInsnNode {
   protected int opcode;
 
   /**
-   * The type of this instruction.
-   */
-  
-  private final int type;
-  
-  /**
    * Constructs a new {@link AbstractInsnNode}.
    *
    * @param opcode the opcode of the instruction to be constructed.
    * @param type the type of the instruction to be constructed.
    */
 
-  protected AbstractInsnNode (final int opcode, final int type) {
+  protected AbstractInsnNode (final int opcode) {
     this.opcode = opcode;
-    this.type = type;
   }
 
   /**
@@ -149,7 +142,7 @@ public abstract class AbstractInsnNode {
    */
 
   public int getOpcode () {
-    return opcode;
+  	return opcode;
   }
   
   /**
@@ -159,9 +152,7 @@ public abstract class AbstractInsnNode {
    *      this class.
    */
 
-  public int getType () {
-    return type;
-  }
+  public abstract int getType ();
   
   /**
    * Makes the given code visitor visit this instruction.

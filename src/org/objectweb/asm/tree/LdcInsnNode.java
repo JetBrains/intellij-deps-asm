@@ -59,11 +59,15 @@ public class LdcInsnNode extends AbstractInsnNode {
    */
 
   public LdcInsnNode (final Object cst) {
-    super(Opcodes.LDC, LDC_INSN);
+    super(Opcodes.LDC);
     this.cst = cst;
   }
 
   public void accept (final MethodVisitor mv) {
     mv.visitLdcInsn(cst);
+  }
+
+  public int getType () {
+    return LDC_INSN;
   }
 }

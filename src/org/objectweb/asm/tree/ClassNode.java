@@ -156,7 +156,6 @@ public class ClassNode extends MemberNode implements ClassVisitor {
     this.innerClasses = new ArrayList();
     this.fields = new ArrayList();
     this.methods = new ArrayList();
-    this.attrs = new ArrayList();
   }
 
   // --------------------------------------------------------------------------
@@ -257,16 +256,19 @@ public class ClassNode extends MemberNode implements ClassVisitor {
       cv.visitOuterClass(outerClass, outerMethod, outerMethodDesc);
     }
     // visits attributes
-    int i;
-    for (i = 0; i < visibleAnnotations.size(); ++i) {
+    int i, n;
+    n = visibleAnnotations == null ? 0 : visibleAnnotations.size();
+    for (i = 0; i < n; ++i) {
       AnnotationNode an = (AnnotationNode)visibleAnnotations.get(i);
       an.accept(cv.visitAnnotation(an.desc, true));
     }
-    for (i = 0; i < invisibleAnnotations.size(); ++i) {
+    n = invisibleAnnotations == null ? 0 : invisibleAnnotations.size();
+    for (i = 0; i < n; ++i) {
       AnnotationNode an = (AnnotationNode)invisibleAnnotations.get(i);
       an.accept(cv.visitAnnotation(an.desc, false));
     }
-    for (i = 0; i < attrs.size(); ++i) {
+    n = attrs == null ? 0 : attrs.size();
+    for (i = 0; i < n; ++i) {
       cv.visitAttribute((Attribute)attrs.get(i));
     }
     // visits inner classes

@@ -60,7 +60,7 @@ public class VarInsnNode extends AbstractInsnNode {
    */
 
   public VarInsnNode (final int opcode, final int var) {
-    super(opcode, VAR_INSN);
+    super(opcode);
     this.var = var;
   }
 
@@ -77,5 +77,9 @@ public class VarInsnNode extends AbstractInsnNode {
 
   public void accept (final MethodVisitor mv) {
     mv.visitVarInsn(opcode, var);
+  }
+
+  public int getType () {
+    return VAR_INSN;
   }
 }

@@ -78,7 +78,7 @@ public class FieldInsnNode extends AbstractInsnNode {
     final String name,
     final String desc)
   {
-    super(opcode, FIELD_INSN);
+    super(opcode);
     this.owner = owner;
     this.name = name;
     this.desc = desc;
@@ -97,5 +97,9 @@ public class FieldInsnNode extends AbstractInsnNode {
 
   public void accept (final MethodVisitor cv) {
     cv.visitFieldInsn(opcode, owner, name, desc);
+  }
+
+  public int getType () {
+    return FIELD_INSN;
   }
 }

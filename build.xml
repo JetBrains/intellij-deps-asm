@@ -161,10 +161,11 @@
     <mkdir dir="${out.dist.lib}"/>
   </target>
 
-  <target name="jar" depends="dist.init,compile,shrink">
+  <target name="dist.version">
     <tstamp>
       <format property="product.build.time" pattern="yyyyMMdd.HHmmss"/>
     </tstamp>
+
     <condition property="product.artifact" value="${product.version}">
       <not><isset property="product.snapshot"/></not>
     </condition>
@@ -172,6 +173,15 @@
       <isset property="product.snapshot"/>
     </condition>
 
+    <condition property="plugin.artifact" value="${plugin.version}">
+      <not><isset property="product.snapshot"/></not>
+    </condition>
+    <condition property="plugin.artifact" value="${plugin.version}.${product.build.time}">
+      <isset property="product.snapshot"/>
+    </condition>
+  </target>
+    
+  <target name="jar" depends="dist.init,dist.version,compile,shrink">
     <multipleAnt dir="${archive}"/>
     <java classname="org.objectweb.asm.optimizer.JarOptimizer">
       <classpath refid="classpath"/>
@@ -226,6 +236,111 @@
     </copy>
   </target>
 
+  
+  <target name="eclipse.generate" depends="dist.version">
+    <echo file="${basedir}/plugin.xml"><![CDATA[<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.0"?>
+<plugin id="org.objectweb.asm" name="ASM Framework" version="${plugin.artifact}" provider-name="ObjectWeb.org">
+  <runtime>
+    <library name="output/dist/lib/asm-${product.artifact}.jar">
+      <export name="*"/>
+    </library>
+    <library name="output/dist/lib/asm-tree-${product.artifact}.jar">
+      <export name="*"/>
+    </library>
+    <library name="output/dist/lib/asm-analysis-${product.artifact}.jar">
+      <export name="*"/>
+    </library>
+    <library name="output/dist/lib/asm-commons-${product.artifact}.jar">
+      <export name="*"/>
+    </library>
+    <library name="output/dist/lib/asm-attrs-${product.artifact}.jar">
+      <export name="*"/>
+    </library>
+    <library name="output/dist/lib/asm-util-${product.artifact}.jar">
+      <export name="*"/>
+    </library>
+  </runtime>
+</plugin>]]></echo>
+  </target>
+  
+  <target name="eclipse.plugin" depends="jar,eclipse.generate">
+    <zip zipfile="${out}/org.objectweb.asm_${plugin.artifact}.jar">
+      <zipfileset dir="${basedir}">
+        <include name="plugin.xml"/>
+        <include name="**/asm-${product.artifact}.jar"/>
+        <include name="**/asm-tree-${product.artifact}.jar"/>
+        <include name="**/asm-analysis-${product.artifact}.jar"/>
+        <include name="**/asm-util-${product.artifact}.jar"/>
+        <include name="**/asm-commons-${product.artifact}.jar"/>
+        <include name="**/asm-attrs-${product.artifact}.jar"/>
+      </zipfileset>
+    </zip>
+  </target>
+
+  <target name="eclipse.feature" depends="eclipse.plugin">
+    <echo file="${out}/feature.xml"><![CDATA[<?xml version="1.0" encoding="UTF-8"?>
+<feature id="org.objectweb.asm.feature" label="ASM Framework"
+      version="${product.artifact}" provider-name="ObjectWeb.org">
+
+   <description url="http://asm.objectweb.org/">
+Feature contains ASM Java bytecode manipulation framework runtime.
+   </description>
+
+   <copyright>
+Copyright (c) 2000-2004 INRIA, France Telecom.
+All rights reserved.
+   </copyright>
+
+   <license>
+Copyright (c) 2000-2004 INRIA, France Telecom
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
+
+1. Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer. 
+
+2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
+
+3. Neither the name of the copyright holders nor the names of its contributors may be used to endorse or promote products derived from this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+   </license>
+
+   <url>
+      <update label="ASM Framework" url="http://asm.objectweb.org/eclipse/site.xml"/>
+   </url>
+
+   <plugin id="org.objectweb.asm" download-size="0" install-size="0" version="${plugin.artifact}"/>
+
+</feature>]]></echo>
+
+    <jar jarfile="${out}/org.objectweb.asm.feature_${plugin.artifact}.jar">
+      <fileset file="${out}/feature.xml"/>
+    </jar>
+  </target>
+  
+  <target name="eclipse.site" depends="eclipse.feature">
+    <echo file="${out}/site.xml"><![CDATA[<?xml version="1.0" encoding="UTF-8"?>
+<site>
+   <description url="http://asm.objectweb.org/eclipse.html">
+      ASM Framework
+   </description>
+   
+   <feature url="features/org.objectweb.asm.feature_${plugin.artifact}.jar" id="org.objectweb.asm.feature" version="${plugin.artifact}">
+      <category name="asm"/>
+   </feature>
+
+   <category-def name="asm" label="ASM Framework"/>
+</site>]]></echo>
+    
+    <zip zipfile="${out}/org.objectweb.asm.update_${plugin.artifact}.zip">
+      <zipfileset dir="${out}" includes="site.xml"/>
+      <zipfileset dir="${out}" includes="org.objectweb.asm.feature_${plugin.artifact}.jar" prefix="features"/>
+      <zipfileset dir="${out}" includes="org.objectweb.asm_${plugin.artifact}.jar"  prefix="plugins"/>
+    </zip>
+  </target>
+  
   <target name="dist" depends="jar,jdoc,examples">
     <zip zipFile="${out.dist}/src.zip" basedir="${src}"/>
   </target>

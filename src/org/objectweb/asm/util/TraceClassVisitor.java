@@ -195,23 +195,23 @@ public class TraceClassVisitor extends TraceAbstractVisitor
     } else {
       buf.append("class ");
     }
-    appendDescriptor(name);
+    appendDescriptor(INTERNAL_NAME, name);
     buf.append(' ');
     if (superName != null && !superName.equals("java/lang/Object")) {
       buf.append("extends ");
-      appendDescriptor(superName);
+      appendDescriptor(INTERNAL_NAME, superName);
       buf.append(' ');
     }
     if (interfaces != null && interfaces.length > 0) {
       buf.append("implements ");
       for (int i = 0; i < interfaces.length; ++i) {
-        appendDescriptor(interfaces[i]);
+        appendDescriptor(INTERNAL_NAME, interfaces[i]);
         buf.append(' ');
       }
     }
     if (signature != null) {
       buf.append("/* ");
-      appendDescriptor(signature);
+      appendDescriptor(CLASS_SIGNATURE, signature);
       buf.append(" */ {\n\n");
     } else {
       buf.append("{\n\n");
@@ -240,11 +240,24 @@ public class TraceClassVisitor extends TraceAbstractVisitor
   {
     buf.setLength(0);
     buf.append(tab).append("OUTERCLASS ");
-    appendDescriptor(owner);
+    appendDescriptor(INTERNAL_NAME, owner);
     buf.append(' ').append(name).append(' ');
-    appendDescriptor(desc);
+    appendDescriptor(METHOD_DESCRIPTOR, desc);
     buf.append('\n');
     text.add(buf.toString());
+  }
+
+  public AnnotationVisitor visitAnnotation (
+    final String desc,
+    final boolean visible)
+  {
+    text.add("\n");
+    return super.visitAnnotation(desc, visible);
+  }
+
+  public void visitAttribute (final Attribute attr) {
+    text.add("\n");
+    super.visitAttribute(attr);
   }
 
   public void visitInnerClass (
@@ -255,11 +268,11 @@ public class TraceClassVisitor extends TraceAbstractVisitor
   {
     buf.setLength(0);
     buf.append(tab).append("INNERCLASS ");
-    appendDescriptor(name);
+    appendDescriptor(INTERNAL_NAME, name);
     buf.append(' ');
-    appendDescriptor(outerName);
+    appendDescriptor(INTERNAL_NAME, outerName);
     buf.append(' ');
-    appendDescriptor(innerName);
+    appendDescriptor(INTERNAL_NAME, innerName);
     buf.append(' ').append(access & ~Opcodes.ACC_SUPER);
     if ((access & Opcodes.ACC_ENUM) != 0) {
       buf.append("enum ");
@@ -286,7 +299,7 @@ public class TraceClassVisitor extends TraceAbstractVisitor
     if ((access & Opcodes.ACC_ENUM) != 0) {
       buf.append("enum ");
     }
-    appendDescriptor(desc);
+    appendDescriptor(FIELD_DESCRIPTOR, desc);
     buf.append(' ').append(name);
     if (value != null) {
       buf.append(" = ");
@@ -298,12 +311,12 @@ public class TraceClassVisitor extends TraceAbstractVisitor
     }
     if (signature != null) {
       buf.append("// ");
-      appendDescriptor(signature);
+      appendDescriptor(FIELD_SIGNATURE, signature);
     }
     buf.append('\n');
     text.add(buf.toString());
 
-    TraceFieldVisitor tav = new TraceFieldVisitor();
+    TraceFieldVisitor tav = createTraceFieldVisitor();
     text.add(tav.getText());
     return tav;
   }
@@ -333,37 +346,24 @@ public class TraceClassVisitor extends TraceAbstractVisitor
       buf.append("bridge ");
     }
     buf.append(name).append(' ');
-    appendDescriptor(desc);
+    appendDescriptor(METHOD_DESCRIPTOR, desc);
     if (exceptions != null && exceptions.length > 0) {
       buf.append(" throws ");
       for (int i = 0; i < exceptions.length; ++i) {
-        appendDescriptor(exceptions[i]);
+        appendDescriptor(INTERNAL_NAME, exceptions[i]);
         buf.append(' ');
       }
     }
     if (signature != null) {
       buf.append("// ");
-      appendDescriptor(signature);
+      appendDescriptor(METHOD_SIGNATURE, signature);
     }
     buf.append('\n');
     text.add(buf.toString());
 
-    TraceMethodVisitor tcv = new TraceMethodVisitor();
+    TraceMethodVisitor tcv = createTraceMethodVisitor();
     text.add(tcv.getText());
     return tcv;
-  }
-
-  public AnnotationVisitor visitAnnotation (
-    final String desc,
-    final boolean visible)
-  {
-    text.add("\n");
-    return super.visitAnnotation(desc, visible);
-  }
-
-  public void visitAttribute (final Attribute attr) {
-    text.add("\n");
-    super.visitAttribute(attr);
   }
 
   public void visitEnd () {
@@ -377,6 +377,14 @@ public class TraceClassVisitor extends TraceAbstractVisitor
   // Utility methods
   // --------------------------------------------------------------------------
 
+  protected TraceFieldVisitor createTraceFieldVisitor () {
+    return new TraceFieldVisitor();
+  }
+
+  protected TraceMethodVisitor createTraceMethodVisitor () {
+    return new TraceMethodVisitor();
+  }
+  
   /**
    * Appends a string representation of the given access modifiers to {@link
    * #buf buf}.

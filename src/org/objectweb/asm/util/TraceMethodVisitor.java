@@ -99,7 +99,7 @@ public class TraceMethodVisitor extends TraceAbstractVisitor
   {
     buf.setLength(0);
     buf.append(tab2).append('@');
-    appendDescriptor(desc);
+    appendDescriptor(FIELD_DESCRIPTOR, desc);
     buf.append('(');
     text.add(buf.toString());
     TraceAnnotationVisitor tav = new TraceAnnotationVisitor();
@@ -138,7 +138,11 @@ public class TraceMethodVisitor extends TraceAbstractVisitor
   public void visitTypeInsn (final int opcode, final String desc) {
     buf.setLength(0);
     buf.append(tab2).append(OPCODES[opcode]).append(' ');
-    appendDescriptor(desc);
+    if (desc.startsWith("[")) {
+      appendDescriptor(FIELD_DESCRIPTOR, desc);
+    } else {
+      appendDescriptor(INTERNAL_NAME, desc);
+    }
     buf.append('\n');
     text.add(buf.toString());
   }
@@ -151,9 +155,9 @@ public class TraceMethodVisitor extends TraceAbstractVisitor
   {
     buf.setLength(0);
     buf.append(tab2).append(OPCODES[opcode]).append(' ');
-    appendDescriptor(owner);
+    appendDescriptor(INTERNAL_NAME, owner);
     buf.append(' ').append(name).append(' ');
-    appendDescriptor(desc);
+    appendDescriptor(FIELD_DESCRIPTOR, desc);
     buf.append('\n');
     text.add(buf.toString());
   }
@@ -166,9 +170,9 @@ public class TraceMethodVisitor extends TraceAbstractVisitor
   {
     buf.setLength(0);
     buf.append(tab2).append(OPCODES[opcode]).append(' ');
-    appendDescriptor(owner);
+    appendDescriptor(INTERNAL_NAME, owner);
     buf.append(' ').append(name).append(' ');
-    appendDescriptor(desc);
+    appendDescriptor(METHOD_DESCRIPTOR, desc);
     buf.append('\n');
     text.add(buf.toString());
   }
@@ -258,7 +262,7 @@ public class TraceMethodVisitor extends TraceAbstractVisitor
   public void visitMultiANewArrayInsn (final String desc, final int dims) {
     buf.setLength(0);
     buf.append(tab2).append("MULTIANEWARRAY ");
-    appendDescriptor(desc);
+    appendDescriptor(FIELD_DESCRIPTOR, desc);
     buf.append(' ').append(dims).append('\n');
     text.add(buf.toString());
   }
@@ -277,7 +281,7 @@ public class TraceMethodVisitor extends TraceAbstractVisitor
     buf.append(' ');
     appendLabel(handler);
     buf.append(' ');
-    appendDescriptor(type);
+    appendDescriptor(INTERNAL_NAME, type);
     buf.append('\n');
     text.add(buf.toString());
   }
@@ -292,9 +296,9 @@ public class TraceMethodVisitor extends TraceAbstractVisitor
   {
     buf.setLength(0);
     buf.append(tab2).append("LOCALVARIABLE ").append(name).append(' ');
-    appendDescriptor(desc);
+    appendDescriptor(FIELD_DESCRIPTOR, desc);
     buf.append(' ');
-    appendDescriptor(signature);
+    appendDescriptor(FIELD_SIGNATURE, signature);
     buf.append(' ');
     appendLabel(start);
     buf.append(' ');

@@ -89,7 +89,7 @@ public class TraceAnnotationVisitor extends AbstractVisitor
     appendDescriptor(desc);
     buf.append('(');
     text.add(buf.toString());
-    TraceAnnotationVisitor tav = new TraceAnnotationVisitor();
+    TraceAnnotationVisitor tav = createTraceAnnotationVisitor();
     text.add(tav.getText());
     text.add(")");
     return tav;
@@ -102,7 +102,7 @@ public class TraceAnnotationVisitor extends AbstractVisitor
     }
     buf.append('{');
     text.add(buf.toString());
-    TraceAnnotationVisitor tav = new TraceAnnotationVisitor();
+    TraceAnnotationVisitor tav = createTraceAnnotationVisitor();
     text.add(tav.getText());
     text.add("}");
     return tav;
@@ -111,14 +111,20 @@ public class TraceAnnotationVisitor extends AbstractVisitor
   public void visitEnd () {
   }
 
+  // --------------------------------------------------------------------------
+  // Utility methods
+  // --------------------------------------------------------------------------
+  
+  protected TraceAnnotationVisitor createTraceAnnotationVisitor () {
+    return new TraceAnnotationVisitor();
+  }
+  
   /**
-   * Appends an internal name, a type descriptor or a type signature to 
-   * {@link #buf buf}.  
+   * Appends class descriptor to {@link #buf buf}.  
    * 
-   * @param desc an internal name, type descriptor, or type signature. May be 
-   *      <tt>null</tt>.
+   * @param desc a class descriptor.
    */
-
+  
   protected void appendDescriptor (final String desc) {
     buf.append(desc);
   }

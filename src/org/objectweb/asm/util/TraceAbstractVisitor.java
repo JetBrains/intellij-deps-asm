@@ -42,6 +42,48 @@ import org.objectweb.asm.Attribute;
 public abstract class TraceAbstractVisitor extends AbstractVisitor {
 
   /**
+   * Constant used in {@link #appendDescriptor appendDescriptor} for internal 
+   * names.
+   */
+  
+  public final static int INTERNAL_NAME = 0;
+  
+  /**
+   * Constant used in {@link #appendDescriptor appendDescriptor} for field 
+   * descriptors.
+   */
+
+  public final static int FIELD_DESCRIPTOR = 1;
+
+  /**
+   * Constant used in {@link #appendDescriptor appendDescriptor} for field 
+   * signatures.
+   */
+
+  public final static int FIELD_SIGNATURE = 2;
+
+  /**
+   * Constant used in {@link #appendDescriptor appendDescriptor} for method 
+   * descriptors.
+   */
+
+  public final static int METHOD_DESCRIPTOR = 3;
+
+  /**
+   * Constant used in {@link #appendDescriptor appendDescriptor} for method 
+   * signatures.
+   */
+
+  public final static int METHOD_SIGNATURE = 4;
+
+  /**
+   * Constant used in {@link #appendDescriptor appendDescriptor} for class 
+   * signatures.
+   */
+
+  public final static int CLASS_SIGNATURE = 5;
+
+  /**
    * Tab for class members. 
    */
   
@@ -61,10 +103,10 @@ public abstract class TraceAbstractVisitor extends AbstractVisitor {
   {
     buf.setLength(0);
     buf.append(tab).append('@');
-    appendDescriptor(desc);
+    appendDescriptor(FIELD_DESCRIPTOR, desc);
     buf.append('(');
     text.add(buf.toString());
-    TraceAnnotationVisitor tav = new TraceAnnotationVisitor();
+    TraceAnnotationVisitor tav = createTraceAnnotationVisitor();
     text.add(tav.getText());
     text.add(visible ? ")\n" : ") // invisible\n");
     return tav;
@@ -79,7 +121,7 @@ public abstract class TraceAbstractVisitor extends AbstractVisitor {
   public void visitAttribute (final Attribute attr) {
     buf.setLength(0);
     buf.append(tab).append("ATTRIBUTE ");
-    appendDescriptor(attr.type);
+    appendDescriptor(FIELD_DESCRIPTOR, attr.type);
     buf.append(" : ").append(attr.toString()).append("\n");
     text.add(buf.toString());
   }
@@ -91,15 +133,25 @@ public abstract class TraceAbstractVisitor extends AbstractVisitor {
   public void visitEnd () {
   }
   
+  // --------------------------------------------------------------------------
+  // Utility methods
+  // --------------------------------------------------------------------------
+  
+  protected TraceAnnotationVisitor createTraceAnnotationVisitor () {
+    return new TraceAnnotationVisitor();
+  }
+
   /**
    * Appends an internal name, a type descriptor or a type signature to 
    * {@link #buf buf}.  
    * 
+   * @param type indicates if desc is an internal name, a field descriptor,
+   *      a method descriptor, a class signature, ...
    * @param desc an internal name, type descriptor, or type signature. May be 
    *      <tt>null</tt>.
    */
   
-  protected void appendDescriptor (final String desc) {
+  protected void appendDescriptor (final int type, final String desc) {
     buf.append(desc);
   }
 }

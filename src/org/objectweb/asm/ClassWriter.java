@@ -721,7 +721,9 @@ public class ClassWriter implements ClassVisitor {
     } else if (cst instanceof String) {
       return newString((String)cst);
     } else if (cst instanceof Type) {
-      return newClassItem(((Type)cst).getDescriptor());
+      Type t = (Type)cst;
+      return newClassItem(
+        t.getSort() == Type.OBJECT ? t.getInternalName() : t.getDescriptor());
     } else {
       throw new IllegalArgumentException("value " + cst);
     }

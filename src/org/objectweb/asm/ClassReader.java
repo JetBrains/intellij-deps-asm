@@ -973,7 +973,8 @@ public class ClassReader {
       case ClassWriter.DOUBLE:
         return new Double(Double.longBitsToDouble(readLong(index)));
       case ClassWriter.CLASS:
-        return Type.getType(readUTF8(index, buf)); 
+        String s = readUTF8(index, buf);
+        return Type.getType(s.charAt(0) == '[' ? s : "L" + s + ";");
       //case ClassWriter.STR:
       default:
         return readUTF8(index, buf);

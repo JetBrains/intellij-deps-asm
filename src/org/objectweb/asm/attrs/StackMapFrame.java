@@ -34,8 +34,8 @@
 
 package org.objectweb.asm.attrs;
 
+import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -44,6 +44,7 @@ import org.objectweb.asm.ByteVector;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Label;
+
 
 /**
  * StackMapFrame is used by {@link StackMapAttribute} to hold state of the stack
@@ -62,9 +63,9 @@ public class StackMapFrame {
 
   public Label label;
 
-  public List locals = new LinkedList();
+  public List locals = new ArrayList();
 
-  public List stack = new LinkedList();
+  public List stack = new ArrayList();
 
   public int read (ClassReader cr,
                    int off, char[] buf, int codeOff, Label[] labels) {
@@ -118,10 +119,10 @@ public class StackMapFrame {
       StackMapType typeInfo = StackMapType.getTypeInfo(itemType);
       info.add(typeInfo);
       switch (itemType) {
-        case StackMapType.ITEM_Long:  //
-        case StackMapType.ITEM_Double:  //
-          info.add(StackMapType.getTypeInfo(StackMapType.ITEM_Top));
-          break;
+        // case StackMapType.ITEM_Long:  //
+        // case StackMapType.ITEM_Double:  //
+          // info.add(StackMapType.getTypeInfo(StackMapType.ITEM_Top));
+        //   break;
 
         case StackMapType.ITEM_Object:  //
           typeInfo.setObject(cr.readClass(off, buf));
@@ -152,12 +153,6 @@ public class StackMapFrame {
       StackMapType typeInfo = (StackMapType)info.get(j);
       bv.putByte(typeInfo.getType());
       switch (typeInfo.getType()) {
-        case StackMapType.ITEM_Long:  //
-        case StackMapType.ITEM_Double:  //
-          // skip Top in the stack/locals after long/double
-          j++;
-          break;
-
         case StackMapType.ITEM_Object:  //
           bv.putShort(cw.newClass(typeInfo.getObject()));
           break;
@@ -165,35 +160,43 @@ public class StackMapFrame {
         case StackMapType.ITEM_Uninitialized:  //
           bv.putShort(typeInfo.getLabel().getOffset());
           break;
+          
       }
     }
   }
 
   public void dump (StringBuffer buf, String varName, Map labelNames) {
     declareLabel(buf, labelNames, label);
+    buf.append("{ // StackMapFrame.dump()\n");
+    
+    buf.append("StackMapFrame ").append(varName).append( " = new StackMapFrame();\n");
+    
     buf.append(varName).append(".label = ")
       .append(labelNames.get(label)).append(";\n");
 
-    dumpTypeInfo(buf, varName, labelNames, locals);
-    dumpTypeInfo(buf, varName, labelNames, stack);
+    dumpTypeInfo(buf, varName, labelNames, locals, "locals");
+    dumpTypeInfo(buf, varName, labelNames, stack, "stack");
+
+    buf.append( "cvAttr.frames.add(").append(varName).append(");\n");
+    buf.append("}\n");
   }
 
-  private void dumpTypeInfo (StringBuffer buf,
-                             String varName, Map labelNames, List infos) {
+  private void dumpTypeInfo (StringBuffer buf, String varName, 
+                              Map labelNames, List infos, String field) {
     if (infos.size() > 0) {
-      buf.append("{\n");
+      buf.append("{ // StackMapFrame.dumpTypeInfo()\n");
       for (int i = 0; i < infos.size(); i++) {
         StackMapType typeInfo = (StackMapType)infos.get(i);
         String localName = varName + "Info" + i;
         int type = typeInfo.getType();
         buf.append("StackMapType ").append(localName)
-          .append(" = new StackMapType( StackMapType.ITEM_")
+          .append(" = StackMapType.getTypeInfo( StackMapType.ITEM_")
           .append(StackMapType.ITEM_NAMES[type]).append(");\n");
 
         switch (type) {
           case StackMapType.ITEM_Object:  //
-            buf.append(localName).append(".setObject(")
-              .append(typeInfo.getObject()).append(");\n");
+            buf.append(localName).append(".setObject(\"")
+              .append(typeInfo.getObject()).append("\");\n");
             break;
 
           case StackMapType.ITEM_Uninitialized:  //
@@ -202,7 +205,8 @@ public class StackMapFrame {
               .append(labelNames.get(typeInfo.getLabel())).append(");\n");
             break;
         }
-        buf.append(varName).append(".add(").append(localName).append(");\n");
+        buf.append(varName).append(".").append(field)
+          .append(".add(").append(localName).append(");\n");
       }
       buf.append("}\n");
     }

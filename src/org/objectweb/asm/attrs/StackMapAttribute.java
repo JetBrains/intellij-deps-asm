@@ -34,8 +34,8 @@
 
 package org.objectweb.asm.attrs;
 
+import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.Map;
 
 import org.objectweb.asm.Attribute;
@@ -148,7 +148,7 @@ public class StackMapAttribute extends Attribute implements Dumpable {
 
   static final int MAX_SIZE = 65535;
 
-  public LinkedList frames = new LinkedList();
+  public ArrayList frames = new ArrayList();
 
   public StackMapAttribute () {
     super("StackMap");
@@ -188,7 +188,7 @@ public class StackMapAttribute extends Attribute implements Dumpable {
   protected ByteVector write (ClassWriter cw, byte[] code,
                               int len, int maxStack, int maxLocals) {
     ByteVector bv = new ByteVector();
-    if (code.length > MAX_SIZE) {
+    if ( code!=null && code.length > MAX_SIZE) {
       bv.putInt(frames.size());
     } else {
       bv.putShort(frames.size());

@@ -54,9 +54,10 @@ import org.objectweb.asm.ClassWriter;
  * <dl>
  * <dt>type_index</dt>
  * <dd>The value of the type_index item must be a valid index into the constant_pool
- *     table. The constant_pool entry at that index must be a CONSTANT_Class_info
- *     structure representing the annotation interface corresponding to the
- *     annotation represented by this annotation structure.</dd>
+ *     table. The constant_pool entry at that index must be a CONSTANT_Utf8_info
+ *     structure representing a field descriptor representing the annotation 
+ *     interface corresponding to the annotation represented by this annotation 
+ *     structure.</dd>
  * <dt>num_member_value_pairs</dt>
  * <dd>The value of the num_member_value_pairs item gives the number of member-value
  *     pairs in the annotation represented by this annotation structure. Note that a
@@ -106,7 +107,7 @@ public class Annotation {
    */
 
   public int read (ClassReader cr, int off, char[] buf) {
-    type = cr.readClass(off, buf);
+    type = cr.readUTF8(off, buf);
     int numMemberValuePairs = cr.readUnsignedShort(off + 2);
     off += 4;
     for (int i = 0; i < numMemberValuePairs; i++) {
@@ -128,7 +129,7 @@ public class Annotation {
    */
 
   public void write (ByteVector bv, ClassWriter cw) {
-    bv.putShort(cw.newClass(type));
+    bv.putShort(cw.newUTF8(type));
     bv.putShort(memberValues.size());
     for (int i = 0; i < memberValues.size(); i++) {
       Object[] value = (Object[])memberValues.get(i);

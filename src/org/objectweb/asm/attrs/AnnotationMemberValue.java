@@ -109,9 +109,9 @@ import org.objectweb.asm.Type;
  *   <dt>class_info_index</dt>
  *   <dd>The class_info_index item is used if the tag item is 'c'. The
  *       class_info_index item must be a valid index into the constant_pool table.
- *       The constant_pool entry at that index must be a CONSTANT_Class_info
- *       structure representing the class represented by this member_value
- *       structure.</dd>
+ *       The constant_pool entry at that index must be a CONSTANT_Utf8_info 
+ *       structure representing the return descriptor of the type that is 
+ *       reified by the class represented by this member_value structure.</dd>
  *   <dt>annotation_value</dt>
  *   <dd>The annotation_value item is used if the tag item is '@'. The member_value
  *       structure represents a "nested" {@link org.objectweb.asm.attrs.Annotation annotation}.</dd>
@@ -235,7 +235,7 @@ public class AnnotationMemberValue {
         break;
 
       case 'c':  // class_info
-        value = Type.getType(cr.readClass(off, buf));
+        value = Type.getType(cr.readUTF8(off, buf));
         off += 2;
         break;
 
@@ -293,7 +293,7 @@ public class AnnotationMemberValue {
         break;
 
       case 'c':  // class_info
-        bv.putShort(cw.newClass(((Type)value).getDescriptor()));
+        bv.putShort(cw.newUTF8(((Type)value).getDescriptor()));
         break;
 
       case '@':  // annotation_value

@@ -30,7 +30,7 @@ package org.objectweb.asm;
  * visited instruction to a byte vector, in the order these methods are called.
  */
 
-class CodeWriter implements CodeVisitor {
+public class CodeWriter implements CodeVisitor {
 
   /**
    * <tt>true</tt> if preconditions must be checked at runtime or not.
@@ -474,26 +474,14 @@ class CodeWriter implements CodeVisitor {
   // --------------------------------------------------------------------------
 
   /**
-   * Constructs a CodeWriter to define the bytecode of the specified method.
+   * Constructs a CodeWriter.
    *
    * @param cw the class writer in which the method must be added.
-   * @param access the method's access flags (see {@link Constants}).
-   * @param name the method's name.
-   * @param desc the method's descriptor (see {@link Type Type}).
    * @param computeMaxs <tt>true</tt> if the maximum stack size and number of
    *      local variables must be automatically computed.
-   * @param exceptions the internal names of the method's exceptions. May be
-   *      <tt>null</tt>.
    */
 
-  CodeWriter (
-    final ClassWriter cw,
-    final int access,
-    final String name,
-    final String desc,
-    final String[] exceptions,
-    final boolean computeMaxs)
-  {
+  protected CodeWriter (final ClassWriter cw, final boolean computeMaxs) {
     if (cw.firstMethod == null) {
       cw.firstMethod = this;
       cw.lastMethod = this;
@@ -502,6 +490,31 @@ class CodeWriter implements CodeVisitor {
       cw.lastMethod = this;
     }
     this.cw = cw;
+    this.computeMaxs = computeMaxs;
+    if (computeMaxs) {
+      // pushes the first block onto the stack of blocks to be visited
+      currentBlock = new Label();
+      currentBlock.pushed = true;
+      blockStack = currentBlock;
+    }
+  }
+
+  /**
+   * Initializes this CodeWriter to define the bytecode of the specified method.
+   *
+   * @param access the method's access flags (see {@link Constants}).
+   * @param name the method's name.
+   * @param desc the method's descriptor (see {@link Type Type}).
+   * @param exceptions the internal names of the method's exceptions. May be
+   *      <tt>null</tt>.
+   */
+
+  protected void init (
+    final int access,
+    final String name,
+    final String desc,
+    final String[] exceptions)
+  {
     this.access = access;
     this.name = cw.newUTF8(name);
     this.desc = cw.newUTF8(desc);
@@ -512,17 +525,15 @@ class CodeWriter implements CodeVisitor {
         this.exceptions[i] = cw.newClass(exceptions[i]).index;
       }
     }
-    this.computeMaxs = computeMaxs;
     if (computeMaxs) {
-      // initializes maxLocals
-      maxLocals = getArgumentsAndReturnSizes(desc) >> 2;
+      // updates maxLocals
+      int size = getArgumentsAndReturnSizes(desc) >> 2;
       if ((access & Constants.ACC_STATIC) != 0) {
-        --maxLocals;
+        --size;
       }
-      // pushes the first block onto the stack of blocks to be visited
-      currentBlock = new Label();
-      currentBlock.pushed = true;
-      blockStack = currentBlock;
+      if (size > maxLocals) {
+        maxLocals = size;
+      }
     }
   }
 
@@ -1206,5 +1217,32 @@ class CodeWriter implements CodeVisitor {
     if ((access & Constants.ACC_DEPRECATED) != 0) {
       out.put2(cw.newUTF8("Deprecated").index).put4(0);
     }
+  }
+
+  /**
+   * Returns the current size of the bytecode of this method. This size just
+   * includes the size of the bytecode instructions: it does not include the
+   * size of the Exceptions, LocalVariableTable, LineNumberTable, Synthetic
+   * and Deprecated attributes, if present.
+   *
+   * @return the current size of the bytecode of this method.
+   */
+
+  protected int getCodeSize () {
+    return code.length;
+  }
+
+  /**
+   * Returns the current bytecode of this method. This bytecode only contains
+   * the instructions: it does not include the Exceptions, LocalVariableTable,
+   * LineNumberTable, Synthetic and Deprecated attributes, if present.
+   *
+   * @return the current bytecode of this method. The bytecode is contained
+   *      between the index 0 (inclusive) and the index {@link #getCodeSize
+   *      getCodeSize} (exclusive).
+   */
+
+  protected byte[] getCode () {
+    return code.data;
   }
 }

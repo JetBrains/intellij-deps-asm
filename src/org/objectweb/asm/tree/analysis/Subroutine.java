@@ -38,7 +38,7 @@ import org.objectweb.asm.tree.JumpInsnNode;
 
 /**
  * A method subroutine (corresponds to a JSR instruction).
- * 
+ *
  * @author Eric Bruneton
  */
 
@@ -69,8 +69,8 @@ class Subroutine {
     return result;
   }
 
-  public boolean merge (final Subroutine subroutine) throws AnalyzerException {
-    if (subroutine.start != start) {
+  public boolean merge (final Subroutine subroutine, boolean checkOverlap) throws AnalyzerException {
+    if (checkOverlap && subroutine.start != start) {
       throw new AnalyzerException("Overlapping sub routines");
     }
     boolean changes = false;

@@ -839,22 +839,6 @@ public class ClassWriter implements ClassVisitor {
     return newConstItem(cst).index;
   }
 
-  public int newConstInt (final int i) {
-    return newInteger(i).index;
-  }
-
-  public int newConstLong (final long l) {
-    return newLong(l).index;
-  }
-
-  public int newConstFloat (final float f) {
-    return newFloat(f).index;
-  }
-
-  public int newConstDoule (final double d) {
-    return newDouble(d).index;
-  }
-
   /**
    * Adds an UTF8 string to the constant pool of the class being build. Does
    * nothing if the constant pool already contains a similar item. <i>This

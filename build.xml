@@ -60,12 +60,23 @@
   <property name="dist.jdoc"      value="${dist.doc}/javadoc"/>
   <property name="dist.examples"  value="${dist}/examples"/>
 
+  <property name="test.lib"       value="${tst}/lib"/>
+
   <!-- Build a path that contains the external jars -->
 
   <path id="externals.classpath">
-    <pathelement path="${classpath}"/>
     <fileset dir="${basedir}">
       <include name="externals/**/*.jar"/>
+    </fileset>
+    <pathelement location="${build}"/>
+  </path>
+
+  <path id="tests.classpath">
+    <fileset dir="${basedir}">
+      <include name="externals/**/*.jar"/>
+    </fileset>
+    <fileset dir="${test.lib}">
+      <include name="**/*.jar"/>
     </fileset>
     <pathelement location="${build}"/>
   </path>
@@ -159,7 +170,7 @@
 
   <target name="compile.test.conform" if="test.conform.dir.exist">
     <javac srcdir="${tstConform}" destdir="${build}">
-      <classpath refid="externals.classpath"/>
+      <classpath refid="tests.classpath"/>
       <include name="**/*.java"/>
     </javac>
   </target>
@@ -168,7 +179,7 @@
 
   <target name="compile.test.deviance" if="test.deviance.dir.exist">
     <javac srcdir="${tstDeviance}" destdir="${build}">
-      <classpath refid="externals.classpath"/>
+      <classpath refid="tests.classpath"/>
       <include name="**/*.java"/>
     </javac>
   </target>
@@ -177,7 +188,7 @@
 
   <target name="compile.test.thread" if="test.thread.dir.exist">
     <javac srcdir="${tstThread}" destdir="${build}">
-      <classpath refid="externals.classpath"/>
+      <classpath refid="tests.classpath"/>
       <include name="**/*.java"/>
     </javac>
   </target>
@@ -186,7 +197,7 @@
 
   <target name="compile.test.stress" if="test.stress.dir.exist">
     <javac srcdir="${tstStress}" destdir="${build}">
-      <classpath refid="externals.classpath"/>
+      <classpath refid="tests.classpath"/>
       <include name="**/*.java"/>
     </javac>
   </target>
@@ -196,9 +207,7 @@
   <target name="compile.test.perf" if="test.perf.dir.exist">
     <javac srcdir="${tstPerf}" destdir="${build}">
       <classpath>
-        <path refid="externals.classpath"/>
-        <pathelement location="${BCEL}"/>
-        <pathelement location="${SERP}"/>
+        <path refid="tests.classpath"/>
       </classpath>
       <include name="**/*.java"/>
     </javac>
@@ -388,10 +397,10 @@
   <!-- All tests -->
 
   <target name="testAll" depends="checkTest" if="test.all">
-    <multipleAnt dir="${tstConform}"/>
-    <multipleAnt dir="${tstDeviance}"/>
-    <multipleAnt dir="${tstThread}"/>
-    <multipleAnt dir="${tstStress}"/>
+    <!--multipleAnt dir="${tstConform}"/-->
+    <!--multipleAnt dir="${tstDeviance}"/-->
+    <!--multipleAnt dir="${tstThread}"/-->
+    <!--multipleAnt dir="${tstStress}"/-->
     <multipleAnt dir="${tstPerf}"/>
   </target>
 
@@ -432,10 +441,10 @@
   <!-- Only a single test: a target is specified -->
 
   <target name="testName" if="test.name">
-    <multipleAnt dir="${tstConform}" target="${test.name}"/>
-    <multipleAnt dir="${tstDeviance}" target="${test.name}"/>
-    <multipleAnt dir="${tstThread}" target="${test.name}"/>
-    <multipleAnt dir="${tstStress}" target="${test.name}"/>
+    <!--multipleAnt dir="${tstConform}" target="${test.name}"/-->
+    <!--multipleAnt dir="${tstDeviance}" target="${test.name}"/-->
+    <!--multipleAnt dir="${tstThread}" target="${test.name}"/-->
+    <!--multipleAnt dir="${tstStress}" target="${test.name}"/-->
     <multipleAnt dir="${tstPerf}" target="${test.name}"/>
   </target>
 

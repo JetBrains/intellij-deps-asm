@@ -30,10 +30,13 @@
 
 package org.objectweb.asm.tree;
 
-import org.objectweb.asm.ClassVisitor;
-import org.objectweb.asm.CodeVisitor;
-import org.objectweb.asm.Label;
+import org.objectweb.asm.AnnotationVisitor;
 import org.objectweb.asm.Attribute;
+import org.objectweb.asm.ClassVisitor;
+import org.objectweb.asm.MethodVisitor;
+import org.objectweb.asm.Label;
+import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.Type;
 
 import java.util.List;
 import java.util.ArrayList;
@@ -45,10 +48,10 @@ import java.util.Arrays;
  * @author Eric Bruneton
  */
 
-public class MethodNode {
+public class MethodNode extends MemberNode implements MethodVisitor {
 
   /**
-   * The method's access flags (see {@link org.objectweb.asm.Constants}). This
+   * The method's access flags (see {@link Opcodes}). This
    * field also indicates if the method is synthetic and/or deprecated.
    */
 
@@ -61,35 +64,60 @@ public class MethodNode {
   public String name;
 
   /**
-   * The method's descriptor (see {@link org.objectweb.asm.Type Type}).
+   * The method's descriptor (see {@link Type}).
    */
 
   public String desc;
 
   /**
-   * The internal names of the method's exception classes (see {@link
-   * org.objectweb.asm.Type#getInternalName() getInternalName}). This list is a
-   * list of {@link String} objects.
+   * The method's signature. May be <tt>null</tt>.
+   */
+  
+  public String signature;
+  
+  /**
+   * The internal names of the method's exception classes (see 
+   * {@link Type#getInternalName() getInternalName}). This list is a list of 
+   * {@link String} objects.
    */
 
   public final List exceptions;
 
   /**
-   * The non standard attributes of the method.
+   * The default value of this annotation interface method. This field must be
+   * a {@link Byte}, {@link Boolean}, {@link Character}, {@link Short}, 
+   * {@link Integer}, {@link Long}, {@link Float}, {@link Double}, 
+   * {@link String} or {@link Type}, or an two elements String array (for 
+   * enumeration values), a {@link AnnotationNode}, or a {@link List} of values 
+   * of one of the preceding types. May be <tt>null</tt>.
    */
-
-  public Attribute attrs;
+  
+  public Object annotationDefault;
+  
+  /**
+   * The runtime visible parameter annotations of this method. These lists are
+   * lists of {@link AnnotationNode} objects.
+   */
+  
+  public List[] visibleParameterAnnotations;
+  
+  /**
+   * The runtime invisible parameter annotations of this method. These lists are
+   * lists of {@link AnnotationNode} objects.
+   */
+  
+  public List[] invisibleParameterAnnotations;
 
   /**
-   * The instructions of this method. This list is a list of {@link
-   * AbstractInsnNode AbstractInsnNode} and {@link Label Label} objects.
+   * The instructions of this method. This list is a list of 
+   * {@link AbstractInsnNode} objects.
    */
 
   public final List instructions;
 
   /**
-   * The try catch blocks of this method. This list is a list of {@link
-   * TryCatchBlockNode TryCatchBlockNode} objects.
+   * The try catch blocks of this method. This list is a list of 
+   * {@link TryCatchBlockNode} objects.
    */
 
   public final List tryCatchBlocks;
@@ -107,60 +135,206 @@ public class MethodNode {
   public int maxLocals;
 
   /**
-   * The local variables of this method. This list is a list of {@link
-   * LocalVariableNode LocalVariableNode} objects.
+   * The local variables of this method. This list is a list of 
+   * {@link LocalVariableNode} objects.
    */
 
   public final List localVariables;
 
   /**
-   * The line numbers of this method. This list is a list of {@link
-   * LineNumberNode LineNumberNode} objects.
+   * The line numbers of this method. This list is a list of
+   * {@link LineNumberNode} objects.
    */
 
   public final List lineNumbers;
 
   /**
-   * The non standard attributes of the method's code.
-   */
-
-  public Attribute codeAttrs;
-
-  /**
-   * Constructs a new {@link MethodNode MethodNode} object.
+   * Constructs a new {@link MethodNode}.
    *
-   * @param access the method's access flags (see {@link
-   *      org.objectweb.asm.Constants}). This parameter also indicates if the
-   *      method is synthetic and/or deprecated.
+   * @param access the method's access flags (see {@link Opcodes}). This 
+   *      parameter also indicates if the method is synthetic and/or deprecated.
    * @param name the method's name.
-   * @param desc the method's descriptor (see {@link org.objectweb.asm.Type
-   *      Type}).
+   * @param desc the method's descriptor (see {@link Type}).
+   * @param signature the method's signature. May be <tt>null</tt>.
    * @param exceptions the internal names of the method's exception
-   *      classes (see {@link org.objectweb.asm.Type#getInternalName()
-   *      getInternalName}). May be <tt>null</tt>.
-   * @param attrs the non standard attributes of the method.
+   *      classes (see {@link Type#getInternalName() getInternalName}). 
+   *      May be <tt>null</tt>.
    */
 
   public MethodNode (
     final int access,
     final String name,
     final String desc,
-    final String[] exceptions,
-    final Attribute attrs)
+    final String signature,
+    final String[] exceptions)
   {
     this.access = access;
     this.name = name;
     this.desc = desc;
+    this.signature = signature;
     this.exceptions = new ArrayList();
+    int params = Type.getArgumentTypes(desc).length;
+    this.visibleParameterAnnotations = new List[params];
+    this.invisibleParameterAnnotations = new List[params];
+    for (int i = 0; i < params; ++i) {
+      this.visibleParameterAnnotations[i] = new ArrayList();
+      this.invisibleParameterAnnotations[i] = new ArrayList();
+    }
     this.instructions = new ArrayList();
     this.tryCatchBlocks = new ArrayList();
     this.localVariables = new ArrayList();
     this.lineNumbers = new ArrayList();
     if (exceptions != null) {
       this.exceptions.addAll(Arrays.asList(exceptions));
-    }
-    this.attrs = attrs;
+    }    
   }
+  
+  // --------------------------------------------------------------------------
+  // Implementation of the MethodVisitor interface
+  // --------------------------------------------------------------------------
+
+  public AnnotationVisitor visitAnnotationDefault () {
+    return new AnnotationNode(new ArrayList() {
+      public boolean add (Object o) {
+        annotationDefault = o;
+        return super.add(o);
+      }
+    });
+  }
+
+  public AnnotationVisitor visitParameterAnnotation (
+    final int parameter,
+    final String desc,
+    final boolean visible) 
+  {
+    AnnotationNode an = new AnnotationNode(desc);
+    if (visible) {
+      visibleParameterAnnotations[parameter].add(an);
+    } else {
+      invisibleParameterAnnotations[parameter].add(an);
+    }
+    return an;
+  }
+  
+  public void visitInsn (final int opcode) {
+    AbstractInsnNode n = new InsnNode(opcode);
+    instructions.add(n);
+  }
+
+  public void visitIntInsn (final int opcode, final int operand) {
+    AbstractInsnNode n = new IntInsnNode(opcode, operand);
+    instructions.add(n);
+  }
+
+  public void visitVarInsn (final int opcode, final int var) {
+    AbstractInsnNode n = new VarInsnNode(opcode, var);
+    instructions.add(n);
+  }
+
+  public void visitTypeInsn (final int opcode, final String desc) {
+    AbstractInsnNode n = new TypeInsnNode(opcode, desc);
+    instructions.add(n);
+  }
+
+  public void visitFieldInsn (
+    final int opcode,
+    final String owner,
+    final String name,
+    final String desc)
+  {
+    AbstractInsnNode n = new FieldInsnNode(opcode, owner, name, desc);
+    instructions.add(n);
+  }
+
+  public void visitMethodInsn (
+    final int opcode,
+    final String owner,
+    final String name,
+    final String desc)
+  {
+    AbstractInsnNode n = new MethodInsnNode(opcode, owner, name, desc);
+    instructions.add(n);
+  }
+
+  public void visitJumpInsn (final int opcode, final Label label) {
+    AbstractInsnNode n = new JumpInsnNode(opcode, label);
+    instructions.add(n);
+  }
+
+  public void visitLabel (final Label label) {
+    instructions.add(new LabelNode(label));
+  }
+
+  public void visitLdcInsn (final Object cst) {
+    AbstractInsnNode n = new LdcInsnNode(cst);
+    instructions.add(n);
+  }
+
+  public void visitIincInsn (final int var, final int increment) {
+    AbstractInsnNode n = new IincInsnNode(var, increment);
+    instructions.add(n);
+  }
+
+  public void visitTableSwitchInsn (
+    final int min,
+    final int max,
+    final Label dflt,
+    final Label labels[])
+  {
+    AbstractInsnNode n = new TableSwitchInsnNode(min, max, dflt, labels);
+    instructions.add(n);
+  }
+
+  public void visitLookupSwitchInsn (
+    final Label dflt,
+    final int keys[],
+    final Label labels[])
+  {
+    AbstractInsnNode n = new LookupSwitchInsnNode(dflt, keys, labels);
+    instructions.add(n);
+  }
+
+  public void visitMultiANewArrayInsn (final String desc, final int dims) {
+    AbstractInsnNode n = new MultiANewArrayInsnNode(desc, dims);
+    instructions.add(n);
+  }
+
+  public void visitTryCatchBlock (
+    final Label start,
+    final Label end,
+    final Label handler,
+    final String type)
+  {
+    TryCatchBlockNode n = new TryCatchBlockNode(start, end, handler, type);
+    tryCatchBlocks.add(n);
+  }
+
+  public void visitLocalVariable (
+    final String name,
+    final String desc,
+    final String signature,
+    final Label start,
+    final Label end,
+    final int index)
+  {
+    LocalVariableNode n;
+    n = new LocalVariableNode(name, desc, signature, start, end, index);
+    localVariables.add(n);
+  }
+
+  public void visitLineNumber (final int line, final Label start) {
+    LineNumberNode n = new LineNumberNode(line, start);
+    lineNumbers.add(n);
+  }
+  
+  public void visitMaxs (final int maxStack, final int maxLocals) {
+    this.maxStack = maxStack;
+    this.maxLocals = maxLocals;
+  }
+  
+  // --------------------------------------------------------------------------
+  // Accept method
+  // --------------------------------------------------------------------------
 
   /**
    * Makes the given class visitor visit this method.
@@ -171,24 +345,48 @@ public class MethodNode {
   public void accept (final ClassVisitor cv) {
     String[] exceptions = new String[this.exceptions.size()];
     this.exceptions.toArray(exceptions);
-    CodeVisitor mv = cv.visitMethod(access, name, desc, exceptions, attrs);
+    MethodVisitor mv = cv.visitMethod(access, name, desc, signature, exceptions);
+    // visits the method attributes
+    int i, j;
+    if (annotationDefault != null) {
+      AnnotationVisitor av = mv.visitAnnotationDefault();
+      AnnotationNode.accept(av, null, annotationDefault);
+    }
+    for (i = 0; i < visibleAnnotations.size(); ++i) {
+      AnnotationNode an = (AnnotationNode)visibleAnnotations.get(i); 
+      an.accept(mv.visitAnnotation(an.desc, true));
+    }
+    for (i = 0; i < invisibleAnnotations.size(); ++i) {
+      AnnotationNode an = (AnnotationNode)invisibleAnnotations.get(i); 
+      an.accept(mv.visitAnnotation(an.desc, false));
+    }
+    for (i = 0; i < visibleParameterAnnotations.length; ++i) {
+      List l = visibleParameterAnnotations[i];
+      for (j = 0; j < l.size(); ++j) {
+        AnnotationNode an = (AnnotationNode)l.get(j);
+        an.accept(mv.visitParameterAnnotation(i, an.desc, true));
+      }
+    }
+    for (i = 0; i < invisibleParameterAnnotations.length; ++i) {
+      List l = invisibleParameterAnnotations[i];
+      for (j = 0; j < l.size(); ++j) {
+        AnnotationNode an = (AnnotationNode)l.get(j);
+        an.accept(mv.visitParameterAnnotation(i, an.desc, false));
+      }
+    }
+    for (i = 0; i < attrs.size(); ++i) {
+      mv.visitAttribute((Attribute)attrs.get(i));
+    }
+    // visits the method's code
     if (mv != null && instructions.size() > 0) {
-      int i;
       // visits instructions
       for (i = 0; i < instructions.size(); ++i) {
-        Object insn = instructions.get(i);
-        if (insn instanceof Label) {
-          mv.visitLabel((Label)insn);
-        } else {
-          ((AbstractInsnNode)insn).accept(mv);
-        }
+        ((AbstractInsnNode)instructions.get(i)).accept(mv);
       }
       // visits try catch blocks
       for (i = 0; i < tryCatchBlocks.size(); ++i) {
         ((TryCatchBlockNode)tryCatchBlocks.get(i)).accept(mv);
       }
-      // visits maxs
-      mv.visitMaxs(maxStack, maxLocals);
       // visits local variables
       for (i = 0; i < localVariables.size(); ++i) {
         ((LocalVariableNode)localVariables.get(i)).accept(mv);
@@ -197,12 +395,9 @@ public class MethodNode {
       for (i = 0; i < lineNumbers.size(); ++i) {
         ((LineNumberNode)lineNumbers.get(i)).accept(mv);
       }
-      // visits the code attributes
-      Attribute attrs = codeAttrs;
-      while (attrs != null) {
-        mv.visitAttribute(attrs);
-        attrs = attrs.next;
-      }
+      // visits maxs
+      mv.visitMaxs(maxStack, maxLocals);
     }
+    mv.visitEnd();
   }
 }

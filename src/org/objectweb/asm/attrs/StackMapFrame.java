@@ -42,11 +42,11 @@ import org.objectweb.asm.Label;
 
 
 /**
- * StackMapFrame is used by {@link StackMapAttribute} to hold state of the stack
- * and local variables for a single execution branch.
+ * Holds the state of the stack and local variables for a single execution 
+ * branch.
  *
  * <i>Note that Long and Double types are represented by two entries in locals
- * and stack. Second entry sohould be always of type Top.</i>
+ * and stack. Second entry should be always of type Top.</i>
  *
  * @see <a href="http://www.jcp.org/en/jsr/detail?id=139">JSR 139 : Connected
  * Limited Device Configuration 1.1</a>

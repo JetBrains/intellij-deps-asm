@@ -30,7 +30,8 @@
 
 package org.objectweb.asm.tree;
 
-import org.objectweb.asm.CodeVisitor;
+import org.objectweb.asm.MethodVisitor;
+import org.objectweb.asm.Type;
 
 /**
  * A node that represents a method instruction. A method instruction is an
@@ -42,8 +43,8 @@ import org.objectweb.asm.CodeVisitor;
 public class MethodInsnNode extends AbstractInsnNode {
 
   /**
-   * The internal name of the method's owner class (see {@link
-   * org.objectweb.asm.Type#getInternalName() getInternalName}).
+   * The internal name of the method's owner class (see 
+   * {@link Type#getInternalName() getInternalName}).
    */
 
   public String owner;
@@ -55,22 +56,21 @@ public class MethodInsnNode extends AbstractInsnNode {
   public String name;
 
   /**
-   * The method's descriptor (see {@link org.objectweb.asm.Type Type}).
+   * The method's descriptor (see {@link Type}).
    */
 
   public String desc;
 
   /**
-   * Constructs a new {@link MethodInsnNode MethodInsnNode} object.
+   * Constructs a new {@link MethodInsnNode}.
    *
    * @param opcode the opcode of the type instruction to be constructed. This
    *     opcode must be INVOKEVIRTUAL, INVOKESPECIAL, INVOKESTATIC or
    *      INVOKEINTERFACE.
-   * @param owner the internal name of the method's owner class (see {@link
-   *      org.objectweb.asm.Type#getInternalName() getInternalName}).
+   * @param owner the internal name of the method's owner class (see 
+   *      {@link Type#getInternalName() getInternalName}).
    * @param name the method's name.
-   * @param desc the method's descriptor (see {@link org.objectweb.asm.Type
-   *      Type}).
+   * @param desc the method's descriptor (see {@link Type}).
    */
 
   public MethodInsnNode (
@@ -79,7 +79,7 @@ public class MethodInsnNode extends AbstractInsnNode {
     final String name,
     final String desc)
   {
-    super(opcode);
+    super(opcode, METHOD_INSN);
     this.owner = owner;
     this.name = name;
     this.desc = desc;
@@ -96,7 +96,7 @@ public class MethodInsnNode extends AbstractInsnNode {
     this.opcode = opcode;
   }
 
-  public void accept (final CodeVisitor cv) {
-    cv.visitMethodInsn(opcode, owner, name, desc);
+  public void accept (final MethodVisitor mv) {
+    mv.visitMethodInsn(opcode, owner, name, desc);
   }
 }

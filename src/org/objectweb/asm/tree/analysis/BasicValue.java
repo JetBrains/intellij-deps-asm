@@ -36,50 +36,50 @@ import org.objectweb.asm.Type;
  * A {@link Value} that is represented by its type in a seven types type sytem.
  * This type system distinguishes the UNINITIALZED, INT, FLOAT, LONG, DOUBLE,
  * REFERENCE and RETURNADDRESS types.
- * 
+ *
  * @author Eric Bruneton
  */
 
 public class BasicValue implements Value {
 
   public final static Value UNINITIALIZED_VALUE = new BasicValue(null);
-  
+
   public final static Value INT_VALUE = new BasicValue(Type.INT_TYPE);
-  
+
   public final static Value FLOAT_VALUE = new BasicValue(Type.FLOAT_TYPE);
-  
+
   public final static Value LONG_VALUE = new BasicValue(Type.LONG_TYPE);
-  
+
   public final static Value DOUBLE_VALUE = new BasicValue(Type.DOUBLE_TYPE);
-  
+
   public final static Value REFERENCE_VALUE = new BasicValue(Type.getType("Ljava/lang/Object;"));
-  
+
   public final static Value RETURNADDRESS_VALUE = new BasicValue(null);
-  
+
   private Type type;
-  
+
   public BasicValue (final Type type) {
     this.type = type;
   }
-  
+
   public Type getType () {
     return type;
   }
-  
+
   public int getSize () {
     return type == Type.LONG_TYPE || type == Type.DOUBLE_TYPE ? 2 : 1;
   }
-  
+
   public boolean isReference () {
     return type != null && (type.getSort() == Type.OBJECT || type.getSort() == Type.ARRAY);
   }
-  
+
   public boolean equals (final Value value) {
     if (value == this) {
       return true;
     } else if (value instanceof BasicValue) {
       if (type == null) {
-        return ((BasicValue)value).type == null; 
+        return ((BasicValue)value).type == null;
       } else {
         return type.equals(((BasicValue)value).type);
       }
@@ -87,7 +87,7 @@ public class BasicValue implements Value {
       return false;
     }
   }
-  
+
   public String toString () {
     if (this == UNINITIALIZED_VALUE) {
       return ".";

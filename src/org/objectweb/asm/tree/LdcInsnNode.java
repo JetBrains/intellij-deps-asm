@@ -30,12 +30,13 @@
 
 package org.objectweb.asm.tree;
 
-import org.objectweb.asm.CodeVisitor;
-import org.objectweb.asm.Constants;
+import org.objectweb.asm.MethodVisitor;
+import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.Type;
 
 /**
  * A node that represents an LDC instruction.
- * 
+ *
  * @author Eric Bruneton
  */
 
@@ -43,28 +44,26 @@ public class LdcInsnNode extends AbstractInsnNode {
 
   /**
    * The constant to be loaded on the stack. This parameter must be a non null
-   * {@link java.lang.Integer Integer}, a {@link java.lang.Float Float}, a
-   * {@link java.lang.Long Long}, a {@link java.lang.Double Double} a {@link
-   * String String} or a {@link org.objectweb.asm.Type Type}.
+   * {@link Integer}, a {@link Float}, a {@link Long}, a {@link Double}, a
+   * {@link String} or a {@link Type}.
    */
 
   public Object cst;
 
   /**
-   * Constructs a new {@link LdcInsnNode LdcInsnNode} object.
+   * Constructs a new {@link LdcInsnNode}.
    *
    * @param cst the constant to be loaded on the stack. This parameter must be
-   *      a non null {@link java.lang.Integer Integer}, a {@link java.lang.Float
-   *      Float}, a {@link java.lang.Long Long}, a {@link java.lang.Double
-   *      Double} or a {@link String String}.
+   *      a non null {@link Integer}, a {@link Float}, a {@link Long}, a
+   *      {@link Double} or a {@link String}.
    */
 
   public LdcInsnNode (final Object cst) {
-    super(Constants.LDC);
+    super(Opcodes.LDC, LDC_INSN);
     this.cst = cst;
   }
 
-  public void accept (final CodeVisitor cv) {
-    cv.visitLdcInsn(cst);
+  public void accept (final MethodVisitor mv) {
+    mv.visitLdcInsn(cst);
   }
 }

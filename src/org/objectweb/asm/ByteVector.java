@@ -221,9 +221,9 @@ public class ByteVector {
         byteLength += 2;
       }
     }
-    if (byteLength > 65535) {
+    /*if (byteLength > 65535) {
       throw new IllegalArgumentException();
-    }
+    }*/
     int length = this.length;
     if (length + 2 + byteLength > data.length) {
       enlarge(2 + byteLength);

@@ -31,7 +31,7 @@
 package org.objectweb.asm.tree;
 
 import org.objectweb.asm.Label;
-import org.objectweb.asm.CodeVisitor;
+import org.objectweb.asm.MethodVisitor;
 
 /**
  * A node that represents a line number declaration.
@@ -55,7 +55,7 @@ public class LineNumberNode {
   public Label start;
 
   /**
-   * Constructs a new {@link LineNumberNode LineNumberNode} object.
+   * Constructs a new {@link LineNumberNode}.
    *
    * @param line a line number. This number refers to the source file
    *      from which the class was compiled.
@@ -68,12 +68,12 @@ public class LineNumberNode {
   }
 
   /**
-   * Makes the given code visitor visit this line number declaration.
+   * Makes the given visitor visit this line number declaration.
    *
-   * @param cv a code visitor.
+   * @param mv a method visitor.
    */
 
-  public void accept (final CodeVisitor cv) {
-    cv.visitLineNumber(line, start);
+  public void accept (final MethodVisitor mv) {
+    mv.visitLineNumber(line, start);
   }
 }

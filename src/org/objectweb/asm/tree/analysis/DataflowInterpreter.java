@@ -34,7 +34,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.objectweb.asm.Constants;
+import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.FieldInsnNode;
@@ -47,7 +47,7 @@ import org.objectweb.asm.tree.MethodInsnNode;
  * @author Eric Bruneton
  */
 
-public class DataflowInterpreter implements Constants, Interpreter {
+public class DataflowInterpreter implements Opcodes, Interpreter {
 
   public Value newValue (final Type type) {
     return new DataflowValue(type == null ? 1 : type.getSize());

@@ -29,26 +29,19 @@
  * THE POSSIBILITY OF SUCH DAMAGE.
 -->
 <body>
-Provides an implementation for various optional class, field, method and bytecode
-attributes.
-
-<ul>
-<li>Signature used for Java generics (JSR-14)</li>
-<li>SourceDebugExtension used for non Java source debugging (JSR-45)</li>
-<li>StackMap (used for two phase bytecode verifier from CLDC 1.1 and J2SE 1.5
-    (JSR-30, JSR-139, JSR-202)</li>
-<li>Several attibutes used for annotations (JSR-175)</li>
-</ul>
+Provides an implementation for optional class, field and method attributes.
 
 <p>
 
 By default ASM strips optional attributes, in order to keep them in
-the bytecode that is being readed should pass an array of required attribute
+the bytecode that is being readed you should pass an array of required attribute
 instances to {@link org.objectweb.asm.ClassReader#accept(org.objectweb.asm.ClassVisitor, org.objectweb.asm.Attribute[], boolean) ClassReader.accept()} method.
 In order to add custom attributes to the manually constructed bytecode concrete
-subclasses of the {@link org.objectweb.asm.Attribute Attribute} can be passed to the correspond
-visit methods of the {@link org.objectweb.asm.ClassVisitor ClassVisitor} and
-{@link org.objectweb.asm.CodeVisitor CodeVisitor}.
+subclasses of the {@link org.objectweb.asm.Attribute Attribute} can be passed to 
+the visitAttribute methods of the 
+{@link org.objectweb.asm.ClassVisitor ClassVisitor}, 
+{@link org.objectweb.asm.FieldVisitor FieldVisitor} and
+{@link org.objectweb.asm.MethodVisitor MethodVisitor} interfaces.
 
 @since ASM 1.4.1
 </body>

@@ -30,20 +30,23 @@
 
 package org.objectweb.asm.tree;
 
-import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.Attribute;
+import org.objectweb.asm.ClassVisitor;
+import org.objectweb.asm.FieldVisitor;
+import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.Type;
 
 /**
  * A node that represents a field.
- * 
+ *
  * @author Eric Bruneton
  */
 
-public class FieldNode {
+public class FieldNode extends MemberNode implements FieldVisitor {
 
   /**
-   * The field's access flags (see {@link org.objectweb.asm.Constants}). This
-   * field also indicates if the field is synthetic and/or deprecated.
+   * The field's access flags (see {@link Opcodes}). This field also indicates
+   * if the field is synthetic and/or deprecated.
    */
 
   public int access;
@@ -55,55 +58,51 @@ public class FieldNode {
   public String name;
 
   /**
-   * The field's descriptor (see {@link org.objectweb.asm.Type Type}).
+   * The field's descriptor (see {@link Type}).
    */
 
   public String desc;
 
   /**
+   * The field's signature. May be <tt>null</tt>.
+   */
+
+  public String signature;
+
+  /**
    * The field's initial value. This field, which may be <tt>null</tt> if the
-   * field does not have an initial value, must be an {@link java.lang.Integer
-   * Integer}, a {@link java.lang.Float Float}, a {@link java.lang.Long Long},
-   * a {@link java.lang.Double Double} or a {@link String String}.
+   * field does not have an initial value, must be an {@link Integer}, a
+   * {@link Float}, a {@link Long}, a {@link Double} or a {@link String}.
    */
 
   public Object value;
 
   /**
-   * The non standard attributes of the field.
-   */
-
-  public Attribute attrs;
-
-  /**
-   * Constructs a new {@link FieldNode FieldNode} object.
+   * Constructs a new {@link FieldNode}.
    *
-   * @param access the field's access flags (see {@link
-   *      org.objectweb.asm.Constants}). This parameter also indicates if the
-   *      field is synthetic and/or deprecated.
+   * @param access the field's access flags (see {@link Opcodes}). This
+   *      parameter also indicates if the field is synthetic and/or deprecated.
    * @param name the field's name.
-   * @param desc the field's descriptor (see {@link org.objectweb.asm.Type
-   *      Type}).
+   * @param desc the field's descriptor (see {@link Type Type}).
+   * @param signature the field's signature.
    * @param value the field's initial value. This parameter, which may be
    *      <tt>null</tt> if the field does not have an initial value, must be an
-   *      {@link java.lang.Integer Integer}, a {@link java.lang.Float Float}, a
-   *      {@link java.lang.Long Long}, a {@link java.lang.Double Double} or a
-   *      {@link String String}.
-   * @param attrs the non standard attributes of the field.
+   *      {@link Integer}, a {@link Float}, a {@link Long}, a {@link Double} or
+   *      a {@link String}.
    */
 
   public FieldNode (
     final int access,
     final String name,
     final String desc,
-    final Object value,
-    final Attribute attrs)
+    final String signature,
+    final Object value)
   {
     this.access = access;
     this.name = name;
     this.desc = desc;
+    this.signature = signature;
     this.value = value;
-    this.attrs = attrs;
   }
 
   /**
@@ -113,6 +112,19 @@ public class FieldNode {
    */
 
   public void accept (final ClassVisitor cv) {
-    cv.visitField(access, name, desc, value, attrs);
+    FieldVisitor fv = cv.visitField(access, name, desc, signature, value);
+    int i;
+    for (i = 0; i < visibleAnnotations.size(); ++i) {
+      AnnotationNode an = (AnnotationNode)visibleAnnotations.get(i);
+      an.accept(fv.visitAnnotation(an.desc, true));
+    }
+    for (i = 0; i < invisibleAnnotations.size(); ++i) {
+      AnnotationNode an = (AnnotationNode)invisibleAnnotations.get(i);
+      an.accept(fv.visitAnnotation(an.desc, false));
+    }
+    for (i = 0; i < attrs.size(); ++i) {
+      fv.visitAttribute((Attribute)attrs.get(i));
+    }
+    fv.visitEnd();
   }
 }

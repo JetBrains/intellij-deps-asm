@@ -31,8 +31,8 @@
 package org.objectweb.asm.tree;
 
 import org.objectweb.asm.Label;
-import org.objectweb.asm.Constants;
-import org.objectweb.asm.CodeVisitor;
+import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.MethodVisitor;
 
 import java.util.List;
 import java.util.ArrayList;
@@ -40,7 +40,7 @@ import java.util.Arrays;
 
 /**
  * A node that represents a LOOKUPSWITCH instruction.
- * 
+ *
  * @author Eric Bruneton
  */
 
@@ -53,21 +53,20 @@ public class LookupSwitchInsnNode extends AbstractInsnNode {
   public Label dflt;
 
   /**
-   * The values of the keys. This list is a list a {@link java.lang.Integer
-   * Integer} objects.
+   * The values of the keys. This list is a list of {@link Integer} objects.
    */
 
   public final List keys;
 
   /**
-   * Beginnings of the handler blocks. This list is a list of {@link Label
-   * Label} objects.
+   * Beginnings of the handler blocks. This list is a list of {@link Label}
+   * objects.
    */
 
   public final List labels;
 
   /**
-   * Constructs a new {@link LookupSwitchInsnNode LookupSwitchInsnNode} object.
+   * Constructs a new {@link LookupSwitchInsnNode}.
    *
    * @param dflt beginning of the default handler block.
    * @param keys the values of the keys.
@@ -80,7 +79,7 @@ public class LookupSwitchInsnNode extends AbstractInsnNode {
     final int[] keys,
     final Label[] labels)
   {
-    super(Constants.LOOKUPSWITCH);
+    super(Opcodes.LOOKUPSWITCH, LOOKUPSWITCH_INSN);
     this.dflt = dflt;
     this.keys = new ArrayList();
     this.labels = new ArrayList();
@@ -94,13 +93,13 @@ public class LookupSwitchInsnNode extends AbstractInsnNode {
     }
   }
 
-  public void accept (final CodeVisitor cv) {
+  public void accept (final MethodVisitor mv) {
     int[] keys = new int[this.keys.size()];
     for (int i = 0; i < keys.length; ++i) {
       keys[i] = ((Integer)this.keys.get(i)).intValue();
     }
     Label[] labels = new Label[this.labels.size()];
     this.labels.toArray(labels);
-    cv.visitLookupSwitchInsn(dflt, keys, labels);
+    mv.visitLookupSwitchInsn(dflt, keys, labels);
   }
 }

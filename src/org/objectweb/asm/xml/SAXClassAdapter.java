@@ -32,8 +32,8 @@ package org.objectweb.asm.xml;
 
 import org.objectweb.asm.Attribute;
 import org.objectweb.asm.ClassVisitor;
-import org.objectweb.asm.CodeVisitor;
-import org.objectweb.asm.Constants;
+import org.objectweb.asm.MethodVisitor;
+import org.objectweb.asm.Opcodes;
 import org.xml.sax.ContentHandler;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.AttributesImpl;
@@ -77,17 +77,17 @@ public final class SAXClassAdapter implements ClassVisitor {
   public final void visit( int version, int access, String name, String superName, String[] interfaces, String sourceFile) {
     try {
       StringBuffer sb = new StringBuffer();
-      if(( access & Constants.ACC_PUBLIC)!=0) sb.append( "public ");
-      if(( access & Constants.ACC_PRIVATE)!=0) sb.append( "private ");
-      if(( access & Constants.ACC_PROTECTED)!=0) sb.append( "protected ");
-      if(( access & Constants.ACC_FINAL)!=0) sb.append( "final ");
-      if(( access & Constants.ACC_SUPER)!=0) sb.append( "super ");
-      if(( access & Constants.ACC_INTERFACE)!=0) sb.append( "interface ");
-      if(( access & Constants.ACC_ABSTRACT)!=0) sb.append( "abstract ");
-      if(( access & Constants.ACC_SYNTHETIC)!=0) sb.append( "synthetic ");
-      if(( access & Constants.ACC_ANNOTATION)!=0) sb.append( "annotation ");
-      if(( access & Constants.ACC_ENUM)!=0) sb.append( "enum ");
-      if(( access & Constants.ACC_DEPRECATED)!=0) sb.append( "deprecated ");
+      if(( access & Opcodes.ACC_PUBLIC)!=0) sb.append( "public ");
+      if(( access & Opcodes.ACC_PRIVATE)!=0) sb.append( "private ");
+      if(( access & Opcodes.ACC_PROTECTED)!=0) sb.append( "protected ");
+      if(( access & Opcodes.ACC_FINAL)!=0) sb.append( "final ");
+      if(( access & Opcodes.ACC_SUPER)!=0) sb.append( "super ");
+      if(( access & Opcodes.ACC_INTERFACE)!=0) sb.append( "interface ");
+      if(( access & Opcodes.ACC_ABSTRACT)!=0) sb.append( "abstract ");
+      if(( access & Opcodes.ACC_SYNTHETIC)!=0) sb.append( "synthetic ");
+      if(( access & Opcodes.ACC_ANNOTATION)!=0) sb.append( "annotation ");
+      if(( access & Opcodes.ACC_ENUM)!=0) sb.append( "enum ");
+      if(( access & Opcodes.ACC_DEPRECATED)!=0) sb.append( "deprecated ");
       
       AttributesImpl attrs = new AttributesImpl();
       attrs.addAttribute( "", "access", "access", "", sb.toString());
@@ -116,16 +116,16 @@ public final class SAXClassAdapter implements ClassVisitor {
 
   public final void visitField( int access, String name, String desc, Object value, Attribute attrs) {
     StringBuffer sb = new StringBuffer();
-    if(( access & Constants.ACC_PUBLIC)!=0) sb.append( "public ");
-    if(( access & Constants.ACC_PRIVATE)!=0) sb.append( "private ");
-    if(( access & Constants.ACC_PROTECTED)!=0) sb.append( "protected ");
-    if(( access & Constants.ACC_STATIC)!=0) sb.append( "static ");
-    if(( access & Constants.ACC_FINAL)!=0) sb.append( "final ");
-    if(( access & Constants.ACC_VOLATILE)!=0) sb.append( "volatile ");
-    if(( access & Constants.ACC_TRANSIENT)!=0) sb.append( "transient ");
-    if(( access & Constants.ACC_SYNTHETIC)!=0) sb.append( "synthetic ");
-    if(( access & Constants.ACC_ENUM)!=0) sb.append( "enum ");
-    if(( access & Constants.ACC_DEPRECATED)!=0) sb.append( "deprecated ");
+    if(( access & Opcodes.ACC_PUBLIC)!=0) sb.append( "public ");
+    if(( access & Opcodes.ACC_PRIVATE)!=0) sb.append( "private ");
+    if(( access & Opcodes.ACC_PROTECTED)!=0) sb.append( "protected ");
+    if(( access & Opcodes.ACC_STATIC)!=0) sb.append( "static ");
+    if(( access & Opcodes.ACC_FINAL)!=0) sb.append( "final ");
+    if(( access & Opcodes.ACC_VOLATILE)!=0) sb.append( "volatile ");
+    if(( access & Opcodes.ACC_TRANSIENT)!=0) sb.append( "transient ");
+    if(( access & Opcodes.ACC_SYNTHETIC)!=0) sb.append( "synthetic ");
+    if(( access & Opcodes.ACC_ENUM)!=0) sb.append( "enum ");
+    if(( access & Opcodes.ACC_DEPRECATED)!=0) sb.append( "deprecated ");
     
     AttributesImpl att = new AttributesImpl();
     att.addAttribute( "", "access", "access", "", sb.toString());
@@ -142,21 +142,21 @@ public final class SAXClassAdapter implements ClassVisitor {
     }
   }
 
-  public final CodeVisitor visitMethod( int access, String name, String desc, String[] exceptions, Attribute attrs) {
+  public final MethodVisitor visitMethod( int access, String name, String desc, String[] exceptions, Attribute attrs) {
     StringBuffer sb = new StringBuffer();
-    if(( access & Constants.ACC_PUBLIC)!=0) sb.append( "public ");
-    if(( access & Constants.ACC_PRIVATE)!=0) sb.append( "private ");
-    if(( access & Constants.ACC_PROTECTED)!=0) sb.append( "protected ");
-    if(( access & Constants.ACC_STATIC)!=0) sb.append( "static ");
-    if(( access & Constants.ACC_FINAL)!=0) sb.append( "final ");
-    if(( access & Constants.ACC_SYNCHRONIZED)!=0) sb.append( "synchronized ");
-    if(( access & Constants.ACC_BRIDGE)!=0) sb.append( "bridge ");
-    if(( access & Constants.ACC_VARARGS)!=0) sb.append( "varargs ");
-    if(( access & Constants.ACC_NATIVE)!=0) sb.append( "native ");
-    if(( access & Constants.ACC_ABSTRACT)!=0) sb.append( "abstract ");
-    if(( access & Constants.ACC_STRICT)!=0) sb.append( "strict ");
-    if(( access & Constants.ACC_SYNTHETIC)!=0) sb.append( "synthetic ");
-    if(( access & Constants.ACC_DEPRECATED)!=0) sb.append( "deprecated ");
+    if(( access & Opcodes.ACC_PUBLIC)!=0) sb.append( "public ");
+    if(( access & Opcodes.ACC_PRIVATE)!=0) sb.append( "private ");
+    if(( access & Opcodes.ACC_PROTECTED)!=0) sb.append( "protected ");
+    if(( access & Opcodes.ACC_STATIC)!=0) sb.append( "static ");
+    if(( access & Opcodes.ACC_FINAL)!=0) sb.append( "final ");
+    if(( access & Opcodes.ACC_SYNCHRONIZED)!=0) sb.append( "synchronized ");
+    if(( access & Opcodes.ACC_BRIDGE)!=0) sb.append( "bridge ");
+    if(( access & Opcodes.ACC_VARARGS)!=0) sb.append( "varargs ");
+    if(( access & Opcodes.ACC_NATIVE)!=0) sb.append( "native ");
+    if(( access & Opcodes.ACC_ABSTRACT)!=0) sb.append( "abstract ");
+    if(( access & Opcodes.ACC_STRICT)!=0) sb.append( "strict ");
+    if(( access & Opcodes.ACC_SYNTHETIC)!=0) sb.append( "synthetic ");
+    if(( access & Opcodes.ACC_DEPRECATED)!=0) sb.append( "deprecated ");
     
     try {
       AttributesImpl att = new AttributesImpl();
@@ -175,7 +175,7 @@ public final class SAXClassAdapter implements ClassVisitor {
         }
       }
       h.endElement( "", "exceptions", "exceptions");
-      if(( access & ( Constants.ACC_ABSTRACT | Constants.ACC_INTERFACE | Constants.ACC_NATIVE))>0) {
+      if(( access & ( Opcodes.ACC_ABSTRACT | Opcodes.ACC_INTERFACE | Opcodes.ACC_NATIVE))>0) {
         h.endElement( "", "method", "method");
       } else {
         h.startElement( "", "code", "code", new AttributesImpl());
@@ -190,18 +190,18 @@ public final class SAXClassAdapter implements ClassVisitor {
 
   public final void visitInnerClass( String name, String outerName, String innerName, int access) {
     StringBuffer sb = new StringBuffer();
-    if(( access & Constants.ACC_PUBLIC)!=0) sb.append( "public ");
-    if(( access & Constants.ACC_PRIVATE)!=0) sb.append( "private ");
-    if(( access & Constants.ACC_PROTECTED)!=0) sb.append( "protected ");
-    if(( access & Constants.ACC_STATIC)!=0) sb.append( "static ");
-    if(( access & Constants.ACC_FINAL)!=0) sb.append( "final ");
-    if(( access & Constants.ACC_SUPER)!=0) sb.append( "super ");
-    if(( access & Constants.ACC_INTERFACE)!=0) sb.append( "interface ");
-    if(( access & Constants.ACC_ABSTRACT)!=0) sb.append( "abstract ");
-    if(( access & Constants.ACC_SYNTHETIC)!=0) sb.append( "synthetic ");
-    if(( access & Constants.ACC_ANNOTATION)!=0) sb.append( "annotation ");
-    if(( access & Constants.ACC_ENUM)!=0) sb.append( "enum ");
-    if(( access & Constants.ACC_DEPRECATED)!=0) sb.append( "deprecated ");
+    if(( access & Opcodes.ACC_PUBLIC)!=0) sb.append( "public ");
+    if(( access & Opcodes.ACC_PRIVATE)!=0) sb.append( "private ");
+    if(( access & Opcodes.ACC_PROTECTED)!=0) sb.append( "protected ");
+    if(( access & Opcodes.ACC_STATIC)!=0) sb.append( "static ");
+    if(( access & Opcodes.ACC_FINAL)!=0) sb.append( "final ");
+    if(( access & Opcodes.ACC_SUPER)!=0) sb.append( "super ");
+    if(( access & Opcodes.ACC_INTERFACE)!=0) sb.append( "interface ");
+    if(( access & Opcodes.ACC_ABSTRACT)!=0) sb.append( "abstract ");
+    if(( access & Opcodes.ACC_SYNTHETIC)!=0) sb.append( "synthetic ");
+    if(( access & Opcodes.ACC_ANNOTATION)!=0) sb.append( "annotation ");
+    if(( access & Opcodes.ACC_ENUM)!=0) sb.append( "enum ");
+    if(( access & Opcodes.ACC_DEPRECATED)!=0) sb.append( "deprecated ");
     
     try {
       AttributesImpl attrs = new AttributesImpl();

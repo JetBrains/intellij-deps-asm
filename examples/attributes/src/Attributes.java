@@ -29,12 +29,13 @@
  */
 
 import org.objectweb.asm.Attribute;
+import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.ClassAdapter;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.ClassWriter;
-import org.objectweb.asm.CodeVisitor;
-import org.objectweb.asm.Constants;
+import org.objectweb.asm.MethodVisitor;
+import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.ByteVector;
 import org.objectweb.asm.util.TraceClassVisitor;
@@ -63,12 +64,12 @@ public class Attributes extends ClassLoader {
 
     // "disassembles" the adapted class
     cr = new ClassReader(b);
-    cv = new TraceClassVisitor(null, new PrintWriter(System.out));
+    cv = new TraceClassVisitor(new PrintWriter(System.out));
     cr.accept(cv, new Attribute[] { new CommentAttribute("") }, false);
   }
 }
 
-class AddCommentClassAdapter extends ClassAdapter implements Constants {
+class AddCommentClassAdapter extends ClassAdapter implements Opcodes {
 
   public AddCommentClassAdapter (final ClassVisitor cv) {
     super(cv);
@@ -78,44 +79,36 @@ class AddCommentClassAdapter extends ClassAdapter implements Constants {
     final int version,
     final int access,
     final String name,
+    final String signature,
     final String superName,
-    final String[] interfaces,
-    final String sourceFile)
+    final String[] interfaces)
   {
-    super.visit(version, access, name, superName, interfaces, sourceFile);
+    super.visit(version, access, name, signature, superName, interfaces);
     visitAttribute(new CommentAttribute("this is a class comment"));
   }
 
-  public void visitField (
+  public FieldVisitor visitField (
     final int access,
     final String name,
     final String desc,
-    final Object value,
-    final Attribute attrs)
+    final String signature,
+    final Object value)
   {
-    super.visitField(
-      access,
-      name,
-      desc,
-      value,
-      new CommentAttribute("this is a field comment", attrs));
+    FieldVisitor fv = super.visitField(access, name, desc, signature, value);
+    fv.visitAttribute(new CommentAttribute("this is a field comment"));
+    return fv;
   }
 
-  public CodeVisitor visitMethod (
+  public MethodVisitor visitMethod (
     final int access,
     final String name,
     final String desc,
-    final String[] exceptions,
-    final Attribute attrs)
+    final String signature,
+    final String[] exceptions)
   {
-    CodeVisitor mv = cv.visitMethod(
-      access,
-      name,
-      desc,
-      exceptions,
-      new CommentAttribute("this is a method comment", attrs));
+    MethodVisitor mv = cv.visitMethod(access, name, desc, signature, exceptions);
     if (mv != null) {
-      mv.visitAttribute(new CommentAttribute("this is a code comment"));
+      mv.visitAttribute(new CommentAttribute("this is a method comment"));
     }
     return mv;
   }
@@ -130,16 +123,14 @@ class CommentAttribute extends Attribute {
     this.comment = comment;
   }
 
-  public CommentAttribute (final String comment, final Attribute next) {
-    super("Comment");
-    this.comment = comment;
-    this.next = next;
-  }
-
   public String getComment () {
     return comment;
   }
 
+  public boolean isUnknown () {
+    return false;
+  }
+  
   protected Attribute read (
     ClassReader cr,
     int off,

@@ -33,28 +33,30 @@ package org.objectweb.asm.util;
 import java.io.FileInputStream;
 import java.util.List;
 
+import org.objectweb.asm.AnnotationVisitor;
+import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.ClassAdapter;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassVisitor;
-import org.objectweb.asm.CodeVisitor;
-import org.objectweb.asm.Constants;
+import org.objectweb.asm.MethodVisitor;
+import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Attribute;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.MethodNode;
-import org.objectweb.asm.tree.TreeClassAdapter;
+import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.analysis.Analyzer;
 import org.objectweb.asm.tree.analysis.SimpleVerifier;
 import org.objectweb.asm.tree.analysis.Frame;
 
 /**
- * A {@link ClassAdapter ClassAdapter} that checks that its methods are properly
+ * A {@link ClassAdapter} that checks that its methods are properly
  * used. More precisely this class adapter checks each method call individually,
  * based <i>only</i> on its arguments, but does <i>not</i> check the
  * <i>sequence</i> of method calls. For example, the invalid sequence
  * <tt>visitField(ACC_PUBLIC, "i", "I", null)</tt> <tt>visitField(ACC_PUBLIC,
  * "i", "D", null)</tt> will <i>not</i> be detected by this class adapter.
- * 
+ *
  * @author Eric Bruneton
  */
 
@@ -86,7 +88,10 @@ public class CheckClassAdapter extends ClassAdapter {
 
   public static void main (final String[] args) throws Exception {
     if (args.length != 1) {
-      printUsage();
+      System.err.println("Verifies the given class.");
+      System.err.println("Usage: CheckClassAdapter " +
+                         "<fully qualified class name or class file name>");
+      System.exit(-1);
     }
     ClassReader cr;
     if (args[0].endsWith(".class")) {
@@ -94,33 +99,33 @@ public class CheckClassAdapter extends ClassAdapter {
     } else {
       cr = new ClassReader(args[0]);
     }
-    
-    TreeClassAdapter ca = new TreeClassAdapter(null);
-    cr.accept(new CheckClassAdapter(ca), true);
-    
-    List methods = ca.classNode.methods;
+
+    ClassNode cn = new ClassNode();
+    cr.accept(new CheckClassAdapter(cn), true);
+
+    List methods = cn.methods;
     for (int i = 0; i < methods.size(); ++i) {
       MethodNode method = (MethodNode)methods.get(i);
       if (method.instructions.size() > 0) {
         Analyzer a = new Analyzer(new SimpleVerifier());
         try {
-          a.analyze(ca.classNode, method);
+          a.analyze(cn, method);
           continue;
         } catch (Exception e) {
           e.printStackTrace();
         }
         final Frame[] frames = a.getFrames();
-        
+
         System.out.println(method.name + method.desc);
-        TraceCodeVisitor cv = new TraceCodeVisitor(null) {
-          public void visitMaxs (int maxStack, int maxLocals) {
+        TraceMethodVisitor mv = new TraceMethodVisitor() {
+          public void visitMax (final int maxStack, final int maxLocals) {
             for (int i = 0; i < text.size(); ++i) {
               String s = frames[i] == null ? "null" : frames[i].toString();
               while (s.length() < maxStack+maxLocals+1) {
                 s += " ";
               }
               System.out.print(
-                  Integer.toString(i + 100000).substring(1) + " " + s + " : " 
+                  Integer.toString(i + 100000).substring(1) + " " + s + " : "
                   + text.get(i));
             }
             System.out.println();
@@ -129,25 +134,18 @@ public class CheckClassAdapter extends ClassAdapter {
         for (int j = 0; j < method.instructions.size(); ++j) {
           Object insn = method.instructions.get(j);
           if (insn instanceof AbstractInsnNode) {
-            ((AbstractInsnNode)insn).accept(cv);
+            ((AbstractInsnNode)insn).accept(mv);
           } else {
-            cv.visitLabel((Label)insn);
+            mv.visitLabel((Label)insn);
           }
         }
-        cv.visitMaxs(method.maxStack, method.maxLocals);
+        mv.visitMaxs(method.maxStack, method.maxLocals);
       }
     }
   }
 
-  private static void printUsage () {
-    System.err.println("TODO.");
-    System.err.println("Usage: CheckClassAdapter " +
-                       "<fully qualified class name or class file name>");
-    System.exit(-1);
-  }
-
   /**
-   * Constructs a new {@link CheckClassAdapter CheckClassAdapter} object.
+   * Constructs a new {@link CheckClassAdapter}.
    *
    * @param cv the class visitor to which this adapter must delegate calls.
    */
@@ -156,13 +154,17 @@ public class CheckClassAdapter extends ClassAdapter {
     super(cv);
   }
 
+  // --------------------------------------------------------------------------
+  // Implementation of the ClassVisitor interface
+  // --------------------------------------------------------------------------
+
   public void visit (
     final int version,
     final int access,
     final String name,
+    final String signature,
     final String superName,
-    final String[] interfaces,
-    final String sourceFile)
+    final String[] interfaces)
   {
     if (start) {
       throw new IllegalStateException("visit must be called only once");
@@ -172,25 +174,28 @@ public class CheckClassAdapter extends ClassAdapter {
     checkState();
     checkAccess(
       access,
-      Constants.ACC_PUBLIC + 
-      Constants.ACC_FINAL +   
-      Constants.ACC_SUPER +   
-      Constants.ACC_INTERFACE +   
-      Constants.ACC_ABSTRACT +   
-      Constants.ACC_SYNTHETIC +   
-      Constants.ACC_ANNOTATION +
-      Constants.ACC_ENUM +
-      Constants.ACC_DEPRECATED);
-    CheckCodeAdapter.checkInternalName(name, "class name");
+      Opcodes.ACC_PUBLIC +
+      Opcodes.ACC_FINAL +
+      Opcodes.ACC_SUPER +
+      Opcodes.ACC_INTERFACE +
+      Opcodes.ACC_ABSTRACT +
+      Opcodes.ACC_SYNTHETIC +
+      Opcodes.ACC_ANNOTATION +
+      Opcodes.ACC_ENUM +
+      Opcodes.ACC_DEPRECATED);
+    CheckMethodAdapter.checkInternalName(name, "class name");
     if (name.equals("java/lang/Object")) {
       if (superName != null) {
         throw new IllegalArgumentException(
           "The super class name of the Object class must be 'null'");
       }
     } else {
-      CheckCodeAdapter.checkInternalName(superName, "super class name");
+      CheckMethodAdapter.checkInternalName(superName, "super class name");
     }
-    if ((access & Constants.ACC_INTERFACE) != 0) {
+    if (signature != null) {
+      // TODO
+    }
+    if ((access & Opcodes.ACC_INTERFACE) != 0) {
       if (!superName.equals("java/lang/Object")) {
         throw new IllegalArgumentException(
           "The super class name of interfaces must be 'java/lang/Object'");
@@ -198,11 +203,25 @@ public class CheckClassAdapter extends ClassAdapter {
     }
     if (interfaces != null) {
       for (int i = 0; i < interfaces.length; ++i) {
-        CheckCodeAdapter.checkInternalName(
+        CheckMethodAdapter.checkInternalName(
           interfaces[i], "interface name at index " + i);
       }
     }
-    cv.visit(version, access, name, superName, interfaces, sourceFile);
+    cv.visit(version, access, name, signature, superName, interfaces);
+  }
+
+  public void visitSource (final String file, final String debug) {
+    // TODO check called only once, after visit()
+    cv.visitSource(file, debug);
+  }
+
+  public void visitOuterClass (
+    final String owner,
+    final String name,
+    final String desc)
+  {
+    // TODO check called only once, after visit(); check arguments
+    cv.visitOuterClass(owner, name, desc);
   }
 
   public void visitInnerClass (
@@ -212,89 +231,105 @@ public class CheckClassAdapter extends ClassAdapter {
     final int access)
   {
     checkState();
-    CheckCodeAdapter.checkInternalName(name, "class name");
+    CheckMethodAdapter.checkInternalName(name, "class name");
     if (outerName != null) {
-      CheckCodeAdapter.checkInternalName(outerName, "outer class name");
+      CheckMethodAdapter.checkInternalName(outerName, "outer class name");
     }
     if (innerName != null) {
-      CheckCodeAdapter.checkIdentifier(innerName, "inner class name");
+      CheckMethodAdapter.checkIdentifier(innerName, "inner class name");
     }
     checkAccess(
-      access, 
-      Constants.ACC_PUBLIC +
-      Constants.ACC_PRIVATE +
-      Constants.ACC_PROTECTED +
-      Constants.ACC_STATIC +
-      Constants.ACC_FINAL +
-      Constants.ACC_INTERFACE +
-      Constants.ACC_ABSTRACT +
-      Constants.ACC_SYNTHETIC +
-      Constants.ACC_ANNOTATION +
-      Constants.ACC_ENUM);
+      access,
+      Opcodes.ACC_PUBLIC +
+      Opcodes.ACC_PRIVATE +
+      Opcodes.ACC_PROTECTED +
+      Opcodes.ACC_STATIC +
+      Opcodes.ACC_FINAL +
+      Opcodes.ACC_INTERFACE +
+      Opcodes.ACC_ABSTRACT +
+      Opcodes.ACC_SYNTHETIC +
+      Opcodes.ACC_ANNOTATION +
+      Opcodes.ACC_ENUM);
     cv.visitInnerClass(name, outerName, innerName, access);
   }
 
-  public void visitField (
+  public FieldVisitor visitField (
     final int access,
     final String name,
     final String desc,
-    final Object value,
-    final Attribute attrs)
+    final String signature,
+    final Object value)
   {
     checkState();
     checkAccess(
-      access, 
-      Constants.ACC_PUBLIC +
-      Constants.ACC_PRIVATE +
-      Constants.ACC_PROTECTED +
-      Constants.ACC_STATIC +
-      Constants.ACC_FINAL +
-      Constants.ACC_VOLATILE +
-      Constants.ACC_TRANSIENT +
-      Constants.ACC_SYNTHETIC +
-      Constants.ACC_ENUM +
-      Constants.ACC_DEPRECATED);
-    CheckCodeAdapter.checkIdentifier(name, "field name");
-    CheckCodeAdapter.checkDesc(desc, false);
-    if (value != null) {
-      CheckCodeAdapter.checkConstant(value);
+      access,
+      Opcodes.ACC_PUBLIC +
+      Opcodes.ACC_PRIVATE +
+      Opcodes.ACC_PROTECTED +
+      Opcodes.ACC_STATIC +
+      Opcodes.ACC_FINAL +
+      Opcodes.ACC_VOLATILE +
+      Opcodes.ACC_TRANSIENT +
+      Opcodes.ACC_SYNTHETIC +
+      Opcodes.ACC_ENUM +
+      Opcodes.ACC_DEPRECATED);
+    CheckMethodAdapter.checkIdentifier(name, "field name");
+    CheckMethodAdapter.checkDesc(desc, false);
+    if (signature != null) {
+      // TODO
     }
-    cv.visitField(access, name, desc, value, attrs);
+    if (value != null) {
+      CheckMethodAdapter.checkConstant(value);
+    }
+    FieldVisitor av = cv.visitField(access, name, desc, signature, value);
+    // TODO return checkadapter(av)
+    return av;
   }
 
-  public CodeVisitor visitMethod (
+  public MethodVisitor visitMethod (
     final int access,
     final String name,
     final String desc,
-    final String[] exceptions,
-    final Attribute attrs)
+    final String signature,
+    final String[] exceptions)
   {
     checkState();
     checkAccess(
-      access, 
-      Constants.ACC_PUBLIC +
-      Constants.ACC_PRIVATE +
-      Constants.ACC_PROTECTED +
-      Constants.ACC_STATIC +
-      Constants.ACC_FINAL +
-      Constants.ACC_SYNCHRONIZED +
-      Constants.ACC_BRIDGE +
-      Constants.ACC_VARARGS +
-      Constants.ACC_NATIVE +
-      Constants.ACC_ABSTRACT +
-      Constants.ACC_STRICT +
-      Constants.ACC_SYNTHETIC +
-      Constants.ACC_DEPRECATED);
-    CheckCodeAdapter.checkMethodIdentifier(name, "method name");
-    CheckCodeAdapter.checkMethodDesc(desc);
+      access,
+      Opcodes.ACC_PUBLIC +
+      Opcodes.ACC_PRIVATE +
+      Opcodes.ACC_PROTECTED +
+      Opcodes.ACC_STATIC +
+      Opcodes.ACC_FINAL +
+      Opcodes.ACC_SYNCHRONIZED +
+      Opcodes.ACC_BRIDGE +
+      Opcodes.ACC_VARARGS +
+      Opcodes.ACC_NATIVE +
+      Opcodes.ACC_ABSTRACT +
+      Opcodes.ACC_STRICT +
+      Opcodes.ACC_SYNTHETIC +
+      Opcodes.ACC_DEPRECATED);
+    CheckMethodAdapter.checkMethodIdentifier(name, "method name");
+    CheckMethodAdapter.checkMethodDesc(desc);
+    if (signature != null) {
+      // TODO
+    }
     if (exceptions != null) {
       for (int i = 0; i < exceptions.length; ++i) {
-        CheckCodeAdapter.checkInternalName(
+        CheckMethodAdapter.checkInternalName(
           exceptions[i], "exception name at index " + i);
       }
     }
-    return new CheckCodeAdapter(
-      cv.visitMethod(access, name, desc, exceptions, attrs));
+    return new CheckMethodAdapter(
+      cv.visitMethod(access, name, desc, signature, exceptions));
+  }
+
+  public AnnotationVisitor visitAnnotation (
+    final String desc,
+    final boolean visible)
+  {
+    // TODO
+    return cv.visitAnnotation(desc, visible);
   }
 
   public void visitAttribute (final Attribute attr) {
@@ -311,7 +346,9 @@ public class CheckClassAdapter extends ClassAdapter {
     cv.visitEnd();
   }
 
-  // ---------------------------------------------------------------------------
+  // --------------------------------------------------------------------------
+  // Utility methods
+  // --------------------------------------------------------------------------
 
   /**
    * Checks that the visit method has been called and that visitEnd has not been
@@ -342,15 +379,15 @@ public class CheckClassAdapter extends ClassAdapter {
     if ((access & ~possibleAccess) != 0) {
       throw new IllegalArgumentException("Invalid access flags: " + access);
     }
-    int pub = ((access & Constants.ACC_PUBLIC) != 0 ? 1 : 0);
-    int pri = ((access & Constants.ACC_PRIVATE) != 0 ? 1 : 0);
-    int pro = ((access & Constants.ACC_PROTECTED) != 0 ? 1 : 0);
+    int pub = ((access & Opcodes.ACC_PUBLIC) != 0 ? 1 : 0);
+    int pri = ((access & Opcodes.ACC_PRIVATE) != 0 ? 1 : 0);
+    int pro = ((access & Opcodes.ACC_PROTECTED) != 0 ? 1 : 0);
     if (pub + pri + pro > 1) {
       throw new IllegalArgumentException(
         "public private and protected are mutually exclusive: " + access);
     }
-    int fin = ((access & Constants.ACC_FINAL) != 0 ? 1 : 0);
-    int abs = ((access & Constants.ACC_ABSTRACT) != 0 ? 1 : 0);
+    int fin = ((access & Opcodes.ACC_FINAL) != 0 ? 1 : 0);
+    int abs = ((access & Opcodes.ACC_ABSTRACT) != 0 ? 1 : 0);
     if (fin + abs > 1) {
       throw new IllegalArgumentException(
         "final and abstract are mutually exclusive: " + access);

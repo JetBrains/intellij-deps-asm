@@ -31,10 +31,9 @@
 package org.objectweb.asm;
 
 /**
- * An empty {@link ClassVisitor ClassVisitor} that delegates to another {@link
- * ClassVisitor ClassVisitor}. This class can be used as a super class to
- * quickly implement usefull class adapter classes, just by overriding the
- * necessary methods.
+ * An empty {@link ClassVisitor} that delegates to another {@link ClassVisitor}. 
+ * This class can be used as a super class to quickly implement usefull class 
+ * adapter classes, just by overriding the necessary methods.
  * 
  * @author Eric Bruneton
  */
@@ -42,14 +41,13 @@ package org.objectweb.asm;
 public class ClassAdapter implements ClassVisitor {
 
   /**
-   * The {@link ClassVisitor ClassVisitor} to which this adapter delegates
-   * calls.
+   * The {@link ClassVisitor} to which this adapter delegates calls.
    */
 
   protected ClassVisitor cv;
 
   /**
-   * Constructs a new {@link ClassAdapter ClassAdapter} object.
+   * Constructs a new {@link ClassAdapter} object.
    *
    * @param cv the class visitor to which this adapter must delegate calls.
    */
@@ -62,11 +60,34 @@ public class ClassAdapter implements ClassVisitor {
     final int version,
     final int access,
     final String name,
+    final String signature,
     final String superName,
-    final String[] interfaces,
-    final String sourceFile)
+    final String[] interfaces)
   {
-    cv.visit(version, access, name, superName, interfaces, sourceFile);
+    cv.visit(version, access, name, signature, superName, interfaces);
+  }
+
+  public void visitSource (final String source, final String debug) {
+    cv.visitSource(source, debug);
+  }
+  
+  public void visitOuterClass (
+    final String owner, 
+    final String name,
+    final String desc) 
+  {
+    cv.visitOuterClass(owner, name, desc);
+  }
+
+  public AnnotationVisitor visitAnnotation (
+    final String desc, 
+    final boolean visible) 
+  {
+    return cv.visitAnnotation(desc, visible);
+  }
+
+  public void visitAttribute (final Attribute attr) {
+    cv.visitAttribute(attr);
   }
 
   public void visitInnerClass (
@@ -78,28 +99,25 @@ public class ClassAdapter implements ClassVisitor {
     cv.visitInnerClass(name, outerName, innerName, access);
   }
 
-  public void visitField (
+  public FieldVisitor visitField (
     final int access,
     final String name,
     final String desc,
-    final Object value,
-    final Attribute attrs)
+    final String signature,
+    final Object value)
   {
-    cv.visitField(access, name, desc, value, attrs);
+    return cv.visitField(access, name, desc, signature, value);
   }
 
-  public CodeVisitor visitMethod (
+  public MethodVisitor visitMethod (
     final int access,
     final String name,
     final String desc,
-    final String[] exceptions,
-    final Attribute attrs)
+    final String signature,
+    final String[] exceptions)
   {
-    return new CodeAdapter(cv.visitMethod(access, name, desc, exceptions, attrs));
-  }
-
-  public void visitAttribute (final Attribute attr) {
-    cv.visitAttribute(attr);
+    return new MethodAdapter(
+      cv.visitMethod(access, name, desc, signature, exceptions));
   }
 
   public void visitEnd () {

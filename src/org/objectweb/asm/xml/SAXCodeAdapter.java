@@ -34,26 +34,25 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.objectweb.asm.Attribute;
-import org.objectweb.asm.CodeVisitor;
-import org.objectweb.asm.Constants;
+import org.objectweb.asm.MethodVisitor;
+import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.Type;
-import org.objectweb.asm.util.PrintCodeVisitor;
 import org.xml.sax.Attributes;
 import org.xml.sax.ContentHandler;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.AttributesImpl;
 
 /**
- * A {@link org.objectweb.asm.CodeVisitor CodeVisitor} that generates SAX 2.0
- * events from the visited code. 
+ * A {@link MethodVisitor} that generates SAX 2.0 events from the visited 
+ * method. 
  * 
  * @see org.objectweb.asm.xml.SAXClassAdapter
  * @see org.objectweb.asm.xml.Processor
  * 
  * @author Eugene Kuleshov
  */
-public final class SAXCodeAdapter implements CodeVisitor {
+public final class SAXCodeAdapter implements MethodVisitor {
   private ContentHandler h;
   private Map labelNames;
 
@@ -121,14 +120,14 @@ public final class SAXCodeAdapter implements CodeVisitor {
     AttributesImpl attrs = new AttributesImpl();
     attrs.addAttribute( "", "cst", "cst", "", SAXClassAdapter.encode( cst.toString()));
     attrs.addAttribute( "", "desc", "desc", "", Type.getDescriptor( cst.getClass()));
-    addElement( PrintCodeVisitor.OPCODES[ Constants.LDC], attrs);
+    addElement( PrintCodeVisitor.OPCODES[ Opcodes.LDC], attrs);
   }
 
   public final void visitIincInsn( int var, int increment) {
     AttributesImpl attrs = new AttributesImpl();
     attrs.addAttribute( "", "var", "var", "", Integer.toString( var));
     attrs.addAttribute( "", "inc", "inc", "", Integer.toString( increment));
-    addElement( PrintCodeVisitor.OPCODES[ Constants.IINC], attrs);
+    addElement( PrintCodeVisitor.OPCODES[ Opcodes.IINC], attrs);
   }
 
   public final void visitTableSwitchInsn( int min, int max, Label dflt, Label[] labels) {
@@ -136,7 +135,7 @@ public final class SAXCodeAdapter implements CodeVisitor {
     attrs.addAttribute( "", "min", "min", "", Integer.toString( min));
     attrs.addAttribute( "", "max", "max", "", Integer.toString( max));
     attrs.addAttribute( "", "dflt", "dflt", "", getLabel( dflt));
-    String o = PrintCodeVisitor.OPCODES[ Constants.TABLESWITCH];
+    String o = PrintCodeVisitor.OPCODES[ Opcodes.TABLESWITCH];
     addStart( o, attrs);
     for( int i = 0; i < labels.length; i++) {
       AttributesImpl att2 = new AttributesImpl();
@@ -149,7 +148,7 @@ public final class SAXCodeAdapter implements CodeVisitor {
   public final void visitLookupSwitchInsn( Label dflt, int[] keys, Label[] labels) {
     AttributesImpl att = new AttributesImpl();
     att.addAttribute( "", "dflt", "dflt", "", getLabel( dflt));
-    String o = PrintCodeVisitor.OPCODES[ Constants.LOOKUPSWITCH];
+    String o = PrintCodeVisitor.OPCODES[ Opcodes.LOOKUPSWITCH];
     addStart( o, att);
     for( int i = 0; i < labels.length; i++) {
       AttributesImpl att2 = new AttributesImpl();
@@ -164,7 +163,7 @@ public final class SAXCodeAdapter implements CodeVisitor {
     AttributesImpl attrs = new AttributesImpl();
     attrs.addAttribute( "", "desc", "desc", "", desc);
     attrs.addAttribute( "", "dims", "dims", "", Integer.toString( dims));
-    addElement( PrintCodeVisitor.OPCODES[ Constants.MULTIANEWARRAY], attrs);
+    addElement( PrintCodeVisitor.OPCODES[ Opcodes.MULTIANEWARRAY], attrs);
   }
 
   public final void visitTryCatchBlock( Label start, Label end, Label handler, String type) {

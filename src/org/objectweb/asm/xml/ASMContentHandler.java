@@ -38,8 +38,8 @@ import java.util.List;
 import java.util.Map;
 
 import org.objectweb.asm.ClassWriter;
-import org.objectweb.asm.CodeVisitor;
-import org.objectweb.asm.Constants;
+import org.objectweb.asm.MethodVisitor;
+import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Label;
 
 import org.xml.sax.Attributes;
@@ -57,7 +57,7 @@ import org.xml.sax.helpers.DefaultHandler;
  * 
  * @author Eugene Kuleshov
  */
-public class ASMContentHandler extends DefaultHandler implements Constants {
+public class ASMContentHandler extends DefaultHandler implements Opcodes {
   /**
    * Stack of the intermediate processing contexts.
    */
@@ -82,9 +82,9 @@ public class ASMContentHandler extends DefaultHandler implements Constants {
    */
   protected ClassWriter cw;
   /**
-   * Current instance of the {@link CodeVisitor CodeVisitor} used to write method bytecode
+   * Current instance of the {@link MethodVisitor CodeVisitor} used to write method bytecode
    */
-  protected CodeVisitor mw;
+  protected MethodVisitor mw;
   /**
    * Map of the active {@link Label Label} instances for current method.
    */
@@ -532,7 +532,7 @@ public class ASMContentHandler extends DefaultHandler implements Constants {
       return path;
     }
 
-    protected final CodeVisitor getCodeVisitor() {
+    protected final MethodVisitor getCodeVisitor() {
       if( mw==null) {
         Map vals = ( Map) pop();
         int access = Integer.parseInt(( String) vals.get( "access"), 16);
@@ -545,25 +545,25 @@ public class ASMContentHandler extends DefaultHandler implements Constants {
 
     protected final int getAccess( String s) {
       int access = 0;
-      if( s.indexOf( "public")!=-1) access |= Constants.ACC_PUBLIC;
-      if( s.indexOf( "private")!=-1) access |= Constants.ACC_PRIVATE;
-      if( s.indexOf( "protected")!=-1) access |= Constants.ACC_PROTECTED;
-      if( s.indexOf( "static")!=-1) access |= Constants.ACC_STATIC;
-      if( s.indexOf( "final")!=-1) access |= Constants.ACC_FINAL;
-      if( s.indexOf( "super")!=-1) access |= Constants.ACC_SUPER;
-      if( s.indexOf( "synchronized")!=-1) access |= Constants.ACC_SYNCHRONIZED;
-      if( s.indexOf( "volatile")!=-1) access |= Constants.ACC_VOLATILE;
-      if( s.indexOf( "bridge")!=-1) access |= Constants.ACC_BRIDGE;
-      if( s.indexOf( "varargs")!=-1) access |= Constants.ACC_VARARGS;
-      if( s.indexOf( "transient")!=-1) access |= Constants.ACC_TRANSIENT;
-      if( s.indexOf( "native")!=-1) access |= Constants.ACC_NATIVE;
-      if( s.indexOf( "interface")!=-1) access |= Constants.ACC_INTERFACE;
-      if( s.indexOf( "abstract")!=-1) access |= Constants.ACC_ABSTRACT;
-      if( s.indexOf( "strict")!=-1) access |= Constants.ACC_STRICT;
-      if( s.indexOf( "synthetic")!=-1) access |= Constants.ACC_SYNTHETIC;
-      if( s.indexOf( "annotation")!=-1) access |= Constants.ACC_ANNOTATION;
-      if( s.indexOf( "enum")!=-1) access |= Constants.ACC_ENUM;
-      if( s.indexOf( "deprecated")!=-1) access |= Constants.ACC_DEPRECATED;
+      if( s.indexOf( "public")!=-1) access |= Opcodes.ACC_PUBLIC;
+      if( s.indexOf( "private")!=-1) access |= Opcodes.ACC_PRIVATE;
+      if( s.indexOf( "protected")!=-1) access |= Opcodes.ACC_PROTECTED;
+      if( s.indexOf( "static")!=-1) access |= Opcodes.ACC_STATIC;
+      if( s.indexOf( "final")!=-1) access |= Opcodes.ACC_FINAL;
+      if( s.indexOf( "super")!=-1) access |= Opcodes.ACC_SUPER;
+      if( s.indexOf( "synchronized")!=-1) access |= Opcodes.ACC_SYNCHRONIZED;
+      if( s.indexOf( "volatile")!=-1) access |= Opcodes.ACC_VOLATILE;
+      if( s.indexOf( "bridge")!=-1) access |= Opcodes.ACC_BRIDGE;
+      if( s.indexOf( "varargs")!=-1) access |= Opcodes.ACC_VARARGS;
+      if( s.indexOf( "transient")!=-1) access |= Opcodes.ACC_TRANSIENT;
+      if( s.indexOf( "native")!=-1) access |= Opcodes.ACC_NATIVE;
+      if( s.indexOf( "interface")!=-1) access |= Opcodes.ACC_INTERFACE;
+      if( s.indexOf( "abstract")!=-1) access |= Opcodes.ACC_ABSTRACT;
+      if( s.indexOf( "strict")!=-1) access |= Opcodes.ACC_STRICT;
+      if( s.indexOf( "synthetic")!=-1) access |= Opcodes.ACC_SYNTHETIC;
+      if( s.indexOf( "annotation")!=-1) access |= Opcodes.ACC_ANNOTATION;
+      if( s.indexOf( "enum")!=-1) access |= Opcodes.ACC_ENUM;
+      if( s.indexOf( "deprecated")!=-1) access |= Opcodes.ACC_DEPRECATED;
       return access;
     }
     

@@ -40,12 +40,6 @@ package org.objectweb.asm;
 public class Label {
 
   /**
-   * The code writer to which this label belongs, or <tt>null</tt> if unknown.
-   */
-
-  CodeWriter owner;
-
-  /**
    * Indicates if the position of this label is known.
    */
 
@@ -94,7 +88,7 @@ public class Label {
   /**
    * The stack size at the beginning of this basic block.
    * This size is initially unknown. It is computed by the control flow
-   * analysis algorithm (see {@link CodeWriter#visitMaxs visitMaxs}).
+   * analysis algorithm (see {@link MethodWriter#visitMaxs visitMaxs}).
    */
 
   int beginStackSize;
@@ -118,14 +112,14 @@ public class Label {
 
   /**
    * The next basic block in the basic block stack.
-   * See {@link CodeWriter#visitMaxs visitMaxs}.
+   * See {@link MethodWriter#visitMaxs visitMaxs}.
    */
 
   Label next;
 
   /**
    * <tt>true</tt> if this basic block has been pushed in the basic block stack.
-   * See {@link CodeWriter#visitMaxs visitMaxs}.
+   * See {@link MethodWriter#visitMaxs visitMaxs}.
    */
 
   boolean pushed;
@@ -180,18 +174,11 @@ public class Label {
    */
 
   void put (
-    final CodeWriter owner,
+    final MethodWriter owner,
     final ByteVector out,
     final int source,
     final boolean wideOffset)
   {
-    if (CodeWriter.CHECK) {
-      if (this.owner == null) {
-        this.owner = owner;
-      } else if (this.owner != owner) {
-        throw new IllegalArgumentException();
-      }
-    }
     if (resolved) {
       if (wideOffset) {
         out.putInt(position - source);
@@ -251,24 +238,16 @@ public class Label {
    *      is replaced with a pseudo instruction (using unused opcodes) using an
    *      unsigned two bytes offset. These pseudo instructions will need to be
    *      replaced with true instructions with wider offsets (4 bytes instead of
-   *      2). This is done in {@link CodeWriter#resizeInstructions}.
+   *      2). This is done in {@link MethodWriter#resizeInstructions}.
    * @throws IllegalArgumentException if this label has already been resolved,
    *      or if it has not been created by the given code writer.
    */
 
   boolean resolve (
-    final CodeWriter owner,
+    final MethodWriter owner,
     final int position,
     final byte[] data)
   {
-    if (CodeWriter.CHECK) {
-      if (this.owner == null) {
-        this.owner = owner;
-      }
-      if (resolved || this.owner != owner) {
-        throw new IllegalArgumentException();
-      }
-    }
     boolean needUpdate = false;
     this.resolved = true;
     this.position = position;
@@ -281,13 +260,13 @@ public class Label {
         offset = position - source;
         if (offset < Short.MIN_VALUE || offset > Short.MAX_VALUE) {
           // changes the opcode of the jump instruction, in order to be able to
-          // find it later (see resizeInstructions in CodeWriter). These
+          // find it later (see resizeInstructions in MethodWriter). These
           // temporary opcodes are similar to jump instruction opcodes, except
           // that the 2 bytes offset is unsigned (and can therefore represent
           // values from 0 to 65535, which is sufficient since the size of a
           // method is limited to 65535 bytes).
           int opcode = data[reference - 1] & 0xFF;
-          if (opcode <= Constants.JSR) {
+          if (opcode <= Opcodes.JSR) {
             // changes IFEQ ... JSR to opcodes 202 to 217 (inclusive)
             data[reference - 1] = (byte)(opcode + 49);
           } else {

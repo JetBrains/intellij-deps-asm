@@ -118,7 +118,7 @@ public class RoundtripTest extends TestCase {
   private static void traceBytecode( byte[] classData, PrintWriter pw) {
     ClassReader cr = new ClassReader( classData);
     // cr.accept( new TraceClassVisitor( cw, new PrintWriter( System.out)), 
-    cr.accept( new TraceClassVisitor( null, pw), false);
+    cr.accept( new TraceClassVisitor(pw), false);
   }
 
   private static byte[] getCode( InputStream is) throws IOException {

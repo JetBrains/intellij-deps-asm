@@ -29,8 +29,8 @@
  */
 
 import org.objectweb.asm.ClassWriter;
-import org.objectweb.asm.CodeVisitor;
-import org.objectweb.asm.Constants;
+import org.objectweb.asm.MethodVisitor;
+import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Label;
 
 import java.io.FileOutputStream;
@@ -69,7 +69,7 @@ public class Compile extends ClassLoader {
  * @author Eric Bruneton
  */
 
-abstract class Exp implements Constants {
+abstract class Exp implements Opcodes {
 
   /*
    * Returns the byte code of an Expression class corresponding to this
@@ -80,23 +80,25 @@ abstract class Exp implements Constants {
     // class header
     String[] itfs = {Expression.class.getName()};
     ClassWriter cw = new ClassWriter(true);
-    cw.visit(V1_1, ACC_PUBLIC, name, "java/lang/Object", itfs, null);
+    cw.visit(V1_1, ACC_PUBLIC, name, null, "java/lang/Object", itfs);
 
     // default public constructor
-    CodeVisitor mw = cw.visitMethod(ACC_PUBLIC, "<init>", "()V", null, null);
-    mw.visitVarInsn(ALOAD, 0);
-    mw.visitMethodInsn(
+    MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "<init>", "()V", null, null);
+    mv.visitVarInsn(ALOAD, 0);
+    mv.visitMethodInsn(
       INVOKESPECIAL,
       "java/lang/Object", "<init>", "()V");
-    mw.visitInsn(RETURN);
-    mw.visitMaxs(1, 1);
+    mv.visitInsn(RETURN);
+    mv.visitMaxs(1, 1);
+    mv.visitEnd();
 
     // eval method
-    mw = cw.visitMethod(ACC_PUBLIC, "eval", "(II)I", null, null);
-    compile(mw);
-    mw.visitInsn(IRETURN);
+    mv = cw.visitMethod(ACC_PUBLIC, "eval", "(II)I", null, null);
+    compile(mv);
+    mv.visitInsn(IRETURN);
     // max stack and max locals automatically computed
-    mw.visitMaxs(0, 0);
+    mv.visitMaxs(0, 0);
+    mv.visitEnd();
 
     return cw.toByteArray();
   }
@@ -107,7 +109,7 @@ abstract class Exp implements Constants {
    * value of this expression.
    */
 
-  abstract void compile (CodeVisitor mw);
+  abstract void compile (MethodVisitor mv);
 }
 
 /**
@@ -122,9 +124,9 @@ class Cst extends Exp {
     this.value = value;
   }
 
-  void compile (CodeVisitor mw) {
+  void compile (MethodVisitor mv) {
     // pushes the constant's value onto the stack
-    mw.visitLdcInsn(new Integer(value));
+    mv.visitLdcInsn(new Integer(value));
   }
 }
 
@@ -140,9 +142,9 @@ class Var extends Exp {
     this.index = index + 1;
   }
 
-  void compile (CodeVisitor mb) {
+  void compile (MethodVisitor mv) {
     // pushes the 'index' local variable onto the stack
-    mb.visitVarInsn(ILOAD, index);
+    mv.visitVarInsn(ILOAD, index);
   }
 }
 
@@ -171,11 +173,11 @@ class Add extends BinaryExp {
     super(e1, e2);
   }
 
-  void compile (CodeVisitor mw) {
+  void compile (MethodVisitor mv) {
     // compiles e1, e2, and adds an instruction to add the two values
-    e1.compile(mw);
-    e2.compile(mw);
-    mw.visitInsn(IADD);
+    e1.compile(mv);
+    e2.compile(mv);
+    mv.visitInsn(IADD);
   }
 }
 
@@ -189,11 +191,11 @@ class Mul extends BinaryExp {
     super(e1, e2);
   }
 
-  void compile (CodeVisitor mb) {
+  void compile (MethodVisitor mv) {
     // compiles e1, e2, and adds an instruction to multiply the two values
-    e1.compile(mb);
-    e2.compile(mb);
-    mb.visitInsn(IMUL);
+    e1.compile(mv);
+    e2.compile(mv);
+    mv.visitInsn(IMUL);
   }
 }
 
@@ -207,20 +209,20 @@ class GT extends BinaryExp {
     super(e1, e2);
   }
 
-  void compile (CodeVisitor mw) {
+  void compile (MethodVisitor mv) {
     // compiles e1, e2, and adds the instructions to compare the two values
-    e1.compile(mw);
-    e2.compile(mw);
+    e1.compile(mv);
+    e2.compile(mv);
     Label iftrue = new Label();
     Label end = new Label();
-    mw.visitJumpInsn(IF_ICMPGT, iftrue);
+    mv.visitJumpInsn(IF_ICMPGT, iftrue);
     // case where e1 <= e2 : pushes false and jump to "end"
-    mw.visitInsn(ICONST_0);
-    mw.visitJumpInsn(GOTO, end);
+    mv.visitLdcInsn(new Integer(0));
+    mv.visitJumpInsn(GOTO, end);
     // case where e1 > e2 : pushes true
-    mw.visitLabel(iftrue);
-    mw.visitInsn(ICONST_1);
-    mw.visitLabel(end);
+    mv.visitLabel(iftrue);
+    mv.visitLdcInsn(new Integer(1));
+    mv.visitLabel(end);
   }
 }
 
@@ -234,19 +236,19 @@ class And extends BinaryExp {
     super(e1, e2);
   }
 
-  void compile (CodeVisitor mw) {
+  void compile (MethodVisitor mv) {
     // compiles e1
-    e1.compile(mw);
+    e1.compile(mv);
     // tests if e1 is false
-    mw.visitInsn(DUP);
+    mv.visitInsn(DUP);
     Label end = new Label();
-    mw.visitJumpInsn(IFEQ, end);
+    mv.visitJumpInsn(IFEQ, end);
     // case where e1 is true : e1 && e2 is equal to e2
-    mw.visitInsn(POP);
-    e2.compile(mw);
+    mv.visitInsn(POP);
+    e2.compile(mv);
     // if e1 is false, e1 && e2 is equal to e1:
     //   we jump directly to this label, without evaluating e2
-    mw.visitLabel(end);
+    mv.visitLabel(end);
   }
 }
 
@@ -260,19 +262,19 @@ class Or extends BinaryExp {
     super(e1, e2);
   }
 
-  void compile (CodeVisitor mw) {
+  void compile (MethodVisitor mv) {
     // compiles e1
-    e1.compile(mw);
+    e1.compile(mv);
     // tests if e1 is true
-    mw.visitInsn(DUP);
+    mv.visitInsn(DUP);
     Label end = new Label();
-    mw.visitJumpInsn(IFNE, end);
+    mv.visitJumpInsn(IFNE, end);
     // case where e1 is false : e1 || e2 is equal to e2
-    mw.visitInsn(POP);
-    e2.compile(mw);
+    mv.visitInsn(POP);
+    e2.compile(mv);
     // if e1 is true, e1 || e2 is equal to e1:
     //   we jump directly to this label, without evaluating e2
-    mw.visitLabel(end);
+    mv.visitLabel(end);
   }
 }
 
@@ -288,10 +290,10 @@ class Not extends Exp {
     this.e = e;
   }
 
-  void compile (CodeVisitor mw) {
+  void compile (MethodVisitor mv) {
     // computes !e1 by evaluating 1 - e1
-    mw.visitInsn(ICONST_1);
-    e.compile(mw);
-    mw.visitInsn(ISUB);
+    mv.visitLdcInsn(new Integer(1));
+    e.compile(mv);
+    mv.visitInsn(ISUB);
   }
 }

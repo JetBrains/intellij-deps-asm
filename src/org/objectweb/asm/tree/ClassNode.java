@@ -30,8 +30,12 @@
 
 package org.objectweb.asm.tree;
 
-import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.Attribute;
+import org.objectweb.asm.ClassVisitor;
+import org.objectweb.asm.MethodVisitor;
+import org.objectweb.asm.FieldVisitor;
+import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.Type;
 
 import java.util.List;
 import java.util.ArrayList;
@@ -39,45 +43,51 @@ import java.util.Arrays;
 
 /**
  * A node that represents a class.
- * 
+ *
  * @author Eric Bruneton
  */
 
-public class ClassNode {
+public class ClassNode extends MemberNode implements ClassVisitor {
 
   /**
    * The class version.
    */
-  
+
   public int version;
-  
+
   /**
-   * The class's access flags (see {@link org.objectweb.asm.Constants}). This
+   * The class's access flags (see {@link Opcodes}). This
    * field also indicates if the class is deprecated.
    */
 
   public int access;
 
   /**
-   * The internal name of the class (see {@link
-   * org.objectweb.asm.Type#getInternalName() getInternalName}).
+   * The internal name of the class (see
+   * {@link Type#getInternalName() getInternalName}).
    */
 
   public String name;
 
   /**
-   * The internal of name of the super class (see {@link
-   * org.objectweb.asm.Type#getInternalName() getInternalName}). For interfaces,
+   * The signature of the class. Mayt be <tt>null</tt>.
+   */
+
+  public String signature;
+
+  /**
+   * The internal of name of the super class (see
+   * {@link Type#getInternalName() getInternalName}). For interfaces,
    * the super class is {@link Object}. May be <tt>null</tt>, but only for the
-   * {@link Object java.lang.Object} class.
+   * {@link Object} class.
    */
 
   public String superName;
 
   /**
-   * The internal names of the class's interfaces (see {@link
-   * org.objectweb.asm.Type#getInternalName() getInternalName}). This list is a
-   * list of {@link String} objects.
+   * The internal names of the class's interfaces (see
+   * {@link Type#getInternalName() getInternalName}). This list is a list of
+   * {@link String} objects.
    */
 
   public final List interfaces;
@@ -90,72 +100,142 @@ public class ClassNode {
   public String sourceFile;
 
   /**
+   * Debug information to compute the correspondance between source and
+   * compiled elements of the class. May be <tt>null</tt>.
+   */
+
+  public String sourceDebug;
+
+  /**
+   * The internal name of the enclosing class of the class. May be
+   * <tt>null</tt>.
+   */
+
+  public String outerClass;
+
+  /**
+   * The name of the method that contains the class, or <tt>null</tt> if the
+   * class is not enclosed in a method.
+   */
+
+  public String outerMethod;
+
+  /**
+   * The descriptor of the method that contains the class, or <tt>null</tt>
+   * if the class is not enclosed in a method.
+   */
+
+  public String outerMethodDesc;
+
+  /**
    * Informations about the inner classes of this class. This list is a list of
-   * {@link InnerClassNode InnerClassNode} objects.
+   * {@link InnerClassNode} objects.
    */
 
   public final List innerClasses;
 
   /**
-   * The fields of this class. This list is a list of {@link FieldNode
-   * FieldNode} objects.
+   * The fields of this class. This list is a list of {@link FieldNode} objects.
    */
 
   public final List fields;
 
   /**
-   * The methods of this class. This list is a list of {@link MethodNode
-   * MethodNode} objects.
+   * The methods of this class. This list is a list of {@link MethodNode}
+   * objects.
    */
 
   public final List methods;
 
   /**
-   * The non standard attributes of the class.
+   * Constructs a new {@link ClassNode}.
    */
 
-  public Attribute attrs;
+  public ClassNode () {
+    this.interfaces = new ArrayList();
+    this.innerClasses = new ArrayList();
+    this.fields = new ArrayList();
+    this.methods = new ArrayList();
+    this.attrs = new ArrayList();
+  }
 
-  /**
-   * Constructs a new {@link ClassNode ClassNode} object.
-   *
-   * @param version the class version.
-   * @param access the class's access flags (see {@link
-   *      org.objectweb.asm.Constants}). This parameter also indicates if the
-   *      class is deprecated.
-   * @param name the internal name of the class (see {@link
-   *      org.objectweb.asm.Type#getInternalName() getInternalName}).
-   * @param superName the internal of name of the super class (see {@link
-   *      org.objectweb.asm.Type#getInternalName() getInternalName}). For
-   *      interfaces, the super class is {@link Object}.
-   * @param interfaces the internal names of the class's interfaces (see {@link
-   *      org.objectweb.asm.Type#getInternalName() getInternalName}). May be
-   *      <tt>null</tt>.
-   * @param sourceFile the name of the source file from which this class was
-   *      compiled. May be <tt>null</tt>.
-   */
+  // --------------------------------------------------------------------------
+  // Implementation of the ClassVisitor interface
+  // --------------------------------------------------------------------------
 
-  public ClassNode (
+  public void visit (
     final int version,
     final int access,
     final String name,
+    final String signature,
     final String superName,
-    final String[] interfaces,
-    final String sourceFile)
+    final String[] interfaces)
   {
     this.version = version;
     this.access = access;
     this.name = name;
+    this.signature = signature;
     this.superName = superName;
-    this.interfaces = new ArrayList();
-    this.sourceFile = sourceFile;
-    this.innerClasses = new ArrayList();
-    this.fields = new ArrayList();
-    this.methods = new ArrayList();
     if (interfaces != null) {
       this.interfaces.addAll(Arrays.asList(interfaces));
     }
   }
+
+  public void visitSource (final String file, final String debug) {
+    sourceFile = file;
+    sourceDebug = debug;
+  }
+
+  public void visitOuterClass (
+    final String owner,
+    final String name,
+    final String desc)
+  {
+    outerClass = owner;
+    outerMethod = name;
+    outerMethodDesc = desc;
+  }
+
+  public void visitInnerClass (
+    final String name,
+    final String outerName,
+    final String innerName,
+    final int access)
+  {
+    InnerClassNode icn = new InnerClassNode(name, outerName, innerName, access);
+    innerClasses.add(icn);
+  }
+
+  public FieldVisitor visitField (
+    final int access,
+    final String name,
+    final String desc,
+    final String signature,
+    final Object value)
+  {
+    FieldNode fn = new FieldNode(access, name, desc, signature, value);
+    fields.add(fn);
+    return fn;
+  }
+
+  public MethodVisitor visitMethod (
+    final int access,
+    final String name,
+    final String desc,
+    final String signature,
+    final String[] exceptions)
+  {
+    MethodNode mn = new MethodNode(access, name, desc, signature, exceptions);
+    methods.add(mn);
+    return mn;
+  }
+
+  public void visitEnd () {
+  }
+
+  // --------------------------------------------------------------------------
+  // Accept method
+  // --------------------------------------------------------------------------
 
   /**
    * Makes the given class visitor visit this class.
@@ -167,9 +247,29 @@ public class ClassNode {
     // visits header
     String[] interfaces = new String[this.interfaces.size()];
     this.interfaces.toArray(interfaces);
-    cv.visit(version, access, name, superName, interfaces, sourceFile);
-    // visits inner classes
+    cv.visit(version, access, name, signature, superName, interfaces);
+    // visits source
+    if (sourceFile != null || sourceDebug != null) {
+      cv.visitSource(sourceFile, sourceDebug);
+    }
+    // visits outer class
+    if (outerClass != null) {
+      cv.visitOuterClass(outerClass, outerMethod, outerMethodDesc);
+    }
+    // visits attributes
     int i;
+    for (i = 0; i < visibleAnnotations.size(); ++i) {
+      AnnotationNode an = (AnnotationNode)visibleAnnotations.get(i);
+      an.accept(cv.visitAnnotation(an.desc, true));
+    }
+    for (i = 0; i < invisibleAnnotations.size(); ++i) {
+      AnnotationNode an = (AnnotationNode)invisibleAnnotations.get(i);
+      an.accept(cv.visitAnnotation(an.desc, false));
+    }
+    for (i = 0; i < attrs.size(); ++i) {
+      cv.visitAttribute((Attribute)attrs.get(i));
+    }
+    // visits inner classes
     for (i = 0; i < innerClasses.size(); ++i) {
       ((InnerClassNode)innerClasses.get(i)).accept(cv);
     }
@@ -180,12 +280,6 @@ public class ClassNode {
     // visits methods
     for (i = 0; i < methods.size(); ++i) {
       ((MethodNode)methods.get(i)).accept(cv);
-    }
-    // visits attributes
-    Attribute attrs = this.attrs;
-    while (attrs != null) {
-      cv.visitAttribute(attrs);
-      attrs = attrs.next;
     }
     // visits end
     cv.visitEnd();

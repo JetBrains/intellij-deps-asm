@@ -33,17 +33,18 @@ package org.objectweb.asm.util;
 import java.io.FileInputStream;
 import java.io.PrintWriter;
 
-import org.objectweb.asm.Attribute;
+import org.objectweb.asm.AnnotationVisitor;
 import org.objectweb.asm.ClassReader;
-import org.objectweb.asm.CodeVisitor;
-import org.objectweb.asm.Constants;
+import org.objectweb.asm.ClassVisitor;
+import org.objectweb.asm.FieldVisitor;
+import org.objectweb.asm.MethodVisitor;
+import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
-import org.objectweb.asm.util.attrs.ASMifiable;
 
 /**
- * A {@link PrintClassVisitor PrintClassVisitor} that prints the ASM code that
- * generates the classes it visits. This class visitor can be used to quickly
- * write ASM code to generate some given bytecode:
+ * A {@link ClassVisitor} that prints the ASM code that generates the classes
+ * it visits. This class visitor can be used to quickly write ASM code to
+ * generate some given bytecode:
  * <ul>
  * <li>write the Java source code equivalent to the bytecode you want to
  * generate;</li>
@@ -58,37 +59,39 @@ import org.objectweb.asm.util.attrs.ASMifiable;
  * <blockquote>
  * <pre>
  * import org.objectweb.asm.*;
- * import java.io.FileOutputStream;
- *
- * public class Dump implements Constants {
- *
- * public static void main (String[] args) throws Exception {
- *
+ * public class HelloDump implements Opcodes {
+ * 
+ * public static byte[] dump () throws Exception {
+ * 
  * ClassWriter cw = new ClassWriter(false);
- * CodeVisitor cv;
- *
- * cw.visit(ACC_PUBLIC + ACC_SUPER, "Hello", "java/lang/Object", null, "Hello.java");
- *
+ * FieldVisitor fv;
+ * MethodVisitor mv;
+ * AnnotationVisitor av0;
+ * 
+ * cw.visit(49, ACC_PUBLIC + ACC_SUPER, "Hello", null, "java/lang/Object", null);
+ * 
+ * cw.visitSource("Hello.java", null);
+ * 
  * {
- * cv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC, "main", "([Ljava/lang/String;)V", null, null);
- * cv.visitFieldInsn(GETSTATIC, "java/lang/System", "out", "Ljava/io/PrintStream;");
- * cv.visitLdcInsn("hello");
- * cv.visitMethodInsn(INVOKEVIRTUAL, "java/io/PrintStream", "println", "(Ljava/lang/String;)V");
- * cv.visitInsn(RETURN);
- * cv.visitMaxs(2, 1);
+ * mv = cw.visitMethod(ACC_PUBLIC, "<init>", "()V", null, null);
+ * mv.visitVarInsn(ALOAD, 0);
+ * mv.visitMethodInsn(INVOKESPECIAL, "java/lang/Object", "<init>", "()V");
+ * mv.visitInsn(RETURN);
+ * mv.visitMaxs(1, 1);
+ * mv.visitEnd();
  * }
  * {
- * cv = cw.visitMethod(ACC_PUBLIC, "&lt;init&gt;", "()V", null, null);
- * cv.visitVarInsn(ALOAD, 0);
- * cv.visitMethodInsn(INVOKESPECIAL, "java/lang/Object", "&lt;init&gt;", "()V");
- * cv.visitInsn(RETURN);
- * cv.visitMaxs(1, 1);
+ * mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC, "main", "([Ljava/lang/String;)V", null, null);
+ * mv.visitFieldInsn(GETSTATIC, "java/lang/System", "out", "Ljava/io/PrintStream;");
+ * mv.visitLdcInsn("hello");
+ * mv.visitMethodInsn(INVOKEVIRTUAL, "java/io/PrintStream", "println", "(Ljava/lang/String;)V");
+ * mv.visitInsn(RETURN);
+ * mv.visitMaxs(2, 1);
+ * mv.visitEnd();
  * }
  * cw.visitEnd();
- *
- * FileOutputStream os = new FileOutputStream("Dumped.class");
- * os.write(cw.toByteArray());
- * os.close();
+ * 
+ * return cw.toByteArray();
  * }
  * }
  * </pre>
@@ -105,15 +108,38 @@ import org.objectweb.asm.util.attrs.ASMifiable;
  * }
  * </pre>
  * </blockquote>
- * 
- * @author Eric Bruneton, Eugene Kuleshov
+ *
+ * @author Eric Bruneton
+ * @author Eugene Kuleshov
  */
 
-public class ASMifierClassVisitor extends PrintClassVisitor {
+public class ASMifierClassVisitor extends ASMifierAbstractVisitor
+  implements ClassVisitor
+{
 
-  private static final int ACCESS_CLASS = 262144;
-  private static final int ACCESS_FIELD = 524288;
+  /**
+   * Pseudo access flag used to distinguish class access flags.
+   */
+
+  private final static int ACCESS_CLASS = 262144;
+
+  /**
+   * Pseudo access flag used to distinguish field access flags.
+   */
+
+  private final static int ACCESS_FIELD = 524288;
+
+  /**
+   * Pseudo access flag used to distinguish inner class flags.
+   */
+   
   private static final int ACCESS_INNER = 1048576;
+
+  /**
+   * The print writer to be used to print the class.
+   */
+
+  protected final PrintWriter pw;
 
   /**
    * Prints the ASM source code to generate the given class to the standard
@@ -129,17 +155,25 @@ public class ASMifierClassVisitor extends PrintClassVisitor {
    */
 
   public static void main (final String[] args) throws Exception {
-    if (args.length < 1 || args.length > 2) {
-      printUsage();
-    }
     int i = 0;
     boolean skipDebug = true;
-    if (args[0].equals("-debug")) {
+
+    boolean ok = true;
+    if (args.length < 1 || args.length > 2) {
+      ok = false;
+    }
+    if (ok && args[0].equals("-debug")) {
       i = 1;
       skipDebug = false;
       if (args.length != 2) {
-        printUsage();
+        ok = false;
       }
+    }
+    if (!ok) {
+      System.err.println("Prints the ASM code to generate the given class.");
+      System.err.println("Usage: ASMifierClassVisitor [-debug] " +
+                         "<fully qualified class name or class file name>");
+      System.exit(-1);
     }
     ClassReader cr;
     if (args[i].endsWith(".class")) {
@@ -151,13 +185,6 @@ public class ASMifierClassVisitor extends PrintClassVisitor {
       new PrintWriter(System.out)), getDefaultAttributes(), skipDebug);
   }
 
-  private static void printUsage () {
-    System.err.println("Prints the ASM code to generate the given class.");
-    System.err.println("Usage: ASMifierClassVisitor [-debug] " +
-                       "<fully qualified class name or class file name>");
-    System.exit(-1);
-  }
-
   /**
    * Constructs a new {@link ASMifierClassVisitor} object.
    *
@@ -165,53 +192,56 @@ public class ASMifierClassVisitor extends PrintClassVisitor {
    */
 
   public ASMifierClassVisitor (final PrintWriter pw) {
-    super(pw);
+    super("cw");
+    this.pw = pw;
   }
+
+  // --------------------------------------------------------------------------
+  // Implementation of the ClassVisitor interface
+  // --------------------------------------------------------------------------
 
   public void visit (
     final int version,
     final int access,
     final String name,
+    final String signature,
     final String superName,
-    final String[] interfaces,
-    final String sourceFile)
+    final String[] interfaces)
   {
-    int n = name.lastIndexOf( "/");
-    if( n>-1) {
-      text.add("package asm."+name.substring( 0, n).replace( '/', '.')+";\n");
+    String simpleName;
+    int n = name.lastIndexOf('/');
+    if (n != -1) {
+      text.add("package asm." + name.substring(0, n).replace('/', '.') + ";\n");
+      simpleName = name.substring(n+1); 
+    } else {
+      simpleName = name;
     }
-    
     text.add("import org.objectweb.asm.*;\n");
-    text.add("import org.objectweb.asm.attrs.*;\n");
-    text.add("import java.util.*;\n\n");
-    text.add("public class "+(n==-1 ? name : name.substring( n+1))+"Dump implements Constants {\n\n");
+    text.add("public class " + simpleName + "Dump implements Opcodes {\n\n");
     text.add("public static byte[] dump () throws Exception {\n\n");
     text.add("ClassWriter cw = new ClassWriter(false);\n");
-    text.add("CodeVisitor cv;\n\n");
+    text.add("FieldVisitor fv;\n");
+    text.add("MethodVisitor mv;\n");
+    text.add("AnnotationVisitor av0;\n\n");
 
     buf.setLength(0);
     buf.append("cw.visit(");    
     switch(version) {
-      case Constants.V1_1:
+      case Opcodes.V1_1:
         buf.append("V1_1");
         break;
-      
-      case Constants.V1_2:
+      case Opcodes.V1_2:
         buf.append("V1_2");
         break;
-      
-      case Constants.V1_3:
+      case Opcodes.V1_3:
         buf.append("V1_3");
         break;
-      
-      case Constants.V1_4:
+      case Opcodes.V1_4:
         buf.append("V1_4");
         break;
-      
-      case Constants.V1_5:
+      case Opcodes.V1_5:
         buf.append("V1_5");
         break;
-  
       default:
         buf.append(version);
         break;
@@ -219,22 +249,48 @@ public class ASMifierClassVisitor extends PrintClassVisitor {
     buf.append(", ");
     appendAccess(access | ACCESS_CLASS);
     buf.append(", ");
-    appendConstant(buf, name);
+    appendConstant(name);
     buf.append(", ");
-    appendConstant(buf, superName);
+    appendConstant(signature);
+    buf.append(", ");
+    appendConstant(superName);
     buf.append(", ");
     if (interfaces != null && interfaces.length > 0) {
       buf.append("new String[] {");
       for (int i = 0; i < interfaces.length; ++i) {
         buf.append(i == 0 ? " " : ", ");
-        appendConstant(buf, interfaces[i]);
+        appendConstant(interfaces[i]);
       }
       buf.append(" }");
     } else {
       buf.append("null");
     }
+    buf.append(");\n\n");
+    text.add(buf.toString());
+  }
+
+  public void visitSource (final String file, final String debug) {
+    buf.setLength(0);
+    buf.append("cw.visitSource(");
+    appendConstant(file);
     buf.append(", ");
-    appendConstant(buf, sourceFile);
+    appendConstant(debug);
+    buf.append(");\n\n");
+    text.add(buf.toString());
+  }
+
+  public void visitOuterClass (
+    final String owner,
+    final String name,
+    final String desc)
+  {
+    buf.setLength(0);
+    buf.append("cw.visitOuterClass(");
+    appendConstant(owner);
+    buf.append(", ");
+    appendConstant(name);
+    buf.append(", ");
+    appendConstant(desc);
     buf.append(");\n\n");
     text.add(buf.toString());
   }
@@ -247,150 +303,110 @@ public class ASMifierClassVisitor extends PrintClassVisitor {
   {
     buf.setLength(0);
     buf.append("cw.visitInnerClass(");
-    appendConstant(buf, name);
+    appendConstant(name);
     buf.append(", ");
-    appendConstant(buf, outerName);
+    appendConstant(outerName);
     buf.append(", ");
-    appendConstant(buf, innerName);
+    appendConstant(innerName);
     buf.append(", ");
     appendAccess(access | ACCESS_INNER);
     buf.append(");\n\n");
     text.add(buf.toString());
   }
 
-  public void visitField (
+  public FieldVisitor visitField (
     final int access,
     final String name,
     final String desc,
-    final Object value,
-    final Attribute attrs)
+    final String signature,
+    final Object value)
   {
     buf.setLength(0);
-
-    int n = 1;
-    if (attrs != null) {
-      buf.append("{\n");
-      buf.append("// FIELD ATTRIBUTES\n");
-      Attribute a = attrs;
-      while (a != null) {
-        if (a instanceof ASMifiable) {
-          ((ASMifiable)a).asmify(buf, "fieldAttrs" + n, null);
-          if (n > 1) {
-            buf.append("fieldAttrs" + (n - 1) + " = fieldAttrs" + n + ";\n");
-          }
-	      n++;
-        } else {
-          buf.append("// WARNING! skipped non standard field attribute of type ");
-          buf.append(a.type).append("\n");
-        }
-        a = a.next;
-      }
-    }
-
-    buf.append("cw.visitField(");
+    buf.append("{\n");
+    buf.append("fv = cw.visitField(");
     appendAccess(access | ACCESS_FIELD);
     buf.append(", ");
-    appendConstant(buf, name);
+    appendConstant(name);
     buf.append(", ");
-    appendConstant(buf, desc);
+    appendConstant(desc);
     buf.append(", ");
-    appendConstant(buf, value);
-
-    if (n==1) {
-      buf.append(", null);\n\n");
-    } else {
-      buf.append(", fieldAttrs1);\n");
-      buf.append("}\n\n");
-    }
-
+    appendConstant(signature);
+    buf.append(", ");
+    appendConstant(value);
+    buf.append(");\n");
     text.add(buf.toString());
+    ASMifierFieldVisitor aav = new ASMifierFieldVisitor();
+    text.add(aav.getText());
+    text.add("}\n");
+    return aav;
   }
 
-  public CodeVisitor visitMethod (
+  public MethodVisitor visitMethod (
     final int access,
     final String name,
     final String desc,
-    final String[] exceptions,
-    final Attribute attrs)
+    final String signature,
+    final String[] exceptions)
   {
     buf.setLength(0);
-
     buf.append("{\n");
-
-    int n = 1;
-    if (attrs != null) {
-      buf.append("// METHOD ATTRIBUTES\n");
-      Attribute a = attrs;
-      while (a != null) {
-        if (a instanceof ASMifiable) {
-          ((ASMifiable)a).asmify(buf, "methodAttrs" + n, null);
-          if (n > 1) {
-            buf.append("methodAttrs" + (n - 1) + ".next = methodAttrs" + n + ";\n");
-          }
-          n++;
-        } else {
-          buf.append("// WARNING! skipped non standard method attribute of type ");
-          buf.append(a.type).append("\n");
-        }
-        a = a.next;
-      }
-    }
-
-    buf.append("cv = cw.visitMethod(");
+    buf.append("mv = cw.visitMethod(");
     appendAccess(access);
     buf.append(", ");
-    appendConstant(buf, name);
+    appendConstant(name);
     buf.append(", ");
-    appendConstant(buf, desc);
+    appendConstant(desc);
+    buf.append(", ");
+    appendConstant(signature);
     buf.append(", ");
     if (exceptions != null && exceptions.length > 0) {
       buf.append("new String[] {");
       for (int i = 0; i < exceptions.length; ++i) {
         buf.append(i == 0 ? " " : ", ");
-        appendConstant(buf, exceptions[i]);
+        appendConstant(exceptions[i]);
       }
       buf.append(" }");
     } else {
       buf.append("null");
     }
-    if (n==1) {
-      buf.append(", null);\n");
-    } else {
-      buf.append(", methodAttrs1);\n");
-    }
-
+    buf.append(");\n");
     text.add(buf.toString());
-    PrintCodeVisitor pcv = new ASMifierCodeVisitor();
-    text.add(pcv.getText());
+    ASMifierMethodVisitor acv = new ASMifierMethodVisitor();
+    text.add(acv.getText());
     text.add("}\n");
-    return pcv;
+    return acv;
   }
 
-  public void visitAttribute (final Attribute attr) {
+  public AnnotationVisitor visitAnnotation (
+    final String desc,
+    final boolean visible)
+  {
     buf.setLength(0);
-    if (attr instanceof ASMifiable) {
-      buf.append("{\n");
-      buf.append("// CLASS ATRIBUTE\n");
-      ((ASMifiable)attr).asmify(buf, "attr", null);
-      buf.append("cw.visitAttribute(attr);\n");
-      buf.append("}\n");
-    } else {
-      buf.append("// WARNING! skipped a non standard class attribute of type \"");
-      buf.append(attr.type).append("\"\n");
-    }
+    buf.append("{\n");
+    buf.append("av0 = cw.visitAnnotation(");
+    appendConstant(desc);
+    buf.append(", ");
+    buf.append(visible);
+    buf.append(");\n");
     text.add(buf.toString());
+    ASMifierAnnotationVisitor av = new ASMifierAnnotationVisitor(0);
+    text.add(av.getText());
+    text.add("}\n");
+    return av;
   }
 
   public void visitEnd () {
     text.add("cw.visitEnd();\n\n");
-    // text.add("FileOutputStream os = new FileOutputStream(\"Dumped.class\");\n");
-    // text.add("os.write(cw.toByteArray());\n");
-    // text.add("os.close();\n");
     text.add("return cw.toByteArray();\n");
     text.add("}\n");
     text.add("}\n");
-    super.visitEnd();
+    printList(pw, text);
+    pw.flush();
   }
+
+  // --------------------------------------------------------------------------
+  // Utility methods
+  // --------------------------------------------------------------------------
 
   /**
    * Appends a string representation of the given access modifiers to {@link
@@ -401,39 +417,39 @@ public class ASMifierClassVisitor extends PrintClassVisitor {
 
   void appendAccess (final int access) {
     boolean first = true;
-    if ((access & Constants.ACC_PUBLIC) != 0) {
+    if ((access & Opcodes.ACC_PUBLIC) != 0) {
       buf.append("ACC_PUBLIC");
       first = false;
     }
-    if ((access & Constants.ACC_PRIVATE) != 0) {
+    if ((access & Opcodes.ACC_PRIVATE) != 0) {
       if (!first) {
         buf.append(" + ");
       }
       buf.append("ACC_PRIVATE");
       first = false;
     }
-    if ((access & Constants.ACC_PROTECTED) != 0) {
+    if ((access & Opcodes.ACC_PROTECTED) != 0) {
       if (!first) {
         buf.append(" + ");
       }
       buf.append("ACC_PROTECTED");
       first = false;
     }
-    if ((access & Constants.ACC_FINAL) != 0) {
+    if ((access & Opcodes.ACC_FINAL) != 0) {
       if (!first) {
         buf.append(" + ");
       }
       buf.append("ACC_FINAL");
       first = false;
     }
-    if ((access & Constants.ACC_STATIC) != 0) {
+    if ((access & Opcodes.ACC_STATIC) != 0) {
       if (!first) {
         buf.append(" + ");
       }
       buf.append("ACC_STATIC");
       first = false;
     }
-    if ((access & Constants.ACC_SYNCHRONIZED) != 0) {
+    if ((access & Opcodes.ACC_SYNCHRONIZED) != 0) {
       if (!first) {
         buf.append(" + ");
       }
@@ -444,14 +460,14 @@ public class ASMifierClassVisitor extends PrintClassVisitor {
       }
       first = false;
     }
-    if ((access & Constants.ACC_VOLATILE) != 0 && (access & ACCESS_FIELD) != 0 ) {
+    if ((access & Opcodes.ACC_VOLATILE) != 0 && (access & ACCESS_FIELD) != 0 ) {
       if (!first) {
         buf.append(" + ");
       }
       buf.append("ACC_VOLATILE");
       first = false;
     }
-    if ((access & Constants.ACC_BRIDGE) != 0 &&
+    if ((access & Opcodes.ACC_BRIDGE) != 0 &&
         (access & ACCESS_CLASS) == 0 && (access & ACCESS_FIELD) == 0) {
       if (!first) {
         buf.append(" + ");
@@ -459,7 +475,7 @@ public class ASMifierClassVisitor extends PrintClassVisitor {
       buf.append("ACC_BRIDGE");
       first = false;
     }
-    if ((access & Constants.ACC_VARARGS) != 0 &&
+    if ((access & Opcodes.ACC_VARARGS) != 0 &&
         (access & ACCESS_CLASS) == 0 && (access & ACCESS_FIELD) == 0) {
       if (!first) {
         buf.append(" + ");
@@ -467,15 +483,14 @@ public class ASMifierClassVisitor extends PrintClassVisitor {
       buf.append("ACC_VARARGS");
       first = false;
     }
-    if ((access & Constants.ACC_TRANSIENT) != 0 &&
-        (access & ACCESS_FIELD) != 0) {
+    if ((access & Opcodes.ACC_TRANSIENT) != 0 && (access & ACCESS_FIELD) != 0) {
       if (!first) {
         buf.append(" + ");
       }
       buf.append("ACC_TRANSIENT");
       first = false;
     }
-    if ((access & Constants.ACC_NATIVE) != 0 &&
+    if ((access & Opcodes.ACC_NATIVE) != 0 &&
         (access & ACCESS_CLASS) == 0 &&
         (access & ACCESS_FIELD) == 0) {
       if (!first) {
@@ -484,7 +499,7 @@ public class ASMifierClassVisitor extends PrintClassVisitor {
       buf.append("ACC_NATIVE");
       first = false;
     }
-    if ((access & Constants.ACC_ENUM) != 0 &&
+    if ((access & Opcodes.ACC_ENUM) != 0 &&
          ((access & ACCESS_CLASS) != 0 || 
           (access & ACCESS_FIELD) != 0 || 
           (access & ACCESS_INNER) != 0)) {
@@ -494,43 +509,42 @@ public class ASMifierClassVisitor extends PrintClassVisitor {
       buf.append("ACC_ENUM");
       first = false;
     }
-    if ((access & Constants.ACC_ANNOTATION) != 0 &&
-        ((access & ACCESS_CLASS) != 0)) {
+    if ((access & Opcodes.ACC_ANNOTATION) != 0 && ((access & ACCESS_CLASS) != 0)) {
       if (!first) {
         buf.append(" + ");
       }
       buf.append("ACC_ANNOTATION");
       first = false;
     }
-    if ((access & Constants.ACC_ABSTRACT) != 0) {
+    if ((access & Opcodes.ACC_ABSTRACT) != 0) {
       if (!first) {
         buf.append(" + ");
       }
       buf.append("ACC_ABSTRACT");
       first = false;
     }
-    if ((access & Constants.ACC_INTERFACE) != 0) {
+    if ((access & Opcodes.ACC_INTERFACE) != 0) {
       if (!first) {
         buf.append(" + ");
       }
       buf.append("ACC_INTERFACE");
       first = false;
     }
-    if ((access & Constants.ACC_STRICT) != 0) {
+    if ((access & Opcodes.ACC_STRICT) != 0) {
       if (!first) {
         buf.append(" + ");
       }
       buf.append("ACC_STRICT");
       first = false;
     }
-    if ((access & Constants.ACC_SYNTHETIC) != 0) {
+    if ((access & Opcodes.ACC_SYNTHETIC) != 0) {
       if (!first) {
         buf.append(" + ");
       }
       buf.append("ACC_SYNTHETIC");
       first = false;
     }
-    if ((access & Constants.ACC_DEPRECATED) != 0) {
+    if ((access & Opcodes.ACC_DEPRECATED) != 0) {
       if (!first) {
         buf.append(" + ");
       }

@@ -31,6 +31,7 @@
 package org.objectweb.asm.tree;
 
 import org.objectweb.asm.ClassVisitor;
+import org.objectweb.asm.Type;
 
 /**
  * A node that represents an inner class.
@@ -41,16 +42,15 @@ import org.objectweb.asm.ClassVisitor;
 public class InnerClassNode {
 
   /**
-   * The internal name of an inner class (see {@link
-   * org.objectweb.asm.Type#getInternalName() getInternalName}).
+   * The internal name of an inner class (see 
+   * {@link Type#getInternalName() getInternalName}).
    */
 
   public String name;
 
   /**
    * The internal name of the class to which the inner class belongs (see
-   * {@link org.objectweb.asm.Type#getInternalName() getInternalName}). May be
-   * <tt>null</tt>.
+   * {@link Type#getInternalName() getInternalName}). May be <tt>null</tt>.
    */
 
   public String outerName;
@@ -70,13 +70,13 @@ public class InnerClassNode {
   public int access;
 
   /**
-   * Constructs a new {@link InnerClassNode InnerClassNode} object.
+   * Constructs a new {@link InnerClassNode}.
    *
-   * @param name the internal name of an inner class (see {@link
-   *      org.objectweb.asm.Type#getInternalName() getInternalName}).
+   * @param name the internal name of an inner class (see 
+   *      {@link Type#getInternalName() getInternalName}).
    * @param outerName the internal name of the class to which the inner class
-   *      belongs (see {@link org.objectweb.asm.Type#getInternalName()
-   *      getInternalName}). May be <tt>null</tt>.
+   *      belongs (see {@link Type#getInternalName() getInternalName}). 
+   *      May be <tt>null</tt>.
    * @param innerName the (simple) name of the inner class inside its enclosing
    *      class. May be <tt>null</tt> for anonymous inner classes.
    * @param access the access flags of the inner class as originally declared

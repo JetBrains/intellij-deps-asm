@@ -30,8 +30,8 @@
 
 package org.objectweb.asm.tree;
 
-import org.objectweb.asm.CodeVisitor;
-import org.objectweb.asm.Constants;
+import org.objectweb.asm.MethodVisitor;
+import org.objectweb.asm.Opcodes;
 
 /**
  * A node that represents an IINC instruction.
@@ -54,19 +54,19 @@ public class IincInsnNode extends AbstractInsnNode {
   public int incr;
 
   /**
-   * Constructs a new {@link IincInsnNode IincInsnNode} node.
+   * Constructs a new {@link IincInsnNode}.
    *
    * @param var index of the local variable to be incremented.
    * @param incr increment amount to increment the local variable by.
    */
 
   public IincInsnNode (final int var, final int incr) {
-    super(Constants.IINC);
+    super(Opcodes.IINC, IINC_INSN);
     this.var = var;
     this.incr = incr;
   }
 
-  public void accept (final CodeVisitor cv) {
-    cv.visitIincInsn(var, incr);
+  public void accept (final MethodVisitor mv) {
+    mv.visitIincInsn(var, incr);
   }
 }

@@ -59,10 +59,4 @@ class Edge {
    */
 
   Edge next;
-
-  /**
-   * The next available edge in the pool. See {@link CodeWriter}.
-   */
-
-  Edge poolNext;
 }

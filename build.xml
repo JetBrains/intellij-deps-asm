@@ -107,12 +107,23 @@
   <!-- =================================== -->
 
   <target name="compile" depends="init">
-    <mkdir dir="${out.build}"/>
-    <javac destdir="${out.build}" optimize="on">
-      <classpath refid="classpath"/>
+    <mkdir dir="${out.build}/tmp"/>
+    <javac destdir="${out.build}/tmp" optimize="on">
+      <classpath>
+        <pathelement location="${out.build}/tmp"/>
+      </classpath> 
       <src path="${src}"/>
       <include name="**/*.java"/>
+      <exclude name="**/xml/*.java"/>
     </javac>
+    <java classname="org.objectweb.asm.optimizer.Shrinker">
+      <classpath>
+        <pathelement location="${out.build}/tmp"/>
+      </classpath> 
+      <arg value="${src}/org/objectweb/asm/optimizer/shrink.properties"/>
+      <arg value="${out.build}/tmp"/> 
+      <arg value="${out.build}"/> 
+    </java> 
   </target>
 
   <!-- =================================== -->
@@ -135,19 +146,11 @@
   </target>
 
   <target name="jar" depends="dist.init,compile">
-    <!--
-    <mkdir dir="${out.tmp}"/>
-    <copy toDir="${out.tmp}">
-      <fileset dir="${archive}">
-        <include name="*.mf"/>
-      </fileset>
-      <filterset>
-        <filter token="@product.version@" value="${product.version}"/>
-      </filterset>
-    </copy>
-    <replace dir="${out.tmp}" token="@product.version@" value="${product.version}"/>
-    -->
     <multipleAnt dir="${archive}"/>
+    <java classname="org.objectweb.asm.optimizer.JarOptimizer">
+      <classpath refid="classpath"/>
+      <arg value="${out.dist.lib}"/> 
+    </java> 
   </target>
 
   <target name="jdoc" depends="init,dist.init">

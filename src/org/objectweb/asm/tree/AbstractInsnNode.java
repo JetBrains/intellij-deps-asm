@@ -30,7 +30,7 @@
 
 package org.objectweb.asm.tree;
 
-import org.objectweb.asm.CodeVisitor;
+import org.objectweb.asm.MethodVisitor;
 
 /**
  * A node that represents a bytecode instruction.
@@ -39,7 +39,85 @@ import org.objectweb.asm.CodeVisitor;
  */
 
 public abstract class AbstractInsnNode {
-
+  
+  /**
+   * The type of {@link InsnNode} instructions.
+   */
+  
+  public final static int INSN = 0;
+  
+  /**
+   * The type of {@link IntInsnNode} instructions.
+   */
+  
+  public final static int INT_INSN = 1;
+  
+  /**
+   * The type of {@link VarInsnNode} instructions.
+   */
+  
+  public final static int VAR_INSN = 2;
+  
+  /**
+   * The type of {@link TypeInsnNode} instructions.
+   */
+  
+  public final static int TYPE_INSN = 3;
+  
+  /**
+   * The type of {@link FieldInsnNode} instructions.
+   */
+  
+  public final static int FIELD_INSN = 4;
+  
+  /**
+   * The type of {@link MethodInsnNode} instructions.
+   */
+  
+  public final static int METHOD_INSN = 5;
+  
+  /**
+   * The type of {@link JumpInsnNode} instructions.
+   */
+  
+  public final static int JUMP_INSN = 6;
+  
+  /**
+   * The type of {@link LabelNode} "instructions".
+   */
+  
+  public final static int LABEL = 7;
+  
+  /**
+   * The type of {@link LdcInsnNode} instructions.
+   */
+  
+  public final static int LDC_INSN = 8;
+  
+  /**
+   * The type of {@link IincInsnNode} instructions.
+   */
+  
+  public final static int IINC_INSN = 9;
+  
+  /**
+   * The type of {@link TableSwitchInsnNode} instructions.
+   */
+  
+  public final static int TABLESWITCH_INSN = 10;
+  
+  /**
+   * The type of {@link LookupSwitchInsnNode} instructions.
+   */
+  
+  public final static int LOOKUPSWITCH_INSN = 11;
+  
+  /**
+   * The type of {@link MultiANewArrayInsnNode} instructions.
+   */
+  
+  public final static int MULTIANEWARRAY_INSN = 12;
+  
   /**
    * The opcode of this instruction.
    */
@@ -47,13 +125,21 @@ public abstract class AbstractInsnNode {
   protected int opcode;
 
   /**
-   * Constructs a new {@link AbstractInsnNode AbstractInsnNode} object.
+   * The type of this instruction.
+   */
+  
+  private final int type;
+  
+  /**
+   * Constructs a new {@link AbstractInsnNode}.
    *
    * @param opcode the opcode of the instruction to be constructed.
+   * @param type the type of the instruction to be constructed.
    */
 
-  protected AbstractInsnNode (final int opcode) {
+  protected AbstractInsnNode (final int opcode, final int type) {
     this.opcode = opcode;
+    this.type = type;
   }
 
   /**
@@ -65,12 +151,23 @@ public abstract class AbstractInsnNode {
   public int getOpcode () {
     return opcode;
   }
+  
+  /**
+   * Returns the type of this instruction.
+   *
+   * @return the type of this instruction, i.e. one the constants defined in
+   *      this class.
+   */
 
+  public int getType () {
+    return type;
+  }
+  
   /**
    * Makes the given code visitor visit this instruction.
    *
    * @param cv a code visitor.
    */
 
-  public abstract void accept (final CodeVisitor cv);
+  public abstract void accept (final MethodVisitor cv);
 }

@@ -32,7 +32,7 @@ package org.objectweb.asm.tree.analysis;
 
 import java.util.List;
 
-import org.objectweb.asm.Constants;
+import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.FieldInsnNode;
@@ -44,12 +44,12 @@ import org.objectweb.asm.tree.TypeInsnNode;
 
 /**
  * An {@link Interpreter} for {@link BasicValue} values.
- * 
+ *
  * @author Eric Bruneton
  * @author Bing Ran
  */
 
-public class BasicInterpreter implements Constants, Interpreter {
+public class BasicInterpreter implements Opcodes, Interpreter {
 
   public Value newValue (final Type type) {
     if (type == null) {
@@ -113,6 +113,8 @@ public class BasicInterpreter implements Constants, Interpreter {
           return BasicValue.LONG_VALUE;
         } else if (cst instanceof Double) {
           return BasicValue.DOUBLE_VALUE;
+        } else if (cst instanceof Type) {
+          return newValue(Type.getType("Ljava/lang/Class;"));
         } else {
           return newValue(Type.getType(cst.getClass()));
         }
@@ -127,14 +129,14 @@ public class BasicInterpreter implements Constants, Interpreter {
     }
   }
 
-  public Value copyOperation (final AbstractInsnNode insn, final Value value) 
-    throws AnalyzerException 
+  public Value copyOperation (final AbstractInsnNode insn, final Value value)
+    throws AnalyzerException
   {
     return value;
   }
 
-  public Value unaryOperation (final AbstractInsnNode insn, final Value value) 
-    throws AnalyzerException 
+  public Value unaryOperation (final AbstractInsnNode insn, final Value value)
+    throws AnalyzerException
   {
     switch (insn.getOpcode()) {
       case INEG:
@@ -226,9 +228,9 @@ public class BasicInterpreter implements Constants, Interpreter {
   }
 
   public Value binaryOperation (
-    final AbstractInsnNode insn, 
-    final Value value1, 
-    final Value value2) throws AnalyzerException 
+    final AbstractInsnNode insn,
+    final Value value1,
+    final Value value2) throws AnalyzerException
   {
     switch (insn.getOpcode()) {
       case IALOAD:
@@ -303,16 +305,16 @@ public class BasicInterpreter implements Constants, Interpreter {
   }
 
   public Value ternaryOperation (
-    final AbstractInsnNode insn, 
-    final Value value1, 
+    final AbstractInsnNode insn,
+    final Value value1,
     final Value value2,
-    final Value value3) throws AnalyzerException 
+    final Value value3) throws AnalyzerException
   {
     return null;
   }
-  
-  public Value naryOperation (final AbstractInsnNode insn, final List values) 
-    throws AnalyzerException 
+
+  public Value naryOperation (final AbstractInsnNode insn, final List values)
+    throws AnalyzerException
   {
     if (insn.getOpcode() == MULTIANEWARRAY) {
       return newValue(Type.getType(((MultiANewArrayInsnNode)insn).desc));

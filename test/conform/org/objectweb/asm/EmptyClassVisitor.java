@@ -1,6 +1,6 @@
 /*******************************************************************************
  * ASM tests Copyright (c) 2002,2003 France Telecom All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
  * 1. Redistributions of source code must retain the above copyright notice,
@@ -11,7 +11,7 @@
  * copyright holders nor the names of its contributors may be used to endorse or
  * promote products derived from this software without specific prior written
  * permission.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
@@ -27,26 +27,34 @@
 
 package org.objectweb.asm;
 
-public class EmptyClassVisitor implements ClassVisitor, CodeVisitor {
+public class EmptyClassVisitor
+  implements ClassVisitor, FieldVisitor, MethodVisitor, AnnotationVisitor
+{
 
   public void visit (
-    int version, int access, String name, String superName, String[] interfaces, String source)
+    int version, int access, String name, String signature, String superName, String[] interfaces)
   {
   }
 
+  public void visitSource (String file, String debug) {
+  }
+
+  public void visitOuterClass (String owner, String name, String desc) {
+  }
 
   public void visitInnerClass (
-    String name, String outerName, String innerName, int access) 
+    String name, String outerName, String innerName, int access)
   {
   }
 
-  public void visitField (
-    int access, String name, String signature, Object value, Attribute attrs) 
+  public FieldVisitor visitField (
+    int access, String name, String desc, String signature, Object value)
   {
+    return this;
   }
 
-  public CodeVisitor visitMethod (
-    int access, String name, String signature, String[] exceptions, Attribute attrs) 
+  public MethodVisitor visitMethod (
+    int access, String name, String desc, String signature, String[] exceptions)
   {
     return this;
   }
@@ -54,28 +62,41 @@ public class EmptyClassVisitor implements ClassVisitor, CodeVisitor {
   public void visitEnd () {
   }
 
+  public AnnotationVisitor visitAnnotation (String desc, boolean visible) {
+    return this;
+  }
+
   public void visitAttribute (Attribute attr) {
+  }
+
+  public AnnotationVisitor visitAnnotationDefault () {
+    return this;
+  }
+
+  public AnnotationVisitor visitParameterAnnotation (int parameter, String desc, boolean visible)
+  {
+    return this;
   }
 
   public void visitInsn (int opcode) {
   }
 
-  public void visitVarInsn (int opcode, int var) {
+  public void visitIntInsn (int opcode, int operand) {
   }
 
-  public void visitIntInsn (int opcode, int value) {
+  public void visitVarInsn (int opcode, int var) {
   }
 
   public void visitTypeInsn (int opcode, String desc) {
   }
 
   public void visitFieldInsn (
-    int opcode, String owner, String name, String desc) 
+    int opcode, String owner, String name, String desc)
   {
   }
 
   public void visitMethodInsn (
-    int opcode, String owner, String name, String desc) 
+    int opcode, String owner, String name, String desc)
   {
   }
 
@@ -92,7 +113,7 @@ public class EmptyClassVisitor implements ClassVisitor, CodeVisitor {
   }
 
   public void visitTableSwitchInsn (
-    int min, int max, Label dflt, Label[] labels) 
+    int min, int max, Label dflt, Label[] labels)
   {
   }
 
@@ -103,18 +124,32 @@ public class EmptyClassVisitor implements ClassVisitor, CodeVisitor {
   }
 
   public void visitTryCatchBlock (
-    Label start, Label end, Label handler, String type) 
+    Label start, Label end, Label handler, String type)
   {
+  }
+
+  public void visitLocalVariable (
+    String name, String desc, String signature, Label start, Label end, int index)
+  {
+  }
+
+  public void visitLineNumber (int line, Label start) {
   }
 
   public void visitMaxs (int maxStack, int maxLocals) {
   }
 
-  public void visitLocalVariable (
-    String name, String desc, Label start, Label end, int index) 
-  {
+  public void visit (String name, Object value) {
   }
 
-  public void visitLineNumber (int line, Label start) {
+  public void visitEnum (String name, String desc, String value) {
+  }
+
+  public AnnotationVisitor visitAnnotation (String name, String type) {
+    return this;
+  }
+
+  public AnnotationVisitor visitArray (String name) {
+    return this;
   }
 }

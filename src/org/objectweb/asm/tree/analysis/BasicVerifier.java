@@ -38,17 +38,17 @@ import org.objectweb.asm.tree.FieldInsnNode;
 import org.objectweb.asm.tree.MethodInsnNode;
 
 /**
- * An extended {@link BasicInterpreter} that checks that bytecode instructions 
- * are correctly used. 
- * 
+ * An extended {@link BasicInterpreter} that checks that bytecode instructions
+ * are correctly used.
+ *
  * @author Eric Bruneton
  * @author Bing Ran
  */
 
 public class BasicVerifier extends BasicInterpreter {
 
-  public Value copyOperation (final AbstractInsnNode insn, final Value value) 
-    throws AnalyzerException 
+  public Value copyOperation (final AbstractInsnNode insn, final Value value)
+    throws AnalyzerException
   {
     Value expected;
     switch (insn.getOpcode()) {
@@ -74,7 +74,7 @@ public class BasicVerifier extends BasicInterpreter {
         }
         return value;
       case ASTORE:
-        if (!((BasicValue)value).isReference() && 
+        if (!((BasicValue)value).isReference() &&
             value != BasicValue.RETURNADDRESS_VALUE)
         {
           throw new AnalyzerException(
@@ -84,16 +84,16 @@ public class BasicVerifier extends BasicInterpreter {
       default:
         return value;
     }
-    // type is necessarily a primitive type here, 
+    // type is necessarily a primitive type here,
     // so value must be == to expected value
     if (value != expected) {
       throw new AnalyzerException(null, expected, value);
     }
     return value;
   }
-  
-  public Value unaryOperation (final AbstractInsnNode insn, Value value) 
-    throws AnalyzerException 
+
+  public Value unaryOperation (final AbstractInsnNode insn, Value value)
+    throws AnalyzerException
   {
     Value expected;
     switch (insn.getOpcode()) {
@@ -178,7 +178,7 @@ public class BasicVerifier extends BasicInterpreter {
   public Value binaryOperation (
     final AbstractInsnNode insn,
     final Value value1,
-    final Value value2) throws AnalyzerException 
+    final Value value2) throws AnalyzerException
   {
     Value expected1;
     Value expected2;
@@ -193,7 +193,7 @@ public class BasicVerifier extends BasicInterpreter {
       case LALOAD:
         expected1 = newValue(Type.getType("[J"));
         expected2 = BasicValue.INT_VALUE;
-        break;        
+        break;
       case FALOAD:
         expected1 = newValue(Type.getType("[F"));
         expected2 = BasicValue.INT_VALUE;
@@ -202,7 +202,7 @@ public class BasicVerifier extends BasicInterpreter {
         expected1 = newValue(Type.getType("[D"));
         expected2 = BasicValue.INT_VALUE;
         break;
-      case AALOAD:        
+      case AALOAD:
         expected1 = newValue(Type.getType("[Ljava/lang/Object;"));
         expected2 = BasicValue.INT_VALUE;
         break;
@@ -293,12 +293,12 @@ public class BasicVerifier extends BasicInterpreter {
     final AbstractInsnNode insn,
     final Value value1,
     final Value value2,
-    final Value value3) throws AnalyzerException 
+    final Value value3) throws AnalyzerException
   {
     Value expected1;
     Value expected3;
     switch (insn.getOpcode()) {
-      case IASTORE: 
+      case IASTORE:
       case BASTORE:
       case CASTORE:
       case SASTORE:
@@ -320,7 +320,7 @@ public class BasicVerifier extends BasicInterpreter {
       case AASTORE:
         expected1 = value1;
         expected3 = getElementValue(value1);
-        break;   
+        break;
       default:
         throw new RuntimeException("Internal error.");
     }
@@ -336,8 +336,8 @@ public class BasicVerifier extends BasicInterpreter {
     return null;
   }
 
-  public Value naryOperation (final AbstractInsnNode insn, final List values) 
-    throws AnalyzerException 
+  public Value naryOperation (final AbstractInsnNode insn, final List values)
+    throws AnalyzerException
   {
     int opcode = insn.getOpcode();
     if (opcode == MULTIANEWARRAY) {
@@ -351,7 +351,11 @@ public class BasicVerifier extends BasicInterpreter {
       int i = 0;
       int j = 0;
       if (opcode != INVOKESTATIC) {
-        Type owner = Type.getType("L" + ((MethodInsnNode)insn).owner + ";"); 
+        String own = ((MethodInsnNode)insn).owner;
+        if (own.charAt(0) != '[') { // can happen with JDK1.5 clone method
+          own = "L" + own + ";";
+        }
+        Type owner = Type.getType(own);
         if (!isSubTypeOf((Value)values.get(i++), newValue(owner))) {
           throw new AnalyzerException(
             "Method owner", newValue(owner), (Value)values.get(0));
@@ -368,17 +372,17 @@ public class BasicVerifier extends BasicInterpreter {
     }
     return super.naryOperation(insn, values);
   }
-  
+
   protected boolean isArrayValue (final Value value) {
     return ((BasicValue)value).isReference();
   }
-  
-  protected Value getElementValue (final Value objectArrayValue) 
+
+  protected Value getElementValue (final Value objectArrayValue)
     throws AnalyzerException
   {
     return BasicValue.REFERENCE_VALUE;
   }
-    
+
   protected boolean isSubTypeOf (final Value value, final Value expected) {
     return value == expected;
   }

@@ -31,7 +31,7 @@
 package org.objectweb.asm.tree;
 
 import org.objectweb.asm.Label;
-import org.objectweb.asm.CodeVisitor;
+import org.objectweb.asm.MethodVisitor;
 
 /**
  * A node that represents a jump instruction. A jump instruction is an
@@ -50,7 +50,7 @@ public class JumpInsnNode extends AbstractInsnNode {
   public Label label;
 
   /**
-   * Constructs a new {@link JumpInsnNode JumpInsnNode} object.
+   * Constructs a new {@link JumpInsnNode}.
    *
    * @param opcode the opcode of the type instruction to be constructed. This
    *      opcode must be IFEQ, IFNE, IFLT, IFGE, IFGT, IFLE, IF_ICMPEQ,
@@ -62,7 +62,7 @@ public class JumpInsnNode extends AbstractInsnNode {
    */
 
   public JumpInsnNode (final int opcode, final Label label) {
-    super(opcode);
+    super(opcode, JUMP_INSN);
     this.label = label;
   }
 
@@ -79,7 +79,7 @@ public class JumpInsnNode extends AbstractInsnNode {
     this.opcode = opcode;
   }
 
-  public void accept (final CodeVisitor cv) {
-    cv.visitJumpInsn(opcode, label);
+  public void accept (final MethodVisitor mv) {
+    mv.visitJumpInsn(opcode, label);
   }
 }

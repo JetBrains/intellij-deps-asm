@@ -31,8 +31,8 @@
 package org.objectweb.asm.tree;
 
 import org.objectweb.asm.Label;
-import org.objectweb.asm.Constants;
-import org.objectweb.asm.CodeVisitor;
+import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.MethodVisitor;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -65,14 +65,14 @@ public class TableSwitchInsnNode extends AbstractInsnNode {
   public Label dflt;
 
   /**
-   * Beginnings of the handler blocks. This list is a list of {@link Label
-   * Label} objects.
+   * Beginnings of the handler blocks. This list is a list of {@link Label} 
+   * objects.
    */
 
   public final List labels;
 
   /**
-   * Constructs a new {@link TableSwitchInsnNode TableSwitchInsnNode}.
+   * Constructs a new {@link TableSwitchInsnNode}.
    *
    * @param min the minimum key value.
    * @param max the maximum key value.
@@ -87,7 +87,7 @@ public class TableSwitchInsnNode extends AbstractInsnNode {
     final Label dflt,
     final Label[] labels)
   {
-    super(Constants.TABLESWITCH);
+    super(Opcodes.TABLESWITCH, TABLESWITCH_INSN);
     this.min = min;
     this.max = max;
     this.dflt = dflt;
@@ -97,9 +97,9 @@ public class TableSwitchInsnNode extends AbstractInsnNode {
     }
   }
 
-  public void accept (final CodeVisitor cv) {
+  public void accept (final MethodVisitor mv) {
     Label[] labels = new Label[this.labels.size()];
     this.labels.toArray(labels);
-    cv.visitTableSwitchInsn(min, max, dflt, labels);
+    mv.visitTableSwitchInsn(min, max, dflt, labels);
   }
 }

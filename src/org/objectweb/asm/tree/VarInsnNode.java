@@ -30,7 +30,7 @@
 
 package org.objectweb.asm.tree;
 
-import org.objectweb.asm.CodeVisitor;
+import org.objectweb.asm.MethodVisitor;
 
 /**
  * A node that represents a local variable instruction. A local variable
@@ -50,8 +50,7 @@ public class VarInsnNode extends AbstractInsnNode {
   public int var;
 
   /**
-   * Visits a local variable instruction. A local variable instruction is an
-   * instruction that loads or stores the value of a local variable.
+   * Constructs a new {@link VarInsnNode}.
    *
    * @param opcode the opcode of the local variable instruction to be
    *      constructed. This opcode must be ILOAD, LLOAD, FLOAD, DLOAD, ALOAD,
@@ -61,7 +60,7 @@ public class VarInsnNode extends AbstractInsnNode {
    */
 
   public VarInsnNode (final int opcode, final int var) {
-    super(opcode);
+    super(opcode, VAR_INSN);
     this.var = var;
   }
 
@@ -76,7 +75,7 @@ public class VarInsnNode extends AbstractInsnNode {
     this.opcode = opcode;
   }
 
-  public void accept (final CodeVisitor cv) {
-    cv.visitVarInsn(opcode, var);
+  public void accept (final MethodVisitor mv) {
+    mv.visitVarInsn(opcode, var);
   }
 }

@@ -30,7 +30,8 @@
 
 package org.objectweb.asm.tree;
 
-import org.objectweb.asm.CodeVisitor;
+import org.objectweb.asm.MethodVisitor;
+import org.objectweb.asm.Type;
 
 /**
  * A node that represents a type instruction. A type instruction is an
@@ -43,22 +44,22 @@ public class TypeInsnNode extends AbstractInsnNode {
 
   /**
    * The operand of this instruction. This operand is a type descriptor (see
-   * {@link org.objectweb.asm.Type Type}).
+   * {@link Type}).
    */
 
   public String desc;
 
   /**
-   * Constructs a new {@link TypeInsnNode TypeInsnNode} object.
+   * Constructs a new {@link TypeInsnNode}.
    *
    * @param opcode the opcode of the type instruction to be constructed. This
-   *      opcode must be NEW, ANEWARRAY, CHECKCAST or INSTANCEOF.
+   *      opcode must be NEW, NEWARRAY, ANEWARRAY, CHECKCAST or INSTANCEOF.
    * @param desc the operand of the instruction to be constructed. This operand
-   *      is a type descriptor (see {@link org.objectweb.asm.Type Type}).
+   *      is a type descriptor (see {@link Type}).
    */
 
   public TypeInsnNode (final int opcode, final String desc) {
-    super(opcode);
+    super(opcode, TYPE_INSN);
     this.desc = desc;
   }
 
@@ -73,7 +74,7 @@ public class TypeInsnNode extends AbstractInsnNode {
     this.opcode = opcode;
   }
 
-  public void accept (final CodeVisitor cv) {
-    cv.visitTypeInsn(opcode, desc);
+  public void accept (final MethodVisitor mv) {
+    mv.visitTypeInsn(opcode, desc);
   }
 }

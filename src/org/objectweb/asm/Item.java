@@ -48,32 +48,34 @@ final class Item {
   /**
    * Type of this constant pool item. A single class is used to represent all
    * constant pool item types, in order to minimize the bytecode size of this
-   * package. The value of this field is one of the constants defined in the
-   * {@link ClassWriter ClassWriter} class.
+   * package. The value of this field is I, J, F, D, S, s, C, T, G, M, or N 
+   * (for Constant Integer, Long, Float, Double, STR, UTF8, Class, NameType,
+   * Fieldref, Methodref, or InterfaceMethodref constant pool items
+   * respectively).
    */
 
-  int type;
+  char type;
 
   /**
-   * Value of this item, for a {@link ClassWriter#INT INT} item.
+   * Value of this item, for an integer item.
    */
 
   int intVal;
 
   /**
-   * Value of this item, for a {@link ClassWriter#LONG LONG} item.
+   * Value of this item, for a long item.
    */
 
   long longVal;
 
   /**
-   * Value of this item, for a {@link ClassWriter#FLOAT FLOAT} item.
+   * Value of this item, for a float item.
    */
 
   float floatVal;
 
   /**
-   * Value of this item, for a {@link ClassWriter#DOUBLE DOUBLE} item.
+   * Value of this item, for a double item.
    */
 
   double doubleVal;
@@ -113,7 +115,7 @@ final class Item {
   Item next;
 
   /**
-   * Constructs an uninitialized {@link Item Item} object.
+   * Constructs an uninitialized {@link Item}.
    */
 
   Item () {
@@ -140,49 +142,49 @@ final class Item {
   }
 
   /**
-   * Sets this item to an {@link ClassWriter#INT INT} item.
+   * Sets this item to an integer item.
    *
    * @param intVal the value of this item.
    */
 
   void set (final int intVal) {
-    this.type = ClassWriter.INT;
+    this.type = 'I';
     this.intVal = intVal;
     this.hashCode = 0x7FFFFFFF & (type + intVal);
   }
 
   /**
-   * Sets this item to a {@link ClassWriter#LONG LONG} item.
+   * Sets this item to a long item.
    *
    * @param longVal the value of this item.
    */
 
   void set (final long longVal) {
-    this.type = ClassWriter.LONG;
+    this.type = 'J';
     this.longVal = longVal;
     this.hashCode = 0x7FFFFFFF & (type + (int)longVal);
   }
 
   /**
-   * Sets this item to a {@link ClassWriter#FLOAT FLOAT} item.
+   * Sets this item to a float item.
    *
    * @param floatVal the value of this item.
    */
 
   void set (final float floatVal) {
-    this.type = ClassWriter.FLOAT;
+    this.type = 'F';
     this.floatVal = floatVal;
     this.hashCode = 0x7FFFFFFF & (type + (int)floatVal);
   }
 
   /**
-   * Sets this item to a {@link ClassWriter#DOUBLE DOUBLE} item.
+   * Sets this item to a double item.
    *
    * @param doubleVal the value of this item.
    */
 
   void set (final double doubleVal) {
-    this.type = ClassWriter.DOUBLE;
+    this.type = 'D';
     this.doubleVal = doubleVal;
     this.hashCode = 0x7FFFFFFF & (type + (int)doubleVal);
   }
@@ -197,27 +199,27 @@ final class Item {
    */
 
   void set (
-    final int type,
+    final char type,
     final String strVal1,
     final String strVal2,
     final String strVal3)
   {
-    this.type = type;
+    this.type = (char)type;
     this.strVal1 = strVal1;
     this.strVal2 = strVal2;
     this.strVal3 = strVal3;
     switch (type) {
-      case ClassWriter.UTF8:
-      case ClassWriter.STR:
-      case ClassWriter.CLASS:
+      case 's':
+      case 'S':
+      case 'C':
         hashCode = 0x7FFFFFFF & (type + strVal1.hashCode());
         return;
-      case ClassWriter.NAME_TYPE:
+      case 'T':
         hashCode = 0x7FFFFFFF & (type + strVal1.hashCode()*strVal2.hashCode());
         return;
-      //case ClassWriter.FIELD:
-      //case ClassWriter.METH:
-      //case ClassWriter.IMETH:
+      //case 'G':
+      //case 'M':
+      //case 'N':
       default:
         hashCode = 0x7FFFFFFF & (type +
           strVal1.hashCode()*strVal2.hashCode()*strVal3.hashCode());
@@ -235,24 +237,24 @@ final class Item {
   boolean isEqualTo (final Item i) {
     if (i.type == type) {
       switch (type) {
-        case ClassWriter.INT:
+        case 'I':
           return i.intVal == intVal;
-        case ClassWriter.LONG:
+        case 'J':
           return i.longVal == longVal;
-        case ClassWriter.FLOAT:
+        case 'F':
           return i.floatVal == floatVal;
-        case ClassWriter.DOUBLE:
+        case 'D':
           return i.doubleVal == doubleVal;
-        case ClassWriter.UTF8:
-        case ClassWriter.STR:
-        case ClassWriter.CLASS:
+        case 's':
+        case 'S':
+        case 'C':
           return i.strVal1.equals(strVal1);
-        case ClassWriter.NAME_TYPE:
+        case 'T':
           return i.strVal1.equals(strVal1) &&
                  i.strVal2.equals(strVal2);
-        //case ClassWriter.FIELD:
-        //case ClassWriter.METH:
-        //case ClassWriter.IMETH:
+        //case 'G':
+        //case 'M':
+        //case 'N':
         default:
           return i.strVal1.equals(strVal1) &&
                  i.strVal2.equals(strVal2) &&

@@ -34,9 +34,9 @@ import org.objectweb.asm.Type;
 
 /**
  * An extended {@link BasicVerifier} that performs more precise verifications.
- * This verifier computes exact class types, instead of using a single 
- * "object reference" type (as done in the {@link BasicVerifier}).  
- * 
+ * This verifier computes exact class types, instead of using a single
+ * "object reference" type (as done in the {@link BasicVerifier}).
+ *
  * @author Eric Bruneton
  * @author Bing Ran
  */
@@ -59,15 +59,15 @@ public class SimpleVerifier extends BasicVerifier {
     }
     return v;
   }
-  
+
   protected boolean isArrayValue (final Value value) {
     Type t = ((BasicValue)value).getType();
     if (t != null) {
       return t.getDescriptor().equals("Lnull;") || t.getSort() == Type.ARRAY;
-    } 
+    }
     return false;
   }
-      
+
   protected Value getElementValue (final Value objectArrayValue)
     throws AnalyzerException
   {
@@ -81,7 +81,7 @@ public class SimpleVerifier extends BasicVerifier {
     }
     throw new AnalyzerException("Not an array type");
   }
-    
+
   protected boolean isSubTypeOf (final Value value, final Value expected) {
     Type expectedType = ((BasicValue)expected).getType();
     Type type = ((BasicValue)value).getType();
@@ -153,7 +153,7 @@ public class SimpleVerifier extends BasicVerifier {
     }
     return v;
   }
-  
+
   protected Class getClass (final Type t) {
     try {
       if (t.getSort() == Type.ARRAY) {

@@ -35,8 +35,9 @@ import java.lang.reflect.Method;
 /**
  * A Java type. This class can be used to make it easier to manipulate type
  * and method descriptors.
- * 
- * @author Eric Bruneton, Chris Nokleberg
+ *
+ * @author Eric Bruneton
+ * @author Chris Nokleberg
  */
 
 public class Type {
@@ -454,14 +455,14 @@ public class Type {
       case FLOAT:   return "float";
       case LONG:    return "long";
       case DOUBLE:  return "double";
-      case ARRAY:   
+      case ARRAY:
         StringBuffer b = new StringBuffer(getElementType().getClassName());
         for (int i = getDimensions(); i > 0; --i) {
           b.append("[]");
         }
         return b.toString();
       //case OBJECT:
-      default:      
+      default:
         return new String(buf, off + 1, len - 2).replace('/', '.');
     }
   }
@@ -668,7 +669,7 @@ public class Type {
    */
 
   public int getOpcode (final int opcode) {
-    if (opcode == Constants.IALOAD || opcode == Constants.IASTORE) {
+    if (opcode == Opcodes.IALOAD || opcode == Opcodes.IASTORE) {
       switch (sort) {
         case BOOLEAN:
         case BYTE:

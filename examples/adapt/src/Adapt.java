@@ -28,15 +28,15 @@
  * THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.ClassAdapter;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.ClassWriter;
-import org.objectweb.asm.CodeAdapter;
-import org.objectweb.asm.CodeVisitor;
-import org.objectweb.asm.Constants;
+import org.objectweb.asm.MethodAdapter;
+import org.objectweb.asm.MethodVisitor;
+import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
-import org.objectweb.asm.Attribute;
 
 import java.io.FileOutputStream;
 import java.io.InputStream;
@@ -102,7 +102,7 @@ public class Adapt extends ClassLoader {
   }
 }
 
-class TraceFieldClassAdapter extends ClassAdapter implements Constants {
+class TraceFieldClassAdapter extends ClassAdapter implements Opcodes {
 
   private String owner;
 
@@ -114,29 +114,30 @@ class TraceFieldClassAdapter extends ClassAdapter implements Constants {
     final int version,
     final int access,
     final String name,
+    final String signature,
     final String superName,
-    final String[] interfaces,
-    final String sourceFile)
+    final String[] interfaces)
   {
     owner = name;
-    super.visit(version, access, name, superName, interfaces, sourceFile);
+    super.visit(version, access, name, signature, superName, interfaces);
   }
 
-  public void visitField (
+  public FieldVisitor visitField (
     final int access,
     final String name,
     final String desc,
-    final Object value,
-    final Attribute attrs)
+    final String signature,
+    final Object value)
   {
-    super.visitField(access, name, desc, value, attrs);
+    FieldVisitor fv =
+      super.visitField(access, name, desc, signature, value);
     if ((access & ACC_STATIC) == 0) {
       Type t = Type.getType(desc);
       int size = t.getSize();
 
       // generates getter method
       String gDesc = "()" + desc;
-      CodeVisitor gv =
+      MethodVisitor gv =
         cv.visitMethod(ACC_PRIVATE, "_get" + name, gDesc, null, null);
       gv.visitFieldInsn(GETSTATIC,
         "java/lang/System", "err", "Ljava/io/PrintStream;");
@@ -147,10 +148,11 @@ class TraceFieldClassAdapter extends ClassAdapter implements Constants {
       gv.visitFieldInsn(GETFIELD, owner, name, desc);
       gv.visitInsn(t.getOpcode(IRETURN));
       gv.visitMaxs(1 + size, 1);
+      gv.visitEnd();
 
       // generates setter method
       String sDesc = "(" + desc + ")V";
-      CodeVisitor sv =
+      MethodVisitor sv =
         cv.visitMethod(ACC_PRIVATE, "_set" + name, sDesc, null, null);
       sv.visitFieldInsn(GETSTATIC,
         "java/lang/System", "err", "Ljava/io/PrintStream;");
@@ -158,31 +160,33 @@ class TraceFieldClassAdapter extends ClassAdapter implements Constants {
       sv.visitMethodInsn(INVOKEVIRTUAL,
         "java/io/PrintStream", "println", "(Ljava/lang/String;)V");
       sv.visitVarInsn(ALOAD, 0);
-      sv.visitIntInsn(t.getOpcode(ILOAD), 1);
+      sv.visitVarInsn(t.getOpcode(ILOAD), 1);
       sv.visitFieldInsn(PUTFIELD, owner, name, desc);
       sv.visitInsn(RETURN);
       sv.visitMaxs(1 + size, 1 + size);
+      sv.visitEnd();
     }
+    return fv;
   }
 
-  public CodeVisitor visitMethod (
+  public MethodVisitor visitMethod (
     final int access,
     final String name,
     final String desc,
-    final String[] exceptions,
-    final Attribute attrs)
+    final String signature,
+    final String[] exceptions)
   {
-    CodeVisitor mv = cv.visitMethod(access, name, desc, exceptions, attrs);
+    MethodVisitor mv = cv.visitMethod(access, name, desc, signature, exceptions);
     return mv == null ? null : new TraceFieldCodeAdapter(mv, owner);
   }
 }
 
-class TraceFieldCodeAdapter extends CodeAdapter implements Constants {
+class TraceFieldCodeAdapter extends MethodAdapter implements Opcodes {
 
   private String owner;
 
-  public TraceFieldCodeAdapter (final CodeVisitor cv, final String owner) {
-    super(cv);
+  public TraceFieldCodeAdapter (final MethodVisitor mv, final String owner) {
+    super(mv);
     this.owner = owner;
   }
 

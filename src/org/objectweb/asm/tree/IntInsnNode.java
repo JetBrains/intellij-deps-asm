@@ -30,7 +30,7 @@
 
 package org.objectweb.asm.tree;
 
-import org.objectweb.asm.CodeVisitor;
+import org.objectweb.asm.MethodVisitor;
 
 /**
  * A node that represents an instruction with a single int operand.
@@ -47,7 +47,7 @@ public class IntInsnNode extends AbstractInsnNode {
   public int operand;
 
   /**
-   * Constructs a new {@link IntInsnNode IntInsnNode} object.
+   * Constructs a new {@link IntInsnNode}.
    *
    * @param opcode the opcode of the instruction to be constructed. This opcode
    *      must be BIPUSH, SIPUSH or NEWARRAY.
@@ -55,7 +55,7 @@ public class IntInsnNode extends AbstractInsnNode {
    */
 
   public IntInsnNode (final int opcode, final int operand) {
-    super(opcode);
+    super(opcode, INT_INSN);
     this.operand = operand;
   }
 
@@ -70,7 +70,7 @@ public class IntInsnNode extends AbstractInsnNode {
     this.opcode = opcode;
   }
 
-  public void accept (final CodeVisitor cv) {
-    cv.visitIntInsn(opcode, operand);
+  public void accept (final MethodVisitor mv) {
+    mv.visitIntInsn(opcode, operand);
   }
 }

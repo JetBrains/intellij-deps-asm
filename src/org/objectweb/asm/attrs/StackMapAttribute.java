@@ -40,9 +40,9 @@ import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Label;
 
 /**
- * StackMapAttribute is used by CDLC preverifier and also by javac compiller
- * starting from J2SE 1.5. Definition is given in appendix "CLDC Byte Code
- * Typechecker Specification" from CDLC 1.1 specification.
+ * StackMapAttribute is used by CDLC preverifier. Definition is given in 
+ * appendix "CLDC Byte Code Typechecker Specification" from CDLC 1.1 
+ * specification.
  * <p>
  * <i>Note that this implementation does not calculate StackMapFrame structures
  * from the method bytecode. If method code is changed or generated from scratch,
@@ -159,6 +159,14 @@ public class StackMapAttribute extends Attribute {
     return null;
   }
 
+  public boolean isUnknown () {
+    return false;
+  }
+  
+  public boolean isCodeAttribute () {
+    return true;
+  }
+  
   protected Attribute read (ClassReader cr, int off, int len,
                             char[] buf, int codeOff, Label[] labels) {
     StackMapAttribute attr = new StackMapAttribute();

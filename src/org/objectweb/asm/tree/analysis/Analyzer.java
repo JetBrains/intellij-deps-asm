@@ -33,13 +33,14 @@ package org.objectweb.asm.tree.analysis;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.objectweb.asm.Constants;
+import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.IincInsnNode;
 import org.objectweb.asm.tree.JumpInsnNode;
+import org.objectweb.asm.tree.LabelNode;
 import org.objectweb.asm.tree.LookupSwitchInsnNode;
 import org.objectweb.asm.tree.MethodNode;
 import org.objectweb.asm.tree.TableSwitchInsnNode;
@@ -52,7 +53,7 @@ import org.objectweb.asm.tree.VarInsnNode;
  * @author Eric Bruneton
  */
 
-public class Analyzer implements Constants {
+public class Analyzer implements Opcodes {
 
   private Interpreter interpreter;
 
@@ -110,7 +111,11 @@ public class Analyzer implements Constants {
     
     // computes instruction indexes
     for (int i = 0; i < n; ++i) {
-      indexes.put(m.instructions.get(i), i);
+      Object insn = m.instructions.get(i);
+      if (insn instanceof LabelNode) {
+        insn = ((LabelNode)insn).label;
+      }
+      indexes.put(insn, i);
     }
 
     // computes exception handlers for each instruction
@@ -158,7 +163,7 @@ public class Analyzer implements Constants {
       try {
         Object o = m.instructions.get(insn);
         
-        if (o instanceof Label) {
+        if (o instanceof LabelNode) {
           merge(insn + 1, f, subroutine);
         } else {
           AbstractInsnNode insnNode = (AbstractInsnNode)o;

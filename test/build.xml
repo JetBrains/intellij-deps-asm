@@ -125,13 +125,17 @@
 
   <target name="compile.test.conform" depends="init" if="test.conform.exist">
     <javac srcdir="${test.conform}" destdir="${out.test}" 
-        debug="on" debuglevel="lines,vars,source" 
-        source="1.5" target="1.5">
+        debug="on" debuglevel="lines,vars,source">
       <classpath refid="test.classpath"/>
       <include name="**/*.java"/>
       <exclude name="annotations/**/*.java" unless="java5"/>
       <exclude name="**/AnnotationTest.java" unless="java5"/>
     </javac>
+    <copy todir="${out.test}">
+  	  <fileset dir="${test.conform}">
+        <include name="**/*.txt"/>
+      </fileset>
+    </copy>
   </target>
 
   <target name="compile.test.deviance" depends="init" if="test.deviance.exist">

@@ -6,6 +6,7 @@
     <jar jarfile="${out.dist.lib}/${ant.project.name}-${product.artifact}.jar"
          basedir="${out.build}">
       <include name="org/objectweb/asm/*.class"/>
+      <include name="org/objectweb/asm/signature/*.class"/>
       <manifest>
         <attribute name="Implementation-Title" value="ASM"/>
         <attribute name="Implementation-Version" value="${product.artifact}"/> 

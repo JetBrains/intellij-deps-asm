@@ -79,7 +79,7 @@ public class AnnotationDefaultAttribute
       for (int i = 0; i < annotations.size(); i++) {
         String val = varName + "ann" + i;
         asmify((Annotation)annotations.get(i), buf, val);
-        buf.append(varName).append(".add( ").append(val).append(");\n");
+        buf.append(varName).append(".annotations.add( ").append(val).append(");\n");
       }
       buf.append("}\n");
     }
@@ -91,7 +91,7 @@ public class AnnotationDefaultAttribute
       for (int i = 0; i < parameters.size(); i++) {
         String val = varName + "param" + i;
         asmifyAnnotations(buf, val, (List)parameters.get(i));
-        buf.append(varName).append(".add( ").append(val).append(");\n");
+        buf.append(varName).append(".parameters.add( ").append(val).append(");\n");
       }
       buf.append("}\n");
     }

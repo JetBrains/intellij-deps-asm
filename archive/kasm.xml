@@ -1,12 +1,17 @@
 <project name="asm" default="dist">
   <target name="dist">
-    <jar jarfile="${out.dist.lib}/kasm.jar"
+    <jar jarfile="${out.dist.lib}/kasm-${product.version}.jar"
          basedir="${out.build}"
          manifest="${out.tmp}/kasm.mf">
       <include name="org/objectweb/asm/*.class"/>
       <exclude name="org/objectweb/asm/ClassAdapter.class"/>
       <exclude name="org/objectweb/asm/ClassReader.class"/>
       <exclude name="org/objectweb/asm/CodeAdapter.class"/>
+      <manifest>
+        <attribute name="Implementation-Title" value="kASM (reduced version of ASM, for code generation only)"/>
+        <attribute name="Implementation-Version" value="${product.version}"/> 
+        <attribute name="Implementation-Vendor" value="France Telecom R&amp;D"/>
+      </manifest>
     </jar>
   </target>
 </project>

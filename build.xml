@@ -135,13 +135,18 @@
   </target>
 
   <target name="jar" depends="dist.init,compile">
+    <!--
     <mkdir dir="${out.tmp}"/>
     <copy toDir="${out.tmp}">
       <fileset dir="${archive}">
         <include name="*.mf"/>
       </fileset>
+      <filterset>
+        <filter token="@product.version@" value="${product.version}"/>
+      </filterset>
     </copy>
     <replace dir="${out.tmp}" token="@product.version@" value="${product.version}"/>
+    -->
     <multipleAnt dir="${archive}"/>
   </target>
 

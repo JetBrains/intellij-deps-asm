@@ -1,9 +1,15 @@
 <project name="asm" default="dist">
   <target name="dist">
-    <jar jarfile="${out.dist.lib}/asm-xml.jar"
-         basedir="${out.build}"
-         manifest="${out.tmp}/asm-xml.mf">
+    <jar jarfile="${out.dist.lib}/asm-xml-${product.version}.jar"
+         basedir="${out.build}">
       <include name="org/objectweb/asm/xml/*.class"/>
+      <manifest>
+        <attribute name="Implementation-Title" value="ASM XML classes"/>
+        <attribute name="Implementation-Version" value="${product.version}"/> 
+        <attribute name="Implementation-Vendor" value="Eugene Kuleshov"/>
+        <attribute name="Class-path" value="asm-${product.version}.jar asm-util-${product.version}.jar asm-attrs-${product.version}.jar"/>
+        <attribute name="Main-class" value="org.objectweb.asm.xml.Processor"/>
+      </manifest>
     </jar>
   </target>
 </project>

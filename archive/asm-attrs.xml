@@ -1,9 +1,13 @@
 <project name="asm" default="dist">
   <target name="dist">
-    <jar jarfile="${out.dist.lib}/asm-attrs.jar"
-         basedir="${out.build}"
-         manifest="${out.tmp}/asm-attrs.mf">
+    <jar jarfile="${out.dist.lib}/asm-attrs-${product.version}.jar"
+         basedir="${out.build}">
       <include name="org/objectweb/asm/attrs/*.class"/>
+      <manifest>
+        <attribute name="Implementation-Title" value="ASM Attribute classes"/>
+        <attribute name="Implementation-Version" value="${product.version}"/> 
+        <attribute name="Implementation-Vendor" value="France Telecom R&amp;D"/>
+      </manifest>
     </jar>
   </target>
 </project>

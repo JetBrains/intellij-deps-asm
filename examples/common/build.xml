@@ -42,14 +42,14 @@
   <!-- Building of a path which contains external jars -->
 
   <path id="classpath">
+    <pathelement path="${asm.path}"/>
+    <pathelement path="${asm.tree.path}"/>
+    <pathelement path="${asm.attrs.path}"/>
+    <pathelement path="${asm.util.path}"/>
     <fileset dir="${basedir}">
       <include name="lib/**/*.jar"/>
     </fileset>
     <fileset dir="${basedir}/..">
-      <include name="lib/**/*.jar"/>
-    </fileset>
-    <fileset dir="${basedir}/../..">
-      <include name="externals/**/*.jar"/>
       <include name="lib/**/*.jar"/>
     </fileset>
     <pathelement location="${build}"/>

@@ -1,13 +1,13 @@
-<project name="asm-adapters" default="dist">
+<project name="asm-commons" default="dist">
 
   <target name="dist" depends="build-jar,build-snapshot"/>
 
   <target name="build-jar">
     <jar jarfile="${out.dist.lib}/${ant.project.name}-${product.artifact}.jar"
          basedir="${out.build}">
-      <include name="org/objectweb/asm/adapters/*.class"/>
+      <include name="org/objectweb/asm/commons/*.class"/>
       <manifest>
-        <attribute name="Implementation-Title" value="ASM adapters"/>
+        <attribute name="Implementation-Title" value="ASM commons"/>
         <attribute name="Implementation-Version" value="${product.artifact}"/> 
         <attribute name="Implementation-Vendor" value="France Telecom R&amp;D"/>
       </manifest>

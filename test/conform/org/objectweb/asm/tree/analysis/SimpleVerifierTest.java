@@ -1,6 +1,6 @@
 /***
  * ASM tests
- * Copyright (c) 2002-2004 France Telecom
+ * Copyright (c) 2002-2005 France Telecom
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without

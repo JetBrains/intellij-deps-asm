@@ -111,6 +111,8 @@ public class Method {
    * @param method a Java method declaration, without argument names, of the
    *     form "returnType name (argumentType1, ... argumentTypeN)", where the
    *     types are in plain Java (e.g. "int", "float", "java.util.List", ...).
+   * @return a {@link Method} corresponding to the given Java method
+   *     declaration.
    */
 
   public static Method getMethod (final String method) {

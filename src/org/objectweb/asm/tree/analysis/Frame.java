@@ -617,7 +617,7 @@ public class Frame {
    *      merge operation, or <tt>false</tt> otherwise.
    */
   
-  boolean merge (final Frame frame) {
+  public boolean merge (final Frame frame) {
     if (top != frame.top) {
       throw new RuntimeException("Incompatible stack heights");
     }
@@ -649,7 +649,7 @@ public class Frame {
    *      merge operation, or <tt>false</tt> otherwise.
    */
   
-  boolean merge (final Frame frame, final boolean[] access) {
+  public boolean merge (final Frame frame, final boolean[] access) {
     boolean changes = false;
     for (int i = 0; i < locals.length; ++i) {
       if (!access[i] && !locals[i].equals(frame.locals[i])) {

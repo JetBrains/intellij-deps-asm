@@ -44,6 +44,7 @@
   <path id="classpath">
     <pathelement path="${asm.path}"/>
     <pathelement path="${asm.tree.path}"/>
+    <pathelement path="${asm.analysis.path}"/>
     <pathelement path="${asm.attrs.path}"/>
     <pathelement path="${asm.util.path}"/>
     <fileset dir="${basedir}">

@@ -33,15 +33,15 @@ package org.objectweb.asm.util;
 import org.objectweb.asm.Attribute;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.util.attrs.ASMLocalVariableTypeTableAttribute;
-import org.objectweb.asm.util.attrs.AnnotationDefaultAttribute;
-import org.objectweb.asm.util.attrs.EnclosingMethodAttribute;
-import org.objectweb.asm.util.attrs.RuntimeInvisibleAnnotations;
-import org.objectweb.asm.util.attrs.RuntimeInvisibleParameterAnnotations;
-import org.objectweb.asm.util.attrs.RuntimeVisibleAnnotations;
-import org.objectweb.asm.util.attrs.RuntimeVisibleParameterAnnotations;
-import org.objectweb.asm.util.attrs.SignatureAttribute;
-import org.objectweb.asm.util.attrs.SourceDebugExtensionAttribute;
-import org.objectweb.asm.util.attrs.StackMapAttribute;
+import org.objectweb.asm.util.attrs.ASMAnnotationDefaultAttribute;
+import org.objectweb.asm.util.attrs.ASMEnclosingMethodAttribute;
+import org.objectweb.asm.util.attrs.ASMRuntimeInvisibleAnnotations;
+import org.objectweb.asm.util.attrs.ASMRuntimeInvisibleParameterAnnotations;
+import org.objectweb.asm.util.attrs.ASMRuntimeVisibleAnnotations;
+import org.objectweb.asm.util.attrs.ASMRuntimeVisibleParameterAnnotations;
+import org.objectweb.asm.util.attrs.ASMSignatureAttribute;
+import org.objectweb.asm.util.attrs.ASMSourceDebugExtensionAttribute;
+import org.objectweb.asm.util.attrs.ASMStackMapAttribute;
 
 import java.io.PrintWriter;
 import java.util.ArrayList;
@@ -120,15 +120,15 @@ public abstract class PrintClassVisitor implements ClassVisitor {
   public static Attribute[] getDefaultAttributes () {
     try {
       return new Attribute[] {
-        new AnnotationDefaultAttribute(),
-        new RuntimeInvisibleAnnotations(),
-        new RuntimeInvisibleParameterAnnotations(),
-        new RuntimeVisibleAnnotations(),
-        new RuntimeVisibleParameterAnnotations(),
-        new StackMapAttribute(),
-        new SourceDebugExtensionAttribute(),
-        new SignatureAttribute(),
-        new EnclosingMethodAttribute(),
+        new ASMAnnotationDefaultAttribute(),
+        new ASMRuntimeInvisibleAnnotations(),
+        new ASMRuntimeInvisibleParameterAnnotations(),
+        new ASMRuntimeVisibleAnnotations(),
+        new ASMRuntimeVisibleParameterAnnotations(),
+        new ASMStackMapAttribute(),
+        new ASMSourceDebugExtensionAttribute(),
+        new ASMSignatureAttribute(),
+        new ASMEnclosingMethodAttribute(),
         new ASMLocalVariableTypeTableAttribute()
       };
     } catch (Exception e) {

@@ -36,29 +36,27 @@ import java.util.Map;
 import org.objectweb.asm.Attribute;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.Label;
+import org.objectweb.asm.attrs.StackMapAttribute;
 import org.objectweb.asm.attrs.StackMapFrame;
 import org.objectweb.asm.attrs.StackMapType;
 
 /**
- * An {@link ASMifiable} {@link org.objectweb.asm.attrs.StackMapAttribute}
- * sub class.
+ * An {@link ASMifiable} {@link StackMapAttribute} sub class.
  *
  * @author Eugene Kuleshov
  */
 
-public class StackMapAttribute 
-  extends org.objectweb.asm.attrs.StackMapAttribute 
+public class ASMStackMapAttribute extends StackMapAttribute 
   implements ASMifiable 
 {
   
   protected Attribute read (ClassReader cr, int off,
     int len, char[] buf, int codeOff, Label[] labels) 
   {
-    org.objectweb.asm.attrs.StackMapAttribute attr = 
-      (org.objectweb.asm.attrs.StackMapAttribute)super.read(
-        cr, off, len, buf, codeOff, labels);
+    StackMapAttribute attr = 
+      (StackMapAttribute)super.read(cr, off, len, buf, codeOff, labels);
     
-    StackMapAttribute result = new StackMapAttribute();
+    ASMStackMapAttribute result = new ASMStackMapAttribute();
     result.frames = attr.frames;
     return result;
   }

@@ -39,13 +39,15 @@ import org.objectweb.asm.attrs.LocalVariableType;
 import org.objectweb.asm.attrs.LocalVariableTypeTableAttribute;
 
 /**
- * An {@link ASMifiable} 
- * {@link org.objectweb.asm.attrs.LocalVariableTypeTableAttribute} sub class.
+ * An {@link ASMifiable} {@link LocalVariableTypeTableAttribute} sub class.
  *
  * @author Eugene Kuleshov
  */
-public class ASMLocalVariableTypeTableAttribute 
-    extends LocalVariableTypeTableAttribute implements ASMifiable {
+
+public class ASMLocalVariableTypeTableAttribute
+  extends LocalVariableTypeTableAttribute 
+  implements ASMifiable 
+{
 
   protected Attribute read( ClassReader cr, int off, int len, char[] buf, int codeOff, Label[] labels) {
     LocalVariableTypeTableAttribute attr = ( LocalVariableTypeTableAttribute) super.read(cr, off, len, buf, codeOff, labels);

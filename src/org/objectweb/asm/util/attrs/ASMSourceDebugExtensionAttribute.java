@@ -35,38 +35,33 @@ import java.util.Map;
 import org.objectweb.asm.Attribute;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.Label;
+import org.objectweb.asm.attrs.SourceDebugExtensionAttribute;
 
 /**
- * An {@link ASMifiable} 
- * {@link org.objectweb.asm.attrs.EnclosingMethodAttribute} sub class.
+ * An {@link ASMifiable} {@link SourceDebugExtensionAttribute} sub class.
  *
  * @author Eugene Kuleshov
  */
 
-public class EnclosingMethodAttribute 
-  extends org.objectweb.asm.attrs.EnclosingMethodAttribute
-  implements ASMifiable
+public class ASMSourceDebugExtensionAttribute 
+  extends SourceDebugExtensionAttribute
+  implements ASMifiable 
 {
 
   protected Attribute read (ClassReader cr, int off,
     int len, char[] buf, int codeOff, Label[] labels) 
   {
-    org.objectweb.asm.attrs.EnclosingMethodAttribute attr = 
-      (org.objectweb.asm.attrs.EnclosingMethodAttribute)super.read(
-        cr, off, len, buf, codeOff, labels);
+    SourceDebugExtensionAttribute attr = 
+      (SourceDebugExtensionAttribute)super.read(cr, off, len, buf, codeOff, labels);
     
-    EnclosingMethodAttribute result = new EnclosingMethodAttribute();
-    result.owner = attr.owner;
-    result.name = attr.name;
-    result.desc = attr.desc;
+    ASMSourceDebugExtensionAttribute result = new ASMSourceDebugExtensionAttribute();
+    result.debugExtension = attr.debugExtension;
     return result;
   }
-  
+
   public void asmify (StringBuffer buf, String varName, Map labelNames) {
-    buf.append("EnclosingMethodAttribute ").append(varName)
-    .append(" = new EnclosingMethodAttribute(\"")
-    .append(owner).append("\",\"")
-    .append(name).append("\",\"")
-    .append(desc).append("\");\n");
+    buf.append("SourceDebugExtensionAttribute ").append(varName)
+      .append(" = new SourceDebugExtensionAttribute(\"")
+      .append(debugExtension).append("\");\n");
   }
 }

@@ -35,35 +35,34 @@ import java.util.Map;
 import org.objectweb.asm.Attribute;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.Label;
+import org.objectweb.asm.attrs.RuntimeVisibleParameterAnnotations;
 
 /**
- * An {@link ASMifiable} 
- * {@link org.objectweb.asm.attrs.RuntimeInvisibleParameterAnnotations}
- * sub class.
+ * An {@link ASMifiable} {@link RuntimeVisibleParameterAnnotations} sub class.
  *
  * @author Eugene Kuleshov
  */
 
-public class RuntimeInvisibleParameterAnnotations
-  extends org.objectweb.asm.attrs.RuntimeInvisibleParameterAnnotations 
-  implements ASMifiable 
+public class ASMRuntimeVisibleParameterAnnotations 
+  extends RuntimeVisibleParameterAnnotations 
+  implements ASMifiable
 {
 
   protected Attribute read (ClassReader cr, int off,
     int len, char[] buf, int codeOff, Label[] labels) 
   {
-    org.objectweb.asm.attrs.RuntimeInvisibleParameterAnnotations attr = 
-      (org.objectweb.asm.attrs.RuntimeInvisibleParameterAnnotations)super.read(
+    RuntimeVisibleParameterAnnotations attr = 
+      (RuntimeVisibleParameterAnnotations)super.read(
         cr, off, len, buf, codeOff, labels);
     
-    RuntimeInvisibleParameterAnnotations result = new RuntimeInvisibleParameterAnnotations();
+    ASMRuntimeVisibleParameterAnnotations result = new ASMRuntimeVisibleParameterAnnotations();
     result.parameters = attr.parameters;
     return result;
   }
 
   public void asmify (StringBuffer buf, String varName, Map labelNames) {
-    buf.append("RuntimeInvisibleParameterAnnotations ").append(varName)
-      .append(" = new RuntimeInvisibleParameterAnnotations();\n");
-    AnnotationDefaultAttribute.asmifyParameterAnnotations(buf, varName, parameters);
+    buf.append("RuntimeVisibleParameterAnnotations ").append(varName)
+      .append(" = new RuntimeVisibleParameterAnnotations();\n");
+    ASMAnnotationDefaultAttribute.asmifyParameterAnnotations(buf, varName, parameters);
   }
 }

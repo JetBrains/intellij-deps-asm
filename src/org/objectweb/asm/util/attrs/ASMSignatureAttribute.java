@@ -35,34 +35,32 @@ import java.util.Map;
 import org.objectweb.asm.Attribute;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.Label;
+import org.objectweb.asm.attrs.SignatureAttribute;
 
 /**
- * An {@link ASMifiable} 
- * {@link org.objectweb.asm.attrs.RuntimeInvisibleAnnotations} sub class.
+ * An {@link ASMifiable} {@link SignatureAttribute} sub class.
  *
  * @author Eugene Kuleshov
  */
 
-public class RuntimeInvisibleAnnotations 
-  extends org.objectweb.asm.attrs.RuntimeInvisibleAnnotations 
-  implements ASMifiable
+public class ASMSignatureAttribute extends SignatureAttribute 
+  implements ASMifiable 
 {
-
+    
   protected Attribute read (ClassReader cr, int off,
     int len, char[] buf, int codeOff, Label[] labels) 
   {
-    org.objectweb.asm.attrs.RuntimeInvisibleAnnotations attr = 
-      (org.objectweb.asm.attrs.RuntimeInvisibleAnnotations)super.read(
-        cr, off, len, buf, codeOff, labels);
+    SignatureAttribute attr = 
+      (SignatureAttribute)super.read(cr, off, len, buf, codeOff, labels);
     
-    RuntimeInvisibleAnnotations result = new RuntimeInvisibleAnnotations();
-    result.annotations = attr.annotations;
+    ASMSignatureAttribute result = new ASMSignatureAttribute();
+    result.signature = attr.signature;
     return result;
   }
 
   public void asmify (StringBuffer buf, String varName, Map labelNames) {
-    buf.append("RuntimeInvisibleAnnotations ").append(varName)
-      .append(" = new RuntimeInvisibleAnnotations();\n");
-    AnnotationDefaultAttribute.asmifyAnnotations(buf, varName, annotations);
+    buf.append("SignatureAttribute ").append(varName)
+    .append(" = new SignatureAttribute(\"")
+    .append(signature).append("\");\n");
   }
 }

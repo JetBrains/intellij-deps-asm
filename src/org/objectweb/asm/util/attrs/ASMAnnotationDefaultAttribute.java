@@ -38,29 +38,28 @@ import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.attrs.Annotation;
+import org.objectweb.asm.attrs.AnnotationDefaultAttribute;
 import org.objectweb.asm.attrs.AnnotationElementValue;
 import org.objectweb.asm.attrs.AnnotationElementValue.EnumConstValue;
 
 /**
- * An {@link ASMifiable} 
- * {@link org.objectweb.asm.attrs.AnnotationDefaultAttribute} sub class.
+ * An {@link ASMifiable} {@link AnnotationDefaultAttribute} sub class.
  *
  * @author Eugene Kuleshov
  */
 
-public class AnnotationDefaultAttribute 
-  extends org.objectweb.asm.attrs.AnnotationDefaultAttribute 
+public class ASMAnnotationDefaultAttribute extends AnnotationDefaultAttribute 
   implements ASMifiable  
 {
 
   protected Attribute read (ClassReader cr, int off,
     int len, char[] buf, int codeOff, Label[] labels) 
   {
-    org.objectweb.asm.attrs.AnnotationDefaultAttribute attr = 
-      (org.objectweb.asm.attrs.AnnotationDefaultAttribute)super.read(
+    AnnotationDefaultAttribute attr = 
+      (AnnotationDefaultAttribute)super.read(
         cr, off, len, buf, codeOff, labels);
     
-    AnnotationDefaultAttribute result = new AnnotationDefaultAttribute();
+    ASMAnnotationDefaultAttribute result = new ASMAnnotationDefaultAttribute();
     result.defaultValue = attr.defaultValue;
     return result;
   }

@@ -35,34 +35,33 @@ import java.util.Map;
 import org.objectweb.asm.Attribute;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.Label;
+import org.objectweb.asm.attrs.RuntimeInvisibleAnnotations;
 
 /**
- * An {@link ASMifiable} 
- * {@link org.objectweb.asm.attrs.RuntimeVisibleAnnotations} sub class.
+ * An {@link ASMifiable} {@link RuntimeInvisibleAnnotations} sub class.
  *
  * @author Eugene Kuleshov
  */
 
-public class RuntimeVisibleAnnotations 
-  extends org.objectweb.asm.attrs.RuntimeVisibleAnnotations 
+public class ASMRuntimeInvisibleAnnotations extends RuntimeInvisibleAnnotations 
   implements ASMifiable
 {
 
   protected Attribute read (ClassReader cr, int off,
     int len, char[] buf, int codeOff, Label[] labels) 
   {
-    org.objectweb.asm.attrs.RuntimeVisibleAnnotations attr = 
-      (org.objectweb.asm.attrs.RuntimeVisibleAnnotations)super.read(
+    RuntimeInvisibleAnnotations attr = 
+      (RuntimeInvisibleAnnotations)super.read(
         cr, off, len, buf, codeOff, labels);
     
-    RuntimeVisibleAnnotations result = new RuntimeVisibleAnnotations();
+    ASMRuntimeInvisibleAnnotations result = new ASMRuntimeInvisibleAnnotations();
     result.annotations = attr.annotations;
     return result;
   }
 
   public void asmify (StringBuffer buf, String varName, Map labelNames) {
-    buf.append("RuntimeVisibleAnnotations ").append(varName)
-      .append(" = new RuntimeVisibleAnnotations();\n");
-    AnnotationDefaultAttribute.asmifyAnnotations(buf, varName, annotations);
+    buf.append("RuntimeInvisibleAnnotations ").append(varName)
+      .append(" = new RuntimeInvisibleAnnotations();\n");
+    ASMAnnotationDefaultAttribute.asmifyAnnotations(buf, varName, annotations);
   }
 }

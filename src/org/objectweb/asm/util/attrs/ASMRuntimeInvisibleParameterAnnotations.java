@@ -35,34 +35,34 @@ import java.util.Map;
 import org.objectweb.asm.Attribute;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.Label;
+import org.objectweb.asm.attrs.RuntimeInvisibleParameterAnnotations;
 
 /**
- * An {@link ASMifiable} 
- * {@link org.objectweb.asm.attrs.SourceDebugExtensionAttribute} sub class.
+ * An {@link ASMifiable} {@link RuntimeInvisibleParameterAnnotations} sub class.
  *
  * @author Eugene Kuleshov
  */
 
-public class SourceDebugExtensionAttribute 
-  extends org.objectweb.asm.attrs.SourceDebugExtensionAttribute
+public class ASMRuntimeInvisibleParameterAnnotations
+  extends RuntimeInvisibleParameterAnnotations 
   implements ASMifiable 
 {
 
   protected Attribute read (ClassReader cr, int off,
     int len, char[] buf, int codeOff, Label[] labels) 
   {
-    org.objectweb.asm.attrs.SourceDebugExtensionAttribute attr = 
-      (org.objectweb.asm.attrs.SourceDebugExtensionAttribute)super.read(
+    RuntimeInvisibleParameterAnnotations attr = 
+      (RuntimeInvisibleParameterAnnotations)super.read(
         cr, off, len, buf, codeOff, labels);
     
-    SourceDebugExtensionAttribute result = new SourceDebugExtensionAttribute();
-    result.debugExtension = attr.debugExtension;
+    ASMRuntimeInvisibleParameterAnnotations result = new ASMRuntimeInvisibleParameterAnnotations();
+    result.parameters = attr.parameters;
     return result;
   }
 
   public void asmify (StringBuffer buf, String varName, Map labelNames) {
-    buf.append("SourceDebugExtensionAttribute ").append(varName)
-      .append(" = new SourceDebugExtensionAttribute(\"")
-      .append(debugExtension).append("\");\n");
+    buf.append("RuntimeInvisibleParameterAnnotations ").append(varName)
+      .append(" = new RuntimeInvisibleParameterAnnotations();\n");
+    ASMAnnotationDefaultAttribute.asmifyParameterAnnotations(buf, varName, parameters);
   }
 }

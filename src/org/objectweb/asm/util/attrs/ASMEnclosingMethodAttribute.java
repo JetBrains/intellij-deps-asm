@@ -35,34 +35,37 @@ import java.util.Map;
 import org.objectweb.asm.Attribute;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.Label;
+import org.objectweb.asm.attrs.EnclosingMethodAttribute;
 
 /**
- * An {@link ASMifiable} {@link org.objectweb.asm.attrs.SignatureAttribute}
- * sub class.
+ * An {@link ASMifiable} {@link EnclosingMethodAttribute} sub class.
  *
  * @author Eugene Kuleshov
  */
 
-public class SignatureAttribute 
-  extends org.objectweb.asm.attrs.SignatureAttribute 
-  implements ASMifiable 
+public class ASMEnclosingMethodAttribute extends EnclosingMethodAttribute
+  implements ASMifiable
 {
-    
+
   protected Attribute read (ClassReader cr, int off,
     int len, char[] buf, int codeOff, Label[] labels) 
   {
-    org.objectweb.asm.attrs.SignatureAttribute attr = 
-      (org.objectweb.asm.attrs.SignatureAttribute)super.read(
+    EnclosingMethodAttribute attr = 
+      (EnclosingMethodAttribute)super.read(
         cr, off, len, buf, codeOff, labels);
     
-    SignatureAttribute result = new SignatureAttribute();
-    result.signature = attr.signature;
+    ASMEnclosingMethodAttribute result = new ASMEnclosingMethodAttribute();
+    result.owner = attr.owner;
+    result.name = attr.name;
+    result.desc = attr.desc;
     return result;
   }
-
+  
   public void asmify (StringBuffer buf, String varName, Map labelNames) {
-    buf.append("SignatureAttribute ").append(varName)
-    .append(" = new SignatureAttribute(\"")
-    .append(signature).append("\");\n");
+    buf.append("EnclosingMethodAttribute ").append(varName)
+    .append(" = new EnclosingMethodAttribute(\"")
+    .append(owner).append("\",\"")
+    .append(name).append("\",\"")
+    .append(desc).append("\");\n");
   }
 }

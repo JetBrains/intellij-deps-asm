@@ -215,11 +215,20 @@ public class SVUIDAdder extends ClassAdapter {
         hasStaticInitializer = true;
       }
       // Remembers non private constructors and methods for SVUID computation
+      // For constructor and method modifiers, only the ACC_PUBLIC, ACC_PRIVATE,
+      // ACC_PROTECTED, ACC_STATIC, ACC_FINAL, ACC_SYNCHRONIZED, ACC_NATIVE,
+      // ACC_ABSTRACT and ACC_STRICT flags are used.
+      int mods = access & (Opcodes.ACC_PUBLIC | Opcodes.ACC_PRIVATE | 
+          Opcodes.ACC_PROTECTED | Opcodes.ACC_STATIC | Opcodes.ACC_FINAL | 
+          Opcodes.ACC_SYNCHRONIZED | Opcodes.ACC_NATIVE | Opcodes.ACC_ABSTRACT | 
+          Opcodes.ACC_STRICT);
+      
+      // all non private methods
       if ((access & Opcodes.ACC_PRIVATE) == 0) {      
         if (name.equals("<init>")) {
-          svuidConstructors.add(new Item(name, access, desc));
-        } else {
-          svuidMethods.add(new Item(name, access, desc));
+          svuidConstructors.add(new Item(name, mods, desc));
+        } else if (!name.equals("<clinit>")) {
+          svuidMethods.add(new Item(name, mods, desc));
         }
       }
     }
@@ -240,13 +249,22 @@ public class SVUIDAdder extends ClassAdapter {
   {
     if (computeSVUID) {
       if (name.equals("serialVersionUID")) {
+        // since the class already has SVUID, we won't be computing it.
+        computeSVUID = false;
         hasSVUID = true;
       }
       // Remember field for SVUID computation
+      // For field modifiers, only the ACC_PUBLIC, ACC_PRIVATE, ACC_PROTECTED,
+      // ACC_STATIC, ACC_FINAL, ACC_VOLATILE, and ACC_TRANSIENT flags are used
+      // when computing serialVersionUID values.
+      int mods = access & (Opcodes.ACC_PUBLIC | Opcodes.ACC_PRIVATE | 
+          Opcodes.ACC_PROTECTED | Opcodes.ACC_STATIC | Opcodes.ACC_FINAL | 
+          Opcodes.ACC_VOLATILE | Opcodes.ACC_TRANSIENT);
+
       if (((access & Opcodes.ACC_PRIVATE) == 0) || 
           ((access & (Opcodes.ACC_STATIC | Opcodes.ACC_TRANSIENT)) == 0)) 
       {
-        svuidFields.add(new Item(name, access, desc));
+        svuidFields.add(new Item(name, mods, desc));
       }
     }
         

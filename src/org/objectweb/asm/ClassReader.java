@@ -869,10 +869,10 @@ public class ClassReader {
             w = varTypeTable;
             k = readUnsignedShort(w) * 3; w += 2;
             typeTable = new int[k];
-            while( k > 0) {
-              typeTable[--k] = w + 6;
-              typeTable[--k] = readUnsignedShort(w + 8);
-              typeTable[--k] = readUnsignedShort(w);
+            while (k > 0) {
+              typeTable[--k] = w + 6; // signature
+              typeTable[--k] = readUnsignedShort(w + 8); // index
+              typeTable[--k] = readUnsignedShort(w); // start
               w += 10;
             }
           }
@@ -884,20 +884,16 @@ public class ClassReader {
             int index = readUnsignedShort(w + 8);
             String vsignature = null;
             if (typeTable != null) {
-              for (int a = 0; a<typeTable.length; a += 3) {
-                // TODO isn't index enough?
-                if (typeTable[a++] == start) {  
-                  if (typeTable[a++] == index) {
-                    vsignature = readUTF8(typeTable[a], c);
-                    break;
-                  }
+              for (int a = 0; a < typeTable.length; a += 3) {
+                if (typeTable[a] == start && typeTable[a+1] == index) {
+                  vsignature = readUTF8(typeTable[a+2], c);
+                  break;
                 }
               }
             }
             mv.visitLocalVariable(
               readUTF8(w + 4, c),
               readUTF8(w + 6, c),
-              // (vsignature == 0 ? null : readUTF8(vsignature, c)),
               vsignature,
               labels[start],
               labels[start + length],

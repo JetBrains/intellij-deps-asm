@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.0"?>
+<plugin>
+   <extension
+         point="org.eclipse.ui.views">      
+      <view
+            name="Bytecode"
+            icon="icons/bytecodeview.gif"
+            category="org.eclipse.jdt.ui.java"
+            class="de.loskutov.bco.views.BytecodeOutlineView"            
+            id="de.loskutov.bco.views.BytecodeOutlineView"/>
+   </extension>
+   
+   <extension
+         point="org.eclipse.ui.popupMenus">
+      <objectContribution
+            objectClass="org.eclipse.jdt.core.IOpenable"
+            id="de.loskutov.bco.CompareBytecodeActionContribution1">
+ 
+         <visibility>
+            <or>
+               <objectClass name="org.eclipse.jdt.core.IClassFile"/>
+               <objectClass name="org.eclipse.jdt.core.ICompilationUnit"/>
+            </or>
+         </visibility>    
+         <menu
+               label="Compare With ..."
+               path="additions"
+               id="compareWithMenu">
+            <separator
+                  name="compareWithGroup">
+            </separator>
+         </menu>         
+       
+         <action
+               enablesFor="1"
+               label="Another Class Bytecode"
+               icon="icons/bytecodeview.gif"
+               class="de.loskutov.bco.ui.actions.OpenAction"
+               menubarPath="compareWithMenu/compareWithGroup"
+               id="de.loskutov.bco.CompareBytecodeAction">
+         </action>         
+         <action
+               enablesFor="2"
+               label="Each Other Bytecode"
+               icon="icons/bytecodeview.gif"
+               class="de.loskutov.bco.ui.actions.CompareBytecodeAction"
+               menubarPath="compareWithMenu/compareWithGroup"
+               id="de.loskutov.bco.OpenAction">
+         </action>
+       </objectContribution>       
+
+      <objectContribution
+            objectClass="org.eclipse.core.resources.IFile"
+            nameFilter="*.class"
+            id="de.loskutov.bco.CompareBytecodeActionContribution2">
+
+         <visibility>
+          	<not>
+	           <or>
+               		<objectClass name="org.eclipse.jdt.core.IClassFile"/>
+               		<objectClass name="org.eclipse.jdt.core.ICompilationUnit"/>
+               </or>
+            </not>
+         </visibility>    
+         <menu
+               label="Compare With ..."
+               path="additions"
+               id="compareWithMenu">
+            <separator
+                  name="compareWithGroup">
+            </separator>
+         </menu>         
+       
+         <action
+               enablesFor="1"
+               label="Another Class Bytecode"
+               icon="icons/bytecodeview.gif"
+               class="de.loskutov.bco.ui.actions.OpenAction"
+               menubarPath="compareWithMenu/compareWithGroup"
+               id="de.loskutov.bco.CompareBytecodeAction">
+         </action>         
+         <action
+               enablesFor="2"
+               label="Each Other Bytecode"
+               icon="icons/bytecodeview.gif"
+               class="de.loskutov.bco.ui.actions.CompareBytecodeAction"
+               menubarPath="compareWithMenu/compareWithGroup"
+               id="de.loskutov.bco.OpenAction">
+         </action>
+       </objectContribution>   
+       
+   </extension>   
+</plugin>

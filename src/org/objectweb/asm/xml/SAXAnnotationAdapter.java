@@ -68,8 +68,42 @@ public class SAXAnnotationAdapter extends SAXAdapter implements AnnotationVisito
 
   
   public void visit( String name, Object value) {
-    // TODO implement proper handling of primitive arrays
-    addValueElement( "annotationValue", name, Type.getDescriptor( value.getClass()), value.toString());
+    Class c = value.getClass();
+    if(c.isArray()) {
+      AnnotationVisitor av = visitArray(name);
+      if( value instanceof byte[]) {
+        byte[] b = ( byte[]) value;
+        for( int i = 0; i < b.length; i++) av.visit( null, new Byte( b[ i]));
+
+      } else if( value instanceof char[]) {
+        char[] b = ( char[]) value;
+        for( int i = 0; i < b.length; i++) av.visit( null, new Character( b[ i]));
+      
+      } else if( value instanceof boolean[]) {
+        boolean[] b = ( boolean[]) value;
+        for( int i = 0; i < b.length; i++) av.visit( null, Boolean.valueOf( b[ i]));
+      
+      } else if( value instanceof int[]) {
+        int[] b = ( int[]) value;
+        for( int i = 0; i < b.length; i++) av.visit( null, new Integer( b[ i]));
+      
+      } else if( value instanceof long[]) {
+        long[] b = ( long[]) value;
+        for( int i = 0; i < b.length; i++) av.visit( null, new Long( b[ i]));
+      
+      } else if( value instanceof float[]) {
+        float[] b = ( float[]) value;
+        for( int i = 0; i < b.length; i++) av.visit( null, new Float( b[ i]));
+      
+      } else if( value instanceof double[]) {
+        double[] b = ( double[]) value;
+        for( int i = 0; i < b.length; i++) av.visit( null, new Double( b[ i]));
+      
+      }
+      av.visitEnd();
+    } else {
+      addValueElement( "annotationValue", name, Type.getDescriptor( c), value.toString());
+    }
   }
 
   public void visitEnum( String name, String desc, String value) {

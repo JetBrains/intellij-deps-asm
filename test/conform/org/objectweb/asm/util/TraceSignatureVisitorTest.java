@@ -1,4 +1,4 @@
-/* $Id: TraceSignatureVisitorTest.java,v 1.3 2005-01-24 08:21:40 ebruneton Exp $ */
+/* $Id: TraceSignatureVisitorTest.java,v 1.4 2005-01-24 11:17:24 ebruneton Exp $ */
 
 package org.objectweb.asm.util;
 
@@ -39,7 +39,7 @@ public class TraceSignatureVisitorTest extends TestCase {
           "(Ljava/lang/String;Ljava/lang/Class<*>;[Ljava/lang/reflect/Method;Ljava/lang/reflect/Method;Ljava/lang/reflect/Method;)V",
       "F|C|AA<byte[][]>|" +
           "LAA<[[B>;",
-      "F|C|AA<java.util.Map<java.lang.String,java.lang.String>[][]>|" +
+      "F|C|AA<java.util.Map<java.lang.String, java.lang.String>[][]>|" +
           "LAA<[[Ljava/util/Map<Ljava/lang/String;Ljava/lang/String;>;>;"
     };
   

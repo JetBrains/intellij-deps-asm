@@ -152,7 +152,7 @@ public class ASMifierClassVisitor extends PrintClassVisitor {
 
   private static void printUsage () {
     System.err.println("Prints the ASM code to generate the given class.");
-    System.err.println("Usage: ASMifierClassVisitor [-debug]" +
+    System.err.println("Usage: ASMifierClassVisitor [-debug] " +
                        "<fully qualified class name or class file name>");
     System.exit(-1);
   }

@@ -40,6 +40,7 @@ import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.FieldVisitor;
+import org.objectweb.asm.Type;
 
 /**
  * A {@link ClassVisitor} that prints a disassembled view of the classes it
@@ -252,7 +253,7 @@ public class TraceClassVisitor extends TraceAbstractVisitor
     final boolean visible)
   {
     text.add("\n");
-    return super.visitAnnotation(desc, visible);
+    return super.visitAnnotation( Type.getType(desc).getClassName(), visible);
   }
 
   public void visitAttribute (final Attribute attr) {

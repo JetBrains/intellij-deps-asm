@@ -5,9 +5,8 @@
     <jar jarfile="${out.dist.lib}/${product.id}-${product.version}.jar"
          basedir="${out.build}">
       <include name="org/objectweb/asm/*.class"/>
-      <exclude name="org/objectweb/asm/ClassAdapter.class"/>
+      <exclude name="org/objectweb/asm/*Adapter.class"/>
       <exclude name="org/objectweb/asm/ClassReader.class"/>
-      <exclude name="org/objectweb/asm/CodeAdapter.class"/>
       <manifest>
         <attribute name="Implementation-Title" value="kASM (reduced version of ASM, for code generation only)"/>
         <attribute name="Implementation-Version" value="${product.version}"/> 

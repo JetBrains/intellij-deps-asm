@@ -37,6 +37,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.objectweb.asm.AnnotationVisitor;
+import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.MethodVisitor;
@@ -82,22 +84,13 @@ public class ASMContentHandler extends DefaultHandler implements Opcodes {
    * Current instance of the {@link ClassWriter ClassWriter} used to write class bytecode.
    */
   protected ClassWriter cw;
-  /**
-   * TODO move to stack
-   * Current instance of the {@link MethodVisitor MethodVisitor} used to write method bytecode
-   */
-  protected MethodVisitor mw;
 
-  /**
-   * TODO move to stack
-   * Current instance of the {@link FieldVisitor FieldVisitor} used to write method bytecode
-   */
-  private FieldVisitor fw;
   
   /**
    * Map of the active {@link Label Label} instances for current method.
    */
   protected Map labels;
+  
   
   private static final String BASE = "class";
   
@@ -547,8 +540,11 @@ public class ASMContentHandler extends DefaultHandler implements Opcodes {
       return lbl;
     }
     
-    // TODO move to stack
+    // TODO verify move to stack
     protected final MethodVisitor getCodeVisitor() {
+      return (MethodVisitor) peek();
+    }
+    /*
       if( mw==null) {
         Map vals = ( Map) pop();
         int access = Integer.parseInt(( String) vals.get( "access"), 16);
@@ -559,6 +555,7 @@ public class ASMContentHandler extends DefaultHandler implements Opcodes {
       }
       return mw;
     }
+    */
 
     protected final int getAccess( String s) {
       int access = 0;
@@ -615,6 +612,7 @@ public class ASMContentHandler extends DefaultHandler implements Opcodes {
       String debug = attrs.getValue( "debug");
       cw.visitSource(file, debug);
     }
+    
   }
 
 
@@ -642,9 +640,24 @@ public class ASMContentHandler extends DefaultHandler implements Opcodes {
       String name = ( String) vals.get( "name");
       String signature = ( String) vals.get( "signature");
       String parent = ( String) vals.get( "parent");
-      // TODO String source = ( String) vals.get( "source");
       String[] interfaces = ( String[])(( List) vals.get( "interfaces")).toArray( new String[ 0]);
       cw.visit( version, access, name, signature, parent, interfaces);
+    }
+    
+  }
+
+  
+  /**
+   * InnerClassRule
+   */
+  private final class InnerClassRule extends Rule {
+
+    public final void begin( String element, Attributes attrs) {
+      int access = getAccess( attrs.getValue( "access"));
+      String name = attrs.getValue( "name");
+      String outerName = attrs.getValue( "outerName");
+      String innerName = attrs.getValue( "innerName");
+      cw.visitInnerClass( name, outerName, innerName, access);
     }
     
   }
@@ -661,12 +674,11 @@ public class ASMContentHandler extends DefaultHandler implements Opcodes {
       String signature = attrs.getValue( "signature");
       String desc = attrs.getValue( "desc");
       Object value = getValue( desc, attrs.getValue( "value"));
-      // TODO put fw into stack
-      fw = cw.visitField( access, name, desc, signature, value);
+      push( cw.visitField( access, name, desc, signature, value));
     }
     
     public void end( String name) {
-      // TODO remove fw from stack
+      (( FieldVisitor) pop()).visitEnd();
     }
 
   }
@@ -690,30 +702,9 @@ public class ASMContentHandler extends DefaultHandler implements Opcodes {
     }
     
     public final void end( String name) {
-      mw = null;
+      (( MethodVisitor) pop()).visitEnd();
       labels = null;
     }
-    
-  }
-
-  
-  /**
-   * InnerClassRule
-   */
-  private final class InnerClassRule extends Rule {
-
-    public final void begin( String element, Attributes attrs) {
-      int access = getAccess( attrs.getValue( "access"));
-      String name = attrs.getValue( "name");
-      String outerName = attrs.getValue( "outerName");
-      String innerName = attrs.getValue( "innerName");
-      cw.visitInnerClass( name, outerName, innerName, access);
-    }
-    
-    // public final void end( String name) {
-    //   mw = null;
-    //   labels = null;
-    // }
     
   }
 
@@ -743,13 +734,12 @@ public class ASMContentHandler extends DefaultHandler implements Opcodes {
       String signature = ( String) vals.get( "signature");
       String[] exceptions = ( String[])(( List) vals.get( "exceptions")).toArray( new String[ 0]);
       
-      // TODO move mw into stack
-      mw = cw.visitMethod( access, name, desc, signature, exceptions);
+      push( cw.visitMethod( access, name, desc, signature, exceptions));
     }
     
   }
 
-  
+
   /**
    * TableSwitchRule
    */
@@ -967,31 +957,108 @@ public class ASMContentHandler extends DefaultHandler implements Opcodes {
 
   
   private final class AnnotationRule extends Rule {
-    // TODO
+    
+    public void begin( String name, Attributes attrs) {
+      String desc = attrs.getValue( "desc");
+      boolean visible = Boolean.getBoolean( attrs.getValue( "visible"));
+
+      Object v = peek();
+      if( v instanceof ClassVisitor) {
+        push(((ClassVisitor) v).visitAnnotation(desc, visible));
+      } else if( v instanceof FieldVisitor) {
+        push(((FieldVisitor) v).visitAnnotation(desc, visible));
+      } else if( v instanceof MethodVisitor) {
+        push(((MethodVisitor) v).visitAnnotation(desc, visible));
+      }
+    }
+    
+    public void end( String name) {
+      ((AnnotationVisitor) pop()).visitEnd();
+    }
+    
   }
+  
   
   private final class AnnotationParameterRule extends Rule {
-    // TODO
+    
+    public void begin( String name, Attributes attrs) {
+      int parameter = Integer.parseInt( attrs.getValue( "parameter"));
+      String desc = attrs.getValue( "desc");
+      boolean visible = Boolean.getBoolean( attrs.getValue( "visible"));
+
+      push(((MethodVisitor) peek()).visitParameterAnnotation(parameter, desc, visible));
+    }
+    
+    public void end( String name) {
+      ((AnnotationVisitor) pop()).visitEnd();
+    }
+    
   }
 
+  
   private final class AnnotationValueRule extends Rule {
-    // TODO
+    
+    public void begin( String nm, Attributes attrs) {
+      String name = attrs.getValue( "name");
+      String desc = attrs.getValue( "desc");
+      String value = attrs.getValue( "value");
+      ((AnnotationVisitor) peek()).visit(name, getValue( desc, value));
+    }
+
   }
   
-  private final class AnnotationValueArrayRule extends Rule {
-    // TODO
-  }
   
   private final class AnnotationValueEnumRule extends Rule {
-    // TODO
+
+    public void begin( String nm, Attributes attrs) {
+      String name = attrs.getValue( "name");
+      String desc = attrs.getValue( "desc");
+      String value = attrs.getValue( "value");
+      ((AnnotationVisitor) peek()).visitEnum(name, desc, value);
+    }
+
   }
+  
   
   private final class AnnotationValueAnnotationRule extends Rule {
-    // TODO
+
+    public void begin( String nm, Attributes attrs) {
+      String name = attrs.getValue( "name");
+      String desc = attrs.getValue( "desc");
+      push(((AnnotationVisitor) peek()).visitAnnotation(name, desc));
+    }
+
+    public void end( String name) {
+      ((AnnotationVisitor)pop()).visitEnd();
+    }
+    
   }
   
+  
+  private final class AnnotationValueArrayRule extends Rule {
+
+    public void begin( String nm, Attributes attrs) {
+      String name = attrs.getValue( "name");
+      push(((AnnotationVisitor) peek()).visitArray(name));
+    }
+
+    public void end( String name) {
+      ((AnnotationVisitor)pop()).visitEnd();
+    }
+    
+  }
+
+  
   private final class AnnotationDefaultRule extends Rule {
-    // TODO
+  
+    public void begin( String nm, Attributes attrs) {
+      push(((MethodVisitor) peek()).visitAnnotationDefault());
+    }
+
+    public void end( String name) {
+      ((AnnotationVisitor)pop()).visitEnd();
+    }
+  
   }
 
   

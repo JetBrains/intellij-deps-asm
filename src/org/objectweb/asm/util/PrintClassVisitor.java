@@ -32,6 +32,7 @@ package org.objectweb.asm.util;
 
 import org.objectweb.asm.Attribute;
 import org.objectweb.asm.ClassVisitor;
+import org.objectweb.asm.util.attrs.ASMLocalVariableTypeTableAttribute;
 import org.objectweb.asm.util.attrs.AnnotationDefaultAttribute;
 import org.objectweb.asm.util.attrs.EnclosingMethodAttribute;
 import org.objectweb.asm.util.attrs.RuntimeInvisibleAnnotations;
@@ -127,7 +128,8 @@ public abstract class PrintClassVisitor implements ClassVisitor {
         new StackMapAttribute(),
         new SourceDebugExtensionAttribute(),
         new SignatureAttribute(),
-        new EnclosingMethodAttribute()
+        new EnclosingMethodAttribute(),
+        new ASMLocalVariableTypeTableAttribute()
       };
     } catch (Exception e) {
       return new Attribute[0];

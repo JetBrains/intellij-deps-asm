@@ -30,6 +30,10 @@
 
 package org.objectweb.asm.attrs;
 
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+
 import org.objectweb.asm.Attribute;
 import org.objectweb.asm.ByteVector;
 import org.objectweb.asm.ClassReader;
@@ -121,23 +125,80 @@ import org.objectweb.asm.Label;
  * </dl>  
  * 
  * @author Eugene Kuleshov
- * 
  */
 public class LocalVariableTypeTableAttribute extends Attribute {
 
-  protected LocalVariableTypeTableAttribute() {
+  protected List types = new ArrayList();
+  
+  
+  public LocalVariableTypeTableAttribute() {
     super( "LocalVariableTypeTable");
   }
 
+  public List getTypes() {
+    return types;
+  }
+  
+  protected Label[] getLabels() {
+    HashSet labels = new HashSet();
+    for (int i = 0; i < types.size(); i++) {
+      LocalVariableType t = (LocalVariableType)types.get(i);
+      labels.add( t.getStart());
+      labels.add( t.getEnd());
+    }
+    return ( Label[]) labels.toArray( new Label[ labels.size()]);
+  }
+  
   protected Attribute read( ClassReader cr, int off, int len, char[] buf, int codeOff, Label[] labels) {
-    // TODO Auto-generated method stub
-    return null;
+    int localVariableTypeTableLength = cr.readUnsignedShort(off);
+    off += 2;
+    LocalVariableTypeTableAttribute attr = new LocalVariableTypeTableAttribute();
+    for( int i = 0; i < localVariableTypeTableLength; i++) {
+      LocalVariableType t = new LocalVariableType();
+      int start = cr.readUnsignedShort( off);
+      int length = cr.readUnsignedShort( off + 2);
+      t.start = getLabel( labels, start);
+      t.end = getLabel( labels, start + length);
+      t.name = cr.readUTF8( off + 4, buf);
+      t.signature = cr.readUTF8( off + 6, buf);
+      t.index = cr.readUnsignedShort( off + 8);
+      off += 10;
+      types.add(t);
+    }
+    return attr;
   }
 
   protected ByteVector write( ClassWriter cw, byte[] code, int len, int maxStack, int maxLocals) {
-    // TODO Auto-generated method stub
-    return null;
+    ByteVector bv = new ByteVector();
+    bv.putShort( types.size());
+    for( int i = 0; i < types.size(); i++) {
+      LocalVariableType t = ( LocalVariableType) types.get(i);
+      bv.putShort( t.getStart().getOffset());
+      bv.putShort( t.getEnd().getOffset());
+      bv.putUTF8( t.getName());
+      bv.putUTF8( t.getSignature());
+      bv.putShort( t.getIndex());
+    }
+    return bv;
   }
 
+  private Label getLabel( Label[] labels, int offset) {
+    Label label = labels[ offset];
+    if( label==null) {
+      label = new Label();
+      labels[ offset] = label;
+    }
+    return label;
+  }
+
+  public String toString() {
+    StringBuffer sb = new StringBuffer("LocalVariableTypeTable[");
+    for (int i = 0; i < types.size(); i++) {
+      sb.append('\n').append('[').append(types.get(i)).append(']');
+    }
+    sb.append("\n]");
+    return sb.toString();
+  }
+  
 }
 

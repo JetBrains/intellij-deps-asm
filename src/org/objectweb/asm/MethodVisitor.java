@@ -58,8 +58,8 @@ public interface MethodVisitor {
    *
    * @return a visitor to the visit the actual default value of this annotation
    *      interface method. The 'name' parameters passed to the methods of this
-   *      annotation visitor are ignored. Moreover, only one visit*Value method
-   *      must be called on this annotation visitor.
+   *      annotation visitor are ignored. Moreover, exacly one visit method
+   *      must be called on this annotation visitor, followed by visitEnd.
    */
 
   AnnotationVisitor visitAnnotationDefault ();

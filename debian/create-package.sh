@@ -47,7 +47,11 @@ cp -r "${BASE_DIR}/debian/files/doc"/* "${DEST_DIR}/usr/share/doc/${PROJECT_NAME
 echo "Preparing package control files..."
 
 mkdir "${DEST_DIR}/DEBIAN"
-cp "${BASE_DIR}/debian/files/control"/* "${DEST_DIR}/DEBIAN"
+cp -r "${BASE_DIR}/debian/files/control"/* "${DEST_DIR}/DEBIAN"
+
+echo "Removing CVS files..."
+
+find "${DEST_DIR}" -path "*/CVS" -prune -exec rm -Rf {} \;
 
 echo "Preparing file rights..."
 
@@ -56,7 +60,7 @@ chmod 644 `find "${DEST_DIR}" -type f`
 
 echo "Creating debian package..."
 
-dpkg-deb -b "${DEST_DIR}" "${BUILD_DIR}"
+dpkg-deb -b "${DEST_DIR}" "${BUILD_DIR}" > /dev/null
 
 echo "Removing temporary files..."
 

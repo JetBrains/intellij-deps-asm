@@ -103,10 +103,14 @@
   <target name="init" depends="properties,check">  
     <mkdir dir="${out.test}"/>
     <mkdir dir="${out.test}/reports"/>
-
+    <condition property="classes" value="${out.build}">
+      <not><isset property="debug"/></not>
+    </condition>
+    <condition property="classes" value="${out.build}/tmp">
+      <isset property="debug"/>
+    </condition>
     <path id="test.classpath">
-      <path refid="classpath"/>
-      <pathelement location="${out.build}"/>
+      <pathelement location="${classes}"/>
       <pathelement location="${out.test}"/>
       <pathelement path="${bcel.path}"/>
       <pathelement path="${serp.path}"/>  
@@ -120,7 +124,7 @@
   <!-- ==================================== -->
 
   <target name="compile.test.conform" depends="init" if="test.conform.exist">
-    <javac srcdir="${test.conform}" destdir="${out.test}">
+    <javac srcdir="${test.conform}" destdir="${out.test}" debug="on">
       <classpath refid="test.classpath"/>
       <include name="**/*.java"/>
       <exclude name="annotations/**/*.java" unless="java5"/>
@@ -129,28 +133,28 @@
   </target>
 
   <target name="compile.test.deviance" depends="init" if="test.deviance.exist">
-    <javac srcdir="${test.deviance}" destdir="${out.test}">
+    <javac srcdir="${test.deviance}" destdir="${out.test}" debug="on">
       <classpath refid="test.classpath"/>
       <include name="**/*.java"/>
     </javac>
   </target>
 
   <target name="compile.test.thread" depends="init" if="test.thread.exist">
-    <javac srcdir="${test.thread}" destdir="${out.test}">
+    <javac srcdir="${test.thread}" destdir="${out.test}" debug="on">
       <classpath refid="test.classpath"/>
       <include name="**/*.java"/>
     </javac>
   </target>
 
   <target name="compile.test.stress" depends="init" if="test.stress.exist">
-    <javac srcdir="${test.stress}" destdir="${out.test}">
+    <javac srcdir="${test.stress}" destdir="${out.test}" debug="on">
       <classpath refid="test.classpath"/>
       <include name="**/*.java"/>
     </javac>
   </target>
 
   <target name="compile.test.perf" depends="init" if="test.perf.exist">
-    <javac srcdir="${test.perf}" destdir="${out.test}">
+    <javac srcdir="${test.perf}" destdir="${out.test}" debug="on">
       <classpath refid="test.classpath"/>
       <include name="**/*.java"/>
       <exclude name="**/xml/*.java"/>

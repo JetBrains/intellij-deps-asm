@@ -106,9 +106,9 @@
   <!-- ==========    COMPILE    ========== -->
   <!-- =================================== -->
 
-  <target name="compile.normal" depends="init" unless="debug">
+  <target name="compile" depends="init">
     <mkdir dir="${out.build}/tmp"/>
-    <javac destdir="${out.build}/tmp" optimize="on">
+    <javac destdir="${out.build}/tmp" debug="on">
       <classpath>
         <pathelement location="${out.build}/tmp"/>
       </classpath> 
@@ -122,21 +122,8 @@
       <arg value="${src}/org/objectweb/asm/optimizer/shrink.properties"/>
       <arg value="${out.build}/tmp"/> 
       <arg value="${out.build}"/> 
-    </java> 
+    </java>
   </target>
-
-  <target name="compile.debug" depends="init" if="debug">
-    <mkdir dir="${out.build}"/>
-    <javac destdir="${out.build}" debug="on">
-      <classpath>
-        <pathelement location="${out.build}"/>
-      </classpath> 
-      <src path="${src}"/>
-      <include name="**/*.java"/>
-    </javac>
-  </target>
-
-  <target name="compile" depends="compile.normal,compile.debug"/>
 
   <!-- =================================== -->
   <!-- ==========      TEST     ========== -->

@@ -28,12 +28,13 @@
  ! THE POSSIBILITY OF SUCH DAMAGE.
 -->
 
-<project name="ASM" default="compile">
+<project name="ASM" default="shrink">
 
   <!-- ==================================== -->
   <!-- ======== PROPERTY DEFINITION ======= -->
   <!-- ==================================== -->
 
+  <property file="${user.home}/asm-build.properties"/>
   <property file="build.config"/>
   <property file="build.properties"/>
 
@@ -115,6 +116,16 @@
       <src path="${src}"/>
       <include name="**/*.java"/>
     </javac>
+  </target>
+
+  <target name="shrink.check">
+    <condition property="product.shrink">
+      <not><isset property="product.noshrink"/></not>
+    </condition>
+  </target>
+  
+  <target name="shrink" depends="compile,shrink.check" if="product.shrink">
+    <echo message="Shrinking"/>
     <java classname="org.objectweb.asm.optimizer.Shrinker">
       <classpath>
         <pathelement location="${out.build}/tmp"/>
@@ -124,7 +135,7 @@
       <arg value="${out.build}"/> 
     </java>
   </target>
-
+    
   <!-- =================================== -->
   <!-- ==========      TEST     ========== -->
   <!-- =================================== -->
@@ -144,7 +155,7 @@
     <mkdir dir="${out.dist.lib}"/>
   </target>
 
-  <target name="jar" depends="dist.init,compile">
+  <target name="jar" depends="dist.init,compile,shrink">
     <tstamp>
       <format property="product.build.time" pattern="yyyyMMdd.HHmmss"/>
     </tstamp>

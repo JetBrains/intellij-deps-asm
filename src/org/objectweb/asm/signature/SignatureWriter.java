@@ -134,6 +134,7 @@ public class SignatureWriter implements
   }
 
   public TypeSignatureVisitor visitExceptionType () {
+    buf.append('^');
     return this;
   }
 

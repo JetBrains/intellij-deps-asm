@@ -98,7 +98,7 @@ public class SignatureReader {
     }
     pos = parseType(signature, pos + 1, v.visitReturnType());
     while (pos < len) {
-      pos = parseType(signature, pos, v.visitExceptionType());
+      pos = parseType(signature, pos + 1, v.visitExceptionType());
     }
   }
 

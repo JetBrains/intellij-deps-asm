@@ -298,7 +298,9 @@ public class TraceMethodVisitor extends TraceAbstractVisitor
     buf.append(tab2).append("LOCALVARIABLE ").append(name).append(' ');
     appendDescriptor(FIELD_DESCRIPTOR, desc);
     buf.append(' ');
-    appendDescriptor(FIELD_SIGNATURE, signature);
+    if(signature != null){
+        appendDescriptor(FIELD_SIGNATURE, signature);
+    }
     buf.append(' ');
     appendLabel(start);
     buf.append(' ');

@@ -5,6 +5,11 @@
     <mkdir dir="reports"/>
   </target>
   
+  <target name="clean">
+    <delete dir="classes"/>
+    <delete dir="reports"/>
+  </target>
+
   <target name="build" depends="init">
     <javac srcdir="src15" destdir="classes" target="1.5" source="1.5" debug="yes">
       <classpath>
@@ -34,7 +39,7 @@
     </junit>
     
     <loadfile property="report.file" srcfile="reports/TEST-annotations.ValuesTest.txt"/>
-    <echo message="${report.file}}"/>
+    <echo message="${report.file}"/>
   </target>
 
 </project>

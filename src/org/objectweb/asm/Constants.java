@@ -71,7 +71,7 @@ public interface Constants {
   int ACC_STRICT =       0x0800; //               method 
   int ACC_SYNTHETIC =    0x1000; // class, field, method
   int ACC_ANNOTATION =   0x2000; // class
-  int ACC_ENUM =         0x4000; // class(?) field
+  int ACC_ENUM =         0x4000; // class(?) field  inner
   
   // ASM specific pseudo access flags
   

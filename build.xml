@@ -283,7 +283,7 @@
 <feature id="org.objectweb.asm.feature" label="ASM Framework"
       version="${product.artifact}" provider-name="ObjectWeb.org">
 
-   <description url="http://asm.objectweb.org/">
+   <description url="http://asm.objectweb.org/eclipse/asm/index.html">
 Feature contains ASM Java bytecode manipulation framework runtime.
    </description>
 
@@ -308,7 +308,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
    </license>
 
    <url>
-      <update label="ASM Framework" url="http://asm.objectweb.org/eclipse/site.xml"/>
+      <update label="ASM Framework" url="http://asm.objectweb.org/eclipse/asm/site.xml"/>
    </url>
 
    <plugin id="org.objectweb.asm" download-size="0" install-size="0" version="${plugin.artifact}"/>
@@ -323,7 +323,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
   <target name="eclipse.site" depends="eclipse.feature">
     <echo file="${out}/site.xml"><![CDATA[<?xml version="1.0" encoding="UTF-8"?>
 <site>
-   <description url="http://asm.objectweb.org/eclipse.html">
+   <description url="http://asm.objectweb.org/eclipse/asm/index.html">
       ASM Framework
    </description>
    
@@ -332,6 +332,8 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
    </feature>
 
    <category-def name="asm" label="ASM Framework"/>
+      
+   <archive path="plugins/org.objectweb.asm_${plugin.artifact}.jar" url="http://download.forge.objectweb.org/asm/org.objectweb.asm_${plugin.artifact}.jar"/>
 </site>]]></echo>
     
     <zip zipfile="${out}/org.objectweb.asm.update_${plugin.artifact}.zip">

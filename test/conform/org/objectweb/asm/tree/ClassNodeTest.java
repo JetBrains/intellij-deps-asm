@@ -52,7 +52,7 @@ public class ClassNodeTest extends AbstractTest {
     ClassReader cr = new ClassReader(is);
     ClassNode cn = new ClassNode();
     cr.accept(cn, false);
-    ClassWriter cw = new ClassWriter(false);
+    ClassWriter cw = new ClassWriter(false, true);
     cn.accept(cw);
     assertEquals(cr, new ClassReader(cw.toByteArray()));
   }

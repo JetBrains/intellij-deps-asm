@@ -46,7 +46,7 @@ public class ClassWriterTest extends AbstractTest {
   
   public void test () throws Exception {
     ClassReader cr = new ClassReader(is);
-    ClassWriter cw = new ClassWriter(false);
+    ClassWriter cw = new ClassWriter(false, true);
     cr.accept(cw, false);
     assertEquals(cr, new ClassReader(cw.toByteArray()));
   }

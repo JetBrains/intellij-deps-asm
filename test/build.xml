@@ -41,7 +41,7 @@
   <property name="test.perf"      value="${test}/perf"/>
 
   <target name="properties">
-    <condition property="asm.test" value="${java.home}/lib/rt.jar">
+    <condition property="asm.test" value="${java.home}/lib/rt.jar,test/conform/cases">
       <not><isset property="asm.test"/></not>
     </condition>
     

@@ -56,7 +56,7 @@ public class StackMapTypeInfo {
   public static final int ITEM_Uninitialized = 8;
   
   public static final String[] ITEM_NAMES = { "Top", "Integer", "Float", "Double", "Long", "Null", 
-      "UninitializedThis", "Object:", "Uninitialized:"};
+      "UninitializedThis", "Object", "Uninitialized"};
   
   private int type;
   private Label offset = null;
@@ -92,8 +92,8 @@ public class StackMapTypeInfo {
 
   public String toString() {
     StringBuffer sb = new StringBuffer( ITEM_NAMES[ type]);
-    if( type==ITEM_Object) sb.append( object);
-    if( type==ITEM_Uninitialized) sb.append( "L").append( System.identityHashCode( offset));
+    if( type==ITEM_Object) sb.append( ":").append( object);
+    if( type==ITEM_Uninitialized) sb.append( ":L").append( System.identityHashCode( offset));
     return sb.toString();
   }
 

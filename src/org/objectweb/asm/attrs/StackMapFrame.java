@@ -37,6 +37,7 @@ package org.objectweb.asm.attrs;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.objectweb.asm.ByteVector;
@@ -95,10 +96,10 @@ public class StackMapFrame {
        off += 4;
     } else {
        n = cr.readUnsignedShort( off);
-       off += 4;
+       off += 2;
     }
     for( int j = 0; j<n; j++) {
-      int itemType = cr.readUnsignedShort( off++) & 0xff;
+      int itemType = cr.readUnsignedShort( off++) >> 8;
       StackMapTypeInfo typeInfo = StackMapTypeInfo.getTypeInfo( itemType);
       info.add( typeInfo);
       switch( itemType) {
@@ -107,12 +108,12 @@ public class StackMapFrame {
           off += 2;
           break;
 
-         case StackMapTypeInfo.ITEM_Uninitialized:  //
-           int o = cr.readUnsignedShort( off);
-           off += 2;
-           if( labels[ o]==null) labels[ o] = new Label();
-           typeInfo.setLabel( labels[ o]);
-           break;
+        case StackMapTypeInfo.ITEM_Uninitialized:  //
+          int o = cr.readUnsignedShort( off);
+          off += 2;
+          if( labels[ o]==null) labels[ o] = new Label();
+          typeInfo.setLabel( labels[ o]);
+          break;
       }
     }
     return off;
@@ -136,22 +137,54 @@ public class StackMapFrame {
     }
   }
   
+  public void dump( StringBuffer buf, String varName, Map labelNames) {
+    declareLabel( buf, labelNames, label);
+    buf.append( varName).append( ".label = ").append( labelNames.get(label)).append( ";\n");
+    
+    dumpTypeInfo(buf, varName, labelNames, locals);
+    dumpTypeInfo(buf, varName, labelNames, stack);
+  }
+
+  private void dumpTypeInfo(StringBuffer buf, String varName, Map labelNames, List infos) {
+    if( infos.size()>0) {
+      buf.append( "{\n"); 
+      for( int i = 0; i<infos.size(); i++) {
+        StackMapTypeInfo typeInfo = ( StackMapTypeInfo) infos.get( i);
+        String localName = varName+"Info"+i;
+        int type = typeInfo.getType();
+        buf.append( "StackMapTypeInfo ").append( localName)
+           .append( " = new StackMapTypeInfo( StackMapTypeInfo.ITEM_")
+           .append( StackMapTypeInfo.ITEM_NAMES[ type]).append(");\n");
+        
+        switch( type) {
+          case StackMapTypeInfo.ITEM_Object:  //
+            buf.append( localName).append( ".setObject(").append( typeInfo.getObject()).append(");\n"); 
+            break;
+
+          case StackMapTypeInfo.ITEM_Uninitialized:  //
+            declareLabel( buf, labelNames, typeInfo.getLabel());
+            buf.append( localName).append( ".setLabel(").append( labelNames.get( typeInfo.getLabel())).append( ");\n");
+            break;
+        }
+        buf.append( varName).append( ".add(").append( localName).append( ");\n");
+      }
+      buf.append( "}\n"); 
+    }
+  }
+
+  public static void declareLabel( StringBuffer buf, Map labelNames, Label l) {
+    String name = (String)labelNames.get(l);
+    if( name==null) {
+      name = "l"+labelNames.size();
+      labelNames.put( l, name);
+      buf.append("Label ").append(name).append(" = new Label();\n");
+    }
+  }
+  
   public String toString() {
     StringBuffer sb = new StringBuffer( "Frame:L"+System.identityHashCode( label));
-    sb.append( " locals[");
-    String pref = "";
-    for( int i = 0; i<locals.size(); i++) {
-      sb.append( pref).append( locals.get( i));
-      pref = ":";
-    }
-    sb.append( "]");
-    sb.append( " stack[");
-    pref = "";
-    for( int i = 0; i<stack.size(); i++) {
-      sb.append( pref).append( stack.get( i));
-      pref = ":";
-    }
-    sb.append( "]");
+    sb.append( " locals").append( locals);
+    sb.append( " stack").append( stack);
     return sb.toString();
   }
 

@@ -35,10 +35,8 @@
 package org.objectweb.asm.attrs;
 
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.LinkedList;
-import java.util.List;
-import java.util.Set;
+import java.util.Map;
 
 import org.objectweb.asm.Attribute;
 import org.objectweb.asm.ByteVector;
@@ -145,10 +143,10 @@ import org.objectweb.asm.Label;
  * 
  * @author Eugene Kuleshov
  */
-public class StackMapAttribute extends Attribute {
+public class StackMapAttribute extends Attribute implements Dumpable {
   static final int MAX_SIZE = 65535;
 
-  public List frames = new LinkedList();
+  public LinkedList frames = new LinkedList();
 
   public StackMapAttribute() {
     super( "StackMap");
@@ -161,10 +159,10 @@ public class StackMapAttribute extends Attribute {
     int codeSize = cr.readInt( codeOff + 4);
     int size = 0;
     if( codeSize>MAX_SIZE) {
-       cr.readInt( off);
+       size = cr.readInt( off);
        off += 4;
     } else {
-       cr.readShort( off);
+       size = cr.readShort( off);
        off += 2;
     }
     for( int i = 0; i<size; i++) {
@@ -186,10 +184,21 @@ public class StackMapAttribute extends Attribute {
   }
   
   protected Label[] getLabels() {
-    Set labels = new HashSet();
+    HashSet labels = new HashSet();
     for( int i = 0; i<frames.size(); i++)
     	(( StackMapFrame) frames.get( i)).getLabels( labels);
     return ( Label[]) labels.toArray( new Label[ labels.size()]);
+  }
+  
+  public void dump(StringBuffer buf, String varName, Map labelNames) {
+    buf.append( "{\n");
+    buf.append( "StackMapAttribute ").append( varName+"Attr").append( " = new StackMapAttribute();\n");
+    if( frames.size()>0) {
+      for( int i = 0; i<frames.size(); i++)
+        (( StackMapFrame) frames.get( i)).dump( buf, varName+"frame"+i, labelNames);
+    }
+    buf.append( varName).append( ".visitAttribute(").append( varName+"Attr").append( ");\n");
+    buf.append( "}\n");
   }
   
   public String toString() {

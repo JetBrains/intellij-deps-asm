@@ -209,15 +209,15 @@ public final class SAXCodeAdapter extends SAXAdapter implements MethodVisitor {
 
 
   public AnnotationVisitor visitAnnotationDefault() {
-    return new SAXAnnotationAdapter( getContentHandler(), "annotationDefault", null, null);
+    return new SAXAnnotationAdapter( getContentHandler(), "annotationDefault", 0, null, null);
   }
   
   public AnnotationVisitor visitAnnotation( String desc, boolean visible) {
-    return new SAXAnnotationAdapter( getContentHandler(), visible ? "visibleAnnotation" : "invisibleAnnotation", null, desc);
+    return new SAXAnnotationAdapter( getContentHandler(), "annotation", visible ? 1 : -1, null, desc);
   }
   
   public AnnotationVisitor visitParameterAnnotation( int parameter, String desc, boolean visible) {
-    return new SAXAnnotationAdapter( getContentHandler(), visible ? "visibleParameterAnnotation" : "invisibleParameterAnnotation", parameter, desc);
+    return new SAXAnnotationAdapter( getContentHandler(), "parameterAnnotation", visible ? 1 : -1, parameter, desc);
   }
   
   public void visitEnd() {

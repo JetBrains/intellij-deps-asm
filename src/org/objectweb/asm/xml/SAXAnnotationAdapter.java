@@ -43,22 +43,25 @@ import org.xml.sax.helpers.AttributesImpl;
  */
 public class SAXAnnotationAdapter extends SAXAdapter implements AnnotationVisitor {
   private final String elementName;
+  private final int visible;
   
 
-  public SAXAnnotationAdapter( ContentHandler h, String elementName, String name, String desc) {
-    this(h, elementName, desc, name, -1);
+  public SAXAnnotationAdapter( ContentHandler h, String elementName, int visible, String name, String desc) {
+    this(h, elementName, visible, desc, name, -1);
   }
 
-  public SAXAnnotationAdapter( ContentHandler h, String elementName, int parameter, String desc) {
-    this(h, elementName, desc, null, parameter);
+  public SAXAnnotationAdapter( ContentHandler h, String elementName, int visible, int parameter, String desc) {
+    this(h, elementName, visible, desc, null, parameter);
   }
 
-  private SAXAnnotationAdapter( ContentHandler h, String elementName, String desc, String name, int parameter) {
+  private SAXAnnotationAdapter( ContentHandler h, String elementName, int visible, String desc, String name, int parameter) {
     super( h);
     this.elementName = elementName;
+    this.visible = visible;
     
     AttributesImpl att = new AttributesImpl();
     if( name!=null) att.addAttribute( "", "name", "name", "", name);
+    if( visible!=0) att.addAttribute( "", "visible", "visible", "", visible>0 ? "true" : "false");
     if( parameter!=-1) att.addAttribute( "", "parameter", "parameter", "", Integer.toString(parameter));
     if( desc!=null) att.addAttribute( "", "desc", "desc", "", desc);
    
@@ -68,19 +71,19 @@ public class SAXAnnotationAdapter extends SAXAdapter implements AnnotationVisito
   
   public void visit( String name, Object value) {
     // TODO implement proper handling of primitive arrays
-    addValueElement( "value", name, Type.getDescriptor( value.getClass()), value.toString());
+    addValueElement( "annotationValue", name, Type.getDescriptor( value.getClass()), value.toString());
   }
 
   public void visitEnum( String name, String desc, String value) {
-    addValueElement( "valueEnum", name, desc, value);
+    addValueElement( "annotationValueEnum", name, desc, value);
   }
 
   public AnnotationVisitor visitAnnotation( String name, String desc) {
-    return new SAXAnnotationAdapter(getContentHandler(), "valueAnnotation", name, desc);
+    return new SAXAnnotationAdapter(getContentHandler(), "annotationValueAnnotation", 0, name, desc);
   }
 
   public AnnotationVisitor visitArray( String name) {
-    return new SAXAnnotationAdapter(getContentHandler(), "valueArray", name, null);
+    return new SAXAnnotationAdapter(getContentHandler(), "annotationValueArray", 0, name, null);
   }
 
   public void visitEnd() {

@@ -96,8 +96,7 @@ public final class SAXClassAdapter extends SAXAdapter implements ClassVisitor {
   }
   
   public AnnotationVisitor visitAnnotation( String desc, boolean visible) {
-    // TODO Auto-generated method stub
-    return new SAXAnnotationAdapter(getContentHandler(), visible ? "visibleAnnotation" : "invisibleAnnotation", null, desc);
+    return new SAXAnnotationAdapter(getContentHandler(), "annotation", visible ? 1 : -1, null, desc);
   }
 
   public void visit( int version, int access, String name, String signature, String superName, String[] interfaces) {

@@ -56,7 +56,7 @@ public class SAXFieldAdapter implements FieldVisitor {
   }
 
   public AnnotationVisitor visitAnnotation( String desc, boolean visible) {
-    return new SAXAnnotationAdapter( h, visible ? "visibleAnnotation" : "invisibleAnnotation", null, desc);
+    return new SAXAnnotationAdapter( h, "annotation", visible ? 1 : -1, null, desc);
   }
 
   public void visitAttribute( Attribute attr) {

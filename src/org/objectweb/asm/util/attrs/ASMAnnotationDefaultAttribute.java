@@ -105,20 +105,21 @@ public class ASMAnnotationDefaultAttribute extends AnnotationDefaultAttribute
     }
   }
 
-  static void asmify (Annotation a, StringBuffer buf, String varName) {
+  static String asmify (Annotation a, StringBuffer buf, String varName) {
     buf.append("Annotation ").append(varName)
     	.append(" = new Annotation(\"").append(a.type).append("\");\n");
     List elementValues = a.elementValues;
     if (elementValues.size() > 0) {
-      buf.append("{\n");
+      // buf.append("{\n");
       for (int i = 0; i < elementValues.size(); i++) {
         Object[] values = (Object[])elementValues.get(i);
         String val = asmify(values[1], buf, varName + "val" + i);
         buf.append(varName).append(".add( \"")
           .append(values[0]).append("\", ").append(val).append(");\n");
       }
-      buf.append("}\n");
+      // buf.append("}\n");
     }
+    return varName;
   }
 
   static String asmify (Object value, StringBuffer buf, String valName) {
@@ -155,18 +156,17 @@ public class ASMAnnotationDefaultAttribute extends AnnotationDefaultAttribute
 
     } else if (value instanceof Type) {
       Type t = (Type)value;
-      return "Type.getType(\""+t.getDescriptor()+"\"";
+      return "Type.getType(\""+t.getDescriptor()+"\")";
 
     } else if (value instanceof Annotation) {
-      asmify((Annotation)value, buf, valName);
-      return valName;
+      return asmify((Annotation)value, buf, valName);
 
     } else if (value instanceof Object[]) {
       Object[] v = (Object[])value;
       buf.append("Object[] ").append(valName)
         .append(" = new Object[").append(v.length).append("];\n");
       for (int i = 0; i < v.length; i++) {
-        String val = asmify(v[i], buf, valName+"["+i+"]");
+        String val = asmify(v[i], buf, valName+"Arr"+i);
         buf.append(valName+"["+i+"] = ").append(val).append(";\n");
       }
       return valName;

@@ -226,7 +226,7 @@ public interface CodeVisitor {
    * @param start beginning of the exception handler's scope (inclusive).
    * @param end end of the exception handler's scope (exclusive).
    * @param handler beginning of the exception handler's code.
-   * @param type name of the type of exceptions handled by the handler,
+   * @param type internal name of the type of exceptions handled by the handler,
    *      or <tt>null</tt> to catch any exceptions (for "finally" blocks).
    * @throws IllegalArgumentException if one of the labels has not already been
    *      visited by this visitor (by the {@link #visitLabel visitLabel}

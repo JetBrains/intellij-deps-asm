@@ -138,11 +138,12 @@ import org.objectweb.asm.Label;
  *   }
  * </pre>
  *
- *
+ * @see <a href="http://www.jcp.org/en/jsr/detail?id=139">JSR 139 : Connected Limited Device Configuration 1.1</a>
+ * 
  * @author Eugene Kuleshov
  */
 public class StackMapAttribute extends Attribute {
-  private static final int MAX_SIZE = 65535;
+  static final int MAX_SIZE = 65535;
 
   public List frames = new LinkedList();
 
@@ -156,69 +157,21 @@ public class StackMapAttribute extends Attribute {
     int codeSize = cr.readInt( codeOff + 4);
     int size = codeSize>MAX_SIZE ? cr.readInt( off += 2) : cr.readShort( off =+ 2);
     for( int i = 0; i<size; i++) {
-      int n = cr.readUnsignedShort( off =+ 2);
-      if( labels[ n]==null) labels[ n] = new Label();
-      StackMapFrame frame = new StackMapFrame( labels[ n]);
+      StackMapFrame frame = new StackMapFrame();
+      off = frame.read( cr, off, buf, codeOff, labels);    
       attr.frames.add( frame);
-
-      off = readTypeInfo( cr, off, frame.locals, labels, buf, cr.readUnsignedShort( codeOff+2));  //  maxLocals
-      off = readTypeInfo( cr, off, frame.stack, labels, buf, cr.readUnsignedShort( codeOff));  // maxStack
     }
-
     return attr;
   }
 
-  protected ByteVector write(ClassWriter cw, byte[] code, int len, int maxStack, int maxLocals) {
+  protected ByteVector write( ClassWriter cw, byte[] code, int len, int maxStack, int maxLocals) {
     ByteVector bv = new ByteVector();
     if( code.length>MAX_SIZE) bv.putInt( frames.size());
     else bv.putShort( frames.size());
     for( int i = 0; i<frames.size(); i++) {
-      StackMapFrame frame = ( StackMapFrame) frames.get( i);
-      bv.putShort( frame.label.getOffset());
-
-      writeTypeInfo( bv, cw, frame.locals, maxLocals);
-      writeTypeInfo( bv, cw, frame.stack, maxStack);
+      (( StackMapFrame) frames.get( i)).write( cw, maxStack, maxLocals, bv);
     }
     return bv;
-  }
-
-  private int readTypeInfo( ClassReader cr, int off, List locals, Label[] labels, char[] buf, int max) {
-    int n = max>MAX_SIZE ? cr.readInt( off =+ 4) : cr.readUnsignedShort( off =+ 2);
-    for( int j = 0; j<n; j++) {
-      int itemType = cr.readUnsignedShort( off++) & 0xff;
-      StackMapTypeInfo typeInfo = StackMapTypeInfo.getTypeInfo( itemType);
-      locals.add( typeInfo);
-      switch( itemType) {
-        case StackMapTypeInfo.ITEM_Object:  //
-          typeInfo.setObject( cr.readClass( off =+ 2, buf));
-          break;
-
-        case StackMapTypeInfo.ITEM_Uninitialized:  //
-          int o = cr.readUnsignedShort( off =+ 2);
-          if( labels[ o]==null) labels[ o] = new Label();
-          typeInfo.setLabel( labels[ o]);
-          break;
-      }
-    }
-    return off;
-  }
-
-  private void writeTypeInfo( ByteVector bv, ClassWriter cw, List locals, int max) {
-    if( max>MAX_SIZE) bv.putInt( locals.size());
-    else bv.putShort( locals.size());
-    for( int j = 0; j<locals.size(); j++) {
-      StackMapTypeInfo typeInfo = ( StackMapTypeInfo) locals.get( j);
-      bv = new ByteVector().putByte( typeInfo.getType());
-      switch( typeInfo.getType()) {
-        case StackMapTypeInfo.ITEM_Object:  //
-          bv.putShort( cw.newClass( typeInfo.getObject()));
-          break;
-
-         case StackMapTypeInfo.ITEM_Uninitialized:  //
-           bv.putShort( typeInfo.getLabel().getOffset());
-           break;
-      }
-    }
   }
 
   public String toString() {

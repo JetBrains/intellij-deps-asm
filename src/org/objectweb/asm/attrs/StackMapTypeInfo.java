@@ -38,7 +38,9 @@ import org.objectweb.asm.Label;
 
 
 /**
- * Verification type info used by StackMapAttribute
+ * Verification type info used by {@link StackMapAttribute}.
+ * 
+ * @see <a href="http://www.jcp.org/en/jsr/detail?id=139">JSR 139 : Connected Limited Device Configuration 1.1</a>
  * 
  * @author Eugene Kuleshov
  */

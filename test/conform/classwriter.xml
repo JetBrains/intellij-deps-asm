@@ -1,20 +1,6 @@
 <project name="conform" default="test">
 
   <target name="test">
-    <condition property="asm.test" value="${java.home}/lib/rt.jar">
-      <not><isset property="asm.test"/></not>
-    </condition>
-    <condition property="asm.test.class" value="">
-      <not><isset property="asm.test.class"/></not>
-    </condition>
-    <mkdir dir="${out.test}/reports"/>
-    <path id="classpath">
-      <pathelement location="${out.build}"/>
-      <pathelement location="${out.test}"/>
-      <fileset dir="${test}">
-        <include name="lib/*.jar"/>
-      </fileset>
-    </path>
     <junit fork="yes" 
            printsummary="yes"
            errorproperty="test.failed"
@@ -25,7 +11,7 @@
         </fileset>
       </batchtest>
       <formatter type="xml"/>
-      <classpath refid="classpath"/>
+      <classpath refid="test.classpath"/>
       <jvmarg value="-Dasm.test=${asm.test}"/>
       <jvmarg value="-Dasm.test.class=${asm.test.class}"/>
     </junit>

@@ -294,6 +294,22 @@
 
   </target>
 
+  <!-- Create a debian package -->
+
+  <target name="dist.deb" depends="jar">
+
+    <exec dir="${basedir}" executable="fakeroot" failonerror="true">
+      <arg value="${basedir}/debian/create-package.sh"/>
+      <arg value="${basedir}"/>
+      <arg value="${dist.lib}"/>
+      <arg value="${build}/debian"/>
+      <arg value="${product.name}"/>
+      <arg value="${product.version}"/>
+      <arg value="${build}"/>
+    </exec>
+
+  </target>
+
   <!-- calls the default target of each xml file in ${archive} directory -->
 
   <target name="jar" depends="compile">

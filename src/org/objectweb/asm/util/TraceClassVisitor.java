@@ -40,9 +40,7 @@ import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.FieldVisitor;
-import org.objectweb.asm.signature.ClassSignatureVisitor;
 import org.objectweb.asm.signature.SignatureReader;
-import org.objectweb.asm.signature.TypeSignatureVisitor;
 
 
 /**
@@ -207,12 +205,12 @@ public class TraceClassVisitor extends TraceAbstractVisitor
     appendDescriptor(INTERNAL_NAME, name);
     
     if( signature!=null) {
-      ClassSignatureDecompiler classSignatureDecompiler = new ClassSignatureDecompiler( access);
+      TraceSignatureVisitor signatureVisitor = new TraceSignatureVisitor( access);
 
       SignatureReader r = new SignatureReader( signature);
-      r.acceptClass( classSignatureDecompiler);
+      r.acceptClass( signatureVisitor);
       
-      buf.append( classSignatureDecompiler.toString());
+      buf.append( signatureVisitor.toString());
       
     } else {
       buf.append(' ');
@@ -228,11 +226,6 @@ public class TraceClassVisitor extends TraceAbstractVisitor
           buf.append(' ');
         }
       }
-//      if (signature != null) {
-//        buf.append("/* ");
-//        appendDescriptor(CLASS_SIGNATURE, signature);
-//        buf.append(" */ {\n\n");
-//      }
     }
     buf.append(" {\n\n");
 
@@ -445,208 +438,6 @@ public class TraceClassVisitor extends TraceAbstractVisitor
     if ((access & Opcodes.ACC_STRICT) != 0) {
       buf.append("strictfp ");
     }
-  }
-
-
-  /**
-   * <code>ClassSignatureVisitor</code> implementation that constructs 
-   * Java class declaration based on information from sigature value. 
-   */
-  public static final class ClassSignatureDecompiler implements ClassSignatureVisitor, TypeSignatureVisitor {
-    private StringBuffer buf = new StringBuffer();
-
-    private boolean seenInterfaceBound = false;
-    private boolean seenParameter = false;
-    private boolean seenInterface = false;
-    
-    private boolean isInterface;
-
-    private boolean seenArguments;
-
-    
-    public ClassSignatureDecompiler( int access) {
-      this.isInterface = ( access & Opcodes.ACC_INTERFACE)!=0;
-    }
-
-    // AbstractSignatureVisitor
-    
-    public void visitFormalTypeParameter( String name) {
-      buf.append( seenParameter ? ", " : "<").append( name);
-      seenParameter = true;
-    }
-
-    public TypeSignatureVisitor visitClassBound() {
-      return new TypeDecompiler( buf, " extends ");
-    }
-
-    public TypeSignatureVisitor visitInterfaceBound() {
-      String s = seenInterfaceBound ? ", " : ( isInterface ? " extends " : " implements ");
-      seenInterfaceBound = true;
-      return new TypeDecompiler( buf, s);
-    }
-
-
-    // ClassSignatureVisitor
-    
-    public TypeSignatureVisitor visitSuperclass() {
-      if( seenParameter) {
-        buf.append( ">");
-        seenParameter = false;
-      }
-      return new TypeDecompiler( buf, " extends ");
-    }
-
-    public TypeSignatureVisitor visitInterface() {
-      if( seenParameter) {
-        buf.append( ">");
-        seenParameter = false;
-      }
-      String s = seenInterface ? ", " : ( isInterface ? " extends " : " implements ");
-      seenInterface = true;
-      return new TypeDecompiler( buf, s);
-    }
-
-    
-    // TypeSignatureVisitor
-    
-    public void visitBaseType( char descriptor) {
-      throw new IllegalStateException( "visitBaseType() "+descriptor);
-    }
-
-    public void visitTypeVariable( String name) {
-      throw new IllegalStateException( "visitTypeVariable() "+name);
-    }
-
-    public void visitInnerClassType( String name) {
-      throw new IllegalStateException( "visitInnerClassType() "+name);
-    }
-
-    public TypeSignatureVisitor visitArrayType() {
-      // throw new IllegalStateException( "visitArrayType()");
-      return new TypeDecompiler( buf, "[]");
-    }
-
-    public void visitClassType( String name) {
-      buf.append( name.replace( '/', '.'));
-    }
-
-    public void visitTypeArgument() {
-      buf.append( seenArguments ? ", ?" : "<?");
-      seenArguments = true;
-    }
-
-    public TypeSignatureVisitor visitTypeArgument( char wildcard) {
-      buf.append( seenArguments ? ", " : "<");
-      seenArguments = true;
-      return new TypeArgumentDecompiler( wildcard, buf);
-    }
-
-    public void visitEnd() {
-      if( seenArguments) {
-        buf.append( ">");
-      }
-    }
-
-    
-    public String toString() {
-      return buf.toString();
-    }
-
-  }
-
-  
-  public static final class TypeDecompiler extends TypeSignatureAdapter {
-    private final StringBuffer buf;
-    private final String s;
-    private boolean seenArguments;
-    
-    public TypeDecompiler( StringBuffer buf, String s) {
-      this.buf = buf;
-      this.s = s;
-    }
-
-    public void visitClassType( String name) {
-      if( !"java/lang/Object".equals( name)) {
-        buf.append( s).append( name.replace( '/', '.'));
-      }
-    }
-    
-    public TypeSignatureVisitor visitTypeArgument( char wildcard) {
-      buf.append( seenArguments ? ", " : "<");
-      seenArguments = true;
-      return new TypeArgumentDecompiler( wildcard, buf);
-    }
-    
-    public void visitTypeArgument() {
-      buf.append( seenArguments ? ", ?" : "<?");
-      seenArguments = true;
-    }
-    
-    public void visitTypeVariable( String name) {
-      buf.append( name);
-    }
-    
-    public void visitEnd() {
-      if( seenArguments) {
-        buf.append( ">");
-      }
-    }
-  }
-  
-  
-  public static final class TypeArgumentDecompiler extends TypeSignatureAdapter {
-    private final StringBuffer buf;
-
-    public TypeArgumentDecompiler( char tag, StringBuffer buf) {
-      this.buf = buf;
-      if( tag==TypeSignatureVisitor.EXTENDS) {
-        buf.append( "? extends ");
-      } else if( tag==TypeSignatureVisitor.SUPER) {
-        buf.append( "? super ");
-      }
-    }
-
-    public void visitTypeVariable( String name) {
-      buf.append( name);
-    }
-    
-  }
-  
-  
-  public static abstract class TypeSignatureAdapter implements TypeSignatureVisitor {
-
-    public void visitClassType( String name) {
-      throw new IllegalStateException( getClass().getName());
-    }
-
-    public void visitInnerClassType( String name) {
-      throw new IllegalStateException( getClass().getName());
-    }
-
-    public void visitBaseType( char descriptor) {
-      throw new IllegalStateException( getClass().getName());
-    }
-
-    public void visitTypeVariable( String name) {
-      throw new IllegalStateException( getClass().getName()+" "+name);
-    }
-
-    public TypeSignatureVisitor visitArrayType() {
-      throw new IllegalStateException( getClass().getName());
-    }
-
-    public void visitTypeArgument() {
-      throw new IllegalStateException( getClass().getName());
-    }
-
-    public TypeSignatureVisitor visitTypeArgument( char tag) {
-      throw new IllegalStateException( getClass().getName());
-    }
-
-    public void visitEnd() {
-      // throw new IllegalStateException();
-    }
-
   }
 
 }

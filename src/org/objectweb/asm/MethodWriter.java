@@ -1773,7 +1773,7 @@ class MethodWriter implements MethodVisitor {
           writeShort(b, u, newOffset);
           label += readUnsignedShort(b, u + 2);
           newOffset = getNewOffset(allIndexes, allSizes, 0, label) - newOffset;
-          writeShort(b, u, newOffset);
+          writeShort(b, u + 2, newOffset);
           u += 10;
         }
       }

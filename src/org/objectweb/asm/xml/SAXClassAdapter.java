@@ -52,21 +52,18 @@ import org.xml.sax.helpers.AttributesImpl;
  */
 public final class SAXClassAdapter implements ClassVisitor {
   private ContentHandler h;
-  private int[] version;
   private boolean singleDocument;
 
   /**
    * Constructs a new {@link SAXClassAdapter SAXClassAdapter} object.
    * 
-   * @param h content handler that will be used to send SAX 2.0 events. 
-   * @param version major and minir version of the source class 
+   * @param h content handler that will be used to send SAX 2.0 events.
    * @param singleDocument if <tt>true</tt> adapter will not produce
    *   {@link ContentHandler#startDocument() startDocument()} and 
    *   {@link ContentHandler#endDocument() endDocument()} events.
    */
-  public SAXClassAdapter( ContentHandler h, int[] version, boolean singleDocument) {
+  public SAXClassAdapter( ContentHandler h, boolean singleDocument) {
     this.h = h;
-    this.version = version;
     this.singleDocument = singleDocument;
     if( !singleDocument) {
       try {
@@ -77,7 +74,7 @@ public final class SAXClassAdapter implements ClassVisitor {
     }
   }
 
-  public final void visit( int access, String name, String superName, String[] interfaces, String sourceFile) {
+  public final void visit( int version, int access, String name, String superName, String[] interfaces, String sourceFile) {
     try {
       StringBuffer sb = new StringBuffer();
       if(( access & Constants.ACC_PUBLIC)!=0) sb.append( "public ");
@@ -97,8 +94,8 @@ public final class SAXClassAdapter implements ClassVisitor {
       if( name!=null) attrs.addAttribute( "", "name", "name", "", name);
       if( superName!=null) attrs.addAttribute( "", "parent", "parent", "", superName);
       if( sourceFile!=null) attrs.addAttribute( "", "source", "source", "", sourceFile);
-      attrs.addAttribute( "", "major", "major", "", Integer.toString( version[ 0]));
-      attrs.addAttribute( "", "minor", "minor", "", Integer.toString( version[ 1]));
+      attrs.addAttribute( "", "major", "major", "", new Integer(version & 0xFFFF).toString());
+      attrs.addAttribute( "", "minor", "minor", "", new Integer(version >>> 16).toString());
       h.startElement( "", "class", "class", attrs);
       
       h.startElement( "", "interfaces", "interfaces", new AttributesImpl());

@@ -44,6 +44,7 @@ public interface ClassVisitor {
   /**
    * Visits the header of the class.
    *
+   * @param version the class version.
    * @param access the class's access flags (see {@link Constants}). This
    *      parameter also indicates if the class is deprecated.
    * @param name the internal name of the class (see {@link Type#getInternalName()
@@ -59,6 +60,7 @@ public interface ClassVisitor {
    */
 
   void visit (
+    int version,
     int access,
     String name,
     String superName,

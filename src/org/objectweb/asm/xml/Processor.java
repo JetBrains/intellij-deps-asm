@@ -246,7 +246,7 @@ public class Processor {
       boolean singleInputDocument = inRepresentation==SINGLE_XML;
       if( inRepresentation==BYTECODE) {  // read bytecode and process it with handler
         ClassReader cr = new ClassReader( readEntry( zis, ze));
-        cr.accept( new SAXClassAdapter( handler, cr.getVersion(), singleInputDocument), false);
+        cr.accept( new SAXClassAdapter( handler, singleInputDocument), false);
       
       } else {  // read XML and process it with handler  
         XMLReader reader = XMLReaderFactory.createXMLReader();

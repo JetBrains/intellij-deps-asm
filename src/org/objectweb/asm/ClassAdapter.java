@@ -59,13 +59,14 @@ public class ClassAdapter implements ClassVisitor {
   }
 
   public void visit (
+    final int version,
     final int access,
     final String name,
     final String superName,
     final String[] interfaces,
     final String sourceFile)
   {
-    cv.visit(access, name, superName, interfaces, sourceFile);
+    cv.visit(version, access, name, superName, interfaces, sourceFile);
   }
 
   public void visitInnerClass (

@@ -78,13 +78,14 @@ public class TreeClassAdapter extends ClassAdapter {
   }
 
   public void visit (
+    final int version,
     final int access,
     final String name,
     final String superName,
     final String[] interfaces,
     final String sourceFile)
   {
-    classNode = new ClassNode(access, name, superName, interfaces, sourceFile);
+    classNode = new ClassNode(version, access, name, superName, interfaces, sourceFile);
   }
 
   public void visitInnerClass (

@@ -75,13 +75,14 @@ class AddCommentClassAdapter extends ClassAdapter implements Constants {
   }
 
   public void visit (
+    final int version,
     final int access,
     final String name,
     final String superName,
     final String[] interfaces,
     final String sourceFile)
   {
-    super.visit(access, name, superName, interfaces, sourceFile);
+    super.visit(version, access, name, superName, interfaces, sourceFile);
     visitAttribute(new CommentAttribute("this is a class comment"));
   }
 

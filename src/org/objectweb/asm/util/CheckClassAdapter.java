@@ -157,6 +157,7 @@ public class CheckClassAdapter extends ClassAdapter {
   }
 
   public void visit (
+    final int version,
     final int access,
     final String name,
     final String superName,
@@ -201,7 +202,7 @@ public class CheckClassAdapter extends ClassAdapter {
           interfaces[i], "interface name at index " + i);
       }
     }
-    cv.visit(access, name, superName, interfaces, sourceFile);
+    cv.visit(version, access, name, superName, interfaces, sourceFile);
   }
 
   public void visitInnerClass (

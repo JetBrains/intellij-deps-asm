@@ -46,6 +46,12 @@ import java.util.Arrays;
 public class ClassNode {
 
   /**
+   * The class version.
+   */
+  
+  public int version;
+  
+  /**
    * The class's access flags (see {@link org.objectweb.asm.Constants}). This
    * field also indicates if the class is deprecated.
    */
@@ -113,6 +119,7 @@ public class ClassNode {
   /**
    * Constructs a new {@link ClassNode ClassNode} object.
    *
+   * @param version the class version.
    * @param access the class's access flags (see {@link
    *      org.objectweb.asm.Constants}). This parameter also indicates if the
    *      class is deprecated.
@@ -129,12 +136,14 @@ public class ClassNode {
    */
 
   public ClassNode (
+    final int version,
     final int access,
     final String name,
     final String superName,
     final String[] interfaces,
     final String sourceFile)
   {
+    this.version = version;
     this.access = access;
     this.name = name;
     this.superName = superName;
@@ -158,7 +167,7 @@ public class ClassNode {
     // visits header
     String[] interfaces = new String[this.interfaces.size()];
     this.interfaces.toArray(interfaces);
-    cv.visit(access, name, superName, interfaces, sourceFile);
+    cv.visit(version, access, name, superName, interfaces, sourceFile);
     // visits inner classes
     int i;
     for (i = 0; i < innerClasses.size(); ++i) {

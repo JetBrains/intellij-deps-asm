@@ -208,16 +208,6 @@ public class ClassReader {
   // --------------------------------------------------------------------------
 
   /**
-   * Returns the major and minor version numbers of this class.
-   *
-   * @return the <tt>int</tt> array { major version, minor version }  
-   */
-
-  public int[] getVersion () {
-    return new int[] { readShort(6), readShort(4) };
-  }
-
-  /**
    * Makes the given visitor visit the Java class of this {@link ClassReader
    * ClassReader}. This class is the one specified in the constructor (see
    * {@link #ClassReader(byte[]) ClassReader}).
@@ -264,6 +254,7 @@ public class ClassReader {
 
     // visits the header
     u = header;
+    int version = readInt(4);
     int access = readUnsignedShort(u);
     String className = readClass(u + 2, c);
     v = items[readUnsignedShort(u + 4)];
@@ -318,7 +309,7 @@ public class ClassReader {
     }
     // calls the visit method
     classVisitor.visit(
-      access, className, superClassName, implementedItfs, sourceFile);
+      version, access, className, superClassName, implementedItfs, sourceFile);
 
     // visits the inner classes info
     if (w != 0) {

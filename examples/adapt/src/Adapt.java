@@ -111,6 +111,7 @@ class TraceFieldClassAdapter extends ClassAdapter implements Constants {
   }
 
   public void visit (
+    final int version,
     final int access,
     final String name,
     final String superName,
@@ -118,7 +119,7 @@ class TraceFieldClassAdapter extends ClassAdapter implements Constants {
     final String sourceFile)
   {
     owner = name;
-    super.visit(access, name, superName, interfaces, sourceFile);
+    super.visit(version, access, name, superName, interfaces, sourceFile);
   }
 
   public void visitField (

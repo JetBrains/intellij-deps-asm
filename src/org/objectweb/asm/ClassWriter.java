@@ -463,24 +463,6 @@ public class ClassWriter implements ClassVisitor {
    */
 
   public ClassWriter (final boolean computeMaxs) {
-    this(computeMaxs, 45, 3);
-  }
-
-  /**
-   * Constructs a new {@link ClassWriter ClassWriter} object.
-   *
-   * @param computeMaxs <tt>true</tt> if the maximum stack size and the maximum
-   *      number of local variables must be automatically computed. If this flag
-   *      is <tt>true</tt>, then the arguments of the {@link
-   *      CodeVisitor#visitMaxs visitMaxs} method of the {@link CodeVisitor
-   *      CodeVisitor} returned by the {@link #visitMethod visitMethod} method
-   *      will be ignored, and computed automatically from the signature and
-   *      the bytecode of each method.
-   * @param major the major version of the class to be generated.
-   * @param minor the minor version of the class to be generated.
-   */
-
-  public ClassWriter (final boolean computeMaxs, final int major, final int minor) {
     index = 1;
     pool = new ByteVector();
     items = new Item[64];
@@ -489,7 +471,6 @@ public class ClassWriter implements ClassVisitor {
     key2 = new Item();
     key3 = new Item();
     this.computeMaxs = computeMaxs;
-    this.version = minor << 16 | major;
   }
 
   // --------------------------------------------------------------------------
@@ -497,12 +478,14 @@ public class ClassWriter implements ClassVisitor {
   // --------------------------------------------------------------------------
 
   public void visit (
+    final int version,
     final int access,
     final String name,
     final String superName,
     final String[] interfaces,
     final String sourceFile)
   {
+    this.version = version;
     this.access = access;
     this.name = newClass(name);
     this.superName = superName == null ? 0 : newClass(superName);

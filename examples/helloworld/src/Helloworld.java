@@ -54,7 +54,7 @@ public class Helloworld extends ClassLoader implements Constants {
     // creates a ClassWriter for the Example public class,
     // which inherits from Object
     ClassWriter cw = new ClassWriter(false);
-    cw.visit(ACC_PUBLIC, "Example", "java/lang/Object", null, null);
+    cw.visit(V1_1, ACC_PUBLIC, "Example", "java/lang/Object", null, null);
 
     // creates a MethodWriter for the (implicit) constructor
     CodeVisitor mw = cw.visitMethod(ACC_PUBLIC, "<init>", "()V", null, null);

@@ -96,7 +96,7 @@ public class RoundtripTest extends TestCase {
     handler.setResult( new SAXResult( new ASMContentHandler( bos, false)));
     handler.startDocument();
     ClassReader cr = new ClassReader( classData);
-    cr.accept( new SAXClassAdapter( handler, cr.getVersion(), false), false);
+    cr.accept( new SAXClassAdapter( handler, false), false);
     handler.endDocument();
     
     byte[] newData = bos.toByteArray();

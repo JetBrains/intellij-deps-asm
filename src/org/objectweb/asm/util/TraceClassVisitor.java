@@ -152,13 +152,17 @@ public class TraceClassVisitor extends PrintClassVisitor {
   }
 
   public void visit (
+    final int version,
     final int access,
     final String name,
     final String superName,
     final String[] interfaces,
     final String sourceFile)
   {
+    int major = version & 0xFFFF;
+    int minor = version >>> 16;
     buf.setLength(0);
+    buf.append("// class version " + major + "." + minor + " (" + version + ")\n");
     if ((access & Constants.ACC_DEPRECATED) != 0) {
       buf.append("// DEPRECATED\n");
     }
@@ -188,7 +192,7 @@ public class TraceClassVisitor extends PrintClassVisitor {
     text.add(buf.toString());
 
     if (cv != null) {
-      cv.visit(access, name, superName, interfaces, sourceFile);
+      cv.visit(version, access, name, superName, interfaces, sourceFile);
     }
   }
 

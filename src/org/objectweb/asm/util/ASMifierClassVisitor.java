@@ -168,6 +168,7 @@ public class ASMifierClassVisitor extends PrintClassVisitor {
   }
 
   public void visit (
+    final int version,
     final int access,
     final String name,
     final String superName,
@@ -184,6 +185,8 @@ public class ASMifierClassVisitor extends PrintClassVisitor {
 
     buf.setLength(0);
     buf.append("cw.visit(");
+    buf.append(version);
+    buf.append(", ");
     appendAccess(access | ACCESS_CLASS);
     buf.append(", ");
     appendConstant(buf, name);

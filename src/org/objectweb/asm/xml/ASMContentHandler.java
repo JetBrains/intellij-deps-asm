@@ -581,8 +581,9 @@ public class ASMContentHandler extends DefaultHandler implements Constants {
     public final void begin( String name, Attributes attrs) {
       int major = Integer.parseInt( attrs.getValue( "major"));
       int minor = Integer.parseInt( attrs.getValue( "minor"));
-      cw = new ClassWriter( computeMax, major, minor);
+      cw = new ClassWriter( computeMax);
       Map vals = new HashMap();
+      vals.put( "version", new Integer(minor << 16 | major));
       vals.put( "access", attrs.getValue( "access"));
       vals.put( "name", attrs.getValue( "name"));
       vals.put( "parent", attrs.getValue( "parent"));
@@ -622,12 +623,13 @@ public class ASMContentHandler extends DefaultHandler implements Constants {
 
     public final void end( String element) {
       Map vals = ( Map) pop();
+      int version = (( Integer)vals.get( "version")).intValue();
       int access = getAccess(( String) vals.get( "access"));
       String name = ( String) vals.get( "name");
       String parent = ( String) vals.get( "parent");
       String source = ( String) vals.get( "source");
       String[] interfaces = ( String[])(( List) vals.get( "interfaces")).toArray( new String[ 0]);
-      cw.visit( access, name, parent, interfaces, source);
+      cw.visit( version, access, name, parent, interfaces, source);
     }
     
   }

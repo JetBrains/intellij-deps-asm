@@ -80,7 +80,7 @@ abstract class Exp implements Constants {
     // class header
     String[] itfs = {Expression.class.getName()};
     ClassWriter cw = new ClassWriter(true);
-    cw.visit(ACC_PUBLIC, name, "java/lang/Object", itfs, null);
+    cw.visit(V1_1, ACC_PUBLIC, name, "java/lang/Object", itfs, null);
 
     // default public constructor
     CodeVisitor mw = cw.visitMethod(ACC_PUBLIC, "<init>", "()V", null, null);

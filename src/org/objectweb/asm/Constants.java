@@ -44,6 +44,14 @@ package org.objectweb.asm;
 
 public interface Constants {
 
+  // versions
+  
+  int V1_1 = 3 << 16 | 45;
+  int V1_2 = 0 << 16 | 46;
+  int V1_3 = 0 << 16 | 47;
+  int V1_4 = 0 << 16 | 48;
+  int V1_5 = 0 << 16 | 49;
+  
   // access flags
 
   int ACC_PUBLIC =       0x0001; // class, field, method

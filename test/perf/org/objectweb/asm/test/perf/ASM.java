@@ -85,13 +85,14 @@ public class ASM extends ALL {
     }
 
     public void visit (
+      int version,
       int access,
       String name,
       String superName,
       String[] interfaces,
       String sourceFile)
     {
-      super.visit(access, name, superName, interfaces, sourceFile);
+      super.visit(version, access, name, superName, interfaces, sourceFile);
       if ((access & ACC_INTERFACE) == 0) {
         cv.visitField(ACC_PUBLIC, "_counter", "I", null, null);
       }

@@ -1537,7 +1537,7 @@ public class CodeWriter implements CodeVisitor {
             label = u + readShort(b, u + 1);
           }
           newOffset = getNewOffset(allIndexes, allSizes, u, label);
-          if (newOffset < Short.MIN_VALUE || newOffset > Short.MAX_VALUE) {
+          if (resize[u]) {
             // replaces GOTO with GOTO_W, JSR with JSR_W and IFxxx <l> with
             // IFNOTxxx <l'> GOTO_W <l>, where IFNOTxxx is the "opposite" opcode
             // of IFxxx (i.e., IFNE for IFEQ) and where <l'> designates the

@@ -343,7 +343,9 @@ public class ClassWriter implements ClassVisitor {
     final String desc,
     final String[] exceptions)
   {
-    return new CodeWriter(this, access, name, desc, exceptions, computeMaxs);
+    CodeWriter cw = new CodeWriter(this, computeMaxs);
+    cw.init(access, name, desc, exceptions);
+    return cw;
   }
 
   public void visitEnd () {

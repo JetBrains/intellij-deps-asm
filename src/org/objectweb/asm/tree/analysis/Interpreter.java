@@ -73,9 +73,10 @@ public interface Interpreter {
    * 
    * @param insn the bytecode instruction to be interpreted.
    * @return the result of the interpretation of the given instruction.
+   * @throws AnalyzerException if an error occured during the interpretation.
    */
   
-  Value newOperation (AbstractInsnNode insn);
+  Value newOperation (AbstractInsnNode insn) throws AnalyzerException;
   
   /**
    * Interprets a bytecode instruction that moves a value on the stack or to or
@@ -90,9 +91,11 @@ public interface Interpreter {
    * @return the result of the interpretation of the given instruction. The 
    *      returned value must be {@link Value#equals(Value) equal} to the given 
    *      value.
+   * @throws AnalyzerException if an error occured during the interpretation.
    */
   
-  Value copyOperation (AbstractInsnNode insn, Value value);
+  Value copyOperation (AbstractInsnNode insn, Value value) 
+    throws AnalyzerException;
   
   /**
    * Interprets a bytecode instruction with a single argument. This method is 
@@ -117,9 +120,11 @@ public interface Interpreter {
    * @param insn the bytecode instruction to be interpreted.
    * @param value the argument of the instruction to be interpreted.
    * @return the result of the interpretation of the given instruction.
+   * @throws AnalyzerException if an error occured during the interpretation.
    */
   
-  Value unaryOperation (AbstractInsnNode insn, Value value);
+  Value unaryOperation (AbstractInsnNode insn, Value value) 
+    throws AnalyzerException;
   
   /**
    * Interprets a bytecode instruction with two arguments. This method is 
@@ -139,9 +144,11 @@ public interface Interpreter {
    * @param value1 the first argument of the instruction to be interpreted.
    * @param value2 the second argument of the instruction to be interpreted.
    * @return the result of the interpretation of the given instruction.
+   * @throws AnalyzerException if an error occured during the interpretation.
    */
   
-  Value binaryOperation (AbstractInsnNode insn, Value value1, Value value2);
+  Value binaryOperation (AbstractInsnNode insn, Value value1, Value value2)
+    throws AnalyzerException;
   
   /**
    * Interprets a bytecode instruction with three arguments. This method is 
@@ -154,9 +161,11 @@ public interface Interpreter {
    * @param value2 the second argument of the instruction to be interpreted.
    * @param value3 the third argument of the instruction to be interpreted.
    * @return the result of the interpretation of the given instruction.
+   * @throws AnalyzerException if an error occured during the interpretation.
    */
   
-  Value ternaryOperation (AbstractInsnNode insn, Value value1, Value value2, Value value3);
+  Value ternaryOperation (AbstractInsnNode insn, Value value1, Value value2, Value value3)
+    throws AnalyzerException;
 
   /**
    * Interprets a bytecode instruction with a variable number of arguments. 
@@ -168,7 +177,24 @@ public interface Interpreter {
    * @param insn the bytecode instruction to be interpreted.
    * @param values the arguments of the instruction to be interpreted.
    * @return the result of the interpretation of the given instruction.
+   * @throws AnalyzerException if an error occured during the interpretation.
    */
   
-  Value naryOperation (AbstractInsnNode insn, List values);
+  Value naryOperation (AbstractInsnNode insn, List values) 
+    throws AnalyzerException;
+  
+  /**
+   * Merges two values. The merge operation must return a value that represents 
+   * both values (for instance, if the two values are two types, the merged 
+   * value must be a common super type of the two types. If the two values are 
+   * integer intervals, the merged value must be an interval that contains the
+   * previous ones. Likewise for other types of values).  
+   * 
+   * @param v a value.
+   * @param w another value.
+   * @return the merged value. If the merged value is equal to <tt>v</tt>, this
+   *      method <i>must</i> return <tt>v</tt>.
+   */
+  
+  Value merge (Value v, Value w);
 }

@@ -86,17 +86,6 @@ public class DataflowValue implements Value {
     return size;
   }
 
-  public Value merge (final Value value) {
-    DataflowValue v = (DataflowValue)value;
-    if (size != v.size || !insns.equals(v.insns)) {
-      Set s = new HashSet();
-      s.addAll(insns);
-      s.addAll(v.insns);
-      return new DataflowValue(Math.min(size, v.size), s);
-    }
-    return this;
-  }
-
   public boolean equals (final Value value) {
     DataflowValue v = (DataflowValue)value;
     return size == v.size && insns.equals(v.insns);

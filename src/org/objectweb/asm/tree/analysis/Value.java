@@ -47,21 +47,6 @@ public interface Value {
   int getSize ();
   
   /**
-   * Merges this value and the given value. The merge operation must return
-   * a value that represents both values (for instance, if the two values are
-   * two types, the merged value must be a common super type of the two types.
-   * If the two values are integer intervals, the merged value must be an 
-   * interval that contains the previous ones. Likewise for other types of 
-   * values).  
-   * 
-   * @param value a value.
-   * @return the merged value. If the merged value is equal to this value, this
-   *      method <i>must</i> return <tt>this</tt>.
-   */
-  
-  Value merge (Value value);
-  
-  /**
    * Compares this value with the given value.
    * 
    * @param value a value.

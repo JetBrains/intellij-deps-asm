@@ -122,11 +122,12 @@ public class Frame {
    * 
    * @param i a local variable index.
    * @return the value of the given local variable.
+   * @throws AnalyzerException if the variable does not exist.
    */
   
-  public Value getLocal (final int i) {
+  public Value getLocal (final int i) throws AnalyzerException {
     if (i >= locals.length) {
-      throw new RuntimeException("Trying to access an inexistant local variable");
+      throw new AnalyzerException("Trying to access an inexistant local variable");
     }
     return locals[i];
   }
@@ -136,11 +137,12 @@ public class Frame {
    * 
    * @param i a local variable index.
    * @param value the new value of this local variable.
+   * @throws AnalyzerException if the variable does not exist.
    */
   
-  public void setLocal (final int i, final Value value) {
+  public void setLocal (final int i, final Value value) throws AnalyzerException {
     if (i >= locals.length) {
-      throw new RuntimeException("Trying to access an inexistant local variable");
+      throw new AnalyzerException("Trying to access an inexistant local variable");
     }
     locals[i] = value;
   }
@@ -161,11 +163,12 @@ public class Frame {
    * 
    * @param i the index of an operand stack slot.
    * @return the value of the given operand stack slot.
+   * @throws AnalyzerException if the operand stack slot does not exist.
    */
   
-  public Value getStack (final int i) {
+  public Value getStack (final int i) throws AnalyzerException {
     if (i >= top) {
-      throw new RuntimeException("Trying to access an inexistant stack element");
+      throw new AnalyzerException("Trying to access an inexistant stack element");
     }
     return stack[i];
   }
@@ -182,11 +185,12 @@ public class Frame {
    * Pops a value from the operand stack of this frame.
    * 
    * @return the value that has been popped from the stack.
+   * @throws AnalyzerException if the operand stack is empty.
    */
   
-  public Value pop () {
+  public Value pop () throws AnalyzerException {
     if (top == 0) {
-      throw new RuntimeException("Cannot pop operand off an empty stack.");
+      throw new AnalyzerException("Cannot pop operand off an empty stack.");
     }
     return stack[--top];
   }
@@ -195,17 +199,19 @@ public class Frame {
    * Pushes a value into the operand stack of this frame.
    * 
    * @param value the value that must be pushed into the stack.
+   * @throws AnalyzerException if the operand stack is full.
    */
   
-  public void push (final Value value) {
+  public void push (final Value value) throws AnalyzerException {
     if (top >= stack.length) {
-      throw new RuntimeException("Insufficient maximum stack size.");
+      throw new AnalyzerException("Insufficient maximum stack size.");
     }
     stack[top++] = value;
   }
   
   public void execute (
-    final AbstractInsnNode insn, final Interpreter interpreter) 
+    final AbstractInsnNode insn, 
+    final Interpreter interpreter) throws AnalyzerException
   {
     Value value1, value2, value3, value4;
     List values;
@@ -283,20 +289,20 @@ public class Frame {
         break;
       case Constants.POP:
         if (pop().getSize() == 2) {
-          throw new RuntimeException("Illegal use of POP");
+          throw new AnalyzerException("Illegal use of POP");
         }
         break;
       case Constants.POP2:
         if (pop().getSize() == 1) {
           if (pop().getSize() != 1) {
-            throw new RuntimeException("Illegal use of POP2");
+            throw new AnalyzerException("Illegal use of POP2");
           }
         }
         break;
       case Constants.DUP:
         value1 = pop();
         if (value1.getSize() != 1) {
-          throw new RuntimeException("Illegal use of DUP");
+          throw new AnalyzerException("Illegal use of DUP");
         }
         push(interpreter.copyOperation(insn, value1));
         push(interpreter.copyOperation(insn, value1));
@@ -305,7 +311,7 @@ public class Frame {
         value1 = pop();
         value2 = pop();
         if (value1.getSize() != 1 || value2.getSize() != 1) {
-          throw new RuntimeException("Illegal use of DUP_X1");
+          throw new AnalyzerException("Illegal use of DUP_X1");
         }
         push(interpreter.copyOperation(insn, value1));
         push(interpreter.copyOperation(insn, value2));
@@ -331,7 +337,7 @@ public class Frame {
             break;
           }
         }
-        throw new RuntimeException("Illegal use of DUP_X2");
+        throw new AnalyzerException("Illegal use of DUP_X2");
       case Constants.DUP2:
         value1 = pop();
         if (value1.getSize() == 1) {
@@ -348,7 +354,7 @@ public class Frame {
           push(interpreter.copyOperation(insn, value1));
           break;
         }
-        throw new RuntimeException("Illegal use of DUP2");
+        throw new AnalyzerException("Illegal use of DUP2");
       case Constants.DUP2_X1:
         value1 = pop();
         if (value1.getSize() == 1) {
@@ -373,7 +379,7 @@ public class Frame {
             break;
           }
         }
-        throw new RuntimeException("Illegal use of DUP2_X1");
+        throw new AnalyzerException("Illegal use of DUP2_X1");
       case Constants.DUP2_X2:
         value1 = pop();
         if (value1.getSize() == 1) {
@@ -418,12 +424,12 @@ public class Frame {
             break;
           }
         }
-        throw new RuntimeException("Illegal use of DUP2_X2");
+        throw new AnalyzerException("Illegal use of DUP2_X2");
       case Constants.SWAP:
         value2 = pop();
         value1 = pop();
         if (value1.getSize() != 1 || value2.getSize() != 1) {
-          throw new RuntimeException("Illegal use of SWAP");
+          throw new AnalyzerException("Illegal use of SWAP");
         }
         push(interpreter.copyOperation(insn, value2));
         push(interpreter.copyOperation(insn, value1));
@@ -613,24 +619,28 @@ public class Frame {
    * Merges this frame with the given frame.
    *  
    * @param frame a frame.
+   * @param interpreter the interpreter used to merge values.
    * @return <tt>true</tt> if this frame has been changed as a result of the
    *      merge operation, or <tt>false</tt> otherwise.
+   * @throws AnalyzerException if the frames have incompatible sizes.
    */
   
-  public boolean merge (final Frame frame) {
+  public boolean merge (final Frame frame, final Interpreter interpreter) 
+    throws AnalyzerException 
+  {
     if (top != frame.top) {
-      throw new RuntimeException("Incompatible stack heights");
+      throw new AnalyzerException("Incompatible stack heights");
     }
     boolean changes = false;
     for (int i = 0; i < locals.length; ++i) {
-      Value v = locals[i].merge(frame.locals[i]);
+      Value v = interpreter.merge(locals[i], frame.locals[i]);
       if (v != locals[i]) {
         locals[i] = v;
         changes |= true;
       }
     }
     for (int i = 0; i < top; ++i) {
-      Value v = stack[i].merge(frame.stack[i]);
+      Value v = interpreter.merge(stack[i], frame.stack[i]);
       if (v != stack[i]) {
         stack[i] = v;
         changes |= true;

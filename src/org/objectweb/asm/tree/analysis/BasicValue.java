@@ -30,6 +30,8 @@
 
 package org.objectweb.asm.tree.analysis;
 
+import org.objectweb.asm.Type;
+
 /**
  * A {@link Value} that is represented by its type in a seven types type sytem.
  * This type system distinguishes the UNINITIALZED, INT, FLOAT, LONG, DOUBLE,
@@ -39,70 +41,62 @@ package org.objectweb.asm.tree.analysis;
  */
 
 public class BasicValue implements Value {
-  
-  public final static int UNINITIALIZED = 0;
-  
-  public final static int INT = 1;
-  
-  public final static int FLOAT = 2;
-  
-  public final static int LONG = 3;
-  
-  public final static int DOUBLE = 4;
-  
-  public final static int REFERENCE = 5;
-  
-  public final static int RETURNADDRESS = 6;
-  
-  public final static Value UNINITIALIZED_VALUE = new BasicValue(UNINITIALIZED);
-  
-  public final static Value INT_VALUE = new BasicValue(INT);
-  
-  public final static Value FLOAT_VALUE = new BasicValue(FLOAT);
-  
-  public final static Value LONG_VALUE = new BasicValue(LONG);
-  
-  public final static Value DOUBLE_VALUE = new BasicValue(DOUBLE);
-  
-  public final static Value REFERENCE_VALUE = new BasicValue(REFERENCE);
-  
-  public final static Value RETURNADDRESS_VALUE = new BasicValue(RETURNADDRESS);
-  
-  private int type;
-  
-  private BasicValue (final int type) {
-    this.type = type;  
-  }
 
-  public int getType () {
+  public final static Value UNINITIALIZED_VALUE = new BasicValue(null);
+  
+  public final static Value INT_VALUE = new BasicValue(Type.INT_TYPE);
+  
+  public final static Value FLOAT_VALUE = new BasicValue(Type.FLOAT_TYPE);
+  
+  public final static Value LONG_VALUE = new BasicValue(Type.LONG_TYPE);
+  
+  public final static Value DOUBLE_VALUE = new BasicValue(Type.DOUBLE_TYPE);
+  
+  public final static Value REFERENCE_VALUE = new BasicValue(Type.getType("Ljava/lang/Object;"));
+  
+  public final static Value RETURNADDRESS_VALUE = new BasicValue(null);
+  
+  private Type type;
+  
+  public BasicValue (final Type type) {
+    this.type = type;
+  }
+  
+  public Type getType () {
     return type;
   }
   
   public int getSize () {
-    return type == LONG || type == DOUBLE ? 2 : 1;
+    return type == Type.LONG_TYPE || type == Type.DOUBLE_TYPE ? 2 : 1;
   }
   
-  public Value merge (final Value value) {
-    if (type != ((BasicValue)value).type) {
-      return UNINITIALIZED_VALUE;
-    }
-    return this;
+  public boolean isReference () {
+    return type != null && (type.getSort() == Type.OBJECT || type.getSort() == Type.ARRAY);
   }
-
+  
   public boolean equals (final Value value) {
-    return value == this;
+    if (value == this) {
+      return true;
+    } else if (value instanceof BasicValue) {
+      if (type == null) {
+        return ((BasicValue)value).type == null; 
+      } else {
+        return type.equals(((BasicValue)value).type);
+      }
+    } else {
+      return false;
+    }
   }
   
   public String toString () {
-    switch (type) {
-      case UNINITIALIZED: return "U";
-      case INT: return "I";
-      case FLOAT: return "F";
-      case LONG: return "L";
-      case DOUBLE: return "D";
-      case REFERENCE: return "R";
-      case RETURNADDRESS: return "A";
-      default: throw new RuntimeException("Internal error.");
+    if (this == UNINITIALIZED_VALUE) {
+      return ".";
+    } else if (this == RETURNADDRESS_VALUE) {
+      return "A";
+    } else if (this == REFERENCE_VALUE) {
+      return "R";
+    } else {
+      return type.getDescriptor();
     }
   }
 }

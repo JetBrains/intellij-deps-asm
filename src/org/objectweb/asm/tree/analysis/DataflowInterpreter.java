@@ -30,7 +30,9 @@
 
 package org.objectweb.asm.tree.analysis;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.objectweb.asm.Constants;
 import org.objectweb.asm.Type;
@@ -149,5 +151,17 @@ public class DataflowInterpreter implements Constants, Interpreter {
       size = Type.getReturnType(((MethodInsnNode)insn).desc).getSize();
     }
     return new DataflowValue(size, insn);
+  }
+
+  public Value merge (final Value v, final Value w) {
+    DataflowValue dv = (DataflowValue)v;
+    DataflowValue dw = (DataflowValue)w;
+    if (dv.size != dw.size || !dv.insns.equals(dw.insns)) {
+      Set s = new HashSet();
+      s.addAll(dv.insns);
+      s.addAll(dw.insns);
+      return new DataflowValue(Math.min(dv.size, dw.size), s);
+    }
+    return v;
   }
 }

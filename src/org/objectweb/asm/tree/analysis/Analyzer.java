@@ -92,10 +92,13 @@ public class Analyzer implements Constants {
    *     instruction of the method. The size of the returned array is equal to 
    *     the number of instructions (and labels) of the method. A given frame is
    *     <tt>null</tt> if and only if the corresponding instruction cannot be
-   *     reached (dead code).  
+   *     reached (dead code).
+   * @throws AnalyzerException if a problem occurs during the analysis.
    */
   
-  public Frame[] analyze (final ClassNode c, final MethodNode m) {
+  public Frame[] analyze (final ClassNode c, final MethodNode m) 
+    throws AnalyzerException
+  {
     n = m.instructions.size();
     indexes = new IntMap(2*n);
     handlers = new List[n];
@@ -189,7 +192,7 @@ public class Analyzer implements Constants {
             }
           } else if (insnOpcode == RET) {
             if (subroutine == null) {
-              throw new RuntimeException(
+              throw new AnalyzerException(
                 "RET instruction outside of a sub routine");
             } else {
               for (int i = 0; i < subroutine.callers.size(); ++i) {
@@ -235,7 +238,7 @@ public class Analyzer implements Constants {
           }
         }
       } catch (Exception e) {
-        throw new RuntimeException(
+        throw new AnalyzerException(
           "Error at instruction " + insn + ": " + e.getMessage());
       }
     }
@@ -324,10 +327,10 @@ public class Analyzer implements Constants {
   private void merge (
     final int insn, 
     final Frame frame, 
-    final Subroutine subroutine) 
+    final Subroutine subroutine) throws AnalyzerException
   {
     if (insn > n - 1) {
-      throw new RuntimeException("Execution can fall off end of the code");
+      throw new AnalyzerException("Execution can fall off end of the code");
     } else {
       Frame oldFrame = frames[insn];
       Subroutine oldSubroutine = subroutines[insn];
@@ -337,7 +340,7 @@ public class Analyzer implements Constants {
         frames[insn] = newFrame(frame);
         changes = true;
       } else {
-        changes |= oldFrame.merge(frame);
+        changes |= oldFrame.merge(frame, interpreter);
       }
 
       newControlFlowEdge(frame, oldFrame);
@@ -363,10 +366,10 @@ public class Analyzer implements Constants {
     final int insn, 
     final Frame beforeJSR,
     final Frame afterRET,
-    final boolean[] access)
+    final boolean[] access) throws AnalyzerException
   {
     if (insn > n - 1) {
-      throw new RuntimeException("Execution can fall off end of the code");
+      throw new AnalyzerException("Execution can fall off end of the code");
     } else {
       Frame oldFrame = frames[insn];
       boolean changes = false;
@@ -450,9 +453,9 @@ public class Analyzer implements Constants {
       return result;
     }
 
-    public boolean merge (final Subroutine subroutine) {
+    public boolean merge (final Subroutine subroutine) throws AnalyzerException {
       if (subroutine.start != start) {
-        throw new RuntimeException("Overlapping sub routines");
+        throw new AnalyzerException("Overlapping sub routines");
       }
       boolean changes = false;
       for (int i = 0; i < access.length; ++i) {

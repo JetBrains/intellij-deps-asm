@@ -106,7 +106,7 @@ public class Analysis implements Constants {
    * (in the control flow graph).
    */
   
-  public static boolean analyze (ClassNode c, MethodNode m) {
+  public static boolean analyze (ClassNode c, MethodNode m) throws Exception {
     Analyzer a = new Analyzer(new DataflowInterpreter());
     Frame[] frames = a.analyze(c, m);
 

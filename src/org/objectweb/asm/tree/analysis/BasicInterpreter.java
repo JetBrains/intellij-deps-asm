@@ -36,13 +36,17 @@ import org.objectweb.asm.Constants;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.FieldInsnNode;
+import org.objectweb.asm.tree.IntInsnNode;
 import org.objectweb.asm.tree.LdcInsnNode;
 import org.objectweb.asm.tree.MethodInsnNode;
+import org.objectweb.asm.tree.MultiANewArrayInsnNode;
+import org.objectweb.asm.tree.TypeInsnNode;
 
 /**
  * An {@link Interpreter} for {@link BasicValue} values.
  * 
  * @author Eric Bruneton
+ * @author Bing Ran
  */
 
 public class BasicInterpreter implements Constants, Interpreter {
@@ -77,7 +81,7 @@ public class BasicInterpreter implements Constants, Interpreter {
   public Value newOperation (final AbstractInsnNode insn) {
     switch (insn.getOpcode()) {
       case ACONST_NULL:
-        return BasicValue.REFERENCE_VALUE;
+        return newValue(Type.getType("Lnull;"));
       case ICONST_M1:
       case ICONST_0:
       case ICONST_1:
@@ -110,24 +114,28 @@ public class BasicInterpreter implements Constants, Interpreter {
         } else if (cst instanceof Double) {
           return BasicValue.DOUBLE_VALUE;
         } else {
-          return BasicValue.REFERENCE_VALUE;
+          return newValue(Type.getType(cst.getClass()));
         }
       case JSR:
         return BasicValue.RETURNADDRESS_VALUE;
       case GETSTATIC:
         return newValue(Type.getType(((FieldInsnNode)insn).desc));
       case NEW:
-        return BasicValue.REFERENCE_VALUE;
+        return newValue(Type.getType("L" + ((TypeInsnNode)insn).desc + ";"));
       default:
         throw new RuntimeException("Internal error.");
     }
   }
 
-  public Value copyOperation (final AbstractInsnNode insn, final Value value) {
+  public Value copyOperation (final AbstractInsnNode insn, final Value value) 
+    throws AnalyzerException 
+  {
     return value;
   }
 
-  public Value unaryOperation (final AbstractInsnNode insn, final Value value) {
+  public Value unaryOperation (final AbstractInsnNode insn, final Value value) 
+    throws AnalyzerException 
+  {
     switch (insn.getOpcode()) {
       case INEG:
       case IINC:
@@ -152,7 +160,7 @@ public class BasicInterpreter implements Constants, Interpreter {
       case I2D:
       case L2D:
       case F2D:
-       return BasicValue.DOUBLE_VALUE;     
+        return BasicValue.DOUBLE_VALUE;
       case IFEQ:
       case IFNE:
       case IFLT:
@@ -171,14 +179,40 @@ public class BasicInterpreter implements Constants, Interpreter {
       case GETFIELD:
         return newValue(Type.getType(((FieldInsnNode)insn).desc));
       case NEWARRAY:
+        switch (((IntInsnNode)insn).operand) {
+          case T_BOOLEAN:
+          case T_CHAR:
+          case T_BYTE:
+          case T_SHORT:
+          case T_INT:
+            return newValue(Type.getType("[I"));
+          case T_FLOAT:
+            return newValue(Type.getType("[F"));
+          case T_DOUBLE:
+            return newValue(Type.getType("[D"));
+          case T_LONG:
+            return newValue(Type.getType("[J"));
+          default:
+            throw new AnalyzerException("Invalid array type");
+        }
       case ANEWARRAY:
-        return BasicValue.REFERENCE_VALUE;
+        String desc = ((TypeInsnNode)insn).desc;
+        if (desc.charAt(0) == '[') {
+          return newValue(Type.getType("[" + desc));
+        } else {
+          return newValue(Type.getType("[L" + desc + ";"));
+        }
       case ARRAYLENGTH:
-        return BasicValue.INT_VALUE;     
+        return BasicValue.INT_VALUE;
       case ATHROW:
         return null;
-      case CHECKCAST: 
-        return BasicValue.REFERENCE_VALUE;
+      case CHECKCAST:
+        desc = ((TypeInsnNode)insn).desc;
+        if (desc.charAt(0) == '[') {
+          return newValue(Type.getType(desc));
+        } else {
+          return newValue(Type.getType("L" + desc + ";"));
+        }
       case INSTANCEOF:
         return BasicValue.INT_VALUE;
       case MONITORENTER:
@@ -194,7 +228,7 @@ public class BasicInterpreter implements Constants, Interpreter {
   public Value binaryOperation (
     final AbstractInsnNode insn, 
     final Value value1, 
-    final Value value2) 
+    final Value value2) throws AnalyzerException 
   {
     switch (insn.getOpcode()) {
       case IALOAD:
@@ -241,7 +275,12 @@ public class BasicInterpreter implements Constants, Interpreter {
       case DREM:
         return BasicValue.DOUBLE_VALUE;
       case AALOAD:
-        return BasicValue.REFERENCE_VALUE;
+        Type t = ((BasicValue)value1).getType();
+        if (t != null && t.getSort() == Type.ARRAY) {
+          return newValue(t.getElementType());
+        } else {
+          return BasicValue.REFERENCE_VALUE;
+        }
       case LCMP:
       case FCMPL:
       case FCMPG:
@@ -267,16 +306,25 @@ public class BasicInterpreter implements Constants, Interpreter {
     final AbstractInsnNode insn, 
     final Value value1, 
     final Value value2,
-    final Value value3) 
+    final Value value3) throws AnalyzerException 
   {
     return null;
   }
   
-  public Value naryOperation (final AbstractInsnNode insn, final List values) {
+  public Value naryOperation (final AbstractInsnNode insn, final List values) 
+    throws AnalyzerException 
+  {
     if (insn.getOpcode() == MULTIANEWARRAY) {
-      return BasicValue.REFERENCE_VALUE;
+      return newValue(Type.getType(((MultiANewArrayInsnNode)insn).desc));
     } else {
       return newValue(Type.getReturnType(((MethodInsnNode)insn).desc));
     }
+  }
+
+  public Value merge (final Value v, final Value w) {
+    if (!v.equals(w)) {
+      return BasicValue.UNINITIALIZED_VALUE;
+    }
+    return v;
   }
 }

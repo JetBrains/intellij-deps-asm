@@ -30,14 +30,25 @@
 
 package org.objectweb.asm.util;
 
+import java.io.FileInputStream;
+import java.util.List;
+
 import org.objectweb.asm.ClassAdapter;
+import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.CodeVisitor;
 import org.objectweb.asm.Constants;
 import org.objectweb.asm.Attribute;
+import org.objectweb.asm.Label;
+import org.objectweb.asm.tree.AbstractInsnNode;
+import org.objectweb.asm.tree.MethodNode;
+import org.objectweb.asm.tree.TreeClassAdapter;
+import org.objectweb.asm.tree.analysis.Analyzer;
+import org.objectweb.asm.tree.analysis.SimpleVerifier;
+import org.objectweb.asm.tree.analysis.Frame;
 
 /**
- * A {@link ClassAdapter ClssAdapter} that checks that its methods are properly
+ * A {@link ClassAdapter ClassAdapter} that checks that its methods are properly
  * used. More precisely this class adapter checks each method call individually,
  * based <i>only</i> on its arguments, but does <i>not</i> check the
  * <i>sequence</i> of method calls. For example, the invalid sequence
@@ -60,6 +71,80 @@ public class CheckClassAdapter extends ClassAdapter {
    */
 
   private boolean end;
+
+  /**
+   * Checks a given class.
+   * <p>
+   * Usage: CheckClassAdapter
+   * &lt;fully qualified class name or class file name&gt;
+   *
+   * @param args the command line arguments.
+   *
+   * @throws Exception if the class cannot be found, or if an IO exception
+   *      occurs.
+   */
+
+  public static void main (final String[] args) throws Exception {
+    if (args.length != 1) {
+      printUsage();
+    }
+    ClassReader cr;
+    if (args[0].endsWith(".class")) {
+      cr = new ClassReader(new FileInputStream(args[0]));
+    } else {
+      cr = new ClassReader(args[0]);
+    }
+    
+    TreeClassAdapter ca = new TreeClassAdapter(null);
+    cr.accept(new CheckClassAdapter(ca), true);
+    
+    List methods = ca.classNode.methods;
+    for (int i = 0; i < methods.size(); ++i) {
+      MethodNode method = (MethodNode)methods.get(i);
+      if (method.instructions.size() > 0) {
+        Analyzer a = new Analyzer(new SimpleVerifier());
+        try {
+          a.analyze(ca.classNode, method);
+          continue;
+        } catch (Exception e) {
+          e.printStackTrace();
+        }
+        final Frame[] frames = a.getFrames();
+        
+        System.out.println(method.name + method.desc);
+        TraceCodeVisitor cv = new TraceCodeVisitor(null) {
+          public void visitMaxs (int maxStack, int maxLocals) {
+            for (int i = 0; i < text.size(); ++i) {
+              String s = frames[i] == null ? "null" : frames[i].toString();
+              while (s.length() < maxStack+maxLocals+1) {
+                s += " ";
+              }
+              System.out.print(
+                  Integer.toString(i + 100000).substring(1) + " " + s + " : " 
+                  + text.get(i));
+            }
+            System.out.println();
+          }
+        };
+        for (int j = 0; j < method.instructions.size(); ++j) {
+          Object insn = method.instructions.get(j);
+          if (insn instanceof AbstractInsnNode) {
+            ((AbstractInsnNode)insn).accept(cv);
+          } else {
+            cv.visitLabel((Label)insn);
+          }
+        }
+        cv.visitMaxs(method.maxStack, method.maxLocals);
+      }
+    }
+  }
+
+  private static void printUsage () {
+    System.err.println("TODO.");
+    System.err.println("Usage: CheckClassAdapter " +
+                       "<fully qualified class name or class file name>");
+    System.exit(-1);
+  }
 
   /**
    * Constructs a new {@link CheckClassAdapter CheckClassAdapter} object.

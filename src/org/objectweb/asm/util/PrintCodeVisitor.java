@@ -36,6 +36,7 @@ package org.objectweb.asm.util;
 
 import org.objectweb.asm.CodeVisitor;
 import org.objectweb.asm.Label;
+import org.objectweb.asm.Attribute;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -414,6 +415,12 @@ public abstract class PrintCodeVisitor implements CodeVisitor {
     text.add(buf.toString());
   }
 
+  public void visitAttribute (final Attribute attr) {
+    buf.setLength(0);
+    printAttribute(attr);
+    text.add(buf.toString());
+  }
+
   /**
    * Returns the code printed by this code visitor.
    *
@@ -675,4 +682,12 @@ public abstract class PrintCodeVisitor implements CodeVisitor {
    */
 
   public abstract void printLineNumber (final int line, final Label start);
+
+  /**
+   * Prints a non standard code attribute.
+   *
+   * @param attr a non standard code attribute.
+   */
+
+  public abstract void printAttribute (final Attribute attr);
 }

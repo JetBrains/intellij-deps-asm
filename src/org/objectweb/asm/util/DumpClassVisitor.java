@@ -37,6 +37,7 @@ package org.objectweb.asm.util;
 import org.objectweb.asm.Constants;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.CodeVisitor;
+import org.objectweb.asm.Attribute;
 
 import java.io.PrintWriter;
 
@@ -202,7 +203,8 @@ public class DumpClassVisitor extends PrintClassVisitor {
     final int access,
     final String name,
     final String desc,
-    final Object value)
+    final Object value,
+    final Attribute attrs)
   {
     buf.setLength(0);
     buf.append("cw.visitField(");
@@ -213,7 +215,10 @@ public class DumpClassVisitor extends PrintClassVisitor {
     appendConstant(buf, desc);
     buf.append(", ");
     appendConstant(buf, value);
-    buf.append(");\n\n");
+    buf.append(", null);\n\n");
+    if (attrs != null) {
+      buf.append("// WARNING! skipped some non standard field attributes\n");
+    }
     text.add(buf.toString());
   }
 
@@ -221,7 +226,8 @@ public class DumpClassVisitor extends PrintClassVisitor {
     final int access,
     final String name,
     final String desc,
-    final String[] exceptions)
+    final String[] exceptions,
+    final Attribute attrs)
   {
     buf.setLength(0);
     buf.append("{\n").append("cv = cw.visitMethod(");
@@ -237,16 +243,27 @@ public class DumpClassVisitor extends PrintClassVisitor {
         buf.append(i == 0 ? " " : ", ");
         appendConstant(buf, exceptions[i]);
       }
-      buf.append(" });");
+      buf.append(" }");
     } else {
-      buf.append("null);");
+      buf.append("null");
     }
-    buf.append("\n");
+    buf.append(", null);\n");
+    if (attrs != null) {
+      buf.append("// WARNING! skipped some non standard method attributes\n");
+    }
     text.add(buf.toString());
     PrintCodeVisitor pcv = new DumpCodeVisitor();
     text.add(pcv.getText());
     text.add("}\n");
     return pcv;
+  }
+
+  public void visitAttribute (final Attribute attr) {
+    buf.setLength(0);
+    buf.append("// WARNING! skipped a non standard class attribute of type \"");
+    buf.append(attr.type);
+    buf.append("\"\n");
+    text.add(buf.toString());
   }
 
   public void visitEnd () {

@@ -57,7 +57,7 @@ public class Helloworld extends ClassLoader implements Constants {
     cw.visit(ACC_PUBLIC, "Example", "java/lang/Object", null, null);
 
     // creates a MethodWriter for the (implicit) constructor
-    CodeVisitor mw = cw.visitMethod(ACC_PUBLIC, "<init>", "()V", null);
+    CodeVisitor mw = cw.visitMethod(ACC_PUBLIC, "<init>", "()V", null, null);
     // pushes the 'this' variable
     mw.visitVarInsn(ALOAD, 0);
     // invokes the super class constructor
@@ -68,7 +68,7 @@ public class Helloworld extends ClassLoader implements Constants {
 
     // creates a MethodWriter for the 'main' method
     mw = cw.visitMethod(
-      ACC_PUBLIC + ACC_STATIC, "main", "([Ljava/lang/String;)V", null);
+      ACC_PUBLIC + ACC_STATIC, "main", "([Ljava/lang/String;)V", null, null);
     // pushes the 'out' field (of type PrintStream) of the System class
     mw.visitFieldInsn(
       GETSTATIC, "java/lang/System", "out", "Ljava/io/PrintStream;");

@@ -38,6 +38,7 @@ import org.objectweb.asm.Label;
 import org.objectweb.asm.CodeAdapter;
 import org.objectweb.asm.CodeVisitor;
 import org.objectweb.asm.Constants;
+import org.objectweb.asm.Attribute;
 
 import java.util.HashMap;
 
@@ -505,6 +506,13 @@ public class CheckCodeAdapter extends CodeAdapter {
     checkUnsignedShort(line, "Invalid line number");
     checkLabel(start, true, "start label");
     cv.visitLineNumber(line, start);
+  }
+
+  public void visitAttribute (Attribute attr) {
+    if (attr == null) {
+      throw new IllegalArgumentException(
+        "Invalid attribute (must not be null)");
+    }
   }
 
   // ---------------------------------------------------------------------------

@@ -156,4 +156,8 @@ public class CodeAdapter implements CodeVisitor {
   public void visitLineNumber (final int line, final Label start) {
     cv.visitLineNumber(line, start);
   }
+
+  public void visitAttribute (final Attribute attr) {
+    cv.visitAttribute(attr);
+  }
 }

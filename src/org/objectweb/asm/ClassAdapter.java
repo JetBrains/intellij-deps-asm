@@ -83,18 +83,24 @@ public class ClassAdapter implements ClassVisitor {
     final int access,
     final String name,
     final String desc,
-    final Object value)
+    final Object value,
+    final Attribute attrs)
   {
-    cv.visitField(access, name, desc, value);
+    cv.visitField(access, name, desc, value, attrs);
   }
 
   public CodeVisitor visitMethod (
     final int access,
     final String name,
     final String desc,
-    final String[] exceptions)
+    final String[] exceptions,
+    final Attribute attrs)
   {
-    return new CodeAdapter(cv.visitMethod(access, name, desc, exceptions));
+    return new CodeAdapter(cv.visitMethod(access, name, desc, exceptions, attrs));
+  }
+
+  public void visitAttribute (final Attribute attr) {
+    cv.visitAttribute(attr);
   }
 
   public void visitEnd () {

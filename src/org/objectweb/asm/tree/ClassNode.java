@@ -35,6 +35,7 @@
 package org.objectweb.asm.tree;
 
 import org.objectweb.asm.ClassVisitor;
+import org.objectweb.asm.Attribute;
 
 import java.util.List;
 import java.util.ArrayList;
@@ -106,6 +107,12 @@ public class ClassNode {
   public final List methods;
 
   /**
+   * The non standard attributes of the class.
+   */
+
+  public Attribute attrs;
+
+  /**
    * Constructs a new {@link ClassNode ClassNode} object.
    *
    * @param access the class's access flags (see {@link
@@ -166,6 +173,12 @@ public class ClassNode {
     // visits methods
     for (i = 0; i < methods.size(); ++i) {
       ((MethodNode)methods.get(i)).accept(cv);
+    }
+    // visits attributes
+    Attribute attrs = this.attrs;
+    while (attrs != null) {
+      cv.visitAttribute(attrs);
+      attrs = attrs.next;
     }
     // visits end
     cv.visitEnd();

@@ -40,6 +40,7 @@ import org.objectweb.asm.CodeAdapter;
 import org.objectweb.asm.CodeVisitor;
 import org.objectweb.asm.Constants;
 import org.objectweb.asm.Type;
+import org.objectweb.asm.Attribute;
 
 import java.io.FileOutputStream;
 import java.io.InputStream;
@@ -124,16 +125,18 @@ class TraceFieldClassAdapter extends ClassAdapter implements Constants {
     final int access,
     final String name,
     final String desc,
-    final Object value)
+    final Object value,
+    final Attribute attrs)
   {
-    super.visitField(access, name, desc, value);
+    super.visitField(access, name, desc, value, attrs);
     if ((access & ACC_STATIC) == 0) {
       Type t = Type.getType(desc);
       int size = t.getSize();
 
       // generates getter method
       String gDesc = "()" + desc;
-      CodeVisitor gv = cv.visitMethod(ACC_PRIVATE, "_get" + name, gDesc, null);
+      CodeVisitor gv =
+        cv.visitMethod(ACC_PRIVATE, "_get" + name, gDesc, null, null);
       gv.visitFieldInsn(GETSTATIC,
         "java/lang/System", "err", "Ljava/io/PrintStream;");
       gv.visitLdcInsn("_get" + name + " called");
@@ -146,7 +149,8 @@ class TraceFieldClassAdapter extends ClassAdapter implements Constants {
 
       // generates setter method
       String sDesc = "(" + desc + ")V";
-      CodeVisitor sv = cv.visitMethod(ACC_PRIVATE, "_set" + name, sDesc, null);
+      CodeVisitor sv =
+        cv.visitMethod(ACC_PRIVATE, "_set" + name, sDesc, null, null);
       sv.visitFieldInsn(GETSTATIC,
         "java/lang/System", "err", "Ljava/io/PrintStream;");
       sv.visitLdcInsn("_set" + name + " called");
@@ -164,9 +168,10 @@ class TraceFieldClassAdapter extends ClassAdapter implements Constants {
     final int access,
     final String name,
     final String desc,
-    final String[] exceptions)
+    final String[] exceptions,
+    final Attribute attrs)
   {
-    CodeVisitor mv = cv.visitMethod(access, name, desc, exceptions);
+    CodeVisitor mv = cv.visitMethod(access, name, desc, exceptions, attrs);
     return mv == null ? null : new TraceFieldCodeAdapter(mv, owner);
   }
 }

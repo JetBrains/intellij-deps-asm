@@ -37,6 +37,7 @@ package org.objectweb.asm.tree;
 import org.objectweb.asm.ClassAdapter;
 import org.objectweb.asm.CodeVisitor;
 import org.objectweb.asm.ClassVisitor;
+import org.objectweb.asm.Attribute;
 
 /**
  * A {@link ClassAdapter ClassAdapter} that constructs a tree representation of
@@ -102,9 +103,10 @@ public class TreeClassAdapter extends ClassAdapter {
     final int access,
     final String name,
     final String desc,
-    final Object value)
+    final Object value,
+    final Attribute attrs)
   {
-    FieldNode fn = new FieldNode(access, name, desc, value);
+    FieldNode fn = new FieldNode(access, name, desc, value, attrs);
     classNode.fields.add(fn);
   }
 
@@ -112,11 +114,17 @@ public class TreeClassAdapter extends ClassAdapter {
     final int access,
     final String name,
     final String desc,
-    final String[] exceptions)
+    final String[] exceptions,
+    final Attribute attrs)
   {
-    MethodNode mn = new MethodNode(access, name, desc, exceptions);
+    MethodNode mn = new MethodNode(access, name, desc, exceptions, attrs);
     classNode.methods.add(mn);
     return new TreeCodeAdapter(mn);
+  }
+
+  public void visitAttribute (final Attribute attr) {
+    attr.next = classNode.attrs;
+    classNode.attrs = attr;
   }
 
   public void visitEnd () {

@@ -38,6 +38,7 @@ import org.objectweb.asm.ClassAdapter;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.CodeVisitor;
 import org.objectweb.asm.Constants;
+import org.objectweb.asm.Attribute;
 
 /**
  * A {@link ClassAdapter ClssAdapter} that checks that its methods are properly
@@ -132,7 +133,8 @@ public class CheckClassAdapter extends ClassAdapter {
     final int access,
     final String name,
     final String desc,
-    final Object value)
+    final Object value,
+    final Attribute attrs)
   {
     checkState();
     checkAccess(access, 1 + 2 + 4 + 8 + 16 + 64 + 128 + 65536 + 131072);
@@ -141,14 +143,15 @@ public class CheckClassAdapter extends ClassAdapter {
     if (value != null) {
       CheckCodeAdapter.checkConstant(value);
     }
-    cv.visitField(access, name, desc, value);
+    cv.visitField(access, name, desc, value, attrs);
   }
 
   public CodeVisitor visitMethod (
     final int access,
     final String name,
     final String desc,
-    final String[] exceptions)
+    final String[] exceptions,
+    final Attribute attrs)
   {
     checkState();
     checkAccess(
@@ -161,7 +164,16 @@ public class CheckClassAdapter extends ClassAdapter {
           exceptions[i], "exception name at index " + i);
       }
     }
-    return new CheckCodeAdapter(cv.visitMethod(access, name, desc, exceptions));
+    return new CheckCodeAdapter(
+      cv.visitMethod(access, name, desc, exceptions, attrs));
+  }
+
+  public void visitAttribute (final Attribute attr) {
+    checkState();
+    if (attr == null) {
+      throw new IllegalArgumentException(
+        "Invalid attribute (must not be null)");
+    }
   }
 
   public void visitEnd () {

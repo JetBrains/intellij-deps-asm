@@ -47,10 +47,11 @@ import java.io.IOException;
 public class ClassReader {
 
   /**
-   * The class to be parsed.
+   * The class to be parsed. <i>The content of this array must not be
+   * modified.</i>
    */
 
-  private final byte[] b;
+  protected final byte[] b;
 
   /**
    * The start index of each constant pool item in {@link #b b}, plus one. The
@@ -218,8 +219,8 @@ public class ClassReader {
    * @param classVisitor the visitor that must visit this class.
    * @param skipDebug <tt>true</tt> if the debug information of the class must
    *      not be visited. In this case the {@link CodeVisitor#visitLocalVariable
-   *      visitLocalVariable} and {@link CodeVisitor#visitLineNumber} methods
-   *      will not be called.
+   *      visitLocalVariable} and {@link CodeVisitor#visitLineNumber
+   *      visitLineNumber} methods will not be called.
    */
 
   public void accept (
@@ -230,6 +231,7 @@ public class ClassReader {
     char[] c = new char[maxStringLength];  // buffer used to read strings
     int i, j, k;                           // loop variables
     int u, v, w;                           // indexes in b
+    Attribute attr;
 
     // visits the header
     u = header;
@@ -239,6 +241,7 @@ public class ClassReader {
     String superClassName = v == 0 ? null : readUTF8(v, c);
     String[] implementedItfs = new String[readUnsignedShort(u + 6)];
     String sourceFile = null;
+    Attribute clattrs = null;
     w = 0;
     u += 8;
     for (i = 0; i < implementedItfs.length; ++i) {
@@ -272,6 +275,10 @@ public class ClassReader {
         access |= Constants.ACC_DEPRECATED;
       } else if (attrName.equals("InnerClasses")) {
         w = v + 6;
+      } else {
+        attr = readAttribute(attrName, v + 6, readInt(v + 2), c);
+        attr.next = clattrs;
+        clattrs = attr;
       }
       v += 6 + readInt(v + 2);
     }
@@ -298,6 +305,7 @@ public class ClassReader {
       access = readUnsignedShort(u);
       String fieldName = readUTF8(u + 2, c);
       String fieldDesc = readUTF8(u + 4, c);
+      Attribute fattrs = null;
       // visits the field's attributes and looks for a ConstantValue attribute
       int fieldValueItem = 0;
       j = readUnsignedShort(u + 6);
@@ -310,13 +318,17 @@ public class ClassReader {
           access |= Constants.ACC_SYNTHETIC;
         } else if (attrName.equals("Deprecated")) {
           access |= Constants.ACC_DEPRECATED;
+        } else {
+          attr = readAttribute(attrName, u + 6, readInt(u + 2), c);
+          attr.next = fattrs;
+          fattrs = attr;
         }
         u += 6 + readInt(u + 2);
       }
       // reads the field's value, if any
       Object value = (fieldValueItem == 0 ? null : readConst(fieldValueItem, c));
       // visits the field
-      classVisitor.visitField(access, fieldName, fieldDesc, value);
+      classVisitor.visitField(access, fieldName, fieldDesc, value, fattrs);
     }
 
     // visits the methods
@@ -325,11 +337,12 @@ public class ClassReader {
       access = readUnsignedShort(u);
       String methName = readUTF8(u + 2, c);
       String methDesc = readUTF8(u + 4, c);
+      Attribute mattrs = null;
+      v = 0;
+      w = 0;
       // looks for Code and Exceptions attributes
       j = readUnsignedShort(u + 6);
       u += 8;
-      v = 0;
-      w = 0;
       for ( ; j > 0; --j) {
         String attrName = readUTF8(u, c); u += 2;
         int attrSize = readInt(u); u += 4;
@@ -341,6 +354,10 @@ public class ClassReader {
           access |= Constants.ACC_SYNTHETIC;
         } else if (attrName.equals("Deprecated")) {
           access |= Constants.ACC_DEPRECATED;
+        } else {
+          attr = readAttribute(attrName, u, attrSize, c);
+          attr.next = mattrs;
+          mattrs = attr;
         }
         u += attrSize;
       }
@@ -357,11 +374,13 @@ public class ClassReader {
 
       // visits the method's code, if any
       CodeVisitor cv;
-      cv = classVisitor.visitMethod(access, methName, methDesc, exceptions);
+      cv = classVisitor.visitMethod(
+        access, methName, methDesc, exceptions, mattrs);
       if (cv != null && v != 0) {
         int maxStack = readUnsignedShort(v);
         int maxLocals = readUnsignedShort(v + 2);
         int codeLength = readInt(v + 4);
+        Attribute cattrs = null;
         v += 8;
 
         int codeStart = v;
@@ -502,6 +521,10 @@ public class ClassReader {
                 }
                 w += 4;
               }
+            } else {
+              attr = readAttribute(attrName, v + 6, readInt(v + 2), c);
+              attr.next = cattrs;
+              cattrs = attr;
             }
             v += 6 + readInt(v + 2);
           }
@@ -683,9 +706,19 @@ public class ClassReader {
             v += 6 + readInt(v + 2);
           }
         }
+        // visits the code attributes
+        while (cattrs != null) {
+          cv.visitAttribute(cattrs);
+          cattrs = cattrs.next;
+        }
         // visits the max stack and max locals values
         cv.visitMaxs(maxStack, maxLocals);
       }
+    }
+    // visits the class attributes
+    while (clattrs != null) {
+      classVisitor.visitAttribute(clattrs);
+      clattrs = clattrs.next;
     }
     // visits the end of the class
     classVisitor.visitEnd();
@@ -702,7 +735,7 @@ public class ClassReader {
    * @return the read value.
    */
 
-  private int readUnsignedShort (final int index) {
+  protected int readUnsignedShort (final int index) {
     byte[] b = this.b;
     return ((b[index] & 0xFF) << 8) | (b[index + 1] & 0xFF);
   }
@@ -714,7 +747,7 @@ public class ClassReader {
    * @return the read value.
    */
 
-  private short readShort (final int index) {
+  protected short readShort (final int index) {
     byte[] b = this.b;
     return (short)(((b[index] & 0xFF) << 8) | (b[index + 1] & 0xFF));
   }
@@ -726,7 +759,7 @@ public class ClassReader {
    * @return the read value.
    */
 
-  private int readInt (final int index) {
+  protected int readInt (final int index) {
     byte[] b = this.b;
     return ((b[index] & 0xFF) << 24) |
            ((b[index + 1] & 0xFF) << 16) |
@@ -741,23 +774,23 @@ public class ClassReader {
    * @return the read value.
    */
 
-  private long readLong (final int index) {
+  protected long readLong (final int index) {
     long l1 = readInt(index);
     long l0 = readInt(index + 4) & 0xFFFFFFFFL;
     return (l1 << 32) | l0;
   }
 
   /**
-   * Reads a CONSTANT_Utf8 constant pool item in {@link #b b}.
+   * Reads an UTF8 constant pool item in {@link #b b}.
    *
    * @param index the start index of an unsigned short value in {@link #b b},
-   *      whose value is the index of an CONSTANT_Utf8 constant pool item.
+   *      whose value is the index of an UTF8 constant pool item.
    * @param buf buffer to be used to read the item. This buffer must be
    *      sufficiently large. It is not automatically resized.
-   * @return the String corresponding to the specified CONSTANT_Utf8 item.
+   * @return the String corresponding to the specified UTF8 item.
    */
 
-  private String readUTF8 (int index, final char[] buf) {
+  protected String readUTF8 (int index, final char[] buf) {
     // consults cache
     int item = readUnsignedShort(index);
     String s = strings[item];
@@ -809,17 +842,16 @@ public class ClassReader {
   }
 
   /**
-   * Reads a CONSTANT_Class constant pool item in {@link #b b}.
+   * Reads a class constant pool item in {@link #b b}.
    *
    * @param index the start index of an unsigned short value in {@link #b b},
-   *      whose value is the index of a CONSTANT_Class constant pool item.
+   *      whose value is the index of a class constant pool item.
    * @param buf buffer to be used to read the item. This buffer must be
    *      sufficiently large. It is not automatically resized.
-   * @return the String corresponding to the CONSTANT_Utf8 corresponding to the
-   *      specified CONSTANT_Class item.
+   * @return the String corresponding to the specified class item.
    */
 
-  private String readClass (final int index, final char[] buf) {
+  protected String readClass (final int index, final char[] buf) {
     // computes the start index of the CONSTANT_Class item in b
     // and reads the CONSTANT_Utf8 item designated by
     // the first two bytes of this CONSTANT_Class item
@@ -838,7 +870,7 @@ public class ClassReader {
    *      item.
    */
 
-  private Object readConst (final int item, final char[] buf) {
+  protected Object readConst (final int item, final char[] buf) {
     int index = items[item];
     switch (b[index - 1]) {
       case ClassWriter.INT:
@@ -853,5 +885,29 @@ public class ClassReader {
       default:
         return readUTF8(index, buf);
     }
+  }
+
+  /**
+   * Reads an attribute in {@link #b b}. The default implementation of this
+   * method returns instances of the {@link Attribute} class for all attributes.
+   *
+   * @param type the type of the attribute.
+   * @param off the first byte of the attribute's content in {@link #b b}. The
+   *      6 attribute header bytes, containing the type and the length of the
+   *      attribute, are not taken into account here (they have already been
+   *      read).
+   * @param len the length of the attribute's content.
+   * @param buf buffer to be used to call {@link #readUTF8 readUTF8}, {@link
+   *      #readClass readClass} or {@link #readConst readConst}.
+   * @return the attribute that has been read.
+   */
+
+  protected Attribute readAttribute (
+    final String type,
+    final int off,
+    final int len,
+    final char[] buf)
+  {
+    return new Attribute(type, b, off, len);
   }
 }

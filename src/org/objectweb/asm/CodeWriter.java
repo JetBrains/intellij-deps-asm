@@ -61,16 +61,17 @@ public class CodeWriter implements CodeVisitor {
   private ClassWriter cw;
 
   /**
-   * The constant pool item that contains the name of this method.
+   * The index of the constant pool item that contains the name of this method.
    */
 
-  private Item name;
+  private int name;
 
   /**
-   * The constant pool item that contains the descriptor of this method.
+   * The index of the constant pool item that contains the descriptor of this
+   * method.
    */
 
-  private Item desc;
+  private int desc;
 
   /**
    * Access flags of this method.
@@ -123,6 +124,12 @@ public class CodeWriter implements CodeVisitor {
   private int[] exceptions;
 
   /**
+   * The non standard attributes of the method.
+   */
+
+  private Attribute attrs;
+
+  /**
    * Number of entries in the LocalVariableTable attribute.
    */
 
@@ -145,6 +152,12 @@ public class CodeWriter implements CodeVisitor {
    */
 
   private ByteVector lineNumber;
+
+  /**
+   * The non standard attributes of the method's code.
+   */
+
+  private Attribute cattrs;
 
   /**
    * Indicates if some jump instructions are too small and need to be resized.
@@ -523,13 +536,15 @@ public class CodeWriter implements CodeVisitor {
    * @param desc the method's descriptor (see {@link Type Type}).
    * @param exceptions the internal names of the method's exceptions. May be
    *      <tt>null</tt>.
+   * @param attrs the non standard attributes of the method.
    */
 
   protected void init (
     final int access,
     final String name,
     final String desc,
-    final String[] exceptions)
+    final String[] exceptions,
+    final Attribute attrs)
   {
     this.access = access;
     this.name = cw.newUTF8(name);
@@ -538,9 +553,10 @@ public class CodeWriter implements CodeVisitor {
       exceptionCount = exceptions.length;
       this.exceptions = new int[exceptionCount];
       for (int i = 0; i < exceptionCount; ++i) {
-        this.exceptions[i] = cw.newClass(exceptions[i]).index;
+        this.exceptions[i] = cw.newClass(exceptions[i]);
       }
     }
+    this.attrs = attrs;
     if (computeMaxs) {
       // updates maxLocals
       int size = getArgumentsAndReturnSizes(desc) >> 2;
@@ -653,7 +669,7 @@ public class CodeWriter implements CodeVisitor {
       stackSize = size;
     }
     // adds the instruction to the bytecode of the method
-    code.put12(opcode, cw.newClass(desc).index);
+    code.put12(opcode, cw.newClass(desc));
   }
 
   public void visitFieldInsn (
@@ -688,7 +704,7 @@ public class CodeWriter implements CodeVisitor {
       stackSize = size;
     }
     // adds the instruction to the bytecode of the method
-    code.put12(opcode, cw.newField(owner, name, desc).index);
+    code.put12(opcode, cw.newField(owner, name, desc));
   }
 
   public void visitMethodInsn (
@@ -697,12 +713,8 @@ public class CodeWriter implements CodeVisitor {
     final String name,
     final String desc)
   {
-    Item i;
-    if (opcode == Constants.INVOKEINTERFACE) {
-      i = cw.newItfMethod(owner, name, desc);
-    } else {
-      i = cw.newMethod(owner, name, desc);
-    }
+    boolean itf = opcode == Constants.INVOKEINTERFACE;
+    Item i = cw.newMethodItem(owner, name, desc, itf);
     int argSize = i.intVal;
     if (computeMaxs) {
       // computes the stack size variation. In order not to recompute several
@@ -729,7 +741,7 @@ public class CodeWriter implements CodeVisitor {
       stackSize = size;
     }
     // adds the instruction to the bytecode of the method
-    if (opcode == Constants.INVOKEINTERFACE) {
+    if (itf) {
       if (!computeMaxs) {
         if (argSize == 0) {
           argSize = getArgumentsAndReturnSizes(desc);
@@ -822,7 +834,7 @@ public class CodeWriter implements CodeVisitor {
   }
 
   public void visitLdcInsn (final Object cst) {
-    Item i = cw.newCst(cst);
+    Item i = cw.newConst(cst);
     if (computeMaxs) {
       int size;
       // computes the stack size variation
@@ -935,8 +947,7 @@ public class CodeWriter implements CodeVisitor {
       stackSize += 1 - dims;
     }
     // adds the instruction to the bytecode of the method
-    Item classItem = cw.newClass(desc);
-    code.put12(Constants.MULTIANEWARRAY, classItem.index).put1(dims);
+    code.put12(Constants.MULTIANEWARRAY, cw.newClass(desc)).put1(dims);
   }
 
   public void visitTryCatchBlock (
@@ -969,7 +980,7 @@ public class CodeWriter implements CodeVisitor {
     catchTable.put2(start.position);
     catchTable.put2(end.position);
     catchTable.put2(handler.position);
-    catchTable.put2(type != null ? cw.newClass(type).index : 0);
+    catchTable.put2(type != null ? cw.newClass(type) : 0);
   }
 
   public void visitMaxs (final int maxStack, final int maxLocals) {
@@ -1048,8 +1059,8 @@ public class CodeWriter implements CodeVisitor {
     ++localVarCount;
     localVar.put2(start.position);
     localVar.put2(end.position - start.position);
-    localVar.put2(cw.newUTF8(name).index);
-    localVar.put2(cw.newUTF8(desc).index);
+    localVar.put2(cw.newUTF8(name));
+    localVar.put2(cw.newUTF8(desc));
     localVar.put2(index);
   }
 
@@ -1066,6 +1077,11 @@ public class CodeWriter implements CodeVisitor {
     ++lineNumberCount;
     lineNumber.put2(start.position);
     lineNumber.put2(line);
+  }
+
+  public void visitAttribute (final Attribute attr) {
+    attr.next = cattrs;
+    cattrs = attr;
   }
 
   // --------------------------------------------------------------------------
@@ -1168,6 +1184,9 @@ public class CodeWriter implements CodeVisitor {
       if (lineNumber != null) {
         size += 8 + lineNumber.length;
       }
+      if (cattrs != null) {
+        size += cattrs.getSize(cw);
+      }
     }
     if (exceptionCount > 0) {
       cw.newUTF8("Exceptions");
@@ -1181,6 +1200,9 @@ public class CodeWriter implements CodeVisitor {
       cw.newUTF8("Deprecated");
       size += 6;
     }
+    if (attrs != null) {
+      size += attrs.getSize(cw);
+    }
     return size;
   }
 
@@ -1192,7 +1214,7 @@ public class CodeWriter implements CodeVisitor {
    */
 
   final void put (final ByteVector out) {
-    out.put2(access).put2(name.index).put2(desc.index);
+    out.put2(access).put2(name).put2(desc);
     int attributeCount = 0;
     if (code.length > 0) {
       ++attributeCount;
@@ -1206,6 +1228,9 @@ public class CodeWriter implements CodeVisitor {
     if ((access & Constants.ACC_DEPRECATED) != 0) {
       ++attributeCount;
     }
+    if (attrs != null) {
+      attributeCount += attrs.getCount();
+    }
     out.put2(attributeCount);
     if (code.length > 0) {
       int size = 12 + code.length + 8 * catchCount;
@@ -1215,7 +1240,10 @@ public class CodeWriter implements CodeVisitor {
       if (lineNumber != null) {
         size += 8 + lineNumber.length;
       }
-      out.put2(cw.newUTF8("Code").index).put4(size);
+      if (cattrs != null) {
+        size += cattrs.getSize(cw);
+      }
+      out.put2(cw.newUTF8("Code")).put4(size);
       out.put2(maxStack).put2(maxLocals);
       out.put4(code.length).putByteArray(code.data, 0, code.length);
       out.put2(catchCount);
@@ -1229,30 +1257,39 @@ public class CodeWriter implements CodeVisitor {
       if (lineNumber != null) {
         ++attributeCount;
       }
+      if (cattrs != null) {
+        attributeCount += cattrs.getCount();
+      }
       out.put2(attributeCount);
       if (localVar != null) {
-        out.put2(cw.newUTF8("LocalVariableTable").index);
+        out.put2(cw.newUTF8("LocalVariableTable"));
         out.put4(localVar.length + 2).put2(localVarCount);
         out.putByteArray(localVar.data, 0, localVar.length);
       }
       if (lineNumber != null) {
-        out.put2(cw.newUTF8("LineNumberTable").index);
+        out.put2(cw.newUTF8("LineNumberTable"));
         out.put4(lineNumber.length + 2).put2(lineNumberCount);
         out.putByteArray(lineNumber.data, 0, lineNumber.length);
       }
+      if (cattrs != null) {
+        cattrs.put(cw, out);
+      }
     }
     if (exceptionCount > 0) {
-      out.put2(cw.newUTF8("Exceptions").index).put4(2 * exceptionCount + 2);
+      out.put2(cw.newUTF8("Exceptions")).put4(2 * exceptionCount + 2);
       out.put2(exceptionCount);
       for (int i = 0; i < exceptionCount; ++i) {
         out.put2(exceptions[i]);
       }
     }
     if ((access & Constants.ACC_SYNTHETIC) != 0) {
-      out.put2(cw.newUTF8("Synthetic").index).put4(0);
+      out.put2(cw.newUTF8("Synthetic")).put4(0);
     }
     if ((access & Constants.ACC_DEPRECATED) != 0) {
-      out.put2(cw.newUTF8("Deprecated").index).put4(0);
+      out.put2(cw.newUTF8("Deprecated")).put4(0);
+    }
+    if (attrs != null) {
+      attrs.put(cw, out);
     }
   }
 

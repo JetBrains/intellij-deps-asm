@@ -36,6 +36,7 @@ package org.objectweb.asm.util;
 
 import org.objectweb.asm.CodeVisitor;
 import org.objectweb.asm.Label;
+import org.objectweb.asm.Attribute;
 
 import java.util.HashMap;
 
@@ -329,6 +330,16 @@ public class TraceCodeVisitor extends PrintCodeVisitor {
 
     if (cv != null) {
       cv.visitLineNumber(line, start);
+    }
+  }
+
+  public void printAttribute (final Attribute attr) {
+    buf.append("    CODE ATTRIBUTE ")
+      .append(attr.type)
+      .append("\n");
+
+    if (cv != null) {
+      cv.visitAttribute(attr);
     }
   }
 

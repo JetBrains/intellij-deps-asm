@@ -294,4 +294,17 @@ public interface CodeVisitor {
    */
 
   void visitLineNumber (int line, Label start);
+
+  // -------------------------------------------------------------------------
+  // Non standard attributes
+  // -------------------------------------------------------------------------
+
+  /**
+   * Visits a non standard attribute of the code. This method must visit only
+   * the first attribute in the given attribute list.
+   *
+   * @param attr a non standard code attribute. Must not be <tt>null</tt>.
+   */
+
+  void visitAttribute (Attribute attr);
 }

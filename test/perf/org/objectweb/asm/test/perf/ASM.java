@@ -41,6 +41,7 @@ import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.CodeAdapter;
 import org.objectweb.asm.CodeVisitor;
 import org.objectweb.asm.Constants;
+import org.objectweb.asm.Attribute;
 
 import java.io.InputStream;
 
@@ -88,11 +89,12 @@ public class ASM extends ALL {
       String name,
       String superName,
       String[] interfaces,
-      String sourceFile)
+      String sourceFile,
+      Attribute attrs)
     {
       super.visit(access, name, superName, interfaces, sourceFile);
       if ((access & ACC_INTERFACE) == 0) {
-        cv.visitField(ACC_PUBLIC, "_counter", "I", null);
+        cv.visitField(ACC_PUBLIC, "_counter", "I", null, attrs);
       }
       owner = name;
     }
@@ -101,9 +103,10 @@ public class ASM extends ALL {
       int access,
       String name,
       String desc,
-      String[] exceptions)
+      String[] exceptions,
+      Attribute attrs)
     {
-      CodeVisitor cv = super.visitMethod(access, name, desc, exceptions);
+      CodeVisitor cv = super.visitMethod(access, name, desc, exceptions, attrs);
       if (!name.equals("<init>") &&
           (access & (ACC_STATIC + ACC_NATIVE + ACC_ABSTRACT)) == 0)
       {

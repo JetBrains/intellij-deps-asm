@@ -37,7 +37,8 @@ package org.objectweb.asm;
 /**
  * A visitor to visit a Java class. The methods of this interface must be called
  * in the following order: <tt>visit</tt> (<tt>visitField</tt> |
- * <tt>visitMethod</tt> | <tt>visitInnerClass</tt>)* <tt>visitEnd</tt>.
+ * <tt>visitMethod</tt> | <tt>visitInnerClass</tt> | <tt>visitAttribute</tt>)*
+ * <tt>visitEnd</tt>.
  */
 
 public interface ClassVisitor {
@@ -98,12 +99,19 @@ public interface ClassVisitor {
    *      <tt>null</tt> if the field does not have an initial value, must be an
    *      {@link java.lang.Integer Integer}, a {@link java.lang.Float Float}, a
    *      {@link java.lang.Long Long}, a {@link java.lang.Double Double} or a
-   *      {@link String String}. <em>This parameter is only used for static
-   *      fields</em>. Its value is ignored for non static fields, which must be
+   *      {@link String String}. <i>This parameter is only used for static
+   *      fields</i>. Its value is ignored for non static fields, which must be
    *      initialized through bytecode instructions in constructors or methods.
+   * @param attrs the non standard method attributes, linked together by their
+   *      <tt>next</tt> field. May be <tt>null</tt>.
    */
 
-  void visitField (int access, String name, String desc, Object value);
+  void visitField (
+    int access,
+    String name,
+    String desc,
+    Object value,
+    Attribute attrs);
 
   /**
    * Visits a method of the class. This method <i>must</i> return a new
@@ -117,6 +125,8 @@ public interface ClassVisitor {
    * @param exceptions the internal names of the method's exception
    *      classes (see {@link Type#getInternalName getInternalName}). May be
    *      <tt>null</tt>.
+   * @param attrs the non standard method attributes, linked together by their
+   *      <tt>next</tt> field. May be <tt>null</tt>.
    * @return an object to visit the byte code of the method, or <tt>null</tt> if
    *      this class visitor is not interested in visiting the code of this
    *      method.
@@ -126,7 +136,17 @@ public interface ClassVisitor {
     int access,
     String name,
     String desc,
-    String[] exceptions);
+    String[] exceptions,
+    Attribute attrs);
+
+  /**
+   * Visits a non standard attribute of the class. This method must visit only
+   * the first attribute in the given attribute list.
+   *
+   * @param attr a non standard class attribute. Must not be <tt>null</tt>.
+   */
+
+  void visitAttribute (Attribute attr);
 
   /**
    * Visits the end of the class. This method, which is the last one to be

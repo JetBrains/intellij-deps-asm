@@ -37,6 +37,7 @@ package org.objectweb.asm.tree;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.CodeVisitor;
 import org.objectweb.asm.Label;
+import org.objectweb.asm.Attribute;
 
 import java.util.List;
 import java.util.ArrayList;
@@ -74,6 +75,12 @@ public class MethodNode {
    */
 
   public final List exceptions;
+
+  /**
+   * The non standard attributes of the method.
+   */
+
+  public Attribute attrs;
 
   /**
    * The instructions of this method. This list is a list of {@link
@@ -116,6 +123,12 @@ public class MethodNode {
   public final List lineNumbers;
 
   /**
+   * The non standard attributes of the method's code.
+   */
+
+  public Attribute codeAttrs;
+
+  /**
    * Constructs a new {@link MethodNode MethodNode} object.
    *
    * @param access the method's access flags (see {@link
@@ -127,13 +140,15 @@ public class MethodNode {
    * @param exceptions the internal names of the method's exception
    *      classes (see {@link org.objectweb.asm.Type#getInternalName
    *      getInternalName}). May be <tt>null</tt>.
+   * @param attrs the non standard attributes of the method.
    */
 
   public MethodNode (
     final int access,
     final String name,
     final String desc,
-    final String[] exceptions)
+    final String[] exceptions,
+    final Attribute attrs)
   {
     this.access = access;
     this.name = name;
@@ -146,6 +161,7 @@ public class MethodNode {
     if (exceptions != null) {
       this.exceptions.addAll(Arrays.asList(exceptions));
     }
+    this.attrs = attrs;
   }
 
   /**
@@ -157,7 +173,7 @@ public class MethodNode {
   public void accept (final ClassVisitor cv) {
     String[] exceptions = new String[this.exceptions.size()];
     this.exceptions.toArray(exceptions);
-    CodeVisitor mv = cv.visitMethod(access, name, desc, exceptions);
+    CodeVisitor mv = cv.visitMethod(access, name, desc, exceptions, attrs);
     if (mv != null && instructions.size() > 0) {
       int i;
       // visits instructions
@@ -182,6 +198,12 @@ public class MethodNode {
       // visits line numbers
       for (i = 0; i < lineNumbers.size(); ++i) {
         ((LineNumberNode)lineNumbers.get(i)).accept(mv);
+      }
+      // visits the code attributes
+      Attribute attrs = codeAttrs;
+      while (attrs != null) {
+        mv.visitAttribute(attrs);
+        attrs = attrs.next;
       }
     }
   }

@@ -36,6 +36,7 @@ package org.objectweb.asm.tree;
 
 import org.objectweb.asm.CodeAdapter;
 import org.objectweb.asm.Label;
+import org.objectweb.asm.Attribute;
 
 /**
  * A {@link CodeAdapter CodeAdapter} that constructs a tree representation of
@@ -176,5 +177,10 @@ public class TreeCodeAdapter extends CodeAdapter {
   public void visitLineNumber (final int line, final Label start) {
     LineNumberNode n = new LineNumberNode(line, start);
     methodNode.lineNumbers.add(n);
+  }
+
+  public void visitAttribute (final Attribute attr) {
+    attr.next = methodNode.attrs;
+    methodNode.attrs = attr;
   }
 }

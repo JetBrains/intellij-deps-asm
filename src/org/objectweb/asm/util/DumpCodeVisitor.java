@@ -35,6 +35,7 @@
 package org.objectweb.asm.util;
 
 import org.objectweb.asm.Label;
+import org.objectweb.asm.Attribute;
 
 import java.util.HashMap;
 
@@ -259,6 +260,12 @@ public class DumpCodeVisitor extends PrintCodeVisitor {
       .append(", ");
     appendLabel(start);
     buf.append(");\n");
+  }
+
+  public void printAttribute (final Attribute attr) {
+    buf.append("// WARNING! skipped a non standard code attribute of type \"");
+    buf.append(attr.type);
+    buf.append("\"\n");
   }
 
   /**

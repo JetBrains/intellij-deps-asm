@@ -38,6 +38,7 @@ import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.CodeVisitor;
 import org.objectweb.asm.Constants;
 import org.objectweb.asm.ClassReader;
+import org.objectweb.asm.Attribute;
 
 import java.io.PrintWriter;
 
@@ -195,7 +196,8 @@ public class TraceClassVisitor extends PrintClassVisitor {
     final int access,
     final String name,
     final String desc,
-    final Object value)
+    final Object value,
+    final Attribute attrs)
   {
     buf.setLength(0);
     if ((access & Constants.ACC_DEPRECATED) != 0) {
@@ -214,11 +216,16 @@ public class TraceClassVisitor extends PrintClassVisitor {
         buf.append(value);
       }
     }
+    Attribute attr = attrs;
+    while (attr != null) {
+      buf.append(" , FIELD ATTRIBUTE ").append(attr.type);
+      attr = attr.next;
+    }
     buf.append("\n\n");
     text.add(buf.toString());
 
     if (cv != null) {
-      cv.visitField(access, name, desc, value);
+      cv.visitField(access, name, desc, value, attrs);
     }
   }
 
@@ -226,7 +233,8 @@ public class TraceClassVisitor extends PrintClassVisitor {
     final int access,
     final String name,
     final String desc,
-    final String[] exceptions)
+    final String[] exceptions,
+    final Attribute attrs)
   {
     buf.setLength(0);
     if ((access & Constants.ACC_DEPRECATED) != 0) {
@@ -245,16 +253,37 @@ public class TraceClassVisitor extends PrintClassVisitor {
     }
     buf.append("\n");
     text.add(buf.toString());
+    Attribute attr = attrs;
+    while (attr != null) {
+      buf.setLength(0);
+      buf.append("    METHOD ATTRIBUTE ")
+        .append(attr.type)
+        .append("\n");
+      text.add(buf.toString());
+      attr = attr.next;
+    }
 
     CodeVisitor cv;
     if (this.cv != null) {
-      cv = this.cv.visitMethod(access, name, desc, exceptions);
+      cv = this.cv.visitMethod(access, name, desc, exceptions, attrs);
     } else {
       cv = null;
     }
     PrintCodeVisitor pcv = new TraceCodeVisitor(cv);
     text.add(pcv.getText());
     return pcv;
+  }
+
+  public void visitAttribute (final Attribute attr) {
+    buf.setLength(0);
+    buf.append("  CLASS ATTRIBUTE ")
+      .append(attr.type)
+      .append("\n");
+    text.add(buf.toString());
+
+    if (cv != null) {
+      cv.visitAttribute(attr);
+    }
   }
 
   public void visitEnd () {

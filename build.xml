@@ -110,7 +110,6 @@
     <javac destdir="${out.build}" optimize="on">
       <classpath refid="classpath"/>
       <src path="${src}"/>
-      <src path="${out.build}"/>
       <include name="**/*.java"/>
     </javac>
   </target>

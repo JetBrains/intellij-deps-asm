@@ -772,6 +772,19 @@ public class ClassReader {
   // --------------------------------------------------------------------------
 
   /**
+   * Reads a byte value in {@link #b b}. <i>This method is intended
+   * for {@link Attribute} sub classes, and is normally not needed by class
+   * generators or adapters.</i>
+   *
+   * @param index the start index of the value to be read in {@link #b b}.
+   * @return the read value.
+   */
+
+  public int readByte (final int index) {
+    return b[index] & 0xFF;
+  }
+
+  /**
    * Reads an unsigned short value in {@link #b b}. <i>This method is intended
    * for {@link Attribute} sub classes, and is normally not needed by class
    * generators or adapters.</i>

@@ -112,7 +112,14 @@ import org.objectweb.asm.Label;
  */
 
 public class RuntimeInvisibleParameterAnnotations extends Attribute {
-
+  /**
+   * <code>List</code> of <code>List</code>s that
+   * contains <code>Annotation</code> for each method parameter.
+   * 
+   * @associates <{org.objectweb.asm.attrs.Annotation}>
+   * @label parameters
+   * @associationAsClass List
+   */
   public List parameters = new ArrayList();
 
   public RuntimeInvisibleParameterAnnotations () {

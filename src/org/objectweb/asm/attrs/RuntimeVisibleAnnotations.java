@@ -90,6 +90,12 @@ import org.objectweb.asm.Label;
 
 public class RuntimeVisibleAnnotations extends Attribute {
 
+  /**
+   * <code>List</code> of <code>Annotation</code>.
+   * 
+   * @associates <{org.objectweb.asm.attrs.Annotation}>
+   * @label annotations
+   */
   public List annotations = new ArrayList();
 
   public RuntimeVisibleAnnotations () {

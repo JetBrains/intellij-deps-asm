@@ -76,24 +76,33 @@ import org.objectweb.asm.Label;
  */
 
 public class AnnotationDefaultAttribute extends Attribute {
-
-  public AnnotationElementValue defaultValue;
+  /**
+   * Default value for annotation. Could be one of
+   * <code>Byte</code>, <code>Character</code>, <code>Double</code>, 
+   * <code>Float</code>, <code>Integer</code>, <code>Long</code>, <code>Short</code>, 
+   * <code>Boolean</code>, <code>String</code>, 
+   * <code>Annotation.EnumConstValue</code>, <code>Type</code>, 
+   * <code>Annotation</code> or <code>Object[]</code>.
+   */
+  public Object defaultValue;
 
   public AnnotationDefaultAttribute () {
     super("AnnotationDefault");
   }
 
+  public AnnotationDefaultAttribute ( Object defaultValue) {
+    this();
+    this.defaultValue = defaultValue;
+  }
+
   protected Attribute read (ClassReader cr, int off,
                             int len, char[] buf, int codeOff, Label[] labels) {
-    AnnotationDefaultAttribute ann = new AnnotationDefaultAttribute();
-    ann.defaultValue = new AnnotationElementValue();
-    ann.defaultValue.read(cr, off, buf);
-    return ann;
+    return new AnnotationDefaultAttribute( Annotation.readValue(cr, new int[] {off}, buf));
   }
 
   protected ByteVector write (ClassWriter cw, byte[] code,
                               int len, int maxStack, int maxLocals) {
-    return defaultValue.write(new ByteVector(), cw);
+    return Annotation.writeValue( new ByteVector(), defaultValue, cw);
   }
 
   /**

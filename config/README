@@ -1,3 +1,0 @@
-This directory contains the files needed for the compilation stage.
-In particular the ow_util_ant_tasks.jar contains several objectweb
-tasks which are used in the build.xml files.

@@ -27,131 +27,126 @@
  ! ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
  ! THE POSSIBILITY OF SUCH DAMAGE.
 -->
+
 <project name="test" default="test">
+
+  <!-- ==================================== -->
+  <!-- ======== PROPERTY DEFINITION ======= -->
+  <!-- ==================================== -->
 
   <property name="test.conform"   value="${test}/conform"/>
   <property name="test.deviance"  value="${test}/deviance"/>
-  <property name="test.thread" 		value="${test}/thread"/>
-  <property name="test.stress" 		value="${test}/stress"/>
-  <property name="test.perf" 			value="${test}/perf"/>
+  <property name="test.thread"    value="${test}/thread"/>
+  <property name="test.stress"    value="${test}/stress"/>
+  <property name="test.perf"      value="${test}/perf"/>
 
-  <path id="classpath">
-    <pathelement location="${out.build}"/>
-    <pathelement location="${out.test}"/>
-    <fileset dir="${test}">
-      <include name="lib/*.jar"/>
-    </fileset>
-  </path>
+  <target name="properties">
+    <condition property="test.conform.exist">
+      <available file="${test.conform}"/>
+    </condition>
 
+    <condition property="test.deviance.exist">
+      <available file="${test.deviance}"/>
+    </condition>
+
+    <condition property="test.thread.exist">
+      <available file="${test.thread}"/>
+    </condition>
+
+    <condition property="test.stress.exist">
+      <available file="${test.stress}"/>
+    </condition>
+
+    <condition property="test.perf.exist">
+      <available file="${test.perf}"/>
+    </condition>
+    
+    <condition property="test.all">
+      <and>
+        <not><isset property="test.type"/></not>
+        <not><isset property="test.group"/></not>
+        <not><isset property="test.name"/></not>
+      </and>
+    </condition>
+
+    <condition property="test.paths.configured">
+      <and>
+        <isset property="bcel.path"/>
+        <isset property="serp.path"/>
+        <isset property="class.samples"/>
+      </and>
+    </condition>
+  </target>
+
+  <!-- ================================== -->
+  <!-- ========  INITIALIZATION   ======= -->
+  <!-- ================================== -->
+  
+  <target name="check" unless="test.paths.configured">
+    <echo message="The 'test' section in the 'build.properties' file must be configured"/>
+    <fail/>
+  </target>
+  
+  <target name="init" depends="properties,check">  
+    <path id="test.classpath">
+      <pathelement location="${out.build}"/>
+      <pathelement location="${out.test}"/>
+      <pathelement path="${bcel.path}"/>
+      <pathelement path="${serp.path}"/>  
+    </path>
+  </target>
+  
   <!-- ==================================== -->
   <!-- =========== COMPILATION ============ -->
   <!-- ==================================== -->
 
-  <target name="compile">
+  <target name="compile.test.conform" depends="init" if="test.conform.exist">
     <mkdir dir="${out.test}"/>
-    <condition property="test.conform.dir.exist">
-      <available file="${test.conform}"/>
-    </condition>
-    <antcall target="compile.test.conform"/>
-
-    <condition property="test.deviance.dir.exist">
-      <available file="${test.deviance}"/>
-    </condition>
-    <antcall target="compile.test.deviance"/>
-
-    <condition property="test.thread.dir.exist">
-      <available file="${test.thread}"/>
-    </condition>
-    <antcall target="compile.test.thread"/>
-
-    <condition property="test.stress.dir.exist">
-      <available file="${test.stress}"/>
-    </condition>
-    <antcall target="compile.test.stress"/>
-
-    <condition property="test.perf.dir.exist">
-      <available file="${test.perf}"/>
-    </condition>
-    <antcall target="compile.test.perf"/>
-  </target>
-
-  <!-- Compile the code of the conformance tests -->
-  <target name="compile.test.conform" if="test.conform.dir.exist">
     <javac srcdir="${test.conform}" destdir="${out.test}">
-      <classpath refid="classpath"/>
+      <classpath refid="test.classpath"/>
       <include name="**/*.java"/>
     </javac>
   </target>
 
-  <!-- Compile the code of the deviance tests -->
-  <target name="compile.test.deviance" if="test.deviance.dir.exist">
+  <target name="compile.test.deviance" depends="init" if="test.deviance.exist">
+    <mkdir dir="${out.test}"/>
     <javac srcdir="${test.deviance}" destdir="${out.test}">
-      <classpath refid="classpath"/>
+      <classpath refid="test.classpath"/>
       <include name="**/*.java"/>
     </javac>
   </target>
 
-  <!-- Compile the code of the multithreading tests -->
-  <target name="compile.test.thread" if="test.thread.dir.exist">
+  <target name="compile.test.thread" depends="init" if="test.thread.exist">
+    <mkdir dir="${out.test}"/>
     <javac srcdir="${test.thread}" destdir="${out.test}">
-      <classpath refid="classpath"/>
+      <classpath refid="test.classpath"/>
       <include name="**/*.java"/>
     </javac>
   </target>
 
-  <!-- Compile the code of the stress tests -->
-  <target name="compile.test.stress" if="test.stress.dir.exist">
+  <target name="compile.test.stress" depends="init" if="test.stress.exist">
+    <mkdir dir="${out.test}"/>
     <javac srcdir="${test.stress}" destdir="${out.test}">
-      <classpath refid="classpath"/>
+      <classpath refid="test.classpath"/>
       <include name="**/*.java"/>
     </javac>
   </target>
 
-  <!-- Compile the code of the performance tests -->
-  <target name="compile.test.perf" if="test.perf.dir.exist">
+  <target name="compile.test.perf" depends="init" if="test.perf.exist">
+    <mkdir dir="${out.test}"/>
     <javac srcdir="${test.perf}" destdir="${out.test}">
-      <classpath refid="classpath"/>
+      <classpath refid="test.classpath"/>
       <include name="**/*.java"/>
     </javac>
   </target>
 
-  <!-- ============================== -->
-  <!-- =========== JUNIT ============ -->
-  <!-- ============================== -->
-
-  <target name="junit" description="run tests with JUnit">
-    <java classname="junit.swingui.TestRunner" fork="yes">
-      <classpath refid="classpath"/>
-    </java>
-  </target>
+  <target name="compile" depends="compile.test.conform,compile.test.deviance,compile.test.thread,compile.test.stress,compile.test.perf"/>
 
   <!-- ============================= -->
   <!-- =========== TEST ============ -->
   <!-- ============================= -->
 
-  <target name="test" depends="compile" description="run tests">
-    <mkdir dir="${out.test}"/>
-    <antcall target="testAll"/>
-    <antcall target="testType"/>
-    <antcall target="testGroup"/>
-    <antcall target="testName"/>
-  </target>
-
-  <target name="checkTest">
-    <property name="test.type.check" value="$${test.type}"/>
-    <property name="test.group.check" value="$${test.group}"/>
-    <property name="test.name.check" value="$${test.name}"/>
-    <condition property="test.all">
-      <and>
-        <equals arg1="${test.type.check}" arg2="${test.type}"/>
-        <equals arg1="${test.group.check}" arg2="${test.group}"/>
-        <equals arg1="${test.name.check}" arg2="${test.name}"/>
-      </and>
-    </condition>
-  </target>
-
-  <!-- All test -->
-  <target name="testAll" depends="checkTest" if="test.all">
+  <target name="testAll" depends="compile" if="test.all">
     <!--multipleAnt dir="${test.conform}" inheritRefs="true"/>
     <multipleAnt dir="${test.deviance}" inheritRefs="true"/>
     <multipleAnt dir="${test.thread}" inheritRefs="true"/>
@@ -159,29 +154,22 @@
     <multipleAnt dir="${test.perf}" inheritRefs="true"/>
   </target>
 
-  <!-- Only a type of test: conform, deviance, stress, thread, or perf.
-  The test.type properties contains the directory name of
-  the test type ex: ant -Dtest.type=conform test
-	-->
-  <target name="testType" if="test.type">
+  <target name="testType" depends="compile" if="test.type">
     <multipleAnt dir="${test}/${test.type}" inheritRefs="true"/>
   </target>
 
-  <!-- Only a group of test: The default target of the xml file is called
-  the test.group contains the xml file name with directory
-  ex: ant -Dtest.group=test/conform/toto.xml test
-  => calls the default target of the file ${test}/conform/toto.xml
-	-->
-  <target name="testGroup" if="test.group">
+  <target name="testGroup" depends="compile" if="test.group">
     <ant antfile="${test.group}" inheritRefs="true"/>
   </target>
 
-  <!-- Only a single test: a target specified -->
-  <target name="testName" if="test.name">
+  <target name="testName" depends="compile" if="test.name">
     <!--multipleAnt dir="${test.conform}" target="${test.name}" inheritRefs="true"/>
     <multipleAnt dir="${test.deviance}" target="${test.name}" inheritRefs="true"/>
     <multipleAnt dir="${test.thread}" target="${test.name}" inheritRefs="true"/>
     <multipleAnt dir="${test.stress}" target="${test.name}" inheritRefs="true"/-->
     <multipleAnt dir="${test.perf}" target="${test.name}" inheritRefs="true"/>
   </target>
+
+  <target name="test" depends="testAll,testType,testGroup,testName"/>
+  
 </project>

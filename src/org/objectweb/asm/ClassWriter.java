@@ -809,7 +809,7 @@ public class ClassWriter implements ClassVisitor {
   /**
    * Adds a method reference to the constant pool of the class being build. Does
    * nothing if the constant pool already contains a similar item. <i>This
-   * method is intended for {@link Attribute} sub classes, and is normally not 
+   * method is intended for {@link Attribute} sub classes, and is normally not
    * needed by class generators or adapters.</i>
    *
    * @param owner the internal name of the method's owner class.
@@ -956,7 +956,7 @@ public class ClassWriter implements ClassVisitor {
 
   private Item get (final Item key) {
     int h = key.hashCode;
-    Item i = items[(h & 0x7FFFFFFF) % items.length];
+    Item i = items[h % items.length];
     while (i != null) {
       if (i.hashCode == h && key.isEqualTo(i)) {
         return i;
@@ -979,7 +979,7 @@ public class ClassWriter implements ClassVisitor {
       for (int l = items.length - 1; l >= 0; --l) {
         Item j = items[l];
         while (j != null) {
-          int index = (j.hashCode & 0x7FFFFFFF) % newItems.length;
+          int index = j.hashCode % newItems.length;
           Item k = j.next;
           j.next = newItems[index];
           newItems[index] = j;
@@ -989,7 +989,7 @@ public class ClassWriter implements ClassVisitor {
       items = newItems;
       threshold = (int)(items.length * 0.75);
     }
-    int index = (i.hashCode & 0x7FFFFFFF) % items.length;
+    int index = i.hashCode % items.length;
     i.next = items[index];
     items[index] = i;
   }

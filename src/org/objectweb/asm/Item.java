@@ -150,7 +150,7 @@ final class Item {
   void set (final int intVal) {
     this.type = ClassWriter.INT;
     this.intVal = intVal;
-    this.hashCode = type + intVal;
+    this.hashCode = 0x7FFFFFFF & (type + intVal);
   }
 
   /**
@@ -162,7 +162,7 @@ final class Item {
   void set (final long longVal) {
     this.type = ClassWriter.LONG;
     this.longVal = longVal;
-    this.hashCode = type + (int)longVal;
+    this.hashCode = 0x7FFFFFFF & (type + (int)longVal);
   }
 
   /**
@@ -174,7 +174,7 @@ final class Item {
   void set (final float floatVal) {
     this.type = ClassWriter.FLOAT;
     this.floatVal = floatVal;
-    this.hashCode = type + (int)floatVal;
+    this.hashCode = 0x7FFFFFFF & (type + (int)floatVal);
   }
 
   /**
@@ -186,7 +186,7 @@ final class Item {
   void set (final double doubleVal) {
     this.type = ClassWriter.DOUBLE;
     this.doubleVal = doubleVal;
-    this.hashCode = type + (int)doubleVal;
+    this.hashCode = 0x7FFFFFFF & (type + (int)doubleVal);
   }
 
   /**
@@ -212,17 +212,17 @@ final class Item {
       case ClassWriter.UTF8:
       case ClassWriter.STR:
       case ClassWriter.CLASS:
-        hashCode = type + strVal1.hashCode();
+        hashCode = 0x7FFFFFFF & (type + strVal1.hashCode());
         return;
       case ClassWriter.NAME_TYPE:
-        hashCode = type + strVal1.hashCode()*strVal2.hashCode();
+        hashCode = 0x7FFFFFFF & (type + strVal1.hashCode()*strVal2.hashCode());
         return;
       //case ClassWriter.FIELD:
       //case ClassWriter.METH:
       //case ClassWriter.IMETH:
       default:
-        hashCode = type + strVal1.hashCode()*strVal2.hashCode()*strVal3.hashCode();
-        return;
+        hashCode = 0x7FFFFFFF & (type +
+          strVal1.hashCode()*strVal2.hashCode()*strVal3.hashCode());
     }
   }
 

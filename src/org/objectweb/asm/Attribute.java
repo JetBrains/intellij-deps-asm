@@ -183,8 +183,11 @@ public class Attribute {
     int size = 0;
     Attribute attr = this;
     while (attr != null) {
-      cw.newUTF8(attr.type);
-      size += attr.write(cw, code, len, maxStack, maxLocals).length + 6;
+      ByteVector b = attr.write(cw, code, len, maxStack, maxLocals);
+      if (b.length > 0) {
+        cw.newUTF8(attr.type);
+        size += b.length + 6;
+      }
       attr = attr.next;
     }
     return size;
@@ -220,11 +223,14 @@ public class Attribute {
     Attribute attr = this;
     while (attr != null) {
       ByteVector b = attr.write(cw, code, len, maxStack, maxLocals);
-      if (cw.checkAttributes && b.length == 0) {
-        throw new RuntimeException("Unknown attribute type: " + attr.type);
+      if (b.length == 0) {
+        if (cw.checkAttributes) {
+          throw new IllegalArgumentException("Unknown attribute type " + attr.type);
+        }
+      } else {
+        out.putShort(cw.newUTF8(attr.type)).putInt(b.length);
+        out.putByteArray(b.data, 0, b.length);
       }
-      out.putShort(cw.newUTF8(attr.type)).putInt(b.length);
-      out.putByteArray(b.data, 0, b.length);
       attr = attr.next;
     }
   }

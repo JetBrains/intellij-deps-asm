@@ -5,7 +5,7 @@
 
   <target name="dist.jdoc">
     <uptodate property="jdoc.required" targetfile="${jdoc.dir}/index.html">
-      <srcfiles dir="${src}" includes="**/*.java"/>
+      <srcfiles dir="${src}" includes="**/*.java,**/*.html"/>
     </uptodate>
     <antcall target="dist.jdoc.${jdoc.name}"/>
   </target>

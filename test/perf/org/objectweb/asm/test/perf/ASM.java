@@ -89,12 +89,11 @@ public class ASM extends ALL {
       String name,
       String superName,
       String[] interfaces,
-      String sourceFile,
-      Attribute attrs)
+      String sourceFile)
     {
       super.visit(access, name, superName, interfaces, sourceFile);
       if ((access & ACC_INTERFACE) == 0) {
-        cv.visitField(ACC_PUBLIC, "_counter", "I", null, attrs);
+        cv.visitField(ACC_PUBLIC, "_counter", "I", null, null);
       }
       owner = name;
     }

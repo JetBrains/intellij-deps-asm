@@ -947,8 +947,8 @@ public class ClassReader {
     final boolean visible,
     final MethodVisitor mv)
   {
-    int i = b[v++] & 0xFF;
-    for ( ; i > 0; --i) {
+    int n = b[v++] & 0xFF;
+    for (int i = 0; i < n; ++i) {
       int j = readUnsignedShort(v); v += 2;
       for ( ; j > 0; --j) {
         String desc = readUTF8(v, buf); v += 2;

@@ -34,8 +34,10 @@
 
 package org.objectweb.asm.attrs;
 
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
 import org.objectweb.asm.ByteVector;
 import org.objectweb.asm.ClassReader;
@@ -69,6 +71,20 @@ public class StackMapFrame {
     bv.putShort( label.getOffset());
     writeTypeInfo( bv, cw, locals, maxLocals);
     writeTypeInfo( bv, cw, stack, maxStack);
+  }
+
+  public void getLabels( Set labels) {
+    labels.add( label);
+    getTypeInfoLabels( labels, locals);    
+    getTypeInfoLabels( labels, stack);    
+   }
+
+  private void getTypeInfoLabels( Set labels, List info) {
+    for( Iterator it = info.iterator(); it.hasNext(); ) {
+      StackMapTypeInfo typeInfo = ( StackMapTypeInfo) it.next();
+      if( typeInfo.getType()==StackMapTypeInfo.ITEM_Uninitialized)
+        labels.add( typeInfo.getLabel());
+    }    
   }
 
   private int readTypeInfo( ClassReader cr, int off, List info, Label[] labels, char[] buf, int max) {

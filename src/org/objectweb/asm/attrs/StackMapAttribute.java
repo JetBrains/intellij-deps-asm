@@ -34,8 +34,11 @@
 
 package org.objectweb.asm.attrs;
 
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
 import org.objectweb.asm.Attribute;
 import org.objectweb.asm.ByteVector;
@@ -173,7 +176,14 @@ public class StackMapAttribute extends Attribute {
     }
     return bv;
   }
-
+  
+  protected Label[] getLabels() {
+    Set labels = new HashSet();
+    for( int i = 0; i<frames.size(); i++)
+    	(( StackMapFrame) frames.get( i)).getLabels( labels);
+    return ( Label[]) labels.toArray( new Label[ labels.size()]);
+  }
+  
   public String toString() {
     StringBuffer sb = new StringBuffer( "StackMap[");
     for( int i = 0; i<frames.size(); i++)

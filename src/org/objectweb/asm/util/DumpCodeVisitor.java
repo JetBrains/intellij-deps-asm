@@ -178,7 +178,7 @@ public class DumpCodeVisitor extends PrintCodeVisitor {
     }
     declareLabel(dflt);
 
-    buf.append("cv.visitLookupSwitch(");
+    buf.append("cv.visitLookupSwitchInsn(");
     appendLabel(dflt);
     buf.append(", new int[] {");
     for (int i = 0; i < keys.length; ++i) {
@@ -222,8 +222,7 @@ public class DumpCodeVisitor extends PrintCodeVisitor {
       .append(maxStack)
       .append(", ")
       .append(maxLocals)
-      .append(");\n")
-      .append("}\n");
+      .append(");\n");
   }
 
   public void printLocalVariable (

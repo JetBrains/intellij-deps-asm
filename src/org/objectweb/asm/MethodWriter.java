@@ -547,6 +547,7 @@ class MethodWriter implements MethodVisitor {
     this.access = access;
     this.name = cw.newUTF8(name);
     this.desc = cw.newUTF8(desc);
+    this.descriptor = desc;
     if (signature != null) {
       this.signature = cw.newUTF8(signature);
     }

@@ -277,8 +277,10 @@ public class ClassReader {
         w = v + 6;
       } else {
         attr = readAttribute(attrName, v + 6, readInt(v + 2), c);
-        attr.next = clattrs;
-        clattrs = attr;
+        if (attr != null) {
+          attr.next = clattrs;
+          clattrs = attr;
+        }
       }
       v += 6 + readInt(v + 2);
     }
@@ -320,8 +322,10 @@ public class ClassReader {
           access |= Constants.ACC_DEPRECATED;
         } else {
           attr = readAttribute(attrName, u + 6, readInt(u + 2), c);
-          attr.next = fattrs;
-          fattrs = attr;
+          if (attr != null) {
+            attr.next = fattrs;
+            fattrs = attr;
+          }
         }
         u += 6 + readInt(u + 2);
       }
@@ -356,8 +360,10 @@ public class ClassReader {
           access |= Constants.ACC_DEPRECATED;
         } else {
           attr = readAttribute(attrName, u, attrSize, c);
-          attr.next = mattrs;
-          mattrs = attr;
+          if (attr != null) {
+            attr.next = mattrs;
+            mattrs = attr;
+          }
         }
         u += attrSize;
       }
@@ -380,7 +386,6 @@ public class ClassReader {
         int maxStack = readUnsignedShort(v);
         int maxLocals = readUnsignedShort(v + 2);
         int codeLength = readInt(v + 4);
-        Attribute cattrs = null;
         v += 8;
 
         int codeStart = v;
@@ -521,10 +526,6 @@ public class ClassReader {
                 }
                 w += 4;
               }
-            } else {
-              attr = readAttribute(attrName, v + 6, readInt(v + 2), c);
-              attr.next = cattrs;
-              cattrs = attr;
             }
             v += 6 + readInt(v + 2);
           }
@@ -672,12 +673,12 @@ public class ClassReader {
           }
           v += 8;
         }
-        if (!skipDebug) {
-          // visits the local variable and line number tables
-          j = readUnsignedShort(v); v += 2;
-          for ( ; j > 0; --j) {
-            String attrName = readUTF8(v, c);
-            if (attrName.equals("LocalVariableTable")) {
+        // visits the local variable, line number tables, and code attributes
+        j = readUnsignedShort(v); v += 2;
+        for ( ; j > 0; --j) {
+          String attrName = readUTF8(v, c);
+          if (attrName.equals("LocalVariableTable")) {
+            if (!skipDebug) {
               k = readUnsignedShort(v + 6);
               w = v + 8;
               for ( ; k > 0; --k) {
@@ -693,7 +694,9 @@ public class ClassReader {
                   readUnsignedShort(w + 8));
                 w += 10;
               }
-            } else if (attrName.equals("LineNumberTable")) {
+            }
+          } else if (attrName.equals("LineNumberTable")) {
+            if (!skipDebug) {
               k = readUnsignedShort(v + 6);
               w = v + 8;
               for ( ; k > 0; --k) {
@@ -703,13 +706,13 @@ public class ClassReader {
                 w += 4;
               }
             }
-            v += 6 + readInt(v + 2);
+          } else {
+            attr = readAttribute(attrName, v + 6, readInt(v + 2), c);
+            if (attr != null) {
+              cv.visitAttribute(attr);
+            }
           }
-        }
-        // visits the code attributes
-        while (cattrs != null) {
-          cv.visitAttribute(cattrs);
-          cattrs = cattrs.next;
+          v += 6 + readInt(v + 2);
         }
         // visits the max stack and max locals values
         cv.visitMaxs(maxStack, maxLocals);
@@ -899,7 +902,8 @@ public class ClassReader {
    * @param len the length of the attribute's content.
    * @param buf buffer to be used to call {@link #readUTF8 readUTF8}, {@link
    *      #readClass readClass} or {@link #readConst readConst}.
-   * @return the attribute that has been read.
+   * @return the attribute that has been read, or <tt>null</tt> to skip this
+   *      attribute.
    */
 
   protected Attribute readAttribute (

@@ -107,8 +107,9 @@ public class EnclosingMethodAttribute extends Attribute implements Dumpable {
     // CONSTANT_Class_info
     String owner = cr.readClass( off, buf);
     // CONSTANT_NameAndType_info (skip CONSTANT_NameAndType tag)
-    String name = cr.readUTF8( off + 3, buf);
-    String desc = cr.readUTF8( off + 5, buf);
+    int index = cr.getItem(cr.readUnsignedShort(off + 2));
+    String name = cr.readUTF8(index, buf);
+    String desc = cr.readUTF8(index + 2, buf);
     return new EnclosingMethodAttribute( owner, name, desc);
   }
 

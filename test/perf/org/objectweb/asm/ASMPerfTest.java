@@ -1,6 +1,6 @@
 /***
  * ASM performance test: measures the performances of asm package
- * Copyright (c) 2002,2003 France Telecom
+ * Copyright (c) 2002-2004 France Telecom
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without

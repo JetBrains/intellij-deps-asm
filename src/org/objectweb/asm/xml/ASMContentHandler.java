@@ -456,7 +456,7 @@ public class ASMContentHandler extends DefaultHandler implements Opcodes {
   }
 
 
-  public static final class RuleSet {
+  private static final class RuleSet {
     private Map rules = new HashMap();
     private List lpatterns = new ArrayList();
     private List rpatterns = new ArrayList();

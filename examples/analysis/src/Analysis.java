@@ -43,6 +43,7 @@ import org.objectweb.asm.tree.MethodNode;
 import org.objectweb.asm.tree.TreeClassAdapter;
 import org.objectweb.asm.tree.VarInsnNode;
 import org.objectweb.asm.tree.analysis.Analyzer;
+import org.objectweb.asm.tree.analysis.BasicVerifier;
 import org.objectweb.asm.tree.analysis.DataflowInterpreter;
 import org.objectweb.asm.tree.analysis.DataflowValue;
 import org.objectweb.asm.tree.analysis.Frame;
@@ -64,11 +65,23 @@ public class Analysis implements Constants {
       MethodNode method = (MethodNode)methods.get(i);
       if (method.instructions.size() > 0) {
         if (!analyze(ca.classNode, method)) {
+          Analyzer a = new Analyzer(new BasicVerifier());
+          try {
+            a.analyze(ca.classNode, method);
+          } catch (Exception ignored) {
+          }
+          final Frame[] frames = a.getFrames();
+          
           TraceCodeVisitor cv = new TraceCodeVisitor(null) {
             public void visitMaxs (int maxStack, int maxLocals) {
               for (int i = 0; i < text.size(); ++i) {
+                String s = frames[i] == null ? "null" : frames[i].toString();
+                while (s.length() < Math.max(20, maxStack+maxLocals+1)) {
+                  s += " ";
+                }
                 System.err.print(
-                  Integer.toString(i + 1000).substring(1) + ":" + text.get(i));
+                  Integer.toString(i + 1000).substring(1) + " " + s + " : " 
+                  + text.get(i));
               }
               System.err.println();
             }

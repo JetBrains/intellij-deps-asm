@@ -34,7 +34,7 @@
 
 package org.objectweb.asm.attrs;
 
-import java.util.LinkedList;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.objectweb.asm.ByteVector;
@@ -91,7 +91,7 @@ public class Annotation {
 
   public String type;
 
-  public List memberValues = new LinkedList();
+  public List memberValues = new ArrayList();
 
   public void add (String name, Object value) {
     memberValues.add(new Object[]{name, value});
@@ -200,7 +200,7 @@ public class Annotation {
     List parameters, ClassReader cr, int off, char[] buf) {
     int numParameters = cr.b[off++] & 0xff;
     for (int i = 0; i < numParameters; i++) {
-      List annotations = new LinkedList();
+      List annotations = new ArrayList();
       off = Annotation.readAnnotations(annotations, cr, off, buf);
       parameters.add(annotations);
     }
@@ -267,7 +267,6 @@ public class Annotation {
   public static void dumpParameterAnnotations (StringBuffer buf,
                                                String varName,
                                                List parameters) {
-    // TODO implement method Annotation.dumpParameterAnnotations
     if (parameters.size() > 0) {
       buf.append("{\n");
       for (int i = 0; i < parameters.size(); i++) {
@@ -322,7 +321,7 @@ public class Annotation {
       for (int i = 0; i < memberValues.size(); i++) {
         Object[] value = (Object[])memberValues.get(i);
         // using shorthand syntax for single-member annotation
-        if (memberValues.size() > 1) {
+        if ( !( memberValues.size()==1 || "value".equals( memberValues.get( 0)))) {
           sb.append(sep).append(value[0]).append(" = ");
         }
         sb.append(value[1]);

@@ -45,7 +45,7 @@ public interface FieldVisitor {
    * 
    * @param desc the class descriptor of the annotation class.
    * @param visible <tt>true</tt> if the annotation is visible at runtime.
-   * @return a visitor to visit the annotation values.
+   * @return a non null visitor to visit the annotation values.
    */
   
   AnnotationVisitor visitAnnotation (String desc, boolean visible);

@@ -101,6 +101,7 @@ public class ASMContentHandler extends DefaultHandler implements Opcodes {
       RULES.add( BASE, new ClassRule());
       RULES.add( BASE+"/interfaces/interface", new InterfaceRule());
       RULES.add( BASE+"/interfaces", new InterfacesRule());
+      RULES.add( BASE+"/outerclass", new OuterClassRule());
       RULES.add( BASE+"/innerclass", new InnerClassRule());
       RULES.add( BASE+"/source", new SourceRule());
       RULES.add( BASE+"/field", new FieldRule());
@@ -716,6 +717,21 @@ public class ASMContentHandler extends DefaultHandler implements Opcodes {
       String[] interfaces = ( String[])(( List) vals.get( "interfaces")).toArray( new String[ 0]);
       cw.visit( version, access, name, signature, parent, interfaces);
       push(cw);
+    }
+    
+  }
+
+  
+  /**
+   * OuterClassRule
+   */
+  private final class OuterClassRule extends Rule {
+
+    public final void begin( String element, Attributes attrs) {
+      String owner = attrs.getValue( "owner");
+      String name = attrs.getValue( "name");
+      String desc = attrs.getValue( "desc");
+      cw.visitOuterClass( owner, name, desc);
     }
     
   }

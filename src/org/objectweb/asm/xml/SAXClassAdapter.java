@@ -88,7 +88,7 @@ public final class SAXClassAdapter extends SAXAdapter implements ClassVisitor {
     if( name!=null) att.addAttribute( "", "name", "name", "", name);
     if( desc!=null) att.addAttribute( "", "desc", "desc", "", desc);
 
-    addElement( "outerClass", att);
+    addElement( "outerclass", att);
   }
   
   public final void visitAttribute( Attribute attr) {
@@ -178,6 +178,9 @@ public final class SAXClassAdapter extends SAXAdapter implements ClassVisitor {
     att.addAttribute( "", "access", "access", "", sb.toString());
     att.addAttribute( "", "name", "name", "", name);
     att.addAttribute( "", "desc", "desc", "", desc);
+    if (signature != null) {
+      att.addAttribute( "", "signature", "signature", "", signature);
+    }
     addStart( "method", att);
 
     addStart( "exceptions", new AttributesImpl());

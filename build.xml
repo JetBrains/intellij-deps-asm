@@ -134,7 +134,13 @@
     </java>
   </target>
 
-  <target name="compile" depends="compile-debug,shrink"/>
+  <target name="move.tmp" depends="compile-debug" if="product.noshrink">
+    <move todir="${out.build}" >
+      <fileset dir="${out.build}/tmp" />
+    </move>
+  </target>    
+    
+  <target name="compile" depends="compile-debug,shrink,move.tmp"/>
     
   <!-- =================================== -->
   <!-- ==========      TEST     ========== -->

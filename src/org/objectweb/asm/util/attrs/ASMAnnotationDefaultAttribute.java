@@ -89,8 +89,18 @@ public class ASMAnnotationDefaultAttribute extends AnnotationDefaultAttribute
       buf.append("{\n");
       for (int i = 0; i < parameters.size(); i++) {
         String val = varName + "param" + i;
-        asmifyAnnotations(buf, val, (List)parameters.get(i));
-        buf.append(varName).append(".parameters.add( ").append(val).append(");\n");
+        buf.append( "List ").append( val).append( " = new ArrayList();\n");
+        List annotations = (List)parameters.get(i);
+        if (annotations.size() > 0) {
+          buf.append("{\n");
+          for (int i1 = 0; i1 < annotations.size(); i1++) {
+            String val1 = val + "ann" + i1;
+            asmify((Annotation)annotations.get(i1), buf, val1);
+            buf.append(val).append(".add( ").append(val1).append(");\n");
+          }
+          buf.append("}\n");
+        }
+        buf.append(varName).append(".parameters.add( ").append(val).append(");\n\n");
       }
       buf.append("}\n");
     }

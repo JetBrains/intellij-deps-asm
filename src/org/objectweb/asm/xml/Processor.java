@@ -423,18 +423,18 @@ public class Processor {
       this.is = is;
     }
 
-    public void close() throws IOException {
+    public final void close() throws IOException {
     }
 
-    public int read() throws IOException {
+    public final int read() throws IOException {
       return is.read();
     }
 
-    public int read( byte[] b, int off, int len) throws IOException {
+    public final int read( byte[] b, int off, int len) throws IOException {
       return is.read( b, off, len);
     }
 
-    public int available() throws IOException {
+    public final int available() throws IOException {
       return is.available();
     }
   }
@@ -468,7 +468,7 @@ public class Processor {
       this.optimizeEmptyElements = optimizeEmptyElements;
     }
     
-    public ContentHandler createContentHandler() {
+    public final ContentHandler createContentHandler() {
       return new SAXWriter( w, optimizeEmptyElements);
     }
     
@@ -487,7 +487,7 @@ public class Processor {
       this.computeMax = computeMax;
     }
     
-    public ContentHandler createContentHandler() {
+    public final ContentHandler createContentHandler() {
       return new ASMContentHandler( os, computeMax);
     }
     
@@ -508,7 +508,7 @@ public class Processor {
       this.outputHandler = outputHandler;
     }
     
-    public ContentHandler createContentHandler() {
+    public final ContentHandler createContentHandler() {
       try {
         TransformerHandler handler = saxtf.newTransformerHandler( templates);
         handler.setResult( new SAXResult( outputHandler));
@@ -523,14 +523,14 @@ public class Processor {
   /**
    * SubdocumentHandlerFactory
    */
-  private static final class SubdocumentHandlerFactory implements ContentHandlerFactory {
+  private final static class SubdocumentHandlerFactory implements ContentHandlerFactory {
     private ContentHandler subdocumentHandler;
 
     public SubdocumentHandlerFactory( ContentHandler subdocumentHandler) {
       this.subdocumentHandler = subdocumentHandler;
     }
     
-    public ContentHandler createContentHandler() {
+    public final ContentHandler createContentHandler() {
       return subdocumentHandler;
     }
     
@@ -547,7 +547,7 @@ public class Processor {
    * entity definitions (uncluding DTD), CDATA and text elements.
    * </blockquote></i>
    */
-  private static class SAXWriter extends DefaultHandler implements LexicalHandler {
+  private final static class SAXWriter extends DefaultHandler implements LexicalHandler {
     private static final char[] OFF = "                                                                                                        ".toCharArray();
     
     private Writer w;
@@ -569,7 +569,7 @@ public class Processor {
       this.optimizeEmptyElements = optimizeEmptyElements;
     }
     
-    public void startElement( String ns, String localName, String qName, Attributes atts) throws SAXException {
+    public final void startElement( String ns, String localName, String qName, Attributes atts) throws SAXException {
       try {
         closeElement();
 
@@ -590,7 +590,7 @@ public class Processor {
       }
     }
 
-    public void endElement( String ns, String localName, String qName) throws SAXException {
+    public final void endElement( String ns, String localName, String qName) throws SAXException {
       ident -= 2;
       try {
         if( openElement) {
@@ -607,7 +607,7 @@ public class Processor {
       }
     }
 
-    public void endDocument() throws SAXException {
+    public final void endDocument() throws SAXException {
       try {
         w.flush();
 
@@ -617,7 +617,7 @@ public class Processor {
       }
     }
     
-    public void comment( char[] ch, int off, int len) throws SAXException {
+    public final void comment( char[] ch, int off, int len) throws SAXException {
       try {
         closeElement();
 
@@ -632,26 +632,26 @@ public class Processor {
       }
     }
 
-    public void startDTD( String arg0, String arg1, String arg2) throws SAXException {
+    public final void startDTD( String arg0, String arg1, String arg2) throws SAXException {
     }
 
-    public void endDTD() throws SAXException {
+    public final void endDTD() throws SAXException {
     }
 
-    public void startEntity( String arg0) throws SAXException {
+    public final void startEntity( String arg0) throws SAXException {
     }
 
-    public void endEntity( String arg0) throws SAXException {
+    public final void endEntity( String arg0) throws SAXException {
     }
 
-    public void startCDATA() throws SAXException {
+    public final void startCDATA() throws SAXException {
     }
 
-    public void endCDATA() throws SAXException {
+    public final void endCDATA() throws SAXException {
     }
 
     
-    private void writeAttributes( Attributes atts) throws IOException {
+    private final void writeAttributes( Attributes atts) throws IOException {
       StringBuffer sb = new StringBuffer();
       int len = atts.getLength();
       for( int i = 0; i<len; i++) {
@@ -667,7 +667,7 @@ public class Processor {
      * @param str string to encode.
      * @return encoded string
      */
-    private String esc( String str) {
+    private final String esc( String str) {
       StringBuffer sb = new StringBuffer( str.length());
       for( int i = 0; i < str.length(); i++) {
         char ch = str.charAt( i);
@@ -700,7 +700,7 @@ public class Processor {
       return sb.toString();
     }
     
-    private void writeIdent() throws IOException {
+    private final void writeIdent() throws IOException {
       int n = ident;
       while( n>0) {
         if( n>OFF.length) {
@@ -713,7 +713,7 @@ public class Processor {
       }
     }
 
-    private void closeElement() throws IOException {
+    private final void closeElement() throws IOException {
       if( openElement) {
         w.write( ">\n");
       }
@@ -733,7 +733,7 @@ public class Processor {
    * <p>
    * TODO use complete path for subdocumentRoot
    */
-  private static class InputSlicingHandler extends DefaultHandler {
+  private final static class InputSlicingHandler extends DefaultHandler {
     private String subdocumentRoot;
     private ContentHandler rootHandler;
     private ContentHandlerFactory subdocumentHandlerFactory;
@@ -756,7 +756,7 @@ public class Processor {
       this.subdocumentHandlerFactory = subdocumentHandlerFactory;
     }
     
-    public void startElement( String namespaceURI, String localName, String qName, Attributes list) throws SAXException {
+    public final void startElement( String namespaceURI, String localName, String qName, Attributes list) throws SAXException {
       if( subdocument) { 
         subdocumentHandler.startElement( namespaceURI, localName, qName, list);
       } else if( localName.equals( subdocumentRoot)) {
@@ -769,7 +769,7 @@ public class Processor {
       }
     }
     
-    public void endElement( String namespaceURI, String localName, String qName) throws SAXException {
+    public final void endElement( String namespaceURI, String localName, String qName) throws SAXException {
       if( subdocument) {
         subdocumentHandler.endElement( namespaceURI, localName, qName);
         if( localName.equals( subdocumentRoot)) {
@@ -781,20 +781,20 @@ public class Processor {
       }
     }
     
-    public void startDocument() throws SAXException {
+    public final void startDocument() throws SAXException {
       if( rootHandler!=null) {
         rootHandler.startDocument();
       }
     }
 
-    public void endDocument() throws SAXException {
+    public final void endDocument() throws SAXException {
       if( rootHandler!=null) {
         rootHandler.endDocument();
         
       }
     }
     
-    public void characters( char[] buff, int offset, int size) throws SAXException {
+    public final void characters( char[] buff, int offset, int size) throws SAXException {
       if( subdocument) {
         subdocumentHandler.characters(buff, offset, size);
       } else if( rootHandler!=null) {
@@ -815,7 +815,7 @@ public class Processor {
    * <p>
    * TODO use complete path for subdocumentRoot
    */
-  private static class OutputSlicingHandler extends DefaultHandler {
+  private static final class OutputSlicingHandler extends DefaultHandler {
     private String subdocumentRoot;
     private ContentHandlerFactory subdocumentHandlerFactory;
     private EntryElement entryElement;
@@ -840,7 +840,7 @@ public class Processor {
       this.isXml = isXml;
     }
     
-    public void startElement( String namespaceURI, String localName, String qName, Attributes list) throws SAXException {
+    public final void startElement( String namespaceURI, String localName, String qName, Attributes list) throws SAXException {
       if( subdocument) { 
         subdocumentHandler.startElement( namespaceURI, localName, qName, list);
       } else if( localName.equals( subdocumentRoot)) {
@@ -858,7 +858,7 @@ public class Processor {
       }
     }
     
-    public void endElement( String namespaceURI, String localName, String qName) throws SAXException {
+    public final void endElement( String namespaceURI, String localName, String qName) throws SAXException {
       if( subdocument) {
         subdocumentHandler.endElement( namespaceURI, localName, qName);
         if( localName.equals( subdocumentRoot)) {
@@ -873,13 +873,13 @@ public class Processor {
       }
     }
     
-    public void startDocument() throws SAXException {
+    public final void startDocument() throws SAXException {
     }
 
-    public void endDocument() throws SAXException {
+    public final void endDocument() throws SAXException {
     }
     
-    public void characters( char[] buff, int offset, int size) throws SAXException {
+    public final void characters( char[] buff, int offset, int size) throws SAXException {
       if( subdocument) {
         subdocumentHandler.characters(buff, offset, size);
       }

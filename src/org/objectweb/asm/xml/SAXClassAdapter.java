@@ -50,7 +50,7 @@ import org.xml.sax.helpers.AttributesImpl;
  * 
  * @author Eugene Kuleshov
  */
-public class SAXClassAdapter implements ClassVisitor {
+public final class SAXClassAdapter implements ClassVisitor {
   private ContentHandler h;
   private int[] version;
   private boolean singleDocument;
@@ -77,7 +77,7 @@ public class SAXClassAdapter implements ClassVisitor {
     }
   }
 
-  public void visit( int access, String name, String superName, String[] interfaces, String sourceFile) {
+  public final void visit( int access, String name, String superName, String[] interfaces, String sourceFile) {
     try {
       StringBuffer sb = new StringBuffer();
       if(( access & Constants.ACC_PUBLIC)!=0) sb.append( "public ");
@@ -117,7 +117,7 @@ public class SAXClassAdapter implements ClassVisitor {
     }
   }
 
-  public void visitField( int access, String name, String desc, Object value, Attribute attrs) {
+  public final void visitField( int access, String name, String desc, Object value, Attribute attrs) {
     StringBuffer sb = new StringBuffer();
     if(( access & Constants.ACC_PUBLIC)!=0) sb.append( "public ");
     if(( access & Constants.ACC_PRIVATE)!=0) sb.append( "private ");
@@ -145,7 +145,7 @@ public class SAXClassAdapter implements ClassVisitor {
     }
   }
 
-  public CodeVisitor visitMethod( int access, String name, String desc, String[] exceptions, Attribute attrs) {
+  public final CodeVisitor visitMethod( int access, String name, String desc, String[] exceptions, Attribute attrs) {
     StringBuffer sb = new StringBuffer();
     if(( access & Constants.ACC_PUBLIC)!=0) sb.append( "public ");
     if(( access & Constants.ACC_PRIVATE)!=0) sb.append( "private ");
@@ -191,7 +191,7 @@ public class SAXClassAdapter implements ClassVisitor {
     return new SAXCodeAdapter( h);
   }
 
-  public void visitInnerClass( String name, String outerName, String innerName, int access) {
+  public final void visitInnerClass( String name, String outerName, String innerName, int access) {
     StringBuffer sb = new StringBuffer();
     if(( access & Constants.ACC_PUBLIC)!=0) sb.append( "public ");
     if(( access & Constants.ACC_PRIVATE)!=0) sb.append( "private ");
@@ -221,11 +221,11 @@ public class SAXClassAdapter implements ClassVisitor {
     }
   }
 
-  public void visitAttribute( Attribute attr) {
+  public final void visitAttribute( Attribute attr) {
     // TODO Auto-generated SAXClassAdapter.visitAttribute
   }
 
-  public void visitEnd() {
+  public final void visitEnd() {
     try {
       h.endElement( "", "class", "class");
       if( !singleDocument) {
@@ -238,7 +238,7 @@ public class SAXClassAdapter implements ClassVisitor {
     }
   }
   
-  static String encode( String s) {
+  static final String encode( String s) {
     StringBuffer sb = new StringBuffer();
     for( int i = 0; i<s.length(); i++) {
       char c = s.charAt( i);

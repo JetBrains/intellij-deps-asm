@@ -33,18 +33,13 @@ package org.objectweb.asm.xml;
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.net.MalformedURLException;
 import java.net.URL;
 
 import javax.xml.transform.Source;
-import javax.xml.transform.TransformerException;
 import javax.xml.transform.stream.StreamSource;
-
-import org.xml.sax.SAXException;
 
 
 /**
@@ -95,17 +90,10 @@ public class ALL {
   }
   
   private static void process(String name, String engine) throws Exception {
-    try {
-      System.setProperty( "javax.xml.transform.TransformerFactory", engine);
-      processRep( name, Processor.BYTECODE);
-      processRep( name, Processor.MULTI_XML);
-      processRep( name, Processor.SINGLE_XML);
-      
-    } catch( Exception ex) {
-      System.err.println();
-      ex.printStackTrace();
-
-    }
+    System.setProperty( "javax.xml.transform.TransformerFactory", engine);
+    processRep( name, Processor.BYTECODE);
+    processRep( name, Processor.MULTI_XML);
+    processRep( name, Processor.SINGLE_XML);
   }
 
   /*
@@ -129,17 +117,31 @@ public class ALL {
   }
   */
   
-  private static void processRep( String name, int outRep) throws IOException, MalformedURLException, FileNotFoundException, TransformerException, SAXException {
-    Class c = ALL.class;
-    String u = c.getResource( "/java/lang/String.class").toString();
-    final InputStream is = new BufferedInputStream( new URL( u.substring( 4, u.indexOf( '!'))).openStream());
-    final OutputStream os = new IgnoringOutputStream();
-    final StreamSource xslt = name == null ? null : new StreamSource( new FileInputStream( name));
-
+  private static void processRep( String name, int outRep) {
     long l1 = System.currentTimeMillis();
+    int n = 0;
+    try {
+      Class c = ALL.class;
+      String u = c.getResource( "/java/lang/String.class").toString();
+      final InputStream is = new BufferedInputStream( new URL( u.substring( 4, u.indexOf( '!'))).openStream());
+      final OutputStream os = new IgnoringOutputStream();
+      final StreamSource xslt = name == null ? null : new StreamSource( new FileInputStream( name));
+  
+  
+      Processor p = new DotObserver( Processor.BYTECODE, outRep, is, os, xslt);
+      n = p.process();
+      
+    } catch( Exception ex) {
+      System.err.println();
+      // ex.printStackTrace();
+      System.err.println( ex);
 
-    Processor p = new DotObserver( Processor.BYTECODE, outRep, is, os, xslt);
-    int n = p.process();
+    }
+
+    long l2 = System.currentTimeMillis();
+
+    System.err.println();
+    System.err.println( "  " + outRep + " " + name + "  " + ( l2 - l1) + "ms  "+(1000f*n/( l2-l1)));
 
     /*
      SAXTransformerFactory saxtf = ( SAXTransformerFactory) TransformerFactory.newInstance();
@@ -154,11 +156,6 @@ public class ALL {
      }
      }
      */
-
-    long l2 = System.currentTimeMillis();
-
-    System.err.println();
-    System.err.println( "  " + outRep + " " + name + "  " + ( l2 - l1) + "ms  "+(1000f*n/( l2-l1)));
   }
 
   

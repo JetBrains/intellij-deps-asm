@@ -328,7 +328,7 @@ public class ASMContentHandler extends DefaultHandler implements Constants {
    *                attributes, it shall be an empty Attributes object.
    * @exception SAXException if a parsing error is to be reported
    */
-  public void startElement( String ns, String localName, String qName, Attributes list) throws SAXException {
+  public final void startElement( String ns, String localName, String qName, Attributes list) throws SAXException {
     // the actual element name is either in localName or qName, depending
     // on whether the parser is namespace aware
     String name = localName;
@@ -365,7 +365,7 @@ public class ASMContentHandler extends DefaultHandler implements Constants {
    * 
    * @exception SAXException if a parsing error is to be reported
    */
-  public void endElement( String ns, String localName, String qName) throws SAXException {
+  public final void endElement( String ns, String localName, String qName) throws SAXException {
     // the actual element name is either in localName or qName, depending
     // on whether the parser is namespace aware
     String name = localName;
@@ -395,7 +395,7 @@ public class ASMContentHandler extends DefaultHandler implements Constants {
    *
    * @exception SAXException if parsing or writing error is to be reported.
    */
-  public void endDocument() throws SAXException {
+  public final void endDocument() throws SAXException {
     try {
       os.write( cw.toByteArray());
     } catch( IOException ex) {
@@ -408,7 +408,7 @@ public class ASMContentHandler extends DefaultHandler implements Constants {
    * Return the top object on the stack without removing it. If there are no
    * objects on the stack, return <code>null</code>.
    */
-  Object peek() {
+  final Object peek() {
     return stack.size()==0 ? null : stack.get( stack.size()-1);
   }
 
@@ -421,7 +421,7 @@ public class ASMContentHandler extends DefaultHandler implements Constants {
    * @param n Index of the desired element, where 0 is the top of the stack,
    *  1 is the next element down, and so on.
    */
-  Object peek(int n) {
+  final Object peek(int n) {
     return stack.size()<( n+1) ? null : stack.get( n);
   }
 
@@ -430,7 +430,7 @@ public class ASMContentHandler extends DefaultHandler implements Constants {
    * Pop the top object off of the stack, and return it.  If there are
    * no objects on the stack, return <code>null</code>.
    */
-  Object pop() {
+  final Object pop() {
     return stack.size()==0 ? null : stack.remove( stack.size()-1);
   }
 
@@ -439,7 +439,7 @@ public class ASMContentHandler extends DefaultHandler implements Constants {
    *
    * @param object The new object
    */
-  void push(Object object) {
+  final void push(Object object) {
     stack.add( object);
   }
 
@@ -454,7 +454,7 @@ public class ASMContentHandler extends DefaultHandler implements Constants {
       this.path = path;
     }
 
-    public String getPath() {
+    public final String getPath() {
       return path;
     }
 
@@ -468,7 +468,7 @@ public class ASMContentHandler extends DefaultHandler implements Constants {
       return path.equals( match);
     }
 
-    protected Object getValue( String desc, String val) {
+    protected final Object getValue( String desc, String val) {
       Object value = null;
       if( val!=null) {
         if( desc.equals( "Ljava/lang/String;")) {
@@ -489,7 +489,7 @@ public class ASMContentHandler extends DefaultHandler implements Constants {
       return value;
     }
 
-    private String decode( String val) {
+    private final String decode( String val) {
       StringBuffer sb = new StringBuffer( val.length());
       try {
         int n = 0;
@@ -519,7 +519,7 @@ public class ASMContentHandler extends DefaultHandler implements Constants {
       return sb.toString();
     }
 
-    protected Label getLabel( Object label) {
+    protected final Label getLabel( Object label) {
       Label lbl = ( Label) labels.get( label);
       if( lbl==null) {
         lbl = new Label();
@@ -532,7 +532,7 @@ public class ASMContentHandler extends DefaultHandler implements Constants {
       return path;
     }
 
-    protected CodeVisitor getCodeVisitor() {
+    protected final CodeVisitor getCodeVisitor() {
       if( mw==null) {
         Map vals = ( Map) pop();
         int access = Integer.parseInt(( String) vals.get( "access"), 16);
@@ -543,7 +543,7 @@ public class ASMContentHandler extends DefaultHandler implements Constants {
       return mw;
     }
 
-    protected int getAccess( String s) {
+    protected final int getAccess( String s) {
       int access = 0;
       if( s.indexOf( "public")!=-1) access |= Constants.ACC_PUBLIC;
       if( s.indexOf( "private")!=-1) access |= Constants.ACC_PRIVATE;
@@ -572,13 +572,13 @@ public class ASMContentHandler extends DefaultHandler implements Constants {
   /**
    * ClassRule
    */
-  private class ClassRule extends Rule {
+  private final class ClassRule extends Rule {
 
     public ClassRule( String path) {
       super( path);
     }
     
-    public void begin( String name, Attributes attrs) {
+    public final void begin( String name, Attributes attrs) {
       int major = Integer.parseInt( attrs.getValue( "major"));
       int minor = Integer.parseInt( attrs.getValue( "minor"));
       cw = new ClassWriter( computeMax, major, minor);
@@ -598,13 +598,13 @@ public class ASMContentHandler extends DefaultHandler implements Constants {
   /**
    * InterfaceRule 
    */
-  private class InterfaceRule extends Rule {
+  private final class InterfaceRule extends Rule {
 
     public InterfaceRule( String path) {
       super( path);
     }
 
-    public void begin( String name, Attributes attrs) {
+    public final void begin( String name, Attributes attrs) {
       (( List) (( Map) peek()).get( "interfaces")).add( attrs.getValue( "name"));
     }
     
@@ -614,13 +614,13 @@ public class ASMContentHandler extends DefaultHandler implements Constants {
   /**
    * InterfacesRule
    */
-  private class InterfacesRule extends Rule {
+  private final class InterfacesRule extends Rule {
 
     public InterfacesRule( String path) {
       super( path);
     }
 
-    public void end( String element) {
+    public final void end( String element) {
       Map vals = ( Map) pop();
       int access = getAccess(( String) vals.get( "access"));
       String name = ( String) vals.get( "name");
@@ -636,13 +636,13 @@ public class ASMContentHandler extends DefaultHandler implements Constants {
   /**
    * FieldRule
    */
-  private class FieldRule extends Rule {
+  private final class FieldRule extends Rule {
 
     public FieldRule( String path) {
       super( path);
     }
 
-    public void begin( String element, Attributes attrs) {
+    public final void begin( String element, Attributes attrs) {
       int access = getAccess( attrs.getValue( "access"));
       String name = attrs.getValue( "name");
       String desc = attrs.getValue( "desc");
@@ -656,13 +656,13 @@ public class ASMContentHandler extends DefaultHandler implements Constants {
   /**
    * MethodRule
    */
-  private class MethodRule extends Rule {
+  private final class MethodRule extends Rule {
 
     public MethodRule( String path) {
       super( path);
     }
     
-    public void begin( String name, Attributes attrs) {
+    public final void begin( String name, Attributes attrs) {
       labels = new HashMap();
       Map vals = new HashMap();
       vals.put( "access", attrs.getValue( "access"));
@@ -673,7 +673,7 @@ public class ASMContentHandler extends DefaultHandler implements Constants {
       // values will be extracted in ExceptionsRule.end();
     }
     
-    public void end( String name) {
+    public final void end( String name) {
       mw = null;
       labels = null;
     }
@@ -684,13 +684,13 @@ public class ASMContentHandler extends DefaultHandler implements Constants {
   /**
    * MethodRule
    */
-  private class InnerClassRule extends Rule {
+  private final class InnerClassRule extends Rule {
 
     public InnerClassRule( String path) {
       super( path);
     }
     
-    public void begin( String element, Attributes attrs) {
+    public final void begin( String element, Attributes attrs) {
       int access = getAccess( attrs.getValue( "access"));
       String name = attrs.getValue( "name");
       String outerName = attrs.getValue( "outerName");
@@ -698,7 +698,7 @@ public class ASMContentHandler extends DefaultHandler implements Constants {
       cw.visitInnerClass( name, outerName, innerName, access);
     }
     
-    public void end( String name) {
+    public final void end( String name) {
       mw = null;
       labels = null;
     }
@@ -709,13 +709,13 @@ public class ASMContentHandler extends DefaultHandler implements Constants {
   /**
    * ExceptionRule 
    */
-  private class ExceptionRule extends Rule {
+  private final class ExceptionRule extends Rule {
 
     public ExceptionRule( String path) {
       super( path);
     }
 
-    public void begin( String name, Attributes attrs) {
+    public final void begin( String name, Attributes attrs) {
       (( List) (( Map) peek()).get( "exceptions")).add( attrs.getValue( "name"));
     }
     
@@ -725,13 +725,13 @@ public class ASMContentHandler extends DefaultHandler implements Constants {
   /**
    * ExceptionsRule
    */
-  private class ExceptionsRule extends Rule {
+  private final class ExceptionsRule extends Rule {
 
     public ExceptionsRule( String path) {
       super( path);
     }
 
-    public void end( String element) {
+    public final void end( String element) {
       Map vals = ( Map) pop();
       int access = getAccess(( String) vals.get( "access"));
       String name = ( String) vals.get( "name");
@@ -753,7 +753,7 @@ public class ASMContentHandler extends DefaultHandler implements Constants {
       super( path);
     }
 
-    public void begin( String name, Attributes attrs) {
+    public final void begin( String name, Attributes attrs) {
       Map vals = new HashMap();
       vals.put( "min", attrs.getValue( "min"));
       vals.put( "max", attrs.getValue( "max"));
@@ -762,7 +762,7 @@ public class ASMContentHandler extends DefaultHandler implements Constants {
       push( vals);
     }
     
-    public void end( String name) {
+    public final void end( String name) {
       Map vals = ( Map) pop();
       int min = Integer.parseInt(( String) vals.get( "min"));
       int max = Integer.parseInt(( String) vals.get( "max"));
@@ -777,13 +777,13 @@ public class ASMContentHandler extends DefaultHandler implements Constants {
   /**
    * TableSwitchLabelRule
    */
-  private class TableSwitchLabelRule extends Rule {
+  private final class TableSwitchLabelRule extends Rule {
 
     public TableSwitchLabelRule( String path) {
       super( path);
     }
   
-    public void begin( String name, Attributes attrs) {
+    public final void begin( String name, Attributes attrs) {
       (( List) (( Map) peek()).get( "labels")).add( getLabel( attrs.getValue( "name")));
     }
     
@@ -793,13 +793,13 @@ public class ASMContentHandler extends DefaultHandler implements Constants {
   /**
    * LookupSwitchRule
    */
-  private class LookupSwitchRule extends Rule {
+  private final class LookupSwitchRule extends Rule {
 
     public LookupSwitchRule( String path) {
       super( path);
     }
 
-    public void begin( String name, Attributes attrs) {
+    public final void begin( String name, Attributes attrs) {
       Map vals = new HashMap();
       vals.put( "dflt", attrs.getValue( "dflt"));
       vals.put( "labels", new ArrayList());
@@ -807,7 +807,7 @@ public class ASMContentHandler extends DefaultHandler implements Constants {
       push( vals);
     }
     
-    public void end( String name) {
+    public final void end( String name) {
       Map vals = ( Map) pop();
       Label dflt = getLabel( vals.get( "dflt"));
       List keyList = ( List) vals.get( "keys");
@@ -825,13 +825,13 @@ public class ASMContentHandler extends DefaultHandler implements Constants {
   /**
    * LookupSwitchLabelRule
    */
-  private class LookupSwitchLabelRule extends Rule {
+  private final class LookupSwitchLabelRule extends Rule {
 
     public LookupSwitchLabelRule( String path) {
       super( path);
     }
   
-    public void begin( String name, Attributes attrs) {
+    public final void begin( String name, Attributes attrs) {
       Map vals = ( Map) peek();
       (( List) vals.get( "labels")).add( getLabel( attrs.getValue( "name")));
       (( List) vals.get( "keys")).add( attrs.getValue( "key"));
@@ -843,13 +843,13 @@ public class ASMContentHandler extends DefaultHandler implements Constants {
   /**
    * LabelRule
    */
-  private class LabelRule extends Rule {
+  private final class LabelRule extends Rule {
 
     public LabelRule( String path) {
       super( path);
     }
 
-    public void begin( String name, Attributes attrs) {
+    public final void begin( String name, Attributes attrs) {
       getCodeVisitor().visitLabel( getLabel( attrs.getValue( "name")));
     }
 
@@ -859,13 +859,13 @@ public class ASMContentHandler extends DefaultHandler implements Constants {
   /**
    * TryCatchRule
    */
-  private class TryCatchRule extends Rule {
+  private final class TryCatchRule extends Rule {
 
     public TryCatchRule( String path) {
       super( path);
     }
 
-    public void begin( String name, Attributes attrs) {
+    public final void begin( String name, Attributes attrs) {
       Label start = getLabel( attrs.getValue( "start"));
       Label end = getLabel( attrs.getValue( "end"));
       Label handler = getLabel( attrs.getValue( "handler"));
@@ -879,13 +879,13 @@ public class ASMContentHandler extends DefaultHandler implements Constants {
   /**
    * LineNumberRule
    */
-  private class LineNumberRule extends Rule {
+  private final class LineNumberRule extends Rule {
 
     public LineNumberRule( String path) {
       super( path);
     }
 
-    public void begin( String name, Attributes attrs) {
+    public final void begin( String name, Attributes attrs) {
       int line = Integer.parseInt( attrs.getValue( "line"));
       Label start = getLabel( attrs.getValue( "start"));
       getCodeVisitor().visitLineNumber( line, start);
@@ -897,13 +897,13 @@ public class ASMContentHandler extends DefaultHandler implements Constants {
   /**
    * LocalVarRule
    */
-  private class LocalVarRule extends Rule {
+  private final class LocalVarRule extends Rule {
 
     public LocalVarRule( String path) {
       super( path);
     }
 
-    public void begin( String element, Attributes attrs) {
+    public final void begin( String element, Attributes attrs) {
       String name = attrs.getValue( "name");
       String desc = attrs.getValue( "desc");
       Label start = getLabel( attrs.getValue( "start"));
@@ -918,7 +918,7 @@ public class ASMContentHandler extends DefaultHandler implements Constants {
   /**
    * OpcodesRule
    */
-  private class OpcodesRule extends Rule {
+  private final class OpcodesRule extends Rule {
 
     public OpcodesRule( String path) {
       super( path);
@@ -928,7 +928,7 @@ public class ASMContentHandler extends DefaultHandler implements Constants {
       return match.startsWith( path) && OPCODES.containsKey( element);
     }
     
-    public void begin( String element, Attributes attrs) {
+    public final void begin( String element, Attributes attrs) {
       Opcode o = (( Opcode) OPCODES.get( element));
       if( o==null) return;
         
@@ -984,13 +984,13 @@ public class ASMContentHandler extends DefaultHandler implements Constants {
   /**
    * MaxRule
    */
-  private class MaxRule extends Rule {
+  private final class MaxRule extends Rule {
 
     public MaxRule( String path) {
       super( path);
     }
 
-    public void begin( String element, Attributes attrs) {
+    public final void begin( String element, Attributes attrs) {
       int maxStack = Integer.parseInt( attrs.getValue( "maxStack"));
       int maxLocals = Integer.parseInt( attrs.getValue( "maxLocals"));
       getCodeVisitor().visitMaxs( maxStack, maxLocals);
@@ -1002,7 +1002,7 @@ public class ASMContentHandler extends DefaultHandler implements Constants {
   /**
    * Opcode
    */
-  private static class Opcode {
+  private final static class Opcode {
     public int opcode;
     public int type;
     

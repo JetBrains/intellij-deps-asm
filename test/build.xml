@@ -109,7 +109,6 @@
     <javac srcdir="${test.conform}" destdir="${out.test}">
       <classpath refid="test.classpath"/>
       <include name="**/*.java"/>
-      <exclude name="**/xml/*.java"/>
     </javac>
   </target>
 

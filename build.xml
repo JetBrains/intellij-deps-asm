@@ -114,7 +114,6 @@
       </classpath> 
       <src path="${src}"/>
       <include name="**/*.java"/>
-      <exclude name="**/xml/*.java"/>
     </javac>
     <java classname="org.objectweb.asm.optimizer.Shrinker">
       <classpath>
@@ -124,13 +123,13 @@
       <arg value="${out.build}/tmp"/> 
       <arg value="${out.build}"/> 
     </java> 
-    <!--javac destdir="${out.build}" debug="on">
+    <!--mkdir dir="${out.build}"/>
+    <javac destdir="${out.build}" debug="on">
       <classpath>
         <pathelement location="${out.build}"/>
       </classpath> 
       <src path="${src}"/>
       <include name="**/*.java"/>
-      <exclude name="**/xml/*.java"/>
     </javac-->
   </target>
 

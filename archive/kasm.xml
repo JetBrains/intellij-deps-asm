@@ -1,7 +1,7 @@
 <project name="asm" default="dist">
   <target name="dist">
-    <jar jarfile="${dist.lib}/kasm.jar"
-         basedir="${build}"
+    <jar jarfile="${out.dist.lib}/kasm.jar"
+         basedir="${out.build}"
          manifest="${archive}/kasm.mf">
       <include name="org/objectweb/asm/*.class"/>
       <exclude name="org/objectweb/asm/ClassAdapter.class"/>

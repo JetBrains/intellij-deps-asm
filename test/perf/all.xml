@@ -2,12 +2,13 @@
   <target name="test">
     <java classname="org.objectweb.asm.test.perf.ALL" fork="yes">
       <classpath>
-        <fileset dir="${test.lib}">
-          <include name="**/*.jar"/>
+        <pathelement location="${out.build}"/>
+        <pathelement location="${out.test}"/>
+        <fileset dir="${test}">
+          <include name="lib/*.jar"/>
         </fileset>
-        <pathelement location="${build}"/>
       </classpath>
-      <arg value="${testResult.dir}/"/>
+      <arg value="${out.test}/"/>
       <arg value="${class-samples}"/>
     </java>
   </target>

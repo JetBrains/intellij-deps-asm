@@ -1,7 +1,7 @@
 <project name="asm" default="dist">
   <target name="dist">
-    <jar jarfile="${dist.lib}/asm-util.jar"
-         basedir="${build}"
+    <jar jarfile="${out.dist.lib}/asm-util.jar"
+         basedir="${out.build}"
          manifest="${archive}/asm-util.mf">
       <include name="org/objectweb/asm/util/*.class"/>
     </jar>

@@ -232,7 +232,7 @@ public class Annotation {
    * Utility method to write List of parameters annotations.
    *
    * @param bv the byte array form to store data structures.
-   * @param parametars the List of parametars to write. Elements should be
+   * @param parameters the List of parametars to write. Elements should be
    *     instances of the List that contains instances of the Annotation class.
    * @param cw the class to which this attribute must be added. This parameter
    *     can be used to add to the constant pool of this class the items that

@@ -41,7 +41,8 @@ public interface ClassVisitor {
    *      getInternalName}).
    * @param superName the internal of name of the super class (see {@link
    *      Type#getInternalName getInternalName}). For interfaces, the super
-   *      class is {@link Object}.
+   *      class is {@link Object}. May be <tt>null</tt>, but only for the {@link
+   *      Object java.lang.Object} class.
    * @param interfaces the internal names of the class's interfaces (see {@link
    *      Type#getInternalName getInternalName}). May be <tt>null</tt>.
    * @param sourceFile the name of the source file from which this class was

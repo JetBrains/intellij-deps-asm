@@ -118,7 +118,7 @@ public class CheckClassAdapter extends ClassAdapter {
 
         System.out.println(method.name + method.desc);
         TraceMethodVisitor mv = new TraceMethodVisitor() {
-          public void visitMax (final int maxStack, final int maxLocals) {
+          public void visitMaxs (final int maxStack, final int maxLocals) {
             for (int i = 0; i < text.size(); ++i) {
               String s = frames[i] == null ? "null" : frames[i].toString();
               while (s.length() < maxStack+maxLocals+1) {
@@ -132,12 +132,7 @@ public class CheckClassAdapter extends ClassAdapter {
           }
         };
         for (int j = 0; j < method.instructions.size(); ++j) {
-          Object insn = method.instructions.get(j);
-          if (insn instanceof AbstractInsnNode) {
-            ((AbstractInsnNode)insn).accept(mv);
-          } else {
-            mv.visitLabel((Label)insn);
-          }
+          ((AbstractInsnNode)method.instructions.get(j)).accept(mv);
         }
         mv.visitMaxs(method.maxStack, method.maxLocals);
       }

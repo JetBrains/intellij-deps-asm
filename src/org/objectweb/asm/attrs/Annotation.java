@@ -247,6 +247,8 @@ public class Annotation {
       for (int i = 0; i < annotations.size(); i++) {
         sb.append('\n').append(annotations.get(i));
       }
+    } else {
+      sb.append( "<none>");
     }
     return sb.toString();
   }

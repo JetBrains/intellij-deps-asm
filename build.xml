@@ -308,7 +308,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
    </license>
 
    <url>
-      <update label="ASM Framework" url="http://asm.objectweb.org/eclipse/asm/site.xml"/>
+      <update label="ASM Framework" url="http://download.forge.objectweb.org/eclipse-update/site.xml"/>
    </url>
 
    <plugin id="org.objectweb.asm" download-size="0" install-size="0" version="${plugin.artifact}"/>

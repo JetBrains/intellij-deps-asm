@@ -281,7 +281,7 @@
   <target name="eclipse.feature" depends="eclipse.plugin">
     <echo file="${out}/feature.xml"><![CDATA[<?xml version="1.0" encoding="UTF-8"?>
 <feature id="org.objectweb.asm.feature" label="ASM Framework"
-      version="${product.artifact}" provider-name="ObjectWeb.org">
+      version="${plugin.artifact}" provider-name="ObjectWeb.org">
 
    <description url="http://asm.objectweb.org/eclipse/asm/index.html">
 Feature contains ASM Java bytecode manipulation framework runtime.

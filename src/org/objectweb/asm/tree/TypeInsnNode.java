@@ -31,7 +31,6 @@
 package org.objectweb.asm.tree;
 
 import org.objectweb.asm.MethodVisitor;
-import org.objectweb.asm.Type;
 
 /**
  * A node that represents a type instruction. A type instruction is an

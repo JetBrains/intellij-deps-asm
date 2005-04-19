@@ -31,7 +31,6 @@
 package org.objectweb.asm.tree;
 
 import org.objectweb.asm.ClassVisitor;
-import org.objectweb.asm.Type;
 
 /**
  * A node that represents an inner class.

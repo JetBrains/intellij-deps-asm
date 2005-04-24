@@ -62,7 +62,6 @@ public class BFCompiler implements Opcodes {
       mv.visitVarInsn(ASTORE, V_D);
 
       Stack labels = new Stack();
-      Stack labele = new Stack();
       
       int d = 0;
       int p = 0;
@@ -115,7 +114,7 @@ public class BFCompiler implements Opcodes {
             Label ls = new Label();
             Label le = new Label();
             labels.push( ls);
-            labele.push( le);            
+            labels.push( le);            
             mv.visitJumpInsn( GOTO, le);
             mv.visitLabel( ls);
             break;
@@ -124,7 +123,7 @@ public class BFCompiler implements Opcodes {
             p = storeP( mv, p);
             d = storeD( mv, d);
 
-            mv.visitLabel(( Label) labele.pop());
+            mv.visitLabel(( Label) labels.pop());
             mv.visitVarInsn( ALOAD, V_D);
             mv.visitVarInsn( ILOAD, V_P);
             mv.visitInsn( IALOAD);

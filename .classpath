@@ -9,6 +9,7 @@
 	<classpathentry kind="src" path="examples/attributes/src"/>
 	<classpathentry kind="src" path="examples/compile/src"/>
 	<classpathentry kind="src" path="examples/helloworld/src"/>
+	<classpathentry kind="src" path="examples/jbfc/src"/>
 	<classpathentry kind="src" path="examples/xml"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="lib" path="test/lib/bcel.jar"/>

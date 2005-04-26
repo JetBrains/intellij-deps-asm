@@ -42,7 +42,33 @@ import org.objectweb.asm.Type;
 
 /**
  * A {@link org.objectweb.asm.MethodAdapter} with convenient methods to
- * generate code.
+ * generate code. For example, using this adapter, the class below
+ * 
+ *<pre>public class Example {
+ *  public static void main (String[] args) {
+ *    System.out.println("Hello world!");
+ *  }
+ *}</pre>
+ *can be generated as follows:
+ *<pre>ClassWriter cw = new ClassWriter(true);
+ *cw.visit(V1_1, ACC_PUBLIC, "Example", null, "java/lang/Object", null);
+ *
+ *Method m = Method.getMethod("void &lt;init&gt; ()");
+ *GeneratorAdapter mg = new GeneratorAdapter(ACC_PUBLIC, m, null, null, cw);
+ *mg.loadThis();
+ *mg.invokeConstructor(Type.getType(Object.class), m);
+ *mg.returnValue();
+ *mg.endMethod();
+ *
+ *m = Method.getMethod("void main (String[])");
+ *mg = new GeneratorAdapter(ACC_PUBLIC + ACC_STATIC, m, null, null, cw);
+ *mg.getStatic(Type.getType(System.class), "out", Type.getType(PrintStream.class));
+ *mg.push("Hello world!");
+ *mg.invokeVirtual(Type.getType(PrintStream.class), Method.getMethod("void println (String)"));
+ *mg.returnValue();
+ *mg.endMethod();
+ *   
+ *cw.visitEnd();</pre>
  *
  * @author Juozas Baliuka
  * @author Chris Nokleberg

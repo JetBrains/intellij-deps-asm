@@ -381,6 +381,20 @@ public class GeneratorAdapter extends LocalVariablesSorter {
     }
   }
 
+  /**
+   * Generates the instruction to push the given value on the stack.
+   *
+   * @param value the value to be pushed on the stack.
+   */
+
+  public void push (final Type value) {
+    if (value == null) {
+      mv.visitInsn(Opcodes.ACONST_NULL);
+    } else {
+      mv.visitLdcInsn(value);
+    }
+  }
+
   // --------------------------------------------------------------------------
   // Instructions to load and store method arguments
   // --------------------------------------------------------------------------
@@ -798,7 +812,7 @@ public class GeneratorAdapter extends LocalVariablesSorter {
       return;
     }
     if (type == Type.VOID_TYPE) {
-      push(null);
+      push((String)null);
     } else {
       Type boxed = type;
       switch (type.getSort()) {

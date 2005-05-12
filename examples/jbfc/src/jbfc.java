@@ -34,8 +34,8 @@ import java.io.IOException;
 import java.io.PrintWriter;
 
 import org.objectweb.asm.ClassWriter;
-import org.objectweb.asm.util.TraceClassVisitor;
 import org.objectweb.asm.jbfc.BFCompiler;
+import org.objectweb.asm.util.TraceClassVisitor;
 
 /**
  * A naive implementation of compiler for Brain**** language.
@@ -67,9 +67,12 @@ public class jbfc {
     FileReader r = new FileReader( fileName);
 
     ClassWriter cw = new ClassWriter( true);
-    
     BFCompiler c = new BFCompiler();
-    c.compile( r, className, fileName, verbose ? new TraceClassVisitor( cw, new PrintWriter( System.out)) : cw);
+    if( verbose) {
+      c.compile( r, className, fileName, new TraceClassVisitor( cw, new PrintWriter( System.out)));
+    } else {
+      c.compile( r, className, fileName, cw);
+    }
 
     r.close();
     

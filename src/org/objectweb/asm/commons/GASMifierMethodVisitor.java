@@ -637,7 +637,7 @@ public class GASMifierMethodVisitor extends ASMifierAbstractVisitor
     } else if (cst instanceof String) {
       appendString(buf, (String) cst);
     } else if (cst instanceof Type) {
-      buf.append( "Type.getType(\"").append(cst).append("\")"); //TODO escape characters
+      buf.append( "Type.getType(\"").append(cst).append("\")");
     } else {
       buf.append(cst);
     }
@@ -648,11 +648,31 @@ public class GASMifierMethodVisitor extends ASMifierAbstractVisitor
 
   public void visitIincInsn (final int var, final int increment) {
     buf.setLength(0);
-    buf.append("mg.iinc(")
-      .append(var)
-      .append(", ")
-      .append(increment)
-      .append(");\n");
+    buf.append("mg.iinc(");
+    
+    if (var < firstLocal) {
+      Type[] args = Type.getArgumentTypes(desc);
+      int nextLocal = ((Opcodes.ACC_STATIC & access) != 0) ? 0 : 1;
+      int v = 0;
+      while (nextLocal != var) {
+        nextLocal += args[v++].getSize();
+      }
+      buf.append(v);
+    } else {
+      Integer i = (Integer)locals.get(new Integer(var));
+      if (i == null) {
+        int v = locals.size();
+        locals.put(new Integer(var), new Integer(v));
+        buf.append("int local" + v + " = mg.newLocal(Type.INT_TYPE);\n");
+        buf.append("local").append(v);
+      } else {
+        buf.append("local").append(i.intValue());
+      }
+    }
+    
+    buf.append(", ")
+       .append(increment)
+       .append(");\n");
     text.add(buf.toString());
     lastOpcode = IINC;
   }

@@ -525,8 +525,12 @@ public class GeneratorAdapter extends LocalVariablesSorter {
    */
 
   public int newLocal (final Type type) {
+    int local = super.newLocal(type.getSize());
     localTypes.add(type);
-    return super.newLocal(type.getSize()) - firstLocal;
+    if (type.getSize() == 2) {
+        localTypes.add(null);
+    }
+    return local;
   }
 
   /**
@@ -538,24 +542,18 @@ public class GeneratorAdapter extends LocalVariablesSorter {
    */
 
   public Type getLocalType (final int local) {
-    return (Type)localTypes.get(local);
+    return (Type)localTypes.get(local - firstLocal);
   }
 
   /**
-   * Returns the index of the given local variable.
+   * Sets the current type of the given local variable.
    *
    * @param local a local variable identifier, as returned by {@link #newLocal
    *      newLocal}.
-   * @return the index of the given local variable in the frame's variables
-   *      array.
+   * @param type the type of the value being stored in the local variable
    */
-
-  public int getLocalIndex (final int local) {
-    int index = firstLocal;
-    for (int i = 0; i < local; ++i) {
-      index += getLocalType(local).getSize();
-    }
-    return index;
+  private void setLocalType (final int local, final Type type) {
+    localTypes.set(local - firstLocal, type);
   }
 
   /**
@@ -566,7 +564,7 @@ public class GeneratorAdapter extends LocalVariablesSorter {
    */
 
   public void loadLocal (final int local) {
-    loadInsn(getLocalType(local), getLocalIndex(local));
+    loadInsn(getLocalType(local), local);
   }
 
   /**
@@ -577,8 +575,8 @@ public class GeneratorAdapter extends LocalVariablesSorter {
    */
 
   public void loadLocal (final int local, final Type type) {
-    localTypes.set(local, type);
-    loadInsn(type, getLocalIndex(local));
+    setLocalType(local, type);
+    loadInsn(type, local);
   }
 
   /**
@@ -590,7 +588,7 @@ public class GeneratorAdapter extends LocalVariablesSorter {
    */
 
   public void storeLocal (final int local) {
-    storeInsn(getLocalType(local), getLocalIndex(local));
+    storeInsn(getLocalType(local), local);
   }
 
   /**
@@ -602,8 +600,8 @@ public class GeneratorAdapter extends LocalVariablesSorter {
    */
 
   public void storeLocal (final int local, final Type type) {
-    localTypes.set(local, type);
-    storeInsn(type, getLocalIndex(local));
+    setLocalType(local, type);
+    storeInsn(type, local);
   }
 
   /**
@@ -763,7 +761,7 @@ public class GeneratorAdapter extends LocalVariablesSorter {
    */
 
   public void iinc (final int local, final int amount) {
-    mv.visitIincInsn(getLocalIndex(local), amount);
+    mv.visitIincInsn(local, amount);
   }
 
   /**

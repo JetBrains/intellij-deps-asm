@@ -674,13 +674,7 @@ public class GASMifierMethodVisitor extends ASMifierAbstractVisitor
   public void visitIincInsn (final int var, final int increment) {
     buf.setLength(0);
     
-    int v;
-    if (var < firstLocal) {
-      v = getArgIndex(var);
-    } else {
-      v = generateNewLocal(var, "Type.INT_TYPE");
-    }
-    
+    int v = generateNewLocal(var, "Type.INT_TYPE");
     buf.append("mg.iinc(local").append(v).append(", ").append(increment).append(");\n");
     text.add(buf.toString());
     lastOpcode = IINC;

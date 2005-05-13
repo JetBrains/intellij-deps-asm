@@ -642,9 +642,23 @@ public class GASMifierMethodVisitor extends ASMifierAbstractVisitor
     } else if (cst instanceof Long) {
       buf.append(cst+"L");
     } else if (cst instanceof Float) {
-      buf.append(cst+"f");
+      float f = ((Float)cst).floatValue();
+      if(Float.isNaN(f)) {
+        buf.append("Float.NaN");
+      } else if(Float.isInfinite(f)) {
+        buf.append( f>0 ? "Float.POSITIVE_INFINITY" : "Float.NEGATIVE_INFINITY");        
+      } else {
+        buf.append(cst+"f");
+      }
     } else if (cst instanceof Double) {
-      buf.append(cst+"d");
+      double d = ((Double)cst).doubleValue();
+      if(Double.isNaN(d)) {
+        buf.append("Double.NaN");
+      } else if(Double.isInfinite(d)) {
+        buf.append( d>0 ? "Double.POSITIVE_INFINITY" : "Double.NEGATIVE_INFINITY");        
+      } else {
+        buf.append(cst+"d");        
+      }
     } else if (cst instanceof String) {
       appendString(buf, (String) cst);
     } else if (cst instanceof Type) {

@@ -86,8 +86,7 @@ public class GASMifierTest extends AbstractTest {
     try {
       generatorClassData = COMPILER.compile( n, generated);
     } catch( Exception ex) {
-      System.err.println( generated);
-      System.err.println( "------------------");
+      trace( generated);
       throw ex;
     }
     
@@ -105,11 +104,22 @@ public class GASMifierTest extends AbstractTest {
     try {
       b = ( byte[]) m.invoke( null, new Object[ 0]);
     } catch( InvocationTargetException ex) {
-      System.err.println( generated);
+      trace( generated);
       throw (Exception) ex.getTargetException();
     }
     
-    assertEquals(cr, new ClassReader(b));
+    try {
+      assertEquals( cr, new ClassReader( b));
+    } catch( Throwable e) {
+      trace( generated);
+      assertEquals( cr, new ClassReader( b));
+    }
+  }
+
+  private void trace( String generated) {
+    if(System.getProperty("asm.test.class")!=null) {
+      System.err.println( generated);
+    }
   }
   
   private static class TestClassLoader extends ClassLoader {

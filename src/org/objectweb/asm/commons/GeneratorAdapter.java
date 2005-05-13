@@ -570,6 +570,18 @@ public class GeneratorAdapter extends LocalVariablesSorter {
   }
 
   /**
+   * Generates the instruction to load the given local variable on the stack.
+   *
+   * @param local a local variable identifier, as returned by {@link #newLocal
+   *      newLocal}.
+   */
+
+  public void loadLocal (final int local, final Type type) {
+    localTypes.set(local, type);
+    loadInsn(type, getLocalIndex(local));
+  }
+
+  /**
    * Generates the instruction to store the top stack value in the given local
    * variable.
    *
@@ -579,6 +591,19 @@ public class GeneratorAdapter extends LocalVariablesSorter {
 
   public void storeLocal (final int local) {
     storeInsn(getLocalType(local), getLocalIndex(local));
+  }
+
+  /**
+   * Generates the instruction to store the top stack value in the given local
+   * variable.
+   *
+   * @param local a local variable identifier, as returned by {@link #newLocal
+   *      newLocal}.
+   */
+
+  public void storeLocal (final int local, final Type type) {
+    localTypes.set(local, type);
+    storeInsn(type, getLocalIndex(local));
   }
 
   /**
@@ -987,12 +1012,14 @@ public class GeneratorAdapter extends LocalVariablesSorter {
             intOp = Opcodes.IF_ICMPNE;
             break;
           case GE:
-            swap(); /* fall through */
+            intOp = Opcodes.IF_ICMPGE;
+            break;
           case LT:
             intOp = Opcodes.IF_ICMPLT;
             break;
           case LE:
-            swap(); /* fall through */
+            intOp = Opcodes.IF_ICMPLE;
+            break;
           case GT:
             intOp = Opcodes.IF_ICMPGT;
             break;

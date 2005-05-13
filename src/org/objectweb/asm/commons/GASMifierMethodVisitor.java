@@ -38,7 +38,9 @@ import org.objectweb.asm.Type;
 import org.objectweb.asm.util.ASMifierAbstractVisitor;
 import org.objectweb.asm.util.ASMifierAnnotationVisitor;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -55,28 +57,30 @@ public class GASMifierMethodVisitor extends ASMifierAbstractVisitor
 
   int access;
   
-  String desc;
+  Type[] argumentTypes;
   
   int firstLocal;
   
   Map locals;
+  List localTypes;
   
   int lastOpcode = -1;
 
   HashMap labelNames;
 
+
   public GASMifierMethodVisitor (int access, String desc) {
     super("mg");
     this.access = access;
-    this.desc = desc;
     this.labelNames = new HashMap();
-    Type[] args = Type.getArgumentTypes(desc);
+    this.argumentTypes = Type.getArgumentTypes(desc);
     int nextLocal = ((Opcodes.ACC_STATIC & access) != 0) ? 0 : 1;
-    for (int i = 0; i < args.length; i++) {
-      nextLocal += args[i].getSize();
+    for (int i = 0; i < argumentTypes.length; i++) {
+      nextLocal += argumentTypes[i].getSize();
     }
-    firstLocal = nextLocal;
-    locals = new HashMap();
+    this.firstLocal = nextLocal;
+    this.locals = new HashMap();
+    this.localTypes = new ArrayList();
   }
   
   public AnnotationVisitor visitAnnotationDefault () {
@@ -415,13 +419,13 @@ public class GASMifierMethodVisitor extends ASMifierAbstractVisitor
       String type;
       switch (operand) {
         case T_BOOLEAN: type = "Type.BOOLEAN_TYPE"; break;
-        case T_CHAR: type = "Type.BOOLEAN_TYPE"; break;
-        case T_BYTE: type = "Type.BOOLEAN_TYPE"; break;
-        case T_SHORT: type = "Type.BOOLEAN_TYPE"; break;
-        case T_INT: type = "Type.BOOLEAN_TYPE"; break;
-        case T_FLOAT: type = "Type.BOOLEAN_TYPE"; break;
-        case T_LONG: type = "Type.BOOLEAN_TYPE"; break;
-        case T_DOUBLE: type = "Type.BOOLEAN_TYPE"; break;
+        case T_CHAR: type = "Type.CHAR_TYPE"; break;
+        case T_FLOAT: type = "Type.FLOAT_TYPE"; break;
+        case T_DOUBLE: type = "Type.DOUBLE_TYPE"; break;
+        case T_BYTE: type = "Type.BYTE_TYPE"; break;
+        case T_SHORT: type = "Type.SHORT_TYPE"; break;
+        case T_INT: type = "Type.INT_TYPE"; break;
+        case T_LONG: type = "Type.LONG_TYPE"; break;
         default: throw new RuntimeException("unexpected case");
       }
       buf.append("mg.newArray(").append(type).append(");\n");
@@ -434,79 +438,80 @@ public class GASMifierMethodVisitor extends ASMifierAbstractVisitor
 
   public void visitVarInsn (final int opcode, int var) {
     buf.setLength(0);
-    if (opcode == RET) {
-      buf.append("mg.visitVarInsn(")
-        .append(OPCODES[opcode])
-        .append(", ")
-        .append(var)
-        .append(");\n");
-    } else if (opcode >= ILOAD && opcode <= ALOAD) {
-      if (var < firstLocal) {
-        if (var == 0 && (access & ACC_STATIC) == 0) {
-          buf.append("mg.loadThis();\n");
-        } else {
-          Type[] args = Type.getArgumentTypes(desc);
-          int nextLocal = ((Opcodes.ACC_STATIC & access) != 0) ? 0 : 1;
-          int i = 0;
-          while (nextLocal != var) {
-            nextLocal += args[i++].getSize();
-          }
-          buf.append("mg.loadArg(").append(i).append(");\n");
-        }
-      } else {
-        int local;
-        Integer i = (Integer)locals.get(new Integer(var));
-        if (i == null) {
-          local = locals.size();
-          locals.put(new Integer(var), new Integer(local));
-          String type;
-          switch (opcode) {
-          case ILOAD: type = "Type.INT_TYPE"; break;
-          case LLOAD: type = "Type.LONG_TYPE"; break;
-          case FLOAD: type = "Type.FLOAT_TYPE"; break;
-          case DLOAD: type = "Type.DOUBLE_TYPE"; break; 
-          case ALOAD: type = getType("java/lang/Object"); break;
-          default: throw new RuntimeException("unexpected case");
-          }
-          buf.append("int local" + local + " = mg.newLocal("+type+");\n");
-        } else {
-          local = i.intValue();
-        }
-        buf.append("mg.loadLocal(local").append(local).append(");\n");
-      }
-    } else {
-      if (var < firstLocal) {
-        Type[] args = Type.getArgumentTypes(desc);
-        int nextLocal = ((Opcodes.ACC_STATIC & access) != 0) ? 0 : 1;
-        int i = 0;
-        while (nextLocal != var) {
-          nextLocal += args[i++].getSize();
-        }
-        buf.append("mg.storeArg(").append(i).append(");\n");
-      } else {
-        int local;
-        Integer i = (Integer)locals.get(new Integer(var));
-        if (i == null) {
-          local = locals.size();
-          locals.put(new Integer(var), new Integer(local));
-          String type;
-          switch (opcode) {
-          case ISTORE: type = "Type.INT_TYPE"; break;
-          case LSTORE: type = "Type.LONG_TYPE"; break;
-          case FSTORE: type = "Type.FLOAT_TYPE"; break;
-          case DSTORE: type = "Type.DOUBLE_TYPE"; break;
-          case ASTORE: type = getType("java/lang/Object"); break;
-          default: throw new RuntimeException("unexpected case");
-          }
-          buf.append("int local" + local + " = mg.newLocal("+type+");\n");
-        } else {
-          local = i.intValue();
-        }
-        buf.append("mg.storeLocal(local").append(local).append(");\n");
-      }
+    switch(opcode) {
+      case RET:
+        buf.append("mg.visitVarInsn(").append(OPCODES[opcode]).append(", ")
+          .append(var).append(");\n");
+        break;
+
+      case ILOAD:  generateLoadLocal(var, "Type.INT_TYPE"); break;
+      case LLOAD:  generateLoadLocal(var, "Type.LONG_TYPE"); break;
+      case FLOAD:  generateLoadLocal(var, "Type.FLOAT_TYPE"); break;
+      case DLOAD:  generateLoadLocal(var, "Type.DOUBLE_TYPE"); break;
+      case ALOAD:  generateLoadLocal(var, getType("java/lang/Object")); break;
+      
+      case ISTORE:  generateStoreLocal(var, "Type.INT_TYPE"); break;
+      case LSTORE:  generateStoreLocal(var, "Type.LONG_TYPE"); break;
+      case FSTORE:  generateStoreLocal(var, "Type.FLOAT_TYPE"); break;
+      case DSTORE:  generateStoreLocal(var, "Type.DOUBLE_TYPE"); break;
+      case ASTORE:  generateStoreLocal(var, getType("java/lang/Object")); break;
+      
+      default:  throw new RuntimeException("unexpected case");
     }
+    
     text.add(buf.toString());
     lastOpcode = opcode;
+  }
+
+  private void generateLoadLocal(int var, String type) {
+    if (var < firstLocal) {
+      if (var == 0 && (access & ACC_STATIC) == 0) {
+        buf.append("mg.loadThis();\n");
+      } else {
+        buf.append("mg.loadArg(").append(getArgIndex( var)).append(");\n");
+      }
+    } else {
+      int local = generateNewLocal( var, type);
+      buf.append("mg.loadLocal(local").append(local);
+      if(!type.equals(localTypes.get(local))) {
+        buf.append(", ").append(type);
+      }
+      buf.append(");\n");
+    }
+  }
+
+  private void generateStoreLocal(int var, String type) {
+    if (var < firstLocal) {
+      buf.append("mg.storeArg(").append(getArgIndex(var)).append(");\n");
+    } else {
+      int local = generateNewLocal( var, type);
+      buf.append("mg.storeLocal(local").append(local);
+      if(!type.equals(localTypes.get(local))) {
+        buf.append(", ").append(type);
+      }
+      buf.append(");\n");
+    }
+  }
+
+  private int generateNewLocal(int var, String type) {
+    Integer i = (Integer)locals.get(new Integer(var));
+    if (i == null) {
+      int local = locals.size();
+      locals.put(new Integer(var), new Integer(local));
+      localTypes.add(type);
+      buf.append("int local" + local + " = mg.newLocal("+type+");\n");
+      return local;
+    }
+    return i.intValue();
+  }
+
+  private int getArgIndex(int var) {
+    int nextLocal = ((Opcodes.ACC_STATIC & access) != 0) ? 0 : 1;
+    int i = 0;
+    while (nextLocal != var) {
+      nextLocal += argumentTypes[i++].getSize();
+    }
+    return i;
   }
 
   public void visitTypeInsn (final int opcode, final String desc) {
@@ -648,31 +653,15 @@ public class GASMifierMethodVisitor extends ASMifierAbstractVisitor
 
   public void visitIincInsn (final int var, final int increment) {
     buf.setLength(0);
-    buf.append("mg.iinc(");
     
+    int v;
     if (var < firstLocal) {
-      Type[] args = Type.getArgumentTypes(desc);
-      int nextLocal = ((Opcodes.ACC_STATIC & access) != 0) ? 0 : 1;
-      int v = 0;
-      while (nextLocal != var) {
-        nextLocal += args[v++].getSize();
-      }
-      buf.append(v);
+      v = getArgIndex(var);
     } else {
-      Integer i = (Integer)locals.get(new Integer(var));
-      if (i == null) {
-        int v = locals.size();
-        locals.put(new Integer(var), new Integer(v));
-        buf.append("int local" + v + " = mg.newLocal(Type.INT_TYPE);\n");
-        buf.append("local").append(v);
-      } else {
-        buf.append("local").append(i.intValue());
-      }
+      v = generateNewLocal(var, "Type.INT_TYPE");
     }
     
-    buf.append(", ")
-       .append(increment)
-       .append(");\n");
+    buf.append("mg.iinc(").append(v).append(", ").append(increment).append(");\n");
     text.add(buf.toString());
     lastOpcode = IINC;
   }

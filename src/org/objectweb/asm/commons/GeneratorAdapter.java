@@ -526,10 +526,7 @@ public class GeneratorAdapter extends LocalVariablesSorter {
 
   public int newLocal (final Type type) {
     int local = super.newLocal(type.getSize());
-    localTypes.add(type);
-    if (type.getSize() == 2) {
-        localTypes.add(null);
-    }
+    setLocalType(local, type);
     return local;
   }
 
@@ -553,7 +550,10 @@ public class GeneratorAdapter extends LocalVariablesSorter {
    * @param type the type of the value being stored in the local variable
    */
   private void setLocalType (final int local, final Type type) {
-    localTypes.set(local - firstLocal, type);
+    int index = local - firstLocal;
+    while (localTypes.size() < index + 1)
+      localTypes.add(null);
+    localTypes.set(index, type);
   }
 
   /**

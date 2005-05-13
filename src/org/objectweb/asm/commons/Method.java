@@ -142,21 +142,23 @@ public class Method {
     if (type.equals("")) {
       return type;
     }
-    String desc = (String)DESCRIPTORS.get(type);
-    if (desc != null) {
-      return desc;
-    } else if (type.indexOf('.') < 0) {
-      return map("java.lang." + type);
-    } else {
-      StringBuffer sb = new StringBuffer();
-      int index = 0;
-      while ((index = type.indexOf("[]", index) + 1) > 0) {
-        sb.append('[');
-      }
-      String elementType = type.substring(0, type.length() - sb.length() * 2);
-      sb.append('L').append(elementType.replace('.', '/')).append(';');
-      return sb.toString();
+
+    StringBuffer sb = new StringBuffer();
+    int index = 0;
+    while ((index = type.indexOf("[]", index) + 1) > 0) {
+      sb.append('[');
     }
+
+    String t = type.substring(0, type.length() - sb.length() * 2);
+    String desc = (String)DESCRIPTORS.get(t);
+    if (desc != null) {
+      sb.append(desc);
+    } else {
+      sb.append('L')
+        .append(t.indexOf('.') < 0 ? "java/lang/" + t : t.replace('.', '/'))
+        .append(';');
+    }
+    return sb.toString();
   }
 
   /**

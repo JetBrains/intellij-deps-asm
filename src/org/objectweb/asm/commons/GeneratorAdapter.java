@@ -345,7 +345,8 @@ public class GeneratorAdapter extends LocalVariablesSorter {
    */
 
   public void push (final float value) {
-    if (value == 0f || value == 1f || value == 2f) {
+    int bits = Float.floatToIntBits(value);
+    if (bits == 0L || bits == 0x3f800000 || bits == 0x40000000) {  // 0, 1, 2
       mv.visitInsn(Opcodes.FCONST_0 + (int)value);
     } else {
       mv.visitLdcInsn(new Float(value));
@@ -359,7 +360,8 @@ public class GeneratorAdapter extends LocalVariablesSorter {
    */
 
   public void push (final double value) {
-    if (value == 0d || value == 1d) {
+    long bits = Double.doubleToLongBits(value);
+    if ( bits == 0L || value == 0x3ff0000000000000L) {  // +0.0d and 1.0d
       mv.visitInsn(Opcodes.DCONST_0 + (int)value);
     } else {
       mv.visitLdcInsn(new Double(value));

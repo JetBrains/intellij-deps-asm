@@ -361,7 +361,7 @@ public class GeneratorAdapter extends LocalVariablesSorter {
 
   public void push (final double value) {
     long bits = Double.doubleToLongBits(value);
-    if ( bits == 0L || value == 0x3ff0000000000000L) {  // +0.0d and 1.0d
+    if ( bits == 0L || bits == 0x3ff0000000000000L) {  // +0.0d and 1.0d
       mv.visitInsn(Opcodes.DCONST_0 + (int)value);
     } else {
       mv.visitLdcInsn(new Double(value));

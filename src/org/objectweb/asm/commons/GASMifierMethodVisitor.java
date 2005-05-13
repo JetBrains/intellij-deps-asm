@@ -474,6 +474,7 @@ public class GASMifierMethodVisitor extends ASMifierAbstractVisitor
       int local = generateNewLocal( var, type);
       buf.append("mg.loadLocal(local").append(local);
       if(!type.equals(localTypes.get(local))) {
+        localTypes.set(local, type);
         buf.append(", ").append(type);
       }
       buf.append(");\n");
@@ -484,9 +485,10 @@ public class GASMifierMethodVisitor extends ASMifierAbstractVisitor
     if (var < firstLocal) {
       buf.append("mg.storeArg(").append(getArgIndex(var)).append(");\n");
     } else {
-      int local = generateNewLocal( var, type);
+      int local = generateNewLocal(var, type);
       buf.append("mg.storeLocal(local").append(local);
       if(!type.equals(localTypes.get(local))) {
+        localTypes.set(local, type);
         buf.append(", ").append(type);
       }
       buf.append(");\n");
@@ -573,7 +575,11 @@ public class GASMifierMethodVisitor extends ASMifierAbstractVisitor
       case INVOKEINTERFACE: buf.append("mg.invokeInterface("); break;
       default: throw new RuntimeException("unexpected case");
     }
-    buf.append(getType(owner));
+    if (owner.charAt(0) == '[') {
+      buf.append(getDescType(owner));
+    } else {
+      buf.append(getType(owner));
+    }
     buf.append(", ");
     buf.append(getMethod(name, desc));
     buf.append(");\n");
@@ -661,7 +667,7 @@ public class GASMifierMethodVisitor extends ASMifierAbstractVisitor
       v = generateNewLocal(var, "Type.INT_TYPE");
     }
     
-    buf.append("mg.iinc(").append(v).append(", ").append(increment).append(");\n");
+    buf.append("mg.iinc(local").append(v).append(", ").append(increment).append(");\n");
     text.add(buf.toString());
     lastOpcode = IINC;
   }

@@ -1251,8 +1251,9 @@ public class GeneratorAdapter extends LocalVariablesSorter {
     final Type type,
     final Method method)
   {
-    mv.visitMethodInsn(
-      opcode, type.getInternalName(), method.getName(), method.getDescriptor());
+    String owner = type.getSort()==Type.ARRAY ? 
+        type.getDescriptor() : type.getInternalName();
+    mv.visitMethodInsn(opcode, owner, method.getName(), method.getDescriptor());
   }
 
   /**

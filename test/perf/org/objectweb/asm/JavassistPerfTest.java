@@ -40,6 +40,7 @@ import javassist.CtMethod;
 import javassist.bytecode.Bytecode;
 import javassist.bytecode.CodeIterator;
 import javassist.bytecode.MethodInfo;
+import javassist.bytecode.Opcode;
 
 /**
  * @author Eric Bruneton
@@ -96,8 +97,8 @@ public class JavassistPerfTest extends ALLPerfTest {
           bc.addAload(0);
           bc.addAload(0);
           bc.addGetfield(cc, "_counter", "I");
-          bc.add(Bytecode.ICONST_1);
-          bc.add(Bytecode.IADD);
+          bc.add(Opcode.ICONST_1);
+          bc.add(Opcode.IADD);
           bc.addPutfield(cc, "_counter", "I");
           CodeIterator iter = info.getCodeAttribute().iterator();
           iter.begin();

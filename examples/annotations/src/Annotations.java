@@ -46,7 +46,7 @@ import org.objectweb.asm.Type;
 public class Annotations {
 
   public static void foo (final @NotNull String arg) {
-    System.out.println(arg.toString());
+    System.out.println(arg);
   }
 
   public static void main (final String[] args) throws Exception {

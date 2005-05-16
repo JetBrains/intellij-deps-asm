@@ -133,7 +133,9 @@ public class ClassReader {
           break;
         case ClassWriter.UTF8:
           size = 3 + readUnsignedShort(index + 1);
-          max = (size > max ? size : max);
+          if(size > max) {
+            max = size;
+          }
           break;
         //case ClassWriter.CLASS:
         //case ClassWriter.STR:

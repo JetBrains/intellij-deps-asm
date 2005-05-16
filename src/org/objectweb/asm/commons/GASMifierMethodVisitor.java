@@ -440,8 +440,14 @@ public class GASMifierMethodVisitor extends ASMifierAbstractVisitor
     buf.setLength(0);
     switch(opcode) {
       case RET:
-        buf.append("mg.visitVarInsn(").append(OPCODES[opcode]).append(", ")
-          .append(var).append(");\n");
+        buf.append("mg.ret(");
+        if (var < firstLocal) {
+          buf.append(var);
+        } else {
+          int v = generateNewLocal(var, "Type.INT_TYPE");
+          buf.append("local").append(v);
+        }        
+        buf.append(");\n");
         break;
 
       case ILOAD:  generateLoadLocal(var, "Type.INT_TYPE"); break;
@@ -673,9 +679,13 @@ public class GASMifierMethodVisitor extends ASMifierAbstractVisitor
 
   public void visitIincInsn (final int var, final int increment) {
     buf.setLength(0);
-    
-    int v = generateNewLocal(var, "Type.INT_TYPE");
-    buf.append("mg.iinc(local").append(v).append(", ").append(increment).append(");\n");
+    if (var < firstLocal) {
+      buf.append("mg.iinc(").append(var);
+    } else {
+      int v = generateNewLocal(var, "Type.INT_TYPE");
+      buf.append("mg.iinc(local").append(v);
+    }
+    buf.append(", ").append(increment).append(");\n");
     text.add(buf.toString());
     lastOpcode = IINC;
   }

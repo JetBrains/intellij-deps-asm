@@ -1044,6 +1044,19 @@ public class GeneratorAdapter extends LocalVariablesSorter {
   }
 
   /**
+   * Generates the instructions to jump to a label based on the comparison of
+   * the top integer stack value with zero.
+   *
+   * @param mode how these values must be compared.
+   *      One of EQ, NE, LT, GE, GT, LE.
+   * @param label where to jump if the comparison result is <tt>true</tt>.
+   */
+ 
+  public void ifZCmp (final int mode, final Label label) {
+    mv.visitJumpInsn(mode, label);
+  }
+  
+  /**
    * Generates the instruction to jump to the given label if the top stack
    * value is null.
    *

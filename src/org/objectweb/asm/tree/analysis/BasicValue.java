@@ -74,7 +74,7 @@ public class BasicValue implements Value {
     return type != null && (type.getSort() == Type.OBJECT || type.getSort() == Type.ARRAY);
   }
 
-  public boolean equals (final Value value) {
+  public boolean equals (final Object value) {
     if (value == this) {
       return true;
     } else if (value instanceof BasicValue) {

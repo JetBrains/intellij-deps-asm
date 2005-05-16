@@ -83,7 +83,7 @@ public class DataflowValue implements Value {
     return size;
   }
 
-  public boolean equals (final Value value) {
+  public boolean equals (final Object value) {
     DataflowValue v = (DataflowValue)value;
     return size == v.size && insns.equals(v.insns);
   }

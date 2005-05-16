@@ -53,5 +53,5 @@ public interface Value {
    * @return <tt>true</tt> if the values are equals, <tt>false</tt> otherwise.
    */
   
-  boolean equals (Value value);
+  boolean equals (Object value);
 }

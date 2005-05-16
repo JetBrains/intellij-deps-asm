@@ -350,6 +350,10 @@ public class MethodNode extends MemberNode implements MethodVisitor {
     String[] exceptions = new String[this.exceptions.size()];
     this.exceptions.toArray(exceptions);
     MethodVisitor mv = cv.visitMethod(access, name, desc, signature, exceptions);
+    if (mv == null) {
+        return;
+    }
+    
     // visits the method attributes
     int i, j, n;
     if (annotationDefault != null) {
@@ -394,7 +398,7 @@ public class MethodNode extends MemberNode implements MethodVisitor {
       mv.visitAttribute((Attribute)attrs.get(i));
     }
     // visits the method's code
-    if (mv != null && instructions.size() > 0) {
+    if (instructions.size() > 0) {
       mv.visitCode();
       // visits instructions
       for (i = 0; i < instructions.size(); ++i) {

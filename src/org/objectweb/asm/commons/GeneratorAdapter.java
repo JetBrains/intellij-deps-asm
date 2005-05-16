@@ -1076,6 +1076,17 @@ public class GeneratorAdapter extends LocalVariablesSorter {
   }
 
   /**
+   * Generates a RET instruction.
+   * 
+   * @param local a local variable identifier, as returned by {@link #newLocal
+   *      newLocal}.
+   */
+  
+  public void ret (final int local) {
+    mv.visitVarInsn(Opcodes.RET, local);
+  }
+  
+  /**
    * Generates the instructions for a switch statement.
    *
    * @param keys the switch case keys.

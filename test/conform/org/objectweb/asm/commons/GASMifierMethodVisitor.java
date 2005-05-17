@@ -618,8 +618,19 @@ public class GASMifierMethodVisitor extends ASMifierAbstractVisitor
       buf.append("mg.ifCmp("); buf.append(getType("java/lang/Object")).append(", ").append("GeneratorAdapter.EQ, "); appendLabel(label); buf.append(");\n");
     } else if (opcode == IF_ACMPNE) {
       buf.append("mg.ifCmp("); buf.append(getType("java/lang/Object")).append(", ").append("GeneratorAdapter.NE, "); appendLabel(label); buf.append(");\n");
+    } else if (opcode == IFEQ) {
+      buf.append("mg.ifZCmp(GeneratorAdapter.EQ, "); appendLabel(label); buf.append(");\n");
+    } else if (opcode == IFNE) {
+      buf.append("mg.ifZCmp(GeneratorAdapter.NE, "); appendLabel(label); buf.append(");\n");
+    } else if (opcode == IFLT) {
+      buf.append("mg.ifZCmp(GeneratorAdapter.LT, "); appendLabel(label); buf.append(");\n");
+    } else if (opcode == IFGE) {
+      buf.append("mg.ifZCmp(GeneratorAdapter.GE, "); appendLabel(label); buf.append(");\n");
+    } else if (opcode == IFGT) {
+      buf.append("mg.ifZCmp(GeneratorAdapter.GT, "); appendLabel(label); buf.append(");\n");
+    } else if (opcode == IFLE) {
+      buf.append("mg.ifZCmp(GeneratorAdapter.LE, "); appendLabel(label); buf.append(");\n");
     } else {
-      // TODO no API in GeneratorAdapter for IFEQ, IFNE, IFLT, IFGE, IFGT, IFLE (and JSR)
       buf.append("mg.visitJumpInsn(")
         .append(OPCODES[opcode])
         .append(", ");

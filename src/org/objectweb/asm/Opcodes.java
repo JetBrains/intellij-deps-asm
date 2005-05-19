@@ -52,6 +52,7 @@ public interface Opcodes {
   int V1_3 = 0 << 16 | 47;
   int V1_4 = 0 << 16 | 48;
   int V1_5 = 0 << 16 | 49;
+  int V1_6 = 0 << 16 | 50;
   
   // access flags
 

@@ -394,15 +394,13 @@ public class StackMapTableAttribute extends Attribute {
    * Full frame
    */
   public static final int FULL_FRAME = 255;  // ff
-  /**
-   * Implicit initial frame
-   */
-  public static final int INITIAL_FRAME = -1;
   
   
   private static final int MAX_SHORT = 65535;
   
-  
+  /**
+   * A <code>List</code> of <code>StackMapFrame</code> instances.
+   */
   private List frames;
 
   

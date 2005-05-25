@@ -408,6 +408,24 @@ public class StackMapTableAttribute extends Attribute {
     super( "StackMapTable");
   }
   
+  public StackMapFrame getFrame (Label label) {
+    for (int i = 0; i < frames.size(); i++) {
+      StackMapFrame frame = (StackMapFrame)frames.get(i);
+      if (frame.label == label) {
+        return frame;
+      }
+    }
+    return null;
+  }
+
+  public boolean isUnknown () {
+    return false;
+  }
+  
+  public boolean isCodeAttribute () {
+    return true;
+  }
+  
   protected Attribute read( ClassReader cr, int off, int len, char[] buf, 
       int codeOff, Label[] labels) {
     StackMapTableAttribute attr = new StackMapTableAttribute();
@@ -487,16 +505,15 @@ public class StackMapTableAttribute extends Attribute {
           readTypes(stack, isExtStack, isExtCodeSize, cr, off, labels, buf);
           
         } else {
-          throw new RuntimeException( "Unknown frame type "+tag+" at offset "+offset);
+          throw new RuntimeException( "Unknown frame type "+tag+" after offset "+offset);
         
         }
       }
 
-      int frameOffset = offset + offsetDelta + 1; 
+      offset += offsetDelta + 1; 
       
-      frame = new StackMapFrame( getLabel(frameOffset, labels), stack, locals);
+      frame = new StackMapFrame( getLabel( offset, labels), stack, locals);
       attr.frames.add( frame);
-      offset = frameOffset;
     }
     return attr;
   }

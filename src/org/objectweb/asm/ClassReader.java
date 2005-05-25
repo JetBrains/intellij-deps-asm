@@ -82,7 +82,7 @@ public class ClassReader {
    * {@link #b b}.
    */
 
-  private int header;
+  public final int header;
 
   // --------------------------------------------------------------------------
   // Constructors

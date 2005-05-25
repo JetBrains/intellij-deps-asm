@@ -35,8 +35,10 @@ import org.objectweb.asm.Label;
 /**
  * Verification type info used by {@link StackMapAttribute}.
  *
- * @see <a href="http://www.jcp.org/en/jsr/detail?id=139">JSR 139 : Connected
- * Limited Device Configuration 1.1</a>
+ * @see <a href="http://www.jcp.org/en/jsr/detail?id=139">JSR 139 : 
+ *       Connected Limited Device Configuration 1.1</a>
+ *
+ * @see "ClassFileFormat-Java6.fm Page 138 Friday, April 15, 2005 3:22 PM"
  *
  * @author Eugene Kuleshov
  */

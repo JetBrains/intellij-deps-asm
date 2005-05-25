@@ -32,6 +32,9 @@ package org.objectweb.asm.attrs;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
 
 import org.objectweb.asm.Attribute;
 import org.objectweb.asm.ByteVector;
@@ -143,6 +146,9 @@ public class StackMapAttribute extends Attribute {
 
   static final int MAX_SIZE = 65535;
 
+  /**
+   * A List of <code>StackMapFrame</code> instances.
+   */
   public ArrayList frames = new ArrayList();
 
   public StackMapAttribute () {
@@ -171,43 +177,152 @@ public class StackMapAttribute extends Attribute {
                             char[] buf, int codeOff, Label[] labels) {
     StackMapAttribute attr = new StackMapAttribute();
     // note that this is not the size of Code attribute
-    int codeSize = cr.readInt(codeOff + 4);
+    boolean isExtCodeSize = cr.readInt(codeOff + 4) > MAX_SIZE;
+    boolean isExtLocals = cr.readUnsignedShort(codeOff + 2) > MAX_SIZE;
+    boolean isExtStack = cr.readUnsignedShort(codeOff) > MAX_SIZE;
+
     int size = 0;
-    if (codeSize > MAX_SIZE) {
+    if ( isExtCodeSize) {
       size = cr.readInt(off);
       off += 4;
     } else {
-      size = cr.readShort(off);
+      size = cr.readUnsignedShort(off);
       off += 2;
     }
     for (int i = 0; i < size; i++) {
-      StackMapFrame frame = new StackMapFrame();
-      off = frame.read(cr, off, buf, codeOff, labels);
-      attr.frames.add(frame);
+      int offset;
+      if( isExtCodeSize) {
+        offset = cr.readInt(off);
+        off += 4;
+      } else {
+        offset = cr.readUnsignedShort(off);
+        off+= 2;
+      }
+      
+      Label label = getLabel(offset, labels);
+      List locals = new ArrayList();
+      List stack = new ArrayList();
+      
+      off = readTypeInfo(cr, off, locals, labels, buf, isExtLocals, isExtCodeSize);
+      off = readTypeInfo(cr, off, stack, labels, buf, isExtStack, isExtCodeSize);
+      
+      attr.frames.add( new StackMapFrame( label, locals, stack));
     }
     return attr;
   }
-
-  protected ByteVector write (ClassWriter cw, byte[] code,
-                              int len, int maxStack, int maxLocals) {
-    ByteVector bv = new ByteVector();
-    if ( code!=null && code.length > MAX_SIZE) {
-      bv.putInt(frames.size());
+  
+  private int readTypeInfo( ClassReader cr, int off, List info, Label[] labels, 
+      char[] buf, boolean isExt, boolean isExtCode) {
+    int n = 0;
+    if( isExt) {
+      n = cr.readInt( off);
+      off += 4;
     } else {
-      bv.putShort(frames.size());
+      n = cr.readUnsignedShort( off);
+      off += 2;
     }
-    for (int i = 0; i < frames.size(); i++) {
-      ((StackMapFrame)frames.get(i)).write(cw, maxStack, maxLocals, bv);
+    for( int j = 0; j < n; j++) {
+      int itemType = cr.readByte( off++);
+      StackMapType typeInfo = StackMapType.getTypeInfo( itemType);
+      info.add( typeInfo);
+      switch( itemType) {
+        // case StackMapType.ITEM_Long: //
+        // case StackMapType.ITEM_Double: //
+        // info.add(StackMapType.getTypeInfo(StackMapType.ITEM_Top));
+        // break;
+
+        case StackMapType.ITEM_Object: //
+          typeInfo.setObject( cr.readClass( off, buf));
+          off += 2;
+          break;
+
+        case StackMapType.ITEM_Uninitialized: //
+          int offset;
+          if( isExtCode) {
+            offset = cr.readInt( off);
+            off += 4;
+          } else {
+            offset = cr.readUnsignedShort( off);
+            off += 2;
+          }
+          typeInfo.setLabel( getLabel(offset, labels));
+          break;
+      }
+    }
+    return off;
+  }
+
+  private void writeTypeInfo( ByteVector bv, ClassWriter cw, List info, int max) {
+    if( max > StackMapAttribute.MAX_SIZE) {
+      bv.putInt( info.size());
+    } else {
+      bv.putShort( info.size());
+    }
+    for( int j = 0; j < info.size(); j++) {
+      StackMapType typeInfo = ( StackMapType) info.get( j);
+      bv.putByte( typeInfo.getType());
+      switch( typeInfo.getType()) {
+        case StackMapType.ITEM_Object: //
+          bv.putShort( cw.newClass( typeInfo.getObject()));
+          break;
+
+        case StackMapType.ITEM_Uninitialized: //
+          bv.putShort( typeInfo.getLabel().getOffset());
+          break;
+
+      }
+    }
+  }
+  
+
+  private Label getLabel( int offset, Label[] labels) {
+    Label l = labels[ offset];
+    if( l!=null) {
+      return l;
+    }
+    return labels[ offset] = new Label();
+  }
+  
+  protected ByteVector write( ClassWriter cw, byte[] code, int len, int maxStack, int maxLocals) {
+    ByteVector bv = new ByteVector();
+    if( code != null && code.length > MAX_SIZE) {  // TODO verify this value
+      bv.putInt( frames.size());
+    } else {
+      bv.putShort( frames.size());
+    }
+    for( int i = 0; i < frames.size(); i++) {
+      writeFrame(( StackMapFrame) frames.get( i), cw, maxStack, maxLocals, bv);
     }
     return bv;
   }
-
+  
   protected Label[] getLabels () {
     HashSet labels = new HashSet();
     for (int i = 0; i < frames.size(); i++) {
-      ((StackMapFrame)frames.get(i)).getLabels(labels);
+      getFrameLabels((StackMapFrame)frames.get(i), labels);
     }
     return (Label[])labels.toArray(new Label[labels.size()]);
+  }
+
+  private void writeFrame( StackMapFrame frame, ClassWriter cw, int maxStack, int maxLocals, ByteVector bv) {
+    bv.putShort( frame.label.getOffset());
+    writeTypeInfo( bv, cw, frame.locals, maxLocals);
+    writeTypeInfo( bv, cw, frame.stack, maxStack);
+  }
+
+  private void getFrameLabels( StackMapFrame frame, Set labels) {
+    labels.add( frame.label);
+    getTypeInfoLabels( labels, frame.locals);
+    getTypeInfoLabels( labels, frame.stack);
+  }
+
+  private void getTypeInfoLabels( Set labels, List info) {
+    for( Iterator it = info.iterator(); it.hasNext();) {
+      StackMapType typeInfo = ( StackMapType) it.next();
+      if( typeInfo.getType() == StackMapType.ITEM_Uninitialized) {
+        labels.add( typeInfo.getLabel());
+      }
+    }
   }
 
   public String toString () {

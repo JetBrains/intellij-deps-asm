@@ -30,14 +30,8 @@
 
 package org.objectweb.asm.attrs;
 
-import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
 
-import org.objectweb.asm.ByteVector;
-import org.objectweb.asm.ClassReader;
-import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Label;
 
 
@@ -48,116 +42,36 @@ import org.objectweb.asm.Label;
  * <i>Note that Long and Double types are represented by two entries in locals
  * and stack. Second entry should be always of type Top.</i>
  *
- * @see <a href="http://www.jcp.org/en/jsr/detail?id=139">JSR 139 : Connected
- * Limited Device Configuration 1.1</a>
+ * @see <a href="http://www.jcp.org/en/jsr/detail?id=139">JSR 139 : 
+ *       Connected Limited Device Configuration 1.1</a>
  *
+ * @see "ClassFileFormat-Java6.fm Page 138 Friday, April 15, 2005 3:22 PM"
+ * 
  * @author Eugene Kuleshov
  */
 
 public class StackMapFrame {
 
+  /**
+   * A <code>Label</code> for frame offset within method bytecode.
+   */
   public Label label;
 
-  public List locals = new ArrayList();
+  /**
+   * A List of <code>StackMapType</code> instances that represent locals for this frame. 
+   */
+  public List locals;
 
-  public List stack = new ArrayList();
+  /**
+   * A List of <code>StackMapType</code> instances that represent stack for this frame. 
+   */
+  public List stack;
 
-  public int read (ClassReader cr,
-                   int off, char[] buf, int codeOff, Label[] labels) {
-    int n = cr.readUnsignedShort(off);
-    off += 2;
-    if (labels[n] == null) {
-      labels[n] = new Label();
-    }
-    label = labels[n];
-    off = readTypeInfo(cr, off, locals, labels, buf,
-                       cr.readUnsignedShort(codeOff + 2));  //  maxLocals
-    off = readTypeInfo(cr, off, stack, labels, buf,
-                       cr.readUnsignedShort(codeOff));  // maxStack
-    return off;
-  }
 
-  public void write (ClassWriter cw,
-                     int maxStack, int maxLocals, ByteVector bv) {
-    bv.putShort(label.getOffset());
-    writeTypeInfo(bv, cw, locals, maxLocals);
-    writeTypeInfo(bv, cw, stack, maxStack);
-  }
-
-  public void getLabels (Set labels) {
-    labels.add(label);
-    getTypeInfoLabels(labels, locals);
-    getTypeInfoLabels(labels, stack);
-  }
-
-  private void getTypeInfoLabels (Set labels, List info) {
-    for (Iterator it = info.iterator(); it.hasNext();) {
-      StackMapType typeInfo = (StackMapType)it.next();
-      if (typeInfo.getType() == StackMapType.ITEM_Uninitialized) {
-        labels.add(typeInfo.getLabel());
-      }
-    }
-  }
-
-  private int readTypeInfo (ClassReader cr, int off,
-                            List info, Label[] labels, char[] buf, int max) {
-    int n = 0;
-    if (max > StackMapAttribute.MAX_SIZE) {
-      n = cr.readInt(off);
-      off += 4;
-    } else {
-      n = cr.readUnsignedShort(off);
-      off += 2;
-    }
-    for (int j = 0; j < n; j++) {
-      int itemType = cr.readByte(off++);
-      StackMapType typeInfo = StackMapType.getTypeInfo(itemType);
-      info.add(typeInfo);
-      switch (itemType) {
-        // case StackMapType.ITEM_Long:  //
-        // case StackMapType.ITEM_Double:  //
-          // info.add(StackMapType.getTypeInfo(StackMapType.ITEM_Top));
-        //   break;
-
-        case StackMapType.ITEM_Object:  //
-          typeInfo.setObject(cr.readClass(off, buf));
-          off += 2;
-          break;
-
-        case StackMapType.ITEM_Uninitialized:  //
-          int o = cr.readUnsignedShort(off);
-          off += 2;
-          if (labels[o] == null) {
-            labels[o] = new Label();
-          }
-          typeInfo.setLabel(labels[o]);
-          break;
-      }
-    }
-    return off;
-  }
-
-  private void writeTypeInfo (ByteVector bv,
-                              ClassWriter cw, List info, int max) {
-    if (max > StackMapAttribute.MAX_SIZE) {
-      bv.putInt(info.size());
-    } else {
-      bv.putShort(info.size());
-    }
-    for (int j = 0; j < info.size(); j++) {
-      StackMapType typeInfo = (StackMapType)info.get(j);
-      bv.putByte(typeInfo.getType());
-      switch (typeInfo.getType()) {
-        case StackMapType.ITEM_Object:  //
-          bv.putShort(cw.newClass(typeInfo.getObject()));
-          break;
-
-        case StackMapType.ITEM_Uninitialized:  //
-          bv.putShort(typeInfo.getLabel().getOffset());
-          break;
-          
-      }
-    }
+  public StackMapFrame( Label label, List locals, List stack) {
+    this.label = label;
+    this.locals = locals;
+    this.stack = stack;
   }
 
   public String toString () {

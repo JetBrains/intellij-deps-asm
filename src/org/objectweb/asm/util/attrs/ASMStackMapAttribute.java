@@ -50,18 +50,25 @@ public class ASMStackMapAttribute extends StackMapAttribute
   implements ASMifiable 
 {
   
+  public ASMStackMapAttribute() {
+    super();
+  }
+  
+  public ASMStackMapAttribute( List frames) {
+    super( frames);
+  }
+
   protected Attribute read (ClassReader cr, int off,
     int len, char[] buf, int codeOff, Label[] labels) 
   {
     StackMapAttribute attr = 
       (StackMapAttribute)super.read(cr, off, len, buf, codeOff, labels);
     
-    ASMStackMapAttribute result = new ASMStackMapAttribute();
-    result.frames = attr.frames;
-    return result;
+    return new ASMStackMapAttribute( attr.getFrames());
   }
 
   public void asmify (StringBuffer buf, String varName, Map labelNames) {
+    List frames = getFrames();
     buf.append("{\n");
     buf.append("StackMapAttribute ").append(varName).append("Attr");
     buf.append(" = new StackMapAttribute();\n");

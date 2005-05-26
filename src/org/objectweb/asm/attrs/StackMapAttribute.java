@@ -34,6 +34,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 import org.objectweb.asm.Attribute;
 import org.objectweb.asm.ByteVector;
@@ -148,15 +149,7 @@ public class StackMapAttribute extends Attribute {
   /**
    * A List of <code>StackMapFrame</code> instances.
    */
-  private List frames;
-
-  private ClassReader cr;
-  private int off;
-  private int len;
-  private char[] buf;
-  private int codeOff;
-  private Label[] labels;
-
+  public List frames = new ArrayList();
 
   public StackMapAttribute () {
     super("StackMap");
@@ -168,16 +161,10 @@ public class StackMapAttribute extends Attribute {
   }
 
   public List getFrames() {
-    if( frames==null) {
-      readFrames();
-    }
     return frames;
   }
 
   public StackMapFrame getFrame (Label label) {
-    if( frames==null) {
-      readFrames();
-    }
     for (int i = 0; i < frames.size(); i++) {
       StackMapFrame frame = (StackMapFrame)frames.get(i);
       if (frame.label == label) {
@@ -187,9 +174,17 @@ public class StackMapAttribute extends Attribute {
     return null;
   }
 
-  private void readFrames() {
-    frames = new ArrayList();
-
+  public boolean isUnknown () {
+    return false;
+  }
+  
+  public boolean isCodeAttribute () {
+    return true;
+  }
+  
+  protected Attribute read (ClassReader cr, int off, int len,
+                            char[] buf, int codeOff, Label[] labels) {
+    StackMapAttribute attr = new StackMapAttribute();
     // note that this is not the size of Code attribute
     boolean isExtCodeSize = cr.readInt(codeOff + 4) > MAX_SIZE;
     boolean isExtLocals = cr.readUnsignedShort(codeOff + 2) > MAX_SIZE;
@@ -220,39 +215,8 @@ public class StackMapAttribute extends Attribute {
       off = readTypeInfo(cr, off, locals, labels, buf, isExtLocals, isExtCodeSize);
       off = readTypeInfo(cr, off, stack, labels, buf, isExtStack, isExtCodeSize);
       
-      frames.add( new StackMapFrame( label, locals, stack));
+      attr.frames.add( new StackMapFrame( label, locals, stack));
     }
-  }
-
-  public boolean isUnknown () {
-    return false;
-  }
-  
-  public boolean isCodeAttribute () {
-    return true;
-  }
-  
-  protected Label[] getLabels () {
-    HashSet labels = new HashSet();
-    for (int i = 0; i < frames.size(); i++) {
-      StackMapFrame frame = (StackMapFrame)frames.get(i);
-      labels.add( frame.label);
-      getTypeInfoLabels( labels, frame.locals);
-      getTypeInfoLabels( labels, frame.stack);
-    }
-    return (Label[])labels.toArray(new Label[labels.size()]);
-  }
-
-  protected Attribute read (ClassReader cr, int off, int len,
-                            char[] buf, int codeOff, Label[] labels) {
-    StackMapAttribute attr = new StackMapAttribute();
-    attr.cr = cr;
-    attr.off = off;
-    attr.len = len;
-    attr.buf = buf;
-    attr.codeOff = codeOff;
-    attr.labels = labels;
-    
     return attr;
   }
   
@@ -297,36 +261,7 @@ public class StackMapAttribute extends Attribute {
     return off;
   }
 
-  private Label getLabel( int offset, Label[] labels) {
-    Label l = labels[ offset];
-    if( l!=null) {
-      return l;
-    }
-    return labels[ offset] = new Label();
-  }
-  
-  protected ByteVector write( ClassWriter cw, byte[] code, int len, int maxStack, int maxLocals) {
-    ByteVector bv = new ByteVector();
-    boolean isExtCode = code != null && code.length > MAX_SIZE;  // TODO verify this value
-    if( isExtCode) {
-      bv.putInt( frames.size());
-    } else {
-      bv.putShort( frames.size());
-    }
-    for( int i = 0; i < frames.size(); i++) {
-      StackMapFrame frame = ( StackMapFrame) frames.get( i);
-      if( isExtCode) {
-        bv.putInt( frame.label.getOffset());
-      } else {
-        bv.putShort( frame.label.getOffset());
-      }
-      writeTypeInfos( bv, cw, frame.locals, maxLocals);
-      writeTypeInfos( bv, cw, frame.stack, maxStack);
-    }
-    return bv;
-  }
-  
-  private void writeTypeInfos( ByteVector bv, ClassWriter cw, List info, int max) {
+  private void writeTypeInfo( ByteVector bv, ClassWriter cw, List info, int max) {
     if( max > StackMapAttribute.MAX_SIZE) {
       bv.putInt( info.size());
     } else {
@@ -347,8 +282,50 @@ public class StackMapAttribute extends Attribute {
       }
     }
   }
+  
 
-  private void getTypeInfoLabels( HashSet labels, List info) {
+  private Label getLabel( int offset, Label[] labels) {
+    Label l = labels[ offset];
+    if( l!=null) {
+      return l;
+    }
+    return labels[ offset] = new Label();
+  }
+  
+  protected ByteVector write( ClassWriter cw, byte[] code, int len, int maxStack, int maxLocals) {
+    ByteVector bv = new ByteVector();
+    if( code != null && code.length > MAX_SIZE) {  // TODO verify this value
+      bv.putInt( frames.size());
+    } else {
+      bv.putShort( frames.size());
+    }
+    for( int i = 0; i < frames.size(); i++) {
+      writeFrame(( StackMapFrame) frames.get( i), cw, maxStack, maxLocals, bv);
+    }
+    return bv;
+  }
+  
+  protected Label[] getLabels () {
+    HashSet labels = new HashSet();
+    for (int i = 0; i < frames.size(); i++) {
+      getFrameLabels((StackMapFrame)frames.get(i), labels);
+    }
+    return (Label[])labels.toArray(new Label[labels.size()]);
+  }
+
+  private void writeFrame( StackMapFrame frame, ClassWriter cw, int maxStack, int maxLocals, ByteVector bv) {
+    bv.putShort( frame.label.getOffset());
+    writeTypeInfo( bv, cw, frame.locals, maxLocals);
+    writeTypeInfo( bv, cw, frame.stack, maxStack);
+  }
+
+  private void getFrameLabels( StackMapFrame frame, Set labels) {
+    labels.add( frame.label);
+    getTypeInfoLabels( labels, frame.locals);
+    getTypeInfoLabels( labels, frame.stack);
+  }
+
+  private void getTypeInfoLabels( Set labels, List info) {
     for( Iterator it = info.iterator(); it.hasNext();) {
       StackMapType typeInfo = ( StackMapType) it.next();
       if( typeInfo.getType() == StackMapType.ITEM_Uninitialized) {
@@ -365,5 +342,4 @@ public class StackMapAttribute extends Attribute {
     sb.append("\n]");
     return sb.toString();
   }
-
 }

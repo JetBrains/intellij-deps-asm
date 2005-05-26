@@ -404,10 +404,19 @@ public class StackMapTableAttribute extends Attribute {
   private List frames;
 
   
-  protected StackMapTableAttribute() {
+  public StackMapTableAttribute() {
     super( "StackMapTable");
   }
   
+  public StackMapTableAttribute( List frames) {
+    this();
+    this.frames = frames;
+  }
+  
+  public List getFrames() {
+    return frames;
+  }
+
   public StackMapFrame getFrame (Label label) {
     for (int i = 0; i < frames.size(); i++) {
       StackMapFrame frame = (StackMapFrame)frames.get(i);
@@ -417,7 +426,7 @@ public class StackMapTableAttribute extends Attribute {
     }
     return null;
   }
-
+  
   public boolean isUnknown () {
     return false;
   }
@@ -428,7 +437,8 @@ public class StackMapTableAttribute extends Attribute {
   
   protected Attribute read( ClassReader cr, int off, int len, char[] buf, 
       int codeOff, Label[] labels) {
-    StackMapTableAttribute attr = new StackMapTableAttribute();
+    ArrayList frames = new ArrayList();
+    
     // note that this is not the size of Code attribute
     boolean isExtCodeSize = cr.readInt(codeOff + 4) > MAX_SHORT;
     boolean isExtLocals = cr.readUnsignedShort(codeOff + 2) > MAX_SHORT;
@@ -436,31 +446,44 @@ public class StackMapTableAttribute extends Attribute {
     
     int offset = 0;
     
-    StackMapFrame frame = new StackMapFrame( getLabel(offset, labels),
-        calculateLocals( cr, codeOff, buf), Collections.EMPTY_LIST); 
+    StackMapFrame frame = new StackMapFrame( getLabel(offset, labels), 
+//        calculateLocals( cr.readClass( cr.header + 2, buf),  // class name 
+//            cr.readUnsignedShort( codeOff),     // method access
+//            cr.readUTF8( codeOff + 2, buf),     // method name
+//            cr.readUTF8( codeOff + 4, buf)),    // method desc
+        // TODO read method access flags, name and desc
+        calculateLocals( cr.readClass( cr.header + 2, buf),  // class name 
+                         0,     // method access
+                         "",     // method name
+                         "()V"),    // method desc
+        Collections.EMPTY_LIST); 
     frames.add( frame);
     
-    int size = 0;
+    int size;
     if (isExtCodeSize) {
       size = cr.readInt(off);  off += 4;
     } else {
-      size = cr.readShort(off);  off += 2;
+      size = cr.readUnsignedShort(off);  off += 2;
     }
-    for ( ; size>=0; size--) {
-      int tag = cr.readByte(off) & 0xff;
+    
+    for ( ; size>0; size--) {
+      int tag = cr.readByte(off); // & 0xff;
       off++;
 
       List stack;
       List locals;
 
       int offsetDelta;
+      int frameType;
       if( tag<SAME_LOCALS_1_STACK_ITEM_FRAME) {
+        frameType = SAME_FRAME;
         offsetDelta = tag;
         
         locals = new ArrayList( frame.locals);
         stack = Collections.EMPTY_LIST;
         
       } else if( tag<RESERVED) {
+        frameType = SAME_LOCALS_1_STACK_ITEM_FRAME;
         offsetDelta = tag - SAME_LOCALS_1_STACK_ITEM_FRAME;
         
         locals = new ArrayList( frame.locals);
@@ -476,6 +499,7 @@ public class StackMapTableAttribute extends Attribute {
         }
 
         if( tag>=CHOP_FRAME && tag<SAME_FRAME_EXTENDED) {
+          frameType = CHOP_FRAME;
           stack = Collections.EMPTY_LIST;
 
           int k = SAME_FRAME_EXTENDED - tag;
@@ -483,26 +507,30 @@ public class StackMapTableAttribute extends Attribute {
           locals = new ArrayList( frame.locals.subList( 0, frame.locals.size()-k));
         
         } else if( tag==SAME_FRAME_EXTENDED) {
+          frameType = SAME_FRAME_EXTENDED;
           stack = Collections.EMPTY_LIST;
           locals = new ArrayList( frame.locals);
           
         } else if( /* tag>=APPEND && */ tag<FULL_FRAME) {
+          frameType = APPEND_FRAME;
           stack = Collections.EMPTY_LIST;
 
           // copy locals from prev frame and append new k
           locals = new ArrayList( frame.locals);
-          for( int k = tag - SAME_FRAME_EXTENDED; k>=0; k--) {
+          for( int k = tag - SAME_FRAME_EXTENDED; k>0; k--) {
             off = readType(locals, isExtCodeSize, cr, off, labels, buf);
           }
   
         } else if( tag==FULL_FRAME) {
+          frameType = FULL_FRAME;
+
           // read verification_type_info locals[number_of_locals];
           locals = new ArrayList();
-          readTypes(locals, isExtLocals, isExtCodeSize, cr, off, labels, buf);
+          off = readTypes(locals, isExtLocals, isExtCodeSize, cr, off, labels, buf);
           
           // read verification_type_info stack[number_of_stack_items];
           stack = new ArrayList();
-          readTypes(stack, isExtStack, isExtCodeSize, cr, off, labels, buf);
+          off = readTypes(stack, isExtStack, isExtCodeSize, cr, off, labels, buf);
           
         } else {
           throw new RuntimeException( "Unknown frame type "+tag+" after offset "+offset);
@@ -510,12 +538,17 @@ public class StackMapTableAttribute extends Attribute {
         }
       }
 
-      offset += offsetDelta + 1; 
+      offset += offsetDelta; 
       
-      frame = new StackMapFrame( getLabel( offset, labels), stack, locals);
-      attr.frames.add( frame);
+      // System.err.println( offset +" : " + offsetDelta + " : "+  frameType+" : "+ frame);
+      
+      frame = new StackMapFrame( getLabel( offset, labels), locals, stack);
+      frames.add( frame);
+      
+      offset++;
     }
-    return attr;
+    
+    return new StackMapTableAttribute( frames);
   }
 
   protected ByteVector write( ClassWriter cw, byte[] code, int len, int maxStack, int maxLocals) {
@@ -524,27 +557,24 @@ public class StackMapTableAttribute extends Attribute {
   }
   
   /**
-   * Use method signature and access flags to resolve initial locals state. 
+   * Use method signature and access flags to resolve initial locals state.
+   * 
+   * @return list of <code>StackMapType</code> instances representing locals for an initial frame.
    */  
-  private List calculateLocals( ClassReader cr, int codeOff, char[] buf) {
+  public static List calculateLocals( String className, int access, String methodName, String methodDesc) {
     List locals = new ArrayList();
 
-    int access = cr.readUnsignedShort( codeOff);
-    String methodName = cr.readUTF8( codeOff + 2, buf);
-    String methodDesc = cr.readUTF8( codeOff + 4, buf);
-
-    if(( access & Opcodes.ACC_STATIC)==0) {
+    // TODO
+    if( "<init>".equals( methodName) && !className.equals( "java/lang/Object")) {
+      StackMapType typeInfo = StackMapType.getTypeInfo( StackMapType.ITEM_UninitializedThis);
+      typeInfo.setObject( className);  // this
+      locals.add( typeInfo);
+    } else if(( access & Opcodes.ACC_STATIC)==0) {
       StackMapType typeInfo = StackMapType.getTypeInfo( StackMapType.ITEM_Object);
-      typeInfo.setObject( "L"+cr.readClass( cr.header + 2, buf)+";");  // this
+      typeInfo.setObject( className);  // this
       locals.add( typeInfo);
     }
-    if( "<init>".equals( methodName)) {
-      // TODO
-    }
-    if( "<cinit>".equals( methodName)) {
-      // TODO      
-    }
-    
+      
     Type[] types = Type.getArgumentTypes(methodDesc);
     for( int i = 0; i < types.length; i++) {
       Type t = types[ i];
@@ -573,7 +603,7 @@ public class StackMapTableAttribute extends Attribute {
       }
     }
     
-    throw new RuntimeException( "Method calculateLocals not yet implemented");
+    return locals;
   }
 
   private int readTypes( List info, boolean isExt, boolean isExtCodeSize, 
@@ -585,7 +615,7 @@ public class StackMapTableAttribute extends Attribute {
       n = cr.readUnsignedShort( off);  off += 2;
     }
     
-    for( ; n>=0; n--) {
+    for( ; n>0; n--) {
       off = readType( info, isExtCodeSize, cr, off, labels, buf);
     }
     return off;

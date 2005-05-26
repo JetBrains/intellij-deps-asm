@@ -44,6 +44,7 @@ import org.codehaus.janino.DebuggingInformation;
 import org.codehaus.janino.IClassLoader;
 import org.codehaus.janino.Parser;
 import org.codehaus.janino.Scanner;
+import org.codehaus.janino.UnitCompiler;
 
 import org.objectweb.asm.AbstractTest;
 import org.objectweb.asm.ClassReader;
@@ -109,7 +110,8 @@ public class ASMifierTest extends AbstractTest {
 
     public byte[] compile(String name, String source) throws Exception {
       Parser p = new Parser(new Scanner(name, new StringReader(source)));
-      return p.parseCompilationUnit().compile(CL, DebuggingInformation.ALL)[0].toByteArray();
+      UnitCompiler uc = new UnitCompiler( p.parseCompilationUnit(), CL);
+      return uc.compileUnit( DebuggingInformation.ALL)[ 0].toByteArray();
     }
   }
 }

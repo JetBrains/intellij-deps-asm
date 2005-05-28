@@ -1,8 +1,8 @@
 <project>
   <pomVersion>3</pomVersion>
 
-  <id>@product.name@</id>
   <name>@product.name@</name>
+  <artifactId>@product.name@</artifactId>
   <groupId>asm</groupId>
   <currentVersion>@product.version@</currentVersion>
   

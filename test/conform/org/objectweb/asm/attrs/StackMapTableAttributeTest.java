@@ -30,13 +30,10 @@
 
 package org.objectweb.asm.attrs;
 
-import java.io.PrintWriter;
-
 import org.objectweb.asm.AbstractTest;
 import org.objectweb.asm.Attribute;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassWriter;
-import org.objectweb.asm.util.TraceClassVisitor;
 
 
 /**
@@ -57,8 +54,7 @@ public class StackMapTableAttributeTest extends AbstractTest {
     ClassReader cr1 = new ClassReader( is);
     
     ClassWriter cw = new ClassWriter( false);
-    cr1.accept( new TraceClassVisitor( cw, new PrintWriter( System.err)), 
-        new Attribute[] { new StackMapTableAttribute()}, false);
+    cr1.accept( cw, new Attribute[] { new StackMapTableAttribute()}, false);
     
     ClassReader cr2 = new ClassReader( cw.toByteArray());
     assertEquals(cr1, cr2);

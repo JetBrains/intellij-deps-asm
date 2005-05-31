@@ -45,28 +45,28 @@ import org.objectweb.asm.Type;
 /**
  * The stack map attribute is used during the process of 
  * verification by typechecking (§4.11.1).
- *
+ * <br><br>
  * A stack map attribute consists of zero or more stack map frames. Each stack map
  * frame specifies (either explicitly or implicitly) a bytecode offset, the verification
  * types (§4.11.1) for the local variables, and the verification types for the operand
  * stack.
- * 
+ * <br><br>
  * The type checker deals with and manipulates the expected types of a method's
  * local variables and operand stack. Throughout this section, a location refers to
  * either a single local variable or to a single operand stack entry.
- * 
+ * <br><br>
  * We will use the terms stack frame map and type state interchangeably to describe
  * a mapping from locations in the operand stack and local variables of a method to
  * verification types. We will usually use the term stack frame map when such a
  * mapping is provided in the class file, and the term type state when the mapping is
  * inferred by the type checker.
- * 
+ * <br><br>
  * If a method's Code attribute does not have a StackMapTable attribute, it has an
  * implicit stack map attribute. This implicit stack map attribute is equivalent to a
  * StackMapTable attribute with number_of_entries equal to zero. A method's Code
  * attribute may have at most one StackMapTable attribute, otherwise a
  * java.lang.ClassFormatError is thrown.
- * 
+ * <br><br>
  * The format of the stack map in the class file is given below. In the following, if the
  * length of the method's byte code is 65535 or less, then uoffset represents the type
  * u2; otherwise uoffset represents the type u4. 
@@ -75,13 +75,15 @@ import org.objectweb.asm.Type;
  * otherwise ulocalvar represents the type u4. 
  * If the maximum size of the operand stack is 65535 or less, then <code>ustack</code> 
  * represents the type u2; otherwise ustack represents the type u4.
- * 
+ *
+ * <pre>
  *   stack_map { // attribute StackMapTable
  *     u2 attribute_name_index;
  *     u4 attribute_length
  *     uoffset number_of_entries;
  *     stack_map_frame entries[number_of_entries];
  *   }
+ * </pre>
  * 
  * Each stack_map_frame structure specifies the type state at a particular byte code
  * offset. Each frame type specifies (explicitly or implicitly) a value, offset_delta, that
@@ -89,26 +91,27 @@ import org.objectweb.asm.Type;
  * offset at which the frame applies is given by adding <code>1 + offset_delta</code> 
  * to the <code>offset</code> of the previous frame, unless the previous frame is the 
  * initial frame of the method, in which case the byte code offset is <code>offset_delta</code>.
- * 
+ * <br><br>
  * <i>Note that the length of the byte codes is not the same as the length of the Code
  * attribute. The byte codes are embedded in the Code attribute, along with other
  * information.</i>
- *   
+ * <br><br>
  * By using an offset delta rather than the actual byte code offset we
  * ensure, by definition, that stack map frames are in the correctly sorted
  * order. Furthermore, by consistently using the formula <code>offset_delta + 1</code> for
  * all explicit frames, we guarantee the absence of duplicates.
- * 
+ * <br><br>
  * All frame types, even full_frame, rely on the previous frame for some of
  * their semantics. This raises the question of what is the very first frame?
  * The initial frame is implicit, and computed from the method descriptor.
  * See the Prolog code for methodInitialStacFrame.
- * 
+ * <br><br>
  * The stack_map_frame structure consists of a one-byte tag followed by zero or more
  * bytes, giving more information, depending upon the tag.
- * 
+ * <br><br>
  * A stack map frame may belong to one of several frame types
  * 
+ * <pre>
  *   union stack_map_frame {
  *     same_frame;
  *     same_locals_1_stack_item_frame;
@@ -117,6 +120,7 @@ import org.objectweb.asm.Type;
  *     append_frame;
  *     full_frame;
  *   }
+ * </pre>
  * 
  * The frame type same_frame is represented by tags in the range [0-63]. If the frame
  * type is same_frame, it means the frame has exactly the same locals as the previous
@@ -124,9 +128,11 @@ import org.objectweb.asm.Type;
  * for the frame is the value of the tag field, frame_type. The form of such a frame is
  * then:
  * 
+ * <pre>
  *   same_frame {
  *     u1 frame_type = SAME;  // 0-63
  *   }
+ * </pre>
  * 
  * The frame type same_locals_1_stack_item_frame is represented by tags in the range
  * [64, 127]. If the frame_type is same_locals_1_stack_item_frame, it means the frame
@@ -135,47 +141,55 @@ import org.objectweb.asm.Type;
  * (frame_type - 64). There is a verification_type_info following the frame_type 
  * for the one stack item. The form of such a frame is then:
  * 
+ * <pre>
  *   same_locals_1_stack_item_frame {
  *     u1 frame_type = SAME_LOCALS_1_STACK_ITEM;  // 64-127
  *     verification_type_info stack[1];
  *   }
+ * </pre>
  * 
  * Tags in the range [128-247] are reserved for future use.
- * 
+ * <br><br>
  * The frame type chop_frame is represented by tags in the range [248-250]. If the
  * frame_type is chop_frame, it means that the current locals are the same as the locals
  * in the previous frame, except that the k last locals are absent. The value of k is
  * given by the formula 251-frame_type.
- * 
+ * <br><br>
  * The form of such a frame is then:
  * 
+ * <pre>
  *   chop_frame {
  *     u1 frame_type=CHOP;  // 248-250
  *     uoffset offset_delta;
  *   }
+ * </pre>
  * 
  * The frame type same_frame_extended is represented by the tag value 251. If the
  * frame type is same_frame_extended, it means the frame has exactly the same locals
  * as the previous stack map frame and that the number of stack items is zero.
  * The form of such a frame is then:
  * 
+ * <pre>
  *   same_frame_extended {
  *     u1 frame_type = SAME_FRAME_EXTENDED;  // 251
  *     uoffset offset_delta;
  *   }
+ * </pre>
  * 
  * The frame type append_frame is represented by tags in the range [252-254]. If the
  * frame_type is append_frame, it means that the current locals are the same as the
  * locals in the previous frame, except that k additional locals are defined. The value
  * of k is given by the formula frame_type-251.
- * 
+ * <br><br>
  * The form of such a frame is then:
  * 
+ * <pre>
  *   append_frame {
  *     u1 frame_type =APPEND;  // 252-254
  *     uoffset offset_delta;
  *     verification_type_info locals[frame_type -251];
  *   }
+ * </pre>
  * 
  * The 0th entry in locals represents the type of the first additional local variable. If
  * locals[M] represents local variable N, then locals[M+1] represents local variable N+1
@@ -184,7 +198,7 @@ import org.objectweb.asm.Type;
  * Uninitialized_variable_info, otherwise locals[M+1] represents local variable N+2. It is
  * an error if, for any index i, locals[i] represents a local variable whose index is
  * greater than the maximum number of local variables for the method.
- * 
+ * <br><br>
  * The frame type full_frame is represented by the tag value 255. The form of such a
  * frame is then:
  * 
@@ -206,7 +220,7 @@ import org.objectweb.asm.Type;
  * otherwise locals[M+1] represents local variable N+2. It is an error if, for any index
  * i, locals[i] represents a local variable whose index is greater than the maximum
  * number of local variables for the method.
- * 
+ * <br><br>
  * The 0th entry in stack represents the type of the bottom of the stack, and
  * subsequent entries represent types of stack elements closer to the top of the
  * operand stack. We shall refer to the bottom element of the stack as stack element
@@ -217,11 +231,11 @@ import org.objectweb.asm.Type;
  * otherwise stack[M+1] represents stack element N+2. It is an error if, for any index i,
  * stack[i] represents a stack entry whose index is greater than the maximum operand
  * stack size for the method.
- * 
+ * <br><br>
  * We say that an instruction in the byte code has a corresponding stack map frame if
  * the offset in the offset field of the stack map frame is the same as the offset of the
  * instruction in the byte codes.
- * 
+ * <br><br>
  * The verification_type_info structure consists of a one-byte tag followed by zero or
  * more bytes, giving more information about the tag. Each verification_type_info
  * structure specifies the verification type of one or two locations.
@@ -446,16 +460,13 @@ public class StackMapTableAttribute extends Attribute {
     
     int offset = 0;
     
+    int methodOff = getMethodOff( cr, codeOff, buf);
     StackMapFrame frame = new StackMapFrame( getLabel(offset, labels), 
-//        calculateLocals( cr.readClass( cr.header + 2, buf),  // class name 
-//            cr.readUnsignedShort( codeOff),     // method access
-//            cr.readUTF8( codeOff + 2, buf),     // method name
-//            cr.readUTF8( codeOff + 4, buf)),    // method desc
-        // TODO read method access flags, name and desc
-        calculateLocals( cr.readClass( cr.header + 2, buf),  // class name 
-                         0,     // method access
-                         "",     // method name
-                         "()V"),    // method desc
+        calculateLocals( 
+            cr.readClass( cr.header + 2, buf),  // class name 
+            cr.readUnsignedShort( methodOff),   // method access
+            cr.readUTF8( methodOff + 2, buf),   // method name
+            cr.readUTF8( methodOff + 4, buf)),  // method desc
         Collections.EMPTY_LIST); 
     frames.add( frame);
     
@@ -552,8 +563,169 @@ public class StackMapTableAttribute extends Attribute {
   }
 
   protected ByteVector write( ClassWriter cw, byte[] code, int len, int maxStack, int maxLocals) {
-    // TODO implement write
-    throw new RuntimeException( "Not yet implemented");
+    ByteVector bv = new ByteVector();
+    boolean isExtCodeSize = code != null && code.length > MAX_SHORT;    // TODO verify this value
+    writeSize(frames.size(), bv, isExtCodeSize);
+
+    if( frames.size()<2) {
+      return bv;
+    }
+    
+    boolean isExtLocals = maxLocals > MAX_SHORT;
+    boolean isExtStack = maxStack > MAX_SHORT;
+    
+    // skip the first frame
+    StackMapFrame frame = ( StackMapFrame) frames.get( 0);
+    
+    for( int i = 1; i < frames.size(); i++) {
+      StackMapFrame cframe = ( StackMapFrame) frames.get( i);
+      
+      int localsSize = frame.locals.size();
+      int stackSize = frame.stack.size();
+
+      int clocalsSize = cframe.locals.size();
+      int cstackSize = cframe.stack.size();
+
+      int delta = cframe.label.getOffset() - frame.label.getOffset() - 1;
+      
+      int type = FULL_FRAME;
+      int k = 0;
+      if( stackSize==cstackSize) {
+        k = clocalsSize-localsSize;
+        switch( k) {
+          case -3:
+          case -2:
+          case -1:
+            type = CHOP_FRAME;  // CHOP or FULL 
+            localsSize = clocalsSize;
+            break;
+          
+          case 0:  
+            type = delta<64 ? SAME_FRAME : SAME_FRAME_EXTENDED;  // SAME, SAME_EXTENDED or FULL
+            break;
+            
+          case 1:
+          case 2:
+          case 3:
+            type = APPEND_FRAME;  // APPEND or FULL
+            break;
+        }
+      } else if( localsSize==clocalsSize && stackSize==cstackSize+1 && delta<63) {
+        type = SAME_LOCALS_1_STACK_ITEM_FRAME;  // SAME_LOCAL_1_STACK or FULL
+      }
+      
+      if( type!=FULL_FRAME) {
+        // verify if stack and locals are the same
+        for( int j = 0; j<localsSize && type!=FULL_FRAME; j++) {
+          if( frame.locals.get( j).equals( cframe.locals.get( j))) type = FULL_FRAME;
+        }
+        for( int j = 0; j<stackSize && type!=FULL_FRAME; j++) {
+          if( frame.stack.get( j).equals( cframe.stack.get( j))) type = FULL_FRAME;
+        }
+      }
+      
+      switch(type) {
+        case SAME_FRAME:
+          bv.putByte( delta);
+          break;
+
+        case SAME_LOCALS_1_STACK_ITEM_FRAME:
+          bv.putByte( SAME_LOCALS_1_STACK_ITEM_FRAME + delta);
+          writeTypeInfos( bv, cw, cframe.stack, stackSize, stackSize+1);  // cstackSize-1
+          break;
+          
+        case SAME_FRAME_EXTENDED:
+          bv.putByte( SAME_FRAME_EXTENDED);
+          writeSize( delta, bv, isExtCodeSize);
+          break;
+
+        case CHOP_FRAME:
+          bv.putByte( SAME_FRAME_EXTENDED + k);  // negative k
+          writeSize( delta, bv, isExtCodeSize);
+          break;
+          
+        case APPEND_FRAME:
+          bv.putByte( SAME_FRAME_EXTENDED + k);  // positive k
+          writeSize( delta, bv, isExtCodeSize);
+          writeTypeInfos( bv, cw, cframe.stack, localsSize-1, clocalsSize);
+          break;
+
+        case FULL_FRAME:
+          bv.putByte( FULL_FRAME);
+          writeSize( delta, bv, isExtCodeSize);
+          writeSize( clocalsSize, bv, isExtLocals);
+          writeTypeInfos( bv, cw, frame.locals, 0, clocalsSize);
+          writeSize( cstackSize, bv, isExtStack);
+          writeTypeInfos( bv, cw, frame.stack, 0, cstackSize);
+          break;
+
+        default:
+          throw new RuntimeException();
+      }
+      frame = cframe;
+    }
+    return bv;
+  }
+
+  private void writeSize( int delta, ByteVector bv, boolean isExt) {
+    if( isExt) {
+      bv.putInt( delta);
+    } else {
+      bv.putShort( delta);
+    }
+  }
+
+  private void writeTypeInfos( ByteVector bv, ClassWriter cw, List info, int start, int end) {
+    for( int j = start; j < end; j++) {
+      StackMapType typeInfo = ( StackMapType) info.get( j);
+      bv.putByte( typeInfo.getType());
+  
+      switch( typeInfo.getType()) {
+        case StackMapType.ITEM_Object: //
+          bv.putShort( cw.newClass( typeInfo.getObject()));
+          break;
+      
+        case StackMapType.ITEM_Uninitialized: //
+          bv.putShort( typeInfo.getLabel().getOffset());
+          break;
+      
+      }
+    }
+  }
+
+  public static int getMethodOff( ClassReader cr, int codeOff, char[] buf) {
+    int off = cr.header + 6;
+    
+    int interfacesCount = cr.readUnsignedShort( off);
+    off += 2 + interfacesCount * 2;
+    
+    int fieldsCount = cr.readUnsignedShort( off);  off += 2;
+    for( ; fieldsCount > 0; --fieldsCount) {
+      int attrCount = cr.readUnsignedShort(off + 6);  // field attributes
+      off += 8;
+      for ( ; attrCount > 0; --attrCount) {
+        off += 6 + cr.readInt( off + 2);
+      }
+    }
+    
+    int methodsCount = cr.readUnsignedShort( off);  off += 2;
+    for ( ; methodsCount > 0; --methodsCount) {
+      int methodOff = off;
+      int attrCount = cr.readUnsignedShort( off + 6);  // method attributes
+      off += 8;
+      for ( ; attrCount > 0; --attrCount) {
+        String attrName = cr.readUTF8( off, buf);
+        off += 6;
+        if (attrName.equals("Code")) {
+          if( codeOff==off) {
+            return methodOff;
+          }
+        }
+        off += cr.readInt( off - 4);
+      }
+    }
+    
+    return -1;
   }
   
   /**

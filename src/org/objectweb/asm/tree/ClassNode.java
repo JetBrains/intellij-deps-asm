@@ -128,12 +128,14 @@ public class ClassNode extends MemberNode implements ClassVisitor {
   /**
    * Informations about the inner classes of this class. This list is a list of
    * {@link InnerClassNode} objects.
+   * @associates org.objectweb.asm.tree.InnerClassNode
    */
 
   public final List innerClasses;
 
   /**
    * The fields of this class. This list is a list of {@link FieldNode} objects.
+   * @associates org.objectweb.asm.tree.FieldNode
    */
 
   public final List fields;
@@ -141,6 +143,7 @@ public class ClassNode extends MemberNode implements ClassVisitor {
   /**
    * The methods of this class. This list is a list of {@link MethodNode}
    * objects.
+   * @associates org.objectweb.asm.tree.MethodNode
    */
 
   public final List methods;

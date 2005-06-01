@@ -97,6 +97,8 @@ public class MethodNode extends MemberNode implements MethodVisitor {
   /**
    * The runtime visible parameter annotations of this method. These lists are
    * lists of {@link AnnotationNode} objects. May be <tt>null</tt>.
+   * @associates org.objectweb.asm.tree.AnnotationNode
+   * @label invisible parameters
    */
   
   public List[] visibleParameterAnnotations;
@@ -104,6 +106,8 @@ public class MethodNode extends MemberNode implements MethodVisitor {
   /**
    * The runtime invisible parameter annotations of this method. These lists are
    * lists of {@link AnnotationNode} objects. May be <tt>null</tt>.
+   * @associates org.objectweb.asm.tree.AnnotationNode
+   * @label visible parameters
    */
   
   public List[] invisibleParameterAnnotations;
@@ -111,6 +115,8 @@ public class MethodNode extends MemberNode implements MethodVisitor {
   /**
    * The instructions of this method. This list is a list of 
    * {@link AbstractInsnNode} objects.
+   * @associates org.objectweb.asm.tree.AbstractInsnNode
+   * @label instructions
    */
 
   public final List instructions;
@@ -118,6 +124,7 @@ public class MethodNode extends MemberNode implements MethodVisitor {
   /**
    * The try catch blocks of this method. This list is a list of 
    * {@link TryCatchBlockNode} objects.
+   * @associates org.objectweb.asm.tree.TryCatchBlockNode
    */
 
   public final List tryCatchBlocks;
@@ -137,6 +144,7 @@ public class MethodNode extends MemberNode implements MethodVisitor {
   /**
    * The local variables of this method. This list is a list of 
    * {@link LocalVariableNode} objects. May be <tt>null</tt>
+   * @associates org.objectweb.asm.tree.LocalVariableNode
    */
 
   public List localVariables;
@@ -144,6 +152,7 @@ public class MethodNode extends MemberNode implements MethodVisitor {
   /**
    * The line numbers of this method. This list is a list of
    * {@link LineNumberNode} objects. May be <tt>null</tt>
+   * @associates org.objectweb.asm.tree.LineNumberNode
    */
 
   public List lineNumbers;
@@ -283,15 +292,15 @@ public class MethodNode extends MemberNode implements MethodVisitor {
     final int min,
     final int max,
     final Label dflt,
-    final Label labels[])
+    final Label[] labels)
   {
     instructions.add(new TableSwitchInsnNode(min, max, dflt, labels));
   }
 
   public void visitLookupSwitchInsn (
     final Label dflt,
-    final int keys[],
-    final Label labels[])
+    final int[] keys,
+    final Label[] labels)
   {
     instructions.add(new LookupSwitchInsnNode(dflt, keys, labels));
   }

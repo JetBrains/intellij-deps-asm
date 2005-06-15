@@ -196,12 +196,7 @@ public class Attribute {
     Attribute attr = this;
     int size = 0;
     while (attr != null) {
-      if (attr.isUnknown()) {
-        if (cw.checkAttributes) {
-          throw new IllegalArgumentException(
-             "Unknown attribute type: " + attr.type);
-        }
-      } else {
+      if (!attr.isUnknown()) {
         cw.newUTF8(attr.type);
         size += attr.write(cw, code, len, maxStack, maxLocals).length + 6;
       }

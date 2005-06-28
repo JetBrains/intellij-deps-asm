@@ -80,6 +80,27 @@ public class StackMapTableSample implements java.io.Serializable {
     }
   }
 
+  public int sameLocals1stackItemFrameExtended() {
+    try {
+      long l10 = 11L;
+      long l11 = 11L;
+      long l12 = 11L;
+      long l13 = 11L;
+      long l14 = 11L;
+      long l15 = 11L;
+      long l16 = 11L;
+      long l17 = 11L;
+      long l18 = 11L;
+      long l19 = 11L;
+      long l20 = 11L;
+      long l21 = 11L;
+      long l22 = 11L;  // offset > 64
+
+    } finally {
+      return 0;
+    }
+  }
+
   public void sameFrameExtended( boolean b) {
     while( true) {
       long l10 = 11L;

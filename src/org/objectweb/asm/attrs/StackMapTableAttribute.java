@@ -388,6 +388,11 @@ public class StackMapTableAttribute extends Attribute {
    */
   public static final int RESERVED = 128;
   /**
+   * Frame has exactly the same locals as the previous stack map frame and 
+   * number of stack items is 1. Offset is bigger then 63;
+   */
+  public static final int SAME_LOCALS_1_STACK_ITEM_FRAME_EXTENDED = 247;  
+  /**
    * Frame where current locals are the same as the locals in the previous
    * frame, except that the k last locals are absent. 
    * The value of k is given by the formula 251-frame_type.
@@ -469,6 +474,7 @@ public class StackMapTableAttribute extends Attribute {
             cr.readUTF8( methodOff + 4, buf)),  // method desc
         Collections.EMPTY_LIST); 
     frames.add( frame);
+    System.err.println( offset +" delta:" + 0 +" : "+ frame);
     
     int size;
     if (isExtCodeSize) {
@@ -509,7 +515,14 @@ public class StackMapTableAttribute extends Attribute {
           offsetDelta = cr.readUnsignedShort( off);  off += 2;
         }
 
-        if( tag>=CHOP_FRAME && tag<SAME_FRAME_EXTENDED) {
+        if( tag==SAME_LOCALS_1_STACK_ITEM_FRAME_EXTENDED) {
+          frameType = SAME_LOCALS_1_STACK_ITEM_FRAME_EXTENDED;
+          locals = new ArrayList( frame.locals);
+          stack = new ArrayList();
+          // read verification_type_info stack[1];
+          off = readType( stack, isExtCodeSize, cr, off, labels, buf);
+
+        } else if( tag>=CHOP_FRAME && tag<SAME_FRAME_EXTENDED) {
           frameType = CHOP_FRAME;
           stack = Collections.EMPTY_LIST;
 
@@ -551,10 +564,11 @@ public class StackMapTableAttribute extends Attribute {
 
       offset += offsetDelta; 
       
-      // System.err.println( offset +" : " + offsetDelta + " : "+  frameType+" : "+ frame);
+      Label offsetLabel = getLabel( offset, labels);
       
-      frame = new StackMapFrame( getLabel( offset, labels), locals, stack);
+      frame = new StackMapFrame( offsetLabel, locals, stack);
       frames.add( frame);
+      System.err.println( offset +" label:" +offsetLabel+" delta:" + offsetDelta + " frameType:"+  frameType+" : "+ frame);
       
       offset++;
     }
@@ -610,8 +624,8 @@ public class StackMapTableAttribute extends Attribute {
             type = APPEND_FRAME;  // APPEND or FULL
             break;
         }
-      } else if( localsSize==clocalsSize && stackSize==cstackSize+1 && delta<63) {
-        type = SAME_LOCALS_1_STACK_ITEM_FRAME;  // SAME_LOCAL_1_STACK or FULL
+      } else if( localsSize==clocalsSize && stackSize==cstackSize+1) {
+        type = delta<63 ? SAME_LOCALS_1_STACK_ITEM_FRAME : SAME_LOCALS_1_STACK_ITEM_FRAME_EXTENDED;  // SAME_LOCAL_1_STACK or FULL
       }
       
       if( type!=FULL_FRAME) {
@@ -634,6 +648,12 @@ public class StackMapTableAttribute extends Attribute {
           writeTypeInfos( bv, cw, cframe.stack, stackSize, stackSize+1);  // cstackSize-1
           break;
           
+        case SAME_LOCALS_1_STACK_ITEM_FRAME_EXTENDED:
+          bv.putByte( SAME_LOCALS_1_STACK_ITEM_FRAME_EXTENDED);
+          writeSize( delta, bv, isExtCodeSize);
+          writeTypeInfos( bv, cw, cframe.stack, stackSize, stackSize+1);  // cstackSize-1
+          break;
+
         case SAME_FRAME_EXTENDED:
           bv.putByte( SAME_FRAME_EXTENDED);
           writeSize( delta, bv, isExtCodeSize);

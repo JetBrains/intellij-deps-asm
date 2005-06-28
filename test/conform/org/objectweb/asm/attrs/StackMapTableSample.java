@@ -48,7 +48,7 @@ public class StackMapTableSample implements java.io.Serializable {
   static {
     MAP = new HashMap();
     for( int k = 0; k<10; k++) {
-      MAP.put( k<5 ? "A"+k : "B"+k, k);
+      MAP.put( k<5 ? "A"+k : "B"+k, new Integer(k));
     }
   }
 
@@ -59,7 +59,7 @@ public class StackMapTableSample implements java.io.Serializable {
   public StackMapTableSample( String s) {
     map = new HashMap();
     for( int k = 0; k<10; k++) {
-      map.put( k<5 ? "A"+k : "B"+k, k);
+      map.put( k<5 ? "A"+k : "B"+k, new Integer(k));
     }
   }
 

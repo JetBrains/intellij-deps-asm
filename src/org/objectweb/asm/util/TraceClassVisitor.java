@@ -147,7 +147,9 @@ public class TraceClassVisitor extends TraceAbstractVisitor
       System.exit(-1);
     }
     ClassReader cr;
-    if (args[i].endsWith(".class")) {
+    if (args[i].endsWith(".class") || 
+        args[ i].indexOf( '\\')>-1 || 
+        args[ i].indexOf( '/')>-1) {
       cr = new ClassReader(new FileInputStream(args[i]));
     } else {
       cr = new ClassReader(args[i]);

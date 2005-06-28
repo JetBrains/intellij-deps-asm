@@ -456,6 +456,7 @@ public class StackMapTableAttribute extends Attribute {
   
   protected Attribute read( ClassReader cr, int off, int len, char[] buf, 
       int codeOff, Label[] labels) {
+    
     ArrayList frames = new ArrayList();
     
     // note that this is not the size of Code attribute
@@ -474,6 +475,7 @@ public class StackMapTableAttribute extends Attribute {
             cr.readUTF8( methodOff + 4, buf)),  // method desc
         Collections.EMPTY_LIST); 
     frames.add( frame);
+    
     System.err.println( offset +" delta:" + 0 +" : "+ frame);
     
     int size;
@@ -568,7 +570,7 @@ public class StackMapTableAttribute extends Attribute {
       
       frame = new StackMapFrame( offsetLabel, locals, stack);
       frames.add( frame);
-      System.err.println( offset +" label:" +offsetLabel+" delta:" + offsetDelta + " frameType:"+  frameType+" : "+ frame);
+      System.err.println( offset +" delta:" + offsetDelta + " frameType:"+  frameType+" : "+ frame);
       
       offset++;
     }
@@ -579,7 +581,7 @@ public class StackMapTableAttribute extends Attribute {
   protected ByteVector write( ClassWriter cw, byte[] code, int len, int maxStack, int maxLocals) {
     ByteVector bv = new ByteVector();
     boolean isExtCodeSize = code != null && code.length > MAX_SHORT;    // TODO verify this value
-    writeSize(frames.size(), bv, isExtCodeSize);
+    writeSize(frames.size()-1, bv, isExtCodeSize);
 
     if( frames.size()<2) {
       return bv;
@@ -611,7 +613,7 @@ public class StackMapTableAttribute extends Attribute {
           case -2:
           case -1:
             type = CHOP_FRAME;  // CHOP or FULL 
-            localsSize = clocalsSize;
+            localsSize = clocalsSize;  // adjust for full_frame check
             break;
           
           case 0:  
@@ -624,17 +626,17 @@ public class StackMapTableAttribute extends Attribute {
             type = APPEND_FRAME;  // APPEND or FULL
             break;
         }
-      } else if( localsSize==clocalsSize && stackSize==cstackSize+1) {
+      } else if( localsSize==clocalsSize && stackSize+1==cstackSize) {
         type = delta<63 ? SAME_LOCALS_1_STACK_ITEM_FRAME : SAME_LOCALS_1_STACK_ITEM_FRAME_EXTENDED;  // SAME_LOCAL_1_STACK or FULL
       }
       
       if( type!=FULL_FRAME) {
         // verify if stack and locals are the same
         for( int j = 0; j<localsSize && type!=FULL_FRAME; j++) {
-          if( frame.locals.get( j).equals( cframe.locals.get( j))) type = FULL_FRAME;
+          if( !frame.locals.get( j).equals( cframe.locals.get( j))) type = FULL_FRAME;
         }
         for( int j = 0; j<stackSize && type!=FULL_FRAME; j++) {
-          if( frame.stack.get( j).equals( cframe.stack.get( j))) type = FULL_FRAME;
+          if( !frame.stack.get( j).equals( cframe.stack.get( j))) type = FULL_FRAME;
         }
       }
       
@@ -667,16 +669,16 @@ public class StackMapTableAttribute extends Attribute {
         case APPEND_FRAME:
           bv.putByte( SAME_FRAME_EXTENDED + k);  // positive k
           writeSize( delta, bv, isExtCodeSize);
-          writeTypeInfos( bv, cw, cframe.stack, localsSize-1, clocalsSize);
+          writeTypeInfos( bv, cw, cframe.locals, clocalsSize-1, clocalsSize);
           break;
 
         case FULL_FRAME:
           bv.putByte( FULL_FRAME);
           writeSize( delta, bv, isExtCodeSize);
           writeSize( clocalsSize, bv, isExtLocals);
-          writeTypeInfos( bv, cw, frame.locals, 0, clocalsSize);
+          writeTypeInfos( bv, cw, cframe.locals, 0, clocalsSize);
           writeSize( cstackSize, bv, isExtStack);
-          writeTypeInfos( bv, cw, frame.stack, 0, cstackSize);
+          writeTypeInfos( bv, cw, cframe.stack, 0, cstackSize);
           break;
 
         default:

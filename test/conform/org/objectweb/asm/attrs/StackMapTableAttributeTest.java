@@ -30,10 +30,18 @@
 
 package org.objectweb.asm.attrs;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.util.Arrays;
+
 import org.objectweb.asm.AbstractTest;
 import org.objectweb.asm.Attribute;
 import org.objectweb.asm.ClassReader;
+import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.ClassWriter;
+import org.objectweb.asm.Label;
+import org.objectweb.asm.util.TraceClassVisitor;
+import org.objectweb.asm.util.TraceMethodVisitor;
 
 
 /**
@@ -51,14 +59,65 @@ public class StackMapTableAttributeTest extends AbstractTest {
   }
   
   public void test() throws Exception {
-    ClassReader cr1 = new ClassReader( is);
+    Attribute[] attributes = new Attribute[] { new StubStackMapTableAttribute()};
     
     ClassWriter cw = new ClassWriter( false);
+
+//    TraceClassVisitor tv = new TraceClassVisitor( cw, new PrintWriter( System.err)) {
+//        protected TraceMethodVisitor createTraceMethodVisitor() {
+//          return new TraceMethodVisitor() {
+//              protected void appendLabel( Label l) {
+//                super.appendLabel(l);
+//                buf.append( " "+System.identityHashCode( l));
+//              }
+//            };
+//        }
+//      };
+    
+    ClassReader cr1 = new ClassReader( is);
     cr1.accept( cw, new Attribute[] { new StackMapTableAttribute()}, false);
     
     ClassReader cr2 = new ClassReader( cw.toByteArray());
-    assertEquals(cr1, cr2);
+    
+    if(!Arrays.equals(cr1.b, cr2.b)) {          
+      StringWriter sw1 = new StringWriter();
+      StringWriter sw2 = new StringWriter();
+      ClassVisitor cv1 = new TraceClassVisitor(new PrintWriter(sw1));
+      ClassVisitor cv2 = new TraceClassVisitor(new PrintWriter(sw2));
+      cr1.accept( cv1, attributes, false);
+      cr2.accept( cv2, attributes, false);
+      assertEquals("different data", sw1.toString(), sw2.toString());
+    }
+    
   }
-  
+
+
+  private static final class StubStackMapTableAttribute extends Attribute { 
+    private static String s = "0123456789ABCDEF";
+    private String data;
+    
+    public StubStackMapTableAttribute() {
+      super( "StackMapTable");
+    }
+    
+    protected Attribute read( ClassReader cr, int off, int len, char[] buf, int codeOff, Label[] labels) {
+      StringBuffer sb = new StringBuffer();
+      for( int i = 0; i < len; i++) {
+        int b = cr.readByte( off + i);
+        sb.append( s.charAt( b >> 4))
+          .append( s.charAt( b & 0xF))
+          .append( " ");
+      }
+      StubStackMapTableAttribute att = new StubStackMapTableAttribute();
+      att.data = sb.toString();
+      return att;
+    }
+    
+    public String toString() {
+      return data;
+    }
+    
+  }  
+
 }
 

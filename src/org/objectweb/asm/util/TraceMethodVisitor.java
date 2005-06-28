@@ -31,6 +31,7 @@
 package org.objectweb.asm.util;
 
 import org.objectweb.asm.AnnotationVisitor;
+import org.objectweb.asm.Attribute;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.Type;
@@ -103,7 +104,26 @@ public class TraceMethodVisitor extends TraceAbstractVisitor
   // --------------------------------------------------------------------------
   // Implementation of the MethodVisitor interface
   // --------------------------------------------------------------------------
+  
+  public AnnotationVisitor visitAnnotation (
+      final String desc, 
+      final boolean visible) 
+  {
+    AnnotationVisitor av = super.visitAnnotation(desc, visible);
+    if (mv != null) {
+      ((TraceAnnotationVisitor)av).av = mv.visitAnnotation(desc, visible);
+    }
+    return av;
+  }
 
+  public void visitAttribute (final Attribute attr) {
+    super.visitAttribute(attr);
+    
+    if (mv != null) {
+      mv.visitAttribute(attr);
+    }
+  }
+  
   public AnnotationVisitor visitAnnotationDefault () {
     text.add(tab2 + "default=");
     TraceAnnotationVisitor tav = new TraceAnnotationVisitor();
@@ -436,6 +456,14 @@ public class TraceMethodVisitor extends TraceAbstractVisitor
     }
   }
 
+  public void visitEnd () {
+    super.visitEnd();
+    
+    if (mv != null) {
+      mv.visitEnd();
+    }
+  }
+  
   // --------------------------------------------------------------------------
   // Utility methods
   // --------------------------------------------------------------------------

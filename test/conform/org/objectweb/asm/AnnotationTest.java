@@ -30,7 +30,11 @@
 
 package org.objectweb.asm;
 
+import java.io.InputStream;
 import java.lang.annotation.Annotation;
+
+import org.objectweb.asm.ClassReader;
+import org.objectweb.asm.tree.ClassNode;
 
 import annotations.ValueAttrAnnotation;
 import annotations.Values;
@@ -186,6 +190,16 @@ public class AnnotationTest extends TestCase {
     assertEquals(Values.class.getName(), c[0].getName());
     assertEquals(Values.class.getName(), c[1].getName());
   }
+
+  
+  // issue 303711
+  public void testMethodNode() throws Exception {
+    InputStream is = getClass().getResourceAsStream( "/"+ annotations.Values.class.getName().replace('.', '/')+".class");
+    ClassReader cr = new ClassReader( is);
+    ClassNode cn = new ClassNode();
+    cr.accept(cn, false);
+  }
+  
 
   private static final class TestClassLoader extends ClassLoader {
 

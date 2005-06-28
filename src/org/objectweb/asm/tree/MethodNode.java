@@ -215,7 +215,7 @@ public class MethodNode extends MemberNode implements MethodVisitor {
     AnnotationNode an = new AnnotationNode(desc);
     if (visible) {
       if (visibleParameterAnnotations == null) {
-        int params = Type.getArgumentTypes(desc).length;
+        int params = Type.getArgumentTypes(this.desc).length;
         visibleParameterAnnotations = new List[params];
       }
       if (visibleParameterAnnotations[parameter] == null) {
@@ -224,7 +224,7 @@ public class MethodNode extends MemberNode implements MethodVisitor {
       visibleParameterAnnotations[parameter].add(an);
     } else {
       if (invisibleParameterAnnotations == null) {
-        int params = Type.getArgumentTypes(desc).length;
+        int params = Type.getArgumentTypes(this.desc).length;
         invisibleParameterAnnotations = new List[params];
       }
       if (invisibleParameterAnnotations[parameter] == null) {

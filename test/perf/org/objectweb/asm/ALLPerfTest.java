@@ -44,6 +44,7 @@ import java.util.zip.ZipOutputStream;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.commons.EmptyVisitor;
+import org.objectweb.asm.tree.ClassNode;
 
 /**
  * @author Eric Bruneton
@@ -102,6 +103,30 @@ public abstract class ALLPerfTest extends ClassLoader  {
       }
       t = System.currentTimeMillis() - t;
       System.out.println("Time to deserialize and reserialize " + classes.size() + " classes = " + t + " ms");
+    }
+
+    for (int i = 0; i < 10; ++i) {
+      long t = System.currentTimeMillis();
+      for (int j = 0; j < classes.size(); ++j) {
+        byte[] b = (byte[])classes.get(j);
+        new ClassReader(b).accept(new ClassNode(), false);
+      }
+      t = System.currentTimeMillis() - t;
+      System.out.println("Time to deserialize " + classes.size() + " classes with tree package = " + t + " ms");
+    }
+
+    for (int i = 0; i < 10; ++i) {
+      long t = System.currentTimeMillis();
+      for (int j = 0; j < classes.size(); ++j) {
+        byte[] b = (byte[])classes.get(j);
+        ClassWriter cw = new ClassWriter(false);
+        ClassNode cn = new ClassNode();
+        new ClassReader(b).accept(cn, false);
+        cn.accept(cw);
+        cw.toByteArray();
+      }
+      t = System.currentTimeMillis() - t;
+      System.out.println("Time to deserialize and reserialize " + classes.size() + " classes with tree package = " + t + " ms");
     }
 
     classes = null;

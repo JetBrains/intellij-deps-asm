@@ -69,44 +69,45 @@ public class ASMStackMapTableAttribute extends StackMapTableAttribute
 
   public void asmify (StringBuffer buf, String varName, Map labelNames) {
     List frames = getFrames();
-    buf.append("{\n");
-    buf.append("org.objectweb.asm.attrs.StackMapTableAttribute ").append(varName).append("Attr");
-    buf.append(" = new org.objectweb.asm.attrs.StackMapTableAttribute();\n");
-    if (frames.size() > 0) {
+    if (frames.size() == 0) {
+      buf.append("java.util.List frames = java.util.Collections.EMPTY_LIST;\n");
+    } else {
+      buf.append("java.util.List frames = new java.util.ArrayList();\n");
       for (int i = 0; i < frames.size(); i++) {
+        buf.append("{\n");
         asmify((StackMapFrame)frames.get(i), buf, varName + "frame" + i, labelNames);
+        buf.append("frames.add(").append(varName+"frame"+i).append(");\n");
+        buf.append("}\n");
       }
     }
-    buf.append(varName).append(".visitAttribute(").append(varName);
-    buf.append("Attr);\n}\n");
+    buf.append("org.objectweb.asm.attrs.StackMapTableAttribute ").append(varName);
+    buf.append(" = new org.objectweb.asm.attrs.StackMapTableAttribute(frames);\n");
   }
 
   void asmify (StackMapFrame f, StringBuffer buf, String varName, Map labelNames) {
     declareLabel(buf, labelNames, f.label);
-    buf.append("{\n");
     
-    buf.append("org.objectweb.asm.attrs.StackMapFrame ").append(varName).append( " = new org.objectweb.asm.attrs.StackMapFrame();\n");
-    
-    buf.append(varName).append(".label = ")
-      .append(labelNames.get(f.label)).append(";\n");
-
     asmifyTypeInfo(buf, varName, labelNames, f.locals, "locals");
     asmifyTypeInfo(buf, varName, labelNames, f.stack, "stack");
 
-    buf.append( "cvAttr.frames.add(").append(varName).append(");\n");
-    buf.append("}\n");
+    buf.append("org.objectweb.asm.attrs.StackMapFrame ").append(varName)
+      .append( " = new org.objectweb.asm.attrs.StackMapFrame(")
+      .append( labelNames.get(f.label)).append( ", locals, stack);\n");
   }
 
   void asmifyTypeInfo (StringBuffer buf, String varName, 
                      Map labelNames, List infos, String field) {
-    if (infos.size() > 0) {
+    if (infos.size()==0) {
+      buf.append( "java.util.List ").append( field).append( " = java.util.Collections.EMPTY_LIST;\n");
+    } else {
+      buf.append( "java.util.List ").append( field).append( " = new java.util.ArrayList();\n");
       buf.append("{\n");
       for (int i = 0; i < infos.size(); i++) {
         StackMapType typeInfo = (StackMapType)infos.get(i);
         String localName = varName + "Info" + i;
         int type = typeInfo.getType();
         buf.append("org.objectweb.asm.attrs.StackMapType ").append(localName)
-          .append(" = org.objectweb.asm.attrs.StackMapType.getTypeInfo( StackMapType.ITEM_")
+          .append(" = org.objectweb.asm.attrs.StackMapType.getTypeInfo( org.objectweb.asm.attrs.StackMapType.ITEM_")
           .append(StackMapType.ITEM_NAMES[type]).append(");\n");
 
         switch (type) {
@@ -121,8 +122,7 @@ public class ASMStackMapTableAttribute extends StackMapTableAttribute
               .append(labelNames.get(typeInfo.getLabel())).append(");\n");
             break;
         }
-        buf.append(varName).append(".").append(field)
-          .append(".add(").append(localName).append(");\n");
+        buf.append(field).append(".add(").append(localName).append(");\n");
       }
       buf.append("}\n");
     }

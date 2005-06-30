@@ -134,6 +134,7 @@
     <copy todir="${out.test}">
   	  <fileset dir="${test.conform}">
         <include name="**/*.txt"/>
+        <include name="**/*.data"/>
       </fileset>
     </copy>
   </target>

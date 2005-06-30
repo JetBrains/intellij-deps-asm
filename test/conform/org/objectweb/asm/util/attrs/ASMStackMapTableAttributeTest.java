@@ -28,91 +28,59 @@
  * THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.objectweb.asm.util;
+package org.objectweb.asm.util.attrs;
 
+import java.io.InputStream;
 import java.io.PrintWriter;
-import java.io.StringReader;
 import java.io.StringWriter;
 import java.lang.reflect.Method;
-import java.net.URL;
-import java.net.URLClassLoader;
-
-import junit.framework.TestSuite;
-
-import org.codehaus.janino.ClassLoaderIClassLoader;
-import org.codehaus.janino.DebuggingInformation;
-import org.codehaus.janino.IClassLoader;
-import org.codehaus.janino.Parser;
-import org.codehaus.janino.Scanner;
-import org.codehaus.janino.UnitCompiler;
 
 import org.objectweb.asm.AbstractTest;
 import org.objectweb.asm.ClassReader;
+import org.objectweb.asm.attrs.StackMapTableAttributeTest;
 import org.objectweb.asm.util.ASMifierClassVisitor;
+import org.objectweb.asm.util.ASMifierTest;
+import org.objectweb.asm.util.AbstractVisitor;
+
 
 /**
- * ASMifier tests.
- * 
+ * StackMapTableAttributeTest
+ *
  * @author Eugene Kuleshov
- * @author Eric Bruneton
  */
+public class ASMStackMapTableAttributeTest extends AbstractTest {
 
-public class ASMifierTest extends AbstractTest {
-  
-  public static final Compiler COMPILER = new Compiler();
-  
-  public static final TestClassLoader LOADER = new TestClassLoader();
-
-  public static TestSuite suite () throws Exception {
-    return new ASMifierTest().getSuite();
+  public ASMStackMapTableAttributeTest() {
+    super();
   }
-
-  public void test () throws Exception {
-    ClassReader cr = new ClassReader(is);
-    
-    if (cr.b.length > 20000) {
-      return;
-    }
+  
+  public void test() throws Exception {
+    String n = "org.objectweb.asm.attrs.StackMapTableSample";
+    InputStream is = StackMapTableAttributeTest.class.getResourceAsStream( StackMapTableAttributeTest.TEST_CLASS);
+    ClassReader cr = new ClassReader( is);
     
     StringWriter sw = new StringWriter();
     ASMifierClassVisitor cv = new ASMifierClassVisitor(new PrintWriter(sw));
-    cr.accept(cv, false);
+    cr.accept(cv, AbstractVisitor.getDefaultAttributes(), false);
 
     String generated = sw.toString();
     
     byte[] generatorClassData;
     try {
-      generatorClassData = COMPILER.compile( n, generated);
+      generatorClassData = ASMifierTest.COMPILER.compile( n, generated);
+      System.err.println( generated);
     } catch( Exception ex) {
       System.err.println( generated);
       System.err.println( "------------------");
       throw ex;
     }
     
-    Class c = LOADER.defineClass("asm." + n + "Dump", generatorClassData);
+    Class c = ASMifierTest.LOADER.defineClass("asm." + n + "Dump", generatorClassData);
     Method m = c.getMethod("dump", new Class[0]);
     byte[] b = (byte[])m.invoke(null, new Object[ 0]);
     
     assertEquals(cr, new ClassReader(b));
   }
   
-  public static class TestClassLoader extends ClassLoader {
-    
-    public Class defineClass (final String name, final byte[] b) {
-      return defineClass(name, b, 0, b.length);
-    }
-  }
-  
-  public static class Compiler  {
-    
-    final static IClassLoader CL = 
-      new ClassLoaderIClassLoader(new URLClassLoader(new URL[0]));
-
-    public byte[] compile(String name, String source) throws Exception {
-      Parser p = new Parser(new Scanner(name, new StringReader(source)));
-      UnitCompiler uc = new UnitCompiler( p.parseCompilationUnit(), CL);
-      return uc.compileUnit( DebuggingInformation.ALL)[ 0].toByteArray();
-    }
-  }
 }
 

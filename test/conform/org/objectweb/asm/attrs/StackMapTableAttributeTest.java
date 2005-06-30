@@ -51,7 +51,7 @@ import org.objectweb.asm.util.TraceMethodVisitor;
  */
 public class StackMapTableAttributeTest extends AbstractTest {
 
-  private static final String TEST_CLASS = "StackMapTableSample.data";
+  public static final String TEST_CLASS = "StackMapTableSample.data";
 
   public StackMapTableAttributeTest() {
     super();
@@ -59,23 +59,24 @@ public class StackMapTableAttributeTest extends AbstractTest {
   }
   
   public void test() throws Exception {
-    Attribute[] attributes = new Attribute[] { new StubStackMapTableAttribute()};
+    Attribute[] tattributes = new Attribute[] { new StubStackMapTableAttribute()};
+    Attribute[] attributes = new Attribute[] { new StackMapTableAttribute()};
     
     ClassWriter cw = new ClassWriter( false);
 
-//    TraceClassVisitor tv = new TraceClassVisitor( cw, new PrintWriter( System.err)) {
-//        protected TraceMethodVisitor createTraceMethodVisitor() {
-//          return new TraceMethodVisitor() {
-//              protected void appendLabel( Label l) {
-//                super.appendLabel(l);
-//                buf.append( " "+System.identityHashCode( l));
-//              }
-//            };
-//        }
-//      };
+    TraceClassVisitor tv = new TraceClassVisitor( cw, new PrintWriter( System.err)) {
+        protected TraceMethodVisitor createTraceMethodVisitor() {
+          return new TraceMethodVisitor() {
+              protected void appendLabel( Label l) {
+                super.appendLabel(l);
+                buf.append( " "+System.identityHashCode( l));
+              }
+            };
+        }
+      };
     
     ClassReader cr1 = new ClassReader( is);
-    cr1.accept( cw, new Attribute[] { new StackMapTableAttribute()}, false);
+    cr1.accept( tv, attributes, false);
     
     ClassReader cr2 = new ClassReader( cw.toByteArray());
     

@@ -391,7 +391,7 @@ public class StackMapTableAttribute extends Attribute {
    * Frame has exactly the same locals as the previous stack map frame and 
    * number of stack items is 1. Offset is bigger then 63;
    */
-  public static final int SAME_LOCALS_1_STACK_ITEM_FRAME_EXTENDED = 247;  
+  public static final int SAME_LOCALS_1_STACK_ITEM_FRAME_EXTENDED = 247;  // f7 
   /**
    * Frame where current locals are the same as the locals in the previous
    * frame, except that the k last locals are absent. 
@@ -476,7 +476,8 @@ public class StackMapTableAttribute extends Attribute {
         Collections.EMPTY_LIST); 
     frames.add( frame);
     
-    System.err.println( offset +" delta:" + 0 +" : "+ frame);
+    // System.err.println( cr.readUTF8( methodOff + 2, buf));
+    // System.err.println( offset +" delta:" + 0 +" : "+ frame);
     
     int size;
     if (isExtCodeSize) {
@@ -570,7 +571,7 @@ public class StackMapTableAttribute extends Attribute {
       
       frame = new StackMapFrame( offsetLabel, locals, stack);
       frames.add( frame);
-      System.err.println( offset +" delta:" + offsetDelta + " frameType:"+  frameType+" : "+ frame);
+      // System.err.println( tag +" " + offset +" delta:" + offsetDelta + " frameType:"+  frameType+" : "+ frame);
       
       offset++;
     }
@@ -592,21 +593,28 @@ public class StackMapTableAttribute extends Attribute {
     
     // skip the first frame
     StackMapFrame frame = ( StackMapFrame) frames.get( 0);
-    
+    List locals = frame.locals;
+    List stack = frame.stack;
+    int offset = frame.label.getOffset();
+
     for( int i = 1; i < frames.size(); i++) {
-      StackMapFrame cframe = ( StackMapFrame) frames.get( i);
+      frame = ( StackMapFrame) frames.get( i);
       
-      int localsSize = frame.locals.size();
-      int stackSize = frame.stack.size();
+      List clocals = frame.locals;
+      List cstack = frame.stack;
+      int coffset = frame.label.getOffset();
 
-      int clocalsSize = cframe.locals.size();
-      int cstackSize = cframe.stack.size();
+      int clocalsSize = clocals.size();
+      int cstackSize = cstack.size();
 
-      int delta = cframe.label.getOffset() - frame.label.getOffset() - 1;
+      int localsSize = locals.size();
+      int stackSize = stack.size();
+      
+      int delta = coffset - offset;
       
       int type = FULL_FRAME;
       int k = 0;
-      if( stackSize==cstackSize) {
+      if( cstackSize==0) {
         k = clocalsSize-localsSize;
         switch( k) {
           case -3:
@@ -626,17 +634,14 @@ public class StackMapTableAttribute extends Attribute {
             type = APPEND_FRAME;  // APPEND or FULL
             break;
         }
-      } else if( localsSize==clocalsSize && stackSize+1==cstackSize) {
+      } else if( localsSize==clocalsSize && cstackSize==1) {
         type = delta<63 ? SAME_LOCALS_1_STACK_ITEM_FRAME : SAME_LOCALS_1_STACK_ITEM_FRAME_EXTENDED;  // SAME_LOCAL_1_STACK or FULL
       }
       
       if( type!=FULL_FRAME) {
         // verify if stack and locals are the same
         for( int j = 0; j<localsSize && type!=FULL_FRAME; j++) {
-          if( !frame.locals.get( j).equals( cframe.locals.get( j))) type = FULL_FRAME;
-        }
-        for( int j = 0; j<stackSize && type!=FULL_FRAME; j++) {
-          if( !frame.stack.get( j).equals( cframe.stack.get( j))) type = FULL_FRAME;
+          if( !locals.get( j).equals( clocals.get( j))) type = FULL_FRAME;
         }
       }
       
@@ -647,13 +652,13 @@ public class StackMapTableAttribute extends Attribute {
 
         case SAME_LOCALS_1_STACK_ITEM_FRAME:
           bv.putByte( SAME_LOCALS_1_STACK_ITEM_FRAME + delta);
-          writeTypeInfos( bv, cw, cframe.stack, stackSize, stackSize+1);  // cstackSize-1
+          writeTypeInfos( bv, cw, cstack, stackSize, stackSize+1);  // cstackSize-1
           break;
           
         case SAME_LOCALS_1_STACK_ITEM_FRAME_EXTENDED:
           bv.putByte( SAME_LOCALS_1_STACK_ITEM_FRAME_EXTENDED);
           writeSize( delta, bv, isExtCodeSize);
-          writeTypeInfos( bv, cw, cframe.stack, stackSize, stackSize+1);  // cstackSize-1
+          writeTypeInfos( bv, cw, cstack, stackSize, stackSize+1);  // cstackSize-1
           break;
 
         case SAME_FRAME_EXTENDED:
@@ -669,22 +674,24 @@ public class StackMapTableAttribute extends Attribute {
         case APPEND_FRAME:
           bv.putByte( SAME_FRAME_EXTENDED + k);  // positive k
           writeSize( delta, bv, isExtCodeSize);
-          writeTypeInfos( bv, cw, cframe.locals, clocalsSize-1, clocalsSize);
+          writeTypeInfos( bv, cw, clocals, clocalsSize-1, clocalsSize);
           break;
 
         case FULL_FRAME:
           bv.putByte( FULL_FRAME);
           writeSize( delta, bv, isExtCodeSize);
           writeSize( clocalsSize, bv, isExtLocals);
-          writeTypeInfos( bv, cw, cframe.locals, 0, clocalsSize);
+          writeTypeInfos( bv, cw, clocals, 0, clocalsSize);
           writeSize( cstackSize, bv, isExtStack);
-          writeTypeInfos( bv, cw, cframe.stack, 0, cstackSize);
+          writeTypeInfos( bv, cw, cstack, 0, cstackSize);
           break;
 
         default:
           throw new RuntimeException();
       }
-      frame = cframe;
+      offset = coffset + 1;  // compensating non first offset
+      locals = clocals;
+      stack = cstack;
     }
     return bv;
   }

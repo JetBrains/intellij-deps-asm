@@ -216,7 +216,9 @@ public class ASMifierClassVisitor extends ASMifierAbstractVisitor
     } else {
       simpleName = name;
     }
+    text.add("import java.util.*;\n");
     text.add("import org.objectweb.asm.*;\n");
+    text.add("import org.objectweb.asm.attrs.*;\n");
     text.add("public class " + simpleName + "Dump implements Opcodes {\n\n");
     text.add("public static byte[] dump () throws Exception {\n\n");
     text.add("ClassWriter cw = new ClassWriter(false);\n");
@@ -241,6 +243,9 @@ public class ASMifierClassVisitor extends ASMifierAbstractVisitor
         break;
       case Opcodes.V1_5:
         buf.append("V1_5");
+        break;
+      case Opcodes.V1_6:
+        buf.append("V1_6");
         break;
       default:
         buf.append(version);

@@ -36,6 +36,7 @@ import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.signature.SignatureReader;
+import org.objectweb.asm.util.attrs.Traceable;
 
 import java.util.HashMap;
 
@@ -117,12 +118,22 @@ public class TraceMethodVisitor extends TraceAbstractVisitor
   }
 
   public void visitAttribute (final Attribute attr) {
-    super.visitAttribute(attr);
+    buf.setLength(0);
+    buf.append(tab).append("ATTRIBUTE ");
+    appendDescriptor(FIELD_DESCRIPTOR, attr.type);
     
-    if (mv != null) {
-      mv.visitAttribute(attr);
+    if( attr instanceof Traceable) {
+      ((Traceable)attr).trace(buf, labelNames);
+    } else {
+      buf.append(" : ").append(attr.toString()).append("\n");
+    }
+    
+    text.add(buf.toString());
+    if( mv != null) {
+      mv.visitAttribute( attr);
     }
   }
+  
   
   public AnnotationVisitor visitAnnotationDefault () {
     text.add(tab2 + "default=");

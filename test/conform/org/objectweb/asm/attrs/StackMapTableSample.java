@@ -80,6 +80,15 @@ public class StackMapTableSample implements java.io.Serializable {
     }
   }
 
+  public void sameLocals1stackItemFrame2() {
+    Object a;
+    try {
+      a = new Object();
+    } catch( Exception e) {
+    } finally {
+    }
+  }
+
   public int sameLocals1stackItemFrameExtended() {
     try {
       long l10 = 11L;

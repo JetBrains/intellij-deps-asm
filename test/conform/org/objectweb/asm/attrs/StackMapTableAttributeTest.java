@@ -42,6 +42,8 @@ import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.util.TraceClassVisitor;
 import org.objectweb.asm.util.TraceMethodVisitor;
+import org.objectweb.asm.util.attrs.ASMStackMapAttribute;
+import org.objectweb.asm.util.attrs.ASMStackMapTableAttribute;
 
 
 /**
@@ -60,23 +62,24 @@ public class StackMapTableAttributeTest extends AbstractTest {
   
   public void test() throws Exception {
     Attribute[] tattributes = new Attribute[] { new StubStackMapTableAttribute()};
-    Attribute[] attributes = new Attribute[] { new StackMapTableAttribute()};
+    Attribute[] attributes = new Attribute[] { new ASMStackMapTableAttribute()};
     
     ClassWriter cw = new ClassWriter( false);
 
-    TraceClassVisitor tv = new TraceClassVisitor( cw, new PrintWriter( System.err)) {
-        protected TraceMethodVisitor createTraceMethodVisitor() {
-          return new TraceMethodVisitor() {
-              protected void appendLabel( Label l) {
-                super.appendLabel(l);
-                buf.append( " "+System.identityHashCode( l));
-              }
-            };
-        }
-      };
+//    TraceClassVisitor tv = new TraceClassVisitor( cw, new PrintWriter( System.err));
+//    TraceClassVisitor tv = new TraceClassVisitor( cw, new PrintWriter( System.err)) {
+//        protected TraceMethodVisitor createTraceMethodVisitor() {
+//          return new TraceMethodVisitor() {
+//              protected void appendLabel( Label l) {
+//                super.appendLabel(l);
+//                buf.append( " "+System.identityHashCode( l));
+//              }
+//            };
+//        }
+//      };
     
     ClassReader cr1 = new ClassReader( is);
-    cr1.accept( tv, attributes, false);
+    cr1.accept( cw, attributes, true);
     
     ClassReader cr2 = new ClassReader( cw.toByteArray());
     
@@ -85,8 +88,8 @@ public class StackMapTableAttributeTest extends AbstractTest {
       StringWriter sw2 = new StringWriter();
       ClassVisitor cv1 = new TraceClassVisitor(new PrintWriter(sw1));
       ClassVisitor cv2 = new TraceClassVisitor(new PrintWriter(sw2));
-      cr1.accept( cv1, attributes, false);
-      cr2.accept( cv2, attributes, false);
+      cr1.accept( cv1, attributes, true);
+      cr2.accept( cv2, attributes, true);
       assertEquals("different data", sw1.toString(), sw2.toString());
     }
     

@@ -652,13 +652,13 @@ public class StackMapTableAttribute extends Attribute {
 
         case SAME_LOCALS_1_STACK_ITEM_FRAME:
           bv.putByte( SAME_LOCALS_1_STACK_ITEM_FRAME + delta);
-          writeTypeInfos( bv, cw, cstack, stackSize, stackSize+1);  // cstackSize-1
+          writeTypeInfos( bv, cw, cstack, 0, 1);
           break;
           
         case SAME_LOCALS_1_STACK_ITEM_FRAME_EXTENDED:
           bv.putByte( SAME_LOCALS_1_STACK_ITEM_FRAME_EXTENDED);
           writeSize( delta, bv, isExtCodeSize);
-          writeTypeInfos( bv, cw, cstack, stackSize, stackSize+1);  // cstackSize-1
+          writeTypeInfos( bv, cw, cstack, 0, 1);
           break;
 
         case SAME_FRAME_EXTENDED:

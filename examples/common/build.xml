@@ -49,10 +49,7 @@
     <pathelement path="${asm.util.path}"/>
     <pathelement path="${asm.commons.path}"/>
     <fileset dir="${basedir}">
-      <include name="lib/**/*.jar"/>
-    </fileset>
-    <fileset dir="${basedir}/..">
-      <include name="lib/**/*.jar"/>
+      <include name="lib/*.jar"/>
     </fileset>
     <pathelement location="${build}"/>
   </path>

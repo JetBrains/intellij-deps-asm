@@ -45,13 +45,4 @@ public interface Value {
    */
   
   int getSize ();
-  
-  /**
-   * Compares this value with the given value.
-   * 
-   * @param value a value.
-   * @return <tt>true</tt> if the values are equals, <tt>false</tt> otherwise.
-   */
-  
-  boolean equals (Object value);
 }

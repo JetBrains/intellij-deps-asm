@@ -113,12 +113,20 @@ public class Method {
    *     types are in plain Java (e.g. "int", "float", "java.util.List", ...).
    * @return a {@link Method} corresponding to the given Java method
    *     declaration.
+   * @throws IllegalArgumentException if <code>method</code> could not get
+   *     parsed.
    */
 
-  public static Method getMethod (final String method) {
+  public static Method getMethod (final String method) 
+    throws IllegalArgumentException 
+  {
     int space = method.indexOf(' ');
     int start = method.indexOf('(', space) + 1;
     int end = method.indexOf(')', start);
+    if (space == -1 || start == -1 || end == -1) {
+      throw new IllegalArgumentException();
+    }
+    // TODO: Check validity of returnType, methodName and arguments.
     String returnType = method.substring(0, space);
     String methodName = method.substring(space + 1, start - 1).trim();
     StringBuffer sb = new StringBuffer();

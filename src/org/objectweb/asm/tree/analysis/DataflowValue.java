@@ -87,4 +87,8 @@ public class DataflowValue implements Value {
     DataflowValue v = (DataflowValue)value;
     return size == v.size && insns.equals(v.insns);
   }
+  
+  public int hashCode () {
+    return insns.hashCode();
+  }
 }

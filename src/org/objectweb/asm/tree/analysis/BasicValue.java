@@ -88,6 +88,10 @@ public class BasicValue implements Value {
     }
   }
 
+  public int hashCode () {
+    return type == null ? 0 : type.hashCode();
+  }
+  
   public String toString () {
     if (this == UNINITIALIZED_VALUE) {
       return ".";

@@ -1214,7 +1214,8 @@ class MethodWriter implements MethodVisitor {
       cw.newUTF8("Exceptions");
       size += 8 + 2 * exceptionCount;
     }
-    if ((access & Opcodes.ACC_SYNTHETIC) != 0) {
+    if ((access & Opcodes.ACC_SYNTHETIC) != 0 && 
+        (cw.version & 0xffff) < Opcodes.V1_5) {
       cw.newUTF8("Synthetic");
       size += 6;
     }
@@ -1284,7 +1285,8 @@ class MethodWriter implements MethodVisitor {
     if (exceptionCount > 0) {
       ++attributeCount;
     }
-    if ((access & Opcodes.ACC_SYNTHETIC) != 0) {
+    if ((access & Opcodes.ACC_SYNTHETIC) != 0 && 
+        (cw.version & 0xffff) < Opcodes.V1_5) {
       ++attributeCount;
     }
     if ((access & Opcodes.ACC_DEPRECATED) != 0) {
@@ -1381,7 +1383,8 @@ class MethodWriter implements MethodVisitor {
         out.putShort(exceptions[i]);
       }
     }
-    if ((access & Opcodes.ACC_SYNTHETIC) != 0) {
+    if ((access & Opcodes.ACC_SYNTHETIC) != 0 && 
+        (cw.version & 0xffff) < Opcodes.V1_5) {
       out.putShort(cw.newUTF8("Synthetic")).putInt(0);
     }
     if ((access & Opcodes.ACC_DEPRECATED) != 0) {

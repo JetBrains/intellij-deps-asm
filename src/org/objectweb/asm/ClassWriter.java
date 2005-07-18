@@ -710,7 +710,8 @@ public class ClassWriter implements ClassVisitor {
       size += 6;
       newUTF8("Deprecated");
     }
-    if ((access & Opcodes.ACC_SYNTHETIC) != 0) {
+    if ((access & Opcodes.ACC_SYNTHETIC) != 0 && 
+        (version & 0xffff) < Opcodes.V1_5) {
       ++attributeCount;
       size += 6;
       newUTF8("Synthetic");
@@ -788,7 +789,8 @@ public class ClassWriter implements ClassVisitor {
     if ((access & Opcodes.ACC_DEPRECATED) != 0) {
       out.putShort(newUTF8("Deprecated")).putInt(0);
     }
-    if ((access & Opcodes.ACC_SYNTHETIC) != 0) {
+    if ((access & Opcodes.ACC_SYNTHETIC) != 0 && 
+        (version & 0xffff) < Opcodes.V1_5) {
       out.putShort(newUTF8("Synthetic")).putInt(0);
     }
     if (version == Opcodes.V1_4) {

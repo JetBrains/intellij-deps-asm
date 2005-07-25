@@ -239,7 +239,7 @@ public class MethodNode extends MemberNode implements MethodVisitor {
   }
   
   public void visitInsn (final int opcode) {
-    instructions.add(InsnNode.getByOpcode(opcode));
+    instructions.add(new InsnNode(opcode));
   }
 
   public void visitIntInsn (final int opcode, final int operand) {

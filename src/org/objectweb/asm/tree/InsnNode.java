@@ -49,6 +49,14 @@ public class InsnNode extends AbstractInsnNode {
     }
   }
   
+  /**
+   * Returns the {@link InsnNode} corresponding to the given opcode.
+   * @deprecated uses the constructor instead.
+   * 
+   * @param opcode an instruction opcode.
+   * @return the {@link InsnNode} corresponding to the given opcode.
+   */
+  
   public final static InsnNode getByOpcode (final int opcode) {
     return INSNS[opcode];
   }
@@ -86,7 +94,7 @@ public class InsnNode extends AbstractInsnNode {
    *      MONITORENTER, or MONITOREXIT.
    */
 
-  private InsnNode (final int opcode) {
+  public InsnNode (final int opcode) {
     super(opcode);
   }
 

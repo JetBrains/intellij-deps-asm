@@ -275,8 +275,11 @@ public class Frame {
         if (value1.getSize() == 2) {
           setLocal(var + 1, interpreter.newValue(null));
         }
-        if (var > 0 && getLocal(var - 1).getSize() == 2) {
-          setLocal(var - 1, interpreter.newValue(null));
+        if (var > 0) {
+            Value local = getLocal(var - 1);
+            if (local != null && local.getSize() == 2) {
+                setLocal(var + 1, interpreter.newValue(null));
+            }
         }
         break;
       case Opcodes.IASTORE:

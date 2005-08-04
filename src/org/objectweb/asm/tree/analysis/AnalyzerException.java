@@ -43,6 +43,10 @@ public class AnalyzerException extends Exception {
     super(msg);
   }
   
+  public AnalyzerException (final String msg, final Throwable exception) {
+    super(msg, exception);
+  }
+  
   public AnalyzerException (
     final String msg, 
     final Object expected, 

@@ -245,9 +245,9 @@ public class Analyzer implements Opcodes {
             merge(indexes.get(tcb.handler), handler, subroutine);
           }
         }
-      } catch (Exception e) {
+      } catch (AnalyzerException e) {
         throw new AnalyzerException(
-          "Error at instruction " + insn + ": " + e.getMessage());
+          "Error at instruction " + insn + ": " + e.getMessage(), e);
       }
     }
 

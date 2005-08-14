@@ -75,7 +75,7 @@ public class ClassReader {
    * Maximum length of the strings contained in the constant pool of the class.
    */
 
-  private int maxStringLength;
+  public final int maxStringLength;
 
   /**
    * Start index of the class header information (access, name...) in

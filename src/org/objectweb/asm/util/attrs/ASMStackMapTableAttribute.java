@@ -49,6 +49,9 @@ import org.objectweb.asm.attrs.StackMapType;
 public class ASMStackMapTableAttribute extends StackMapTableAttribute 
   implements ASMifiable, Traceable 
 {
+  /**
+   * Length of the attribute used for comparison
+   */
   private int len;
 
   public ASMStackMapTableAttribute() {

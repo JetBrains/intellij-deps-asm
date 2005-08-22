@@ -120,7 +120,7 @@ public class TraceMethodVisitor extends TraceAbstractVisitor
   public void visitAttribute (final Attribute attr) {
     buf.setLength(0);
     buf.append(tab).append("ATTRIBUTE ");
-    appendDescriptor(FIELD_DESCRIPTOR, attr.type);
+    appendDescriptor(-1, attr.type);
     
     if( attr instanceof Traceable) {
       ((Traceable)attr).trace(buf, labelNames);

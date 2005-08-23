@@ -100,8 +100,8 @@ public class GASMifierClassVisitor extends ASMifierClassVisitor {
         } else {
             n = 0;
         }
-        text.set(n + 3, "ClassWriter cw = new ClassWriter(true);\n");
-        text.set(n + 5, "GeneratorAdapter mg;\n");
+        text.set(n + 5, "ClassWriter cw = new ClassWriter(true);\n");
+        text.set(n + 7, "GeneratorAdapter mg;\n");
         text.add(n + 1, "import org.objectweb.asm.commons.*;\n");
     }
 

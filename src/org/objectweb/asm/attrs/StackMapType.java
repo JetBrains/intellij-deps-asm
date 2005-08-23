@@ -27,6 +27,7 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
  * THE POSSIBILITY OF SUCH DAMAGE.
  */
+
 package org.objectweb.asm.attrs;
 
 import org.objectweb.asm.Label;
@@ -41,24 +42,17 @@ import org.objectweb.asm.Label;
  * 
  * @author Eugene Kuleshov
  */
+
 public class StackMapType {
 
     public static final int ITEM_Top = 0;
-
     public static final int ITEM_Integer = 1;
-
     public static final int ITEM_Float = 2;
-
     public static final int ITEM_Double = 3;
-
     public static final int ITEM_Long = 4;
-
     public static final int ITEM_Null = 5;
-
     public static final int ITEM_UninitializedThis = 6;
-
     public static final int ITEM_Object = 7;
-
     public static final int ITEM_Uninitialized = 8;
 
     public static final String[] ITEM_NAMES = {
@@ -73,10 +67,9 @@ public class StackMapType {
         "Uninitialized" };
 
     private int type;
-
     private Label offset;
-
     private String object;
+    
 
     private StackMapType(int type) {
         this.type = type;
@@ -87,6 +80,9 @@ public class StackMapType {
     }
 
     public static StackMapType getTypeInfo(int itemType) {
+        if (itemType < ITEM_Top || itemType > ITEM_Uninitialized) {
+            throw new IllegalArgumentException("" + itemType);
+        }
         return new StackMapType(itemType);
     }
 

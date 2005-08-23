@@ -27,7 +27,6 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
  * THE POSSIBILITY OF SUCH DAMAGE.
  */
-
 package org.objectweb.asm.optimizer;
 
 import java.util.HashMap;
@@ -39,159 +38,161 @@ import org.objectweb.asm.Type;
  * 
  * @author Eric Bruneton
  */
-
 public class ConstantPool extends HashMap {
 
-  private Constant key1 = new Constant();
-  private Constant key2 = new Constant();
-  private Constant key3 = new Constant();
-  
-  public Constant newInteger (final int value) {
-    key1.set(value);
-    Constant result = get(key1);
-    if (result == null) {
-      result = new Constant(key1);
-      put(result);
-    }
-    return result;
-  }
+    private Constant key1 = new Constant();
 
-  public Constant newFloat (final float value) {
-    key1.set(value);
-    Constant result = get(key1);
-    if (result == null) {
-      result = new Constant(key1);
-      put(result);
-    }
-    return result;
-  }
+    private Constant key2 = new Constant();
 
-  public Constant newLong (final long value) {
-    key1.set(value);
-    Constant result = get(key1);
-    if (result == null) {
-      result = new Constant(key1);
-      put(result);
-    }
-    return result;
-  }
+    private Constant key3 = new Constant();
 
-  public Constant newDouble (final double value) {
-    key1.set(value);
-    Constant result = get(key1);
-    if (result == null) {
-      result = new Constant(key1);
-      put(result);
+    public Constant newInteger(final int value) {
+        key1.set(value);
+        Constant result = get(key1);
+        if (result == null) {
+            result = new Constant(key1);
+            put(result);
+        }
+        return result;
     }
-    return result;
-  }
 
-  public Constant newUTF8 (final String value) {
-    key1.set('s', value, null, null);
-    Constant result = get(key1);
-    if (result == null) {
-      result = new Constant(key1);
-      put(result);
+    public Constant newFloat(final float value) {
+        key1.set(value);
+        Constant result = get(key1);
+        if (result == null) {
+            result = new Constant(key1);
+            put(result);
+        }
+        return result;
     }
-    return result;
-  }
 
-  private Constant newString (final String value) {
-    key2.set('S', value, null, null);
-    Constant result = get(key2);
-    if (result == null) {
-      newUTF8(value);
-      result = new Constant(key2);
-      put(result);
+    public Constant newLong(final long value) {
+        key1.set(value);
+        Constant result = get(key1);
+        if (result == null) {
+            result = new Constant(key1);
+            put(result);
+        }
+        return result;
     }
-    return result;
-  }
 
-  public Constant newClass (final String value) {
-    key2.set('C', value, null, null);
-    Constant result = get(key2);
-    if (result == null) {
-      newUTF8(value);
-      result = new Constant(key2);
-      put(result);
+    public Constant newDouble(final double value) {
+        key1.set(value);
+        Constant result = get(key1);
+        if (result == null) {
+            result = new Constant(key1);
+            put(result);
+        }
+        return result;
     }
-    return result;
-  }
 
-  public Constant newConst (final Object cst) {
-    if (cst instanceof Integer) {
-      int val = ((Integer)cst).intValue();
-      return newInteger(val);
-    } else if (cst instanceof Float) {
-      float val = ((Float)cst).floatValue();
-      return newFloat(val);
-    } else if (cst instanceof Long) {
-      long val = ((Long)cst).longValue();
-      return newLong(val);
-    } else if (cst instanceof Double) {
-      double val = ((Double)cst).doubleValue();
-      return newDouble(val);
-    } else if (cst instanceof String) {
-      return newString((String)cst);
-    } else if (cst instanceof Type) {
-      Type t = (Type)cst;
-      return newClass(
-        t.getSort() == Type.OBJECT ? t.getInternalName() : t.getDescriptor());
-    } else {
-      throw new IllegalArgumentException("value " + cst);
+    public Constant newUTF8(final String value) {
+        key1.set('s', value, null, null);
+        Constant result = get(key1);
+        if (result == null) {
+            result = new Constant(key1);
+            put(result);
+        }
+        return result;
     }
-  }
 
-  public Constant newField (
-    final String owner,
-    final String name,
-    final String desc)
-  {
-    key3.set('G', owner, name, desc);
-    Constant result = get(key3);
-    if (result == null) {
-      newClass(owner);
-      newNameType(name, desc);
-      result = new Constant(key3);
-      put(result);
+    private Constant newString(final String value) {
+        key2.set('S', value, null, null);
+        Constant result = get(key2);
+        if (result == null) {
+            newUTF8(value);
+            result = new Constant(key2);
+            put(result);
+        }
+        return result;
     }
-    return result;
-  }
 
-  public Constant newMethod (
-    final String owner,
-    final String name,
-    final String desc,
-    final boolean itf)
-  {
-    key3.set(itf ? 'N' : 'M', owner, name, desc);
-    Constant result = get(key3);
-    if (result == null) {
-      newClass(owner);
-      newNameType(name, desc);
-      result = new Constant(key3);
-      put(result);
+    public Constant newClass(final String value) {
+        key2.set('C', value, null, null);
+        Constant result = get(key2);
+        if (result == null) {
+            newUTF8(value);
+            result = new Constant(key2);
+            put(result);
+        }
+        return result;
     }
-    return result;
-  }
 
-  public Constant newNameType (final String name, final String desc) {
-    key2.set('T', name, desc, null);
-    Constant result = get(key2);
-    if (result == null) {
-      newUTF8(name);
-      newUTF8(desc);
-      result = new Constant(key2);
-      put(result);
+    public Constant newConst(final Object cst) {
+        if (cst instanceof Integer) {
+            int val = ((Integer) cst).intValue();
+            return newInteger(val);
+        } else if (cst instanceof Float) {
+            float val = ((Float) cst).floatValue();
+            return newFloat(val);
+        } else if (cst instanceof Long) {
+            long val = ((Long) cst).longValue();
+            return newLong(val);
+        } else if (cst instanceof Double) {
+            double val = ((Double) cst).doubleValue();
+            return newDouble(val);
+        } else if (cst instanceof String) {
+            return newString((String) cst);
+        } else if (cst instanceof Type) {
+            Type t = (Type) cst;
+            return newClass(t.getSort() == Type.OBJECT
+                    ? t.getInternalName()
+                    : t.getDescriptor());
+        } else {
+            throw new IllegalArgumentException("value " + cst);
+        }
     }
-    return result;
-  }
 
-  private Constant get (final Constant key) {
-    return (Constant)get((Object)key);
-  }
-  
-  private void put (final Constant cst) {
-    put(cst, cst);
-  }
+    public Constant newField(
+        final String owner,
+        final String name,
+        final String desc)
+    {
+        key3.set('G', owner, name, desc);
+        Constant result = get(key3);
+        if (result == null) {
+            newClass(owner);
+            newNameType(name, desc);
+            result = new Constant(key3);
+            put(result);
+        }
+        return result;
+    }
+
+    public Constant newMethod(
+        final String owner,
+        final String name,
+        final String desc,
+        final boolean itf)
+    {
+        key3.set(itf ? 'N' : 'M', owner, name, desc);
+        Constant result = get(key3);
+        if (result == null) {
+            newClass(owner);
+            newNameType(name, desc);
+            result = new Constant(key3);
+            put(result);
+        }
+        return result;
+    }
+
+    public Constant newNameType(final String name, final String desc) {
+        key2.set('T', name, desc, null);
+        Constant result = get(key2);
+        if (result == null) {
+            newUTF8(name);
+            newUTF8(desc);
+            result = new Constant(key2);
+            put(result);
+        }
+        return result;
+    }
+
+    private Constant get(final Constant key) {
+        return (Constant) get((Object) key);
+    }
+
+    private void put(final Constant cst) {
+        put(cst, cst);
+    }
 }

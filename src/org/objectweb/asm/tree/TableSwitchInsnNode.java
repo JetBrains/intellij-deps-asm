@@ -27,7 +27,6 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
  * THE POSSIBILITY OF SUCH DAMAGE.
  */
-
 package org.objectweb.asm.tree;
 
 import org.objectweb.asm.Label;
@@ -43,67 +42,65 @@ import java.util.List;
  * 
  * @author Eric Bruneton
  */
-
 public class TableSwitchInsnNode extends AbstractInsnNode {
 
-  /**
-   * The minimum key value.
-   */
+    /**
+     * The minimum key value.
+     */
+    public int min;
 
-  public int min;
+    /**
+     * The maximum key value.
+     */
+    public int max;
 
-  /**
-   * The maximum key value.
-   */
+    /**
+     * Beginning of the default handler block.
+     */
+    public Label dflt;
 
-  public int max;
+    /**
+     * Beginnings of the handler blocks. This list is a list of {@link Label}
+     * objects.
+     */
+    public final List labels;
 
-  /**
-   * Beginning of the default handler block.
-   */
-
-  public Label dflt;
-
-  /**
-   * Beginnings of the handler blocks. This list is a list of {@link Label} 
-   * objects.
-   */
-
-  public final List labels;
-
-  /**
-   * Constructs a new {@link TableSwitchInsnNode}.
-   *
-   * @param min the minimum key value.
-   * @param max the maximum key value.
-   * @param dflt beginning of the default handler block.
-   * @param labels beginnings of the handler blocks. <tt>labels[i]</tt> is the
-   *      beginning of the handler block for the <tt>min + i</tt> key.
-   */
-
-  public TableSwitchInsnNode (
-    final int min,
-    final int max,
-    final Label dflt,
-    final Label[] labels)
-  {
-    super(Opcodes.TABLESWITCH);
-    this.min = min;
-    this.max = max;
-    this.dflt = dflt;
-    this.labels = new ArrayList();
-    if (labels != null) {
-      this.labels.addAll(Arrays.asList(labels));
+    /**
+     * Constructs a new {@link TableSwitchInsnNode}.
+     * 
+     * @param min
+     *            the minimum key value.
+     * @param max
+     *            the maximum key value.
+     * @param dflt
+     *            beginning of the default handler block.
+     * @param labels
+     *            beginnings of the handler blocks. <tt>labels[i]</tt> is the
+     *            beginning of the handler block for the <tt>min + i</tt> key.
+     */
+    public TableSwitchInsnNode(
+        final int min,
+        final int max,
+        final Label dflt,
+        final Label[] labels)
+    {
+        super(Opcodes.TABLESWITCH);
+        this.min = min;
+        this.max = max;
+        this.dflt = dflt;
+        this.labels = new ArrayList();
+        if (labels != null) {
+            this.labels.addAll(Arrays.asList(labels));
+        }
     }
-  }
 
-  public void accept (final MethodVisitor mv) {
-    Label[] labels = new Label[this.labels.size()];
-    this.labels.toArray(labels);
-    mv.visitTableSwitchInsn(min, max, dflt, labels);
-  }
+    public void accept(final MethodVisitor mv) {
+        Label[] labels = new Label[this.labels.size()];
+        this.labels.toArray(labels);
+        mv.visitTableSwitchInsn(min, max, dflt, labels);
+    }
 
-  public int getType () {
-    return TABLESWITCH_INSN;
-  }
+    public int getType() {
+        return TABLESWITCH_INSN;
+    }
 }

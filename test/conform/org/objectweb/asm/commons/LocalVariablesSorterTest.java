@@ -27,7 +27,6 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
  * THE POSSIBILITY OF SUCH DAMAGE.
  */
-
 package org.objectweb.asm.commons;
 
 import junit.framework.TestSuite;
@@ -41,38 +40,49 @@ import org.objectweb.asm.MethodVisitor;
 /**
  * @author Eric Bruneton
  */
-
 public class LocalVariablesSorterTest extends AbstractTest {
-  
-  private final static TestClassLoader LOADER = new TestClassLoader();
-  
-  public static TestSuite suite () throws Exception {
-    return new LocalVariablesSorterTest().getSuite();
-  }
-  
-  public void test () throws Exception {
-    ClassReader cr = new ClassReader(is);
-    ClassWriter cw = new ClassWriter(true, true);
-    cr.accept(new ClassAdapter(cw) {
-      public MethodVisitor visitMethod (int access, String name, String desc, String signature, String[] exceptions) {
-        return new LocalVariablesSorter(access, desc, super.visitMethod(access, name, desc, signature, exceptions));
-      }
-    }, false);
-    byte[] b = cw.toByteArray();
-    try {
-      LOADER.defineClass(n, b);
-    } catch (ClassFormatError cfe) {
-      fail(cfe.getMessage());
-    } catch (Throwable ignored) {
+
+    private final static TestClassLoader LOADER = new TestClassLoader();
+
+    public static TestSuite suite() throws Exception {
+        return new LocalVariablesSorterTest().getSuite();
     }
-  }
-  
-  // -------------------------------------------------------------------------
-  
-  static class TestClassLoader extends ClassLoader {
-    
-    public Class defineClass (final String name, final byte[] b) {
-      return defineClass(name, b, 0, b.length);
+
+    public void test() throws Exception {
+        ClassReader cr = new ClassReader(is);
+        ClassWriter cw = new ClassWriter(true, true);
+        cr.accept(new ClassAdapter(cw) {
+            public MethodVisitor visitMethod(
+                int access,
+                String name,
+                String desc,
+                String signature,
+                String[] exceptions)
+            {
+                return new LocalVariablesSorter(access,
+                        desc,
+                        super.visitMethod(access,
+                                name,
+                                desc,
+                                signature,
+                                exceptions));
+            }
+        }, false);
+        byte[] b = cw.toByteArray();
+        try {
+            LOADER.defineClass(n, b);
+        } catch (ClassFormatError cfe) {
+            fail(cfe.getMessage());
+        } catch (Throwable ignored) {
+        }
     }
-  }
+
+    // ------------------------------------------------------------------------
+
+    static class TestClassLoader extends ClassLoader {
+
+        public Class defineClass(final String name, final byte[] b) {
+            return defineClass(name, b, 0, b.length);
+        }
+    }
 }

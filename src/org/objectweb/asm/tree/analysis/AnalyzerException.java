@@ -27,7 +27,6 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
  * THE POSSIBILITY OF SUCH DAMAGE.
  */
-
 package org.objectweb.asm.tree.analysis;
 
 /**
@@ -36,23 +35,22 @@ package org.objectweb.asm.tree.analysis;
  * @author Bing Ran
  * @author Eric Bruneton
  */
-
 public class AnalyzerException extends Exception {
 
-  public AnalyzerException (final String msg) {
-    super(msg);
-  }
-  
-  public AnalyzerException (final String msg, final Throwable exception) {
-    super(msg, exception);
-  }
-  
-  public AnalyzerException (
-    final String msg, 
-    final Object expected, 
-    final Value encountered) 
-  {
-    super((msg == null ? "Expected " : msg + ": expected ")
-          + expected + ", but found " + encountered);
-  }
+    public AnalyzerException(final String msg) {
+        super(msg);
+    }
+
+    public AnalyzerException(final String msg, final Throwable exception) {
+        super(msg, exception);
+    }
+
+    public AnalyzerException(
+        final String msg,
+        final Object expected,
+        final Value encountered)
+    {
+        super((msg == null ? "Expected " : msg + ": expected ") + expected
+                + ", but found " + encountered);
+    }
 }

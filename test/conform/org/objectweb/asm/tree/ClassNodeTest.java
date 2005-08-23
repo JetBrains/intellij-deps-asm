@@ -27,7 +27,6 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
  * THE POSSIBILITY OF SUCH DAMAGE.
  */
-
 package org.objectweb.asm.tree;
 
 import org.objectweb.asm.AbstractTest;
@@ -41,19 +40,18 @@ import junit.framework.TestSuite;
  * 
  * @author Eric Bruneton
  */
-
 public class ClassNodeTest extends AbstractTest {
 
-  public static TestSuite suite () throws Exception {
-    return new ClassNodeTest().getSuite();
-  }
-  
-  public void test () throws Exception {
-    ClassReader cr = new ClassReader(is);
-    ClassNode cn = new ClassNode();
-    cr.accept(cn, false);
-    ClassWriter cw = new ClassWriter(false, true);
-    cn.accept(cw);
-    assertEquals(cr, new ClassReader(cw.toByteArray()));
-  }
+    public static TestSuite suite() throws Exception {
+        return new ClassNodeTest().getSuite();
+    }
+
+    public void test() throws Exception {
+        ClassReader cr = new ClassReader(is);
+        ClassNode cn = new ClassNode();
+        cr.accept(cn, false);
+        ClassWriter cw = new ClassWriter(false, true);
+        cn.accept(cw);
+        assertEquals(cr, new ClassReader(cw.toByteArray()));
+    }
 }

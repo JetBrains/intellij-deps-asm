@@ -27,7 +27,6 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
  * THE POSSIBILITY OF SUCH DAMAGE.
  */
-
 package org.objectweb.asm.optimizer;
 
 import org.objectweb.asm.AnnotationVisitor;
@@ -35,46 +34,43 @@ import org.objectweb.asm.Attribute;
 import org.objectweb.asm.FieldVisitor;
 
 /**
- * A {@link FieldVisitor} that collects the {@link Constant}s of the fields it 
+ * A {@link FieldVisitor} that collects the {@link Constant}s of the fields it
  * visits.
  * 
- * @author Eric Bruneton 
+ * @author Eric Bruneton
  */
-
 public class FieldConstantsCollector implements FieldVisitor {
 
-  private FieldVisitor fv;
-  
-  private ConstantPool cp;
-  
-  public FieldConstantsCollector (
-    final FieldVisitor fv, 
-    final ConstantPool cp) 
-  {
-    this.fv = fv;
-    this.cp = cp;
-  }
-  
-  public AnnotationVisitor visitAnnotation (
-    final String desc, 
-    final boolean visible) 
-  {
-    cp.newUTF8(desc);
-    if (visible) {
-      cp.newUTF8("RuntimeVisibleAnnotations");
-    } else {
-      cp.newUTF8("RuntimeInvisibleAnnotations");
-    }    
-    return 
-      new AnnotationConstantsCollector(fv.visitAnnotation(desc, visible), cp);
-  }
+    private FieldVisitor fv;
 
-  public void visitAttribute (final Attribute attr) {
-    // can do nothing
-    fv.visitAttribute(attr);
-  }
+    private ConstantPool cp;
 
-  public void visitEnd () {
-    fv.visitEnd();
-  }
+    public FieldConstantsCollector(final FieldVisitor fv, final ConstantPool cp)
+    {
+        this.fv = fv;
+        this.cp = cp;
+    }
+
+    public AnnotationVisitor visitAnnotation(
+        final String desc,
+        final boolean visible)
+    {
+        cp.newUTF8(desc);
+        if (visible) {
+            cp.newUTF8("RuntimeVisibleAnnotations");
+        } else {
+            cp.newUTF8("RuntimeInvisibleAnnotations");
+        }
+        return new AnnotationConstantsCollector(fv.visitAnnotation(desc,
+                visible), cp);
+    }
+
+    public void visitAttribute(final Attribute attr) {
+        // can do nothing
+        fv.visitAttribute(attr);
+    }
+
+    public void visitEnd() {
+        fv.visitEnd();
+    }
 }

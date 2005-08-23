@@ -27,7 +27,6 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
  * THE POSSIBILITY OF SUCH DAMAGE.
  */
-
 package org.objectweb.asm.optimizer;
 
 import org.objectweb.asm.AnnotationVisitor;
@@ -39,130 +38,122 @@ import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 
 /**
- * A {@link ClassAdapter} that renames fields and methods, and removes debug 
+ * A {@link ClassAdapter} that renames fields and methods, and removes debug
  * info.
  * 
- * @author Eric Bruneton 
+ * @author Eric Bruneton
  */
-
 public class ClassOptimizer extends ClassAdapter {
-  
-  private NameMapping mapping;
 
-  private String className;
-  
-  public ClassOptimizer (final ClassVisitor cv, final NameMapping mapping) {
-    super(cv);
-    this.mapping = mapping;
-  }
-  
-  public String getClassName () {
-    return className;
-  }
-  
-  // --------------------------------------------------------------------------
-  // Overriden methods
-  // --------------------------------------------------------------------------
-  
-  public void visit (
-    final int version, 
-    final int access, 
-    final String name, 
-    final String signature, 
-    final String superName, 
-    final String[] interfaces) 
-  {
-    className = name;
-    cv.visit(
-        version, 
-        access,
-        mapping.map(name),
-        null, 
-        mapping.map(superName), 
-        interfaces);
-  }
+    private NameMapping mapping;
 
-  public void visitSource (final String source, final String debug) {
-    // remove debug info
-  }
+    private String className;
 
-  public void visitOuterClass (
-    final String owner, 
-    final String name, 
-    final String desc) 
-  {
-    // remove debug info
-  }
-
-  public AnnotationVisitor visitAnnotation (
-    final String desc, 
-    final boolean visible) 
-  {
-    throw new UnsupportedOperationException();
-  }
-
-  public void visitAttribute (final Attribute attr) {
-    // remove non standard attribute
-  }
-
-  public void visitInnerClass (
-    final String name, 
-    final String outerName, 
-    final String innerName, 
-    final int access) 
-  {
-    // remove debug info
-  }
-
-  public FieldVisitor visitField (
-    final int access, 
-    final String name, 
-    final String desc, 
-    final String signature, 
-    final Object value) 
-  {
-    if ((access & (Opcodes.ACC_PUBLIC | Opcodes.ACC_PROTECTED)) == 0) {
-      if ((access & Opcodes.ACC_FINAL) != 0 && 
-          (access & Opcodes.ACC_STATIC) != 0 && 
-          desc.equals("I")) 
-      {
-        return null;
-      }
-      cv.visitField(
-          access, 
-          mapping.map(className + "." + name),
-          mapping.fix(desc), 
-          null, 
-          value); 
-    } else {
-      cv.visitField(access, name, desc, null, value); 
+    public ClassOptimizer(final ClassVisitor cv, final NameMapping mapping) {
+        super(cv);
+        this.mapping = mapping;
     }
-    return null; // remove debug info
-  }
 
-  public MethodVisitor visitMethod (
-    final int access, 
-    final String name, 
-    final String desc, 
-    final String signature, 
-    final String[] exceptions) 
-  {
-    if ((access & (Opcodes.ACC_PUBLIC | Opcodes.ACC_PROTECTED)) == 0) {
-      return new MethodOptimizer(
-        cv.visitMethod(
-            access, 
-            mapping.map(className + "." + name + desc),
-            mapping.fix(desc), 
-            null, 
-            exceptions), mapping);
-    } else {
-      return new MethodOptimizer(
-          cv.visitMethod(
-              access, 
-              name, 
-              desc, 
-              null, 
-              exceptions), mapping);
+    public String getClassName() {
+        return className;
     }
-  }
+
+    // ------------------------------------------------------------------------
+    // Overriden methods
+    // ------------------------------------------------------------------------
+
+    public void visit(
+        final int version,
+        final int access,
+        final String name,
+        final String signature,
+        final String superName,
+        final String[] interfaces)
+    {
+        className = name;
+        cv.visit(version,
+                access,
+                mapping.map(name),
+                null,
+                mapping.map(superName),
+                interfaces);
+    }
+
+    public void visitSource(final String source, final String debug) {
+        // remove debug info
+    }
+
+    public void visitOuterClass(
+        final String owner,
+        final String name,
+        final String desc)
+    {
+        // remove debug info
+    }
+
+    public AnnotationVisitor visitAnnotation(
+        final String desc,
+        final boolean visible)
+    {
+        throw new UnsupportedOperationException();
+    }
+
+    public void visitAttribute(final Attribute attr) {
+        // remove non standard attribute
+    }
+
+    public void visitInnerClass(
+        final String name,
+        final String outerName,
+        final String innerName,
+        final int access)
+    {
+        // remove debug info
+    }
+
+    public FieldVisitor visitField(
+        final int access,
+        final String name,
+        final String desc,
+        final String signature,
+        final Object value)
+    {
+        if ((access & (Opcodes.ACC_PUBLIC | Opcodes.ACC_PROTECTED)) == 0) {
+            if ((access & Opcodes.ACC_FINAL) != 0
+                    && (access & Opcodes.ACC_STATIC) != 0 && desc.equals("I"))
+            {
+                return null;
+            }
+            cv.visitField(access,
+                    mapping.map(className + "." + name),
+                    mapping.fix(desc),
+                    null,
+                    value);
+        } else {
+            cv.visitField(access, name, desc, null, value);
+        }
+        return null; // remove debug info
+    }
+
+    public MethodVisitor visitMethod(
+        final int access,
+        final String name,
+        final String desc,
+        final String signature,
+        final String[] exceptions)
+    {
+        if ((access & (Opcodes.ACC_PUBLIC | Opcodes.ACC_PROTECTED)) == 0) {
+            return new MethodOptimizer(cv.visitMethod(access,
+                    mapping.map(className + "." + name + desc),
+                    mapping.fix(desc),
+                    null,
+                    exceptions), mapping);
+        } else {
+            return new MethodOptimizer(cv.visitMethod(access,
+                    name,
+                    desc,
+                    null,
+                    exceptions), mapping);
+        }
+    }
 }

@@ -27,7 +27,6 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
  * THE POSSIBILITY OF SUCH DAMAGE.
  */
-
 package org.objectweb.asm.tree;
 
 import java.util.ArrayList;
@@ -40,155 +39,154 @@ import org.objectweb.asm.AnnotationVisitor;
  * 
  * @author Eric Bruneton
  */
-
 public class AnnotationNode implements AnnotationVisitor {
 
-  /**
-   * The class descriptor of the annotation class.
-   */
-  
-  public String desc;
-  
-  /**
-   * The name value pairs of this annotation. Each name value pair is stored
-   * as two consecutive elements in the list. The name is a {@link String}, and
-   * the value may be a {@link Byte}, {@link Boolean}, {@link Character},  
-   * {@link Short}, {@link Integer}, {@link Long}, {@link Float}, 
-   * {@link Double}, {@link String} or {@link Type}, or an two elements String
-   * array (for enumeration values), a {@link AnnotationNode}, or a 
-   * {@link List} of values of one of the preceding types. The list may be 
-   * <tt>null</tt> if there is no name value pair.
-   */
-  
-  public List values;
+    /**
+     * The class descriptor of the annotation class.
+     */
+    public String desc;
 
-  /**
-   * Constructs a new {@link AnnotationNode}.
-   * 
-   * @param desc the class descriptor of the annotation class.
-   */
-  
-  public AnnotationNode (final String desc) {
-    this.desc = desc;
-  }
-  
-  /**
-   * Constructs a new {@link AnnotationNode} to visit an array value.
-   * 
-   * @param values where the visited values must be stored.
-   */
-  
-  AnnotationNode (final List values) {
-    this.values = values; 
-  }
-  
-  // --------------------------------------------------------------------------
-  // Implementation of the AnnotationVisitor interface
-  // --------------------------------------------------------------------------
-  
-  public void visit (final String name, final Object value) {
-    if (values == null) {
-      values = new ArrayList(this.desc != null ? 2 : 1);
-  	}
-    if (this.desc != null) {
-      values.add(name);
-    }
-    values.add(value);
-  }
+    /**
+     * The name value pairs of this annotation. Each name value pair is stored
+     * as two consecutive elements in the list. The name is a {@link String},
+     * and the value may be a {@link Byte}, {@link Boolean}, {@link Character},
+     * {@link Short}, {@link Integer}, {@link Long}, {@link Float},
+     * {@link Double}, {@link String} or {@link Type}, or an two elements
+     * String array (for enumeration values), a {@link AnnotationNode}, or a
+     * {@link List} of values of one of the preceding types. The list may be
+     * <tt>null</tt> if there is no name value pair.
+     */
+    public List values;
 
-  public void visitEnum (
-    final String name, 
-    final String desc, 
-    final String value)
-  {
-  	if (values == null) {
-  	  values = new ArrayList(this.desc != null ? 2 : 1);
-  	}
-    if (this.desc != null) {
-      values.add(name);
+    /**
+     * Constructs a new {@link AnnotationNode}.
+     * 
+     * @param desc
+     *            the class descriptor of the annotation class.
+     */
+    public AnnotationNode(final String desc) {
+        this.desc = desc;
     }
-    values.add(new String[] {desc, value});
-  }
 
-  public AnnotationVisitor visitAnnotation (
-    final String name, 
-    final String desc) 
-  {
-    if (values == null) {
-  	  values = new ArrayList(this.desc != null ? 2 : 1);
-  	}
-    if (this.desc != null) {
-      values.add(name);
+    /**
+     * Constructs a new {@link AnnotationNode} to visit an array value.
+     * 
+     * @param values
+     *            where the visited values must be stored.
+     */
+    AnnotationNode(final List values) {
+        this.values = values;
     }
-    AnnotationNode annotation = new AnnotationNode(desc);
-    values.add(annotation);
-    return annotation;
-  }
 
-  public AnnotationVisitor visitArray (final String name) {
-    if (values == null) {
-      values = new ArrayList(this.desc != null ? 2 : 1);
-    }
-    if (this.desc != null) {
-      values.add(name);
-    }
-    List array = new ArrayList();
-    values.add(array);
-    return new AnnotationNode(array);
-  }
-  
-  public void visitEnd () {
-  }
-  
-  // --------------------------------------------------------------------------
-  // Accept methods
-  // --------------------------------------------------------------------------
+    // ------------------------------------------------------------------------
+    // Implementation of the AnnotationVisitor interface
+    // ------------------------------------------------------------------------
 
-  /**
-   * Makes the given visitor visit this annotation.
-   * 
-   * @param av an annotation visitor.
-   */
-  
-  public void accept (final AnnotationVisitor av) {
-    if (values != null) {
-  	  for (int i = 0; i < values.size(); i += 2) {
-  	    String name = (String)values.get(i);
-  	    Object value = values.get(i + 1);
-  	    accept(av, name, value);
-  	  }
-  	}
-    av.visitEnd();
-  }
-  
-  /**
-   * Makes the given visitor visit a given annotation value.
-   *  
-   * @param av an annotation visitor.
-   * @param name the value name.
-   * @param value the actual value.
-   */
-  
-  static void accept (
-    final AnnotationVisitor av, 
-    final String name, 
-    final Object value) 
-  {
-    if (value instanceof String[]) {
-      String[] typeconst = (String[])value;
-      av.visitEnum(name, typeconst[0], typeconst[1]);
-    } else if (value instanceof AnnotationNode) {
-      AnnotationNode an = (AnnotationNode)value;
-      an.accept(av.visitAnnotation(name, an.desc));
-    } else if (value instanceof List) {
-      AnnotationVisitor v = av.visitArray(name);
-      List array = (List)value;
-      for (int j = 0; j < array.size(); ++j) {
-        accept(v, null, array.get(j)); 
-      }
-      v.visitEnd();
-    } else {
-      av.visit(name, value);
+    public void visit(final String name, final Object value) {
+        if (values == null) {
+            values = new ArrayList(this.desc != null ? 2 : 1);
+        }
+        if (this.desc != null) {
+            values.add(name);
+        }
+        values.add(value);
     }
-  }
+
+    public void visitEnum(
+        final String name,
+        final String desc,
+        final String value)
+    {
+        if (values == null) {
+            values = new ArrayList(this.desc != null ? 2 : 1);
+        }
+        if (this.desc != null) {
+            values.add(name);
+        }
+        values.add(new String[] { desc, value });
+    }
+
+    public AnnotationVisitor visitAnnotation(
+        final String name,
+        final String desc)
+    {
+        if (values == null) {
+            values = new ArrayList(this.desc != null ? 2 : 1);
+        }
+        if (this.desc != null) {
+            values.add(name);
+        }
+        AnnotationNode annotation = new AnnotationNode(desc);
+        values.add(annotation);
+        return annotation;
+    }
+
+    public AnnotationVisitor visitArray(final String name) {
+        if (values == null) {
+            values = new ArrayList(this.desc != null ? 2 : 1);
+        }
+        if (this.desc != null) {
+            values.add(name);
+        }
+        List array = new ArrayList();
+        values.add(array);
+        return new AnnotationNode(array);
+    }
+
+    public void visitEnd() {
+    }
+
+    // ------------------------------------------------------------------------
+    // Accept methods
+    // ------------------------------------------------------------------------
+
+    /**
+     * Makes the given visitor visit this annotation.
+     * 
+     * @param av
+     *            an annotation visitor.
+     */
+    public void accept(final AnnotationVisitor av) {
+        if (values != null) {
+            for (int i = 0; i < values.size(); i += 2) {
+                String name = (String) values.get(i);
+                Object value = values.get(i + 1);
+                accept(av, name, value);
+            }
+        }
+        av.visitEnd();
+    }
+
+    /**
+     * Makes the given visitor visit a given annotation value.
+     * 
+     * @param av
+     *            an annotation visitor.
+     * @param name
+     *            the value name.
+     * @param value
+     *            the actual value.
+     */
+    static void accept(
+        final AnnotationVisitor av,
+        final String name,
+        final Object value)
+    {
+        if (value instanceof String[]) {
+            String[] typeconst = (String[]) value;
+            av.visitEnum(name, typeconst[0], typeconst[1]);
+        } else if (value instanceof AnnotationNode) {
+            AnnotationNode an = (AnnotationNode) value;
+            an.accept(av.visitAnnotation(name, an.desc));
+        } else if (value instanceof List) {
+            AnnotationVisitor v = av.visitArray(name);
+            List array = (List) value;
+            for (int j = 0; j < array.size(); ++j) {
+                accept(v, null, array.get(j));
+            }
+            v.visitEnd();
+        } else {
+            av.visit(name, value);
+        }
+    }
 }

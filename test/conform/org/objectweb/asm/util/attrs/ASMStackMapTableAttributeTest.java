@@ -27,7 +27,6 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
  * THE POSSIBILITY OF SUCH DAMAGE.
  */
-
 package org.objectweb.asm.util.attrs;
 
 import java.io.InputStream;
@@ -42,45 +41,44 @@ import org.objectweb.asm.util.ASMifierClassVisitor;
 import org.objectweb.asm.util.ASMifierTest;
 import org.objectweb.asm.util.AbstractVisitor;
 
-
 /**
  * StackMapTableAttributeTest
- *
+ * 
  * @author Eugene Kuleshov
  */
 public class ASMStackMapTableAttributeTest extends AbstractTest {
 
-  public ASMStackMapTableAttributeTest() {
-    super();
-  }
-  
-  public void test() throws Exception {
-    String n = "org.objectweb.asm.attrs.StackMapTableSample";
-    InputStream is = StackMapTableAttributeTest.class.getResourceAsStream( StackMapTableAttributeTest.TEST_CLASS);
-    ClassReader cr = new ClassReader( is);
-    
-    StringWriter sw = new StringWriter();
-    ASMifierClassVisitor cv = new ASMifierClassVisitor(new PrintWriter(sw));
-    cr.accept(cv, AbstractVisitor.getDefaultAttributes(), false);
-
-    String generated = sw.toString();
-    
-    byte[] generatorClassData;
-    try {
-      generatorClassData = ASMifierTest.COMPILER.compile( n, generated);
-      System.err.println( generated);
-    } catch( Exception ex) {
-      System.err.println( generated);
-      System.err.println( "------------------");
-      throw ex;
+    public ASMStackMapTableAttributeTest() {
+        super();
     }
-    
-    Class c = ASMifierTest.LOADER.defineClass("asm." + n + "Dump", generatorClassData);
-    Method m = c.getMethod("dump", new Class[0]);
-    byte[] b = (byte[])m.invoke(null, new Object[ 0]);
-    
-    assertEquals(cr, new ClassReader(b));
-  }
-  
-}
 
+    public void test() throws Exception {
+        String n = "org.objectweb.asm.attrs.StackMapTableSample";
+        InputStream is = StackMapTableAttributeTest.class.getResourceAsStream(StackMapTableAttributeTest.TEST_CLASS);
+        ClassReader cr = new ClassReader(is);
+
+        StringWriter sw = new StringWriter();
+        ASMifierClassVisitor cv = new ASMifierClassVisitor(new PrintWriter(sw));
+        cr.accept(cv, AbstractVisitor.getDefaultAttributes(), false);
+
+        String generated = sw.toString();
+
+        byte[] generatorClassData;
+        try {
+            generatorClassData = ASMifierTest.COMPILER.compile(n, generated);
+            System.err.println(generated);
+        } catch (Exception ex) {
+            System.err.println(generated);
+            System.err.println("------------------");
+            throw ex;
+        }
+
+        Class c = ASMifierTest.LOADER.defineClass("asm." + n + "Dump",
+                generatorClassData);
+        Method m = c.getMethod("dump", new Class[0]);
+        byte[] b = (byte[]) m.invoke(null, new Object[0]);
+
+        assertEquals(cr, new ClassReader(b));
+    }
+
+}

@@ -27,7 +27,6 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
  * THE POSSIBILITY OF SUCH DAMAGE.
  */
-
 package org.objectweb.asm.tree;
 
 import org.objectweb.asm.Label;
@@ -38,42 +37,40 @@ import org.objectweb.asm.MethodVisitor;
  * 
  * @author Eric Bruneton
  */
-
 public class LineNumberNode {
 
-  /**
-   * A line number. This number refers to the source file from which the class
-   * was compiled.
-   */
+    /**
+     * A line number. This number refers to the source file from which the class
+     * was compiled.
+     */
+    public int line;
 
-  public int line;
+    /**
+     * The first instruction corresponding to this line number.
+     */
+    public Label start;
 
-  /**
-   * The first instruction corresponding to this line number.
-   */
+    /**
+     * Constructs a new {@link LineNumberNode}.
+     * 
+     * @param line
+     *            a line number. This number refers to the source file from
+     *            which the class was compiled.
+     * @param start
+     *            the first instruction corresponding to this line number.
+     */
+    public LineNumberNode(final int line, final Label start) {
+        this.line = line;
+        this.start = start;
+    }
 
-  public Label start;
-
-  /**
-   * Constructs a new {@link LineNumberNode}.
-   *
-   * @param line a line number. This number refers to the source file
-   *      from which the class was compiled.
-   * @param start the first instruction corresponding to this line number.
-   */
-
-  public LineNumberNode (final int line, final Label start) {
-    this.line = line;
-    this.start = start;
-  }
-
-  /**
-   * Makes the given visitor visit this line number declaration.
-   *
-   * @param mv a method visitor.
-   */
-
-  public void accept (final MethodVisitor mv) {
-    mv.visitLineNumber(line, start);
-  }
+    /**
+     * Makes the given visitor visit this line number declaration.
+     * 
+     * @param mv
+     *            a method visitor.
+     */
+    public void accept(final MethodVisitor mv) {
+        mv.visitLineNumber(line, start);
+    }
 }

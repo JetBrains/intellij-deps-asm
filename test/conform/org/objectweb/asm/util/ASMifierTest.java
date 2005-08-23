@@ -27,7 +27,6 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
  * THE POSSIBILITY OF SUCH DAMAGE.
  */
-
 package org.objectweb.asm.util;
 
 import java.io.PrintWriter;
@@ -56,63 +55,60 @@ import org.objectweb.asm.util.ASMifierClassVisitor;
  * @author Eugene Kuleshov
  * @author Eric Bruneton
  */
-
 public class ASMifierTest extends AbstractTest {
-  
-  public static final Compiler COMPILER = new Compiler();
-  
-  public static final TestClassLoader LOADER = new TestClassLoader();
 
-  public static TestSuite suite () throws Exception {
-    return new ASMifierTest().getSuite();
-  }
+    public static final Compiler COMPILER = new Compiler();
 
-  public void test () throws Exception {
-    ClassReader cr = new ClassReader(is);
-    
-    if (cr.b.length > 20000) {
-      return;
-    }
-    
-    StringWriter sw = new StringWriter();
-    ASMifierClassVisitor cv = new ASMifierClassVisitor(new PrintWriter(sw));
-    cr.accept(cv, false);
+    public static final TestClassLoader LOADER = new TestClassLoader();
 
-    String generated = sw.toString();
-    
-    byte[] generatorClassData;
-    try {
-      generatorClassData = COMPILER.compile( n, generated);
-    } catch( Exception ex) {
-      System.err.println( generated);
-      System.err.println( "------------------");
-      throw ex;
+    public static TestSuite suite() throws Exception {
+        return new ASMifierTest().getSuite();
     }
-    
-    Class c = LOADER.defineClass("asm." + n + "Dump", generatorClassData);
-    Method m = c.getMethod("dump", new Class[0]);
-    byte[] b = (byte[])m.invoke(null, new Object[ 0]);
-    
-    assertEquals(cr, new ClassReader(b));
-  }
-  
-  public static class TestClassLoader extends ClassLoader {
-    
-    public Class defineClass (final String name, final byte[] b) {
-      return defineClass(name, b, 0, b.length);
-    }
-  }
-  
-  public static class Compiler  {
-    
-    final static IClassLoader CL = 
-      new ClassLoaderIClassLoader(new URLClassLoader(new URL[0]));
 
-    public byte[] compile(String name, String source) throws Exception {
-      Parser p = new Parser(new Scanner(name, new StringReader(source)));
-      UnitCompiler uc = new UnitCompiler( p.parseCompilationUnit(), CL);
-      return uc.compileUnit( DebuggingInformation.ALL)[ 0].toByteArray();
+    public void test() throws Exception {
+        ClassReader cr = new ClassReader(is);
+
+        if (cr.b.length > 20000) {
+            return;
+        }
+
+        StringWriter sw = new StringWriter();
+        ASMifierClassVisitor cv = new ASMifierClassVisitor(new PrintWriter(sw));
+        cr.accept(cv, false);
+
+        String generated = sw.toString();
+
+        byte[] generatorClassData;
+        try {
+            generatorClassData = COMPILER.compile(n, generated);
+        } catch (Exception ex) {
+            System.err.println(generated);
+            System.err.println("------------------");
+            throw ex;
+        }
+
+        Class c = LOADER.defineClass("asm." + n + "Dump", generatorClassData);
+        Method m = c.getMethod("dump", new Class[0]);
+        byte[] b = (byte[]) m.invoke(null, new Object[0]);
+
+        assertEquals(cr, new ClassReader(b));
     }
-  }
+
+    public static class TestClassLoader extends ClassLoader {
+
+        public Class defineClass(final String name, final byte[] b) {
+            return defineClass(name, b, 0, b.length);
+        }
+    }
+
+    public static class Compiler {
+
+        final static IClassLoader CL = new ClassLoaderIClassLoader(new URLClassLoader(new URL[0]));
+
+        public byte[] compile(String name, String source) throws Exception {
+            Parser p = new Parser(new Scanner(name, new StringReader(source)));
+            UnitCompiler uc = new UnitCompiler(p.parseCompilationUnit(), CL);
+            return uc.compileUnit(DebuggingInformation.ALL)[0].toByteArray();
+        }
+    }
 }
-

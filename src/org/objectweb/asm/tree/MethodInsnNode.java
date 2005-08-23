@@ -27,7 +27,6 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
  * THE POSSIBILITY OF SUCH DAMAGE.
  */
-
 package org.objectweb.asm.tree;
 
 import org.objectweb.asm.MethodVisitor;
@@ -38,68 +37,67 @@ import org.objectweb.asm.MethodVisitor;
  * 
  * @author Eric Bruneton
  */
-
 public class MethodInsnNode extends AbstractInsnNode {
 
-  /**
-   * The internal name of the method's owner class (see 
-   * {@link Type#getInternalName() getInternalName}).
-   */
+    /**
+     * The internal name of the method's owner class (see
+     * {@link Type#getInternalName() getInternalName}).
+     */
+    public String owner;
 
-  public String owner;
+    /**
+     * The method's name.
+     */
+    public String name;
 
-  /**
-   * The method's name.
-   */
+    /**
+     * The method's descriptor (see {@link Type}).
+     */
+    public String desc;
 
-  public String name;
+    /**
+     * Constructs a new {@link MethodInsnNode}.
+     * 
+     * @param opcode
+     *            the opcode of the type instruction to be constructed. This
+     *            opcode must be INVOKEVIRTUAL, INVOKESPECIAL, INVOKESTATIC or
+     *            INVOKEINTERFACE.
+     * @param owner
+     *            the internal name of the method's owner class (see
+     *            {@link Type#getInternalName() getInternalName}).
+     * @param name
+     *            the method's name.
+     * @param desc
+     *            the method's descriptor (see {@link Type}).
+     */
+    public MethodInsnNode(
+        final int opcode,
+        final String owner,
+        final String name,
+        final String desc)
+    {
+        super(opcode);
+        this.owner = owner;
+        this.name = name;
+        this.desc = desc;
+    }
 
-  /**
-   * The method's descriptor (see {@link Type}).
-   */
+    /**
+     * Sets the opcode of this instruction.
+     * 
+     * @param opcode
+     *            the new instruction opcode. This opcode must be INVOKEVIRTUAL,
+     *            INVOKESPECIAL, INVOKESTATIC or INVOKEINTERFACE.
+     */
+    public void setOpcode(final int opcode) {
+        this.opcode = opcode;
+    }
 
-  public String desc;
+    public void accept(final MethodVisitor mv) {
+        mv.visitMethodInsn(opcode, owner, name, desc);
+    }
 
-  /**
-   * Constructs a new {@link MethodInsnNode}.
-   *
-   * @param opcode the opcode of the type instruction to be constructed. This
-   *     opcode must be INVOKEVIRTUAL, INVOKESPECIAL, INVOKESTATIC or
-   *      INVOKEINTERFACE.
-   * @param owner the internal name of the method's owner class (see 
-   *      {@link Type#getInternalName() getInternalName}).
-   * @param name the method's name.
-   * @param desc the method's descriptor (see {@link Type}).
-   */
-
-  public MethodInsnNode (
-    final int opcode,
-    final String owner,
-    final String name,
-    final String desc)
-  {
-    super(opcode);
-    this.owner = owner;
-    this.name = name;
-    this.desc = desc;
-  }
-
-  /**
-   * Sets the opcode of this instruction.
-   *
-   * @param opcode the new instruction opcode. This opcode must be
-   *      INVOKEVIRTUAL, INVOKESPECIAL, INVOKESTATIC or INVOKEINTERFACE.
-   */
-
-  public void setOpcode (final int opcode) {
-    this.opcode = opcode;
-  }
-
-  public void accept (final MethodVisitor mv) {
-    mv.visitMethodInsn(opcode, owner, name, desc);
-  }
-
-  public int getType () {
-    return METHOD_INSN;
-  }
+    public int getType() {
+        return METHOD_INSN;
+    }
 }

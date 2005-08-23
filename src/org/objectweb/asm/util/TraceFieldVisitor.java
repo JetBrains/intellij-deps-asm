@@ -27,7 +27,6 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
  * THE POSSIBILITY OF SUCH DAMAGE.
  */
-
 package org.objectweb.asm.util;
 
 import org.objectweb.asm.AnnotationVisitor;
@@ -35,47 +34,45 @@ import org.objectweb.asm.Attribute;
 import org.objectweb.asm.FieldVisitor;
 
 /**
- * A {@link FieldVisitor} that prints a disassembled view of the fields it 
+ * A {@link FieldVisitor} that prints a disassembled view of the fields it
  * visits.
  * 
  * @author Eric Bruneton
  */
-
-public class TraceFieldVisitor extends TraceAbstractVisitor 
-  implements FieldVisitor 
+public class TraceFieldVisitor extends TraceAbstractVisitor implements
+        FieldVisitor
 {
-  
-  /**
-   * The {@link FieldVisitor} to which this visitor delegates calls. 
-   * May be <tt>null</tt>.
-   */
 
-  protected FieldVisitor fv;
-  
-  public AnnotationVisitor visitAnnotation (
-      final String desc, 
-      final boolean visible) 
-  {
-    AnnotationVisitor av = super.visitAnnotation(desc, visible);
-    if (fv != null) {
-      ((TraceAnnotationVisitor)av).av = fv.visitAnnotation(desc, visible);
-    }
-    return av;
-  }
+    /**
+     * The {@link FieldVisitor} to which this visitor delegates calls. May be
+     * <tt>null</tt>.
+     */
+    protected FieldVisitor fv;
 
-  public void visitAttribute (final Attribute attr) {
-    super.visitAttribute(attr);
-    
-    if (fv != null) {
-      fv.visitAttribute(attr);
+    public AnnotationVisitor visitAnnotation(
+        final String desc,
+        final boolean visible)
+    {
+        AnnotationVisitor av = super.visitAnnotation(desc, visible);
+        if (fv != null) {
+            ((TraceAnnotationVisitor) av).av = fv.visitAnnotation(desc, visible);
+        }
+        return av;
     }
-  }
 
-  public void visitEnd () {
-    super.visitEnd();
-    
-    if (fv != null) {
-      fv.visitEnd();
+    public void visitAttribute(final Attribute attr) {
+        super.visitAttribute(attr);
+
+        if (fv != null) {
+            fv.visitAttribute(attr);
+        }
     }
-  }
+
+    public void visitEnd() {
+        super.visitEnd();
+
+        if (fv != null) {
+            fv.visitEnd();
+        }
+    }
 }

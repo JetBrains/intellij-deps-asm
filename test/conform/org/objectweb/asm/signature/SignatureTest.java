@@ -27,7 +27,6 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
  * THE POSSIBILITY OF SUCH DAMAGE.
  */
-
 package org.objectweb.asm.signature;
 
 import java.io.InputStream;
@@ -46,49 +45,48 @@ import junit.framework.TestSuite;
  * @author Thomas Hallgren
  * @author Eric Bruneton
  */
-
 public class SignatureTest extends TestCase {
 
-  private String line;
-  
-	public SignatureTest (String line) {
-		super("test");
-    this.line = line;
-	}
+    private String line;
 
-  public static TestSuite suite () throws Exception {
-    TestSuite suite = new TestSuite();
-    InputStream is = SignatureTest.class.getResourceAsStream("signatures.txt");
-    LineNumberReader lnr = new LineNumberReader(new InputStreamReader(is));
-    
-    String line;
-    while ((line = lnr.readLine()) != null) {
-      if (line.length() < 2) {
-        continue;
-      }
-      suite.addTest(new SignatureTest(line));
+    public SignatureTest(String line) {
+        super("test");
+        this.line = line;
     }
-    lnr.close();
-    return suite;
-  }
 
-  public void test () throws Exception {
-	  if (line.length() > 2) {
-      String signature = line.substring(2);
-      SignatureWriter wrt = new SignatureWriter();
-      SignatureReader rdr = new SignatureReader(signature);
-      switch (line.charAt(0)) {
-        case 'C':
-        case 'M':
-          rdr.accept(wrt);
-          break;
-        case 'T':
-          rdr.acceptType(wrt);
-          break;
-        default:
-          return;
-      }
-      assertEquals(signature, wrt.toString());
+    public static TestSuite suite() throws Exception {
+        TestSuite suite = new TestSuite();
+        InputStream is = SignatureTest.class.getResourceAsStream("signatures.txt");
+        LineNumberReader lnr = new LineNumberReader(new InputStreamReader(is));
+
+        String line;
+        while ((line = lnr.readLine()) != null) {
+            if (line.length() < 2) {
+                continue;
+            }
+            suite.addTest(new SignatureTest(line));
+        }
+        lnr.close();
+        return suite;
     }
-	}
+
+    public void test() throws Exception {
+        if (line.length() > 2) {
+            String signature = line.substring(2);
+            SignatureWriter wrt = new SignatureWriter();
+            SignatureReader rdr = new SignatureReader(signature);
+            switch (line.charAt(0)) {
+            case 'C':
+            case 'M':
+                rdr.accept(wrt);
+                break;
+            case 'T':
+                rdr.acceptType(wrt);
+                break;
+            default:
+                return;
+            }
+            assertEquals(signature, wrt.toString());
+        }
+    }
 }

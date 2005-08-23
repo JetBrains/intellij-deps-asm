@@ -27,7 +27,6 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
  * THE POSSIBILITY OF SUCH DAMAGE.
  */
-
 package org.objectweb.asm.tree;
 
 import org.objectweb.asm.MethodVisitor;
@@ -37,78 +36,65 @@ import org.objectweb.asm.MethodVisitor;
  * 
  * @author Eric Bruneton
  */
-
 public class InsnNode extends AbstractInsnNode {
-  
-  private final static InsnNode[] INSNS;
-  
-  static {
-    INSNS = new InsnNode[255];
-    for (int i = 0; i < INSNS.length; ++i) {
-      INSNS[i] = new InsnNode(i);
+
+    private final static InsnNode[] INSNS;
+
+    static {
+        INSNS = new InsnNode[255];
+        for (int i = 0; i < INSNS.length; ++i) {
+            INSNS[i] = new InsnNode(i);
+        }
     }
-  }
-  
-  /**
-   * Returns the {@link InsnNode} corresponding to the given opcode.
-   * @deprecated uses the constructor instead.
-   * 
-   * @param opcode an instruction opcode.
-   * @return the {@link InsnNode} corresponding to the given opcode.
-   */
-  
-  public final static InsnNode getByOpcode (final int opcode) {
-    return INSNS[opcode];
-  }
 
-  /**
-   * Constructs a new {@link InsnNode}.
-   *
-   * @param opcode the opcode of the instruction to be constructed. This opcode
-   *      must be NOP, ACONST_NULL, ICONST_M1, ICONST_0, ICONST_1, ICONST_2,
-   *      ICONST_3, ICONST_4, ICONST_5, LCONST_0, LCONST_1, FCONST_0, FCONST_1,
-   *      FCONST_2, DCONST_0, DCONST_1,
-   *
-   *      IALOAD, LALOAD, FALOAD, DALOAD, AALOAD, BALOAD, CALOAD, SALOAD,
-   *      IASTORE, LASTORE, FASTORE, DASTORE, AASTORE, BASTORE, CASTORE,
-   *      SASTORE,
-   *
-   *      POP, POP2, DUP, DUP_X1, DUP_X2, DUP2, DUP2_X1, DUP2_X2, SWAP,
-   *
-   *      IADD, LADD, FADD, DADD, ISUB, LSUB, FSUB, DSUB, IMUL, LMUL, FMUL,
-   *      DMUL, IDIV, LDIV, FDIV, DDIV, IREM, LREM, FREM, DREM, INEG, LNEG,
-   *      FNEG, DNEG, ISHL, LSHL, ISHR, LSHR, IUSHR, LUSHR, IAND, LAND, IOR,
-   *      LOR, IXOR, LXOR,
-   *
-   *      I2L, I2F, I2D, L2I, L2F, L2D, F2I, F2L, F2D, D2I, D2L, D2F, I2B, I2C,
-   *      I2S,
-   *
-   *      LCMP, FCMPL, FCMPG, DCMPL, DCMPG,
-   *
-   *      IRETURN, LRETURN, FRETURN, DRETURN, ARETURN, RETURN,
-   *
-   *      ARRAYLENGTH,
-   *
-   *      ATHROW,
-   *
-   *      MONITORENTER, or MONITOREXIT.
-   */
+    /**
+     * Returns the {@link InsnNode} corresponding to the given opcode.
+     * 
+     * @deprecated uses the constructor instead.
+     * 
+     * @param opcode
+     *            an instruction opcode.
+     * @return the {@link InsnNode} corresponding to the given opcode.
+     */
+    public final static InsnNode getByOpcode(final int opcode) {
+        return INSNS[opcode];
+    }
 
-  public InsnNode (final int opcode) {
-    super(opcode);
-  }
+    /**
+     * Constructs a new {@link InsnNode}.
+     * 
+     * @param opcode
+     *            the opcode of the instruction to be constructed. This opcode
+     *            must be NOP, ACONST_NULL, ICONST_M1, ICONST_0, ICONST_1,
+     *            ICONST_2, ICONST_3, ICONST_4, ICONST_5, LCONST_0, LCONST_1,
+     *            FCONST_0, FCONST_1, FCONST_2, DCONST_0, DCONST_1, IALOAD,
+     *            LALOAD, FALOAD, DALOAD, AALOAD, BALOAD, CALOAD, SALOAD,
+     *            IASTORE, LASTORE, FASTORE, DASTORE, AASTORE, BASTORE, CASTORE,
+     *            SASTORE, POP, POP2, DUP, DUP_X1, DUP_X2, DUP2, DUP2_X1,
+     *            DUP2_X2, SWAP, IADD, LADD, FADD, DADD, ISUB, LSUB, FSUB, DSUB,
+     *            IMUL, LMUL, FMUL, DMUL, IDIV, LDIV, FDIV, DDIV, IREM, LREM,
+     *            FREM, DREM, INEG, LNEG, FNEG, DNEG, ISHL, LSHL, ISHR, LSHR,
+     *            IUSHR, LUSHR, IAND, LAND, IOR, LOR, IXOR, LXOR, I2L, I2F, I2D,
+     *            L2I, L2F, L2D, F2I, F2L, F2D, D2I, D2L, D2F, I2B, I2C, I2S,
+     *            LCMP, FCMPL, FCMPG, DCMPL, DCMPG, IRETURN, LRETURN, FRETURN,
+     *            DRETURN, ARETURN, RETURN, ARRAYLENGTH, ATHROW, MONITORENTER,
+     *            or MONITOREXIT.
+     */
+    public InsnNode(final int opcode) {
+        super(opcode);
+    }
 
-  /**
-   * Makes the given visitor visit this instruction.
-   * 
-   * @param mv a method visitor. 
-   */
+    /**
+     * Makes the given visitor visit this instruction.
+     * 
+     * @param mv
+     *            a method visitor.
+     */
+    public void accept(final MethodVisitor mv) {
+        mv.visitInsn(opcode);
+    }
 
-  public void accept (final MethodVisitor mv) {
-    mv.visitInsn(opcode);
-  }
-
-  public int getType () {
-    return INSN;
-  }
+    public int getType() {
+        return INSN;
+    }
 }

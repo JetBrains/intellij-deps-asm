@@ -27,30 +27,30 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
  * THE POSSIBILITY OF SUCH DAMAGE.
  */
-
 package org.objectweb.asm.util.attrs;
 
 import java.util.Map;
 
 /**
  * An attribute that can print the ASM code to create an equivalent attribute.
- *
- * Implementation should print the ASM code that generates
- * attribute data structures for current attribute state.
- *
+ * 
+ * Implementation should print the ASM code that generates attribute data
+ * structures for current attribute state.
+ * 
  * @author Eugene Kuleshov
  */
-
 public interface ASMifiable {
 
-  /**
-   * Prints the ASM code to create an attribute equal to this attribute.
-   *
-   * @param buf A buffer used for printing Java code.
-   * @param varName name of the variable in a printed code used to store
-   *      attribute instance.
-   * @param labelNames map of label instances to their names.
-   */
-
-  void asmify (StringBuffer buf, String varName, Map labelNames);
+    /**
+     * Prints the ASM code to create an attribute equal to this attribute.
+     * 
+     * @param buf
+     *            A buffer used for printing Java code.
+     * @param varName
+     *            name of the variable in a printed code used to store attribute
+     *            instance.
+     * @param labelNames
+     *            map of label instances to their names.
+     */
+    void asmify(StringBuffer buf, String varName, Map labelNames);
 }

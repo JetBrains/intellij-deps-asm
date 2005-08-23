@@ -27,7 +27,6 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
  * THE POSSIBILITY OF SUCH DAMAGE.
  */
-
 package org.objectweb.asm.util.attrs;
 
 import java.util.List;
@@ -42,149 +41,183 @@ import org.objectweb.asm.attrs.StackMapType;
 
 /**
  * An {@link ASMifiable} {@link StackMapAttribute} sub class.
- *
+ * 
  * @author Eugene Kuleshov
  */
-
-public class ASMStackMapAttribute extends StackMapAttribute 
-  implements ASMifiable, Traceable 
+public class ASMStackMapAttribute extends StackMapAttribute implements
+        ASMifiable,
+        Traceable
 {
-  /**
-   * Length of the attribute used for comparison
-   */
-  private int len;
+    /**
+     * Length of the attribute used for comparison
+     */
+    private int len;
 
-  public ASMStackMapAttribute() {
-    super();
-  }
-  
-  public ASMStackMapAttribute( List frames, int len) {
-    super( frames);
-    this.len = len;
-  }
-
-  protected Attribute read (ClassReader cr, int off,
-    int len, char[] buf, int codeOff, Label[] labels) 
-  {
-    StackMapAttribute attr = 
-      (StackMapAttribute)super.read(cr, off, len, buf, codeOff, labels);
-    
-    return new ASMStackMapAttribute( attr.getFrames(), len);
-  }
-
-  public void asmify (StringBuffer buf, String varName, Map labelNames) {
-    List frames = getFrames();
-    buf.append("{\n");
-    buf.append("StackMapAttribute ").append(varName).append("Attr");
-    buf.append(" = new StackMapAttribute();\n");
-    if (frames.size() > 0) {
-      for (int i = 0; i < frames.size(); i++) {
-        asmify((StackMapFrame)frames.get(i), buf, varName + "frame" + i, labelNames);
-      }
+    public ASMStackMapAttribute() {
+        super();
     }
-    buf.append(varName).append(".visitAttribute(").append(varName);
-    buf.append("Attr);\n}\n");
-  }
 
-  void asmify (StackMapFrame f, StringBuffer buf, String varName, Map labelNames) {
-    declareLabel(buf, labelNames, f.label);
-    buf.append("{\n");
-    
-    buf.append("StackMapFrame ").append(varName).append( " = new StackMapFrame();\n");
-    
-    buf.append(varName).append(".label = ")
-      .append(labelNames.get(f.label)).append(";\n");
+    public ASMStackMapAttribute(List frames, int len) {
+        super(frames);
+        this.len = len;
+    }
 
-    asmifyTypeInfo(buf, varName, labelNames, f.locals, "locals");
-    asmifyTypeInfo(buf, varName, labelNames, f.stack, "stack");
+    protected Attribute read(
+        ClassReader cr,
+        int off,
+        int len,
+        char[] buf,
+        int codeOff,
+        Label[] labels)
+    {
+        StackMapAttribute attr = (StackMapAttribute) super.read(cr,
+                off,
+                len,
+                buf,
+                codeOff,
+                labels);
 
-    buf.append( "cvAttr.frames.add(").append(varName).append(");\n");
-    buf.append("}\n");
-  }
+        return new ASMStackMapAttribute(attr.getFrames(), len);
+    }
 
-  void asmifyTypeInfo (StringBuffer buf, String varName, 
-                     Map labelNames, List infos, String field) {
-    if (infos.size() > 0) {
-      buf.append("{\n");
-      for (int i = 0; i < infos.size(); i++) {
-        StackMapType typeInfo = (StackMapType)infos.get(i);
-        String localName = varName + "Info" + i;
-        int type = typeInfo.getType();
-        buf.append("StackMapType ").append(localName)
-          .append(" = StackMapType.getTypeInfo( StackMapType.ITEM_")
-          .append(StackMapType.ITEM_NAMES[type]).append(");\n");
-
-        switch (type) {
-          case StackMapType.ITEM_Object:  //
-            buf.append(localName).append(".setObject(\"")
-              .append(typeInfo.getObject()).append("\");\n");
-            break;
-
-          case StackMapType.ITEM_Uninitialized:  //
-            declareLabel(buf, labelNames, typeInfo.getLabel());
-            buf.append(localName).append(".setLabel(")
-              .append(labelNames.get(typeInfo.getLabel())).append(");\n");
-            break;
+    public void asmify(StringBuffer buf, String varName, Map labelNames) {
+        List frames = getFrames();
+        buf.append("{\n");
+        buf.append("StackMapAttribute ").append(varName).append("Attr");
+        buf.append(" = new StackMapAttribute();\n");
+        if (frames.size() > 0) {
+            for (int i = 0; i < frames.size(); i++) {
+                asmify((StackMapFrame) frames.get(i), buf, varName + "frame"
+                        + i, labelNames);
+            }
         }
-        buf.append(varName).append(".").append(field)
-          .append(".add(").append(localName).append(");\n");
-      }
-      buf.append("}\n");
+        buf.append(varName).append(".visitAttribute(").append(varName);
+        buf.append("Attr);\n}\n");
     }
-  }
 
-  static void declareLabel (StringBuffer buf, Map labelNames, Label l) {
-    String name = (String)labelNames.get(l);
-    if (name == null) {
-      name = "l" + labelNames.size();
-      labelNames.put(l, name);
-      buf.append("Label ").append(name).append(" = new Label();\n");
+    void asmify(
+        StackMapFrame f,
+        StringBuffer buf,
+        String varName,
+        Map labelNames)
+    {
+        declareLabel(buf, labelNames, f.label);
+        buf.append("{\n");
+
+        buf.append("StackMapFrame ")
+                .append(varName)
+                .append(" = new StackMapFrame();\n");
+
+        buf.append(varName)
+                .append(".label = ")
+                .append(labelNames.get(f.label))
+                .append(";\n");
+
+        asmifyTypeInfo(buf, varName, labelNames, f.locals, "locals");
+        asmifyTypeInfo(buf, varName, labelNames, f.stack, "stack");
+
+        buf.append("cvAttr.frames.add(").append(varName).append(");\n");
+        buf.append("}\n");
     }
-  }
 
-  public void trace( StringBuffer buf, Map labelNames) {
-    List frames = getFrames();
-    buf.append("StackMapTable[\n");
-    for (int i = 0; i < frames.size(); i++) {
-      StackMapFrame f = ( StackMapFrame) frames.get(i);
+    void asmifyTypeInfo(
+        StringBuffer buf,
+        String varName,
+        Map labelNames,
+        List infos,
+        String field)
+    {
+        if (infos.size() > 0) {
+            buf.append("{\n");
+            for (int i = 0; i < infos.size(); i++) {
+                StackMapType typeInfo = (StackMapType) infos.get(i);
+                String localName = varName + "Info" + i;
+                int type = typeInfo.getType();
+                buf.append("StackMapType ")
+                        .append(localName)
+                        .append(" = StackMapType.getTypeInfo( StackMapType.ITEM_")
+                        .append(StackMapType.ITEM_NAMES[type])
+                        .append(");\n");
 
-      buf.append("    Frame:");
-      appendLabel(buf, labelNames, f.label);
-      
-      buf.append(" locals[");
-      traceTypeInfo(buf, labelNames, f.locals);
-      buf.append( "]");
-      buf.append(" stack[");
-      traceTypeInfo(buf, labelNames, f.stack);
-      buf.append( "]\n");
+                switch (type) {
+                case StackMapType.ITEM_Object: //
+                    buf.append(localName)
+                            .append(".setObject(\"")
+                            .append(typeInfo.getObject())
+                            .append("\");\n");
+                    break;
+
+                case StackMapType.ITEM_Uninitialized: //
+                    declareLabel(buf, labelNames, typeInfo.getLabel());
+                    buf.append(localName)
+                            .append(".setLabel(")
+                            .append(labelNames.get(typeInfo.getLabel()))
+                            .append(");\n");
+                    break;
+                }
+                buf.append(varName)
+                        .append(".")
+                        .append(field)
+                        .append(".add(")
+                        .append(localName)
+                        .append(");\n");
+            }
+            buf.append("}\n");
+        }
     }
-    buf.append("  ] length:").append(len).append("\n");
-  }
 
-  private void traceTypeInfo(StringBuffer buf, Map labelNames, List infos) {
-    String sep = "";
-    for (int i = 0; i < infos.size(); i++) {
-      StackMapType t = (StackMapType)infos.get(i);
+    static void declareLabel(StringBuffer buf, Map labelNames, Label l) {
+        String name = (String) labelNames.get(l);
+        if (name == null) {
+            name = "l" + labelNames.size();
+            labelNames.put(l, name);
+            buf.append("Label ").append(name).append(" = new Label();\n");
+        }
+    }
 
-      buf.append(sep).append(StackMapType.ITEM_NAMES[t.getType()]);
-      sep = ", ";
-      if (t.getType() == StackMapType.ITEM_Object) {
-        buf.append(":").append(t.getObject());
-      }
-      if (t.getType() == StackMapType.ITEM_Uninitialized) {
-        buf.append(":");
-        appendLabel(buf, labelNames, t.getLabel());
-      }
+    public void trace(StringBuffer buf, Map labelNames) {
+        List frames = getFrames();
+        buf.append("StackMapTable[\n");
+        for (int i = 0; i < frames.size(); i++) {
+            StackMapFrame f = (StackMapFrame) frames.get(i);
+
+            buf.append("    Frame:");
+            appendLabel(buf, labelNames, f.label);
+
+            buf.append(" locals[");
+            traceTypeInfo(buf, labelNames, f.locals);
+            buf.append("]");
+            buf.append(" stack[");
+            traceTypeInfo(buf, labelNames, f.stack);
+            buf.append("]\n");
+        }
+        buf.append("  ] length:").append(len).append("\n");
     }
-  }
-  
-  protected void appendLabel (StringBuffer buf, Map labelNames, Label l) {
-    String name = (String)labelNames.get(l);
-    if (name == null) {
-      name = "L" + labelNames.size();
-      labelNames.put(l, name);
+
+    private void traceTypeInfo(StringBuffer buf, Map labelNames, List infos) {
+        String sep = "";
+        for (int i = 0; i < infos.size(); i++) {
+            StackMapType t = (StackMapType) infos.get(i);
+
+            buf.append(sep).append(StackMapType.ITEM_NAMES[t.getType()]);
+            sep = ", ";
+            if (t.getType() == StackMapType.ITEM_Object) {
+                buf.append(":").append(t.getObject());
+            }
+            if (t.getType() == StackMapType.ITEM_Uninitialized) {
+                buf.append(":");
+                appendLabel(buf, labelNames, t.getLabel());
+            }
+        }
     }
-    buf.append(name);
-  }
+
+    protected void appendLabel(StringBuffer buf, Map labelNames, Label l) {
+        String name = (String) labelNames.get(l);
+        if (name == null) {
+            name = "L" + labelNames.size();
+            labelNames.put(l, name);
+        }
+        buf.append(name);
+    }
 
 }

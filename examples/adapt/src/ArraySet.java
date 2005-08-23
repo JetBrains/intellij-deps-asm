@@ -31,67 +31,66 @@
 /**
  * @author Eric Bruneton
  */
-
 public class ArraySet {
 
-  private int[] values = new int[3];
+    private int[] values = new int[3];
 
-  private int size;
+    private int size;
 
-  public boolean contains (int v) {
-    for (int i = 0; i < size; ++i) {
-      if (values[i] == v) {
-        return true;
-      }
-    }
-    return false;
-  }
-
-  public void add (int v) {
-    if (!contains(v)) {
-      if (size == values.length) {
-        System.err.println("[enlarge]");
-        int[] newValues = new int[values.length + 3];
+    public boolean contains(int v) {
         for (int i = 0; i < size; ++i) {
-          newValues[i] = values[i];
+            if (values[i] == v) {
+                return true;
+            }
         }
-        values = newValues;
-      }
-      values[size++] = v;
+        return false;
     }
-  }
 
-  public void remove (int v) {
-    int i = 0;
-    int j = 0;
-    while (i < size) {
-      int u = values[i];
-      if (u != v) {
-        values[j++] = u;
-      }
-      ++i;
+    public void add(int v) {
+        if (!contains(v)) {
+            if (size == values.length) {
+                System.err.println("[enlarge]");
+                int[] newValues = new int[values.length + 3];
+                for (int i = 0; i < size; ++i) {
+                    newValues[i] = values[i];
+                }
+                values = newValues;
+            }
+            values[size++] = v;
+        }
     }
-    size = j;
-  }
 
-  // test method
+    public void remove(int v) {
+        int i = 0;
+        int j = 0;
+        while (i < size) {
+            int u = values[i];
+            if (u != v) {
+                values[j++] = u;
+            }
+            ++i;
+        }
+        size = j;
+    }
 
-  public static void main (String[] args) {
-    ArraySet s = new ArraySet();
-    System.err.println("add 1");
-    s.add(1);
-    System.err.println("add 1");
-    s.add(1);
-    System.err.println("add 2");
-    s.add(2);
-    System.err.println("add 4");
-    s.add(4);
-    System.err.println("add 8");
-    s.add(8);
-    System.err.println("contains 3 = " + s.contains(3));
-    System.err.println("contains 1 = " + s.contains(1));
-    System.err.println("remove 1");
-    s.remove(1);
-    System.err.println("contains 1 = " + s.contains(1));
-  }
+    // test method
+
+    public static void main(String[] args) {
+        ArraySet s = new ArraySet();
+        System.err.println("add 1");
+        s.add(1);
+        System.err.println("add 1");
+        s.add(1);
+        System.err.println("add 2");
+        s.add(2);
+        System.err.println("add 4");
+        s.add(4);
+        System.err.println("add 8");
+        s.add(8);
+        System.err.println("contains 3 = " + s.contains(3));
+        System.err.println("contains 1 = " + s.contains(1));
+        System.err.println("remove 1");
+        s.remove(1);
+        System.err.println("contains 1 = " + s.contains(1));
+    }
 }

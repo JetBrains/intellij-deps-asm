@@ -27,7 +27,6 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
  * THE POSSIBILITY OF SUCH DAMAGE.
  */
-
 package org.objectweb.asm.tree.analysis;
 
 import java.util.Set;
@@ -40,55 +39,54 @@ import org.objectweb.asm.tree.AbstractInsnNode;
  * 
  * @author Eric Bruneton
  */
-
 public class DataflowValue implements Value {
 
-  /**
-   * The size of this value.
-   */
-  
-  public final int size;
-  
-  /**
-   * The instructions that can produce this value. For example, for the Java 
-   * code below, the instructions that can produce the value of <tt>i</tt>
-   * at line 5 are the txo ISTORE instructions at line 1 and 3:
-   * <pre>
-   * 1: i = 0;
-   * 2: if (...) {
-   * 3:   i = 1;
-   * 4: }
-   * 5: return i;
-   * </pre>
-   * This field is a set of {@link AbstractInsnNode} objects. 
-   */
-  
-  public final Set insns;
-  
-  public DataflowValue (final int size) {
-    this(size, SmallSet.EMPTY_SET);
-  }
-  
-  public DataflowValue (final int size, final AbstractInsnNode insn) {
-    this.size = size;
-    this.insns = new SmallSet(insn, null);
-  }
-  
-  public DataflowValue (final int size, final Set insns) {
-    this.size = size;
-    this.insns = insns;
-  }
-  
-  public int getSize () {
-    return size;
-  }
+    /**
+     * The size of this value.
+     */
+    public final int size;
 
-  public boolean equals (final Object value) {
-    DataflowValue v = (DataflowValue)value;
-    return size == v.size && insns.equals(v.insns);
-  }
-  
-  public int hashCode () {
-    return insns.hashCode();
-  }
+    /**
+     * The instructions that can produce this value. For example, for the Java
+     * code below, the instructions that can produce the value of <tt>i</tt>
+     * at line 5 are the txo ISTORE instructions at line 1 and 3:
+     * 
+     * <pre>
+     * 1: i = 0;
+     * 2: if (...) {
+     * 3:   i = 1;
+     * 4: }
+     * 5: return i;
+     * </pre>
+     * 
+     * This field is a set of {@link AbstractInsnNode} objects.
+     */
+    public final Set insns;
+
+    public DataflowValue(final int size) {
+        this(size, SmallSet.EMPTY_SET);
+    }
+
+    public DataflowValue(final int size, final AbstractInsnNode insn) {
+        this.size = size;
+        this.insns = new SmallSet(insn, null);
+    }
+
+    public DataflowValue(final int size, final Set insns) {
+        this.size = size;
+        this.insns = insns;
+    }
+
+    public int getSize() {
+        return size;
+    }
+
+    public boolean equals(final Object value) {
+        DataflowValue v = (DataflowValue) value;
+        return size == v.size && insns.equals(v.insns);
+    }
+
+    public int hashCode() {
+        return insns.hashCode();
+    }
 }

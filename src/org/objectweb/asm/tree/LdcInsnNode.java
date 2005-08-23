@@ -27,7 +27,6 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
  * THE POSSIBILITY OF SUCH DAMAGE.
  */
-
 package org.objectweb.asm.tree;
 
 import org.objectweb.asm.MethodVisitor;
@@ -35,38 +34,36 @@ import org.objectweb.asm.Opcodes;
 
 /**
  * A node that represents an LDC instruction.
- *
+ * 
  * @author Eric Bruneton
  */
-
 public class LdcInsnNode extends AbstractInsnNode {
 
-  /**
-   * The constant to be loaded on the stack. This parameter must be a non null
-   * {@link Integer}, a {@link Float}, a {@link Long}, a {@link Double}, a
-   * {@link String} or a {@link Type}.
-   */
+    /**
+     * The constant to be loaded on the stack. This parameter must be a non null
+     * {@link Integer}, a {@link Float}, a {@link Long}, a {@link Double}, a
+     * {@link String} or a {@link Type}.
+     */
+    public Object cst;
 
-  public Object cst;
+    /**
+     * Constructs a new {@link LdcInsnNode}.
+     * 
+     * @param cst
+     *            the constant to be loaded on the stack. This parameter must be
+     *            a non null {@link Integer}, a {@link Float}, a {@link Long},
+     *            a {@link Double} or a {@link String}.
+     */
+    public LdcInsnNode(final Object cst) {
+        super(Opcodes.LDC);
+        this.cst = cst;
+    }
 
-  /**
-   * Constructs a new {@link LdcInsnNode}.
-   *
-   * @param cst the constant to be loaded on the stack. This parameter must be
-   *      a non null {@link Integer}, a {@link Float}, a {@link Long}, a
-   *      {@link Double} or a {@link String}.
-   */
+    public void accept(final MethodVisitor mv) {
+        mv.visitLdcInsn(cst);
+    }
 
-  public LdcInsnNode (final Object cst) {
-    super(Opcodes.LDC);
-    this.cst = cst;
-  }
-
-  public void accept (final MethodVisitor mv) {
-    mv.visitLdcInsn(cst);
-  }
-
-  public int getType () {
-    return LDC_INSN;
-  }
+    public int getType() {
+        return LDC_INSN;
+    }
 }

@@ -27,7 +27,6 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
  * THE POSSIBILITY OF SUCH DAMAGE.
  */
-
 package org.objectweb.asm;
 
 import junit.framework.TestSuite;
@@ -39,14 +38,13 @@ import org.objectweb.asm.commons.EmptyVisitor;
  * 
  * @author Eric Bruneton
  */
-
 public class ClassReaderTest extends AbstractTest {
-  
-  public static TestSuite suite () throws Exception {
-    return new ClassReaderTest().getSuite();
-  }
-  
-  public void test () throws Exception {
-    new ClassReader(is).accept(new EmptyVisitor(), false);
-  }
+
+    public static TestSuite suite() throws Exception {
+        return new ClassReaderTest().getSuite();
+    }
+
+    public void test() throws Exception {
+        new ClassReader(is).accept(new EmptyVisitor(), false);
+    }
 }

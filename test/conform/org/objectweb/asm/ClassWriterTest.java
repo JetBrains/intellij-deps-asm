@@ -27,7 +27,6 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
  * THE POSSIBILITY OF SUCH DAMAGE.
  */
-
 package org.objectweb.asm;
 
 import junit.framework.TestSuite;
@@ -37,17 +36,16 @@ import junit.framework.TestSuite;
  * 
  * @author Eric Bruneton
  */
-
 public class ClassWriterTest extends AbstractTest {
 
-  public static TestSuite suite () throws Exception {
-    return new ClassWriterTest().getSuite();
-  }
-  
-  public void test () throws Exception {
-    ClassReader cr = new ClassReader(is);
-    ClassWriter cw = new ClassWriter(false, true);
-    cr.accept(cw, false);
-    assertEquals(cr, new ClassReader(cw.toByteArray()));
-  }
+    public static TestSuite suite() throws Exception {
+        return new ClassWriterTest().getSuite();
+    }
+
+    public void test() throws Exception {
+        ClassReader cr = new ClassReader(is);
+        ClassWriter cw = new ClassWriter(false, true);
+        cr.accept(cw, false);
+        assertEquals(cr, new ClassReader(cw.toByteArray()));
+    }
 }

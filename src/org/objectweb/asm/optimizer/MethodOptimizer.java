@@ -27,7 +27,6 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
  * THE POSSIBILITY OF SUCH DAMAGE.
  */
-
 package org.objectweb.asm.optimizer;
 
 import org.objectweb.asm.AnnotationVisitor;
@@ -36,81 +35,74 @@ import org.objectweb.asm.MethodAdapter;
 import org.objectweb.asm.MethodVisitor;
 
 /**
- * A {@link MethodAdapter} that renames fields and methods, and removes debug 
+ * A {@link MethodAdapter} that renames fields and methods, and removes debug
  * info.
  * 
  * @author Eric Bruneton
  */
-
 public class MethodOptimizer extends MethodAdapter {
 
-  private NameMapping mapping;
-  
-  public MethodOptimizer (final MethodVisitor mv, final NameMapping mapping) {
-    super(mv);
-    this.mapping = mapping;
-  }
-  
-  // --------------------------------------------------------------------------
-  // Overriden methods
-  // --------------------------------------------------------------------------
-  
-  public AnnotationVisitor visitAnnotationDefault () {
-    throw new UnsupportedOperationException();
-  }
+    private NameMapping mapping;
 
-  public AnnotationVisitor visitParameterAnnotation (
-    final int parameter, 
-    final String desc, 
-    final boolean visible) 
-  {
-    throw new UnsupportedOperationException();
-  }
+    public MethodOptimizer(final MethodVisitor mv, final NameMapping mapping) {
+        super(mv);
+        this.mapping = mapping;
+    }
 
-  public void visitTypeInsn (final int opcode, final String desc) {
-    mv.visitTypeInsn(
-        opcode, 
-        desc.startsWith("[") ? mapping.fix(desc) : mapping.map(desc));
-  }
+    // ------------------------------------------------------------------------
+    // Overriden methods
+    // ------------------------------------------------------------------------
 
-  public void visitFieldInsn (
-    final int opcode, 
-    final String owner, 
-    final String name, 
-    final String desc) 
-  {
-    mv.visitFieldInsn(
-        opcode, 
-        mapping.map(owner), 
-        mapping.map(owner + "." + name),
-        mapping.fix(desc));
-  }
+    public AnnotationVisitor visitAnnotationDefault() {
+        throw new UnsupportedOperationException();
+    }
 
-  public void visitMethodInsn (
-    final int opcode, 
-    final String owner, 
-    final String name, 
-    final String desc) 
-  {
-    mv.visitMethodInsn(
-        opcode, 
-        mapping.map(owner), 
-        mapping.map(owner + "." + name + desc), 
-        mapping.fix(desc));
-  }
+    public AnnotationVisitor visitParameterAnnotation(
+        final int parameter,
+        final String desc,
+        final boolean visible)
+    {
+        throw new UnsupportedOperationException();
+    }
 
-  public void visitLocalVariable (
-    final String name, 
-    final String desc, 
-    final String signature, 
-    final Label start, 
-    final Label end, 
-    final int index) 
-  {
-    // remove debug info
-  }
+    public void visitTypeInsn(final int opcode, final String desc) {
+        mv.visitTypeInsn(opcode, desc.startsWith("[")
+                ? mapping.fix(desc)
+                : mapping.map(desc));
+    }
 
-  public void visitLineNumber (final int line, final Label start) {
-    // remove debug info
-  }
+    public void visitFieldInsn(
+        final int opcode,
+        final String owner,
+        final String name,
+        final String desc)
+    {
+        mv.visitFieldInsn(opcode, mapping.map(owner), mapping.map(owner + "."
+                + name), mapping.fix(desc));
+    }
+
+    public void visitMethodInsn(
+        final int opcode,
+        final String owner,
+        final String name,
+        final String desc)
+    {
+        mv.visitMethodInsn(opcode, mapping.map(owner), mapping.map(owner + "."
+                + name + desc), mapping.fix(desc));
+    }
+
+    public void visitLocalVariable(
+        final String name,
+        final String desc,
+        final String signature,
+        final Label start,
+        final Label end,
+        final int index)
+    {
+        // remove debug info
+    }
+
+    public void visitLineNumber(final int line, final Label start) {
+        // remove debug info
+    }
 }

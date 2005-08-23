@@ -27,7 +27,6 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
  * THE POSSIBILITY OF SUCH DAMAGE.
  */
-
 package org.objectweb.asm;
 
 import org.objectweb.asm.ClassAdapter;
@@ -43,95 +42,95 @@ import java.io.InputStream;
 /**
  * @author Eric Bruneton
  */
-
 public class ASMPerfTest extends ALLPerfTest {
 
-  final static Integer ONE = new Integer(1);
-  
-  public static void main (final String args[]) throws Exception {
-    System.out.println("ASM PERFORMANCES\n");
-    new ASMPerfTest().perfs(args);
-  }
+    final static Integer ONE = new Integer(1);
 
-  ALLPerfTest newInstance () {
-    return new ASMPerfTest();
-  }
-
-  byte[] nullAdaptClass (final InputStream is, final String name)
-    throws Exception
-  {
-    ClassReader cr = new ClassReader(is);
-    ClassWriter cw = new ClassWriter(compute);
-    ClassAdapter ca = new ClassAdapter(cw);
-    cr.accept(ca, skipDebug);
-    return cw.toByteArray();
-  }
-
-  byte[] counterAdaptClass (final InputStream is, final String name)
-    throws Exception
-  {
-    ClassReader cr = new ClassReader(is);
-    ClassWriter cw = new ClassWriter(false);
-    ClassAdapter ca = new CounterClassAdapter(cw);
-    cr.accept(ca, false);
-    return cw.toByteArray();
-  }
-
-  static class CounterClassAdapter extends ClassAdapter implements Opcodes {
-
-    private String owner;
-
-    CounterClassAdapter (ClassVisitor cv) {
-      super(cv);
+    public static void main(final String args[]) throws Exception {
+        System.out.println("ASM PERFORMANCES\n");
+        new ASMPerfTest().perfs(args);
     }
 
-    public void visit (
-      int version,
-      int access,
-      String name,
-      String signature,
-      String superName,
-      String[] interfaces)
+    ALLPerfTest newInstance() {
+        return new ASMPerfTest();
+    }
+
+    byte[] nullAdaptClass(final InputStream is, final String name) throws Exception
     {
-      super.visit(version, access, name, signature, superName, interfaces);
-      if ((access & ACC_INTERFACE) == 0) {
-        cv.visitField(ACC_PUBLIC, "_counter", "I", null, null);
-      }
-      owner = name;
+        ClassReader cr = new ClassReader(is);
+        ClassWriter cw = new ClassWriter(compute);
+        ClassAdapter ca = new ClassAdapter(cw);
+        cr.accept(ca, skipDebug);
+        return cw.toByteArray();
     }
 
-    public MethodVisitor visitMethod (
-      int access,
-      String name,
-      String desc,
-      String signature,
-      String[] exceptions)
+    byte[] counterAdaptClass(final InputStream is, final String name) throws Exception
     {
-      MethodVisitor mv = 
-        super.visitMethod(access, name, desc, signature, exceptions);
-      if (!name.equals("<init>") &&
-          (access & (ACC_STATIC + ACC_NATIVE + ACC_ABSTRACT)) == 0)
-      {
-        mv.visitVarInsn(ALOAD, 0);
-        mv.visitVarInsn(ALOAD, 0);
-        mv.visitFieldInsn(GETFIELD, owner, "_counter", "I");
-        mv.visitLdcInsn(ONE);
-        mv.visitInsn(IADD);
-        mv.visitFieldInsn(PUTFIELD, owner, "_counter", "I");
-        return new CounterCodeAdapter(mv);
-      }
-      return mv;
-    }
-  }
-
-  static class CounterCodeAdapter extends MethodAdapter {
-
-    CounterCodeAdapter (MethodVisitor mv) {
-      super(mv);
+        ClassReader cr = new ClassReader(is);
+        ClassWriter cw = new ClassWriter(false);
+        ClassAdapter ca = new CounterClassAdapter(cw);
+        cr.accept(ca, false);
+        return cw.toByteArray();
     }
 
-    public void visitMaxs (int maxStack, int maxLocals) {
-      super.visitMaxs(Math.max(maxStack, 2), maxLocals);
+    static class CounterClassAdapter extends ClassAdapter implements Opcodes {
+
+        private String owner;
+
+        CounterClassAdapter(ClassVisitor cv) {
+            super(cv);
+        }
+
+        public void visit(
+            int version,
+            int access,
+            String name,
+            String signature,
+            String superName,
+            String[] interfaces)
+        {
+            super.visit(version, access, name, signature, superName, interfaces);
+            if ((access & ACC_INTERFACE) == 0) {
+                cv.visitField(ACC_PUBLIC, "_counter", "I", null, null);
+            }
+            owner = name;
+        }
+
+        public MethodVisitor visitMethod(
+            int access,
+            String name,
+            String desc,
+            String signature,
+            String[] exceptions)
+        {
+            MethodVisitor mv = super.visitMethod(access,
+                    name,
+                    desc,
+                    signature,
+                    exceptions);
+            if (!name.equals("<init>")
+                    && (access & (ACC_STATIC + ACC_NATIVE + ACC_ABSTRACT)) == 0)
+            {
+                mv.visitVarInsn(ALOAD, 0);
+                mv.visitVarInsn(ALOAD, 0);
+                mv.visitFieldInsn(GETFIELD, owner, "_counter", "I");
+                mv.visitLdcInsn(ONE);
+                mv.visitInsn(IADD);
+                mv.visitFieldInsn(PUTFIELD, owner, "_counter", "I");
+                return new CounterCodeAdapter(mv);
+            }
+            return mv;
+        }
     }
-  }
+
+    static class CounterCodeAdapter extends MethodAdapter {
+
+        CounterCodeAdapter(MethodVisitor mv) {
+            super(mv);
+        }
+
+        public void visitMaxs(int maxStack, int maxLocals) {
+            super.visitMaxs(Math.max(maxStack, 2), maxLocals);
+        }
+    }
 }

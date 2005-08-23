@@ -27,7 +27,6 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
  * THE POSSIBILITY OF SUCH DAMAGE.
  */
-
 package org.objectweb.asm;
 
 import java.io.InputStream;
@@ -45,67 +44,67 @@ import javassist.bytecode.Opcode;
 /**
  * @author Eric Bruneton
  */
-
 public class JavassistPerfTest extends ALLPerfTest {
 
-  public static void main (final String args[]) throws Exception {
-    System.out.println("Javassist PERFORMANCES\n");
-    new JavassistPerfTest().perfs(args);
-  }
-
-  ClassPool pool;
-  
-  public JavassistPerfTest () {
-    pool = new ClassPool(null);
-  }
-  
-  ALLPerfTest newInstance () {
-    return new JavassistPerfTest();
-  }
-
-  byte[] nullAdaptClass (final InputStream is, final String name)
-    throws Exception
-  {
-    CtClass cc = pool.makeClass(is);
-    CtMethod[] ms = cc.getDeclaredMethods();
-    for (int j = 0; j < ms.length; ++j) {
-      if (skipDebug) {
-        // is there a mean to remove the debug attributes?
-      }
-      if (compute) {
-        // is there a mean to force recomputation of maxStack and maxLocals?
-      }
+    public static void main(final String args[]) throws Exception {
+        System.out.println("Javassist PERFORMANCES\n");
+        new JavassistPerfTest().perfs(args);
     }
-    return cc.toBytecode();
-  }
 
-  byte[] counterAdaptClass (final InputStream is, final String name)
-    throws Exception
-  {
-    CtClass cc = pool.makeClass(is);
-    if (!cc.isInterface()) {
-      cc.addField(new CtField(CtClass.intType, "_counter", cc));
+    ClassPool pool;
+
+    public JavassistPerfTest() {
+        pool = new ClassPool(null);
     }
-    CtMethod[] ms = cc.getDeclaredMethods();
-    for (int j = 0; j < ms.length; ++j) {
-      CtMethod m = ms[j];
-      int modifiers = m.getModifiers();
-      if (!Modifier.isStatic(modifiers) && !Modifier.isAbstract(modifiers) && !Modifier.isNative(modifiers)) {
-        if (!m.isEmpty()) {
-          MethodInfo info = m.getMethodInfo();
-          Bytecode bc = new Bytecode(info.getConstPool(), 1, 0);
-          bc.addAload(0);
-          bc.addAload(0);
-          bc.addGetfield(cc, "_counter", "I");
-          bc.add(Opcode.ICONST_1);
-          bc.add(Opcode.IADD);
-          bc.addPutfield(cc, "_counter", "I");
-          CodeIterator iter = info.getCodeAttribute().iterator();
-          iter.begin();
-          iter.insert(bc.get());
+
+    ALLPerfTest newInstance() {
+        return new JavassistPerfTest();
+    }
+
+    byte[] nullAdaptClass(final InputStream is, final String name) throws Exception
+    {
+        CtClass cc = pool.makeClass(is);
+        CtMethod[] ms = cc.getDeclaredMethods();
+        for (int j = 0; j < ms.length; ++j) {
+            if (skipDebug) {
+                // is there a mean to remove the debug attributes?
+            }
+            if (compute) {
+                // how to force recomputation of maxStack and maxLocals?
+            }
         }
-      }
+        return cc.toBytecode();
     }
-    return cc.toBytecode();
-  }
+
+    byte[] counterAdaptClass(final InputStream is, final String name) throws Exception
+    {
+        CtClass cc = pool.makeClass(is);
+        if (!cc.isInterface()) {
+            cc.addField(new CtField(CtClass.intType, "_counter", cc));
+        }
+        CtMethod[] ms = cc.getDeclaredMethods();
+        for (int j = 0; j < ms.length; ++j) {
+            CtMethod m = ms[j];
+            int modifiers = m.getModifiers();
+            if (!Modifier.isStatic(modifiers)
+                    && !Modifier.isAbstract(modifiers)
+                    && !Modifier.isNative(modifiers))
+            {
+                if (!m.isEmpty()) {
+                    MethodInfo info = m.getMethodInfo();
+                    Bytecode bc = new Bytecode(info.getConstPool(), 1, 0);
+                    bc.addAload(0);
+                    bc.addAload(0);
+                    bc.addGetfield(cc, "_counter", "I");
+                    bc.add(Opcode.ICONST_1);
+                    bc.add(Opcode.IADD);
+                    bc.addPutfield(cc, "_counter", "I");
+                    CodeIterator iter = info.getCodeAttribute().iterator();
+                    iter.begin();
+                    iter.insert(bc.get());
+                }
+            }
+        }
+        return cc.toBytecode();
+    }
 }

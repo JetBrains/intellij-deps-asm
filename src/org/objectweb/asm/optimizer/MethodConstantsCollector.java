@@ -27,7 +27,6 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
  * THE POSSIBILITY OF SUCH DAMAGE.
  */
-
 package org.objectweb.asm.optimizer;
 
 import org.objectweb.asm.AnnotationVisitor;
@@ -37,132 +36,133 @@ import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 
 /**
- * An {@link MethodVisitor} that collects the {@link Constant}s of the methods 
+ * An {@link MethodVisitor} that collects the {@link Constant}s of the methods
  * it visits.
  * 
- * @author Eric Bruneton 
+ * @author Eric Bruneton
  */
-
 public class MethodConstantsCollector extends MethodAdapter {
 
-  private ConstantPool cp;
-  
-  public MethodConstantsCollector (
-    final MethodVisitor mv, 
-    final ConstantPool cp) 
-  {
-    super(mv);
-    this.cp = cp;
-  }
+    private ConstantPool cp;
 
-  public AnnotationVisitor visitAnnotationDefault () {
-    cp.newUTF8("AnnotationDefault");
-    return new AnnotationConstantsCollector(mv.visitAnnotationDefault(), cp);
-  }
-
-  public AnnotationVisitor visitAnnotation (
-    final String desc, 
-    final boolean visible) 
-  {
-    cp.newUTF8(desc);
-    if (visible) {
-      cp.newUTF8("RuntimeVisibleAnnotations");
-    } else {
-      cp.newUTF8("RuntimeInvisibleAnnotations");
+    public MethodConstantsCollector(
+        final MethodVisitor mv,
+        final ConstantPool cp)
+    {
+        super(mv);
+        this.cp = cp;
     }
-    return new AnnotationConstantsCollector(
-        mv.visitAnnotation(desc, visible), cp);
-  }
 
-  public AnnotationVisitor visitParameterAnnotation (
-    final int parameter, 
-    final String desc, 
-    final boolean visible) 
-  {
-    cp.newUTF8(desc);
-    if (visible) {
-      cp.newUTF8("RuntimeVisibleParameterAnnotations");
-    } else {
-      cp.newUTF8("RuntimeInvisibleParameterAnnotations");
+    public AnnotationVisitor visitAnnotationDefault() {
+        cp.newUTF8("AnnotationDefault");
+        return new AnnotationConstantsCollector(mv.visitAnnotationDefault(), cp);
     }
-    return new AnnotationConstantsCollector(
-        mv.visitParameterAnnotation(parameter, desc, visible), cp);
-  }
-  
-  public void visitTypeInsn (final int opcode, final String desc) {
-    cp.newClass(desc);
-    mv.visitTypeInsn(opcode, desc);
-  }
 
-  public void visitFieldInsn (
-    final int opcode,
-    final String owner,
-    final String name,
-    final String desc)
-  {
-    cp.newField(owner, name, desc);
-    mv.visitFieldInsn(opcode, owner, name, desc);
-  }
-
-  public void visitMethodInsn (
-    final int opcode,
-    final String owner,
-    final String name,
-    final String desc)
-  {
-    boolean itf = opcode == Opcodes.INVOKEINTERFACE;
-    cp.newMethod(owner, name, desc, itf);
-    mv.visitMethodInsn(opcode, owner, name, desc);
-  }
-
-  public void visitLdcInsn (final Object cst) {
-    cp.newConst(cst);
-    mv.visitLdcInsn(cst);
-  }
-
-  public void visitMultiANewArrayInsn (final String desc, final int dims) {
-    cp.newClass(desc);
-    mv.visitMultiANewArrayInsn(desc, dims);
-  }
-
-  public void visitTryCatchBlock (
-    final Label start,
-    final Label end,
-    final Label handler,
-    final String type)
-  {
-    if (type != null) {
-      cp.newClass(type);
+    public AnnotationVisitor visitAnnotation(
+        final String desc,
+        final boolean visible)
+    {
+        cp.newUTF8(desc);
+        if (visible) {
+            cp.newUTF8("RuntimeVisibleAnnotations");
+        } else {
+            cp.newUTF8("RuntimeInvisibleAnnotations");
+        }
+        return new AnnotationConstantsCollector(mv.visitAnnotation(desc,
+                visible), cp);
     }
-    mv.visitTryCatchBlock(start, end, handler, type);
-  }
 
-  public void visitLocalVariable (
-    final String name,
-    final String desc,
-    final String signature,
-    final Label start,
-    final Label end,
-    final int index)
-  {
-    if (signature != null) {
-      cp.newUTF8("LocalVariableTypeTable");
-      cp.newUTF8(name);
-      cp.newUTF8(signature);
+    public AnnotationVisitor visitParameterAnnotation(
+        final int parameter,
+        final String desc,
+        final boolean visible)
+    {
+        cp.newUTF8(desc);
+        if (visible) {
+            cp.newUTF8("RuntimeVisibleParameterAnnotations");
+        } else {
+            cp.newUTF8("RuntimeInvisibleParameterAnnotations");
+        }
+        return new AnnotationConstantsCollector(mv.visitParameterAnnotation(parameter,
+                desc,
+                visible),
+                cp);
     }
-    cp.newUTF8("LocalVariableTable");
-    cp.newUTF8(name);
-    cp.newUTF8(desc);
-    mv.visitLocalVariable(name, desc, signature, start, end, index);
-  }
 
-  public void visitLineNumber (final int line, final Label start) {
-    cp.newUTF8("LineNumberTable");
-    mv.visitLineNumber(line, start);
-  }
+    public void visitTypeInsn(final int opcode, final String desc) {
+        cp.newClass(desc);
+        mv.visitTypeInsn(opcode, desc);
+    }
 
-  public void visitMaxs (final int maxStack, final int maxLocals) {
-    cp.newUTF8("Code");
-    mv.visitMaxs(maxStack, maxLocals);
-  }
+    public void visitFieldInsn(
+        final int opcode,
+        final String owner,
+        final String name,
+        final String desc)
+    {
+        cp.newField(owner, name, desc);
+        mv.visitFieldInsn(opcode, owner, name, desc);
+    }
+
+    public void visitMethodInsn(
+        final int opcode,
+        final String owner,
+        final String name,
+        final String desc)
+    {
+        boolean itf = opcode == Opcodes.INVOKEINTERFACE;
+        cp.newMethod(owner, name, desc, itf);
+        mv.visitMethodInsn(opcode, owner, name, desc);
+    }
+
+    public void visitLdcInsn(final Object cst) {
+        cp.newConst(cst);
+        mv.visitLdcInsn(cst);
+    }
+
+    public void visitMultiANewArrayInsn(final String desc, final int dims) {
+        cp.newClass(desc);
+        mv.visitMultiANewArrayInsn(desc, dims);
+    }
+
+    public void visitTryCatchBlock(
+        final Label start,
+        final Label end,
+        final Label handler,
+        final String type)
+    {
+        if (type != null) {
+            cp.newClass(type);
+        }
+        mv.visitTryCatchBlock(start, end, handler, type);
+    }
+
+    public void visitLocalVariable(
+        final String name,
+        final String desc,
+        final String signature,
+        final Label start,
+        final Label end,
+        final int index)
+    {
+        if (signature != null) {
+            cp.newUTF8("LocalVariableTypeTable");
+            cp.newUTF8(name);
+            cp.newUTF8(signature);
+        }
+        cp.newUTF8("LocalVariableTable");
+        cp.newUTF8(name);
+        cp.newUTF8(desc);
+        mv.visitLocalVariable(name, desc, signature, start, end, index);
+    }
+
+    public void visitLineNumber(final int line, final Label start) {
+        cp.newUTF8("LineNumberTable");
+        mv.visitLineNumber(line, start);
+    }
+
+    public void visitMaxs(final int maxStack, final int maxLocals) {
+        cp.newUTF8("Code");
+        mv.visitMaxs(maxStack, maxLocals);
+    }
 }

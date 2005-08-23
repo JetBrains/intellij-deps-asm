@@ -27,7 +27,6 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
  * THE POSSIBILITY OF SUCH DAMAGE.
  */
-
 package org.objectweb.asm;
 
 /**
@@ -36,231 +35,221 @@ package org.objectweb.asm;
  * 
  * @author Eric Bruneton
  */
-
 final class Item {
 
-  /**
-   * Index of this item in the constant pool.
-   */
+    /**
+     * Index of this item in the constant pool.
+     */
+    short index;
 
-  short index;
+    /**
+     * Type of this constant pool item. A single class is used to represent all
+     * constant pool item types, in order to minimize the bytecode size of this
+     * package. The value of this field is I, J, F, D, S, s, C, T, G, M, or N
+     * (for Constant Integer, Long, Float, Double, STR, UTF8, Class, NameType,
+     * Fieldref, Methodref, or InterfaceMethodref constant pool items
+     * respectively).
+     */
+    char type;
 
-  /**
-   * Type of this constant pool item. A single class is used to represent all
-   * constant pool item types, in order to minimize the bytecode size of this
-   * package. The value of this field is I, J, F, D, S, s, C, T, G, M, or N 
-   * (for Constant Integer, Long, Float, Double, STR, UTF8, Class, NameType,
-   * Fieldref, Methodref, or InterfaceMethodref constant pool items
-   * respectively).
-   */
+    /**
+     * Value of this item, for an integer item.
+     */
+    int intVal;
 
-  char type;
+    /**
+     * Value of this item, for a long item.
+     */
+    long longVal;
 
-  /**
-   * Value of this item, for an integer item.
-   */
+    /**
+     * Value of this item, for a float item.
+     */
+    float floatVal;
 
-  int intVal;
+    /**
+     * Value of this item, for a double item.
+     */
+    double doubleVal;
 
-  /**
-   * Value of this item, for a long item.
-   */
+    /**
+     * First part of the value of this item, for items that do not hold a
+     * primitive value.
+     */
+    String strVal1;
 
-  long longVal;
+    /**
+     * Second part of the value of this item, for items that do not hold a
+     * primitive value.
+     */
+    String strVal2;
 
-  /**
-   * Value of this item, for a float item.
-   */
+    /**
+     * Third part of the value of this item, for items that do not hold a
+     * primitive value.
+     */
+    String strVal3;
 
-  float floatVal;
+    /**
+     * The hash code value of this constant pool item.
+     */
+    int hashCode;
 
-  /**
-   * Value of this item, for a double item.
-   */
+    /**
+     * Link to another constant pool item, used for collision lists in the
+     * constant pool's hash table.
+     */
+    Item next;
 
-  double doubleVal;
-
-  /**
-   * First part of the value of this item, for items that do not hold a
-   * primitive value.
-   */
-
-  String strVal1;
-
-  /**
-   * Second part of the value of this item, for items that do not hold a
-   * primitive value.
-   */
-
-  String strVal2;
-
-  /**
-   * Third part of the value of this item, for items that do not hold a
-   * primitive value.
-   */
-
-  String strVal3;
-
-  /**
-   * The hash code value of this constant pool item.
-   */
-
-  int hashCode;
-
-  /**
-   * Link to another constant pool item, used for collision lists in the
-   * constant pool's hash table.
-   */
-
-  Item next;
-
-  /**
-   * Constructs an uninitialized {@link Item}.
-   */
-
-  Item () {
-  }
-
-  /**
-   * Constructs a copy of the given item.
-   *
-   * @param index index of the item to be constructed.
-   * @param i the item that must be copied into the item to be constructed.
-   */
-
-  Item (final short index, final Item i) {
-    this.index = index;
-    type = i.type;
-    intVal = i.intVal;
-    longVal = i.longVal;
-    floatVal = i.floatVal;
-    doubleVal = i.doubleVal;
-    strVal1 = i.strVal1;
-    strVal2 = i.strVal2;
-    strVal3 = i.strVal3;
-    hashCode = i.hashCode;
-  }
-
-  /**
-   * Sets this item to an integer item.
-   *
-   * @param intVal the value of this item.
-   */
-
-  void set (final int intVal) {
-    this.type = 'I';
-    this.intVal = intVal;
-    this.hashCode = 0x7FFFFFFF & (type + intVal);
-  }
-
-  /**
-   * Sets this item to a long item.
-   *
-   * @param longVal the value of this item.
-   */
-
-  void set (final long longVal) {
-    this.type = 'J';
-    this.longVal = longVal;
-    this.hashCode = 0x7FFFFFFF & (type + (int)longVal);
-  }
-
-  /**
-   * Sets this item to a float item.
-   *
-   * @param floatVal the value of this item.
-   */
-
-  void set (final float floatVal) {
-    this.type = 'F';
-    this.floatVal = floatVal;
-    this.hashCode = 0x7FFFFFFF & (type + (int)floatVal);
-  }
-
-  /**
-   * Sets this item to a double item.
-   *
-   * @param doubleVal the value of this item.
-   */
-
-  void set (final double doubleVal) {
-    this.type = 'D';
-    this.doubleVal = doubleVal;
-    this.hashCode = 0x7FFFFFFF & (type + (int)doubleVal);
-  }
-
-  /**
-   * Sets this item to an item that do not hold a primitive value.
-   *
-   * @param type the type of this item.
-   * @param strVal1 first part of the value of this item.
-   * @param strVal2 second part of the value of this item.
-   * @param strVal3 third part of the value of this item.
-   */
-
-  void set (
-    final char type,
-    final String strVal1,
-    final String strVal2,
-    final String strVal3)
-  {
-    this.type = type;
-    this.strVal1 = strVal1;
-    this.strVal2 = strVal2;
-    this.strVal3 = strVal3;
-    switch (type) {
-      case 's':
-      case 'S':
-      case 'C':
-        hashCode = 0x7FFFFFFF & (type + strVal1.hashCode());
-        return;
-      case 'T':
-        hashCode = 0x7FFFFFFF & (type + strVal1.hashCode()*strVal2.hashCode());
-        return;
-      //case 'G':
-      //case 'M':
-      //case 'N':
-      default:
-        hashCode = 0x7FFFFFFF & (type +
-          strVal1.hashCode()*strVal2.hashCode()*strVal3.hashCode());
+    /**
+     * Constructs an uninitialized {@link Item}.
+     */
+    Item() {
     }
-  }
 
-  /**
-   * Indicates if the given item is equal to this one.
-   *
-   * @param i the item to be compared to this one.
-   * @return <tt>true</tt> if the given item if equal to this one,
-   *      <tt>false</tt> otherwise.
-   */
+    /**
+     * Constructs a copy of the given item.
+     * 
+     * @param index
+     *            index of the item to be constructed.
+     * @param i
+     *            the item that must be copied into the item to be constructed.
+     */
+    Item(final short index, final Item i) {
+        this.index = index;
+        type = i.type;
+        intVal = i.intVal;
+        longVal = i.longVal;
+        floatVal = i.floatVal;
+        doubleVal = i.doubleVal;
+        strVal1 = i.strVal1;
+        strVal2 = i.strVal2;
+        strVal3 = i.strVal3;
+        hashCode = i.hashCode;
+    }
 
-  boolean isEqualTo (final Item i) {
-    if (i.type == type) {
-      switch (type) {
-        case 'I':
-          return i.intVal == intVal;
-        case 'J':
-          return i.longVal == longVal;
-        case 'F':
-          return i.floatVal == floatVal;
-        case 'D':
-          return i.doubleVal == doubleVal;
+    /**
+     * Sets this item to an integer item.
+     * 
+     * @param intVal
+     *            the value of this item.
+     */
+    void set(final int intVal) {
+        this.type = 'I';
+        this.intVal = intVal;
+        this.hashCode = 0x7FFFFFFF & (type + intVal);
+    }
+
+    /**
+     * Sets this item to a long item.
+     * 
+     * @param longVal
+     *            the value of this item.
+     */
+    void set(final long longVal) {
+        this.type = 'J';
+        this.longVal = longVal;
+        this.hashCode = 0x7FFFFFFF & (type + (int) longVal);
+    }
+
+    /**
+     * Sets this item to a float item.
+     * 
+     * @param floatVal
+     *            the value of this item.
+     */
+    void set(final float floatVal) {
+        this.type = 'F';
+        this.floatVal = floatVal;
+        this.hashCode = 0x7FFFFFFF & (type + (int) floatVal);
+    }
+
+    /**
+     * Sets this item to a double item.
+     * 
+     * @param doubleVal
+     *            the value of this item.
+     */
+    void set(final double doubleVal) {
+        this.type = 'D';
+        this.doubleVal = doubleVal;
+        this.hashCode = 0x7FFFFFFF & (type + (int) doubleVal);
+    }
+
+    /**
+     * Sets this item to an item that do not hold a primitive value.
+     * 
+     * @param type
+     *            the type of this item.
+     * @param strVal1
+     *            first part of the value of this item.
+     * @param strVal2
+     *            second part of the value of this item.
+     * @param strVal3
+     *            third part of the value of this item.
+     */
+    void set(
+        final char type,
+        final String strVal1,
+        final String strVal2,
+        final String strVal3)
+    {
+        this.type = type;
+        this.strVal1 = strVal1;
+        this.strVal2 = strVal2;
+        this.strVal3 = strVal3;
+        switch (type) {
         case 's':
         case 'S':
         case 'C':
-          return i.strVal1.equals(strVal1);
+            hashCode = 0x7FFFFFFF & (type + strVal1.hashCode());
+            return;
         case 'T':
-          return i.strVal1.equals(strVal1) &&
-                 i.strVal2.equals(strVal2);
-        //case 'G':
-        //case 'M':
-        //case 'N':
+            hashCode = 0x7FFFFFFF & (type + strVal1.hashCode()
+                    * strVal2.hashCode());
+            return;
+        // case 'G':
+        // case 'M':
+        // case 'N':
         default:
-          return i.strVal1.equals(strVal1) &&
-                 i.strVal2.equals(strVal2) &&
-                 i.strVal3.equals(strVal3);
-      }
+            hashCode = 0x7FFFFFFF & (type + strVal1.hashCode()
+                    * strVal2.hashCode() * strVal3.hashCode());
+        }
     }
-    return false;
-  }
+
+    /**
+     * Indicates if the given item is equal to this one.
+     * 
+     * @param i
+     *            the item to be compared to this one.
+     * @return <tt>true</tt> if the given item if equal to this one,
+     *         <tt>false</tt> otherwise.
+     */
+    boolean isEqualTo(final Item i) {
+        if (i.type == type) {
+            switch (type) {
+            case 'I':
+                return i.intVal == intVal;
+            case 'J':
+                return i.longVal == longVal;
+            case 'F':
+                return i.floatVal == floatVal;
+            case 'D':
+                return i.doubleVal == doubleVal;
+            case 's':
+            case 'S':
+            case 'C':
+                return i.strVal1.equals(strVal1);
+            case 'T':
+                return i.strVal1.equals(strVal1) && i.strVal2.equals(strVal2);
+            // case 'G':
+            // case 'M':
+            // case 'N':
+            default:
+                return i.strVal1.equals(strVal1) && i.strVal2.equals(strVal2)
+                        && i.strVal3.equals(strVal3);
+            }
+        }
+        return false;
+    }
 }

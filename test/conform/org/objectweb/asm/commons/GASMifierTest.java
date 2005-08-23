@@ -27,7 +27,6 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
  * THE POSSIBILITY OF SUCH DAMAGE.
  */
-
 package org.objectweb.asm.commons;
 
 import java.io.PrintWriter;
@@ -59,87 +58,96 @@ import org.objectweb.asm.MethodVisitor;
  * @author Eugene Kuleshov
  * @author Eric Bruneton
  */
-
 public class GASMifierTest extends AbstractTest {
-  
-  public static final Compiler COMPILER = new Compiler();
-  
-  private final static TestClassLoader LOADER = new TestClassLoader();
 
-  public static TestSuite suite () throws Exception {
-    return new GASMifierTest().getSuite();
-  }
+    public static final Compiler COMPILER = new Compiler();
 
-  public void test () throws Exception {
-    ClassReader cr = new ClassReader(is);
-    
-    if (cr.b.length > 20000) {
-      return;
-    }
-    
-    StringWriter sw = new StringWriter();
-    GASMifierClassVisitor cv = new GASMifierClassVisitor(new PrintWriter(sw));
-    cr.accept(cv, false);
+    private final static TestClassLoader LOADER = new TestClassLoader();
 
-    String generated = sw.toString();
-    
-    byte[] generatorClassData;
-    try {
-      generatorClassData = COMPILER.compile( n, generated);
-    } catch( Exception ex) {
-      trace( generated);
-      throw ex;
+    public static TestSuite suite() throws Exception {
+        return new GASMifierTest().getSuite();
     }
-    
-    ClassWriter cw = new ClassWriter(true);
-    cr.accept(new ClassAdapter(cw) {
-      public MethodVisitor visitMethod (int access, String name, String desc, String signature, String[] exceptions) {
-        return new LocalVariablesSorter(access, desc, super.visitMethod(access, name, desc, signature, exceptions));
-      }
-    }, false);
-    cr = new ClassReader(cw.toByteArray());
-    
-    Class c = LOADER.defineClass("asm." + n + "Dump", generatorClassData);
-    Method m = c.getMethod("dump", new Class[0]);
-    byte[] b;
-    try {
-      b = ( byte[]) m.invoke( null, new Object[ 0]);
-    } catch( InvocationTargetException ex) {
-      trace( generated);
-      throw (Exception) ex.getTargetException();
-    }
-    
-    try {
-      assertEquals( cr, new ClassReader( b));
-    } catch( Throwable e) {
-      trace( generated);
-      assertEquals( cr, new ClassReader( b));
-    }
-  }
 
-  private void trace( String generated) {
-    if(System.getProperty("asm.test.class")!=null) {
-      System.err.println( generated);
-    }
-  }
-  
-  private static class TestClassLoader extends ClassLoader {
-    
-    public Class defineClass (final String name, final byte[] b) {
-      return defineClass(name, b, 0, b.length);
-    }
-  }
-  
-  private static class Compiler  {
-    
-    final static IClassLoader CL = 
-      new ClassLoaderIClassLoader(new URLClassLoader(new URL[0]));
+    public void test() throws Exception {
+        ClassReader cr = new ClassReader(is);
 
-    public byte[] compile(String name, String source) throws Exception {
-      Parser p = new Parser(new Scanner(name, new StringReader(source)));
-      UnitCompiler uc = new UnitCompiler( p.parseCompilationUnit(), CL);
-      return uc.compileUnit( DebuggingInformation.ALL)[ 0].toByteArray();
+        if (cr.b.length > 20000) {
+            return;
+        }
+
+        StringWriter sw = new StringWriter();
+        GASMifierClassVisitor cv = new GASMifierClassVisitor(new PrintWriter(sw));
+        cr.accept(cv, false);
+
+        String generated = sw.toString();
+
+        byte[] generatorClassData;
+        try {
+            generatorClassData = COMPILER.compile(n, generated);
+        } catch (Exception ex) {
+            trace(generated);
+            throw ex;
+        }
+
+        ClassWriter cw = new ClassWriter(true);
+        cr.accept(new ClassAdapter(cw) {
+            public MethodVisitor visitMethod(
+                int access,
+                String name,
+                String desc,
+                String signature,
+                String[] exceptions)
+            {
+                return new LocalVariablesSorter(access,
+                        desc,
+                        super.visitMethod(access,
+                                name,
+                                desc,
+                                signature,
+                                exceptions));
+            }
+        }, false);
+        cr = new ClassReader(cw.toByteArray());
+
+        Class c = LOADER.defineClass("asm." + n + "Dump", generatorClassData);
+        Method m = c.getMethod("dump", new Class[0]);
+        byte[] b;
+        try {
+            b = (byte[]) m.invoke(null, new Object[0]);
+        } catch (InvocationTargetException ex) {
+            trace(generated);
+            throw (Exception) ex.getTargetException();
+        }
+
+        try {
+            assertEquals(cr, new ClassReader(b));
+        } catch (Throwable e) {
+            trace(generated);
+            assertEquals(cr, new ClassReader(b));
+        }
     }
-  }
+
+    private void trace(String generated) {
+        if (System.getProperty("asm.test.class") != null) {
+            System.err.println(generated);
+        }
+    }
+
+    private static class TestClassLoader extends ClassLoader {
+
+        public Class defineClass(final String name, final byte[] b) {
+            return defineClass(name, b, 0, b.length);
+        }
+    }
+
+    private static class Compiler {
+
+        final static IClassLoader CL = new ClassLoaderIClassLoader(new URLClassLoader(new URL[0]));
+
+        public byte[] compile(String name, String source) throws Exception {
+            Parser p = new Parser(new Scanner(name, new StringReader(source)));
+            UnitCompiler uc = new UnitCompiler(p.parseCompilationUnit(), CL);
+            return uc.compileUnit(DebuggingInformation.ALL)[0].toByteArray();
+        }
+    }
 }
-

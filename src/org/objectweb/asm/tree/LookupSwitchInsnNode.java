@@ -27,7 +27,6 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
  * THE POSSIBILITY OF SUCH DAMAGE.
  */
-
 package org.objectweb.asm.tree;
 
 import org.objectweb.asm.Label;
@@ -40,70 +39,68 @@ import java.util.Arrays;
 
 /**
  * A node that represents a LOOKUPSWITCH instruction.
- *
+ * 
  * @author Eric Bruneton
  */
-
 public class LookupSwitchInsnNode extends AbstractInsnNode {
 
-  /**
-   * Beginning of the default handler block.
-   */
+    /**
+     * Beginning of the default handler block.
+     */
+    public Label dflt;
 
-  public Label dflt;
+    /**
+     * The values of the keys. This list is a list of {@link Integer} objects.
+     */
+    public final List keys;
 
-  /**
-   * The values of the keys. This list is a list of {@link Integer} objects.
-   */
+    /**
+     * Beginnings of the handler blocks. This list is a list of {@link Label}
+     * objects.
+     */
+    public final List labels;
 
-  public final List keys;
-
-  /**
-   * Beginnings of the handler blocks. This list is a list of {@link Label}
-   * objects.
-   */
-
-  public final List labels;
-
-  /**
-   * Constructs a new {@link LookupSwitchInsnNode}.
-   *
-   * @param dflt beginning of the default handler block.
-   * @param keys the values of the keys.
-   * @param labels beginnings of the handler blocks. <tt>labels[i]</tt> is the
-   *      beginning of the handler block for the <tt>keys[i]</tt> key.
-   */
-
-  public LookupSwitchInsnNode (
-    final Label dflt,
-    final int[] keys,
-    final Label[] labels)
-  {
-    super(Opcodes.LOOKUPSWITCH);
-    this.dflt = dflt;
-    this.keys = new ArrayList(keys == null ? 0 : keys.length);
-    this.labels = new ArrayList(labels == null ? 0 : labels.length);
-    if (keys != null) {
-      for (int i = 0; i < keys.length; ++i) {
-        this.keys.add(new Integer(keys[i]));
-      }
+    /**
+     * Constructs a new {@link LookupSwitchInsnNode}.
+     * 
+     * @param dflt
+     *            beginning of the default handler block.
+     * @param keys
+     *            the values of the keys.
+     * @param labels
+     *            beginnings of the handler blocks. <tt>labels[i]</tt> is the
+     *            beginning of the handler block for the <tt>keys[i]</tt> key.
+     */
+    public LookupSwitchInsnNode(
+        final Label dflt,
+        final int[] keys,
+        final Label[] labels)
+    {
+        super(Opcodes.LOOKUPSWITCH);
+        this.dflt = dflt;
+        this.keys = new ArrayList(keys == null ? 0 : keys.length);
+        this.labels = new ArrayList(labels == null ? 0 : labels.length);
+        if (keys != null) {
+            for (int i = 0; i < keys.length; ++i) {
+                this.keys.add(new Integer(keys[i]));
+            }
+        }
+        if (labels != null) {
+            this.labels.addAll(Arrays.asList(labels));
+        }
     }
-    if (labels != null) {
-      this.labels.addAll(Arrays.asList(labels));
-    }
-  }
 
-  public void accept (final MethodVisitor mv) {
-    int[] keys = new int[this.keys.size()];
-    for (int i = 0; i < keys.length; ++i) {
-      keys[i] = ((Integer)this.keys.get(i)).intValue();
+    public void accept(final MethodVisitor mv) {
+        int[] keys = new int[this.keys.size()];
+        for (int i = 0; i < keys.length; ++i) {
+            keys[i] = ((Integer) this.keys.get(i)).intValue();
+        }
+        Label[] labels = new Label[this.labels.size()];
+        this.labels.toArray(labels);
+        mv.visitLookupSwitchInsn(dflt, keys, labels);
     }
-    Label[] labels = new Label[this.labels.size()];
-    this.labels.toArray(labels);
-    mv.visitLookupSwitchInsn(dflt, keys, labels);
-  }
 
-  public int getType () {
-    return LOOKUPSWITCH_INSN;
-  }
+    public int getType() {
+        return LOOKUPSWITCH_INSN;
+    }
 }

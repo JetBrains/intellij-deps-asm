@@ -27,96 +27,93 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
  * THE POSSIBILITY OF SUCH DAMAGE.
  */
-
 package org.objectweb.asm.attrs;
 
 import org.objectweb.asm.Label;
 
 /**
  * Verification type info used by {@link StackMapAttribute}.
- *
- * @see <a href="http://www.jcp.org/en/jsr/detail?id=139">JSR 139 : 
- *       Connected Limited Device Configuration 1.1</a>
- *
+ * 
+ * @see <a href="http://www.jcp.org/en/jsr/detail?id=139">JSR 139 : Connected
+ *      Limited Device Configuration 1.1</a>
+ * 
  * @see "ClassFileFormat-Java6.fm Page 138 Friday, April 15, 2005 3:22 PM"
- *
+ * 
  * @author Eugene Kuleshov
  */
-
 public class StackMapType {
 
-  public static final int ITEM_Top = 0;
+    public static final int ITEM_Top = 0;
 
-  public static final int ITEM_Integer = 1;
+    public static final int ITEM_Integer = 1;
 
-  public static final int ITEM_Float = 2;
+    public static final int ITEM_Float = 2;
 
-  public static final int ITEM_Double = 3;
+    public static final int ITEM_Double = 3;
 
-  public static final int ITEM_Long = 4;
+    public static final int ITEM_Long = 4;
 
-  public static final int ITEM_Null = 5;
+    public static final int ITEM_Null = 5;
 
-  public static final int ITEM_UninitializedThis = 6;
+    public static final int ITEM_UninitializedThis = 6;
 
-  public static final int ITEM_Object = 7;
+    public static final int ITEM_Object = 7;
 
-  public static final int ITEM_Uninitialized = 8;
+    public static final int ITEM_Uninitialized = 8;
 
-  public static final String[] ITEM_NAMES = {
-    "Top",
-    "Integer",
-    "Float",
-    "Double",
-    "Long",
-    "Null",
-    "UninitializedThis",
-    "Object",
-    "Uninitialized"
-  };
+    public static final String[] ITEM_NAMES = {
+        "Top",
+        "Integer",
+        "Float",
+        "Double",
+        "Long",
+        "Null",
+        "UninitializedThis",
+        "Object",
+        "Uninitialized" };
 
-  private int type;
+    private int type;
 
-  private Label offset;
+    private Label offset;
 
-  private String object;
+    private String object;
 
-  private StackMapType (int type) {
-    this.type = type;
-  }
-
-  public int getType () {
-    return type;
-  }
-
-  public static StackMapType getTypeInfo (int itemType) {
-    return new StackMapType(itemType);
-  }
-
-  public void setLabel (Label offset) {
-    this.offset = offset;
-  }
-
-  public void setObject (String object) {
-    this.object = object;
-  }
-
-  public Label getLabel () {
-    return offset;
-  }
-
-  public String getObject () {
-    return object;
-  }
-
-  public String toString () {
-    StringBuffer sb = new StringBuffer(ITEM_NAMES[type]);
-    if (type == ITEM_Object) {
-      sb.append(":").append(object);
+    private StackMapType(int type) {
+        this.type = type;
     }
-    if (type == ITEM_Uninitialized) {
-      sb.append(":L").append(System.identityHashCode(offset));
+
+    public int getType() {
+        return type;
     }
-    return sb.toString();
-  }
+
+    public static StackMapType getTypeInfo(int itemType) {
+        return new StackMapType(itemType);
+    }
+
+    public void setLabel(Label offset) {
+        this.offset = offset;
+    }
+
+    public void setObject(String object) {
+        this.object = object;
+    }
+
+    public Label getLabel() {
+        return offset;
+    }
+
+    public String getObject() {
+        return object;
+    }
+
+    public String toString() {
+        StringBuffer sb = new StringBuffer(ITEM_NAMES[type]);
+        if (type == ITEM_Object) {
+            sb.append(":").append(object);
+        }
+        if (type == ITEM_Uninitialized) {
+            sb.append(":L").append(System.identityHashCode(offset));
+        }
+        return sb.toString();
+    }
 }

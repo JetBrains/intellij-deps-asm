@@ -27,58 +27,56 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
  * THE POSSIBILITY OF SUCH DAMAGE.
  */
-
 package org.objectweb.asm.attrs;
 
 import java.util.List;
 
 import org.objectweb.asm.Label;
 
-
 /**
- * Holds the state of the stack and local variables for a single execution 
+ * Holds the state of the stack and local variables for a single execution
  * branch.
- *
+ * 
  * <i>Note that Long and Double types are represented by two entries in locals
  * and stack. Second entry should be always of type Top.</i>
- *
- * @see <a href="http://www.jcp.org/en/jsr/detail?id=139">JSR 139 : 
- *       Connected Limited Device Configuration 1.1</a>
- *
+ * 
+ * @see <a href="http://www.jcp.org/en/jsr/detail?id=139">JSR 139 : Connected
+ *      Limited Device Configuration 1.1</a>
+ * 
  * @see "ClassFileFormat-Java6.fm Page 138 Friday, April 15, 2005 3:22 PM"
  * 
  * @author Eugene Kuleshov
  */
-
 public class StackMapFrame {
 
-  /**
-   * A <code>Label</code> for frame offset within method bytecode.
-   */
-  public Label label;
+    /**
+     * A <code>Label</code> for frame offset within method bytecode.
+     */
+    public Label label;
 
-  /**
-   * A List of <code>StackMapType</code> instances that represent locals for this frame. 
-   */
-  public List locals;
+    /**
+     * A List of <code>StackMapType</code> instances that represent locals for
+     * this frame.
+     */
+    public List locals;
 
-  /**
-   * A List of <code>StackMapType</code> instances that represent stack for this frame. 
-   */
-  public List stack;
+    /**
+     * A List of <code>StackMapType</code> instances that represent stack for
+     * this frame.
+     */
+    public List stack;
 
+    public StackMapFrame(Label label, List locals, List stack) {
+        this.label = label;
+        this.locals = locals;
+        this.stack = stack;
+    }
 
-  public StackMapFrame( Label label, List locals, List stack) {
-    this.label = label;
-    this.locals = locals;
-    this.stack = stack;
-  }
-
-  public String toString () {
-    StringBuffer sb = new StringBuffer("Frame:L");
-    sb.append(System.identityHashCode(label));
-    sb.append(" locals").append(locals);
-    sb.append(" stack").append(stack);
-    return sb.toString();
-  }
+    public String toString() {
+        StringBuffer sb = new StringBuffer("Frame:L");
+        sb.append(System.identityHashCode(label));
+        sb.append(" locals").append(locals);
+        sb.append(" stack").append(stack);
+        return sb.toString();
+    }
 }

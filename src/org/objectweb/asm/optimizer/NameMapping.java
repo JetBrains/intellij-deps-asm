@@ -27,7 +27,6 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
  * THE POSSIBILITY OF SUCH DAMAGE.
  */
-
 package org.objectweb.asm.optimizer;
 
 import java.io.FileInputStream;
@@ -41,56 +40,55 @@ import org.objectweb.asm.Type;
  * 
  * @author Eric Bruneton
  */
-
 public class NameMapping extends Properties {
 
-  public NameMapping (final String file) throws IOException {
-    load(new FileInputStream(file));
-  }
-  
-  public String map (final String name) {
-    String s = (String)get(name);
-    if (s == null) {
-      int p = name.indexOf('.');
-      if (p != -1) {
-        int q = name.indexOf('(');
-        if (q != -1) {
-          s = name.substring(p + 1, q);
-        } else {
-          s = name.substring(p + 1);
+    public NameMapping(final String file) throws IOException {
+        load(new FileInputStream(file));
+    }
+
+    public String map(final String name) {
+        String s = (String) get(name);
+        if (s == null) {
+            int p = name.indexOf('.');
+            if (p != -1) {
+                int q = name.indexOf('(');
+                if (q != -1) {
+                    s = name.substring(p + 1, q);
+                } else {
+                    s = name.substring(p + 1);
+                }
+            } else {
+                s = name;
+            }
         }
-      } else {
-        s = name;
-      }
+        return s;
     }
-    return s;
-  }
-  
-  public String fix (final String desc) {
-    if (desc.startsWith("(")) {
-      Type[] arguments = Type.getArgumentTypes(desc);
-      Type result = Type.getReturnType(desc);
-      for (int i = 0; i < arguments.length; ++i) {
-        arguments[i] = fix(arguments[i]);
-      }
-      result = fix(result);
-      return Type.getMethodDescriptor(result, arguments);
-    } else {
-      return fix(Type.getType(desc)).getDescriptor();
+
+    public String fix(final String desc) {
+        if (desc.startsWith("(")) {
+            Type[] arguments = Type.getArgumentTypes(desc);
+            Type result = Type.getReturnType(desc);
+            for (int i = 0; i < arguments.length; ++i) {
+                arguments[i] = fix(arguments[i]);
+            }
+            result = fix(result);
+            return Type.getMethodDescriptor(result, arguments);
+        } else {
+            return fix(Type.getType(desc)).getDescriptor();
+        }
     }
-  }
-  
-  private Type fix (final Type t) {
-    if (t.getSort() == Type.OBJECT) {
-      return Type.getType("L" + map(t.getInternalName()) + ";");
-    } else if (t.getSort() == Type.ARRAY) {
-      String s = fix(t.getElementType()).getDescriptor();
-      for (int i = 0; i < t.getDimensions(); ++i) {
-        s = "[" + s;
-      }
-      return Type.getType(s);
-    } else {
-      return t;
+
+    private Type fix(final Type t) {
+        if (t.getSort() == Type.OBJECT) {
+            return Type.getType("L" + map(t.getInternalName()) + ";");
+        } else if (t.getSort() == Type.ARRAY) {
+            String s = fix(t.getElementType()).getDescriptor();
+            for (int i = 0; i < t.getDimensions(); ++i) {
+                s = "[" + s;
+            }
+            return Type.getType(s);
+        } else {
+            return t;
+        }
     }
-  }
 }

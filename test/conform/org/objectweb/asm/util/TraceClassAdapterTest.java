@@ -27,7 +27,6 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
  * THE POSSIBILITY OF SUCH DAMAGE.
  */
-
 package org.objectweb.asm.util;
 
 import java.io.CharArrayWriter;
@@ -45,18 +44,18 @@ import org.objectweb.asm.ClassWriter;
  * 
  * @author Eric Bruneton
  */
-
 public class TraceClassAdapterTest extends AbstractTest {
-    
-  public static TestSuite suite () throws Exception {
-    return new TraceClassAdapterTest().getSuite();
-  }
-  
-  public void test () throws Exception {
-    ClassReader cr = new ClassReader(is);
-    ClassWriter cw = new ClassWriter(false, true);
-    ClassVisitor cv = new TraceClassVisitor(cw, new PrintWriter(new CharArrayWriter()));
-    cr.accept(cv, false);
-    assertEquals(cr, new ClassReader(cw.toByteArray()));
-  }
+
+    public static TestSuite suite() throws Exception {
+        return new TraceClassAdapterTest().getSuite();
+    }
+
+    public void test() throws Exception {
+        ClassReader cr = new ClassReader(is);
+        ClassWriter cw = new ClassWriter(false, true);
+        ClassVisitor cv = new TraceClassVisitor(cw,
+                new PrintWriter(new CharArrayWriter()));
+        cr.accept(cv, false);
+        assertEquals(cr, new ClassReader(cw.toByteArray()));
+    }
 }

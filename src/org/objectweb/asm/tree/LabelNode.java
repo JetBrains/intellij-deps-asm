@@ -27,7 +27,6 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
  * THE POSSIBILITY OF SUCH DAMAGE.
  */
-
 package org.objectweb.asm.tree;
 
 import org.objectweb.asm.Label;
@@ -36,21 +35,20 @@ import org.objectweb.asm.MethodVisitor;
 /**
  * An {@link AbstractInsnNode} that encapsulates a {@link Label}.
  */
-
 public class LabelNode extends AbstractInsnNode {
 
-  public Label label;
-  
-  public LabelNode (final Label label) {
-    super(-1);
-    this.label = label;
-  }
+    public Label label;
 
-  public void accept (final MethodVisitor cv) {
-    cv.visitLabel(label);
-  }
+    public LabelNode(final Label label) {
+        super(-1);
+        this.label = label;
+    }
 
-  public int getType () {
-    return LABEL;
-  }
+    public void accept(final MethodVisitor cv) {
+        cv.visitLabel(label);
+    }
+
+    public int getType() {
+        return LABEL;
+    }
 }

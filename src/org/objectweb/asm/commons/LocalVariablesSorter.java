@@ -27,7 +27,6 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
  * THE POSSIBILITY OF SUCH DAMAGE.
  */
-
 package org.objectweb.asm.commons;
 
 import java.util.HashMap;
@@ -40,101 +39,104 @@ import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
 /**
- * A {@link MethodAdapter} that renumbers local variables in their order of 
+ * A {@link MethodAdapter} that renumbers local variables in their order of
  * appearance. This adapter allows one to easily add new local variables to a
  * method. <tt>computeMaxs</tt> <i>must be set to</i> <tt>true</tt> <i>in</i>
- * {@link org.objectweb.asm.ClassWriter#ClassWriter(boolean) ClassWriter} 
+ * {@link org.objectweb.asm.ClassWriter#ClassWriter(boolean) ClassWriter}
  * <i>when this adapter is used</i>.
  * 
  * @author Chris Nokleberg
  */
-
 public class LocalVariablesSorter extends MethodAdapter {
 
-  private Map locals = new HashMap();
-  
-  protected final int firstLocal;
+    private Map locals = new HashMap();
 
-  private int nextLocal;
-  
-  public LocalVariablesSorter (final int access, final String desc, final MethodVisitor mv) {
-    super(mv);
-    Type[] args = Type.getArgumentTypes(desc);
-    nextLocal = ((Opcodes.ACC_STATIC & access) != 0) ? 0 : 1;
-    for (int i = 0; i < args.length; i++) {
-      nextLocal += args[i].getSize();
-    }
-    firstLocal = nextLocal;
-  }
-  
-  public void visitVarInsn (final int opcode, final int var) {
-    int size;
-    switch (opcode) {
-      case Opcodes.LLOAD:
-      case Opcodes.LSTORE:
-      case Opcodes.DLOAD:
-      case Opcodes.DSTORE:
-        size = 2;
-        break;
-      default:
-        size = 1;
-    }
-    mv.visitVarInsn(opcode, remap(var, size));
-  }
-  
-  public void visitIincInsn (final int var, final int increment) {
-    mv.visitIincInsn(remap(var, 1), increment);
-  }
-  
-  public void visitMaxs (final int maxStack, final int maxLocals) {
-    mv.visitMaxs(0, 0);
-  }
+    protected final int firstLocal;
 
-  public void visitLocalVariable (
-    final String name,
-    final String desc,
-    final String signature,
-    final Label start, 
-    final Label end, 
-    final int index) 
-  {
-    mv.visitLocalVariable(name, desc, signature, start, end, remap(index));
-  }
+    private int nextLocal;
 
-  // -------------
-  
-  protected int newLocal (final int size) {
-    int var = nextLocal;
-    nextLocal += size;
-    return var;
-  }
-  
-  private int remap (final int var, final int size) {
-    if (var < firstLocal) {
-      return var;
+    public LocalVariablesSorter(
+        final int access,
+        final String desc,
+        final MethodVisitor mv)
+    {
+        super(mv);
+        Type[] args = Type.getArgumentTypes(desc);
+        nextLocal = ((Opcodes.ACC_STATIC & access) != 0) ? 0 : 1;
+        for (int i = 0; i < args.length; i++) {
+            nextLocal += args[i].getSize();
+        }
+        firstLocal = nextLocal;
     }
-    Integer key = new Integer(size == 2 ? ~var : var);
-    Integer value = (Integer)locals.get(key);
-    if (value == null) {
-      value = new Integer(newLocal(size));
-      locals.put(key, value);
+
+    public void visitVarInsn(final int opcode, final int var) {
+        int size;
+        switch (opcode) {
+        case Opcodes.LLOAD:
+        case Opcodes.LSTORE:
+        case Opcodes.DLOAD:
+        case Opcodes.DSTORE:
+            size = 2;
+            break;
+        default:
+            size = 1;
+        }
+        mv.visitVarInsn(opcode, remap(var, size));
     }
-    return value.intValue();
-  }
-  
-  private int remap (final int var) {
-    if (var < firstLocal) {
-      return var;
+
+    public void visitIincInsn(final int var, final int increment) {
+        mv.visitIincInsn(remap(var, 1), increment);
     }
-    Integer key = new Integer(var);
-    Integer value = (Integer)locals.get(key);
-    if (value == null) {
-      key = new Integer(~var);
-      value = (Integer)locals.get(key);
-      if (value == null) {
-        throw new IllegalStateException("Unknown local variable " + var);
-      }
+
+    public void visitMaxs(final int maxStack, final int maxLocals) {
+        mv.visitMaxs(0, 0);
     }
-    return value.intValue();
-  }
+
+    public void visitLocalVariable(
+        final String name,
+        final String desc,
+        final String signature,
+        final Label start,
+        final Label end,
+        final int index)
+    {
+        mv.visitLocalVariable(name, desc, signature, start, end, remap(index));
+    }
+
+    // -------------
+
+    protected int newLocal(final int size) {
+        int var = nextLocal;
+        nextLocal += size;
+        return var;
+    }
+
+    private int remap(final int var, final int size) {
+        if (var < firstLocal) {
+            return var;
+        }
+        Integer key = new Integer(size == 2 ? ~var : var);
+        Integer value = (Integer) locals.get(key);
+        if (value == null) {
+            value = new Integer(newLocal(size));
+            locals.put(key, value);
+        }
+        return value.intValue();
+    }
+
+    private int remap(final int var) {
+        if (var < firstLocal) {
+            return var;
+        }
+        Integer key = new Integer(var);
+        Integer value = (Integer) locals.get(key);
+        if (value == null) {
+            key = new Integer(~var);
+            value = (Integer) locals.get(key);
+            if (value == null) {
+                throw new IllegalStateException("Unknown local variable " + var);
+            }
+        }
+        return value.intValue();
+    }
 }

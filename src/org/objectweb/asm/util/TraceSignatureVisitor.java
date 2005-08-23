@@ -27,7 +27,6 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
  * THE POSSIBILITY OF SUCH DAMAGE.
  */
-
 package org.objectweb.asm.util;
 
 import org.objectweb.asm.Opcodes;
@@ -35,230 +34,245 @@ import org.objectweb.asm.signature.SignatureVisitor;
 
 public class TraceSignatureVisitor implements SignatureVisitor {
 
-  private StringBuffer declaration;
+    private StringBuffer declaration;
 
-  private boolean isInterface;
-  private boolean seenFormalParameter;
-  private boolean seenInterfaceBound;
-  private boolean seenParameter;
-  private boolean seenInterface;
+    private boolean isInterface;
 
-  private StringBuffer returnType;
-  private StringBuffer exceptions;
+    private boolean seenFormalParameter;
 
-  /**
-   * Stack used to keep track of class types that have arguments. Each element
-   * of this stack is a boolean encoded in one bit. The top of the stack is the
-   * lowest order bit. Pushing false = *2, pushing true = *2+1, popping = /2.
-   */
+    private boolean seenInterfaceBound;
 
-  private int argumentStack;
+    private boolean seenParameter;
 
-  /**
-   * Stack used to keep track of array class types. Each element
-   * of this stack is a boolean encoded in one bit. The top of the stack is the
-   * lowest order bit. Pushing false = *2, pushing true = *2+1, popping = /2.
-   */
+    private boolean seenInterface;
 
-  private int arrayStack;
+    private StringBuffer returnType;
 
-  private String separator = "";
+    private StringBuffer exceptions;
 
+    /**
+     * Stack used to keep track of class types that have arguments. Each element
+     * of this stack is a boolean encoded in one bit. The top of the stack is
+     * the lowest order bit. Pushing false = *2, pushing true = *2+1, popping =
+     * /2.
+     */
+    private int argumentStack;
 
-  public TraceSignatureVisitor( int access) {
-    isInterface = ( access & Opcodes.ACC_INTERFACE)!=0;
-    this.declaration = new StringBuffer();
-  }
+    /**
+     * Stack used to keep track of array class types. Each element of this stack
+     * is a boolean encoded in one bit. The top of the stack is the lowest order
+     * bit. Pushing false = *2, pushing true = *2+1, popping = /2.
+     */
+    private int arrayStack;
 
-  private TraceSignatureVisitor( StringBuffer buf) {
-    this.declaration = buf;
-  }
+    private String separator = "";
 
-  public void visitFormalTypeParameter (String name) {
-    declaration.append(seenFormalParameter ? ", " : "<").append(name);
-    seenFormalParameter = true;
-    seenInterfaceBound = false;
-  }
-
-  public SignatureVisitor visitClassBound () {
-    separator = " extends ";
-    startType();
-    return this;
-  }
-
-  public SignatureVisitor visitInterfaceBound () {
-    separator = seenInterfaceBound ? ", " : (isInterface ? " extends " : " implements ");
-    seenInterfaceBound = true;
-    startType();
-    return this;
-  }
-
-  public SignatureVisitor visitSuperclass () {
-    endFormals();
-    separator = " extends ";
-    startType();
-    return this;
-  }
-
-  public SignatureVisitor visitInterface () {
-    separator = seenInterface ? ", " : (isInterface ? " extends " : " implements ");
-    seenInterface = true;
-    startType();
-    return this;
-  }
-
-  public SignatureVisitor visitParameterType () {
-    endFormals();
-    if (!seenParameter) {
-      seenParameter = true;
-      declaration.append('(');
-    } else {
-      declaration.append(", ");
-    }
-    startType();
-    return this;
-  }
-
-  public SignatureVisitor visitReturnType () {
-    endFormals();
-    if (!seenParameter) {
-      declaration.append('(');
-    }
-    declaration.append(')');
-    returnType = new StringBuffer();
-    return new TraceSignatureVisitor( returnType);
-  }
-
-  public SignatureVisitor visitExceptionType () {
-    if( exceptions==null) {
-      exceptions = new StringBuffer();
-    } else {
-      exceptions.append( ", ");
-    }
-    // startType();
-    return new TraceSignatureVisitor( exceptions);
-  }
-
-  public void visitBaseType (char descriptor) {
-    switch( descriptor) {
-      case 'V':
-        declaration.append( "void");  break;
-      case 'B':
-        declaration.append( "byte");  break;
-      case 'J':
-        declaration.append( "long");  break;
-      case 'Z':
-        declaration.append( "boolean");  break;
-      case 'I':
-        declaration.append( "int");  break;
-      case 'S':
-        declaration.append( "short");  break;
-      case 'C':
-        declaration.append( "char");  break;
-      case 'F':
-        declaration.append( "float");  break;
-      case 'D':
-        declaration.append( "double");  break;
-      default:
-        throw new IllegalArgumentException( "Invalid descriptor "+descriptor);
-    }
-    endType();
-  }
-
-  public void visitTypeVariable (String name) {
-    declaration.append(name);
-    endType();
-  }
-
-  public SignatureVisitor visitArrayType () {
-    startType();
-    arrayStack |= 1;
-    return this;
-  }
-
-  public void visitClassType (String name) {
-    if (!"java/lang/Object".equals(name)) {
-      declaration.append(separator).append(name.replace('/', '.'));
-    }
-    separator = "";
-    argumentStack *= 2;
-  }
-
-  public void visitInnerClassType (String name) {
-    // TODO
-  }
-
-  public void visitTypeArgument () {
-    if (argumentStack%2 == 0) {
-      ++argumentStack;
-      declaration.append("<");
-    } else {
-      declaration.append(", ");
-    }
-    declaration.append( "?");
-  }
-
-  public SignatureVisitor visitTypeArgument (char tag) {
-    if (argumentStack%2 == 0) {
-      ++argumentStack;
-      declaration.append("<");
-    } else {
-      declaration.append(", ");
+    public TraceSignatureVisitor(int access) {
+        isInterface = (access & Opcodes.ACC_INTERFACE) != 0;
+        this.declaration = new StringBuffer();
     }
 
-    if( tag==SignatureVisitor.EXTENDS) {
-      declaration.append( "? extends ");
-    } else if( tag==SignatureVisitor.SUPER) {
-      declaration.append( "? super ");
+    private TraceSignatureVisitor(StringBuffer buf) {
+        this.declaration = buf;
     }
 
-    startType();
-    return this;
-  }
-
-  public void visitEnd () {
-    if (argumentStack%2 == 1) {
-      declaration.append(">");
+    public void visitFormalTypeParameter(String name) {
+        declaration.append(seenFormalParameter ? ", " : "<").append(name);
+        seenFormalParameter = true;
+        seenInterfaceBound = false;
     }
-    argumentStack /= 2;
-    endType();
-  }
 
-
-  public String getDeclaration () {
-    return declaration.toString();
-  }
-
-  public String getReturnType () {
-    return returnType==null ? null : returnType.toString();
-  }
-
-  public String getExceptions() {
-    return exceptions==null ? null : exceptions.toString();
-  }
-
-
-  // -----------------------------------------------
-
-  private void endFormals () {
-    if (seenFormalParameter) {
-      declaration.append(">");
-      seenFormalParameter = false;
+    public SignatureVisitor visitClassBound() {
+        separator = " extends ";
+        startType();
+        return this;
     }
-  }
 
-  private void startType () {
-    arrayStack *= 2;
-  }
-
-  private void endType () {
-    if (arrayStack%2 == 1) {
-      while (arrayStack%2 == 1) {
-        arrayStack /= 2;
-        declaration.append("[]");
-      }
-    } else {
-      arrayStack /= 2;
+    public SignatureVisitor visitInterfaceBound() {
+        separator = seenInterfaceBound ? ", " : (isInterface
+                ? " extends "
+                : " implements ");
+        seenInterfaceBound = true;
+        startType();
+        return this;
     }
-  }
+
+    public SignatureVisitor visitSuperclass() {
+        endFormals();
+        separator = " extends ";
+        startType();
+        return this;
+    }
+
+    public SignatureVisitor visitInterface() {
+        separator = seenInterface ? ", " : (isInterface
+                ? " extends "
+                : " implements ");
+        seenInterface = true;
+        startType();
+        return this;
+    }
+
+    public SignatureVisitor visitParameterType() {
+        endFormals();
+        if (!seenParameter) {
+            seenParameter = true;
+            declaration.append('(');
+        } else {
+            declaration.append(", ");
+        }
+        startType();
+        return this;
+    }
+
+    public SignatureVisitor visitReturnType() {
+        endFormals();
+        if (!seenParameter) {
+            declaration.append('(');
+        }
+        declaration.append(')');
+        returnType = new StringBuffer();
+        return new TraceSignatureVisitor(returnType);
+    }
+
+    public SignatureVisitor visitExceptionType() {
+        if (exceptions == null) {
+            exceptions = new StringBuffer();
+        } else {
+            exceptions.append(", ");
+        }
+        // startType();
+        return new TraceSignatureVisitor(exceptions);
+    }
+
+    public void visitBaseType(char descriptor) {
+        switch (descriptor) {
+        case 'V':
+            declaration.append("void");
+            break;
+        case 'B':
+            declaration.append("byte");
+            break;
+        case 'J':
+            declaration.append("long");
+            break;
+        case 'Z':
+            declaration.append("boolean");
+            break;
+        case 'I':
+            declaration.append("int");
+            break;
+        case 'S':
+            declaration.append("short");
+            break;
+        case 'C':
+            declaration.append("char");
+            break;
+        case 'F':
+            declaration.append("float");
+            break;
+        case 'D':
+            declaration.append("double");
+            break;
+        default:
+            throw new IllegalArgumentException("Invalid descriptor "
+                    + descriptor);
+        }
+        endType();
+    }
+
+    public void visitTypeVariable(String name) {
+        declaration.append(name);
+        endType();
+    }
+
+    public SignatureVisitor visitArrayType() {
+        startType();
+        arrayStack |= 1;
+        return this;
+    }
+
+    public void visitClassType(String name) {
+        if (!"java/lang/Object".equals(name)) {
+            declaration.append(separator).append(name.replace('/', '.'));
+        }
+        separator = "";
+        argumentStack *= 2;
+    }
+
+    public void visitInnerClassType(String name) {
+        // TODO
+    }
+
+    public void visitTypeArgument() {
+        if (argumentStack % 2 == 0) {
+            ++argumentStack;
+            declaration.append("<");
+        } else {
+            declaration.append(", ");
+        }
+        declaration.append("?");
+    }
+
+    public SignatureVisitor visitTypeArgument(char tag) {
+        if (argumentStack % 2 == 0) {
+            ++argumentStack;
+            declaration.append("<");
+        } else {
+            declaration.append(", ");
+        }
+
+        if (tag == SignatureVisitor.EXTENDS) {
+            declaration.append("? extends ");
+        } else if (tag == SignatureVisitor.SUPER) {
+            declaration.append("? super ");
+        }
+
+        startType();
+        return this;
+    }
+
+    public void visitEnd() {
+        if (argumentStack % 2 == 1) {
+            declaration.append(">");
+        }
+        argumentStack /= 2;
+        endType();
+    }
+
+    public String getDeclaration() {
+        return declaration.toString();
+    }
+
+    public String getReturnType() {
+        return returnType == null ? null : returnType.toString();
+    }
+
+    public String getExceptions() {
+        return exceptions == null ? null : exceptions.toString();
+    }
+
+    // -----------------------------------------------
+
+    private void endFormals() {
+        if (seenFormalParameter) {
+            declaration.append(">");
+            seenFormalParameter = false;
+        }
+    }
+
+    private void startType() {
+        arrayStack *= 2;
+    }
+
+    private void endType() {
+        if (arrayStack % 2 == 1) {
+            while (arrayStack % 2 == 1) {
+                arrayStack /= 2;
+                declaration.append("[]");
+            }
+        } else {
+            arrayStack /= 2;
+        }
+    }
 }

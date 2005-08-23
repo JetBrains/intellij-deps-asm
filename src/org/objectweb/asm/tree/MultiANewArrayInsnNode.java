@@ -27,7 +27,6 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
  * THE POSSIBILITY OF SUCH DAMAGE.
  */
-
 package org.objectweb.asm.tree;
 
 import org.objectweb.asm.Opcodes;
@@ -38,39 +37,37 @@ import org.objectweb.asm.MethodVisitor;
  * 
  * @author Eric Bruneton
  */
-
 public class MultiANewArrayInsnNode extends AbstractInsnNode {
 
-  /**
-   * An array type descriptor (see {@link Type}).
-   */
+    /**
+     * An array type descriptor (see {@link Type}).
+     */
+    public String desc;
 
-  public String desc;
+    /**
+     * Number of dimensions of the array to allocate.
+     */
+    public int dims;
 
-  /**
-   * Number of dimensions of the array to allocate.
-   */
+    /**
+     * Constructs a new {@link MultiANewArrayInsnNode}.
+     * 
+     * @param desc
+     *            an array type descriptor (see {@link Type}).
+     * @param dims
+     *            number of dimensions of the array to allocate.
+     */
+    public MultiANewArrayInsnNode(final String desc, final int dims) {
+        super(Opcodes.MULTIANEWARRAY);
+        this.desc = desc;
+        this.dims = dims;
+    }
 
-  public int dims;
+    public void accept(final MethodVisitor mv) {
+        mv.visitMultiANewArrayInsn(desc, dims);
+    }
 
-  /**
-   * Constructs a new {@link MultiANewArrayInsnNode}.
-   *
-   * @param desc an array type descriptor (see {@link Type}).
-   * @param dims number of dimensions of the array to allocate.
-   */
-
-  public MultiANewArrayInsnNode (final String desc, final int dims) {
-    super(Opcodes.MULTIANEWARRAY);
-    this.desc = desc;
-    this.dims = dims;
-  }
-
-  public void accept (final MethodVisitor mv) {
-    mv.visitMultiANewArrayInsn(desc, dims);
-  }
-
-  public int getType () {
-    return MULTIANEWARRAY_INSN;
-  }
+    public int getType() {
+        return MULTIANEWARRAY_INSN;
+    }
 }

@@ -27,7 +27,6 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
  * THE POSSIBILITY OF SUCH DAMAGE.
  */
-
 package org.objectweb.asm;
 
 import org.apache.bcel.Constants;
@@ -52,90 +51,90 @@ import java.io.InputStream;
 /**
  * @author Eric Bruneton
  */
-
 public class BCELPerfTest extends ALLPerfTest implements Constants {
 
-  public static void main (final String args[]) throws Exception {
-    System.out.println("BCEL PERFORMANCES\n");
-    new BCELPerfTest().perfs(args);
-  }
-
-  ALLPerfTest newInstance () {
-    return new BCELPerfTest();
-  }
-
-  byte[] nullAdaptClass (final InputStream is, final String name)
-    throws Exception
-  {
-    JavaClass jc = new ClassParser(is, name + ".class").parse();
-    ClassGen cg = new ClassGen(jc);
-    ConstantPoolGen cp = cg.getConstantPool();
-    Method[] ms = cg.getMethods();
-    for (int j = 0; j < ms.length; ++j) {
-      MethodGen mg = new MethodGen(ms[j], cg.getClassName(), cp);
-      boolean lv = ms[j].getLocalVariableTable() == null;
-      boolean ln = ms[j].getLineNumberTable() == null;
-      if (lv) {
-        mg.removeLocalVariables();
-      }
-      if (ln) {
-        mg.removeLineNumbers();
-      }
-      mg.stripAttributes(skipDebug);
-      InstructionList il = mg.getInstructionList();
-      if (il != null) {
-        InstructionHandle ih = il.getStart();
-        while (ih != null) {
-          ih = ih.getNext();
-        }
-        if (compute) {
-          mg.setMaxStack();
-          mg.setMaxLocals();
-        }
-      }
-      cg.replaceMethod(ms[j], mg.getMethod());
+    public static void main(final String args[]) throws Exception {
+        System.out.println("BCEL PERFORMANCES\n");
+        new BCELPerfTest().perfs(args);
     }
-    return cg.getJavaClass().getBytes();
-  }
 
-  byte[] counterAdaptClass (final InputStream is, final String name)
-    throws Exception
-  {
-    JavaClass jc = new ClassParser(is, name + ".class").parse();
-    ClassGen cg = new ClassGen(jc);
-    ConstantPoolGen cp = cg.getConstantPool();
-    if (!cg.isInterface()) {
-      FieldGen fg = new FieldGen(ACC_PUBLIC, Type.getType("I"), "_counter", cp);
-      cg.addField(fg.getField());
+    ALLPerfTest newInstance() {
+        return new BCELPerfTest();
     }
-    Method[] ms = cg.getMethods();
-    for (int j = 0; j < ms.length; ++j) {
-      MethodGen mg = new MethodGen(ms[j], cg.getClassName() ,cp);
-      if (!mg.getName().equals("<init>") &&
-          !mg.isStatic() && !mg.isAbstract() && !mg.isNative())
-      {
-        if (mg.getInstructionList() != null) {
-          InstructionList il = new InstructionList();
-          il.append(new ALOAD(0));
-          il.append(new ALOAD(0));
-          il.append(new GETFIELD(cp.addFieldref(name, "_counter", "I")));
-          il.append(new ICONST(1));
-          il.append(new IADD());
-          il.append(new PUTFIELD(cp.addFieldref(name, "_counter", "I")));
-          mg.getInstructionList().insert(il);
-          mg.setMaxStack(Math.max(mg.getMaxStack(), 2));
-          boolean lv = ms[j].getLocalVariableTable() == null;
-          boolean ln = ms[j].getLineNumberTable() == null;
-          if (lv) {
-            mg.removeLocalVariables();
-          }
-          if (ln) {
-            mg.removeLineNumbers();
-          }
-          cg.replaceMethod(ms[j], mg.getMethod());
+
+    byte[] nullAdaptClass(final InputStream is, final String name) throws Exception
+    {
+        JavaClass jc = new ClassParser(is, name + ".class").parse();
+        ClassGen cg = new ClassGen(jc);
+        ConstantPoolGen cp = cg.getConstantPool();
+        Method[] ms = cg.getMethods();
+        for (int j = 0; j < ms.length; ++j) {
+            MethodGen mg = new MethodGen(ms[j], cg.getClassName(), cp);
+            boolean lv = ms[j].getLocalVariableTable() == null;
+            boolean ln = ms[j].getLineNumberTable() == null;
+            if (lv) {
+                mg.removeLocalVariables();
+            }
+            if (ln) {
+                mg.removeLineNumbers();
+            }
+            mg.stripAttributes(skipDebug);
+            InstructionList il = mg.getInstructionList();
+            if (il != null) {
+                InstructionHandle ih = il.getStart();
+                while (ih != null) {
+                    ih = ih.getNext();
+                }
+                if (compute) {
+                    mg.setMaxStack();
+                    mg.setMaxLocals();
+                }
+            }
+            cg.replaceMethod(ms[j], mg.getMethod());
         }
-      }
+        return cg.getJavaClass().getBytes();
     }
-    return cg.getJavaClass().getBytes();
-  }
+
+    byte[] counterAdaptClass(final InputStream is, final String name) throws Exception
+    {
+        JavaClass jc = new ClassParser(is, name + ".class").parse();
+        ClassGen cg = new ClassGen(jc);
+        ConstantPoolGen cp = cg.getConstantPool();
+        if (!cg.isInterface()) {
+            FieldGen fg = new FieldGen(ACC_PUBLIC,
+                    Type.getType("I"),
+                    "_counter",
+                    cp);
+            cg.addField(fg.getField());
+        }
+        Method[] ms = cg.getMethods();
+        for (int j = 0; j < ms.length; ++j) {
+            MethodGen mg = new MethodGen(ms[j], cg.getClassName(), cp);
+            if (!mg.getName().equals("<init>") && !mg.isStatic()
+                    && !mg.isAbstract() && !mg.isNative())
+            {
+                if (mg.getInstructionList() != null) {
+                    InstructionList il = new InstructionList();
+                    il.append(new ALOAD(0));
+                    il.append(new ALOAD(0));
+                    il.append(new GETFIELD(cp.addFieldref(name, "_counter", "I")));
+                    il.append(new ICONST(1));
+                    il.append(new IADD());
+                    il.append(new PUTFIELD(cp.addFieldref(name, "_counter", "I")));
+                    mg.getInstructionList().insert(il);
+                    mg.setMaxStack(Math.max(mg.getMaxStack(), 2));
+                    boolean lv = ms[j].getLocalVariableTable() == null;
+                    boolean ln = ms[j].getLineNumberTable() == null;
+                    if (lv) {
+                        mg.removeLocalVariables();
+                    }
+                    if (ln) {
+                        mg.removeLineNumbers();
+                    }
+                    cg.replaceMethod(ms[j], mg.getMethod());
+                }
+            }
+        }
+        return cg.getJavaClass().getBytes();
+    }
 }

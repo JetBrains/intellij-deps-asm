@@ -27,7 +27,6 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
  * THE POSSIBILITY OF SUCH DAMAGE.
  */
-
 package org.objectweb.asm.tree;
 
 import org.objectweb.asm.Label;
@@ -39,51 +38,50 @@ import org.objectweb.asm.MethodVisitor;
  * 
  * @author Eric Bruneton
  */
-
 public class JumpInsnNode extends AbstractInsnNode {
 
-  /**
-   * The operand of this instruction. This operand is a label that designates
-   * the instruction to which this instruction may jump.
-   */
+    /**
+     * The operand of this instruction. This operand is a label that designates
+     * the instruction to which this instruction may jump.
+     */
+    public Label label;
 
-  public Label label;
+    /**
+     * Constructs a new {@link JumpInsnNode}.
+     * 
+     * @param opcode
+     *            the opcode of the type instruction to be constructed. This
+     *            opcode must be IFEQ, IFNE, IFLT, IFGE, IFGT, IFLE, IF_ICMPEQ,
+     *            IF_ICMPNE, IF_ICMPLT, IF_ICMPGE, IF_ICMPGT, IF_ICMPLE,
+     *            IF_ACMPEQ, IF_ACMPNE, GOTO, JSR, IFNULL or IFNONNULL.
+     * @param label
+     *            the operand of the instruction to be constructed. This operand
+     *            is a label that designates the instruction to which the jump
+     *            instruction may jump.
+     */
+    public JumpInsnNode(final int opcode, final Label label) {
+        super(opcode);
+        this.label = label;
+    }
 
-  /**
-   * Constructs a new {@link JumpInsnNode}.
-   *
-   * @param opcode the opcode of the type instruction to be constructed. This
-   *      opcode must be IFEQ, IFNE, IFLT, IFGE, IFGT, IFLE, IF_ICMPEQ,
-   *      IF_ICMPNE, IF_ICMPLT, IF_ICMPGE, IF_ICMPGT, IF_ICMPLE, IF_ACMPEQ,
-   *      IF_ACMPNE, GOTO, JSR, IFNULL or IFNONNULL.
-   * @param label the operand of the instruction to be constructed. This operand
-   *      is a label that designates the instruction to which the jump
-   *      instruction may jump.
-   */
+    /**
+     * Sets the opcode of this instruction.
+     * 
+     * @param opcode
+     *            the new instruction opcode. This opcode must be IFEQ, IFNE,
+     *            IFLT, IFGE, IFGT, IFLE, IF_ICMPEQ, IF_ICMPNE, IF_ICMPLT,
+     *            IF_ICMPGE, IF_ICMPGT, IF_ICMPLE, IF_ACMPEQ, IF_ACMPNE, GOTO,
+     *            JSR, IFNULL or IFNONNULL.
+     */
+    public void setOpcode(final int opcode) {
+        this.opcode = opcode;
+    }
 
-  public JumpInsnNode (final int opcode, final Label label) {
-    super(opcode);
-    this.label = label;
-  }
+    public void accept(final MethodVisitor mv) {
+        mv.visitJumpInsn(opcode, label);
+    }
 
-  /**
-   * Sets the opcode of this instruction.
-   *
-   * @param opcode the new instruction opcode. This opcode must be
-   *      IFEQ, IFNE, IFLT, IFGE, IFGT, IFLE, IF_ICMPEQ, IF_ICMPNE,
-   *      IF_ICMPLT, IF_ICMPGE, IF_ICMPGT, IF_ICMPLE, IF_ACMPEQ, IF_ACMPNE,
-   *      GOTO, JSR, IFNULL or IFNONNULL.
-   */
-
-  public void setOpcode (final int opcode) {
-    this.opcode = opcode;
-  }
-
-  public void accept (final MethodVisitor mv) {
-    mv.visitJumpInsn(opcode, label);
-  }
-
-  public int getType () {
-    return JUMP_INSN;
-  }
+    public int getType() {
+        return JUMP_INSN;
+    }
 }

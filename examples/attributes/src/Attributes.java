@@ -27,7 +27,6 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
  * THE POSSIBILITY OF SUCH DAMAGE.
  */
-
 import org.objectweb.asm.Attribute;
 import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.ClassAdapter;
@@ -46,109 +45,112 @@ import java.io.PrintWriter;
 /**
  * @author Eric Bruneton
  */
-
 public class Attributes extends ClassLoader {
 
-  public static void main (final String args[]) throws Exception {
-    // loads the original class and adapts it
-    ClassReader cr = new ClassReader("CommentAttribute");
-    ClassWriter cw = new ClassWriter(false);
-    ClassVisitor cv = new AddCommentClassAdapter(cw);
-    cr.accept(cv, new Attribute[] { new CommentAttribute("") }, false);
-    byte[] b = cw.toByteArray();
+    public static void main(final String args[]) throws Exception {
+        // loads the original class and adapts it
+        ClassReader cr = new ClassReader("CommentAttribute");
+        ClassWriter cw = new ClassWriter(false);
+        ClassVisitor cv = new AddCommentClassAdapter(cw);
+        cr.accept(cv, new Attribute[] { new CommentAttribute("") }, false);
+        byte[] b = cw.toByteArray();
 
-    // stores the adapted class on disk
-    FileOutputStream fos = new FileOutputStream("CommentAttribute.class.new");
-    fos.write(b);
-    fos.close();
+        // stores the adapted class on disk
+        FileOutputStream fos = new FileOutputStream("CommentAttribute.class.new");
+        fos.write(b);
+        fos.close();
 
-    // "disassembles" the adapted class
-    cr = new ClassReader(b);
-    cv = new TraceClassVisitor(new PrintWriter(System.out));
-    cr.accept(cv, new Attribute[] { new CommentAttribute("") }, false);
-  }
+        // "disassembles" the adapted class
+        cr = new ClassReader(b);
+        cv = new TraceClassVisitor(new PrintWriter(System.out));
+        cr.accept(cv, new Attribute[] { new CommentAttribute("") }, false);
+    }
 }
 
 class AddCommentClassAdapter extends ClassAdapter implements Opcodes {
 
-  public AddCommentClassAdapter (final ClassVisitor cv) {
-    super(cv);
-  }
-
-  public void visit (
-    final int version,
-    final int access,
-    final String name,
-    final String signature,
-    final String superName,
-    final String[] interfaces)
-  {
-    super.visit(version, access, name, signature, superName, interfaces);
-    visitAttribute(new CommentAttribute("this is a class comment"));
-  }
-
-  public FieldVisitor visitField (
-    final int access,
-    final String name,
-    final String desc,
-    final String signature,
-    final Object value)
-  {
-    FieldVisitor fv = super.visitField(access, name, desc, signature, value);
-    fv.visitAttribute(new CommentAttribute("this is a field comment"));
-    return fv;
-  }
-
-  public MethodVisitor visitMethod (
-    final int access,
-    final String name,
-    final String desc,
-    final String signature,
-    final String[] exceptions)
-  {
-    MethodVisitor mv = cv.visitMethod(access, name, desc, signature, exceptions);
-    if (mv != null) {
-      mv.visitAttribute(new CommentAttribute("this is a method comment"));
+    public AddCommentClassAdapter(final ClassVisitor cv) {
+        super(cv);
     }
-    return mv;
-  }
+
+    public void visit(
+        final int version,
+        final int access,
+        final String name,
+        final String signature,
+        final String superName,
+        final String[] interfaces)
+    {
+        super.visit(version, access, name, signature, superName, interfaces);
+        visitAttribute(new CommentAttribute("this is a class comment"));
+    }
+
+    public FieldVisitor visitField(
+        final int access,
+        final String name,
+        final String desc,
+        final String signature,
+        final Object value)
+    {
+        FieldVisitor fv = super.visitField(access, name, desc, signature, value);
+        fv.visitAttribute(new CommentAttribute("this is a field comment"));
+        return fv;
+    }
+
+    public MethodVisitor visitMethod(
+        final int access,
+        final String name,
+        final String desc,
+        final String signature,
+        final String[] exceptions)
+    {
+        MethodVisitor mv = cv.visitMethod(access,
+                name,
+                desc,
+                signature,
+                exceptions);
+        if (mv != null) {
+            mv.visitAttribute(new CommentAttribute("this is a method comment"));
+        }
+        return mv;
+    }
 }
 
 class CommentAttribute extends Attribute {
 
-  private String comment;
+    private String comment;
 
-  public CommentAttribute (final String comment) {
-    super("Comment");
-    this.comment = comment;
-  }
+    public CommentAttribute(final String comment) {
+        super("Comment");
+        this.comment = comment;
+    }
 
-  public String getComment () {
-    return comment;
-  }
+    public String getComment() {
+        return comment;
+    }
 
-  public boolean isUnknown () {
-    return false;
-  }
-  
-  protected Attribute read (
-    ClassReader cr,
-    int off,
-    int len,
-    char[] buf,
-    int codeOff,
-    Label[] labels)
-  {
-    return new CommentAttribute(cr.readUTF8(off, buf));
-  }
+    public boolean isUnknown() {
+        return false;
+    }
 
-  protected ByteVector write (
-    ClassWriter cw,
-    byte[] code,
-    int len,
-    int maxStack,
-    int maxLocals)
-  {
-    return new ByteVector().putShort(cw.newUTF8(comment));
-  }
+    protected Attribute read(
+        ClassReader cr,
+        int off,
+        int len,
+        char[] buf,
+        int codeOff,
+        Label[] labels)
+    {
+        return new CommentAttribute(cr.readUTF8(off, buf));
+    }
+
+    protected ByteVector write(
+        ClassWriter cw,
+        byte[] code,
+        int len,
+        int maxStack,
+        int maxLocals)
+    {
+        return new ByteVector().putShort(cw.newUTF8(comment));
+    }
 }

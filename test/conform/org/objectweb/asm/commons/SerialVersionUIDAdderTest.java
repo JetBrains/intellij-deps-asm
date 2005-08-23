@@ -27,7 +27,6 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
  * THE POSSIBILITY OF SUCH DAMAGE.
  */
-
 package org.objectweb.asm.commons;
 
 import java.io.IOException;
@@ -41,37 +40,39 @@ import junit.framework.TestCase;
 
 /**
  * Test for the SerialVerionUid computation.
- *
+ * 
  * @author Alexandre Vasseur
  * @author Eric Bruneton
  */
+public class SerialVersionUIDAdderTest extends TestCase implements Serializable
+{
 
-public class SerialVersionUIDAdderTest extends TestCase implements Serializable {
-  
-  protected final static int aField = 32;
+    protected final static int aField = 32;
 
-  static {
-    System.gc();
-  }
+    static {
+        System.gc();
+    }
 
-  public Object[] aMethod () {
-    return null;
-  }
+    public Object[] aMethod() {
+        return null;
+    }
 
-  private long computeSerialVersionUID (String className) throws IOException {
-    final long[] svuid = new long[1];
-    ClassVisitor cv = new SerialVersionUIDAdder(new EmptyVisitor()) {
-      protected long computeSVUID () throws IOException, NoSuchAlgorithmException {
-        svuid[0] = super.computeSVUID();
+    private long computeSerialVersionUID(String className) throws IOException {
+        final long[] svuid = new long[1];
+        ClassVisitor cv = new SerialVersionUIDAdder(new EmptyVisitor()) {
+            protected long computeSVUID() throws IOException,
+                    NoSuchAlgorithmException
+            {
+                svuid[0] = super.computeSVUID();
+                return svuid[0];
+            }
+        };
+        new ClassReader(className).accept(cv, false);
         return svuid[0];
-      }      
-    };
-    new ClassReader(className).accept(cv, false);
-    return svuid[0];
-  }
-  
-  public void test () throws Throwable {
-    long UID = computeSerialVersionUID(getClass().getName());
-    assertEquals(3047446532799341501L, UID);
-  }
+    }
+
+    public void test() throws Throwable {
+        long UID = computeSerialVersionUID(getClass().getName());
+        assertEquals(3047446532799341501L, UID);
+    }
 }

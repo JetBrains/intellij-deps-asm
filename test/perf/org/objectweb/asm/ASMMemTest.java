@@ -27,7 +27,6 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
  * THE POSSIBILITY OF SUCH DAMAGE.
  */
-
 package org.objectweb.asm;
 
 import java.io.FileInputStream;
@@ -53,170 +52,161 @@ import org.objectweb.asm.tree.MethodNode;
  * 
  * @author treffer
  */
-
 public class ASMMemTest {
 
-	public static void main(String[] args) {
-		if (args.length < 2) {
-			System.out
-					.println("java ASMMemTest <jar-file> <number-of-classes>");
-			System.exit(1);
-		}
+    public static void main(String[] args) {
+        if (args.length < 2) {
+            System.out.println("java ASMMemTest <jar-file> <number-of-classes>");
+            System.exit(1);
+        }
 
-		Runtime runtime = Runtime.getRuntime();
-		memDown(runtime);
-		System.out.println("Initial memory load: "
-				.concat(memFormat(getUsedMem(runtime))));
+        Runtime runtime = Runtime.getRuntime();
+        memDown(runtime);
+        System.out.println("Initial memory load: ".concat(memFormat(getUsedMem(runtime))));
 
-		LinkedList fileData = new LinkedList();
-		int limit = Integer.parseInt(args[1]);
-		try {
-			long totalSize = 0;
-			JarInputStream jar = new JarInputStream(
-					new FileInputStream(args[0]));
-			JarEntry entry = jar.getNextJarEntry();
-			while ((fileData.size() < limit) && (entry != null)) {
-				String name = entry.getName();
-				if (name.endsWith(".class")) {
-					if (entry.getSize() != -1) {
-						int len = (int) entry.getSize();
-						byte[] data = new byte[len];
-						jar.read(data);
-						fileData.add(data);
-						totalSize += data.length;
-					} else {
-						System.err
-								.println("No jar-entry size given... Unimplemented, jar file not supported");
-					}
-				}
-				entry = jar.getNextJarEntry();
-			}
-			System.out.println(memFormat(totalSize) + " class data, ~"
-					+ memFormat(totalSize / limit) + " per class.");
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+        LinkedList fileData = new LinkedList();
+        int limit = Integer.parseInt(args[1]);
+        try {
+            long totalSize = 0;
+            JarInputStream jar = new JarInputStream(new FileInputStream(args[0]));
+            JarEntry entry = jar.getNextJarEntry();
+            while ((fileData.size() < limit) && (entry != null)) {
+                String name = entry.getName();
+                if (name.endsWith(".class")) {
+                    if (entry.getSize() != -1) {
+                        int len = (int) entry.getSize();
+                        byte[] data = new byte[len];
+                        jar.read(data);
+                        fileData.add(data);
+                        totalSize += data.length;
+                    } else {
+                        System.err.println("No jar-entry size given... Unimplemented, jar file not supported");
+                    }
+                }
+                entry = jar.getNextJarEntry();
+            }
+            System.out.println(memFormat(totalSize) + " class data, ~"
+                    + memFormat(totalSize / limit) + " per class.");
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
-		ArrayList result = new ArrayList(fileData.size());
-		long startmem;
+        ArrayList result = new ArrayList(fileData.size());
+        long startmem;
 
-		for (int i = 0; i < 10; i++) {
-			System.out.println("\n> Run ".concat(Integer.toString(i+1)));
-			Iterator files = fileData.iterator();
-			result.clear();
-			memDown(runtime);
-			System.out.println("Empty memory load: "
-					.concat(memFormat(startmem = getUsedMem(runtime))));
+        for (int i = 0; i < 10; i++) {
+            System.out.println("\n> Run ".concat(Integer.toString(i + 1)));
+            Iterator files = fileData.iterator();
+            result.clear();
+            memDown(runtime);
+            System.out.println("Empty memory load: ".concat(memFormat(startmem = getUsedMem(runtime))));
 
-			long time = -System.currentTimeMillis();
-			while (files.hasNext()) {
-				byte data[] = (byte[]) files.next();
-				ClassReader reader = new ClassReader(data);
-				ClassNode clazz = new ClassNode();
-				reader.accept(clazz, false);
-				result.add(clazz);
-			}
-			time += System.currentTimeMillis();
+            long time = -System.currentTimeMillis();
+            while (files.hasNext()) {
+                byte data[] = (byte[]) files.next();
+                ClassReader reader = new ClassReader(data);
+                ClassNode clazz = new ClassNode();
+                reader.accept(clazz, false);
+                result.add(clazz);
+            }
+            time += System.currentTimeMillis();
 
-			memDown(runtime);
-			System.out.println("Time: ".concat(timeFormat(time)));
-			System.out.println("Final memory load: "
-					.concat(memFormat(getUsedMem(runtime))));
-			System.out.println("ASM memory load: "
-					.concat(memFormat(getUsedMem(runtime) - startmem)));
-			for (int j = 0; j < limit; j++) {
-				ClassNode clazz = (ClassNode)result.get(j);
-				List l = clazz.methods;
-				for (int k = 0, lim = l.size(); k < lim; k++) {
-					MethodNode m = (MethodNode)l.get(k);
-					List insn = m.instructions;
-					if (insn != null)
-						insn.clear();
-					/*
-					for (int ins = 0, insmax = insn.size(); ins < insmax; ins++) {
-						if (insn.get(ins) instanceof VarInsnNode) {
-							insn.set(ins, null);
-						}
-					}
-					*/
-				}
-			}
-			memDown(runtime);
-			System.out.println("ASM memory load (removed method code): "
-					.concat(memFormat(getUsedMem(runtime) - startmem)));
-		}
+            memDown(runtime);
+            System.out.println("Time: ".concat(timeFormat(time)));
+            System.out.println("Final memory load: ".concat(memFormat(getUsedMem(runtime))));
+            System.out.println("ASM memory load: ".concat(memFormat(getUsedMem(runtime)
+                    - startmem)));
+            for (int j = 0; j < limit; j++) {
+                ClassNode clazz = (ClassNode) result.get(j);
+                List l = clazz.methods;
+                for (int k = 0, lim = l.size(); k < lim; k++) {
+                    MethodNode m = (MethodNode) l.get(k);
+                    List insn = m.instructions;
+                    if (insn != null)
+                        insn.clear();
+                    /*
+                     * for (int ins = 0, insmax = insn.size(); ins < insmax;
+                     * ins++) { if (insn.get(ins) instanceof VarInsnNode) {
+                     * insn.set(ins, null); } }
+                     */
+                }
+            }
+            memDown(runtime);
+            System.out.println("ASM memory load (removed method code): ".concat(memFormat(getUsedMem(runtime)
+                    - startmem)));
+        }
 
-	}
+    }
 
-	public final static long getUsedMem(final Runtime r) {
-		return r.totalMemory() - r.freeMemory();
-	}
+    public final static long getUsedMem(final Runtime r) {
+        return r.totalMemory() - r.freeMemory();
+    }
 
-	public final static String timeFormat(final long time) {
-		int min = (int) (time / (60 * 1000));
-		int sec = (int) ((time / (1000)) % 60);
-		int msec = (int) (time % 1000);
-		StringBuffer sbuf = new StringBuffer(30);
-		if (min > 0) {
-			sbuf.append(min);
-			sbuf.append("min ");
-		}
-		if ((sec > 0) || (min > 0)) {
-			sbuf.append(sec);
-			sbuf.append("s ");
-		}
-		if ((msec > 0) || (sec > 0) || (min > 0)) {
-			sbuf.append(msec);
-			sbuf.append("ms ");
-		}
-		sbuf.append("(");
-		sbuf.append(time);
-		sbuf.append("ms)");
-		return sbuf.toString();
-	}
+    public final static String timeFormat(final long time) {
+        int min = (int) (time / (60 * 1000));
+        int sec = (int) ((time / (1000)) % 60);
+        int msec = (int) (time % 1000);
+        StringBuffer sbuf = new StringBuffer(30);
+        if (min > 0) {
+            sbuf.append(min);
+            sbuf.append("min ");
+        }
+        if ((sec > 0) || (min > 0)) {
+            sbuf.append(sec);
+            sbuf.append("s ");
+        }
+        if ((msec > 0) || (sec > 0) || (min > 0)) {
+            sbuf.append(msec);
+            sbuf.append("ms ");
+        }
+        sbuf.append("(");
+        sbuf.append(time);
+        sbuf.append("ms)");
+        return sbuf.toString();
+    }
 
-	public final static String memFormat(final long mem) {
-		int gb = (int) ((mem >> 30) & 0x3FF);
-		int mb = (int) ((mem >> 20) & 0x3FF);
-		int kb = (int) ((mem >> 10) & 0x3FF);
-		int bytes = (int) (mem & 0x3FF);
-		StringBuffer sbuf = new StringBuffer(30);
-		if (gb > 0) {
-			sbuf.append(gb);
-			sbuf.append("GB ");
-		}
-		if ((mb > 0) || (gb > 0)) {
-			sbuf.append(mb);
-			sbuf.append("MB ");
-		}
-		if ((kb > 0) || (mb > 0) || (gb > 0)) {
-			sbuf.append(kb);
-			sbuf.append("KB ");
-		}
-		if ((bytes > 0) || (kb > 0) || (mb > 0) || (gb > 0)) {
-			sbuf.append(bytes);
-			sbuf.append("bytes ");
-		}
-		sbuf.append("(");
-		sbuf.append(mem);
-		sbuf.append("bytes)");
-		return sbuf.toString();
-	}
+    public final static String memFormat(final long mem) {
+        int gb = (int) ((mem >> 30) & 0x3FF);
+        int mb = (int) ((mem >> 20) & 0x3FF);
+        int kb = (int) ((mem >> 10) & 0x3FF);
+        int bytes = (int) (mem & 0x3FF);
+        StringBuffer sbuf = new StringBuffer(30);
+        if (gb > 0) {
+            sbuf.append(gb);
+            sbuf.append("GB ");
+        }
+        if ((mb > 0) || (gb > 0)) {
+            sbuf.append(mb);
+            sbuf.append("MB ");
+        }
+        if ((kb > 0) || (mb > 0) || (gb > 0)) {
+            sbuf.append(kb);
+            sbuf.append("KB ");
+        }
+        if ((bytes > 0) || (kb > 0) || (mb > 0) || (gb > 0)) {
+            sbuf.append(bytes);
+            sbuf.append("bytes ");
+        }
+        sbuf.append("(");
+        sbuf.append(mem);
+        sbuf.append("bytes)");
+        return sbuf.toString();
+    }
 
-	public final static void memDown(final Runtime r) {
-		long oldmem;
-		do {
-			oldmem = getUsedMem(r);
-			for (int i = 0; i < 10; i++) {
-				//				Calling System.gc once is very unsafe
-				System.gc();
-				try {
-					Thread.sleep(10);
-				} catch (InterruptedException ie) {
-				}
-			}
-		} while (getUsedMem(r) < oldmem);
-	}
+    public final static void memDown(final Runtime r) {
+        long oldmem;
+        do {
+            oldmem = getUsedMem(r);
+            for (int i = 0; i < 10; i++) {
+                // Calling System.gc once is very unsafe
+                System.gc();
+                try {
+                    Thread.sleep(10);
+                } catch (InterruptedException ie) {
+                }
+            }
+        } while (getUsedMem(r) < oldmem);
+    }
 }

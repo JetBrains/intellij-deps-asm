@@ -27,7 +27,6 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
  * THE POSSIBILITY OF SUCH DAMAGE.
  */
-
 package org.objectweb.asm;
 
 import junit.framework.TestSuite;
@@ -37,34 +36,33 @@ import junit.framework.TestSuite;
  * 
  * @author Eric Bruneton
  */
-
 public class ClassAdapterTest extends AbstractTest {
-  
-  private final static TestClassLoader LOADER = new TestClassLoader();
-  
-  public static TestSuite suite () throws Exception {
-    return new ClassAdapterTest().getSuite();
-  }
-  
-  public void test () throws Exception {
-    ClassReader cr = new ClassReader(is);
-    ClassWriter cw = new ClassWriter(true, true);
-    cr.accept(new ClassAdapter(cw), false);
-    byte[] b = cw.toByteArray();
-    try {
-      LOADER.defineClass(n, b);
-    } catch (ClassFormatError cfe) {
-      fail(cfe.getMessage());
-    } catch (Throwable ignored) {
+
+    private final static TestClassLoader LOADER = new TestClassLoader();
+
+    public static TestSuite suite() throws Exception {
+        return new ClassAdapterTest().getSuite();
     }
-  }
-  
-  // -------------------------------------------------------------------------
-  
-  static class TestClassLoader extends ClassLoader {
-    
-    public Class defineClass (final String name, final byte[] b) {
-      return defineClass(name, b, 0, b.length);
+
+    public void test() throws Exception {
+        ClassReader cr = new ClassReader(is);
+        ClassWriter cw = new ClassWriter(true, true);
+        cr.accept(new ClassAdapter(cw), false);
+        byte[] b = cw.toByteArray();
+        try {
+            LOADER.defineClass(n, b);
+        } catch (ClassFormatError cfe) {
+            fail(cfe.getMessage());
+        } catch (Throwable ignored) {
+        }
     }
-  }
+
+    // ------------------------------------------------------------------------
+
+    static class TestClassLoader extends ClassLoader {
+
+        public Class defineClass(final String name, final byte[] b) {
+            return defineClass(name, b, 0, b.length);
+        }
+    }
 }

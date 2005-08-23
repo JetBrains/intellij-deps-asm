@@ -27,7 +27,6 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
  * THE POSSIBILITY OF SUCH DAMAGE.
  */
-
 package org.objectweb.asm.tree.analysis;
 
 import java.util.List;
@@ -44,24 +43,23 @@ import org.objectweb.asm.tree.MethodNode;
  * 
  * @author Eric Bruneton
  */
-
 public class BasicVerifierTest extends AbstractTest {
-  
-  public static TestSuite suite () throws Exception {
-    return new BasicVerifierTest().getSuite();
-  }
-  
-  public void test () throws Exception {
-    ClassReader cr = new ClassReader(is);
-    ClassNode cn = new ClassNode();
-    cr.accept(cn, false);
-    List methods = cn.methods;
-    for (int i = 0; i < methods.size(); ++i) {
-      MethodNode method = (MethodNode)methods.get(i);      
-      if (method.instructions.size() > 0) {
-        Analyzer a = new Analyzer(new BasicVerifier());
-        a.analyze(cn.name, method);
-      }
+
+    public static TestSuite suite() throws Exception {
+        return new BasicVerifierTest().getSuite();
     }
-  }
+
+    public void test() throws Exception {
+        ClassReader cr = new ClassReader(is);
+        ClassNode cn = new ClassNode();
+        cr.accept(cn, false);
+        List methods = cn.methods;
+        for (int i = 0; i < methods.size(); ++i) {
+            MethodNode method = (MethodNode) methods.get(i);
+            if (method.instructions.size() > 0) {
+                Analyzer a = new Analyzer(new BasicVerifier());
+                a.analyze(cn.name, method);
+            }
+        }
+    }
 }

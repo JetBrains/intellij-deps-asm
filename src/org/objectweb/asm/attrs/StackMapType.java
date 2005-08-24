@@ -69,7 +69,6 @@ public class StackMapType {
     private int type;
     private Label offset;
     private String object;
-    
 
     private StackMapType(int type) {
         this.type = type;

@@ -154,11 +154,10 @@ public class ASMifierClassVisitor extends ASMifierAbstractVisitor implements
      * output. <p> Usage: ASMifierClassVisitor [-debug] &lt;fully qualified
      * class name or class file name&gt;
      * 
-     * @param args
-     *            the command line arguments.
+     * @param args the command line arguments.
      * 
-     * @throws Exception
-     *             if the class cannot be found, or if an IO exception occurs.
+     * @throws Exception if the class cannot be found, or if an IO exception
+     *         occurs.
      */
     public static void main(final String[] args) throws Exception {
         int i = 0;
@@ -195,8 +194,7 @@ public class ASMifierClassVisitor extends ASMifierAbstractVisitor implements
     /**
      * Constructs a new {@link ASMifierClassVisitor} object.
      * 
-     * @param pw
-     *            the print writer to be used to print the class.
+     * @param pw the print writer to be used to print the class.
      */
     public ASMifierClassVisitor(final PrintWriter pw) {
         super("cw");
@@ -237,27 +235,27 @@ public class ASMifierClassVisitor extends ASMifierAbstractVisitor implements
         buf.setLength(0);
         buf.append("cw.visit(");
         switch (version) {
-        case Opcodes.V1_1:
-            buf.append("V1_1");
-            break;
-        case Opcodes.V1_2:
-            buf.append("V1_2");
-            break;
-        case Opcodes.V1_3:
-            buf.append("V1_3");
-            break;
-        case Opcodes.V1_4:
-            buf.append("V1_4");
-            break;
-        case Opcodes.V1_5:
-            buf.append("V1_5");
-            break;
-        case Opcodes.V1_6:
-            buf.append("V1_6");
-            break;
-        default:
-            buf.append(version);
-            break;
+            case Opcodes.V1_1:
+                buf.append("V1_1");
+                break;
+            case Opcodes.V1_2:
+                buf.append("V1_2");
+                break;
+            case Opcodes.V1_3:
+                buf.append("V1_3");
+                break;
+            case Opcodes.V1_4:
+                buf.append("V1_4");
+                break;
+            case Opcodes.V1_5:
+                buf.append("V1_5");
+                break;
+            case Opcodes.V1_6:
+                buf.append("V1_6");
+                break;
+            default:
+                buf.append(version);
+                break;
         }
         buf.append(", ");
         appendAccess(access | ACCESS_CLASS);
@@ -425,8 +423,7 @@ public class ASMifierClassVisitor extends ASMifierAbstractVisitor implements
      * Appends a string representation of the given access modifiers to {@link
      * #buf buf}.
      * 
-     * @param access
-     *            some access modifiers.
+     * @param access some access modifiers.
      */
     void appendAccess(final int access) {
         boolean first = true;
@@ -581,13 +578,11 @@ public class ASMifierClassVisitor extends ASMifierAbstractVisitor implements
      * Appends a string representation of the given constant to the given
      * buffer.
      * 
-     * @param buf
-     *            a string buffer.
-     * @param cst
-     *            an {@link java.lang.Integer Integer}, {@link java.lang.Float
-     *            Float}, {@link java.lang.Long Long},
-     *            {@link java.lang.Double Double} or {@link String String}
-     *            object. May be <tt>null</tt>.
+     * @param buf a string buffer.
+     * @param cst an {@link java.lang.Integer Integer}, {@link java.lang.Float
+     *        Float}, {@link java.lang.Long Long},
+     *        {@link java.lang.Double Double} or {@link String String} object.
+     *        May be <tt>null</tt>.
      */
     static void appendConstant(final StringBuffer buf, final Object cst) {
         if (cst == null) {

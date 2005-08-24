@@ -61,7 +61,8 @@ public class JavassistPerfTest extends ALLPerfTest {
         return new JavassistPerfTest();
     }
 
-    byte[] nullAdaptClass(final InputStream is, final String name) throws Exception
+    byte[] nullAdaptClass(final InputStream is, final String name)
+            throws Exception
     {
         CtClass cc = pool.makeClass(is);
         CtMethod[] ms = cc.getDeclaredMethods();
@@ -76,7 +77,8 @@ public class JavassistPerfTest extends ALLPerfTest {
         return cc.toBytecode();
     }
 
-    byte[] counterAdaptClass(final InputStream is, final String name) throws Exception
+    byte[] counterAdaptClass(final InputStream is, final String name)
+            throws Exception
     {
         CtClass cc = pool.makeClass(is);
         if (!cc.isInterface()) {

@@ -317,8 +317,7 @@ public class ASMifierMethodVisitor extends ASMifierAbstractVisitor implements
      * declaration is of the form "Label lXXX = new Label();". Does nothing if
      * the given label has already been declared.
      * 
-     * @param l
-     *            a label.
+     * @param l a label.
      */
     private void declareLabel(final Label l) {
         String name = (String) labelNames.get(l);
@@ -334,8 +333,7 @@ public class ASMifierMethodVisitor extends ASMifierAbstractVisitor implements
      * <i>must</i> already have a name. One way to ensure this is to always
      * call {@link #declareLabel declared} before calling this method.
      * 
-     * @param l
-     *            a label.
+     * @param l a label.
      */
     private void appendLabel(final Label l) {
         buf.append((String) labelNames.get(l));

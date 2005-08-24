@@ -147,36 +147,36 @@ public class TraceSignatureVisitor implements SignatureVisitor {
 
     public void visitBaseType(char descriptor) {
         switch (descriptor) {
-        case 'V':
-            declaration.append("void");
-            break;
-        case 'B':
-            declaration.append("byte");
-            break;
-        case 'J':
-            declaration.append("long");
-            break;
-        case 'Z':
-            declaration.append("boolean");
-            break;
-        case 'I':
-            declaration.append("int");
-            break;
-        case 'S':
-            declaration.append("short");
-            break;
-        case 'C':
-            declaration.append("char");
-            break;
-        case 'F':
-            declaration.append("float");
-            break;
-        case 'D':
-            declaration.append("double");
-            break;
-        default:
-            throw new IllegalArgumentException("Invalid descriptor "
-                    + descriptor);
+            case 'V':
+                declaration.append("void");
+                break;
+            case 'B':
+                declaration.append("byte");
+                break;
+            case 'J':
+                declaration.append("long");
+                break;
+            case 'Z':
+                declaration.append("boolean");
+                break;
+            case 'I':
+                declaration.append("int");
+                break;
+            case 'S':
+                declaration.append("short");
+                break;
+            case 'C':
+                declaration.append("char");
+                break;
+            case 'F':
+                declaration.append("float");
+                break;
+            case 'D':
+                declaration.append("double");
+                break;
+            default:
+                throw new IllegalArgumentException("Invalid descriptor "
+                        + descriptor);
         }
         endType();
     }

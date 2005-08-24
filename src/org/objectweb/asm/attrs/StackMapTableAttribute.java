@@ -460,8 +460,7 @@ public class StackMapTableAttribute extends Attribute {
 
         int methodOff = getMethodOff(cr, codeOff, buf);
         StackMapFrame frame = new StackMapFrame(getLabel(offset, labels),
-                calculateLocals(cr.readClass(cr.header + 2, buf), // class
-                        // name
+                calculateLocals(cr.readClass(cr.header + 2, buf), // owner
                         cr.readUnsignedShort(methodOff), // method access
                         cr.readUTF8(methodOff + 2, buf), // method name
                         cr.readUTF8(methodOff + 4, buf)), // method desc
@@ -603,10 +602,8 @@ public class StackMapTableAttribute extends Attribute {
         int maxLocals)
     {
         ByteVector bv = new ByteVector();
-        boolean isExtCodeSize = code != null && code.length > MAX_SHORT; // TODO
-        // verify
-        // this
-        // value
+        // TODO verify this value (MAX_SHORT)
+        boolean isExtCodeSize = code != null && code.length > MAX_SHORT;
         writeSize(frames.size() - 1, bv, isExtCodeSize);
 
         if (frames.size() < 2) {
@@ -642,23 +639,23 @@ public class StackMapTableAttribute extends Attribute {
             if (cstackSize == 0) {
                 k = clocalsSize - localsSize;
                 switch (k) {
-                case -3:
-                case -2:
-                case -1:
-                    type = CHOP_FRAME; // CHOP or FULL
-                    localsSize = clocalsSize; // adjust for full_frame check
-                    break;
+                    case -3:
+                    case -2:
+                    case -1:
+                        type = CHOP_FRAME; // CHOP or FULL
+                        localsSize = clocalsSize; // for full_frame check
+                        break;
 
-                case 0:
-                    // SAME, SAME_EXTENDED or FULL
-                    type = delta < 64 ? SAME_FRAME : SAME_FRAME_EXTENDED;
-                    break;
+                    case 0:
+                        // SAME, SAME_EXTENDED or FULL
+                        type = delta < 64 ? SAME_FRAME : SAME_FRAME_EXTENDED;
+                        break;
 
-                case 1:
-                case 2:
-                case 3:
-                    type = APPEND_FRAME; // APPEND or FULL
-                    break;
+                    case 1:
+                    case 2:
+                    case 3:
+                        type = APPEND_FRAME; // APPEND or FULL
+                        break;
                 }
             } else if (localsSize == clocalsSize && cstackSize == 1) {
                 // SAME_LOCAL_1_STACK or FULL
@@ -676,48 +673,52 @@ public class StackMapTableAttribute extends Attribute {
             }
 
             switch (type) {
-            case SAME_FRAME:
-                bv.putByte(delta);
-                break;
+                case SAME_FRAME:
+                    bv.putByte(delta);
+                    break;
 
-            case SAME_LOCALS_1_STACK_ITEM_FRAME:
-                bv.putByte(SAME_LOCALS_1_STACK_ITEM_FRAME + delta);
-                writeTypeInfos(bv, cw, cstack, 0, 1);
-                break;
+                case SAME_LOCALS_1_STACK_ITEM_FRAME:
+                    bv.putByte(SAME_LOCALS_1_STACK_ITEM_FRAME + delta);
+                    writeTypeInfos(bv, cw, cstack, 0, 1);
+                    break;
 
-            case SAME_LOCALS_1_STACK_ITEM_FRAME_EXTENDED:
-                bv.putByte(SAME_LOCALS_1_STACK_ITEM_FRAME_EXTENDED);
-                writeSize(delta, bv, isExtCodeSize);
-                writeTypeInfos(bv, cw, cstack, 0, 1);
-                break;
+                case SAME_LOCALS_1_STACK_ITEM_FRAME_EXTENDED:
+                    bv.putByte(SAME_LOCALS_1_STACK_ITEM_FRAME_EXTENDED);
+                    writeSize(delta, bv, isExtCodeSize);
+                    writeTypeInfos(bv, cw, cstack, 0, 1);
+                    break;
 
-            case SAME_FRAME_EXTENDED:
-                bv.putByte(SAME_FRAME_EXTENDED);
-                writeSize(delta, bv, isExtCodeSize);
-                break;
+                case SAME_FRAME_EXTENDED:
+                    bv.putByte(SAME_FRAME_EXTENDED);
+                    writeSize(delta, bv, isExtCodeSize);
+                    break;
 
-            case CHOP_FRAME:
-                bv.putByte(SAME_FRAME_EXTENDED + k); // negative k
-                writeSize(delta, bv, isExtCodeSize);
-                break;
+                case CHOP_FRAME:
+                    bv.putByte(SAME_FRAME_EXTENDED + k); // negative k
+                    writeSize(delta, bv, isExtCodeSize);
+                    break;
 
-            case APPEND_FRAME:
-                bv.putByte(SAME_FRAME_EXTENDED + k); // positive k
-                writeSize(delta, bv, isExtCodeSize);
-                writeTypeInfos(bv, cw, clocals, clocalsSize - 1, clocalsSize);
-                break;
+                case APPEND_FRAME:
+                    bv.putByte(SAME_FRAME_EXTENDED + k); // positive k
+                    writeSize(delta, bv, isExtCodeSize);
+                    writeTypeInfos(bv,
+                            cw,
+                            clocals,
+                            clocalsSize - 1,
+                            clocalsSize);
+                    break;
 
-            case FULL_FRAME:
-                bv.putByte(FULL_FRAME);
-                writeSize(delta, bv, isExtCodeSize);
-                writeSize(clocalsSize, bv, isExtLocals);
-                writeTypeInfos(bv, cw, clocals, 0, clocalsSize);
-                writeSize(cstackSize, bv, isExtStack);
-                writeTypeInfos(bv, cw, cstack, 0, cstackSize);
-                break;
+                case FULL_FRAME:
+                    bv.putByte(FULL_FRAME);
+                    writeSize(delta, bv, isExtCodeSize);
+                    writeSize(clocalsSize, bv, isExtLocals);
+                    writeTypeInfos(bv, cw, clocals, 0, clocalsSize);
+                    writeSize(cstackSize, bv, isExtStack);
+                    writeTypeInfos(bv, cw, cstack, 0, cstackSize);
+                    break;
 
-            default:
-                throw new RuntimeException();
+                default:
+                    throw new RuntimeException();
             }
             offset = coffset + 1; // compensating non first offset
             locals = clocals;
@@ -746,13 +747,13 @@ public class StackMapTableAttribute extends Attribute {
             bv.putByte(typeInfo.getType());
 
             switch (typeInfo.getType()) {
-            case StackMapType.ITEM_Object: //
-                bv.putShort(cw.newClass(typeInfo.getObject()));
-                break;
+                case StackMapType.ITEM_Object: //
+                    bv.putShort(cw.newClass(typeInfo.getObject()));
+                    break;
 
-            case StackMapType.ITEM_Uninitialized: //
-                bv.putShort(typeInfo.getLabel().getOffset());
-                break;
+                case StackMapType.ITEM_Uninitialized: //
+                    bv.putShort(typeInfo.getLabel().getOffset());
+                    break;
 
             }
         }
@@ -827,26 +828,26 @@ public class StackMapTableAttribute extends Attribute {
             Type t = types[i];
             StackMapType smt;
             switch (t.getSort()) {
-            case Type.LONG:
-                smt = StackMapType.getTypeInfo(StackMapType.ITEM_Long);
-                break;
-            case Type.DOUBLE:
-                smt = StackMapType.getTypeInfo(StackMapType.ITEM_Double);
-                break;
+                case Type.LONG:
+                    smt = StackMapType.getTypeInfo(StackMapType.ITEM_Long);
+                    break;
+                case Type.DOUBLE:
+                    smt = StackMapType.getTypeInfo(StackMapType.ITEM_Double);
+                    break;
 
-            case Type.FLOAT:
-                smt = StackMapType.getTypeInfo(StackMapType.ITEM_Float);
-                break;
+                case Type.FLOAT:
+                    smt = StackMapType.getTypeInfo(StackMapType.ITEM_Float);
+                    break;
 
-            case Type.ARRAY:
-            case Type.OBJECT:
-                smt = StackMapType.getTypeInfo(StackMapType.ITEM_Object);
-                smt.setObject(t.getDescriptor()); // TODO verify class name
-                break;
+                case Type.ARRAY:
+                case Type.OBJECT:
+                    smt = StackMapType.getTypeInfo(StackMapType.ITEM_Object);
+                    smt.setObject(t.getDescriptor()); // TODO verify name
+                    break;
 
-            default:
-                smt = StackMapType.getTypeInfo(StackMapType.ITEM_Integer);
-                break;
+                default:
+                    smt = StackMapType.getTypeInfo(StackMapType.ITEM_Integer);
+                    break;
             }
         }
 
@@ -889,28 +890,28 @@ public class StackMapTableAttribute extends Attribute {
         StackMapType typeInfo = StackMapType.getTypeInfo(itemType);
         info.add(typeInfo);
         switch (itemType) {
-        // case StackMapType.ITEM_Long: //
-        // case StackMapType.ITEM_Double: //
-        // info.add(StackMapType.getTypeInfo(StackMapType.ITEM_Top));
-        // break;
+            // case StackMapType.ITEM_Long: //
+            // case StackMapType.ITEM_Double: //
+            // info.add(StackMapType.getTypeInfo(StackMapType.ITEM_Top));
+            // break;
 
-        case StackMapType.ITEM_Object: //
-            typeInfo.setObject(cr.readClass(off, buf));
-            off += 2;
-            break;
-
-        case StackMapType.ITEM_Uninitialized: //
-            int offset;
-            if (isExtCodeSize) {
-                offset = cr.readInt(off);
-                off += 4;
-            } else {
-                offset = cr.readUnsignedShort(off);
+            case StackMapType.ITEM_Object: //
+                typeInfo.setObject(cr.readClass(off, buf));
                 off += 2;
-            }
+                break;
 
-            typeInfo.setLabel(getLabel(offset, labels));
-            break;
+            case StackMapType.ITEM_Uninitialized: //
+                int offset;
+                if (isExtCodeSize) {
+                    offset = cr.readInt(off);
+                    off += 4;
+                } else {
+                    offset = cr.readUnsignedShort(off);
+                    off += 2;
+                }
+
+                typeInfo.setLabel(getLabel(offset, labels));
+                break;
         }
         return off;
     }

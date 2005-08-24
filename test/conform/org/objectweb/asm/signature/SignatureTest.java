@@ -76,15 +76,15 @@ public class SignatureTest extends TestCase {
             SignatureWriter wrt = new SignatureWriter();
             SignatureReader rdr = new SignatureReader(signature);
             switch (line.charAt(0)) {
-            case 'C':
-            case 'M':
-                rdr.accept(wrt);
-                break;
-            case 'T':
-                rdr.acceptType(wrt);
-                break;
-            default:
-                return;
+                case 'C':
+                case 'M':
+                    rdr.accept(wrt);
+                    break;
+                case 'T':
+                    rdr.acceptType(wrt);
+                    break;
+                default:
+                    return;
             }
             assertEquals(signature, wrt.toString());
         }

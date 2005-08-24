@@ -111,8 +111,7 @@ public abstract class AbstractInsnNode {
     /**
      * Constructs a new {@link AbstractInsnNode}.
      * 
-     * @param opcode
-     *            the opcode of the instruction to be constructed.
+     * @param opcode the opcode of the instruction to be constructed.
      */
     protected AbstractInsnNode(final int opcode) {
         this.opcode = opcode;
@@ -138,8 +137,7 @@ public abstract class AbstractInsnNode {
     /**
      * Makes the given code visitor visit this instruction.
      * 
-     * @param cv
-     *            a code visitor.
+     * @param cv a code visitor.
      */
     public abstract void accept(final MethodVisitor cv);
 }

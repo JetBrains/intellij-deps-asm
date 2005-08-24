@@ -41,10 +41,8 @@ public interface FieldVisitor {
     /**
      * Visits an annotation of the field.
      * 
-     * @param desc
-     *            the class descriptor of the annotation class.
-     * @param visible
-     *            <tt>true</tt> if the annotation is visible at runtime.
+     * @param desc the class descriptor of the annotation class.
+     * @param visible <tt>true</tt> if the annotation is visible at runtime.
      * @return a non null visitor to visit the annotation values.
      */
     AnnotationVisitor visitAnnotation(String desc, boolean visible);
@@ -52,8 +50,7 @@ public interface FieldVisitor {
     /**
      * Visits a non standard attribute of the field.
      * 
-     * @param attr
-     *            an attribute.
+     * @param attr an attribute.
      */
     void visitAttribute(Attribute attr);
 

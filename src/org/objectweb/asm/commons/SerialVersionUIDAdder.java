@@ -153,9 +153,8 @@ public class SerialVersionUIDAdder extends ClassAdapter {
     /**
      * Creates a new {@link SerialVersionUIDAdder}.
      * 
-     * @param cv
-     *            a {@link ClassVisitor} to which this visitor will delegate
-     *            calls.
+     * @param cv a {@link ClassVisitor} to which this visitor will delegate
+     *        calls.
      */
     public SerialVersionUIDAdder(final ClassVisitor cv) {
         super(cv);
@@ -419,14 +418,10 @@ public class SerialVersionUIDAdder extends ClassAdapter {
     /**
      * Sorts the items in the collection and writes it to the data output stream
      * 
-     * @param itemCollection
-     *            collection of items
-     * @param dos
-     *            a <code>DataOutputStream</code> value
-     * @param dotted
-     *            a <code>boolean</code> value
-     * @exception IOException
-     *                if an error occurs
+     * @param itemCollection collection of items
+     * @param dos a <code>DataOutputStream</code> value
+     * @param dotted a <code>boolean</code> value
+     * @exception IOException if an error occurs
      */
     private void writeItems(
         final Collection itemCollection,

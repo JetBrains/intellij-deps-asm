@@ -54,172 +54,175 @@ public class BasicInterpreter implements Opcodes, Interpreter {
             return BasicValue.UNINITIALIZED_VALUE;
         }
         switch (type.getSort()) {
-        case Type.VOID:
-            return null;
-        case Type.BOOLEAN:
-        case Type.CHAR:
-        case Type.BYTE:
-        case Type.SHORT:
-        case Type.INT:
-            return BasicValue.INT_VALUE;
-        case Type.FLOAT:
-            return BasicValue.FLOAT_VALUE;
-        case Type.LONG:
-            return BasicValue.LONG_VALUE;
-        case Type.DOUBLE:
-            return BasicValue.DOUBLE_VALUE;
-        case Type.ARRAY:
-        case Type.OBJECT:
-            return BasicValue.REFERENCE_VALUE;
-        default:
-            throw new RuntimeException("Internal error.");
+            case Type.VOID:
+                return null;
+            case Type.BOOLEAN:
+            case Type.CHAR:
+            case Type.BYTE:
+            case Type.SHORT:
+            case Type.INT:
+                return BasicValue.INT_VALUE;
+            case Type.FLOAT:
+                return BasicValue.FLOAT_VALUE;
+            case Type.LONG:
+                return BasicValue.LONG_VALUE;
+            case Type.DOUBLE:
+                return BasicValue.DOUBLE_VALUE;
+            case Type.ARRAY:
+            case Type.OBJECT:
+                return BasicValue.REFERENCE_VALUE;
+            default:
+                throw new RuntimeException("Internal error.");
         }
     }
 
     public Value newOperation(final AbstractInsnNode insn) {
         switch (insn.getOpcode()) {
-        case ACONST_NULL:
-            return newValue(Type.getType("Lnull;"));
-        case ICONST_M1:
-        case ICONST_0:
-        case ICONST_1:
-        case ICONST_2:
-        case ICONST_3:
-        case ICONST_4:
-        case ICONST_5:
-            return BasicValue.INT_VALUE;
-        case LCONST_0:
-        case LCONST_1:
-            return BasicValue.LONG_VALUE;
-        case FCONST_0:
-        case FCONST_1:
-        case FCONST_2:
-            return BasicValue.FLOAT_VALUE;
-        case DCONST_0:
-        case DCONST_1:
-            return BasicValue.DOUBLE_VALUE;
-        case BIPUSH:
-        case SIPUSH:
-            return BasicValue.INT_VALUE;
-        case LDC:
-            Object cst = ((LdcInsnNode) insn).cst;
-            if (cst instanceof Integer) {
+            case ACONST_NULL:
+                return newValue(Type.getType("Lnull;"));
+            case ICONST_M1:
+            case ICONST_0:
+            case ICONST_1:
+            case ICONST_2:
+            case ICONST_3:
+            case ICONST_4:
+            case ICONST_5:
                 return BasicValue.INT_VALUE;
-            } else if (cst instanceof Float) {
-                return BasicValue.FLOAT_VALUE;
-            } else if (cst instanceof Long) {
+            case LCONST_0:
+            case LCONST_1:
                 return BasicValue.LONG_VALUE;
-            } else if (cst instanceof Double) {
+            case FCONST_0:
+            case FCONST_1:
+            case FCONST_2:
+                return BasicValue.FLOAT_VALUE;
+            case DCONST_0:
+            case DCONST_1:
                 return BasicValue.DOUBLE_VALUE;
-            } else if (cst instanceof Type) {
-                return newValue(Type.getType("Ljava/lang/Class;"));
-            } else {
-                return newValue(Type.getType(cst.getClass()));
-            }
-        case JSR:
-            return BasicValue.RETURNADDRESS_VALUE;
-        case GETSTATIC:
-            return newValue(Type.getType(((FieldInsnNode) insn).desc));
-        case NEW:
-            return newValue(Type.getType("L" + ((TypeInsnNode) insn).desc + ";"));
-        default:
-            throw new RuntimeException("Internal error.");
+            case BIPUSH:
+            case SIPUSH:
+                return BasicValue.INT_VALUE;
+            case LDC:
+                Object cst = ((LdcInsnNode) insn).cst;
+                if (cst instanceof Integer) {
+                    return BasicValue.INT_VALUE;
+                } else if (cst instanceof Float) {
+                    return BasicValue.FLOAT_VALUE;
+                } else if (cst instanceof Long) {
+                    return BasicValue.LONG_VALUE;
+                } else if (cst instanceof Double) {
+                    return BasicValue.DOUBLE_VALUE;
+                } else if (cst instanceof Type) {
+                    return newValue(Type.getType("Ljava/lang/Class;"));
+                } else {
+                    return newValue(Type.getType(cst.getClass()));
+                }
+            case JSR:
+                return BasicValue.RETURNADDRESS_VALUE;
+            case GETSTATIC:
+                return newValue(Type.getType(((FieldInsnNode) insn).desc));
+            case NEW:
+                return newValue(Type.getType("L" + ((TypeInsnNode) insn).desc
+                        + ";"));
+            default:
+                throw new RuntimeException("Internal error.");
         }
     }
 
-    public Value copyOperation(final AbstractInsnNode insn, final Value value) throws AnalyzerException
+    public Value copyOperation(final AbstractInsnNode insn, final Value value)
+            throws AnalyzerException
     {
         return value;
     }
 
-    public Value unaryOperation(final AbstractInsnNode insn, final Value value) throws AnalyzerException
+    public Value unaryOperation(final AbstractInsnNode insn, final Value value)
+            throws AnalyzerException
     {
         switch (insn.getOpcode()) {
-        case INEG:
-        case IINC:
-        case L2I:
-        case F2I:
-        case D2I:
-        case I2B:
-        case I2C:
-        case I2S:
-            return BasicValue.INT_VALUE;
-        case FNEG:
-        case I2F:
-        case L2F:
-        case D2F:
-            return BasicValue.FLOAT_VALUE;
-        case LNEG:
-        case I2L:
-        case F2L:
-        case D2L:
-            return BasicValue.LONG_VALUE;
-        case DNEG:
-        case I2D:
-        case L2D:
-        case F2D:
-            return BasicValue.DOUBLE_VALUE;
-        case IFEQ:
-        case IFNE:
-        case IFLT:
-        case IFGE:
-        case IFGT:
-        case IFLE:
-        case TABLESWITCH:
-        case LOOKUPSWITCH:
-        case IRETURN:
-        case LRETURN:
-        case FRETURN:
-        case DRETURN:
-        case ARETURN:
-        case PUTSTATIC:
-            return null;
-        case GETFIELD:
-            return newValue(Type.getType(((FieldInsnNode) insn).desc));
-        case NEWARRAY:
-            switch (((IntInsnNode) insn).operand) {
-            case T_BOOLEAN:
-            case T_CHAR:
-            case T_BYTE:
-            case T_SHORT:
-            case T_INT:
-                return newValue(Type.getType("[I"));
-            case T_FLOAT:
-                return newValue(Type.getType("[F"));
-            case T_DOUBLE:
-                return newValue(Type.getType("[D"));
-            case T_LONG:
-                return newValue(Type.getType("[J"));
+            case INEG:
+            case IINC:
+            case L2I:
+            case F2I:
+            case D2I:
+            case I2B:
+            case I2C:
+            case I2S:
+                return BasicValue.INT_VALUE;
+            case FNEG:
+            case I2F:
+            case L2F:
+            case D2F:
+                return BasicValue.FLOAT_VALUE;
+            case LNEG:
+            case I2L:
+            case F2L:
+            case D2L:
+                return BasicValue.LONG_VALUE;
+            case DNEG:
+            case I2D:
+            case L2D:
+            case F2D:
+                return BasicValue.DOUBLE_VALUE;
+            case IFEQ:
+            case IFNE:
+            case IFLT:
+            case IFGE:
+            case IFGT:
+            case IFLE:
+            case TABLESWITCH:
+            case LOOKUPSWITCH:
+            case IRETURN:
+            case LRETURN:
+            case FRETURN:
+            case DRETURN:
+            case ARETURN:
+            case PUTSTATIC:
+                return null;
+            case GETFIELD:
+                return newValue(Type.getType(((FieldInsnNode) insn).desc));
+            case NEWARRAY:
+                switch (((IntInsnNode) insn).operand) {
+                    case T_BOOLEAN:
+                    case T_CHAR:
+                    case T_BYTE:
+                    case T_SHORT:
+                    case T_INT:
+                        return newValue(Type.getType("[I"));
+                    case T_FLOAT:
+                        return newValue(Type.getType("[F"));
+                    case T_DOUBLE:
+                        return newValue(Type.getType("[D"));
+                    case T_LONG:
+                        return newValue(Type.getType("[J"));
+                    default:
+                        throw new AnalyzerException("Invalid array type");
+                }
+            case ANEWARRAY:
+                String desc = ((TypeInsnNode) insn).desc;
+                if (desc.charAt(0) == '[') {
+                    return newValue(Type.getType("[" + desc));
+                } else {
+                    return newValue(Type.getType("[L" + desc + ";"));
+                }
+            case ARRAYLENGTH:
+                return BasicValue.INT_VALUE;
+            case ATHROW:
+                return null;
+            case CHECKCAST:
+                desc = ((TypeInsnNode) insn).desc;
+                if (desc.charAt(0) == '[') {
+                    return newValue(Type.getType(desc));
+                } else {
+                    return newValue(Type.getType("L" + desc + ";"));
+                }
+            case INSTANCEOF:
+                return BasicValue.INT_VALUE;
+            case MONITORENTER:
+            case MONITOREXIT:
+            case IFNULL:
+            case IFNONNULL:
+                return null;
             default:
-                throw new AnalyzerException("Invalid array type");
-            }
-        case ANEWARRAY:
-            String desc = ((TypeInsnNode) insn).desc;
-            if (desc.charAt(0) == '[') {
-                return newValue(Type.getType("[" + desc));
-            } else {
-                return newValue(Type.getType("[L" + desc + ";"));
-            }
-        case ARRAYLENGTH:
-            return BasicValue.INT_VALUE;
-        case ATHROW:
-            return null;
-        case CHECKCAST:
-            desc = ((TypeInsnNode) insn).desc;
-            if (desc.charAt(0) == '[') {
-                return newValue(Type.getType(desc));
-            } else {
-                return newValue(Type.getType("L" + desc + ";"));
-            }
-        case INSTANCEOF:
-            return BasicValue.INT_VALUE;
-        case MONITORENTER:
-        case MONITOREXIT:
-        case IFNULL:
-        case IFNONNULL:
-            return null;
-        default:
-            throw new RuntimeException("Internal error.");
+                throw new RuntimeException("Internal error.");
         }
     }
 
@@ -229,74 +232,74 @@ public class BasicInterpreter implements Opcodes, Interpreter {
         final Value value2) throws AnalyzerException
     {
         switch (insn.getOpcode()) {
-        case IALOAD:
-        case BALOAD:
-        case CALOAD:
-        case SALOAD:
-        case IADD:
-        case ISUB:
-        case IMUL:
-        case IDIV:
-        case IREM:
-        case ISHL:
-        case ISHR:
-        case IUSHR:
-        case IAND:
-        case IOR:
-        case IXOR:
-            return BasicValue.INT_VALUE;
-        case FALOAD:
-        case FADD:
-        case FSUB:
-        case FMUL:
-        case FDIV:
-        case FREM:
-            return BasicValue.FLOAT_VALUE;
-        case LALOAD:
-        case LADD:
-        case LSUB:
-        case LMUL:
-        case LDIV:
-        case LREM:
-        case LSHL:
-        case LSHR:
-        case LUSHR:
-        case LAND:
-        case LOR:
-        case LXOR:
-            return BasicValue.LONG_VALUE;
-        case DALOAD:
-        case DADD:
-        case DSUB:
-        case DMUL:
-        case DDIV:
-        case DREM:
-            return BasicValue.DOUBLE_VALUE;
-        case AALOAD:
-            Type t = ((BasicValue) value1).getType();
-            if (t != null && t.getSort() == Type.ARRAY) {
-                return newValue(t.getElementType());
-            } else {
-                return BasicValue.REFERENCE_VALUE;
-            }
-        case LCMP:
-        case FCMPL:
-        case FCMPG:
-        case DCMPL:
-        case DCMPG:
-            return BasicValue.INT_VALUE;
-        case IF_ICMPEQ:
-        case IF_ICMPNE:
-        case IF_ICMPLT:
-        case IF_ICMPGE:
-        case IF_ICMPGT:
-        case IF_ICMPLE:
-        case IF_ACMPEQ:
-        case IF_ACMPNE:
-        case PUTFIELD:
-            return null;
-        default:
-            throw new RuntimeException("Internal error.");
+            case IALOAD:
+            case BALOAD:
+            case CALOAD:
+            case SALOAD:
+            case IADD:
+            case ISUB:
+            case IMUL:
+            case IDIV:
+            case IREM:
+            case ISHL:
+            case ISHR:
+            case IUSHR:
+            case IAND:
+            case IOR:
+            case IXOR:
+                return BasicValue.INT_VALUE;
+            case FALOAD:
+            case FADD:
+            case FSUB:
+            case FMUL:
+            case FDIV:
+            case FREM:
+                return BasicValue.FLOAT_VALUE;
+            case LALOAD:
+            case LADD:
+            case LSUB:
+            case LMUL:
+            case LDIV:
+            case LREM:
+            case LSHL:
+            case LSHR:
+            case LUSHR:
+            case LAND:
+            case LOR:
+            case LXOR:
+                return BasicValue.LONG_VALUE;
+            case DALOAD:
+            case DADD:
+            case DSUB:
+            case DMUL:
+            case DDIV:
+            case DREM:
+                return BasicValue.DOUBLE_VALUE;
+            case AALOAD:
+                Type t = ((BasicValue) value1).getType();
+                if (t != null && t.getSort() == Type.ARRAY) {
+                    return newValue(t.getElementType());
+                } else {
+                    return BasicValue.REFERENCE_VALUE;
+                }
+            case LCMP:
+            case FCMPL:
+            case FCMPG:
+            case DCMPL:
+            case DCMPG:
+                return BasicValue.INT_VALUE;
+            case IF_ICMPEQ:
+            case IF_ICMPNE:
+            case IF_ICMPLT:
+            case IF_ICMPGE:
+            case IF_ICMPGT:
+            case IF_ICMPLE:
+            case IF_ACMPEQ:
+            case IF_ACMPNE:
+            case PUTFIELD:
+                return null;
+            default:
+                throw new RuntimeException("Internal error.");
         }
     }
 
@@ -309,7 +312,8 @@ public class BasicInterpreter implements Opcodes, Interpreter {
         return null;
     }
 
-    public Value naryOperation(final AbstractInsnNode insn, final List values) throws AnalyzerException
+    public Value naryOperation(final AbstractInsnNode insn, final List values)
+            throws AnalyzerException
     {
         if (insn.getOpcode() == MULTIANEWARRAY) {
             return newValue(Type.getType(((MultiANewArrayInsnNode) insn).desc));

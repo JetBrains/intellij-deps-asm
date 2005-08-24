@@ -258,21 +258,21 @@ public class StackMapAttribute extends Attribute {
             StackMapType typeInfo = StackMapType.getTypeInfo(itemType);
             info.add(typeInfo);
             switch (itemType) {
-            case StackMapType.ITEM_Object: //
-                typeInfo.setObject(cr.readClass(off, buf));
-                off += 2;
-                break;
-            case StackMapType.ITEM_Uninitialized: //
-                int offset;
-                if (isExtCode) {
-                    offset = cr.readInt(off);
-                    off += 4;
-                } else {
-                    offset = cr.readUnsignedShort(off);
+                case StackMapType.ITEM_Object: //
+                    typeInfo.setObject(cr.readClass(off, buf));
                     off += 2;
-                }
-                typeInfo.setLabel(getLabel(offset, labels));
-                break;
+                    break;
+                case StackMapType.ITEM_Uninitialized: //
+                    int offset;
+                    if (isExtCode) {
+                        offset = cr.readInt(off);
+                        off += 4;
+                    } else {
+                        offset = cr.readUnsignedShort(off);
+                        off += 2;
+                    }
+                    typeInfo.setLabel(getLabel(offset, labels));
+                    break;
             }
         }
         return off;
@@ -289,13 +289,13 @@ public class StackMapAttribute extends Attribute {
             StackMapType typeInfo = (StackMapType) info.get(j);
             bv.putByte(typeInfo.getType());
             switch (typeInfo.getType()) {
-            case StackMapType.ITEM_Object: //
-                bv.putShort(cw.newClass(typeInfo.getObject()));
-                break;
+                case StackMapType.ITEM_Object: //
+                    bv.putShort(cw.newClass(typeInfo.getObject()));
+                    break;
 
-            case StackMapType.ITEM_Uninitialized: //
-                bv.putShort(typeInfo.getLabel().getOffset());
-                break;
+                case StackMapType.ITEM_Uninitialized: //
+                    bv.putShort(typeInfo.getLabel().getOffset());
+                    break;
 
             }
         }

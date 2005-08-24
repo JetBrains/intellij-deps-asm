@@ -49,9 +49,8 @@ public interface Interpreter {
     /**
      * Creates a new value that represents the given type.
      * 
-     * @param type
-     *            a primitive or reference type, or <tt>null</tt> to represent
-     *            an uninitialized value.
+     * @param type a primitive or reference type, or <tt>null</tt> to
+     *        represent an uninitialized value.
      * @return a value that represents the given type. The size of the returned
      *         value must be equal to the size of the given type.
      */
@@ -65,11 +64,9 @@ public interface Interpreter {
      * ICONST_5, LCONST_0, LCONST_1, FCONST_0, FCONST_1, FCONST_2, DCONST_0,
      * DCONST_1, BIPUSH, SIPUSH, LDC, JSR, GETSTATIC, NEW
      * 
-     * @param insn
-     *            the bytecode instruction to be interpreted.
+     * @param insn the bytecode instruction to be interpreted.
      * @return the result of the interpretation of the given instruction.
-     * @throws AnalyzerException
-     *             if an error occured during the interpretation.
+     * @throws AnalyzerException if an error occured during the interpretation.
      */
     Value newOperation(AbstractInsnNode insn) throws AnalyzerException;
 
@@ -80,17 +77,15 @@ public interface Interpreter {
      * ILOAD, LLOAD, FLOAD, DLOAD, ALOAD, ISTORE, LSTORE, FSTORE, DSTORE,
      * ASTORE, DUP, DUP_X1, DUP_X2, DUP2, DUP2_X1, DUP2_X2, SWAP
      * 
-     * @param insn
-     *            the bytecode instruction to be interpreted.
-     * @param value
-     *            the value that must be moved by the instruction.
+     * @param insn the bytecode instruction to be interpreted.
+     * @param value the value that must be moved by the instruction.
      * @return the result of the interpretation of the given instruction. The
      *         returned value must be {@link Value#equals(Value) equal} to the
      *         given value.
-     * @throws AnalyzerException
-     *             if an error occured during the interpretation.
+     * @throws AnalyzerException if an error occured during the interpretation.
      */
-    Value copyOperation(AbstractInsnNode insn, Value value) throws AnalyzerException;
+    Value copyOperation(AbstractInsnNode insn, Value value)
+            throws AnalyzerException;
 
     /**
      * Interprets a bytecode instruction with a single argument. This method is
@@ -102,15 +97,13 @@ public interface Interpreter {
      * PUTSTATIC, GETFIELD, NEWARRAY, ANEWARRAY, ARRAYLENGTH, ATHROW, CHECKCAST,
      * INSTANCEOF, MONITORENTER, MONITOREXIT, IFNULL, IFNONNULL
      * 
-     * @param insn
-     *            the bytecode instruction to be interpreted.
-     * @param value
-     *            the argument of the instruction to be interpreted.
+     * @param insn the bytecode instruction to be interpreted.
+     * @param value the argument of the instruction to be interpreted.
      * @return the result of the interpretation of the given instruction.
-     * @throws AnalyzerException
-     *             if an error occured during the interpretation.
+     * @throws AnalyzerException if an error occured during the interpretation.
      */
-    Value unaryOperation(AbstractInsnNode insn, Value value) throws AnalyzerException;
+    Value unaryOperation(AbstractInsnNode insn, Value value)
+            throws AnalyzerException;
 
     /**
      * Interprets a bytecode instruction with two arguments. This method is
@@ -123,17 +116,14 @@ public interface Interpreter {
      * DCMPG, IF_ICMPEQ, IF_ICMPNE, IF_ICMPLT, IF_ICMPGE, IF_ICMPGT, IF_ICMPLE,
      * IF_ACMPEQ, IF_ACMPNE, PUTFIELD
      * 
-     * @param insn
-     *            the bytecode instruction to be interpreted.
-     * @param value1
-     *            the first argument of the instruction to be interpreted.
-     * @param value2
-     *            the second argument of the instruction to be interpreted.
+     * @param insn the bytecode instruction to be interpreted.
+     * @param value1 the first argument of the instruction to be interpreted.
+     * @param value2 the second argument of the instruction to be interpreted.
      * @return the result of the interpretation of the given instruction.
-     * @throws AnalyzerException
-     *             if an error occured during the interpretation.
+     * @throws AnalyzerException if an error occured during the interpretation.
      */
-    Value binaryOperation(AbstractInsnNode insn, Value value1, Value value2) throws AnalyzerException;
+    Value binaryOperation(AbstractInsnNode insn, Value value1, Value value2)
+            throws AnalyzerException;
 
     /**
      * Interprets a bytecode instruction with three arguments. This method is
@@ -141,17 +131,12 @@ public interface Interpreter {
      * 
      * IASTORE, LASTORE, FASTORE, DASTORE, AASTORE, BASTORE, CASTORE, SASTORE
      * 
-     * @param insn
-     *            the bytecode instruction to be interpreted.
-     * @param value1
-     *            the first argument of the instruction to be interpreted.
-     * @param value2
-     *            the second argument of the instruction to be interpreted.
-     * @param value3
-     *            the third argument of the instruction to be interpreted.
+     * @param insn the bytecode instruction to be interpreted.
+     * @param value1 the first argument of the instruction to be interpreted.
+     * @param value2 the second argument of the instruction to be interpreted.
+     * @param value3 the third argument of the instruction to be interpreted.
      * @return the result of the interpretation of the given instruction.
-     * @throws AnalyzerException
-     *             if an error occured during the interpretation.
+     * @throws AnalyzerException if an error occured during the interpretation.
      */
     Value ternaryOperation(
         AbstractInsnNode insn,
@@ -166,15 +151,13 @@ public interface Interpreter {
      * INVOKEVIRTUAL, INVOKESPECIAL, INVOKESTATIC, INVOKEINTERFACE,
      * MULTIANEWARRAY
      * 
-     * @param insn
-     *            the bytecode instruction to be interpreted.
-     * @param values
-     *            the arguments of the instruction to be interpreted.
+     * @param insn the bytecode instruction to be interpreted.
+     * @param values the arguments of the instruction to be interpreted.
      * @return the result of the interpretation of the given instruction.
-     * @throws AnalyzerException
-     *             if an error occured during the interpretation.
+     * @throws AnalyzerException if an error occured during the interpretation.
      */
-    Value naryOperation(AbstractInsnNode insn, List values) throws AnalyzerException;
+    Value naryOperation(AbstractInsnNode insn, List values)
+            throws AnalyzerException;
 
     /**
      * Merges two values. The merge operation must return a value that
@@ -183,10 +166,8 @@ public interface Interpreter {
      * values are integer intervals, the merged value must be an interval that
      * contains the previous ones. Likewise for other types of values).
      * 
-     * @param v
-     *            a value.
-     * @param w
-     *            another value.
+     * @param v a value.
+     * @param w another value.
      * @return the merged value. If the merged value is equal to <tt>v</tt>,
      *         this method <i>must</i> return <tt>v</tt>.
      */

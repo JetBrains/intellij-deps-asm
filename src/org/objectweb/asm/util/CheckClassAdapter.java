@@ -75,11 +75,10 @@ public class CheckClassAdapter extends ClassAdapter {
      * Checks a given class. <p> Usage: CheckClassAdapter &lt;fully qualified
      * class name or class file name&gt;
      * 
-     * @param args
-     *            the command line arguments.
+     * @param args the command line arguments.
      * 
-     * @throws Exception
-     *             if the class cannot be found, or if an IO exception occurs.
+     * @throws Exception if the class cannot be found, or if an IO exception
+     *         occurs.
      */
     public static void main(final String[] args) throws Exception {
         if (args.length != 1) {
@@ -145,8 +144,7 @@ public class CheckClassAdapter extends ClassAdapter {
     /**
      * Constructs a new {@link CheckClassAdapter}.
      * 
-     * @param cv
-     *            the class visitor to which this adapter must delegate calls.
+     * @param cv the class visitor to which this adapter must delegate calls.
      */
     public CheckClassAdapter(final ClassVisitor cv) {
         super(cv);
@@ -337,10 +335,8 @@ public class CheckClassAdapter extends ClassAdapter {
      * method also checks that mutually incompatible flags are not set
      * simultaneously.
      * 
-     * @param access
-     *            the access flags to be checked
-     * @param possibleAccess
-     *            the valid access flags.
+     * @param access the access flags to be checked
+     * @param possibleAccess the valid access flags.
      */
     static void checkAccess(final int access, final int possibleAccess) {
         if ((access & ~possibleAccess) != 0) {

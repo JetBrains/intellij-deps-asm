@@ -85,9 +85,8 @@ public class TraceMethodVisitor extends TraceAbstractVisitor implements
     /**
      * Constructs a new {@link TraceMethodVisitor}.
      * 
-     * @param mv
-     *            the {@link MethodVisitor} to which this visitor delegates
-     *            calls. May be <tt>null</tt>.
+     * @param mv the {@link MethodVisitor} to which this visitor delegates
+     *        calls. May be <tt>null</tt>.
      */
     public TraceMethodVisitor(final MethodVisitor mv) {
         this.labelNames = new HashMap();
@@ -478,8 +477,7 @@ public class TraceMethodVisitor extends TraceAbstractVisitor implements
      * Appends the name of the given label to {@link #buf buf}. Creates a new
      * label name if the given label does not yet have one.
      * 
-     * @param l
-     *            a label.
+     * @param l a label.
      */
     protected void appendLabel(final Label l) {
         String name = (String) labelNames.get(l);

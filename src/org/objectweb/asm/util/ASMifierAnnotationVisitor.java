@@ -49,9 +49,8 @@ public class ASMifierAnnotationVisitor extends AbstractVisitor implements
     /**
      * Constructs a new {@link ASMifierAnnotationVisitor}.
      * 
-     * @param id
-     *            identifier of the annotation visitor variable in the produced
-     *            code.
+     * @param id identifier of the annotation visitor variable in the produced
+     *        code.
      */
     public ASMifierAnnotationVisitor(final int id) {
         this.id = id;

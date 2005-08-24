@@ -56,7 +56,8 @@ public class Shrinker {
         optimize(f, d, mapping);
     }
 
-    static void optimize(final File f, final File d, final NameMapping mapping) throws IOException
+    static void optimize(final File f, final File d, final NameMapping mapping)
+            throws IOException
     {
         if (f.isDirectory()) {
             File[] files = f.listFiles();
@@ -102,32 +103,32 @@ public class Shrinker {
             int d = getSort(c1) - getSort(c2);
             if (d == 0) {
                 switch (c1.type) {
-                case 'I':
-                    return new Integer(c1.intVal).compareTo(new Integer(c2.intVal));
-                case 'J':
-                    return new Long(c1.longVal).compareTo(new Long(c2.longVal));
-                case 'F':
-                    return new Float(c1.floatVal).compareTo(new Float(c2.floatVal));
-                case 'D':
-                    return new Double(c1.doubleVal).compareTo(new Double(c2.doubleVal));
-                case 's':
-                case 'S':
-                case 'C':
-                    return c1.strVal1.compareTo(c2.strVal1);
-                case 'T':
-                    d = c1.strVal1.compareTo(c2.strVal1);
-                    if (d == 0) {
-                        d = c1.strVal2.compareTo(c2.strVal2);
-                    }
-                    break;
-                default:
-                    d = c1.strVal1.compareTo(c2.strVal1);
-                    if (d == 0) {
-                        d = c1.strVal2.compareTo(c2.strVal2);
+                    case 'I':
+                        return new Integer(c1.intVal).compareTo(new Integer(c2.intVal));
+                    case 'J':
+                        return new Long(c1.longVal).compareTo(new Long(c2.longVal));
+                    case 'F':
+                        return new Float(c1.floatVal).compareTo(new Float(c2.floatVal));
+                    case 'D':
+                        return new Double(c1.doubleVal).compareTo(new Double(c2.doubleVal));
+                    case 's':
+                    case 'S':
+                    case 'C':
+                        return c1.strVal1.compareTo(c2.strVal1);
+                    case 'T':
+                        d = c1.strVal1.compareTo(c2.strVal1);
                         if (d == 0) {
-                            d = c1.strVal3.compareTo(c2.strVal3);
+                            d = c1.strVal2.compareTo(c2.strVal2);
                         }
-                    }
+                        break;
+                    default:
+                        d = c1.strVal1.compareTo(c2.strVal1);
+                        if (d == 0) {
+                            d = c1.strVal2.compareTo(c2.strVal2);
+                            if (d == 0) {
+                                d = c1.strVal3.compareTo(c2.strVal3);
+                            }
+                        }
                 }
             }
             return d;
@@ -135,28 +136,28 @@ public class Shrinker {
 
         private int getSort(Constant c) {
             switch (c.type) {
-            case 'I':
-                return 0;
-            case 'J':
-                return 1;
-            case 'F':
-                return 2;
-            case 'D':
-                return 3;
-            case 's':
-                return 4;
-            case 'S':
-                return 5;
-            case 'C':
-                return 6;
-            case 'T':
-                return 7;
-            case 'G':
-                return 8;
-            case 'M':
-                return 9;
-            default:
-                return 10;
+                case 'I':
+                    return 0;
+                case 'J':
+                    return 1;
+                case 'F':
+                    return 2;
+                case 'D':
+                    return 3;
+                case 's':
+                    return 4;
+                case 'S':
+                    return 5;
+                case 'C':
+                    return 6;
+                case 'T':
+                    return 7;
+                case 'G':
+                    return 8;
+                case 'M':
+                    return 9;
+                default:
+                    return 10;
             }
         }
     }

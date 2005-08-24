@@ -63,16 +63,12 @@ public class TryCatchBlockNode {
     /**
      * Constructs a new {@link TryCatchBlockNode}.
      * 
-     * @param start
-     *            beginning of the exception handler's scope (inclusive).
-     * @param end
-     *            end of the exception handler's scope (exclusive).
-     * @param handler
-     *            beginning of the exception handler's code.
-     * @param type
-     *            internal name of the type of exceptions handled by the
-     *            handler, or <tt>null</tt> to catch any exceptions (for
-     *            "finally" blocks).
+     * @param start beginning of the exception handler's scope (inclusive).
+     * @param end end of the exception handler's scope (exclusive).
+     * @param handler beginning of the exception handler's code.
+     * @param type internal name of the type of exceptions handled by the
+     *        handler, or <tt>null</tt> to catch any exceptions (for "finally"
+     *        blocks).
      */
     public TryCatchBlockNode(
         final Label start,
@@ -89,8 +85,7 @@ public class TryCatchBlockNode {
     /**
      * Makes the given visitor visit this try catch block.
      * 
-     * @param mv
-     *            a method visitor.
+     * @param mv a method visitor.
      */
     public void accept(final MethodVisitor mv) {
         mv.visitTryCatchBlock(start, end, handler, type);

@@ -60,8 +60,8 @@ public class SerialVersionUIDAdderTest extends TestCase implements Serializable
     private long computeSerialVersionUID(String className) throws IOException {
         final long[] svuid = new long[1];
         ClassVisitor cv = new SerialVersionUIDAdder(new EmptyVisitor()) {
-            protected long computeSVUID() throws IOException,
-                    NoSuchAlgorithmException
+            protected long computeSVUID()
+                    throws IOException, NoSuchAlgorithmException
             {
                 svuid[0] = super.computeSVUID();
                 return svuid[0];

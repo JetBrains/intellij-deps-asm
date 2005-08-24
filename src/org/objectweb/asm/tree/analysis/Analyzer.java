@@ -75,9 +75,8 @@ public class Analyzer implements Opcodes {
     /**
      * Constructs a new {@link Analyzer}.
      * 
-     * @param interpreter
-     *            the interpreter to be used to symbolically interpret the
-     *            bytecode instructions.
+     * @param interpreter the interpreter to be used to symbolically interpret
+     *        the bytecode instructions.
      */
     public Analyzer(final Interpreter interpreter) {
         this.interpreter = interpreter;
@@ -86,19 +85,17 @@ public class Analyzer implements Opcodes {
     /**
      * Analyzes the given method.
      * 
-     * @param owner
-     *            the internal name of the class to which the method belongs.
-     * @param m
-     *            the method to be analyzed.
+     * @param owner the internal name of the class to which the method belongs.
+     * @param m the method to be analyzed.
      * @return the symbolic state of the execution stack frame at each bytecode
      *         instruction of the method. The size of the returned array is
      *         equal to the number of instructions (and labels) of the method. A
      *         given frame is <tt>null</tt> if and only if the corresponding
      *         instruction cannot be reached (dead code).
-     * @throws AnalyzerException
-     *             if a problem occurs during the analysis.
+     * @throws AnalyzerException if a problem occurs during the analysis.
      */
-    public Frame[] analyze(final String owner, final MethodNode m) throws AnalyzerException
+    public Frame[] analyze(final String owner, final MethodNode m)
+            throws AnalyzerException
     {
         n = m.instructions.size();
         indexes = new IntMap(2 * n);
@@ -278,9 +275,8 @@ public class Analyzer implements Opcodes {
     /**
      * Returns the index of the given instruction.
      * 
-     * @param insn
-     *            a {@link Label} or {@link AbstractInsnNode} of the last
-     *            recently analyzed method.
+     * @param insn a {@link Label} or {@link AbstractInsnNode} of the last
+     *        recently analyzed method.
      * @return the index of the given instruction of the last recently analyzed
      *         method.
      */
@@ -291,9 +287,8 @@ public class Analyzer implements Opcodes {
     /**
      * Returns the exception handlers for the given instruction.
      * 
-     * @param insn
-     *            the index of an instruction of the last recently analyzed
-     *            method.
+     * @param insn the index of an instruction of the last recently analyzed
+     *        method.
      * @return a list of {@link TryCatchBlockNode} objects.
      */
     public List getHandlers(final int insn) {
@@ -303,10 +298,8 @@ public class Analyzer implements Opcodes {
     /**
      * Constructs a new frame with the given size.
      * 
-     * @param nLocals
-     *            the maximum number of local variables of the frame.
-     * @param nStack
-     *            the maximum stack size of the frame.
+     * @param nLocals the maximum number of local variables of the frame.
+     * @param nStack the maximum stack size of the frame.
      * @return the created frame.
      */
     protected Frame newFrame(final int nLocals, final int nStack) {
@@ -316,8 +309,7 @@ public class Analyzer implements Opcodes {
     /**
      * Constructs a new frame that is identical to the given frame.
      * 
-     * @param src
-     *            a frame.
+     * @param src a frame.
      * @return the created frame.
      */
     protected Frame newFrame(final Frame src) {
@@ -330,10 +322,8 @@ public class Analyzer implements Opcodes {
      * control flow graph of a method (this method is called by the
      * {@link #analyze analyze} method during its visit of the method's code).
      * 
-     * @param frame
-     *            the frame corresponding to an instruction.
-     * @param successor
-     *            the frame corresponding to a successor instruction.
+     * @param frame the frame corresponding to an instruction.
+     * @param successor the frame corresponding to a successor instruction.
      */
     protected void newControlFlowEdge(final Frame frame, final Frame successor)
     {

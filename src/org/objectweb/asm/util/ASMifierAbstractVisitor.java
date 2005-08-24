@@ -57,9 +57,8 @@ public class ASMifierAbstractVisitor extends AbstractVisitor {
     /**
      * Constructs a new {@link ASMifierAbstractVisitor}.
      * 
-     * @param name
-     *            the name of the variable for this visitor in the produced
-     *            code.
+     * @param name the name of the variable for this visitor in the produced
+     *        code.
      */
     protected ASMifierAbstractVisitor(final String name) {
         this.name = name;
@@ -68,10 +67,8 @@ public class ASMifierAbstractVisitor extends AbstractVisitor {
     /**
      * Prints the ASM code that generates the given annotation.
      * 
-     * @param desc
-     *            the class descriptor of the annotation class.
-     * @param visible
-     *            <tt>true</tt> if the annotation is visible at runtime.
+     * @param desc the class descriptor of the annotation class.
+     * @param visible <tt>true</tt> if the annotation is visible at runtime.
      * @return a visitor to visit the annotation values.
      */
     public AnnotationVisitor visitAnnotation(
@@ -95,8 +92,7 @@ public class ASMifierAbstractVisitor extends AbstractVisitor {
     /**
      * Prints the ASM code that generates the given attribute.
      * 
-     * @param attr
-     *            an attribute.
+     * @param attr an attribute.
      */
     public void visitAttribute(final Attribute attr) {
         buf.setLength(0);
@@ -126,9 +122,8 @@ public class ASMifierAbstractVisitor extends AbstractVisitor {
      * Appends a string representation of the given constant to the given
      * buffer.
      * 
-     * @param cst
-     *            an {@link Integer}, {@link Float}, {@link Long},
-     *            {@link Double} or {@link String} object. May be <tt>null</tt>.
+     * @param cst an {@link Integer}, {@link Float}, {@link Long},
+     *        {@link Double} or {@link String} object. May be <tt>null</tt>.
      */
     void appendConstant(final Object cst) {
         appendConstant(buf, cst);
@@ -138,11 +133,9 @@ public class ASMifierAbstractVisitor extends AbstractVisitor {
      * Appends a string representation of the given constant to the given
      * buffer.
      * 
-     * @param buf
-     *            a string buffer.
-     * @param cst
-     *            an {@link Integer}, {@link Float}, {@link Long},
-     *            {@link Double} or {@link String} object. May be <tt>null</tt>.
+     * @param buf a string buffer.
+     * @param cst an {@link Integer}, {@link Float}, {@link Long},
+     *        {@link Double} or {@link String} object. May be <tt>null</tt>.
      */
     static void appendConstant(final StringBuffer buf, final Object cst) {
         if (cst == null) {

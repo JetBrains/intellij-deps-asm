@@ -58,16 +58,12 @@ public class FieldInsnNode extends AbstractInsnNode {
     /**
      * Constructs a new {@link FieldInsnNode}.
      * 
-     * @param opcode
-     *            the opcode of the type instruction to be constructed. This
-     *            opcode must be GETSTATIC, PUTSTATIC, GETFIELD or PUTFIELD.
-     * @param owner
-     *            the internal name of the field's owner class (see
-     *            {@link Type#getInternalName() getInternalName}).
-     * @param name
-     *            the field's name.
-     * @param desc
-     *            the field's descriptor (see {@link Type}).
+     * @param opcode the opcode of the type instruction to be constructed. This
+     *        opcode must be GETSTATIC, PUTSTATIC, GETFIELD or PUTFIELD.
+     * @param owner the internal name of the field's owner class (see
+     *        {@link Type#getInternalName() getInternalName}).
+     * @param name the field's name.
+     * @param desc the field's descriptor (see {@link Type}).
      */
     public FieldInsnNode(
         final int opcode,
@@ -84,9 +80,8 @@ public class FieldInsnNode extends AbstractInsnNode {
     /**
      * Sets the opcode of this instruction.
      * 
-     * @param opcode
-     *            the new instruction opcode. This opcode must be GETSTATIC,
-     *            PUTSTATIC, GETFIELD or PUTFIELD.
+     * @param opcode the new instruction opcode. This opcode must be GETSTATIC,
+     *        PUTSTATIC, GETFIELD or PUTFIELD.
      */
     public void setOpcode(final int opcode) {
         this.opcode = opcode;

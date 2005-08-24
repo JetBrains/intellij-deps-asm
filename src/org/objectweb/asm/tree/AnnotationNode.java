@@ -61,8 +61,7 @@ public class AnnotationNode implements AnnotationVisitor {
     /**
      * Constructs a new {@link AnnotationNode}.
      * 
-     * @param desc
-     *            the class descriptor of the annotation class.
+     * @param desc the class descriptor of the annotation class.
      */
     public AnnotationNode(final String desc) {
         this.desc = desc;
@@ -71,8 +70,7 @@ public class AnnotationNode implements AnnotationVisitor {
     /**
      * Constructs a new {@link AnnotationNode} to visit an array value.
      * 
-     * @param values
-     *            where the visited values must be stored.
+     * @param values where the visited values must be stored.
      */
     AnnotationNode(final List values) {
         this.values = values;
@@ -143,8 +141,7 @@ public class AnnotationNode implements AnnotationVisitor {
     /**
      * Makes the given visitor visit this annotation.
      * 
-     * @param av
-     *            an annotation visitor.
+     * @param av an annotation visitor.
      */
     public void accept(final AnnotationVisitor av) {
         if (values != null) {
@@ -160,12 +157,9 @@ public class AnnotationNode implements AnnotationVisitor {
     /**
      * Makes the given visitor visit a given annotation value.
      * 
-     * @param av
-     *            an annotation visitor.
-     * @param name
-     *            the value name.
-     * @param value
-     *            the actual value.
+     * @param av an annotation visitor.
+     * @param name the value name.
+     * @param value the actual value.
      */
     static void accept(
         final AnnotationVisitor av,

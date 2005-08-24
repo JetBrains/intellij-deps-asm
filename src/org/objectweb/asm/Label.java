@@ -136,8 +136,7 @@ public class Label {
      * generators or adapters.</i>
      * 
      * @return the offset corresponding to this label.
-     * @throws IllegalStateException
-     *             if this label is not resolved yet.
+     * @throws IllegalStateException if this label is not resolved yet.
      */
     public int getOffset() {
         if (!resolved) {
@@ -152,18 +151,14 @@ public class Label {
      * directly. Otherwise, a null offset is written and a new forward reference
      * is declared for this label.
      * 
-     * @param owner
-     *            the code writer that calls this method.
-     * @param out
-     *            the bytecode of the method.
-     * @param source
-     *            the position of first byte of the bytecode instruction that
-     *            contains this label.
-     * @param wideOffset
-     *            <tt>true</tt> if the reference must be stored in 4 bytes, or
-     *            <tt>false</tt> if it must be stored with 2 bytes.
-     * @throws IllegalArgumentException
-     *             if this label has not been created by the given code writer.
+     * @param owner the code writer that calls this method.
+     * @param out the bytecode of the method.
+     * @param source the position of first byte of the bytecode instruction that
+     *        contains this label.
+     * @param wideOffset <tt>true</tt> if the reference must be stored in 4
+     *        bytes, or <tt>false</tt> if it must be stored with 2 bytes.
+     * @throws IllegalArgumentException if this label has not been created by
+     *         the given code writer.
      */
     void put(
         final MethodWriter owner,
@@ -194,12 +189,11 @@ public class Label {
      * yet. For backward references, the offset of the reference can be, and
      * must be, computed and stored directly.
      * 
-     * @param sourcePosition
-     *            the position of the referencing instruction. This position
-     *            will be used to compute the offset of this forward reference.
-     * @param referencePosition
-     *            the position where the offset for this forward reference must
-     *            be stored.
+     * @param sourcePosition the position of the referencing instruction. This
+     *        position will be used to compute the offset of this forward
+     *        reference.
+     * @param referencePosition the position where the offset for this forward
+     *        reference must be stored.
      */
     private void addReference(
         final int sourcePosition,
@@ -227,12 +221,9 @@ public class Label {
      * position becomes known. This method fills in the blanks that where left
      * in the bytecode by each forward reference previously added to this label.
      * 
-     * @param owner
-     *            the code writer that calls this method.
-     * @param position
-     *            the position of this label in the bytecode.
-     * @param data
-     *            the bytecode of the method.
+     * @param owner the code writer that calls this method.
+     * @param position the position of this label in the bytecode.
+     * @param data the bytecode of the method.
      * @return <tt>true</tt> if a blank that was left for this label was to
      *         small to store the offset. In such a case the corresponding jump
      *         instruction is replaced with a pseudo instruction (using unused
@@ -240,9 +231,8 @@ public class Label {
      *         instructions will need to be replaced with true instructions with
      *         wider offsets (4 bytes instead of 2). This is done in
      *         {@link MethodWriter#resizeInstructions}.
-     * @throws IllegalArgumentException
-     *             if this label has already been resolved, or if it has not
-     *             been created by the given code writer.
+     * @throws IllegalArgumentException if this label has already been resolved,
+     *         or if it has not been created by the given code writer.
      */
     boolean resolve(
         final MethodWriter owner,

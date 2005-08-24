@@ -443,15 +443,14 @@ public class ClassWriter implements ClassVisitor {
     /**
      * Constructs a new {@link ClassWriter ClassWriter} object.
      * 
-     * @param computeMaxs
-     *            <tt>true</tt> if the maximum stack size and the maximum
-     *            number of local variables must be automatically computed. If
-     *            this flag is <tt>true</tt>, then the arguments of the
-     *            {@link MethodVisitor#visitMaxs visitMaxs} method of the
-     *            {@link MethodVisitor} returned by the
-     *            {@link #visitMethod visitMethod} method will be ignored, and
-     *            computed automatically from the signature and the bytecode of
-     *            each method.
+     * @param computeMaxs <tt>true</tt> if the maximum stack size and the
+     *        maximum number of local variables must be automatically computed.
+     *        If this flag is <tt>true</tt>, then the arguments of the
+     *        {@link MethodVisitor#visitMaxs visitMaxs} method of the
+     *        {@link MethodVisitor} returned by the
+     *        {@link #visitMethod visitMethod} method will be ignored, and
+     *        computed automatically from the signature and the bytecode of each
+     *        method.
      */
     public ClassWriter(final boolean computeMaxs) {
         this(computeMaxs, false);
@@ -460,19 +459,17 @@ public class ClassWriter implements ClassVisitor {
     /**
      * Constructs a new {@link ClassWriter} object.
      * 
-     * @param computeMaxs
-     *            <tt>true</tt> if the maximum stack size and the maximum
-     *            number of local variables must be automatically computed. If
-     *            this flag is <tt>true</tt>, then the arguments of the
-     *            {@link MethodVisitor#visitMaxs visitMaxs} method of the
-     *            {@link MethodVisitor} returned by the
-     *            {@link #visitMethod visitMethod} method will be ignored, and
-     *            computed automatically from the signature and the bytecode of
-     *            each method.
-     * @param skipUnknownAttributes
-     *            <tt>true</tt> to silently ignore unknown attributes, or
-     *            <tt>false</tt> to throw an exception if an unknown attribute
-     *            is found.
+     * @param computeMaxs <tt>true</tt> if the maximum stack size and the
+     *        maximum number of local variables must be automatically computed.
+     *        If this flag is <tt>true</tt>, then the arguments of the
+     *        {@link MethodVisitor#visitMaxs visitMaxs} method of the
+     *        {@link MethodVisitor} returned by the
+     *        {@link #visitMethod visitMethod} method will be ignored, and
+     *        computed automatically from the signature and the bytecode of each
+     *        method.
+     * @param skipUnknownAttributes <tt>true</tt> to silently ignore unknown
+     *        attributes, or <tt>false</tt> to throw an exception if an
+     *        unknown attribute is found.
      */
     public ClassWriter(
         final boolean computeMaxs,
@@ -775,11 +772,10 @@ public class ClassWriter implements ClassVisitor {
      * Adds a number or string constant to the constant pool of the class being
      * build. Does nothing if the constant pool already contains a similar item.
      * 
-     * @param cst
-     *            the value of the constant to be added to the constant pool.
-     *            This parameter must be an {@link Integer}, a {@link Float},
-     *            a {@link Long}, a {@link Double}, a {@link String} or a
-     *            {@link Type}.
+     * @param cst the value of the constant to be added to the constant pool.
+     *        This parameter must be an {@link Integer}, a {@link Float}, a
+     *        {@link Long}, a {@link Double}, a {@link String} or a
+     *        {@link Type}.
      * @return a new or already existing constant item with the given value.
      */
     Item newConstItem(final Object cst) {
@@ -825,10 +821,9 @@ public class ClassWriter implements ClassVisitor {
      * <i>This method is intended for {@link Attribute} sub classes, and is
      * normally not needed by class generators or adapters.</i>
      * 
-     * @param cst
-     *            the value of the constant to be added to the constant pool.
-     *            This parameter must be an {@link Integer}, a {@link Float},
-     *            a {@link Long}, a {@link Double} or a {@link String}.
+     * @param cst the value of the constant to be added to the constant pool.
+     *        This parameter must be an {@link Integer}, a {@link Float}, a
+     *        {@link Long}, a {@link Double} or a {@link String}.
      * @return the index of a new or already existing constant item with the
      *         given value.
      */
@@ -842,8 +837,7 @@ public class ClassWriter implements ClassVisitor {
      * method is intended for {@link Attribute} sub classes, and is normally not
      * needed by class generators or adapters.</i>
      * 
-     * @param value
-     *            the String value.
+     * @param value the String value.
      * @return the index of a new or already existing UTF8 item.
      */
     public int newUTF8(final String value) {
@@ -863,8 +857,7 @@ public class ClassWriter implements ClassVisitor {
      * <i>This method is intended for {@link Attribute} sub classes, and is
      * normally not needed by class generators or adapters.</i>
      * 
-     * @param value
-     *            the internal name of the class.
+     * @param value the internal name of the class.
      * @return the index of a new or already existing class reference item.
      */
     public int newClass(final String value) {
@@ -877,8 +870,7 @@ public class ClassWriter implements ClassVisitor {
      * <i>This method is intended for {@link Attribute} sub classes, and is
      * normally not needed by class generators or adapters.</i>
      * 
-     * @param value
-     *            the internal name of the class.
+     * @param value the internal name of the class.
      * @return a new or already existing class reference item.
      */
     private Item newClassItem(final String value) {
@@ -898,12 +890,9 @@ public class ClassWriter implements ClassVisitor {
      * <i>This method is intended for {@link Attribute} sub classes, and is
      * normally not needed by class generators or adapters.</i>
      * 
-     * @param owner
-     *            the internal name of the field's owner class.
-     * @param name
-     *            the field's name.
-     * @param desc
-     *            the field's descriptor.
+     * @param owner the internal name of the field's owner class.
+     * @param name the field's name.
+     * @param desc the field's descriptor.
      * @return the index of a new or already existing field reference item.
      */
     public int newField(final String owner, final String name, final String desc)
@@ -922,14 +911,10 @@ public class ClassWriter implements ClassVisitor {
      * Adds a method reference to the constant pool of the class being build.
      * Does nothing if the constant pool already contains a similar item.
      * 
-     * @param owner
-     *            the internal name of the method's owner class.
-     * @param name
-     *            the method's name.
-     * @param desc
-     *            the method's descriptor.
-     * @param itf
-     *            <tt>true</tt> if <tt>owner</tt> is an interface.
+     * @param owner the internal name of the method's owner class.
+     * @param name the method's name.
+     * @param desc the method's descriptor.
+     * @param itf <tt>true</tt> if <tt>owner</tt> is an interface.
      * @return a new or already existing method reference item.
      */
     Item newMethodItem(
@@ -954,14 +939,10 @@ public class ClassWriter implements ClassVisitor {
      * <i>This method is intended for {@link Attribute} sub classes, and is
      * normally not needed by class generators or adapters.</i>
      * 
-     * @param owner
-     *            the internal name of the method's owner class.
-     * @param name
-     *            the method's name.
-     * @param desc
-     *            the method's descriptor.
-     * @param itf
-     *            <tt>true</tt> if <tt>owner</tt> is an interface.
+     * @param owner the internal name of the method's owner class.
+     * @param name the method's name.
+     * @param desc the method's descriptor.
+     * @param itf <tt>true</tt> if <tt>owner</tt> is an interface.
      * @return the index of a new or already existing method reference item.
      */
     public int newMethod(
@@ -977,8 +958,7 @@ public class ClassWriter implements ClassVisitor {
      * Adds an integer to the constant pool of the class being build. Does
      * nothing if the constant pool already contains a similar item.
      * 
-     * @param value
-     *            the int value.
+     * @param value the int value.
      * @return a new or already existing int item.
      */
     Item newInteger(final int value) {
@@ -996,8 +976,7 @@ public class ClassWriter implements ClassVisitor {
      * Adds a float to the constant pool of the class being build. Does nothing
      * if the constant pool already contains a similar item.
      * 
-     * @param value
-     *            the float value.
+     * @param value the float value.
      * @return a new or already existing float item.
      */
     Item newFloat(final float value) {
@@ -1015,8 +994,7 @@ public class ClassWriter implements ClassVisitor {
      * Adds a long to the constant pool of the class being build. Does nothing
      * if the constant pool already contains a similar item.
      * 
-     * @param value
-     *            the long value.
+     * @param value the long value.
      * @return a new or already existing long item.
      */
     Item newLong(final long value) {
@@ -1035,8 +1013,7 @@ public class ClassWriter implements ClassVisitor {
      * Adds a double to the constant pool of the class being build. Does nothing
      * if the constant pool already contains a similar item.
      * 
-     * @param value
-     *            the double value.
+     * @param value the double value.
      * @return a new or already existing double item.
      */
     Item newDouble(final double value) {
@@ -1055,8 +1032,7 @@ public class ClassWriter implements ClassVisitor {
      * Adds a string to the constant pool of the class being build. Does nothing
      * if the constant pool already contains a similar item.
      * 
-     * @param value
-     *            the String value.
+     * @param value the String value.
      * @return a new or already existing string item.
      */
     private Item newString(final String value) {
@@ -1076,10 +1052,8 @@ public class ClassWriter implements ClassVisitor {
      * method is intended for {@link Attribute} sub classes, and is normally not
      * needed by class generators or adapters.</i>
      * 
-     * @param name
-     *            a name.
-     * @param desc
-     *            a type descriptor.
+     * @param name a name.
+     * @param desc a type descriptor.
      * @return the index of a new or already existing name and type item.
      */
     public int newNameType(final String name, final String desc) {
@@ -1097,8 +1071,7 @@ public class ClassWriter implements ClassVisitor {
      * Returns the constant pool's hash table item which is equal to the given
      * item.
      * 
-     * @param key
-     *            a constant pool item.
+     * @param key a constant pool item.
      * @return the constant pool's hash table item which is equal to the given
      *         item, or <tt>null</tt> if there is no such item.
      */
@@ -1118,8 +1091,7 @@ public class ClassWriter implements ClassVisitor {
      * Puts the given item in the constant pool's hash table. The hash table
      * <i>must</i> not already contains this item.
      * 
-     * @param i
-     *            the item to be added to the constant pool's hash table.
+     * @param i the item to be added to the constant pool's hash table.
      */
     private void put(final Item i) {
         if (index > threshold) {
@@ -1145,12 +1117,9 @@ public class ClassWriter implements ClassVisitor {
     /**
      * Puts one byte and two shorts into the constant pool.
      * 
-     * @param b
-     *            a byte.
-     * @param s1
-     *            a short.
-     * @param s2
-     *            another short.
+     * @param b a byte.
+     * @param s1 a short.
+     * @param s2 another short.
      */
     private void put122(final int b, final int s1, final int s2) {
         pool.put12(b, s1).putShort(s2);

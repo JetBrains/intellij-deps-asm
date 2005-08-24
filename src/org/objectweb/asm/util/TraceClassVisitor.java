@@ -111,11 +111,10 @@ public class TraceClassVisitor extends TraceAbstractVisitor implements
      * Usage: TraceClassVisitor [-debug] &lt;fully qualified class name or class
      * file name &gt;
      * 
-     * @param args
-     *            the command line arguments.
+     * @param args the command line arguments.
      * 
-     * @throws Exception
-     *             if the class cannot be found, or if an IO exception occurs.
+     * @throws Exception if the class cannot be found, or if an IO exception
+     *         occurs.
      */
     public static void main(final String[] args) throws Exception {
         int i = 0;
@@ -154,8 +153,7 @@ public class TraceClassVisitor extends TraceAbstractVisitor implements
     /**
      * Constructs a new {@link TraceClassVisitor}.
      * 
-     * @param pw
-     *            the print writer to be used to print the class.
+     * @param pw the print writer to be used to print the class.
      */
     public TraceClassVisitor(final PrintWriter pw) {
         this(null, pw);
@@ -164,11 +162,9 @@ public class TraceClassVisitor extends TraceAbstractVisitor implements
     /**
      * Constructs a new {@link TraceClassVisitor}.
      * 
-     * @param cv
-     *            the {@link ClassVisitor} to which this visitor delegates
-     *            calls. May be <tt>null</tt>.
-     * @param pw
-     *            the print writer to be used to print the class.
+     * @param cv the {@link ClassVisitor} to which this visitor delegates calls.
+     *        May be <tt>null</tt>.
+     * @param pw the print writer to be used to print the class.
      */
     public TraceClassVisitor(final ClassVisitor cv, final PrintWriter pw) {
         this.cv = cv;
@@ -487,8 +483,7 @@ public class TraceClassVisitor extends TraceAbstractVisitor implements
      * Appends a string representation of the given access modifiers to {@link
      * #buf buf}.
      * 
-     * @param access
-     *            some access modifiers.
+     * @param access some access modifiers.
      */
     private void appendAccess(final int access) {
         if ((access & Opcodes.ACC_PUBLIC) != 0) {

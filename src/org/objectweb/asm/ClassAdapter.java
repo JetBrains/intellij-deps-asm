@@ -46,8 +46,7 @@ public class ClassAdapter implements ClassVisitor {
     /**
      * Constructs a new {@link ClassAdapter} object.
      * 
-     * @param cv
-     *            the class visitor to which this adapter must delegate calls.
+     * @param cv the class visitor to which this adapter must delegate calls.
      */
     public ClassAdapter(final ClassVisitor cv) {
         this.cv = cv;

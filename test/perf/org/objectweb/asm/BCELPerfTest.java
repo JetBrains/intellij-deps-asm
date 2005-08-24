@@ -62,7 +62,8 @@ public class BCELPerfTest extends ALLPerfTest implements Constants {
         return new BCELPerfTest();
     }
 
-    byte[] nullAdaptClass(final InputStream is, final String name) throws Exception
+    byte[] nullAdaptClass(final InputStream is, final String name)
+            throws Exception
     {
         JavaClass jc = new ClassParser(is, name + ".class").parse();
         ClassGen cg = new ClassGen(jc);
@@ -95,7 +96,8 @@ public class BCELPerfTest extends ALLPerfTest implements Constants {
         return cg.getJavaClass().getBytes();
     }
 
-    byte[] counterAdaptClass(final InputStream is, final String name) throws Exception
+    byte[] counterAdaptClass(final InputStream is, final String name)
+            throws Exception
     {
         JavaClass jc = new ClassParser(is, name + ".class").parse();
         ClassGen cg = new ClassGen(jc);

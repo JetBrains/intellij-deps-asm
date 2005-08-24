@@ -42,35 +42,28 @@ public interface AnnotationVisitor {
     /**
      * Visits a primitive value of the annotation.
      * 
-     * @param name
-     *            the value name.
-     * @param value
-     *            the actual value, whose type must be {@link Byte},
-     *            {@link Boolean}, {@link Character}, {@link Short},
-     *            {@link Integer}, {@link Long}, {@link Float},
-     *            {@link Double}, {@link String} or {@link Type}.
+     * @param name the value name.
+     * @param value the actual value, whose type must be {@link Byte},
+     *        {@link Boolean}, {@link Character}, {@link Short},
+     *        {@link Integer}, {@link Long}, {@link Float}, {@link Double},
+     *        {@link String} or {@link Type}.
      */
     void visit(String name, Object value);
 
     /**
      * Visits an enumeration value of the annotation.
      * 
-     * @param name
-     *            the value name.
-     * @param desc
-     *            the class descriptor of the enumeration class.
-     * @param value
-     *            the actual enumeration value.
+     * @param name the value name.
+     * @param desc the class descriptor of the enumeration class.
+     * @param value the actual enumeration value.
      */
     void visitEnum(String name, String desc, String value);
 
     /**
      * Visits a nested annotation value of the annotation.
      * 
-     * @param name
-     *            the value name.
-     * @param desc
-     *            the class descriptor of the nested annotation class.
+     * @param name the value name.
+     * @param desc the class descriptor of the nested annotation class.
      * @return a non null visitor to visit the actual nested annotation value.
      *         <i>The nested annotation value must be fully visited before
      *         calling other methods on this annotation visitor</i>.
@@ -80,8 +73,7 @@ public interface AnnotationVisitor {
     /**
      * Visits an array value of the annotation.
      * 
-     * @param name
-     *            the value name.
+     * @param name the value name.
      * @return a non null visitor to visit the actual array value elements. The
      *         'name' parameters passed to the methods of this visitor are
      *         ignored. <i>All the array values must be visited before calling

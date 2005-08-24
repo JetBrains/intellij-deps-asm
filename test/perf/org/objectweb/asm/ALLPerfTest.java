@@ -157,18 +157,18 @@ public abstract class ALLPerfTest extends ClassLoader {
         for (int step = 0; step < 2; ++step) {
             for (mode = 0; mode < 4; ++mode) {
                 switch (mode) {
-                case 0:
-                    System.out.print("NO ADAPT:     ");
-                    break;
-                case 1:
-                    System.out.print("NULL ADAPT:   ");
-                    break;
-                case 2:
-                    System.out.print("COMPUTE MAXS: ");
-                    break;
-                default:
-                    System.out.print("ADD COUNTER:  ");
-                    break;
+                    case 0:
+                        System.out.print("NO ADAPT:     ");
+                        break;
+                    case 1:
+                        System.out.print("NULL ADAPT:   ");
+                        break;
+                    case 2:
+                        System.out.print("COMPUTE MAXS: ");
+                        break;
+                    default:
+                        System.out.print("ADD COUNTER:  ");
+                        break;
                 }
                 System.out.print((float) asmPerfs[step][mode] + " ms");
                 if (mode > 0) {
@@ -211,18 +211,18 @@ public abstract class ALLPerfTest extends ClassLoader {
             for (mode = 1; mode < 4; ++mode) {
                 int base;
                 switch (mode) {
-                case 1:
-                    System.out.print("NULL ADAPT:   ");
-                    base = 0;
-                    break;
-                case 2:
-                    System.out.print("COMPUTE MAXS: ");
-                    base = 1;
-                    break;
-                default:
-                    System.out.print("ADD COUNTER:  ");
-                    base = 1;
-                    break;
+                    case 1:
+                        System.out.print("NULL ADAPT:   ");
+                        base = 0;
+                        break;
+                    case 2:
+                        System.out.print("COMPUTE MAXS: ");
+                        base = 1;
+                        break;
+                    default:
+                        System.out.print("ADD COUNTER:  ");
+                        base = 1;
+                        break;
                 }
                 double ref = asmPerfs[step][mode] - asmPerfs[step][base];
                 System.out.print((float) ref + " ms ");
@@ -301,18 +301,18 @@ public abstract class ALLPerfTest extends ClassLoader {
                         perfs[step][mode] = Math.min(perfs[step][mode], t);
                     }
                     switch (mode) {
-                    case 0:
-                        System.out.print("NO ADAPT:     ");
-                        break;
-                    case 1:
-                        System.out.print("NULL ADAPT:   ");
-                        break;
-                    case 2:
-                        System.out.print("COMPUTE MAXS: ");
-                        break;
-                    default:
-                        System.out.print("ADD COUNTER:  ");
-                        break;
+                        case 0:
+                            System.out.print("NO ADAPT:     ");
+                            break;
+                        case 1:
+                            System.out.print("NULL ADAPT:   ");
+                            break;
+                        case 2:
+                            System.out.print("COMPUTE MAXS: ");
+                            break;
+                        default:
+                            System.out.print("ADD COUNTER:  ");
+                            break;
                     }
                     System.out.print((float) t + " ms ");
                     System.out.print("(" + total + " classes");
@@ -332,18 +332,18 @@ public abstract class ALLPerfTest extends ClassLoader {
         for (int step = 0; step < 2; ++step) {
             for (mode = 0; mode < 4; ++mode) {
                 switch (mode) {
-                case 0:
-                    System.out.print("NO ADAPT:     ");
-                    break;
-                case 1:
-                    System.out.print("NULL ADAPT:   ");
-                    break;
-                case 2:
-                    System.out.print("COMPUTE MAXS: ");
-                    break;
-                default:
-                    System.out.print("ADD COUNTER:  ");
-                    break;
+                    case 0:
+                        System.out.print("NO ADAPT:     ");
+                        break;
+                    case 1:
+                        System.out.print("NULL ADAPT:   ");
+                        break;
+                    case 2:
+                        System.out.print("COMPUTE MAXS: ");
+                        break;
+                    default:
+                        System.out.print("ADD COUNTER:  ");
+                        break;
                 }
                 System.out.println((float) perfs[step][mode] + " ms");
             }
@@ -385,47 +385,47 @@ public abstract class ALLPerfTest extends ClassLoader {
             String fileName = name.replace('.', '/') + ".class";
             InputStream is = zip.getInputStream(zip.getEntry(fileName));
             switch (mode) {
-            case 0:
-                b = new byte[is.available()];
-                int len = 0;
-                while (true) {
-                    int n = is.read(b, len, b.length - len);
-                    if (n == -1) {
-                        if (len < b.length) {
-                            byte[] c = new byte[len];
-                            System.arraycopy(b, 0, c, 0, len);
-                            b = c;
-                        }
-                        break;
-                    } else {
-                        len += n;
-                        if (len == b.length) {
-                            byte[] c = new byte[b.length + 1000];
-                            System.arraycopy(b, 0, c, 0, len);
-                            b = c;
+                case 0:
+                    b = new byte[is.available()];
+                    int len = 0;
+                    while (true) {
+                        int n = is.read(b, len, b.length - len);
+                        if (n == -1) {
+                            if (len < b.length) {
+                                byte[] c = new byte[len];
+                                System.arraycopy(b, 0, c, 0, len);
+                                b = c;
+                            }
+                            break;
+                        } else {
+                            len += n;
+                            if (len == b.length) {
+                                byte[] c = new byte[b.length + 1000];
+                                System.arraycopy(b, 0, c, 0, len);
+                                b = c;
+                            }
                         }
                     }
-                }
-                break;
-            case 1:
-                compute = false;
-                skipDebug = false;
-                b = nullAdaptClass(is, name);
-                break;
-            case 2:
-                compute = true;
-                skipDebug = false;
-                b = nullAdaptClass(is, name);
-                break;
-            case 3:
-                b = counterAdaptClass(is, name);
-                break;
-            // case 4:
-            default:
-                compute = false;
-                skipDebug = true;
-                b = nullAdaptClass(is, name);
-                break;
+                    break;
+                case 1:
+                    compute = false;
+                    skipDebug = false;
+                    b = nullAdaptClass(is, name);
+                    break;
+                case 2:
+                    compute = true;
+                    skipDebug = false;
+                    b = nullAdaptClass(is, name);
+                    break;
+                case 3:
+                    b = counterAdaptClass(is, name);
+                    break;
+                // case 4:
+                default:
+                    compute = false;
+                    skipDebug = true;
+                    b = nullAdaptClass(is, name);
+                    break;
             }
             if (dst != null) {
                 dst.putNextEntry(new ZipEntry(fileName));
@@ -455,7 +455,9 @@ public abstract class ALLPerfTest extends ClassLoader {
 
     abstract ALLPerfTest newInstance();
 
-    abstract byte[] nullAdaptClass(final InputStream is, final String name) throws Exception;
+    abstract byte[] nullAdaptClass(final InputStream is, final String name)
+            throws Exception;
 
-    abstract byte[] counterAdaptClass(final InputStream is, final String name) throws Exception;
+    abstract byte[] counterAdaptClass(final InputStream is, final String name)
+            throws Exception;
 }

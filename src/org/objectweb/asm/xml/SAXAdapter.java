@@ -27,69 +27,65 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
  * THE POSSIBILITY OF SUCH DAMAGE.
  */
-
 package org.objectweb.asm.xml;
 
 import org.xml.sax.Attributes;
 import org.xml.sax.ContentHandler;
 import org.xml.sax.SAXException;
 
-
 /**
  * SAXAdapter
- *
+ * 
  * @author Eugene Kuleshov
  */
 public abstract class SAXAdapter {
-  private final ContentHandler h;
+    private final ContentHandler h;
 
-
-  public SAXAdapter( ContentHandler h) {
-    this.h = h;
-  }
-
-  protected ContentHandler getContentHandler() {
-    return h;
-  }
-  
-  protected final void addEnd( String name) {
-    try {
-      h.endElement( "", name, name);
-    } catch( SAXException ex) {
-      throw new RuntimeException( ex.toString());
+    public SAXAdapter(ContentHandler h) {
+        this.h = h;
     }
-  }
 
-  protected final void addStart( String name, Attributes attrs) {
-    try {
-      h.startElement( "", name, name, attrs);
-    } catch( SAXException ex) {
-      throw new RuntimeException( ex.toString());
+    protected ContentHandler getContentHandler() {
+        return h;
     }
-  }
 
-  protected final void addElement( String name, Attributes attrs) {
-    addStart( name, attrs);
-    addEnd( name);
-  }
-
-  protected void addDocumentStart() {
-    try {
-      h.startDocument();
-    } catch( SAXException ex) {
-      throw new RuntimeException( ex.getException());
+    protected final void addEnd(String name) {
+        try {
+            h.endElement("", name, name);
+        } catch (SAXException ex) {
+            throw new RuntimeException(ex.toString());
+        }
     }
-  }
 
-  protected void addDocumentEnd() {
-    try {
-      h.endDocument();
-    } catch( SAXException ex) {
-      // ex.getException().printStackTrace();
-      // ex.printStackTrace();
-      throw new RuntimeException( ex.toString());
+    protected final void addStart(String name, Attributes attrs) {
+        try {
+            h.startElement("", name, name, attrs);
+        } catch (SAXException ex) {
+            throw new RuntimeException(ex.toString());
+        }
     }
-  }
+
+    protected final void addElement(String name, Attributes attrs) {
+        addStart(name, attrs);
+        addEnd(name);
+    }
+
+    protected void addDocumentStart() {
+        try {
+            h.startDocument();
+        } catch (SAXException ex) {
+            throw new RuntimeException(ex.getException());
+        }
+    }
+
+    protected void addDocumentEnd() {
+        try {
+            h.endDocument();
+        } catch (SAXException ex) {
+            // ex.getException().printStackTrace();
+            // ex.printStackTrace();
+            throw new RuntimeException(ex.toString());
+        }
+    }
 
 }
-

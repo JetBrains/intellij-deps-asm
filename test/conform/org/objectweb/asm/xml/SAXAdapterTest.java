@@ -27,7 +27,6 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
  * THE POSSIBILITY OF SUCH DAMAGE.
  */
-
 package org.objectweb.asm.xml;
 
 import java.io.ByteArrayOutputStream;
@@ -47,25 +46,23 @@ import org.objectweb.asm.ClassReader;
  * 
  * @author Eugene Kuleshov
  */
-
 public class SAXAdapterTest extends AbstractTest {
 
-  public static TestSuite suite () throws Exception {
-    return new SAXAdapterTest().getSuite();
-  }
-  
-  public void test () throws Exception {
-    ClassReader cr = new ClassReader(is);
-    ByteArrayOutputStream bos = new ByteArrayOutputStream();
-    
-    SAXTransformerFactory saxtf = (SAXTransformerFactory) TransformerFactory.newInstance();
-    TransformerHandler handler = saxtf.newTransformerHandler();
-    handler.setResult(new SAXResult(new ASMContentHandler(bos, false)));
-    handler.startDocument();
-    cr.accept(new SAXClassAdapter(handler, false), false);
-    handler.endDocument();
+    public static TestSuite suite() throws Exception {
+        return new SAXAdapterTest().getSuite();
+    }
 
-    assertEquals(cr, new ClassReader(bos.toByteArray()));
-  }
+    public void test() throws Exception {
+        ClassReader cr = new ClassReader(is);
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+
+        SAXTransformerFactory saxtf = (SAXTransformerFactory) TransformerFactory.newInstance();
+        TransformerHandler handler = saxtf.newTransformerHandler();
+        handler.setResult(new SAXResult(new ASMContentHandler(bos, false)));
+        handler.startDocument();
+        cr.accept(new SAXClassAdapter(handler, false), false);
+        handler.endDocument();
+
+        assertEquals(cr, new ClassReader(bos.toByteArray()));
+    }
 }
-

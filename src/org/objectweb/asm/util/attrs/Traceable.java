@@ -45,10 +45,8 @@ public interface Traceable {
     /**
      * Build a human readable representation of the attribute.
      * 
-     * @param buf
-     *            A buffer used for printing Java code.
-     * @param labelNames
-     *            map of label instances to their names.
+     * @param buf A buffer used for printing Java code.
+     * @param labelNames map of label instances to their names.
      */
     void trace(StringBuffer buf, Map labelNames);
 }

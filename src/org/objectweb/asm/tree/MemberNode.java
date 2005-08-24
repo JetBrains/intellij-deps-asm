@@ -77,10 +77,8 @@ public abstract class MemberNode {
     /**
      * Visits an annotation of this class, field or method.
      * 
-     * @param desc
-     *            the class descriptor of the annotation class.
-     * @param visible
-     *            <tt>true</tt> if the annotation is visible at runtime.
+     * @param desc the class descriptor of the annotation class.
+     * @param visible <tt>true</tt> if the annotation is visible at runtime.
      * @return a visitor to visit the annotation values.
      */
     public AnnotationVisitor visitAnnotation(
@@ -105,8 +103,7 @@ public abstract class MemberNode {
     /**
      * Visits a non standard attribute of this class, field or method.
      * 
-     * @param attr
-     *            an attribute.
+     * @param attr an attribute.
      */
     public void visitAttribute(final Attribute attr) {
         if (attrs == null) {

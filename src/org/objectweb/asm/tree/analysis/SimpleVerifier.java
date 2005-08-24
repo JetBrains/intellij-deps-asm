@@ -67,12 +67,9 @@ public class SimpleVerifier extends BasicVerifier {
      * Constructs a new {@link SimpleVerifier} to verify a specific class. This
      * class will not be loaded into the JVM since it may be incorrect.
      * 
-     * @param currentClass
-     *            the class that is verified.
-     * @param currentSuperClass
-     *            the super class of the class that is verified.
-     * @param isInterface
-     *            if the class that is verified is an interface.
+     * @param currentClass the class that is verified.
+     * @param currentSuperClass the super class of the class that is verified.
+     * @param isInterface if the class that is verified is an interface.
      */
     public SimpleVerifier(
         final Type currentClass,
@@ -110,7 +107,8 @@ public class SimpleVerifier extends BasicVerifier {
         return false;
     }
 
-    protected Value getElementValue(final Value objectArrayValue) throws AnalyzerException
+    protected Value getElementValue(final Value objectArrayValue)
+            throws AnalyzerException
     {
         Type arrayType = ((BasicValue) objectArrayValue).getType();
         if (arrayType != null) {
@@ -131,28 +129,28 @@ public class SimpleVerifier extends BasicVerifier {
             return type == null;
         }
         switch (expectedType.getSort()) {
-        case Type.INT:
-        case Type.FLOAT:
-        case Type.LONG:
-        case Type.DOUBLE:
-            return type == expectedType;
-        case Type.ARRAY:
-        case Type.OBJECT:
-            if (expectedType.getDescriptor().equals("Lnull;")) {
-                return type.getSort() == Type.OBJECT
-                        || type.getSort() == Type.ARRAY;
-            }
-            if (type.getDescriptor().equals("Lnull;")) {
-                return true;
-            } else if (type.getSort() == Type.OBJECT
-                    || type.getSort() == Type.ARRAY)
-            {
-                return isAssignableFrom(expectedType, type);
-            } else {
-                return false;
-            }
-        default:
-            throw new RuntimeException("Internal error");
+            case Type.INT:
+            case Type.FLOAT:
+            case Type.LONG:
+            case Type.DOUBLE:
+                return type == expectedType;
+            case Type.ARRAY:
+            case Type.OBJECT:
+                if (expectedType.getDescriptor().equals("Lnull;")) {
+                    return type.getSort() == Type.OBJECT
+                            || type.getSort() == Type.ARRAY;
+                }
+                if (type.getDescriptor().equals("Lnull;")) {
+                    return true;
+                } else if (type.getSort() == Type.OBJECT
+                        || type.getSort() == Type.ARRAY)
+                {
+                    return isAssignableFrom(expectedType, type);
+                } else {
+                    return false;
+                }
+            default:
+                throw new RuntimeException("Internal error");
         }
     }
 

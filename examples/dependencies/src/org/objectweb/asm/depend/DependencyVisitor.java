@@ -386,12 +386,12 @@ public class DependencyVisitor implements
 
     private void addType(Type t) {
         switch (t.getSort()) {
-        case Type.ARRAY:
-            addType(t.getElementType());
-            break;
-        case Type.OBJECT:
-            addName(t.getClassName().replace('.', '/'));
-            break;
+            case Type.ARRAY:
+                addType(t.getElementType());
+                break;
+            case Type.OBJECT:
+                addName(t.getClassName().replace('.', '/'));
+                break;
         }
     }
 

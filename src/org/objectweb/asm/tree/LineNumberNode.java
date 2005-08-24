@@ -53,11 +53,9 @@ public class LineNumberNode {
     /**
      * Constructs a new {@link LineNumberNode}.
      * 
-     * @param line
-     *            a line number. This number refers to the source file from
-     *            which the class was compiled.
-     * @param start
-     *            the first instruction corresponding to this line number.
+     * @param line a line number. This number refers to the source file from
+     *        which the class was compiled.
+     * @param start the first instruction corresponding to this line number.
      */
     public LineNumberNode(final int line, final Label start) {
         this.line = line;
@@ -67,8 +65,7 @@ public class LineNumberNode {
     /**
      * Makes the given visitor visit this line number declaration.
      * 
-     * @param mv
-     *            a method visitor.
+     * @param mv a method visitor.
      */
     public void accept(final MethodVisitor mv) {
         mv.visitLineNumber(line, start);

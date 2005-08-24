@@ -295,8 +295,7 @@ public class CheckMethodAdapter extends MethodAdapter {
     /**
      * Constructs a new {@link CheckMethodAdapter} object.
      * 
-     * @param cv
-     *            the code visitor to which this adapter must delegate calls.
+     * @param cv the code visitor to which this adapter must delegate calls.
      */
     public CheckMethodAdapter(final MethodVisitor cv) {
         super(cv);
@@ -341,18 +340,18 @@ public class CheckMethodAdapter extends MethodAdapter {
         checkEnd();
         checkOpcode(opcode, 1);
         switch (opcode) {
-        case Opcodes.BIPUSH:
-            checkSignedByte(operand, "Invalid operand");
-            break;
-        case Opcodes.SIPUSH:
-            checkSignedShort(operand, "Invalid operand");
-            break;
-        // case Constants.NEWARRAY:
-        default:
-            if (operand < Opcodes.T_BOOLEAN || operand > Opcodes.T_LONG) {
-                throw new IllegalArgumentException("Invalid operand (must be an array type code T_...): "
-                        + operand);
-            }
+            case Opcodes.BIPUSH:
+                checkSignedByte(operand, "Invalid operand");
+                break;
+            case Opcodes.SIPUSH:
+                checkSignedShort(operand, "Invalid operand");
+                break;
+            // case Constants.NEWARRAY:
+            default:
+                if (operand < Opcodes.T_BOOLEAN || operand > Opcodes.T_LONG) {
+                    throw new IllegalArgumentException("Invalid operand (must be an array type code T_...): "
+                            + operand);
+                }
         }
         mv.visitIntInsn(opcode, operand);
     }
@@ -570,10 +569,8 @@ public class CheckMethodAdapter extends MethodAdapter {
     /**
      * Checks that the type of the given opcode is equal to the given type.
      * 
-     * @param opcode
-     *            the opcode to be checked.
-     * @param type
-     *            the expected opcode type.
+     * @param opcode the opcode to be checked.
+     * @param type the expected opcode type.
      */
     static void checkOpcode(final int opcode, final int type) {
         if (opcode < 0 || opcode > 199 || TYPE[opcode] != type) {
@@ -584,10 +581,8 @@ public class CheckMethodAdapter extends MethodAdapter {
     /**
      * Checks that the given value is a signed byte.
      * 
-     * @param value
-     *            the value to be checked.
-     * @param msg
-     *            an message to be used in case of error.
+     * @param value the value to be checked.
+     * @param msg an message to be used in case of error.
      */
     static void checkSignedByte(final int value, final String msg) {
         if (value < Byte.MIN_VALUE || value > Byte.MAX_VALUE) {
@@ -599,10 +594,8 @@ public class CheckMethodAdapter extends MethodAdapter {
     /**
      * Checks that the given value is a signed short.
      * 
-     * @param value
-     *            the value to be checked.
-     * @param msg
-     *            an message to be used in case of error.
+     * @param value the value to be checked.
+     * @param msg an message to be used in case of error.
      */
     static void checkSignedShort(final int value, final String msg) {
         if (value < Short.MIN_VALUE || value > Short.MAX_VALUE) {
@@ -614,10 +607,8 @@ public class CheckMethodAdapter extends MethodAdapter {
     /**
      * Checks that the given value is an unsigned short.
      * 
-     * @param value
-     *            the value to be checked.
-     * @param msg
-     *            an message to be used in case of error.
+     * @param value the value to be checked.
+     * @param msg an message to be used in case of error.
      */
     static void checkUnsignedShort(final int value, final String msg) {
         if (value < 0 || value > 65535) {
@@ -630,8 +621,7 @@ public class CheckMethodAdapter extends MethodAdapter {
      * Checks that the given value is an {@link Integer}, a{@link Float}, a
      * {@link Long}, a {@link Double} or a {@link String}.
      * 
-     * @param cst
-     *            the value to be checked.
+     * @param cst the value to be checked.
      */
     static void checkConstant(final Object cst) {
         if (!(cst instanceof Integer) && !(cst instanceof Float)
@@ -645,10 +635,8 @@ public class CheckMethodAdapter extends MethodAdapter {
     /**
      * Checks that the given string is a valid Java identifier.
      * 
-     * @param name
-     *            the string to be checked.
-     * @param msg
-     *            a message to be used in case of error.
+     * @param name the string to be checked.
+     * @param msg a message to be used in case of error.
      */
     static void checkIdentifier(final String name, final String msg) {
         checkIdentifier(name, 0, -1, msg);
@@ -657,16 +645,12 @@ public class CheckMethodAdapter extends MethodAdapter {
     /**
      * Checks that the given substring is a valid Java identifier.
      * 
-     * @param name
-     *            the string to be checked.
-     * @param start
-     *            index of the first character of the identifier (inclusive).
-     * @param end
-     *            index of the last character of the identifier (exclusive). -1
-     *            is equivalent to <tt>name.length()</tt> if name is not
-     *            <tt>null</tt>.
-     * @param msg
-     *            a message to be used in case of error.
+     * @param name the string to be checked.
+     * @param start index of the first character of the identifier (inclusive).
+     * @param end index of the last character of the identifier (exclusive). -1
+     *        is equivalent to <tt>name.length()</tt> if name is not
+     *        <tt>null</tt>.
+     * @param msg a message to be used in case of error.
      */
     static void checkIdentifier(
         final String name,
@@ -696,10 +680,8 @@ public class CheckMethodAdapter extends MethodAdapter {
      * Checks that the given string is a valid Java identifier or is equal to
      * '&lt;init&gt;' or '&lt;clinit&gt;'.
      * 
-     * @param name
-     *            the string to be checked.
-     * @param msg
-     *            a message to be used in case of error.
+     * @param name the string to be checked.
+     * @param msg a message to be used in case of error.
      */
     static void checkMethodIdentifier(final String name, final String msg) {
         if (name == null || name.length() == 0) {
@@ -728,10 +710,8 @@ public class CheckMethodAdapter extends MethodAdapter {
     /**
      * Checks that the given string is a valid internal class name.
      * 
-     * @param name
-     *            the string to be checked.
-     * @param msg
-     *            a message to be used in case of error.
+     * @param name the string to be checked.
+     * @param msg a message to be used in case of error.
      */
     static void checkInternalName(final String name, final String msg) {
         checkInternalName(name, 0, -1, msg);
@@ -740,16 +720,12 @@ public class CheckMethodAdapter extends MethodAdapter {
     /**
      * Checks that the given substring is a valid internal class name.
      * 
-     * @param name
-     *            the string to be checked.
-     * @param start
-     *            index of the first character of the identifier (inclusive).
-     * @param end
-     *            index of the last character of the identifier (exclusive). -1
-     *            is equivalent to <tt>name.length()</tt> if name is not
-     *            <tt>null</tt>.
-     * @param msg
-     *            a message to be used in case of error.
+     * @param name the string to be checked.
+     * @param start index of the first character of the identifier (inclusive).
+     * @param end index of the last character of the identifier (exclusive). -1
+     *        is equivalent to <tt>name.length()</tt> if name is not
+     *        <tt>null</tt>.
+     * @param msg a message to be used in case of error.
      */
     static void checkInternalName(
         final String name,
@@ -784,10 +760,8 @@ public class CheckMethodAdapter extends MethodAdapter {
     /**
      * Checks that the given string is a valid type descriptor.
      * 
-     * @param desc
-     *            the string to be checked.
-     * @param canBeVoid
-     *            <tt>true</tt> if <tt>V</tt> can be considered valid.
+     * @param desc the string to be checked.
+     * @param canBeVoid <tt>true</tt> if <tt>V</tt> can be considered valid.
      */
     static void checkDesc(final String desc, final boolean canBeVoid) {
         int end = checkDesc(desc, 0, canBeVoid);
@@ -799,12 +773,9 @@ public class CheckMethodAdapter extends MethodAdapter {
     /**
      * Checks that a the given substring is a valid type descriptor.
      * 
-     * @param desc
-     *            the string to be checked.
-     * @param start
-     *            index of the first character of the identifier (inclusive).
-     * @param canBeVoid
-     *            <tt>true</tt> if <tt>V</tt> can be considered valid.
+     * @param desc the string to be checked.
+     * @param start index of the first character of the identifier (inclusive).
+     * @param canBeVoid <tt>true</tt> if <tt>V</tt> can be considered valid.
      * @return the index of the last character of the type decriptor, plus one.
      */
     static int checkDesc(
@@ -817,56 +788,56 @@ public class CheckMethodAdapter extends MethodAdapter {
         }
         int index;
         switch (desc.charAt(start)) {
-        case 'V':
-            if (canBeVoid) {
+            case 'V':
+                if (canBeVoid) {
+                    return start + 1;
+                } else {
+                    throw new IllegalArgumentException("Invalid descriptor: "
+                            + desc);
+                }
+            case 'Z':
+            case 'C':
+            case 'B':
+            case 'S':
+            case 'I':
+            case 'F':
+            case 'J':
+            case 'D':
                 return start + 1;
-            } else {
+            case '[':
+                index = start + 1;
+                while (index < desc.length() && desc.charAt(index) == '[') {
+                    ++index;
+                }
+                if (index < desc.length()) {
+                    return checkDesc(desc, index, false);
+                } else {
+                    throw new IllegalArgumentException("Invalid descriptor: "
+                            + desc);
+                }
+            case 'L':
+                index = desc.indexOf(';', start);
+                if (index == -1 || index - start < 2) {
+                    throw new IllegalArgumentException("Invalid descriptor: "
+                            + desc);
+                }
+                try {
+                    checkInternalName(desc, start + 1, index, null);
+                } catch (IllegalArgumentException _) {
+                    throw new IllegalArgumentException("Invalid descriptor: "
+                            + desc);
+                }
+                return index + 1;
+            default:
                 throw new IllegalArgumentException("Invalid descriptor: "
                         + desc);
-            }
-        case 'Z':
-        case 'C':
-        case 'B':
-        case 'S':
-        case 'I':
-        case 'F':
-        case 'J':
-        case 'D':
-            return start + 1;
-        case '[':
-            index = start + 1;
-            while (index < desc.length() && desc.charAt(index) == '[') {
-                ++index;
-            }
-            if (index < desc.length()) {
-                return checkDesc(desc, index, false);
-            } else {
-                throw new IllegalArgumentException("Invalid descriptor: "
-                        + desc);
-            }
-        case 'L':
-            index = desc.indexOf(';', start);
-            if (index == -1 || index - start < 2) {
-                throw new IllegalArgumentException("Invalid descriptor: "
-                        + desc);
-            }
-            try {
-                checkInternalName(desc, start + 1, index, null);
-            } catch (IllegalArgumentException _) {
-                throw new IllegalArgumentException("Invalid descriptor: "
-                        + desc);
-            }
-            return index + 1;
-        default:
-            throw new IllegalArgumentException("Invalid descriptor: " + desc);
         }
     }
 
     /**
      * Checks that the given string is a valid method descriptor.
      * 
-     * @param desc
-     *            the string to be checked.
+     * @param desc the string to be checked.
      */
     static void checkMethodDesc(final String desc) {
         if (desc == null || desc.length() == 0) {
@@ -895,12 +866,10 @@ public class CheckMethodAdapter extends MethodAdapter {
      * Checks that the given label is not null. This method can also check that
      * the label has been visited.
      * 
-     * @param label
-     *            the label to be checked.
-     * @param checkVisited
-     *            <tt>true</tt> to check that the label has been visited.
-     * @param msg
-     *            a message to be used in case of error.
+     * @param label the label to be checked.
+     * @param checkVisited <tt>true</tt> to check that the label has been
+     *        visited.
+     * @param msg a message to be used in case of error.
      */
     void checkLabel(
         final Label label,

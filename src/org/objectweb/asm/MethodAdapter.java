@@ -47,8 +47,7 @@ public class MethodAdapter implements MethodVisitor {
     /**
      * Constructs a new {@link MethodAdapter} object.
      * 
-     * @param mv
-     *            the code visitor to which this adapter must delegate calls.
+     * @param mv the code visitor to which this adapter must delegate calls.
      */
     public MethodAdapter(final MethodVisitor mv) {
         this.mv = mv;

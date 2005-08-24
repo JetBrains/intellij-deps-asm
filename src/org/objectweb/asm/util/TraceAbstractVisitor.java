@@ -103,10 +103,8 @@ public abstract class TraceAbstractVisitor extends AbstractVisitor {
     /**
      * Prints a disassembled view of the given annotation.
      * 
-     * @param desc
-     *            the class descriptor of the annotation class.
-     * @param visible
-     *            <tt>true</tt> if the annotation is visible at runtime.
+     * @param desc the class descriptor of the annotation class.
+     * @param visible <tt>true</tt> if the annotation is visible at runtime.
      * @return a visitor to visit the annotation values.
      */
     public AnnotationVisitor visitAnnotation(
@@ -127,8 +125,7 @@ public abstract class TraceAbstractVisitor extends AbstractVisitor {
     /**
      * Prints a disassembled view of the given attribute.
      * 
-     * @param attr
-     *            an attribute.
+     * @param attr an attribute.
      */
     public void visitAttribute(final Attribute attr) {
         buf.setLength(0);
@@ -163,12 +160,10 @@ public abstract class TraceAbstractVisitor extends AbstractVisitor {
      * Appends an internal name, a type descriptor or a type signature to
      * {@link #buf buf}.
      * 
-     * @param type
-     *            indicates if desc is an internal name, a field descriptor, a
-     *            method descriptor, a class signature, ...
-     * @param desc
-     *            an internal name, type descriptor, or type signature. May be
-     *            <tt>null</tt>.
+     * @param type indicates if desc is an internal name, a field descriptor, a
+     *        method descriptor, a class signature, ...
+     * @param desc an internal name, type descriptor, or type signature. May be
+     *        <tt>null</tt>.
      */
     protected void appendDescriptor(final int type, final String desc) {
         if (type == CLASS_SIGNATURE || type == FIELD_SIGNATURE

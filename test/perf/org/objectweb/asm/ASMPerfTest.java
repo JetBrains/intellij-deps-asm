@@ -55,7 +55,8 @@ public class ASMPerfTest extends ALLPerfTest {
         return new ASMPerfTest();
     }
 
-    byte[] nullAdaptClass(final InputStream is, final String name) throws Exception
+    byte[] nullAdaptClass(final InputStream is, final String name)
+            throws Exception
     {
         ClassReader cr = new ClassReader(is);
         ClassWriter cw = new ClassWriter(compute);
@@ -64,7 +65,8 @@ public class ASMPerfTest extends ALLPerfTest {
         return cw.toByteArray();
     }
 
-    byte[] counterAdaptClass(final InputStream is, final String name) throws Exception
+    byte[] counterAdaptClass(final InputStream is, final String name)
+            throws Exception
     {
         ClassReader cr = new ClassReader(is);
         ClassWriter cw = new ClassWriter(false);

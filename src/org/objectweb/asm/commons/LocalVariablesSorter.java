@@ -72,14 +72,14 @@ public class LocalVariablesSorter extends MethodAdapter {
     public void visitVarInsn(final int opcode, final int var) {
         int size;
         switch (opcode) {
-        case Opcodes.LLOAD:
-        case Opcodes.LSTORE:
-        case Opcodes.DLOAD:
-        case Opcodes.DSTORE:
-            size = 2;
-            break;
-        default:
-            size = 1;
+            case Opcodes.LLOAD:
+            case Opcodes.LSTORE:
+            case Opcodes.DLOAD:
+            case Opcodes.DSTORE:
+                size = 2;
+                break;
+            default:
+                size = 1;
         }
         mv.visitVarInsn(opcode, remap(var, size));
     }

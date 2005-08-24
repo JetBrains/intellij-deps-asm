@@ -54,7 +54,8 @@ public class SERPPerfTest extends ALLPerfTest {
         return new SERPPerfTest();
     }
 
-    byte[] nullAdaptClass(final InputStream is, final String name) throws Exception
+    byte[] nullAdaptClass(final InputStream is, final String name)
+            throws Exception
     {
         if (c != null) {
             p.removeClass(c);
@@ -77,7 +78,8 @@ public class SERPPerfTest extends ALLPerfTest {
         return c.toByteArray();
     }
 
-    byte[] counterAdaptClass(final InputStream is, final String name) throws Exception
+    byte[] counterAdaptClass(final InputStream is, final String name)
+            throws Exception
     {
         if (c != null) {
             p.removeClass(c);

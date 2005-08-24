@@ -110,10 +110,8 @@ final class Item {
     /**
      * Constructs a copy of the given item.
      * 
-     * @param index
-     *            index of the item to be constructed.
-     * @param i
-     *            the item that must be copied into the item to be constructed.
+     * @param index index of the item to be constructed.
+     * @param i the item that must be copied into the item to be constructed.
      */
     Item(final short index, final Item i) {
         this.index = index;
@@ -131,8 +129,7 @@ final class Item {
     /**
      * Sets this item to an integer item.
      * 
-     * @param intVal
-     *            the value of this item.
+     * @param intVal the value of this item.
      */
     void set(final int intVal) {
         this.type = 'I';
@@ -143,8 +140,7 @@ final class Item {
     /**
      * Sets this item to a long item.
      * 
-     * @param longVal
-     *            the value of this item.
+     * @param longVal the value of this item.
      */
     void set(final long longVal) {
         this.type = 'J';
@@ -155,8 +151,7 @@ final class Item {
     /**
      * Sets this item to a float item.
      * 
-     * @param floatVal
-     *            the value of this item.
+     * @param floatVal the value of this item.
      */
     void set(final float floatVal) {
         this.type = 'F';
@@ -167,8 +162,7 @@ final class Item {
     /**
      * Sets this item to a double item.
      * 
-     * @param doubleVal
-     *            the value of this item.
+     * @param doubleVal the value of this item.
      */
     void set(final double doubleVal) {
         this.type = 'D';
@@ -179,14 +173,10 @@ final class Item {
     /**
      * Sets this item to an item that do not hold a primitive value.
      * 
-     * @param type
-     *            the type of this item.
-     * @param strVal1
-     *            first part of the value of this item.
-     * @param strVal2
-     *            second part of the value of this item.
-     * @param strVal3
-     *            third part of the value of this item.
+     * @param type the type of this item.
+     * @param strVal1 first part of the value of this item.
+     * @param strVal2 second part of the value of this item.
+     * @param strVal3 third part of the value of this item.
      */
     void set(
         final char type,
@@ -199,55 +189,56 @@ final class Item {
         this.strVal2 = strVal2;
         this.strVal3 = strVal3;
         switch (type) {
-        case 's':
-        case 'S':
-        case 'C':
-            hashCode = 0x7FFFFFFF & (type + strVal1.hashCode());
-            return;
-        case 'T':
-            hashCode = 0x7FFFFFFF & (type + strVal1.hashCode()
-                    * strVal2.hashCode());
-            return;
-        // case 'G':
-        // case 'M':
-        // case 'N':
-        default:
-            hashCode = 0x7FFFFFFF & (type + strVal1.hashCode()
-                    * strVal2.hashCode() * strVal3.hashCode());
+            case 's':
+            case 'S':
+            case 'C':
+                hashCode = 0x7FFFFFFF & (type + strVal1.hashCode());
+                return;
+            case 'T':
+                hashCode = 0x7FFFFFFF & (type + strVal1.hashCode()
+                        * strVal2.hashCode());
+                return;
+            // case 'G':
+            // case 'M':
+            // case 'N':
+            default:
+                hashCode = 0x7FFFFFFF & (type + strVal1.hashCode()
+                        * strVal2.hashCode() * strVal3.hashCode());
         }
     }
 
     /**
      * Indicates if the given item is equal to this one.
      * 
-     * @param i
-     *            the item to be compared to this one.
+     * @param i the item to be compared to this one.
      * @return <tt>true</tt> if the given item if equal to this one,
      *         <tt>false</tt> otherwise.
      */
     boolean isEqualTo(final Item i) {
         if (i.type == type) {
             switch (type) {
-            case 'I':
-                return i.intVal == intVal;
-            case 'J':
-                return i.longVal == longVal;
-            case 'F':
-                return i.floatVal == floatVal;
-            case 'D':
-                return i.doubleVal == doubleVal;
-            case 's':
-            case 'S':
-            case 'C':
-                return i.strVal1.equals(strVal1);
-            case 'T':
-                return i.strVal1.equals(strVal1) && i.strVal2.equals(strVal2);
-            // case 'G':
-            // case 'M':
-            // case 'N':
-            default:
-                return i.strVal1.equals(strVal1) && i.strVal2.equals(strVal2)
-                        && i.strVal3.equals(strVal3);
+                case 'I':
+                    return i.intVal == intVal;
+                case 'J':
+                    return i.longVal == longVal;
+                case 'F':
+                    return i.floatVal == floatVal;
+                case 'D':
+                    return i.doubleVal == doubleVal;
+                case 's':
+                case 'S':
+                case 'C':
+                    return i.strVal1.equals(strVal1);
+                case 'T':
+                    return i.strVal1.equals(strVal1)
+                            && i.strVal2.equals(strVal2);
+                // case 'G':
+                // case 'M':
+                // case 'N':
+                default:
+                    return i.strVal1.equals(strVal1)
+                            && i.strVal2.equals(strVal2)
+                            && i.strVal3.equals(strVal3);
             }
         }
         return false;

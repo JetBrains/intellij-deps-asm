@@ -43,11 +43,10 @@ public class GASMifierClassVisitor extends ASMifierClassVisitor {
      * output. <p> Usage: ASMifierClassVisitor [-debug] &lt;fully qualified
      * class name or class file name&gt;
      * 
-     * @param args
-     *            the command line arguments.
+     * @param args the command line arguments.
      * 
-     * @throws Exception
-     *             if the class cannot be found, or if an IO exception occurs.
+     * @throws Exception if the class cannot be found, or if an IO exception
+     *         occurs.
      */
     public static void main(final String[] args) throws Exception {
         int i = 0;

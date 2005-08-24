@@ -150,20 +150,15 @@ public class MethodNode extends MemberNode implements MethodVisitor {
     /**
      * Constructs a new {@link MethodNode}.
      * 
-     * @param access
-     *            the method's access flags (see {@link Opcodes}). This
-     *            parameter also indicates if the method is synthetic and/or
-     *            deprecated.
-     * @param name
-     *            the method's name.
-     * @param desc
-     *            the method's descriptor (see {@link Type}).
-     * @param signature
-     *            the method's signature. May be <tt>null</tt>.
-     * @param exceptions
-     *            the internal names of the method's exception classes (see
-     *            {@link Type#getInternalName() getInternalName}). May be
-     *            <tt>null</tt>.
+     * @param access the method's access flags (see {@link Opcodes}). This
+     *        parameter also indicates if the method is synthetic and/or
+     *        deprecated.
+     * @param name the method's name.
+     * @param desc the method's descriptor (see {@link Type}).
+     * @param signature the method's signature. May be <tt>null</tt>.
+     * @param exceptions the internal names of the method's exception classes
+     *        (see {@link Type#getInternalName() getInternalName}). May be
+     *        <tt>null</tt>.
      */
     public MethodNode(
         final int access,
@@ -353,8 +348,7 @@ public class MethodNode extends MemberNode implements MethodVisitor {
     /**
      * Makes the given class visitor visit this method.
      * 
-     * @param cv
-     *            a class visitor.
+     * @param cv a class visitor.
      */
     public void accept(final ClassVisitor cv) {
         String[] exceptions = new String[this.exceptions.size()];

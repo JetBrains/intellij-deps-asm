@@ -110,7 +110,8 @@ public abstract class AbstractTest extends TestCase {
 
     public abstract void test() throws Exception;
 
-    public void assertEquals(final ClassReader cr1, final ClassReader cr2) throws Exception
+    public void assertEquals(final ClassReader cr1, final ClassReader cr2)
+            throws Exception
     {
         if (!Arrays.equals(cr1.b, cr2.b)) {
             StringWriter sw1 = new StringWriter();

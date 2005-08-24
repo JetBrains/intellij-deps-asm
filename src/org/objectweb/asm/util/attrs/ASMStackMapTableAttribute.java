@@ -133,20 +133,20 @@ public class ASMStackMapTableAttribute extends StackMapTableAttribute implements
                         .append(");\n");
 
                 switch (type) {
-                case StackMapType.ITEM_Object: //
-                    buf.append(localName)
-                            .append(".setObject(\"")
-                            .append(typeInfo.getObject())
-                            .append("\");\n");
-                    break;
+                    case StackMapType.ITEM_Object: //
+                        buf.append(localName)
+                                .append(".setObject(\"")
+                                .append(typeInfo.getObject())
+                                .append("\");\n");
+                        break;
 
-                case StackMapType.ITEM_Uninitialized: //
-                    declareLabel(buf, labelNames, typeInfo.getLabel());
-                    buf.append(localName)
-                            .append(".setLabel(")
-                            .append(labelNames.get(typeInfo.getLabel()))
-                            .append(");\n");
-                    break;
+                    case StackMapType.ITEM_Uninitialized: //
+                        declareLabel(buf, labelNames, typeInfo.getLabel());
+                        buf.append(localName)
+                                .append(".setLabel(")
+                                .append(labelNames.get(typeInfo.getLabel()))
+                                .append(");\n");
+                        break;
                 }
                 buf.append(field)
                         .append(".add(")

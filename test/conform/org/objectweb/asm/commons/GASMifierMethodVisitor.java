@@ -118,293 +118,304 @@ public class GASMifierMethodVisitor extends ASMifierAbstractVisitor implements
     public void visitInsn(final int opcode) {
         buf.setLength(0);
         switch (opcode) {
-        case IRETURN:
-        case LRETURN:
-        case FRETURN:
-        case DRETURN:
-        case ARETURN:
-        case RETURN:
-            buf.append("mg.returnValue();\n");
-            break;
-        case NOP:
-            break;
-        case ACONST_NULL:
-            buf.append("mg.push((String)null);\n");
-            break;
-        case ICONST_M1:
-        case ICONST_0:
-        case ICONST_1:
-        case ICONST_2:
-        case ICONST_3:
-        case ICONST_4:
-        case ICONST_5:
-            buf.append("mg.push(").append(opcode - ICONST_0).append(");\n");
-            break;
-        case LCONST_0:
-        case LCONST_1:
-            buf.append("mg.push(").append(opcode - LCONST_0).append("L);\n");
-            break;
-        case FCONST_0:
-        case FCONST_1:
-        case FCONST_2:
-            buf.append("mg.push(").append(opcode - FCONST_0).append("f);\n");
-            break;
-        case DCONST_0:
-        case DCONST_1:
-            buf.append("mg.push(").append(opcode - DCONST_0).append("d);\n");
-            break;
-        case POP:
-            buf.append("mg.pop();\n");
-            break;
-        case POP2:
-            buf.append("mg.pop2();\n");
-            break;
-        case DUP:
-            buf.append("mg.dup();\n");
-            break;
-        case DUP_X1:
-            buf.append("mg.dupX1();\n");
-            break;
-        case DUP_X2:
-            buf.append("mg.dupX2();\n");
-            break;
-        case DUP2:
-            buf.append("mg.dup2();\n");
-            break;
-        case DUP2_X1:
-            buf.append("mg.dup2X1();\n");
-            break;
-        case DUP2_X2:
-            buf.append("mg.dup2X2();\n");
-            break;
-        case SWAP:
-            buf.append("mg.swap();\n");
-            break;
-        case MONITORENTER:
-            buf.append("mg.monitorEnter();\n");
-            break;
-        case MONITOREXIT:
-            buf.append("mg.monitorExit();\n");
-            break;
-        case ARRAYLENGTH:
-            buf.append("mg.arrayLength();\n");
-            break;
-        case IALOAD:
-            buf.append("mg.arrayLoad(Type.INT_TYPE);\n");
-            break;
-        case LALOAD:
-            buf.append("mg.arrayLoad(Type.LONG_TYPE);\n");
-            break;
-        case FALOAD:
-            buf.append("mg.arrayLoad(Type.FLOAT_TYPE);\n");
-            break;
-        case DALOAD:
-            buf.append("mg.arrayLoad(Type.DOUBLE_TYPE);\n");
-            break;
-        case AALOAD:
-            buf.append("mg.arrayLoad(" + getType("java/lang/Object") + ");\n");
-            break;
-        case BALOAD:
-            buf.append("mg.arrayLoad(Type.BYTE_TYPE);\n");
-            break;
-        case CALOAD:
-            buf.append("mg.arrayLoad(Type.CHAR_TYPE);\n");
-            break;
-        case SALOAD:
-            buf.append("mg.arrayLoad(Type.SHORT_TYPE);\n");
-            break;
-        case IASTORE:
-            buf.append("mg.arrayStore(Type.INT_TYPE);\n");
-            break;
-        case LASTORE:
-            buf.append("mg.arrayStore(Type.LONG_TYPE);\n");
-            break;
-        case FASTORE:
-            buf.append("mg.arrayStore(Type.FLOAT_TYPE);\n");
-            break;
-        case DASTORE:
-            buf.append("mg.arrayStore(Type.DOUBLE_TYPE);\n");
-            break;
-        case AASTORE:
-            buf.append("mg.arrayStore(" + getType("java/lang/Object") + ");\n");
-            break;
-        case BASTORE:
-            buf.append("mg.arrayStore(Type.BYTE_TYPE);\n");
-            break;
-        case CASTORE:
-            buf.append("mg.arrayStore(Type.CHAR_TYPE);\n");
-            break;
-        case SASTORE:
-            buf.append("mg.arrayStore(Type.SHORT_TYPE);\n");
-            break;
-        case IADD:
-            buf.append("mg.math(GeneratorAdapter.ADD, Type.INT_TYPE);\n");
-            break;
-        case LADD:
-            buf.append("mg.math(GeneratorAdapter.ADD, Type.LONG_TYPE);\n");
-            break;
-        case FADD:
-            buf.append("mg.math(GeneratorAdapter.ADD, Type.FLOAT_TYPE);\n");
-            break;
-        case DADD:
-            buf.append("mg.math(GeneratorAdapter.ADD, Type.DOUBLE_TYPE);\n");
-            break;
-        case ISUB:
-            buf.append("mg.math(GeneratorAdapter.SUB, Type.INT_TYPE);\n");
-            break;
-        case LSUB:
-            buf.append("mg.math(GeneratorAdapter.SUB, Type.LONG_TYPE);\n");
-            break;
-        case FSUB:
-            buf.append("mg.math(GeneratorAdapter.SUB, Type.FLOAT_TYPE);\n");
-            break;
-        case DSUB:
-            buf.append("mg.math(GeneratorAdapter.SUB, Type.DOUBLE_TYPE);\n");
-            break;
-        case IMUL:
-            buf.append("mg.math(GeneratorAdapter.MUL, Type.INT_TYPE);\n");
-            break;
-        case LMUL:
-            buf.append("mg.math(GeneratorAdapter.MUL, Type.LONG_TYPE);\n");
-            break;
-        case FMUL:
-            buf.append("mg.math(GeneratorAdapter.MUL, Type.FLOAT_TYPE);\n");
-            break;
-        case DMUL:
-            buf.append("mg.math(GeneratorAdapter.MUL, Type.DOUBLE_TYPE);\n");
-            break;
-        case IDIV:
-            buf.append("mg.math(GeneratorAdapter.DIV, Type.INT_TYPE);\n");
-            break;
-        case LDIV:
-            buf.append("mg.math(GeneratorAdapter.DIV, Type.LONG_TYPE);\n");
-            break;
-        case FDIV:
-            buf.append("mg.math(GeneratorAdapter.DIV, Type.FLOAT_TYPE);\n");
-            break;
-        case DDIV:
-            buf.append("mg.math(GeneratorAdapter.DIV, Type.DOUBLE_TYPE);\n");
-            break;
-        case IREM:
-            buf.append("mg.math(GeneratorAdapter.REM, Type.INT_TYPE);\n");
-            break;
-        case LREM:
-            buf.append("mg.math(GeneratorAdapter.REM, Type.LONG_TYPE);\n");
-            break;
-        case FREM:
-            buf.append("mg.math(GeneratorAdapter.REM, Type.FLOAT_TYPE);\n");
-            break;
-        case DREM:
-            buf.append("mg.math(GeneratorAdapter.REM, Type.DOUBLE_TYPE);\n");
-            break;
-        case INEG:
-            buf.append("mg.math(GeneratorAdapter.NEG, Type.INT_TYPE);\n");
-            break;
-        case LNEG:
-            buf.append("mg.math(GeneratorAdapter.NEG, Type.LONG_TYPE);\n");
-            break;
-        case FNEG:
-            buf.append("mg.math(GeneratorAdapter.NEG, Type.FLOAT_TYPE);\n");
-            break;
-        case DNEG:
-            buf.append("mg.math(GeneratorAdapter.NEG, Type.DOUBLE_TYPE);\n");
-            break;
-        case ISHL:
-            buf.append("mg.math(GeneratorAdapter.SHL, Type.INT_TYPE);\n");
-            break;
-        case LSHL:
-            buf.append("mg.math(GeneratorAdapter.SHL, Type.LONG_TYPE);\n");
-            break;
-        case ISHR:
-            buf.append("mg.math(GeneratorAdapter.SHR, Type.INT_TYPE);\n");
-            break;
-        case LSHR:
-            buf.append("mg.math(GeneratorAdapter.SHR, Type.LONG_TYPE);\n");
-            break;
-        case IUSHR:
-            buf.append("mg.math(GeneratorAdapter.USHR, Type.INT_TYPE);\n");
-            break;
-        case LUSHR:
-            buf.append("mg.math(GeneratorAdapter.USHR, Type.LONG_TYPE);\n");
-            break;
-        case IAND:
-            buf.append("mg.math(GeneratorAdapter.AND, Type.INT_TYPE);\n");
-            break;
-        case LAND:
-            buf.append("mg.math(GeneratorAdapter.AND, Type.LONG_TYPE);\n");
-            break;
-        case IOR:
-            buf.append("mg.math(GeneratorAdapter.OR, Type.INT_TYPE);\n");
-            break;
-        case LOR:
-            buf.append("mg.math(GeneratorAdapter.OR, Type.LONG_TYPE);\n");
-            break;
-        case IXOR:
-            buf.append("mg.math(GeneratorAdapter.XOR, Type.INT_TYPE);\n");
-            break;
-        case LXOR:
-            buf.append("mg.math(GeneratorAdapter.XOR, Type.LONG_TYPE);\n");
-            break;
-        case ATHROW:
-            buf.append("mg.throwException();\n");
-            break;
-        case I2L:
-            buf.append("mg.cast(Type.INT_TYPE, Type.LONG_TYPE);\n");
-            break;
-        case I2F:
-            buf.append("mg.cast(Type.INT_TYPE, Type.FLOAT_TYPE);\n");
-            break;
-        case I2D:
-            buf.append("mg.cast(Type.INT_TYPE, Type.DOUBLE_TYPE);\n");
-            break;
-        case L2I:
-            buf.append("mg.cast(Type.LONG_TYPE, Type.INT_TYPE);\n");
-            break;
-        case L2F:
-            buf.append("mg.cast(Type.LONG_TYPE, Type.FLOAT_TYPE);\n");
-            break;
-        case L2D:
-            buf.append("mg.cast(Type.LONG_TYPE, Type.DOUBLE_TYPE);\n");
-            break;
-        case F2I:
-            buf.append("mg.cast(Type.FLOAT_TYPE, Type.INT_TYPE);\n");
-            break;
-        case F2L:
-            buf.append("mg.cast(Type.FLOAT_TYPE, Type.LONG_TYPE);\n");
-            break;
-        case F2D:
-            buf.append("mg.cast(Type.FLOAT_TYPE, Type.DOUBLE_TYPE);\n");
-            break;
-        case D2I:
-            buf.append("mg.cast(Type.DOUBLE_TYPE, Type.INT_TYPE);\n");
-            break;
-        case D2L:
-            buf.append("mg.cast(Type.DOUBLE_TYPE, Type.LONG_TYPE);\n");
-            break;
-        case D2F:
-            buf.append("mg.cast(Type.DOUBLE_TYPE, Type.FLOAT_TYPE);\n");
-            break;
-        case I2B:
-            // TODO detect if previous element in 'text' is a cast,
-            // for possible optimisations (e.g. cast(F,I) cast(I,B) = cast(F,B))
-            buf.append("mg.cast(Type.INT_TYPE, Type.BYTE_TYPE);\n");
-            break;
-        case I2C: // idem
-            buf.append("mg.cast(Type.INT_TYPE, Type.CHAR_TYPE);\n");
-            break;
-        case I2S: // idem
-            buf.append("mg.cast(Type.INT_TYPE, Type.SHORT_TYPE);\n");
-            break;
-        case LCMP:
-        case FCMPL:
-        case FCMPG:
-        case DCMPL:
-        case DCMPG:
-            // TODO detect xCMPy IF_ICMP -> ifCmp(..., ..., label)
-            buf.append("mg.visitInsn(").append(OPCODES[opcode]).append(");\n");
-            break;
-        default:
-            throw new RuntimeException("unexpected case");
+            case IRETURN:
+            case LRETURN:
+            case FRETURN:
+            case DRETURN:
+            case ARETURN:
+            case RETURN:
+                buf.append("mg.returnValue();\n");
+                break;
+            case NOP:
+                break;
+            case ACONST_NULL:
+                buf.append("mg.push((String)null);\n");
+                break;
+            case ICONST_M1:
+            case ICONST_0:
+            case ICONST_1:
+            case ICONST_2:
+            case ICONST_3:
+            case ICONST_4:
+            case ICONST_5:
+                buf.append("mg.push(").append(opcode - ICONST_0).append(");\n");
+                break;
+            case LCONST_0:
+            case LCONST_1:
+                buf.append("mg.push(")
+                        .append(opcode - LCONST_0)
+                        .append("L);\n");
+                break;
+            case FCONST_0:
+            case FCONST_1:
+            case FCONST_2:
+                buf.append("mg.push(")
+                        .append(opcode - FCONST_0)
+                        .append("f);\n");
+                break;
+            case DCONST_0:
+            case DCONST_1:
+                buf.append("mg.push(")
+                        .append(opcode - DCONST_0)
+                        .append("d);\n");
+                break;
+            case POP:
+                buf.append("mg.pop();\n");
+                break;
+            case POP2:
+                buf.append("mg.pop2();\n");
+                break;
+            case DUP:
+                buf.append("mg.dup();\n");
+                break;
+            case DUP_X1:
+                buf.append("mg.dupX1();\n");
+                break;
+            case DUP_X2:
+                buf.append("mg.dupX2();\n");
+                break;
+            case DUP2:
+                buf.append("mg.dup2();\n");
+                break;
+            case DUP2_X1:
+                buf.append("mg.dup2X1();\n");
+                break;
+            case DUP2_X2:
+                buf.append("mg.dup2X2();\n");
+                break;
+            case SWAP:
+                buf.append("mg.swap();\n");
+                break;
+            case MONITORENTER:
+                buf.append("mg.monitorEnter();\n");
+                break;
+            case MONITOREXIT:
+                buf.append("mg.monitorExit();\n");
+                break;
+            case ARRAYLENGTH:
+                buf.append("mg.arrayLength();\n");
+                break;
+            case IALOAD:
+                buf.append("mg.arrayLoad(Type.INT_TYPE);\n");
+                break;
+            case LALOAD:
+                buf.append("mg.arrayLoad(Type.LONG_TYPE);\n");
+                break;
+            case FALOAD:
+                buf.append("mg.arrayLoad(Type.FLOAT_TYPE);\n");
+                break;
+            case DALOAD:
+                buf.append("mg.arrayLoad(Type.DOUBLE_TYPE);\n");
+                break;
+            case AALOAD:
+                buf.append("mg.arrayLoad(" + getType("java/lang/Object")
+                        + ");\n");
+                break;
+            case BALOAD:
+                buf.append("mg.arrayLoad(Type.BYTE_TYPE);\n");
+                break;
+            case CALOAD:
+                buf.append("mg.arrayLoad(Type.CHAR_TYPE);\n");
+                break;
+            case SALOAD:
+                buf.append("mg.arrayLoad(Type.SHORT_TYPE);\n");
+                break;
+            case IASTORE:
+                buf.append("mg.arrayStore(Type.INT_TYPE);\n");
+                break;
+            case LASTORE:
+                buf.append("mg.arrayStore(Type.LONG_TYPE);\n");
+                break;
+            case FASTORE:
+                buf.append("mg.arrayStore(Type.FLOAT_TYPE);\n");
+                break;
+            case DASTORE:
+                buf.append("mg.arrayStore(Type.DOUBLE_TYPE);\n");
+                break;
+            case AASTORE:
+                buf.append("mg.arrayStore(" + getType("java/lang/Object")
+                        + ");\n");
+                break;
+            case BASTORE:
+                buf.append("mg.arrayStore(Type.BYTE_TYPE);\n");
+                break;
+            case CASTORE:
+                buf.append("mg.arrayStore(Type.CHAR_TYPE);\n");
+                break;
+            case SASTORE:
+                buf.append("mg.arrayStore(Type.SHORT_TYPE);\n");
+                break;
+            case IADD:
+                buf.append("mg.math(GeneratorAdapter.ADD, Type.INT_TYPE);\n");
+                break;
+            case LADD:
+                buf.append("mg.math(GeneratorAdapter.ADD, Type.LONG_TYPE);\n");
+                break;
+            case FADD:
+                buf.append("mg.math(GeneratorAdapter.ADD, Type.FLOAT_TYPE);\n");
+                break;
+            case DADD:
+                buf.append("mg.math(GeneratorAdapter.ADD, Type.DOUBLE_TYPE);\n");
+                break;
+            case ISUB:
+                buf.append("mg.math(GeneratorAdapter.SUB, Type.INT_TYPE);\n");
+                break;
+            case LSUB:
+                buf.append("mg.math(GeneratorAdapter.SUB, Type.LONG_TYPE);\n");
+                break;
+            case FSUB:
+                buf.append("mg.math(GeneratorAdapter.SUB, Type.FLOAT_TYPE);\n");
+                break;
+            case DSUB:
+                buf.append("mg.math(GeneratorAdapter.SUB, Type.DOUBLE_TYPE);\n");
+                break;
+            case IMUL:
+                buf.append("mg.math(GeneratorAdapter.MUL, Type.INT_TYPE);\n");
+                break;
+            case LMUL:
+                buf.append("mg.math(GeneratorAdapter.MUL, Type.LONG_TYPE);\n");
+                break;
+            case FMUL:
+                buf.append("mg.math(GeneratorAdapter.MUL, Type.FLOAT_TYPE);\n");
+                break;
+            case DMUL:
+                buf.append("mg.math(GeneratorAdapter.MUL, Type.DOUBLE_TYPE);\n");
+                break;
+            case IDIV:
+                buf.append("mg.math(GeneratorAdapter.DIV, Type.INT_TYPE);\n");
+                break;
+            case LDIV:
+                buf.append("mg.math(GeneratorAdapter.DIV, Type.LONG_TYPE);\n");
+                break;
+            case FDIV:
+                buf.append("mg.math(GeneratorAdapter.DIV, Type.FLOAT_TYPE);\n");
+                break;
+            case DDIV:
+                buf.append("mg.math(GeneratorAdapter.DIV, Type.DOUBLE_TYPE);\n");
+                break;
+            case IREM:
+                buf.append("mg.math(GeneratorAdapter.REM, Type.INT_TYPE);\n");
+                break;
+            case LREM:
+                buf.append("mg.math(GeneratorAdapter.REM, Type.LONG_TYPE);\n");
+                break;
+            case FREM:
+                buf.append("mg.math(GeneratorAdapter.REM, Type.FLOAT_TYPE);\n");
+                break;
+            case DREM:
+                buf.append("mg.math(GeneratorAdapter.REM, Type.DOUBLE_TYPE);\n");
+                break;
+            case INEG:
+                buf.append("mg.math(GeneratorAdapter.NEG, Type.INT_TYPE);\n");
+                break;
+            case LNEG:
+                buf.append("mg.math(GeneratorAdapter.NEG, Type.LONG_TYPE);\n");
+                break;
+            case FNEG:
+                buf.append("mg.math(GeneratorAdapter.NEG, Type.FLOAT_TYPE);\n");
+                break;
+            case DNEG:
+                buf.append("mg.math(GeneratorAdapter.NEG, Type.DOUBLE_TYPE);\n");
+                break;
+            case ISHL:
+                buf.append("mg.math(GeneratorAdapter.SHL, Type.INT_TYPE);\n");
+                break;
+            case LSHL:
+                buf.append("mg.math(GeneratorAdapter.SHL, Type.LONG_TYPE);\n");
+                break;
+            case ISHR:
+                buf.append("mg.math(GeneratorAdapter.SHR, Type.INT_TYPE);\n");
+                break;
+            case LSHR:
+                buf.append("mg.math(GeneratorAdapter.SHR, Type.LONG_TYPE);\n");
+                break;
+            case IUSHR:
+                buf.append("mg.math(GeneratorAdapter.USHR, Type.INT_TYPE);\n");
+                break;
+            case LUSHR:
+                buf.append("mg.math(GeneratorAdapter.USHR, Type.LONG_TYPE);\n");
+                break;
+            case IAND:
+                buf.append("mg.math(GeneratorAdapter.AND, Type.INT_TYPE);\n");
+                break;
+            case LAND:
+                buf.append("mg.math(GeneratorAdapter.AND, Type.LONG_TYPE);\n");
+                break;
+            case IOR:
+                buf.append("mg.math(GeneratorAdapter.OR, Type.INT_TYPE);\n");
+                break;
+            case LOR:
+                buf.append("mg.math(GeneratorAdapter.OR, Type.LONG_TYPE);\n");
+                break;
+            case IXOR:
+                buf.append("mg.math(GeneratorAdapter.XOR, Type.INT_TYPE);\n");
+                break;
+            case LXOR:
+                buf.append("mg.math(GeneratorAdapter.XOR, Type.LONG_TYPE);\n");
+                break;
+            case ATHROW:
+                buf.append("mg.throwException();\n");
+                break;
+            case I2L:
+                buf.append("mg.cast(Type.INT_TYPE, Type.LONG_TYPE);\n");
+                break;
+            case I2F:
+                buf.append("mg.cast(Type.INT_TYPE, Type.FLOAT_TYPE);\n");
+                break;
+            case I2D:
+                buf.append("mg.cast(Type.INT_TYPE, Type.DOUBLE_TYPE);\n");
+                break;
+            case L2I:
+                buf.append("mg.cast(Type.LONG_TYPE, Type.INT_TYPE);\n");
+                break;
+            case L2F:
+                buf.append("mg.cast(Type.LONG_TYPE, Type.FLOAT_TYPE);\n");
+                break;
+            case L2D:
+                buf.append("mg.cast(Type.LONG_TYPE, Type.DOUBLE_TYPE);\n");
+                break;
+            case F2I:
+                buf.append("mg.cast(Type.FLOAT_TYPE, Type.INT_TYPE);\n");
+                break;
+            case F2L:
+                buf.append("mg.cast(Type.FLOAT_TYPE, Type.LONG_TYPE);\n");
+                break;
+            case F2D:
+                buf.append("mg.cast(Type.FLOAT_TYPE, Type.DOUBLE_TYPE);\n");
+                break;
+            case D2I:
+                buf.append("mg.cast(Type.DOUBLE_TYPE, Type.INT_TYPE);\n");
+                break;
+            case D2L:
+                buf.append("mg.cast(Type.DOUBLE_TYPE, Type.LONG_TYPE);\n");
+                break;
+            case D2F:
+                buf.append("mg.cast(Type.DOUBLE_TYPE, Type.FLOAT_TYPE);\n");
+                break;
+            case I2B:
+                // TODO detect if previous element in 'text' is a cast,
+                // for possible optimisations (e.g. cast(F,I) cast(I,B) =
+                // cast(F,B))
+                buf.append("mg.cast(Type.INT_TYPE, Type.BYTE_TYPE);\n");
+                break;
+            case I2C: // idem
+                buf.append("mg.cast(Type.INT_TYPE, Type.CHAR_TYPE);\n");
+                break;
+            case I2S: // idem
+                buf.append("mg.cast(Type.INT_TYPE, Type.SHORT_TYPE);\n");
+                break;
+            case LCMP:
+            case FCMPL:
+            case FCMPG:
+            case DCMPL:
+            case DCMPG:
+                // TODO detect xCMPy IF_ICMP -> ifCmp(..., ..., label)
+                buf.append("mg.visitInsn(")
+                        .append(OPCODES[opcode])
+                        .append(");\n");
+                break;
+            default:
+                throw new RuntimeException("unexpected case");
         }
         text.add(buf.toString());
         lastOpcode = opcode;
@@ -415,32 +426,32 @@ public class GASMifierMethodVisitor extends ASMifierAbstractVisitor implements
         if (opcode == NEWARRAY) {
             String type;
             switch (operand) {
-            case T_BOOLEAN:
-                type = "Type.BOOLEAN_TYPE";
-                break;
-            case T_CHAR:
-                type = "Type.CHAR_TYPE";
-                break;
-            case T_FLOAT:
-                type = "Type.FLOAT_TYPE";
-                break;
-            case T_DOUBLE:
-                type = "Type.DOUBLE_TYPE";
-                break;
-            case T_BYTE:
-                type = "Type.BYTE_TYPE";
-                break;
-            case T_SHORT:
-                type = "Type.SHORT_TYPE";
-                break;
-            case T_INT:
-                type = "Type.INT_TYPE";
-                break;
-            case T_LONG:
-                type = "Type.LONG_TYPE";
-                break;
-            default:
-                throw new RuntimeException("unexpected case");
+                case T_BOOLEAN:
+                    type = "Type.BOOLEAN_TYPE";
+                    break;
+                case T_CHAR:
+                    type = "Type.CHAR_TYPE";
+                    break;
+                case T_FLOAT:
+                    type = "Type.FLOAT_TYPE";
+                    break;
+                case T_DOUBLE:
+                    type = "Type.DOUBLE_TYPE";
+                    break;
+                case T_BYTE:
+                    type = "Type.BYTE_TYPE";
+                    break;
+                case T_SHORT:
+                    type = "Type.SHORT_TYPE";
+                    break;
+                case T_INT:
+                    type = "Type.INT_TYPE";
+                    break;
+                case T_LONG:
+                    type = "Type.LONG_TYPE";
+                    break;
+                default:
+                    throw new RuntimeException("unexpected case");
             }
             buf.append("mg.newArray(").append(type).append(");\n");
         } else {
@@ -453,51 +464,51 @@ public class GASMifierMethodVisitor extends ASMifierAbstractVisitor implements
     public void visitVarInsn(final int opcode, int var) {
         buf.setLength(0);
         switch (opcode) {
-        case RET:
-            buf.append("mg.ret(");
-            if (var < firstLocal) {
-                buf.append(var);
-            } else {
-                int v = generateNewLocal(var, "Type.INT_TYPE");
-                buf.append("local").append(v);
-            }
-            buf.append(");\n");
-            break;
+            case RET:
+                buf.append("mg.ret(");
+                if (var < firstLocal) {
+                    buf.append(var);
+                } else {
+                    int v = generateNewLocal(var, "Type.INT_TYPE");
+                    buf.append("local").append(v);
+                }
+                buf.append(");\n");
+                break;
 
-        case ILOAD:
-            generateLoadLocal(var, "Type.INT_TYPE");
-            break;
-        case LLOAD:
-            generateLoadLocal(var, "Type.LONG_TYPE");
-            break;
-        case FLOAD:
-            generateLoadLocal(var, "Type.FLOAT_TYPE");
-            break;
-        case DLOAD:
-            generateLoadLocal(var, "Type.DOUBLE_TYPE");
-            break;
-        case ALOAD:
-            generateLoadLocal(var, getType("java/lang/Object"));
-            break;
+            case ILOAD:
+                generateLoadLocal(var, "Type.INT_TYPE");
+                break;
+            case LLOAD:
+                generateLoadLocal(var, "Type.LONG_TYPE");
+                break;
+            case FLOAD:
+                generateLoadLocal(var, "Type.FLOAT_TYPE");
+                break;
+            case DLOAD:
+                generateLoadLocal(var, "Type.DOUBLE_TYPE");
+                break;
+            case ALOAD:
+                generateLoadLocal(var, getType("java/lang/Object"));
+                break;
 
-        case ISTORE:
-            generateStoreLocal(var, "Type.INT_TYPE");
-            break;
-        case LSTORE:
-            generateStoreLocal(var, "Type.LONG_TYPE");
-            break;
-        case FSTORE:
-            generateStoreLocal(var, "Type.FLOAT_TYPE");
-            break;
-        case DSTORE:
-            generateStoreLocal(var, "Type.DOUBLE_TYPE");
-            break;
-        case ASTORE:
-            generateStoreLocal(var, getType("java/lang/Object"));
-            break;
+            case ISTORE:
+                generateStoreLocal(var, "Type.INT_TYPE");
+                break;
+            case LSTORE:
+                generateStoreLocal(var, "Type.LONG_TYPE");
+                break;
+            case FSTORE:
+                generateStoreLocal(var, "Type.FLOAT_TYPE");
+                break;
+            case DSTORE:
+                generateStoreLocal(var, "Type.DOUBLE_TYPE");
+                break;
+            case ASTORE:
+                generateStoreLocal(var, getType("java/lang/Object"));
+                break;
 
-        default:
-            throw new RuntimeException("unexpected case");
+            default:
+                throw new RuntimeException("unexpected case");
         }
 
         text.add(buf.toString());
@@ -588,20 +599,20 @@ public class GASMifierMethodVisitor extends ASMifierAbstractVisitor implements
     {
         buf.setLength(0);
         switch (opcode) {
-        case GETFIELD:
-            buf.append("mg.getField(");
-            break;
-        case PUTFIELD:
-            buf.append("mg.putField(");
-            break;
-        case GETSTATIC:
-            buf.append("mg.getStatic(");
-            break;
-        case PUTSTATIC:
-            buf.append("mg.putStatic(");
-            break;
-        default:
-            throw new RuntimeException("unexpected case");
+            case GETFIELD:
+                buf.append("mg.getField(");
+                break;
+            case PUTFIELD:
+                buf.append("mg.putField(");
+                break;
+            case GETSTATIC:
+                buf.append("mg.getStatic(");
+                break;
+            case PUTSTATIC:
+                buf.append("mg.putStatic(");
+                break;
+            default:
+                throw new RuntimeException("unexpected case");
         }
         buf.append(getType(owner));
         buf.append(", \"");
@@ -621,20 +632,20 @@ public class GASMifierMethodVisitor extends ASMifierAbstractVisitor implements
     {
         buf.setLength(0);
         switch (opcode) {
-        case INVOKEVIRTUAL:
-            buf.append("mg.invokeVirtual(");
-            break;
-        case INVOKESPECIAL:
-            buf.append("mg.invokeConstructor(");
-            break;
-        case INVOKESTATIC:
-            buf.append("mg.invokeStatic(");
-            break;
-        case INVOKEINTERFACE:
-            buf.append("mg.invokeInterface(");
-            break;
-        default:
-            throw new RuntimeException("unexpected case");
+            case INVOKEVIRTUAL:
+                buf.append("mg.invokeVirtual(");
+                break;
+            case INVOKESPECIAL:
+                buf.append("mg.invokeConstructor(");
+                break;
+            case INVOKESTATIC:
+                buf.append("mg.invokeStatic(");
+                break;
+            case INVOKEINTERFACE:
+                buf.append("mg.invokeInterface(");
+                break;
+            default:
+                throw new RuntimeException("unexpected case");
         }
         if (owner.charAt(0) == '[') {
             buf.append(getDescType(owner));
@@ -978,8 +989,7 @@ public class GASMifierMethodVisitor extends ASMifierAbstractVisitor implements
      * declaration is of the form "Label lXXX = new Label();". Does nothing if
      * the given label has already been declared.
      * 
-     * @param l
-     *            a label.
+     * @param l a label.
      */
     private void declareLabel(final Label l) {
         String name = (String) labelNames.get(l);
@@ -995,8 +1005,7 @@ public class GASMifierMethodVisitor extends ASMifierAbstractVisitor implements
      * <i>must</i> already have a name. One way to ensure this is to always
      * call {@link #declareLabel declared} before calling this method.
      * 
-     * @param l
-     *            a label.
+     * @param l a label.
      */
     private void appendLabel(final Label l) {
         buf.append((String) labelNames.get(l));

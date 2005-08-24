@@ -1,12 +1,12 @@
-#Mon Aug 22 17:08:11 CEST 2005
+#Wed Aug 24 16:13:37 CEST 2005
 comment_clear_blank_lines=false
 comment_format_comments=true
 comment_format_header=false
 comment_format_html=false
 comment_format_source_code=false
-comment_indent_parameter_description=true
+comment_indent_parameter_description=false
 comment_indent_root_tags=true
 comment_line_length=80
-comment_new_line_for_parameter=true
+comment_new_line_for_parameter=false
 comment_separate_root_tags=true
 eclipse.preferences.version=1

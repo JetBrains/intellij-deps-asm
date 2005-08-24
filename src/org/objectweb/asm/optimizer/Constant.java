@@ -109,8 +109,7 @@ class Constant {
     /**
      * Sets this item to an integer item.
      * 
-     * @param intVal
-     *            the value of this item.
+     * @param intVal the value of this item.
      */
     void set(final int intVal) {
         this.type = 'I';
@@ -121,8 +120,7 @@ class Constant {
     /**
      * Sets this item to a long item.
      * 
-     * @param longVal
-     *            the value of this item.
+     * @param longVal the value of this item.
      */
     void set(final long longVal) {
         this.type = 'J';
@@ -133,8 +131,7 @@ class Constant {
     /**
      * Sets this item to a float item.
      * 
-     * @param floatVal
-     *            the value of this item.
+     * @param floatVal the value of this item.
      */
     void set(final float floatVal) {
         this.type = 'F';
@@ -145,8 +142,7 @@ class Constant {
     /**
      * Sets this item to a double item.
      * 
-     * @param doubleVal
-     *            the value of this item.
+     * @param doubleVal the value of this item.
      */
     void set(final double doubleVal) {
         this.type = 'D';
@@ -157,14 +153,10 @@ class Constant {
     /**
      * Sets this item to an item that do not hold a primitive value.
      * 
-     * @param type
-     *            the type of this item.
-     * @param strVal1
-     *            first part of the value of this item.
-     * @param strVal2
-     *            second part of the value of this item.
-     * @param strVal3
-     *            third part of the value of this item.
+     * @param type the type of this item.
+     * @param strVal1 first part of the value of this item.
+     * @param strVal2 second part of the value of this item.
+     * @param strVal3 third part of the value of this item.
      */
     void set(
         final char type,
@@ -177,59 +169,59 @@ class Constant {
         this.strVal2 = strVal2;
         this.strVal3 = strVal3;
         switch (type) {
-        case 's':
-        case 'S':
-        case 'C':
-            hashCode = 0x7FFFFFFF & (type + strVal1.hashCode());
-            return;
-        case 'T':
-            hashCode = 0x7FFFFFFF & (type + strVal1.hashCode()
-                    * strVal2.hashCode());
-            return;
-        // case 'G':
-        // case 'M':
-        // case 'N':
-        default:
-            hashCode = 0x7FFFFFFF & (type + strVal1.hashCode()
-                    * strVal2.hashCode() * strVal3.hashCode());
+            case 's':
+            case 'S':
+            case 'C':
+                hashCode = 0x7FFFFFFF & (type + strVal1.hashCode());
+                return;
+            case 'T':
+                hashCode = 0x7FFFFFFF & (type + strVal1.hashCode()
+                        * strVal2.hashCode());
+                return;
+            // case 'G':
+            // case 'M':
+            // case 'N':
+            default:
+                hashCode = 0x7FFFFFFF & (type + strVal1.hashCode()
+                        * strVal2.hashCode() * strVal3.hashCode());
         }
     }
 
     void write(final ClassWriter cw) {
         switch (type) {
-        case 'I':
-            cw.newConst(new Integer(intVal));
-            break;
-        case 'J':
-            cw.newConst(new Long(longVal));
-            break;
-        case 'F':
-            cw.newConst(new Float(floatVal));
-            break;
-        case 'D':
-            cw.newConst(new Double(doubleVal));
-            break;
-        case 'S':
-            cw.newConst(strVal1);
-            break;
-        case 's':
-            cw.newUTF8(strVal1);
-            break;
-        case 'C':
-            cw.newClass(strVal1);
-            break;
-        case 'T':
-            cw.newNameType(strVal1, strVal2);
-            break;
-        case 'G':
-            cw.newField(strVal1, strVal2, strVal3);
-            break;
-        case 'M':
-            cw.newMethod(strVal1, strVal2, strVal3, false);
-            break;
-        case 'N':
-            cw.newMethod(strVal1, strVal2, strVal3, true);
-            break;
+            case 'I':
+                cw.newConst(new Integer(intVal));
+                break;
+            case 'J':
+                cw.newConst(new Long(longVal));
+                break;
+            case 'F':
+                cw.newConst(new Float(floatVal));
+                break;
+            case 'D':
+                cw.newConst(new Double(doubleVal));
+                break;
+            case 'S':
+                cw.newConst(strVal1);
+                break;
+            case 's':
+                cw.newUTF8(strVal1);
+                break;
+            case 'C':
+                cw.newClass(strVal1);
+                break;
+            case 'T':
+                cw.newNameType(strVal1, strVal2);
+                break;
+            case 'G':
+                cw.newField(strVal1, strVal2, strVal3);
+                break;
+            case 'M':
+                cw.newMethod(strVal1, strVal2, strVal3, false);
+                break;
+            case 'N':
+                cw.newMethod(strVal1, strVal2, strVal3, true);
+                break;
         }
     }
 
@@ -240,26 +232,28 @@ class Constant {
         Constant c = (Constant) o;
         if (c.type == type) {
             switch (type) {
-            case 'I':
-                return c.intVal == intVal;
-            case 'J':
-                return c.longVal == longVal;
-            case 'F':
-                return c.floatVal == floatVal;
-            case 'D':
-                return c.doubleVal == doubleVal;
-            case 's':
-            case 'S':
-            case 'C':
-                return c.strVal1.equals(strVal1);
-            case 'T':
-                return c.strVal1.equals(strVal1) && c.strVal2.equals(strVal2);
-            // case 'G':
-            // case 'M':
-            // case 'N':
-            default:
-                return c.strVal1.equals(strVal1) && c.strVal2.equals(strVal2)
-                        && c.strVal3.equals(strVal3);
+                case 'I':
+                    return c.intVal == intVal;
+                case 'J':
+                    return c.longVal == longVal;
+                case 'F':
+                    return c.floatVal == floatVal;
+                case 'D':
+                    return c.doubleVal == doubleVal;
+                case 's':
+                case 'S':
+                case 'C':
+                    return c.strVal1.equals(strVal1);
+                case 'T':
+                    return c.strVal1.equals(strVal1)
+                            && c.strVal2.equals(strVal2);
+                // case 'G':
+                // case 'M':
+                // case 'N':
+                default:
+                    return c.strVal1.equals(strVal1)
+                            && c.strVal2.equals(strVal2)
+                            && c.strVal3.equals(strVal3);
             }
         }
         return false;

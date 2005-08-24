@@ -334,10 +334,8 @@ public abstract class AbstractVisitor {
     /**
      * Appends a quoted string to a given buffer.
      * 
-     * @param buf
-     *            the buffer where the string must be added.
-     * @param s
-     *            the string to be added.
+     * @param buf the buffer where the string must be added.
+     * @param s the string to be added.
      */
     public static void appendString(final StringBuffer buf, final String s) {
         buf.append("\"");
@@ -371,11 +369,9 @@ public abstract class AbstractVisitor {
     /**
      * Prints the given string tree.
      * 
-     * @param pw
-     *            the writer to be used to print the tree.
-     * @param l
-     *            a string tree, i.e., a string list that can contain other
-     *            string lists, and so on recursively.
+     * @param pw the writer to be used to print the tree.
+     * @param l a string tree, i.e., a string list that can contain other string
+     *        lists, and so on recursively.
      */
     void printList(final PrintWriter pw, final List l) {
         for (int i = 0; i < l.size(); ++i) {

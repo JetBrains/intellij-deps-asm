@@ -173,8 +173,7 @@ public class Type {
     /**
      * Constructs a primitive type.
      * 
-     * @param sort
-     *            the sort of the primitive type to be constructed.
+     * @param sort the sort of the primitive type to be constructed.
      */
     private Type(final int sort) {
         this.sort = sort;
@@ -184,14 +183,10 @@ public class Type {
     /**
      * Constructs a reference type.
      * 
-     * @param sort
-     *            the sort of the reference type to be constructed.
-     * @param buf
-     *            a buffer containing the descriptor of the previous type.
-     * @param off
-     *            the offset of this descriptor in the previous buffer.
-     * @param len
-     *            the length of this descriptor.
+     * @param sort the sort of the reference type to be constructed.
+     * @param buf a buffer containing the descriptor of the previous type.
+     * @param off the offset of this descriptor in the previous buffer.
+     * @param len the length of this descriptor.
      */
     private Type(final int sort, final char[] buf, final int off, final int len)
     {
@@ -204,8 +199,7 @@ public class Type {
     /**
      * Returns the Java type corresponding to the given type descriptor.
      * 
-     * @param typeDescriptor
-     *            a type descriptor.
+     * @param typeDescriptor a type descriptor.
      * @return the Java type corresponding to the given type descriptor.
      */
     public static Type getType(final String typeDescriptor) {
@@ -215,8 +209,7 @@ public class Type {
     /**
      * Returns the Java type corresponding to the given class.
      * 
-     * @param c
-     *            a class.
+     * @param c a class.
      * @return the Java type corresponding to the given class.
      */
     public static Type getType(final Class c) {
@@ -249,8 +242,7 @@ public class Type {
      * Returns the Java types corresponding to the argument types of the given
      * method descriptor.
      * 
-     * @param methodDescriptor
-     *            a method descriptor.
+     * @param methodDescriptor a method descriptor.
      * @return the Java types corresponding to the argument types of the given
      *         method descriptor.
      */
@@ -285,8 +277,7 @@ public class Type {
      * Returns the Java types corresponding to the argument types of the given
      * method.
      * 
-     * @param method
-     *            a method.
+     * @param method a method.
      * @return the Java types corresponding to the argument types of the given
      *         method.
      */
@@ -303,8 +294,7 @@ public class Type {
      * Returns the Java type corresponding to the return type of the given
      * method descriptor.
      * 
-     * @param methodDescriptor
-     *            a method descriptor.
+     * @param methodDescriptor a method descriptor.
      * @return the Java type corresponding to the return type of the given
      *         method descriptor.
      */
@@ -317,8 +307,7 @@ public class Type {
      * Returns the Java type corresponding to the return type of the given
      * method.
      * 
-     * @param method
-     *            a method.
+     * @param method a method.
      * @return the Java type corresponding to the return type of the given
      *         method.
      */
@@ -329,52 +318,50 @@ public class Type {
     /**
      * Returns the Java type corresponding to the given type descriptor.
      * 
-     * @param buf
-     *            a buffer containing a type descriptor.
-     * @param off
-     *            the offset of this descriptor in the previous buffer.
+     * @param buf a buffer containing a type descriptor.
+     * @param off the offset of this descriptor in the previous buffer.
      * @return the Java type corresponding to the given type descriptor.
      */
     private static Type getType(final char[] buf, final int off) {
         int len;
         switch (buf[off]) {
-        case 'V':
-            return VOID_TYPE;
-        case 'Z':
-            return BOOLEAN_TYPE;
-        case 'C':
-            return CHAR_TYPE;
-        case 'B':
-            return BYTE_TYPE;
-        case 'S':
-            return SHORT_TYPE;
-        case 'I':
-            return INT_TYPE;
-        case 'F':
-            return FLOAT_TYPE;
-        case 'J':
-            return LONG_TYPE;
-        case 'D':
-            return DOUBLE_TYPE;
-        case '[':
-            len = 1;
-            while (buf[off + len] == '[') {
-                ++len;
-            }
-            if (buf[off + len] == 'L') {
-                ++len;
+            case 'V':
+                return VOID_TYPE;
+            case 'Z':
+                return BOOLEAN_TYPE;
+            case 'C':
+                return CHAR_TYPE;
+            case 'B':
+                return BYTE_TYPE;
+            case 'S':
+                return SHORT_TYPE;
+            case 'I':
+                return INT_TYPE;
+            case 'F':
+                return FLOAT_TYPE;
+            case 'J':
+                return LONG_TYPE;
+            case 'D':
+                return DOUBLE_TYPE;
+            case '[':
+                len = 1;
+                while (buf[off + len] == '[') {
+                    ++len;
+                }
+                if (buf[off + len] == 'L') {
+                    ++len;
+                    while (buf[off + len] != ';') {
+                        ++len;
+                    }
+                }
+                return new Type(ARRAY, buf, off, len + 1);
+            // case 'L':
+            default:
+                len = 1;
                 while (buf[off + len] != ';') {
                     ++len;
                 }
-            }
-            return new Type(ARRAY, buf, off, len + 1);
-        // case 'L':
-        default:
-            len = 1;
-            while (buf[off + len] != ';') {
-                ++len;
-            }
-            return new Type(OBJECT, buf, off, len + 1);
+                return new Type(OBJECT, buf, off, len + 1);
         }
     }
 
@@ -426,33 +413,33 @@ public class Type {
      */
     public String getClassName() {
         switch (sort) {
-        case VOID:
-            return "void";
-        case BOOLEAN:
-            return "boolean";
-        case CHAR:
-            return "char";
-        case BYTE:
-            return "byte";
-        case SHORT:
-            return "short";
-        case INT:
-            return "int";
-        case FLOAT:
-            return "float";
-        case LONG:
-            return "long";
-        case DOUBLE:
-            return "double";
-        case ARRAY:
-            StringBuffer b = new StringBuffer(getElementType().getClassName());
-            for (int i = getDimensions(); i > 0; --i) {
-                b.append("[]");
-            }
-            return b.toString();
-        // case OBJECT:
-        default:
-            return new String(buf, off + 1, len - 2).replace('/', '.');
+            case VOID:
+                return "void";
+            case BOOLEAN:
+                return "boolean";
+            case CHAR:
+                return "char";
+            case BYTE:
+                return "byte";
+            case SHORT:
+                return "short";
+            case INT:
+                return "int";
+            case FLOAT:
+                return "float";
+            case LONG:
+                return "long";
+            case DOUBLE:
+                return "double";
+            case ARRAY:
+                StringBuffer b = new StringBuffer(getElementType().getClassName());
+                for (int i = getDimensions(); i > 0; --i) {
+                    b.append("[]");
+                }
+                return b.toString();
+            // case OBJECT:
+            default:
+                return new String(buf, off + 1, len - 2).replace('/', '.');
         }
     }
 
@@ -486,10 +473,8 @@ public class Type {
      * Returns the descriptor corresponding to the given argument and return
      * types.
      * 
-     * @param returnType
-     *            the return type of the method.
-     * @param argumentTypes
-     *            the argument types of the method.
+     * @param returnType the return type of the method.
+     * @param argumentTypes the argument types of the method.
      * @return the descriptor corresponding to the given argument and return
      *         types.
      */
@@ -511,42 +496,41 @@ public class Type {
      * Appends the descriptor corresponding to this Java type to the given
      * string buffer.
      * 
-     * @param buf
-     *            the string buffer to which the descriptor must be appended.
+     * @param buf the string buffer to which the descriptor must be appended.
      */
     private void getDescriptor(final StringBuffer buf) {
         switch (sort) {
-        case VOID:
-            buf.append('V');
-            return;
-        case BOOLEAN:
-            buf.append('Z');
-            return;
-        case CHAR:
-            buf.append('C');
-            return;
-        case BYTE:
-            buf.append('B');
-            return;
-        case SHORT:
-            buf.append('S');
-            return;
-        case INT:
-            buf.append('I');
-            return;
-        case FLOAT:
-            buf.append('F');
-            return;
-        case LONG:
-            buf.append('J');
-            return;
-        case DOUBLE:
-            buf.append('D');
-            return;
-        // case ARRAY:
-        // case OBJECT:
-        default:
-            buf.append(this.buf, off, len);
+            case VOID:
+                buf.append('V');
+                return;
+            case BOOLEAN:
+                buf.append('Z');
+                return;
+            case CHAR:
+                buf.append('C');
+                return;
+            case BYTE:
+                buf.append('B');
+                return;
+            case SHORT:
+                buf.append('S');
+                return;
+            case INT:
+                buf.append('I');
+                return;
+            case FLOAT:
+                buf.append('F');
+                return;
+            case LONG:
+                buf.append('J');
+                return;
+            case DOUBLE:
+                buf.append('D');
+                return;
+            // case ARRAY:
+            // case OBJECT:
+            default:
+                buf.append(this.buf, off, len);
         }
     }
 
@@ -559,8 +543,7 @@ public class Type {
      * Returns the internal name of the given class. The internal name of a
      * class is its fully qualified name, where '.' are replaced by '/'.
      * 
-     * @param c
-     *            an object class.
+     * @param c an object class.
      * @return the internal name of the given class.
      */
     public static String getInternalName(final Class c) {
@@ -570,8 +553,7 @@ public class Type {
     /**
      * Returns the descriptor corresponding to the given Java type.
      * 
-     * @param c
-     *            an object class, a primitive class or an array class.
+     * @param c an object class, a primitive class or an array class.
      * @return the descriptor corresponding to the given class.
      */
     public static String getDescriptor(final Class c) {
@@ -583,8 +565,7 @@ public class Type {
     /**
      * Returns the descriptor corresponding to the given method.
      * 
-     * @param m
-     *            a {@link Method Method} object.
+     * @param m a {@link Method Method} object.
      * @return the descriptor of the given method.
      */
     public static String getMethodDescriptor(final Method m) {
@@ -602,10 +583,8 @@ public class Type {
     /**
      * Appends the descriptor of the given class to the given string buffer.
      * 
-     * @param buf
-     *            the string buffer to which the descriptor must be appended.
-     * @param c
-     *            the class whose descriptor must be computed.
+     * @param buf the string buffer to which the descriptor must be appended.
+     * @param c the class whose descriptor must be computed.
      */
     private static void getDescriptor(final StringBuffer buf, final Class c) {
         Class d = c;
@@ -667,10 +646,9 @@ public class Type {
     /**
      * Returns a JVM instruction opcode adapted to this Java type.
      * 
-     * @param opcode
-     *            a JVM instruction opcode. This opcode must be one of ILOAD,
-     *            ISTORE, IALOAD, IASTORE, IADD, ISUB, IMUL, IDIV, IREM, INEG,
-     *            ISHL, ISHR, IUSHR, IAND, IOR, IXOR and IRETURN.
+     * @param opcode a JVM instruction opcode. This opcode must be one of ILOAD,
+     *        ISTORE, IALOAD, IASTORE, IADD, ISUB, IMUL, IDIV, IREM, INEG, ISHL,
+     *        ISHR, IUSHR, IAND, IOR, IXOR and IRETURN.
      * @return an opcode that is similar to the given opcode, but adapted to
      *         this Java type. For example, if this type is <tt>float</tt> and
      *         <tt>opcode</tt> is IRETURN, this method returns FRETURN.
@@ -678,46 +656,46 @@ public class Type {
     public int getOpcode(final int opcode) {
         if (opcode == Opcodes.IALOAD || opcode == Opcodes.IASTORE) {
             switch (sort) {
-            case BOOLEAN:
-            case BYTE:
-                return opcode + 5;
-            case CHAR:
-                return opcode + 6;
-            case SHORT:
-                return opcode + 7;
-            case INT:
-                return opcode;
-            case FLOAT:
-                return opcode + 2;
-            case LONG:
-                return opcode + 1;
-            case DOUBLE:
-                return opcode + 3;
-            // case ARRAY:
-            // case OBJECT:
-            default:
-                return opcode + 4;
+                case BOOLEAN:
+                case BYTE:
+                    return opcode + 5;
+                case CHAR:
+                    return opcode + 6;
+                case SHORT:
+                    return opcode + 7;
+                case INT:
+                    return opcode;
+                case FLOAT:
+                    return opcode + 2;
+                case LONG:
+                    return opcode + 1;
+                case DOUBLE:
+                    return opcode + 3;
+                // case ARRAY:
+                // case OBJECT:
+                default:
+                    return opcode + 4;
             }
         } else {
             switch (sort) {
-            case VOID:
-                return opcode + 5;
-            case BOOLEAN:
-            case CHAR:
-            case BYTE:
-            case SHORT:
-            case INT:
-                return opcode;
-            case FLOAT:
-                return opcode + 2;
-            case LONG:
-                return opcode + 1;
-            case DOUBLE:
-                return opcode + 3;
-            // case ARRAY:
-            // case OBJECT:
-            default:
-                return opcode + 4;
+                case VOID:
+                    return opcode + 5;
+                case BOOLEAN:
+                case CHAR:
+                case BYTE:
+                case SHORT:
+                case INT:
+                    return opcode;
+                case FLOAT:
+                    return opcode + 2;
+                case LONG:
+                    return opcode + 1;
+                case DOUBLE:
+                    return opcode + 3;
+                // case ARRAY:
+                // case OBJECT:
+                default:
+                    return opcode + 4;
             }
         }
     }
@@ -729,8 +707,7 @@ public class Type {
     /**
      * Tests if the given object is equal to this type.
      * 
-     * @param o
-     *            the object to be compared to this type.
+     * @param o the object to be compared to this type.
      * @return <tt>true</tt> if the given object is equal to this type.
      */
     public boolean equals(final Object o) {

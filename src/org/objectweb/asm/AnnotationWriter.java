@@ -90,10 +90,8 @@ final class AnnotationWriter implements AnnotationVisitor {
     /**
      * Constructs a new {@link AnnotationWriter}.
      * 
-     * @param cw
-     *            the class writer to which this annotation must be added.
-     * @param named
-     *            <tt>true<tt> if values are named, <tt>false</tt> otherwise.
+     * @param cw the class writer to which this annotation must be added.
+     * @param named <tt>true<tt> if values are named, <tt>false</tt> otherwise.
      * @param bv where the annotation values must be stored.
      * @param parent where the number of annotation values must be stored.
      * @param offset where in <tt>parent</tt> the number of annotation values must 
@@ -255,8 +253,7 @@ final class AnnotationWriter implements AnnotationVisitor {
      * Puts the annotations of this annotation writer list into the given byte
      * vector.
      * 
-     * @param out
-     *            where the annotations must be put.
+     * @param out where the annotations must be put.
      */
     void put(final ByteVector out) {
         int n = 0;
@@ -283,10 +280,8 @@ final class AnnotationWriter implements AnnotationVisitor {
     /**
      * Puts the given annotation lists into the given byte vector.
      * 
-     * @param panns
-     *            an array of annotation writer lists.
-     * @param out
-     *            where the annotations must be put.
+     * @param panns an array of annotation writer lists.
+     * @param out where the annotations must be put.
      */
     static void put(final AnnotationWriter[] panns, final ByteVector out) {
         int size = 1 + 2 * panns.length;

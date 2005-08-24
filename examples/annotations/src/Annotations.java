@@ -124,7 +124,8 @@ public class Annotations {
         }, false);
 
         Class c = new ClassLoader() {
-            public Class loadClass(final String name) throws ClassNotFoundException
+            public Class loadClass(final String name)
+                    throws ClassNotFoundException
             {
                 if (name.equals(n)) {
                     byte[] b = cw.toByteArray();

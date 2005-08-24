@@ -81,15 +81,15 @@ public class TraceSignatureVisitorTest extends TestCase {
         SignatureReader r = new SignatureReader(data.signature);
 
         switch (data.type) {
-        case 'C':
-            r.accept(d);
-            break;
-        case 'F':
-            r.acceptType(d);
-            break;
-        case 'M':
-            r.accept(d);
-            break;
+            case 'C':
+                r.accept(d);
+                break;
+            case 'F':
+                r.acceptType(d);
+                break;
+            case 'M':
+                r.accept(d);
+                break;
         }
 
         assertEquals(data.declaration, d.getDeclaration());
@@ -115,17 +115,17 @@ public class TraceSignatureVisitorTest extends TestCase {
 
             String acc = st.nextToken();
             switch (acc.charAt(0)) {
-            case 'E':
-                this.access = Opcodes.ACC_ENUM;
-                break;
-            case 'I':
-                this.access = Opcodes.ACC_INTERFACE;
-                break;
-            case 'A':
-                this.access = Opcodes.ACC_ANNOTATION;
-                break;
-            default:
-                this.access = 0;
+                case 'E':
+                    this.access = Opcodes.ACC_ENUM;
+                    break;
+                case 'I':
+                    this.access = Opcodes.ACC_INTERFACE;
+                    break;
+                case 'A':
+                    this.access = Opcodes.ACC_ANNOTATION;
+                    break;
+                default:
+                    this.access = 0;
             }
 
             this.declaration = st.nextToken();

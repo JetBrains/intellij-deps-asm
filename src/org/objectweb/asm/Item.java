@@ -192,6 +192,7 @@ final class Item {
             case 's':
             case 'S':
             case 'C':
+            case 'E':
                 hashCode = 0x7FFFFFFF & (type + strVal1.hashCode());
                 return;
             case 'T':
@@ -220,6 +221,7 @@ final class Item {
                 case 'I':
                     return i.intVal == intVal;
                 case 'J':
+                case 'L':
                     return i.longVal == longVal;
                 case 'F':
                     return i.floatVal == floatVal;
@@ -228,7 +230,10 @@ final class Item {
                 case 's':
                 case 'S':
                 case 'C':
+                case 'E':
                     return i.strVal1.equals(strVal1);
+                case 'B':
+                    return i.intVal == intVal && i.strVal1.equals(strVal1);
                 case 'T':
                     return i.strVal1.equals(strVal1)
                             && i.strVal2.equals(strVal2);

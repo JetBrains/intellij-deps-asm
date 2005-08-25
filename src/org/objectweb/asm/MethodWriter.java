@@ -36,7 +36,54 @@ package org.objectweb.asm;
  * 
  * @author Eric Bruneton
  */
-class MethodWriter implements MethodVisitor {
+class MethodWriter implements MethodVisitor, FrameVisitor {
+
+    /**
+     * TODO
+     */
+    final static int ACC_CONSTRUCTOR = 262144;
+
+    /**
+     * Frame has exactly the same locals as the previous stack map frame and
+     * number of stack items is zero.
+     */
+    static final int SAME_FRAME = 0; // to 63 (0-3f)
+
+    /**
+     * Frame has exactly the same locals as the previous stack map frame and
+     * number of stack items is 1
+     */
+    static final int SAME_LOCALS_1_STACK_ITEM_FRAME = 64; // to 127 (40-7f)
+
+    /**
+     * Reserved for future use
+     */
+    static final int RESERVED = 128;
+
+    /**
+     * Frame where current locals are the same as the locals in the previous
+     * frame, except that the k last locals are absent. The value of k is given
+     * by the formula 251-frame_type.
+     */
+    static final int CHOP_FRAME = 248; // to 250 (f8-fA)
+
+    /**
+     * Frame has exactly the same locals as the previous stack map frame and
+     * number of stack items is zero. Offset is bigger then 63;
+     */
+    static final int SAME_FRAME_EXTENDED = 251; // fb
+
+    /**
+     * Frame where current locals are the same as the locals in the previous
+     * frame, except that k additional locals are defined. The value of k is
+     * given by the formula frame_type-251.
+     */
+    static final int APPEND_FRAME = 252; // to 254 // fc-fe
+
+    /**
+     * Full frame
+     */
+    static final int FULL_FRAME = 255; // ff
 
     /**
      * Next method writer (see {@link ClassWriter#firstMethod firstMethod}).
@@ -135,6 +182,16 @@ class MethodWriter implements MethodVisitor {
      */
     private int maxLocals;
 
+    private int frameCount;
+
+    private ByteVector stackMap;
+
+    private int[] previousFrame;
+
+    private int[] frame;
+
+    private int frameIndex;
+
     /**
      * Number of entries in the catch table of this method.
      */
@@ -201,6 +258,8 @@ class MethodWriter implements MethodVisitor {
      */
     private final boolean computeMaxs;
 
+    private final boolean computeFrames;
+
     /**
      * The (relative) stack size after the last visited instruction. This size
      * is relative to the beginning of the current basic block, i.e., the true
@@ -232,6 +291,10 @@ class MethodWriter implements MethodVisitor {
      * not be confused with the JVM stack used to execute the JVM instructions!
      */
     private Label blockStack;
+
+    private Label startLabel;
+
+    private Label lastLabel;
 
     /**
      * The stack size variation corresponding to each JVM instruction. This
@@ -489,6 +552,8 @@ class MethodWriter implements MethodVisitor {
      *        <tt>null</tt>.
      * @param computeMaxs <tt>true</tt> if the maximum stack size and number
      *        of local variables must be automatically computed.
+     * @param computeFrames <tt>true</tt> if the stack map tables must be
+     *        recomputed from scratch.
      */
     MethodWriter(
         final ClassWriter cw,
@@ -497,7 +562,8 @@ class MethodWriter implements MethodVisitor {
         final String desc,
         final String signature,
         final String[] exceptions,
-        final boolean computeMaxs)
+        final boolean computeMaxs,
+        final boolean computeFrames)
     {
         if (cw.firstMethod == null) {
             cw.firstMethod = this;
@@ -521,13 +587,15 @@ class MethodWriter implements MethodVisitor {
             }
         }
         this.computeMaxs = computeMaxs;
-        if (computeMaxs) {
-            // updates maxLocals
-            int size = getArgumentsAndReturnSizes(desc) >> 2;
-            if ((access & Opcodes.ACC_STATIC) != 0) {
-                --size;
+        this.computeFrames = computeFrames;
+        if (computeFrames) {
+            this.startLabel = new Label();
+            if (name.equals("<init>")) {
+                this.access |= ACC_CONSTRUCTOR;
+                startLabel.initOutputFrame(true);
             }
-            maxLocals = size;
+            visitLabel(startLabel);
+        } else if (computeMaxs) {
             // pushes the first block onto the stack of blocks to be visited
             currentBlock = new Label();
             currentBlock.pushed = true;
@@ -600,8 +668,248 @@ class MethodWriter implements MethodVisitor {
     public void visitCode() {
     }
 
+    public FrameVisitor visitFrame(int nLocal, int nStack) {
+        if (computeFrames) {
+            return null;
+        } else {
+            return visitFrame(code.length, nLocal, nStack);
+        }
+    }
+
+    private FrameVisitor visitFrame(int offset, int nLocal, int nStack) {
+        int n = 3 + nLocal + nStack;
+        if (frame == null || frame.length < n) {
+            frame = new int[n];
+        }
+        frame[0] = offset;
+        frame[1] = nLocal;
+        frame[2] = nStack;
+        frameIndex = 3;
+        endFrame();
+        return this;
+    }
+
+    public void visitType(int type) {
+        frame[frameIndex++] = type;
+        endFrame();
+    }
+
+    public void visitType(String type) {
+        frame[frameIndex++] = Label.BASE_OBJECT_TYPE | cw.addType(type);
+        endFrame();
+    }
+
+    public void visitUninitializedType(Label newInsn) {
+        frame[frameIndex++] = Label.BASE_UNINITIALIZED_TYPE
+                | cw.addUninitializedType("", newInsn.position);
+        endFrame();
+    }
+
+    void visitComputedFrame(Label stack) {
+        int nLocal = 0;
+        int nStack = 0;
+        int[] locals = stack.inputLocals;
+        int[] stacks = stack.inputStack;
+        for (int i = 0; i < locals.length; ++i) {
+            if (locals[i] == 0)
+                break;
+            ++nLocal;
+            if (locals[i] == Label.LONG || locals[i] == Label.DOUBLE) {
+                ++i;
+            }
+        }
+        for (int i = 0; i < stacks.length; ++i) {
+            ++nStack;
+            if (stacks[i] == Label.LONG || stacks[i] == Label.DOUBLE) {
+                ++i;
+            }
+        }
+        visitFrame(stack.position, nLocal, nStack);
+        for (int i = 0; i < locals.length; ++i) {
+            if (locals[i] == 0)
+                break;
+            visitComputedType(locals[i]);
+            if (locals[i] == Label.LONG || locals[i] == Label.DOUBLE) {
+                ++i;
+            }
+        }
+        for (int i = 0; i < stacks.length; ++i) {
+            visitComputedType(stacks[i]);
+            if (stacks[i] == Label.LONG || stacks[i] == Label.DOUBLE) {
+                ++i;
+            }
+        }
+    }
+
+    void visitComputedType(int type) {
+        int d = type & 0xF0000000;
+        if (d == 0) {
+            if (type == Label.BOOLEAN || type == Label.BYTE
+                    || type == Label.CHAR || type == Label.SHORT)
+                throw new RuntimeException();
+            frame[frameIndex++] = type;
+        } else {
+            // TODO cache the result in cw.typeTable?
+            // the code below is quite slow
+            StringBuffer buf = new StringBuffer();
+            d >>= 28;
+            while (d-- > 0) {
+                buf.append('[');
+            }
+            if ((type & 0xFF00000) == Label.BASE_OBJECT_TYPE) {
+                buf.append('L');
+                buf.append(cw.typeTable[type & 0xFFFFF].strVal1);
+                buf.append(';');
+            } else {
+                switch (type & 0xF) {
+                    case 1:
+                        buf.append('I');
+                        break;
+                    case 2:
+                        buf.append('F');
+                        break;
+                    case 3:
+                        buf.append('D');
+                        break;
+                    case 9:
+                        buf.append('Z');
+                        break;
+                    case 10:
+                        buf.append('B');
+                        break;
+                    case 11:
+                        buf.append('C');
+                        break;
+                    case 12:
+                        buf.append('S');
+                        break;
+                    default:
+                        buf.append('J');
+                }
+            }
+            frame[frameIndex++] = Label.BASE_OBJECT_TYPE
+                    | cw.addType(buf.toString());
+        }
+        endFrame();
+    }
+
+    private void endFrame() {
+        if (frameIndex == 3 + frame[1] + frame[2]) {
+            if (previousFrame != null) {
+                if (stackMap == null) {
+                    stackMap = new ByteVector();
+                }
+                int localsSize = previousFrame[1];
+                int clocalsSize = frame[1];
+                int cstackSize = frame[2];
+                int delta = frameCount == 0 ? frame[0] : frame[0]
+                        - previousFrame[0] - 1;
+                int type = FULL_FRAME;
+                int k = 0;
+                if (cstackSize == 0) {
+                    k = clocalsSize - localsSize;
+                    switch (k) {
+                        case -3:
+                        case -2:
+                        case -1:
+                            type = CHOP_FRAME;
+                            localsSize = clocalsSize;
+                            break;
+                        case 0:
+                            type = delta < 64
+                                    ? SAME_FRAME
+                                    : SAME_FRAME_EXTENDED;
+                            break;
+                        case 1:
+                        case 2:
+                        case 3:
+                            type = APPEND_FRAME;
+                            break;
+                    }
+                } else if (clocalsSize == localsSize && cstackSize == 1
+                        && delta < 63)
+                {
+                    type = SAME_LOCALS_1_STACK_ITEM_FRAME;
+                }
+                if (type != FULL_FRAME) {
+                    // verify if locals are the same
+                    int l = 3;
+                    for (int j = 0; j < localsSize; j++) {
+                        if (frame[l] != previousFrame[l]) {
+                            type = FULL_FRAME;
+                            break;
+                        }
+                        l++;
+                    }
+                }
+                switch (type) {
+                    case SAME_FRAME:
+                        stackMap.putByte(delta);
+                        break;
+                    case SAME_LOCALS_1_STACK_ITEM_FRAME:
+                        stackMap.putByte(SAME_LOCALS_1_STACK_ITEM_FRAME + delta);
+                        writeFrameTypes(3 + clocalsSize, 4 + clocalsSize);
+                        break;
+                    case SAME_FRAME_EXTENDED:
+                        stackMap.putByte(SAME_FRAME_EXTENDED).putShort(delta);
+                        break;
+                    case CHOP_FRAME:
+                        stackMap.putByte(SAME_FRAME_EXTENDED + k)
+                                .putShort(delta);
+                        break;
+                    case APPEND_FRAME:
+                        stackMap.putByte(SAME_FRAME_EXTENDED + k)
+                                .putShort(delta);
+                        writeFrameTypes(3 + localsSize, 3 + clocalsSize);
+                        break;
+                    // case FULL_FRAME:
+                    default:
+                        stackMap.putByte(FULL_FRAME).putShort(delta);
+                        stackMap.putShort(clocalsSize);
+                        writeFrameTypes(3, 3 + clocalsSize);
+                        stackMap.putShort(cstackSize);
+                        writeFrameTypes(3 + clocalsSize, 3 + clocalsSize
+                                + cstackSize);
+                }
+                ++frameCount;
+            }
+            if (previousFrame == null || previousFrame.length < frame.length) {
+                previousFrame = frame;
+                frame = null;
+            } else {
+                System.arraycopy(frame, 0, previousFrame, 0, frame.length);
+            }
+        }
+    }
+
+    private void writeFrameTypes(int start, int end) {
+        for (int i = start; i < end; ++i) {
+            int type = frame[i];
+            switch (type & 0xFFF00000) {
+                case Label.BASE_OBJECT_TYPE:
+                    stackMap.putByte(7); // Object
+                    stackMap.putShort(cw.newClass(cw.typeTable[type & 0xFFFFF].strVal1));
+                    break;
+                case Label.BASE_UNINITIALIZED_TYPE:
+                    stackMap.putByte(8); // Uninitialized
+                    stackMap.putShort(cw.typeTable[type & 0xFFFFF].intVal);
+                    break;
+                default:
+                    stackMap.putByte(type & 0xFF);
+            }
+        }
+    }
+
     public void visitInsn(final int opcode) {
-        if (computeMaxs) {
+        if (computeFrames && currentBlock != null) {
+            currentBlock.execute(opcode, 0, null, null);
+            // if opcode == ATHROW or xRETURN, ends current block (no successor)
+            if ((opcode >= Opcodes.IRETURN && opcode <= Opcodes.RETURN)
+                    || opcode == Opcodes.ATHROW)
+            {
+                currentBlock = null;
+            }
+        } else if (computeMaxs) {
             // updates current and max stack sizes
             int size = stackSize + SIZE[opcode];
             if (size > maxStackSize) {
@@ -623,7 +931,9 @@ class MethodWriter implements MethodVisitor {
     }
 
     public void visitIntInsn(final int opcode, final int operand) {
-        if (computeMaxs && opcode != Opcodes.NEWARRAY) {
+        if (computeFrames && currentBlock != null) {
+            currentBlock.execute(opcode, operand, null, null);
+        } else if (computeMaxs && opcode != Opcodes.NEWARRAY) {
             // updates current and max stack sizes only if opcode == NEWARRAY
             // (stack size variation = 0 for BIPUSH or SIPUSH)
             int size = stackSize + 1;
@@ -641,7 +951,9 @@ class MethodWriter implements MethodVisitor {
     }
 
     public void visitVarInsn(final int opcode, final int var) {
-        if (computeMaxs) {
+        if (computeFrames && currentBlock != null) {
+            currentBlock.execute(opcode, var, null, null);
+        } else if (computeMaxs) {
             // updates current and max stack sizes
             if (opcode == Opcodes.RET) {
                 // no stack change, but end of current block (no successor)
@@ -656,6 +968,8 @@ class MethodWriter implements MethodVisitor {
                 }
                 stackSize = size;
             }
+        }
+        if (computeFrames || computeMaxs) {
             // updates max locals
             int n;
             if (opcode == Opcodes.LLOAD || opcode == Opcodes.DLOAD
@@ -688,7 +1002,10 @@ class MethodWriter implements MethodVisitor {
     }
 
     public void visitTypeInsn(final int opcode, final String desc) {
-        if (computeMaxs && opcode == Opcodes.NEW) {
+        Item i = cw.newClassItem(desc);
+        if (computeFrames && currentBlock != null) {
+            currentBlock.execute(opcode, code.length, cw, i);
+        } else if (computeMaxs && opcode == Opcodes.NEW) {
             // updates current and max stack sizes only if opcode == NEW
             // (stack size variation = 0 for ANEWARRAY, CHECKCAST, INSTANCEOF)
             int size = stackSize + 1;
@@ -698,7 +1015,7 @@ class MethodWriter implements MethodVisitor {
             stackSize = size;
         }
         // adds the instruction to the bytecode of the method
-        code.put12(opcode, cw.newClass(desc));
+        code.put12(opcode, i.index);
     }
 
     public void visitFieldInsn(
@@ -707,7 +1024,10 @@ class MethodWriter implements MethodVisitor {
         final String name,
         final String desc)
     {
-        if (computeMaxs) {
+        Item i = cw.newFieldItem(owner, name, desc);
+        if (computeFrames && currentBlock != null) {
+            currentBlock.execute(opcode, 0, cw, i);
+        } else if (computeMaxs) {
             int size;
             // computes the stack size variation
             char c = desc.charAt(0);
@@ -733,7 +1053,7 @@ class MethodWriter implements MethodVisitor {
             stackSize = size;
         }
         // adds the instruction to the bytecode of the method
-        code.put12(opcode, cw.newField(owner, name, desc));
+        code.put12(opcode, i.index);
     }
 
     public void visitMethodInsn(
@@ -745,7 +1065,9 @@ class MethodWriter implements MethodVisitor {
         boolean itf = opcode == Opcodes.INVOKEINTERFACE;
         Item i = cw.newMethodItem(owner, name, desc, itf);
         int argSize = i.intVal;
-        if (computeMaxs) {
+        if (computeFrames && currentBlock != null) {
+            currentBlock.execute(opcode, 0, cw, i);
+        } else if (computeMaxs) {
             /*
              * computes the stack size variation. In order not to recompute
              * several times this variation for the same Item, we use the intVal
@@ -775,11 +1097,9 @@ class MethodWriter implements MethodVisitor {
         }
         // adds the instruction to the bytecode of the method
         if (itf) {
-            if (!computeMaxs) {
-                if (argSize == 0) {
-                    argSize = getArgumentsAndReturnSizes(desc);
-                    i.intVal = argSize;
-                }
+            if (argSize == 0) {
+                argSize = getArgumentsAndReturnSizes(desc);
+                i.intVal = argSize;
             }
             code.put12(Opcodes.INVOKEINTERFACE, i.index).put11(argSize >> 2, 0);
         } else {
@@ -788,7 +1108,20 @@ class MethodWriter implements MethodVisitor {
     }
 
     public void visitJumpInsn(final int opcode, final Label label) {
-        if (computeMaxs) {
+        if (computeFrames && currentBlock != null) {
+            currentBlock.execute(opcode, 0, null, null);
+            addSuccessor(0, label);
+            (label.first == null ? label : label.first).store = 1;
+            if (opcode == Opcodes.GOTO) {
+                currentBlock = null;
+            } else {
+                // TODO not at the right place, must be just after the jump insn
+                // must also take into account possible conversion into IF
+                // GOTO_W (see below, in this case, an additional basic block is
+                // nedded)
+                visitLabel(new Label());
+            }
+        } else if (computeMaxs) {
             if (opcode == Opcodes.GOTO) {
                 // no stack change, but end of current block (with one new
                 // successor)
@@ -844,7 +1177,34 @@ class MethodWriter implements MethodVisitor {
     }
 
     public void visitLabel(final Label label) {
-        if (computeMaxs) {
+        // resolves previous forward references to label, if any
+        resize |= label.resolve(this, code.length, code.data);
+        if (computeFrames && !label.debug) {
+            if (!label.debug) {
+                if (currentBlock != null) {
+                    if (label.position != currentBlock.position) {
+                        // ends current block (with one new successor)
+                        addSuccessor(0, label);
+                        // begins a new current block,
+                        currentBlock = label;
+                    } else {
+                        // case of successive labels, do not start a new basic
+                        // block
+                        label.first = currentBlock;
+                        if (label.store > 0) {
+                            currentBlock.store = label.store;
+                        }
+                    }
+                } else {
+                    // begins a new current block
+                    currentBlock = label;
+                }
+            }
+            if (lastLabel != null) {
+                lastLabel.successor = label;
+            }
+            lastLabel = label;
+        } else if (computeMaxs) {
             if (currentBlock != null) {
                 // ends current block (with one new successor)
                 currentBlock.maxStackSize = maxStackSize;
@@ -856,13 +1216,13 @@ class MethodWriter implements MethodVisitor {
             stackSize = 0;
             maxStackSize = 0;
         }
-        // resolves previous forward references to label, if any
-        resize |= label.resolve(this, code.length, code.data);
     }
 
     public void visitLdcInsn(final Object cst) {
         Item i = cw.newConstItem(cst);
-        if (computeMaxs) {
+        if (computeFrames && currentBlock != null) {
+            currentBlock.execute(Opcodes.LDC, 0, cw, i);
+        } else if (computeMaxs) {
             int size;
             // computes the stack size variation
             if (i.type == 'J' || i.type == 'D') {
@@ -888,7 +1248,9 @@ class MethodWriter implements MethodVisitor {
     }
 
     public void visitIincInsn(final int var, final int increment) {
-        if (computeMaxs) {
+        if (computeFrames && currentBlock != null) {
+            currentBlock.execute(Opcodes.IINC, var, null, null);
+        } else if (computeMaxs) {
             // updates max locals only (no stack change)
             int n = var + 1;
             if (n > maxLocals) {
@@ -911,7 +1273,16 @@ class MethodWriter implements MethodVisitor {
         final Label dflt,
         final Label labels[])
     {
-        if (computeMaxs) {
+        if (computeFrames && currentBlock != null) {
+            currentBlock.execute(Opcodes.TABLESWITCH, 0, null, null);
+            addSuccessor(0, dflt);
+            (dflt.first == null ? dflt : dflt.first).store = 1;
+            for (int i = 0; i < labels.length; ++i) {
+                addSuccessor(0, labels[i]);
+                (labels[i].first == null ? labels[i] : labels[i].first).store = 1;
+            }
+            currentBlock = null;
+        } else if (computeMaxs) {
             // updates current stack size (max stack size unchanged)
             --stackSize;
             // ends current block (with many new successors)
@@ -942,7 +1313,16 @@ class MethodWriter implements MethodVisitor {
         final int keys[],
         final Label labels[])
     {
-        if (computeMaxs) {
+        if (computeFrames && currentBlock != null) {
+            currentBlock.execute(Opcodes.LOOKUPSWITCH, 0, null, null);
+            addSuccessor(0, dflt);
+            (dflt.first == null ? dflt : dflt.first).store = 1;
+            for (int i = 0; i < labels.length; ++i) {
+                addSuccessor(0, labels[i]);
+                (labels[i].first == null ? labels[i] : labels[i].first).store = 1;
+            }
+            currentBlock = null;
+        } else if (computeMaxs) {
             // updates current stack size (max stack size unchanged)
             --stackSize;
             // ends current block (with many new successors)
@@ -970,13 +1350,16 @@ class MethodWriter implements MethodVisitor {
     }
 
     public void visitMultiANewArrayInsn(final String desc, final int dims) {
-        if (computeMaxs) {
+        Item i = cw.newClassItem(desc);
+        if (computeFrames && currentBlock != null) {
+            currentBlock.execute(Opcodes.MULTIANEWARRAY, dims, cw, i);
+        } else if (computeMaxs) {
             // updates current stack size (max stack size unchanged because
             // stack size variation always negative or null)
             stackSize += 1 - dims;
         }
         // adds the instruction to the bytecode of the method
-        code.put12(Opcodes.MULTIANEWARRAY, cw.newClass(desc)).putByte(dims);
+        code.put12(Opcodes.MULTIANEWARRAY, i.index).putByte(dims);
     }
 
     public void visitTryCatchBlock(
@@ -985,7 +1368,27 @@ class MethodWriter implements MethodVisitor {
         final Label handler,
         final String type)
     {
-        if (computeMaxs) {
+        Item i = type != null ? cw.newClassItem(type) : null;
+        if (computeFrames) {
+            Label l = start.first == null ? start : start.first;
+            Label h = handler.first == null ? handler : handler.first;
+            h.store = 1;
+            while (l != end) {
+                Edge b = new Edge();
+                b.exception = Label.BASE_OBJECT_TYPE
+                        | cw.addType(type == null
+                                ? "java/lang/Throwable"
+                                : type);
+                b.successor = h;
+                b.next = l.successors;
+                l.successors = b;
+                l = l.successor;
+                // note this is an approximation: normally all frames
+                // corresponding to all instructions between start and end
+                // should be merged, and not just only some frames
+                // corresponding to labels
+            }
+        } else if (computeMaxs) {
             // pushes handler block onto the stack of blocks to be visited
             if (!handler.pushed) {
                 handler.beginStackSize = 1;
@@ -1001,7 +1404,7 @@ class MethodWriter implements MethodVisitor {
         catchTable.putShort(start.position);
         catchTable.putShort(end.position);
         catchTable.putShort(handler.position);
-        catchTable.putShort(type != null ? cw.newClass(type) : 0);
+        catchTable.putShort(i != null ? i.index : 0);
     }
 
     public void visitLocalVariable(
@@ -1044,7 +1447,56 @@ class MethodWriter implements MethodVisitor {
     }
 
     public void visitMaxs(final int maxStack, final int maxLocals) {
-        if (computeMaxs) {
+        if (computeFrames || computeMaxs) {
+            // updates maxLocals
+            int size = getArgumentsAndReturnSizes(descriptor) >> 2;
+            if ((access & Opcodes.ACC_STATIC) != 0) {
+                --size;
+            }
+            if (size > this.maxLocals) {
+                this.maxLocals = size;
+            }
+        }
+        if (computeFrames) {
+            Type[] types = Type.getArgumentTypes(descriptor);
+            startLabel.initInputFrame(cw, access, types, this.maxLocals);
+            visitComputedFrame(startLabel);
+
+            int max = 0;
+            Label stack = startLabel;
+            while (stack != null) {
+                Label l = stack;
+                stack = stack.next;
+                l.next = null;
+                if (l.store == 1) {
+                    l.store = 2;
+                }
+                int blockMax = l.inputStack.length + l.outputStackMax;
+                if (blockMax > max) {
+                    max = blockMax;
+                }
+                Edge e = l.successors;
+                while (e != null) {
+                    Label n = e.successor;
+                    if (n.first != null) {
+                        n = n.first;
+                    }
+                    if (n.next == null && l.merge(cw, n, e.exception)) {
+                        n.next = stack;
+                        stack = n;
+                    }
+                    e = e.next;
+                }
+            }
+            stack = startLabel;
+            while (stack != null) {
+                if (stack.first == null && stack.store == 2) {
+                    visitComputedFrame(stack);
+                }
+                stack = stack.successor;
+            }
+            this.maxStack = max;
+        } else if (computeMaxs) {
             // true (non relative) max stack size
             int max = 0;
             /*
@@ -1111,7 +1563,7 @@ class MethodWriter implements MethodVisitor {
      *         <tt>(argSize << 2) | retSize</tt> (argSize is therefore equal
      *         to <tt>i >> 2</tt>, and retSize to <tt>i & 0x03</tt>).
      */
-    private static int getArgumentsAndReturnSizes(final String desc) {
+    static int getArgumentsAndReturnSizes(final String desc) {
         int n = 1;
         int c = 1;
         while (true) {
@@ -1184,6 +1636,10 @@ class MethodWriter implements MethodVisitor {
             if (lineNumber != null) {
                 cw.newUTF8("LineNumberTable");
                 size += 8 + lineNumber.length;
+            }
+            if (stackMap != null) {
+                cw.newUTF8("StackMapTable");
+                size += 8 + stackMap.length;
             }
             if (cattrs != null) {
                 size += cattrs.getSize(cw,
@@ -1317,6 +1773,9 @@ class MethodWriter implements MethodVisitor {
             if (lineNumber != null) {
                 size += 8 + lineNumber.length;
             }
+            if (stackMap != null) {
+                size += 8 + stackMap.length;
+            }
             if (cattrs != null) {
                 size += cattrs.getSize(cw,
                         code.data,
@@ -1341,6 +1800,9 @@ class MethodWriter implements MethodVisitor {
             if (lineNumber != null) {
                 ++attributeCount;
             }
+            if (stackMap != null) {
+                ++attributeCount;
+            }
             if (cattrs != null) {
                 attributeCount += cattrs.getCount();
             }
@@ -1359,6 +1821,11 @@ class MethodWriter implements MethodVisitor {
                 out.putShort(cw.newUTF8("LineNumberTable"));
                 out.putInt(lineNumber.length + 2).putShort(lineNumberCount);
                 out.putByteArray(lineNumber.data, 0, lineNumber.length);
+            }
+            if (stackMap != null) {
+                out.putShort(cw.newUTF8("StackMapTable"));
+                out.putInt(stackMap.length + 2).putShort(frameCount);
+                out.putByteArray(stackMap.data, 0, stackMap.length);
             }
             if (cattrs != null) {
                 cattrs.put(cw, code.data, code.length, maxLocals, maxStack, out);
@@ -1461,7 +1928,7 @@ class MethodWriter implements MethodVisitor {
         byte[] b = code.data; // bytecode of the method
         int u, v, label; // indexes in b
         int i, j; // loop indexes
-
+        // TODO resizing invalidates stackmap!
         /*
          * 1st step: As explained above, resizing an instruction may require to
          * resize another one, which may require to resize yet another one, and

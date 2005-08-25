@@ -1,6 +1,6 @@
 /***
- * ASM: a very small and fast Java bytecode manipulation framework
- * Copyright (c) 2000-2005 INRIA, France Telecom
+ * ASM tests
+ * Copyright (c) 2002-2005 France Telecom
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -29,31 +29,29 @@
  */
 package org.objectweb.asm;
 
+import org.objectweb.asm.commons.EmptyVisitor;
+
+import junit.framework.TestSuite;
+
 /**
- * An edge in the control flow graph of a method body. See {@link Label Label}.
+ * ClassWriter tests.
  * 
  * @author Eric Bruneton
  */
-class Edge {
+public class ClassWriterTest3 extends AbstractTest {
 
-    int exception;
+    public static TestSuite suite() throws Exception {
+        return new ClassWriterTest3().getSuite();
+    }
 
-    /**
-     * The (relative) stack size in the basic block from which this edge
-     * originates. This size is equal to the stack size at the "jump"
-     * instruction to which this edge corresponds, relatively to the stack size
-     * at the beginning of the originating basic block.
-     */
-    int stackSize;
-
-    /**
-     * The successor block of the basic block from which this edge originates.
-     */
-    Label successor;
-
-    /**
-     * The next edge in the list of successors of the originating basic block.
-     * See {@link Label#successors successors}.
-     */
-    Edge next;
+    public void test() throws Exception {
+        ClassReader cr = new ClassReader(is);
+        ClassWriter cw = new ClassWriter(false, true, true);
+        cr.accept(cw, false);
+        // computed frames sometime from original ones
+        //assertEquals(cr, new ClassReader(cw.toByteArray()));
+        
+        // check that generated frames can be read by ClassReader
+        new ClassReader(cw.toByteArray()).accept(new EmptyVisitor(), false);
+    }
 }

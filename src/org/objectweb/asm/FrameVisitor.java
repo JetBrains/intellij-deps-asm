@@ -27,33 +27,28 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
  * THE POSSIBILITY OF SUCH DAMAGE.
  */
+
 package org.objectweb.asm;
 
-/**
- * An edge in the control flow graph of a method body. See {@link Label Label}.
- * 
- * @author Eric Bruneton
- */
-class Edge {
+public interface FrameVisitor {
 
-    int exception;
+    int TOP = 0;
 
-    /**
-     * The (relative) stack size in the basic block from which this edge
-     * originates. This size is equal to the stack size at the "jump"
-     * instruction to which this edge corresponds, relatively to the stack size
-     * at the beginning of the originating basic block.
-     */
-    int stackSize;
+    int INTEGER = 1;
 
-    /**
-     * The successor block of the basic block from which this edge originates.
-     */
-    Label successor;
+    int FLOAT = 2;
 
-    /**
-     * The next edge in the list of successors of the originating basic block.
-     * See {@link Label#successors successors}.
-     */
-    Edge next;
+    int DOUBLE = 3;
+
+    int LONG = 4;
+
+    int NULL = 5;
+
+    int UNINITIALIZED_THIS = 6;
+
+    void visitType(int type);
+
+    void visitType(String type);
+
+    void visitUninitializedType(Label newInsn);
 }

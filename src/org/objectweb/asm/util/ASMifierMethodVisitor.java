@@ -30,6 +30,7 @@
 package org.objectweb.asm.util;
 
 import org.objectweb.asm.AnnotationVisitor;
+import org.objectweb.asm.FrameVisitor;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Label;
 
@@ -85,6 +86,10 @@ public class ASMifierMethodVisitor extends ASMifierAbstractVisitor implements
 
     public void visitCode() {
         text.add("mv.visitCode();\n");
+    }
+    
+    public FrameVisitor visitFrame(int maxLocal, int maxStack) {
+        return null; // TODO
     }
 
     public void visitInsn(final int opcode) {

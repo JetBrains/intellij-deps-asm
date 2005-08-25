@@ -95,6 +95,8 @@ public interface MethodVisitor {
      */
     void visitCode();
 
+    FrameVisitor visitFrame(int nLocal, int nStack);
+
     // -------------------------------------------------------------------------
     // Normal instructions
     // -------------------------------------------------------------------------

@@ -34,6 +34,7 @@ import java.util.Map;
 
 import org.objectweb.asm.AnnotationVisitor;
 import org.objectweb.asm.Attribute;
+import org.objectweb.asm.FrameVisitor;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Label;
@@ -69,8 +70,12 @@ public final class SAXCodeAdapter extends SAXAdapter implements MethodVisitor {
             addStart("code", new AttributesImpl());
         }
     }
-
+    
     public final void visitCode() {
+    }
+
+    public final FrameVisitor visitFrame(int maxLocal, int maxStack) {
+        return null;
     }
 
     public final void visitInsn(int opcode) {

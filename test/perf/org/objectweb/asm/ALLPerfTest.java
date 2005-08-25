@@ -110,6 +110,39 @@ public abstract class ALLPerfTest extends ClassLoader {
             long t = System.currentTimeMillis();
             for (int j = 0; j < classes.size(); ++j) {
                 byte[] b = (byte[]) classes.get(j);
+                ClassWriter cw = new ClassWriter(true);
+                new ClassReader(b).accept(cw, false);
+                cw.toByteArray();
+            }
+            t = System.currentTimeMillis() - t;
+            System.out.println("Time to deserialize and reserialize "
+                    + classes.size() + " classes with computeMaxs = " + t
+                    + " ms");
+        }
+
+        for (int i = 0; i < 10; ++i) {
+            int errors = 0;
+            long t = System.currentTimeMillis();
+            for (int j = 0; j < classes.size(); ++j) {
+                byte[] b = (byte[]) classes.get(j);
+                ClassWriter cw = new ClassWriter(false, true, false);
+                try {
+                    new ClassReader(b).accept(cw, false);
+                } catch (Throwable e) {
+                    ++errors;
+                }
+                cw.toByteArray();
+            }
+            t = System.currentTimeMillis() - t;
+            System.out.println("Time to deserialize and reserialize "
+                    + classes.size() + " classes with computeFrames = " + t
+                    + " ms (" + errors + " errors)");
+        }
+
+        for (int i = 0; i < 10; ++i) {
+            long t = System.currentTimeMillis();
+            for (int j = 0; j < classes.size(); ++j) {
+                byte[] b = (byte[]) classes.get(j);
                 new ClassReader(b).accept(new ClassNode(), false);
             }
             t = System.currentTimeMillis() - t;

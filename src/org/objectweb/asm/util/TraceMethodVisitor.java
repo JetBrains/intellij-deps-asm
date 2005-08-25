@@ -31,6 +31,7 @@ package org.objectweb.asm.util;
 
 import org.objectweb.asm.AnnotationVisitor;
 import org.objectweb.asm.Attribute;
+import org.objectweb.asm.FrameVisitor;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.Type;
@@ -46,7 +47,7 @@ import java.util.HashMap;
  * @author Eric Bruneton
  */
 public class TraceMethodVisitor extends TraceAbstractVisitor implements
-        MethodVisitor
+        MethodVisitor, FrameVisitor
 {
 
     /**
@@ -74,6 +75,12 @@ public class TraceMethodVisitor extends TraceAbstractVisitor implements
      * The label names. This map associate String values to Label keys.
      */
     protected final HashMap labelNames;
+    
+    private FrameVisitor fv;
+
+    private int nLocal;
+
+    private int nStack;
 
     /**
      * Constructs a new {@link TraceMethodVisitor}.
@@ -160,6 +167,90 @@ public class TraceMethodVisitor extends TraceAbstractVisitor implements
     public void visitCode() {
         if (mv != null) {
             mv.visitCode();
+        }
+    }
+
+    public FrameVisitor visitFrame(int nLocal, int nStack) {
+        fv = mv == null ? null : mv.visitFrame(nLocal, nStack);
+        this.nLocal = nLocal;
+        this.nStack = nStack;
+        if (nLocal == 0 && nStack == 0) {
+            text.add("FRAME [] []\n");
+        } else {
+            buf.setLength(0);
+            if (nLocal == 0) {
+                buf.append("FRAME [] [");
+            } else {
+                buf.append("FRAME [");
+            }
+        }
+        return this;
+    }
+
+    public void visitType(int type) {
+        switch (type) {
+            case TOP:
+                buf.append('T');
+                break;
+            case INTEGER:
+                buf.append('I');
+                break;
+            case FLOAT:
+                buf.append('F');
+                break;
+            case DOUBLE:
+                buf.append('D');
+                break;
+            case LONG:
+                buf.append('L');
+                break;
+            case NULL:
+                buf.append('N');
+                break;
+            case UNINITIALIZED_THIS:
+                buf.append('U');
+                break;
+        }
+        updateType();
+        if (fv != null) {
+            fv.visitType(type);
+        }
+    }
+
+    public void visitType(String type) {
+        buf.append(type);
+        updateType();
+        if (fv != null) {
+            fv.visitType(type);
+        }
+    }
+
+    public void visitUninitializedType(Label newInsn) {
+        appendLabel(newInsn);
+        updateType();
+        if (fv != null) {
+            fv.visitUninitializedType(newInsn);
+        }
+    }
+
+    private void updateType() {
+        if (nLocal > 0) {
+            --nLocal;
+            if (nLocal == 0) {
+                buf.append("] [");
+                if (nStack == 0) {
+                    buf.append("]\n");
+                    text.add(buf.toString());
+                }
+            } else
+                buf.append(' ');
+        } else if (nStack > 0) {
+            --nStack;
+            if (nStack == 0) {
+                buf.append("]\n");
+                text.add(buf.toString());
+            } else
+                buf.append(' ');
         }
     }
 

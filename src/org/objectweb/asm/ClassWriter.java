@@ -225,6 +225,10 @@ public class ClassWriter implements ClassVisitor {
      */
     Item key3;
 
+    private short typeIndex; //TODO int?
+    
+    Item[] typeTable;
+
     /**
      * The access flags of this class.
      */
@@ -234,6 +238,8 @@ public class ClassWriter implements ClassVisitor {
      * The constant pool item that contains the internal name of this class.
      */
     private int name;
+
+    String thisName;
 
     /**
      * The constant pool item that contains the signature of this class.
@@ -344,6 +350,8 @@ public class ClassWriter implements ClassVisitor {
      */
     private boolean computeMaxs;
 
+    private boolean computeFrames;
+    
     /**
      * <tt>true</tt> to test that all attributes are known.
      */
@@ -475,6 +483,29 @@ public class ClassWriter implements ClassVisitor {
         final boolean computeMaxs,
         final boolean skipUnknownAttributes)
     {
+        this(computeMaxs, false, skipUnknownAttributes);
+    }
+
+    /**
+     * Constructs a new {@link ClassWriter} object.
+     * 
+     * @param computeMaxs <tt>true</tt> if the maximum stack size and the
+     *        maximum number of local variables must be automatically computed.
+     *        If this flag is <tt>true</tt>, then the arguments of the
+     *        {@link MethodVisitor#visitMaxs visitMaxs} method of the
+     *        {@link MethodVisitor} returned by the
+     *        {@link #visitMethod visitMethod} method will be ignored, and
+     *        computed automatically from the signature and the bytecode of each
+     *        method.
+     * @param skipUnknownAttributes <tt>true</tt> to silently ignore unknown
+     *        attributes, or <tt>false</tt> to throw an exception if an
+     *        unknown attribute is found.
+     */
+    public ClassWriter(
+        final boolean computeMaxs,
+        final boolean computeFrames,
+        final boolean skipUnknownAttributes)
+    {
         index = 1;
         pool = new ByteVector();
         items = new Item[256];
@@ -483,6 +514,7 @@ public class ClassWriter implements ClassVisitor {
         key2 = new Item();
         key3 = new Item();
         this.computeMaxs = computeMaxs;
+        this.computeFrames = computeFrames;
         this.checkAttributes = !skipUnknownAttributes;
     }
 
@@ -501,6 +533,7 @@ public class ClassWriter implements ClassVisitor {
         this.version = version;
         this.access = access;
         this.name = newClass(name);
+        thisName = name;
         if (signature != null) {
             this.signature = newUTF8(signature);
         }
@@ -594,7 +627,8 @@ public class ClassWriter implements ClassVisitor {
                 desc,
                 signature,
                 exceptions,
-                computeMaxs);
+                computeMaxs,
+                computeFrames);
     }
 
     public void visitEnd() {
@@ -873,7 +907,7 @@ public class ClassWriter implements ClassVisitor {
      * @param value the internal name of the class.
      * @return a new or already existing class reference item.
      */
-    private Item newClassItem(final String value) {
+    Item newClassItem(final String value) {
         key2.set('C', value, null, null);
         Item result = get(key2);
         if (result == null) {
@@ -895,7 +929,7 @@ public class ClassWriter implements ClassVisitor {
      * @param desc the field's descriptor.
      * @return the index of a new or already existing field reference item.
      */
-    public int newField(final String owner, final String name, final String desc)
+    Item newFieldItem(final String owner, final String name, final String desc)
     {
         key3.set('G', owner, name, desc);
         Item result = get(key3);
@@ -904,7 +938,12 @@ public class ClassWriter implements ClassVisitor {
             result = new Item(index++, key3);
             put(result);
         }
-        return result.index;
+        return result;
+    }
+
+    public int newField(final String owner, final String name, final String desc)
+    {
+        return newFieldItem(owner, name, desc).index;
     }
 
     /**
@@ -1065,6 +1104,82 @@ public class ClassWriter implements ClassVisitor {
             put(result);
         }
         return result.index;
+    }
+
+    int addType(String type) {
+        key.set('E', type, null, null);
+        Item result = get(key);
+        if (result == null) {
+            result = addType(key);
+        }
+        return result.index;
+    }
+
+    int addUninitializedType(String type, int offset) {
+        key.type = 'B';
+        key.intVal = offset;
+        key.strVal1 = type;
+        key.hashCode = 0x7FFFFFFF & ('B' + type.hashCode() + offset);
+        Item result = get(key);
+        if (result == null) {
+            result = addType(key);
+        }
+        return result.index;
+    }
+
+    private Item addType(Item item) {
+        ++typeIndex;
+        Item result = new Item(typeIndex, key);
+        put(result);
+        if (typeTable == null) {
+            typeTable = new Item[16];
+        }
+        if (typeIndex == typeTable.length) {
+            Item[] newTable = new Item[2 * typeTable.length];
+            System.arraycopy(typeTable, 0, newTable, 0, typeTable.length);
+            typeTable = newTable;
+        }
+        typeTable[typeIndex] = result;
+        return result;
+    }
+
+    int getMergedType(int type1, int type2) { // merged type is in intVal
+        key2.type = 'L';
+        key2.longVal = type1 | (((long) type2) << 32);
+        key2.hashCode = 0x7FFFFFFF & ('L' + type1 + type2);
+        Item result = get(key2);
+        if (result == null) {
+            String t = typeTable[type1].strVal1;
+            String u = typeTable[type2].strVal1;
+            key2.intVal = addType(getCommonSuperClass(t, u));
+            result = new Item((short) 0, key2);
+            put(result);
+        }
+        return result.intVal;
+    }
+
+    protected String getCommonSuperClass(String type1, String type2) {
+        Class c, d;
+        try {
+            c = Class.forName(type1.replace('/', '.'));
+            d = Class.forName(type2.replace('/', '.'));
+        } catch (Throwable e) {
+            throw new RuntimeException(e);
+        }
+        if (c.isAssignableFrom(d)) {
+            return type1;
+        }
+        if (d.isAssignableFrom(c)) {
+            return type2;
+        }
+        if (c.isInterface() || d.isInterface()) {
+            return "java/lang/Object";
+        } else {
+            do {
+                c = c.getSuperclass();
+            } while (!c.isAssignableFrom(d));
+            return c.getName().replace('.', '/');
+        }
     }
 
     /**

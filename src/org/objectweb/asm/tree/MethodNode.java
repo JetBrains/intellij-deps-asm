@@ -32,6 +32,7 @@ package org.objectweb.asm.tree;
 import org.objectweb.asm.AnnotationVisitor;
 import org.objectweb.asm.Attribute;
 import org.objectweb.asm.ClassVisitor;
+import org.objectweb.asm.FrameVisitor;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.Opcodes;
@@ -228,6 +229,10 @@ public class MethodNode extends MemberNode implements MethodVisitor {
     }
 
     public void visitCode() {
+    }
+    
+    public FrameVisitor visitFrame(int maxLocal, int maxStack) {
+        return null; // TODO
     }
 
     public void visitInsn(final int opcode) {

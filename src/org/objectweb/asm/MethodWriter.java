@@ -1486,7 +1486,8 @@ class MethodWriter implements MethodVisitor {
          * removed from these instructions is over estimated during the previous
          * loop, and computed exactly only after the loop is finished (this
          * requires another pass to parse the bytecode of the method).
-         */int[] allIndexes = new int[len]; // copy of indexes
+         */
+        int[] allIndexes = new int[len]; // copy of indexes
         int[] allSizes = new int[len]; // copy of sizes
         boolean[] resize; // instructions to be resized
         int newOffset; // future offset of a jump instruction
@@ -1495,8 +1496,8 @@ class MethodWriter implements MethodVisitor {
         System.arraycopy(sizes, 0, allSizes, 0, len);
         resize = new boolean[code.length];
 
-        int state = 3; // 3 = loop again, 2 = loop ended, 1 = last pass, 0 =
-        // done
+        // 3 = loop again, 2 = loop ended, 1 = last pass, 0 = done
+        int state = 3;
         do {
             if (state == 3) {
                 state = 2;
@@ -1944,10 +1945,11 @@ class MethodWriter implements MethodVisitor {
     {
         int offset = end - begin;
         for (int i = 0; i < indexes.length; ++i) {
-            if (begin < indexes[i] && indexes[i] <= end) { // forward jump
+            if (begin < indexes[i] && indexes[i] <= end) {
+                // forward jump
                 offset += sizes[i];
-            } else if (end < indexes[i] && indexes[i] <= begin) { // backward
-                // jump
+            } else if (end < indexes[i] && indexes[i] <= begin) {
+                // backward jump
                 offset -= sizes[i];
             }
         }

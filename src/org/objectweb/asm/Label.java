@@ -81,11 +81,13 @@ public class Label {
      * corresponds to the first instruction of this basic block. Each node also
      * stores the list of it successors in the graph, as a linked list of Edge
      * objects.
-     *//**
-         * The stack size at the beginning of this basic block. This size is
-         * initially unknown. It is computed by the control flow analysis
-         * algorithm (see {@link MethodWriter#visitMaxs visitMaxs}).
-         */
+     */
+
+    /**
+     * The stack size at the beginning of this basic block. This size is
+     * initially unknown. It is computed by the control flow analysis algorithm
+     * (see {@link MethodWriter#visitMaxs visitMaxs}).
+     */
     int beginStackSize;
 
     /**

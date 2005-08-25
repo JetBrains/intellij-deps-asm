@@ -15,3 +15,4 @@ It contains(*) the following items:
 - web: source of the web site of the product.
 
 (*) some items may not be present, depending on the product.
+

@@ -370,10 +370,9 @@ public class Label {
      * Output frames can contain types of any kind and with a positive or
      * negative dimension (and even unassigned types, represented by 0 - which
      * does not correspond to any valid type value). Input frames can only
-     * contain BASE types of positive or null dimension, or unassigned types. In
-     * all cases the type table contains only internal type names (array type
-     * descriptor are forbidden - dimensions must be represented through the DIM
-     * field).
+     * contain BASE types of positive or null dimension. In all cases the type
+     * table contains only internal type names (array type descriptor are
+     * forbidden - dimensions must be represented through the DIM field).
      * 
      * The LONG and DOUBLE types are always represented by using two slots (LONG +
      * TOP or DOUBLE + TOP), for local variable types as well as in the operand
@@ -1309,6 +1308,13 @@ public class Label {
         }
 
         if (exception != 0) {
+            for (i = 0; i < nLocal; ++i) {
+                t = inputLocals[i];
+                if (t == 0) {
+                    t = TOP;
+                }
+                changed |= merge(cw, t, label.inputLocals, i);
+            }
             if (label.inputStack == null) {
                 label.inputStack = new int[1];
                 changed = true;

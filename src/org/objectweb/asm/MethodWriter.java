@@ -706,35 +706,37 @@ class MethodWriter implements MethodVisitor, FrameVisitor {
     }
 
     void visitComputedFrame(Label stack) {
+        int i;
+        int nTop = 0;
         int nLocal = 0;
         int nStack = 0;
         int[] locals = stack.inputLocals;
         int[] stacks = stack.inputStack;
-        // TODO remove trailing TOPs !!!
-        for (int i = 0; i < locals.length; ++i) {
-            if (locals[i] == 0)
-                break;
-            ++nLocal;
+        for (i = 0; i < locals.length; ++i) {
+            if (locals[i] == Label.TOP) {
+                ++nTop;
+            } else {
+                nLocal += nTop + 1;
+                nTop = 0;
+            }
             if (locals[i] == Label.LONG || locals[i] == Label.DOUBLE) {
                 ++i;
             }
         }
-        for (int i = 0; i < stacks.length; ++i) {
+        for (i = 0; i < stacks.length; ++i) {
             ++nStack;
             if (stacks[i] == Label.LONG || stacks[i] == Label.DOUBLE) {
                 ++i;
             }
         }
         visitFrame(stack.position, nLocal, nStack);
-        for (int i = 0; i < locals.length; ++i) {
-            if (locals[i] == 0)
-                break;
+        for (i = 0; nLocal > 0; ++i, --nLocal) {
             visitComputedType(locals[i]);
             if (locals[i] == Label.LONG || locals[i] == Label.DOUBLE) {
                 ++i;
             }
         }
-        for (int i = 0; i < stacks.length; ++i) {
+        for (i = 0; i < stacks.length; ++i) {
             visitComputedType(stacks[i]);
             if (stacks[i] == Label.LONG || stacks[i] == Label.DOUBLE) {
                 ++i;

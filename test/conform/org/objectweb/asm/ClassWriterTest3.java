@@ -29,7 +29,14 @@
  */
 package org.objectweb.asm;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+
+import org.objectweb.asm.AbstractTest.ClassFilter;
 import org.objectweb.asm.commons.EmptyVisitor;
+import org.objectweb.asm.util.TraceClassVisitor;
 
 import junit.framework.TestSuite;
 
@@ -40,6 +47,8 @@ import junit.framework.TestSuite;
  */
 public class ClassWriterTest3 extends AbstractTest {
 
+    private final TestClassLoader LOADER = new TestClassLoader();
+
     public static TestSuite suite() throws Exception {
         return new ClassWriterTest3().getSuite();
     }
@@ -48,10 +57,86 @@ public class ClassWriterTest3 extends AbstractTest {
         ClassReader cr = new ClassReader(is);
         ClassWriter cw = new ClassWriter(false, true, true);
         cr.accept(cw, false);
+
+        byte[] b = cw.toByteArray();
+
         // computed frames sometime from original ones
-        //assertEquals(cr, new ClassReader(cw.toByteArray()));
-        
+        // assertEquals(cr, new ClassReader(b));
+
         // check that generated frames can be read by ClassReader
-        new ClassReader(cw.toByteArray()).accept(new EmptyVisitor(), false);
+        new ClassReader(b).accept(new EmptyVisitor(), false);
+
+        // check that the new verifier accepts the generated frames
+        try {
+            /*
+             * apparently a class is not verified before it is instantiated for
+             * the first time. Hence the testClass method.
+             */
+            testClass(LOADER.defineClass(n, b));
+        } catch (ClassFormatError cfe) {
+            fail(cfe.getMessage());
+        } catch (VerifyError cfe) {
+            StringWriter sw = new StringWriter();
+            ClassVisitor cv = new TraceClassVisitor(new PrintWriter(sw));
+            new ClassReader(b).accept(new ClassFilter(cv), false);
+            assertEquals(sw.toString(), cfe.getMessage());
+            //fail(cfe.getMessage() + "\n" + sw);
+        } catch (Throwable ignored) {
+        }
+    }
+
+    // ------------------------------------------------------------------------
+
+    static class TestClassLoader extends ClassLoader {
+
+        public Class defineClass(final String name, final byte[] b) {
+            return defineClass(name, b, 0, b.length);
+        }
+    }
+
+    static void testClass(final Class c) {
+        Constructor[] cons = c.getConstructors();
+        for (int i = 0; i < cons.length; ++i) {
+            try {
+                cons[i].newInstance(newInstance(cons[i].getParameterTypes()));
+            } catch (InvocationTargetException e) {
+                continue;
+            } catch (InstantiationException e) {
+                continue;
+            } catch (IllegalAccessException e) {
+                continue;
+            }
+            break;
+        }
+    }
+
+    static Object[] newInstance(final Class[] formals) {
+        Object[] actuals = new Object[formals.length];
+        for (int i = 0; i < actuals.length; ++i) {
+            actuals[i] = newInstance(formals[i]);
+        }
+        return actuals;
+    }
+
+    static Object newInstance(final Class c) {
+        if (c == Integer.TYPE) {
+            return new Integer(0);
+        } else if (c == Float.TYPE) {
+            return new Float(0);
+        } else if (c == Long.TYPE) {
+            return new Long(0);
+        } else if (c == Double.TYPE) {
+            return new Double(0);
+        } else if (c == Byte.TYPE) {
+            return new Byte((byte) 0);
+        } else if (c == Character.TYPE) {
+            return new Character((char) 0);
+        } else if (c == Short.TYPE) {
+            return new Short((short) 0);
+        } else if (c == Boolean.TYPE) {
+            return new Boolean(false);
+        } else {
+            return null;
+        }
     }
 }

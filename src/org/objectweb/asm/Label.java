@@ -793,6 +793,9 @@ public class Label {
         int oldOutputStackMax = outputStackMax;
 
         outputStack = new int[maxLocals];
+        for (int i = 0; i < maxLocals; ++i) {
+            outputStack[i] = TOP;
+        }
         outputStackTop = 0;
         if ((access & Opcodes.ACC_STATIC) == 0) {
             if ((access & MethodWriter.ACC_CONSTRUCTOR) == 0) {
@@ -1299,9 +1302,10 @@ public class Label {
                     }
                 }
             }
-            if (t != 0) {
-                changed |= merge(cw, t, label.inputLocals, i);
+            if (t == 0) {
+                t = TOP;
             }
+            changed |= merge(cw, t, label.inputLocals, i);
         }
 
         if (exception != 0) {

@@ -710,6 +710,7 @@ class MethodWriter implements MethodVisitor, FrameVisitor {
         int nStack = 0;
         int[] locals = stack.inputLocals;
         int[] stacks = stack.inputStack;
+        // TODO remove trailing TOPs !!!
         for (int i = 0; i < locals.length; ++i) {
             if (locals[i] == 0)
                 break;
@@ -1481,7 +1482,7 @@ class MethodWriter implements MethodVisitor, FrameVisitor {
                     if (n.first != null) {
                         n = n.first;
                     }
-                    if (n.next == null && l.merge(cw, n, e.exception)) {
+                    if (l.merge(cw, n, e.exception) && n.next == null) {
                         n.next = stack;
                         stack = n;
                     }

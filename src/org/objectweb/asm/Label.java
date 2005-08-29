@@ -1301,9 +1301,6 @@ public class Label {
                     }
                 }
             }
-            if (t == 0) {
-                t = TOP;
-            }
             changed |= merge(cw, t, label.inputLocals, i);
         }
 

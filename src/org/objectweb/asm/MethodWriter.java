@@ -1386,10 +1386,6 @@ class MethodWriter implements MethodVisitor, FrameVisitor {
                 b.next = l.successors;
                 l.successors = b;
                 l = l.successor;
-                // note this is an approximation: normally all frames
-                // corresponding to all instructions between start and end
-                // should be merged, and not just only some frames
-                // corresponding to labels
             }
         } else if (computeMaxs) {
             // pushes handler block onto the stack of blocks to be visited

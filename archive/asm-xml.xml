@@ -17,7 +17,7 @@
 
     <copy file="${archive}/maven-pom-template.xml" toFile="${out.dist.lib}/${ant.project.name}-${product.artifact}.pom"/>
     <replace file="${out.dist.lib}/${ant.project.name}-${product.artifact}.pom" token="@product.name@" value="${ant.project.name}"/>
-    <replace file="${out.dist.lib}/${ant.project.name}-${product.artifact}.pom" token="@product.version@" value="${product.artifact}"/>
+    <replace file="${out.dist.lib}/${ant.project.name}-${product.artifact}.pom" token="@product.artifact@" value="${product.artifact}"/>
   </target>
 
   <target name="build-snapshot" if="product.snapshot">

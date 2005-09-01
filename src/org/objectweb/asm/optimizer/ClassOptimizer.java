@@ -118,18 +118,19 @@ public class ClassOptimizer extends ClassAdapter {
         final String signature,
         final Object value)
     {
+        String s = className + "." + name;
         if ((access & (Opcodes.ACC_PUBLIC | Opcodes.ACC_PROTECTED)) == 0) {
             if ((access & Opcodes.ACC_FINAL) != 0
                     && (access & Opcodes.ACC_STATIC) != 0 && desc.equals("I"))
             {
                 return null;
             }
-            cv.visitField(access,
-                    mapping.map(className + "." + name),
-                    mapping.fix(desc),
-                    null,
-                    value);
+            cv.visitField(access, s, mapping.fix(desc), null, value);
         } else {
+            if (!mapping.map(s).equals(name)) {
+                throw new RuntimeException("The public or protected field " + s
+                        + " must not be renamed.");
+            }
             cv.visitField(access, name, desc, null, value);
         }
         return null; // remove debug info
@@ -142,13 +143,18 @@ public class ClassOptimizer extends ClassAdapter {
         final String signature,
         final String[] exceptions)
     {
+        String s = className + "." + name + desc;
         if ((access & (Opcodes.ACC_PUBLIC | Opcodes.ACC_PROTECTED)) == 0) {
             return new MethodOptimizer(cv.visitMethod(access,
-                    mapping.map(className + "." + name + desc),
+                    mapping.map(s),
                     mapping.fix(desc),
                     null,
                     exceptions), mapping);
         } else {
+            if (!mapping.map(s).equals(name)) {
+                throw new RuntimeException("The public or protected method "
+                        + s + " must not be renamed.");
+            }
             return new MethodOptimizer(cv.visitMethod(access,
                     name,
                     desc,

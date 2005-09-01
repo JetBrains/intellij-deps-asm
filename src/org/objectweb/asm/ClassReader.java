@@ -440,7 +440,7 @@ public class ClassReader {
             cattrs = attr;
         }
 
-        // class the visitInnerClass method
+        // calls the visitInnerClass method
         if (w != 0) {
             i = readUnsignedShort(w);
             w += 2;
@@ -877,7 +877,8 @@ public class ClassReader {
                         if (name.equals("<init>")) {
                             frame[local++] = 6; // UninitializedThis
                         } else {
-                            frame[local++] = 0x10000000 | items[readUnsignedShort(header + 2)];
+                            frame[local++] = OBJECT_TYPE
+                                    | items[readUnsignedShort(header + 2)];
                         }
                     }
                     try {
@@ -1389,19 +1390,22 @@ public class ClassReader {
      */
 
     private int readFrame(int v, final int[] frame, final Label[] labels) {
+        int delta, i, k, n;
         int tag = b[v++] & 0xFF;
-        int offsetDelta;
         if (tag < MethodWriter.SAME_LOCALS_1_STACK_ITEM_FRAME) {
-            offsetDelta = tag;
+            delta = tag;
             frame[2] = 0;
         } else if (tag < MethodWriter.RESERVED) {
-            offsetDelta = tag - MethodWriter.SAME_LOCALS_1_STACK_ITEM_FRAME;
+            delta = tag - MethodWriter.SAME_LOCALS_1_STACK_ITEM_FRAME;
             v = readFrameType(frame, frame[3], v, labels);
             frame[2] = 1;
         } else {
-            offsetDelta = readUnsignedShort(v);
+            delta = readUnsignedShort(v);
             v += 2;
-            if (tag >= MethodWriter.CHOP_FRAME
+            if (tag == MethodWriter.SAME_LOCALS_1_STACK_ITEM_FRAME_EXTENDED) {
+                v = readFrameType(frame, frame[3], v, labels);
+                frame[2] = 1;
+            } else if (tag >= MethodWriter.CHOP_FRAME
                     && tag < MethodWriter.SAME_FRAME_EXTENDED)
             {
                 frame[1] -= MethodWriter.SAME_FRAME_EXTENDED - tag;
@@ -1409,29 +1413,26 @@ public class ClassReader {
             } else if (tag == MethodWriter.SAME_FRAME_EXTENDED) {
                 frame[2] = 0;
             } else if (/* tag >= APPEND && */tag < MethodWriter.FULL_FRAME) {
-                int index = frame[1] + 4;
-                for (int k = tag - MethodWriter.SAME_FRAME_EXTENDED; k > 0; k--)
-                {
-                    v = readFrameType(frame, index++, v, labels);
+                i = frame[1] + 4;
+                for (k = tag - MethodWriter.SAME_FRAME_EXTENDED; k > 0; k--) {
+                    v = readFrameType(frame, i++, v, labels);
                 }
                 frame[1] += tag - MethodWriter.SAME_FRAME_EXTENDED;
                 frame[2] = 0;
             } else /* if (tag == FULL_FRAME) */{
-                int n = frame[1] = readUnsignedShort(v);
+                n = frame[1] = readUnsignedShort(v);
                 v += 2;
-                int index = 4;
-                for (; n > 0; n--) {
-                    v = readFrameType(frame, index++, v, labels);
+                for (i = 4; n > 0; n--) {
+                    v = readFrameType(frame, i++, v, labels);
                 }
                 n = frame[2] = readUnsignedShort(v);
                 v += 2;
-                index = frame[3];
-                for (; n > 0; n--) {
-                    v = readFrameType(frame, index++, v, labels);
+                for (i = frame[3]; n > 0; n--) {
+                    v = readFrameType(frame, i++, v, labels);
                 }
             }
         }
-        frame[0] += offsetDelta + 1;
+        frame[0] += delta + 1;
         if (labels[frame[0]] == null) {
             labels[frame[0]] = new Label();
         }
@@ -1502,8 +1503,8 @@ public class ClassReader {
             int n = 4;
             for (int i = 0; i < nLocal + nStack; ++i) {
                 if (i == nLocal) {
-                    // when all locals have been visited, continue with stack
-                    // elements
+                    // when all locals have been visited,
+                    // continue with stack elements
                     n = frame[3];
                 }
                 int type = frame[n++];

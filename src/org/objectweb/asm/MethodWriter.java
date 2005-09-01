@@ -39,7 +39,7 @@ package org.objectweb.asm;
 class MethodWriter implements MethodVisitor, FrameVisitor {
 
     /**
-     * TODO
+     * Pseudo access flag used to denote constructors.
      */
     final static int ACC_CONSTRUCTOR = 262144;
 
@@ -59,6 +59,12 @@ class MethodWriter implements MethodVisitor, FrameVisitor {
      * Reserved for future use
      */
     static final int RESERVED = 128;
+
+    /**
+     * Frame has exactly the same locals as the previous stack map frame and
+     * number of stack items is 1. Offset is bigger then 63;
+     */
+    static final int SAME_LOCALS_1_STACK_ITEM_FRAME_EXTENDED = 247; // f7
 
     /**
      * Frame where current locals are the same as the locals in the previous
@@ -182,14 +188,37 @@ class MethodWriter implements MethodVisitor, FrameVisitor {
      */
     private int maxLocals;
 
+    /**
+     * Number of stack map frames in the StackMapTable attribute.
+     */
     private int frameCount;
 
+    /**
+     * The StackMapTable attriute.
+     */
     private ByteVector stackMap;
 
+    /**
+     * The last frame that was written in the StackMapTable attribute.
+     * 
+     * @see #frame
+     */
     private int[] previousFrame;
 
+    /**
+     * The current stack map frame. The first element contains the offset of the
+     * instruction to which the frame corresponds, the second element is the
+     * number of locals and the third one is the number of stack elements. The
+     * local variables start at index 3 and are followed by the operand stack
+     * values. In summary frame[0] = offset, frame[1] = nLocal, frame[2] =
+     * nStack, frame[3] = nLocal. All types are encoded as integers, with the
+     * same format as the one used in {@link Label}, but limited to BASE types.
+     */
     private int[] frame;
 
+    /**
+     * Index of the next type to be written in {@link #frame}.
+     */
     private int frameIndex;
 
     /**
@@ -242,6 +271,8 @@ class MethodWriter implements MethodVisitor, FrameVisitor {
      */
     private boolean resize;
 
+    // ------------------------------------------------------------------------
+
     /*
      * Fields for the control flow graph analysis algorithm (used to compute the
      * maximum stack size). A control flow graph contains one node per "basic
@@ -258,283 +289,27 @@ class MethodWriter implements MethodVisitor, FrameVisitor {
      */
     private final boolean computeMaxs;
 
+    /**
+     * <tt>true</tt> if the stack map frames must be recomputed from scratch.
+     * In this case the maximum stack size and number of local variables is also
+     * recomputed from scratch, i.e. {@link #computeMaxs} is also <tt>true</tt>.
+     */
     private final boolean computeFrames;
 
     /**
-     * The (relative) stack size after the last visited instruction. This size
-     * is relative to the beginning of the current basic block, i.e., the true
-     * stack size after the last visited instruction is equal to the {@link
-     * Label#beginStackSize beginStackSize} of the current basic block plus
-     * <tt>stackSize</tt>.
+     * The first basic block of the method.
      */
-    private int stackSize;
-
-    /**
-     * The (relative) maximum stack size after the last visited instruction.
-     * This size is relative to the beginning of the current basic block, i.e.,
-     * the true maximum stack size after the last visited instruction is equal
-     * to the {@link Label#beginStackSize beginStackSize} of the current basic
-     * block plus <tt>stackSize</tt>.
-     */
-    private int maxStackSize;
-
-    /**
-     * The current basic block. This block is the basic block to which the next
-     * instruction to be visited must be added.
-     */
-    private Label currentBlock;
-
-    /**
-     * The basic block stack used by the control flow analysis algorithm. This
-     * stack is represented by a linked list of {@link Label Label} objects,
-     * linked to each other by their {@link Label#next} field. This stack must
-     * not be confused with the JVM stack used to execute the JVM instructions!
-     */
-    private Label blockStack;
-
     private Label startLabel;
 
+    /**
+     * The last visited label.
+     */
     private Label lastLabel;
 
     /**
-     * The stack size variation corresponding to each JVM instruction. This
-     * stack variation is equal to the size of the values produced by an
-     * instruction, minus the size of the values consumed by this instruction.
+     * The current basic block.
      */
-    private final static int[] SIZE;
-
-    // ------------------------------------------------------------------------
-    // Static initializer
-    // ------------------------------------------------------------------------
-
-    /**
-     * Computes the stack size variation corresponding to each JVM instruction.
-     */
-    static {
-        int i;
-        int[] b = new int[202];
-        String s = "EFFFFFFFFGGFFFGGFFFEEFGFGFEEEEEEEEEEEEEEEEEEEEDEDEDDDDD"
-                + "CDCDEEEEEEEEEEEEEEEEEEEEBABABBBBDCFFFGGGEDCDCDCDCDCDCDCDCD"
-                + "CDCEEEEDDDDDDDCDCDCEFEFDDEEFFDEDEEEBDDBBDDDDDDCCCCCCCCEFED"
-                + "DDCDCDEEEEEEEEEEFEEEEEEDDEEDDEE";
-        for (i = 0; i < b.length; ++i) {
-            b[i] = s.charAt(i) - 'E';
-        }
-        SIZE = b;
-
-        // code to generate the above string
-        //
-        // int NA = 0; // not applicable (unused opcode or variable size opcode)
-        //
-        // b = new int[] {
-        // 0, //NOP, // visitInsn
-        // 1, //ACONST_NULL, // -
-        // 1, //ICONST_M1, // -
-        // 1, //ICONST_0, // -
-        // 1, //ICONST_1, // -
-        // 1, //ICONST_2, // -
-        // 1, //ICONST_3, // -
-        // 1, //ICONST_4, // -
-        // 1, //ICONST_5, // -
-        // 2, //LCONST_0, // -
-        // 2, //LCONST_1, // -
-        // 1, //FCONST_0, // -
-        // 1, //FCONST_1, // -
-        // 1, //FCONST_2, // -
-        // 2, //DCONST_0, // -
-        // 2, //DCONST_1, // -
-        // 1, //BIPUSH, // visitIntInsn
-        // 1, //SIPUSH, // -
-        // 1, //LDC, // visitLdcInsn
-        // NA, //LDC_W, // -
-        // NA, //LDC2_W, // -
-        // 1, //ILOAD, // visitVarInsn
-        // 2, //LLOAD, // -
-        // 1, //FLOAD, // -
-        // 2, //DLOAD, // -
-        // 1, //ALOAD, // -
-        // NA, //ILOAD_0, // -
-        // NA, //ILOAD_1, // -
-        // NA, //ILOAD_2, // -
-        // NA, //ILOAD_3, // -
-        // NA, //LLOAD_0, // -
-        // NA, //LLOAD_1, // -
-        // NA, //LLOAD_2, // -
-        // NA, //LLOAD_3, // -
-        // NA, //FLOAD_0, // -
-        // NA, //FLOAD_1, // -
-        // NA, //FLOAD_2, // -
-        // NA, //FLOAD_3, // -
-        // NA, //DLOAD_0, // -
-        // NA, //DLOAD_1, // -
-        // NA, //DLOAD_2, // -
-        // NA, //DLOAD_3, // -
-        // NA, //ALOAD_0, // -
-        // NA, //ALOAD_1, // -
-        // NA, //ALOAD_2, // -
-        // NA, //ALOAD_3, // -
-        // -1, //IALOAD, // visitInsn
-        // 0, //LALOAD, // -
-        // -1, //FALOAD, // -
-        // 0, //DALOAD, // -
-        // -1, //AALOAD, // -
-        // -1, //BALOAD, // -
-        // -1, //CALOAD, // -
-        // -1, //SALOAD, // -
-        // -1, //ISTORE, // visitVarInsn
-        // -2, //LSTORE, // -
-        // -1, //FSTORE, // -
-        // -2, //DSTORE, // -
-        // -1, //ASTORE, // -
-        // NA, //ISTORE_0, // -
-        // NA, //ISTORE_1, // -
-        // NA, //ISTORE_2, // -
-        // NA, //ISTORE_3, // -
-        // NA, //LSTORE_0, // -
-        // NA, //LSTORE_1, // -
-        // NA, //LSTORE_2, // -
-        // NA, //LSTORE_3, // -
-        // NA, //FSTORE_0, // -
-        // NA, //FSTORE_1, // -
-        // NA, //FSTORE_2, // -
-        // NA, //FSTORE_3, // -
-        // NA, //DSTORE_0, // -
-        // NA, //DSTORE_1, // -
-        // NA, //DSTORE_2, // -
-        // NA, //DSTORE_3, // -
-        // NA, //ASTORE_0, // -
-        // NA, //ASTORE_1, // -
-        // NA, //ASTORE_2, // -
-        // NA, //ASTORE_3, // -
-        // -3, //IASTORE, // visitInsn
-        // -4, //LASTORE, // -
-        // -3, //FASTORE, // -
-        // -4, //DASTORE, // -
-        // -3, //AASTORE, // -
-        // -3, //BASTORE, // -
-        // -3, //CASTORE, // -
-        // -3, //SASTORE, // -
-        // -1, //POP, // -
-        // -2, //POP2, // -
-        // 1, //DUP, // -
-        // 1, //DUP_X1, // -
-        // 1, //DUP_X2, // -
-        // 2, //DUP2, // -
-        // 2, //DUP2_X1, // -
-        // 2, //DUP2_X2, // -
-        // 0, //SWAP, // -
-        // -1, //IADD, // -
-        // -2, //LADD, // -
-        // -1, //FADD, // -
-        // -2, //DADD, // -
-        // -1, //ISUB, // -
-        // -2, //LSUB, // -
-        // -1, //FSUB, // -
-        // -2, //DSUB, // -
-        // -1, //IMUL, // -
-        // -2, //LMUL, // -
-        // -1, //FMUL, // -
-        // -2, //DMUL, // -
-        // -1, //IDIV, // -
-        // -2, //LDIV, // -
-        // -1, //FDIV, // -
-        // -2, //DDIV, // -
-        // -1, //IREM, // -
-        // -2, //LREM, // -
-        // -1, //FREM, // -
-        // -2, //DREM, // -
-        // 0, //INEG, // -
-        // 0, //LNEG, // -
-        // 0, //FNEG, // -
-        // 0, //DNEG, // -
-        // -1, //ISHL, // -
-        // -1, //LSHL, // -
-        // -1, //ISHR, // -
-        // -1, //LSHR, // -
-        // -1, //IUSHR, // -
-        // -1, //LUSHR, // -
-        // -1, //IAND, // -
-        // -2, //LAND, // -
-        // -1, //IOR, // -
-        // -2, //LOR, // -
-        // -1, //IXOR, // -
-        // -2, //LXOR, // -
-        // 0, //IINC, // visitIincInsn
-        // 1, //I2L, // visitInsn
-        // 0, //I2F, // -
-        // 1, //I2D, // -
-        // -1, //L2I, // -
-        // -1, //L2F, // -
-        // 0, //L2D, // -
-        // 0, //F2I, // -
-        // 1, //F2L, // -
-        // 1, //F2D, // -
-        // -1, //D2I, // -
-        // 0, //D2L, // -
-        // -1, //D2F, // -
-        // 0, //I2B, // -
-        // 0, //I2C, // -
-        // 0, //I2S, // -
-        // -3, //LCMP, // -
-        // -1, //FCMPL, // -
-        // -1, //FCMPG, // -
-        // -3, //DCMPL, // -
-        // -3, //DCMPG, // -
-        // -1, //IFEQ, // visitJumpInsn
-        // -1, //IFNE, // -
-        // -1, //IFLT, // -
-        // -1, //IFGE, // -
-        // -1, //IFGT, // -
-        // -1, //IFLE, // -
-        // -2, //IF_ICMPEQ, // -
-        // -2, //IF_ICMPNE, // -
-        // -2, //IF_ICMPLT, // -
-        // -2, //IF_ICMPGE, // -
-        // -2, //IF_ICMPGT, // -
-        // -2, //IF_ICMPLE, // -
-        // -2, //IF_ACMPEQ, // -
-        // -2, //IF_ACMPNE, // -
-        // 0, //GOTO, // -
-        // 1, //JSR, // -
-        // 0, //RET, // visitVarInsn
-        // -1, //TABLESWITCH, // visiTableSwitchInsn
-        // -1, //LOOKUPSWITCH, // visitLookupSwitch
-        // -1, //IRETURN, // visitInsn
-        // -2, //LRETURN, // -
-        // -1, //FRETURN, // -
-        // -2, //DRETURN, // -
-        // -1, //ARETURN, // -
-        // 0, //RETURN, // -
-        // NA, //GETSTATIC, // visitFieldInsn
-        // NA, //PUTSTATIC, // -
-        // NA, //GETFIELD, // -
-        // NA, //PUTFIELD, // -
-        // NA, //INVOKEVIRTUAL, // visitMethodInsn
-        // NA, //INVOKESPECIAL, // -
-        // NA, //INVOKESTATIC, // -
-        // NA, //INVOKEINTERFACE, // -
-        // NA, //UNUSED, // NOT VISITED
-        // 1, //NEW, // visitTypeInsn
-        // 0, //NEWARRAY, // visitIntInsn
-        // 0, //ANEWARRAY, // visitTypeInsn
-        // 0, //ARRAYLENGTH, // visitInsn
-        // NA, //ATHROW, // -
-        // 0, //CHECKCAST, // visitTypeInsn
-        // 0, //INSTANCEOF, // -
-        // -1, //MONITORENTER, // visitInsn
-        // -1, //MONITOREXIT, // -
-        // NA, //WIDE, // NOT VISITED
-        // NA, //MULTIANEWARRAY, // visitMultiANewArrayInsn
-        // -1, //IFNULL, // visitJumpInsn
-        // -1, //IFNONNULL, // -
-        // NA, //GOTO_W, // -
-        // NA, //JSR_W, // -
-        // };
-        // for (i = 0; i < b.length; ++i) {
-        // System.err.print((char)('E' + b[i]));
-        // }
-        // System.err.println();
-    }
+    private Label currentBlock;
 
     // ------------------------------------------------------------------------
     // Constructor
@@ -586,20 +361,21 @@ class MethodWriter implements MethodVisitor, FrameVisitor {
                 this.exceptions[i] = cw.newClass(exceptions[i]);
             }
         }
-        this.computeMaxs = computeMaxs;
+        this.computeMaxs = computeMaxs || computeFrames;
         this.computeFrames = computeFrames;
-        if (computeFrames) {
-            this.startLabel = new Label();
-            if (name.equals("<init>")) {
+        if (this.computeMaxs) {
+            if (this.computeFrames && name.equals("<init>")) {
                 this.access |= ACC_CONSTRUCTOR;
-                startLabel.initOutputFrame(true);
             }
+            // updates maxLocals
+            int size = getArgumentsAndReturnSizes(descriptor) >> 2;
+            if ((access & Opcodes.ACC_STATIC) != 0) {
+                --size;
+            }
+            maxLocals = size;
+            // creates and visits the label for the first basic block
+            startLabel = new Label();
             visitLabel(startLabel);
-        } else if (computeMaxs) {
-            // pushes the first block onto the stack of blocks to be visited
-            currentBlock = new Label();
-            currentBlock.pushed = true;
-            blockStack = currentBlock;
         }
     }
 
@@ -668,265 +444,52 @@ class MethodWriter implements MethodVisitor, FrameVisitor {
     public void visitCode() {
     }
 
-    public FrameVisitor visitFrame(int nLocal, int nStack) {
+    public FrameVisitor visitFrame(final int nLocal, final int nStack) {
         if (computeFrames) {
             return null;
         } else {
-            return visitFrame(code.length, nLocal, nStack);
+            FrameVisitor fv = visitFrame(code.length, nLocal, nStack);
+            if (nLocal == 0 && nStack == 0) {
+                endFrame();
+            }                
+            return fv;
         }
     }
 
-    private FrameVisitor visitFrame(int offset, int nLocal, int nStack) {
-        int n = 3 + nLocal + nStack;
-        if (frame == null || frame.length < n) {
-            frame = new int[n];
-        }
-        frame[0] = offset;
-        frame[1] = nLocal;
-        frame[2] = nStack;
-        frameIndex = 3;
-        endFrame();
-        return this;
-    }
-
-    public void visitType(int type) {
-        frame[frameIndex++] = type;
+    public void visitType(final int type) {
+        frame[frameIndex++] = /* Label.BASE | */type;
         endFrame();
     }
 
-    public void visitType(String type) {
-        frame[frameIndex++] = Label.BASE_OBJECT_TYPE | cw.addType(type);
+    public void visitType(final String type) {
+        frame[frameIndex++] = Label.OBJECT | cw.addType(type);
         endFrame();
     }
 
-    public void visitUninitializedType(Label newInsn) {
-        frame[frameIndex++] = Label.BASE_UNINITIALIZED_TYPE
+    public void visitUninitializedType(final Label newInsn) {
+        frame[frameIndex++] = Label.UNINITIALIZED
                 | cw.addUninitializedType("", newInsn.position);
         endFrame();
     }
 
-    void visitComputedFrame(Label stack) {
-        int i;
-        int nTop = 0;
-        int nLocal = 0;
-        int nStack = 0;
-        int[] locals = stack.inputLocals;
-        int[] stacks = stack.inputStack;
-        for (i = 0; i < locals.length; ++i) {
-            if (locals[i] == Label.TOP) {
-                ++nTop;
-            } else {
-                nLocal += nTop + 1;
-                nTop = 0;
-            }
-            if (locals[i] == Label.LONG || locals[i] == Label.DOUBLE) {
-                ++i;
-            }
-        }
-        for (i = 0; i < stacks.length; ++i) {
-            ++nStack;
-            if (stacks[i] == Label.LONG || stacks[i] == Label.DOUBLE) {
-                ++i;
-            }
-        }
-        visitFrame(stack.position, nLocal, nStack);
-        for (i = 0; nLocal > 0; ++i, --nLocal) {
-            visitComputedType(locals[i]);
-            if (locals[i] == Label.LONG || locals[i] == Label.DOUBLE) {
-                ++i;
-            }
-        }
-        for (i = 0; i < stacks.length; ++i) {
-            visitComputedType(stacks[i]);
-            if (stacks[i] == Label.LONG || stacks[i] == Label.DOUBLE) {
-                ++i;
-            }
-        }
-    }
-
-    void visitComputedType(int type) {
-        int d = type & 0xF0000000;
-        if (d == 0) {
-            if (type == Label.BOOLEAN || type == Label.BYTE
-                    || type == Label.CHAR || type == Label.SHORT)
-                throw new RuntimeException();
-            frame[frameIndex++] = type;
-        } else {
-            // TODO cache the result in cw.typeTable?
-            // the code below is quite slow
-            StringBuffer buf = new StringBuffer();
-            d >>= 28;
-            while (d-- > 0) {
-                buf.append('[');
-            }
-            if ((type & 0xFF00000) == Label.BASE_OBJECT_TYPE) {
-                buf.append('L');
-                buf.append(cw.typeTable[type & 0xFFFFF].strVal1);
-                buf.append(';');
-            } else {
-                switch (type & 0xF) {
-                    case 1:
-                        buf.append('I');
-                        break;
-                    case 2:
-                        buf.append('F');
-                        break;
-                    case 3:
-                        buf.append('D');
-                        break;
-                    case 9:
-                        buf.append('Z');
-                        break;
-                    case 10:
-                        buf.append('B');
-                        break;
-                    case 11:
-                        buf.append('C');
-                        break;
-                    case 12:
-                        buf.append('S');
-                        break;
-                    default:
-                        buf.append('J');
-                }
-            }
-            frame[frameIndex++] = Label.BASE_OBJECT_TYPE
-                    | cw.addType(buf.toString());
-        }
-        endFrame();
-    }
-
-    private void endFrame() {
-        if (frameIndex == 3 + frame[1] + frame[2]) {
-            if (previousFrame != null) {
-                if (stackMap == null) {
-                    stackMap = new ByteVector();
-                }
-                int localsSize = previousFrame[1];
-                int clocalsSize = frame[1];
-                int cstackSize = frame[2];
-                int delta = frameCount == 0 ? frame[0] : frame[0]
-                        - previousFrame[0] - 1;
-                int type = FULL_FRAME;
-                int k = 0;
-                if (cstackSize == 0) {
-                    k = clocalsSize - localsSize;
-                    switch (k) {
-                        case -3:
-                        case -2:
-                        case -1:
-                            type = CHOP_FRAME;
-                            localsSize = clocalsSize;
-                            break;
-                        case 0:
-                            type = delta < 64
-                                    ? SAME_FRAME
-                                    : SAME_FRAME_EXTENDED;
-                            break;
-                        case 1:
-                        case 2:
-                        case 3:
-                            type = APPEND_FRAME;
-                            break;
-                    }
-                } else if (clocalsSize == localsSize && cstackSize == 1
-                        && delta < 63)
-                {
-                    type = SAME_LOCALS_1_STACK_ITEM_FRAME;
-                }
-                if (type != FULL_FRAME) {
-                    // verify if locals are the same
-                    int l = 3;
-                    for (int j = 0; j < localsSize; j++) {
-                        if (frame[l] != previousFrame[l]) {
-                            type = FULL_FRAME;
-                            break;
-                        }
-                        l++;
-                    }
-                }
-                switch (type) {
-                    case SAME_FRAME:
-                        stackMap.putByte(delta);
-                        break;
-                    case SAME_LOCALS_1_STACK_ITEM_FRAME:
-                        stackMap.putByte(SAME_LOCALS_1_STACK_ITEM_FRAME + delta);
-                        writeFrameTypes(3 + clocalsSize, 4 + clocalsSize);
-                        break;
-                    case SAME_FRAME_EXTENDED:
-                        stackMap.putByte(SAME_FRAME_EXTENDED).putShort(delta);
-                        break;
-                    case CHOP_FRAME:
-                        stackMap.putByte(SAME_FRAME_EXTENDED + k)
-                                .putShort(delta);
-                        break;
-                    case APPEND_FRAME:
-                        stackMap.putByte(SAME_FRAME_EXTENDED + k)
-                                .putShort(delta);
-                        writeFrameTypes(3 + localsSize, 3 + clocalsSize);
-                        break;
-                    // case FULL_FRAME:
-                    default:
-                        stackMap.putByte(FULL_FRAME).putShort(delta);
-                        stackMap.putShort(clocalsSize);
-                        writeFrameTypes(3, 3 + clocalsSize);
-                        stackMap.putShort(cstackSize);
-                        writeFrameTypes(3 + clocalsSize, 3 + clocalsSize
-                                + cstackSize);
-                }
-                ++frameCount;
-            }
-            if (previousFrame == null || previousFrame.length < frame.length) {
-                previousFrame = frame;
-                frame = null;
-            } else {
-                System.arraycopy(frame, 0, previousFrame, 0, frame.length);
-            }
-        }
-    }
-
-    private void writeFrameTypes(int start, int end) {
-        for (int i = start; i < end; ++i) {
-            int type = frame[i];
-            switch (type & 0xFFF00000) {
-                case Label.BASE_OBJECT_TYPE:
-                    stackMap.putByte(7); // Object
-                    stackMap.putShort(cw.newClass(cw.typeTable[type & 0xFFFFF].strVal1));
-                    break;
-                case Label.BASE_UNINITIALIZED_TYPE:
-                    stackMap.putByte(8); // Uninitialized
-                    stackMap.putShort(cw.typeTable[type & 0xFFFFF].intVal);
-                    break;
-                default:
-                    stackMap.putByte(type & 0xFF);
-            }
-        }
-    }
-
     public void visitInsn(final int opcode) {
-        if (computeFrames && currentBlock != null) {
-            currentBlock.execute(opcode, 0, null, null);
-            // if opcode == ATHROW or xRETURN, ends current block (no successor)
-            if ((opcode >= Opcodes.IRETURN && opcode <= Opcodes.RETURN)
-                    || opcode == Opcodes.ATHROW)
-            {
-                currentBlock = null;
-            }
-        } else if (computeMaxs) {
-            // updates current and max stack sizes
-            int size = stackSize + SIZE[opcode];
-            if (size > maxStackSize) {
-                maxStackSize = size;
-            }
-            stackSize = size;
-            // if opcode == ATHROW or xRETURN, ends current block (no successor)
-            if ((opcode >= Opcodes.IRETURN && opcode <= Opcodes.RETURN)
-                    || opcode == Opcodes.ATHROW)
-            {
-                if (currentBlock != null) {
-                    currentBlock.maxStackSize = maxStackSize;
-                    currentBlock = null;
+        Label currentBlock = this.currentBlock;
+        if (currentBlock != null) {
+            if (computeFrames) {
+                currentBlock.execute(opcode, 0, null, null);
+            } else {
+                // updates current and max stack sizes
+                int size = currentBlock.outputStackTop + Label.SIZE[opcode];
+                if (size > currentBlock.outputStackMax) {
+                    currentBlock.outputStackMax = size;
                 }
+                currentBlock.outputStackTop = size;
+            }
+            // if opcode == ATHROW or xRETURN, ends current block (no successor)
+            if ((opcode >= Opcodes.IRETURN && opcode <= Opcodes.RETURN)
+                    || opcode == Opcodes.ATHROW)
+            {
+                this.currentBlock = null;
             }
         }
         // adds the instruction to the bytecode of the method
@@ -934,16 +497,18 @@ class MethodWriter implements MethodVisitor, FrameVisitor {
     }
 
     public void visitIntInsn(final int opcode, final int operand) {
-        if (computeFrames && currentBlock != null) {
-            currentBlock.execute(opcode, operand, null, null);
-        } else if (computeMaxs && opcode != Opcodes.NEWARRAY) {
-            // updates current and max stack sizes only if opcode == NEWARRAY
-            // (stack size variation = 0 for BIPUSH or SIPUSH)
-            int size = stackSize + 1;
-            if (size > maxStackSize) {
-                maxStackSize = size;
+        Label currentBlock = this.currentBlock;
+        if (currentBlock != null) {
+            if (computeFrames) {
+                currentBlock.execute(opcode, operand, null, null);
+            } else if (opcode != Opcodes.NEWARRAY) {
+                // updates current and max stack sizes
+                int size = currentBlock.outputStackTop + 1;
+                if (size > currentBlock.outputStackMax) {
+                    currentBlock.outputStackMax = size;
+                }
+                currentBlock.outputStackTop = size;
             }
-            stackSize = size;
         }
         // adds the instruction to the bytecode of the method
         if (opcode == Opcodes.SIPUSH) {
@@ -954,25 +519,23 @@ class MethodWriter implements MethodVisitor, FrameVisitor {
     }
 
     public void visitVarInsn(final int opcode, final int var) {
-        if (computeFrames && currentBlock != null) {
-            currentBlock.execute(opcode, var, null, null);
-        } else if (computeMaxs) {
-            // updates current and max stack sizes
-            if (opcode == Opcodes.RET) {
-                // no stack change, but end of current block (no successor)
-                if (currentBlock != null) {
-                    currentBlock.maxStackSize = maxStackSize;
-                    currentBlock = null;
+        Label currentBlock = this.currentBlock;
+        if (currentBlock != null) {
+            if (computeFrames) {
+                currentBlock.execute(opcode, var, null, null);
+            } else {
+                // updates current and max stack sizes
+                if (opcode == Opcodes.RET) {
+                    // no stack change, but end of current block (no successor)
+                    this.currentBlock = null;
+                } else { // xLOAD or xSTORE
+                    int size = currentBlock.outputStackTop + Label.SIZE[opcode];
+                    if (size > currentBlock.outputStackMax) {
+                        currentBlock.outputStackMax = size;
+                    }
+                    currentBlock.outputStackTop = size;
                 }
-            } else { // xLOAD or xSTORE
-                int size = stackSize + SIZE[opcode];
-                if (size > maxStackSize) {
-                    maxStackSize = size;
-                }
-                stackSize = size;
             }
-        }
-        if (computeFrames || computeMaxs) {
             // updates max locals
             int n;
             if (opcode == Opcodes.LLOAD || opcode == Opcodes.DLOAD
@@ -1006,16 +569,19 @@ class MethodWriter implements MethodVisitor, FrameVisitor {
 
     public void visitTypeInsn(final int opcode, final String desc) {
         Item i = cw.newClassItem(desc);
-        if (computeFrames && currentBlock != null) {
-            currentBlock.execute(opcode, code.length, cw, i);
-        } else if (computeMaxs && opcode == Opcodes.NEW) {
-            // updates current and max stack sizes only if opcode == NEW
-            // (stack size variation = 0 for ANEWARRAY, CHECKCAST, INSTANCEOF)
-            int size = stackSize + 1;
-            if (size > maxStackSize) {
-                maxStackSize = size;
+        Label currentBlock = this.currentBlock;
+        if (currentBlock != null) {
+            if (computeFrames) {
+                currentBlock.execute(opcode, code.length, cw, i);
+            } else if (opcode == Opcodes.NEW) {
+                // updates current and max stack sizes only if opcode == NEW
+                // (no stack change for ANEWARRAY, CHECKCAST, INSTANCEOF)
+                int size = currentBlock.outputStackTop + 1;
+                if (size > currentBlock.outputStackMax) {
+                    currentBlock.outputStackMax = size;
+                }
+                currentBlock.outputStackTop = size;
             }
-            stackSize = size;
         }
         // adds the instruction to the bytecode of the method
         code.put12(opcode, i.index);
@@ -1028,32 +594,35 @@ class MethodWriter implements MethodVisitor, FrameVisitor {
         final String desc)
     {
         Item i = cw.newFieldItem(owner, name, desc);
-        if (computeFrames && currentBlock != null) {
-            currentBlock.execute(opcode, 0, cw, i);
-        } else if (computeMaxs) {
-            int size;
-            // computes the stack size variation
-            char c = desc.charAt(0);
-            switch (opcode) {
-                case Opcodes.GETSTATIC:
-                    size = stackSize + (c == 'D' || c == 'J' ? 2 : 1);
-                    break;
-                case Opcodes.PUTSTATIC:
-                    size = stackSize + (c == 'D' || c == 'J' ? -2 : -1);
-                    break;
-                case Opcodes.GETFIELD:
-                    size = stackSize + (c == 'D' || c == 'J' ? 1 : 0);
-                    break;
-                // case Constants.PUTFIELD:
-                default:
-                    size = stackSize + (c == 'D' || c == 'J' ? -3 : -2);
-                    break;
+        Label currentBlock = this.currentBlock;
+        if (currentBlock != null) {
+            if (computeFrames) {
+                currentBlock.execute(opcode, 0, cw, i);
+            } else {
+                // computes the stack size variation
+                int size = currentBlock.outputStackTop;
+                char c = desc.charAt(0);
+                switch (opcode) {
+                    case Opcodes.GETSTATIC:
+                        size += (c == 'D' || c == 'J' ? 2 : 1);
+                        break;
+                    case Opcodes.PUTSTATIC:
+                        size += (c == 'D' || c == 'J' ? -2 : -1);
+                        break;
+                    case Opcodes.GETFIELD:
+                        size += (c == 'D' || c == 'J' ? 1 : 0);
+                        break;
+                    // case Constants.PUTFIELD:
+                    default:
+                        size += +(c == 'D' || c == 'J' ? -3 : -2);
+                        break;
+                }
+                // updates current and max stack sizes
+                if (size > currentBlock.outputStackMax) {
+                    currentBlock.outputStackMax = size;
+                }
+                currentBlock.outputStackTop = size;
             }
-            // updates current and max stack sizes
-            if (size > maxStackSize) {
-                maxStackSize = size;
-            }
-            stackSize = size;
         }
         // adds the instruction to the bytecode of the method
         code.put12(opcode, i.index);
@@ -1068,35 +637,38 @@ class MethodWriter implements MethodVisitor, FrameVisitor {
         boolean itf = opcode == Opcodes.INVOKEINTERFACE;
         Item i = cw.newMethodItem(owner, name, desc, itf);
         int argSize = i.intVal;
-        if (computeFrames && currentBlock != null) {
-            currentBlock.execute(opcode, 0, cw, i);
-        } else if (computeMaxs) {
-            /*
-             * computes the stack size variation. In order not to recompute
-             * several times this variation for the same Item, we use the intVal
-             * field of this item to store this variation, once it has been
-             * computed. More precisely this intVal field stores the sizes of
-             * the arguments and of the return value corresponding to desc.
-             */
-            if (argSize == 0) {
-                // the above sizes have not been computed yet, so we compute
-                // them...
-                argSize = getArgumentsAndReturnSizes(desc);
-                // ... and we save them in order not to recompute them in the
-                // future
-                i.intVal = argSize;
-            }
-            int size;
-            if (opcode == Opcodes.INVOKESTATIC) {
-                size = stackSize - (argSize >> 2) + (argSize & 0x03) + 1;
+        Label currentBlock = this.currentBlock;
+        if (currentBlock != null) {
+            if (computeFrames) {
+                currentBlock.execute(opcode, 0, cw, i);
             } else {
-                size = stackSize - (argSize >> 2) + (argSize & 0x03);
+                /*
+                 * computes the stack size variation. In order not to recompute
+                 * several times this variation for the same Item, we use the
+                 * intVal field of this item to store this variation, once it
+                 * has been computed. More precisely this intVal field stores
+                 * the sizes of the arguments and of the return value
+                 * corresponding to desc.
+                 */
+                if (argSize == 0) {
+                    // the above sizes have not been computed yet, so we compute
+                    // them and we save them in order not to recompute them in
+                    // the future
+                    argSize = getArgumentsAndReturnSizes(desc);
+                    i.intVal = argSize;
+                }
+                int size = currentBlock.outputStackTop;
+                if (opcode == Opcodes.INVOKESTATIC) {
+                    size += -(argSize >> 2) + (argSize & 0x03) + 1;
+                } else {
+                    size += -(argSize >> 2) + (argSize & 0x03);
+                }
+                // updates current and max stack sizes
+                if (size > currentBlock.outputStackMax) {
+                    currentBlock.outputStackMax = size;
+                }
+                currentBlock.outputStackTop = size;
             }
-            // updates current and max stack sizes
-            if (size > maxStackSize) {
-                maxStackSize = size;
-            }
-            stackSize = size;
         }
         // adds the instruction to the bytecode of the method
         if (itf) {
@@ -1111,43 +683,36 @@ class MethodWriter implements MethodVisitor, FrameVisitor {
     }
 
     public void visitJumpInsn(final int opcode, final Label label) {
-        if (computeFrames && currentBlock != null) {
-            currentBlock.execute(opcode, 0, null, null);
-            addSuccessor(0, label);
-            (label.first == null ? label : label.first).store = 1;
-            if (opcode == Opcodes.GOTO) {
-                currentBlock = null;
-            } else {
-                // TODO not at the right place, must be just after the jump insn
-                // must also take into account possible conversion into IF
-                // GOTO_W (see below, in this case, an additional basic block is
-                // nedded)
-                visitLabel(new Label());
-            }
-        } else if (computeMaxs) {
-            if (opcode == Opcodes.GOTO) {
-                // no stack change, but end of current block (with one new
-                // successor)
-                if (currentBlock != null) {
-                    currentBlock.maxStackSize = maxStackSize;
-                    addSuccessor(stackSize, label);
-                    currentBlock = null;
-                }
-            } else if (opcode == Opcodes.JSR) {
-                if (currentBlock != null) {
-                    addSuccessor(stackSize + 1, label);
-                }
+        Label nextInsn = null;
+        Label currentBlock = this.currentBlock;
+        if (currentBlock != null) {
+            if (computeFrames) {
+                currentBlock.execute(opcode, 0, null, null);
+                // 'label' is the target of a jump instruction
+                label.first.status |= Label.TARGET;
             } else {
                 // updates current stack size (max stack size unchanged because
                 // stack size variation always negative in this case)
-                stackSize += SIZE[opcode];
-                if (currentBlock != null) {
-                    addSuccessor(stackSize, label);
-                }
+                currentBlock.outputStackTop += Label.SIZE[opcode];
+            }
+            // adds 'label' as a successor of this basic block
+            addSuccessor(label);
+            if (opcode == Opcodes.JSR) {
+                // marks the edge to 'label' as corresponding to a JSR insn
+                currentBlock.successors.kind = Edge.JSR;
+            }
+            if (opcode == Opcodes.GOTO) {
+                // ends the current block with no successor other than 'label'
+                this.currentBlock = null;
+            } else {
+                // creates a Label for the other successor of the current block
+                nextInsn = new Label();
             }
         }
         // adds the instruction to the bytecode of the method
-        if (label.resolved && label.position - code.length < Short.MIN_VALUE) {
+        if ((label.status & Label.RESOLVED) != 0
+                && label.position - code.length < Short.MIN_VALUE)
+        {
             /*
              * case of a backward jump with an offset < -32768. In this case we
              * automatically replace GOTO with GOTO_W, JSR with JSR_W and IFxxx
@@ -1160,6 +725,11 @@ class MethodWriter implements MethodVisitor, FrameVisitor {
             } else if (opcode == Opcodes.JSR) {
                 code.putByte(201); // JSR_W
             } else {
+                // if the IF instruction is transformed into IFNOT GOTO_W the
+                // next instruction becomes the target of the IFNOT instruction
+                if (nextInsn != null) {
+                    nextInsn.status |= Label.TARGET;
+                }
                 code.putByte(opcode <= 166
                         ? ((opcode + 1) ^ 1) - 1
                         : opcode ^ 1);
@@ -1177,67 +747,59 @@ class MethodWriter implements MethodVisitor, FrameVisitor {
             code.putByte(opcode);
             label.put(this, code, code.length - 1, false);
         }
+        // if the jump instruction is not a GOTO, the next instruction is also
+        // a successor of this instruction. Calling visitLabel adds the label
+        // of this next instruction as a successor of the current block, and
+        // starts a new basic block
+        if (nextInsn != null) {
+            visitLabel(nextInsn);
+        }
     }
 
     public void visitLabel(final Label label) {
         // resolves previous forward references to label, if any
         resize |= label.resolve(this, code.length, code.data);
-        if (computeFrames && !label.debug) {
-            if (!label.debug) {
-                if (currentBlock != null) {
-                    if (label.position != currentBlock.position) {
-                        // ends current block (with one new successor)
-                        addSuccessor(0, label);
-                        // begins a new current block,
-                        currentBlock = label;
-                    } else {
-                        // case of successive labels, do not start a new basic
-                        // block
-                        label.first = currentBlock;
-                        if (label.store > 0) {
-                            currentBlock.store = label.store;
-                        }
-                    }
-                } else {
-                    // begins a new current block
-                    currentBlock = label;
+        if (computeMaxs && (label.status & Label.DEBUG) == 0) {
+            if (currentBlock != null) {
+                if (label.position == currentBlock.position) {
+                    // successive labels, do not start a new basic block
+                    currentBlock.status |= (label.status & Label.TARGET);
+                    label.first = currentBlock;
+                    return;
                 }
+                // ends current block (with one new successor)
+                addSuccessor(label);
             }
+            // begins a new current block
+            currentBlock = label;
+            // updates the list of the visited labels
             if (lastLabel != null) {
                 lastLabel.successor = label;
             }
             lastLabel = label;
-        } else if (computeMaxs) {
-            if (currentBlock != null) {
-                // ends current block (with one new successor)
-                currentBlock.maxStackSize = maxStackSize;
-                addSuccessor(stackSize, label);
-            }
-            // begins a new current block,
-            // resets the relative current and max stack sizes
-            currentBlock = label;
-            stackSize = 0;
-            maxStackSize = 0;
         }
     }
 
     public void visitLdcInsn(final Object cst) {
         Item i = cw.newConstItem(cst);
-        if (computeFrames && currentBlock != null) {
-            currentBlock.execute(Opcodes.LDC, 0, cw, i);
-        } else if (computeMaxs) {
-            int size;
-            // computes the stack size variation
-            if (i.type == 'J' || i.type == 'D') {
-                size = stackSize + 2;
+        Label currentBlock = this.currentBlock;
+        if (currentBlock != null) {
+            if (computeFrames) {
+                currentBlock.execute(Opcodes.LDC, 0, cw, i);
             } else {
-                size = stackSize + 1;
+                int size = currentBlock.outputStackTop;
+                // computes the stack size variation
+                if (i.type == 'J' || i.type == 'D') {
+                    size += 2;
+                } else {
+                    size += 1;
+                }
+                // updates current and max stack sizes
+                if (size > currentBlock.outputStackMax) {
+                    currentBlock.outputStackMax = size;
+                }
+                currentBlock.outputStackTop = size;
             }
-            // updates current and max stack sizes
-            if (size > maxStackSize) {
-                maxStackSize = size;
-            }
-            stackSize = size;
         }
         // adds the instruction to the bytecode of the method
         int index = i.index;
@@ -1251,10 +813,11 @@ class MethodWriter implements MethodVisitor, FrameVisitor {
     }
 
     public void visitIincInsn(final int var, final int increment) {
-        if (computeFrames && currentBlock != null) {
-            currentBlock.execute(Opcodes.IINC, var, null, null);
-        } else if (computeMaxs) {
-            // updates max locals only (no stack change)
+        if (currentBlock != null) {
+            if (computeFrames) {
+                currentBlock.execute(Opcodes.IINC, var, null, null);
+            }
+            // updates max locals
             int n = var + 1;
             if (n > maxLocals) {
                 maxLocals = n;
@@ -1276,27 +839,22 @@ class MethodWriter implements MethodVisitor, FrameVisitor {
         final Label dflt,
         final Label labels[])
     {
-        if (computeFrames && currentBlock != null) {
-            currentBlock.execute(Opcodes.TABLESWITCH, 0, null, null);
-            addSuccessor(0, dflt);
-            (dflt.first == null ? dflt : dflt.first).store = 1;
+        Label currentBlock = this.currentBlock;
+        if (currentBlock != null) {
+            if (computeFrames) {
+                currentBlock.execute(Opcodes.TABLESWITCH, 0, null, null);
+            } else {
+                // updates current stack size (max stack size unchanged)
+                --currentBlock.outputStackTop;
+            }
+            // ends current block (with many new jump target successors)
+            addSuccessor(dflt);
+            dflt.first.status |= Label.TARGET;
             for (int i = 0; i < labels.length; ++i) {
-                addSuccessor(0, labels[i]);
-                (labels[i].first == null ? labels[i] : labels[i].first).store = 1;
+                addSuccessor(labels[i]);
+                labels[i].first.status |= Label.TARGET;
             }
-            currentBlock = null;
-        } else if (computeMaxs) {
-            // updates current stack size (max stack size unchanged)
-            --stackSize;
-            // ends current block (with many new successors)
-            if (currentBlock != null) {
-                currentBlock.maxStackSize = maxStackSize;
-                addSuccessor(stackSize, dflt);
-                for (int i = 0; i < labels.length; ++i) {
-                    addSuccessor(stackSize, labels[i]);
-                }
-                currentBlock = null;
-            }
+            this.currentBlock = null;
         }
         // adds the instruction to the bytecode of the method
         int source = code.length;
@@ -1316,27 +874,22 @@ class MethodWriter implements MethodVisitor, FrameVisitor {
         final int keys[],
         final Label labels[])
     {
-        if (computeFrames && currentBlock != null) {
-            currentBlock.execute(Opcodes.LOOKUPSWITCH, 0, null, null);
-            addSuccessor(0, dflt);
-            (dflt.first == null ? dflt : dflt.first).store = 1;
+        Label currentBlock = this.currentBlock;
+        if (currentBlock != null) {
+            if (computeFrames) {
+                currentBlock.execute(Opcodes.LOOKUPSWITCH, 0, null, null);
+            } else {
+                // updates current stack size (max stack size unchanged)
+                --currentBlock.outputStackTop;
+            }
+            // ends current block (with many new jump target successors)
+            addSuccessor(dflt);
+            dflt.first.status |= Label.TARGET;
             for (int i = 0; i < labels.length; ++i) {
-                addSuccessor(0, labels[i]);
-                (labels[i].first == null ? labels[i] : labels[i].first).store = 1;
+                addSuccessor(labels[i]);
+                labels[i].first.status |= Label.TARGET;
             }
-            currentBlock = null;
-        } else if (computeMaxs) {
-            // updates current stack size (max stack size unchanged)
-            --stackSize;
-            // ends current block (with many new successors)
-            if (currentBlock != null) {
-                currentBlock.maxStackSize = maxStackSize;
-                addSuccessor(stackSize, dflt);
-                for (int i = 0; i < labels.length; ++i) {
-                    addSuccessor(stackSize, labels[i]);
-                }
-                currentBlock = null;
-            }
+            this.currentBlock = null;
         }
         // adds the instruction to the bytecode of the method
         int source = code.length;
@@ -1354,12 +907,15 @@ class MethodWriter implements MethodVisitor, FrameVisitor {
 
     public void visitMultiANewArrayInsn(final String desc, final int dims) {
         Item i = cw.newClassItem(desc);
-        if (computeFrames && currentBlock != null) {
-            currentBlock.execute(Opcodes.MULTIANEWARRAY, dims, cw, i);
-        } else if (computeMaxs) {
-            // updates current stack size (max stack size unchanged because
-            // stack size variation always negative or null)
-            stackSize += 1 - dims;
+        Label currentBlock = this.currentBlock;
+        if (currentBlock != null) {
+            if (computeFrames) {
+                currentBlock.execute(Opcodes.MULTIANEWARRAY, dims, cw, i);
+            } else {
+                // updates current stack size (max stack size unchanged because
+                // stack size variation always negative or null)
+                currentBlock.outputStackTop += 1 - dims;
+            }
         }
         // adds the instruction to the bytecode of the method
         code.put12(Opcodes.MULTIANEWARRAY, i.index).putByte(dims);
@@ -1371,29 +927,32 @@ class MethodWriter implements MethodVisitor, FrameVisitor {
         final Label handler,
         final String type)
     {
-        Item i = type != null ? cw.newClassItem(type) : null;
-        if (computeFrames) {
-            Label l = start.first == null ? start : start.first;
-            Label h = handler.first == null ? handler : handler.first;
-            h.store = 1;
-            while (l != end) {
+        if (computeMaxs) {
+            Label l = start.first;
+            Label h = handler.first;
+            Label e = end.first;
+            // computes the kind of the edges to 'h'
+            int kind;
+            if (computeFrames) {
+                String t = type == null ? "java/lang/Throwable" : type;
+                kind = Label.OBJECT | cw.addType(t);
+            } else {
+                // any positive value is ok, the exact value is not used
+                kind = 1;
+            }
+            // h is an exception handler
+            h.status |= Label.TARGET;
+            // adds 'h' as a successor of all labels between 'start' and 'end'
+            while (l != e) {
+                // creates an edge to 'h'
                 Edge b = new Edge();
-                b.exception = Label.BASE_OBJECT_TYPE
-                        | cw.addType(type == null
-                                ? "java/lang/Throwable"
-                                : type);
+                b.kind = kind;
                 b.successor = h;
+                // adds it to the successors of 'l'
                 b.next = l.successors;
                 l.successors = b;
+                // goes to the next label
                 l = l.successor;
-            }
-        } else if (computeMaxs) {
-            // pushes handler block onto the stack of blocks to be visited
-            if (!handler.pushed) {
-                handler.beginStackSize = 1;
-                handler.pushed = true;
-                handler.next = blockStack;
-                blockStack = handler;
             }
         }
         ++catchCount;
@@ -1403,7 +962,7 @@ class MethodWriter implements MethodVisitor, FrameVisitor {
         catchTable.putShort(start.position);
         catchTable.putShort(end.position);
         catchTable.putShort(handler.position);
-        catchTable.putShort(i != null ? i.index : 0);
+        catchTable.putShort(type != null ? cw.newClass(type) : 0);
     }
 
     public void visitLocalVariable(
@@ -1446,99 +1005,72 @@ class MethodWriter implements MethodVisitor, FrameVisitor {
     }
 
     public void visitMaxs(final int maxStack, final int maxLocals) {
-        if (computeFrames || computeMaxs) {
-            // updates maxLocals
-            int size = getArgumentsAndReturnSizes(descriptor) >> 2;
-            if ((access & Opcodes.ACC_STATIC) != 0) {
-                --size;
+        if (computeMaxs) {
+            if (computeFrames) {
+                // creates and visits the first (implicit) frame
+                Type[] args = Type.getArgumentTypes(descriptor);
+                startLabel.initInputFrame(cw, access, args, this.maxLocals);
+                visitFrame(startLabel);
             }
-            if (size > this.maxLocals) {
-                this.maxLocals = size;
-            }
-        }
-        if (computeFrames) {
-            Type[] types = Type.getArgumentTypes(descriptor);
-            startLabel.initInputFrame(cw, access, types, this.maxLocals);
-            visitComputedFrame(startLabel);
 
+            /*
+             * fix point algorithm: mark the first basic block as 'changed'
+             * (i.e. put it in the 'changed' list) and, while there are changed
+             * basic blocks, choose one, mark it as unchanged, and update its
+             * successors (which can be changed in the process).
+             */
             int max = 0;
-            Label stack = startLabel;
-            while (stack != null) {
-                Label l = stack;
-                stack = stack.next;
+            Label changed = startLabel;
+            while (changed != null) {
+                // removes a basic block from the list of changed basic blocks
+                Label l = changed;
+                changed = changed.next;
                 l.next = null;
-                if (l.store == 1) {
-                    l.store = 2;
+                // a reacheable jump target must be stored in the stack map
+                if ((l.status & Label.TARGET) != 0) {
+                    l.status |= Label.STORE;
                 }
-                int blockMax = l.inputStack.length + l.outputStackMax;
+                // updates the (absolute) maximum stack size
+                int blockMax;
+                if (computeFrames) {
+                    blockMax = l.inputStack.length + l.outputStackMax;
+                } else {
+                    blockMax = l.inputStackTop + l.outputStackMax;
+                }
                 if (blockMax > max) {
                     max = blockMax;
                 }
+                // updates the successors of the current basic block
                 Edge e = l.successors;
                 while (e != null) {
-                    Label n = e.successor;
-                    if (n.first != null) {
-                        n = n.first;
+                    Label n = e.successor.first;
+                    boolean change;
+                    if (computeFrames) {
+                        change = l.merge(cw, n, e.kind);
+                    } else {
+                        change = l.merge(n, e.kind);
                     }
-                    if (l.merge(cw, n, e.exception) && n.next == null) {
-                        n.next = stack;
-                        stack = n;
+                    if (change && n.next == null) {
+                        // if n has changed and is not already in the 'changed'
+                        // list, adds it to this list
+                        n.next = changed;
+                        changed = n;
                     }
                     e = e.next;
                 }
             }
-            stack = startLabel;
-            while (stack != null) {
-                if (stack.first == null && stack.store == 2) {
-                    visitComputedFrame(stack);
-                }
-                stack = stack.successor;
-            }
             this.maxStack = max;
-        } else if (computeMaxs) {
-            // true (non relative) max stack size
-            int max = 0;
-            /*
-             * control flow analysis algorithm: while the block stack is not
-             * empty, pop a block from this stack, update the max stack size,
-             * compute the true (non relative) begin stack size of the
-             * successors of this block, and push these successors onto the
-             * stack (unless they have already been pushed onto the stack).
-             * Note: by hypothesis, the {@link Label#beginStackSize} of the
-             * blocks in the block stack are the true (non relative) beginning
-             * stack sizes of these blocks.
-             */
-            Label stack = blockStack;
-            while (stack != null) {
-                // pops a block from the stack
-                Label l = stack;
-                stack = stack.next;
-                // computes the true (non relative) max stack size of this block
-                int start = l.beginStackSize;
-                int blockMax = start + l.maxStackSize;
-                // updates the global max stack size
-                if (blockMax > max) {
-                    max = blockMax;
-                }
-                // analyses the successors of the block
-                Edge b = l.successors;
-                while (b != null) {
-                    l = b.successor;
-                    // if this successor has not already been pushed onto the
-                    // stack...
-                    if (!l.pushed) {
-                        // computes the true beginning stack size of this
-                        // successor block
-                        l.beginStackSize = start + b.stackSize;
-                        // pushes this successor onto the stack
-                        l.pushed = true;
-                        l.next = stack;
-                        stack = l;
+
+            if (computeFrames) {
+                // visits all the frames that must be stored in the stack map
+                Label l = startLabel;
+                while (l != null) {
+                    if ((l.status & Label.STORE) != 0) {
+                        visitFrame(l);
                     }
-                    b = b.next;
+                    l = l.successor;
                 }
             }
-            this.maxStack = max;
         } else {
             this.maxStack = maxStack;
             this.maxLocals = maxLocals;
@@ -1593,17 +1125,261 @@ class MethodWriter implements MethodVisitor, FrameVisitor {
     /**
      * Adds a successor to the {@link #currentBlock currentBlock} block.
      * 
-     * @param stackSize the current (relative) stack size in the current block.
      * @param successor the successor block to be added to the current block.
      */
-    private void addSuccessor(final int stackSize, final Label successor) {
+    private void addSuccessor(final Label successor) {
         Edge b = new Edge();
-        // initializes the previous Edge object...
-        b.stackSize = stackSize;
         b.successor = successor;
-        // ...and adds it to the successor list of the currentBlock block
         b.next = currentBlock.successors;
         currentBlock.successors = b;
+    }
+
+    // ------------------------------------------------------------------------
+    // Utility methods: stack map frames
+    // ------------------------------------------------------------------------
+
+    /**
+     * Visits a frame that has been computed from scratch.
+     * 
+     * @param block the basic block whose input frame must be visited.
+     */
+    private void visitFrame(final Label block) {
+        int i, t;
+        int nTop = 0;
+        int nLocal = 0;
+        int nStack = 0;
+        int[] locals = block.inputLocals;
+        int[] stacks = block.inputStack;
+        // computes the number of locals (ignores TOP types that are just after
+        // a LONG or a DOUBLE, and all trailing TOP types)
+        for (i = 0; i < locals.length; ++i) {
+            t = locals[i];
+            if (t == Label.TOP) {
+                ++nTop;
+            } else {
+                nLocal += nTop + 1;
+                nTop = 0;
+            }
+            if (t == Label.LONG || t == Label.DOUBLE) {
+                ++i;
+            }
+        }
+        // computes the stack size (ignores TOP types that are just after
+        // a LONG or a DOUBLE)
+        for (i = 0; i < stacks.length; ++i) {
+            t = stacks[i];
+            ++nStack;
+            if (t == Label.LONG || t == Label.DOUBLE) {
+                ++i;
+            }
+        }
+        // visits the frame and its content
+        visitFrame(block.position, nLocal, nStack);
+        for (i = 0; nLocal > 0; ++i, --nLocal) {
+            t = locals[i];
+            frame[frameIndex++] = t;
+            if (t == Label.LONG || t == Label.DOUBLE) {
+                ++i;
+            }
+        }
+        for (i = 0; i < stacks.length; ++i) {
+            t = stacks[i];
+            frame[frameIndex++] = t;
+            if (t == Label.LONG || t == Label.DOUBLE) {
+                ++i;
+            }
+        }
+        endFrame();
+    }
+
+    /**
+     * Starts the visit of a stack map frame.
+     * 
+     * @param offset the offset of the instruction to which the frame
+     *        corresponds.
+     * @param nLocal the number of local variables in the frame.
+     * @param nStack the number of stack elements in the frame.
+     * @return a visitor to visit the frame content.
+     */
+    private FrameVisitor visitFrame(
+        final int offset,
+        final int nLocal,
+        final int nStack)
+    {
+        int n = 3 + nLocal + nStack;
+        if (frame == null || frame.length < n) {
+            frame = new int[n];
+        }
+        frame[0] = offset;
+        frame[1] = nLocal;
+        frame[2] = nStack;
+        frameIndex = 3;
+        return this;
+    }
+
+    /**
+     * TODO
+     */
+    private void endFrame() {
+        if (frameIndex == 3 + frame[1] + frame[2]) {
+            if (previousFrame != null) {
+                if (stackMap == null) {
+                    stackMap = new ByteVector();
+                }
+                writeFrame();
+                ++frameCount;
+            }
+            if (previousFrame == null || previousFrame.length < frame.length) {
+                previousFrame = frame;
+                frame = null;
+            } else {
+                System.arraycopy(frame, 0, previousFrame, 0, frame.length);
+            }
+        }
+    }
+
+    private void writeFrame() {
+        int localsSize = previousFrame[1];
+        int clocalsSize = frame[1];
+        int cstackSize = frame[2];
+        int type = FULL_FRAME;
+        int k = 0;
+        int delta;
+        if (frameCount == 0) {
+            delta = frame[0];
+        } else {
+            delta = frame[0] - previousFrame[0] - 1;
+        }
+        if (cstackSize == 0) {
+            k = clocalsSize - localsSize;
+            switch (k) {
+                case -3:
+                case -2:
+                case -1:
+                    type = CHOP_FRAME;
+                    localsSize = clocalsSize;
+                    break;
+                case 0:
+                    type = delta < 64 ? SAME_FRAME : SAME_FRAME_EXTENDED;
+                    break;
+                case 1:
+                case 2:
+                case 3:
+                    type = APPEND_FRAME;
+                    break;
+            }
+        } else if (clocalsSize == localsSize && cstackSize == 1) {
+            type = delta < 63
+                    ? SAME_LOCALS_1_STACK_ITEM_FRAME
+                    : SAME_LOCALS_1_STACK_ITEM_FRAME_EXTENDED;
+        }
+        if (type != FULL_FRAME) {
+            // verify if locals are the same
+            int l = 3;
+            for (int j = 0; j < localsSize; j++) {
+                if (frame[l] != previousFrame[l]) {
+                    type = FULL_FRAME;
+                    break;
+                }
+                l++;
+            }
+        }
+        switch (type) {
+            case SAME_FRAME:
+                stackMap.putByte(delta);
+                break;
+            case SAME_LOCALS_1_STACK_ITEM_FRAME:
+                stackMap.putByte(SAME_LOCALS_1_STACK_ITEM_FRAME + delta);
+                writeFrameTypes(3 + clocalsSize, 4 + clocalsSize);
+                break;
+            case SAME_LOCALS_1_STACK_ITEM_FRAME_EXTENDED:
+                stackMap.putByte(SAME_LOCALS_1_STACK_ITEM_FRAME_EXTENDED);
+                stackMap.putShort(delta);
+                writeFrameTypes(3 + clocalsSize, 4 + clocalsSize);
+                break;
+            case SAME_FRAME_EXTENDED:
+                stackMap.putByte(SAME_FRAME_EXTENDED).putShort(delta);
+                break;
+            case CHOP_FRAME:
+                stackMap.putByte(SAME_FRAME_EXTENDED + k).putShort(delta);
+                break;
+            case APPEND_FRAME:
+                stackMap.putByte(SAME_FRAME_EXTENDED + k).putShort(delta);
+                writeFrameTypes(3 + localsSize, 3 + clocalsSize);
+                break;
+            // case FULL_FRAME:
+            default:
+                stackMap.putByte(FULL_FRAME).putShort(delta);
+                stackMap.putShort(clocalsSize);
+                writeFrameTypes(3, 3 + clocalsSize);
+                stackMap.putShort(cstackSize);
+                writeFrameTypes(3 + clocalsSize, 3 + clocalsSize + cstackSize);
+        }
+    }
+
+    /**
+     * TODO
+     * 
+     * @param start
+     * @param end
+     */
+    private void writeFrameTypes(final int start, final int end) {
+        for (int i = start; i < end; ++i) {
+            int t = frame[i];
+            int d = t & Label.DIM;
+            if (d == 0) {
+                int v = t & Label.BASE_VALUE;
+                switch (t & 0xFFF00000) {// TODO mask
+                    case Label.OBJECT:
+                        stackMap.putByte(7)
+                                .putShort(cw.newClass(cw.typeTable[v].strVal1));
+                        break;
+                    case Label.UNINITIALIZED:
+                        stackMap.putByte(8).putShort(cw.typeTable[v].intVal);
+                        break;
+                    default:
+                        stackMap.putByte(v);
+                }
+            } else {
+                StringBuffer buf = new StringBuffer();
+                d >>= 28;
+                while (d-- > 0) {
+                    buf.append('[');
+                }
+                if ((t & 0xFF00000) == Label.OBJECT) {// TODO mask
+                    buf.append('L');
+                    buf.append(cw.typeTable[t & Label.BASE_VALUE].strVal1);
+                    buf.append(';');
+                } else {
+                    switch (t & 0xF) {
+                        case 1:
+                            buf.append('I');
+                            break;
+                        case 2:
+                            buf.append('F');
+                            break;
+                        case 3:
+                            buf.append('D');
+                            break;
+                        case 9:
+                            buf.append('Z');
+                            break;
+                        case 10:
+                            buf.append('B');
+                            break;
+                        case 11:
+                            buf.append('C');
+                            break;
+                        case 12:
+                            buf.append('S');
+                            break;
+                        default:
+                            buf.append('J');
+                    }
+                }
+                stackMap.putByte(7).putShort(cw.newClass(buf.toString()));
+            }
+        }
     }
 
     // ------------------------------------------------------------------------
@@ -1961,8 +1737,8 @@ class MethodWriter implements MethodVisitor, FrameVisitor {
         System.arraycopy(sizes, 0, allSizes, 0, len);
         resize = new boolean[code.length];
 
-        int state = 3; // 3 = loop again, 2 = loop ended, 1 = last pass, 0 =
-        // done
+        // 3 = loop again, 2 = loop ended, 1 = last pass, 0 = done
+        int state = 3;
         do {
             if (state == 3) {
                 state = 2;
@@ -2317,12 +2093,12 @@ class MethodWriter implements MethodVisitor, FrameVisitor {
             Label[] labels = cattrs.getLabels();
             if (labels != null) {
                 for (i = labels.length - 1; i >= 0; --i) {
-                    if (!labels[i].resized) {
+                    if ((labels[i].status & Label.RESIZED) == 0) {
                         labels[i].position = getNewOffset(allIndexes,
                                 allSizes,
                                 0,
                                 labels[i].position);
-                        labels[i].resized = true;
+                        labels[i].status |= Label.RESIZED;
                     }
                 }
             }

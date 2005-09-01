@@ -36,15 +36,32 @@ package org.objectweb.asm;
  */
 class Edge {
 
-    int exception;
+    /**
+     * Denotes a control flow graph edge corresponding to a JSR instruction.
+     */
+    final static int JSR = -1;
 
     /**
-     * The (relative) stack size in the basic block from which this edge
-     * originates. This size is equal to the stack size at the "jump"
-     * instruction to which this edge corresponds, relatively to the stack size
-     * at the beginning of the originating basic block.
+     * Denotes a normal control flow graph edge.
      */
-    int stackSize;
+    final static int NORMAL = 0;
+
+    /**
+     * Denotes a control flow graph edge corresponding to an exception handler.
+     * More precisely any {@link Edge} whose {@link #kind} is strictly positive
+     * corresponds to an exception handler. The actual value of {@link #kind} is
+     * the index, in the {@link ClassWriter} type table, of the exception that
+     * is catched.
+     */
+    final static int EXCEPTION = 1;
+
+    /**
+     * The kind of this control flow graph edge.
+     * @see #JSR
+     * @see #NORMAL
+     * @see #EXCEPTION
+     */
+    int kind;
 
     /**
      * The successor block of the basic block from which this edge originates.

@@ -1068,6 +1068,23 @@ public class Label {
     }
 
     /**
+     * Pops the given number of types from the output frame stack.
+     * 
+     * @param elements the number of types that must be popped.
+     */
+    private void pop(final int elements) {
+        if (outputStackTop >= elements) {
+            outputStackTop -= elements;
+        } else {
+            // if the number of elements to be popped is greater than the number
+            // of elements in the output stack, clear it, and pops the remaining
+            // elements from the input stack.
+            inputStackTop -= elements - outputStackTop;
+            outputStackTop = 0;
+        }
+    }
+
+    /**
      * Pops a type from the output frame stack.
      * 
      * @param desc the descriptor of the type to be popped. Can also be a method
@@ -1082,23 +1099,6 @@ public class Label {
             pop(2);
         } else {
             pop(1);
-        }
-    }
-
-    /**
-     * Pops the given number of types from the output frame stack.
-     * 
-     * @param elements the number of types that must be popped.
-     */
-    private void pop(final int elements) {
-        if (outputStackTop >= elements) {
-            outputStackTop -= elements;
-        } else {
-            // if the number of elements to be popped is greater than the number
-            // of elements in the output stack, clear it, and pops the remaining
-            // elements from the input stack.
-            inputStackTop -= elements - outputStackTop;
-            outputStackTop = 0;
         }
     }
 
@@ -1643,7 +1643,6 @@ public class Label {
         }
 
         for (i = 0; i < nLocal; ++i) {
-            s = -1;
             if (outputLocals != null && i < outputLocals.length) {
                 s = outputLocals[i];
                 if (s == 0) {

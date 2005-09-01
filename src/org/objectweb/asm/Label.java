@@ -159,7 +159,9 @@ public class Label {
      * semantics of this field depends on the algorithm that is used.
      * 
      * When only the maximum stack size is computed, this field is the number of
-     * elements in the input stack, which is always positive or null.
+     * elements in the input stack, plus one. Basic blocks that have never been
+     * visited have a null inputStackTop, and can therefore be distinguished 
+     * from labels whose inputStackTop has already been computed. 
      * 
      * When the stack map frames are completely computed, this field is the
      * offset of the first output stack element relatively to the top of the
@@ -700,7 +702,7 @@ public class Label {
         } else {
             // the input stack of an exception handler contains only one value,
             // namely the exception that was thrown
-            nInputStack = 1;
+            nInputStack = 1 + 1; // see inputStackTop
         }
         if (label.inputStackTop != nInputStack) {
             label.inputStackTop = nInputStack;

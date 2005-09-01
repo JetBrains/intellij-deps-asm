@@ -1011,6 +1011,8 @@ class MethodWriter implements MethodVisitor, FrameVisitor {
                 Type[] args = Type.getArgumentTypes(descriptor);
                 startLabel.initInputFrame(cw, access, args, this.maxLocals);
                 visitFrame(startLabel);
+            } else {
+                startLabel.inputStackTop = 0 + 1; // see Label.inputStackTop
             }
 
             /*
@@ -1035,7 +1037,7 @@ class MethodWriter implements MethodVisitor, FrameVisitor {
                 if (computeFrames) {
                     blockMax = l.inputStack.length + l.outputStackMax;
                 } else {
-                    blockMax = l.inputStackTop + l.outputStackMax;
+                    blockMax = l.inputStackTop - 1 + l.outputStackMax;
                 }
                 if (blockMax > max) {
                     max = blockMax;

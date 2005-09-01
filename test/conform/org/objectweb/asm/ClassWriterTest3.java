@@ -34,7 +34,6 @@ import java.io.StringWriter;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 
-import org.objectweb.asm.AbstractTest.ClassFilter;
 import org.objectweb.asm.commons.EmptyVisitor;
 import org.objectweb.asm.util.TraceClassVisitor;
 
@@ -81,6 +80,7 @@ public class ClassWriterTest3 extends AbstractTest {
             new ClassReader(b).accept(new ClassFilter(cv), false);
             assertEquals(sw.toString(), cfe.getMessage());
             //fail(cfe.getMessage() + "\n" + sw);
+            //assertEquals(cr, new ClassReader(b));
         } catch (Throwable ignored) {
         }
     }

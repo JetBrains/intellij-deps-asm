@@ -451,7 +451,7 @@ class MethodWriter implements MethodVisitor, FrameVisitor {
             FrameVisitor fv = visitFrame(code.length, nLocal, nStack);
             if (nLocal == 0 && nStack == 0) {
                 endFrame();
-            }                
+            }
             return fv;
         }
     }
@@ -1218,11 +1218,12 @@ class MethodWriter implements MethodVisitor, FrameVisitor {
     }
 
     /**
-     * TODO
+     * Checks if the visit of the current frame {@link #frame} is finished, and
+     * if yes, write it in the StackMapTable attribute.
      */
     private void endFrame() {
         if (frameIndex == 3 + frame[1] + frame[2]) {
-            if (previousFrame != null) {
+            if (previousFrame != null) { // do not write the first frame
                 if (stackMap == null) {
                     stackMap = new ByteVector();
                 }
@@ -1238,6 +1239,10 @@ class MethodWriter implements MethodVisitor, FrameVisitor {
         }
     }
 
+    /**
+     * Compress and writes the current frame {@link #frame} in the StackMapTable
+     * attribute.
+     */
     private void writeFrame() {
         int localsSize = previousFrame[1];
         int clocalsSize = frame[1];
@@ -1318,10 +1323,13 @@ class MethodWriter implements MethodVisitor, FrameVisitor {
     }
 
     /**
-     * TODO
+     * Writes some types of the current frame {@link #frame} into the
+     * StackMapTableAttribute. This method converts types from the format used
+     * in {@link Label} to the format used in StackMapTable attributes. In
+     * particular, it converts type table indexes to constant pool indexes.
      * 
-     * @param start
-     * @param end
+     * @param start index of the first type in {@link #frame} to write.
+     * @param end index of last type in {@link #frame} to write (exclusive).
      */
     private void writeFrameTypes(final int start, final int end) {
         for (int i = start; i < end; ++i) {
@@ -1329,7 +1337,7 @@ class MethodWriter implements MethodVisitor, FrameVisitor {
             int d = t & Label.DIM;
             if (d == 0) {
                 int v = t & Label.BASE_VALUE;
-                switch (t & 0xFFF00000) {// TODO mask
+                switch (t & Label.BASE_KIND) {
                     case Label.OBJECT:
                         stackMap.putByte(7)
                                 .putShort(cw.newClass(cw.typeTable[v].strVal1));
@@ -1346,7 +1354,7 @@ class MethodWriter implements MethodVisitor, FrameVisitor {
                 while (d-- > 0) {
                     buf.append('[');
                 }
-                if ((t & 0xFF00000) == Label.OBJECT) {// TODO mask
+                if ((t & Label.BASE_KIND) == Label.OBJECT) {
                     buf.append('L');
                     buf.append(cw.typeTable[t & Label.BASE_VALUE].strVal1);
                     buf.append(';');

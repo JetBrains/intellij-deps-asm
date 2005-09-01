@@ -125,7 +125,11 @@ public class ClassOptimizer extends ClassAdapter {
             {
                 return null;
             }
-            cv.visitField(access, s, mapping.fix(desc), null, value);
+            cv.visitField(access,
+                    mapping.map(s),
+                    mapping.fix(desc),
+                    null,
+                    value);
         } else {
             if (!mapping.map(s).equals(name)) {
                 throw new RuntimeException("The public or protected field " + s

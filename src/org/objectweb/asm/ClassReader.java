@@ -1383,7 +1383,7 @@ public class ClassReader {
      *        fourth one is the index of the first stack element. The local
      *        variables start at index 4. In summary frame[0] = offset, frame[1] =
      *        nLocal, frame[2] = nStack, frame[3] = index of first stack
-     *        element. See {@link #TYPE_KIND} and {@link TYPE_VALUE} for the
+     *        element. See {@link #TYPE_KIND} and {@link #TYPE_VALUE} for the
      *        format of local variable and stack elements.
      * @param labels the labels of the method's code.
      * @return the start of the next frame, if there is one.
@@ -1444,7 +1444,7 @@ public class ClassReader {
      * 
      * @param frame the frame where the read type must be stored.
      * @param index the index in frame where the read type must be stored. See
-     *        {@link #TYPE_KIND} and {@link TYPE_VALUE} for the format of local
+     *        {@link #TYPE_KIND} and {@link #TYPE_VALUE} for the format of local
      *        variable and stack elements.
      * @param v the start of the frame element to be read.
      * @param labels the labels of the method's code.

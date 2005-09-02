@@ -50,9 +50,13 @@ class IntMap {
 
     public int get(final Object key) {
         int n = size;
-        int i = (key.hashCode() & 0x7FFFFFFF) % n;
+        int h = (key.hashCode() & 0x7FFFFFFF) % n; 
+        int i = h;
         while (keys[i] != key) {
             i = (i + 1) % n;
+            if (i == h) {
+                throw new RuntimeException("Cannot find index of " + key);
+            }
         }
         return values[i];
     }

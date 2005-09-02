@@ -211,23 +211,37 @@ public class ClassWriter implements ClassVisitor {
     private int threshold;
 
     /**
-     * A reusable key used to look for items in the hash {@link #items items}.
+     * A reusable key used to look for items in the {@link #items} hash table.
      */
     Item key;
 
     /**
-     * A reusable key used to look for items in the hash {@link #items items}.
+     * A reusable key used to look for items in the {@link #items} hash table.
      */
     Item key2;
 
     /**
-     * A reusable key used to look for items in the hash {@link #items items}.
+     * A reusable key used to look for items in the {@link #items} hash table.
      */
     Item key3;
 
-    private short typeIndex; //TODO int?
-    
+    /**
+     * A type table used to temporarily store internal names that will not
+     * necessarily be stored in the constant pool. This type table is used by
+     * the control flow and data flow analysis algorithm used to compute stack
+     * map frames from scratch. This array associates to each index <tt>i</tt>
+     * the Item whose index is <tt>i</tt>. All Item objects stored in this
+     * array are also stored in the {@link #items} hash table. These two arrays
+     * allow to retrieve an Item from its index or, conversly, to get the index
+     * of an Item from its value. Each Item stores an internal name in its
+     * {@link Item#strVal1} field.
+     */
     Item[] typeTable;
+
+    /**
+     * Number of elements in the {@link #typeTable} array.
+     */
+    private short typeCount; // TODO int?
 
     /**
      * The access flags of this class.
@@ -239,6 +253,9 @@ public class ClassWriter implements ClassVisitor {
      */
     private int name;
 
+    /**
+     * The internal name of this class.
+     */
     String thisName;
 
     /**
@@ -350,8 +367,11 @@ public class ClassWriter implements ClassVisitor {
      */
     private boolean computeMaxs;
 
+    /**
+     * <tt>true</tt> if the stack map frames must be recomputed from scratch.
+     */
     private boolean computeFrames;
-    
+
     /**
      * <tt>true</tt> to test that all attributes are known.
      */
@@ -497,6 +517,13 @@ public class ClassWriter implements ClassVisitor {
      *        {@link #visitMethod visitMethod} method will be ignored, and
      *        computed automatically from the signature and the bytecode of each
      *        method.
+     * @param computeFrames <tt>true</tt> if the stack map frames must be
+     *        recomputed from scratch. If this flag is <tt>true</tt>, then
+     *        the calls to the {@link FrameVisitor} interface are ignored, and
+     *        the stack map frames are recomputed from the methods bytecode. The
+     *        arguments of the {@link MethodVisitor#visitMaxs visitMaxs} method
+     *        are also ignored and recomputed from the bytecode. In other words,
+     *        computeFrames implies computeMaxs.
      * @param skipUnknownAttributes <tt>true</tt> to silently ignore unknown
      *        attributes, or <tt>false</tt> to throw an exception if an
      *        unknown attribute is found.
@@ -892,10 +919,17 @@ public class ClassWriter implements ClassVisitor {
      * normally not needed by class generators or adapters.</i>
      * 
      * @param value the internal name of the class.
-     * @return the index of a new or already existing class reference item.
+     * @return a new or already existing class reference item.
      */
-    public int newClass(final String value) {
-        return newClassItem(value).index;
+    Item newClassItem(final String value) {
+        key2.set('C', value, null, null);
+        Item result = get(key2);
+        if (result == null) {
+            pool.put12(CLASS, newUTF8(value));
+            result = new Item(index++, key2);
+            put(result);
+        }
+        return result;
     }
 
     /**
@@ -905,14 +939,28 @@ public class ClassWriter implements ClassVisitor {
      * normally not needed by class generators or adapters.</i>
      * 
      * @param value the internal name of the class.
-     * @return a new or already existing class reference item.
+     * @return the index of a new or already existing class reference item.
      */
-    Item newClassItem(final String value) {
-        key2.set('C', value, null, null);
-        Item result = get(key2);
+    public int newClass(final String value) {
+        return newClassItem(value).index;
+    }
+
+    /**
+     * Adds a field reference to the constant pool of the class being build.
+     * Does nothing if the constant pool already contains a similar item.
+     * 
+     * @param owner the internal name of the field's owner class.
+     * @param name the field's name.
+     * @param desc the field's descriptor.
+     * @return a new or already existing field reference item.
+     */
+    Item newFieldItem(final String owner, final String name, final String desc)
+    {
+        key3.set('G', owner, name, desc);
+        Item result = get(key3);
         if (result == null) {
-            pool.put12(CLASS, newUTF8(value));
-            result = new Item(index++, key2);
+            put122(FIELD, newClass(owner), newNameType(name, desc));
+            result = new Item(index++, key3);
             put(result);
         }
         return result;
@@ -929,18 +977,6 @@ public class ClassWriter implements ClassVisitor {
      * @param desc the field's descriptor.
      * @return the index of a new or already existing field reference item.
      */
-    Item newFieldItem(final String owner, final String name, final String desc)
-    {
-        key3.set('G', owner, name, desc);
-        Item result = get(key3);
-        if (result == null) {
-            put122(FIELD, newClass(owner), newNameType(name, desc));
-            result = new Item(index++, key3);
-            put(result);
-        }
-        return result;
-    }
-
     public int newField(final String owner, final String name, final String desc)
     {
         return newFieldItem(owner, name, desc).index;
@@ -1106,7 +1142,14 @@ public class ClassWriter implements ClassVisitor {
         return result.index;
     }
 
-    int addType(String type) {
+    /**
+     * Adds the given internal name to {@link #typeTable} and returns its index.
+     * Does nothing if the type table already contains this internal name.
+     * 
+     * @param type the internal name to be added to the type table.
+     * @return the index of this internal name in the type table.
+     */
+    int addType(final String type) {
         key.set('E', type, null, null);
         Item result = get(key);
         if (result == null) {
@@ -1115,7 +1158,17 @@ public class ClassWriter implements ClassVisitor {
         return result.index;
     }
 
-    int addUninitializedType(String type, int offset) {
+    /**
+     * Adds the given "uninitialized" type to {@link #typeTable} and returns its
+     * index. This method is used for UNINITIALIZED types (see
+     * {@link FrameVisitor}), made of an internal name and a bytecode offset.
+     * 
+     * @param type the internal name to be added to the type table.
+     * @param offset the bytecode offset of the NEW instruction that created
+     *        this UNINITIALIZED type value.
+     * @return the index of this internal name in the type table.
+     */
+    int addUninitializedType(final String type, final int offset) {
         key.type = 'B';
         key.intVal = offset;
         key.strVal1 = type;
@@ -1127,26 +1180,43 @@ public class ClassWriter implements ClassVisitor {
         return result.index;
     }
 
-    private Item addType(Item item) {
-        ++typeIndex;
-        Item result = new Item(typeIndex, key);
+    /**
+     * Adds the given Item to {@link #typeTable}.
+     * 
+     * @param item the value to be added to the type table.
+     * @return the added Item, which a new Item instance with the same value as
+     *         the given Item.
+     */
+    private Item addType(final Item item) {
+        ++typeCount;
+        Item result = new Item(typeCount, key);
         put(result);
         if (typeTable == null) {
             typeTable = new Item[16];
         }
-        if (typeIndex == typeTable.length) {
+        if (typeCount == typeTable.length) {
             Item[] newTable = new Item[2 * typeTable.length];
             System.arraycopy(typeTable, 0, newTable, 0, typeTable.length);
             typeTable = newTable;
         }
-        typeTable[typeIndex] = result;
+        typeTable[typeCount] = result;
         return result;
     }
 
-    int getMergedType(int type1, int type2) { // merged type is in intVal
-        key2.type = 'L';
+    /**
+     * Returns the index of the common super type of the two given types. This
+     * method calls {@link #getCommonSuperClass} and caches the result in the
+     * {@link #items} hash table to speedup future calls with the same
+     * parameters.
+     * 
+     * @param type1 index of an internal name in {@link #typeTable}.
+     * @param type2 index of an internal name in {@link #typeTable}.
+     * @return the index of the common super type of the two given types.
+     */
+    int getMergedType(final int type1, final int type2) {
+        key2.type = 'K';
         key2.longVal = type1 | (((long) type2) << 32);
-        key2.hashCode = 0x7FFFFFFF & ('L' + type1 + type2);
+        key2.hashCode = 0x7FFFFFFF & ('K' + type1 + type2);
         Item result = get(key2);
         if (result == null) {
             String t = typeTable[type1].strVal1;
@@ -1158,7 +1228,22 @@ public class ClassWriter implements ClassVisitor {
         return result.intVal;
     }
 
-    protected String getCommonSuperClass(String type1, String type2) {
+    /**
+     * Returns the common super type of the two given types. The default
+     * implementation of this method <i>loads<i> the two given classes and uses
+     * the java.lang.Class methods to find the common super class. It can be
+     * overriden to compute this common super type in other ways, in particular
+     * without actually loading any class, or to take into account the class
+     * that is currently being generated by this ClassWriter, which can of
+     * course not be loaded since it is under construction.
+     * 
+     * @param type1 the internal name of a class.
+     * @param type2 the internal name of another class.
+     * @return the internal name of the common super class of the two given
+     *         classes.
+     */
+    protected String getCommonSuperClass(final String type1, final String type2)
+    {
         Class c, d;
         try {
             c = Class.forName(type1.replace('/', '.'));

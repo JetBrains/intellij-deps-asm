@@ -49,6 +49,12 @@ final class Item {
      * (for Constant Integer, Long, Float, Double, STR, UTF8, Class, NameType,
      * Fieldref, Methodref, or InterfaceMethodref constant pool items
      * respectively).
+     * 
+     * Special Item types are used for Items that are stored in the ClassWriter
+     * {@link ClassWriter#typeTable}, instead of the constant pool, in order to
+     * avoid clashes with normal constant pool items in the ClassWriter constant
+     * pool's hash table. These special item types are E, B and K (for normal
+     * types, uninitialized types, and merged types, respectively).
      */
     char type;
 
@@ -221,7 +227,7 @@ final class Item {
                 case 'I':
                     return i.intVal == intVal;
                 case 'J':
-                case 'L':
+                case 'K':
                     return i.longVal == longVal;
                 case 'F':
                     return i.floatVal == floatVal;

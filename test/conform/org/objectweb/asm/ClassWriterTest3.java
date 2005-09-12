@@ -29,13 +29,12 @@
  */
 package org.objectweb.asm;
 
-import java.io.PrintWriter;
-import java.io.StringWriter;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
-
-import org.objectweb.asm.commons.EmptyVisitor;
-import org.objectweb.asm.util.TraceClassVisitor;
+import java.io.IOException;
+import java.io.InputStream;
+import java.lang.instrument.ClassFileTransformer;
+import java.lang.instrument.IllegalClassFormatException;
+import java.lang.instrument.Instrumentation;
+import java.security.ProtectionDomain;
 
 import junit.framework.TestSuite;
 
@@ -46,97 +45,231 @@ import junit.framework.TestSuite;
  */
 public class ClassWriterTest3 extends AbstractTest {
 
-    private final TestClassLoader LOADER = new TestClassLoader();
+    public static void premain(String agentArgs, Instrumentation inst) {
+        inst.addTransformer(new ClassFileTransformer() {
+            public byte[] transform(
+                final ClassLoader loader,
+                final String className,
+                final Class classBeingRedefined,
+                final ProtectionDomain domain,
+                final byte[] classFileBuffer)
+                    throws IllegalClassFormatException
+            {
+                ClassReader cr = new ClassReader(classFileBuffer);
+                if (cr.readInt(4) != Opcodes.V1_6) {
+                    return null;
+                }
+                ClassWriter cw = new ClassWriter(false, true, true) {
+                    protected String getCommonSuperClass(
+                        final String type1,
+                        final String type2)
+                    {
+                        ClassInfo c, d;
+                        try {
+                            c = new ClassInfo(type1);
+                            d = new ClassInfo(type2);
+                        } catch (Throwable e) {
+                            throw new RuntimeException(e);
+                        }
+                        if (c.isAssignableFrom(d)) {
+                            return type1;
+                        }
+                        if (d.isAssignableFrom(c)) {
+                            return type2;
+                        }
+                        if (c.isInterface() || d.isInterface()) {
+                            return "java/lang/Object";
+                        } else {
+                            do {
+                                c = c.getSuperclass();
+                            } while (!c.isAssignableFrom(d));
+                            return c.getType().getInternalName();
+                        }
+                    }
+                };
+                cr.accept(cw, false);
+                return cw.toByteArray();
+            }
+        });
+    }
 
     public static TestSuite suite() throws Exception {
         return new ClassWriterTest3().getSuite();
     }
 
     public void test() throws Exception {
-        ClassReader cr = new ClassReader(is);
-        ClassWriter cw = new ClassWriter(false, true, true);
-        cr.accept(cw, false);
-
-        byte[] b = cw.toByteArray();
-
-        // computed frames sometime from original ones
-        // assertEquals(cr, new ClassReader(b));
-
-        // check that generated frames can be read by ClassReader
-        new ClassReader(b).accept(new EmptyVisitor(), false);
-
-        // check that the new verifier accepts the generated frames
         try {
-            /*
-             * apparently a class is not verified before it is instantiated for
-             * the first time. Hence the testClass method.
-             */
-            testClass(LOADER.defineClass(n, b));
+            Class.forName(n, true, getClass().getClassLoader());
         } catch (ClassFormatError cfe) {
             fail(cfe.getMessage());
         } catch (VerifyError cfe) {
-            StringWriter sw = new StringWriter();
-            ClassVisitor cv = new TraceClassVisitor(new PrintWriter(sw));
-            new ClassReader(b).accept(new ClassFilter(cv), false);
-            assertEquals(sw.toString(), cfe.getMessage());
-            //fail(cfe.getMessage() + "\n" + sw);
-            //assertEquals(cr, new ClassReader(b));
-        } catch (Throwable ignored) {
+            // StringWriter sw = new StringWriter();
+            // ClassVisitor cv = new TraceClassVisitor(new PrintWriter(sw));
+            // new ClassReader(b).accept(new ClassFilter(cv), false);
+            // assertEquals(sw.toString(), cfe.getMessage());
+            // fail(cfe.getMessage() + "\n" + sw);
+            // assertEquals(cr, new ClassReader(b));
+            fail(cfe.toString());
         }
     }
+}
 
-    // ------------------------------------------------------------------------
+/**
+ * @author Eugene Kuleshov
+ */
+class ClassInfo {
 
-    static class TestClassLoader extends ClassLoader {
+    private Type type;
 
-        public Class defineClass(final String name, final byte[] b) {
-            return defineClass(name, b, 0, b.length);
+    int access;
+
+    String superClass;
+
+    String[] interfaces;
+
+    public ClassInfo(String type) {
+        this.type = Type.getType("L" + type + ";");
+        String s = type.replace('.', '/') + ".class";
+        InputStream is = getClass().getClassLoader().getResourceAsStream(s);
+        ClassReader cr;
+        try {
+            cr = new ClassReader(is);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
-    }
+        cr.accept(new ClassVisitor() {
 
-    static void testClass(final Class c) {
-        Constructor[] cons = c.getConstructors();
-        for (int i = 0; i < cons.length; ++i) {
-            try {
-                cons[i].newInstance(newInstance(cons[i].getParameterTypes()));
-            } catch (InvocationTargetException e) {
-                continue;
-            } catch (InstantiationException e) {
-                continue;
-            } catch (IllegalAccessException e) {
-                continue;
+            public void visit(
+                int version,
+                int access,
+                String name,
+                String signature,
+                String superName,
+                String[] interfaces)
+            {
+                ClassInfo.this.access = access;
+                ClassInfo.this.superClass = superName;
+                ClassInfo.this.interfaces = interfaces;
             }
-            break;
-        }
+
+            public void visitSource(String source, String debug) {
+            }
+
+            public void visitOuterClass(String owner, String name, String desc)
+            {
+            }
+
+            public AnnotationVisitor visitAnnotation(
+                String desc,
+                boolean visible)
+            {
+                return null;
+            }
+
+            public void visitAttribute(Attribute attr) {
+            }
+
+            public void visitInnerClass(
+                String name,
+                String outerName,
+                String innerName,
+                int access)
+            {
+            }
+
+            public FieldVisitor visitField(
+                int access,
+                String name,
+                String desc,
+                String signature,
+                Object value)
+            {
+                return null;
+            }
+
+            public MethodVisitor visitMethod(
+                int access,
+                String name,
+                String desc,
+                String signature,
+                String[] exceptions)
+            {
+                return null;
+            }
+
+            public void visitEnd() {
+            }
+        }, true);
     }
 
-    static Object[] newInstance(final Class[] formals) {
-        Object[] actuals = new Object[formals.length];
-        for (int i = 0; i < actuals.length; ++i) {
-            actuals[i] = newInstance(formals[i]);
-        }
-        return actuals;
+    String getName() {
+        return type.getInternalName();
     }
 
-    static Object newInstance(final Class c) {
-        if (c == Integer.TYPE) {
-            return new Integer(0);
-        } else if (c == Float.TYPE) {
-            return new Float(0);
-        } else if (c == Long.TYPE) {
-            return new Long(0);
-        } else if (c == Double.TYPE) {
-            return new Double(0);
-        } else if (c == Byte.TYPE) {
-            return new Byte((byte) 0);
-        } else if (c == Character.TYPE) {
-            return new Character((char) 0);
-        } else if (c == Short.TYPE) {
-            return new Short((short) 0);
-        } else if (c == Boolean.TYPE) {
-            return new Boolean(false);
-        } else {
+    Type getType() {
+        return type;
+    }
+
+    int getModifiers() {
+        return access;
+    }
+
+    ClassInfo getSuperclass() {
+        if (superClass == null) {
             return null;
         }
+        return new ClassInfo(superClass);
+    }
+
+    ClassInfo[] getInterfaces() {
+        if (interfaces == null) {
+            return new ClassInfo[0];
+        }
+        ClassInfo[] result = new ClassInfo[interfaces.length];
+        for (int i = 0; i < result.length; ++i) {
+            result[i] = new ClassInfo(interfaces[i]);
+        }
+        return result;
+    }
+
+    boolean isInterface() {
+        return (getModifiers() & Opcodes.ACC_INTERFACE) > 0;
+    }
+
+    private boolean implementsInterface(ClassInfo that) {
+        for (ClassInfo c = this; c != null; c = c.getSuperclass()) {
+            ClassInfo[] tis = c.getInterfaces();
+            for (int i = 0; i < tis.length; ++i) {
+                ClassInfo ti = tis[i];
+                if (ti == that || ti.implementsInterface(that))
+                    return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean isSubclassOf(ClassInfo that) {
+        for (ClassInfo c = this; c != null; c = c.getSuperclass()) {
+            if (c.getSuperclass() == that)
+                return true;
+        }
+        return false;
+    }
+
+    public boolean isAssignableFrom(ClassInfo that) {
+        if (this == that)
+            return true;
+
+        if (that.isSubclassOf(this))
+            return true;
+
+        if (that.implementsInterface(this))
+            return true;
+
+        if (that.isInterface()
+                && this.getType().getDescriptor().equals("Ljava/lang/Object;"))
+            return true;
+
+        return false;
     }
 }

@@ -31,10 +31,14 @@ package org.objectweb.asm;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.IllegalClassFormatException;
 import java.lang.instrument.Instrumentation;
 import java.security.ProtectionDomain;
+
+import org.objectweb.asm.util.TraceClassVisitor;
 
 import junit.framework.TestSuite;
 
@@ -55,42 +59,51 @@ public class ClassWriterTest3 extends AbstractTest {
                 final byte[] classFileBuffer)
                     throws IllegalClassFormatException
             {
-                ClassReader cr = new ClassReader(classFileBuffer);
-                if (cr.readInt(4) != Opcodes.V1_6) {
-                    return null;
-                }
-                ClassWriter cw = new ClassWriter(false, true, true) {
-                    protected String getCommonSuperClass(
-                        final String type1,
-                        final String type2)
-                    {
-                        ClassInfo c, d;
-                        try {
-                            c = new ClassInfo(type1);
-                            d = new ClassInfo(type2);
-                        } catch (Throwable e) {
-                            throw new RuntimeException(e);
-                        }
-                        if (c.isAssignableFrom(d)) {
-                            return type1;
-                        }
-                        if (d.isAssignableFrom(c)) {
-                            return type2;
-                        }
-                        if (c.isInterface() || d.isInterface()) {
-                            return "java/lang/Object";
-                        } else {
-                            do {
-                                c = c.getSuperclass();
-                            } while (!c.isAssignableFrom(d));
-                            return c.getType().getInternalName();
-                        }
-                    }
-                };
-                cr.accept(cw, false);
-                return cw.toByteArray();
+                return transformClass(classFileBuffer);
             }
         });
+    }
+
+    private static byte[] transformClass(byte[] clazz) {
+        ClassReader cr = new ClassReader(clazz);
+        if (cr.readInt(4) != Opcodes.V1_6) {
+            return null;
+        }
+        ClassWriter cw = new ClassWriter(false, true, true) {
+            protected String getCommonSuperClass(
+                final String type1,
+                final String type2)
+            {
+                ClassInfo c, d;
+                try {
+                    c = new ClassInfo(type1);
+                    d = new ClassInfo(type2);
+                } catch (Throwable e) {
+                    System.out.println("merge1 "+type1+" "+type2+" = "+e);
+                    throw new RuntimeException(e);
+                }
+                if (c.isAssignableFrom(d)) {
+                    System.out.println("merge2 "+type1+" "+type2+" = "+type1);
+                    return type1;
+                }
+                if (d.isAssignableFrom(c)) {
+                    System.out.println("merge3 "+type1+" "+type2+" = "+type2);
+                    return type2;
+                }
+                if (c.isInterface() || d.isInterface()) {
+                    System.out.println("merge4 "+type1+" "+type2+" = "+"java/lang/Object");
+                    return "java/lang/Object";
+                } else {
+                    do {
+                        c = c.getSuperclass();
+                    } while (!c.isAssignableFrom(d));
+                    System.out.println("merge5 "+type1+" "+type2+" = "+c.getType().getInternalName());
+                    return c.getType().getInternalName();
+                }
+            }
+        };
+        cr.accept(cw, false);
+        return cw.toByteArray();
     }
 
     public static TestSuite suite() throws Exception {
@@ -102,14 +115,21 @@ public class ClassWriterTest3 extends AbstractTest {
             Class.forName(n, true, getClass().getClassLoader());
         } catch (ClassFormatError cfe) {
             fail(cfe.getMessage());
-        } catch (VerifyError cfe) {
-            // StringWriter sw = new StringWriter();
-            // ClassVisitor cv = new TraceClassVisitor(new PrintWriter(sw));
-            // new ClassReader(b).accept(new ClassFilter(cv), false);
-            // assertEquals(sw.toString(), cfe.getMessage());
-            // fail(cfe.getMessage() + "\n" + sw);
-            // assertEquals(cr, new ClassReader(b));
-            fail(cfe.toString());
+        } catch (VerifyError ve) {
+            String s = n.replace('.', '/') + ".class";
+            InputStream is = getClass().getClassLoader().getResourceAsStream(s);
+            ClassReader cr = new ClassReader(is);
+            byte[] b = transformClass(cr.b);
+            StringWriter sw1 = new StringWriter();
+            StringWriter sw2 = new StringWriter();
+            sw2.write(ve.toString() + "\n");
+            ClassVisitor cv1 = new TraceClassVisitor(new PrintWriter(sw1));
+            ClassVisitor cv2 = new TraceClassVisitor(new PrintWriter(sw2));
+            cr.accept(new ClassFilter(cv1), false);
+            new ClassReader(b).accept(new ClassFilter(cv2), false);
+            String s1 = sw1.toString();
+            String s2 = sw2.toString();
+            assertEquals("different data", s1, s2);
         }
     }
 }
@@ -241,7 +261,7 @@ class ClassInfo {
             ClassInfo[] tis = c.getInterfaces();
             for (int i = 0; i < tis.length; ++i) {
                 ClassInfo ti = tis[i];
-                if (ti == that || ti.implementsInterface(that))
+                if (ti.type.equals(that.type) || ti.implementsInterface(that))
                     return true;
             }
         }
@@ -250,7 +270,7 @@ class ClassInfo {
 
     private boolean isSubclassOf(ClassInfo that) {
         for (ClassInfo c = this; c != null; c = c.getSuperclass()) {
-            if (c.getSuperclass() == that)
+            if (c.getSuperclass() != null && c.getSuperclass().type.equals(that.type))
                 return true;
         }
         return false;

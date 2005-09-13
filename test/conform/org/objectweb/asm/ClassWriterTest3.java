@@ -79,25 +79,20 @@ public class ClassWriterTest3 extends AbstractTest {
                     c = new ClassInfo(type1);
                     d = new ClassInfo(type2);
                 } catch (Throwable e) {
-                    System.out.println("merge1 "+type1+" "+type2+" = "+e);
                     throw new RuntimeException(e);
                 }
                 if (c.isAssignableFrom(d)) {
-                    System.out.println("merge2 "+type1+" "+type2+" = "+type1);
                     return type1;
                 }
                 if (d.isAssignableFrom(c)) {
-                    System.out.println("merge3 "+type1+" "+type2+" = "+type2);
                     return type2;
                 }
                 if (c.isInterface() || d.isInterface()) {
-                    System.out.println("merge4 "+type1+" "+type2+" = "+"java/lang/Object");
                     return "java/lang/Object";
                 } else {
                     do {
                         c = c.getSuperclass();
                     } while (!c.isAssignableFrom(d));
-                    System.out.println("merge5 "+type1+" "+type2+" = "+c.getType().getInternalName());
                     return c.getType().getInternalName();
                 }
             }

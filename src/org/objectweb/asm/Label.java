@@ -160,8 +160,8 @@ public class Label {
      * 
      * When only the maximum stack size is computed, this field is the number of
      * elements in the input stack, plus one. Basic blocks that have never been
-     * visited have a null inputStackTop, and can therefore be distinguished 
-     * from labels whose inputStackTop has already been computed. 
+     * visited have a null inputStackTop, and can therefore be distinguished
+     * from labels whose inputStackTop has already been computed.
      * 
      * When the stack map frames are completely computed, this field is the
      * offset of the first output stack element relatively to the top of the
@@ -1736,8 +1736,14 @@ public class Label {
             return false;
         }
         if (t == BOOLEAN || t == BYTE || t == CHAR || t == SHORT) {
+            if (u == INTEGER) {
+                return false;
+            }
             t = INTEGER;
         } else if ((t & ~DIM) == NULL) {
+            if (u == NULL) {
+                return false;
+            }
             t = NULL;
         }
         if (u == 0) {
@@ -1759,8 +1765,14 @@ public class Label {
                     v = (t & DIM) | OBJECT
                             | cw.getMergedType(t & BASE_VALUE, u & BASE_VALUE);
                 } else {
-                    v = TOP;
+                    // if u and t are array types, but not with the same element
+                    // type, merge(u,t)=java/lang/Object
+                    v = OBJECT | cw.addType("java/lang/Object");
                 }
+            } else if ((t & BASE_KIND) == OBJECT || (t & DIM) != 0) {
+                // if t is any other reference or array type,
+                // merge(u,t)=java/lang/Object
+                v = OBJECT | cw.addType("java/lang/Object");
             } else {
                 // if t is any other type, merge(u,t)=TOP
                 v = TOP;

@@ -1300,8 +1300,8 @@ class MethodWriter implements MethodVisitor, FrameVisitor {
                 writeFrameTypes(3 + clocalsSize, 4 + clocalsSize);
                 break;
             case SAME_LOCALS_1_STACK_ITEM_FRAME_EXTENDED:
-                stackMap.putByte(SAME_LOCALS_1_STACK_ITEM_FRAME_EXTENDED);
-                stackMap.putShort(delta);
+                stackMap.putByte(SAME_LOCALS_1_STACK_ITEM_FRAME_EXTENDED)
+                        .putShort(delta);
                 writeFrameTypes(3 + clocalsSize, 4 + clocalsSize);
                 break;
             case SAME_FRAME_EXTENDED:
@@ -1316,8 +1316,9 @@ class MethodWriter implements MethodVisitor, FrameVisitor {
                 break;
             // case FULL_FRAME:
             default:
-                stackMap.putByte(FULL_FRAME).putShort(delta);
-                stackMap.putShort(clocalsSize);
+                stackMap.putByte(FULL_FRAME)
+                        .putShort(delta)
+                        .putShort(clocalsSize);
                 writeFrameTypes(3, 3 + clocalsSize);
                 stackMap.putShort(cstackSize);
                 writeFrameTypes(3 + clocalsSize, 3 + clocalsSize + cstackSize);

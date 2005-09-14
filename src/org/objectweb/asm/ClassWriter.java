@@ -1248,7 +1248,7 @@ public class ClassWriter implements ClassVisitor {
         try {
             c = Class.forName(type1.replace('/', '.'));
             d = Class.forName(type2.replace('/', '.'));
-        } catch (Throwable e) {
+        } catch (ClassNotFoundException e) {
             throw new RuntimeException(e);
         }
         if (c.isAssignableFrom(d)) {

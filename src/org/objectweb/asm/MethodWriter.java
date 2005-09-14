@@ -456,12 +456,12 @@ class MethodWriter implements MethodVisitor, FrameVisitor {
         }
     }
 
-    public void visitType(final int type) {
+    public void visitPrimitiveType(final int type) {
         frame[frameIndex++] = /* Label.BASE | */type;
         endFrame();
     }
 
-    public void visitType(final String type) {
+    public void visitReferenceType(final String type) {
         frame[frameIndex++] = Label.OBJECT | cw.addType(type);
         endFrame();
     }

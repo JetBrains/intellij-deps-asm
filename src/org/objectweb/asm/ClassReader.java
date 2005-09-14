@@ -1510,19 +1510,19 @@ public class ClassReader {
                 int type = frame[n++];
                 switch (type & TYPE_KIND) {
                     case OBJECT_TYPE:
-                        fv.visitType(readUTF8(type & TYPE_VALUE, buf));
+                        fv.visitReferenceType(readUTF8(type & TYPE_VALUE, buf));
                         break;
                     case UNINITIALIZED_TYPE:
                         fv.visitUninitializedType(labels[type & TYPE_VALUE]);
                         break;
                     case IMPLICIT_TYPE:
                         Type formal = formals[type & TYPE_VALUE];
-                        fv.visitType(formal.getSort() == Type.ARRAY
+                        fv.visitReferenceType(formal.getSort() == Type.ARRAY
                                 ? formal.getDescriptor()
                                 : formal.getInternalName());
                         break;
                     default: // BASIC_TYPE
-                        fv.visitType(type);
+                        fv.visitPrimitiveType(type);
                 }
             }
         }

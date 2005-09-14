@@ -46,9 +46,9 @@ public interface FrameVisitor {
 
     int UNINITIALIZED_THIS = 6;
 
-    void visitType(int type);
+    void visitPrimitiveType(int type);
 
-    void visitType(String type);
+    void visitReferenceType(String type);
 
     void visitUninitializedType(Label newInsn);
 }

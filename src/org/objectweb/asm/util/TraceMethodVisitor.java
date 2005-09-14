@@ -187,7 +187,7 @@ public class TraceMethodVisitor extends TraceAbstractVisitor implements
         return this;
     }
 
-    public void visitType(int type) {
+    public void visitPrimitiveType(int type) {
         switch (type) {
             case TOP:
                 buf.append('T');
@@ -213,15 +213,15 @@ public class TraceMethodVisitor extends TraceAbstractVisitor implements
         }
         updateType();
         if (fv != null) {
-            fv.visitType(type);
+            fv.visitPrimitiveType(type);
         }
     }
 
-    public void visitType(String type) {
+    public void visitReferenceType(String type) {
         buf.append(type);
         updateType();
         if (fv != null) {
-            fv.visitType(type);
+            fv.visitReferenceType(type);
         }
     }
 

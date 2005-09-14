@@ -123,10 +123,10 @@ public class EmptyVisitor implements
         return null;
     }
 
-    public void visitType(int type) {
+    public void visitPrimitiveType(int type) {
     }
 
-    public void visitType(String type) {
+    public void visitReferenceType(String type) {
     }
 
     public void visitUninitializedType(Label newInsn) {

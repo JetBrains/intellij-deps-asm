@@ -74,7 +74,7 @@ public final class SAXCodeAdapter extends SAXAdapter implements MethodVisitor {
     public final void visitCode() {
     }
 
-    public final FrameVisitor visitFrame(int maxLocal, int maxStack) {
+    public final FrameVisitor visitFrame(int nLocal, int nStack) {
         return null;
     }
 

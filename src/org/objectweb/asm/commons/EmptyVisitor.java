@@ -119,7 +119,7 @@ public class EmptyVisitor implements
     public void visitCode() {
     }
     
-    public FrameVisitor visitFrame(int maxLocal, int maxStack) {
+    public FrameVisitor visitFrame(int nLocal, int nStack) {
         return null;
     }
 

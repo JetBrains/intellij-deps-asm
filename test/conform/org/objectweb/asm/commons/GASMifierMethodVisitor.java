@@ -117,12 +117,12 @@ public class GASMifierMethodVisitor extends ASMifierAbstractVisitor implements
         text.add("mg.visitCode();\n");
     }
 
-    public FrameVisitor visitFrame(final int maxLocal, final int maxStack) {
+    public FrameVisitor visitFrame(final int nLocal, final int nStack) {
         buf.setLength(0);
         buf.append("framev = mg.visitFrame(")
-                .append(maxLocal)
+                .append(nLocal)
                 .append(", ")
-                .append(maxStack)
+                .append(nStack)
                 .append(");\n");
         text.add(buf.toString());
         return this;

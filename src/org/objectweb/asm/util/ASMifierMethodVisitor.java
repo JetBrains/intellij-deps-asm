@@ -89,12 +89,12 @@ public class ASMifierMethodVisitor extends ASMifierAbstractVisitor implements
         text.add("mv.visitCode();\n");
     }
 
-    public FrameVisitor visitFrame(final int maxLocal, final int maxStack) {
+    public FrameVisitor visitFrame(final int nLocal, final int nStack) {
         buf.setLength(0);
         buf.append("framev = mv.visitFrame(")
-                .append(maxLocal)
+                .append(nLocal)
                 .append(", ")
-                .append(maxStack)
+                .append(nStack)
                 .append(");\n");
         text.add(buf.toString());
         return this;

@@ -194,6 +194,13 @@ class MethodWriter implements MethodVisitor, FrameVisitor {
     private int frameCount;
 
     /**
+     * <tt>true</tt> if the frames must be stored from a compressed
+     * StackMapTable attribute, or <tt>false</tt> if they must be stored from
+     * an uncompressed StackMap attribute.
+     */
+    private boolean zip;
+
+    /**
      * The StackMapTable attriute.
      */
     private ByteVector stackMap;
@@ -364,8 +371,11 @@ class MethodWriter implements MethodVisitor, FrameVisitor {
         this.computeMaxs = computeMaxs || computeFrames;
         this.computeFrames = computeFrames;
         if (this.computeMaxs) {
-            if (this.computeFrames && name.equals("<init>")) {
-                this.access |= ACC_CONSTRUCTOR;
+            if (this.computeFrames) {
+                if (name.equals("<init>")) {
+                    this.access |= ACC_CONSTRUCTOR;
+                }
+                zip = (cw.version & 0xFFFF) >= Opcodes.V1_6;
             }
             // updates maxLocals
             int size = getArgumentsAndReturnSizes(descriptor) >> 2;
@@ -1246,9 +1256,16 @@ class MethodWriter implements MethodVisitor, FrameVisitor {
      * attribute.
      */
     private void writeFrame() {
-        int localsSize = previousFrame[1];
         int clocalsSize = frame[1];
         int cstackSize = frame[2];
+        if (!zip) {
+            stackMap.putShort(frame[0]).putShort(clocalsSize);
+            writeFrameTypes(3, 3 + clocalsSize);
+            stackMap.putShort(cstackSize);
+            writeFrameTypes(3 + clocalsSize, 3 + clocalsSize + cstackSize);
+            return;
+        }
+        int localsSize = previousFrame[1];
         int type = FULL_FRAME;
         int k = 0;
         int delta;
@@ -1424,7 +1441,7 @@ class MethodWriter implements MethodVisitor, FrameVisitor {
                 size += 8 + lineNumber.length;
             }
             if (stackMap != null) {
-                cw.newUTF8("StackMapTable");
+                cw.newUTF8(zip ? "StackMapTable" : "StackMap");
                 size += 8 + stackMap.length;
             }
             if (cattrs != null) {
@@ -1609,7 +1626,7 @@ class MethodWriter implements MethodVisitor, FrameVisitor {
                 out.putByteArray(lineNumber.data, 0, lineNumber.length);
             }
             if (stackMap != null) {
-                out.putShort(cw.newUTF8("StackMapTable"));
+                out.putShort(cw.newUTF8(zip ? "StackMapTable" : "StackMap"));
                 out.putInt(stackMap.length + 2).putShort(frameCount);
                 out.putByteArray(stackMap.data, 0, stackMap.length);
             }

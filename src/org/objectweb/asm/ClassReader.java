@@ -789,6 +789,7 @@ public class ClassReader {
                 int varTypeTable = 0;
                 int stackMap = 0;
                 int frameCount = 0;
+                boolean zip = true;
                 int[] frame = null;
                 Type[] formals = null;
                 cattrs = null;
@@ -847,6 +848,15 @@ public class ClassReader {
                          */
                         // TODO true for frame offsets,
                         // but for UNINITIALIZED type offsets?
+                    } else if (attrName.equals("StackMap")) {
+                        stackMap = v + 8;
+                        frameCount = readUnsignedShort(v + 6);
+                        zip = false;
+                        /*
+                         * IMPORTANT! here we assume that the frames are
+                         * ordered, as in the StackMapTable attribute, although
+                         * this is not guaranteed by the attribute format.
+                         */
                     } else {
                         for (k = 0; k < attrs.length; ++k) {
                             if (attrs[k].type.equals(attrName)) {
@@ -918,7 +928,7 @@ public class ClassReader {
                     // makes the visitor visit this frame,
                     // reads the next frame
                     visitFrame(frame, c, labels, formals, mv);
-                    stackMap = readFrame(stackMap, frame, labels);
+                    stackMap = readFrame(stackMap, zip, frame, labels);
                     --frameCount;
                 }
                 v = codeStart;
@@ -933,7 +943,10 @@ public class ClassReader {
                             // and reads the next frame if there is one.
                             visitFrame(frame, c, labels, formals, mv);
                             if (frameCount > 0) {
-                                stackMap = readFrame(stackMap, frame, labels);
+                                stackMap = readFrame(stackMap,
+                                        zip,
+                                        frame,
+                                        labels);
                                 --frameCount;
                             }
                         }
@@ -1373,9 +1386,12 @@ public class ClassReader {
     }
 
     /**
-     * Reads and uncompress a frame from a StackMapTable attribute.
+     * Reads and uncompress a frame from a StackMap or StackMapTable attribute.
      * 
      * @param v the start of the frame to be read in {@link #b b}.
+     * @param zip <tt>true</tt> if the frame must be read from a compressed
+     *        StackMapTable attribute, or <tt>false</tt> if it must be read
+     *        from an uncompressed StackMap attribute.
      * @param frame the current frame, and also where the new frame must be
      *        stored. The first element contains the offset of the instruction
      *        to which the frame corresponds, the second element is the number
@@ -1388,10 +1404,19 @@ public class ClassReader {
      * @param labels the labels of the method's code.
      * @return the start of the next frame, if there is one.
      */
-
-    private int readFrame(int v, final int[] frame, final Label[] labels) {
-        int delta, i, k, n;
-        int tag = b[v++] & 0xFF;
+    private int readFrame(
+        int v,
+        boolean zip,
+        final int[] frame,
+        final Label[] labels)
+    {
+        int tag, delta, i, k, n;
+        if (zip) {
+            tag = b[v++] & 0xFF;
+        } else {
+            tag = MethodWriter.FULL_FRAME;
+            frame[0] = -1;
+        }
         if (tag < MethodWriter.SAME_LOCALS_1_STACK_ITEM_FRAME) {
             delta = tag;
             frame[2] = 0;
@@ -1450,7 +1475,6 @@ public class ClassReader {
      * @param labels the labels of the method's code.
      * @return the start of the next frame element, if there is one.
      */
-
     private int readFrameType(
         final int[] frame,
         final int index,
@@ -1488,7 +1512,6 @@ public class ClassReader {
      * @param formals the value of the {@link #IMPLICIT_TYPE} types.
      * @param mv the visitor that must visit the frame.
      */
-
     private void visitFrame(
         final int[] frame,
         final char[] buf,

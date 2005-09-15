@@ -36,6 +36,7 @@ import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.AbstractInsnNode;
+import org.objectweb.asm.tree.FrameNode;
 import org.objectweb.asm.tree.IincInsnNode;
 import org.objectweb.asm.tree.JumpInsnNode;
 import org.objectweb.asm.tree.LabelNode;
@@ -164,6 +165,8 @@ public class Analyzer implements Opcodes {
 
                 if (o instanceof LabelNode) {
                     merge(insn + 1, f, subroutine);
+                } else if (o instanceof FrameNode) {
+                    continue;
                 } else {
                     AbstractInsnNode insnNode = (AbstractInsnNode) o;
                     int insnOpcode = insnNode.getOpcode();

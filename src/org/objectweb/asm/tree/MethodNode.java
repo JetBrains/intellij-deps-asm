@@ -231,8 +231,10 @@ public class MethodNode extends MemberNode implements MethodVisitor {
     public void visitCode() {
     }
     
-    public FrameVisitor visitFrame(int maxLocal, int maxStack) {
-        return null; // TODO
+    public FrameVisitor visitFrame(int nLocal, int nStack) {
+        FrameNode frame = new FrameNode(nLocal, nStack);
+        instructions.add(frame);
+        return frame;
     }
 
     public void visitInsn(final int opcode) {

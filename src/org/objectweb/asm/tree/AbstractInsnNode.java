@@ -104,6 +104,11 @@ public abstract class AbstractInsnNode {
     public final static int MULTIANEWARRAY_INSN = 12;
 
     /**
+     * The type of {@link FrameNode} "instructions".
+     */
+    public final static int FRAME = 13;
+    
+    /**
      * The opcode of this instruction.
      */
     protected int opcode;

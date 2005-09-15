@@ -14,8 +14,7 @@
           <include name="lib/xalan-2.6.0.jar"/>
         </fileset>
       </classpath>
-      <arg value="${out.test}/"/>
-      <arg value="${java.home}/../lib/tools.jar"/>
+      <jvmarg value="-Dasm.test.class=${asm.test.class}" /> 
     </java>
   </target>
 </project>

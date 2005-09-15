@@ -44,7 +44,8 @@ import java.util.HashMap;
  * @author Eugene Kuleshov
  */
 public class ASMifierMethodVisitor extends ASMifierAbstractVisitor implements
-        MethodVisitor
+        MethodVisitor,
+        FrameVisitor
 {
 
     /**
@@ -87,9 +88,39 @@ public class ASMifierMethodVisitor extends ASMifierAbstractVisitor implements
     public void visitCode() {
         text.add("mv.visitCode();\n");
     }
-    
-    public FrameVisitor visitFrame(int maxLocal, int maxStack) {
-        return null; // TODO
+
+    public FrameVisitor visitFrame(final int maxLocal, final int maxStack) {
+        buf.setLength(0);
+        buf.append("framev = mv.visitFrame(")
+                .append(maxLocal)
+                .append(", ")
+                .append(maxStack)
+                .append(");\n");
+        text.add(buf.toString());
+        return this;
+    }
+
+    public void visitPrimitiveType(final int type) {
+        buf.setLength(0);
+        buf.append("framev.visitPrimitiveType(").append(type).append(");\n");
+        text.add(buf.toString());
+    }
+
+    public void visitReferenceType(final String type) {
+        buf.setLength(0);
+        buf.append("framev.visitReferenceType(");
+        appendConstant(type);
+        buf.append(");\n");
+        text.add(buf.toString());
+    }
+
+    public void visitUninitializedType(final Label newInsn) {
+        buf.setLength(0);
+        declareLabel(newInsn);
+        buf.append("framev.visitUninitializedType(");
+        appendLabel(newInsn);
+        buf.append(");\n");
+        text.add(buf.toString());
     }
 
     public void visitInsn(final int opcode) {

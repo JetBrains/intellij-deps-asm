@@ -230,6 +230,7 @@ public class ASMifierClassVisitor extends ASMifierAbstractVisitor implements
         text.add("ClassWriter cw = new ClassWriter(false);\n");
         text.add("FieldVisitor fv;\n");
         text.add("MethodVisitor mv;\n");
+        text.add("FrameVisitor framev;\n");
         text.add("AnnotationVisitor av0;\n\n");
 
         buf.setLength(0);

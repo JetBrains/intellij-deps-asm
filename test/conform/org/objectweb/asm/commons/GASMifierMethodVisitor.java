@@ -52,6 +52,7 @@ import java.util.Map;
  */
 public class GASMifierMethodVisitor extends ASMifierAbstractVisitor implements
         MethodVisitor,
+        FrameVisitor,
         Opcodes
 {
 
@@ -113,13 +114,43 @@ public class GASMifierMethodVisitor extends ASMifierAbstractVisitor implements
     }
 
     public void visitCode() {
-        /* text.add("mg.visitCode();\n"); */
+        text.add("mg.visitCode();\n");
     }
 
-    public FrameVisitor visitFrame(int maxLocal, int maxStack) {
-        return null; // TODO?
+    public FrameVisitor visitFrame(final int maxLocal, final int maxStack) {
+        buf.setLength(0);
+        buf.append("framev = mg.visitFrame(")
+                .append(maxLocal)
+                .append(", ")
+                .append(maxStack)
+                .append(");\n");
+        text.add(buf.toString());
+        return this;
     }
-    
+
+    public void visitPrimitiveType(final int type) {
+        buf.setLength(0);
+        buf.append("framev.visitPrimitiveType(").append(type).append(");\n");
+        text.add(buf.toString());
+    }
+
+    public void visitReferenceType(final String type) {
+        buf.setLength(0);
+        buf.append("framev.visitReferenceType(\"")
+                .append(type)
+                .append("\");\n");
+        text.add(buf.toString());
+    }
+
+    public void visitUninitializedType(final Label newInsn) {
+        buf.setLength(0);
+        declareLabel(newInsn);
+        buf.append("framev.visitUninitializedType(");
+        appendLabel(newInsn);
+        buf.append(");\n");
+        text.add(buf.toString());
+    }
+
     public void visitInsn(final int opcode) {
         buf.setLength(0);
         switch (opcode) {

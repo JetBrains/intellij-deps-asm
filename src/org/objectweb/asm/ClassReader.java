@@ -669,6 +669,8 @@ public class ClassReader {
                 int codeStart = v;
                 int codeEnd = v + codeLength;
 
+                mv.visitCode();
+
                 // 1st phase: finds the labels
                 int label;
                 Label[] labels = new Label[codeLength + 1];
@@ -781,6 +783,19 @@ public class ClassReader {
                     if (labels[label] == null) {
                         labels[label] = new Label();
                     }
+                    //TODO optimize?
+                    Label start = labels[readUnsignedShort(v)];
+                    Label end = labels[readUnsignedShort(v + 2)];
+                    Label handler = labels[readUnsignedShort(v + 4)];
+                    int type = readUnsignedShort(v + 6);
+                    if (type == 0) {
+                        mv.visitTryCatchBlock(start, end, handler, null);
+                    } else {
+                        mv.visitTryCatchBlock(start,
+                                end,
+                                handler,
+                                readUTF8(items[type], c));
+                    }
                     v += 8;
                 }
                 // parses the local variable, line number tables, and code
@@ -877,7 +892,6 @@ public class ClassReader {
                 }
 
                 // 2nd phase: visits each instruction
-                mv.visitCode();
                 if (stackMap != 0) {
                     // creates the very first (implicit) frame from the method
                     // descriptor
@@ -1093,24 +1107,6 @@ public class ClassReader {
                 l = labels[codeEnd - codeStart];
                 if (l != null) {
                     mv.visitLabel(l);
-                }
-                // visits the try catch entries
-                j = readUnsignedShort(v);
-                v += 2;
-                for (; j > 0; --j) {
-                    Label start = labels[readUnsignedShort(v)];
-                    Label end = labels[readUnsignedShort(v + 2)];
-                    Label handler = labels[readUnsignedShort(v + 4)];
-                    int type = readUnsignedShort(v + 6);
-                    if (type == 0) {
-                        mv.visitTryCatchBlock(start, end, handler, null);
-                    } else {
-                        mv.visitTryCatchBlock(start,
-                                end,
-                                handler,
-                                readUTF8(items[type], c));
-                    }
-                    v += 8;
                 }
                 // visits the local variable tables
                 if (!skipDebug && varTable != 0) {

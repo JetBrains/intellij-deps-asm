@@ -236,7 +236,12 @@ class MethodWriter implements MethodVisitor, FrameVisitor {
     /**
      * The catch table of this method.
      */
-    private ByteVector catchTable;
+    private Handler catchTable;
+
+    /**
+     * The last element in the catchTable handler list.
+     */
+    private Handler lastHandler;
 
     /**
      * Number of entries in the LocalVariableTable attribute.
@@ -574,6 +579,9 @@ class MethodWriter implements MethodVisitor, FrameVisitor {
             code.putByte(196 /* WIDE */).put12(opcode, var);
         } else {
             code.put11(opcode, var);
+        }
+        if (opcode >= Opcodes.ISTORE && computeFrames && catchCount > 0) {
+            visitLabel(new Label());
         }
     }
 
@@ -937,42 +945,19 @@ class MethodWriter implements MethodVisitor, FrameVisitor {
         final Label handler,
         final String type)
     {
-        if (computeMaxs) {
-            Label l = start.first;
-            Label h = handler.first;
-            Label e = end.first;
-            // computes the kind of the edges to 'h'
-            int kind;
-            if (computeFrames) {
-                String t = type == null ? "java/lang/Throwable" : type;
-                kind = Label.OBJECT | cw.addType(t);
-            } else {
-                // any positive value is ok, the exact value is not used
-                kind = 1;
-            }
-            // h is an exception handler
-            h.status |= Label.TARGET;
-            // adds 'h' as a successor of all labels between 'start' and 'end'
-            while (l != e) {
-                // creates an edge to 'h'
-                Edge b = new Edge();
-                b.kind = kind;
-                b.successor = h;
-                // adds it to the successors of 'l'
-                b.next = l.successors;
-                l.successors = b;
-                // goes to the next label
-                l = l.successor;
-            }
-        }
         ++catchCount;
-        if (catchTable == null) {
-            catchTable = new ByteVector();
+        Handler h = new Handler();
+        h.start = start;
+        h.end = end;
+        h.handler = handler;
+        h.desc = type;
+        h.type = type != null ? cw.newClass(type) : 0;
+        if (lastHandler == null) {
+            catchTable = h;
+        } else {
+            lastHandler.next = h;
         }
-        catchTable.putShort(start.position);
-        catchTable.putShort(end.position);
-        catchTable.putShort(handler.position);
-        catchTable.putShort(type != null ? cw.newClass(type) : 0);
+        lastHandler = h;
     }
 
     public void visitLocalVariable(
@@ -1023,6 +1008,39 @@ class MethodWriter implements MethodVisitor, FrameVisitor {
                 visitFrame(startLabel);
             } else {
                 startLabel.inputStackTop = 0 + 1; // see Label.inputStackTop
+            }
+
+            Handler handler = catchTable;
+            while (handler != null) {
+                Label l = handler.start.first;
+                Label h = handler.handler.first;
+                Label e = handler.end.first;
+                // computes the kind of the edges to 'h'
+                int kind;
+                if (computeFrames) {
+                    String t = handler.desc == null
+                            ? "java/lang/Throwable"
+                            : handler.desc;
+                    kind = Label.OBJECT | cw.addType(t);
+                } else {
+                    // any positive value is ok, the exact value is not used
+                    kind = 1;
+                }
+                // h is an exception handler
+                h.status |= Label.TARGET;
+                // adds 'h' as a successor of labels between 'start' and 'end'
+                while (l != e) {
+                    // creates an edge to 'h'
+                    Edge b = new Edge();
+                    b.kind = kind;
+                    b.successor = h;
+                    // adds it to the successors of 'l'
+                    b.next = l.successors;
+                    l.successors = b;
+                    // goes to the next label
+                    l = l.successor;
+                }
+                handler = handler.next;
             }
 
             /*
@@ -1591,7 +1609,14 @@ class MethodWriter implements MethodVisitor, FrameVisitor {
             out.putInt(code.length).putByteArray(code.data, 0, code.length);
             out.putShort(catchCount);
             if (catchCount > 0) {
-                out.putByteArray(catchTable.data, 0, catchTable.length);
+                Handler h = catchTable;
+                while (h != null) {
+                    out.putShort(h.start.position)
+                            .putShort(h.end.position)
+                            .putShort(h.handler.position)
+                            .putShort(h.type);
+                    h = h.next;
+                }
             }
             attributeCount = 0;
             if (localVar != null) {
@@ -2068,26 +2093,7 @@ class MethodWriter implements MethodVisitor, FrameVisitor {
         }
 
         // updates the instructions addresses in the
-        // catch, local var and line number tables
-        if (catchTable != null) {
-            b = catchTable.data;
-            u = 0;
-            while (u < catchTable.length) {
-                writeShort(b, u, getNewOffset(allIndexes,
-                        allSizes,
-                        0,
-                        readUnsignedShort(b, u)));
-                writeShort(b, u + 2, getNewOffset(allIndexes,
-                        allSizes,
-                        0,
-                        readUnsignedShort(b, u + 2)));
-                writeShort(b, u + 4, getNewOffset(allIndexes,
-                        allSizes,
-                        0,
-                        readUnsignedShort(b, u + 4)));
-                u += 8;
-            }
-        }
+        // local var and line number tables
         for (i = 0; i < 2; ++i) {
             ByteVector bv = i == 0 ? localVar : localVarType;
             if (bv != null) {
@@ -2214,10 +2220,11 @@ class MethodWriter implements MethodVisitor, FrameVisitor {
     {
         int offset = end - begin;
         for (int i = 0; i < indexes.length; ++i) {
-            if (begin < indexes[i] && indexes[i] <= end) { // forward jump
+            if (begin < indexes[i] && indexes[i] <= end) {
+                // forward jump
                 offset += sizes[i];
-            } else if (end < indexes[i] && indexes[i] <= begin) { // backward
-                // jump
+            } else if (end < indexes[i] && indexes[i] <= begin) {
+                // backward jump
                 offset -= sizes[i];
             }
         }

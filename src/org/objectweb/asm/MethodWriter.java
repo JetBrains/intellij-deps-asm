@@ -1781,7 +1781,8 @@ class MethodWriter implements MethodVisitor, FrameVisitor {
          * removed from these instructions is over estimated during the previous
          * loop, and computed exactly only after the loop is finished (this
          * requires another pass to parse the bytecode of the method).
-         */int[] allIndexes = new int[len]; // copy of indexes
+         */
+        int[] allIndexes = new int[len]; // copy of indexes
         int[] allSizes = new int[len]; // copy of sizes
         boolean[] resize; // instructions to be resized
         int newOffset; // future offset of a jump instruction

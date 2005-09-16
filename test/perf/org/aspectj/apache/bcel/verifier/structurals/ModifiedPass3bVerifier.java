@@ -14,34 +14,34 @@
  *  limitations under the License. 
  *
  */ 
-package org.apache.bcel.verifier.structurals;
+package org.aspectj.apache.bcel.verifier.structurals;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Random;
 import java.util.Vector;
-import org.apache.bcel.Constants;
-import org.apache.bcel.classfile.JavaClass;
-import org.apache.bcel.classfile.Method;
-import org.apache.bcel.generic.ConstantPoolGen;
-import org.apache.bcel.generic.JsrInstruction;
-import org.apache.bcel.generic.MethodGen;
-import org.apache.bcel.generic.ObjectType;
-import org.apache.bcel.generic.RET;
-import org.apache.bcel.generic.ReturnaddressType;
-import org.apache.bcel.generic.Type;
-import org.apache.bcel.verifier.VerificationResult;
-import org.apache.bcel.verifier.exc.AssertionViolatedException;
-import org.apache.bcel.verifier.exc.VerifierConstraintViolatedException;
-import org.apache.bcel.verifier.structurals.ControlFlowGraph;
-import org.apache.bcel.verifier.structurals.ExceptionHandler;
-import org.apache.bcel.verifier.structurals.ExecutionVisitor;
-import org.apache.bcel.verifier.structurals.Frame;
-import org.apache.bcel.verifier.structurals.InstConstraintVisitor;
-import org.apache.bcel.verifier.structurals.InstructionContext;
-import org.apache.bcel.verifier.structurals.OperandStack;
-import org.apache.bcel.verifier.structurals.UninitializedObjectType;
+import org.aspectj.apache.bcel.Constants;
+import org.aspectj.apache.bcel.classfile.JavaClass;
+import org.aspectj.apache.bcel.classfile.Method;
+import org.aspectj.apache.bcel.generic.ConstantPoolGen;
+import org.aspectj.apache.bcel.generic.JsrInstruction;
+import org.aspectj.apache.bcel.generic.MethodGen;
+import org.aspectj.apache.bcel.generic.ObjectType;
+import org.aspectj.apache.bcel.generic.RET;
+import org.aspectj.apache.bcel.generic.ReturnaddressType;
+import org.aspectj.apache.bcel.generic.Type;
+import org.aspectj.apache.bcel.verifier.VerificationResult;
+import org.aspectj.apache.bcel.verifier.exc.AssertionViolatedException;
+import org.aspectj.apache.bcel.verifier.exc.VerifierConstraintViolatedException;
+import org.aspectj.apache.bcel.verifier.structurals.ControlFlowGraph;
+import org.aspectj.apache.bcel.verifier.structurals.ExceptionHandler;
+import org.aspectj.apache.bcel.verifier.structurals.ExecutionVisitor;
+import org.aspectj.apache.bcel.verifier.structurals.Frame;
+import org.aspectj.apache.bcel.verifier.structurals.InstConstraintVisitor;
+import org.aspectj.apache.bcel.verifier.structurals.InstructionContext;
+import org.aspectj.apache.bcel.verifier.structurals.OperandStack;
+import org.aspectj.apache.bcel.verifier.structurals.UninitializedObjectType;
 
 /**
  * This PassVerifier verifies a method of class file according to pass 3,
@@ -50,7 +50,7 @@ import org.apache.bcel.verifier.structurals.UninitializedObjectType;
  * More detailed information is to be found at the do_verify() method's
  * documentation. 
  *
- * @version $Id: ModifiedPass3bVerifier.java,v 1.1.2.2 2005-09-16 07:19:39 ebruneton Exp $
+ * @version $Id: ModifiedPass3bVerifier.java,v 1.1.2.1 2005-09-16 07:19:38 ebruneton Exp $
  * @author <A HREF="http://www.inf.fu-berlin.de/~ehaase"/>Enver Haase</A>
  * @see #do_verify()
  */

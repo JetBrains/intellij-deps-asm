@@ -5,7 +5,8 @@
         <pathelement location="${out.build}"/>
         <pathelement location="${out.test}"/>
         <fileset dir="${test}">
-          <include name="lib/bcel.jar"/>
+          <include name="lib/bcel-5.1.jar"/>
+          <include name="lib/aspectjweaver.jar"/>
           <include name="lib/serp.jar"/>
           <include name="lib/javassist.jar"/>
           <!-- xslt engines -->

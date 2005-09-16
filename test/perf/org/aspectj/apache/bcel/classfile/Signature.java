@@ -1,4 +1,4 @@
-package org.apache.bcel.classfile;
+package org.aspectj.apache.bcel.classfile;
 
 /* ====================================================================
  * The Apache Software License, Version 1.1
@@ -61,7 +61,7 @@ import  java.io.*;
  * This class is derived from <em>Attribute</em> and represents a reference
  * to a <href="http://wwwipd.ira.uka.de/~pizza/gj/">GJ</a> attribute.
  *
- * @version $Id: Signature.java,v 1.1.2.2 2005-09-16 07:19:39 ebruneton Exp $
+ * @version $Id: Signature.java,v 1.1.2.1 2005-09-16 07:19:38 ebruneton Exp $
  * @author  <A HREF="mailto:markus.dahm@berlin.de">M. Dahm</A>
  * @see     Attribute
  */

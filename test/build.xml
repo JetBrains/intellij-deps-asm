@@ -84,6 +84,7 @@
     <condition property="test.paths.configured">
       <and>
         <isset property="bcel.path"/>
+        <isset property="aspectj.path"/>
         <isset property="serp.path"/>
         <isset property="javassist.path"/>
         <isset property="janino.path"/>
@@ -113,6 +114,7 @@
       <pathelement location="${classes}"/>
       <pathelement location="${out.test}"/>
       <pathelement path="${bcel.path}"/>
+      <pathelement path="${aspectj.path}"/>
       <pathelement path="${serp.path}"/>  
       <pathelement path="${javassist.path}"/>
       <pathelement path="${janino.path}"/>

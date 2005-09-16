@@ -232,6 +232,56 @@ public abstract class ALLPerfTest extends ClassLoader {
         compute = false;
         computeFrames = false;
         for (int i = 0; i < 10; ++i) {
+            long t = System.currentTimeMillis();
+            for (int j = 0; j < classes.size(); ++j) {
+                byte[] b = (byte[]) classes.get(j);
+                nullAspectjBCELAdapt(b);
+            }
+            t = System.currentTimeMillis() - t;
+            System.out.println("Time to deserialize and reserialize "
+                    + classes.size() + " classes with Aspectj BCEL = " + t
+                    + " ms");
+        }
+
+        compute = true;
+        for (int i = 0; i < 10; ++i) {
+            long t = System.currentTimeMillis();
+            for (int j = 0; j < classes.size(); ++j) {
+                byte[] b = (byte[]) classes.get(j);
+                nullAspectjBCELAdapt(b);
+            }
+            t = System.currentTimeMillis() - t;
+            System.out.println("Time to deserialize and reserialize "
+                    + classes.size()
+                    + " classes with Aspectj BCEL and computeMaxs = " + t
+                    + " ms");
+        }
+
+        compute = false;
+        computeFrames = true;
+        for (int i = 0; i < 10; ++i) {
+            int errors = 0;
+            long t = System.currentTimeMillis();
+            for (int j = 0; j < classes.size(); ++j) {
+                byte[] b = (byte[]) classes.get(j);
+                try {
+                    nullAspectjBCELAdapt(b);
+                } catch (Throwable e) {
+                    ++errors;
+                }
+            }
+            t = System.currentTimeMillis() - t;
+            System.out.println("Time to deserialize and reserialize "
+                    + classes.size()
+                    + " classes with Aspectj BCEL and computeFrames = " + t
+                    + " ms (" + errors + " errors)");
+        }
+
+        System.out.println();
+
+        compute = false;
+        computeFrames = false;
+        for (int i = 0; i < 10; ++i) {
             pool = new ClassPool(null);
             long t = System.currentTimeMillis();
             for (int j = 0; j < classes.size(); ++j) {
@@ -290,6 +340,46 @@ public abstract class ALLPerfTest extends ClassLoader {
                 if (computeFrames) {
                     ModifiedPass3bVerifier verif;
                     verif = new ModifiedPass3bVerifier(jc, k);
+                    verif.do_verify();
+                }
+            }
+            cg.replaceMethod(ms[k], mg.getMethod());
+        }
+        cg.getJavaClass().getBytes();
+    }
+
+    private static void nullAspectjBCELAdapt(byte[] b) throws IOException {
+        org.aspectj.apache.bcel.classfile.JavaClass jc = new org.aspectj.apache.bcel.classfile.ClassParser(new ByteArrayInputStream(b),
+                "class-name").parse();
+        org.aspectj.apache.bcel.generic.ClassGen cg = new org.aspectj.apache.bcel.generic.ClassGen(jc);
+        org.aspectj.apache.bcel.generic.ConstantPoolGen cp = cg.getConstantPool();
+        org.aspectj.apache.bcel.classfile.Method[] ms = cg.getMethods();
+        for (int k = 0; k < ms.length; ++k) {
+            org.aspectj.apache.bcel.generic.MethodGen mg = new org.aspectj.apache.bcel.generic.MethodGen(ms[k],
+                    cg.getClassName(),
+                    cp);
+            boolean lv = ms[k].getLocalVariableTable() == null;
+            boolean ln = ms[k].getLineNumberTable() == null;
+            if (lv) {
+                mg.removeLocalVariables();
+            }
+            if (ln) {
+                mg.removeLineNumbers();
+            }
+            mg.stripAttributes(skipDebug);
+            org.aspectj.apache.bcel.generic.InstructionList il = mg.getInstructionList();
+            if (il != null) {
+                org.aspectj.apache.bcel.generic.InstructionHandle ih = il.getStart();
+                while (ih != null) {
+                    ih = ih.getNext();
+                }
+                if (compute) {
+                    mg.setMaxStack();
+                    mg.setMaxLocals();
+                }
+                if (computeFrames) {
+                    org.aspectj.apache.bcel.verifier.structurals.ModifiedPass3bVerifier verif = new org.aspectj.apache.bcel.verifier.structurals.ModifiedPass3bVerifier(jc,
+                            k);
                     verif.do_verify();
                 }
             }

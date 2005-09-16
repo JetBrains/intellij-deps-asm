@@ -13,7 +13,6 @@
 	<classpathentry kind="src" path="examples/jbfc/src"/>
 	<classpathentry kind="src" path="examples/xml"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry kind="lib" path="test/lib/bcel.jar"/>
 	<classpathentry kind="lib" path="test/lib/javassist.jar"/>
 	<classpathentry kind="lib" path="test/lib/jd.xslt-1.5.5.jar"/>
 	<classpathentry kind="lib" path="test/lib/saxon7.jar"/>
@@ -21,5 +20,7 @@
 	<classpathentry kind="lib" path="test/lib/xalan-2.6.0.jar"/>
 	<classpathentry sourcepath="ECLIPSE_HOME/plugins/org.eclipse.jdt.source_3.0.0/src/org.junit_3.8.1/junitsrc.zip" kind="var" path="JUNIT_HOME/junit.jar"/>
 	<classpathentry kind="lib" path="test/lib/janino-2.3.4.jar"/>
+	<classpathentry kind="lib" path="test/lib/aspectjweaver.jar"/>
+	<classpathentry kind="lib" path="test/lib/bcel-5.1.jar"/>
 	<classpathentry kind="output" path="output/eclipse"/>
 </classpath>

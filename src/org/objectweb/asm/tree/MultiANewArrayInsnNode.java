@@ -40,7 +40,7 @@ import org.objectweb.asm.MethodVisitor;
 public class MultiANewArrayInsnNode extends AbstractInsnNode {
 
     /**
-     * An array type descriptor (see {@link Type}).
+     * An array type descriptor (see {@link org.objectweb.asm.Type}).
      */
     public String desc;
 
@@ -52,7 +52,7 @@ public class MultiANewArrayInsnNode extends AbstractInsnNode {
     /**
      * Constructs a new {@link MultiANewArrayInsnNode}.
      * 
-     * @param desc an array type descriptor (see {@link Type}).
+     * @param desc an array type descriptor (see {@link org.objectweb.asm.Type}).
      * @param dims number of dimensions of the array to allocate.
      */
     public MultiANewArrayInsnNode(final String desc, final int dims) {

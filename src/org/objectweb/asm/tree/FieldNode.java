@@ -41,8 +41,8 @@ import org.objectweb.asm.FieldVisitor;
 public class FieldNode extends MemberNode implements FieldVisitor {
 
     /**
-     * The field's access flags (see {@link Opcodes}). This field also
-     * indicates if the field is synthetic and/or deprecated.
+     * The field's access flags (see {@link org.objectweb.asm.Opcodes}). This
+     * field also indicates if the field is synthetic and/or deprecated.
      */
     public int access;
 
@@ -52,7 +52,7 @@ public class FieldNode extends MemberNode implements FieldVisitor {
     public String name;
 
     /**
-     * The field's descriptor (see {@link Type}).
+     * The field's descriptor (see {@link org.objectweb.asm.Type}).
      */
     public String desc;
 
@@ -71,11 +71,12 @@ public class FieldNode extends MemberNode implements FieldVisitor {
     /**
      * Constructs a new {@link FieldNode}.
      * 
-     * @param access the field's access flags (see {@link Opcodes}). This
-     *        parameter also indicates if the field is synthetic and/or
-     *        deprecated.
+     * @param access the field's access flags (see
+     *        {@link org.objectweb.asm.Opcodes}). This parameter also indicates
+     *        if the field is synthetic and/or deprecated.
      * @param name the field's name.
-     * @param desc the field's descriptor (see {@link Type Type}).
+     * @param desc the field's descriptor (see
+     *        {@link org.objectweb.asm.Type Type}).
      * @param signature the field's signature.
      * @param value the field's initial value. This parameter, which may be
      *        <tt>null</tt> if the field does not have an initial value, must

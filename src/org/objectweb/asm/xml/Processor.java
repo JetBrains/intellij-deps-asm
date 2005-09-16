@@ -916,14 +916,12 @@ public class Processor {
          * Constructs a new {@link OutputSlicingHandler SubdocumentHandler}
          * object.
          * 
-         * @param subdocumentRoot name/path to the root element of the
-         *        subdocument
-         * @param rootHandler content handler for the entire document
-         *        (subdocument envelope).
          * @param subdocumentHandlerFactory a
          *        {@link ContentHandlerFactory ContentHandlerFactory} used to
          *        create {@link ContentHandler ContentHandler} instances for
          *        subdocuments.
+         * @param entryElement TODO.
+         * @param isXml TODO.
          */
         public OutputSlicingHandler(
             ContentHandlerFactory subdocumentHandlerFactory,

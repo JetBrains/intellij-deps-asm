@@ -436,6 +436,8 @@ public class ASMContentHandler extends DefaultHandler implements Opcodes {
     /**
      * Return the top object on the stack without removing it. If there are no
      * objects on the stack, return <code>null</code>.
+     * 
+     * @return TODO
      */
     final Object peek() {
         return stack.size() == 0 ? null : stack.get(stack.size() - 1);
@@ -448,6 +450,7 @@ public class ASMContentHandler extends DefaultHandler implements Opcodes {
      * 
      * @param n Index of the desired element, where 0 is the top of the stack, 1
      *        is the next element down, and so on.
+     * @return TODO
      */
     final Object peek(int n) {
         return stack.size() < (n + 1) ? null : stack.get(n);
@@ -456,6 +459,8 @@ public class ASMContentHandler extends DefaultHandler implements Opcodes {
     /**
      * Pop the top object off of the stack, and return it. If there are no
      * objects on the stack, return <code>null</code>.
+     * 
+     * @return TODO
      */
     final Object pop() {
         return stack.size() == 0 ? null : stack.remove(stack.size() - 1);
@@ -648,7 +653,7 @@ public class ASMContentHandler extends DefaultHandler implements Opcodes {
         protected final MethodVisitor getCodeVisitor() {
             return (MethodVisitor) peek();
         }
-        
+
         protected final int getAccess(String s) {
             int access = 0;
             if (s.indexOf("public") != -1)

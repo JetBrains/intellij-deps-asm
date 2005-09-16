@@ -546,6 +546,7 @@ public class GeneratorAdapter extends LocalVariablesSorter {
      * 
      * @param local a local variable identifier, as returned by {@link #newLocal
      *        newLocal}.
+     * @param type the type of this local variable.
      */
     public void loadLocal(final int local, final Type type) {
         setLocalType(local, type);
@@ -569,6 +570,7 @@ public class GeneratorAdapter extends LocalVariablesSorter {
      * 
      * @param local a local variable identifier, as returned by {@link #newLocal
      *        newLocal}.
+     * @param type the type of this local variable.
      */
     public void storeLocal(final int local, final Type type) {
         setLocalType(local, type);

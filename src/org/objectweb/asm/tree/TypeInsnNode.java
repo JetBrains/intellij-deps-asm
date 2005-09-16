@@ -41,7 +41,7 @@ public class TypeInsnNode extends AbstractInsnNode {
 
     /**
      * The operand of this instruction. This operand is a type descriptor (see
-     * {@link Type}).
+     * {@link org.objectweb.asm.Type}).
      */
     public String desc;
 
@@ -51,7 +51,7 @@ public class TypeInsnNode extends AbstractInsnNode {
      * @param opcode the opcode of the type instruction to be constructed. This
      *        opcode must be NEW, NEWARRAY, ANEWARRAY, CHECKCAST or INSTANCEOF.
      * @param desc the operand of the instruction to be constructed. This
-     *        operand is a type descriptor (see {@link Type}).
+     *        operand is a type descriptor (see {@link org.objectweb.asm.Type}).
      */
     public TypeInsnNode(final int opcode, final String desc) {
         super(opcode);

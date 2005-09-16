@@ -80,8 +80,7 @@ public interface Interpreter {
      * @param insn the bytecode instruction to be interpreted.
      * @param value the value that must be moved by the instruction.
      * @return the result of the interpretation of the given instruction. The
-     *         returned value must be {@link Value#equals(Value) equal} to the
-     *         given value.
+     *         returned value must be equal to the given value.
      * @throws AnalyzerException if an error occured during the interpretation.
      */
     Value copyOperation(AbstractInsnNode insn, Value value)

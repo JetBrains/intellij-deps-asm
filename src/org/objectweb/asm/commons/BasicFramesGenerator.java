@@ -233,7 +233,7 @@ public class BasicFramesGenerator extends MethodAdapter implements FrameVisitor
                 }
             }
         }
-        push(desc);
+        pushDesc(desc);
         labels = null;
         if (delegate) {
             mv.visitMethodInsn(opcode, owner, name, desc);

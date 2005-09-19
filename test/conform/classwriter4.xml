@@ -9,6 +9,12 @@
         <attribute name="Premain-Class" value="org.objectweb.asm.ClassWriterTest4"/>
       </manifest>
     </jar>
+    <condition property="testclasses" value="${asm.test.class}">
+      <not><equals arg1="${asm.test.class}" arg2=""/></not>
+    </condition>
+    <condition property="testclasses" value="com.sun.corba">
+      <equals arg1="${asm.test.class}" arg2=""/>
+    </condition>
     <junit fork="yes" 
            printsummary="yes"
            errorproperty="test.failed"
@@ -20,9 +26,9 @@
       </batchtest>
       <formatter type="xml"/>
       <classpath refid="test.classpath"/>
-      <jvmarg value="-javaagent:${out.test}/agent4.jar=${asm.test.class}"/>
+      <jvmarg value="-javaagent:${out.test}/agent4.jar=${testclasses}"/>
       <jvmarg value="-Dasm.test=${java.home}/lib/rt.jar"/>
-      <jvmarg value="-Dasm.test.class=${asm.test.class}"/>
+      <jvmarg value="-Dasm.test.class=${testclasses}"/>
       <jvmarg value="-XX:-FailOverToOldVerifier"/>
       <jvmarg value="-Xverify:all"/>
     </junit>

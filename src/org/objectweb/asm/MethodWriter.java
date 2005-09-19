@@ -35,6 +35,7 @@ package org.objectweb.asm;
  * instruction to a byte vector, in the order these methods are called.
  * 
  * @author Eric Bruneton
+ * @author Eugene Kuleshov
  */
 class MethodWriter implements MethodVisitor, FrameVisitor {
 
@@ -1756,7 +1757,6 @@ class MethodWriter implements MethodVisitor, FrameVisitor {
         byte[] b = code.data; // bytecode of the method
         int u, v, label; // indexes in b
         int i, j; // loop indexes
-        // TODO resizing invalidates stackmap!
         /*
          * 1st step: As explained above, resizing an instruction may require to
          * resize another one, which may require to resize yet another one, and
@@ -2121,6 +2121,31 @@ class MethodWriter implements MethodVisitor, FrameVisitor {
                         0,
                         readUnsignedShort(b, u)));
                 u += 4;
+            }
+        }
+        // recomputes the stack map frames
+        if (frameCount > 0) {
+            frameCount = 0;
+            stackMap = null;
+            previousFrame = null;
+            frame = null;
+            Label l = new Label();
+            Type[] args = Type.getArgumentTypes(descriptor);
+            l.initInputFrame(cw, access, args, maxLocals);
+            visitFrame(l);
+            l = startLabel;
+            while (l != null) {
+                u = l.position - 3;
+                if ((l.status & Label.STORE) != 0 || (u >= 0 && resize[u])) {
+                    l.position = getNewOffset(allIndexes,
+                            allSizes,
+                            0,
+                            l.position);
+                    l.status |= Label.RESIZED;
+                    // TODO update offsets in UNINITIALIZED values
+                    visitFrame(l);
+                }
+                l = l.successor;
             }
         }
         // updates the labels of the other attributes

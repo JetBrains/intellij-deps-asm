@@ -385,7 +385,12 @@ public class BasicFramesGenerator extends MethodAdapter implements FrameVisitor
     private void pop(final String desc) {
         char c = desc.charAt(0);
         if (c == '(') {
-            pop(Type.getReturnType(desc).getSize());
+            int n = 0;
+            Type[] types = Type.getArgumentTypes(desc);            
+            for (int i = 0; i < types.length; ++i) {
+                n += types[i].getSize();
+            }
+            pop(n);
         } else if (c == 'J' || c == 'D') {
             pop(2);
         } else {
@@ -711,6 +716,7 @@ public class BasicFramesGenerator extends MethodAdapter implements FrameVisitor
                     if (delegate) {
                         mv.visitLabel(l);
                     }
+                    labels = new ArrayList();
                     labels.add(l);
                 } else {
                     l = (Label) labels.get(0);

@@ -30,25 +30,81 @@
 
 package org.objectweb.asm;
 
+/**
+ * A visitor to visit a stack map frame. The methods of this interface must be
+ * called for each local variable and for each operand stack element in the
+ * visited stack map frame, in sequential order (local variables must be visited
+ * first, before operand stack elements). Local variables <i>and</i> operand
+ * stack elements of type long and double must be visited with a single call to
+ * {@link #visitPrimitiveType}; the next slot, of type TOP, is implicit and
+ * must not be visited.
+ * 
+ * @author Eric Bruneton
+ */
 public interface FrameVisitor {
 
+    /**
+     * The type of uninitialized or invalid values.
+     */
     int TOP = 0;
 
+    /**
+     * The type of boolean, byte, char, short, and int values.
+     */
     int INTEGER = 1;
 
+    /**
+     * The type of float values.
+     */
     int FLOAT = 2;
 
+    /**
+     * The type of double values.
+     */
     int DOUBLE = 3;
 
+    /**
+     * The type of long values.
+     */
     int LONG = 4;
 
+    /**
+     * The type of the <tt>null</tt> value.
+     */
     int NULL = 5;
 
+    /**
+     * The type of <tt>this</tt> in constructors, until the super constructor
+     * is called.
+     */
     int UNINITIALIZED_THIS = 6;
 
+    /**
+     * Visits a local variable or operand stack element whose type is
+     * "primitive".
+     * 
+     * @param type the type of the visited local variable or operand stack
+     *        element. This type must be one of the constants defined in this
+     *        interface.
+     */
     void visitPrimitiveType(int type);
 
+    /**
+     * Visits a local variable or operand stack element whose type is a
+     * reference type.
+     * 
+     * @param type the internal name (or, for array types, the type descriptor)
+     *        of the class of the visited local variable or operand stack
+     *        element.
+     */
     void visitReferenceType(String type);
 
+    /**
+     * Visits a local variable or operand stack element whose value is an
+     * uninitialized, newly created object.
+     * 
+     * @param newInsn a label that designates the NEW instruction that created
+     *        this uninitialized object.
+     */
     void visitUninitializedType(Label newInsn);
 }

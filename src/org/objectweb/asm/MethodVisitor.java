@@ -33,14 +33,16 @@ package org.objectweb.asm;
  * A visitor to visit a Java method. The methods of this interface must be
  * called in the following order: [ <tt>visitAnnotationDefault</tt> ] (
  * <tt>visitAnnotation</tt> | <tt>visitParameterAnnotation</tt> |
- * <tt>visitAttribute</tt> )* [ <tt>visitCode</tt> ( <tt>visit</tt><i>X</i>Insn</tt> |
- * <tt>visitLabel</tt> | <tt>visitTryCatchBlock</tt> | <tt>visitLocalVariable</tt> |
- * <tt>visitLineNumber</tt>)* <tt>visitMaxs</tt> ] <tt>visitEnd</tt>. In
- * addition, the <tt>visit</tt><i>X</i>Insn</tt> and <tt>visitLabel</tt>
- * methods must be called in the sequential order of the bytecode instructions
- * of the visited code, and the <tt>visitTryCatchBlock</tt>, <tt>visitLocalVariable</tt>
- * and <tt>visitLineNumber</tt> methods must be called after the labels passed
- * as arguments have been visited.
+ * <tt>visitAttribute</tt> )* [ <tt>visitCode</tt> ( <tt>visitFrame</tt> |
+ * <tt>visit</tt><i>X</i>Insn</tt> | <tt>visitLabel</tt> | <tt>visitTryCatchBlock</tt> |
+ * <tt>visitLocalVariable</tt> | <tt>visitLineNumber</tt>)* <tt>visitMaxs</tt> ]
+ * <tt>visitEnd</tt>. In addition, the <tt>visit</tt><i>X</i>Insn</tt>
+ * and <tt>visitLabel</tt> methods must be called in the sequential order of
+ * the bytecode instructions of the visited code, <tt>visitTryCatchBlock</tt>
+ * must be called <i>before</i> the labels passed as arguments have been
+ * visited, and the <tt>visitLocalVariable</tt> and <tt>visitLineNumber</tt>
+ * methods must be called <i>after</i> the labels passed as arguments have been
+ * visited.
  * 
  * @author Eric Bruneton
  */
@@ -95,6 +97,22 @@ public interface MethodVisitor {
      */
     void visitCode();
 
+    /**
+     * Visits the current state of the local variables and operand stack
+     * elements. This method must(*) be called <i>just before</i> any
+     * instruction <b>i</b> that follows an unconditionnal branch instruction
+     * such as GOTO or THROW, that is the target of a jump instruction, or that
+     * starts an exception handler block. The visited types must describe the
+     * values of the local variables and of the operand stack elements <i>just
+     * before</i> <b>i</b> is executed. <br> <br> (*) this is mandatory only
+     * for classes whose version is greater than or equal to
+     * {@link Opcodes#V1_6 V1_6}.
+     * 
+     * @param nLocal the number of local variables in the visited frame.
+     * @param nStack the number of operand stack elements in the visited frame.
+     * @return a {@link FrameVisitor} to visit the stack map frame types, or
+     *         <tt>null</tt> to remove this frame.
+     */
     FrameVisitor visitFrame(int nLocal, int nStack);
 
     // -------------------------------------------------------------------------
@@ -269,9 +287,9 @@ public interface MethodVisitor {
      * @param type internal name of the type of exceptions handled by the
      *        handler, or <tt>null</tt> to catch any exceptions (for "finally"
      *        blocks).
-     * @throws IllegalArgumentException if one of the labels has not already
-     *         been visited by this visitor (by the
-     *         {@link #visitLabel visitLabel} method).
+     * @throws IllegalArgumentException if one of the labels has already been
+     *         visited by this visitor (by the {@link #visitLabel visitLabel}
+     *         method).
      */
     void visitTryCatchBlock(Label start, Label end, Label handler, String type);
 

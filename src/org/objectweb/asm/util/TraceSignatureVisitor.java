@@ -32,6 +32,13 @@ package org.objectweb.asm.util;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.signature.SignatureVisitor;
 
+/**
+ * A {@link SignatureVisitor} that prints a disassembled view of the signature
+ * it visits.
+ * 
+ * @author Eugene Kuleshov
+ * @author Eric Bruneton
+ */
 public class TraceSignatureVisitor implements SignatureVisitor {
 
     private StringBuffer declaration;

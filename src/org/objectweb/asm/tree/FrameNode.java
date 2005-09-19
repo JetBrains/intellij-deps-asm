@@ -35,15 +35,58 @@ import java.util.List;
 import org.objectweb.asm.FrameVisitor;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
+import org.objectweb.asm.Opcodes;
 
+/**
+ * A node that represents a stack map frame. These nodes are pseudo instruction
+ * nodes in order to be inserted in an instruction list. In fact these nodes
+ * must(*) be inserted <i>just before</i> any instruction node <b>i</b> that
+ * follows an unconditionnal branch instruction such as GOTO or THROW, that is
+ * the target of a jump instruction, or that starts an exception handler block.
+ * The stack map frame types must describe the values of the local variables and
+ * of the operand stack elements <i>just before</i> <b>i</b> is executed. <br>
+ * <br> (*) this is mandatory only for classes whose version is greater than or
+ * equal to {@link Opcodes#V1_6 V1_6}.
+ * 
+ * @author Eric Bruneton
+ */
 public class FrameNode extends AbstractInsnNode implements FrameVisitor {
 
+    /**
+     * The types of the local variables of this stack map frame. Elements of
+     * this list can be Integer, String or Label objects (for primitive,
+     * reference and uninitialized types respectively - see {@link FrameVisitor}).
+     */
     public final List locals;
 
+    /**
+     * The types of the operand stack elements of this stack map frame. Elements
+     * of this list can be Integer, String or Label objects (for primitive,
+     * reference and uninitialized types respectively - see {@link FrameVisitor}).
+     */
     public final List stack;
 
+    /**
+     * Number of remaining local variable types to be visited.
+     */
     private int nLocal;
-    
+
+    private final static Integer[] TYPES = {
+        new Integer(0),
+        new Integer(1),
+        new Integer(2),
+        new Integer(3),
+        new Integer(4),
+        new Integer(5),
+        new Integer(6)
+    };
+
+    /**
+     * Constructs a new {@link FrameNode}.
+     * 
+     * @param nLocal number of local variables of this stack map frame.
+     * @param nStack number of operand stack elements of this stack map frame.
+     */
     public FrameNode(final int nLocal, final int nStack) {
         super(-1);
         this.locals = new ArrayList(nLocal);
@@ -53,10 +96,10 @@ public class FrameNode extends AbstractInsnNode implements FrameVisitor {
 
     public void visitPrimitiveType(final int type) {
         if (nLocal > 0) {
-            locals.add(new Integer(type));
+            locals.add(TYPES[type]);
             --nLocal;
         } else {
-            stack.add(new Integer(type));
+            stack.add(TYPES[type]);
         }
     }
 
@@ -77,7 +120,12 @@ public class FrameNode extends AbstractInsnNode implements FrameVisitor {
             stack.add(newInsn);
         }
     }
-    
+
+    /**
+     * Makes the given visitor visit this stack map frame.
+     * 
+     * @param mv a method visitor.
+     */
     public void accept(final MethodVisitor mv) {
         FrameVisitor fv = mv.visitFrame(locals.size(), stack.size());
         for (int i = 0; i < locals.size(); ++i) {

@@ -29,16 +29,11 @@
  */
 package org.objectweb.asm;
 
-import java.io.InputStream;
-import java.io.PrintWriter;
-import java.io.StringWriter;
 import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.IllegalClassFormatException;
 import java.lang.instrument.Instrumentation;
 import java.security.ProtectionDomain;
 import java.util.HashSet;
-
-import org.objectweb.asm.util.TraceClassVisitor;
 
 import junit.framework.TestSuite;
 
@@ -59,7 +54,7 @@ public class ClassWriterTest4 extends AbstractTest {
             {
                 String n = className.replace('/', '.');
                 if (agentArgs.length() == 0 || n.indexOf(agentArgs) != -1) {
-                    System.out.println("transform " + n);
+                    //System.out.println("transform " + n);
                     return transformClass(classFileBuffer);
                 } else {
                     return null;
@@ -102,6 +97,9 @@ public class ClassWriterTest4 extends AbstractTest {
             }
         };
         ClassAdapter ca = new ClassAdapter(cw) {
+            
+            private boolean transformed = false;
+            
             public MethodVisitor visitMethod(
                 final int access,
                 final String name,
@@ -117,8 +115,6 @@ public class ClassWriterTest4 extends AbstractTest {
                 {
                     private HashSet labels = new HashSet();
 
-                    private boolean transformed = false;
-
                     public void visitLabel(final Label label) {
                         super.visitLabel(label);
                         labels.add(label);
@@ -129,10 +125,12 @@ public class ClassWriterTest4 extends AbstractTest {
                         final Label label)
                     {
                         super.visitJumpInsn(opcode, label);
-                        if (!transformed && !labels.contains(label)) {
-                            transformed = true;
-                            for (int i = 0; i < 33000; ++i) {
-                                mv.visitInsn(Opcodes.NOP);
+                        if (opcode != Opcodes.GOTO) {
+                            if (!transformed && !labels.contains(label)) {
+                                transformed = true;
+                                for (int i = 0; i < 33000; ++i) {
+                                    mv.visitInsn(Opcodes.NOP);
+                                }
                             }
                         }
                     }
@@ -153,21 +151,6 @@ public class ClassWriterTest4 extends AbstractTest {
         } catch (ClassFormatError cfe) {
             fail(cfe.getMessage());
         } catch (VerifyError ve) {
-            // String s = n.replace('.', '/') + ".class";
-            // InputStream is =
-            // getClass().getClassLoader().getResourceAsStream(s);
-            // ClassReader cr = new ClassReader(is);
-            // byte[] b = transformClass(cr.b);
-            // StringWriter sw1 = new StringWriter();
-            // StringWriter sw2 = new StringWriter();
-            // sw2.write(ve.toString() + "\n");
-            // ClassVisitor cv1 = new TraceClassVisitor(new PrintWriter(sw1));
-            // ClassVisitor cv2 = new TraceClassVisitor(new PrintWriter(sw2));
-            // cr.accept(new ClassFilter(cv1), false);
-            // new ClassReader(b).accept(new ClassFilter(cv2), false);
-            // String s1 = sw1.toString();
-            // String s2 = sw2.toString();
-            // assertEquals("different data", s1, s2);
             fail(ve.toString());
         }
     }

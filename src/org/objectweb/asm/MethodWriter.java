@@ -376,12 +376,12 @@ class MethodWriter implements MethodVisitor, FrameVisitor {
         }
         this.computeMaxs = computeMaxs || computeFrames;
         this.computeFrames = computeFrames;
+        this.zip = (cw.version & 0xFFFF) >= Opcodes.V1_6;
         if (this.computeMaxs) {
             if (this.computeFrames) {
                 if (name.equals("<init>")) {
                     this.access |= ACC_CONSTRUCTOR;
                 }
-                zip = (cw.version & 0xFFFF) >= Opcodes.V1_6;
             }
             // updates maxLocals
             int size = getArgumentsAndReturnSizes(descriptor) >> 2;

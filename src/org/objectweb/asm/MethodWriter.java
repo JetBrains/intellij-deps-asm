@@ -2093,6 +2093,14 @@ class MethodWriter implements MethodVisitor, FrameVisitor {
             }
         }
 
+        // updates the exception handler block labels
+        Handler h = catchTable;        
+        while (h != null) {
+            getNewOffset(allIndexes, allSizes, h.start);
+            getNewOffset(allIndexes, allSizes, h.end);
+            getNewOffset(allIndexes, allSizes, h.handler);
+            h = h.next;
+        }
         // updates the instructions addresses in the
         // local var and line number tables
         for (i = 0; i < 2; ++i) {
@@ -2137,11 +2145,7 @@ class MethodWriter implements MethodVisitor, FrameVisitor {
             while (l != null) {
                 u = l.position - 3;
                 if ((l.status & Label.STORE) != 0 || (u >= 0 && resize[u])) {
-                    l.position = getNewOffset(allIndexes,
-                            allSizes,
-                            0,
-                            l.position);
-                    l.status |= Label.RESIZED;
+                    getNewOffset(allIndexes, allSizes, l);
                     // TODO update offsets in UNINITIALIZED values
                     visitFrame(l);
                 }
@@ -2153,13 +2157,7 @@ class MethodWriter implements MethodVisitor, FrameVisitor {
             Label[] labels = cattrs.getLabels();
             if (labels != null) {
                 for (i = labels.length - 1; i >= 0; --i) {
-                    if ((labels[i].status & Label.RESIZED) == 0) {
-                        labels[i].position = getNewOffset(allIndexes,
-                                allSizes,
-                                0,
-                                labels[i].position);
-                        labels[i].status |= Label.RESIZED;
-                    }
+                    getNewOffset(allIndexes, allSizes, labels[i]);
                 }
             }
         }
@@ -2255,5 +2253,32 @@ class MethodWriter implements MethodVisitor, FrameVisitor {
             }
         }
         return offset;
+    }
+
+    /**
+     * Updates the offset of the given label.
+     * 
+     * @param indexes current positions of the instructions to be resized. Each
+     *        instruction must be designated by the index of its <i>last</i>
+     *        byte, plus one (or, in other words, by the index of the <i>first</i>
+     *        byte of the <i>next</i> instruction).
+     * @param sizes the number of bytes to be <i>added</i> to the above
+     *        instructions. More precisely, for each i < <tt>len</tt>,
+     *        <tt>sizes</tt>[i] bytes will be added at the end of the
+     *        instruction designated by <tt>indexes</tt>[i] or, if
+     *        <tt>sizes</tt>[i] is negative, the <i>last</i> |<tt>sizes[i]</tt>|
+     *        bytes of the instruction will be removed (the instruction size
+     *        <i>must not</i> become negative or null).
+     * @param label the label whose offset must be updated.
+     */
+    static void getNewOffset(
+        final int[] indexes,
+        final int[] sizes,
+        final Label label)
+    {
+        if ((label.status & Label.RESIZED) == 0) {
+            label.position = getNewOffset(indexes, sizes, 0, label.position);
+            label.status |= Label.RESIZED;
+        }
     }
 }

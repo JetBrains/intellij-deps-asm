@@ -132,7 +132,7 @@ public class ClassWriterTest4 extends AbstractTest {
                         if (!transformed && !labels.contains(label)) {
                             transformed = true;
                             for (int i = 0; i < 33000; ++i) {
-                                mv.visitInsn(Opcodes.POP);
+                                mv.visitInsn(Opcodes.NOP);
                             }
                         }
                     }

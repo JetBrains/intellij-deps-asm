@@ -44,10 +44,10 @@ import org.objectweb.asm.Opcodes;
  * 
  * @author Eric Bruneton
  */
-public class BasicFramesGeneratorTest extends AbstractTest {
+public class AnalyzerAdapterTest extends AbstractTest {
 
     public static TestSuite suite() throws Exception {
-        return new BasicFramesGeneratorTest().getSuite();
+        return new AnalyzerAdapterTest().getSuite();
     }
 
     public void test() throws Exception {
@@ -89,7 +89,7 @@ public class BasicFramesGeneratorTest extends AbstractTest {
                         desc,
                         signature,
                         exceptions);
-                return new BasicFramesGenerator(owner, access, name, desc, mv);
+                return new AnalyzerAdapter(owner, access, name, desc, mv);
             }
         };
         cr.accept(cv, false);

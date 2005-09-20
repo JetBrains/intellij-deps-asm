@@ -45,8 +45,7 @@ import org.objectweb.asm.Type;
  * 
  * @author Eric Bruneton
  */
-public class BasicFramesGenerator extends MethodAdapter implements FrameVisitor
-{
+public class AnalyzerAdapter extends MethodAdapter implements FrameVisitor {
 
     public final List locals;
 
@@ -85,7 +84,7 @@ public class BasicFramesGenerator extends MethodAdapter implements FrameVisitor
         NULL,
         UNINITIALIZED_THIS };
 
-    public BasicFramesGenerator(
+    public AnalyzerAdapter(
         final String owner,
         final int access,
         final String name,
@@ -386,7 +385,7 @@ public class BasicFramesGenerator extends MethodAdapter implements FrameVisitor
         char c = desc.charAt(0);
         if (c == '(') {
             int n = 0;
-            Type[] types = Type.getArgumentTypes(desc);            
+            Type[] types = Type.getArgumentTypes(desc);
             for (int i = 0; i < types.length; ++i) {
                 n += types[i].getSize();
             }

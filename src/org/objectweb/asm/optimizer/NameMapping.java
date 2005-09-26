@@ -31,7 +31,9 @@ package org.objectweb.asm.optimizer;
 
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.HashSet;
 import java.util.Properties;
+import java.util.Set;
 
 import org.objectweb.asm.Type;
 
@@ -42,8 +44,11 @@ import org.objectweb.asm.Type;
  */
 public class NameMapping extends Properties {
 
+    public final Set unused;
+    
     public NameMapping(final String file) throws IOException {
         load(new FileInputStream(file));
+        unused = new HashSet(keySet());
     }
 
     public String map(final String name) {
@@ -60,6 +65,8 @@ public class NameMapping extends Properties {
             } else {
                 s = name;
             }
+        } else {
+            unused.remove(name);
         }
         return s;
     }

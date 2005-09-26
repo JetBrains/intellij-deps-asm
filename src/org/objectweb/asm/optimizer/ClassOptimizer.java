@@ -49,6 +49,8 @@ public class ClassOptimizer extends ClassAdapter {
 
     private String className;
 
+    private String pkgName;
+
     public ClassOptimizer(final ClassVisitor cv, final NameMapping mapping) {
         super(cv);
         this.mapping = mapping;
@@ -71,6 +73,7 @@ public class ClassOptimizer extends ClassAdapter {
         final String[] interfaces)
     {
         className = name;
+        pkgName = name.substring(0, name.lastIndexOf('/'));
         cv.visit(version,
                 access,
                 mapping.map(name),
@@ -125,6 +128,11 @@ public class ClassOptimizer extends ClassAdapter {
             {
                 return null;
             }
+            if (pkgName.equals("org/objectweb/asm")
+                    && mapping.map(s).equals(name))
+            {
+                System.out.println("INFO: " + s + " could be renamed");
+            }
             cv.visitField(access,
                     mapping.map(s),
                     mapping.fix(desc),
@@ -149,6 +157,11 @@ public class ClassOptimizer extends ClassAdapter {
     {
         String s = className + "." + name + desc;
         if ((access & (Opcodes.ACC_PUBLIC | Opcodes.ACC_PROTECTED)) == 0) {
+            if (pkgName.equals("org/objectweb/asm") && !name.startsWith("<")
+                    && mapping.map(s).equals(name))
+            {
+                System.out.println("INFO: " + s + " could be renamed");
+            }
             return new MethodOptimizer(cv.visitMethod(access,
                     mapping.map(s),
                     mapping.fix(desc),

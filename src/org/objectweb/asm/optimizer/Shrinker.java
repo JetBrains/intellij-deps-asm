@@ -54,6 +54,10 @@ public class Shrinker {
         File f = new File(args[1]);
         File d = new File(args[2]);
         optimize(f, d, mapping);
+        Iterator i = mapping.unused.iterator();
+        while (i.hasNext()) {
+            System.out.println("INFO: unused mapping " + i.next());
+        }
     }
 
     static void optimize(final File f, final File d, final NameMapping mapping)

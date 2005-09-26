@@ -896,8 +896,10 @@ public class Processor {
      * {@link org.xml.sax.ContentHandler ContentHandler} obtained from
      * {@link java.net.ContentHandlerFactory ContentHandlerFactory}. This is
      * useful for running XSLT engine against large XML document that will
-     * hardly fit into the memory all together. <p> TODO use complete path for
-     * subdocumentRoot
+     * hardly fit into the memory all together. 
+     * 
+     * <p>
+     * TODO use complete path for subdocumentRoot
      */
     private static final class OutputSlicingHandler extends DefaultHandler {
         private String subdocumentRoot;

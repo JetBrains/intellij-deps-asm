@@ -1296,6 +1296,9 @@ public class ClassReader {
             case '[': // array_value
                 int size = readUnsignedShort(v);
                 v += 2;
+                if (size == 0) {
+                    return v;
+                }
                 switch (this.b[v++] & 0xFF) {
                     case 'B':
                         byte[] bv = new byte[size];

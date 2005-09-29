@@ -46,7 +46,16 @@ import org.objectweb.asm.Opcodes;
 
 /**
  * A {@link ClassAdapter} that adds a serial version unique identifier to a
- * class if missing. The SVUID algorithm can be found <a href=
+ * class if missing. Here is typical usage of this class:
+ * 
+ * <pre>
+ *   ClassWriter cw = new ClassWriter(...);
+ *   ClassVisitor sv = new SerialVersionUIDAdder(cw);
+ *   ClassVisitor ca = new MyClassAdapter(sv);
+ *   new ClassReader(orginalClass).accept(ca, false);
+ * </pre>
+ * 
+ * The SVUID algorithm can be found <a href=
  * "http://java.sun.com/j2se/1.4.2/docs/guide/serialization/spec/class.html"
  * >http://java.sun.com/j2se/1.4.2/docs/guide/serialization/spec/class.html</a>:
  * 

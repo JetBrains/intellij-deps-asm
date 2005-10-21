@@ -750,7 +750,8 @@ public class ASMContentHandler extends DefaultHandler implements Opcodes {
             String name = (String) vals.get("name");
             String signature = (String) vals.get("signature");
             String parent = (String) vals.get("parent");
-            String[] interfaces = (String[]) ((List) vals.get("interfaces")).toArray(new String[0]);
+            List infs = (List) vals.get("interfaces");
+            String[] interfaces = (String[]) infs.toArray(new String[infs.size()]);
             cw.visit(version, access, name, signature, parent, interfaces);
             push(cw);
         }
@@ -852,7 +853,8 @@ public class ASMContentHandler extends DefaultHandler implements Opcodes {
             String name = (String) vals.get("name");
             String desc = (String) vals.get("desc");
             String signature = (String) vals.get("signature");
-            String[] exceptions = (String[]) ((List) vals.get("exceptions")).toArray(new String[0]);
+            List excs = (List) vals.get("exceptions");
+            String[] exceptions = (String[]) excs.toArray(new String[excs.size()]);
 
             push(cw.visitMethod(access, name, desc, signature, exceptions));
         }
@@ -878,8 +880,9 @@ public class ASMContentHandler extends DefaultHandler implements Opcodes {
             int min = Integer.parseInt((String) vals.get("min"));
             int max = Integer.parseInt((String) vals.get("max"));
             Label dflt = getLabel(vals.get("dflt"));
-            Label[] lbls = (Label[]) ((List) vals.get("labels")).toArray(new Label[0]);
-            getCodeVisitor().visitTableSwitchInsn(min, max, dflt, lbls);
+            List lbls = (List) vals.get("labels");
+            Label[] labels = (Label[]) lbls.toArray(new Label[lbls.size()]);
+            getCodeVisitor().visitTableSwitchInsn(min, max, dflt, labels);
         }
 
     }
@@ -912,12 +915,13 @@ public class ASMContentHandler extends DefaultHandler implements Opcodes {
             Map vals = (Map) pop();
             Label dflt = getLabel(vals.get("dflt"));
             List keyList = (List) vals.get("keys");
-            Label[] lbls = (Label[]) ((List) vals.get("labels")).toArray(new Label[0]);
+            List lbls = (List) vals.get("labels");
+            Label[] labels = (Label[]) lbls.toArray(new Label[lbls.size()]);
             int[] keys = new int[keyList.size()];
             for (int i = 0; i < keys.length; i++) {
                 keys[i] = Integer.parseInt((String) keyList.get(i));
             }
-            getCodeVisitor().visitLookupSwitchInsn(dflt, keys, lbls);
+            getCodeVisitor().visitLookupSwitchInsn(dflt, keys, labels);
         }
 
     }

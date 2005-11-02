@@ -118,8 +118,8 @@ public abstract class AbstractTest extends TestCase {
             StringWriter sw2 = new StringWriter();
             ClassVisitor cv1 = new TraceClassVisitor(new PrintWriter(sw1));
             ClassVisitor cv2 = new TraceClassVisitor(new PrintWriter(sw2));
-            cr1.accept(new ClassFilter(cv1), false);
-            cr2.accept(new ClassFilter(cv2), false);
+            cr1.accept(cv1, 0);
+            cr2.accept(cv2, 0);
             String s1 = sw1.toString();
             String s2 = sw2.toString();
             assertEquals("different data", s1, s2);
@@ -128,81 +128,5 @@ public abstract class AbstractTest extends TestCase {
 
     public String getName() {
         return super.getName() + ": " + n;
-    }
-
-    // -------------------------------------------------------------------------
-
-    static class ClassFilter extends ClassAdapter {
-
-        public ClassFilter(final ClassVisitor cv) {
-            super(cv);
-        }
-
-        public void visitAttribute(final Attribute attr) {
-            // remove unknown attributes
-        }
-
-        public FieldVisitor visitField(
-            final int access,
-            final String name,
-            final String desc,
-            final String signature,
-            final Object value)
-        {
-            return new FieldFilter(cv.visitField(access,
-                    name,
-                    desc,
-                    signature,
-                    value));
-        }
-
-        public MethodVisitor visitMethod(
-            final int access,
-            final String name,
-            final String desc,
-            final String signature,
-            final String[] exceptions)
-        {
-            return new MethodFilter(cv.visitMethod(access,
-                    name,
-                    desc,
-                    signature,
-                    exceptions));
-        }
-    }
-
-    static class MethodFilter extends MethodAdapter {
-
-        public MethodFilter(final MethodVisitor mv) {
-            super(mv);
-        }
-
-        public void visitAttribute(final Attribute attr) {
-            // remove unknown attributes
-        }
-    }
-
-    static class FieldFilter implements FieldVisitor {
-
-        FieldVisitor fv;
-
-        public FieldFilter(final FieldVisitor fv) {
-            this.fv = fv;
-        }
-
-        public AnnotationVisitor visitAnnotation(
-            final String desc,
-            final boolean visible)
-        {
-            return fv.visitAnnotation(desc, visible);
-        }
-
-        public void visitAttribute(final Attribute attr) {
-            // remove unknown attributes
-        }
-
-        public void visitEnd() {
-            fv.visitEnd();
-        }
     }
 }

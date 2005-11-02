@@ -95,7 +95,7 @@ public class CheckClassAdapter extends ClassAdapter {
         }
 
         ClassNode cn = new ClassNode();
-        cr.accept(new CheckClassAdapter(cn), true);
+        cr.accept(new CheckClassAdapter(cn), ClassReader.SKIP_DEBUG);
 
         List methods = cn.methods;
         for (int i = 0; i < methods.size(); ++i) {

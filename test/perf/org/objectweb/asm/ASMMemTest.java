@@ -108,7 +108,7 @@ public class ASMMemTest {
                 byte data[] = (byte[]) files.next();
                 ClassReader reader = new ClassReader(data);
                 ClassNode clazz = new ClassNode();
-                reader.accept(clazz, false);
+                reader.accept(clazz, 0);
                 result.add(clazz);
             }
             time += System.currentTimeMillis();

@@ -33,7 +33,6 @@ import org.objectweb.asm.AnnotationVisitor;
 import org.objectweb.asm.Attribute;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.FieldVisitor;
-import org.objectweb.asm.FrameVisitor;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 
@@ -46,7 +45,6 @@ public class EmptyVisitor implements
         ClassVisitor,
         FieldVisitor,
         MethodVisitor,
-        FrameVisitor,
         AnnotationVisitor
 {
 
@@ -118,18 +116,14 @@ public class EmptyVisitor implements
 
     public void visitCode() {
     }
-    
-    public FrameVisitor visitFrame(int nLocal, int nStack) {
-        return null;
-    }
 
-    public void visitPrimitiveType(int type) {
-    }
-
-    public void visitReferenceType(String type) {
-    }
-
-    public void visitUninitializedType(Label newInsn) {
+    public void visitFrame(
+        int type,
+        int nLocal,
+        Object[] local,
+        int nStack,
+        Object[] stack)
+    {
     }
 
     public void visitInsn(int opcode) {

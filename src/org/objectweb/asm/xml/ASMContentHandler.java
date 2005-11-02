@@ -40,7 +40,6 @@ import org.objectweb.asm.AnnotationVisitor;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.FieldVisitor;
-import org.objectweb.asm.FrameVisitor;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Label;
@@ -286,10 +285,6 @@ public class ASMContentHandler extends DefaultHandler implements Opcodes {
         OPCODES.put("GOTO", new Opcode(GOTO, OpcodeGroup.INSN_JUMP));
         OPCODES.put("JSR", new Opcode(JSR, OpcodeGroup.INSN_JUMP));
         OPCODES.put("RET", new Opcode(RET, OpcodeGroup.INSN_VAR));
-        // OPCODES.put( "TABLESWITCH", new Opcode( TABLESWITCH,
-        // "visiTableSwitchInsn"));
-        // OPCODES.put( "LOOKUPSWITCH", new Opcode( LOOKUPSWITCH,
-        // "visitLookupSwitch"));
         OPCODES.put("IRETURN", new Opcode(IRETURN, OpcodeGroup.INSN));
         OPCODES.put("LRETURN", new Opcode(LRETURN, OpcodeGroup.INSN));
         OPCODES.put("FRETURN", new Opcode(FRETURN, OpcodeGroup.INSN));
@@ -719,7 +714,7 @@ public class ASMContentHandler extends DefaultHandler implements Opcodes {
         public final void begin(String name, Attributes attrs) {
             int major = Integer.parseInt(attrs.getValue("major"));
             int minor = Integer.parseInt(attrs.getValue("minor"));
-            cw = new ClassWriter(computeMax);
+            cw = new ClassWriter(computeMax ? ClassWriter.COMPUTE_MAXS : 0);
             HashMap vals = new HashMap();
             vals.put("version", new Integer(minor << 16 | major));
             vals.put("access", attrs.getValue("access"));
@@ -962,13 +957,37 @@ public class ASMContentHandler extends DefaultHandler implements Opcodes {
     private final class FrameRule extends Rule {
         
         public void begin(String name, Attributes attrs) {
-            int locals = Integer.parseInt(attrs.getValue("locals"));
-            int stack = Integer.parseInt(attrs.getValue("stack"));
-            push(getCodeVisitor().visitFrame(locals, stack));
+            HashMap typeLists = new HashMap();
+            typeLists.put("local", new ArrayList());
+            typeLists.put("stack", new ArrayList());
+            push(attrs.getValue("type"));
+            push(attrs.getValue("count") == null ? "0" : attrs.getValue("count"));
+            push(typeLists);
         }
         
         public void end(String name) {
-            pop();
+            HashMap typeLists = (HashMap) pop();
+            List locals = (List) typeLists.get("local");
+            int nLocal = locals.size();
+            Object[] local = locals.toArray();
+            List stacks = (List) typeLists.get("stack");
+            int nStack = stacks.size();
+            Object[] stack = stacks.toArray();
+            String count = (String) pop();
+            String type = (String) pop();
+            if (type.equals("NEW")) {
+                getCodeVisitor().visitFrame(Opcodes.F_NEW, nLocal, local, nStack, stack);
+            } else if (type.equals("FULL")) {
+                getCodeVisitor().visitFrame(Opcodes.F_FULL, nLocal, local, nStack, stack);
+            } else if (type.equals("APPEND")) {
+                getCodeVisitor().visitFrame(Opcodes.F_APPEND, nLocal, local, 0, null);
+            } else if (type.equals("CHOP")) {
+                getCodeVisitor().visitFrame(Opcodes.F_CHOP, Integer.valueOf(count).intValue(), null, 0, null);
+            } else if (type.equals("SAME")) {
+                getCodeVisitor().visitFrame(Opcodes.F_SAME, 0, null, 0, null);
+            } else if (type.equals("SAME1")) {
+                getCodeVisitor().visitFrame(Opcodes.F_SAME1, 0, null, nStack, stack);
+            }
         }
         
     }
@@ -976,16 +995,16 @@ public class ASMContentHandler extends DefaultHandler implements Opcodes {
     private final class FrameTypeRule extends Rule {
         
         public void begin(String name, Attributes attrs) {
-            FrameVisitor fv = (FrameVisitor) peek();
+            List types = (List) ((HashMap) peek()).get(name);
             String type = attrs.getValue("type");
             if("uninitialized".equals(type)) {
-                fv.visitUninitializedType(getLabel(attrs.getValue("label")));
+                types.add(getLabel(attrs.getValue("label")));
             } else {
                 Integer t = (Integer) TYPES.get(type);
-                if(t==null) {
-                    fv.visitReferenceType(type);
+                if (t == null) {
+                    types.add(type);
                 } else {
-                    fv.visitPrimitiveType(t.intValue());
+                    types.add(t);
                 }
             }
         }

@@ -34,7 +34,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.objectweb.asm.FrameVisitor;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodAdapter;
 import org.objectweb.asm.MethodVisitor;
@@ -45,7 +44,9 @@ import org.objectweb.asm.Type;
  * 
  * @author Eric Bruneton
  */
-public class AnalyzerAdapter extends MethodAdapter implements FrameVisitor {
+public class AnalyzerAdapter extends MethodAdapter {
+
+    private List previousLocals;
 
     public final List locals;
 
@@ -53,36 +54,9 @@ public class AnalyzerAdapter extends MethodAdapter implements FrameVisitor {
 
     protected boolean delegate;
 
-    private FrameVisitor fv;
-
-    private int index;
-
     private List labels;
 
     private Map uninitializedTypes;
-
-    private final static Integer TOP = new Integer(FrameVisitor.TOP);
-
-    private final static Integer INTEGER = new Integer(FrameVisitor.INTEGER);
-
-    private final static Integer FLOAT = new Integer(FrameVisitor.FLOAT);
-
-    private final static Integer DOUBLE = new Integer(FrameVisitor.DOUBLE);
-
-    private final static Integer LONG = new Integer(FrameVisitor.LONG);
-
-    private final static Integer NULL = new Integer(FrameVisitor.NULL);
-
-    private final static Integer UNINITIALIZED_THIS = new Integer(FrameVisitor.UNINITIALIZED_THIS);
-
-    private final static Integer[] TYPES = {
-        TOP,
-        INTEGER,
-        FLOAT,
-        DOUBLE,
-        LONG,
-        NULL,
-        UNINITIALIZED_THIS };
 
     public AnalyzerAdapter(
         final String owner,
@@ -92,6 +66,7 @@ public class AnalyzerAdapter extends MethodAdapter implements FrameVisitor {
         final MethodVisitor mv)
     {
         super(mv);
+        previousLocals = new ArrayList();
         locals = new ArrayList();
         stack = new ArrayList();
         delegate = true;
@@ -99,9 +74,9 @@ public class AnalyzerAdapter extends MethodAdapter implements FrameVisitor {
 
         if ((access & Opcodes.ACC_STATIC) == 0) {
             if (name.equals("<init>")) {
-                locals.add(UNINITIALIZED_THIS);
+                previousLocals.add(Opcodes.UNINITIALIZED_THIS);
             } else {
-                locals.add("L" + owner + ";");
+                previousLocals.add("L" + owner + ";");
             }
         }
         Type[] types = Type.getArgumentTypes(desc);
@@ -112,55 +87,74 @@ public class AnalyzerAdapter extends MethodAdapter implements FrameVisitor {
                 case Type.BYTE:
                 case Type.SHORT:
                 case Type.INT:
-                    locals.add(INTEGER);
+                    previousLocals.add(Opcodes.INTEGER);
                     break;
                 case Type.FLOAT:
-                    locals.add(FLOAT);
+                    previousLocals.add(Opcodes.FLOAT);
                     break;
                 case Type.LONG:
-                    locals.add(LONG);
-                    locals.add(TOP);
+                    previousLocals.add(Opcodes.LONG);
+                    previousLocals.add(Opcodes.TOP);
                     break;
                 case Type.DOUBLE:
-                    locals.add(DOUBLE);
-                    locals.add(TOP);
+                    previousLocals.add(Opcodes.DOUBLE);
+                    previousLocals.add(Opcodes.TOP);
                     break;
                 default:
-                    locals.add(types[i].getDescriptor());
+                    previousLocals.add(types[i].getDescriptor());
             }
         }
+        locals.addAll(previousLocals);
     }
 
-    public FrameVisitor visitFrame(final int nLocal, final int nStack) {
-        fv = mv.visitFrame(nLocal, nStack);
-        index = nLocal;
-        locals.clear();
-        stack.clear();
-        return this;
-    }
-
-    public void visitPrimitiveType(final int type) {
-        List l = index-- <= 0 ? stack : locals;
-        l.add(TYPES[type]);
-        if (type == FrameVisitor.LONG || type == FrameVisitor.DOUBLE) {
-            l.add(TOP);
+    public void visitFrame(
+        final int type,
+        final int nLocal,
+        final Object[] local,
+        final int nStack,
+        final Object[] stack)
+    {
+        this.locals.clear();
+        this.stack.clear();
+        switch (type) {
+            case Opcodes.F_NEW:
+            case Opcodes.F_FULL:
+                previousLocals.clear();
+                visitFrameTypes(nLocal, local, previousLocals);
+                visitFrameTypes(nStack, stack, this.stack);
+                break;
+            case Opcodes.F_APPEND:
+                visitFrameTypes(nLocal, local, previousLocals);
+                break;
+            case Opcodes.F_CHOP:
+                int n = previousLocals.size() - 1;
+                for (int i = 0; i < nLocal; ++i, --n) {
+                    previousLocals.remove(n);
+                }
+                break;
+            case Opcodes.F_SAME:
+                break;
+            case Opcodes.F_SAME1:
+                visitFrameTypes(1, stack, this.stack);
+                break;
         }
-        if (fv != null) {
-            fv.visitPrimitiveType(type);
+        this.locals.addAll(previousLocals);
+
+        if (delegate) {
+            mv.visitFrame(type, nLocal, local, nStack, stack);
         }
     }
 
-    public void visitReferenceType(final String type) {
-        (index-- <= 0 ? stack : locals).add(type);
-        if (fv != null) {
-            fv.visitReferenceType(type);
-        }
-    }
-
-    public void visitUninitializedType(final Label newInsn) {
-        (index-- <= 0 ? stack : locals).add(newInsn);
-        if (fv != null) {
-            fv.visitUninitializedType(newInsn);
+    private void visitFrameTypes(
+        final int n,
+        final Object[] types,
+        final List result)
+    {
+        for (int i = 0; i < n; ++i) {
+            result.add(types[i]);
+            if (types[i] == Opcodes.LONG || types[i] == Opcodes.DOUBLE) {
+                result.add(Opcodes.TOP);
+            }
         }
     }
 
@@ -215,7 +209,7 @@ public class AnalyzerAdapter extends MethodAdapter implements FrameVisitor {
             Object t = pop();
             if (opcode == Opcodes.INVOKESPECIAL && name.charAt(0) == '<') {
                 Object u;
-                if (t == UNINITIALIZED_THIS) {
+                if (t == Opcodes.UNINITIALIZED_THIS) {
                     u = owner;
                 } else {
                     u = uninitializedTypes.get(t);
@@ -258,15 +252,15 @@ public class AnalyzerAdapter extends MethodAdapter implements FrameVisitor {
 
     public void visitLdcInsn(final Object cst) {
         if (cst instanceof Integer) {
-            push(INTEGER);
+            push(Opcodes.INTEGER);
         } else if (cst instanceof Long) {
-            push(LONG);
-            push(TOP);
+            push(Opcodes.LONG);
+            push(Opcodes.TOP);
         } else if (cst instanceof Float) {
-            push(FLOAT);
+            push(Opcodes.FLOAT);
         } else if (cst instanceof Double) {
-            push(DOUBLE);
-            push(TOP);
+            push(Opcodes.DOUBLE);
+            push(Opcodes.TOP);
         } else if (cst instanceof String) {
             pushDesc("Ljava/lang/String;");
         } else if (cst instanceof Type) {
@@ -320,12 +314,12 @@ public class AnalyzerAdapter extends MethodAdapter implements FrameVisitor {
     // ------------------------------------------------------------------------
 
     private Object get(final int local) {
-        return local < locals.size() ? locals.get(local) : TOP;
+        return local < locals.size() ? locals.get(local) : Opcodes.TOP;
     }
 
     private void set(final int local, final Object type) {
         while (local >= locals.size()) {
-            locals.add(TOP);
+            locals.add(Opcodes.TOP);
         }
         locals.set(local, type);
     }
@@ -344,18 +338,18 @@ public class AnalyzerAdapter extends MethodAdapter implements FrameVisitor {
             case 'B':
             case 'S':
             case 'I':
-                push(INTEGER);
+                push(Opcodes.INTEGER);
                 return;
             case 'F':
-                push(FLOAT);
+                push(Opcodes.FLOAT);
                 return;
             case 'J':
-                push(LONG);
-                push(TOP);
+                push(Opcodes.LONG);
+                push(Opcodes.TOP);
                 return;
             case 'D':
-                push(DOUBLE);
-                push(TOP);
+                push(Opcodes.DOUBLE);
+                push(Opcodes.TOP);
                 return;
             // case 'L':
             // case '[':
@@ -412,7 +406,7 @@ public class AnalyzerAdapter extends MethodAdapter implements FrameVisitor {
             case Opcodes.RETURN:
                 break;
             case Opcodes.ACONST_NULL:
-                push(NULL);
+                push(Opcodes.NULL);
                 break;
             case Opcodes.ICONST_M1:
             case Opcodes.ICONST_0:
@@ -423,22 +417,22 @@ public class AnalyzerAdapter extends MethodAdapter implements FrameVisitor {
             case Opcodes.ICONST_5:
             case Opcodes.BIPUSH:
             case Opcodes.SIPUSH:
-                push(INTEGER);
+                push(Opcodes.INTEGER);
                 break;
             case Opcodes.LCONST_0:
             case Opcodes.LCONST_1:
-                push(LONG);
-                push(TOP);
+                push(Opcodes.LONG);
+                push(Opcodes.TOP);
                 break;
             case Opcodes.FCONST_0:
             case Opcodes.FCONST_1:
             case Opcodes.FCONST_2:
-                push(FLOAT);
+                push(Opcodes.FLOAT);
                 break;
             case Opcodes.DCONST_0:
             case Opcodes.DCONST_1:
-                push(DOUBLE);
-                push(TOP);
+                push(Opcodes.DOUBLE);
+                push(Opcodes.TOP);
                 break;
             case Opcodes.ILOAD:
             case Opcodes.FLOAD:
@@ -448,30 +442,30 @@ public class AnalyzerAdapter extends MethodAdapter implements FrameVisitor {
             case Opcodes.LLOAD:
             case Opcodes.DLOAD:
                 push(get(iarg));
-                push(TOP);
+                push(Opcodes.TOP);
                 break;
             case Opcodes.IALOAD:
             case Opcodes.BALOAD:
             case Opcodes.CALOAD:
             case Opcodes.SALOAD:
                 pop(2);
-                push(INTEGER);
+                push(Opcodes.INTEGER);
                 break;
             case Opcodes.LALOAD:
             case Opcodes.D2L:
                 pop(2);
-                push(LONG);
-                push(TOP);
+                push(Opcodes.LONG);
+                push(Opcodes.TOP);
                 break;
             case Opcodes.FALOAD:
                 pop(2);
-                push(FLOAT);
+                push(Opcodes.FLOAT);
                 break;
             case Opcodes.DALOAD:
             case Opcodes.L2D:
                 pop(2);
-                push(DOUBLE);
-                push(TOP);
+                push(Opcodes.DOUBLE);
+                push(Opcodes.TOP);
                 break;
             case Opcodes.AALOAD:
                 pop(1);
@@ -485,8 +479,8 @@ public class AnalyzerAdapter extends MethodAdapter implements FrameVisitor {
                 set(iarg, t1);
                 if (iarg > 0) {
                     t2 = get(iarg - 1);
-                    if (t2 == LONG || t2 == DOUBLE) {
-                        set(iarg - 1, TOP);
+                    if (t2 == Opcodes.LONG || t2 == Opcodes.DOUBLE) {
+                        set(iarg - 1, Opcodes.TOP);
                     }
                 }
                 break;
@@ -495,11 +489,11 @@ public class AnalyzerAdapter extends MethodAdapter implements FrameVisitor {
                 pop(1);
                 t1 = pop();
                 set(iarg, t1);
-                set(iarg + 1, TOP);
+                set(iarg + 1, Opcodes.TOP);
                 if (iarg > 0) {
                     t2 = get(iarg - 1);
-                    if (t2 == LONG || t2 == DOUBLE) {
-                        set(iarg - 1, TOP);
+                    if (t2 == Opcodes.LONG || t2 == Opcodes.DOUBLE) {
+                        set(iarg - 1, Opcodes.TOP);
                     }
                 }
                 break;
@@ -620,7 +614,7 @@ public class AnalyzerAdapter extends MethodAdapter implements FrameVisitor {
             case Opcodes.FCMPL:
             case Opcodes.FCMPG:
                 pop(2);
-                push(INTEGER);
+                push(Opcodes.INTEGER);
                 break;
             case Opcodes.LADD:
             case Opcodes.LSUB:
@@ -631,8 +625,8 @@ public class AnalyzerAdapter extends MethodAdapter implements FrameVisitor {
             case Opcodes.LOR:
             case Opcodes.LXOR:
                 pop(4);
-                push(LONG);
-                push(TOP);
+                push(Opcodes.LONG);
+                push(Opcodes.TOP);
                 break;
             case Opcodes.FADD:
             case Opcodes.FSUB:
@@ -642,7 +636,7 @@ public class AnalyzerAdapter extends MethodAdapter implements FrameVisitor {
             case Opcodes.L2F:
             case Opcodes.D2F:
                 pop(2);
-                push(FLOAT);
+                push(Opcodes.FLOAT);
                 break;
             case Opcodes.DADD:
             case Opcodes.DSUB:
@@ -650,46 +644,46 @@ public class AnalyzerAdapter extends MethodAdapter implements FrameVisitor {
             case Opcodes.DDIV:
             case Opcodes.DREM:
                 pop(4);
-                push(DOUBLE);
-                push(TOP);
+                push(Opcodes.DOUBLE);
+                push(Opcodes.TOP);
                 break;
             case Opcodes.LSHL:
             case Opcodes.LSHR:
             case Opcodes.LUSHR:
                 pop(3);
-                push(LONG);
-                push(TOP);
+                push(Opcodes.LONG);
+                push(Opcodes.TOP);
                 break;
             case Opcodes.IINC:
-                set(iarg, INTEGER);
+                set(iarg, Opcodes.INTEGER);
                 break;
             case Opcodes.I2L:
             case Opcodes.F2L:
                 pop(1);
-                push(LONG);
-                push(TOP);
+                push(Opcodes.LONG);
+                push(Opcodes.TOP);
                 break;
             case Opcodes.I2F:
                 pop(1);
-                push(FLOAT);
+                push(Opcodes.FLOAT);
                 break;
             case Opcodes.I2D:
             case Opcodes.F2D:
                 pop(1);
-                push(DOUBLE);
-                push(TOP);
+                push(Opcodes.DOUBLE);
+                push(Opcodes.TOP);
                 break;
             case Opcodes.F2I:
             case Opcodes.ARRAYLENGTH:
             case Opcodes.INSTANCEOF:
                 pop(1);
-                push(INTEGER);
+                push(Opcodes.INTEGER);
                 break;
             case Opcodes.LCMP:
             case Opcodes.DCMPL:
             case Opcodes.DCMPG:
                 pop(4);
-                push(INTEGER);
+                push(Opcodes.INTEGER);
                 break;
             case Opcodes.JSR:
             case Opcodes.RET:

@@ -55,7 +55,7 @@ public class AnalyzerAdapterTest extends AbstractTest {
         if (cr.readInt(4) != Opcodes.V1_6) {
             return;
         }
-        ClassWriter cw = new ClassWriter(false, true);
+        ClassWriter cw = new ClassWriter(0);
         ClassVisitor cv = new ClassAdapter(cw) {
 
             private String owner;
@@ -92,6 +92,6 @@ public class AnalyzerAdapterTest extends AbstractTest {
                 return new AnalyzerAdapter(owner, access, name, desc, mv);
             }
         };
-        cr.accept(cv, false);
+        cr.accept(cv, 0);
     }
 }

@@ -44,7 +44,7 @@ public class StaticInitMergerTest extends TestCase implements Opcodes {
     private final static TestClassLoader LOADER = new TestClassLoader();
 
     public void test() throws Exception {
-        ClassWriter cw = new ClassWriter(true);
+        ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_MAXS);
         ClassVisitor cv = new StaticInitMerger("$clinit$", cw);
         cv.visit(V1_1, ACC_PUBLIC, "A", null, "java/lang/Object", null);
         cv.visitField(ACC_PUBLIC + ACC_STATIC, "counter", "I", null, null);

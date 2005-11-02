@@ -80,8 +80,14 @@ public class MethodAdapter implements MethodVisitor {
         mv.visitCode();
     }
 
-    public FrameVisitor visitFrame(int nLocal, int nStack) {
-        return mv.visitFrame(nLocal, nStack);
+    public void visitFrame(
+        final int type,
+        final int nLocal,
+        final Object[] local,
+        final int nStack,
+        final Object[] stack)
+    {
+        mv.visitFrame(type, nLocal, local, nStack, stack);
     }
 
     public void visitInsn(final int opcode) {

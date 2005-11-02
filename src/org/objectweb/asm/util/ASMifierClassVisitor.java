@@ -57,7 +57,7 @@ import org.objectweb.asm.Type;
  * 
  *     public static byte[] dump() throws Exception {
  * 
- *         ClassWriter cw = new ClassWriter(false);
+ *         ClassWriter cw = new ClassWriter(0);
  *         FieldVisitor fv;
  *         MethodVisitor mv;
  *         AnnotationVisitor av0;
@@ -161,7 +161,7 @@ public class ASMifierClassVisitor extends ASMifierAbstractVisitor implements
      */
     public static void main(final String[] args) throws Exception {
         int i = 0;
-        boolean skipDebug = true;
+        int flags = ClassReader.SKIP_DEBUG;
 
         boolean ok = true;
         if (args.length < 1 || args.length > 2) {
@@ -169,7 +169,7 @@ public class ASMifierClassVisitor extends ASMifierAbstractVisitor implements
         }
         if (ok && args[0].equals("-debug")) {
             i = 1;
-            skipDebug = false;
+            flags = 0;
             if (args.length != 2) {
                 ok = false;
             }
@@ -189,7 +189,7 @@ public class ASMifierClassVisitor extends ASMifierAbstractVisitor implements
         }
         cr.accept(new ASMifierClassVisitor(new PrintWriter(System.out)),
                 getDefaultAttributes(),
-                skipDebug);
+                flags);
     }
 
     /**
@@ -228,10 +228,9 @@ public class ASMifierClassVisitor extends ASMifierAbstractVisitor implements
         text.add("import org.objectweb.asm.attrs.*;\n");
         text.add("public class " + simpleName + "Dump implements Opcodes {\n\n");
         text.add("public static byte[] dump () throws Exception {\n\n");
-        text.add("ClassWriter cw = new ClassWriter(false);\n");
+        text.add("ClassWriter cw = new ClassWriter(0);\n");
         text.add("FieldVisitor fv;\n");
         text.add("MethodVisitor mv;\n");
-        text.add("FrameVisitor framev;\n");
         text.add("AnnotationVisitor av0;\n\n");
 
         buf.setLength(0);

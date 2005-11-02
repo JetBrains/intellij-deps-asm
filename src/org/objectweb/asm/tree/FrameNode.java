@@ -32,7 +32,6 @@ package org.objectweb.asm.tree;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.objectweb.asm.FrameVisitor;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
@@ -50,36 +49,28 @@ import org.objectweb.asm.Opcodes;
  * 
  * @author Eric Bruneton
  */
-public class FrameNode extends AbstractInsnNode implements FrameVisitor {
+public class FrameNode extends AbstractInsnNode {
+
+    /**
+     * TODO
+     */
+    public int type;
 
     /**
      * The types of the local variables of this stack map frame. Elements of
      * this list can be Integer, String or Label objects (for primitive,
-     * reference and uninitialized types respectively - see {@link FrameVisitor}).
+     * reference and uninitialized types respectively - see
+     * {@link MethodVisitor}).
      */
-    public final List locals;
+    public List local;
 
     /**
      * The types of the operand stack elements of this stack map frame. Elements
      * of this list can be Integer, String or Label objects (for primitive,
-     * reference and uninitialized types respectively - see {@link FrameVisitor}).
+     * reference and uninitialized types respectively - see
+     * {@link MethodVisitor}).
      */
-    public final List stack;
-
-    /**
-     * Number of remaining local variable types to be visited.
-     */
-    private int nLocal;
-
-    private final static Integer[] TYPES = {
-        new Integer(0),
-        new Integer(1),
-        new Integer(2),
-        new Integer(3),
-        new Integer(4),
-        new Integer(5),
-        new Integer(6)
-    };
+    public List stack;
 
     /**
      * Constructs a new {@link FrameNode}.
@@ -87,37 +78,31 @@ public class FrameNode extends AbstractInsnNode implements FrameVisitor {
      * @param nLocal number of local variables of this stack map frame.
      * @param nStack number of operand stack elements of this stack map frame.
      */
-    public FrameNode(final int nLocal, final int nStack) {
+    public FrameNode(
+        final int type,
+        final int nLocal,
+        final Object[] local,
+        final int nStack,
+        final Object[] stack)
+    {
         super(-1);
-        this.locals = new ArrayList(nLocal);
-        this.stack = new ArrayList(nStack);
-        this.nLocal = nLocal;
-    }
-
-    public void visitPrimitiveType(final int type) {
-        if (nLocal > 0) {
-            locals.add(TYPES[type]);
-            --nLocal;
-        } else {
-            stack.add(TYPES[type]);
-        }
-    }
-
-    public void visitReferenceType(final String type) {
-        if (nLocal > 0) {
-            locals.add(type);
-            --nLocal;
-        } else {
-            stack.add(type);
-        }
-    }
-
-    public void visitUninitializedType(final Label newInsn) {
-        if (nLocal > 0) {
-            locals.add(newInsn);
-            --nLocal;
-        } else {
-            stack.add(newInsn);
+        this.type = type;
+        switch (type) {
+            case Opcodes.F_FULL:
+                this.local = asList(nLocal, local);
+                this.stack = asList(nStack, stack);
+                break;
+            case Opcodes.F_APPEND:
+                this.local = asList(nLocal, local);
+                break;
+            case Opcodes.F_CHOP:
+                this.local = asList(nLocal, new Object[nLocal]);
+                break;
+            case Opcodes.F_SAME:
+                break;
+            case Opcodes.F_SAME1:
+                this.stack = asList(1, stack);
+                break;
         }
     }
 
@@ -127,26 +112,39 @@ public class FrameNode extends AbstractInsnNode implements FrameVisitor {
      * @param mv a method visitor.
      */
     public void accept(final MethodVisitor mv) {
-        FrameVisitor fv = mv.visitFrame(locals.size(), stack.size());
-        for (int i = 0; i < locals.size(); ++i) {
-            accept(fv, locals.get(i));
-        }
-        for (int i = 0; i < stack.size(); ++i) {
-            accept(fv, stack.get(i));
-        }
-    }
-
-    private static void accept(final FrameVisitor fv, final Object type) {
-        if (type instanceof Integer) {
-            fv.visitPrimitiveType(((Integer) type).intValue());
-        } else if (type instanceof String) {
-            fv.visitReferenceType((String) type);
-        } else {
-            fv.visitUninitializedType((Label) type);
+        switch (type) {
+            case Opcodes.F_NEW:
+            case Opcodes.F_FULL:
+                mv.visitFrame(type,
+                        local.size(),
+                        local.toArray(),
+                        stack.size(),
+                        stack.toArray());
+                break;
+            case Opcodes.F_APPEND:
+                mv.visitFrame(type, local.size(), local.toArray(), 0, null);
+                break;
+            case Opcodes.F_CHOP:
+                mv.visitFrame(type, local.size(), null, 0, null);
+                break;
+            case Opcodes.F_SAME:
+                mv.visitFrame(type, 0, null, 0, null);
+                break;
+            case Opcodes.F_SAME1:
+                mv.visitFrame(type, 0, null, 1, new Object[] { stack.get(0) });
+                break;
         }
     }
 
     public int getType() {
         return FRAME;
+    }
+
+    private final static List asList(final int n, final Object[] o) {
+        List l = new ArrayList(n);
+        for (int i = 0; i < n; ++i) {
+            l.add(o[i]);
+        }
+        return l;
     }
 }

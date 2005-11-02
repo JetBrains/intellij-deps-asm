@@ -108,12 +108,33 @@ public interface MethodVisitor {
      * for classes whose version is greater than or equal to
      * {@link Opcodes#V1_6 V1_6}.
      * 
+     * @param type the type of this stack map frame. Must be
+     *        {@link Opcodes#F_NEW} for expanded frames, or
+     *        {@link Opcodes#F_FULL}, {@link Opcodes#F_APPEND},
+     *        {@link Opcodes#F_CHOP}, {@link Opcodes#F_SAME} or
+     *        {@link Opcodes#F_APPEND}, {@link Opcodes#F_SAME1} for compressed
+     *        frames. TODO describe format of compressed frames.
      * @param nLocal the number of local variables in the visited frame.
+     * @param local the local variable types in this frame. This array must not
+     *        be modified. Primitive types are represented by
+     *        {@link Opcodes#TOP}, {@link Opcodes#INTEGER},
+     *        {@link Opcodes#FLOAT}, {@link Opcodes#LONG},
+     *        {@link Opcodes#DOUBLE},{@link Opcodes#NULL} or
+     *        {@link Opcodes#UNINITIALIZED_THIS} (long and double are
+     *        represented by a single element). Reference types are represented
+     *        by String objects, and uninitialized types by Label objects (this
+     *        label designates the NEW instruction that created this
+     *        uninitialized value).
      * @param nStack the number of operand stack elements in the visited frame.
-     * @return a {@link FrameVisitor} to visit the stack map frame types, or
-     *         <tt>null</tt> to remove this frame.
+     * @param stack the operand stack types in this frame. This array must not
+     *        be modified. Its content has the same format as the "local" array.
      */
-    FrameVisitor visitFrame(int nLocal, int nStack);
+    void visitFrame(
+        int type,
+        int nLocal,
+        Object[] local,
+        int nStack,
+        Object[] stack);
 
     // -------------------------------------------------------------------------
     // Normal instructions

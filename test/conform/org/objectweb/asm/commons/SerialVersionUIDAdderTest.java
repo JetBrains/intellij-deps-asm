@@ -67,7 +67,7 @@ public class SerialVersionUIDAdderTest extends TestCase implements Serializable
                 return svuid[0];
             }
         };
-        new ClassReader(className).accept(cv, false);
+        new ClassReader(className).accept(cv, 0);
         return svuid[0];
     }
 

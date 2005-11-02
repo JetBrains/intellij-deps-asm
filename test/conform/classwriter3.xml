@@ -1,10 +1,13 @@
 <project name="conform" default="test">
 
   <target name="test">
-    <jar jarfile="${out.test}/agent3.jar"
-         basedir="${out}">
-      <include name="build/org/objectweb/asm/*.class"/>
-      <include name="test/org/objectweb/asm/ClassWriterTest3.class"/>
+    <jar jarfile="${out.test}/agent3.jar">
+      <fileset dir="${out}/build">
+        <include name="org/objectweb/asm/*.class"/>
+      </fileset>
+      <fileset dir="${out}/test">
+        <include name="org/objectweb/asm/*.class"/>
+      </fileset>
       <manifest>
         <attribute name="Premain-Class" value="org.objectweb.asm.ClassWriterTest3"/>
       </manifest>
@@ -19,7 +22,6 @@
         </fileset>
       </batchtest>
       <formatter type="xml"/>
-      <classpath refid="test.classpath"/>
       <jvmarg value="-javaagent:${out.test}/agent3.jar"/>
       <jvmarg value="-Dasm.test=${java.home}/lib/rt.jar"/>
       <jvmarg value="-Dasm.test.class=${asm.test.class}"/>

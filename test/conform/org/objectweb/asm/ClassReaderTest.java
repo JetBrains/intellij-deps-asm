@@ -45,6 +45,6 @@ public class ClassReaderTest extends AbstractTest {
     }
 
     public void test() throws Exception {
-        new ClassReader(is).accept(new EmptyVisitor(), false);
+        new ClassReader(is).accept(new EmptyVisitor(), 0);
     }
 }

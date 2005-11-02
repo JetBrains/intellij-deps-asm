@@ -30,9 +30,9 @@
 package org.objectweb.asm.util;
 
 import org.objectweb.asm.AnnotationVisitor;
-import org.objectweb.asm.FrameVisitor;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Label;
+import org.objectweb.asm.Opcodes;
 
 import java.util.HashMap;
 
@@ -44,8 +44,7 @@ import java.util.HashMap;
  * @author Eugene Kuleshov
  */
 public class ASMifierMethodVisitor extends ASMifierAbstractVisitor implements
-        MethodVisitor,
-        FrameVisitor
+        MethodVisitor
 {
 
     /**
@@ -89,36 +88,53 @@ public class ASMifierMethodVisitor extends ASMifierAbstractVisitor implements
         text.add("mv.visitCode();\n");
     }
 
-    public FrameVisitor visitFrame(final int nLocal, final int nStack) {
+    public void visitFrame(
+        final int type,
+        final int nLocal,
+        final Object[] local,
+        final int nStack,
+        final Object[] stack)
+    {
         buf.setLength(0);
-        buf.append("framev = mv.visitFrame(")
-                .append(nLocal)
-                .append(", ")
-                .append(nStack)
-                .append(");\n");
-        text.add(buf.toString());
-        return this;
-    }
-
-    public void visitPrimitiveType(final int type) {
-        buf.setLength(0);
-        buf.append("framev.visitPrimitiveType(").append(type).append(");\n");
-        text.add(buf.toString());
-    }
-
-    public void visitReferenceType(final String type) {
-        buf.setLength(0);
-        buf.append("framev.visitReferenceType(");
-        appendConstant(type);
-        buf.append(");\n");
-        text.add(buf.toString());
-    }
-
-    public void visitUninitializedType(final Label newInsn) {
-        buf.setLength(0);
-        declareLabel(newInsn);
-        buf.append("framev.visitUninitializedType(");
-        appendLabel(newInsn);
+        switch (type) {
+            case Opcodes.F_NEW:
+            case Opcodes.F_FULL:
+                declareFrameTypes(nLocal, local);
+                declareFrameTypes(nStack, stack);
+                if (type == Opcodes.F_NEW) {
+                    buf.append("mv.visitFrame(Opcodes.F_NEW, ");
+                } else {
+                    buf.append("mv.visitFrame(Opcodes.F_FULL, ");
+                }
+                buf.append(nLocal).append(", new Object[] {");
+                appendFrameTypes(nLocal, local);
+                buf.append("}, ").append(nStack).append(", new Object[] {");
+                appendFrameTypes(nStack, stack);
+                buf.append("}");
+                break;
+            case Opcodes.F_APPEND:
+                declareFrameTypes(nLocal, local);
+                buf.append("mv.visitFrame(Opcodes.F_APPEND,")
+                        .append(nLocal)
+                        .append(", new Object[] {");
+                appendFrameTypes(nLocal, local);
+                buf.append("}, 0, null");
+                break;
+            case Opcodes.F_CHOP:
+                buf.append("mv.visitFrame(Opcodes.F_CHOP,")
+                        .append(nLocal)
+                        .append(", null, 0, null");
+                break;
+            case Opcodes.F_SAME:
+                buf.append("mv.visitFrame(Opcodes.F_SAME, 0, null, 0, null");
+                break;
+            case Opcodes.F_SAME1:
+                declareFrameTypes(1, stack);
+                buf.append("mv.visitFrame(Opcodes.F_SAME1, 0, null, 1, new Object[] {");
+                appendFrameTypes(1, stack);
+                buf.append("}");
+                break;
+        }
         buf.append(");\n");
         text.add(buf.toString());
     }
@@ -349,6 +365,51 @@ public class ASMifierMethodVisitor extends ASMifierAbstractVisitor implements
                 .append(maxLocals)
                 .append(");\n");
         text.add(buf.toString());
+    }
+
+    private void declareFrameTypes(final int n, final Object[] o) {
+        for (int i = 0; i < n; ++i) {
+            if (o[i] instanceof Label) {
+                declareLabel((Label) o[i]);
+            }
+        }
+    }
+
+    private void appendFrameTypes(final int n, final Object[] o) {
+        for (int i = 0; i < n; ++i) {
+            if (i > 0) {
+                buf.append(", ");
+            }
+            if (o[i] instanceof String) {
+                appendConstant(o[i]);
+            } else if (o[i] instanceof Integer) {
+                switch (((Integer) o[i]).intValue()) {
+                    case 0:
+                        buf.append("Opcodes.TOP");
+                        break;
+                    case 1:
+                        buf.append("Opcodes.INTEGER");
+                        break;
+                    case 2:
+                        buf.append("Opcodes.FLOAT");
+                        break;
+                    case 3:
+                        buf.append("Opcodes.DOUBLE");
+                        break;
+                    case 4:
+                        buf.append("Opcodes.LONG");
+                        break;
+                    case 5:
+                        buf.append("Opcodes.NULL");
+                        break;
+                    case 6:
+                        buf.append("Opcodes.UNINITIALIZED_THIS");
+                        break;
+                }
+            } else {
+                appendLabel((Label) o[i]);
+            }
+        }
     }
 
     /**

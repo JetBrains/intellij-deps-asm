@@ -50,6 +50,6 @@ public class CheckClassAdapterTest extends AbstractTest {
     public void test() throws Exception {
         ClassReader cr = new ClassReader(is);
         ClassVisitor cv = new CheckClassAdapter(new EmptyVisitor());
-        cr.accept(cv, false);
+        cr.accept(cv, 0);
     }
 }

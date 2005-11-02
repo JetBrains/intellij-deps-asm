@@ -69,7 +69,7 @@ public class ClassWriterTest3 extends AbstractTest {
         if (cr.readInt(4) != Opcodes.V1_6) {
             return null;
         }
-        ClassWriter cw = new ClassWriter(false, true, true) {
+        ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_FRAMES) {
             protected String getCommonSuperClass(
                 final String type1,
                 final String type2)
@@ -95,9 +95,9 @@ public class ClassWriterTest3 extends AbstractTest {
                     } while (!c.isAssignableFrom(d));
                     return c.getType().getInternalName();
                 }
-            }
+            }            
         };
-        cr.accept(cw, false);
+        cr.accept(cw, 0);
         return cw.toByteArray();
     }
 
@@ -120,8 +120,8 @@ public class ClassWriterTest3 extends AbstractTest {
             sw2.write(ve.toString() + "\n");
             ClassVisitor cv1 = new TraceClassVisitor(new PrintWriter(sw1));
             ClassVisitor cv2 = new TraceClassVisitor(new PrintWriter(sw2));
-            cr.accept(new ClassFilter(cv1), false);
-            new ClassReader(b).accept(new ClassFilter(cv2), false);
+            cr.accept(cv1, 0);
+            new ClassReader(b).accept(cv2, 0);
             String s1 = sw1.toString();
             String s2 = sw2.toString();
             assertEquals("different data", s1, s2);
@@ -142,7 +142,7 @@ class ClassInfo {
 
     String[] interfaces;
 
-    public ClassInfo(String type) {
+    public ClassInfo(final String type) {
         this.type = Type.getType("L" + type + ";");
         String s = type.replace('.', '/') + ".class";
         InputStream is = getClass().getClassLoader().getResourceAsStream(s);
@@ -214,7 +214,7 @@ class ClassInfo {
 
             public void visitEnd() {
             }
-        }, true);
+        }, ClassReader.SKIP_DEBUG);
     }
 
     String getName() {

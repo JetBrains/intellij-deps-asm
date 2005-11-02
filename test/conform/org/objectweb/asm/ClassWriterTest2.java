@@ -44,9 +44,9 @@ public class ClassWriterTest2 extends AbstractTest {
 
     public void test() throws Exception {
         ClassReader cr = new ClassReader(is);
-        ClassWriter cw = new ClassWriter(true, true);
-        cr.accept(cw, false);
-        // computed maxlocal and maxstack sometime differ from original ones 
+        ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_MAXS);
+        cr.accept(cw, 0);
+        //computed maxStack and maxLocals may differ from original class
         //assertEquals(cr, new ClassReader(cw.toByteArray()));
     }
 }

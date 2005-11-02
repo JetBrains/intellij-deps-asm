@@ -118,7 +118,7 @@ public class TraceClassVisitor extends TraceAbstractVisitor implements
      */
     public static void main(final String[] args) throws Exception {
         int i = 0;
-        boolean skipDebug = true;
+        int flags = ClassReader.SKIP_DEBUG;
 
         boolean ok = true;
         if (args.length < 1 || args.length > 2) {
@@ -126,7 +126,7 @@ public class TraceClassVisitor extends TraceAbstractVisitor implements
         }
         if (ok && args[0].equals("-debug")) {
             i = 1;
-            skipDebug = false;
+            flags = 0;
             if (args.length != 2) {
                 ok = false;
             }
@@ -147,7 +147,7 @@ public class TraceClassVisitor extends TraceAbstractVisitor implements
         }
         cr.accept(new TraceClassVisitor(new PrintWriter(System.out)),
                 getDefaultAttributes(),
-                skipDebug);
+                flags);
     }
 
     /**

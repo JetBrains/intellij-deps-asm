@@ -52,10 +52,10 @@ public class TraceClassAdapterTest extends AbstractTest {
 
     public void test() throws Exception {
         ClassReader cr = new ClassReader(is);
-        ClassWriter cw = new ClassWriter(false, true);
+        ClassWriter cw = new ClassWriter(0);
         ClassVisitor cv = new TraceClassVisitor(cw,
                 new PrintWriter(new CharArrayWriter()));
-        cr.accept(cv, false);
+        cr.accept(cv, 0);
         assertEquals(cr, new ClassReader(cw.toByteArray()));
     }
 }

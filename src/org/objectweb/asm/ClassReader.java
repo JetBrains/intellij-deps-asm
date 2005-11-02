@@ -44,59 +44,23 @@ import java.io.IOException;
 public class ClassReader {
 
     /**
-     * Mask to get the kind of a frame type.
-     * 
-     * @see #BASIC_TYPE
-     * @see #OBJECT_TYPE
-     * @see #UNINITIALIZED_TYPE
-     * @see #IMPLICIT_TYPE
+     * Flag to skip the debug information in the class. If this flag is set the
+     * debug information of the class is not visited, i.e. the
+     * {@link MethodVisitor#visitLocalVariable visitLocalVariable} and
+     * {@link MethodVisitor#visitLineNumber visitLineNumber} methods will not be
+     * called.
      */
-
-    private final static int TYPE_KIND = 0xF0000000;
+    public final static int SKIP_DEBUG = 1;
 
     /**
-     * Mask to get the value of a frame type.
-     * 
-     * @see #BASIC_TYPE
-     * @see #OBJECT_TYPE
-     * @see #UNINITIALIZED_TYPE
-     * @see #IMPLICIT_TYPE
+     * Flag to expand the stack map frames. By default stack map frames are
+     * visited in their original format (i.e. "expanded" for classes whose
+     * version is less than V1_6, and "compressed" for the other classes). If
+     * this flag is set, stack map frames are always visited in expanded format
+     * (this option adds a decompression/recompression step in ClassReader and
+     * ClassWriter which degrades performances quite a lot).
      */
-
-    private final static int TYPE_VALUE = 0xFFFFFFF;
-
-    /**
-     * Kind of the basic frame types, namely TOP, INTEGER, FLOAT, DOUBLE, LONG,
-     * NULL and UNINITIALIZED_THIS. The value of types of this kind is one the
-     * constants defined in {@link FrameVisitor}.
-     */
-
-    private final static int BASIC_TYPE = 0;
-
-    /**
-     * Kind of the OBJECT types. The value of types of this kind is an UTF8
-     * constant pool element index, whose content is the internal name or type
-     * descriptor (for array types) of the type.
-     */
-
-    private final static int OBJECT_TYPE = 0x10000000;
-
-    /**
-     * Kind of the UNINITIALIZED types. The value of types of this kind is an
-     * instruction offset which designates the NEW instruction that created the
-     * value of this type.
-     */
-
-    private final static int UNINITIALIZED_TYPE = 0x20000000;
-
-    /**
-     * Kind of the reference types from the very first (implicit) frame in a
-     * StackMapTable. The value of types of this kind is an index into a
-     * separate Type array (since the frame is implicit, there is no constant
-     * pool element that contains the value of these reference types).
-     */
-
-    private final static int IMPLICIT_TYPE = 0x30000000;
+    public final static int EXPAND_FRAMES = 2;
 
     /**
      * The class to be parsed. <i>The content of this array must not be
@@ -261,15 +225,11 @@ public class ClassReader {
      * {@link #ClassReader(byte[]) ClassReader}).
      * 
      * @param classVisitor the visitor that must visit this class.
-     * @param skipDebug <tt>true</tt> if the debug information of the class
-     *        must not be visited. In this case the
-     *        {@link MethodVisitor#visitLocalVariable visitLocalVariable} and
-     *        {@link MethodVisitor#visitLineNumber visitLineNumber} methods will
-     *        not be called.
+     * @param flags option flags that can be used to modify the default behavior
+     *        of this class. See {@link #SKIP_DEBUG}, {@link #EXPAND_FRAMES}.
      */
-    public void accept(final ClassVisitor classVisitor, final boolean skipDebug)
-    {
-        accept(classVisitor, new Attribute[0], skipDebug);
+    public void accept(final ClassVisitor classVisitor, final int flags) {
+        accept(classVisitor, new Attribute[0], flags);
     }
 
     /**
@@ -280,17 +240,19 @@ public class ClassReader {
      * @param classVisitor the visitor that must visit this class.
      * @param attrs prototypes of the attributes that must be parsed during the
      *        visit of the class. Any attribute whose type is not equal to the
-     *        type of one the prototypes will be ignored.
-     * @param skipDebug <tt>true</tt> if the debug information of the class
-     *        must not be visited. In this case the
-     *        {@link MethodVisitor#visitLocalVariable visitLocalVariable} and
-     *        {@link MethodVisitor#visitLineNumber visitLineNumber} methods will
-     *        not be called.
+     *        type of one the prototypes will not be parsed: its byte array
+     *        value will be passed unchanged to the ClassWriter. <i>This may
+     *        corrupt it if this value contains references to the constant pool,
+     *        or has syntactic or semantic links with a class element that has
+     *        been transformed by a class adapter between the reader and the
+     *        writer</i>.
+     * @param flags option flags that can be used to modify the default behavior
+     *        of this class. See {@link #SKIP_DEBUG}, {@link #EXPAND_FRAMES}.
      */
     public void accept(
         final ClassVisitor classVisitor,
         final Attribute[] attrs,
-        final boolean skipDebug)
+        final int flags)
     {
         byte[] b = this.b; // the bytecode array
         char[] c = new char[maxStringLength]; // buffer used to read strings
@@ -320,6 +282,9 @@ public class ClassReader {
             implementedItfs[i] = readClass(u, c);
             u += 2;
         }
+
+        boolean skipDebug = (flags & SKIP_DEBUG) != 0;
+        boolean unzip = (flags & EXPAND_FRAMES) != 0;
 
         // skips fields and methods
         v = u;
@@ -783,7 +748,7 @@ public class ClassReader {
                     if (labels[label] == null) {
                         labels[label] = new Label();
                     }
-                    //TODO optimize?
+                    // TODO optimize?
                     Label start = labels[readUnsignedShort(v)];
                     Label end = labels[readUnsignedShort(v + 2)];
                     Label handler = labels[readUnsignedShort(v + 4)];
@@ -804,9 +769,14 @@ public class ClassReader {
                 int varTypeTable = 0;
                 int stackMap = 0;
                 int frameCount = 0;
+                int frameMode = 0;
+                int frameOffset = 0;
+                int frameLocalCount = 0;
+                int frameLocalDiff = 0;
+                int frameStackCount = 0;
+                Object[] frameLocal = null;
+                Object[] frameStack = null;
                 boolean zip = true;
-                int[] frame = null;
-                Type[] formals = null;
                 cattrs = null;
                 j = readUnsignedShort(v);
                 v += 2;
@@ -895,40 +865,60 @@ public class ClassReader {
                 if (stackMap != 0) {
                     // creates the very first (implicit) frame from the method
                     // descriptor
-                    frame = new int[4 + maxLocals + maxStack];
-                    int local = 4;
-                    if ((access & Opcodes.ACC_STATIC) == 0) {
-                        if (name.equals("<init>")) {
-                            frame[local++] = 6; // UninitializedThis
-                        } else {
-                            frame[local++] = OBJECT_TYPE
-                                    | items[readUnsignedShort(header + 2)];
+                    frameLocal = new Object[maxLocals];
+                    frameStack = new Object[maxStack];
+                    if (unzip) {
+                        int local = 0;
+                        if ((access & Opcodes.ACC_STATIC) == 0) {
+                            if (name.equals("<init>")) {
+                                frameLocal[local++] = Opcodes.UNINITIALIZED_THIS;
+                            } else {
+                                frameLocal[local++] = readClass(header + 2, c);
+                            }
                         }
-                    }
-                    try {
-                        formals = Type.getArgumentTypes(desc);
-                    } catch (Exception e) {
-                        throw new RuntimeException(desc);
-                    }
-                    for (k = 0; k < formals.length; ++k) {
-                        switch (formals[k].getSort()) {
-                            case Type.FLOAT:
-                                frame[local++] = FrameVisitor.FLOAT;
-                                break;
-                            case Type.LONG:
-                                frame[local++] = FrameVisitor.LONG;
-                                break;
-                            case Type.DOUBLE:
-                                frame[local++] = FrameVisitor.DOUBLE;
-                                break;
-                            case Type.ARRAY:
-                            case Type.OBJECT:
-                                frame[local++] = IMPLICIT_TYPE | k;
-                                break;
-                            default:
-                                frame[local++] = FrameVisitor.INTEGER;
-                                break;
+                        j = 1;
+                        loop: while (true) {
+                            k = j;
+                            switch (desc.charAt(j++)) {
+                                case 'Z':
+                                case 'C':
+                                case 'B':
+                                case 'S':
+                                case 'I':
+                                    frameLocal[local++] = Opcodes.INTEGER;
+                                    break;
+                                case 'F':
+                                    frameLocal[local++] = Opcodes.FLOAT;
+                                    break;
+                                case 'J':
+                                    frameLocal[local++] = Opcodes.LONG;
+                                    break;
+                                case 'D':
+                                    frameLocal[local++] = Opcodes.DOUBLE;
+                                    break;
+                                case '[':
+                                    while (desc.charAt(j) == '[') {
+                                        ++j;
+                                    }
+                                    if (desc.charAt(j) == 'L') {
+                                        ++j;
+                                        while (desc.charAt(j) != ';') {
+                                            ++j;
+                                        }
+                                    }
+                                    frameLocal[local++] = desc.substring(k, ++j);
+                                    break;
+                                case 'L':
+                                    while (desc.charAt(j) != ';') {
+                                        ++j;
+                                    }
+                                    frameLocal[local++] = desc.substring(k, ++j);
+                                    break;
+                                default:
+                                    break loop;
+                            }
                         }
+                        frameLocalCount = local;
                     }
                     /*
                      * for the first explicit frame the offset is not
@@ -936,34 +926,130 @@ public class ClassReader {
                      * implicit frame offset to -1 allow the use of the
                      * "offset_delta + 1" rule in all cases
                      */
-                    frame[0] = -1;
-                    frame[1] = local - 4;
-                    frame[3] = 4 + maxLocals;
-                    // makes the visitor visit this frame,
-                    // reads the next frame
-                    visitFrame(frame, c, labels, formals, mv);
-                    stackMap = readFrame(stackMap, zip, frame, labels);
-                    --frameCount;
+                    frameOffset = -1;
                 }
                 v = codeStart;
                 Label l;
                 while (v < codeEnd) {
                     w = v - codeStart;
+                    while (frameLocal != null
+                            && (frameOffset == w || frameOffset == -1))
+                    {
+                        // if there is a frame for this offset,
+                        // makes the visitor visit it,
+                        // and reads the next frame if there is one.
+                        if (!zip || unzip) {
+                            mv.visitFrame(Opcodes.F_NEW,
+                                    frameLocalCount,
+                                    frameLocal,
+                                    frameStackCount,
+                                    frameStack);
+                        } else if (frameOffset != -1) {
+                            mv.visitFrame(frameMode,
+                                    frameLocalDiff,
+                                    frameLocal,
+                                    frameStackCount,
+                                    frameStack);
+                        }
+
+                        if (frameCount > 0) {
+                            int tag, delta, n;
+                            if (zip) {
+                                tag = b[stackMap++] & 0xFF;
+                            } else {
+                                tag = MethodWriter.FULL_FRAME;
+                                frameOffset = -1;
+                            }
+                            if (tag < MethodWriter.SAME_LOCALS_1_STACK_ITEM_FRAME)
+                            {
+                                delta = tag;
+                                frameMode = Opcodes.F_SAME;
+                                frameStackCount = 0;
+                            } else if (tag < MethodWriter.RESERVED) {
+                                delta = tag
+                                        - MethodWriter.SAME_LOCALS_1_STACK_ITEM_FRAME;
+                                stackMap = readFrameType(frameStack,
+                                        0,
+                                        stackMap,
+                                        c,
+                                        labels);
+                                frameMode = Opcodes.F_SAME1;
+                                frameStackCount = 1;
+                            } else {
+                                delta = readUnsignedShort(stackMap);
+                                stackMap += 2;
+                                if (tag == MethodWriter.SAME_LOCALS_1_STACK_ITEM_FRAME_EXTENDED)
+                                {
+                                    stackMap = readFrameType(frameStack,
+                                            0,
+                                            stackMap,
+                                            c,
+                                            labels);
+                                    frameMode = Opcodes.F_SAME1;
+                                    frameStackCount = 1;
+                                } else if (tag >= MethodWriter.CHOP_FRAME
+                                        && tag < MethodWriter.SAME_FRAME_EXTENDED)
+                                {
+                                    frameMode = Opcodes.F_CHOP;
+                                    frameLocalDiff = MethodWriter.SAME_FRAME_EXTENDED
+                                            - tag;
+                                    frameLocalCount -= frameLocalDiff;
+                                    frameStackCount = 0;
+                                } else if (tag == MethodWriter.SAME_FRAME_EXTENDED)
+                                {
+                                    frameMode = Opcodes.F_SAME;
+                                    frameStackCount = 0;
+                                } else if (tag < MethodWriter.FULL_FRAME) {
+                                    j = unzip ? frameLocalCount : 0;
+                                    for (k = tag
+                                            - MethodWriter.SAME_FRAME_EXTENDED; k > 0; k--)
+                                    {
+                                        stackMap = readFrameType(frameLocal,
+                                                j++,
+                                                stackMap,
+                                                c,
+                                                labels);
+                                    }
+                                    frameMode = Opcodes.F_APPEND;
+                                    frameLocalDiff = tag
+                                            - MethodWriter.SAME_FRAME_EXTENDED;
+                                    frameLocalCount += frameLocalDiff;
+                                    frameStackCount = 0;
+                                } else { // if (tag == FULL_FRAME) {
+                                    frameMode = Opcodes.F_FULL;
+                                    n = frameLocalDiff = frameLocalCount = readUnsignedShort(stackMap);
+                                    stackMap += 2;
+                                    for (j = 0; n > 0; n--) {
+                                        stackMap = readFrameType(frameLocal,
+                                                j++,
+                                                stackMap,
+                                                c,
+                                                labels);
+                                    }
+                                    n = frameStackCount = readUnsignedShort(stackMap);
+                                    stackMap += 2;
+                                    for (j = 0; n > 0; n--) {
+                                        stackMap = readFrameType(frameStack,
+                                                j++,
+                                                stackMap,
+                                                c,
+                                                labels);
+                                    }
+                                }
+                            }
+                            frameOffset += delta + 1;
+                            if (labels[frameOffset] == null) {
+                                labels[frameOffset] = new Label();
+                            }
+
+                            --frameCount;
+                        } else {
+                            frameLocal = null;
+                        }
+                    }
+
                     l = labels[w];
                     if (l != null) {
-                        if (frame != null && frame[0] == w) {
-                            // if there is a frame for this offset,
-                            // makes the visitor visit it,
-                            // and reads the next frame if there is one.
-                            visitFrame(frame, c, labels, formals, mv);
-                            if (frameCount > 0) {
-                                stackMap = readFrame(stackMap,
-                                        zip,
-                                        frame,
-                                        labels);
-                                --frameCount;
-                            }
-                        }
                         mv.visitLabel(l);
                         if (!skipDebug && l.line > 0) {
                             mv.visitLineNumber(l.line, l);
@@ -1384,106 +1470,38 @@ public class ClassReader {
         return v;
     }
 
-    /**
-     * Reads and uncompress a frame from a StackMap or StackMapTable attribute.
-     * 
-     * @param v the start of the frame to be read in {@link #b b}.
-     * @param zip <tt>true</tt> if the frame must be read from a compressed
-     *        StackMapTable attribute, or <tt>false</tt> if it must be read
-     *        from an uncompressed StackMap attribute.
-     * @param frame the current frame, and also where the new frame must be
-     *        stored. The first element contains the offset of the instruction
-     *        to which the frame corresponds, the second element is the number
-     *        of locals, the third one is the number of stack elements, and the
-     *        fourth one is the index of the first stack element. The local
-     *        variables start at index 4. In summary frame[0] = offset, frame[1] =
-     *        nLocal, frame[2] = nStack, frame[3] = index of first stack
-     *        element. See {@link #TYPE_KIND} and {@link #TYPE_VALUE} for the
-     *        format of local variable and stack elements.
-     * @param labels the labels of the method's code.
-     * @return the start of the next frame, if there is one.
-     */
-    private int readFrame(
-        int v,
-        boolean zip,
-        final int[] frame,
-        final Label[] labels)
-    {
-        int tag, delta, i, k, n;
-        if (zip) {
-            tag = b[v++] & 0xFF;
-        } else {
-            tag = MethodWriter.FULL_FRAME;
-            frame[0] = -1;
-        }
-        if (tag < MethodWriter.SAME_LOCALS_1_STACK_ITEM_FRAME) {
-            delta = tag;
-            frame[2] = 0;
-        } else if (tag < MethodWriter.RESERVED) {
-            delta = tag - MethodWriter.SAME_LOCALS_1_STACK_ITEM_FRAME;
-            v = readFrameType(frame, frame[3], v, labels);
-            frame[2] = 1;
-        } else {
-            delta = readUnsignedShort(v);
-            v += 2;
-            if (tag == MethodWriter.SAME_LOCALS_1_STACK_ITEM_FRAME_EXTENDED) {
-                v = readFrameType(frame, frame[3], v, labels);
-                frame[2] = 1;
-            } else if (tag >= MethodWriter.CHOP_FRAME
-                    && tag < MethodWriter.SAME_FRAME_EXTENDED)
-            {
-                frame[1] -= MethodWriter.SAME_FRAME_EXTENDED - tag;
-                frame[2] = 0;
-            } else if (tag == MethodWriter.SAME_FRAME_EXTENDED) {
-                frame[2] = 0;
-            } else if (/* tag >= APPEND && */tag < MethodWriter.FULL_FRAME) {
-                i = frame[1] + 4;
-                for (k = tag - MethodWriter.SAME_FRAME_EXTENDED; k > 0; k--) {
-                    v = readFrameType(frame, i++, v, labels);
-                }
-                frame[1] += tag - MethodWriter.SAME_FRAME_EXTENDED;
-                frame[2] = 0;
-            } else /* if (tag == FULL_FRAME) */{
-                n = frame[1] = readUnsignedShort(v);
-                v += 2;
-                for (i = 4; n > 0; n--) {
-                    v = readFrameType(frame, i++, v, labels);
-                }
-                n = frame[2] = readUnsignedShort(v);
-                v += 2;
-                for (i = frame[3]; n > 0; n--) {
-                    v = readFrameType(frame, i++, v, labels);
-                }
-            }
-        }
-        frame[0] += delta + 1;
-        if (labels[frame[0]] == null) {
-            labels[frame[0]] = new Label();
-        }
-        return v;
-    }
-
-    /**
-     * Reads a type from a frame element in a StackMapTable attribute.
-     * 
-     * @param frame the frame where the read type must be stored.
-     * @param index the index in frame where the read type must be stored. See
-     *        {@link #TYPE_KIND} and {@link #TYPE_VALUE} for the format of local
-     *        variable and stack elements.
-     * @param v the start of the frame element to be read.
-     * @param labels the labels of the method's code.
-     * @return the start of the next frame element, if there is one.
-     */
     private int readFrameType(
-        final int[] frame,
+        final Object[] frame,
         final int index,
         int v,
+        final char[] buf,
         final Label[] labels)
     {
         int type = b[v++] & 0xFF;
         switch (type) {
+            case 0:
+                frame[index] = Opcodes.TOP;
+                break;
+            case 1:
+                frame[index] = Opcodes.INTEGER;
+                break;
+            case 2:
+                frame[index] = Opcodes.FLOAT;
+                break;
+            case 3:
+                frame[index] = Opcodes.DOUBLE;
+                break;
+            case 4:
+                frame[index] = Opcodes.LONG;
+                break;
+            case 5:
+                frame[index] = Opcodes.NULL;
+                break;
+            case 6:
+                frame[index] = Opcodes.UNINITIALIZED_THIS;
+                break;
             case 7: // Object
-                type = OBJECT_TYPE | items[readUnsignedShort(v)];
+                frame[index] = readClass(v, buf);
                 v += 2;
                 break;
             case 8: // Uninitialized
@@ -1491,63 +1509,13 @@ public class ClassReader {
                 if (labels[offset] == null) {
                     labels[offset] = new Label();
                 }
-                type = UNINITIALIZED_TYPE | offset;
+                frame[index] = labels[offset];
                 v += 2;
                 break;
+            default:
+                frame[index] = new Integer(type);
         }
-        frame[index] = type;
         return v;
-    }
-
-    /**
-     * Makes the given visitor visit the given frame.
-     * 
-     * @param frame the frame to be visited. See {@link #readFrame} for the
-     *        format of frames.
-     * @param buf buffer to be used to call {@link #readUTF8 readUTF8},
-     *        {@link #readClass(int,char[]) readClass} or
-     *        {@link #readConst readConst}.
-     * @param labels the labels of the method's code.
-     * @param formals the value of the {@link #IMPLICIT_TYPE} types.
-     * @param mv the visitor that must visit the frame.
-     */
-    private void visitFrame(
-        final int[] frame,
-        final char[] buf,
-        final Label[] labels,
-        final Type[] formals,
-        final MethodVisitor mv)
-    {
-        int nLocal = frame[1];
-        int nStack = frame[2];
-        FrameVisitor fv = mv.visitFrame(nLocal, nStack);
-        if (fv != null) {
-            int n = 4;
-            for (int i = 0; i < nLocal + nStack; ++i) {
-                if (i == nLocal) {
-                    // when all locals have been visited,
-                    // continue with stack elements
-                    n = frame[3];
-                }
-                int type = frame[n++];
-                switch (type & TYPE_KIND) {
-                    case OBJECT_TYPE:
-                        fv.visitReferenceType(readUTF8(type & TYPE_VALUE, buf));
-                        break;
-                    case UNINITIALIZED_TYPE:
-                        fv.visitUninitializedType(labels[type & TYPE_VALUE]);
-                        break;
-                    case IMPLICIT_TYPE:
-                        Type formal = formals[type & TYPE_VALUE];
-                        fv.visitReferenceType(formal.getSort() == Type.ARRAY
-                                ? formal.getDescriptor()
-                                : formal.getInternalName());
-                        break;
-                    default: // BASIC_TYPE
-                        fv.visitPrimitiveType(type);
-                }
-            }
-        }
     }
 
     /**
@@ -1589,7 +1557,7 @@ public class ClassReader {
                 return attrs[i].read(this, off, len, buf, codeOff, labels);
             }
         }
-        return new Attribute(type);
+        return new Attribute(type).read(this, off, len, null, -1, null);
     }
 
     // ------------------------------------------------------------------------

@@ -59,7 +59,7 @@ public class Annotations {
         }
 
         final String n = Annotations.class.getName();
-        final ClassWriter cw = new ClassWriter(true);
+        final ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_MAXS);
         ClassReader cr = new ClassReader(n);
         cr.accept(new ClassAdapter(cw) {
 
@@ -121,7 +121,7 @@ public class Annotations {
                     }
                 };
             }
-        }, false);
+        }, 0);
 
         Class c = new ClassLoader() {
             public Class loadClass(final String name)

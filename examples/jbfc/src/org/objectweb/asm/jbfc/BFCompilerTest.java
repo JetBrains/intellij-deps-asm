@@ -55,7 +55,7 @@ public class BFCompilerTest extends TestCase {
     protected void setUp() throws Exception {
         super.setUp();
         bc = new BFCompiler();
-        cw = new ClassWriter(true);
+        cw = new ClassWriter(ClassWriter.COMPUTE_MAXS);
     }
 
     public void testCompileHelloWorld() throws Throwable {

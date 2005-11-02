@@ -197,7 +197,7 @@ public class AnnotationTest extends TestCase {
                 + ".class");
         ClassReader cr = new ClassReader(is);
         ClassNode cn = new ClassNode();
-        cr.accept(cn, false);
+        cr.accept(cn, 0);
     }
 
     private static final class TestClassLoader extends ClassLoader {

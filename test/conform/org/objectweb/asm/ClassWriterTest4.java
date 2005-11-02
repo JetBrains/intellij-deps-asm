@@ -68,7 +68,7 @@ public class ClassWriterTest4 extends AbstractTest {
         if (cr.readInt(4) != Opcodes.V1_6) {
             return null;
         }
-        ClassWriter cw = new ClassWriter(false, true, true) {
+        ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_FRAMES) {
             protected String getCommonSuperClass(
                 final String type1,
                 final String type2)
@@ -137,7 +137,7 @@ public class ClassWriterTest4 extends AbstractTest {
                 };
             }
         };
-        cr.accept(ca, false);
+        cr.accept(ca, 0);
         return cw.toByteArray();
     }
 

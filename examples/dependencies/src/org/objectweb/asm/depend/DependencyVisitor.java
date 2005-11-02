@@ -38,7 +38,6 @@ import org.objectweb.asm.AnnotationVisitor;
 import org.objectweb.asm.Attribute;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.FieldVisitor;
-import org.objectweb.asm.FrameVisitor;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Type;
@@ -219,9 +218,14 @@ public class DependencyVisitor implements
 
     public void visitCode() {
     }
-    
-    public FrameVisitor visitFrame(int maxLocal, int maxStack) {
-        return null;
+
+    public void visitFrame(
+        int type,
+        int nLocal,
+        Object[] local,
+        int nStack,
+        Object[] stack)
+    {
     }
 
     public void visitInsn(int opcode) {

@@ -4,7 +4,7 @@ public class ValuesDump implements Opcodes {
 
 public static byte[] dump () throws Exception {
 
-ClassWriter cw = new ClassWriter(false);
+ClassWriter cw = new ClassWriter(0);
 FieldVisitor fv;
 MethodVisitor mv;
 AnnotationVisitor av0;

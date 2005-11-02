@@ -99,7 +99,7 @@ public abstract class ALLPerfTest extends ClassLoader {
             long t = System.currentTimeMillis();
             for (int j = 0; j < classes.size(); ++j) {
                 byte[] b = (byte[]) classes.get(j);
-                new ClassReader(b).accept(new EmptyVisitor(), false);
+                new ClassReader(b).accept(new EmptyVisitor(), 0);
             }
             t = System.currentTimeMillis() - t;
             System.out.println("Time to deserialize " + classes.size()
@@ -110,8 +110,8 @@ public abstract class ALLPerfTest extends ClassLoader {
             long t = System.currentTimeMillis();
             for (int j = 0; j < classes.size(); ++j) {
                 byte[] b = (byte[]) classes.get(j);
-                ClassWriter cw = new ClassWriter(false);
-                new ClassReader(b).accept(cw, false);
+                ClassWriter cw = new ClassWriter(0);
+                new ClassReader(b).accept(cw, 0);
                 cw.toByteArray();
             }
             t = System.currentTimeMillis() - t;
@@ -123,8 +123,8 @@ public abstract class ALLPerfTest extends ClassLoader {
             long t = System.currentTimeMillis();
             for (int j = 0; j < classes.size(); ++j) {
                 byte[] b = (byte[]) classes.get(j);
-                ClassWriter cw = new ClassWriter(true);
-                new ClassReader(b).accept(cw, false);
+                ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_MAXS);
+                new ClassReader(b).accept(cw, 0);
                 cw.toByteArray();
             }
             t = System.currentTimeMillis() - t;
@@ -138,9 +138,9 @@ public abstract class ALLPerfTest extends ClassLoader {
             long t = System.currentTimeMillis();
             for (int j = 0; j < classes.size(); ++j) {
                 byte[] b = (byte[]) classes.get(j);
-                ClassWriter cw = new ClassWriter(false, true, false);
+                ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_FRAMES);
                 try {
-                    new ClassReader(b).accept(cw, false);
+                    new ClassReader(b).accept(cw, 0);
                 } catch (Throwable e) {
                     ++errors;
                 }
@@ -158,7 +158,7 @@ public abstract class ALLPerfTest extends ClassLoader {
             long t = System.currentTimeMillis();
             for (int j = 0; j < classes.size(); ++j) {
                 byte[] b = (byte[]) classes.get(j);
-                new ClassReader(b).accept(new ClassNode(), false);
+                new ClassReader(b).accept(new ClassNode(), 0);
             }
             t = System.currentTimeMillis() - t;
             System.out.println("Time to deserialize " + classes.size()
@@ -169,9 +169,9 @@ public abstract class ALLPerfTest extends ClassLoader {
             long t = System.currentTimeMillis();
             for (int j = 0; j < classes.size(); ++j) {
                 byte[] b = (byte[]) classes.get(j);
-                ClassWriter cw = new ClassWriter(false);
+                ClassWriter cw = new ClassWriter(0);
                 ClassNode cn = new ClassNode();
-                new ClassReader(b).accept(cn, false);
+                new ClassReader(b).accept(cn, 0);
                 cn.accept(cw);
                 cw.toByteArray();
             }

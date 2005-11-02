@@ -88,6 +88,26 @@ public interface Opcodes {
     int T_INT = 10;
     int T_LONG = 11;
 
+    // stack map frame types
+    
+    // uncompressed frames: all frames must be F_NEW frames
+    int F_NEW = -1;
+    
+    // compressed frames: each frame can be a F_FULL, ..., or F_SAME1 frame 
+    int F_FULL = 0;
+    int F_APPEND = 1;
+    int F_CHOP = 2;
+    int F_SAME = 3;
+    int F_SAME1 = 4;
+    
+    Integer TOP = new Integer(0);
+    Integer INTEGER = new Integer(1);
+    Integer FLOAT = new Integer(2);
+    Integer DOUBLE = new Integer(3);
+    Integer LONG = new Integer(4);
+    Integer NULL = new Integer(5);
+    Integer UNINITIALIZED_THIS = new Integer(6);
+
     // opcodes // visit method (- = idem)
 
     int NOP = 0; // visitInsn

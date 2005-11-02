@@ -113,6 +113,7 @@
     <path id="test.classpath">
       <pathelement location="${classes}"/>
       <pathelement location="${out.test}"/>
+      <pathelement location="${test}/conform/cases"/>
       <pathelement path="${bcel.path}"/>
       <pathelement path="${aspectj.path}"/>
       <pathelement path="${serp.path}"/>  

@@ -31,9 +31,9 @@ package org.objectweb.asm.util;
 
 import org.objectweb.asm.AnnotationVisitor;
 import org.objectweb.asm.Attribute;
-import org.objectweb.asm.FrameVisitor;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Label;
+import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.signature.SignatureReader;
 import org.objectweb.asm.util.attrs.Traceable;
@@ -47,7 +47,7 @@ import java.util.HashMap;
  * @author Eric Bruneton
  */
 public class TraceMethodVisitor extends TraceAbstractVisitor implements
-        MethodVisitor, FrameVisitor
+        MethodVisitor
 {
 
     /**
@@ -75,12 +75,6 @@ public class TraceMethodVisitor extends TraceAbstractVisitor implements
      * The label names. This map associate String values to Label keys.
      */
     protected final HashMap labelNames;
-    
-    private FrameVisitor fv;
-
-    private int nLocal;
-
-    private int nStack;
 
     /**
      * Constructs a new {@link TraceMethodVisitor}.
@@ -123,7 +117,7 @@ public class TraceMethodVisitor extends TraceAbstractVisitor implements
         if (attr instanceof Traceable) {
             ((Traceable) attr).trace(buf, labelNames);
         } else {
-            buf.append(" : ").append(attr.toString()).append("\n");
+            buf.append(" : unknown\n");
         }
 
         text.add(buf.toString());
@@ -170,87 +164,45 @@ public class TraceMethodVisitor extends TraceAbstractVisitor implements
         }
     }
 
-    public FrameVisitor visitFrame(int nLocal, int nStack) {
-        fv = mv == null ? null : mv.visitFrame(nLocal, nStack);
-        this.nLocal = nLocal;
-        this.nStack = nStack;
-        if (nLocal == 0 && nStack == 0) {
-            text.add("FRAME [] []\n");
-        } else {
-            buf.setLength(0);
-            if (nLocal == 0) {
-                buf.append("FRAME [] [");
-            } else {
-                buf.append("FRAME [");
-            }
-        }
-        return this;
-    }
-
-    public void visitPrimitiveType(int type) {
+    public void visitFrame(
+        final int type,
+        final int nLocal,
+        final Object[] local,
+        final int nStack,
+        final Object[] stack)
+    {
+        buf.setLength(0);
+        buf.append("FRAME ");
         switch (type) {
-            case TOP:
-                buf.append('T');
-                break;
-            case INTEGER:
-                buf.append('I');
-                break;
-            case FLOAT:
-                buf.append('F');
-                break;
-            case DOUBLE:
-                buf.append('D');
-                break;
-            case LONG:
-                buf.append('L');
-                break;
-            case NULL:
-                buf.append('N');
-                break;
-            case UNINITIALIZED_THIS:
-                buf.append('U');
-                break;
-        }
-        updateType();
-        if (fv != null) {
-            fv.visitPrimitiveType(type);
-        }
-    }
-
-    public void visitReferenceType(String type) {
-        buf.append(type);
-        updateType();
-        if (fv != null) {
-            fv.visitReferenceType(type);
-        }
-    }
-
-    public void visitUninitializedType(Label newInsn) {
-        appendLabel(newInsn);
-        updateType();
-        if (fv != null) {
-            fv.visitUninitializedType(newInsn);
-        }
-    }
-
-    private void updateType() {
-        if (nLocal > 0) {
-            --nLocal;
-            if (nLocal == 0) {
+            case Opcodes.F_NEW:
+            case Opcodes.F_FULL:
+                buf.append("FULL [");
+                appendFrameTypes(nLocal, local);
                 buf.append("] [");
-                if (nStack == 0) {
-                    buf.append("]\n");
-                    text.add(buf.toString());
-                }
-            } else
-                buf.append(' ');
-        } else if (nStack > 0) {
-            --nStack;
-            if (nStack == 0) {
-                buf.append("]\n");
-                text.add(buf.toString());
-            } else
-                buf.append(' ');
+                appendFrameTypes(nStack, stack);
+                buf.append("]");
+                break;
+            case Opcodes.F_APPEND:
+                buf.append("APPEND [");
+                appendFrameTypes(nLocal, local);
+                buf.append("]");
+                break;
+            case Opcodes.F_CHOP:
+                buf.append("CHOP ").append(nLocal);
+                break;
+            case Opcodes.F_SAME:
+                buf.append("SAME");
+                break;
+            case Opcodes.F_SAME1:
+                buf.append("SAME1 ");
+                appendFrameTypes(1, stack);
+                break;
+        }
+        buf.append("\n");
+        text.add(buf.toString());
+        
+        if (mv != null) {
+            mv.visitFrame(type, nLocal, local, nStack, stack);
         }
     }
 
@@ -563,6 +515,43 @@ public class TraceMethodVisitor extends TraceAbstractVisitor implements
     // ------------------------------------------------------------------------
     // Utility methods
     // ------------------------------------------------------------------------
+
+    private void appendFrameTypes(final int n, final Object[] o) {
+        for (int i = 0; i < n; ++i) {
+            if (i > 0) {
+                buf.append(' ');
+            }
+            if (o[i] instanceof String) {
+                buf.append(o[i]);
+            } else if (o[i] instanceof Integer) {
+                switch (((Integer) o[i]).intValue()) {
+                    case 0:
+                        buf.append('T');
+                        break;
+                    case 1:
+                        buf.append('I');
+                        break;
+                    case 2:
+                        buf.append('F');
+                        break;
+                    case 3:
+                        buf.append('D');
+                        break;
+                    case 4:
+                        buf.append('L');
+                        break;
+                    case 5:
+                        buf.append('N');
+                        break;
+                    case 6:
+                        buf.append('U');
+                        break;
+                }
+            } else {
+                appendLabel((Label) o[i]);
+            }
+        }
+    }
 
     /**
      * Appends the name of the given label to {@link #buf buf}. Creates a new

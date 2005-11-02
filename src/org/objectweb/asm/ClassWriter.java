@@ -41,6 +41,31 @@ package org.objectweb.asm;
 public class ClassWriter implements ClassVisitor {
 
     /**
+     * Flag to automatically compute the maximum stack size and the maximum
+     * number of local variables of methods. If this flag is set, then the
+     * arguments of the {@link MethodVisitor#visitMaxs visitMaxs} method of the
+     * {@link MethodVisitor} returned by the {@link #visitMethod visitMethod}
+     * method will be ignored, and computed automatically from the signature and
+     * the bytecode of each method.
+     * 
+     * @see #ClassWriter
+     */
+    public final static int COMPUTE_MAXS = 1;
+
+    /**
+     * Flag to automatically compute the stack map frames of methods from
+     * scratch. If this flag is set, then the calls to the
+     * {@link MethodVisitor#visitFrame} method are ignored, and the stack map
+     * frames are recomputed from the methods bytecode. The arguments of the
+     * {@link MethodVisitor#visitMaxs visitMaxs} method are also ignored and
+     * recomputed from the bytecode. In other words, computeFrames implies
+     * computeMaxs.
+     * 
+     * @see #ClassWriter
+     */
+    public final static int COMPUTE_FRAMES = 2;
+
+    /**
      * The type of instructions without any argument.
      */
     final static int NOARG_INSN = 0;
@@ -372,11 +397,6 @@ public class ClassWriter implements ClassVisitor {
      */
     private boolean computeFrames;
 
-    /**
-     * <tt>true</tt> to test that all attributes are known.
-     */
-    boolean checkAttributes;
-
     // ------------------------------------------------------------------------
     // Static initializer
     // ------------------------------------------------------------------------
@@ -467,72 +487,14 @@ public class ClassWriter implements ClassVisitor {
     // ------------------------------------------------------------------------
     // Constructor
     // ------------------------------------------------------------------------
-
-    /**
-     * Constructs a new {@link ClassWriter ClassWriter} object.
-     * 
-     * @param computeMaxs <tt>true</tt> if the maximum stack size and the
-     *        maximum number of local variables must be automatically computed.
-     *        If this flag is <tt>true</tt>, then the arguments of the
-     *        {@link MethodVisitor#visitMaxs visitMaxs} method of the
-     *        {@link MethodVisitor} returned by the
-     *        {@link #visitMethod visitMethod} method will be ignored, and
-     *        computed automatically from the signature and the bytecode of each
-     *        method.
-     */
-    public ClassWriter(final boolean computeMaxs) {
-        this(computeMaxs, false);
-    }
-
+    
     /**
      * Constructs a new {@link ClassWriter} object.
      * 
-     * @param computeMaxs <tt>true</tt> if the maximum stack size and the
-     *        maximum number of local variables must be automatically computed.
-     *        If this flag is <tt>true</tt>, then the arguments of the
-     *        {@link MethodVisitor#visitMaxs visitMaxs} method of the
-     *        {@link MethodVisitor} returned by the
-     *        {@link #visitMethod visitMethod} method will be ignored, and
-     *        computed automatically from the signature and the bytecode of each
-     *        method.
-     * @param skipUnknownAttributes <tt>true</tt> to silently ignore unknown
-     *        attributes, or <tt>false</tt> to throw an exception if an
-     *        unknown attribute is found.
+     * @param flags option flags that can be used to modify the default behavior
+     *        of this class. See {@link #COMPUTE_MAXS}, {@link #COMPUTE_FRAMES}.
      */
-    public ClassWriter(
-        final boolean computeMaxs,
-        final boolean skipUnknownAttributes)
-    {
-        this(computeMaxs, false, skipUnknownAttributes);
-    }
-
-    /**
-     * Constructs a new {@link ClassWriter} object.
-     * 
-     * @param computeMaxs <tt>true</tt> if the maximum stack size and the
-     *        maximum number of local variables must be automatically computed.
-     *        If this flag is <tt>true</tt>, then the arguments of the
-     *        {@link MethodVisitor#visitMaxs visitMaxs} method of the
-     *        {@link MethodVisitor} returned by the
-     *        {@link #visitMethod visitMethod} method will be ignored, and
-     *        computed automatically from the signature and the bytecode of each
-     *        method.
-     * @param computeFrames <tt>true</tt> if the stack map frames must be
-     *        recomputed from scratch. If this flag is <tt>true</tt>, then
-     *        the calls to the {@link FrameVisitor} interface are ignored, and
-     *        the stack map frames are recomputed from the methods bytecode. The
-     *        arguments of the {@link MethodVisitor#visitMaxs visitMaxs} method
-     *        are also ignored and recomputed from the bytecode. In other words,
-     *        computeFrames implies computeMaxs.
-     * @param skipUnknownAttributes <tt>true</tt> to silently ignore unknown
-     *        attributes, or <tt>false</tt> to throw an exception if an
-     *        unknown attribute is found.
-     */
-    public ClassWriter(
-        final boolean computeMaxs,
-        final boolean computeFrames,
-        final boolean skipUnknownAttributes)
-    {
+    public ClassWriter(final int flags) {
         index = 1;
         pool = new ByteVector();
         items = new Item[256];
@@ -540,9 +502,8 @@ public class ClassWriter implements ClassVisitor {
         key = new Item();
         key2 = new Item();
         key3 = new Item();
-        this.computeMaxs = computeMaxs;
-        this.computeFrames = computeFrames;
-        this.checkAttributes = !skipUnknownAttributes;
+        this.computeMaxs = (flags & COMPUTE_MAXS) != 0;
+        this.computeFrames = (flags & COMPUTE_FRAMES) != 0;
     }
 
     // ------------------------------------------------------------------------
@@ -1160,8 +1121,8 @@ public class ClassWriter implements ClassVisitor {
 
     /**
      * Adds the given "uninitialized" type to {@link #typeTable} and returns its
-     * index. This method is used for UNINITIALIZED types (see
-     * {@link FrameVisitor}), made of an internal name and a bytecode offset.
+     * index. This method is used for UNINITIALIZED types, made of an internal
+     * name and a bytecode offset.
      * 
      * @param type the internal name to be added to the type table.
      * @param offset the bytecode offset of the NEW instruction that created
@@ -1266,7 +1227,7 @@ public class ClassWriter implements ClassVisitor {
             return c.getName().replace('.', '/');
         }
     }
-
+    
     /**
      * Returns the constant pool's hash table item which is equal to the given
      * item.

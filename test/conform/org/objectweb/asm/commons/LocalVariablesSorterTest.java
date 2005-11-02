@@ -50,7 +50,7 @@ public class LocalVariablesSorterTest extends AbstractTest {
 
     public void test() throws Exception {
         ClassReader cr = new ClassReader(is);
-        ClassWriter cw = new ClassWriter(true, true);
+        ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_FRAMES);
         cr.accept(new ClassAdapter(cw) {
             public MethodVisitor visitMethod(
                 int access,
@@ -67,7 +67,7 @@ public class LocalVariablesSorterTest extends AbstractTest {
                                 signature,
                                 exceptions));
             }
-        }, false);
+        }, 0);
         byte[] b = cw.toByteArray();
         try {
             LOADER.defineClass(n, b);

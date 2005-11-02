@@ -60,7 +60,7 @@ public class SAXAdapterTest extends AbstractTest {
         TransformerHandler handler = saxtf.newTransformerHandler();
         handler.setResult(new SAXResult(new ASMContentHandler(bos, false)));
         handler.startDocument();
-        cr.accept(new SAXClassAdapter(handler, false), false);
+        cr.accept(new SAXClassAdapter(handler, false), 0);
         handler.endDocument();
 
         assertEquals(cr, new ClassReader(bos.toByteArray()));

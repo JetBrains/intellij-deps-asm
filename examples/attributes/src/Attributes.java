@@ -50,9 +50,9 @@ public class Attributes extends ClassLoader {
     public static void main(final String args[]) throws Exception {
         // loads the original class and adapts it
         ClassReader cr = new ClassReader("CommentAttribute");
-        ClassWriter cw = new ClassWriter(false);
+        ClassWriter cw = new ClassWriter(0);
         ClassVisitor cv = new AddCommentClassAdapter(cw);
-        cr.accept(cv, new Attribute[] { new CommentAttribute("") }, false);
+        cr.accept(cv, new Attribute[] { new CommentAttribute("") }, 0);
         byte[] b = cw.toByteArray();
 
         // stores the adapted class on disk
@@ -63,7 +63,7 @@ public class Attributes extends ClassLoader {
         // "disassembles" the adapted class
         cr = new ClassReader(b);
         cv = new TraceClassVisitor(new PrintWriter(System.out));
-        cr.accept(cv, new Attribute[] { new CommentAttribute("") }, false);
+        cr.accept(cv, new Attribute[] { new CommentAttribute("") }, 0);
     }
 }
 

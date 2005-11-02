@@ -52,7 +52,7 @@ public class SimpleVerifierTest extends AbstractTest {
     public void test() throws Exception {
         ClassReader cr = new ClassReader(is);
         ClassNode cn = new ClassNode();
-        cr.accept(cn, false);
+        cr.accept(cn, 0);
         List methods = cn.methods;
         for (int i = 0; i < methods.size(); ++i) {
             MethodNode method = (MethodNode) methods.get(i);

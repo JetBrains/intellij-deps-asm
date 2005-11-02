@@ -65,7 +65,7 @@ public class jbfc {
 
         FileReader r = new FileReader(fileName);
 
-        ClassWriter cw = new ClassWriter(true);
+        ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_MAXS);
         BFCompiler c = new BFCompiler();
         if (verbose) {
             c.compile(r, className, fileName, new TraceClassVisitor(cw,

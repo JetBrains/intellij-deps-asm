@@ -81,7 +81,7 @@ public class DependencyTracker {
             ZipEntry e = en.nextElement();
             String name = e.getName();
             if (name.endsWith(".class")) {
-                new ClassReader(f.getInputStream(e)).accept(v, false);
+                new ClassReader(f.getInputStream(e)).accept(v, 0);
             }
         }
         long l2 = System.currentTimeMillis();

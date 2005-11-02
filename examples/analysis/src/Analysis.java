@@ -54,7 +54,7 @@ public class Analysis implements Opcodes {
     public static void main(String[] args) throws Exception {
         ClassReader cr = new ClassReader("Analysis");
         ClassNode cn = new ClassNode();
-        cr.accept(cn, true);
+        cr.accept(cn, ClassReader.SKIP_DEBUG);
 
         List methods = cn.methods;
         for (int i = 0; i < methods.size(); ++i) {

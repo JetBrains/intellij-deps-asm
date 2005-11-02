@@ -37,7 +37,7 @@ package org.objectweb.asm;
  * @author Eric Bruneton
  * @author Eugene Kuleshov
  */
-class MethodWriter implements MethodVisitor, FrameVisitor {
+class MethodWriter implements MethodVisitor {
 
     /**
      * Pseudo access flag used to denote constructors.
@@ -207,6 +207,17 @@ class MethodWriter implements MethodVisitor, FrameVisitor {
     private ByteVector stackMap;
 
     /**
+     * The offset of the last frame that was written in the StackMapTable
+     * attribute.
+     */
+    private int previousFrameOffset;
+
+    /**
+     * TODO.
+     */
+    private int frameIndex;
+    
+    /**
      * The last frame that was written in the StackMapTable attribute.
      * 
      * @see #frame
@@ -223,11 +234,6 @@ class MethodWriter implements MethodVisitor, FrameVisitor {
      * same format as the one used in {@link Label}, but limited to BASE types.
      */
     private int[] frame;
-
-    /**
-     * Index of the next type to be written in {@link #frame}.
-     */
-    private int frameIndex;
 
     /**
      * Number of entries in the catch table of this method.
@@ -460,32 +466,98 @@ class MethodWriter implements MethodVisitor, FrameVisitor {
     public void visitCode() {
     }
 
-    public FrameVisitor visitFrame(final int nLocal, final int nStack) {
+    public void visitFrame(
+        final int type,
+        final int nLocal,
+        final Object[] local,
+        final int nStack,
+        final Object[] stack)
+    {
         if (computeFrames) {
-            return null;
-        } else {
-            FrameVisitor fv = visitFrame(code.length, nLocal, nStack);
-            if (nLocal == 0 && nStack == 0) {
-                endFrame();
-            }
-            return fv;
+            return;
         }
-    }
 
-    public void visitPrimitiveType(final int type) {
-        frame[frameIndex++] = /* Label.BASE | */type;
-        endFrame();
-    }
+        if (type == Opcodes.F_NEW) {
+            startFrame(code.length, nLocal, nStack);
+            for (int i = 0; i < nLocal; ++i) {
+                if (local[i] instanceof String) {
+                    frame[frameIndex++] = Label.OBJECT
+                            | cw.addType((String) local[i]);
+                } else if (local[i] instanceof Integer) {
+                    frame[frameIndex++] = ((Integer) local[i]).intValue();
+                } else {
+                    frame[frameIndex++] = Label.UNINITIALIZED
+                            | cw.addUninitializedType("",
+                                    ((Label) local[i]).position);
+                }
+            }
+            for (int i = 0; i < nStack; ++i) {
+                if (stack[i] instanceof String) {
+                    frame[frameIndex++] = Label.OBJECT
+                            | cw.addType((String) stack[i]);
+                } else if (stack[i] instanceof Integer) {
+                    frame[frameIndex++] = ((Integer) stack[i]).intValue();
+                } else {
+                    frame[frameIndex++] = Label.UNINITIALIZED
+                            | cw.addUninitializedType("",
+                                    ((Label) stack[i]).position);
+                }
+            }
+            endFrame();
+        } else {
+            int delta;
+            if (stackMap == null) {
+                stackMap = new ByteVector();
+                delta = code.length;
+            } else {
+                delta = code.length - previousFrameOffset - 1;
+            }
 
-    public void visitReferenceType(final String type) {
-        frame[frameIndex++] = Label.OBJECT | cw.addType(type);
-        endFrame();
-    }
+            switch (type) {
+                case Opcodes.F_FULL:
+                    stackMap.putByte(FULL_FRAME)
+                            .putShort(delta)
+                            .putShort(nLocal);
+                    for (int i = 0; i < nLocal; ++i) {
+                        writeFrameType(local[i]);
+                    }
+                    stackMap.putShort(nStack);
+                    for (int i = 0; i < nStack; ++i) {
+                        writeFrameType(stack[i]);
+                    }
+                    break;
+                case Opcodes.F_APPEND:
+                    stackMap.putByte(SAME_FRAME_EXTENDED + nLocal)
+                            .putShort(delta);
+                    for (int i = 0; i < nLocal; ++i) {
+                        writeFrameType(local[i]);
+                    }
+                    break;
+                case Opcodes.F_CHOP:
+                    stackMap.putByte(SAME_FRAME_EXTENDED - nLocal)
+                            .putShort(delta);
+                    break;
+                case Opcodes.F_SAME:
+                    if (delta < 64) {
+                        stackMap.putByte(delta);
+                    } else {
+                        stackMap.putByte(SAME_FRAME_EXTENDED).putShort(delta);
+                    }
+                    break;
+                case Opcodes.F_SAME1:
+                    if (delta < 64) {
+                        stackMap.putByte(SAME_LOCALS_1_STACK_ITEM_FRAME + delta);
+                    } else {
+                        stackMap.putByte(SAME_LOCALS_1_STACK_ITEM_FRAME_EXTENDED)
+                                .putShort(delta);
+                    }
+                    writeFrameType(stack[0]);
+                    break;
+            }
 
-    public void visitUninitializedType(final Label newInsn) {
-        frame[frameIndex++] = Label.UNINITIALIZED
-                | cw.addUninitializedType("", newInsn.position);
-        endFrame();
+            previousFrameOffset = code.length;
+            ++frameCount;
+        }
     }
 
     public void visitInsn(final int opcode) {
@@ -1205,7 +1277,7 @@ class MethodWriter implements MethodVisitor, FrameVisitor {
             }
         }
         // visits the frame and its content
-        visitFrame(block.position, nLocal, nStack);
+        startFrame(block.position, nLocal, nStack);
         for (i = 0; nLocal > 0; ++i, --nLocal) {
             t = locals[i];
             frame[frameIndex++] = t;
@@ -1230,12 +1302,8 @@ class MethodWriter implements MethodVisitor, FrameVisitor {
      *        corresponds.
      * @param nLocal the number of local variables in the frame.
      * @param nStack the number of stack elements in the frame.
-     * @return a visitor to visit the frame content.
      */
-    private FrameVisitor visitFrame(
-        final int offset,
-        final int nLocal,
-        final int nStack)
+    private void startFrame(final int offset, final int nLocal, final int nStack)
     {
         int n = 3 + nLocal + nStack;
         if (frame == null || frame.length < n) {
@@ -1245,7 +1313,6 @@ class MethodWriter implements MethodVisitor, FrameVisitor {
         frame[1] = nLocal;
         frame[2] = nStack;
         frameIndex = 3;
-        return this;
     }
 
     /**
@@ -1253,21 +1320,15 @@ class MethodWriter implements MethodVisitor, FrameVisitor {
      * if yes, write it in the StackMapTable attribute.
      */
     private void endFrame() {
-        if (frameIndex == 3 + frame[1] + frame[2]) {
-            if (previousFrame != null) { // do not write the first frame
-                if (stackMap == null) {
-                    stackMap = new ByteVector();
-                }
-                writeFrame();
-                ++frameCount;
+        if (previousFrame != null) { // do not write the first frame
+            if (stackMap == null) {
+                stackMap = new ByteVector();
             }
-            if (previousFrame == null || previousFrame.length < frame.length) {
-                previousFrame = frame;
-                frame = null;
-            } else {
-                System.arraycopy(frame, 0, previousFrame, 0, frame.length);
-            }
+            writeFrame();
+            ++frameCount;
         }
+        previousFrame = frame;
+        frame = null;
     }
 
     /**
@@ -1426,6 +1487,16 @@ class MethodWriter implements MethodVisitor, FrameVisitor {
                 }
                 stackMap.putByte(7).putShort(cw.newClass(buf.toString()));
             }
+        }
+    }
+
+    private void writeFrameType(final Object type) {
+        if (type instanceof String) {
+            stackMap.putByte(7).putShort(cw.newClass((String) type));
+        } else if (type instanceof Integer) {
+            stackMap.putByte(((Integer) type).intValue());
+        } else {
+            stackMap.putByte(8).putShort(((Label) type).position);
         }
     }
 
@@ -2094,7 +2165,7 @@ class MethodWriter implements MethodVisitor, FrameVisitor {
         }
 
         // updates the exception handler block labels
-        Handler h = catchTable;        
+        Handler h = catchTable;
         while (h != null) {
             getNewOffset(allIndexes, allSizes, h.start);
             getNewOffset(allIndexes, allSizes, h.end);

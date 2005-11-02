@@ -50,7 +50,7 @@ public class GASMifierClassVisitor extends ASMifierClassVisitor {
      */
     public static void main(final String[] args) throws Exception {
         int i = 0;
-        boolean skipDebug = true;
+        int flags = ClassReader.SKIP_DEBUG;
 
         boolean ok = true;
         if (args.length < 1 || args.length > 2) {
@@ -58,7 +58,7 @@ public class GASMifierClassVisitor extends ASMifierClassVisitor {
         }
         if (ok && args[0].equals("-debug")) {
             i = 1;
-            skipDebug = false;
+            flags = 0;
             if (args.length != 2) {
                 ok = false;
             }
@@ -77,7 +77,7 @@ public class GASMifierClassVisitor extends ASMifierClassVisitor {
         }
         cr.accept(new GASMifierClassVisitor(new PrintWriter(System.out)),
                 getDefaultAttributes(),
-                skipDebug);
+                flags);
     }
 
     public GASMifierClassVisitor(PrintWriter pw) {
@@ -99,7 +99,7 @@ public class GASMifierClassVisitor extends ASMifierClassVisitor {
         } else {
             n = 0;
         }
-        text.set(n + 5, "ClassWriter cw = new ClassWriter(true);\n");
+        text.set(n + 5, "ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_MAXS);\n");
         text.set(n + 7, "GeneratorAdapter mg;\n");
         text.add(n + 1, "import org.objectweb.asm.commons.*;\n");
     }

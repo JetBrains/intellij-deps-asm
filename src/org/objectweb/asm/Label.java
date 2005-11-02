@@ -843,7 +843,7 @@ public class Label {
     /**
      * The TOP type. This is a BASE type.
      */
-    final static int TOP = BASE | FrameVisitor.TOP;
+    final static int TOP = BASE | 0;
 
     /**
      * The BOOLEAN type. This is a BASE type mainly used for array types.
@@ -868,33 +868,32 @@ public class Label {
     /**
      * The INTEGER type. This is a BASE type.
      */
-    final static int INTEGER = BASE | FrameVisitor.INTEGER;
+    final static int INTEGER = BASE | 1;
 
     /**
      * The FLOAT type. This is a BASE type.
      */
-    final static int FLOAT = BASE | FrameVisitor.FLOAT;
+    final static int FLOAT = BASE | 2;
 
     /**
      * The DOUBLE type. This is a BASE type.
      */
-    final static int DOUBLE = BASE | FrameVisitor.DOUBLE;
+    final static int DOUBLE = BASE | 3;
 
     /**
      * The LONG type. This is a BASE type.
      */
-    final static int LONG = BASE | FrameVisitor.LONG;
+    final static int LONG = BASE | 4;
 
     /**
      * The NULL type. This is a BASE type.
      */
-    final static int NULL = BASE | FrameVisitor.NULL;
+    final static int NULL = BASE | 5;
 
     /**
      * The UNINITIALIZED_THIS type. This is a BASE type.
      */
-    final static int UNINITIALIZED_THIS = BASE
-            | FrameVisitor.UNINITIALIZED_THIS;
+    final static int UNINITIALIZED_THIS = BASE | 6;
 
     /**
      * Returns the output frame local variable type at the given index.

@@ -71,22 +71,22 @@ public class Shrinker {
         } else if (f.getName().endsWith(".class")) {
             ConstantPool cp = new ConstantPool();
             ClassReader cr = new ClassReader(new FileInputStream(f));
-            ClassWriter cw = new ClassWriter(false);
+            ClassWriter cw = new ClassWriter(0);
             ClassConstantsCollector ccc = new ClassConstantsCollector(cw, cp);
             ClassOptimizer co = new ClassOptimizer(ccc, mapping);
-            cr.accept(co, true);
+            cr.accept(co, ClassReader.SKIP_DEBUG);
 
             Set constants = new TreeSet(new ConstantComparator());
             constants.addAll(cp.values());
 
             cr = new ClassReader(cw.toByteArray());
-            cw = new ClassWriter(false);
+            cw = new ClassWriter(0);
             Iterator i = constants.iterator();
             while (i.hasNext()) {
                 Constant c = (Constant) i.next();
                 c.write(cw);
             }
-            cr.accept(cw, true);
+            cr.accept(cw, ClassReader.SKIP_DEBUG);
 
             String n = mapping.map(co.getClassName());
             File g = new File(d, n + ".class");

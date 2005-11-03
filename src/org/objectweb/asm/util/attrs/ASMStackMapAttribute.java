@@ -177,7 +177,7 @@ public class ASMStackMapAttribute extends StackMapAttribute implements
 
     public void trace(StringBuffer buf, Map labelNames) {
         List frames = getFrames();
-        buf.append("StackMapTable[\n");
+        buf.append("[\n");
         for (int i = 0; i < frames.size(); i++) {
             StackMapFrame f = (StackMapFrame) frames.get(i);
 

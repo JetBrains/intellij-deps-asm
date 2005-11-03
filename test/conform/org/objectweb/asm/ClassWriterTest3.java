@@ -66,9 +66,6 @@ public class ClassWriterTest3 extends AbstractTest {
 
     private static byte[] transformClass(byte[] clazz) {
         ClassReader cr = new ClassReader(clazz);
-        if (cr.readInt(4) != Opcodes.V1_6) {
-            return null;
-        }
         ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_FRAMES) {
             protected String getCommonSuperClass(
                 final String type1,
@@ -95,9 +92,27 @@ public class ClassWriterTest3 extends AbstractTest {
                     } while (!c.isAssignableFrom(d));
                     return c.getType().getInternalName();
                 }
-            }            
+            }
         };
-        cr.accept(cw, 0);
+        cr.accept(new ClassAdapter(cw) {
+
+            public void visit(
+                int version,
+                int access,
+                String name,
+                String signature,
+                String superName,
+                String[] interfaces)
+            {
+                super.visit(Opcodes.V1_6,
+                        access,
+                        name,
+                        signature,
+                        superName,
+                        interfaces);
+            }
+
+        }, 0);
         return cw.toByteArray();
     }
 
@@ -265,7 +280,8 @@ class ClassInfo {
 
     private boolean isSubclassOf(ClassInfo that) {
         for (ClassInfo c = this; c != null; c = c.getSuperclass()) {
-            if (c.getSuperclass() != null && c.getSuperclass().type.equals(that.type))
+            if (c.getSuperclass() != null
+                    && c.getSuperclass().type.equals(that.type))
                 return true;
         }
         return false;

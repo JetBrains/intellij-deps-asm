@@ -54,7 +54,6 @@ public class ClassWriterTest4 extends AbstractTest {
             {
                 String n = className.replace('/', '.');
                 if (agentArgs.length() == 0 || n.indexOf(agentArgs) != -1) {
-                    //System.out.println("transform " + n);
                     return transformClass(classFileBuffer);
                 } else {
                     return null;
@@ -65,9 +64,6 @@ public class ClassWriterTest4 extends AbstractTest {
 
     private static byte[] transformClass(byte[] clazz) {
         ClassReader cr = new ClassReader(clazz);
-        if (cr.readInt(4) != Opcodes.V1_6) {
-            return null;
-        }
         ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_FRAMES) {
             protected String getCommonSuperClass(
                 final String type1,
@@ -100,6 +96,22 @@ public class ClassWriterTest4 extends AbstractTest {
             
             private boolean transformed = false;
             
+            public void visit(
+                int version,
+                int access,
+                String name,
+                String signature,
+                String superName,
+                String[] interfaces)
+            {
+                super.visit(Opcodes.V1_6,
+                        access,
+                        name,
+                        signature,
+                        superName,
+                        interfaces);
+            }
+
             public MethodVisitor visitMethod(
                 final int access,
                 final String name,

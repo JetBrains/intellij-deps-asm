@@ -3,7 +3,7 @@
   <target name="test">
     <jar jarfile="${out.test}/agent4.jar">
       <fileset dir="${out}/build">
-        <include name="org/objectweb/asm/*.class"/>
+        <include name="org/objectweb/asm/**/*.class"/>
       </fileset>
       <fileset dir="${out}/test">
         <include name="org/objectweb/asm/*.class"/>

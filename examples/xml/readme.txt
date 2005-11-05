@@ -23,8 +23,8 @@
 
   You can use the following command to transform
 
-  java -jar asm-xml.jar <command> -in <src jar> -out <target jar>
-    -xslt <template file> [-singleDocument]
+  java -jar asm-xml-<version>.jar <in format> <out format> 
+       -in <input jar> -out <output jar> [-xslt <xslt fiel>]
 
-    where <command> is one of code2xml, code2code, xml2code, xml2xml, code2asm
+    where <in format> and <out format> is one of  code, xml or singlexml
 

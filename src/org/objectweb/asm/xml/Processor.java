@@ -339,11 +339,11 @@ public class Processor {
         long size = ze.getSize();
         if (size > -1) {
             byte[] buff = new byte[(int) size];
-            // int k = 0;
-            // while(( n = zis.read(buff, k, buff.length-k)) > 0) {
-            // k += n;
-            // }
-            zis.read(buff);
+            int k = 0;
+            int n;
+            while(( n = zis.read(buff, k, buff.length-k)) > 0) {
+              k += n;
+            }
             return buff;
         }
 

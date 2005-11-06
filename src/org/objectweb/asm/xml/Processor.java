@@ -380,8 +380,8 @@ public class Processor {
         int inRepresentation = getRepresentation(args[0]);
         int outRepresentation = getRepresentation(args[1]);
 
-        InputStream is = null;
-        OutputStream os = null;
+        InputStream is = System.in;
+        OutputStream os = new BufferedOutputStream(System.out);
 
         Source xslt = null;
         // boolean computeMax = true;
@@ -406,9 +406,7 @@ public class Processor {
             }
         }
 
-        if (is == null || os == null || inRepresentation == 0
-                || outRepresentation == 0)
-        {
+        if (inRepresentation == 0 || outRepresentation == 0) {
             showUsage();
             return;
         }

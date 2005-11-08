@@ -46,7 +46,7 @@ class MethodWriter implements MethodVisitor {
     /**
      * The class writer to which this method must be added.
      */
-    private ClassWriter cw;
+    ClassWriter cw;
 
     /**
      * Access flags of this method.
@@ -71,22 +71,32 @@ class MethodWriter implements MethodVisitor {
     private String descriptor;
 
     /**
-     * The index of the constant pool item that contains the signature of this
-     * method.
+     * Start of the attributes of this method in the associated ClassReader.
+     * TODO explain
      */
-    private int signature;
+    int classReaderOffset;
+
+    /**
+     * TODO
+     */
+    int classReaderLength;
+
+    /**
+     * The signature of this method.
+     */
+    String signature;
 
     /**
      * Number of exceptions that can be thrown by this method.
      */
-    private int exceptionCount;
+    int exceptionCount;
 
     /**
      * The exceptions that can be thrown by this method. More precisely, this
      * array contains the indexes of the constant pool items that contain the
      * internal names of these exception classes.
      */
-    private int[] exceptions;
+    int[] exceptions;
 
     /**
      * The annotation default attribute of this method. May be <tt>null</tt>.
@@ -510,9 +520,7 @@ class MethodWriter implements MethodVisitor {
         this.name = cw.newUTF8(name);
         this.desc = cw.newUTF8(desc);
         this.descriptor = desc;
-        if (signature != null) {
-            this.signature = cw.newUTF8(signature);
-        }
+        this.signature = signature;
         if (exceptions != null && exceptions.length > 0) {
             exceptionCount = exceptions.length;
             this.exceptions = new int[exceptionCount];
@@ -1165,6 +1173,9 @@ class MethodWriter implements MethodVisitor {
      * @return the size of the bytecode of this method.
      */
     final int getSize() {
+        if (classReaderOffset != 0) {
+            return 6 + classReaderLength;
+        }
         if (resize) {
             // replaces the temporary jump opcodes introduced by Label.resolve.
             resizeInstructions(new int[0], new int[0], 0);
@@ -1217,8 +1228,9 @@ class MethodWriter implements MethodVisitor {
                 size += 6;
             }
         }
-        if (signature != 0) {
+        if (signature != null) {
             cw.newUTF8("Signature");
+            cw.newUTF8(signature);
             size += 8;
         }
         if (annd != null) {
@@ -1261,6 +1273,10 @@ class MethodWriter implements MethodVisitor {
      */
     final void put(final ByteVector out) {
         out.putShort(access).putShort(name).putShort(desc);
+        if (classReaderOffset != 0) {
+            out.putByteArray(cw.cr.b, classReaderOffset, classReaderLength);
+            return;
+        }
         int attributeCount = 0;
         if (code.length > 0) {
             ++attributeCount;
@@ -1284,7 +1300,7 @@ class MethodWriter implements MethodVisitor {
                 ++attributeCount;
             }
         }
-        if (signature != 0) {
+        if (signature != null) {
             ++attributeCount;
         }
         if (annd != null) {
@@ -1388,8 +1404,10 @@ class MethodWriter implements MethodVisitor {
                 out.putShort(cw.newUTF8("Bridge")).putInt(0);
             }
         }
-        if (signature != 0) {
-            out.putShort(cw.newUTF8("Signature")).putInt(2).putShort(signature);
+        if (signature != null) {
+            out.putShort(cw.newUTF8("Signature"))
+                    .putInt(2)
+                    .putShort(cw.newUTF8(signature));
         }
         if (annd != null) {
             out.putShort(cw.newUTF8("AnnotationDefault"));

@@ -157,7 +157,7 @@ public class ClassReader {
      * 
      * @param classWriter the <code>ClassWriter</code> to copy constant pool into. 
      */
-    public void copyPool(ClassWriter classWriter) {
+    void copyPool(ClassWriter classWriter) {
         char[] buf = new char[maxStringLength];
         int ll = items.length;
         Item[] items2 = new Item[ll];
@@ -572,6 +572,7 @@ public class ClassReader {
         i = readUnsignedShort(u);
         u += 2;
         for (; i > 0; --i) {
+            int u0 = u + 6;
             access = readUnsignedShort(u);
             name = readUTF8(u + 2, c);
             desc = readUTF8(u + 4, c);
@@ -655,6 +656,33 @@ public class ClassReader {
                     exceptions);
 
             if (mv != null) {
+                if (mv instanceof MethodWriter) {
+                    MethodWriter mw = (MethodWriter) mv;
+                    if (mw.cw.cr == this) {
+                        if (signature == mw.signature) {
+                            boolean sameExceptions = false;
+                            if (exceptions == null) {
+                                sameExceptions = mw.exceptionCount == 0;
+                            } else {
+                                if (exceptions.length == mw.exceptionCount) {
+                                    sameExceptions = true;
+                                    for (j = exceptions.length - 1; j >= 0; --j) {
+                                        w -= 2;
+                                        if (mw.exceptions[j] != readUnsignedShort(w)) {
+                                            sameExceptions = false;
+                                            break;
+                                        }
+                                    }
+                                }
+                            }
+                            if (sameExceptions) {
+                                mw.classReaderOffset = u0;
+                                mw.classReaderLength = u - u0;
+                                continue;
+                            }
+                        }
+                    }
+                }
                 if (dann != 0) {
                     AnnotationVisitor dv = mv.visitAnnotationDefault();
                     readAnnotationValue(dann, c, null, dv);

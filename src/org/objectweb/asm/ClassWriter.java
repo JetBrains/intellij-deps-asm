@@ -186,6 +186,11 @@ public class ClassWriter implements ClassVisitor {
     final static int UTF8 = 1;
 
     /**
+     * The class reader from which this class writer was constructed, if any.
+     */
+    ClassReader cr;
+
+    /**
      * Minor and major version numbers of the class to be generated.
      */
     int version;
@@ -484,6 +489,23 @@ public class ClassWriter implements ClassVisitor {
         key3 = new Item();
         this.computeMaxs = computeMaxs;
         this.checkAttributes = !skipUnknownAttributes;
+    }
+
+    /**
+     * TODO.
+     * 
+     * @param cr
+     * @param computeMaxs
+     * @param skipUnknownAttributes
+     */
+    public ClassWriter(
+        final ClassReader cr,
+        final boolean computeMaxs,
+        final boolean skipUnknownAttributes)
+    {
+        this(computeMaxs, skipUnknownAttributes);
+        cr.copyPool(this);
+        this.cr = cr;
     }
 
     // ------------------------------------------------------------------------

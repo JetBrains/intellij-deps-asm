@@ -659,11 +659,11 @@ public class Frame {
     public String toString() {
         StringBuffer b = new StringBuffer();
         for (int i = 0; i < locals; ++i) {
-            b.append(values[i]);
+            b.append(values[i]).append(' ');
         }
         b.append(' ');
         for (int i = 0; i < top; ++i) {
-            b.append(values[i + locals].toString());
+            b.append(values[i + locals].toString()).append(' ');
         }
         return b.toString();
     }

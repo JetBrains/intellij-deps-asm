@@ -865,7 +865,7 @@ class MethodWriter implements MethodVisitor {
         if (computeMaxs) {
             int size;
             // computes the stack size variation
-            if (i.type == 'J' || i.type == 'D') {
+            if (i.type == ClassWriter.LONG || i.type == ClassWriter.DOUBLE) {
                 size = stackSize + 2;
             } else {
                 size = stackSize + 1;
@@ -878,7 +878,7 @@ class MethodWriter implements MethodVisitor {
         }
         // adds the instruction to the bytecode of the method
         int index = i.index;
-        if (i.type == 'J' || i.type == 'D') {
+        if (i.type == ClassWriter.LONG || i.type == ClassWriter.DOUBLE) {
             code.put12(20 /* LDC2_W */, index);
         } else if (index >= 256) {
             code.put12(19 /* LDC_W */, index);

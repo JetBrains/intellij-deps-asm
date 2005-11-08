@@ -49,7 +49,7 @@ public class TypeInsnNode extends AbstractInsnNode {
      * Constructs a new {@link TypeInsnNode}.
      * 
      * @param opcode the opcode of the type instruction to be constructed. This
-     *        opcode must be NEW, NEWARRAY, ANEWARRAY, CHECKCAST or INSTANCEOF.
+     *        opcode must be NEW, ANEWARRAY, CHECKCAST or INSTANCEOF.
      * @param desc the operand of the instruction to be constructed. This
      *        operand is a type descriptor (see {@link Type}).
      */

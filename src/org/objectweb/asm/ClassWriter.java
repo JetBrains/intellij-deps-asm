@@ -193,22 +193,22 @@ public class ClassWriter implements ClassVisitor {
     /**
      * Index of the next item to be added in the constant pool.
      */
-    private short index;
+    int index;
 
     /**
      * The constant pool of this class.
      */
-    private ByteVector pool;
+    ByteVector pool;
 
     /**
      * The constant pool's hash table data.
      */
-    private Item[] items;
+    Item[] items;
 
     /**
      * The threshold of the constant pool's hash table.
      */
-    private int threshold;
+    int threshold;
 
     /**
      * A reusable key used to look for items in the hash {@link #items items}.
@@ -841,7 +841,7 @@ public class ClassWriter implements ClassVisitor {
      * @return the index of a new or already existing UTF8 item.
      */
     public int newUTF8(final String value) {
-        key.set('s', value, null, null);
+        key.set(UTF8, value, null, null);
         Item result = get(key);
         if (result == null) {
             pool.putByte(UTF8).putUTF8(value);
@@ -874,7 +874,7 @@ public class ClassWriter implements ClassVisitor {
      * @return a new or already existing class reference item.
      */
     private Item newClassItem(final String value) {
-        key2.set('C', value, null, null);
+        key2.set(CLASS, value, null, null);
         Item result = get(key2);
         if (result == null) {
             pool.put12(CLASS, newUTF8(value));
@@ -897,7 +897,7 @@ public class ClassWriter implements ClassVisitor {
      */
     public int newField(final String owner, final String name, final String desc)
     {
-        key3.set('G', owner, name, desc);
+        key3.set(FIELD, owner, name, desc);
         Item result = get(key3);
         if (result == null) {
             put122(FIELD, newClass(owner), newNameType(name, desc));
@@ -923,10 +923,11 @@ public class ClassWriter implements ClassVisitor {
         final String desc,
         final boolean itf)
     {
-        key3.set(itf ? 'N' : 'M', owner, name, desc);
+        int type = itf ? IMETH : METH;
+        key3.set(type, owner, name, desc);
         Item result = get(key3);
         if (result == null) {
-            put122(itf ? IMETH : METH, newClass(owner), newNameType(name, desc));
+            put122(type, newClass(owner), newNameType(name, desc));
             result = new Item(index++, key3);
             put(result);
         }
@@ -1036,7 +1037,7 @@ public class ClassWriter implements ClassVisitor {
      * @return a new or already existing string item.
      */
     private Item newString(final String value) {
-        key2.set('S', value, null, null);
+        key2.set(STR, value, null, null);
         Item result = get(key2);
         if (result == null) {
             pool.put12(STR, newUTF8(value));
@@ -1057,7 +1058,7 @@ public class ClassWriter implements ClassVisitor {
      * @return the index of a new or already existing name and type item.
      */
     public int newNameType(final String name, final String desc) {
-        key2.set('T', name, desc, null);
+        key2.set(NAME_TYPE, name, desc, null);
         Item result = get(key2);
         if (result == null) {
             put122(NAME_TYPE, newUTF8(name), newUTF8(desc));
@@ -1076,15 +1077,11 @@ public class ClassWriter implements ClassVisitor {
      *         item, or <tt>null</tt> if there is no such item.
      */
     private Item get(final Item key) {
-        int h = key.hashCode;
-        Item i = items[h % items.length];
-        while (i != null) {
-            if (i.hashCode == h && key.isEqualTo(i)) {
-                return i;
-            }
+        Item i = items[key.hashCode % items.length];
+        while (i != null && !key.isEqualTo(i)) {
             i = i.next;
         }
-        return null;
+        return i;
     }
 
     /**
@@ -1094,9 +1091,12 @@ public class ClassWriter implements ClassVisitor {
      * @param i the item to be added to the constant pool's hash table.
      */
     private void put(final Item i) {
+//        puts++;
         if (index > threshold) {
-            Item[] newItems = new Item[items.length * 2 + 1];
-            for (int l = items.length - 1; l >= 0; --l) {
+            int ll = items.length;
+            int nl = ll * 2 + 1;
+            Item[] newItems = new Item[nl];
+            for (int l = ll - 1; l >= 0; --l) {
                 Item j = items[l];
                 while (j != null) {
                     int index = j.hashCode % newItems.length;
@@ -1107,7 +1107,7 @@ public class ClassWriter implements ClassVisitor {
                 }
             }
             items = newItems;
-            threshold = (int) (items.length * 0.75);
+            threshold = (int) (nl * 0.75);
         }
         int index = i.hashCode % items.length;
         i.next = items[index];

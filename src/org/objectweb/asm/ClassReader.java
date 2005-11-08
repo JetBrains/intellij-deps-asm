@@ -103,10 +103,11 @@ public class ClassReader {
         this.b = b;
         // parses the constant pool
         items = new int[readUnsignedShort(off + 8)];
-        strings = new String[items.length];
+        int ll = items.length;
+        strings = new String[ll];
         int max = 0;
         int index = off + 10;
-        for (int i = 1; i < items.length; ++i) {
+        for (int i = 1; i < ll; ++i) {
             items[i] = index + 1;
             int tag = b[index];
             int size;
@@ -143,6 +144,88 @@ public class ClassReader {
         header = index;
     }
 
+    /**
+     * Copy constant pool data into the given <code>ClassWriter</code>.
+     * Should be called before <code>accept()</code> method.
+     * 
+     * <pre>
+     *   ClassWriter cw = new ClassWriter(false, true);
+     *   ClassReader cr = new ClassReader(is);
+     *   cr.copyPool(cw);
+     *   cr.accept(new CustomClassAdapter(cw), false);
+     * </pre>
+     * 
+     * @param classWriter the <code>ClassWriter</code> to copy constant pool into. 
+     */
+    public void copyPool(ClassWriter classWriter) {
+        char[] buf = new char[maxStringLength];
+        int ll = items.length;
+        Item[] items2 = new Item[ll];
+        for (int i = 1; i < ll; i++) {
+            int index = items[i];
+            int tag = b[index-1];
+            Item item = new Item(i);
+            int nameType;
+            switch (tag) {
+                case ClassWriter.FIELD:
+                case ClassWriter.METH:
+                case ClassWriter.IMETH:
+                    nameType = items[readUnsignedShort(index+2)];
+                    item.set(tag, readClass(index, buf), readUTF8(nameType, buf), readUTF8(nameType+2, buf));
+                    break;
+                    
+                case ClassWriter.INT:
+                    item.set(readInt(index));
+                    break;
+                    
+                case ClassWriter.FLOAT:
+                    item.set(Float.intBitsToFloat(readInt(index)));
+                    break;
+                    
+                case ClassWriter.NAME_TYPE:
+                    item.set(tag, readUTF8(index, buf), readUTF8(index+2, buf), null);
+                    break;
+                    
+                case ClassWriter.LONG:
+                    item.set(readLong(index));
+                    ++i;
+                    break;
+
+                case ClassWriter.DOUBLE:
+                    item.set(Double.longBitsToDouble(readLong(index)));
+                    ++i;
+                    break;
+
+                case ClassWriter.UTF8:
+                    {
+                        String s = strings[i];
+                        if (s == null) {
+                            index = items[i];
+                            s = strings[i] = readUTF(index + 2, readUnsignedShort(index), buf);
+                        }
+                        item.set(tag, s, null, null);
+                    }
+                    break;
+
+                // case ClassWriter.STR:
+                // case ClassWriter.CLASS:
+                default:
+                    item.set(tag, readUTF8(index, buf), null, null);
+                    break;
+            }
+            
+            int index2 = item.hashCode % items2.length;
+            item.next = items2[index2];
+            items2[index2] = item;
+        }
+
+        int off = items[1]-1;
+        classWriter.pool.putByteArray(b, off, header-off);
+        classWriter.items = items2;
+        classWriter.threshold = (int) (0.75d * ll);
+        classWriter.index = ll;
+    }
+    
     /**
      * Constructs a new {@link ClassReader} object.
      * 

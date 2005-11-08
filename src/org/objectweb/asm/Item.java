@@ -40,7 +40,7 @@ final class Item {
     /**
      * Index of this item in the constant pool.
      */
-    short index;
+    int index;
 
     /**
      * Type of this constant pool item. A single class is used to represent all
@@ -50,7 +50,7 @@ final class Item {
      * Fieldref, Methodref, or InterfaceMethodref constant pool items
      * respectively).
      */
-    char type;
+    int type;
 
     /**
      * Value of this item, for an integer item.
@@ -107,13 +107,17 @@ final class Item {
     Item() {
     }
 
+    Item(int index) {
+        this.index = index;
+    }
+
     /**
      * Constructs a copy of the given item.
      * 
      * @param index index of the item to be constructed.
      * @param i the item that must be copied into the item to be constructed.
      */
-    Item(final short index, final Item i) {
+    Item(final int index, final Item i) {
         this.index = index;
         type = i.type;
         intVal = i.intVal;
@@ -132,7 +136,7 @@ final class Item {
      * @param intVal the value of this item.
      */
     void set(final int intVal) {
-        this.type = 'I';
+        this.type = ClassWriter.INT;
         this.intVal = intVal;
         this.hashCode = 0x7FFFFFFF & (type + intVal);
     }
@@ -143,7 +147,7 @@ final class Item {
      * @param longVal the value of this item.
      */
     void set(final long longVal) {
-        this.type = 'J';
+        this.type = ClassWriter.LONG;
         this.longVal = longVal;
         this.hashCode = 0x7FFFFFFF & (type + (int) longVal);
     }
@@ -154,7 +158,7 @@ final class Item {
      * @param floatVal the value of this item.
      */
     void set(final float floatVal) {
-        this.type = 'F';
+        this.type = ClassWriter.FLOAT;
         this.floatVal = floatVal;
         this.hashCode = 0x7FFFFFFF & (type + (int) floatVal);
     }
@@ -165,7 +169,7 @@ final class Item {
      * @param doubleVal the value of this item.
      */
     void set(final double doubleVal) {
-        this.type = 'D';
+        this.type = ClassWriter.DOUBLE;
         this.doubleVal = doubleVal;
         this.hashCode = 0x7FFFFFFF & (type + (int) doubleVal);
     }
@@ -179,7 +183,7 @@ final class Item {
      * @param strVal3 third part of the value of this item.
      */
     void set(
-        final char type,
+        final int type,
         final String strVal1,
         final String strVal2,
         final String strVal3)
@@ -189,12 +193,12 @@ final class Item {
         this.strVal2 = strVal2;
         this.strVal3 = strVal3;
         switch (type) {
-            case 's':
-            case 'S':
-            case 'C':
+            case ClassWriter.UTF8:
+            case ClassWriter.STR:
+            case ClassWriter.CLASS:
                 hashCode = 0x7FFFFFFF & (type + strVal1.hashCode());
                 return;
-            case 'T':
+            case ClassWriter.NAME_TYPE:
                 hashCode = 0x7FFFFFFF & (type + strVal1.hashCode()
                         * strVal2.hashCode());
                 return;
@@ -217,19 +221,19 @@ final class Item {
     boolean isEqualTo(final Item i) {
         if (i.type == type) {
             switch (type) {
-                case 'I':
+                case ClassWriter.INT:
                     return i.intVal == intVal;
-                case 'J':
+                case ClassWriter.LONG:
                     return i.longVal == longVal;
-                case 'F':
+                case ClassWriter.FLOAT:
                     return i.floatVal == floatVal;
-                case 'D':
+                case ClassWriter.DOUBLE:
                     return i.doubleVal == doubleVal;
-                case 's':
-                case 'S':
-                case 'C':
+                case ClassWriter.UTF8:
+                case ClassWriter.STR:
+                case ClassWriter.CLASS:
                     return i.strVal1.equals(strVal1);
-                case 'T':
+                case ClassWriter.NAME_TYPE:
                     return i.strVal1.equals(strVal1)
                             && i.strVal2.equals(strVal2);
                 // case 'G':

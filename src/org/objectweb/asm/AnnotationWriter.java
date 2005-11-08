@@ -183,7 +183,7 @@ final class AnnotationWriter implements AnnotationVisitor {
             }
         } else {
             Item i = cw.newConstItem(value);
-            bv.put12(i.type, i.index);
+            bv.put12(".s.IFJDCS".charAt(i.type), i.index);
         }
     }
 

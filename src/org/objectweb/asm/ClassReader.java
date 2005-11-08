@@ -145,15 +145,8 @@ public class ClassReader {
     }
 
     /**
-     * Copy constant pool data into the given <code>ClassWriter</code>.
+     * Copy constant pool data into the given <code>ClassWriter</code>
      * Should be called before <code>accept()</code> method.
-     * 
-     * <pre>
-     *   ClassWriter cw = new ClassWriter(false, true);
-     *   ClassReader cr = new ClassReader(is);
-     *   cr.copyPool(cw);
-     *   cr.accept(new CustomClassAdapter(cw), false);
-     * </pre>
      * 
      * @param classWriter the <code>ClassWriter</code> to copy constant pool into. 
      */

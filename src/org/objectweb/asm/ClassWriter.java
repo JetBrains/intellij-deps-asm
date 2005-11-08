@@ -492,20 +492,46 @@ public class ClassWriter implements ClassVisitor {
     }
 
     /**
-     * TODO.
+     * Constructs a new {@link ClassWriter} object and enable
+     * optimization for "mostly add" bytecode transformations.
+     * Such optimization take into account two things:
      * 
-     * @param cr
-     * @param computeMaxs
-     * @param skipUnknownAttributes
+     * <ul>
+     * <li>Constant pool from an original class would have additions only.
+     *    That saves time on recreating constant pool for a result class, but
+     *    unused constant pool entries won't be removed.</li>
+     * <li>When <code>ClassReader</code> visit a source bytecode with custom
+     *    visitor and receive <code>ClassWriter</code> instance for a 
+     *    <code>MethodVisitor</code> it can skip visiting completely and just
+     *    copy method body from the source class as is. That would save
+     *    significant processing time when transformation affects only
+     *    few methods of the source class.</li>
+     * </ul>     
+     * 
+     * @param classReader the <code>ClassReader</code> used to read
+     *        an original bytecode. It will be used to copy the entire class
+     *        constant pool from an oricinal class and also to copy
+     *        other fragments of original bytecode where applicable.
+     * @param computeMaxs <tt>true</tt> if the maximum stack size and the
+     *        maximum number of local variables must be automatically computed.
+     *        If this flag is <tt>true</tt>, then the arguments of the
+     *        {@link MethodVisitor#visitMaxs visitMaxs} method of the
+     *        {@link MethodVisitor} returned by the
+     *        {@link #visitMethod visitMethod} method will be ignored, and
+     *        computed automatically from the signature and the bytecode of each
+     *        method.
+     * @param skipUnknownAttributes <tt>true</tt> to silently ignore unknown
+     *        attributes, or <tt>false</tt> to throw an exception if an
+     *        unknown attribute is found.
      */
     public ClassWriter(
-        final ClassReader cr,
+        final ClassReader classReader,
         final boolean computeMaxs,
         final boolean skipUnknownAttributes)
     {
         this(computeMaxs, skipUnknownAttributes);
-        cr.copyPool(this);
-        this.cr = cr;
+        classReader.copyPool(this);
+        this.cr = classReader;
     }
 
     // ------------------------------------------------------------------------

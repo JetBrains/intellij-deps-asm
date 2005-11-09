@@ -112,11 +112,7 @@ public class ClassAdapter implements ClassVisitor {
         final String signature,
         final String[] exceptions)
     {
-        return new MethodAdapter(cv.visitMethod(access,
-                name,
-                desc,
-                signature,
-                exceptions));
+        return cv.visitMethod(access, name, desc, signature, exceptions);
     }
 
     public void visitEnd() {

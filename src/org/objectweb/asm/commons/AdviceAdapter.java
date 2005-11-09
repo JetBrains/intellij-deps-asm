@@ -33,7 +33,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import org.objectweb.asm.Label;
-import org.objectweb.asm.MethodAdapter;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
@@ -56,24 +55,30 @@ import org.objectweb.asm.Type;
  * @author Eugene Kuleshov
  * @author Eric Bruneton
  */
-public abstract class AdviceAdapter extends MethodAdapter implements Opcodes {
+public abstract class AdviceAdapter extends GeneratorAdapter implements Opcodes {
     private static final Object THIS = new Object();
     private static final Object OTHER = new Object();
 
     protected int methodAccess;
-    protected String methodName;
     protected String methodDesc;
+    
     private boolean constructor;
     private boolean superInitialized;
-    
     private ArrayList stackFrame;
     private HashMap branches;
 
     
+    /**
+     * Creates a new {@link AdviceAdapter}.
+     * 
+     * @param mv the method visitor to which this adapter delegates calls.
+     * @param access the method's access flags (see {@link Opcodes}).
+     * @param name the method's name.
+     * @param desc the method's descriptor (see {@link Type Type}).
+     */
     public AdviceAdapter(MethodVisitor mv, int access, String name, String desc) {
-        super(mv);
+        super(mv, access, name, desc);
         methodAccess = access;
-        methodName = name;
         methodDesc = desc;
 
         constructor = "<init>".equals(name);
@@ -109,15 +114,15 @@ public abstract class AdviceAdapter extends MethodAdapter implements Opcodes {
                 case FRETURN: // 1 before n/a after
                 case ARETURN: // 1 before n/a after
                 case ATHROW: // 1 before n/a after
-                    pop();
-                    pop();
+                    popValue();
+                    popValue();
                     onMethodExit(opcode);
                     break;
 
                 case LRETURN: // 2 before n/a after
                 case DRETURN: // 2 before n/a after
-                    pop();
-                    pop();
+                    popValue();
+                    popValue();
                     onMethodExit(opcode);
                     break;
 
@@ -153,15 +158,15 @@ public abstract class AdviceAdapter extends MethodAdapter implements Opcodes {
                 case F2D:
                 case I2L:
                 case I2D:
-                    push(OTHER);
+                    pushValue(OTHER);
                     break;
 
                 case LCONST_0:
                 case LCONST_1:
                 case DCONST_0:
                 case DCONST_1:
-                    push(OTHER);
-                    push(OTHER);
+                    pushValue(OTHER);
+                    pushValue(OTHER);
                     break;
 
                 case IALOAD: // remove 2 add 1
@@ -198,7 +203,7 @@ public abstract class AdviceAdapter extends MethodAdapter implements Opcodes {
                 case IXOR:
                 case MONITORENTER:
                 case MONITOREXIT:
-                    pop();
+                    popValue();
                     break;
 
                 case POP2:
@@ -215,8 +220,8 @@ public abstract class AdviceAdapter extends MethodAdapter implements Opcodes {
                 case DSUB:
                 case DDIV:
                 case DREM:
-                    pop();
-                    pop();
+                    popValue();
+                    popValue();
                     break;
 
                 case IASTORE:
@@ -228,94 +233,94 @@ public abstract class AdviceAdapter extends MethodAdapter implements Opcodes {
                 case LCMP: // 4 before 1 after
                 case DCMPL:
                 case DCMPG:
-                    pop();
-                    pop();
-                    pop();
+                    popValue();
+                    popValue();
+                    popValue();
                     break;
 
                 case LASTORE:
                 case DASTORE:
-                    pop();
-                    pop();
-                    pop();
-                    pop();
+                    popValue();
+                    popValue();
+                    popValue();
+                    popValue();
                     break;
 
                 case DUP:
-                    push(peek());
+                    pushValue(peekValue());
                     break;
 
                 case DUP_X1:
                 // TODO optimize this
                 {
-                    Object o1 = pop();
-                    Object o2 = pop();
-                    push(o1);
-                    push(o2);
-                    push(o1);
+                    Object o1 = popValue();
+                    Object o2 = popValue();
+                    pushValue(o1);
+                    pushValue(o2);
+                    pushValue(o1);
                 }
                     break;
 
                 case DUP_X2:
                 // TODO optimize this
                 {
-                    Object o1 = pop();
-                    Object o2 = pop();
-                    Object o3 = pop();
-                    push(o1);
-                    push(o3);
-                    push(o2);
-                    push(o1);
+                    Object o1 = popValue();
+                    Object o2 = popValue();
+                    Object o3 = popValue();
+                    pushValue(o1);
+                    pushValue(o3);
+                    pushValue(o2);
+                    pushValue(o1);
                 }
                     break;
 
                 case DUP2:
                 // TODO optimize this
                 {
-                    Object o1 = pop();
-                    Object o2 = pop();
-                    push(o2);
-                    push(o1);
-                    push(o2);
-                    push(o1);
+                    Object o1 = popValue();
+                    Object o2 = popValue();
+                    pushValue(o2);
+                    pushValue(o1);
+                    pushValue(o2);
+                    pushValue(o1);
                 }
                     break;
 
                 case DUP2_X1:
                 // TODO optimize this
                 {
-                    Object o1 = pop();
-                    Object o2 = pop();
-                    Object o3 = pop();
-                    push(o2);
-                    push(o1);
-                    push(o3);
-                    push(o2);
-                    push(o1);
+                    Object o1 = popValue();
+                    Object o2 = popValue();
+                    Object o3 = popValue();
+                    pushValue(o2);
+                    pushValue(o1);
+                    pushValue(o3);
+                    pushValue(o2);
+                    pushValue(o1);
                 }
                     break;
 
                 case DUP2_X2:
                 // TODO optimize this
                 {
-                    Object o1 = pop();
-                    Object o2 = pop();
-                    Object o3 = pop();
-                    Object o4 = pop();
-                    push(o2);
-                    push(o1);
-                    push(o4);
-                    push(o3);
-                    push(o2);
-                    push(o1);
+                    Object o1 = popValue();
+                    Object o2 = popValue();
+                    Object o3 = popValue();
+                    Object o4 = popValue();
+                    pushValue(o2);
+                    pushValue(o1);
+                    pushValue(o4);
+                    pushValue(o3);
+                    pushValue(o2);
+                    pushValue(o1);
                 }
                     break;
 
                 case SWAP: {
-                    Object o1 = pop();
-                    Object o2 = pop();
-                    push(o1);
-                    push(o2);
+                    Object o1 = popValue();
+                    Object o2 = popValue();
+                    pushValue(o1);
+                    pushValue(o2);
                 }
                     break;
             }
@@ -342,25 +347,25 @@ public abstract class AdviceAdapter extends MethodAdapter implements Opcodes {
             switch (opcode) {
                 case ILOAD:
                 case FLOAD:
-                    push(OTHER);
+                    pushValue(OTHER);
                     break;
                 case LLOAD:
                 case DLOAD:
-                    push(OTHER);
-                    push(OTHER);
+                    pushValue(OTHER);
+                    pushValue(OTHER);
                     break;
                 case ALOAD:
-                    push(var == 0 ? THIS : OTHER);
+                    pushValue(var == 0 ? THIS : OTHER);
                     break;
                 case ASTORE:
                 case ISTORE:
                 case FSTORE:
-                    pop();
+                    popValue();
                     break;
                 case LSTORE:
                 case DSTORE:
-                    pop();
-                    pop();
+                    popValue();
+                    popValue();
                     break;
             }
         }
@@ -379,28 +384,28 @@ public abstract class AdviceAdapter extends MethodAdapter implements Opcodes {
             boolean longOrDouble = c == 'J' || c == 'D';
             switch (opcode) {
                 case GETSTATIC:
-                    push(OTHER);
+                    pushValue(OTHER);
                     if (longOrDouble) {
-                        push(OTHER);
+                        pushValue(OTHER);
                     }
                     break;
                 case PUTSTATIC:
-                    pop();
+                    popValue();
                     if(longOrDouble) {
-                        pop();
+                        popValue();
                     }
                     break;
                 case PUTFIELD:
-                    pop();
+                    popValue();
                     if(longOrDouble) {
-                        pop();
-                        pop();
+                        popValue();
+                        popValue();
                     }
                     break;
                 // case GETFIELD:
                 default:
                     if (longOrDouble) {
-                        push(OTHER);
+                        pushValue(OTHER);
                     }
             }
         }
@@ -413,7 +418,7 @@ public abstract class AdviceAdapter extends MethodAdapter implements Opcodes {
             switch (opcode) {
                 case BIPUSH:
                 case SIPUSH:
-                    push(OTHER);
+                    pushValue(OTHER);
             }
         }
     }
@@ -422,9 +427,9 @@ public abstract class AdviceAdapter extends MethodAdapter implements Opcodes {
         mv.visitLdcInsn(cst);
 
         if (constructor) {
-            push(OTHER);
+            pushValue(OTHER);
             if (cst instanceof Double || cst instanceof Long) {
-                push(OTHER);
+                pushValue(OTHER);
             }
         }
     }
@@ -434,9 +439,9 @@ public abstract class AdviceAdapter extends MethodAdapter implements Opcodes {
 
         if (constructor) {
             for (int i = 0; i < dims; i++) {
-                pop();
+                popValue();
             }
-            push(OTHER);
+            pushValue(OTHER);
         }
     }
 
@@ -445,7 +450,7 @@ public abstract class AdviceAdapter extends MethodAdapter implements Opcodes {
 
         // ANEWARRAY, CHECKCAST or INSTANCEOF don't change stack
         if (constructor && opcode == NEW) {
-            push(OTHER);
+            pushValue(OTHER);
         }
     }
 
@@ -460,9 +465,9 @@ public abstract class AdviceAdapter extends MethodAdapter implements Opcodes {
         if (constructor) {
             Type[] types = Type.getArgumentTypes(desc);
             for (int i = 0; i < types.length; i++) {
-                pop();
+                popValue();
                 if (types[i].getSize() == 2) {
-                    pop();
+                    popValue();
                 }
             }
             switch (opcode) {
@@ -471,11 +476,11 @@ public abstract class AdviceAdapter extends MethodAdapter implements Opcodes {
 
                 case INVOKEINTERFACE:
                 case INVOKEVIRTUAL:
-                    pop(); // objectref
+                    popValue(); // objectref
                     break;
 
                 case INVOKESPECIAL:
-                    Object type = pop(); // objectref
+                    Object type = popValue(); // objectref
                     if (type == THIS && !superInitialized) {
                         onMethodEnter();
                         superInitialized = true;
@@ -488,9 +493,9 @@ public abstract class AdviceAdapter extends MethodAdapter implements Opcodes {
 
             Type returnType = Type.getReturnType(desc);
             if (returnType != Type.VOID_TYPE) {
-                push(OTHER);
+                pushValue(OTHER);
                 if (returnType.getSize() == 2) {
-                    push(OTHER);
+                    pushValue(OTHER);
                 }
             }
         }
@@ -509,7 +514,7 @@ public abstract class AdviceAdapter extends MethodAdapter implements Opcodes {
                 case IFLE:
                 case IFNULL:
                 case IFNONNULL:
-                    pop();
+                    popValue();
                     break;
 
                 case IF_ICMPEQ:
@@ -520,12 +525,12 @@ public abstract class AdviceAdapter extends MethodAdapter implements Opcodes {
                 case IF_ICMPLE:
                 case IF_ACMPEQ:
                 case IF_ACMPNE:
-                    pop();
-                    pop();
+                    popValue();
+                    popValue();
                     break;
 
                 case JSR:
-                    push(OTHER);
+                    pushValue(OTHER);
                     break;
             }
             addBranch(label);
@@ -536,7 +541,7 @@ public abstract class AdviceAdapter extends MethodAdapter implements Opcodes {
         mv.visitLookupSwitchInsn(dflt, keys, labels);
 
         if (constructor) {
-            pop();
+            popValue();
             addBranches(dflt, labels);
         }
     }
@@ -550,7 +555,7 @@ public abstract class AdviceAdapter extends MethodAdapter implements Opcodes {
         mv.visitTableSwitchInsn(min, max, dflt, labels);
 
         if (constructor) {
-            pop();
+            popValue();
             addBranches(dflt, labels);
         }
     }
@@ -571,20 +576,64 @@ public abstract class AdviceAdapter extends MethodAdapter implements Opcodes {
         branches.put(label, frame);
     }
 
-    private Object pop() {
+    private Object popValue() {
         return stackFrame.remove(stackFrame.size()-1);
     }
 
-    private Object peek() {
+    private Object peekValue() {
         return stackFrame.get(stackFrame.size()-1);
     }
     
-    private void push(Object o) {
+    private void pushValue(Object o) {
         stackFrame.add(o);
     }
     
+    /**
+     * Called at the beginning of the method or after super 
+     * class class call in the constructor.
+     * <br><br>
+     * 
+     * <i>Custom code can use or change all the local variables,
+     * but should not change state of the stack.</i>
+     */
     abstract void onMethodEnter();
 
+    /**
+     * Called before explicit exit from the method using either
+     * return or throw. Top element on the stack contains the 
+     * return value or exception instance. For example:
+     * 
+     * <pre>
+     *   public void onMethodExit(int opcode) {
+     *     if(opcode==RETURN) {
+     *         visitInsn(ACONST_NULL);
+     *     } else if(opcode==ARETURN || opcode==ATHROW) {
+     *         dup();
+     *     } else {
+     *         if(opcode==LRETURN || opcode==DRETURN) {
+     *             dup2();
+     *         } else {
+     *             dup();
+     *         }
+     *         box(Type.getReturnType(this.methodDesc));
+     *     }
+     *     visitMethodInsn(INVOKESTATIC, owner, "onExit", "(ILjava/lang/Object;)V");
+     *   }
+     *
+     *   // an actual call back method
+     *   public static void onExit(int opcode, Object param) {
+     *     ...
+     * </pre>
+     * 
+     * <br><br>
+     * 
+     * <i>Custom code can use or change all the local variables,
+     * but should not change state of the stack.</i>
+     * 
+     * @param opcode one of the RETURN, IRETURN, FRETURN, 
+     *   ARETURN, LRETURN, DRETURN or ATHROW
+     * 
+     */
     abstract void onMethodExit(int opcode);
 
     // TODO onException, onMethodCall

@@ -71,13 +71,18 @@ class MethodWriter implements MethodVisitor {
     private String descriptor;
 
     /**
-     * Start of the attributes of this method in the associated ClassReader.
-     * TODO explain
+     * If not zero, indicates that the code of this method must be copied from
+     * the ClassReader associated to this writer in <code>cw.cr</code>. More
+     * precisely, this field gives the index of the first byte to copied from
+     * <code>cw.cr.b</code>.
      */
     int classReaderOffset;
 
     /**
-     * TODO
+     * If not zero, indicates that the code of this method must be copied from
+     * the ClassReader associated to this writer in <code>cw.cr</code>. More
+     * precisely, this field gives the number of bytes to copied from
+     * <code>cw.cr.b</code>.
      */
     int classReaderLength;
 

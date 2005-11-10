@@ -43,6 +43,11 @@ public class Attribute {
     public final String type;
 
     /**
+     * The raw value of this attribute, used only for unknown attributes.
+     */
+    byte[] value;
+    
+    /**
      * The next attribute in this attribute list. May be <tt>null</tt>.
      */
     Attribute next;
@@ -119,7 +124,10 @@ public class Attribute {
         int codeOff,
         Label[] labels)
     {
-        return new Attribute(type);
+        Attribute attr = new Attribute(type);
+        attr.value = new byte[len];
+        System.arraycopy(cr.b, off, attr.value, 0, len);
+        return attr;
     }
 
     /**
@@ -149,7 +157,10 @@ public class Attribute {
         int maxStack,
         int maxLocals)
     {
-        return new ByteVector();
+        ByteVector v = new ByteVector();
+        v.data = value;
+        v.length = value.length;
+        return v;
     }
 
     /**
@@ -161,9 +172,7 @@ public class Attribute {
         int count = 0;
         Attribute attr = this;
         while (attr != null) {
-            if (!attr.isUnknown()) {
-                count += 1;
-            }
+            count += 1;
             attr = attr.next;
         }
         return count;
@@ -199,10 +208,8 @@ public class Attribute {
         Attribute attr = this;
         int size = 0;
         while (attr != null) {
-            if (!attr.isUnknown()) {
-                cw.newUTF8(attr.type);
-                size += attr.write(cw, code, len, maxStack, maxLocals).length + 6;
-            }
+            cw.newUTF8(attr.type);
+            size += attr.write(cw, code, len, maxStack, maxLocals).length + 6;
             attr = attr.next;
         }
         return size;
@@ -238,16 +245,9 @@ public class Attribute {
     {
         Attribute attr = this;
         while (attr != null) {
-            if (attr.isUnknown()) {
-                if (cw.checkAttributes) {
-                    throw new IllegalArgumentException("Unknown attribute type: "
-                            + attr.type);
-                }
-            } else {
-                ByteVector b = attr.write(cw, code, len, maxStack, maxLocals);
-                out.putShort(cw.newUTF8(attr.type)).putInt(b.length);
-                out.putByteArray(b.data, 0, b.length);
-            }
+            ByteVector b = attr.write(cw, code, len, maxStack, maxLocals);
+            out.putShort(cw.newUTF8(attr.type)).putInt(b.length);
+            out.putByteArray(b.data, 0, b.length);
             attr = attr.next;
         }
     }

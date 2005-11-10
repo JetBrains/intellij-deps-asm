@@ -349,11 +349,6 @@ public class ClassWriter implements ClassVisitor {
      */
     private boolean computeMaxs;
 
-    /**
-     * <tt>true</tt> to test that all attributes are known.
-     */
-    boolean checkAttributes;
-
     // ------------------------------------------------------------------------
     // Static initializer
     // ------------------------------------------------------------------------
@@ -472,9 +467,8 @@ public class ClassWriter implements ClassVisitor {
      *        {@link #visitMethod visitMethod} method will be ignored, and
      *        computed automatically from the signature and the bytecode of each
      *        method.
-     * @param skipUnknownAttributes <tt>true</tt> to silently ignore unknown
-     *        attributes, or <tt>false</tt> to throw an exception if an
-     *        unknown attribute is found.
+     * @param skipUnknownAttributes <b>Deprecated</b>. The value of this
+     *        parameter is ignored.
      */
     public ClassWriter(
         final boolean computeMaxs,
@@ -488,30 +482,29 @@ public class ClassWriter implements ClassVisitor {
         key2 = new Item();
         key3 = new Item();
         this.computeMaxs = computeMaxs;
-        this.checkAttributes = !skipUnknownAttributes;
     }
 
     /**
-     * Constructs a new {@link ClassWriter} object and enable
-     * optimization for "mostly add" bytecode transformations.
-     * Such optimization take into account two things:
+     * Constructs a new {@link ClassWriter} object and enables optimizations for
+     * "mostly add" bytecode transformations. These optimizations are the
+     * following:
      * 
-     * <ul>
-     * <li>Constant pool from an original class would have additions only.
-     *    That saves time on recreating constant pool for a result class, but
-     *    unused constant pool entries won't be removed.</li>
-     * <li>When <code>ClassReader</code> visit a source bytecode with custom
-     *    visitor and receive <code>ClassWriter</code> instance for a 
-     *    <code>MethodVisitor</code> it can skip visiting completely and just
-     *    copy method body from the source class as is. That would save
-     *    significant processing time when transformation affects only
-     *    few methods of the source class.</li>
-     * </ul>     
+     * <ul> <li>The constant pool from the original class is copied as is in
+     * the new class, which saves time. New constant pool entries will be added
+     * at the end if necessary, but unused constant pool entries <i>won't be
+     * removed</i>.</li> <li>Methods that are not transformed are copied as
+     * is in the new class, directly from the original class bytecode (i.e.
+     * without emitting visit events for all the method instructions), which
+     * saves a <i>lot</i> of time. Untransformed methods are detected by the
+     * fact that the {@link ClassReader} receives {@link MethodVisitor} objects
+     * that come from a {@link ClassWriter} (and not from a custom
+     * {@link ClassAdapter} or any other {@link ClassVisitor} instance).</li>
+     * </ul>
      * 
-     * @param classReader the <code>ClassReader</code> used to read
-     *        an original bytecode. It will be used to copy the entire class
-     *        constant pool from an oricinal class and also to copy
-     *        other fragments of original bytecode where applicable.
+     * @param classReader the {@link ClassReader} used to read the original
+     *        class. It will be used to copy the entire constant pool from the
+     *        original class and also to copy other fragments of original
+     *        bytecode where applicable.
      * @param computeMaxs <tt>true</tt> if the maximum stack size and the
      *        maximum number of local variables must be automatically computed.
      *        If this flag is <tt>true</tt>, then the arguments of the
@@ -520,16 +513,12 @@ public class ClassWriter implements ClassVisitor {
      *        {@link #visitMethod visitMethod} method will be ignored, and
      *        computed automatically from the signature and the bytecode of each
      *        method.
-     * @param skipUnknownAttributes <tt>true</tt> to silently ignore unknown
-     *        attributes, or <tt>false</tt> to throw an exception if an
-     *        unknown attribute is found.
      */
     public ClassWriter(
         final ClassReader classReader,
-        final boolean computeMaxs,
-        final boolean skipUnknownAttributes)
+        final boolean computeMaxs)
     {
-        this(computeMaxs, skipUnknownAttributes);
+        this(computeMaxs, false);
         classReader.copyPool(this);
         this.cr = classReader;
     }
@@ -1139,7 +1128,6 @@ public class ClassWriter implements ClassVisitor {
      * @param i the item to be added to the constant pool's hash table.
      */
     private void put(final Item i) {
-//        puts++;
         if (index > threshold) {
             int ll = items.length;
             int nl = ll * 2 + 1;

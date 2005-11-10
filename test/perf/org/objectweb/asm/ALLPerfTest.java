@@ -111,7 +111,7 @@ public abstract class ALLPerfTest extends ClassLoader {
             for (int j = 0; j < classes.size(); ++j) {
                 byte[] b = (byte[]) classes.get(j);
                 ClassReader cr = new ClassReader(b);
-                ClassWriter cw = new ClassWriter(cr, false, false);
+                ClassWriter cw = new ClassWriter(cr, false);
                 cr.accept(cw, false);
                 cw.toByteArray();
             }

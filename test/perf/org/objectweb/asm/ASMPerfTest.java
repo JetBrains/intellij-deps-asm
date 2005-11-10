@@ -111,24 +111,24 @@ public class ASMPerfTest extends ALLPerfTest {
                     signature,
                     exceptions);
             if (!name.equals("<init>")
-                    && (access & (ACC_STATIC + ACC_NATIVE + ACC_ABSTRACT)) == 0)
+                    && (access & (ACC_STATIC | ACC_NATIVE | ACC_ABSTRACT)) == 0)
             {
-                mv.visitVarInsn(ALOAD, 0);
-                mv.visitVarInsn(ALOAD, 0);
-                mv.visitFieldInsn(GETFIELD, owner, "_counter", "I");
-                mv.visitLdcInsn(ONE);
-                mv.visitInsn(IADD);
-                mv.visitFieldInsn(PUTFIELD, owner, "_counter", "I");
-                return new CounterCodeAdapter(mv);
+                return new CounterMethodAdapter(mv, owner);
             }
             return mv;
         }
     }
 
-    static class CounterCodeAdapter extends MethodAdapter {
+    static class CounterMethodAdapter extends MethodAdapter implements Opcodes {
 
-        CounterCodeAdapter(MethodVisitor mv) {
+        CounterMethodAdapter(MethodVisitor mv, String owner) {
             super(mv);
+            mv.visitVarInsn(ALOAD, 0);
+            mv.visitVarInsn(ALOAD, 0);
+            mv.visitFieldInsn(GETFIELD, owner, "_counter", "I");
+            mv.visitLdcInsn(ONE);
+            mv.visitInsn(IADD);
+            mv.visitFieldInsn(PUTFIELD, owner, "_counter", "I");
         }
 
         public void visitMaxs(int maxStack, int maxLocals) {

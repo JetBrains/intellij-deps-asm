@@ -49,6 +49,8 @@ public class ClassOptimizer extends ClassAdapter {
 
     private String className;
 
+    private String pkgName;
+
     public ClassOptimizer(final ClassVisitor cv, final NameMapping mapping) {
         super(cv);
         this.mapping = mapping;
@@ -71,6 +73,7 @@ public class ClassOptimizer extends ClassAdapter {
         final String[] interfaces)
     {
         className = name;
+        pkgName = name.substring(0, name.lastIndexOf('/'));
         cv.visit(version,
                 access,
                 mapping.map(name),
@@ -118,18 +121,28 @@ public class ClassOptimizer extends ClassAdapter {
         final String signature,
         final Object value)
     {
+        String s = className + "." + name;
         if ((access & (Opcodes.ACC_PUBLIC | Opcodes.ACC_PROTECTED)) == 0) {
             if ((access & Opcodes.ACC_FINAL) != 0
                     && (access & Opcodes.ACC_STATIC) != 0 && desc.equals("I"))
             {
                 return null;
             }
+            if (pkgName.equals("org/objectweb/asm")
+                    && mapping.map(s).equals(name))
+            {
+                System.out.println("INFO: " + s + " could be renamed");
+            }
             cv.visitField(access,
-                    mapping.map(className + "." + name),
+                    mapping.map(s),
                     mapping.fix(desc),
                     null,
                     value);
         } else {
+            if (!mapping.map(s).equals(name)) {
+                throw new RuntimeException("The public or protected field " + s
+                        + " must not be renamed.");
+            }
             cv.visitField(access, name, desc, null, value);
         }
         return null; // remove debug info
@@ -142,13 +155,23 @@ public class ClassOptimizer extends ClassAdapter {
         final String signature,
         final String[] exceptions)
     {
+        String s = className + "." + name + desc;
         if ((access & (Opcodes.ACC_PUBLIC | Opcodes.ACC_PROTECTED)) == 0) {
+            if (pkgName.equals("org/objectweb/asm") && !name.startsWith("<")
+                    && mapping.map(s).equals(name))
+            {
+                System.out.println("INFO: " + s + " could be renamed");
+            }
             return new MethodOptimizer(cv.visitMethod(access,
-                    mapping.map(className + "." + name + desc),
+                    mapping.map(s),
                     mapping.fix(desc),
                     null,
                     exceptions), mapping);
         } else {
+            if (!mapping.map(s).equals(name)) {
+                throw new RuntimeException("The public or protected method "
+                        + s + " must not be renamed.");
+            }
             return new MethodOptimizer(cv.visitMethod(access,
                     name,
                     desc,

@@ -51,14 +51,14 @@ public class ClassNode extends MemberNode implements ClassVisitor {
     public int version;
 
     /**
-     * The class's access flags (see {@link Opcodes}). This field also
-     * indicates if the class is deprecated.
+     * The class's access flags (see {@link org.objectweb.asm.Opcodes}). This
+     * field also indicates if the class is deprecated.
      */
     public int access;
 
     /**
      * The internal name of the class (see
-     * {@link Type#getInternalName() getInternalName}).
+     * {@link org.objectweb.asm.Type#getInternalName() getInternalName}).
      */
     public String name;
 
@@ -69,16 +69,16 @@ public class ClassNode extends MemberNode implements ClassVisitor {
 
     /**
      * The internal of name of the super class (see
-     * {@link Type#getInternalName() getInternalName}). For interfaces, the
-     * super class is {@link Object}. May be <tt>null</tt>, but only for the
-     * {@link Object} class.
+     * {@link org.objectweb.asm.Type#getInternalName() getInternalName}). For
+     * interfaces, the super class is {@link Object}. May be <tt>null</tt>,
+     * but only for the {@link Object} class.
      */
     public String superName;
 
     /**
      * The internal names of the class's interfaces (see
-     * {@link Type#getInternalName() getInternalName}). This list is a list of
-     * {@link String} objects.
+     * {@link org.objectweb.asm.Type#getInternalName() getInternalName}). This
+     * list is a list of {@link String} objects.
      */
     public final List interfaces;
 

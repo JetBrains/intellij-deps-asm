@@ -41,7 +41,7 @@ public class MethodInsnNode extends AbstractInsnNode {
 
     /**
      * The internal name of the method's owner class (see
-     * {@link Type#getInternalName() getInternalName}).
+     * {@link org.objectweb.asm.Type#getInternalName() getInternalName}).
      */
     public String owner;
 
@@ -51,7 +51,7 @@ public class MethodInsnNode extends AbstractInsnNode {
     public String name;
 
     /**
-     * The method's descriptor (see {@link Type}).
+     * The method's descriptor (see {@link org.objectweb.asm.Type}).
      */
     public String desc;
 
@@ -62,9 +62,9 @@ public class MethodInsnNode extends AbstractInsnNode {
      *        opcode must be INVOKEVIRTUAL, INVOKESPECIAL, INVOKESTATIC or
      *        INVOKEINTERFACE.
      * @param owner the internal name of the method's owner class (see
-     *        {@link Type#getInternalName() getInternalName}).
+     *        {@link org.objectweb.asm.Type#getInternalName() getInternalName}).
      * @param name the method's name.
-     * @param desc the method's descriptor (see {@link Type}).
+     * @param desc the method's descriptor (see {@link org.objectweb.asm.Type}).
      */
     public MethodInsnNode(
         final int opcode,

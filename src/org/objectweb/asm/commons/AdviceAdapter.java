@@ -341,7 +341,7 @@ public abstract class AdviceAdapter extends GeneratorAdapter implements Opcodes 
     }
 
     public void visitVarInsn(int opcode, int var) {
-        mv.visitVarInsn(opcode, var);
+        super.visitVarInsn(opcode, var);
 
         if (constructor) {
             switch (opcode) {

@@ -40,37 +40,67 @@ import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 
-
 public class AdviceAdapterTest extends AbstractTest {
 
     public static void main(String[] args) throws Exception {
         TestRunner.run(AdviceAdapterTest.suite());
     }
-    
+
     public static TestSuite suite() throws Exception {
         return new AdviceAdapterTest().getSuite();
     }
 
     public void test() throws Exception {
         ClassReader cr = new ClassReader(is);
-        ClassWriter cw = new ClassWriter(false, true);
-        ClassVisitor cv = new AdviceClassAdapter(cw);
-        cr.accept(cv, false);
-        assertEquals(cr, new ClassReader(cw.toByteArray()));
+        ClassWriter cw1 = new ClassWriter(false, true);
+        ClassWriter cw2 = new ClassWriter(false, true);
+        cr.accept(new ReferenceClassAdapter(cw1), false);
+        cr.accept(new AdviceClassAdapter(cw2), false);
+        assertEquals(new ClassReader(cw1.toByteArray()),
+                new ClassReader(cw2.toByteArray()));
     }
 
-    static class AdviceClassAdapter extends ClassAdapter implements Opcodes {
+    static class ReferenceClassAdapter extends ClassAdapter {
 
-        public AdviceClassAdapter(ClassVisitor cv) {
+        public ReferenceClassAdapter(final ClassVisitor cv) {
             super(cv);
         }
 
         public MethodVisitor visitMethod(
-            int access,
-            String name,
-            String desc,
-            String signature,
-            String[] exceptions)
+            final int access,
+            final String name,
+            final String desc,
+            final String signature,
+            final String[] exceptions)
+        {
+            MethodVisitor mv = cv.visitMethod(access,
+                    name,
+                    desc,
+                    signature,
+                    exceptions);
+
+            if (mv == null
+                    || (access & (Opcodes.ACC_ABSTRACT | Opcodes.ACC_NATIVE)) > 0)
+            {
+                return mv;
+            }
+
+            return new LocalVariablesSorter(access, desc, mv);
+        }
+    }
+
+    static class AdviceClassAdapter extends ClassAdapter {
+
+        public AdviceClassAdapter(final ClassVisitor cv) {
+            super(cv);
+        }
+
+        public MethodVisitor visitMethod(
+            final int access,
+            final String name,
+            final String desc,
+            final String signature,
+            final String[] exceptions)
         {
             MethodVisitor mv = cv.visitMethod(access,
                     name,
@@ -85,21 +115,19 @@ public class AdviceAdapterTest extends AbstractTest {
             }
 
             return new AdviceAdapter(mv, access, name, desc) {
-                    void onMethodEnter() {
-                        // mv.visitInsn(NOP);
-                        // mv.visitInsn(NOP);
-                        // mv.visitInsn(NOP);
-                    }
-    
-                    void onMethodExit(int opcode) {
-                        // mv.visitInsn(NOP);
-                        // mv.visitInsn(NOP);
-                        // mv.visitInsn(NOP);
-                        // mv.visitInsn(NOP);
-                    }
-                };
+                void onMethodEnter() {
+                    // mv.visitInsn(NOP);
+                    // mv.visitInsn(NOP);
+                    // mv.visitInsn(NOP);
+                }
+
+                void onMethodExit(int opcode) {
+                    // mv.visitInsn(NOP);
+                    // mv.visitInsn(NOP);
+                    // mv.visitInsn(NOP);
+                    // mv.visitInsn(NOP);
+                }
+            };
         }
     }
-
 }
-

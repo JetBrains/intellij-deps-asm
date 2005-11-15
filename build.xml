@@ -50,6 +50,7 @@
 
   <property name="out"                value="${basedir}/output"/>
   <property name="out.build"          value="${out}/build"/>
+  <property name="out.instr"          value="${out}/instr"/>
   <property name="out.dist"           value="${out}/dist"/>
   <property name="out.dist.lib"       value="${out.dist}/lib"/>
   <property name="out.dist.doc"       value="${out.dist}/doc"/>
@@ -148,6 +149,63 @@
 
   <target name="test" depends="compile">
     <ant antfile="${test}/build.xml" target="test" inheritRefs="true"/>
+  </target>
+
+  <target name="test.report">
+    <junitreport todir="${out.test}/reports">
+      <fileset dir="${out.test}/reports">
+        <include name="TEST-*.xml"/>
+      </fileset>
+      <report todir="${out.test}/reports"/>
+    </junitreport>
+  </target>
+
+  <path id="cobertura.classpath">
+    <fileset dir="test/lib">
+      <include name="cobertura-1.6.jar"/>
+      <include name="log4j-1.2.9.jar"/>
+      <include name="jakarta-oro-2.0.8.jar"/>
+      <include name="asm-2.0.jar"/>
+      <include name="ccl.jar"/>
+      <include name="javancss.jar"/>
+    </fileset>
+  </path>
+
+  <target name="coverage.init">
+    <property name="product.noshrink" value="true"/>
+    <taskdef classpathref="cobertura.classpath" resource="tasks.properties"/>
+  </target>
+
+  <target name="instrument" depends="coverage.init,compile">
+    <!-- Remove the coverage data file and any old instrumentation. -->
+    <delete file="cobertura.ser"/>
+    <delete dir="${out.instr}" />
+
+    <cobertura-instrument todir="${out.instr}">
+      <ignore regex="org.apache.log4j.*"/>
+      <fileset dir="${out.build}">
+        <include name="**/*.class" />
+        <exclude name="**/*Test*.class" />
+      </fileset>
+    </cobertura-instrument>
+    <copy todir="${out.build}" overwrite="true">
+      <fileset dir="${out.instr}"/>
+    </copy>
+  </target>
+
+  <target name="coverage" depends="instrument,test"/>
+
+  <target name="coverage.report" depends="coverage.init">
+    <!--
+      Generate an XML file containing the coverage data using
+      the "srcdir" attribute.
+    -->
+    <cobertura-report destdir="${out}/coverage" srcdir="${src}" format="xml"/>
+    <cobertura-report destdir="${out}/coverage">
+      <fileset dir="${src}">
+        <include name="**/*.java"/>
+      </fileset>
+    </cobertura-report>
   </target>
 
   <!-- =================================== -->
@@ -406,6 +464,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
     <delete dir="${out.tmp}"/>
     <delete dir="${out.zip}"/>
     <delete dir="${out.test}"/>
+    <delete dir="${out.instr}"/>
   </target>
 
   <!-- ==================================== -->

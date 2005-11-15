@@ -116,6 +116,7 @@
       <pathelement path="${serp.path}"/>  
       <pathelement path="${javassist.path}"/>
       <pathelement path="${janino.path}"/>
+      <path refid="cobertura.classpath"/>
     </path>
   </target>
   

@@ -115,13 +115,13 @@ public class AdviceAdapterTest extends AbstractTest {
             }
 
             return new AdviceAdapter(mv, access, name, desc) {
-                void onMethodEnter() {
+                protected void onMethodEnter() {
                     // mv.visitInsn(NOP);
                     // mv.visitInsn(NOP);
                     // mv.visitInsn(NOP);
                 }
 
-                void onMethodExit(int opcode) {
+                protected void onMethodExit(int opcode) {
                     // mv.visitInsn(NOP);
                     // mv.visitInsn(NOP);
                     // mv.visitInsn(NOP);

@@ -146,14 +146,14 @@ public class AdviceAdapterTest2 extends AbstractTest {
             }
 
             return new AdviceAdapter(mv, access, name, desc) {
-                    void onMethodEnter() {
+                    protected void onMethodEnter() {
                         mv.visitLdcInsn(cname+"."+name+desc);
                         mv.visitMethodInsn(INVOKESTATIC, 
                                 "org/objectweb/asm/commons/AdviceAdapterTest2", 
                                 "enter", "(Ljava/lang/String;)V");
                     }
     
-                    void onMethodExit(int opcode) {
+                    protected void onMethodExit(int opcode) {
                         mv.visitLdcInsn(cname+"."+name+desc);
                         mv.visitMethodInsn(INVOKESTATIC, 
                                 "org/objectweb/asm/commons/AdviceAdapterTest2", 

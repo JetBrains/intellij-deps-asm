@@ -596,7 +596,7 @@ public abstract class AdviceAdapter extends GeneratorAdapter implements Opcodes 
      * <i>Custom code can use or change all the local variables,
      * but should not change state of the stack.</i>
      */
-    abstract void onMethodEnter();
+    protected abstract void onMethodEnter();
 
     /**
      * Called before explicit exit from the method using either
@@ -634,7 +634,7 @@ public abstract class AdviceAdapter extends GeneratorAdapter implements Opcodes 
      *   ARETURN, LRETURN, DRETURN or ATHROW
      * 
      */
-    abstract void onMethodExit(int opcode);
+    protected abstract void onMethodExit(int opcode);
 
     // TODO onException, onMethodCall
     

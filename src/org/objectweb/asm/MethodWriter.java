@@ -158,7 +158,12 @@ class MethodWriter implements MethodVisitor {
     /**
      * The catch table of this method.
      */
-    private ByteVector catchTable;
+    private Handler catchTable;
+
+    /**
+     * The last element in the catchTable handler list.
+     */
+    private Handler lastHandler;
 
     /**
      * Number of entries in the LocalVariableTable attribute.
@@ -1008,13 +1013,18 @@ class MethodWriter implements MethodVisitor {
             }
         }
         ++catchCount;
-        if (catchTable == null) {
-            catchTable = new ByteVector();
+        Handler h = new Handler();
+        h.start = start;
+        h.end = end;
+        h.handler = handler;
+        h.desc = type;
+        h.type = type != null ? cw.newClass(type) : 0;
+        if (lastHandler == null) {
+            catchTable = h;
+        } else {
+            lastHandler.next = h;
         }
-        catchTable.putShort(start.position);
-        catchTable.putShort(end.position);
-        catchTable.putShort(handler.position);
-        catchTable.putShort(type != null ? cw.newClass(type) : 0);
+        lastHandler = h;
     }
 
     public void visitLocalVariable(
@@ -1350,7 +1360,14 @@ class MethodWriter implements MethodVisitor {
             out.putInt(code.length).putByteArray(code.data, 0, code.length);
             out.putShort(catchCount);
             if (catchCount > 0) {
-                out.putByteArray(catchTable.data, 0, catchTable.length);
+                Handler h = catchTable;
+                while (h != null) {
+                    out.putShort(h.start.position)
+                            .putShort(h.end.position)
+                            .putShort(h.handler.position)
+                            .putShort(h.type);
+                    h = h.next;
+                }
             }
             attributeCount = 0;
             if (localVar != null) {
@@ -1821,26 +1838,13 @@ class MethodWriter implements MethodVisitor {
             }
         }
 
-        // updates the instructions addresses in the
-        // catch, local var and line number tables
-        if (catchTable != null) {
-            b = catchTable.data;
-            u = 0;
-            while (u < catchTable.length) {
-                writeShort(b, u, getNewOffset(allIndexes,
-                        allSizes,
-                        0,
-                        readUnsignedShort(b, u)));
-                writeShort(b, u + 2, getNewOffset(allIndexes,
-                        allSizes,
-                        0,
-                        readUnsignedShort(b, u + 2)));
-                writeShort(b, u + 4, getNewOffset(allIndexes,
-                        allSizes,
-                        0,
-                        readUnsignedShort(b, u + 4)));
-                u += 8;
-            }
+        // updates the exception handler block labels
+        Handler h = catchTable;
+        while (h != null) {
+            getNewOffset(allIndexes, allSizes, h.start);
+            getNewOffset(allIndexes, allSizes, h.end);
+            getNewOffset(allIndexes, allSizes, h.handler);
+            h = h.next;
         }
         for (i = 0; i < 2; ++i) {
             ByteVector bv = i == 0 ? localVar : localVarType;
@@ -1977,5 +1981,32 @@ class MethodWriter implements MethodVisitor {
             }
         }
         return offset;
+    }
+    
+    /**
+     * Updates the offset of the given label.
+     * 
+     * @param indexes current positions of the instructions to be resized. Each
+     *        instruction must be designated by the index of its <i>last</i>
+     *        byte, plus one (or, in other words, by the index of the <i>first</i>
+     *        byte of the <i>next</i> instruction).
+     * @param sizes the number of bytes to be <i>added</i> to the above
+     *        instructions. More precisely, for each i < <tt>len</tt>,
+     *        <tt>sizes</tt>[i] bytes will be added at the end of the
+     *        instruction designated by <tt>indexes</tt>[i] or, if
+     *        <tt>sizes</tt>[i] is negative, the <i>last</i> |<tt>sizes[i]</tt>|
+     *        bytes of the instruction will be removed (the instruction size
+     *        <i>must not</i> become negative or null).
+     * @param label the label whose offset must be updated.
+     */
+    static void getNewOffset(
+        final int[] indexes,
+        final int[] sizes,
+        final Label label)
+    {
+        if (!label.resized) {
+            label.position = getNewOffset(indexes, sizes, 0, label.position);
+            label.resized = true;
+        }
     }
 }

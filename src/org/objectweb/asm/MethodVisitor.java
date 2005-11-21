@@ -38,9 +38,9 @@ package org.objectweb.asm;
  * <tt>visitLineNumber</tt>)* <tt>visitMaxs</tt> ] <tt>visitEnd</tt>. In
  * addition, the <tt>visit</tt><i>X</i>Insn</tt> and <tt>visitLabel</tt>
  * methods must be called in the sequential order of the bytecode instructions
- * of the visited code, and the <tt>visitTryCatchBlock</tt>, <tt>visitLocalVariable</tt>
- * and <tt>visitLineNumber</tt> methods must be called after the labels passed
- * as arguments have been visited.
+ * of the visited code, and the <tt>visitLocalVariable</tt> and <tt>visitLineNumber</tt>
+ * methods must be called after the labels passed as arguments have been
+ * visited.
  * 
  * @author Eric Bruneton
  */

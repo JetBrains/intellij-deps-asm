@@ -259,6 +259,9 @@ public class ASMifierMethodVisitor extends ASMifierAbstractVisitor implements
         final String type)
     {
         buf.setLength(0);
+        declareLabel(start);
+        declareLabel(end);
+        declareLabel(handler);
         buf.append("mv.visitTryCatchBlock(");
         appendLabel(start);
         buf.append(", ");

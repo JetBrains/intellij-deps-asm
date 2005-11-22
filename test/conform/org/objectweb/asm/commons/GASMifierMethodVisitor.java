@@ -879,6 +879,9 @@ public class GASMifierMethodVisitor extends ASMifierAbstractVisitor implements
         final String type)
     {
         buf.setLength(0);
+        declareLabel(start);
+        declareLabel(end);
+        declareLabel(handler);
         buf.append("mg.visitTryCatchBlock(");
         appendLabel(start);
         buf.append(", ");

@@ -504,16 +504,20 @@ public class CheckMethodAdapter extends MethodAdapter {
         final String type)
     {
         checkEnd();
-        checkLabel(start, true, "start label");
-        checkLabel(end, true, "end label");
-        checkLabel(handler, true, "handler label");
+        checkLabel(start, false, "start label");
+        checkLabel(end, false, "end label");
+        checkLabel(handler, false, "handler label");
+        if (labels.get(start) != null) {
+            throw new IllegalArgumentException("Invalid start label (must be visited after)");
+        }
+        if (labels.get(end) != null) {
+            throw new IllegalArgumentException("Invalid end label (must be visited after)");
+        }
+        if (labels.get(handler) != null) {
+            throw new IllegalArgumentException("Invalid handler label (must be visited after)");
+        }
         if (type != null) {
             checkInternalName(type, "type");
-        }
-        int s = ((Integer) labels.get(start)).intValue();
-        int e = ((Integer) labels.get(end)).intValue();
-        if (e < s) {
-            throw new IllegalArgumentException("Invalid start and end labels (end must be greater than start)");
         }
         mv.visitTryCatchBlock(start, end, handler, type);
     }

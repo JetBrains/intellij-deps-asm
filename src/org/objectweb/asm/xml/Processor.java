@@ -437,7 +437,7 @@ public class Processor {
     }
 
     private static void showUsage() {
-        System.err.println("Usage: Main <in format> <out format> [-in <input jar>] [-out <output jar>] [-xslt <xslt fiel>]");
+        System.err.println("Usage: Main <in format> <out format> [-in <input jar>] [-out <output jar>] [-xslt <xslt file>]");
         System.err.println("  when -in or -out is omitted sysin and sysout would be used");
         System.err.println("  <in format> and <out format> - code | xml | singlexml");
     }

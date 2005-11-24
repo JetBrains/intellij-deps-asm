@@ -38,10 +38,9 @@ package org.objectweb.asm;
  * <tt>visitLineNumber</tt>)* <tt>visitMaxs</tt> ] <tt>visitEnd</tt>. In
  * addition, the <tt>visit</tt><i>X</i>Insn</tt> and <tt>visitLabel</tt>
  * methods must be called in the sequential order of the bytecode instructions
- * of the visited code, <tt>visitTryCatchBlock</tt> must be called <i>before</i>
- * the labels passed as arguments have been visited, and the <tt>visitLocalVariable</tt>
- * and <tt>visitLineNumber</tt> methods must be called <i>after</i> the
- * labels passed as arguments have been visited.
+ * of the visited code, and the <tt>visitLocalVariable</tt> and <tt>visitLineNumber</tt>
+ * methods must be called <i>after</i> the labels passed as arguments have been
+ * visited.
  * 
  * @author Eric Bruneton
  */
@@ -255,8 +254,8 @@ public interface MethodVisitor {
     void visitMultiANewArrayInsn(String desc, int dims);
 
     // -------------------------------------------------------------------------
-    // Exceptions table entries, debug information, max stack size and max
-    // locals
+    // Exceptions table entries, debug information,
+    // max stack size and max locals
     // -------------------------------------------------------------------------
 
     /**
@@ -268,9 +267,6 @@ public interface MethodVisitor {
      * @param type internal name of the type of exceptions handled by the
      *        handler, or <tt>null</tt> to catch any exceptions (for "finally"
      *        blocks).
-     * @throws IllegalArgumentException if one of the labels has already been
-     *         visited by this visitor (by the {@link #visitLabel visitLabel}
-     *         method).
      */
     void visitTryCatchBlock(Label start, Label end, Label handler, String type);
 

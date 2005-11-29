@@ -226,6 +226,22 @@ public class GeneratorAdapter extends LocalVariablesSorter {
     /**
      * Creates a new {@link GeneratorAdapter}.
      * 
+     * @param mv the method visitor to which this adapter delegates calls.
+     * @param access the method's access flags (see {@link Opcodes}).
+     * @param name the method's name.
+     * @param desc the method's descriptor (see {@link Type Type}).
+     */
+    public GeneratorAdapter(MethodVisitor mv, int access, String name, String desc) {
+        super(access, desc, mv);
+        this.access = access;
+        this.returnType = Type.getReturnType(desc);
+        this.argumentTypes = Type.getArgumentTypes(desc);
+        this.localTypes = new ArrayList();
+    }
+    
+    /**
+     * Creates a new {@link GeneratorAdapter}.
+     * 
      * @param access access flags of the adapted method.
      * @param method the adapted method.
      * @param mv the method visitor to which this adapter delegates calls.

@@ -1274,6 +1274,7 @@ public class ClassReader {
                 int size = readUnsignedShort(v);
                 v += 2;
                 if (size == 0) {
+                    av.visitArray(name).visitEnd();
                     return v;
                 }
                 switch (readByte(v++)) {

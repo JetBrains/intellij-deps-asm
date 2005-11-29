@@ -45,10 +45,12 @@ final class Item {
     /**
      * Type of this constant pool item. A single class is used to represent all
      * constant pool item types, in order to minimize the bytecode size of this
-     * package. The value of this field is I, J, F, D, S, s, C, T, G, M, or N
-     * (for Constant Integer, Long, Float, Double, STR, UTF8, Class, NameType,
-     * Fieldref, Methodref, or InterfaceMethodref constant pool items
-     * respectively).
+     * package. The value of this field is one of {@link ClassWriter.INT},
+     * {@link ClassWriter.LONG}, {@link ClassWriter.FLOAT},
+     * {@link ClassWriter.DOUBLE}, {@link ClassWriter.UTF8},
+     * {@link ClassWriter.STR}, {@link ClassWriter.CLASS},
+     * {@link ClassWriter.NAME_TYPE}, {@link ClassWriter.FIELD},
+     * {@link ClassWriter.METH}, {@link ClassWriter.IMETH}.
      */
     int type;
 
@@ -202,9 +204,9 @@ final class Item {
                 hashCode = 0x7FFFFFFF & (type + strVal1.hashCode()
                         * strVal2.hashCode());
                 return;
-            // case 'G':
-            // case 'M':
-            // case 'N':
+            // ClassWriter.FIELD:
+            // ClassWriter.METH:
+            // ClassWriter.IMETH:                    
             default:
                 hashCode = 0x7FFFFFFF & (type + strVal1.hashCode()
                         * strVal2.hashCode() * strVal3.hashCode());
@@ -236,9 +238,9 @@ final class Item {
                 case ClassWriter.NAME_TYPE:
                     return i.strVal1.equals(strVal1)
                             && i.strVal2.equals(strVal2);
-                // case 'G':
-                // case 'M':
-                // case 'N':
+                // ClassWriter.FIELD:
+                // ClassWriter.METH:
+                // ClassWriter.IMETH:                    
                 default:
                     return i.strVal1.equals(strVal1)
                             && i.strVal2.equals(strVal2)

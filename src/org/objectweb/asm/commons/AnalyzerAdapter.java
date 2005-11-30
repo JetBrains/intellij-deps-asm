@@ -48,9 +48,9 @@ public class AnalyzerAdapter extends MethodAdapter {
 
     private List previousLocals;
 
-    public final List locals;
+    public List locals;
 
-    public final List stack;
+    public List stack;
 
     protected boolean delegate;
 
@@ -114,8 +114,13 @@ public class AnalyzerAdapter extends MethodAdapter {
         final int nStack,
         final Object[] stack)
     {
-        this.locals.clear();
-        this.stack.clear();
+        if (this.locals != null) {
+            this.locals.clear();
+            this.stack.clear();
+        } else {
+            this.locals = new ArrayList();
+            this.stack = new ArrayList();
+        }
         switch (type) {
             case Opcodes.F_NEW:
             case Opcodes.F_FULL:
@@ -160,6 +165,12 @@ public class AnalyzerAdapter extends MethodAdapter {
 
     public void visitInsn(final int opcode) {
         execute(opcode, 0, null);
+        if ((opcode >= Opcodes.IRETURN && opcode <= Opcodes.RETURN)
+                || opcode == Opcodes.ATHROW)
+        {
+            this.locals = null;
+            this.stack = null;
+        }
         if (delegate) {
             mv.visitInsn(opcode);
         }
@@ -235,6 +246,10 @@ public class AnalyzerAdapter extends MethodAdapter {
 
     public void visitJumpInsn(final int opcode, final Label label) {
         execute(opcode, 0, null);
+        if (opcode == Opcodes.GOTO) {
+            this.locals = null;
+            this.stack = null;
+        }
         if (delegate) {
             mv.visitJumpInsn(opcode, label);
         }
@@ -288,6 +303,8 @@ public class AnalyzerAdapter extends MethodAdapter {
         final Label labels[])
     {
         execute(Opcodes.TABLESWITCH, 0, null);
+        this.locals = null;
+        this.stack = null;
         if (delegate) {
             mv.visitTableSwitchInsn(min, max, dflt, labels);
         }
@@ -299,6 +316,8 @@ public class AnalyzerAdapter extends MethodAdapter {
         final Label labels[])
     {
         execute(Opcodes.LOOKUPSWITCH, 0, null);
+        this.locals = null;
+        this.stack = null;
         if (delegate) {
             mv.visitLookupSwitchInsn(dflt, keys, labels);
         }
@@ -392,6 +411,9 @@ public class AnalyzerAdapter extends MethodAdapter {
     }
 
     private void execute(final int opcode, final int iarg, final String sarg) {
+        if (this.locals == null) {
+            return;
+        }
         Object t1, t2, t3, t4;
         switch (opcode) {
             case Opcodes.NOP:

@@ -32,7 +32,6 @@ package org.objectweb.asm.tree;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 
@@ -52,7 +51,10 @@ import org.objectweb.asm.Opcodes;
 public class FrameNode extends AbstractInsnNode {
 
     /**
-     * TODO
+     * The type of this frame. Must be {@link Opcodes#F_NEW} for expanded
+     * frames, or {@link Opcodes#F_FULL}, {@link Opcodes#F_APPEND},
+     * {@link Opcodes#F_CHOP}, {@link Opcodes#F_SAME} or
+     * {@link Opcodes#F_APPEND}, {@link Opcodes#F_SAME1} for compressed frames.
      */
     public int type;
 
@@ -75,8 +77,21 @@ public class FrameNode extends AbstractInsnNode {
     /**
      * Constructs a new {@link FrameNode}.
      * 
+     * @param type the type of this frame. Must be {@link Opcodes#F_NEW} for
+     *        expanded frames, or {@link Opcodes#F_FULL},
+     *        {@link Opcodes#F_APPEND}, {@link Opcodes#F_CHOP},
+     *        {@link Opcodes#F_SAME} or {@link Opcodes#F_APPEND},
+     *        {@link Opcodes#F_SAME1} for compressed frames.
      * @param nLocal number of local variables of this stack map frame.
+     * @param local the types of the local variables of this stack map frame.
+     *        Elements of this list can be Integer, String or Label objects (for
+     *        primitive, reference and uninitialized types respectively - see
+     *        {@link MethodVisitor}).
      * @param nStack number of operand stack elements of this stack map frame.
+     * @param stack the types of the operand stack elements of this stack map
+     *        frame. Elements of this list can be Integer, String or Label
+     *        objects (for primitive, reference and uninitialized types
+     *        respectively - see {@link MethodVisitor}).
      */
     public FrameNode(
         final int type,

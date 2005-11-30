@@ -231,14 +231,19 @@ public class GeneratorAdapter extends LocalVariablesSorter {
      * @param name the method's name.
      * @param desc the method's descriptor (see {@link Type Type}).
      */
-    public GeneratorAdapter(MethodVisitor mv, int access, String name, String desc) {
+    public GeneratorAdapter(
+        MethodVisitor mv,
+        int access,
+        String name,
+        String desc)
+    {
         super(access, desc, mv);
         this.access = access;
         this.returnType = Type.getReturnType(desc);
         this.argumentTypes = Type.getArgumentTypes(desc);
         this.localTypes = new ArrayList();
     }
-    
+
     /**
      * Creates a new {@link GeneratorAdapter}.
      * 
@@ -562,6 +567,7 @@ public class GeneratorAdapter extends LocalVariablesSorter {
      * 
      * @param local a local variable identifier, as returned by {@link #newLocal
      *        newLocal}.
+     * @param type the type of this local variable.
      */
     public void loadLocal(final int local, final Type type) {
         setLocalType(local, type);
@@ -585,6 +591,7 @@ public class GeneratorAdapter extends LocalVariablesSorter {
      * 
      * @param local a local variable identifier, as returned by {@link #newLocal
      *        newLocal}.
+     * @param type the type of this local variable.
      */
     public void storeLocal(final int local, final Type type) {
         setLocalType(local, type);

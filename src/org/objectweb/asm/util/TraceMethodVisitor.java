@@ -33,6 +33,7 @@ import org.objectweb.asm.AnnotationVisitor;
 import org.objectweb.asm.Attribute;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Label;
+import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.signature.SignatureReader;
 import org.objectweb.asm.util.attrs.Traceable;
@@ -178,7 +179,7 @@ public class TraceMethodVisitor extends TraceAbstractVisitor implements
         buf.append(tab2)
                 .append(OPCODES[opcode])
                 .append(' ')
-                .append(operand)
+                .append(opcode==Opcodes.NEWARRAY ? TYPES[operand] : operand)
                 .append('\n');
         text.add(buf.toString());
 

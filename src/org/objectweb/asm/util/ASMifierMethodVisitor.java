@@ -32,6 +32,7 @@ package org.objectweb.asm.util;
 import org.objectweb.asm.AnnotationVisitor;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Label;
+import org.objectweb.asm.Opcodes;
 
 import java.util.HashMap;
 
@@ -98,7 +99,7 @@ public class ASMifierMethodVisitor extends ASMifierAbstractVisitor implements
         buf.append("mv.visitIntInsn(")
                 .append(OPCODES[opcode])
                 .append(", ")
-                .append(operand)
+                .append(opcode==Opcodes.NEWARRAY ? TYPES[operand] : operand)
                 .append(");\n");
         text.add(buf.toString());
     }

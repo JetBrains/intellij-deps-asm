@@ -41,8 +41,8 @@ import org.objectweb.asm.Type;
 /**
  * A {@link MethodAdapter} that renumbers local variables in their order of
  * appearance. This adapter allows one to easily add new local variables to a
- * method. {@link ClassWriter#COMPUTE_MAXS} <i>must be set to</i> <tt>true</tt> 
- * <i>when this adapter is used</i>.
+ * method. The {@link org.objectweb.asm.ClassWriter#COMPUTE_MAXS} flag <i>must
+ * be set when this adapter is used</i>.
  * 
  * @author Chris Nokleberg
  */

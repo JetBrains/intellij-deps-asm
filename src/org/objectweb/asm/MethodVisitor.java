@@ -165,7 +165,16 @@ public interface MethodVisitor {
      * 
      * @param opcode the opcode of the instruction to be visited. This opcode is
      *        either BIPUSH, SIPUSH or NEWARRAY.
-     * @param operand the operand of the instruction to be visited.
+     * @param operand the operand of the instruction to be visited.<br>
+     *        When opcode is BIPUSH, operand value should be between
+     *        Byte.MIN_VALUE and Byte.MAX_VALUE.<br>
+     *        When opcode is SIPUSH, operand value should be between
+     *        Short.MIN_VALUE and Short.MAX_VALUE.<br>
+     *        When opcode is NEWARRAY, operand value should be one of
+     *        {@link Opcodes.T_BOOLEAN}, {@link Opcodes.T_CHAR},
+     *        {@link Opcodes.T_FLOAT}, {@link Opcodes.T_DOUBLE},
+     *        {@link Opcodes.T_BYTE}, {@link Opcodes.T_SHORT},
+     *        {@link Opcodes.T_INT} or {@link Opcodes.T_LONG}.
      */
     void visitIntInsn(int opcode, int operand);
 

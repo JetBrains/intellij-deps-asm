@@ -487,16 +487,13 @@ public class StackMapTableAttribute extends Attribute {
             List locals;
 
             int offsetDelta;
-            int frameType;
             if (tag < SAME_LOCALS_1_STACK_ITEM_FRAME) {
-                frameType = SAME_FRAME;
                 offsetDelta = tag;
 
                 locals = new ArrayList(frame.locals);
                 stack = Collections.EMPTY_LIST;
 
             } else if (tag < RESERVED) {
-                frameType = SAME_LOCALS_1_STACK_ITEM_FRAME;
                 offsetDelta = tag - SAME_LOCALS_1_STACK_ITEM_FRAME;
 
                 locals = new ArrayList(frame.locals);
@@ -514,14 +511,12 @@ public class StackMapTableAttribute extends Attribute {
                 }
 
                 if (tag == SAME_LOCALS_1_STACK_ITEM_FRAME_EXTENDED) {
-                    frameType = SAME_LOCALS_1_STACK_ITEM_FRAME_EXTENDED;
                     locals = new ArrayList(frame.locals);
                     stack = new ArrayList();
                     // read verification_type_info stack[1];
                     off = readType(stack, isExtCodeSize, cr, off, labels, buf);
 
                 } else if (tag >= CHOP_FRAME && tag < SAME_FRAME_EXTENDED) {
-                    frameType = CHOP_FRAME;
                     stack = Collections.EMPTY_LIST;
 
                     int k = SAME_FRAME_EXTENDED - tag;
@@ -530,12 +525,10 @@ public class StackMapTableAttribute extends Attribute {
                             frame.locals.size() - k));
 
                 } else if (tag == SAME_FRAME_EXTENDED) {
-                    frameType = SAME_FRAME_EXTENDED;
                     stack = Collections.EMPTY_LIST;
                     locals = new ArrayList(frame.locals);
 
                 } else if ( /* tag>=APPEND && */tag < FULL_FRAME) {
-                    frameType = APPEND_FRAME;
                     stack = Collections.EMPTY_LIST;
 
                     // copy locals from prev frame and append new k
@@ -550,7 +543,6 @@ public class StackMapTableAttribute extends Attribute {
                     }
 
                 } else if (tag == FULL_FRAME) {
-                    frameType = FULL_FRAME;
 
                     // read verification_type_info locals[number_of_locals];
                     locals = new ArrayList();
@@ -616,7 +608,6 @@ public class StackMapTableAttribute extends Attribute {
         // skip the first frame
         StackMapFrame frame = (StackMapFrame) frames.get(0);
         List locals = frame.locals;
-        List stack = frame.stack;
         int offset = frame.label.getOffset();
 
         for (int i = 1; i < frames.size(); i++) {
@@ -630,7 +621,6 @@ public class StackMapTableAttribute extends Attribute {
             int cstackSize = cstack.size();
 
             int localsSize = locals.size();
-            int stackSize = stack.size();
 
             int delta = coffset - offset;
 
@@ -722,7 +712,6 @@ public class StackMapTableAttribute extends Attribute {
             }
             offset = coffset + 1; // compensating non first offset
             locals = clocals;
-            stack = cstack;
         }
         return bv;
     }
@@ -799,6 +788,10 @@ public class StackMapTableAttribute extends Attribute {
     /**
      * Use method signature and access flags to resolve initial locals state.
      * 
+     * @param className name of the method's owner class.
+     * @param access access flags of the method.
+     * @param methodName name of the method.
+     * @param methodDesc descriptor of the method.
      * @return list of <code>StackMapType</code> instances representing locals
      *         for an initial frame.
      */

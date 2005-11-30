@@ -38,10 +38,7 @@ import org.objectweb.asm.Attribute;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.ClassWriter;
-import org.objectweb.asm.Label;
 import org.objectweb.asm.util.TraceClassVisitor;
-import org.objectweb.asm.util.TraceMethodVisitor;
-import org.objectweb.asm.util.attrs.ASMStackMapAttribute;
 import org.objectweb.asm.util.attrs.ASMStackMapTableAttribute;
 
 /**
@@ -59,25 +56,9 @@ public class StackMapTableAttributeTest extends AbstractTest {
     }
 
     public void test() throws Exception {
-        Attribute[] tattributes = new Attribute[] { new StubStackMapTableAttribute() };
         Attribute[] attributes = new Attribute[] { new ASMStackMapTableAttribute() };
 
         ClassWriter cw = new ClassWriter(false);
-
-        TraceClassVisitor tv1 = new TraceClassVisitor(cw,
-                new PrintWriter(System.err));
-        TraceClassVisitor tv2 = new TraceClassVisitor(cw,
-                new PrintWriter(System.err))
-        {
-            protected TraceMethodVisitor createTraceMethodVisitor() {
-                return new TraceMethodVisitor() {
-                    protected void appendLabel(Label l) {
-                        super.appendLabel(l);
-                        buf.append(" " + System.identityHashCode(l));
-                    }
-                };
-            }
-        };
 
         ClassReader cr1 = new ClassReader(is);
         cr1.accept(cw, attributes, true);
@@ -95,40 +76,4 @@ public class StackMapTableAttributeTest extends AbstractTest {
         }
 
     }
-
-    private static final class StubStackMapTableAttribute extends Attribute {
-        private static String s = "0123456789ABCDEF";
-
-        private String data;
-
-        public StubStackMapTableAttribute() {
-            super("StackMapTable");
-        }
-
-        protected Attribute read(
-            ClassReader cr,
-            int off,
-            int len,
-            char[] buf,
-            int codeOff,
-            Label[] labels)
-        {
-            StringBuffer sb = new StringBuffer();
-            for (int i = 0; i < len; i++) {
-                int b = cr.readByte(off + i);
-                sb.append(s.charAt(b >> 4))
-                        .append(s.charAt(b & 0xF))
-                        .append(" ");
-            }
-            StubStackMapTableAttribute att = new StubStackMapTableAttribute();
-            att.data = sb.toString();
-            return att;
-        }
-
-        public String toString() {
-            return data;
-        }
-
-    }
-
 }

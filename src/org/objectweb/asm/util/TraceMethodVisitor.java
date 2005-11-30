@@ -221,7 +221,7 @@ public class TraceMethodVisitor extends TraceAbstractVisitor implements
         buf.append(tab2)
                 .append(OPCODES[opcode])
                 .append(' ')
-                .append(operand)
+                .append(opcode==Opcodes.NEWARRAY ? TYPES[operand] : operand)
                 .append('\n');
         text.add(buf.toString());
 

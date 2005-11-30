@@ -150,7 +150,7 @@ public class ASMifierMethodVisitor extends ASMifierAbstractVisitor implements
         buf.append("mv.visitIntInsn(")
                 .append(OPCODES[opcode])
                 .append(", ")
-                .append(operand)
+                .append(opcode==Opcodes.NEWARRAY ? TYPES[operand] : operand)
                 .append(");\n");
         text.add(buf.toString());
     }

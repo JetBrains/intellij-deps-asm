@@ -47,251 +47,53 @@ public abstract class AbstractVisitor {
      * The names of the Java Virtual Machine opcodes.
      */
     public final static String[] OPCODES;
+    /**
+     * Types for <code>operand</code> parameter of the 
+     * {@link MethodVisitor.visitIntInsn()} method when
+     * <code>opcode</code> is <code>NEWARRAY</code>.
+     */
+    public final static String[] TYPES;
 
     static {
-        String s = "DNOPLACONST_NULLJICONST_M1IICONST_0IICONST_1IICONST_2II"
-                + "CONST_3IICONST_4IICONST_5ILCONST_0ILCONST_1IFCONST_0IFCON"
-                + "ST_1IFCONST_2IDCONST_0IDCONST_1GBIPUSHGSIPUSHDLDCAAFILOAD"
-                + "FLLOADFFLOADFDLOADFALOADAAAAAAAAAAAAAAAAAAAAGIALOADGLALOA"
-                + "DGFALOADGDALOADGAALOADGBALOADGCALOADGSALOADGISTOREGLSTORE"
-                + "GFSTOREGDSTOREGASTOREAAAAAAAAAAAAAAAAAAAAHIASTOREHLASTORE"
-                + "HFASTOREHDASTOREHAASTOREHBASTOREHCASTOREHSASTOREDPOPEPOP2"
-                + "DDUPGDUP_X1GDUP_X2EDUP2HDUP2_X1HDUP2_X2ESWAPEIADDELADDEFA"
-                + "DDEDADDEISUBELSUBEFSUBEDSUBEIMULELMULEFMULEDMULEIDIVELDIV"
-                + "EFDIVEDDIVEIREMELREMEFREMEDREMEINEGELNEGEFNEGEDNEGEISHLEL"
-                + "SHLEISHRELSHRFIUSHRFLUSHREIANDELANDDIORDLOREIXORELXOREIIN"
-                + "CDI2LDI2FDI2DDL2IDL2FDL2DDF2IDF2LDF2DDD2IDD2LDD2FDI2BDI2C"
-                + "DI2SELCMPFFCMPLFFCMPGFDCMPLFDCMPGEIFEQEIFNEEIFLTEIFGEEIFG"
-                + "TEIFLEJIF_ICMPEQJIF_ICMPNEJIF_ICMPLTJIF_ICMPGEJIF_ICMPGTJ"
-                + "IF_ICMPLEJIF_ACMPEQJIF_ACMPNEEGOTODJSRDRETLTABLESWITCHMLO"
-                + "OKUPSWITCHHIRETURNHLRETURNHFRETURNHDRETURNHARETURNGRETURN"
-                + "JGETSTATICJPUTSTATICIGETFIELDIPUTFIELDNINVOKEVIRTUALNINVO"
-                + "KESPECIALMINVOKESTATICPINVOKEINTERFACEADNEWINEWARRAYJANEW"
-                + "ARRAYLARRAYLENGTHGATHROWJCHECKCASTKINSTANCEOFMMONITORENTE"
-                + "RLMONITOREXITAOMULTIANEWARRAYGIFNULLJIFNONNULL";
+        String s = "NOP,ACONST_NULL,ICONST_M1,ICONST_0,ICONST_1,ICONST_2," +
+                "ICONST_3,ICONST_4,ICONST_5,LCONST_0,LCONST_1,FCONST_0," +
+                "FCONST_1,FCONST_2,DCONST_0,DCONST_1,BIPUSH,SIPUSH,LDC,,," +
+                "ILOAD,LLOAD,FLOAD,DLOAD,ALOAD,,,,,,,,,,,,,,,,,,,,,IALOAD," +
+                "LALOAD,FALOAD,DALOAD,AALOAD,BALOAD,CALOAD,SALOAD,ISTORE," +
+                "LSTORE,FSTORE,DSTORE,ASTORE,,,,,,,,,,,,,,,,,,,,,IASTORE," +
+                "LASTORE,FASTORE,DASTORE,AASTORE,BASTORE,CASTORE,SASTORE,POP," +
+                "POP2,DUP,DUP_X1,DUP_X2,DUP2,DUP2_X1,DUP2_X2,SWAP,IADD,LADD," +
+                "FADD,DADD,ISUB,LSUB,FSUB,DSUB,IMUL,LMUL,FMUL,DMUL,IDIV,LDIV," +
+                "FDIV,DDIV,IREM,LREM,FREM,DREM,INEG,LNEG,FNEG,DNEG,ISHL,LSHL," +
+                "ISHR,LSHR,IUSHR,LUSHR,IAND,LAND,IOR,LOR,IXOR,LXOR,IINC,I2L," +
+                "I2F,I2D,L2I,L2F,L2D,F2I,F2L,F2D,D2I,D2L,D2F,I2B,I2C,I2S,LCMP," +
+                "FCMPL,FCMPG,DCMPL,DCMPG,IFEQ,IFNE,IFLT,IFGE,IFGT,IFLE," +
+                "IF_ICMPEQ,IF_ICMPNE,IF_ICMPLT,IF_ICMPGE,IF_ICMPGT,IF_ICMPLE," +
+                "IF_ACMPEQ,IF_ACMPNE,GOTO,JSR,RET,TABLESWITCH,LOOKUPSWITCH," +
+                "IRETURN,LRETURN,FRETURN,DRETURN,ARETURN,RETURN,GETSTATIC," +
+                "PUTSTATIC,GETFIELD,PUTFIELD,INVOKEVIRTUAL,INVOKESPECIAL," +
+                "INVOKESTATIC,INVOKEINTERFACE,,NEW,NEWARRAY,ANEWARRAY," +
+                "ARRAYLENGTH,ATHROW,CHECKCAST,INSTANCEOF,MONITORENTER," +
+                "MONITOREXIT,,MULTIANEWARRAY,IFNULL,IFNONNULL,";
         OPCODES = new String[200];
         int i = 0;
-        int len = 0;
-        for (int j = 0; j < s.length(); j += len) {
-            len = s.charAt(j++) - 'A';
-            OPCODES[i++] = len == 0 ? null : s.substring(j, j + len);
+        int j = 0;
+        int l;
+        while((l = s.indexOf(',', j))>0) {
+            OPCODES[i++] = j+1==l ? null : s.substring(j, l);
+            j = l+1;
+        }
+
+        s = "T_BOOLEAN,T_CHAR,T_FLOAT,T_DOUBLE,T_BYTE,T_SHORT,T_INT,T_LONG,";
+        TYPES = new String[12];
+        j = 0;
+        i = 4;
+        while((l = s.indexOf(',', j))>0) {
+            TYPES[i++] = s.substring(j, l);
+            j = l+1;
         }
     }
 
-    // code to generate the above string
-    // public static void main (String[] args) {
-    // String[] OPCODES = {
-    // "NOP",
-    // "ACONST_NULL",
-    // "ICONST_M1",
-    // "ICONST_0",
-    // "ICONST_1",
-    // "ICONST_2",
-    // "ICONST_3",
-    // "ICONST_4",
-    // "ICONST_5",
-    // "LCONST_0",
-    // "LCONST_1",
-    // "FCONST_0",
-    // "FCONST_1",
-    // "FCONST_2",
-    // "DCONST_0",
-    // "DCONST_1",
-    // "BIPUSH",
-    // "SIPUSH",
-    // "LDC",
-    // null,
-    // null,
-    // "ILOAD",
-    // "LLOAD",
-    // "FLOAD",
-    // "DLOAD",
-    // "ALOAD",
-    // null,
-    // null,
-    // null,
-    // null,
-    // null,
-    // null,
-    // null,
-    // null,
-    // null,
-    // null,
-    // null,
-    // null,
-    // null,
-    // null,
-    // null,
-    // null,
-    // null,
-    // null,
-    // null,
-    // null,
-    // "IALOAD",
-    // "LALOAD",
-    // "FALOAD",
-    // "DALOAD",
-    // "AALOAD",
-    // "BALOAD",
-    // "CALOAD",
-    // "SALOAD",
-    // "ISTORE",
-    // "LSTORE",
-    // "FSTORE",
-    // "DSTORE",
-    // "ASTORE",
-    // null,
-    // null,
-    // null,
-    // null,
-    // null,
-    // null,
-    // null,
-    // null,
-    // null,
-    // null,
-    // null,
-    // null,
-    // null,
-    // null,
-    // null,
-    // null,
-    // null,
-    // null,
-    // null,
-    // null,
-    // "IASTORE",
-    // "LASTORE",
-    // "FASTORE",
-    // "DASTORE",
-    // "AASTORE",
-    // "BASTORE",
-    // "CASTORE",
-    // "SASTORE",
-    // "POP",
-    // "POP2",
-    // "DUP",
-    // "DUP_X1",
-    // "DUP_X2",
-    // "DUP2",
-    // "DUP2_X1",
-    // "DUP2_X2",
-    // "SWAP",
-    // "IADD",
-    // "LADD",
-    // "FADD",
-    // "DADD",
-    // "ISUB",
-    // "LSUB",
-    // "FSUB",
-    // "DSUB",
-    // "IMUL",
-    // "LMUL",
-    // "FMUL",
-    // "DMUL",
-    // "IDIV",
-    // "LDIV",
-    // "FDIV",
-    // "DDIV",
-    // "IREM",
-    // "LREM",
-    // "FREM",
-    // "DREM",
-    // "INEG",
-    // "LNEG",
-    // "FNEG",
-    // "DNEG",
-    // "ISHL",
-    // "LSHL",
-    // "ISHR",
-    // "LSHR",
-    // "IUSHR",
-    // "LUSHR",
-    // "IAND",
-    // "LAND",
-    // "IOR",
-    // "LOR",
-    // "IXOR",
-    // "LXOR",
-    // "IINC",
-    // "I2L",
-    // "I2F",
-    // "I2D",
-    // "L2I",
-    // "L2F",
-    // "L2D",
-    // "F2I",
-    // "F2L",
-    // "F2D",
-    // "D2I",
-    // "D2L",
-    // "D2F",
-    // "I2B",
-    // "I2C",
-    // "I2S",
-    // "LCMP",
-    // "FCMPL",
-    // "FCMPG",
-    // "DCMPL",
-    // "DCMPG",
-    // "IFEQ",
-    // "IFNE",
-    // "IFLT",
-    // "IFGE",
-    // "IFGT",
-    // "IFLE",
-    // "IF_ICMPEQ",
-    // "IF_ICMPNE",
-    // "IF_ICMPLT",
-    // "IF_ICMPGE",
-    // "IF_ICMPGT",
-    // "IF_ICMPLE",
-    // "IF_ACMPEQ",
-    // "IF_ACMPNE",
-    // "GOTO",
-    // "JSR",
-    // "RET",
-    // "TABLESWITCH",
-    // "LOOKUPSWITCH",
-    // "IRETURN",
-    // "LRETURN",
-    // "FRETURN",
-    // "DRETURN",
-    // "ARETURN",
-    // "RETURN",
-    // "GETSTATIC",
-    // "PUTSTATIC",
-    // "GETFIELD",
-    // "PUTFIELD",
-    // "INVOKEVIRTUAL",
-    // "INVOKESPECIAL",
-    // "INVOKESTATIC",
-    // "INVOKEINTERFACE",
-    // null,
-    // "NEW",
-    // "NEWARRAY",
-    // "ANEWARRAY",
-    // "ARRAYLENGTH",
-    // "ATHROW",
-    // "CHECKCAST",
-    // "INSTANCEOF",
-    // "MONITORENTER",
-    // "MONITOREXIT",
-    // null,
-    // "MULTIANEWARRAY",
-    // "IFNULL",
-    // "IFNONNULL"
-    // };
-    // for (int i = 0; i < OPCODES.length; ++i) {
-    // if (OPCODES[i] == null) {
-    // System.out.print('A');
-    // } else {
-    // System.out.print((char)(OPCODES[i].length() + 'A'));
-    // System.out.print(OPCODES[i]);
-    // }
-    // }
-    // System.out.println();
-    // }
 
     /**
      * The text to be printed. Since the code of methods is not necessarily

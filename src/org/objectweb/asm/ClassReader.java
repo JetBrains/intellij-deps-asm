@@ -163,6 +163,88 @@ public class ClassReader {
     }
 
     /**
+     * Copies the constant pool data into the given {@link ClassWriter}. Should
+     * be called before the {@link #accept(ClassVisitor,int)} method.
+     * 
+     * @param classWriter the {@link ClassWriter} to copy constant pool into.
+     */
+    void copyPool(final ClassWriter classWriter) {
+        char[] buf = new char[maxStringLength];
+        int ll = items.length;
+        Item[] items2 = new Item[ll];
+        for (int i = 1; i < ll; i++) {
+            int index = items[i];
+            int tag = b[index - 1];
+            Item item = new Item(i);
+            int nameType;
+            switch (tag) {
+                case ClassWriter.FIELD:
+                case ClassWriter.METH:
+                case ClassWriter.IMETH:
+                    nameType = items[readUnsignedShort(index + 2)];
+                    item.set(tag,
+                            readClass(index, buf),
+                            readUTF8(nameType, buf),
+                            readUTF8(nameType + 2, buf));
+                    break;
+
+                case ClassWriter.INT:
+                    item.set(readInt(index));
+                    break;
+
+                case ClassWriter.FLOAT:
+                    item.set(Float.intBitsToFloat(readInt(index)));
+                    break;
+
+                case ClassWriter.NAME_TYPE:
+                    item.set(tag,
+                            readUTF8(index, buf),
+                            readUTF8(index + 2, buf),
+                            null);
+                    break;
+
+                case ClassWriter.LONG:
+                    item.set(readLong(index));
+                    ++i;
+                    break;
+
+                case ClassWriter.DOUBLE:
+                    item.set(Double.longBitsToDouble(readLong(index)));
+                    ++i;
+                    break;
+
+                case ClassWriter.UTF8: {
+                    String s = strings[i];
+                    if (s == null) {
+                        index = items[i];
+                        s = strings[i] = readUTF(index + 2,
+                                readUnsignedShort(index),
+                                buf);
+                    }
+                    item.set(tag, s, null, null);
+                }
+                    break;
+
+                // case ClassWriter.STR:
+                // case ClassWriter.CLASS:
+                default:
+                    item.set(tag, readUTF8(index, buf), null, null);
+                    break;
+            }
+
+            int index2 = item.hashCode % items2.length;
+            item.next = items2[index2];
+            items2[index2] = item;
+        }
+
+        int off = items[1] - 1;
+        classWriter.pool.putByteArray(b, off, header - off);
+        classWriter.items = items2;
+        classWriter.threshold = (int) (0.75d * ll);
+        classWriter.index = ll;
+    }
+    
+    /**
      * Constructs a new {@link ClassReader} object.
      * 
      * @param is an input stream from which to read the class.
@@ -509,6 +591,7 @@ public class ClassReader {
         i = readUnsignedShort(u);
         u += 2;
         for (; i > 0; --i) {
+            int u0 = u + 6;
             access = readUnsignedShort(u);
             name = readUTF8(u + 2, c);
             desc = readUTF8(u + 4, c);
@@ -591,7 +674,54 @@ public class ClassReader {
                     signature,
                     exceptions);
 
-            if (mv != null) {
+            if (mv != null) {                
+                /*
+                 * if the returned MethodVisitor is in fact a MethodWriter, it
+                 * means there is no method adapter between the reader and the
+                 * writer. If, in addition, the writer's constant pool was
+                 * copied from this reader (mw.cw.cr == this), and the signature
+                 * and exceptions of the method have not been changed, then it
+                 * is possible to skip all visit events and just copy the
+                 * original code of the method to the writer (the access, name
+                 * and descriptor can have been changed, this is not important
+                 * since they are not copied as is from the reader).
+                 */
+                if (mv instanceof MethodWriter) {
+                    MethodWriter mw = (MethodWriter) mv;
+                    if (mw.cw.cr == this) {
+                        if (signature == mw.signature) {
+                            boolean sameExceptions = false;
+                            if (exceptions == null) {
+                                sameExceptions = mw.exceptionCount == 0;
+                            } else {
+                                if (exceptions.length == mw.exceptionCount) {
+                                    sameExceptions = true;
+                                    for (j = exceptions.length - 1; j >= 0; --j)
+                                    {
+                                        w -= 2;
+                                        if (mw.exceptions[j] != readUnsignedShort(w))
+                                        {
+                                            sameExceptions = false;
+                                            break;
+                                        }
+                                    }
+                                }
+                            }
+                            if (sameExceptions) {
+                                /*
+                                 * we do not copy directly the code into
+                                 * MethodWriter to save a byte array copy
+                                 * operation. The real copy will be done in
+                                 * ClassWriter.toByteArray().
+                                 */
+                                mw.classReaderOffset = u0;
+                                mw.classReaderLength = u - u0;
+                                continue;
+                            }
+                        }
+                    }
+                }
+                
                 if (dann != 0) {
                     AnnotationVisitor dv = mv.visitAnnotationDefault();
                     readAnnotationValue(dann, c, null, dv);

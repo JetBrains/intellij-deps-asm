@@ -48,7 +48,7 @@ public class ClassWriter implements ClassVisitor {
      * method will be ignored, and computed automatically from the signature and
      * the bytecode of each method.
      * 
-     * @see #ClassWriter
+     * @see #ClassWriter(int)
      */
     public final static int COMPUTE_MAXS = 1;
 
@@ -61,7 +61,7 @@ public class ClassWriter implements ClassVisitor {
      * recomputed from the bytecode. In other words, computeFrames implies
      * computeMaxs.
      * 
-     * @see #ClassWriter
+     * @see #ClassWriter(int)
      */
     public final static int COMPUTE_FRAMES = 2;
 
@@ -211,6 +211,33 @@ public class ClassWriter implements ClassVisitor {
     final static int UTF8 = 1;
 
     /**
+     * Normal type Item stored in the ClassWriter {@link ClassWriter#typeTable},
+     * instead of the constant pool, in order to avoid clashes with normal
+     * constant pool items in the ClassWriter constant pool's hash table.
+     */
+    final static int TYPE_NORMAL = 13;
+
+    /**
+     * Uninitialized type Item stored in the ClassWriter
+     * {@link ClassWriter#typeTable}, instead of the constant pool, in order to
+     * avoid clashes with normal constant pool items in the ClassWriter constant
+     * pool's hash table.
+     */
+    final static int TYPE_UNINIT = 14;
+
+    /**
+     * Merged type Item stored in the ClassWriter {@link ClassWriter#typeTable},
+     * instead of the constant pool, in order to avoid clashes with normal
+     * constant pool items in the ClassWriter constant pool's hash table.
+     */
+    final static int TYPE_MERGED = 15;
+
+    /**
+     * The class reader from which this class writer was constructed, if any.
+     */
+    ClassReader cr;
+
+    /**
      * Minor and major version numbers of the class to be generated.
      */
     int version;
@@ -218,22 +245,22 @@ public class ClassWriter implements ClassVisitor {
     /**
      * Index of the next item to be added in the constant pool.
      */
-    private short index;
+    int index;
 
     /**
      * The constant pool of this class.
      */
-    private ByteVector pool;
+    ByteVector pool;
 
     /**
      * The constant pool's hash table data.
      */
-    private Item[] items;
+    Item[] items;
 
     /**
      * The threshold of the constant pool's hash table.
      */
-    private int threshold;
+    int threshold;
 
     /**
      * A reusable key used to look for items in the {@link #items} hash table.
@@ -487,7 +514,7 @@ public class ClassWriter implements ClassVisitor {
     // ------------------------------------------------------------------------
     // Constructor
     // ------------------------------------------------------------------------
-    
+
     /**
      * Constructs a new {@link ClassWriter} object.
      * 
@@ -504,6 +531,36 @@ public class ClassWriter implements ClassVisitor {
         key3 = new Item();
         this.computeMaxs = (flags & COMPUTE_MAXS) != 0;
         this.computeFrames = (flags & COMPUTE_FRAMES) != 0;
+    }
+
+    /**
+     * Constructs a new {@link ClassWriter} object and enables optimizations for
+     * "mostly add" bytecode transformations. These optimizations are the
+     * following:
+     * 
+     * <ul> <li>The constant pool from the original class is copied as is in
+     * the new class, which saves time. New constant pool entries will be added
+     * at the end if necessary, but unused constant pool entries <i>won't be
+     * removed</i>.</li> <li>Methods that are not transformed are copied as
+     * is in the new class, directly from the original class bytecode (i.e.
+     * without emitting visit events for all the method instructions), which
+     * saves a <i>lot</i> of time. Untransformed methods are detected by the
+     * fact that the {@link ClassReader} receives {@link MethodVisitor} objects
+     * that come from a {@link ClassWriter} (and not from a custom
+     * {@link ClassAdapter} or any other {@link ClassVisitor} instance).</li>
+     * </ul>
+     * 
+     * @param classReader the {@link ClassReader} used to read the original
+     *        class. It will be used to copy the entire constant pool from the
+     *        original class and also to copy other fragments of original
+     *        bytecode where applicable.
+     * @param flags option flags that can be used to modify the default behavior
+     *        of this class. See {@link #COMPUTE_MAXS}, {@link #COMPUTE_FRAMES}.
+     */
+    public ClassWriter(final ClassReader classReader, final int flags) {
+        this(flags);
+        classReader.copyPool(this);
+        this.cr = classReader;
     }
 
     // ------------------------------------------------------------------------
@@ -863,7 +920,7 @@ public class ClassWriter implements ClassVisitor {
      * @return the index of a new or already existing UTF8 item.
      */
     public int newUTF8(final String value) {
-        key.set('s', value, null, null);
+        key.set(UTF8, value, null, null);
         Item result = get(key);
         if (result == null) {
             pool.putByte(UTF8).putUTF8(value);
@@ -883,7 +940,7 @@ public class ClassWriter implements ClassVisitor {
      * @return a new or already existing class reference item.
      */
     Item newClassItem(final String value) {
-        key2.set('C', value, null, null);
+        key2.set(CLASS, value, null, null);
         Item result = get(key2);
         if (result == null) {
             pool.put12(CLASS, newUTF8(value));
@@ -917,7 +974,7 @@ public class ClassWriter implements ClassVisitor {
      */
     Item newFieldItem(final String owner, final String name, final String desc)
     {
-        key3.set('G', owner, name, desc);
+        key3.set(FIELD, owner, name, desc);
         Item result = get(key3);
         if (result == null) {
             put122(FIELD, newClass(owner), newNameType(name, desc));
@@ -959,10 +1016,11 @@ public class ClassWriter implements ClassVisitor {
         final String desc,
         final boolean itf)
     {
-        key3.set(itf ? 'N' : 'M', owner, name, desc);
+        int type = itf ? IMETH : METH;
+        key3.set(type, owner, name, desc);
         Item result = get(key3);
         if (result == null) {
-            put122(itf ? IMETH : METH, newClass(owner), newNameType(name, desc));
+            put122(type, newClass(owner), newNameType(name, desc));
             result = new Item(index++, key3);
             put(result);
         }
@@ -1072,7 +1130,7 @@ public class ClassWriter implements ClassVisitor {
      * @return a new or already existing string item.
      */
     private Item newString(final String value) {
-        key2.set('S', value, null, null);
+        key2.set(STR, value, null, null);
         Item result = get(key2);
         if (result == null) {
             pool.put12(STR, newUTF8(value));
@@ -1093,7 +1151,7 @@ public class ClassWriter implements ClassVisitor {
      * @return the index of a new or already existing name and type item.
      */
     public int newNameType(final String name, final String desc) {
-        key2.set('T', name, desc, null);
+        key2.set(NAME_TYPE, name, desc, null);
         Item result = get(key2);
         if (result == null) {
             put122(NAME_TYPE, newUTF8(name), newUTF8(desc));
@@ -1111,7 +1169,7 @@ public class ClassWriter implements ClassVisitor {
      * @return the index of this internal name in the type table.
      */
     int addType(final String type) {
-        key.set('E', type, null, null);
+        key.set(TYPE_NORMAL, type, null, null);
         Item result = get(key);
         if (result == null) {
             result = addType(key);
@@ -1130,10 +1188,10 @@ public class ClassWriter implements ClassVisitor {
      * @return the index of this internal name in the type table.
      */
     int addUninitializedType(final String type, final int offset) {
-        key.type = 'B';
+        key.type = TYPE_UNINIT;
         key.intVal = offset;
         key.strVal1 = type;
-        key.hashCode = 0x7FFFFFFF & ('B' + type.hashCode() + offset);
+        key.hashCode = 0x7FFFFFFF & (TYPE_UNINIT + type.hashCode() + offset);
         Item result = get(key);
         if (result == null) {
             result = addType(key);
@@ -1175,9 +1233,9 @@ public class ClassWriter implements ClassVisitor {
      * @return the index of the common super type of the two given types.
      */
     int getMergedType(final int type1, final int type2) {
-        key2.type = 'K';
+        key2.type = TYPE_MERGED;
         key2.longVal = type1 | (((long) type2) << 32);
-        key2.hashCode = 0x7FFFFFFF & ('K' + type1 + type2);
+        key2.hashCode = 0x7FFFFFFF & (TYPE_MERGED + type1 + type2);
         Item result = get(key2);
         if (result == null) {
             String t = typeTable[type1].strVal1;
@@ -1227,7 +1285,7 @@ public class ClassWriter implements ClassVisitor {
             return c.getName().replace('.', '/');
         }
     }
-    
+
     /**
      * Returns the constant pool's hash table item which is equal to the given
      * item.

@@ -40,23 +40,26 @@ final class Item {
     /**
      * Index of this item in the constant pool.
      */
-    short index;
+    int index;
 
     /**
      * Type of this constant pool item. A single class is used to represent all
      * constant pool item types, in order to minimize the bytecode size of this
-     * package. The value of this field is I, J, F, D, S, s, C, T, G, M, or N
-     * (for Constant Integer, Long, Float, Double, STR, UTF8, Class, NameType,
-     * Fieldref, Methodref, or InterfaceMethodref constant pool items
-     * respectively).
+     * package. The value of this field is one of {@link ClassWriter#INT},
+     * {@link ClassWriter#LONG}, {@link ClassWriter#FLOAT},
+     * {@link ClassWriter#DOUBLE}, {@link ClassWriter#UTF8},
+     * {@link ClassWriter#STR}, {@link ClassWriter#CLASS},
+     * {@link ClassWriter#NAME_TYPE}, {@link ClassWriter#FIELD},
+     * {@link ClassWriter#METH}, {@link ClassWriter#IMETH}.
      * 
      * Special Item types are used for Items that are stored in the ClassWriter
      * {@link ClassWriter#typeTable}, instead of the constant pool, in order to
      * avoid clashes with normal constant pool items in the ClassWriter constant
-     * pool's hash table. These special item types are E, B and K (for normal
-     * types, uninitialized types, and merged types, respectively).
+     * pool's hash table. These special item types are
+     * {@link ClassWriter#TYPE_NORMAL}, {@link ClassWriter#TYPE_UNINIT} and
+     * {@link ClassWriter#TYPE_MERGED}.
      */
-    char type;
+    int type;
 
     /**
      * Value of this item, for an integer item.
@@ -114,12 +117,22 @@ final class Item {
     }
 
     /**
+     * Constructs an uninitialized {@link Item} for constant pool element at
+     * given position.
+     * 
+     * @param index index of the item to be constructed.
+     */
+    Item(int index) {
+        this.index = index;
+    }
+
+    /**
      * Constructs a copy of the given item.
      * 
      * @param index index of the item to be constructed.
      * @param i the item that must be copied into the item to be constructed.
      */
-    Item(final short index, final Item i) {
+    Item(final int index, final Item i) {
         this.index = index;
         type = i.type;
         intVal = i.intVal;
@@ -138,7 +151,7 @@ final class Item {
      * @param intVal the value of this item.
      */
     void set(final int intVal) {
-        this.type = 'I';
+        this.type = ClassWriter.INT;
         this.intVal = intVal;
         this.hashCode = 0x7FFFFFFF & (type + intVal);
     }
@@ -149,7 +162,7 @@ final class Item {
      * @param longVal the value of this item.
      */
     void set(final long longVal) {
-        this.type = 'J';
+        this.type = ClassWriter.LONG;
         this.longVal = longVal;
         this.hashCode = 0x7FFFFFFF & (type + (int) longVal);
     }
@@ -160,7 +173,7 @@ final class Item {
      * @param floatVal the value of this item.
      */
     void set(final float floatVal) {
-        this.type = 'F';
+        this.type = ClassWriter.FLOAT;
         this.floatVal = floatVal;
         this.hashCode = 0x7FFFFFFF & (type + (int) floatVal);
     }
@@ -171,7 +184,7 @@ final class Item {
      * @param doubleVal the value of this item.
      */
     void set(final double doubleVal) {
-        this.type = 'D';
+        this.type = ClassWriter.DOUBLE;
         this.doubleVal = doubleVal;
         this.hashCode = 0x7FFFFFFF & (type + (int) doubleVal);
     }
@@ -185,7 +198,7 @@ final class Item {
      * @param strVal3 third part of the value of this item.
      */
     void set(
-        final char type,
+        final int type,
         final String strVal1,
         final String strVal2,
         final String strVal3)
@@ -195,19 +208,19 @@ final class Item {
         this.strVal2 = strVal2;
         this.strVal3 = strVal3;
         switch (type) {
-            case 's':
-            case 'S':
-            case 'C':
-            case 'E':
+            case ClassWriter.UTF8:
+            case ClassWriter.STR:
+            case ClassWriter.CLASS:
+            case ClassWriter.TYPE_NORMAL:
                 hashCode = 0x7FFFFFFF & (type + strVal1.hashCode());
                 return;
-            case 'T':
+            case ClassWriter.NAME_TYPE:
                 hashCode = 0x7FFFFFFF & (type + strVal1.hashCode()
                         * strVal2.hashCode());
                 return;
-            // case 'G':
-            // case 'M':
-            // case 'N':
+            // ClassWriter.FIELD:
+            // ClassWriter.METH:
+            // ClassWriter.IMETH:
             default:
                 hashCode = 0x7FFFFFFF & (type + strVal1.hashCode()
                         * strVal2.hashCode() * strVal3.hashCode());
@@ -224,28 +237,28 @@ final class Item {
     boolean isEqualTo(final Item i) {
         if (i.type == type) {
             switch (type) {
-                case 'I':
+                case ClassWriter.INT:
                     return i.intVal == intVal;
-                case 'J':
-                case 'K':
+                case ClassWriter.TYPE_MERGED:
+                case ClassWriter.LONG:
                     return i.longVal == longVal;
-                case 'F':
+                case ClassWriter.FLOAT:
                     return i.floatVal == floatVal;
-                case 'D':
+                case ClassWriter.DOUBLE:
                     return i.doubleVal == doubleVal;
-                case 's':
-                case 'S':
-                case 'C':
-                case 'E':
+                case ClassWriter.UTF8:
+                case ClassWriter.STR:
+                case ClassWriter.CLASS:
+                case ClassWriter.TYPE_NORMAL:
                     return i.strVal1.equals(strVal1);
-                case 'B':
+                case ClassWriter.TYPE_UNINIT:
                     return i.intVal == intVal && i.strVal1.equals(strVal1);
-                case 'T':
+                case ClassWriter.NAME_TYPE:
                     return i.strVal1.equals(strVal1)
                             && i.strVal2.equals(strVal2);
-                // case 'G':
-                // case 'M':
-                // case 'N':
+                // ClassWriter.FIELD:
+                // ClassWriter.METH:
+                // ClassWriter.IMETH:
                 default:
                     return i.strVal1.equals(strVal1)
                             && i.strVal2.equals(strVal2)

@@ -1252,24 +1252,24 @@ public class Label {
                 break;
             case Opcodes.LDC:
                 switch (item.type) {
-                    case 'I':
+                    case ClassWriter.INT:
                         push(INTEGER);
                         break;
-                    case 'J':
+                    case ClassWriter.LONG:
                         push(LONG);
                         push(TOP);
                         break;
-                    case 'F':
+                    case ClassWriter.FLOAT:
                         push(FLOAT);
                         break;
-                    case 'D':
+                    case ClassWriter.DOUBLE:
                         push(DOUBLE);
                         push(TOP);
                         break;
-                    case 'C':
+                    case ClassWriter.CLASS:
                         push(OBJECT | cw.addType("java/lang/Class"));
                         break;
-                    // case 'S':
+                    // case ClassWriter.STR:
                     default:
                         push(OBJECT | cw.addType("java/lang/String"));
                 }

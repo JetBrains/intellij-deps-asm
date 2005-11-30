@@ -123,6 +123,10 @@ public class ClassWriterTest3 extends AbstractTest {
     public void test() throws Exception {
         try {
             Class.forName(n, true, getClass().getClassLoader());
+        } catch (NoClassDefFoundError ncdfe) {
+            // ignored
+        } catch (UnsatisfiedLinkError ule) {
+            // ignored
         } catch (ClassFormatError cfe) {
             fail(cfe.getMessage());
         } catch (VerifyError ve) {

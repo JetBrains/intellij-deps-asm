@@ -130,10 +130,10 @@ public interface MethodVisitor {
      *        When opcode is SIPUSH, operand value should be between
      *        Short.MIN_VALUE and Short.MAX_VALUE.<br>
      *        When opcode is NEWARRAY, operand value should be one of
-     *        {@link Opcodes.T_BOOLEAN}, {@link Opcodes.T_CHAR},
-     *        {@link Opcodes.T_FLOAT}, {@link Opcodes.T_DOUBLE},
-     *        {@link Opcodes.T_BYTE}, {@link Opcodes.T_SHORT},
-     *        {@link Opcodes.T_INT} or {@link Opcodes.T_LONG}.
+     *        {@link Opcodes#T_BOOLEAN}, {@link Opcodes#T_CHAR},
+     *        {@link Opcodes#T_FLOAT}, {@link Opcodes#T_DOUBLE},
+     *        {@link Opcodes#T_BYTE}, {@link Opcodes#T_SHORT},
+     *        {@link Opcodes#T_INT} or {@link Opcodes#T_LONG}.
      */
     void visitIntInsn(int opcode, int operand);
 

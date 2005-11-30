@@ -146,7 +146,7 @@ public class ClassReader {
 
     /**
      * Copies the constant pool data into the given {@link ClassWriter}. Should
-     * be called before the {@link #accept} method.
+     * be called before the {@link #accept(ClassVisitor,boolean)} method.
      * 
      * @param classWriter the {@link ClassWriter} to copy constant pool into.
      */

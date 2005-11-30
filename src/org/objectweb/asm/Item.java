@@ -45,12 +45,12 @@ final class Item {
     /**
      * Type of this constant pool item. A single class is used to represent all
      * constant pool item types, in order to minimize the bytecode size of this
-     * package. The value of this field is one of {@link ClassWriter.INT},
-     * {@link ClassWriter.LONG}, {@link ClassWriter.FLOAT},
-     * {@link ClassWriter.DOUBLE}, {@link ClassWriter.UTF8},
-     * {@link ClassWriter.STR}, {@link ClassWriter.CLASS},
-     * {@link ClassWriter.NAME_TYPE}, {@link ClassWriter.FIELD},
-     * {@link ClassWriter.METH}, {@link ClassWriter.IMETH}.
+     * package. The value of this field is one of {@link ClassWriter#INT},
+     * {@link ClassWriter#LONG}, {@link ClassWriter#FLOAT},
+     * {@link ClassWriter#DOUBLE}, {@link ClassWriter#UTF8},
+     * {@link ClassWriter#STR}, {@link ClassWriter#CLASS},
+     * {@link ClassWriter#NAME_TYPE}, {@link ClassWriter#FIELD},
+     * {@link ClassWriter#METH}, {@link ClassWriter#IMETH}.
      */
     int type;
 

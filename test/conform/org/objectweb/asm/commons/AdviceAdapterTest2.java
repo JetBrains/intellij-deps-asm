@@ -73,9 +73,9 @@ public class AdviceAdapterTest2 extends AbstractTest {
         public Class loadClass(String name) throws ClassNotFoundException {
             if(name.startsWith(prefix)) {
                 try {
-                    ClassWriter cw = new ClassWriter(true, true);
+                    ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_MAXS);
                     ClassReader cr = new ClassReader(getClass().getResourceAsStream( "/"+name.replace('.', '/')+".class"));
-                    cr.accept(new AdviceClassAdapter(cw), false);
+                    cr.accept(new AdviceClassAdapter(cw), 0);
                     byte[] bytecode = cw.toByteArray();
                     return super.defineClass(name, bytecode, 0, bytecode.length);            
                 } catch(IOException ex) {

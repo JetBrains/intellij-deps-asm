@@ -487,13 +487,13 @@ public class StackMapTableAttribute extends Attribute {
             List locals;
 
             int offsetDelta;
-            if (tag < SAME_LOCALS_1_STACK_ITEM_FRAME) {
+            if (tag < SAME_LOCALS_1_STACK_ITEM_FRAME) {  // SAME_FRAME
                 offsetDelta = tag;
 
                 locals = new ArrayList(frame.locals);
                 stack = Collections.EMPTY_LIST;
 
-            } else if (tag < RESERVED) {
+            } else if (tag < RESERVED) {  // SAME_LOCALS_1_STACK_ITEM_FRAME
                 offsetDelta = tag - SAME_LOCALS_1_STACK_ITEM_FRAME;
 
                 locals = new ArrayList(frame.locals);
@@ -510,13 +510,13 @@ public class StackMapTableAttribute extends Attribute {
                     off += 2;
                 }
 
-                if (tag == SAME_LOCALS_1_STACK_ITEM_FRAME_EXTENDED) {
+                if (tag == SAME_LOCALS_1_STACK_ITEM_FRAME_EXTENDED) {  // SAME_LOCALS_1_STACK_ITEM_FRAME_EXTENDED
                     locals = new ArrayList(frame.locals);
                     stack = new ArrayList();
                     // read verification_type_info stack[1];
                     off = readType(stack, isExtCodeSize, cr, off, labels, buf);
 
-                } else if (tag >= CHOP_FRAME && tag < SAME_FRAME_EXTENDED) {
+                } else if (tag >= CHOP_FRAME && tag < SAME_FRAME_EXTENDED) {  // CHOP_FRAME
                     stack = Collections.EMPTY_LIST;
 
                     int k = SAME_FRAME_EXTENDED - tag;
@@ -524,11 +524,11 @@ public class StackMapTableAttribute extends Attribute {
                     locals = new ArrayList(frame.locals.subList(0,
                             frame.locals.size() - k));
 
-                } else if (tag == SAME_FRAME_EXTENDED) {
+                } else if (tag == SAME_FRAME_EXTENDED) {  // SAME_FRAME_EXTENDED
                     stack = Collections.EMPTY_LIST;
                     locals = new ArrayList(frame.locals);
 
-                } else if ( /* tag>=APPEND && */tag < FULL_FRAME) {
+                } else if ( /* tag>=APPEND && */tag < FULL_FRAME) {  // APPEND_FRAME
                     stack = Collections.EMPTY_LIST;
 
                     // copy locals from prev frame and append new k
@@ -542,8 +542,7 @@ public class StackMapTableAttribute extends Attribute {
                                 buf);
                     }
 
-                } else if (tag == FULL_FRAME) {
-
+                } else if (tag == FULL_FRAME) {  // FULL_FRAME
                     // read verification_type_info locals[number_of_locals];
                     locals = new ArrayList();
                     off = readTypes(locals,

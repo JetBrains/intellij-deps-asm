@@ -66,7 +66,7 @@ public abstract class AbstractTest extends TestCase {
     }
 
     protected TestSuite getSuite() throws Exception {
-        TestSuite suite = new TestSuite();
+        TestSuite suite = new TestSuite(getClass().getName());
         String files = System.getProperty("asm.test") + ",";
         String clazz = System.getProperty("asm.test.class");
         while (files.indexOf(',') != -1) {

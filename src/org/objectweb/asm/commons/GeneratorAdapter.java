@@ -29,9 +29,7 @@
  */
 package org.objectweb.asm.commons;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.Label;
@@ -219,11 +217,6 @@ public class GeneratorAdapter extends LocalVariablesSorter {
     private final Type[] argumentTypes;
 
     /**
-     * Types of the local variables of the method visited by this adapter.
-     */
-    private final List localTypes;
-
-    /**
      * Creates a new {@link GeneratorAdapter}.
      * 
      * @param mv the method visitor to which this adapter delegates calls.
@@ -236,7 +229,6 @@ public class GeneratorAdapter extends LocalVariablesSorter {
         this.access = access;
         this.returnType = Type.getReturnType(desc);
         this.argumentTypes = Type.getArgumentTypes(desc);
-        this.localTypes = new ArrayList();
     }
     
     /**
@@ -255,7 +247,6 @@ public class GeneratorAdapter extends LocalVariablesSorter {
         this.access = access;
         this.returnType = method.getReturnType();
         this.argumentTypes = method.getArgumentTypes();
-        this.localTypes = new ArrayList();
     }
 
     /**
@@ -511,47 +502,10 @@ public class GeneratorAdapter extends LocalVariablesSorter {
     // ------------------------------------------------------------------------
 
     /**
-     * Creates a new local variable of the given type.
-     * 
-     * @param type the type of the local variable to be created.
-     * @return the identifier of the newly created local variable.
-     */
-    public int newLocal(final Type type) {
-        int local = super.newLocal(type.getSize());
-        setLocalType(local, type);
-        return local;
-    }
-
-    /**
-     * Returns the type of the given local variable.
-     * 
-     * @param local a local variable identifier, as returned by {@link #newLocal
-     *        newLocal}.
-     * @return the type of the given local variable.
-     */
-    public Type getLocalType(final int local) {
-        return (Type) localTypes.get(local - firstLocal);
-    }
-
-    /**
-     * Sets the current type of the given local variable.
-     * 
-     * @param local a local variable identifier, as returned by {@link #newLocal
-     *        newLocal}.
-     * @param type the type of the value being stored in the local variable
-     */
-    private void setLocalType(final int local, final Type type) {
-        int index = local - firstLocal;
-        while (localTypes.size() < index + 1)
-            localTypes.add(null);
-        localTypes.set(index, type);
-    }
-
-    /**
      * Generates the instruction to load the given local variable on the stack.
      * 
-     * @param local a local variable identifier, as returned by {@link #newLocal
-     *        newLocal}.
+     * @param local a local variable identifier, as returned by
+     *        {@link LocalVariablesSorter#newLocal(Type) newLocal()}.
      */
     public void loadLocal(final int local) {
         loadInsn(getLocalType(local), local);
@@ -560,8 +514,8 @@ public class GeneratorAdapter extends LocalVariablesSorter {
     /**
      * Generates the instruction to load the given local variable on the stack.
      * 
-     * @param local a local variable identifier, as returned by {@link #newLocal
-     *        newLocal}.
+     * @param local a local variable identifier, as returned by
+     *        {@link LocalVariablesSorter#newLocal(Type) newLocal()}.
      * @param type the type of this local variable.
      */
     public void loadLocal(final int local, final Type type) {
@@ -573,8 +527,8 @@ public class GeneratorAdapter extends LocalVariablesSorter {
      * Generates the instruction to store the top stack value in the given local
      * variable.
      * 
-     * @param local a local variable identifier, as returned by {@link #newLocal
-     *        newLocal}.
+     * @param local a local variable identifier, as returned by
+     *        {@link LocalVariablesSorter#newLocal(Type) newLocal()}.
      */
     public void storeLocal(final int local) {
         storeInsn(getLocalType(local), local);
@@ -584,8 +538,8 @@ public class GeneratorAdapter extends LocalVariablesSorter {
      * Generates the instruction to store the top stack value in the given local
      * variable.
      * 
-     * @param local a local variable identifier, as returned by {@link #newLocal
-     *        newLocal}.
+     * @param local a local variable identifier, as returned by
+     *        {@link LocalVariablesSorter#newLocal(Type) newLocal()}.
      * @param type the type of this local variable.
      */
     public void storeLocal(final int local, final Type type) {
@@ -1053,8 +1007,8 @@ public class GeneratorAdapter extends LocalVariablesSorter {
     /**
      * Generates a RET instruction.
      * 
-     * @param local a local variable identifier, as returned by {@link #newLocal
-     *        newLocal}.
+     * @param local a local variable identifier, as returned by
+     *        {@link LocalVariablesSorter#newLocal(Type) newLocal()}.
      */
     public void ret(final int local) {
         mv.visitVarInsn(Opcodes.RET, local);

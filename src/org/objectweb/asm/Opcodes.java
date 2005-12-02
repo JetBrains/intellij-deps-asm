@@ -88,16 +88,39 @@ public interface Opcodes {
     int T_INT = 10;
     int T_LONG = 11;
 
+
     // stack map frame types
     
-    // uncompressed frames: all frames must be F_NEW frames
+    /**
+     * Representing expanded frame.
+     * See {@link ClassReader#EXPAND_FRAMES}.
+     */
     int F_NEW = -1;
     
-    // compressed frames: each frame can be a F_FULL, ..., or F_SAME1 frame 
+    /**
+     * Representing comressed frame with complete frame data.
+     */
     int F_FULL = 0;
+    /**
+     * Representing comressed frame with current locals are the same as the locals in the
+     * previous frame, except that additional 1-3 locals are defined.
+     */
     int F_APPEND = 1;
+    /**
+     * Representing comressed frame with current locals are the same as the locals in the
+     * previous frame, except that the last 1-3 locals are absent and with the
+     * empty stack.
+     */
     int F_CHOP = 2;
+    /**
+     * Representing comressed frame with exactly the same locals as the previous frame and
+     * with the empty stack.
+     */
     int F_SAME = 3;
+    /**
+     * Representing comressed frame with exactly the same locals as the previous frame and
+     * with single value on the stack.
+     */
     int F_SAME1 = 4;
     
     Integer TOP = new Integer(0);

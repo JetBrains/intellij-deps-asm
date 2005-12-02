@@ -57,9 +57,9 @@ public class AnalyzerAdapter extends MethodAdapter {
      * {@link Opcodes#INTEGER}, {@link Opcodes#FLOAT}, {@link Opcodes#LONG},
      * {@link Opcodes#DOUBLE},{@link Opcodes#NULL} or
      * {@link Opcodes#UNINITIALIZED_THIS} (long and double are represented by a
-     * single element). Reference types are represented by String objects, and
-     * uninitialized types by Label objects (this label designates the NEW
-     * instruction that created this uninitialized value).
+     * two elements, the second one being TOP). Reference types are represented
+     * by String objects, and uninitialized types by Label objects (this label
+     * designates the NEW instruction that created this uninitialized value).
      */
     public List locals;
 
@@ -69,9 +69,9 @@ public class AnalyzerAdapter extends MethodAdapter {
      * {@link Opcodes#INTEGER}, {@link Opcodes#FLOAT}, {@link Opcodes#LONG},
      * {@link Opcodes#DOUBLE},{@link Opcodes#NULL} or
      * {@link Opcodes#UNINITIALIZED_THIS} (long and double are represented by a
-     * single element). Reference types are represented by String objects, and
-     * uninitialized types by Label objects (this label designates the NEW
-     * instruction that created this uninitialized value).
+     * two elements, the second one being TOP). Reference types are represented
+     * by String objects, and uninitialized types by Label objects (this label
+     * designates the NEW instruction that created this uninitialized value).
      */
     public List stack;
 
@@ -85,7 +85,6 @@ public class AnalyzerAdapter extends MethodAdapter {
      * Creates a new {@link AnalyzerAdapter}.
      * 
      * @param owner the owner's class name.
-     * @param mv the method visitor to which this adapter delegates calls.
      * @param access the method's access flags (see {@link Opcodes}).
      * @param name the method's name.
      * @param desc the method's descriptor (see {@link Type Type}).

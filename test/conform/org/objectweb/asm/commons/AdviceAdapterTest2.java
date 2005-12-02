@@ -75,7 +75,7 @@ public class AdviceAdapterTest2 extends AbstractTest {
                 try {
                     ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_MAXS);
                     ClassReader cr = new ClassReader(getClass().getResourceAsStream( "/"+name.replace('.', '/')+".class"));
-                    cr.accept(new AdviceClassAdapter(cw), 0);
+                    cr.accept(new AdviceClassAdapter(cw), ClassReader.EXPAND_FRAMES);
                     byte[] bytecode = cw.toByteArray();
                     return super.defineClass(name, bytecode, 0, bytecode.length);            
                 } catch(IOException ex) {

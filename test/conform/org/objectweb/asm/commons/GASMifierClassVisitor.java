@@ -77,7 +77,7 @@ public class GASMifierClassVisitor extends ASMifierClassVisitor {
         }
         cr.accept(new GASMifierClassVisitor(new PrintWriter(System.out)),
                 getDefaultAttributes(),
-                flags);
+                ClassReader.EXPAND_FRAMES | flags);
     }
 
     public GASMifierClassVisitor(PrintWriter pw) {

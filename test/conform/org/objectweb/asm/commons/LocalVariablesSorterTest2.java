@@ -77,7 +77,7 @@ public class LocalVariablesSorterTest2 extends AbstractTest {
                                 exceptions));
             }
 
-        }, 0);
+        }, ClassReader.EXPAND_FRAMES);
         return cw.toByteArray();
     }
 

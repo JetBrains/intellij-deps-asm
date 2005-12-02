@@ -67,7 +67,7 @@ public class LocalVariablesSorterTest extends AbstractTest {
                                 signature,
                                 exceptions));
             }
-        }, 0);
+        }, ClassReader.EXPAND_FRAMES);
         byte[] b = cw.toByteArray();
         try {
             LOADER.defineClass(n, b);

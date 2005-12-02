@@ -54,8 +54,8 @@ public class AdviceAdapterTest extends AbstractTest {
         ClassReader cr = new ClassReader(is);
         ClassWriter cw1 = new ClassWriter(0);
         ClassWriter cw2 = new ClassWriter(0);
-        cr.accept(new ReferenceClassAdapter(cw1), 0);
-        cr.accept(new AdviceClassAdapter(cw2), 0);
+        cr.accept(new ReferenceClassAdapter(cw1), ClassReader.EXPAND_FRAMES);
+        cr.accept(new AdviceClassAdapter(cw2), ClassReader.EXPAND_FRAMES);
         assertEquals(new ClassReader(cw1.toByteArray()),
                 new ClassReader(cw2.toByteArray()));
     }

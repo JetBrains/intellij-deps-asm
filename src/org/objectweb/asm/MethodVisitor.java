@@ -104,30 +104,59 @@ public interface MethodVisitor {
      * such as GOTO or THROW, that is the target of a jump instruction, or that
      * starts an exception handler block. The visited types must describe the
      * values of the local variables and of the operand stack elements <i>just
-     * before</i> <b>i</b> is executed. <br> <br> (*) this is mandatory only
-     * for classes whose version is greater than or equal to
-     * {@link Opcodes#V1_6 V1_6}.
+     * before</i> <b>i</b> is executed. <br>
+     * <br>
+     * (*) this is mandatory only for classes whose version is greater than or
+     * equal to {@link Opcodes#V1_6 V1_6}. <br>
+     * <br>
+     * Packed frames are basically "deltas" from the state of the previous frame
+     * (very first frame is implicitly defined by the method's parameters and
+     * access flags):
+     * <ul>
+     * <li>{@link Opcodes#F_SAME} representing frame with exactly the same
+     * locals as the previous frame and with the empty stack.</li>
+     * <li>{@link Opcodes#F_SAME1} representing frame with exactly the same
+     * locals as the previous frame and with single value on the stack (<code>nStack</code>
+     * is 1 and <code>stack[0]</code> contains value for the type of the stack
+     * item).</li>
+     * <li>{@link Opcodes#F_APPEND} representing frame with current locals are
+     * the same as the locals in the previous frame, except that additional
+     * locals are defined (<code>nLocal</code> is 1, 2 or 3 and
+     * <code>local</code> elements contains values representing added types).</li>
+     * <li>{@link Opcodes#F_CHOP} representing frame with current locals are
+     * the same as the locals in the previous frame, except that the last 1-3
+     * locals are absent and with the empty stack (<code>nLocals</code> is 1,
+     * 2 or 3). </li>
+     * <li>{@link Opcodes#F_FULL} representing complete frame data.</li>
+     * </li>
+     * </ul>
      * 
-     * @param type the type of this stack map frame. Must be
-     *        {@link Opcodes#F_NEW} for expanded frames, or
-     *        {@link Opcodes#F_FULL}, {@link Opcodes#F_APPEND},
-     *        {@link Opcodes#F_CHOP}, {@link Opcodes#F_SAME} or
-     *        {@link Opcodes#F_APPEND}, {@link Opcodes#F_SAME1} for compressed
-     *        frames. TODO describe format of compressed frames.
-     * @param nLocal the number of local variables in the visited frame.
-     * @param local the local variable types in this frame. This array must not
-     *        be modified. Primitive types are represented by
-     *        {@link Opcodes#TOP}, {@link Opcodes#INTEGER},
-     *        {@link Opcodes#FLOAT}, {@link Opcodes#LONG},
-     *        {@link Opcodes#DOUBLE},{@link Opcodes#NULL} or
-     *        {@link Opcodes#UNINITIALIZED_THIS} (long and double are
-     *        represented by a single element). Reference types are represented
-     *        by String objects, and uninitialized types by Label objects (this
-     *        label designates the NEW instruction that created this
-     *        uninitialized value).
-     * @param nStack the number of operand stack elements in the visited frame.
-     * @param stack the operand stack types in this frame. This array must not
-     *        be modified. Its content has the same format as the "local" array.
+     * @param type
+     *            the type of this stack map frame. Must be
+     *            {@link Opcodes#F_NEW} for expanded frames, or
+     *            {@link Opcodes#F_FULL}, {@link Opcodes#F_APPEND},
+     *            {@link Opcodes#F_CHOP}, {@link Opcodes#F_SAME} or
+     *            {@link Opcodes#F_APPEND}, {@link Opcodes#F_SAME1} for
+     *            compressed frames.
+     * @param nLocal
+     *            the number of local variables in the visited frame.
+     * @param local
+     *            the local variable types in this frame. This array must not be
+     *            modified. Primitive types are represented by
+     *            {@link Opcodes#TOP}, {@link Opcodes#INTEGER},
+     *            {@link Opcodes#FLOAT}, {@link Opcodes#LONG},
+     *            {@link Opcodes#DOUBLE},{@link Opcodes#NULL} or
+     *            {@link Opcodes#UNINITIALIZED_THIS} (long and double are
+     *            represented by a single element). Reference types are
+     *            represented by String objects, and uninitialized types by
+     *            Label objects (this label designates the NEW instruction that
+     *            created this uninitialized value).
+     * @param nStack
+     *            the number of operand stack elements in the visited frame.
+     * @param stack
+     *            the operand stack types in this frame. This array must not be
+     *            modified. Its content has the same format as the "local"
+     *            array.
      */
     void visitFrame(
         int type,

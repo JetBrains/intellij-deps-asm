@@ -155,60 +155,85 @@ public class LocalVariablesSorter extends MethodAdapter {
         final int nStack,
         final Object[] stack)
     {
-        Object[] newLocal = new Object[nextLocal];
-        switch (type) {
-            case Opcodes.F_NEW: // uncompressed frame
-            {
-                // add frames for old vars
-                for (int i = 0; i < nLocal; i++) {
-                    newLocal[remap(i)] = local[i];
-                }
-
-                // add frames for vars added using newLocal() method
-                for (int i = 0; i < newLocals.size(); i++) {
-                    int var = ((Integer) newLocals.get(i)).intValue();
-                    Object frameType;
-                    Type localType = (Type) localTypes.get(var - firstLocal);
-                    switch (localType.getSort()) {
-                        case Type.BOOLEAN:
-                        case Type.CHAR:
-                        case Type.BYTE:
-                        case Type.SHORT:
-                        case Type.INT:
-                            frameType = Opcodes.INTEGER;
-                            break;
-                        case Type.FLOAT:
-                            frameType = Opcodes.FLOAT;
-                            break;
-                        case Type.LONG:
-                            frameType = Opcodes.LONG;
-                            break;
-                        case Type.DOUBLE:
-                            frameType = Opcodes.DOUBLE;
-                            break;
-                        // case Type.ARRAY:
-                        // case Type.OBJECT:
-                        default:
-                            frameType = localType.getDescriptor();
-                            break;
-                    }
-
-                    newLocal[var] = frameType;
-                }
-                break;
+        // TODO support packed frames
+        if(type!=Opcodes.F_NEW) { // uncompressed frame
+            throw new IllegalStateException("ClassReader.accept() should be called with EXPAND_FRAMES flag");
+        }
+        
+        Object l;
+        ArrayList result = new ArrayList();
+        for (int i = 0; i < nLocal; i++) {
+            result.add(l = local[i]);
+            if (l == Opcodes.LONG || l == Opcodes.DOUBLE) {
+                result.add(Opcodes.TOP);
             }
+        }                
 
-            // case Opcodes.F_FULL:
-            // case Opcodes.F_APPEND:
-            // case Opcodes.F_CHOP:
-            // case Opcodes.F_SAME:
-            // case Opcodes.F_SAME1:
-            default:
-                // TODO support packed frames
-                throw new IllegalStateException("ClassReader.accept() should be called with EXPAND_FRAMES flag");
+        Object[] newLocal = result.toArray(new Object[result.size() + newLocals.size()]);
+        
+        // add frames for old vars
+        for (int i = 0; i < result.size(); i++) {
+            l = result.get(i);
+            int k;
+            if(i < firstLocal || (l != Opcodes.TOP && l != Opcodes.NULL && l != Opcodes.UNINITIALIZED_THIS)) {
+                k = remap(i);
+            } else {
+                Integer value = (Integer) locals.get(new Integer(i));
+                if (value != null) {
+                    k = value.intValue();
+                } else {
+                    k = nextLocal;
+                    locals.put(new Integer(i), new Integer(k));
+                    nextLocal++;
+                }
+            }
+            if(newLocal.length<=(k+1)) {
+                Object[] t = newLocal;
+                newLocal = new Object[k + 2];
+                System.arraycopy(t, 0, newLocal, 0, t.length);
+            }
+            newLocal[k] = l;
+            if(l == Opcodes.LONG || l == Opcodes.DOUBLE) {
+                newLocal[k+1] = Opcodes.TOP;
+                i++;
+            }
         }
 
-        mv.visitFrame(type, nextLocal, newLocal, nStack, stack);
+        // add frames for vars added using newLocal() method
+        for (int i = 0; i < newLocals.size(); i++) {
+            int var = ((Integer) newLocals.get(i)).intValue();
+            Object frameType;
+            Type localType = (Type) localTypes.get(var - firstLocal);
+            switch (localType.getSort()) {
+                case Type.BOOLEAN:
+                case Type.CHAR:
+                case Type.BYTE:
+                case Type.SHORT:
+                case Type.INT:
+                    frameType = Opcodes.INTEGER;
+                    break;
+                case Type.FLOAT:
+                    frameType = Opcodes.FLOAT;
+                    break;
+                case Type.LONG:
+                    frameType = Opcodes.LONG;
+                    break;
+                case Type.DOUBLE:
+                    frameType = Opcodes.DOUBLE;
+                    break;
+                // case Type.ARRAY:
+                // case Type.OBJECT:
+                default:
+                    frameType = localType.getDescriptor();
+                    break;
+            }
+
+            newLocal[var] = frameType;
+        }
+        
+        // TODO strip TOP elements after LONG and DOUBLE frames
+        
+        mv.visitFrame(type, nLocal + newLocals.size(), newLocal, nStack, stack);
     }
     
     // -------------

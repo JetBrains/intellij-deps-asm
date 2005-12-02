@@ -38,7 +38,7 @@ import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
 /**
- * A <code>MethodAdapter</code> to dispatch method body instruction
+ * A {@link MethodAdapter} to dispatch method body instruction
  * <p>
  * The behavior is like this:
  * <ol>

@@ -41,6 +41,9 @@ import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
 /**
+ * A {@link MethodAdapter} that keep track of the incremental changes on the
+ * execution frame between
+ * {@link #visitFrame(int, int, Object[], int, Object[]) visitFrame} calls.
  * 
  * @author Eric Bruneton
  */
@@ -48,8 +51,28 @@ public class AnalyzerAdapter extends MethodAdapter {
 
     private List previousLocals;
 
+    /**
+     * <code>List</code> of the local variable slots for current execution
+     * frame. Primitive types are represented by {@link Opcodes#TOP},
+     * {@link Opcodes#INTEGER}, {@link Opcodes#FLOAT}, {@link Opcodes#LONG},
+     * {@link Opcodes#DOUBLE},{@link Opcodes#NULL} or
+     * {@link Opcodes#UNINITIALIZED_THIS} (long and double are represented by a
+     * single element). Reference types are represented by String objects, and
+     * uninitialized types by Label objects (this label designates the NEW
+     * instruction that created this uninitialized value).
+     */
     public List locals;
 
+    /**
+     * <code>List</code> of the operand stack slots for current execution
+     * frame. Primitive types are represented by {@link Opcodes#TOP},
+     * {@link Opcodes#INTEGER}, {@link Opcodes#FLOAT}, {@link Opcodes#LONG},
+     * {@link Opcodes#DOUBLE},{@link Opcodes#NULL} or
+     * {@link Opcodes#UNINITIALIZED_THIS} (long and double are represented by a
+     * single element). Reference types are represented by String objects, and
+     * uninitialized types by Label objects (this label designates the NEW
+     * instruction that created this uninitialized value).
+     */
     public List stack;
 
     protected boolean delegate;
@@ -58,6 +81,16 @@ public class AnalyzerAdapter extends MethodAdapter {
 
     private Map uninitializedTypes;
 
+    /**
+     * Creates a new {@link AnalyzerAdapter}.
+     * 
+     * @param owner the owner's class name.
+     * @param mv the method visitor to which this adapter delegates calls.
+     * @param access the method's access flags (see {@link Opcodes}).
+     * @param name the method's name.
+     * @param desc the method's descriptor (see {@link Type Type}).
+     * @param mv the method visitor to which this adapter delegates calls.
+     */
     public AnalyzerAdapter(
         final String owner,
         final int access,

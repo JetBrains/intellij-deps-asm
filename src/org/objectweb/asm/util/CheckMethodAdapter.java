@@ -429,6 +429,9 @@ public class CheckMethodAdapter extends MethodAdapter {
 
     public void visitLdcInsn(final Object cst) {
         checkEnd();
+        if(cst==null) {
+            throw new IllegalArgumentException("Value of the constant acn't be null");
+        }
         if (!(cst instanceof Type)) {
             checkConstant(cst);
         }
@@ -559,6 +562,71 @@ public class CheckMethodAdapter extends MethodAdapter {
         mv.visitMaxs(maxStack, maxLocals);
     }
 
+    public void visitFrame(
+        int type,
+        int nLocal,
+        Object[] local,
+        int nStack,
+        Object[] stack)
+    {
+        int mLocal;
+        int mStack;
+        switch (type) {
+            case Opcodes.F_NEW:
+            case Opcodes.F_FULL:
+                mLocal = Integer.MAX_VALUE;
+                mStack = Integer.MAX_VALUE;
+                break;
+
+            case Opcodes.F_SAME:
+                mLocal = 0;
+                mStack = 0;
+                break;
+
+            case Opcodes.F_SAME1:
+                mLocal = 0;
+                mStack = 1;
+                break;
+
+            case Opcodes.F_APPEND:
+            case Opcodes.F_CHOP:
+                mLocal = 3;
+                mStack = 0;
+                break;
+
+            default:
+                throw new IllegalArgumentException("Invalid frame type " + type);
+        }
+
+        if (nLocal > mLocal) {
+            throw new IllegalArgumentException("Invalid nLocal for frame type "
+                    + type);
+        }
+        if (nStack > mStack) {
+            throw new IllegalArgumentException("Invalid nStack for frame type "
+                    + type);
+        }
+
+        if (local.length < nLocal) {
+            throw new IllegalArgumentException("Array local[] is shorter then nLocal");
+        }
+        if (stack.length < nStack) {
+            throw new IllegalArgumentException("Array stack[] is shorter then nStack");
+        }
+
+        /*
+         * TODO check values of the individual frames.
+         * Primitive types are represented by Opcodes.TOP, Opcodes.INTEGER,
+         * Opcodes.FLOAT, Opcodes.LONG, Opcodes.DOUBLE,Opcodes.NULL or
+         * Opcodes.UNINITIALIZED_THIS (long and double are represented by a
+         * single element). Reference types are represented by String objects,
+         * and uninitialized types by Label objects (this label designates the
+         * NEW instruction that created this uninitialized value).
+         */
+
+        mv.visitFrame(type, nLocal, local, nStack, stack);
+    }
+
     // -------------------------------------------------------------------------
 
     /**
@@ -622,18 +690,19 @@ public class CheckMethodAdapter extends MethodAdapter {
     }
 
     /**
-     * Checks that the given value is an {@link Integer}, a{@link Float}, a
+     * Checks that the given value is an {@link Integer}, a {@link Float}, a
      * {@link Long}, a {@link Double} or a {@link String}.
      * 
      * @param cst the value to be checked.
      */
     static void checkConstant(final Object cst) {
-        if (!(cst instanceof Integer) && !(cst instanceof Float)
-                && !(cst instanceof Long) && !(cst instanceof Double)
-                && !(cst instanceof String))
+        if (cst instanceof Integer || cst instanceof Float
+                || cst instanceof Long || cst instanceof Double
+                || cst instanceof String)
         {
-            throw new IllegalArgumentException("Invalid constant: " + cst);
+            return;
         }
+        throw new IllegalArgumentException("Invalid constant: " + cst);
     }
 
     /**
@@ -652,8 +721,8 @@ public class CheckMethodAdapter extends MethodAdapter {
      * @param name the string to be checked.
      * @param start index of the first character of the identifier (inclusive).
      * @param end index of the last character of the identifier (exclusive). -1
-     *        is equivalent to <tt>name.length()</tt> if name is not
-     *        <tt>null</tt>.
+     *            is equivalent to <tt>name.length()</tt> if name is not
+     *            <tt>null</tt>.
      * @param msg a message to be used in case of error.
      */
     static void checkIdentifier(
@@ -727,8 +796,8 @@ public class CheckMethodAdapter extends MethodAdapter {
      * @param name the string to be checked.
      * @param start index of the first character of the identifier (inclusive).
      * @param end index of the last character of the identifier (exclusive). -1
-     *        is equivalent to <tt>name.length()</tt> if name is not
-     *        <tt>null</tt>.
+     *            is equivalent to <tt>name.length()</tt> if name is not
+     *            <tt>null</tt>.
      * @param msg a message to be used in case of error.
      */
     static void checkInternalName(

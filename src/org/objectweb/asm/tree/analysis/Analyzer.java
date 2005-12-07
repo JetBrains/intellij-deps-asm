@@ -251,6 +251,9 @@ public class Analyzer implements Opcodes {
             } catch (AnalyzerException e) {
                 throw new AnalyzerException("Error at instruction " + insn
                         + ": " + e.getMessage(), e);
+            } catch(Exception e) {
+                throw new AnalyzerException("Error at instruction " + insn
+                        + ": " + e.getMessage(), e);
             }
         }
 

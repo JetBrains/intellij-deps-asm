@@ -94,6 +94,10 @@ public class CheckClassAdapter extends ClassAdapter {
             cr = new ClassReader(args[0]);
         }
 
+        verify(cr);
+    }
+
+    public static void verify(ClassReader cr) {
         ClassNode cn = new ClassNode();
         cr.accept(new CheckClassAdapter(cn), true);
 
@@ -113,7 +117,7 @@ public class CheckClassAdapter extends ClassAdapter {
                 }
                 final Frame[] frames = a.getFrames();
 
-                System.out.println(method.name + method.desc);
+                System.err.println(method.name + method.desc);
                 TraceMethodVisitor mv = new TraceMethodVisitor() {
                     public void visitMaxs(
                         final int maxStack,
@@ -126,11 +130,11 @@ public class CheckClassAdapter extends ClassAdapter {
                             while (s.length() < maxStack + maxLocals + 1) {
                                 s += " ";
                             }
-                            System.out.print(Integer.toString(i + 100000)
+                            System.err.print(Integer.toString(i + 100000)
                                     .substring(1));
-                            System.out.print(" " + s + " : " + text.get(i));
+                            System.err.print(" " + s + " : " + text.get(i));
                         }
-                        System.out.println();
+                        System.err.println();
                     }
                 };
                 for (int j = 0; j < method.instructions.size(); ++j) {

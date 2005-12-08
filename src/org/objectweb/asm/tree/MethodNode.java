@@ -415,13 +415,13 @@ public class MethodNode extends MemberNode implements MethodVisitor {
         // visits the method's code
         if (instructions.size() > 0) {
             mv.visitCode();
-            // visits instructions
-            for (i = 0; i < instructions.size(); ++i) {
-                ((AbstractInsnNode) instructions.get(i)).accept(mv);
-            }
             // visits try catch blocks
             for (i = 0; i < tryCatchBlocks.size(); ++i) {
                 ((TryCatchBlockNode) tryCatchBlocks.get(i)).accept(mv);
+            }
+            // visits instructions
+            for (i = 0; i < instructions.size(); ++i) {
+                ((AbstractInsnNode) instructions.get(i)).accept(mv);
             }
             // visits local variables
             n = localVariables == null ? 0 : localVariables.size();

@@ -182,9 +182,13 @@ public class BasicInterpreter implements Opcodes, Interpreter {
             case NEWARRAY:
                 switch (((IntInsnNode) insn).operand) {
                     case T_BOOLEAN:
+                        return newValue(Type.getType("[Z"));
                     case T_CHAR:
+                        return newValue(Type.getType("[C"));
                     case T_BYTE:
+                        return newValue(Type.getType("[B"));
                     case T_SHORT:
+                        return newValue(Type.getType("[S"));
                     case T_INT:
                         return newValue(Type.getType("[I"));
                     case T_FLOAT:

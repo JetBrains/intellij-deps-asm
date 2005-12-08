@@ -192,10 +192,23 @@ public class BasicVerifier extends BasicInterpreter {
         Value expected2;
         switch (insn.getOpcode()) {
             case IALOAD:
-            case BALOAD:
-            case CALOAD:
-            case SALOAD:
                 expected1 = newValue(Type.getType("[I"));
+                expected2 = BasicValue.INT_VALUE;
+                break;
+            case BALOAD:
+                if (!isSubTypeOf(value1, newValue(Type.getType("[Z")))) {
+                    expected1 = newValue(Type.getType("[B"));
+                } else {
+                    expected1 = newValue(Type.getType("[Z"));
+                }
+                expected2 = BasicValue.INT_VALUE;
+                break;
+            case CALOAD:
+                expected1 = newValue(Type.getType("[C"));
+                expected2 = BasicValue.INT_VALUE;
+                break;
+            case SALOAD:
+                expected1 = newValue(Type.getType("[S"));
                 expected2 = BasicValue.INT_VALUE;
                 break;
             case LALOAD:
@@ -307,10 +320,23 @@ public class BasicVerifier extends BasicInterpreter {
         Value expected3;
         switch (insn.getOpcode()) {
             case IASTORE:
-            case BASTORE:
-            case CASTORE:
-            case SASTORE:
                 expected1 = newValue(Type.getType("[I"));
+                expected3 = BasicValue.INT_VALUE;
+                break;
+            case BASTORE:
+                if (!isSubTypeOf(value1, newValue(Type.getType("[Z")))) {
+                    expected1 = newValue(Type.getType("[B"));
+                } else {
+                    expected1 = newValue(Type.getType("[Z"));
+                }
+                expected3 = BasicValue.INT_VALUE;
+                break;
+            case CASTORE:
+                expected1 = newValue(Type.getType("[C"));
+                expected3 = BasicValue.INT_VALUE;
+                break;
+            case SASTORE:
+                expected1 = newValue(Type.getType("[S"));
                 expected3 = BasicValue.INT_VALUE;
                 break;
             case LASTORE:

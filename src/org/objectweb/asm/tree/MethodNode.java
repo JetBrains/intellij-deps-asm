@@ -361,7 +361,10 @@ public class MethodNode extends MemberNode implements MethodVisitor {
         if (mv == null) {
             return;
         }
-
+        accept(mv);
+    }
+    
+    public void accept(final MethodVisitor mv) {
         // visits the method attributes
         int i, j, n;
         if (annotationDefault != null) {
@@ -435,4 +438,5 @@ public class MethodNode extends MemberNode implements MethodVisitor {
         }
         mv.visitEnd();
     }
+    
 }

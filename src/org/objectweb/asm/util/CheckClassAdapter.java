@@ -94,10 +94,10 @@ public class CheckClassAdapter extends ClassAdapter {
             cr = new ClassReader(args[0]);
         }
 
-        verify(cr);
+        verify(cr, false);
     }
 
-    public static void verify(ClassReader cr) {
+    public static void verify(ClassReader cr, boolean dump) {
         ClassNode cn = new ClassNode();
         cr.accept(new CheckClassAdapter(cn), true);
 
@@ -111,7 +111,7 @@ public class CheckClassAdapter extends ClassAdapter {
                         (cn.access & Opcodes.ACC_INTERFACE) != 0));
                 try {
                     a.analyze(cn.name, method);
-                    continue;
+                    if(!dump) continue;
                 } catch (Exception e) {
                     e.printStackTrace();
                 }

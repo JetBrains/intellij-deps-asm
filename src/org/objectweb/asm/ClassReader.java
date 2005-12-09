@@ -1042,7 +1042,7 @@ public class ClassReader {
                                     while (desc.charAt(j) != ';') {
                                         ++j;
                                     }
-                                    frameLocal[local++] = desc.substring(k, ++j);
+                                    frameLocal[local++] = desc.substring(k + 1, j++);
                                     break;
                                 default:
                                     break loop;

@@ -146,6 +146,10 @@ public class AnalyzerAdapter extends MethodAdapter {
         final int nStack,
         final Object[] stack)
     {
+        if (type != Opcodes.F_NEW) { // uncompressed frame
+            throw new IllegalStateException("ClassReader.accept() should be called with EXPAND_FRAMES flag");
+        }
+
         if (this.locals != null) {
             this.locals.clear();
             this.stack.clear();
@@ -153,28 +157,9 @@ public class AnalyzerAdapter extends MethodAdapter {
             this.locals = new ArrayList();
             this.stack = new ArrayList();
         }
-        switch (type) {
-            case Opcodes.F_NEW:
-            case Opcodes.F_FULL:
-                previousLocals.clear();
-                visitFrameTypes(nLocal, local, previousLocals);
-                visitFrameTypes(nStack, stack, this.stack);
-                break;
-            case Opcodes.F_APPEND:
-                visitFrameTypes(nLocal, local, previousLocals);
-                break;
-            case Opcodes.F_CHOP:
-                int n = previousLocals.size() - 1;
-                for (int i = 0; i < nLocal; ++i, --n) {
-                    previousLocals.remove(n);
-                }
-                break;
-            case Opcodes.F_SAME:
-                break;
-            case Opcodes.F_SAME1:
-                visitFrameTypes(1, stack, this.stack);
-                break;
-        }
+        previousLocals.clear();
+        visitFrameTypes(nLocal, local, previousLocals);
+        visitFrameTypes(nStack, stack, this.stack);
         this.locals.addAll(previousLocals);
 
         if (delegate) {

@@ -45,22 +45,6 @@ public class LocalVariablesSorterTest2 extends AbstractTest {
         ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_MAXS);
         cr.accept(new ClassAdapter(cw) {
 
-            public void visit(
-                int version,
-                int access,
-                String name,
-                String signature,
-                String superName,
-                String[] interfaces)
-            {
-                super.visit(Opcodes.V1_6,
-                        access,
-                        name,
-                        signature,
-                        superName,
-                        interfaces);
-            }
-
             public MethodVisitor visitMethod(
                 int access,
                 String name,

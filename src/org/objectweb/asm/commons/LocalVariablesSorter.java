@@ -172,7 +172,7 @@ public class LocalVariablesSorter extends MethodAdapter {
         final Label end,
         final int index)
     {
-        int newIndex = remap(index) & 0xFFFF;
+        int newIndex = remap(index, 0) & 0xFFFF;
         mv.visitLocalVariable(name, desc, signature, start, end, newIndex);
     }
 
@@ -195,18 +195,19 @@ public class LocalVariablesSorter extends MethodAdapter {
         int index = 0; // old local variable index
         int number = 0; // old local variable number
         for (; number < nLocal; ++number) {
+            Object t = local[number];
+            int size = (t == Opcodes.LONG || t == Opcodes.DOUBLE ? 2 : 1);
             int newNumber; // new local variable number
             if (index < firstLocal) {
                 newNumber = number;
             } else {
-                newNumber = remap(index) >> 16;
+                newNumber = remap(index, size) >> 16;
             }
             if (newNumber >= newNLocal) {
                 newNLocal = newNumber + 1;
             }
-            Object t = local[number];
             setFrameLocal(newNumber, t);
-            index += (t == Opcodes.LONG || t == Opcodes.DOUBLE ? 2 : 1);
+            index += size;
         }
 
         // fills in potential gaps
@@ -315,18 +316,18 @@ public class LocalVariablesSorter extends MethodAdapter {
         return value.intValue();
     }
 
-    private int remap(final int var) {
+    private int remap(final int var, final int size) {
         if (var < firstLocal) {
             return var;
         }
-        Integer key = new Integer(var);
+        Integer key = new Integer(size == 2 ? ~var : var);
         Integer value = (Integer) locals.get(key);
-        if (value == null) {
+        if (value == null && size == 0) {
             key = new Integer(~var);
             value = (Integer) locals.get(key);
-            if (value == null) {
-                throw new IllegalStateException("Unknown local variable " + var);
-            }
+        }
+        if (value == null) {
+            throw new IllegalStateException("Unknown local variable " + var);
         }
         return value.intValue();
     }

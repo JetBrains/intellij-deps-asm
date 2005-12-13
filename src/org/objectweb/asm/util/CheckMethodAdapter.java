@@ -306,13 +306,12 @@ public class CheckMethodAdapter extends MethodAdapter {
         final String desc,
         final boolean visible)
     {
-        // TODO
-        return mv.visitAnnotation(desc, visible);
+        checkDesc(desc, false);
+        return new CheckAnnotationAdapter(mv.visitAnnotation(desc, visible));
     }
 
     public AnnotationVisitor visitAnnotationDefault() {
-        // TODO
-        return mv.visitAnnotationDefault();
+        return new CheckAnnotationAdapter(mv.visitAnnotationDefault(), false);
     }
 
     public AnnotationVisitor visitParameterAnnotation(
@@ -320,11 +319,13 @@ public class CheckMethodAdapter extends MethodAdapter {
         final String desc,
         final boolean visible)
     {
-        // TODO
-        return mv.visitParameterAnnotation(parameter, desc, visible);
+        checkDesc(desc, false);
+        return new CheckAnnotationAdapter(mv.visitParameterAnnotation(parameter,
+                desc,
+                visible));
     }
 
-    public void visitAttribute(Attribute attr) {
+    public void visitAttribute(final Attribute attr) {
         if (attr == null) {
             throw new IllegalArgumentException("Invalid attribute (must not be null)");
         }

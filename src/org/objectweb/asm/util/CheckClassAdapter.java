@@ -67,6 +67,16 @@ public class CheckClassAdapter extends ClassAdapter {
     private boolean start;
 
     /**
+     * <tt>true</tt> if the visitSource method has been called.
+     */
+    private boolean source;
+
+    /**
+     * <tt>true</tt> if the visitOuterClass method has been called.
+     */
+    private boolean outer;
+
+    /**
      * <tt>true</tt> if the visitEnd method has been called.
      */
     private boolean end;
@@ -111,7 +121,9 @@ public class CheckClassAdapter extends ClassAdapter {
                         (cn.access & Opcodes.ACC_INTERFACE) != 0));
                 try {
                     a.analyze(cn.name, method);
-                    if(!dump) continue;
+                    if (!dump) {
+                        continue;
+                    }
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -203,7 +215,11 @@ public class CheckClassAdapter extends ClassAdapter {
     }
 
     public void visitSource(final String file, final String debug) {
-        // TODO check called only once, after visit()
+        checkState();
+        if (source) {
+            throw new IllegalStateException("visitSource can be called only once.");
+        }
+        source = true;
         cv.visitSource(file, debug);
     }
 
@@ -212,7 +228,17 @@ public class CheckClassAdapter extends ClassAdapter {
         final String name,
         final String desc)
     {
-        // TODO check called only once, after visit(); check arguments
+        checkState();
+        if (outer) {
+            throw new IllegalStateException("visitSource can be called only once.");
+        }
+        outer = true;
+        if (owner == null) {
+            throw new IllegalArgumentException("Illegal outer class owner");
+        }
+        if (desc != null) {
+            CheckMethodAdapter.checkMethodDesc(desc);
+        }
         cv.visitOuterClass(owner, name, desc);
     }
 
@@ -260,8 +286,7 @@ public class CheckClassAdapter extends ClassAdapter {
             CheckMethodAdapter.checkConstant(value);
         }
         FieldVisitor av = cv.visitField(access, name, desc, signature, value);
-        // TODO return checkadapter(av)
-        return av;
+        return new CheckFieldAdapter(av);
     }
 
     public MethodVisitor visitMethod(
@@ -300,8 +325,9 @@ public class CheckClassAdapter extends ClassAdapter {
         final String desc,
         final boolean visible)
     {
-        // TODO
-        return cv.visitAnnotation(desc, visible);
+        checkState();
+        CheckMethodAdapter.checkDesc(desc, false);
+        return new CheckAnnotationAdapter(cv.visitAnnotation(desc, visible));
     }
 
     public void visitAttribute(final Attribute attr) {
@@ -309,6 +335,7 @@ public class CheckClassAdapter extends ClassAdapter {
         if (attr == null) {
             throw new IllegalArgumentException("Invalid attribute (must not be null)");
         }
+        cv.visitAttribute(attr);
     }
 
     public void visitEnd() {

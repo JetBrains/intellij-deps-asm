@@ -1,6 +1,6 @@
 /***
- * ASM tests
- * Copyright (c) 2002-2005 France Telecom
+ * ASM: a very small and fast Java bytecode manipulation framework
+ * Copyright (c) 2000-2005 INRIA, France Telecom
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -29,27 +29,47 @@
  */
 package org.objectweb.asm.util;
 
-import junit.framework.TestSuite;
-
-import org.objectweb.asm.AbstractTest;
-import org.objectweb.asm.ClassReader;
-import org.objectweb.asm.ClassWriter;
+import org.objectweb.asm.AnnotationVisitor;
+import org.objectweb.asm.Attribute;
+import org.objectweb.asm.FieldVisitor;
 
 /**
- * CheckClassAdapter tests.
- * 
- * @author Eric Bruneton
+ * A {@link FieldVisitor} that checks that its methods are properly used.
  */
-public class CheckClassAdapterTest extends AbstractTest {
+public class CheckFieldAdapter implements FieldVisitor {
 
-    public static TestSuite suite() throws Exception {
-        return new CheckClassAdapterTest().getSuite();
+    private FieldVisitor fv;
+
+    private boolean end;
+
+    public CheckFieldAdapter(final FieldVisitor fv) {
+        this.fv = fv;
     }
 
-    public void test() throws Exception {
-        ClassReader cr = new ClassReader(is);
-        ClassWriter cw = new ClassWriter(false);
-        cr.accept(new CheckClassAdapter(cw), false);
-        assertEquals(cr, new ClassReader(cw.toByteArray()));
+    public AnnotationVisitor visitAnnotation(final String desc, boolean visible)
+    {
+        checkEnd();
+        CheckMethodAdapter.checkDesc(desc, false);
+        return new CheckAnnotationAdapter(fv.visitAnnotation(desc, visible));
+    }
+
+    public void visitAttribute(final Attribute attr) {
+        checkEnd();
+        if (attr == null) {
+            throw new IllegalArgumentException("Invalid attribute (must not be null)");
+        }
+        fv.visitAttribute(attr);
+    }
+
+    public void visitEnd() {
+        checkEnd();
+        end = true;
+        fv.visitEnd();
+    }
+
+    private void checkEnd() {
+        if (end) {
+            throw new IllegalStateException("Cannot call a visit method after visitEnd has been called");
+        }
     }
 }

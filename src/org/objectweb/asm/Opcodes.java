@@ -88,41 +88,44 @@ public interface Opcodes {
     int T_INT = 10;
     int T_LONG = 11;
 
-
     // stack map frame types
-    
+
     /**
-     * Representing expanded frame.
-     * See {@link ClassReader#EXPAND_FRAMES}.
+     * Represents an expanded frame. See {@link ClassReader#EXPAND_FRAMES}.
      */
     int F_NEW = -1;
-    
+
     /**
-     * Representing comressed frame with complete frame data.
+     * Represents a compressed frame with complete frame data.
      */
     int F_FULL = 0;
+
     /**
-     * Representing comressed frame with current locals are the same as the locals in the
-     * previous frame, except that additional 1-3 locals are defined.
+     * Represents a compressed frame where locals are the same as the locals in
+     * the previous frame, except that additional 1-3 locals are defined, and
+     * with an empty stack.
      */
     int F_APPEND = 1;
+
     /**
-     * Representing comressed frame with current locals are the same as the locals in the
-     * previous frame, except that the last 1-3 locals are absent and with the
-     * empty stack.
+     * Represents a compressed frame where locals are the same as the locals in
+     * the previous frame, except that the last 1-3 locals are absent and with
+     * an empty stack.
      */
     int F_CHOP = 2;
+
     /**
-     * Representing comressed frame with exactly the same locals as the previous frame and
-     * with the empty stack.
+     * Represents a compressed frame with exactly the same locals as the
+     * previous frame and with an empty stack.
      */
     int F_SAME = 3;
+
     /**
-     * Representing comressed frame with exactly the same locals as the previous frame and
-     * with single value on the stack.
+     * Represents a compressed frame with exactly the same locals as the
+     * previous frame and with a single value on the stack.
      */
     int F_SAME1 = 4;
-    
+
     Integer TOP = new Integer(0);
     Integer INTEGER = new Integer(1);
     Integer FLOAT = new Integer(2);

@@ -33,8 +33,7 @@ import junit.framework.TestSuite;
 
 import org.objectweb.asm.AbstractTest;
 import org.objectweb.asm.ClassReader;
-import org.objectweb.asm.ClassVisitor;
-import org.objectweb.asm.commons.EmptyVisitor;
+import org.objectweb.asm.ClassWriter;
 
 /**
  * CheckClassAdapter tests.
@@ -49,7 +48,8 @@ public class CheckClassAdapterTest extends AbstractTest {
 
     public void test() throws Exception {
         ClassReader cr = new ClassReader(is);
-        ClassVisitor cv = new CheckClassAdapter(new EmptyVisitor());
-        cr.accept(cv, 0);
+        ClassWriter cw = new ClassWriter(0);
+        cr.accept(new CheckClassAdapter(cw), 0);
+        assertEquals(cr, new ClassReader(cw.toByteArray()));
     }
 }

@@ -429,7 +429,7 @@ public class CheckMethodAdapter extends MethodAdapter {
 
     public void visitLdcInsn(final Object cst) {
         checkEnd();
-        if(cst==null) {
+        if (cst == null) {
             throw new IllegalArgumentException("Value of the constant acn't be null");
         }
         if (!(cst instanceof Type)) {
@@ -599,25 +599,25 @@ public class CheckMethodAdapter extends MethodAdapter {
         }
 
         if (nLocal > mLocal) {
-            throw new IllegalArgumentException("Invalid nLocal for frame type "
-                    + type);
+            throw new IllegalArgumentException("Invalid nLocal=" + nLocal
+                    + " for frame type " + type);
         }
         if (nStack > mStack) {
-            throw new IllegalArgumentException("Invalid nStack for frame type "
-                    + type);
+            throw new IllegalArgumentException("Invalid nStack=" + nStack
+                    + " for frame type " + type);
         }
 
         if (local.length < nLocal) {
-            throw new IllegalArgumentException("Array local[] is shorter then nLocal");
+            throw new IllegalArgumentException("Array local[] is shorter than nLocal");
         }
         if (stack.length < nStack) {
-            throw new IllegalArgumentException("Array stack[] is shorter then nStack");
+            throw new IllegalArgumentException("Array stack[] is shorter than nStack");
         }
 
         /*
-         * TODO check values of the individual frames.
-         * Primitive types are represented by Opcodes.TOP, Opcodes.INTEGER,
-         * Opcodes.FLOAT, Opcodes.LONG, Opcodes.DOUBLE,Opcodes.NULL or
+         * TODO check values of the individual frames. Primitive types are
+         * represented by Opcodes.TOP, Opcodes.INTEGER, Opcodes.FLOAT,
+         * Opcodes.LONG, Opcodes.DOUBLE,Opcodes.NULL or
          * Opcodes.UNINITIALIZED_THIS (long and double are represented by a
          * single element). Reference types are represented by String objects,
          * and uninitialized types by Label objects (this label designates the
@@ -721,8 +721,8 @@ public class CheckMethodAdapter extends MethodAdapter {
      * @param name the string to be checked.
      * @param start index of the first character of the identifier (inclusive).
      * @param end index of the last character of the identifier (exclusive). -1
-     *            is equivalent to <tt>name.length()</tt> if name is not
-     *            <tt>null</tt>.
+     *        is equivalent to <tt>name.length()</tt> if name is not
+     *        <tt>null</tt>.
      * @param msg a message to be used in case of error.
      */
     static void checkIdentifier(
@@ -796,8 +796,8 @@ public class CheckMethodAdapter extends MethodAdapter {
      * @param name the string to be checked.
      * @param start index of the first character of the identifier (inclusive).
      * @param end index of the last character of the identifier (exclusive). -1
-     *            is equivalent to <tt>name.length()</tt> if name is not
-     *            <tt>null</tt>.
+     *        is equivalent to <tt>name.length()</tt> if name is not
+     *        <tt>null</tt>.
      * @param msg a message to be used in case of error.
      */
     static void checkInternalName(

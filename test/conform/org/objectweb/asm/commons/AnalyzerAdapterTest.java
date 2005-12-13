@@ -92,6 +92,6 @@ public class AnalyzerAdapterTest extends AbstractTest {
                 return new AnalyzerAdapter(owner, access, name, desc, mv);
             }
         };
-        cr.accept(cv, 0);
+        cr.accept(cv, ClassReader.EXPAND_FRAMES);
     }
 }

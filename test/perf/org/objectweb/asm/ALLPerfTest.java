@@ -52,6 +52,7 @@ import org.apache.bcel.generic.InstructionList;
 import org.apache.bcel.generic.MethodGen;
 import org.apache.bcel.verifier.structurals.ModifiedPass3bVerifier;
 import org.objectweb.asm.commons.EmptyVisitor;
+import org.objectweb.asm.commons.LocalVariablesSorter;
 import org.objectweb.asm.tree.ClassNode;
 
 import serp.bytecode.BCClass;
@@ -150,6 +151,38 @@ public abstract class ALLPerfTest extends ClassLoader {
             System.out.println("Time to deserialize and reserialize "
                     + classes.size() + " classes with computeFrames = " + t
                     + " ms (" + errors + " errors)");
+        }
+
+        for (int i = 0; i < 10; ++i) {
+            long t = System.currentTimeMillis();
+            for (int j = 0; j < classes.size(); ++j) {
+                byte[] b = (byte[]) classes.get(j);
+                ClassWriter cw = new ClassWriter(0);
+                new ClassReader(b).accept(new ClassAdapter(cw) {
+
+                    public MethodVisitor visitMethod(
+                        int access,
+                        String name,
+                        String desc,
+                        String signature,
+                        String[] exceptions)
+                    {
+                        return new LocalVariablesSorter(access,
+                                desc,
+                                cv.visitMethod(access,
+                                        name,
+                                        desc,
+                                        signature,
+                                        exceptions));
+                    }
+
+                }, ClassReader.EXPAND_FRAMES);
+                cw.toByteArray();
+            }
+            t = System.currentTimeMillis() - t;
+            System.out.println("Time to deserialize and reserialize "
+                    + classes.size() + " classes with LocalVariablesSorter = "
+                    + t + " ms");
         }
 
         System.out.println();

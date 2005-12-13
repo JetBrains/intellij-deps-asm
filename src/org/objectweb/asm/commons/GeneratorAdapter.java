@@ -29,7 +29,9 @@
  */
 package org.objectweb.asm.commons;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.Label;
@@ -217,6 +219,11 @@ public class GeneratorAdapter extends LocalVariablesSorter {
     private final Type[] argumentTypes;
 
     /**
+     * Types of the local variables of the method visited by this adapter.
+     */
+    private final List localTypes = new ArrayList();
+
+    /**
      * Creates a new {@link GeneratorAdapter}.
      * 
      * @param mv the method visitor to which this adapter delegates calls.
@@ -224,13 +231,18 @@ public class GeneratorAdapter extends LocalVariablesSorter {
      * @param name the method's name.
      * @param desc the method's descriptor (see {@link Type Type}).
      */
-    public GeneratorAdapter(MethodVisitor mv, int access, String name, String desc) {
+    public GeneratorAdapter(
+        MethodVisitor mv,
+        int access,
+        String name,
+        String desc)
+    {
         super(access, desc, mv);
         this.access = access;
         this.returnType = Type.getReturnType(desc);
         this.argumentTypes = Type.getArgumentTypes(desc);
     }
-    
+
     /**
      * Creates a new {@link GeneratorAdapter}.
      * 
@@ -500,6 +512,25 @@ public class GeneratorAdapter extends LocalVariablesSorter {
     // ------------------------------------------------------------------------
     // Instructions to load and store local variables
     // ------------------------------------------------------------------------
+
+    /**
+     * Returns the type of the given local variable.
+     * 
+     * @param local a local variable identifier, as returned by
+     *        {@link LocalVariablesSorter#newLocal(Type) newLocal()}.
+     * @return the type of the given local variable.
+     */
+    public Type getLocalType(final int local) {
+        return (Type) localTypes.get(local - firstLocal);
+    }
+
+    protected void setLocalType(final int local, final Type type) {
+        int index = local - firstLocal;
+        while (localTypes.size() < index + 1) {
+            localTypes.add(null);
+        }
+        localTypes.set(index, type);
+    }
 
     /**
      * Generates the instruction to load the given local variable on the stack.

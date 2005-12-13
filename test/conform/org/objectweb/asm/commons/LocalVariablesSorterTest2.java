@@ -20,7 +20,6 @@ import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.MethodVisitor;
-import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.util.TraceClassVisitor;
 
 public class LocalVariablesSorterTest2 extends AbstractTest {
@@ -42,7 +41,7 @@ public class LocalVariablesSorterTest2 extends AbstractTest {
 
     private static byte[] transformClass(byte[] clazz) {
         ClassReader cr = new ClassReader(clazz);
-        ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_MAXS);
+        ClassWriter cw = new ClassWriter(0);
         cr.accept(new ClassAdapter(cw) {
 
             public MethodVisitor visitMethod(

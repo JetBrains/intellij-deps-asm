@@ -77,7 +77,7 @@ public class GASMifierTest extends AbstractTest {
 
         StringWriter sw = new StringWriter();
         GASMifierClassVisitor cv = new GASMifierClassVisitor(new PrintWriter(sw));
-        cr.accept(cv, 0);
+        cr.accept(cv, ClassReader.EXPAND_FRAMES);
 
         String generated = sw.toString();
 
@@ -89,7 +89,7 @@ public class GASMifierTest extends AbstractTest {
             throw ex;
         }
 
-        ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_MAXS);
+        ClassWriter cw = new ClassWriter(0);
         cr.accept(new ClassAdapter(cw) {
             public MethodVisitor visitMethod(
                 int access,
@@ -106,7 +106,7 @@ public class GASMifierTest extends AbstractTest {
                                 signature,
                                 exceptions));
             }
-        }, 0);
+        }, ClassReader.EXPAND_FRAMES);
         cr = new ClassReader(cw.toByteArray());
 
         Class c = LOADER.defineClass("asm." + n + "Dump", generatorClassData);

@@ -1090,6 +1090,7 @@ public class ClassReader {
                                 tag = MethodWriter.FULL_FRAME;
                                 frameOffset = -1;
                             }
+                            frameLocalDiff = 0;
                             if (tag < MethodWriter.SAME_LOCALS_1_STACK_ITEM_FRAME)
                             {
                                 delta = tag;

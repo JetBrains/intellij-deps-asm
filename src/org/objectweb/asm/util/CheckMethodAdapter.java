@@ -329,6 +329,7 @@ public class CheckMethodAdapter extends MethodAdapter {
         if (attr == null) {
             throw new IllegalArgumentException("Invalid attribute (must not be null)");
         }
+        mv.visitAttribute(attr);
     }
 
     public void visitInsn(final int opcode) {

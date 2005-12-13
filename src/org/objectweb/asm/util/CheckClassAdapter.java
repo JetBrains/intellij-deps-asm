@@ -331,6 +331,7 @@ public class CheckClassAdapter extends ClassAdapter {
         if (attr == null) {
             throw new IllegalArgumentException("Invalid attribute (must not be null)");
         }
+        cv.visitAttribute(attr);
     }
 
     public void visitEnd() {

@@ -29,9 +29,6 @@
  */
 package org.objectweb.asm.commons;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodAdapter;
 import org.objectweb.asm.MethodVisitor;
@@ -41,15 +38,19 @@ import org.objectweb.asm.Type;
 /**
  * A {@link MethodAdapter} that renumbers local variables in their order of
  * appearance. This adapter allows one to easily add new local variables to a
- * method. <tt>computeMaxs</tt> <i>must be set to</i> <tt>true</tt> <i>in</i>
- * {@link org.objectweb.asm.ClassWriter#ClassWriter(boolean) ClassWriter}
- * <i>when this adapter is used</i>.
+ * method.
  * 
  * @author Chris Nokleberg
+ * @author Eric Bruneton
  */
 public class LocalVariablesSorter extends MethodAdapter {
 
-    private Map locals = new HashMap();
+    /**
+     * Mapping from old to new local variable indexes. A local variable at index
+     * i of size 1 is remapped to 'mapping[2*i]', while a local variable at
+     * index i of size 2 is remapped to 'mapping[2*i+1]'.
+     */
+    private int[] mapping = new int[40];
 
     protected final int firstLocal;
 
@@ -89,7 +90,7 @@ public class LocalVariablesSorter extends MethodAdapter {
     }
 
     public void visitMaxs(final int maxStack, final int maxLocals) {
-        mv.visitMaxs(0, 0);
+        mv.visitMaxs(maxStack, nextLocal);
     }
 
     public void visitLocalVariable(
@@ -115,28 +116,34 @@ public class LocalVariablesSorter extends MethodAdapter {
         if (var < firstLocal) {
             return var;
         }
-        Integer key = new Integer(size == 2 ? ~var : var);
-        Integer value = (Integer) locals.get(key);
-        if (value == null) {
-            value = new Integer(newLocal(size));
-            locals.put(key, value);
+        int key = 2 * var + size - 1;
+        int length = mapping.length;
+        if (key >= length) {
+            int[] newMapping = new int[Math.max(2 * length, key + 1)];
+            System.arraycopy(mapping, 0, newMapping, 0, length);
+            mapping = newMapping;
         }
-        return value.intValue();
+        int value = mapping[key];
+        if (value == 0) {
+            value = nextLocal + 1;
+            mapping[key] = value;
+            nextLocal += size;
+        }
+        return value - 1;
     }
 
     private int remap(final int var) {
         if (var < firstLocal) {
             return var;
         }
-        Integer key = new Integer(var);
-        Integer value = (Integer) locals.get(key);
-        if (value == null) {
-            key = new Integer(~var);
-            value = (Integer) locals.get(key);
-            if (value == null) {
-                throw new IllegalStateException("Unknown local variable " + var);
-            }
+        int key = 2 * var;
+        int value = key < mapping.length ? mapping[key] : 0;
+        if (value == 0) {
+            value = key + 1 < mapping.length ? mapping[key + 1] : 0;
         }
-        return value.intValue();
+        if (value == 0) {
+            throw new IllegalStateException("Unknown local variable " + var);
+        }
+        return value - 1;
     }
 }

@@ -112,7 +112,7 @@ public class ClassWriterTest3 extends AbstractTest {
                         interfaces);
             }
 
-        }, 0);
+        }, ClassReader.SKIP_FRAMES);
         return cw.toByteArray();
     }
 

@@ -53,6 +53,16 @@ public class ClassReader {
     public final static int SKIP_DEBUG = 1;
 
     /**
+     * Flag to skip the stack map frames in the class. If this flag is set the
+     * stack map frames of the class is not visited, i.e. the
+     * {@link MethodVisitor#visitFrame visitFrame} method will not be called.
+     * This flag is usefull when the {@link ClassWriter#COMPUTE_FRAMES} option
+     * is used: it avoids visiting frames that will be ignored and recomputed
+     * from scratch in the class writer.
+     */
+    public final static int SKIP_FRAMES = 2;
+
+    /**
      * Flag to expand the stack map frames. By default stack map frames are
      * visited in their original format (i.e. "expanded" for classes whose
      * version is less than V1_6, and "compressed" for the other classes). If
@@ -60,7 +70,7 @@ public class ClassReader {
      * (this option adds a decompression/recompression step in ClassReader and
      * ClassWriter which degrades performances quite a lot).
      */
-    public final static int EXPAND_FRAMES = 2;
+    public final static int EXPAND_FRAMES = 4;
 
     /**
      * The class to be parsed. <i>The content of this array must not be
@@ -243,7 +253,7 @@ public class ClassReader {
         classWriter.threshold = (int) (0.75d * ll);
         classWriter.index = ll;
     }
-    
+
     /**
      * Constructs a new {@link ClassReader} object.
      * 
@@ -674,7 +684,7 @@ public class ClassReader {
                     signature,
                     exceptions);
 
-            if (mv != null) {                
+            if (mv != null) {
                 /*
                  * if the returned MethodVisitor is in fact a MethodWriter, it
                  * means there is no method adapter between the reader and the
@@ -721,7 +731,7 @@ public class ClassReader {
                         }
                     }
                 }
-                
+
                 if (dann != 0) {
                     AnnotationVisitor dv = mv.visitAnnotationDefault();
                     readAnnotationValue(dann, c, null, dv);
@@ -945,8 +955,10 @@ public class ClassReader {
                             }
                         }
                     } else if (attrName.equals("StackMapTable")) {
-                        stackMap = v + 8;
-                        frameCount = readUnsignedShort(v + 6);
+                        if ((flags & SKIP_FRAMES) == 0) {
+                            stackMap = v + 8;
+                            frameCount = readUnsignedShort(v + 6);
+                        }
                         /*
                          * here we do not extract the labels corresponding to
                          * the attribute content. This would require a full
@@ -964,9 +976,11 @@ public class ClassReader {
                         // TODO true for frame offsets,
                         // but for UNINITIALIZED type offsets?
                     } else if (attrName.equals("StackMap")) {
-                        stackMap = v + 8;
-                        frameCount = readUnsignedShort(v + 6);
-                        zip = false;
+                        if ((flags & SKIP_FRAMES) == 0) {
+                            stackMap = v + 8;
+                            frameCount = readUnsignedShort(v + 6);
+                            zip = false;
+                        }
                         /*
                          * IMPORTANT! here we assume that the frames are
                          * ordered, as in the StackMapTable attribute, although
@@ -1042,7 +1056,8 @@ public class ClassReader {
                                     while (desc.charAt(j) != ';') {
                                         ++j;
                                     }
-                                    frameLocal[local++] = desc.substring(k + 1, j++);
+                                    frameLocal[local++] = desc.substring(k + 1,
+                                            j++);
                                     break;
                                 default:
                                     break loop;

@@ -358,12 +358,16 @@ public class MethodNode extends MemberNode implements MethodVisitor {
                 desc,
                 signature,
                 exceptions);
-        if (mv == null) {
-            return;
+        if (mv != null) {
+            accept(mv);
         }
-        accept(mv);
     }
     
+    /**
+     * Makes the given method visitor visit this method.
+     * 
+     * @param mv a method visitor.
+     */
     public void accept(final MethodVisitor mv) {
         // visits the method attributes
         int i, j, n;
@@ -438,5 +442,4 @@ public class MethodNode extends MemberNode implements MethodVisitor {
         }
         mv.visitEnd();
     }
-    
 }

@@ -41,7 +41,6 @@ import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Attribute;
 import org.objectweb.asm.Type;
-import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.MethodNode;
 import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.analysis.Analyzer;
@@ -127,32 +126,24 @@ public class CheckClassAdapter extends ClassAdapter {
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
-                final Frame[] frames = a.getFrames();
+                Frame[] frames = a.getFrames();
 
+                TraceMethodVisitor mv = new TraceMethodVisitor();
+                method.accept(mv);
+                
                 System.err.println(method.name + method.desc);
-                TraceMethodVisitor mv = new TraceMethodVisitor() {
-                    public void visitMaxs(
-                        final int maxStack,
-                        final int maxLocals)
-                    {
-                        for (int i = 0; i < text.size(); ++i) {
-                            String s = frames[i] == null
-                                    ? "null"
-                                    : frames[i].toString();
-                            while (s.length() < maxStack + maxLocals + 1) {
-                                s += " ";
-                            }
-                            System.err.print(Integer.toString(i + 100000)
-                                    .substring(1));
-                            System.err.print(" " + s + " : " + text.get(i));
-                        }
-                        System.err.println();
+                for (int j = 0; j < mv.text.size(); ++j) {
+                    String s = frames[j] == null
+                            ? "null"
+                            : frames[j].toString();
+                    while (s.length() < method.maxStack + method.maxLocals + 1) {
+                        s += " ";
                     }
-                };
-                for (int j = 0; j < method.instructions.size(); ++j) {
-                    ((AbstractInsnNode) method.instructions.get(j)).accept(mv);
+                    System.err.print(Integer.toString(i + 100000)
+                            .substring(1));
+                    System.err.print(" " + s + " : " + mv.text.get(i));
                 }
-                mv.visitMaxs(method.maxStack, method.maxLocals);
+                System.err.println();
             }
         }
     }

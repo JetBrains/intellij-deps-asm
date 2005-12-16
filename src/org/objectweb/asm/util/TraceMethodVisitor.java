@@ -449,14 +449,11 @@ public class TraceMethodVisitor extends TraceAbstractVisitor implements
 
     public void visitMaxs(final int maxStack, final int maxLocals) {
         buf.setLength(0);
-        buf.append(tab2)
-                .append("MAXSTACK = ")
-                .append(maxStack)
-                .append('\n')
-                .append(tab2)
-                .append("MAXLOCALS = ")
-                .append(maxLocals)
-                .append('\n');
+        buf.append(tab2).append("MAXSTACK = ").append(maxStack).append('\n');
+        text.add(buf.toString());
+
+        buf.setLength(0);
+        buf.append(tab2).append("MAXLOCALS = ").append(maxLocals).append('\n');
         text.add(buf.toString());
 
         if (mv != null) {

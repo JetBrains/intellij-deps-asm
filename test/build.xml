@@ -103,12 +103,6 @@
   <target name="init" depends="properties,check">  
     <mkdir dir="${out.test}"/>
     <mkdir dir="${out.test}/reports"/>
-    <condition property="classes" value="${out.build}">
-      <not><isset property="debug"/></not>
-    </condition>
-    <condition property="classes" value="${out.build}/tmp">
-      <isset property="debug"/>
-    </condition>
     <path id="test.classpath">
       <pathelement location="${classes}"/>
       <pathelement location="${out.test}"/>

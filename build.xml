@@ -91,7 +91,23 @@
   </target>
 
   <target name="init" depends="properties,check">
-    <taskdef name="multipleAnt"
+
+  	<path id="classpath">
+      <pathelement location="${out.build}"/>
+    </path>
+
+    <path id="cobertura.classpath">
+      <fileset dir="test/lib">
+        <include name="cobertura-1.6.jar"/>
+        <include name="log4j-1.2.9.jar"/>
+        <include name="jakarta-oro-2.0.8.jar"/>
+        <include name="asm-2.0.jar"/>
+        <include name="ccl.jar"/>
+        <include name="javancss.jar"/>
+      </fileset>
+    </path>
+
+  	<taskdef name="multipleAnt"
              classname="org.objectweb.util.ant.MultipleAnt"
              classpath="${objectweb.ant.tasks.path}"/>
 
@@ -103,9 +119,7 @@
              classname="org.objectweb.util.ant.MultipleCopy"
              classpath="${objectweb.ant.tasks.path}"/>
 
-    <path id="classpath">
-      <pathelement location="${out.build}"/>
-    </path>
+    <taskdef classpathref="cobertura.classpath" resource="tasks.properties"/>
   </target>
 
   <!-- =================================== -->
@@ -135,19 +149,25 @@
     </java>
   </target>
 
-  <target name="copy.tmp" depends="compile-debug" if="product.noshrink">
-    <copy todir="${out.build}" >
-      <fileset dir="${out.build}/tmp" />
+  <target name="noshrink" depends="compile-debug" if="product.noshrink">
+    <copy todir="${out.build}">
+      <fileset dir="${out.build}/tmp"/>
     </copy>
   </target>
 
-  <target name="compile" depends="compile-debug,shrink,copy.tmp"/>
+  <target name="compile" depends="compile-debug,shrink,noshrink"/>
 
   <!-- =================================== -->
   <!-- ==========      TEST     ========== -->
   <!-- =================================== -->
 
   <target name="test" depends="compile">
+    <condition property="classes" value="${out.build}">
+      <not><isset property="debug"/></not>
+    </condition>
+    <condition property="classes" value="${out.build}/tmp">
+      <isset property="debug"/>
+    </condition>
     <ant antfile="${test}/build.xml" target="test" inheritRefs="true"/>
   </target>
 
@@ -160,50 +180,30 @@
     </junitreport>
   </target>
 
-  <path id="cobertura.classpath">
-    <fileset dir="test/lib">
-      <include name="cobertura-1.6.jar"/>
-      <include name="log4j-1.2.9.jar"/>
-      <include name="jakarta-oro-2.0.8.jar"/>
-      <include name="asm-2.0.jar"/>
-      <include name="ccl.jar"/>
-      <include name="javancss.jar"/>
-    </fileset>
-  </path>
-
-  <target name="coverage.init">
-    <property name="product.noshrink" value="true"/>
-    <taskdef classpathref="cobertura.classpath" resource="tasks.properties"/>
-  </target>
-
-  <target name="instrument" depends="coverage.init,compile">
-    <!-- Remove the coverage data file and any old instrumentation. -->
-    <delete file="cobertura.ser"/>
-    <delete dir="${out.instr}" />
-
+  <target name="coverage" depends="compile">
+  	<delete file="cobertura.ser"/>
+  	<delete dir="${out.instr}"/>
     <cobertura-instrument todir="${out.instr}">
       <ignore regex="org.apache.log4j.*"/>
-      <fileset dir="${out.build}">
-        <include name="**/*.class" />
+      <fileset dir="${out.build}/tmp">
+        <include name="**/*.class"/>
+        <exclude name="**/optimizer/*.class" />
         <exclude name="**/*Test*.class" />
       </fileset>
     </cobertura-instrument>
-    <copy todir="${out.build}" overwrite="true">
-      <fileset dir="${out.instr}"/>
+    <copy todir="${out.instr}" preservelastmodified="yes">
+      <fileset dir="${out.build}/tmp"/>
     </copy>
+  	<property name="classes" value="${out.instr}"/>
+    <ant antfile="${test}/build.xml" target="test" inheritRefs="true"/>  	
   </target>
 
-  <target name="coverage" depends="instrument,test"/>
-
-  <target name="coverage.report" depends="coverage.init">
-    <!--
-      Generate an XML file containing the coverage data using
-      the "srcdir" attribute.
-    -->
+  <target name="coverage.report" depends="init">
     <cobertura-report destdir="${out}/coverage" srcdir="${src}" format="xml"/>
     <cobertura-report destdir="${out}/coverage">
       <fileset dir="${src}">
         <include name="**/*.java"/>
+      	<exclude name="**/asm/optimizer/**/*.java"/>
       </fileset>
     </cobertura-report>
   </target>

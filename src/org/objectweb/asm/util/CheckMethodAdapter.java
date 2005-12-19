@@ -54,9 +54,19 @@ import java.util.HashMap;
 public class CheckMethodAdapter extends MethodAdapter {
 
     /**
+     * <tt>true</tt> if the visitCode method has been called.
+     */
+    private boolean startCode;
+
+    /**
      * <tt>true</tt> if the visitMaxs method has been called.
      */
-    private boolean end;
+    private boolean endCode;
+
+    /**
+     * <tt>true</tt> if the visitEnd method has been called.
+     */
+    private boolean endMethod;
 
     /**
      * The already visited labels. This map associate Integer values to Label
@@ -306,11 +316,13 @@ public class CheckMethodAdapter extends MethodAdapter {
         final String desc,
         final boolean visible)
     {
+        checkEndMethod();
         checkDesc(desc, false);
         return new CheckAnnotationAdapter(mv.visitAnnotation(desc, visible));
     }
 
     public AnnotationVisitor visitAnnotationDefault() {
+        checkEndMethod();
         return new CheckAnnotationAdapter(mv.visitAnnotationDefault(), false);
     }
 
@@ -319,6 +331,7 @@ public class CheckMethodAdapter extends MethodAdapter {
         final String desc,
         final boolean visible)
     {
+        checkEndMethod();
         checkDesc(desc, false);
         return new CheckAnnotationAdapter(mv.visitParameterAnnotation(parameter,
                 desc,
@@ -326,20 +339,28 @@ public class CheckMethodAdapter extends MethodAdapter {
     }
 
     public void visitAttribute(final Attribute attr) {
+        checkEndMethod();
         if (attr == null) {
             throw new IllegalArgumentException("Invalid attribute (must not be null)");
         }
         mv.visitAttribute(attr);
     }
 
+    public void visitCode() {
+        startCode = true;
+        mv.visitCode();
+    }
+
     public void visitInsn(final int opcode) {
-        checkEnd();
+        checkStartCode();
+        checkEndCode();
         checkOpcode(opcode, 0);
         mv.visitInsn(opcode);
     }
 
     public void visitIntInsn(final int opcode, final int operand) {
-        checkEnd();
+        checkStartCode();
+        checkEndCode();
         checkOpcode(opcode, 1);
         switch (opcode) {
             case Opcodes.BIPUSH:
@@ -359,14 +380,16 @@ public class CheckMethodAdapter extends MethodAdapter {
     }
 
     public void visitVarInsn(final int opcode, final int var) {
-        checkEnd();
+        checkStartCode();
+        checkEndCode();
         checkOpcode(opcode, 2);
         checkUnsignedShort(var, "Invalid variable index");
         mv.visitVarInsn(opcode, var);
     }
 
     public void visitTypeInsn(final int opcode, final String desc) {
-        checkEnd();
+        checkStartCode();
+        checkEndCode();
         checkOpcode(opcode, 3);
         if (desc != null && desc.length() > 0 && desc.charAt(0) == '[') {
             checkDesc(desc, false);
@@ -386,7 +409,8 @@ public class CheckMethodAdapter extends MethodAdapter {
         final String name,
         final String desc)
     {
-        checkEnd();
+        checkStartCode();
+        checkEndCode();
         checkOpcode(opcode, 4);
         checkInternalName(owner, "owner");
         checkIdentifier(name, "name");
@@ -400,7 +424,8 @@ public class CheckMethodAdapter extends MethodAdapter {
         final String name,
         final String desc)
     {
-        checkEnd();
+        checkStartCode();
+        checkEndCode();
         checkOpcode(opcode, 5);
         checkMethodIdentifier(name, "name");
         if (!name.equals("clone")) {
@@ -412,14 +437,16 @@ public class CheckMethodAdapter extends MethodAdapter {
     }
 
     public void visitJumpInsn(final int opcode, final Label label) {
-        checkEnd();
+        checkStartCode();
+        checkEndCode();
         checkOpcode(opcode, 6);
         checkLabel(label, false, "label");
         mv.visitJumpInsn(opcode, label);
     }
 
     public void visitLabel(final Label label) {
-        checkEnd();
+        checkStartCode();
+        checkEndCode();
         checkLabel(label, false, "label");
         if (labels.get(label) != null) {
             throw new IllegalArgumentException("Already visited label");
@@ -430,7 +457,8 @@ public class CheckMethodAdapter extends MethodAdapter {
     }
 
     public void visitLdcInsn(final Object cst) {
-        checkEnd();
+        checkStartCode();
+        checkEndCode();
         if (!(cst instanceof Type)) {
             checkConstant(cst);
         }
@@ -438,7 +466,8 @@ public class CheckMethodAdapter extends MethodAdapter {
     }
 
     public void visitIincInsn(final int var, final int increment) {
-        checkEnd();
+        checkStartCode();
+        checkEndCode();
         checkUnsignedShort(var, "Invalid variable index");
         checkSignedShort(increment, "Invalid increment");
         mv.visitIincInsn(var, increment);
@@ -450,7 +479,8 @@ public class CheckMethodAdapter extends MethodAdapter {
         final Label dflt,
         final Label labels[])
     {
-        checkEnd();
+        checkStartCode();
+        checkEndCode();
         if (max < min) {
             throw new IllegalArgumentException("Max = " + max
                     + " must be greater than or equal to min = " + min);
@@ -470,11 +500,12 @@ public class CheckMethodAdapter extends MethodAdapter {
         final int keys[],
         final Label labels[])
     {
-        checkEnd();
+        checkEndCode();
+        checkStartCode();
         checkLabel(dflt, false, "default label");
         if (keys == null || labels == null || keys.length != labels.length) {
             throw new IllegalArgumentException("There must be the same number of keys and labels");
-        }
+       }
         for (int i = 0; i < labels.length; ++i) {
             checkLabel(labels[i], false, "label at index " + i);
         }
@@ -482,7 +513,8 @@ public class CheckMethodAdapter extends MethodAdapter {
     }
 
     public void visitMultiANewArrayInsn(final String desc, final int dims) {
-        checkEnd();
+        checkStartCode();
+        checkEndCode();
         checkDesc(desc, false);
         if (desc.charAt(0) != '[') {
             throw new IllegalArgumentException("Invalid descriptor (must be an array type descriptor): "
@@ -505,7 +537,8 @@ public class CheckMethodAdapter extends MethodAdapter {
         final Label handler,
         final String type)
     {
-        checkEnd();
+        checkStartCode();
+        checkEndCode();
         if (type != null) {
             checkInternalName(type, "type");
         }
@@ -520,7 +553,8 @@ public class CheckMethodAdapter extends MethodAdapter {
         final Label end,
         final int index)
     {
-        checkEnd();
+        checkStartCode();
+        checkEndCode();
         checkIdentifier(name, "name");
         checkDesc(desc, false);
         checkLabel(start, true, "start label");
@@ -535,28 +569,54 @@ public class CheckMethodAdapter extends MethodAdapter {
     }
 
     public void visitLineNumber(final int line, final Label start) {
-        checkEnd();
+        checkStartCode();
+        checkEndCode();
         checkUnsignedShort(line, "Invalid line number");
         checkLabel(start, true, "start label");
         mv.visitLineNumber(line, start);
     }
 
     public void visitMaxs(final int maxStack, final int maxLocals) {
-        checkEnd();
-        end = true;
+        checkStartCode();
+        checkEndCode();
+        endCode = true;
         checkUnsignedShort(maxStack, "Invalid max stack");
         checkUnsignedShort(maxLocals, "Invalid max locals");
         mv.visitMaxs(maxStack, maxLocals);
     }
 
+    public void visitEnd() {
+        checkEndMethod();
+        endMethod = true;
+        mv.visitEnd();
+    }
+
     // -------------------------------------------------------------------------
+
+    /**
+     * Checks that the visitCode method has been called.
+     */
+    void checkStartCode() {
+        if (!startCode) {
+            throw new IllegalStateException("Cannot visit instructions before visitCode has been called.");
+        }
+    }
 
     /**
      * Checks that the visitMaxs method has not been called.
      */
-    void checkEnd() {
-        if (end) {
+    void checkEndCode() {
+        if (endCode) {
             throw new IllegalStateException("Cannot visit instructions after visitMaxs has been called.");
+        }
+    }
+
+    /**
+     * Checks that the visitEnd method has not been called.
+     */
+    void checkEndMethod() {
+        if (endMethod) {
+            throw new IllegalStateException("Cannot visit elements after visitEnd has been called.");
         }
     }
 

@@ -132,7 +132,7 @@ public class CheckClassAdapter extends ClassAdapter {
                 method.accept(mv);
                 
                 System.err.println(method.name + method.desc);
-                for (int j = 0; j < mv.text.size(); ++j) {
+                for (int j = 0; j < method.instructions.size(); ++j) {
                     String s = frames[j] == null
                             ? "null"
                             : frames[j].toString();

@@ -139,9 +139,9 @@ public class CheckClassAdapter extends ClassAdapter {
                     while (s.length() < method.maxStack + method.maxLocals + 1) {
                         s += " ";
                     }
-                    System.err.print(Integer.toString(i + 100000)
+                    System.err.print(Integer.toString(j + 100000)
                             .substring(1));
-                    System.err.print(" " + s + " : " + mv.text.get(i));
+                    System.err.print(" " + s + " : " + mv.text.get(j));
                 }
                 System.err.println();
             }

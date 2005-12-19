@@ -94,7 +94,7 @@ public class CheckClassAdapter extends ClassAdapter {
             System.err.println("Verifies the given class.");
             System.err.println("Usage: CheckClassAdapter "
                     + "<fully qualified class name or class file name>");
-            System.exit(-1);
+            return;
         }
         ClassReader cr;
         if (args[0].endsWith(".class")) {

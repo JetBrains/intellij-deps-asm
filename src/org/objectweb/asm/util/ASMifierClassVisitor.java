@@ -178,7 +178,7 @@ public class ASMifierClassVisitor extends ASMifierAbstractVisitor implements
             System.err.println("Prints the ASM code to generate the given class.");
             System.err.println("Usage: ASMifierClassVisitor [-debug] "
                     + "<fully qualified class name or class file name>");
-            System.exit(-1);
+            return;
         }
         ClassReader cr;
         if (args[i].endsWith(".class") || args[i].indexOf('\\') > -1

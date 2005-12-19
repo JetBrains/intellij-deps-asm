@@ -135,7 +135,7 @@ public class TraceClassVisitor extends TraceAbstractVisitor implements
             System.err.println("Prints a disassembled view of the given class.");
             System.err.println("Usage: TraceClassVisitor [-debug] "
                     + "<fully qualified class name or class file name>");
-            System.exit(-1);
+            return;
         }
         ClassReader cr;
         if (args[i].endsWith(".class") || args[i].indexOf('\\') > -1

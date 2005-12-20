@@ -64,7 +64,11 @@ public class CheckAnnotationAdapter implements AnnotationVisitor {
                 || value instanceof Character || value instanceof Short
                 || value instanceof Integer || value instanceof Long
                 || value instanceof Float || value instanceof Double
-                || value instanceof String || value instanceof Type))
+                || value instanceof String || value instanceof Type
+                || value instanceof byte[] || value instanceof boolean[]
+                || value instanceof char[] || value instanceof short[]
+                || value instanceof int[] || value instanceof long[]
+                || value instanceof float[] || value instanceof double[]))
         {
             throw new IllegalArgumentException("Invalid annotation value");
         }

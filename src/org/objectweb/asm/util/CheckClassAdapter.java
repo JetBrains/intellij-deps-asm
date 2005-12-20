@@ -70,12 +70,12 @@ public class CheckClassAdapter extends ClassAdapter {
      * <tt>true</tt> if the visitSource method has been called.
      */
     private boolean source;
-    
+
     /**
      * <tt>true</tt> if the visitOuterClass method has been called.
      */
     private boolean outer;
-    
+
     /**
      * <tt>true</tt> if the visitEnd method has been called.
      */
@@ -95,7 +95,7 @@ public class CheckClassAdapter extends ClassAdapter {
             System.err.println("Verifies the given class.");
             System.err.println("Usage: CheckClassAdapter "
                     + "<fully qualified class name or class file name>");
-            System.exit(-1);
+            return;
         }
         ClassReader cr;
         if (args[0].endsWith(".class")) {
@@ -104,6 +104,10 @@ public class CheckClassAdapter extends ClassAdapter {
             cr = new ClassReader(args[0]);
         }
 
+        verify(cr, false);
+    }
+
+    public static void verify(ClassReader cr, boolean dump) {
         ClassNode cn = new ClassNode();
         cr.accept(new CheckClassAdapter(cn), ClassReader.SKIP_DEBUG);
 
@@ -117,36 +121,30 @@ public class CheckClassAdapter extends ClassAdapter {
                         (cn.access & Opcodes.ACC_INTERFACE) != 0));
                 try {
                     a.analyze(cn.name, method);
-                    continue;
+                    if (!dump) {
+                        continue;
+                    }
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
-                final Frame[] frames = a.getFrames();
+                Frame[] frames = a.getFrames();
 
-                System.out.println(method.name + method.desc);
-                TraceMethodVisitor mv = new TraceMethodVisitor() {
-                    public void visitMaxs(
-                        final int maxStack,
-                        final int maxLocals)
-                    {
-                        for (int i = 0; i < text.size(); ++i) {
-                            String s = frames[i] == null
-                                    ? "null"
-                                    : frames[i].toString();
-                            while (s.length() < maxStack + maxLocals + 1) {
-                                s += " ";
-                            }
-                            System.out.print(Integer.toString(i + 100000)
-                                    .substring(1));
-                            System.out.print(" " + s + " : " + text.get(i));
-                        }
-                        System.out.println();
-                    }
-                };
+                TraceMethodVisitor mv = new TraceMethodVisitor();
+                method.accept(mv);
+                
+                System.err.println(method.name + method.desc);
                 for (int j = 0; j < method.instructions.size(); ++j) {
-                    ((AbstractInsnNode) method.instructions.get(j)).accept(mv);
+                    String s = frames[j] == null
+                            ? "null"
+                            : frames[j].toString();
+                    while (s.length() < method.maxStack + method.maxLocals + 1) {
+                        s += " ";
+                    }
+                    System.err.print(Integer.toString(j + 100000)
+                            .substring(1));
+                    System.err.print(" " + s + " : " + mv.text.get(j));
                 }
-                mv.visitMaxs(method.maxStack, method.maxLocals);
+                System.err.println();
             }
         }
     }

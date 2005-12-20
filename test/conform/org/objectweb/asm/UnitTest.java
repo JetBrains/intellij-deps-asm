@@ -23,7 +23,7 @@ public class UnitTest extends TestCase {
     }
 
     public void testWriter() {
-        ClassWriter cw = new ClassWriter(false);
+        ClassWriter cw = new ClassWriter(0);
         cw.newConst(new Byte((byte) 0));
         cw.newConst(new Character('0'));
         cw.newConst(new Short((short) 0));

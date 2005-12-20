@@ -54,9 +54,19 @@ import java.util.HashMap;
 public class CheckMethodAdapter extends MethodAdapter {
 
     /**
+     * <tt>true</tt> if the visitCode method has been called.
+     */
+    private boolean startCode;
+
+    /**
      * <tt>true</tt> if the visitMaxs method has been called.
      */
-    private boolean end;
+    private boolean endCode;
+
+    /**
+     * <tt>true</tt> if the visitEnd method has been called.
+     */
+    private boolean endMethod;
 
     /**
      * The already visited labels. This map associate Integer values to Label
@@ -306,11 +316,13 @@ public class CheckMethodAdapter extends MethodAdapter {
         final String desc,
         final boolean visible)
     {
+        checkEndMethod();
         checkDesc(desc, false);
         return new CheckAnnotationAdapter(mv.visitAnnotation(desc, visible));
     }
 
     public AnnotationVisitor visitAnnotationDefault() {
+        checkEndMethod();
         return new CheckAnnotationAdapter(mv.visitAnnotationDefault(), false);
     }
 
@@ -319,6 +331,7 @@ public class CheckMethodAdapter extends MethodAdapter {
         final String desc,
         final boolean visible)
     {
+        checkEndMethod();
         checkDesc(desc, false);
         return new CheckAnnotationAdapter(mv.visitParameterAnnotation(parameter,
                 desc,
@@ -326,242 +339,16 @@ public class CheckMethodAdapter extends MethodAdapter {
     }
 
     public void visitAttribute(final Attribute attr) {
+        checkEndMethod();
         if (attr == null) {
             throw new IllegalArgumentException("Invalid attribute (must not be null)");
         }
         mv.visitAttribute(attr);
     }
 
-    public void visitInsn(final int opcode) {
-        checkEnd();
-        checkOpcode(opcode, 0);
-        mv.visitInsn(opcode);
-    }
-
-    public void visitIntInsn(final int opcode, final int operand) {
-        checkEnd();
-        checkOpcode(opcode, 1);
-        switch (opcode) {
-            case Opcodes.BIPUSH:
-                checkSignedByte(operand, "Invalid operand");
-                break;
-            case Opcodes.SIPUSH:
-                checkSignedShort(operand, "Invalid operand");
-                break;
-            // case Constants.NEWARRAY:
-            default:
-                if (operand < Opcodes.T_BOOLEAN || operand > Opcodes.T_LONG) {
-                    throw new IllegalArgumentException("Invalid operand (must be an array type code T_...): "
-                            + operand);
-                }
-        }
-        mv.visitIntInsn(opcode, operand);
-    }
-
-    public void visitVarInsn(final int opcode, final int var) {
-        checkEnd();
-        checkOpcode(opcode, 2);
-        checkUnsignedShort(var, "Invalid variable index");
-        mv.visitVarInsn(opcode, var);
-    }
-
-    public void visitTypeInsn(final int opcode, final String desc) {
-        checkEnd();
-        checkOpcode(opcode, 3);
-        if (desc != null && desc.length() > 0 && desc.charAt(0) == '[') {
-            checkDesc(desc, false);
-        } else {
-            checkInternalName(desc, "type");
-        }
-        if (opcode == Opcodes.NEW && desc.charAt(0) == '[') {
-            throw new IllegalArgumentException("NEW cannot be used to create arrays: "
-                    + desc);
-        }
-        mv.visitTypeInsn(opcode, desc);
-    }
-
-    public void visitFieldInsn(
-        final int opcode,
-        final String owner,
-        final String name,
-        final String desc)
-    {
-        checkEnd();
-        checkOpcode(opcode, 4);
-        checkInternalName(owner, "owner");
-        checkIdentifier(name, "name");
-        checkDesc(desc, false);
-        mv.visitFieldInsn(opcode, owner, name, desc);
-    }
-
-    public void visitMethodInsn(
-        final int opcode,
-        final String owner,
-        final String name,
-        final String desc)
-    {
-        checkEnd();
-        checkOpcode(opcode, 5);
-        checkMethodIdentifier(name, "name");
-        if (!name.equals("clone")) {
-            // In JDK1.5, clone method can be called on array class descriptors
-            checkInternalName(owner, "owner");
-        }
-        checkMethodDesc(desc);
-        mv.visitMethodInsn(opcode, owner, name, desc);
-    }
-
-    public void visitJumpInsn(final int opcode, final Label label) {
-        checkEnd();
-        checkOpcode(opcode, 6);
-        checkLabel(label, false, "label");
-        mv.visitJumpInsn(opcode, label);
-    }
-
-    public void visitLabel(final Label label) {
-        checkEnd();
-        checkLabel(label, false, "label");
-        if (labels.get(label) != null) {
-            throw new IllegalArgumentException("Already visited label");
-        } else {
-            labels.put(label, new Integer(labels.size()));
-        }
-        mv.visitLabel(label);
-    }
-
-    public void visitLdcInsn(final Object cst) {
-        checkEnd();
-        if (cst == null) {
-            throw new IllegalArgumentException("Value of the constant acn't be null");
-        }
-        if (!(cst instanceof Type)) {
-            checkConstant(cst);
-        }
-        mv.visitLdcInsn(cst);
-    }
-
-    public void visitIincInsn(final int var, final int increment) {
-        checkEnd();
-        checkUnsignedShort(var, "Invalid variable index");
-        checkSignedShort(increment, "Invalid increment");
-        mv.visitIincInsn(var, increment);
-    }
-
-    public void visitTableSwitchInsn(
-        final int min,
-        final int max,
-        final Label dflt,
-        final Label labels[])
-    {
-        checkEnd();
-        if (max < min) {
-            throw new IllegalArgumentException("Max = " + max
-                    + " must be greater than or equal to min = " + min);
-        }
-        checkLabel(dflt, false, "default label");
-        if (labels == null || labels.length != max - min + 1) {
-            throw new IllegalArgumentException("There must be max - min + 1 labels");
-        }
-        for (int i = 0; i < labels.length; ++i) {
-            checkLabel(labels[i], false, "label at index " + i);
-        }
-        mv.visitTableSwitchInsn(min, max, dflt, labels);
-    }
-
-    public void visitLookupSwitchInsn(
-        final Label dflt,
-        final int keys[],
-        final Label labels[])
-    {
-        checkEnd();
-        checkLabel(dflt, false, "default label");
-        if (keys == null || labels == null || keys.length != labels.length) {
-            throw new IllegalArgumentException("There must be the same number of keys and labels");
-        }
-        for (int i = 0; i < labels.length; ++i) {
-            checkLabel(labels[i], false, "label at index " + i);
-        }
-        mv.visitLookupSwitchInsn(dflt, keys, labels);
-    }
-
-    public void visitMultiANewArrayInsn(final String desc, final int dims) {
-        checkEnd();
-        checkDesc(desc, false);
-        if (desc.charAt(0) != '[') {
-            throw new IllegalArgumentException("Invalid descriptor (must be an array type descriptor): "
-                    + desc);
-        }
-        if (dims < 1) {
-            throw new IllegalArgumentException("Invalid dimensions (must be greater than 0): "
-                    + dims);
-        }
-        if (dims > desc.lastIndexOf('[') + 1) {
-            throw new IllegalArgumentException("Invalid dimensions (must not be greater than dims(desc)): "
-                    + dims);
-        }
-        mv.visitMultiANewArrayInsn(desc, dims);
-    }
-
-    public void visitTryCatchBlock(
-        final Label start,
-        final Label end,
-        final Label handler,
-        final String type)
-    {
-        checkEnd();
-        checkLabel(start, false, "start label");
-        checkLabel(end, false, "end label");
-        checkLabel(handler, false, "handler label");
-        if (labels.get(start) != null) {
-            throw new IllegalArgumentException("Invalid start label (must be visited after)");
-        }
-        if (labels.get(end) != null) {
-            throw new IllegalArgumentException("Invalid end label (must be visited after)");
-        }
-        if (labels.get(handler) != null) {
-            throw new IllegalArgumentException("Invalid handler label (must be visited after)");
-        }
-        if (type != null) {
-            checkInternalName(type, "type");
-        }
-        mv.visitTryCatchBlock(start, end, handler, type);
-    }
-
-    public void visitLocalVariable(
-        final String name,
-        final String desc,
-        final String signature,
-        final Label start,
-        final Label end,
-        final int index)
-    {
-        checkEnd();
-        checkIdentifier(name, "name");
-        checkDesc(desc, false);
-        checkLabel(start, true, "start label");
-        checkLabel(end, true, "end label");
-        checkUnsignedShort(index, "Invalid variable index");
-        int s = ((Integer) labels.get(start)).intValue();
-        int e = ((Integer) labels.get(end)).intValue();
-        if (e < s) {
-            throw new IllegalArgumentException("Invalid start and end labels (end must be greater than start)");
-        }
-        mv.visitLocalVariable(name, desc, signature, start, end, index);
-    }
-
-    public void visitLineNumber(final int line, final Label start) {
-        checkEnd();
-        checkUnsignedShort(line, "Invalid line number");
-        checkLabel(start, true, "start label");
-        mv.visitLineNumber(line, start);
-    }
-
-    public void visitMaxs(final int maxStack, final int maxLocals) {
-        checkEnd();
-        end = true;
-        checkUnsignedShort(maxStack, "Invalid max stack");
-        checkUnsignedShort(maxLocals, "Invalid max locals");
-        mv.visitMaxs(maxStack, maxLocals);
+    public void visitCode() {
+        startCode = true;
+        mv.visitCode();
     }
 
     public void visitFrame(
@@ -629,14 +416,272 @@ public class CheckMethodAdapter extends MethodAdapter {
         mv.visitFrame(type, nLocal, local, nStack, stack);
     }
 
+    public void visitInsn(final int opcode) {
+        checkStartCode();
+        checkEndCode();
+        checkOpcode(opcode, 0);
+        mv.visitInsn(opcode);
+    }
+
+    public void visitIntInsn(final int opcode, final int operand) {
+        checkStartCode();
+        checkEndCode();
+        checkOpcode(opcode, 1);
+        switch (opcode) {
+            case Opcodes.BIPUSH:
+                checkSignedByte(operand, "Invalid operand");
+                break;
+            case Opcodes.SIPUSH:
+                checkSignedShort(operand, "Invalid operand");
+                break;
+            // case Constants.NEWARRAY:
+            default:
+                if (operand < Opcodes.T_BOOLEAN || operand > Opcodes.T_LONG) {
+                    throw new IllegalArgumentException("Invalid operand (must be an array type code T_...): "
+                            + operand);
+                }
+        }
+        mv.visitIntInsn(opcode, operand);
+    }
+
+    public void visitVarInsn(final int opcode, final int var) {
+        checkStartCode();
+        checkEndCode();
+        checkOpcode(opcode, 2);
+        checkUnsignedShort(var, "Invalid variable index");
+        mv.visitVarInsn(opcode, var);
+    }
+
+    public void visitTypeInsn(final int opcode, final String desc) {
+        checkStartCode();
+        checkEndCode();
+        checkOpcode(opcode, 3);
+        if (desc != null && desc.length() > 0 && desc.charAt(0) == '[') {
+            checkDesc(desc, false);
+        } else {
+            checkInternalName(desc, "type");
+        }
+        if (opcode == Opcodes.NEW && desc.charAt(0) == '[') {
+            throw new IllegalArgumentException("NEW cannot be used to create arrays: "
+                    + desc);
+        }
+        mv.visitTypeInsn(opcode, desc);
+    }
+
+    public void visitFieldInsn(
+        final int opcode,
+        final String owner,
+        final String name,
+        final String desc)
+    {
+        checkStartCode();
+        checkEndCode();
+        checkOpcode(opcode, 4);
+        checkInternalName(owner, "owner");
+        checkIdentifier(name, "name");
+        checkDesc(desc, false);
+        mv.visitFieldInsn(opcode, owner, name, desc);
+    }
+
+    public void visitMethodInsn(
+        final int opcode,
+        final String owner,
+        final String name,
+        final String desc)
+    {
+        checkStartCode();
+        checkEndCode();
+        checkOpcode(opcode, 5);
+        checkMethodIdentifier(name, "name");
+        if (!name.equals("clone")) {
+            // In JDK1.5, clone method can be called on array class descriptors
+            checkInternalName(owner, "owner");
+        }
+        checkMethodDesc(desc);
+        mv.visitMethodInsn(opcode, owner, name, desc);
+    }
+
+    public void visitJumpInsn(final int opcode, final Label label) {
+        checkStartCode();
+        checkEndCode();
+        checkOpcode(opcode, 6);
+        checkLabel(label, false, "label");
+        mv.visitJumpInsn(opcode, label);
+    }
+
+    public void visitLabel(final Label label) {
+        checkStartCode();
+        checkEndCode();
+        checkLabel(label, false, "label");
+        if (labels.get(label) != null) {
+            throw new IllegalArgumentException("Already visited label");
+        } else {
+            labels.put(label, new Integer(labels.size()));
+        }
+        mv.visitLabel(label);
+    }
+
+    public void visitLdcInsn(final Object cst) {
+        checkStartCode();
+        checkEndCode();
+        if (!(cst instanceof Type)) {
+            checkConstant(cst);
+        }
+        mv.visitLdcInsn(cst);
+    }
+
+    public void visitIincInsn(final int var, final int increment) {
+        checkStartCode();
+        checkEndCode();
+        checkUnsignedShort(var, "Invalid variable index");
+        checkSignedShort(increment, "Invalid increment");
+        mv.visitIincInsn(var, increment);
+    }
+
+    public void visitTableSwitchInsn(
+        final int min,
+        final int max,
+        final Label dflt,
+        final Label labels[])
+    {
+        checkStartCode();
+        checkEndCode();
+        if (max < min) {
+            throw new IllegalArgumentException("Max = " + max
+                    + " must be greater than or equal to min = " + min);
+        }
+        checkLabel(dflt, false, "default label");
+        if (labels == null || labels.length != max - min + 1) {
+            throw new IllegalArgumentException("There must be max - min + 1 labels");
+        }
+        for (int i = 0; i < labels.length; ++i) {
+            checkLabel(labels[i], false, "label at index " + i);
+        }
+        mv.visitTableSwitchInsn(min, max, dflt, labels);
+    }
+
+    public void visitLookupSwitchInsn(
+        final Label dflt,
+        final int keys[],
+        final Label labels[])
+    {
+        checkEndCode();
+        checkStartCode();
+        checkLabel(dflt, false, "default label");
+        if (keys == null || labels == null || keys.length != labels.length) {
+            throw new IllegalArgumentException("There must be the same number of keys and labels");
+       }
+        for (int i = 0; i < labels.length; ++i) {
+            checkLabel(labels[i], false, "label at index " + i);
+        }
+        mv.visitLookupSwitchInsn(dflt, keys, labels);
+    }
+
+    public void visitMultiANewArrayInsn(final String desc, final int dims) {
+        checkStartCode();
+        checkEndCode();
+        checkDesc(desc, false);
+        if (desc.charAt(0) != '[') {
+            throw new IllegalArgumentException("Invalid descriptor (must be an array type descriptor): "
+                    + desc);
+        }
+        if (dims < 1) {
+            throw new IllegalArgumentException("Invalid dimensions (must be greater than 0): "
+                    + dims);
+        }
+        if (dims > desc.lastIndexOf('[') + 1) {
+            throw new IllegalArgumentException("Invalid dimensions (must not be greater than dims(desc)): "
+                    + dims);
+        }
+        mv.visitMultiANewArrayInsn(desc, dims);
+    }
+
+    public void visitTryCatchBlock(
+        final Label start,
+        final Label end,
+        final Label handler,
+        final String type)
+    {
+        checkStartCode();
+        checkEndCode();
+        if (type != null) {
+            checkInternalName(type, "type");
+        }
+        mv.visitTryCatchBlock(start, end, handler, type);
+    }
+
+    public void visitLocalVariable(
+        final String name,
+        final String desc,
+        final String signature,
+        final Label start,
+        final Label end,
+        final int index)
+    {
+        checkStartCode();
+        checkEndCode();
+        checkIdentifier(name, "name");
+        checkDesc(desc, false);
+        checkLabel(start, true, "start label");
+        checkLabel(end, true, "end label");
+        checkUnsignedShort(index, "Invalid variable index");
+        int s = ((Integer) labels.get(start)).intValue();
+        int e = ((Integer) labels.get(end)).intValue();
+        if (e < s) {
+            throw new IllegalArgumentException("Invalid start and end labels (end must be greater than start)");
+        }
+        mv.visitLocalVariable(name, desc, signature, start, end, index);
+    }
+
+    public void visitLineNumber(final int line, final Label start) {
+        checkStartCode();
+        checkEndCode();
+        checkUnsignedShort(line, "Invalid line number");
+        checkLabel(start, true, "start label");
+        mv.visitLineNumber(line, start);
+    }
+
+    public void visitMaxs(final int maxStack, final int maxLocals) {
+        checkStartCode();
+        checkEndCode();
+        endCode = true;
+        checkUnsignedShort(maxStack, "Invalid max stack");
+        checkUnsignedShort(maxLocals, "Invalid max locals");
+        mv.visitMaxs(maxStack, maxLocals);
+    }
+
+    public void visitEnd() {
+        checkEndMethod();
+        endMethod = true;
+        mv.visitEnd();
+    }
+
     // -------------------------------------------------------------------------
+
+    /**
+     * Checks that the visitCode method has been called.
+     */
+    void checkStartCode() {
+        if (!startCode) {
+            throw new IllegalStateException("Cannot visit instructions before visitCode has been called.");
+        }
+    }
 
     /**
      * Checks that the visitMaxs method has not been called.
      */
-    void checkEnd() {
-        if (end) {
+    void checkEndCode() {
+        if (endCode) {
             throw new IllegalStateException("Cannot visit instructions after visitMaxs has been called.");
+        }
+    }
+
+    /**
+     * Checks that the visitEnd method has not been called.
+     */
+    void checkEndMethod() {
+        if (endMethod) {
+            throw new IllegalStateException("Cannot visit elements after visitEnd has been called.");
         }
     }
 
@@ -692,19 +737,18 @@ public class CheckMethodAdapter extends MethodAdapter {
     }
 
     /**
-     * Checks that the given value is an {@link Integer}, a {@link Float}, a
+     * Checks that the given value is an {@link Integer}, a{@link Float}, a
      * {@link Long}, a {@link Double} or a {@link String}.
      * 
      * @param cst the value to be checked.
      */
     static void checkConstant(final Object cst) {
-        if (cst instanceof Integer || cst instanceof Float
-                || cst instanceof Long || cst instanceof Double
-                || cst instanceof String)
+        if (!(cst instanceof Integer) && !(cst instanceof Float)
+                && !(cst instanceof Long) && !(cst instanceof Double)
+                && !(cst instanceof String))
         {
-            return;
+            throw new IllegalArgumentException("Invalid constant: " + cst);
         }
-        throw new IllegalArgumentException("Invalid constant: " + cst);
     }
 
     /**

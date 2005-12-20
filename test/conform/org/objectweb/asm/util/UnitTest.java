@@ -1,11 +1,11 @@
 package org.objectweb.asm.util;
 
+import org.objectweb.asm.Attribute;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
-import org.objectweb.asm.attrs.StackMapTableAttribute;
 import org.objectweb.asm.commons.EmptyVisitor;
 
 import junit.framework.TestCase;
@@ -121,7 +121,7 @@ public class UnitTest extends TestCase implements Opcodes {
         FieldVisitor fv = new CheckFieldAdapter(new EmptyVisitor());
         fv.visitEnd();
         try {
-            fv.visitAttribute(new StackMapTableAttribute());
+            fv.visitAttribute(new Comment());
             fail();
         } catch (Exception e) {
         }
@@ -142,7 +142,7 @@ public class UnitTest extends TestCase implements Opcodes {
 
         mv.visitEnd();
         try {
-            mv.visitAttribute(new StackMapTableAttribute());
+            mv.visitAttribute(new Comment());
             fail();
         } catch (Exception e) {
         }
@@ -399,6 +399,13 @@ public class UnitTest extends TestCase implements Opcodes {
             mv.visitInsn(NOP);
             fail();
         } catch (Exception e) {
+        }
+    }
+    
+    static class Comment extends Attribute {
+
+        protected Comment() {
+            super("Comment");
         }
     }
 }

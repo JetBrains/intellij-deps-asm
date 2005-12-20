@@ -49,7 +49,10 @@ import junit.framework.TestSuite;
  */
 public class ClassWriterTest3 extends AbstractTest {
 
-    public static void premain(String agentArgs, Instrumentation inst) {
+    public static void premain(
+        final String agentArgs,
+        final Instrumentation inst)
+    {
         inst.addTransformer(new ClassFileTransformer() {
             public byte[] transform(
                 final ClassLoader loader,
@@ -59,7 +62,12 @@ public class ClassWriterTest3 extends AbstractTest {
                 final byte[] classFileBuffer)
                     throws IllegalClassFormatException
             {
-                return transformClass(classFileBuffer);
+                String n = className.replace('/', '.');
+                if (agentArgs.length() == 0 || n.indexOf(agentArgs) != -1) {
+                    return transformClass(classFileBuffer);
+                } else {
+                    return null;
+                }
             }
         });
     }

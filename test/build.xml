@@ -41,10 +41,6 @@
   <property name="test.perf"      value="${test}/perf"/>
 
   <target name="properties">
-    <condition property="asm.test" value="${java.home}/lib/rt.jar,test/conform/cases">
-      <not><isset property="asm.test"/></not>
-    </condition>
-    
     <condition property="asm.test.class" value="">
       <not><isset property="asm.test.class"/></not>
     </condition>
@@ -104,12 +100,6 @@
   <target name="init" depends="properties,check">  
     <mkdir dir="${out.test}"/>
     <mkdir dir="${out.test}/reports"/>
-    <condition property="classes" value="${out.build}">
-      <not><isset property="debug"/></not>
-    </condition>
-    <condition property="classes" value="${out.build}/tmp">
-      <isset property="debug"/>
-    </condition>
     <path id="test.classpath">
       <pathelement location="${classes}"/>
       <pathelement location="${out.test}"/>
@@ -119,6 +109,7 @@
       <pathelement path="${serp.path}"/>  
       <pathelement path="${javassist.path}"/>
       <pathelement path="${janino.path}"/>
+      <path refid="cobertura.classpath"/>
     </path>
   </target>
   

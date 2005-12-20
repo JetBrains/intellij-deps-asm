@@ -92,22 +92,22 @@
 
   <target name="init" depends="properties,check">
 
-  	<path id="classpath">
+        <path id="classpath">
       <pathelement location="${out.build}"/>
     </path>
 
     <path id="cobertura.classpath">
       <fileset dir="test/lib">
-        <include name="cobertura-1.6.jar"/>
+        <include name="cobertura-1.7.jar"/>
         <include name="log4j-1.2.9.jar"/>
         <include name="jakarta-oro-2.0.8.jar"/>
-        <include name="asm-2.0.jar"/>
+        <include name="asm-2.1.jar"/>
         <include name="ccl.jar"/>
         <include name="javancss.jar"/>
       </fileset>
     </path>
 
-  	<taskdef name="multipleAnt"
+        <taskdef name="multipleAnt"
              classname="org.objectweb.util.ant.MultipleAnt"
              classpath="${objectweb.ant.tasks.path}"/>
 
@@ -181,8 +181,8 @@
   </target>
 
   <target name="coverage" depends="compile">
-  	<delete file="cobertura.ser"/>
-  	<delete dir="${out.instr}"/>
+        <delete file="cobertura.ser"/>
+        <delete dir="${out.instr}"/>
     <cobertura-instrument todir="${out.instr}">
       <ignore regex="org.apache.log4j.*"/>
       <fileset dir="${out.build}/tmp">
@@ -194,8 +194,8 @@
     <copy todir="${out.instr}" preservelastmodified="yes">
       <fileset dir="${out.build}/tmp"/>
     </copy>
-  	<property name="classes" value="${out.instr}"/>
-    <ant antfile="${test}/build.xml" target="test" inheritRefs="true"/>  	
+        <property name="classes" value="${out.instr}"/>
+    <ant antfile="${test}/build.xml" target="test" inheritRefs="true"/>         
   </target>
 
   <target name="coverage.report" depends="init">
@@ -203,7 +203,7 @@
     <cobertura-report destdir="${out}/coverage">
       <fileset dir="${src}">
         <include name="**/*.java"/>
-      	<exclude name="**/asm/optimizer/**/*.java"/>
+        <exclude name="**/asm/optimizer/**/*.java"/>
       </fileset>
     </cobertura-report>
   </target>

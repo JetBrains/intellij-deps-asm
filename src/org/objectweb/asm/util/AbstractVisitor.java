@@ -36,7 +36,6 @@ import java.util.List;
 import org.objectweb.asm.Attribute;
 import org.objectweb.asm.util.attrs.ASMStackMapAttribute;
 import org.objectweb.asm.util.attrs.ASMStackMapTableAttribute;
-import org.objectweb.asm.util.attrs.ASMifiable;
 
 /**
  * An abstract visitor.

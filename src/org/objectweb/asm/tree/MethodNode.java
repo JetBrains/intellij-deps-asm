@@ -328,9 +328,6 @@ public class MethodNode extends MemberNode implements MethodVisitor {
         final Label end,
         final int index)
     {
-        if (localVariables == null) {
-            localVariables = new ArrayList(1);
-        }
         localVariables.add(new LocalVariableNode(name,
                 desc,
                 signature,
@@ -340,9 +337,6 @@ public class MethodNode extends MemberNode implements MethodVisitor {
     }
 
     public void visitLineNumber(final int line, final Label start) {
-        if (lineNumbers == null) {
-            lineNumbers = new ArrayList(1);
-        }
         lineNumbers.add(new LineNumberNode(line, start));
     }
 

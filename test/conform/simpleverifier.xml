@@ -12,6 +12,9 @@
       </batchtest>
       <formatter type="xml"/>
       <classpath refid="test.classpath"/>
+      <classpath>
+          <pathelement location="${test}/conform"/>
+      </classpath>
       <jvmarg value="-Dasm.test=${asm.test}"/>
       <jvmarg value="-Dasm.test.class=${asm.test.class}"/>
     </junit>  

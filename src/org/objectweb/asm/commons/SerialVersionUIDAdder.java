@@ -313,10 +313,6 @@ public class SerialVersionUIDAdder extends ClassAdapter {
      * @throws NoSuchAlgorithmException
      */
     protected long computeSVUID() throws IOException, NoSuchAlgorithmException {
-        if (hasSVUID) {
-            return 0;
-        }
-
         ByteArrayOutputStream bos = null;
         DataOutputStream dos = null;
         long svuid = 0;

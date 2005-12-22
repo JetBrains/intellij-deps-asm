@@ -84,6 +84,8 @@
         <isset property="serp.path"/>
         <isset property="javassist.path"/>
         <isset property="janino.path"/>
+        <isset property="cobertura.path"/>
+        <isset property="cobertura.runtime.path"/>
       </and>
     </condition>
   </target>
@@ -109,7 +111,7 @@
       <pathelement path="${serp.path}"/>  
       <pathelement path="${javassist.path}"/>
       <pathelement path="${janino.path}"/>
-      <path refid="cobertura.classpath"/>
+      <pathelement path="${cobertura.runtime.path}"/>
     </path>
   </target>
   
@@ -122,8 +124,7 @@
         debug="on" debuglevel="lines,vars,source">
       <classpath refid="test.classpath"/>
       <include name="**/*.java"/>
-      <exclude name="annotations/**/*.java" unless="java5"/>
-      <exclude name="**/AnnotationTest.java" unless="java5"/>
+      <exclude name="cases/**/*.java"/>
     </javac>
     <copy todir="${out.test}">
   	  <fileset dir="${test.conform}">

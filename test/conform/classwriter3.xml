@@ -61,7 +61,7 @@
       <jvmarg value="-javaagent:${out.test}/agent3.jar=cases"/>
       <jvmarg value="-Dasm.test=${asm.test}"/>
       <jvmarg value="-Dasm.test.class=${asm.test.class}"/>
-      <jvmarg value="-Xbootclasspath/p:test/lib/cobertura-1.6.jar;test/lib/log4j-1.2.9.jar;test/lib/jakarta-oro-2.0.8.jar;test/lib/ccl.jar;test/lib/javancss.jar"/>
+      <jvmarg value="-Xbootclasspath/p:${cobertura.runtime.path}"/>
       <jvmarg value="-XX:-FailOverToOldVerifier"/>
       <jvmarg value="-Xverify:all"/>
     </junit>

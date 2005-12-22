@@ -1,5 +1,10 @@
 package cases;
 
+/* compiled with source=target=1.5 */
+/* covers visible annotations, deprecated access flag, */
+/* inner classes and synthetic members, */
+/* method signatures with array types */
+
 /**
  * @deprecated
  */
@@ -26,7 +31,7 @@ public class C3
         };
     }
 
-    class C4 {
+    class C {
 
         void m(
             @Deprecated
@@ -39,7 +44,7 @@ public class C3
             float[] f,
             long[] l,
             double[] d,
-            C4[] e)
+            C[] e)
         {
         }
 
@@ -52,7 +57,7 @@ public class C3
             float[][] f,
             long[][] l,
             double[][] d,
-            C4[][] e)
+            C[][] e)
         {
         }
     }

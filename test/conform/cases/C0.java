@@ -2,6 +2,9 @@ package cases;
 
 import java.lang.annotation.Documented;
 
+/* compiled with source=target=1.5 */
+/* covers annotation classes */
+
 public @interface C0 {
 
     byte byteValue() default (byte) 1;

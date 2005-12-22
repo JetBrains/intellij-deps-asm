@@ -2,6 +2,11 @@ package cases;
 
 import java.lang.annotation.Documented;
 
+/* compiled with source=target=1.5 */
+/* covers invisible annotations, almost all instructions, */
+/* almost all access flags, all primitive array and reference type */
+/* some signatures, unicode characters */
+
 @C0(byteValue = 0, charValue = '0', booleanValue = false, intValue = 0)
 public class C2<E> implements I1<E>
 {

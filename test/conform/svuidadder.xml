@@ -7,11 +7,13 @@
            failureproperty="test.failed">
       <batchtest fork="yes" todir="${out.test}/reports">
         <fileset dir="${test}/conform">
-          <include name="**/SerialVersionUIDAdderTest.java"/>
+          <include name="**/SerialVersionUIDAdderTest*.java"/>
         </fileset>
       </batchtest>
       <formatter type="xml"/>
       <classpath refid="test.classpath"/>
+      <jvmarg value="-Dasm.test=${asm.test}"/>
+      <jvmarg value="-Dasm.test.class=${asm.test.class}"/>
     </junit>  
   </target>
 

@@ -1,5 +1,8 @@
 package cases;
 
+/* compiled with source=target=1.6 */
+/* covers large methods and stack map frames */
+
 public class D5 {
 
     boolean z = true;
@@ -19,6 +22,9 @@ public class D5 {
     double d = 1d;
 
     String str;
+    public void nullType1(String s1, String s2) {
+        nullType1(null, s1 == null ? s2 : s1);
+    }
 
     public void m(
         boolean _z,
@@ -8696,9 +8702,123 @@ public class D5 {
                 }
             }
 
+            int[][] aa = new int[3][];
             (new int[1][2][3])[0] = null;
 
             d129 += d;
         }
+    }
+
+    public D5(int i) {
+        this(new D5(i == 0 ? null : new Object()));
+    }
+
+    public D5(Object o) {
+    }
+
+    public void appendFrame(
+        boolean _z,
+        byte _b,
+        char _c,
+        short _s,
+        int _i,
+        float _f,
+        long _l,
+        double _d,
+        D5 _e,
+        boolean[][] z,
+        byte[] b,
+        char[] c,
+        short[] s,
+        int[] i,
+        float[] f,
+        long[] l,
+        double[] d,
+        D5[] e)
+    {
+        int n; // TOP type
+        int a = _i;
+        if (_z) {
+            return;
+        }
+    }
+
+    public void appendAndChopFrame(int i) {
+        for (int k = 0; k < i; k++) {
+        }
+    }
+
+    public int sameLocals1stackItemFrame() {
+        try {
+        } finally {
+            return 0;
+        }
+    }
+
+    public void sameLocals1stackItemFrame2() {
+        Object a;
+        try {
+            a = new Object();
+        } catch (Exception e) {
+        } finally {
+        }
+    }
+
+    public int sameLocals1stackItemFrameExtended() {
+        try {
+            long l10 = 11L;
+            long l11 = 11L;
+            long l12 = 11L;
+            long l13 = 11L;
+            long l14 = 11L;
+            long l15 = 11L;
+            long l16 = 11L;
+            long l17 = 11L;
+            long l18 = 11L;
+            long l19 = 11L;
+            long l20 = 11L;
+            long l21 = 11L;
+            long l22 = 11L; // offset > 64
+
+        } finally {
+            return 0;
+        }
+    }
+
+    public void sameFrameExtended(boolean b) {
+        while (true) {
+            long l10 = 11L;
+            long l11 = 11L;
+            long l12 = 11L;
+            long l13 = 11L;
+            long l14 = 11L;
+            long l15 = 11L;
+            long l16 = 11L;
+            long l17 = 11L;
+            long l18 = 11L;
+            long l19 = 11L;
+            long l20 = 11L;
+            long l21 = 11L;
+            long l22 = 11L; // offset > 64
+
+            if (b) {
+                return;
+            }
+        }
+    }
+
+    public void fullFrame(String s) {
+        long l10 = 11L;
+        long l11 = 11L;
+        long l12 = 11L;
+        long l13 = 11L;
+
+        if (s == null) {
+            return;
+        }
+    }
+
+    public void nullType(String s1, String s2) {
+        nullType(null, s1 == null ? s2 : s1);
     }
 }

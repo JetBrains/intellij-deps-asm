@@ -2227,6 +2227,22 @@ class MethodWriter implements MethodVisitor {
         }
         // recomputes the stack map frames
         if (frameCount > 0) {
+            if (!computeFrames) {
+                /*
+                 * TODO resizing an existing stack map frame table is really
+                 * hard. Not only the table must be parsed to update the offets,
+                 * but new frames may be needed for jump instructions that were
+                 * inserted by this method. And updating the offsets or
+                 * inserting frames can change the format of the following
+                 * frames, in case of packed frames. In practice the whole table
+                 * must be recomputed. May be a solution is to do as if frames
+                 * were computed with the COMPUTE_FRAMES option, in order to
+                 * reuse the code below. This requires to parse the existing
+                 * table and to initialize the appropriate Label.inputLocals and
+                 * Label.inputStack arrays.
+                 */
+                throw new RuntimeException("Resizing of existing stack map frame tables is not yet implemented. Workaround: use COMPUTE_FRAMES option");
+            }
             frameCount = 0;
             stackMap = null;
             previousFrame = null;

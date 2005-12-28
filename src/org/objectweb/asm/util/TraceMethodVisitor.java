@@ -521,7 +521,7 @@ public class TraceMethodVisitor extends TraceAbstractVisitor implements
                 buf.append(' ');
             }
             if (o[i] instanceof String) {
-                buf.append(o[i]);
+                appendDescriptor(INTERNAL_NAME, (String) o[i]);
             } else if (o[i] instanceof Integer) {
                 switch (((Integer) o[i]).intValue()) {
                     case 0:

@@ -106,6 +106,12 @@ public class CheckClassAdapter extends ClassAdapter {
         verify(cr, false);
     }
 
+    /**
+     * Checks a given class
+     * 
+     * @param cr a <code>ClassReader</code> that contains bytecode for the analysis. 
+     * @param dump true if bytecode should be printed out not only when errors are found.
+     */
     public static void verify(ClassReader cr, boolean dump) {
         ClassNode cn = new ClassNode();
         cr.accept(new CheckClassAdapter(cn), true);
@@ -130,22 +136,41 @@ public class CheckClassAdapter extends ClassAdapter {
 
                 TraceMethodVisitor mv = new TraceMethodVisitor();
                 method.accept(mv);
-                
+
                 System.err.println(method.name + method.desc);
                 for (int j = 0; j < method.instructions.size(); ++j) {
-                    String s = frames[j] == null
-                            ? "null"
-                            : frames[j].toString();
-                    while (s.length() < method.maxStack + method.maxLocals + 1) {
-                        s += " ";
+                    StringBuffer s = new StringBuffer();
+                    Frame f = frames[j];
+                    if (f == null) {
+                        s.append('?');
+                    } else {
+                        for (int k = 0; k < f.getLocals(); ++k) {
+                            s.append(getShortName(f.getLocal(k).toString()))
+                                    .append(' ');
+                        }
+                        s.append(" : ");
+                        for (int k = 0; k < f.getStackSize(); ++k) {
+                            s.append(getShortName(f.getStack(k).toString()))
+                                    .append(' ');
+                        }
                     }
-                    System.err.print(Integer.toString(j + 100000)
-                            .substring(1));
+                    while (s.length() < method.maxStack + method.maxLocals + 1)
+                    {
+                        s.append(' ');
+                    }
+                    System.err.print(Integer.toString(j + 100000).substring(1));
                     System.err.print(" " + s + " : " + mv.text.get(j));
                 }
                 System.err.println();
             }
         }
+    }
+
+    private static String getShortName(String name) {
+        int n = name.lastIndexOf('/');
+        int k = name.length();
+        if(name.charAt(k-1)==';') k--;
+        return n==-1 ? name : name.substring(n+1, k);
     }
 
     /**

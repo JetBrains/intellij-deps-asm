@@ -41,8 +41,10 @@ import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Attribute;
 import org.objectweb.asm.Type;
+import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.MethodNode;
 import org.objectweb.asm.tree.ClassNode;
+import org.objectweb.asm.tree.TryCatchBlockNode;
 import org.objectweb.asm.tree.analysis.Analyzer;
 import org.objectweb.asm.tree.analysis.SimpleVerifier;
 import org.objectweb.asm.tree.analysis.Frame;
@@ -135,10 +137,11 @@ public class CheckClassAdapter extends ClassAdapter {
                 Frame[] frames = a.getFrames();
 
                 TraceMethodVisitor mv = new TraceMethodVisitor();
-                method.accept(mv);
 
                 System.err.println(method.name + method.desc);
                 for (int j = 0; j < method.instructions.size(); ++j) {
+                    ((AbstractInsnNode) method.instructions.get(j)).accept(mv);
+                    
                     StringBuffer s = new StringBuffer();
                     Frame f = frames[j];
                     if (f == null) {
@@ -159,7 +162,11 @@ public class CheckClassAdapter extends ClassAdapter {
                         s.append(' ');
                     }
                     System.err.print(Integer.toString(j + 100000).substring(1));
-                    System.err.print(" " + s + " : " + mv.text.get(j));
+                    System.err.print(" " + s + " : " + mv.buf); // mv.text.get(j));
+                }
+                for (int j = 0; j < method.tryCatchBlocks.size(); ++j) {
+                    ((TryCatchBlockNode) method.tryCatchBlocks.get(j)).accept(mv);
+                    System.err.print(" " + mv.buf);
                 }
                 System.err.println();
             }

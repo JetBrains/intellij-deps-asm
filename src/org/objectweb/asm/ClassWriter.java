@@ -424,6 +424,16 @@ public class ClassWriter implements ClassVisitor {
      */
     private boolean computeFrames;
 
+    /**
+     * <tt>true</tt> if the stack map tables of this class are invalid. The
+     * {@link MethodWriter#resizeInstructions} method cannot transform existing
+     * stack map tables, and so produces potentially invalid classes when it is
+     * executed. In this case the class is reread and rewritten with the
+     * {@link #COMPUTE_FRAMES} option (the resizeInstructions method can resize
+     * stack map tables when this option is used).
+     */
+    boolean invalidFrames;
+
     // ------------------------------------------------------------------------
     // Static initializer
     // ------------------------------------------------------------------------
@@ -839,6 +849,11 @@ public class ClassWriter implements ClassVisitor {
         }
         if (attrs != null) {
             attrs.put(this, null, 0, -1, -1, out);
+        }
+        if (invalidFrames) {
+            ClassWriter cw = new ClassWriter(COMPUTE_FRAMES);
+            new ClassReader(out.data).accept(cw, ClassReader.SKIP_FRAMES);
+            return cw.toByteArray();
         }
         return out.data;
     }

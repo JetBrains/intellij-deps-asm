@@ -128,7 +128,7 @@ class MethodWriter implements MethodVisitor {
      * The signature of this method.
      */
     String signature;
-    
+
     /**
      * If not zero, indicates that the code of this method must be copied from
      * the ClassReader associated to this writer in <code>cw.cr</code>. More
@@ -231,7 +231,7 @@ class MethodWriter implements MethodVisitor {
      * TODO.
      */
     private int frameIndex;
-    
+
     /**
      * The last frame that was written in the StackMapTable attribute.
      * 
@@ -893,7 +893,8 @@ class MethodWriter implements MethodVisitor {
             } else {
                 int size = currentBlock.outputStackTop;
                 // computes the stack size variation
-                if (i.type == ClassWriter.LONG || i.type == ClassWriter.DOUBLE) {
+                if (i.type == ClassWriter.LONG || i.type == ClassWriter.DOUBLE)
+                {
                     size += 2;
                 } else {
                     size += 1;
@@ -2187,6 +2188,50 @@ class MethodWriter implements MethodVisitor {
             }
         }
 
+        // recomputes the stack map frames
+        if (frameCount > 0) {
+            if (computeFrames) {
+                frameCount = 0;
+                stackMap = null;
+                previousFrame = null;
+                frame = null;
+                Label l = new Label();
+                Type[] args = Type.getArgumentTypes(descriptor);
+                l.initInputFrame(cw, access, args, maxLocals);
+                visitFrame(l);
+                l = startLabel;
+                while (l != null) {
+                    /*
+                     * here we needs the original label position. getNewOffset
+                     * must therefore never have been called for this label.
+                     */
+                    u = l.position - 3;
+                    if ((l.status & Label.STORE) != 0 || (u >= 0 && resize[u]))
+                    {
+                        getNewOffset(allIndexes, allSizes, l);
+                        // TODO update offsets in UNINITIALIZED values
+                        visitFrame(l);
+                    }
+                    l = l.successor;
+                }
+            } else {
+                /*
+                 * Resizing an existing stack map frame table is really hard.
+                 * Not only the table must be parsed to update the offets, but
+                 * new frames may be needed for jump instructions that were
+                 * inserted by this method. And updating the offsets or
+                 * inserting frames can change the format of the following
+                 * frames, in case of packed frames. In practice the whole table
+                 * must be recomputed. For this the frames are marked as
+                 * potentially invalid. This will cause the whole class to be
+                 * reread and rewritten with the COMPUTE_FRAMES option (see the
+                 * ClassWriter.toByteArray method). This is not very efficient
+                 * but is much easier and requires much less code than any other
+                 * method I can think of.
+                 */
+                cw.invalidFrames = true;
+            }
+        }
         // updates the exception handler block labels
         Handler h = catchTable;
         while (h != null) {
@@ -2223,43 +2268,6 @@ class MethodWriter implements MethodVisitor {
                         0,
                         readUnsignedShort(b, u)));
                 u += 4;
-            }
-        }
-        // recomputes the stack map frames
-        if (frameCount > 0) {
-            if (!computeFrames) {
-                /*
-                 * TODO resizing an existing stack map frame table is really
-                 * hard. Not only the table must be parsed to update the offets,
-                 * but new frames may be needed for jump instructions that were
-                 * inserted by this method. And updating the offsets or
-                 * inserting frames can change the format of the following
-                 * frames, in case of packed frames. In practice the whole table
-                 * must be recomputed. May be a solution is to do as if frames
-                 * were computed with the COMPUTE_FRAMES option, in order to
-                 * reuse the code below. This requires to parse the existing
-                 * table and to initialize the appropriate Label.inputLocals and
-                 * Label.inputStack arrays.
-                 */
-                throw new RuntimeException("Resizing of existing stack map frame tables is not yet implemented. Workaround: use COMPUTE_FRAMES option");
-            }
-            frameCount = 0;
-            stackMap = null;
-            previousFrame = null;
-            frame = null;
-            Label l = new Label();
-            Type[] args = Type.getArgumentTypes(descriptor);
-            l.initInputFrame(cw, access, args, maxLocals);
-            visitFrame(l);
-            l = startLabel;
-            while (l != null) {
-                u = l.position - 3;
-                if ((l.status & Label.STORE) != 0 || (u >= 0 && resize[u])) {
-                    getNewOffset(allIndexes, allSizes, l);
-                    // TODO update offsets in UNINITIALIZED values
-                    visitFrame(l);
-                }
-                l = l.successor;
             }
         }
         // updates the labels of the other attributes

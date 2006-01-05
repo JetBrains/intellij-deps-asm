@@ -704,7 +704,7 @@ public class Label {
             // namely the exception that was thrown
             nInputStack = 1 + 1; // see inputStackTop
         }
-        if (label.inputStackTop != nInputStack) {
+        if (label.inputStackTop > nInputStack) {
             label.inputStackTop = nInputStack;
             return true;
         } else {

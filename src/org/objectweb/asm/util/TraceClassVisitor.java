@@ -273,7 +273,12 @@ public class TraceClassVisitor extends TraceAbstractVisitor implements
         buf.setLength(0);
         buf.append(tab).append("OUTERCLASS ");
         appendDescriptor(INTERNAL_NAME, owner);
-        buf.append(' ').append(name).append(' ');
+        // if enclosing name is null, so why should we show this info?
+        if(name != null) {
+            buf.append(' ').append(name).append(' ');
+        } else {
+            buf.append(' ');
+        }
         appendDescriptor(METHOD_DESCRIPTOR, desc);
         buf.append('\n');
         text.add(buf.toString());
@@ -313,15 +318,17 @@ public class TraceClassVisitor extends TraceAbstractVisitor implements
     {
         buf.setLength(0);
         buf.append(tab).append("// access flags ").append(access & ~Opcodes.ACC_SUPER).append('\n');
-        buf.append(tab).append("INNERCLASS ");
+        buf.append(tab);
+        appendAccess(access);
+        buf.append("INNERCLASS ");
+        if ((access & Opcodes.ACC_ENUM) != 0) {
+            buf.append("enum ");
+        }
         appendDescriptor(INTERNAL_NAME, name);
         buf.append(' ');
         appendDescriptor(INTERNAL_NAME, outerName);
         buf.append(' ');
         appendDescriptor(INTERNAL_NAME, innerName);
-        if ((access & Opcodes.ACC_ENUM) != 0) {
-            buf.append("enum ");
-        }
         buf.append('\n');
         text.add(buf.toString());
 
@@ -518,6 +525,9 @@ public class TraceClassVisitor extends TraceAbstractVisitor implements
         }
         if ((access & Opcodes.ACC_STRICT) != 0) {
             buf.append("strictfp ");
+        }
+        if ((access & Opcodes.ACC_SYNTHETIC) != 0) {
+            buf.append("synthetic ");
         }
     }
 }

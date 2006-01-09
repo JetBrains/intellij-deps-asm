@@ -1573,16 +1573,6 @@ class MethodWriter implements MethodVisitor {
             cw.newUTF8("Deprecated");
             size += 6;
         }
-        if (cw.version == Opcodes.V1_4) {
-            if ((access & Opcodes.ACC_VARARGS) != 0) {
-                cw.newUTF8("Varargs");
-                size += 6;
-            }
-            if ((access & Opcodes.ACC_BRIDGE) != 0) {
-                cw.newUTF8("Bridge");
-                size += 6;
-            }
-        }
         if (signature != null) {
             cw.newUTF8("Signature");
             cw.newUTF8(signature);
@@ -1646,14 +1636,6 @@ class MethodWriter implements MethodVisitor {
         }
         if ((access & Opcodes.ACC_DEPRECATED) != 0) {
             ++attributeCount;
-        }
-        if (cw.version == Opcodes.V1_4) {
-            if ((access & Opcodes.ACC_VARARGS) != 0) {
-                ++attributeCount;
-            }
-            if ((access & Opcodes.ACC_BRIDGE) != 0) {
-                ++attributeCount;
-            }
         }
         if (signature != null) {
             ++attributeCount;
@@ -1768,14 +1750,6 @@ class MethodWriter implements MethodVisitor {
         }
         if ((access & Opcodes.ACC_DEPRECATED) != 0) {
             out.putShort(cw.newUTF8("Deprecated")).putInt(0);
-        }
-        if (cw.version == Opcodes.V1_4) {
-            if ((access & Opcodes.ACC_VARARGS) != 0) {
-                out.putShort(cw.newUTF8("Varargs")).putInt(0);
-            }
-            if ((access & Opcodes.ACC_BRIDGE) != 0) {
-                out.putShort(cw.newUTF8("Bridge")).putInt(0);
-            }
         }
         if (signature != null) {
             out.putShort(cw.newUTF8("Signature"))

@@ -416,10 +416,6 @@ public class ClassReader {
                 access |= Opcodes.ACC_DEPRECATED;
             } else if (attrName.equals("Synthetic")) {
                 access |= Opcodes.ACC_SYNTHETIC;
-            } else if (attrName.equals("Annotation")) {
-                access |= Opcodes.ACC_ANNOTATION;
-            } else if (attrName.equals("Enum")) {
-                access |= Opcodes.ACC_ENUM;
             } else if (attrName.equals("InnerClasses")) {
                 w = v + 6;
             } else if (attrName.equals("Signature")) {
@@ -538,8 +534,6 @@ public class ClassReader {
                     access |= Opcodes.ACC_SYNTHETIC;
                 } else if (attrName.equals("Deprecated")) {
                     access |= Opcodes.ACC_DEPRECATED;
-                } else if (attrName.equals("Enum")) {
-                    access |= Opcodes.ACC_ENUM;
                 } else if (attrName.equals("Signature")) {
                     signature = readUTF8(u + 6, c);
                 } else if (attrName.equals("RuntimeVisibleAnnotations")) {
@@ -629,10 +623,6 @@ public class ClassReader {
                     w = u;
                 } else if (attrName.equals("Synthetic")) {
                     access |= Opcodes.ACC_SYNTHETIC;
-                } else if (attrName.equals("Varargs")) {
-                    access |= Opcodes.ACC_VARARGS;
-                } else if (attrName.equals("Bridge")) {
-                    access |= Opcodes.ACC_BRIDGE;
                 } else if (attrName.equals("Deprecated")) {
                     access |= Opcodes.ACC_DEPRECATED;
                 } else if (attrName.equals("Signature")) {

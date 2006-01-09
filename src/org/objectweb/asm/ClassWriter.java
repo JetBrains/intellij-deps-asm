@@ -748,18 +748,6 @@ public class ClassWriter implements ClassVisitor {
             size += 6;
             newUTF8("Synthetic");
         }
-        if (version == Opcodes.V1_4) {
-            if ((access & Opcodes.ACC_ANNOTATION) != 0) {
-                ++attributeCount;
-                size += 6;
-                newUTF8("Annotation");
-            }
-            if ((access & Opcodes.ACC_ENUM) != 0) {
-                ++attributeCount;
-                size += 6;
-                newUTF8("Enum");
-            }
-        }
         if (innerClasses != null) {
             ++attributeCount;
             size += 8 + innerClasses.length;
@@ -825,14 +813,6 @@ public class ClassWriter implements ClassVisitor {
                 && (version & 0xffff) < Opcodes.V1_5)
         {
             out.putShort(newUTF8("Synthetic")).putInt(0);
-        }
-        if (version == Opcodes.V1_4) {
-            if ((access & Opcodes.ACC_ANNOTATION) != 0) {
-                out.putShort(newUTF8("Annotation")).putInt(0);
-            }
-            if ((access & Opcodes.ACC_ENUM) != 0) {
-                out.putShort(newUTF8("Enum")).putInt(0);
-            }
         }
         if (innerClasses != null) {
             out.putShort(newUTF8("InnerClasses"));

@@ -100,8 +100,8 @@ public class TraceSignatureVisitor implements SignatureVisitor {
 //      separator = seenInterfaceBound ? ", " : (isInterface
 //          ? " extends "
 //          : " implements ");
-//      seenInterfaceBound = true;
-        separator = " extends ";
+        separator = seenInterfaceBound ? ", " : " extends ";
+        seenInterfaceBound = true;
         startType();
         return this;
     }

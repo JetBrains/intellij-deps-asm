@@ -39,26 +39,53 @@ import org.objectweb.asm.signature.SignatureReader;
 
 /**
  * ClassSignatureDecompilerTest
- * 
+ *
  * @author Eugene Kuleshov
  */
 public class TraceSignatureVisitorTest extends TestCase {
 
     private static String[] DATA = {
-        "C|E|<E extends java.lang.Enum<E>> implements java.lang.Comparable<E>, java.io.Serializable|<E:Ljava/lang/Enum<TE;>;>Ljava/lang/Object;Ljava/lang/Comparable<TE;>;Ljava/io/Serializable;",
-        "C|I|<D extends java.lang.reflect.GenericDeclaration> extends java.lang.reflect.Type|<D::Ljava/lang/reflect/GenericDeclaration;>Ljava/lang/Object;Ljava/lang/reflect/Type;",
-        "C|C|<K, V> extends java.util.AbstractMap<K, V> implements java.util.concurrent.ConcurrentMap<K, V>, java.io.Serializable|<K:Ljava/lang/Object;V:Ljava/lang/Object;>Ljava/util/AbstractMap<TK;TV;>;Ljava/util/concurrent/ConcurrentMap<TK;TV;>;Ljava/io/Serializable;",
-        "C|C|<K extends java.lang.Enum<K>, V> extends java.util.AbstractMap<K, V> implements java.io.Serializable, java.lang.Cloneable|<K:Ljava/lang/Enum<TK;>;V:Ljava/lang/Object;>Ljava/util/AbstractMap<TK;TV;>;Ljava/io/Serializable;Ljava/lang/Cloneable;",
+        "C|E|<E extends java.lang.Enum<E>> implements java.lang.Comparable<E>, java.io.Serializable" +
+            "|<E:Ljava/lang/Enum<TE;>;>Ljava/lang/Object;Ljava/lang/Comparable<TE;>;Ljava/io/Serializable;",
+
+        "C|I|<D extends java.lang.reflect.GenericDeclaration> extends java.lang.reflect.Type" +
+            "|<D::Ljava/lang/reflect/GenericDeclaration;>Ljava/lang/Object;Ljava/lang/reflect/Type;",
+
+        "C|C|<K, V> extends java.util.AbstractMap<K, V> implements java.util.concurrent.ConcurrentMap<K, V>, java.io.Serializable" +
+            "|<K:Ljava/lang/Object;V:Ljava/lang/Object;>Ljava/util/AbstractMap<TK;TV;>;Ljava/util/concurrent/ConcurrentMap<TK;TV;>;Ljava/io/Serializable;",
+
+        "C|C|<K extends java.lang.Enum<K>, V> extends java.util.AbstractMap<K, V> implements java.io.Serializable, java.lang.Cloneable" +
+            "|<K:Ljava/lang/Enum<TK;>;V:Ljava/lang/Object;>Ljava/util/AbstractMap<TK;TV;>;Ljava/io/Serializable;Ljava/lang/Cloneable;",
+
         "F|C|java.lang.Class<?>|Ljava/lang/Class<*>;",
         "F|C|java.lang.reflect.Constructor<T>|Ljava/lang/reflect/Constructor<TT;>;",
         "F|C|T[]|[TT;",
         "F|C|java.util.Hashtable<?, ?>|Ljava/util/Hashtable<**>;",
-        "F|C|java.util.concurrent.atomic.AtomicReferenceFieldUpdater<java.io.BufferedInputStream, byte[]>|Ljava/util/concurrent/atomic/AtomicReferenceFieldUpdater<Ljava/io/BufferedInputStream;[B>;",
-        "M|C|(java.lang.String, java.lang.Class<?>, java.lang.reflect.Method[], java.lang.reflect.Method, java.lang.reflect.Method)|(Ljava/lang/String;Ljava/lang/Class<*>;[Ljava/lang/reflect/Method;Ljava/lang/reflect/Method;Ljava/lang/reflect/Method;)V",
+        "F|C|java.util.concurrent.atomic.AtomicReferenceFieldUpdater<java.io.BufferedInputStream, byte[]>" +
+            "|Ljava/util/concurrent/atomic/AtomicReferenceFieldUpdater<Ljava/io/BufferedInputStream;[B>;",
+
         "F|C|AA<byte[][]>|LAA<[[B>;",
-        "F|C|AA<java.util.Map<java.lang.String, java.lang.String>[][]>|LAA<[[Ljava/util/Map<Ljava/lang/String;Ljava/lang/String;>;>;",
-        "M|C|()|()V^TE;",
-        "F|C|java.util.Hashtable<java.lang.Object, java.lang.String>|Ljava/util/Hashtable<Ljava/lang/Object;Ljava/lang/String;>;" };
+        "F|C|AA<java.util.Map<java.lang.String, java.lang.String>[][]>" +
+            "|LAA<[[Ljava/util/Map<Ljava/lang/String;Ljava/lang/String;>;>;",
+
+        "F|C|java.util.Hashtable<java.lang.Object, java.lang.String>" +
+            "|Ljava/util/Hashtable<Ljava/lang/Object;Ljava/lang/String;>;",
+
+        "M|C|void()E|()V^TE;",
+
+        "M|C|void(java.lang.String, java.lang.Class<?>, java.lang.reflect.Method[], java.lang.reflect.Method, java.lang.reflect.Method)" +
+            "|(Ljava/lang/String;Ljava/lang/Class<*>;[Ljava/lang/reflect/Method;Ljava/lang/reflect/Method;Ljava/lang/reflect/Method;)V",
+
+        "M|C|java.util.Map<java.lang.Object, java.lang.String>(java.lang.Object, java.util.Map<java.lang.Object, java.lang.String>)" +
+            "|(Ljava/lang/Object;Ljava/util/Map<Ljava/lang/Object;Ljava/lang/String;>;)Ljava/util/Map<Ljava/lang/Object;Ljava/lang/String;>;",
+
+        "M|C|java.util.Map<java.lang.Object, java.lang.String><T>(java.lang.Object, java.util.Map<java.lang.Object, java.lang.String>, T)" +
+            "|<T:Ljava/lang/Object;>(Ljava/lang/Object;Ljava/util/Map<Ljava/lang/Object;Ljava/lang/String;>;TT;)Ljava/util/Map<Ljava/lang/Object;Ljava/lang/String;>;",
+
+        "M|C|java.util.Map<java.lang.Object, java.lang.String><E, T extends java.lang.Comparable<E>>(java.lang.Object, java.util.Map<java.lang.Object, java.lang.String>, T)" +
+            "|<E:Ljava/lang/Object;T::Ljava/lang/Comparable<TE;>;>(Ljava/lang/Object;Ljava/util/Map<Ljava/lang/Object;Ljava/lang/String;>;TT;)Ljava/util/Map<Ljava/lang/Object;Ljava/lang/String;>;",
+
+        };
 
     public static TestSuite suite() {
         TestSuite suite = new TestSuite(TraceSignatureVisitorTest.class.getName());
@@ -84,16 +111,21 @@ public class TraceSignatureVisitorTest extends TestCase {
         switch (data.type) {
             case 'C':
                 r.accept(d);
+                assertEquals(data.declaration, d.getDeclaration());
                 break;
             case 'F':
                 r.acceptType(d);
+                assertEquals(data.declaration, d.getDeclaration());
                 break;
             case 'M':
                 r.accept(d);
+                String fullMethodDeclaration = d.getReturnType()
+                        + d.getDeclaration()
+                        + (d.getExceptions() != null ? d.getExceptions() : "");
+                assertEquals(data.declaration, fullMethodDeclaration);
                 break;
         }
 
-        assertEquals(data.declaration, d.getDeclaration());
     }
 
     public String getName() {

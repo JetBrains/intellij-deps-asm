@@ -74,7 +74,7 @@ public class MethodNode extends MemberNode implements MethodVisitor {
      * {@link Type#getInternalName() getInternalName}). This list is a list of
      * {@link String} objects.
      */
-    public final List exceptions;
+    public List exceptions;
 
     /**
      * The default value of this annotation interface method. This field must be
@@ -111,7 +111,7 @@ public class MethodNode extends MemberNode implements MethodVisitor {
      * @associates org.objectweb.asm.tree.AbstractInsnNode
      * @label instructions
      */
-    public final List instructions;
+    public List instructions;
 
     /**
      * The try catch blocks of this method. This list is a list of
@@ -119,7 +119,7 @@ public class MethodNode extends MemberNode implements MethodVisitor {
      * 
      * @associates org.objectweb.asm.tree.TryCatchBlockNode
      */
-    public final List tryCatchBlocks;
+    public List tryCatchBlocks;
 
     /**
      * The maximum stack size of this method.

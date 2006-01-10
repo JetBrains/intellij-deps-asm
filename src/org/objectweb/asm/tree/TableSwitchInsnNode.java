@@ -63,7 +63,7 @@ public class TableSwitchInsnNode extends AbstractInsnNode {
      * Beginnings of the handler blocks. This list is a list of {@link Label}
      * objects.
      */
-    public final List labels;
+    public List labels;
 
     /**
      * Constructs a new {@link TableSwitchInsnNode}.

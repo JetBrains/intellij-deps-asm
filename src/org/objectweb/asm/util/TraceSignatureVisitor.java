@@ -136,6 +136,8 @@ public class TraceSignatureVisitor implements SignatureVisitor {
         endFormals();
         if (!seenParameter) {
             declaration.append('(');
+        } else {
+            seenParameter = false;
         }
         declaration.append(')');
         returnType = new StringBuffer();
@@ -202,13 +204,26 @@ public class TraceSignatureVisitor implements SignatureVisitor {
     public void visitClassType(String name) {
         if (!"java/lang/Object".equals(name)) {
             declaration.append(separator).append(name.replace('/', '.'));
+        } else {
+            // Map<java.lang.Object,java.util.List>
+            // or
+            // abstract public V get(Object key); (seen in Dictionary.class)
+            // should have Object
+            // but java.lang.String extends java.lang.Object is unnecessary
+            boolean needObjectClass = argumentStack % 2 == 1 || seenParameter;
+            if (needObjectClass) {
+                declaration.append(separator).append(name.replace('/', '.'));
+            }
         }
         separator = "";
         argumentStack *= 2;
     }
 
     public void visitInnerClassType(String name) {
-        // TODO
+        // TODO tests
+        declaration.append(separator).append(name.replace('/', '.'));
+        separator = "";
+        argumentStack *= 2;
     }
 
     public void visitTypeArgument() {

@@ -52,13 +52,13 @@ public class LookupSwitchInsnNode extends AbstractInsnNode {
     /**
      * The values of the keys. This list is a list of {@link Integer} objects.
      */
-    public final List keys;
+    public List keys;
 
     /**
      * Beginnings of the handler blocks. This list is a list of {@link Label}
      * objects.
      */
-    public final List labels;
+    public List labels;
 
     /**
      * Constructs a new {@link LookupSwitchInsnNode}.

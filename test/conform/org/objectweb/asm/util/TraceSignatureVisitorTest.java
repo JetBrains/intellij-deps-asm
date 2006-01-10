@@ -57,7 +57,8 @@ public class TraceSignatureVisitorTest extends TestCase {
         "M|C|(java.lang.String, java.lang.Class<?>, java.lang.reflect.Method[], java.lang.reflect.Method, java.lang.reflect.Method)|(Ljava/lang/String;Ljava/lang/Class<*>;[Ljava/lang/reflect/Method;Ljava/lang/reflect/Method;Ljava/lang/reflect/Method;)V",
         "F|C|AA<byte[][]>|LAA<[[B>;",
         "F|C|AA<java.util.Map<java.lang.String, java.lang.String>[][]>|LAA<[[Ljava/util/Map<Ljava/lang/String;Ljava/lang/String;>;>;",
-        "M|C|()|()V^TE;" };
+        "M|C|()|()V^TE;",
+        "F|C|java.util.Hashtable<java.lang.Object, java.lang.String>|Ljava/util/Hashtable<Ljava/lang/Object;Ljava/lang/String;>;" };
 
     public static TestSuite suite() {
         TestSuite suite = new TestSuite(TraceSignatureVisitorTest.class.getName());

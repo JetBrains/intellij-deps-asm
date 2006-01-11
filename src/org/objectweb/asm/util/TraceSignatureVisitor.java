@@ -89,17 +89,6 @@ public class TraceSignatureVisitor implements SignatureVisitor {
     }
 
     public SignatureVisitor visitInterfaceBound() {
-        /*
-         * Andrei: as a human, I wish to see "implements" keyword here, but
-         * in the sourcecode we denote interface bound also as
-         * <pre>
-         *  A extends Comparable<E>
-         * </pre>,
-         * see crasy1() method in GenericHell class.
-         */
-//      separator = seenInterfaceBound ? ", " : (isInterface
-//          ? " extends "
-//          : " implements ");
         separator = seenInterfaceBound ? ", " : " extends ";
         seenInterfaceBound = true;
         startType();

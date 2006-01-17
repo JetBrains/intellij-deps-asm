@@ -44,7 +44,7 @@ import java.util.Map;
 
 /**
  * A {@link MethodVisitor} that prints the ASM code that generates the methods
- * it visits.
+ * it visits by using the GeneratorAdapter class.
  * 
  * @author Eric Bruneton
  * @author Eugene Kuleshov
@@ -178,6 +178,7 @@ public class GASMifierMethodVisitor extends ASMifierAbstractVisitor implements
                 buf.append("mg.returnValue();\n");
                 break;
             case NOP:
+                buf.append("mg.visitInsn(Opcodes.NOP);\n");                
                 break;
             case ACONST_NULL:
                 buf.append("mg.push((String)null);\n");

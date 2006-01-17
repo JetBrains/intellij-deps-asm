@@ -101,11 +101,11 @@
   
   <target name="init" depends="properties,check">  
     <mkdir dir="${out.test}"/>
+    <mkdir dir="${out.test}/cases"/>
     <mkdir dir="${out.test}/reports"/>
     <path id="test.classpath">
       <pathelement location="${classes}"/>
       <pathelement location="${out.test}"/>
-      <pathelement location="${test}/conform/cases"/>
       <pathelement path="${bcel.path}"/>
       <pathelement path="${aspectj.path}"/>
       <pathelement path="${serp.path}"/>  
@@ -124,14 +124,15 @@
         debug="on" debuglevel="lines,vars,source">
       <classpath refid="test.classpath"/>
       <include name="**/*.java"/>
-      <exclude name="cases/**/*.java"/>
     </javac>
-    <copy todir="${out.test}">
-  	  <fileset dir="${test.conform}">
-        <include name="**/*.txt"/>
-        <include name="**/*.data"/>
-      </fileset>
-    </copy>
+    <delete dir="${out.test}/cases"/>
+    <java classname="org.objectweb.asm.test.cases.Generator">
+      <classpath>
+        <pathelement location="${out.build}"/>
+        <pathelement location="${out.test}"/>
+      </classpath>
+      <arg value="${out.test}/cases"/>
+    </java>
   </target>
 
   <target name="compile.test.deviance" depends="init" if="test.deviance.exist">

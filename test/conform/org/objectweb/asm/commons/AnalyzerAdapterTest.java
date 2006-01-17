@@ -40,7 +40,7 @@ import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 
 /**
- * BasicFamesGenerator tests.
+ * AnalyzerAdapter tests.
  * 
  * @author Eric Bruneton
  */
@@ -53,7 +53,13 @@ public class AnalyzerAdapterTest extends AbstractTest {
     public void test() throws Exception {
         ClassReader cr = new ClassReader(is);
         if (cr.readInt(4) != Opcodes.V1_6) {
-            return;
+            try {
+                ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_FRAMES);
+                cr.accept(cw, 0);
+                cr = new ClassReader(cw.toByteArray());
+            } catch (Exception e) {
+                return;
+            }
         }
         ClassWriter cw = new ClassWriter(0);
         ClassVisitor cv = new ClassAdapter(cw) {

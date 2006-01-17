@@ -34,7 +34,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.objectweb.asm.Attribute;
-import org.objectweb.asm.util.attrs.ASMifiable;
 
 /**
  * An abstract visitor.

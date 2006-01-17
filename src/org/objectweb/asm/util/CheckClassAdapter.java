@@ -223,7 +223,7 @@ public class CheckClassAdapter extends ClassAdapter {
     {
         checkState();
         if (outer) {
-            throw new IllegalStateException("visitSource can be called only once.");
+            throw new IllegalStateException("visitOuterClass can be called only once.");
         }
         outer = true;
         if (owner == null) {

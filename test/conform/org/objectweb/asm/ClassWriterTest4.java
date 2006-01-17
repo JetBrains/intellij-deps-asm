@@ -35,6 +35,9 @@ import java.lang.instrument.Instrumentation;
 import java.security.ProtectionDomain;
 import java.util.HashSet;
 
+import org.objectweb.asm.attrs.CodeComment;
+import org.objectweb.asm.commons.EmptyVisitor;
+
 import junit.framework.TestSuite;
 
 public class ClassWriterTest4 extends AbstractTest {
@@ -49,12 +52,19 @@ public class ClassWriterTest4 extends AbstractTest {
                 final String className,
                 final Class classBeingRedefined,
                 final ProtectionDomain domain,
-                final byte[] classFileBuffer)
-                    throws IllegalClassFormatException
+                byte[] b) throws IllegalClassFormatException
             {
                 String n = className.replace('/', '.');
                 if (agentArgs.length() == 0 || n.indexOf(agentArgs) != -1) {
-                    return transformClass(classFileBuffer);
+                    try {
+                        b = transformClass(b, ClassWriter.COMPUTE_FRAMES);
+                        if (n.equals("pkg.FrameMap")) {
+                            b = transformClass(b, 0);
+                        }
+                        return b;
+                    } catch (Throwable e) {
+                        return transformClass(b, 0);
+                    }
                 } else {
                     return null;
                 }
@@ -62,9 +72,9 @@ public class ClassWriterTest4 extends AbstractTest {
         });
     }
 
-    private static byte[] transformClass(byte[] clazz) {
+    private static byte[] transformClass(final byte[] clazz, final int flags) {
         ClassReader cr = new ClassReader(clazz);
-        ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_FRAMES) {
+        ClassWriter cw = new ClassWriter(flags) {
             protected String getCommonSuperClass(
                 final String type1,
                 final String type2)
@@ -93,9 +103,9 @@ public class ClassWriterTest4 extends AbstractTest {
             }
         };
         ClassAdapter ca = new ClassAdapter(cw) {
-            
+
             private boolean transformed = false;
-            
+
             public void visit(
                 int version,
                 int access,
@@ -104,7 +114,10 @@ public class ClassWriterTest4 extends AbstractTest {
                 String superName,
                 String[] interfaces)
             {
-                super.visit(Opcodes.V1_6,
+                if (flags == ClassWriter.COMPUTE_FRAMES) {
+                    version = Opcodes.V1_6;
+                }
+                super.visit(version,
                         access,
                         name,
                         signature,
@@ -149,8 +162,10 @@ public class ClassWriterTest4 extends AbstractTest {
                 };
             }
         };
-        cr.accept(ca, 0);
-        return cw.toByteArray();
+        cr.accept(ca, new Attribute[] { new CodeComment() }, 0);
+        byte[] b = cw.toByteArray();
+        new ClassReader(b).accept(new EmptyVisitor(), 0);
+        return b;
     }
 
     public static TestSuite suite() throws Exception {

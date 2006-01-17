@@ -23,7 +23,7 @@
       </batchtest>
       <formatter type="xml"/>
       <classpath>
-          <pathelement location="${test}/conform"/>
+          <pathelement location="${out.test}/cases"/>
       </classpath>
       <jvmarg value="-javaagent:${out.test}/agent3.jar=${asm.test.class}"/>
       <jvmarg value="-Dasm.test=${asm.test}"/>
@@ -56,9 +56,9 @@
       </batchtest>
       <formatter type="xml"/>
       <classpath>
-          <pathelement location="${test}/conform"/>
+          <pathelement location="${out.test}/cases"/>
       </classpath>
-      <jvmarg value="-javaagent:${out.test}/agent3.jar=cases"/>
+      <jvmarg value="-javaagent:${out.test}/agent3.jar=${asm.test.class}"/>
       <jvmarg value="-Dasm.test=${asm.test}"/>
       <jvmarg value="-Dasm.test.class=${asm.test.class}"/>
       <jvmarg value="-Xbootclasspath/p:${cobertura.runtime.path}"/>

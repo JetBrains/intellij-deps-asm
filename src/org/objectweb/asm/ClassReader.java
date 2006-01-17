@@ -1641,16 +1641,13 @@ public class ClassReader {
                 frame[index] = readClass(v, buf);
                 v += 2;
                 break;
-            case 8: // Uninitialized
+            default: // Uninitialized
                 int offset = readUnsignedShort(v);
                 if (labels[offset] == null) {
                     labels[offset] = new Label();
                 }
                 frame[index] = labels[offset];
                 v += 2;
-                break;
-            default:
-                frame[index] = new Integer(type);
         }
         return v;
     }

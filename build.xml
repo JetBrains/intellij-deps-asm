@@ -161,7 +161,7 @@
     <condition property="classes" value="${out.build}/tmp">
       <isset property="debug"/>
     </condition>
-    <condition property="asm.test" value="${java.home}/lib/rt.jar,test/conform">
+    <condition property="asm.test" value="${java.home}/lib/rt.jar,${out.test}/cases">
       <not><isset property="asm.test"/></not>
     </condition>
     <ant antfile="${test}/build.xml" target="test" inheritRefs="true"/>
@@ -191,17 +191,22 @@
       <fileset dir="${out.build}/tmp"/>
     </copy>
     <property name="coverage" value="yes"/>
-        <property name="classes" value="${out.instr}"/>
-    <property name="asm.test.class" value="cases"/>
-    <condition property="asm.test" value="test/conform">
+    <property name="classes" value="${out.instr}"/>
+    <property name="asm.test.class" value="pkg"/>
+    <condition property="asm.test" value="${out.test}/cases">
       <not><isset property="asm.test"/></not>
     </condition>
-    <condition property="asm.test.type" value="conform">
-      <not><isset property="asm.test.type"/></not>
+    <condition property="test.type" value="conform">
+      <not><isset property="test.type"/></not>
     </condition>
     <ant antfile="${test}/build.xml" target="test" inheritRefs="true"/>         
   </target>
 
+  <target name="coverage.check" depends="init">
+    <cobertura-check branchrate="100" linerate="100">
+    </cobertura-check>
+  </target>
+    
   <target name="coverage.report" depends="init">
     <cobertura-report destdir="${out}/coverage" srcdir="${src}" format="xml"/>
     <cobertura-report destdir="${out}/coverage">

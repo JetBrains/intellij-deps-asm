@@ -47,10 +47,13 @@ import org.codehaus.janino.Scanner;
 import org.codehaus.janino.UnitCompiler;
 
 import org.objectweb.asm.AbstractTest;
+import org.objectweb.asm.Attribute;
 import org.objectweb.asm.ClassAdapter;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.MethodVisitor;
+import org.objectweb.asm.attrs.CodeComment;
+import org.objectweb.asm.attrs.Comment;
 
 /**
  * GASMifier tests.
@@ -77,7 +80,9 @@ public class GASMifierTest extends AbstractTest {
 
         StringWriter sw = new StringWriter();
         GASMifierClassVisitor cv = new GASMifierClassVisitor(new PrintWriter(sw));
-        cr.accept(cv, ClassReader.EXPAND_FRAMES);
+        cr.accept(cv,
+                new Attribute[] { new Comment(), new CodeComment() },
+                ClassReader.EXPAND_FRAMES);
 
         String generated = sw.toString();
 
@@ -106,10 +111,17 @@ public class GASMifierTest extends AbstractTest {
                                 signature,
                                 exceptions));
             }
-        }, ClassReader.EXPAND_FRAMES);
+        },
+                new Attribute[] { new Comment(), new CodeComment() },
+                ClassReader.EXPAND_FRAMES);
         cr = new ClassReader(cw.toByteArray());
 
-        Class c = LOADER.defineClass("asm." + n + "Dump", generatorClassData);
+        String nd = n + "Dump";
+        if (n.indexOf('.') != -1) {
+            nd = "asm." + nd;
+        }
+
+        Class c = LOADER.defineClass(nd, generatorClassData);
         Method m = c.getMethod("dump", new Class[0]);
         byte[] b;
         try {

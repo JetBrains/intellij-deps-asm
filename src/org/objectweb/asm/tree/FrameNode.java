@@ -103,6 +103,7 @@ public class FrameNode extends AbstractInsnNode {
         super(-1);
         this.type = type;
         switch (type) {
+            case Opcodes.F_NEW:
             case Opcodes.F_FULL:
                 this.local = asList(nLocal, local);
                 this.stack = asList(nStack, stack);

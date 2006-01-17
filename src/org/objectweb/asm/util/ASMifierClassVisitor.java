@@ -38,7 +38,6 @@ import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
-import org.objectweb.asm.Type;
 
 /**
  * A {@link ClassVisitor} that prints the ASM code that generates the classes it
@@ -433,16 +432,10 @@ public class ASMifierClassVisitor extends ASMifierAbstractVisitor implements
             first = false;
         }
         if ((access & Opcodes.ACC_PRIVATE) != 0) {
-            if (!first) {
-                buf.append(" + ");
-            }
             buf.append("ACC_PRIVATE");
             first = false;
         }
         if ((access & Opcodes.ACC_PROTECTED) != 0) {
-            if (!first) {
-                buf.append(" + ");
-            }
             buf.append("ACC_PROTECTED");
             first = false;
         }
@@ -572,36 +565,6 @@ public class ASMifierClassVisitor extends ASMifierAbstractVisitor implements
         }
         if (first) {
             buf.append("0");
-        }
-    }
-
-    /**
-     * Appends a string representation of the given constant to the given
-     * buffer.
-     * 
-     * @param buf a string buffer.
-     * @param cst an {@link java.lang.Integer Integer}, {@link java.lang.Float
-     *        Float}, {@link java.lang.Long Long},
-     *        {@link java.lang.Double Double} or {@link String String} object.
-     *        May be <tt>null</tt>.
-     */
-    static void appendConstant(final StringBuffer buf, final Object cst) {
-        if (cst == null) {
-            buf.append("null");
-        } else if (cst instanceof String) {
-            AbstractVisitor.appendString(buf, (String) cst);
-        } else if (cst instanceof Type) {
-            buf.append("Type.getType(\"")
-                    .append(((Type) cst).getDescriptor())
-                    .append("\")");
-        } else if (cst instanceof Integer) {
-            buf.append("new Integer(").append(cst).append(")");
-        } else if (cst instanceof Float) {
-            buf.append("new Float(\"").append(cst).append("\")");
-        } else if (cst instanceof Long) {
-            buf.append("new Long(").append(cst).append("L)");
-        } else if (cst instanceof Double) {
-            buf.append("new Double(\"").append(cst).append("\")");
         }
     }
 }

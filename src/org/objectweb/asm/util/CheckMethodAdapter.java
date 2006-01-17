@@ -396,10 +396,10 @@ public class CheckMethodAdapter extends MethodAdapter {
                     + " for frame type " + type);
         }
 
-        if (local.length < nLocal) {
+        if (nLocal > 0 && (local == null || local.length < nLocal)) {
             throw new IllegalArgumentException("Array local[] is shorter than nLocal");
         }
-        if (stack.length < nStack) {
+        if (nStack > 0 && (stack == null || stack.length < nStack)) {
             throw new IllegalArgumentException("Array stack[] is shorter than nStack");
         }
 

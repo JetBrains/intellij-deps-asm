@@ -35,9 +35,12 @@ import java.io.PrintWriter;
 import junit.framework.TestSuite;
 
 import org.objectweb.asm.AbstractTest;
+import org.objectweb.asm.Attribute;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.ClassWriter;
+import org.objectweb.asm.attrs.CodeComment;
+import org.objectweb.asm.attrs.Comment;
 
 /**
  * CheckClassAdapter tests.
@@ -55,7 +58,7 @@ public class TraceClassAdapterTest extends AbstractTest {
         ClassWriter cw = new ClassWriter(0);
         ClassVisitor cv = new TraceClassVisitor(cw,
                 new PrintWriter(new CharArrayWriter()));
-        cr.accept(cv, 0);
+        cr.accept(cv, new Attribute[] { new Comment(), new CodeComment() }, 0);
         assertEquals(cr, new ClassReader(cw.toByteArray()));
     }
 }

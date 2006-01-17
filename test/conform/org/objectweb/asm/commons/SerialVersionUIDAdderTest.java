@@ -29,50 +29,24 @@
  */
 package org.objectweb.asm.commons;
 
-import java.io.IOException;
-import java.io.Serializable;
-import java.security.NoSuchAlgorithmException;
+import junit.framework.TestSuite;
 
+import org.objectweb.asm.AbstractTest;
 import org.objectweb.asm.ClassReader;
-import org.objectweb.asm.ClassVisitor;
-
-import junit.framework.TestCase;
 
 /**
- * Test for the SerialVerionUid computation.
+ * SerialVerionUIDAdder tests.
  * 
- * @author Alexandre Vasseur
  * @author Eric Bruneton
  */
-public class SerialVersionUIDAdderTest extends TestCase implements Serializable
-{
+public class SerialVersionUIDAdderTest extends AbstractTest {
 
-    protected final static int aField = 32;
-
-    static {
-        System.gc();
+    public static TestSuite suite() throws Exception {
+        return new SerialVersionUIDAdderTest().getSuite();
     }
 
-    public Object[] aMethod() {
-        return null;
-    }
-
-    private long computeSerialVersionUID(String className) throws IOException {
-        final long[] svuid = new long[1];
-        ClassVisitor cv = new SerialVersionUIDAdder(new EmptyVisitor()) {
-            protected long computeSVUID()
-                    throws IOException, NoSuchAlgorithmException
-            {
-                svuid[0] = super.computeSVUID();
-                return svuid[0];
-            }
-        };
-        new ClassReader(className).accept(cv, 0);
-        return svuid[0];
-    }
-
-    public void test() throws Throwable {
-        long UID = computeSerialVersionUID(getClass().getName());
-        assertEquals(3047446532799341501L, UID);
+    public void test() throws Exception {
+        ClassReader cr = new ClassReader(is);
+        cr.accept(new SerialVersionUIDAdder(new EmptyVisitor()), 0);
     }
 }

@@ -37,6 +37,8 @@ import org.objectweb.asm.Opcodes;
 import junit.framework.TestCase;
 
 /**
+ * StaticInitMerger tests.
+ * 
  * @author Eric Bruneton
  */
 public class StaticInitMergerTest extends TestCase implements Opcodes {

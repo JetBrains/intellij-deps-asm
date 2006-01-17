@@ -53,6 +53,21 @@ public final class SAXClassAdapter extends SAXAdapter implements ClassVisitor {
     private boolean singleDocument;
 
     /**
+     * Pseudo access flag used to distinguish class access flags.
+     */
+    private final static int ACCESS_CLASS = 262144;
+
+    /**
+     * Pseudo access flag used to distinguish field access flags.
+     */
+    private final static int ACCESS_FIELD = 524288;
+
+    /**
+     * Pseudo access flag used to distinguish inner class flags.
+     */
+    private static final int ACCESS_INNER = 1048576;
+
+    /**
      * Constructs a new {@link SAXClassAdapter SAXClassAdapter} object.
      * 
      * @param h content handler that will be used to send SAX 2.0 events.
@@ -114,28 +129,7 @@ public final class SAXClassAdapter extends SAXAdapter implements ClassVisitor {
         String[] interfaces)
     {
         StringBuffer sb = new StringBuffer();
-        if ((access & Opcodes.ACC_PUBLIC) != 0)
-            sb.append("public ");
-        if ((access & Opcodes.ACC_PRIVATE) != 0)
-            sb.append("private ");
-        if ((access & Opcodes.ACC_PROTECTED) != 0)
-            sb.append("protected ");
-        if ((access & Opcodes.ACC_FINAL) != 0)
-            sb.append("final ");
-        if ((access & Opcodes.ACC_SUPER) != 0)
-            sb.append("super ");
-        if ((access & Opcodes.ACC_INTERFACE) != 0)
-            sb.append("interface ");
-        if ((access & Opcodes.ACC_ABSTRACT) != 0)
-            sb.append("abstract ");
-        if ((access & Opcodes.ACC_SYNTHETIC) != 0)
-            sb.append("synthetic ");
-        if ((access & Opcodes.ACC_ANNOTATION) != 0)
-            sb.append("annotation ");
-        if ((access & Opcodes.ACC_ENUM) != 0)
-            sb.append("enum ");
-        if ((access & Opcodes.ACC_DEPRECATED) != 0)
-            sb.append("deprecated ");
+        appendAccess(access | ACCESS_CLASS, sb);
 
         AttributesImpl att = new AttributesImpl();
         att.addAttribute("", "access", "access", "", sb.toString());
@@ -180,26 +174,7 @@ public final class SAXClassAdapter extends SAXAdapter implements ClassVisitor {
         Object value)
     {
         StringBuffer sb = new StringBuffer();
-        if ((access & Opcodes.ACC_PUBLIC) != 0)
-            sb.append("public ");
-        if ((access & Opcodes.ACC_PRIVATE) != 0)
-            sb.append("private ");
-        if ((access & Opcodes.ACC_PROTECTED) != 0)
-            sb.append("protected ");
-        if ((access & Opcodes.ACC_STATIC) != 0)
-            sb.append("static ");
-        if ((access & Opcodes.ACC_FINAL) != 0)
-            sb.append("final ");
-        if ((access & Opcodes.ACC_VOLATILE) != 0)
-            sb.append("volatile ");
-        if ((access & Opcodes.ACC_TRANSIENT) != 0)
-            sb.append("transient ");
-        if ((access & Opcodes.ACC_SYNTHETIC) != 0)
-            sb.append("synthetic ");
-        if ((access & Opcodes.ACC_ENUM) != 0)
-            sb.append("enum ");
-        if ((access & Opcodes.ACC_DEPRECATED) != 0)
-            sb.append("deprecated ");
+        appendAccess(access | ACCESS_FIELD, sb);
 
         AttributesImpl att = new AttributesImpl();
         att.addAttribute("", "access", "access", "", sb.toString());
@@ -226,32 +201,7 @@ public final class SAXClassAdapter extends SAXAdapter implements ClassVisitor {
         String[] exceptions)
     {
         StringBuffer sb = new StringBuffer();
-        if ((access & Opcodes.ACC_PUBLIC) != 0)
-            sb.append("public ");
-        if ((access & Opcodes.ACC_PRIVATE) != 0)
-            sb.append("private ");
-        if ((access & Opcodes.ACC_PROTECTED) != 0)
-            sb.append("protected ");
-        if ((access & Opcodes.ACC_STATIC) != 0)
-            sb.append("static ");
-        if ((access & Opcodes.ACC_FINAL) != 0)
-            sb.append("final ");
-        if ((access & Opcodes.ACC_SYNCHRONIZED) != 0)
-            sb.append("synchronized ");
-        if ((access & Opcodes.ACC_BRIDGE) != 0)
-            sb.append("bridge ");
-        if ((access & Opcodes.ACC_VARARGS) != 0)
-            sb.append("varargs ");
-        if ((access & Opcodes.ACC_NATIVE) != 0)
-            sb.append("native ");
-        if ((access & Opcodes.ACC_ABSTRACT) != 0)
-            sb.append("abstract ");
-        if ((access & Opcodes.ACC_STRICT) != 0)
-            sb.append("strict ");
-        if ((access & Opcodes.ACC_SYNTHETIC) != 0)
-            sb.append("synthetic ");
-        if ((access & Opcodes.ACC_DEPRECATED) != 0)
-            sb.append("deprecated ");
+        appendAccess(access, sb);
 
         AttributesImpl att = new AttributesImpl();
         att.addAttribute("", "access", "access", "", sb.toString());
@@ -282,30 +232,7 @@ public final class SAXClassAdapter extends SAXAdapter implements ClassVisitor {
         int access)
     {
         StringBuffer sb = new StringBuffer();
-        if ((access & Opcodes.ACC_PUBLIC) != 0)
-            sb.append("public ");
-        if ((access & Opcodes.ACC_PRIVATE) != 0)
-            sb.append("private ");
-        if ((access & Opcodes.ACC_PROTECTED) != 0)
-            sb.append("protected ");
-        if ((access & Opcodes.ACC_STATIC) != 0)
-            sb.append("static ");
-        if ((access & Opcodes.ACC_FINAL) != 0)
-            sb.append("final ");
-        if ((access & Opcodes.ACC_SUPER) != 0)
-            sb.append("super ");
-        if ((access & Opcodes.ACC_INTERFACE) != 0)
-            sb.append("interface ");
-        if ((access & Opcodes.ACC_ABSTRACT) != 0)
-            sb.append("abstract ");
-        if ((access & Opcodes.ACC_SYNTHETIC) != 0)
-            sb.append("synthetic ");
-        if ((access & Opcodes.ACC_ANNOTATION) != 0)
-            sb.append("annotation ");
-        if ((access & Opcodes.ACC_ENUM) != 0)
-            sb.append("enum ");
-        if ((access & Opcodes.ACC_DEPRECATED) != 0)
-            sb.append("deprecated ");
+        appendAccess(access | ACCESS_INNER, sb);
 
         AttributesImpl att = new AttributesImpl();
         att.addAttribute("", "access", "access", "", sb.toString());
@@ -348,4 +275,47 @@ public final class SAXClassAdapter extends SAXAdapter implements ClassVisitor {
         return sb.toString();
     }
 
+    static void appendAccess(int access, StringBuffer sb) {
+        if ((access & Opcodes.ACC_PUBLIC) != 0)
+            sb.append("public ");
+        if ((access & Opcodes.ACC_PRIVATE) != 0)
+            sb.append("private ");
+        if ((access & Opcodes.ACC_PROTECTED) != 0)
+            sb.append("protected ");
+        if ((access & Opcodes.ACC_FINAL) != 0)
+            sb.append("final ");
+        if ((access & Opcodes.ACC_STATIC) != 0)
+            sb.append("static ");
+        if ((access & Opcodes.ACC_SUPER) != 0)
+            if ((access & ACCESS_CLASS) != 0)
+                sb.append("super ");
+            else
+                sb.append("synchronized ");
+        if ((access & Opcodes.ACC_VOLATILE) != 0)
+            if ((access & ACCESS_FIELD) != 0)
+                sb.append("volatile ");
+            else
+                sb.append("bridge ");
+        if ((access & Opcodes.ACC_TRANSIENT) != 0)
+            if ((access & ACCESS_FIELD) != 0)
+                sb.append("transient ");
+            else
+                sb.append("varargs ");
+        if ((access & Opcodes.ACC_NATIVE) != 0)
+            sb.append("native ");
+        if ((access & Opcodes.ACC_STRICT) != 0)
+            sb.append("strict ");
+        if ((access & Opcodes.ACC_INTERFACE) != 0)
+            sb.append("interface ");
+        if ((access & Opcodes.ACC_ABSTRACT) != 0)
+            sb.append("abstract ");
+        if ((access & Opcodes.ACC_SYNTHETIC) != 0)
+            sb.append("synthetic ");
+        if ((access & Opcodes.ACC_ANNOTATION) != 0)
+            sb.append("annotation ");
+        if ((access & Opcodes.ACC_ENUM) != 0)
+            sb.append("enum ");
+        if ((access & Opcodes.ACC_DEPRECATED) != 0)
+            sb.append("deprecated ");
+    }
 }

@@ -36,7 +36,6 @@ import org.objectweb.asm.Label;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.signature.SignatureReader;
-import org.objectweb.asm.util.attrs.Traceable;
 
 import java.util.HashMap;
 
@@ -328,11 +327,7 @@ public class TraceMethodVisitor extends TraceAbstractVisitor implements
         buf.setLength(0);
         buf.append(tab2).append("LDC ");
         if (cst instanceof String) {
-            if (cst == null) {
-                buf.append("null");
-            } else if (cst instanceof String) {
-                AbstractVisitor.appendString(buf, (String) cst);
-            }
+            AbstractVisitor.appendString(buf, (String) cst);
         } else if (cst instanceof Type) {
             buf.append(((Type) cst).getDescriptor() + ".class");
         } else {

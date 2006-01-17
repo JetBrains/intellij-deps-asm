@@ -13,7 +13,7 @@
       <formatter type="xml"/>
       <classpath refid="test.classpath"/>
       <classpath>
-          <pathelement location="${test}/conform"/>
+          <pathelement location="${out.test}/cases"/>
       </classpath>
       <jvmarg value="-Dasm.test=${asm.test}"/>
       <jvmarg value="-Dasm.test.class=${asm.test.class}"/>

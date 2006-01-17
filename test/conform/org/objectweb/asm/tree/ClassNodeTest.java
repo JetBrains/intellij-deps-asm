@@ -36,7 +36,7 @@ import org.objectweb.asm.ClassWriter;
 import junit.framework.TestSuite;
 
 /**
- * ClassWriter tests.
+ * ClassNode tests.
  * 
  * @author Eric Bruneton
  */

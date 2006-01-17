@@ -36,6 +36,11 @@ import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.util.ASMifierClassVisitor;
 
+/**
+ * Sub class of the ASMifier class visitor used to test GeneratorAdapter.
+ * 
+ * @author Eric Bruneton
+ */
 public class GASMifierClassVisitor extends ASMifierClassVisitor {
 
     /**
@@ -99,7 +104,8 @@ public class GASMifierClassVisitor extends ASMifierClassVisitor {
         } else {
             n = 0;
         }
-        text.set(n + 5, "ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_MAXS);\n");
+        text.set(n + 5,
+                "ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_MAXS);\n");
         text.set(n + 7, "GeneratorAdapter mg;\n");
         text.add(n + 1, "import org.objectweb.asm.commons.*;\n");
     }

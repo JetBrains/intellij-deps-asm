@@ -214,9 +214,7 @@ public class TraceClassVisitor extends TraceAbstractVisitor implements
             buf.append("@interface ");
         } else if ((access & Opcodes.ACC_INTERFACE) != 0) {
             buf.append("interface ");
-        } else if ((access & Opcodes.ACC_ENUM) != 0) {
-            buf.append("enum ");
-        } else {
+        } else if ((access & Opcodes.ACC_ENUM) == 0) {
             buf.append("class ");
         }
         appendDescriptor(INTERNAL_NAME, name);
@@ -319,9 +317,6 @@ public class TraceClassVisitor extends TraceAbstractVisitor implements
         buf.append(' ');
         appendDescriptor(INTERNAL_NAME, innerName);
         buf.append(' ').append(access & ~Opcodes.ACC_SUPER);
-        if ((access & Opcodes.ACC_ENUM) != 0) {
-            buf.append("enum ");
-        }
         buf.append('\n');
         text.add(buf.toString());
 
@@ -358,9 +353,6 @@ public class TraceClassVisitor extends TraceAbstractVisitor implements
 
         buf.append(tab);
         appendAccess(access);
-        if ((access & Opcodes.ACC_ENUM) != 0) {
-            buf.append("enum ");
-        }
 
         appendDescriptor(FIELD_DESCRIPTOR, desc);
         buf.append(' ').append(name);
@@ -510,14 +502,14 @@ public class TraceClassVisitor extends TraceAbstractVisitor implements
         if ((access & Opcodes.ACC_TRANSIENT) != 0) {
             buf.append("transient ");
         }
-        // if ((access & Constants.ACC_NATIVE) != 0) {
-        // buf.append("native ");
-        // }
         if ((access & Opcodes.ACC_ABSTRACT) != 0) {
             buf.append("abstract ");
         }
         if ((access & Opcodes.ACC_STRICT) != 0) {
             buf.append("strictfp ");
+        }
+        if ((access & Opcodes.ACC_ENUM) != 0) {
+            buf.append("enum ");
         }
     }
 }

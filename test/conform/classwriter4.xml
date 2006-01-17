@@ -29,7 +29,7 @@
       </batchtest>
       <formatter type="xml"/>
       <classpath>
-          <pathelement location="${test}/conform"/>
+          <pathelement location="${out.test}/cases"/>
       </classpath>
       <jvmarg value="-javaagent:${out.test}/agent4.jar=${testclasses}"/>
       <jvmarg value="-Dasm.test=${java.home}/lib/rt.jar"/>
@@ -46,6 +46,7 @@
       </fileset>
       <fileset dir="${out}/test">
         <include name="org/objectweb/asm/*.class"/>
+        <include name="org/objectweb/asm/attrs/*.class"/>
       </fileset>
       <manifest>
         <attribute name="Premain-Class" value="org.objectweb.asm.ClassWriterTest4"/>
@@ -62,7 +63,7 @@
       </batchtest>
       <formatter type="xml"/>
       <classpath>
-          <pathelement location="${test}/conform"/>
+          <pathelement location="${out.test}/cases"/>
       </classpath>
       <jvmarg value="-javaagent:${out.test}/agent4.jar=${asm.test.class}"/>
       <jvmarg value="-Dasm.test=${asm.test}"/>

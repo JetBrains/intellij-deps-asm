@@ -141,8 +141,6 @@ public class TraceAnnotationVisitor extends TraceAbstractVisitor implements
                 }
             }
             buf.append('}');
-        } else {
-            buf.append(value);
         }
 
         text.add(buf.toString());

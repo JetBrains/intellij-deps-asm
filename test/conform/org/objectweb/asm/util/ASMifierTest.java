@@ -46,8 +46,12 @@ import org.codehaus.janino.Scanner;
 import org.codehaus.janino.UnitCompiler;
 
 import org.objectweb.asm.AbstractTest;
+import org.objectweb.asm.Attribute;
 import org.objectweb.asm.ClassReader;
+import org.objectweb.asm.attrs.CodeComment;
+import org.objectweb.asm.attrs.Comment;
 import org.objectweb.asm.util.ASMifierClassVisitor;
+
 
 /**
  * ASMifier tests.
@@ -74,7 +78,7 @@ public class ASMifierTest extends AbstractTest {
 
         StringWriter sw = new StringWriter();
         ASMifierClassVisitor cv = new ASMifierClassVisitor(new PrintWriter(sw));
-        cr.accept(cv, 0);
+        cr.accept(cv, new Attribute[] { new Comment(), new CodeComment() }, 0);
 
         String generated = sw.toString();
 
@@ -87,7 +91,12 @@ public class ASMifierTest extends AbstractTest {
             throw ex;
         }
 
-        Class c = LOADER.defineClass("asm." + n + "Dump", generatorClassData);
+        String nd = n + "Dump";
+        if (n.indexOf('.') != -1) {
+            nd = "asm." + nd;
+        }
+
+        Class c = LOADER.defineClass(nd, generatorClassData);
         Method m = c.getMethod("dump", new Class[0]);
         byte[] b = (byte[]) m.invoke(null, new Object[0]);
 

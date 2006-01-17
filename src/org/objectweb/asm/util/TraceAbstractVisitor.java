@@ -31,7 +31,6 @@ package org.objectweb.asm.util;
 
 import org.objectweb.asm.AnnotationVisitor;
 import org.objectweb.asm.Attribute;
-import org.objectweb.asm.util.attrs.Traceable;
 
 /**
  * An abstract trace visitor.

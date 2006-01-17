@@ -74,7 +74,7 @@ public abstract class AbstractTest extends TestCase {
             files = files.substring(files.indexOf(',') + 1);
             File f = new File(file);
             if (f.isDirectory()) {
-                scanDirectory("", f, suite);
+                scanDirectory("", f, suite, clazz);
             } else {
                 ZipFile zip = new ZipFile(file);
                 Enumeration entries = zip.entries();
@@ -95,13 +95,21 @@ public abstract class AbstractTest extends TestCase {
         }
         return suite;
     }
-    
-    private void scanDirectory(final String path, final File f, final TestSuite suite) throws Exception {
+
+    private void scanDirectory(
+        final String path,
+        final File f,
+        final TestSuite suite,
+        final String clazz) throws Exception
+    {
         File[] fs = f.listFiles();
         for (int i = 0; i < fs.length; ++i) {
             String n = fs[i].getName();
             if (fs[i].isDirectory()) {
-                scanDirectory(path.length() == 0 ? n : path + "." + n, fs[i], suite);
+                scanDirectory(path.length() == 0 ? n : path + "." + n,
+                        fs[i],
+                        suite,
+                        clazz);
             } else if (n.endsWith(".class")) {
                 n = n.substring(0, n.length() - 6);
                 InputStream is = new FileInputStream(fs[i]);

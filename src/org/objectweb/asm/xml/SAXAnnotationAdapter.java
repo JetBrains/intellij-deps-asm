@@ -108,6 +108,11 @@ public class SAXAnnotationAdapter extends SAXAdapter implements
                 for (int i = 0; i < b.length; i++)
                     av.visit(null, new Character(b[i]));
 
+            } else if (value instanceof short[]) {
+                short[] b = (short[]) value;
+                for (int i = 0; i < b.length; i++)
+                    av.visit(null, new Short(b[i]));
+
             } else if (value instanceof boolean[]) {
                 boolean[] b = (boolean[]) value;
                 for (int i = 0; i < b.length; i++)

@@ -574,6 +574,9 @@ class MethodWriter implements MethodVisitor {
     }
 
     public void visitInsn(final int opcode) {
+        // adds the instruction to the bytecode of the method
+        code.putByte(opcode);
+        // update currentBlock
         Label currentBlock = this.currentBlock;
         if (currentBlock != null) {
             if (computeFrames) {
@@ -591,10 +594,9 @@ class MethodWriter implements MethodVisitor {
                     || opcode == Opcodes.ATHROW)
             {
                 this.currentBlock = null;
+                noSuccessor();
             }
         }
-        // adds the instruction to the bytecode of the method
-        code.putByte(opcode);
     }
 
     public void visitIntInsn(final int opcode, final int operand) {
@@ -857,6 +859,8 @@ class MethodWriter implements MethodVisitor {
         // starts a new basic block
         if (nextInsn != null) {
             visitLabel(nextInsn);
+        } else {
+            noSuccessor();
         }
     }
 
@@ -878,6 +882,11 @@ class MethodWriter implements MethodVisitor {
             currentBlock = label;
             // updates the list of the visited labels
             if (lastLabel != null) {
+                if (label.position == lastLabel.position) {
+                    label.first = lastLabel;
+                    lastLabel.status |= (label.status & Label.TARGET);
+                    currentBlock = lastLabel;
+                }
                 lastLabel.successor = label;
             }
             lastLabel = label;
@@ -944,6 +953,18 @@ class MethodWriter implements MethodVisitor {
         final Label dflt,
         final Label labels[])
     {
+        // adds the instruction to the bytecode of the method
+        int source = code.length;
+        code.putByte(Opcodes.TABLESWITCH);
+        while (code.length % 4 != 0) {
+            code.putByte(0);
+        }
+        dflt.put(this, code, source, true);
+        code.putInt(min).putInt(max);
+        for (int i = 0; i < labels.length; ++i) {
+            labels[i].put(this, code, source, true);
+        }
+        // updates currentBlock
         Label currentBlock = this.currentBlock;
         if (currentBlock != null) {
             if (computeFrames) {
@@ -960,17 +981,7 @@ class MethodWriter implements MethodVisitor {
                 labels[i].first.status |= Label.TARGET;
             }
             this.currentBlock = null;
-        }
-        // adds the instruction to the bytecode of the method
-        int source = code.length;
-        code.putByte(Opcodes.TABLESWITCH);
-        while (code.length % 4 != 0) {
-            code.putByte(0);
-        }
-        dflt.put(this, code, source, true);
-        code.putInt(min).putInt(max);
-        for (int i = 0; i < labels.length; ++i) {
-            labels[i].put(this, code, source, true);
+            noSuccessor();
         }
     }
 
@@ -979,6 +990,19 @@ class MethodWriter implements MethodVisitor {
         final int keys[],
         final Label labels[])
     {
+        // adds the instruction to the bytecode of the method
+        int source = code.length;
+        code.putByte(Opcodes.LOOKUPSWITCH);
+        while (code.length % 4 != 0) {
+            code.putByte(0);
+        }
+        dflt.put(this, code, source, true);
+        code.putInt(labels.length);
+        for (int i = 0; i < labels.length; ++i) {
+            code.putInt(keys[i]);
+            labels[i].put(this, code, source, true);
+        }
+        // updates currentBlock
         Label currentBlock = this.currentBlock;
         if (currentBlock != null) {
             if (computeFrames) {
@@ -995,18 +1019,7 @@ class MethodWriter implements MethodVisitor {
                 labels[i].first.status |= Label.TARGET;
             }
             this.currentBlock = null;
-        }
-        // adds the instruction to the bytecode of the method
-        int source = code.length;
-        code.putByte(Opcodes.LOOKUPSWITCH);
-        while (code.length % 4 != 0) {
-            code.putByte(0);
-        }
-        dflt.put(this, code, source, true);
-        code.putInt(labels.length);
-        for (int i = 0; i < labels.length; ++i) {
-            code.putInt(keys[i]);
-            labels[i].put(this, code, source, true);
+            noSuccessor();
         }
     }
 
@@ -1147,6 +1160,8 @@ class MethodWriter implements MethodVisitor {
                 if ((l.status & Label.TARGET) != 0) {
                     l.status |= Label.STORE;
                 }
+                // all visited labels are reacheable, by definition
+                l.status |= Label.REACHABLE;
                 // updates the (absolute) maximum stack size
                 int blockMax;
                 if (computeFrames) {
@@ -1180,10 +1195,33 @@ class MethodWriter implements MethodVisitor {
 
             if (computeFrames) {
                 // visits all the frames that must be stored in the stack map
+                // boolean deadCode = false;
                 Label l = startLabel;
                 while (l != null) {
                     if ((l.status & Label.STORE) != 0) {
                         visitFrame(l);
+                    }
+                    if (l.first == l && (l.status & Label.REACHABLE) == 0) {
+                        // finds start and end of dead basic block
+                        int start = l.position;
+                        Label k = l.successor;
+                        while (k != null && k.first == l) {
+                            k = k.successor;
+                        }
+                        int end = (k == null ? code.length : k.position) - 1;
+                        // if non empty basic block
+                        if (end >= start) {
+                            // replaces instructions with NOP ... NOP ATHROW
+                            for (int i = start; i < end; ++i) {
+                                code.data[i] = Opcodes.NOP;
+                            }
+                            code.data[end] = (byte) Opcodes.ATHROW;
+                            // emits a frame for this unreachable block
+                            startFrame(start, 0, 1);
+                            frame[frameIndex++] = Label.OBJECT
+                                    | cw.addType("java/lang/Throwable");
+                            endFrame();
+                        }
                     }
                     l = l.successor;
                 }
@@ -1249,6 +1287,18 @@ class MethodWriter implements MethodVisitor {
         b.successor = successor;
         b.next = currentBlock.successors;
         currentBlock.successors = b;
+    }
+
+    /**
+     * TODO
+     */
+    private void noSuccessor() {
+        if (computeFrames) {
+            Label l = new Label();
+            l.resolve(this, code.length, code.data);
+            lastLabel.successor = l;
+            lastLabel = l;
+        }
     }
 
     // ------------------------------------------------------------------------
@@ -1529,7 +1579,7 @@ class MethodWriter implements MethodVisitor {
         }
         if (resize) {
             // replaces the temporary jump opcodes introduced by Label.resolve.
-            resizeInstructions(new int[0], new int[0], 0);
+            resizeInstructions();
         }
         int size = 8;
         if (code.length > 0) {
@@ -1818,11 +1868,7 @@ class MethodWriter implements MethodVisitor {
      * @return the <tt>indexes</tt> array, which now contains the new
      *         positions of the resized instructions (designated as above).
      */
-    private int[] resizeInstructions(
-        final int[] indexes,
-        final int[] sizes,
-        final int len)
-    {
+    private void resizeInstructions() {
         byte[] b = code.data; // bytecode of the method
         int u, v, label; // indexes in b
         int i, j; // loop indexes
@@ -1851,13 +1897,11 @@ class MethodWriter implements MethodVisitor {
          * loop, and computed exactly only after the loop is finished (this
          * requires another pass to parse the bytecode of the method).
          */
-        int[] allIndexes = new int[len]; // copy of indexes
-        int[] allSizes = new int[len]; // copy of sizes
+        int[] allIndexes = new int[0]; // copy of indexes
+        int[] allSizes = new int[0]; // copy of sizes
         boolean[] resize; // instructions to be resized
         int newOffset; // future offset of a jump instruction
 
-        System.arraycopy(indexes, 0, allIndexes, 0, len);
-        System.arraycopy(sizes, 0, allSizes, 0, len);
         resize = new boolean[code.length];
 
         // 3 = loop again, 2 = loop ended, 1 = last pass, 0 = done
@@ -2012,18 +2056,6 @@ class MethodWriter implements MethodVisitor {
 
         u = 0;
         while (u < code.length) {
-            for (i = allIndexes.length - 1; i >= 0; --i) {
-                if (allIndexes[i] == u) {
-                    if (i < len) {
-                        if (sizes[i] > 0) {
-                            newCode.putByteArray(null, 0, sizes[i]);
-                        } else {
-                            newCode.length += sizes[i];
-                        }
-                        indexes[i] = newCode.length;
-                    }
-                }
-            }
             int opcode = b[u] & 0xFF;
             switch (ClassWriter.TYPE[opcode]) {
                 case ClassWriter.NOARG_INSN:
@@ -2245,20 +2277,19 @@ class MethodWriter implements MethodVisitor {
             }
         }
         // updates the labels of the other attributes
-        while (cattrs != null) {
-            Label[] labels = cattrs.getLabels();
+        Attribute attr = cattrs;
+        while (attr != null) {
+            Label[] labels = attr.getLabels();
             if (labels != null) {
                 for (i = labels.length - 1; i >= 0; --i) {
                     getNewOffset(allIndexes, allSizes, labels[i]);
                 }
             }
+            attr = attr.next;
         }
 
         // replaces old bytecodes with new ones
         code = newCode;
-
-        // returns the positions of the resized instructions
-        return indexes;
     }
 
     /**

@@ -44,8 +44,31 @@ public class ClassWriterTest5 extends AbstractTest {
 
     public void test() throws Exception {
         ClassReader cr = new ClassReader(is);
-        ClassWriter cw = new ClassWriter(cr, 0);
-        cr.accept(cw, 0);
-        assertEquals(cr, new ClassReader(cw.toByteArray()));
+        ClassWriter cw1 = new ClassWriter(0);
+        ClassWriter cw2 = new ClassWriter(cr, 0);
+        cr.accept(new ChangeExceptionAdapter(cw1), 0);
+        cr.accept(new ChangeExceptionAdapter(cw2), 0);
+        assertEquals(new ClassReader(cw1.toByteArray()),
+                new ClassReader(cw2.toByteArray()));
+    }
+
+    static class ChangeExceptionAdapter extends ClassAdapter {
+
+        public ChangeExceptionAdapter(ClassVisitor cv) {
+            super(cv);
+        }
+
+        public MethodVisitor visitMethod(
+            int access,
+            String name,
+            String desc,
+            String signature,
+            String[] exceptions)
+        {
+            if (exceptions != null && exceptions.length > 0) {
+                exceptions[0] = "java/lang/Throwable";
+            }
+            return super.visitMethod(access, name, desc, signature, exceptions);
+        }
     }
 }

@@ -40,6 +40,11 @@ import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 
+/**
+ * AdviceAdapter tests.
+ * 
+ * @author Eugene Kuleshov
+ */
 public class AdviceAdapterTest extends AbstractTest {
 
     public static void main(String[] args) throws Exception {

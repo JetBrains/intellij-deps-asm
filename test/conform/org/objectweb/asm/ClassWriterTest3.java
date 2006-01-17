@@ -64,7 +64,7 @@ public class ClassWriterTest3 extends AbstractTest {
             {
                 String n = className.replace('/', '.');
                 if (agentArgs.length() == 0 || n.indexOf(agentArgs) != -1) {
-                    return transformClass(classFileBuffer);
+                    return transformClass(n, classFileBuffer);
                 } else {
                     return null;
                 }
@@ -72,13 +72,16 @@ public class ClassWriterTest3 extends AbstractTest {
         });
     }
 
-    private static byte[] transformClass(byte[] clazz) {
+    private static byte[] transformClass(final String n, final byte[] clazz) {
         ClassReader cr = new ClassReader(clazz);
         ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_FRAMES) {
             protected String getCommonSuperClass(
                 final String type1,
                 final String type2)
             {
+                if (n.equals("pkg.Frames")) {
+                    return super.getCommonSuperClass(type1, type2);
+                }
                 ClassInfo c, d;
                 try {
                     c = new ClassInfo(type1);
@@ -141,7 +144,7 @@ public class ClassWriterTest3 extends AbstractTest {
             String s = n.replace('.', '/') + ".class";
             InputStream is = getClass().getClassLoader().getResourceAsStream(s);
             ClassReader cr = new ClassReader(is);
-            byte[] b = transformClass(cr.b);
+            byte[] b = transformClass("", cr.b);
             StringWriter sw1 = new StringWriter();
             StringWriter sw2 = new StringWriter();
             sw2.write(ve.toString() + "\n");
@@ -179,7 +182,7 @@ class ClassInfo {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-        
+
         // optimized version
         int h = cr.header;
         ClassInfo.this.access = cr.readUnsignedShort(h);

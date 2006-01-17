@@ -96,9 +96,7 @@ public class TraceSignatureVisitor implements SignatureVisitor {
     }
 
     public SignatureVisitor visitInterfaceBound() {
-        separator = seenInterfaceBound ? ", " : (isInterface
-                ? " extends "
-                : " implements ");
+        separator = seenInterfaceBound ? ", " : " extends ";
         seenInterfaceBound = true;
         startType();
         return this;
@@ -180,12 +178,10 @@ public class TraceSignatureVisitor implements SignatureVisitor {
             case 'F':
                 declaration.append("float");
                 break;
-            case 'D':
+            // case 'D':
+            default:
                 declaration.append("double");
                 break;
-            default:
-                throw new IllegalArgumentException("Invalid descriptor "
-                        + descriptor);
         }
         endType();
     }

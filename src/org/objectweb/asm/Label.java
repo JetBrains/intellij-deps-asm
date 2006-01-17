@@ -65,6 +65,11 @@ public class Label {
      * Indicates if a stack map frame must be stored for this label.
      */
     final static int STORE = 16;
+    
+    /**
+     * Indicates if this label corresponds to a reachable basic block.
+     */
+    final static int REACHABLE = 32;
 
     /**
      * Flags that indicate the status of this label.
@@ -74,6 +79,7 @@ public class Label {
      * @see #RESIZED
      * @see #TARGET
      * @see #STORE
+     * @see #REACHABLE
      */
     int status;
 
@@ -704,7 +710,7 @@ public class Label {
             // namely the exception that was thrown
             nInputStack = 1 + 1; // see inputStackTop
         }
-        if (label.inputStackTop > nInputStack) {
+        if (label.inputStackTop < nInputStack) {
             label.inputStackTop = nInputStack;
             return true;
         } else {

@@ -38,6 +38,8 @@ import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.MethodVisitor;
 
 /**
+ * LocalVariableSorter tests.
+ * 
  * @author Eric Bruneton
  */
 public class LocalVariablesSorterTest extends AbstractTest {

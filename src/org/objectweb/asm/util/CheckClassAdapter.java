@@ -116,8 +116,7 @@ public class CheckClassAdapter extends ClassAdapter {
             if (method.instructions.size() > 0) {
                 Analyzer a = new Analyzer(new SimpleVerifier(Type.getType("L"
                         + cn.name + ";"),
-                        Type.getType("L" + cn.superName + ";"),
-                        (cn.access & Opcodes.ACC_INTERFACE) != 0));
+                        Type.getType("L" + cn.superName + ";")));
                 try {
                     a.analyze(cn.name, method);
                     if (!dump) {

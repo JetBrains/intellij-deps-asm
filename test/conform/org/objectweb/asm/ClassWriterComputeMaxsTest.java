@@ -36,10 +36,10 @@ import junit.framework.TestSuite;
  * 
  * @author Eric Bruneton
  */
-public class ClassWriterTest2 extends AbstractTest {
+public class ClassWriterComputeMaxsTest extends AbstractTest {
 
     public static TestSuite suite() throws Exception {
-        return new ClassWriterTest2().getSuite();
+        return new ClassWriterComputeMaxsTest().getSuite();
     }
 
     public void test() throws Exception {

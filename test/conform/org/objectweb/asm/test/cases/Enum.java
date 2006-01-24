@@ -48,7 +48,7 @@ public class Enum extends Generator {
     }
 
     public byte[] dump() {
-        ClassWriter cw = new ClassWriter(0);
+        ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_MAXS);
         FieldVisitor fv;
         MethodVisitor mv;
 
@@ -100,7 +100,7 @@ public class Enum extends Generator {
                 "()Ljava/lang/Object;");
         mv.visitTypeInsn(CHECKCAST, "[Lpkg/Enum;");
         mv.visitInsn(ARETURN);
-        mv.visitMaxs(1, 0);
+        mv.visitMaxs(0, 0);
         mv.visitEnd();
 
         mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC,
@@ -117,7 +117,7 @@ public class Enum extends Generator {
                 "(Ljava/lang/Class;Ljava/lang/String;)Ljava/lang/Enum;");
         mv.visitTypeInsn(CHECKCAST, "pkg/Enum");
         mv.visitInsn(ARETURN);
-        mv.visitMaxs(2, 1);
+        mv.visitMaxs(0, 0);
         mv.visitEnd();
 
         mv = cw.visitMethod(ACC_PRIVATE,
@@ -134,7 +134,7 @@ public class Enum extends Generator {
                 "<init>",
                 "(Ljava/lang/String;I)V");
         mv.visitInsn(RETURN);
-        mv.visitMaxs(3, 3);
+        mv.visitMaxs(0, 0);
         mv.visitEnd();
 
         mv = cw.visitMethod(ACC_STATIC, "<clinit>", "()V", null, null);
@@ -182,7 +182,7 @@ public class Enum extends Generator {
         mv.visitInsn(AASTORE);
         mv.visitFieldInsn(PUTSTATIC, "pkg/Enum", "$VALUES", "[Lpkg/Enum;");
         mv.visitInsn(RETURN);
-        mv.visitMaxs(4, 0);
+        mv.visitMaxs(0, 0);
         mv.visitEnd();
 
         cw.visitEnd();

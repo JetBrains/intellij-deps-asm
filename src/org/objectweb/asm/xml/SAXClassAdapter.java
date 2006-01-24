@@ -84,10 +84,6 @@ public final class SAXClassAdapter extends SAXAdapter implements ClassVisitor {
     }
 
     public void visitSource(String source, String debug) {
-        if (source == null && debug == null) {
-            return;
-        }
-
         AttributesImpl att = new AttributesImpl();
         if (source != null)
             att.addAttribute("", "file", "file", "", encode(source));

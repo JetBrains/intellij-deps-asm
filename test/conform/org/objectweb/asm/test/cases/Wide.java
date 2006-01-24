@@ -34,7 +34,6 @@ import java.io.IOException;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
-import org.objectweb.asm.Opcodes;
 
 /**
  * Generates a class which uses a lot of locals and constant pool values. Covers
@@ -52,9 +51,8 @@ public class Wide extends Generator {
     }
 
     public byte[] dump() {
-        ClassWriter cw = new ClassWriter(0);
+        ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_MAXS);
         MethodVisitor mv;
-        Label l0, l1;
 
         cw.visit(V1_2, ACC_PUBLIC, "pkg/Wide", null, "java/lang/Object", null);
 
@@ -62,14 +60,18 @@ public class Wide extends Generator {
         mv.visitCode();
         mv.visitVarInsn(ALOAD, 0);
         mv.visitMethodInsn(INVOKESPECIAL, "java/lang/Object", "<init>", "()V");
+        for (int i = 0; i < 256; ++i) {
+            mv.visitLdcInsn(new Integer(i).toString()); // wide form
+            mv.visitInsn(POP);
+        }
         mv.visitInsn(RETURN);
-        mv.visitMaxs(1, 1);
+        mv.visitMaxs(0, 0);
         mv.visitEnd();
 
         mv = cw.visitMethod(ACC_PUBLIC, "wideLocals", "(I)I", null, null);
         mv.visitCode();
-        l0 = new Label();
-        l1 = new Label();
+        Label l0 = new Label();
+        Label l1 = new Label();
         mv.visitJumpInsn(GOTO, l1); // will give GOTO_W
 
         mv.visitLabel(l0);
@@ -86,13 +88,11 @@ public class Wide extends Generator {
         for (int i = 1; i < 300; ++i) {
             mv.visitVarInsn(ILOAD, i);
             if (i <= 5) {
-                mv.visitInsn(Opcodes.ICONST_0 + i);
+                mv.visitInsn(ICONST_0 + i);
             } else if (i <= Byte.MAX_VALUE) {
-                mv.visitIntInsn(Opcodes.BIPUSH, i);
-            } else if (i <= Short.MAX_VALUE) {
-                mv.visitIntInsn(Opcodes.SIPUSH, i);
+                mv.visitIntInsn(BIPUSH, i);
             } else {
-                mv.visitLdcInsn(new Integer(i)); // wide form
+                mv.visitIntInsn(SIPUSH, i);
             }
             mv.visitInsn(IADD);
             mv.visitVarInsn(ISTORE, i + 1);
@@ -101,7 +101,7 @@ public class Wide extends Generator {
         mv.visitJumpInsn(IFEQ, l0); // will give long backward jump
         mv.visitJumpInsn(GOTO, l0); // will give long backward goto
 
-        mv.visitMaxs(2, 301);
+        mv.visitMaxs(0, 0);
         mv.visitEnd();
 
         cw.visitEnd();

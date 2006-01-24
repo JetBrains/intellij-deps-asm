@@ -47,9 +47,8 @@ public class Interface extends Generator {
     }
 
     public byte[] dump() {
-        ClassWriter cw = new ClassWriter(0);
-        MethodVisitor mv;
-
+        ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_MAXS);
+        
         cw.visit(1 << 16 | V1_5,
                 ACC_PUBLIC + ACC_ABSTRACT + ACC_INTERFACE,
                 "Interface",
@@ -57,9 +56,7 @@ public class Interface extends Generator {
                 "java/lang/Object",
                 null);
 
-        cw.visitSource(null, null);
-
-        mv = cw.visitMethod(ACC_PUBLIC + ACC_ABSTRACT,
+        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC + ACC_ABSTRACT,
                 "m",
                 "(ZBCSIFJDLjava/lang/Object;)Ljava/lang/Object;",
                 "(ZBCSIFJDTE;)TE;",

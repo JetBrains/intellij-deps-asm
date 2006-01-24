@@ -27,23 +27,82 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
  * THE POSSIBILITY OF SUCH DAMAGE.
  */
-package org.objectweb.asm.util;
+package org.objectweb.asm.xml;
+
+import org.xml.sax.Attributes;
+import org.xml.sax.SAXException;
+import org.xml.sax.helpers.DefaultHandler;
 
 import junit.framework.TestCase;
 
 /**
- * ASMifierClassVisitor unit tests
+ * SAXAdapter unit tests
  * 
  * @author Eric Bruneton
  */
-public class ASMifierUnitTest extends TestCase {
+public class SAXAdapterUnitTest extends TestCase {
 
-    public void testASMifierClassVisitor() throws Exception {
-        String s = getClass().getName();
-        ASMifierClassVisitor.main(new String[0]);
-        ASMifierClassVisitor.main(new String[] { "-debug" });
-        ASMifierClassVisitor.main(new String[] { s });
-        ASMifierClassVisitor.main(new String[] { "-debug", s });
-        ASMifierClassVisitor.main(new String[] { "output/test/cases/Interface.class" });
+    SAXAdapter sa;
+
+    protected void setUp() {
+        sa = new SAXAdapter(new DefaultHandler() {
+
+            public void startDocument() throws SAXException {
+                throw new SAXException();
+            }
+
+            public void endDocument() throws SAXException {
+                throw new SAXException();
+            }
+
+            public void startElement(
+                String arg0,
+                String arg1,
+                String arg2,
+                Attributes arg3) throws SAXException
+            {
+                throw new SAXException();
+            }
+
+            public void endElement(String arg0, String arg1, String arg2)
+                    throws SAXException
+            {
+                throw new SAXException();
+            }
+        })
+        {
+        };
+    }
+
+    public void testInvalidAddDocumentStart() {
+        try {
+            sa.addDocumentStart();
+            fail();
+        } catch (Exception e) {
+        }
+    }
+
+    public void testInvalidAddDocumentEnd() {
+        try {
+            sa.addDocumentEnd();
+            fail();
+        } catch (Exception e) {
+        }
+    }
+
+    public void testInvalidAddStart() {
+        try {
+            sa.addStart("name", null);
+            fail();
+        } catch (Exception e) {
+        }
+    }
+
+    public void testInvalidAddEnd() {
+        try {
+            sa.addEnd("name");
+            fail();
+        } catch (Exception e) {
+        }
     }
 }

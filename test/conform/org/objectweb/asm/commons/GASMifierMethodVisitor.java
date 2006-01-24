@@ -178,7 +178,7 @@ public class GASMifierMethodVisitor extends ASMifierAbstractVisitor implements
                 buf.append("mg.returnValue();\n");
                 break;
             case NOP:
-                buf.append("mg.visitInsn(Opcodes.NOP);\n");                
+                buf.append("mg.visitInsn(Opcodes.NOP);\n");
                 break;
             case ACONST_NULL:
                 buf.append("mg.push((String)null);\n");
@@ -515,54 +515,58 @@ public class GASMifierMethodVisitor extends ASMifierAbstractVisitor implements
 
     public void visitVarInsn(final int opcode, int var) {
         buf.setLength(0);
-        switch (opcode) {
-            case RET:
-                buf.append("mg.ret(");
-                if (var < firstLocal) {
-                    buf.append(var);
-                } else {
-                    int v = generateNewLocal(var, "Type.INT_TYPE");
-                    buf.append("local").append(v);
-                }
-                buf.append(");\n");
-                break;
+        try {
+            switch (opcode) {
+                case RET:
+                    buf.append("mg.ret(");
+                    if (var < firstLocal) {
+                        buf.append(var);
+                    } else {
+                        int v = generateNewLocal(var, "Type.INT_TYPE");
+                        buf.append("local").append(v);
+                    }
+                    buf.append(");\n");
+                    break;
 
-            case ILOAD:
-                generateLoadLocal(var, "Type.INT_TYPE");
-                break;
-            case LLOAD:
-                generateLoadLocal(var, "Type.LONG_TYPE");
-                break;
-            case FLOAD:
-                generateLoadLocal(var, "Type.FLOAT_TYPE");
-                break;
-            case DLOAD:
-                generateLoadLocal(var, "Type.DOUBLE_TYPE");
-                break;
-            case ALOAD:
-                generateLoadLocal(var, getType("java/lang/Object"));
-                break;
+                case ILOAD:
+                    generateLoadLocal(var, "Type.INT_TYPE");
+                    break;
+                case LLOAD:
+                    generateLoadLocal(var, "Type.LONG_TYPE");
+                    break;
+                case FLOAD:
+                    generateLoadLocal(var, "Type.FLOAT_TYPE");
+                    break;
+                case DLOAD:
+                    generateLoadLocal(var, "Type.DOUBLE_TYPE");
+                    break;
+                case ALOAD:
+                    generateLoadLocal(var, getType("java/lang/Object"));
+                    break;
 
-            case ISTORE:
-                generateStoreLocal(var, "Type.INT_TYPE");
-                break;
-            case LSTORE:
-                generateStoreLocal(var, "Type.LONG_TYPE");
-                break;
-            case FSTORE:
-                generateStoreLocal(var, "Type.FLOAT_TYPE");
-                break;
-            case DSTORE:
-                generateStoreLocal(var, "Type.DOUBLE_TYPE");
-                break;
-            case ASTORE:
-                generateStoreLocal(var, getType("java/lang/Object"));
-                break;
+                case ISTORE:
+                    generateStoreLocal(var, "Type.INT_TYPE");
+                    break;
+                case LSTORE:
+                    generateStoreLocal(var, "Type.LONG_TYPE");
+                    break;
+                case FSTORE:
+                    generateStoreLocal(var, "Type.FLOAT_TYPE");
+                    break;
+                case DSTORE:
+                    generateStoreLocal(var, "Type.DOUBLE_TYPE");
+                    break;
+                case ASTORE:
+                    generateStoreLocal(var, getType("java/lang/Object"));
+                    break;
 
-            default:
-                throw new RuntimeException("unexpected case");
+                default:
+                    throw new RuntimeException("unexpected case");
+            }
+        } catch (Exception e) {
+            buf.append("mg.visitVarInsn(" + OPCODES[opcode] + ", " + var
+                    + ");\n");
         }
-
         text.add(buf.toString());
         lastOpcode = opcode;
     }
@@ -572,9 +576,8 @@ public class GASMifierMethodVisitor extends ASMifierAbstractVisitor implements
             if (var == 0 && (access & ACC_STATIC) == 0) {
                 buf.append("mg.loadThis();\n");
             } else {
-                buf.append("mg.loadArg(")
-                        .append(getArgIndex(var))
-                        .append(");\n");
+                int index = getArgIndex(var);
+                buf.append("mg.loadArg(").append(index).append(");\n");
             }
         } else {
             int local = generateNewLocal(var, type);
@@ -589,7 +592,12 @@ public class GASMifierMethodVisitor extends ASMifierAbstractVisitor implements
 
     private void generateStoreLocal(int var, String type) {
         if (var < firstLocal) {
-            buf.append("mg.storeArg(").append(getArgIndex(var)).append(");\n");
+            if (var == 0 && (access & ACC_STATIC) == 0) {
+                buf.append("mg.visitVarInsn(ASTORE, " + var + ");\n");
+            } else {
+                int index = getArgIndex(var);
+                buf.append("mg.storeArg(").append(index).append(");\n");
+            }
         } else {
             int local = generateNewLocal(var, type);
             buf.append("mg.storeLocal(local").append(local);

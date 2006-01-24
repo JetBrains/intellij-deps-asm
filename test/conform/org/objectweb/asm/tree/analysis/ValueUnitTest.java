@@ -27,23 +27,26 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
  * THE POSSIBILITY OF SUCH DAMAGE.
  */
-package org.objectweb.asm.util;
+package org.objectweb.asm.tree.analysis;
 
 import junit.framework.TestCase;
 
 /**
- * ASMifierClassVisitor unit tests
+ * BasicValue and DataflowValue unit tests.
  * 
  * @author Eric Bruneton
  */
-public class ASMifierUnitTest extends TestCase {
+public class ValueUnitTest extends TestCase {
 
-    public void testASMifierClassVisitor() throws Exception {
-        String s = getClass().getName();
-        ASMifierClassVisitor.main(new String[0]);
-        ASMifierClassVisitor.main(new String[] { "-debug" });
-        ASMifierClassVisitor.main(new String[] { s });
-        ASMifierClassVisitor.main(new String[] { "-debug", s });
-        ASMifierClassVisitor.main(new String[] { "output/test/cases/Interface.class" });
+    public void testBasicValue() {
+        assertFalse(BasicValue.INT_VALUE.equals(new Object()));
+        BasicValue.INT_VALUE.hashCode();
+        BasicValue.UNINITIALIZED_VALUE.toString();
+        BasicValue.RETURNADDRESS_VALUE.toString();
+        BasicValue.REFERENCE_VALUE.toString();
+    }
+
+    public void testDataflowValue() {
+        new DataflowValue(1).hashCode();
     }
 }

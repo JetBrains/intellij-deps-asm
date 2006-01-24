@@ -52,7 +52,7 @@ public class Attribute extends Generator {
     }
 
     public byte[] dump() {
-        ClassWriter cw = new ClassWriter(0);
+        ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_MAXS);
         FieldVisitor fv;
         MethodVisitor mv;
 
@@ -89,7 +89,7 @@ public class Attribute extends Generator {
         mv.visitLabel(l0);
 
         mv.visitInsn(RETURN);
-        mv.visitMaxs(1, 1);
+        mv.visitMaxs(0, 0);
         mv.visitAttribute(new CodeComment());
         mv.visitEnd();
 

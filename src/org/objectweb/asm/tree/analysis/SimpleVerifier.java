@@ -52,15 +52,10 @@ public class SimpleVerifier extends BasicVerifier {
     private final Type currentSuperClass;
 
     /**
-     * If the class that is verified is an interface.
-     */
-    private final boolean isInterface;
-
-    /**
      * Constructs a new {@link SimpleVerifier}.
      */
     public SimpleVerifier() {
-        this(null, null, false);
+        this(null, null);
     }
 
     /**
@@ -69,16 +64,11 @@ public class SimpleVerifier extends BasicVerifier {
      * 
      * @param currentClass the class that is verified.
      * @param currentSuperClass the super class of the class that is verified.
-     * @param isInterface if the class that is verified is an interface.
      */
-    public SimpleVerifier(
-        final Type currentClass,
-        final Type currentSuperClass,
-        final boolean isInterface)
+    public SimpleVerifier(final Type currentClass, final Type currentSuperClass)
     {
         this.currentClass = currentClass;
         this.currentSuperClass = currentSuperClass;
-        this.isInterface = isInterface;
     }
 
     public Value newValue(final Type type) {
@@ -110,11 +100,8 @@ public class SimpleVerifier extends BasicVerifier {
 
     protected boolean isArrayValue(final Value value) {
         Type t = ((BasicValue) value).getType();
-        if (t != null) {
-            return t.getDescriptor().equals("Lnull;")
-                    || t.getSort() == Type.ARRAY;
-        }
-        return false;
+        return t != null
+                && (t.getDescriptor().equals("Lnull;") || t.getSort() == Type.ARRAY);
     }
 
     protected Value getElementValue(final Value objectArrayValue)
@@ -129,15 +116,12 @@ public class SimpleVerifier extends BasicVerifier {
                 return objectArrayValue;
             }
         }
-        throw new AnalyzerException("Not an array type");
+        throw new Error("Internal error");
     }
 
     protected boolean isSubTypeOf(final Value value, final Value expected) {
         Type expectedType = ((BasicValue) expected).getType();
         Type type = ((BasicValue) value).getType();
-        if (expectedType == null) {
-            return type == null;
-        }
         switch (expectedType.getSort()) {
             case Type.INT:
             case Type.FLOAT:
@@ -160,7 +144,7 @@ public class SimpleVerifier extends BasicVerifier {
                     return false;
                 }
             default:
-                throw new RuntimeException("Internal error");
+                throw new Error("Internal error");
         }
     }
 
@@ -208,7 +192,7 @@ public class SimpleVerifier extends BasicVerifier {
 
     private boolean isInterface(final Type t) {
         if (currentClass != null && t.equals(currentClass)) {
-            return isInterface;
+            return false;
         }
         return getClass(t).isInterface();
     }
@@ -226,7 +210,11 @@ public class SimpleVerifier extends BasicVerifier {
             return true;
         }
         if (currentClass != null && t.equals(currentClass)) {
-            return isAssignableFrom(t, getSuperClass(u));
+            if (getSuperClass(u) == null) {
+                return false;
+            } else {
+                return isAssignableFrom(t, getSuperClass(u));
+            }
         }
         if (currentClass != null && u.equals(currentClass)) {
             return isAssignableFrom(t, currentSuperClass);

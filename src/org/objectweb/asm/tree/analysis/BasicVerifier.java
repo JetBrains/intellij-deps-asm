@@ -175,7 +175,7 @@ public class BasicVerifier extends BasicInterpreter {
                 expected = newValue(Type.getType(((FieldInsnNode) insn).desc));
                 break;
             default:
-                throw new RuntimeException("Internal error.");
+                throw new Error("Internal error.");
         }
         if (!isSubTypeOf(value, expected)) {
             throw new AnalyzerException(null, expected, value);
@@ -296,7 +296,7 @@ public class BasicVerifier extends BasicInterpreter {
                 expected2 = newValue(Type.getType(fin.desc));
                 break;
             default:
-                throw new RuntimeException("Internal error.");
+                throw new Error("Internal error.");
         }
         if (!isSubTypeOf(value1, expected1)) {
             throw new AnalyzerException("First argument", expected1, value1);
@@ -356,7 +356,7 @@ public class BasicVerifier extends BasicInterpreter {
                 expected3 = BasicValue.REFERENCE_VALUE;
                 break;
             default:
-                throw new RuntimeException("Internal error.");
+                throw new Error("Internal error.");
         }
         if (!isSubTypeOf(value1, expected1)) {
             throw new AnalyzerException("First argument", "a " + expected1

@@ -1116,7 +1116,7 @@ public class Label {
     private void init(final int var) {
         // creates and/or resizes the initializations array if necessary
         if (initializations == null) {
-            initializations = new int[10];
+            initializations = new int[2];
         }
         int n = initializations.length;
         if (initializationCount >= n) {
@@ -1138,7 +1138,7 @@ public class Label {
      *         in the basic block, the type corresponding to this constructor.
      */
     private int init(final ClassWriter cw, final int t) {
-        int s;
+        int s;        
         if (t == UNINITIALIZED_THIS) {
             s = OBJECT | cw.addType(cw.thisName);
         } else if ((t & (DIM | BASE_KIND)) == UNINITIALIZED) {
@@ -1239,20 +1239,24 @@ public class Label {
             case Opcodes.ICONST_5:
             case Opcodes.BIPUSH:
             case Opcodes.SIPUSH:
+            case Opcodes.ILOAD:
                 push(INTEGER);
                 break;
             case Opcodes.LCONST_0:
             case Opcodes.LCONST_1:
+            case Opcodes.LLOAD:
                 push(LONG);
                 push(TOP);
                 break;
             case Opcodes.FCONST_0:
             case Opcodes.FCONST_1:
             case Opcodes.FCONST_2:
+            case Opcodes.FLOAD:
                 push(FLOAT);
                 break;
             case Opcodes.DCONST_0:
             case Opcodes.DCONST_1:
+            case Opcodes.DLOAD:
                 push(DOUBLE);
                 push(TOP);
                 break;
@@ -1280,15 +1284,8 @@ public class Label {
                         push(OBJECT | cw.addType("java/lang/String"));
                 }
                 break;
-            case Opcodes.ILOAD:
-            case Opcodes.FLOAD:
             case Opcodes.ALOAD:
                 push(get(arg));
-                break;
-            case Opcodes.LLOAD:
-            case Opcodes.DLOAD:
-                push(get(arg));
-                push(TOP);
                 break;
             case Opcodes.IALOAD:
             case Opcodes.BALOAD:
@@ -1740,12 +1737,7 @@ public class Label {
             // if the types are equal, merge(u,t)=u, so there is no change
             return false;
         }
-        if (t == BOOLEAN || t == BYTE || t == CHAR || t == SHORT) {
-            if (u == INTEGER) {
-                return false;
-            }
-            t = INTEGER;
-        } else if ((t & ~DIM) == NULL) {
+        if ((t & ~DIM) == NULL) {
             if (u == NULL) {
                 return false;
             }

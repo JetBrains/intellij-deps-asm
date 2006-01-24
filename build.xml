@@ -180,10 +180,11 @@
     <delete file="cobertura.ser"/>
     <delete dir="${out.instr}"/>
     <cobertura-instrument todir="${out.instr}">
-      <ignore regex="org.apache.log4j.*"/>
+      <ignore regex="java.lang.Error"/>
       <fileset dir="${out.build}/tmp">
         <include name="**/*.class"/>
-        <exclude name="**/optimizer/*.class" />
+        <exclude name="**/optimizer/*.class"/>
+        <exclude name="**/xml/Processor*.class"/>
         <exclude name="**/*Test*.class" />
       </fileset>
     </cobertura-instrument>
@@ -206,7 +207,7 @@
     <cobertura-check branchrate="100" linerate="100">
     </cobertura-check>
   </target>
-    
+
   <target name="coverage.report" depends="init">
     <cobertura-report destdir="${out}/coverage" srcdir="${src}" format="xml"/>
     <cobertura-report destdir="${out}/coverage">

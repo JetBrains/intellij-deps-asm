@@ -40,7 +40,7 @@ import org.objectweb.asm.commons.EmptyVisitor;
 
 import junit.framework.TestSuite;
 
-public class ClassWriterTest4 extends AbstractTest {
+public class ClassWriterResizeInsnsTest extends AbstractTest {
 
     public static void premain(
         final String agentArgs,
@@ -169,7 +169,7 @@ public class ClassWriterTest4 extends AbstractTest {
     }
 
     public static TestSuite suite() throws Exception {
-        return new ClassWriterTest4().getSuite();
+        return new ClassWriterResizeInsnsTest().getSuite();
     }
 
     public void test() throws Exception {

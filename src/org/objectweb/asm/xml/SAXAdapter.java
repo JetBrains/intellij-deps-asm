@@ -39,6 +39,7 @@ import org.xml.sax.SAXException;
  * @author Eugene Kuleshov
  */
 public abstract class SAXAdapter {
+
     private final ContentHandler h;
 
     public SAXAdapter(ContentHandler h) {
@@ -47,27 +48,6 @@ public abstract class SAXAdapter {
 
     protected ContentHandler getContentHandler() {
         return h;
-    }
-
-    protected final void addEnd(String name) {
-        try {
-            h.endElement("", name, name);
-        } catch (SAXException ex) {
-            throw new RuntimeException(ex.toString());
-        }
-    }
-
-    protected final void addStart(String name, Attributes attrs) {
-        try {
-            h.startElement("", name, name, attrs);
-        } catch (SAXException ex) {
-            throw new RuntimeException(ex.toString());
-        }
-    }
-
-    protected final void addElement(String name, Attributes attrs) {
-        addStart(name, attrs);
-        addEnd(name);
     }
 
     protected void addDocumentStart() {
@@ -82,10 +62,28 @@ public abstract class SAXAdapter {
         try {
             h.endDocument();
         } catch (SAXException ex) {
-            // ex.getException().printStackTrace();
-            // ex.printStackTrace();
             throw new RuntimeException(ex.toString());
         }
     }
 
+    protected final void addStart(String name, Attributes attrs) {
+        try {
+            h.startElement("", name, name, attrs);
+        } catch (SAXException ex) {
+            throw new RuntimeException(ex.toString());
+        }
+    }
+
+    protected final void addEnd(String name) {
+        try {
+            h.endElement("", name, name);
+        } catch (SAXException ex) {
+            throw new RuntimeException(ex.toString());
+        }
+    }
+
+    protected final void addElement(String name, Attributes attrs) {
+        addStart(name, attrs);
+        addEnd(name);
+    }
 }

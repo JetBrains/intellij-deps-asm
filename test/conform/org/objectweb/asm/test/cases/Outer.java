@@ -51,7 +51,7 @@ public class Outer extends Generator {
     }
 
     public byte[] dump() {
-        ClassWriter cw = new ClassWriter(0);
+        ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_MAXS);
         FieldVisitor fv;
         MethodVisitor mv;
 
@@ -61,7 +61,7 @@ public class Outer extends Generator {
                 null,
                 "java/lang/Object",
                 null);
-
+        
         cw.visitInnerClass("pkg/Outer$Inner", "pkg/Outer", "C", 0);
         cw.visitInnerClass("pkg/Outer$1", null, null, 0);
 
@@ -73,7 +73,7 @@ public class Outer extends Generator {
         mv.visitVarInsn(ALOAD, 0);
         mv.visitMethodInsn(INVOKESPECIAL, "java/lang/Object", "<init>", "()V");
         mv.visitInsn(RETURN);
-        mv.visitMaxs(1, 1);
+        mv.visitMaxs(0, 0);
         mv.visitEnd();
 
         mv = cw.visitMethod(ACC_DEPRECATED, "m", "()V", null, null);
@@ -87,7 +87,7 @@ public class Outer extends Generator {
                 "(Lpkg/Outer;)V");
         mv.visitInsn(POP);
         mv.visitInsn(RETURN);
-        mv.visitMaxs(3, 1);
+        mv.visitMaxs(0, 0);
         mv.visitEnd();
 
         mv = cw.visitMethod(ACC_STATIC + ACC_SYNTHETIC,
@@ -99,7 +99,7 @@ public class Outer extends Generator {
         mv.visitVarInsn(ALOAD, 0);
         mv.visitFieldInsn(GETFIELD, "pkg/Outer", "i", "I");
         mv.visitInsn(IRETURN);
-        mv.visitMaxs(1, 1);
+        mv.visitMaxs(0, 0);
         mv.visitEnd();
 
         cw.visitEnd();
@@ -108,7 +108,7 @@ public class Outer extends Generator {
     }
 
     public static byte[] dump1() {
-        ClassWriter cw = new ClassWriter(0);
+        ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_MAXS);
         FieldVisitor fv;
         MethodVisitor mv;
 
@@ -132,7 +132,7 @@ public class Outer extends Generator {
         mv.visitVarInsn(ALOAD, 0);
         mv.visitMethodInsn(INVOKESPECIAL, "pkg/Outer", "<init>", "()V");
         mv.visitInsn(RETURN);
-        mv.visitMaxs(2, 2);
+        mv.visitMaxs(0, 0);
         mv.visitEnd();
 
         mv = cw.visitMethod(ACC_PUBLIC,
@@ -173,7 +173,7 @@ public class Outer extends Generator {
                 "toString",
                 "()Ljava/lang/String;");
         mv.visitInsn(ARETURN);
-        mv.visitMaxs(2, 1);
+        mv.visitMaxs(0, 0);
         mv.visitEnd();
 
         cw.visitEnd();
@@ -182,7 +182,7 @@ public class Outer extends Generator {
     }
 
     public static byte[] dumpInner() {
-        ClassWriter cw = new ClassWriter(0);
+        ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_MAXS);
         FieldVisitor fv;
         MethodVisitor mv;
 
@@ -210,7 +210,7 @@ public class Outer extends Generator {
         mv.visitVarInsn(ALOAD, 0);
         mv.visitMethodInsn(INVOKESPECIAL, "java/lang/Object", "<init>", "()V");
         mv.visitInsn(RETURN);
-        mv.visitMaxs(2, 2);
+        mv.visitMaxs(0, 0);
         mv.visitEnd();
 
         cw.visitEnd();

@@ -27,23 +27,38 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
  * THE POSSIBILITY OF SUCH DAMAGE.
  */
-package org.objectweb.asm.util;
+package org.objectweb.asm.tree.analysis;
+
+import java.util.Set;
 
 import junit.framework.TestCase;
 
 /**
- * ASMifierClassVisitor unit tests
+ * SmallSet unit tests.
  * 
  * @author Eric Bruneton
  */
-public class ASMifierUnitTest extends TestCase {
+public class SmallSetUnitTest extends TestCase {
 
-    public void testASMifierClassVisitor() throws Exception {
-        String s = getClass().getName();
-        ASMifierClassVisitor.main(new String[0]);
-        ASMifierClassVisitor.main(new String[] { "-debug" });
-        ASMifierClassVisitor.main(new String[] { s });
-        ASMifierClassVisitor.main(new String[] { "-debug", s });
-        ASMifierClassVisitor.main(new String[] { "output/test/cases/Interface.class" });
+    private Object A = new Object();
+    private Object B = new Object();
+    private Object C = new Object();
+    private Object D = new Object();
+    
+    public void testSubsetUnion() {
+        SmallSet s1 = new SmallSet(A, B);
+        SmallSet s2 = new SmallSet(A, null);
+        Set u = s1.union(s2);
+        Set v = s2.union(s1);
+        assertEquals(u, v);
+        s1.remove();
+    }
+
+    public void testDisjointUnion() {
+        SmallSet s1 = new SmallSet(A, B);
+        SmallSet s2 = new SmallSet(C, D);
+        Set u = s1.union(s2);
+        Set v = s2.union(s1);
+        assertEquals(u, v);
     }
 }

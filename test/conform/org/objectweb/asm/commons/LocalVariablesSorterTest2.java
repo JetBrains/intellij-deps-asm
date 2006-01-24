@@ -132,5 +132,4 @@ public class LocalVariablesSorterTest2 extends AbstractTest {
             assertEquals("different data", s1, s2);
         }
     }
-
 }

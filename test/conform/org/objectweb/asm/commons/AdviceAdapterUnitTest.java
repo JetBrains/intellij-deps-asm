@@ -46,7 +46,7 @@ import org.objectweb.asm.Opcodes;
  * 
  * @author Eugene Kuleshov
  */
-public class AdviceAdapterTest2 extends AbstractTest {
+public class AdviceAdapterUnitTest extends AbstractTest {
 
     public void test() throws Exception {
         Class c = getClass();
@@ -151,7 +151,7 @@ public class AdviceAdapterTest2 extends AbstractTest {
                 protected void onMethodEnter() {
                     mv.visitLdcInsn(cname + "." + name + desc);
                     mv.visitMethodInsn(INVOKESTATIC,
-                            "org/objectweb/asm/commons/AdviceAdapterTest2",
+                            "org/objectweb/asm/commons/AdviceAdapterUnitTest",
                             "enter",
                             "(Ljava/lang/String;)V");
                 }
@@ -159,7 +159,7 @@ public class AdviceAdapterTest2 extends AbstractTest {
                 protected void onMethodExit(int opcode) {
                     mv.visitLdcInsn(cname + "." + name + desc);
                     mv.visitMethodInsn(INVOKESTATIC,
-                            "org/objectweb/asm/commons/AdviceAdapterTest2",
+                            "org/objectweb/asm/commons/AdviceAdapterUnitTest",
                             "exit",
                             "(Ljava/lang/String;)V");
                 }

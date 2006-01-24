@@ -48,10 +48,12 @@ public class CheckClassAdapterUnitTest extends TestCase implements Opcodes {
         String s = getClass().getName();
         CheckClassAdapter.main(new String[0]);
         CheckClassAdapter.main(new String[] { s });
-        try {
-            CheckClassAdapter.main(new String[] { s + ".class" });
-        } catch (Exception e) {
-        }
+        CheckClassAdapter.main(new String[] { "output/test/cases/Interface.class" });
+    }
+
+    public void testVerifyValidClass() throws Exception {
+        ClassReader cr = new ClassReader(getClass().getName());
+        CheckClassAdapter.verify(cr, true);
     }
 
     public void testVerifyInvalidClass() {
@@ -66,7 +68,7 @@ public class CheckClassAdapterUnitTest extends TestCase implements Opcodes {
         mv.visitEnd();
         cw.visitEnd();
         ClassReader cr = new ClassReader(cw.toByteArray());
-        CheckClassAdapter.verify(cr, false);
+        CheckClassAdapter.verify(cr, true);
     }
 
     public void testIllegalClassAccessFlag() {

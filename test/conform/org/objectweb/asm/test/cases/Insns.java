@@ -31,7 +31,6 @@ package org.objectweb.asm.test.cases;
 
 import java.io.IOException;
 
-import org.objectweb.asm.AnnotationVisitor;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.Label;
@@ -40,8 +39,7 @@ import org.objectweb.asm.Type;
 
 /**
  * Generates a class that contain all bytecode instruction types (except JSR and
- * RET). Also covers class, field, method, and method parameter visible and
- * invisible annotations, almost all access flags, and unicode characters.
+ * RET). Also covers access flags, signatures, and unicode characters.
  * 
  * @author Eric Bruneton
  */
@@ -52,10 +50,9 @@ public class Insns extends Generator {
     }
 
     public byte[] dump() {
-        ClassWriter cw = new ClassWriter(0);
+        ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_MAXS);
         FieldVisitor fv;
         MethodVisitor mv;
-        AnnotationVisitor av0, av1;
 
         cw.visit(V1_5,
                 ACC_PUBLIC + ACC_SUPER,
@@ -64,175 +61,49 @@ public class Insns extends Generator {
                 "java/util/ArrayList",
                 new String[] { "Interface" });
 
-        av0 = cw.visitAnnotation("Lpkg/Annotation;", false);
-        av0.visit("byteValue", new Byte((byte) 0));
-        av0.visit("charValue", new Character((char) 48));
-        av0.visit("booleanValue", new Boolean(false));
-        av0.visit("intValue", new Integer(0));
-        av0.visitEnd();
-
-        av0 = cw.visitAnnotation("Ljava/lang/Deprecated;", true);
-        av0.visitEnd();
-
         fv = cw.visitField(ACC_PRIVATE + ACC_FINAL,
                 "z",
                 "Z",
                 null,
                 new Integer(1));
-        av0 = fv.visitAnnotation("Lpkg/Annotation;", false);
-        av0.visit("shortValue", new Short((short) 0));
-        av0.visit("longValue", new Long(0L));
-        av0.visit("floatValue", new Float("0.0"));
-        av0.visit("doubleValue", new Double("0.0"));
-        av0.visitEnd();
-        av0 = fv.visitAnnotation("Ljava/lang/Deprecated;", true);
-        av0.visitEnd();
         fv.visitEnd();
 
         fv = cw.visitField(ACC_PROTECTED, "b", "B", null, null);
-        av0 = fv.visitAnnotation("Lpkg/Annotation;", false);
-        av0.visit("stringValue", "0");
-        av0.visitEnum("enumValue", "Lpkg/Enum;", "V0");
-        av1 = av0.visitAnnotation("annotationValue",
-                "Ljava/lang/annotation/Documented;");
-        av1.visitEnd();
-        av0.visitEnd();
         fv.visitEnd();
 
         fv = cw.visitField(ACC_PUBLIC, "c", "C", null, null);
-        av0 = fv.visitAnnotation("Lpkg/Annotation;", false);
-        av0.visit("classValue", Type.getType("Lpkg/Annotation;"));
-        av0.visitEnd();
         fv.visitEnd();
 
         fv = cw.visitField(ACC_STATIC, "s", "S", null, null);
-        av0 = fv.visitAnnotation("Lpkg/Annotation;", false);
-        av0.visit("byteArrayValue", new byte[] { 1, 0 });
-        av0.visit("charArrayValue", new char[] { (char) 49, (char) 0 });
-        av0.visitEnd();
         fv.visitEnd();
 
         fv = cw.visitField(ACC_PRIVATE + ACC_TRANSIENT, "i", "I", null, null);
-        av0 = fv.visitAnnotation("Lpkg/Annotation;", false);
-        av0.visit("booleanArrayValue", new boolean[] { true, false });
-        av0.visit("intArrayValue", new int[] { 1, 0 });
-        av0.visitEnd();
         fv.visitEnd();
 
         fv = cw.visitField(ACC_PRIVATE + ACC_VOLATILE, "l", "J", null, null);
-        av0 = fv.visitAnnotation("Lpkg/Annotation;", false);
-        av0.visit("shortArrayValue", new short[] { (short) 1, (short) 0 });
-        av0.visit("longArrayValue", new long[] { 1L, 0L });
-        av0.visitEnd();
         fv.visitEnd();
 
         fv = cw.visitField(0, "f", "F", null, null);
-        av0 = fv.visitAnnotation("Lpkg/Annotation;", false);
-        av0.visit("floatArrayValue", new float[] { 1.0f, 0.0f });
-        av0.visit("doubleArrayValue", new double[] { 1.0d, 0.0d });
-        av0.visitEnd();
         fv.visitEnd();
 
         fv = cw.visitField(0, "d", "D", null, null);
-        av0 = fv.visitAnnotation("Lpkg/Annotation;", false);
-        av1 = av0.visitArray("stringArrayValue");
-        av1.visit(null, "1");
-        av1.visit(null, "0");
-        av1.visitEnd();
-        av1 = av0.visitArray("enumArrayValue");
-        av1.visitEnum(null, "Lpkg/Enum;", "V1");
-        av1.visitEnum(null, "Lpkg/Enum;", "V2");
-        av1.visitEnd();
-        av0.visitEnd();
         fv.visitEnd();
 
         fv = cw.visitField(0, "str", "Ljava/lang/String;", null, "");
-        av0 = fv.visitAnnotation("Lpkg/Annotation;", false);
-        av1 = av0.visitArray("annotationArrayValue");
-        av1.visitEnd();
-        av1 = av0.visitArray("classArrayValue");
-        av1.visitEnd();
-        av0.visitEnd();
         fv.visitEnd();
 
         fv = cw.visitField(0, "e", "Ljava/lang/Object;", "TE;", null);
-        av0 = fv.visitAnnotation("Lpkg/Annotation;", false);
-        av0.visitEnum("enumValue", "Lpkg/Enum;", "V0");
-        av0.visitEnd();
         fv.visitEnd();
 
         mv = cw.visitMethod(ACC_PUBLIC, "<init>", "()V", null, null);
-        av0 = mv.visitAnnotation("Lpkg/Annotation;", false);
-        av1 = av0.visitAnnotation("annotationValue",
-                "Ljava/lang/annotation/Documented;");
-        av1.visitEnd();
-        av0.visitEnd();
         mv.visitCode();
         mv.visitVarInsn(ALOAD, 0);
         mv.visitMethodInsn(INVOKESPECIAL,
                 "java/util/ArrayList",
                 "<init>",
                 "()V");
-        mv.visitVarInsn(ALOAD, 0);
-        mv.visitInsn(ICONST_1);
-        mv.visitFieldInsn(PUTFIELD, "pkg/Insns", "z", "Z");
-        mv.visitVarInsn(ALOAD, 0);
-        mv.visitInsn(ICONST_1);
-        mv.visitFieldInsn(PUTFIELD, "pkg/Insns", "b", "B");
-        mv.visitVarInsn(ALOAD, 0);
-        mv.visitIntInsn(BIPUSH, 49);
-        mv.visitFieldInsn(PUTFIELD, "pkg/Insns", "c", "C");
-        mv.visitVarInsn(ALOAD, 0);
-        mv.visitInsn(ICONST_1);
-        mv.visitFieldInsn(PUTFIELD, "pkg/Insns", "i", "I");
-        mv.visitVarInsn(ALOAD, 0);
-        mv.visitInsn(LCONST_1);
-        mv.visitFieldInsn(PUTFIELD, "pkg/Insns", "l", "J");
-        mv.visitVarInsn(ALOAD, 0);
-        mv.visitInsn(FCONST_1);
-        mv.visitFieldInsn(PUTFIELD, "pkg/Insns", "f", "F");
-        mv.visitVarInsn(ALOAD, 0);
-        mv.visitInsn(DCONST_1);
-        mv.visitFieldInsn(PUTFIELD, "pkg/Insns", "d", "D");
-        mv.visitVarInsn(ALOAD, 0);
-        mv.visitLdcInsn("\u1111\u1111\u1111\u1111\u1111\u1111\u1111\u1111\u1111\u1111\u1111\u1111\u1111\u1111\u1111\u1111\u1111\u1111\u1111\u1111\u1111\u1111\u1111\u1111\u1111\u1111\u1111\u1111\u1111\u1111\u1111\u1111\u1111\u1111\u1111\u1111\u1111\u1111\u1111\u1111\u1111\u1111\u1111\u1111\u1111\u1111\u1111\u1111\u1111\u1111\u1111\u1111\u1111\u1111\u1111\u1111\u1111\u1111\u1111\u1111\u1111\u1111\u1111\u1111\u1111\u1111\u1111\u1111\u1111\u0111\u0011\u0001");
-        mv.visitFieldInsn(PUTFIELD, "pkg/Insns", "str", "Ljava/lang/String;");
         mv.visitInsn(RETURN);
-        mv.visitMaxs(3, 1);
-        mv.visitEnd();
-
-        mv = cw.visitMethod(0, "i", "()I", null, null);
-        av0 = mv.visitAnnotation("Ljava/lang/Deprecated;", true);
-        av0.visitEnd();
-        mv.visitCode();
-        mv.visitVarInsn(ALOAD, 0);
-        mv.visitFieldInsn(GETFIELD, "pkg/Insns", "i", "I");
-        mv.visitInsn(IRETURN);
-        mv.visitMaxs(1, 1);
-        mv.visitEnd();
-
-        mv = cw.visitMethod(0, "l", "()J", null, null);
-        mv.visitCode();
-        mv.visitVarInsn(ALOAD, 0);
-        mv.visitFieldInsn(GETFIELD, "pkg/Insns", "l", "J");
-        mv.visitInsn(LRETURN);
-        mv.visitMaxs(2, 1);
-        mv.visitEnd();
-
-        mv = cw.visitMethod(0, "f", "()F", null, null);
-        mv.visitCode();
-        mv.visitVarInsn(ALOAD, 0);
-        mv.visitFieldInsn(GETFIELD, "pkg/Insns", "f", "F");
-        mv.visitInsn(FRETURN);
-        mv.visitMaxs(1, 1);
-        mv.visitEnd();
-
-        mv = cw.visitMethod(0, "d", "()D", null, null);
-        mv.visitCode();
-        mv.visitVarInsn(ALOAD, 0);
-        mv.visitFieldInsn(GETFIELD, "pkg/Insns", "d", "D");
-        mv.visitInsn(DRETURN);
-        mv.visitMaxs(2, 1);
+        mv.visitMaxs(0, 0);
         mv.visitEnd();
 
         mv = cw.visitMethod(ACC_PUBLIC + ACC_SYNCHRONIZED,
@@ -240,788 +111,642 @@ public class Insns extends Generator {
                 "(ZBCSIFJDLjava/lang/Object;)Ljava/lang/Object;",
                 "(ZBCSIFJDTE;)TE;",
                 null);
-        av0 = mv.visitAnnotation("Lpkg/Annotation;", false);
-        av0.visitEnd();
-        av0 = mv.visitParameterAnnotation(8, "Lpkg/Annotation;", false);
-        av0.visitEnd();
-        av0 = mv.visitParameterAnnotation(8, "Ljava/lang/Deprecated;", true);
-        av0.visitEnd();
         mv.visitCode();
-        Label l0 = new Label();
-        Label l1 = new Label();
-        Label l2 = new Label();
-        mv.visitTryCatchBlock(l0, l1, l2, null);
-        Label l3 = new Label();
-        mv.visitTryCatchBlock(l0, l3, l3, "java/lang/Exception");
-        Label l4 = new Label();
-        Label l5 = new Label();
-        Label l6 = new Label();
-        mv.visitTryCatchBlock(l4, l5, l6, null);
-        Label l7 = new Label();
-        mv.visitTryCatchBlock(l6, l7, l6, null);
         mv.visitInsn(ACONST_NULL);
-        mv.visitVarInsn(ASTORE, 11);
-        mv.visitVarInsn(ALOAD, 0);
+        mv.visitInsn(ARETURN);
+        mv.visitMaxs(0, 0);
+        mv.visitEnd();
+
+        // instruction types
+        constInsns(cw);
+        varInsns(cw);
+        arrayInsns(cw);
+        stackInsns(cw);
+        mathInsns(cw);
+        castInsns(cw);
+        jumpInsns(cw);
+        returnInsns(cw);
+        fieldInsns(cw);
+        methodInsns(cw);
+        monitorInsns(cw);
+
+        // various method types not covered by other test cases
+        varargMethod(cw);
+        bridgeMethod(cw);
+        nativeMethod(cw);
+        clinitMethod(cw);
+
+        cw.visitEnd();
+
+        return cw.toByteArray();
+    }
+
+    private void constInsns(final ClassWriter cw) {
+        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC,
+                "constInsns",
+                "()V",
+                null,
+                null);
+        mv.visitInsn(NOP);
+        mv.visitInsn(ACONST_NULL);
         mv.visitInsn(ICONST_M1);
-        mv.visitFieldInsn(PUTFIELD, "pkg/Insns", "i", "I");
-        mv.visitVarInsn(ALOAD, 0);
         mv.visitInsn(ICONST_0);
-        mv.visitFieldInsn(PUTFIELD, "pkg/Insns", "i", "I");
-        mv.visitVarInsn(ALOAD, 0);
         mv.visitInsn(ICONST_1);
-        mv.visitFieldInsn(PUTFIELD, "pkg/Insns", "i", "I");
-        mv.visitVarInsn(ALOAD, 0);
         mv.visitInsn(ICONST_2);
-        mv.visitFieldInsn(PUTFIELD, "pkg/Insns", "i", "I");
-        mv.visitVarInsn(ALOAD, 0);
         mv.visitInsn(ICONST_3);
-        mv.visitFieldInsn(PUTFIELD, "pkg/Insns", "i", "I");
-        mv.visitVarInsn(ALOAD, 0);
         mv.visitInsn(ICONST_4);
-        mv.visitFieldInsn(PUTFIELD, "pkg/Insns", "i", "I");
-        mv.visitVarInsn(ALOAD, 0);
         mv.visitInsn(ICONST_5);
-        mv.visitFieldInsn(PUTFIELD, "pkg/Insns", "i", "I");
-        mv.visitVarInsn(ALOAD, 0);
         mv.visitInsn(LCONST_0);
-        mv.visitFieldInsn(PUTFIELD, "pkg/Insns", "l", "J");
-        mv.visitVarInsn(ALOAD, 0);
         mv.visitInsn(LCONST_1);
-        mv.visitFieldInsn(PUTFIELD, "pkg/Insns", "l", "J");
-        mv.visitVarInsn(ALOAD, 0);
         mv.visitInsn(FCONST_0);
-        mv.visitFieldInsn(PUTFIELD, "pkg/Insns", "f", "F");
-        mv.visitVarInsn(ALOAD, 0);
         mv.visitInsn(FCONST_1);
-        mv.visitFieldInsn(PUTFIELD, "pkg/Insns", "f", "F");
-        mv.visitVarInsn(ALOAD, 0);
         mv.visitInsn(FCONST_2);
-        mv.visitFieldInsn(PUTFIELD, "pkg/Insns", "f", "F");
-        mv.visitVarInsn(ALOAD, 0);
         mv.visitInsn(DCONST_0);
-        mv.visitFieldInsn(PUTFIELD, "pkg/Insns", "d", "D");
-        mv.visitVarInsn(ALOAD, 0);
         mv.visitInsn(DCONST_1);
-        mv.visitFieldInsn(PUTFIELD, "pkg/Insns", "d", "D");
-        mv.visitVarInsn(ALOAD, 0);
-        mv.visitIntInsn(SIPUSH, 128);
-        mv.visitFieldInsn(PUTFIELD, "pkg/Insns", "i", "I");
-        mv.visitVarInsn(ALOAD, 0);
+        mv.visitIntInsn(BIPUSH, 16);
         mv.visitIntInsn(SIPUSH, 256);
-        mv.visitFieldInsn(PUTFIELD, "pkg/Insns", "i", "I");
-        mv.visitVarInsn(ALOAD, 0);
         mv.visitLdcInsn(new Integer(65536));
-        mv.visitFieldInsn(PUTFIELD, "pkg/Insns", "i", "I");
-        mv.visitVarInsn(ALOAD, 0);
         mv.visitLdcInsn(new Long(128L));
-        mv.visitFieldInsn(PUTFIELD, "pkg/Insns", "l", "J");
-        mv.visitVarInsn(ALOAD, 0);
         mv.visitLdcInsn(new Float("128.0"));
-        mv.visitFieldInsn(PUTFIELD, "pkg/Insns", "f", "F");
-        mv.visitVarInsn(ALOAD, 0);
         mv.visitLdcInsn(new Double("128.0"));
-        mv.visitFieldInsn(PUTFIELD, "pkg/Insns", "d", "D");
+        mv.visitLdcInsn("\n\r\u0009\"\\");
+        mv.visitLdcInsn("\u1111\u1111\u1111\u1111\u1111\u1111\u1111\u1111\u1111\u1111\u1111\u1111\u1111\u1111\u1111\u1111\u1111\u1111\u1111\u1111\u1111\u1111\u1111\u1111\u1111\u1111\u1111\u1111\u1111\u1111\u1111\u1111\u1111\u1111\u1111\u1111\u1111\u1111\u1111\u1111\u1111\u1111\u1111\u1111\u1111\u1111\u1111\u1111\u1111\u1111\u1111\u1111\u1111\u1111\u1111\u1111\u1111\u1111\u1111\u1111\u1111\u1111\u1111\u1111\u1111\u1111\u1111\u1111\u1111\u0111\u0011\u0001");
+        mv.visitLdcInsn(Type.getType("Ljava/lang/Object;"));
+        mv.visitInsn(RETURN);
+        mv.visitMaxs(0, 0);
+        mv.visitEnd();
+    }
+
+    private void varInsns(final ClassWriter cw) {
+        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC,
+                "varInsns",
+                "(IJFDD)V",
+                null,
+                null);
+        mv.visitVarInsn(ILOAD, 1);
+        mv.visitVarInsn(IINC, 1);
+        mv.visitVarInsn(ISTORE, 1);
+        mv.visitVarInsn(LLOAD, 2);
+        mv.visitVarInsn(LSTORE, 2);
+        mv.visitVarInsn(FLOAD, 4);
+        mv.visitVarInsn(FSTORE, 4);
+        mv.visitVarInsn(DLOAD, 5);
+        mv.visitVarInsn(DSTORE, 5);
         mv.visitVarInsn(ALOAD, 0);
-        mv.visitLdcInsn("str");
-        mv.visitFieldInsn(PUTFIELD, "pkg/Insns", "str", "Ljava/lang/String;");
-        mv.visitInsn(ICONST_2);
+        mv.visitVarInsn(ASTORE, 0);
+        mv.visitInsn(ICONST_0);
+        mv.visitVarInsn(ISTORE, 3);
+        mv.visitInsn(LCONST_0);
+        mv.visitVarInsn(LSTORE, 6);
+        mv.visitInsn(RETURN);
+        mv.visitMaxs(0, 0);
+        mv.visitEnd();
+    }
+
+    private void arrayInsns(final ClassWriter cw) {
+        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC,
+                "arrayInsns",
+                "()V",
+                null,
+                null);
+        // boolean arrays
+        mv.visitInsn(ICONST_1);
         mv.visitIntInsn(NEWARRAY, T_BOOLEAN);
         mv.visitInsn(DUP);
         mv.visitInsn(ICONST_0);
         mv.visitInsn(ICONST_0);
         mv.visitInsn(BASTORE);
-        mv.visitInsn(DUP);
-        mv.visitInsn(ICONST_1);
-        mv.visitInsn(ICONST_1);
-        mv.visitInsn(BASTORE);
         mv.visitInsn(ICONST_0);
         mv.visitInsn(BALOAD);
-        Label l8 = new Label();
-        mv.visitJumpInsn(IFEQ, l8);
+        // byte arrays
         mv.visitInsn(ICONST_1);
-        Label l9 = new Label();
-        mv.visitJumpInsn(GOTO, l9);
-        mv.visitLabel(l8);
-        mv.visitInsn(ICONST_0);
-        mv.visitLabel(l9);
-        mv.visitVarInsn(ISTORE, 5);
-        mv.visitInsn(ICONST_2);
         mv.visitIntInsn(NEWARRAY, T_BYTE);
         mv.visitInsn(DUP);
         mv.visitInsn(ICONST_0);
         mv.visitInsn(ICONST_0);
         mv.visitInsn(BASTORE);
-        mv.visitInsn(DUP);
-        mv.visitInsn(ICONST_1);
-        mv.visitInsn(ICONST_1);
-        mv.visitInsn(BASTORE);
         mv.visitInsn(ICONST_0);
         mv.visitInsn(BALOAD);
-        mv.visitVarInsn(ISTORE, 2);
-        mv.visitInsn(ICONST_2);
+        // char arrays
+        mv.visitInsn(ICONST_1);
         mv.visitIntInsn(NEWARRAY, T_CHAR);
         mv.visitInsn(DUP);
         mv.visitInsn(ICONST_0);
-        mv.visitIntInsn(BIPUSH, 48);
-        mv.visitInsn(CASTORE);
-        mv.visitInsn(DUP);
-        mv.visitInsn(ICONST_1);
-        mv.visitIntInsn(BIPUSH, 49);
+        mv.visitInsn(ICONST_0);
         mv.visitInsn(CASTORE);
         mv.visitInsn(ICONST_0);
         mv.visitInsn(CALOAD);
-        mv.visitVarInsn(ISTORE, 3);
-        mv.visitInsn(ICONST_2);
+        // short arrays
+        mv.visitInsn(ICONST_1);
         mv.visitIntInsn(NEWARRAY, T_SHORT);
         mv.visitInsn(DUP);
         mv.visitInsn(ICONST_0);
         mv.visitInsn(ICONST_0);
         mv.visitInsn(SASTORE);
-        mv.visitInsn(DUP);
-        mv.visitInsn(ICONST_1);
-        mv.visitInsn(ICONST_1);
-        mv.visitInsn(SASTORE);
         mv.visitInsn(ICONST_0);
         mv.visitInsn(SALOAD);
-        mv.visitVarInsn(ISTORE, 4);
-        mv.visitInsn(ICONST_2);
+        // int arrays
+        mv.visitInsn(ICONST_1);
         mv.visitIntInsn(NEWARRAY, T_INT);
         mv.visitInsn(DUP);
         mv.visitInsn(ICONST_0);
         mv.visitInsn(ICONST_0);
         mv.visitInsn(IASTORE);
-        mv.visitInsn(DUP);
-        mv.visitInsn(ICONST_1);
-        mv.visitInsn(ICONST_1);
-        mv.visitInsn(IASTORE);
         mv.visitInsn(ICONST_0);
         mv.visitInsn(IALOAD);
-        mv.visitVarInsn(ISTORE, 5);
-        mv.visitInsn(ICONST_2);
+        // long arrays
+        mv.visitInsn(ICONST_1);
         mv.visitIntInsn(NEWARRAY, T_LONG);
         mv.visitInsn(DUP);
         mv.visitInsn(ICONST_0);
         mv.visitInsn(LCONST_0);
         mv.visitInsn(LASTORE);
-        mv.visitInsn(DUP);
-        mv.visitInsn(ICONST_1);
-        mv.visitInsn(LCONST_1);
-        mv.visitInsn(LASTORE);
         mv.visitInsn(ICONST_0);
         mv.visitInsn(LALOAD);
-        mv.visitVarInsn(LSTORE, 7);
-        mv.visitInsn(ICONST_2);
+        // float arrays
+        mv.visitInsn(ICONST_1);
         mv.visitIntInsn(NEWARRAY, T_FLOAT);
         mv.visitInsn(DUP);
         mv.visitInsn(ICONST_0);
         mv.visitInsn(FCONST_0);
-        mv.visitInsn(FASTORE);
-        mv.visitInsn(DUP);
-        mv.visitInsn(ICONST_1);
-        mv.visitInsn(FCONST_1);
         mv.visitInsn(FASTORE);
         mv.visitInsn(ICONST_0);
         mv.visitInsn(FALOAD);
-        mv.visitVarInsn(FSTORE, 6);
-        mv.visitInsn(ICONST_2);
+        // double arrays
+        mv.visitInsn(ICONST_1);
         mv.visitIntInsn(NEWARRAY, T_DOUBLE);
         mv.visitInsn(DUP);
         mv.visitInsn(ICONST_0);
         mv.visitInsn(DCONST_0);
-        mv.visitInsn(DASTORE);
-        mv.visitInsn(DUP);
-        mv.visitInsn(ICONST_1);
-        mv.visitInsn(DCONST_1);
         mv.visitInsn(DASTORE);
         mv.visitInsn(ICONST_0);
         mv.visitInsn(DALOAD);
-        mv.visitVarInsn(DSTORE, 9);
-        mv.visitInsn(ACONST_NULL);
-        mv.visitVarInsn(ASTORE, 11);
-        mv.visitVarInsn(ALOAD, 0);
-        mv.visitInsn(ICONST_2);
-        mv.visitTypeInsn(ANEWARRAY, "java/lang/String");
+        // object arrays
+        mv.visitInsn(ICONST_1);
+        mv.visitTypeInsn(ANEWARRAY, "java/lang/Object");
         mv.visitInsn(DUP);
         mv.visitInsn(ICONST_0);
-        mv.visitTypeInsn(NEW, "java/lang/String");
-        mv.visitInsn(DUP);
-        mv.visitLdcInsn("0");
-        mv.visitMethodInsn(INVOKESPECIAL,
-                "java/lang/String",
-                "<init>",
-                "(Ljava/lang/String;)V");
-        mv.visitInsn(AASTORE);
-        mv.visitInsn(DUP);
-        mv.visitInsn(ICONST_1);
-        mv.visitTypeInsn(NEW, "java/lang/String");
-        mv.visitInsn(DUP);
-        mv.visitLdcInsn("1");
-        mv.visitMethodInsn(INVOKESPECIAL,
-                "java/lang/String",
-                "<init>",
-                "(Ljava/lang/String;)V");
+        mv.visitInsn(ACONST_NULL);
         mv.visitInsn(AASTORE);
         mv.visitInsn(ICONST_0);
         mv.visitInsn(AALOAD);
-        mv.visitFieldInsn(PUTFIELD, "pkg/Insns", "str", "Ljava/lang/String;");
-        mv.visitInsn(ICONST_1);
-        mv.visitIntInsn(NEWARRAY, T_BOOLEAN);
-        mv.visitInsn(ICONST_0);
-        mv.visitVarInsn(ILOAD, 1);
-        mv.visitInsn(BASTORE);
-        mv.visitInsn(ICONST_1);
-        mv.visitIntInsn(NEWARRAY, T_BYTE);
-        mv.visitInsn(ICONST_0);
-        mv.visitVarInsn(ILOAD, 2);
-        mv.visitInsn(BASTORE);
-        mv.visitInsn(ICONST_1);
-        mv.visitIntInsn(NEWARRAY, T_CHAR);
-        mv.visitInsn(ICONST_0);
-        mv.visitVarInsn(ILOAD, 3);
-        mv.visitInsn(CASTORE);
-        mv.visitInsn(ICONST_1);
-        mv.visitIntInsn(NEWARRAY, T_SHORT);
-        mv.visitInsn(ICONST_0);
-        mv.visitVarInsn(ILOAD, 4);
-        mv.visitInsn(SASTORE);
-        mv.visitInsn(ICONST_1);
-        mv.visitIntInsn(NEWARRAY, T_INT);
-        mv.visitInsn(ICONST_0);
-        mv.visitVarInsn(ILOAD, 5);
-        mv.visitInsn(IASTORE);
-        mv.visitInsn(ICONST_1);
-        mv.visitIntInsn(NEWARRAY, T_LONG);
-        mv.visitInsn(ICONST_0);
-        mv.visitVarInsn(LLOAD, 7);
-        mv.visitInsn(LASTORE);
-        mv.visitInsn(ICONST_1);
-        mv.visitIntInsn(NEWARRAY, T_FLOAT);
-        mv.visitInsn(ICONST_0);
-        mv.visitVarInsn(FLOAD, 6);
-        mv.visitInsn(FASTORE);
-        mv.visitInsn(ICONST_1);
-        mv.visitIntInsn(NEWARRAY, T_DOUBLE);
-        mv.visitInsn(ICONST_0);
-        mv.visitVarInsn(DLOAD, 9);
-        mv.visitInsn(DASTORE);
-        mv.visitInsn(ICONST_1);
-        mv.visitTypeInsn(ANEWARRAY, "java/lang/String");
-        mv.visitInsn(ICONST_0);
-        mv.visitVarInsn(ALOAD, 0);
-        mv.visitFieldInsn(GETFIELD, "pkg/Insns", "str", "Ljava/lang/String;");
-        mv.visitInsn(AASTORE);
-        mv.visitVarInsn(ALOAD, 11);
-        mv.visitVarInsn(ASTORE, 12);
-        mv.visitTypeInsn(NEW, "java/lang/Float");
-        mv.visitInsn(DUP);
-        mv.visitInsn(FCONST_0);
-        mv.visitMethodInsn(INVOKESPECIAL, "java/lang/Float", "<init>", "(F)V");
-        mv.visitMethodInsn(INVOKEVIRTUAL,
-                "java/lang/Float",
-                "floatValue",
-                "()F");
-        mv.visitInsn(POP);
-        mv.visitTypeInsn(NEW, "java/lang/Double");
-        mv.visitInsn(DUP);
-        mv.visitInsn(DCONST_0);
-        mv.visitMethodInsn(INVOKESPECIAL, "java/lang/Double", "<init>", "(D)V");
-        mv.visitMethodInsn(INVOKEVIRTUAL,
-                "java/lang/Double",
-                "doubleValue",
-                "()D");
-        mv.visitInsn(POP2);
-        mv.visitInsn(FCONST_0);
-        mv.visitVarInsn(FSTORE, 13);
-        mv.visitInsn(DCONST_0);
-        mv.visitVarInsn(DSTORE, 14);
-        mv.visitInsn(ICONST_1);
-        mv.visitIntInsn(NEWARRAY, T_FLOAT);
-        mv.visitVarInsn(ASTORE, 16);
-        mv.visitInsn(ICONST_1);
-        mv.visitIntInsn(NEWARRAY, T_DOUBLE);
-        mv.visitVarInsn(ASTORE, 17);
-        mv.visitVarInsn(ALOAD, 16);
-        mv.visitInsn(ICONST_0);
-        mv.visitVarInsn(FLOAD, 13);
-        mv.visitInsn(FCONST_1);
-        mv.visitInsn(FSUB);
-        mv.visitInsn(DUP);
-        mv.visitVarInsn(FSTORE, 13);
-        mv.visitInsn(DUP_X2);
-        mv.visitInsn(FASTORE);
-        mv.visitVarInsn(FSTORE, 13);
-        mv.visitVarInsn(ALOAD, 17);
-        mv.visitInsn(ICONST_0);
-        mv.visitVarInsn(DLOAD, 14);
-        mv.visitInsn(DCONST_1);
-        mv.visitInsn(DSUB);
-        mv.visitInsn(DUP2);
-        mv.visitVarInsn(DSTORE, 14);
-        mv.visitInsn(DUP2_X2);
-        mv.visitInsn(DASTORE);
-        mv.visitVarInsn(DSTORE, 14);
-        mv.visitTypeInsn(NEW, "java/lang/Integer");
-        mv.visitInsn(DUP);
-        mv.visitVarInsn(ALOAD, 0);
-        mv.visitInsn(DUP);
-        mv.visitFieldInsn(GETFIELD, "pkg/Insns", "i", "I");
-        mv.visitInsn(DUP_X1);
-        mv.visitInsn(ICONST_1);
-        mv.visitInsn(IADD);
-        mv.visitFieldInsn(PUTFIELD, "pkg/Insns", "i", "I");
-        mv.visitMethodInsn(INVOKESPECIAL, "java/lang/Integer", "<init>", "(I)V");
-        mv.visitInsn(POP);
-        mv.visitTypeInsn(NEW, "java/lang/Long");
-        mv.visitInsn(DUP);
-        mv.visitVarInsn(ALOAD, 0);
-        mv.visitInsn(DUP);
-        mv.visitFieldInsn(GETFIELD, "pkg/Insns", "l", "J");
-        mv.visitInsn(DUP2_X1);
-        mv.visitInsn(LCONST_1);
-        mv.visitInsn(LADD);
-        mv.visitFieldInsn(PUTFIELD, "pkg/Insns", "l", "J");
-        mv.visitMethodInsn(INVOKESPECIAL, "java/lang/Long", "<init>", "(J)V");
-        mv.visitInsn(POP);
-        mv.visitVarInsn(ILOAD, 5);
-        mv.visitInsn(ICONST_2);
-        mv.visitInsn(IMUL);
-        mv.visitVarInsn(ALOAD, 0);
-        mv.visitFieldInsn(GETFIELD, "pkg/Insns", "i", "I");
-        mv.visitInsn(ICONST_2);
-        mv.visitInsn(IREM);
-        mv.visitInsn(IADD);
-        mv.visitVarInsn(ALOAD, 0);
-        mv.visitFieldInsn(GETFIELD, "pkg/Insns", "i", "I");
-        mv.visitInsn(ICONST_2);
-        mv.visitInsn(IDIV);
-        mv.visitInsn(ISUB);
-        mv.visitVarInsn(ALOAD, 0);
-        mv.visitFieldInsn(GETFIELD, "pkg/Insns", "i", "I");
-        mv.visitInsn(ICONST_1);
-        mv.visitInsn(ISHL);
-        mv.visitInsn(IADD);
-        mv.visitVarInsn(ALOAD, 0);
-        mv.visitFieldInsn(GETFIELD, "pkg/Insns", "i", "I");
-        mv.visitInsn(ICONST_1);
-        mv.visitInsn(ISHR);
-        mv.visitInsn(IADD);
-        mv.visitVarInsn(ALOAD, 0);
-        mv.visitFieldInsn(GETFIELD, "pkg/Insns", "i", "I");
-        mv.visitInsn(ICONST_1);
-        mv.visitInsn(IUSHR);
-        mv.visitInsn(IADD);
-        mv.visitVarInsn(ISTORE, 5);
-        mv.visitVarInsn(LLOAD, 7);
-        mv.visitLdcInsn(new Long(2L));
-        mv.visitInsn(LMUL);
-        mv.visitVarInsn(ALOAD, 0);
-        mv.visitFieldInsn(GETFIELD, "pkg/Insns", "l", "J");
-        mv.visitLdcInsn(new Long(2L));
-        mv.visitInsn(LREM);
-        mv.visitInsn(LADD);
-        mv.visitVarInsn(ALOAD, 0);
-        mv.visitFieldInsn(GETFIELD, "pkg/Insns", "l", "J");
-        mv.visitLdcInsn(new Long(2L));
-        mv.visitInsn(LDIV);
-        mv.visitInsn(LSUB);
-        mv.visitVarInsn(ALOAD, 0);
-        mv.visitFieldInsn(GETFIELD, "pkg/Insns", "l", "J");
-        mv.visitInsn(ICONST_1);
-        mv.visitInsn(LSHL);
-        mv.visitInsn(LADD);
-        mv.visitVarInsn(ALOAD, 0);
-        mv.visitFieldInsn(GETFIELD, "pkg/Insns", "l", "J");
-        mv.visitInsn(ICONST_1);
-        mv.visitInsn(LSHR);
-        mv.visitInsn(LADD);
-        mv.visitVarInsn(ALOAD, 0);
-        mv.visitFieldInsn(GETFIELD, "pkg/Insns", "l", "J");
-        mv.visitInsn(ICONST_1);
-        mv.visitInsn(LUSHR);
-        mv.visitInsn(LADD);
-        mv.visitVarInsn(LSTORE, 7);
-        mv.visitVarInsn(FLOAD, 6);
-        mv.visitInsn(FCONST_2);
-        mv.visitInsn(FMUL);
-        mv.visitVarInsn(FLOAD, 13);
-        mv.visitInsn(FCONST_2);
-        mv.visitInsn(FREM);
-        mv.visitInsn(FADD);
-        mv.visitVarInsn(FLOAD, 13);
-        mv.visitInsn(FCONST_2);
-        mv.visitInsn(FDIV);
-        mv.visitInsn(FSUB);
-        mv.visitVarInsn(FSTORE, 6);
-        mv.visitVarInsn(DLOAD, 9);
-        mv.visitLdcInsn(new Double("2.0"));
-        mv.visitInsn(DMUL);
-        mv.visitVarInsn(DLOAD, 14);
-        mv.visitLdcInsn(new Double("2.0"));
-        mv.visitInsn(DREM);
-        mv.visitInsn(DADD);
-        mv.visitVarInsn(DLOAD, 14);
-        mv.visitLdcInsn(new Double("2.0"));
-        mv.visitInsn(DDIV);
-        mv.visitInsn(DSUB);
-        mv.visitVarInsn(DSTORE, 9);
-        mv.visitVarInsn(ALOAD, 0);
-        mv.visitVarInsn(ALOAD, 0);
-        mv.visitInsn(SWAP);
-        mv.visitFieldInsn(GETFIELD, "pkg/Insns", "i", "I");
-        mv.visitInsn(INEG);
-        mv.visitFieldInsn(PUTFIELD, "pkg/Insns", "i", "I");
-        mv.visitVarInsn(ALOAD, 0);
-        mv.visitVarInsn(ALOAD, 0);
-        mv.visitFieldInsn(GETFIELD, "pkg/Insns", "l", "J");
-        mv.visitInsn(LNEG);
-        mv.visitFieldInsn(PUTFIELD, "pkg/Insns", "l", "J");
-        mv.visitVarInsn(FLOAD, 13);
-        mv.visitInsn(FNEG);
-        mv.visitVarInsn(FSTORE, 13);
-        mv.visitVarInsn(DLOAD, 14);
-        mv.visitInsn(DNEG);
-        mv.visitVarInsn(DSTORE, 14);
-        mv.visitInsn(ICONST_0);
-        mv.visitVarInsn(ISTORE, 18);
-        Label l10 = new Label();
-        mv.visitLabel(l10);
-        mv.visitVarInsn(ILOAD, 18);
-        mv.visitInsn(ICONST_3);
-        Label l11 = new Label();
-        mv.visitJumpInsn(IF_ICMPGE, l11);
-        mv.visitVarInsn(ALOAD, 0);
-        mv.visitVarInsn(ALOAD, 0);
-        mv.visitFieldInsn(GETFIELD, "pkg/Insns", "i", "I");
-        mv.visitVarInsn(ALOAD, 0);
-        mv.visitFieldInsn(GETFIELD, "pkg/Insns", "i", "I");
-        mv.visitVarInsn(ALOAD, 0);
-        mv.visitFieldInsn(GETFIELD, "pkg/Insns", "i", "I");
-        mv.visitInsn(ICONST_M1);
-        mv.visitInsn(IXOR);
-        mv.visitInsn(IOR);
-        mv.visitInsn(IAND);
-        mv.visitVarInsn(ALOAD, 0);
-        mv.visitFieldInsn(GETFIELD, "pkg/Insns", "i", "I");
-        mv.visitInsn(IXOR);
-        mv.visitFieldInsn(PUTFIELD, "pkg/Insns", "i", "I");
-        mv.visitVarInsn(ALOAD, 0);
-        mv.visitVarInsn(ALOAD, 0);
-        mv.visitFieldInsn(GETFIELD, "pkg/Insns", "l", "J");
-        mv.visitVarInsn(ALOAD, 0);
-        mv.visitFieldInsn(GETFIELD, "pkg/Insns", "l", "J");
-        mv.visitVarInsn(ALOAD, 0);
-        mv.visitFieldInsn(GETFIELD, "pkg/Insns", "l", "J");
-        mv.visitLdcInsn(new Long(-1L));
-        mv.visitInsn(LXOR);
-        mv.visitInsn(LOR);
-        mv.visitInsn(LAND);
-        mv.visitVarInsn(ALOAD, 0);
-        mv.visitFieldInsn(GETFIELD, "pkg/Insns", "l", "J");
-        mv.visitInsn(LXOR);
-        mv.visitFieldInsn(PUTFIELD, "pkg/Insns", "l", "J");
-        mv.visitIincInsn(18, 1);
-        mv.visitJumpInsn(GOTO, l10);
-        mv.visitLabel(l11);
-        mv.visitVarInsn(ALOAD, 0);
-        mv.visitVarInsn(ALOAD, 0);
-        mv.visitFieldInsn(GETFIELD, "pkg/Insns", "i", "I");
-        mv.visitInsn(I2B);
-        mv.visitFieldInsn(PUTFIELD, "pkg/Insns", "b", "B");
-        mv.visitVarInsn(ALOAD, 0);
-        mv.visitVarInsn(ALOAD, 0);
-        mv.visitFieldInsn(GETFIELD, "pkg/Insns", "i", "I");
-        mv.visitInsn(I2C);
-        mv.visitFieldInsn(PUTFIELD, "pkg/Insns", "c", "C");
-        mv.visitVarInsn(ALOAD, 0);
-        mv.visitFieldInsn(GETFIELD, "pkg/Insns", "i", "I");
-        mv.visitInsn(I2S);
-        mv.visitFieldInsn(PUTSTATIC, "pkg/Insns", "s", "S");
-        mv.visitVarInsn(ALOAD, 0);
-        mv.visitVarInsn(ALOAD, 0);
-        mv.visitFieldInsn(GETFIELD, "pkg/Insns", "l", "J");
-        mv.visitInsn(L2I);
-        mv.visitVarInsn(FLOAD, 13);
-        mv.visitInsn(F2I);
-        mv.visitInsn(IADD);
-        mv.visitVarInsn(DLOAD, 14);
-        mv.visitInsn(D2I);
-        mv.visitInsn(IADD);
-        mv.visitFieldInsn(PUTFIELD, "pkg/Insns", "i", "I");
-        mv.visitVarInsn(ALOAD, 0);
-        mv.visitVarInsn(ALOAD, 0);
-        mv.visitFieldInsn(GETFIELD, "pkg/Insns", "i", "I");
-        mv.visitInsn(I2L);
-        mv.visitVarInsn(FLOAD, 13);
-        mv.visitInsn(F2L);
-        mv.visitInsn(LADD);
-        mv.visitVarInsn(DLOAD, 14);
-        mv.visitInsn(D2L);
-        mv.visitInsn(LADD);
-        mv.visitFieldInsn(PUTFIELD, "pkg/Insns", "l", "J");
-        mv.visitVarInsn(ALOAD, 0);
-        mv.visitFieldInsn(GETFIELD, "pkg/Insns", "i", "I");
-        mv.visitInsn(I2F);
-        mv.visitVarInsn(ALOAD, 0);
-        mv.visitFieldInsn(GETFIELD, "pkg/Insns", "l", "J");
-        mv.visitInsn(L2F);
-        mv.visitInsn(FADD);
-        mv.visitVarInsn(DLOAD, 14);
-        mv.visitInsn(D2F);
-        mv.visitInsn(FADD);
-        mv.visitVarInsn(FSTORE, 13);
-        mv.visitVarInsn(ALOAD, 0);
-        mv.visitFieldInsn(GETFIELD, "pkg/Insns", "i", "I");
-        mv.visitInsn(I2D);
-        mv.visitVarInsn(ALOAD, 0);
-        mv.visitFieldInsn(GETFIELD, "pkg/Insns", "l", "J");
-        mv.visitInsn(L2D);
-        mv.visitInsn(DADD);
-        mv.visitVarInsn(FLOAD, 13);
-        mv.visitInsn(F2D);
-        mv.visitInsn(DADD);
-        mv.visitVarInsn(DSTORE, 14);
-        mv.visitVarInsn(ALOAD, 0);
-        mv.visitFieldInsn(GETFIELD, "pkg/Insns", "i", "I");
-        Label l12 = new Label();
-        mv.visitJumpInsn(IFNE, l12);
-        mv.visitVarInsn(ALOAD, 0);
-        mv.visitFieldInsn(GETFIELD, "pkg/Insns", "i", "I");
-        mv.visitJumpInsn(IFEQ, l12);
-        mv.visitVarInsn(ALOAD, 0);
-        mv.visitFieldInsn(GETFIELD, "pkg/Insns", "i", "I");
-        mv.visitJumpInsn(IFLE, l12);
-        mv.visitVarInsn(ALOAD, 0);
-        mv.visitFieldInsn(GETFIELD, "pkg/Insns", "i", "I");
-        mv.visitJumpInsn(IFGE, l12);
-        mv.visitVarInsn(ALOAD, 0);
-        mv.visitFieldInsn(GETFIELD, "pkg/Insns", "i", "I");
-        mv.visitJumpInsn(IFLT, l12);
-        mv.visitVarInsn(ALOAD, 0);
-        mv.visitFieldInsn(GETFIELD, "pkg/Insns", "i", "I");
-        mv.visitJumpInsn(IFGT, l12);
-        mv.visitVarInsn(ALOAD, 0);
-        mv.visitInsn(ICONST_1);
-        mv.visitFieldInsn(PUTFIELD, "pkg/Insns", "i", "I");
-        mv.visitLabel(l12);
-        mv.visitVarInsn(ALOAD, 0);
-        mv.visitFieldInsn(GETFIELD, "pkg/Insns", "i", "I");
-        mv.visitInsn(ICONST_1);
-        Label l13 = new Label();
-        mv.visitJumpInsn(IF_ICMPNE, l13);
-        mv.visitVarInsn(ALOAD, 0);
-        mv.visitFieldInsn(GETFIELD, "pkg/Insns", "i", "I");
-        mv.visitInsn(ICONST_1);
-        mv.visitJumpInsn(IF_ICMPEQ, l13);
-        mv.visitVarInsn(ALOAD, 0);
-        mv.visitFieldInsn(GETFIELD, "pkg/Insns", "i", "I");
-        mv.visitInsn(ICONST_1);
-        mv.visitJumpInsn(IF_ICMPLE, l13);
-        mv.visitVarInsn(ALOAD, 0);
-        mv.visitFieldInsn(GETFIELD, "pkg/Insns", "i", "I");
-        mv.visitInsn(ICONST_1);
-        mv.visitJumpInsn(IF_ICMPGE, l13);
-        mv.visitVarInsn(ALOAD, 0);
-        mv.visitFieldInsn(GETFIELD, "pkg/Insns", "i", "I");
-        mv.visitInsn(ICONST_1);
-        mv.visitJumpInsn(IF_ICMPLT, l13);
-        mv.visitVarInsn(ALOAD, 0);
-        mv.visitFieldInsn(GETFIELD, "pkg/Insns", "i", "I");
-        mv.visitInsn(ICONST_1);
-        mv.visitJumpInsn(IF_ICMPGT, l13);
-        mv.visitVarInsn(ALOAD, 0);
-        mv.visitInsn(ICONST_1);
-        mv.visitFieldInsn(PUTFIELD, "pkg/Insns", "i", "I");
-        mv.visitLabel(l13);
-        mv.visitVarInsn(ALOAD, 0);
-        mv.visitFieldInsn(GETFIELD, "pkg/Insns", "l", "J");
-        mv.visitInsn(LCONST_1);
-        mv.visitInsn(LCMP);
-        Label l14 = new Label();
-        mv.visitJumpInsn(IFNE, l14);
-        mv.visitVarInsn(FLOAD, 13);
-        mv.visitInsn(FCONST_1);
-        mv.visitInsn(FCMPL);
-        mv.visitJumpInsn(IFNE, l14);
-        mv.visitVarInsn(FLOAD, 13);
-        mv.visitInsn(FCONST_1);
-        mv.visitInsn(FCMPL);
-        mv.visitJumpInsn(IFLE, l14);
-        mv.visitVarInsn(FLOAD, 13);
-        mv.visitInsn(FCONST_1);
-        mv.visitInsn(FCMPG);
-        mv.visitJumpInsn(IFGE, l14);
-        mv.visitVarInsn(DLOAD, 14);
-        mv.visitInsn(DCONST_1);
-        mv.visitInsn(DCMPL);
-        mv.visitJumpInsn(IFNE, l14);
-        mv.visitVarInsn(DLOAD, 14);
-        mv.visitInsn(DCONST_1);
-        mv.visitInsn(DCMPL);
-        mv.visitJumpInsn(IFLE, l14);
-        mv.visitVarInsn(DLOAD, 14);
-        mv.visitInsn(DCONST_1);
-        mv.visitInsn(DCMPG);
-        mv.visitJumpInsn(IFGE, l14);
-        mv.visitLabel(l14);
-        mv.visitVarInsn(ALOAD, 0);
-        mv.visitFieldInsn(GETFIELD, "pkg/Insns", "str", "Ljava/lang/String;");
-        mv.visitLdcInsn("str");
-        Label l15 = new Label();
-        mv.visitJumpInsn(IF_ACMPNE, l15);
-        mv.visitVarInsn(ALOAD, 0);
-        mv.visitFieldInsn(GETFIELD, "pkg/Insns", "str", "Ljava/lang/String;");
-        mv.visitLdcInsn("str");
-        mv.visitJumpInsn(IF_ACMPEQ, l15);
-        mv.visitVarInsn(ALOAD, 0);
-        mv.visitLdcInsn("\n\r\u0009\"\\");
-        mv.visitFieldInsn(PUTFIELD, "pkg/Insns", "str", "Ljava/lang/String;");
-        mv.visitLabel(l15);
-        mv.visitVarInsn(ALOAD, 0);
-        mv.visitFieldInsn(GETFIELD, "pkg/Insns", "str", "Ljava/lang/String;");
-        Label l16 = new Label();
-        mv.visitJumpInsn(IFNONNULL, l16);
-        mv.visitVarInsn(ALOAD, 0);
-        mv.visitFieldInsn(GETFIELD, "pkg/Insns", "str", "Ljava/lang/String;");
-        mv.visitJumpInsn(IFNULL, l16);
-        mv.visitVarInsn(ALOAD, 0);
-        mv.visitLdcInsn("1");
-        mv.visitFieldInsn(PUTFIELD, "pkg/Insns", "str", "Ljava/lang/String;");
-        mv.visitLabel(l16);
-        mv.visitVarInsn(ALOAD, 0);
-        mv.visitFieldInsn(GETFIELD, "pkg/Insns", "i", "I");
-        Label l17 = new Label();
-        Label l18 = new Label();
-        Label l19 = new Label();
-        Label l20 = new Label();
-        mv.visitInsn(NOP);
-        mv.visitTableSwitchInsn(0, 2, l20, new Label[] { l17, l18, l19 });
-        mv.visitLabel(l17);
-        mv.visitVarInsn(ALOAD, 0);
-        mv.visitInsn(ICONST_1);
-        mv.visitFieldInsn(PUTFIELD, "pkg/Insns", "i", "I");
-        mv.visitJumpInsn(GOTO, l20);
-        mv.visitLabel(l18);
-        mv.visitVarInsn(ALOAD, 0);
-        mv.visitInsn(ICONST_2);
-        mv.visitFieldInsn(PUTFIELD, "pkg/Insns", "i", "I");
-        mv.visitJumpInsn(GOTO, l20);
-        mv.visitLabel(l19);
-        mv.visitVarInsn(ALOAD, 0);
-        mv.visitInsn(ICONST_3);
-        mv.visitFieldInsn(PUTFIELD, "pkg/Insns", "i", "I");
-        mv.visitJumpInsn(GOTO, l20);
-        mv.visitLabel(l20);
-        mv.visitVarInsn(ALOAD, 0);
-        mv.visitFieldInsn(GETFIELD, "pkg/Insns", "i", "I");
-        Label l21 = new Label();
-        Label l22 = new Label();
-        Label l23 = new Label();
-        mv.visitLookupSwitchInsn(l0,
-                new int[] { 0, 10000, 20000 },
-                new Label[] { l21, l22, l23 });
-        mv.visitLabel(l21);
-        mv.visitVarInsn(ALOAD, 0);
-        mv.visitInsn(ICONST_1);
-        mv.visitFieldInsn(PUTFIELD, "pkg/Insns", "i", "I");
-        mv.visitJumpInsn(GOTO, l0);
-        mv.visitLabel(l22);
-        mv.visitVarInsn(ALOAD, 0);
-        mv.visitInsn(ICONST_2);
-        mv.visitFieldInsn(PUTFIELD, "pkg/Insns", "i", "I");
-        mv.visitJumpInsn(GOTO, l0);
-        mv.visitLabel(l23);
-        mv.visitVarInsn(ALOAD, 0);
-        mv.visitInsn(ICONST_2);
-        mv.visitFieldInsn(PUTFIELD, "pkg/Insns", "i", "I");
-        mv.visitJumpInsn(GOTO, l0);
-        mv.visitLabel(l0);
-        mv.visitTypeInsn(NEW, "java/lang/RuntimeException");
-        mv.visitInsn(DUP);
-        mv.visitMethodInsn(INVOKESPECIAL,
-                "java/lang/RuntimeException",
-                "<init>",
-                "()V");
-        mv.visitInsn(ATHROW);
-        mv.visitLabel(l2);
-        mv.visitVarInsn(ASTORE, 19);
-        mv.visitLabel(l1);
-        mv.visitInsn(ACONST_NULL);
-        mv.visitVarInsn(ASTORE, 20);
-        mv.visitVarInsn(ALOAD, 20);
-        mv.visitInsn(ICONST_1);
-        mv.visitVarInsn(ALOAD, 0);
-        mv.visitFieldInsn(GETFIELD, "pkg/Insns", "b", "B");
-        mv.visitVarInsn(ALOAD, 0);
-        mv.visitFieldInsn(GETFIELD, "pkg/Insns", "c", "C");
-        mv.visitFieldInsn(GETSTATIC, "pkg/Insns", "s", "S");
-        mv.visitVarInsn(ALOAD, 0);
-        mv.visitFieldInsn(GETFIELD, "pkg/Insns", "i", "I");
-        mv.visitVarInsn(FLOAD, 13);
-        mv.visitVarInsn(ALOAD, 0);
-        mv.visitFieldInsn(GETFIELD, "pkg/Insns", "l", "J");
-        mv.visitVarInsn(DLOAD, 14);
-        mv.visitVarInsn(ALOAD, 11);
-        mv.visitMethodInsn(INVOKEINTERFACE,
-                "Interface",
-                "m",
-                "(ZBCSIFJDLjava/lang/Object;)Ljava/lang/Object;");
-        mv.visitInsn(POP);
-        mv.visitVarInsn(ALOAD, 19);
-        mv.visitInsn(ATHROW);
-        mv.visitLabel(l3);
-        mv.visitVarInsn(ASTORE, 18);
-        mv.visitVarInsn(ALOAD, 12);
-        mv.visitTypeInsn(INSTANCEOF, "java/lang/String");
-        Label l24 = new Label();
-        mv.visitJumpInsn(IFEQ, l24);
-        mv.visitVarInsn(ALOAD, 0);
-        mv.visitInsn(DUP);
-        mv.visitVarInsn(ASTORE, 19);
-        mv.visitInsn(MONITORENTER);
-        mv.visitLabel(l4);
-        mv.visitVarInsn(ALOAD, 0);
-        mv.visitVarInsn(ALOAD, 12);
-        mv.visitTypeInsn(CHECKCAST, "java/lang/String");
-        mv.visitFieldInsn(PUTFIELD, "pkg/Insns", "str", "Ljava/lang/String;");
-        mv.visitVarInsn(ALOAD, 19);
-        mv.visitInsn(MONITOREXIT);
-        mv.visitLabel(l5);
-        mv.visitJumpInsn(GOTO, l24);
-        mv.visitLabel(l6);
-        mv.visitVarInsn(ASTORE, 21);
-        mv.visitVarInsn(ALOAD, 19);
-        mv.visitInsn(MONITOREXIT);
-        mv.visitLabel(l7);
-        mv.visitVarInsn(ALOAD, 21);
-        mv.visitInsn(ATHROW);
-        mv.visitLabel(l24);
+        // multi dimensional arrays
         mv.visitInsn(ICONST_1);
         mv.visitTypeInsn(ANEWARRAY, "[I");
-        mv.visitInsn(POP);
         mv.visitInsn(ICONST_1);
         mv.visitInsn(ICONST_2);
         mv.visitInsn(ICONST_3);
         mv.visitMultiANewArrayInsn("[[[I", 3);
+        // array length
+        mv.visitInsn(ARRAYLENGTH);
+        // end method
+        mv.visitInsn(RETURN);
+        mv.visitMaxs(0, 0);
+        mv.visitEnd();
+    }
+
+    private void stackInsns(final ClassWriter cw) {
+        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC,
+                "stackInsns",
+                "()V",
+                null,
+                null);
+        // pop
         mv.visitInsn(ICONST_0);
+        mv.visitInsn(POP);
+        // pop2 (two variants)
+        mv.visitInsn(ICONST_0);
+        mv.visitInsn(ICONST_0);
+        mv.visitInsn(POP2);
+        mv.visitInsn(LCONST_0);
+        mv.visitInsn(POP2);
+        // dup
+        mv.visitInsn(ICONST_0);
+        mv.visitInsn(DUP);
+        // dup_x1
+        mv.visitInsn(ICONST_0);
+        mv.visitInsn(ICONST_0);
+        mv.visitInsn(DUP_X1);
+        // dup_x2 (two variants)
+        mv.visitInsn(ICONST_0);
+        mv.visitInsn(ICONST_0);
+        mv.visitInsn(ICONST_0);
+        mv.visitInsn(DUP_X2);
+        mv.visitInsn(LCONST_0);
+        mv.visitInsn(ICONST_0);
+        mv.visitInsn(DUP_X2);
+        // dup2 (two variants)
+        mv.visitInsn(ICONST_0);
+        mv.visitInsn(ICONST_0);
+        mv.visitInsn(DUP2);
+        mv.visitInsn(LCONST_0);
+        mv.visitInsn(DUP2);
+        // dup2_x1 (two variants)
+        mv.visitInsn(ICONST_0);
+        mv.visitInsn(ICONST_0);
+        mv.visitInsn(ICONST_0);
+        mv.visitInsn(DUP2_X1);
+        mv.visitInsn(ICONST_0);
+        mv.visitInsn(LCONST_0);
+        mv.visitInsn(DUP2_X1);
+        // dup2_x2 (four variants)
+        mv.visitInsn(ICONST_0);
+        mv.visitInsn(ICONST_0);
+        mv.visitInsn(ICONST_0);
+        mv.visitInsn(ICONST_0);
+        mv.visitInsn(DUP2_X2);
+        mv.visitInsn(LCONST_0);
+        mv.visitInsn(ICONST_0);
+        mv.visitInsn(ICONST_0);
+        mv.visitInsn(DUP2_X2);
+        mv.visitInsn(ICONST_0);
+        mv.visitInsn(ICONST_0);
+        mv.visitInsn(LCONST_0);
+        mv.visitInsn(DUP2_X2);
+        mv.visitInsn(LCONST_0);
+        mv.visitInsn(LCONST_0);
+        mv.visitInsn(DUP2_X2);
+        // swap
+        mv.visitInsn(ICONST_0);
+        mv.visitInsn(ICONST_1);
+        mv.visitInsn(SWAP);
+        // end method
+        mv.visitInsn(RETURN);
+        mv.visitMaxs(0, 0);
+        mv.visitEnd();
+    }
+
+    private void mathInsns(final ClassWriter cw) {
+        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC,
+                "mathInsns",
+                "(IJFD)V",
+                null,
+                null);
+        // int math insns
+        for (int i = 0; i < 12; ++i) {
+            mv.visitVarInsn(ILOAD, 1);
+        }
+        mv.visitInsn(IADD);
+        mv.visitInsn(ISUB);
+        mv.visitInsn(IMUL);
+        mv.visitInsn(IDIV);
+        mv.visitInsn(IREM);
+        mv.visitInsn(INEG);
+        mv.visitInsn(ISHL);
+        mv.visitInsn(ISHR);
+        mv.visitInsn(IUSHR);
+        mv.visitInsn(IAND);
+        mv.visitInsn(IOR);
+        mv.visitInsn(IXOR);
+        // long math insns
+        for (int i = 0; i < 9; ++i) {
+            mv.visitVarInsn(LLOAD, 2);
+        }
+        mv.visitInsn(LADD);
+        mv.visitInsn(LSUB);
+        mv.visitInsn(LMUL);
+        mv.visitInsn(LDIV);
+        mv.visitInsn(LREM);
+        mv.visitInsn(LNEG);
+        mv.visitVarInsn(ILOAD, 1);
+        mv.visitInsn(LSHL);
+        mv.visitVarInsn(ILOAD, 1);
+        mv.visitInsn(LSHR);
+        mv.visitVarInsn(ILOAD, 1);
+        mv.visitInsn(LUSHR);
+        mv.visitInsn(LAND);
+        mv.visitInsn(LOR);
+        mv.visitInsn(LXOR);
+        // float math insns
+        for (int i = 0; i < 6; ++i) {
+            mv.visitVarInsn(FLOAD, 4);
+        }
+        mv.visitInsn(FADD);
+        mv.visitInsn(FSUB);
+        mv.visitInsn(FMUL);
+        mv.visitInsn(FDIV);
+        mv.visitInsn(FREM);
+        mv.visitInsn(FNEG);
+        // double math insns
+        for (int i = 0; i < 6; ++i) {
+            mv.visitVarInsn(DLOAD, 5);
+        }
+        mv.visitInsn(DADD);
+        mv.visitInsn(DSUB);
+        mv.visitInsn(DMUL);
+        mv.visitInsn(DDIV);
+        mv.visitInsn(DREM);
+        mv.visitInsn(DNEG);
+        // end method
+        mv.visitInsn(RETURN);
+        mv.visitMaxs(0, 0);
+        mv.visitEnd();
+    }
+
+    private void castInsns(final ClassWriter cw) {
+        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC,
+                "castInsns",
+                "(IJFD)V",
+                null,
+                null);
+        // I2x
+        mv.visitVarInsn(ILOAD, 1);
+        mv.visitInsn(I2L);
+        mv.visitVarInsn(LSTORE, 2);
+        mv.visitVarInsn(ILOAD, 1);
+        mv.visitInsn(I2F);
+        mv.visitVarInsn(FSTORE, 4);
+        mv.visitVarInsn(ILOAD, 1);
+        mv.visitInsn(I2D);
+        mv.visitVarInsn(DSTORE, 5);
+        // L2x
+        mv.visitVarInsn(LLOAD, 2);
+        mv.visitInsn(L2I);
+        mv.visitVarInsn(ISTORE, 1);
+        mv.visitVarInsn(LLOAD, 2);
+        mv.visitInsn(L2F);
+        mv.visitVarInsn(FSTORE, 4);
+        mv.visitVarInsn(LLOAD, 2);
+        mv.visitInsn(L2D);
+        mv.visitVarInsn(DSTORE, 5);
+        // F2x
+        mv.visitVarInsn(FLOAD, 4);
+        mv.visitInsn(F2I);
+        mv.visitVarInsn(ISTORE, 1);
+        mv.visitVarInsn(FLOAD, 4);
+        mv.visitInsn(F2L);
+        mv.visitVarInsn(LSTORE, 2);
+        mv.visitVarInsn(FLOAD, 4);
+        mv.visitInsn(F2D);
+        mv.visitVarInsn(DSTORE, 5);
+        // D2x
+        mv.visitVarInsn(DLOAD, 5);
+        mv.visitInsn(D2I);
+        mv.visitVarInsn(ISTORE, 1);
+        mv.visitVarInsn(DLOAD, 5);
+        mv.visitInsn(D2L);
+        mv.visitVarInsn(LSTORE, 2);
+        mv.visitVarInsn(DLOAD, 5);
+        mv.visitInsn(D2F);
+        mv.visitVarInsn(FSTORE, 4);
+        // I2B
+        mv.visitVarInsn(ALOAD, 0);
+        mv.visitVarInsn(ILOAD, 1);
+        mv.visitInsn(I2B);
+        mv.visitFieldInsn(PUTFIELD, "pkg/Insns", "b", "B");
+        // I2C
+        mv.visitVarInsn(ALOAD, 0);
+        mv.visitVarInsn(ILOAD, 1);
+        mv.visitInsn(I2C);
+        mv.visitFieldInsn(PUTFIELD, "pkg/Insns", "c", "C");
+        // I2S
+        mv.visitVarInsn(ILOAD, 1);
+        mv.visitInsn(I2S);
+        mv.visitFieldInsn(PUTSTATIC, "pkg/Insns", "s", "S");
+        // checkcast
+        mv.visitInsn(ACONST_NULL);
+        mv.visitTypeInsn(CHECKCAST, "java/lang/String");
         mv.visitInsn(ACONST_NULL);
         mv.visitTypeInsn(CHECKCAST, "[[I");
-        mv.visitInsn(AASTORE);
+        // instanceof
         mv.visitInsn(ACONST_NULL);
-        mv.visitInsn(ARETURN);
-        mv.visitMaxs(12, 22);
+        mv.visitTypeInsn(INSTANCEOF, "java/lang/String");
+        // end method
+        mv.visitInsn(RETURN);
+        mv.visitMaxs(0, 0);
         mv.visitEnd();
+    }
 
-        mv = cw.visitMethod(ACC_PUBLIC + ACC_VARARGS + ACC_STRICT,
-                "n",
+    private void jumpInsns(final ClassWriter cw) {
+        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC,
+                "jumpInsns",
+                "(IJFD)V",
+                null,
+                null);
+        Label l0 = new Label();
+        // ifxx
+        mv.visitVarInsn(ILOAD, 1);
+        mv.visitJumpInsn(IFNE, l0);
+        mv.visitVarInsn(ILOAD, 1);
+        mv.visitJumpInsn(IFEQ, l0);
+        mv.visitVarInsn(ILOAD, 1);
+        mv.visitJumpInsn(IFLE, l0);
+        mv.visitVarInsn(ILOAD, 1);
+        mv.visitJumpInsn(IFGE, l0);
+        mv.visitVarInsn(ILOAD, 1);
+        mv.visitJumpInsn(IFLT, l0);
+        mv.visitVarInsn(ILOAD, 1);
+        mv.visitJumpInsn(IFGT, l0);
+        // ificmpxx
+        mv.visitVarInsn(ILOAD, 1);
+        mv.visitVarInsn(ILOAD, 1);
+        mv.visitJumpInsn(IF_ICMPNE, l0);
+        mv.visitVarInsn(ILOAD, 1);
+        mv.visitVarInsn(ILOAD, 1);
+        mv.visitJumpInsn(IF_ICMPEQ, l0);
+        mv.visitVarInsn(ILOAD, 1);
+        mv.visitVarInsn(ILOAD, 1);
+        mv.visitJumpInsn(IF_ICMPLE, l0);
+        mv.visitVarInsn(ILOAD, 1);
+        mv.visitVarInsn(ILOAD, 1);
+        mv.visitJumpInsn(IF_ICMPGE, l0);
+        mv.visitVarInsn(ILOAD, 1);
+        mv.visitVarInsn(ILOAD, 1);
+        mv.visitJumpInsn(IF_ICMPLT, l0);
+        mv.visitVarInsn(ILOAD, 1);
+        mv.visitVarInsn(ILOAD, 1);
+        mv.visitJumpInsn(IF_ICMPGT, l0);
+        // lcmp
+        mv.visitVarInsn(LLOAD, 2);
+        mv.visitVarInsn(LLOAD, 2);
+        mv.visitInsn(LCMP);
+        mv.visitJumpInsn(IFNE, l0);
+        // fcmpx
+        mv.visitVarInsn(FLOAD, 4);
+        mv.visitVarInsn(FLOAD, 4);
+        mv.visitInsn(FCMPL);
+        mv.visitJumpInsn(IFNE, l0);
+        mv.visitVarInsn(FLOAD, 4);
+        mv.visitVarInsn(FLOAD, 4);
+        mv.visitInsn(FCMPG);
+        mv.visitJumpInsn(IFNE, l0);
+        // dcmpx
+        mv.visitVarInsn(DLOAD, 5);
+        mv.visitVarInsn(DLOAD, 5);
+        mv.visitInsn(DCMPL);
+        mv.visitJumpInsn(IFNE, l0);
+        mv.visitVarInsn(DLOAD, 5);
+        mv.visitVarInsn(DLOAD, 5);
+        mv.visitInsn(DCMPG);
+        mv.visitJumpInsn(IFNE, l0);
+        // ifacmp
+        mv.visitVarInsn(ALOAD, 0);
+        mv.visitVarInsn(ALOAD, 0);
+        mv.visitJumpInsn(IF_ACMPNE, l0);
+        mv.visitVarInsn(ALOAD, 0);
+        mv.visitVarInsn(ALOAD, 0);
+        mv.visitJumpInsn(IF_ACMPEQ, l0);
+        // ifnull
+        mv.visitVarInsn(ALOAD, 0);
+        mv.visitJumpInsn(IFNULL, l0);
+        mv.visitInsn(ICONST_0);
+        mv.visitVarInsn(ISTORE, 7);
+        mv.visitVarInsn(ALOAD, 0);
+        mv.visitJumpInsn(IFNONNULL, l0);
+        mv.visitInsn(ICONST_0);
+        mv.visitVarInsn(ISTORE, 7);
+        mv.visitVarInsn(ALOAD, 0);
+        // tableswitch
+        Label l1 = new Label();
+        Label l2 = new Label();
+        Label l3 = new Label();
+        mv.visitVarInsn(ILOAD, 1);
+        mv.visitTableSwitchInsn(0, 2, l3, new Label[] { l1, l2, l3 });
+        mv.visitLabel(l1);
+        mv.visitInsn(ICONST_1);
+        mv.visitVarInsn(ISTORE, 7);
+        mv.visitJumpInsn(GOTO, l3);
+        mv.visitLabel(l2);
+        mv.visitInsn(ICONST_2);
+        mv.visitVarInsn(ISTORE, 7);
+        mv.visitJumpInsn(GOTO, l3);
+        mv.visitLabel(l3);
+        mv.visitVarInsn(ILOAD, 7);
+        // lookupswitch
+        Label l4 = new Label();
+        Label l5 = new Label();
+        Label l6 = new Label();
+        mv.visitVarInsn(ILOAD, 1);
+        mv.visitLookupSwitchInsn(l6, new int[] { 0, 1, 2 }, new Label[] {
+            l4,
+            l5,
+            l6 });
+        mv.visitLabel(l4);
+        mv.visitInsn(ICONST_1);
+        mv.visitVarInsn(ISTORE, 7);
+        mv.visitJumpInsn(GOTO, l6);
+        mv.visitLabel(l5);
+        mv.visitInsn(ICONST_2);
+        mv.visitVarInsn(ISTORE, 7);
+        mv.visitJumpInsn(GOTO, l6);
+        mv.visitLabel(l6);
+        mv.visitVarInsn(ILOAD, 7);
+        // throw
+        mv.visitInsn(ACONST_NULL);
+        mv.visitInsn(ATHROW);
+        // misc instructions to cover code in MethodWriter.resizeInsns
+        mv.visitLabel(l0);
+        mv.visitInsn(ICONST_1);
+        mv.visitInsn(ICONST_2);
+        mv.visitMultiANewArrayInsn("[[I", 2);
+        mv.visitVarInsn(ALOAD, 0);
+        mv.visitMethodInsn(INVOKEINTERFACE, "java/util/List", "size", "()V");
+        // end method
+        mv.visitInsn(RETURN);
+        mv.visitMaxs(0, 0);
+        mv.visitEnd();
+    }
+
+    private void returnInsns(final ClassWriter cw) {
+        MethodVisitor mv;
+        mv = cw.visitMethod(ACC_STATIC, "ireturnInsn", "()I", null, null);
+        mv.visitCode();
+        mv.visitInsn(ICONST_0);
+        mv.visitInsn(IRETURN);
+        mv.visitMaxs(0, 0);
+        mv.visitEnd();
+        mv = cw.visitMethod(ACC_PRIVATE, "lreturnInsn", "()J", null, null);
+        mv.visitCode();
+        mv.visitInsn(LCONST_0);
+        mv.visitInsn(LRETURN);
+        mv.visitMaxs(0, 0);
+        mv.visitEnd();
+        mv = cw.visitMethod(0, "freturnInsn", "()F", null, null);
+        mv.visitCode();
+        mv.visitInsn(FCONST_0);
+        mv.visitInsn(FRETURN);
+        mv.visitMaxs(0, 0);
+        mv.visitEnd();
+        mv = cw.visitMethod(0, "dreturnInsn", "()D", null, null);
+        mv.visitCode();
+        mv.visitInsn(DCONST_0);
+        mv.visitInsn(DRETURN);
+        mv.visitMaxs(0, 0);
+        mv.visitEnd();
+    }
+
+    private void fieldInsns(final ClassWriter cw) {
+        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC,
+                "fieldInsns",
+                "()V",
+                null,
+                null);
+        mv.visitFieldInsn(GETSTATIC, "pkg/Insns", "s", "S");
+        mv.visitFieldInsn(PUTSTATIC, "pkg/Insns", "s", "S");
+        mv.visitVarInsn(ALOAD, 0);
+        mv.visitVarInsn(ALOAD, 0);
+        mv.visitFieldInsn(GETFIELD, "pkg/Insns", "i", "I");
+        mv.visitFieldInsn(PUTFIELD, "pkg/Insns", "i", "I");
+        mv.visitVarInsn(ALOAD, 0);
+        mv.visitVarInsn(ALOAD, 0);
+        mv.visitFieldInsn(GETFIELD, "pkg/Insns", "l", "J");
+        mv.visitFieldInsn(PUTFIELD, "pkg/Insns", "l", "J");
+        mv.visitInsn(RETURN);
+        mv.visitMaxs(0, 0);
+        mv.visitEnd();
+    }
+
+    private void methodInsns(final ClassWriter cw) {
+        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC,
+                "methodInsns",
+                "()V",
+                null,
+                null);
+        // invokstatic
+        mv.visitMethodInsn(INVOKESTATIC, "pkg/Insns", "ireturn", "()I");
+        // invokespecial
+        mv.visitVarInsn(ALOAD, 0);
+        mv.visitMethodInsn(INVOKESPECIAL, "pkg/Insns", "lreturn", "()J");
+        // invokevirtual
+        mv.visitVarInsn(ALOAD, 0);
+        mv.visitMethodInsn(INVOKEVIRTUAL, "pkg/Insns", "freturn", "()F");
+        // invokeinterface
+        mv.visitVarInsn(ALOAD, 0);
+        mv.visitMethodInsn(INVOKEINTERFACE, "java/util/List", "size", "()I");
+        mv.visitInsn(RETURN);
+        mv.visitMaxs(0, 0);
+        mv.visitEnd();
+    }
+
+    private void monitorInsns(final ClassWriter cw) {
+        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC,
+                "monitorInsns",
+                "()V",
+                null,
+                null);
+        mv.visitVarInsn(ALOAD, 0);
+        mv.visitInsn(MONITORENTER);
+        mv.visitVarInsn(ALOAD, 0);
+        mv.visitInsn(MONITOREXIT);
+        mv.visitInsn(RETURN);
+        mv.visitMaxs(0, 0);
+        mv.visitEnd();
+    }
+
+    private void varargMethod(final ClassWriter cw) {
+        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC + ACC_VARARGS + ACC_STRICT,
+                "varargMethod",
                 "([Ljava/lang/Object;)V",
                 "([Ljava/lang/Object;)V^TF;",
                 new String[] { "java/lang/Exception" });
         mv.visitCode();
         mv.visitInsn(RETURN);
-        mv.visitMaxs(0, 2);
+        mv.visitMaxs(0, 0);
         mv.visitEnd();
+    }
 
-        mv = cw.visitMethod(ACC_PUBLIC,
+    private void bridgeMethod(final ClassWriter cw) {
+        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC,
                 "get",
                 "(I)Ljava/lang/String;",
                 null,
@@ -1035,7 +760,7 @@ public class Insns extends Generator {
                 "(I)Ljava/lang/Object;");
         mv.visitTypeInsn(CHECKCAST, "java/lang/String");
         mv.visitInsn(ARETURN);
-        mv.visitMaxs(2, 2);
+        mv.visitMaxs(0, 0);
         mv.visitEnd();
 
         mv = cw.visitMethod(ACC_PUBLIC + ACC_BRIDGE + ACC_SYNTHETIC,
@@ -1046,24 +771,35 @@ public class Insns extends Generator {
         mv.visitCode();
         mv.visitVarInsn(ALOAD, 0);
         mv.visitVarInsn(ILOAD, 1);
-        mv.visitMethodInsn(INVOKEVIRTUAL, "pkg/Insns", "get", "(I)Ljava/lang/String;");
+        mv.visitMethodInsn(INVOKEVIRTUAL,
+                "pkg/Insns",
+                "get",
+                "(I)Ljava/lang/String;");
         mv.visitInsn(ARETURN);
-        mv.visitMaxs(2, 2);
+        mv.visitMaxs(0, 0);
         mv.visitEnd();
+    }
 
-        mv = cw.visitMethod(ACC_PRIVATE + ACC_NATIVE, "o", "()V", null, null);
+    private void nativeMethod(final ClassWriter cw) {
+        MethodVisitor mv = cw.visitMethod(ACC_PRIVATE + ACC_NATIVE,
+                "nativeMethod",
+                "()V",
+                null,
+                null);
         mv.visitEnd();
+    }
 
-        mv = cw.visitMethod(ACC_STATIC, "<clinit>", "()V", null, null);
+    private void clinitMethod(final ClassWriter cw) {
+        MethodVisitor mv = cw.visitMethod(ACC_STATIC,
+                "<clinit>",
+                "()V",
+                null,
+                null);
         mv.visitCode();
         mv.visitInsn(ICONST_1);
         mv.visitFieldInsn(PUTSTATIC, "pkg/Insns", "s", "S");
         mv.visitInsn(RETURN);
-        mv.visitMaxs(1, 0);
+        mv.visitMaxs(0, 0);
         mv.visitEnd();
-
-        cw.visitEnd();
-
-        return cw.toByteArray();
     }
 }

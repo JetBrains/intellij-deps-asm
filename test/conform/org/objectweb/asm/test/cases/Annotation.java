@@ -33,24 +33,36 @@ import java.io.IOException;
 
 import org.objectweb.asm.AnnotationVisitor;
 import org.objectweb.asm.ClassWriter;
+import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Type;
 
 /**
- * Generates an annotation class with values of all types.
+ * Generates an annotation class with values of all types and a class using it.
  * 
  * @author Eric Bruneton
  */
 public class Annotation extends Generator {
 
+    final static int M = ACC_PUBLIC + ACC_ABSTRACT;
+
+    final static String STRING = "Ljava/lang/String;";
+
+    final static String CLASS = "Ljava/lang/Class;";
+
+    final static String DOC = "Ljava/lang/annotation/Documented;";
+
+    final static String DEPRECATED = "Ljava/lang/Deprecated;";
+
     public void generate(final String dir) throws IOException {
-        generate(dir, "pkg/Annotation.class", dump());
+        generate(dir, "pkg/Annotation.class", dumpAnnotation());
+        generate(dir, "pkg/Annotated.class", dumpAnnotated());
     }
 
-    public byte[] dump() {
-        ClassWriter cw = new ClassWriter(0);
+    public byte[] dumpAnnotation() {
+        ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_MAXS);
         MethodVisitor mv;
-        AnnotationVisitor av0, av1, av2;
+        AnnotationVisitor av0, av1;
 
         cw.visit(V1_5,
                 ACC_PUBLIC + ACC_ANNOTATION + ACC_ABSTRACT + ACC_INTERFACE,
@@ -59,212 +71,128 @@ public class Annotation extends Generator {
                 "java/lang/Object",
                 new String[] { "java/lang/annotation/Annotation" });
 
-        mv = cw.visitMethod(ACC_PUBLIC + ACC_ABSTRACT,
-                "byteValue",
-                "()B",
-                null,
-                null);
+        mv = cw.visitMethod(M, "byteValue", "()B", null, null);
         av0 = mv.visitAnnotationDefault();
         av0.visit(null, new Byte((byte) 1));
         av0.visitEnd();
         mv.visitEnd();
 
-        mv = cw.visitMethod(ACC_PUBLIC + ACC_ABSTRACT,
-                "charValue",
-                "()C",
-                null,
-                null);
+        mv = cw.visitMethod(M, "charValue", "()C", null, null);
         av0 = mv.visitAnnotationDefault();
         av0.visit(null, new Character((char) 1));
         av0.visitEnd();
         mv.visitEnd();
 
-        mv = cw.visitMethod(ACC_PUBLIC + ACC_ABSTRACT,
-                "booleanValue",
-                "()Z",
-                null,
-                null);
+        mv = cw.visitMethod(M, "booleanValue", "()Z", null, null);
         av0 = mv.visitAnnotationDefault();
         av0.visit(null, new Boolean(true));
         av0.visitEnd();
         mv.visitEnd();
 
-        mv = cw.visitMethod(ACC_PUBLIC + ACC_ABSTRACT,
-                "intValue",
-                "()I",
-                null,
-                null);
+        mv = cw.visitMethod(M, "intValue", "()I", null, null);
         av0 = mv.visitAnnotationDefault();
         av0.visit(null, new Integer(1));
         av0.visitEnd();
         mv.visitEnd();
 
-        mv = cw.visitMethod(ACC_PUBLIC + ACC_ABSTRACT,
-                "shortValue",
-                "()S",
-                null,
-                null);
+        mv = cw.visitMethod(M, "shortValue", "()S", null, null);
         av0 = mv.visitAnnotationDefault();
         av0.visit(null, new Short((short) 1));
         av0.visitEnd();
         mv.visitEnd();
 
-        mv = cw.visitMethod(ACC_PUBLIC + ACC_ABSTRACT,
-                "longValue",
-                "()J",
-                null,
-                null);
+        mv = cw.visitMethod(M, "longValue", "()J", null, null);
         av0 = mv.visitAnnotationDefault();
         av0.visit(null, new Long(1L));
         av0.visitEnd();
         mv.visitEnd();
 
-        mv = cw.visitMethod(ACC_PUBLIC + ACC_ABSTRACT,
-                "floatValue",
-                "()F",
-                null,
-                null);
+        mv = cw.visitMethod(M, "floatValue", "()F", null, null);
         av0 = mv.visitAnnotationDefault();
         av0.visit(null, new Float("1.0"));
         av0.visitEnd();
         mv.visitEnd();
 
-        mv = cw.visitMethod(ACC_PUBLIC + ACC_ABSTRACT,
-                "doubleValue",
-                "()D",
-                null,
-                null);
+        mv = cw.visitMethod(M, "doubleValue", "()D", null, null);
         av0 = mv.visitAnnotationDefault();
         av0.visit(null, new Double("1.0"));
         av0.visitEnd();
         mv.visitEnd();
 
-        mv = cw.visitMethod(ACC_PUBLIC + ACC_ABSTRACT,
-                "stringValue",
-                "()Ljava/lang/String;",
-                null,
-                null);
+        mv = cw.visitMethod(M, "stringValue", "()" + STRING, null, null);
         av0 = mv.visitAnnotationDefault();
         av0.visit(null, "1");
         av0.visitEnd();
         mv.visitEnd();
 
-        mv = cw.visitMethod(ACC_PUBLIC + ACC_ABSTRACT,
-                "classValue",
-                "()Ljava/lang/Class;",
-                null,
-                null);
+        mv = cw.visitMethod(M, "classValue", "()" + CLASS, null, null);
         av0 = mv.visitAnnotationDefault();
         av0.visit(null, Type.getType("Lpkg/Annotation;"));
         av0.visitEnd();
         mv.visitEnd();
 
-        mv = cw.visitMethod(ACC_PUBLIC + ACC_ABSTRACT,
-                "enumValue",
-                "()Lpkg/Enum;",
-                null,
-                null);
+        mv = cw.visitMethod(M, "enumValue", "()Lpkg/Enum;", null, null);
         av0 = mv.visitAnnotationDefault();
         av0.visitEnum(null, "Lpkg/Enum;", "V1");
         av0.visitEnd();
         mv.visitEnd();
 
-        mv = cw.visitMethod(ACC_PUBLIC + ACC_ABSTRACT,
-                "annotationValue",
-                "()Ljava/lang/annotation/Documented;",
-                null,
-                null);
+        mv = cw.visitMethod(M, "annotationValue", "()" + DOC, null, null);
         av0 = mv.visitAnnotationDefault();
-        av1 = av0.visitAnnotation(null, "Ljava/lang/annotation/Documented;");
+        av1 = av0.visitAnnotation(null, DOC);
         av1.visitEnd();
         av0.visitEnd();
         mv.visitEnd();
 
-        mv = cw.visitMethod(ACC_PUBLIC + ACC_ABSTRACT,
-                "byteArrayValue",
-                "()[B",
-                null,
-                null);
+        mv = cw.visitMethod(M, "byteArrayValue", "()[B", null, null);
         av0 = mv.visitAnnotationDefault();
         av0.visit(null, new byte[] { 0, 1 });
         av0.visitEnd();
         mv.visitEnd();
 
-        mv = cw.visitMethod(ACC_PUBLIC + ACC_ABSTRACT,
-                "charArrayValue",
-                "()[C",
-                null,
-                null);
+        mv = cw.visitMethod(M, "charArrayValue", "()[C", null, null);
         av0 = mv.visitAnnotationDefault();
         av0.visit(null, new char[] { '0', '1' });
         av0.visitEnd();
         mv.visitEnd();
 
-        mv = cw.visitMethod(ACC_PUBLIC + ACC_ABSTRACT,
-                "booleanArrayValue",
-                "()[Z",
-                null,
-                null);
+        mv = cw.visitMethod(M, "booleanArrayValue", "()[Z", null, null);
         av0 = mv.visitAnnotationDefault();
         av0.visit(null, new boolean[] { false, true });
         av0.visitEnd();
         mv.visitEnd();
 
-        mv = cw.visitMethod(ACC_PUBLIC + ACC_ABSTRACT,
-                "intArrayValue",
-                "()[I",
-                null,
-                null);
+        mv = cw.visitMethod(M, "intArrayValue", "()[I", null, null);
         av0 = mv.visitAnnotationDefault();
         av0.visit(null, new int[] { 0, 1 });
         av0.visitEnd();
         mv.visitEnd();
 
-        mv = cw.visitMethod(ACC_PUBLIC + ACC_ABSTRACT,
-                "shortArrayValue",
-                "()[S",
-                null,
-                null);
+        mv = cw.visitMethod(M, "shortArrayValue", "()[S", null, null);
         av0 = mv.visitAnnotationDefault();
         av0.visit(null, new short[] { (short) 0, (short) 1 });
         av0.visitEnd();
         mv.visitEnd();
 
-        mv = cw.visitMethod(ACC_PUBLIC + ACC_ABSTRACT,
-                "longArrayValue",
-                "()[J",
-                null,
-                null);
+        mv = cw.visitMethod(M, "longArrayValue", "()[J", null, null);
         av0 = mv.visitAnnotationDefault();
         av0.visit(null, new long[] { 0L, 1L });
         av0.visitEnd();
         mv.visitEnd();
 
-        mv = cw.visitMethod(ACC_PUBLIC + ACC_ABSTRACT,
-                "floatArrayValue",
-                "()[F",
-                null,
-                null);
+        mv = cw.visitMethod(M, "floatArrayValue", "()[F", null, null);
         av0 = mv.visitAnnotationDefault();
         av0.visit(null, new float[] { 0.0f, 1.0f });
         av0.visitEnd();
         mv.visitEnd();
 
-        mv = cw.visitMethod(ACC_PUBLIC + ACC_ABSTRACT,
-                "doubleArrayValue",
-                "()[D",
-                null,
-                null);
+        mv = cw.visitMethod(M, "doubleArrayValue", "()[D", null, null);
         av0 = mv.visitAnnotationDefault();
         av0.visit(null, new double[] { 0.0d, 1.0d });
         av0.visitEnd();
         mv.visitEnd();
 
-        mv = cw.visitMethod(ACC_PUBLIC + ACC_ABSTRACT,
-                "stringArrayValue",
-                "()[Ljava/lang/String;",
-                null,
-                null);
+        mv = cw.visitMethod(M, "stringArrayValue", "()" + STRING, null, null);
         av0 = mv.visitAnnotationDefault();
         av1 = av0.visitArray(null);
         av1.visit(null, "0");
@@ -273,11 +201,7 @@ public class Annotation extends Generator {
         av0.visitEnd();
         mv.visitEnd();
 
-        mv = cw.visitMethod(ACC_PUBLIC + ACC_ABSTRACT,
-                "classArrayValue",
-                "()[Ljava/lang/Class;",
-                null,
-                null);
+        mv = cw.visitMethod(M, "classArrayValue", "()[" + CLASS, null, null);
         av0 = mv.visitAnnotationDefault();
         av1 = av0.visitArray(null);
         av1.visit(null, Type.getType("Lpkg/Annotation;"));
@@ -286,11 +210,7 @@ public class Annotation extends Generator {
         av0.visitEnd();
         mv.visitEnd();
 
-        mv = cw.visitMethod(ACC_PUBLIC + ACC_ABSTRACT,
-                "enumArrayValue",
-                "()[Lpkg/Enum;",
-                null,
-                null);
+        mv = cw.visitMethod(M, "enumArrayValue", "()[Lpkg/Enum;", null, null);
         av0 = mv.visitAnnotationDefault();
         av1 = av0.visitArray(null);
         av1.visitEnum(null, "Lpkg/Enum;", "V0");
@@ -299,22 +219,98 @@ public class Annotation extends Generator {
         av0.visitEnd();
         mv.visitEnd();
 
-        mv = cw.visitMethod(ACC_PUBLIC + ACC_ABSTRACT,
-                "annotationArrayValue",
-                "()[Ljava/lang/annotation/Documented;",
-                null,
-                null);
+        mv = cw.visitMethod(M, "annotationArrayValue", "()[" + DOC, null, null);
         av0 = mv.visitAnnotationDefault();
         av1 = av0.visitArray(null);
-        av2 = av1.visitAnnotation(null, "Ljava/lang/annotation/Documented;");
-        av2.visitEnd();
-        av2 = av1.visitAnnotation(null, "Ljava/lang/annotation/Documented;");
-        av2.visitEnd();
+        av1.visitAnnotation(null, DOC).visitEnd();
+        av1.visitAnnotation(null, DOC).visitEnd();
         av1.visitEnd();
         av0.visitEnd();
         mv.visitEnd();
 
         cw.visitEnd();
+
+        return cw.toByteArray();
+    }
+
+    public byte[] dumpAnnotated() {
+        ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_MAXS);
+        FieldVisitor fv;
+        MethodVisitor mv;
+        AnnotationVisitor av0, av1;
+
+        cw.visit(V1_5,
+                ACC_PUBLIC + ACC_SUPER,
+                "pkg/Annotated",
+                null,
+                "java/lang/Object",
+                null);
+
+        // visible class annotation
+        cw.visitAnnotation(DEPRECATED, true).visitEnd();
+
+        // invisible class annotation, with values of all types
+        av0 = cw.visitAnnotation("Lpkg/Annotation;", false);
+        av0.visit("byteValue", new Byte((byte) 0));
+        av0.visit("charValue", new Character((char) 48));
+        av0.visit("booleanValue", new Boolean(false));
+        av0.visit("intValue", new Integer(0));
+        av0.visit("shortValue", new Short((short) 0));
+        av0.visit("longValue", new Long(0L));
+        av0.visit("floatValue", new Float("0.0"));
+        av0.visit("doubleValue", new Double("0.0"));
+        av0.visit("stringValue", "0");
+        av0.visitEnum("enumValue", "Lpkg/Enum;", "V0");
+        av0.visitAnnotation("annotationValue", DOC).visitEnd();
+        av0.visit("classValue", Type.getType("Lpkg/Annotation;"));
+        av0.visit("byteArrayValue", new byte[] { 1, 0 });
+        av0.visit("charArrayValue", new char[] { '1', '0' });
+        av0.visit("booleanArrayValue", new boolean[] { true, false });
+        av0.visit("intArrayValue", new int[] { 1, 0 });
+        av0.visit("shortArrayValue", new short[] { (short) 1, (short) 0 });
+        av0.visit("longArrayValue", new long[] { 1L, 0L });
+        av0.visit("floatArrayValue", new float[] { 1.0f, 0.0f });
+        av0.visit("doubleArrayValue", new double[] { 1.0d, 0.0d });
+        av1 = av0.visitArray("stringArrayValue");
+        av1.visit(null, "1");
+        av1.visit(null, "0");
+        av1.visitEnd();
+        av0.visitArray("classArrayValue").visitEnd();
+        av1 = av0.visitArray("enumArrayValue");
+        av1.visitEnum(null, "Lpkg/Enum;", "V1");
+        av1.visitEnum(null, "Lpkg/Enum;", "V2");
+        av1.visitEnd();
+        av0.visitArray("annotationArrayValue").visitEnd();
+        av0.visitEnd();
+
+        fv = cw.visitField(ACC_PUBLIC, "f", "I", null, null);
+        // visible field annotation
+        fv.visitAnnotation(DEPRECATED, true).visitEnd();
+        // invisible field annotation
+        av0 = fv.visitAnnotation("Lpkg/Annotation;", false);
+        av0.visitEnum("enumValue", "Lpkg/Enum;", "V0");
+        av0.visitEnd();
+        fv.visitEnd();
+
+        mv = cw.visitMethod(ACC_PUBLIC, "<init>", "(IIIIIIIIII)V", null, null);
+        // visible method anntation
+        mv.visitAnnotation(DEPRECATED, true).visitEnd();
+        // invisible method annotation
+        av0 = mv.visitAnnotation("Lpkg/Annotation;", false);
+        av0.visitAnnotation("annotationValue", DOC).visitEnd();
+        av0.visitEnd();
+        // visible parameter annnotation
+        mv.visitParameterAnnotation(8, DEPRECATED, true).visitEnd();
+        // invisible parameter annotation
+        av0 = mv.visitParameterAnnotation(8, "Lpkg/Annotation;", false);
+        av0.visitArray("stringArrayValue").visitEnd();
+        av0.visitEnd();
+        mv.visitCode();
+        mv.visitVarInsn(ALOAD, 0);
+        mv.visitMethodInsn(INVOKESPECIAL, "java/lang/Object", "<init>", "()V");
+        mv.visitInsn(RETURN);
+        mv.visitMaxs(0, 0);
+        mv.visitEnd();
 
         return cw.toByteArray();
     }

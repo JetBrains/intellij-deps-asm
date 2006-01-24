@@ -49,6 +49,10 @@ import org.objectweb.asm.MethodVisitor;
  */
 public class Frames extends Generator {
 
+    final static int M = ACC_STATIC;
+    final static String I1 = "Ljava/io/Serializable;";
+    final static String I2 = "Ljava/lang/Comparable;";
+
     public void generate(final String dir) throws IOException {
         byte[] b = dump();
         ClassWriter cw = new ClassWriter(0);
@@ -60,10 +64,9 @@ public class Frames extends Generator {
     }
 
     public byte[] dump() {
-        ClassWriter cw = new ClassWriter(0);
+        ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_MAXS);
         MethodVisitor mv;
         FieldVisitor fv;
-        Label l0, l1, l2, l3, l4, l5, l6;
 
         cw.visit(V1_6,
                 ACC_PUBLIC + ACC_SUPER,
@@ -72,55 +75,31 @@ public class Frames extends Generator {
                 "java/lang/Object",
                 null);
 
-        fv = cw.visitField(ACC_STATIC, "long", "Ljava/lang/Long;", null, null);
+        fv = cw.visitField(M, "long", "Ljava/lang/Long;", null, null);
         fv.visitEnd();
 
-        fv = cw.visitField(ACC_STATIC,
-                "double",
-                "Ljava/lang/Double;",
-                null,
-                null);
+        fv = cw.visitField(M, "double", "Ljava/lang/Double;", null, null);
         fv.visitEnd();
 
-        fv = cw.visitField(ACC_STATIC,
-                "number",
-                "Ljava/lang/Number;",
-                null,
-                null);
+        fv = cw.visitField(M, "number", "Ljava/lang/Number;", null, null);
         fv.visitEnd();
 
-        fv = cw.visitField(ACC_STATIC,
-                "serializable",
-                "Ljava/io/Serializable;",
-                null,
-                null);
+        fv = cw.visitField(M, "serializable", I1, null, null);
         fv.visitEnd();
 
-        fv = cw.visitField(ACC_STATIC,
-                "comparable",
-                "Ljava/lang/Comparable;",
-                null,
-                null);
+        fv = cw.visitField(M, "comparable", I2, null, null);
         fv.visitEnd();
 
-        fv = cw.visitField(ACC_STATIC,
-                "longArray",
-                "[Ljava/lang/Long;",
-                null,
-                null);
+        fv = cw.visitField(M, "longArray", "[Ljava/lang/Long;", null, null);
         fv.visitEnd();
 
-        fv = cw.visitField(ACC_STATIC, "intArray", "[I", null, null);
+        fv = cw.visitField(M, "intArray", "[I", null, null);
         fv.visitEnd();
 
-        fv = cw.visitField(ACC_STATIC, "floatArray", "[F", null, null);
+        fv = cw.visitField(M, "floatArray", "[F", null, null);
         fv.visitEnd();
 
-        fv = cw.visitField(ACC_STATIC,
-                "objectArray",
-                "[Ljava/lang/Object;",
-                null,
-                null);
+        fv = cw.visitField(M, "objectArray", "[Ljava/lang/Object;", null, null);
         fv.visitEnd();
 
         mv = cw.visitMethod(ACC_PUBLIC,
@@ -132,21 +111,50 @@ public class Frames extends Generator {
         mv.visitVarInsn(ALOAD, 0);
         mv.visitMethodInsn(INVOKESPECIAL, "java/lang/Object", "<init>", "()V");
         mv.visitInsn(RETURN);
-        mv.visitMaxs(1, 2);
+        mv.visitMaxs(0, 0);
         mv.visitEnd();
 
-        mv = cw.visitMethod(ACC_PUBLIC, "<init>", "(I)V", null, null);
+        uninitializedThisType(cw);
+        uninitializedLocalType(cw);
+        uninitializedStackType(cw);
+        nullType(cw);
+        topType(cw);
+        arrayTypes(cw);
+
+        mergeTypes(cw);
+        mergeStackTypes(cw);
+        mergeNullArray(cw);
+
+        appendAndChopFrame(cw);
+        sameLocals1stackItemFrame(cw);
+        sameLocals1stackItemFrame2(cw);
+        sameLocals1stackItemFrameExtended(cw);
+        sameFrameExtended(cw);
+
+        deadCode(cw);
+
+        cw.visitEnd();
+
+        return cw.toByteArray();
+    }
+
+    private void uninitializedThisType(final ClassWriter cw) {
+        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC,
+                "<init>",
+                "(I)V",
+                null,
+                null);
         mv.visitCode();
         mv.visitVarInsn(ALOAD, 0);
-        l0 = new Label();
+        Label l0 = new Label();
         mv.visitLabel(l0);
         mv.visitTypeInsn(NEW, "pkg/FrameTable");
         mv.visitInsn(DUP);
         mv.visitVarInsn(ILOAD, 1);
-        l1 = new Label();
+        Label l1 = new Label();
         mv.visitJumpInsn(IFNE, l1);
         mv.visitInsn(ACONST_NULL);
-        l2 = new Label();
+        Label l2 = new Label();
         mv.visitJumpInsn(GOTO, l2);
         mv.visitFrame(F_FULL,
                 2,
@@ -172,10 +180,83 @@ public class Frames extends Generator {
                 "<init>",
                 "(Ljava/lang/Object;)V");
         mv.visitInsn(RETURN);
-        mv.visitMaxs(5, 2);
+        mv.visitMaxs(0, 0);
         mv.visitEnd();
+    }
 
-        mv = cw.visitMethod(ACC_PUBLIC,
+    private void uninitializedLocalType(final ClassWriter cw) {
+        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC,
+                "uninitializedLocalType",
+                "(Z)V",
+                null,
+                null);
+        mv.visitCode();
+        Label l0 = new Label();
+        mv.visitLabel(l0);
+        mv.visitTypeInsn(NEW, "java/lang/Long");
+        mv.visitVarInsn(ASTORE, 2);
+        mv.visitVarInsn(ALOAD, 2);
+        mv.visitVarInsn(ILOAD, 1);
+        Label l1 = new Label();
+        mv.visitJumpInsn(IFEQ, l1);
+        mv.visitInsn(LCONST_0);
+        Label l2 = new Label();
+        mv.visitJumpInsn(GOTO, l2);
+        mv.visitFrame(F_FULL,
+                3,
+                new Object[] { "pkg/FrameTable", INTEGER, l0 },
+                1,
+                new Object[] { l0 });
+        mv.visitLabel(l1);
+        mv.visitInsn(LCONST_1);
+        mv.visitFrame(F_FULL,
+                3,
+                new Object[] { "pkg/FrameTable", INTEGER, l0 },
+                2,
+                new Object[] { l0, LONG });
+        mv.visitLabel(l2);
+        mv.visitMethodInsn(INVOKESPECIAL, "java/lang/Long", "<init>", "(J)V");
+        mv.visitInsn(RETURN);
+        mv.visitMaxs(0, 0);
+        mv.visitEnd();
+    }
+
+    private void uninitializedStackType(final ClassWriter cw) {
+        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC,
+                "uninitializedStackType",
+                "(Z)V",
+                null,
+                null);
+        mv.visitCode();
+        Label l0 = new Label();
+        mv.visitLabel(l0);
+        mv.visitTypeInsn(NEW, "java/lang/Long");
+        mv.visitInsn(DUP);
+        mv.visitVarInsn(ILOAD, 1);
+        Label l1 = new Label();
+        mv.visitJumpInsn(IFEQ, l1);
+        mv.visitInsn(LCONST_0);
+        mv.visitMethodInsn(INVOKESPECIAL, "java/lang/Long", "<init>", "(J)V");
+        Label l2 = new Label();
+        mv.visitJumpInsn(GOTO, l2);
+        mv.visitFrame(F_FULL,
+                1,
+                new Object[] { "pkg/FrameTable" },
+                2,
+                new Object[] { l0, l0 });
+        mv.visitLabel(l1);
+        mv.visitInsn(LCONST_1);
+        mv.visitMethodInsn(INVOKESPECIAL, "java/lang/Long", "<init>", "(J)V");
+        mv.visitFrame(F_SAME1, 0, null, 1, new Object[] { "java/lang/Long" });
+        mv.visitLabel(l2);
+        mv.visitVarInsn(ASTORE, 2);
+        mv.visitInsn(RETURN);
+        mv.visitMaxs(0, 0);
+        mv.visitEnd();
+    }
+
+    private void nullType(final ClassWriter cw) {
+        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC,
                 "nullType",
                 "(Ljava/lang/String;Ljava/lang/String;)V",
                 null,
@@ -186,10 +267,10 @@ public class Frames extends Generator {
         mv.visitVarInsn(ALOAD, 0);
         mv.visitInsn(ACONST_NULL);
         mv.visitVarInsn(ALOAD, 1);
-        l0 = new Label();
+        Label l0 = new Label();
         mv.visitJumpInsn(IFNONNULL, l0);
         mv.visitVarInsn(ALOAD, 2);
-        l1 = new Label();
+        Label l1 = new Label();
         mv.visitJumpInsn(GOTO, l1);
         mv.visitFrame(F_FULL, 3, new Object[] {
             "pkg/FrameTable",
@@ -210,11 +291,13 @@ public class Frames extends Generator {
                 "nullType",
                 "(Ljava/lang/String;Ljava/lang/String;)V");
         mv.visitInsn(RETURN);
-        mv.visitMaxs(3, 3);
+        mv.visitMaxs(0, 0);
         mv.visitEnd();
+    }
 
-        mv = cw.visitMethod(ACC_PUBLIC,
-                "appendTopFrame",
+    private void topType(final ClassWriter cw) {
+        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC,
+                "topType",
                 "(ZBCSIFJDLjava/lang/Object;)V",
                 null,
                 null);
@@ -222,16 +305,245 @@ public class Frames extends Generator {
         mv.visitVarInsn(ILOAD, 5);
         mv.visitVarInsn(ISTORE, 13);
         mv.visitVarInsn(ILOAD, 1);
-        l0 = new Label();
+        Label l0 = new Label();
         mv.visitJumpInsn(IFEQ, l0);
         mv.visitInsn(RETURN);
         mv.visitFrame(F_APPEND, 2, new Object[] { TOP, INTEGER }, 0, null);
         mv.visitLabel(l0);
         mv.visitInsn(RETURN);
-        mv.visitMaxs(1, 14);
+        mv.visitMaxs(0, 0);
         mv.visitEnd();
+    }
 
-        mv = cw.visitMethod(ACC_PUBLIC,
+    private void arrayTypes(final ClassWriter cw) {
+        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC,
+                "fullFrame",
+                "(Ljava/lang/String;[[Z[B[C[S[I[F[J[D[Ljava/lang/Object;)V",
+                null,
+                null);
+        mv.visitCode();
+        mv.visitLdcInsn(new Long(11L));
+        mv.visitVarInsn(LSTORE, 11);
+        mv.visitLdcInsn(new Long(11L));
+        mv.visitVarInsn(LSTORE, 13);
+        mv.visitLdcInsn(new Long(11L));
+        mv.visitVarInsn(LSTORE, 15);
+        mv.visitLdcInsn(new Long(11L));
+        mv.visitVarInsn(LSTORE, 17);
+        mv.visitVarInsn(ALOAD, 1);
+        Label l0 = new Label();
+        mv.visitJumpInsn(IFNONNULL, l0);
+        mv.visitInsn(RETURN);
+        mv.visitFrame(F_FULL, 15, new Object[] {
+            "pkg/FrameTable",
+            "java/lang/String",
+            "[[Z",
+            "[B",
+            "[C",
+            "[S",
+            "[I",
+            "[F",
+            "[J",
+            "[D",
+            "[Ljava/lang/Object;",
+            LONG,
+            LONG,
+            LONG,
+            LONG }, 0, new Object[] {});
+        mv.visitLabel(l0);
+        mv.visitInsn(RETURN);
+        mv.visitMaxs(0, 0);
+        mv.visitEnd();
+    }
+
+    private void mergeTypes(final ClassWriter cw) {
+        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC,
+                "mergeTypes",
+                "(Z)V",
+                null,
+                null);
+        mv.visitCode();
+        Label l0 = new Label();
+        mv.visitFieldInsn(GETSTATIC,
+                "pkg/FrameTable",
+                "long",
+                "Ljava/lang/Long;");
+        mv.visitVarInsn(ASTORE, 2);
+        mv.visitFieldInsn(GETSTATIC,
+                "pkg/FrameTable",
+                "number",
+                "Ljava/lang/Number;");
+        mv.visitVarInsn(ASTORE, 3);
+        mv.visitFieldInsn(GETSTATIC,
+                "pkg/FrameTable",
+                "number",
+                "Ljava/lang/Long;");
+        mv.visitVarInsn(ASTORE, 4);
+        mv.visitFieldInsn(GETSTATIC,
+                "pkg/FrameTable",
+                "comparable",
+                "Ljava/lang/Comparable;");
+        mv.visitVarInsn(ASTORE, 5);
+        mv.visitInsn(ACONST_NULL);
+        mv.visitVarInsn(ASTORE, 6);
+        mv.visitFieldInsn(GETSTATIC,
+                "pkg/FrameTable",
+                "double",
+                "Ljava/lang/Double;");
+        mv.visitVarInsn(ASTORE, 7);
+        mv.visitInsn(ICONST_0);
+        mv.visitVarInsn(ISTORE, 8);
+        mv.visitFieldInsn(GETSTATIC, "pkg/FrameTable", "intArray", "[I");
+        mv.visitVarInsn(ASTORE, 9);
+        mv.visitFieldInsn(GETSTATIC,
+                "pkg/FrameTable",
+                "double",
+                "Ljava/lang/Double;");
+        mv.visitVarInsn(ASTORE, 10);
+        mv.visitInsn(ACONST_NULL);
+        mv.visitVarInsn(ASTORE, 11);
+
+        mv.visitLabel(l0);
+        mv.visitVarInsn(ALOAD, 11);
+        mv.visitInsn(ICONST_0);
+        mv.visitInsn(ACONST_NULL);
+        mv.visitInsn(AASTORE);
+
+        mv.visitFieldInsn(GETSTATIC,
+                "pkg/FrameTable",
+                "double",
+                "Ljava/lang/Double;");
+        mv.visitVarInsn(ASTORE, 2);
+        mv.visitFieldInsn(GETSTATIC,
+                "pkg/FrameTable",
+                "double",
+                "Ljava/lang/Double;");
+        mv.visitVarInsn(ASTORE, 3);
+        mv.visitFieldInsn(GETSTATIC,
+                "pkg/FrameTable",
+                "number",
+                "Ljava/lang/Number;");
+        mv.visitVarInsn(ASTORE, 4);
+        mv.visitFieldInsn(GETSTATIC,
+                "pkg/FrameTable",
+                "serializable",
+                "Ljava/io/Serializable;");
+        mv.visitVarInsn(ASTORE, 5);
+        mv.visitInsn(ACONST_NULL);
+        mv.visitVarInsn(ASTORE, 6);
+        mv.visitInsn(ACONST_NULL);
+        mv.visitVarInsn(ASTORE, 7);
+        mv.visitInsn(ACONST_NULL);
+        mv.visitVarInsn(ASTORE, 8);
+        mv.visitFieldInsn(GETSTATIC, "pkg/FrameTable", "floatArray", "[F");
+        mv.visitVarInsn(ASTORE, 9);
+        mv.visitFieldInsn(GETSTATIC, "pkg/FrameTable", "intArray", "[I");
+        mv.visitVarInsn(ASTORE, 10);
+        mv.visitInsn(ICONST_1);
+        mv.visitTypeInsn(ANEWARRAY, "java/lang/Object");
+        mv.visitVarInsn(ASTORE, 11);
+
+        mv.visitJumpInsn(GOTO, l0);
+        mv.visitMaxs(0, 0);
+        mv.visitEnd();
+    }
+
+    private void mergeStackTypes(final ClassWriter cw) {
+        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC,
+                "mergeStackTypes",
+                "(Z)V",
+                null,
+                null);
+        mv.visitCode();
+        mv.visitInsn(ICONST_0);
+        mv.visitInsn(ICONST_1);
+        mv.visitVarInsn(ILOAD, 1);
+        Label l0 = new Label();
+        mv.visitJumpInsn(IFEQ, l0);
+        mv.visitInsn(ICONST_0);
+        Label l1 = new Label();
+        mv.visitJumpInsn(GOTO, l1);
+        mv.visitFrame(F_FULL,
+                1,
+                new Object[] { "pkg/FrameTable" },
+                2,
+                new Object[] { INTEGER, INTEGER });
+        mv.visitLabel(l0);
+        mv.visitInsn(DUP);
+        mv.visitFrame(F_FULL,
+                1,
+                new Object[] { "pkg/FrameTable" },
+                3,
+                new Object[] { INTEGER, INTEGER, INTEGER });
+        mv.visitLabel(l1);
+        mv.visitInsn(RETURN);
+        mv.visitMaxs(0, 0);
+        mv.visitEnd();
+    }
+
+    private void mergeNullArray(final ClassWriter cw) {
+        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC,
+                "mergeNullArray",
+                "(Z)I",
+                null,
+                null);
+        mv.visitCode();
+        mv.visitVarInsn(ILOAD, 1);
+        Label l1 = new Label();
+        mv.visitJumpInsn(IFEQ, l1);
+        mv.visitInsn(ACONST_NULL);
+        mv.visitVarInsn(ASTORE, 2);
+        mv.visitVarInsn(ILOAD, 1);
+        Label l2 = new Label();
+        mv.visitJumpInsn(IFEQ, l2);
+        mv.visitFieldInsn(GETSTATIC,
+                "pkg/FrameTable",
+                "longArray",
+                "[Ljava/lang/Long;");
+        mv.visitVarInsn(ASTORE, 2);
+        mv.visitFrame(F_APPEND,
+                1,
+                new Object[] { "[Ljava/lang/Long;" },
+                0,
+                null);
+        mv.visitLabel(l2);
+        mv.visitVarInsn(ALOAD, 2);
+        Label l3 = new Label();
+        mv.visitJumpInsn(IFNULL, l3);
+        mv.visitVarInsn(ALOAD, 2);
+        mv.visitInsn(ARRAYLENGTH);
+        Label l4 = new Label();
+        mv.visitJumpInsn(IFNE, l4);
+        mv.visitFrame(F_SAME, 0, null, 0, null);
+        mv.visitLabel(l3);
+        mv.visitInsn(ACONST_NULL);
+        mv.visitVarInsn(ASTORE, 3);
+        Label l5 = new Label();
+        mv.visitJumpInsn(GOTO, l5);
+        mv.visitFrame(F_SAME, 0, null, 0, null);
+        mv.visitLabel(l4);
+        mv.visitVarInsn(ALOAD, 2);
+        mv.visitInsn(ICONST_0);
+        mv.visitInsn(AALOAD);
+        mv.visitVarInsn(ASTORE, 3);
+        mv.visitVarInsn(ILOAD, 1);
+        mv.visitJumpInsn(IFNE, l5);
+        mv.visitInsn(ACONST_NULL);
+        mv.visitVarInsn(ASTORE, 3);
+        mv.visitFrame(F_SAME, 0, null, 0, null);
+        mv.visitLabel(l5);
+        mv.visitVarInsn(ILOAD, 1);
+        mv.visitInsn(IRETURN);
+        mv.visitFrame(F_CHOP, 1, null, 0, null);
+        mv.visitLabel(l1);
+        mv.visitVarInsn(ILOAD, 1);
+        mv.visitInsn(IRETURN);
+        mv.visitMaxs(0, 0);
+        mv.visitEnd();
+    }
+
+    private void appendAndChopFrame(final ClassWriter cw) {
+        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC,
                 "appendAndChopFrame",
                 "(I)V",
                 null,
@@ -240,28 +552,30 @@ public class Frames extends Generator {
         mv.visitInsn(ICONST_0);
         mv.visitVarInsn(ISTORE, 2);
         mv.visitFrame(F_APPEND, 1, new Object[] { INTEGER }, 0, null);
-        l0 = new Label();
+        Label l0 = new Label();
         mv.visitLabel(l0);
         mv.visitVarInsn(ILOAD, 2);
         mv.visitVarInsn(ILOAD, 1);
-        l1 = new Label();
+        Label l1 = new Label();
         mv.visitJumpInsn(IF_ICMPGE, l1);
         mv.visitIincInsn(2, 1);
         mv.visitJumpInsn(GOTO, l0);
         mv.visitFrame(F_CHOP, 1, null, 0, null);
         mv.visitLabel(l1);
         mv.visitInsn(RETURN);
-        mv.visitMaxs(2, 3);
+        mv.visitMaxs(0, 0);
         mv.visitEnd();
+    }
 
-        mv = cw.visitMethod(ACC_PUBLIC,
+    private void sameLocals1stackItemFrame(final ClassWriter cw) {
+        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC,
                 "sameLocals1stackItemFrame",
                 "()I",
                 null,
                 null);
         mv.visitCode();
-        l0 = new Label();
-        l1 = new Label();
+        Label l0 = new Label();
+        Label l1 = new Label();
         mv.visitTryCatchBlock(l0, l1, l0, null);
         mv.visitInsn(ICONST_0);
         mv.visitInsn(IRETURN);
@@ -275,24 +589,26 @@ public class Frames extends Generator {
         mv.visitLabel(l1);
         mv.visitInsn(ICONST_0);
         mv.visitInsn(IRETURN);
-        mv.visitMaxs(1, 2);
+        mv.visitMaxs(0, 0);
         mv.visitEnd();
+    }
 
-        mv = cw.visitMethod(ACC_PUBLIC,
+    private void sameLocals1stackItemFrame2(final ClassWriter cw) {
+        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC,
                 "sameLocals1stackItemFrame2",
                 "()V",
                 null,
                 null);
         mv.visitCode();
-        l0 = new Label();
-        l1 = new Label();
-        l2 = new Label();
+        Label l0 = new Label();
+        Label l1 = new Label();
+        Label l2 = new Label();
         mv.visitTryCatchBlock(l0, l1, l2, "java/lang/Exception");
-        l3 = new Label();
+        Label l3 = new Label();
         mv.visitTryCatchBlock(l0, l1, l3, null);
-        l4 = new Label();
+        Label l4 = new Label();
         mv.visitTryCatchBlock(l2, l4, l3, null);
-        l5 = new Label();
+        Label l5 = new Label();
         mv.visitTryCatchBlock(l3, l5, l3, null);
         mv.visitLabel(l0);
         mv.visitTypeInsn(NEW, "java/lang/Object");
@@ -300,7 +616,7 @@ public class Frames extends Generator {
         mv.visitMethodInsn(INVOKESPECIAL, "java/lang/Object", "<init>", "()V");
         mv.visitVarInsn(ASTORE, 1);
         mv.visitLabel(l1);
-        l6 = new Label();
+        Label l6 = new Label();
         mv.visitJumpInsn(GOTO, l6);
         mv.visitFrame(F_SAME1,
                 0,
@@ -324,20 +640,22 @@ public class Frames extends Generator {
         mv.visitFrame(F_SAME, 0, null, 0, null);
         mv.visitLabel(l6);
         mv.visitInsn(RETURN);
-        mv.visitMaxs(2, 4);
+        mv.visitMaxs(0, 0);
         mv.visitEnd();
+    }
 
-        mv = cw.visitMethod(ACC_PUBLIC,
+    private void sameLocals1stackItemFrameExtended(final ClassWriter cw) {
+        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC,
                 "sameLocals1stackItemFrameExtended",
                 "()I",
                 null,
                 null);
         mv.visitCode();
-        l0 = new Label();
-        l1 = new Label();
-        l2 = new Label();
+        Label l0 = new Label();
+        Label l1 = new Label();
+        Label l2 = new Label();
         mv.visitTryCatchBlock(l0, l1, l2, null);
-        l3 = new Label();
+        Label l3 = new Label();
         mv.visitTryCatchBlock(l2, l3, l2, null);
         mv.visitLabel(l0);
         mv.visitLdcInsn(new Long(11L));
@@ -379,13 +697,19 @@ public class Frames extends Generator {
         mv.visitLabel(l3);
         mv.visitInsn(ICONST_0);
         mv.visitInsn(IRETURN);
-        mv.visitMaxs(2, 28);
+        mv.visitMaxs(0, 0);
         mv.visitEnd();
+    }
 
-        mv = cw.visitMethod(ACC_PUBLIC, "sameFrameExtended", "(Z)V", null, null);
+    private void sameFrameExtended(final ClassWriter cw) {
+        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC,
+                "sameFrameExtended",
+                "(Z)V",
+                null,
+                null);
         mv.visitCode();
         mv.visitFrame(F_SAME, 0, null, 0, null);
-        l0 = new Label();
+        Label l0 = new Label();
         mv.visitLabel(l0);
         mv.visitLdcInsn(new Long(11L));
         mv.visitVarInsn(LSTORE, 2);
@@ -414,265 +738,42 @@ public class Frames extends Generator {
         mv.visitLdcInsn(new Long(11L));
         mv.visitVarInsn(LSTORE, 26);
         mv.visitVarInsn(ILOAD, 1);
-        l1 = new Label();
+        Label l1 = new Label();
         mv.visitJumpInsn(IFEQ, l1);
         mv.visitInsn(RETURN);
         mv.visitFrame(F_SAME, 0, null, 0, null);
         mv.visitLabel(l1);
         mv.visitJumpInsn(GOTO, l0);
-        mv.visitMaxs(2, 28);
+        mv.visitMaxs(0, 0);
         mv.visitEnd();
+    }
 
-        mv = cw.visitMethod(ACC_PUBLIC,
-                "fullFrame",
-                "(Ljava/lang/String;[[Z[B[C[S[I[F[J[D[Ljava/lang/Object;)V",
-                null,
-                null);
-        mv.visitCode();
-        mv.visitLdcInsn(new Long(11L));
-        mv.visitVarInsn(LSTORE, 11);
-        mv.visitLdcInsn(new Long(11L));
-        mv.visitVarInsn(LSTORE, 13);
-        mv.visitLdcInsn(new Long(11L));
-        mv.visitVarInsn(LSTORE, 15);
-        mv.visitLdcInsn(new Long(11L));
-        mv.visitVarInsn(LSTORE, 17);
-        mv.visitVarInsn(ALOAD, 1);
-        l0 = new Label();
-        mv.visitJumpInsn(IFNONNULL, l0);
-        mv.visitInsn(RETURN);
-        mv.visitFrame(F_FULL, 15, new Object[] {
-            "pkg/FrameTable",
-            "java/lang/String",
-            "[[Z",
-            "[B",
-            "[C",
-            "[S",
-            "[I",
-            "[F",
-            "[J",
-            "[D",
-            "[Ljava/lang/Object;",
-            LONG,
-            LONG,
-            LONG,
-            LONG }, 0, new Object[] {});
-        mv.visitLabel(l0);
-        mv.visitInsn(RETURN);
-        mv.visitMaxs(2, 19);
-        mv.visitEnd();
-        
-        mv = cw.visitMethod(ACC_PUBLIC,
+    private void deadCode(final ClassWriter cw) {
+        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC,
                 "deadCode",
                 "(Z)V",
                 null,
                 null);
         mv.visitCode();
-        l0 = new Label();
-        l1 = new Label();
-        l2 = new Label();
-        l3 = new Label();
+        Label l0 = new Label();
+        Label l1 = new Label();
+        Label l2 = new Label();
+        Label l3 = new Label();
         mv.visitTryCatchBlock(l0, l1, l1, "java/lang/Exception");
-        mv.visitTryCatchBlock(l2, l3, l3, "java/lang/Exception");        
+        mv.visitTryCatchBlock(l2, l3, l3, "java/lang/Exception");
         mv.visitJumpInsn(GOTO, l2);
         mv.visitLabel(l0);
         mv.visitInsn(RETURN);
         mv.visitLabel(l1);
         mv.visitVarInsn(ASTORE, 2);
-        mv.visitInsn(RETURN);        
+        mv.visitInsn(RETURN);
         mv.visitLabel(l2);
         mv.visitInsn(RETURN);
         mv.visitLabel(l3);
         mv.visitVarInsn(ASTORE, 2);
         mv.visitInsn(RETURN);
-        mv.visitMaxs(1, 3);
+        mv.visitMaxs(0, 0);
         mv.visitEnd();
-        
-        mv = cw.visitMethod(ACC_PUBLIC,
-                "uninitializedLocal",
-                "(Z)V",
-                null,
-                null);
-        mv.visitCode();
-        l0 = new Label();
-        mv.visitLabel(l0);
-        mv.visitTypeInsn(NEW, "java/lang/Long");
-        mv.visitVarInsn(ASTORE, 2);
-        mv.visitVarInsn(ALOAD, 2);
-        mv.visitVarInsn(ILOAD, 1);
-        l1 = new Label();
-        mv.visitJumpInsn(IFEQ, l1);
-        mv.visitInsn(LCONST_0);
-        l2 = new Label();
-        mv.visitJumpInsn(GOTO, l2);
-        mv.visitFrame(F_FULL,
-                3,
-                new Object[] { "pkg/FrameTable", INTEGER, l0 },
-                1,
-                new Object[] { l0 });
-        mv.visitLabel(l1);
-        mv.visitInsn(LCONST_1);
-        mv.visitFrame(F_FULL,
-                3,
-                new Object[] { "pkg/FrameTable", INTEGER, l0 },
-                2,
-                new Object[] { l0, LONG });
-        mv.visitLabel(l2);
-        mv.visitMethodInsn(INVOKESPECIAL, "java/lang/Long", "<init>", "(J)V");
-        mv.visitInsn(RETURN);
-        mv.visitMaxs(3, 3);
-        mv.visitEnd();
-
-        mv = cw.visitMethod(ACC_PUBLIC, "merge", "(Z)V", null, null);
-        mv.visitCode();
-        mv.visitVarInsn(ILOAD, 1);
-        l0 = new Label();
-        mv.visitJumpInsn(IFEQ, l0);
-        mv.visitFieldInsn(GETSTATIC,
-                "pkg/FrameTable",
-                "long",
-                "Ljava/lang/Long;");
-        mv.visitVarInsn(ASTORE, 2);
-        mv.visitFieldInsn(GETSTATIC,
-                "pkg/FrameTable",
-                "number",
-                "Ljava/lang/Number;");
-        mv.visitVarInsn(ASTORE, 3);
-        mv.visitFieldInsn(GETSTATIC,
-                "pkg/FrameTable",
-                "number",
-                "Ljava/lang/Long;");
-        mv.visitVarInsn(ASTORE, 4);
-        mv.visitFieldInsn(GETSTATIC,
-                "pkg/FrameTable",
-                "comparable",
-                "Ljava/lang/Comparable;");
-        mv.visitVarInsn(ASTORE, 5);
-        mv.visitInsn(ACONST_NULL);
-        mv.visitVarInsn(ASTORE, 6);
-        mv.visitFieldInsn(GETSTATIC,
-                "pkg/FrameTable",
-                "double",
-                "Ljava/lang/Double;");
-        mv.visitVarInsn(ASTORE, 7);
-        mv.visitInsn(ICONST_0);
-        mv.visitVarInsn(ISTORE, 8);
-        mv.visitFieldInsn(GETSTATIC, "pkg/FrameTable", "intArray", "[I");
-        mv.visitVarInsn(ASTORE, 9);
-        mv.visitFieldInsn(GETSTATIC,
-                "pkg/FrameTable",
-                "double",
-                "Ljava/lang/Double;");
-        mv.visitVarInsn(ASTORE, 10);
-        l1 = new Label();
-        mv.visitJumpInsn(GOTO, l1);
-        mv.visitFrame(F_SAME, 0, null, 0, null);
-        mv.visitLabel(l0);
-        mv.visitFieldInsn(GETSTATIC,
-                "pkg/FrameTable",
-                "double",
-                "Ljava/lang/Double;");
-        mv.visitVarInsn(ASTORE, 2);
-        mv.visitFieldInsn(GETSTATIC,
-                "pkg/FrameTable",
-                "double",
-                "Ljava/lang/Double;");
-        mv.visitVarInsn(ASTORE, 3);
-        mv.visitFieldInsn(GETSTATIC,
-                "pkg/FrameTable",
-                "number",
-                "Ljava/lang/Number;");
-        mv.visitVarInsn(ASTORE, 4);
-        mv.visitFieldInsn(GETSTATIC,
-                "pkg/FrameTable",
-                "serializable",
-                "Ljava/io/Serializable;");
-        mv.visitVarInsn(ASTORE, 5);
-        mv.visitInsn(ACONST_NULL);
-        mv.visitVarInsn(ASTORE, 6);
-        mv.visitInsn(ACONST_NULL);
-        mv.visitVarInsn(ASTORE, 7);
-        mv.visitInsn(ACONST_NULL);
-        mv.visitVarInsn(ASTORE, 8);
-        mv.visitFieldInsn(GETSTATIC, "pkg/FrameTable", "floatArray", "[F");
-        mv.visitVarInsn(ASTORE, 9);
-        mv.visitFieldInsn(GETSTATIC, "pkg/FrameTable", "intArray", "[I");
-        mv.visitVarInsn(ASTORE, 10);
-        mv.visitFrame(F_FULL, 11, new Object[] {
-            "pkg/FrameTable",
-            INTEGER,
-            "java/lang/Number",
-            "java/lang/Number",
-            "java/lang/Number",
-            "java/lang/Object",
-            NULL,
-            "java/lang/Double",
-            TOP,
-            "java/lang/Object",
-            "java/lang/Object" }, 0, null);
-        mv.visitLabel(l1);
-        mv.visitInsn(RETURN);
-        mv.visitMaxs(1, 11);
-        mv.visitEnd();
-
-        mv = cw.visitMethod(ACC_PUBLIC, "mergeNullArray", "(Z)I", null, null);
-        mv.visitCode();
-        mv.visitVarInsn(ILOAD, 1);
-        l1 = new Label();
-        mv.visitJumpInsn(IFEQ, l1);
-        mv.visitInsn(ACONST_NULL);
-        mv.visitVarInsn(ASTORE, 2);
-        mv.visitVarInsn(ILOAD, 1);
-        l2 = new Label();
-        mv.visitJumpInsn(IFEQ, l2);
-        mv.visitFieldInsn(GETSTATIC,
-                "pkg/FrameTable",
-                "longArray",
-                "[Ljava/lang/Long;");
-        mv.visitVarInsn(ASTORE, 2);
-        mv.visitFrame(F_APPEND,
-                1,
-                new Object[] { "[Ljava/lang/Long;" },
-                0,
-                null);
-        mv.visitLabel(l2);
-        mv.visitVarInsn(ALOAD, 2);
-        l3 = new Label();
-        mv.visitJumpInsn(IFNULL, l3);
-        mv.visitVarInsn(ALOAD, 2);
-        mv.visitInsn(ARRAYLENGTH);
-        l4 = new Label();
-        mv.visitJumpInsn(IFNE, l4);
-        mv.visitFrame(F_SAME, 0, null, 0, null);
-        mv.visitLabel(l3);
-        mv.visitInsn(ACONST_NULL);
-        mv.visitVarInsn(ASTORE, 3);
-        l5 = new Label();
-        mv.visitJumpInsn(GOTO, l5);
-        mv.visitFrame(F_SAME, 0, null, 0, null);
-        mv.visitLabel(l4);
-        mv.visitVarInsn(ALOAD, 2);
-        mv.visitInsn(ICONST_0);
-        mv.visitInsn(AALOAD);
-        mv.visitVarInsn(ASTORE, 3);
-        mv.visitVarInsn(ILOAD, 1);
-        mv.visitJumpInsn(IFNE, l5);
-        mv.visitInsn(ACONST_NULL);
-        mv.visitVarInsn(ASTORE, 3);
-        mv.visitFrame(F_SAME, 0, null, 0, null);
-        mv.visitLabel(l5);
-        mv.visitVarInsn(ILOAD, 1);
-        mv.visitInsn(IRETURN);
-        mv.visitFrame(F_CHOP, 1, null, 0, null);
-        mv.visitLabel(l1);
-        mv.visitVarInsn(ILOAD, 1);
-        mv.visitInsn(IRETURN);
-        mv.visitMaxs(2, 4);
-        mv.visitEnd();
-
-        cw.visitEnd();
-
-        return cw.toByteArray();
     }
 
     /**

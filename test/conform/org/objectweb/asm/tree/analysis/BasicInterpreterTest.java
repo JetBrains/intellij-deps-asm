@@ -27,23 +27,39 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
  * THE POSSIBILITY OF SUCH DAMAGE.
  */
-package org.objectweb.asm.util;
+package org.objectweb.asm.tree.analysis;
 
-import junit.framework.TestCase;
+import java.util.List;
+
+import junit.framework.TestSuite;
+
+import org.objectweb.asm.AbstractTest;
+import org.objectweb.asm.ClassReader;
+import org.objectweb.asm.tree.ClassNode;
+import org.objectweb.asm.tree.MethodNode;
 
 /**
- * ASMifierClassVisitor unit tests
+ * Analysis tests.
  * 
  * @author Eric Bruneton
  */
-public class ASMifierUnitTest extends TestCase {
+public class BasicInterpreterTest extends AbstractTest {
 
-    public void testASMifierClassVisitor() throws Exception {
-        String s = getClass().getName();
-        ASMifierClassVisitor.main(new String[0]);
-        ASMifierClassVisitor.main(new String[] { "-debug" });
-        ASMifierClassVisitor.main(new String[] { s });
-        ASMifierClassVisitor.main(new String[] { "-debug", s });
-        ASMifierClassVisitor.main(new String[] { "output/test/cases/Interface.class" });
+    public static TestSuite suite() throws Exception {
+        return new BasicInterpreterTest().getSuite();
+    }
+
+    public void test() throws Exception {
+        ClassReader cr = new ClassReader(is);
+        ClassNode cn = new ClassNode();
+        cr.accept(cn, 0);
+        List methods = cn.methods;
+        for (int i = 0; i < methods.size(); ++i) {
+            MethodNode method = (MethodNode) methods.get(i);
+            if (method.instructions.size() > 0) {
+                Analyzer a = new Analyzer(new BasicInterpreter());
+                a.analyze(cn.name, method);
+            }
+        }
     }
 }

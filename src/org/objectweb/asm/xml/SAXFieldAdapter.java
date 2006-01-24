@@ -33,7 +33,6 @@ import org.objectweb.asm.AnnotationVisitor;
 import org.objectweb.asm.Attribute;
 import org.objectweb.asm.FieldVisitor;
 import org.xml.sax.ContentHandler;
-import org.xml.sax.SAXException;
 import org.xml.sax.helpers.AttributesImpl;
 
 /**
@@ -41,21 +40,15 @@ import org.xml.sax.helpers.AttributesImpl;
  * 
  * @author Eugene Kuleshov
  */
-public class SAXFieldAdapter implements FieldVisitor {
-    private final ContentHandler h;
+public class SAXFieldAdapter extends SAXAdapter implements FieldVisitor {
 
     public SAXFieldAdapter(ContentHandler h, AttributesImpl att) {
-        this.h = h;
-
-        try {
-            h.startElement("", "field", "field", att);
-        } catch (SAXException ex) {
-            throw new RuntimeException(ex.toString());
-        }
+        super(h);
+        addStart("field", att);
     }
 
     public AnnotationVisitor visitAnnotation(String desc, boolean visible) {
-        return new SAXAnnotationAdapter(h,
+        return new SAXAnnotationAdapter(getContentHandler(),
                 "annotation",
                 visible ? 1 : -1,
                 null,
@@ -67,11 +60,6 @@ public class SAXFieldAdapter implements FieldVisitor {
     }
 
     public void visitEnd() {
-        try {
-            h.endElement("", "field", "field");
-        } catch (SAXException ex) {
-            throw new RuntimeException(ex.toString());
-        }
+        addEnd("field");
     }
-
 }

@@ -35,7 +35,6 @@ import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
-import org.objectweb.asm.Opcodes;
 
 /**
  * Generates a class with debug information. Covers line number tables, local
@@ -51,10 +50,7 @@ public class Debug extends Generator {
     }
 
     public byte[] dump() {
-        ClassWriter cw = new ClassWriter(0);
-        FieldVisitor fv;
-        MethodVisitor mv;
-        Label l0, l1, l2;
+        ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_MAXS);
 
         cw.visit(V1_5,
                 ACC_PUBLIC + ACC_SUPER,
@@ -65,18 +61,22 @@ public class Debug extends Generator {
 
         cw.visitSource("Debug.java", "source-debug");
 
-        fv = cw.visitField(Opcodes.ACC_FINAL + Opcodes.ACC_STATIC,
+        FieldVisitor fv = cw.visitField(ACC_FINAL + ACC_STATIC,
                 "serialVersionUID",
                 "J",
                 null,
                 new Long(1L));
         fv.visitEnd();
 
-        mv = cw.visitMethod(ACC_PUBLIC, "<init>", "()V", null, null);
+        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC,
+                "<init>",
+                "()V",
+                null,
+                null);
         mv.visitCode();
-        l0 = new Label();
-        l1 = new Label();
-        l2 = new Label();
+        Label l0 = new Label();
+        Label l1 = new Label();
+        Label l2 = new Label();
         mv.visitLabel(l0);
         mv.visitLineNumber(3, l0);
         mv.visitVarInsn(ALOAD, 0);
@@ -89,7 +89,7 @@ public class Debug extends Generator {
         mv.visitInsn(RETURN);
         mv.visitLabel(l2);
         mv.visitLocalVariable("this", "Lpkg/Debug;", "Lpkg/Debug;", l0, l2, 0);
-        mv.visitMaxs(1, 1);
+        mv.visitMaxs(0, 0);
         mv.visitEnd();
 
         cw.visitEnd();

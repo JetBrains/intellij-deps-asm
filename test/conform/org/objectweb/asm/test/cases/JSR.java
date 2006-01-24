@@ -48,14 +48,13 @@ import org.objectweb.asm.MethodVisitor;
 public class JSR extends Generator {
 
     public void generate(final String dir) throws IOException {
-        generate(dir, "pkg/JSR1.class", dump1());
-        generate(dir, "pkg/JSR2.class", dump2());
+        generate(dir, "pkg/JSR1.class", dumpForwardJSR());
+        generate(dir, "pkg/JSR2.class", dumpBackwardJSR());
     }
 
-    public byte[] dump1() {
-        ClassWriter cw = new ClassWriter(0);
+    public byte[] dumpForwardJSR() {
+        ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_MAXS);
         MethodVisitor mv;
-        Label l0, l1, l2, l3, l4, l5;
 
         cw.visit(V1_1, ACC_PUBLIC, "pkg/JSR1", null, "java/lang/Object", null);
 
@@ -64,17 +63,17 @@ public class JSR extends Generator {
         mv.visitVarInsn(ALOAD, 0);
         mv.visitMethodInsn(INVOKESPECIAL, "java/lang/Object", "<init>", "()V");
         mv.visitInsn(RETURN);
-        mv.visitMaxs(1, 1);
+        mv.visitMaxs(0, 0);
         mv.visitEnd();
 
         mv = cw.visitMethod(ACC_PUBLIC, "forwardJSR", "([I)V", null, null);
         mv.visitCode();
-        l0 = new Label();
-        l1 = new Label();
-        l2 = new Label();
-        l3 = new Label();
-        l4 = new Label();
-        l5 = new Label();
+        Label l0 = new Label();
+        Label l1 = new Label();
+        Label l2 = new Label();
+        Label l3 = new Label();
+        Label l4 = new Label();
+        Label l5 = new Label();
         mv.visitTryCatchBlock(l0, l1, l2, null);
         mv.visitTryCatchBlock(l2, l3, l2, null);
         mv.visitLabel(l0);
@@ -95,10 +94,12 @@ public class JSR extends Generator {
         mv.visitInsn(ATHROW);
         mv.visitLabel(l4);
         mv.visitVarInsn(ASTORE, 3);
+        mv.visitInsn(DCONST_0);
+        mv.visitVarInsn(DSTORE, 4);
         mv.visitVarInsn(RET, 3);
         mv.visitLabel(l5);
         mv.visitInsn(RETURN);
-        mv.visitMaxs(2, 4);
+        mv.visitMaxs(0, 0);
         mv.visitEnd();
 
         cw.visitEnd();
@@ -106,10 +107,9 @@ public class JSR extends Generator {
         return cw.toByteArray();
     }
 
-    public byte[] dump2() {
-        ClassWriter cw = new ClassWriter(0);
+    public byte[] dumpBackwardJSR() {
+        ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_MAXS);
         MethodVisitor mv;
-        Label l0, l1, l2, l3, l4, l5, l6;
 
         cw.visit(V1_1, ACC_PUBLIC, "pkg/JSR2", null, "java/lang/Object", null);
 
@@ -118,23 +118,26 @@ public class JSR extends Generator {
         mv.visitVarInsn(ALOAD, 0);
         mv.visitMethodInsn(INVOKESPECIAL, "java/lang/Object", "<init>", "()V");
         mv.visitInsn(RETURN);
-        mv.visitMaxs(1, 1);
+        mv.visitMaxs(0, 0);
         mv.visitEnd();
 
         mv = cw.visitMethod(ACC_PUBLIC, "backwardJSR", "([I)V", null, null);
         mv.visitCode();
-        l0 = new Label();
-        l1 = new Label();
-        l2 = new Label();
-        l3 = new Label();
-        l4 = new Label();
-        l5 = new Label();
-        l6 = new Label();
+        Label l0 = new Label();
+        Label l1 = new Label();
+        Label l2 = new Label();
+        Label l3 = new Label();
+        Label l4 = new Label();
+        Label l5 = new Label();
+        Label l6 = new Label();
         mv.visitTryCatchBlock(l0, l1, l2, null);
         mv.visitTryCatchBlock(l2, l3, l2, null);
+        mv.visitInsn(ICONST_0);
+        mv.visitVarInsn(ISTORE, 4);
         mv.visitJumpInsn(GOTO, l0);
         mv.visitLabel(l4);
         mv.visitVarInsn(ASTORE, 3);
+        mv.visitIincInsn(4, 1);
         mv.visitVarInsn(RET, 3);
 
         /* extra instructions only used to trigger method resizing */
@@ -156,7 +159,7 @@ public class JSR extends Generator {
         mv.visitInsn(ATHROW);
         mv.visitLabel(l5);
         mv.visitInsn(RETURN);
-        mv.visitMaxs(2, 4);
+        mv.visitMaxs(0, 0);
         mv.visitEnd();
 
         cw.visitEnd();

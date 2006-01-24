@@ -956,9 +956,7 @@ class MethodWriter implements MethodVisitor {
         // adds the instruction to the bytecode of the method
         int source = code.length;
         code.putByte(Opcodes.TABLESWITCH);
-        while (code.length % 4 != 0) {
-            code.putByte(0);
-        }
+        code.length += (4 - code.length % 4) % 4;
         dflt.put(this, code, source, true);
         code.putInt(min).putInt(max);
         for (int i = 0; i < labels.length; ++i) {
@@ -993,9 +991,7 @@ class MethodWriter implements MethodVisitor {
         // adds the instruction to the bytecode of the method
         int source = code.length;
         code.putByte(Opcodes.LOOKUPSWITCH);
-        while (code.length % 4 != 0) {
-            code.putByte(0);
-        }
+        code.length += (4 - code.length % 4) % 4;
         dflt.put(this, code, source, true);
         code.putInt(labels.length);
         for (int i = 0; i < labels.length; ++i) {
@@ -1837,8 +1833,9 @@ class MethodWriter implements MethodVisitor {
     // ------------------------------------------------------------------------
 
     /**
-     * Resizes the designated instructions, while keeping jump offsets and
-     * instruction addresses consistent. This may require to resize other
+     * Resizes and replaces the temporary instructions inserted by
+     * {@link Label#resolve} for wide forward jumps, while keeping jump offsets
+     * and instruction addresses consistent. This may require to resize other
      * existing instructions, or even to introduce new instructions: for
      * example, increasing the size of an instruction by 2 at the middle of a
      * method can increases the offset of an IFEQ instruction from 32766 to
@@ -1849,24 +1846,6 @@ class MethodWriter implements MethodVisitor {
      * that is being built has been visited</i>. In particular, the
      * {@link Label Label} objects used to construct the method are no longer
      * valid after this method has been called.
-     * 
-     * @param indexes current positions of the instructions to be resized. Each
-     *        instruction must be designated by the index of its <i>last</i>
-     *        byte, plus one (or, in other words, by the index of the <i>first</i>
-     *        byte of the <i>next</i> instruction).
-     * @param sizes the number of bytes to be <i>added</i> to the above
-     *        instructions. More precisely, for each i &lt; <tt>len</tt>,
-     *        <tt>sizes</tt>[i] bytes will be added at the end of the
-     *        instruction designated by <tt>indexes</tt>[i] or, if
-     *        <tt>sizes</tt>[i] is negative, the <i>last</i> |<tt>sizes[i]</tt>|
-     *        bytes of the instruction will be removed (the instruction size
-     *        <i>must not</i> become negative or null). The gaps introduced by
-     *        this method must be filled in "manually" in {@link #code code}
-     *        method.
-     * @param len the number of instruction to be resized. Must be smaller than
-     *        or equal to <tt>indexes</tt>.length and <tt>sizes</tt>.length.
-     * @return the <tt>indexes</tt> array, which now contains the new
-     *         positions of the resized instructions (designated as above).
      */
     private void resizeInstructions() {
         byte[] b = code.data; // bytecode of the method
@@ -2113,9 +2092,7 @@ class MethodWriter implements MethodVisitor {
                     u = u + 4 - (v & 3);
                     // reads and copies instruction
                     newCode.putByte(Opcodes.TABLESWITCH);
-                    while (newCode.length % 4 != 0) {
-                        newCode.putByte(0);
-                    }
+                    newCode.length += (4 - newCode.length % 4) % 4;
                     label = v + readInt(b, u);
                     u += 4;
                     newOffset = getNewOffset(allIndexes, allSizes, v, label);
@@ -2139,9 +2116,7 @@ class MethodWriter implements MethodVisitor {
                     u = u + 4 - (v & 3);
                     // reads and copies instruction
                     newCode.putByte(Opcodes.LOOKUPSWITCH);
-                    while (newCode.length % 4 != 0) {
-                        newCode.putByte(0);
-                    }
+                    newCode.length += (4 - newCode.length % 4) % 4;
                     label = v + readInt(b, u);
                     u += 4;
                     newOffset = getNewOffset(allIndexes, allSizes, v, label);

@@ -39,7 +39,7 @@ import junit.framework.TestCase;
  * 
  * @author Eric Bruneton
  */
-public class TypeUnitTest extends TestCase {
+public class TypeUnitTest extends TestCase implements Opcodes {
 
     public void testConstants() {
         assertEquals(Type.getType(Integer.TYPE), Type.INT_TYPE);
@@ -52,13 +52,13 @@ public class TypeUnitTest extends TestCase {
         assertEquals(Type.getType(Float.TYPE), Type.FLOAT_TYPE);
         assertEquals(Type.getType(Long.TYPE), Type.LONG_TYPE);
     }
-    
+
     public void testInternalName() {
         String s1 = Type.getType(TypeUnitTest.class).getInternalName();
         String s2 = Type.getInternalName(TypeUnitTest.class);
         assertEquals(s1, s2);
     }
-    
+
     public void testMethodDescriptor() {
         for (int i = 0; i < Arrays.class.getMethods().length; ++i) {
             Method m = Arrays.class.getMethods()[i];
@@ -69,7 +69,28 @@ public class TypeUnitTest extends TestCase {
             assertEquals(d1, d2);
         }
     }
-    
+
+    public void testGetOpcode() {
+        Type object = Type.getType("Ljava/lang/Object;");
+        assertEquals(Type.BOOLEAN_TYPE.getOpcode(IALOAD), BALOAD);
+        assertEquals(Type.BYTE_TYPE.getOpcode(IALOAD), BALOAD);
+        assertEquals(Type.CHAR_TYPE.getOpcode(IALOAD), CALOAD);
+        assertEquals(Type.SHORT_TYPE.getOpcode(IALOAD), SALOAD);
+        assertEquals(Type.INT_TYPE.getOpcode(IALOAD), IALOAD);
+        assertEquals(Type.FLOAT_TYPE.getOpcode(IALOAD), FALOAD);
+        assertEquals(Type.LONG_TYPE.getOpcode(IALOAD), LALOAD);
+        assertEquals(Type.DOUBLE_TYPE.getOpcode(IALOAD), DALOAD);
+        assertEquals(object.getOpcode(IALOAD), AALOAD);
+        assertEquals(Type.BOOLEAN_TYPE.getOpcode(IADD), IADD);
+        assertEquals(Type.BYTE_TYPE.getOpcode(IADD), IADD);
+        assertEquals(Type.CHAR_TYPE.getOpcode(IADD), IADD);
+        assertEquals(Type.SHORT_TYPE.getOpcode(IADD), IADD);
+        assertEquals(Type.INT_TYPE.getOpcode(IADD), IADD);
+        assertEquals(Type.FLOAT_TYPE.getOpcode(IADD), FADD);
+        assertEquals(Type.LONG_TYPE.getOpcode(IADD), LADD);
+        assertEquals(Type.DOUBLE_TYPE.getOpcode(IADD), DADD);
+    }
+
     public void testHashcode() {
         Type.getType("Ljava/lang/Object;").hashCode();
     }

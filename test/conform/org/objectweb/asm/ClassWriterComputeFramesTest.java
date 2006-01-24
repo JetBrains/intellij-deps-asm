@@ -47,7 +47,7 @@ import junit.framework.TestSuite;
  * 
  * @author Eric Bruneton
  */
-public class ClassWriterTest3 extends AbstractTest {
+public class ClassWriterComputeFramesTest extends AbstractTest {
 
     public static void premain(
         final String agentArgs,
@@ -128,7 +128,7 @@ public class ClassWriterTest3 extends AbstractTest {
     }
 
     public static TestSuite suite() throws Exception {
-        return new ClassWriterTest3().getSuite();
+        return new ClassWriterComputeFramesTest().getSuite();
     }
 
     public void test() throws Exception {

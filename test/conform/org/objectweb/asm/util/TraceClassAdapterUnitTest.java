@@ -44,9 +44,6 @@ public class TraceClassAdapterUnitTest extends TestCase {
         TraceClassVisitor.main(new String[] { "-debug" });
         TraceClassVisitor.main(new String[] { s });
         TraceClassVisitor.main(new String[] { "-debug", s });
-        try {
-            TraceClassVisitor.main(new String[] { s + ".class" });
-        } catch (Exception e) {
-        }
+        TraceClassVisitor.main(new String[] { "output/test/cases/Interface.class" });
     }
 }

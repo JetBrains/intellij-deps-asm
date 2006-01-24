@@ -27,23 +27,23 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
  * THE POSSIBILITY OF SUCH DAMAGE.
  */
-package org.objectweb.asm.util;
+package org.objectweb.asm.tree.analysis;
 
 import junit.framework.TestCase;
 
 /**
- * ASMifierClassVisitor unit tests
+ * IntMap unit tests.
  * 
  * @author Eric Bruneton
  */
-public class ASMifierUnitTest extends TestCase {
+public class IntMapUnitTest extends TestCase {
 
-    public void testASMifierClassVisitor() throws Exception {
-        String s = getClass().getName();
-        ASMifierClassVisitor.main(new String[0]);
-        ASMifierClassVisitor.main(new String[] { "-debug" });
-        ASMifierClassVisitor.main(new String[] { s });
-        ASMifierClassVisitor.main(new String[] { "-debug", s });
-        ASMifierClassVisitor.main(new String[] { "output/test/cases/Interface.class" });
+    public void testNoSuchElement() {
+        IntMap m = new IntMap(1);
+        try {
+            m.get(new Object());
+            fail();
+        } catch (Exception e) {
+        }
     }
 }

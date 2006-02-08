@@ -29,6 +29,8 @@
  */
 package org.objectweb.asm.util;
 
+import java.io.PrintWriter;
+
 import junit.framework.TestCase;
 
 import org.objectweb.asm.AnnotationVisitor;
@@ -53,7 +55,7 @@ public class CheckClassAdapterUnitTest extends TestCase implements Opcodes {
 
     public void testVerifyValidClass() throws Exception {
         ClassReader cr = new ClassReader(getClass().getName());
-        CheckClassAdapter.verify(cr, true);
+        CheckClassAdapter.verify(cr, true, new PrintWriter(System.err));
     }
 
     public void testVerifyInvalidClass() {
@@ -68,7 +70,7 @@ public class CheckClassAdapterUnitTest extends TestCase implements Opcodes {
         mv.visitEnd();
         cw.visitEnd();
         ClassReader cr = new ClassReader(cw.toByteArray());
-        CheckClassAdapter.verify(cr, true);
+        CheckClassAdapter.verify(cr, true, new PrintWriter(System.err));
     }
 
     public void testIllegalClassAccessFlag() {

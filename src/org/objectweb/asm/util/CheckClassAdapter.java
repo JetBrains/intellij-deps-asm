@@ -30,6 +30,7 @@
 package org.objectweb.asm.util;
 
 import java.io.FileInputStream;
+import java.io.PrintWriter;
 import java.util.List;
 
 import org.objectweb.asm.AnnotationVisitor;
@@ -103,10 +104,17 @@ public class CheckClassAdapter extends ClassAdapter {
             cr = new ClassReader(args[0]);
         }
 
-        verify(cr, false);
+        verify(cr, false, new PrintWriter(System.err));
     }
 
-    public static void verify(ClassReader cr, boolean dump) {
+    /**
+     * Checks a given class
+     * 
+     * @param cr a <code>ClassReader</code> that contains bytecode for the analysis. 
+     * @param dump true if bytecode should be printed out not only when errors are found.
+     * @param pw write where results going to be printed
+     */
+    public static void verify(ClassReader cr, boolean dump, PrintWriter pw) {
         ClassNode cn = new ClassNode();
         cr.accept(new CheckClassAdapter(cn), ClassReader.SKIP_DEBUG);
 
@@ -130,7 +138,7 @@ public class CheckClassAdapter extends ClassAdapter {
                 TraceMethodVisitor mv = new TraceMethodVisitor();
                 method.accept(mv);
                 
-                System.err.println(method.name + method.desc);
+                pw.println(method.name + method.desc);
                 for (int j = 0; j < method.instructions.size(); ++j) {
                     String s = frames[j] == null
                             ? "null"
@@ -138,11 +146,10 @@ public class CheckClassAdapter extends ClassAdapter {
                     while (s.length() < method.maxStack + method.maxLocals + 1) {
                         s += " ";
                     }
-                    System.err.print(Integer.toString(j + 100000)
-                            .substring(1));
-                    System.err.print(" " + s + " : " + mv.text.get(j));
+                    pw.print(Integer.toString(j + 100000).substring(1));
+                    pw.print(" " + s + " : " + mv.text.get(j));
                 }
-                System.err.println();
+                pw.println();
             }
         }
     }

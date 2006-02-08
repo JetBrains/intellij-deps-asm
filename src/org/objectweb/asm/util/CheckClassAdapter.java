@@ -30,6 +30,7 @@
 package org.objectweb.asm.util;
 
 import java.io.FileInputStream;
+import java.io.PrintWriter;
 import java.util.List;
 
 import org.objectweb.asm.AnnotationVisitor;
@@ -105,7 +106,7 @@ public class CheckClassAdapter extends ClassAdapter {
             cr = new ClassReader(args[0]);
         }
 
-        verify(cr, false);
+        verify(cr, false, new PrintWriter(System.err));
     }
 
     /**
@@ -113,8 +114,9 @@ public class CheckClassAdapter extends ClassAdapter {
      * 
      * @param cr a <code>ClassReader</code> that contains bytecode for the analysis. 
      * @param dump true if bytecode should be printed out not only when errors are found.
+     * @param pw write where results going to be printed
      */
-    public static void verify(ClassReader cr, boolean dump) {
+    public static void verify(ClassReader cr, boolean dump, PrintWriter pw) {
         ClassNode cn = new ClassNode();
         cr.accept(new CheckClassAdapter(cn), true);
 
@@ -138,7 +140,7 @@ public class CheckClassAdapter extends ClassAdapter {
 
                 TraceMethodVisitor mv = new TraceMethodVisitor();
 
-                System.err.println(method.name + method.desc);
+                pw.println(method.name + method.desc);
                 for (int j = 0; j < method.instructions.size(); ++j) {
                     ((AbstractInsnNode) method.instructions.get(j)).accept(mv);
                     
@@ -161,14 +163,14 @@ public class CheckClassAdapter extends ClassAdapter {
                     {
                         s.append(' ');
                     }
-                    System.err.print(Integer.toString(j + 100000).substring(1));
-                    System.err.print(" " + s + " : " + mv.buf); // mv.text.get(j));
+                    pw.print(Integer.toString(j + 100000).substring(1));
+                    pw.print(" " + s + " : " + mv.buf); // mv.text.get(j));
                 }
                 for (int j = 0; j < method.tryCatchBlocks.size(); ++j) {
                     ((TryCatchBlockNode) method.tryCatchBlocks.get(j)).accept(mv);
-                    System.err.print(" " + mv.buf);
+                    pw.print(" " + mv.buf);
                 }
-                System.err.println();
+                pw.println();
             }
         }
     }

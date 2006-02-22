@@ -1290,15 +1290,11 @@ public class ClassWriter implements ClassVisitor {
      *         item, or <tt>null</tt> if there is no such item.
      */
     private Item get(final Item key) {
-        int h = key.hashCode;
-        Item i = items[h % items.length];
-        while (i != null) {
-            if (i.hashCode == h && key.isEqualTo(i)) {
-                return i;
-            }
+        Item i = items[key.hashCode % items.length];
+        while (i != null && !key.isEqualTo(i)) {
             i = i.next;
         }
-        return null;
+        return i;
     }
 
     /**
@@ -1309,8 +1305,10 @@ public class ClassWriter implements ClassVisitor {
      */
     private void put(final Item i) {
         if (index > threshold) {
-            Item[] newItems = new Item[items.length * 2 + 1];
-            for (int l = items.length - 1; l >= 0; --l) {
+            int ll = items.length;
+            int nl = ll * 2 + 1;
+            Item[] newItems = new Item[nl];
+            for (int l = ll - 1; l >= 0; --l) {
                 Item j = items[l];
                 while (j != null) {
                     int index = j.hashCode % newItems.length;
@@ -1321,7 +1319,7 @@ public class ClassWriter implements ClassVisitor {
                 }
             }
             items = newItems;
-            threshold = (int) (items.length * 0.75);
+            threshold = (int) (nl * 0.75);
         }
         int index = i.hashCode % items.length;
         i.next = items[index];

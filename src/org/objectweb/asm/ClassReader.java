@@ -410,19 +410,12 @@ public class ClassReader {
         v += 2;
         for (; i > 0; --i) {
             attrName = readUTF8(v, c);
+            // tests are sorted in decreasing frequency order 
+            // (based on frequencies observed on typical classes)
             if (attrName.equals("SourceFile")) {
                 sourceFile = readUTF8(v + 6, c);
-            } else if (attrName.equals("Deprecated")) {
-                access |= Opcodes.ACC_DEPRECATED;
-            } else if (attrName.equals("Synthetic")) {
-                access |= Opcodes.ACC_SYNTHETIC;
             } else if (attrName.equals("InnerClasses")) {
                 w = v + 6;
-            } else if (attrName.equals("Signature")) {
-                signature = readUTF8(v + 6, c);
-            } else if (attrName.equals("SourceDebugExtension")) {
-                int len = readInt(v + 2);
-                sourceDebug = readUTF(v + 6, len, new char[len]);
             } else if (attrName.equals("EnclosingMethod")) {
                 enclosingOwner = readClass(v + 6, c);
                 int item = readUnsignedShort(v + 8);
@@ -430,8 +423,17 @@ public class ClassReader {
                     enclosingName = readUTF8(items[item], c);
                     enclosingDesc = readUTF8(items[item] + 2, c);
                 }
+            } else if (attrName.equals("Signature")) {
+                signature = readUTF8(v + 6, c);
             } else if (attrName.equals("RuntimeVisibleAnnotations")) {
                 anns = v + 6;
+            } else if (attrName.equals("Deprecated")) {
+                access |= Opcodes.ACC_DEPRECATED;
+            } else if (attrName.equals("Synthetic")) {
+                access |= Opcodes.ACC_SYNTHETIC;
+            } else if (attrName.equals("SourceDebugExtension")) {
+                int len = readInt(v + 2);
+                sourceDebug = readUTF(v + 6, len, new char[len]);
             } else if (attrName.equals("RuntimeInvisibleAnnotations")) {
                 ianns = v + 6;
             } else {
@@ -528,14 +530,16 @@ public class ClassReader {
             u += 8;
             for (; j > 0; --j) {
                 attrName = readUTF8(u, c);
+                // tests are sorted in decreasing frequency order 
+                // (based on frequencies observed on typical classes)
                 if (attrName.equals("ConstantValue")) {
                     fieldValueItem = readUnsignedShort(u + 6);
-                } else if (attrName.equals("Synthetic")) {
-                    access |= Opcodes.ACC_SYNTHETIC;
-                } else if (attrName.equals("Deprecated")) {
-                    access |= Opcodes.ACC_DEPRECATED;
                 } else if (attrName.equals("Signature")) {
                     signature = readUTF8(u + 6, c);
+                } else if (attrName.equals("Deprecated")) {
+                    access |= Opcodes.ACC_DEPRECATED;
+                } else if (attrName.equals("Synthetic")) {
+                    access |= Opcodes.ACC_SYNTHETIC;
                 } else if (attrName.equals("RuntimeVisibleAnnotations")) {
                     anns = u + 6;
                 } else if (attrName.equals("RuntimeInvisibleAnnotations")) {
@@ -617,20 +621,22 @@ public class ClassReader {
                 u += 2;
                 int attrSize = readInt(u);
                 u += 4;
+                // tests are sorted in decreasing frequency order 
+                // (based on frequencies observed on typical classes)
                 if (attrName.equals("Code")) {
                     v = u;
                 } else if (attrName.equals("Exceptions")) {
                     w = u;
-                } else if (attrName.equals("Synthetic")) {
-                    access |= Opcodes.ACC_SYNTHETIC;
-                } else if (attrName.equals("Deprecated")) {
-                    access |= Opcodes.ACC_DEPRECATED;
                 } else if (attrName.equals("Signature")) {
                     signature = readUTF8(u, c);
-                } else if (attrName.equals("AnnotationDefault")) {
-                    dann = u;
+                } else if (attrName.equals("Deprecated")) {
+                    access |= Opcodes.ACC_DEPRECATED;
                 } else if (attrName.equals("RuntimeVisibleAnnotations")) {
                     anns = u;
+                } else if (attrName.equals("AnnotationDefault")) {
+                    dann = u;
+                } else if (attrName.equals("Synthetic")) {
+                    access |= Opcodes.ACC_SYNTHETIC;
                 } else if (attrName.equals("RuntimeInvisibleAnnotations")) {
                     ianns = u;
                 } else if (attrName.equals("RuntimeVisibleParameterAnnotations"))

@@ -410,7 +410,7 @@ public class ClassReader {
         v += 2;
         for (; i > 0; --i) {
             attrName = readUTF8(v, c);
-            // tests are sorted in decreasing frequency order 
+            // tests are sorted in decreasing frequency order
             // (based on frequencies observed on typical classes)
             if (attrName.equals("SourceFile")) {
                 sourceFile = readUTF8(v + 6, c);
@@ -478,11 +478,9 @@ public class ClassReader {
                 j = readUnsignedShort(v);
                 v += 2;
                 for (; j > 0; --j) {
-                    desc = readUTF8(v, c);
-                    v += 2;
-                    v = readAnnotationValues(v,
+                    v = readAnnotationValues(v + 2,
                             c,
-                            classVisitor.visitAnnotation(desc, i != 0));
+                            classVisitor.visitAnnotation(readUTF8(v, c), i != 0));
                 }
             }
         }
@@ -530,7 +528,7 @@ public class ClassReader {
             u += 8;
             for (; j > 0; --j) {
                 attrName = readUTF8(u, c);
-                // tests are sorted in decreasing frequency order 
+                // tests are sorted in decreasing frequency order
                 // (based on frequencies observed on typical classes)
                 if (attrName.equals("ConstantValue")) {
                     fieldValueItem = readUnsignedShort(u + 6);
@@ -559,16 +557,12 @@ public class ClassReader {
                 }
                 u += 6 + readInt(u + 2);
             }
-            // reads the field's value, if any
-            Object value = (fieldValueItem == 0
-                    ? null
-                    : readConst(fieldValueItem, c));
             // visits the field
             FieldVisitor fv = classVisitor.visitField(access,
                     name,
                     desc,
                     signature,
-                    value);
+                    fieldValueItem == 0 ? null : readConst(fieldValueItem, c));
             // visits the field annotations and attributes
             if (fv != null) {
                 for (j = 1; j >= 0; --j) {
@@ -577,11 +571,9 @@ public class ClassReader {
                         k = readUnsignedShort(v);
                         v += 2;
                         for (; k > 0; --k) {
-                            desc = readUTF8(v, c);
-                            v += 2;
-                            v = readAnnotationValues(v,
+                            v = readAnnotationValues(v + 2,
                                     c,
-                                    fv.visitAnnotation(desc, j != 0));
+                                    fv.visitAnnotation(readUTF8(v, c), j != 0));
                         }
                     }
                 }
@@ -618,10 +610,9 @@ public class ClassReader {
             u += 8;
             for (; j > 0; --j) {
                 attrName = readUTF8(u, c);
-                u += 2;
-                int attrSize = readInt(u);
-                u += 4;
-                // tests are sorted in decreasing frequency order 
+                int attrSize = readInt(u + 2);
+                u += 6;
+                // tests are sorted in decreasing frequency order
                 // (based on frequencies observed on typical classes)
                 if (attrName.equals("Code")) {
                     v = u;
@@ -739,11 +730,9 @@ public class ClassReader {
                         k = readUnsignedShort(w);
                         w += 2;
                         for (; k > 0; --k) {
-                            String adesc = readUTF8(w, c);
-                            w += 2;
-                            w = readAnnotationValues(w,
+                            w = readAnnotationValues(w + 2,
                                     c,
-                                    mv.visitAnnotation(adesc, j != 0));
+                                    mv.visitAnnotation(readUTF8(w, c), j != 0));
                         }
                     }
                 }
@@ -810,14 +799,11 @@ public class ClassReader {
                             v = v + 4 - (w & 3);
                             // reads instruction
                             label = w + readInt(v);
-                            v += 4;
                             if (labels[label] == null) {
                                 labels[label] = new Label();
                             }
-                            j = readInt(v);
-                            v += 4;
-                            j = readInt(v) - j + 1;
-                            v += 4;
+                            j = readInt(v + 8) - readInt(v + 4) + 1;
+                            v += 12;
                             for (; j > 0; --j) {
                                 label = w + readInt(v);
                                 v += 4;
@@ -832,16 +818,14 @@ public class ClassReader {
                             v = v + 4 - (w & 3);
                             // reads instruction
                             label = w + readInt(v);
-                            v += 4;
                             if (labels[label] == null) {
                                 labels[label] = new Label();
                             }
-                            j = readInt(v);
-                            v += 4;
+                            j = readInt(v + 4);
+                            v += 8;
                             for (; j > 0; --j) {
-                                v += 4; // skips key
-                                label = w + readInt(v);
-                                v += 4;
+                                label = w + readInt(v + 4);
+                                v += 8;
                                 if (labels[label] == null) {
                                     labels[label] = new Label();
                                 }
@@ -1242,11 +1226,9 @@ public class ClassReader {
                             v = v + 4 - (w & 3);
                             // reads instruction
                             label = w + readInt(v);
-                            v += 4;
-                            int min = readInt(v);
-                            v += 4;
-                            int max = readInt(v);
-                            v += 4;
+                            int min = readInt(v + 4);
+                            int max = readInt(v + 8);
+                            v += 12;
                             Label[] table = new Label[max - min + 1];
                             for (j = 0; j < table.length; ++j) {
                                 table[j] = labels[w + readInt(v)];
@@ -1262,16 +1244,14 @@ public class ClassReader {
                             v = v + 4 - (w & 3);
                             // reads instruction
                             label = w + readInt(v);
-                            v += 4;
-                            j = readInt(v);
-                            v += 4;
+                            j = readInt(v + 4);
+                            v += 8;
                             int[] keys = new int[j];
                             Label[] values = new Label[j];
                             for (j = 0; j < keys.length; ++j) {
                                 keys[j] = readInt(v);
-                                v += 4;
-                                values[j] = labels[w + readInt(v)];
-                                v += 4;
+                                values[j] = labels[w + readInt(v + 4)];
+                                v += 8;
                             }
                             mv.visitLookupSwitchInsn(labels[label],
                                     keys,
@@ -1340,9 +1320,8 @@ public class ClassReader {
                 if (!skipDebug && varTable != 0) {
                     int[] typeTable = null;
                     if (varTypeTable != 0) {
-                        w = varTypeTable;
-                        k = readUnsignedShort(w) * 3;
-                        w += 2;
+                        k = readUnsignedShort(varTypeTable) * 3;
+                        w = varTypeTable + 2;
                         typeTable = new int[k];
                         while (k > 0) {
                             typeTable[--k] = w + 6; // signature
@@ -1351,9 +1330,8 @@ public class ClassReader {
                             w += 10;
                         }
                     }
-                    w = varTable;
-                    k = readUnsignedShort(w);
-                    w += 2;
+                    k = readUnsignedShort(varTable);
+                    w = varTable + 2;
                     for (; k > 0; --k) {
                         int start = readUnsignedShort(w);
                         int length = readUnsignedShort(w + 2);
@@ -1420,12 +1398,11 @@ public class ClassReader {
             int j = readUnsignedShort(v);
             v += 2;
             for (; j > 0; --j) {
-                String desc = readUTF8(v, buf);
-                v += 2;
-                AnnotationVisitor av = mv.visitParameterAnnotation(i,
-                        desc,
-                        visible);
-                v = readAnnotationValues(v, buf, av);
+                v = readAnnotationValues(v + 2,
+                        buf,
+                        mv.visitParameterAnnotation(i,
+                                readUTF8(v, buf),
+                                visible));
             }
         }
     }
@@ -1449,9 +1426,7 @@ public class ClassReader {
         int i = readUnsignedShort(v);
         v += 2;
         for (; i > 0; --i) {
-            String name = readUTF8(v, buf);
-            v += 2;
-            v = readAnnotationValue(v, buf, name, av);
+            v = readAnnotationValue(v + 2, buf, readUTF8(v, buf), av);
         }
         av.visitEnd();
         return v;
@@ -1490,8 +1465,9 @@ public class ClassReader {
                 v += 2;
                 break;
             case 'Z': // pointer to CONSTANT_Boolean
-                boolean b = readInt(items[readUnsignedShort(v)]) == 0;
-                av.visit(name, b ? Boolean.FALSE : Boolean.TRUE);
+                av.visit(name, readInt(items[readUnsignedShort(v)]) == 0
+                        ? Boolean.FALSE
+                        : Boolean.TRUE);
                 v += 2;
                 break;
             case 'S': // pointer to CONSTANT_Short
@@ -1517,9 +1493,8 @@ public class ClassReader {
                 v += 2;
                 break;
             case '@': // annotation_value
-                String desc = readUTF8(v, buf);
-                v += 2;
-                v = readAnnotationValues(v, buf, av.visitAnnotation(name, desc));
+                v = readAnnotationValues(v + 2, buf, av.visitAnnotation(name,
+                        readUTF8(v, buf)));
                 break;
             case '[': // array_value
                 int size = readUnsignedShort(v);

@@ -72,7 +72,12 @@ public class SimpleVerifier extends BasicVerifier {
     }
 
     public Value newValue(final Type type) {
-        if ((type != null) && (type.getSort() == Type.ARRAY)) {
+        if(type==null) {
+            return BasicValue.UNINITIALIZED_VALUE;
+        }
+        
+        boolean isArray = type.getSort() == Type.ARRAY; 
+        if (isArray) {
             switch (type.getElementType().getSort()) {
                 case Type.BOOLEAN:
                 case Type.CHAR:
@@ -84,7 +89,7 @@ public class SimpleVerifier extends BasicVerifier {
 
         Value v = super.newValue(type);
         if (v == BasicValue.REFERENCE_VALUE) {
-            if (type.getSort() == Type.ARRAY) {
+            if (isArray) {
                 v = newValue(type.getElementType());
                 String desc = ((BasicValue) v).getType().getDescriptor();
                 for (int i = 0; i < type.getDimensions(); ++i) {

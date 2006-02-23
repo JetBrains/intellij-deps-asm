@@ -286,11 +286,7 @@ public class TraceMethodVisitor extends TraceAbstractVisitor implements
         buf.setLength(0);
         buf.append(tab2).append("LDC ");
         if (cst instanceof String) {
-            if (cst == null) {
-                buf.append("null");
-            } else if (cst instanceof String) {
-                AbstractVisitor.appendString(buf, (String) cst);
-            }
+            AbstractVisitor.appendString(buf, (String) cst);
         } else if (cst instanceof Type) {
             buf.append(((Type) cst).getDescriptor() + ".class");
         } else {
@@ -479,7 +475,7 @@ public class TraceMethodVisitor extends TraceAbstractVisitor implements
      * 
      * @param l a label.
      */
-    protected void appendLabel(final Label l) {
+    public void appendLabel(final Label l) {
         String name = (String) labelNames.get(l);
         if (name == null) {
             name = "L" + labelNames.size();

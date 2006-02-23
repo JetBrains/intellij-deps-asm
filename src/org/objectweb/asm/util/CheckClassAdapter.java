@@ -189,7 +189,7 @@ public class CheckClassAdapter extends ClassAdapter {
         if (!name.endsWith("package-info")) {
             CheckMethodAdapter.checkInternalName(name, "class name");
         }
-        if (name.equals("java/lang/Object")) {
+        if ("java/lang/Object".equals(name)) {
             if (superName != null) {
                 throw new IllegalArgumentException("The super class name of the Object class must be 'null'");
             }
@@ -200,7 +200,7 @@ public class CheckClassAdapter extends ClassAdapter {
             // TODO
         }
         if ((access & Opcodes.ACC_INTERFACE) != 0) {
-            if (!superName.equals("java/lang/Object")) {
+            if (!"java/lang/Object".equals(superName)) {
                 throw new IllegalArgumentException("The super class name of interfaces must be 'java/lang/Object'");
             }
         }

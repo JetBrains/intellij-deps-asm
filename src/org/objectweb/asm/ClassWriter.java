@@ -607,8 +607,7 @@ public class ClassWriter implements ClassVisitor {
             sourceFile = newUTF8(file);
         }
         if (debug != null) {
-            sourceDebug = new ByteVector();
-            sourceDebug.putUTF8(debug);
+            sourceDebug = new ByteVector().putUTF8(debug);
         }
     }
 

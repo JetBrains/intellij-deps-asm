@@ -29,6 +29,8 @@
  */
 package org.objectweb.asm.tree.analysis;
 
+import java.util.List;
+
 import org.objectweb.asm.Type;
 
 /**
@@ -50,6 +52,11 @@ public class SimpleVerifier extends BasicVerifier {
      * The super class of the class that is verified.
      */
     private final Type currentSuperClass;
+
+    /**
+     * The interfaces implemented by the class that is verified.
+     */
+    private final List currentClassInterfaces;
 
     /**
      * If the class that is verified is an interface.
@@ -76,8 +83,28 @@ public class SimpleVerifier extends BasicVerifier {
         final Type currentSuperClass,
         final boolean isInterface)
     {
+        this(currentClass, currentSuperClass, null, isInterface);
+    }
+
+    /**
+     * Constructs a new {@link SimpleVerifier} to verify a specific class. This
+     * class will not be loaded into the JVM since it may be incorrect.
+     * 
+     * @param currentClass the class that is verified.
+     * @param currentSuperClass the super class of the class that is verified.
+     * @param currentClassInterfaces the interfaces implemented by the class
+     *        that is verified.
+     * @param isInterface if the class that is verified is an interface.
+     */
+    public SimpleVerifier(
+        final Type currentClass,
+        final Type currentSuperClass,
+        final List currentClassInterfaces,
+        final boolean isInterface)
+    {
         this.currentClass = currentClass;
         this.currentSuperClass = currentSuperClass;
+        this.currentClassInterfaces = currentClassInterfaces;
         this.isInterface = isInterface;
     }
 
@@ -210,7 +237,18 @@ public class SimpleVerifier extends BasicVerifier {
             return isAssignableFrom(t, getSuperClass(u));
         }
         if (currentClass != null && u.equals(currentClass)) {
-            return isAssignableFrom(t, currentSuperClass);
+            if (isAssignableFrom(t, currentSuperClass)) {
+                return true;
+            }
+            if (currentClassInterfaces != null) {
+                for (int i = 0; i < currentClassInterfaces.size(); ++i) {
+                    Type v = (Type) currentClassInterfaces.get(i);
+                    if (isAssignableFrom(t, v)) {
+                        return true;
+                    }
+                }
+            }
+            return false;
         }
         return getClass(t).isAssignableFrom(getClass(u));
     }

@@ -1,4 +1,4 @@
-#Wed Aug 24 16:13:37 CEST 2005
+#Thu Apr 06 21:30:07 CEST 2006
 comment_clear_blank_lines=false
 comment_format_comments=true
 comment_format_header=false
@@ -10,3 +10,4 @@ comment_line_length=80
 comment_new_line_for_parameter=false
 comment_separate_root_tags=true
 eclipse.preferences.version=1
+formatter_settings_version=10

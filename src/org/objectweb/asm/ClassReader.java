@@ -73,6 +73,13 @@ public class ClassReader {
     public final static int EXPAND_FRAMES = 4;
 
     /**
+     * Flag to skip method code. If this class is set <code>CODE</code>
+     * atribute won't be visited. This can be used, for example, to
+     * retrieve annotations for methods and method parameters.
+     */
+    public final static int SKIP_METHOD_CODE = 8;
+
+    /**
      * The class to be parsed. <i>The content of this array must not be
      * modified. This field is intended for {@link Attribute} sub classes, and
      * is normally not needed by class generators or adapters.</i>
@@ -377,6 +384,7 @@ public class ClassReader {
 
         boolean skipDebug = (flags & SKIP_DEBUG) != 0;
         boolean unzip = (flags & EXPAND_FRAMES) != 0;
+        boolean skipCode = (flags & SKIP_METHOD_CODE) != 0;
 
         // skips fields and methods
         v = u;
@@ -615,7 +623,9 @@ public class ClassReader {
                 // tests are sorted in decreasing frequency order
                 // (based on frequencies observed on typical classes)
                 if (attrName.equals("Code")) {
-                    v = u;
+                    if(!skipCode) {
+                        v = u;
+                    }
                 } else if (attrName.equals("Exceptions")) {
                     w = u;
                 } else if (attrName.equals("Signature")) {

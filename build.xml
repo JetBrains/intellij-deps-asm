@@ -47,7 +47,6 @@
   <property name="examples.common"    value="${examples}/common"/>
   <property name="config"             value="${basedir}/config"/>
   <property name="archive"            value="${basedir}/archive"/>
-  <property name="metainf"            value="${basedir}/META-INF"/>
   
   <property name="out"                value="${basedir}/output"/>
   <property name="out.build"          value="${out}/build"/>
@@ -305,45 +304,12 @@
     </copy>
   </target>
 
-  
+  <!--
   <target name="eclipse.generate" depends="dist.version">  	
-    <echo file="${basedir}/plugin.xml"><![CDATA[<?xml version="1.0" encoding="UTF-8"?>
-<?eclipse version="3.0"?>
-<plugin>
-</plugin>]]></echo>
-    <mkdir dir="${metainf}"/>  	  	
-    <echo file="${metainf}/MANIFEST.MF">Manifest-Version: 1.0
-Bundle-ManifestVersion: 2
-Bundle-Name: ASM Framework
-Bundle-SymbolicName: org.objectweb.asm;singleton:=true
-Bundle-Version: ${plugin.artifact}
-Bundle-ClassPath: output/dist/lib/asm-${product.artifact}.jar,
- output/dist/lib/asm-tree-${product.artifact}.jar,
- output/dist/lib/asm-analysis-${product.artifact}.jar,
- output/dist/lib/asm-commons-${product.artifact}.jar,
- output/dist/lib/asm-attrs-${product.artifact}.jar,
- output/dist/lib/asm-util-${product.artifact}.jar
-Bundle-Vendor: ObjectWeb.org
-Bundle-Localization: plugin
-Export-Package: .,
- org.objectweb.asm,
- org.objectweb.asm.attrs,
- org.objectweb.asm.commons,
- org.objectweb.asm.depend,
- org.objectweb.asm.jbfc,
- org.objectweb.asm.optimizer,
- org.objectweb.asm.signature,
- org.objectweb.asm.test.cases,
- org.objectweb.asm.tree,
- org.objectweb.asm.tree.analysis,
- org.objectweb.asm.util,
- org.objectweb.asm.xml
-Eclipse-AutoStart: true
-</echo>
   </target>
 
   <target name="eclipse.plugin" depends="jar,eclipse.generate">
-    <zip zipfile="${out}/org.objectweb.asm_${plugin.artifact}.jar">
+    <jar zipfile="${out}/org.objectweb.asm_${plugin.artifact}.jar">
       <zipfileset dir="${basedir}">
         <include name="plugin.xml"/>
         <include name="META-INF/MANIFEST.MF"/>      	
@@ -354,7 +320,30 @@ Eclipse-AutoStart: true
         <include name="**/asm-commons-${product.artifact}.jar"/>
         <include name="**/asm-attrs-${product.artifact}.jar"/>
       </zipfileset>
-    </zip>
+      <manifest>
+        <attribute name="Bundle-ManifestVersion" value="2"/>
+        <attribute name="Bundle-Name" value="ASM Framework"/>
+        <attribute name="Bundle-SymbolicName" value="org.objectweb.asm;singleton:=true"/>
+        <attribute name="Bundle-Version" value="${plugin.artifact}"/>
+        <attribute name="Bundle-ClassPath" value="output/dist/lib/asm-${product.artifact}.jar,
+output/dist/lib/asm-tree-${product.artifact}.jar,
+output/dist/lib/asm-analysis-${product.artifact}.jar,
+output/dist/lib/asm-commons-${product.artifact}.jar,
+output/dist/lib/asm-attrs-${product.artifact}.jar,
+output/dist/lib/asm-util-${product.artifact}.jar"/>
+        <attribute name="Bundle-Vendor" value="ObjectWeb.org"/>
+        <attribute name="Bundle-Localization" value="plugin"/>
+        <attribute name="Export-Package" value="org.objectweb.asm,
+org.objectweb.asm.attrs,
+org.objectweb.asm.commons,
+org.objectweb.asm.signature,
+org.objectweb.asm.tree,
+org.objectweb.asm.tree.analysis,
+org.objectweb.asm.util,
+org.objectweb.asm.xml"/>
+        <attribute name="Eclipse-AutoStart" value="true"/>
+      </manifest>
+    </jar>
   </target>
 
   <target name="eclipse.feature" depends="eclipse.plugin">
@@ -421,6 +410,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
       <zipfileset dir="${out}" includes="org.objectweb.asm_${plugin.artifact}.jar"  prefix="plugins"/>
     </zip>
   </target>
+  -->
   
   <target name="dist" depends="jar,jdoc,examples">
     <zip zipFile="${out.dist}/src.zip" basedir="${src}" excludes="**/optimizer/**/*"/>

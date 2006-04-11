@@ -42,7 +42,7 @@ import java.util.HashMap;
 /**
  * A {@link MethodVisitor} that prints a disassembled view of the methods it
  * visits.
- * 
+ *
  * @author Eric Bruneton
  */
 public class TraceMethodVisitor extends TraceAbstractVisitor implements
@@ -84,7 +84,7 @@ public class TraceMethodVisitor extends TraceAbstractVisitor implements
 
     /**
      * Constructs a new {@link TraceMethodVisitor}.
-     * 
+     *
      * @param mv the {@link MethodVisitor} to which this visitor delegates
      *        calls. May be <tt>null</tt>.
      */
@@ -171,6 +171,7 @@ public class TraceMethodVisitor extends TraceAbstractVisitor implements
         final Object[] stack)
     {
         buf.setLength(0);
+        buf.append(ltab);
         buf.append("FRAME ");
         switch (type) {
             case Opcodes.F_NEW:
@@ -550,7 +551,7 @@ public class TraceMethodVisitor extends TraceAbstractVisitor implements
     /**
      * Appends the name of the given label to {@link #buf buf}. Creates a new
      * label name if the given label does not yet have one.
-     * 
+     *
      * @param l a label.
      */
     protected void appendLabel(final Label l) {

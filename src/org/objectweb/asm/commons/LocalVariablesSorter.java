@@ -147,7 +147,8 @@ public class LocalVariablesSorter extends MethodAdapter {
         final Label end,
         final int index)
     {
-        int newIndex = remap(index, 0);
+        int size = "J".equals(desc) || "D".equals(desc) ? 2 : 1;
+        int newIndex = remap(index, size);
         mv.visitLocalVariable(name, desc, signature, start, end, newIndex);
     }
 
@@ -300,11 +301,8 @@ public class LocalVariablesSorter extends MethodAdapter {
         if (var < firstLocal || !changed) {
             return var;
         }
-        int key = 2 * var + (size == 2 ? 1 : 0);
+        int key = 2 * var + size - 1;
         int value = key < mapping.length ? mapping[key] : 0;
-        if (value == 0 && size == 0) {
-            value = key + 1 < mapping.length ? mapping[key + 1] : 0;
-        }
         if (value == 0) {
             throw new IllegalStateException("Unknown local variable " + var);
         }

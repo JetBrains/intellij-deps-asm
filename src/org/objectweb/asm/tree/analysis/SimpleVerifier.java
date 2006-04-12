@@ -195,14 +195,14 @@ public class SimpleVerifier extends BasicVerifier {
         return v;
     }
 
-    private boolean isInterface(final Type t) {
+    protected boolean isInterface(final Type t) {
         if (currentClass != null && t.equals(currentClass)) {
             return false;
         }
         return getClass(t).isInterface();
     }
 
-    private Type getSuperClass(final Type t) {
+    protected Type getSuperClass(final Type t) {
         if (currentClass != null && t.equals(currentClass)) {
             return currentSuperClass;
         }
@@ -210,7 +210,7 @@ public class SimpleVerifier extends BasicVerifier {
         return c == null ? null : Type.getType(c);
     }
 
-    private boolean isAssignableFrom(final Type t, final Type u) {
+    protected boolean isAssignableFrom(final Type t, final Type u) {
         if (t.equals(u)) {
             return true;
         }

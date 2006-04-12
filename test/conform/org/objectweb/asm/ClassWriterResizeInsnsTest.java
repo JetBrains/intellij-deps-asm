@@ -81,8 +81,8 @@ public class ClassWriterResizeInsnsTest extends AbstractTest {
             {
                 ClassInfo c, d;
                 try {
-                    c = new ClassInfo(type1);
-                    d = new ClassInfo(type2);
+                    c = new ClassInfo(type1, getClass().getClassLoader());
+                    d = new ClassInfo(type2, getClass().getClassLoader());
                 } catch (Throwable e) {
                     throw new RuntimeException(e);
                 }

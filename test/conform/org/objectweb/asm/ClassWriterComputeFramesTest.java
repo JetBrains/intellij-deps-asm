@@ -84,8 +84,8 @@ public class ClassWriterComputeFramesTest extends AbstractTest {
                 }
                 ClassInfo c, d;
                 try {
-                    c = new ClassInfo(type1);
-                    d = new ClassInfo(type2);
+                    c = new ClassInfo(type1, getClass().getClassLoader());
+                    d = new ClassInfo(type2, getClass().getClassLoader());
                 } catch (Throwable e) {
                     throw new RuntimeException(e);
                 }
@@ -166,21 +166,32 @@ class ClassInfo {
 
     private Type type;
 
+    private ClassLoader loader;
+    
     int access;
 
     String superClass;
 
     String[] interfaces;
 
-    public ClassInfo(final String type) {
+    public ClassInfo(final String type, final ClassLoader loader) {
+        this.loader = loader;
         this.type = Type.getType("L" + type + ";");
         String s = type.replace('.', '/') + ".class";
-        InputStream is = getClass().getClassLoader().getResourceAsStream(s);
+        InputStream is = null;
         ClassReader cr;
         try {
+            is = loader.getResourceAsStream(s);
             cr = new ClassReader(is);
         } catch (IOException e) {
             throw new RuntimeException(e);
+        } finally {
+            if(is!=null) {
+                try {
+                    is.close();
+                } catch (Exception e) {
+                }
+            }
         }
 
         // optimized version
@@ -215,7 +226,7 @@ class ClassInfo {
         if (superClass == null) {
             return null;
         }
-        return new ClassInfo(superClass);
+        return new ClassInfo(superClass, loader);
     }
 
     ClassInfo[] getInterfaces() {
@@ -224,7 +235,7 @@ class ClassInfo {
         }
         ClassInfo[] result = new ClassInfo[interfaces.length];
         for (int i = 0; i < result.length; ++i) {
-            result[i] = new ClassInfo(interfaces[i]);
+            result[i] = new ClassInfo(interfaces[i], loader);
         }
         return result;
     }

@@ -72,11 +72,11 @@ public class SimpleVerifier extends BasicVerifier {
     }
 
     public Value newValue(final Type type) {
-        if(type==null) {
+        if (type == null) {
             return BasicValue.UNINITIALIZED_VALUE;
         }
-        
-        boolean isArray = type.getSort() == Type.ARRAY; 
+
+        boolean isArray = type.getSort() == Type.ARRAY;
         if (isArray) {
             switch (type.getElementType().getSort()) {
                 case Type.BOOLEAN:

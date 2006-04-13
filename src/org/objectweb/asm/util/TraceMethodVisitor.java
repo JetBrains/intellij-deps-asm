@@ -517,29 +517,34 @@ public class TraceMethodVisitor extends TraceAbstractVisitor implements
                 buf.append(' ');
             }
             if (o[i] instanceof String) {
-                appendDescriptor(INTERNAL_NAME, (String) o[i]);
+                String desc = (String) o[i];
+                if (desc.startsWith("[")) {
+                    appendDescriptor(FIELD_DESCRIPTOR, desc);
+                } else {
+                    appendDescriptor(INTERNAL_NAME, desc);
+                }
             } else if (o[i] instanceof Integer) {
                 switch (((Integer) o[i]).intValue()) {
                     case 0:
-                        buf.append('T');
+                        appendDescriptor(FIELD_DESCRIPTOR, "T");
                         break;
                     case 1:
-                        buf.append('I');
+                        appendDescriptor(FIELD_DESCRIPTOR, "I");
                         break;
                     case 2:
-                        buf.append('F');
+                        appendDescriptor(FIELD_DESCRIPTOR, "F");
                         break;
                     case 3:
-                        buf.append('D');
+                        appendDescriptor(FIELD_DESCRIPTOR, "D");
                         break;
                     case 4:
-                        buf.append('L');
+                        appendDescriptor(FIELD_DESCRIPTOR, "J");
                         break;
                     case 5:
-                        buf.append('N');
+                        appendDescriptor(FIELD_DESCRIPTOR, "N");
                         break;
                     case 6:
-                        buf.append('U');
+                        appendDescriptor(FIELD_DESCRIPTOR, "U");
                         break;
                 }
             } else {

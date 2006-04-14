@@ -44,13 +44,20 @@ import java.io.IOException;
 public class ClassReader {
 
     /**
+     * Flag to skip method code. If this class is set <code>CODE</code>
+     * atribute won't be visited. This can be used, for example, to
+     * retrieve annotations for methods and method parameters.
+     */
+    public final static int SKIP_CODE = 1;
+
+    /**
      * Flag to skip the debug information in the class. If this flag is set the
      * debug information of the class is not visited, i.e. the
      * {@link MethodVisitor#visitLocalVariable visitLocalVariable} and
      * {@link MethodVisitor#visitLineNumber visitLineNumber} methods will not be
      * called.
      */
-    public final static int SKIP_DEBUG = 1;
+    public final static int SKIP_DEBUG = 2;
 
     /**
      * Flag to skip the stack map frames in the class. If this flag is set the
@@ -60,7 +67,7 @@ public class ClassReader {
      * is used: it avoids visiting frames that will be ignored and recomputed
      * from scratch in the class writer.
      */
-    public final static int SKIP_FRAMES = 2;
+    public final static int SKIP_FRAMES = 4;
 
     /**
      * Flag to expand the stack map frames. By default stack map frames are
@@ -70,14 +77,7 @@ public class ClassReader {
      * (this option adds a decompression/recompression step in ClassReader and
      * ClassWriter which degrades performances quite a lot).
      */
-    public final static int EXPAND_FRAMES = 4;
-
-    /**
-     * Flag to skip method code. If this class is set <code>CODE</code>
-     * atribute won't be visited. This can be used, for example, to
-     * retrieve annotations for methods and method parameters.
-     */
-    public final static int SKIP_METHOD_CODE = 8;
+    public final static int EXPAND_FRAMES = 8;
 
     /**
      * The class to be parsed. <i>The content of this array must not be
@@ -382,9 +382,9 @@ public class ClassReader {
             u += 2;
         }
 
+        boolean skipCode = (flags & SKIP_CODE) != 0;
         boolean skipDebug = (flags & SKIP_DEBUG) != 0;
         boolean unzip = (flags & EXPAND_FRAMES) != 0;
-        boolean skipCode = (flags & SKIP_METHOD_CODE) != 0;
 
         // skips fields and methods
         v = u;

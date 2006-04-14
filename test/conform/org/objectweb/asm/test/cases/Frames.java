@@ -403,6 +403,19 @@ public class Frames extends Generator {
         mv.visitInsn(ACONST_NULL);
         mv.visitVarInsn(ASTORE, 11);
 
+        mv.visitFrame(F_FULL, 12, new Object[] {
+            "pkg/FrameTable",
+            INTEGER,
+            "java/lang/Number",
+            "java/lang/Number",
+            "java/lang/Number",
+            "java/lang/Object",
+            NULL,
+            "java/lang/Double",
+            TOP,
+            "java/lang/Object",
+            "java/lang/Object",
+            "[Ljava/lang/Object;" }, 0, null);
         mv.visitLabel(l0);
         mv.visitVarInsn(ALOAD, 11);
         mv.visitInsn(ICONST_0);
@@ -762,13 +775,29 @@ public class Frames extends Generator {
         mv.visitTryCatchBlock(l0, l1, l1, "java/lang/Exception");
         mv.visitTryCatchBlock(l2, l3, l3, "java/lang/Exception");
         mv.visitJumpInsn(GOTO, l2);
+        mv.visitFrame(F_SAME, 0, null, 0, null);
         mv.visitLabel(l0);
         mv.visitInsn(RETURN);
+        mv.visitFrame(F_SAME1,
+                0,
+                null,
+                1,
+                new Object[] { "java/lang/Exception" });
         mv.visitLabel(l1);
         mv.visitVarInsn(ASTORE, 2);
         mv.visitInsn(RETURN);
+        mv.visitFrame(F_FULL,
+                0,
+                new Object[] { "pkg/FrameTable", INTEGER },
+                0,
+                null);
         mv.visitLabel(l2);
         mv.visitInsn(RETURN);
+        mv.visitFrame(F_SAME1,
+                0,
+                null,
+                1,
+                new Object[] { "java/lang/Exception" });
         mv.visitLabel(l3);
         mv.visitVarInsn(ASTORE, 2);
         mv.visitInsn(RETURN);

@@ -7,6 +7,7 @@
     <jar jarfile="${out.dist.lib}/all/${ant.project.name}-${product.artifact}.jar"
          basedir="${out.build}">
       <include name="org/objectweb/asm/**/*.class"/>
+      <exclude name="org/objectweb/asm/optimizer/*.class"/>
       <manifest>
         <attribute name="Implementation-Title" value="ASM all classes"/>
         <attribute name="Implementation-Version" value="${product.artifact}"/> 

@@ -63,7 +63,7 @@ public class ClassWriterComputeFramesTest extends AbstractTest {
                     throws IllegalClassFormatException
             {
                 String n = className.replace('/', '.');
-                if (n.startsWith("junit.")) {
+                if (n.indexOf("junit") != -1) {
                     return null;
                 }
                 if (agentArgs.length() == 0 || n.indexOf(agentArgs) != -1) {

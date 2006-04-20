@@ -31,7 +31,6 @@ package org.objectweb.asm.commons;
 
 import java.io.IOException;
 import java.io.Serializable;
-import java.security.NoSuchAlgorithmException;
 
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassVisitor;

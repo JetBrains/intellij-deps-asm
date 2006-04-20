@@ -31,7 +31,6 @@ package org.objectweb.asm.commons;
 
 import java.io.IOException;
 import java.io.Serializable;
-import java.security.NoSuchAlgorithmException;
 
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassVisitor;
@@ -44,7 +43,8 @@ import junit.framework.TestCase;
  * @author Alexandre Vasseur
  * @author Eric Bruneton
  */
-public class SerialVersionUIDAdderUnitTest extends TestCase implements Serializable
+public class SerialVersionUIDAdderUnitTest extends TestCase implements
+        Serializable
 {
 
     protected final static int aField = 32;
@@ -60,9 +60,7 @@ public class SerialVersionUIDAdderUnitTest extends TestCase implements Serializa
     private long computeSerialVersionUID(String className) throws IOException {
         final long[] svuid = new long[1];
         ClassVisitor cv = new SerialVersionUIDAdder(new EmptyVisitor()) {
-            protected long computeSVUID()
-                    throws IOException, NoSuchAlgorithmException
-            {
+            protected long computeSVUID() throws IOException {
                 svuid[0] = super.computeSVUID();
                 return svuid[0];
             }

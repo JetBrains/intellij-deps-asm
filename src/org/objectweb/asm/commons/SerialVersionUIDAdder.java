@@ -33,7 +33,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -310,9 +309,8 @@ public class SerialVersionUIDAdder extends ClassAdapter {
      * 
      * @return Returns the serial version UID
      * @throws IOException
-     * @throws NoSuchAlgorithmException
      */
-    protected long computeSVUID() throws IOException, NoSuchAlgorithmException {
+    protected long computeSVUID() throws IOException {
         if (hasSVUID) {
             return 0;
         }
@@ -395,7 +393,7 @@ public class SerialVersionUIDAdder extends ClassAdapter {
              * produced by DataOutputStream and produces five 32-bit values
              * sha[0..4].
              */
-            MessageDigest md = MessageDigest.getInstance("SHA");
+            byte[] hashBytes = computeSHAdigest(bos.toByteArray());
 
             /*
              * 9. The hash value is assembled from the first and second 32-bit
@@ -410,7 +408,6 @@ public class SerialVersionUIDAdder extends ClassAdapter {
              * 40 | ((sha[1] >>> 8) & 0xFF) << 48 | ((sha[1] >>> 0) & 0xFF) <<
              * 56;
              */
-            byte[] hashBytes = md.digest(bos.toByteArray());
             for (int i = Math.min(hashBytes.length, 8) - 1; i >= 0; i--) {
                 svuid = (svuid << 8) | (hashBytes[i] & 0xFF);
             }
@@ -422,6 +419,20 @@ public class SerialVersionUIDAdder extends ClassAdapter {
         }
 
         return svuid;
+    }
+
+    /**
+     * Returns the SHA-1 message digest of the given value.
+     * 
+     * @param value the value whose SHA message digest must be computed.
+     * @return the SHA-1 message digest of the given value.
+     */
+    protected byte[] computeSHAdigest(byte[] value) {
+        try {
+            return MessageDigest.getInstance("SHA").digest(value);
+        } catch (Exception e) {
+            throw new UnsupportedOperationException(e);
+        }
     }
 
     /**

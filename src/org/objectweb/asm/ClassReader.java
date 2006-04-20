@@ -1067,6 +1067,15 @@ public class ClassReader {
                 Label l;
                 while (v < codeEnd) {
                     w = v - codeStart;
+                    
+                    l = labels[w];
+                    if (l != null) {
+                        mv.visitLabel(l);
+                        if (!skipDebug && l.line > 0) {
+                            mv.visitLineNumber(l.line, l);
+                        }
+                    }
+                    
                     while (frameLocal != null
                             && (frameOffset == w || frameOffset == -1))
                     {
@@ -1184,13 +1193,6 @@ public class ClassReader {
                         }
                     }
 
-                    l = labels[w];
-                    if (l != null) {
-                        mv.visitLabel(l);
-                        if (!skipDebug && l.line > 0) {
-                            mv.visitLineNumber(l.line, l);
-                        }
-                    }
                     int opcode = b[v] & 0xFF;
                     switch (ClassWriter.TYPE[opcode]) {
                         case ClassWriter.NOARG_INSN:

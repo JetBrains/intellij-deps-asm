@@ -69,6 +69,11 @@ public abstract class AbstractTest extends TestCase {
         TestSuite suite = new TestSuite(getClass().getName());
         String files = System.getProperty("asm.test") + ",";
         String clazz = System.getProperty("asm.test.class");
+        String partcount = System.getProperty("parts");
+        String partid = System.getProperty("part");
+        int parts = partcount == null ? 1 : Integer.parseInt(partcount);
+        int part = partid == null ? 0 : Integer.parseInt(partid);
+        int id = 0;
         while (files.indexOf(',') != -1) {
             String file = files.substring(0, files.indexOf(','));
             files = files.substring(files.indexOf(',') + 1);
@@ -84,10 +89,13 @@ public abstract class AbstractTest extends TestCase {
                     if (n.endsWith(".class")) {
                         n = n.substring(0, n.length() - 6).replace('/', '.');
                         if (clazz == null || n.indexOf(clazz) != -1) {
-                            InputStream is = zip.getInputStream(e);
-                            AbstractTest t = (AbstractTest) getClass().newInstance();
-                            t.init(n, is);
-                            suite.addTest(t);
+                            if (id % parts == part) {
+                                InputStream is = zip.getInputStream(e);
+                                AbstractTest t = (AbstractTest) getClass().newInstance();
+                                t.init(n, is);
+                                suite.addTest(t);
+                            }
+                            ++id;
                         }
                     }
                 }

@@ -36,7 +36,6 @@ import java.security.ProtectionDomain;
 import java.util.HashSet;
 
 import org.objectweb.asm.attrs.CodeComment;
-import org.objectweb.asm.commons.EmptyVisitor;
 
 import junit.framework.TestSuite;
 
@@ -57,11 +56,7 @@ public class ClassWriterResizeInsnsTest extends AbstractTest {
                 String n = className.replace('/', '.');
                 if (agentArgs.length() == 0 || n.indexOf(agentArgs) != -1) {
                     try {
-                        b = transformClass(b, ClassWriter.COMPUTE_FRAMES);
-                        if (n.equals("pkg.FrameMap")) {
-                            b = transformClass(b, 0);
-                        }
-                        return b;
+                        return transformClass(b, ClassWriter.COMPUTE_FRAMES);
                     } catch (Throwable e) {
                         return transformClass(b, 0);
                     }
@@ -163,9 +158,7 @@ public class ClassWriterResizeInsnsTest extends AbstractTest {
             }
         };
         cr.accept(ca, new Attribute[] { new CodeComment() }, 0);
-        byte[] b = cw.toByteArray();
-        new ClassReader(b).accept(new EmptyVisitor(), 0);
-        return b;
+        return cw.toByteArray();
     }
 
     public static TestSuite suite() throws Exception {

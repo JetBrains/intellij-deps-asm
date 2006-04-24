@@ -216,7 +216,11 @@ public class TraceSignatureVisitor implements SignatureVisitor {
     }
 
     public void visitInnerClassType(String name) {
-        // TODO tests
+        if (argumentStack % 2 == 1) {
+            declaration.append('>');
+        }
+        argumentStack /= 2;
+        declaration.append('.');
         declaration.append(separator).append(name.replace('/', '.'));
         separator = "";
         argumentStack *= 2;
@@ -225,17 +229,17 @@ public class TraceSignatureVisitor implements SignatureVisitor {
     public void visitTypeArgument() {
         if (argumentStack % 2 == 0) {
             ++argumentStack;
-            declaration.append("<");
+            declaration.append('<');
         } else {
             declaration.append(", ");
         }
-        declaration.append("?");
+        declaration.append('?');
     }
 
     public SignatureVisitor visitTypeArgument(char tag) {
         if (argumentStack % 2 == 0) {
             ++argumentStack;
-            declaration.append("<");
+            declaration.append('<');
         } else {
             declaration.append(", ");
         }
@@ -252,7 +256,7 @@ public class TraceSignatureVisitor implements SignatureVisitor {
 
     public void visitEnd() {
         if (argumentStack % 2 == 1) {
-            declaration.append(">");
+            declaration.append('>');
         }
         argumentStack /= 2;
         endType();
@@ -274,7 +278,7 @@ public class TraceSignatureVisitor implements SignatureVisitor {
 
     private void endFormals() {
         if (seenFormalParameter) {
-            declaration.append(">");
+            declaration.append('>');
             seenFormalParameter = false;
         }
     }

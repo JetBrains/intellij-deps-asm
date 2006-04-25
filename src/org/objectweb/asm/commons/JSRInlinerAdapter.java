@@ -57,7 +57,7 @@ import org.objectweb.asm.tree.TryCatchBlockNode;
  * 
  * @author Niko Matsakis
  */
-public class JSRInliner extends MethodNode implements Opcodes {
+public class JSRInlinerAdapter extends MethodNode implements Opcodes {
 
     /**
      * The visitor to which we will emit a translation of this method without
@@ -122,7 +122,7 @@ public class JSRInliner extends MethodNode implements Opcodes {
      *        (see {@link Type#getInternalName() getInternalName}). May be
      *        <tt>null</tt>.
      */
-    public JSRInliner(
+    public JSRInlinerAdapter(
         final MethodVisitor mv,
         final int access,
         final String name,

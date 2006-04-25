@@ -41,15 +41,15 @@ import junit.framework.TestCase;
  * 
  * @author Eugene Kuleshov, Niko Matsakis
  */
-public class JSRInlinerUnitTest extends TestCase {
+public class JSRInlinerAdapterUnitTest extends TestCase {
 
-    private JSRInliner jsr;
+    private JSRInlinerAdapter jsr;
     private MethodNode exp;
     private MethodVisitor current;
 
     protected void setUp() throws Exception {
         super.setUp();
-        jsr = new JSRInliner(null, 0, "name", "desc", null, null);
+        jsr = new JSRInlinerAdapter(null, 0, "name", "desc", null, null);
         exp = new MethodNode(0, "name", "desc", null, null);
     }
 

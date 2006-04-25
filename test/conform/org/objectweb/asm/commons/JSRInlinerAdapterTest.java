@@ -42,12 +42,12 @@ import org.objectweb.asm.MethodVisitor;
  * 
  * @author Eric Bruneton
  */
-public class JSRInlinerTest extends AbstractTest {
+public class JSRInlinerAdapterTest extends AbstractTest {
 
     private final static TestClassLoader LOADER = new TestClassLoader();
 
     public static TestSuite suite() throws Exception {
-        return new JSRInlinerTest().getSuite();
+        return new JSRInlinerAdapterTest().getSuite();
     }
 
     public void test() throws Exception {
@@ -66,7 +66,7 @@ public class JSRInlinerTest extends AbstractTest {
                         desc,
                         signature,
                         exceptions);
-                return new JSRInliner(mv,
+                return new JSRInlinerAdapter(mv,
                         access,
                         name,
                         desc,

@@ -56,7 +56,11 @@ public class ClassWriterResizeInsnsTest extends AbstractTest {
                 String n = className.replace('/', '.');
                 if (agentArgs.length() == 0 || n.indexOf(agentArgs) != -1) {
                     try {
-                        return transformClass(b, ClassWriter.COMPUTE_FRAMES);
+                        b = transformClass(b, ClassWriter.COMPUTE_FRAMES);
+                        if (n.equals("pkg.FrameMap")) {   
+                            transformClass(b, 0);   
+                        } 
+                        return b;
                     } catch (Throwable e) {
                         return transformClass(b, 0);
                     }

@@ -58,7 +58,8 @@ public class AnalyzerAdapter extends MethodAdapter {
      * {@link Opcodes#DOUBLE},{@link Opcodes#NULL} or
      * {@link Opcodes#UNINITIALIZED_THIS} (long and double are represented by a
      * two elements, the second one being TOP). Reference types are represented
-     * by String objects, and uninitialized types by Label objects (this label
+     * by String objects (representing internal names, or type descriptors for
+     * array types), and uninitialized types by Label objects (this label
      * designates the NEW instruction that created this uninitialized value).
      */
     public List locals;
@@ -70,7 +71,8 @@ public class AnalyzerAdapter extends MethodAdapter {
      * {@link Opcodes#DOUBLE},{@link Opcodes#NULL} or
      * {@link Opcodes#UNINITIALIZED_THIS} (long and double are represented by a
      * two elements, the second one being TOP). Reference types are represented
-     * by String objects, and uninitialized types by Label objects (this label
+     * by String objects (representing internal names, or type descriptors for
+     * array types), and uninitialized types by Label objects (this label
      * designates the NEW instruction that created this uninitialized value).
      */
     public List stack;
@@ -108,12 +110,13 @@ public class AnalyzerAdapter extends MethodAdapter {
             if (name.equals("<init>")) {
                 previousLocals.add(Opcodes.UNINITIALIZED_THIS);
             } else {
-                previousLocals.add("L" + owner + ";");
+                previousLocals.add(owner);
             }
         }
         Type[] types = Type.getArgumentTypes(desc);
         for (int i = 0; i < types.length; ++i) {
-            switch (types[i].getSort()) {
+            Type type = types[i];
+            switch (type.getSort()) {
                 case Type.BOOLEAN:
                 case Type.CHAR:
                 case Type.BYTE:
@@ -132,8 +135,12 @@ public class AnalyzerAdapter extends MethodAdapter {
                     previousLocals.add(Opcodes.DOUBLE);
                     previousLocals.add(Opcodes.TOP);
                     break;
-                default:
+                case Type.ARRAY:
                     previousLocals.add(types[i].getDescriptor());
+                    break;
+                // case Type.OBJECT:
+                default:
+                    previousLocals.add(types[i].getInternalName());
             }
         }
         locals.addAll(previousLocals);
@@ -173,8 +180,9 @@ public class AnalyzerAdapter extends MethodAdapter {
         final List result)
     {
         for (int i = 0; i < n; ++i) {
-            result.add(types[i]);
-            if (types[i] == Opcodes.LONG || types[i] == Opcodes.DOUBLE) {
+            Object type = types[i];
+            result.add(type);
+            if (type == Opcodes.LONG || type == Opcodes.DOUBLE) {
                 result.add(Opcodes.TOP);
             }
         }
@@ -294,9 +302,9 @@ public class AnalyzerAdapter extends MethodAdapter {
             push(Opcodes.DOUBLE);
             push(Opcodes.TOP);
         } else if (cst instanceof String) {
-            pushDesc("Ljava/lang/String;");
+            push("java/lang/String");
         } else if (cst instanceof Type) {
-            pushDesc("Ljava/lang/Class;");
+            push("java/lang/Class");
         } else {
             throw new IllegalArgumentException();
         }
@@ -387,13 +395,19 @@ public class AnalyzerAdapter extends MethodAdapter {
                 push(Opcodes.DOUBLE);
                 push(Opcodes.TOP);
                 return;
-            // case 'L':
-            // case '[':
-            default:
+            case '[':
                 if (index == 0) {
                     push(desc);
                 } else {
                     push(desc.substring(index, desc.length()));
+                }
+                break;
+            // case 'L':
+            default:
+                if (index == 0) {
+                    push(desc.substring(1, desc.length() - 1));
+                } else {
+                    push(desc.substring(index + 1, desc.length() - 1));
                 }
                 return;
         }
@@ -790,11 +804,19 @@ public class AnalyzerAdapter extends MethodAdapter {
                 break;
             case Opcodes.ANEWARRAY:
                 pop();
-                pushDesc("[" + sarg);
+                if (sarg.charAt(0) == '[') {
+                    pushDesc("[" + sarg);
+                } else {
+                    pushDesc("[L" + sarg + ";");
+                }
                 break;
             case Opcodes.CHECKCAST:
                 pop();
-                pushDesc(sarg);
+                if (sarg.charAt(0) == '[') {
+                    pushDesc(sarg);
+                } else {
+                    push(sarg);
+                }
                 break;
             // case Opcodes.MULTIANEWARRAY:
             default:

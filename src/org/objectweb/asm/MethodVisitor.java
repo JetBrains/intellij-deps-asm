@@ -148,7 +148,8 @@ public interface MethodVisitor {
      *            {@link Opcodes#DOUBLE},{@link Opcodes#NULL} or
      *            {@link Opcodes#UNINITIALIZED_THIS} (long and double are
      *            represented by a single element). Reference types are
-     *            represented by String objects, and uninitialized types by
+     *            represented by String objects (representing internal names, or
+     *            type descriptors for array types), and uninitialized types by
      *            Label objects (this label designates the NEW instruction that
      *            created this uninitialized value).
      * @param nStack

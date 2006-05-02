@@ -101,7 +101,7 @@ public class AnalyzerAdapter extends MethodAdapter {
         previousLocals = new ArrayList();
         locals = new ArrayList();
         stack = new ArrayList();
-        delegate = true;
+        delegate = mv != null;
         uninitializedTypes = new HashMap();
 
         if ((access & Opcodes.ACC_STATIC) == 0) {

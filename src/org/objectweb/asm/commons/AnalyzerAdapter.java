@@ -49,8 +49,6 @@ import org.objectweb.asm.Type;
  */
 public class AnalyzerAdapter extends MethodAdapter {
 
-    private List previousLocals;
-
     /**
      * <code>List</code> of the local variable slots for current execution
      * frame. Primitive types are represented by {@link Opcodes#TOP},
@@ -77,10 +75,19 @@ public class AnalyzerAdapter extends MethodAdapter {
      */
     public List stack;
 
-    protected boolean delegate;
-
+    /**
+     * The labels that designate the next instruction to be visited. May be
+     * <tt>null</tt>.
+     */
     private List labels;
 
+    /**
+     * Information about uninitialized types in the current execution frame.
+     * This map associates internal names to Label objects. Each label
+     * designates a NEW instruction that created the currently uninitialized
+     * types, and the associated internal name represents the NEW operand, i.e.
+     * the final, initialized type value.
+     */
     private Map uninitializedTypes;
 
     /**
@@ -100,17 +107,15 @@ public class AnalyzerAdapter extends MethodAdapter {
         final MethodVisitor mv)
     {
         super(mv);
-        previousLocals = new ArrayList();
         locals = new ArrayList();
         stack = new ArrayList();
-        delegate = mv != null;
         uninitializedTypes = new HashMap();
 
         if ((access & Opcodes.ACC_STATIC) == 0) {
             if (name.equals("<init>")) {
-                previousLocals.add(Opcodes.UNINITIALIZED_THIS);
+                locals.add(Opcodes.UNINITIALIZED_THIS);
             } else {
-                previousLocals.add(owner);
+                locals.add(owner);
             }
         }
         Type[] types = Type.getArgumentTypes(desc);
@@ -122,28 +127,27 @@ public class AnalyzerAdapter extends MethodAdapter {
                 case Type.BYTE:
                 case Type.SHORT:
                 case Type.INT:
-                    previousLocals.add(Opcodes.INTEGER);
+                    locals.add(Opcodes.INTEGER);
                     break;
                 case Type.FLOAT:
-                    previousLocals.add(Opcodes.FLOAT);
+                    locals.add(Opcodes.FLOAT);
                     break;
                 case Type.LONG:
-                    previousLocals.add(Opcodes.LONG);
-                    previousLocals.add(Opcodes.TOP);
+                    locals.add(Opcodes.LONG);
+                    locals.add(Opcodes.TOP);
                     break;
                 case Type.DOUBLE:
-                    previousLocals.add(Opcodes.DOUBLE);
-                    previousLocals.add(Opcodes.TOP);
+                    locals.add(Opcodes.DOUBLE);
+                    locals.add(Opcodes.TOP);
                     break;
                 case Type.ARRAY:
-                    previousLocals.add(types[i].getDescriptor());
+                    locals.add(types[i].getDescriptor());
                     break;
                 // case Type.OBJECT:
                 default:
-                    previousLocals.add(types[i].getInternalName());
+                    locals.add(types[i].getInternalName());
             }
         }
-        locals.addAll(previousLocals);
     }
 
     public void visitFrame(
@@ -157,6 +161,10 @@ public class AnalyzerAdapter extends MethodAdapter {
             throw new IllegalStateException("ClassReader.accept() should be called with EXPAND_FRAMES flag");
         }
 
+        if (mv != null) {
+            mv.visitFrame(type, nLocal, local, nStack, stack);
+        }
+
         if (this.locals != null) {
             this.locals.clear();
             this.stack.clear();
@@ -164,14 +172,8 @@ public class AnalyzerAdapter extends MethodAdapter {
             this.locals = new ArrayList();
             this.stack = new ArrayList();
         }
-        previousLocals.clear();
-        visitFrameTypes(nLocal, local, previousLocals);
+        visitFrameTypes(nLocal, local, this.locals);
         visitFrameTypes(nStack, stack, this.stack);
-        this.locals.addAll(previousLocals);
-
-        if (delegate) {
-            mv.visitFrame(type, nLocal, local, nStack, stack);
-        }
     }
 
     private void visitFrameTypes(
@@ -189,6 +191,9 @@ public class AnalyzerAdapter extends MethodAdapter {
     }
 
     public void visitInsn(final int opcode) {
+        if (mv != null) {
+            mv.visitInsn(opcode);
+        }
         execute(opcode, 0, null);
         if ((opcode >= Opcodes.IRETURN && opcode <= Opcodes.RETURN)
                 || opcode == Opcodes.ATHROW)
@@ -196,30 +201,40 @@ public class AnalyzerAdapter extends MethodAdapter {
             this.locals = null;
             this.stack = null;
         }
-        if (delegate) {
-            mv.visitInsn(opcode);
-        }
     }
 
     public void visitIntInsn(final int opcode, final int operand) {
-        execute(opcode, operand, null);
-        if (delegate) {
+        if (mv != null) {
             mv.visitIntInsn(opcode, operand);
         }
+        execute(opcode, operand, null);
     }
 
     public void visitVarInsn(final int opcode, final int var) {
-        execute(opcode, var, null);
-        if (delegate) {
+        if (mv != null) {
             mv.visitVarInsn(opcode, var);
         }
+        execute(opcode, var, null);
     }
 
     public void visitTypeInsn(final int opcode, final String desc) {
-        execute(opcode, 0, desc);
-        if (delegate) {
+        if (opcode == Opcodes.NEW) {
+            if (labels == null) {
+                Label l = new Label();
+                labels = new ArrayList(3);
+                labels.add(l);
+                if (mv != null) {
+                    mv.visitLabel(l);
+                }
+            }
+            for (int i = 0; i < labels.size(); ++i) {
+                uninitializedTypes.put(labels.get(i), desc);
+            }
+        }
+        if (mv != null) {
             mv.visitTypeInsn(opcode, desc);
         }
+        execute(opcode, 0, desc);
     }
 
     public void visitFieldInsn(
@@ -228,10 +243,10 @@ public class AnalyzerAdapter extends MethodAdapter {
         final String name,
         final String desc)
     {
-        execute(opcode, 0, desc);
-        if (delegate) {
+        if (mv != null) {
             mv.visitFieldInsn(opcode, owner, name, desc);
         }
+        execute(opcode, 0, desc);
     }
 
     public void visitMethodInsn(
@@ -240,6 +255,9 @@ public class AnalyzerAdapter extends MethodAdapter {
         final String name,
         final String desc)
     {
+        if (mv != null) {
+            mv.visitMethodInsn(opcode, owner, name, desc);
+        }
         pop(desc);
         if (opcode != Opcodes.INVOKESTATIC) {
             Object t = pop();
@@ -264,33 +282,33 @@ public class AnalyzerAdapter extends MethodAdapter {
         }
         pushDesc(desc);
         labels = null;
-        if (delegate) {
-            mv.visitMethodInsn(opcode, owner, name, desc);
-        }
     }
 
     public void visitJumpInsn(final int opcode, final Label label) {
+        if (mv != null) {
+            mv.visitJumpInsn(opcode, label);
+        }
         execute(opcode, 0, null);
         if (opcode == Opcodes.GOTO) {
             this.locals = null;
             this.stack = null;
         }
-        if (delegate) {
-            mv.visitJumpInsn(opcode, label);
-        }
     }
 
     public void visitLabel(final Label label) {
-        if (labels == null) {
-            labels = new ArrayList();
-        }
-        labels.add(label);
-        if (delegate) {
+        if (mv != null) {
             mv.visitLabel(label);
         }
+        if (labels == null) {
+            labels = new ArrayList(3);
+        }
+        labels.add(label);
     }
 
     public void visitLdcInsn(final Object cst) {
+        if (mv != null) {
+            mv.visitLdcInsn(cst);
+        }
         if (cst instanceof Integer) {
             push(Opcodes.INTEGER);
         } else if (cst instanceof Long) {
@@ -309,16 +327,13 @@ public class AnalyzerAdapter extends MethodAdapter {
             throw new IllegalArgumentException();
         }
         labels = null;
-        if (delegate) {
-            mv.visitLdcInsn(cst);
-        }
     }
 
     public void visitIincInsn(final int var, final int increment) {
-        execute(Opcodes.IINC, var, null);
-        if (delegate) {
+        if (mv != null) {
             mv.visitIincInsn(var, increment);
         }
+        execute(Opcodes.IINC, var, null);
     }
 
     public void visitTableSwitchInsn(
@@ -327,12 +342,12 @@ public class AnalyzerAdapter extends MethodAdapter {
         final Label dflt,
         final Label labels[])
     {
+        if (mv != null) {
+            mv.visitTableSwitchInsn(min, max, dflt, labels);
+        }
         execute(Opcodes.TABLESWITCH, 0, null);
         this.locals = null;
         this.stack = null;
-        if (delegate) {
-            mv.visitTableSwitchInsn(min, max, dflt, labels);
-        }
     }
 
     public void visitLookupSwitchInsn(
@@ -340,19 +355,19 @@ public class AnalyzerAdapter extends MethodAdapter {
         final int keys[],
         final Label labels[])
     {
+        if (mv != null) {
+            mv.visitLookupSwitchInsn(dflt, keys, labels);
+        }
         execute(Opcodes.LOOKUPSWITCH, 0, null);
         this.locals = null;
         this.stack = null;
-        if (delegate) {
-            mv.visitLookupSwitchInsn(dflt, keys, labels);
-        }
     }
 
     public void visitMultiANewArrayInsn(final String desc, final int dims) {
-        execute(Opcodes.MULTIANEWARRAY, dims, desc);
-        if (delegate) {
+        if (mv != null) {
             mv.visitMultiANewArrayInsn(desc, dims);
         }
+        execute(Opcodes.MULTIANEWARRAY, dims, desc);
     }
 
     // ------------------------------------------------------------------------
@@ -756,21 +771,7 @@ public class AnalyzerAdapter extends MethodAdapter {
                 pop();
                 break;
             case Opcodes.NEW:
-                Label l;
-                if (labels == null) {
-                    l = new Label();
-                    if (delegate) {
-                        mv.visitLabel(l);
-                    }
-                    labels = new ArrayList();
-                    labels.add(l);
-                } else {
-                    l = (Label) labels.get(0);
-                }
-                for (int i = 0; i < labels.size(); ++i) {
-                    uninitializedTypes.put(labels.get(i), sarg);
-                }
-                push(l);
+                push(labels.get(0));
                 break;
             case Opcodes.NEWARRAY:
                 pop();

@@ -50,8 +50,8 @@ import org.objectweb.asm.tree.MethodNode;
 import org.objectweb.asm.tree.TryCatchBlockNode;
 
 /**
- * Removes JSR instructions and inlines the referenced subroutines.
- * 
+ * A {@link MethodAdapter} that removes JSR instructions and inlines the
+ * referenced subroutines.
  * 
  * <b>Explanation of how it works</b> TODO
  * 

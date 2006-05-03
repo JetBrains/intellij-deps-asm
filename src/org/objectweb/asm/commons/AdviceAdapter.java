@@ -38,15 +38,17 @@ import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
 /**
- * A {@link org.objectweb.asm.MethodAdapter} to dispatch method body instruction
- * <p> The behavior is like this: <ol>
+ * A {@link org.objectweb.asm.MethodAdapter} to insert before, after and around
+ * advices in methods and constructors. <p> The behavior for constructors is
+ * like this: <ol>
  * 
  * <li>as long as the INVOKESPECIAL for the object initialization has not been
  * reached, every bytecode instruction is dispatched in the ctor code visitor</li>
  * 
  * <li>when this one is reached, it is only added in the ctor code visitor and
- * a JP invoke is added</li> <li>after that, only the other code visitor
- * receives the instructions</li>
+ * a JP invoke is added</li>
+ * 
+ * <li>after that, only the other code visitor receives the instructions</li>
  * 
  * </ol>
  * 
@@ -250,7 +252,7 @@ public abstract class AdviceAdapter extends GeneratorAdapter implements Opcodes
                     break;
 
                 case DUP_X1:
-                // TODO optimize this
+                    // TODO optimize this
                 {
                     Object o1 = popValue();
                     Object o2 = popValue();
@@ -261,7 +263,7 @@ public abstract class AdviceAdapter extends GeneratorAdapter implements Opcodes
                     break;
 
                 case DUP_X2:
-                // TODO optimize this
+                    // TODO optimize this
                 {
                     Object o1 = popValue();
                     Object o2 = popValue();
@@ -274,7 +276,7 @@ public abstract class AdviceAdapter extends GeneratorAdapter implements Opcodes
                     break;
 
                 case DUP2:
-                // TODO optimize this
+                    // TODO optimize this
                 {
                     Object o1 = popValue();
                     Object o2 = popValue();
@@ -286,7 +288,7 @@ public abstract class AdviceAdapter extends GeneratorAdapter implements Opcodes
                     break;
 
                 case DUP2_X1:
-                // TODO optimize this
+                    // TODO optimize this
                 {
                     Object o1 = popValue();
                     Object o2 = popValue();
@@ -300,7 +302,7 @@ public abstract class AdviceAdapter extends GeneratorAdapter implements Opcodes
                     break;
 
                 case DUP2_X2:
-                // TODO optimize this
+                    // TODO optimize this
                 {
                     Object o1 = popValue();
                     Object o2 = popValue();

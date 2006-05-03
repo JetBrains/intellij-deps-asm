@@ -41,9 +41,16 @@ import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
 /**
- * A {@link MethodAdapter} that keep track of the incremental changes on the
- * execution frame between
- * {@link #visitFrame(int, int, Object[], int, Object[]) visitFrame} calls.
+ * A {@link MethodAdapter} that keeps track of stack map frame changes between
+ * {@link #visitFrame(int, int, Object[], int, Object[]) visitFrame} calls. This
+ * adapter must be used with the {@link ClassReader#EXPAND_FRAMES} option. Each
+ * visit<i>XXX</i> instruction delegates to the next visitor in the chain, if
+ * any, and then simulates the effect of this instruction on the stack map
+ * frame, represented by {@link #locals} and {@link stack}. The next visitor in
+ * the chain can get the state of the stack map frame <i>before</i> each
+ * instruction by reading the value of these fields in its visit<i>XXX</i>
+ * methods (this requires a reference to the AnalyzerAdapter that is before it
+ * in the chain).
  * 
  * @author Eric Bruneton
  */
@@ -59,6 +66,7 @@ public class AnalyzerAdapter extends MethodAdapter {
      * by String objects (representing internal names, or type descriptors for
      * array types), and uninitialized types by Label objects (this label
      * designates the NEW instruction that created this uninitialized value).
+     * This field is <tt>null</tt> for unreacheable instructions.
      */
     public List locals;
 
@@ -72,6 +80,7 @@ public class AnalyzerAdapter extends MethodAdapter {
      * by String objects (representing internal names, or type descriptors for
      * array types), and uninitialized types by Label objects (this label
      * designates the NEW instruction that created this uninitialized value).
+     * This field is <tt>null</tt> for unreacheable instructions.
      */
     public List stack;
 
@@ -97,7 +106,8 @@ public class AnalyzerAdapter extends MethodAdapter {
      * @param access the method's access flags (see {@link Opcodes}).
      * @param name the method's name.
      * @param desc the method's descriptor (see {@link Type Type}).
-     * @param mv the method visitor to which this adapter delegates calls.
+     * @param mv the method visitor to which this adapter delegates calls. May
+     *        be <tt>null</tt>.
      */
     public AnalyzerAdapter(
         final String owner,

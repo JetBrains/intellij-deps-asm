@@ -42,15 +42,15 @@ import junit.framework.TestCase;
 public class TypeUnitTest extends TestCase implements Opcodes {
 
     public void testConstants() {
-        assertEquals(Type.getType(Integer.TYPE), Type.INT_TYPE);
-        assertEquals(Type.getType(Void.TYPE), Type.VOID_TYPE);
-        assertEquals(Type.getType(Boolean.TYPE), Type.BOOLEAN_TYPE);
-        assertEquals(Type.getType(Byte.TYPE), Type.BYTE_TYPE);
-        assertEquals(Type.getType(Character.TYPE), Type.CHAR_TYPE);
-        assertEquals(Type.getType(Short.TYPE), Type.SHORT_TYPE);
-        assertEquals(Type.getType(Double.TYPE), Type.DOUBLE_TYPE);
-        assertEquals(Type.getType(Float.TYPE), Type.FLOAT_TYPE);
-        assertEquals(Type.getType(Long.TYPE), Type.LONG_TYPE);
+        assertEquals(Type.INT_TYPE, Type.getType(Integer.TYPE));
+        assertEquals(Type.VOID_TYPE, Type.getType(Void.TYPE));
+        assertEquals(Type.BOOLEAN_TYPE, Type.getType(Boolean.TYPE));
+        assertEquals(Type.BYTE_TYPE, Type.getType(Byte.TYPE));
+        assertEquals(Type.CHAR_TYPE, Type.getType(Character.TYPE));
+        assertEquals(Type.SHORT_TYPE, Type.getType(Short.TYPE));
+        assertEquals(Type.DOUBLE_TYPE, Type.getType(Double.TYPE));
+        assertEquals(Type.FLOAT_TYPE, Type.getType(Float.TYPE));
+        assertEquals(Type.LONG_TYPE, Type.getType(Long.TYPE));
     }
 
     public void testInternalName() {
@@ -72,23 +72,23 @@ public class TypeUnitTest extends TestCase implements Opcodes {
 
     public void testGetOpcode() {
         Type object = Type.getType("Ljava/lang/Object;");
-        assertEquals(Type.BOOLEAN_TYPE.getOpcode(IALOAD), BALOAD);
-        assertEquals(Type.BYTE_TYPE.getOpcode(IALOAD), BALOAD);
-        assertEquals(Type.CHAR_TYPE.getOpcode(IALOAD), CALOAD);
-        assertEquals(Type.SHORT_TYPE.getOpcode(IALOAD), SALOAD);
-        assertEquals(Type.INT_TYPE.getOpcode(IALOAD), IALOAD);
-        assertEquals(Type.FLOAT_TYPE.getOpcode(IALOAD), FALOAD);
-        assertEquals(Type.LONG_TYPE.getOpcode(IALOAD), LALOAD);
-        assertEquals(Type.DOUBLE_TYPE.getOpcode(IALOAD), DALOAD);
-        assertEquals(object.getOpcode(IALOAD), AALOAD);
-        assertEquals(Type.BOOLEAN_TYPE.getOpcode(IADD), IADD);
-        assertEquals(Type.BYTE_TYPE.getOpcode(IADD), IADD);
-        assertEquals(Type.CHAR_TYPE.getOpcode(IADD), IADD);
-        assertEquals(Type.SHORT_TYPE.getOpcode(IADD), IADD);
-        assertEquals(Type.INT_TYPE.getOpcode(IADD), IADD);
-        assertEquals(Type.FLOAT_TYPE.getOpcode(IADD), FADD);
-        assertEquals(Type.LONG_TYPE.getOpcode(IADD), LADD);
-        assertEquals(Type.DOUBLE_TYPE.getOpcode(IADD), DADD);
+        assertEquals(BALOAD, Type.BOOLEAN_TYPE.getOpcode(IALOAD));
+        assertEquals(BALOAD, Type.BYTE_TYPE.getOpcode(IALOAD));
+        assertEquals(CALOAD, Type.CHAR_TYPE.getOpcode(IALOAD));
+        assertEquals(SALOAD, Type.SHORT_TYPE.getOpcode(IALOAD));
+        assertEquals(IALOAD, Type.INT_TYPE.getOpcode(IALOAD));
+        assertEquals(FALOAD, Type.FLOAT_TYPE.getOpcode(IALOAD));
+        assertEquals(LALOAD, Type.LONG_TYPE.getOpcode(IALOAD));
+        assertEquals(DALOAD, Type.DOUBLE_TYPE.getOpcode(IALOAD));
+        assertEquals(AALOAD, object.getOpcode(IALOAD));
+        assertEquals(IADD, Type.BOOLEAN_TYPE.getOpcode(IADD));
+        assertEquals(IADD, Type.BYTE_TYPE.getOpcode(IADD));
+        assertEquals(IADD, Type.CHAR_TYPE.getOpcode(IADD));
+        assertEquals(IADD, Type.SHORT_TYPE.getOpcode(IADD));
+        assertEquals(IADD, Type.INT_TYPE.getOpcode(IADD));
+        assertEquals(FADD, Type.FLOAT_TYPE.getOpcode(IADD));
+        assertEquals(LADD, Type.LONG_TYPE.getOpcode(IADD));
+        assertEquals(DADD, Type.DOUBLE_TYPE.getOpcode(IADD));
     }
 
     public void testHashcode() {

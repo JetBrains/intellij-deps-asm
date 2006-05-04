@@ -52,7 +52,7 @@ public class LabelUnitTest extends TestCase {
                 null);
         mv.visitCode();
         mv.visitLabel(l);
-        assertEquals(l.getOffset(), 0);
+        assertEquals(0, l.getOffset());
     }
 
     public void testIllegalGetOffsetState() {

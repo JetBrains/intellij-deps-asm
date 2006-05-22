@@ -67,8 +67,16 @@ public abstract class AbstractTest extends TestCase {
 
     protected TestSuite getSuite() throws Exception {
         TestSuite suite = new TestSuite(getClass().getName());
-        String files = System.getProperty("asm.test") + ",";
+        String files = System.getProperty("asm.test");
         String clazz = System.getProperty("asm.test.class");
+        if(files==null) {
+            files = System.getProperty("java.home") + File.separator + "lib" + File.separator + "rt.jar";
+            if(clazz==null) {
+                clazz = "java.lang.";
+            }
+        }
+        files += ",";
+
         while (files.indexOf(',') != -1) {
             String file = files.substring(0, files.indexOf(','));
             files = files.substring(files.indexOf(',') + 1);

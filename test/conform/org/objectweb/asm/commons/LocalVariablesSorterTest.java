@@ -50,7 +50,7 @@ public class LocalVariablesSorterTest extends AbstractTest {
 
     public void test() throws Exception {
         ClassReader cr = new ClassReader(is);
-        ClassWriter cw = new ClassWriter(false, true);
+        ClassWriter cw = new ClassWriter(true, true);
         cr.accept(new ClassAdapter(cw) {
             public MethodVisitor visitMethod(
                 int access,

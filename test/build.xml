@@ -41,10 +41,6 @@
   <property name="test.perf"      value="${test}/perf"/>
 
   <target name="properties">
-    <condition property="asm.test" value="${java.home}/lib/rt.jar,test/conform/cases">
-      <not><isset property="asm.test"/></not>
-    </condition>
-    
     <condition property="asm.test.class" value="">
       <not><isset property="asm.test.class"/></not>
     </condition>
@@ -84,9 +80,12 @@
     <condition property="test.paths.configured">
       <and>
         <isset property="bcel.path"/>
+        <isset property="aspectj.path"/>
         <isset property="serp.path"/>
         <isset property="javassist.path"/>
         <isset property="janino.path"/>
+        <isset property="cobertura.path"/>
+        <isset property="cobertura.runtime.path"/>
       </and>
     </condition>
   </target>
@@ -102,15 +101,17 @@
   
   <target name="init" depends="properties,check">  
     <mkdir dir="${out.test}"/>
+    <mkdir dir="${out.test}/cases"/>
     <mkdir dir="${out.test}/reports"/>
     <path id="test.classpath">
       <pathelement location="${classes}"/>
       <pathelement location="${out.test}"/>
       <pathelement path="${bcel.path}"/>
+      <pathelement path="${aspectj.path}"/>
       <pathelement path="${serp.path}"/>  
       <pathelement path="${javassist.path}"/>
       <pathelement path="${janino.path}"/>
-      <path refid="cobertura.classpath"/>
+      <pathelement path="${cobertura.runtime.path}"/>
     </path>
   </target>
   
@@ -123,15 +124,15 @@
         debug="on" debuglevel="lines,vars,source">
       <classpath refid="test.classpath"/>
       <include name="**/*.java"/>
-      <exclude name="annotations/**/*.java" unless="java5"/>
-      <exclude name="**/AnnotationTest.java" unless="java5"/>
     </javac>
-    <copy todir="${out.test}">
-  	  <fileset dir="${test.conform}">
-        <include name="**/*.txt"/>
-        <include name="**/*.data"/>
-      </fileset>
-    </copy>
+    <delete dir="${out.test}/cases"/>
+    <java classname="org.objectweb.asm.test.cases.Generator">
+      <classpath>
+        <pathelement location="${out.build}"/>
+        <pathelement location="${out.test}"/>
+      </classpath>
+      <arg value="${out.test}/cases"/>
+    </java>
   </target>
 
   <target name="compile.test.deviance" depends="init" if="test.deviance.exist">

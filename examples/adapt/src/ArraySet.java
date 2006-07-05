@@ -37,7 +37,7 @@ public class ArraySet {
 
     private int size;
 
-    public boolean contains(int v) {
+    public boolean contains(final int v) {
         for (int i = 0; i < size; ++i) {
             if (values[i] == v) {
                 return true;
@@ -46,7 +46,7 @@ public class ArraySet {
         return false;
     }
 
-    public void add(int v) {
+    public void add(final int v) {
         if (!contains(v)) {
             if (size == values.length) {
                 System.err.println("[enlarge]");
@@ -60,7 +60,7 @@ public class ArraySet {
         }
     }
 
-    public void remove(int v) {
+    public void remove(final int v) {
         int i = 0;
         int j = 0;
         while (i < size) {
@@ -75,7 +75,7 @@ public class ArraySet {
 
     // test method
 
-    public static void main(String[] args) {
+    public static void main(final String[] args) {
         ArraySet s = new ArraySet();
         System.err.println("add 1");
         s.add(1);

@@ -40,11 +40,11 @@ import org.objectweb.asm.Type;
  */
 public class ConstantPool extends HashMap {
 
-    private Constant key1 = new Constant();
+    private final Constant key1 = new Constant();
 
-    private Constant key2 = new Constant();
+    private final Constant key2 = new Constant();
 
-    private Constant key3 = new Constant();
+    private final Constant key3 = new Constant();
 
     public Constant newInteger(final int value) {
         key1.set(value);

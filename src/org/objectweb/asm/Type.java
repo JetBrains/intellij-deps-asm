@@ -355,7 +355,7 @@ public class Type {
                     }
                 }
                 return new Type(ARRAY, buf, off, len + 1);
-            // case 'L':
+                // case 'L':
             default:
                 len = 1;
                 while (buf[off + len] != ';') {
@@ -437,7 +437,7 @@ public class Type {
                     b.append("[]");
                 }
                 return b.toString();
-            // case OBJECT:
+                // case OBJECT:
             default:
                 return new String(buf, off + 1, len - 2).replace('/', '.');
         }
@@ -527,8 +527,8 @@ public class Type {
             case DOUBLE:
                 buf.append('D');
                 return;
-            // case ARRAY:
-            // case OBJECT:
+                // case ARRAY:
+                // case OBJECT:
             default:
                 buf.append(this.buf, off, len);
         }
@@ -640,7 +640,7 @@ public class Type {
      *         <tt>double</tt>, and 1 otherwise.
      */
     public int getSize() {
-        return (sort == LONG || sort == DOUBLE ? 2 : 1);
+        return sort == LONG || sort == DOUBLE ? 2 : 1;
     }
 
     /**
@@ -671,8 +671,8 @@ public class Type {
                     return opcode + 1;
                 case DOUBLE:
                     return opcode + 3;
-                // case ARRAY:
-                // case OBJECT:
+                    // case ARRAY:
+                    // case OBJECT:
                 default:
                     return opcode + 4;
             }
@@ -692,8 +692,8 @@ public class Type {
                     return opcode + 1;
                 case DOUBLE:
                     return opcode + 3;
-                // case ARRAY:
-                // case OBJECT:
+                    // case ARRAY:
+                    // case OBJECT:
                 default:
                     return opcode + 4;
             }

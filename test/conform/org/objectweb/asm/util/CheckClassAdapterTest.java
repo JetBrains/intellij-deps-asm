@@ -48,8 +48,8 @@ public class CheckClassAdapterTest extends AbstractTest {
 
     public void test() throws Exception {
         ClassReader cr = new ClassReader(is);
-        ClassWriter cw = new ClassWriter(false);
-        cr.accept(new CheckClassAdapter(cw), false);
+        ClassWriter cw = new ClassWriter(0);
+        cr.accept(new CheckClassAdapter(cw), 0);
         assertEquals(cr, new ClassReader(cw.toByteArray()));
     }
 }

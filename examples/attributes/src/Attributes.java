@@ -50,9 +50,9 @@ public class Attributes extends ClassLoader {
     public static void main(final String args[]) throws Exception {
         // loads the original class and adapts it
         ClassReader cr = new ClassReader("CommentAttribute");
-        ClassWriter cw = new ClassWriter(false);
+        ClassWriter cw = new ClassWriter(0);
         ClassVisitor cv = new AddCommentClassAdapter(cw);
-        cr.accept(cv, new Attribute[] { new CommentAttribute("") }, false);
+        cr.accept(cv, new Attribute[] { new CommentAttribute("") }, 0);
         byte[] b = cw.toByteArray();
 
         // stores the adapted class on disk
@@ -63,7 +63,7 @@ public class Attributes extends ClassLoader {
         // "disassembles" the adapted class
         cr = new ClassReader(b);
         cv = new TraceClassVisitor(new PrintWriter(System.out));
-        cr.accept(cv, new Attribute[] { new CommentAttribute("") }, false);
+        cr.accept(cv, new Attribute[] { new CommentAttribute("") }, 0);
     }
 }
 
@@ -134,22 +134,22 @@ class CommentAttribute extends Attribute {
     }
 
     protected Attribute read(
-        ClassReader cr,
-        int off,
-        int len,
-        char[] buf,
-        int codeOff,
-        Label[] labels)
+        final ClassReader cr,
+        final int off,
+        final int len,
+        final char[] buf,
+        final int codeOff,
+        final Label[] labels)
     {
         return new CommentAttribute(cr.readUTF8(off, buf));
     }
 
     protected ByteVector write(
-        ClassWriter cw,
-        byte[] code,
-        int len,
-        int maxStack,
-        int maxLocals)
+        final ClassWriter cw,
+        final byte[] code,
+        final int len,
+        final int maxStack,
+        final int maxLocals)
     {
         return new ByteVector().putShort(cw.newUTF8(comment));
     }

@@ -34,7 +34,6 @@ import java.util.HashMap;
 import org.objectweb.asm.AnnotationVisitor;
 import org.objectweb.asm.Attribute;
 import org.objectweb.asm.Type;
-import org.objectweb.asm.util.attrs.ASMifiable;
 
 /**
  * An abstract ASMifier visitor.
@@ -96,15 +95,12 @@ public class ASMifierAbstractVisitor extends AbstractVisitor {
      */
     public void visitAttribute(final Attribute attr) {
         buf.setLength(0);
+        buf.append("// ATTRIBUTE ").append(attr.type).append("\n");
         if (attr instanceof ASMifiable) {
             buf.append("{\n");
-            buf.append("// ATTRIBUTE\n");
             ((ASMifiable) attr).asmify(buf, "attr", labelNames);
             buf.append(name).append(".visitAttribute(attr);\n");
             buf.append("}\n");
-        } else {
-            buf.append("// WARNING! skipped a non standard attribute of type \"");
-            buf.append(attr.type).append("\"\n");
         }
         text.add(buf.toString());
     }

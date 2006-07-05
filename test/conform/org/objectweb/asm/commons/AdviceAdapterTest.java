@@ -40,9 +40,14 @@ import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 
+/**
+ * AdviceAdapter tests.
+ * 
+ * @author Eugene Kuleshov
+ */
 public class AdviceAdapterTest extends AbstractTest {
 
-    public static void main(String[] args) throws Exception {
+    public static void main(final String[] args) throws Exception {
         TestRunner.run(AdviceAdapterTest.suite());
     }
 
@@ -52,10 +57,10 @@ public class AdviceAdapterTest extends AbstractTest {
 
     public void test() throws Exception {
         ClassReader cr = new ClassReader(is);
-        ClassWriter cw1 = new ClassWriter(false, true);
-        ClassWriter cw2 = new ClassWriter(false, true);
-        cr.accept(new ReferenceClassAdapter(cw1), false);
-        cr.accept(new AdviceClassAdapter(cw2), false);
+        ClassWriter cw1 = new ClassWriter(0);
+        ClassWriter cw2 = new ClassWriter(0);
+        cr.accept(new ReferenceClassAdapter(cw1), ClassReader.EXPAND_FRAMES);
+        cr.accept(new AdviceClassAdapter(cw2), ClassReader.EXPAND_FRAMES);
         assertEquals(new ClassReader(cw1.toByteArray()),
                 new ClassReader(cw2.toByteArray()));
     }
@@ -121,7 +126,7 @@ public class AdviceAdapterTest extends AbstractTest {
                     // mv.visitInsn(NOP);
                 }
 
-                protected void onMethodExit(int opcode) {
+                protected void onMethodExit(final int opcode) {
                     // mv.visitInsn(NOP);
                     // mv.visitInsn(NOP);
                     // mv.visitInsn(NOP);

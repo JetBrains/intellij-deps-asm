@@ -67,9 +67,9 @@ public class Adapt extends ClassLoader {
         // adapts the class on the fly
         try {
             ClassReader cr = new ClassReader(is);
-            ClassWriter cw = new ClassWriter(false);
+            ClassWriter cw = new ClassWriter(0);
             ClassVisitor cv = new TraceFieldClassAdapter(cw);
-            cr.accept(cv, false);
+            cr.accept(cv, 0);
             b = cw.toByteArray();
         } catch (Exception e) {
             throw new ClassNotFoundException(name, e);

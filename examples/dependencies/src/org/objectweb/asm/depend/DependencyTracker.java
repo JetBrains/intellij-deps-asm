@@ -70,7 +70,7 @@ public class DependencyTracker {
 
     private static final String LABEL_FONT = "Tahoma-9";
 
-    public static void main(String[] args) throws IOException {
+    public static void main(final String[] args) throws IOException {
         DependencyVisitor v = new DependencyVisitor();
 
         ZipFile f = new ZipFile(args[0]);
@@ -81,7 +81,7 @@ public class DependencyTracker {
             ZipEntry e = en.nextElement();
             String name = e.getName();
             if (name.endsWith(".class")) {
-                new ClassReader(f.getInputStream(e)).accept(v, false);
+                new ClassReader(f.getInputStream(e)).accept(v, 0);
             }
         }
         long l2 = System.currentTimeMillis();
@@ -101,16 +101,17 @@ public class DependencyTracker {
     }
 
     public static void buildDiagram(
-        String[] jarNames,
-        String[] classNames,
-        Map<String, Map<String, Integer>> globals) throws IOException
+        final String[] jarNames,
+        final String[] classNames,
+        final Map<String, Map<String, Integer>> globals) throws IOException
     {
         // normalize
         int max = 0;
         for (int i = 0; i < classNames.length; i++) {
             Map<String, Integer> map = globals.get(classNames[i]);
-            if (map == null)
+            if (map == null) {
                 continue;
+            }
             Integer maxCount = Collections.max(map.values());
             if (maxCount > max) {
                 max = maxCount;
@@ -162,8 +163,8 @@ public class DependencyTracker {
                     int b = (int) ((float) count * maxcolor / max);
 
                     g.setColor(colors.get(b));
-                    g.fillRect(CELL_PAD + (x * (CELLS_SIZE + CELL_PAD)),
-                            CELL_PAD + (y * (CELLS_SIZE + CELL_PAD)),
+                    g.fillRect(CELL_PAD + x * (CELLS_SIZE + CELL_PAD),
+                            CELL_PAD + y * (CELLS_SIZE + CELL_PAD),
                             CELLS_SIZE,
                             CELLS_SIZE);
                 }

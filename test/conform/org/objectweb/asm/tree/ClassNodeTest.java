@@ -29,6 +29,10 @@
  */
 package org.objectweb.asm.tree;
 
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+
 import org.objectweb.asm.AbstractTest;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassWriter;
@@ -36,7 +40,7 @@ import org.objectweb.asm.ClassWriter;
 import junit.framework.TestSuite;
 
 /**
- * ClassWriter tests.
+ * ClassNode tests.
  * 
  * @author Eric Bruneton
  */
@@ -49,8 +53,22 @@ public class ClassNodeTest extends AbstractTest {
     public void test() throws Exception {
         ClassReader cr = new ClassReader(is);
         ClassNode cn = new ClassNode();
-        cr.accept(cn, false);
-        ClassWriter cw = new ClassWriter(false, true);
+        cr.accept(cn, 0);
+        // clone instructions for testing clone methods
+        for (int i = 0; i < cn.methods.size(); ++i) {
+            MethodNode mn = (MethodNode) cn.methods.get(i);
+            Iterator it = mn.instructions.iterator();
+            Map m = new HashMap() {
+                public Object get(final Object o) {
+                    return o;
+                }
+            };
+            while (it.hasNext()) {
+                AbstractInsnNode insn = (AbstractInsnNode) it.next();
+                mn.instructions.set(insn, insn.clone(m));
+            }
+        }
+        ClassWriter cw = new ClassWriter(0);
         cn.accept(cw);
         assertEquals(cr, new ClassReader(cw.toByteArray()));
     }

@@ -59,7 +59,7 @@ public class Annotations {
         }
 
         final String n = Annotations.class.getName();
-        final ClassWriter cw = new ClassWriter(true);
+        final ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_MAXS);
         ClassReader cr = new ClassReader(n);
         cr.accept(new ClassAdapter(cw) {
 
@@ -78,7 +78,7 @@ public class Annotations {
                         exceptions);
                 return new MethodAdapter(v) {
 
-                    private List params = new ArrayList();
+                    private final List params = new ArrayList();
 
                     public AnnotationVisitor visitParameterAnnotation(
                         final int parameter,
@@ -96,7 +96,7 @@ public class Annotations {
                     }
 
                     public void visitCode() {
-                        int var = ((access & Opcodes.ACC_STATIC) == 0) ? 1 : 0;
+                        int var = (access & Opcodes.ACC_STATIC) == 0 ? 1 : 0;
                         for (int p = 0; p < params.size(); ++p) {
                             int param = ((Integer) params.get(p)).intValue();
                             for (int i = 0; i < param; ++i) {
@@ -121,7 +121,7 @@ public class Annotations {
                     }
                 };
             }
-        }, false);
+        }, 0);
 
         Class c = new ClassLoader() {
             public Class loadClass(final String name)

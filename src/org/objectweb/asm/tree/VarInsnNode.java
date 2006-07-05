@@ -29,6 +29,8 @@
  */
 package org.objectweb.asm.tree;
 
+import java.util.Map;
+
 import org.objectweb.asm.MethodVisitor;
 
 /**
@@ -71,11 +73,15 @@ public class VarInsnNode extends AbstractInsnNode {
         this.opcode = opcode;
     }
 
+    public int getType() {
+        return VAR_INSN;
+    }
+
     public void accept(final MethodVisitor mv) {
         mv.visitVarInsn(opcode, var);
     }
 
-    public int getType() {
-        return VAR_INSN;
+    public AbstractInsnNode clone(final Map labels) {
+        return new VarInsnNode(opcode, var);
     }
 }

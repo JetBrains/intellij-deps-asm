@@ -33,12 +33,14 @@ package org.objectweb.asm;
  * A visitor to visit a Java method. The methods of this interface must be
  * called in the following order: [ <tt>visitAnnotationDefault</tt> ] (
  * <tt>visitAnnotation</tt> | <tt>visitParameterAnnotation</tt> |
- * <tt>visitAttribute</tt> )* [ <tt>visitCode</tt> ( <tt>visit</tt><i>X</i>Insn</tt> |
- * <tt>visitLabel</tt> | <tt>visitTryCatchBlock</tt> | <tt>visitLocalVariable</tt> |
- * <tt>visitLineNumber</tt>)* <tt>visitMaxs</tt> ] <tt>visitEnd</tt>. In
- * addition, the <tt>visit</tt><i>X</i>Insn</tt> and <tt>visitLabel</tt>
- * methods must be called in the sequential order of the bytecode instructions
- * of the visited code, and the <tt>visitLocalVariable</tt> and <tt>visitLineNumber</tt>
+ * <tt>visitAttribute</tt> )* [ <tt>visitCode</tt> ( <tt>visitFrame</tt> |
+ * <tt>visit</tt><i>X</i>Insn</tt> | <tt>visitLabel</tt> | <tt>visitTryCatchBlock</tt> |
+ * <tt>visitLocalVariable</tt> | <tt>visitLineNumber</tt>)* <tt>visitMaxs</tt> ]
+ * <tt>visitEnd</tt>. In addition, the <tt>visit</tt><i>X</i>Insn</tt>
+ * and <tt>visitLabel</tt> methods must be called in the sequential order of
+ * the bytecode instructions of the visited code, <tt>visitTryCatchBlock</tt>
+ * must be called <i>before</i> the labels passed as arguments have been
+ * visited, and the <tt>visitLocalVariable</tt> and <tt>visitLineNumber</tt>
  * methods must be called <i>after</i> the labels passed as arguments have been
  * visited.
  * 
@@ -95,6 +97,62 @@ public interface MethodVisitor {
      */
     void visitCode();
 
+    /**
+     * Visits the current state of the local variables and operand stack
+     * elements. This method must(*) be called <i>just before</i> any
+     * instruction <b>i</b> that follows an unconditionnal branch instruction
+     * such as GOTO or THROW, that is the target of a jump instruction, or that
+     * starts an exception handler block. The visited types must describe the
+     * values of the local variables and of the operand stack elements <i>just
+     * before</i> <b>i</b> is executed. <br> <br> (*) this is mandatory only
+     * for classes whose version is greater than or equal to
+     * {@link Opcodes#V1_6 V1_6}. <br> <br> Packed frames are basically
+     * "deltas" from the state of the previous frame (very first frame is
+     * implicitly defined by the method's parameters and access flags): <ul>
+     * <li>{@link Opcodes#F_SAME} representing frame with exactly the same
+     * locals as the previous frame and with the empty stack.</li> <li>{@link Opcodes#F_SAME1}
+     * representing frame with exactly the same locals as the previous frame and
+     * with single value on the stack (<code>nStack</code> is 1 and
+     * <code>stack[0]</code> contains value for the type of the stack item).</li>
+     * <li>{@link Opcodes#F_APPEND} representing frame with current locals are
+     * the same as the locals in the previous frame, except that additional
+     * locals are defined (<code>nLocal</code> is 1, 2 or 3 and
+     * <code>local</code> elements contains values representing added types).</li>
+     * <li>{@link Opcodes#F_CHOP} representing frame with current locals are
+     * the same as the locals in the previous frame, except that the last 1-3
+     * locals are absent and with the empty stack (<code>nLocals</code> is 1,
+     * 2 or 3). </li> <li>{@link Opcodes#F_FULL} representing complete frame
+     * data.</li> </li> </ul>
+     * 
+     * @param type the type of this stack map frame. Must be
+     *        {@link Opcodes#F_NEW} for expanded frames, or
+     *        {@link Opcodes#F_FULL}, {@link Opcodes#F_APPEND},
+     *        {@link Opcodes#F_CHOP}, {@link Opcodes#F_SAME} or
+     *        {@link Opcodes#F_APPEND}, {@link Opcodes#F_SAME1} for compressed
+     *        frames.
+     * @param nLocal the number of local variables in the visited frame.
+     * @param local the local variable types in this frame. This array must not
+     *        be modified. Primitive types are represented by
+     *        {@link Opcodes#TOP}, {@link Opcodes#INTEGER},
+     *        {@link Opcodes#FLOAT}, {@link Opcodes#LONG},
+     *        {@link Opcodes#DOUBLE},{@link Opcodes#NULL} or
+     *        {@link Opcodes#UNINITIALIZED_THIS} (long and double are
+     *        represented by a single element). Reference types are represented
+     *        by String objects (representing internal names, or type
+     *        descriptors for array types), and uninitialized types by Label
+     *        objects (this label designates the NEW instruction that created
+     *        this uninitialized value).
+     * @param nStack the number of operand stack elements in the visited frame.
+     * @param stack the operand stack types in this frame. This array must not
+     *        be modified. Its content has the same format as the "local" array.
+     */
+    void visitFrame(
+        int type,
+        int nLocal,
+        Object[] local,
+        int nStack,
+        Object[] stack);
+
     // -------------------------------------------------------------------------
     // Normal instructions
     // -------------------------------------------------------------------------
@@ -124,12 +182,11 @@ public interface MethodVisitor {
      * 
      * @param opcode the opcode of the instruction to be visited. This opcode is
      *        either BIPUSH, SIPUSH or NEWARRAY.
-     * @param operand the operand of the instruction to be visited.<br>
-     *        When opcode is BIPUSH, operand value should be between
-     *        Byte.MIN_VALUE and Byte.MAX_VALUE.<br>
-     *        When opcode is SIPUSH, operand value should be between
-     *        Short.MIN_VALUE and Short.MAX_VALUE.<br>
-     *        When opcode is NEWARRAY, operand value should be one of
+     * @param operand the operand of the instruction to be visited.<br> When
+     *        opcode is BIPUSH, operand value should be between Byte.MIN_VALUE
+     *        and Byte.MAX_VALUE.<br> When opcode is SIPUSH, operand value
+     *        should be between Short.MIN_VALUE and Short.MAX_VALUE.<br> When
+     *        opcode is NEWARRAY, operand value should be one of
      *        {@link Opcodes#T_BOOLEAN}, {@link Opcodes#T_CHAR},
      *        {@link Opcodes#T_FLOAT}, {@link Opcodes#T_DOUBLE},
      *        {@link Opcodes#T_BYTE}, {@link Opcodes#T_SHORT},
@@ -263,8 +320,7 @@ public interface MethodVisitor {
     void visitMultiANewArrayInsn(String desc, int dims);
 
     // -------------------------------------------------------------------------
-    // Exceptions table entries, debug information,
-    // max stack size and max locals
+    // Exceptions table entries, debug information, max stack and max locals
     // -------------------------------------------------------------------------
 
     /**
@@ -276,6 +332,9 @@ public interface MethodVisitor {
      * @param type internal name of the type of exceptions handled by the
      *        handler, or <tt>null</tt> to catch any exceptions (for "finally"
      *        blocks).
+     * @throws IllegalArgumentException if one of the labels has already been
+     *         visited by this visitor (by the {@link #visitLabel visitLabel}
+     *         method).
      */
     void visitTryCatchBlock(Label start, Label end, Label handler, String type);
 

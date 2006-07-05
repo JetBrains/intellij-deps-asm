@@ -112,11 +112,11 @@ public class Processor {
     private int n = 0;
 
     public Processor(
-        int inRepresenation,
-        int outRepresentation,
-        InputStream input,
-        OutputStream output,
-        Source xslt)
+        final int inRepresenation,
+        final int outRepresentation,
+        final InputStream input,
+        final OutputStream output,
+        final Source xslt)
     {
         this.inRepresentation = inRepresenation;
         this.outRepresentation = outRepresentation;
@@ -138,7 +138,9 @@ public class Processor {
         TransformerFactory tf = TransformerFactory.newInstance();
         if (!tf.getFeature(SAXSource.FEATURE)
                 || !tf.getFeature(SAXResult.FEATURE))
+        {
             return 0;
+        }
 
         SAXTransformerFactory saxtf = (SAXTransformerFactory) tf;
         Templates templates = null;
@@ -226,9 +228,12 @@ public class Processor {
         return i;
     }
 
-    private void copyEntry(InputStream is, OutputStream os) throws IOException {
-        if (outRepresentation == SINGLE_XML)
+    private void copyEntry(final InputStream is, final OutputStream os)
+            throws IOException
+    {
+        if (outRepresentation == SINGLE_XML) {
             return;
+        }
 
         byte[] buff = new byte[2048];
         int i;
@@ -237,7 +242,7 @@ public class Processor {
         }
     }
 
-    private boolean isClassEntry(ZipEntry ze) {
+    private boolean isClassEntry(final ZipEntry ze) {
         String name = ze.getName();
         return inRepresentation == SINGLE_XML && name.equals(SINGLE_XML_NAME)
                 || name.endsWith(".class") || name.endsWith(".class.xml");
@@ -245,8 +250,8 @@ public class Processor {
 
     private void processEntry(
         final ZipInputStream zis,
-        ZipEntry ze,
-        ContentHandlerFactory handlerFactory)
+        final ZipEntry ze,
+        final ContentHandlerFactory handlerFactory)
     {
         ContentHandler handler = handlerFactory.createContentHandler();
         try {
@@ -262,8 +267,7 @@ public class Processor {
             if (inRepresentation == BYTECODE) { // read bytecode and process it
                 // with handler
                 ClassReader cr = new ClassReader(readEntry(zis, ze));
-                cr.accept(new SAXClassAdapter(handler, singleInputDocument),
-                        false);
+                cr.accept(new SAXClassAdapter(handler, singleInputDocument), 0);
 
             } else { // read XML and process it with handler
                 XMLReader reader = XMLReaderFactory.createXMLReader();
@@ -279,7 +283,7 @@ public class Processor {
         }
     }
 
-    private EntryElement getEntryElement(ZipOutputStream zos) {
+    private EntryElement getEntryElement(final ZipOutputStream zos) {
         if (outRepresentation == SINGLE_XML) {
             return new SingleDocElement(zos);
         }
@@ -316,7 +320,7 @@ public class Processor {
     // return factory;
     // }
 
-    private String getName(ZipEntry ze) {
+    private String getName(final ZipEntry ze) {
         String name = ze.getName();
         if (isClassEntry(ze)) {
             if (inRepresentation != BYTECODE && outRepresentation == BYTECODE) {
@@ -333,7 +337,7 @@ public class Processor {
         return name;
     }
 
-    private byte[] readEntry(ZipInputStream zis, ZipEntry ze)
+    private byte[] readEntry(final ZipInputStream zis, final ZipEntry ze)
             throws IOException
     {
         long size = ze.getSize();
@@ -341,8 +345,8 @@ public class Processor {
             byte[] buff = new byte[(int) size];
             int k = 0;
             int n;
-            while(( n = zis.read(buff, k, buff.length-k)) > 0) {
-              k += n;
+            while ((n = zis.read(buff, k, buff.length - k)) > 0) {
+                k += n;
             }
             return buff;
         }
@@ -361,17 +365,17 @@ public class Processor {
      * 
      * @see java.util.Observer#update(java.util.Observable, java.lang.Object)
      */
-    protected void update(Object arg, int n) {
+    protected void update(final Object arg, final int n) {
         if (arg instanceof Throwable) {
             ((Throwable) arg).printStackTrace();
         } else {
-            if ((n % 100) == 0) {
+            if (n % 100 == 0) {
                 System.err.println(n + " " + arg);
             }
         }
     }
 
-    public static void main(String[] args) throws Exception {
+    public static void main(final String[] args) throws Exception {
         if (args.length < 2) {
             showUsage();
             return;
@@ -421,11 +425,11 @@ public class Processor {
         int n = m.process();
         long l2 = System.currentTimeMillis();
         System.err.println(n);
-        System.err.println("" + (l2 - l1) + "ms  " + (1000f * n / (l2 - l1))
+        System.err.println("" + (l2 - l1) + "ms  " + 1000f * n / (l2 - l1)
                 + " resources/sec");
     }
 
-    private static int getRepresentation(String s) {
+    private static int getRepresentation(final String s) {
         if ("code".equals(s)) {
             return BYTECODE;
         } else if ("xml".equals(s)) {
@@ -437,7 +441,7 @@ public class Processor {
     }
 
     private static void showUsage() {
-        System.err.println("Usage: Main <in format> <out format> [-in <input jar>] [-out <output jar>] [-xslt <xslt file>]");
+        System.err.println("Usage: Main <in format> <out format> [-in <input jar>] [-out <output jar>] [-xslt <xslt fiel>]");
         System.err.println("  when -in or -out is omitted sysin and sysout would be used");
         System.err.println("  <in format> and <out format> - code | xml | singlexml");
     }
@@ -449,7 +453,7 @@ public class Processor {
     private static final class ProtectedInputStream extends InputStream {
         private final InputStream is;
 
-        private ProtectedInputStream(InputStream is) {
+        private ProtectedInputStream(final InputStream is) {
             super();
             this.is = is;
         }
@@ -461,7 +465,9 @@ public class Processor {
             return is.read();
         }
 
-        public final int read(byte[] b, int off, int len) throws IOException {
+        public final int read(final byte[] b, final int off, final int len)
+                throws IOException
+        {
             return is.read(b, off, len);
         }
 
@@ -496,7 +502,10 @@ public class Processor {
 
         private boolean optimizeEmptyElements;
 
-        public SAXWriterFactory(Writer w, boolean optimizeEmptyElements) {
+        public SAXWriterFactory(
+            final Writer w,
+            final boolean optimizeEmptyElements)
+        {
             this.w = w;
             this.optimizeEmptyElements = optimizeEmptyElements;
         }
@@ -517,7 +526,10 @@ public class Processor {
 
         private boolean computeMax;
 
-        public ASMContentHandlerFactory(OutputStream os, boolean computeMax) {
+        public ASMContentHandlerFactory(
+            final OutputStream os,
+            final boolean computeMax)
+        {
             this.os = os;
             this.computeMax = computeMax;
         }
@@ -541,9 +553,9 @@ public class Processor {
         private ContentHandler outputHandler;
 
         public TransformerHandlerFactory(
-            SAXTransformerFactory saxtf,
-            Templates templates,
-            ContentHandler outputHandler)
+            final SAXTransformerFactory saxtf,
+            final Templates templates,
+            final ContentHandler outputHandler)
         {
             this.saxtf = saxtf;
             this.templates = templates;
@@ -569,7 +581,8 @@ public class Processor {
     {
         private ContentHandler subdocumentHandler;
 
-        public SubdocumentHandlerFactory(ContentHandler subdocumentHandler) {
+        public SubdocumentHandlerFactory(final ContentHandler subdocumentHandler)
+        {
             this.subdocumentHandler = subdocumentHandler;
         }
 
@@ -607,24 +620,25 @@ public class Processor {
          * @param optimizeEmptyElements if set to <code>true</code>, short
          *        XML syntax will be used for empty elements
          */
-        public SAXWriter(Writer w, boolean optimizeEmptyElements) {
+        public SAXWriter(final Writer w, final boolean optimizeEmptyElements) {
             this.w = w;
             this.optimizeEmptyElements = optimizeEmptyElements;
         }
 
         public final void startElement(
-            String ns,
-            String localName,
-            String qName,
-            Attributes atts) throws SAXException
+            final String ns,
+            final String localName,
+            final String qName,
+            final Attributes atts) throws SAXException
         {
             try {
                 closeElement();
 
                 writeIdent();
                 w.write("<".concat(qName));
-                if (atts != null && atts.getLength() > 0)
+                if (atts != null && atts.getLength() > 0) {
                     writeAttributes(atts);
+                }
 
                 if (!optimizeEmptyElements) {
                     w.write(">\n");
@@ -639,8 +653,10 @@ public class Processor {
             }
         }
 
-        public final void endElement(String ns, String localName, String qName)
-                throws SAXException
+        public final void endElement(
+            final String ns,
+            final String localName,
+            final String qName) throws SAXException
         {
             ident -= 2;
             try {
@@ -668,7 +684,7 @@ public class Processor {
             }
         }
 
-        public final void comment(char[] ch, int off, int len)
+        public final void comment(final char[] ch, final int off, final int len)
                 throws SAXException
         {
             try {
@@ -685,18 +701,20 @@ public class Processor {
             }
         }
 
-        public final void startDTD(String arg0, String arg1, String arg2)
-                throws SAXException
+        public final void startDTD(
+            final String arg0,
+            final String arg1,
+            final String arg2) throws SAXException
         {
         }
 
         public final void endDTD() throws SAXException {
         }
 
-        public final void startEntity(String arg0) throws SAXException {
+        public final void startEntity(final String arg0) throws SAXException {
         }
 
-        public final void endEntity(String arg0) throws SAXException {
+        public final void endEntity(final String arg0) throws SAXException {
         }
 
         public final void startCDATA() throws SAXException {
@@ -705,7 +723,9 @@ public class Processor {
         public final void endCDATA() throws SAXException {
         }
 
-        private final void writeAttributes(Attributes atts) throws IOException {
+        private final void writeAttributes(final Attributes atts)
+                throws IOException
+        {
             StringBuffer sb = new StringBuffer();
             int len = atts.getLength();
             for (int i = 0; i < len; i++) {
@@ -724,7 +744,7 @@ public class Processor {
          * @param str string to encode.
          * @return encoded string
          */
-        private final String esc(String str) {
+        private final String esc(final String str) {
             StringBuffer sb = new StringBuffer(str.length());
             for (int i = 0; i < str.length(); i++) {
                 char ch = str.charAt(i);
@@ -815,9 +835,9 @@ public class Processor {
          *        subdocuments.
          */
         public InputSlicingHandler(
-            String subdocumentRoot,
-            ContentHandler rootHandler,
-            ContentHandlerFactory subdocumentHandlerFactory)
+            final String subdocumentRoot,
+            final ContentHandler rootHandler,
+            final ContentHandlerFactory subdocumentHandlerFactory)
         {
             this.subdocumentRoot = subdocumentRoot;
             this.rootHandler = rootHandler;
@@ -825,10 +845,10 @@ public class Processor {
         }
 
         public final void startElement(
-            String namespaceURI,
-            String localName,
-            String qName,
-            Attributes list) throws SAXException
+            final String namespaceURI,
+            final String localName,
+            final String qName,
+            final Attributes list) throws SAXException
         {
             if (subdocument) {
                 subdocumentHandler.startElement(namespaceURI,
@@ -849,9 +869,9 @@ public class Processor {
         }
 
         public final void endElement(
-            String namespaceURI,
-            String localName,
-            String qName) throws SAXException
+            final String namespaceURI,
+            final String localName,
+            final String qName) throws SAXException
         {
             if (subdocument) {
                 subdocumentHandler.endElement(namespaceURI, localName, qName);
@@ -877,8 +897,10 @@ public class Processor {
             }
         }
 
-        public final void characters(char[] buff, int offset, int size)
-                throws SAXException
+        public final void characters(
+            final char[] buff,
+            final int offset,
+            final int size) throws SAXException
         {
             if (subdocument) {
                 subdocumentHandler.characters(buff, offset, size);
@@ -895,8 +917,9 @@ public class Processor {
      * {@link org.xml.sax.ContentHandler ContentHandler} obtained from
      * {@link java.net.ContentHandlerFactory ContentHandlerFactory}. This is
      * useful for running XSLT engine against large XML document that will
-     * hardly fit into the memory all together. <p> TODO use complete path for
-     * subdocumentRoot
+     * hardly fit into the memory all together.
+     * 
+     * <p> TODO use complete path for subdocumentRoot
      */
     private static final class OutputSlicingHandler extends DefaultHandler {
         private String subdocumentRoot;
@@ -923,9 +946,9 @@ public class Processor {
          * @param isXml TODO.
          */
         public OutputSlicingHandler(
-            ContentHandlerFactory subdocumentHandlerFactory,
-            EntryElement entryElement,
-            boolean isXml)
+            final ContentHandlerFactory subdocumentHandlerFactory,
+            final EntryElement entryElement,
+            final boolean isXml)
         {
             this.subdocumentRoot = "class";
             this.subdocumentHandlerFactory = subdocumentHandlerFactory;
@@ -934,10 +957,10 @@ public class Processor {
         }
 
         public final void startElement(
-            String namespaceURI,
-            String localName,
-            String qName,
-            Attributes list) throws SAXException
+            final String namespaceURI,
+            final String localName,
+            final String qName,
+            final Attributes list) throws SAXException
         {
             if (subdocument) {
                 subdocumentHandler.startElement(namespaceURI,
@@ -946,8 +969,9 @@ public class Processor {
                         list);
             } else if (localName.equals(subdocumentRoot)) {
                 String name = list.getValue("name");
-                if (name == null || name.length() == 0)
+                if (name == null || name.length() == 0) {
                     throw new SAXException("Class element without name attribute.");
+                }
                 try {
                     entryElement.openEntry(isXml
                             ? name.concat(".class.xml")
@@ -966,9 +990,9 @@ public class Processor {
         }
 
         public final void endElement(
-            String namespaceURI,
-            String localName,
-            String qName) throws SAXException
+            final String namespaceURI,
+            final String localName,
+            final String qName) throws SAXException
         {
             if (subdocument) {
                 subdocumentHandler.endElement(namespaceURI, localName, qName);
@@ -990,8 +1014,10 @@ public class Processor {
         public final void endDocument() throws SAXException {
         }
 
-        public final void characters(char[] buff, int offset, int size)
-                throws SAXException
+        public final void characters(
+            final char[] buff,
+            final int offset,
+            final int size) throws SAXException
         {
             if (subdocument) {
                 subdocumentHandler.characters(buff, offset, size);
@@ -1011,11 +1037,11 @@ public class Processor {
     private static final class SingleDocElement implements EntryElement {
         private OutputStream os;
 
-        public SingleDocElement(OutputStream os) {
+        public SingleDocElement(final OutputStream os) {
             this.os = os;
         }
 
-        public OutputStream openEntry(String name) throws IOException {
+        public OutputStream openEntry(final String name) throws IOException {
             return os;
         }
 
@@ -1028,11 +1054,11 @@ public class Processor {
     private static final class ZipEntryElement implements EntryElement {
         private ZipOutputStream zos;
 
-        public ZipEntryElement(ZipOutputStream zos) {
+        public ZipEntryElement(final ZipOutputStream zos) {
             this.zos = zos;
         }
 
-        public OutputStream openEntry(String name) throws IOException {
+        public OutputStream openEntry(final String name) throws IOException {
             ZipEntry entry = new ZipEntry(name);
             zos.putNextEntry(entry);
             return zos;

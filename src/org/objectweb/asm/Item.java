@@ -51,6 +51,13 @@ final class Item {
      * {@link ClassWriter#STR}, {@link ClassWriter#CLASS},
      * {@link ClassWriter#NAME_TYPE}, {@link ClassWriter#FIELD},
      * {@link ClassWriter#METH}, {@link ClassWriter#IMETH}.
+     * 
+     * Special Item types are used for Items that are stored in the ClassWriter
+     * {@link ClassWriter#typeTable}, instead of the constant pool, in order to
+     * avoid clashes with normal constant pool items in the ClassWriter constant
+     * pool's hash table. These special item types are
+     * {@link ClassWriter#TYPE_NORMAL}, {@link ClassWriter#TYPE_UNINIT} and
+     * {@link ClassWriter#TYPE_MERGED}.
      */
     int type;
 
@@ -109,7 +116,13 @@ final class Item {
     Item() {
     }
 
-    Item(int index) {
+    /**
+     * Constructs an uninitialized {@link Item} for constant pool element at
+     * given position.
+     * 
+     * @param index index of the item to be constructed.
+     */
+    Item(final int index) {
         this.index = index;
     }
 
@@ -198,15 +211,16 @@ final class Item {
             case ClassWriter.UTF8:
             case ClassWriter.STR:
             case ClassWriter.CLASS:
+            case ClassWriter.TYPE_NORMAL:
                 hashCode = 0x7FFFFFFF & (type + strVal1.hashCode());
                 return;
             case ClassWriter.NAME_TYPE:
                 hashCode = 0x7FFFFFFF & (type + strVal1.hashCode()
                         * strVal2.hashCode());
                 return;
-            // ClassWriter.FIELD:
-            // ClassWriter.METH:
-            // ClassWriter.IMETH:                    
+                // ClassWriter.FIELD:
+                // ClassWriter.METH:
+                // ClassWriter.IMETH:
             default:
                 hashCode = 0x7FFFFFFF & (type + strVal1.hashCode()
                         * strVal2.hashCode() * strVal3.hashCode());
@@ -225,6 +239,7 @@ final class Item {
             switch (type) {
                 case ClassWriter.INT:
                     return i.intVal == intVal;
+                case ClassWriter.TYPE_MERGED:
                 case ClassWriter.LONG:
                     return i.longVal == longVal;
                 case ClassWriter.FLOAT:
@@ -234,13 +249,16 @@ final class Item {
                 case ClassWriter.UTF8:
                 case ClassWriter.STR:
                 case ClassWriter.CLASS:
+                case ClassWriter.TYPE_NORMAL:
                     return i.strVal1.equals(strVal1);
+                case ClassWriter.TYPE_UNINIT:
+                    return i.intVal == intVal && i.strVal1.equals(strVal1);
                 case ClassWriter.NAME_TYPE:
                     return i.strVal1.equals(strVal1)
                             && i.strVal2.equals(strVal2);
-                // ClassWriter.FIELD:
-                // ClassWriter.METH:
-                // ClassWriter.IMETH:                    
+                    // ClassWriter.FIELD:
+                    // ClassWriter.METH:
+                    // ClassWriter.IMETH:
                 default:
                     return i.strVal1.equals(strVal1)
                             && i.strVal2.equals(strVal2)

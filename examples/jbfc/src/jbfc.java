@@ -44,7 +44,7 @@ import org.objectweb.asm.util.TraceClassVisitor;
  */
 public class jbfc {
 
-    public static void main(String[] args) throws IOException {
+    public static void main(final String[] args) throws IOException {
         if (args.length < 2) {
             System.out.println("Usage: jbfc [-v] <bf program file> <java class name>");
             return;
@@ -65,7 +65,7 @@ public class jbfc {
 
         FileReader r = new FileReader(fileName);
 
-        ClassWriter cw = new ClassWriter(true);
+        ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_MAXS);
         BFCompiler c = new BFCompiler();
         if (verbose) {
             c.compile(r, className, fileName, new TraceClassVisitor(cw,

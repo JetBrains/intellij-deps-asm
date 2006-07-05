@@ -29,6 +29,8 @@
  */
 package org.objectweb.asm.tree;
 
+import java.util.Map;
+
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.MethodVisitor;
 
@@ -61,11 +63,16 @@ public class MultiANewArrayInsnNode extends AbstractInsnNode {
         this.dims = dims;
     }
 
+    public int getType() {
+        return MULTIANEWARRAY_INSN;
+    }
+
     public void accept(final MethodVisitor mv) {
         mv.visitMultiANewArrayInsn(desc, dims);
     }
 
-    public int getType() {
-        return MULTIANEWARRAY_INSN;
+    public AbstractInsnNode clone(final Map labels) {
+        return new MultiANewArrayInsnNode(desc, dims);
     }
+
 }

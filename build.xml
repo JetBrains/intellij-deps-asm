@@ -47,7 +47,7 @@
   <property name="examples.common"    value="${examples}/common"/>
   <property name="config"             value="${basedir}/config"/>
   <property name="archive"            value="${basedir}/archive"/>
-
+  
   <property name="out"                value="${basedir}/output"/>
   <property name="out.build"          value="${out}/build"/>
   <property name="out.instr"          value="${out}/instr"/>
@@ -92,22 +92,15 @@
 
   <target name="init" depends="properties,check">
 
-        <path id="classpath">
+    <path id="classpath">
       <pathelement location="${out.build}"/>
     </path>
 
     <path id="cobertura.classpath">
-      <fileset dir="test/lib">
-        <include name="cobertura-1.7.jar"/>
-        <include name="log4j-1.2.9.jar"/>
-        <include name="jakarta-oro-2.0.8.jar"/>
-        <include name="asm-2.1.jar"/>
-        <include name="ccl.jar"/>
-        <include name="javancss.jar"/>
-      </fileset>
+       <pathelement path="${cobertura.path}"/> 
     </path>
 
-        <taskdef name="multipleAnt"
+    <taskdef name="multipleAnt"
              classname="org.objectweb.util.ant.MultipleAnt"
              classpath="${objectweb.ant.tasks.path}"/>
 
@@ -168,6 +161,9 @@
     <condition property="classes" value="${out.build}/tmp">
       <isset property="debug"/>
     </condition>
+    <condition property="asm.test" value="${java.home}/lib/rt.jar,${out.test}/cases">
+      <not><isset property="asm.test"/></not>
+    </condition>
     <ant antfile="${test}/build.xml" target="test" inheritRefs="true"/>
   </target>
 
@@ -181,21 +177,35 @@
   </target>
 
   <target name="coverage" depends="compile">
-        <delete file="cobertura.ser"/>
-        <delete dir="${out.instr}"/>
+    <delete file="cobertura.ser"/>
+    <delete dir="${out.instr}"/>
     <cobertura-instrument todir="${out.instr}">
-      <ignore regex="org.apache.log4j.*"/>
+      <ignore regex="java.lang.Error"/>
       <fileset dir="${out.build}/tmp">
         <include name="**/*.class"/>
-        <exclude name="**/optimizer/*.class" />
+        <exclude name="**/optimizer/*.class"/>
+        <exclude name="**/xml/Processor*.class"/>
         <exclude name="**/*Test*.class" />
       </fileset>
     </cobertura-instrument>
     <copy todir="${out.instr}" preservelastmodified="yes">
       <fileset dir="${out.build}/tmp"/>
     </copy>
-        <property name="classes" value="${out.instr}"/>
+    <property name="coverage" value="yes"/>
+    <property name="classes" value="${out.instr}"/>
+    <property name="asm.test.class" value="pkg"/>
+    <condition property="asm.test" value="${out.test}/cases">
+      <not><isset property="asm.test"/></not>
+    </condition>
+    <condition property="test.type" value="conform">
+      <not><isset property="test.type"/></not>
+    </condition>
     <ant antfile="${test}/build.xml" target="test" inheritRefs="true"/>         
+  </target>
+
+  <target name="coverage.check" depends="init">
+    <cobertura-check branchrate="100" linerate="100">
+    </cobertura-check>
   </target>
 
   <target name="coverage.report" depends="init">
@@ -294,38 +304,15 @@
     </copy>
   </target>
 
-  
-  <target name="eclipse.generate" depends="dist.version">
-    <echo file="${basedir}/plugin.xml"><![CDATA[<?xml version="1.0" encoding="UTF-8"?>
-<?eclipse version="3.0"?>
-<plugin id="org.objectweb.asm" name="ASM Framework" version="${plugin.artifact}" provider-name="ObjectWeb.org">
-  <runtime>
-    <library name="output/dist/lib/asm-${product.artifact}.jar">
-      <export name="*"/>
-    </library>
-    <library name="output/dist/lib/asm-tree-${product.artifact}.jar">
-      <export name="*"/>
-    </library>
-    <library name="output/dist/lib/asm-analysis-${product.artifact}.jar">
-      <export name="*"/>
-    </library>
-    <library name="output/dist/lib/asm-commons-${product.artifact}.jar">
-      <export name="*"/>
-    </library>
-    <library name="output/dist/lib/asm-attrs-${product.artifact}.jar">
-      <export name="*"/>
-    </library>
-    <library name="output/dist/lib/asm-util-${product.artifact}.jar">
-      <export name="*"/>
-    </library>
-  </runtime>
-</plugin>]]></echo>
+  <!--
+  <target name="eclipse.generate" depends="dist.version">  	
   </target>
-  
+
   <target name="eclipse.plugin" depends="jar,eclipse.generate">
-    <zip zipfile="${out}/org.objectweb.asm_${plugin.artifact}.jar">
+    <jar zipfile="${out}/org.objectweb.asm_${plugin.artifact}.jar">
       <zipfileset dir="${basedir}">
         <include name="plugin.xml"/>
+        <include name="META-INF/MANIFEST.MF"/>      	
         <include name="**/asm-${product.artifact}.jar"/>
         <include name="**/asm-tree-${product.artifact}.jar"/>
         <include name="**/asm-analysis-${product.artifact}.jar"/>
@@ -333,7 +320,30 @@
         <include name="**/asm-commons-${product.artifact}.jar"/>
         <include name="**/asm-attrs-${product.artifact}.jar"/>
       </zipfileset>
-    </zip>
+      <manifest>
+        <attribute name="Bundle-ManifestVersion" value="2"/>
+        <attribute name="Bundle-Name" value="ASM Framework"/>
+        <attribute name="Bundle-SymbolicName" value="org.objectweb.asm;singleton:=true"/>
+        <attribute name="Bundle-Version" value="${plugin.artifact}"/>
+        <attribute name="Bundle-ClassPath" value="output/dist/lib/asm-${product.artifact}.jar,
+output/dist/lib/asm-tree-${product.artifact}.jar,
+output/dist/lib/asm-analysis-${product.artifact}.jar,
+output/dist/lib/asm-commons-${product.artifact}.jar,
+output/dist/lib/asm-attrs-${product.artifact}.jar,
+output/dist/lib/asm-util-${product.artifact}.jar"/>
+        <attribute name="Bundle-Vendor" value="ObjectWeb.org"/>
+        <attribute name="Bundle-Localization" value="plugin"/>
+        <attribute name="Export-Package" value="org.objectweb.asm,
+org.objectweb.asm.attrs,
+org.objectweb.asm.commons,
+org.objectweb.asm.signature,
+org.objectweb.asm.tree,
+org.objectweb.asm.tree.analysis,
+org.objectweb.asm.util,
+org.objectweb.asm.xml"/>
+        <attribute name="Eclipse-AutoStart" value="true"/>
+      </manifest>
+    </jar>
   </target>
 
   <target name="eclipse.feature" depends="eclipse.plugin">
@@ -400,6 +410,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
       <zipfileset dir="${out}" includes="org.objectweb.asm_${plugin.artifact}.jar"  prefix="plugins"/>
     </zip>
   </target>
+  -->
   
   <target name="dist" depends="jar,jdoc,examples">
     <zip zipFile="${out.dist}/src.zip" basedir="${src}" excludes="**/optimizer/**/*"/>

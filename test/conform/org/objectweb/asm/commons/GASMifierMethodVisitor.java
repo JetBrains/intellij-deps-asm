@@ -44,7 +44,7 @@ import java.util.Map;
 
 /**
  * A {@link MethodVisitor} that prints the ASM code that generates the methods
- * it visits.
+ * it visits by using the GeneratorAdapter class.
  * 
  * @author Eric Bruneton
  * @author Eugene Kuleshov
@@ -68,12 +68,12 @@ public class GASMifierMethodVisitor extends ASMifierAbstractVisitor implements
 
     HashMap labelNames;
 
-    public GASMifierMethodVisitor(int access, String desc) {
+    public GASMifierMethodVisitor(final int access, final String desc) {
         super("mg");
         this.access = access;
         this.labelNames = new HashMap();
         this.argumentTypes = Type.getArgumentTypes(desc);
-        int nextLocal = ((Opcodes.ACC_STATIC & access) != 0) ? 0 : 1;
+        int nextLocal = (Opcodes.ACC_STATIC & access) != 0 ? 0 : 1;
         for (int i = 0; i < argumentTypes.length; i++) {
             nextLocal += argumentTypes[i].getSize();
         }
@@ -112,7 +112,58 @@ public class GASMifierMethodVisitor extends ASMifierAbstractVisitor implements
     }
 
     public void visitCode() {
-        /* text.add("mg.visitCode();\n"); */
+        text.add("mg.visitCode();\n");
+    }
+
+    public void visitFrame(
+        final int type,
+        final int nLocal,
+        final Object[] local,
+        final int nStack,
+        final Object[] stack)
+    {
+        buf.setLength(0);
+        switch (type) {
+            case Opcodes.F_NEW:
+            case Opcodes.F_FULL:
+                declareFrameTypes(nLocal, local);
+                declareFrameTypes(nStack, stack);
+                if (type == Opcodes.F_NEW) {
+                    buf.append("mg.visitFrame(Opcodes.F_NEW, ");
+                } else {
+                    buf.append("mg.visitFrame(Opcodes.F_FULL, ");
+                }
+                buf.append(nLocal).append(", new Object[] {");
+                appendFrameTypes(nLocal, local);
+                buf.append("}, ").append(nStack).append(", new Object[] {");
+                appendFrameTypes(nStack, stack);
+                buf.append("}");
+                break;
+            case Opcodes.F_APPEND:
+                declareFrameTypes(nLocal, local);
+                buf.append("mg.visitFrame(Opcodes.F_APPEND,")
+                        .append(nLocal)
+                        .append(", new Object[] {");
+                appendFrameTypes(nLocal, local);
+                buf.append("}, 0, null");
+                break;
+            case Opcodes.F_CHOP:
+                buf.append("mg.visitFrame(Opcodes.F_CHOP,")
+                        .append(nLocal)
+                        .append(", null, 0, null");
+                break;
+            case Opcodes.F_SAME:
+                buf.append("mg.visitFrame(Opcodes.F_SAME, 0, null, 0, null");
+                break;
+            case Opcodes.F_SAME1:
+                declareFrameTypes(1, stack);
+                buf.append("mg.visitFrame(Opcodes.F_SAME1, 0, null, 1, new Object[] {");
+                appendFrameTypes(1, stack);
+                buf.append("}");
+                break;
+        }
+        buf.append(");\n");
+        text.add(buf.toString());
     }
 
     public void visitInsn(final int opcode) {
@@ -127,6 +178,7 @@ public class GASMifierMethodVisitor extends ASMifierAbstractVisitor implements
                 buf.append("mg.returnValue();\n");
                 break;
             case NOP:
+                buf.append("mg.visitInsn(Opcodes.NOP);\n");
                 break;
             case ACONST_NULL:
                 buf.append("mg.push((String)null);\n");
@@ -461,68 +513,71 @@ public class GASMifierMethodVisitor extends ASMifierAbstractVisitor implements
         lastOpcode = opcode;
     }
 
-    public void visitVarInsn(final int opcode, int var) {
+    public void visitVarInsn(final int opcode, final int var) {
         buf.setLength(0);
-        switch (opcode) {
-            case RET:
-                buf.append("mg.ret(");
-                if (var < firstLocal) {
-                    buf.append(var);
-                } else {
-                    int v = generateNewLocal(var, "Type.INT_TYPE");
-                    buf.append("local").append(v);
-                }
-                buf.append(");\n");
-                break;
+        try {
+            switch (opcode) {
+                case RET:
+                    buf.append("mg.ret(");
+                    if (var < firstLocal) {
+                        buf.append(var);
+                    } else {
+                        int v = generateNewLocal(var, "Type.INT_TYPE");
+                        buf.append("local").append(v);
+                    }
+                    buf.append(");\n");
+                    break;
 
-            case ILOAD:
-                generateLoadLocal(var, "Type.INT_TYPE");
-                break;
-            case LLOAD:
-                generateLoadLocal(var, "Type.LONG_TYPE");
-                break;
-            case FLOAD:
-                generateLoadLocal(var, "Type.FLOAT_TYPE");
-                break;
-            case DLOAD:
-                generateLoadLocal(var, "Type.DOUBLE_TYPE");
-                break;
-            case ALOAD:
-                generateLoadLocal(var, getType("java/lang/Object"));
-                break;
+                case ILOAD:
+                    generateLoadLocal(var, "Type.INT_TYPE");
+                    break;
+                case LLOAD:
+                    generateLoadLocal(var, "Type.LONG_TYPE");
+                    break;
+                case FLOAD:
+                    generateLoadLocal(var, "Type.FLOAT_TYPE");
+                    break;
+                case DLOAD:
+                    generateLoadLocal(var, "Type.DOUBLE_TYPE");
+                    break;
+                case ALOAD:
+                    generateLoadLocal(var, getType("java/lang/Object"));
+                    break;
 
-            case ISTORE:
-                generateStoreLocal(var, "Type.INT_TYPE");
-                break;
-            case LSTORE:
-                generateStoreLocal(var, "Type.LONG_TYPE");
-                break;
-            case FSTORE:
-                generateStoreLocal(var, "Type.FLOAT_TYPE");
-                break;
-            case DSTORE:
-                generateStoreLocal(var, "Type.DOUBLE_TYPE");
-                break;
-            case ASTORE:
-                generateStoreLocal(var, getType("java/lang/Object"));
-                break;
+                case ISTORE:
+                    generateStoreLocal(var, "Type.INT_TYPE");
+                    break;
+                case LSTORE:
+                    generateStoreLocal(var, "Type.LONG_TYPE");
+                    break;
+                case FSTORE:
+                    generateStoreLocal(var, "Type.FLOAT_TYPE");
+                    break;
+                case DSTORE:
+                    generateStoreLocal(var, "Type.DOUBLE_TYPE");
+                    break;
+                case ASTORE:
+                    generateStoreLocal(var, getType("java/lang/Object"));
+                    break;
 
-            default:
-                throw new RuntimeException("unexpected case");
+                default:
+                    throw new RuntimeException("unexpected case");
+            }
+        } catch (Exception e) {
+            buf.append("mg.visitVarInsn(" + OPCODES[opcode] + ", " + var
+                    + ");\n");
         }
-
         text.add(buf.toString());
         lastOpcode = opcode;
     }
 
-    private void generateLoadLocal(int var, String type) {
+    private void generateLoadLocal(final int var, final String type) {
         if (var < firstLocal) {
             if (var == 0 && (access & ACC_STATIC) == 0) {
                 buf.append("mg.loadThis();\n");
             } else {
-                buf.append("mg.loadArg(")
-                        .append(getArgIndex(var))
-                        .append(");\n");
+                int index = getArgIndex(var);
+                buf.append("mg.loadArg(").append(index).append(");\n");
             }
         } else {
             int local = generateNewLocal(var, type);
@@ -535,9 +590,14 @@ public class GASMifierMethodVisitor extends ASMifierAbstractVisitor implements
         }
     }
 
-    private void generateStoreLocal(int var, String type) {
+    private void generateStoreLocal(final int var, final String type) {
         if (var < firstLocal) {
-            buf.append("mg.storeArg(").append(getArgIndex(var)).append(");\n");
+            if (var == 0 && (access & ACC_STATIC) == 0) {
+                buf.append("mg.visitVarInsn(ASTORE, " + var + ");\n");
+            } else {
+                int index = getArgIndex(var);
+                buf.append("mg.storeArg(").append(index).append(");\n");
+            }
         } else {
             int local = generateNewLocal(var, type);
             buf.append("mg.storeLocal(local").append(local);
@@ -549,7 +609,7 @@ public class GASMifierMethodVisitor extends ASMifierAbstractVisitor implements
         }
     }
 
-    private int generateNewLocal(int var, String type) {
+    private int generateNewLocal(final int var, final String type) {
         Integer i = (Integer) locals.get(new Integer(var));
         if (i == null) {
             int local = locals.size();
@@ -561,8 +621,8 @@ public class GASMifierMethodVisitor extends ASMifierAbstractVisitor implements
         return i.intValue();
     }
 
-    private int getArgIndex(int var) {
-        int nextLocal = ((Opcodes.ACC_STATIC & access) != 0) ? 0 : 1;
+    private int getArgIndex(final int var) {
+        int nextLocal = (Opcodes.ACC_STATIC & access) != 0 ? 0 : 1;
         int i = 0;
         while (nextLocal != var) {
             nextLocal += argumentTypes[i++].getSize();
@@ -663,12 +723,15 @@ public class GASMifierMethodVisitor extends ASMifierAbstractVisitor implements
         buf.setLength(0);
         declareLabel(label);
         if (opcode == GOTO || opcode == IFNULL || opcode == IFNONNULL) {
-            if (opcode == GOTO)
+            if (opcode == GOTO) {
                 buf.append("mg.goTo(");
-            if (opcode == IFNULL)
+            }
+            if (opcode == IFNULL) {
                 buf.append("mg.ifNull(");
-            if (opcode == IFNONNULL)
+            }
+            if (opcode == IFNONNULL) {
                 buf.append("mg.ifNonNull(");
+            }
             appendLabel(label);
             buf.append(");\n");
         } else if (opcode == IF_ICMPEQ) {
@@ -945,33 +1008,42 @@ public class GASMifierMethodVisitor extends ASMifierAbstractVisitor implements
         // does nothing
     }
 
-    static String getType(String internalName) {
+    static String getType(final String internalName) {
         return "Type.getType(\"L" + internalName + ";\")";
     }
 
-    static String getDescType(String desc) {
-        if (desc.equals("Z"))
+    static String getDescType(final String desc) {
+        if (desc.equals("Z")) {
             return "Type.BOOLEAN_TYPE";
-        if (desc.equals("B"))
+        }
+        if (desc.equals("B")) {
             return "Type.BYTE_TYPE";
-        if (desc.equals("C"))
+        }
+        if (desc.equals("C")) {
             return "Type.CHAR_TYPE";
-        if (desc.equals("D"))
+        }
+        if (desc.equals("D")) {
             return "Type.DOUBLE_TYPE";
-        if (desc.equals("F"))
+        }
+        if (desc.equals("F")) {
             return "Type.FLOAT_TYPE";
-        if (desc.equals("I"))
+        }
+        if (desc.equals("I")) {
             return "Type.INT_TYPE";
-        if (desc.equals("J"))
+        }
+        if (desc.equals("J")) {
             return "Type.LONG_TYPE";
-        if (desc.equals("S"))
+        }
+        if (desc.equals("S")) {
             return "Type.SHORT_TYPE";
-        if (desc.equals("V"))
+        }
+        if (desc.equals("V")) {
             return "Type.VOID_TYPE";
+        }
         return "Type.getType(\"" + desc + "\")";
     }
 
-    static String getMethod(String name, String desc) {
+    static String getMethod(final String name, final String desc) {
         Type rt = Type.getReturnType(desc);
         Type[] argt = Type.getArgumentTypes(desc);
         StringBuffer buf = new StringBuffer();
@@ -979,12 +1051,58 @@ public class GASMifierMethodVisitor extends ASMifierAbstractVisitor implements
         buf.append(rt.getClassName()).append(" ");
         buf.append(name).append("(");
         for (int i = 0; i < argt.length; ++i) {
-            if (i > 0)
+            if (i > 0) {
                 buf.append(',');
+            }
             buf.append(argt[i].getClassName());
         }
         buf.append(")\")");
         return buf.toString();
+    }
+
+    private void declareFrameTypes(final int n, final Object[] o) {
+        for (int i = 0; i < n; ++i) {
+            if (o[i] instanceof Label) {
+                declareLabel((Label) o[i]);
+            }
+        }
+    }
+
+    private void appendFrameTypes(final int n, final Object[] o) {
+        for (int i = 0; i < n; ++i) {
+            if (i > 0) {
+                buf.append(", ");
+            }
+            if (o[i] instanceof String) {
+                buf.append('"').append(o[i]).append('"');
+            } else if (o[i] instanceof Integer) {
+                switch (((Integer) o[i]).intValue()) {
+                    case 0:
+                        buf.append("Opcodes.TOP");
+                        break;
+                    case 1:
+                        buf.append("Opcodes.INTEGER");
+                        break;
+                    case 2:
+                        buf.append("Opcodes.FLOAT");
+                        break;
+                    case 3:
+                        buf.append("Opcodes.DOUBLE");
+                        break;
+                    case 4:
+                        buf.append("Opcodes.LONG");
+                        break;
+                    case 5:
+                        buf.append("Opcodes.NULL");
+                        break;
+                    case 6:
+                        buf.append("Opcodes.UNINITIALIZED_THIS");
+                        break;
+                }
+            } else {
+                appendLabel((Label) o[i]);
+            }
+        }
     }
 
     /**

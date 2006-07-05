@@ -54,7 +54,7 @@ public class Helloworld extends ClassLoader implements Opcodes {
 
         // creates a ClassWriter for the Example public class,
         // which inherits from Object
-        ClassWriter cw = new ClassWriter(false);
+        ClassWriter cw = new ClassWriter(0);
         cw.visit(V1_1, ACC_PUBLIC, "Example", null, "java/lang/Object", null);
 
         // creates a MethodWriter for the (implicit) constructor
@@ -113,7 +113,7 @@ public class Helloworld extends ClassLoader implements Opcodes {
         // Same example with a GeneratorAdapter (more convenient but slower)
         // ------------------------------------------------------------------------
 
-        cw = new ClassWriter(true);
+        cw = new ClassWriter(ClassWriter.COMPUTE_MAXS);
         cw.visit(V1_1, ACC_PUBLIC, "Example", null, "java/lang/Object", null);
 
         // creates a GeneratorAdapter for the (implicit) constructor

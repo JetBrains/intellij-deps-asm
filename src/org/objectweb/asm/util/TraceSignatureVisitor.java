@@ -74,16 +74,16 @@ public class TraceSignatureVisitor implements SignatureVisitor {
 
     private String separator = "";
 
-    public TraceSignatureVisitor(int access) {
+    public TraceSignatureVisitor(final int access) {
         isInterface = (access & Opcodes.ACC_INTERFACE) != 0;
         this.declaration = new StringBuffer();
     }
 
-    private TraceSignatureVisitor(StringBuffer buf) {
+    private TraceSignatureVisitor(final StringBuffer buf) {
         this.declaration = buf;
     }
 
-    public void visitFormalTypeParameter(String name) {
+    public void visitFormalTypeParameter(final String name) {
         declaration.append(seenFormalParameter ? ", " : "<").append(name);
         seenFormalParameter = true;
         seenInterfaceBound = false;
@@ -110,9 +110,9 @@ public class TraceSignatureVisitor implements SignatureVisitor {
     }
 
     public SignatureVisitor visitInterface() {
-        separator = seenInterface ? ", " : (isInterface
+        separator = seenInterface ? ", " : isInterface
                 ? " extends "
-                : " implements ");
+                : " implements ";
         seenInterface = true;
         startType();
         return this;
@@ -152,7 +152,7 @@ public class TraceSignatureVisitor implements SignatureVisitor {
         return new TraceSignatureVisitor(exceptions);
     }
 
-    public void visitBaseType(char descriptor) {
+    public void visitBaseType(final char descriptor) {
         switch (descriptor) {
             case 'V':
                 declaration.append("void");
@@ -186,7 +186,7 @@ public class TraceSignatureVisitor implements SignatureVisitor {
         endType();
     }
 
-    public void visitTypeVariable(String name) {
+    public void visitTypeVariable(final String name) {
         declaration.append(name);
         endType();
     }
@@ -197,7 +197,7 @@ public class TraceSignatureVisitor implements SignatureVisitor {
         return this;
     }
 
-    public void visitClassType(String name) {
+    public void visitClassType(final String name) {
         if (!"java/lang/Object".equals(name)) {
             declaration.append(separator).append(name.replace('/', '.'));
         } else {
@@ -215,7 +215,7 @@ public class TraceSignatureVisitor implements SignatureVisitor {
         argumentStack *= 2;
     }
 
-    public void visitInnerClassType(String name) {
+    public void visitInnerClassType(final String name) {
         if (argumentStack % 2 == 1) {
             declaration.append('>');
         }
@@ -236,7 +236,7 @@ public class TraceSignatureVisitor implements SignatureVisitor {
         declaration.append('?');
     }
 
-    public SignatureVisitor visitTypeArgument(char tag) {
+    public SignatureVisitor visitTypeArgument(final char tag) {
         if (argumentStack % 2 == 0) {
             ++argumentStack;
             declaration.append('<');

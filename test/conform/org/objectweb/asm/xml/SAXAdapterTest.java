@@ -39,7 +39,10 @@ import javax.xml.transform.sax.TransformerHandler;
 import junit.framework.TestSuite;
 
 import org.objectweb.asm.AbstractTest;
+import org.objectweb.asm.Attribute;
 import org.objectweb.asm.ClassReader;
+import org.objectweb.asm.ClassWriter;
+import org.objectweb.asm.Label;
 
 /**
  * SAXAdapter tests
@@ -60,9 +63,36 @@ public class SAXAdapterTest extends AbstractTest {
         TransformerHandler handler = saxtf.newTransformerHandler();
         handler.setResult(new SAXResult(new ASMContentHandler(bos, false)));
         handler.startDocument();
-        cr.accept(new SAXClassAdapter(handler, false), false);
+        cr.accept(new SAXClassAdapter(handler, false), 0);
         handler.endDocument();
 
-        assertEquals(cr, new ClassReader(bos.toByteArray()));
+        ClassWriter cw = new ClassWriter(0);
+        cr.accept(cw, new Attribute[] { new Attribute("Comment") {
+            protected Attribute read(
+                final ClassReader cr,
+                final int off,
+                final int len,
+                final char[] buf,
+                final int codeOff,
+                final Label[] labels)
+            {
+                return null; // skip these attributes
+            }
+        },
+            new Attribute("CodeComment") {
+                protected Attribute read(
+                    final ClassReader cr,
+                    final int off,
+                    final int len,
+                    final char[] buf,
+                    final int codeOff,
+                    final Label[] labels)
+                {
+                    return null; // skip these attributes
+                }
+            } }, 0);
+
+        assertEquals(new ClassReader(cw.toByteArray()),
+                new ClassReader(bos.toByteArray()));
     }
 }

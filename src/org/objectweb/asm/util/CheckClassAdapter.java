@@ -42,7 +42,6 @@ import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Attribute;
 import org.objectweb.asm.Type;
-import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.MethodNode;
 import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.TryCatchBlockNode;
@@ -112,13 +111,19 @@ public class CheckClassAdapter extends ClassAdapter {
     /**
      * Checks a given class
      * 
-     * @param cr a <code>ClassReader</code> that contains bytecode for the analysis. 
-     * @param dump true if bytecode should be printed out not only when errors are found.
+     * @param cr a <code>ClassReader</code> that contains bytecode for the
+     *        analysis.
+     * @param dump true if bytecode should be printed out not only when errors
+     *        are found.
      * @param pw write where results going to be printed
      */
-    public static void verify(ClassReader cr, boolean dump, PrintWriter pw) {
+    public static void verify(
+        final ClassReader cr,
+        boolean dump,
+        final PrintWriter pw)
+    {
         ClassNode cn = new ClassNode();
-        cr.accept(new CheckClassAdapter(cn), true);
+        cr.accept(new CheckClassAdapter(cn), ClassReader.SKIP_DEBUG);
 
         List methods = cn.methods;
         for (int i = 0; i < methods.size(); ++i) {
@@ -126,8 +131,7 @@ public class CheckClassAdapter extends ClassAdapter {
             if (method.instructions.size() > 0) {
                 Analyzer a = new Analyzer(new SimpleVerifier(Type.getType("L"
                         + cn.name + ";"),
-                        Type.getType("L" + cn.superName + ";"),
-                        (cn.access & Opcodes.ACC_INTERFACE) != 0));
+                        Type.getType("L" + cn.superName + ";")));
                 try {
                     a.analyze(cn.name, method);
                     if (!dump) {
@@ -142,7 +146,7 @@ public class CheckClassAdapter extends ClassAdapter {
 
                 pw.println(method.name + method.desc);
                 for (int j = 0; j < method.instructions.size(); ++j) {
-                    ((AbstractInsnNode) method.instructions.get(j)).accept(mv);
+                    method.instructions.get(j).accept(mv);
                     
                     StringBuffer s = new StringBuffer();
                     Frame f = frames[j];
@@ -214,7 +218,9 @@ public class CheckClassAdapter extends ClassAdapter {
                 + Opcodes.ACC_ABSTRACT + Opcodes.ACC_SYNTHETIC
                 + Opcodes.ACC_ANNOTATION + Opcodes.ACC_ENUM
                 + Opcodes.ACC_DEPRECATED);
-        CheckMethodAdapter.checkInternalName(name, "class name");
+        if (!name.endsWith("package-info")) {
+            CheckMethodAdapter.checkInternalName(name, "class name");
+        }
         if ("java/lang/Object".equals(name)) {
             if (superName != null) {
                 throw new IllegalArgumentException("The super class name of the Object class must be 'null'");
@@ -255,7 +261,7 @@ public class CheckClassAdapter extends ClassAdapter {
     {
         checkState();
         if (outer) {
-            throw new IllegalStateException("visitSource can be called only once.");
+            throw new IllegalStateException("visitOuterClass can be called only once.");
         }
         outer = true;
         if (owner == null) {
@@ -399,15 +405,15 @@ public class CheckClassAdapter extends ClassAdapter {
             throw new IllegalArgumentException("Invalid access flags: "
                     + access);
         }
-        int pub = ((access & Opcodes.ACC_PUBLIC) != 0 ? 1 : 0);
-        int pri = ((access & Opcodes.ACC_PRIVATE) != 0 ? 1 : 0);
-        int pro = ((access & Opcodes.ACC_PROTECTED) != 0 ? 1 : 0);
+        int pub = (access & Opcodes.ACC_PUBLIC) != 0 ? 1 : 0;
+        int pri = (access & Opcodes.ACC_PRIVATE) != 0 ? 1 : 0;
+        int pro = (access & Opcodes.ACC_PROTECTED) != 0 ? 1 : 0;
         if (pub + pri + pro > 1) {
             throw new IllegalArgumentException("public private and protected are mutually exclusive: "
                     + access);
         }
-        int fin = ((access & Opcodes.ACC_FINAL) != 0 ? 1 : 0);
-        int abs = ((access & Opcodes.ACC_ABSTRACT) != 0 ? 1 : 0);
+        int fin = (access & Opcodes.ACC_FINAL) != 0 ? 1 : 0;
+        int abs = (access & Opcodes.ACC_ABSTRACT) != 0 ? 1 : 0;
         if (fin + abs > 1) {
             throw new IllegalArgumentException("final and abstract are mutually exclusive: "
                     + access);

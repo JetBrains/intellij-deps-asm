@@ -267,8 +267,8 @@ public class SerialVersionUIDAdder extends ClassAdapter {
                             | Opcodes.ACC_PROTECTED | Opcodes.ACC_STATIC
                             | Opcodes.ACC_FINAL | Opcodes.ACC_VOLATILE | Opcodes.ACC_TRANSIENT);
 
-            if (((access & Opcodes.ACC_PRIVATE) == 0)
-                    || ((access & (Opcodes.ACC_STATIC | Opcodes.ACC_TRANSIENT)) == 0))
+            if ((access & Opcodes.ACC_PRIVATE) == 0
+                    || (access & (Opcodes.ACC_STATIC | Opcodes.ACC_TRANSIENT)) == 0)
             {
                 svuidFields.add(new Item(name, mods, desc));
             }
@@ -311,10 +311,6 @@ public class SerialVersionUIDAdder extends ClassAdapter {
      * @throws IOException
      */
     protected long computeSVUID() throws IOException {
-        if (hasSVUID) {
-            return 0;
-        }
-
         ByteArrayOutputStream bos = null;
         DataOutputStream dos = null;
         long svuid = 0;
@@ -427,7 +423,7 @@ public class SerialVersionUIDAdder extends ClassAdapter {
      * @param value the value whose SHA message digest must be computed.
      * @return the SHA-1 message digest of the given value.
      */
-    protected byte[] computeSHAdigest(byte[] value) {
+    protected byte[] computeSHAdigest(final byte[] value) {
         try {
             return MessageDigest.getInstance("SHA").digest(value);
         } catch (Exception e) {

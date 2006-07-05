@@ -73,12 +73,12 @@ public class DependencyVisitor implements
     // ClassVisitor
 
     public void visit(
-        int version,
-        int access,
-        String name,
-        String signature,
-        String superName,
-        String[] interfaces)
+        final int version,
+        final int access,
+        final String name,
+        final String signature,
+        final String superName,
+        final String[] interfaces)
     {
         String p = getGroupKey(name);
         current = groups.get(p);
@@ -95,37 +95,41 @@ public class DependencyVisitor implements
         }
     }
 
-    public AnnotationVisitor visitAnnotation(String desc, boolean visible) {
+    public AnnotationVisitor visitAnnotation(
+        final String desc,
+        final boolean visible)
+    {
         addDesc(desc);
         return this;
     }
 
-    public void visitAttribute(Attribute attr) {
+    public void visitAttribute(final Attribute attr) {
     }
 
     public FieldVisitor visitField(
-        int access,
-        String name,
-        String desc,
-        String signature,
-        Object value)
+        final int access,
+        final String name,
+        final String desc,
+        final String signature,
+        final Object value)
     {
         if (signature == null) {
             addDesc(desc);
         } else {
             addTypeSignature(signature);
         }
-        if (value instanceof Type)
+        if (value instanceof Type) {
             addType((Type) value);
+        }
         return this;
     }
 
     public MethodVisitor visitMethod(
-        int access,
-        String name,
-        String desc,
-        String signature,
-        String[] exceptions)
+        final int access,
+        final String name,
+        final String desc,
+        final String signature,
+        final String[] exceptions)
     {
         if (signature == null) {
             addMethodDesc(desc);
@@ -136,20 +140,24 @@ public class DependencyVisitor implements
         return this;
     }
 
-    public void visitSource(String source, String debug) {
+    public void visitSource(final String source, final String debug) {
     }
 
     public void visitInnerClass(
-        String name,
-        String outerName,
-        String innerName,
-        int access)
+        final String name,
+        final String outerName,
+        final String innerName,
+        final int access)
     {
         // addName( outerName);
         // addName( innerName);
     }
 
-    public void visitOuterClass(String owner, String name, String desc) {
+    public void visitOuterClass(
+        final String owner,
+        final String name,
+        final String desc)
+    {
         // addName(owner);
         // addMethodDesc(desc);
     }
@@ -157,57 +165,59 @@ public class DependencyVisitor implements
     // MethodVisitor
 
     public AnnotationVisitor visitParameterAnnotation(
-        int parameter,
-        String desc,
-        boolean visible)
+        final int parameter,
+        final String desc,
+        final boolean visible)
     {
         addDesc(desc);
         return this;
     }
 
-    public void visitTypeInsn(int opcode, String desc) {
-        if (desc.charAt(0) == '[')
+    public void visitTypeInsn(final int opcode, final String desc) {
+        if (desc.charAt(0) == '[') {
             addDesc(desc);
-        else
+        } else {
             addName(desc);
+        }
     }
 
     public void visitFieldInsn(
-        int opcode,
-        String owner,
-        String name,
-        String desc)
+        final int opcode,
+        final String owner,
+        final String name,
+        final String desc)
     {
         addName(owner);
         addDesc(desc);
     }
 
     public void visitMethodInsn(
-        int opcode,
-        String owner,
-        String name,
-        String desc)
+        final int opcode,
+        final String owner,
+        final String name,
+        final String desc)
     {
         addName(owner);
         addMethodDesc(desc);
     }
 
-    public void visitLdcInsn(Object cst) {
-        if (cst instanceof Type)
+    public void visitLdcInsn(final Object cst) {
+        if (cst instanceof Type) {
             addType((Type) cst);
+        }
     }
 
-    public void visitMultiANewArrayInsn(String desc, int dims) {
+    public void visitMultiANewArrayInsn(final String desc, final int dims) {
         addDesc(desc);
     }
 
     public void visitLocalVariable(
-        String name,
-        String desc,
-        String signature,
-        Label start,
-        Label end,
-        int index)
+        final String name,
+        final String desc,
+        final String signature,
+        final Label start,
+        final Label end,
+        final int index)
     {
         addTypeSignature(signature);
     }
@@ -219,73 +229,94 @@ public class DependencyVisitor implements
     public void visitCode() {
     }
 
-    public void visitInsn(int opcode) {
-    }
-
-    public void visitIntInsn(int opcode, int operand) {
-    }
-
-    public void visitVarInsn(int opcode, int var) {
-    }
-
-    public void visitJumpInsn(int opcode, Label label) {
-    }
-
-    public void visitLabel(Label label) {
-    }
-
-    public void visitIincInsn(int var, int increment) {
-    }
-
-    public void visitTableSwitchInsn(
-        int min,
-        int max,
-        Label dflt,
-        Label[] labels)
+    public void visitFrame(
+        final int type,
+        final int nLocal,
+        final Object[] local,
+        final int nStack,
+        final Object[] stack)
     {
     }
 
-    public void visitLookupSwitchInsn(Label dflt, int[] keys, Label[] labels) {
+    public void visitInsn(final int opcode) {
+    }
+
+    public void visitIntInsn(final int opcode, final int operand) {
+    }
+
+    public void visitVarInsn(final int opcode, final int var) {
+    }
+
+    public void visitJumpInsn(final int opcode, final Label label) {
+    }
+
+    public void visitLabel(final Label label) {
+    }
+
+    public void visitIincInsn(final int var, final int increment) {
+    }
+
+    public void visitTableSwitchInsn(
+        final int min,
+        final int max,
+        final Label dflt,
+        final Label[] labels)
+    {
+    }
+
+    public void visitLookupSwitchInsn(
+        final Label dflt,
+        final int[] keys,
+        final Label[] labels)
+    {
     }
 
     public void visitTryCatchBlock(
-        Label start,
-        Label end,
-        Label handler,
-        String type)
+        final Label start,
+        final Label end,
+        final Label handler,
+        final String type)
     {
         addName(type);
     }
 
-    public void visitLineNumber(int line, Label start) {
+    public void visitLineNumber(final int line, final Label start) {
     }
 
-    public void visitMaxs(int maxStack, int maxLocals) {
+    public void visitMaxs(final int maxStack, final int maxLocals) {
     }
 
     // AnnotationVisitor
 
-    public void visit(String name, Object value) {
-        if (value instanceof Type)
+    public void visit(final String name, final Object value) {
+        if (value instanceof Type) {
             addType((Type) value);
+        }
     }
 
-    public void visitEnum(String name, String desc, String value) {
+    public void visitEnum(
+        final String name,
+        final String desc,
+        final String value)
+    {
         addDesc(desc);
     }
 
-    public AnnotationVisitor visitAnnotation(String name, String desc) {
+    public AnnotationVisitor visitAnnotation(
+        final String name,
+        final String desc)
+    {
         addDesc(desc);
         return this;
     }
 
-    public AnnotationVisitor visitArray(String name) {
+    public AnnotationVisitor visitArray(final String name) {
         return this;
     }
 
     // SignatureVisitor
 
-    public void visitFormalTypeParameter(String name) {
+    public void visitFormalTypeParameter(final String name) {
     }
 
     public SignatureVisitor visitClassBound() {
@@ -316,10 +347,10 @@ public class DependencyVisitor implements
         return this;
     }
 
-    public void visitBaseType(char descriptor) {
+    public void visitBaseType(final char descriptor) {
     }
 
-    public void visitTypeVariable(String name) {
+    public void visitTypeVariable(final String name) {
         // TODO verify
     }
 
@@ -327,18 +358,18 @@ public class DependencyVisitor implements
         return this;
     }
 
-    public void visitClassType(String name) {
+    public void visitClassType(final String name) {
         addName(name);
     }
 
-    public void visitInnerClassType(String name) {
+    public void visitInnerClassType(final String name) {
         addName(name);
     }
 
     public void visitTypeArgument() {
     }
 
-    public SignatureVisitor visitTypeArgument(char wildcard) {
+    public SignatureVisitor visitTypeArgument(final char wildcard) {
         return this;
     }
 
@@ -351,15 +382,17 @@ public class DependencyVisitor implements
 
     private String getGroupKey(String name) {
         int n = name.lastIndexOf('/');
-        if (n > -1)
+        if (n > -1) {
             name = name.substring(0, n);
+        }
         packages.add(name);
         return name;
     }
 
-    private void addName(String name) {
-        if (name == null)
+    private void addName(final String name) {
+        if (name == null) {
             return;
+        }
         String p = getGroupKey(name);
         if (current.containsKey(p)) {
             current.put(p, current.get(p) + 1);
@@ -368,23 +401,25 @@ public class DependencyVisitor implements
         }
     }
 
-    private void addNames(String[] names) {
-        for (int i = 0; names != null && i < names.length; i++)
+    private void addNames(final String[] names) {
+        for (int i = 0; names != null && i < names.length; i++) {
             addName(names[i]);
+        }
     }
 
-    private void addDesc(String desc) {
+    private void addDesc(final String desc) {
         addType(Type.getType(desc));
     }
 
-    private void addMethodDesc(String desc) {
+    private void addMethodDesc(final String desc) {
         addType(Type.getReturnType(desc));
         Type[] types = Type.getArgumentTypes(desc);
-        for (int i = 0; i < types.length; i++)
+        for (int i = 0; i < types.length; i++) {
             addType(types[i]);
+        }
     }
 
-    private void addType(Type t) {
+    private void addType(final Type t) {
         switch (t.getSort()) {
             case Type.ARRAY:
                 addType(t.getElementType());
@@ -395,13 +430,15 @@ public class DependencyVisitor implements
         }
     }
 
-    private void addSignature(String signature) {
-        if (signature != null)
+    private void addSignature(final String signature) {
+        if (signature != null) {
             new SignatureReader(signature).accept(this);
+        }
     }
 
-    private void addTypeSignature(String signature) {
-        if (signature != null)
+    private void addTypeSignature(final String signature) {
+        if (signature != null) {
             new SignatureReader(signature).acceptType(this);
+        }
     }
 }

@@ -55,10 +55,10 @@ public class BFCompiler implements Opcodes {
     private static final int V_D = 3;
 
     public void compile(
-        Reader r,
-        String className,
-        String sourceName,
-        ClassVisitor cv) throws IOException
+        final Reader r,
+        final String className,
+        final String sourceName,
+        final ClassVisitor cv) throws IOException
     {
         cv.visit(Opcodes.V1_3,
                 ACC_PUBLIC,
@@ -204,7 +204,7 @@ public class BFCompiler implements Opcodes {
 
     }
 
-    private int storeD(MethodVisitor mv, int d) {
+    private int storeD(final MethodVisitor mv, final int d) {
         if (d != 0) {
             mv.visitVarInsn(ALOAD, V_D);
             mv.visitVarInsn(ILOAD, V_P);
@@ -217,7 +217,7 @@ public class BFCompiler implements Opcodes {
         return 0;
     }
 
-    private int storeP(MethodVisitor mv, int p) {
+    private int storeP(final MethodVisitor mv, final int p) {
         if (p != 0) {
             mv.visitIincInsn(V_P, p);
         }

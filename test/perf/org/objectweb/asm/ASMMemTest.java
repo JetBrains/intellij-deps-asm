@@ -41,6 +41,7 @@ import java.util.jar.JarInputStream;
 
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.tree.ClassNode;
+import org.objectweb.asm.tree.InsnList;
 import org.objectweb.asm.tree.MethodNode;
 
 /*
@@ -54,7 +55,7 @@ import org.objectweb.asm.tree.MethodNode;
  */
 public class ASMMemTest {
 
-    public static void main(String[] args) {
+    public static void main(final String[] args) {
         if (args.length < 2) {
             System.out.println("java ASMMemTest <jar-file> <number-of-classes>");
             System.exit(1);
@@ -70,7 +71,7 @@ public class ASMMemTest {
             long totalSize = 0;
             JarInputStream jar = new JarInputStream(new FileInputStream(args[0]));
             JarEntry entry = jar.getNextJarEntry();
-            while ((fileData.size() < limit) && (entry != null)) {
+            while (fileData.size() < limit && entry != null) {
                 String name = entry.getName();
                 if (name.endsWith(".class")) {
                     if (entry.getSize() != -1) {
@@ -108,7 +109,7 @@ public class ASMMemTest {
                 byte data[] = (byte[]) files.next();
                 ClassReader reader = new ClassReader(data);
                 ClassNode clazz = new ClassNode();
-                reader.accept(clazz, false);
+                reader.accept(clazz, 0);
                 result.add(clazz);
             }
             time += System.currentTimeMillis();
@@ -123,14 +124,10 @@ public class ASMMemTest {
                 List l = clazz.methods;
                 for (int k = 0, lim = l.size(); k < lim; k++) {
                     MethodNode m = (MethodNode) l.get(k);
-                    List insn = m.instructions;
-                    if (insn != null)
+                    InsnList insn = m.instructions;
+                    if (insn != null) {
                         insn.clear();
-                    /*
-                     * for (int ins = 0, insmax = insn.size(); ins < insmax;
-                     * ins++) { if (insn.get(ins) instanceof VarInsnNode) {
-                     * insn.set(ins, null); } }
-                     */
+                    }
                 }
             }
             memDown(runtime);
@@ -146,18 +143,18 @@ public class ASMMemTest {
 
     public final static String timeFormat(final long time) {
         int min = (int) (time / (60 * 1000));
-        int sec = (int) ((time / (1000)) % 60);
+        int sec = (int) ((time / 1000) % 60);
         int msec = (int) (time % 1000);
         StringBuffer sbuf = new StringBuffer(30);
         if (min > 0) {
             sbuf.append(min);
             sbuf.append("min ");
         }
-        if ((sec > 0) || (min > 0)) {
+        if (sec > 0 || min > 0) {
             sbuf.append(sec);
             sbuf.append("s ");
         }
-        if ((msec > 0) || (sec > 0) || (min > 0)) {
+        if (msec > 0 || sec > 0 || min > 0) {
             sbuf.append(msec);
             sbuf.append("ms ");
         }
@@ -177,15 +174,15 @@ public class ASMMemTest {
             sbuf.append(gb);
             sbuf.append("GB ");
         }
-        if ((mb > 0) || (gb > 0)) {
+        if (mb > 0 || gb > 0) {
             sbuf.append(mb);
             sbuf.append("MB ");
         }
-        if ((kb > 0) || (mb > 0) || (gb > 0)) {
+        if (kb > 0 || mb > 0 || gb > 0) {
             sbuf.append(kb);
             sbuf.append("KB ");
         }
-        if ((bytes > 0) || (kb > 0) || (mb > 0) || (gb > 0)) {
+        if (bytes > 0 || kb > 0 || mb > 0 || gb > 0) {
             sbuf.append(bytes);
             sbuf.append("bytes ");
         }

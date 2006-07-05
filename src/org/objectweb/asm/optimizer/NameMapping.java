@@ -45,7 +45,7 @@ import org.objectweb.asm.Type;
 public class NameMapping extends Properties {
 
     public final Set unused;
-    
+
     public NameMapping(final String file) throws IOException {
         load(new FileInputStream(file));
         unused = new HashSet(keySet());

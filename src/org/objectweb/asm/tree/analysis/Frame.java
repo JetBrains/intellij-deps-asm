@@ -156,9 +156,6 @@ public class Frame {
      *         exist.
      */
     public Value getStack(final int i) throws IndexOutOfBoundsException {
-        if (i >= top) {
-            throw new IndexOutOfBoundsException("Trying to access an inexistant stack element");
-        }
         return values[i + locals];
     }
 

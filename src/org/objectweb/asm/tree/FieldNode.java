@@ -75,7 +75,8 @@ public class FieldNode extends MemberNode implements FieldVisitor {
      *        {@link org.objectweb.asm.Opcodes}). This parameter also indicates
      *        if the field is synthetic and/or deprecated.
      * @param name the field's name.
-     * @param desc the field's descriptor (see {@link org.objectweb.asm.Type}).
+     * @param desc the field's descriptor (see
+     *        {@link org.objectweb.asm.Type Type}).
      * @param signature the field's signature.
      * @param value the field's initial value. This parameter, which may be
      *        <tt>null</tt> if the field does not have an initial value, must

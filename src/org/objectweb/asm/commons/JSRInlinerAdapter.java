@@ -56,8 +56,8 @@ import org.objectweb.asm.tree.TryCatchBlockNode;
 import org.objectweb.asm.tree.LocalVariableNode;
 
 /**
- * A {@link MethodAdapter} that removes JSR instructions and inlines the
- * referenced subroutines.
+ * A {@link org.objectweb.asm.MethodAdapter} that removes JSR instructions and 
+ * inlines the referenced subroutines.
  * 
  * <b>Explanation of how it works</b> TODO
  * 
@@ -581,7 +581,7 @@ public class JSRInlinerAdapter extends MethodNode implements Opcodes {
             while (lnum.length() < 3) {
                 lnum = "0" + lnum;
             }
-            AbstractInsnNode insn = (AbstractInsnNode) instructions.get(i);
+            AbstractInsnNode insn = instructions.get(i);
             String desc = insnDesc(insn);
             log(lnum + ": " + desc);
         }

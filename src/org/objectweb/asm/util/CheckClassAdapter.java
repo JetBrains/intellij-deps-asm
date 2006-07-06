@@ -119,7 +119,7 @@ public class CheckClassAdapter extends ClassAdapter {
      */
     public static void verify(
         final ClassReader cr,
-        boolean dump,
+        final boolean dump,
         final PrintWriter pw)
     {
         ClassNode cn = new ClassNode();
@@ -131,7 +131,8 @@ public class CheckClassAdapter extends ClassAdapter {
             if (method.instructions.size() > 0) {
                 Analyzer a = new Analyzer(new SimpleVerifier(Type.getType("L"
                         + cn.name + ";"),
-                        Type.getType("L" + cn.superName + ";")));
+                        Type.getType("L" + cn.superName + ";"),
+                        false));
                 try {
                     a.analyze(cn.name, method);
                     if (!dump) {
@@ -147,7 +148,7 @@ public class CheckClassAdapter extends ClassAdapter {
                 pw.println(method.name + method.desc);
                 for (int j = 0; j < method.instructions.size(); ++j) {
                     method.instructions.get(j).accept(mv);
-                    
+
                     StringBuffer s = new StringBuffer();
                     Frame f = frames[j];
                     if (f == null) {
@@ -179,11 +180,13 @@ public class CheckClassAdapter extends ClassAdapter {
         }
     }
 
-    private static String getShortName(String name) {
+    private static String getShortName(final String name) {
         int n = name.lastIndexOf('/');
         int k = name.length();
-        if(name.charAt(k-1)==';') k--;
-        return n==-1 ? name : name.substring(n+1, k);
+        if (name.charAt(k - 1) == ';') {
+            k--;
+        }
+        return n == -1 ? name : name.substring(n + 1, k);
     }
 
     /**

@@ -59,10 +59,15 @@ public class SimpleVerifier extends BasicVerifier {
     private final List currentClassInterfaces;
 
     /**
+     * If the class that is verified is an interface.
+     */
+    private final boolean isInterface;
+
+    /**
      * Constructs a new {@link SimpleVerifier}.
      */
     public SimpleVerifier() {
-        this(null, null);
+        this(null, null, false);
     }
 
     /**
@@ -71,10 +76,14 @@ public class SimpleVerifier extends BasicVerifier {
      * 
      * @param currentClass the class that is verified.
      * @param currentSuperClass the super class of the class that is verified.
+     * @param isInterface if the class that is verified is an interface.
      */
-    public SimpleVerifier(final Type currentClass, final Type currentSuperClass)
+    public SimpleVerifier(
+        final Type currentClass,
+        final Type currentSuperClass,
+        final boolean isInterface)
     {
-        this(currentClass, currentSuperClass, null);
+        this(currentClass, currentSuperClass, null, isInterface);
     }
 
     /**
@@ -90,11 +99,13 @@ public class SimpleVerifier extends BasicVerifier {
     public SimpleVerifier(
         final Type currentClass,
         final Type currentSuperClass,
-        final List currentClassInterfaces)
+        final List currentClassInterfaces,
+        final boolean isInterface)
     {
         this.currentClass = currentClass;
         this.currentSuperClass = currentSuperClass;
         this.currentClassInterfaces = currentClassInterfaces;
+        this.isInterface = isInterface;
     }
 
     public Value newValue(final Type type) {
@@ -219,7 +230,7 @@ public class SimpleVerifier extends BasicVerifier {
 
     protected boolean isInterface(final Type t) {
         if (currentClass != null && t.equals(currentClass)) {
-            return false;
+            return isInterface;
         }
         return getClass(t).isInterface();
     }

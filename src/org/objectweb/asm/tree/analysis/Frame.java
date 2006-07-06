@@ -655,12 +655,12 @@ public class Frame {
      */
     public String toString() {
         StringBuffer b = new StringBuffer();
-        for (int i = 0; i < locals; ++i) {
-            b.append(values[i]).append(' ');
+        for (int i = 0; i < getLocals(); ++i) {
+            b.append(getLocal(i));
         }
         b.append(' ');
-        for (int i = 0; i < top; ++i) {
-            b.append(values[i + locals].toString()).append(' ');
+        for (int i = 0; i < getStackSize(); ++i) {
+            b.append(getStack(i).toString());
         }
         return b.toString();
     }

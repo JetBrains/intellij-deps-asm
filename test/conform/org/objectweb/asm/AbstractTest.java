@@ -133,13 +133,28 @@ public abstract class AbstractTest extends TestCase {
     public void assertEquals(final ClassReader cr1, final ClassReader cr2)
             throws Exception
     {
+        assertEquals(cr1, cr2, null, null);
+    }
+
+    public void assertEquals(
+        final ClassReader cr1,
+        final ClassReader cr2,
+        final ClassAdapter filter1,
+        final ClassAdapter filter2) throws Exception
+    {
         if (!Arrays.equals(cr1.b, cr2.b)) {
             StringWriter sw1 = new StringWriter();
             StringWriter sw2 = new StringWriter();
             ClassVisitor cv1 = new TraceClassVisitor(new PrintWriter(sw1));
             ClassVisitor cv2 = new TraceClassVisitor(new PrintWriter(sw2));
-            cr1.accept(cv1, 0);
-            cr2.accept(cv2, 0);
+            if (filter1 != null) {
+                filter1.cv = cv1;
+            }
+            if (filter2 != null) {
+                filter2.cv = cv2;
+            }
+            cr1.accept(filter1 == null ? cv1 : filter1, 0);
+            cr2.accept(filter2 == null ? cv2 : filter2, 0);
             String s1 = sw1.toString();
             String s2 = sw2.toString();
             assertEquals("different data", s1, s2);

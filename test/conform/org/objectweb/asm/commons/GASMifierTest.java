@@ -51,6 +51,7 @@ import org.objectweb.asm.Attribute;
 import org.objectweb.asm.ClassAdapter;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassWriter;
+import org.objectweb.asm.MethodAdapter;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.attrs.CodeComment;
 import org.objectweb.asm.attrs.Comment;
@@ -132,10 +133,10 @@ public class GASMifierTest extends AbstractTest {
         }
 
         try {
-            assertEquals(cr, new ClassReader(b));
+            assertEquals(cr, new ClassReader(b), new Filter(), new Filter());
         } catch (Throwable e) {
             trace(generated);
-            assertEquals(cr, new ClassReader(b));
+            assertEquals(cr, new ClassReader(b), new Filter(), new Filter());
         }
     }
 
@@ -162,6 +163,32 @@ public class GASMifierTest extends AbstractTest {
             Parser p = new Parser(new Scanner(name, new StringReader(source)));
             UnitCompiler uc = new UnitCompiler(p.parseCompilationUnit(), CL);
             return uc.compileUnit(DebuggingInformation.ALL)[0].toByteArray();
+        }
+    }
+
+    private static class Filter extends ClassAdapter {
+
+        public Filter() {
+            super(null);
+        }
+
+        public MethodVisitor visitMethod(
+            final int access,
+            final String name,
+            final String desc,
+            final String signature,
+            final String[] exceptions)
+        {
+            return new MethodAdapter(super.visitMethod(access,
+                    name,
+                    desc,
+                    signature,
+                    exceptions))
+            {
+                public void visitMaxs(final int maxStack, final int maxLocals) {
+                    super.visitMaxs(0, 0);
+                }
+            };
         }
     }
 }

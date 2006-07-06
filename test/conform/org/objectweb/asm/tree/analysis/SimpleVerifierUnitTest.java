@@ -51,7 +51,7 @@ public class SimpleVerifierUnitTest extends TestCase implements Opcodes {
     protected void setUp() {
         Type c = Type.getType("LC;");
         Type d = Type.getType("Ljava/lang/Number;");
-        a = new Analyzer(new SimpleVerifier(c, d));
+        a = new Analyzer(new SimpleVerifier(c, d, false));
         mn = new MethodNode(ACC_PUBLIC, "m", "()V", null, null);
     }
 
@@ -59,7 +59,12 @@ public class SimpleVerifierUnitTest extends TestCase implements Opcodes {
         mn.visitInsn(RETURN);
         mn.visitMaxs(10, 10);
         a.analyze("C", mn);
-        a.getFrames();
+        Frame[] frames = a.getFrames();
+        for (int i = 0; i < frames.length; ++i) {
+            if (frames[i] != null) {
+                frames[i].toString();
+            }
+        }
         a.getHandlers(0);
     }
 

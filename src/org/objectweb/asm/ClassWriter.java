@@ -1074,7 +1074,7 @@ public class ClassWriter implements ClassVisitor {
         key.set(value);
         Item result = get(key);
         if (result == null) {
-            pool.putByte(FLOAT).putInt(Float.floatToIntBits(value));
+            pool.putByte(FLOAT).putInt(key.intVal);
             result = new Item(index++, key);
             put(result);
         }
@@ -1111,7 +1111,7 @@ public class ClassWriter implements ClassVisitor {
         key.set(value);
         Item result = get(key);
         if (result == null) {
-            pool.putByte(DOUBLE).putLong(Double.doubleToLongBits(value));
+            pool.putByte(DOUBLE).putLong(key.longVal);
             result = new Item(index, key);
             put(result);
             index += 2;

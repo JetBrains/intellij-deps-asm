@@ -55,24 +55,14 @@ final class Item {
     int type;
 
     /**
-     * Value of this item, for an integer item.
+     * Value of this item, for an integer item or int bits of float item.
      */
     int intVal;
 
     /**
-     * Value of this item, for a long item.
+     * Value of this item, for a long item or long bits of double item.
      */
     long longVal;
-
-    /**
-     * Value of this item, for a float item.
-     */
-    float floatVal;
-
-    /**
-     * Value of this item, for a double item.
-     */
-    double doubleVal;
 
     /**
      * First part of the value of this item, for items that do not hold a
@@ -124,8 +114,6 @@ final class Item {
         type = i.type;
         intVal = i.intVal;
         longVal = i.longVal;
-        floatVal = i.floatVal;
-        doubleVal = i.doubleVal;
         strVal1 = i.strVal1;
         strVal2 = i.strVal2;
         strVal3 = i.strVal3;
@@ -161,7 +149,7 @@ final class Item {
      */
     void set(final float floatVal) {
         this.type = ClassWriter.FLOAT;
-        this.floatVal = floatVal;
+        this.intVal = Float.floatToRawIntBits(floatVal);
         this.hashCode = 0x7FFFFFFF & (type + (int) floatVal);
     }
 
@@ -172,7 +160,7 @@ final class Item {
      */
     void set(final double doubleVal) {
         this.type = ClassWriter.DOUBLE;
-        this.doubleVal = doubleVal;
+        this.longVal = Double.doubleToRawLongBits(doubleVal);
         this.hashCode = 0x7FFFFFFF & (type + (int) doubleVal);
     }
 
@@ -224,13 +212,11 @@ final class Item {
         if (i.type == type) {
             switch (type) {
                 case ClassWriter.INT:
+                case ClassWriter.FLOAT:
                     return i.intVal == intVal;
                 case ClassWriter.LONG:
-                    return i.longVal == longVal;
-                case ClassWriter.FLOAT:
-                    return i.floatVal == floatVal;
                 case ClassWriter.DOUBLE:
-                    return i.doubleVal == doubleVal;
+                    return i.longVal == longVal;
                 case ClassWriter.UTF8:
                 case ClassWriter.STR:
                 case ClassWriter.CLASS:

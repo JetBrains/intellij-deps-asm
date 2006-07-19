@@ -703,6 +703,50 @@ public class JSRInlinerAdapterUnitTest extends TestCase {
     }
 
     /**
+     * This tests a subroutine which has no ret statement, but ends in a
+     * "return" instead.
+     * <pre>
+     *   JSR L0
+     * L0:
+     *   ASTORE 0 
+     *   RETURN 
+     * </pre>
+     */
+    public void testSubroutineWithNoRet2() {
+        {
+            Label L0 = new Label();
+
+            setCurrent(jsr);
+            JSR(L0);
+            LABEL(L0);
+            ASTORE(0);
+            RETURN();
+            END();
+        }
+
+        {
+            Label L0_1a = new Label();
+            Label L0_1b = new Label();
+            
+            setCurrent(exp);
+            
+            ACONST_NULL();
+            GOTO(L0_1a);
+            LABEL(L0_1b);
+            
+            // L0_1a: First instantiation of subroutine:
+            LABEL(L0_1a);
+            ASTORE(0);
+            RETURN();            
+            LABEL(new Label()); // extra label emitted due to impl quirks
+            
+            END();
+        }
+
+        assertEquals(exp, jsr);
+    }
+
+    /**
      * This tests a subroutine which has no ret statement, but instead exits
      * implicitely by branching to code which is not part of the subroutine.
      * (Sadly, this is legal)

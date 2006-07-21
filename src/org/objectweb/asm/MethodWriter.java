@@ -834,8 +834,7 @@ class MethodWriter implements MethodVisitor {
                 // 'label' is the target of a jump instruction
                 label.getFirst().status |= Label.TARGET;
                 // adds 'label' as a successor of this basic block
-                addSuccessor(opcode == Opcodes.JSR ? Edge.JSR : Edge.NORMAL,
-                        label);
+                addSuccessor(Edge.NORMAL, label);
                 if (opcode != Opcodes.GOTO) {
                     // creates a Label for the next basic block
                     nextInsn = new Label();

@@ -37,11 +37,6 @@ package org.objectweb.asm;
 class Edge {
 
     /**
-     * Denotes a control flow graph edge corresponding to a JSR instruction.
-     */
-    final static int JSR = -1;
-
-    /**
      * Denotes a normal control flow graph edge.
      */
     final static int NORMAL = 0;

@@ -673,6 +673,8 @@ class MethodWriter implements MethodVisitor {
                     stackSize = size;
                 }
             }
+        }
+        if (compute != NOTHING) {
             // updates max locals
             int n;
             if (opcode == Opcodes.LLOAD || opcode == Opcodes.DLOAD
@@ -991,6 +993,8 @@ class MethodWriter implements MethodVisitor {
             if (compute == FRAMES) {
                 currentBlock.frame.execute(Opcodes.IINC, var, null, null);
             }
+        }
+        if (compute != NOTHING) {
             // updates max locals
             int n = var + 1;
             if (n > maxLocals) {
@@ -1143,7 +1147,7 @@ class MethodWriter implements MethodVisitor {
                 .putShort(cw.newUTF8(name))
                 .putShort(cw.newUTF8(desc))
                 .putShort(index);
-        if (compute <= MAXS) {
+        if (compute != NOTHING) {
             // updates max locals
             char c = desc.charAt(0);
             int n = index + (c == 'L' || c == 'D' ? 2 : 1);

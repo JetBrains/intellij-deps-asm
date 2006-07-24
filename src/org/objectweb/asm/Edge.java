@@ -48,7 +48,7 @@ class Edge {
      * the index, in the {@link ClassWriter} type table, of the exception that
      * is catched.
      */
-    final static int EXCEPTION = 1;
+    final static int EXCEPTION = 0x7FFFFFFF;
 
     /**
      * Information about this control flow graph edge. If
@@ -57,8 +57,8 @@ class Edge {
      * is equal to the stack size at the "jump" instruction to which this edge
      * corresponds, relatively to the stack size at the beginning of the
      * originating basic block. If {@link ClassWriter#COMPUTE_FRAMES} is used,
-     * this field is the kind of this control flow graph edge (i.e. JSR, NORMAL
-     * or EXCEPTION).
+     * this field is the kind of this control flow graph edge (i.e. NORMAL or
+     * EXCEPTION).
      */
     int info;
 

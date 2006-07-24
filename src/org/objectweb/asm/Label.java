@@ -78,6 +78,16 @@ public class Label {
     final static int REACHABLE = 64;
 
     /**
+     * Indicates if this basic block ends with a JSR instruction.
+     */
+    final static int JSR = 128;
+
+    /**
+     * Indicates if this basic block ends with a RET instruction.
+     */
+    final static int RET = 256;
+
+    /**
      * Field used to associate user information to a label.
      */
     public Object info;
@@ -92,6 +102,8 @@ public class Label {
      * @see #TARGET
      * @see #STORE
      * @see #REACHABLE
+     * @see #JSR
+     * @see #RET
      */
     int status;
 
@@ -182,9 +194,10 @@ public class Label {
 
     /**
      * The successor of this label, in the order they are visited. This linked
-     * list does not include labels used for debug info only, nor successive
-     * labels that denote the same bytecode position (in this case only the
-     * first label appears in this list).
+     * list does not include labels used for debug info only. If
+     * {@link ClassWriter#COMPUTE_FRAMES} option is used then, in addition, it
+     * does not contain successive labels that denote the same bytecode position
+     * (in this case only the first label appears in this list).
      */
     Label successor;
 

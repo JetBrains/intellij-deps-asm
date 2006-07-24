@@ -30,7 +30,9 @@
 package org.objectweb.asm.tree.analysis;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
@@ -46,7 +48,8 @@ import org.objectweb.asm.tree.TryCatchBlockNode;
 import org.objectweb.asm.tree.VarInsnNode;
 
 /**
- * A semantic bytecode analyzer.
+ * A semantic bytecode analyzer. <i>This class does not fully check that JSR and
+ * RET instructions are valid.</i>
  * 
  * @author Eric Bruneton
  */
@@ -69,8 +72,6 @@ public class Analyzer implements Opcodes {
     private int[] queue;
 
     private int top;
-
-    private boolean jsr;
 
     /**
      * Constructs a new {@link Analyzer}.
@@ -121,8 +122,29 @@ public class Analyzer implements Opcodes {
             }
         }
 
+        // computes the subroutine for each instruction:
+        Subroutine main = new Subroutine(null, m.maxLocals, null);
+        List subroutineCalls = new ArrayList();
+        Map subroutineHeads = new HashMap();
+        findSubroutine(0, main, subroutineCalls);
+        while (subroutineCalls.size() > 0) {
+            JumpInsnNode jsr = (JumpInsnNode) subroutineCalls.remove(0);
+            Subroutine sub = (Subroutine) subroutineHeads.get(jsr.label);
+            if (sub == null) {
+                sub = new Subroutine(jsr.label, m.maxLocals, jsr);
+                subroutineHeads.put(jsr.label, sub);
+                findSubroutine(insns.indexOf(jsr.label), sub, subroutineCalls);
+            } else {
+                sub.callers.add(jsr);
+            }
+        }
+        for (int i = 0; i < n; ++i) {
+            if (subroutines[i] != null && subroutines[i].start == null) {
+                subroutines[i] = null;
+            }
+        }
+
         // initializes the data structures for the control flow analysis
-        // algorithm
         Frame current = newFrame(m.maxLocals, m.maxStack);
         Frame handler = newFrame(m.maxLocals, m.maxStack);
         Type[] args = Type.getArgumentTypes(m.desc);
@@ -153,7 +175,6 @@ public class Analyzer implements Opcodes {
                 AbstractInsnNode insnNode = m.instructions.get(insn);
                 int insnOpcode = insnNode.getOpcode();
                 int insnType = insnNode.getType();
-                jsr = false;
 
                 if (insnType == AbstractInsnNode.LABEL
                         || insnType == AbstractInsnNode.LINE
@@ -173,7 +194,6 @@ public class Analyzer implements Opcodes {
                         }
                         int jump = insns.indexOf(j.label);
                         if (insnOpcode == JSR) {
-                            jsr = true;
                             merge(jump, current, new Subroutine(j.label,
                                     m.maxLocals,
                                     j));
@@ -210,12 +230,15 @@ public class Analyzer implements Opcodes {
                         for (int i = 0; i < subroutine.callers.size(); ++i) {
                             Object caller = subroutine.callers.get(i);
                             int call = insns.indexOf((AbstractInsnNode) caller);
-                            merge(call + 1,
-                                    frames[call],
-                                    current,
-                                    subroutines[call],
-                                    subroutine.access);
-                            newControlFlowEdge(frames[insn], frames[call + 1]);
+                            if (frames[call] != null) {
+                                merge(call + 1,
+                                        frames[call],
+                                        current,
+                                        subroutines[call],
+                                        subroutine.access);
+                                newControlFlowEdge(frames[insn],
+                                        frames[call + 1]);
+                            }
                         }
                     } else if (insnOpcode != ATHROW
                             && (insnOpcode < IRETURN || insnOpcode > RETURN))
@@ -261,13 +284,79 @@ public class Analyzer implements Opcodes {
             } catch (AnalyzerException e) {
                 throw new AnalyzerException("Error at instruction " + insn
                         + ": " + e.getMessage(), e);
-            } catch(Exception e) {
+            } catch (Exception e) {
                 throw new AnalyzerException("Error at instruction " + insn
                         + ": " + e.getMessage(), e);
             }
         }
 
         return frames;
+    }
+
+    private void findSubroutine(int insn, final Subroutine sub, final List calls)
+            throws AnalyzerException
+    {
+        while (true) {
+            if (insn < 0 || insn >= n) {
+                throw new AnalyzerException("Execution can fall off end of the code");
+            }
+            if (subroutines[insn] != null) {
+                return;
+            }
+            subroutines[insn] = sub.copy();
+            AbstractInsnNode node = insns.get(insn);
+
+            // calls findSubroutine recursively on normal successors
+            if (node instanceof JumpInsnNode) {
+                if (node.getOpcode() == JSR) {
+                    // do not follow a JSR, it leads to another subroutine!
+                    calls.add(node);
+                } else {
+                    JumpInsnNode jnode = (JumpInsnNode) node;
+                    findSubroutine(insns.indexOf(jnode.label), sub, calls);
+                }
+            } else if (node instanceof TableSwitchInsnNode) {
+                TableSwitchInsnNode tsnode = (TableSwitchInsnNode) node;
+                findSubroutine(insns.indexOf(tsnode.dflt), sub, calls);
+                for (int i = tsnode.labels.size() - 1; i >= 0; --i) {
+                    LabelNode l = (LabelNode) tsnode.labels.get(i);
+                    findSubroutine(insns.indexOf(l), sub, calls);
+                }
+            } else if (node instanceof LookupSwitchInsnNode) {
+                LookupSwitchInsnNode lsnode = (LookupSwitchInsnNode) node;
+                findSubroutine(insns.indexOf(lsnode.dflt), sub, calls);
+                for (int i = lsnode.labels.size() - 1; i >= 0; --i) {
+                    LabelNode l = (LabelNode) lsnode.labels.get(i);
+                    findSubroutine(insns.indexOf(l), sub, calls);
+                }
+            }
+
+            // calls findSubroutine recursively on exception handler successors
+            List insnHandlers = handlers[insn];
+            if (insnHandlers != null) {
+                for (int i = 0; i < insnHandlers.size(); ++i) {
+                    TryCatchBlockNode tcb = (TryCatchBlockNode) insnHandlers.get(i);
+                    findSubroutine(insns.indexOf(tcb.handler), sub, calls);
+                }
+            }
+
+            // if insn does not falls through to the next instruction, return.
+            switch (node.getOpcode()) {
+                case GOTO:
+                case RET:
+                case TABLESWITCH:
+                case LOOKUPSWITCH:
+                case IRETURN:
+                case LRETURN:
+                case FRETURN:
+                case DRETURN:
+                case ARETURN:
+                case RETURN:
+                case ATHROW:
+                    return;
+            }
+            insn++;
+        }
     }
 
     /**
@@ -353,10 +442,6 @@ public class Analyzer implements Opcodes {
         final Frame frame,
         final Subroutine subroutine) throws AnalyzerException
     {
-        if (insn > n - 1) {
-            throw new AnalyzerException("Execution can fall off end of the code");
-        }
-
         Frame oldFrame = frames[insn];
         Subroutine oldSubroutine = subroutines[insn];
         boolean changes = false;
@@ -375,7 +460,7 @@ public class Analyzer implements Opcodes {
             }
         } else {
             if (subroutine != null) {
-                changes |= oldSubroutine.merge(subroutine, !jsr);
+                changes |= oldSubroutine.merge(subroutine);
             }
         }
         if (changes && !queued[insn]) {
@@ -391,10 +476,6 @@ public class Analyzer implements Opcodes {
         final Subroutine subroutineBeforeJSR,
         final boolean[] access) throws AnalyzerException
     {
-        if (insn > n - 1) {
-            throw new AnalyzerException("Execution can fall off end of the code");
-        }
-
         Frame oldFrame = frames[insn];
         Subroutine oldSubroutine = subroutines[insn];
         boolean changes = false;
@@ -408,15 +489,8 @@ public class Analyzer implements Opcodes {
             changes |= oldFrame.merge(afterRET, access);
         }
 
-        if (oldSubroutine == null) {
-            if (subroutineBeforeJSR != null) {
-                subroutines[insn] = subroutineBeforeJSR.copy();
-                changes = true;
-            }
-        } else {
-            if (subroutineBeforeJSR != null) {
-                changes |= oldSubroutine.merge(subroutineBeforeJSR, !jsr);
-            }
+        if (oldSubroutine != null && subroutineBeforeJSR != null) {
+            changes |= oldSubroutine.merge(subroutineBeforeJSR);
         }
         if (changes && !queued[insn]) {
             queued[insn] = true;

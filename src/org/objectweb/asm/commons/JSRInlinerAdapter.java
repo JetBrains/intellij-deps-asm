@@ -448,7 +448,7 @@ public class JSRInlinerAdapter extends MethodNode implements Opcodes {
                 // for the appropriate instantiation. The problem is that the
                 // subroutine may "fall through" to the ret of a parent
                 // subroutine; therefore, to find the appropriate ret label we
-                // find the highest subroutine on the stack that claims to own
+                // find the lowest subroutine on the stack that claims to own
                 // this instruction. See the class javadoc comment for an
                 // explanation on why this technique is safe (note: it is only
                 // safe if the input is verifiable).
@@ -648,7 +648,7 @@ public class JSRInlinerAdapter extends MethodNode implements Opcodes {
          * Note that in the presence of dual citizens instructions, that is,
          * instructions which belong to more than one subroutine due to the
          * merging of control flow without a RET instruction, we will map the
-         * target label of a GOTO to the label used by the instantiation highest
+         * target label of a GOTO to the label used by the instantiation lowest
          * on the stack. This avoids code duplication during inlining in most
          * cases.
          * 
@@ -725,7 +725,7 @@ public class JSRInlinerAdapter extends MethodNode implements Opcodes {
          * subroutines; this is called a "dual citizen" instruction (though it
          * may belong to more than 2 subroutines), and occurs when multiple
          * subroutines branch to common points of control. In this case, the
-         * owner is the subroutine that appears highest on the stack, and which
+         * owner is the subroutine that appears lowest on the stack, and which
          * also owns the instruction in question.
          * 
          * @param i the index of the instruction in the original code

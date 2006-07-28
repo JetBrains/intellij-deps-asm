@@ -579,6 +579,7 @@ public class ClassWriterComputeMaxsUnitTest extends TestCase {
      */
     public void testSubroutineWithNoRet2() {
         Label L0 = new Label();
+        Label L1 = new Label();
 
         ACONST_NULL(); // N0
         JSR(L0);
@@ -587,9 +588,11 @@ public class ClassWriterComputeMaxsUnitTest extends TestCase {
         ASTORE(0);
         ASTORE(0);
         RETURN();
+        LABEL(L1); // N8
+        mv.visitLocalVariable("i", "I", null, L0, L1, 1);
 
-        assertMaxs(2, 1);
-        assertGraph("N0=N4,N5\n" + "N4=N5\n" + "N5=\n");
+        assertMaxs(2, 2);
+        assertGraph("N0=N4,N5\n" + "N4=N5\n" + "N5=\n" + "N8=\n");
     }
 
     /**

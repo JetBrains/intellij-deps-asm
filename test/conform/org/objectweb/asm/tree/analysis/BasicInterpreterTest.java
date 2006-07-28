@@ -56,10 +56,8 @@ public class BasicInterpreterTest extends AbstractTest {
         List methods = cn.methods;
         for (int i = 0; i < methods.size(); ++i) {
             MethodNode method = (MethodNode) methods.get(i);
-            if (method.instructions.size() > 0) {
-                Analyzer a = new Analyzer(new BasicInterpreter());
-                a.analyze(cn.name, method);
-            }
+            Analyzer a = new Analyzer(new BasicInterpreter());
+            a.analyze(cn.name, method);
         }
     }
 }

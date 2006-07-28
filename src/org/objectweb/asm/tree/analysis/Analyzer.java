@@ -98,6 +98,10 @@ public class Analyzer implements Opcodes {
     public Frame[] analyze(final String owner, final MethodNode m)
             throws AnalyzerException
     {
+        if ((m.access & (ACC_ABSTRACT | ACC_NATIVE)) != 0) {
+            frames = new Frame[0];
+            return frames;
+        }       
         n = m.instructions.size();
         insns = m.instructions;
         handlers = new List[n];

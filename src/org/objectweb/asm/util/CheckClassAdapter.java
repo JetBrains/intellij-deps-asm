@@ -128,55 +128,52 @@ public class CheckClassAdapter extends ClassAdapter {
         List methods = cn.methods;
         for (int i = 0; i < methods.size(); ++i) {
             MethodNode method = (MethodNode) methods.get(i);
-            if (method.instructions.size() > 0) {
-                Analyzer a = new Analyzer(new SimpleVerifier(Type.getType("L"
-                        + cn.name + ";"),
-                        Type.getType("L" + cn.superName + ";"),
-                        false));
-                try {
-                    a.analyze(cn.name, method);
-                    if (!dump) {
-                        continue;
-                    }
-                } catch (Exception e) {
-                    e.printStackTrace();
+            Analyzer a = new Analyzer(new SimpleVerifier(Type.getType("L"
+                    + cn.name + ";"),
+                    Type.getType("L" + cn.superName + ";"),
+                    false));
+            try {
+                a.analyze(cn.name, method);
+                if (!dump) {
+                    continue;
                 }
-                Frame[] frames = a.getFrames();
-
-                TraceMethodVisitor mv = new TraceMethodVisitor();
-
-                pw.println(method.name + method.desc);
-                for (int j = 0; j < method.instructions.size(); ++j) {
-                    method.instructions.get(j).accept(mv);
-
-                    StringBuffer s = new StringBuffer();
-                    Frame f = frames[j];
-                    if (f == null) {
-                        s.append('?');
-                    } else {
-                        for (int k = 0; k < f.getLocals(); ++k) {
-                            s.append(getShortName(f.getLocal(k).toString()))
-                                    .append(' ');
-                        }
-                        s.append(" : ");
-                        for (int k = 0; k < f.getStackSize(); ++k) {
-                            s.append(getShortName(f.getStack(k).toString()))
-                                    .append(' ');
-                        }
-                    }
-                    while (s.length() < method.maxStack + method.maxLocals + 1)
-                    {
-                        s.append(' ');
-                    }
-                    pw.print(Integer.toString(j + 100000).substring(1));
-                    pw.print(" " + s + " : " + mv.buf); // mv.text.get(j));
-                }
-                for (int j = 0; j < method.tryCatchBlocks.size(); ++j) {
-                    ((TryCatchBlockNode) method.tryCatchBlocks.get(j)).accept(mv);
-                    pw.print(" " + mv.buf);
-                }
-                pw.println();
+            } catch (Exception e) {
+                e.printStackTrace();
             }
+            Frame[] frames = a.getFrames();
+
+            TraceMethodVisitor mv = new TraceMethodVisitor();
+
+            pw.println(method.name + method.desc);
+            for (int j = 0; j < method.instructions.size(); ++j) {
+                method.instructions.get(j).accept(mv);
+
+                StringBuffer s = new StringBuffer();
+                Frame f = frames[j];
+                if (f == null) {
+                    s.append('?');
+                } else {
+                    for (int k = 0; k < f.getLocals(); ++k) {
+                        s.append(getShortName(f.getLocal(k).toString()))
+                                .append(' ');
+                    }
+                    s.append(" : ");
+                    for (int k = 0; k < f.getStackSize(); ++k) {
+                        s.append(getShortName(f.getStack(k).toString()))
+                                .append(' ');
+                    }
+                }
+                while (s.length() < method.maxStack + method.maxLocals + 1) {
+                    s.append(' ');
+                }
+                pw.print(Integer.toString(j + 100000).substring(1));
+                pw.print(" " + s + " : " + mv.buf); // mv.text.get(j));
+            }
+            for (int j = 0; j < method.tryCatchBlocks.size(); ++j) {
+                ((TryCatchBlockNode) method.tryCatchBlocks.get(j)).accept(mv);
+                pw.print(" " + mv.buf);
+            }
+            pw.println();
         }
     }
 

@@ -1161,7 +1161,7 @@ class MethodWriter implements MethodVisitor {
         if (compute != NOTHING) {
             // updates max locals
             char c = desc.charAt(0);
-            int n = index + (c == 'L' || c == 'D' ? 2 : 1);
+            int n = index + (c == 'J' || c == 'D' ? 2 : 1);
             if (n > maxLocals) {
                 maxLocals = n;
             }

@@ -74,28 +74,17 @@ public class JSRInlinerAdapter extends MethodNode implements Opcodes {
     private MethodVisitor mv;
 
     /**
-     * If the method contains at least one JSR instruction.
-     */
-    private boolean seenJSR;
-
-    /**
-     * This counter is used to provide increment ids to the subroutines. Those
-     * are really only used for debugging print outs.
-     */
-    private int subroutineId = 0;
-
-    /**
      * For each label that is jumped to by a JSR, we create a Subroutine
      * instance. Map<Label,Subroutine> is the generic type.
      */
-    private final Map subroutineHeads = new Hashtable();
+    private final Map subroutineHeads = new HashMap();
 
     /**
      * This subroutine instance denotes the line of execution that is not
      * contained within any subroutine; i.e., the "subroutine" that is executing
      * when a method first begins.
      */
-    private final Subroutine mainSubroutine = new Subroutine(-1);
+    private final Subroutine mainSubroutine = new Subroutine();
 
     /**
      * This BitSet contains the index of every instruction that belongs to more
@@ -136,8 +125,8 @@ public class JSRInlinerAdapter extends MethodNode implements Opcodes {
      */
     public void visitJumpInsn(final int opcode, final Label lbl) {
         super.visitJumpInsn(opcode, lbl);
-        if (opcode == JSR) {
-            seenJSR = true;
+        if (opcode == JSR && !subroutineHeads.containsKey(lbl)) {
+            subroutineHeads.put(lbl, new Subroutine());
         }
     }
 
@@ -146,11 +135,10 @@ public class JSRInlinerAdapter extends MethodNode implements Opcodes {
      * the byte codes untouched.
      */
     public void visitEnd() {
-        if (seenJSR) {
+        if (!subroutineHeads.isEmpty()) {
             if (LOGGING) {
                 log("started w/ method:" + this.name);
             }
-            populateSubroutineHeads();
             markSubroutines();
             if (LOGGING) {
                 logSource();
@@ -164,22 +152,6 @@ public class JSRInlinerAdapter extends MethodNode implements Opcodes {
         // Forward the translate opcodes on if appropriate:
         if (mv != null) {
             accept(mv);
-        }
-    }
-
-    /**
-     * Find all labels nodes and put their index into mLabels.
-     */
-    private void populateSubroutineHeads() {
-        for (int i = 0, c = instructions.size(); i < c; i++) {
-            AbstractInsnNode node = instructions.get(i);
-            if (node.getOpcode() == JSR) {
-                LabelNode tar = ((JumpInsnNode) node).label;
-                if (!subroutineHeads.containsKey(tar)) {
-                    Subroutine subr = new Subroutine(subroutineId++);
-                    subroutineHeads.put(tar, subr);
-                }
-            }
         }
     }
 
@@ -577,18 +549,16 @@ public class JSRInlinerAdapter extends MethodNode implements Opcodes {
         log("--------------------------------------------------------");
         log("Input source");
         for (int i = 0; i < instructions.size(); i++) {
-            String lnum = Integer.toString(i);
-            while (lnum.length() < 3) {
-                lnum = "0" + lnum;
-            }
+            String lnum = "000" + i;
+            int n = lnum.length();
             AbstractInsnNode insn = instructions.get(i);
             String desc = insnDesc(insn);
-            log(lnum + ": " + desc);
+            log(lnum.substring(n-3, n) + ": " + desc);
         }
-        log(mainSubroutine + ": " + mainSubroutine.instructions);
+        log(""+mainSubroutine);
         for (Iterator it = subroutineHeads.values().iterator(); it.hasNext();) {
             Subroutine sub = (Subroutine) it.next();
-            log(sub + ": " + sub.instructions);
+            log(""+sub);
         }
     }
 
@@ -598,13 +568,7 @@ public class JSRInlinerAdapter extends MethodNode implements Opcodes {
 
     protected static class Subroutine {
 
-        public final int id;
-
         public final BitSet instructions = new BitSet();
-
-        public Subroutine(final int id) {
-            this.id = id;
-        }
 
         public void addInstruction(final int idx) {
             instructions.set(idx);
@@ -615,7 +579,7 @@ public class JSRInlinerAdapter extends MethodNode implements Opcodes {
         }
 
         public String toString() {
-            return "[Subroutine #" + id + "]";
+            return "Subroutine: " + instructions;
         }
     }
 

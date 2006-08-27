@@ -13,8 +13,8 @@
   <target name="dist.jdoc.user" unless="jdoc.required">
     <mkdir dir="${jdoc.dir}"/>
     <javadoc destdir="${jdoc.dir}"
-             windowtitle="ASM Documentation"
-             doctitle="ASM Documentation">
+             windowtitle="ASM ${product.version} Documentation"
+             doctitle="ASM ${product.version} Documentation">
 
       <sourcepath path="${src}"/>
       <package name="org.objectweb.asm"/>

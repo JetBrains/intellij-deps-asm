@@ -29,6 +29,7 @@
  */
 package org.objectweb.asm;
 
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 
 /**
@@ -560,6 +561,22 @@ public class Type {
         StringBuffer buf = new StringBuffer();
         getDescriptor(buf, c);
         return buf.toString();
+    }
+
+    /**
+     * Returns the descriptor corresponding to the given constructor.
+     * 
+     * @param c a {@link Constructor Constructor} object.
+     * @return the descriptor of the given constructor.
+     */
+    public static String getConstructorDescriptor(final Constructor c) {
+        Class[] parameters = c.getParameterTypes();
+        StringBuffer buf = new StringBuffer();
+        buf.append('(');
+        for (int i = 0; i < parameters.length; ++i) {
+            getDescriptor(buf, parameters[i]);
+        }
+        return buf.append(")V").toString();
     }
 
     /**

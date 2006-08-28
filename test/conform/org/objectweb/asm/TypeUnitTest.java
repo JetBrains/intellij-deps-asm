@@ -29,6 +29,7 @@
  */
 package org.objectweb.asm;
 
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 
@@ -57,6 +58,13 @@ public class TypeUnitTest extends TestCase implements Opcodes {
         String s1 = Type.getType(TypeUnitTest.class).getInternalName();
         String s2 = Type.getInternalName(TypeUnitTest.class);
         assertEquals(s1, s2);
+    }
+
+    public void testConstructorDescriptor() {
+        for (int i = 0; i < String.class.getConstructors().length; ++i) {
+            Constructor c = String.class.getConstructors()[i];
+            Type.getConstructorDescriptor(c);
+        }
     }
 
     public void testMethodDescriptor() {

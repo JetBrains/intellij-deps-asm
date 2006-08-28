@@ -99,6 +99,7 @@ public class ClassNodeUnitTest extends TestCase implements Opcodes {
     public void testLabelNode() {
         LabelNode ln = new LabelNode();
         assertEquals(AbstractInsnNode.LABEL, ln.getType());
+        assertTrue(ln.getLabel() != null);
     }
 
     public void testIincInsnNode() {

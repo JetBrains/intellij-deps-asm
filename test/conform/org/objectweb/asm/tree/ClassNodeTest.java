@@ -36,6 +36,9 @@ import java.util.Map;
 import org.objectweb.asm.AbstractTest;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassWriter;
+import org.objectweb.asm.FieldVisitor;
+import org.objectweb.asm.MethodVisitor;
+import org.objectweb.asm.commons.EmptyVisitor;
 
 import junit.framework.TestSuite;
 
@@ -68,6 +71,28 @@ public class ClassNodeTest extends AbstractTest {
                 mn.instructions.set(insn, insn.clone(m));
             }
         }
+        // test accept with visitors that remove class members
+        cn.accept(new EmptyVisitor() {
+            public FieldVisitor visitField(
+                int access,
+                String name,
+                String desc,
+                String signature,
+                Object value)
+            {
+                return null;
+            }
+
+            public MethodVisitor visitMethod(
+                int access,
+                String name,
+                String desc,
+                String signature,
+                String[] exceptions)
+            {
+                return null;
+            }
+        });
         ClassWriter cw = new ClassWriter(0);
         cn.accept(cw);
         assertEquals(cr, new ClassReader(cw.toByteArray()));

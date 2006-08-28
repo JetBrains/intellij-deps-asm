@@ -469,7 +469,7 @@ public class ClassReader {
                 implementedItfs);
 
         // calls the visitSource method
-        if (sourceFile != null || sourceDebug != null) {
+        if (!skipDebug && (sourceFile != null || sourceDebug != null)) {
             classVisitor.visitSource(sourceFile, sourceDebug);
         }
 

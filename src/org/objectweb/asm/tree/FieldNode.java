@@ -104,6 +104,9 @@ public class FieldNode extends MemberNode implements FieldVisitor {
      */
     public void accept(final ClassVisitor cv) {
         FieldVisitor fv = cv.visitField(access, name, desc, signature, value);
+        if (fv == null) {
+            return;
+        }
         int i, n;
         n = visibleAnnotations == null ? 0 : visibleAnnotations.size();
         for (i = 0; i < n; ++i) {

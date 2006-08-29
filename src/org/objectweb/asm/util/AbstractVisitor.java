@@ -121,14 +121,23 @@ public abstract class AbstractVisitor {
     }
 
     /**
-     * Returns the text printed by this visitor.
+     * Returns the text constructed by this visitor.
      * 
-     * @return the text printed by this visitor.
+     * @return the text constructed by this visitor.
      */
     public List getText() {
         return text;
     }
 
+    /**
+     * Prints the text constructed by this visitor.
+     * 
+     * @param pw the print writer to be used.
+     */
+    public void print(final PrintWriter pw) {
+        printList(pw, text);
+    }
+    
     /**
      * Appends a quoted string to a given buffer.
      * 

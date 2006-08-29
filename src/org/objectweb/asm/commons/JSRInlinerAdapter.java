@@ -136,17 +136,16 @@ public class JSRInlinerAdapter extends MethodNode implements Opcodes {
      */
     public void visitEnd() {
         if (!subroutineHeads.isEmpty()) {
-            if (LOGGING) {
-                log("started w/ method:" + this.name);
-            }
             markSubroutines();
             if (LOGGING) {
-                logSource();
+                log(mainSubroutine.toString());
+                Iterator it = subroutineHeads.values().iterator();
+                while (it.hasNext()) {
+                    Subroutine sub = (Subroutine) it.next();
+                    log(sub.toString());
+                }
             }
             emitCode();
-            if (LOGGING) {
-                log("finished w/ method:" + this.name);
-            }
         }
 
         // Forward the translate opcodes on if appropriate:
@@ -412,7 +411,7 @@ public class JSRInlinerAdapter extends MethodNode implements Opcodes {
             }
 
             if (LOGGING) {
-                log("Emitting inst #" + i + ":" + insnDesc(insn));
+                log("Emitting inst #" + i);
             }
 
             if (insn.getOpcode() == RET) {
@@ -521,44 +520,6 @@ public class JSRInlinerAdapter extends MethodNode implements Opcodes {
                     start,
                     end,
                     lvnode.index));
-        }
-    }
-
-    private String insnDesc(final AbstractInsnNode insn) {
-        String opcode = null;
-        if (insn.getOpcode() >= 0) {
-            opcode = org.objectweb.asm.util.AbstractVisitor.OPCODES[insn.getOpcode()];
-        }
-
-        if (insn.getType() == AbstractInsnNode.JUMP_INSN) {
-            LabelNode lbl = ((JumpInsnNode) insn).label;
-            int idx = instructions.indexOf(lbl);
-            if (idx != -1) {
-                return opcode + " " + idx;
-            } else {
-                return opcode + " " + lbl;
-            }
-        } else if (opcode != null) {
-            return opcode;
-        } else {
-            return insn.toString();
-        }
-    }
-
-    private void logSource() {
-        log("--------------------------------------------------------");
-        log("Input source");
-        for (int i = 0; i < instructions.size(); i++) {
-            String lnum = "000" + i;
-            int n = lnum.length();
-            AbstractInsnNode insn = instructions.get(i);
-            String desc = insnDesc(insn);
-            log(lnum.substring(n-3, n) + ": " + desc);
-        }
-        log(""+mainSubroutine);
-        for (Iterator it = subroutineHeads.values().iterator(); it.hasNext();) {
-            Subroutine sub = (Subroutine) it.next();
-            log(""+sub);
         }
     }
 

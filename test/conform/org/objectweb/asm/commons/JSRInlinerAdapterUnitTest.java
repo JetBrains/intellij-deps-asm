@@ -29,13 +29,14 @@
  */
 package org.objectweb.asm.commons;
 
+import junit.framework.TestCase;
+
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.tree.MethodNode;
 import org.objectweb.asm.util.TraceMethodVisitor;
-import junit.framework.TestCase;
 
 /**
  * JsrInlinerTest
@@ -50,7 +51,19 @@ public class JSRInlinerAdapterUnitTest extends TestCase {
 
     protected void setUp() throws Exception {
         super.setUp();
-        jsr = new JSRInlinerAdapter(null, 0, "m", "()V", null, null);
+        jsr = new JSRInlinerAdapter(null, 0, "m", "()V", null, null) {
+            public void visitEnd() {
+                System.err.println("started w/ method:" + name);
+                TraceMethodVisitor mv = new TraceMethodVisitor();
+                for (int i = 0; i < instructions.size(); ++i) {
+                    instructions.get(i).accept(mv);
+                    System.err.print(Integer.toString(i + 100000).substring(1));
+                    System.err.print(" : " + mv.text.get(i));
+                }
+                super.visitEnd();
+                System.err.println("finished w/ method:" + name);
+            }
+        };
         exp = new MethodNode(0, "m", "()V", null, null);
     }
 

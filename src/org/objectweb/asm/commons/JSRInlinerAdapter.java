@@ -33,7 +33,6 @@ import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.HashMap;
-import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -56,7 +55,7 @@ import org.objectweb.asm.tree.TryCatchBlockNode;
 import org.objectweb.asm.tree.LocalVariableNode;
 
 /**
- * A {@link org.objectweb.asm.MethodAdapter} that removes JSR instructions and 
+ * A {@link org.objectweb.asm.MethodAdapter} that removes JSR instructions and
  * inlines the referenced subroutines.
  * 
  * <b>Explanation of how it works</b> TODO
@@ -75,7 +74,7 @@ public class JSRInlinerAdapter extends MethodNode implements Opcodes {
 
     /**
      * For each label that is jumped to by a JSR, we create a Subroutine
-     * instance. Map<Label,Subroutine> is the generic type.
+     * instance. Map<LabelNode,Subroutine> is the generic type.
      */
     private final Map subroutineHeads = new HashMap();
 
@@ -125,8 +124,9 @@ public class JSRInlinerAdapter extends MethodNode implements Opcodes {
      */
     public void visitJumpInsn(final int opcode, final Label lbl) {
         super.visitJumpInsn(opcode, lbl);
-        if (opcode == JSR && !subroutineHeads.containsKey(lbl)) {
-            subroutineHeads.put(lbl, new Subroutine());
+        LabelNode ln = ((JumpInsnNode) instructions.getLast()).label;
+        if (opcode == JSR && !subroutineHeads.containsKey(ln)) {
+            subroutineHeads.put(ln, new Subroutine());
         }
     }
 

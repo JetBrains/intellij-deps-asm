@@ -422,6 +422,70 @@ public class InsnList {
         cache = null;
         insns.removeAll(false);
     }
+    
+    /**
+     * Inserts the given instruction before the specified instruction.
+     * 
+     * @param i an instruction <i>of this list</i> before which insn must be
+     *        inserted.
+     * @param insn the instruction to be inserted, <i>which must not belong to
+     *        any {@link InsnList}</i>.
+     * @throws IllegalArgumentException if {@link #check} is <tt>true</tt>,
+     *         and if i does not belong to this list or if insn belongs to an
+     *         instruction list.
+     */
+    public void insertBefore(final AbstractInsnNode i, final AbstractInsnNode insn) {
+        if (check && !(contains(i) && insn.index == -1)) {
+            throw new IllegalArgumentException();
+        }
+        ++size;
+        AbstractInsnNode prev = i.prev;
+        if (prev == null) {
+            first = insn;
+        } else {
+            prev.next = insn;
+        }
+        i.prev = insn;
+        insn.next = i;
+        insn.prev = prev;
+        cache = null;
+        insn.index = 0; // insn now belongs to an InsnList
+    }
+    
+    /**
+     * Inserts the given instructions before the specified instruction.
+     * 
+     * @param i an instruction <i>of this list</i> before which the instructions
+     *        must be inserted.
+     * @param insns the instruction list to be inserted, which is cleared during
+     *        the process.
+     * @throws IllegalArgumentException if {@link #check} is <tt>true</tt>,
+     *         and if i does not belong to this list or if insns == this.
+     */
+    public void insertBefore(final AbstractInsnNode i, final InsnList insns) {
+        if (check && !(contains(i) && insns != this)) {
+            throw new IllegalArgumentException();
+        }
+        if (insns.size == 0) {
+            return;
+        }
+        size += insns.size;
+        AbstractInsnNode ifirst = insns.first;
+        AbstractInsnNode ilast = insns.last;
+        AbstractInsnNode prev = i.prev;
+        if (prev == null) {
+            first = ifirst;
+        } else {
+            prev.next = ifirst;
+        }
+        i.prev = ilast;
+        ilast.next = i;
+        ifirst.prev = prev;
+        cache = null;
+        insns.removeAll(false);
+    }
+    
+    
 
     /**
      * Removes the given instruction from this list.

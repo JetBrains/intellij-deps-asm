@@ -924,15 +924,6 @@ public class GeneratorAdapter extends LocalVariablesSorter {
      */
     public void ifCmp(final Type type, final int mode, final Label label) {
         int intOp = -1;
-        int jumpMode = mode;
-        switch (mode) {
-            case GE:
-                jumpMode = LT;
-                break;
-            case LE:
-                jumpMode = GT;
-                break;
-        }
         switch (type.getSort()) {
             case Type.LONG:
                 mv.visitInsn(Opcodes.LCMP);
@@ -978,6 +969,15 @@ public class GeneratorAdapter extends LocalVariablesSorter {
                 }
                 mv.visitJumpInsn(intOp, label);
                 return;
+        }
+        int jumpMode = mode;
+        switch (mode) {
+            case GE:
+                jumpMode = LT;
+                break;
+            case LE:
+                jumpMode = GT;
+                break;
         }
         mv.visitJumpInsn(jumpMode, label);
     }

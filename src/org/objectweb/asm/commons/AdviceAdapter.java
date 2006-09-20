@@ -423,12 +423,8 @@ public abstract class AdviceAdapter extends GeneratorAdapter implements Opcodes
     public void visitIntInsn(final int opcode, final int operand) {
         mv.visitIntInsn(opcode, operand);
 
-        if (constructor) {
-            switch (opcode) {
-                case BIPUSH:
-                case SIPUSH:
-                    pushValue(OTHER);
-            }
+        if (constructor && opcode!=NEWARRAY) {
+            pushValue(OTHER);
         }
     }
 

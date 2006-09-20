@@ -42,8 +42,8 @@ import org.objectweb.asm.tree.MethodNode;
  */
 public class AnalyzerUnitTest extends ClassWriterComputeMaxsUnitTest {
 
-    protected void setUp() throws Exception {
-        setUp(false);
+    protected boolean isComputeMaxs() {
+        return false;
     }
 
     protected void assertMaxs(final int maxStack, final int maxLocals) {

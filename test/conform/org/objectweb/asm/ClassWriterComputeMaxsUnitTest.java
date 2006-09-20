@@ -66,10 +66,6 @@ public class ClassWriterComputeMaxsUnitTest extends TestCase {
     private Label start;
 
     protected void setUp() throws Exception {
-        setUp(true);
-    }
-
-    protected void setUp(final boolean computeMaxs) throws Exception {
         Class lClass = Label.class;
         Class eClass = Edge.class;
         try {
@@ -88,7 +84,7 @@ public class ClassWriterComputeMaxsUnitTest extends TestCase {
             succ = eClass.getDeclaredField(p.getProperty(e + "successor"));
             next = eClass.getDeclaredField(p.getProperty(e + "next"));
         }
-        cw = new ClassWriter(computeMaxs ? ClassWriter.COMPUTE_MAXS : 0);
+        cw = new ClassWriter(isComputeMaxs() ? ClassWriter.COMPUTE_MAXS : 0);
         cw.visit(Opcodes.V1_1,
                 Opcodes.ACC_PUBLIC,
                 "C",
@@ -111,6 +107,10 @@ public class ClassWriterComputeMaxsUnitTest extends TestCase {
         LABEL(start);
     }
 
+    protected boolean isComputeMaxs() {
+        return true;
+    }
+    
     private void NOP() {
         mv.visitInsn(Opcodes.NOP);
     }

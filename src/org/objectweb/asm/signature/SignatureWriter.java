@@ -199,7 +199,7 @@ public class SignatureWriter implements SignatureVisitor {
      * Ends the type arguments of a class or inner class type.
      */
     private void endArguments() {
-        if (argumentStack % 2 == 1) {
+        if (argumentStack % 2 != 0) {
             buf.append('>');
         }
         argumentStack /= 2;

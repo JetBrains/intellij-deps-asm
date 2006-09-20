@@ -206,7 +206,7 @@ public class TraceSignatureVisitor implements SignatureVisitor {
             // abstract public V get(Object key); (seen in Dictionary.class)
             // should have Object
             // but java.lang.String extends java.lang.Object is unnecessary
-            boolean needObjectClass = argumentStack % 2 == 1 || seenParameter;
+            boolean needObjectClass = argumentStack % 2 != 0 || seenParameter;
             if (needObjectClass) {
                 declaration.append(separator).append(name.replace('/', '.'));
             }
@@ -216,7 +216,7 @@ public class TraceSignatureVisitor implements SignatureVisitor {
     }
 
     public void visitInnerClassType(final String name) {
-        if (argumentStack % 2 == 1) {
+        if (argumentStack % 2 != 0) {
             declaration.append('>');
         }
         argumentStack /= 2;
@@ -255,7 +255,7 @@ public class TraceSignatureVisitor implements SignatureVisitor {
     }
 
     public void visitEnd() {
-        if (argumentStack % 2 == 1) {
+        if (argumentStack % 2 != 0) {
             declaration.append('>');
         }
         argumentStack /= 2;
@@ -288,8 +288,8 @@ public class TraceSignatureVisitor implements SignatureVisitor {
     }
 
     private void endType() {
-        if (arrayStack % 2 == 1) {
-            while (arrayStack % 2 == 1) {
+        if (arrayStack % 2 != 0) {
+            while (arrayStack % 2 != 0) {
                 arrayStack /= 2;
                 declaration.append("[]");
             }

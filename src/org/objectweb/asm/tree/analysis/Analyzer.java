@@ -185,7 +185,7 @@ public class Analyzer implements Opcodes {
                         || insnType == AbstractInsnNode.FRAME)
                 {
                     merge(insn + 1, f, subroutine);
-                    newControlFlowEdge(frames[insn], frames[insn + 1]);
+                    newControlFlowEdge(insn, insn + 1);
                 } else {
                     current.init(f).execute(insnNode, interpreter);
                     subroutine = subroutine == null ? null : subroutine.copy();
@@ -194,7 +194,7 @@ public class Analyzer implements Opcodes {
                         JumpInsnNode j = (JumpInsnNode) insnNode;
                         if (insnOpcode != GOTO && insnOpcode != JSR) {
                             merge(insn + 1, current, subroutine);
-                            newControlFlowEdge(frames[insn], frames[insn + 1]);
+                            newControlFlowEdge(insn, insn + 1);
                         }
                         int jump = insns.indexOf(j.label);
                         if (insnOpcode == JSR) {
@@ -204,28 +204,28 @@ public class Analyzer implements Opcodes {
                         } else {
                             merge(jump, current, subroutine);
                         }
-                        newControlFlowEdge(frames[insn], frames[jump]);
+                        newControlFlowEdge(insn, jump);
                     } else if (insnNode instanceof LookupSwitchInsnNode) {
                         LookupSwitchInsnNode lsi = (LookupSwitchInsnNode) insnNode;
                         int jump = insns.indexOf(lsi.dflt);
                         merge(jump, current, subroutine);
-                        newControlFlowEdge(frames[insn], frames[jump]);
+                        newControlFlowEdge(insn, jump);
                         for (int j = 0; j < lsi.labels.size(); ++j) {
                             LabelNode label = (LabelNode) lsi.labels.get(j);
                             jump = insns.indexOf(label);
                             merge(jump, current, subroutine);
-                            newControlFlowEdge(frames[insn], frames[jump]);
+                            newControlFlowEdge(insn, jump);
                         }
                     } else if (insnNode instanceof TableSwitchInsnNode) {
                         TableSwitchInsnNode tsi = (TableSwitchInsnNode) insnNode;
                         int jump = insns.indexOf(tsi.dflt);
                         merge(jump, current, subroutine);
-                        newControlFlowEdge(frames[insn], frames[jump]);
+                        newControlFlowEdge(insn, jump);
                         for (int j = 0; j < tsi.labels.size(); ++j) {
                             LabelNode label = (LabelNode) tsi.labels.get(j);
                             jump = insns.indexOf(label);
                             merge(jump, current, subroutine);
-                            newControlFlowEdge(frames[insn], frames[jump]);
+                            newControlFlowEdge(insn, jump);
                         }
                     } else if (insnOpcode == RET) {
                         if (subroutine == null) {
@@ -240,8 +240,7 @@ public class Analyzer implements Opcodes {
                                         current,
                                         subroutines[call],
                                         subroutine.access);
-                                newControlFlowEdge(frames[insn],
-                                        frames[call + 1]);
+                                newControlFlowEdge(insn, call + 1);
                             }
                         }
                     } else if (insnOpcode != ATHROW
@@ -263,7 +262,7 @@ public class Analyzer implements Opcodes {
                             }
                         }
                         merge(insn + 1, current, subroutine);
-                        newControlFlowEdge(frames[insn], frames[insn + 1]);
+                        newControlFlowEdge(insn, insn + 1);
                     }
                 }
 
@@ -282,7 +281,7 @@ public class Analyzer implements Opcodes {
                         handler.push(interpreter.newValue(type));
                         int jump = insns.indexOf(tcb.handler);
                         merge(jump, handler, subroutine);
-                        newControlFlowExceptionEdge(frames[insn], frames[jump]);
+                        newControlFlowExceptionEdge(insn, jump);
                     }
                 }
             } catch (AnalyzerException e) {
@@ -416,10 +415,10 @@ public class Analyzer implements Opcodes {
      * control flow graph of a method (this method is called by the
      * {@link #analyze analyze} method during its visit of the method's code).
      * 
-     * @param frame the frame corresponding to an instruction.
-     * @param successor the frame corresponding to a successor instruction.
+     * @param insn an instruction index.
+     * @param successor index of a successor instruction.
      */
-    protected void newControlFlowEdge(final Frame frame, final Frame successor)
+    protected void newControlFlowEdge(final int insn, final int successor)
     {
     }
 
@@ -430,12 +429,12 @@ public class Analyzer implements Opcodes {
      * method is called by the {@link #analyze analyze} method during its visit
      * of the method's code).
      * 
-     * @param frame the frame corresponding to an instruction.
-     * @param successor the frame corresponding to a successor instruction.
+     * @param frame an instruction index.
+     * @param successor index of a successor instruction.
      */
     protected void newControlFlowExceptionEdge(
-        final Frame frame,
-        final Frame successor)
+        final int insn,
+        final int successor)
     {
     }
 

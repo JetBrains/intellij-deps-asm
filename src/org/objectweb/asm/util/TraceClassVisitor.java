@@ -459,7 +459,7 @@ public class TraceClassVisitor extends TraceAbstractVisitor implements
     public void visitEnd() {
         text.add("}\n");
 
-        printList(pw, text);
+        print(pw);
         pw.flush();
 
         if (cv != null) {

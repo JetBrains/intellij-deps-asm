@@ -29,7 +29,7 @@
  */
 package org.objectweb.asm.tree;
 
-import java.util.Iterator;
+import java.util.ListIterator;
 
 import org.objectweb.asm.MethodVisitor;
 
@@ -177,27 +177,19 @@ public class InsnList {
      * 
      * @return an iterator over the instructions in this list.
      */
-    public Iterator iterator() {
-        return new Iterator() {
-
-            AbstractInsnNode insn = first;
-
-            public boolean hasNext() {
-                return insn != null;
-            }
-
-            public Object next() {
-                Object result = insn;
-                insn = insn.next;
-                return result;
-            }
-
-            public void remove() {
-                InsnList.this.remove(insn.prev);
-            }
-        };
+    public ListIterator iterator() {
+        return iterator(0);
     }
 
+    /**
+     * Returns an iterator over the instructions in this list.
+     * 
+     * @return an iterator over the instructions in this list.
+     */
+    public ListIterator iterator(int index) {
+        return new InsnListIterator(index);
+    }
+    
     /**
      * Returns an array containing all of the instructions in this list.
      * 
@@ -218,25 +210,25 @@ public class InsnList {
     /**
      * Replaces an instruction of this list with another instruction.
      * 
-     * @param i an instruction <i>of this list</i>.
+     * @param location an instruction <i>of this list</i>.
      * @param insn another instruction, <i>which must not belong to any
      *        {@link InsnList}</i>.
      * @throws IllegalArgumentException if {@link #check} is <tt>true</tt>,
      *         and if i does not belong to this list or if insn belongs to an
      *         instruction list.
      */
-    public void set(final AbstractInsnNode i, final AbstractInsnNode insn) {
-        if (check && !(contains(i) && insn.index == -1)) {
+    public void set(final AbstractInsnNode location, final AbstractInsnNode insn) {
+        if (check && !(contains(location) && insn.index == -1)) {
             throw new IllegalArgumentException();
         }
-        AbstractInsnNode next = i.next;
+        AbstractInsnNode next = location.next;
         insn.next = next;
         if (next != null) {
             next.prev = insn;
         } else {
             last = insn;
         }
-        AbstractInsnNode prev = i.prev;
+        AbstractInsnNode prev = location.prev;
         insn.prev = prev;
         if (prev != null) {
             prev.next = insn;
@@ -244,15 +236,15 @@ public class InsnList {
             first = insn;
         }
         if (cache != null) {
-            int index = i.index;
+            int index = location.index;
             cache[index] = insn;
             insn.index = index;
         } else {
             insn.index = 0; // insn now belongs to an InsnList
         }
-        i.index = -1; // i no longer belongs to an InsnList
-        i.prev = null;
-        i.next = null;
+        location.index = -1; // i no longer belongs to an InsnList
+        location.prev = null;
+        location.next = null;
     }
 
     /**
@@ -553,4 +545,78 @@ public class InsnList {
     public void clear() {
         removeAll(check);
     }
+
+    
+    private final class InsnListIterator implements ListIterator {
+        AbstractInsnNode next;
+        AbstractInsnNode prev;
+
+        public InsnListIterator(int index) {
+            if(index==size()) {
+                next = null;
+                prev = getLast();
+            } else {
+                next = get(index);
+                prev = next.prev;
+            }
+        }
+
+        public boolean hasNext() {
+            return next != null;
+        }
+
+        public Object next() {
+            AbstractInsnNode result = next;
+            prev = result;
+            next = result.next;
+            return result;
+        }
+
+        public void remove() {
+            InsnList.this.remove(prev);
+            prev = prev.prev;
+        }
+
+        public boolean hasPrevious() {
+            return prev != null;
+        }
+
+        public Object previous() {
+            AbstractInsnNode result = prev;
+            next = result;
+            prev = result.prev;
+            return result;
+        }
+
+        public int nextIndex() {
+            if (next == null) {
+                return size();
+            }
+            if (cache == null) {
+                cache = toArray();
+            }
+            return next.index;
+        }
+
+        public int previousIndex() {
+            if (prev == null) {
+                return -1;
+            }
+            if (cache == null) {
+                cache = toArray();
+            }
+            return prev.index;
+        }
+
+        public void add(Object o) {
+            InsnList.this.insertBefore(next, (AbstractInsnNode) o);
+            prev = (AbstractInsnNode) o;
+        }
+
+        public void set(Object o) {
+            InsnList.this.set(next.prev, (AbstractInsnNode) o);
+            prev = (AbstractInsnNode) o;
+        }
+    }
+
 }

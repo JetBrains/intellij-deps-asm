@@ -140,6 +140,13 @@ public class MethodNode extends MemberNode implements MethodVisitor {
     public List localVariables;
 
     /**
+     * Constructs an unitialized {@link MethodNode}.
+     */
+    public MethodNode() {
+        this.instructions = new InsnList();
+    }
+    
+    /**
      * Constructs a new {@link MethodNode}.
      * 
      * @param access the method's access flags (see {@link Opcodes}). This
@@ -159,6 +166,7 @@ public class MethodNode extends MemberNode implements MethodVisitor {
         final String signature,
         final String[] exceptions)
     {
+        this();
         this.access = access;
         this.name = name;
         this.desc = desc;
@@ -167,7 +175,6 @@ public class MethodNode extends MemberNode implements MethodVisitor {
                 ? 0
                 : exceptions.length);
         boolean isAbstract = (access & Opcodes.ACC_ABSTRACT) != 0;
-        this.instructions = new InsnList();
         if (!isAbstract) {
             this.localVariables = new ArrayList(5);
         }

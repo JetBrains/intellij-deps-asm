@@ -30,6 +30,7 @@
 package org.objectweb.asm.tree;
 
 import java.util.Iterator;
+import java.util.ListIterator;
 
 import junit.framework.TestCase;
 
@@ -95,25 +96,116 @@ public class InsnListUnitTest extends TestCase {
 
     public void testIterator() {
         InsnNode insn = new InsnNode(0);
-        l2.add(insn);
-        Iterator it = l2.iterator();
-        assertEquals(true, it.hasNext());
+        
+        // iteration
+        ListIterator it = l2.iterator();
+        assertTrue(it.hasNext());
         assertEquals(in1, it.next());
-        assertEquals(true, it.hasNext());
+        assertTrue(it.hasNext());
         assertEquals(in2, it.next());
-        assertEquals(true, it.hasNext());
-        it.remove();
-        assertEquals(true, it.hasNext());
-        assertEquals(insn, it.next());
-        assertEquals(false, it.hasNext());
+        assertFalse(it.hasNext());
+        assertTrue(it.hasPrevious());
+        assertEquals(in2, it.previous());
+        assertTrue(it.hasPrevious());
+        assertEquals(in1, it.previous());
+        assertFalse(it.hasPrevious());
+
+        l2.add(insn);
+
+        // remove()
         it = l2.iterator();
-        assertEquals(true, it.hasNext());
+        assertTrue(it.hasNext());
         assertEquals(in1, it.next());
-        assertEquals(true, it.hasNext());
+        assertTrue(it.hasNext());        
+        assertEquals(in2, it.next());
+        assertTrue(it.hasNext());
+        it.remove();  // remove in2
+        assertTrue(it.hasNext());
         assertEquals(insn, it.next());
-        assertEquals(false, it.hasNext());
+        assertFalse(it.hasNext());
+        assertTrue(it.hasPrevious());
+        
+        it = l2.iterator();
+        assertTrue(it.hasNext());
+        assertEquals(in1, it.next());
+        assertTrue(it.hasNext());
+        assertEquals(insn, it.next());
+        assertFalse(it.hasNext());
+        
+        l2.remove(insn);
+        l2.insert(in1, in2);
+        
+        // add() then next()
+        it = l2.iterator();
+        assertTrue(it.hasNext());
+        assertEquals(in1, it.next());
+        it.add(insn);
+        assertEquals(in2, it.next());
+        
+        l2.remove(insn);
+        
+        // add() then previous()
+        it = l2.iterator();
+        assertTrue(it.hasNext());
+        assertEquals(in1, it.next());
+        it.add(insn);
+        assertEquals(insn, it.previous());
+        assertEquals(insn, it.next());
+        assertTrue(it.hasNext());
+        assertEquals(in2, it.next());
+        assertFalse(it.hasNext());
+        
+        l2.remove(insn);
+        
+        // set() then previous()
+        it = l2.iterator();
+        assertTrue(it.hasNext());
+        assertEquals(in1, it.next());
+        it.set(insn);
+        assertEquals(insn, it.previous());
+        assertEquals(insn, it.next());
+        assertTrue(it.hasNext());
+        
+        l2.remove(insn);
+        l2.insertBefore(in2, in1);
+        
+        // add() then next()
+        it = l2.iterator();
+        assertTrue(it.hasNext());
+        assertEquals(in1, it.next());
+        it.set(insn);
+        assertEquals(in2, it.next());
     }
 
+    public void testIterator2() {
+        ListIterator it = l2.iterator(l2.size());
+
+        assertFalse(it.hasNext());
+        assertTrue(it.hasPrevious());
+        assertEquals(1, it.previousIndex());
+        assertEquals(in2, it.previous());
+        assertTrue(it.hasPrevious());
+        assertEquals(0, it.previousIndex());
+        assertEquals(in1, it.previous());
+        assertFalse(it.hasPrevious());
+
+        assertEquals(-1, it.previousIndex());
+        
+        assertTrue(it.hasNext());
+        assertEquals(0, it.nextIndex());
+        assertEquals(in1, it.next());
+        assertTrue(it.hasNext());
+        assertEquals(1, it.nextIndex());
+        
+        InsnNode insn = new InsnNode(0);
+        it.add(insn);
+
+        assertEquals(2, it.nextIndex());
+        assertEquals(in2, it.next());
+        assertFalse(it.hasNext());
+        assertEquals(3, it.nextIndex());
+    }
+    
     public void testInvalidIndexOf() {
         try {
             l1.indexOf(new InsnNode(0));
@@ -137,6 +229,13 @@ public class InsnListUnitTest extends TestCase {
     public void testSet() {
         l1.add(new InsnNode(0));
         AbstractInsnNode insn = new InsnNode(0);
+        l1.set(l1.getFirst(), insn);
+        assertEquals(1, l1.size());
+        assertEquals(insn, l1.getFirst());
+        
+        l2.remove(insn);
+        l1.add(new InsnNode(0));
+        
         l1.set(l1.get(0), insn);
         assertEquals(1, l1.size());
         assertEquals(insn, l1.getFirst());

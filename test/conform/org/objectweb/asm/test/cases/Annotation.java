@@ -85,7 +85,7 @@ public class Annotation extends Generator {
 
         mv = cw.visitMethod(M, "booleanValue", "()Z", null, null);
         av0 = mv.visitAnnotationDefault();
-        av0.visit(null, new Boolean(true));
+        av0.visit(null, Boolean.TRUE);
         av0.visitEnd();
         mv.visitEnd();
 
@@ -253,7 +253,7 @@ public class Annotation extends Generator {
         av0 = cw.visitAnnotation("Lpkg/Annotation;", false);
         av0.visit("byteValue", new Byte((byte) 0));
         av0.visit("charValue", new Character((char) 48));
-        av0.visit("booleanValue", new Boolean(false));
+        av0.visit("booleanValue", Boolean.FALSE);
         av0.visit("intValue", new Integer(0));
         av0.visit("shortValue", new Short((short) 0));
         av0.visit("longValue", new Long(0L));

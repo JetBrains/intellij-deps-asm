@@ -61,7 +61,7 @@ public class Wide extends Generator {
         mv.visitVarInsn(ALOAD, 0);
         mv.visitMethodInsn(INVOKESPECIAL, "java/lang/Object", "<init>", "()V");
         for (int i = 0; i < 256; ++i) {
-            mv.visitLdcInsn(new Integer(i).toString()); // wide form
+            mv.visitLdcInsn(Integer.toString(i)); // wide form
             mv.visitInsn(POP);
         }
         mv.visitInsn(RETURN);

@@ -51,9 +51,7 @@ public class ArraySet {
             if (size == values.length) {
                 System.err.println("[enlarge]");
                 int[] newValues = new int[values.length + 3];
-                for (int i = 0; i < size; ++i) {
-                    newValues[i] = values[i];
-                }
+                System.arraycopy(values, 0, newValues, 0, size);
                 values = newValues;
             }
             values[size++] = v;

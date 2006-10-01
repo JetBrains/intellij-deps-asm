@@ -39,7 +39,6 @@ import java.util.List;
 import java.util.jar.JarEntry;
 import java.util.jar.JarInputStream;
 
-import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.InsnList;
 import org.objectweb.asm.tree.MethodNode;

@@ -991,7 +991,7 @@ public class ASMContentHandler extends DefaultHandler implements Opcodes {
                         null);
             } else if (type.equals("CHOP")) {
                 getCodeVisitor().visitFrame(Opcodes.F_CHOP,
-                        Integer.valueOf(count).intValue(),
+                        Integer.parseInt(count),
                         null,
                         0,
                         null);

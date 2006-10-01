@@ -731,7 +731,7 @@ public class Type {
         if (this == o) {
             return true;
         }
-        if (o == null || !(o instanceof Type)) {
+        if (!(o instanceof Type)) {
             return false;
         }
         Type t = (Type) o;

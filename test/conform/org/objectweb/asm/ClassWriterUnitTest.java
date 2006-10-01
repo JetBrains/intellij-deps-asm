@@ -43,7 +43,7 @@ public class ClassWriterUnitTest extends TestCase {
         cw.newConst(new Byte((byte) 0));
         cw.newConst(new Character('0'));
         cw.newConst(new Short((short) 0));
-        cw.newConst(new Boolean(false));
+        cw.newConst(Boolean.FALSE);
         cw.newField("A", "f", "I");
         cw.newMethod("A", "m", "()V", false);
     }

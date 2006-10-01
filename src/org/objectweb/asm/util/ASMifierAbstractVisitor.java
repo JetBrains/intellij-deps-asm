@@ -145,7 +145,7 @@ public class ASMifierAbstractVisitor extends AbstractVisitor {
         } else if (cst instanceof Byte) {
             buf.append("new Byte((byte)").append(cst).append(")");
         } else if (cst instanceof Boolean) {
-            buf.append("new Boolean(").append(cst).append(")");
+            buf.append(((Boolean) cst).booleanValue() ? "Boolean.TRUE" : "Boolean.FALSE");
         } else if (cst instanceof Short) {
             buf.append("new Short((short)").append(cst).append(")");
         } else if (cst instanceof Character) {

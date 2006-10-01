@@ -233,7 +233,7 @@ public class InsnListUnitTest extends TestCase {
         assertEquals(1, l1.size());
         assertEquals(insn, l1.getFirst());
         
-        l2.remove(insn);
+        l1.remove(insn);
         l1.add(new InsnNode(0));
         
         l1.set(l1.get(0), insn);

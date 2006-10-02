@@ -91,7 +91,7 @@ public class ClassReader {
      * The one byte offset skips the constant pool item tag that indicates its
      * type.
      */
-    private int[] items;
+    private final int[] items;
 
     /**
      * The String objects corresponding to the CONSTANT_Utf8 items. This cache
@@ -101,13 +101,13 @@ public class ClassReader {
      * would not be so great for these items (because they are much less
      * expensive to parse than CONSTANT_Utf8 items).
      */
-    private String[] strings;
+    private final String[] strings;
 
     /**
      * Maximum length of the strings contained in the constant pool of the
      * class.
      */
-    private int maxStringLength;
+    private final int maxStringLength;
 
     /**
      * Start index of the class header information (access, name...) in

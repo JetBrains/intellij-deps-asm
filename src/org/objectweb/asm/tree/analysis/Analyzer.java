@@ -101,7 +101,7 @@ public class Analyzer implements Opcodes {
         if ((m.access & (ACC_ABSTRACT | ACC_NATIVE)) != 0) {
             frames = new Frame[0];
             return frames;
-        }       
+        }
         n = m.instructions.size();
         insns = m.instructions;
         handlers = new List[n];
@@ -276,12 +276,13 @@ public class Analyzer implements Opcodes {
                         } else {
                             type = Type.getObjectType(tcb.type);
                         }
-                        handler.init(f);
-                        handler.clearStack();
-                        handler.push(interpreter.newValue(type));
                         int jump = insns.indexOf(tcb.handler);
-                        merge(jump, handler, subroutine);
-                        newControlFlowExceptionEdge(insn, jump);
+                        if (newControlFlowExceptionEdge(insn, jump)) {
+                            handler.init(f);
+                            handler.clearStack();
+                            handler.push(interpreter.newValue(type));
+                            merge(jump, handler, subroutine);
+                        }
                     }
                 }
             } catch (AnalyzerException e) {
@@ -418,8 +419,7 @@ public class Analyzer implements Opcodes {
      * @param insn an instruction index.
      * @param successor index of a successor instruction.
      */
-    protected void newControlFlowEdge(final int insn, final int successor)
-    {
+    protected void newControlFlowEdge(final int insn, final int successor) {
     }
 
     /**
@@ -431,11 +431,15 @@ public class Analyzer implements Opcodes {
      * 
      * @param frame an instruction index.
      * @param successor index of a successor instruction.
+     * @return true if this edge must be considered in the data flow analysis
+     *         performed by this analyzer, or false otherwise. The default
+     *         implementation of this method always returns true.
      */
-    protected void newControlFlowExceptionEdge(
+    protected boolean newControlFlowExceptionEdge(
         final int insn,
         final int successor)
     {
+        return true;
     }
 
     // -------------------------------------------------------------------------

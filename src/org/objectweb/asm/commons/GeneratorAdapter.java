@@ -81,25 +81,25 @@ import org.objectweb.asm.Type;
  */
 public class GeneratorAdapter extends LocalVariablesSorter {
 
-    private final static Type BYTE_TYPE = Type.getType("Ljava/lang/Byte;");
+    private final static Type BYTE_TYPE = Type.getObjectType("java/lang/Byte");
 
-    private final static Type BOOLEAN_TYPE = Type.getType("Ljava/lang/Boolean;");
+    private final static Type BOOLEAN_TYPE = Type.getObjectType("java/lang/Boolean");
 
-    private final static Type SHORT_TYPE = Type.getType("Ljava/lang/Short;");
+    private final static Type SHORT_TYPE = Type.getObjectType("java/lang/Short");
 
-    private final static Type CHARACTER_TYPE = Type.getType("Ljava/lang/Character;");
+    private final static Type CHARACTER_TYPE = Type.getObjectType("java/lang/Character");
 
-    private final static Type INTEGER_TYPE = Type.getType("Ljava/lang/Integer;");
+    private final static Type INTEGER_TYPE = Type.getObjectType("java/lang/Integer");
 
-    private final static Type FLOAT_TYPE = Type.getType("Ljava/lang/Float;");
+    private final static Type FLOAT_TYPE = Type.getObjectType("java/lang/Float");
 
-    private final static Type LONG_TYPE = Type.getType("Ljava/lang/Long;");
+    private final static Type LONG_TYPE = Type.getObjectType("java/lang/Long");
 
-    private final static Type DOUBLE_TYPE = Type.getType("Ljava/lang/Double;");
+    private final static Type DOUBLE_TYPE = Type.getObjectType("java/lang/Double");
 
-    private final static Type NUMBER_TYPE = Type.getType("Ljava/lang/Number;");
+    private final static Type NUMBER_TYPE = Type.getObjectType("java/lang/Number");
 
-    private final static Type OBJECT_TYPE = Type.getType("Ljava/lang/Object;");
+    private final static Type OBJECT_TYPE = Type.getObjectType("java/lang/Object");
 
     private final static Method BOOLEAN_VALUE = Method.getMethod("boolean booleanValue()");
 

@@ -87,7 +87,7 @@ public class NameMapping extends Properties {
 
     private Type fix(final Type t) {
         if (t.getSort() == Type.OBJECT) {
-            return Type.getType("L" + map(t.getInternalName()) + ";");
+            return Type.getObjectType(map(t.getInternalName()));
         } else if (t.getSort() == Type.ARRAY) {
             String s = fix(t.getElementType()).getDescriptor();
             for (int i = 0; i < t.getDimensions(); ++i) {

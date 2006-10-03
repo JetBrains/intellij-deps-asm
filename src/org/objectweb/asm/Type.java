@@ -238,6 +238,24 @@ public class Type {
             return getType(getDescriptor(c));
         }
     }
+    
+    /**
+     * Returns the {@link Type#OBJECT} type for the given internal class name.
+     * This is a shortcut method for <code>Type.getType("L"+name+";")</code>.
+     * <i>Note that opposed to {@link Type#getType(String)}, this method takes 
+     * internal class names and not class descriptor.</i> 
+     * 
+     * @param name an internal class name.
+     * @return the the {@link Type#OBJECT} type for the given class name.
+     */
+    public static Type getObjectType(String name) {
+        int l = name.length();
+        char[] buf = new char[l + 2];
+        buf[0] = 'L';
+        buf[l + 1] = ';';
+        name.getChars(0, l, buf, 1);
+        return new Type(OBJECT, buf, 0, l + 2);
+    }
 
     /**
      * Returns the Java types corresponding to the argument types of the given

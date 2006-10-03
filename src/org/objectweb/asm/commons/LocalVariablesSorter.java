@@ -49,7 +49,7 @@ import org.objectweb.asm.Type;
  */
 public class LocalVariablesSorter extends MethodAdapter {
 
-    private final static Type OBJECT_TYPE = Type.getType("Ljava/lang/Object;");
+    private final static Type OBJECT_TYPE = Type.getObjectType("java/lang/Object");
 
     /**
      * Mapping from old to new local variable indexes. A local variable at index

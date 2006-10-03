@@ -45,7 +45,7 @@ public class ClassReader {
 
     /**
      * Flag to skip method code. If this class is set <code>CODE</code>
-     * atribute won't be visited. This can be used, for example, to retrieve
+     * attribute won't be visited. This can be used, for example, to retrieve
      * annotations for methods and method parameters.
      */
     public final static int SKIP_CODE = 1;
@@ -63,7 +63,7 @@ public class ClassReader {
      * Flag to skip the stack map frames in the class. If this flag is set the
      * stack map frames of the class is not visited, i.e. the
      * {@link MethodVisitor#visitFrame visitFrame} method will not be called.
-     * This flag is usefull when the {@link ClassWriter#COMPUTE_FRAMES} option
+     * This flag is useful when the {@link ClassWriter#COMPUTE_FRAMES} option
      * is used: it avoids visiting frames that will be ignored and recomputed
      * from scratch in the class writer.
      */
@@ -1880,7 +1880,7 @@ public class ClassReader {
                 return new Double(Double.longBitsToDouble(readLong(index)));
             case ClassWriter.CLASS:
                 String s = readUTF8(index, buf);
-                return Type.getType(s.charAt(0) == '[' ? s : "L" + s + ";");
+                return s.charAt(0) == '[' ? Type.getType(s) : Type.getObjectType(s);
                 // case ClassWriter.STR:
             default:
                 return readUTF8(index, buf);

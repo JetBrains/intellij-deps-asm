@@ -154,7 +154,7 @@ public class Analyzer implements Opcodes {
         Type[] args = Type.getArgumentTypes(m.desc);
         int local = 0;
         if ((m.access & ACC_STATIC) == 0) {
-            Type ctype = Type.getType("L" + owner + ";");
+            Type ctype = Type.getObjectType(owner);
             current.setLocal(local++, interpreter.newValue(ctype));
         }
         for (int i = 0; i < args.length; ++i) {
@@ -272,9 +272,9 @@ public class Analyzer implements Opcodes {
                         TryCatchBlockNode tcb = (TryCatchBlockNode) insnHandlers.get(i);
                         Type type;
                         if (tcb.type == null) {
-                            type = Type.getType("Ljava/lang/Throwable;");
+                            type = Type.getObjectType("java/lang/Throwable");
                         } else {
-                            type = Type.getType("L" + tcb.type + ";");
+                            type = Type.getObjectType(tcb.type);
                         }
                         handler.init(f);
                         handler.clearStack();

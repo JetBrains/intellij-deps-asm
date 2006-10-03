@@ -128,9 +128,8 @@ public class CheckClassAdapter extends ClassAdapter {
         List methods = cn.methods;
         for (int i = 0; i < methods.size(); ++i) {
             MethodNode method = (MethodNode) methods.get(i);
-            Analyzer a = new Analyzer(new SimpleVerifier(Type.getType("L"
-                    + cn.name + ";"),
-                    Type.getType("L" + cn.superName + ";"),
+            Analyzer a = new Analyzer(new SimpleVerifier(Type.getObjectType(cn.name),
+                    Type.getObjectType(cn.superName),
                     false));
             try {
                 a.analyze(cn.name, method);

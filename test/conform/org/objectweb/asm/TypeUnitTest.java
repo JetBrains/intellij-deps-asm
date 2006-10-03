@@ -102,4 +102,12 @@ public class TypeUnitTest extends TestCase implements Opcodes {
     public void testHashcode() {
         Type.getType("Ljava/lang/Object;").hashCode();
     }
+    
+    public void testObjectType() throws Exception {
+        Type t1 = Type.getObjectType("java/lang/Object");
+        Type t2 = Type.getType("Ljava/lang/Object;");
+        assertEquals(t2.getSort(), t1.getSort());
+        assertEquals(t2.getClassName(), t1.getClassName());
+        assertEquals(t2.getDescriptor(), t1.getDescriptor());
+    }
 }

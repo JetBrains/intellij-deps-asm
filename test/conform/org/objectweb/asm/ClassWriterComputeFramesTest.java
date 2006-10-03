@@ -179,7 +179,7 @@ class ClassInfo {
 
     public ClassInfo(final String type, final ClassLoader loader) {
         this.loader = loader;
-        this.type = Type.getType("L" + type + ";");
+        this.type = Type.getObjectType(type);
         String s = type.replace('.', '/') + ".class";
         InputStream is = null;
         ClassReader cr;

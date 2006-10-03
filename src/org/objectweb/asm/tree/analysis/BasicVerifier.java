@@ -141,8 +141,7 @@ public class BasicVerifier extends BasicInterpreter {
                 expected = BasicValue.DOUBLE_VALUE;
                 break;
             case GETFIELD:
-                expected = newValue(Type.getType("L"
-                        + ((FieldInsnNode) insn).owner + ";"));
+                expected = newValue(Type.getObjectType(((FieldInsnNode) insn).owner));
                 break;
             case CHECKCAST:
                 if (!((BasicValue) value).isReference()) {
@@ -292,7 +291,7 @@ public class BasicVerifier extends BasicInterpreter {
                 break;
             case PUTFIELD:
                 FieldInsnNode fin = (FieldInsnNode) insn;
-                expected1 = newValue(Type.getType("L" + fin.owner + ";"));
+                expected1 = newValue(Type.getObjectType(fin.owner));
                 expected2 = newValue(Type.getType(fin.desc));
                 break;
             default:

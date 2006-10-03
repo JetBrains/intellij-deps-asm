@@ -50,7 +50,7 @@ public class BasicValue implements Value {
 
     public final static Value DOUBLE_VALUE = new BasicValue(Type.DOUBLE_TYPE);
 
-    public final static Value REFERENCE_VALUE = new BasicValue(Type.getType("Ljava/lang/Object;"));
+    public final static Value REFERENCE_VALUE = new BasicValue(Type.getObjectType("java/lang/Object"));
 
     public final static Value RETURNADDRESS_VALUE = new BasicValue(null);
 

@@ -139,15 +139,14 @@ public class ClassReader {
         this.b = b;
         // parses the constant pool
         items = new int[readUnsignedShort(off + 8)];
-        int ll = items.length;
-        strings = new String[ll];
+        int n = items.length;
+        strings = new String[n];
         int max = 0;
         int index = off + 10;
-        for (int i = 1; i < ll; ++i) {
+        for (int i = 1; i < n; ++i) {
             items[i] = index + 1;
-            int tag = b[index];
             int size;
-            switch (tag) {
+            switch (b[index]) {
                 case ClassWriter.FIELD:
                 case ClassWriter.METH:
                 case ClassWriter.IMETH:
@@ -179,7 +178,65 @@ public class ClassReader {
         // the class header information starts just after the constant pool
         header = index;
     }
+    
+    /**
+     * Returns the class's access flags (see {@link Opcodes}). 
+     * This value may not reflect Deprecated and Synthetic flags
+     * when bytecode is before 1.5 and those flags are represented by attributes. 
+     * 
+     * @return the class access flags
+     * 
+     * @see ClassVisitor#visit(int, int, String, String, String, String[])
+     */
+    public int getAccess() {
+        return readUnsignedShort(header);
+    }
 
+    /**
+     * Returns the internal name of the class (see {@link Type#getInternalName() getInternalName}).
+     * 
+     * @return the internal class name
+     *  
+     * @see ClassVisitor#visit(int, int, String, String, String, String[])
+     */
+    public String getClassName() {
+        return readClass(header + 2, new char[maxStringLength]);
+    }
+
+    /**
+     * Returns the internal of name of the super class (see {@link Type#getInternalName() getInternalName}). 
+     * For interfaces, the super class is {@link Object}. 
+     * 
+     * @return the internal name of super class, or <tt>null</tt> for {@link Object} class.
+     * 
+     * @see ClassVisitor#visit(int, int, String, String, String, String[])
+     */
+    public String getSuperName() {
+        int n = items[readUnsignedShort(header + 4)];
+        return n == 0 ? null : readUTF8(n, new char[maxStringLength]);
+    }
+
+    /**
+     * Returns the internal names of the class's interfaces (see {@link Type#getInternalName() getInternalName}). 
+     * 
+     * @return the array of internal names for all implemented interfaces or <tt>null</tt>.
+     * 
+     * @see ClassVisitor#visit(int, int, String, String, String, String[])
+     */
+    public String[] getInterfaces() {
+       int index = header + 6;
+        int n = readUnsignedShort(index);
+        String[] interfaces = new String[n];
+        if(n>0) {
+            char[] buf = new char[maxStringLength];
+            for (int i = 0; i < n; ++i) {
+                index += 2;
+                interfaces[i] = readClass(index, buf);
+            }
+        }
+        return interfaces;
+    }
+    
     /**
      * Copies the constant pool data into the given {@link ClassWriter}. Should
      * be called before the {@link #accept(ClassVisitor,int)} method.

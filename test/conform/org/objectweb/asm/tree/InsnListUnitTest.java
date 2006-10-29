@@ -29,7 +29,6 @@
  */
 package org.objectweb.asm.tree;
 
-import java.util.Iterator;
 import java.util.ListIterator;
 
 import junit.framework.TestCase;

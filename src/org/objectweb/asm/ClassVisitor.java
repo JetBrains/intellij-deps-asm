@@ -116,7 +116,7 @@ public interface ClassVisitor {
      *        {@link Type#getInternalName() getInternalName}).
      * @param outerName the internal name of the class to which the inner class
      *        belongs (see {@link Type#getInternalName() getInternalName}). May
-     *        be <tt>null</tt>.
+     *        be <tt>null</tt> for not member classes.
      * @param innerName the (simple) name of the inner class inside its
      *        enclosing class. May be <tt>null</tt> for anonymous inner
      *        classes.

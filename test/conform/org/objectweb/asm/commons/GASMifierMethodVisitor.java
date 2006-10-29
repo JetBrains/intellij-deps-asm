@@ -1048,8 +1048,8 @@ public class GASMifierMethodVisitor extends ASMifierAbstractVisitor implements
         Type[] argt = Type.getArgumentTypes(desc);
         StringBuffer buf = new StringBuffer();
         buf.append("Method.getMethod(\"");
-        buf.append(rt.getClassName()).append(" ");
-        buf.append(name).append("(");
+        buf.append(rt.getClassName()).append(' ');
+        buf.append(name).append('(');
         for (int i = 0; i < argt.length; ++i) {
             if (i > 0) {
                 buf.append(',');

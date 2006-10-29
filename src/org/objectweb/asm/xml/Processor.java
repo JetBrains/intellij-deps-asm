@@ -729,11 +729,11 @@ public class Processor {
             StringBuffer sb = new StringBuffer();
             int len = atts.getLength();
             for (int i = 0; i < len; i++) {
-                sb.append(" ")
+                sb.append(' ')
                         .append(atts.getLocalName(i))
                         .append("=\"")
                         .append(esc(atts.getValue(i)))
-                        .append("\"");
+                        .append('\"');
             }
             w.write(sb.toString());
         }

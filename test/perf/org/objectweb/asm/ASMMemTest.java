@@ -157,7 +157,7 @@ public class ASMMemTest {
             sbuf.append(msec);
             sbuf.append("ms ");
         }
-        sbuf.append("(");
+        sbuf.append('(');
         sbuf.append(time);
         sbuf.append("ms)");
         return sbuf.toString();
@@ -185,7 +185,7 @@ public class ASMMemTest {
             sbuf.append(bytes);
             sbuf.append("bytes ");
         }
-        sbuf.append("(");
+        sbuf.append('(');
         sbuf.append(mem);
         sbuf.append("bytes)");
         return sbuf.toString();

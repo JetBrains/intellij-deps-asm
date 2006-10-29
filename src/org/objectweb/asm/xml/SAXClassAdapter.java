@@ -279,7 +279,7 @@ public final class SAXClassAdapter extends SAXAdapter implements ClassVisitor {
                 } else if (c < 0x100) {
                     sb.append("00");
                 } else if (c < 0x1000) {
-                    sb.append("0");
+                    sb.append('0');
                 }
                 sb.append(Integer.toString(c, 16));
             } else {

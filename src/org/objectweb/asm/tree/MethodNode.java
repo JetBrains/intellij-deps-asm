@@ -415,7 +415,9 @@ public class MethodNode extends MemberNode implements MethodVisitor {
         if (annotationDefault != null) {
             AnnotationVisitor av = mv.visitAnnotationDefault();
             AnnotationNode.accept(av, null, annotationDefault);
-            av.visitEnd();
+            if (av != null) {
+                av.visitEnd();
+            }
         }
         n = visibleAnnotations == null ? 0 : visibleAnnotations.size();
         for (i = 0; i < n; ++i) {

@@ -55,11 +55,12 @@ public interface MethodVisitor {
     /**
      * Visits the default value of this annotation interface method.
      * 
-     * @return a non null visitor to the visit the actual default value of this
-     *         annotation interface method. The 'name' parameters passed to the
-     *         methods of this annotation visitor are ignored. Moreover, exacly
-     *         one visit method must be called on this annotation visitor,
-     *         followed by visitEnd.
+     * @return a visitor to the visit the actual default value of this
+     *         annotation interface method, or <tt>null</tt> if this visitor
+     *         is not interested in visiting this default value. The 'name'
+     *         parameters passed to the methods of this annotation visitor are
+     *         ignored. Moreover, exacly one visit method must be called on this
+     *         annotation visitor, followed by visitEnd.
      */
     AnnotationVisitor visitAnnotationDefault();
 
@@ -68,7 +69,8 @@ public interface MethodVisitor {
      * 
      * @param desc the class descriptor of the annotation class.
      * @param visible <tt>true</tt> if the annotation is visible at runtime.
-     * @return a non null visitor to visit the annotation values.
+     * @return a visitor to visit the annotation values, or <tt>null</tt> if
+     *         this visitor is not interested in visiting this annotation.
      */
     AnnotationVisitor visitAnnotation(String desc, boolean visible);
 
@@ -78,7 +80,8 @@ public interface MethodVisitor {
      * @param parameter the parameter index.
      * @param desc the class descriptor of the annotation class.
      * @param visible <tt>true</tt> if the annotation is visible at runtime.
-     * @return a non null visitor to visit the annotation values.
+     * @return a visitor to visit the annotation values, or <tt>null</tt> if
+     *         this visitor is not interested in visiting this annotation.
      */
     AnnotationVisitor visitParameterAnnotation(
         int parameter,

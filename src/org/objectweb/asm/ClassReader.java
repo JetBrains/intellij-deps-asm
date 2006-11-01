@@ -63,9 +63,9 @@ public class ClassReader {
      * Flag to skip the stack map frames in the class. If this flag is set the
      * stack map frames of the class is not visited, i.e. the
      * {@link MethodVisitor#visitFrame visitFrame} method will not be called.
-     * This flag is useful when the {@link ClassWriter#COMPUTE_FRAMES} option
-     * is used: it avoids visiting frames that will be ignored and recomputed
-     * from scratch in the class writer.
+     * This flag is useful when the {@link ClassWriter#COMPUTE_FRAMES} option is
+     * used: it avoids visiting frames that will be ignored and recomputed from
+     * scratch in the class writer.
      */
     public final static int SKIP_FRAMES = 4;
 
@@ -178,11 +178,11 @@ public class ClassReader {
         // the class header information starts just after the constant pool
         header = index;
     }
-    
+
     /**
-     * Returns the class's access flags (see {@link Opcodes}). 
-     * This value may not reflect Deprecated and Synthetic flags
-     * when bytecode is before 1.5 and those flags are represented by attributes. 
+     * Returns the class's access flags (see {@link Opcodes}). This value may
+     * not reflect Deprecated and Synthetic flags when bytecode is before 1.5
+     * and those flags are represented by attributes.
      * 
      * @return the class access flags
      * 
@@ -193,10 +193,11 @@ public class ClassReader {
     }
 
     /**
-     * Returns the internal name of the class (see {@link Type#getInternalName() getInternalName}).
+     * Returns the internal name of the class (see
+     * {@link Type#getInternalName() getInternalName}).
      * 
      * @return the internal class name
-     *  
+     * 
      * @see ClassVisitor#visit(int, int, String, String, String, String[])
      */
     public String getClassName() {
@@ -204,10 +205,12 @@ public class ClassReader {
     }
 
     /**
-     * Returns the internal of name of the super class (see {@link Type#getInternalName() getInternalName}). 
-     * For interfaces, the super class is {@link Object}. 
+     * Returns the internal of name of the super class (see
+     * {@link Type#getInternalName() getInternalName}). For interfaces, the
+     * super class is {@link Object}.
      * 
-     * @return the internal name of super class, or <tt>null</tt> for {@link Object} class.
+     * @return the internal name of super class, or <tt>null</tt> for
+     *         {@link Object} class.
      * 
      * @see ClassVisitor#visit(int, int, String, String, String, String[])
      */
@@ -217,17 +220,19 @@ public class ClassReader {
     }
 
     /**
-     * Returns the internal names of the class's interfaces (see {@link Type#getInternalName() getInternalName}). 
+     * Returns the internal names of the class's interfaces (see
+     * {@link Type#getInternalName() getInternalName}).
      * 
-     * @return the array of internal names for all implemented interfaces or <tt>null</tt>.
+     * @return the array of internal names for all implemented interfaces or
+     *         <tt>null</tt>.
      * 
      * @see ClassVisitor#visit(int, int, String, String, String, String[])
      */
     public String[] getInterfaces() {
-       int index = header + 6;
+        int index = header + 6;
         int n = readUnsignedShort(index);
         String[] interfaces = new String[n];
-        if(n>0) {
+        if (n > 0) {
             char[] buf = new char[maxStringLength];
             for (int i = 0; i < n; ++i) {
                 index += 2;
@@ -236,7 +241,7 @@ public class ClassReader {
         }
         return interfaces;
     }
-    
+
     /**
      * Copies the constant pool data into the given {@link ClassWriter}. Should
      * be called before the {@link #accept(ClassVisitor,int)} method.
@@ -546,6 +551,7 @@ public class ClassReader {
                 for (; j > 0; --j) {
                     v = readAnnotationValues(v + 2,
                             c,
+                            true,
                             classVisitor.visitAnnotation(readUTF8(v, c), i != 0));
                 }
             }
@@ -639,6 +645,7 @@ public class ClassReader {
                         for (; k > 0; --k) {
                             v = readAnnotationValues(v + 2,
                                     c,
+                                    true,
                                     fv.visitAnnotation(readUTF8(v, c), j != 0));
                         }
                     }
@@ -790,7 +797,9 @@ public class ClassReader {
                 if (dann != 0) {
                     AnnotationVisitor dv = mv.visitAnnotationDefault();
                     readAnnotationValue(dann, c, null, dv);
-                    dv.visitEnd();
+                    if (dv != null) {
+                        dv.visitEnd();
+                    }
                 }
                 for (j = 1; j >= 0; --j) {
                     w = j == 0 ? ianns : anns;
@@ -800,6 +809,7 @@ public class ClassReader {
                         for (; k > 0; --k) {
                             w = readAnnotationValues(w + 2,
                                     c,
+                                    true,
                                     mv.visitAnnotation(readUTF8(w, c), j != 0));
                         }
                     }
@@ -938,7 +948,7 @@ public class ClassReader {
                     Label handler = labels[label];
                     if (handler == null) {
                         labels[label] = handler = new Label();
-                    }                    
+                    }
                     int type = readUnsignedShort(v + 6);
                     if (type == 0) {
                         mv.visitTryCatchBlock(start, end, handler, null);
@@ -1469,6 +1479,7 @@ public class ClassReader {
             for (; j > 0; --j) {
                 v = readAnnotationValues(v + 2,
                         buf,
+                        true,
                         mv.visitParameterAnnotation(i,
                                 readUTF8(v, buf),
                                 visible));
@@ -1484,20 +1495,30 @@ public class ClassReader {
      * @param buf buffer to be used to call {@link #readUTF8 readUTF8},
      *        {@link #readClass(int,char[]) readClass} or
      *        {@link #readConst readConst}.
+     * @param named if the annotation values are named or not.
      * @param av the visitor that must visit the values.
-     * @return the end offset of the annotations values.
+     * @return the end offset of the annotation values.
      */
     private int readAnnotationValues(
         int v,
         final char[] buf,
+        final boolean named,
         final AnnotationVisitor av)
     {
         int i = readUnsignedShort(v);
         v += 2;
-        for (; i > 0; --i) {
-            v = readAnnotationValue(v + 2, buf, readUTF8(v, buf), av);
+        if (named) {
+            for (; i > 0; --i) {
+                v = readAnnotationValue(v + 2, buf, readUTF8(v, buf), av);
+            }
+        } else {
+            for (; i > 0; --i) {
+                v = readAnnotationValue(v, buf, null, av);
+            }
         }
-        av.visitEnd();
+        if (av != null) {
+            av.visitEnd();
+        }
         return v;
     }
 
@@ -1520,6 +1541,18 @@ public class ClassReader {
         final AnnotationVisitor av)
     {
         int i;
+        if (av == null) {
+            switch (b[v] & 0xFF) {
+                case 'e': // enum_const_value
+                    return v + 5;
+                case '@': // annotation_value
+                    return readAnnotationValues(v + 3, buf, true, null);
+                case '[': // array_value
+                    return readAnnotationValues(v + 1, buf, false, null);
+                default:
+                    return v + 3;
+            }
+        }
         switch (b[v++] & 0xFF) {
             case 'I': // pointer to CONSTANT_Integer
             case 'J': // pointer to CONSTANT_Long
@@ -1562,15 +1595,19 @@ public class ClassReader {
                 v += 2;
                 break;
             case '@': // annotation_value
-                v = readAnnotationValues(v + 2, buf, av.visitAnnotation(name,
-                        readUTF8(v, buf)));
+                v = readAnnotationValues(v + 2,
+                        buf,
+                        true,
+                        av.visitAnnotation(name, readUTF8(v, buf)));
                 break;
             case '[': // array_value
                 int size = readUnsignedShort(v);
                 v += 2;
                 if (size == 0) {
-                    av.visitArray(name).visitEnd();
-                    return v;
+                    return readAnnotationValues(v - 2,
+                            buf,
+                            false,
+                            av.visitArray(name));
                 }
                 switch (this.b[v++] & 0xFF) {
                     case 'B':
@@ -1646,12 +1683,10 @@ public class ClassReader {
                         --v;
                         break;
                     default:
-                        v--;
-                        AnnotationVisitor aav = av.visitArray(name);
-                        for (i = size; i > 0; --i) {
-                            v = readAnnotationValue(v, buf, null, aav);
-                        }
-                        aav.visitEnd();
+                        v = readAnnotationValues(v - 3,
+                                buf,
+                                false,
+                                av.visitArray(name));
                 }
         }
         return v;
@@ -1937,7 +1972,9 @@ public class ClassReader {
                 return new Double(Double.longBitsToDouble(readLong(index)));
             case ClassWriter.CLASS:
                 String s = readUTF8(index, buf);
-                return s.charAt(0) == '[' ? Type.getType(s) : Type.getObjectType(s);
+                return s.charAt(0) == '['
+                        ? Type.getType(s)
+                        : Type.getObjectType(s);
                 // case ClassWriter.STR:
             default:
                 return readUTF8(index, buf);

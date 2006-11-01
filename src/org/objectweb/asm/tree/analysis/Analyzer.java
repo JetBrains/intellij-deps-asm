@@ -429,7 +429,7 @@ public class Analyzer implements Opcodes {
      * method is called by the {@link #analyze analyze} method during its visit
      * of the method's code).
      * 
-     * @param frame an instruction index.
+     * @param insn an instruction index.
      * @param successor index of a successor instruction.
      * @return true if this edge must be considered in the data flow analysis
      *         performed by this analyzer, or false otherwise. The default

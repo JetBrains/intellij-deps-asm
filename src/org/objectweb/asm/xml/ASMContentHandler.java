@@ -1191,7 +1191,10 @@ public class ASMContentHandler extends DefaultHandler implements Opcodes {
         }
 
         public void end(final String name) {
-            ((AnnotationVisitor) pop()).visitEnd();
+            AnnotationVisitor av = (AnnotationVisitor) pop();
+            if (av != null) {
+                av.visitEnd();
+            }
         }
     }
 
@@ -1209,7 +1212,10 @@ public class ASMContentHandler extends DefaultHandler implements Opcodes {
         }
 
         public void end(final String name) {
-            ((AnnotationVisitor) pop()).visitEnd();
+            AnnotationVisitor av = (AnnotationVisitor) pop();
+            if (av != null) {
+                av.visitEnd();
+            }
         }
     }
 
@@ -1218,56 +1224,70 @@ public class ASMContentHandler extends DefaultHandler implements Opcodes {
         public void begin(final String nm, final Attributes attrs)
                 throws SAXException
         {
-            String name = attrs.getValue("name");
-            String desc = attrs.getValue("desc");
-            String value = attrs.getValue("value");
-            ((AnnotationVisitor) peek()).visit(name, getValue(desc, value));
+            AnnotationVisitor av = (AnnotationVisitor) peek();
+            if (av != null) {
+                av.visit(attrs.getValue("name"),
+                        getValue(attrs.getValue("desc"),
+                                attrs.getValue("value")));
+            }
         }
     }
 
     private final class AnnotationValueEnumRule extends Rule {
 
         public void begin(final String nm, final Attributes attrs) {
-            String name = attrs.getValue("name");
-            String desc = attrs.getValue("desc");
-            String value = attrs.getValue("value");
-            ((AnnotationVisitor) peek()).visitEnum(name, desc, value);
+            AnnotationVisitor av = (AnnotationVisitor) peek();
+            if (av != null) {
+                av.visitEnum(attrs.getValue("name"),
+                        attrs.getValue("desc"),
+                        attrs.getValue("value"));
+            }
         }
     }
 
     private final class AnnotationValueAnnotationRule extends Rule {
 
         public void begin(final String nm, final Attributes attrs) {
-            String name = attrs.getValue("name");
-            String desc = attrs.getValue("desc");
-            push(((AnnotationVisitor) peek()).visitAnnotation(name, desc));
+            AnnotationVisitor av = (AnnotationVisitor) peek();
+            push(av == null ? null : av.visitAnnotation(attrs.getValue("name"),
+                    attrs.getValue("desc")));
         }
 
         public void end(final String name) {
-            ((AnnotationVisitor) pop()).visitEnd();
+            AnnotationVisitor av = (AnnotationVisitor) pop();
+            if (av != null) {
+                av.visitEnd();
+            }
         }
     }
 
     private final class AnnotationValueArrayRule extends Rule {
 
         public void begin(final String nm, final Attributes attrs) {
-            String name = attrs.getValue("name");
-            push(((AnnotationVisitor) peek()).visitArray(name));
+            AnnotationVisitor av = (AnnotationVisitor) peek();
+            push(av == null ? null : av.visitArray(attrs.getValue("name")));
         }
 
         public void end(final String name) {
-            ((AnnotationVisitor) pop()).visitEnd();
+            AnnotationVisitor av = (AnnotationVisitor) pop();
+            if (av != null) {
+                av.visitEnd();
+            }
         }
     }
 
     private final class AnnotationDefaultRule extends Rule {
 
         public void begin(final String nm, final Attributes attrs) {
-            push(((MethodVisitor) peek()).visitAnnotationDefault());
+            MethodVisitor av = (MethodVisitor) peek();
+            push(av == null ? null : av.visitAnnotationDefault());
         }
 
         public void end(final String name) {
-            ((AnnotationVisitor) pop()).visitEnd();
+            AnnotationVisitor av = (AnnotationVisitor) pop();
+            if (av != null) {
+                av.visitEnd();
+            }
         }
     }
 

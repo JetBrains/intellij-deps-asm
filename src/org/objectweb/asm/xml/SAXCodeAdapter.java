@@ -53,7 +53,7 @@ import org.xml.sax.helpers.AttributesImpl;
  */
 public final class SAXCodeAdapter extends SAXAdapter implements MethodVisitor {
 
-    static String[] TYPES = {
+    final static String[] TYPES = {
         "top",
         "int",
         "float",

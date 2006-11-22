@@ -153,7 +153,7 @@ public class ClassWriter implements ClassVisitor {
     /**
      * The instruction types of all JVM opcodes.
      */
-    static byte[] TYPE;
+    final static byte[] TYPE;
 
     /**
      * The type of CONSTANT_Class constant pool items.

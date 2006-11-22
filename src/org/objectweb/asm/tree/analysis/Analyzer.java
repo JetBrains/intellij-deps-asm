@@ -131,7 +131,7 @@ public class Analyzer implements Opcodes {
         List subroutineCalls = new ArrayList();
         Map subroutineHeads = new HashMap();
         findSubroutine(0, main, subroutineCalls);
-        while (subroutineCalls.size() > 0) {
+        while (!subroutineCalls.isEmpty()) {
             JumpInsnNode jsr = (JumpInsnNode) subroutineCalls.remove(0);
             Subroutine sub = (Subroutine) subroutineHeads.get(jsr.label);
             if (sub == null) {

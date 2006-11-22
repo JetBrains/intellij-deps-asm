@@ -53,10 +53,10 @@ import org.xml.sax.helpers.DefaultHandler;
  * A {@link org.xml.sax.ContentHandler ContentHandler} that transforms XML
  * document into Java class file. This class can be feeded by any kind of SAX
  * 2.0 event producers, e.g. XML parser, XSLT or XPath engines, or custom code.
- * 
+ *
  * @see org.objectweb.asm.xml.SAXClassAdapter
  * @see org.objectweb.asm.xml.Processor
- * 
+ *
  * @author Eugene Kuleshov
  */
 public class ASMContentHandler extends DefaultHandler implements Opcodes {
@@ -329,7 +329,7 @@ public class ASMContentHandler extends DefaultHandler implements Opcodes {
 
     /**
      * Constructs a new {@link ASMContentHandler ASMContentHandler} object.
-     * 
+     *
      * @param os output stream to write generated class.
      * @param computeMax <tt>true</tt> if the maximum stack size and the
      *        maximum number of local variables must be automatically computed.
@@ -343,7 +343,7 @@ public class ASMContentHandler extends DefaultHandler implements Opcodes {
     /**
      * Returns the bytecode of the class that was build with underneath class
      * writer.
-     * 
+     *
      * @return the bytecode of the class that was build with underneath class
      *         writer or null if there are no classwriter created.
      */
@@ -353,7 +353,7 @@ public class ASMContentHandler extends DefaultHandler implements Opcodes {
 
     /**
      * Process notification of the start of an XML element being reached.
-     * 
+     *
      * @param ns - The Namespace URI, or the empty string if the element has no
      *        Namespace URI or if Namespace processing is not being performed.
      * @param lName - The local name (without prefix), or the empty string if
@@ -391,14 +391,14 @@ public class ASMContentHandler extends DefaultHandler implements Opcodes {
 
     /**
      * Process notification of the end of an XML element being reached.
-     * 
+     *
      * @param ns - The Namespace URI, or the empty string if the element has no
      *        Namespace URI or if Namespace processing is not being performed.
      * @param lName - The local name (without prefix), or the empty string if
      *        Namespace processing is not being performed.
      * @param qName - The qualified XML 1.0 name (with prefix), or the empty
      *        string if qualified names are not available.
-     * 
+     *
      * @exception SAXException if a parsing error is to be reported
      */
     public final void endElement(
@@ -428,7 +428,7 @@ public class ASMContentHandler extends DefaultHandler implements Opcodes {
     /**
      * Process notification of the end of a document and write generated
      * bytecode into output stream.
-     * 
+     *
      * @exception SAXException if parsing or writing error is to be reported.
      */
     public final void endDocument() throws SAXException {
@@ -442,26 +442,28 @@ public class ASMContentHandler extends DefaultHandler implements Opcodes {
     /**
      * Return the top object on the stack without removing it. If there are no
      * objects on the stack, return <code>null</code>.
-     * 
+     *
      * @return the top object on the stack without removing it.
      */
     final Object peek() {
-        return stack.size() == 0 ? null : stack.get(stack.size() - 1);
+        int size = stack.size();
+        return size == 0 ? null : stack.get(size - 1);
     }
 
     /**
      * Pop the top object off of the stack, and return it. If there are no
      * objects on the stack, return <code>null</code>.
-     * 
+     *
      * @return the top object off of the stack.
      */
     final Object pop() {
-        return stack.size() == 0 ? null : stack.remove(stack.size() - 1);
+        int size = stack.size();
+        return size == 0 ? null : stack.remove(size - 1);
     }
 
     /**
      * Push a new object onto the top of the object stack.
-     * 
+     *
      * @param object The new object
      */
     final void push(final Object object) {

@@ -253,6 +253,8 @@
     <multipleAnt dir="${archive}"/>
     <java classname="org.objectweb.asm.optimizer.JarOptimizer">
       <classpath refid="classpath"/>
+      <!--arg value="${src}/org/objectweb/asm/optimizer/jdk1.2.2_017.txt.gz"/-->
+      <arg value="${src}/org/objectweb/asm/optimizer/jdk1.3.1_19.txt.gz"/>
       <arg value="${out.dist.lib}"/>
     </java>
   </target>

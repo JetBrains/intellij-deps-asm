@@ -30,13 +30,26 @@
 package org.objectweb.asm.optimizer;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.LineNumberReader;
 import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+import java.util.zip.GZIPInputStream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipOutputStream;
+
+import org.objectweb.asm.ClassReader;
+import org.objectweb.asm.FieldVisitor;
+import org.objectweb.asm.MethodVisitor;
+import org.objectweb.asm.commons.EmptyVisitor;
 
 /**
  * A Jar file optimizer.
@@ -45,9 +58,30 @@ import java.util.zip.ZipOutputStream;
  */
 public class JarOptimizer {
 
+    private static Set API;
+    private static Map HIERARCHY;
+
     public static void main(final String[] args) throws IOException {
+        API = new HashSet();
+        HIERARCHY = new HashMap();
         File f = new File(args[0]);
-        optimize(f);
+        InputStream is = new GZIPInputStream(new FileInputStream(f));
+        LineNumberReader lnr = new LineNumberReader(new InputStreamReader(is));
+        while (true) {
+            String line = lnr.readLine();
+            if (line != null) {
+                if (line.startsWith("class")) {
+                    String c = line.substring(6, line.lastIndexOf(' '));
+                    String sc = line.substring(line.lastIndexOf(' ') + 1);
+                    HIERARCHY.put(c, sc);
+                } else {
+                    API.add(line);
+                }
+            } else {
+                break;
+            }
+        }
+        optimize(new File(args[1]));
     }
 
     static void optimize(final File f) throws IOException {
@@ -68,6 +102,11 @@ public class JarOptimizer {
                     continue;
                 }
                 out.putNextEntry(ze);
+                if (ze.getName().endsWith(".class")) {
+                    ClassReader cr = new ClassReader(zf.getInputStream(ze));
+                    // cr.accept(new ClassDump(), 0);
+                    cr.accept(new ClassVerifier(), 0);
+                }
                 InputStream is = zf.getInputStream(ze);
                 int n;
                 do {
@@ -82,6 +121,112 @@ public class JarOptimizer {
             zf.close();
             f.delete();
             g.renameTo(f);
+        }
+    }
+
+    static class ClassDump extends EmptyVisitor {
+
+        String owner;
+
+        public void visit(
+            final int version,
+            final int access,
+            final String name,
+            final String signature,
+            final String superName,
+            final String[] interfaces)
+        {
+            owner = name;
+            if (owner.startsWith("java/")) {
+                System.out.println("class " + name + " " + superName);
+            }
+        }
+
+        public FieldVisitor visitField(
+            final int access,
+            final String name,
+            final String desc,
+            final String signature,
+            final Object value)
+        {
+            if (owner.startsWith("java/")) {
+                System.out.println(owner + " " + name);
+            }
+            return null;
+        }
+
+        public MethodVisitor visitMethod(
+            final int access,
+            final String name,
+            final String desc,
+            final String signature,
+            final String[] exceptions)
+        {
+            if (owner.startsWith("java/")) {
+                System.out.println(owner + " " + name + desc);
+            }
+            return null;
+        }
+    }
+
+    static class ClassVerifier extends EmptyVisitor {
+
+        String owner;
+        String method;
+
+        public void visit(
+            final int version,
+            final int access,
+            final String name,
+            final String signature,
+            final String superName,
+            final String[] interfaces)
+        {
+            owner = name;
+        }
+
+        public MethodVisitor visitMethod(
+            final int access,
+            final String name,
+            final String desc,
+            final String signature,
+            final String[] exceptions)
+        {
+            method = name + desc;
+            return this;
+        }
+
+        public void visitFieldInsn(
+            final int opcode,
+            final String owner,
+            final String name,
+            final String desc)
+        {
+            check(owner, name);
+        }
+
+        public void visitMethodInsn(
+            final int opcode,
+            final String owner,
+            final String name,
+            final String desc)
+        {
+            check(owner, name + desc);
+        }
+
+        private void check(String owner, String member) {
+            if (owner.startsWith("java/")) {
+                String o = owner;
+                while (o != null) {
+                    if (API.contains(o + " " + member)) {
+                        return;
+                    }
+                    o = (String) HIERARCHY.get(o);
+                }
+                System.out.println("WARNING: " + owner + " " + member
+                        + " called in " + this.owner + " " + method
+                        + " is not defined in JDK 1.3 API");
+            }
         }
     }
 }

@@ -257,7 +257,7 @@ public class Frame {
                 if (var > 0) {
                     Value local = getLocal(var - 1);
                     if (local != null && local.getSize() == 2) {
-                        setLocal(var + 1, interpreter.newValue(null));
+                        setLocal(var - 1, interpreter.newValue(null));
                     }
                 }
                 break;

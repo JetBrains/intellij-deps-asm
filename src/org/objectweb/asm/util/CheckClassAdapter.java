@@ -137,7 +137,7 @@ public class CheckClassAdapter extends ClassAdapter {
                     continue;
                 }
             } catch (Exception e) {
-                e.printStackTrace();
+                e.printStackTrace(pw);
             }
             Frame[] frames = a.getFrames();
 
@@ -174,6 +174,7 @@ public class CheckClassAdapter extends ClassAdapter {
             }
             pw.println();
         }
+        pw.flush();
     }
 
     private static String getShortName(final String name) {

@@ -86,17 +86,15 @@ public abstract class AbstractTest extends TestCase {
                 while (entries.hasMoreElements()) {
                     ZipEntry e = (ZipEntry) entries.nextElement();
                     String n = e.getName();
-                    if (n.endsWith(".class")) {
+                    if (n.endsWith(".class") && (clazz == null || n.indexOf(clazz) != -1)) {
                         n = n.substring(0, n.length() - 6).replace('/', '.');
-                        if (clazz == null || n.indexOf(clazz) != -1) {
-                            if (id % parts == part) {
-                                InputStream is = zip.getInputStream(e);
-                                AbstractTest t = (AbstractTest) getClass().newInstance();
-                                t.init(n, is);
-                                suite.addTest(t);
-                            }
-                            ++id;
+                        if (id % parts == part) {
+                            InputStream is = zip.getInputStream(e);
+                            AbstractTest t = (AbstractTest) getClass().newInstance();
+                            t.init(n, is);
+                            suite.addTest(t);
                         }
+                        ++id;
                     }
                 }
             }
@@ -118,7 +116,8 @@ public abstract class AbstractTest extends TestCase {
                         fs[i],
                         suite,
                         clazz);
-            } else if (n.endsWith(".class")) {
+            } else if (n.endsWith(".class") && (clazz == null || n.indexOf(clazz) != -1))
+            {
                 n = n.substring(0, n.length() - 6);
                 InputStream is = new FileInputStream(fs[i]);
                 AbstractTest t = (AbstractTest) getClass().newInstance();

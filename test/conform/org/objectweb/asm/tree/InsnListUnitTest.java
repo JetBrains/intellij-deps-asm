@@ -31,12 +31,16 @@ package org.objectweb.asm.tree;
 
 import java.util.ListIterator;
 
+import org.objectweb.asm.Label;
+import org.objectweb.asm.MethodAdapter;
+
 import junit.framework.TestCase;
 
 /**
  * InsnList unit tests.
  * 
  * @author Eric Bruneton
+ * @author Eugene Kuleshov
  */
 public class InsnListUnitTest extends TestCase {
 
@@ -238,6 +242,14 @@ public class InsnListUnitTest extends TestCase {
         l1.set(l1.get(0), insn);
         assertEquals(1, l1.size());
         assertEquals(insn, l1.getFirst());
+
+        l1.remove(insn);
+        l1.add(new InsnNode(0));
+        l1.add(new InsnNode(0));
+        
+        l1.set(l1.get(1), insn);
+        assertEquals(2, l1.size());
+        assertEquals(insn, l1.get(1));
     }
 
     public void testInvalidAdd() {
@@ -268,9 +280,9 @@ public class InsnListUnitTest extends TestCase {
         l1.add(insn);
         assertEquals(2, l1.size());
         assertEquals(insn, l1.getLast());
+        assertEquals(1, l1.indexOf(insn));
         assertEquals(insn, l1.get(1));
         assertEquals(true, l1.contains(insn));
-        assertEquals(1, l1.indexOf(insn));
     }
 
     public void testAddEmptyList() {
@@ -626,5 +638,35 @@ public class InsnListUnitTest extends TestCase {
         assertEquals(new AbstractInsnNode[0], l1.toArray());
         assertEquals(null, insn.getPrevious());
         assertEquals(null, insn.getNext());
+    }
+    
+    public void testAcceptor1() {
+        l1.add(new InsnNode(55));
+        l1.add(new InsnNode(77));
+        
+        final InsnList lst = new InsnList();
+        l1.accept(new MethodAdapter(null) {
+            public void visitInsn(int opcode) {
+                lst.add(new InsnNode(opcode));
+            }
+        });
+        
+        assertEquals(55, lst.get(0).opcode);
+        assertEquals(77, lst.get(1).opcode);
+    }
+    
+    public void testResetLabels() throws Exception {
+        LabelNode labelNode = new LabelNode();
+
+        l1.add(new InsnNode(55));
+        l1.add(labelNode);
+        l1.add(new InsnNode(55));
+        
+        Label label = labelNode.getLabel();
+        assertNotNull(label);
+        
+        l1.resetLabels();
+        
+        assertNotSame(label, labelNode.getLabel());
     }
 }

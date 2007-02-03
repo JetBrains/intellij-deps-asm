@@ -546,6 +546,15 @@ public class InsnList {
         removeAll(check);
     }
 
+    public void resetLabels() {
+        AbstractInsnNode insn = first;
+        while (insn != null) {
+            if (insn instanceof LabelNode) {
+                ((LabelNode) insn).resetLabel();
+            }
+            insn = insn.next;
+        }
+    }
     
     private final class InsnListIterator implements ListIterator {
         AbstractInsnNode next;

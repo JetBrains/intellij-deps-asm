@@ -68,4 +68,8 @@ public class LabelNode extends AbstractInsnNode {
     public AbstractInsnNode clone(final Map labels) {
         return (LabelNode) labels.get(this);
     }
+
+    public void resetLabel() {
+        label = null;
+    }
 }

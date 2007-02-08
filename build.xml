@@ -504,4 +504,96 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
     <echo message="  -Dtest.name=&lt;test name&gt;  Only a single test. The target &lt;test name&gt; is called"/>
   </target>
 
+  <target name="maven.install" xmlns:artifact="urn:maven-artifact-ant">
+    <typedef resource="org/apache/maven/artifact/ant/antlib.xml" uri="urn:maven-artifact-ant">
+      <classpath>
+        <pathelement location="test/lib/maven-artifact-ant-2.0.4-dep.jar"/>
+      </classpath>
+    </typedef>
+
+    <artifact:install file="${out.dist.lib}/asm-parent-3.0.pom">
+      <artifact:pom file="${out.dist.lib}/asm-parent-3.0.pom"/>
+    </artifact:install>
+
+    <artifact:install file="${out.dist.lib}/asm-3.0.jar">
+      <artifact:pom file="${out.dist.lib}/asm-3.0.pom"/>
+    </artifact:install>
+
+    <artifact:install file="${out.dist.lib}/asm-analysis-3.0.jar">
+      <artifact:pom file="${out.dist.lib}/asm-analysis-3.0.pom"/>
+    </artifact:install>
+
+    <artifact:install file="${out.dist.lib}/asm-commons-3.0.jar">
+      <artifact:pom file="${out.dist.lib}/asm-commons-3.0.pom"/>
+    </artifact:install>
+
+    <artifact:install file="${out.dist.lib}/asm-tree-3.0.jar">
+      <artifact:pom file="${out.dist.lib}/asm-tree-3.0.pom"/>
+    </artifact:install>
+    
+    <artifact:install file="${out.dist.lib}/asm-util-3.0.jar">
+      <artifact:pom file="${out.dist.lib}/asm-util-3.0.pom"/>
+    </artifact:install>
+  
+    <artifact:install file="${out.dist.lib}/asm-xml-3.0.jar">
+      <artifact:pom file="${out.dist.lib}/asm-xml-3.0.pom"/>
+    </artifact:install>
+
+    <artifact:install file="${out.dist.lib}/all/asm-all-3.0.jar">
+      <artifact:pom file="${out.dist.lib}/all/asm-all-3.0.pom"/>
+    </artifact:install>
+  </target>
+
+  <target name="maven.deploy" xmlns:artifact="urn:maven-artifact-ant">
+    <typedef resource="org/apache/maven/artifact/ant/antlib.xml" uri="urn:maven-artifact-ant">
+      <classpath>
+        <pathelement location="test/lib/maven-artifact-ant-2.0.4-dep.jar"/>
+      </classpath>
+    </typedef>
+
+    <artifact:install-provider artifactId="wagon-file" version="1.0-alpha-5"/>
+
+    <property name="repository.url" value="file:${out}/maven"/>
+
+    <artifact:deploy file="${out.dist.lib}/asm-parent-3.0.pom">
+      <artifact:pom file="${out.dist.lib}/asm-parent-3.0.pom"/>
+      <remoteRepository url="${repository.url}"/>
+    </artifact:deploy>
+
+    <artifact:deploy file="${out.dist.lib}/asm-3.0.jar">
+      <artifact:pom file="${out.dist.lib}/asm-3.0.pom"/>
+      <remoteRepository url="${repository.url}"/>
+    </artifact:deploy>
+
+    <artifact:deploy file="${out.dist.lib}/asm-analysis-3.0.jar">
+      <artifact:pom file="${out.dist.lib}/asm-analysis-3.0.pom"/>
+      <remoteRepository url="${repository.url}"/>
+    </artifact:deploy>
+
+    <artifact:deploy file="${out.dist.lib}/asm-commons-3.0.jar">
+      <artifact:pom file="${out.dist.lib}/asm-commons-3.0.pom"/>
+      <remoteRepository url="${repository.url}"/>
+    </artifact:deploy>
+
+    <artifact:deploy file="${out.dist.lib}/asm-tree-3.0.jar">
+      <artifact:pom file="${out.dist.lib}/asm-tree-3.0.pom"/>
+      <remoteRepository url="${repository.url}"/>
+    </artifact:deploy>
+    
+    <artifact:deploy file="${out.dist.lib}/asm-util-3.0.jar">
+      <artifact:pom file="${out.dist.lib}/asm-util-3.0.pom"/>
+      <remoteRepository url="${repository.url}"/>
+    </artifact:deploy>
+  
+    <artifact:deploy file="${out.dist.lib}/asm-xml-3.0.jar">
+      <artifact:pom file="${out.dist.lib}/asm-xml-3.0.pom"/>
+      <remoteRepository url="${repository.url}"/>
+    </artifact:deploy>
+
+    <artifact:deploy file="${out.dist.lib}/all/asm-all-3.0.jar">
+      <artifact:pom file="${out.dist.lib}/all/asm-all-3.0.pom"/>
+      <remoteRepository url="${repository.url}"/>
+    </artifact:deploy>
+  </target>
+
 </project>

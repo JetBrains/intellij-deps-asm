@@ -546,6 +546,11 @@ public class InsnList {
         removeAll(check);
     }
 
+    /**
+     * Reset all labels in the instruction list. This method should be called
+     * before reusing same instructions list between several
+     * <code>ClassWriter</code>s.
+     */
     public void resetLabels() {
         AbstractInsnNode insn = first;
         while (insn != null) {

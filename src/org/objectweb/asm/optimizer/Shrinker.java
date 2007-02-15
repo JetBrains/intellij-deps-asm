@@ -35,45 +35,63 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Properties;
 import java.util.Set;
 import java.util.TreeSet;
 
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassWriter;
+import org.objectweb.asm.commons.Remapper;
 
 /**
  * A class file shrinker utility.
  * 
  * @author Eric Bruneton
+ * @author Eugene Kuleshov
  */
 public class Shrinker {
 
     public static void main(final String[] args) throws IOException {
-        NameMapping mapping = new NameMapping(args[0]);
+        Properties mapping = new Properties();
+        mapping.load(new FileInputStream(args[0]));
+
+        final Set unused = new HashSet(mapping.keySet());
+
         File f = new File(args[1]);
         File d = new File(args[2]);
-        optimize(f, d, mapping);
-        Iterator i = mapping.unused.iterator();
+
+        optimize(f, d, new Remapper(mapping) {
+            protected String get(String key) {
+                String s = super.get(key);
+                if (s != null) {
+                    unused.remove(key);
+                }
+                return s;
+            }
+        });
+        
+        Iterator i = unused.iterator();
         while (i.hasNext()) {
             System.out.println("INFO: unused mapping " + i.next());
         }
     }
 
-    static void optimize(final File f, final File d, final NameMapping mapping)
+    static void optimize(final File f, final File d, final Remapper remapper)
             throws IOException
     {
         if (f.isDirectory()) {
             File[] files = f.listFiles();
             for (int i = 0; i < files.length; ++i) {
-                optimize(files[i], d, mapping);
+                optimize(files[i], d, remapper);
             }
         } else if (f.getName().endsWith(".class")) {
             ConstantPool cp = new ConstantPool();
             ClassReader cr = new ClassReader(new FileInputStream(f));
             ClassWriter cw = new ClassWriter(0);
             ClassConstantsCollector ccc = new ClassConstantsCollector(cw, cp);
-            ClassOptimizer co = new ClassOptimizer(ccc, mapping);
+            ClassOptimizer co = new ClassOptimizer(ccc, remapper);
             cr.accept(co, ClassReader.SKIP_DEBUG);
 
             Set constants = new TreeSet(new ConstantComparator());
@@ -88,7 +106,7 @@ public class Shrinker {
             }
             cr.accept(cw, ClassReader.SKIP_DEBUG);
 
-            String n = mapping.map(co.getClassName());
+            String n = remapper.mapType(cr.getClassName());
             File g = new File(d, n + ".class");
             if (!g.exists() || g.lastModified() < f.lastModified()) {
                 g.getParentFile().mkdirs();

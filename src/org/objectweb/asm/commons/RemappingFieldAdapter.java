@@ -1,6 +1,6 @@
 /***
  * ASM: a very small and fast Java bytecode manipulation framework
- * Copyright (c) 2000-2007 INRIA, France Telecom
+ * Copyright (c) 2000-2005 INRIA, France Telecom
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -27,77 +27,39 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
  * THE POSSIBILITY OF SUCH DAMAGE.
  */
-package org.objectweb.asm.optimizer;
+
+package org.objectweb.asm.commons;
 
 import org.objectweb.asm.AnnotationVisitor;
 import org.objectweb.asm.Attribute;
-import org.objectweb.asm.Label;
-import org.objectweb.asm.MethodAdapter;
-import org.objectweb.asm.MethodVisitor;
-import org.objectweb.asm.commons.Remapper;
-import org.objectweb.asm.commons.RemappingMethodAdapter;
+import org.objectweb.asm.FieldVisitor;
 
 /**
- * A {@link MethodAdapter} that renames fields and methods, and removes debug
- * info.
+ * A <code>FieldVisitor</code> adapter for type remapping.
  * 
  * @author Eugene Kuleshov
  */
-public class MethodOptimizer extends RemappingMethodAdapter {
+public class RemappingFieldAdapter implements FieldVisitor {
 
-    public MethodOptimizer(
-        int access,
-        String desc,
-        MethodVisitor mv,
-        Remapper remapper)
-    {
-        super(access, desc, mv, remapper);
-    }
-    
-    // ------------------------------------------------------------------------
-    // Overridden methods
-    // ------------------------------------------------------------------------
+    private final FieldVisitor fv;
+    private final Remapper remapper;
 
-    public AnnotationVisitor visitAnnotationDefault() {
-        // remove annotations
-        return null;
+    public RemappingFieldAdapter(FieldVisitor fv, Remapper remapper) {
+        this.fv = fv;
+        this.remapper = remapper;
     }
 
-    public AnnotationVisitor visitParameterAnnotation(
-        final int parameter,
-        final String desc,
-        final boolean visible)
-    {
-        // remove annotations
-        return null;
+    public AnnotationVisitor visitAnnotation(String desc, boolean visible) {
+        return new RemappingAnnotationAdapter(fv.visitAnnotation(desc, visible),
+                remapper);
     }
 
-    public void visitLocalVariable(
-        final String name,
-        final String desc,
-        final String signature,
-        final Label start,
-        final Label end,
-        final int index)
-    {
-        // remove debug info
-    }
-
-    public void visitLineNumber(final int line, final Label start) {
-        // remove debug info
-    }
-    
-    public void visitFrame(
-        int type,
-        int local,
-        Object[] local2,
-        int stack,
-        Object[] stack2)
-    {
-        // remove frame info
-    }
-    
     public void visitAttribute(Attribute attr) {
-        // remove non standard attributes
+        fv.visitAttribute(attr);
     }
+
+    public void visitEnd() {
+        fv.visitEnd();
+    }
+
 }

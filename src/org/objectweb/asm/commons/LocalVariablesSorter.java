@@ -249,9 +249,9 @@ public class LocalVariablesSorter extends MethodAdapter {
                 break;
         }
         int local = nextLocal;
+        nextLocal += type.getSize();
         setLocalType(local, type);
         setFrameLocal(local, t);
-        nextLocal += type.getSize();
         return local;
     }
 
@@ -289,17 +289,24 @@ public class LocalVariablesSorter extends MethodAdapter {
         }
         int value = mapping[key];
         if (value == 0) {
-            value = nextLocal + 1;
-            mapping[key] = value;
-            setLocalType(nextLocal, type);
-            nextLocal += type.getSize();
+            value = newLocalMapping(type);
+            setLocalType(value, type);
+            mapping[key] = value + 1;
+        } else {
+            value--;
         }
-        if (value - 1 != var) {
+        if (value != var) {
             changed = true;
         }
-        return value - 1;
+        return value;
     }
 
+    protected int newLocalMapping(final Type type) {
+        int local = nextLocal;
+        nextLocal += type.getSize();
+        return local;
+    }
+    
     private int remap(final int var, final int size) {
         if (var < firstLocal || !changed) {
             return var;

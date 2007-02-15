@@ -1,6 +1,6 @@
 /***
  * ASM: a very small and fast Java bytecode manipulation framework
- * Copyright (c) 2000-2005 INRIA, France Telecom
+ * Copyright (c) 2000-2007 INRIA, France Telecom
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -36,32 +36,27 @@ import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.commons.Remapper;
+import org.objectweb.asm.commons.RemappingClassAdapter;
+import org.objectweb.asm.commons.RemappingMethodAdapter;
 
 /**
  * A {@link ClassAdapter} that renames fields and methods, and removes debug
  * info.
  * 
  * @author Eric Bruneton
+ * @author Eugene Kuleshov
  */
-public class ClassOptimizer extends ClassAdapter {
-
-    private NameMapping mapping;
-
-    private String className;
+public class ClassOptimizer extends RemappingClassAdapter {
 
     private String pkgName;
 
-    public ClassOptimizer(final ClassVisitor cv, final NameMapping mapping) {
-        super(cv);
-        this.mapping = mapping;
-    }
-
-    public String getClassName() {
-        return className;
+    public ClassOptimizer(final ClassVisitor cv, final Remapper remapper) {
+        super(cv, remapper);
     }
 
     // ------------------------------------------------------------------------
-    // Overriden methods
+    // Overridden methods
     // ------------------------------------------------------------------------
 
     public void visit(
@@ -72,14 +67,8 @@ public class ClassOptimizer extends ClassAdapter {
         final String superName,
         final String[] interfaces)
     {
-        className = name;
+        super.visit(version, access, name, null, superName, interfaces);
         pkgName = name.substring(0, name.lastIndexOf('/'));
-        cv.visit(version,
-                access,
-                mapping.map(name),
-                null,
-                mapping.map(superName),
-                interfaces);
     }
 
     public void visitSource(final String source, final String debug) {
@@ -98,11 +87,12 @@ public class ClassOptimizer extends ClassAdapter {
         final String desc,
         final boolean visible)
     {
-        throw new UnsupportedOperationException();
+        // remove annotations
+        return null;
     }
 
     public void visitAttribute(final Attribute attr) {
-        // remove non standard attribute
+        // remove non standard attributes
     }
 
     public void visitInnerClass(
@@ -121,29 +111,23 @@ public class ClassOptimizer extends ClassAdapter {
         final String signature,
         final Object value)
     {
-        String s = className + "." + name;
+        String s = remapper.mapFieldName(className, name, desc);
         if ((access & (Opcodes.ACC_PUBLIC | Opcodes.ACC_PROTECTED)) == 0) {
             if ((access & Opcodes.ACC_FINAL) != 0
                     && (access & Opcodes.ACC_STATIC) != 0 && desc.equals("I"))
             {
                 return null;
             }
-            if (pkgName.equals("org/objectweb/asm")
-                    && mapping.map(s).equals(name))
-            {
+            if (pkgName.equals("org/objectweb/asm") && s.equals(name)) {
                 System.out.println("INFO: " + s + " could be renamed");
             }
-            cv.visitField(access,
-                    mapping.map(s),
-                    mapping.fix(desc),
-                    null,
-                    value);
+            super.visitField(access, name, desc, null, value);
         } else {
-            if (!mapping.map(s).equals(name)) {
-                throw new RuntimeException("The public or protected field " + s
-                        + " must not be renamed.");
+            if (!s.equals(name)) {
+                throw new RuntimeException("The public or protected field "
+                        + className + "." + name + " must not be renamed.");
             }
-            cv.visitField(access, name, desc, null, value);
+            super.visitField(access, name, desc, null, value);
         }
         return null; // remove debug info
     }
@@ -155,28 +139,29 @@ public class ClassOptimizer extends ClassAdapter {
         final String signature,
         final String[] exceptions)
     {
-        String s = className + "." + name + desc;
+        String s = remapper.mapMethodName(className, name, desc); 
         if ((access & (Opcodes.ACC_PUBLIC | Opcodes.ACC_PROTECTED)) == 0) {
             if (pkgName.equals("org/objectweb/asm") && !name.startsWith("<")
-                    && mapping.map(s).equals(name))
+                    && s.equals(name))
             {
                 System.out.println("INFO: " + s + " could be renamed");
             }
-            return new MethodOptimizer(cv.visitMethod(access,
-                    mapping.map(s),
-                    mapping.fix(desc),
-                    null,
-                    exceptions), mapping);
+            return super.visitMethod(access, name, desc, null, exceptions); 
         } else {
-            if (!mapping.map(s).equals(name)) {
+            if (!s.equals(name)) {
                 throw new RuntimeException("The public or protected method "
-                        + s + " must not be renamed.");
+                        + className + "." + name + desc
+                        + " must not be renamed.");
             }
-            return new MethodOptimizer(cv.visitMethod(access,
-                    name,
-                    desc,
-                    null,
-                    exceptions), mapping);
+            return super.visitMethod(access, name, desc, null, exceptions); 
         }
+    }
+    
+    protected RemappingMethodAdapter createRemappingMethodAdapter(
+        int access,
+        String newDesc,
+        MethodVisitor mv)
+    {
+        return new MethodOptimizer(access, newDesc, mv, remapper); 
     }
 }

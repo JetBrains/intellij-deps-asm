@@ -116,7 +116,7 @@ public class RemappingClassAdapter extends ClassAdapter {
         int access)
     {
         super.visitInnerClass(remapper.mapType(name),
-                remapper.mapType(outerName),
+                outerName == null ? null : remapper.mapType(outerName),
                 innerName, // TODO should it be changed?
                 access);
     }

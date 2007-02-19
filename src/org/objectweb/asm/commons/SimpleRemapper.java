@@ -30,31 +30,33 @@
 
 package org.objectweb.asm.commons;
 
-import java.util.HashMap;
+import java.util.Collections;
 import java.util.Map;
 
-import junit.framework.TestSuite;
+public class SimpleRemapper extends Remapper {
 
-import org.objectweb.asm.AbstractTest;
-import org.objectweb.asm.ClassReader;
-import org.objectweb.asm.ClassWriter;
+    private final Map mapping;
 
-public class RemappingClassAdapterTest2 extends AbstractTest {
-
-    public static TestSuite suite() throws Exception {
-        return new RemappingClassAdapterTest2().getSuite();
+    public SimpleRemapper(Map mapping) {
+        this.mapping = mapping;
     }
 
-    public void test() throws Exception {
-        ClassWriter cw = new ClassWriter(0);
-        ClassReader cr = new ClassReader(is);
-        Map map = new HashMap() {
-            public Object get(Object key) {
-                return "Foo";
-            }
-        };
-        cr.accept(new RemappingClassAdapter(cw, new SimpleRemapper(map)), ClassReader.EXPAND_FRAMES);
+    public SimpleRemapper(String oldName, String newName) {
+        this.mapping = Collections.singletonMap(oldName, newName);
+    }
+
+    public String mapMethodName(String owner, String name, String desc) {
+        String s = map(owner + "." + name + desc);
+        return s == null ? name : s;
+    }
+
+    public String mapFieldName(String owner, String name, String desc) {
+        String s = map(owner + "." + name);
+        return s == null ? name : s;
+    }
+    
+    protected String map(String key) {
+        return (String) mapping.get(key);
     }
     
 }
-

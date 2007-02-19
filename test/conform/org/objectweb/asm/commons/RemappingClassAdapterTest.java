@@ -62,7 +62,7 @@ public class RemappingClassAdapterTest extends TestCase implements Opcodes {
         map.put("Boo", "B1");
         map.put("Coo", "C1");
         map.put("Doo", "D1");
-        Remapper remapper = new Remapper(map);
+        Remapper remapper = new SimpleRemapper(map);
         
         ClassNode cn = new ClassNode();
         dump(new RemappingClassAdapter(cn, remapper));

@@ -30,9 +30,6 @@
 
 package org.objectweb.asm.commons;
 
-import java.util.Collections;
-import java.util.Map;
-
 import org.objectweb.asm.Type;
 import org.objectweb.asm.signature.SignatureReader;
 import org.objectweb.asm.signature.SignatureVisitor;
@@ -43,16 +40,24 @@ import org.objectweb.asm.signature.SignatureWriter;
  * 
  * @author Eugene Kuleshov
  */
-public class Remapper {
+public abstract class Remapper {
 
-    private final Map mapping;
-
-    public Remapper(Map mapping) {
-        this.mapping = mapping;
-    }
-
-    public Remapper(String oldName, String newName) {
-        this.mapping = Collections.singletonMap(oldName, newName);
+    public String mapDesc(String desc) {
+        Type t = Type.getType(desc);
+        switch (t.getSort()) {
+            case Type.ARRAY:
+                String s = mapDesc(t.getElementType().getDescriptor());
+                for (int i = 0; i < t.getDimensions(); ++i) {
+                    s = "[" + s;
+                }
+                return s;
+            case Type.OBJECT:
+                String newType = map(t.getInternalName());
+                if (newType != null) {
+                    return "L" + newType + ";";
+                }
+        }
+        return desc;
     }
 
     private Type mapType(Type t) {
@@ -64,17 +69,16 @@ public class Remapper {
                 }
                 return Type.getType(s);
             case Type.OBJECT:
-                s = get(t.getInternalName());
+                s = map(t.getInternalName());
                 if(s != null) {
                     return Type.getObjectType(s);
                 }
-                break;
         }
         return t;
     }
 
     public String mapType(String type) {
-        String newType = get(type);
+        String newType = map(type);
         return newType == null ? type : newType;
     }
 
@@ -83,7 +87,7 @@ public class Remapper {
         boolean needMapping = false;
         for (int i = 0; i < types.length; i++) {
             String type = types[i];
-            String newType = get(type);
+            String newType = map(type);
             if (newType != null && newTypes == null) {
                 newTypes = new String[types.length];
                 if (i > 0) {
@@ -100,25 +104,6 @@ public class Remapper {
         return needMapping 
            ? newTypes 
            : types;
-    }
-
-    public String mapDesc(String desc) {
-        Type t = Type.getType(desc);
-        switch (t.getSort()) {
-            case Type.OBJECT:
-                String newType = get(t.getInternalName());
-                if (newType != null) {
-                    return "L" + newType + ";";
-                }
-                break;
-            case Type.ARRAY:
-                String s = mapDesc(t.getElementType().getDescriptor());
-                for (int i = 0; i < t.getDimensions(); ++i) {
-                    s = "[" + s;
-                }
-                return s;
-        }
-        return desc;
     }
 
     public String mapMethodDesc(String desc) {
@@ -165,24 +150,22 @@ public class Remapper {
         return w.toString();
     }
 
-    public String mapMethodName(String owner, String name, String desc) {
-        String s = get(owner + "." + name + desc);
-        return s == null ? name : s;
-    }
-
-    public String mapFieldName(String owner, String name, String desc) {
-        String s = get(owner + "." + name);
-        return s == null ? name : s;
-    }
-    
     protected RemappingSignatureAdapter createRemappingSignatureAdapter(
         SignatureVisitor v)
     {
         return new RemappingSignatureAdapter(v, this);
     }
     
-    protected String get(String key) {
-        return (String) mapping.get(key);
+    public String mapMethodName(String owner, String name, String desc) {
+        return name;
+    }
+
+    public String mapFieldName(String owner, String name, String desc) {
+        return name;
+    }
+    
+    protected String map(String name) {
+        return name;
     }
 
 }

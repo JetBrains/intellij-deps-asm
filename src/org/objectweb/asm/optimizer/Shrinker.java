@@ -44,6 +44,7 @@ import java.util.TreeSet;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.commons.Remapper;
+import org.objectweb.asm.commons.SimpleRemapper;
 
 /**
  * A class file shrinker utility.
@@ -62,9 +63,9 @@ public class Shrinker {
         File f = new File(args[1]);
         File d = new File(args[2]);
 
-        optimize(f, d, new Remapper(mapping) {
-            protected String get(String key) {
-                String s = super.get(key);
+        optimize(f, d, new SimpleRemapper(mapping) {
+            protected String map(String key) {
+                String s = super.map(key);
                 if (s != null) {
                     unused.remove(key);
                 }

@@ -151,19 +151,20 @@ public class Type {
     private final int sort;
 
     /**
-     * A buffer containing the descriptor of this Java type. This field is only
-     * used for reference types.
+     * A buffer containing the internal name of this Java type. This field is
+     * only used for reference types.
      */
     private char[] buf;
 
     /**
-     * The offset of the descriptor of this Java type in {@link #buf buf}. This
-     * field is only used for reference types.
+     * The offset of the internal name of this Java type in {@link #buf buf}.
+     * This field is only used for reference types.
      */
     private int off;
 
     /**
-     * The length of the descriptor of this Java type.
+     * The length of the internal name of this Java type. This field is only
+     * used for reference types.
      */
     private int len;
 
@@ -208,6 +209,17 @@ public class Type {
     }
 
     /**
+     * Returns the Java type corresponding to the given internal name.
+     * 
+     * @param internalName an internal name.
+     * @return the Java type corresponding to the given internal name.
+     */
+    public static Type getObjectType(final String internalName) {
+        char[] buf = internalName.toCharArray();
+        return new Type(buf[0] == '[' ? ARRAY : OBJECT, buf, 0, buf.length);
+    }
+
+    /**
      * Returns the Java type corresponding to the given class.
      * 
      * @param c a class.
@@ -237,24 +249,6 @@ public class Type {
         } else {
             return getType(getDescriptor(c));
         }
-    }
-    
-    /**
-     * Returns the {@link Type#OBJECT} type for the given internal class name.
-     * This is a shortcut method for <code>Type.getType("L"+name+";")</code>.
-     * <i>Note that opposed to {@link Type#getType(String)}, this method takes 
-     * internal class names and not class descriptor.</i> 
-     * 
-     * @param name an internal class name.
-     * @return the the {@link Type#OBJECT} type for the given class name.
-     */
-    public static Type getObjectType(String name) {
-        int l = name.length();
-        char[] buf = new char[l + 2];
-        buf[0] = 'L';
-        buf[l + 1] = ';';
-        name.getChars(0, l, buf, 1);
-        return new Type(OBJECT, buf, 0, l + 2);
     }
 
     /**
@@ -286,7 +280,7 @@ public class Type {
         size = 0;
         while (buf[off] != ')') {
             args[size] = getType(buf, off);
-            off += args[size].len;
+            off += args[size].len + (args[size].sort == OBJECT ? 2 : 0);
             size += 1;
         }
         return args;
@@ -380,7 +374,7 @@ public class Type {
                 while (buf[off + len] != ';') {
                     ++len;
                 }
-                return new Type(OBJECT, buf, off, len + 1);
+                return new Type(OBJECT, buf, off + 1, len - 1);
         }
     }
 
@@ -458,19 +452,20 @@ public class Type {
                 return b.toString();
                 // case OBJECT:
             default:
-                return new String(buf, off + 1, len - 2).replace('/', '.');
+                return new String(buf, off, len).replace('/', '.');
         }
     }
 
     /**
-     * Returns the internal name of the class corresponding to this object type.
-     * The internal name of a class is its fully qualified name, where '.' are
-     * replaced by '/'. This method should only be used for an object type.
+     * Returns the internal name of the class corresponding to this object or
+     * array type. The internal name of a class is its fully qualified name (as
+     * returned by Class.getName(), where '.' are replaced by '/'. This method
+     * should only be used for an object or array type.
      * 
      * @return the internal name of the class corresponding to this object type.
      */
     public String getInternalName() {
-        return new String(buf, off + 1, len - 2);
+        return new String(buf, off, len);
     }
 
     // ------------------------------------------------------------------------
@@ -546,10 +541,14 @@ public class Type {
             case DOUBLE:
                 buf.append('D');
                 return;
-                // case ARRAY:
+            case ARRAY:
+                buf.append(this.buf, off, len);
+                return;
                 // case OBJECT:
             default:
+                buf.append('L');
                 buf.append(this.buf, off, len);
+                buf.append(';');
         }
     }
 
@@ -560,9 +559,10 @@ public class Type {
 
     /**
      * Returns the internal name of the given class. The internal name of a
-     * class is its fully qualified name, where '.' are replaced by '/'.
+     * class is its fully qualified name, as returned by Class.getName(), where
+     * '.' are replaced by '/'.
      * 
-     * @param c an object class.
+     * @param c an object or array class.
      * @return the internal name of the given class.
      */
     public static String getInternalName(final Class c) {

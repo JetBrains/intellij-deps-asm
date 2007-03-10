@@ -89,9 +89,9 @@ public class MethodConstantsCollector extends MethodAdapter {
                 cp);
     }
 
-    public void visitTypeInsn(final int opcode, final String desc) {
-        cp.newClass(desc);
-        mv.visitTypeInsn(opcode, desc);
+    public void visitTypeInsn(final int opcode, final String type) {
+        cp.newClass(type);
+        mv.visitTypeInsn(opcode, type);
     }
 
     public void visitFieldInsn(

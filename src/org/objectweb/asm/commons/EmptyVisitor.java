@@ -142,7 +142,7 @@ public class EmptyVisitor implements
     public void visitVarInsn(final int opcode, final int var) {
     }
 
-    public void visitTypeInsn(final int opcode, final String desc) {
+    public void visitTypeInsn(final int opcode, final String type) {
     }
 
     public void visitFieldInsn(

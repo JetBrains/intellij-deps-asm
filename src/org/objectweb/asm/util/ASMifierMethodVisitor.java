@@ -167,10 +167,10 @@ public class ASMifierMethodVisitor extends ASMifierAbstractVisitor implements
         text.add(buf.toString());
     }
 
-    public void visitTypeInsn(final int opcode, final String desc) {
+    public void visitTypeInsn(final int opcode, final String type) {
         buf.setLength(0);
         buf.append("mv.visitTypeInsn(").append(OPCODES[opcode]).append(", ");
-        appendConstant(desc);
+        appendConstant(type);
         buf.append(");\n");
         text.add(buf.toString());
     }

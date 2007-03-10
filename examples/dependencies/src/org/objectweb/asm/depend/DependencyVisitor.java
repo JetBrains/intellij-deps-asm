@@ -88,8 +88,8 @@ public class DependencyVisitor implements
         }
 
         if (signature == null) {
-            addName(superName);
-            addNames(interfaces);
+            addInternalName(superName);
+            addInternalNames(interfaces);
         } else {
             addSignature(signature);
         }
@@ -136,7 +136,7 @@ public class DependencyVisitor implements
         } else {
             addSignature(signature);
         }
-        addNames(exceptions);
+        addInternalNames(exceptions);
         return this;
     }
 
@@ -173,12 +173,8 @@ public class DependencyVisitor implements
         return this;
     }
 
-    public void visitTypeInsn(final int opcode, final String desc) {
-        if (desc.charAt(0) == '[') {
-            addDesc(desc);
-        } else {
-            addName(desc);
-        }
+    public void visitTypeInsn(final int opcode, final String type) {
+        addType(Type.getObjectType(type));
     }
 
     public void visitFieldInsn(
@@ -187,7 +183,7 @@ public class DependencyVisitor implements
         final String name,
         final String desc)
     {
-        addName(owner);
+        addInternalName(owner);
         addDesc(desc);
     }
 
@@ -197,7 +193,7 @@ public class DependencyVisitor implements
         final String name,
         final String desc)
     {
-        addName(owner);
+        addInternalName(owner);
         addMethodDesc(desc);
     }
 
@@ -277,7 +273,7 @@ public class DependencyVisitor implements
         final Label handler,
         final String type)
     {
-        addName(type);
+        addInternalName(type);
     }
 
     public void visitLineNumber(final int line, final Label start) {
@@ -359,11 +355,11 @@ public class DependencyVisitor implements
     }
 
     public void visitClassType(final String name) {
-        addName(name);
+        addInternalName(name);
     }
 
     public void visitInnerClassType(final String name) {
-        addName(name);
+        addInternalName(name);
     }
 
     public void visitTypeArgument() {
@@ -401,12 +397,16 @@ public class DependencyVisitor implements
         }
     }
 
-    private void addNames(final String[] names) {
-        for (int i = 0; names != null && i < names.length; i++) {
-            addName(names[i]);
-        }
+    private void addInternalName(final String name) {
+        addType(Type.getObjectType(name));
     }
 
+    private void addInternalNames(final String[] names) {
+        for (int i = 0; names != null && i < names.length; i++) {
+            addInternalName(names[i]);
+        }
+    }
+    
     private void addDesc(final String desc) {
         addType(Type.getType(desc));
     }
@@ -425,7 +425,7 @@ public class DependencyVisitor implements
                 addType(t.getElementType());
                 break;
             case Type.OBJECT:
-                addName(t.getClassName().replace('.', '/'));
+                addName(t.getInternalName());
                 break;
         }
     }

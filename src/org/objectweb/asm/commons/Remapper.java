@@ -78,8 +78,10 @@ public abstract class Remapper {
     }
 
     public String mapType(String type) {
-        String newType = map(type);
-        return newType == null ? type : newType;
+        if (type == null) {
+            return null;
+        }
+        return mapType(Type.getObjectType(type)).getInternalName();
     }
 
     public String[] mapTypes(String[] types) {

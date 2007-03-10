@@ -1277,13 +1277,7 @@ public class GeneratorAdapter extends LocalVariablesSorter {
      * @param type the instruction's operand.
      */
     private void typeInsn(final int opcode, final Type type) {
-        String desc;
-        if (type.getSort() == Type.ARRAY) {
-            desc = type.getDescriptor();
-        } else {
-            desc = type.getInternalName();
-        }
-        mv.visitTypeInsn(opcode, desc);
+        mv.visitTypeInsn(opcode, type.getInternalName());
     }
 
     /**

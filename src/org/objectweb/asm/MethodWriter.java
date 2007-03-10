@@ -715,8 +715,8 @@ class MethodWriter implements MethodVisitor {
         }
     }
 
-    public void visitTypeInsn(final int opcode, final String desc) {
-        Item i = cw.newClassItem(desc);
+    public void visitTypeInsn(final int opcode, final String type) {
+        Item i = cw.newClassItem(type);
         // Label currentBlock = this.currentBlock;
         if (currentBlock != null) {
             if (compute == FRAMES) {

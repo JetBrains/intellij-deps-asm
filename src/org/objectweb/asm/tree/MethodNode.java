@@ -254,8 +254,8 @@ public class MethodNode extends MemberNode implements MethodVisitor {
         instructions.add(new VarInsnNode(opcode, var));
     }
 
-    public void visitTypeInsn(final int opcode, final String desc) {
-        instructions.add(new TypeInsnNode(opcode, desc));
+    public void visitTypeInsn(final int opcode, final String type) {
+        instructions.add(new TypeInsnNode(opcode, type));
     }
 
     public void visitFieldInsn(

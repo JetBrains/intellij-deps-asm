@@ -1971,10 +1971,7 @@ public class ClassReader {
             case ClassWriter.DOUBLE:
                 return new Double(Double.longBitsToDouble(readLong(index)));
             case ClassWriter.CLASS:
-                String s = readUTF8(index, buf);
-                return s.charAt(0) == '['
-                        ? Type.getType(s)
-                        : Type.getObjectType(s);
+                return Type.getObjectType(readUTF8(index, buf));
                 // case ClassWriter.STR:
             default:
                 return readUTF8(index, buf);

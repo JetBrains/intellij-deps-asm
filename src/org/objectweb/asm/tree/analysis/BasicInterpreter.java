@@ -201,22 +201,14 @@ public class BasicInterpreter implements Opcodes, Interpreter {
                 }
             case ANEWARRAY:
                 String desc = ((TypeInsnNode) insn).desc;
-                if (desc.charAt(0) == '[') {
-                    return newValue(Type.getType("[" + desc));
-                } else {
-                    return newValue(Type.getType("[L" + desc + ";"));
-                }
+                return newValue(Type.getType("[" + Type.getObjectType(desc)));
             case ARRAYLENGTH:
                 return BasicValue.INT_VALUE;
             case ATHROW:
                 return null;
             case CHECKCAST:
                 desc = ((TypeInsnNode) insn).desc;
-                if (desc.charAt(0) == '[') {
-                    return newValue(Type.getType(desc));
-                } else {
-                    return newValue(Type.getObjectType(desc));
-                }
+                return newValue(Type.getObjectType(desc));
             case INSTANCEOF:
                 return BasicValue.INT_VALUE;
             case MONITORENTER:

@@ -452,20 +452,16 @@ public class CheckMethodAdapter extends MethodAdapter {
         mv.visitVarInsn(opcode, var);
     }
 
-    public void visitTypeInsn(final int opcode, final String desc) {
+    public void visitTypeInsn(final int opcode, final String type) {
         checkStartCode();
         checkEndCode();
         checkOpcode(opcode, 3);
-        if (desc != null && desc.length() > 0 && desc.charAt(0) == '[') {
-            checkDesc(desc, false);
-        } else {
-            checkInternalName(desc, "type");
-        }
-        if (opcode == Opcodes.NEW && desc.charAt(0) == '[') {
+        checkInternalName(type, "type");
+        if (opcode == Opcodes.NEW && type.charAt(0) == '[') {
             throw new IllegalArgumentException("NEW cannot be used to create arrays: "
-                    + desc);
+                    + type);
         }
-        mv.visitTypeInsn(opcode, desc);
+        mv.visitTypeInsn(opcode, type);
     }
 
     public void visitFieldInsn(
@@ -493,10 +489,7 @@ public class CheckMethodAdapter extends MethodAdapter {
         checkEndCode();
         checkOpcode(opcode, 5);
         checkMethodIdentifier(name, "name");
-        if (!name.equals("clone")) {
-            // In JDK1.5, clone method can be called on array class descriptors
-            checkInternalName(owner, "owner");
-        }
+        checkInternalName(owner, "owner");
         checkMethodDesc(desc);
         mv.visitMethodInsn(opcode, owner, name, desc);
     }
@@ -833,7 +826,11 @@ public class CheckMethodAdapter extends MethodAdapter {
      * @param msg a message to be used in case of error.
      */
     static void checkInternalName(final String name, final String msg) {
-        checkInternalName(name, 0, -1, msg);
+        if (name.charAt(0) == '[') {
+            checkDesc(name, false);
+        } else {
+            checkInternalName(name, 0, -1, msg);
+        }
     }
 
     /**

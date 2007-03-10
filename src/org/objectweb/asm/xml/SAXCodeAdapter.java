@@ -174,9 +174,9 @@ public final class SAXCodeAdapter extends SAXAdapter implements MethodVisitor {
         addElement(AbstractVisitor.OPCODES[opcode], attrs);
     }
 
-    public final void visitTypeInsn(final int opcode, final String desc) {
+    public final void visitTypeInsn(final int opcode, final String type) {
         AttributesImpl attrs = new AttributesImpl();
-        attrs.addAttribute("", "desc", "desc", "", desc);
+        attrs.addAttribute("", "desc", "desc", "", type);
         addElement(AbstractVisitor.OPCODES[opcode], attrs);
     }
 

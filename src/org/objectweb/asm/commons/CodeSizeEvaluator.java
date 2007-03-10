@@ -94,11 +94,11 @@ public class CodeSizeEvaluator extends MethodAdapter implements Opcodes {
         }
     }
 
-    public void visitTypeInsn(final int opcode, final String desc) {
+    public void visitTypeInsn(final int opcode, final String type) {
         minSize += 3;
         maxSize += 3;
         if (mv != null) {
-            mv.visitTypeInsn(opcode, desc);
+            mv.visitTypeInsn(opcode, type);
         }
     }
 

@@ -386,11 +386,7 @@ public class BasicVerifier extends BasicInterpreter {
             int i = 0;
             int j = 0;
             if (opcode != INVOKESTATIC) {
-                String own = ((MethodInsnNode) insn).owner;
-                if (own.charAt(0) != '[') { // can happen with JDK1.5 clone()
-                    own = "L" + own + ";";
-                }
-                Type owner = Type.getType(own);
+                Type owner = Type.getObjectType(((MethodInsnNode) insn).owner);
                 if (!isSubTypeOf((Value) values.get(i++), newValue(owner))) {
                     throw new AnalyzerException("Method owner",
                             newValue(owner),

@@ -86,8 +86,9 @@ public abstract class AbstractTest extends TestCase {
                 while (entries.hasMoreElements()) {
                     ZipEntry e = (ZipEntry) entries.nextElement();
                     String n = e.getName();
-                    if (n.endsWith(".class") && (clazz == null || n.indexOf(clazz) != -1)) {
-                        n = n.substring(0, n.length() - 6).replace('/', '.');
+                    String p = n.replace('/', '.');
+                    if (n.endsWith(".class") && (clazz == null || p.indexOf(clazz) != -1)) {
+                        n = p.substring(0, p.length() - 6);
                         if (id % parts == part) {
                             InputStream is = zip.getInputStream(e);
                             AbstractTest t = (AbstractTest) getClass().newInstance();

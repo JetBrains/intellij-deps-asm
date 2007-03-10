@@ -102,8 +102,8 @@ public class MethodAdapter implements MethodVisitor {
         mv.visitVarInsn(opcode, var);
     }
 
-    public void visitTypeInsn(final int opcode, final String desc) {
-        mv.visitTypeInsn(opcode, desc);
+    public void visitTypeInsn(final int opcode, final String type) {
+        mv.visitTypeInsn(opcode, type);
     }
 
     public void visitFieldInsn(

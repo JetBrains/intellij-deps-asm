@@ -630,22 +630,17 @@ public class GASMifierMethodVisitor extends ASMifierAbstractVisitor implements
         return i;
     }
 
-    public void visitTypeInsn(final int opcode, final String desc) {
-        String type;
-        if (desc.charAt(0) == '[') {
-            type = getDescType(desc);
-        } else {
-            type = getType(desc);
-        }
+    public void visitTypeInsn(final int opcode, final String type) {
+        String typ = getType(type);
         buf.setLength(0);
         if (opcode == NEW) {
-            buf.append("mg.newInstance(").append(type).append(");\n");
+            buf.append("mg.newInstance(").append(typ).append(");\n");
         } else if (opcode == ANEWARRAY) {
-            buf.append("mg.newArray(").append(type).append(");\n");
+            buf.append("mg.newArray(").append(typ).append(");\n");
         } else if (opcode == CHECKCAST) {
-            buf.append("mg.checkCast(").append(type).append(");\n");
+            buf.append("mg.checkCast(").append(typ).append(");\n");
         } else if (opcode == INSTANCEOF) {
-            buf.append("mg.instanceOf(").append(type).append(");\n");
+            buf.append("mg.instanceOf(").append(typ).append(");\n");
         }
         text.add(buf.toString());
         lastOpcode = opcode;
@@ -1009,7 +1004,7 @@ public class GASMifierMethodVisitor extends ASMifierAbstractVisitor implements
     }
 
     static String getType(final String internalName) {
-        return "Type.getType(\"L" + internalName + ";\")";
+        return "Type.getObjectType(\"" + internalName + "\")";
     }
 
     static String getDescType(final String desc) {

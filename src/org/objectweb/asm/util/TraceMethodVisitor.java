@@ -246,19 +246,15 @@ public class TraceMethodVisitor extends TraceAbstractVisitor implements
         }
     }
 
-    public void visitTypeInsn(final int opcode, final String desc) {
+    public void visitTypeInsn(final int opcode, final String type) {
         buf.setLength(0);
         buf.append(tab2).append(OPCODES[opcode]).append(' ');
-        if (desc.startsWith("[")) {
-            appendDescriptor(FIELD_DESCRIPTOR, desc);
-        } else {
-            appendDescriptor(INTERNAL_NAME, desc);
-        }
+        appendDescriptor(INTERNAL_NAME, type);
         buf.append('\n');
         text.add(buf.toString());
 
         if (mv != null) {
-            mv.visitTypeInsn(opcode, desc);
+            mv.visitTypeInsn(opcode, type);
         }
     }
 

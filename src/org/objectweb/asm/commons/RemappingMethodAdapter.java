@@ -78,10 +78,8 @@ public class RemappingMethodAdapter extends LocalVariablesSorter {
                 remapper.mapMethodDesc(desc));
     }
 
-    public void visitTypeInsn(int opcode, String desc) {
-        mv.visitTypeInsn(opcode, desc.charAt(0) == '['
-                ? remapper.mapDesc(desc)
-                : remapper.mapType(desc));
+    public void visitTypeInsn(int opcode, String type) {
+        mv.visitTypeInsn(opcode, remapper.mapType(type));
     }
 
     public void visitLdcInsn(Object cst) {

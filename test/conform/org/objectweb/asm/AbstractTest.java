@@ -112,17 +112,18 @@ public abstract class AbstractTest extends TestCase {
         File[] fs = f.listFiles();
         for (int i = 0; i < fs.length; ++i) {
             String n = fs[i].getName();
+            String qn = path.length() == 0 ? n : path + "." + n;
             if (fs[i].isDirectory()) {
-                scanDirectory(path.length() == 0 ? n : path + "." + n,
+                scanDirectory(qn,
                         fs[i],
                         suite,
                         clazz);
-            } else if (n.endsWith(".class") && (clazz == null || n.indexOf(clazz) != -1))
+            } else if (qn.endsWith(".class") && (clazz == null || qn.indexOf(clazz) != -1))
             {
-                n = n.substring(0, n.length() - 6);
+                qn = qn.substring(0, qn.length() - 6);
                 InputStream is = new FileInputStream(fs[i]);
                 AbstractTest t = (AbstractTest) getClass().newInstance();
-                t.init(path.length() == 0 ? n : path + "." + n, is);
+                t.init(qn, is);
                 suite.addTest(t);
             }
         }

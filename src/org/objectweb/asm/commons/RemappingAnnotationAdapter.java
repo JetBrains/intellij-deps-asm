@@ -52,7 +52,7 @@ public class RemappingAnnotationAdapter implements AnnotationVisitor {
 
     public void visitEnum(String name, String desc, String value) {
         // TODO rename value?
-        av.visitEnum(value, renamer.mapType(desc), value);
+        av.visitEnum(name, renamer.mapType(desc), value);
     }
 
     public AnnotationVisitor visitAnnotation(String name, String desc) {

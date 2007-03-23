@@ -143,7 +143,7 @@ public abstract class Remapper {
         }
         SignatureReader r = new SignatureReader(signature);
         SignatureWriter w = new SignatureWriter();
-        RemappingSignatureAdapter a = createRemappingSignatureAdapter(w);
+        SignatureVisitor a = createRemappingSignatureAdapter(w);
         if (typeSignature) {
             r.acceptType(a);
         } else {
@@ -152,7 +152,7 @@ public abstract class Remapper {
         return w.toString();
     }
 
-    protected RemappingSignatureAdapter createRemappingSignatureAdapter(
+    protected SignatureVisitor createRemappingSignatureAdapter(
         SignatureVisitor v)
     {
         return new RemappingSignatureAdapter(v, this);

@@ -60,7 +60,7 @@ public class RemappingMethodAdapter extends LocalVariablesSorter {
         String name,
         String desc)
     {
-        mv.visitFieldInsn(opcode,
+        super.visitFieldInsn(opcode,
                 remapper.mapType(owner),
                 remapper.mapFieldName(owner, name, desc),
                 remapper.mapDesc(desc));
@@ -72,22 +72,22 @@ public class RemappingMethodAdapter extends LocalVariablesSorter {
         String name,
         String desc)
     {
-        mv.visitMethodInsn(opcode,
+        super.visitMethodInsn(opcode,
                 remapper.mapType(owner),
                 remapper.mapMethodName(owner, name, desc),
                 remapper.mapMethodDesc(desc));
     }
 
     public void visitTypeInsn(int opcode, String type) {
-        mv.visitTypeInsn(opcode, remapper.mapType(type));
+        super.visitTypeInsn(opcode, remapper.mapType(type));
     }
 
     public void visitLdcInsn(Object cst) {
-        mv.visitLdcInsn(remapper.mapValue(cst));
+        super.visitLdcInsn(remapper.mapValue(cst));
     }
 
     public void visitMultiANewArrayInsn(String desc, int dims) {
-        mv.visitMultiANewArrayInsn(remapper.mapDesc(desc), dims);
+        super.visitMultiANewArrayInsn(remapper.mapDesc(desc), dims);
     }
 
     public void visitTryCatchBlock(
@@ -96,7 +96,7 @@ public class RemappingMethodAdapter extends LocalVariablesSorter {
         Label handler,
         String type)
     {
-        mv.visitTryCatchBlock(start, end, handler, // 
+        super.visitTryCatchBlock(start, end, handler, // 
                 type == null ? null : remapper.mapType(type));
     }
     
@@ -108,7 +108,7 @@ public class RemappingMethodAdapter extends LocalVariablesSorter {
         Label end,
         int index)
     {
-        mv.visitLocalVariable(name,
+        super.visitLocalVariable(name,
                 remapper.mapDesc(desc),
                 remapper.mapSignature(signature, true),
                 start,
@@ -144,7 +144,7 @@ public class RemappingMethodAdapter extends LocalVariablesSorter {
         int nStack,
         Object[] stack)
     {
-        mv.visitFrame(type, nLocal, remapEntries(nLocal, local), nStack, remapEntries(nStack, stack));
+        super.visitFrame(type, nLocal, remapEntries(nLocal, local), nStack, remapEntries(nStack, stack));
     }
 
     private Object[] remapEntries(int n, Object[] entries) {

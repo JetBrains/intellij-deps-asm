@@ -157,7 +157,7 @@ public class ClassOptimizer extends RemappingClassAdapter {
         }
     }
     
-    protected RemappingMethodAdapter createRemappingMethodAdapter(
+    protected MethodVisitor createRemappingMethodAdapter(
         int access,
         String newDesc,
         MethodVisitor mv)

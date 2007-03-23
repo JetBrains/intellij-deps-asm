@@ -127,11 +127,11 @@ public class RemappingClassAdapter extends ClassAdapter {
                 desc == null ? null : remapper.mapMethodDesc(desc));
     }
 
-    protected RemappingFieldAdapter createRemappingFieldAdapter(FieldVisitor fv) {
+    protected FieldVisitor createRemappingFieldAdapter(FieldVisitor fv) {
         return new RemappingFieldAdapter(fv, remapper);
     }
     
-    protected RemappingMethodAdapter createRemappingMethodAdapter(
+    protected MethodVisitor createRemappingMethodAdapter(
         int access,
         String newDesc,
         MethodVisitor mv)
@@ -139,7 +139,7 @@ public class RemappingClassAdapter extends ClassAdapter {
         return new RemappingMethodAdapter(access, newDesc, mv, remapper);
     }
 
-    protected RemappingAnnotationAdapter createRemappingAnnotationAdapter(
+    protected AnnotationVisitor createRemappingAnnotationAdapter(
         AnnotationVisitor av)
     {
         return new RemappingAnnotationAdapter(av, remapper);

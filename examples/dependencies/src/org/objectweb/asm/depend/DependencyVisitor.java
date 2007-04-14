@@ -312,6 +312,8 @@ public class DependencyVisitor implements
 
     // SignatureVisitor
 
+    String signatureClassName;
+
     public void visitFormalTypeParameter(final String name) {
     }
 
@@ -355,11 +357,13 @@ public class DependencyVisitor implements
     }
 
     public void visitClassType(final String name) {
+        signatureClassName = name;
         addInternalName(name);
     }
 
     public void visitInnerClassType(final String name) {
-        addInternalName(name);
+        signatureClassName = signatureClassName + "$" + name;
+        addInternalName(signatureClassName);
     }
 
     public void visitTypeArgument() {

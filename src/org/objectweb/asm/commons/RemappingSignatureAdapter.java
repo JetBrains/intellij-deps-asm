@@ -40,18 +40,21 @@ import org.objectweb.asm.signature.SignatureVisitor;
 public class RemappingSignatureAdapter implements SignatureVisitor {
     private final SignatureVisitor v;
     private final Remapper remapper;
-
+    private String className;
+    
     public RemappingSignatureAdapter(SignatureVisitor v, Remapper remapper) {
         this.v = v;
         this.remapper = remapper;
     }
 
     public void visitClassType(String name) {
+        className = name;
         v.visitClassType(remapper.mapType(name));
     }
 
     public void visitInnerClassType(String name) {
-        v.visitInnerClassType(remapper.mapType(name));
+        className = className + "$" + name;
+        v.visitInnerClassType(remapper.mapType(className));
     }
 
     public void visitFormalTypeParameter(String name) {

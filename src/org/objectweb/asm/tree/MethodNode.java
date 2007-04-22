@@ -237,9 +237,9 @@ public class MethodNode extends MemberNode implements MethodVisitor {
     {
         instructions.add(new FrameNode(type, nLocal, local == null
                 ? null
-                : labelNodes(local), nStack, stack == null
+                : getLabelNodes(local), nStack, stack == null
                 ? null
-                : labelNodes(stack)));
+                : getLabelNodes(stack)));
     }
 
     public void visitInsn(final int opcode) {
@@ -277,11 +277,11 @@ public class MethodNode extends MemberNode implements MethodVisitor {
     }
 
     public void visitJumpInsn(final int opcode, final Label label) {
-        instructions.add(new JumpInsnNode(opcode, labelNode(label)));
+        instructions.add(new JumpInsnNode(opcode, getLabelNode(label)));
     }
 
     public void visitLabel(final Label label) {
-        instructions.add(labelNode(label));
+        instructions.add(getLabelNode(label));
     }
 
     public void visitLdcInsn(final Object cst) {
@@ -300,8 +300,8 @@ public class MethodNode extends MemberNode implements MethodVisitor {
     {
         instructions.add(new TableSwitchInsnNode(min,
                 max,
-                labelNode(dflt),
-                labelNodes(labels)));
+                getLabelNode(dflt),
+                getLabelNodes(labels)));
     }
 
     public void visitLookupSwitchInsn(
@@ -309,9 +309,9 @@ public class MethodNode extends MemberNode implements MethodVisitor {
         final int[] keys,
         final Label[] labels)
     {
-        instructions.add(new LookupSwitchInsnNode(labelNode(dflt),
+        instructions.add(new LookupSwitchInsnNode(getLabelNode(dflt),
                 keys,
-                labelNodes(labels)));
+                getLabelNodes(labels)));
     }
 
     public void visitMultiANewArrayInsn(final String desc, final int dims) {
@@ -324,9 +324,9 @@ public class MethodNode extends MemberNode implements MethodVisitor {
         final Label handler,
         final String type)
     {
-        tryCatchBlocks.add(new TryCatchBlockNode(labelNode(start),
-                labelNode(end),
-                labelNode(handler),
+        tryCatchBlocks.add(new TryCatchBlockNode(getLabelNode(start),
+                getLabelNode(end),
+                getLabelNode(handler),
                 type));
     }
 
@@ -341,13 +341,13 @@ public class MethodNode extends MemberNode implements MethodVisitor {
         localVariables.add(new LocalVariableNode(name,
                 desc,
                 signature,
-                labelNode(start),
-                labelNode(end),
+                getLabelNode(start),
+                getLabelNode(end),
                 index));
     }
 
     public void visitLineNumber(final int line, final Label start) {
-        instructions.add(new LineNumberNode(line, labelNode(start)));
+        instructions.add(new LineNumberNode(line, getLabelNode(start)));
     }
 
     public void visitMaxs(final int maxStack, final int maxLocals) {
@@ -355,27 +355,36 @@ public class MethodNode extends MemberNode implements MethodVisitor {
         this.maxLocals = maxLocals;
     }
 
-    private static LabelNode labelNode(final Label l) {
-        if (l.info == null) {
+    /**
+     * Returns the LabelNode corresponding to the given Label. Creates a new 
+     * LabelNode if necessary. The default implementation of this method uses
+     * the {@link Label#info} field to store associations between labels and
+     * label nodes.
+     * 
+     * @param l a Label.
+     * @return the LabelNode corresponding to l.
+     */    
+    protected LabelNode getLabelNode(final Label l) {
+        if (!(l.info instanceof LabelNode)) {
             l.info = new LabelNode(l);
         }
         return (LabelNode) l.info;
     }
 
-    private static LabelNode[] labelNodes(final Label[] l) {
+    private LabelNode[] getLabelNodes(final Label[] l) {
         LabelNode[] nodes = new LabelNode[l.length];
         for (int i = 0; i < l.length; ++i) {
-            nodes[i] = labelNode(l[i]);
+            nodes[i] = getLabelNode(l[i]);
         }
         return nodes;
     }
 
-    private static Object[] labelNodes(final Object[] objs) {
+    private Object[] getLabelNodes(final Object[] objs) {
         Object[] nodes = new Object[objs.length];
         for (int i = 0; i < objs.length; ++i) {
             Object o = objs[i];
             if (o instanceof Label) {
-                o = labelNode((Label) o);
+                o = getLabelNode((Label) o);
             }
             nodes[i] = o;
         }

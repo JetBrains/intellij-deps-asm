@@ -53,8 +53,9 @@ public class RemappingSignatureAdapter implements SignatureVisitor {
     }
 
     public void visitInnerClassType(String name) {
-        className = className + "$" + name;
-        v.visitInnerClassType(remapper.mapType(className));
+        className = className + '$' + name;
+        String remappedName = remapper.mapType(className);
+        v.visitInnerClassType(remappedName.substring(remappedName.lastIndexOf('$') + 1));
     }
 
     public void visitFormalTypeParameter(String name) {

@@ -553,23 +553,6 @@ public class ASMContentHandler extends DefaultHandler implements Opcodes {
                 } else if ("Ljava/lang/Boolean;".equals(desc)) {
                     value = Boolean.valueOf(val);
 
-                    // } else if ("Ljava/lang/Integer;".equals(desc)
-                    // || desc.equals("I"))
-                    // {
-                    // value = new Integer(val);
-                    // } else if ("Ljava/lang/Character;".equals(desc)
-                    // || desc.equals("C"))
-                    // {
-                    // value = new Character(decode(val).charAt(0));
-                    // } else if ("Ljava/lang/Short;".equals(desc) ||
-                    // desc.equals("S"))
-                    // {
-                    // value = Short.valueOf(val);
-                    // } else if ("Ljava/lang/Byte;".equals(desc) ||
-                    // desc.equals("B"))
-                    // {
-                    // value = Byte.valueOf(val);
-
                 } else if ("Ljava/lang/Long;".equals(desc) || desc.equals("J"))
                 {
                     value = new Long(val);
@@ -582,23 +565,6 @@ public class ASMContentHandler extends DefaultHandler implements Opcodes {
                     value = new Double(val);
                 } else if (Type.getDescriptor(Type.class).equals(desc)) {
                     value = Type.getType(val);
-
-                    // } else if ("[I".equals(desc)) {
-                    // value = new int[0]; // TODO
-                    // } else if ("[C".equals(desc)) {
-                    // value = new char[0]; // TODO
-                    // } else if ("[Z".equals(desc)) {
-                    // value = new boolean[0]; // TODO
-                    // } else if ("[S".equals(desc)) {
-                    // value = new short[0]; // TODO
-                    // } else if ("[B".equals(desc)) {
-                    // value = new byte[0]; // TODO
-                    // } else if ("[J".equals(desc)) {
-                    // value = new long[0]; // TODO
-                    // } else if ("[F".equals(desc)) {
-                    // value = new float[0]; // TODO
-                    // } else if ("[D".equals(desc)) {
-                    // value = new double[0]; // TODO
 
                 } else {
                     throw new SAXException("Invalid value:" + val + " desc:"

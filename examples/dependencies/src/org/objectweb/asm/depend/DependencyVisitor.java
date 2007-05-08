@@ -349,7 +349,6 @@ public class DependencyVisitor implements
     }
 
     public void visitTypeVariable(final String name) {
-        // TODO verify
     }
 
     public SignatureVisitor visitArrayType() {

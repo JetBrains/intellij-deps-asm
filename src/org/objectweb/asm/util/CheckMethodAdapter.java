@@ -826,6 +826,10 @@ public class CheckMethodAdapter extends MethodAdapter {
      * @param msg a message to be used in case of error.
      */
     static void checkInternalName(final String name, final String msg) {
+        if (name == null || name.length() == 0) {
+            throw new IllegalArgumentException("Invalid " + msg
+                    + " (must not be null or empty)");
+        }
         if (name.charAt(0) == '[') {
             checkDesc(name, false);
         } else {
@@ -849,10 +853,6 @@ public class CheckMethodAdapter extends MethodAdapter {
         final int end,
         final String msg)
     {
-        if (name == null || name.length() == 0) {
-            throw new IllegalArgumentException("Invalid " + msg
-                    + " (must not be null or empty)");
-        }
         int max = end == -1 ? name.length() : end;
         try {
             int begin = start;

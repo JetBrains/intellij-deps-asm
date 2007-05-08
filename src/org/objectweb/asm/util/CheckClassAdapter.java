@@ -218,7 +218,7 @@ public class CheckClassAdapter extends ClassAdapter {
                 + Opcodes.ACC_ABSTRACT + Opcodes.ACC_SYNTHETIC
                 + Opcodes.ACC_ANNOTATION + Opcodes.ACC_ENUM
                 + Opcodes.ACC_DEPRECATED);
-        if (!name.endsWith("package-info")) {
+        if (name == null || !name.endsWith("package-info")) {
             CheckMethodAdapter.checkInternalName(name, "class name");
         }
         if ("java/lang/Object".equals(name)) {

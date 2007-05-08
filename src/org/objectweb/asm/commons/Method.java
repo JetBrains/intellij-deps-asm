@@ -148,7 +148,6 @@ public class Method {
         if (space == -1 || start == -1 || end == -1) {
             throw new IllegalArgumentException();
         }
-        // TODO: Check validity of returnType, methodName and arguments.
         String returnType = method.substring(0, space);
         String methodName = method.substring(space + 1, start - 1).trim();
         StringBuffer sb = new StringBuffer();

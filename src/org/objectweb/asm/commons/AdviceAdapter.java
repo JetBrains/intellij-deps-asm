@@ -114,6 +114,7 @@ public abstract class AdviceAdapter extends GeneratorAdapter implements Opcodes
 
     public void visitInsn(final int opcode) {
         if (constructor) {
+            int s;
             switch (opcode) {
                 case RETURN: // empty stack
                     onMethodExit(opcode);
@@ -123,7 +124,6 @@ public abstract class AdviceAdapter extends GeneratorAdapter implements Opcodes
                 case FRETURN: // 1 before n/a after
                 case ARETURN: // 1 before n/a after
                 case ATHROW: // 1 before n/a after
-                    popValue();
                     popValue();
                     onMethodExit(opcode);
                     break;
@@ -260,77 +260,37 @@ public abstract class AdviceAdapter extends GeneratorAdapter implements Opcodes
                     break;
 
                 case DUP_X1:
-                    // TODO optimize this
-                {
-                    Object o1 = popValue();
-                    Object o2 = popValue();
-                    pushValue(o1);
-                    pushValue(o2);
-                    pushValue(o1);
-                }
+                    s = stackFrame.size();
+                    stackFrame.add(s - 2, stackFrame.get(s - 1));
                     break;
 
                 case DUP_X2:
-                    // TODO optimize this
-                {
-                    Object o1 = popValue();
-                    Object o2 = popValue();
-                    Object o3 = popValue();
-                    pushValue(o1);
-                    pushValue(o3);
-                    pushValue(o2);
-                    pushValue(o1);
-                }
+                    s = stackFrame.size();
+                    stackFrame.add(s - 3, stackFrame.get(s - 1));
                     break;
 
                 case DUP2:
-                    // TODO optimize this
-                {
-                    Object o1 = popValue();
-                    Object o2 = popValue();
-                    pushValue(o2);
-                    pushValue(o1);
-                    pushValue(o2);
-                    pushValue(o1);
-                }
+                    s = stackFrame.size();
+                    stackFrame.add(s - 2, stackFrame.get(s - 1));
+                    stackFrame.add(s - 2, stackFrame.get(s - 1));
                     break;
 
                 case DUP2_X1:
-                    // TODO optimize this
-                {
-                    Object o1 = popValue();
-                    Object o2 = popValue();
-                    Object o3 = popValue();
-                    pushValue(o2);
-                    pushValue(o1);
-                    pushValue(o3);
-                    pushValue(o2);
-                    pushValue(o1);
-                }
+                    s = stackFrame.size();
+                    stackFrame.add(s - 3, stackFrame.get(s - 1));
+                    stackFrame.add(s - 3, stackFrame.get(s - 1));
                     break;
 
                 case DUP2_X2:
-                    // TODO optimize this
-                {
-                    Object o1 = popValue();
-                    Object o2 = popValue();
-                    Object o3 = popValue();
-                    Object o4 = popValue();
-                    pushValue(o2);
-                    pushValue(o1);
-                    pushValue(o4);
-                    pushValue(o3);
-                    pushValue(o2);
-                    pushValue(o1);
-                }
+                    s = stackFrame.size();
+                    stackFrame.add(s - 4, stackFrame.get(s - 1));
+                    stackFrame.add(s - 4, stackFrame.get(s - 1));
                     break;
 
-                case SWAP: {
-                    Object o1 = popValue();
-                    Object o2 = popValue();
-                    pushValue(o1);
-                    pushValue(o2);
-                }
+                case SWAP:
+                    s = stackFrame.size();
+                    stackFrame.add(s - 2, stackFrame.get(s - 1));
+                    stackFrame.remove(s);
                     break;
             }
         } else {

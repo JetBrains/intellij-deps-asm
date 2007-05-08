@@ -841,8 +841,10 @@ public class ClassReader {
 
                 // 1st phase: finds the labels
                 int label;
-                Label[] labels = new Label[codeLength + 1];
+                Label[] labels = new Label[codeLength + 2];
+                readLabel(codeLength + 1, labels);
                 while (v < codeEnd) {
+                    w = v - codeStart;
                     int opcode = b[v] & 0xFF;
                     switch (ClassWriter.TYPE[opcode]) {
                         case ClassWriter.NOARG_INSN:
@@ -850,17 +852,11 @@ public class ClassReader {
                             v += 1;
                             break;
                         case ClassWriter.LABEL_INSN:
-                            label = v - codeStart + readShort(v + 1);
-                            if (labels[label] == null) {
-                                labels[label] = new Label();
-                            }
+                            readLabel(w + readShort(v + 1), labels);
                             v += 3;
                             break;
                         case ClassWriter.LABELW_INSN:
-                            label = v - codeStart + readInt(v + 1);
-                            if (labels[label] == null) {
-                                labels[label] = new Label();
-                            }
+                            readLabel(w + readInt(v + 1), labels);
                             v += 5;
                             break;
                         case ClassWriter.WIDE_INSN:
@@ -872,41 +868,27 @@ public class ClassReader {
                             }
                             break;
                         case ClassWriter.TABL_INSN:
-                            // skips 0 to 3 padding bytes
-                            w = v - codeStart;
+                            // skips 0 to 3 padding bytes*
                             v = v + 4 - (w & 3);
                             // reads instruction
-                            label = w + readInt(v);
-                            if (labels[label] == null) {
-                                labels[label] = new Label();
-                            }
+                            readLabel(w + readInt(v), labels);
                             j = readInt(v + 8) - readInt(v + 4) + 1;
                             v += 12;
                             for (; j > 0; --j) {
-                                label = w + readInt(v);
+                                readLabel(w + readInt(v), labels);
                                 v += 4;
-                                if (labels[label] == null) {
-                                    labels[label] = new Label();
-                                }
                             }
                             break;
                         case ClassWriter.LOOK_INSN:
-                            // skips 0 to 3 padding bytes
-                            w = v - codeStart;
+                            // skips 0 to 3 padding bytes*
                             v = v + 4 - (w & 3);
                             // reads instruction
-                            label = w + readInt(v);
-                            if (labels[label] == null) {
-                                labels[label] = new Label();
-                            }
+                            readLabel(w + readInt(v), labels);
                             j = readInt(v + 4);
                             v += 8;
                             for (; j > 0; --j) {
-                                label = w + readInt(v + 4);
+                                readLabel(w + readInt(v + 4), labels);
                                 v += 8;
-                                if (labels[label] == null) {
-                                    labels[label] = new Label();
-                                }
                             }
                             break;
                         case ClassWriter.VAR_INSN:
@@ -934,21 +916,9 @@ public class ClassReader {
                 j = readUnsignedShort(v);
                 v += 2;
                 for (; j > 0; --j) {
-                    label = readUnsignedShort(v);
-                    Label start = labels[label];
-                    if (start == null) {
-                        labels[label] = start = new Label();
-                    }
-                    label = readUnsignedShort(v + 2);
-                    Label end = labels[label];
-                    if (end == null) {
-                        labels[label] = end = new Label();
-                    }
-                    label = readUnsignedShort(v + 4);
-                    Label handler = labels[label];
-                    if (handler == null) {
-                        labels[label] = handler = new Label();
-                    }
+                    Label start = readLabel(readUnsignedShort(v), labels);
+                    Label end = readLabel(readUnsignedShort(v + 2), labels);
+                    Label handler = readLabel(readUnsignedShort(v + 4), labels);
                     int type = readUnsignedShort(v + 6);
                     if (type == 0) {
                         mv.visitTryCatchBlock(start, end, handler, null);
@@ -987,11 +957,11 @@ public class ClassReader {
                             for (; k > 0; --k) {
                                 label = readUnsignedShort(w);
                                 if (labels[label] == null) {
-                                    labels[label] = new Label(true);
+                                    readLabel(label, labels).status |= Label.DEBUG;
                                 }
                                 label += readUnsignedShort(w + 2);
                                 if (labels[label] == null) {
-                                    labels[label] = new Label(true);
+                                    readLabel(label, labels).status |= Label.DEBUG;
                                 }
                                 w += 10;
                             }
@@ -1005,7 +975,7 @@ public class ClassReader {
                             for (; k > 0; --k) {
                                 label = readUnsignedShort(w);
                                 if (labels[label] == null) {
-                                    labels[label] = new Label(true);
+                                    readLabel(label, labels).status |= Label.DEBUG;
                                 }
                                 labels[label].line = readUnsignedShort(w + 2);
                                 w += 4;
@@ -1250,9 +1220,7 @@ public class ClassReader {
                                 }
                             }
                             frameOffset += delta + 1;
-                            if (labels[frameOffset] == null) {
-                                labels[frameOffset] = new Label();
-                            }
+                            readLabel(frameOffset, labels);
 
                             --frameCount;
                         } else {
@@ -1727,14 +1695,28 @@ public class ClassReader {
                 v += 2;
                 break;
             default: // Uninitialized
-                int offset = readUnsignedShort(v);
-                if (labels[offset] == null) {
-                    labels[offset] = new Label();
-                }
-                frame[index] = labels[offset];
+                frame[index] = readLabel(readUnsignedShort(v), labels);
                 v += 2;
         }
         return v;
+    }
+
+    /**
+     * Returns the label corresponding to the given offset. The default
+     * implementation of this method creates a label for the given offset if it
+     * has not been already created.
+     * 
+     * @param offset a bytecode offset in a method.
+     * @param labels the already created labels, indexed by their offset. If a
+     *        label already exists for offset this method must not create a new
+     *        one. Otherwise it must store the new label in this array.
+     * @return a non null Label, which must be equal to labels[offset].
+     */
+    protected Label readLabel(int offset, Label[] labels) {
+        if (labels[offset] == null) {
+            labels[offset] = new Label();
+        }
+        return labels[offset];
     }
 
     /**

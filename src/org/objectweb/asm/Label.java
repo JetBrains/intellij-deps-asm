@@ -230,15 +230,6 @@ public class Label {
     public Label() {
     }
 
-    /**
-     * Constructs a new label.
-     * 
-     * @param debug if this label is only used for debug attributes.
-     */
-    Label(final boolean debug) {
-        this.status = debug ? DEBUG : 0;
-    }
-
     // ------------------------------------------------------------------------
     // Methods to compute offsets and to manage forward references
     // ------------------------------------------------------------------------

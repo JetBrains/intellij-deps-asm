@@ -186,9 +186,11 @@ public class JSRInlinerAdapter extends MethodNode implements Opcodes {
      * the execution of the subroutine. Invoked from
      * <code>markSubroutines()</code>.
      * 
-     * @param sub TODO.
-     * @param index TODO.
-     * @param anyvisited TODO.
+     * @param sub the subroutine whose instructions must be computed.
+     * @param index an instruction of this subroutine.
+     * @param anyvisited indexes of the already visited instructions, i.e.
+     *        marked as part of this subroutine or any previously computed
+     *        subroutine.
      */
     private void markSubroutineWalk(
         final Subroutine sub,
@@ -240,9 +242,11 @@ public class JSRInlinerAdapter extends MethodNode implements Opcodes {
      * subroutine <code>sub</code>. Starts from <code>index</code>.
      * Invoked only by <code>markSubroutineWalk()</code>.
      * 
-     * @param sub TODO.
-     * @param index TODO.
-     * @param anyvisited TODO.
+     * @param sub the subroutine whose instructions must be computed.
+     * @param index an instruction of this subroutine.
+     * @param anyvisited indexes of the already visited instructions, i.e.
+     *        marked as part of this subroutine or any previously computed
+     *        subroutine.
      */
     private void markSubroutineWalkDFS(
         final Subroutine sub,
@@ -358,10 +362,12 @@ public class JSRInlinerAdapter extends MethodNode implements Opcodes {
      * this one to the <code>worklist</code> parameter, and new try/catch
      * blocks to <code>newTryCatchBlocks</code>.
      * 
-     * @param instant TODO.
-     * @param workList TODO.
-     * @param newInstructions TODO.
-     * @param newTryCatchBlocks TODO.
+     * @param instant the instantiation that must be performed.
+     * @param workList list of the instantiations that remain to be done.
+     * @param newInstructions the instruction list to which the instantiated
+     *        code must be appended.
+     * @param newTryCatchBlocks the exception handler list to which the
+     *        instantiated handlers must be appended.
      */
     private void emitSubroutine(
         final Instantiation instant,

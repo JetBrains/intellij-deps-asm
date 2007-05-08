@@ -30,7 +30,6 @@
 package org.objectweb.asm.xml;
 
 import org.objectweb.asm.AnnotationVisitor;
-import org.objectweb.asm.Attribute;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.MethodVisitor;
@@ -110,10 +109,6 @@ public final class SAXClassAdapter extends SAXAdapter implements ClassVisitor {
         }
 
         addElement("outerclass", att);
-    }
-
-    public final void visitAttribute(final Attribute attr) {
-        // TODO Auto-generated SAXClassAdapter.visitAttribute
     }
 
     public AnnotationVisitor visitAnnotation(

@@ -29,6 +29,7 @@
  */
 package org.objectweb.asm.xml;
 
+import org.objectweb.asm.Attribute;
 import org.xml.sax.Attributes;
 import org.xml.sax.ContentHandler;
 import org.xml.sax.SAXException;
@@ -85,5 +86,9 @@ public abstract class SAXAdapter {
     protected final void addElement(final String name, final Attributes attrs) {
         addStart(name, attrs);
         addEnd(name);
+    }
+
+    public void visitAttribute(final Attribute attr) {
+        // nothing to do
     }
 }

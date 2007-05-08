@@ -33,7 +33,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.objectweb.asm.AnnotationVisitor;
-import org.objectweb.asm.Attribute;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Label;
@@ -383,10 +382,6 @@ public final class SAXCodeAdapter extends SAXAdapter implements MethodVisitor {
 
     public void visitEnd() {
         addEnd("method");
-    }
-
-    public final void visitAttribute(final Attribute attr) {
-        // TODO Auto-generated SAXCodeAdapter.visitAttribute
     }
 
     private final String getLabel(final Label label) {

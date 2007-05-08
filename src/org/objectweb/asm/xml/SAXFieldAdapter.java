@@ -30,7 +30,6 @@
 package org.objectweb.asm.xml;
 
 import org.objectweb.asm.AnnotationVisitor;
-import org.objectweb.asm.Attribute;
 import org.objectweb.asm.FieldVisitor;
 import org.xml.sax.ContentHandler;
 import org.xml.sax.helpers.AttributesImpl;
@@ -56,10 +55,6 @@ public class SAXFieldAdapter extends SAXAdapter implements FieldVisitor {
                 visible ? 1 : -1,
                 null,
                 desc);
-    }
-
-    public void visitAttribute(final Attribute attr) {
-        // TODO Auto-generated method stub
     }
 
     public void visitEnd() {

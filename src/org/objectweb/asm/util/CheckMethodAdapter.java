@@ -396,22 +396,20 @@ public class CheckMethodAdapter extends MethodAdapter {
                     + " for frame type " + type);
         }
 
-        if (nLocal > 0 && (local == null || local.length < nLocal)) {
-            throw new IllegalArgumentException("Array local[] is shorter than nLocal");
+        if (type != Opcodes.F_CHOP) {
+            if (nLocal > 0 && (local == null || local.length < nLocal)) {
+                throw new IllegalArgumentException("Array local[] is shorter than nLocal");
+            }
+            for (int i = 0; i < nLocal; ++i) {
+                checkFrameValue(local[i]);
+            }
         }
         if (nStack > 0 && (stack == null || stack.length < nStack)) {
             throw new IllegalArgumentException("Array stack[] is shorter than nStack");
         }
-
-        /*
-         * TODO check values of the individual frames. Primitive types are
-         * represented by Opcodes.TOP, Opcodes.INTEGER, Opcodes.FLOAT,
-         * Opcodes.LONG, Opcodes.DOUBLE,Opcodes.NULL or
-         * Opcodes.UNINITIALIZED_THIS (long and double are represented by a
-         * single element). Reference types are represented by String objects,
-         * and uninitialized types by Label objects (this label designates the
-         * NEW instruction that created this uninitialized value).
-         */
+        for (int i = 0; i < nStack; ++i) {
+            checkFrameValue(stack[i]);
+        }
 
         mv.visitFrame(type, nLocal, local, nStack, stack);
     }
@@ -675,6 +673,29 @@ public class CheckMethodAdapter extends MethodAdapter {
     void checkEndMethod() {
         if (endMethod) {
             throw new IllegalStateException("Cannot visit elements after visitEnd has been called.");
+        }
+    }
+
+    /**
+     * Checks a stack frame value.
+     * 
+     * @param value the value to be checked.
+     */
+    static void checkFrameValue(final Object value) {
+        if (value == Opcodes.TOP || value == Opcodes.INTEGER
+                || value == Opcodes.FLOAT || value == Opcodes.LONG
+                || value == Opcodes.DOUBLE || value == Opcodes.NULL
+                || value == Opcodes.UNINITIALIZED_THIS)
+        {
+            return;
+        }
+        if (value instanceof String) {
+            checkInternalName((String) value, "Invalid stack frame value");
+            return;
+        }
+        if (!(value instanceof Label)) {
+            throw new IllegalArgumentException("Invalid stack frame value: "
+                    + value);
         }
     }
 

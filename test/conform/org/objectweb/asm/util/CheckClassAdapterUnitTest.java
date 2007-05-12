@@ -383,6 +383,21 @@ public class CheckClassAdapterUnitTest extends TestCase implements Opcodes {
         }
     }
 
+    public void testIllegalFrameValue() {
+        MethodVisitor mv = new CheckMethodAdapter(new EmptyVisitor());
+        mv.visitCode();
+        try {
+            mv.visitFrame(F_FULL, 1, new Object[] { "LC;" }, 0, null);
+            fail();
+        } catch (Exception e) {
+        }
+        try {
+            mv.visitFrame(F_FULL, 1, new Object[] { new Integer(0) }, 0, null);
+            fail();
+        } catch (Exception e) {
+        }
+    }
+
     public void testIllegalMethodInsn() {
         MethodVisitor mv = new CheckMethodAdapter(new EmptyVisitor());
         mv.visitCode();

@@ -64,7 +64,6 @@ public class SignatureWriterTest extends AbstractTest {
                     SignatureWriter sw = new SignatureWriter();
                     sr.accept(sw);
                     assertEquals(signature, sw.toString());
-                    toto(signature);
                 }
             }
 
@@ -80,7 +79,6 @@ public class SignatureWriterTest extends AbstractTest {
                     SignatureWriter sw = new SignatureWriter();
                     sr.acceptType(sw);
                     assertEquals(signature, sw.toString());
-                    toto(signature);
                 }
                 return null;
             }
@@ -97,16 +95,10 @@ public class SignatureWriterTest extends AbstractTest {
                     SignatureWriter sw = new SignatureWriter();
                     sr.accept(sw);
                     assertEquals(signature, sw.toString());
-                    toto(signature);
                 }
                 return null;
             }
 
         }, 0);
-    }
-    private void toto(String s) {
-        if (s.indexOf('.') != -1) {
-            System.out.println(s);
-        }
     }
 }

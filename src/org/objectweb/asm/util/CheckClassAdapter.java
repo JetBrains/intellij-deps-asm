@@ -229,7 +229,7 @@ public class CheckClassAdapter extends ClassAdapter {
             CheckMethodAdapter.checkInternalName(superName, "super class name");
         }
         if (signature != null) {
-            // TODO
+            CheckMethodAdapter.checkClassSignature(signature);
         }
         if ((access & Opcodes.ACC_INTERFACE) != 0) {
             if (!"java/lang/Object".equals(superName)) {
@@ -311,7 +311,7 @@ public class CheckClassAdapter extends ClassAdapter {
         CheckMethodAdapter.checkIdentifier(name, "field name");
         CheckMethodAdapter.checkDesc(desc, false);
         if (signature != null) {
-            // TODO
+            CheckMethodAdapter.checkFieldSignature(signature);
         }
         if (value != null) {
             CheckMethodAdapter.checkConstant(value);
@@ -337,7 +337,7 @@ public class CheckClassAdapter extends ClassAdapter {
         CheckMethodAdapter.checkMethodIdentifier(name, "method name");
         CheckMethodAdapter.checkMethodDesc(desc);
         if (signature != null) {
-            // TODO
+            CheckMethodAdapter.checkMethodSignature(signature);
         }
         if (exceptions != null) {
             for (int i = 0; i < exceptions.length; ++i) {

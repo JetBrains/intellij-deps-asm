@@ -105,6 +105,15 @@ public class CheckClassAdapterUnitTest extends TestCase implements Opcodes {
         }
     }
 
+    public void testIllegalClassSignature() {
+        ClassVisitor cv = new CheckClassAdapter(new EmptyVisitor());
+        try {
+            cv.visit(V1_1, ACC_PUBLIC, "C", "LC;I", "java/lang/Object", null);
+            fail();
+        } catch (Exception e) {
+        }
+    }
+
     public void testIllegalClassAccessFlagSet() {
         ClassVisitor cv = new CheckClassAdapter(new EmptyVisitor());
         try {
@@ -185,6 +194,26 @@ public class CheckClassAdapterUnitTest extends TestCase implements Opcodes {
         cv.visit(V1_1, ACC_PUBLIC, "C", null, "java/lang/Object", null);
         try {
             cv.visitField(ACC_PUBLIC + ACC_PRIVATE, "i", "I", null, null);
+            fail();
+        } catch (Exception e) {
+        }
+    }
+    
+    public void testIllegalFieldSignature() {
+        ClassVisitor cv = new CheckClassAdapter(new EmptyVisitor());
+        cv.visit(V1_1, ACC_PUBLIC, "C", null, "java/lang/Object", null);
+        try {
+            cv.visitField(ACC_PUBLIC, "i", "I", "L;", null);
+            fail();
+        } catch (Exception e) {
+        }
+        try {
+            cv.visitField(ACC_PUBLIC, "i", "I", "LC+", null);
+            fail();
+        } catch (Exception e) {
+        }
+        try {
+            cv.visitField(ACC_PUBLIC, "i", "I", "LC;I", null);
             fail();
         } catch (Exception e) {
         }
@@ -280,6 +309,16 @@ public class CheckClassAdapterUnitTest extends TestCase implements Opcodes {
         MethodVisitor mv = new CheckMethodAdapter(new EmptyVisitor());
         try {
             mv.visitAttribute(null);
+            fail();
+        } catch (Exception e) {
+        }
+    }
+
+    public void testIllegalMethodSignature() {
+        ClassVisitor cv = new CheckClassAdapter(new EmptyVisitor());
+        cv.visit(V1_1, ACC_PUBLIC, "C", null, "java/lang/Object", null);
+        try {
+            cv.visitMethod(ACC_PUBLIC, "m", "()V", "<T::LI.J<*+LA;>;>()V^LA;X", null);
             fail();
         } catch (Exception e) {
         }

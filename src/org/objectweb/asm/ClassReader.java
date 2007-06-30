@@ -388,7 +388,8 @@ public class ClassReader {
      * 
      * @param classVisitor the visitor that must visit this class.
      * @param flags option flags that can be used to modify the default behavior
-     *        of this class. See {@link #SKIP_DEBUG}, {@link #EXPAND_FRAMES}.
+     *        of this class. See {@link #SKIP_DEBUG}, {@link #EXPAND_FRAMES},
+     *        {@link #SKIP_FRAMES}, {@link #SKIP_CODE}.
      */
     public void accept(final ClassVisitor classVisitor, final int flags) {
         accept(classVisitor, new Attribute[0], flags);
@@ -409,7 +410,8 @@ public class ClassReader {
      *        been transformed by a class adapter between the reader and the
      *        writer</i>.
      * @param flags option flags that can be used to modify the default behavior
-     *        of this class. See {@link #SKIP_DEBUG}, {@link #EXPAND_FRAMES}.
+     *        of this class. See {@link #SKIP_DEBUG}, {@link #EXPAND_FRAMES},
+     *        {@link #SKIP_FRAMES}, {@link #SKIP_CODE}.
      */
     public void accept(
         final ClassVisitor classVisitor,

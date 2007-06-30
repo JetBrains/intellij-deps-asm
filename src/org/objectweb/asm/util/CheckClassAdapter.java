@@ -58,6 +58,62 @@ import org.objectweb.asm.tree.analysis.Frame;
  * "i", "D", null)</tt>
  * will <i>not</i> be detected by this class adapter.
  * 
+ * <p><code>CheckClassAdapter</code> can be also used to verify bytecode
+ * transformations in order to make sure transformed bytecode is sane. For
+ * example:
+ * 
+ * <pre>
+ *   InputStream is = ...; // get bytes for the source class
+ *   ClassReader cr = new ClassReader(is);
+ *   ClassWriter cw = new ClassWriter(cr, ClassWriter.COMPUTE_MAXS);
+ *   ClassVisitor cv = new <b>MyClassAdapter</b>(new CheckClassAdapter(cw));
+ *   cr.accept(cv, 0);
+ * 
+ *   StringWriter sw = new StringWriter();
+ *   PrintWriter pw = new PrintWriter(sw);
+ *   CheckClassAdapter.verify(new ClassReader(cw.toByteArray()), false, pw);
+ *   assertTrue(sw.toString(), sw.toString().length()==0);
+ * </pre>
+ * 
+ * Above code runs transformed bytecode trough the
+ * <code>CheckClassAdapter</code>. It won't be exactly the same verification
+ * as JVM does, but it run data flow analysis for the code of each method and
+ * checks that expectations are met for each method instruction.
+ * 
+ * <p>If method bytecode has errors, assertion text will show the erroneous
+ * instruction number and dump of the failed method with information about
+ * locals and stack slot for each instruction. For example (format is -
+ * insnNumber locals : stack):
+ * 
+ * <pre>
+ * org.objectweb.asm.tree.analysis.AnalyzerException: Error at instruction 71: Expected I, but found .
+ *   at org.objectweb.asm.tree.analysis.Analyzer.analyze(Analyzer.java:289)
+ *   at org.objectweb.asm.util.CheckClassAdapter.verify(CheckClassAdapter.java:135)
+ * ...
+ * remove()V
+ * 00000 LinkedBlockingQueue$Itr . . . . . . . .  :
+ *   ICONST_0
+ * 00001 LinkedBlockingQueue$Itr . . . . . . . .  : I
+ *   ISTORE 2
+ * 00001 LinkedBlockingQueue$Itr <b>.</b> I . . . . . .  :
+ * ...
+ * 
+ * 00071 LinkedBlockingQueue$Itr <b>.</b> I . . . . . .  : 
+ *   ILOAD 1
+ * 00072 <b>?</b>                
+ *   INVOKESPECIAL java/lang/Integer.<init> (I)V
+ * ...
+ * </pre>
+ * 
+ * In the above output you can see that variable 1 loaded by
+ * <code>ILOAD 1</code> instruction at position <code>00071</code> is not
+ * initialized. You can also see that at the beginning of the method (code
+ * inserted by the transformation) variable 2 is initialized.
+ * 
+ * <p>Note that when used like that, <code>CheckClassAdapter.verify()</code>
+ * can trigger additional class loading, because it is using
+ * <code>SimpleVerifier</code>.
+ * 
  * @author Eric Bruneton
  */
 public class CheckClassAdapter extends ClassAdapter {

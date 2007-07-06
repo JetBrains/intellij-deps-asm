@@ -55,7 +55,7 @@ public class SimpleRemapper extends Remapper {
         return s == null ? name : s;
     }
     
-    protected String map(String key) {
+    public String map(String key) {
         return (String) mapping.get(key);
     }
     

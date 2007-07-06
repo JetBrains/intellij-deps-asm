@@ -64,7 +64,7 @@ public class Shrinker {
         File d = new File(args[2]);
 
         optimize(f, d, new SimpleRemapper(mapping) {
-            protected String map(String key) {
+            public String map(String key) {
                 String s = super.map(key);
                 if (s != null) {
                     unused.remove(key);

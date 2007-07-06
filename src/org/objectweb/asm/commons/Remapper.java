@@ -37,6 +37,13 @@ import org.objectweb.asm.signature.SignatureWriter;
 
 /**
  * A class responsible for remapping types and names.
+ * Subclasses can override the following methods:
+ * 
+ * <ul>
+ * <li>{@link #map(String)} - map type</li>
+ * <li>{@link #mapFieldName(String, String, String)} - map field name</li>
+ * <li>{@link #mapMethodName(String, String, String)} - map method name</li>
+ * </ul>
  * 
  * @author Eugene Kuleshov
  */
@@ -158,16 +165,25 @@ public abstract class Remapper {
         return new RemappingSignatureAdapter(v, this);
     }
     
+    /**
+     * Map method name to the new name. Subclasses can override. 
+     */
     public String mapMethodName(String owner, String name, String desc) {
         return name;
     }
 
+    /**
+     * Map field name to the new name. Subclasses can override. 
+     */
     public String mapFieldName(String owner, String name, String desc) {
         return name;
     }
     
-    protected String map(String name) {
-        return name;
+    /**
+     * Map type name to the new name. Subclasses can override. 
+     */
+    public String map(String typeName) {
+        return typeName;
     }
 
 }

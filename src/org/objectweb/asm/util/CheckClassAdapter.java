@@ -181,11 +181,14 @@ public class CheckClassAdapter extends ClassAdapter {
         ClassNode cn = new ClassNode();
         cr.accept(new CheckClassAdapter(cn), ClassReader.SKIP_DEBUG);
 
+        Type syperType = cn.superName == null
+                ? null
+                : Type.getObjectType(cn.superName);
         List methods = cn.methods;
         for (int i = 0; i < methods.size(); ++i) {
             MethodNode method = (MethodNode) methods.get(i);
             Analyzer a = new Analyzer(new SimpleVerifier(Type.getObjectType(cn.name),
-                    Type.getObjectType(cn.superName),
+                    syperType,
                     false));
             try {
                 a.analyze(cn.name, method);

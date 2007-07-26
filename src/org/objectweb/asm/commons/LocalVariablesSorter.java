@@ -150,8 +150,7 @@ public class LocalVariablesSorter extends MethodAdapter {
         final Label end,
         final int index)
     {
-        int size = "J".equals(desc) || "D".equals(desc) ? 2 : 1;
-        int newIndex = remap(index, size);
+        int newIndex = remap(index, Type.getType(desc));
         mv.visitLocalVariable(name, desc, signature, start, end, newIndex);
     }
 

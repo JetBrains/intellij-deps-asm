@@ -81,6 +81,8 @@ import org.objectweb.asm.Type;
  */
 public class GeneratorAdapter extends LocalVariablesSorter {
 
+    private static final String CLDESC = "Ljava/lang/Class;";
+
     private final static Type BYTE_TYPE = Type.getObjectType("java/lang/Byte");
 
     private final static Type BOOLEAN_TYPE = Type.getObjectType("java/lang/Boolean");
@@ -396,7 +398,58 @@ public class GeneratorAdapter extends LocalVariablesSorter {
         if (value == null) {
             mv.visitInsn(Opcodes.ACONST_NULL);
         } else {
-            mv.visitLdcInsn(value);
+            switch (value.getSort()) {
+                case Type.BOOLEAN:
+                    mv.visitFieldInsn(Opcodes.GETSTATIC,
+                            "java/lang/Boolean",
+                            "TYPE",
+                            CLDESC);
+                    break;
+                case Type.CHAR:
+                    mv.visitFieldInsn(Opcodes.GETSTATIC,
+                            "java/lang/Char",
+                            "TYPE",
+                            CLDESC);
+                    break;
+                case Type.BYTE:
+                    mv.visitFieldInsn(Opcodes.GETSTATIC,
+                            "java/lang/Byte",
+                            "TYPE",
+                            CLDESC);
+                    break;
+                case Type.SHORT:
+                    mv.visitFieldInsn(Opcodes.GETSTATIC,
+                            "java/lang/Short",
+                            "TYPE",
+                            CLDESC);
+                    break;
+                case Type.INT:
+                    mv.visitFieldInsn(Opcodes.GETSTATIC,
+                            "java/lang/Integer",
+                            "TYPE",
+                            CLDESC);
+                    break;
+                case Type.FLOAT:
+                    mv.visitFieldInsn(Opcodes.GETSTATIC,
+                            "java/lang/Float",
+                            "TYPE",
+                            CLDESC);
+                    break;
+                case Type.LONG:
+                    mv.visitFieldInsn(Opcodes.GETSTATIC,
+                            "java/lang/Long",
+                            "TYPE",
+                            CLDESC);
+                    break;
+                case Type.DOUBLE:
+                    mv.visitFieldInsn(Opcodes.GETSTATIC,
+                            "java/lang/Double",
+                            "TYPE",
+                            CLDESC);
+                    break;
+                default:
+                    mv.visitLdcInsn(value);
+            }
         }
     }
 

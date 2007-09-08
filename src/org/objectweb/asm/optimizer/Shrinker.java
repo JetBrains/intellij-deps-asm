@@ -54,14 +54,17 @@ import org.objectweb.asm.commons.SimpleRemapper;
  */
 public class Shrinker {
 
+    static Properties mapping = new Properties();
+    
     public static void main(final String[] args) throws IOException {
-        Properties mapping = new Properties();
-        mapping.load(new FileInputStream(args[0]));
-
+        int n = args.length - 1;
+        for (int i = 0; i < n - 1; ++i) {
+            mapping.load(new FileInputStream(args[i]));
+        }
         final Set unused = new HashSet(mapping.keySet());
 
-        File f = new File(args[1]);
-        File d = new File(args[2]);
+        File f = new File(args[n - 1]);
+        File d = new File(args[n]);
 
         optimize(f, d, new SimpleRemapper(mapping) {
             public String map(String key) {
@@ -75,7 +78,10 @@ public class Shrinker {
         
         Iterator i = unused.iterator();
         while (i.hasNext()) {
-            System.out.println("INFO: unused mapping " + i.next());
+            String s = (String) i.next();
+            if (!s.endsWith("/remove")) {
+                System.out.println("INFO: unused mapping " + s);
+            }
         }
     }
 
@@ -107,6 +113,9 @@ public class Shrinker {
             }
             cr.accept(cw, ClassReader.SKIP_DEBUG);
 
+            if (mapping.get(cr.getClassName() + "/remove") != null) {
+                return;
+            }
             String n = remapper.mapType(cr.getClassName());
             File g = new File(d, n + ".class");
             if (!g.exists() || g.lastModified() < f.lastModified()) {

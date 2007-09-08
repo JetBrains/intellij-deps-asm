@@ -111,9 +111,12 @@ public class ClassOptimizer extends RemappingClassAdapter {
         final Object value)
     {
         String s = remapper.mapFieldName(className, name, desc);
+        if (s.equals("-")) {
+            return null;
+        }
         if ((access & (Opcodes.ACC_PUBLIC | Opcodes.ACC_PROTECTED)) == 0) {
             if ((access & Opcodes.ACC_FINAL) != 0
-                    && (access & Opcodes.ACC_STATIC) != 0 && desc.equals("I"))
+                    && (access & Opcodes.ACC_STATIC) != 0 && desc.length() == 1)
             {
                 return null;
             }
@@ -139,6 +142,9 @@ public class ClassOptimizer extends RemappingClassAdapter {
         final String[] exceptions)
     {
         String s = remapper.mapMethodName(className, name, desc); 
+        if (s.equals("-")) {
+            return null;
+        }
         if ((access & (Opcodes.ACC_PUBLIC | Opcodes.ACC_PROTECTED)) == 0) {
             if (pkgName.equals("org/objectweb/asm") && !name.startsWith("<")
                     && s.equals(name))

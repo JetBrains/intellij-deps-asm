@@ -424,7 +424,9 @@ class MethodWriter implements MethodVisitor {
         this.name = cw.newUTF8(name);
         this.desc = cw.newUTF8(desc);
         this.descriptor = desc;
-        this.signature = signature;
+        if (ClassReader.SIGNATURES) {
+            this.signature = signature;
+        }
         if (exceptions != null && exceptions.length > 0) {
             exceptionCount = exceptions.length;
             this.exceptions = new int[exceptionCount];
@@ -455,6 +457,9 @@ class MethodWriter implements MethodVisitor {
     // ------------------------------------------------------------------------
 
     public AnnotationVisitor visitAnnotationDefault() {
+        if (!ClassReader.ANNOTATIONS) {
+            return null;
+        }
         annd = new ByteVector();
         return new AnnotationWriter(cw, false, annd, null, 0);
     }
@@ -463,6 +468,9 @@ class MethodWriter implements MethodVisitor {
         final String desc,
         final boolean visible)
     {
+        if (!ClassReader.ANNOTATIONS) {
+            return null;
+        }
         ByteVector bv = new ByteVector();
         // write type, and reserve space for values count
         bv.putShort(cw.newUTF8(desc)).putShort(0);
@@ -482,6 +490,9 @@ class MethodWriter implements MethodVisitor {
         final String desc,
         final boolean visible)
     {
+        if (!ClassReader.ANNOTATIONS) {
+            return null;
+        }
         ByteVector bv = new ByteVector();
         // write type, and reserve space for values count
         bv.putShort(cw.newUTF8(desc)).putShort(0);
@@ -522,7 +533,7 @@ class MethodWriter implements MethodVisitor {
         final int nStack,
         final Object[] stack)
     {
-        if (compute == FRAMES) {
+        if (!ClassReader.FRAMES || compute == FRAMES) {
             return;
         }
 
@@ -1178,7 +1189,7 @@ class MethodWriter implements MethodVisitor {
     }
 
     public void visitMaxs(final int maxStack, final int maxLocals) {
-        if (compute == FRAMES) {
+        if (ClassReader.FRAMES && compute == FRAMES) {
             // completes the control flow graph with exception handler blocks
             Handler handler = firstHandler;
             while (handler != null) {
@@ -1841,7 +1852,11 @@ class MethodWriter implements MethodVisitor {
         }
         if (resize) {
             // replaces the temporary jump opcodes introduced by Label.resolve.
-            resizeInstructions();
+            if (ClassReader.RESIZE) {
+                resizeInstructions();
+            } else {
+                throw new RuntimeException("Method code too large!");
+            }
         }
         int size = 8;
         if (code.length > 0) {
@@ -1886,31 +1901,31 @@ class MethodWriter implements MethodVisitor {
             cw.newUTF8("Deprecated");
             size += 6;
         }
-        if (signature != null) {
+        if (ClassReader.SIGNATURES && signature != null) {
             cw.newUTF8("Signature");
             cw.newUTF8(signature);
             size += 8;
         }
-        if (annd != null) {
+        if (ClassReader.ANNOTATIONS && annd != null) {
             cw.newUTF8("AnnotationDefault");
             size += 6 + annd.length;
         }
-        if (anns != null) {
+        if (ClassReader.ANNOTATIONS && anns != null) {
             cw.newUTF8("RuntimeVisibleAnnotations");
             size += 8 + anns.getSize();
         }
-        if (ianns != null) {
+        if (ClassReader.ANNOTATIONS && ianns != null) {
             cw.newUTF8("RuntimeInvisibleAnnotations");
             size += 8 + ianns.getSize();
         }
-        if (panns != null) {
+        if (ClassReader.ANNOTATIONS && panns != null) {
             cw.newUTF8("RuntimeVisibleParameterAnnotations");
             size += 7 + 2 * panns.length;
             for (int i = panns.length - 1; i >= 0; --i) {
                 size += panns[i] == null ? 0 : panns[i].getSize();
             }
         }
-        if (ipanns != null) {
+        if (ClassReader.ANNOTATIONS && ipanns != null) {
             cw.newUTF8("RuntimeInvisibleParameterAnnotations");
             size += 7 + 2 * ipanns.length;
             for (int i = ipanns.length - 1; i >= 0; --i) {
@@ -1950,22 +1965,22 @@ class MethodWriter implements MethodVisitor {
         if ((access & Opcodes.ACC_DEPRECATED) != 0) {
             ++attributeCount;
         }
-        if (signature != null) {
+        if (ClassReader.SIGNATURES && signature != null) {
             ++attributeCount;
         }
-        if (annd != null) {
+        if (ClassReader.ANNOTATIONS && annd != null) {
             ++attributeCount;
         }
-        if (anns != null) {
+        if (ClassReader.ANNOTATIONS && anns != null) {
             ++attributeCount;
         }
-        if (ianns != null) {
+        if (ClassReader.ANNOTATIONS && ianns != null) {
             ++attributeCount;
         }
-        if (panns != null) {
+        if (ClassReader.ANNOTATIONS && panns != null) {
             ++attributeCount;
         }
-        if (ipanns != null) {
+        if (ClassReader.ANNOTATIONS && ipanns != null) {
             ++attributeCount;
         }
         if (attrs != null) {
@@ -2065,29 +2080,29 @@ class MethodWriter implements MethodVisitor {
         if ((access & Opcodes.ACC_DEPRECATED) != 0) {
             out.putShort(cw.newUTF8("Deprecated")).putInt(0);
         }
-        if (signature != null) {
+        if (ClassReader.SIGNATURES && signature != null) {
             out.putShort(cw.newUTF8("Signature"))
                     .putInt(2)
                     .putShort(cw.newUTF8(signature));
         }
-        if (annd != null) {
+        if (ClassReader.ANNOTATIONS && annd != null) {
             out.putShort(cw.newUTF8("AnnotationDefault"));
             out.putInt(annd.length);
             out.putByteArray(annd.data, 0, annd.length);
         }
-        if (anns != null) {
+        if (ClassReader.ANNOTATIONS && anns != null) {
             out.putShort(cw.newUTF8("RuntimeVisibleAnnotations"));
             anns.put(out);
         }
-        if (ianns != null) {
+        if (ClassReader.ANNOTATIONS && ianns != null) {
             out.putShort(cw.newUTF8("RuntimeInvisibleAnnotations"));
             ianns.put(out);
         }
-        if (panns != null) {
+        if (ClassReader.ANNOTATIONS && panns != null) {
             out.putShort(cw.newUTF8("RuntimeVisibleParameterAnnotations"));
             AnnotationWriter.put(panns, out);
         }
-        if (ipanns != null) {
+        if (ClassReader.ANNOTATIONS && ipanns != null) {
             out.putShort(cw.newUTF8("RuntimeInvisibleParameterAnnotations"));
             AnnotationWriter.put(ipanns, out);
         }

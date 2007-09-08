@@ -79,6 +79,37 @@
     <condition property="product.shrink">
       <not><isset property="product.noshrink"/></not>
     </condition>
+
+	<condition property="SIGV" value="false" else="true">
+      <isset property="nosignatures"/>
+    </condition>
+	<condition property="SIG" value="-signatures" else="">
+      <isset property="nosignatures"/>
+    </condition>
+	<condition property="ANNV" value="false" else="true">
+      <isset property="noannotations"/>
+    </condition>
+	<condition property="ANN" value="-annotations" else="">
+      <isset property="noannotations"/>
+    </condition>
+	<condition property="FRAMESV" value="false" else="true">
+      <isset property="noframes"/>
+    </condition>
+	<condition property="FRAMES" value="-frames" else="">
+      <isset property="noframes"/>
+    </condition>
+	<condition property="WRITERV" value="false" else="true">
+      <isset property="nowriter"/>
+    </condition>
+	<condition property="WRITER" value="-writer" else="">
+      <isset property="nowriter"/>
+    </condition>
+	<condition property="RESIZEV" value="false" else="true">
+      <isset property="noresize"/>
+    </condition>
+	<condition property="RESIZE" value="-resize" else="">
+      <isset property="noresize"/>
+    </condition>
   </target>
 
   <!-- ================================== -->
@@ -119,13 +150,36 @@
   <!-- ==========    COMPILE    ========== -->
   <!-- =================================== -->
 
-  <target name="compile-debug" depends="init">
+  <target name="compile-init">
     <mkdir dir="${out.build}/tmp"/>
-    <javac destdir="${out.build}/tmp" debug="on" source="1.3" target="1.2">
+    <condition property="config.uptodate">
+      <uptodate srcfile="${src}/org/objectweb/asm/ClassReader.java" 
+        targetfile="${out.build}/tmp/org/objectweb/asm/ClassReader.java"/>
+    </condition>
+    <copy todir="${out.build}/tmp">
+      <fileset dir="${src}">
+        <include name="**/*"/>
+      </fileset>
+    </copy>
+  </target>
+
+  <target name="compile-config" unless="config.uptodate">
+  	<replace dir="${out.build}/tmp">
+  	  <include name="**/ClassReader.java"/>
+	  <replacefilter token="SIGNATURES = true" value="SIGNATURES = ${SIGV}"/>
+      <replacefilter token="ANNOTATIONS = true" value="ANNOTATIONS = ${ANNV}"/>
+      <replacefilter token="FRAMES = true" value="FRAMES = ${FRAMESV}"/>
+      <replacefilter token="WRITER = true" value="WRITER = ${SIGV}"/>
+      <replacefilter token="RESIZE = true" value="RESIZE = ${RESIZEV}"/>
+  	</replace>
+  </target>
+
+  <target name="compile-debug" depends="init,compile-init,compile-config">
+  	<javac destdir="${out.build}/tmp" debug="on" source="1.3" target="1.2">
       <classpath>
         <pathelement location="${out.build}/tmp"/>
       </classpath>
-      <src path="${src}"/>
+      <src path="${out.build}/tmp"/>
       <include name="**/*.java"/>
     </javac>
   </target>
@@ -137,6 +191,11 @@
         <pathelement location="${out.build}/tmp"/>
       </classpath>
       <arg value="${src}/org/objectweb/asm/optimizer/shrink.properties"/>
+      <arg value="${src}/org/objectweb/asm/optimizer/shrink${SIG}.properties"/>
+      <arg value="${src}/org/objectweb/asm/optimizer/shrink${ANN}.properties"/>
+      <arg value="${src}/org/objectweb/asm/optimizer/shrink${FRAMES}.properties"/>
+      <arg value="${src}/org/objectweb/asm/optimizer/shrink${WRITER}.properties"/>
+      <arg value="${src}/org/objectweb/asm/optimizer/shrink${RESIZE}.properties"/>
       <arg value="${out.build}/tmp"/>
       <arg value="${out.build}"/>
     </java>
@@ -252,7 +311,9 @@
   <target name="jar" depends="dist.init,dist.version,compile,shrink">
     <multipleAnt dir="${archive}"/>
     <java classname="org.objectweb.asm.optimizer.JarOptimizer">
-      <classpath refid="classpath"/>
+      <classpath>
+        <pathelement location="${out.build}/tmp"/>
+      </classpath>
       <!--arg value="${src}/org/objectweb/asm/optimizer/jdk1.2.2_017.txt.gz"/-->
       <arg value="${src}/org/objectweb/asm/optimizer/jdk1.3.1_19.txt.gz"/>
       <arg value="${out.dist.lib}"/>

@@ -44,6 +44,31 @@ import java.io.IOException;
 public class ClassReader {
 
     /**
+     * True to enable signatures support.
+     */
+    final static boolean SIGNATURES = true;
+    
+    /**
+     * True to enable annotations support.
+     */
+    final static boolean ANNOTATIONS = true;
+    
+    /**
+     * True to enable stack map frames support.
+     */
+    final static boolean FRAMES = true;
+    
+    /**
+     * True to enable bytecode writing support.
+     */
+    final static boolean WRITER = true;
+    
+    /**
+     * True to enable JSR_W and GOTO_W support.
+     */
+    final static boolean RESIZE = true;
+    
+    /**
      * Flag to skip method code. If this class is set <code>CODE</code>
      * attribute won't be visited. This can be used, for example, to retrieve
      * annotations for methods and method parameters.
@@ -496,9 +521,9 @@ public class ClassReader {
                     enclosingName = readUTF8(items[item], c);
                     enclosingDesc = readUTF8(items[item] + 2, c);
                 }
-            } else if (attrName.equals("Signature")) {
+            } else if (SIGNATURES && attrName.equals("Signature")) {
                 signature = readUTF8(v + 6, c);
-            } else if (attrName.equals("RuntimeVisibleAnnotations")) {
+            } else if (ANNOTATIONS && attrName.equals("RuntimeVisibleAnnotations")) {
                 anns = v + 6;
             } else if (attrName.equals("Deprecated")) {
                 access |= Opcodes.ACC_DEPRECATED;
@@ -507,7 +532,7 @@ public class ClassReader {
             } else if (attrName.equals("SourceDebugExtension")) {
                 int len = readInt(v + 2);
                 sourceDebug = readUTF(v + 6, len, new char[len]);
-            } else if (attrName.equals("RuntimeInvisibleAnnotations")) {
+            } else if (ANNOTATIONS && attrName.equals("RuntimeInvisibleAnnotations")) {
                 ianns = v + 6;
             } else {
                 attr = readAttribute(attrs,
@@ -545,16 +570,18 @@ public class ClassReader {
         }
 
         // visits the class annotations
-        for (i = 1; i >= 0; --i) {
-            v = i == 0 ? ianns : anns;
-            if (v != 0) {
-                j = readUnsignedShort(v);
-                v += 2;
-                for (; j > 0; --j) {
-                    v = readAnnotationValues(v + 2,
-                            c,
-                            true,
-                            classVisitor.visitAnnotation(readUTF8(v, c), i != 0));
+        if (ANNOTATIONS) {
+            for (i = 1; i >= 0; --i) {
+                v = i == 0 ? ianns : anns;
+                if (v != 0) {
+                    j = readUnsignedShort(v);
+                    v += 2;
+                    for (; j > 0; --j) {
+                        v = readAnnotationValues(v + 2,
+                                c,
+                                true,
+                                classVisitor.visitAnnotation(readUTF8(v, c), i != 0));
+                    }
                 }
             }
         }
@@ -606,15 +633,15 @@ public class ClassReader {
                 // (based on frequencies observed on typical classes)
                 if (attrName.equals("ConstantValue")) {
                     fieldValueItem = readUnsignedShort(u + 6);
-                } else if (attrName.equals("Signature")) {
+                } else if (SIGNATURES && attrName.equals("Signature")) {
                     signature = readUTF8(u + 6, c);
                 } else if (attrName.equals("Deprecated")) {
                     access |= Opcodes.ACC_DEPRECATED;
                 } else if (attrName.equals("Synthetic")) {
                     access |= Opcodes.ACC_SYNTHETIC;
-                } else if (attrName.equals("RuntimeVisibleAnnotations")) {
+                } else if (ANNOTATIONS && attrName.equals("RuntimeVisibleAnnotations")) {
                     anns = u + 6;
-                } else if (attrName.equals("RuntimeInvisibleAnnotations")) {
+                } else if (ANNOTATIONS && attrName.equals("RuntimeInvisibleAnnotations")) {
                     ianns = u + 6;
                 } else {
                     attr = readAttribute(attrs,
@@ -639,16 +666,18 @@ public class ClassReader {
                     fieldValueItem == 0 ? null : readConst(fieldValueItem, c));
             // visits the field annotations and attributes
             if (fv != null) {
-                for (j = 1; j >= 0; --j) {
-                    v = j == 0 ? ianns : anns;
-                    if (v != 0) {
-                        k = readUnsignedShort(v);
-                        v += 2;
-                        for (; k > 0; --k) {
-                            v = readAnnotationValues(v + 2,
-                                    c,
-                                    true,
-                                    fv.visitAnnotation(readUTF8(v, c), j != 0));
+                if (ANNOTATIONS) {
+                    for (j = 1; j >= 0; --j) {
+                        v = j == 0 ? ianns : anns;
+                        if (v != 0) {
+                            k = readUnsignedShort(v);
+                            v += 2;
+                            for (; k > 0; --k) {
+                                v = readAnnotationValues(v + 2,
+                                        c,
+                                        true,
+                                        fv.visitAnnotation(readUTF8(v, c), j != 0));
+                            }
                         }
                     }
                 }
@@ -695,22 +724,22 @@ public class ClassReader {
                     }
                 } else if (attrName.equals("Exceptions")) {
                     w = u;
-                } else if (attrName.equals("Signature")) {
+                } else if (SIGNATURES && attrName.equals("Signature")) {
                     signature = readUTF8(u, c);
                 } else if (attrName.equals("Deprecated")) {
                     access |= Opcodes.ACC_DEPRECATED;
-                } else if (attrName.equals("RuntimeVisibleAnnotations")) {
+                } else if (ANNOTATIONS && attrName.equals("RuntimeVisibleAnnotations")) {
                     anns = u;
-                } else if (attrName.equals("AnnotationDefault")) {
+                } else if (ANNOTATIONS && attrName.equals("AnnotationDefault")) {
                     dann = u;
                 } else if (attrName.equals("Synthetic")) {
                     access |= Opcodes.ACC_SYNTHETIC;
-                } else if (attrName.equals("RuntimeInvisibleAnnotations")) {
+                } else if (ANNOTATIONS && attrName.equals("RuntimeInvisibleAnnotations")) {
                     ianns = u;
-                } else if (attrName.equals("RuntimeVisibleParameterAnnotations"))
+                } else if (ANNOTATIONS && attrName.equals("RuntimeVisibleParameterAnnotations"))
                 {
                     mpanns = u;
-                } else if (attrName.equals("RuntimeInvisibleParameterAnnotations"))
+                } else if (ANNOTATIONS && attrName.equals("RuntimeInvisibleParameterAnnotations"))
                 {
                     impanns = u;
                 } else {
@@ -760,7 +789,7 @@ public class ClassReader {
                  * and descriptor can have been changed, this is not important
                  * since they are not copied as is from the reader).
                  */
-                if (mv instanceof MethodWriter) {
+                if (WRITER && mv instanceof MethodWriter) {
                     MethodWriter mw = (MethodWriter) mv;
                     if (mw.cw.cr == this) {
                         if (signature == mw.signature) {
@@ -796,30 +825,32 @@ public class ClassReader {
                     }
                 }
 
-                if (dann != 0) {
+                if (ANNOTATIONS && dann != 0) {
                     AnnotationVisitor dv = mv.visitAnnotationDefault();
                     readAnnotationValue(dann, c, null, dv);
                     if (dv != null) {
                         dv.visitEnd();
                     }
                 }
-                for (j = 1; j >= 0; --j) {
-                    w = j == 0 ? ianns : anns;
-                    if (w != 0) {
-                        k = readUnsignedShort(w);
-                        w += 2;
-                        for (; k > 0; --k) {
-                            w = readAnnotationValues(w + 2,
-                                    c,
-                                    true,
-                                    mv.visitAnnotation(readUTF8(w, c), j != 0));
+                if (ANNOTATIONS) {
+                    for (j = 1; j >= 0; --j) {
+                        w = j == 0 ? ianns : anns;
+                        if (w != 0) {
+                            k = readUnsignedShort(w);
+                            w += 2;
+                            for (; k > 0; --k) {
+                                w = readAnnotationValues(w + 2,
+                                        c,
+                                        true,
+                                        mv.visitAnnotation(readUTF8(w, c), j != 0));
+                            }
                         }
                     }
                 }
-                if (mpanns != 0) {
+                if (ANNOTATIONS && mpanns != 0) {
                     readParameterAnnotations(mpanns, c, true, mv);
                 }
-                if (impanns != 0) {
+                if (ANNOTATIONS && impanns != 0) {
                     readParameterAnnotations(impanns, c, false, mv);
                 }
                 while (cattrs != null) {
@@ -983,7 +1014,7 @@ public class ClassReader {
                                 w += 4;
                             }
                         }
-                    } else if (attrName.equals("StackMapTable")) {
+                    } else if (FRAMES && attrName.equals("StackMapTable")) {
                         if ((flags & SKIP_FRAMES) == 0) {
                             stackMap = v + 8;
                             frameCount = readUnsignedShort(v + 6);
@@ -1004,7 +1035,7 @@ public class ClassReader {
                          */
                         // TODO true for frame offsets,
                         // but for UNINITIALIZED type offsets?
-                    } else if (attrName.equals("StackMap")) {
+                    } else if (FRAMES && attrName.equals("StackMap")) {
                         if ((flags & SKIP_FRAMES) == 0) {
                             stackMap = v + 8;
                             frameCount = readUnsignedShort(v + 6);
@@ -1035,7 +1066,7 @@ public class ClassReader {
                 }
 
                 // 2nd phase: visits each instruction
-                if (stackMap != 0) {
+                if (FRAMES && stackMap != 0) {
                     // creates the very first (implicit) frame from the method
                     // descriptor
                     frameLocal = new Object[maxLocals];
@@ -1115,7 +1146,7 @@ public class ClassReader {
                         }
                     }
 
-                    while (frameLocal != null
+                    while (FRAMES && frameLocal != null
                             && (frameOffset == w || frameOffset == -1))
                     {
                         // if there is a frame for this offset,

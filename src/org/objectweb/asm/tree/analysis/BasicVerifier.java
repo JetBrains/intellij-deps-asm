@@ -195,10 +195,10 @@ public class BasicVerifier extends BasicInterpreter {
                 expected2 = BasicValue.INT_VALUE;
                 break;
             case BALOAD:
-                if (!isSubTypeOf(value1, newValue(Type.getType("[Z")))) {
-                    expected1 = newValue(Type.getType("[B"));
-                } else {
+                if (isSubTypeOf(value1, newValue(Type.getType("[Z")))) {
                     expected1 = newValue(Type.getType("[Z"));
+                } else {
+                    expected1 = newValue(Type.getType("[B"));
                 }
                 expected2 = BasicValue.INT_VALUE;
                 break;
@@ -323,10 +323,10 @@ public class BasicVerifier extends BasicInterpreter {
                 expected3 = BasicValue.INT_VALUE;
                 break;
             case BASTORE:
-                if (!isSubTypeOf(value1, newValue(Type.getType("[Z")))) {
-                    expected1 = newValue(Type.getType("[B"));
-                } else {
+                if (isSubTypeOf(value1, newValue(Type.getType("[Z")))) {
                     expected1 = newValue(Type.getType("[Z"));
+                } else {
+                    expected1 = newValue(Type.getType("[B"));
                 }
                 expected3 = BasicValue.INT_VALUE;
                 break;

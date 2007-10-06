@@ -38,7 +38,7 @@ import org.objectweb.asm.FieldVisitor;
  */
 public class CheckFieldAdapter implements FieldVisitor {
 
-    private FieldVisitor fv;
+    private final FieldVisitor fv;
 
     private boolean end;
 

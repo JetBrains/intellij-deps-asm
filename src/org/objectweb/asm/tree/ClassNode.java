@@ -224,9 +224,6 @@ public class ClassNode extends MemberNode implements ClassVisitor {
         return mn;
     }
 
-    public void visitEnd() {
-    }
-
     // ------------------------------------------------------------------------
     // Accept method
     // ------------------------------------------------------------------------

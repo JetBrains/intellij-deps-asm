@@ -55,7 +55,7 @@ import org.objectweb.asm.tree.VarInsnNode;
  */
 public class Analyzer implements Opcodes {
 
-    private Interpreter interpreter;
+    private final Interpreter interpreter;
 
     private int n;
 
@@ -451,13 +451,13 @@ public class Analyzer implements Opcodes {
     {
         Frame oldFrame = frames[insn];
         Subroutine oldSubroutine = subroutines[insn];
-        boolean changes = false;
+        boolean changes;
 
         if (oldFrame == null) {
             frames[insn] = newFrame(frame);
             changes = true;
         } else {
-            changes |= oldFrame.merge(frame, interpreter);
+            changes = oldFrame.merge(frame, interpreter);
         }
 
         if (oldSubroutine == null) {
@@ -485,7 +485,7 @@ public class Analyzer implements Opcodes {
     {
         Frame oldFrame = frames[insn];
         Subroutine oldSubroutine = subroutines[insn];
-        boolean changes = false;
+        boolean changes;
 
         afterRET.merge(beforeJSR, access);
 
@@ -493,7 +493,7 @@ public class Analyzer implements Opcodes {
             frames[insn] = newFrame(afterRET);
             changes = true;
         } else {
-            changes |= oldFrame.merge(afterRET, access);
+            changes = oldFrame.merge(afterRET, access);
         }
 
         if (oldSubroutine != null && subroutineBeforeJSR != null) {

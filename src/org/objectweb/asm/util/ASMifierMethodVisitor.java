@@ -110,7 +110,7 @@ public class ASMifierMethodVisitor extends ASMifierAbstractVisitor implements
                 appendFrameTypes(nLocal, local);
                 buf.append("}, ").append(nStack).append(", new Object[] {");
                 appendFrameTypes(nStack, stack);
-                buf.append("}");
+                buf.append('}');
                 break;
             case Opcodes.F_APPEND:
                 declareFrameTypes(nLocal, local);
@@ -132,7 +132,7 @@ public class ASMifierMethodVisitor extends ASMifierAbstractVisitor implements
                 declareFrameTypes(1, stack);
                 buf.append("mv.visitFrame(Opcodes.F_SAME1, 0, null, 1, new Object[] {");
                 appendFrameTypes(1, stack);
-                buf.append("}");
+                buf.append('}');
                 break;
         }
         buf.append(");\n");
@@ -249,7 +249,7 @@ public class ASMifierMethodVisitor extends ASMifierAbstractVisitor implements
         final int min,
         final int max,
         final Label dflt,
-        final Label labels[])
+        final Label[] labels)
     {
         buf.setLength(0);
         for (int i = 0; i < labels.length; ++i) {
@@ -274,8 +274,8 @@ public class ASMifierMethodVisitor extends ASMifierAbstractVisitor implements
 
     public void visitLookupSwitchInsn(
         final Label dflt,
-        final int keys[],
-        final Label labels[])
+        final int[] keys,
+        final Label[] labels)
     {
         buf.setLength(0);
         for (int i = 0; i < labels.length; ++i) {

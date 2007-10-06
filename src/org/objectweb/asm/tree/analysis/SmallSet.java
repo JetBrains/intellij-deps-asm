@@ -45,7 +45,7 @@ class SmallSet extends AbstractSet implements Iterator {
 
     Object e1, e2;
 
-    final static SmallSet EMPTY_SET = new SmallSet(null, null);
+    static final Set EMPTY_SET = new SmallSet(null, null);
 
     SmallSet(final Object e1, final Object e2) {
         this.e1 = e1;

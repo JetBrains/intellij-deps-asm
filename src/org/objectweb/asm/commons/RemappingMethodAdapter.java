@@ -33,7 +33,6 @@ package org.objectweb.asm.commons;
 import org.objectweb.asm.AnnotationVisitor;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
-import org.objectweb.asm.commons.LocalVariablesSorter;
 
 /**
  * A <code>MethodAdapter</code> for type mapping.

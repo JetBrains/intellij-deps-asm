@@ -29,13 +29,15 @@
  */
 package org.objectweb.asm.commons;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * A {@link org.objectweb.asm.MethodAdapter} to insert before, after and around
@@ -65,8 +67,8 @@ public abstract class AdviceAdapter extends GeneratorAdapter implements Opcodes
 
     private boolean constructor;
     private boolean superInitialized;
-    private ArrayList stackFrame;
-    private HashMap branches;
+    private List stackFrame;
+    private Map branches;
 
     /**
      * Creates a new {@link AdviceAdapter}.
@@ -76,7 +78,7 @@ public abstract class AdviceAdapter extends GeneratorAdapter implements Opcodes
      * @param name the method's name.
      * @param desc the method's descriptor (see {@link Type Type}).
      */
-    public AdviceAdapter(
+    protected AdviceAdapter(
         final MethodVisitor mv,
         final int access,
         final String name,
@@ -91,12 +93,12 @@ public abstract class AdviceAdapter extends GeneratorAdapter implements Opcodes
 
     public void visitCode() {
         mv.visitCode();
-        if (!constructor) {
-            superInitialized = true;
-            onMethodEnter();
-        } else {
+        if (constructor) {
             stackFrame = new ArrayList();
             branches = new HashMap();
+        } else {
+            superInitialized = true;
+            onMethodEnter();
         }
     }
 
@@ -104,7 +106,7 @@ public abstract class AdviceAdapter extends GeneratorAdapter implements Opcodes
         mv.visitLabel(label);
 
         if (constructor && branches != null) {
-            ArrayList frame = (ArrayList) branches.get(label);
+            List frame = (List) branches.get(label);
             if (frame != null) {
                 stackFrame = frame;
                 branches.remove(label);
@@ -149,7 +151,7 @@ public abstract class AdviceAdapter extends GeneratorAdapter implements Opcodes
                 case I2C:
                 case I2S:
                 case I2F:
-                case Opcodes.ARRAYLENGTH:
+                case ARRAYLENGTH:
                     break;
 
                 case ACONST_NULL:
@@ -540,9 +542,7 @@ public abstract class AdviceAdapter extends GeneratorAdapter implements Opcodes
         if (branches.containsKey(label)) {
             return;
         }
-        ArrayList frame = new ArrayList();
-        frame.addAll(stackFrame);
-        branches.put(label, frame);
+        branches.put(label, new ArrayList(stackFrame));
     }
 
     private Object popValue() {

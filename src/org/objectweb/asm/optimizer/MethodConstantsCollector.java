@@ -43,7 +43,7 @@ import org.objectweb.asm.Opcodes;
  */
 public class MethodConstantsCollector extends MethodAdapter {
 
-    private ConstantPool cp;
+    private final ConstantPool cp;
 
     public MethodConstantsCollector(
         final MethodVisitor mv,

@@ -42,55 +42,55 @@ class MethodWriter implements MethodVisitor {
     /**
      * Pseudo access flag used to denote constructors.
      */
-    final static int ACC_CONSTRUCTOR = 262144;
+    static final int ACC_CONSTRUCTOR = 262144;
 
     /**
      * Frame has exactly the same locals as the previous stack map frame and
      * number of stack items is zero.
      */
-    final static int SAME_FRAME = 0; // to 63 (0-3f)
+    static final int SAME_FRAME = 0; // to 63 (0-3f)
 
     /**
      * Frame has exactly the same locals as the previous stack map frame and
      * number of stack items is 1
      */
-    final static int SAME_LOCALS_1_STACK_ITEM_FRAME = 64; // to 127 (40-7f)
+    static final int SAME_LOCALS_1_STACK_ITEM_FRAME = 64; // to 127 (40-7f)
 
     /**
      * Reserved for future use
      */
-    final static int RESERVED = 128;
+    static final int RESERVED = 128;
 
     /**
      * Frame has exactly the same locals as the previous stack map frame and
      * number of stack items is 1. Offset is bigger then 63;
      */
-    final static int SAME_LOCALS_1_STACK_ITEM_FRAME_EXTENDED = 247; // f7
+    static final int SAME_LOCALS_1_STACK_ITEM_FRAME_EXTENDED = 247; // f7
 
     /**
      * Frame where current locals are the same as the locals in the previous
      * frame, except that the k last locals are absent. The value of k is given
      * by the formula 251-frame_type.
      */
-    final static int CHOP_FRAME = 248; // to 250 (f8-fA)
+    static final int CHOP_FRAME = 248; // to 250 (f8-fA)
 
     /**
      * Frame has exactly the same locals as the previous stack map frame and
      * number of stack items is zero. Offset is bigger then 63;
      */
-    final static int SAME_FRAME_EXTENDED = 251; // fb
+    static final int SAME_FRAME_EXTENDED = 251; // fb
 
     /**
      * Frame where current locals are the same as the locals in the previous
      * frame, except that k additional locals are defined. The value of k is
      * given by the formula frame_type-251.
      */
-    final static int APPEND_FRAME = 252; // to 254 // fc-fe
+    static final int APPEND_FRAME = 252; // to 254 // fc-fe
 
     /**
      * Full frame
      */
-    final static int FULL_FRAME = 255; // ff
+    static final int FULL_FRAME = 255; // ff
 
     /**
      * Indicates that the stack map frames must be recomputed from scratch. In
@@ -99,7 +99,7 @@ class MethodWriter implements MethodVisitor {
      * 
      * @see #compute
      */
-    private final static int FRAMES = 0;
+    private static final int FRAMES = 0;
 
     /**
      * Indicates that the maximum stack size and number of local variables must
@@ -107,14 +107,14 @@ class MethodWriter implements MethodVisitor {
      * 
      * @see #compute
      */
-    private final static int MAXS = 1;
+    private static final int MAXS = 1;
 
     /**
      * Indicates that nothing must be automatically computed.
      * 
      * @see #compute
      */
-    private final static int NOTHING = 2;
+    private static final int NOTHING = 2;
 
     /**
      * Next method writer (see {@link ClassWriter#firstMethod firstMethod}).
@@ -124,7 +124,7 @@ class MethodWriter implements MethodVisitor {
     /**
      * The class writer to which this method must be added.
      */
-    ClassWriter cw;
+    final ClassWriter cw;
 
     /**
      * Access flags of this method.
@@ -135,18 +135,18 @@ class MethodWriter implements MethodVisitor {
      * The index of the constant pool item that contains the name of this
      * method.
      */
-    private int name;
+    private final int name;
 
     /**
      * The index of the constant pool item that contains the descriptor of this
      * method.
      */
-    private int desc;
+    private final int desc;
 
     /**
      * The descriptor of this method.
      */
-    private String descriptor;
+    private final String descriptor;
 
     /**
      * The signature of this method.
@@ -342,17 +342,17 @@ class MethodWriter implements MethodVisitor {
     /**
      * Indicates what must be automatically computed.
      * 
-     * @see FRAMES
-     * @see MAXS
-     * @see NOTHING
+     * @see #FRAMES
+     * @see #MAXS
+     * @see #NOTHING
      */
-    private int compute;
+    private final int compute;
 
     /**
      * A list of labels. This list is the list of basic blocks in the method,
      * i.e. a list of Label objects linked to each other by their
      * {@link Label#successor} field, in the order they are visited by
-     * {@link visitLabel}, and starting with the first basic block.
+     * {@link MethodVisitor#visitLabel}, and starting with the first basic block.
      */
     private Label labels;
 
@@ -436,7 +436,7 @@ class MethodWriter implements MethodVisitor {
         }
         this.compute = computeFrames ? FRAMES : (computeMaxs ? MAXS : NOTHING);
         if (computeMaxs || computeFrames) {
-            if (computeFrames && name.equals("<init>")) {
+            if (computeFrames && "<init>".equals(name)) {
                 this.access |= ACC_CONSTRUCTOR;
             }
             // updates maxLocals
@@ -1044,7 +1044,7 @@ class MethodWriter implements MethodVisitor {
         final int min,
         final int max,
         final Label dflt,
-        final Label labels[])
+        final Label[] labels)
     {
         // adds the instruction to the bytecode of the method
         int source = code.length;
@@ -1061,8 +1061,8 @@ class MethodWriter implements MethodVisitor {
 
     public void visitLookupSwitchInsn(
         final Label dflt,
-        final int keys[],
-        final Label labels[])
+        final int[] keys,
+        final Label[] labels)
     {
         // adds the instruction to the bytecode of the method
         int source = code.length;
@@ -1307,15 +1307,15 @@ class MethodWriter implements MethodVisitor {
                     b.info = Edge.EXCEPTION;
                     b.successor = h;
                     // adds it to the successors of 'l'
-                    if ((l.status & Label.JSR) != 0) {
+                    if ((l.status & Label.JSR) == 0) {
+                        b.next = l.successors;
+                        l.successors = b;
+                    } else {
                         // if l is a JSR block, adds b after the first two edges
                         // to preserve the hypothesis about JSR block successors
                         // order (see {@link #visitJumpInsn})
                         b.next = l.successors.next.next;
                         l.successors.next.next = b;
-                    } else {
-                        b.next = l.successors;
-                        l.successors = b;
                     }
                     // goes to the next label
                     l = l.successor;
@@ -1345,7 +1345,7 @@ class MethodWriter implements MethodVisitor {
                         // if this subroutine does not have an id yet...
                         if ((subroutine.status & ~0xFFF) == 0) {
                             // ...assigns it a new id and finds its basic blocks
-                            id = id << 1;
+                            id <<= 1;
                             findSubroutine(subroutine, id);
                         }
                     }
@@ -1495,7 +1495,7 @@ class MethodWriter implements MethodVisitor {
      * @param block a block that belongs to the subroutine
      * @param id the id of this subroutine
      */
-    private void findSubroutine(final Label block, final int id) {
+    private static void findSubroutine(final Label block, final int id) {
         // if 'block' is already marked as belonging to subroutine 'id', returns
         if ((block.status & id) != 0) {
             return;

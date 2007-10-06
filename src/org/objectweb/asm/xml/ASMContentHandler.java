@@ -35,16 +35,16 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import org.objectweb.asm.AnnotationVisitor;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.FieldVisitor;
+import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
-import org.objectweb.asm.Label;
 import org.objectweb.asm.Type;
-
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
@@ -91,7 +91,7 @@ public class ASMContentHandler extends DefaultHandler implements Opcodes {
     /**
      * Map of the active {@link Label Label} instances for current method.
      */
-    protected HashMap labels;
+    protected Map labels;
 
     private static final String BASE = "class";
 
@@ -138,7 +138,7 @@ public class ASMContentHandler extends DefaultHandler implements Opcodes {
                 new AnnotationValueAnnotationRule());
         RULES.add("*/annotationValueEnum", new AnnotationValueEnumRule());
         RULES.add("*/annotationValueArray", new AnnotationValueArrayRule());
-    };
+    }
 
     private static interface OpcodeGroup {
         public static final int INSN = 0;
@@ -156,170 +156,169 @@ public class ASMContentHandler extends DefaultHandler implements Opcodes {
     /**
      * Map of the opcode names to opcode and opcode group
      */
-    static final HashMap OPCODES = new HashMap();
+    static final Map OPCODES = new HashMap();
     static {
-        OPCODES.put("NOP", new Opcode(NOP, OpcodeGroup.INSN));
-        OPCODES.put("ACONST_NULL", new Opcode(ACONST_NULL, OpcodeGroup.INSN));
-        OPCODES.put("ICONST_M1", new Opcode(ICONST_M1, OpcodeGroup.INSN));
-        OPCODES.put("ICONST_0", new Opcode(ICONST_0, OpcodeGroup.INSN));
-        OPCODES.put("ICONST_1", new Opcode(ICONST_1, OpcodeGroup.INSN));
-        OPCODES.put("ICONST_2", new Opcode(ICONST_2, OpcodeGroup.INSN));
-        OPCODES.put("ICONST_3", new Opcode(ICONST_3, OpcodeGroup.INSN));
-        OPCODES.put("ICONST_4", new Opcode(ICONST_4, OpcodeGroup.INSN));
-        OPCODES.put("ICONST_5", new Opcode(ICONST_5, OpcodeGroup.INSN));
-        OPCODES.put("LCONST_0", new Opcode(LCONST_0, OpcodeGroup.INSN));
-        OPCODES.put("LCONST_1", new Opcode(LCONST_1, OpcodeGroup.INSN));
-        OPCODES.put("FCONST_0", new Opcode(FCONST_0, OpcodeGroup.INSN));
-        OPCODES.put("FCONST_1", new Opcode(FCONST_1, OpcodeGroup.INSN));
-        OPCODES.put("FCONST_2", new Opcode(FCONST_2, OpcodeGroup.INSN));
-        OPCODES.put("DCONST_0", new Opcode(DCONST_0, OpcodeGroup.INSN));
-        OPCODES.put("DCONST_1", new Opcode(DCONST_1, OpcodeGroup.INSN));
-        OPCODES.put("BIPUSH", new Opcode(BIPUSH, OpcodeGroup.INSN_INT));
-        OPCODES.put("SIPUSH", new Opcode(SIPUSH, OpcodeGroup.INSN_INT));
-        OPCODES.put("LDC", new Opcode(LDC, OpcodeGroup.INSN_LDC));
-        OPCODES.put("ILOAD", new Opcode(ILOAD, OpcodeGroup.INSN_VAR));
-        OPCODES.put("LLOAD", new Opcode(LLOAD, OpcodeGroup.INSN_VAR));
-        OPCODES.put("FLOAD", new Opcode(FLOAD, OpcodeGroup.INSN_VAR));
-        OPCODES.put("DLOAD", new Opcode(DLOAD, OpcodeGroup.INSN_VAR));
-        OPCODES.put("ALOAD", new Opcode(ALOAD, OpcodeGroup.INSN_VAR));
-        OPCODES.put("IALOAD", new Opcode(IALOAD, OpcodeGroup.INSN));
-        OPCODES.put("LALOAD", new Opcode(LALOAD, OpcodeGroup.INSN));
-        OPCODES.put("FALOAD", new Opcode(FALOAD, OpcodeGroup.INSN));
-        OPCODES.put("DALOAD", new Opcode(DALOAD, OpcodeGroup.INSN));
-        OPCODES.put("AALOAD", new Opcode(AALOAD, OpcodeGroup.INSN));
-        OPCODES.put("BALOAD", new Opcode(BALOAD, OpcodeGroup.INSN));
-        OPCODES.put("CALOAD", new Opcode(CALOAD, OpcodeGroup.INSN));
-        OPCODES.put("SALOAD", new Opcode(SALOAD, OpcodeGroup.INSN));
-        OPCODES.put("ISTORE", new Opcode(ISTORE, OpcodeGroup.INSN_VAR));
-        OPCODES.put("LSTORE", new Opcode(LSTORE, OpcodeGroup.INSN_VAR));
-        OPCODES.put("FSTORE", new Opcode(FSTORE, OpcodeGroup.INSN_VAR));
-        OPCODES.put("DSTORE", new Opcode(DSTORE, OpcodeGroup.INSN_VAR));
-        OPCODES.put("ASTORE", new Opcode(ASTORE, OpcodeGroup.INSN_VAR));
-        OPCODES.put("IASTORE", new Opcode(IASTORE, OpcodeGroup.INSN));
-        OPCODES.put("LASTORE", new Opcode(LASTORE, OpcodeGroup.INSN));
-        OPCODES.put("FASTORE", new Opcode(FASTORE, OpcodeGroup.INSN));
-        OPCODES.put("DASTORE", new Opcode(DASTORE, OpcodeGroup.INSN));
-        OPCODES.put("AASTORE", new Opcode(AASTORE, OpcodeGroup.INSN));
-        OPCODES.put("BASTORE", new Opcode(BASTORE, OpcodeGroup.INSN));
-        OPCODES.put("CASTORE", new Opcode(CASTORE, OpcodeGroup.INSN));
-        OPCODES.put("SASTORE", new Opcode(SASTORE, OpcodeGroup.INSN));
-        OPCODES.put("POP", new Opcode(POP, OpcodeGroup.INSN));
-        OPCODES.put("POP2", new Opcode(POP2, OpcodeGroup.INSN));
-        OPCODES.put("DUP", new Opcode(DUP, OpcodeGroup.INSN));
-        OPCODES.put("DUP_X1", new Opcode(DUP_X1, OpcodeGroup.INSN));
-        OPCODES.put("DUP_X2", new Opcode(DUP_X2, OpcodeGroup.INSN));
-        OPCODES.put("DUP2", new Opcode(DUP2, OpcodeGroup.INSN));
-        OPCODES.put("DUP2_X1", new Opcode(DUP2_X1, OpcodeGroup.INSN));
-        OPCODES.put("DUP2_X2", new Opcode(DUP2_X2, OpcodeGroup.INSN));
-        OPCODES.put("SWAP", new Opcode(SWAP, OpcodeGroup.INSN));
-        OPCODES.put("IADD", new Opcode(IADD, OpcodeGroup.INSN));
-        OPCODES.put("LADD", new Opcode(LADD, OpcodeGroup.INSN));
-        OPCODES.put("FADD", new Opcode(FADD, OpcodeGroup.INSN));
-        OPCODES.put("DADD", new Opcode(DADD, OpcodeGroup.INSN));
-        OPCODES.put("ISUB", new Opcode(ISUB, OpcodeGroup.INSN));
-        OPCODES.put("LSUB", new Opcode(LSUB, OpcodeGroup.INSN));
-        OPCODES.put("FSUB", new Opcode(FSUB, OpcodeGroup.INSN));
-        OPCODES.put("DSUB", new Opcode(DSUB, OpcodeGroup.INSN));
-        OPCODES.put("IMUL", new Opcode(IMUL, OpcodeGroup.INSN));
-        OPCODES.put("LMUL", new Opcode(LMUL, OpcodeGroup.INSN));
-        OPCODES.put("FMUL", new Opcode(FMUL, OpcodeGroup.INSN));
-        OPCODES.put("DMUL", new Opcode(DMUL, OpcodeGroup.INSN));
-        OPCODES.put("IDIV", new Opcode(IDIV, OpcodeGroup.INSN));
-        OPCODES.put("LDIV", new Opcode(LDIV, OpcodeGroup.INSN));
-        OPCODES.put("FDIV", new Opcode(FDIV, OpcodeGroup.INSN));
-        OPCODES.put("DDIV", new Opcode(DDIV, OpcodeGroup.INSN));
-        OPCODES.put("IREM", new Opcode(IREM, OpcodeGroup.INSN));
-        OPCODES.put("LREM", new Opcode(LREM, OpcodeGroup.INSN));
-        OPCODES.put("FREM", new Opcode(FREM, OpcodeGroup.INSN));
-        OPCODES.put("DREM", new Opcode(DREM, OpcodeGroup.INSN));
-        OPCODES.put("INEG", new Opcode(INEG, OpcodeGroup.INSN));
-        OPCODES.put("LNEG", new Opcode(LNEG, OpcodeGroup.INSN));
-        OPCODES.put("FNEG", new Opcode(FNEG, OpcodeGroup.INSN));
-        OPCODES.put("DNEG", new Opcode(DNEG, OpcodeGroup.INSN));
-        OPCODES.put("ISHL", new Opcode(ISHL, OpcodeGroup.INSN));
-        OPCODES.put("LSHL", new Opcode(LSHL, OpcodeGroup.INSN));
-        OPCODES.put("ISHR", new Opcode(ISHR, OpcodeGroup.INSN));
-        OPCODES.put("LSHR", new Opcode(LSHR, OpcodeGroup.INSN));
-        OPCODES.put("IUSHR", new Opcode(IUSHR, OpcodeGroup.INSN));
-        OPCODES.put("LUSHR", new Opcode(LUSHR, OpcodeGroup.INSN));
-        OPCODES.put("IAND", new Opcode(IAND, OpcodeGroup.INSN));
-        OPCODES.put("LAND", new Opcode(LAND, OpcodeGroup.INSN));
-        OPCODES.put("IOR", new Opcode(IOR, OpcodeGroup.INSN));
-        OPCODES.put("LOR", new Opcode(LOR, OpcodeGroup.INSN));
-        OPCODES.put("IXOR", new Opcode(IXOR, OpcodeGroup.INSN));
-        OPCODES.put("LXOR", new Opcode(LXOR, OpcodeGroup.INSN));
-        OPCODES.put("IINC", new Opcode(IINC, OpcodeGroup.INSN_IINC));
-        OPCODES.put("I2L", new Opcode(I2L, OpcodeGroup.INSN));
-        OPCODES.put("I2F", new Opcode(I2F, OpcodeGroup.INSN));
-        OPCODES.put("I2D", new Opcode(I2D, OpcodeGroup.INSN));
-        OPCODES.put("L2I", new Opcode(L2I, OpcodeGroup.INSN));
-        OPCODES.put("L2F", new Opcode(L2F, OpcodeGroup.INSN));
-        OPCODES.put("L2D", new Opcode(L2D, OpcodeGroup.INSN));
-        OPCODES.put("F2I", new Opcode(F2I, OpcodeGroup.INSN));
-        OPCODES.put("F2L", new Opcode(F2L, OpcodeGroup.INSN));
-        OPCODES.put("F2D", new Opcode(F2D, OpcodeGroup.INSN));
-        OPCODES.put("D2I", new Opcode(D2I, OpcodeGroup.INSN));
-        OPCODES.put("D2L", new Opcode(D2L, OpcodeGroup.INSN));
-        OPCODES.put("D2F", new Opcode(D2F, OpcodeGroup.INSN));
-        OPCODES.put("I2B", new Opcode(I2B, OpcodeGroup.INSN));
-        OPCODES.put("I2C", new Opcode(I2C, OpcodeGroup.INSN));
-        OPCODES.put("I2S", new Opcode(I2S, OpcodeGroup.INSN));
-        OPCODES.put("LCMP", new Opcode(LCMP, OpcodeGroup.INSN));
-        OPCODES.put("FCMPL", new Opcode(FCMPL, OpcodeGroup.INSN));
-        OPCODES.put("FCMPG", new Opcode(FCMPG, OpcodeGroup.INSN));
-        OPCODES.put("DCMPL", new Opcode(DCMPL, OpcodeGroup.INSN));
-        OPCODES.put("DCMPG", new Opcode(DCMPG, OpcodeGroup.INSN));
-        OPCODES.put("IFEQ", new Opcode(IFEQ, OpcodeGroup.INSN_JUMP));
-        OPCODES.put("IFNE", new Opcode(IFNE, OpcodeGroup.INSN_JUMP));
-        OPCODES.put("IFLT", new Opcode(IFLT, OpcodeGroup.INSN_JUMP));
-        OPCODES.put("IFGE", new Opcode(IFGE, OpcodeGroup.INSN_JUMP));
-        OPCODES.put("IFGT", new Opcode(IFGT, OpcodeGroup.INSN_JUMP));
-        OPCODES.put("IFLE", new Opcode(IFLE, OpcodeGroup.INSN_JUMP));
-        OPCODES.put("IF_ICMPEQ", new Opcode(IF_ICMPEQ, OpcodeGroup.INSN_JUMP));
-        OPCODES.put("IF_ICMPNE", new Opcode(IF_ICMPNE, OpcodeGroup.INSN_JUMP));
-        OPCODES.put("IF_ICMPLT", new Opcode(IF_ICMPLT, OpcodeGroup.INSN_JUMP));
-        OPCODES.put("IF_ICMPGE", new Opcode(IF_ICMPGE, OpcodeGroup.INSN_JUMP));
-        OPCODES.put("IF_ICMPGT", new Opcode(IF_ICMPGT, OpcodeGroup.INSN_JUMP));
-        OPCODES.put("IF_ICMPLE", new Opcode(IF_ICMPLE, OpcodeGroup.INSN_JUMP));
-        OPCODES.put("IF_ACMPEQ", new Opcode(IF_ACMPEQ, OpcodeGroup.INSN_JUMP));
-        OPCODES.put("IF_ACMPNE", new Opcode(IF_ACMPNE, OpcodeGroup.INSN_JUMP));
-        OPCODES.put("GOTO", new Opcode(GOTO, OpcodeGroup.INSN_JUMP));
-        OPCODES.put("JSR", new Opcode(JSR, OpcodeGroup.INSN_JUMP));
-        OPCODES.put("RET", new Opcode(RET, OpcodeGroup.INSN_VAR));
-        OPCODES.put("IRETURN", new Opcode(IRETURN, OpcodeGroup.INSN));
-        OPCODES.put("LRETURN", new Opcode(LRETURN, OpcodeGroup.INSN));
-        OPCODES.put("FRETURN", new Opcode(FRETURN, OpcodeGroup.INSN));
-        OPCODES.put("DRETURN", new Opcode(DRETURN, OpcodeGroup.INSN));
-        OPCODES.put("ARETURN", new Opcode(ARETURN, OpcodeGroup.INSN));
-        OPCODES.put("RETURN", new Opcode(RETURN, OpcodeGroup.INSN));
-        OPCODES.put("GETSTATIC", new Opcode(GETSTATIC, OpcodeGroup.INSN_FIELD));
-        OPCODES.put("PUTSTATIC", new Opcode(PUTSTATIC, OpcodeGroup.INSN_FIELD));
-        OPCODES.put("GETFIELD", new Opcode(GETFIELD, OpcodeGroup.INSN_FIELD));
-        OPCODES.put("PUTFIELD", new Opcode(PUTFIELD, OpcodeGroup.INSN_FIELD));
-        OPCODES.put("INVOKEVIRTUAL", new Opcode(INVOKEVIRTUAL,
-                OpcodeGroup.INSN_METHOD));
-        OPCODES.put("INVOKESPECIAL", new Opcode(INVOKESPECIAL,
-                OpcodeGroup.INSN_METHOD));
-        OPCODES.put("INVOKESTATIC", new Opcode(INVOKESTATIC,
-                OpcodeGroup.INSN_METHOD));
-        OPCODES.put("INVOKEINTERFACE", new Opcode(INVOKEINTERFACE,
-                OpcodeGroup.INSN_METHOD));
-        OPCODES.put("NEW", new Opcode(NEW, OpcodeGroup.INSN_TYPE));
-        OPCODES.put("NEWARRAY", new Opcode(NEWARRAY, OpcodeGroup.INSN_INT));
-        OPCODES.put("ANEWARRAY", new Opcode(ANEWARRAY, OpcodeGroup.INSN_TYPE));
-        OPCODES.put("ARRAYLENGTH", new Opcode(ARRAYLENGTH, OpcodeGroup.INSN));
-        OPCODES.put("ATHROW", new Opcode(ATHROW, OpcodeGroup.INSN));
-        OPCODES.put("CHECKCAST", new Opcode(CHECKCAST, OpcodeGroup.INSN_TYPE));
-        OPCODES.put("INSTANCEOF", new Opcode(INSTANCEOF, OpcodeGroup.INSN_TYPE));
-        OPCODES.put("MONITORENTER", new Opcode(MONITORENTER, OpcodeGroup.INSN));
-        OPCODES.put("MONITOREXIT", new Opcode(MONITOREXIT, OpcodeGroup.INSN));
-        OPCODES.put("MULTIANEWARRAY", new Opcode(MULTIANEWARRAY,
-                OpcodeGroup.INSN_MULTIANEWARRAY));
-        OPCODES.put("IFNULL", new Opcode(IFNULL, OpcodeGroup.INSN_JUMP));
-        OPCODES.put("IFNONNULL", new Opcode(IFNONNULL, OpcodeGroup.INSN_JUMP));
+        addOpcode("NOP", NOP, OpcodeGroup.INSN);
+        addOpcode("ACONST_NULL", ACONST_NULL, OpcodeGroup.INSN);
+        addOpcode("ICONST_M1", ICONST_M1, OpcodeGroup.INSN);
+        addOpcode("ICONST_0", ICONST_0, OpcodeGroup.INSN);
+        addOpcode("ICONST_1", ICONST_1, OpcodeGroup.INSN);
+        addOpcode("ICONST_2", ICONST_2, OpcodeGroup.INSN);
+        addOpcode("ICONST_3", ICONST_3, OpcodeGroup.INSN);
+        addOpcode("ICONST_4", ICONST_4, OpcodeGroup.INSN);
+        addOpcode("ICONST_5", ICONST_5, OpcodeGroup.INSN);
+        addOpcode("LCONST_0", LCONST_0, OpcodeGroup.INSN);
+        addOpcode("LCONST_1", LCONST_1, OpcodeGroup.INSN);
+        addOpcode("FCONST_0", FCONST_0, OpcodeGroup.INSN);
+        addOpcode("FCONST_1", FCONST_1, OpcodeGroup.INSN);
+        addOpcode("FCONST_2", FCONST_2, OpcodeGroup.INSN);
+        addOpcode("DCONST_0", DCONST_0, OpcodeGroup.INSN);
+        addOpcode("DCONST_1", DCONST_1, OpcodeGroup.INSN);
+        addOpcode("BIPUSH", BIPUSH, OpcodeGroup.INSN_INT);
+        addOpcode("SIPUSH", SIPUSH, OpcodeGroup.INSN_INT);
+        addOpcode("LDC", LDC, OpcodeGroup.INSN_LDC);
+        addOpcode("ILOAD", ILOAD, OpcodeGroup.INSN_VAR);
+        addOpcode("LLOAD", LLOAD, OpcodeGroup.INSN_VAR);
+        addOpcode("FLOAD", FLOAD, OpcodeGroup.INSN_VAR);
+        addOpcode("DLOAD", DLOAD, OpcodeGroup.INSN_VAR);
+        addOpcode("ALOAD", ALOAD, OpcodeGroup.INSN_VAR);
+        addOpcode("IALOAD", IALOAD, OpcodeGroup.INSN);
+        addOpcode("LALOAD", LALOAD, OpcodeGroup.INSN);
+        addOpcode("FALOAD", FALOAD, OpcodeGroup.INSN);
+        addOpcode("DALOAD", DALOAD, OpcodeGroup.INSN);
+        addOpcode("AALOAD", AALOAD, OpcodeGroup.INSN);
+        addOpcode("BALOAD", BALOAD, OpcodeGroup.INSN);
+        addOpcode("CALOAD", CALOAD, OpcodeGroup.INSN);
+        addOpcode("SALOAD", SALOAD, OpcodeGroup.INSN);
+        addOpcode("ISTORE", ISTORE, OpcodeGroup.INSN_VAR);
+        addOpcode("LSTORE", LSTORE, OpcodeGroup.INSN_VAR);
+        addOpcode("FSTORE", FSTORE, OpcodeGroup.INSN_VAR);
+        addOpcode("DSTORE", DSTORE, OpcodeGroup.INSN_VAR);
+        addOpcode("ASTORE", ASTORE, OpcodeGroup.INSN_VAR);
+        addOpcode("IASTORE", IASTORE, OpcodeGroup.INSN);
+        addOpcode("LASTORE", LASTORE, OpcodeGroup.INSN);
+        addOpcode("FASTORE", FASTORE, OpcodeGroup.INSN);
+        addOpcode("DASTORE", DASTORE, OpcodeGroup.INSN);
+        addOpcode("AASTORE", AASTORE, OpcodeGroup.INSN);
+        addOpcode("BASTORE", BASTORE, OpcodeGroup.INSN);
+        addOpcode("CASTORE", CASTORE, OpcodeGroup.INSN);
+        addOpcode("SASTORE", SASTORE, OpcodeGroup.INSN);
+        addOpcode("POP", POP, OpcodeGroup.INSN);
+        addOpcode("POP2", POP2, OpcodeGroup.INSN);
+        addOpcode("DUP", DUP, OpcodeGroup.INSN);
+        addOpcode("DUP_X1", DUP_X1, OpcodeGroup.INSN);
+        addOpcode("DUP_X2", DUP_X2, OpcodeGroup.INSN);
+        addOpcode("DUP2", DUP2, OpcodeGroup.INSN);
+        addOpcode("DUP2_X1", DUP2_X1, OpcodeGroup.INSN);
+        addOpcode("DUP2_X2", DUP2_X2, OpcodeGroup.INSN);
+        addOpcode("SWAP", SWAP, OpcodeGroup.INSN);
+        addOpcode("IADD", IADD, OpcodeGroup.INSN);
+        addOpcode("LADD", LADD, OpcodeGroup.INSN);
+        addOpcode("FADD", FADD, OpcodeGroup.INSN);
+        addOpcode("DADD", DADD, OpcodeGroup.INSN);
+        addOpcode("ISUB", ISUB, OpcodeGroup.INSN);
+        addOpcode("LSUB", LSUB, OpcodeGroup.INSN);
+        addOpcode("FSUB", FSUB, OpcodeGroup.INSN);
+        addOpcode("DSUB", DSUB, OpcodeGroup.INSN);
+        addOpcode("IMUL", IMUL, OpcodeGroup.INSN);
+        addOpcode("LMUL", LMUL, OpcodeGroup.INSN);
+        addOpcode("FMUL", FMUL, OpcodeGroup.INSN);
+        addOpcode("DMUL", DMUL, OpcodeGroup.INSN);
+        addOpcode("IDIV", IDIV, OpcodeGroup.INSN);
+        addOpcode("LDIV", LDIV, OpcodeGroup.INSN);
+        addOpcode("FDIV", FDIV, OpcodeGroup.INSN);
+        addOpcode("DDIV", DDIV, OpcodeGroup.INSN);
+        addOpcode("IREM", IREM, OpcodeGroup.INSN);
+        addOpcode("LREM", LREM, OpcodeGroup.INSN);
+        addOpcode("FREM", FREM, OpcodeGroup.INSN);
+        addOpcode("DREM", DREM, OpcodeGroup.INSN);
+        addOpcode("INEG", INEG, OpcodeGroup.INSN);
+        addOpcode("LNEG", LNEG, OpcodeGroup.INSN);
+        addOpcode("FNEG", FNEG, OpcodeGroup.INSN);
+        addOpcode("DNEG", DNEG, OpcodeGroup.INSN);
+        addOpcode("ISHL", ISHL, OpcodeGroup.INSN);
+        addOpcode("LSHL", LSHL, OpcodeGroup.INSN);
+        addOpcode("ISHR", ISHR, OpcodeGroup.INSN);
+        addOpcode("LSHR", LSHR, OpcodeGroup.INSN);
+        addOpcode("IUSHR", IUSHR, OpcodeGroup.INSN);
+        addOpcode("LUSHR", LUSHR, OpcodeGroup.INSN);
+        addOpcode("IAND", IAND, OpcodeGroup.INSN);
+        addOpcode("LAND", LAND, OpcodeGroup.INSN);
+        addOpcode("IOR", IOR, OpcodeGroup.INSN);
+        addOpcode("LOR", LOR, OpcodeGroup.INSN);
+        addOpcode("IXOR", IXOR, OpcodeGroup.INSN);
+        addOpcode("LXOR", LXOR, OpcodeGroup.INSN);
+        addOpcode("IINC", IINC, OpcodeGroup.INSN_IINC);
+        addOpcode("I2L", I2L, OpcodeGroup.INSN);
+        addOpcode("I2F", I2F, OpcodeGroup.INSN);
+        addOpcode("I2D", I2D, OpcodeGroup.INSN);
+        addOpcode("L2I", L2I, OpcodeGroup.INSN);
+        addOpcode("L2F", L2F, OpcodeGroup.INSN);
+        addOpcode("L2D", L2D, OpcodeGroup.INSN);
+        addOpcode("F2I", F2I, OpcodeGroup.INSN);
+        addOpcode("F2L", F2L, OpcodeGroup.INSN);
+        addOpcode("F2D", F2D, OpcodeGroup.INSN);
+        addOpcode("D2I", D2I, OpcodeGroup.INSN);
+        addOpcode("D2L", D2L, OpcodeGroup.INSN);
+        addOpcode("D2F", D2F, OpcodeGroup.INSN);
+        addOpcode("I2B", I2B, OpcodeGroup.INSN);
+        addOpcode("I2C", I2C, OpcodeGroup.INSN);
+        addOpcode("I2S", I2S, OpcodeGroup.INSN);
+        addOpcode("LCMP", LCMP, OpcodeGroup.INSN);
+        addOpcode("FCMPL", FCMPL, OpcodeGroup.INSN);
+        addOpcode("FCMPG", FCMPG, OpcodeGroup.INSN);
+        addOpcode("DCMPL", DCMPL, OpcodeGroup.INSN);
+        addOpcode("DCMPG", DCMPG, OpcodeGroup.INSN);
+        addOpcode("IFEQ", IFEQ, OpcodeGroup.INSN_JUMP);
+        addOpcode("IFNE", IFNE, OpcodeGroup.INSN_JUMP);
+        addOpcode("IFLT", IFLT, OpcodeGroup.INSN_JUMP);
+        addOpcode("IFGE", IFGE, OpcodeGroup.INSN_JUMP);
+        addOpcode("IFGT", IFGT, OpcodeGroup.INSN_JUMP);
+        addOpcode("IFLE", IFLE, OpcodeGroup.INSN_JUMP);
+        addOpcode("IF_ICMPEQ", IF_ICMPEQ, OpcodeGroup.INSN_JUMP);
+        addOpcode("IF_ICMPNE", IF_ICMPNE, OpcodeGroup.INSN_JUMP);
+        addOpcode("IF_ICMPLT", IF_ICMPLT, OpcodeGroup.INSN_JUMP);
+        addOpcode("IF_ICMPGE", IF_ICMPGE, OpcodeGroup.INSN_JUMP);
+        addOpcode("IF_ICMPGT", IF_ICMPGT, OpcodeGroup.INSN_JUMP);
+        addOpcode("IF_ICMPLE", IF_ICMPLE, OpcodeGroup.INSN_JUMP);
+        addOpcode("IF_ACMPEQ", IF_ACMPEQ, OpcodeGroup.INSN_JUMP);
+        addOpcode("IF_ACMPNE", IF_ACMPNE, OpcodeGroup.INSN_JUMP);
+        addOpcode("GOTO", GOTO, OpcodeGroup.INSN_JUMP);
+        addOpcode("JSR", JSR, OpcodeGroup.INSN_JUMP);
+        addOpcode("RET", RET, OpcodeGroup.INSN_VAR);
+        addOpcode("IRETURN", IRETURN, OpcodeGroup.INSN);
+        addOpcode("LRETURN", LRETURN, OpcodeGroup.INSN);
+        addOpcode("FRETURN", FRETURN, OpcodeGroup.INSN);
+        addOpcode("DRETURN", DRETURN, OpcodeGroup.INSN);
+        addOpcode("ARETURN", ARETURN, OpcodeGroup.INSN);
+        addOpcode("RETURN", RETURN, OpcodeGroup.INSN);
+        addOpcode("GETSTATIC", GETSTATIC, OpcodeGroup.INSN_FIELD);
+        addOpcode("PUTSTATIC", PUTSTATIC, OpcodeGroup.INSN_FIELD);
+        addOpcode("GETFIELD", GETFIELD, OpcodeGroup.INSN_FIELD);
+        addOpcode("PUTFIELD", PUTFIELD, OpcodeGroup.INSN_FIELD);
+        addOpcode("INVOKEVIRTUAL", INVOKEVIRTUAL, OpcodeGroup.INSN_METHOD);
+        addOpcode("INVOKESPECIAL", INVOKESPECIAL, OpcodeGroup.INSN_METHOD);
+        addOpcode("INVOKESTATIC", INVOKESTATIC, OpcodeGroup.INSN_METHOD);
+        addOpcode("INVOKEINTERFACE", INVOKEINTERFACE, OpcodeGroup.INSN_METHOD);
+        addOpcode("NEW", NEW, OpcodeGroup.INSN_TYPE);
+        addOpcode("NEWARRAY", NEWARRAY, OpcodeGroup.INSN_INT);
+        addOpcode("ANEWARRAY", ANEWARRAY, OpcodeGroup.INSN_TYPE);
+        addOpcode("ARRAYLENGTH", ARRAYLENGTH, OpcodeGroup.INSN);
+        addOpcode("ATHROW", ATHROW, OpcodeGroup.INSN);
+        addOpcode("CHECKCAST", CHECKCAST, OpcodeGroup.INSN_TYPE);
+        addOpcode("INSTANCEOF", INSTANCEOF, OpcodeGroup.INSN_TYPE);
+        addOpcode("MONITORENTER", MONITORENTER, OpcodeGroup.INSN);
+        addOpcode("MONITOREXIT", MONITOREXIT, OpcodeGroup.INSN);
+        addOpcode("MULTIANEWARRAY", MULTIANEWARRAY, OpcodeGroup.INSN_MULTIANEWARRAY);
+        addOpcode("IFNULL", IFNULL, OpcodeGroup.INSN_JUMP);
+        addOpcode("IFNONNULL", IFNONNULL, OpcodeGroup.INSN_JUMP);
     }
 
-    private static final HashMap TYPES = new HashMap();
+    private static void addOpcode(String operStr, int oper, int group) {
+        OPCODES.put(operStr, new Opcode(oper, group));
+    }
+
+    private static final Map TYPES = new HashMap();
     static {
         String[] types = SAXCodeAdapter.TYPES;
         for (int i = 0; i < types.length; i++) {
@@ -472,7 +471,7 @@ public class ASMContentHandler extends DefaultHandler implements Opcodes {
 
     private static final class RuleSet {
 
-        private final HashMap rules = new HashMap();
+        private final Map rules = new HashMap();
 
         private final List lpatterns = new ArrayList();
 
@@ -532,12 +531,12 @@ public class ASMContentHandler extends DefaultHandler implements Opcodes {
         {
             Object value = null;
             if (val != null) {
-                if (desc.equals("Ljava/lang/String;")) {
+                if ("Ljava/lang/String;".equals(desc)) {
                     value = decode(val);
                 } else if ("Ljava/lang/Integer;".equals(desc)
                         || "I".equals(desc) || "S".equals(desc)
                         || "B".equals(desc) || "C".equals(desc)
-                        || desc.equals("Z"))
+                        || "Z".equals(desc))
                 {
                     value = new Integer(val);
 
@@ -553,20 +552,21 @@ public class ASMContentHandler extends DefaultHandler implements Opcodes {
                 } else if ("Ljava/lang/Boolean;".equals(desc)) {
                     value = Boolean.valueOf(val);
 
-                } else if ("Ljava/lang/Long;".equals(desc) || desc.equals("J"))
+                } else if ("Ljava/lang/Long;".equals(desc) || "J".equals(desc))
                 {
                     value = new Long(val);
-                } else if ("Ljava/lang/Float;".equals(desc) || desc.equals("F"))
+                } else if ("Ljava/lang/Float;".equals(desc) || "F".equals(desc))
                 {
                     value = new Float(val);
                 } else if ("Ljava/lang/Double;".equals(desc)
-                        || desc.equals("D"))
+                        || "D".equals(desc))
                 {
                     value = new Double(val);
                 } else if (Type.getDescriptor(Type.class).equals(desc)) {
                     value = Type.getType(val);
 
                 } else {
+                    // TODO use of default toString().
                     throw new SAXException("Invalid value:" + val + " desc:"
                             + desc + " ctx:" + this);
                 }
@@ -620,61 +620,61 @@ public class ASMContentHandler extends DefaultHandler implements Opcodes {
         protected final int getAccess(final String s) {
             int access = 0;
             if (s.indexOf("public") != -1) {
-                access |= Opcodes.ACC_PUBLIC;
+                access |= ACC_PUBLIC;
             }
             if (s.indexOf("private") != -1) {
-                access |= Opcodes.ACC_PRIVATE;
+                access |= ACC_PRIVATE;
             }
             if (s.indexOf("protected") != -1) {
-                access |= Opcodes.ACC_PROTECTED;
+                access |= ACC_PROTECTED;
             }
             if (s.indexOf("static") != -1) {
-                access |= Opcodes.ACC_STATIC;
+                access |= ACC_STATIC;
             }
             if (s.indexOf("final") != -1) {
-                access |= Opcodes.ACC_FINAL;
+                access |= ACC_FINAL;
             }
             if (s.indexOf("super") != -1) {
-                access |= Opcodes.ACC_SUPER;
+                access |= ACC_SUPER;
             }
             if (s.indexOf("synchronized") != -1) {
-                access |= Opcodes.ACC_SYNCHRONIZED;
+                access |= ACC_SYNCHRONIZED;
             }
             if (s.indexOf("volatile") != -1) {
-                access |= Opcodes.ACC_VOLATILE;
+                access |= ACC_VOLATILE;
             }
             if (s.indexOf("bridge") != -1) {
-                access |= Opcodes.ACC_BRIDGE;
+                access |= ACC_BRIDGE;
             }
             if (s.indexOf("varargs") != -1) {
-                access |= Opcodes.ACC_VARARGS;
+                access |= ACC_VARARGS;
             }
             if (s.indexOf("transient") != -1) {
-                access |= Opcodes.ACC_TRANSIENT;
+                access |= ACC_TRANSIENT;
             }
             if (s.indexOf("native") != -1) {
-                access |= Opcodes.ACC_NATIVE;
+                access |= ACC_NATIVE;
             }
             if (s.indexOf("interface") != -1) {
-                access |= Opcodes.ACC_INTERFACE;
+                access |= ACC_INTERFACE;
             }
             if (s.indexOf("abstract") != -1) {
-                access |= Opcodes.ACC_ABSTRACT;
+                access |= ACC_ABSTRACT;
             }
             if (s.indexOf("strict") != -1) {
-                access |= Opcodes.ACC_STRICT;
+                access |= ACC_STRICT;
             }
             if (s.indexOf("synthetic") != -1) {
-                access |= Opcodes.ACC_SYNTHETIC;
+                access |= ACC_SYNTHETIC;
             }
             if (s.indexOf("annotation") != -1) {
-                access |= Opcodes.ACC_ANNOTATION;
+                access |= ACC_ANNOTATION;
             }
             if (s.indexOf("enum") != -1) {
-                access |= Opcodes.ACC_ENUM;
+                access |= ACC_ENUM;
             }
             if (s.indexOf("deprecated") != -1) {
-                access |= Opcodes.ACC_DEPRECATED;
+                access |= ACC_DEPRECATED;
             }
             return access;
         }
@@ -689,7 +689,7 @@ public class ASMContentHandler extends DefaultHandler implements Opcodes {
             int major = Integer.parseInt(attrs.getValue("major"));
             int minor = Integer.parseInt(attrs.getValue("minor"));
             cw = new ClassWriter(computeMax ? ClassWriter.COMPUTE_MAXS : 0);
-            HashMap vals = new HashMap();
+            Map vals = new HashMap();
             vals.put("version", new Integer(minor << 16 | major));
             vals.put("access", attrs.getValue("access"));
             vals.put("name", attrs.getValue("name"));
@@ -727,7 +727,7 @@ public class ASMContentHandler extends DefaultHandler implements Opcodes {
     private final class InterfacesRule extends Rule {
 
         public final void end(final String element) {
-            HashMap vals = (HashMap) pop();
+            Map vals = (HashMap) pop();
             int version = ((Integer) vals.get("version")).intValue();
             int access = getAccess((String) vals.get("access"));
             String name = (String) vals.get("name");
@@ -795,7 +795,7 @@ public class ASMContentHandler extends DefaultHandler implements Opcodes {
 
         public final void begin(final String name, final Attributes attrs) {
             labels = new HashMap();
-            HashMap vals = new HashMap();
+            Map vals = new HashMap();
             vals.put("access", attrs.getValue("access"));
             vals.put("name", attrs.getValue("name"));
             vals.put("desc", attrs.getValue("desc"));
@@ -827,7 +827,7 @@ public class ASMContentHandler extends DefaultHandler implements Opcodes {
     private final class ExceptionsRule extends Rule {
 
         public final void end(final String element) {
-            HashMap vals = (HashMap) pop();
+            Map vals = (HashMap) pop();
             int access = getAccess((String) vals.get("access"));
             String name = (String) vals.get("name");
             String desc = (String) vals.get("desc");
@@ -845,7 +845,7 @@ public class ASMContentHandler extends DefaultHandler implements Opcodes {
     private class TableSwitchRule extends Rule {
 
         public final void begin(final String name, final Attributes attrs) {
-            HashMap vals = new HashMap();
+            Map vals = new HashMap();
             vals.put("min", attrs.getValue("min"));
             vals.put("max", attrs.getValue("max"));
             vals.put("dflt", attrs.getValue("dflt"));
@@ -854,7 +854,7 @@ public class ASMContentHandler extends DefaultHandler implements Opcodes {
         }
 
         public final void end(final String name) {
-            HashMap vals = (HashMap) pop();
+            Map vals = (HashMap) pop();
             int min = Integer.parseInt((String) vals.get("min"));
             int max = Integer.parseInt((String) vals.get("max"));
             Label dflt = getLabel(vals.get("dflt"));
@@ -880,7 +880,7 @@ public class ASMContentHandler extends DefaultHandler implements Opcodes {
     private final class LookupSwitchRule extends Rule {
 
         public final void begin(final String name, final Attributes attrs) {
-            HashMap vals = new HashMap();
+            Map vals = new HashMap();
             vals.put("dflt", attrs.getValue("dflt"));
             vals.put("labels", new ArrayList());
             vals.put("keys", new ArrayList());
@@ -888,7 +888,7 @@ public class ASMContentHandler extends DefaultHandler implements Opcodes {
         }
 
         public final void end(final String name) {
-            HashMap vals = (HashMap) pop();
+            Map vals = (HashMap) pop();
             Label dflt = getLabel(vals.get("dflt"));
             List keyList = (List) vals.get("keys");
             List lbls = (List) vals.get("labels");
@@ -907,7 +907,7 @@ public class ASMContentHandler extends DefaultHandler implements Opcodes {
     private final class LookupSwitchLabelRule extends Rule {
 
         public final void begin(final String name, final Attributes attrs) {
-            HashMap vals = (HashMap) peek();
+            Map vals = (HashMap) peek();
             ((List) vals.get("labels")).add(getLabel(attrs.getValue("name")));
             ((List) vals.get("keys")).add(attrs.getValue("key"));
         }
@@ -919,7 +919,7 @@ public class ASMContentHandler extends DefaultHandler implements Opcodes {
     private final class FrameRule extends Rule {
 
         public void begin(final String name, final Attributes attrs) {
-            HashMap typeLists = new HashMap();
+            Map typeLists = new HashMap();
             typeLists.put("local", new ArrayList());
             typeLists.put("stack", new ArrayList());
             push(attrs.getValue("type"));
@@ -930,7 +930,7 @@ public class ASMContentHandler extends DefaultHandler implements Opcodes {
         }
 
         public void end(final String name) {
-            HashMap typeLists = (HashMap) pop();
+            Map typeLists = (HashMap) pop();
             List locals = (List) typeLists.get("local");
             int nLocal = locals.size();
             Object[] local = locals.toArray();
@@ -939,34 +939,34 @@ public class ASMContentHandler extends DefaultHandler implements Opcodes {
             Object[] stack = stacks.toArray();
             String count = (String) pop();
             String type = (String) pop();
-            if (type.equals("NEW")) {
-                getCodeVisitor().visitFrame(Opcodes.F_NEW,
+            if ("NEW".equals(type)) {
+                getCodeVisitor().visitFrame(F_NEW,
                         nLocal,
                         local,
                         nStack,
                         stack);
-            } else if (type.equals("FULL")) {
-                getCodeVisitor().visitFrame(Opcodes.F_FULL,
+            } else if ("FULL".equals(type)) {
+                getCodeVisitor().visitFrame(F_FULL,
                         nLocal,
                         local,
                         nStack,
                         stack);
-            } else if (type.equals("APPEND")) {
-                getCodeVisitor().visitFrame(Opcodes.F_APPEND,
+            } else if ("APPEND".equals(type)) {
+                getCodeVisitor().visitFrame(F_APPEND,
                         nLocal,
                         local,
                         0,
                         null);
-            } else if (type.equals("CHOP")) {
-                getCodeVisitor().visitFrame(Opcodes.F_CHOP,
+            } else if ("CHOP".equals(type)) {
+                getCodeVisitor().visitFrame(F_CHOP,
                         Integer.parseInt(count),
                         null,
                         0,
                         null);
-            } else if (type.equals("SAME")) {
-                getCodeVisitor().visitFrame(Opcodes.F_SAME, 0, null, 0, null);
-            } else if (type.equals("SAME1")) {
-                getCodeVisitor().visitFrame(Opcodes.F_SAME1,
+            } else if ("SAME".equals(type)) {
+                getCodeVisitor().visitFrame(F_SAME, 0, null, 0, null);
+            } else if ("SAME1".equals(type)) {
+                getCodeVisitor().visitFrame(F_SAME1,
                         0,
                         null,
                         nStack,
@@ -1262,13 +1262,13 @@ public class ASMContentHandler extends DefaultHandler implements Opcodes {
     /**
      * Opcode
      */
-    private final static class Opcode {
+    private static final class Opcode {
 
-        public int opcode;
+        public final int opcode;
 
-        public int type;
+        public final int type;
 
-        public Opcode(final int opcode, final int type) {
+        private Opcode(final int opcode, final int type) {
             this.opcode = opcode;
             this.type = type;
         }

@@ -144,15 +144,15 @@ public class MethodAdapter implements MethodVisitor {
         final int min,
         final int max,
         final Label dflt,
-        final Label labels[])
+        final Label[] labels)
     {
         mv.visitTableSwitchInsn(min, max, dflt, labels);
     }
 
     public void visitLookupSwitchInsn(
         final Label dflt,
-        final int keys[],
-        final Label labels[])
+        final int[] keys,
+        final Label[] labels)
     {
         mv.visitLookupSwitchInsn(dflt, keys, labels);
     }

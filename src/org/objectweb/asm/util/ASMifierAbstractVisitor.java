@@ -29,11 +29,11 @@
  */
 package org.objectweb.asm.util;
 
-import java.util.HashMap;
-
 import org.objectweb.asm.AnnotationVisitor;
 import org.objectweb.asm.Attribute;
 import org.objectweb.asm.Type;
+
+import java.util.Map;
 
 /**
  * An abstract ASMifier visitor.
@@ -51,7 +51,7 @@ public class ASMifierAbstractVisitor extends AbstractVisitor {
      * The label names. This map associates String values to Label keys. It is
      * used only in ASMifierMethodVisitor.
      */
-    HashMap labelNames;
+    Map labelNames;
 
     /**
      * Constructs a new {@link ASMifierAbstractVisitor}.
@@ -95,7 +95,7 @@ public class ASMifierAbstractVisitor extends AbstractVisitor {
      */
     public void visitAttribute(final Attribute attr) {
         buf.setLength(0);
-        buf.append("// ATTRIBUTE ").append(attr.type).append("\n");
+        buf.append("// ATTRIBUTE ").append(attr.type).append('\n');
         if (attr instanceof ASMifiable) {
             buf.append("{\n");
             ((ASMifiable) attr).asmify(buf, "attr", labelNames);

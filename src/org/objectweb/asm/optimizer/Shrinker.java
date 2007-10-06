@@ -54,19 +54,19 @@ import org.objectweb.asm.commons.SimpleRemapper;
  */
 public class Shrinker {
 
-    static Properties mapping = new Properties();
+    static final Properties MAPPING = new Properties();
     
     public static void main(final String[] args) throws IOException {
         int n = args.length - 1;
         for (int i = 0; i < n - 1; ++i) {
-            mapping.load(new FileInputStream(args[i]));
+            MAPPING.load(new FileInputStream(args[i]));
         }
-        final Set unused = new HashSet(mapping.keySet());
+        final Set unused = new HashSet(MAPPING.keySet());
 
         File f = new File(args[n - 1]);
         File d = new File(args[n]);
 
-        optimize(f, d, new SimpleRemapper(mapping) {
+        optimize(f, d, new SimpleRemapper(MAPPING) {
             public String map(String key) {
                 String s = super.map(key);
                 if (s != null) {
@@ -113,7 +113,7 @@ public class Shrinker {
             }
             cr.accept(cw, ClassReader.SKIP_DEBUG);
 
-            if (mapping.get(cr.getClassName() + "/remove") != null) {
+            if (MAPPING.getProperty(cr.getClassName() + "/remove") != null) {
                 return;
             }
             String n = remapper.mapType(cr.getClassName());
@@ -166,7 +166,7 @@ public class Shrinker {
             return d;
         }
 
-        private int getSort(final Constant c) {
+        private static int getSort(final Constant c) {
             switch (c.type) {
                 case 'I':
                     return 0;

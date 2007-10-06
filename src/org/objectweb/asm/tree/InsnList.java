@@ -30,6 +30,7 @@
 package org.objectweb.asm.tree;
 
 import java.util.ListIterator;
+import java.util.NoSuchElementException;
 
 import org.objectweb.asm.MethodVisitor;
 
@@ -565,7 +566,7 @@ public class InsnList {
         AbstractInsnNode next;
         AbstractInsnNode prev;
 
-        public InsnListIterator(int index) {
+        private InsnListIterator(int index) {
             if(index==size()) {
                 next = null;
                 prev = getLast();
@@ -580,6 +581,9 @@ public class InsnList {
         }
 
         public Object next() {
+            if (next == null) {
+                throw new NoSuchElementException();
+            }
             AbstractInsnNode result = next;
             prev = result;
             next = result.next;

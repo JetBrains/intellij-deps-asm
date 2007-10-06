@@ -43,49 +43,49 @@ public class Label {
      * an exception handler. It can be safely ignored in control flow graph
      * analysis algorithms (for optimization purposes).
      */
-    final static int DEBUG = 1;
+    static final int DEBUG = 1;
 
     /**
      * Indicates if the position of this label is known.
      */
-    final static int RESOLVED = 2;
+    static final int RESOLVED = 2;
 
     /**
      * Indicates if this label has been updated, after instruction resizing.
      */
-    final static int RESIZED = 4;
+    static final int RESIZED = 4;
 
     /**
      * Indicates if this basic block has been pushed in the basic block stack.
      * See {@link MethodWriter#visitMaxs visitMaxs}.
      */
-    final static int PUSHED = 8;
+    static final int PUSHED = 8;
 
     /**
      * Indicates if this label is the target of a jump instruction, or the start
      * of an exception handler.
      */
-    final static int TARGET = 16;
+    static final int TARGET = 16;
 
     /**
      * Indicates if a stack map frame must be stored for this label.
      */
-    final static int STORE = 32;
+    static final int STORE = 32;
 
     /**
      * Indicates if this label corresponds to a reachable basic block.
      */
-    final static int REACHABLE = 64;
+    static final int REACHABLE = 64;
 
     /**
      * Indicates if this basic block ends with a JSR instruction.
      */
-    final static int JSR = 128;
+    static final int JSR = 128;
 
     /**
      * Indicates if this basic block ends with a RET instruction.
      */
-    final static int RET = 256;
+    static final int RET = 256;
 
     /**
      * Field used to associate user information to a label. Warning: this field
@@ -271,19 +271,19 @@ public class Label {
         final int source,
         final boolean wideOffset)
     {
-        if ((status & RESOLVED) != 0) {
-            if (wideOffset) {
-                out.putInt(position - source);
-            } else {
-                out.putShort(position - source);
-            }
-        } else {
+        if ((status & RESOLVED) == 0) {
             if (wideOffset) {
                 addReference(-1 - source, out.length);
                 out.putInt(-1);
             } else {
                 addReference(source, out.length);
                 out.putShort(-1);
+            }
+        } else {
+            if (wideOffset) {
+                out.putInt(position - source);
+            } else {
+                out.putShort(position - source);
             }
         }
     }

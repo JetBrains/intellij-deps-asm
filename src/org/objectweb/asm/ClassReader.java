@@ -46,34 +46,34 @@ public class ClassReader {
     /**
      * True to enable signatures support.
      */
-    final static boolean SIGNATURES = true;
+    static final boolean SIGNATURES = true;
     
     /**
      * True to enable annotations support.
      */
-    final static boolean ANNOTATIONS = true;
+    static final boolean ANNOTATIONS = true;
     
     /**
      * True to enable stack map frames support.
      */
-    final static boolean FRAMES = true;
+    static final boolean FRAMES = true;
     
     /**
      * True to enable bytecode writing support.
      */
-    final static boolean WRITER = true;
+    static final boolean WRITER = true;
     
     /**
      * True to enable JSR_W and GOTO_W support.
      */
-    final static boolean RESIZE = true;
+    static final boolean RESIZE = true;
     
     /**
      * Flag to skip method code. If this class is set <code>CODE</code>
      * attribute won't be visited. This can be used, for example, to retrieve
      * annotations for methods and method parameters.
      */
-    public final static int SKIP_CODE = 1;
+    public static final int SKIP_CODE = 1;
 
     /**
      * Flag to skip the debug information in the class. If this flag is set the
@@ -82,7 +82,7 @@ public class ClassReader {
      * {@link MethodVisitor#visitLineNumber visitLineNumber} methods will not be
      * called.
      */
-    public final static int SKIP_DEBUG = 2;
+    public static final int SKIP_DEBUG = 2;
 
     /**
      * Flag to skip the stack map frames in the class. If this flag is set the
@@ -92,7 +92,7 @@ public class ClassReader {
      * used: it avoids visiting frames that will be ignored and recomputed from
      * scratch in the class writer.
      */
-    public final static int SKIP_FRAMES = 4;
+    public static final int SKIP_FRAMES = 4;
 
     /**
      * Flag to expand the stack map frames. By default stack map frames are
@@ -102,7 +102,7 @@ public class ClassReader {
      * (this option adds a decompression/recompression step in ClassReader and
      * ClassWriter which degrades performances quite a lot).
      */
-    public final static int EXPAND_FRAMES = 8;
+    public static final int EXPAND_FRAMES = 8;
 
     /**
      * The class to be parsed. <i>The content of this array must not be
@@ -510,29 +510,29 @@ public class ClassReader {
             attrName = readUTF8(v, c);
             // tests are sorted in decreasing frequency order
             // (based on frequencies observed on typical classes)
-            if (attrName.equals("SourceFile")) {
+            if ("SourceFile".equals(attrName)) {
                 sourceFile = readUTF8(v + 6, c);
-            } else if (attrName.equals("InnerClasses")) {
+            } else if ("InnerClasses".equals(attrName)) {
                 w = v + 6;
-            } else if (attrName.equals("EnclosingMethod")) {
+            } else if ("EnclosingMethod".equals(attrName)) {
                 enclosingOwner = readClass(v + 6, c);
                 int item = readUnsignedShort(v + 8);
                 if (item != 0) {
                     enclosingName = readUTF8(items[item], c);
                     enclosingDesc = readUTF8(items[item] + 2, c);
                 }
-            } else if (SIGNATURES && attrName.equals("Signature")) {
+            } else if (SIGNATURES && "Signature".equals(attrName)) {
                 signature = readUTF8(v + 6, c);
-            } else if (ANNOTATIONS && attrName.equals("RuntimeVisibleAnnotations")) {
+            } else if (ANNOTATIONS && "RuntimeVisibleAnnotations".equals(attrName)) {
                 anns = v + 6;
-            } else if (attrName.equals("Deprecated")) {
+            } else if ("Deprecated".equals(attrName)) {
                 access |= Opcodes.ACC_DEPRECATED;
-            } else if (attrName.equals("Synthetic")) {
+            } else if ("Synthetic".equals(attrName)) {
                 access |= Opcodes.ACC_SYNTHETIC;
-            } else if (attrName.equals("SourceDebugExtension")) {
+            } else if ("SourceDebugExtension".equals(attrName)) {
                 int len = readInt(v + 2);
                 sourceDebug = readUTF(v + 6, len, new char[len]);
-            } else if (ANNOTATIONS && attrName.equals("RuntimeInvisibleAnnotations")) {
+            } else if (ANNOTATIONS && "RuntimeInvisibleAnnotations".equals(attrName)) {
                 ianns = v + 6;
             } else {
                 attr = readAttribute(attrs,
@@ -631,17 +631,17 @@ public class ClassReader {
                 attrName = readUTF8(u, c);
                 // tests are sorted in decreasing frequency order
                 // (based on frequencies observed on typical classes)
-                if (attrName.equals("ConstantValue")) {
+                if ("ConstantValue".equals(attrName)) {
                     fieldValueItem = readUnsignedShort(u + 6);
-                } else if (SIGNATURES && attrName.equals("Signature")) {
+                } else if (SIGNATURES && "Signature".equals(attrName)) {
                     signature = readUTF8(u + 6, c);
-                } else if (attrName.equals("Deprecated")) {
+                } else if ("Deprecated".equals(attrName)) {
                     access |= Opcodes.ACC_DEPRECATED;
-                } else if (attrName.equals("Synthetic")) {
+                } else if ("Synthetic".equals(attrName)) {
                     access |= Opcodes.ACC_SYNTHETIC;
-                } else if (ANNOTATIONS && attrName.equals("RuntimeVisibleAnnotations")) {
+                } else if (ANNOTATIONS && "RuntimeVisibleAnnotations".equals(attrName)) {
                     anns = u + 6;
-                } else if (ANNOTATIONS && attrName.equals("RuntimeInvisibleAnnotations")) {
+                } else if (ANNOTATIONS && "RuntimeInvisibleAnnotations".equals(attrName)) {
                     ianns = u + 6;
                 } else {
                     attr = readAttribute(attrs,
@@ -718,28 +718,28 @@ public class ClassReader {
                 u += 6;
                 // tests are sorted in decreasing frequency order
                 // (based on frequencies observed on typical classes)
-                if (attrName.equals("Code")) {
+                if ("Code".equals(attrName)) {
                     if (!skipCode) {
                         v = u;
                     }
-                } else if (attrName.equals("Exceptions")) {
+                } else if ("Exceptions".equals(attrName)) {
                     w = u;
-                } else if (SIGNATURES && attrName.equals("Signature")) {
+                } else if (SIGNATURES && "Signature".equals(attrName)) {
                     signature = readUTF8(u, c);
-                } else if (attrName.equals("Deprecated")) {
+                } else if ("Deprecated".equals(attrName)) {
                     access |= Opcodes.ACC_DEPRECATED;
-                } else if (ANNOTATIONS && attrName.equals("RuntimeVisibleAnnotations")) {
+                } else if (ANNOTATIONS && "RuntimeVisibleAnnotations".equals(attrName)) {
                     anns = u;
-                } else if (ANNOTATIONS && attrName.equals("AnnotationDefault")) {
+                } else if (ANNOTATIONS && "AnnotationDefault".equals(attrName)) {
                     dann = u;
-                } else if (attrName.equals("Synthetic")) {
+                } else if ("Synthetic".equals(attrName)) {
                     access |= Opcodes.ACC_SYNTHETIC;
-                } else if (ANNOTATIONS && attrName.equals("RuntimeInvisibleAnnotations")) {
+                } else if (ANNOTATIONS && "RuntimeInvisibleAnnotations".equals(attrName)) {
                     ianns = u;
-                } else if (ANNOTATIONS && attrName.equals("RuntimeVisibleParameterAnnotations"))
+                } else if (ANNOTATIONS && "RuntimeVisibleParameterAnnotations".equals(attrName))
                 {
                     mpanns = u;
-                } else if (ANNOTATIONS && attrName.equals("RuntimeInvisibleParameterAnnotations"))
+                } else if (ANNOTATIONS && "RuntimeInvisibleParameterAnnotations".equals(attrName))
                 {
                     impanns = u;
                 } else {
@@ -982,7 +982,7 @@ public class ClassReader {
                 v += 2;
                 for (; j > 0; --j) {
                     attrName = readUTF8(v, c);
-                    if (attrName.equals("LocalVariableTable")) {
+                    if ("LocalVariableTable".equals(attrName)) {
                         if (!skipDebug) {
                             varTable = v + 6;
                             k = readUnsignedShort(v + 6);
@@ -999,9 +999,9 @@ public class ClassReader {
                                 w += 10;
                             }
                         }
-                    } else if (attrName.equals("LocalVariableTypeTable")) {
+                    } else if ("LocalVariableTypeTable".equals(attrName)) {
                         varTypeTable = v + 6;
-                    } else if (attrName.equals("LineNumberTable")) {
+                    } else if ("LineNumberTable".equals(attrName)) {
                         if (!skipDebug) {
                             k = readUnsignedShort(v + 6);
                             w = v + 8;
@@ -1014,7 +1014,7 @@ public class ClassReader {
                                 w += 4;
                             }
                         }
-                    } else if (FRAMES && attrName.equals("StackMapTable")) {
+                    } else if (FRAMES && "StackMapTable".equals(attrName)) {
                         if ((flags & SKIP_FRAMES) == 0) {
                             stackMap = v + 8;
                             frameCount = readUnsignedShort(v + 6);
@@ -1035,7 +1035,7 @@ public class ClassReader {
                          */
                         // TODO true for frame offsets,
                         // but for UNINITIALIZED type offsets?
-                    } else if (FRAMES && attrName.equals("StackMap")) {
+                    } else if (FRAMES && "StackMap".equals(attrName)) {
                         if ((flags & SKIP_FRAMES) == 0) {
                             stackMap = v + 8;
                             frameCount = readUnsignedShort(v + 6);
@@ -1074,7 +1074,7 @@ public class ClassReader {
                     if (unzip) {
                         int local = 0;
                         if ((access & Opcodes.ACC_STATIC) == 0) {
-                            if (name.equals("<init>")) {
+                            if ("<init>".equals(name)) {
                                 frameLocal[local++] = Opcodes.UNINITIALIZED_THIS;
                             } else {
                                 frameLocal[local++] = readClass(header + 2, c);

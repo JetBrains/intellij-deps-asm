@@ -56,7 +56,7 @@ public class Method {
     /**
      * Maps primitive Java type names to their descriptors.
      */
-    private final static Map DESCRIPTORS;
+    private static final Map DESCRIPTORS;
 
     static {
         DESCRIPTORS = new HashMap();
@@ -170,7 +170,7 @@ public class Method {
     }
 
     private static String map(final String type, final boolean defaultPackage) {
-        if (type.equals("")) {
+        if ("".equals(type)) {
             return type;
         }
 

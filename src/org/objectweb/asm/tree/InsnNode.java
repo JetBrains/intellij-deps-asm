@@ -40,15 +40,6 @@ import org.objectweb.asm.MethodVisitor;
  */
 public class InsnNode extends AbstractInsnNode {
 
-    private final static InsnNode[] INSNS;
-
-    static {
-        INSNS = new InsnNode[255];
-        for (int i = 0; i < INSNS.length; ++i) {
-            INSNS[i] = new InsnNode(i);
-        }
-    }
-
     /**
      * Constructs a new {@link InsnNode}.
      * 

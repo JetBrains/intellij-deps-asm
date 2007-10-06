@@ -48,5 +48,6 @@ public class ValueUnitTest extends TestCase {
 
     public void testSourceValue() {
         new SourceValue(1).hashCode();
+        assertFalse(new SourceValue(1).equals(null));
     }
 }

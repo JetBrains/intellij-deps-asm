@@ -46,12 +46,12 @@ public class SimpleRemapper extends Remapper {
     }
 
     public String mapMethodName(String owner, String name, String desc) {
-        String s = map(owner + "." + name + desc);
+        String s = map(owner + '.' + name + desc);
         return s == null ? name : s;
     }
 
     public String mapFieldName(String owner, String name, String desc) {
-        String s = map(owner + "." + name);
+        String s = map(owner + '.' + name);
         return s == null ? name : s;
     }
     

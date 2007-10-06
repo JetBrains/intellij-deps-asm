@@ -36,6 +36,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.LineNumberReader;
+import java.io.BufferedReader;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -58,15 +59,13 @@ import org.objectweb.asm.commons.EmptyVisitor;
  */
 public class JarOptimizer {
 
-    private static Set API;
-    private static Map HIERARCHY;
+    private static final Set API= new HashSet();
+    private static final Map HIERARCHY = new HashMap();
 
     public static void main(final String[] args) throws IOException {
-        API = new HashSet();
-        HIERARCHY = new HashMap();
         File f = new File(args[0]);
         InputStream is = new GZIPInputStream(new FileInputStream(f));
-        LineNumberReader lnr = new LineNumberReader(new InputStreamReader(is));
+        BufferedReader lnr = new LineNumberReader(new InputStreamReader(is));
         while (true) {
             String line = lnr.readLine();
             if (line != null) {
@@ -138,7 +137,7 @@ public class JarOptimizer {
         {
             owner = name;
             if (owner.startsWith("java/")) {
-                System.out.println("class " + name + " " + superName);
+                System.out.println("class " + name + ' ' + superName);
             }
         }
 
@@ -150,7 +149,7 @@ public class JarOptimizer {
             final Object value)
         {
             if (owner.startsWith("java/")) {
-                System.out.println(owner + " " + name);
+                System.out.println(owner + ' ' + name);
             }
             return null;
         }
@@ -163,7 +162,7 @@ public class JarOptimizer {
             final String[] exceptions)
         {
             if (owner.startsWith("java/")) {
-                System.out.println(owner + " " + name + desc);
+                System.out.println(owner + ' ' + name + desc);
             }
             return null;
         }
@@ -218,13 +217,13 @@ public class JarOptimizer {
             if (owner.startsWith("java/")) {
                 String o = owner;
                 while (o != null) {
-                    if (API.contains(o + " " + member)) {
+                    if (API.contains(o + ' ' + member)) {
                         return;
                     }
                     o = (String) HIERARCHY.get(o);
                 }
-                System.out.println("WARNING: " + owner + " " + member
-                        + " called in " + this.owner + " " + method
+                System.out.println("WARNING: " + owner + ' ' + member
+                        + " called in " + this.owner + ' ' + method
                         + " is not defined in JDK 1.3 API");
             }
         }

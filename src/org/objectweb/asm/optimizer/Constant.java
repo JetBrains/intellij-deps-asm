@@ -91,10 +91,10 @@ class Constant {
      */
     int hashCode;
 
-    public Constant() {
+    Constant() {
     }
 
-    public Constant(final Constant i) {
+    Constant(final Constant i) {
         type = i.type;
         intVal = i.intVal;
         longVal = i.longVal;
@@ -237,9 +237,9 @@ class Constant {
                 case 'J':
                     return c.longVal == longVal;
                 case 'F':
-                    return c.floatVal == floatVal;
+                    return Float.compare(c.floatVal, floatVal) == 0;
                 case 'D':
-                    return c.doubleVal == doubleVal;
+                    return Double.compare(c.doubleVal, doubleVal) == 0;
                 case 's':
                 case 'S':
                 case 'C':

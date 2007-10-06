@@ -50,7 +50,7 @@ public class ClassWriter implements ClassVisitor {
      *
      * @see #ClassWriter(int)
      */
-    public final static int COMPUTE_MAXS = 1;
+    public static final int COMPUTE_MAXS = 1;
 
     /**
      * Flag to automatically compute the stack map frames of methods from
@@ -63,159 +63,159 @@ public class ClassWriter implements ClassVisitor {
      *
      * @see #ClassWriter(int)
      */
-    public final static int COMPUTE_FRAMES = 2;
+    public static final int COMPUTE_FRAMES = 2;
 
     /**
      * The type of instructions without any argument.
      */
-    final static int NOARG_INSN = 0;
+    static final int NOARG_INSN = 0;
 
     /**
      * The type of instructions with an signed byte argument.
      */
-    final static int SBYTE_INSN = 1;
+    static final int SBYTE_INSN = 1;
 
     /**
      * The type of instructions with an signed short argument.
      */
-    final static int SHORT_INSN = 2;
+    static final int SHORT_INSN = 2;
 
     /**
      * The type of instructions with a local variable index argument.
      */
-    final static int VAR_INSN = 3;
+    static final int VAR_INSN = 3;
 
     /**
      * The type of instructions with an implicit local variable index argument.
      */
-    final static int IMPLVAR_INSN = 4;
+    static final int IMPLVAR_INSN = 4;
 
     /**
      * The type of instructions with a type descriptor argument.
      */
-    final static int TYPE_INSN = 5;
+    static final int TYPE_INSN = 5;
 
     /**
      * The type of field and method invocations instructions.
      */
-    final static int FIELDORMETH_INSN = 6;
+    static final int FIELDORMETH_INSN = 6;
 
     /**
      * The type of the INVOKEINTERFACE instruction.
      */
-    final static int ITFMETH_INSN = 7;
+    static final int ITFMETH_INSN = 7;
 
     /**
      * The type of instructions with a 2 bytes bytecode offset label.
      */
-    final static int LABEL_INSN = 8;
+    static final int LABEL_INSN = 8;
 
     /**
      * The type of instructions with a 4 bytes bytecode offset label.
      */
-    final static int LABELW_INSN = 9;
+    static final int LABELW_INSN = 9;
 
     /**
      * The type of the LDC instruction.
      */
-    final static int LDC_INSN = 10;
+    static final int LDC_INSN = 10;
 
     /**
      * The type of the LDC_W and LDC2_W instructions.
      */
-    final static int LDCW_INSN = 11;
+    static final int LDCW_INSN = 11;
 
     /**
      * The type of the IINC instruction.
      */
-    final static int IINC_INSN = 12;
+    static final int IINC_INSN = 12;
 
     /**
      * The type of the TABLESWITCH instruction.
      */
-    final static int TABL_INSN = 13;
+    static final int TABL_INSN = 13;
 
     /**
      * The type of the LOOKUPSWITCH instruction.
      */
-    final static int LOOK_INSN = 14;
+    static final int LOOK_INSN = 14;
 
     /**
      * The type of the MULTIANEWARRAY instruction.
      */
-    final static int MANA_INSN = 15;
+    static final int MANA_INSN = 15;
 
     /**
      * The type of the WIDE instruction.
      */
-    final static int WIDE_INSN = 16;
+    static final int WIDE_INSN = 16;
 
     /**
      * The instruction types of all JVM opcodes.
      */
-    final static byte[] TYPE;
+    static final byte[] TYPE;
 
     /**
      * The type of CONSTANT_Class constant pool items.
      */
-    final static int CLASS = 7;
+    static final int CLASS = 7;
 
     /**
      * The type of CONSTANT_Fieldref constant pool items.
      */
-    final static int FIELD = 9;
+    static final int FIELD = 9;
 
     /**
      * The type of CONSTANT_Methodref constant pool items.
      */
-    final static int METH = 10;
+    static final int METH = 10;
 
     /**
      * The type of CONSTANT_InterfaceMethodref constant pool items.
      */
-    final static int IMETH = 11;
+    static final int IMETH = 11;
 
     /**
      * The type of CONSTANT_String constant pool items.
      */
-    final static int STR = 8;
+    static final int STR = 8;
 
     /**
      * The type of CONSTANT_Integer constant pool items.
      */
-    final static int INT = 3;
+    static final int INT = 3;
 
     /**
      * The type of CONSTANT_Float constant pool items.
      */
-    final static int FLOAT = 4;
+    static final int FLOAT = 4;
 
     /**
      * The type of CONSTANT_Long constant pool items.
      */
-    final static int LONG = 5;
+    static final int LONG = 5;
 
     /**
      * The type of CONSTANT_Double constant pool items.
      */
-    final static int DOUBLE = 6;
+    static final int DOUBLE = 6;
 
     /**
      * The type of CONSTANT_NameAndType constant pool items.
      */
-    final static int NAME_TYPE = 12;
+    static final int NAME_TYPE = 12;
 
     /**
      * The type of CONSTANT_Utf8 constant pool items.
      */
-    final static int UTF8 = 1;
+    static final int UTF8 = 1;
 
     /**
      * Normal type Item stored in the ClassWriter {@link ClassWriter#typeTable},
      * instead of the constant pool, in order to avoid clashes with normal
      * constant pool items in the ClassWriter constant pool's hash table.
      */
-    final static int TYPE_NORMAL = 13;
+    static final int TYPE_NORMAL = 13;
 
     /**
      * Uninitialized type Item stored in the ClassWriter
@@ -223,14 +223,14 @@ public class ClassWriter implements ClassVisitor {
      * avoid clashes with normal constant pool items in the ClassWriter constant
      * pool's hash table.
      */
-    final static int TYPE_UNINIT = 14;
+    static final int TYPE_UNINIT = 14;
 
     /**
      * Merged type Item stored in the ClassWriter {@link ClassWriter#typeTable},
      * instead of the constant pool, in order to avoid clashes with normal
      * constant pool items in the ClassWriter constant pool's hash table.
      */
-    final static int TYPE_MERGED = 15;
+    static final int TYPE_MERGED = 15;
 
     /**
      * The class reader from which this class writer was constructed, if any.
@@ -250,7 +250,7 @@ public class ClassWriter implements ClassVisitor {
     /**
      * The constant pool of this class.
      */
-    ByteVector pool;
+    final ByteVector pool;
 
     /**
      * The constant pool's hash table data.
@@ -265,17 +265,17 @@ public class ClassWriter implements ClassVisitor {
     /**
      * A reusable key used to look for items in the {@link #items} hash table.
      */
-    Item key;
+    final Item key;
 
     /**
      * A reusable key used to look for items in the {@link #items} hash table.
      */
-    Item key2;
+    final Item key2;
 
     /**
      * A reusable key used to look for items in the {@link #items} hash table.
      */
-    Item key3;
+    final Item key3;
 
     /**
      * A type table used to temporarily store internal names that will not
@@ -417,12 +417,12 @@ public class ClassWriter implements ClassVisitor {
      * <tt>true</tt> if the maximum stack size and number of local variables
      * must be automatically computed.
      */
-    private boolean computeMaxs;
+    private final boolean computeMaxs;
 
     /**
      * <tt>true</tt> if the stack map frames must be recomputed from scratch.
      */
-    private boolean computeFrames;
+    private final boolean computeFrames;
 
     /**
      * <tt>true</tt> if the stack map tables of this class are invalid. The

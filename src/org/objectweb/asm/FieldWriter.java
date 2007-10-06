@@ -44,24 +44,24 @@ final class FieldWriter implements FieldVisitor {
     /**
      * The class writer to which this field must be added.
      */
-    private ClassWriter cw;
+    private final ClassWriter cw;
 
     /**
      * Access flags of this field.
      */
-    private int access;
+    private final int access;
 
     /**
      * The index of the constant pool item that contains the name of this
      * method.
      */
-    private int name;
+    private final int name;
 
     /**
      * The index of the constant pool item that contains the descriptor of this
      * field.
      */
-    private int desc;
+    private final int desc;
 
     /**
      * The index of the constant pool item that contains the signature of this
@@ -104,7 +104,7 @@ final class FieldWriter implements FieldVisitor {
      * @param signature the field's signature. May be <tt>null</tt>.
      * @param value the field's constant value. May be <tt>null</tt>.
      */
-    protected FieldWriter(
+    FieldWriter(
         final ClassWriter cw,
         final int access,
         final String name,

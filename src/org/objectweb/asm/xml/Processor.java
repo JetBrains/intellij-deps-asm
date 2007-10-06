@@ -97,17 +97,17 @@ public class Processor {
 
     private static final String SINGLE_XML_NAME = "classes.xml";
 
-    private int inRepresentation;
+    private final int inRepresentation;
 
-    private int outRepresentation;
+    private final int outRepresentation;
 
-    private InputStream input = null;
+    private final InputStream input;
 
-    private OutputStream output = null;
+    private final OutputStream output;
 
-    private Source xslt = null;
+    private final Source xslt;
 
-    private boolean computeMax;
+    private final boolean computeMax;
 
     private int n = 0;
 
@@ -179,7 +179,7 @@ public class Processor {
 
         // configuring inputDocHandlerFactory
         // /////////////////////////////////////////////////
-        ContentHandler inDocHandler = null;
+        ContentHandler inDocHandler;
         if (templates == null) {
             inDocHandler = outDocHandler;
         } else {
@@ -200,7 +200,7 @@ public class Processor {
         }
 
         int i = 0;
-        ZipEntry ze = null;
+        ZipEntry ze;
         while ((ze = zis.getNextEntry()) != null) {
             update(ze.getName(), n++);
             if (isClassEntry(ze)) {
@@ -329,7 +329,7 @@ public class Processor {
             } else if (inRepresentation == BYTECODE
                     && outRepresentation != BYTECODE)
             {
-                name = name.concat(".xml"); // .class to .class.xml
+                name += ".xml"; // .class to .class.xml
             }
             // } else if( CODE2ASM.equals( command)) {
             // name = name.substring( 0, name.length()-6).concat( ".asm");
@@ -337,7 +337,7 @@ public class Processor {
         return name;
     }
 
-    private byte[] readEntry(final ZipInputStream zis, final ZipEntry ze)
+    private static byte[] readEntry(final InputStream zis, final ZipEntry ze)
             throws IOException
     {
         long size = ze.getSize();
@@ -425,7 +425,7 @@ public class Processor {
         int n = m.process();
         long l2 = System.currentTimeMillis();
         System.err.println(n);
-        System.err.println("" + (l2 - l1) + "ms  " + 1000f * n / (l2 - l1)
+        System.err.println((l2 - l1) + "ms  " + 1000f * n / (l2 - l1)
                 + " resources/sec");
     }
 
@@ -454,7 +454,6 @@ public class Processor {
         private final InputStream is;
 
         private ProtectedInputStream(final InputStream is) {
-            super();
             this.is = is;
         }
 
@@ -498,11 +497,11 @@ public class Processor {
     private static final class SAXWriterFactory implements
             ContentHandlerFactory
     {
-        private Writer w;
+        private final Writer w;
 
-        private boolean optimizeEmptyElements;
+        private final boolean optimizeEmptyElements;
 
-        public SAXWriterFactory(
+        private SAXWriterFactory(
             final Writer w,
             final boolean optimizeEmptyElements)
         {
@@ -524,9 +523,9 @@ public class Processor {
     {
         private OutputStream os;
 
-        private boolean computeMax;
+        private final boolean computeMax;
 
-        public ASMContentHandlerFactory(
+        private ASMContentHandlerFactory(
             final OutputStream os,
             final boolean computeMax)
         {
@@ -548,11 +547,11 @@ public class Processor {
     {
         private SAXTransformerFactory saxtf;
 
-        private Templates templates;
+        private final Templates templates;
 
         private ContentHandler outputHandler;
 
-        public TransformerHandlerFactory(
+        private TransformerHandlerFactory(
             final SAXTransformerFactory saxtf,
             final Templates templates,
             final ContentHandler outputHandler)
@@ -576,12 +575,12 @@ public class Processor {
     /**
      * SubdocumentHandlerFactory
      */
-    private final static class SubdocumentHandlerFactory implements
+    private static final class SubdocumentHandlerFactory implements
             ContentHandlerFactory
     {
-        private ContentHandler subdocumentHandler;
+        private final ContentHandler subdocumentHandler;
 
-        public SubdocumentHandlerFactory(final ContentHandler subdocumentHandler)
+        private SubdocumentHandlerFactory(final ContentHandler subdocumentHandler)
         {
             this.subdocumentHandler = subdocumentHandler;
         }
@@ -600,14 +599,14 @@ public class Processor {
      * <i><blockquote> This implementation does not support namespaces, entity
      * definitions (uncluding DTD), CDATA and text elements. </blockquote></i>
      */
-    private final static class SAXWriter extends DefaultHandler implements
+    private static final class SAXWriter extends DefaultHandler implements
             LexicalHandler
     {
         private static final char[] OFF = "                                                                                                        ".toCharArray();
 
         private Writer w;
 
-        private boolean optimizeEmptyElements;
+        private final boolean optimizeEmptyElements;
 
         private boolean openElement = false;
 
@@ -620,7 +619,7 @@ public class Processor {
          * @param optimizeEmptyElements if set to <code>true</code>, short
          *        XML syntax will be used for empty elements
          */
-        public SAXWriter(final Writer w, final boolean optimizeEmptyElements) {
+        private SAXWriter(final Writer w, final boolean optimizeEmptyElements) {
             this.w = w;
             this.optimizeEmptyElements = optimizeEmptyElements;
         }
@@ -635,15 +634,15 @@ public class Processor {
                 closeElement();
 
                 writeIdent();
-                w.write("<".concat(qName));
+                w.write('<' + qName);
                 if (atts != null && atts.getLength() > 0) {
                     writeAttributes(atts);
                 }
 
-                if (!optimizeEmptyElements) {
-                    w.write(">\n");
-                } else {
+                if (optimizeEmptyElements) {
                     openElement = true;
+                } else {
+                    w.write(">\n");
                 }
                 ident += 2;
 
@@ -744,7 +743,7 @@ public class Processor {
          * @param str string to encode.
          * @return encoded string
          */
-        private final String esc(final String str) {
+        private static final String esc(final String str) {
             StringBuffer sb = new StringBuffer(str.length());
             for (int i = 0; i < str.length(); i++) {
                 char ch = str.charAt(i);
@@ -810,10 +809,10 @@ public class Processor {
      * hardly fit into the memory all together. <p> TODO use complete path for
      * subdocumentRoot
      */
-    private final static class InputSlicingHandler extends DefaultHandler {
+    private static final class InputSlicingHandler extends DefaultHandler {
         private String subdocumentRoot;
 
-        private ContentHandler rootHandler;
+        private final ContentHandler rootHandler;
 
         private ContentHandlerFactory subdocumentHandlerFactory;
 
@@ -834,7 +833,7 @@ public class Processor {
          *        create {@link ContentHandler ContentHandler} instances for
          *        subdocuments.
          */
-        public InputSlicingHandler(
+        private InputSlicingHandler(
             final String subdocumentRoot,
             final ContentHandler rootHandler,
             final ContentHandlerFactory subdocumentHandlerFactory)
@@ -922,11 +921,11 @@ public class Processor {
      * <p> TODO use complete path for subdocumentRoot
      */
     private static final class OutputSlicingHandler extends DefaultHandler {
-        private String subdocumentRoot;
+        private final String subdocumentRoot;
 
         private ContentHandlerFactory subdocumentHandlerFactory;
 
-        private EntryElement entryElement;
+        private final EntryElement entryElement;
 
         private boolean isXml;
 
@@ -945,7 +944,7 @@ public class Processor {
          * @param entryElement TODO.
          * @param isXml TODO.
          */
-        public OutputSlicingHandler(
+        private OutputSlicingHandler(
             final ContentHandlerFactory subdocumentHandlerFactory,
             final EntryElement entryElement,
             final boolean isXml)
@@ -974,8 +973,8 @@ public class Processor {
                 }
                 try {
                     entryElement.openEntry(isXml
-                            ? name.concat(".class.xml")
-                            : name.concat(".class"));
+                            ? name + ".class.xml"
+                            : name + ".class");
                 } catch (IOException ex) {
                     throw new SAXException(ex.toString(), ex);
                 }
@@ -1035,9 +1034,9 @@ public class Processor {
     }
 
     private static final class SingleDocElement implements EntryElement {
-        private OutputStream os;
+        private final OutputStream os;
 
-        public SingleDocElement(final OutputStream os) {
+        private SingleDocElement(final OutputStream os) {
             this.os = os;
         }
 
@@ -1054,7 +1053,7 @@ public class Processor {
     private static final class ZipEntryElement implements EntryElement {
         private ZipOutputStream zos;
 
-        public ZipEntryElement(final ZipOutputStream zos) {
+        private ZipEntryElement(final ZipOutputStream zos) {
             this.zos = zos;
         }
 

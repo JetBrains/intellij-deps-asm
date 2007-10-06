@@ -45,7 +45,7 @@ public class StaticInitMerger extends ClassAdapter {
 
     private MethodVisitor clinit;
 
-    private String prefix;
+    private final String prefix;
 
     private int counter;
 
@@ -74,7 +74,7 @@ public class StaticInitMerger extends ClassAdapter {
         final String[] exceptions)
     {
         MethodVisitor mv;
-        if (name.equals("<clinit>")) {
+        if ("<clinit>".equals(name)) {
             int a = Opcodes.ACC_PRIVATE + Opcodes.ACC_STATIC;
             String n = prefix + counter++;
             mv = cv.visitMethod(a, n, desc, signature, exceptions);

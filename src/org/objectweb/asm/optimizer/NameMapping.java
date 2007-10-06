@@ -38,7 +38,7 @@ import java.util.Set;
 import org.objectweb.asm.Type;
 
 /**
- * A mapping from names to names, used to rename classes, fields and methods.
+ * A MAPPING from names to names, used to rename classes, fields and methods.
  * 
  * @author Eric Bruneton
  */
@@ -55,15 +55,15 @@ public class NameMapping extends Properties {
         String s = (String) get(name);
         if (s == null) {
             int p = name.indexOf('.');
-            if (p != -1) {
-                int q = name.indexOf('(');
-                if (q != -1) {
-                    s = name.substring(p + 1, q);
-                } else {
-                    s = name.substring(p + 1);
-                }
-            } else {
+            if (p == -1) {
                 s = name;
+            } else {
+                int q = name.indexOf('(');
+                if (q == -1) {
+                    s = name.substring(p + 1);
+                } else {
+                    s = name.substring(p + 1, q);
+                }
             }
         } else {
             unused.remove(name);
@@ -91,7 +91,7 @@ public class NameMapping extends Properties {
         } else if (t.getSort() == Type.ARRAY) {
             String s = fix(t.getElementType()).getDescriptor();
             for (int i = 0; i < t.getDimensions(); ++i) {
-                s = "[" + s;
+                s = '[' + s;
             }
             return Type.getType(s);
         } else {

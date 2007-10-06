@@ -41,9 +41,9 @@ import org.objectweb.asm.FieldVisitor;
  */
 public class FieldConstantsCollector implements FieldVisitor {
 
-    private FieldVisitor fv;
+    private final FieldVisitor fv;
 
-    private ConstantPool cp;
+    private final ConstantPool cp;
 
     public FieldConstantsCollector(final FieldVisitor fv, final ConstantPool cp)
     {

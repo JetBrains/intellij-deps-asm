@@ -301,7 +301,7 @@ public interface MethodVisitor {
      * @param labels beginnings of the handler blocks. <tt>labels[i]</tt> is
      *        the beginning of the handler block for the <tt>min + i</tt> key.
      */
-    void visitTableSwitchInsn(int min, int max, Label dflt, Label labels[]);
+    void visitTableSwitchInsn(int min, int max, Label dflt, Label[] labels);
 
     /**
      * Visits a LOOKUPSWITCH instruction.
@@ -311,7 +311,7 @@ public interface MethodVisitor {
      * @param labels beginnings of the handler blocks. <tt>labels[i]</tt> is
      *        the beginning of the handler block for the <tt>keys[i]</tt> key.
      */
-    void visitLookupSwitchInsn(Label dflt, int keys[], Label labels[]);
+    void visitLookupSwitchInsn(Label dflt, int[] keys, Label[] labels);
 
     /**
      * Visits a MULTIANEWARRAY instruction.

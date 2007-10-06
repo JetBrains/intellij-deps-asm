@@ -49,17 +49,17 @@ import org.xml.sax.helpers.AttributesImpl;
  * @author Eugene Kuleshov
  */
 public final class SAXClassAdapter extends SAXAdapter implements ClassVisitor {
-    private boolean singleDocument;
+    private final boolean singleDocument;
 
     /**
      * Pseudo access flag used to distinguish class access flags.
      */
-    private final static int ACCESS_CLASS = 262144;
+    private static final int ACCESS_CLASS = 262144;
 
     /**
      * Pseudo access flag used to distinguish field access flags.
      */
-    private final static int ACCESS_FIELD = 524288;
+    private static final int ACCESS_FIELD = 524288;
 
     /**
      * Pseudo access flag used to distinguish inner class flags.
@@ -301,24 +301,24 @@ public final class SAXClassAdapter extends SAXAdapter implements ClassVisitor {
             sb.append("static ");
         }
         if ((access & Opcodes.ACC_SUPER) != 0) {
-            if ((access & ACCESS_CLASS) != 0) {
-                sb.append("super ");
-            } else {
+            if ((access & ACCESS_CLASS) == 0) {
                 sb.append("synchronized ");
+            } else {
+                sb.append("super ");
             }
         }
         if ((access & Opcodes.ACC_VOLATILE) != 0) {
-            if ((access & ACCESS_FIELD) != 0) {
-                sb.append("volatile ");
-            } else {
+            if ((access & ACCESS_FIELD) == 0) {
                 sb.append("bridge ");
+            } else {
+                sb.append("volatile ");
             }
         }
         if ((access & Opcodes.ACC_TRANSIENT) != 0) {
-            if ((access & ACCESS_FIELD) != 0) {
-                sb.append("transient ");
-            } else {
+            if ((access & ACCESS_FIELD) == 0) {
                 sb.append("varargs ");
+            } else {
+                sb.append("transient ");
             }
         }
         if ((access & Opcodes.ACC_NATIVE) != 0) {

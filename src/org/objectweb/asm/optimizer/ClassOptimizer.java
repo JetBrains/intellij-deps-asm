@@ -111,7 +111,7 @@ public class ClassOptimizer extends RemappingClassAdapter {
         final Object value)
     {
         String s = remapper.mapFieldName(className, name, desc);
-        if (s.equals("-")) {
+        if ("-".equals(s)) {
             return null;
         }
         if ((access & (Opcodes.ACC_PUBLIC | Opcodes.ACC_PROTECTED)) == 0) {
@@ -120,14 +120,14 @@ public class ClassOptimizer extends RemappingClassAdapter {
             {
                 return null;
             }
-            if (pkgName.equals("org/objectweb/asm") && s.equals(name)) {
+            if ("org/objectweb/asm".equals(pkgName) && s.equals(name)) {
                 System.out.println("INFO: " + s + " could be renamed");
             }
             super.visitField(access, name, desc, null, value);
         } else {
             if (!s.equals(name)) {
                 throw new RuntimeException("The public or protected field "
-                        + className + "." + name + " must not be renamed.");
+                        + className + '.' + name + " must not be renamed.");
             }
             super.visitField(access, name, desc, null, value);
         }
@@ -142,11 +142,11 @@ public class ClassOptimizer extends RemappingClassAdapter {
         final String[] exceptions)
     {
         String s = remapper.mapMethodName(className, name, desc); 
-        if (s.equals("-")) {
+        if ("-".equals(s)) {
             return null;
         }
         if ((access & (Opcodes.ACC_PUBLIC | Opcodes.ACC_PROTECTED)) == 0) {
-            if (pkgName.equals("org/objectweb/asm") && !name.startsWith("<")
+            if ("org/objectweb/asm".equals(pkgName) && !name.startsWith("<")
                     && s.equals(name))
             {
                 System.out.println("INFO: " + s + " could be renamed");
@@ -155,7 +155,7 @@ public class ClassOptimizer extends RemappingClassAdapter {
         } else {
             if (!s.equals(name)) {
                 throw new RuntimeException("The public or protected method "
-                        + className + "." + name + desc
+                        + className + '.' + name + desc
                         + " must not be renamed.");
             }
             return super.visitMethod(access, name, desc, null, exceptions); 

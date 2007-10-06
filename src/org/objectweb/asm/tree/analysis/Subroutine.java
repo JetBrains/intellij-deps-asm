@@ -51,7 +51,7 @@ class Subroutine {
     private Subroutine() {
     }
 
-    public Subroutine(
+    Subroutine(
         final LabelNode start,
         final int maxLocals,
         final JumpInsnNode caller)

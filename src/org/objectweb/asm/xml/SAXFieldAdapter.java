@@ -31,8 +31,8 @@ package org.objectweb.asm.xml;
 
 import org.objectweb.asm.AnnotationVisitor;
 import org.objectweb.asm.FieldVisitor;
+import org.xml.sax.Attributes;
 import org.xml.sax.ContentHandler;
-import org.xml.sax.helpers.AttributesImpl;
 
 /**
  * SAXFieldAdapter
@@ -41,7 +41,7 @@ import org.xml.sax.helpers.AttributesImpl;
  */
 public class SAXFieldAdapter extends SAXAdapter implements FieldVisitor {
 
-    public SAXFieldAdapter(final ContentHandler h, final AttributesImpl att) {
+    public SAXFieldAdapter(final ContentHandler h, final Attributes att) {
         super(h);
         addStart("field", att);
     }

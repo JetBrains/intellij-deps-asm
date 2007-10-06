@@ -42,42 +42,42 @@ public class CheckSignatureAdapter implements SignatureVisitor {
      * Type to be used to check class signatures. See
      * {@link #CheckSignatureAdapter(int, SignatureVisitor) CheckSignatureAdapter}.
      */
-    public final static int CLASS_SIGNATURE = 0;
+    public static final int CLASS_SIGNATURE = 0;
 
     /**
      * Type to be used to check method signatures. See
      * {@link #CheckSignatureAdapter(int, SignatureVisitor) CheckSignatureAdapter}.
      */
-    public final static int METHOD_SIGNATURE = 1;
+    public static final int METHOD_SIGNATURE = 1;
 
     /**
      * Type to be used to check type signatures.See
      * {@link #CheckSignatureAdapter(int, SignatureVisitor) CheckSignatureAdapter}.
      */
-    public final static int TYPE_SIGNATURE = 2;
+    public static final int TYPE_SIGNATURE = 2;
 
-    private final static int EMPTY = 1;
+    private static final int EMPTY = 1;
 
-    private final static int FORMAL = 2;
+    private static final int FORMAL = 2;
 
-    private final static int BOUND = 4;
+    private static final int BOUND = 4;
 
-    private final static int SUPER = 8;
+    private static final int SUPER = 8;
 
-    private final static int PARAM = 16;
+    private static final int PARAM = 16;
 
-    private final static int RETURN = 32;
+    private static final int RETURN = 32;
 
-    private final static int SIMPLE_TYPE = 64;
+    private static final int SIMPLE_TYPE = 64;
 
-    private final static int CLASS_TYPE = 128;
+    private static final int CLASS_TYPE = 128;
 
-    private final static int END = 256;
+    private static final int END = 256;
 
     /**
      * Type of the signature to be checked.
      */
-    private int type;
+    private final int type;
 
     /**
      * State of the automaton used to check the order of method calls.
@@ -93,7 +93,7 @@ public class CheckSignatureAdapter implements SignatureVisitor {
      * The visitor to which this adapter must delegate calls. May be
      * <tt>null</tt>.
      */
-    private SignatureVisitor sv;
+    private final SignatureVisitor sv;
 
     /**
      * Creates a new {@link CheckSignatureAdapter} object.

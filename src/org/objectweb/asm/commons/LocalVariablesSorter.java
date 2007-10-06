@@ -49,7 +49,7 @@ import org.objectweb.asm.Type;
  */
 public class LocalVariablesSorter extends MethodAdapter {
 
-    private final static Type OBJECT_TYPE = Type.getObjectType("java/lang/Object");
+    private static final Type OBJECT_TYPE = Type.getObjectType("java/lang/Object");
 
     /**
      * Mapping from old to new local variable indexes. A local variable at index
@@ -92,7 +92,7 @@ public class LocalVariablesSorter extends MethodAdapter {
     {
         super(mv);
         Type[] args = Type.getArgumentTypes(desc);
-        nextLocal = (Opcodes.ACC_STATIC & access) != 0 ? 0 : 1;
+        nextLocal = (Opcodes.ACC_STATIC & access) == 0 ? 1 : 0;
         for (int i = 0; i < args.length; i++) {
             nextLocal += args[i].getSize();
         }

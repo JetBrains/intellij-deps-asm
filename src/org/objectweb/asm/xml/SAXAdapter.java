@@ -43,7 +43,7 @@ public abstract class SAXAdapter {
 
     private final ContentHandler h;
 
-    public SAXAdapter(final ContentHandler h) {
+    protected SAXAdapter(final ContentHandler h) {
         this.h = h;
     }
 

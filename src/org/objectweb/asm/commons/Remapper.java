@@ -55,13 +55,13 @@ public abstract class Remapper {
             case Type.ARRAY:
                 String s = mapDesc(t.getElementType().getDescriptor());
                 for (int i = 0; i < t.getDimensions(); ++i) {
-                    s = "[" + s;
+                    s = '[' + s;
                 }
                 return s;
             case Type.OBJECT:
                 String newType = map(t.getInternalName());
                 if (newType != null) {
-                    return "L" + newType + ";";
+                    return 'L' + newType + ';';
                 }
         }
         return desc;
@@ -72,7 +72,7 @@ public abstract class Remapper {
             case Type.ARRAY:
                 String s = mapDesc(t.getElementType().getDescriptor());
                 for (int i = 0; i < t.getDimensions(); ++i) {
-                    s = "[" + s;
+                    s = '[' + s;
                 }
                 return Type.getType(s);
             case Type.OBJECT:
@@ -129,7 +129,7 @@ public abstract class Remapper {
         if(returnType == Type.VOID_TYPE) {
             return s + ")V";
         }
-        return s + ")" + mapDesc(returnType.getDescriptor());
+        return s + ')' + mapDesc(returnType.getDescriptor());
     }
 
     public Object mapValue(Object value) {
@@ -138,11 +138,9 @@ public abstract class Remapper {
 
     /**
      * 
-     * @param signature
      * @param typeSignature true if signature is a FieldTypeSignature, such as
      *        the signature parameter of the ClassVisitor.visitField or
      *        MethodVisitor.visitLocalVariable methods
-     * @return
      */
     public String mapSignature(String signature, boolean typeSignature) {
         if (signature == null) {

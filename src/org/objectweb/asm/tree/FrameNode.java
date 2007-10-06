@@ -30,6 +30,7 @@
 package org.objectweb.asm.tree;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -190,11 +191,7 @@ public class FrameNode extends AbstractInsnNode {
     // ------------------------------------------------------------------------
 
     private static List asList(final int n, final Object[] o) {
-        List l = new ArrayList(n);
-        for (int i = 0; i < n; ++i) {
-            l.add(o[i]);
-        }
-        return l;
+        return Arrays.asList(o).subList(0, n);
     }
 
     private static Object[] asArray(final List l) {

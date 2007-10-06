@@ -97,7 +97,7 @@ public class AnalyzerAdapter extends MethodAdapter {
      * types, and the associated internal name represents the NEW operand, i.e.
      * the final, initialized type value.
      */
-    private Map uninitializedTypes;
+    private final Map uninitializedTypes;
 
     /**
      * The maximum stack size of this method.
@@ -132,7 +132,7 @@ public class AnalyzerAdapter extends MethodAdapter {
         uninitializedTypes = new HashMap();
 
         if ((access & Opcodes.ACC_STATIC) == 0) {
-            if (name.equals("<init>")) {
+            if ("<init>".equals(name)) {
                 locals.add(Opcodes.UNINITIALIZED_THIS);
             } else {
                 locals.add(owner);
@@ -197,7 +197,7 @@ public class AnalyzerAdapter extends MethodAdapter {
         maxStack = Math.max(maxStack, this.stack.size());
     }
 
-    private void visitFrameTypes(
+    private static void visitFrameTypes(
         final int n,
         final Object[] types,
         final List result)
@@ -361,7 +361,7 @@ public class AnalyzerAdapter extends MethodAdapter {
         final int min,
         final int max,
         final Label dflt,
-        final Label labels[])
+        final Label[] labels)
     {
         if (mv != null) {
             mv.visitTableSwitchInsn(min, max, dflt, labels);
@@ -373,8 +373,8 @@ public class AnalyzerAdapter extends MethodAdapter {
 
     public void visitLookupSwitchInsn(
         final Label dflt,
-        final int keys[],
-        final Label labels[])
+        final int[] keys,
+        final Label[] labels)
     {
         if (mv != null) {
             mv.visitLookupSwitchInsn(dflt, keys, labels);
@@ -456,7 +456,6 @@ public class AnalyzerAdapter extends MethodAdapter {
                 } else {
                     push(desc.substring(index + 1, desc.length() - 1));
                 }
-                return;
         }
     }
 

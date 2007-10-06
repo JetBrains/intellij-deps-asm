@@ -71,7 +71,7 @@ public abstract class MemberNode {
     /**
      * Constructs a new {@link MemberNode}.
      */
-    public MemberNode() {
+    protected MemberNode() {
     }
 
     /**

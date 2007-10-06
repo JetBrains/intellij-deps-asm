@@ -79,7 +79,7 @@ public class CodeSizeEvaluator extends MethodAdapter implements Opcodes {
     }
 
     public void visitVarInsn(final int opcode, final int var) {
-        if (var < 4 && opcode != Opcodes.RET) {
+        if (var < 4 && opcode != RET) {
             minSize += 1;
             maxSize += 1;
         } else if (var >= 256) {

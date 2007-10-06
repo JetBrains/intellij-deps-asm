@@ -45,7 +45,7 @@ import org.objectweb.asm.Opcodes;
  */
 public class ClassConstantsCollector extends ClassAdapter {
 
-    private ConstantPool cp;
+    private final ConstantPool cp;
 
     public ClassConstantsCollector(final ClassVisitor cv, final ConstantPool cp)
     {
@@ -204,9 +204,5 @@ public class ClassConstantsCollector extends ClassAdapter {
                 desc,
                 signature,
                 exceptions), cp);
-    }
-
-    public void visitEnd() {
-        cv.visitEnd();
     }
 }

@@ -30,11 +30,12 @@
 package org.objectweb.asm.tree;
 
 import java.util.ListIterator;
+import java.util.NoSuchElementException;
+
+import junit.framework.TestCase;
 
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodAdapter;
-
-import junit.framework.TestCase;
 
 /**
  * InsnList unit tests.
@@ -207,6 +208,14 @@ public class InsnListUnitTest extends TestCase {
         assertEquals(in2, it.next());
         assertFalse(it.hasNext());
         assertEquals(3, it.nextIndex());
+    }
+    
+    public void testIterator3() {
+        try {
+            new InsnList().iterator().next();
+            fail();
+        } catch (NoSuchElementException e) {
+        }
     }
     
     public void testInvalidIndexOf() {

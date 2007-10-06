@@ -39,9 +39,9 @@ import org.objectweb.asm.Type;
  */
 public class CheckAnnotationAdapter implements AnnotationVisitor {
 
-    private AnnotationVisitor av;
+    private final AnnotationVisitor av;
 
-    private boolean named;
+    private final boolean named;
 
     private boolean end;
 

@@ -40,9 +40,9 @@ import org.objectweb.asm.Type;
  */
 public class AnnotationConstantsCollector implements AnnotationVisitor {
 
-    private AnnotationVisitor av;
+    private final AnnotationVisitor av;
 
-    private ConstantPool cp;
+    private final ConstantPool cp;
 
     public AnnotationConstantsCollector(
         final AnnotationVisitor av,

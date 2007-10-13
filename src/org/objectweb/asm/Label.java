@@ -88,6 +88,16 @@ public class Label {
     static final int RET = 256;
 
     /**
+     * Indicates if this basic block is the start of a subroutine.
+     */
+    static final int SUBROUTINE = 512;
+
+    /**
+     * Indicates if this subroutine basic block has been visited.
+     */
+    static final int VISITED = 1024;
+
+    /**
      * Field used to associate user information to a label. Warning: this field
      * is used by the ASM tree package. In order to use it with the ASM tree
      * package you must override the {@link 
@@ -132,7 +142,11 @@ public class Label {
      * forward reference, while the second is the position of the first byte of
      * the forward reference itself. In fact the sign of the first integer
      * indicates if this reference uses 2 or 4 bytes, and its absolute value
-     * gives the position of the bytecode instruction.
+     * gives the position of the bytecode instruction. This array is also used
+     * as a bitset to store the subroutines to which a basic block belongs. This
+     * information is needed in {@linked  MethodWriter#visitMaxs}, after all
+     * forward references have been resolved. Hence the same array can be used
+     * for both purposes without problems.
      */
     private int[] srcAndRefPositions;
 
@@ -397,6 +411,97 @@ public class Label {
      */
     Label getFirst() {
         return !ClassReader.FRAMES || frame == null ? this : frame.owner;
+    }
+
+    // ------------------------------------------------------------------------
+    // Methods related to subroutines
+    // ------------------------------------------------------------------------
+
+    /**
+     * Returns the subroutine id to which this basic block belongs.
+     * 
+     * @return the subroutine id to which this basic block belongs.
+     */
+    long getSubroutine() {
+        for (int i = 0; i < srcAndRefPositions.length; ++i) {
+            if (srcAndRefPositions[i] != 0) {
+                return (((long) i) << 32) | srcAndRefPositions[i];
+            }
+        }
+        throw new Error("Internal error.");
+    }
+
+    /**
+     * Returns true is this basic block belongs to the given subroutine.
+     * 
+     * @param id a subroutine id.
+     * @return true is this basic block belongs to the given subroutine.
+     */
+    boolean inSubroutine(final long id) {
+        if ((status & Label.VISITED) != 0) {
+            return (srcAndRefPositions[(int) (id >>> 32)] & (int) id) != 0;
+        }
+        return false;
+    }
+
+    /**
+     * Returns true if this basic block and the given one belong to a common
+     * subroutine.
+     * 
+     * @param block another basic block.
+     * @return true if this basic block and the given one belong to a common
+     *         subroutine.
+     */
+    boolean inSameSubroutine(final Label block) {
+        for (int i = 0; i < srcAndRefPositions.length; ++i) {
+            if ((srcAndRefPositions[i] & block.srcAndRefPositions[i]) != 0) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Marks this basic block as belonging to the given subroutine.
+     * 
+     * @param id a subroutine id.
+     * @param nbSubroutines the total number of subroutines in the method.
+     */
+    void addToSubroutine(final long id, final int nbSubroutines) {
+        if ((status & VISITED) == 0) {
+            status |= VISITED;
+            srcAndRefPositions = new int[(nbSubroutines - 1) / 32 + 1];
+        }
+        srcAndRefPositions[(int) (id >>> 32)] |= (int) id;
+    }
+    
+    /**
+     * Finds the basic blocks that belong to a given subroutine, and marks these
+     * blocks as belonging to this subroutine. This recursive method follows the
+     * control flow graph to find all the blocks that are reachable from the
+     * current block WITHOUT following any JSR target.
+     * 
+     * @param id the id of this subroutine.
+     * @param nbSubroutines the total number of subroutines in the method.
+     */
+    void findSubroutine(final long id, final int nbSubroutines) {
+        // if this block already belongs to subroutine 'id', returns
+        if (inSubroutine(id)) {
+            return;
+        }
+        // marks this block as belonging to subroutine 'id'
+        addToSubroutine(id, nbSubroutines);
+        // calls this method recursively on each successor, except JSR targets
+        Edge e = successors;
+        while (e != null) {
+            // if this block is a JSR block, then 'successors.next' leads
+            // to the JSR target (see {@link #visitJumpInsn}) and must therefore
+            // not be followed
+            if ((status & Label.JSR) == 0 || e != successors.next) {
+                e.successor.findSubroutine(id, nbSubroutines);
+            }
+            e = e.next;
+        }
     }
 
     // ------------------------------------------------------------------------

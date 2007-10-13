@@ -323,9 +323,9 @@ class MethodWriter implements MethodVisitor {
     private boolean resize;
 
     /**
-     * Indicates if the instructions contain at least one JSR instruction.
+     * The number of subroutines in this method.
      */
-    private boolean jsr;
+    private int subroutines;
 
     // ------------------------------------------------------------------------
 
@@ -858,7 +858,10 @@ class MethodWriter implements MethodVisitor {
                 }
             } else {
                 if (opcode == Opcodes.JSR) {
-                    jsr = true;
+                    if ((label.status & Label.SUBROUTINE) == 0) {
+                        label.status |= Label.SUBROUTINE;
+                        ++subroutines;
+                    }
                     currentBlock.status |= Label.JSR;
                     addSuccessor(stackSize + 1, label);
                     // creates a Label for the next basic block
@@ -1323,36 +1326,33 @@ class MethodWriter implements MethodVisitor {
                 handler = handler.next;
             }
 
-            if (jsr) {
+            if (subroutines > 0) {
                 // completes the control flow graph with the RET successors
                 /*
                  * first step: finds the subroutines. This step determines, for
-                 * each basic block, to which subroutine(s) it belongs, and
-                 * stores this set as a bit set in the {@link Label#status}
-                 * field. Subroutines are numbered with powers of two, from
-                 * 0x1000 to 0x80000000 (so there must be at most 20 subroutines
-                 * in a method).
+                 * each basic block, to which subroutine(s) it belongs.
                  */
                 // finds the basic blocks that belong to the "main" subroutine
-                int id = 0x1000;
-                findSubroutine(labels, id);
+                int id = 0;
+                labels.findSubroutine(1, subroutines);
                 // finds the basic blocks that belong to the real subroutines
                 Label l = labels;
                 while (l != null) {
                     if ((l.status & Label.JSR) != 0) {
                         // the subroutine is defined by l's TARGET, not by l
                         Label subroutine = l.successors.next.successor;
-                        // if this subroutine does not have an id yet...
-                        if ((subroutine.status & ~0xFFF) == 0) {
+                        // if this subroutine has not been visited yet...
+                        if ((subroutine.status & Label.VISITED) == 0) {
                             // ...assigns it a new id and finds its basic blocks
-                            id <<= 1;
-                            findSubroutine(subroutine, id);
+                            id += 1;
+                            subroutine.findSubroutine(((long) id / 32) << 32
+                                    | (1 << (id % 32)), subroutines);
                         }
                     }
                     l = l.successor;
                 }
                 // second step: finds the successors of RET blocks
-                findSubroutineSuccessors(0x1000, new Label[10], 0);
+                findSubroutineSuccessors(1, new Label[subroutines], 0);
             }
 
             /*
@@ -1378,7 +1378,7 @@ class MethodWriter implements MethodVisitor {
                 if (blockMax > max) {
                     max = blockMax;
                 }
-                // analyses the successors of the block
+                // analyzes the successors of the block
                 Edge b = l.successors;
                 if ((l.status & Label.JSR) != 0) {
                     // ignores the first edge of JSR blocks (virtual successor)
@@ -1486,36 +1486,6 @@ class MethodWriter implements MethodVisitor {
     }
 
     /**
-     * Finds the basic blocks that belong to a given subroutine, and marks these
-     * blocks as belonging to this subroutine (by using {@link Label#status} as
-     * a bit set (see {@link #visitMaxs}). This recursive method follows the
-     * control flow graph to find all the blocks that are reachable from the
-     * given block WITHOUT following any JSR target.
-     * 
-     * @param block a block that belongs to the subroutine
-     * @param id the id of this subroutine
-     */
-    private static void findSubroutine(final Label block, final int id) {
-        // if 'block' is already marked as belonging to subroutine 'id', returns
-        if ((block.status & id) != 0) {
-            return;
-        }
-        // marks 'block' as belonging to subroutine 'id'
-        block.status |= id;
-        // calls this method recursively on each successor, except JSR targets
-        Edge e = block.successors;
-        while (e != null) {
-            // if 'block' is a JSR block, then 'block.successors.next' leads
-            // to the JSR target (see {@link #visitJumpInsn}) and must therefore
-            // not be followed
-            if ((block.status & Label.JSR) == 0 || e != block.successors.next) {
-                findSubroutine(e.successor, id);
-            }
-            e = e.next;
-        }
-    }
-
-    /**
      * Finds the successors of the RET blocks of the specified subroutine, and
      * of any nested subroutine it calls.
      * 
@@ -1524,7 +1494,7 @@ class MethodWriter implements MethodVisitor {
      * @param nJSRs number of JSR blocks in the JSRs array.
      */
     private void findSubroutineSuccessors(
-        final int id,
+        final long id,
         final Label[] JSRs,
         final int nJSRs)
     {
@@ -1532,11 +1502,11 @@ class MethodWriter implements MethodVisitor {
         Label l = labels;
         while (l != null) {
             // for those that belong to subroutine 'id'...
-            if ((l.status & id) != 0) {
+            if (l.inSubroutine(id)) {
                 if ((l.status & Label.JSR) != 0) {
                     // finds the subroutine to which 'l' leads by following the
                     // second edge of l.successors (see {@link #visitJumpInsn})
-                    int nId = l.successors.next.successor.status & ~0xFFF;
+                    long nId = l.successors.next.successor.getSubroutine();
                     if (nId != id) {
                         // calls this method recursively with l pushed onto the
                         // JSRs stack to find the successors of the RET blocks
@@ -1552,14 +1522,13 @@ class MethodWriter implements MethodVisitor {
                      * leads to the subroutine to which the RET block belongs.
                      * But the RET block can belong to several subroutines (if a
                      * nested subroutine returns to its parent subroutine
-                     * implicitely, without a RET). So, in fact, the JSR that
+                     * Implicitly, without a RET). So, in fact, the JSR that
                      * corresponds to this RET is the first block in the JSRs
                      * stack, starting from the bottom of the stack, that leads
                      * to a subroutine to which the RET block belongs.
                      */
                     for (int i = 0; i < nJSRs; ++i) {
-                        int JSRstatus = JSRs[i].successors.next.successor.status;
-                        if (((JSRstatus & ~0xFFF) & (l.status & ~0xFFF)) != 0) {
+                        if (l.inSameSubroutine(JSRs[i].successors.next.successor)) {
                             Edge e = new Edge();
                             e.info = l.inputStackTop;
                             e.successor = JSRs[i].successors.successor;

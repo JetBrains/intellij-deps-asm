@@ -425,7 +425,7 @@ public class Label {
     long getSubroutine() {
         for (int i = 0; i < srcAndRefPositions.length; ++i) {
             if (srcAndRefPositions[i] != 0) {
-                return (((long) i) << 32) | srcAndRefPositions[i];
+                return (((long) i) << 32) | (srcAndRefPositions[i] & 0xFFFFFFFFL);
             }
         }
         throw new Error("Internal error.");

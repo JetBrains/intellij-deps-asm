@@ -1345,8 +1345,8 @@ class MethodWriter implements MethodVisitor {
                         if ((subroutine.status & Label.VISITED) == 0) {
                             // ...assigns it a new id and finds its basic blocks
                             id += 1;
-                            subroutine.findSubroutine(((long) id / 32) << 32
-                                    | (1 << (id % 32)), subroutines);
+                            subroutine.findSubroutine((id / 32L) << 32
+                                    | (1L << (id % 32)), subroutines);
                         }
                     }
                     l = l.successor;
@@ -1504,10 +1504,17 @@ class MethodWriter implements MethodVisitor {
             // for those that belong to subroutine 'id'...
             if (l.inSubroutine(id)) {
                 if ((l.status & Label.JSR) != 0) {
+                    boolean ok = true;
+                    for (int i = 0; i < nJSRs; ++i) {
+                        if (JSRs[i] == l) {
+                            ok = false;
+                            break;
+                        }
+                    }
                     // finds the subroutine to which 'l' leads by following the
                     // second edge of l.successors (see {@link #visitJumpInsn})
                     long nId = l.successors.next.successor.getSubroutine();
-                    if (nId != id) {
+                    if (nId != id && ok) {
                         // calls this method recursively with l pushed onto the
                         // JSRs stack to find the successors of the RET blocks
                         // of this nested subroutine 'nId'

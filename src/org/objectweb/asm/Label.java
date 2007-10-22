@@ -418,20 +418,6 @@ public class Label {
     // ------------------------------------------------------------------------
 
     /**
-     * Returns the subroutine id to which this basic block belongs.
-     * 
-     * @return the subroutine id to which this basic block belongs.
-     */
-    long getSubroutine() {
-        for (int i = 0; i < srcAndRefPositions.length; ++i) {
-            if (srcAndRefPositions[i] != 0) {
-                return (((long) i) << 32) | (srcAndRefPositions[i] & 0xFFFFFFFFL);
-            }
-        }
-        throw new Error("Internal error.");
-    }
-
-    /**
      * Returns true is this basic block belongs to the given subroutine.
      * 
      * @param id a subroutine id.
@@ -481,16 +467,37 @@ public class Label {
      * control flow graph to find all the blocks that are reachable from the
      * current block WITHOUT following any JSR target.
      * 
+     * @param JSR a JSR block that jumps to this subroutine. If this JSR is not
+     *        null it is added to the successor of the RET blocks found in the
+     *        subroutine.
      * @param id the id of this subroutine.
      * @param nbSubroutines the total number of subroutines in the method.
      */
-    void findSubroutine(final long id, final int nbSubroutines) {
-        // if this block already belongs to subroutine 'id', returns
-        if (inSubroutine(id)) {
-            return;
+    void visitSubroutine(final Label JSR, final long id, final int nbSubroutines)
+    {
+        if (JSR != null) {
+            if ((status & VISITED) != 0) {
+                return;
+            }
+            status |= VISITED;
+            // adds JSR to the successors of this block, if it is a RET block
+            if ((status & RET) != 0) {
+                if (!inSameSubroutine(JSR)) {
+                    Edge e = new Edge();
+                    e.info = inputStackTop;
+                    e.successor = JSR.successors.successor;
+                    e.next = successors;
+                    successors = e;
+                }
+            }
+        } else {
+            // if this block already belongs to subroutine 'id', returns
+            if (inSubroutine(id)) {
+                return;
+            }
+            // marks this block as belonging to subroutine 'id'
+            addToSubroutine(id, nbSubroutines);            
         }
-        // marks this block as belonging to subroutine 'id'
-        addToSubroutine(id, nbSubroutines);
         // calls this method recursively on each successor, except JSR targets
         Edge e = successors;
         while (e != null) {
@@ -498,7 +505,7 @@ public class Label {
             // to the JSR target (see {@link #visitJumpInsn}) and must therefore
             // not be followed
             if ((status & Label.JSR) == 0 || e != successors.next) {
-                e.successor.findSubroutine(id, nbSubroutines);
+                e.successor.visitSubroutine(JSR, id, nbSubroutines);
             }
             e = e.next;
         }

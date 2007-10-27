@@ -38,7 +38,9 @@ import org.objectweb.asm.AnnotationVisitor;
  * @author Eugene Kuleshov
  */
 public class RemappingAnnotationAdapter implements AnnotationVisitor {
+    
     private final AnnotationVisitor av;
+    
     private final Remapper renamer;
 
     public RemappingAnnotationAdapter(AnnotationVisitor av, Remapper renamer) {
@@ -56,16 +58,19 @@ public class RemappingAnnotationAdapter implements AnnotationVisitor {
 
     public AnnotationVisitor visitAnnotation(String name, String desc) {
         AnnotationVisitor v = av.visitAnnotation(name, renamer.mapType(desc));
-        return v == av ? this : new RemappingAnnotationAdapter(v, renamer);
+        return v == null ? null : (v == av
+                ? this
+                : new RemappingAnnotationAdapter(v, renamer));
     }
 
     public AnnotationVisitor visitArray(String name) {
         AnnotationVisitor v = av.visitArray(name);
-        return v == av ? this : new RemappingAnnotationAdapter(v, renamer);
+        return v == null ? null : (v == av
+                ? this
+                : new RemappingAnnotationAdapter(v, renamer));
     }
 
     public void visitEnd() {
         av.visitEnd();
     }
-
 }

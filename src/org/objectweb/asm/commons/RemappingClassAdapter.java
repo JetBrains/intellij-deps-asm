@@ -71,8 +71,8 @@ public class RemappingClassAdapter extends ClassAdapter {
     }
 
     public AnnotationVisitor visitAnnotation(String desc, boolean visible) {
-        AnnotationVisitor av = super.visitAnnotation(remapper.mapType(desc),
-                visible);
+        AnnotationVisitor av;
+        av = super.visitAnnotation(remapper.mapType(desc), visible);
         return av == null ? null : createRemappingAnnotationAdapter(av);
     }
 
@@ -88,8 +88,7 @@ public class RemappingClassAdapter extends ClassAdapter {
                 remapper.mapDesc(desc),
                 remapper.mapSignature(signature, true),
                 remapper.mapValue(value));
-        return fv == null ? null 
-                : createRemappingFieldAdapter(fv);
+        return fv == null ? null : createRemappingFieldAdapter(fv);
     }
 
     public MethodVisitor visitMethod(
@@ -105,8 +104,7 @@ public class RemappingClassAdapter extends ClassAdapter {
                 newDesc,
                 remapper.mapSignature(signature, false),
                 exceptions == null ? null : remapper.mapTypes(exceptions));
-        return mv == null ? null 
-                : createRemappingMethodAdapter(access, newDesc, mv);
+        return mv == null ? null : createRemappingMethodAdapter(access, newDesc, mv);
     }
 
     public void visitInnerClass(

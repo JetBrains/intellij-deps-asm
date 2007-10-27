@@ -42,6 +42,7 @@ import org.objectweb.asm.FieldVisitor;
 public class RemappingFieldAdapter implements FieldVisitor {
 
     private final FieldVisitor fv;
+    
     private final Remapper remapper;
 
     public RemappingFieldAdapter(FieldVisitor fv, Remapper remapper) {
@@ -50,8 +51,8 @@ public class RemappingFieldAdapter implements FieldVisitor {
     }
 
     public AnnotationVisitor visitAnnotation(String desc, boolean visible) {
-        return new RemappingAnnotationAdapter(fv.visitAnnotation(desc, visible),
-                remapper);
+        AnnotationVisitor av = fv.visitAnnotation(desc, visible);
+        return av == null ? null : new RemappingAnnotationAdapter(av, remapper);
     }
 
     public void visitAttribute(Attribute attr) {
@@ -61,5 +62,4 @@ public class RemappingFieldAdapter implements FieldVisitor {
     public void visitEnd() {
         fv.visitEnd();
     }
-
 }

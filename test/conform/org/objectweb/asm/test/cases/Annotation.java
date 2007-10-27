@@ -293,13 +293,15 @@ public class Annotation extends Generator {
         fv.visitEnd();
 
         mv = cw.visitMethod(ACC_PUBLIC, "<init>", "(IIIIIIIIII)V", null, null);
-        // visible method anntation
+        // visible method annotation
         mv.visitAnnotation(DEPRECATED, true).visitEnd();
         // invisible method annotation
         av0 = mv.visitAnnotation("Lpkg/Annotation;", false);
         av0.visitAnnotation("annotationValue", DOC).visitEnd();
         av0.visitEnd();
-        // visible parameter annnotation
+        // synthetic parameter annotation
+        mv.visitParameterAnnotation(0, "Ljava/lang/Synthetic;", false);
+        // visible parameter annotation
         mv.visitParameterAnnotation(8, DEPRECATED, true).visitEnd();
         // invisible parameter annotation
         av0 = mv.visitParameterAnnotation(8, "Lpkg/Annotation;", false);

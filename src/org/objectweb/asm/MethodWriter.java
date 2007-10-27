@@ -209,6 +209,11 @@ class MethodWriter implements MethodVisitor {
     private AnnotationWriter[] ipanns;
 
     /**
+     * The number of synthetic parameters of this method.
+     */
+    private int synthetics;
+
+    /**
      * The non standard attributes of the method.
      */
     private Attribute attrs;
@@ -494,6 +499,12 @@ class MethodWriter implements MethodVisitor {
             return null;
         }
         ByteVector bv = new ByteVector();
+        if ("Ljava/lang/Synthetic;".equals(desc)) {
+            // workaround for a bug in javac with synthetic parameters
+            // see ClassReader.readParameterAnnotations
+            synthetics = Math.max(synthetics, parameter + 1);
+            return new AnnotationWriter(cw, false, bv, null, 0);
+        }
         // write type, and reserve space for values count
         bv.putShort(cw.newUTF8(desc)).putShort(0);
         AnnotationWriter aw = new AnnotationWriter(cw, true, bv, bv, 2);
@@ -1844,15 +1855,15 @@ class MethodWriter implements MethodVisitor {
         }
         if (ClassReader.ANNOTATIONS && panns != null) {
             cw.newUTF8("RuntimeVisibleParameterAnnotations");
-            size += 7 + 2 * panns.length;
-            for (int i = panns.length - 1; i >= 0; --i) {
+            size += 7 + 2 * (panns.length - synthetics);
+            for (int i = panns.length - 1; i >= synthetics; --i) {
                 size += panns[i] == null ? 0 : panns[i].getSize();
             }
         }
         if (ClassReader.ANNOTATIONS && ipanns != null) {
             cw.newUTF8("RuntimeInvisibleParameterAnnotations");
-            size += 7 + 2 * ipanns.length;
-            for (int i = ipanns.length - 1; i >= 0; --i) {
+            size += 7 + 2 * (ipanns.length - synthetics);
+            for (int i = ipanns.length - 1; i >= synthetics; --i) {
                 size += ipanns[i] == null ? 0 : ipanns[i].getSize();
             }
         }
@@ -2024,11 +2035,11 @@ class MethodWriter implements MethodVisitor {
         }
         if (ClassReader.ANNOTATIONS && panns != null) {
             out.putShort(cw.newUTF8("RuntimeVisibleParameterAnnotations"));
-            AnnotationWriter.put(panns, out);
+            AnnotationWriter.put(panns, synthetics, out);
         }
         if (ClassReader.ANNOTATIONS && ipanns != null) {
             out.putShort(cw.newUTF8("RuntimeInvisibleParameterAnnotations"));
-            AnnotationWriter.put(ipanns, out);
+            AnnotationWriter.put(ipanns, synthetics, out);
         }
         if (attrs != null) {
             attrs.put(cw, null, 0, -1, -1, out);

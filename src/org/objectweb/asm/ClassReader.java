@@ -848,10 +848,10 @@ public class ClassReader {
                     }
                 }
                 if (ANNOTATIONS && mpanns != 0) {
-                    readParameterAnnotations(mpanns, c, true, mv);
+                    readParameterAnnotations(mpanns, desc, c, true, mv);
                 }
                 if (ANNOTATIONS && impanns != 0) {
-                    readParameterAnnotations(impanns, c, false, mv);
+                    readParameterAnnotations(impanns, desc, c, false, mv);
                 }
                 while (cattrs != null) {
                     attr = cattrs.next;
@@ -1460,6 +1460,7 @@ public class ClassReader {
      * Reads parameter annotations and makes the given visitor visit them.
      * 
      * @param v start offset in {@link #b b} of the annotations to be read.
+     * @param desc the method descriptor.
      * @param buf buffer to be used to call {@link #readUTF8 readUTF8},
      *        {@link #readClass(int,char[]) readClass} or
      *        {@link #readConst readConst}.
@@ -1469,21 +1470,34 @@ public class ClassReader {
      */
     private void readParameterAnnotations(
         int v,
+        final String desc,
         final char[] buf,
         final boolean visible,
         final MethodVisitor mv)
     {
+        int i;
         int n = b[v++] & 0xFF;
-        for (int i = 0; i < n; ++i) {
+        // workaround for a bug in javac (javac compiler generates a parameter
+        // annotation array whose size is equal to the number of parameters in
+        // the Java source file, while it should generate an array whose size is
+        // equal to the number of parameters in the method descriptor - which
+        // includes the synthetic parameters added by the compiler). This work-
+        // around supposes that the synthetic parameters are the first ones.
+        int synthetics = Type.getArgumentTypes(desc).length - n;
+        AnnotationVisitor av;
+        for (i = 0; i < synthetics; ++i) {
+            // virtual annotation to detect synthetic parameters in MethodWriter 
+            av = mv.visitParameterAnnotation(i, "Ljava/lang/Synthetic;", false);
+            if (av != null) {
+                av.visitEnd();
+            }
+        }
+        for (; i < n + synthetics; ++i) {
             int j = readUnsignedShort(v);
             v += 2;
             for (; j > 0; --j) {
-                v = readAnnotationValues(v + 2,
-                        buf,
-                        true,
-                        mv.visitParameterAnnotation(i,
-                                readUTF8(v, buf),
-                                visible));
+                av = mv.visitParameterAnnotation(i, readUTF8(v, buf), visible);
+                v = readAnnotationValues(v + 2, buf, true, av);
             }
         }
     }

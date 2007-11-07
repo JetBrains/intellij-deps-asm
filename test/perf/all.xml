@@ -16,6 +16,7 @@
         </fileset>
       </classpath>
       <jvmarg value="-Dasm.test.class=${asm.test.class}" /> 
+      <jvmarg value="-Xmx512M" /> 
     </java>
   </target>
 </project>

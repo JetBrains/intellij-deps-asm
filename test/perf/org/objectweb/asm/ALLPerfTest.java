@@ -143,6 +143,45 @@ public abstract class ALLPerfTest {
         }
         System.out.println("Found " + classes.size() + " classes.");
 
+        RunTest nullBCELAdapt = new RunTest() {
+            public void test(byte[] bytes, int[] errors) throws IOException {
+                nullBCELAdapt(bytes);
+            }
+        };
+
+        RunTest nullAspectjBCELAdapt = new RunTest() {
+            public void test(byte[] bytes, int[] errors) throws IOException {
+                nullAspectjBCELAdapt(bytes);
+            }
+        };
+
+        Runnable createClassPool = new Runnable() {
+            public void run() {
+                pool = new ClassPool(null);
+            }
+        };
+
+        RunTest nullJavassistAdapt = new RunTest() {
+            public void test(byte[] bytes, int[] errors) throws Exception {
+                nullJavassistAdapt(bytes);
+            }
+        };
+
+        Runnable createProject = new Runnable() {
+            public void run() {
+                p = new Project();
+                c = null;
+            }
+        };
+
+        RunTest nullSERPAdapt = new RunTest() {
+            public void test(byte[] bytes, int[] errors) throws Exception {
+                nullSERPAdapt(bytes);
+            }
+        };
+
+        // get class info and deserialize tests
+        
         runTestAll("get class info", "", NOTHING, new RunTest() {
             public void test(byte[] bytes, int[] errors) {
                 ClassReader cr = new ClassReader(bytes);
@@ -152,12 +191,22 @@ public abstract class ALLPerfTest {
                 cr.getInterfaces();
             }
         });
-
+        
         runTestAll("deserialize", "", NOTHING, new RunTest() {
             public void test(byte[] bytes, int[] errors) {
                 new ClassReader(bytes).accept(new EmptyVisitor(), 0);
             }
         });
+
+        runTest("deserialize", "tree package", NOTHING, new RunTest() {
+            public void test(byte[] bytes, int[] errors) {
+                new ClassReader(bytes).accept(new ClassNode(), 0);
+            }
+        });
+        
+        System.out.println();
+
+        // deserialize and reserialize tests
 
         runTestAll("deserialize and reserialize", "", NOTHING, new RunTest() {
             public void test(byte[] bytes, int[] errors) {
@@ -181,6 +230,44 @@ public abstract class ALLPerfTest {
                 });
 
         runTest("deserialize and reserialize",
+                "tree package",
+                NOTHING,
+                new RunTest() {
+                    public void test(byte[] bytes, int[] errors) {
+                        ClassWriter cw = new ClassWriter(0);
+                        ClassNode cn = new ClassNode();
+                        new ClassReader(bytes).accept(cn, 0);
+                        cn.accept(cw);
+                        cw.toByteArray();
+                    }
+                });
+
+        compute = false;
+        computeFrames = false;
+        pool = null;
+        
+        runTest("deserialize and reserialize", "BCEL", NOTHING, nullBCELAdapt);
+
+        runTest("deserialize and reserialize",
+                "Aspectj BCEL",
+                NOTHING,
+                nullAspectjBCELAdapt);
+        
+        runTest("deserialize and reserialize",
+                "Javassist",
+                createClassPool,
+                nullJavassistAdapt);
+
+        runTest("deserialize and reserialize",
+                "SERP",
+                createProject,
+                nullSERPAdapt);
+
+        System.out.println();
+
+        // deserialize and reserialize tests with computeMaxs
+
+        runTest("deserialize and reserialize",
                 "computeMaxs",
                 NOTHING,
                 new RunTest() {
@@ -191,16 +278,20 @@ public abstract class ALLPerfTest {
                     }
                 });
 
+        compute = true;
+        computeFrames = false;
+
         runTest("deserialize and reserialize",
-                "computeFrames",
+                "BCEL and computeMaxs",
                 NOTHING,
-                new RunTest() {
-                    public void test(byte[] bytes, int[] errors) {
-                        ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_FRAMES);
-                        new ClassReader(bytes).accept(cw, 0);
-                        cw.toByteArray();
-                    }
-                });
+                nullBCELAdapt);
+
+        runTest("deserialize and reserialize",
+                "Aspectj BCEL and computeMaxs",
+                NOTHING,
+                nullAspectjBCELAdapt);
+        
+        // misc. tests
 
         runTest("deserialize and reserialize",
                 "LocalVariablesSorter",
@@ -230,27 +321,6 @@ public abstract class ALLPerfTest {
                     }
                 });
 
-        System.out.println();
-
-        runTest("deserialize", "tree package", NOTHING, new RunTest() {
-            public void test(byte[] bytes, int[] errors) {
-                new ClassReader(bytes).accept(new ClassNode(), 0);
-            }
-        });
-
-        runTest("deserialize and reserialize",
-                "tree package",
-                NOTHING,
-                new RunTest() {
-                    public void test(byte[] bytes, int[] errors) {
-                        ClassWriter cw = new ClassWriter(0);
-                        ClassNode cn = new ClassNode();
-                        new ClassReader(bytes).accept(cn, 0);
-                        cn.accept(cw);
-                        cw.toByteArray();
-                    }
-                });
-
         // This test repeatedly tests the same classes as SimpleVerifier
         // actually calls Class.forName() on the class which fills the PermGen
         runTestSome("analyze", "SimpleVerifier", NOTHING, new RunTest() {
@@ -272,23 +342,24 @@ public abstract class ALLPerfTest {
             }
         });
 
-        RunTest nullBCELAdapt = new RunTest() {
-            public void test(byte[] bytes, int[] errors) throws IOException {
-                nullBCELAdapt(bytes);
-            }
-        };
+        System.out.println();
+        
+        // deserialize and reserialize tests with computeFrames
 
-        compute = false;
-        computeFrames = false;
-        runTest("deserialize and reserialize", "BCEL", NOTHING, nullBCELAdapt);
-
-        compute = true;
-        computeFrames = false;
         runTest("deserialize and reserialize",
-                "BCEL and computeMaxs",
+                "computeFrames",
                 NOTHING,
-                nullBCELAdapt);
+                new RunTest() {
+                    public void test(byte[] bytes, int[] errors) {
+                        ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_FRAMES);
+                        new ClassReader(bytes).accept(cw, 0);
+                        cw.toByteArray();
+                    }
+                });
 
+        // the BCEL+computeFrames tests must be done only at the end, because
+        // after them other tests run very slowly, for some unknown reason 
+        // (memory usage?)
         compute = false;
         computeFrames = true;
         runTest("deserialize and reserialize",
@@ -296,79 +367,10 @@ public abstract class ALLPerfTest {
                 NOTHING,
                 nullBCELAdapt);
 
-        System.out.println();
-
-        RunTest nullAspectjBCELAdapt = new RunTest() {
-            public void test(byte[] bytes, int[] errors) throws IOException {
-                nullAspectjBCELAdapt(bytes);
-            }
-        };
-
-        compute = false;
-        computeFrames = false;
-        runTest("deserialize and reserialize",
-                "Aspectj BCEL",
-                NOTHING,
-                nullAspectjBCELAdapt);
-
-        compute = true;
-        computeFrames = false;
-        runTest("deserialize and reserialize",
-                "Aspectj BCEL and computeMaxs",
-                NOTHING,
-                nullAspectjBCELAdapt);
-
-        compute = false;
-        computeFrames = true;
         runTest("deserialize and reserialize",
                 "Aspectj BCEL and computeFrames",
                 NOTHING,
                 nullAspectjBCELAdapt);
-
-        System.out.println();
-
-        Runnable createClassPool = new Runnable() {
-            public void run() {
-                pool = new ClassPool(null);
-            }
-        };
-
-        RunTest nullJavassistAdapt = new RunTest() {
-            public void test(byte[] bytes, int[] errors) throws Exception {
-                nullJavassistAdapt(bytes);
-            }
-        };
-
-        compute = false;
-        computeFrames = false;
-        runTest("deserialize and reserialize",
-                "Javassist",
-                createClassPool,
-                nullJavassistAdapt);
-
-        pool = null;
-
-        System.out.println();
-
-        Runnable createProject = new Runnable() {
-            public void run() {
-                p = new Project();
-                c = null;
-            }
-        };
-
-        RunTest nullSERPAdapt = new RunTest() {
-            public void test(byte[] bytes, int[] errors) throws Exception {
-                nullSERPAdapt(bytes);
-            }
-        };
-
-        compute = false;
-        computeFrames = false;
-        runTest("deserialize and reserialize",
-                "SERP",
-                createProject,
-                nullSERPAdapt);
     }
 
     public static List findFiles(String directory, String suffix) {

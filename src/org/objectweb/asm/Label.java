@@ -31,7 +31,10 @@ package org.objectweb.asm;
 
 /**
  * A label represents a position in the bytecode of a method. Labels are used
- * for jump, goto, and switch instructions, and for try catch blocks.
+ * for jump, goto, and switch instructions, and for try catch blocks. A label
+ * designates the <i>instruction</i> that is just after. Note however that
+ * there can be other elements between a label and the instruction it 
+ * designates (such as other labels, stack map frames, line numbers, etc.).
  * 
  * @author Eric Bruneton
  */

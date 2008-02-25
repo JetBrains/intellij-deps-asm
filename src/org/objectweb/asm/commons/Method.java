@@ -111,7 +111,7 @@ public class Method {
     /**
      * Creates a new {@link Method}.
      * 
-     * @param m a java.lang.reflect constructor descriptor
+     * @param c a java.lang.reflect constructor descriptor
      * @return a {@link Method} corresponding to the given Java constructor
      *         declaration.
      */

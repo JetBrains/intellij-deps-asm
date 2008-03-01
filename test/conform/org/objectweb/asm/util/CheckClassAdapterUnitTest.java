@@ -29,16 +29,19 @@
  */
 package org.objectweb.asm.util;
 
+import java.io.IOException;
 import java.io.PrintWriter;
 
 import junit.framework.TestCase;
 
 import org.objectweb.asm.AnnotationVisitor;
+import org.objectweb.asm.ClassAdapter;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.Label;
+import org.objectweb.asm.MethodAdapter;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.attrs.Comment;
@@ -469,6 +472,50 @@ public class CheckClassAdapterUnitTest extends TestCase implements Opcodes {
         } catch (Exception e) {
         }
     }
+    
+    public void testIllegalDebugLabelUse() throws IOException {
+        ClassReader cr = new ClassReader("java.lang.Object");
+        ClassWriter cw = new ClassWriter(cr, ClassWriter.COMPUTE_MAXS);
+        cr.accept(new ClassAdapter(cw) {
+            public MethodVisitor visitMethod(
+                int access,
+                String name,
+                String desc,
+                String signature,
+                String[] exceptions)
+            {
+                final MethodVisitor next = cv.visitMethod(access,
+                        name,
+                        desc,
+                        signature,
+                        exceptions);
+                if (next == null) {
+                    return next;
+                }
+                return new MethodAdapter(new CheckMethodAdapter(next)) {
+                    private Label entryLabel = null;
+
+                    public void visitLabel(Label label) {
+                        if (entryLabel == null) {
+                            entryLabel = label;
+                        }
+                        mv.visitLabel(label);
+                    }
+
+                    public void visitMaxs(int maxStack, int maxLocals) {
+                        Label unwindhandler = new Label();
+                        mv.visitLabel(unwindhandler);
+                        mv.visitInsn(Opcodes.ATHROW); // rethrow
+                        mv.visitTryCatchBlock(entryLabel,
+                                unwindhandler,
+                                unwindhandler,
+                                null);
+                        mv.visitMaxs(maxStack, maxLocals);
+                    }
+                };
+            }
+        }, ClassReader.EXPAND_FRAMES);
+    }
 
     public void testIllegalTableSwitchParameters1() {
         MethodVisitor mv = new CheckMethodAdapter(new EmptyVisitor());
@@ -761,6 +808,29 @@ public class CheckClassAdapterUnitTest extends TestCase implements Opcodes {
         }
     }
 
+    public void testIllegalTryCatchBlock() {
+        MethodVisitor mv = new CheckMethodAdapter(new EmptyVisitor());
+        mv.visitCode();
+        Label m = new Label();
+        Label n = new Label();
+        mv.visitLabel(m);
+        try {
+            mv.visitTryCatchBlock(m, n, n, null);
+            fail();
+        } catch (Exception e) {
+        }        
+        try {
+            mv.visitTryCatchBlock(n, m, n, null);
+            fail();
+        } catch (Exception e) {
+        }        
+        try {
+            mv.visitTryCatchBlock(n, n, m, null);
+            fail();
+        } catch (Exception e) {
+        }        
+    }
+    
     public void testIllegalLocalVariableLabels() {
         MethodVisitor mv = new CheckMethodAdapter(new EmptyVisitor());
         mv.visitCode();

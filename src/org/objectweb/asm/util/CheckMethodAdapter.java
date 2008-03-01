@@ -37,6 +37,7 @@ import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Attribute;
 import org.objectweb.asm.Type;
 
+import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -79,6 +80,11 @@ public class CheckMethodAdapter extends MethodAdapter {
      * Code of the visit method to be used for each opcode.
      */
     private static final int[] TYPE;
+    
+    /**
+     * The Label.status field.
+     */
+    private static Field labelStatusField;
 
     static {
         String s = "BBBBBBBBBBBBBBBBCCIAADDDDDAAAAAAAAAAAAAAAAAAAABBBBBBBBDD"
@@ -498,6 +504,7 @@ public class CheckMethodAdapter extends MethodAdapter {
         checkEndCode();
         checkOpcode(opcode, 6);
         checkLabel(label, false, "label");
+        checkNonDebugLabel(label);
         mv.visitJumpInsn(opcode, label);
     }
 
@@ -542,11 +549,13 @@ public class CheckMethodAdapter extends MethodAdapter {
                     + " must be greater than or equal to min = " + min);
         }
         checkLabel(dflt, false, "default label");
+        checkNonDebugLabel(dflt);
         if (labels == null || labels.length != max - min + 1) {
             throw new IllegalArgumentException("There must be max - min + 1 labels");
         }
         for (int i = 0; i < labels.length; ++i) {
             checkLabel(labels[i], false, "label at index " + i);
+            checkNonDebugLabel(labels[i]);
         }
         mv.visitTableSwitchInsn(min, max, dflt, labels);
     }
@@ -559,11 +568,13 @@ public class CheckMethodAdapter extends MethodAdapter {
         checkEndCode();
         checkStartCode();
         checkLabel(dflt, false, "default label");
+        checkNonDebugLabel(dflt);
         if (keys == null || labels == null || keys.length != labels.length) {
             throw new IllegalArgumentException("There must be the same number of keys and labels");
         }
         for (int i = 0; i < labels.length; ++i) {
             checkLabel(labels[i], false, "label at index " + i);
+            checkNonDebugLabel(labels[i]);
         }
         mv.visitLookupSwitchInsn(dflt, keys, labels);
     }
@@ -595,6 +606,15 @@ public class CheckMethodAdapter extends MethodAdapter {
     {
         checkStartCode();
         checkEndCode();
+        checkLabel(start, false, "start label");
+        checkLabel(end, false, "end label");
+        checkLabel(handler, false, "handler label");
+        checkNonDebugLabel(start);
+        checkNonDebugLabel(end);
+        checkNonDebugLabel(handler);
+        if (labels.get(start) != null || labels.get(end) != null || labels.get(handler) != null) {
+            throw new IllegalStateException("Try catch blocks must be visited before their labels");
+        }
         if (type != null) {
             checkInternalName(type, "type");
         }
@@ -1323,6 +1343,53 @@ public class CheckMethodAdapter extends MethodAdapter {
         if (checkVisited && labels.get(label) == null) {
             throw new IllegalArgumentException("Invalid " + msg
                     + " (must be visited first)");
+        }
+    }
+
+    /**
+     * Checks that the given lavel is not a label used only for debug purposes.
+     * 
+     * @param label the label to be checked.
+     */
+    private static void checkNonDebugLabel(final Label label) {
+        Field f = getLabelStatusField();
+        int status = 0;
+        try {
+            status = f == null ? 0 : ((Integer) f.get(label)).intValue();
+        } catch (IllegalAccessException e) { throw new Error("Internal error"); }
+        if ((status & 0x01) != 0) {
+            throw new IllegalArgumentException("Labels used for debug info cannot be reused for control flow");
+        }
+    }
+    
+    /**
+     * Returns the Field object corresponding to the Label.status field.
+     * 
+     * @return the Field object corresponding to the Label.status field.
+     */
+    private static Field getLabelStatusField() {
+        if (labelStatusField == null) {
+            labelStatusField = getLabelField("a");
+            if (labelStatusField == null) {
+                labelStatusField = getLabelField("status");
+            }
+        }
+        return labelStatusField;
+    }
+    
+    /**
+     * Returns the field of the Label class whose name is given.
+     * 
+     * @param name a field name.
+     * @return the field of the Label class whose name is given, or null.
+     */
+    private static Field getLabelField(final String name) {
+        try {
+            Field f = Label.class.getDeclaredField(name);
+            f.setAccessible(true);
+            return f;
+        } catch (NoSuchFieldException e) {
+            return null;
         }
     }
 }

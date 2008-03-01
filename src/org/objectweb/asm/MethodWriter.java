@@ -1252,11 +1252,11 @@ class MethodWriter implements MethodVisitor {
                 changed = changed.next;
                 l.next = null;
                 f = l.frame;
-                // a reacheable jump target must be stored in the stack map
+                // a reachable jump target must be stored in the stack map
                 if ((l.status & Label.TARGET) != 0) {
                     l.status |= Label.STORE;
                 }
-                // all visited labels are reacheable, by definition
+                // all visited labels are reachable, by definition
                 l.status |= Label.REACHABLE;
                 // updates the (absolute) maximum stack size
                 int blockMax = f.inputStack.length + l.outputStackMax;

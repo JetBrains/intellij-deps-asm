@@ -76,7 +76,9 @@ public class BasicInterpreter implements Opcodes, Interpreter {
         }
     }
 
-    public Value newOperation(final AbstractInsnNode insn) {
+    public Value newOperation(final AbstractInsnNode insn)
+            throws AnalyzerException
+    {
         switch (insn.getOpcode()) {
             case ACONST_NULL:
                 return newValue(Type.getObjectType("null"));

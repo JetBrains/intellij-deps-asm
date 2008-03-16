@@ -31,6 +31,8 @@ package org.objectweb.asm.util;
 
 import java.io.FileInputStream;
 import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import org.objectweb.asm.AnnotationVisitor;
@@ -185,10 +187,17 @@ public class CheckClassAdapter extends ClassAdapter {
                 ? null
                 : Type.getObjectType(cn.superName);
         List methods = cn.methods;
+
+        List interfaces = new ArrayList();
+        for (Iterator i = cn.interfaces.iterator(); i.hasNext();) {
+            interfaces.add(Type.getObjectType(i.next().toString()));
+        }
+
         for (int i = 0; i < methods.size(); ++i) {
             MethodNode method = (MethodNode) methods.get(i);
             Analyzer a = new Analyzer(new SimpleVerifier(Type.getObjectType(cn.name),
                     syperType,
+                    interfaces,
                     false));
             try {
                 a.analyze(cn.name, method);

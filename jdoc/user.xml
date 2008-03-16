@@ -14,7 +14,8 @@
     <mkdir dir="${jdoc.dir}"/>
     <javadoc destdir="${jdoc.dir}"
              windowtitle="ASM ${product.version} Documentation"
-             doctitle="ASM ${product.version} Documentation">
+             doctitle="ASM ${product.version} Documentation"
+             use="true">
 
       <sourcepath path="${src}"/>
       <package name="org.objectweb.asm"/>

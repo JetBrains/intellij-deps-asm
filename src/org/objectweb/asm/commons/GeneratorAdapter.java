@@ -994,16 +994,15 @@ public class GeneratorAdapter extends LocalVariablesSorter {
      * @param label where to jump if the comparison result is <tt>true</tt>.
      */
     public void ifCmp(final Type type, final int mode, final Label label) {
-        int intOp = -1;
         switch (type.getSort()) {
             case Type.LONG:
                 mv.visitInsn(Opcodes.LCMP);
                 break;
             case Type.DOUBLE:
-                mv.visitInsn(Opcodes.DCMPG);
+                mv.visitInsn(mode == GE || mode == GT ? Opcodes.DCMPG : Opcodes.DCMPL);
                 break;
             case Type.FLOAT:
-                mv.visitInsn(Opcodes.FCMPG);
+                mv.visitInsn(mode == GE || mode == GT ? Opcodes.FCMPG : Opcodes.FCMPL);
                 break;
             case Type.ARRAY:
             case Type.OBJECT:
@@ -1018,6 +1017,7 @@ public class GeneratorAdapter extends LocalVariablesSorter {
                 throw new IllegalArgumentException("Bad comparison for type "
                         + type);
             default:
+                int intOp = -1;
                 switch (mode) {
                     case EQ:
                         intOp = Opcodes.IF_ICMPEQ;
@@ -1041,16 +1041,7 @@ public class GeneratorAdapter extends LocalVariablesSorter {
                 mv.visitJumpInsn(intOp, label);
                 return;
         }
-        int jumpMode = mode;
-        switch (mode) {
-            case GE:
-                jumpMode = LT;
-                break;
-            case LE:
-                jumpMode = GT;
-                break;
-        }
-        mv.visitJumpInsn(jumpMode, label);
+        mv.visitJumpInsn(mode, label);
     }
 
     /**

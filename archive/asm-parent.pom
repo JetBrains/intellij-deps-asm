@@ -18,6 +18,13 @@
     <url>http://www.objectweb.org/</url>
   </organization>
   <inceptionYear>2000</inceptionYear>
+  
+  <licenses>
+    <license>
+      <name>BSD</name>
+      <url>http://asm.objectweb.org/license.html</url>
+    </license>
+  </licenses>
 
   <developers>
     <developer>
@@ -40,7 +47,7 @@
   </developers>
 
   <scm>
-    <connection>scm:cvs:pserver:anonymous@cvs.forge.objectweb.org:/cvsroot/asm:asm</connection>
+    <connection>scm:cvs:pserver:anonymous:@cvs.forge.objectweb.org:/cvsroot/asm:asm</connection>
     <developerConnection>scm:cvs:ext:${maven.username}@cvs.forge.objectweb.org:/cvsroot/asm:asm</developerConnection>
     <url>http://cvs.forge.objectweb.org/cgi-bin/viewcvs.cgi/asm/asm/</url>
   </scm>

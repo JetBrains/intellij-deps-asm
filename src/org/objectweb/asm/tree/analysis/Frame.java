@@ -291,7 +291,7 @@ public class Frame {
                 if (value1.getSize() != 1) {
                     throw new AnalyzerException("Illegal use of DUP");
                 }
-                push(interpreter.copyOperation(insn, value1));
+                push(value1);
                 push(interpreter.copyOperation(insn, value1));
                 break;
             case Opcodes.DUP_X1:
@@ -301,8 +301,8 @@ public class Frame {
                     throw new AnalyzerException("Illegal use of DUP_X1");
                 }
                 push(interpreter.copyOperation(insn, value1));
-                push(interpreter.copyOperation(insn, value2));
-                push(interpreter.copyOperation(insn, value1));
+                push(value2);
+                push(value1);
                 break;
             case Opcodes.DUP_X2:
                 value1 = pop();
@@ -312,15 +312,15 @@ public class Frame {
                         value3 = pop();
                         if (value3.getSize() == 1) {
                             push(interpreter.copyOperation(insn, value1));
-                            push(interpreter.copyOperation(insn, value3));
-                            push(interpreter.copyOperation(insn, value2));
-                            push(interpreter.copyOperation(insn, value1));
+                            push(value3);
+                            push(value2);
+                            push(value1);
                             break;
                         }
                     } else {
                         push(interpreter.copyOperation(insn, value1));
-                        push(interpreter.copyOperation(insn, value2));
-                        push(interpreter.copyOperation(insn, value1));
+                        push(value2);
+                        push(value1);
                         break;
                     }
                 }
@@ -330,14 +330,14 @@ public class Frame {
                 if (value1.getSize() == 1) {
                     value2 = pop();
                     if (value2.getSize() == 1) {
-                        push(interpreter.copyOperation(insn, value2));
-                        push(interpreter.copyOperation(insn, value1));
+                        push(value2);
+                        push(value1);
                         push(interpreter.copyOperation(insn, value2));
                         push(interpreter.copyOperation(insn, value1));
                         break;
                     }
                 } else {
-                    push(interpreter.copyOperation(insn, value1));
+                    push(value1);
                     push(interpreter.copyOperation(insn, value1));
                     break;
                 }
@@ -351,9 +351,9 @@ public class Frame {
                         if (value3.getSize() == 1) {
                             push(interpreter.copyOperation(insn, value2));
                             push(interpreter.copyOperation(insn, value1));
-                            push(interpreter.copyOperation(insn, value3));
-                            push(interpreter.copyOperation(insn, value2));
-                            push(interpreter.copyOperation(insn, value1));
+                            push(value3);
+                            push(value2);
+                            push(value1);
                             break;
                         }
                     }
@@ -361,8 +361,8 @@ public class Frame {
                     value2 = pop();
                     if (value2.getSize() == 1) {
                         push(interpreter.copyOperation(insn, value1));
-                        push(interpreter.copyOperation(insn, value2));
-                        push(interpreter.copyOperation(insn, value1));
+                        push(value2);
+                        push(value1);
                         break;
                     }
                 }
@@ -378,18 +378,18 @@ public class Frame {
                             if (value4.getSize() == 1) {
                                 push(interpreter.copyOperation(insn, value2));
                                 push(interpreter.copyOperation(insn, value1));
-                                push(interpreter.copyOperation(insn, value4));
-                                push(interpreter.copyOperation(insn, value3));
-                                push(interpreter.copyOperation(insn, value2));
-                                push(interpreter.copyOperation(insn, value1));
+                                push(value4);
+                                push(value3);
+                                push(value2);
+                                push(value1);
                                 break;
                             }
                         } else {
                             push(interpreter.copyOperation(insn, value2));
                             push(interpreter.copyOperation(insn, value1));
-                            push(interpreter.copyOperation(insn, value3));
-                            push(interpreter.copyOperation(insn, value2));
-                            push(interpreter.copyOperation(insn, value1));
+                            push(value3);
+                            push(value2);
+                            push(value1);
                             break;
                         }
                     }
@@ -399,15 +399,15 @@ public class Frame {
                         value3 = pop();
                         if (value3.getSize() == 1) {
                             push(interpreter.copyOperation(insn, value1));
-                            push(interpreter.copyOperation(insn, value3));
-                            push(interpreter.copyOperation(insn, value2));
-                            push(interpreter.copyOperation(insn, value1));
+                            push(value3);
+                            push(value2);
+                            push(value1);
                             break;
                         }
                     } else {
                         push(interpreter.copyOperation(insn, value1));
-                        push(interpreter.copyOperation(insn, value2));
-                        push(interpreter.copyOperation(insn, value1));
+                        push(value2);
+                        push(value1);
                         break;
                     }
                 }

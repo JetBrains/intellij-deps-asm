@@ -476,7 +476,7 @@ public class CheckClassAdapterUnitTest extends TestCase implements Opcodes {
     public void testIllegalDebugLabelUse() throws IOException {
         ClassReader cr = new ClassReader("java.lang.Object");
         ClassWriter cw = new ClassWriter(cr, ClassWriter.COMPUTE_MAXS);
-        cr.accept(new ClassAdapter(cw) {
+        ClassVisitor cv = new ClassAdapter(cw) {
             public MethodVisitor visitMethod(
                 int access,
                 String name,
@@ -514,7 +514,12 @@ public class CheckClassAdapterUnitTest extends TestCase implements Opcodes {
                     }
                 };
             }
-        }, ClassReader.EXPAND_FRAMES);
+        };
+        try {
+            cr.accept(cv, ClassReader.EXPAND_FRAMES);
+            fail();
+        } catch (Exception e) {
+        }
     }
 
     public void testIllegalTableSwitchParameters1() {

@@ -315,8 +315,18 @@ public class CheckMethodAdapter extends MethodAdapter {
      * @param cv the code visitor to which this adapter must delegate calls.
      */
     public CheckMethodAdapter(final MethodVisitor cv) {
+        this(cv, new HashMap());
+    }
+
+    /**
+     * Constructs a new {@link CheckMethodAdapter} object.
+     * 
+     * @param cv the code visitor to which this adapter must delegate calls.
+     * @param labels a map of already visited labels (in other methods).
+     */
+    public CheckMethodAdapter(final MethodVisitor cv, final Map labels) {
         super(cv);
-        this.labels = new HashMap();
+        this.labels = labels;
     }
 
     public AnnotationVisitor visitAnnotation(

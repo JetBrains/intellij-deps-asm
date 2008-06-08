@@ -32,8 +32,10 @@ package org.objectweb.asm.util;
 import java.io.FileInputStream;
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import org.objectweb.asm.AnnotationVisitor;
 import org.objectweb.asm.FieldVisitor;
@@ -139,6 +141,12 @@ public class CheckClassAdapter extends ClassAdapter {
      * <tt>true</tt> if the visitEnd method has been called.
      */
     private boolean end;
+    
+    /**
+     * The already visited labels. This map associate Integer values to Label
+     * keys.
+     */
+    private Map labels;
 
     /**
      * Checks a given class. <p> Usage: CheckClassAdapter &lt;fully qualified
@@ -261,6 +269,7 @@ public class CheckClassAdapter extends ClassAdapter {
      */
     public CheckClassAdapter(final ClassVisitor cv) {
         super(cv);
+        labels = new HashMap();
     }
 
     // ------------------------------------------------------------------------
@@ -416,7 +425,7 @@ public class CheckClassAdapter extends ClassAdapter {
                 name,
                 desc,
                 signature,
-                exceptions));
+                exceptions), labels);
     }
 
     public AnnotationVisitor visitAnnotation(

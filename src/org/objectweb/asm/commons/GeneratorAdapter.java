@@ -1486,6 +1486,10 @@ public class GeneratorAdapter extends LocalVariablesSorter {
         final Label end,
         final Type exception)
     {
-        mv.visitTryCatchBlock(start, end, mark(), exception.getInternalName());
+        if (exception == null) {
+            mv.visitTryCatchBlock(start, end, mark(), null);            
+        } else {
+            mv.visitTryCatchBlock(start, end, mark(), exception.getInternalName());
+        }
     }
 }

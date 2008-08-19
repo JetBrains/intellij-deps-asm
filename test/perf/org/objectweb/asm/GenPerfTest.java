@@ -30,6 +30,10 @@
 
 package org.objectweb.asm;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.PrintWriter;
+
 import gnu.bytecode.Access;
 import gnu.bytecode.ClassType;
 import gnu.bytecode.CodeAttr;
@@ -42,6 +46,11 @@ import com.claritysys.jvm.classfile.ClassFile;
 import com.claritysys.jvm.classfile.ConstantPool;
 import com.claritysys.jvm.classfile.JVM;
 
+import org.cojen.classfile.MethodInfo;
+import org.cojen.classfile.Modifiers;
+import org.cojen.classfile.TypeDesc;
+import org.objectweb.asm.util.TraceClassVisitor;
+
 /**
  * Performance tests for frameworks that can only do bytecode generation.
  * 
@@ -51,7 +60,11 @@ public class GenPerfTest {
 
     final static int N = 100000;
     
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
+        /*byte[] b = cojenHelloWorld();
+        PrintWriter pw = new PrintWriter(System.out, true);
+        new ClassReader(b).accept(new TraceClassVisitor(pw), 0);*/
+        
         for (int i = 0; i < 5; ++i) {
             asmTest();
         }
@@ -60,6 +73,9 @@ public class GenPerfTest {
         }
         for (int i = 0; i < 5; ++i) {
             csgBytecodeTest();
+        }
+        for (int i = 0; i < 5; ++i) {
+            cojenTest();
         }
     }
     
@@ -88,6 +104,15 @@ public class GenPerfTest {
         }
         t = System.currentTimeMillis() - t;
         System.out.println("CSG bytecode generation time: " + ((float) t) / N + " ms/class");
+    }
+
+    static void cojenTest() throws IOException {
+        long t = System.currentTimeMillis();
+        for (int i = 0; i < N; ++i) {
+            cojenHelloWorld();
+        }
+        t = System.currentTimeMillis() - t;
+        System.out.println("Cojen generation time: " + ((float) t) / N + " ms/class");
     }
 
     static byte[] asmHelloWorld() {
@@ -204,5 +229,28 @@ public class GenPerfTest {
         code.flush();
 
         return cf.writeToArray();
+    }
+    
+    static TypeDesc printStream = TypeDesc.forClass("java.io.PrintStream");
+
+    static byte[] cojenHelloWorld() throws IOException {
+        org.cojen.classfile.ClassFile cf = new org.cojen.classfile.ClassFile("HelloWorld");
+
+        cf.setSourceFile("HelloWorld.java");
+        
+        cf.addDefaultConstructor();
+
+        TypeDesc[] params = new TypeDesc[] { TypeDesc.STRING.toArrayType() };
+        MethodInfo mi = cf.addMethod(Modifiers.PUBLIC_STATIC, "main", null, params);
+        org.cojen.classfile.CodeBuilder b = new org.cojen.classfile.CodeBuilder(mi);
+        b.loadStaticField("java.lang.System", "out", printStream);
+        b.loadConstant("Hello World!");
+        b.invokeVirtual(printStream, "println", null, new TypeDesc[] { TypeDesc.STRING });
+        b.returnVoid();
+
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        cf.writeTo(bos);
+        
+        return bos.toByteArray();
     }
 }

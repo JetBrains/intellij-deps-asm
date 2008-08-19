@@ -88,6 +88,7 @@
         <isset property="cobertura.runtime.path"/>
         <isset property="kawa.runtime.path"/>
         <isset property="csg-bytecode.runtime.path"/>
+        <isset property="cojen.runtime.path"/>
       </and>
     </condition>
   </target>
@@ -116,6 +117,7 @@
       <pathelement path="${cobertura.runtime.path}"/>
       <pathelement path="${kawa.runtime.path}"/>
       <pathelement path="${csg-bytecode.runtime.path}"/>
+      <pathelement path="${cojen.runtime.path}"/>
     </path>
   </target>
   

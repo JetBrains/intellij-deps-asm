@@ -472,7 +472,8 @@ public class MethodNode extends MemberNode implements MethodVisitor {
         if (instructions.size() > 0) {
             mv.visitCode();
             // visits try catch blocks
-            for (i = 0; i < tryCatchBlocks.size(); ++i) {
+            n = tryCatchBlocks == null ? 0 : tryCatchBlocks.size();
+            for (i = 0; i < n; ++i) {
                 ((TryCatchBlockNode) tryCatchBlocks.get(i)).accept(mv);
             }
             // visits instructions

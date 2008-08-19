@@ -36,20 +36,29 @@ import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Attribute;
 import org.objectweb.asm.Type;
+import org.objectweb.asm.tree.MethodNode;
+import org.objectweb.asm.tree.analysis.Analyzer;
+import org.objectweb.asm.tree.analysis.BasicVerifier;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.Map;
 
 /**
  * A {@link MethodAdapter} that checks that its methods are properly used. More
- * precisely this code adapter checks each instruction individually (i.e., each
- * visit method checks some preconditions based <i>only</i> on its arguments -
- * such as the fact that the given opcode is correct for a given visit method),
- * but does <i>not</i> check the <i>sequence</i> of instructions. For example,
- * in a method whose signature is <tt>void m ()</tt>, the invalid instruction
- * IRETURN, or the invalid sequence IADD L2I will <i>not</i> be detected by
- * this code adapter.
+ * precisely this method adapter checks each instruction individually, i.e.,
+ * each visit method checks some preconditions based <i>only</i> on its
+ * arguments - such as the fact that the given opcode is correct for a given
+ * visit method. This adapter can also perform some basic data flow checks (more
+ * precisely those that can be performed without the full class hierarchy - see
+ * {@link org.objectweb.asm.tree.analysis.BasicVerifier}). For instance in a
+ * method whose signature is <tt>void m ()</tt>, the invalid instruction
+ * IRETURN, or the invalid sequence IADD L2I will be detected if the data flow
+ * checks are enabled. These checks are enabled by using the {@link 
+ * CheckMethodAdapter(int,String,String,MethodVisitor,Map)} constructor. They
+ * are not performed if any other constructor is used.
  * 
  * @author Eric Bruneton
  */
@@ -310,25 +319,66 @@ public class CheckMethodAdapter extends MethodAdapter {
     // }
 
     /**
-     * Constructs a new {@link CheckMethodAdapter} object.
+     * Constructs a new {@link CheckMethodAdapter} object. This method adapter
+     * will not perform any data flow check (see {@link 
+     * CheckMethodAdapter(int,String,String,MethodVisitor,Map)}).
      * 
-     * @param cv the code visitor to which this adapter must delegate calls.
+     * @param mv the method visitor to which this adapter must delegate calls.
      */
-    public CheckMethodAdapter(final MethodVisitor cv) {
-        this(cv, new HashMap());
+    public CheckMethodAdapter(final MethodVisitor mv) {
+        this(mv, new HashMap());
     }
 
     /**
-     * Constructs a new {@link CheckMethodAdapter} object.
+     * Constructs a new {@link CheckMethodAdapter} object. This method adapter
+     * will not perform any data flow check (see {@link 
+     * CheckMethodAdapter(int,String,String,MethodVisitor,Map)}).
      * 
-     * @param cv the code visitor to which this adapter must delegate calls.
+     * @param mv the method visitor to which this adapter must delegate calls.
      * @param labels a map of already visited labels (in other methods).
      */
-    public CheckMethodAdapter(final MethodVisitor cv, final Map labels) {
-        super(cv);
+    public CheckMethodAdapter(final MethodVisitor mv, final Map labels) {
+        super(mv);
         this.labels = labels;
     }
 
+    /**
+     * Constructs a new {@link CheckMethodAdapter} object. This method adapter
+     * will perform basic data flow checks. For instance in a method whose
+     * signature is <tt>void m ()</tt>, the invalid instruction IRETURN, or
+     * the invalid sequence IADD L2I will be detected.
+     * 
+     * @param access the method's access flags.
+     * @param name the method's name.
+     * @param desc the method's descriptor (see {@link Type Type}).
+     * @param mv the method visitor to which this adapter must delegate calls.
+     * @param labels a map of already visited labels (in other methods).
+     */
+    public CheckMethodAdapter(
+        final int access,
+        final String name,
+        final String desc,
+        final MethodVisitor mv,
+        final Map labels)
+    {
+        this(new MethodNode(access, name, desc, null, null) {
+            public void visitEnd() {
+                Analyzer a = new Analyzer(new BasicVerifier());
+                try {
+                    a.analyze("dummy", this);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    StringWriter sw = new StringWriter();
+                    PrintWriter pw = new PrintWriter(sw, true);
+                    CheckClassAdapter.printAnalyzerResult(this, a, pw);
+                    pw.close();
+                    throw new RuntimeException(e.getMessage() + sw.toString());
+                }
+                accept(mv);
+            }
+        }, labels);
+    }
+    
     public AnnotationVisitor visitAnnotation(
         final String desc,
         final boolean visible)

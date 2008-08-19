@@ -149,6 +149,11 @@ public class CheckClassAdapter extends ClassAdapter {
     private Map labels;
 
     /**
+     * <tt>true</tt> if the method code must be checked with a BasicVerifier.
+     */
+    private boolean checkDataFlow;
+    
+    /**
      * Checks a given class. <p> Usage: CheckClassAdapter &lt;fully qualified
      * class name or class file name&gt;
      * 
@@ -189,7 +194,7 @@ public class CheckClassAdapter extends ClassAdapter {
         final PrintWriter pw)
     {
         ClassNode cn = new ClassNode();
-        cr.accept(new CheckClassAdapter(cn), ClassReader.SKIP_DEBUG);
+        cr.accept(new CheckClassAdapter(cn, false), ClassReader.SKIP_DEBUG);
 
         Type syperType = cn.superName == null
                 ? null
@@ -215,42 +220,49 @@ public class CheckClassAdapter extends ClassAdapter {
             } catch (Exception e) {
                 e.printStackTrace(pw);
             }
-            Frame[] frames = a.getFrames();
-
-            TraceMethodVisitor mv = new TraceMethodVisitor();
-
-            pw.println(method.name + method.desc);
-            for (int j = 0; j < method.instructions.size(); ++j) {
-                method.instructions.get(j).accept(mv);
-
-                StringBuffer s = new StringBuffer();
-                Frame f = frames[j];
-                if (f == null) {
-                    s.append('?');
-                } else {
-                    for (int k = 0; k < f.getLocals(); ++k) {
-                        s.append(getShortName(f.getLocal(k).toString()))
-                                .append(' ');
-                    }
-                    s.append(" : ");
-                    for (int k = 0; k < f.getStackSize(); ++k) {
-                        s.append(getShortName(f.getStack(k).toString()))
-                                .append(' ');
-                    }
-                }
-                while (s.length() < method.maxStack + method.maxLocals + 1) {
-                    s.append(' ');
-                }
-                pw.print(Integer.toString(j + 100000).substring(1));
-                pw.print(" " + s + " : " + mv.buf); // mv.text.get(j));
-            }
-            for (int j = 0; j < method.tryCatchBlocks.size(); ++j) {
-                ((TryCatchBlockNode) method.tryCatchBlocks.get(j)).accept(mv);
-                pw.print(" " + mv.buf);
-            }
-            pw.println();
+            printAnalyzerResult(method, a, pw);
         }
         pw.flush();
+    }
+
+    static void printAnalyzerResult(
+        MethodNode method,
+        Analyzer a,
+        final PrintWriter pw)
+    {
+        Frame[] frames = a.getFrames();
+        TraceMethodVisitor mv = new TraceMethodVisitor();
+
+        pw.println(method.name + method.desc);
+        for (int j = 0; j < method.instructions.size(); ++j) {
+            method.instructions.get(j).accept(mv);
+
+            StringBuffer s = new StringBuffer();
+            Frame f = frames[j];
+            if (f == null) {
+                s.append('?');
+            } else {
+                for (int k = 0; k < f.getLocals(); ++k) {
+                    s.append(getShortName(f.getLocal(k).toString()))
+                            .append(' ');
+                }
+                s.append(" : ");
+                for (int k = 0; k < f.getStackSize(); ++k) {
+                    s.append(getShortName(f.getStack(k).toString()))
+                            .append(' ');
+                }
+            }
+            while (s.length() < method.maxStack + method.maxLocals + 1) {
+                s.append(' ');
+            }
+            pw.print(Integer.toString(j + 100000).substring(1));
+            pw.print(" " + s + " : " + mv.buf); // mv.text.get(j));
+        }
+        for (int j = 0; j < method.tryCatchBlocks.size(); ++j) {
+            ((TryCatchBlockNode) method.tryCatchBlocks.get(j)).accept(mv);
+            pw.print(" " + mv.buf);
+        }
+        pw.println();
     }
 
     private static String getShortName(final String name) {
@@ -268,8 +280,21 @@ public class CheckClassAdapter extends ClassAdapter {
      * @param cv the class visitor to which this adapter must delegate calls.
      */
     public CheckClassAdapter(final ClassVisitor cv) {
+        this(cv, true);
+    }
+
+    /**
+     * Constructs a new {@link CheckClassAdapter}.
+     * 
+     * @param cv the class visitor to which this adapter must delegate calls.
+     * @param checkDataFlow <tt>true</tt> to perform basic data flow checks, or
+     *        <tt>false</tt> to not perform any data flow check (see
+     *        {@link CheckMethodAdapter}).
+     */
+    public CheckClassAdapter(final ClassVisitor cv, boolean checkDataFlow) {
         super(cv);
-        labels = new HashMap();
+        this.labels = new HashMap();
+        this.checkDataFlow = checkDataFlow;
     }
 
     // ------------------------------------------------------------------------
@@ -421,11 +446,19 @@ public class CheckClassAdapter extends ClassAdapter {
                         "exception name at index " + i);
             }
         }
-        return new CheckMethodAdapter(cv.visitMethod(access,
-                name,
-                desc,
-                signature,
-                exceptions), labels);
+        if (checkDataFlow) {
+            return new CheckMethodAdapter(access,
+                    name,
+                    desc,
+                    cv.visitMethod(access, name, desc, signature, exceptions),
+                    labels);
+        } else {
+            return new CheckMethodAdapter(cv.visitMethod(access,
+                    name,
+                    desc,
+                    signature,
+                    exceptions), labels);
+        }
     }
 
     public AnnotationVisitor visitAnnotation(

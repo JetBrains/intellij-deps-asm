@@ -31,6 +31,7 @@ package org.objectweb.asm.util;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.HashMap;
 
 import junit.framework.TestCase;
 
@@ -836,6 +837,39 @@ public class CheckClassAdapterUnitTest extends TestCase implements Opcodes {
         }        
     }
     
+    public void testIllegalDataflow() {
+        MethodVisitor mv = new CheckMethodAdapter(ACC_PUBLIC,
+                "m",
+                "(I)V",
+                new EmptyVisitor(),
+                new HashMap());
+        mv.visitCode();
+        mv.visitVarInsn(ILOAD, 1);
+        mv.visitInsn(IRETURN);
+        mv.visitMaxs(1, 2);
+        try {
+            mv.visitEnd();
+            fail();
+        } catch (Exception e) {
+        }
+    }
+    
+    public void testIllegalDataflow2() {
+        MethodVisitor mv = new CheckMethodAdapter(ACC_PUBLIC,
+                "m",
+                "(I)I",
+                new EmptyVisitor(),
+                new HashMap());
+        mv.visitCode();
+        mv.visitInsn(RETURN);
+        mv.visitMaxs(0, 2);
+        try {
+            mv.visitEnd();
+            fail();
+        } catch (Exception e) {
+        }
+    }
+
     public void testIllegalLocalVariableLabels() {
         MethodVisitor mv = new CheckMethodAdapter(new EmptyVisitor());
         mv.visitCode();

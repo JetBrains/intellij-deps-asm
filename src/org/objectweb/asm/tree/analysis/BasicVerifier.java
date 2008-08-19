@@ -407,6 +407,18 @@ public class BasicVerifier extends BasicInterpreter {
         return super.naryOperation(insn, values);
     }
 
+    public void returnOperation(
+        final AbstractInsnNode insn,
+        final Value value,
+        final Value expected) throws AnalyzerException
+    {
+        if (!isSubTypeOf(value, expected)) {
+            throw new AnalyzerException("Incompatible return type",
+                    expected,
+                    value);
+        }
+    }
+
     protected boolean isArrayValue(final Value value) {
         return ((BasicValue) value).isReference();
     }

@@ -314,6 +314,13 @@ public class BasicInterpreter implements Opcodes, Interpreter {
         }
     }
 
+    public void returnOperation(
+        final AbstractInsnNode insn,
+        final Value value,
+        final Value expected) throws AnalyzerException
+    {
+    }
+    
     public Value merge(final Value v, final Value w) {
         if (!v.equals(w)) {
             return BasicValue.UNINITIALIZED_VALUE;

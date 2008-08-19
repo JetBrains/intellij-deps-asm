@@ -51,6 +51,12 @@ import org.objectweb.asm.tree.VarInsnNode;
 public class Frame {
 
     /**
+     * The expected return type of the analyzed method, or <tt>null</tt> if the
+     * method returns void.
+     */
+    private Value returnValue;
+
+    /**
      * The local variables and operand stack of this frame.
      */
     private Value[] values;
@@ -93,11 +99,22 @@ public class Frame {
      * @return this frame.
      */
     public Frame init(final Frame src) {
+        returnValue = src.returnValue;
         System.arraycopy(src.values, 0, values, 0, values.length);
         top = src.top;
         return this;
     }
 
+    /**
+     * Sets the expected return type of the analyzed method.
+     * 
+     * @param v the expected return type of the analyzed method, or
+     *        <tt>null</tt> if the method returns void.
+     */
+    public void setReturn(final Value v) {
+        returnValue = v;
+    }
+    
     /**
      * Returns the maximum number of local variables of this frame.
      * 
@@ -526,14 +543,21 @@ public class Frame {
                 break;
             case Opcodes.TABLESWITCH:
             case Opcodes.LOOKUPSWITCH:
+                interpreter.unaryOperation(insn, pop());
+                break;
             case Opcodes.IRETURN:
             case Opcodes.LRETURN:
             case Opcodes.FRETURN:
             case Opcodes.DRETURN:
             case Opcodes.ARETURN:
-                interpreter.unaryOperation(insn, pop());
+                value1 = pop();
+                interpreter.unaryOperation(insn, value1);
+                interpreter.returnOperation(insn, value1, returnValue);
                 break;
             case Opcodes.RETURN:
+                if (returnValue != null) {
+                    throw new AnalyzerException("Incompatible return type");
+                }
                 break;
             case Opcodes.GETSTATIC:
                 push(interpreter.newOperation(insn));

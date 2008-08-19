@@ -86,6 +86,8 @@
         <isset property="janino.path"/>
         <isset property="cobertura.path"/>
         <isset property="cobertura.runtime.path"/>
+        <isset property="kawa.runtime.path"/>
+        <isset property="csg-bytecode.runtime.path"/>
       </and>
     </condition>
   </target>
@@ -112,6 +114,8 @@
       <pathelement path="${javassist.path}"/>
       <pathelement path="${janino.path}"/>
       <pathelement path="${cobertura.runtime.path}"/>
+      <pathelement path="${kawa.runtime.path}"/>
+      <pathelement path="${csg-bytecode.runtime.path}"/>
     </path>
   </target>
   

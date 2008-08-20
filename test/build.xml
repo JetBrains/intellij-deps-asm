@@ -89,6 +89,10 @@
         <isset property="kawa.runtime.path"/>
         <isset property="csg-bytecode.runtime.path"/>
         <isset property="cojen.runtime.path"/>
+        <isset property="jbet.runtime.path"/>
+        <isset property="jclasslib.runtime.path"/>
+        <isset property="jiapi.runtime.path"/>
+        <isset property="rhino.runtime.path"/>
       </and>
     </condition>
   </target>
@@ -118,6 +122,10 @@
       <pathelement path="${kawa.runtime.path}"/>
       <pathelement path="${csg-bytecode.runtime.path}"/>
       <pathelement path="${cojen.runtime.path}"/>
+      <pathelement path="${jbet.runtime.path}"/>
+      <pathelement path="${jclasslib.runtime.path}"/>
+      <pathelement path="${jiapi.runtime.path}"/>
+      <pathelement path="${rhino.runtime.path}"/>
     </path>
   </target>
   

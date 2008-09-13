@@ -184,12 +184,16 @@ public class CheckClassAdapter extends ClassAdapter {
      * 
      * @param cr a <code>ClassReader</code> that contains bytecode for the
      *        analysis.
+     * @param loader a <code>ClassLoader</code> which will be used to load
+     *        referenced classes. This is useful if you are verifiying multiple
+     *        interdependent classes.
      * @param dump true if bytecode should be printed out not only when errors
      *        are found.
      * @param pw write where results going to be printed
      */
     public static void verify(
         final ClassReader cr,
+        final ClassLoader loader,
         final boolean dump,
         final PrintWriter pw)
     {
@@ -208,10 +212,14 @@ public class CheckClassAdapter extends ClassAdapter {
 
         for (int i = 0; i < methods.size(); ++i) {
             MethodNode method = (MethodNode) methods.get(i);
-            Analyzer a = new Analyzer(new SimpleVerifier(Type.getObjectType(cn.name),
+            SimpleVerifier verifier = new SimpleVerifier(Type.getObjectType(cn.name),
                     syperType,
                     interfaces,
-                    false));
+                    false);
+            Analyzer a = new Analyzer(verifier);
+            if (loader != null) {
+                verifier.setClassLoader(loader);
+            }
             try {
                 a.analyze(cn.name, method);
                 if (!dump) {
@@ -224,7 +232,24 @@ public class CheckClassAdapter extends ClassAdapter {
         }
         pw.flush();
     }
-
+    
+    /**
+     * Checks a given class
+     * 
+     * @param cr a <code>ClassReader</code> that contains bytecode for the
+     *        analysis.
+     * @param dump true if bytecode should be printed out not only when errors
+     *        are found.
+     * @param pw write where results going to be printed
+     */
+    public static void verify(
+        final ClassReader cr,
+        final boolean dump,
+        final PrintWriter pw)
+    {
+        verify(cr, null, dump, pw);
+    }
+    
     static void printAnalyzerResult(
         MethodNode method,
         Analyzer a,

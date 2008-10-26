@@ -131,18 +131,6 @@
        <pathelement path="${cobertura.path}"/> 
     </path>
 
-    <taskdef name="multipleAnt"
-             classname="org.objectweb.util.ant.MultipleAnt"
-             classpath="${objectweb.ant.tasks.path}"/>
-
-    <taskdef name="javadocMultipleLink"
-             classname="org.objectweb.util.ant.JavadocMultipleLink"
-             classpath="${objectweb.ant.tasks.path}"/>
-
-    <taskdef name="multipleCopy"
-             classname="org.objectweb.util.ant.MultipleCopy"
-             classpath="${objectweb.ant.tasks.path}"/>
-
     <taskdef classpathref="cobertura.classpath" resource="tasks.properties"/>
 
     <typedef resource="org/apache/maven/artifact/ant/antlib.xml" uri="urn:maven-artifact-ant">
@@ -316,7 +304,14 @@
   </target>
     
   <target name="jar" depends="dist.init,dist.version,compile,shrink">
-    <multipleAnt dir="${archive}"/>
+    <ant antfile="${archive}/asm.xml"/>
+    <ant antfile="${archive}/asm-all.xml"/>
+    <ant antfile="${archive}/asm-analysis.xml"/>
+    <ant antfile="${archive}/asm-commons.xml"/>
+    <ant antfile="${archive}/asm-parent.xml"/>
+    <ant antfile="${archive}/asm-tree.xml"/>
+    <ant antfile="${archive}/asm-util.xml"/>
+    <ant antfile="${archive}/asm-xml.xml"/>
     <java classname="org.objectweb.asm.optimizer.JarOptimizer">
       <classpath>
         <pathelement location="${out.build}/tmp"/>
@@ -336,7 +331,7 @@
         <exclude name="**/*.fig"/>
       </fileset>
     </copy>
-    <multipleAnt dir="${jdoc}"/>
+    <ant antfile="${jdoc}/user.xml"/>
   </target>
 
   <target name="examples" depends="init,dist.init" if="examples.exist">
@@ -350,15 +345,25 @@
       </fileset>
     </copy>
 
-    <multipleCopy file="${examples}/common/build.xml"
-                  toDir="${out.dist.examples}"
-                  notReplace="yes"
-                  preservelastmodified="yes">
-      <include name="*"/>
-      <exclude name="etc"/>
-      <exclude name="lib"/>
-    </multipleCopy>
-
+    <copy file="${examples}/common/build.xml"
+        toDir="${out.dist.examples}/adapt" preservelastmodified="yes"/>
+    <copy file="${examples}/common/build.xml"
+        toDir="${out.dist.examples}/analysis" preservelastmodified="yes"/>
+    <copy file="${examples}/common/build.xml"
+        toDir="${out.dist.examples}/annotations" preservelastmodified="yes"/>
+    <copy file="${examples}/common/build.xml"
+        toDir="${out.dist.examples}/attributes" preservelastmodified="yes"/>
+    <copy file="${examples}/common/build.xml"
+        toDir="${out.dist.examples}/compile" preservelastmodified="yes"/>
+    <copy file="${examples}/common/build.xml"
+        toDir="${out.dist.examples}/dependencies" preservelastmodified="yes"/>
+    <copy file="${examples}/common/build.xml"
+        toDir="${out.dist.examples}/helloworld"  preservelastmodified="yes"/>
+    <copy file="${examples}/common/build.xml"
+        toDir="${out.dist.examples}/jbfc" preservelastmodified="yes"/>
+    <copy file="${examples}/common/build.xml"
+        toDir="${out.dist.examples}/xml" preservelastmodified="yes"/>
+    
     <copy toDir="${out.dist.examples}" preservelastmodified="yes">
       <fileset dir="${examples.common}">
         <include name="**/*"/>

@@ -12,6 +12,8 @@
 	<classpathentry kind="src" path="examples/helloworld/src"/>
 	<classpathentry kind="src" path="examples/jbfc/src"/>
 	<classpathentry kind="src" path="examples/xml"/>
+	<classpathentry kind="src" path="examples/jasmin/src"/>
+	<classpathentry kind="src" path="examples/jasmin/test"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/J2SE-1.5"/>
 	<classpathentry kind="lib" path="test/lib/jd.xslt-1.5.5.jar"/>
 	<classpathentry kind="lib" path="test/lib/saxon7.jar"/>
@@ -29,6 +31,7 @@
 	<classpathentry kind="lib" path="test/lib/javassist.3.6.GA.jar"/>
 	<classpathentry kind="lib" path="test/lib/serp-1.14.2.jar"/>
 	<classpathentry kind="lib" path="test/lib/aspectjweaver-1.5.3.jar"/>
+	<classpathentry kind="lib" path="examples/jasmin/test/jasmin.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/3"/>
 	<classpathentry kind="output" path="output/eclipse"/>
 </classpath>

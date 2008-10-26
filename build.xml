@@ -360,6 +360,8 @@
     <copy file="${examples}/common/build.xml"
         toDir="${out.dist.examples}/helloworld"  preservelastmodified="yes"/>
     <copy file="${examples}/common/build.xml"
+        toDir="${out.dist.examples}/jasmin"  preservelastmodified="yes"/>
+    <copy file="${examples}/common/build.xml"
         toDir="${out.dist.examples}/jbfc" preservelastmodified="yes"/>
     <copy file="${examples}/common/build.xml"
         toDir="${out.dist.examples}/xml" preservelastmodified="yes"/>

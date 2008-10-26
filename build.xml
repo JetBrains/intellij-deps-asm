@@ -308,6 +308,7 @@
     <ant antfile="${archive}/asm-all.xml"/>
     <ant antfile="${archive}/asm-analysis.xml"/>
     <ant antfile="${archive}/asm-commons.xml"/>
+    <ant antfile="${archive}/asm-debug-all.xml"/>
     <ant antfile="${archive}/asm-parent.xml"/>
     <ant antfile="${archive}/asm-tree.xml"/>
     <ant antfile="${archive}/asm-util.xml"/>

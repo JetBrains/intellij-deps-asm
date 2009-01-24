@@ -115,9 +115,18 @@ final class Frame {
     static final int KIND = 0xF000000;
 
     /**
+     * Flag used for LOCAL and STACK types. Indicates that if this type happens
+     * to be a long or double type (during the computations of input frames), 
+     * then it must be set to TOP because the second word of this value has
+     * been reused to store other data in the basic block. Hence the first word 
+     * no longer stores a valid long or double value.
+     */
+    static final int TOP_IF_LONG_OR_DOUBLE = 0x8FFFFF;
+
+    /**
      * Mask to get the value of a frame type.
      */
-    static final int VALUE = 0xFFFFFF;
+    static final int VALUE = 0x7FFFFF;
 
     /**
      * Mask to get the kind of base types.
@@ -936,6 +945,8 @@ final class Frame {
                     // if t2 is of kind STACK or LOCAL we cannot know its size!
                     if (t2 == LONG || t2 == DOUBLE) {
                         set(arg - 1, TOP);
+                    } else if ((t2 & KIND) != BASE) {
+                        set(arg - 1, t2 | TOP_IF_LONG_OR_DOUBLE);
                     }
                 }
                 break;
@@ -950,6 +961,8 @@ final class Frame {
                     // if t2 is of kind STACK or LOCAL we cannot know its size!
                     if (t2 == LONG || t2 == DOUBLE) {
                         set(arg - 1, TOP);
+                    } else if ((t2 & KIND) != BASE) {
+                        set(arg - 1, t2 | TOP_IF_LONG_OR_DOUBLE);
                     }
                 }
                 break;
@@ -1263,12 +1276,17 @@ final class Frame {
                 } else {
                     dim = s & DIM;
                     kind = s & KIND;
-                    if (kind == LOCAL) {
-                        t = dim + inputLocals[s & VALUE];
-                    } else if (kind == STACK) {
-                        t = dim + inputStack[nStack - (s & VALUE)];
-                    } else {
+                    if (kind == BASE) {
                         t = s;
+                    } else {
+                        if (kind == LOCAL) {
+                            t = dim + inputLocals[s & VALUE];
+                        } else {
+                            t = dim + inputStack[nStack - (s & VALUE)];
+                        }
+                        if ((s & TOP_IF_LONG_OR_DOUBLE) != 0 && (t == LONG || t == DOUBLE)) {
+                            t = TOP;
+                        }
                     }
                 }
             } else {
@@ -1310,12 +1328,17 @@ final class Frame {
             s = outputStack[i];
             dim = s & DIM;
             kind = s & KIND;
-            if (kind == LOCAL) {
-                t = dim + inputLocals[s & VALUE];
-            } else if (kind == STACK) {
-                t = dim + inputStack[nStack - (s & VALUE)];
-            } else {
+            if (kind == BASE) {
                 t = s;
+            } else {
+                if (kind == LOCAL) {
+                    t = dim + inputLocals[s & VALUE];
+                } else {
+                    t = dim + inputStack[nStack - (s & VALUE)];
+                }
+                if ((s & TOP_IF_LONG_OR_DOUBLE) != 0 && (t == LONG || t == DOUBLE)) {
+                    t = TOP;
+                }
             }
             if (initializations != null) {
                 t = init(cw, t);

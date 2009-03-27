@@ -395,8 +395,13 @@ public class ClassReader {
             }
             len += n;
             if (len == b.length) {
+                int last = is.read();
+                if (last < 0) {
+                    return b;
+                }
                 byte[] c = new byte[b.length + 1000];
                 System.arraycopy(b, 0, c, 0, len);
+                c[len++] = (byte) last;
                 b = c;
             }
         }

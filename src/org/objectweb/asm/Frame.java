@@ -121,7 +121,7 @@ final class Frame {
      * been reused to store other data in the basic block. Hence the first word 
      * no longer stores a valid long or double value.
      */
-    static final int TOP_IF_LONG_OR_DOUBLE = 0x8FFFFF;
+    static final int TOP_IF_LONG_OR_DOUBLE = 0x800000;
 
     /**
      * Mask to get the value of a frame type.

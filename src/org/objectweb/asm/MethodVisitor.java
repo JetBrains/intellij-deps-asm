@@ -238,8 +238,8 @@ public interface MethodVisitor {
      * invokes a method.
      * 
      * @param opcode the opcode of the type instruction to be visited. This
-     *        opcode is either INVOKEVIRTUAL, INVOKESPECIAL, INVOKESTATIC or
-     *        INVOKEINTERFACE.
+     *        opcode is either INVOKEVIRTUAL, INVOKESPECIAL, INVOKESTATIC,
+     *        INVOKEINTERFACE or INVOKEDYNAMIC.
      * @param owner the internal name of the method's owner class (see {@link
      *        Type#getInternalName() getInternalName}).
      * @param name the method's name.

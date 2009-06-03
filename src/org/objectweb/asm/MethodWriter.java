@@ -805,7 +805,9 @@ class MethodWriter implements MethodVisitor {
         final String desc)
     {
         boolean itf = opcode == Opcodes.INVOKEINTERFACE;
-        Item i = cw.newMethodItem(owner, name, desc, itf);
+        Item i = (opcode == Opcodes.INVOKEDYNAMIC) ?
+                cw.newNameTypeItem(name, desc):
+                cw.newMethodItem(owner, name, desc, itf);
         int argSize = i.intVal;
         // Label currentBlock = this.currentBlock;
         if (currentBlock != null) {
@@ -829,7 +831,7 @@ class MethodWriter implements MethodVisitor {
                     i.intVal = argSize;
                 }
                 int size;
-                if (opcode == Opcodes.INVOKESTATIC) {
+                if (opcode == Opcodes.INVOKESTATIC || opcode == Opcodes.INVOKEDYNAMIC) {
                     size = stackSize - (argSize >> 2) + (argSize & 0x03) + 1;
                 } else {
                     size = stackSize - (argSize >> 2) + (argSize & 0x03);
@@ -850,6 +852,9 @@ class MethodWriter implements MethodVisitor {
             code.put12(Opcodes.INVOKEINTERFACE, i.index).put11(argSize >> 2, 0);
         } else {
             code.put12(opcode, i.index);
+            if (opcode==Opcodes.INVOKEDYNAMIC) {
+                code.putShort(0);
+            }
         }
     }
 
@@ -2176,7 +2181,7 @@ class MethodWriter implements MethodVisitor {
                     case ClassWriter.IINC_INSN:
                         u += 3;
                         break;
-                    case ClassWriter.ITFMETH_INSN:
+                    case ClassWriter.ITFDYNMETH_INSN:
                         u += 5;
                         break;
                     // case ClassWriter.MANA_INSN:
@@ -2339,7 +2344,7 @@ class MethodWriter implements MethodVisitor {
                     newCode.putByteArray(b, u, 3);
                     u += 3;
                     break;
-                case ClassWriter.ITFMETH_INSN:
+                case ClassWriter.ITFDYNMETH_INSN:
                     newCode.putByteArray(b, u, 5);
                     u += 5;
                     break;

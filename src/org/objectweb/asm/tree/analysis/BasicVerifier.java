@@ -385,7 +385,7 @@ public class BasicVerifier extends BasicInterpreter {
         } else {
             int i = 0;
             int j = 0;
-            if (opcode != INVOKESTATIC) {
+            if (opcode != INVOKESTATIC && opcode != INVOKEDYNAMIC) {
                 Type owner = Type.getObjectType(((MethodInsnNode) insn).owner);
                 if (!isSubTypeOf((Value) values.get(i++), newValue(owner))) {
                     throw new AnalyzerException("Method owner",

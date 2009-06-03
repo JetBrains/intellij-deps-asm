@@ -1327,6 +1327,17 @@ public class GeneratorAdapter extends LocalVariablesSorter {
     public void invokeInterface(final Type owner, final Method method) {
         invokeInsn(Opcodes.INVOKEINTERFACE, owner, method);
     }
+    
+    /**
+     * Generates the instruction to invoke a dynamic method.
+     * 
+     * @param method the method to be invoked.
+     */
+    public void invokeDynamic(final Method method) {
+        invokeInsn(Opcodes.INVOKEDYNAMIC,
+                Type.getObjectType(Opcodes.INVOKEDYNAMIC_OWNER),
+                method);
+    }
 
     // ------------------------------------------------------------------------
     // Instructions to create objects and arrays

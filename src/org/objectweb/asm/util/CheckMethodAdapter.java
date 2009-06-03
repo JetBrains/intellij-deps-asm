@@ -99,7 +99,7 @@ public class CheckMethodAdapter extends MethodAdapter {
         String s = "BBBBBBBBBBBBBBBBCCIAADDDDDAAAAAAAAAAAAAAAAAAAABBBBBBBBDD"
                 + "DDDAAAAAAAAAAAAAAAAAAAABBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB"
                 + "BBBBBBBBBBBBBBBBBBBJBBBBBBBBBBBBBBBBBBBBHHHHHHHHHHHHHHHHD"
-                + "KLBBBBBBFFFFGGGGAECEBBEEBBAMHHAA";
+                + "KLBBBBBBFFFFGGGGGECEBBEEBBAMHHAA";
         TYPE = new int[s.length()];
         for (int i = 0; i < TYPE.length; ++i) {
             TYPE[i] = s.charAt(i) - 'A' - 1;
@@ -295,7 +295,7 @@ public class CheckMethodAdapter extends MethodAdapter {
     // 5, //INVOKESPECIAL
     // 5, //INVOKESTATIC
     // 5, //INVOKEINTERFACE
-    // -1, //UNUSED
+    // 5, //INVOKEDYNAMIC
     // 3, //NEW
     // 1, //NEWARRAY
     // 3, //ANEWARRAY
@@ -372,7 +372,7 @@ public class CheckMethodAdapter extends MethodAdapter {
                     PrintWriter pw = new PrintWriter(sw, true);
                     CheckClassAdapter.printAnalyzerResult(this, a, pw);
                     pw.close();
-                    throw new RuntimeException(e.getMessage() + sw.toString());
+                    throw new RuntimeException(e.getMessage() + ' ' + sw.toString());
                 }
                 accept(mv);
             }
@@ -556,6 +556,9 @@ public class CheckMethodAdapter extends MethodAdapter {
         checkMethodIdentifier(name, "name");
         checkInternalName(owner, "owner");
         checkMethodDesc(desc);
+        if (opcode == Opcodes.INVOKEDYNAMIC && owner != Opcodes.INVOKEDYNAMIC_OWNER) {
+            throw new IllegalArgumentException("INVOKEDYNAMIC cannot be used with another owner than INVOKEDYNAMIC_OWNER");
+        }
         mv.visitMethodInsn(opcode, owner, name, desc);
     }
 

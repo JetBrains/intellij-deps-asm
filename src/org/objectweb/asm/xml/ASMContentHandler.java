@@ -300,6 +300,7 @@ public class ASMContentHandler extends DefaultHandler implements Opcodes {
         addOpcode("INVOKESPECIAL", INVOKESPECIAL, OpcodeGroup.INSN_METHOD);
         addOpcode("INVOKESTATIC", INVOKESTATIC, OpcodeGroup.INSN_METHOD);
         addOpcode("INVOKEINTERFACE", INVOKEINTERFACE, OpcodeGroup.INSN_METHOD);
+        addOpcode("INVOKEDYNAMIC", INVOKEDYNAMIC, OpcodeGroup.INSN_METHOD);
         addOpcode("NEW", NEW, OpcodeGroup.INSN_TYPE);
         addOpcode("NEWARRAY", NEWARRAY, OpcodeGroup.INSN_INT);
         addOpcode("ANEWARRAY", ANEWARRAY, OpcodeGroup.INSN_TYPE);
@@ -1092,7 +1093,9 @@ public class ASMContentHandler extends DefaultHandler implements Opcodes {
 
                 case OpcodeGroup.INSN_METHOD:
                     getCodeVisitor().visitMethodInsn(o.opcode,
-                            attrs.getValue("owner"),
+                            (o.opcode != Opcodes.INVOKEDYNAMIC)?
+                                    attrs.getValue("owner"):
+                                    Opcodes.INVOKEDYNAMIC_OWNER,
                             attrs.getValue("name"),
                             attrs.getValue("desc"));
                     break;

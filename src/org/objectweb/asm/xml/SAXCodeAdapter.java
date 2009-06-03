@@ -198,7 +198,9 @@ public final class SAXCodeAdapter extends SAXAdapter implements MethodVisitor {
         final String desc)
     {
         AttributesImpl attrs = new AttributesImpl();
-        attrs.addAttribute("", "owner", "owner", "", owner);
+        if (opcode != Opcodes.INVOKEDYNAMIC) {
+            attrs.addAttribute("", "owner", "owner", "", owner);
+        }
         attrs.addAttribute("", "name", "name", "", name);
         attrs.addAttribute("", "desc", "desc", "", desc);
         addElement(AbstractVisitor.OPCODES[opcode], attrs);

@@ -241,7 +241,8 @@ public interface MethodVisitor {
      *        opcode is either INVOKEVIRTUAL, INVOKESPECIAL, INVOKESTATIC,
      *        INVOKEINTERFACE or INVOKEDYNAMIC.
      * @param owner the internal name of the method's owner class (see {@link
-     *        Type#getInternalName() getInternalName}).
+     *        Type#getInternalName() getInternalName})
+     *        or {@link org.objectweb.asm.Opcodes#INVOKEDYNAMIC_OWNER}.
      * @param name the method's name.
      * @param desc the method's descriptor (see {@link Type Type}).
      */

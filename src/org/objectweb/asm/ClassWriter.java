@@ -1309,7 +1309,6 @@ public class ClassWriter implements ClassVisitor {
      */
     private Item get(final Item key) {
         Item i = items[key.hashCode % items.length];
-        // while (i != null && !key.isEqualTo(i)) {
         while (i != null && (i.type != key.type || !key.isEqualTo(i))) {
             i = i.next;
         }

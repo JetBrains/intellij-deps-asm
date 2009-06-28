@@ -592,7 +592,7 @@ public abstract class AdviceAdapter extends GeneratorAdapter implements Opcodes
      *   }
      *
      *   // an actual call back method
-     *   public static void onExit(int opcode, Object param) {
+     *   public static void onExit(Object param, int opcode) {
      *     ...
      * </pre>
      *

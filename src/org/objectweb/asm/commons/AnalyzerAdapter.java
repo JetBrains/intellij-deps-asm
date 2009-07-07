@@ -44,12 +44,12 @@ import org.objectweb.asm.Type;
  * A {@link MethodAdapter} that keeps track of stack map frame changes between
  * {@link #visitFrame(int, int, Object[], int, Object[]) visitFrame} calls. This
  * adapter must be used with the
- * {@link org.objectweb.asm.ClassReader#EXPAND_FRAMES} option. Each visit<i>XXX</i>
+ * {@link org.objectweb.asm.ClassReader#EXPAND_FRAMES} option. Each visit<i>X</i>
  * instruction delegates to the next visitor in the chain, if any, and then
  * simulates the effect of this instruction on the stack map frame, represented
  * by {@link #locals} and {@link #stack}. The next visitor in the chain can get
  * the state of the stack map frame <i>before</i> each instruction by reading
- * the value of these fields in its visit<i>XXX</i> methods (this requires a
+ * the value of these fields in its visit<i>X</i> methods (this requires a
  * reference to the AnalyzerAdapter that is before it in the chain).
  * 
  * @author Eric Bruneton

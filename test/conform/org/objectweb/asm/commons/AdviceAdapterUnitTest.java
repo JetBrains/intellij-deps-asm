@@ -111,7 +111,7 @@ public class AdviceAdapterUnitTest extends AbstractTest {
     }
 
     static class AdviceClassAdapter extends ClassAdapter implements Opcodes {
-        private String cname;
+        String cname;
 
         public AdviceClassAdapter(final ClassVisitor cv) {
             super(cv);

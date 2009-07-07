@@ -146,14 +146,14 @@ public class GASMifierTest extends AbstractTest {
         }
     }
 
-    private static class TestClassLoader extends ClassLoader {
+    static class TestClassLoader extends ClassLoader {
 
         public Class defineClass(final String name, final byte[] b) {
             return defineClass(name, b, 0, b.length);
         }
     }
 
-    private static class Compiler {
+    static class Compiler {
 
         final static IClassLoader CL = new ClassLoaderIClassLoader(new URLClassLoader(new URL[0]));
 
@@ -166,7 +166,7 @@ public class GASMifierTest extends AbstractTest {
         }
     }
 
-    private static class Filter extends ClassAdapter {
+    static class Filter extends ClassAdapter {
 
         public Filter() {
             super(null);

@@ -68,7 +68,7 @@ public class InsnList {
      * A cache of the instructions of this list. This cache is used to improve
      * the performance of the {@link #get} method.
      */
-    private AbstractInsnNode[] cache;
+    AbstractInsnNode[] cache;
 
     /**
      * Returns the number of instructions in this list.
@@ -566,7 +566,7 @@ public class InsnList {
         AbstractInsnNode next;
         AbstractInsnNode prev;
 
-        private InsnListIterator(int index) {
+        InsnListIterator(int index) {
             if(index==size()) {
                 next = null;
                 prev = getLast();

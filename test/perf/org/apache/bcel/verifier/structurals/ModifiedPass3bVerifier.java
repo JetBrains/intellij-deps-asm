@@ -77,7 +77,7 @@ public final class ModifiedPass3bVerifier extends PassVerifier{
      * time, an InstructionContext object will get the current information
      * we have about its symbolic execution predecessors.
      */
-    private static final class InstructionContextQueue{
+    static final class InstructionContextQueue{
         private List ics = new Vector(); // Type: InstructionContext
         private List ecs = new Vector(); // Type: ArrayList (of InstructionContext)
         public void add(InstructionContext ic, ArrayList executionChain){

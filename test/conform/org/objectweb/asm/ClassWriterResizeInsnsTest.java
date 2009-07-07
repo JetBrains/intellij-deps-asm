@@ -71,7 +71,7 @@ public class ClassWriterResizeInsnsTest extends AbstractTest {
         });
     }
 
-    private static byte[] transformClass(final byte[] clazz, final int flags) {
+    static byte[] transformClass(final byte[] clazz, final int flags) {
         ClassReader cr = new ClassReader(clazz);
         ClassWriter cw = new ClassWriter(flags) {
             protected String getCommonSuperClass(
@@ -103,7 +103,7 @@ public class ClassWriterResizeInsnsTest extends AbstractTest {
         };
         ClassAdapter ca = new ClassAdapter(cw) {
 
-            private boolean transformed = false;
+            boolean transformed = false;
 
             public void visit(
                 int version,

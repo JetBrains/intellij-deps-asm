@@ -77,7 +77,7 @@ public class LocalVariablesSorterTest2 extends AbstractTest {
         });
     }
 
-    private static byte[] transformClass(final byte[] clazz) {
+    static byte[] transformClass(final byte[] clazz) {
         ClassReader cr = new ClassReader(clazz);
         ClassWriter cw = new ClassWriter(0);
         cr.accept(new ClassAdapter(cw) {

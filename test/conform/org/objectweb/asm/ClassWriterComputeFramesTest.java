@@ -75,7 +75,7 @@ public class ClassWriterComputeFramesTest extends AbstractTest {
         });
     }
 
-    private static byte[] transformClass(final String n, final byte[] clazz) {
+    static byte[] transformClass(final String n, final byte[] clazz) {
         ClassReader cr = new ClassReader(clazz);
         ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_FRAMES) {
             protected String getCommonSuperClass(

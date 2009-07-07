@@ -89,7 +89,7 @@ public class JSRInlinerAdapter extends MethodNode implements Opcodes {
      * This BitSet contains the index of every instruction that belongs to more
      * than one subroutine. This should not happen often.
      */
-    private final BitSet dualCitizens = new BitSet();
+    final BitSet dualCitizens = new BitSet();
 
     /**
      * Creates a new JSRInliner.
@@ -596,7 +596,7 @@ public class JSRInlinerAdapter extends MethodNode implements Opcodes {
          */
         public final LabelNode returnLabel;
 
-        private Instantiation(final Instantiation prev, final Subroutine sub) {
+        Instantiation(final Instantiation prev, final Subroutine sub) {
             previous = prev;
             subroutine = sub;
             for (Instantiation p = prev; p != null; p = p.previous) {

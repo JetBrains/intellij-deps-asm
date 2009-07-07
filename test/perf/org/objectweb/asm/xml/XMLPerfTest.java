@@ -187,7 +187,7 @@ public class XMLPerfTest {
         }
     }
 
-    private static final class IgnoringOutputStream extends OutputStream {
+    static final class IgnoringOutputStream extends OutputStream {
 
         public final void write(final int b) throws IOException {
         }

@@ -59,8 +59,8 @@ import org.objectweb.asm.commons.EmptyVisitor;
  */
 public class JarOptimizer {
 
-    private static final Set API= new HashSet();
-    private static final Map HIERARCHY = new HashMap();
+    static final Set API= new HashSet();
+    static final Map HIERARCHY = new HashMap();
 
     public static void main(final String[] args) throws IOException {
         File f = new File(args[0]);

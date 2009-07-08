@@ -30,7 +30,7 @@
     <developer>
       <name>Eric Bruneton</name>
       <id>ebruneton</id>
-      <email>Eric.Bruneton@rd.francetelecom.com</email>
+      <email>ebruneton@free.fr</email>
       <roles>
         <role>Creator</role>
         <role>Java Developer</role>
@@ -44,12 +44,20 @@
         <role>Java Developer</role>
       </roles>
     </developer>
+    <developer>
+      <name>Remi Forax</name>
+      <id>forax</id>
+      <email>forax@univ-mlv.fr</email>
+      <roles>
+        <role>Java Developer</role>
+      </roles>
+    </developer>
   </developers>
 
   <scm>
-    <connection>scm:cvs:pserver:anonymous:@cvs.forge.objectweb.org:/cvsroot/asm:asm</connection>
-    <developerConnection>scm:cvs:ext:${maven.username}@cvs.forge.objectweb.org:/cvsroot/asm:asm</developerConnection>
-    <url>http://cvs.forge.objectweb.org/cgi-bin/viewcvs.cgi/asm/asm/</url>
+    <connection>scm:svn:svn://svn.forge.objectweb.org/svnroot/asm/trunk</connection>
+    <developerConnection>scm:svn:svn+ssh://${maven.username}@svn.forge.objectweb.org/svnroot/asm/trunk</developerConnection>
+    <url>http://svn.forge.objectweb.org/cgi-bin/viewcvs.cgi/asm/trunk/</url>
   </scm>
   
   <issueManagement>

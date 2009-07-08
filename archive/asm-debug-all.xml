@@ -24,7 +24,7 @@
       </manifest>
     </jar>
 
-    <copy file="${archive}/asm-all.pom" toFile="${out.dist.lib}/all/${ant.project.name}-${product.artifact}.pom"/>
+    <copy file="${archive}/asm-debug-all.pom" toFile="${out.dist.lib}/all/${ant.project.name}-${product.artifact}.pom"/>
     <replace file="${out.dist.lib}/all/${ant.project.name}-${product.artifact}.pom" token="@product.name@" value="${ant.project.name}"/>
     <replace file="${out.dist.lib}/all/${ant.project.name}-${product.artifact}.pom" token="@product.artifact@" value="${product.artifact}"/>
 

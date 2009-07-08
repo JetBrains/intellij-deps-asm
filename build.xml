@@ -580,7 +580,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
     <echo message="  -Dtest.name=&lt;test name&gt;  Only a single test. The target &lt;test name&gt; is called"/>
   </target>
 
-  <target name="maven.install" xmlns:artifact="urn:maven-artifact-ant" depends="init">
+  <target name="maven.install" xmlns:artifact="urn:maven-artifact-ant" depends="init,dist.version">
 
     <artifact:install file="${out.dist.lib}/asm-parent-${product.artifact}.pom">
       <artifact:pom file="${out.dist.lib}/asm-parent-${product.artifact}.pom"/>
@@ -614,9 +614,14 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
       <artifact:pom file="${out.dist.lib}/all/asm-all-${product.artifact}.pom"/>
       <artifact:attach file="${out.dist}/src.zip" type="jar" classifier="sources"/>
     </artifact:install>
+
+    <artifact:install file="${out.dist.lib}/all/asm-debug-all-${product.artifact}.jar">
+      <artifact:pom file="${out.dist.lib}/all/asm-debug-all-${product.artifact}.pom"/>
+      <artifact:attach file="${out.dist}/src.zip" type="jar" classifier="sources"/>
+    </artifact:install>
   </target>
 
-  <target name="maven.deploy" xmlns:artifact="urn:maven-artifact-ant" depends="init">
+  <target name="maven.deploy" xmlns:artifact="urn:maven-artifact-ant" depends="init,dist.version">
 
     <artifact:install-provider artifactId="wagon-file" version="1.0-alpha-7"/>
     <artifact:install-provider artifactId="wagon-webdav" version="1.0-alpha-6"/>
@@ -664,6 +669,11 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
       <remoteRepository refid="objectweb.repo"/>
     </artifact:deploy>
 
+    <artifact:deploy file="${out.dist.lib}/all/asm-debug-all-${product.artifact}.jar">
+      <artifact:pom file="${out.dist.lib}/all/asm-debug-all-${product.artifact}.pom"/>
+      <artifact:attach file="${out.dist}/src.zip" type="jar" classifier="sources"/>
+      <remoteRepository refid="objectweb.repo"/>
+    </artifact:deploy>
   </target>
 
 </project>

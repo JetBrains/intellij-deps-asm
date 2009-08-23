@@ -176,8 +176,9 @@ public class Analyzer implements Opcodes {
             Subroutine subroutine = subroutines[insn];
             queued[insn] = false;
 
+            AbstractInsnNode insnNode = null;
             try {
-                AbstractInsnNode insnNode = m.instructions.get(insn);
+                insnNode = m.instructions.get(insn);
                 int insnOpcode = insnNode.getOpcode();
                 int insnType = insnNode.getType();
 
@@ -230,7 +231,7 @@ public class Analyzer implements Opcodes {
                         }
                     } else if (insnOpcode == RET) {
                         if (subroutine == null) {
-                            throw new AnalyzerException("RET instruction outside of a sub routine");
+                            throw new AnalyzerException(insnNode, "RET instruction outside of a sub routine");
                         }
                         for (int i = 0; i < subroutine.callers.size(); ++i) {
                             Object caller = subroutine.callers.get(i);
@@ -287,10 +288,10 @@ public class Analyzer implements Opcodes {
                     }
                 }
             } catch (AnalyzerException e) {
-                throw new AnalyzerException("Error at instruction " + insn
+                throw new AnalyzerException(e.node, "Error at instruction " + insn
                         + ": " + e.getMessage(), e);
             } catch (Exception e) {
-                throw new AnalyzerException("Error at instruction " + insn
+                throw new AnalyzerException(insnNode, "Error at instruction " + insn
                         + ": " + e.getMessage(), e);
             }
         }
@@ -303,7 +304,7 @@ public class Analyzer implements Opcodes {
     {
         while (true) {
             if (insn < 0 || insn >= n) {
-                throw new AnalyzerException("Execution can fall off end of the code");
+                throw new AnalyzerException(null, "Execution can fall off end of the code");
             }
             if (subroutines[insn] != null) {
                 return;

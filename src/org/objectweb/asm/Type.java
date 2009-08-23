@@ -99,47 +99,56 @@ public class Type {
     /**
      * The <tt>void</tt> type.
      */
-    public static final Type VOID_TYPE = new Type(VOID);
+    public static final Type VOID_TYPE = new Type(VOID, null, ('V' << 24)
+            | (5 << 16) | (0 << 8) | 0, 1);
 
     /**
      * The <tt>boolean</tt> type.
      */
-    public static final Type BOOLEAN_TYPE = new Type(BOOLEAN);
+    public static final Type BOOLEAN_TYPE = new Type(BOOLEAN, null, ('Z' << 24)
+            | (0 << 16) | (5 << 8) | 1, 1);
 
     /**
      * The <tt>char</tt> type.
      */
-    public static final Type CHAR_TYPE = new Type(CHAR);
+    public static final Type CHAR_TYPE = new Type(CHAR, null, ('C' << 24)
+            | (0 << 16) | (6 << 8) | 1, 1);
 
     /**
      * The <tt>byte</tt> type.
      */
-    public static final Type BYTE_TYPE = new Type(BYTE);
+    public static final Type BYTE_TYPE = new Type(BYTE, null, ('B' << 24)
+            | (0 << 16) | (5 << 8) | 1, 1);
 
     /**
      * The <tt>short</tt> type.
      */
-    public static final Type SHORT_TYPE = new Type(SHORT);
+    public static final Type SHORT_TYPE = new Type(SHORT, null, ('S' << 24)
+            | (0 << 16) | (7 << 8) | 1, 1);
 
     /**
      * The <tt>int</tt> type.
      */
-    public static final Type INT_TYPE = new Type(INT);
+    public static final Type INT_TYPE = new Type(INT, null, ('I' << 24)
+            | (0 << 16) | (0 << 8) | 1, 1);
 
     /**
      * The <tt>float</tt> type.
      */
-    public static final Type FLOAT_TYPE = new Type(FLOAT);
+    public static final Type FLOAT_TYPE = new Type(FLOAT, null, ('F' << 24)
+            | (2 << 16) | (2 << 8) | 1, 1);
 
     /**
      * The <tt>long</tt> type.
      */
-    public static final Type LONG_TYPE = new Type(LONG);
+    public static final Type LONG_TYPE = new Type(LONG, null, ('J' << 24)
+            | (1 << 16) | (1 << 8) | 2, 1);
 
     /**
      * The <tt>double</tt> type.
      */
-    public static final Type DOUBLE_TYPE = new Type(DOUBLE);
+    public static final Type DOUBLE_TYPE = new Type(DOUBLE, null, ('D' << 24)
+            | (3 << 16) | (3 << 8) | 2, 1);
 
     // ------------------------------------------------------------------------
     // Fields
@@ -157,29 +166,21 @@ public class Type {
     private final char[] buf;
 
     /**
-     * The offset of the internal name of this Java type in {@link #buf buf}.
-     * This field is only used for reference types.
+     * The offset of the internal name of this Java type in {@link #buf buf} or,
+     * for primitive types, the size, descriptor and getOpcode offsets for this
+     * type (byte 0 contains the size, byte 1 the descriptor, byte 2 the offset
+     * for IALOAD or IASTORE, byte 3 the offset for all other instructions).
      */
     private final int off;
 
     /**
-     * The length of the internal name of this Java type. This field is only
-     * used for reference types.
+     * The length of the internal name of this Java type.
      */
     private final int len;
 
     // ------------------------------------------------------------------------
     // Constructors
     // ------------------------------------------------------------------------
-
-    /**
-     * Constructs a primitive type.
-     * 
-     * @param sort the sort of the primitive type to be constructed.
-     */
-    private Type(final int sort) {
-        this(sort, null, 0, 1);
-    }
 
     /**
      * Constructs a reference type.
@@ -550,42 +551,15 @@ public class Type {
      * @param buf the string buffer to which the descriptor must be appended.
      */
     private void getDescriptor(final StringBuffer buf) {
-        switch (sort) {
-            case VOID:
-                buf.append('V');
-                return;
-            case BOOLEAN:
-                buf.append('Z');
-                return;
-            case CHAR:
-                buf.append('C');
-                return;
-            case BYTE:
-                buf.append('B');
-                return;
-            case SHORT:
-                buf.append('S');
-                return;
-            case INT:
-                buf.append('I');
-                return;
-            case FLOAT:
-                buf.append('F');
-                return;
-            case LONG:
-                buf.append('J');
-                return;
-            case DOUBLE:
-                buf.append('D');
-                return;
-            case ARRAY:
-                buf.append(this.buf, off, len);
-                return;
-                // case OBJECT:
-            default:
-                buf.append('L');
-                buf.append(this.buf, off, len);
-                buf.append(';');
+        if (this.buf == null) {
+            // descriptor is in byte 3 of 'off' for primitive types (buf == null)
+            buf.append((char) ((off & 0xFF000000) >>> 24));
+        } else if (sort == ARRAY) {
+            buf.append(this.buf, off, len);
+        } else { // sort == OBJECT
+            buf.append('L');
+            buf.append(this.buf, off, len);
+            buf.append(';');
         }
     }
 
@@ -709,10 +683,11 @@ public class Type {
      * Returns the size of values of this type.
      * 
      * @return the size of values of this type, i.e., 2 for <tt>long</tt> and
-     *         <tt>double</tt>, and 1 otherwise.
+     *         <tt>double</tt>, 0 for <tt>void</tt> and 1 otherwise.
      */
     public int getSize() {
-        return sort == LONG || sort == DOUBLE ? 2 : 1;
+        // the size is in byte 0 of 'off' for primitive types (buf == null)
+        return buf == null ? (off & 0xFF) : 1;
     }
 
     /**
@@ -727,48 +702,13 @@ public class Type {
      */
     public int getOpcode(final int opcode) {
         if (opcode == Opcodes.IALOAD || opcode == Opcodes.IASTORE) {
-            switch (sort) {
-                case BOOLEAN:
-                case BYTE:
-                    return opcode + 5;
-                case CHAR:
-                    return opcode + 6;
-                case SHORT:
-                    return opcode + 7;
-                case INT:
-                    return opcode;
-                case FLOAT:
-                    return opcode + 2;
-                case LONG:
-                    return opcode + 1;
-                case DOUBLE:
-                    return opcode + 3;
-                    // case ARRAY:
-                    // case OBJECT:
-                default:
-                    return opcode + 4;
-            }
+            // the offset for IALOAD or IASTORE is in byte 1 of 'off' for
+            // primitive types (buf == null)
+            return opcode + (buf == null ? (off & 0xFF00) >> 8 : 4);
         } else {
-            switch (sort) {
-                case VOID:
-                    return opcode + 5;
-                case BOOLEAN:
-                case CHAR:
-                case BYTE:
-                case SHORT:
-                case INT:
-                    return opcode;
-                case FLOAT:
-                    return opcode + 2;
-                case LONG:
-                    return opcode + 1;
-                case DOUBLE:
-                    return opcode + 3;
-                    // case ARRAY:
-                    // case OBJECT:
-                default:
-                    return opcode + 4;
-            }
+            // the offset for other instructions is in byte 2 of 'off' for
+            // primitive types (buf == null)
+            return opcode + (buf == null ? (off & 0xFF0000) >> 16 : 4);
         }
     }
 

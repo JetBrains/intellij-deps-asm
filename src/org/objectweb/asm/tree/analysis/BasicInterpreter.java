@@ -199,7 +199,7 @@ public class BasicInterpreter implements Opcodes, Interpreter {
                     case T_LONG:
                         return newValue(Type.getType("[J"));
                     default:
-                        throw new AnalyzerException("Invalid array type");
+                        throw new AnalyzerException(insn, "Invalid array type");
                 }
             case ANEWARRAY:
                 String desc = ((TypeInsnNode) insn).desc;

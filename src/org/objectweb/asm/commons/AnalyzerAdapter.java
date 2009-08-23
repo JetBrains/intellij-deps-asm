@@ -51,7 +51,7 @@ import org.objectweb.asm.Type;
  * the state of the stack map frame <i>before</i> each instruction by reading
  * the value of these fields in its visit<i>X</i> methods (this requires a
  * reference to the AnalyzerAdapter that is before it in the chain).
- * 
+ *
  * @author Eric Bruneton
  */
 public class AnalyzerAdapter extends MethodAdapter {
@@ -77,7 +77,7 @@ public class AnalyzerAdapter extends MethodAdapter {
      * {@link Opcodes#DOUBLE},{@link Opcodes#NULL} or
      * {@link Opcodes#UNINITIALIZED_THIS} (long and double are represented by a
      * two elements, the second one being TOP). Reference types are represented
-     * by String objects (representing internal names), and uninitialized types 
+     * by String objects (representing internal names), and uninitialized types
      * by Label objects (this label designates the NEW instruction that created
      * this uninitialized value). This field is <tt>null</tt> for unreacheable
      * instructions.
@@ -97,7 +97,7 @@ public class AnalyzerAdapter extends MethodAdapter {
      * types, and the associated internal name represents the NEW operand, i.e.
      * the final, initialized type value.
      */
-    private final Map uninitializedTypes;
+    public Map uninitializedTypes;
 
     /**
      * The maximum stack size of this method.
@@ -111,7 +111,7 @@ public class AnalyzerAdapter extends MethodAdapter {
 
     /**
      * Creates a new {@link AnalyzerAdapter}.
-     * 
+     *
      * @param owner the owner's class name.
      * @param access the method's access flags (see {@link Opcodes}).
      * @param name the method's name.

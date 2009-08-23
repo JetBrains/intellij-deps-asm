@@ -293,20 +293,20 @@ public class Frame {
                 break;
             case Opcodes.POP:
                 if (pop().getSize() == 2) {
-                    throw new AnalyzerException("Illegal use of POP");
+                    throw new AnalyzerException(insn, "Illegal use of POP");
                 }
                 break;
             case Opcodes.POP2:
                 if (pop().getSize() == 1) {
                     if (pop().getSize() != 1) {
-                        throw new AnalyzerException("Illegal use of POP2");
+                        throw new AnalyzerException(insn, "Illegal use of POP2");
                     }
                 }
                 break;
             case Opcodes.DUP:
                 value1 = pop();
                 if (value1.getSize() != 1) {
-                    throw new AnalyzerException("Illegal use of DUP");
+                    throw new AnalyzerException(insn, "Illegal use of DUP");
                 }
                 push(value1);
                 push(interpreter.copyOperation(insn, value1));
@@ -315,7 +315,7 @@ public class Frame {
                 value1 = pop();
                 value2 = pop();
                 if (value1.getSize() != 1 || value2.getSize() != 1) {
-                    throw new AnalyzerException("Illegal use of DUP_X1");
+                    throw new AnalyzerException(insn, "Illegal use of DUP_X1");
                 }
                 push(interpreter.copyOperation(insn, value1));
                 push(value2);
@@ -341,7 +341,7 @@ public class Frame {
                         break;
                     }
                 }
-                throw new AnalyzerException("Illegal use of DUP_X2");
+                throw new AnalyzerException(insn, "Illegal use of DUP_X2");
             case Opcodes.DUP2:
                 value1 = pop();
                 if (value1.getSize() == 1) {
@@ -358,7 +358,7 @@ public class Frame {
                     push(interpreter.copyOperation(insn, value1));
                     break;
                 }
-                throw new AnalyzerException("Illegal use of DUP2");
+                throw new AnalyzerException(insn, "Illegal use of DUP2");
             case Opcodes.DUP2_X1:
                 value1 = pop();
                 if (value1.getSize() == 1) {
@@ -383,7 +383,7 @@ public class Frame {
                         break;
                     }
                 }
-                throw new AnalyzerException("Illegal use of DUP2_X1");
+                throw new AnalyzerException(insn, "Illegal use of DUP2_X1");
             case Opcodes.DUP2_X2:
                 value1 = pop();
                 if (value1.getSize() == 1) {
@@ -428,12 +428,12 @@ public class Frame {
                         break;
                     }
                 }
-                throw new AnalyzerException("Illegal use of DUP2_X2");
+                throw new AnalyzerException(insn, "Illegal use of DUP2_X2");
             case Opcodes.SWAP:
                 value2 = pop();
                 value1 = pop();
                 if (value1.getSize() != 1 || value2.getSize() != 1) {
-                    throw new AnalyzerException("Illegal use of SWAP");
+                    throw new AnalyzerException(insn, "Illegal use of SWAP");
                 }
                 push(interpreter.copyOperation(insn, value2));
                 push(interpreter.copyOperation(insn, value1));
@@ -556,7 +556,7 @@ public class Frame {
                 break;
             case Opcodes.RETURN:
                 if (returnValue != null) {
-                    throw new AnalyzerException("Incompatible return type");
+                    throw new AnalyzerException(insn, "Incompatible return type");
                 }
                 break;
             case Opcodes.GETSTATIC:
@@ -641,7 +641,7 @@ public class Frame {
             throws AnalyzerException
     {
         if (top != frame.top) {
-            throw new AnalyzerException("Incompatible stack heights");
+            throw new AnalyzerException(null, "Incompatible stack heights");
         }
         boolean changes = false;
         for (int i = 0; i < locals + top; ++i) {

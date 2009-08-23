@@ -68,7 +68,8 @@ public class BasicVerifier extends BasicInterpreter {
                 break;
             case ALOAD:
                 if (!((BasicValue) value).isReference()) {
-                    throw new AnalyzerException(null,
+                    throw new AnalyzerException(insn,
+                            null,
                             "an object reference",
                             value);
                 }
@@ -77,7 +78,8 @@ public class BasicVerifier extends BasicInterpreter {
                 if (!((BasicValue) value).isReference()
                         && value != BasicValue.RETURNADDRESS_VALUE)
                 {
-                    throw new AnalyzerException(null,
+                    throw new AnalyzerException(insn,
+                            null,
                             "an object reference or a return address",
                             value);
                 }
@@ -88,7 +90,7 @@ public class BasicVerifier extends BasicInterpreter {
         // type is necessarily a primitive type here,
         // so value must be == to expected value
         if (value != expected) {
-            throw new AnalyzerException(null, expected, value);
+            throw new AnalyzerException(insn, null, expected, value);
         }
         return value;
     }
@@ -145,14 +147,16 @@ public class BasicVerifier extends BasicInterpreter {
                 break;
             case CHECKCAST:
                 if (!((BasicValue) value).isReference()) {
-                    throw new AnalyzerException(null,
+                    throw new AnalyzerException(insn,
+                            null,
                             "an object reference",
                             value);
                 }
                 return super.unaryOperation(insn, value);
             case ARRAYLENGTH:
                 if (!isArrayValue(value)) {
-                    throw new AnalyzerException(null,
+                    throw new AnalyzerException(insn,
+                            null,
                             "an array reference",
                             value);
                 }
@@ -165,7 +169,8 @@ public class BasicVerifier extends BasicInterpreter {
             case IFNULL:
             case IFNONNULL:
                 if (!((BasicValue) value).isReference()) {
-                    throw new AnalyzerException(null,
+                    throw new AnalyzerException(insn,
+                            null,
                             "an object reference",
                             value);
                 }
@@ -177,7 +182,7 @@ public class BasicVerifier extends BasicInterpreter {
                 throw new Error("Internal error.");
         }
         if (!isSubTypeOf(value, expected)) {
-            throw new AnalyzerException(null, expected, value);
+            throw new AnalyzerException(insn, null, expected, value);
         }
         return super.unaryOperation(insn, value);
     }
@@ -298,9 +303,9 @@ public class BasicVerifier extends BasicInterpreter {
                 throw new Error("Internal error.");
         }
         if (!isSubTypeOf(value1, expected1)) {
-            throw new AnalyzerException("First argument", expected1, value1);
+            throw new AnalyzerException(insn, "First argument", expected1, value1);
         } else if (!isSubTypeOf(value2, expected2)) {
-            throw new AnalyzerException("Second argument", expected2, value2);
+            throw new AnalyzerException(insn, "Second argument", expected2, value2);
         }
         if (insn.getOpcode() == AALOAD) {
             return getElementValue(value1);
@@ -358,14 +363,14 @@ public class BasicVerifier extends BasicInterpreter {
                 throw new Error("Internal error.");
         }
         if (!isSubTypeOf(value1, expected1)) {
-            throw new AnalyzerException("First argument", "a " + expected1
+            throw new AnalyzerException(insn, "First argument", "a " + expected1
                     + " array reference", value1);
         } else if (value2 != BasicValue.INT_VALUE) {
-            throw new AnalyzerException("Second argument",
+            throw new AnalyzerException(insn, "Second argument",
                     BasicValue.INT_VALUE,
                     value2);
         } else if (!isSubTypeOf(value3, expected3)) {
-            throw new AnalyzerException("Third argument", expected3, value3);
+            throw new AnalyzerException(insn, "Third argument", expected3, value3);
         }
         return null;
     }
@@ -377,7 +382,8 @@ public class BasicVerifier extends BasicInterpreter {
         if (opcode == MULTIANEWARRAY) {
             for (int i = 0; i < values.size(); ++i) {
                 if (values.get(i) != BasicValue.INT_VALUE) {
-                    throw new AnalyzerException(null,
+                    throw new AnalyzerException(insn,
+                            null,
                             BasicValue.INT_VALUE,
                             (Value) values.get(i));
                 }
@@ -388,7 +394,7 @@ public class BasicVerifier extends BasicInterpreter {
             if (opcode != INVOKESTATIC && opcode != INVOKEDYNAMIC) {
                 Type owner = Type.getObjectType(((MethodInsnNode) insn).owner);
                 if (!isSubTypeOf((Value) values.get(i++), newValue(owner))) {
-                    throw new AnalyzerException("Method owner",
+                    throw new AnalyzerException(insn, "Method owner",
                             newValue(owner),
                             (Value) values.get(0));
                 }
@@ -398,7 +404,8 @@ public class BasicVerifier extends BasicInterpreter {
                 Value expected = newValue(args[j++]);
                 Value encountered = (Value) values.get(i++);
                 if (!isSubTypeOf(encountered, expected)) {
-                    throw new AnalyzerException("Argument " + j,
+                    throw new AnalyzerException(insn,
+                            "Argument " + j,
                             expected,
                             encountered);
                 }
@@ -413,7 +420,8 @@ public class BasicVerifier extends BasicInterpreter {
         final Value expected) throws AnalyzerException
     {
         if (!isSubTypeOf(value, expected)) {
-            throw new AnalyzerException("Incompatible return type",
+            throw new AnalyzerException(insn,
+                    "Incompatible return type",
                     expected,
                     value);
         }

@@ -1068,7 +1068,7 @@ class MethodWriter implements MethodVisitor {
         // adds the instruction to the bytecode of the method
         int source = code.length;
         code.putByte(Opcodes.TABLESWITCH);
-        code.length += (4 - code.length % 4) % 4;
+        code.putByteArray(null, 0, (4 - code.length % 4) % 4);
         dflt.put(this, code, source, true);
         code.putInt(min).putInt(max);
         for (int i = 0; i < labels.length; ++i) {
@@ -1086,7 +1086,7 @@ class MethodWriter implements MethodVisitor {
         // adds the instruction to the bytecode of the method
         int source = code.length;
         code.putByte(Opcodes.LOOKUPSWITCH);
-        code.length += (4 - code.length % 4) % 4;
+        code.putByteArray(null, 0, (4 - code.length % 4) % 4);
         dflt.put(this, code, source, true);
         code.putInt(labels.length);
         for (int i = 0; i < labels.length; ++i) {
@@ -2279,7 +2279,7 @@ class MethodWriter implements MethodVisitor {
                     u = u + 4 - (v & 3);
                     // reads and copies instruction
                     newCode.putByte(Opcodes.TABLESWITCH);
-                    newCode.length += (4 - newCode.length % 4) % 4;
+                    newCode.putByteArray(null, 0, (4 - newCode.length % 4) % 4);
                     label = v + readInt(b, u);
                     u += 4;
                     newOffset = getNewOffset(allIndexes, allSizes, v, label);
@@ -2303,7 +2303,7 @@ class MethodWriter implements MethodVisitor {
                     u = u + 4 - (v & 3);
                     // reads and copies instruction
                     newCode.putByte(Opcodes.LOOKUPSWITCH);
-                    newCode.length += (4 - newCode.length % 4) % 4;
+                    newCode.putByteArray(null, 0, (4 - newCode.length % 4) % 4);
                     label = v + readInt(b, u);
                     u += 4;
                     newOffset = getNewOffset(allIndexes, allSizes, v, label);

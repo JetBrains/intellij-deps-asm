@@ -728,7 +728,7 @@ public class ASMContentHandler extends DefaultHandler implements Opcodes {
     final class InterfacesRule extends Rule {
 
         public final void end(final String element) {
-            Map vals = (HashMap) pop();
+            Map vals = (Map) pop();
             int version = ((Integer) vals.get("version")).intValue();
             int access = getAccess((String) vals.get("access"));
             String name = (String) vals.get("name");
@@ -828,7 +828,7 @@ public class ASMContentHandler extends DefaultHandler implements Opcodes {
     final class ExceptionsRule extends Rule {
 
         public final void end(final String element) {
-            Map vals = (HashMap) pop();
+            Map vals = (Map) pop();
             int access = getAccess((String) vals.get("access"));
             String name = (String) vals.get("name");
             String desc = (String) vals.get("desc");
@@ -855,7 +855,7 @@ public class ASMContentHandler extends DefaultHandler implements Opcodes {
         }
 
         public final void end(final String name) {
-            Map vals = (HashMap) pop();
+            Map vals = (Map) pop();
             int min = Integer.parseInt((String) vals.get("min"));
             int max = Integer.parseInt((String) vals.get("max"));
             Label dflt = getLabel(vals.get("dflt"));
@@ -889,7 +889,7 @@ public class ASMContentHandler extends DefaultHandler implements Opcodes {
         }
 
         public final void end(final String name) {
-            Map vals = (HashMap) pop();
+            Map vals = (Map) pop();
             Label dflt = getLabel(vals.get("dflt"));
             List keyList = (List) vals.get("keys");
             List lbls = (List) vals.get("labels");
@@ -908,7 +908,7 @@ public class ASMContentHandler extends DefaultHandler implements Opcodes {
     final class LookupSwitchLabelRule extends Rule {
 
         public final void begin(final String name, final Attributes attrs) {
-            Map vals = (HashMap) peek();
+            Map vals = (Map) peek();
             ((List) vals.get("labels")).add(getLabel(attrs.getValue("name")));
             ((List) vals.get("keys")).add(attrs.getValue("key"));
         }
@@ -931,7 +931,7 @@ public class ASMContentHandler extends DefaultHandler implements Opcodes {
         }
 
         public void end(final String name) {
-            Map typeLists = (HashMap) pop();
+            Map typeLists = (Map) pop();
             List locals = (List) typeLists.get("local");
             int nLocal = locals.size();
             Object[] local = locals.toArray();

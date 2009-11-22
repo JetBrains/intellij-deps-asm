@@ -96,9 +96,16 @@ public class Label {
     static final int SUBROUTINE = 512;
 
     /**
-     * Indicates if this subroutine basic block has been visited.
+     * Indicates if this subroutine basic block has been visited by a 
+     * visitSubroutine(null, ...) call.
      */
     static final int VISITED = 1024;
+
+    /**
+     * Indicates if this subroutine basic block has been visited by a
+     * visitSubroutine(!null, ...) call.
+     */
+    static final int VISITED2 = 2048;
 
     /**
      * Field used to associate user information to a label. Warning: this field
@@ -443,6 +450,9 @@ public class Label {
      *         subroutine.
      */
     boolean inSameSubroutine(final Label block) {
+        if ((status & VISITED) != 0 || (block.status & VISITED) != 0) {
+            return false;
+        }
         for (int i = 0; i < srcAndRefPositions.length; ++i) {
             if ((srcAndRefPositions[i] & block.srcAndRefPositions[i]) != 0) {
                 return true;
@@ -489,10 +499,10 @@ public class Label {
             l.next = null;
             
             if (JSR != null) {
-                if ((l.status & VISITED) != 0) {
+                if ((l.status & VISITED2) != 0) {
                     continue;
                 }
-                l.status |= VISITED;
+                l.status |= VISITED2;
                 // adds JSR to the successors of l, if it is a RET block
                 if ((l.status & RET) != 0) {
                     if (!l.inSameSubroutine(JSR)) {

@@ -53,11 +53,11 @@ public class RemappingAnnotationAdapter implements AnnotationVisitor {
     }
 
     public void visitEnum(String name, String desc, String value) {
-        av.visitEnum(name, renamer.mapType(desc), value);
+        av.visitEnum(name, renamer.mapDesc(desc), value);
     }
 
     public AnnotationVisitor visitAnnotation(String name, String desc) {
-        AnnotationVisitor v = av.visitAnnotation(name, renamer.mapType(desc));
+        AnnotationVisitor v = av.visitAnnotation(name, renamer.mapDesc(desc));
         return v == null ? null : (v == av
                 ? this
                 : new RemappingAnnotationAdapter(v, renamer));

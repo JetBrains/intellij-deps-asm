@@ -72,7 +72,7 @@ public class RemappingClassAdapter extends ClassAdapter {
 
     public AnnotationVisitor visitAnnotation(String desc, boolean visible) {
         AnnotationVisitor av;
-        av = super.visitAnnotation(remapper.mapType(desc), visible);
+        av = super.visitAnnotation(remapper.mapDesc(desc), visible);
         return av == null ? null : createRemappingAnnotationAdapter(av);
     }
 

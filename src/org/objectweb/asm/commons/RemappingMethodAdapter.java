@@ -116,7 +116,7 @@ public class RemappingMethodAdapter extends LocalVariablesSorter {
     }
 
     public AnnotationVisitor visitAnnotation(String desc, boolean visible) {
-        AnnotationVisitor av = mv.visitAnnotation(desc, visible);
+        AnnotationVisitor av = mv.visitAnnotation(remapper.mapDesc(desc), visible);
         return av == null ? av : new RemappingAnnotationAdapter(av, remapper);
     }
     
@@ -131,7 +131,7 @@ public class RemappingMethodAdapter extends LocalVariablesSorter {
         boolean visible)
     {
         AnnotationVisitor av = mv.visitParameterAnnotation(parameter,
-                desc,
+                remapper.mapDesc(desc),
                 visible);
         return av == null ? av : new RemappingAnnotationAdapter(av, remapper);
     }

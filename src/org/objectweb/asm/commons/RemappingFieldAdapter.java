@@ -51,7 +51,7 @@ public class RemappingFieldAdapter implements FieldVisitor {
     }
 
     public AnnotationVisitor visitAnnotation(String desc, boolean visible) {
-        AnnotationVisitor av = fv.visitAnnotation(desc, visible);
+        AnnotationVisitor av = fv.visitAnnotation(remapper.mapDesc(desc), visible);
         return av == null ? null : new RemappingAnnotationAdapter(av, remapper);
     }
 

@@ -450,7 +450,7 @@ public class Label {
      *         subroutine.
      */
     boolean inSameSubroutine(final Label block) {
-        if ((status & VISITED) != 0 || (block.status & VISITED) != 0) {
+        if ((status & VISITED) == 0 || (block.status & VISITED) == 0) {
             return false;
         }
         for (int i = 0; i < srcAndRefPositions.length; ++i) {

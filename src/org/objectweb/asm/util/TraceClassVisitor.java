@@ -51,12 +51,12 @@ import org.objectweb.asm.signature.SignatureReader;
  * 
  * <pre>
  * // class version 49.0 (49)
- * // access flags 33
+ * // access flags 0x21
  * public class Hello {
  *
  *  // compiled from: Hello.java
  *
- *   // access flags 1
+ *   // access flags 0x1
  *   public &lt;init&gt; ()V
  *     ALOAD 0
  *     INVOKESPECIAL java/lang/Object &lt;init&gt; ()V
@@ -64,7 +64,7 @@ import org.objectweb.asm.signature.SignatureReader;
  *     MAXSTACK = 1
  *     MAXLOCALS = 1
  *
- *   // access flags 9
+ *   // access flags 0x9
  *   public static main ([Ljava/lang/String;)V
  *     GETSTATIC java/lang/System out Ljava/io/PrintStream;
  *     LDC &quot;hello&quot;
@@ -196,7 +196,7 @@ public class TraceClassVisitor extends TraceAbstractVisitor implements
         if ((access & Opcodes.ACC_DEPRECATED) != 0) {
             buf.append("// DEPRECATED\n");
         }
-        buf.append("// access flags ").append(access).append('\n');
+        buf.append("// access flags 0x").append(Integer.toHexString(access).toUpperCase()).append('\n');
 
         appendDescriptor(CLASS_SIGNATURE, signature);
         if (signature != null) {
@@ -313,8 +313,8 @@ public class TraceClassVisitor extends TraceAbstractVisitor implements
         final int access)
     {
         buf.setLength(0);
-        buf.append(tab).append("// access flags ");
-        buf.append(access & ~Opcodes.ACC_SUPER).append('\n');
+        buf.append(tab).append("// access flags 0x");
+        buf.append(Integer.toHexString(access & ~Opcodes.ACC_SUPER).toUpperCase()).append('\n');
         buf.append(tab);
         appendAccess(access);
         buf.append("INNERCLASS ");
@@ -343,7 +343,7 @@ public class TraceClassVisitor extends TraceAbstractVisitor implements
         if ((access & Opcodes.ACC_DEPRECATED) != 0) {
             buf.append(tab).append("// DEPRECATED\n");
         }
-        buf.append(tab).append("// access flags ").append(access).append('\n');
+        buf.append(tab).append("// access flags 0x").append(Integer.toHexString(access).toUpperCase()).append('\n');
         if (signature != null) {
             buf.append(tab);
             appendDescriptor(FIELD_SIGNATURE, signature);
@@ -396,7 +396,7 @@ public class TraceClassVisitor extends TraceAbstractVisitor implements
         if ((access & Opcodes.ACC_DEPRECATED) != 0) {
             buf.append(tab).append("// DEPRECATED\n");
         }
-        buf.append(tab).append("// access flags ").append(access).append('\n');
+        buf.append(tab).append("// access flags 0x").append(Integer.toHexString(access).toUpperCase()).append('\n');
 
         if (signature != null) {
             buf.append(tab);

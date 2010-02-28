@@ -118,8 +118,6 @@ public class FrameNode extends AbstractInsnNode {
                 this.local = asList(nLocal, local);
                 break;
             case Opcodes.F_CHOP:
-                this.local = asList(nLocal, local);
-                break;
             case Opcodes.F_SAME:
                 break;
             case Opcodes.F_SAME1:

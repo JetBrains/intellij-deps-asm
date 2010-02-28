@@ -277,7 +277,7 @@ public final class ModifiedPass3bVerifier extends PassVerifier{
                                 throw new StructuralCodeConstraintException("Returned type "+returnedType+" does not match Method's return type "+m.getReturnType());
                             }
                         }
-                        catch (ClassNotFoundException e)
+                        catch (Exception e)
                         {
                             //dont know what do do now, so raise RuntimeException
                             throw new RuntimeException(e);

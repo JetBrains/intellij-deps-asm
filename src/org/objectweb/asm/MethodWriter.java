@@ -582,6 +582,13 @@ class MethodWriter implements MethodVisitor {
                 delta = code.length;
             } else {
                 delta = code.length - previousFrameOffset - 1;
+                if (delta < 0) {
+                    if (type == Opcodes.F_SAME) {
+                        return;
+                    } else {
+                        throw new IllegalStateException();
+                    }
+                }
             }
 
             switch (type) {

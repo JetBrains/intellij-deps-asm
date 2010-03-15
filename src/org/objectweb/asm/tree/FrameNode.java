@@ -118,6 +118,8 @@ public class FrameNode extends AbstractInsnNode {
                 this.local = asList(nLocal, local);
                 break;
             case Opcodes.F_CHOP:
+                this.local = Arrays.asList(new Object[nLocal]);
+                break;
             case Opcodes.F_SAME:
                 break;
             case Opcodes.F_SAME1:
@@ -149,7 +151,7 @@ public class FrameNode extends AbstractInsnNode {
                 mv.visitFrame(type, local.size(), asArray(local), 0, null);
                 break;
             case Opcodes.F_CHOP:
-                mv.visitFrame(type, local.size(), asArray(local), 0, null);
+                mv.visitFrame(type, local.size(), null, 0, null);
                 break;
             case Opcodes.F_SAME:
                 mv.visitFrame(type, 0, null, 0, null);

@@ -42,7 +42,7 @@ import org.objectweb.asm.Type;
  * of using it is via delegation: the next visitor in the chain can indeed add
  * new locals when needed by calling {@link #newLocal} on this adapter (this
  * requires a reference back to this {@link LocalVariablesSorter}).
- * 
+ *
  * @author Chris Nokleberg
  * @author Eugene Kuleshov
  * @author Eric Bruneton
@@ -80,7 +80,7 @@ public class LocalVariablesSorter extends MethodAdapter {
 
     /**
      * Creates a new {@link LocalVariablesSorter}.
-     * 
+     *
      * @param access access flags of the adapted method.
      * @param desc the method's descriptor (see {@link Type Type}).
      * @param mv the method visitor to which this adapter delegates calls.
@@ -122,14 +122,12 @@ public class LocalVariablesSorter extends MethodAdapter {
                 type = Type.INT_TYPE;
                 break;
 
-            case Opcodes.ALOAD:
-            case Opcodes.ASTORE:
+            default:
+            // case Opcodes.ALOAD:
+            // case Opcodes.ASTORE:
+            // case RET:
                 type = OBJECT_TYPE;
                 break;
-
-            // case RET:
-            default:
-                type = Type.VOID_TYPE;
         }
         mv.visitVarInsn(opcode, remap(var, type));
     }
@@ -183,7 +181,19 @@ public class LocalVariablesSorter extends MethodAdapter {
             Object t = local[number];
             int size = t == Opcodes.LONG || t == Opcodes.DOUBLE ? 2 : 1;
             if (t != Opcodes.TOP) {
-                setFrameLocal(remap(index, size), t);
+                Type typ;
+                if (t == Opcodes.INTEGER) {
+                    typ = Type.INT_TYPE;
+                } else if (t == Opcodes.FLOAT) {
+                    typ = Type.FLOAT_TYPE;
+                } else if (t == Opcodes.LONG) {
+                    typ = Type.LONG_TYPE;
+                } else if (t == Opcodes.DOUBLE) {
+                    typ = Type.DOUBLE_TYPE;
+                } else {
+                    typ = Type.getObjectType((String) t);
+                }
+                setFrameLocal(remap(index, typ), t);
             }
             index += size;
         }
@@ -216,7 +226,7 @@ public class LocalVariablesSorter extends MethodAdapter {
 
     /**
      * Creates a new local variable of the given type.
-     * 
+     *
      * @param type the type of the local variable to be created.
      * @return the identifier of the newly created local variable.
      */
@@ -257,7 +267,7 @@ public class LocalVariablesSorter extends MethodAdapter {
     /**
      * Sets the current type of the given local variable. The default
      * implementation of this method does nothing.
-     * 
+     *
      * @param local a local variable identifier, as returned by {@link #newLocal
      *        newLocal()}.
      * @param type the type of the value being stored in the local variable
@@ -304,17 +314,5 @@ public class LocalVariablesSorter extends MethodAdapter {
         int local = nextLocal;
         nextLocal += type.getSize();
         return local;
-    }
-    
-    private int remap(final int var, final int size) {
-        if (var < firstLocal || !changed) {
-            return var;
-        }
-        int key = 2 * var + size - 1;
-        int value = key < mapping.length ? mapping[key] : 0;
-        if (value == 0) {
-            throw new IllegalStateException("Unknown local variable " + var);
-        }
-        return value - 1;
     }
 }

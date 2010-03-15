@@ -518,14 +518,16 @@ public class GASMifierMethodVisitor extends ASMifierAbstractVisitor implements
         try {
             switch (opcode) {
                 case RET:
-                    buf.append("mg.ret(");
                     if (var < firstLocal) {
+                        buf.append("mg.ret(");
                         buf.append(var);
+                        buf.append(");\n");
                     } else {
                         int v = generateNewLocal(var, "Type.INT_TYPE");
+                        buf.append("mg.ret(");
                         buf.append("local").append(v);
+                        buf.append(");\n");
                     }
-                    buf.append(");\n");
                     break;
 
                 case ILOAD:

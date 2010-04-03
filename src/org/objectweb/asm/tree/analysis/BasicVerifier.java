@@ -76,7 +76,7 @@ public class BasicVerifier extends BasicInterpreter {
                 return value;
             case ASTORE:
                 if (!((BasicValue) value).isReference()
-                        && value != BasicValue.RETURNADDRESS_VALUE)
+                        && !BasicValue.RETURNADDRESS_VALUE.equals(value))
                 {
                     throw new AnalyzerException(insn,
                             null,
@@ -87,9 +87,7 @@ public class BasicVerifier extends BasicInterpreter {
             default:
                 return value;
         }
-        // type is necessarily a primitive type here,
-        // so value must be == to expected value
-        if (value != expected) {
+        if (!expected.equals(value)) {
             throw new AnalyzerException(insn, null, expected, value);
         }
         return value;
@@ -365,7 +363,7 @@ public class BasicVerifier extends BasicInterpreter {
         if (!isSubTypeOf(value1, expected1)) {
             throw new AnalyzerException(insn, "First argument", "a " + expected1
                     + " array reference", value1);
-        } else if (value2 != BasicValue.INT_VALUE) {
+        } else if (!BasicValue.INT_VALUE.equals(value2)) {
             throw new AnalyzerException(insn, "Second argument",
                     BasicValue.INT_VALUE,
                     value2);
@@ -381,7 +379,7 @@ public class BasicVerifier extends BasicInterpreter {
         int opcode = insn.getOpcode();
         if (opcode == MULTIANEWARRAY) {
             for (int i = 0; i < values.size(); ++i) {
-                if (values.get(i) != BasicValue.INT_VALUE) {
+                if (!BasicValue.INT_VALUE.equals(values.get(i))) {
                     throw new AnalyzerException(insn,
                             null,
                             BasicValue.INT_VALUE,
@@ -438,6 +436,6 @@ public class BasicVerifier extends BasicInterpreter {
     }
 
     protected boolean isSubTypeOf(final Value value, final Value expected) {
-        return value == expected;
+        return value.equals(expected);
     }
 }

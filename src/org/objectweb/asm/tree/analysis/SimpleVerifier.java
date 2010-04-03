@@ -141,7 +141,7 @@ public class SimpleVerifier extends BasicVerifier {
         }
 
         Value v = super.newValue(type);
-        if (v == BasicValue.REFERENCE_VALUE) {
+        if (BasicValue.REFERENCE_VALUE.equals(v)) {
             if (isArray) {
                 v = newValue(type.getElementType());
                 String desc = ((BasicValue) v).getType().getDescriptor();
@@ -185,7 +185,7 @@ public class SimpleVerifier extends BasicVerifier {
             case Type.FLOAT:
             case Type.LONG:
             case Type.DOUBLE:
-                return type == expectedType;
+                return type.equals(expectedType);
             case Type.ARRAY:
             case Type.OBJECT:
                 if ("Lnull;".equals(type.getDescriptor())) {

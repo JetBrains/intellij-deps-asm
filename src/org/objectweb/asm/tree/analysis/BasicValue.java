@@ -52,7 +52,7 @@ public class BasicValue implements Value {
 
     public static final Value REFERENCE_VALUE = new BasicValue(Type.getObjectType("java/lang/Object"));
 
-    public static final Value RETURNADDRESS_VALUE = new BasicValue(null);
+    public static final Value RETURNADDRESS_VALUE = new BasicValue(Type.VOID_TYPE);
 
     private final Type type;
 

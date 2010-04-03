@@ -51,7 +51,12 @@ import org.objectweb.asm.Type;
  * the state of the stack map frame <i>before</i> each instruction by reading
  * the value of these fields in its visit<i>X</i> methods (this requires a
  * reference to the AnalyzerAdapter that is before it in the chain).
- *
+ * If this adapter is used with a class that does not contain stack map table
+ * attributes (i.e., pre Java 6 classes) then this adapter may not be able to
+ * compute the stack map frame for each instruction. In this case no exception
+ * is thrown but the {@link #locals} and {@link #stack} fields will be null for
+ * these instructions.
+ * 
  * @author Eric Bruneton
  */
 public class AnalyzerAdapter extends MethodAdapter {
@@ -279,6 +284,10 @@ public class AnalyzerAdapter extends MethodAdapter {
         if (mv != null) {
             mv.visitMethodInsn(opcode, owner, name, desc);
         }
+        if (this.locals == null) {
+            labels = null;
+            return;
+        }
         pop(desc);
         if (opcode != Opcodes.INVOKESTATIC && opcode != Opcodes.INVOKEDYNAMIC) {
             Object t = pop();
@@ -329,6 +338,10 @@ public class AnalyzerAdapter extends MethodAdapter {
     public void visitLdcInsn(final Object cst) {
         if (mv != null) {
             mv.visitLdcInsn(cst);
+        }
+        if (this.locals == null) {
+            labels = null;
+            return;
         }
         if (cst instanceof Integer) {
             push(Opcodes.INTEGER);
@@ -489,6 +502,7 @@ public class AnalyzerAdapter extends MethodAdapter {
 
     private void execute(final int opcode, final int iarg, final String sarg) {
         if (this.locals == null) {
+            labels = null;
             return;
         }
         Object t1, t2, t3, t4;

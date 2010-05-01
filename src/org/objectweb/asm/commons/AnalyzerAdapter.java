@@ -115,6 +115,11 @@ public class AnalyzerAdapter extends MethodAdapter {
     private int maxLocals;
 
     /**
+     * The owner's class name.
+     */
+    private String owner;
+    
+    /**
      * Creates a new {@link AnalyzerAdapter}.
      *
      * @param owner the owner's class name.
@@ -132,6 +137,7 @@ public class AnalyzerAdapter extends MethodAdapter {
         final MethodVisitor mv)
     {
         super(mv);
+        this.owner = owner;
         locals = new ArrayList();
         stack = new ArrayList();
         uninitializedTypes = new HashMap();
@@ -294,7 +300,7 @@ public class AnalyzerAdapter extends MethodAdapter {
             if (opcode == Opcodes.INVOKESPECIAL && name.charAt(0) == '<') {
                 Object u;
                 if (t == Opcodes.UNINITIALIZED_THIS) {
-                    u = owner;
+                    u = this.owner;
                 } else {
                     u = uninitializedTypes.get(t);
                 }

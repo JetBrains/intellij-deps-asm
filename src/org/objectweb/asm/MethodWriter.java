@@ -1803,7 +1803,7 @@ class MethodWriter implements MethodVisitor {
             size += 8 + 2 * exceptionCount;
         }
         if ((access & Opcodes.ACC_SYNTHETIC) != 0
-                && (cw.version & 0xffff) < Opcodes.V1_5)
+                && ((cw.version & 0xFFFF) < Opcodes.V1_5 || (access & ClassWriter.ACC_SYNTHETIC_ATTRIBUTE) != 0))
         {
             cw.newUTF8("Synthetic");
             size += 6;
@@ -1856,7 +1856,10 @@ class MethodWriter implements MethodVisitor {
      *        copied.
      */
     final void put(final ByteVector out) {
-        out.putShort(access).putShort(name).putShort(desc);
+        int mask = Opcodes.ACC_DEPRECATED
+                | ClassWriter.ACC_SYNTHETIC_ATTRIBUTE
+                | ((access & ClassWriter.ACC_SYNTHETIC_ATTRIBUTE) / (ClassWriter.ACC_SYNTHETIC_ATTRIBUTE / Opcodes.ACC_SYNTHETIC));
+        out.putShort(access & ~mask).putShort(name).putShort(desc);
         if (classReaderOffset != 0) {
             out.putByteArray(cw.cr.b, classReaderOffset, classReaderLength);
             return;
@@ -1869,7 +1872,7 @@ class MethodWriter implements MethodVisitor {
             ++attributeCount;
         }
         if ((access & Opcodes.ACC_SYNTHETIC) != 0
-                && (cw.version & 0xffff) < Opcodes.V1_5)
+                && ((cw.version & 0xFFFF) < Opcodes.V1_5 || (access & ClassWriter.ACC_SYNTHETIC_ATTRIBUTE) != 0))
         {
             ++attributeCount;
         }
@@ -1984,7 +1987,7 @@ class MethodWriter implements MethodVisitor {
             }
         }
         if ((access & Opcodes.ACC_SYNTHETIC) != 0
-                && (cw.version & 0xffff) < Opcodes.V1_5)
+                && ((cw.version & 0xFFFF) < Opcodes.V1_5 || (access & ClassWriter.ACC_SYNTHETIC_ATTRIBUTE) != 0))
         {
             out.putShort(cw.newUTF8("Synthetic")).putInt(0);
         }

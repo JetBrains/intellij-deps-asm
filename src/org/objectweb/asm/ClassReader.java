@@ -533,7 +533,7 @@ public class ClassReader {
             } else if ("Deprecated".equals(attrName)) {
                 access |= Opcodes.ACC_DEPRECATED;
             } else if ("Synthetic".equals(attrName)) {
-                access |= Opcodes.ACC_SYNTHETIC;
+                access |= Opcodes.ACC_SYNTHETIC | ClassWriter.ACC_SYNTHETIC_ATTRIBUTE;
             } else if ("SourceDebugExtension".equals(attrName)) {
                 int len = readInt(v + 2);
                 sourceDebug = readUTF(v + 6, len, new char[len]);
@@ -643,7 +643,7 @@ public class ClassReader {
                 } else if ("Deprecated".equals(attrName)) {
                     access |= Opcodes.ACC_DEPRECATED;
                 } else if ("Synthetic".equals(attrName)) {
-                    access |= Opcodes.ACC_SYNTHETIC;
+                    access |= Opcodes.ACC_SYNTHETIC  | ClassWriter.ACC_SYNTHETIC_ATTRIBUTE;
                 } else if (ANNOTATIONS && "RuntimeVisibleAnnotations".equals(attrName)) {
                     anns = u + 6;
                 } else if (ANNOTATIONS && "RuntimeInvisibleAnnotations".equals(attrName)) {
@@ -738,7 +738,7 @@ public class ClassReader {
                 } else if (ANNOTATIONS && "AnnotationDefault".equals(attrName)) {
                     dann = u;
                 } else if ("Synthetic".equals(attrName)) {
-                    access |= Opcodes.ACC_SYNTHETIC;
+                    access |= Opcodes.ACC_SYNTHETIC | ClassWriter.ACC_SYNTHETIC_ATTRIBUTE;
                 } else if (ANNOTATIONS && "RuntimeInvisibleAnnotations".equals(attrName)) {
                     ianns = u;
                 } else if (ANNOTATIONS && "RuntimeVisibleParameterAnnotations".equals(attrName))

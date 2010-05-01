@@ -343,7 +343,8 @@ public class CheckClassAdapter extends ClassAdapter {
                 + Opcodes.ACC_SUPER + Opcodes.ACC_INTERFACE
                 + Opcodes.ACC_ABSTRACT + Opcodes.ACC_SYNTHETIC
                 + Opcodes.ACC_ANNOTATION + Opcodes.ACC_ENUM
-                + Opcodes.ACC_DEPRECATED);
+                + Opcodes.ACC_DEPRECATED
+                + 0x40000); // ClassWriter.ACC_SYNTHETIC_ATTRIBUTE
         if (name == null || !name.endsWith("package-info")) {
             CheckMethodAdapter.checkInternalName(name, "class name");
         }
@@ -433,7 +434,8 @@ public class CheckClassAdapter extends ClassAdapter {
                 + Opcodes.ACC_PROTECTED + Opcodes.ACC_STATIC
                 + Opcodes.ACC_FINAL + Opcodes.ACC_VOLATILE
                 + Opcodes.ACC_TRANSIENT + Opcodes.ACC_SYNTHETIC
-                + Opcodes.ACC_ENUM + Opcodes.ACC_DEPRECATED);
+                + Opcodes.ACC_ENUM + Opcodes.ACC_DEPRECATED
+                + 0x40000); // ClassWriter.ACC_SYNTHETIC_ATTRIBUTE
         CheckMethodAdapter.checkIdentifier(name, "field name");
         CheckMethodAdapter.checkDesc(desc, false);
         if (signature != null) {
@@ -459,7 +461,8 @@ public class CheckClassAdapter extends ClassAdapter {
                 + Opcodes.ACC_FINAL + Opcodes.ACC_SYNCHRONIZED
                 + Opcodes.ACC_BRIDGE + Opcodes.ACC_VARARGS + Opcodes.ACC_NATIVE
                 + Opcodes.ACC_ABSTRACT + Opcodes.ACC_STRICT
-                + Opcodes.ACC_SYNTHETIC + Opcodes.ACC_DEPRECATED);
+                + Opcodes.ACC_SYNTHETIC + Opcodes.ACC_DEPRECATED
+                + 0x40000); // ClassWriter.ACC_SYNTHETIC_ATTRIBUTE
         CheckMethodAdapter.checkMethodIdentifier(name, "method name");
         CheckMethodAdapter.checkMethodDesc(desc);
         if (signature != null) {

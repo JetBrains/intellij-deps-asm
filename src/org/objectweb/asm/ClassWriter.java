@@ -66,6 +66,12 @@ public class ClassWriter implements ClassVisitor {
     public static final int COMPUTE_FRAMES = 2;
 
     /**
+     * Pseudo access flag to distinguish between the synthetic attribute and
+     * the synthetic access flag.
+     */
+    static final int ACC_SYNTHETIC_ATTRIBUTE = 0x40000;
+    
+    /**
      * The type of instructions without any argument.
      */
     static final int NOARG_INSN = 0;
@@ -748,7 +754,7 @@ public class ClassWriter implements ClassVisitor {
             newUTF8("Deprecated");
         }
         if ((access & Opcodes.ACC_SYNTHETIC) != 0
-                && (version & 0xffff) < Opcodes.V1_5)
+                && ((version & 0xFFFF) < Opcodes.V1_5 || (access & ACC_SYNTHETIC_ATTRIBUTE) != 0))
         {
             ++attributeCount;
             size += 6;
@@ -779,7 +785,10 @@ public class ClassWriter implements ClassVisitor {
         ByteVector out = new ByteVector(size);
         out.putInt(0xCAFEBABE).putInt(version);
         out.putShort(index).putByteArray(pool.data, 0, pool.length);
-        out.putShort(access).putShort(name).putShort(superName);
+        int mask = Opcodes.ACC_DEPRECATED
+                | ClassWriter.ACC_SYNTHETIC_ATTRIBUTE
+                | ((access & ClassWriter.ACC_SYNTHETIC_ATTRIBUTE) / (ClassWriter.ACC_SYNTHETIC_ATTRIBUTE / Opcodes.ACC_SYNTHETIC));
+        out.putShort(access & ~mask).putShort(name).putShort(superName);
         out.putShort(interfaceCount);
         for (int i = 0; i < interfaceCount; ++i) {
             out.putShort(interfaces[i]);
@@ -816,7 +825,7 @@ public class ClassWriter implements ClassVisitor {
             out.putShort(newUTF8("Deprecated")).putInt(0);
         }
         if ((access & Opcodes.ACC_SYNTHETIC) != 0
-                && (version & 0xffff) < Opcodes.V1_5)
+                && ((version & 0xFFFF) < Opcodes.V1_5 || (access & ACC_SYNTHETIC_ATTRIBUTE) != 0))
         {
             out.putShort(newUTF8("Synthetic")).putInt(0);
         }

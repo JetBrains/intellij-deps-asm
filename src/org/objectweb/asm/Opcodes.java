@@ -76,7 +76,7 @@ public interface Opcodes {
 
     // ASM specific pseudo access flags
 
-    int ACC_DEPRECATED = 131072; // class, field, method
+    int ACC_DEPRECATED = 0x20000; // class, field, method
 
     // types for NEWARRAY
 

@@ -572,7 +572,10 @@ public class ClassWriter implements ClassVisitor {
      *        original class and also to copy other fragments of original
      *        bytecode where applicable.
      * @param flags option flags that can be used to modify the default behavior
-     *        of this class. See {@link #COMPUTE_MAXS}, {@link #COMPUTE_FRAMES}.
+     *        of this class. <i>These option flags do not affect methods that
+     *        are copied as is in the new class. This means that the maximum
+     *        stack size nor the stack frames will be computed for these
+     *        methods</i>. See {@link #COMPUTE_MAXS}, {@link #COMPUTE_FRAMES}.
      */
     public ClassWriter(final ClassReader classReader, final int flags) {
         this(flags);

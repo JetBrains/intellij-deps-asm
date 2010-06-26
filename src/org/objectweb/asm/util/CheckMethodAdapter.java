@@ -367,6 +367,11 @@ public class CheckMethodAdapter extends MethodAdapter {
                 try {
                     a.analyze("dummy", this);
                 } catch (Exception e) {
+                    if (e instanceof IndexOutOfBoundsException
+                            && maxLocals == 0 && maxStack == 0)
+                    {
+                        throw new RuntimeException("Data flow checking option requires valid, non zero maxLocals and maxStack values.");
+                    }
                     e.printStackTrace();
                     StringWriter sw = new StringWriter();
                     PrintWriter pw = new PrintWriter(sw, true);

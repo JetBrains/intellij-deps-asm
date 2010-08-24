@@ -267,6 +267,9 @@ public class SimpleVerifier extends BasicVerifier {
             if (getSuperClass(u) == null) {
                 return false;
             } else {
+                if (isInterface) {
+                    return u.getSort() == Type.OBJECT || u.getSort() == Type.ARRAY;
+                }
                 return isAssignableFrom(t, getSuperClass(u));
             }
         }
@@ -284,7 +287,11 @@ public class SimpleVerifier extends BasicVerifier {
             }
             return false;
         }
-        return getClass(t).isAssignableFrom(getClass(u));
+        Class tc = getClass(t);
+        if (tc.isInterface()) {
+            tc = Object.class;
+        }
+        return tc.isAssignableFrom(getClass(u));
     }
 
     protected Class getClass(final Type t) {

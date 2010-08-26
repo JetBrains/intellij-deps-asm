@@ -589,7 +589,11 @@ public class AnalyzerAdapter extends MethodAdapter {
             case Opcodes.AALOAD:
                 pop(1);
                 t1 = pop();
-                pushDesc(((String) t1).substring(1));
+                if (t1 instanceof String) {
+                    pushDesc(((String) t1).substring(1));
+                } else {
+                    push("java/lang/Object");
+                }
                 break;
             case Opcodes.ISTORE:
             case Opcodes.FSTORE:

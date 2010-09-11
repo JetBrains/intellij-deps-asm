@@ -288,7 +288,7 @@ public class SimpleVerifierUnitTest extends TestCase implements Opcodes {
     public void testInvalidInvokevirtual() {
         mn.visitInsn(ACONST_NULL);
         mn.visitTypeInsn(CHECKCAST, "java/lang/Object");
-        mn.visitMethodInsn(INVOKEVIRTUAL, "java/util/List", "size", "()I");
+        mn.visitMethodInsn(INVOKEVIRTUAL, "java/util/ArrayList", "size", "()I");
         assertInvalid();
     }
 

@@ -88,7 +88,9 @@ public class DependencyVisitor implements
         }
 
         if (signature == null) {
-            addInternalName(superName);
+            if (superName != null) {
+                addInternalName(superName);
+            }
             addInternalNames(interfaces);
         } else {
             addSignature(signature);
@@ -273,7 +275,9 @@ public class DependencyVisitor implements
         final Label handler,
         final String type)
     {
-        addInternalName(type);
+        if (type != null) {
+            addInternalName(type);
+        }
     }
 
     public void visitLineNumber(final int line, final Label start) {

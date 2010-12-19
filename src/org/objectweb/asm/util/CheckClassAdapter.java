@@ -123,6 +123,11 @@ import org.objectweb.asm.tree.analysis.Frame;
 public class CheckClassAdapter extends ClassAdapter {
 
     /**
+     * The class version number.
+     */
+    private int version;
+    
+    /**
      * <tt>true</tt> if the visit method has been called.
      */
     private boolean start;
@@ -370,6 +375,7 @@ public class CheckClassAdapter extends ClassAdapter {
                         "interface name at index " + i);
             }
         }
+        this.version = version;
         cv.visit(version, access, name, signature, superName, interfaces);
     }
 
@@ -437,7 +443,7 @@ public class CheckClassAdapter extends ClassAdapter {
                 + Opcodes.ACC_TRANSIENT + Opcodes.ACC_SYNTHETIC
                 + Opcodes.ACC_ENUM + Opcodes.ACC_DEPRECATED
                 + 0x40000); // ClassWriter.ACC_SYNTHETIC_ATTRIBUTE
-        CheckMethodAdapter.checkIdentifier(name, "field name");
+        CheckMethodAdapter.checkUnqualifiedName(version, name, "field name");
         CheckMethodAdapter.checkDesc(desc, false);
         if (signature != null) {
             CheckMethodAdapter.checkFieldSignature(signature);
@@ -464,7 +470,7 @@ public class CheckClassAdapter extends ClassAdapter {
                 + Opcodes.ACC_ABSTRACT + Opcodes.ACC_STRICT
                 + Opcodes.ACC_SYNTHETIC + Opcodes.ACC_DEPRECATED
                 + 0x40000); // ClassWriter.ACC_SYNTHETIC_ATTRIBUTE
-        CheckMethodAdapter.checkMethodIdentifier(name, "method name");
+        CheckMethodAdapter.checkMethodIdentifier(version, name, "method name");
         CheckMethodAdapter.checkMethodDesc(desc);
         if (signature != null) {
             CheckMethodAdapter.checkMethodSignature(signature);
@@ -475,19 +481,22 @@ public class CheckClassAdapter extends ClassAdapter {
                         "exception name at index " + i);
             }
         }
+        CheckMethodAdapter cma;
         if (checkDataFlow) {
-            return new CheckMethodAdapter(access,
+            cma = new CheckMethodAdapter(access,
                     name,
                     desc,
                     cv.visitMethod(access, name, desc, signature, exceptions),
                     labels);
         } else {
-            return new CheckMethodAdapter(cv.visitMethod(access,
+            cma = new CheckMethodAdapter(cv.visitMethod(access,
                     name,
                     desc,
                     signature,
                     exceptions), labels);
         }
+        cma.version = version;
+        return cma;
     }
 
     public AnnotationVisitor visitAnnotation(

@@ -65,6 +65,11 @@ import java.util.Map;
 public class CheckMethodAdapter extends MethodAdapter {
 
     /**
+     * The class version number.
+     */
+    public int version;
+    
+    /**
      * <tt>true</tt> if the visitCode method has been called.
      */
     private boolean startCode;
@@ -544,7 +549,7 @@ public class CheckMethodAdapter extends MethodAdapter {
         checkEndCode();
         checkOpcode(opcode, 4);
         checkInternalName(owner, "owner");
-        checkIdentifier(name, "name");
+        checkUnqualifiedName(version, name, "name");
         checkDesc(desc, false);
         mv.visitFieldInsn(opcode, owner, name, desc);
     }
@@ -558,7 +563,7 @@ public class CheckMethodAdapter extends MethodAdapter {
         checkStartCode();
         checkEndCode();
         checkOpcode(opcode, 5);
-        checkMethodIdentifier(name, "name");
+        checkMethodIdentifier(version, name, "name");
         checkInternalName(owner, "owner");
         checkMethodDesc(desc);
         if (opcode == Opcodes.INVOKEDYNAMIC && owner != Opcodes.INVOKEDYNAMIC_OWNER) {
@@ -699,7 +704,7 @@ public class CheckMethodAdapter extends MethodAdapter {
     {
         checkStartCode();
         checkEndCode();
-        checkIdentifier(name, "name");
+        checkUnqualifiedName(version, name, "name");
         checkDesc(desc, false);
         checkLabel(start, true, "start label");
         checkLabel(end, true, "end label");
@@ -854,6 +859,26 @@ public class CheckMethodAdapter extends MethodAdapter {
     }
 
     /**
+     * Checks that the given string is a valid unqualified name.
+     * 
+     * @param version the class version.
+     * @param name the string to be checked.
+     * @param msg a message to be used in case of error.
+     */
+    static void checkUnqualifiedName(int version, final String name, final String msg) {
+        if ((version & 0xFFFF) < Opcodes.V1_5) {
+            checkIdentifier(name, msg);
+        } else {
+            for (int i = 0; i < name.length(); ++i) {
+                if (".;[/".indexOf(name.charAt(i)) != -1) {
+                    throw new IllegalArgumentException("Invalid " + msg
+                            + " (must be a valid unqualified name): " + name);                    
+                }
+            }
+        }
+    }
+    
+    /**
      * Checks that the given string is a valid Java identifier.
      * 
      * @param name the string to be checked.
@@ -901,15 +926,25 @@ public class CheckMethodAdapter extends MethodAdapter {
      * Checks that the given string is a valid Java identifier or is equal to
      * '&lt;init&gt;' or '&lt;clinit&gt;'.
      * 
+     * @param version the class version.
      * @param name the string to be checked.
      * @param msg a message to be used in case of error.
      */
-    static void checkMethodIdentifier(final String name, final String msg) {
+    static void checkMethodIdentifier(int version, final String name, final String msg) {
         if (name == null || name.length() == 0) {
             throw new IllegalArgumentException("Invalid " + msg
                     + " (must not be null or empty)");
         }
         if ("<init>".equals(name) || "<clinit>".equals(name)) {
+            return;
+        }
+        if ((version & 0xFFFF) >= Opcodes.V1_5) {
+            for (int i = 0; i < name.length(); ++i) {
+                if (".;[/<>".indexOf(name.charAt(i)) != -1) {
+                    throw new IllegalArgumentException("Invalid " + msg
+                            + " (must be a valid unqualified name): " + name);                    
+                }
+            }
             return;
         }
         if (!Character.isJavaIdentifierStart(name.charAt(0))) {

@@ -168,6 +168,8 @@ public class Analyzer implements Opcodes {
             current.setLocal(local++, interpreter.newValue(null));
         }
         merge(0, current, null);
+        
+        init(owner, m);
 
         // control flow analysis
         while (top > 0) {
@@ -392,6 +394,18 @@ public class Analyzer implements Opcodes {
     }
 
     /**
+     * Initializes this analyzer. This method is called just before the
+     * execution of control flow analysis loop in #analyze. The default
+     * implementation of this method does nothing.
+     * 
+     * @param owner the internal name of the class to which the method belongs.
+     * @param m the method to be analyzed.
+     * @throws AnalyzerException if a problem occurs.
+     */
+    protected void init(String owner, MethodNode m) throws AnalyzerException {    
+    }
+    
+    /**
      * Constructs a new frame with the given size.
      * 
      * @param nLocals the maximum number of local variables of the frame.
@@ -445,7 +459,7 @@ public class Analyzer implements Opcodes {
     }
 
     // -------------------------------------------------------------------------
-
+    
     private void merge(
         final int insn,
         final Frame frame,

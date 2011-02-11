@@ -108,7 +108,7 @@ public class TraceClassVisitor extends TraceAbstractVisitor implements
 
     /**
      * Prints a disassembled view of the given class to the standard output. <p>
-     * Usage: TraceClassVisitor [-debug] &lt;fully qualified class name or class
+     * Usage: TraceClassVisitor [-debug] &lt;binary class name or class
      * file name &gt;
      * 
      * @param args the command line arguments.

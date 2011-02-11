@@ -159,7 +159,7 @@ public class CheckClassAdapter extends ClassAdapter {
     private boolean checkDataFlow;
 
     /**
-     * Checks a given class. <p> Usage: CheckClassAdapter &lt;fully qualified
+     * Checks a given class. <p> Usage: CheckClassAdapter &lt;binary
      * class name or class file name&gt;
      *
      * @param args the command line arguments.

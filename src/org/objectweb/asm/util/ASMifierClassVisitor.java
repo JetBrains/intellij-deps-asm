@@ -150,7 +150,7 @@ public class ASMifierClassVisitor extends ASMifierAbstractVisitor implements
 
     /**
      * Prints the ASM source code to generate the given class to the standard
-     * output. <p> Usage: ASMifierClassVisitor [-debug] &lt;fully qualified
+     * output. <p> Usage: ASMifierClassVisitor [-debug] &lt;binary
      * class name or class file name&gt;
      * 
      * @param args the command line arguments.

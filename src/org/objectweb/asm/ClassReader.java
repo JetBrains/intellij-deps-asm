@@ -362,7 +362,7 @@ public class ClassReader {
     /**
      * Constructs a new {@link ClassReader} object.
      * 
-     * @param name the fully qualified name of the class to be read.
+     * @param name the binary qualified name of the class to be read.
      * @throws IOException if an exception occurs during reading.
      */
     public ClassReader(final String name) throws IOException {

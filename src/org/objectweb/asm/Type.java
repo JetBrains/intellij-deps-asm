@@ -458,9 +458,9 @@ public class Type {
     }
 
     /**
-     * Returns the name of the class corresponding to this type.
+     * Returns the binary name of the class corresponding to this type.
      * 
-     * @return the fully qualified name of the class corresponding to this type.
+     * @return the binary name of the class corresponding to this type.
      */
     public String getClassName() {
         switch (sort) {

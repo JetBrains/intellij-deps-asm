@@ -232,6 +232,11 @@ class MethodWriter implements MethodVisitor {
      * Maximum number of local variables for this method.
      */
     private int maxLocals;
+    
+    /**
+     *  Number of local variables in the current stack map frame.
+     */
+    private int currentLocals;
 
     /**
      * Number of stack map frames in the StackMapTable attribute.
@@ -450,6 +455,7 @@ class MethodWriter implements MethodVisitor {
                 --size;
             }
             maxLocals = size;
+            currentLocals = size;
             // creates and visits the label for the first basic block
             labels = new Label();
             labels.status |= Label.PUSHED;
@@ -549,6 +555,7 @@ class MethodWriter implements MethodVisitor {
         }
 
         if (type == Opcodes.F_NEW) {
+            currentLocals = nLocal;
             startFrame(code.length, nLocal, nStack);
             for (int i = 0; i < nLocal; ++i) {
                 if (local[i] instanceof String) {
@@ -593,6 +600,7 @@ class MethodWriter implements MethodVisitor {
 
             switch (type) {
                 case Opcodes.F_FULL:
+                    currentLocals = nLocal;
                     stackMap.putByte(FULL_FRAME)
                             .putShort(delta)
                             .putShort(nLocal);
@@ -605,6 +613,7 @@ class MethodWriter implements MethodVisitor {
                     }
                     break;
                 case Opcodes.F_APPEND:
+                    currentLocals += nLocal;
                     stackMap.putByte(SAME_FRAME_EXTENDED + nLocal)
                             .putShort(delta);
                     for (int i = 0; i < nLocal; ++i) {
@@ -612,6 +621,7 @@ class MethodWriter implements MethodVisitor {
                     }
                     break;
                 case Opcodes.F_CHOP:
+                    currentLocals -= nLocal;
                     stackMap.putByte(SAME_FRAME_EXTENDED - nLocal)
                             .putShort(delta);
                     break;
@@ -636,6 +646,9 @@ class MethodWriter implements MethodVisitor {
             previousFrameOffset = code.length;
             ++frameCount;
         }
+        
+        maxStack = Math.max(maxStack, nStack);
+        maxLocals = Math.max(maxLocals, currentLocals);
     }
 
     public void visitInsn(final int opcode) {
@@ -1437,7 +1450,7 @@ class MethodWriter implements MethodVisitor {
                     b = b.next;
                 }
             }
-            this.maxStack = max;
+            this.maxStack = Math.max(maxStack, max);
         } else {
             this.maxStack = maxStack;
             this.maxLocals = maxLocals;

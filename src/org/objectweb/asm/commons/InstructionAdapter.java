@@ -31,6 +31,8 @@
 package org.objectweb.asm.commons;
 
 import org.objectweb.asm.Label;
+import org.objectweb.asm.MethodHandle;
+import org.objectweb.asm.MethodType;
 import org.objectweb.asm.MethodAdapter;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
@@ -503,6 +505,15 @@ public class InstructionAdapter extends MethodAdapter {
         }
     }
 
+    public void visitInvokeDynamicInsn(
+        String name,
+        String desc,
+        MethodHandle bsm,
+        Object... bsmArgs)
+    {
+       invokedynamic(name, desc, bsm, bsmArgs);
+    }
+
     public void visitJumpInsn(final int opcode, final Label label) {
         switch (opcode) {
             case Opcodes.IFEQ:
@@ -597,6 +608,10 @@ public class InstructionAdapter extends MethodAdapter {
             aconst(cst);
         } else if (cst instanceof Type) {
             tconst((Type) cst);
+        } else if (cst instanceof MethodType) {
+            mtconst((MethodType) cst);
+        } else if (cst instanceof MethodHandle) {
+            mhconst((MethodHandle) cst);
         } else {
             throw new IllegalArgumentException();
         }
@@ -610,7 +625,7 @@ public class InstructionAdapter extends MethodAdapter {
         final int min,
         final int max,
         final Label dflt,
-        final Label[] labels)
+        final Label... labels)
     {
         tableswitch(min, max, dflt, labels);
     }
@@ -681,6 +696,14 @@ public class InstructionAdapter extends MethodAdapter {
 
     public void tconst(final Type type) {
         mv.visitLdcInsn(type);
+    }
+
+    public void mtconst(final MethodType mtype) {
+        mv.visitLdcInsn(mtype);
+    }
+
+    public void mhconst(final MethodHandle mhandle) {
+        mv.visitLdcInsn(mhandle);
     }
 
     public void load(final int var, final Type type) {
@@ -918,7 +941,7 @@ public class InstructionAdapter extends MethodAdapter {
         final int min,
         final int max,
         final Label dflt,
-        final Label[] labels)
+        final Label... labels)
     {
         mv.visitTableSwitchInsn(min, max, dflt, labels);
     }
@@ -997,6 +1020,15 @@ public class InstructionAdapter extends MethodAdapter {
         final String desc)
     {
         mv.visitMethodInsn(Opcodes.INVOKEINTERFACE, owner, name, desc);
+    }
+
+    public void invokedynamic(
+        String name,
+        String desc,
+        MethodHandle bsm,
+        Object[] bsmArgs)
+    {
+        mv.visitInvokeDynamicInsn(name, desc, bsm, bsmArgs);
     }
 
     public void anew(final Type type) {

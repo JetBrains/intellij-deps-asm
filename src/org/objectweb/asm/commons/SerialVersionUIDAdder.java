@@ -116,48 +116,48 @@ public class SerialVersionUIDAdder extends ClassAdapter {
     /**
      * Flag that indicates if we need to compute SVUID.
      */
-    protected boolean computeSVUID;
+    private boolean computeSVUID;
 
     /**
      * Set to true if the class already has SVUID.
      */
-    protected boolean hasSVUID;
+    private boolean hasSVUID;
 
     /**
      * Classes access flags.
      */
-    protected int access;
+    private int access;
 
     /**
      * Internal name of the class
      */
-    protected String name;
+    private String name;
 
     /**
      * Interfaces implemented by the class.
      */
-    protected String[] interfaces;
+    private String[] interfaces;
 
     /**
      * Collection of fields. (except private static and private transient
      * fields)
      */
-    protected Collection svuidFields;
+    private Collection<Item> svuidFields;
 
     /**
      * Set to true if the class has static initializer.
      */
-    protected boolean hasStaticInitializer;
+    private boolean hasStaticInitializer;
 
     /**
      * Collection of non-private constructors.
      */
-    protected Collection svuidConstructors;
+    private Collection<Item> svuidConstructors;
 
     /**
      * Collection of non-private methods.
      */
-    protected Collection svuidMethods;
+    private Collection<Item> svuidMethods;
 
     /**
      * Creates a new {@link SerialVersionUIDAdder}.
@@ -167,9 +167,9 @@ public class SerialVersionUIDAdder extends ClassAdapter {
      */
     public SerialVersionUIDAdder(final ClassVisitor cv) {
         super(cv);
-        svuidFields = new ArrayList();
-        svuidConstructors = new ArrayList();
-        svuidMethods = new ArrayList();
+        svuidFields = new ArrayList<Item>();
+        svuidConstructors = new ArrayList<Item>();
+        svuidMethods = new ArrayList<Item>();
     }
 
     // ------------------------------------------------------------------------
@@ -322,6 +322,7 @@ public class SerialVersionUIDAdder extends ClassAdapter {
      * <code>isHasSVUID</code> to determine if the class already had an SVUID.
      * 
      * @return Returns the serial version UID
+     * @throws IOException if an I/O error occurs
      */
     protected long computeSVUID() throws IOException {
         ByteArrayOutputStream bos;
@@ -453,12 +454,12 @@ public class SerialVersionUIDAdder extends ClassAdapter {
      * @exception IOException if an error occurs
      */
     private static void writeItems(
-        final Collection itemCollection,
+        final Collection<Item> itemCollection,
         final DataOutput dos,
         final boolean dotted) throws IOException
     {
         int size = itemCollection.size();
-        Item[] items = (Item[]) itemCollection.toArray(new Item[size]);
+        Item[] items = itemCollection.toArray(new Item[size]);
         Arrays.sort(items);
         for (int i = 0; i < size; i++) {
             dos.writeUTF(items[i].name);
@@ -473,7 +474,7 @@ public class SerialVersionUIDAdder extends ClassAdapter {
     // Inner classes
     // ------------------------------------------------------------------------
 
-    static class Item implements Comparable {
+    private static class Item implements Comparable<Item> {
 
         final String name;
 
@@ -487,8 +488,7 @@ public class SerialVersionUIDAdder extends ClassAdapter {
             this.desc = desc;
         }
 
-        public int compareTo(final Object o) {
-            Item other = (Item) o;
+        public int compareTo(final Item other) {
             int retVal = name.compareTo(other.name);
             if (retVal == 0) {
                 retVal = desc.compareTo(other.desc);

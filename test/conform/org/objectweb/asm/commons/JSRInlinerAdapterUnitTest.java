@@ -182,7 +182,7 @@ public class JSRInlinerAdapterUnitTest extends TestCase {
         byte[] b = cw.toByteArray();
         try {
             TestClassLoader loader = new TestClassLoader();
-            Class c = loader.defineClass("C", b);
+            Class<?> c = loader.defineClass("C", b);
             c.newInstance();
         } catch (Throwable t) {
             fail(t.getMessage());
@@ -192,7 +192,7 @@ public class JSRInlinerAdapterUnitTest extends TestCase {
 
     static class TestClassLoader extends ClassLoader {
 
-        public Class defineClass(final String name, final byte[] b) {
+        public Class<?> defineClass(final String name, final byte[] b) {
             return defineClass(name, b, 0, b.length);
         }
     }

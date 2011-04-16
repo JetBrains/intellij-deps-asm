@@ -34,6 +34,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.ListIterator;
 import java.util.Map;
 
 import junit.framework.TestCase;
@@ -43,6 +44,7 @@ import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
+import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.FieldInsnNode;
 import org.objectweb.asm.tree.FieldNode;
@@ -58,7 +60,7 @@ import org.objectweb.asm.tree.TypeInsnNode;
 public class RemappingClassAdapterTest extends TestCase implements Opcodes {
 
     public void testRemappingClassAdapter() throws Exception {
-        Map map = new HashMap();
+        Map<String, String> map = new HashMap<String, String>();
         map.put("Boo", "B1");
         map.put("Coo", "C1");
         map.put("Doo", "D1");
@@ -81,8 +83,8 @@ public class RemappingClassAdapterTest extends TestCase implements Opcodes {
         assertEquals("B1", cn.outerClass);
         assertEquals("([[LB1;LC1;LD1;)LC1;", cn.outerMethodDesc);
         
-        MethodNode mn0 = (MethodNode) cn.methods.get(0);
-        Iterator it = mn0.instructions.iterator();
+        MethodNode mn0 = cn.methods.get(0);
+        ListIterator<AbstractInsnNode> it = mn0.instructions.iterator();
         
         FieldInsnNode n0 = (FieldInsnNode) it.next();
         assertEquals("D1", n0.owner);
@@ -114,20 +116,20 @@ public class RemappingClassAdapterTest extends TestCase implements Opcodes {
         assertEquals(Arrays.asList(new Object[] {Opcodes.INTEGER, Opcodes.INTEGER}), ((FrameNode) it.next()).local);
         // assertEquals(Collections.EMPTY_LIST, fn0.stack);
         
-        TryCatchBlockNode tryCatchBlockNode = (TryCatchBlockNode) mn0.tryCatchBlocks.get(0);
+        TryCatchBlockNode tryCatchBlockNode = mn0.tryCatchBlocks.get(0);
         assertEquals("C1", tryCatchBlockNode.type);
         
-        MethodNode mn1 = (MethodNode) cn.methods.get(1);
+        MethodNode mn1 = cn.methods.get(1);
         assertEquals("([[LB1;LC1;LD1;)V", mn1.desc);
         assertEquals(Arrays.asList(new String[] {"I", "J"}), mn1.exceptions);
     }
     
     private FieldNode field(ClassNode cn, int n) {
-        return (FieldNode) cn.fields.get(n);
+        return cn.fields.get(n);
     }
 
     private InnerClassNode innerClass(ClassNode cn, int n) {
-        return (InnerClassNode) cn.innerClasses.get(n);
+        return cn.innerClasses.get(n);
     }
     
     
@@ -211,8 +213,8 @@ public class RemappingClassAdapterTest extends TestCase implements Opcodes {
         String s = "";
         int i = 5;
         
-        static final Class c1 = Boo.class;
-        static final Class c2 = Boo[].class;
+        static final Class<?> c1 = Boo.class;
+        static final Class<?> c2 = Boo[].class;
         
         public Doo() {
         }
@@ -232,7 +234,7 @@ public class RemappingClassAdapterTest extends TestCase implements Opcodes {
             Boo boo = this.boo;
             
             // visitLdcInsn(Object)
-            Class cc = Boo.class;
+            Class<?> cc = Boo.class;
 
             // visitTypeInsn(int, String)
             Boo[] boo1 = new Boo[2];

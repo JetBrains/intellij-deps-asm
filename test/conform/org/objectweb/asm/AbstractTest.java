@@ -82,16 +82,16 @@ public abstract class AbstractTest extends TestCase {
                 scanDirectory("", f, suite, clazz);
             } else {
                 ZipFile zip = new ZipFile(file);
-                Enumeration entries = zip.entries();
+                Enumeration<? extends ZipEntry> entries = zip.entries();
                 while (entries.hasMoreElements()) {
-                    ZipEntry e = (ZipEntry) entries.nextElement();
+                    ZipEntry e = entries.nextElement();
                     String n = e.getName();
                     String p = n.replace('/', '.');
                     if (n.endsWith(".class") && (clazz == null || p.indexOf(clazz) != -1)) {
                         n = p.substring(0, p.length() - 6);
                         if (id % parts == part) {
                             InputStream is = zip.getInputStream(e);
-                            AbstractTest t = (AbstractTest) getClass().newInstance();
+                            AbstractTest t = getClass().newInstance();
                             t.init(n, is);
                             suite.addTest(t);
                         }
@@ -122,7 +122,7 @@ public abstract class AbstractTest extends TestCase {
             {
                 qn = qn.substring(0, qn.length() - 6);
                 InputStream is = new FileInputStream(fs[i]);
-                AbstractTest t = (AbstractTest) getClass().newInstance();
+                AbstractTest t = getClass().newInstance();
                 t.init(qn, is);
                 suite.addTest(t);
             }

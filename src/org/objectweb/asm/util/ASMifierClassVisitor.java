@@ -254,6 +254,9 @@ public class ASMifierClassVisitor extends ASMifierAbstractVisitor implements
             case Opcodes.V1_6:
                 buf.append("V1_6");
                 break;
+            case Opcodes.V1_7:
+                buf.append("V1_7");
+                break;
             default:
                 buf.append(version);
                 break;

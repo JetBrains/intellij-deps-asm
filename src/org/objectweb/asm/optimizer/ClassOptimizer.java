@@ -47,13 +47,22 @@ import org.objectweb.asm.commons.RemappingClassAdapter;
  * @author Eugene Kuleshov
  */
 public class ClassOptimizer extends RemappingClassAdapter {
-
+    
     private String pkgName;
+    String clsName;
+    boolean class$;
 
     public ClassOptimizer(final ClassVisitor cv, final Remapper remapper) {
         super(cv, remapper);
     }
 
+    FieldVisitor syntheticFieldVisitor(final int access,
+        final String name,
+        final String desc)
+    {
+        return super.visitField(access, name, desc, null, null);
+    }
+    
     // ------------------------------------------------------------------------
     // Overridden methods
     // ------------------------------------------------------------------------
@@ -66,7 +75,8 @@ public class ClassOptimizer extends RemappingClassAdapter {
         final String superName,
         final String[] interfaces)
     {
-        super.visit(version, access, name, null, superName, interfaces);
+        super.visit(Opcodes.V1_2, access, name, null, superName, interfaces);
+        clsName = name;
         pkgName = name.substring(0, name.lastIndexOf('/'));
     }
 
@@ -145,6 +155,7 @@ public class ClassOptimizer extends RemappingClassAdapter {
         if ("-".equals(s)) {
             return null;
         }
+        
         if ((access & (Opcodes.ACC_PUBLIC | Opcodes.ACC_PROTECTED)) == 0) {
             if ("org/objectweb/asm".equals(pkgName) && !name.startsWith("<")
                     && s.equals(name))
@@ -167,6 +178,6 @@ public class ClassOptimizer extends RemappingClassAdapter {
         String newDesc,
         MethodVisitor mv)
     {
-        return new MethodOptimizer(access, newDesc, mv, remapper); 
+        return new MethodOptimizer(this, access, newDesc, mv, remapper); 
     }
 }

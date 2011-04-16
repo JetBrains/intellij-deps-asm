@@ -62,7 +62,7 @@ public class TypeUnitTest extends TestCase implements Opcodes {
 
     public void testConstructorDescriptor() {
         for (int i = 0; i < String.class.getConstructors().length; ++i) {
-            Constructor c = String.class.getConstructors()[i];
+            Constructor<?> c = String.class.getConstructors()[i];
             Type.getConstructorDescriptor(c);
         }
     }

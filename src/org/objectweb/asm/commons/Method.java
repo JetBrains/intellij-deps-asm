@@ -56,10 +56,10 @@ public class Method {
     /**
      * Maps primitive Java type names to their descriptors.
      */
-    private static final Map DESCRIPTORS;
+    private static final Map<String, String> DESCRIPTORS;
 
     static {
-        DESCRIPTORS = new HashMap();
+        DESCRIPTORS = new HashMap<String, String>();
         DESCRIPTORS.put("void", "V");
         DESCRIPTORS.put("byte", "B");
         DESCRIPTORS.put("char", "C");
@@ -115,7 +115,7 @@ public class Method {
      * @return a {@link Method} corresponding to the given Java constructor
      *         declaration.
      */
-    public static Method getMethod(java.lang.reflect.Constructor c) {
+    public static Method getMethod(java.lang.reflect.Constructor<?> c) {
         return new Method("<init>", Type.getConstructorDescriptor(c));
     }
     
@@ -203,7 +203,7 @@ public class Method {
         }
 
         String t = type.substring(0, type.length() - sb.length() * 2);
-        String desc = (String) DESCRIPTORS.get(t);
+        String desc = DESCRIPTORS.get(t);
         if (desc != null) {
             sb.append(desc);
         } else {

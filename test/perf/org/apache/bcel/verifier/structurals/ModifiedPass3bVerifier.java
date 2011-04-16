@@ -78,9 +78,9 @@ public final class ModifiedPass3bVerifier extends PassVerifier{
      * we have about its symbolic execution predecessors.
      */
     static final class InstructionContextQueue{
-        private List ics = new Vector(); // Type: InstructionContext
-        private List ecs = new Vector(); // Type: ArrayList (of InstructionContext)
-        public void add(InstructionContext ic, ArrayList executionChain){
+        private List<InstructionContext> ics = new Vector<InstructionContext>(); // Type: InstructionContext
+        private List<ArrayList<InstructionContext>> ecs = new Vector<ArrayList<InstructionContext>>(); // Type: ArrayList (of InstructionContext)
+        public void add(InstructionContext ic, ArrayList<InstructionContext> executionChain){
             ics.add(ic);
             ecs.add(executionChain);
         }
@@ -95,10 +95,10 @@ public final class ModifiedPass3bVerifier extends PassVerifier{
             ecs.remove(i);
         }
         public InstructionContext getIC(int i){
-            return (InstructionContext) ics.get(i);
+            return ics.get(i);
         }
-        public ArrayList getEC(int i){
-            return (ArrayList) ecs.get(i);
+        public ArrayList<InstructionContext> getEC(int i){
+            return ecs.get(i);
         }
         public int size(){
             return ics.size();
@@ -134,14 +134,14 @@ public final class ModifiedPass3bVerifier extends PassVerifier{
         final Random random = new Random();
         InstructionContextQueue icq = new InstructionContextQueue();
         
-        start.execute(vanillaFrame, new ArrayList(), icv, ev);  // new ArrayList() <=>  no Instruction was executed before
+        start.execute(vanillaFrame, new ArrayList<InstructionContext>(), icv, ev);  // new ArrayList() <=>  no Instruction was executed before
                                                                                                     //                                  => Top-Level routine (no jsr call before)
-        icq.add(start, new ArrayList());
+        icq.add(start, new ArrayList<InstructionContext>());
 
         // LOOP!
         while (!icq.isEmpty()){
             InstructionContext u;
-            ArrayList ec;
+            ArrayList<InstructionContext> ec;
             if (!DEBUG){
                 int r = random.nextInt(icq.size());
                 u = icq.getIC(r);
@@ -154,8 +154,8 @@ public final class ModifiedPass3bVerifier extends PassVerifier{
                 icq.remove(0);
             }
             
-            ArrayList oldchain = (ArrayList) (ec.clone());
-            ArrayList newchain = (ArrayList) (ec.clone());
+            ArrayList<InstructionContext> oldchain = new ArrayList<InstructionContext>(ec);
+            ArrayList<InstructionContext> newchain = new ArrayList<InstructionContext>(ec);
             newchain.add(u);
 
             if ((u.getInstruction().getInstruction()) instanceof RET){
@@ -174,16 +174,16 @@ public final class ModifiedPass3bVerifier extends PassVerifier{
                         throw new AssertionViolatedException("More RET than JSR in execution chain?!");
                     }
 //System.err.println("+"+oldchain.get(ss));
-                    if (((InstructionContext) oldchain.get(ss)).getInstruction().getInstruction() instanceof JsrInstruction){
+                    if ((oldchain.get(ss)).getInstruction().getInstruction() instanceof JsrInstruction){
                         if (skip_jsr == 0){
-                            lastJSR = (InstructionContext) oldchain.get(ss);
+                            lastJSR = oldchain.get(ss);
                             break;
                         }
                         else{
                             skip_jsr--;
                         }
                     }
-                    if (((InstructionContext) oldchain.get(ss)).getInstruction().getInstruction() instanceof RET){
+                    if ((oldchain.get(ss)).getInstruction().getInstruction() instanceof RET){
                         skip_jsr++;
                     }
                 }
@@ -196,7 +196,7 @@ public final class ModifiedPass3bVerifier extends PassVerifier{
                 }
                 
                 if (theSuccessor.execute(u.getOutFrame(oldchain), newchain, icv, ev)){
-                    icq.add(theSuccessor, (ArrayList) newchain.clone());
+                    icq.add(theSuccessor, new ArrayList<InstructionContext> (newchain));
                 }
             }
             else{// "not a ret"
@@ -206,7 +206,7 @@ public final class ModifiedPass3bVerifier extends PassVerifier{
                 for (int s=0; s<succs.length; s++){
                     InstructionContext v = succs[s];
                     if (v.execute(u.getOutFrame(oldchain), newchain, icv, ev)){
-                        icq.add(v, (ArrayList) newchain.clone());
+                        icq.add(v, new ArrayList<InstructionContext> (newchain));
                     }
                 }
             }// end "not a ret"
@@ -226,8 +226,8 @@ public final class ModifiedPass3bVerifier extends PassVerifier{
                 // by using an empty chain for the exception handlers.
                 //if (v.execute(new Frame(u.getOutFrame(oldchain).getLocals(), new OperandStack (u.getOutFrame().getStack().maxStack(), (exc_hds[s].getExceptionType()==null? Type.THROWABLE : exc_hds[s].getExceptionType())) ), newchain), icv, ev){
                     //icq.add(v, (ArrayList) newchain.clone());
-                if (v.execute(new Frame(u.getOutFrame(oldchain).getLocals(), new OperandStack (u.getOutFrame(oldchain).getStack().maxStack(), (exc_hds[s].getExceptionType()==null? Type.THROWABLE : exc_hds[s].getExceptionType())) ), new ArrayList(), icv, ev)){
-                    icq.add(v, new ArrayList());
+                if (v.execute(new Frame(u.getOutFrame(oldchain).getLocals(), new OperandStack (u.getOutFrame(oldchain).getStack().maxStack(), (exc_hds[s].getExceptionType()==null? Type.THROWABLE : exc_hds[s].getExceptionType())) ), new ArrayList<InstructionContext>(), icv, ev)){
+                    icq.add(v, new ArrayList<InstructionContext>());
                 }
             }
 
@@ -237,7 +237,7 @@ public final class ModifiedPass3bVerifier extends PassVerifier{
         do{
             if ((ih.getInstruction() instanceof ReturnInstruction) && (!(cfg.isDead(ih)))) {
                 InstructionContext ic = cfg.contextOf(ih);
-                Frame f = ic.getOutFrame(new ArrayList()); // TODO: This is buggy, we check only the top-level return instructions this way. Maybe some maniac returns from a method when in a subroutine?
+                Frame f = ic.getOutFrame(new ArrayList<InstructionContext>()); // TODO: This is buggy, we check only the top-level return instructions this way. Maybe some maniac returns from a method when in a subroutine?
                 LocalVariables lvs = f.getLocals();
                 for (int i=0; i<lvs.maxLocals(); i++){
                     if (lvs.get(i) instanceof UninitializedObjectType){

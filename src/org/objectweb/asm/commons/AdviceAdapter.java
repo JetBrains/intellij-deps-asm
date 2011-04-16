@@ -30,6 +30,7 @@
 package org.objectweb.asm.commons;
 
 import org.objectweb.asm.Label;
+import org.objectweb.asm.MethodHandle;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
@@ -67,8 +68,8 @@ public abstract class AdviceAdapter extends GeneratorAdapter implements Opcodes
 
     private boolean constructor;
     private boolean superInitialized;
-    private List stackFrame;
-    private Map branches;
+    private List<Object> stackFrame;
+    private Map<Label, List<Object>> branches;
 
     /**
      * Creates a new {@link AdviceAdapter}.
@@ -94,8 +95,8 @@ public abstract class AdviceAdapter extends GeneratorAdapter implements Opcodes
     public void visitCode() {
         mv.visitCode();
         if (constructor) {
-            stackFrame = new ArrayList();
-            branches = new HashMap();
+            stackFrame = new ArrayList<Object>();
+            branches = new HashMap<Label, List<Object>>();
         } else {
             superInitialized = true;
             onMethodEnter();
@@ -106,7 +107,7 @@ public abstract class AdviceAdapter extends GeneratorAdapter implements Opcodes
         mv.visitLabel(label);
 
         if (constructor && branches != null) {
-            List frame = (List) branches.get(label);
+            List<Object> frame = branches.get(label);
             if (frame != null) {
                 stackFrame = frame;
                 branches.remove(label);
@@ -439,7 +440,6 @@ public abstract class AdviceAdapter extends GeneratorAdapter implements Opcodes
             }
             switch (opcode) {
                 // case INVOKESTATIC:
-                // case INVOKEDYNAMIC
                 // break;
 
                 case INVOKEINTERFACE:
@@ -457,6 +457,33 @@ public abstract class AdviceAdapter extends GeneratorAdapter implements Opcodes
                         constructor = false;
                     }
                     break;
+            }
+
+            Type returnType = Type.getReturnType(desc);
+            if (returnType != Type.VOID_TYPE) {
+                pushValue(OTHER);
+                if (returnType.getSize() == 2) {
+                    pushValue(OTHER);
+                }
+            }
+        }
+    }
+
+    public void visitInvokeDynamicInsn(
+        String name,
+        String desc,
+        MethodHandle bsm,
+        Object... bsmArgs)
+    {
+        mv.visitInvokeDynamicInsn(name, desc, bsm, bsmArgs);
+
+        if (constructor) {
+            Type[] types = Type.getArgumentTypes(desc);
+            for (int i = 0; i < types.length; i++) {
+                popValue();
+                if (types[i].getSize() == 2) {
+                    popValue();
+                }
             }
 
             Type returnType = Type.getReturnType(desc);
@@ -522,7 +549,7 @@ public abstract class AdviceAdapter extends GeneratorAdapter implements Opcodes
         final int min,
         final int max,
         final Label dflt,
-        final Label[] labels)
+        final Label... labels)
     {
         mv.visitTableSwitchInsn(min, max, dflt, labels);
 
@@ -543,7 +570,7 @@ public abstract class AdviceAdapter extends GeneratorAdapter implements Opcodes
         if (branches.containsKey(label)) {
             return;
         }
-        branches.put(label, new ArrayList(stackFrame));
+        branches.put(label, new ArrayList<Object>(stackFrame));
     }
 
     private Object popValue() {

@@ -46,7 +46,7 @@ class Subroutine {
 
     boolean[] access;
 
-    List callers;
+    List<JumpInsnNode> callers;
 
     private Subroutine() {
     }
@@ -58,7 +58,7 @@ class Subroutine {
     {
         this.start = start;
         this.access = new boolean[maxLocals];
-        this.callers = new ArrayList();
+        this.callers = new ArrayList<JumpInsnNode>();
         callers.add(caller);
     }
 
@@ -67,7 +67,7 @@ class Subroutine {
         result.start = start;
         result.access = new boolean[access.length];
         System.arraycopy(access, 0, result.access, 0, access.length);
-        result.callers = new ArrayList(callers);
+        result.callers = new ArrayList<JumpInsnNode>(callers);
         return result;
     }
 
@@ -81,7 +81,7 @@ class Subroutine {
         }
         if (subroutine.start == start) {
             for (int i = 0; i < subroutine.callers.size(); ++i) {
-                Object caller = subroutine.callers.get(i);
+                JumpInsnNode caller = subroutine.callers.get(i);
                 if (!callers.contains(caller)) {
                     callers.add(caller);
                     changes = true;

@@ -49,7 +49,7 @@ public class ClassWriterResizeInsnsTest extends AbstractTest {
             public byte[] transform(
                 final ClassLoader loader,
                 final String className,
-                final Class classBeingRedefined,
+                final Class<?> classBeingRedefined,
                 final ProtectionDomain domain,
                 byte[] b) throws IllegalClassFormatException
             {
@@ -137,7 +137,7 @@ public class ClassWriterResizeInsnsTest extends AbstractTest {
                         signature,
                         exceptions))
                 {
-                    private HashSet labels = new HashSet();
+                    private final HashSet<Label> labels = new HashSet<Label>();
 
                     public void visitLabel(final Label label) {
                         super.visitLabel(label);

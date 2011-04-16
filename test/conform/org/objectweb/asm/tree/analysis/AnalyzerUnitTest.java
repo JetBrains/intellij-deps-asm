@@ -68,9 +68,9 @@ public class AnalyzerUnitTest extends ClassWriterComputeMaxsUnitTest {
                             exceptions)
                     {
                         public void visitEnd() {
-                            Analyzer a = new Analyzer(new BasicInterpreter());
+                            Analyzer<BasicValue> a = new Analyzer<BasicValue>(new BasicInterpreter());
                             try {
-                                Frame[] frames = a.analyze("C", this);
+                                Frame<BasicValue>[] frames = a.analyze("C", this);
                                 int mStack = 0;
                                 int mLocals = 0;
                                 for (int i = 0; i < frames.length; ++i) {
@@ -96,7 +96,7 @@ public class AnalyzerUnitTest extends ClassWriterComputeMaxsUnitTest {
 
         try {
             TestClassLoader loader = new TestClassLoader();
-            Class c = loader.defineClass("C", b);
+            Class<?> c = loader.defineClass("C", b);
             c.newInstance();
         } catch (Throwable t) {
             fail(t.getMessage());

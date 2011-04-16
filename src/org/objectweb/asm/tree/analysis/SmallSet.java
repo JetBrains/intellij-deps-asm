@@ -39,15 +39,17 @@ import java.util.Set;
  * 
  * @author Eric Bruneton
  */
-class SmallSet extends AbstractSet implements Iterator {
+class SmallSet<E> extends AbstractSet<E> implements Iterator<E> {
 
     // if e1 is null, e2 must be null; otherwise e2 must be different from e1
 
-    Object e1, e2;
+    E e1, e2;
 
-    static final Set EMPTY_SET = new SmallSet(null, null);
-
-    SmallSet(final Object e1, final Object e2) {
+    static final <T> Set<T> emptySet() {
+        return new SmallSet<T>(null, null);
+    }
+    
+    SmallSet(final E e1, final E e2) {
         this.e1 = e1;
         this.e2 = e2;
     }
@@ -56,8 +58,8 @@ class SmallSet extends AbstractSet implements Iterator {
     // Implementation of inherited abstract methods
     // -------------------------------------------------------------------------
 
-    public Iterator iterator() {
-        return new SmallSet(e1, e2);
+    public Iterator<E> iterator() {
+        return new SmallSet<E>(e1, e2);
     }
 
     public int size() {
@@ -72,8 +74,8 @@ class SmallSet extends AbstractSet implements Iterator {
         return e1 != null;
     }
 
-    public Object next() {
-        Object e = e1;
+    public E next() {
+        E e = e1;
         e1 = e2;
         e2 = null;
         return e;
@@ -86,7 +88,7 @@ class SmallSet extends AbstractSet implements Iterator {
     // Utility methods
     // -------------------------------------------------------------------------
 
-    Set union(final SmallSet s) {
+    Set<E> union(final SmallSet<E> s) {
         if ((s.e1 == e1 && s.e2 == e2) || (s.e1 == e2 && s.e2 == e1)) {
             return this; // if the two sets are equal, return this
         }
@@ -98,7 +100,7 @@ class SmallSet extends AbstractSet implements Iterator {
         }
         if (s.e2 == null) { // s contains exactly one element
             if (e2 == null) {
-                return new SmallSet(e1, s.e1); // necessarily e1 != s.e1
+                return new SmallSet<E>(e1, s.e1); // necessarily e1 != s.e1
             } else if (s.e1 == e1 || s.e1 == e2) { // s is included in this
                 return this;
             }
@@ -112,7 +114,7 @@ class SmallSet extends AbstractSet implements Iterator {
             }
         }
         // here we know that there are at least 3 distinct elements
-        HashSet r = new HashSet(4);
+        HashSet<E> r = new HashSet<E>(4);
         r.add(e1);
         if (e2 != null) {
             r.add(e2);

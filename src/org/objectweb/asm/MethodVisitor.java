@@ -43,7 +43,7 @@ package org.objectweb.asm;
  * visited, and the <tt>visitLocalVariable</tt> and <tt>visitLineNumber</tt>
  * methods must be called <i>after</i> the labels passed as arguments have been
  * visited.
- * 
+ *
  * @author Eric Bruneton
  */
 public interface MethodVisitor {
@@ -54,7 +54,7 @@ public interface MethodVisitor {
 
     /**
      * Visits the default value of this annotation interface method.
-     * 
+     *
      * @return a visitor to the visit the actual default value of this
      *         annotation interface method, or <tt>null</tt> if this visitor
      *         is not interested in visiting this default value. The 'name'
@@ -66,7 +66,7 @@ public interface MethodVisitor {
 
     /**
      * Visits an annotation of this method.
-     * 
+     *
      * @param desc the class descriptor of the annotation class.
      * @param visible <tt>true</tt> if the annotation is visible at runtime.
      * @return a visitor to visit the annotation values, or <tt>null</tt> if
@@ -76,7 +76,7 @@ public interface MethodVisitor {
 
     /**
      * Visits an annotation of a parameter this method.
-     * 
+     *
      * @param parameter the parameter index.
      * @param desc the class descriptor of the annotation class.
      * @param visible <tt>true</tt> if the annotation is visible at runtime.
@@ -90,7 +90,7 @@ public interface MethodVisitor {
 
     /**
      * Visits a non standard attribute of this method.
-     * 
+     *
      * @param attr an attribute.
      */
     void visitAttribute(Attribute attr);
@@ -126,7 +126,7 @@ public interface MethodVisitor {
      * locals are absent and with the empty stack (<code>nLocals</code> is 1,
      * 2 or 3). </li> <li>{@link Opcodes#F_FULL} representing complete frame
      * data.</li> </li> </ul>
-     * 
+     *
      * @param type the type of this stack map frame. Must be
      *        {@link Opcodes#F_NEW} for expanded frames, or
      *        {@link Opcodes#F_FULL}, {@link Opcodes#F_APPEND},
@@ -141,13 +141,13 @@ public interface MethodVisitor {
      *        {@link Opcodes#DOUBLE},{@link Opcodes#NULL} or
      *        {@link Opcodes#UNINITIALIZED_THIS} (long and double are
      *        represented by a single element). Reference types are represented
-     *        by String objects (representing internal names), and uninitialized 
-     *        types by Label objects (this label designates the NEW instruction 
+     *        by String objects (representing internal names), and uninitialized
+     *        types by Label objects (this label designates the NEW instruction
      *        that created this uninitialized value).
      * @param nStack the number of operand stack elements in the visited frame.
      * @param stack the operand stack types in this frame. This array must not
      *        be modified. Its content has the same format as the "local" array.
-     * @throw IllegalStateException if a frame is visited just after another
+     * @throws IllegalStateException if a frame is visited just after another
      *        one, without any instruction between the two (unless this frame
      *        is a Opcodes#F_SAME frame, in which case it is silently ignored).
      */
@@ -164,7 +164,7 @@ public interface MethodVisitor {
 
     /**
      * Visits a zero operand instruction.
-     * 
+     *
      * @param opcode the opcode of the instruction to be visited. This opcode is
      *        either NOP, ACONST_NULL, ICONST_M1, ICONST_0, ICONST_1, ICONST_2,
      *        ICONST_3, ICONST_4, ICONST_5, LCONST_0, LCONST_1, FCONST_0,
@@ -184,7 +184,7 @@ public interface MethodVisitor {
 
     /**
      * Visits an instruction with a single int operand.
-     * 
+     *
      * @param opcode the opcode of the instruction to be visited. This opcode is
      *        either BIPUSH, SIPUSH or NEWARRAY.
      * @param operand the operand of the instruction to be visited.<br> When
@@ -202,7 +202,7 @@ public interface MethodVisitor {
     /**
      * Visits a local variable instruction. A local variable instruction is an
      * instruction that loads or stores the value of a local variable.
-     * 
+     *
      * @param opcode the opcode of the local variable instruction to be visited.
      *        This opcode is either ILOAD, LLOAD, FLOAD, DLOAD, ALOAD, ISTORE,
      *        LSTORE, FSTORE, DSTORE, ASTORE or RET.
@@ -214,11 +214,11 @@ public interface MethodVisitor {
     /**
      * Visits a type instruction. A type instruction is an instruction that
      * takes the internal name of a class as parameter.
-     * 
+     *
      * @param opcode the opcode of the type instruction to be visited. This
      *        opcode is either NEW, ANEWARRAY, CHECKCAST or INSTANCEOF.
      * @param type the operand of the instruction to be visited. This operand
-     *        must be the internal name of an object or array class (see {@link 
+     *        must be the internal name of an object or array class (see {@link
      *        Type#getInternalName() getInternalName}).
      */
     void visitTypeInsn(int opcode, String type);
@@ -226,7 +226,7 @@ public interface MethodVisitor {
     /**
      * Visits a field instruction. A field instruction is an instruction that
      * loads or stores the value of a field of an object.
-     * 
+     *
      * @param opcode the opcode of the type instruction to be visited. This
      *        opcode is either GETSTATIC, PUTSTATIC, GETFIELD or PUTFIELD.
      * @param owner the internal name of the field's owner class (see {@link
@@ -239,22 +239,33 @@ public interface MethodVisitor {
     /**
      * Visits a method instruction. A method instruction is an instruction that
      * invokes a method.
-     * 
+     *
      * @param opcode the opcode of the type instruction to be visited. This
-     *        opcode is either INVOKEVIRTUAL, INVOKESPECIAL, INVOKESTATIC,
-     *        INVOKEINTERFACE or INVOKEDYNAMIC.
+     *        opcode is either INVOKEVIRTUAL, INVOKESPECIAL, INVOKESTATIC
+     *        or INVOKEINTERFACE.
      * @param owner the internal name of the method's owner class (see {@link
-     *        Type#getInternalName() getInternalName})
-     *        or {@link org.objectweb.asm.Opcodes#INVOKEDYNAMIC_OWNER}.
+     *        Type#getInternalName() getInternalName}).
      * @param name the method's name.
      * @param desc the method's descriptor (see {@link Type Type}).
      */
     void visitMethodInsn(int opcode, String owner, String name, String desc);
 
     /**
+     * Visits an invokedynamic instruction.
+     *
+     * @param name the method's name.
+     * @param desc the method's descriptor (see {@link Type Type}).
+     * @param bsm a constant method handle referencing the bootstrap method.
+     * @param bsmArgs an array of constants use as parameters of the bootstrap method.
+     *        This method is allowed to modify the content of the array so
+     *        a caller should expect that this array may change.
+     */
+    void visitInvokeDynamicInsn(String name, String desc, MethodHandle bsm, Object... bsmArgs);
+
+    /**
      * Visits a jump instruction. A jump instruction is an instruction that may
      * jump to another instruction.
-     * 
+     *
      * @param opcode the opcode of the type instruction to be visited. This
      *        opcode is either IFEQ, IFNE, IFLT, IFGE, IFGT, IFLE, IF_ICMPEQ,
      *        IF_ICMPNE, IF_ICMPLT, IF_ICMPGE, IF_ICMPGT, IF_ICMPLE, IF_ACMPEQ,
@@ -268,7 +279,7 @@ public interface MethodVisitor {
     /**
      * Visits a label. A label designates the instruction that will be visited
      * just after it.
-     * 
+     *
      * @param label a {@link Label Label} object.
      */
     void visitLabel(Label label);
@@ -279,18 +290,19 @@ public interface MethodVisitor {
 
     /**
      * Visits a LDC instruction.
-     * 
+     *
      * @param cst the constant to be loaded on the stack. This parameter must be
      *        a non null {@link Integer}, a {@link Float}, a {@link Long}, a
-     *        {@link Double} a {@link String} (or a {@link Type} for
-     *        <tt>.class</tt> constants, for classes whose version is 49.0 or
-     *        more).
+     *        {@link Double} a {@link String}, a {@link Type}  for
+     *        <tt>.class</tt> constants, for classes whose version is 49.0,
+     *        a {@link MethodType} or a {@link MethodHandle} for constant method type and
+     *        constant method handle, for classes whose version is 51.0.
      */
     void visitLdcInsn(Object cst);
 
     /**
      * Visits an IINC instruction.
-     * 
+     *
      * @param var index of the local variable to be incremented.
      * @param increment amount to increment the local variable by.
      */
@@ -298,18 +310,18 @@ public interface MethodVisitor {
 
     /**
      * Visits a TABLESWITCH instruction.
-     * 
+     *
      * @param min the minimum key value.
      * @param max the maximum key value.
      * @param dflt beginning of the default handler block.
      * @param labels beginnings of the handler blocks. <tt>labels[i]</tt> is
      *        the beginning of the handler block for the <tt>min + i</tt> key.
      */
-    void visitTableSwitchInsn(int min, int max, Label dflt, Label[] labels);
+    void visitTableSwitchInsn(int min, int max, Label dflt, Label... labels);
 
     /**
      * Visits a LOOKUPSWITCH instruction.
-     * 
+     *
      * @param dflt beginning of the default handler block.
      * @param keys the values of the keys.
      * @param labels beginnings of the handler blocks. <tt>labels[i]</tt> is
@@ -319,7 +331,7 @@ public interface MethodVisitor {
 
     /**
      * Visits a MULTIANEWARRAY instruction.
-     * 
+     *
      * @param desc an array type descriptor (see {@link Type Type}).
      * @param dims number of dimensions of the array to allocate.
      */
@@ -331,7 +343,7 @@ public interface MethodVisitor {
 
     /**
      * Visits a try catch block.
-     * 
+     *
      * @param start beginning of the exception handler's scope (inclusive).
      * @param end end of the exception handler's scope (exclusive).
      * @param handler beginning of the exception handler's code.
@@ -346,7 +358,7 @@ public interface MethodVisitor {
 
     /**
      * Visits a local variable declaration.
-     * 
+     *
      * @param name the name of a local variable.
      * @param desc the type descriptor of this local variable.
      * @param signature the type signature of this local variable. May be
@@ -371,7 +383,7 @@ public interface MethodVisitor {
 
     /**
      * Visits a line number declaration.
-     * 
+     *
      * @param line a line number. This number refers to the source file from
      *        which the class was compiled.
      * @param start the first instruction corresponding to this line number.
@@ -384,7 +396,7 @@ public interface MethodVisitor {
     /**
      * Visits the maximum stack size and the maximum number of local variables
      * of the method.
-     * 
+     *
      * @param maxStack maximum stack size of the method.
      * @param maxLocals maximum number of local variables for the method.
      */

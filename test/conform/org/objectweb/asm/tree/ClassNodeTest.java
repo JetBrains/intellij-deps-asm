@@ -31,6 +31,7 @@ package org.objectweb.asm.tree;
 
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.ListIterator;
 import java.util.Map;
 
 import org.objectweb.asm.AbstractTest;
@@ -59,15 +60,15 @@ public class ClassNodeTest extends AbstractTest {
         cr.accept(cn, 0);
         // clone instructions for testing clone methods
         for (int i = 0; i < cn.methods.size(); ++i) {
-            MethodNode mn = (MethodNode) cn.methods.get(i);
-            Iterator it = mn.instructions.iterator();
-            Map m = new HashMap() {
-                public Object get(final Object o) {
-                    return o;
+            MethodNode mn = cn.methods.get(i);
+            Iterator<AbstractInsnNode> it = mn.instructions.iterator();
+            Map<LabelNode, LabelNode> m = new HashMap<LabelNode, LabelNode>() {
+                public LabelNode get(final Object o) {
+                    return (LabelNode)o;
                 }
             };
             while (it.hasNext()) {
-                AbstractInsnNode insn = (AbstractInsnNode) it.next();
+                AbstractInsnNode insn = it.next();
                 mn.instructions.set(insn, insn.clone(m));
             }
         }

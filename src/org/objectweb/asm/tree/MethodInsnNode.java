@@ -61,11 +61,10 @@ public class MethodInsnNode extends AbstractInsnNode {
      * Constructs a new {@link MethodInsnNode}.
      * 
      * @param opcode the opcode of the type instruction to be constructed. This
-     *        opcode must be INVOKEVIRTUAL, INVOKESPECIAL, INVOKESTATIC,
-     *        INVOKEINTERFACE or INVOKEDYNAMIC.
+     *        opcode must be INVOKEVIRTUAL, INVOKESPECIAL, INVOKESTATIC or
+     *        INVOKEINTERFACE.
      * @param owner the internal name of the method's owner class (see
-     *        {@link org.objectweb.asm.Type#getInternalName() getInternalName})
-     *        or {@link org.objectweb.asm.Opcodes#INVOKEDYNAMIC_OWNER}.
+     *        {@link org.objectweb.asm.Type#getInternalName() getInternalName}).
      * @param name the method's name.
      * @param desc the method's descriptor (see {@link org.objectweb.asm.Type}).
      */
@@ -99,7 +98,7 @@ public class MethodInsnNode extends AbstractInsnNode {
         mv.visitMethodInsn(opcode, owner, name, desc);
     }
 
-    public AbstractInsnNode clone(final Map labels) {
+    public AbstractInsnNode clone(final Map<LabelNode, LabelNode> labels) {
         return new MethodInsnNode(opcode, owner, name, desc);
     }
 }

@@ -97,7 +97,7 @@ public class FieldInsnNode extends AbstractInsnNode {
         cv.visitFieldInsn(opcode, owner, name, desc);
     }
 
-    public AbstractInsnNode clone(final Map labels) {
+    public AbstractInsnNode clone(final Map<LabelNode, LabelNode> labels) {
         return new FieldInsnNode(opcode, owner, name, desc);
     }
 }

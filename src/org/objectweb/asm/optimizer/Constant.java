@@ -29,11 +29,14 @@
  */
 package org.objectweb.asm.optimizer;
 
+import java.util.Arrays;
+
 import org.objectweb.asm.ClassWriter;
+import org.objectweb.asm.MethodHandle;
 
 /**
  * A constant pool item.
- * 
+ *
  * @author Eric Bruneton
  */
 class Constant {
@@ -41,10 +44,13 @@ class Constant {
     /**
      * Type of this constant pool item. A single class is used to represent all
      * constant pool item types, in order to minimize the bytecode size of this
-     * package. The value of this field is I, J, F, D, S, s, C, T, G, M, or N
+     * package.
+     * The value of this field is I, J, F, D, S, s, C, T, G, M, N, y, t, [h..p]
      * (for Constant Integer, Long, Float, Double, STR, UTF8, Class, NameType,
-     * Fieldref, Methodref, or InterfaceMethodref constant pool items
-     * respectively).
+     * Fieldref, Methodref, InterfaceMethodref, InvokeDynamic,
+     * MethodType and MethodHandle constant pool items respectively).
+     *
+     * The 9 variable of MethodHandle constants are stored between h and p.
      */
     char type;
 
@@ -84,7 +90,12 @@ class Constant {
      * Third part of the value of this item, for items that do not hold a
      * primitive value.
      */
-    String strVal3;
+    Object objVal3;
+
+    /**
+     * InvokeDynamic's constant values.
+     */
+    Object[] objVals;
 
     /**
      * The hash code value of this constant pool item.
@@ -102,13 +113,14 @@ class Constant {
         doubleVal = i.doubleVal;
         strVal1 = i.strVal1;
         strVal2 = i.strVal2;
-        strVal3 = i.strVal3;
+        objVal3 = i.objVal3;
+        objVals = i.objVals;
         hashCode = i.hashCode;
     }
 
     /**
      * Sets this item to an integer item.
-     * 
+     *
      * @param intVal the value of this item.
      */
     void set(final int intVal) {
@@ -119,7 +131,7 @@ class Constant {
 
     /**
      * Sets this item to a long item.
-     * 
+     *
      * @param longVal the value of this item.
      */
     void set(final long longVal) {
@@ -130,7 +142,7 @@ class Constant {
 
     /**
      * Sets this item to a float item.
-     * 
+     *
      * @param floatVal the value of this item.
      */
     void set(final float floatVal) {
@@ -141,7 +153,7 @@ class Constant {
 
     /**
      * Sets this item to a double item.
-     * 
+     *
      * @param doubleVal the value of this item.
      */
     void set(final double doubleVal) {
@@ -152,7 +164,7 @@ class Constant {
 
     /**
      * Sets this item to an item that do not hold a primitive value.
-     * 
+     *
      * @param type the type of this item.
      * @param strVal1 first part of the value of this item.
      * @param strVal2 second part of the value of this item.
@@ -167,11 +179,12 @@ class Constant {
         this.type = type;
         this.strVal1 = strVal1;
         this.strVal2 = strVal2;
-        this.strVal3 = strVal3;
+        this.objVal3 = strVal3;
         switch (type) {
             case 's':
             case 'S':
             case 'C':
+            case 't':
                 hashCode = 0x7FFFFFFF & (type + strVal1.hashCode());
                 return;
             case 'T':
@@ -181,10 +194,39 @@ class Constant {
                 // case 'G':
                 // case 'M':
                 // case 'N':
+                // case 'h' ... 'p':
             default:
                 hashCode = 0x7FFFFFFF & (type + strVal1.hashCode()
                         * strVal2.hashCode() * strVal3.hashCode());
         }
+    }
+
+    /**
+     * Set this item to an InvokeDynamic item.
+     *
+     * @param name invokedynamic's name.
+     * @param desc invokedynamic's descriptor.
+     * @param bsm bootstrap method.
+     * @param bsmArgs bootstrap method constant arguments.
+     */
+    void set(
+        final String name,
+        final String desc,
+        final MethodHandle bsm,
+        final Object[] bsmArgs)
+    {
+        this.type = 'y';
+        this.strVal1 = name;
+        this.strVal2 = desc;
+        this.objVal3 = bsm;
+        this.objVals = bsmArgs;
+
+        int hashCode =  'y' + name.hashCode()
+                * desc.hashCode() * bsm.hashCode();
+        for(int i=0; i<bsmArgs.length; i++) {
+            hashCode *= bsmArgs[i].hashCode();
+        }
+        this.hashCode = 0x7FFFFFFF & hashCode;
     }
 
     void write(final ClassWriter cw) {
@@ -214,14 +256,21 @@ class Constant {
                 cw.newNameType(strVal1, strVal2);
                 break;
             case 'G':
-                cw.newField(strVal1, strVal2, strVal3);
+                cw.newField(strVal1, strVal2, (String)objVal3);
                 break;
             case 'M':
-                cw.newMethod(strVal1, strVal2, strVal3, false);
+                cw.newMethod(strVal1, strVal2, (String)objVal3, false);
                 break;
             case 'N':
-                cw.newMethod(strVal1, strVal2, strVal3, true);
+                cw.newMethod(strVal1, strVal2, (String)objVal3, true);
                 break;
+            case 'y':
+                cw.newInvokeDynamic(strVal1, strVal2, (MethodHandle)objVal3, objVals);
+            case 't':
+                cw.newMethodType(strVal1);
+                break;
+            default: //'h' ... 'p': method handle
+                cw.newMethodHandle(type - 'h' + 1, strVal1, strVal2, (String)objVal3);
         }
     }
 
@@ -243,17 +292,24 @@ class Constant {
                 case 's':
                 case 'S':
                 case 'C':
+                case 't':
                     return c.strVal1.equals(strVal1);
                 case 'T':
                     return c.strVal1.equals(strVal1)
                             && c.strVal2.equals(strVal2);
+                case 'y':
+                    return c.strVal1.equals(strVal1)
+                            && c.strVal2.equals(strVal2)
+                            && c.objVal3.equals(objVal3)
+                            && Arrays.equals(c.objVals, objVals);
                     // case 'G':
                     // case 'M':
                     // case 'N':
+                    // case 'h' ... 'p':
                 default:
                     return c.strVal1.equals(strVal1)
                             && c.strVal2.equals(strVal2)
-                            && c.strVal3.equals(strVal3);
+                            && c.objVal3.equals(objVal3);
             }
         }
         return false;

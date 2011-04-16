@@ -46,6 +46,7 @@ import org.objectweb.asm.commons.LocalVariablesSorter;
 import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.MethodNode;
 import org.objectweb.asm.tree.analysis.Analyzer;
+import org.objectweb.asm.tree.analysis.BasicValue;
 import org.objectweb.asm.tree.analysis.SimpleVerifier;
 import serp.bytecode.BCClass;
 import serp.bytecode.BCMethod;
@@ -84,9 +85,9 @@ public abstract class ALLPerfTest {
 
     static int repeats;
 
-    static List classes = new ArrayList();
+    static List<byte[]> classes = new ArrayList<byte[]>();
 
-    static List classNames = new ArrayList();
+    static List<String> classNames = new ArrayList<String>();
 
     private static final Runnable NOTHING = new Runnable() {
         public void run() {
@@ -101,25 +102,25 @@ public abstract class ALLPerfTest {
             throws IOException, InterruptedException
     {
         String clazz = System.getProperty("asm.test.class");
-        List jars = findFiles(System.getProperty("java.home"), ".jar");
+        List<String> jars = findFiles(System.getProperty("java.home"), ".jar");
         jars.addAll(findJars(File.pathSeparatorChar,
                 System.getProperty("java.class.path")));
         repeats = Integer.getInteger("repeats", 3).intValue() + 1;
 
-        Set classesFound = new HashSet();
+        Set<String> classesFound = new HashSet<String>();
         for (int i = 0; i < jars.size(); i++) {
             ZipFile zip;
             try {
-                zip = new ZipFile((String) jars.get(i));
+                zip = new ZipFile(jars.get(i));
             } catch (IOException e) {
                 System.err.println("Error openning " + jars.get(i));
                 e.printStackTrace();
                 continue;
             }
 
-            Enumeration entries = zip.entries();
+            Enumeration<? extends ZipEntry> entries = zip.entries();
             while (entries.hasMoreElements()) {
-                ZipEntry e = (ZipEntry) entries.nextElement();
+                ZipEntry e = entries.nextElement();
                 String s = e.getName();
                 if (s.endsWith(".class")) {
                     s = s.substring(0, s.length() - 6).replace('/', '.');
@@ -328,10 +329,10 @@ public abstract class ALLPerfTest {
                 ClassReader cr = new ClassReader(bytes);
                 ClassNode cn = new ClassNode();
                 cr.accept(cn, ClassReader.SKIP_DEBUG);
-                List methods = cn.methods;
+                 List<MethodNode> methods = cn.methods;
                 for (int k = 0; k < methods.size(); ++k) {
-                    MethodNode method = (MethodNode) methods.get(k);
-                    Analyzer a = new Analyzer(new SimpleVerifier());
+                    MethodNode method = methods.get(k);
+                    Analyzer<?> a = new Analyzer<BasicValue>(new SimpleVerifier());
                     try {
                         a.analyze(cn.name, method);
                     } catch (Throwable th) {
@@ -373,13 +374,13 @@ public abstract class ALLPerfTest {
                 nullAspectjBCELAdapt);
     }
 
-    public static List findFiles(String directory, String suffix) {
-        List matches = new ArrayList();
+    public static List<String> findFiles(String directory, String suffix) {
+        List<String> matches = new ArrayList<String>();
         findFiles(matches, new File(directory), suffix);
         return matches;
     }
 
-    static void findFiles(List matches, File directory, String suffix) {
+    static void findFiles(List<String> matches, File directory, String suffix) {
         File[] files = directory.listFiles();
         for (int i = 0; i < files.length; i++) {
             File file = files[i];
@@ -450,7 +451,7 @@ public abstract class ALLPerfTest {
             for (int j = startAtZero ? 0 : i; j < classes.size(); j += testSkip)
             {
                 count++;
-                byte[] b = (byte[]) classes.get(j);
+                byte[] b = classes.get(j);
                 if (skipBigClasses && b.length > 16 * 1024) {
                     skipped++;
                     continue;
@@ -513,8 +514,8 @@ public abstract class ALLPerfTest {
         Thread.sleep(2500);
     }
 
-    private static List findJars(char pathSeparatorChar, String s) {
-        List ret = new ArrayList();
+    private static List<String> findJars(char pathSeparatorChar, String s) {
+        List<String> ret = new ArrayList<String>();
         int start = 0;
         int pos = s.indexOf(pathSeparatorChar);
         while (pos >= 0) {

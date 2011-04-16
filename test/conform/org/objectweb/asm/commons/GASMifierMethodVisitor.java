@@ -30,6 +30,8 @@
 package org.objectweb.asm.commons;
 
 import org.objectweb.asm.AnnotationVisitor;
+import org.objectweb.asm.MethodHandle;
+import org.objectweb.asm.MethodType;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.Opcodes;
@@ -45,7 +47,7 @@ import java.util.Map;
 /**
  * A {@link MethodVisitor} that prints the ASM code that generates the methods
  * it visits by using the GeneratorAdapter class.
- * 
+ *
  * @author Eric Bruneton
  * @author Eugene Kuleshov
  */
@@ -60,26 +62,26 @@ public class GASMifierMethodVisitor extends ASMifierAbstractVisitor implements
 
     int firstLocal;
 
-    Map locals;
+    Map<Integer, Integer> locals;
 
-    List localTypes;
+    List<String> localTypes;
 
     int lastOpcode = -1;
 
-    HashMap labelNames;
+    HashMap<Label, String> labelNames;
 
     public GASMifierMethodVisitor(final int access, final String desc) {
         super("mg");
         this.access = access;
-        this.labelNames = new HashMap();
+        this.labelNames = new HashMap<Label, String>();
         this.argumentTypes = Type.getArgumentTypes(desc);
         int nextLocal = (Opcodes.ACC_STATIC & access) != 0 ? 0 : 1;
         for (int i = 0; i < argumentTypes.length; i++) {
             nextLocal += argumentTypes[i].getSize();
         }
         this.firstLocal = nextLocal;
-        this.locals = new HashMap();
-        this.localTypes = new ArrayList();
+        this.locals = new HashMap<Integer, Integer>();
+        this.localTypes = new ArrayList<String>();
     }
 
     public AnnotationVisitor visitAnnotationDefault() {
@@ -612,7 +614,7 @@ public class GASMifierMethodVisitor extends ASMifierAbstractVisitor implements
     }
 
     private int generateNewLocal(final int var, final String type) {
-        Integer i = (Integer) locals.get(new Integer(var));
+        Integer i = locals.get(new Integer(var));
         if (i == null) {
             int local = locals.size();
             locals.put(new Integer(var), new Integer(local));
@@ -701,24 +703,42 @@ public class GASMifierMethodVisitor extends ASMifierAbstractVisitor implements
             case INVOKEINTERFACE:
                 buf.append("mg.invokeInterface(");
                 break;
-            case INVOKEDYNAMIC:
-                buf.append("mg.invokeDynamic(");
-                break;
             default:
                 throw new RuntimeException("unexpected case");
         }
-        if (opcode != INVOKEDYNAMIC) {
-            if (owner.charAt(0) == '[') {
-                buf.append(getDescType(owner));
-            } else {
-                buf.append(getType(owner));
-            }
-            buf.append(", ");
+        if (owner.charAt(0) == '[') {
+            buf.append(getDescType(owner));
+        } else {
+            buf.append(getType(owner));
         }
+        buf.append(", ");
         buf.append(getMethod(name, desc));
         buf.append(");\n");
         text.add(buf.toString());
         lastOpcode = opcode;
+    }
+
+    public void visitInvokeDynamicInsn(
+        String name,
+        String desc,
+        MethodHandle bsm,
+        Object... bsmArgs)
+    {
+        buf.setLength(0);
+        buf.append("mg.invokeDynamic(");
+        buf.append(getMethod(name, desc));
+        buf.append(", ");
+        appendConstant(buf, bsm);
+        buf.append(", new Object[]{");
+        for(int i=0; i<bsmArgs.length; i++) {
+            appendConstant(buf, bsmArgs[i]);
+            if (i != bsmArgs.length - 1) {
+              buf.append(", ");
+            }
+        }
+        buf.append("});\n");
+        text.add(buf.toString());
+        lastOpcode = INVOKEDYNAMIC;
     }
 
     public void visitJumpInsn(final int opcode, final Label label) {
@@ -822,43 +842,13 @@ public class GASMifierMethodVisitor extends ASMifierAbstractVisitor implements
     public void visitLdcInsn(final Object cst) {
         buf.setLength(0);
         buf.append("mg.push(");
-        if (cst == null) {
-            buf.append("(String)null");
-        } else if (cst instanceof Long) {
-            buf.append(cst + "L");
-        } else if (cst instanceof Float) {
-            float f = ((Float) cst).floatValue();
-            if (Float.isNaN(f)) {
-                buf.append("Float.NaN");
-            } else if (Float.isInfinite(f)) {
-                buf.append(f > 0
-                        ? "Float.POSITIVE_INFINITY"
-                        : "Float.NEGATIVE_INFINITY");
-            } else {
-                buf.append(cst + "f");
-            }
-        } else if (cst instanceof Double) {
-            double d = ((Double) cst).doubleValue();
-            if (Double.isNaN(d)) {
-                buf.append("Double.NaN");
-            } else if (Double.isInfinite(d)) {
-                buf.append(d > 0
-                        ? "Double.POSITIVE_INFINITY"
-                        : "Double.NEGATIVE_INFINITY");
-            } else {
-                buf.append(cst + "d");
-            }
-        } else if (cst instanceof String) {
-            appendString(buf, (String) cst);
-        } else if (cst instanceof Type) {
-            buf.append("Type.getType(\"").append(cst).append("\")");
-        } else {
-            buf.append(cst);
-        }
+        appendConstant(buf, cst);
         buf.append(");\n");
         text.add(buf.toString());
         lastOpcode = LDC;
     }
+
+
 
     public void visitIincInsn(final int var, final int increment) {
         buf.setLength(0);
@@ -877,7 +867,7 @@ public class GASMifierMethodVisitor extends ASMifierAbstractVisitor implements
         final int min,
         final int max,
         final Label dflt,
-        final Label labels[])
+        final Label... labels)
     {
         buf.setLength(0);
         for (int i = 0; i < labels.length; ++i) {
@@ -1062,6 +1052,50 @@ public class GASMifierMethodVisitor extends ASMifierAbstractVisitor implements
         return buf.toString();
     }
 
+    private static void appendConstant(final StringBuffer buf, final Object cst) {
+        if (cst == null) {
+            buf.append("(String)null");
+        } else if (cst instanceof Long) {
+            buf.append(cst + "L");
+        } else if (cst instanceof Float) {
+            float f = ((Float) cst).floatValue();
+            if (Float.isNaN(f)) {
+                buf.append("Float.NaN");
+            } else if (Float.isInfinite(f)) {
+                buf.append(f > 0
+                        ? "Float.POSITIVE_INFINITY"
+                        : "Float.NEGATIVE_INFINITY");
+            } else {
+                buf.append(cst + "f");
+            }
+        } else if (cst instanceof Double) {
+            double d = ((Double) cst).doubleValue();
+            if (Double.isNaN(d)) {
+                buf.append("Double.NaN");
+            } else if (Double.isInfinite(d)) {
+                buf.append(d > 0
+                        ? "Double.POSITIVE_INFINITY"
+                        : "Double.NEGATIVE_INFINITY");
+            } else {
+                buf.append(cst + "d");
+            }
+        } else if (cst instanceof String) {
+            appendString(buf, (String) cst);
+        } else if (cst instanceof Type) {
+            buf.append("Type.getType(\"").append(cst).append("\")");
+        } else if (cst instanceof MethodType) {
+            buf.append("new MethodType(\"").append(cst).append("\")");
+        } else if (cst instanceof MethodHandle) {
+            MethodHandle mHandle = (MethodHandle) cst;
+            buf.append("new MethodHandle(").append(mHandle.getTag()).
+                append(", \"").append(mHandle.getOwner()).
+                append("\", \"").append(mHandle.getName()).
+                append("\", \"").append(mHandle.getDesc()).append("\")");
+        } else {
+            buf.append(cst);
+        }
+    }
+
     private void declareFrameTypes(final int n, final Object[] o) {
         for (int i = 0; i < n; ++i) {
             if (o[i] instanceof Label) {
@@ -1111,11 +1145,11 @@ public class GASMifierMethodVisitor extends ASMifierAbstractVisitor implements
      * Appends a declaration of the given label to {@link #buf buf}. This
      * declaration is of the form "Label lXXX = new Label();". Does nothing if
      * the given label has already been declared.
-     * 
+     *
      * @param l a label.
      */
     private void declareLabel(final Label l) {
-        String name = (String) labelNames.get(l);
+        String name = labelNames.get(l);
         if (name == null) {
             name = "label" + labelNames.size();
             labelNames.put(l, name);
@@ -1127,10 +1161,10 @@ public class GASMifierMethodVisitor extends ASMifierAbstractVisitor implements
      * Appends the name of the given label to {@link #buf buf}. The given label
      * <i>must</i> already have a name. One way to ensure this is to always
      * call {@link #declareLabel declared} before calling this method.
-     * 
+     *
      * @param l a label.
      */
     private void appendLabel(final Label l) {
-        buf.append((String) labelNames.get(l));
+        buf.append(labelNames.get(l));
     }
 }

@@ -30,6 +30,7 @@
 package org.objectweb.asm.util;
 
 import org.objectweb.asm.AnnotationVisitor;
+import org.objectweb.asm.MethodHandle;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.Opcodes;
@@ -39,7 +40,7 @@ import java.util.HashMap;
 /**
  * A {@link MethodVisitor} that prints the ASM code that generates the methods
  * it visits.
- * 
+ *
  * @author Eric Bruneton
  * @author Eugene Kuleshov
  */
@@ -52,7 +53,7 @@ public class ASMifierMethodVisitor extends ASMifierAbstractVisitor implements
      */
     public ASMifierMethodVisitor() {
         super("mv");
-        this.labelNames = new HashMap();
+        this.labelNames = new HashMap<Label, String>();
     }
 
     public AnnotationVisitor visitAnnotationDefault() {
@@ -209,6 +210,30 @@ public class ASMifierMethodVisitor extends ASMifierAbstractVisitor implements
         text.add(buf.toString());
     }
 
+    public void visitInvokeDynamicInsn(
+        String name,
+        String desc,
+        MethodHandle bsm,
+        Object... bsmArgs)
+    {
+        buf.setLength(0);
+        buf.append("mv.visitInvokeDynamicInsn(");
+        appendConstant(name);
+        buf.append(", ");
+        appendConstant(desc);
+        buf.append(", ");
+        appendConstant(bsm);
+        buf.append(", new Object[]{");
+        for(int i=0; i<bsmArgs.length; i++) {
+            appendConstant(bsmArgs[i]);
+            if (i != bsmArgs.length - 1) {
+                buf.append(", ");
+            }
+        }
+        buf.append("});\n");
+        text.add(buf.toString());
+    }
+
     public void visitJumpInsn(final int opcode, final Label label) {
         buf.setLength(0);
         declareLabel(label);
@@ -249,7 +274,7 @@ public class ASMifierMethodVisitor extends ASMifierAbstractVisitor implements
         final int min,
         final int max,
         final Label dflt,
-        final Label[] labels)
+        final Label... labels)
     {
         buf.setLength(0);
         for (int i = 0; i < labels.length; ++i) {
@@ -418,11 +443,11 @@ public class ASMifierMethodVisitor extends ASMifierAbstractVisitor implements
      * Appends a declaration of the given label to {@link #buf buf}. This
      * declaration is of the form "Label lXXX = new Label();". Does nothing if
      * the given label has already been declared.
-     * 
+     *
      * @param l a label.
      */
     private void declareLabel(final Label l) {
-        String name = (String) labelNames.get(l);
+        String name = labelNames.get(l);
         if (name == null) {
             name = "l" + labelNames.size();
             labelNames.put(l, name);
@@ -434,10 +459,10 @@ public class ASMifierMethodVisitor extends ASMifierAbstractVisitor implements
      * Appends the name of the given label to {@link #buf buf}. The given label
      * <i>must</i> already have a name. One way to ensure this is to always
      * call {@link #declareLabel declared} before calling this method.
-     * 
+     *
      * @param l a label.
      */
     private void appendLabel(final Label l) {
-        buf.append((String) labelNames.get(l));
+        buf.append(labelNames.get(l));
     }
 }

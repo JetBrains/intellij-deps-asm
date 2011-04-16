@@ -83,7 +83,7 @@ public class JumpInsnNode extends AbstractInsnNode {
         mv.visitJumpInsn(opcode, label.getLabel());
     }
 
-    public AbstractInsnNode clone(final Map labels) {
+    public AbstractInsnNode clone(final Map<LabelNode, LabelNode> labels) {
         return new JumpInsnNode(opcode, clone(label, labels));
     }
 }

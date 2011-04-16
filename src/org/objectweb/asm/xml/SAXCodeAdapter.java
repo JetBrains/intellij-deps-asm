@@ -33,6 +33,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.objectweb.asm.AnnotationVisitor;
+import org.objectweb.asm.MethodHandle;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Label;
@@ -44,10 +45,10 @@ import org.xml.sax.helpers.AttributesImpl;
 /**
  * A {@link MethodVisitor} that generates SAX 2.0 events from the visited
  * method.
- * 
+ *
  * @see org.objectweb.asm.xml.SAXClassAdapter
  * @see org.objectweb.asm.xml.Processor
- * 
+ *
  * @author Eugene Kuleshov
  */
 public final class SAXCodeAdapter extends SAXAdapter implements MethodVisitor {
@@ -61,16 +62,16 @@ public final class SAXCodeAdapter extends SAXAdapter implements MethodVisitor {
         "null",
         "uninitializedThis" };
 
-    private final Map labelNames;
+    private final Map<Label, String> labelNames;
 
     /**
      * Constructs a new {@link SAXCodeAdapter SAXCodeAdapter} object.
-     * 
+     *
      * @param h content handler that will be used to send SAX 2.0 events.
      */
     public SAXCodeAdapter(final ContentHandler h, final int access) {
         super(h);
-        labelNames = new HashMap();
+        labelNames = new HashMap<Label, String>();
 
         if ((access & (Opcodes.ACC_ABSTRACT | Opcodes.ACC_INTERFACE | Opcodes.ACC_NATIVE)) == 0)
         {
@@ -198,12 +199,27 @@ public final class SAXCodeAdapter extends SAXAdapter implements MethodVisitor {
         final String desc)
     {
         AttributesImpl attrs = new AttributesImpl();
-        if (opcode != Opcodes.INVOKEDYNAMIC) {
-            attrs.addAttribute("", "owner", "owner", "", owner);
-        }
+        attrs.addAttribute("", "owner", "owner", "", owner);
         attrs.addAttribute("", "name", "name", "", name);
         attrs.addAttribute("", "desc", "desc", "", desc);
         addElement(AbstractVisitor.OPCODES[opcode], attrs);
+    }
+
+    public void visitInvokeDynamicInsn(
+        String name,
+        String desc,
+        MethodHandle bsm,
+        Object... bsmArgs)
+    {
+        AttributesImpl attrs = new AttributesImpl();
+        attrs.addAttribute("", "name", "name", "", name);
+        attrs.addAttribute("", "desc", "desc", "", desc);
+        attrs.addAttribute("", "bsm", "bsm", "", SAXClassAdapter.encode(bsm.toString()));
+        addStart("INVOKEDYNAMIC", attrs);
+        for(int i = 0; i < bsmArgs.length; i++) {
+            addElement("bsmArg", getConstantAttribute(bsmArgs[i]));
+        }
+        addEnd("INVOKEDYNAMIC");
     }
 
     public final void visitJumpInsn(final int opcode, final Label label) {
@@ -219,6 +235,10 @@ public final class SAXCodeAdapter extends SAXAdapter implements MethodVisitor {
     }
 
     public final void visitLdcInsn(final Object cst) {
+        addElement(AbstractVisitor.OPCODES[Opcodes.LDC], getConstantAttribute(cst));
+    }
+
+    private static AttributesImpl getConstantAttribute(final Object cst) {
         AttributesImpl attrs = new AttributesImpl();
         attrs.addAttribute("",
                 "cst",
@@ -230,7 +250,7 @@ public final class SAXCodeAdapter extends SAXAdapter implements MethodVisitor {
                 "desc",
                 "",
                 Type.getDescriptor(cst.getClass()));
-        addElement(AbstractVisitor.OPCODES[Opcodes.LDC], attrs);
+        return attrs;
     }
 
     public final void visitIincInsn(final int var, final int increment) {
@@ -244,7 +264,7 @@ public final class SAXCodeAdapter extends SAXAdapter implements MethodVisitor {
         final int min,
         final int max,
         final Label dflt,
-        final Label[] labels)
+        final Label... labels)
     {
         AttributesImpl attrs = new AttributesImpl();
         attrs.addAttribute("", "min", "min", "", Integer.toString(min));
@@ -386,7 +406,7 @@ public final class SAXCodeAdapter extends SAXAdapter implements MethodVisitor {
     }
 
     private final String getLabel(final Label label) {
-        String name = (String) labelNames.get(label);
+        String name = labelNames.get(label);
         if (name == null) {
             name = Integer.toString(labelNames.size());
             labelNames.put(label, name);

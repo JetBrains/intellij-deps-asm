@@ -46,14 +46,14 @@ import org.objectweb.asm.Type;
  */
 public class NameMapping extends Properties {
 
-    public final Set unused;
+    public final Set<Object> unused;
 
     public NameMapping(final String file) throws IOException {
         InputStream is = null;
         try {
             is = new BufferedInputStream(new FileInputStream(file));
             load(is);
-            unused = new HashSet(keySet());
+            unused = new HashSet<Object>(keySet());
         } finally {
             if (is != null) {
                 is.close();

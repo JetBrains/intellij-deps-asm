@@ -55,6 +55,7 @@ import javax.xml.transform.sax.TransformerHandler;
 import javax.xml.transform.stream.StreamSource;
 
 import org.objectweb.asm.ClassReader;
+import org.objectweb.asm.ClassWriter;
 
 import org.xml.sax.Attributes;
 import org.xml.sax.ContentHandler;
@@ -106,9 +107,7 @@ public class Processor {
     private final OutputStream output;
 
     private final Source xslt;
-
-    private final boolean computeMax;
-
+    
     private int n = 0;
 
     public Processor(
@@ -123,7 +122,6 @@ public class Processor {
         this.input = input;
         this.output = output;
         this.xslt = xslt;
-        this.computeMax = true;
     }
 
     public int process() throws TransformerException, IOException, SAXException
@@ -156,8 +154,7 @@ public class Processor {
         ContentHandler outDocHandler = null;
         switch (outRepresentation) {
             case BYTECODE:
-                outDocHandler = new OutputSlicingHandler(new ASMContentHandlerFactory(zos,
-                        computeMax),
+                outDocHandler = new OutputSlicingHandler(new ASMContentHandlerFactory(zos),
                         entryElement,
                         false);
                 break;
@@ -521,20 +518,25 @@ public class Processor {
     private static final class ASMContentHandlerFactory implements
             ContentHandlerFactory
     {
-        private OutputStream os;
+        final OutputStream os;
 
-        private final boolean computeMax;
-
-        ASMContentHandlerFactory(
-            final OutputStream os,
-            final boolean computeMax)
+        ASMContentHandlerFactory(final OutputStream os)
         {
             this.os = os;
-            this.computeMax = computeMax;
         }
 
         public final ContentHandler createContentHandler() {
-            return new ASMContentHandler(os, computeMax);
+            final ClassWriter cw = new ClassWriter(
+                    ClassWriter.COMPUTE_MAXS);
+            return new ASMContentHandler(cw) {
+                public void endDocument() throws SAXException {
+                    try {
+                        os.write(cw.toByteArray());
+                    } catch(IOException e) {
+                        throw new SAXException(e);
+                    }
+                }
+            };
         }
 
     }

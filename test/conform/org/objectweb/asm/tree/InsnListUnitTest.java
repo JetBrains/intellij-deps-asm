@@ -102,7 +102,7 @@ public class InsnListUnitTest extends TestCase {
         InsnNode insn = new InsnNode(0);
         
         // iteration
-        ListIterator it = l2.iterator();
+        ListIterator<AbstractInsnNode> it = l2.iterator();
         assertTrue(it.hasNext());
         assertEquals(in1, it.next());
         assertTrue(it.hasNext());
@@ -182,7 +182,7 @@ public class InsnListUnitTest extends TestCase {
     }
 
     public void testIterator2() {
-        ListIterator it = l2.iterator(l2.size());
+        ListIterator<AbstractInsnNode> it = l2.iterator(l2.size());
 
         assertFalse(it.hasNext());
         assertTrue(it.hasPrevious());

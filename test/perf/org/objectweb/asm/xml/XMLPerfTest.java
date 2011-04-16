@@ -120,7 +120,7 @@ public class XMLPerfTest {
         long l1 = System.currentTimeMillis();
         int n = 0;
         try {
-            Class c = XMLPerfTest.class;
+            Class<?> c = XMLPerfTest.class;
             String u = c.getResource("/java/lang/String.class").toString();
             final InputStream is = new BufferedInputStream(new URL(u.substring(4,
                     u.indexOf('!'))).openStream());

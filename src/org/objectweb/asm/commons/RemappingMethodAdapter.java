@@ -32,11 +32,12 @@ package org.objectweb.asm.commons;
 
 import org.objectweb.asm.AnnotationVisitor;
 import org.objectweb.asm.Label;
+import org.objectweb.asm.MethodHandle;
 import org.objectweb.asm.MethodVisitor;
 
 /**
  * A <code>MethodAdapter</code> for type mapping.
- * 
+ *
  * @author Eugene Kuleshov
  */
 public class RemappingMethodAdapter extends LocalVariablesSorter {
@@ -77,6 +78,22 @@ public class RemappingMethodAdapter extends LocalVariablesSorter {
                 remapper.mapMethodDesc(desc));
     }
 
+    public void visitInvokeDynamicInsn(
+        String name,
+        String desc,
+        MethodHandle bsm,
+        Object... bsmArgs)
+    {
+        for(int i=0; i<bsmArgs.length; i++) {
+            bsmArgs[i] = remapper.mapValue(bsmArgs[i]);
+        }
+        super.visitInvokeDynamicInsn(
+                remapper.mapInvokeDynamicMethodName(name, desc),
+                remapper.mapMethodDesc(desc),
+                (MethodHandle)remapper.mapValue(bsm),
+                bsmArgs);
+    }
+
     public void visitTypeInsn(int opcode, String type) {
         super.visitTypeInsn(opcode, remapper.mapType(type));
     }
@@ -95,10 +112,10 @@ public class RemappingMethodAdapter extends LocalVariablesSorter {
         Label handler,
         String type)
     {
-        super.visitTryCatchBlock(start, end, handler, // 
+        super.visitTryCatchBlock(start, end, handler, //
                 type == null ? null : remapper.mapType(type));
     }
-    
+
     public void visitLocalVariable(
         String name,
         String desc,
@@ -119,12 +136,12 @@ public class RemappingMethodAdapter extends LocalVariablesSorter {
         AnnotationVisitor av = mv.visitAnnotation(remapper.mapDesc(desc), visible);
         return av == null ? av : new RemappingAnnotationAdapter(av, remapper);
     }
-    
+
     public AnnotationVisitor visitAnnotationDefault() {
         AnnotationVisitor av = mv.visitAnnotationDefault();
         return av == null ? av : new RemappingAnnotationAdapter(av, remapper);
     }
-    
+
     public AnnotationVisitor visitParameterAnnotation(
         int parameter,
         String desc,
@@ -135,7 +152,7 @@ public class RemappingMethodAdapter extends LocalVariablesSorter {
                 visible);
         return av == null ? av : new RemappingAnnotationAdapter(av, remapper);
     }
-    
+
     public void visitFrame(
         int type,
         int nLocal,
@@ -164,5 +181,5 @@ public class RemappingMethodAdapter extends LocalVariablesSorter {
         }
         return entries;
     }
-    
+
 }

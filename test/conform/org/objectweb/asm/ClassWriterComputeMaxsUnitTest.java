@@ -66,8 +66,8 @@ public class ClassWriterComputeMaxsUnitTest extends TestCase {
     private Label start;
 
     protected void setUp() throws Exception {
-        Class lClass = Label.class;
-        Class eClass = Edge.class;
+        Class<?> lClass = Label.class;
+        Class<?> eClass = Edge.class;
         try {
             successors = lClass.getDeclaredField("successors");
             successor = lClass.getDeclaredField("successor");
@@ -220,7 +220,7 @@ public class ClassWriterComputeMaxsUnitTest extends TestCase {
 
         try {
             TestClassLoader loader = new TestClassLoader();
-            Class c = loader.defineClass("C", b);
+            Class<?> c = loader.defineClass("C", b);
             c.newInstance();
         } catch (Throwable t) {
             fail(t.getMessage());
@@ -228,31 +228,31 @@ public class ClassWriterComputeMaxsUnitTest extends TestCase {
     }
 
     protected void assertGraph(final String graph) {
-        Map expected = new HashMap();
+        Map<String, Set<String>> expected = new HashMap<String, Set<String>>();
         Properties p = new Properties();
         try {
             p.load(new ByteArrayInputStream(graph.getBytes()));
         } catch (Exception e) {
             fail();
         }
-        Iterator i = p.keySet().iterator();
+        Iterator<Object> i = p.keySet().iterator();
         while (i.hasNext()) {
             String key = (String) i.next();
             String value = p.getProperty(key);
             StringTokenizer st = new StringTokenizer(value, ",");
-            Set s = new HashSet();
+            Set<String> s = new HashSet<String>();
             while (st.hasMoreTokens()) {
                 s.add(st.nextToken());
             }
             expected.put(key, s);
         }
 
-        Map actual = new HashMap();
+        Map<String, Set<String>> actual = new HashMap<String, Set<String>>();
         try {
             Label l = start;
             while (l != null) {
                 String key = "N" + l.getOffset();
-                Set value = new HashSet();
+                Set<String> value = new HashSet<String>();
                 Edge e = (Edge) successors.get(l);
                 while (e != null) {
                     value.add("N" + ((Label) succ.get(e)).getOffset());
@@ -273,7 +273,7 @@ public class ClassWriterComputeMaxsUnitTest extends TestCase {
         public TestClassLoader() {
         }
 
-        public Class defineClass(final String name, final byte[] b) {
+        public Class<?> defineClass(final String name, final byte[] b) {
             return defineClass(name, b, 0, b.length);
         }
     }

@@ -74,7 +74,7 @@ public class StaticInitMergerTest extends TestCase implements Opcodes {
         mv.visitMaxs(0, 0);
         cv.visitEnd();
 
-        Class c = LOADER.defineClass("A", cw.toByteArray());
+        Class<?> c = LOADER.defineClass("A", cw.toByteArray());
         assertEquals(c.getField("counter").getInt(c.newInstance()), 5);
     }
 
@@ -82,7 +82,7 @@ public class StaticInitMergerTest extends TestCase implements Opcodes {
 
     static class TestClassLoader extends ClassLoader {
 
-        public Class defineClass(final String name, final byte[] b) {
+        public Class<?> defineClass(final String name, final byte[] b) {
             return defineClass(name, b, 0, b.length);
         }
     }

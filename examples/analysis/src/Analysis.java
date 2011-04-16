@@ -40,6 +40,7 @@ import org.objectweb.asm.tree.IincInsnNode;
 import org.objectweb.asm.tree.MethodNode;
 import org.objectweb.asm.tree.VarInsnNode;
 import org.objectweb.asm.tree.analysis.Analyzer;
+import org.objectweb.asm.tree.analysis.BasicValue;
 import org.objectweb.asm.tree.analysis.BasicVerifier;
 import org.objectweb.asm.tree.analysis.SourceInterpreter;
 import org.objectweb.asm.tree.analysis.SourceValue;
@@ -56,17 +57,17 @@ public class Analysis implements Opcodes {
         ClassNode cn = new ClassNode();
         cr.accept(cn, ClassReader.SKIP_DEBUG);
 
-        List methods = cn.methods;
+        List<MethodNode> methods = cn.methods;
         for (int i = 0; i < methods.size(); ++i) {
-            MethodNode method = (MethodNode) methods.get(i);
+            MethodNode method = methods.get(i);
             if (method.instructions.size() > 0) {
                 if (!analyze(cn, method)) {
-                    Analyzer a = new Analyzer(new BasicVerifier());
+                    Analyzer<?> a = new Analyzer<BasicValue>(new BasicVerifier());
                     try {
                         a.analyze(cn.name, method);
                     } catch (Exception ignored) {
                     }
-                    final Frame[] frames = a.getFrames();
+                    final Frame<?>[] frames = a.getFrames();
 
                     TraceMethodVisitor mv = new TraceMethodVisitor() {
                         public void visitMaxs(
@@ -107,24 +108,24 @@ public class Analysis implements Opcodes {
     public static boolean analyze(final ClassNode c, final MethodNode m)
             throws Exception
     {
-        Analyzer a = new Analyzer(new SourceInterpreter());
-        Frame[] frames = a.analyze(c.name, m);
+        Analyzer<SourceValue> a = new Analyzer<SourceValue>(new SourceInterpreter());
+        Frame<SourceValue>[] frames = a.analyze(c.name, m);
 
         // for each xLOAD instruction, we find the xSTORE instructions that can
         // produce the value loaded by this instruction, and we put them in
         // 'stores'
-        Set stores = new HashSet();
+        Set<AbstractInsnNode> stores = new HashSet<AbstractInsnNode>();
         for (int i = 0; i < m.instructions.size(); ++i) {
-            Object insn = m.instructions.get(i);
-            int opcode = ((AbstractInsnNode) insn).getOpcode();
+            AbstractInsnNode insn = m.instructions.get(i);
+            int opcode = insn.getOpcode();
             if ((opcode >= ILOAD && opcode <= ALOAD) || opcode == IINC) {
                 int var = opcode == IINC
                         ? ((IincInsnNode) insn).var
                         : ((VarInsnNode) insn).var;
-                Frame f = frames[i];
+                Frame<SourceValue> f = frames[i];
                 if (f != null) {
-                    Set s = ((SourceValue) f.getLocal(var)).insns;
-                    Iterator j = s.iterator();
+                    Set<AbstractInsnNode> s = f.getLocal(var).insns;
+                    Iterator<AbstractInsnNode> j = s.iterator();
                     while (j.hasNext()) {
                         insn = j.next();
                         if (insn instanceof VarInsnNode) {
@@ -138,16 +139,14 @@ public class Analysis implements Opcodes {
         // we then find all the xSTORE instructions that are not in 'stores'
         boolean ok = true;
         for (int i = 0; i < m.instructions.size(); ++i) {
-            Object insn = m.instructions.get(i);
-            if (insn instanceof AbstractInsnNode) {
-                int opcode = ((AbstractInsnNode) insn).getOpcode();
-                if (opcode >= ISTORE && opcode <= ASTORE) {
-                    if (!stores.contains(insn)) {
-                        ok = false;
-                        System.err.println("method " + m.name
-                                + ", instruction " + i
-                                + ": useless store instruction");
-                    }
+            AbstractInsnNode insn = m.instructions.get(i);
+            int opcode = insn.getOpcode();
+            if (opcode >= ISTORE && opcode <= ASTORE) {
+                if (!stores.contains(insn)) {
+                    ok = false;
+                    System.err.println("method " + m.name
+                            + ", instruction " + i
+                            + ": useless store instruction");
                 }
             }
         }

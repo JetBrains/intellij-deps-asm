@@ -122,8 +122,8 @@ public class GASMifierTest extends AbstractTest {
             nd = "asm." + nd;
         }
 
-        Class c = LOADER.defineClass(nd, generatorClassData);
-        Method m = c.getMethod("dump", new Class[0]);
+        Class<?> c = LOADER.defineClass(nd, generatorClassData);
+        Method m = c.getMethod("dump", new Class<?>[0]);
         byte[] b;
         try {
             b = (byte[]) m.invoke(null, new Object[0]);
@@ -148,7 +148,7 @@ public class GASMifierTest extends AbstractTest {
 
     static class TestClassLoader extends ClassLoader {
 
-        public Class defineClass(final String name, final byte[] b) {
+        public Class<?> defineClass(final String name, final byte[] b) {
             return defineClass(name, b, 0, b.length);
         }
     }

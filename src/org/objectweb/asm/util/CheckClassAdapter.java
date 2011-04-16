@@ -42,14 +42,15 @@ import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.ClassAdapter;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassVisitor;
+import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Attribute;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.MethodNode;
 import org.objectweb.asm.tree.ClassNode;
-import org.objectweb.asm.tree.TryCatchBlockNode;
 import org.objectweb.asm.tree.analysis.Analyzer;
+import org.objectweb.asm.tree.analysis.BasicValue;
 import org.objectweb.asm.tree.analysis.SimpleVerifier;
 import org.objectweb.asm.tree.analysis.Frame;
 
@@ -151,7 +152,7 @@ public class CheckClassAdapter extends ClassAdapter {
      * The already visited labels. This map associate Integer values to Label
      * keys.
      */
-    private Map labels;
+    private Map<Label, Integer> labels;
 
     /**
      * <tt>true</tt> if the method code must be checked with a BasicVerifier.
@@ -208,20 +209,20 @@ public class CheckClassAdapter extends ClassAdapter {
         Type syperType = cn.superName == null
                 ? null
                 : Type.getObjectType(cn.superName);
-        List methods = cn.methods;
+        List<MethodNode> methods = cn.methods;
 
-        List interfaces = new ArrayList();
-        for (Iterator i = cn.interfaces.iterator(); i.hasNext();) {
+        List<Type> interfaces = new ArrayList<Type>();
+        for (Iterator<String> i = cn.interfaces.iterator(); i.hasNext();) {
             interfaces.add(Type.getObjectType(i.next().toString()));
         }
 
         for (int i = 0; i < methods.size(); ++i) {
-            MethodNode method = (MethodNode) methods.get(i);
+            MethodNode method = methods.get(i);
             SimpleVerifier verifier = new SimpleVerifier(Type.getObjectType(cn.name),
                     syperType,
                     interfaces,
                     (cn.access | Opcodes.ACC_INTERFACE) != 0);
-            Analyzer a = new Analyzer(verifier);
+            Analyzer<BasicValue> a = new Analyzer<BasicValue>(verifier);
             if (loader != null) {
                 verifier.setClassLoader(loader);
             }
@@ -257,10 +258,10 @@ public class CheckClassAdapter extends ClassAdapter {
 
     static void printAnalyzerResult(
         MethodNode method,
-        Analyzer a,
+        Analyzer<BasicValue> a,
         final PrintWriter pw)
     {
-        Frame[] frames = a.getFrames();
+        Frame<BasicValue>[] frames = a.getFrames();
         TraceMethodVisitor mv = new TraceMethodVisitor();
 
         pw.println(method.name + method.desc);
@@ -268,7 +269,7 @@ public class CheckClassAdapter extends ClassAdapter {
             method.instructions.get(j).accept(mv);
 
             StringBuffer s = new StringBuffer();
-            Frame f = frames[j];
+            Frame<BasicValue> f = frames[j];
             if (f == null) {
                 s.append('?');
             } else {
@@ -289,7 +290,7 @@ public class CheckClassAdapter extends ClassAdapter {
             pw.print(" " + s + " : " + mv.buf); // mv.text.get(j));
         }
         for (int j = 0; j < method.tryCatchBlocks.size(); ++j) {
-            ((TryCatchBlockNode) method.tryCatchBlocks.get(j)).accept(mv);
+            method.tryCatchBlocks.get(j).accept(mv);
             pw.print(" " + mv.buf);
         }
         pw.println();
@@ -324,7 +325,7 @@ public class CheckClassAdapter extends ClassAdapter {
      */
     public CheckClassAdapter(final ClassVisitor cv, boolean checkDataFlow) {
         super(cv);
-        this.labels = new HashMap();
+        this.labels = new HashMap<Label, Integer>();
         this.checkDataFlow = checkDataFlow;
     }
 

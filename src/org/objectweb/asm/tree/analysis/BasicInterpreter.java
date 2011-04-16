@@ -31,10 +31,13 @@ package org.objectweb.asm.tree.analysis;
 
 import java.util.List;
 
+import org.objectweb.asm.MethodHandle;
+import org.objectweb.asm.MethodType;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.FieldInsnNode;
+import org.objectweb.asm.tree.InvokeDynamicInsnNode;
 import org.objectweb.asm.tree.IntInsnNode;
 import org.objectweb.asm.tree.LdcInsnNode;
 import org.objectweb.asm.tree.MethodInsnNode;
@@ -43,13 +46,13 @@ import org.objectweb.asm.tree.TypeInsnNode;
 
 /**
  * An {@link Interpreter} for {@link BasicValue} values.
- * 
+ *
  * @author Eric Bruneton
  * @author Bing Ran
  */
-public class BasicInterpreter implements Opcodes, Interpreter {
+public class BasicInterpreter implements Opcodes, Interpreter<BasicValue> {
 
-    public Value newValue(final Type type) {
+    public BasicValue newValue(final Type type) {
         if (type == null) {
             return BasicValue.UNINITIALIZED_VALUE;
         }
@@ -76,7 +79,7 @@ public class BasicInterpreter implements Opcodes, Interpreter {
         }
     }
 
-    public Value newOperation(final AbstractInsnNode insn)
+    public BasicValue newOperation(final AbstractInsnNode insn)
             throws AnalyzerException
     {
         switch (insn.getOpcode()) {
@@ -115,6 +118,10 @@ public class BasicInterpreter implements Opcodes, Interpreter {
                     return BasicValue.DOUBLE_VALUE;
                 } else if (cst instanceof Type) {
                     return newValue(Type.getObjectType("java/lang/Class"));
+                } else if (cst instanceof MethodType) {
+                    return newValue(Type.getObjectType("java/lang/invoke/MethodType"));
+                } else if (cst instanceof MethodHandle) {
+                    return newValue(Type.getObjectType("java/lang/invoke/MethodHandle"));
                 } else {
                     return newValue(Type.getType(cst.getClass()));
                 }
@@ -129,13 +136,13 @@ public class BasicInterpreter implements Opcodes, Interpreter {
         }
     }
 
-    public Value copyOperation(final AbstractInsnNode insn, final Value value)
+    public BasicValue copyOperation(final AbstractInsnNode insn, final BasicValue value)
             throws AnalyzerException
     {
         return value;
     }
 
-    public Value unaryOperation(final AbstractInsnNode insn, final Value value)
+    public BasicValue unaryOperation(final AbstractInsnNode insn, final BasicValue value)
             throws AnalyzerException
     {
         switch (insn.getOpcode()) {
@@ -223,10 +230,10 @@ public class BasicInterpreter implements Opcodes, Interpreter {
         }
     }
 
-    public Value binaryOperation(
+    public BasicValue binaryOperation(
         final AbstractInsnNode insn,
-        final Value value1,
-        final Value value2) throws AnalyzerException
+        final BasicValue value1,
+        final BasicValue value2) throws AnalyzerException
     {
         switch (insn.getOpcode()) {
             case IALOAD:
@@ -295,20 +302,23 @@ public class BasicInterpreter implements Opcodes, Interpreter {
         }
     }
 
-    public Value ternaryOperation(
+    public BasicValue ternaryOperation(
         final AbstractInsnNode insn,
-        final Value value1,
-        final Value value2,
-        final Value value3) throws AnalyzerException
+        final BasicValue value1,
+        final BasicValue value2,
+        final BasicValue value3) throws AnalyzerException
     {
         return null;
     }
 
-    public Value naryOperation(final AbstractInsnNode insn, final List values)
+    public BasicValue naryOperation(final AbstractInsnNode insn, final List<? extends BasicValue> values)
             throws AnalyzerException
     {
-        if (insn.getOpcode() == MULTIANEWARRAY) {
+        int opcode = insn.getOpcode();
+        if (opcode == MULTIANEWARRAY) {
             return newValue(Type.getType(((MultiANewArrayInsnNode) insn).desc));
+        } else if (opcode == INVOKEDYNAMIC){
+            return newValue(Type.getReturnType(((InvokeDynamicInsnNode) insn).desc));
         } else {
             return newValue(Type.getReturnType(((MethodInsnNode) insn).desc));
         }
@@ -316,12 +326,12 @@ public class BasicInterpreter implements Opcodes, Interpreter {
 
     public void returnOperation(
         final AbstractInsnNode insn,
-        final Value value,
-        final Value expected) throws AnalyzerException
+        final BasicValue value,
+        final BasicValue expected) throws AnalyzerException
     {
     }
-    
-    public Value merge(final Value v, final Value w) {
+
+    public BasicValue merge(final BasicValue v, final BasicValue w) {
         if (!v.equals(w)) {
             return BasicValue.UNINITIALIZED_VALUE;
         }

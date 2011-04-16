@@ -31,13 +31,16 @@ package org.objectweb.asm.util;
 
 import org.objectweb.asm.AnnotationVisitor;
 import org.objectweb.asm.Attribute;
+import org.objectweb.asm.Label;
+import org.objectweb.asm.MethodHandle;
+import org.objectweb.asm.MethodType;
 import org.objectweb.asm.Type;
 
 import java.util.Map;
 
 /**
  * An abstract ASMifier visitor.
- * 
+ *
  * @author Eric Bruneton
  */
 public class ASMifierAbstractVisitor extends AbstractVisitor {
@@ -51,11 +54,11 @@ public class ASMifierAbstractVisitor extends AbstractVisitor {
      * The label names. This map associates String values to Label keys. It is
      * used only in ASMifierMethodVisitor.
      */
-    Map labelNames;
+    Map<Label, String> labelNames;
 
     /**
      * Constructs a new {@link ASMifierAbstractVisitor}.
-     * 
+     *
      * @param name the name of the variable for this visitor in the produced
      *        code.
      */
@@ -65,7 +68,7 @@ public class ASMifierAbstractVisitor extends AbstractVisitor {
 
     /**
      * Prints the ASM code that generates the given annotation.
-     * 
+     *
      * @param desc the class descriptor of the annotation class.
      * @param visible <tt>true</tt> if the annotation is visible at runtime.
      * @return a visitor to visit the annotation values.
@@ -90,7 +93,7 @@ public class ASMifierAbstractVisitor extends AbstractVisitor {
 
     /**
      * Prints the ASM code that generates the given attribute.
-     * 
+     *
      * @param attr an attribute.
      */
     public void visitAttribute(final Attribute attr) {
@@ -117,7 +120,7 @@ public class ASMifierAbstractVisitor extends AbstractVisitor {
     /**
      * Appends a string representation of the given constant to the given
      * buffer.
-     * 
+     *
      * @param cst an {@link Integer}, {@link Float}, {@link Long},
      *        {@link Double} or {@link String} object. May be <tt>null</tt>.
      */
@@ -128,7 +131,7 @@ public class ASMifierAbstractVisitor extends AbstractVisitor {
     /**
      * Appends a string representation of the given constant to the given
      * buffer.
-     * 
+     *
      * @param buf a string buffer.
      * @param cst an {@link Integer}, {@link Float}, {@link Long},
      *        {@link Double} or {@link String} object. May be <tt>null</tt>.
@@ -142,6 +145,17 @@ public class ASMifierAbstractVisitor extends AbstractVisitor {
             buf.append("Type.getType(\"");
             buf.append(((Type) cst).getDescriptor());
             buf.append("\")");
+        } else if (cst instanceof MethodType) {
+            buf.append("new MethodType(\"");
+            buf.append(((MethodType) cst).getDescriptor());
+            buf.append("\")");
+        } else if (cst instanceof MethodHandle) {
+            buf.append("new MethodHandle(");
+            MethodHandle mHandle = (MethodHandle) cst;
+            buf.append("MethodHandle.").append(METHOD_HANDLE_TAG[mHandle.getTag()]).append(", \"");
+            buf.append(mHandle.getOwner()).append("\", \"");
+            buf.append(mHandle.getName()).append("\", \"");
+            buf.append(mHandle.getDesc()).append("\")");
         } else if (cst instanceof Byte) {
             buf.append("new Byte((byte)").append(cst).append(')');
         } else if (cst instanceof Boolean) {

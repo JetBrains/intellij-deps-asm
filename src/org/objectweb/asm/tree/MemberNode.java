@@ -49,7 +49,7 @@ public abstract class MemberNode {
      * @associates org.objectweb.asm.tree.AnnotationNode
      * @label visible
      */
-    public List visibleAnnotations;
+    public List<AnnotationNode> visibleAnnotations;
 
     /**
      * The runtime invisible annotations of this class, field or method. This
@@ -58,7 +58,7 @@ public abstract class MemberNode {
      * @associates org.objectweb.asm.tree.AnnotationNode
      * @label invisible
      */
-    public List invisibleAnnotations;
+    public List<AnnotationNode> invisibleAnnotations;
 
     /**
      * The non standard attributes of this class, field or method. This list is
@@ -66,7 +66,7 @@ public abstract class MemberNode {
      * 
      * @associates org.objectweb.asm.Attribute
      */
-    public List attrs;
+    public List<Attribute> attrs;
 
     /**
      * Constructs a new {@link MemberNode}.
@@ -88,12 +88,12 @@ public abstract class MemberNode {
         AnnotationNode an = new AnnotationNode(desc);
         if (visible) {
             if (visibleAnnotations == null) {
-                visibleAnnotations = new ArrayList(1);
+                visibleAnnotations = new ArrayList<AnnotationNode>(1);
             }
             visibleAnnotations.add(an);
         } else {
             if (invisibleAnnotations == null) {
-                invisibleAnnotations = new ArrayList(1);
+                invisibleAnnotations = new ArrayList<AnnotationNode>(1);
             }
             invisibleAnnotations.add(an);
         }
@@ -107,7 +107,7 @@ public abstract class MemberNode {
      */
     public void visitAttribute(final Attribute attr) {
         if (attrs == null) {
-            attrs = new ArrayList(1);
+            attrs = new ArrayList<Attribute>(1);
         }
         attrs.add(attr);
     }

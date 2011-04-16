@@ -55,7 +55,7 @@ public abstract class SAXAdapter {
         try {
             h.startDocument();
         } catch (SAXException ex) {
-            throw new RuntimeException(ex.getException());
+            throw new RuntimeException(ex.getMessage(), ex.getException());
         }
     }
 
@@ -63,7 +63,7 @@ public abstract class SAXAdapter {
         try {
             h.endDocument();
         } catch (SAXException ex) {
-            throw new RuntimeException(ex.toString());
+            throw new RuntimeException(ex.getMessage(), ex.getException());
         }
     }
 
@@ -71,7 +71,7 @@ public abstract class SAXAdapter {
         try {
             h.startElement("", name, name, attrs);
         } catch (SAXException ex) {
-            throw new RuntimeException(ex.toString());
+            throw new RuntimeException(ex.getMessage(), ex.getException());
         }
     }
 
@@ -79,7 +79,7 @@ public abstract class SAXAdapter {
         try {
             h.endElement("", name, name);
         } catch (SAXException ex) {
-            throw new RuntimeException(ex.toString());
+            throw new RuntimeException(ex.getMessage(), ex.getException());
         }
     }
 

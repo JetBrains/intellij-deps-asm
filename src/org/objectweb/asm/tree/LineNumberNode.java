@@ -73,7 +73,7 @@ public class LineNumberNode extends AbstractInsnNode {
         mv.visitLineNumber(line, start.getLabel());
     }
 
-    public AbstractInsnNode clone(final Map labels) {
+    public AbstractInsnNode clone(final Map<LabelNode, LabelNode> labels) {
         return new LineNumberNode(line, clone(start, labels));
     }
 }

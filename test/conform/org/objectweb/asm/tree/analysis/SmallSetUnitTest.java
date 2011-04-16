@@ -46,19 +46,19 @@ public class SmallSetUnitTest extends TestCase {
     private final Object D = new Object();
 
     public void testSubsetUnion() {
-        SmallSet s1 = new SmallSet(A, B);
-        SmallSet s2 = new SmallSet(A, null);
-        Set u = s1.union(s2);
-        Set v = s2.union(s1);
+        SmallSet<Object> s1 = new SmallSet<Object>(A, B);
+        SmallSet<Object> s2 = new SmallSet<Object>(A, null);
+        Set<Object> u = s1.union(s2);
+        Set<Object> v = s2.union(s1);
         assertEquals(u, v);
         s1.remove();
     }
 
     public void testDisjointUnion() {
-        SmallSet s1 = new SmallSet(A, B);
-        SmallSet s2 = new SmallSet(C, D);
-        Set u = s1.union(s2);
-        Set v = s2.union(s1);
+        SmallSet<Object> s1 = new SmallSet<Object>(A, B);
+        SmallSet<Object> s2 = new SmallSet<Object>(C, D);
+        Set<Object> u = s1.union(s2);
+        Set<Object> v = s2.union(s1);
         assertEquals(u, v);
     }
 }

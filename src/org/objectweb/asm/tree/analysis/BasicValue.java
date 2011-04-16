@@ -40,19 +40,19 @@ import org.objectweb.asm.Type;
  */
 public class BasicValue implements Value {
 
-    public static final Value UNINITIALIZED_VALUE = new BasicValue(null);
+    public static final BasicValue UNINITIALIZED_VALUE = new BasicValue(null);
 
-    public static final Value INT_VALUE = new BasicValue(Type.INT_TYPE);
+    public static final BasicValue INT_VALUE = new BasicValue(Type.INT_TYPE);
 
-    public static final Value FLOAT_VALUE = new BasicValue(Type.FLOAT_TYPE);
+    public static final BasicValue FLOAT_VALUE = new BasicValue(Type.FLOAT_TYPE);
 
-    public static final Value LONG_VALUE = new BasicValue(Type.LONG_TYPE);
+    public static final BasicValue LONG_VALUE = new BasicValue(Type.LONG_TYPE);
 
-    public static final Value DOUBLE_VALUE = new BasicValue(Type.DOUBLE_TYPE);
+    public static final BasicValue DOUBLE_VALUE = new BasicValue(Type.DOUBLE_TYPE);
 
-    public static final Value REFERENCE_VALUE = new BasicValue(Type.getObjectType("java/lang/Object"));
+    public static final BasicValue REFERENCE_VALUE = new BasicValue(Type.getObjectType("java/lang/Object"));
 
-    public static final Value RETURNADDRESS_VALUE = new BasicValue(Type.VOID_TYPE);
+    public static final BasicValue RETURNADDRESS_VALUE = new BasicValue(Type.VOID_TYPE);
 
     private final Type type;
 

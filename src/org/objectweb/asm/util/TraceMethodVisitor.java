@@ -31,6 +31,7 @@ package org.objectweb.asm.util;
 
 import org.objectweb.asm.AnnotationVisitor;
 import org.objectweb.asm.Attribute;
+import org.objectweb.asm.MethodHandle;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.Opcodes;
@@ -43,7 +44,7 @@ import java.util.Map;
 /**
  * A {@link MethodVisitor} that prints a disassembled view of the methods it
  * visits.
- * 
+ *
  * @author Eric Bruneton
  */
 public class TraceMethodVisitor extends TraceAbstractVisitor implements
@@ -74,7 +75,7 @@ public class TraceMethodVisitor extends TraceAbstractVisitor implements
     /**
      * The label names. This map associate String values to Label keys.
      */
-    protected final Map labelNames;
+    protected final Map<Label, String> labelNames;
 
     /**
      * Constructs a new {@link TraceMethodVisitor}.
@@ -85,12 +86,12 @@ public class TraceMethodVisitor extends TraceAbstractVisitor implements
 
     /**
      * Constructs a new {@link TraceMethodVisitor}.
-     * 
+     *
      * @param mv the {@link MethodVisitor} to which this visitor delegates
      *        calls. May be <tt>null</tt>.
      */
     public TraceMethodVisitor(final MethodVisitor mv) {
-        this.labelNames = new HashMap();
+        this.labelNames = new HashMap<Label, String>();
         this.mv = mv;
     }
 
@@ -297,6 +298,37 @@ public class TraceMethodVisitor extends TraceAbstractVisitor implements
         }
     }
 
+    public void visitInvokeDynamicInsn(
+        String name,
+        String desc,
+        MethodHandle bsm,
+        Object... bsmArgs)
+    {
+        buf.setLength(0);
+        buf.append(tab2).append("INVOKEDYNAMIC").append(' ');
+        buf.append(name).append(' ');
+        appendDescriptor(METHOD_DESCRIPTOR, desc);
+        buf.append(" [").append(bsm).append(", ");
+        for(int i=0; i<bsmArgs.length; i++) {
+            Object cst = bsmArgs[i];
+            if (cst instanceof String) {
+                AbstractVisitor.appendString(buf, (String) cst);
+            } else if (cst instanceof Type) {
+                buf.append(((Type) cst).getDescriptor()).append(".class");
+            } else {
+                buf.append(cst);
+            }
+            buf.append(", ");
+        }
+        buf.setLength(buf.length() - 2);
+        buf.append("]\n");
+        text.add(buf.toString());
+
+        if (mv != null) {
+            mv.visitInvokeDynamicInsn(name, desc, bsm, bsmArgs);
+        }
+    }
+
     public void visitJumpInsn(final int opcode, final Label label) {
         buf.setLength(0);
         buf.append(tab2).append(OPCODES[opcode]).append(' ');
@@ -358,7 +390,7 @@ public class TraceMethodVisitor extends TraceAbstractVisitor implements
         final int min,
         final int max,
         final Label dflt,
-        final Label[] labels)
+        final Label... labels)
     {
         buf.setLength(0);
         buf.append(tab2).append("TABLESWITCH\n");
@@ -553,11 +585,11 @@ public class TraceMethodVisitor extends TraceAbstractVisitor implements
     /**
      * Appends the name of the given label to {@link #buf buf}. Creates a new
      * label name if the given label does not yet have one.
-     * 
+     *
      * @param l a label.
      */
     protected void appendLabel(final Label l) {
-        String name = (String) labelNames.get(l);
+        String name = labelNames.get(l);
         if (name == null) {
             name = "L" + labelNames.size();
             labelNames.put(l, name);

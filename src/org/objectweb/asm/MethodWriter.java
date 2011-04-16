@@ -33,7 +33,7 @@ package org.objectweb.asm;
  * A {@link MethodVisitor} that generates methods in bytecode form. Each visit
  * method of this class appends the bytecode corresponding to the visited
  * instruction to a byte vector, in the order these methods are called.
- * 
+ *
  * @author Eric Bruneton
  * @author Eugene Kuleshov
  */
@@ -96,7 +96,7 @@ class MethodWriter implements MethodVisitor {
      * Indicates that the stack map frames must be recomputed from scratch. In
      * this case the maximum stack size and number of local variables is also
      * recomputed from scratch.
-     * 
+     *
      * @see #compute
      */
     private static final int FRAMES = 0;
@@ -104,14 +104,14 @@ class MethodWriter implements MethodVisitor {
     /**
      * Indicates that the maximum stack size and number of local variables must
      * be automatically computed.
-     * 
+     *
      * @see #compute
      */
     private static final int MAXS = 1;
 
     /**
      * Indicates that nothing must be automatically computed.
-     * 
+     *
      * @see #compute
      */
     private static final int NOTHING = 2;
@@ -256,7 +256,7 @@ class MethodWriter implements MethodVisitor {
 
     /**
      * The last frame that was written in the StackMapTable attribute.
-     * 
+     *
      * @see #frame
      */
     private int[] previousFrame;
@@ -351,7 +351,7 @@ class MethodWriter implements MethodVisitor {
 
     /**
      * Indicates what must be automatically computed.
-     * 
+     *
      * @see #FRAMES
      * @see #MAXS
      * @see #NOTHING
@@ -400,7 +400,7 @@ class MethodWriter implements MethodVisitor {
 
     /**
      * Constructs a new {@link MethodWriter}.
-     * 
+     *
      * @param cw the class writer in which the method must be added.
      * @param access the method's access flags (see {@link Opcodes}).
      * @param name the method's name.
@@ -825,9 +825,7 @@ class MethodWriter implements MethodVisitor {
         final String desc)
     {
         boolean itf = opcode == Opcodes.INVOKEINTERFACE;
-        Item i = (opcode == Opcodes.INVOKEDYNAMIC) ?
-                cw.newNameTypeItem(name, desc):
-                cw.newMethodItem(owner, name, desc, itf);
+        Item i = cw.newMethodItem(owner, name, desc, itf);
         int argSize = i.intVal;
         // Label currentBlock = this.currentBlock;
         if (currentBlock != null) {
@@ -851,7 +849,7 @@ class MethodWriter implements MethodVisitor {
                     i.intVal = argSize;
                 }
                 int size;
-                if (opcode == Opcodes.INVOKESTATIC || opcode == Opcodes.INVOKEDYNAMIC) {
+                if (opcode == Opcodes.INVOKESTATIC) {
                     size = stackSize - (argSize >> 2) + (argSize & 0x03) + 1;
                 } else {
                     size = stackSize - (argSize >> 2) + (argSize & 0x03);
@@ -872,10 +870,50 @@ class MethodWriter implements MethodVisitor {
             code.put12(Opcodes.INVOKEINTERFACE, i.index).put11(argSize >> 2, 0);
         } else {
             code.put12(opcode, i.index);
-            if (opcode==Opcodes.INVOKEDYNAMIC) {
-                code.putShort(0);
+        }
+    }
+
+    public void visitInvokeDynamicInsn(
+        final String name,
+        final String desc,
+        final MethodHandle bsm,
+        final Object... bsmArgs)
+    {
+        Item i = cw.newInvokeDynamicItem(name, desc, bsm, bsmArgs);
+        int argSize = i.intVal;
+        // Label currentBlock = this.currentBlock;
+        if (currentBlock != null) {
+            if (compute == FRAMES) {
+                currentBlock.frame.execute(Opcodes.INVOKEDYNAMIC, 0, cw, i);
+            } else {
+                /*
+                 * computes the stack size variation. In order not to recompute
+                 * several times this variation for the same Item, we use the
+                 * intVal field of this item to store this variation, once it
+                 * has been computed. More precisely this intVal field stores
+                 * the sizes of the arguments and of the return value
+                 * corresponding to desc.
+                 */
+                if (argSize == 0) {
+                    // the above sizes have not been computed yet,
+                    // so we compute them...
+                    argSize = Type.getArgumentsAndReturnSizes(desc);
+                    // ... and we save them in order
+                    // not to recompute them in the future
+                    i.intVal = argSize;
+                }
+                int size = stackSize - (argSize >> 2) + (argSize & 0x03) + 1;
+
+                // updates current and max stack sizes
+                if (size > maxStackSize) {
+                    maxStackSize = size;
+                }
+                stackSize = size;
             }
         }
+        // adds the instruction to the bytecode of the method
+        code.put12(Opcodes.INVOKEDYNAMIC, i.index);
+        code.putShort(0);
     }
 
     public void visitJumpInsn(final int opcode, final Label label) {
@@ -1083,7 +1121,7 @@ class MethodWriter implements MethodVisitor {
         final int min,
         final int max,
         final Label dflt,
-        final Label[] labels)
+        final Label... labels)
     {
         // adds the instruction to the bytecode of the method
         int source = code.length;
@@ -1332,7 +1370,7 @@ class MethodWriter implements MethodVisitor {
                 }
                 l = l.successor;
             }
-            
+
             this.maxStack = max;
         } else if (compute == MAXS) {
             // completes the control flow graph with exception handler blocks
@@ -1466,7 +1504,7 @@ class MethodWriter implements MethodVisitor {
 
     /**
      * Adds a successor to the {@link #currentBlock currentBlock} block.
-     * 
+     *
      * @param info information about the control flow edge to be added.
      * @param successor the successor block to be added to the current block.
      */
@@ -1504,7 +1542,7 @@ class MethodWriter implements MethodVisitor {
 
     /**
      * Visits a frame that has been computed from scratch.
-     * 
+     *
      * @param f the frame that must be visited.
      */
     private void visitFrame(final Frame f) {
@@ -1558,7 +1596,7 @@ class MethodWriter implements MethodVisitor {
 
     /**
      * Starts the visit of a stack map frame.
-     * 
+     *
      * @param offset the offset of the instruction to which the frame
      *        corresponds.
      * @param nLocal the number of local variables in the frame.
@@ -1688,7 +1726,7 @@ class MethodWriter implements MethodVisitor {
      * StackMapTableAttribute. This method converts types from the format used
      * in {@link Label} to the format used in StackMapTable attributes. In
      * particular, it converts type table indexes to constant pool indexes.
-     * 
+     *
      * @param start index of the first type in {@link #frame} to write.
      * @param end index of last type in {@link #frame} to write (exclusive).
      */
@@ -1767,7 +1805,7 @@ class MethodWriter implements MethodVisitor {
 
     /**
      * Returns the size of the bytecode of this method.
-     * 
+     *
      * @return the size of the bytecode of this method.
      */
     final int getSize() {
@@ -1867,7 +1905,7 @@ class MethodWriter implements MethodVisitor {
 
     /**
      * Puts the bytecode of this method in the given byte vector.
-     * 
+     *
      * @param out the byte vector into which the bytecode of this method must be
      *        copied.
      */
@@ -2070,17 +2108,17 @@ class MethodWriter implements MethodVisitor {
          * so on. The first step of the algorithm consists in finding all the
          * instructions that need to be resized, without modifying the code.
          * This is done by the following "fix point" algorithm:
-         * 
+         *
          * Parse the code to find the jump instructions whose offset will need
          * more than 2 bytes to be stored (the future offset is computed from
          * the current offset and from the number of bytes that will be inserted
          * or removed between the source and target instructions). For each such
          * instruction, adds an entry in (a copy of) the indexes and sizes
          * arrays (if this has not already been done in a previous iteration!).
-         * 
+         *
          * If at least one entry has been added during the previous step, go
          * back to the beginning, otherwise stop.
-         * 
+         *
          * In fact the real algorithm is complicated by the fact that the size
          * of TABLESWITCH and LOOKUPSWITCH instructions depends on their
          * position in the bytecode (because of padding). In order to ensure the
@@ -2207,7 +2245,8 @@ class MethodWriter implements MethodVisitor {
                     case ClassWriter.IINC_INSN:
                         u += 3;
                         break;
-                    case ClassWriter.ITFDYNMETH_INSN:
+                    case ClassWriter.ITFMETH_INSN:
+                    case ClassWriter.INDYMETH_INSN:
                         u += 5;
                         break;
                     // case ClassWriter.MANA_INSN:
@@ -2370,7 +2409,8 @@ class MethodWriter implements MethodVisitor {
                     newCode.putByteArray(b, u, 3);
                     u += 3;
                     break;
-                case ClassWriter.ITFDYNMETH_INSN:
+                case ClassWriter.ITFMETH_INSN:
+                case ClassWriter.INDYMETH_INSN:
                     newCode.putByteArray(b, u, 5);
                     u += 5;
                     break;
@@ -2483,7 +2523,7 @@ class MethodWriter implements MethodVisitor {
 
     /**
      * Reads an unsigned short value in the given byte array.
-     * 
+     *
      * @param b a byte array.
      * @param index the start index of the value to be read.
      * @return the read value.
@@ -2494,7 +2534,7 @@ class MethodWriter implements MethodVisitor {
 
     /**
      * Reads a signed short value in the given byte array.
-     * 
+     *
      * @param b a byte array.
      * @param index the start index of the value to be read.
      * @return the read value.
@@ -2505,7 +2545,7 @@ class MethodWriter implements MethodVisitor {
 
     /**
      * Reads a signed int value in the given byte array.
-     * 
+     *
      * @param b a byte array.
      * @param index the start index of the value to be read.
      * @return the read value.
@@ -2517,7 +2557,7 @@ class MethodWriter implements MethodVisitor {
 
     /**
      * Writes a short value in the given byte array.
-     * 
+     *
      * @param b a byte array.
      * @param index where the first byte of the short value must be written.
      * @param s the value to be written in the given byte array.
@@ -2532,7 +2572,7 @@ class MethodWriter implements MethodVisitor {
      * to have several entries for the same instruction in the <tt>indexes</tt>
      * and <tt>sizes</tt>: two entries (index=a,size=b) and (index=a,size=b')
      * are equivalent to a single entry (index=a,size=b+b').
-     * 
+     *
      * @param indexes current positions of the instructions to be resized. Each
      *        instruction must be designated by the index of its <i>last</i>
      *        byte, plus one (or, in other words, by the index of the <i>first</i>
@@ -2569,7 +2609,7 @@ class MethodWriter implements MethodVisitor {
 
     /**
      * Updates the offset of the given label.
-     * 
+     *
      * @param indexes current positions of the instructions to be resized. Each
      *        instruction must be designated by the index of its <i>last</i>
      *        byte, plus one (or, in other words, by the index of the <i>first</i>

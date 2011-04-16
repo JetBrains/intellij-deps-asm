@@ -34,11 +34,12 @@ import org.objectweb.asm.Attribute;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.Label;
+import org.objectweb.asm.MethodHandle;
 import org.objectweb.asm.MethodVisitor;
 
 /**
  * An empty implementation of the ASM visitor interfaces.
- * 
+ *
  * @author Eric Bruneton
  */
 public class EmptyVisitor implements
@@ -161,6 +162,14 @@ public class EmptyVisitor implements
     {
     }
 
+    public void visitInvokeDynamicInsn(
+        String name,
+        String desc,
+        MethodHandle bsm,
+        Object... bsmArgs)
+    {
+    }
+
     public void visitJumpInsn(final int opcode, final Label label) {
     }
 
@@ -177,7 +186,7 @@ public class EmptyVisitor implements
         final int min,
         final int max,
         final Label dflt,
-        final Label[] labels)
+        final Label... labels)
     {
     }
 

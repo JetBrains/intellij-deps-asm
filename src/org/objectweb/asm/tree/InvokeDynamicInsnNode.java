@@ -31,51 +31,66 @@ package org.objectweb.asm.tree;
 
 import java.util.Map;
 
+import org.objectweb.asm.MethodHandle;
 import org.objectweb.asm.MethodVisitor;
+import org.objectweb.asm.Opcodes;
 
 /**
- * A node that represents a zero operand instruction.
- * 
- * @author Eric Bruneton
+ * A node that represents an invokedynamic instruction.
+ *
+ * @author Remi Forax
  */
-public class InsnNode extends AbstractInsnNode {
+public class InvokeDynamicInsnNode extends AbstractInsnNode {
+    /**
+     * Invokedynamic name.
+     */
+    public String name;
 
     /**
-     * Constructs a new {@link InsnNode}.
-     * 
-     * @param opcode the opcode of the instruction to be constructed. This
-     *        opcode must be NOP, ACONST_NULL, ICONST_M1, ICONST_0, ICONST_1,
-     *        ICONST_2, ICONST_3, ICONST_4, ICONST_5, LCONST_0, LCONST_1,
-     *        FCONST_0, FCONST_1, FCONST_2, DCONST_0, DCONST_1, IALOAD, LALOAD,
-     *        FALOAD, DALOAD, AALOAD, BALOAD, CALOAD, SALOAD, IASTORE, LASTORE,
-     *        FASTORE, DASTORE, AASTORE, BASTORE, CASTORE, SASTORE, POP, POP2,
-     *        DUP, DUP_X1, DUP_X2, DUP2, DUP2_X1, DUP2_X2, SWAP, IADD, LADD,
-     *        FADD, DADD, ISUB, LSUB, FSUB, DSUB, IMUL, LMUL, FMUL, DMUL, IDIV,
-     *        LDIV, FDIV, DDIV, IREM, LREM, FREM, DREM, INEG, LNEG, FNEG, DNEG,
-     *        ISHL, LSHL, ISHR, LSHR, IUSHR, LUSHR, IAND, LAND, IOR, LOR, IXOR,
-     *        LXOR, I2L, I2F, I2D, L2I, L2F, L2D, F2I, F2L, F2D, D2I, D2L, D2F,
-     *        I2B, I2C, I2S, LCMP, FCMPL, FCMPG, DCMPL, DCMPG, IRETURN, LRETURN,
-     *        FRETURN, DRETURN, ARETURN, RETURN, ARRAYLENGTH, ATHROW,
-     *        MONITORENTER, or MONITOREXIT.
+     * Invokedynamic descriptor.
      */
-    public InsnNode(final int opcode) {
-        super(opcode);
+    public String desc;
+
+    /**
+     * Bootstrap method
+     */
+    public MethodHandle bsm;
+
+    /**
+     * Bootstrap constant arguments
+     */
+    public Object[] bsmArgs;
+
+    /**
+     * Constructs a new {@link InvokeDynamicInsnNode}.
+     *
+     * @param name invokedynamic name.
+     * @param desc invokedynamic descriptor (see {@link org.objectweb.asm.Type}).
+     * @param bsm the bootstrap method.
+     * @param bsmArgs the boostrap constant arguments.
+     */
+    public InvokeDynamicInsnNode(
+        final String name,
+        final String desc,
+        final MethodHandle bsm,
+        final Object... bsmArgs)
+    {
+        super(Opcodes.INVOKEDYNAMIC);
+        this.name = name;
+        this.desc = desc;
+        this.bsm = bsm;
+        this.bsmArgs = bsmArgs;
     }
 
     public int getType() {
-        return INSN;
+        return INVOKE_DYNAMIC_INSN;
     }
 
-    /**
-     * Makes the given visitor visit this instruction.
-     * 
-     * @param mv a method visitor.
-     */
     public void accept(final MethodVisitor mv) {
-        mv.visitInsn(opcode);
+        mv.visitInvokeDynamicInsn(name, desc, bsm, bsmArgs);
     }
 
     public AbstractInsnNode clone(final Map<LabelNode, LabelNode> labels) {
-        return new InsnNode(opcode);
+        return new InvokeDynamicInsnNode(name, desc, bsm, bsmArgs);
     }
 }

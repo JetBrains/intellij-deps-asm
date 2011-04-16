@@ -178,7 +178,7 @@ public class InsnList {
      * 
      * @return an iterator over the instructions in this list.
      */
-    public ListIterator iterator() {
+    public ListIterator<AbstractInsnNode> iterator() {
         return iterator(0);
     }
 
@@ -187,7 +187,8 @@ public class InsnList {
      * 
      * @return an iterator over the instructions in this list.
      */
-    public ListIterator iterator(int index) {
+    @SuppressWarnings("unchecked")
+    public ListIterator<AbstractInsnNode> iterator(int index) {
         return new InsnListIterator(index);
     }
     
@@ -562,7 +563,8 @@ public class InsnList {
         }
     }
     
-    private final class InsnListIterator implements ListIterator {
+    // this class is not generified because it will create bridges
+    private final class InsnListIterator implements ListIterator/*<AbstractInsnNode>*/ {
         AbstractInsnNode next;
         AbstractInsnNode prev;
 

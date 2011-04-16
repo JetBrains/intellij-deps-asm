@@ -104,7 +104,7 @@ public class Helloworld extends ClassLoader implements Opcodes {
         fos.close();
 
         Helloworld loader = new Helloworld();
-        Class exampleClass = loader.defineClass("Example", code, 0, code.length);
+        Class<?> exampleClass = loader.defineClass("Example", code, 0, code.length);
 
         // uses the dynamically generated class to print 'Helloworld'
         exampleClass.getMethods()[0].invoke(null, new Object[] { null });

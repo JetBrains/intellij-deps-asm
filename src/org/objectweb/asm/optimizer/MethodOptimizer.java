@@ -31,9 +31,12 @@ package org.objectweb.asm.optimizer;
 
 import org.objectweb.asm.AnnotationVisitor;
 import org.objectweb.asm.Attribute;
+import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodAdapter;
 import org.objectweb.asm.MethodVisitor;
+import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.Type;
 import org.objectweb.asm.commons.Remapper;
 import org.objectweb.asm.commons.RemappingMethodAdapter;
 
@@ -43,17 +46,20 @@ import org.objectweb.asm.commons.RemappingMethodAdapter;
  * 
  * @author Eugene Kuleshov
  */
-public class MethodOptimizer extends RemappingMethodAdapter {
+public class MethodOptimizer extends RemappingMethodAdapter implements Opcodes {
+    private final ClassOptimizer classOptimizer;
 
     public MethodOptimizer(
+        ClassOptimizer classOptimizer,
         int access,
         String desc,
         MethodVisitor mv,
         Remapper remapper)
     {
         super(access, desc, mv, remapper);
+        this.classOptimizer = classOptimizer;
     }
-    
+
     // ------------------------------------------------------------------------
     // Overridden methods
     // ------------------------------------------------------------------------
@@ -86,7 +92,7 @@ public class MethodOptimizer extends RemappingMethodAdapter {
     public void visitLineNumber(final int line, final Label start) {
         // remove debug info
     }
-    
+
     public void visitFrame(
         int type,
         int local,
@@ -96,8 +102,75 @@ public class MethodOptimizer extends RemappingMethodAdapter {
     {
         // remove frame info
     }
-    
+
     public void visitAttribute(Attribute attr) {
         // remove non standard attributes
+    }
+
+    @Override
+    public void visitLdcInsn(Object cst) {
+        if (!(cst instanceof Type)) {
+            super.visitLdcInsn(cst);
+            return;
+        }
+
+        // transform Foo.class to foo$(class) for 1.2 compatibility
+        String ldcName = ((Type) cst).getInternalName();
+        String fieldName = "class$" + ldcName.replace('/', '$');
+
+        FieldVisitor fv = classOptimizer.syntheticFieldVisitor(ACC_STATIC | ACC_SYNTHETIC,
+                fieldName, "Ljava/lang/Class;");
+        fv.visitEnd();
+
+        if (!classOptimizer.class$) {
+            MethodVisitor mv = classOptimizer.visitMethod(ACC_STATIC | ACC_SYNTHETIC,
+                    "class$", "(Ljava/lang/String;)Ljava/lang/Class;", null, null);
+            mv.visitCode();
+            Label l0 = new Label();
+            Label l1 = new Label();
+            Label l2 = new Label();
+            mv.visitTryCatchBlock(l0, l1, l2, "java/lang/ClassNotFoundException");
+            mv.visitLabel(l0);
+            mv.visitVarInsn(ALOAD, 0);
+            mv.visitMethodInsn(INVOKESTATIC,
+                    "java/lang/Class",
+                    "forName",
+                    "(Ljava/lang/String;)Ljava/lang/Class;");
+            mv.visitLabel(l1);
+            mv.visitInsn(ARETURN);
+            mv.visitLabel(l2);
+            mv.visitVarInsn(ASTORE, 1);
+            mv.visitTypeInsn(NEW, "java/lang/NoClassDefFoundError");
+            mv.visitInsn(DUP);
+            mv.visitMethodInsn(INVOKESPECIAL,
+                    "java/lang/NoClassDefFoundError", "<init>", "()V");
+            mv.visitVarInsn(ALOAD, 1);
+            mv.visitMethodInsn(INVOKEVIRTUAL,
+                    "java/lang/NoClassDefFoundError",
+                    "initCause",
+                    "(Ljava/lang/Throwable;)Ljava/lang/Throwable;");
+            mv.visitInsn(ATHROW);
+            mv.visitMaxs(2, 2);
+            mv.visitEnd();
+
+            classOptimizer.class$ = true;
+        }
+
+        String clsName = classOptimizer.clsName;
+        mv.visitFieldInsn(GETSTATIC, clsName, fieldName, "Ljava/lang/Class;");
+        Label elseLabel = new Label();
+        mv.visitJumpInsn(IFNONNULL, elseLabel);
+        mv.visitLdcInsn(ldcName.replace('/', '.'));
+        mv.visitMethodInsn(INVOKESTATIC,
+                clsName,
+                "class$",
+                "(Ljava/lang/String;)Ljava/lang/Class;");
+        mv.visitInsn(DUP);
+        mv.visitFieldInsn(PUTSTATIC, clsName, fieldName, "Ljava/lang/Class;");
+        Label endLabel = new Label();
+        mv.visitJumpInsn(GOTO, endLabel);
+        mv.visitLabel(elseLabel);
+        mv.visitFieldInsn(GETSTATIC, clsName, fieldName, "Ljava/lang/Class;");
+        mv.visitLabel(endLabel);
     }
 }

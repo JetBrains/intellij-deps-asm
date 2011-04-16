@@ -110,7 +110,7 @@ public class JasminifierClassAdapter extends ClassAdapter {
     /**
      * The label names. This map associate String values to Label keys.
      */
-    protected final Map labelNames;
+    protected final Map<Label, String> labelNames;
 
     /**
      * Prints a disassembled view of the given class in Jasmin assembler format
@@ -173,7 +173,7 @@ public class JasminifierClassAdapter extends ClassAdapter {
             }
         });
         this.pw = pw;
-        labelNames = new HashMap();
+        labelNames = new HashMap<Label, String>();
     }
 
     public void visitEnd() {
@@ -193,7 +193,7 @@ public class JasminifierClassAdapter extends ClassAdapter {
             println(".super ", cn.superName);
         }
         for (int i = 0; i < cn.interfaces.size(); ++i) {
-            println(".implements ", (String) cn.interfaces.get(i));
+            println(".implements ", cn.interfaces.get(i));
         }
         if (cn.signature != null)
             println(".signature ", '"' + cn.signature + '"');
@@ -217,7 +217,7 @@ public class JasminifierClassAdapter extends ClassAdapter {
                 : '"' + cn.sourceDebug + '"');
 
         for (int i = 0; i < cn.innerClasses.size(); ++i) {
-            InnerClassNode in = (InnerClassNode) cn.innerClasses.get(i);
+            InnerClassNode in = cn.innerClasses.get(i);
             pw.print(".inner class");
             pw.print(access(in.access));
             if (in.innerName != null) {
@@ -236,7 +236,7 @@ public class JasminifierClassAdapter extends ClassAdapter {
         }
 
         for (int i = 0; i < cn.fields.size(); ++i) {
-            FieldNode fn = (FieldNode) cn.fields.get(i);
+            FieldNode fn = cn.fields.get(i);
             boolean annotations = false;
             if (fn.visibleAnnotations != null
                     && fn.visibleAnnotations.size() > 0)
@@ -286,7 +286,7 @@ public class JasminifierClassAdapter extends ClassAdapter {
         }
 
         for (int i = 0; i < cn.methods.size(); ++i) {
-            MethodNode mn = (MethodNode) cn.methods.get(i);
+            MethodNode mn = cn.methods.get(i);
             pw.print("\n.method");
             pw.print(access(mn.access));
             pw.print(' ');
@@ -306,10 +306,10 @@ public class JasminifierClassAdapter extends ClassAdapter {
             if (mn.visibleParameterAnnotations != null) {
                 for (int j = 0; j < mn.visibleParameterAnnotations.length; ++j)
                 {
-                    List l = mn.visibleParameterAnnotations[j];
+                    List<AnnotationNode> l = mn.visibleParameterAnnotations[j];
                     if (l != null) {
                         for (int k = 0; k < l.size(); ++k) {
-                            printAnnotation((AnnotationNode) l.get(k), 1, j + 1);
+                            printAnnotation(l.get(k), 1, j + 1);
                         }
                     }
                 }
@@ -317,16 +317,16 @@ public class JasminifierClassAdapter extends ClassAdapter {
             if (mn.invisibleParameterAnnotations != null) {
                 for (int j = 0; j < mn.invisibleParameterAnnotations.length; ++j)
                 {
-                    List l = mn.invisibleParameterAnnotations[j];
+                    List<AnnotationNode> l = mn.invisibleParameterAnnotations[j];
                     if (l != null) {
                         for (int k = 0; k < l.size(); ++k) {
-                            printAnnotation((AnnotationNode) l.get(k), 2, j + 1);
+                            printAnnotation(l.get(k), 2, j + 1);
                         }
                     }
                 }
             }
             for (int j = 0; j < mn.exceptions.size(); ++j) {
-                println(".throws ", (String) mn.exceptions.get(j));
+                println(".throws ", mn.exceptions.get(j));
             }
             if ((mn.access & Opcodes.ACC_DEPRECATED) != 0) {
                 pw.println(".deprecated");
@@ -334,7 +334,7 @@ public class JasminifierClassAdapter extends ClassAdapter {
             if (mn.instructions.size() > 0) {
                 labelNames.clear();
                 for (int j = 0; j < mn.tryCatchBlocks.size(); ++j) {
-                    TryCatchBlockNode tcb = (TryCatchBlockNode) mn.tryCatchBlocks.get(j);
+                    TryCatchBlockNode tcb = mn.tryCatchBlocks.get(j);
                     pw.print(".catch ");
                     pw.print(tcb.type);
                     pw.print(" from ");
@@ -494,7 +494,7 @@ public class JasminifierClassAdapter extends ClassAdapter {
                             int min,
                             int max,
                             Label dflt,
-                            Label[] labels)
+                            Label... labels)
                         {
                             pw.print("tableswitch ");
                             pw.println(min);
@@ -548,7 +548,7 @@ public class JasminifierClassAdapter extends ClassAdapter {
                     });
                 }
                 for (int j = 0; j < mn.localVariables.size(); ++j) {
-                    LocalVariableNode lv = (LocalVariableNode) mn.localVariables.get(j);
+                    LocalVariableNode lv = mn.localVariables.get(j);
                     pw.print(".var ");
                     pw.print(lv.index);
                     pw.print(" is '");
@@ -660,7 +660,7 @@ public class JasminifierClassAdapter extends ClassAdapter {
     }
 
     protected void print(final Label l) {
-        String name = (String) labelNames.get(l);
+        String name = labelNames.get(l);
         if (name == null) {
             name = "L" + labelNames.size();
             labelNames.put(l, name);
@@ -675,14 +675,14 @@ public class JasminifierClassAdapter extends ClassAdapter {
     protected void printAnnotations(final MemberNode n) {
         if (n.visibleAnnotations != null) {
             for (int j = 0; j < n.visibleAnnotations.size(); ++j) {
-                printAnnotation((AnnotationNode) n.visibleAnnotations.get(j),
+                printAnnotation(n.visibleAnnotations.get(j),
                         1,
                         -1);
             }
         }
         if (n.invisibleAnnotations != null) {
             for (int j = 0; j < n.invisibleAnnotations.size(); ++j) {
-                printAnnotation((AnnotationNode) n.invisibleAnnotations.get(j),
+                printAnnotation(n.invisibleAnnotations.get(j),
                         2,
                         -1);
             }
@@ -793,7 +793,7 @@ public class JasminifierClassAdapter extends ClassAdapter {
             }
             pw.println();
         } else if (value instanceof List) {
-            List l = (List) value;
+            List<?> l = (List<?>) value;
             if (l.size() > 0) {
                 Object o = l.get(0);
                 if (o instanceof String[]) {

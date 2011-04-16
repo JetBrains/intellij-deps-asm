@@ -29,12 +29,10 @@
  */
 package org.objectweb.asm.xml;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.commons.EmptyVisitor;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.AttributesImpl;
 
@@ -54,11 +52,7 @@ public class ASMContentHandlerUnitTest extends TestCase implements Opcodes {
     MethodVisitor mv;
 
     protected void setUp() throws Exception {
-        h = new ASMContentHandler(new ByteArrayOutputStream() {
-            public void write(final byte[] b) throws IOException {
-                throw new IOException();
-            }
-        }, false);
+        h = new ASMContentHandler(new EmptyVisitor());
         cv = new SAXClassAdapter(h, true);
         cv.visit(V1_5, ACC_PUBLIC, "C", null, "java/lang/Object", null);
     }
@@ -107,7 +101,7 @@ public class ASMContentHandlerUnitTest extends TestCase implements Opcodes {
         }
     }
 
-    public void testIOException() {
+    public void testEndDocument() {
         cv.visitEnd();
         try {
             h.endDocument();

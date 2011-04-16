@@ -29,13 +29,14 @@
  */
 package org.objectweb.asm.tree;
 
+import org.objectweb.asm.MethodHandle;
 import org.objectweb.asm.Opcodes;
 
 import junit.framework.TestCase;
 
 /**
  * ClassNode unit tests.
- * 
+ *
  * @author Eric Bruneton
  */
 public class ClassNodeUnitTest extends TestCase implements Opcodes {
@@ -89,6 +90,18 @@ public class ClassNodeUnitTest extends TestCase implements Opcodes {
         assertEquals(AbstractInsnNode.METHOD_INSN, mn.getType());
     }
 
+    public void testInvokeDynamicInsnNode() {
+        MethodHandle bsm = new MethodHandle(Opcodes.MH_INVOKESTATIC, "owner", "name", "()V");
+        InvokeDynamicInsnNode mn = new InvokeDynamicInsnNode(
+                "name",
+                "()V",
+                bsm,
+                new Object[0]);
+
+        assertEquals(INVOKEDYNAMIC, mn.getOpcode());
+        assertEquals(AbstractInsnNode.INVOKE_DYNAMIC_INSN, mn.getType());
+    }
+
     public void testJumpInsnNode() {
         JumpInsnNode jn = new JumpInsnNode(GOTO, new LabelNode());
         jn.setOpcode(IFEQ);
@@ -118,7 +131,7 @@ public class ClassNodeUnitTest extends TestCase implements Opcodes {
     }
 
     public void testTableSwitchInsnNode() {
-        TableSwitchInsnNode tsn = new TableSwitchInsnNode(0, 1, null, null);
+        TableSwitchInsnNode tsn = new TableSwitchInsnNode(0, 1, null, (LabelNode[])null);
         assertEquals(AbstractInsnNode.TABLESWITCH_INSN, tsn.getType());
     }
 

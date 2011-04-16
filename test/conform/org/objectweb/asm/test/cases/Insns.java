@@ -601,7 +601,7 @@ public class Insns extends Generator {
         Label l2 = new Label();
         Label l3 = new Label();
         mv.visitVarInsn(ILOAD, 1);
-        mv.visitTableSwitchInsn(0, 2, l3, new Label[] { l1, l2, l3 });
+        mv.visitTableSwitchInsn(0, 2, l3/*default*/, l1, l2, l3 );
         mv.visitLabel(l1);
         mv.visitInsn(ICONST_1);
         mv.visitVarInsn(ISTORE, 7);

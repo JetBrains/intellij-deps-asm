@@ -42,9 +42,11 @@ import org.objectweb.asm.tree.AbstractInsnNode;
  * various semantic interpreters, without needing to duplicate the code to
  * simulate the transfer of values.
  * 
+ * @param <V> type of the Value used for the analysis.
+ * 
  * @author Eric Bruneton
  */
-public interface Interpreter {
+public interface Interpreter<V extends Value> {
 
     /**
      * Creates a new value that represents the given type.
@@ -58,7 +60,7 @@ public interface Interpreter {
      * @return a value that represents the given type. The size of the returned
      *         value must be equal to the size of the given type.
      */
-    Value newValue(Type type);
+    V newValue(Type type);
 
     /**
      * Interprets a bytecode instruction without arguments. This method is
@@ -72,7 +74,7 @@ public interface Interpreter {
      * @return the result of the interpretation of the given instruction.
      * @throws AnalyzerException if an error occured during the interpretation.
      */
-    Value newOperation(AbstractInsnNode insn) throws AnalyzerException;
+    V newOperation(AbstractInsnNode insn) throws AnalyzerException;
 
     /**
      * Interprets a bytecode instruction that moves a value on the stack or to
@@ -87,7 +89,7 @@ public interface Interpreter {
      *         returned value must be <tt>equal</tt> to the given value.
      * @throws AnalyzerException if an error occured during the interpretation.
      */
-    Value copyOperation(AbstractInsnNode insn, Value value)
+    V copyOperation(AbstractInsnNode insn, V value)
             throws AnalyzerException;
 
     /**
@@ -105,7 +107,7 @@ public interface Interpreter {
      * @return the result of the interpretation of the given instruction.
      * @throws AnalyzerException if an error occured during the interpretation.
      */
-    Value unaryOperation(AbstractInsnNode insn, Value value)
+    V unaryOperation(AbstractInsnNode insn, V value)
             throws AnalyzerException;
 
     /**
@@ -125,7 +127,7 @@ public interface Interpreter {
      * @return the result of the interpretation of the given instruction.
      * @throws AnalyzerException if an error occured during the interpretation.
      */
-    Value binaryOperation(AbstractInsnNode insn, Value value1, Value value2)
+    V binaryOperation(AbstractInsnNode insn, V value1, V value2)
             throws AnalyzerException;
 
     /**
@@ -141,25 +143,25 @@ public interface Interpreter {
      * @return the result of the interpretation of the given instruction.
      * @throws AnalyzerException if an error occured during the interpretation.
      */
-    Value ternaryOperation(
+    V ternaryOperation(
         AbstractInsnNode insn,
-        Value value1,
-        Value value2,
-        Value value3) throws AnalyzerException;
+        V value1,
+        V value2,
+        V value3) throws AnalyzerException;
 
     /**
      * Interprets a bytecode instruction with a variable number of arguments.
      * This method is called for the following opcodes:
      * 
      * INVOKEVIRTUAL, INVOKESPECIAL, INVOKESTATIC, INVOKEINTERFACE,
-     * MULTIANEWARRAY
+     * MULTIANEWARRAY and INVOKEDYNAMIC
      * 
      * @param insn the bytecode instruction to be interpreted.
      * @param values the arguments of the instruction to be interpreted.
      * @return the result of the interpretation of the given instruction.
      * @throws AnalyzerException if an error occured during the interpretation.
      */
-    Value naryOperation(AbstractInsnNode insn, List values)
+    V naryOperation(AbstractInsnNode insn, List<? extends V> values)
             throws AnalyzerException;
 
     /**
@@ -173,7 +175,7 @@ public interface Interpreter {
      * @param expected the expected return type of the analyzed method.
      * @throws AnalyzerException if an error occured during the interpretation.
      */
-    void returnOperation(AbstractInsnNode insn, Value value, Value expected)
+    void returnOperation(AbstractInsnNode insn, V value, V expected)
             throws AnalyzerException;
     
     /**
@@ -188,5 +190,5 @@ public interface Interpreter {
      * @return the merged value. If the merged value is equal to <tt>v</tt>,
      *         this method <i>must</i> return <tt>v</tt>.
      */
-    Value merge(Value v, Value w);
+    V merge(V v, V w);
 }

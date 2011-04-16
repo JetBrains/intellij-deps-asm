@@ -61,18 +61,18 @@ public class SourceValue implements Value {
      * 
      * This field is a set of {@link AbstractInsnNode} objects.
      */
-    public final Set insns;
+    public final Set<AbstractInsnNode> insns;
 
     public SourceValue(final int size) {
-        this(size, SmallSet.EMPTY_SET);
+        this(size, SmallSet.<AbstractInsnNode>emptySet());
     }
 
     public SourceValue(final int size, final AbstractInsnNode insn) {
         this.size = size;
-        this.insns = new SmallSet(insn, null);
+        this.insns = new SmallSet<AbstractInsnNode>(insn, null);
     }
 
-    public SourceValue(final int size, final Set insns) {
+    public SourceValue(final int size, final Set<AbstractInsnNode> insns) {
         this.size = size;
         this.insns = insns;
     }

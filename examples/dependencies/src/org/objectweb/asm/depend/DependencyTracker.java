@@ -56,7 +56,7 @@ import org.objectweb.asm.ClassReader;
  * 
  * @author Eugene Kuleshov
  * 
- * @see http://www.onjava.com/pub/a/onjava/2005/08/17/asm3.html
+ * @see "http://www.onjava.com/pub/a/onjava/2005/08/17/asm3.html"
  */
 public class DependencyTracker {
 

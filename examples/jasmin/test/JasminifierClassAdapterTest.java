@@ -182,9 +182,9 @@ public class JasminifierClassAdapterTest extends TestCase {
                 scanDirectory("", f, suite, clazz);
             } else {
                 ZipFile zip = new ZipFile(file);
-                Enumeration entries = zip.entries();
+                Enumeration<? extends ZipEntry> entries = zip.entries();
                 while (entries.hasMoreElements()) {
-                    ZipEntry e = (ZipEntry) entries.nextElement();
+                    ZipEntry e = entries.nextElement();
                     String n = e.getName();
                     String p = n.replace('/', '.');
                 System.out.println(n+" "+clazz);

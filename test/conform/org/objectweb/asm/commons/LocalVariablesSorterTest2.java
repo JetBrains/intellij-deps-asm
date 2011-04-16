@@ -62,7 +62,7 @@ public class LocalVariablesSorterTest2 extends AbstractTest {
             public byte[] transform(
                 final ClassLoader loader,
                 final String className,
-                final Class classBeingRedefined,
+                final Class<?> classBeingRedefined,
                 final ProtectionDomain domain,
                 final byte[] classFileBuffer)
                     throws IllegalClassFormatException

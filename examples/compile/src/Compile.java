@@ -50,7 +50,7 @@ public class Compile extends ClassLoader {
         FileOutputStream fos = new FileOutputStream("Example.class");
         fos.write(b);
         fos.close();
-        Class expClass = main.defineClass("Example", b, 0, b.length);
+        Class<?> expClass = main.defineClass("Example", b, 0, b.length);
         // instantiates this compiled expression class...
         Expression iexp = (Expression) expClass.newInstance();
         // ... and uses it to evaluate exp(0) to exp(9)
@@ -74,9 +74,8 @@ abstract class Exp implements Opcodes {
      */
     byte[] compile(final String name) {
         // class header
-        String[] itfs = { Expression.class.getName() };
         ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_MAXS);
-        cw.visit(V1_1, ACC_PUBLIC, name, null, "java/lang/Object", itfs);
+        cw.visit(V1_1, ACC_PUBLIC, name, null, "java/lang/Object", new String[] { Expression.class.getName() });
 
         // default public constructor
         MethodVisitor mv = cw.visitMethod(ACC_PUBLIC,

@@ -37,11 +37,11 @@ public class TryCatchBlockSorter extends MethodNode {
 
     public void visitEnd() {
         // Compares TryCatchBlockNodes by the length of their "try" block.
-        Comparator comp = new Comparator() {
+        Comparator<TryCatchBlockNode> comp = new Comparator<TryCatchBlockNode>() {
 
-            public int compare(Object o1, Object o2) {
-                int len1 = blockLength((TryCatchBlockNode) o1);
-                int len2 = blockLength((TryCatchBlockNode) o2);
+            public int compare(TryCatchBlockNode t1, TryCatchBlockNode t2) {
+                int len1 = blockLength(t1);
+                int len2 = blockLength(t2);
                 return len1 - len2;
             }
 

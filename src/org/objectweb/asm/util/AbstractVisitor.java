@@ -46,12 +46,19 @@ public abstract class AbstractVisitor {
      * The names of the Java Virtual Machine opcodes.
      */
     public static final String[] OPCODES;
+    
     /**
      * Types for <code>operand</code> parameter of the
      * {@link org.objectweb.asm.MethodVisitor#visitIntInsn} method when
      * <code>opcode</code> is <code>NEWARRAY</code>.
      */
     public static final String[] TYPES;
+    
+    /**
+     * Tag for method handle constant of the
+     * {@link org.objectweb.asm.MethodVisitor#visitLdcInsn(Object)} method.
+     */
+    public static final String[] METHOD_HANDLE_TAG;
 
     static {
         String s = "NOP,ACONST_NULL,ICONST_M1,ICONST_0,ICONST_1,ICONST_2,"
@@ -91,6 +98,17 @@ public abstract class AbstractVisitor {
             TYPES[i++] = s.substring(j, l);
             j = l + 1;
         }
+        
+        s = "MH_GETFIELD,MH_GETSTATIC,MH_PUTFIELD,MH_PUTSTATIC,"
+          + "MH_INVOKEVIRTUAL,MH_INVOKESTATIC,MH_INVOKESPECIAL,"
+          + "MH_NEWINVOKESPECIAL,MH_INVOKEINTERFACE,";
+        METHOD_HANDLE_TAG = new String[10];
+        j = 0;
+        i = 1;
+        while ((l = s.indexOf(',', j)) > 0) {
+            METHOD_HANDLE_TAG[i++] = s.substring(j, l);
+            j = l + 1;
+        }
     }
 
     /**
@@ -105,7 +123,7 @@ public abstract class AbstractVisitor {
      * string list that can contain other string lists, which can themselves
      * contain other string lists, and so on.
      */
-    public final List text;
+    public final List<Object> text;
 
     /**
      * A buffer that can be used to create strings.
@@ -116,7 +134,7 @@ public abstract class AbstractVisitor {
      * Constructs a new {@link AbstractVisitor}.
      */
     protected AbstractVisitor() {
-        this.text = new ArrayList();
+        this.text = new ArrayList<Object>();
         this.buf = new StringBuffer();
     }
 
@@ -125,7 +143,7 @@ public abstract class AbstractVisitor {
      * 
      * @return the text constructed by this visitor.
      */
-    public List getText() {
+    public List<Object> getText() {
         return text;
     }
 
@@ -180,11 +198,11 @@ public abstract class AbstractVisitor {
      * @param l a string tree, i.e., a string list that can contain other string
      *        lists, and so on recursively.
      */
-    static void printList(final PrintWriter pw, final List l) {
+    static void printList(final PrintWriter pw, final List<?> l) {
         for (int i = 0; i < l.size(); ++i) {
             Object o = l.get(i);
             if (o instanceof List) {
-                printList(pw, (List) o);
+                printList(pw, (List<?>) o);
             } else {
                 pw.print(o.toString());
             }

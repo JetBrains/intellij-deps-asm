@@ -66,7 +66,7 @@ public class FrameNode extends AbstractInsnNode {
      * reference and uninitialized types respectively - see
      * {@link MethodVisitor}).
      */
-    public List local;
+    public List<Object> local;
 
     /**
      * The types of the operand stack elements of this stack map frame. Elements
@@ -74,7 +74,7 @@ public class FrameNode extends AbstractInsnNode {
      * reference and uninitialized types respectively - see
      * {@link MethodVisitor}).
      */
-    public List stack;
+    public List<Object> stack;
 
     private FrameNode() {
         super(-1);
@@ -162,11 +162,11 @@ public class FrameNode extends AbstractInsnNode {
         }
     }
 
-    public AbstractInsnNode clone(final Map labels) {
+    public AbstractInsnNode clone(final Map<LabelNode, LabelNode> labels) {
         FrameNode clone = new FrameNode();
         clone.type = type;
         if (local != null) {
-            clone.local = new ArrayList();
+            clone.local = new ArrayList<Object>();
             for (int i = 0; i < local.size(); ++i) {
                 Object l = local.get(i);
                 if (l instanceof LabelNode) {
@@ -176,7 +176,7 @@ public class FrameNode extends AbstractInsnNode {
             }
         }
         if (stack != null) {
-            clone.stack = new ArrayList();
+            clone.stack = new ArrayList<Object>();
             for (int i = 0; i < stack.size(); ++i) {
                 Object s = stack.get(i);
                 if (s instanceof LabelNode) {
@@ -190,11 +190,11 @@ public class FrameNode extends AbstractInsnNode {
 
     // ------------------------------------------------------------------------
 
-    private static List asList(final int n, final Object[] o) {
+    private static List<Object> asList(final int n, final Object[] o) {
         return Arrays.asList(o).subList(0, n);
     }
 
-    private static Object[] asArray(final List l) {
+    private static Object[] asArray(final List<Object> l) {
         Object[] objs = new Object[l.size()];
         for (int i = 0; i < objs.length; ++i) {
             Object o = l.get(i);

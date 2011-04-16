@@ -46,7 +46,7 @@ import java.lang.reflect.Method;
  */
 public class Adapt extends ClassLoader {
 
-    protected synchronized Class loadClass(
+    protected synchronized Class<?> loadClass(
         final String name,
         final boolean resolve) throws ClassNotFoundException
     {
@@ -90,10 +90,10 @@ public class Adapt extends ClassLoader {
     public static void main(final String args[]) throws Exception {
         // loads the application class (in args[0]) with an Adapt class loader
         ClassLoader loader = new Adapt();
-        Class c = loader.loadClass(args[0]);
+        Class<?> c = loader.loadClass(args[0]);
         // calls the 'main' static method of this class with the
         // application arguments (in args[1] ... args[n]) as parameter
-        Method m = c.getMethod("main", new Class[] { String[].class });
+        Method m = c.getMethod("main", new Class<?>[] { String[].class });
         String[] applicationArgs = new String[args.length - 1];
         System.arraycopy(args, 1, applicationArgs, 0, applicationArgs.length);
         m.invoke(null, new Object[] { applicationArgs });

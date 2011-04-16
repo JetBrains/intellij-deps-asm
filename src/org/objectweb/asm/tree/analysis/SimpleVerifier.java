@@ -56,7 +56,7 @@ public class SimpleVerifier extends BasicVerifier {
     /**
      * The interfaces implemented by the class that is verified.
      */
-    private final List currentClassInterfaces;
+    private final List<Type> currentClassInterfaces;
 
     /**
      * If the class that is verified is an interface.
@@ -104,7 +104,7 @@ public class SimpleVerifier extends BasicVerifier {
     public SimpleVerifier(
         final Type currentClass,
         final Type currentSuperClass,
-        final List currentClassInterfaces,
+        final List<Type> currentClassInterfaces,
         final boolean isInterface)
     {
         this.currentClass = currentClass;
@@ -124,7 +124,7 @@ public class SimpleVerifier extends BasicVerifier {
         this.loader = loader;
     }
 
-    public Value newValue(final Type type) {
+    public BasicValue newValue(final Type type) {
         if (type == null) {
             return BasicValue.UNINITIALIZED_VALUE;
         }
@@ -140,11 +140,11 @@ public class SimpleVerifier extends BasicVerifier {
             }
         }
 
-        Value v = super.newValue(type);
+        BasicValue v = super.newValue(type);
         if (BasicValue.REFERENCE_VALUE.equals(v)) {
             if (isArray) {
                 v = newValue(type.getElementType());
-                String desc = ((BasicValue) v).getType().getDescriptor();
+                String desc = v.getType().getDescriptor();
                 for (int i = 0; i < type.getDimensions(); ++i) {
                     desc = '[' + desc;
                 }
@@ -156,16 +156,16 @@ public class SimpleVerifier extends BasicVerifier {
         return v;
     }
 
-    protected boolean isArrayValue(final Value value) {
-        Type t = ((BasicValue) value).getType();
+    protected boolean isArrayValue(final BasicValue value) {
+        Type t = value.getType();
         return t != null
                 && ("Lnull;".equals(t.getDescriptor()) || t.getSort() == Type.ARRAY);
     }
 
-    protected Value getElementValue(final Value objectArrayValue)
+    protected BasicValue getElementValue(final BasicValue objectArrayValue)
             throws AnalyzerException
     {
-        Type arrayType = ((BasicValue) objectArrayValue).getType();
+        Type arrayType = objectArrayValue.getType();
         if (arrayType != null) {
             if (arrayType.getSort() == Type.ARRAY) {
                 return newValue(Type.getType(arrayType.getDescriptor()
@@ -177,9 +177,9 @@ public class SimpleVerifier extends BasicVerifier {
         throw new Error("Internal error");
     }
 
-    protected boolean isSubTypeOf(final Value value, final Value expected) {
-        Type expectedType = ((BasicValue) expected).getType();
-        Type type = ((BasicValue) value).getType();
+    protected boolean isSubTypeOf(final BasicValue value, final BasicValue expected) {
+        Type expectedType = expected.getType();
+        Type type = value.getType();
         switch (expectedType.getSort()) {
             case Type.INT:
             case Type.FLOAT:
@@ -202,10 +202,10 @@ public class SimpleVerifier extends BasicVerifier {
         }
     }
 
-    public Value merge(final Value v, final Value w) {
+    public BasicValue merge(final BasicValue v, final BasicValue w) {
         if (!v.equals(w)) {
-            Type t = ((BasicValue) v).getType();
-            Type u = ((BasicValue) w).getType();
+            Type t = v.getType();
+            Type u = w.getType();
             if (t != null
                     && (t.getSort() == Type.OBJECT || t.getSort() == Type.ARRAY))
             {
@@ -255,7 +255,7 @@ public class SimpleVerifier extends BasicVerifier {
         if (currentClass != null && t.equals(currentClass)) {
             return currentSuperClass;
         }
-        Class c = getClass(t).getSuperclass();
+        Class<?> c = getClass(t).getSuperclass();
         return c == null ? null : Type.getType(c);
     }
 
@@ -279,7 +279,7 @@ public class SimpleVerifier extends BasicVerifier {
             }
             if (currentClassInterfaces != null) {
                 for (int i = 0; i < currentClassInterfaces.size(); ++i) {
-                    Type v = (Type) currentClassInterfaces.get(i);
+                    Type v = currentClassInterfaces.get(i);
                     if (isAssignableFrom(t, v)) {
                         return true;
                     }
@@ -287,14 +287,14 @@ public class SimpleVerifier extends BasicVerifier {
             }
             return false;
         }
-        Class tc = getClass(t);
+        Class<?> tc = getClass(t);
         if (tc.isInterface()) {
             tc = Object.class;
         }
         return tc.isAssignableFrom(getClass(u));
     }
 
-    protected Class getClass(final Type t) {
+    protected Class<?> getClass(final Type t) {
         try {
             if (t.getSort() == Type.ARRAY) {
                 return Class.forName(t.getDescriptor().replace('/', '.'),

@@ -57,17 +57,20 @@ public class SAXAdapterTest extends AbstractTest {
 
     public void test() throws Exception {
         ClassReader cr = new ClassReader(is);
-        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        ClassWriter cw = new ClassWriter(0);
 
         SAXTransformerFactory saxtf = (SAXTransformerFactory) TransformerFactory.newInstance();
         TransformerHandler handler = saxtf.newTransformerHandler();
-        handler.setResult(new SAXResult(new ASMContentHandler(bos, false)));
+        handler.setResult(new SAXResult(new ASMContentHandler(cw)));
         handler.startDocument();
         cr.accept(new SAXClassAdapter(handler, false), 0);
         handler.endDocument();
+        
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        bos.write(cw.toByteArray());
 
-        ClassWriter cw = new ClassWriter(0);
-        cr.accept(cw, new Attribute[] { new Attribute("Comment") {
+        ClassWriter cw2 = new ClassWriter(0);
+        cr.accept(cw2, new Attribute[] { new Attribute("Comment") {
             protected Attribute read(
                 final ClassReader cr,
                 final int off,
@@ -92,7 +95,7 @@ public class SAXAdapterTest extends AbstractTest {
                 }
             } }, 0);
 
-        assertEquals(new ClassReader(cw.toByteArray()),
+        assertEquals(new ClassReader(cw2.toByteArray()),
                 new ClassReader(bos.toByteArray()));
     }
 }

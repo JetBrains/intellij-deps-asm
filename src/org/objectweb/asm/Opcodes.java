@@ -37,7 +37,7 @@ package org.objectweb.asm;
  * opcodes are therefore not defined in this interface. Likewise for LDC,
  * automatically replaced by LDC_W or LDC2_W when necessary, WIDE, GOTO_W and
  * JSR_W.
- * 
+ *
  * @author Eric Bruneton
  * @author Eugene Kuleshov
  */
@@ -88,6 +88,18 @@ public interface Opcodes {
     int T_SHORT = 9;
     int T_INT = 10;
     int T_LONG = 11;
+    
+    // tags for MethodHandle
+    
+    int MH_GETFIELD = 1;
+    int MH_GETSTATIC = 2;
+    int MH_PUTFIELD = 3;
+    int MH_PUTSTATIC = 4;
+    int MH_INVOKEVIRTUAL = 5;
+    int MH_INVOKESTATIC = 6;
+    int MH_INVOKESPECIAL = 7;
+    int MH_NEWINVOKESPECIAL = 8;
+    int MH_INVOKEINTERFACE = 9;
 
     // stack map frame types
 
@@ -135,11 +147,6 @@ public interface Opcodes {
     Integer NULL = new Integer(5);
     Integer UNINITIALIZED_THIS = new Integer(6);
 
-    /** 
-     * Represents a owner of an invokedynamic call.
-     */
-    String INVOKEDYNAMIC_OWNER = "java/lang/dyn/Dynamic";
-    
     // opcodes // visit method (- = idem)
 
     int NOP = 0; // visitInsn
@@ -328,7 +335,7 @@ public interface Opcodes {
     int INVOKESPECIAL = 183; // -
     int INVOKESTATIC = 184; // -
     int INVOKEINTERFACE = 185; // -
-    int INVOKEDYNAMIC = 186; // -
+    int INVOKEDYNAMIC = 186; // visitInvokeDynamicInsn
     int NEW = 187; // visitTypeInsn
     int NEWARRAY = 188; // visitIntInsn
     int ANEWARRAY = 189; // visitTypeInsn

@@ -71,7 +71,7 @@ public class MultiANewArrayInsnNode extends AbstractInsnNode {
         mv.visitMultiANewArrayInsn(desc, dims);
     }
 
-    public AbstractInsnNode clone(final Map labels) {
+    public AbstractInsnNode clone(final Map<LabelNode, LabelNode> labels) {
         return new MultiANewArrayInsnNode(desc, dims);
     }
 

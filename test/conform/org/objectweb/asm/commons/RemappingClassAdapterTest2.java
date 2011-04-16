@@ -48,8 +48,8 @@ public class RemappingClassAdapterTest2 extends AbstractTest {
     public void test() throws Exception {
         ClassWriter cw = new ClassWriter(0);
         ClassReader cr = new ClassReader(is);
-        Map map = new HashMap() {
-            public Object get(Object key) {
+        Map<String, String> map = new HashMap<String, String>() {
+            public String get(Object key) {
                 return "Foo";
             }
         };

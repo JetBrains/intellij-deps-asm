@@ -99,7 +99,7 @@ public class SAXAnnotationAdapter extends SAXAdapter implements
     }
 
     public void visit(final String name, final Object value) {
-        Class c = value.getClass();
+        Class<?> c = value.getClass();
         if (c.isArray()) {
             AnnotationVisitor av = visitArray(name);
             if (value instanceof byte[]) {

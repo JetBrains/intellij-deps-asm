@@ -60,8 +60,6 @@ import org.objectweb.asm.util.ASMifierClassVisitor;
  */
 public class ASMifierTest extends AbstractTest {
 
-    public static final Compiler COMPILER = new Compiler();
-
     public static final TestClassLoader LOADER = new TestClassLoader();
 
     public static TestSuite suite() throws Exception {
@@ -83,7 +81,7 @@ public class ASMifierTest extends AbstractTest {
 
         byte[] generatorClassData;
         try {
-            generatorClassData = COMPILER.compile(n, generated);
+            generatorClassData = Compiler.compile(n, generated);
         } catch (Exception ex) {
             System.err.println(generated);
             System.err.println("------------------");
@@ -95,7 +93,7 @@ public class ASMifierTest extends AbstractTest {
             nd = "asm." + nd;
         }
 
-        Class c = LOADER.defineClass(nd, generatorClassData);
+        Class<?> c = LOADER.defineClass(nd, generatorClassData);
         Method m = c.getMethod("dump", new Class[0]);
         byte[] b = (byte[]) m.invoke(null, new Object[0]);
 
@@ -104,7 +102,7 @@ public class ASMifierTest extends AbstractTest {
 
     public static class TestClassLoader extends ClassLoader {
 
-        public Class defineClass(final String name, final byte[] b) {
+        public Class<?> defineClass(final String name, final byte[] b) {
             return defineClass(name, b, 0, b.length);
         }
     }
@@ -113,7 +111,7 @@ public class ASMifierTest extends AbstractTest {
 
         final static IClassLoader CL = new ClassLoaderIClassLoader(new URLClassLoader(new URL[0]));
 
-        public byte[] compile(final String name, final String source)
+        public static byte[] compile(final String name, final String source)
                 throws Exception
         {
             Parser p = new Parser(new Scanner(name, new StringReader(source)));

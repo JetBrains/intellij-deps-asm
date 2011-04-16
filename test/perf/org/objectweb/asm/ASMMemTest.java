@@ -64,7 +64,7 @@ public class ASMMemTest {
         memDown(runtime);
         System.out.println("Initial memory load: ".concat(memFormat(getUsedMem(runtime))));
 
-        LinkedList fileData = new LinkedList();
+        LinkedList<byte[]> fileData = new LinkedList<byte[]>();
         int limit = Integer.parseInt(args[1]);
         try {
             long totalSize = 0;
@@ -93,19 +93,19 @@ public class ASMMemTest {
             e.printStackTrace();
         }
 
-        ArrayList result = new ArrayList(fileData.size());
+        ArrayList<ClassNode> result = new ArrayList<ClassNode>(fileData.size());
         long startmem;
 
         for (int i = 0; i < 10; i++) {
             System.out.println("\n> Run ".concat(Integer.toString(i + 1)));
-            Iterator files = fileData.iterator();
+            Iterator<byte[]> files = fileData.iterator();
             result.clear();
             memDown(runtime);
             System.out.println("Empty memory load: ".concat(memFormat(startmem = getUsedMem(runtime))));
 
             long time = -System.currentTimeMillis();
             while (files.hasNext()) {
-                byte data[] = (byte[]) files.next();
+                byte data[] = files.next();
                 ClassReader reader = new ClassReader(data);
                 ClassNode clazz = new ClassNode();
                 reader.accept(clazz, 0);
@@ -119,10 +119,10 @@ public class ASMMemTest {
             System.out.println("ASM memory load: ".concat(memFormat(getUsedMem(runtime)
                     - startmem)));
             for (int j = 0; j < limit; j++) {
-                ClassNode clazz = (ClassNode) result.get(j);
-                List l = clazz.methods;
+                ClassNode clazz = result.get(j);
+                 List<MethodNode> l = clazz.methods;
                 for (int k = 0, lim = l.size(); k < lim; k++) {
-                    MethodNode m = (MethodNode) l.get(k);
+                    MethodNode m = l.get(k);
                     InsnList insn = m.instructions;
                     if (insn != null) {
                         insn.clear();

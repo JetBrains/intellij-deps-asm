@@ -78,7 +78,7 @@ public class TypeInsnNode extends AbstractInsnNode {
         mv.visitTypeInsn(opcode, desc);
     }
 
-    public AbstractInsnNode clone(final Map labels) {
+    public AbstractInsnNode clone(final Map<LabelNode, LabelNode> labels) {
         return new TypeInsnNode(opcode, desc);
     }
 }

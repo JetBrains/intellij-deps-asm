@@ -68,7 +68,7 @@ public class LdcInsnNode extends AbstractInsnNode {
         mv.visitLdcInsn(cst);
     }
 
-    public AbstractInsnNode clone(final Map labels) {
+    public AbstractInsnNode clone(final Map<LabelNode, LabelNode> labels) {
         return new LdcInsnNode(cst);
     }
 }

@@ -50,7 +50,12 @@ final class Item {
      * {@link ClassWriter#DOUBLE}, {@link ClassWriter#UTF8},
      * {@link ClassWriter#STR}, {@link ClassWriter#CLASS},
      * {@link ClassWriter#NAME_TYPE}, {@link ClassWriter#FIELD},
-     * {@link ClassWriter#METH}, {@link ClassWriter#IMETH}.
+     * {@link ClassWriter#METH}, {@link ClassWriter#IMETH},
+     * {@link ClassWriter#MTYPE}, {@link ClassWriter#INDY}.
+     * 
+     * MethodHandle constant 9 variations are stored using a range
+     * of 9 values from {@link ClassWriter#MHANDLE_BASE} + 1 to
+     * {@link ClassWriter#MHANDLE_BASE} + 9.
      * 
      * Special Item types are used for Items that are stored in the ClassWriter
      * {@link ClassWriter#typeTable}, instead of the constant pool, in order to
@@ -88,7 +93,7 @@ final class Item {
      * primitive value.
      */
     String strVal3;
-
+    
     /**
      * The hash code value of this constant pool item.
      */
@@ -199,6 +204,7 @@ final class Item {
             case ClassWriter.UTF8:
             case ClassWriter.STR:
             case ClassWriter.CLASS:
+            case ClassWriter.MTYPE:
             case ClassWriter.TYPE_NORMAL:
                 hashCode = 0x7FFFFFFF & (type + strVal1.hashCode());
                 return;
@@ -209,10 +215,41 @@ final class Item {
                 // ClassWriter.FIELD:
                 // ClassWriter.METH:
                 // ClassWriter.IMETH:
+                // ClassWriter.MHANDLE_BASE + 1..9
             default:
                 hashCode = 0x7FFFFFFF & (type + strVal1.hashCode()
                         * strVal2.hashCode() * strVal3.hashCode());
         }
+    }
+    
+    /**
+     * Sets the item to an InvokeDynamic item.
+     * 
+     * @param name invokedynamic's name.
+     * @param desc invokedynamic's desc.
+     * @param bsmIndex zero based index into the class attribute BootrapMethods.
+     */
+    void set(String name, String desc, int bsmIndex) {
+        this.type = ClassWriter.INDY;
+        this.longVal = bsmIndex;
+        this.strVal1 = name;
+        this.strVal2 = desc;
+        this.hashCode = 0x7FFFFFFF & (ClassWriter.INDY + bsmIndex
+                * strVal1.hashCode() * strVal2.hashCode());
+    }
+    
+    /**
+     * Sets the item to a BootstrapMethod item.
+     * 
+     * @param position position in byte in the class attribute BootrapMethods.
+     * @param hashCode hashcode of the item. This hashcode is processed from
+     *        the hashcode of the bootstrap method and the hashcode of
+     *        all bootstrap arguments.
+     */
+    void set(int position, int hashCode) {
+        this.type = ClassWriter.BSM;
+        this.intVal = position;
+        this.hashCode = hashCode;
     }
 
     /**
@@ -229,6 +266,7 @@ final class Item {
             case ClassWriter.UTF8:
             case ClassWriter.STR:
             case ClassWriter.CLASS:
+            case ClassWriter.MTYPE:
             case ClassWriter.TYPE_NORMAL:
                 return i.strVal1.equals(strVal1);
             case ClassWriter.TYPE_MERGED:
@@ -242,9 +280,14 @@ final class Item {
                 return i.intVal == intVal && i.strVal1.equals(strVal1);
             case ClassWriter.NAME_TYPE:
                 return i.strVal1.equals(strVal1) && i.strVal2.equals(strVal2);
+            case ClassWriter.INDY:
+                return i.longVal == longVal && i.strVal1.equals(strVal1)
+                        && i.strVal2.equals(strVal2);
+                
             // case ClassWriter.FIELD:
             // case ClassWriter.METH:
             // case ClassWriter.IMETH:
+            // case ClassWriter.MHANDLE_BASE + 1..9
             default:    
                 return i.strVal1.equals(strVal1) && i.strVal2.equals(strVal2)
                         && i.strVal3.equals(strVal3);

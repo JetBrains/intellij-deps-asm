@@ -74,9 +74,9 @@ public class JSRInlinerAdapter extends MethodNode implements Opcodes {
 
     /**
      * For each label that is jumped to by a JSR, we create a Subroutine
-     * instance. Map<LabelNode,Subroutine> is the generic type.
+     * instance.
      */
-    private final Map subroutineHeads = new HashMap();
+    private final Map<LabelNode,Subroutine> subroutineHeads = new HashMap<LabelNode,Subroutine>();
 
     /**
      * This subroutine instance denotes the line of execution that is not
@@ -139,9 +139,9 @@ public class JSRInlinerAdapter extends MethodNode implements Opcodes {
             markSubroutines();
             if (LOGGING) {
                 log(mainSubroutine.toString());
-                Iterator it = subroutineHeads.values().iterator();
+                Iterator<Subroutine> it = subroutineHeads.values().iterator();
                 while (it.hasNext()) {
-                    Subroutine sub = (Subroutine) it.next();
+                    Subroutine sub = it.next();
                     log(sub.toString());
                 }
             }
@@ -167,11 +167,11 @@ public class JSRInlinerAdapter extends MethodNode implements Opcodes {
 
         // Go through the head of each subroutine and find any nodes reachable
         // to that subroutine without following any JSR links.
-        for (Iterator it = subroutineHeads.entrySet().iterator(); it.hasNext();)
+        for (Iterator<Map.Entry<LabelNode,Subroutine>> it = subroutineHeads.entrySet().iterator(); it.hasNext();)
         {
-            Map.Entry entry = (Map.Entry) it.next();
-            LabelNode lab = (LabelNode) entry.getKey();
-            Subroutine sub = (Subroutine) entry.getValue();
+            Map.Entry<LabelNode,Subroutine> entry = it.next();
+            LabelNode lab = entry.getKey();
+            Subroutine sub = entry.getValue();
             int index = instructions.indexOf(lab);
             markSubroutineWalk(sub, index, anyvisited);
         }
@@ -208,8 +208,8 @@ public class JSRInlinerAdapter extends MethodNode implements Opcodes {
         boolean loop = true;
         while (loop) {
             loop = false;
-            for (Iterator it = tryCatchBlocks.iterator(); it.hasNext();) {
-                TryCatchBlockNode trycatch = (TryCatchBlockNode) it.next();
+            for (Iterator<TryCatchBlockNode> it = tryCatchBlocks.iterator(); it.hasNext();) {
+                TryCatchBlockNode trycatch = it.next();
 
                 if (LOGGING) {
                     // TODO use of default toString().
@@ -286,7 +286,7 @@ public class JSRInlinerAdapter extends MethodNode implements Opcodes {
                 int destidx = instructions.indexOf(tsnode.dflt);
                 markSubroutineWalkDFS(sub, destidx, anyvisited);
                 for (int i = tsnode.labels.size() - 1; i >= 0; --i) {
-                    LabelNode l = (LabelNode) tsnode.labels.get(i);
+                    LabelNode l = tsnode.labels.get(i);
                     destidx = instructions.indexOf(l);
                     markSubroutineWalkDFS(sub, destidx, anyvisited);
                 }
@@ -296,7 +296,7 @@ public class JSRInlinerAdapter extends MethodNode implements Opcodes {
                 int destidx = instructions.indexOf(lsnode.dflt);
                 markSubroutineWalkDFS(sub, destidx, anyvisited);
                 for (int i = lsnode.labels.size() - 1; i >= 0; --i) {
-                    LabelNode l = (LabelNode) lsnode.labels.get(i);
+                    LabelNode l = lsnode.labels.get(i);
                     destidx = instructions.indexOf(l);
                     markSubroutineWalkDFS(sub, destidx, anyvisited);
                 }
@@ -334,7 +334,7 @@ public class JSRInlinerAdapter extends MethodNode implements Opcodes {
      * subroutine until the code is fully elaborated.
      */
     private void emitCode() {
-        LinkedList worklist = new LinkedList();
+        LinkedList<Instantiation> worklist = new LinkedList<Instantiation>();
         // Create an instantiation of the "root" subroutine, which is just the
         // main routine
         worklist.add(new Instantiation(null, mainSubroutine));
@@ -342,10 +342,10 @@ public class JSRInlinerAdapter extends MethodNode implements Opcodes {
         // Emit instantiations of each subroutine we encounter, including the
         // main subroutine
         InsnList newInstructions = new InsnList();
-        List newTryCatchBlocks = new ArrayList();
-        List newLocalVariables = new ArrayList();
+        List<TryCatchBlockNode> newTryCatchBlocks = new ArrayList<TryCatchBlockNode>();
+        List<LocalVariableNode> newLocalVariables = new ArrayList<LocalVariableNode>();
         while (!worklist.isEmpty()) {
-            Instantiation inst = (Instantiation) worklist.removeFirst();
+            Instantiation inst = worklist.removeFirst();
             emitSubroutine(inst,
                     worklist,
                     newInstructions,
@@ -372,10 +372,10 @@ public class JSRInlinerAdapter extends MethodNode implements Opcodes {
      */
     private void emitSubroutine(
         final Instantiation instant,
-        final List worklist,
+        final List<Instantiation> worklist,
         final InsnList newInstructions,
-        final List newTryCatchBlocks,
-        final List newLocalVariables)
+        final List<TryCatchBlockNode> newTryCatchBlocks,
+        final List<LocalVariableNode> newLocalVariables)
     {
         LabelNode duplbl = null;
 
@@ -447,7 +447,7 @@ public class JSRInlinerAdapter extends MethodNode implements Opcodes {
                 newInstructions.add(new JumpInsnNode(GOTO, retlabel));
             } else if (insn.getOpcode() == JSR) {
                 LabelNode lbl = ((JumpInsnNode) insn).label;
-                Subroutine sub = (Subroutine) subroutineHeads.get(lbl);
+                Subroutine sub = subroutineHeads.get(lbl);
                 Instantiation newinst = new Instantiation(instant, sub);
                 LabelNode startlbl = newinst.gotoLabel(lbl);
 
@@ -473,8 +473,8 @@ public class JSRInlinerAdapter extends MethodNode implements Opcodes {
         }
 
         // Emit try/catch blocks that are relevant to this method.
-        for (Iterator it = tryCatchBlocks.iterator(); it.hasNext();) {
-            TryCatchBlockNode trycatch = (TryCatchBlockNode) it.next();
+        for (Iterator<TryCatchBlockNode> it = tryCatchBlocks.iterator(); it.hasNext();) {
+            TryCatchBlockNode trycatch = it.next();
 
             if (LOGGING) {
                 // TODO use of default toString().
@@ -511,8 +511,8 @@ public class JSRInlinerAdapter extends MethodNode implements Opcodes {
                     trycatch.type));
         }
 
-        for (Iterator it = localVariables.iterator(); it.hasNext();) {
-            LocalVariableNode lvnode = (LocalVariableNode) it.next();
+        for (Iterator<LocalVariableNode> it = localVariables.iterator(); it.hasNext();) {
+            LocalVariableNode lvnode = it.next();
             if (LOGGING) {
                 log("local var " + lvnode.name);
             }
@@ -562,7 +562,7 @@ public class JSRInlinerAdapter extends MethodNode implements Opcodes {
      * original labels of the program to the labels appropriate for this
      * instantiation, and finally a label to return to.
      */
-    private class Instantiation extends AbstractMap {
+    private class Instantiation extends AbstractMap<LabelNode, LabelNode> {
 
         /**
          * Previous instantiations; the stack must be statically predictable to
@@ -589,7 +589,7 @@ public class JSRInlinerAdapter extends MethodNode implements Opcodes {
          * 
          * @see #findOwner(int)
          */
-        public final Map rangeTable = new HashMap();
+        public final Map<LabelNode, LabelNode> rangeTable = new HashMap<LabelNode, LabelNode>();
 
         /**
          * All returns for this instantiation will be mapped to this label
@@ -697,7 +697,7 @@ public class JSRInlinerAdapter extends MethodNode implements Opcodes {
             // owner should never be null, because owner is only null
             // if an instruction cannot be reached from this subroutine
             Instantiation owner = findOwner(instructions.indexOf(l));
-            return (LabelNode) owner.rangeTable.get(l);
+            return owner.rangeTable.get(l);
         }
 
         /**
@@ -712,16 +712,16 @@ public class JSRInlinerAdapter extends MethodNode implements Opcodes {
          * @see #rangeTable
          */
         public LabelNode rangeLabel(final LabelNode l) {
-            return (LabelNode) rangeTable.get(l);
+            return rangeTable.get(l);
         }
 
         // AbstractMap implementation
 
-        public Set entrySet() {
+        public Set<Map.Entry<LabelNode, LabelNode>> entrySet() {
             return null;
         }
 
-        public Object get(final Object o) {
+        public LabelNode get(final Object o) {
             return gotoLabel((LabelNode) o);
         }
     }

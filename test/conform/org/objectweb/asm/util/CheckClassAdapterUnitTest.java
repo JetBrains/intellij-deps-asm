@@ -547,7 +547,7 @@ public class CheckClassAdapterUnitTest extends TestCase implements Opcodes {
         MethodVisitor mv = new CheckMethodAdapter(new EmptyVisitor());
         mv.visitCode();
         try {
-            mv.visitTableSwitchInsn(0, 1, new Label(), null);
+            mv.visitTableSwitchInsn(0, 1, new Label(), (Label[])null);
             fail();
         } catch (Exception e) {
         }
@@ -842,7 +842,7 @@ public class CheckClassAdapterUnitTest extends TestCase implements Opcodes {
                 "m",
                 "(I)V",
                 new EmptyVisitor(),
-                new HashMap());
+                new HashMap<Label, Integer>());
         mv.visitCode();
         mv.visitVarInsn(ILOAD, 1);
         mv.visitInsn(IRETURN);
@@ -859,7 +859,7 @@ public class CheckClassAdapterUnitTest extends TestCase implements Opcodes {
                 "m",
                 "(I)I",
                 new EmptyVisitor(),
-                new HashMap());
+                new HashMap<Label, Integer>());
         mv.visitCode();
         mv.visitInsn(RETURN);
         mv.visitMaxs(0, 2);

@@ -79,13 +79,13 @@ public class Comment extends Attribute implements ASMifiable, Traceable {
     public void asmify(
         final StringBuffer buf,
         final String varName,
-        final Map labelNames)
+        final Map<Label, String> labelNames)
     {
         buf.append("Attribute ")
                 .append(varName)
                 .append(" = new org.objectweb.asm.attrs.Comment();");
     }
 
-    public void trace(final StringBuffer buf, final Map labelNames) {
+    public void trace(final StringBuffer buf, final Map<Label, String> labelNames) {
     }
 }

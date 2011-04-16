@@ -35,9 +35,9 @@ import java.util.Map;
 
 public class SimpleRemapper extends Remapper {
 
-    private final Map mapping;
+    private final Map<String, String> mapping;
 
-    public SimpleRemapper(Map mapping) {
+    public SimpleRemapper(Map<String, String> mapping) {
         this.mapping = mapping;
     }
 
@@ -56,7 +56,7 @@ public class SimpleRemapper extends Remapper {
     }
     
     public String map(String key) {
-        return (String) mapping.get(key);
+        return mapping.get(key);
     }
     
 }

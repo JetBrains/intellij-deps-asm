@@ -129,9 +129,9 @@ public class BFCompilerTest extends TestCase {
             TestClassLoader cl = new TestClassLoader(getClass().getClassLoader(),
                     name,
                     cw.toByteArray());
-            Class c = cl.loadClass(name);
+            Class<?> c = cl.loadClass(name);
             Method m = c.getDeclaredMethod("main",
-                    new Class[] { String[].class });
+                    new Class<?>[] { String[].class });
             m.invoke(null, new Object[] { new String[0] });
 
         } catch (InvocationTargetException ex) {
@@ -163,7 +163,7 @@ public class BFCompilerTest extends TestCase {
             this.bytecode = bytecode;
         }
 
-        public Class loadClass(final String name) throws ClassNotFoundException
+        public Class<?> loadClass(final String name) throws ClassNotFoundException
         {
             if (className.equals(name)) {
                 return super.defineClass(className,

@@ -31,6 +31,8 @@ package org.objectweb.asm.util;
 
 import java.util.Map;
 
+import org.objectweb.asm.Label;
+
 /**
  * An attribute that can print the ASM code to create an equivalent attribute.
  * 
@@ -49,5 +51,5 @@ public interface ASMifiable {
      *        attribute instance.
      * @param labelNames map of label instances to their names.
      */
-    void asmify(StringBuffer buf, String varName, Map labelNames);
+    void asmify(StringBuffer buf, String varName, Map<Label, String> labelNames);
 }

@@ -81,7 +81,7 @@ public class VarInsnNode extends AbstractInsnNode {
         mv.visitVarInsn(opcode, var);
     }
 
-    public AbstractInsnNode clone(final Map labels) {
+    public AbstractInsnNode clone(final Map<LabelNode, LabelNode> labels) {
         return new VarInsnNode(opcode, var);
     }
 }

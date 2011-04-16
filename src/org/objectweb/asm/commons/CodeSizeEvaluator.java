@@ -30,13 +30,14 @@
 package org.objectweb.asm.commons;
 
 import org.objectweb.asm.Label;
+import org.objectweb.asm.MethodHandle;
 import org.objectweb.asm.MethodAdapter;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 
 /**
  * A {@link MethodAdapter} that can be used to approximate method size.
- * 
+ *
  * @author Eugene Kuleshov
  */
 public class CodeSizeEvaluator extends MethodAdapter implements Opcodes {
@@ -121,7 +122,7 @@ public class CodeSizeEvaluator extends MethodAdapter implements Opcodes {
         final String name,
         final String desc)
     {
-        if (opcode == INVOKEINTERFACE || opcode == INVOKEDYNAMIC) {
+        if (opcode == INVOKEINTERFACE) {
             minSize += 5;
             maxSize += 5;
         } else {
@@ -130,6 +131,19 @@ public class CodeSizeEvaluator extends MethodAdapter implements Opcodes {
         }
         if (mv != null) {
             mv.visitMethodInsn(opcode, owner, name, desc);
+        }
+    }
+
+    public void visitInvokeDynamicInsn(
+        String name,
+        String desc,
+        MethodHandle bsm,
+        Object... bsmArgs)
+    {
+        minSize += 5;
+        maxSize += 5;
+        if (mv != null) {
+            mv.visitInvokeDynamicInsn(name, desc, bsm, bsmArgs);
         }
     }
 
@@ -175,7 +189,7 @@ public class CodeSizeEvaluator extends MethodAdapter implements Opcodes {
         final int min,
         final int max,
         final Label dflt,
-        final Label[] labels)
+        final Label... labels)
     {
         minSize += 13 + labels.length * 4;
         maxSize += 16 + labels.length * 4;

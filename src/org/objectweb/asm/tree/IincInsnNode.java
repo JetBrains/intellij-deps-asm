@@ -71,7 +71,7 @@ public class IincInsnNode extends AbstractInsnNode {
         mv.visitIincInsn(var, incr);
     }
 
-    public AbstractInsnNode clone(final Map labels) {
+    public AbstractInsnNode clone(final Map<LabelNode, LabelNode> labels) {
         return new IincInsnNode(var, incr);
     }
 }

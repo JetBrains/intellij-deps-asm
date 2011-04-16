@@ -64,7 +64,7 @@ public class TableSwitchInsnNode extends AbstractInsnNode {
      * Beginnings of the handler blocks. This list is a list of
      * {@link LabelNode} objects.
      */
-    public List labels;
+    public List<LabelNode> labels;
 
     /**
      * Constructs a new {@link TableSwitchInsnNode}.
@@ -79,13 +79,13 @@ public class TableSwitchInsnNode extends AbstractInsnNode {
         final int min,
         final int max,
         final LabelNode dflt,
-        final LabelNode[] labels)
+        final LabelNode... labels)
     {
         super(Opcodes.TABLESWITCH);
         this.min = min;
         this.max = max;
         this.dflt = dflt;
-        this.labels = new ArrayList();
+        this.labels = new ArrayList<LabelNode>();
         if (labels != null) {
             this.labels.addAll(Arrays.asList(labels));
         }
@@ -98,12 +98,12 @@ public class TableSwitchInsnNode extends AbstractInsnNode {
     public void accept(final MethodVisitor mv) {
         Label[] labels = new Label[this.labels.size()];
         for (int i = 0; i < labels.length; ++i) {
-            labels[i] = ((LabelNode) this.labels.get(i)).getLabel();
+            labels[i] = this.labels.get(i).getLabel();
         }
         mv.visitTableSwitchInsn(min, max, dflt.getLabel(), labels);
     }
 
-    public AbstractInsnNode clone(final Map labels) {
+    public AbstractInsnNode clone(final Map<LabelNode, LabelNode> labels) {
         return new TableSwitchInsnNode(min,
                 max,
                 clone(dflt, labels),

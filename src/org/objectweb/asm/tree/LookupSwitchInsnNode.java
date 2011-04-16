@@ -53,13 +53,13 @@ public class LookupSwitchInsnNode extends AbstractInsnNode {
     /**
      * The values of the keys. This list is a list of {@link Integer} objects.
      */
-    public List keys;
+    public List<Integer> keys;
 
     /**
      * Beginnings of the handler blocks. This list is a list of
      * {@link LabelNode} objects.
      */
-    public List labels;
+    public List<LabelNode> labels;
 
     /**
      * Constructs a new {@link LookupSwitchInsnNode}.
@@ -76,8 +76,8 @@ public class LookupSwitchInsnNode extends AbstractInsnNode {
     {
         super(Opcodes.LOOKUPSWITCH);
         this.dflt = dflt;
-        this.keys = new ArrayList(keys == null ? 0 : keys.length);
-        this.labels = new ArrayList(labels == null ? 0 : labels.length);
+        this.keys = new ArrayList<Integer>(keys == null ? 0 : keys.length);
+        this.labels = new ArrayList<LabelNode>(labels == null ? 0 : labels.length);
         if (keys != null) {
             for (int i = 0; i < keys.length; ++i) {
                 this.keys.add(new Integer(keys[i]));
@@ -95,16 +95,16 @@ public class LookupSwitchInsnNode extends AbstractInsnNode {
     public void accept(final MethodVisitor mv) {
         int[] keys = new int[this.keys.size()];
         for (int i = 0; i < keys.length; ++i) {
-            keys[i] = ((Integer) this.keys.get(i)).intValue();
+            keys[i] = this.keys.get(i).intValue();
         }
         Label[] labels = new Label[this.labels.size()];
         for (int i = 0; i < labels.length; ++i) {
-            labels[i] = ((LabelNode) this.labels.get(i)).getLabel();
+            labels[i] = this.labels.get(i).getLabel();
         }
         mv.visitLookupSwitchInsn(dflt.getLabel(), keys, labels);
     }
 
-    public AbstractInsnNode clone(final Map labels) {
+    public AbstractInsnNode clone(final Map<LabelNode, LabelNode> labels) {
         LookupSwitchInsnNode clone = new LookupSwitchInsnNode(clone(dflt,
                 labels), null, clone(this.labels, labels));
         clone.keys.addAll(keys);

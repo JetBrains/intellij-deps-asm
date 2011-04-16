@@ -53,10 +53,10 @@ public class SourceInterpreterTest extends AbstractTest {
         ClassReader cr = new ClassReader(is);
         ClassNode cn = new ClassNode();
         cr.accept(cn, 0);
-        List methods = cn.methods;
+        List<MethodNode> methods = cn.methods;
         for (int i = 0; i < methods.size(); ++i) {
-            MethodNode method = (MethodNode) methods.get(i);
-            Analyzer a = new Analyzer(new SourceInterpreter());
+            MethodNode method = methods.get(i);
+            Analyzer<?> a = new Analyzer<SourceValue>(new SourceInterpreter());
             a.analyze(cn.name, method);
         }
     }

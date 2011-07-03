@@ -451,7 +451,7 @@ public class ClassReader {
      * @throws IOException if a problem occurs during reading.
      */
     public ClassReader(final InputStream is) throws IOException {
-        this(readClass(is));
+        this(readClass(is, false));
     }
 
     /**
@@ -461,43 +461,52 @@ public class ClassReader {
      * @throws IOException if an exception occurs during reading.
      */
     public ClassReader(final String name) throws IOException {
-        this(ClassLoader.getSystemResourceAsStream(name.replace('.', '/')
-                + ".class"));
+        this(readClass(ClassLoader.getSystemResourceAsStream(name.replace('.', '/')
+                + ".class"), true));
     }
 
     /**
      * Reads the bytecode of a class.
      *
      * @param is an input stream from which to read the class.
+     * @param close true to close the input stream after reading.
      * @return the bytecode read from the given input stream.
      * @throws IOException if a problem occurs during reading.
      */
-    private static byte[] readClass(final InputStream is) throws IOException {
+    private static byte[] readClass(final InputStream is, boolean close)
+            throws IOException
+    {
         if (is == null) {
             throw new IOException("Class not found");
         }
-        byte[] b = new byte[is.available()];
-        int len = 0;
-        while (true) {
-            int n = is.read(b, len, b.length - len);
-            if (n == -1) {
-                if (len < b.length) {
-                    byte[] c = new byte[len];
-                    System.arraycopy(b, 0, c, 0, len);
-                    b = c;
-                }
-                return b;
-            }
-            len += n;
-            if (len == b.length) {
-                int last = is.read();
-                if (last < 0) {
+        try {
+            byte[] b = new byte[is.available()];
+            int len = 0;
+            while (true) {
+                int n = is.read(b, len, b.length - len);
+                if (n == -1) {
+                    if (len < b.length) {
+                        byte[] c = new byte[len];
+                        System.arraycopy(b, 0, c, 0, len);
+                        b = c;
+                    }
                     return b;
                 }
-                byte[] c = new byte[b.length + 1000];
-                System.arraycopy(b, 0, c, 0, len);
-                c[len++] = (byte) last;
-                b = c;
+                len += n;
+                if (len == b.length) {
+                    int last = is.read();
+                    if (last < 0) {
+                        return b;
+                    }
+                    byte[] c = new byte[b.length + 1000];
+                    System.arraycopy(b, 0, c, 0, len);
+                    c[len++] = (byte) last;
+                    b = c;
+                }
+            }
+        } finally {
+            if (close) {
+                is.close();
             }
         }
     }
@@ -1974,6 +1983,15 @@ public class ClassReader {
     // ------------------------------------------------------------------------
 
     /**
+     *  Returns the number of constant pool items in {@link #b b}.
+     *  
+     *  @return the number of constant pool items in {@link #b b}.
+     */
+    public int getItemCount() {
+        return items.length;
+    }
+
+    /**
      * Returns the start index of the constant pool item in {@link #b b}, plus
      * one. <i>This method is intended for {@link Attribute} sub classes, and is
      * normally not needed by class generators or adapters.</i>
@@ -1984,6 +2002,17 @@ public class ClassReader {
      */
     public int getItem(final int item) {
         return items[item];
+    }
+
+    /**
+     * Returns the maximum length of the strings contained in the constant pool
+     * of the class.
+     * 
+     * @return the maximum length of the strings contained in the constant pool
+     *         of the class.
+     */
+    public int getMaxStringLength() {
+        return maxStringLength;
     }
 
     /**

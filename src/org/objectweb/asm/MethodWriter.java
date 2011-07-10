@@ -1366,11 +1366,20 @@ class MethodWriter implements MethodVisitor {
                         frame[frameIndex++] = Frame.OBJECT
                                 | cw.addType("java/lang/Throwable");
                         endFrame();
+                        // removes the start-end range from the exception handlers
+                        firstHandler = Handler.remove(firstHandler, l, k);
                     }
                 }
                 l = l.successor;
             }
 
+            handler = firstHandler;
+            handlerCount = 0;
+            while (handler != null) {
+                handlerCount += 1;
+                handler = handler.next;
+            }
+            
             this.maxStack = max;
         } else if (compute == MAXS) {
             // completes the control flow graph with exception handler blocks

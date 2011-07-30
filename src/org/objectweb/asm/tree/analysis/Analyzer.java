@@ -283,7 +283,7 @@ public class Analyzer<V extends Value> implements Opcodes {
                             type = Type.getObjectType(tcb.type);
                         }
                         int jump = insns.indexOf(tcb.handler);
-                        if (newControlFlowExceptionEdge(insn, jump)) {
+                        if (newControlFlowExceptionEdge(insn, tcb)) {
                             handler.init(f);
                             handler.clearStack();
                             handler.push(interpreter.newValue(type));
@@ -443,7 +443,7 @@ public class Analyzer<V extends Value> implements Opcodes {
     /**
      * Creates a control flow graph edge corresponding to an exception handler.
      * The default implementation of this method does nothing. It can be
-     * overriden in order to construct the control flow graph of a method (this
+     * overridden in order to construct the control flow graph of a method (this
      * method is called by the {@link #analyze analyze} method during its visit
      * of the method's code).
      * 
@@ -458,6 +458,30 @@ public class Analyzer<V extends Value> implements Opcodes {
         final int successor)
     {
         return true;
+    }
+
+    /**
+     * Creates a control flow graph edge corresponding to an exception handler.
+     * The default implementation of this method delegates to
+     * {@link #newControlFlowExceptionEdge(int, int)
+     * newControlFlowExceptionEdge(int, int)}. It can be overridden in order to
+     * construct the control flow graph of a method (this method is called by
+     * the {@link #analyze analyze} method during its visit of the method's
+     * code).
+     * 
+     * @param insn an instruction index.
+     * @param tcb TryCatchBlockNode corresponding to this edge.
+     * @return true if this edge must be considered in the data flow analysis
+     *         performed by this analyzer, or false otherwise. The default
+     *         implementation of this method delegates to
+     *         {@link #newControlFlowExceptionEdge(int, int)
+     *         newControlFlowExceptionEdge(int, int)}.
+     */
+    protected boolean newControlFlowExceptionEdge(
+        final int insn,
+        final TryCatchBlockNode tcb)
+    {
+        return newControlFlowExceptionEdge(insn, insns.indexOf(tcb.handler));
     }
 
     // -------------------------------------------------------------------------

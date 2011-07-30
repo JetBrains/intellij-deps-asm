@@ -46,7 +46,9 @@ import org.objectweb.asm.tree.analysis.BasicVerifier;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.lang.reflect.Field;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -59,10 +61,10 @@ import java.util.Map;
  * {@link org.objectweb.asm.tree.analysis.BasicVerifier}). For instance in a
  * method whose signature is <tt>void m ()</tt>, the invalid instruction
  * IRETURN, or the invalid sequence IADD L2I will be detected if the data flow
- * checks are enabled. These checks are enabled by using the {@link
- * #CheckMethodAdapter(int,String,String,MethodVisitor,Map)} constructor. They
- * are not performed if any other constructor is used.
- *
+ * checks are enabled. These checks are enabled by using the
+ * {@link #CheckMethodAdapter(int,String,String,MethodVisitor,Map)} constructor.
+ * They are not performed if any other constructor is used.
+ * 
  * @author Eric Bruneton
  */
 public class CheckMethodAdapter extends MethodAdapter {
@@ -88,10 +90,21 @@ public class CheckMethodAdapter extends MethodAdapter {
     private boolean endMethod;
 
     /**
-     * The already visited labels. This map associate Integer values to Label
-     * keys.
+     * Number of visited instructions.
+     */
+    private int insnCount;
+
+    /**
+     * The already visited labels. This map associate Integer values to pseudo
+     * code offsets.
      */
     private final Map<Label, Integer> labels;
+
+    /**
+     * The exception handler ranges. Each list element contains an array of two
+     * labels, for the start and end labels of an exception handler block.
+     */
+    private List<Label[]> handlers;
 
     /**
      * Code of the visit method to be used for each opcode.
@@ -328,9 +341,9 @@ public class CheckMethodAdapter extends MethodAdapter {
 
     /**
      * Constructs a new {@link CheckMethodAdapter} object. This method adapter
-     * will not perform any data flow check (see {@link
-     * #CheckMethodAdapter(int,String,String,MethodVisitor,Map)}).
-     *
+     * will not perform any data flow check (see
+     * {@link #CheckMethodAdapter(int,String,String,MethodVisitor,Map)}).
+     * 
      * @param mv the method visitor to which this adapter must delegate calls.
      */
     public CheckMethodAdapter(final MethodVisitor mv) {
@@ -339,23 +352,27 @@ public class CheckMethodAdapter extends MethodAdapter {
 
     /**
      * Constructs a new {@link CheckMethodAdapter} object. This method adapter
-     * will not perform any data flow check (see {@link
-     * #CheckMethodAdapter(int,String,String,MethodVisitor,Map)}).
-     *
+     * will not perform any data flow check (see
+     * {@link #CheckMethodAdapter(int,String,String,MethodVisitor,Map)}).
+     * 
      * @param mv the method visitor to which this adapter must delegate calls.
      * @param labels a map of already visited labels (in other methods).
      */
-    public CheckMethodAdapter(final MethodVisitor mv, final Map<Label, Integer> labels) {
+    public CheckMethodAdapter(
+        final MethodVisitor mv,
+        final Map<Label, Integer> labels)
+    {
         super(mv);
         this.labels = labels;
+        this.handlers = new ArrayList<Label[]>();
     }
 
     /**
      * Constructs a new {@link CheckMethodAdapter} object. This method adapter
      * will perform basic data flow checks. For instance in a method whose
-     * signature is <tt>void m ()</tt>, the invalid instruction IRETURN, or
-     * the invalid sequence IADD L2I will be detected.
-     *
+     * signature is <tt>void m ()</tt>, the invalid instruction IRETURN, or the
+     * invalid sequence IADD L2I will be detected.
+     * 
      * @param access the method's access flags.
      * @param name the method's name.
      * @param desc the method's descriptor (see {@link Type Type}).
@@ -385,11 +402,13 @@ public class CheckMethodAdapter extends MethodAdapter {
                     PrintWriter pw = new PrintWriter(sw, true);
                     CheckClassAdapter.printAnalyzerResult(this, a, pw);
                     pw.close();
-                    throw new RuntimeException(e.getMessage() + ' ' + sw.toString());
+                    throw new RuntimeException(e.getMessage() + ' '
+                            + sw.toString());
                 }
                 accept(mv);
             }
-        }, labels);
+        },
+                labels);
     }
 
     public AnnotationVisitor visitAnnotation(
@@ -499,6 +518,7 @@ public class CheckMethodAdapter extends MethodAdapter {
         checkEndCode();
         checkOpcode(opcode, 0);
         mv.visitInsn(opcode);
+        ++insnCount;
     }
 
     public void visitIntInsn(final int opcode, final int operand) {
@@ -520,6 +540,7 @@ public class CheckMethodAdapter extends MethodAdapter {
                 }
         }
         mv.visitIntInsn(opcode, operand);
+        ++insnCount;
     }
 
     public void visitVarInsn(final int opcode, final int var) {
@@ -528,6 +549,7 @@ public class CheckMethodAdapter extends MethodAdapter {
         checkOpcode(opcode, 2);
         checkUnsignedShort(var, "Invalid variable index");
         mv.visitVarInsn(opcode, var);
+        ++insnCount;
     }
 
     public void visitTypeInsn(final int opcode, final String type) {
@@ -540,6 +562,7 @@ public class CheckMethodAdapter extends MethodAdapter {
                     + type);
         }
         mv.visitTypeInsn(opcode, type);
+        ++insnCount;
     }
 
     public void visitFieldInsn(
@@ -555,6 +578,7 @@ public class CheckMethodAdapter extends MethodAdapter {
         checkUnqualifiedName(version, name, "name");
         checkDesc(desc, false);
         mv.visitFieldInsn(opcode, owner, name, desc);
+        ++insnCount;
     }
 
     public void visitMethodInsn(
@@ -570,6 +594,7 @@ public class CheckMethodAdapter extends MethodAdapter {
         checkInternalName(owner, "owner");
         checkMethodDesc(desc);
         mv.visitMethodInsn(opcode, owner, name, desc);
+        ++insnCount;
     }
 
     public void visitInvokeDynamicInsn(
@@ -592,6 +617,7 @@ public class CheckMethodAdapter extends MethodAdapter {
             checkLDCConstant(bsmArgs[i]);
         }
         mv.visitInvokeDynamicInsn(name, desc, bsm, bsmArgs);
+        ++insnCount;
     }
 
     public void visitJumpInsn(final int opcode, final Label label) {
@@ -601,6 +627,7 @@ public class CheckMethodAdapter extends MethodAdapter {
         checkLabel(label, false, "label");
         checkNonDebugLabel(label);
         mv.visitJumpInsn(opcode, label);
+        ++insnCount;
     }
 
     public void visitLabel(final Label label) {
@@ -610,7 +637,7 @@ public class CheckMethodAdapter extends MethodAdapter {
         if (labels.get(label) != null) {
             throw new IllegalArgumentException("Already visited label");
         }
-        labels.put(label, new Integer(labels.size()));
+        labels.put(label, new Integer(insnCount));
         mv.visitLabel(label);
     }
 
@@ -619,6 +646,7 @@ public class CheckMethodAdapter extends MethodAdapter {
         checkEndCode();
         checkLDCConstant(cst);
         mv.visitLdcInsn(cst);
+        ++insnCount;
     }
 
     public void visitIincInsn(final int var, final int increment) {
@@ -627,6 +655,7 @@ public class CheckMethodAdapter extends MethodAdapter {
         checkUnsignedShort(var, "Invalid variable index");
         checkSignedShort(increment, "Invalid increment");
         mv.visitIincInsn(var, increment);
+        ++insnCount;
     }
 
     public void visitTableSwitchInsn(
@@ -651,6 +680,7 @@ public class CheckMethodAdapter extends MethodAdapter {
             checkNonDebugLabel(labels[i]);
         }
         mv.visitTableSwitchInsn(min, max, dflt, labels);
+        ++insnCount;
     }
 
     public void visitLookupSwitchInsn(
@@ -670,6 +700,7 @@ public class CheckMethodAdapter extends MethodAdapter {
             checkNonDebugLabel(labels[i]);
         }
         mv.visitLookupSwitchInsn(dflt, keys, labels);
+        ++insnCount;
     }
 
     public void visitMultiANewArrayInsn(final String desc, final int dims) {
@@ -689,6 +720,7 @@ public class CheckMethodAdapter extends MethodAdapter {
                     + dims);
         }
         mv.visitMultiANewArrayInsn(desc, dims);
+        ++insnCount;
     }
 
     public void visitTryCatchBlock(
@@ -705,13 +737,16 @@ public class CheckMethodAdapter extends MethodAdapter {
         checkNonDebugLabel(start);
         checkNonDebugLabel(end);
         checkNonDebugLabel(handler);
-        if (labels.get(start) != null || labels.get(end) != null || labels.get(handler) != null) {
+        if (labels.get(start) != null || labels.get(end) != null
+                || labels.get(handler) != null)
+        {
             throw new IllegalStateException("Try catch blocks must be visited before their labels");
         }
         if (type != null) {
             checkInternalName(type, "type");
         }
         mv.visitTryCatchBlock(start, end, handler, type);
+        handlers.add(new Label[] { start, end });
     }
 
     public void visitLocalVariable(
@@ -749,6 +784,16 @@ public class CheckMethodAdapter extends MethodAdapter {
         checkStartCode();
         checkEndCode();
         endCode = true;
+        for (int i = 0; i < handlers.size(); ++i) {
+            Integer start = labels.get(handlers.get(i)[0]);
+            Integer end = labels.get(handlers.get(i)[1]);
+            if (start == null || end == null) {
+                throw new IllegalStateException("Undefined try catch block labels");
+            }
+            if (end.intValue() <= start.intValue()) {
+                throw new IllegalStateException("Emty try catch block handler range");
+            }
+        }
         checkUnsignedShort(maxStack, "Invalid max stack");
         checkUnsignedShort(maxLocals, "Invalid max locals");
         mv.visitMaxs(maxStack, maxLocals);
@@ -791,7 +836,7 @@ public class CheckMethodAdapter extends MethodAdapter {
 
     /**
      * Checks a stack frame value.
-     *
+     * 
      * @param value the value to be checked.
      */
     static void checkFrameValue(final Object value) {
@@ -814,7 +859,7 @@ public class CheckMethodAdapter extends MethodAdapter {
 
     /**
      * Checks that the type of the given opcode is equal to the given type.
-     *
+     * 
      * @param opcode the opcode to be checked.
      * @param type the expected opcode type.
      */
@@ -826,7 +871,7 @@ public class CheckMethodAdapter extends MethodAdapter {
 
     /**
      * Checks that the given value is a signed byte.
-     *
+     * 
      * @param value the value to be checked.
      * @param msg an message to be used in case of error.
      */
@@ -839,7 +884,7 @@ public class CheckMethodAdapter extends MethodAdapter {
 
     /**
      * Checks that the given value is a signed short.
-     *
+     * 
      * @param value the value to be checked.
      * @param msg an message to be used in case of error.
      */
@@ -852,7 +897,7 @@ public class CheckMethodAdapter extends MethodAdapter {
 
     /**
      * Checks that the given value is an unsigned short.
-     *
+     * 
      * @param value the value to be checked.
      * @param msg an message to be used in case of error.
      */
@@ -866,7 +911,7 @@ public class CheckMethodAdapter extends MethodAdapter {
     /**
      * Checks that the given value is an {@link Integer}, a{@link Float}, a
      * {@link Long}, a {@link Double} or a {@link String}.
-     *
+     * 
      * @param cst the value to be checked.
      */
     static void checkConstant(final Object cst) {
@@ -891,9 +936,10 @@ public class CheckMethodAdapter extends MethodAdapter {
             if ((version & 0xFFFF) < Opcodes.V1_7) {
                 throw new IllegalArgumentException("ldc of a constant method handle requires at least version 1.7");
             }
-            int tag = ((MethodHandle)cst).getTag();
+            int tag = ((MethodHandle) cst).getTag();
             if (tag < Opcodes.MH_GETFIELD || tag > Opcodes.MH_INVOKEINTERFACE) {
-                throw new IllegalArgumentException("invalid constant method handle tag "+tag);
+                throw new IllegalArgumentException("invalid constant method handle tag "
+                        + tag);
             }
         } else {
             checkConstant(cst);
@@ -902,12 +948,16 @@ public class CheckMethodAdapter extends MethodAdapter {
 
     /**
      * Checks that the given string is a valid unqualified name.
-     *
+     * 
      * @param version the class version.
      * @param name the string to be checked.
      * @param msg a message to be used in case of error.
      */
-    static void checkUnqualifiedName(int version, final String name, final String msg) {
+    static void checkUnqualifiedName(
+        int version,
+        final String name,
+        final String msg)
+    {
         if ((version & 0xFFFF) < Opcodes.V1_5) {
             checkIdentifier(name, msg);
         } else {
@@ -922,7 +972,7 @@ public class CheckMethodAdapter extends MethodAdapter {
 
     /**
      * Checks that the given string is a valid Java identifier.
-     *
+     * 
      * @param name the string to be checked.
      * @param msg a message to be used in case of error.
      */
@@ -932,7 +982,7 @@ public class CheckMethodAdapter extends MethodAdapter {
 
     /**
      * Checks that the given substring is a valid Java identifier.
-     *
+     * 
      * @param name the string to be checked.
      * @param start index of the first character of the identifier (inclusive).
      * @param end index of the last character of the identifier (exclusive). -1
@@ -967,12 +1017,16 @@ public class CheckMethodAdapter extends MethodAdapter {
     /**
      * Checks that the given string is a valid Java identifier or is equal to
      * '&lt;init&gt;' or '&lt;clinit&gt;'.
-     *
+     * 
      * @param version the class version.
      * @param name the string to be checked.
      * @param msg a message to be used in case of error.
      */
-    static void checkMethodIdentifier(int version, final String name, final String msg) {
+    static void checkMethodIdentifier(
+        int version,
+        final String name,
+        final String msg)
+    {
         if (name == null || name.length() == 0) {
             throw new IllegalArgumentException("Invalid " + msg
                     + " (must not be null or empty)");
@@ -1007,7 +1061,7 @@ public class CheckMethodAdapter extends MethodAdapter {
 
     /**
      * Checks that the given string is a valid internal class name.
-     *
+     * 
      * @param name the string to be checked.
      * @param msg a message to be used in case of error.
      */
@@ -1025,7 +1079,7 @@ public class CheckMethodAdapter extends MethodAdapter {
 
     /**
      * Checks that the given substring is a valid internal class name.
-     *
+     * 
      * @param name the string to be checked.
      * @param start index of the first character of the identifier (inclusive).
      * @param end index of the last character of the identifier (exclusive). -1
@@ -1061,7 +1115,7 @@ public class CheckMethodAdapter extends MethodAdapter {
 
     /**
      * Checks that the given string is a valid type descriptor.
-     *
+     * 
      * @param desc the string to be checked.
      * @param canBeVoid <tt>true</tt> if <tt>V</tt> can be considered valid.
      */
@@ -1074,7 +1128,7 @@ public class CheckMethodAdapter extends MethodAdapter {
 
     /**
      * Checks that a the given substring is a valid type descriptor.
-     *
+     * 
      * @param desc the string to be checked.
      * @param start index of the first character of the identifier (inclusive).
      * @param canBeVoid <tt>true</tt> if <tt>V</tt> can be considered valid.
@@ -1138,7 +1192,7 @@ public class CheckMethodAdapter extends MethodAdapter {
 
     /**
      * Checks that the given string is a valid method descriptor.
-     *
+     * 
      * @param desc the string to be checked.
      */
     static void checkMethodDesc(final String desc) {
@@ -1166,7 +1220,7 @@ public class CheckMethodAdapter extends MethodAdapter {
 
     /**
      * Checks a class signature.
-     *
+     * 
      * @param signature a string containing the signature that must be checked.
      */
     static void checkClassSignature(final String signature) {
@@ -1189,7 +1243,7 @@ public class CheckMethodAdapter extends MethodAdapter {
 
     /**
      * Checks a method signature.
-     *
+     * 
      * @param signature a string containing the signature that must be checked.
      */
     static void checkMethodSignature(final String signature) {
@@ -1227,7 +1281,7 @@ public class CheckMethodAdapter extends MethodAdapter {
 
     /**
      * Checks a field signature.
-     *
+     * 
      * @param signature a string containing the signature that must be checked.
      */
     static void checkFieldSignature(final String signature) {
@@ -1240,7 +1294,7 @@ public class CheckMethodAdapter extends MethodAdapter {
 
     /**
      * Checks the formal type parameters of a class or method signature.
-     *
+     * 
      * @param signature a string containing the signature that must be checked.
      * @param pos index of first character to be checked.
      * @return the index of the first character after the checked part.
@@ -1260,7 +1314,7 @@ public class CheckMethodAdapter extends MethodAdapter {
 
     /**
      * Checks a formal type parameter of a class or method signature.
-     *
+     * 
      * @param signature a string containing the signature that must be checked.
      * @param pos index of first character to be checked.
      * @return the index of the first character after the checked part.
@@ -1283,7 +1337,7 @@ public class CheckMethodAdapter extends MethodAdapter {
 
     /**
      * Checks a field type signature.
-     *
+     * 
      * @param signature a string containing the signature that must be checked.
      * @param pos index of first character to be checked.
      * @return the index of the first character after the checked part.
@@ -1308,7 +1362,7 @@ public class CheckMethodAdapter extends MethodAdapter {
 
     /**
      * Checks a class type signature.
-     *
+     * 
      * @param signature a string containing the signature that must be checked.
      * @param pos index of first character to be checked.
      * @return the index of the first character after the checked part.
@@ -1338,7 +1392,7 @@ public class CheckMethodAdapter extends MethodAdapter {
 
     /**
      * Checks the type arguments in a class type signature.
-     *
+     * 
      * @param signature a string containing the signature that must be checked.
      * @param pos index of first character to be checked.
      * @return the index of the first character after the checked part.
@@ -1357,7 +1411,7 @@ public class CheckMethodAdapter extends MethodAdapter {
 
     /**
      * Checks a type argument in a class type signature.
-     *
+     * 
      * @param signature a string containing the signature that must be checked.
      * @param pos index of first character to be checked.
      * @return the index of the first character after the checked part.
@@ -1377,7 +1431,7 @@ public class CheckMethodAdapter extends MethodAdapter {
 
     /**
      * Checks a type variable signature.
-     *
+     * 
      * @param signature a string containing the signature that must be checked.
      * @param pos index of first character to be checked.
      * @return the index of the first character after the checked part.
@@ -1396,7 +1450,7 @@ public class CheckMethodAdapter extends MethodAdapter {
 
     /**
      * Checks a type signature.
-     *
+     * 
      * @param signature a string containing the signature that must be checked.
      * @param pos index of first character to be checked.
      * @return the index of the first character after the checked part.
@@ -1422,7 +1476,7 @@ public class CheckMethodAdapter extends MethodAdapter {
 
     /**
      * Checks an identifier.
-     *
+     * 
      * @param signature a string containing the signature that must be checked.
      * @param pos index of first character to be checked.
      * @return the index of the first character after the checked part.
@@ -1441,7 +1495,7 @@ public class CheckMethodAdapter extends MethodAdapter {
 
     /**
      * Checks a single character.
-     *
+     * 
      * @param signature a string containing the signature that must be checked.
      * @param pos index of first character to be checked.
      * @return the index of the first character after the checked part.
@@ -1457,7 +1511,7 @@ public class CheckMethodAdapter extends MethodAdapter {
 
     /**
      * Returns the signature car at the given index.
-     *
+     * 
      * @param signature a signature.
      * @param pos an index in signature.
      * @return the character at the given index, or 0 if there is no such
@@ -1470,7 +1524,7 @@ public class CheckMethodAdapter extends MethodAdapter {
     /**
      * Checks that the given label is not null. This method can also check that
      * the label has been visited.
-     *
+     * 
      * @param label the label to be checked.
      * @param checkVisited <tt>true</tt> to check that the label has been
      *        visited.
@@ -1493,7 +1547,7 @@ public class CheckMethodAdapter extends MethodAdapter {
 
     /**
      * Checks that the given lavel is not a label used only for debug purposes.
-     *
+     * 
      * @param label the label to be checked.
      */
     private static void checkNonDebugLabel(final Label label) {
@@ -1501,7 +1555,9 @@ public class CheckMethodAdapter extends MethodAdapter {
         int status = 0;
         try {
             status = f == null ? 0 : ((Integer) f.get(label)).intValue();
-        } catch (IllegalAccessException e) { throw new Error("Internal error"); }
+        } catch (IllegalAccessException e) {
+            throw new Error("Internal error");
+        }
         if ((status & 0x01) != 0) {
             throw new IllegalArgumentException("Labels used for debug info cannot be reused for control flow");
         }
@@ -1509,7 +1565,7 @@ public class CheckMethodAdapter extends MethodAdapter {
 
     /**
      * Returns the Field object corresponding to the Label.status field.
-     *
+     * 
      * @return the Field object corresponding to the Label.status field.
      */
     private static Field getLabelStatusField() {
@@ -1524,7 +1580,7 @@ public class CheckMethodAdapter extends MethodAdapter {
 
     /**
      * Returns the field of the Label class whose name is given.
-     *
+     * 
      * @param name a field name.
      * @return the field of the Label class whose name is given, or null.
      */

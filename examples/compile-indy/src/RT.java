@@ -60,7 +60,7 @@ public class RT {
         
         Object fallback(Object v1, Object v2) throws Throwable {
             // when you debug with this message don't forget that && and || are lazy !!
-            System.out.println("fallback called with "+opName+'('+v1.getClass()+','+v2.getClass()+')');
+            //System.out.println("fallback called with "+opName+'('+v1.getClass()+','+v2.getClass()+')');
             
             Class< ? extends Object> class1 = v1.getClass();
             Class< ? extends Object> class2 = v2.getClass();

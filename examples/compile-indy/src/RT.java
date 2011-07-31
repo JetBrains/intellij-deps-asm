@@ -1,3 +1,31 @@
+/***
+ * Copyright (c) 2000-2011 INRIA, France Telecom
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ * 1. Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in the
+ *    documentation and/or other materials provided with the distribution.
+ * 3. Neither the name of the copyright holders nor the names of its
+ *    contributors may be used to endorse or promote products derived from
+ *    this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
+ * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
+ * THE POSSIBILITY OF SUCH DAMAGE.
+ */
 import java.lang.invoke.CallSite;
 import java.lang.invoke.ConstantCallSite;
 import java.lang.invoke.MethodHandle;
@@ -7,11 +35,37 @@ import java.lang.invoke.MethodType;
 import java.lang.invoke.MutableCallSite;
 import java.util.HashMap;
 
+/**
+ * There are 3 bootstrap methods:
+ *   - one for the constant that are initialized once the first time the bootstrap method
+ *         is called and after always reuse the same constant.
+ *         It's almost equivalent to an LDC but here the constant are stored in boxed
+ *         form e.g a java.lang.Integer containing 0 instead of an int containing 0.
+ *   
+ *   - one for the unary operation 'not' and 'asBoolean', here the semantics is hard coded,
+ *         all primitive value are transformed as object by applying this operation:
+ *           (v == 0)? false: true
+ *            
+ *   - one for the binary operation 'add', 'mul' and 'gt', here the semantics can
+ *         be changed by adding more static methods in {@link BinaryOps}.
+ *         This bootstrap method is a little more complex because it creates an inlining
+ *         cache to avoid to recompute the binary method to call if the type of the two
+ *         arguments doesn't change. Also, if the expression is used a lot and trigger
+ *         the JIT, it will be able to inline the code of the operation directly at callsite.
+ * 
+ * @author Remi Forax
+ */
 public class RT {
+    /**
+     * bootstrap method for constant
+     */
     public static CallSite cst(Lookup lookup, String name, MethodType type, Object constant) {
         return new ConstantCallSite(MethodHandles.constant(Object.class, constant));
     }
     
+    /**
+     * bootstrap method for unary operation 'asBoolean' and 'not'
+     */
     public static CallSite unary(Lookup lookup, String name, MethodType type) {
         MethodHandle target;
         if (name.equals("asBoolean")) {
@@ -26,12 +80,28 @@ public class RT {
         return new ConstantCallSite(target);
     }
     
+    /**
+     * bootstrap method for binary operation 'add', 'mul' and 'gt'
+     * 
+     * This bootstrap method doesn't install the target method handle directly,
+     * because we want to install an inlining cache and we can't create an inlining cache
+     * without knowing the class of the arguments.
+     * So this method first installs a method handle that will call
+     * {@link BinaryOpCallSite#fallback(Object, Object)} and the fallback method will be called with
+     * the arguments and thus can install the inlining cache.
+     * Also, the fallback has to be bound to a specific callsite to be able to change
+     * its target after the first call, this part is done in the constructor of {@link BinaryOpCallSite}.
+     */
     public static CallSite binary(Lookup lookup, String name, MethodType type) {
         BinaryOpCallSite callSite = new BinaryOpCallSite(name, type);
         callSite.setTarget(callSite.fallback);
         return callSite;
     }
     
+    /**
+     * Garbage class containing the method used to apply 'not' on a boolean.
+     * See {@link RT#unary(Lookup, String, MethodType)}
+     */
     public static class UnayOps {
         public static Object not(boolean b) {
             return !b;
@@ -48,6 +118,17 @@ public class RT {
         }
     }
     
+    /**
+     * A specific callsite that will install an 'inlining cache'.
+     * Because we don't know until runtime which method handle to call,
+     * the lookup depending on the dynamic type of the argument will
+     * be done at runtime when the method {@link #fallback(Object, Object)} is called.
+     * To avoid to do this dynamic lookup at each call, the fallback install
+     * two guards in front of dispatch call that will check if the arguments class
+     * change or not. If the arguments class don't change, the previously
+     * computed method handle will be called again. Otherwise,
+     * a new method handle will be computed and two new guards will be installed.
+     */
     static class BinaryOpCallSite extends MutableCallSite {
         private final String opName;
         final MethodHandle fallback;
@@ -118,6 +199,13 @@ public class RT {
     }
     
 
+    /**
+     *  Garbage class that contains the raw operations used for binary
+     *  operations. All methods must be static returns an Object and
+     *  takes the same type for the two parameter types.
+     *  
+     *  See {@link RT#lookupBinaryOp(String, Class, Class)} for more info.
+     */
     public static class BinaryOps {
         public static Object add(int v1, int v2) {
             return v1 + v2;
@@ -147,6 +235,18 @@ public class RT {
         }
     }
     
+    /**
+     * Select a most specific method among the ones defined in {@link RT.BinaryOps}.
+     * The algorithm first find the most specific subtype between class1 and class2.
+     * The order of the types is defined in {@link RT#RANK_MAP}:
+     *   Boolean < Byte < Short < Character < Integer < Long < Float < Double < String
+     * then the algorithm lookup in {@link RT.BinaryOps} to find a method with the name
+     * opName taking as argument the primitive corresponding to the most specific subtype.
+     * If no such method exist, the algorithm retry but looking for a method with
+     * a more specific type (using the same order).
+     * The result of the lookup is cached in {@link RT#BINARY_CACHE} to avoid
+     * to avoid to do a lookup (a reflective call) on the same method twice. 
+     */
     static MethodHandle lookupBinaryOp(String opName, Class<?> class1, Class<?> class2) {
         int rank = Math.max(RANK_MAP.get(class1), RANK_MAP.get(class2));
         String mangledName = opName+rank;

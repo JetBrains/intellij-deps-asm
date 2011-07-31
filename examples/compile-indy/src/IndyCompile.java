@@ -3,7 +3,7 @@
  * This example is adapted from the example that you can find in examples/compile
  * and use invokedynamic to implement all operations.
  * 
- * Copyright (c) 2000-2007 INRIA, France Telecom
+ * Copyright (c) 2000-2011 INRIA, France Telecom
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -312,8 +312,8 @@ public class IndyCompile extends ClassLoader {
         }
 
         void compile(final MethodVisitor mv) {
+            // compiles e1, and applies 'not'
             e.compile(mv);
-            // convert to a boolean
             mv.visitInvokeDynamicInsn("not", "(Ljava/lang/Object;)Ljava/lang/Object;", UNARY);
         }
     }

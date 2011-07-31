@@ -2,8 +2,8 @@
  * ASM examples: examples showing how ASM can be used
  * This example is adapted from the example that you can find in examples/compile
  * and use invokedynamic to implement all operations.
- * 
- * Copyright (c) 2000-2011 INRIA, France Telecom
+ *
+ * Copyright (c) 2000-20011 INRIA, France Telecom
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -30,6 +30,7 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
  * THE POSSIBILITY OF SUCH DAMAGE.
  */
+
 import static org.objectweb.asm.Opcodes.ACC_PUBLIC;
 import static org.objectweb.asm.Opcodes.ACC_STATIC;
 import static org.objectweb.asm.Opcodes.ALOAD;
@@ -37,120 +38,127 @@ import static org.objectweb.asm.Opcodes.ARETURN;
 import static org.objectweb.asm.Opcodes.DUP;
 import static org.objectweb.asm.Opcodes.IFEQ;
 import static org.objectweb.asm.Opcodes.IFNE;
+import static org.objectweb.asm.Opcodes.MH_INVOKESTATIC;
 import static org.objectweb.asm.Opcodes.POP;
-import static org.objectweb.asm.Opcodes.*;
+import static org.objectweb.asm.Opcodes.V1_7;
 
-import java.lang.invoke.CallSite;
-import java.lang.invoke.MethodHandle;
-import java.lang.invoke.MethodHandles;
-import java.lang.invoke.MethodHandles.Lookup;
-import java.lang.invoke.MethodType;
+import java.io.FileOutputStream;
+import java.lang.reflect.Method;
 
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Label;
+import org.objectweb.asm.MethodHandle;
+import org.objectweb.asm.MethodType;
 import org.objectweb.asm.MethodVisitor;
 
 /**
  * @author Remi Forax
+ * @author Eric Bruneton
  */
 public class IndyCompile extends ClassLoader {
-    static final org.objectweb.asm.MethodHandle CST;
-    static final org.objectweb.asm.MethodHandle UNARY;
-    static final org.objectweb.asm.MethodHandle BINARY;
-    static {
-        CST = new org.objectweb.asm.MethodHandle(MH_INVOKESTATIC,
-                RT.class.getName().replace('.', '/'), "cst",
-                MethodType.methodType(CallSite.class, Lookup.class, String.class, MethodType.class, Object.class).toMethodDescriptorString());
-        String desc = MethodType.methodType(CallSite.class, Lookup.class, String.class, MethodType.class).toMethodDescriptorString();
-        UNARY = new org.objectweb.asm.MethodHandle(MH_INVOKESTATIC,
-                RT.class.getName().replace('.', '/'), "unary",
-                desc);
-        BINARY = new org.objectweb.asm.MethodHandle(MH_INVOKESTATIC,
-                RT.class.getName().replace('.', '/'), "binary",
-                desc);
-    }
-    
-    /*
-     * Returns a method handle corresponding to this expression.
-     */
-    private MethodHandle compile(final String className, final Exp exp) {
-        // class header
-        ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_FRAMES);
-        cw.visit(V1_7, ACC_PUBLIC, className.replace('.', '/'), null, "java/lang/Object", null);
-
-        // find the number of variable, create the signature Object(Object, Object, etc.)
-        int maxVar = maxVar(exp, -1);
-        MethodType type = MethodType.genericMethodType(maxVar + 1);
-
-        // eval method
-        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC|ACC_STATIC, "eval", type.toMethodDescriptorString(), null, null);
-        exp.compile(mv);
-        mv.visitInsn(ARETURN);
-        // max stack and max locals automatically computed
-        mv.visitMaxs(0, 0);
-        mv.visitEnd();
-
-        byte[] b = cw.toByteArray();
-
-        Class<?> expClass = defineClass(className, b, 0, b.length);
-        try {
-            return MethodHandles.publicLookup().findStatic(expClass, "eval", type);
-        } catch (ReflectiveOperationException e) {
-            throw new AssertionError(e.getMessage(), e);
-        }
-    }
-
-    private static int maxVar(final Exp exp, final int lastVal) {
-        if (exp instanceof Var) {
-            return Math.max(lastVal, ((Var)exp).index);
-        }
-        if (exp instanceof BinaryExp) {
-            BinaryExp binaryExp = (BinaryExp)exp;
-            return Math.max(maxVar(binaryExp.e1, lastVal), maxVar(binaryExp.e2, lastVal));
-        }
-        return lastVal;
-    }
 
     public static void main(final String[] args) throws Throwable {
         // creates the expression tree corresponding to
         // exp(i) = i > 3 && 6 > i
         Exp exp = new And(new GT(new Var(0), new Cst(3)), new GT(new Cst(6),
                 new Var(0)));
-        
-        // compiles this expression into an method handle
-        IndyCompile compiler = new IndyCompile();
-        
-        MethodHandle mh = compiler.compile("Example", exp);
-        
-        // ... and uses it to evaluate exp(0) to exp(9)
+
+        // compiles this expression into a generic static method in a class
+        IndyCompile main = new IndyCompile();
+        byte[] b = exp.compile("Example");
+        FileOutputStream fos = new FileOutputStream("Example.class");
+        fos.write(b);
+        fos.close();
+        Class<?> expClass = main.defineClass("Example", b, 0, b.length);
+        Method expMethod = expClass.getMethods()[0];
+
+        // ... and use it to evaluate exp(0) to exp(9)
         for (int i = 0; i < 10; ++i) {
-            boolean val = (Boolean)mh.invokeWithArguments(i);
-            System.out.println(i + " > 3 && " + "6 > " + i + " = " + val);
+            boolean val = (Boolean) expMethod.invoke(null, i);
+            System.out.println(i + " > 3 && " + i + " < 6 = " + val);
         }
-        
+
         // ... more fun, test with strings !!!
         for (int i = 0; i < 10; ++i) {
-            boolean val = (Boolean)mh.invokeWithArguments(Integer.toString(i));
-            System.out.println("\"" + i + "\" > 3 && 6 > \"" + i + "\" = " + val);
+            boolean val = (Boolean) expMethod.invoke(null, Integer.toString(i));
+            System.out.println("\"" + i + "\" > 3 && 6 > \"" + i + "\" = "
+                    + val);
         }
     }
-    
+
     /**
      * An abstract expression.
      */
     static abstract class Exp {
+
+        static final MethodHandle CST = getHandle("cst", "Ljava/lang/Object;");
+
+        static final MethodHandle UNARY = getHandle("unary", "");
+
+        static final MethodHandle BINARY = getHandle("binary", "");
+
+        /**
+         * Returns the maximum variable index used in this expression.
+         *
+         * @return the maximum variable index used in this expression, or -1 if
+         *         no variable is used.
+         */
+        int getMaxVarIndex() {
+            return -1;
+        }
+
         /*
-         * Compile this expression. This method must append to the given code writer
-         * the byte code that evaluates and pushes on the stack the value of this
-         * expression.
+         * Returns the byte code of a class corresponding to this expression.
+         */
+        byte[] compile(final String name) {
+            // class header
+            ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_FRAMES);
+            cw.visit(V1_7,
+                    ACC_PUBLIC,
+                    name,
+                    null,
+                    "java/lang/Object",
+                    null);
+
+            // eval method
+            MethodVisitor mv = cw.visitMethod(ACC_PUBLIC | ACC_STATIC,
+                    "eval",
+                    new MethodType(getMaxVarIndex() + 1).toString(),
+                    null,
+                    null);
+            compile(mv);
+            mv.visitInsn(ARETURN);
+            // max stack and max locals automatically computed
+            mv.visitMaxs(0, 0);
+            mv.visitEnd();
+
+            return cw.toByteArray();
+        }
+
+        /*
+         * Compile this expression. This method must append to the given code
+         * writer the byte code that evaluates and pushes on the stack the value
+         * of this expression.
          */
         abstract void compile(MethodVisitor mv);
+
+        private static MethodHandle getHandle(
+            final String name,
+            final String optArgs)
+        {
+            return new MethodHandle(MH_INVOKESTATIC,
+                    "RT",
+                    name,
+                    "(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/MethodType;"
+                            + optArgs + ")Ljava/lang/invoke/CallSite;");
+        }
     }
 
     /**
      * A constant expression.
      */
     static class Cst extends Exp {
+
         private final Object value;
 
         Cst(final Object value) {
@@ -162,10 +170,11 @@ public class IndyCompile extends ClassLoader {
                 mv.visitLdcInsn(value);
                 return;
             }
-            
-            // instead of pushing the constant and then box it, we use invokedynamic
-            // with the constant as bootstrap argument
-            // the boxing will be performed by the VM when calling the bootstrap method
+
+            // instead of pushing the constant and then box it, we use
+            // invokedynamic with the constant as bootstrap argument. The
+            // boxing will be performed by the VM when calling the bootstrap
+            // method
             mv.visitInvokeDynamicInsn("cst", "()Ljava/lang/Object;", CST, value);
         }
     }
@@ -174,10 +183,15 @@ public class IndyCompile extends ClassLoader {
      * A variable reference expression.
      */
     static class Var extends Exp {
+
         final int index;
 
         Var(final int index) {
             this.index = index;
+        }
+
+        int getMaxVarIndex() {
+            return index;
         }
 
         void compile(final MethodVisitor mv) {
@@ -190,8 +204,14 @@ public class IndyCompile extends ClassLoader {
      * An abstract binary expression.
      */
     static abstract class BinaryExp extends Exp {
+
         final Exp e1;
+
         final Exp e2;
+
+        int getMaxVarIndex() {
+            return Math.max(e1.getMaxVarIndex(), e2.getMaxVarIndex());
+        }
 
         BinaryExp(final Exp e1, final Exp e2) {
             this.e1 = e1;
@@ -203,6 +223,7 @@ public class IndyCompile extends ClassLoader {
      * An addition expression.
      */
     static class Add extends BinaryExp {
+
         Add(final Exp e1, final Exp e2) {
             super(e1, e2);
         }
@@ -211,7 +232,9 @@ public class IndyCompile extends ClassLoader {
             // compiles e1, e2, and adds an instruction to add the two values
             e1.compile(mv);
             e2.compile(mv);
-            mv.visitInvokeDynamicInsn("add", "(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;", BINARY);
+            mv.visitInvokeDynamicInsn("add",
+                    "(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;",
+                    BINARY);
         }
     }
 
@@ -219,15 +242,19 @@ public class IndyCompile extends ClassLoader {
      * A multiplication expression.
      */
     static class Mul extends BinaryExp {
+
         Mul(final Exp e1, final Exp e2) {
             super(e1, e2);
         }
 
         void compile(final MethodVisitor mv) {
-            // compiles e1, e2, and adds an instruction to multiply the two values
+            // compiles e1, e2, and adds an instruction to multiply the two
+            // values
             e1.compile(mv);
             e2.compile(mv);
-            mv.visitInvokeDynamicInsn("mul", "(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;", BINARY);
+            mv.visitInvokeDynamicInsn("mul",
+                    "(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;",
+                    BINARY);
         }
     }
 
@@ -235,15 +262,19 @@ public class IndyCompile extends ClassLoader {
      * A "greater than" expression.
      */
     static class GT extends BinaryExp {
+
         GT(final Exp e1, final Exp e2) {
             super(e1, e2);
         }
 
         void compile(final MethodVisitor mv) {
-            // compiles e1, e2, and adds the instructions to compare the two values
+            // compiles e1, e2, and adds the instructions to compare the two
+            // values
             e1.compile(mv);
             e2.compile(mv);
-            mv.visitInvokeDynamicInsn("gt", "(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;", BINARY);
+            mv.visitInvokeDynamicInsn("gt",
+                    "(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;",
+                    BINARY);
         }
     }
 
@@ -251,6 +282,7 @@ public class IndyCompile extends ClassLoader {
      * A logical "and" expression.
      */
     static class And extends BinaryExp {
+
         And(final Exp e1, final Exp e2) {
             super(e1, e2);
         }
@@ -261,14 +293,16 @@ public class IndyCompile extends ClassLoader {
             // tests if e1 is false
             mv.visitInsn(DUP);
             // convert to a boolean
-            mv.visitInvokeDynamicInsn("asBoolean", "(Ljava/lang/Object;)Z", UNARY);
-            
+            mv.visitInvokeDynamicInsn("asBoolean",
+                    "(Ljava/lang/Object;)Z",
+                    UNARY);
+
             Label end = new Label();
             mv.visitJumpInsn(IFEQ, end);
             // case where e1 is true : e1 && e2 is equal to e2
             mv.visitInsn(POP);
             e2.compile(mv);
-            
+
             // if e1 is false, e1 && e2 is equal to e1:
             // we jump directly to this label, without evaluating e2
             mv.visitLabel(end);
@@ -279,6 +313,7 @@ public class IndyCompile extends ClassLoader {
      * A logical "or" expression.
      */
     static class Or extends BinaryExp {
+
         Or(final Exp e1, final Exp e2) {
             super(e1, e2);
         }
@@ -289,7 +324,9 @@ public class IndyCompile extends ClassLoader {
             // tests if e1 is true
             mv.visitInsn(DUP);
             // convert to a boolean
-            mv.visitInvokeDynamicInsn("asBoolean", "(Ljava/lang/Object;)Z", UNARY);
+            mv.visitInvokeDynamicInsn("asBoolean",
+                    "(Ljava/lang/Object;)Z",
+                    UNARY);
             Label end = new Label();
             mv.visitJumpInsn(IFNE, end);
             // case where e1 is false : e1 || e2 is equal to e2
@@ -305,16 +342,23 @@ public class IndyCompile extends ClassLoader {
      * A logical "not" expression.
      */
     static class Not extends Exp {
+
         private final Exp e;
 
         Not(final Exp e) {
             this.e = e;
         }
 
+        int getMaxVarIndex() {
+            return e.getMaxVarIndex();
+        }
+
         void compile(final MethodVisitor mv) {
-            // compiles e1, and applies 'not'
+            // compiles e, and applies 'not'
             e.compile(mv);
-            mv.visitInvokeDynamicInsn("not", "(Ljava/lang/Object;)Ljava/lang/Object;", UNARY);
+            mv.visitInvokeDynamicInsn("not",
+                    "(Ljava/lang/Object;)Ljava/lang/Object;",
+                    UNARY);
         }
     }
 }

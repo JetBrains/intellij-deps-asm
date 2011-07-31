@@ -61,8 +61,23 @@ public final class MethodType {
      * @param returnType the return type of the method.
      * @param argumentTypes the argument types of the method.
      */
-    public MethodType(final Type returnType, final Type[] argumentTypes) {
+    public MethodType(final Type returnType, final Type... argumentTypes) {
         this.desc = Type.getMethodDescriptor(returnType, argumentTypes);
+    }
+
+    /**
+     * Creates a generic method type with n arguments.
+     * 
+     * @param n the number of arguments of the generic method.
+     */
+    public MethodType(final int n) {
+        StringBuffer buf = new StringBuffer();
+        buf.append('(');
+        for (int i = 0; i < n; ++i) {
+            buf.append("Ljava/lang/Object;");
+        }
+        buf.append(")Ljava/lang/Object;");
+        this.desc = buf.toString();
     }
 
     /**
@@ -82,7 +97,7 @@ public final class MethodType {
     public MethodType(final Method m) {
         this.desc = Type.getMethodDescriptor(m);
     }
-
+    
     /**
      * Returns the descriptor of methods of this type.
      * 

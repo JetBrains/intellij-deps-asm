@@ -8,6 +8,7 @@
 	<classpathentry kind="src" path="examples/annotations/src"/>
 	<classpathentry kind="src" path="examples/attributes/src"/>
 	<classpathentry kind="src" path="examples/compile/src"/>
+	<classpathentry kind="src" path="examples/compile-indy/src"/>
 	<classpathentry kind="src" path="examples/dependencies/src"/>
 	<classpathentry kind="src" path="examples/helloworld/src"/>
 	<classpathentry kind="src" path="examples/jbfc/src"/>

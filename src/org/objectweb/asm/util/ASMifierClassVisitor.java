@@ -528,7 +528,7 @@ public class ASMifierClassVisitor extends ASMifierAbstractVisitor implements
             first = false;
         }
         if ((access & Opcodes.ACC_ANNOTATION) != 0
-                && (access & ACCESS_CLASS) != 0)
+                && ((access & ACCESS_CLASS) != 0 || (access & ACCESS_INNER) != 0))
         {
             if (!first) {
                 buf.append(" + ");

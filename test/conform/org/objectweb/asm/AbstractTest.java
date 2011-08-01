@@ -36,9 +36,15 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.Arrays;
 import java.util.Enumeration;
+import java.util.HashSet;
+import java.util.ListIterator;
+import java.util.Set;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
+import org.objectweb.asm.tree.AbstractInsnNode;
+import org.objectweb.asm.tree.LabelNode;
+import org.objectweb.asm.tree.MethodNode;
 import org.objectweb.asm.util.TraceClassVisitor;
 
 import junit.framework.TestCase;
@@ -158,11 +164,89 @@ public abstract class AbstractTest extends TestCase {
             cr2.accept(filter2 == null ? cv2 : filter2, 0);
             String s1 = sw1.toString();
             String s2 = sw2.toString();
-            assertEquals("different data", s1, s2);
+            try {
+                assertEquals("different data", s1, s2);
+            } catch (Throwable e) {
+                /*
+                 * ClassReader may introduce unused labels in the code, due to
+                 * the way uninitialized frame types are handled (false
+                 * positives may occur, see the doc of ClassReader). These
+                 * unused labels may differ before / after a transformation, but
+                 * this does not change the method code itself. Thus, if a
+                 * difference occurs, we retry a comparison, this time by
+                 * removing the unused labels first (we do not do this in the
+                 * first place because it is costly).
+                 */
+                sw1 = new StringWriter();
+                sw2 = new StringWriter();
+                cv1 = new RemoveUnusedLabelsAdapter(new TraceClassVisitor(new PrintWriter(sw1)));
+                cv2 = new RemoveUnusedLabelsAdapter(new TraceClassVisitor(new PrintWriter(sw2)));
+                if (filter1 != null) {
+                    filter1.cv = cv1;
+                }
+                if (filter2 != null) {
+                    filter2.cv = cv2;
+                }
+                cr1.accept(filter1 == null ? cv1 : filter1, 0);
+                cr2.accept(filter2 == null ? cv2 : filter2, 0);
+                s1 = sw1.toString();
+                s2 = sw2.toString();
+                assertEquals("different data", s1, s2);
+            }
         }
     }
 
     public String getName() {
         return super.getName() + ": " + n;
+    }
+    
+    static class RemoveUnusedLabelsAdapter extends ClassAdapter {
+
+        public RemoveUnusedLabelsAdapter(ClassVisitor cv) {
+            super(cv);
+        }
+
+        @Override
+        public MethodVisitor visitMethod(
+            int access,
+            String name,
+            String desc,
+            String signature,
+            String[] exceptions)
+        {
+            return new MethodNode(access, name, desc, signature, exceptions) {
+                
+                /** 
+                 * The labels used in this method.
+                 */
+                Set<LabelNode> usedLabels = new HashSet<LabelNode>();
+                
+                @Override
+                public void visitLabel(final Label label) {
+                    instructions.add(super.getLabelNode(label));
+                }
+
+                @Override
+                public void visitEnd() {
+                    // removes unused labels
+                    ListIterator<AbstractInsnNode> i = instructions.iterator();
+                    while (i.hasNext()) {
+                        AbstractInsnNode n = i.next();
+                        if (n instanceof LabelNode && !usedLabels.contains(n)) {
+                            i.remove();
+                        }
+                    }
+                    // visits the transformed code
+                    accept(cv);
+                }
+
+                @Override
+                protected LabelNode getLabelNode(final Label l) {
+                    LabelNode n = super.getLabelNode(l);
+                    usedLabels.add(n);
+                    return n;
+                }
+            };
+        }        
     }
 }

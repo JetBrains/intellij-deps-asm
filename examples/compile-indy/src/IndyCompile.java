@@ -70,7 +70,7 @@ public class IndyCompile extends ClassLoader {
         fos.write(b);
         fos.close();
         Class<?> expClass = main.defineClass("Example", b, 0, b.length);
-        Method expMethod = expClass.getMethods()[0];
+        Method expMethod = expClass.getDeclaredMethods()[0];
 
         // ... and use it to evaluate exp(0) to exp(9)
         for (int i = 0; i < 10; ++i) {

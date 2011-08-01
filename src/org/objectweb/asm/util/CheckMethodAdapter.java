@@ -48,8 +48,10 @@ import java.io.StringWriter;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * A {@link MethodAdapter} that checks that its methods are properly used. More
@@ -93,7 +95,7 @@ public class CheckMethodAdapter extends MethodAdapter {
      * Number of visited instructions.
      */
     private int insnCount;
-
+    
     /**
      * The already visited labels. This map associate Integer values to pseudo
      * code offsets.
@@ -101,10 +103,16 @@ public class CheckMethodAdapter extends MethodAdapter {
     private final Map<Label, Integer> labels;
 
     /**
-     * The exception handler ranges. Each list element contains an array of two
-     * labels, for the start and end labels of an exception handler block.
+     * The labels used in this method. Every used label must be visited with
+     * visitLabel before the end of the method (i.e. should be in #labels).
      */
-    private List<Label[]> handlers;
+    private Set<Label> usedLabels;
+
+    /**
+     * The exception handler ranges. Each pair of list element contains the
+     * start and end labels of an exception handler block.
+     */
+    private List<Label> handlers;
 
     /**
      * Code of the visit method to be used for each opcode.
@@ -364,7 +372,8 @@ public class CheckMethodAdapter extends MethodAdapter {
     {
         super(mv);
         this.labels = labels;
-        this.handlers = new ArrayList<Label[]>();
+        this.usedLabels = new HashSet<Label>();
+        this.handlers = new ArrayList<Label>();
     }
 
     /**
@@ -627,6 +636,7 @@ public class CheckMethodAdapter extends MethodAdapter {
         checkLabel(label, false, "label");
         checkNonDebugLabel(label);
         mv.visitJumpInsn(opcode, label);
+        usedLabels.add(label);
         ++insnCount;
     }
 
@@ -680,6 +690,9 @@ public class CheckMethodAdapter extends MethodAdapter {
             checkNonDebugLabel(labels[i]);
         }
         mv.visitTableSwitchInsn(min, max, dflt, labels);
+        for (int i = 0; i < labels.length; ++i) {
+            usedLabels.add(labels[i]);
+        }
         ++insnCount;
     }
 
@@ -700,6 +713,10 @@ public class CheckMethodAdapter extends MethodAdapter {
             checkNonDebugLabel(labels[i]);
         }
         mv.visitLookupSwitchInsn(dflt, keys, labels);
+        usedLabels.add(dflt);
+        for (int i = 0; i < labels.length; ++i) {
+            usedLabels.add(labels[i]);
+        }
         ++insnCount;
     }
 
@@ -746,7 +763,8 @@ public class CheckMethodAdapter extends MethodAdapter {
             checkInternalName(type, "type");
         }
         mv.visitTryCatchBlock(start, end, handler, type);
-        handlers.add(new Label[] { start, end });
+        handlers.add(start);
+        handlers.add(end);
     }
 
     public void visitLocalVariable(
@@ -784,9 +802,14 @@ public class CheckMethodAdapter extends MethodAdapter {
         checkStartCode();
         checkEndCode();
         endCode = true;
-        for (int i = 0; i < handlers.size(); ++i) {
-            Integer start = labels.get(handlers.get(i)[0]);
-            Integer end = labels.get(handlers.get(i)[1]);
+        for (Label l : usedLabels) {
+            if (labels.get(l) == null) {
+                throw new IllegalStateException("Undefined label used");
+            }
+        }
+        for (int i = 0; i < handlers.size(); ) {
+            Integer start = labels.get(handlers.get(i++));
+            Integer end = labels.get(handlers.get(i++));
             if (start == null || end == null) {
                 throw new IllegalStateException("Undefined try catch block labels");
             }
@@ -839,7 +862,7 @@ public class CheckMethodAdapter extends MethodAdapter {
      * 
      * @param value the value to be checked.
      */
-    static void checkFrameValue(final Object value) {
+    void checkFrameValue(final Object value) {
         if (value == Opcodes.TOP || value == Opcodes.INTEGER
                 || value == Opcodes.FLOAT || value == Opcodes.LONG
                 || value == Opcodes.DOUBLE || value == Opcodes.NULL
@@ -854,6 +877,8 @@ public class CheckMethodAdapter extends MethodAdapter {
         if (!(value instanceof Label)) {
             throw new IllegalArgumentException("Invalid stack frame value: "
                     + value);
+        } else {
+            usedLabels.add((Label) value);
         }
     }
 

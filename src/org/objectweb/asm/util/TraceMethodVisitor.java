@@ -99,6 +99,7 @@ public class TraceMethodVisitor extends TraceAbstractVisitor implements
     // Implementation of the MethodVisitor interface
     // ------------------------------------------------------------------------
 
+    @Override
     public AnnotationVisitor visitAnnotation(
         final String desc,
         final boolean visible)
@@ -110,6 +111,7 @@ public class TraceMethodVisitor extends TraceAbstractVisitor implements
         return av;
     }
 
+    @Override
     public void visitAttribute(final Attribute attr) {
         buf.setLength(0);
         buf.append(tab).append("ATTRIBUTE ");
@@ -528,6 +530,7 @@ public class TraceMethodVisitor extends TraceAbstractVisitor implements
         }
     }
 
+    @Override
     public void visitEnd() {
         super.visitEnd();
 

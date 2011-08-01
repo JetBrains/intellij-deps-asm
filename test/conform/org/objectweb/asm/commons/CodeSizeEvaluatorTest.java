@@ -44,9 +44,11 @@ public class CodeSizeEvaluatorTest extends AbstractTest {
         return new CodeSizeEvaluatorTest().getSuite();
     }
 
+    @Override
     public void test() throws Exception {
         ClassReader cr = new ClassReader(is);
         cr.accept(new ClassAdapter(new ClassWriter(0)) {
+            @Override
             public MethodVisitor visitMethod(
                 final int access,
                 final String name,
@@ -60,6 +62,7 @@ public class CodeSizeEvaluatorTest extends AbstractTest {
                         signature,
                         exceptions);
                 return new CodeSizeEvaluator(mv) {
+                    @Override
                     public void visitMaxs(
                         final int maxStack,
                         final int maxLocals)

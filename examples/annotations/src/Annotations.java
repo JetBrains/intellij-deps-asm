@@ -63,6 +63,7 @@ public class Annotations {
         ClassReader cr = new ClassReader(n);
         cr.accept(new ClassAdapter(cw) {
 
+            @Override
             public MethodVisitor visitMethod(
                 final int access,
                 final String name,
@@ -80,6 +81,7 @@ public class Annotations {
 
                     private final List<Integer> params = new ArrayList<Integer>();
 
+                    @Override
                     public AnnotationVisitor visitParameterAnnotation(
                         final int parameter,
                         final String desc,
@@ -95,6 +97,7 @@ public class Annotations {
                         return av;
                     }
 
+                    @Override
                     public void visitCode() {
                         int var = (access & Opcodes.ACC_STATIC) == 0 ? 1 : 0;
                         for (int p = 0; p < params.size(); ++p) {
@@ -124,6 +127,7 @@ public class Annotations {
         }, 0);
 
         Class<?> c = new ClassLoader() {
+            @Override
             public Class<?> loadClass(final String name)
                     throws ClassNotFoundException
             {

@@ -82,6 +82,7 @@ public class LocalVariablesSorterTest2 extends AbstractTest {
         ClassWriter cw = new ClassWriter(0);
         cr.accept(new ClassAdapter(cw) {
 
+            @Override
             public MethodVisitor visitMethod(
                 final int access,
                 final String name,
@@ -106,6 +107,7 @@ public class LocalVariablesSorterTest2 extends AbstractTest {
         return new LocalVariablesSorterTest2().getSuite();
     }
 
+    @Override
     public void test() throws Exception {
         try {
             Class.forName(n, true, getClass().getClassLoader());

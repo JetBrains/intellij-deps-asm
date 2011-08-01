@@ -122,6 +122,7 @@ public final class MethodHandle {
         return desc;
     }
 
+    @Override
     public boolean equals(Object obj) {
         if (obj == this) {
             return true;
@@ -134,6 +135,7 @@ public final class MethodHandle {
                 && name.equals(mHandle.name) && desc.equals(mHandle.desc);
     }
 
+    @Override
     public int hashCode() {
         return tag + owner.hashCode() * name.hashCode() * desc.hashCode();
     }
@@ -143,6 +145,7 @@ public final class MethodHandle {
      * representation is: <pre>owner '.' name desc ' ' '(' tag ')'</pre>. As
      * this format is fully specifies, it can be parsed if necessary.
      */
+    @Override
     public String toString() {
         return owner + '.' + name + desc + " (" + tag + ')';
     }

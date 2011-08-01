@@ -190,6 +190,7 @@ public class MethodNode extends MemberNode implements MethodVisitor {
 
     public AnnotationVisitor visitAnnotationDefault() {
         return new AnnotationNode(new ArrayList<Object>(0) {
+            @Override
             public boolean add(final Object o) {
                 annotationDefault = o;
                 return super.add(o);

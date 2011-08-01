@@ -478,6 +478,7 @@ public class CheckClassAdapterUnitTest extends TestCase implements Opcodes {
         ClassReader cr = new ClassReader("java.lang.Object");
         ClassWriter cw = new ClassWriter(cr, ClassWriter.COMPUTE_MAXS);
         ClassVisitor cv = new ClassAdapter(cw) {
+            @Override
             public MethodVisitor visitMethod(
                 int access,
                 String name,
@@ -496,6 +497,7 @@ public class CheckClassAdapterUnitTest extends TestCase implements Opcodes {
                 return new MethodAdapter(new CheckMethodAdapter(next)) {
                     private Label entryLabel = null;
 
+                    @Override
                     public void visitLabel(Label label) {
                         if (entryLabel == null) {
                             entryLabel = label;
@@ -503,6 +505,7 @@ public class CheckClassAdapterUnitTest extends TestCase implements Opcodes {
                         mv.visitLabel(label);
                     }
 
+                    @Override
                     public void visitMaxs(int maxStack, int maxLocals) {
                         Label unwindhandler = new Label();
                         mv.visitLabel(unwindhandler);

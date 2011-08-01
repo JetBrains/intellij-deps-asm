@@ -53,6 +53,7 @@ public class ClassConstantsCollector extends ClassAdapter {
         this.cp = cp;
     }
 
+    @Override
     public void visit(
         final int version,
         final int access,
@@ -83,6 +84,7 @@ public class ClassConstantsCollector extends ClassAdapter {
         cv.visit(version, access, name, signature, superName, interfaces);
     }
 
+    @Override
     public void visitSource(final String source, final String debug) {
         if (source != null) {
             cp.newUTF8("SourceFile");
@@ -94,6 +96,7 @@ public class ClassConstantsCollector extends ClassAdapter {
         cv.visitSource(source, debug);
     }
 
+    @Override
     public void visitOuterClass(
         final String owner,
         final String name,
@@ -107,6 +110,7 @@ public class ClassConstantsCollector extends ClassAdapter {
         cv.visitOuterClass(owner, name, desc);
     }
 
+    @Override
     public AnnotationVisitor visitAnnotation(
         final String desc,
         final boolean visible)
@@ -121,11 +125,13 @@ public class ClassConstantsCollector extends ClassAdapter {
                 visible), cp);
     }
 
+    @Override
     public void visitAttribute(final Attribute attr) {
         // can do nothing
         cv.visitAttribute(attr);
     }
 
+    @Override
     public void visitInnerClass(
         final String name,
         final String outerName,
@@ -145,6 +151,7 @@ public class ClassConstantsCollector extends ClassAdapter {
         cv.visitInnerClass(name, outerName, innerName, access);
     }
 
+    @Override
     public FieldVisitor visitField(
         final int access,
         final String name,
@@ -174,6 +181,7 @@ public class ClassConstantsCollector extends ClassAdapter {
                 value), cp);
     }
 
+    @Override
     public MethodVisitor visitMethod(
         final int access,
         final String name,

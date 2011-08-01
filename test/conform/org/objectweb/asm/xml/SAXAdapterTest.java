@@ -55,6 +55,7 @@ public class SAXAdapterTest extends AbstractTest {
         return new SAXAdapterTest().getSuite();
     }
 
+    @Override
     public void test() throws Exception {
         ClassReader cr = new ClassReader(is);
         ClassWriter cw = new ClassWriter(0);
@@ -71,6 +72,7 @@ public class SAXAdapterTest extends AbstractTest {
 
         ClassWriter cw2 = new ClassWriter(0);
         cr.accept(cw2, new Attribute[] { new Attribute("Comment") {
+            @Override
             protected Attribute read(
                 final ClassReader cr,
                 final int off,
@@ -83,6 +85,7 @@ public class SAXAdapterTest extends AbstractTest {
             }
         },
             new Attribute("CodeComment") {
+                @Override
                 protected Attribute read(
                     final ClassReader cr,
                     final int off,

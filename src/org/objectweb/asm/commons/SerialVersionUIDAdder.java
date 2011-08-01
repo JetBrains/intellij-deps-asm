@@ -180,6 +180,7 @@ public class SerialVersionUIDAdder extends ClassAdapter {
      * Visit class header and get class name, access , and interfaces
      * information (step 1,2, and 3) for SVUID computation.
      */
+    @Override
     public void visit(
         final int version,
         final int access,
@@ -203,6 +204,7 @@ public class SerialVersionUIDAdder extends ClassAdapter {
      * Visit the methods and get constructor and method information (step 5 and
      * 7). Also determine if there is a class initializer (step 6).
      */
+    @Override
     public MethodVisitor visitMethod(
         final int access,
         final String name,
@@ -244,6 +246,7 @@ public class SerialVersionUIDAdder extends ClassAdapter {
      * Gets class field information for step 4 of the algorithm. Also determines
      * if the class already has a SVUID.
      */
+    @Override
     public FieldVisitor visitField(
         final int access,
         final String name,
@@ -284,6 +287,7 @@ public class SerialVersionUIDAdder extends ClassAdapter {
      * Our SVUID computation must do as the JVM does and ignore access bits in
      * the class file in favor of the access bits InnerClass attribute.
      */
+    @Override
     public void visitInnerClass(final String aname, final String outerName, final String innerName, final int attr_access) {
         if ((name != null) && name.equals(aname)) {
             this.access = attr_access;
@@ -294,6 +298,7 @@ public class SerialVersionUIDAdder extends ClassAdapter {
     /*
      * Add the SVUID if class doesn't have one
      */
+    @Override
     public void visitEnd() {
         // compute SVUID and add it to the class
         if (computeSVUID && !hasSVUID) {

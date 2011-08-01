@@ -65,6 +65,7 @@ public class TryCatchBlockSorter extends MethodNode {
         this.mv = mv;
     }
 
+    @Override
     public void visitEnd() {
         // Compares TryCatchBlockNodes by the length of their "try" block.
         Comparator<TryCatchBlockNode> comp = new Comparator<TryCatchBlockNode>() {

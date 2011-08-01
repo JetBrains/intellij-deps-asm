@@ -48,6 +48,7 @@ public class SimpleVerifierUnitTest extends TestCase implements Opcodes {
 
     private MethodNode mn;
 
+    @Override
     protected void setUp() {
         Type c = Type.getType("LC;");
         Type d = Type.getType("Ljava/lang/Number;");

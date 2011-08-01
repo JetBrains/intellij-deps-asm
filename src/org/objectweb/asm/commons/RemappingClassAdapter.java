@@ -52,6 +52,7 @@ public class RemappingClassAdapter extends ClassAdapter {
         this.remapper = remapper;
     }
 
+    @Override
     public void visit(
         int version,
         int access,
@@ -70,12 +71,14 @@ public class RemappingClassAdapter extends ClassAdapter {
                         : remapper.mapTypes(interfaces));
     }
 
+    @Override
     public AnnotationVisitor visitAnnotation(String desc, boolean visible) {
         AnnotationVisitor av;
         av = super.visitAnnotation(remapper.mapDesc(desc), visible);
         return av == null ? null : createRemappingAnnotationAdapter(av);
     }
 
+    @Override
     public FieldVisitor visitField(
         int access,
         String name,
@@ -91,6 +94,7 @@ public class RemappingClassAdapter extends ClassAdapter {
         return fv == null ? null : createRemappingFieldAdapter(fv);
     }
 
+    @Override
     public MethodVisitor visitMethod(
         int access,
         String name,
@@ -107,6 +111,7 @@ public class RemappingClassAdapter extends ClassAdapter {
         return mv == null ? null : createRemappingMethodAdapter(access, newDesc, mv);
     }
 
+    @Override
     public void visitInnerClass(
         String name,
         String outerName,
@@ -119,6 +124,7 @@ public class RemappingClassAdapter extends ClassAdapter {
                 access);
     }
 
+    @Override
     public void visitOuterClass(String owner, String name, String desc) {
         super.visitOuterClass(remapper.mapType(owner), 
                 name == null ? null : remapper.mapMethodName(owner, name, desc), 

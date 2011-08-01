@@ -50,10 +50,12 @@ public class Comment extends Attribute implements ASMifiable, Traceable {
         super("Comment");
     }
 
+    @Override
     public boolean isUnknown() {
         return false;
     }
 
+    @Override
     protected Attribute read(
         final ClassReader cr,
         final int off,
@@ -66,6 +68,7 @@ public class Comment extends Attribute implements ASMifiable, Traceable {
         return new Comment();
     }
 
+    @Override
     protected ByteVector write(
         final ClassWriter cw,
         final byte[] code,

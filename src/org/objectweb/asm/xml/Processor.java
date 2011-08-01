@@ -454,19 +454,23 @@ public class Processor {
             this.is = is;
         }
 
+        @Override
         public final void close() throws IOException {
         }
 
+        @Override
         public final int read() throws IOException {
             return is.read();
         }
 
+        @Override
         public final int read(final byte[] b, final int off, final int len)
                 throws IOException
         {
             return is.read(b, off, len);
         }
 
+        @Override
         public final int available() throws IOException {
             return is.available();
         }
@@ -529,6 +533,7 @@ public class Processor {
             final ClassWriter cw = new ClassWriter(
                     ClassWriter.COMPUTE_MAXS);
             return new ASMContentHandler(cw) {
+                @Override
                 public void endDocument() throws SAXException {
                     try {
                         os.write(cw.toByteArray());
@@ -626,6 +631,7 @@ public class Processor {
             this.optimizeEmptyElements = optimizeEmptyElements;
         }
 
+        @Override
         public final void startElement(
             final String ns,
             final String localName,
@@ -654,6 +660,7 @@ public class Processor {
             }
         }
 
+        @Override
         public final void endElement(
             final String ns,
             final String localName,
@@ -675,6 +682,7 @@ public class Processor {
             }
         }
 
+        @Override
         public final void endDocument() throws SAXException {
             try {
                 w.flush();
@@ -845,6 +853,7 @@ public class Processor {
             this.subdocumentHandlerFactory = subdocumentHandlerFactory;
         }
 
+        @Override
         public final void startElement(
             final String namespaceURI,
             final String localName,
@@ -869,6 +878,7 @@ public class Processor {
             }
         }
 
+        @Override
         public final void endElement(
             final String namespaceURI,
             final String localName,
@@ -885,12 +895,14 @@ public class Processor {
             }
         }
 
+        @Override
         public final void startDocument() throws SAXException {
             if (rootHandler != null) {
                 rootHandler.startDocument();
             }
         }
 
+        @Override
         public final void endDocument() throws SAXException {
             if (rootHandler != null) {
                 rootHandler.endDocument();
@@ -898,6 +910,7 @@ public class Processor {
             }
         }
 
+        @Override
         public final void characters(
             final char[] buff,
             final int offset,
@@ -957,6 +970,7 @@ public class Processor {
             this.isXml = isXml;
         }
 
+        @Override
         public final void startElement(
             final String namespaceURI,
             final String localName,
@@ -990,6 +1004,7 @@ public class Processor {
             }
         }
 
+        @Override
         public final void endElement(
             final String namespaceURI,
             final String localName,
@@ -1009,12 +1024,15 @@ public class Processor {
             }
         }
 
+        @Override
         public final void startDocument() throws SAXException {
         }
 
+        @Override
         public final void endDocument() throws SAXException {
         }
 
+        @Override
         public final void characters(
             final char[] buff,
             final int offset,

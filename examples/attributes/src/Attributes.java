@@ -73,6 +73,7 @@ class AddCommentClassAdapter extends ClassAdapter implements Opcodes {
         super(cv);
     }
 
+    @Override
     public void visit(
         final int version,
         final int access,
@@ -85,6 +86,7 @@ class AddCommentClassAdapter extends ClassAdapter implements Opcodes {
         visitAttribute(new CommentAttribute("this is a class comment"));
     }
 
+    @Override
     public FieldVisitor visitField(
         final int access,
         final String name,
@@ -97,6 +99,7 @@ class AddCommentClassAdapter extends ClassAdapter implements Opcodes {
         return fv;
     }
 
+    @Override
     public MethodVisitor visitMethod(
         final int access,
         final String name,
@@ -129,10 +132,12 @@ class CommentAttribute extends Attribute {
         return comment;
     }
 
+    @Override
     public boolean isUnknown() {
         return false;
     }
 
+    @Override
     protected Attribute read(
         final ClassReader cr,
         final int off,
@@ -144,6 +149,7 @@ class CommentAttribute extends Attribute {
         return new CommentAttribute(cr.readUTF8(off, buf));
     }
 
+    @Override
     protected ByteVector write(
         final ClassWriter cw,
         final byte[] code,

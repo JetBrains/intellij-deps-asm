@@ -81,6 +81,7 @@ public class SourceValue implements Value {
         return size;
     }
 
+    @Override
     public boolean equals(final Object value) {
         if (!(value instanceof SourceValue)) {
         	return false;
@@ -89,6 +90,7 @@ public class SourceValue implements Value {
         return size == v.size && insns.equals(v.insns);
     }
 
+    @Override
     public int hashCode() {
         return insns.hashCode();
     }

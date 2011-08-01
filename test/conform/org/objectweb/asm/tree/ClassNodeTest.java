@@ -31,7 +31,6 @@ package org.objectweb.asm.tree;
 
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.ListIterator;
 import java.util.Map;
 
 import org.objectweb.asm.AbstractTest;
@@ -54,6 +53,7 @@ public class ClassNodeTest extends AbstractTest {
         return new ClassNodeTest().getSuite();
     }
 
+    @Override
     public void test() throws Exception {
         ClassReader cr = new ClassReader(is);
         ClassNode cn = new ClassNode();
@@ -63,6 +63,7 @@ public class ClassNodeTest extends AbstractTest {
             MethodNode mn = cn.methods.get(i);
             Iterator<AbstractInsnNode> it = mn.instructions.iterator();
             Map<LabelNode, LabelNode> m = new HashMap<LabelNode, LabelNode>() {
+                @Override
                 public LabelNode get(final Object o) {
                     return (LabelNode)o;
                 }
@@ -74,6 +75,7 @@ public class ClassNodeTest extends AbstractTest {
         }
         // test accept with visitors that remove class members
         cn.accept(new EmptyVisitor() {
+            @Override
             public FieldVisitor visitField(
                 int access,
                 String name,
@@ -84,6 +86,7 @@ public class ClassNodeTest extends AbstractTest {
                 return null;
             }
 
+            @Override
             public MethodVisitor visitMethod(
                 int access,
                 String name,

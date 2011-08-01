@@ -46,6 +46,7 @@ import java.lang.reflect.Method;
  */
 public class Adapt extends ClassLoader {
 
+    @Override
     protected synchronized Class<?> loadClass(
         final String name,
         final boolean resolve) throws ClassNotFoundException
@@ -108,6 +109,7 @@ class TraceFieldClassAdapter extends ClassAdapter implements Opcodes {
         super(cv);
     }
 
+    @Override
     public void visit(
         final int version,
         final int access,
@@ -120,6 +122,7 @@ class TraceFieldClassAdapter extends ClassAdapter implements Opcodes {
         super.visit(version, access, name, signature, superName, interfaces);
     }
 
+    @Override
     public FieldVisitor visitField(
         final int access,
         final String name,
@@ -180,6 +183,7 @@ class TraceFieldClassAdapter extends ClassAdapter implements Opcodes {
         return fv;
     }
 
+    @Override
     public MethodVisitor visitMethod(
         final int access,
         final String name,
@@ -205,6 +209,7 @@ class TraceFieldCodeAdapter extends MethodAdapter implements Opcodes {
         this.owner = owner;
     }
 
+    @Override
     public void visitFieldInsn(
         final int opcode,
         final String owner,

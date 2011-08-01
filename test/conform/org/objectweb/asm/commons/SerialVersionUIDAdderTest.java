@@ -45,6 +45,7 @@ public class SerialVersionUIDAdderTest extends AbstractTest {
         return new SerialVersionUIDAdderTest().getSuite();
     }
 
+    @Override
     public void test() throws Exception {
         ClassReader cr = new ClassReader(is);
         cr.accept(new SerialVersionUIDAdder(new EmptyVisitor()), 0);

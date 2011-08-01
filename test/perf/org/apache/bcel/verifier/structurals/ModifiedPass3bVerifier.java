@@ -25,7 +25,6 @@ import java.util.Random;
 import java.util.Vector;
 
 import org.apache.bcel.Constants;
-import org.apache.bcel.Repository;
 import org.apache.bcel.classfile.JavaClass;
 import org.apache.bcel.classfile.Method;
 import org.apache.bcel.generic.ConstantPoolGen;
@@ -42,7 +41,6 @@ import org.apache.bcel.generic.ReturnaddressType;
 import org.apache.bcel.generic.Type;
 import org.apache.bcel.verifier.PassVerifier;
 import org.apache.bcel.verifier.VerificationResult;
-import org.apache.bcel.verifier.Verifier;
 import org.apache.bcel.verifier.exc.AssertionViolatedException;
 import org.apache.bcel.verifier.exc.StructuralCodeConstraintException;
 import org.apache.bcel.verifier.exc.VerifierConstraintViolatedException;
@@ -303,6 +301,7 @@ public final class ModifiedPass3bVerifier extends PassVerifier{
      * @see org.apache.bcel.verifier.statics.LocalVariablesInfo
      * @see org.apache.bcel.verifier.statics.Pass2Verifier#getLocalVariablesInfo(int)
      */
+    @Override
     public VerificationResult do_verify(){
         /*if (! myOwner.doPass3a(method_no).equals(VerificationResult.VR_OK)){
             return VerificationResult.VR_NOTYET;

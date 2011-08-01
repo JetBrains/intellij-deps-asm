@@ -36,7 +36,6 @@ import junit.framework.TestSuite;
 
 import org.objectweb.asm.AbstractTest;
 import org.objectweb.asm.ClassReader;
-import org.objectweb.asm.ClassWriter;
 
 /**
  * CheckClassAdapter tests.
@@ -49,6 +48,7 @@ public class VerifyClassTest extends AbstractTest {
         return new VerifyClassTest().getSuite();
     }
 
+    @Override
     public void test() throws Exception {
         if (n.startsWith("pkg.")) {
             return;

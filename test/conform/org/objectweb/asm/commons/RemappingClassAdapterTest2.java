@@ -45,10 +45,12 @@ public class RemappingClassAdapterTest2 extends AbstractTest {
         return new RemappingClassAdapterTest2().getSuite();
     }
 
+    @Override
     public void test() throws Exception {
         ClassWriter cw = new ClassWriter(0);
         ClassReader cr = new ClassReader(is);
         Map<String, String> map = new HashMap<String, String>() {
+            @Override
             public String get(Object key) {
                 return "Foo";
             }

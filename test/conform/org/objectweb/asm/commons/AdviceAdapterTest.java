@@ -55,6 +55,7 @@ public class AdviceAdapterTest extends AbstractTest {
         return new AdviceAdapterTest().getSuite();
     }
 
+    @Override
     public void test() throws Exception {
         ClassReader cr = new ClassReader(is);
         ClassWriter cw1 = new ClassWriter(0);
@@ -71,6 +72,7 @@ public class AdviceAdapterTest extends AbstractTest {
             super(cv);
         }
 
+        @Override
         public MethodVisitor visitMethod(
             final int access,
             final String name,
@@ -100,6 +102,7 @@ public class AdviceAdapterTest extends AbstractTest {
             super(cv);
         }
 
+        @Override
         public MethodVisitor visitMethod(
             final int access,
             final String name,
@@ -120,12 +123,14 @@ public class AdviceAdapterTest extends AbstractTest {
             }
 
             return new AdviceAdapter(mv, access, name, desc) {
+                @Override
                 protected void onMethodEnter() {
                     // mv.visitInsn(NOP);
                     // mv.visitInsn(NOP);
                     // mv.visitInsn(NOP);
                 }
 
+                @Override
                 protected void onMethodExit(final int opcode) {
                     // mv.visitInsn(NOP);
                     // mv.visitInsn(NOP);

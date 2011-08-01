@@ -62,6 +62,7 @@ public class SerialVersionUIDAdderUnitTest extends TestCase implements
     {
         final long[] svuid = new long[1];
         ClassVisitor cv = new SerialVersionUIDAdder(new EmptyVisitor()) {
+            @Override
             protected long computeSVUID() throws IOException {
                 svuid[0] = super.computeSVUID();
                 return svuid[0];

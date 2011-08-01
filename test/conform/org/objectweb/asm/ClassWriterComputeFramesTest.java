@@ -78,6 +78,7 @@ public class ClassWriterComputeFramesTest extends AbstractTest {
     static byte[] transformClass(final String n, final byte[] clazz) {
         ClassReader cr = new ClassReader(clazz);
         ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_FRAMES) {
+            @Override
             protected String getCommonSuperClass(
                 final String type1,
                 final String type2)
@@ -110,6 +111,7 @@ public class ClassWriterComputeFramesTest extends AbstractTest {
         };
         cr.accept(new ClassAdapter(cw) {
 
+            @Override
             public void visit(
                 final int version,
                 final int access,
@@ -134,6 +136,7 @@ public class ClassWriterComputeFramesTest extends AbstractTest {
         return new ClassWriterComputeFramesTest().getSuite();
     }
 
+    @Override
     public void test() throws Exception {
         try {
             Class.forName(n, true, getClass().getClassLoader());

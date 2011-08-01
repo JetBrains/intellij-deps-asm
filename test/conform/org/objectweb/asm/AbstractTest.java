@@ -196,6 +196,7 @@ public abstract class AbstractTest extends TestCase {
         }
     }
 
+    @Override
     public String getName() {
         return super.getName() + ": " + n;
     }

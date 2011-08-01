@@ -996,6 +996,7 @@ public class GASMifierMethodVisitor extends ASMifierAbstractVisitor implements
         lastOpcode = -1;
     }
 
+    @Override
     public void visitEnd() {
         // does nothing
     }

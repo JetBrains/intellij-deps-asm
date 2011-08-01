@@ -74,6 +74,7 @@ public class ClassWriterResizeInsnsTest extends AbstractTest {
     static byte[] transformClass(final byte[] clazz, final int flags) {
         ClassReader cr = new ClassReader(clazz);
         ClassWriter cw = new ClassWriter(flags) {
+            @Override
             protected String getCommonSuperClass(
                 final String type1,
                 final String type2)
@@ -105,6 +106,7 @@ public class ClassWriterResizeInsnsTest extends AbstractTest {
 
             boolean transformed = false;
 
+            @Override
             public void visit(
                 int version,
                 int access,
@@ -124,6 +126,7 @@ public class ClassWriterResizeInsnsTest extends AbstractTest {
                         interfaces);
             }
 
+            @Override
             public MethodVisitor visitMethod(
                 final int access,
                 final String name,
@@ -139,11 +142,13 @@ public class ClassWriterResizeInsnsTest extends AbstractTest {
                 {
                     private final HashSet<Label> labels = new HashSet<Label>();
 
+                    @Override
                     public void visitLabel(final Label label) {
                         super.visitLabel(label);
                         labels.add(label);
                     }
 
+                    @Override
                     public void visitJumpInsn(
                         final int opcode,
                         final Label label)
@@ -169,6 +174,7 @@ public class ClassWriterResizeInsnsTest extends AbstractTest {
         return new ClassWriterResizeInsnsTest().getSuite();
     }
 
+    @Override
     public void test() throws Exception {
         try {
             Class.forName(n, true, getClass().getClassLoader());

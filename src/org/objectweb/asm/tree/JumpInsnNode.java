@@ -75,14 +75,17 @@ public class JumpInsnNode extends AbstractInsnNode {
         this.opcode = opcode;
     }
 
+    @Override
     public int getType() {
         return JUMP_INSN;
     }
 
+    @Override
     public void accept(final MethodVisitor mv) {
         mv.visitJumpInsn(opcode, label.getLabel());
     }
 
+    @Override
     public AbstractInsnNode clone(final Map<LabelNode, LabelNode> labels) {
         return new JumpInsnNode(opcode, clone(label, labels));
     }

@@ -49,9 +49,11 @@ public class JSRInlinerAdapterUnitTest extends TestCase {
     private MethodNode exp;
     private MethodVisitor current;
 
+    @Override
     protected void setUp() throws Exception {
         super.setUp();
         jsr = new JSRInlinerAdapter(null, 0, "m", "()V", null, null) {
+            @Override
             public void visitEnd() {
                 System.err.println("started w/ method:" + name);
                 TraceMethodVisitor mv = new TraceMethodVisitor();

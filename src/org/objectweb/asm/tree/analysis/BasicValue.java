@@ -73,6 +73,7 @@ public class BasicValue implements Value {
                 && (type.getSort() == Type.OBJECT || type.getSort() == Type.ARRAY);
     }
 
+    @Override
     public boolean equals(final Object value) {
         if (value == this) {
             return true;
@@ -87,10 +88,12 @@ public class BasicValue implements Value {
         }
     }
 
+    @Override
     public int hashCode() {
         return type == null ? 0 : type.hashCode();
     }
 
+    @Override
     public String toString() {
         if (this == UNINITIALIZED_VALUE) {
             return ".";

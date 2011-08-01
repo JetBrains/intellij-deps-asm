@@ -47,6 +47,7 @@ import org.objectweb.asm.attrs.Comment;
  */
 public class Attribute extends Generator {
 
+    @Override
     public void generate(final String dir) throws IOException {
         generate(dir, "pkg/Attribute.class", dump());
     }

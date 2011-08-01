@@ -165,6 +165,7 @@ public class IndyCompile extends ClassLoader {
             this.value = value;
         }
 
+        @Override
         void compile(final MethodVisitor mv) {
             if (value instanceof String) {
                 mv.visitLdcInsn(value);
@@ -190,10 +191,12 @@ public class IndyCompile extends ClassLoader {
             this.index = index;
         }
 
+        @Override
         int getMaxVarIndex() {
             return index;
         }
 
+        @Override
         void compile(final MethodVisitor mv) {
             // pushes the 'index' local variable onto the stack
             mv.visitVarInsn(ALOAD, index);
@@ -209,6 +212,7 @@ public class IndyCompile extends ClassLoader {
 
         final Exp e2;
 
+        @Override
         int getMaxVarIndex() {
             return Math.max(e1.getMaxVarIndex(), e2.getMaxVarIndex());
         }
@@ -228,6 +232,7 @@ public class IndyCompile extends ClassLoader {
             super(e1, e2);
         }
 
+        @Override
         void compile(final MethodVisitor mv) {
             // compiles e1, e2, and adds an instruction to add the two values
             e1.compile(mv);
@@ -247,6 +252,7 @@ public class IndyCompile extends ClassLoader {
             super(e1, e2);
         }
 
+        @Override
         void compile(final MethodVisitor mv) {
             // compiles e1, e2, and adds an instruction to multiply the two
             // values
@@ -267,6 +273,7 @@ public class IndyCompile extends ClassLoader {
             super(e1, e2);
         }
 
+        @Override
         void compile(final MethodVisitor mv) {
             // compiles e1, e2, and adds the instructions to compare the two
             // values
@@ -287,6 +294,7 @@ public class IndyCompile extends ClassLoader {
             super(e1, e2);
         }
 
+        @Override
         void compile(final MethodVisitor mv) {
             // compiles e1
             e1.compile(mv);
@@ -318,6 +326,7 @@ public class IndyCompile extends ClassLoader {
             super(e1, e2);
         }
 
+        @Override
         void compile(final MethodVisitor mv) {
             // compiles e1
             e1.compile(mv);
@@ -349,10 +358,12 @@ public class IndyCompile extends ClassLoader {
             this.e = e;
         }
 
+        @Override
         int getMaxVarIndex() {
             return e.getMaxVarIndex();
         }
 
+        @Override
         void compile(final MethodVisitor mv) {
             // compiles e, and applies 'not'
             e.compile(mv);

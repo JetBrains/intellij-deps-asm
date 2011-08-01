@@ -47,6 +47,7 @@ import org.objectweb.asm.MethodVisitor;
  */
 public class JSR extends Generator {
 
+    @Override
     public void generate(final String dir) throws IOException {
         generate(dir, "pkg/JSR1.class", dumpForwardJSR());
         generate(dir, "pkg/JSR2.class", dumpBackwardJSR());

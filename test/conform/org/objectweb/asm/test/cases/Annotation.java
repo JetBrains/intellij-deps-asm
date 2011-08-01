@@ -54,6 +54,7 @@ public class Annotation extends Generator {
 
     final static String DEPRECATED = "Ljava/lang/Deprecated;";
 
+    @Override
     public void generate(final String dir) throws IOException {
         generate(dir, "pkg/Annotation.class", dumpAnnotation());
         generate(dir, "pkg/Annotated.class", dumpAnnotated());

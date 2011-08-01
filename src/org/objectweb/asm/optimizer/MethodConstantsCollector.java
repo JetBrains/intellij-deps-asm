@@ -54,11 +54,13 @@ public class MethodConstantsCollector extends MethodAdapter {
         this.cp = cp;
     }
 
+    @Override
     public AnnotationVisitor visitAnnotationDefault() {
         cp.newUTF8("AnnotationDefault");
         return new AnnotationConstantsCollector(mv.visitAnnotationDefault(), cp);
     }
 
+    @Override
     public AnnotationVisitor visitAnnotation(
         final String desc,
         final boolean visible)
@@ -73,6 +75,7 @@ public class MethodConstantsCollector extends MethodAdapter {
                 visible), cp);
     }
 
+    @Override
     public AnnotationVisitor visitParameterAnnotation(
         final int parameter,
         final String desc,
@@ -90,11 +93,13 @@ public class MethodConstantsCollector extends MethodAdapter {
                 cp);
     }
 
+    @Override
     public void visitTypeInsn(final int opcode, final String type) {
         cp.newClass(type);
         mv.visitTypeInsn(opcode, type);
     }
 
+    @Override
     public void visitFieldInsn(
         final int opcode,
         final String owner,
@@ -105,6 +110,7 @@ public class MethodConstantsCollector extends MethodAdapter {
         mv.visitFieldInsn(opcode, owner, name, desc);
     }
 
+    @Override
     public void visitMethodInsn(
         final int opcode,
         final String owner,
@@ -116,6 +122,7 @@ public class MethodConstantsCollector extends MethodAdapter {
         mv.visitMethodInsn(opcode, owner, name, desc);
     }
 
+    @Override
     public void visitInvokeDynamicInsn(
         String name,
         String desc,
@@ -126,16 +133,19 @@ public class MethodConstantsCollector extends MethodAdapter {
         mv.visitInvokeDynamicInsn(name, desc, bsm, bsmArgs);
     }
 
+    @Override
     public void visitLdcInsn(final Object cst) {
         cp.newConst(cst);
         mv.visitLdcInsn(cst);
     }
 
+    @Override
     public void visitMultiANewArrayInsn(final String desc, final int dims) {
         cp.newClass(desc);
         mv.visitMultiANewArrayInsn(desc, dims);
     }
 
+    @Override
     public void visitTryCatchBlock(
         final Label start,
         final Label end,
@@ -148,6 +158,7 @@ public class MethodConstantsCollector extends MethodAdapter {
         mv.visitTryCatchBlock(start, end, handler, type);
     }
 
+    @Override
     public void visitLocalVariable(
         final String name,
         final String desc,
@@ -167,11 +178,13 @@ public class MethodConstantsCollector extends MethodAdapter {
         mv.visitLocalVariable(name, desc, signature, start, end, index);
     }
 
+    @Override
     public void visitLineNumber(final int line, final Label start) {
         cp.newUTF8("LineNumberTable");
         mv.visitLineNumber(line, start);
     }
 
+    @Override
     public void visitMaxs(final int maxStack, final int maxLocals) {
         cp.newUTF8("Code");
         mv.visitMaxs(maxStack, maxLocals);

@@ -302,6 +302,7 @@ public abstract class ALLPerfTest {
                         ClassWriter cw = new ClassWriter(0);
                         new ClassReader(bytes).accept(new ClassAdapter(cw) {
 
+                            @Override
                             public MethodVisitor visitMethod(
                                 final int access,
                                 final String name,

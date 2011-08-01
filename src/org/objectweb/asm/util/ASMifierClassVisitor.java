@@ -396,6 +396,7 @@ public class ASMifierClassVisitor extends ASMifierAbstractVisitor implements
         return new ASMifierMethodVisitor();
     }
 
+    @Override
     public AnnotationVisitor visitAnnotation(
         final String desc,
         final boolean visible)
@@ -414,6 +415,7 @@ public class ASMifierClassVisitor extends ASMifierAbstractVisitor implements
         return av;
     }
 
+    @Override
     public void visitEnd() {
         text.add("cw.visitEnd();\n\n");
         text.add("return cw.toByteArray();\n");

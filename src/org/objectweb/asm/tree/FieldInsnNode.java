@@ -89,14 +89,17 @@ public class FieldInsnNode extends AbstractInsnNode {
         this.opcode = opcode;
     }
 
+    @Override
     public int getType() {
         return FIELD_INSN;
     }
 
+    @Override
     public void accept(final MethodVisitor cv) {
         cv.visitFieldInsn(opcode, owner, name, desc);
     }
 
+    @Override
     public AbstractInsnNode clone(final Map<LabelNode, LabelNode> labels) {
         return new FieldInsnNode(opcode, owner, name, desc);
     }

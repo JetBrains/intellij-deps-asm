@@ -49,6 +49,7 @@ public class SourceInterpreterTest extends AbstractTest {
         return new SourceInterpreterTest().getSuite();
     }
 
+    @Override
     public void test() throws Exception {
         ClassReader cr = new ClassReader(is);
         ClassNode cn = new ClassNode();

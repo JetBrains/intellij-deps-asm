@@ -82,14 +82,17 @@ public class InvokeDynamicInsnNode extends AbstractInsnNode {
         this.bsmArgs = bsmArgs;
     }
 
+    @Override
     public int getType() {
         return INVOKE_DYNAMIC_INSN;
     }
 
+    @Override
     public void accept(final MethodVisitor mv) {
         mv.visitInvokeDynamicInsn(name, desc, bsm, bsmArgs);
     }
 
+    @Override
     public AbstractInsnNode clone(final Map<LabelNode, LabelNode> labels) {
         return new InvokeDynamicInsnNode(name, desc, bsm, bsmArgs);
     }

@@ -48,6 +48,7 @@ import org.objectweb.asm.Opcodes;
  */
 public class AdviceAdapterUnitTest extends AbstractTest {
 
+    @Override
     public void test() throws Exception {
         Class<?> c = getClass();
         String name = c.getName();
@@ -68,6 +69,7 @@ public class AdviceAdapterUnitTest extends AbstractTest {
             this.prefix = prefix;
         }
 
+        @Override
         public Class<?> loadClass(final String name) throws ClassNotFoundException
         {
             if (name.startsWith(prefix)) {
@@ -117,6 +119,7 @@ public class AdviceAdapterUnitTest extends AbstractTest {
             super(cv);
         }
 
+        @Override
         public void visit(
             final int version,
             final int access,
@@ -129,6 +132,7 @@ public class AdviceAdapterUnitTest extends AbstractTest {
             super.visit(version, access, name, signature, superName, interfaces);
         }
 
+        @Override
         public MethodVisitor visitMethod(
             final int access,
             final String name,
@@ -149,6 +153,7 @@ public class AdviceAdapterUnitTest extends AbstractTest {
             }
 
             return new AdviceAdapter(mv, access, name, desc) {
+                @Override
                 protected void onMethodEnter() {
                     mv.visitLdcInsn(cname + "." + name + desc);
                     mv.visitMethodInsn(INVOKESTATIC,
@@ -157,6 +162,7 @@ public class AdviceAdapterUnitTest extends AbstractTest {
                             "(Ljava/lang/String;)V");
                 }
 
+                @Override
                 protected void onMethodExit(final int opcode) {
                     mv.visitLdcInsn(cname + "." + name + desc);
                     mv.visitMethodInsn(INVOKESTATIC,

@@ -274,6 +274,7 @@ class Constant {
         }
     }
 
+    @Override
     public boolean equals(final Object o) {
         if (!(o instanceof Constant)) {
             return false;
@@ -315,6 +316,7 @@ class Constant {
         return false;
     }
 
+    @Override
     public int hashCode() {
         return hashCode;
     }

@@ -119,6 +119,7 @@ class Cst extends Exp {
         this.value = value;
     }
 
+    @Override
     void compile(final MethodVisitor mv) {
         // pushes the constant's value onto the stack
         mv.visitLdcInsn(new Integer(value));
@@ -136,6 +137,7 @@ class Var extends Exp {
         this.index = index + 1;
     }
 
+    @Override
     void compile(final MethodVisitor mv) {
         // pushes the 'index' local variable onto the stack
         mv.visitVarInsn(ILOAD, index);
@@ -166,6 +168,7 @@ class Add extends BinaryExp {
         super(e1, e2);
     }
 
+    @Override
     void compile(final MethodVisitor mv) {
         // compiles e1, e2, and adds an instruction to add the two values
         e1.compile(mv);
@@ -183,6 +186,7 @@ class Mul extends BinaryExp {
         super(e1, e2);
     }
 
+    @Override
     void compile(final MethodVisitor mv) {
         // compiles e1, e2, and adds an instruction to multiply the two values
         e1.compile(mv);
@@ -200,6 +204,7 @@ class GT extends BinaryExp {
         super(e1, e2);
     }
 
+    @Override
     void compile(final MethodVisitor mv) {
         // compiles e1, e2, and adds the instructions to compare the two values
         e1.compile(mv);
@@ -226,6 +231,7 @@ class And extends BinaryExp {
         super(e1, e2);
     }
 
+    @Override
     void compile(final MethodVisitor mv) {
         // compiles e1
         e1.compile(mv);
@@ -251,6 +257,7 @@ class Or extends BinaryExp {
         super(e1, e2);
     }
 
+    @Override
     void compile(final MethodVisitor mv) {
         // compiles e1
         e1.compile(mv);
@@ -278,6 +285,7 @@ class Not extends Exp {
         this.e = e;
     }
 
+    @Override
     void compile(final MethodVisitor mv) {
         // computes !e1 by evaluating 1 - e1
         mv.visitLdcInsn(new Integer(1));

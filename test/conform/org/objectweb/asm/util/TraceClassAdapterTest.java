@@ -53,6 +53,7 @@ public class TraceClassAdapterTest extends AbstractTest {
         return new TraceClassAdapterTest().getSuite();
     }
 
+    @Override
     public void test() throws Exception {
         ClassReader cr = new ClassReader(is);
         ClassWriter cw = new ClassWriter(0);

@@ -257,10 +257,12 @@ public class Method {
         return Type.getArgumentTypes(desc);
     }
 
+    @Override
     public String toString() {
         return name + desc;
     }
 
+    @Override
     public boolean equals(final Object o) {
         if (!(o instanceof Method)) {
             return false;
@@ -269,6 +271,7 @@ public class Method {
         return name.equals(other.name) && desc.equals(other.desc);
     }
 
+    @Override
     public int hashCode() {
         return name.hashCode() ^ desc.hashCode();
     }

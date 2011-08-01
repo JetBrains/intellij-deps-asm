@@ -139,6 +139,7 @@ public final class MethodType {
         return Type.getArgumentsAndReturnSizes(desc);
     }
 
+    @Override
     public boolean equals(Object obj) {
         if (obj == this) {
             return true;
@@ -149,10 +150,12 @@ public final class MethodType {
         return desc.equals(((MethodType) obj).desc);
     }
 
+    @Override
     public int hashCode() {
         return ~desc.hashCode();
     }
 
+    @Override
     public String toString() {
         return desc;
     }

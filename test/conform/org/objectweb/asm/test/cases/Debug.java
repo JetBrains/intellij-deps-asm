@@ -45,6 +45,7 @@ import org.objectweb.asm.MethodVisitor;
  */
 public class Debug extends Generator {
 
+    @Override
     public void generate(final String dir) throws IOException {
         generate(dir, "pkg/Debug.class", dump());
     }

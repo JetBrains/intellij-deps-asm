@@ -42,6 +42,7 @@ public class ClassWriterComputeMaxsTest extends AbstractTest {
         return new ClassWriterComputeMaxsTest().getSuite();
     }
 
+    @Override
     public void test() throws Exception {
         ClassReader cr = new ClassReader(is);
         ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_MAXS);

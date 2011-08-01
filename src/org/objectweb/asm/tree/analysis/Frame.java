@@ -694,6 +694,7 @@ public class Frame<V extends Value> {
      *
      * @return a string representation of this frame.
      */
+    @Override
     public String toString() {
         StringBuffer b = new StringBuffer();
         for (int i = 0; i < getLocals(); ++i) {

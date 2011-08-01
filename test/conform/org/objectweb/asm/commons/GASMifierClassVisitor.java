@@ -89,6 +89,7 @@ public class GASMifierClassVisitor extends ASMifierClassVisitor {
         super(pw);
     }
 
+    @Override
     public void visit(
         final int version,
         final int access,
@@ -110,6 +111,7 @@ public class GASMifierClassVisitor extends ASMifierClassVisitor {
         text.add(n + 1, "import org.objectweb.asm.commons.*;\n");
     }
 
+    @Override
     public MethodVisitor visitMethod(
         final int access,
         final String name,

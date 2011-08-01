@@ -44,6 +44,7 @@ public class ClassAdapterTest extends AbstractTest {
         return new ClassAdapterTest().getSuite();
     }
 
+    @Override
     public void test() throws Exception {
         ClassReader cr = new ClassReader(is);
         ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_MAXS);

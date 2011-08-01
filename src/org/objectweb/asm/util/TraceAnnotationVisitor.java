@@ -248,6 +248,7 @@ public class TraceAnnotationVisitor extends TraceAbstractVisitor implements
         return tav;
     }
 
+    @Override
     public void visitEnd() {
         if (av != null) {
             av.visitEnd();

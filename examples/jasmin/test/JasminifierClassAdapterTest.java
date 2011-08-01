@@ -73,10 +73,12 @@ class Comment extends Attribute {
         super("Comment");
     }
 
+    @Override
     public boolean isUnknown() {
         return false;
     }
 
+    @Override
     protected Attribute read(
         final ClassReader cr,
         final int off,
@@ -89,6 +91,7 @@ class Comment extends Attribute {
         return new Comment();
     }
 
+    @Override
     protected ByteVector write(
         final ClassWriter cw,
         final byte[] code,
@@ -106,14 +109,17 @@ class CodeComment extends Attribute {
         super("CodeComment");
     }
 
+    @Override
     public boolean isUnknown() {
         return false;
     }
 
+    @Override
     public boolean isCodeAttribute() {
         return true;
     }
 
+    @Override
     protected Attribute read(
         final ClassReader cr,
         final int off,
@@ -125,6 +131,7 @@ class CodeComment extends Attribute {
         return new CodeComment();
     }
 
+    @Override
     protected ByteVector write(
         final ClassWriter cw,
         final byte[] code,
@@ -135,6 +142,7 @@ class CodeComment extends Attribute {
         return new ByteVector();
     }
 
+    @Override
     protected Label[] getLabels() {
         super.getLabels();
         return new Label[] { new Label() };
@@ -263,6 +271,7 @@ public class JasminifierClassAdapterTest extends TestCase {
         }
     }
 
+    @Override
     public String getName() {
         return super.getName() + ": " + n;
     }

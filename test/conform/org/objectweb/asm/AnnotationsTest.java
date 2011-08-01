@@ -44,6 +44,7 @@ public class AnnotationsTest extends AbstractTest {
         return new AnnotationsTest().getSuite();
     }
 
+    @Override
     public void test() throws Exception {
         ClassReader cr = new ClassReader(is);
         ClassWriter cw1 = new ClassWriter(0);
@@ -60,6 +61,7 @@ public class AnnotationsTest extends AbstractTest {
             super(cv);
         }
 
+        @Override
         public AnnotationVisitor visitAnnotation(
             final String desc,
             final boolean visible)
@@ -67,6 +69,7 @@ public class AnnotationsTest extends AbstractTest {
             return new EmptyVisitor();
         }
 
+        @Override
         public MethodVisitor visitMethod(
             final int access,
             final String name,
@@ -81,10 +84,12 @@ public class AnnotationsTest extends AbstractTest {
                     exceptions))
             {
 
+                @Override
                 public AnnotationVisitor visitAnnotationDefault() {
                     return new EmptyVisitor();
                 }
 
+                @Override
                 public AnnotationVisitor visitAnnotation(
                     String desc,
                     boolean visible)
@@ -92,6 +97,7 @@ public class AnnotationsTest extends AbstractTest {
                     return new EmptyVisitor();
                 }
 
+                @Override
                 public AnnotationVisitor visitParameterAnnotation(
                     int parameter,
                     String desc,
@@ -109,6 +115,7 @@ public class AnnotationsTest extends AbstractTest {
             super(cv);
         }
 
+        @Override
         public AnnotationVisitor visitAnnotation(
             final String desc,
             final boolean visible)
@@ -116,6 +123,7 @@ public class AnnotationsTest extends AbstractTest {
             return null;
         }
 
+        @Override
         public MethodVisitor visitMethod(
             final int access,
             final String name,
@@ -130,10 +138,12 @@ public class AnnotationsTest extends AbstractTest {
                     exceptions))
             {
 
+                @Override
                 public AnnotationVisitor visitAnnotationDefault() {
                     return null;
                 }
 
+                @Override
                 public AnnotationVisitor visitAnnotation(
                     String desc,
                     boolean visible)
@@ -141,6 +151,7 @@ public class AnnotationsTest extends AbstractTest {
                     return null;
                 }
 
+                @Override
                 public AnnotationVisitor visitParameterAnnotation(
                     int parameter,
                     String desc,

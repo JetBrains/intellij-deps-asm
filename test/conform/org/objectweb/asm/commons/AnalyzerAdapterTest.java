@@ -50,6 +50,7 @@ public class AnalyzerAdapterTest extends AbstractTest {
         return new AnalyzerAdapterTest().getSuite();
     }
 
+    @Override
     public void test() throws Exception {
         ClassReader cr = new ClassReader(is);
         if (cr.readInt(4) != Opcodes.V1_6) {
@@ -66,6 +67,7 @@ public class AnalyzerAdapterTest extends AbstractTest {
 
             private String owner;
 
+            @Override
             public void visit(
                 final int version,
                 final int access,
@@ -83,6 +85,7 @@ public class AnalyzerAdapterTest extends AbstractTest {
                         interfaces);
             }
 
+            @Override
             public MethodVisitor visitMethod(
                 final int access,
                 final String name,

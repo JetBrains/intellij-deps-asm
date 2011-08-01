@@ -333,6 +333,7 @@ public class CheckClassAdapter extends ClassAdapter {
     // Implementation of the ClassVisitor interface
     // ------------------------------------------------------------------------
 
+    @Override
     public void visit(
         final int version,
         final int access,
@@ -380,6 +381,7 @@ public class CheckClassAdapter extends ClassAdapter {
         cv.visit(version, access, name, signature, superName, interfaces);
     }
 
+    @Override
     public void visitSource(final String file, final String debug) {
         checkState();
         if (source) {
@@ -389,6 +391,7 @@ public class CheckClassAdapter extends ClassAdapter {
         cv.visitSource(file, debug);
     }
 
+    @Override
     public void visitOuterClass(
         final String owner,
         final String name,
@@ -408,6 +411,7 @@ public class CheckClassAdapter extends ClassAdapter {
         cv.visitOuterClass(owner, name, desc);
     }
 
+    @Override
     public void visitInnerClass(
         final String name,
         final String outerName,
@@ -430,6 +434,7 @@ public class CheckClassAdapter extends ClassAdapter {
         cv.visitInnerClass(name, outerName, innerName, access);
     }
 
+    @Override
     public FieldVisitor visitField(
         final int access,
         final String name,
@@ -456,6 +461,7 @@ public class CheckClassAdapter extends ClassAdapter {
         return new CheckFieldAdapter(av);
     }
 
+    @Override
     public MethodVisitor visitMethod(
         final int access,
         final String name,
@@ -500,6 +506,7 @@ public class CheckClassAdapter extends ClassAdapter {
         return cma;
     }
 
+    @Override
     public AnnotationVisitor visitAnnotation(
         final String desc,
         final boolean visible)
@@ -509,6 +516,7 @@ public class CheckClassAdapter extends ClassAdapter {
         return new CheckAnnotationAdapter(cv.visitAnnotation(desc, visible));
     }
 
+    @Override
     public void visitAttribute(final Attribute attr) {
         checkState();
         if (attr == null) {
@@ -517,6 +525,7 @@ public class CheckClassAdapter extends ClassAdapter {
         cv.visitAttribute(attr);
     }
 
+    @Override
     public void visitEnd() {
         checkState();
         end = true;

@@ -284,6 +284,7 @@ public class TraceClassVisitor extends TraceAbstractVisitor implements
         }
     }
 
+    @Override
     public AnnotationVisitor visitAnnotation(
         final String desc,
         final boolean visible)
@@ -297,6 +298,7 @@ public class TraceClassVisitor extends TraceAbstractVisitor implements
         return tav;
     }
 
+    @Override
     public void visitAttribute(final Attribute attr) {
         text.add("\n");
         super.visitAttribute(attr);
@@ -456,6 +458,7 @@ public class TraceClassVisitor extends TraceAbstractVisitor implements
         return tcv;
     }
 
+    @Override
     public void visitEnd() {
         text.add("}\n");
 

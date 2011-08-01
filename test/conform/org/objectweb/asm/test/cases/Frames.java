@@ -53,6 +53,7 @@ public class Frames extends Generator {
     final static String I1 = "Ljava/io/Serializable;";
     final static String I2 = "Ljava/lang/Comparable;";
 
+    @Override
     public void generate(final String dir) throws IOException {
         byte[] b = dump();
         ClassWriter cw = new ClassWriter(0);
@@ -817,6 +818,7 @@ public class Frames extends Generator {
             super(cv);
         }
 
+        @Override
         public void visit(
             final int version,
             final int access,
@@ -833,6 +835,7 @@ public class Frames extends Generator {
                     interfaces);
         }
 
+        @Override
         public MethodVisitor visitMethod(
             final int access,
             final String name,
@@ -846,6 +849,7 @@ public class Frames extends Generator {
                     signature,
                     exceptions))
             {
+                @Override
                 public void visitFrame(
                     final int type,
                     final int nLocal,
@@ -870,6 +874,7 @@ public class Frames extends Generator {
                     super.visitFrame(type, nLocal, clocal, nStack, cstack);
                 }
 
+                @Override
                 public void visitTypeInsn(final int opcode, final String desc) {
                     if (desc.equals("pkg/FrameTable")) {
                         super.visitTypeInsn(opcode, "pkg/FrameMap");
@@ -878,6 +883,7 @@ public class Frames extends Generator {
                     }
                 }
 
+                @Override
                 public void visitMethodInsn(
                     final int opcode,
                     final String owner,

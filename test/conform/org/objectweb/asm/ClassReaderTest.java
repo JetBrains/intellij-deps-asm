@@ -44,6 +44,7 @@ public class ClassReaderTest extends AbstractTest {
         return new ClassReaderTest().getSuite();
     }
 
+    @Override
     public void test() throws Exception {
         new ClassReader(is).accept(new EmptyVisitor(), 0);
     }

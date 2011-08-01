@@ -67,12 +67,6 @@ public class XMLPerfTest {
             return;
         }
 
-        // File[] templates = examplesDir.listFiles(new FilenameFilter() {
-        // public boolean accept(File dir, String name) {
-        // return name.endsWith(".xsl");
-        // }
-        // });
-
         for (int i = 0; i < ENGINES.length; i++) {
             System.err.println(ENGINES[i]);
             process(null, ENGINES[i]);
@@ -93,28 +87,6 @@ public class XMLPerfTest {
         processRep(name, Processor.MULTI_XML);
         processRep(name, Processor.SINGLE_XML);
     }
-
-    // private static void processEntry(
-    // String className,
-    // TransformerHandler handler) throws Exception
-    // {
-    // byte[] classData = getCode(new URL(className).openStream());
-    // ByteArrayOutputStream bos = new ByteArrayOutputStream();
-    //
-    // handler.setResult(new SAXResult(new ASMContentHandler(bos, false)));
-    //
-    // ClassReader cr = new ClassReader(classData);
-    // cr.accept(new SAXClassAdapter(handler, cr.getVersion(), false), false);
-    // }
-    //
-    // private static byte[] getCode(InputStream is) throws IOException {
-    // ByteArrayOutputStream bos = new ByteArrayOutputStream();
-    // byte[] buff = new byte[1024];
-    // int n = -1;
-    // while ((n = is.read(buff)) > -1)
-    // bos.write(buff, 0, n);
-    // return bos.toByteArray();
-    // }
 
     private static void processRep(final String name, final int outRep) {
         long l1 = System.currentTimeMillis();
@@ -138,7 +110,6 @@ public class XMLPerfTest {
 
         } catch (Exception ex) {
             System.err.println();
-            // ex.printStackTrace();
             System.err.println(ex);
 
         }
@@ -148,24 +119,9 @@ public class XMLPerfTest {
         System.err.println();
         System.err.println("  " + outRep + " " + name + "  " + (l2 - l1)
                 + "ms  " + 1000f * n / (l2 - l1));
-
-        // SAXTransformerFactory saxtf = (SAXTransformerFactory)
-        // TransformerFactory.newInstance();
-        // Templates templates = saxtf.newTemplates(xslt);
-        //
-        // ZipEntry ze = null;
-        // int max = 10000;
-        // while ((ze = zis.getNextEntry()) != null && max > 0) {
-        // if (ze.getName().endsWith(".class")) {
-        // processEntry(u.substring(0, n + 2).concat(ze.getName()),
-        // saxtf.newTransformerHandler(templates));
-        // max--;
-        // }
-        // }
     }
 
     private static final class DotObserver extends Processor {
-        private int n = 0;
 
         public DotObserver(
             final int inRepresenation,
@@ -176,25 +132,19 @@ public class XMLPerfTest {
         {
             super(inRepresenation, outRepresentation, input, output, xslt);
         }
-
-        public void update(final Object arg) {
-            n++;
-            if (n % 1000 == 0) {
-                System.err.print("" + n / 1000);
-            } else if (n % 100 == 0) {
-                System.err.print(".");
-            }
-        }
     }
 
     static final class IgnoringOutputStream extends OutputStream {
 
+        @Override
         public final void write(final int b) throws IOException {
         }
 
+        @Override
         public final void write(final byte[] b) throws IOException {
         }
 
+        @Override
         public final void write(final byte[] b, final int off, final int len)
                 throws IOException
         {

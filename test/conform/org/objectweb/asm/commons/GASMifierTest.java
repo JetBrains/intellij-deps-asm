@@ -72,6 +72,7 @@ public class GASMifierTest extends AbstractTest {
         return new GASMifierTest().getSuite();
     }
 
+    @Override
     public void test() throws Exception {
         ClassReader cr = new ClassReader(is);
 
@@ -97,6 +98,7 @@ public class GASMifierTest extends AbstractTest {
 
         ClassWriter cw = new ClassWriter(0);
         cr.accept(new ClassAdapter(cw) {
+            @Override
             public MethodVisitor visitMethod(
                 final int access,
                 final String name,
@@ -172,6 +174,7 @@ public class GASMifierTest extends AbstractTest {
             super(null);
         }
 
+        @Override
         public MethodVisitor visitMethod(
             final int access,
             final String name,
@@ -185,6 +188,7 @@ public class GASMifierTest extends AbstractTest {
                     signature,
                     exceptions))
             {
+                @Override
                 public void visitMaxs(final int maxStack, final int maxLocals) {
                     super.visitMaxs(0, 0);
                 }

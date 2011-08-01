@@ -46,6 +46,7 @@ public class InstructionAdapter extends MethodAdapter {
         super(mv);
     }
 
+    @Override
     public void visitInsn(final int opcode) {
         switch (opcode) {
             case Opcodes.NOP:
@@ -354,6 +355,7 @@ public class InstructionAdapter extends MethodAdapter {
         }
     }
 
+    @Override
     public void visitIntInsn(final int opcode, final int operand) {
         switch (opcode) {
             case Opcodes.BIPUSH:
@@ -397,6 +399,7 @@ public class InstructionAdapter extends MethodAdapter {
         }
     }
 
+    @Override
     public void visitVarInsn(final int opcode, final int var) {
         switch (opcode) {
             case Opcodes.ILOAD:
@@ -437,6 +440,7 @@ public class InstructionAdapter extends MethodAdapter {
         }
     }
 
+    @Override
     public void visitTypeInsn(final int opcode, final String type) {
         Type t = Type.getObjectType(type);
         switch (opcode) {
@@ -457,6 +461,7 @@ public class InstructionAdapter extends MethodAdapter {
         }
     }
 
+    @Override
     public void visitFieldInsn(
         final int opcode,
         final String owner,
@@ -481,6 +486,7 @@ public class InstructionAdapter extends MethodAdapter {
         }
     }
 
+    @Override
     public void visitMethodInsn(
         final int opcode,
         final String owner,
@@ -505,6 +511,7 @@ public class InstructionAdapter extends MethodAdapter {
         }
     }
 
+    @Override
     public void visitInvokeDynamicInsn(
         String name,
         String desc,
@@ -514,6 +521,7 @@ public class InstructionAdapter extends MethodAdapter {
        invokedynamic(name, desc, bsm, bsmArgs);
     }
 
+    @Override
     public void visitJumpInsn(final int opcode, final Label label) {
         switch (opcode) {
             case Opcodes.IFEQ:
@@ -575,10 +583,12 @@ public class InstructionAdapter extends MethodAdapter {
         }
     }
 
+    @Override
     public void visitLabel(final Label label) {
         mark(label);
     }
 
+    @Override
     public void visitLdcInsn(final Object cst) {
         if (cst instanceof Integer) {
             int val = ((Integer) cst).intValue();
@@ -617,10 +627,12 @@ public class InstructionAdapter extends MethodAdapter {
         }
     }
 
+    @Override
     public void visitIincInsn(final int var, final int increment) {
         iinc(var, increment);
     }
 
+    @Override
     public void visitTableSwitchInsn(
         final int min,
         final int max,
@@ -630,6 +642,7 @@ public class InstructionAdapter extends MethodAdapter {
         tableswitch(min, max, dflt, labels);
     }
 
+    @Override
     public void visitLookupSwitchInsn(
         final Label dflt,
         final int[] keys,
@@ -638,6 +651,7 @@ public class InstructionAdapter extends MethodAdapter {
         lookupswitch(dflt, keys, labels);
     }
 
+    @Override
     public void visitMultiANewArrayInsn(final String desc, final int dims) {
         multianewarray(desc, dims);
     }

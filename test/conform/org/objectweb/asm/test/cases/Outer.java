@@ -44,6 +44,7 @@ import org.objectweb.asm.MethodVisitor;
  */
 public class Outer extends Generator {
 
+    @Override
     public void generate(final String dir) throws IOException {
         generate(dir, "pkg/Outer.class", dump());
         generate(dir, "pkg/Outer$1.class", dump1());

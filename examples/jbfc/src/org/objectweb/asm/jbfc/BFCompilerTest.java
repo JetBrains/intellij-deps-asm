@@ -52,6 +52,7 @@ public class BFCompilerTest extends TestCase {
 
     private ClassWriter cw;
 
+    @Override
     protected void setUp() throws Exception {
         super.setUp();
         bc = new BFCompiler();
@@ -163,6 +164,7 @@ public class BFCompilerTest extends TestCase {
             this.bytecode = bytecode;
         }
 
+        @Override
         public Class<?> loadClass(final String name) throws ClassNotFoundException
         {
             if (className.equals(name)) {

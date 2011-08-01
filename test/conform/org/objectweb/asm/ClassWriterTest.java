@@ -42,6 +42,7 @@ public class ClassWriterTest extends AbstractTest {
         return new ClassWriterTest().getSuite();
     }
 
+    @Override
     public void test() throws Exception {
         ClassReader cr = new ClassReader(is);
         ClassWriter cw = new ClassWriter(0);

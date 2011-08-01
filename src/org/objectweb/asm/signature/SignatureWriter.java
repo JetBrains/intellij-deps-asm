@@ -177,6 +177,7 @@ public class SignatureWriter implements SignatureVisitor {
      * 
      * @return the signature that was built by this signature writer.
      */
+    @Override
     public String toString() {
         return buf.toString();
     }

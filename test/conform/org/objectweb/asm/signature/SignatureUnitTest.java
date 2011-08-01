@@ -78,6 +78,7 @@ public class SignatureUnitTest extends TestCase {
         assertEquals(data.signature, wrt.toString());
     }
 
+    @Override
     public String getName() {
         return super.getName() + " " + data.signature;
     }

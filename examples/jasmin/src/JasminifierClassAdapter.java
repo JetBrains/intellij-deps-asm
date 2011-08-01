@@ -166,6 +166,7 @@ public class JasminifierClassAdapter extends ClassAdapter {
     public JasminifierClassAdapter(final PrintWriter pw, final ClassVisitor cv)
     {
         super(new ClassNode() {
+            @Override
             public void visitEnd() {
                 if (cv != null) {
                     accept(cv);
@@ -176,6 +177,7 @@ public class JasminifierClassAdapter extends ClassAdapter {
         labelNames = new HashMap<Label, String>();
     }
 
+    @Override
     public void visitEnd() {
         ClassNode cn = (ClassNode) cv;
         pw.print(".bytecode ");
@@ -349,6 +351,7 @@ public class JasminifierClassAdapter extends ClassAdapter {
                     AbstractInsnNode in = mn.instructions.get(j);
                     in.accept(new EmptyVisitor() {
 
+                        @Override
                         public void visitFrame(
                             int type,
                             int local,
@@ -374,11 +377,13 @@ public class JasminifierClassAdapter extends ClassAdapter {
                             pw.println(".end stack");
                         }
 
+                        @Override
                         public void visitInsn(int opcode) {
                             print(opcode);
                             pw.println();
                         }
 
+                        @Override
                         public void visitIntInsn(int opcode, int operand) {
                             print(opcode);
                             if (opcode == Opcodes.NEWARRAY) {
@@ -415,18 +420,21 @@ public class JasminifierClassAdapter extends ClassAdapter {
                             }
                         }
 
+                        @Override
                         public void visitVarInsn(int opcode, int var) {
                             print(opcode);
                             pw.print(' ');
                             pw.println(var);
                         }
 
+                        @Override
                         public void visitTypeInsn(int opcode, String type) {
                             print(opcode);
                             pw.print(' ');
                             pw.println(type);
                         }
 
+                        @Override
                         public void visitFieldInsn(
                             int opcode,
                             String owner,
@@ -442,6 +450,7 @@ public class JasminifierClassAdapter extends ClassAdapter {
                             pw.println(desc);
                         }
 
+                        @Override
                         public void visitMethodInsn(
                             int opcode,
                             String owner,
@@ -461,6 +470,7 @@ public class JasminifierClassAdapter extends ClassAdapter {
                             pw.println();
                         }
 
+                        @Override
                         public void visitJumpInsn(int opcode, Label label) {
                             print(opcode);
                             pw.print(' ');
@@ -468,11 +478,13 @@ public class JasminifierClassAdapter extends ClassAdapter {
                             pw.println();
                         }
 
+                        @Override
                         public void visitLabel(Label label) {
                             print(label);
                             pw.println(':');
                         }
 
+                        @Override
                         public void visitLdcInsn(Object cst) {
                             pw.print("ldc ");
                             if (cst instanceof Type) {
@@ -483,6 +495,7 @@ public class JasminifierClassAdapter extends ClassAdapter {
                             pw.println();
                         }
 
+                        @Override
                         public void visitIincInsn(int var, int increment) {
                             pw.print("iinc ");
                             pw.print(var);
@@ -490,6 +503,7 @@ public class JasminifierClassAdapter extends ClassAdapter {
                             pw.println(increment);
                         }
 
+                        @Override
                         public void visitTableSwitchInsn(
                             int min,
                             int max,
@@ -507,6 +521,7 @@ public class JasminifierClassAdapter extends ClassAdapter {
                             pw.println();
                         }
 
+                        @Override
                         public void visitLookupSwitchInsn(
                             Label dflt,
                             int[] keys,
@@ -531,6 +546,7 @@ public class JasminifierClassAdapter extends ClassAdapter {
                             pw.println();
                         }
 
+                        @Override
                         public void visitMultiANewArrayInsn(
                             String desc,
                             int dims)
@@ -541,6 +557,7 @@ public class JasminifierClassAdapter extends ClassAdapter {
                             pw.println(dims);
                         }
 
+                        @Override
                         public void visitLineNumber(int line, Label start) {
                             pw.print(".line ");
                             pw.println(line);

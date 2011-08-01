@@ -45,6 +45,7 @@ import org.objectweb.asm.Type;
  */
 public class Insns extends Generator {
 
+    @Override
     public void generate(final String dir) throws IOException {
         generate(dir, "pkg/Insns.class", dump());
     }

@@ -42,6 +42,7 @@ import org.objectweb.asm.MethodVisitor;
  */
 public class Interface extends Generator {
 
+    @Override
     public void generate(final String dir) throws IOException {
         generate(dir, "Interface.class", dump());
     }

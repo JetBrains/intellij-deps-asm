@@ -43,6 +43,7 @@ import org.objectweb.asm.Type;
  */
 public class Enum extends Generator {
 
+    @Override
     public void generate(final String dir) throws IOException {
         generate(dir, "pkg/Enum.class", dump());
     }

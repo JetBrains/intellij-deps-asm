@@ -91,10 +91,12 @@ public class TableSwitchInsnNode extends AbstractInsnNode {
         }
     }
 
+    @Override
     public int getType() {
         return TABLESWITCH_INSN;
     }
 
+    @Override
     public void accept(final MethodVisitor mv) {
         Label[] labels = new Label[this.labels.size()];
         for (int i = 0; i < labels.length; ++i) {
@@ -103,6 +105,7 @@ public class TableSwitchInsnNode extends AbstractInsnNode {
         mv.visitTableSwitchInsn(min, max, dflt.getLabel(), labels);
     }
 
+    @Override
     public AbstractInsnNode clone(final Map<LabelNode, LabelNode> labels) {
         return new TableSwitchInsnNode(min,
                 max,

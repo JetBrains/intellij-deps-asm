@@ -597,6 +597,7 @@ public class GeneratorAdapter extends LocalVariablesSorter {
         return localTypes.get(local - firstLocal);
     }
 
+    @Override
     protected void setLocalType(final int local, final Type type) {
         int index = local - firstLocal;
         while (localTypes.size() < index + 1) {

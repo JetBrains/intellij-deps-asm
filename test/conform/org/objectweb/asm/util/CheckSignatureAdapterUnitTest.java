@@ -252,6 +252,7 @@ public class CheckSignatureAdapterUnitTest extends TestCase {
         }
     }
 
+    @Override
     public String getName() {
         if (data == null) {
             return super.getName();

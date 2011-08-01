@@ -49,6 +49,7 @@ public class BasicInterpreterTest extends AbstractTest {
         return new BasicInterpreterTest().getSuite();
     }
 
+    @Override
     public void test() throws Exception {
         ClassReader cr = new ClassReader(is);
         ClassNode cn = new ClassNode();

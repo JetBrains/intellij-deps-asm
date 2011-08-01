@@ -66,6 +66,7 @@ public class ASMifierTest extends AbstractTest {
         return new ASMifierTest().getSuite();
     }
 
+    @Override
     public void test() throws Exception {
         ClassReader cr = new ClassReader(is);
 

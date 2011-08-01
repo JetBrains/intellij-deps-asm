@@ -50,9 +50,11 @@ public class CheckSignatureAdapterTest extends AbstractTest {
         return new CheckSignatureAdapterTest().getSuite();
     }
 
+    @Override
     public void test() throws Exception {
         ClassReader cr = new ClassReader(is);
         cr.accept(new EmptyVisitor() {
+            @Override
             public void visit(
                 int version,
                 int access,
@@ -70,6 +72,7 @@ public class CheckSignatureAdapterTest extends AbstractTest {
                 }
             }
 
+            @Override
             public FieldVisitor visitField(
                 int access,
                 String name,
@@ -87,6 +90,7 @@ public class CheckSignatureAdapterTest extends AbstractTest {
                 return null;
             }
 
+            @Override
             public MethodVisitor visitMethod(
                 int access,
                 String name,

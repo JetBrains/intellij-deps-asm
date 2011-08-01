@@ -53,6 +53,7 @@ public class InsnListUnitTest extends TestCase {
 
     InsnNode in2;
 
+    @Override
     protected void setUp() throws Exception {
         super.setUp();
         InsnList.check = true;
@@ -655,6 +656,7 @@ public class InsnListUnitTest extends TestCase {
         
         final InsnList lst = new InsnList();
         l1.accept(new MethodAdapter(null) {
+            @Override
             public void visitInsn(int opcode) {
                 lst.add(new InsnNode(opcode));
             }

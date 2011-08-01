@@ -42,6 +42,7 @@ public class ClassWriterCopyPoolTest extends AbstractTest {
         return new ClassWriterCopyPoolTest().getSuite();
     }
 
+    @Override
     public void test() throws Exception {
         ClassReader cr = new ClassReader(is);
         ClassWriter cw1 = new ClassWriter(0);
@@ -58,6 +59,7 @@ public class ClassWriterCopyPoolTest extends AbstractTest {
             super(cv);
         }
 
+        @Override
         public MethodVisitor visitMethod(
             final int access,
             final String name,

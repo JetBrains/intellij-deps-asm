@@ -44,17 +44,21 @@ public class SAXAdapterUnitTest extends TestCase {
 
     SAXAdapter sa;
 
+    @Override
     protected void setUp() {
         sa = new SAXAdapter(new DefaultHandler() {
 
+            @Override
             public void startDocument() throws SAXException {
                 throw new SAXException();
             }
 
+            @Override
             public void endDocument() throws SAXException {
                 throw new SAXException();
             }
 
+            @Override
             public void startElement(
                 final String arg0,
                 final String arg1,
@@ -64,6 +68,7 @@ public class SAXAdapterUnitTest extends TestCase {
                 throw new SAXException();
             }
 
+            @Override
             public void endElement(
                 final String arg0,
                 final String arg1,

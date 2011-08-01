@@ -46,6 +46,7 @@ import org.objectweb.asm.MethodVisitor;
  */
 public class Wide extends Generator {
 
+    @Override
     public void generate(final String dir) throws IOException {
         generate(dir, "pkg/Wide.class", dump());
     }

@@ -65,6 +65,7 @@ public class ClassWriterComputeMaxsUnitTest extends TestCase {
 
     private Label start;
 
+    @Override
     protected void setUp() throws Exception {
         Class<?> lClass = Label.class;
         Class<?> eClass = Edge.class;
@@ -194,6 +195,7 @@ public class ClassWriterComputeMaxsUnitTest extends TestCase {
         byte[] b = cw.toByteArray();
         ClassReader cr = new ClassReader(b);
         cr.accept(new EmptyVisitor() {
+            @Override
             public MethodVisitor visitMethod(
                 final int access,
                 final String name,
@@ -203,6 +205,7 @@ public class ClassWriterComputeMaxsUnitTest extends TestCase {
             {
                 if (name.equals("m")) {
                     return new EmptyVisitor() {
+                        @Override
                         public void visitMaxs(
                             final int realMaxStack,
                             final int realMaxLocals)

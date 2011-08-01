@@ -70,6 +70,7 @@ public class Analysis implements Opcodes {
                     final Frame<?>[] frames = a.getFrames();
 
                     TraceMethodVisitor mv = new TraceMethodVisitor() {
+                        @Override
                         public void visitMaxs(
                             final int maxStack,
                             final int maxLocals)

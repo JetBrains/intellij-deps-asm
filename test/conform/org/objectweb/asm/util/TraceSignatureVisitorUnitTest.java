@@ -141,6 +141,7 @@ public class TraceSignatureVisitorUnitTest extends TestCase {
         }
     }
 
+    @Override
     public String getName() {
         return super.getName() + " " + data.signature;
     }

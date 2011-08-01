@@ -49,6 +49,7 @@ public class TraceFieldVisitor extends TraceAbstractVisitor implements
      */
     protected FieldVisitor fv;
 
+    @Override
     public AnnotationVisitor visitAnnotation(
         final String desc,
         final boolean visible)
@@ -60,6 +61,7 @@ public class TraceFieldVisitor extends TraceAbstractVisitor implements
         return av;
     }
 
+    @Override
     public void visitAttribute(final Attribute attr) {
         super.visitAttribute(attr);
 
@@ -68,6 +70,7 @@ public class TraceFieldVisitor extends TraceAbstractVisitor implements
         }
     }
 
+    @Override
     public void visitEnd() {
         super.visitEnd();
 

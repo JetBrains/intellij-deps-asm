@@ -47,6 +47,7 @@ import org.objectweb.asm.commons.RemappingMethodAdapter;
  * @author Eugene Kuleshov
  */
 public class MethodOptimizer extends RemappingMethodAdapter implements Opcodes {
+    
     private final ClassOptimizer classOptimizer;
 
     public MethodOptimizer(
@@ -64,11 +65,19 @@ public class MethodOptimizer extends RemappingMethodAdapter implements Opcodes {
     // Overridden methods
     // ------------------------------------------------------------------------
 
+    @Override
     public AnnotationVisitor visitAnnotationDefault() {
         // remove annotations
         return null;
     }
 
+    @Override
+    public AnnotationVisitor visitAnnotation(String desc, boolean visible) {
+        // remove annotations
+        return null;
+    }
+
+    @Override
     public AnnotationVisitor visitParameterAnnotation(
         final int parameter,
         final String desc,
@@ -78,6 +87,7 @@ public class MethodOptimizer extends RemappingMethodAdapter implements Opcodes {
         return null;
     }
 
+    @Override
     public void visitLocalVariable(
         final String name,
         final String desc,
@@ -89,10 +99,12 @@ public class MethodOptimizer extends RemappingMethodAdapter implements Opcodes {
         // remove debug info
     }
 
+    @Override
     public void visitLineNumber(final int line, final Label start) {
         // remove debug info
     }
 
+    @Override
     public void visitFrame(
         int type,
         int local,
@@ -103,6 +115,7 @@ public class MethodOptimizer extends RemappingMethodAdapter implements Opcodes {
         // remove frame info
     }
 
+    @Override
     public void visitAttribute(Attribute attr) {
         // remove non standard attributes
     }

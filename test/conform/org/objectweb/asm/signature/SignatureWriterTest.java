@@ -48,9 +48,11 @@ public class SignatureWriterTest extends AbstractTest {
         return new SignatureWriterTest().getSuite();
     }
 
+    @Override
     public void test() throws Exception {
         ClassReader cr = new ClassReader(is);
         cr.accept(new EmptyVisitor() {
+            @Override
             public void visit(
                 int version,
                 int access,
@@ -67,6 +69,7 @@ public class SignatureWriterTest extends AbstractTest {
                 }
             }
 
+            @Override
             public FieldVisitor visitField(
                 int access,
                 String name,
@@ -83,6 +86,7 @@ public class SignatureWriterTest extends AbstractTest {
                 return null;
             }
 
+            @Override
             public MethodVisitor visitMethod(
                 int access,
                 String name,

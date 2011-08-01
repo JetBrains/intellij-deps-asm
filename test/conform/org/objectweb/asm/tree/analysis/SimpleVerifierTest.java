@@ -49,6 +49,7 @@ public class SimpleVerifierTest extends AbstractTest {
         return new SimpleVerifierTest().getSuite();
     }
 
+    @Override
     public void test() throws Exception {
         ClassReader cr = new ClassReader(is);
         ClassNode cn = new ClassNode();

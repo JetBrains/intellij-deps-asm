@@ -65,14 +65,17 @@ public class LineNumberNode extends AbstractInsnNode {
         this.start = start;
     }
 
+    @Override
     public int getType() {
         return LINE;
     }
 
+    @Override
     public void accept(final MethodVisitor mv) {
         mv.visitLineNumber(line, start.getLabel());
     }
 
+    @Override
     public AbstractInsnNode clone(final Map<LabelNode, LabelNode> labels) {
         return new LineNumberNode(line, clone(start, labels));
     }

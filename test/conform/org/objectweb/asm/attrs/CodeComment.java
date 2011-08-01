@@ -50,14 +50,17 @@ public class CodeComment extends Attribute implements ASMifiable, Traceable {
         super("CodeComment");
     }
 
+    @Override
     public boolean isUnknown() {
         return false;
     }
 
+    @Override
     public boolean isCodeAttribute() {
         return true;
     }
 
+    @Override
     protected Attribute read(
         final ClassReader cr,
         final int off,
@@ -70,6 +73,7 @@ public class CodeComment extends Attribute implements ASMifiable, Traceable {
         return new CodeComment();
     }
 
+    @Override
     protected ByteVector write(
         final ClassWriter cw,
         final byte[] code,
@@ -80,6 +84,7 @@ public class CodeComment extends Attribute implements ASMifiable, Traceable {
         return new ByteVector();
     }
 
+    @Override
     protected Label[] getLabels() {
         super.getLabels();
         return new Label[] { new Label() };

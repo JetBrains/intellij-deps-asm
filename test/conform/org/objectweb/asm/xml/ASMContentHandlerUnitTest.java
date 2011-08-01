@@ -51,6 +51,7 @@ public class ASMContentHandlerUnitTest extends TestCase implements Opcodes {
 
     MethodVisitor mv;
 
+    @Override
     protected void setUp() throws Exception {
         h = new ASMContentHandler(new EmptyVisitor());
         cv = new SAXClassAdapter(h, true);

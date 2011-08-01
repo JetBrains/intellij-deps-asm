@@ -62,6 +62,7 @@ public class InsnNode extends AbstractInsnNode {
         super(opcode);
     }
 
+    @Override
     public int getType() {
         return INSN;
     }
@@ -71,10 +72,12 @@ public class InsnNode extends AbstractInsnNode {
      * 
      * @param mv a method visitor.
      */
+    @Override
     public void accept(final MethodVisitor mv) {
         mv.visitInsn(opcode);
     }
 
+    @Override
     public AbstractInsnNode clone(final Map<LabelNode, LabelNode> labels) {
         return new InsnNode(opcode);
     }

@@ -58,6 +58,7 @@ public class CodeSizeEvaluator extends MethodAdapter implements Opcodes {
         return this.maxSize;
     }
 
+    @Override
     public void visitInsn(final int opcode) {
         minSize += 1;
         maxSize += 1;
@@ -66,6 +67,7 @@ public class CodeSizeEvaluator extends MethodAdapter implements Opcodes {
         }
     }
 
+    @Override
     public void visitIntInsn(final int opcode, final int operand) {
         if (opcode == SIPUSH) {
             minSize += 3;
@@ -79,6 +81,7 @@ public class CodeSizeEvaluator extends MethodAdapter implements Opcodes {
         }
     }
 
+    @Override
     public void visitVarInsn(final int opcode, final int var) {
         if (var < 4 && opcode != RET) {
             minSize += 1;
@@ -95,6 +98,7 @@ public class CodeSizeEvaluator extends MethodAdapter implements Opcodes {
         }
     }
 
+    @Override
     public void visitTypeInsn(final int opcode, final String type) {
         minSize += 3;
         maxSize += 3;
@@ -103,6 +107,7 @@ public class CodeSizeEvaluator extends MethodAdapter implements Opcodes {
         }
     }
 
+    @Override
     public void visitFieldInsn(
         final int opcode,
         final String owner,
@@ -116,6 +121,7 @@ public class CodeSizeEvaluator extends MethodAdapter implements Opcodes {
         }
     }
 
+    @Override
     public void visitMethodInsn(
         final int opcode,
         final String owner,
@@ -134,6 +140,7 @@ public class CodeSizeEvaluator extends MethodAdapter implements Opcodes {
         }
     }
 
+    @Override
     public void visitInvokeDynamicInsn(
         String name,
         String desc,
@@ -147,6 +154,7 @@ public class CodeSizeEvaluator extends MethodAdapter implements Opcodes {
         }
     }
 
+    @Override
     public void visitJumpInsn(final int opcode, final Label label) {
         minSize += 3;
         if (opcode == GOTO || opcode == JSR) {
@@ -159,6 +167,7 @@ public class CodeSizeEvaluator extends MethodAdapter implements Opcodes {
         }
     }
 
+    @Override
     public void visitLdcInsn(final Object cst) {
         if (cst instanceof Long || cst instanceof Double) {
             minSize += 3;
@@ -172,6 +181,7 @@ public class CodeSizeEvaluator extends MethodAdapter implements Opcodes {
         }
     }
 
+    @Override
     public void visitIincInsn(final int var, final int increment) {
         if (var > 255 || increment > 127 || increment < -128) {
             minSize += 6;
@@ -185,6 +195,7 @@ public class CodeSizeEvaluator extends MethodAdapter implements Opcodes {
         }
     }
 
+    @Override
     public void visitTableSwitchInsn(
         final int min,
         final int max,
@@ -198,6 +209,7 @@ public class CodeSizeEvaluator extends MethodAdapter implements Opcodes {
         }
     }
 
+    @Override
     public void visitLookupSwitchInsn(
         final Label dflt,
         final int[] keys,
@@ -210,6 +222,7 @@ public class CodeSizeEvaluator extends MethodAdapter implements Opcodes {
         }
     }
 
+    @Override
     public void visitMultiANewArrayInsn(final String desc, final int dims) {
         minSize += 4;
         maxSize += 4;

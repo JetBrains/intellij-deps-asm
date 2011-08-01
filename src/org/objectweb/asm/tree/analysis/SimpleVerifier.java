@@ -124,6 +124,7 @@ public class SimpleVerifier extends BasicVerifier {
         this.loader = loader;
     }
 
+    @Override
     public BasicValue newValue(final Type type) {
         if (type == null) {
             return BasicValue.UNINITIALIZED_VALUE;
@@ -156,12 +157,14 @@ public class SimpleVerifier extends BasicVerifier {
         return v;
     }
 
+    @Override
     protected boolean isArrayValue(final BasicValue value) {
         Type t = value.getType();
         return t != null
                 && ("Lnull;".equals(t.getDescriptor()) || t.getSort() == Type.ARRAY);
     }
 
+    @Override
     protected BasicValue getElementValue(final BasicValue objectArrayValue)
             throws AnalyzerException
     {
@@ -177,6 +180,7 @@ public class SimpleVerifier extends BasicVerifier {
         throw new Error("Internal error");
     }
 
+    @Override
     protected boolean isSubTypeOf(final BasicValue value, final BasicValue expected) {
         Type expectedType = expected.getType();
         Type type = value.getType();
@@ -202,6 +206,7 @@ public class SimpleVerifier extends BasicVerifier {
         }
     }
 
+    @Override
     public BasicValue merge(final BasicValue v, final BasicValue w) {
         if (!v.equals(w)) {
             Type t = v.getType();

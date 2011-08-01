@@ -58,10 +58,12 @@ class SmallSet<E> extends AbstractSet<E> implements Iterator<E> {
     // Implementation of inherited abstract methods
     // -------------------------------------------------------------------------
 
+    @Override
     public Iterator<E> iterator() {
         return new SmallSet<E>(e1, e2);
     }
 
+    @Override
     public int size() {
         return e1 == null ? 0 : (e2 == null ? 1 : 2);
     }

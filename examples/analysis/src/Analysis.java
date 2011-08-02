@@ -76,13 +76,13 @@ public class Analysis implements Opcodes {
                             final int maxLocals)
                         {
                             for (int i = 0; i < text.size(); ++i) {
-                                String s = frames[i] == null
+                                StringBuffer s = new StringBuffer(frames[i] == null
                                         ? "null"
-                                        : frames[i].toString();
+                                        : frames[i].toString());
                                 while (s.length() < Math.max(20, maxStack
                                         + maxLocals + 1))
                                 {
-                                    s += " ";
+                                    s.append(' ');
                                 }
                                 System.err.print(Integer.toString(i + 1000)
                                         .substring(1)

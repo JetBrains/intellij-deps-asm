@@ -41,15 +41,6 @@ import org.objectweb.asm.MethodVisitor;
 public class InsnList {
 
     /**
-     * Indicates if preconditions of methods of this class must be checked.
-     * <i>Checking preconditions causes the {@link #indexOf indexOf},
-     * {@link #set set}, {@link #insert(AbstractInsnNode, AbstractInsnNode)},
-     * {@link #insert(AbstractInsnNode, InsnList)}, {@link #remove remove} and
-     * {@link #clear} methods to execute in O(n) time instead of O(1)</i>.
-     */
-    public static boolean check;
-
-    /**
      * The number of instructions in this list.
      */
     private int size;
@@ -151,9 +142,6 @@ public class InsnList {
      *         if insn does not belong to this list.
      */
     public int indexOf(final AbstractInsnNode insn) {
-        if (check && !contains(insn)) {
-            throw new IllegalArgumentException();
-        }
         if (cache == null) {
             cache = toArray();
         }
@@ -220,9 +208,6 @@ public class InsnList {
      *         instruction list.
      */
     public void set(final AbstractInsnNode location, final AbstractInsnNode insn) {
-        if (check && !(contains(location) && insn.index == -1)) {
-            throw new IllegalArgumentException();
-        }
         AbstractInsnNode next = location.next;
         insn.next = next;
         if (next != null) {
@@ -258,9 +243,6 @@ public class InsnList {
      *         and if insn belongs to an instruction list.
      */
     public void add(final AbstractInsnNode insn) {
-        if (check && insn.index != -1) {
-            throw new IllegalArgumentException();
-        }
         ++size;
         if (last == null) {
             first = insn;
@@ -282,9 +264,6 @@ public class InsnList {
      *         and if insn == this.
      */
     public void add(final InsnList insns) {
-        if (check && insns == this) {
-            throw new IllegalArgumentException();
-        }
         if (insns.size == 0) {
             return;
         }
@@ -311,9 +290,6 @@ public class InsnList {
      *         and if insn belongs to an instruction list.
      */
     public void insert(final AbstractInsnNode insn) {
-        if (check && insn.index != -1) {
-            throw new IllegalArgumentException();
-        }
         ++size;
         if (first == null) {
             first = insn;
@@ -335,9 +311,6 @@ public class InsnList {
      *         and if insn == this.
      */
     public void insert(final InsnList insns) {
-        if (check && insns == this) {
-            throw new IllegalArgumentException();
-        }
         if (insns.size == 0) {
             return;
         }
@@ -367,9 +340,6 @@ public class InsnList {
      *         instruction list.
      */
     public void insert(final AbstractInsnNode location, final AbstractInsnNode insn) {
-        if (check && !(contains(location) && insn.index == -1)) {
-            throw new IllegalArgumentException();
-        }
         ++size;
         AbstractInsnNode next = location.next;
         if (next == null) {
@@ -395,9 +365,6 @@ public class InsnList {
      *         and if i does not belong to this list or if insns == this.
      */
     public void insert(final AbstractInsnNode location, final InsnList insns) {
-        if (check && !(contains(location) && insns != this)) {
-            throw new IllegalArgumentException();
-        }
         if (insns.size == 0) {
             return;
         }
@@ -429,9 +396,6 @@ public class InsnList {
      *         instruction list.
      */
     public void insertBefore(final AbstractInsnNode location, final AbstractInsnNode insn) {
-        if (check && !(contains(location) && insn.index == -1)) {
-            throw new IllegalArgumentException();
-        }
         ++size;
         AbstractInsnNode prev = location.prev;
         if (prev == null) {
@@ -457,9 +421,6 @@ public class InsnList {
      *         and if i does not belong to this list or if insns == this.
      */
     public void insertBefore(final AbstractInsnNode location, final InsnList insns) {
-        if (check && !(contains(location ) && insns != this)) {
-            throw new IllegalArgumentException();
-        }
         if (insns.size == 0) {
             return;
         }
@@ -489,9 +450,6 @@ public class InsnList {
      *         and if insn does not belong to this list.
      */
     public void remove(final AbstractInsnNode insn) {
-        if (check && !contains(insn)) {
-            throw new IllegalArgumentException();
-        }
         --size;
         AbstractInsnNode next = insn.next;
         AbstractInsnNode prev = insn.prev;
@@ -524,7 +482,7 @@ public class InsnList {
      * @param mark if the instructions must be marked as no longer belonging to
      *        any {@link InsnList}.
      */
-    private void removeAll(final boolean mark) {
+    void removeAll(final boolean mark) {
         if (mark) {
             AbstractInsnNode insn = first;
             while (insn != null) {
@@ -545,7 +503,7 @@ public class InsnList {
      * Removes all of the instructions of this list.
      */
     public void clear() {
-        removeAll(check);
+        removeAll(false);
     }
 
     /**

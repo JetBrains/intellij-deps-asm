@@ -74,10 +74,15 @@ public class ClassWriterComputeMaxsUnitTest extends TestCase {
             successor = lClass.getDeclaredField("successor");
             succ = eClass.getDeclaredField("successor");
             next = eClass.getDeclaredField("next");
-        } catch (Exception exception) {
+        } catch (RuntimeException exception) {
             String f = "src/org/objectweb/asm/optimizer/shrink.properties";
             Properties p = new Properties();
-            p.load(new FileInputStream(f));
+            FileInputStream is = new FileInputStream(f);
+            try {
+                p.load(is);
+            } finally {
+                is.close();
+            }
             String l = Type.getInternalName(lClass) + ".";
             String e = Type.getInternalName(eClass) + ".";
             successors = lClass.getDeclaredField(p.getProperty(l + "successors"));
@@ -238,10 +243,11 @@ public class ClassWriterComputeMaxsUnitTest extends TestCase {
         } catch (Exception e) {
             fail();
         }
-        Iterator<Object> i = p.keySet().iterator();
+        Iterator<Map.Entry<Object,Object>> i = p.entrySet().iterator();
         while (i.hasNext()) {
-            String key = (String) i.next();
-            String value = p.getProperty(key);
+            Map.Entry<Object,Object> entry = i.next();
+            String key = (String) entry.getKey();
+            String value = (String) entry.getValue();
             StringTokenizer st = new StringTokenizer(value, ",");
             Set<String> s = new HashSet<String>();
             while (st.hasMoreTokens()) {
@@ -264,7 +270,7 @@ public class ClassWriterComputeMaxsUnitTest extends TestCase {
                 actual.put(key, value);
                 l = (Label) successor.get(l);
             }
-        } catch (Exception e) {
+        } catch (IllegalAccessException e) {
             fail();
         }
 

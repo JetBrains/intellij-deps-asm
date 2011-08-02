@@ -56,9 +56,8 @@ public class InsnListUnitTest extends TestCase {
     @Override
     protected void setUp() throws Exception {
         super.setUp();
-        InsnList.check = true;
-        l1 = new InsnList();
-        l2 = new InsnList();
+        l1 = new CheckedInsnList();
+        l2 = new CheckedInsnList();
         in1 = new InsnNode(0);
         in2 = new InsnNode(0);
         l2.add(in1);
@@ -679,5 +678,101 @@ public class InsnListUnitTest extends TestCase {
         l1.resetLabels();
         
         assertNotSame(label, labelNode.getLabel());
+    }
+}
+
+class CheckedInsnList extends InsnList {
+
+    @Override
+    public int indexOf(final AbstractInsnNode insn) {
+        if (!contains(insn)) {
+            throw new IllegalArgumentException();
+        }
+        return super.indexOf(insn);
+    }
+
+    @Override
+    public void set(final AbstractInsnNode location, final AbstractInsnNode insn) {
+        if (!(contains(location) && insn.index == -1)) {
+            throw new IllegalArgumentException();
+        }
+        super.set(location, insn);
+    }
+
+    @Override
+    public void add(final AbstractInsnNode insn) {
+        if (insn.index != -1) {
+            throw new IllegalArgumentException();
+        }
+        super.add(insn);
+    }
+
+    @Override
+    public void add(final InsnList insns) {
+        if (insns == this) {
+            throw new IllegalArgumentException();
+        }
+        super.add(insns);
+    }
+
+    @Override
+    public void insert(final AbstractInsnNode insn) {
+        if (insn.index != -1) {
+            throw new IllegalArgumentException();
+        }
+        super.insert(insn);
+    }
+
+    @Override
+    public void insert(final InsnList insns) {
+        if (insns == this) {
+            throw new IllegalArgumentException();
+        }
+        super.insert(insns);
+    }
+
+    @Override
+    public void insert(final AbstractInsnNode location, final AbstractInsnNode insn) {
+        if (!(contains(location) && insn.index == -1)) {
+            throw new IllegalArgumentException();
+        }
+        super.insert(location, insn);
+    }
+
+    @Override
+    public void insert(final AbstractInsnNode location, final InsnList insns) {
+        if (!(contains(location) && insns != this)) {
+            throw new IllegalArgumentException();
+        }
+        super.insert(location, insns);
+    }
+    
+    @Override
+    public void insertBefore(final AbstractInsnNode location, final AbstractInsnNode insn) {
+        if (!(contains(location) && insn.index == -1)) {
+            throw new IllegalArgumentException();
+        }
+        super.insertBefore(location, insn);
+    }
+    
+    @Override
+    public void insertBefore(final AbstractInsnNode location, final InsnList insns) {
+        if (!(contains(location ) && insns != this)) {
+            throw new IllegalArgumentException();
+        }
+        super.insertBefore(location, insns);
+    }
+
+    @Override
+    public void remove(final AbstractInsnNode insn) {
+        if (!contains(insn)) {
+            throw new IllegalArgumentException();
+        }
+        super.remove(insn);
+    }
+
+    @Override
+    public void clear() {
+        super.removeAll(true);
     }
 }

@@ -1,3 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
 <!--
  ! ASM: a very small and fast Java bytecode manipulation framework
  ! Copyright (c) 2000-2005 INRIA, France Telecom
@@ -28,30 +30,34 @@
  ! THE POSSIBILITY OF SUCH DAMAGE.
 -->
 
-<?xml version="1.0" encoding="UTF-8"?>
-
 <FindBugsFilter>
   <Match>
     <Bug pattern="DP_CREATE_CLASSLOADER_INSIDE_DO_PRIVILEGED"/>
   </Match>
   <Match>
-    <Bug category="MALICIOUS_CODE"/>
+    <Class name="~.*\$A"/>
   </Match>
   <Match>
-    <BugCode name="Se"/>
+    <Class name="~.*\$B"/>
   </Match>
-  <!-- we can exclude tests too, but bug may appear also in the test code...
   <Match>
-    <Class name="~.*Test.*"/>
+    <Class name="~.*\$Doo.*"/>
   </Match>
-  -->
   <Match>
     <Class name="Adapt"/>
   </Match>
   <Match>
     <Class name="Analysis"/>
+    <Method name="test"/>
+  </Match>
+  <Match>
+    <Class name="~.*ASMMemTest"/>
+    <Bug pattern="DM_GC"/>
   </Match>
   <Match>
     <Class name="jbfc"/>
+  </Match>
+  <Match>
+    <Class name="~.*apache.*"/>
   </Match>
 </FindBugsFilter>

@@ -221,7 +221,7 @@ public class CheckClassAdapter extends ClassAdapter {
             SimpleVerifier verifier = new SimpleVerifier(Type.getObjectType(cn.name),
                     syperType,
                     interfaces,
-                    (cn.access | Opcodes.ACC_INTERFACE) != 0);
+                    (cn.access & Opcodes.ACC_INTERFACE) != 0);
             Analyzer<BasicValue> a = new Analyzer<BasicValue>(verifier);
             if (loader != null) {
                 verifier.setClassLoader(loader);

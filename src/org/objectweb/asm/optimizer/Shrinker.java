@@ -131,10 +131,15 @@ public class Shrinker {
             String n = remapper.mapType(cr.getClassName());
             File g = new File(d, n + ".class");
             if (!g.exists() || g.lastModified() < f.lastModified()) {
-                g.getParentFile().mkdirs();
+                if (!g.getParentFile().exists() && !g.getParentFile().mkdirs()) {
+                    throw new IOException("Cannot create directory " + g.getParentFile());
+                }
                 OutputStream os = new FileOutputStream(g);
-                os.write(cw.toByteArray());
-                os.close();
+                try {
+                    os.write(cw.toByteArray());
+                } finally {
+                    os.close();
+                }
             }
         }
     }

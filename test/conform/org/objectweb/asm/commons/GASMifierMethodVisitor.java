@@ -66,8 +66,6 @@ public class GASMifierMethodVisitor extends ASMifierAbstractVisitor implements
 
     List<String> localTypes;
 
-    int lastOpcode = -1;
-
     HashMap<Label, String> labelNames;
 
     public GASMifierMethodVisitor(final int access, final String desc) {
@@ -472,7 +470,6 @@ public class GASMifierMethodVisitor extends ASMifierAbstractVisitor implements
                 throw new RuntimeException("unexpected case");
         }
         text.add(buf.toString());
-        lastOpcode = opcode;
     }
 
     public void visitIntInsn(final int opcode, final int operand) {
@@ -512,7 +509,6 @@ public class GASMifierMethodVisitor extends ASMifierAbstractVisitor implements
             buf.append("mg.push(").append(operand).append(");\n");
         }
         text.add(buf.toString());
-        lastOpcode = opcode;
     }
 
     public void visitVarInsn(final int opcode, final int var) {
@@ -567,12 +563,11 @@ public class GASMifierMethodVisitor extends ASMifierAbstractVisitor implements
                 default:
                     throw new RuntimeException("unexpected case");
             }
-        } catch (Exception e) {
+        } catch (RuntimeException e) {
             buf.append("mg.visitVarInsn(" + OPCODES[opcode] + ", " + var
                     + ");\n");
         }
         text.add(buf.toString());
-        lastOpcode = opcode;
     }
 
     private void generateLoadLocal(final int var, final String type) {
@@ -647,7 +642,6 @@ public class GASMifierMethodVisitor extends ASMifierAbstractVisitor implements
             buf.append("mg.instanceOf(").append(typ).append(");\n");
         }
         text.add(buf.toString());
-        lastOpcode = opcode;
     }
 
     public void visitFieldInsn(
@@ -680,7 +674,6 @@ public class GASMifierMethodVisitor extends ASMifierAbstractVisitor implements
         buf.append(getDescType(desc));
         buf.append(");\n");
         text.add(buf.toString());
-        lastOpcode = opcode;
     }
 
     public void visitMethodInsn(
@@ -715,7 +708,6 @@ public class GASMifierMethodVisitor extends ASMifierAbstractVisitor implements
         buf.append(getMethod(name, desc));
         buf.append(");\n");
         text.add(buf.toString());
-        lastOpcode = opcode;
     }
 
     public void visitInvokeDynamicInsn(
@@ -738,7 +730,6 @@ public class GASMifierMethodVisitor extends ASMifierAbstractVisitor implements
         }
         buf.append("});\n");
         text.add(buf.toString());
-        lastOpcode = INVOKEDYNAMIC;
     }
 
     public void visitJumpInsn(final int opcode, final Label label) {
@@ -826,7 +817,6 @@ public class GASMifierMethodVisitor extends ASMifierAbstractVisitor implements
             buf.append(");\n");
         }
         text.add(buf.toString());
-        lastOpcode = opcode;
     }
 
     public void visitLabel(final Label label) {
@@ -836,7 +826,6 @@ public class GASMifierMethodVisitor extends ASMifierAbstractVisitor implements
         appendLabel(label);
         buf.append(");\n");
         text.add(buf.toString());
-        lastOpcode = -1;
     }
 
     public void visitLdcInsn(final Object cst) {
@@ -845,10 +834,7 @@ public class GASMifierMethodVisitor extends ASMifierAbstractVisitor implements
         appendConstant(buf, cst);
         buf.append(");\n");
         text.add(buf.toString());
-        lastOpcode = LDC;
     }
-
-
 
     public void visitIincInsn(final int var, final int increment) {
         buf.setLength(0);
@@ -860,7 +846,6 @@ public class GASMifierMethodVisitor extends ASMifierAbstractVisitor implements
         }
         buf.append(", ").append(increment).append(");\n");
         text.add(buf.toString());
-        lastOpcode = IINC;
     }
 
     public void visitTableSwitchInsn(
@@ -888,7 +873,6 @@ public class GASMifierMethodVisitor extends ASMifierAbstractVisitor implements
         }
         buf.append(" }); // TODO\n");
         text.add(buf.toString());
-        lastOpcode = TABLESWITCH;
     }
 
     public void visitLookupSwitchInsn(
@@ -915,7 +899,6 @@ public class GASMifierMethodVisitor extends ASMifierAbstractVisitor implements
         }
         buf.append(" }); // TODO\n");
         text.add(buf.toString());
-        lastOpcode = LOOKUPSWITCH;
     }
 
     public void visitMultiANewArrayInsn(final String desc, final int dims) {
@@ -924,7 +907,6 @@ public class GASMifierMethodVisitor extends ASMifierAbstractVisitor implements
         buf.append(desc);
         buf.append("\", ").append(dims).append(");\n");
         text.add(buf.toString());
-        lastOpcode = MULTIANEWARRAY;
     }
 
     public void visitTryCatchBlock(
@@ -951,7 +933,6 @@ public class GASMifierMethodVisitor extends ASMifierAbstractVisitor implements
         }
         buf.append("); // TODO\n");
         text.add(buf.toString());
-        lastOpcode = -1;
     }
 
     public void visitLocalVariable(
@@ -979,7 +960,6 @@ public class GASMifierMethodVisitor extends ASMifierAbstractVisitor implements
         appendLabel(end);
         buf.append(", ").append(index).append(");\n");
         text.add(buf.toString());
-        lastOpcode = -1;
     }
 
     public void visitLineNumber(final int line, final Label start) {
@@ -988,12 +968,10 @@ public class GASMifierMethodVisitor extends ASMifierAbstractVisitor implements
         appendLabel(start);
         buf.append(");\n");
         text.add(buf.toString());
-        lastOpcode = -1;
     }
 
     public void visitMaxs(final int maxStack, final int maxLocals) {
         text.add("mg.endMethod();\n");
-        lastOpcode = -1;
     }
 
     @Override

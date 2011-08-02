@@ -49,10 +49,6 @@ public class SerialVersionUIDAdderUnitTest extends TestCase implements
 
     protected final static int aField = 32;
 
-    static {
-        System.gc();
-    }
-
     public Object[] aMethod() {
         return null;
     }

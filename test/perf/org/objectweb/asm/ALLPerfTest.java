@@ -77,22 +77,11 @@ public abstract class ALLPerfTest {
 
     static boolean skipDebug;
 
-    static ClassPool pool;
-
-    static Project p;
-
-    static BCClass c;
-
     static int repeats;
 
     static List<byte[]> classes = new ArrayList<byte[]>();
 
     static List<String> classNames = new ArrayList<String>();
-
-    private static final Runnable NOTHING = new Runnable() {
-        public void run() {
-        }
-    };
 
     private static final int MAX_ITERATION_SEC = Integer.getInteger("max.iteration.sec",
             10)
@@ -145,45 +134,49 @@ public abstract class ALLPerfTest {
         System.out.println("Found " + classes.size() + " classes.");
 
         RunTest nullBCELAdapt = new RunTest() {
+            @Override
             public void test(byte[] bytes, int[] errors) throws IOException {
                 nullBCELAdapt(bytes);
             }
         };
 
         RunTest nullAspectjBCELAdapt = new RunTest() {
+            @Override
             public void test(byte[] bytes, int[] errors) throws IOException {
                 nullAspectjBCELAdapt(bytes);
             }
         };
 
-        Runnable createClassPool = new Runnable() {
-            public void run() {
-                pool = new ClassPool(null);
-            }
-        };
-
         RunTest nullJavassistAdapt = new RunTest() {
-            public void test(byte[] bytes, int[] errors) throws Exception {
-                nullJavassistAdapt(bytes);
+            ClassPool pool;
+            @Override
+            public void init() {
+                pool = new ClassPool(null);                
             }
-        };
-
-        Runnable createProject = new Runnable() {
-            public void run() {
-                p = new Project();
-                c = null;
+            @Override
+            public void test(byte[] bytes, int[] errors) throws Exception {
+                nullJavassistAdapt(pool, bytes);
             }
         };
 
         RunTest nullSERPAdapt = new RunTest() {
+            Project p;
+            BCClass c;
+            @Override
+            public void init() {
+                p = new Project();
+                c = null;
+            }
+            @Override
             public void test(byte[] bytes, int[] errors) throws Exception {
-                nullSERPAdapt(bytes);
+                c = nullSERPAdapt(p, c, bytes);
             }
         };
 
         // get class info and deserialize tests
         
-        runTestAll("get class info", "", NOTHING, new RunTest() {
+        runTestAll("get class info", "", new RunTest() {
+            @Override
             public void test(byte[] bytes, int[] errors) {
                 ClassReader cr = new ClassReader(bytes);
                 cr.getAccess();
@@ -193,13 +186,15 @@ public abstract class ALLPerfTest {
             }
         });
         
-        runTestAll("deserialize", "", NOTHING, new RunTest() {
+        runTestAll("deserialize", "", new RunTest() {
+            @Override
             public void test(byte[] bytes, int[] errors) {
                 new ClassReader(bytes).accept(new EmptyVisitor(), 0);
             }
         });
 
-        runTest("deserialize", "tree package", NOTHING, new RunTest() {
+        runTest("deserialize", "tree package", new RunTest() {
+            @Override
             public void test(byte[] bytes, int[] errors) {
                 new ClassReader(bytes).accept(new ClassNode(), 0);
             }
@@ -209,7 +204,8 @@ public abstract class ALLPerfTest {
 
         // deserialize and reserialize tests
 
-        runTestAll("deserialize and reserialize", "", NOTHING, new RunTest() {
+        runTestAll("deserialize and reserialize", "", new RunTest() {
+            @Override
             public void test(byte[] bytes, int[] errors) {
                 ClassReader cr = new ClassReader(bytes);
                 ClassWriter cw = new ClassWriter(0);
@@ -220,8 +216,8 @@ public abstract class ALLPerfTest {
 
         runTestAll("deserialize and reserialize",
                 "copyPool",
-                NOTHING,
                 new RunTest() {
+                    @Override
                     public void test(byte[] bytes, int[] errors) {
                         ClassReader cr = new ClassReader(bytes);
                         ClassWriter cw = new ClassWriter(cr, 0);
@@ -232,8 +228,8 @@ public abstract class ALLPerfTest {
 
         runTest("deserialize and reserialize",
                 "tree package",
-                NOTHING,
                 new RunTest() {
+                    @Override
                     public void test(byte[] bytes, int[] errors) {
                         ClassWriter cw = new ClassWriter(0);
                         ClassNode cn = new ClassNode();
@@ -245,23 +241,19 @@ public abstract class ALLPerfTest {
 
         compute = false;
         computeFrames = false;
-        pool = null;
         
-        runTest("deserialize and reserialize", "BCEL", NOTHING, nullBCELAdapt);
+        runTest("deserialize and reserialize", "BCEL", nullBCELAdapt);
 
         runTest("deserialize and reserialize",
                 "Aspectj BCEL",
-                NOTHING,
                 nullAspectjBCELAdapt);
         
         runTest("deserialize and reserialize",
                 "Javassist",
-                createClassPool,
                 nullJavassistAdapt);
 
         runTest("deserialize and reserialize",
                 "SERP",
-                createProject,
                 nullSERPAdapt);
 
         System.out.println();
@@ -270,8 +262,8 @@ public abstract class ALLPerfTest {
 
         runTest("deserialize and reserialize",
                 "computeMaxs",
-                NOTHING,
                 new RunTest() {
+                    @Override
                     public void test(byte[] bytes, int[] errors) {
                         ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_MAXS);
                         new ClassReader(bytes).accept(cw, 0);
@@ -284,20 +276,18 @@ public abstract class ALLPerfTest {
 
         runTest("deserialize and reserialize",
                 "BCEL and computeMaxs",
-                NOTHING,
                 nullBCELAdapt);
 
         runTest("deserialize and reserialize",
                 "Aspectj BCEL and computeMaxs",
-                NOTHING,
                 nullAspectjBCELAdapt);
         
         // misc. tests
 
         runTest("deserialize and reserialize",
                 "LocalVariablesSorter",
-                NOTHING,
                 new RunTest() {
+                    @Override
                     public void test(byte[] bytes, int[] errors) {
                         ClassWriter cw = new ClassWriter(0);
                         new ClassReader(bytes).accept(new ClassAdapter(cw) {
@@ -325,7 +315,8 @@ public abstract class ALLPerfTest {
 
         // This test repeatedly tests the same classes as SimpleVerifier
         // actually calls Class.forName() on the class which fills the PermGen
-        runTestSome("analyze", "SimpleVerifier", NOTHING, new RunTest() {
+        runTestSome("analyze", "SimpleVerifier", new RunTest() {
+            @Override
             public void test(byte[] bytes, int[] errors) {
                 ClassReader cr = new ClassReader(bytes);
                 ClassNode cn = new ClassNode();
@@ -350,8 +341,8 @@ public abstract class ALLPerfTest {
 
         runTest("deserialize and reserialize",
                 "computeFrames",
-                NOTHING,
                 new RunTest() {
+                    @Override
                     public void test(byte[] bytes, int[] errors) {
                         ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_FRAMES);
                         new ClassReader(bytes).accept(cw, 0);
@@ -366,12 +357,10 @@ public abstract class ALLPerfTest {
         computeFrames = true;
         runTest("deserialize and reserialize",
                 "BCEL and computeFrames",
-                NOTHING,
                 nullBCELAdapt);
 
         runTest("deserialize and reserialize",
                 "Aspectj BCEL and computeFrames",
-                NOTHING,
                 nullAspectjBCELAdapt);
     }
 
@@ -393,35 +382,36 @@ public abstract class ALLPerfTest {
         }
     }
 
-    interface RunTest {
-        public void test(byte[] bytes, int[] errors) throws Exception;
+    static abstract class RunTest {
+
+        public void init() {            
+        }
+        
+        public abstract void test(byte[] bytes, int[] errors) throws Exception;
     }
 
     static void runTestAll(
         String testName,
         String with,
-        Runnable init,
         RunTest runTest) throws InterruptedException
     {
-        runTest0(1, true, testName, with, init, runTest);
+        runTest0(1, true, testName, with, runTest);
     }
 
     static void runTest(
         String testName,
         String with,
-        Runnable init,
         RunTest runTest) throws InterruptedException
     {
-        runTest0(repeats - 1, false, testName, with, init, runTest);
+        runTest0(repeats - 1, false, testName, with, runTest);
     }
 
     static void runTestSome(
         String testName,
         String with,
-        Runnable init,
         RunTest runTest) throws InterruptedException
     {
-        runTest0(repeats - 1, true, testName, with, init, runTest);
+        runTest0(repeats - 1, true, testName, with, runTest);
     }
 
     private static void runTest0(
@@ -429,7 +419,6 @@ public abstract class ALLPerfTest {
         boolean startAtZero,
         String testName,
         String with,
-        Runnable init,
         RunTest runTest) throws InterruptedException
     {
         if (with.length() > 0) {
@@ -441,7 +430,7 @@ public abstract class ALLPerfTest {
         long totalTime = 0;
         System.out.println("\nStarting " + testName + with + " test.");
         for (int i = 0; i < repeats; ++i) {
-            init.run();
+            runTest.init();
             long t = System.currentTimeMillis();
             int count = 0;
             long size = 0;
@@ -608,7 +597,7 @@ public abstract class ALLPerfTest {
         cg.getJavaClass().getBytes();
     }
 
-    static void nullJavassistAdapt(final byte[] b) throws Exception {
+    static void nullJavassistAdapt(ClassPool pool, final byte[] b) throws Exception {
         CtClass cc = pool.makeClass(new ByteArrayInputStream(b));
         CtMethod[] ms = cc.getDeclaredMethods();
         for (int j = 0; j < ms.length; ++j) {
@@ -622,7 +611,7 @@ public abstract class ALLPerfTest {
         cc.toBytecode();
     }
 
-    static void nullSERPAdapt(final byte[] b) throws Exception {
+    static BCClass nullSERPAdapt(Project p, BCClass c, final byte[] b) throws Exception {
         if (c != null) {
             p.removeClass(c);
         }
@@ -642,5 +631,6 @@ public abstract class ALLPerfTest {
             }
         }
         c.toByteArray();
+        return c;
     }
 }

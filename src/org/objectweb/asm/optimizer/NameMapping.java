@@ -44,16 +44,19 @@ import org.objectweb.asm.Type;
  * 
  * @author Eric Bruneton
  */
-public class NameMapping extends Properties {
+public class NameMapping {
 
+    public final Properties mapping;
+    
     public final Set<Object> unused;
 
     public NameMapping(final String file) throws IOException {
+        mapping = new Properties();
         InputStream is = null;
         try {
             is = new BufferedInputStream(new FileInputStream(file));
-            load(is);
-            unused = new HashSet<Object>(keySet());
+            mapping.load(is);
+            unused = new HashSet<Object>(mapping.keySet());
         } finally {
             if (is != null) {
                 is.close();
@@ -62,7 +65,7 @@ public class NameMapping extends Properties {
     }
 
     public String map(final String name) {
-        String s = (String) get(name);
+        String s = (String) mapping.get(name);
         if (s == null) {
             int p = name.indexOf('.');
             if (p == -1) {

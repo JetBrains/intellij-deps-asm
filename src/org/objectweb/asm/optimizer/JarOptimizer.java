@@ -130,8 +130,12 @@ public class JarOptimizer {
             }
             out.close();
             zf.close();
-            f.delete();
-            g.renameTo(f);
+            if (!f.delete()) {
+                throw new IOException("Cannot delete file " + f);
+            }
+            if (!g.renameTo(f)) {
+                throw new IOException("Cannot rename file " + g);
+            }
         }
     }
 

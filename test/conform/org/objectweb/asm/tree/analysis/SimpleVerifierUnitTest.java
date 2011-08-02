@@ -76,6 +76,7 @@ public class SimpleVerifierUnitTest extends TestCase implements Opcodes {
             a.analyze("C", mn);
             fail();
         } catch (AnalyzerException e) {
+            success();
         } catch (RuntimeException e) {
         }
     }
@@ -315,6 +316,7 @@ public class SimpleVerifierUnitTest extends TestCase implements Opcodes {
             a.analyze("C", mn);
             fail();
         } catch (AnalyzerException e) {
+            success();
         } catch (RuntimeException e) {
         }
     }
@@ -333,6 +335,7 @@ public class SimpleVerifierUnitTest extends TestCase implements Opcodes {
             a.analyze("C", mn);
             fail();
         } catch (AnalyzerException e) {
+            success();
         } catch (RuntimeException e) {
         }
     }
@@ -385,7 +388,7 @@ public class SimpleVerifierUnitTest extends TestCase implements Opcodes {
     public void _testOverlappingSubroutines() {
         // TODO currently Analyzer can not detect this situation. The problem
         // is that other overlapping subroutine situations are valid, such as
-        // when a nested subroutine implicitely returns to its parent
+        // when a nested subroutine implicitly returns to its parent
         // subroutine, without a RET.
         Label l0 = new Label();
         Label l1 = new Label();
@@ -440,5 +443,11 @@ public class SimpleVerifierUnitTest extends TestCase implements Opcodes {
             fail();
         } catch (Exception e) {
         }
+    }
+    
+    /**
+     * Dummy method to avoid a FindBugs warning.
+     */
+    private static void success() {
     }
 }

@@ -38,6 +38,7 @@ import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Method;
 
@@ -81,7 +82,7 @@ public class Adapt extends ClassLoader {
             FileOutputStream fos = new FileOutputStream(resource + ".adapted");
             fos.write(b);
             fos.close();
-        } catch (Exception e) {
+        } catch (IOException e) {
         }
 
         // returns the adapted class

@@ -57,9 +57,12 @@ public class Attributes extends ClassLoader {
 
         // stores the adapted class on disk
         FileOutputStream fos = new FileOutputStream("CommentAttribute.class.new");
-        fos.write(b);
-        fos.close();
-
+        try {
+            fos.write(b);
+        } finally {
+            fos.close();
+        }
+        
         // "disassembles" the adapted class
         cr = new ClassReader(b);
         cv = new TraceClassVisitor(new PrintWriter(System.out));

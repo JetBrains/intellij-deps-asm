@@ -69,7 +69,9 @@ public class Generator implements Opcodes {
         final byte[] clazz) throws IOException
     {
         File f = new File(new File(dir), path);
-        f.getParentFile().mkdirs();
+        if (!f.getParentFile().exists() && !f.getParentFile().mkdirs()) {
+            throw new IOException("Cannot create directory " + f.getParentFile());
+        }
         FileOutputStream o = new FileOutputStream(f);
         o.write(clazz);
         o.close();

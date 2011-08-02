@@ -123,15 +123,17 @@ public abstract class Remapper {
         }
 
         Type[] args = Type.getArgumentTypes(desc);
-        String s = "(";
+        StringBuffer s = new StringBuffer("(");
         for (int i = 0; i < args.length; i++) {
-            s += mapDesc(args[i].getDescriptor());
+            s.append(mapDesc(args[i].getDescriptor()));
         }
         Type returnType = Type.getReturnType(desc);
         if(returnType == Type.VOID_TYPE) {
-            return s + ")V";
+            s.append(")V");
+            return s.toString();
         }
-        return s + ')' + mapDesc(returnType.getDescriptor());
+        s.append(')').append(mapDesc(returnType.getDescriptor()));
+        return s.toString();
     }
 
     public Object mapValue(Object value) {

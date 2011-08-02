@@ -266,6 +266,7 @@ class Constant {
                 break;
             case 'y':
                 cw.newInvokeDynamic(strVal1, strVal2, (MethodHandle)objVal3, objVals);
+                break;
             case 't':
                 cw.newMethodType(strVal1);
                 break;

@@ -500,5 +500,18 @@ public class SerialVersionUIDAdder extends ClassAdapter {
             }
             return retVal;
         }
+        
+        @Override
+        public boolean equals(final Object o) {
+            if (o instanceof Item) {
+                return compareTo((Item) o) == 0;
+            }
+            return false;
+        }
+        
+        @Override
+        public int hashCode() {
+            return (name + desc).hashCode();
+        }
     }
 }

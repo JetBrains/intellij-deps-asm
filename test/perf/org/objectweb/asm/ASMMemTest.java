@@ -76,7 +76,8 @@ public class ASMMemTest {
                     if (entry.getSize() != -1) {
                         int len = (int) entry.getSize();
                         byte[] data = new byte[len];
-                        jar.read(data);
+                        int l = jar.read(data);
+                        assert l == len;
                         fileData.add(data);
                         totalSize += data.length;
                     } else {

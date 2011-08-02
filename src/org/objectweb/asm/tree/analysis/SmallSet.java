@@ -32,6 +32,7 @@ package org.objectweb.asm.tree.analysis;
 import java.util.AbstractSet;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.NoSuchElementException;
 import java.util.Set;
 
 /**
@@ -77,6 +78,9 @@ class SmallSet<E> extends AbstractSet<E> implements Iterator<E> {
     }
 
     public E next() {
+        if (e1 == null) {
+            throw new NoSuchElementException();
+        }
         E e = e1;
         e1 = e2;
         e2 = null;

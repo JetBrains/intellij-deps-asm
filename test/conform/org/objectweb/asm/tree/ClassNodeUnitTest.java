@@ -113,6 +113,9 @@ public class ClassNodeUnitTest extends TestCase implements Opcodes {
         LabelNode ln = new LabelNode();
         assertEquals(AbstractInsnNode.LABEL, ln.getType());
         assertTrue(ln.getLabel() != null);
+        // dummy assignment to instruct FindBugs that Label.info can
+        // reference other objects than LabelNode instances
+        ln.getLabel().info = new Object();
     }
 
     public void testIincInsnNode() {

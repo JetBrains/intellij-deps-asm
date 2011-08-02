@@ -59,6 +59,7 @@ public class AnalyzerAdapterTest extends AbstractTest {
                 cr.accept(cw, 0);
                 cr = new ClassReader(cw.toByteArray());
             } catch (Exception e) {
+                skipTest();
                 return;
             }
         }
@@ -102,5 +103,11 @@ public class AnalyzerAdapterTest extends AbstractTest {
             }
         };
         cr.accept(cv, ClassReader.EXPAND_FRAMES);
+    }
+    
+    /**
+     * Dummy method to avoid a FindBugs warning.
+     */
+    private void skipTest() {        
     }
 }

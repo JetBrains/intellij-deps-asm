@@ -30,7 +30,7 @@
 
 <project name="perf" default="test">
   <target name="test">
-    <java classname="org.objectweb.asm.GenPerfTest" fork="yes">
+    <java classname="org.ow2.asm.GenPerfTest" fork="yes">
       <classpath>
         <pathelement location="${out.build}"/>
         <pathelement location="${out.test}"/>

@@ -32,15 +32,15 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.objectweb.asm.AnnotationVisitor;
-import org.objectweb.asm.ClassAdapter;
-import org.objectweb.asm.ClassReader;
-import org.objectweb.asm.ClassWriter;
-import org.objectweb.asm.Label;
-import org.objectweb.asm.MethodAdapter;
-import org.objectweb.asm.MethodVisitor;
-import org.objectweb.asm.Opcodes;
-import org.objectweb.asm.Type;
+import org.ow2.asm.AnnotationVisitor;
+import org.ow2.asm.ClassAdapter;
+import org.ow2.asm.ClassReader;
+import org.ow2.asm.ClassWriter;
+import org.ow2.asm.Label;
+import org.ow2.asm.MethodAdapter;
+import org.ow2.asm.MethodVisitor;
+import org.ow2.asm.Opcodes;
+import org.ow2.asm.Type;
 
 public class Annotations {
 

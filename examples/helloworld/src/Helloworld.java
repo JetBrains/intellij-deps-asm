@@ -27,12 +27,12 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
  * THE POSSIBILITY OF SUCH DAMAGE.
  */
-import org.objectweb.asm.ClassWriter;
-import org.objectweb.asm.MethodVisitor;
-import org.objectweb.asm.Opcodes;
-import org.objectweb.asm.Type;
-import org.objectweb.asm.commons.GeneratorAdapter;
-import org.objectweb.asm.commons.Method;
+import org.ow2.asm.ClassWriter;
+import org.ow2.asm.MethodVisitor;
+import org.ow2.asm.Opcodes;
+import org.ow2.asm.Type;
+import org.ow2.asm.commons.GeneratorAdapter;
+import org.ow2.asm.commons.Method;
 
 import java.io.FileOutputStream;
 import java.io.PrintStream;

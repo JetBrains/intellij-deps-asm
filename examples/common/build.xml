@@ -71,7 +71,7 @@
 
   <target name="compile">
     <mkdir dir="${build}"/>
-    <javac srcdir="${src}" destdir="${build}" debug="on" source="1.3" target="1.2">
+    <javac srcdir="${src}" destdir="${build}" debug="on" source="1.5" target="1.5">
       <classpath refid="classpath"/>
       <include name="**/*.java"/>
     </javac>

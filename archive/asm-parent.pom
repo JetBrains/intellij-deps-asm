@@ -41,18 +41,18 @@
 
   <name>ASM</name>
   <description>A very small and fast Java bytecode manipulation framework</description>
-  <url>http://asm.objectweb.org/</url>
+  <url>http://asm.ow2.org/</url>
   
   <organization>
     <name>ObjectWeb</name>
-    <url>http://www.objectweb.org/</url>
+    <url>http://www.ow2.org/</url>
   </organization>
   <inceptionYear>2000</inceptionYear>
   
   <licenses>
     <license>
       <name>BSD</name>
-      <url>http://asm.objectweb.org/license.html</url>
+      <url>http://asm.ow2.org/license.html</url>
     </license>
   </licenses>
 

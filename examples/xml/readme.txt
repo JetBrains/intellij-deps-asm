@@ -29,7 +29,7 @@
 *******************************************************************************
 
 This directory contains sample XSL transformation templates that
-demonstrate features of org.objectweb.asm.xml package.
+demonstrate features of org.ow2.asm.xml package.
 
 
 copy.xsl

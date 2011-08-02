@@ -150,7 +150,7 @@
 	<target name="compile-init">
 		<mkdir dir="${out.build}/tmp" />
 		<condition property="config.uptodate">
-			<uptodate srcfile="${src}/org/objectweb/asm/ClassReader.java" targetfile="${out.build}/tmp/org/objectweb/asm/ClassReader.java" />
+			<uptodate srcfile="${src}/org/ow2/asm/ClassReader.java" targetfile="${out.build}/tmp/org/ow2/asm/ClassReader.java" />
 		</condition>
 		<copy todir="${out.build}/tmp">
 			<fileset dir="${src}">
@@ -182,16 +182,16 @@
 
 	<target name="shrink" depends="compile-debug" if="product.shrink">
 		<echo message="Shrinking" />
-		<java classname="org.objectweb.asm.optimizer.Shrinker">
+		<java classname="org.ow2.asm.optimizer.Shrinker">
 			<classpath>
 				<pathelement location="${out.build}/tmp" />
 			</classpath>
-			<arg value="${src}/org/objectweb/asm/optimizer/shrink.properties" />
-			<arg value="${src}/org/objectweb/asm/optimizer/shrink${SIG}.properties" />
-			<arg value="${src}/org/objectweb/asm/optimizer/shrink${ANN}.properties" />
-			<arg value="${src}/org/objectweb/asm/optimizer/shrink${FRAMES}.properties" />
-			<arg value="${src}/org/objectweb/asm/optimizer/shrink${WRITER}.properties" />
-			<arg value="${src}/org/objectweb/asm/optimizer/shrink${RESIZE}.properties" />
+			<arg value="${src}/org/ow2/asm/optimizer/shrink.properties" />
+			<arg value="${src}/org/ow2/asm/optimizer/shrink${SIG}.properties" />
+			<arg value="${src}/org/ow2/asm/optimizer/shrink${ANN}.properties" />
+			<arg value="${src}/org/ow2/asm/optimizer/shrink${FRAMES}.properties" />
+			<arg value="${src}/org/ow2/asm/optimizer/shrink${WRITER}.properties" />
+			<arg value="${src}/org/ow2/asm/optimizer/shrink${RESIZE}.properties" />
 			<arg value="${out.build}/tmp" />
 			<arg value="${out.build}" />
 		</java>
@@ -318,12 +318,12 @@
 		<ant antfile="${archive}/asm-tree.xml" />
 		<ant antfile="${archive}/asm-util.xml" />
 		<ant antfile="${archive}/asm-xml.xml" />
-		<java classname="org.objectweb.asm.optimizer.JarOptimizer">
+		<java classname="org.ow2.asm.optimizer.JarOptimizer">
 			<classpath>
 				<pathelement location="${out.build}" />
 			</classpath>
-			<!--arg value="${src}/org/objectweb/asm/optimizer/jdk1.2.2_017.txt.gz"/-->
-			<arg value="${src}/org/objectweb/asm/optimizer/jdk1.3.1_19.txt.gz" />
+			<!--arg value="${src}/org/ow2/asm/optimizer/jdk1.2.2_017.txt.gz"/-->
+			<arg value="${src}/org/ow2/asm/optimizer/jdk1.3.1_19.txt.gz" />
 			<arg value="-nodebug" />
 			<arg value="${out.dist.lib}" />
 		</java>
@@ -353,6 +353,7 @@
 		<copy file="${examples}/common/build.xml" toDir="${out.dist.examples}/annotations" preservelastmodified="yes" />
 		<copy file="${examples}/common/build.xml" toDir="${out.dist.examples}/attributes" preservelastmodified="yes" />
 		<copy file="${examples}/common/build.xml" toDir="${out.dist.examples}/compile" preservelastmodified="yes" />
+		<copy file="${examples}/common/build.xml" toDir="${out.dist.examples}/compile-indy" preservelastmodified="yes" />
 		<copy file="${examples}/common/build.xml" toDir="${out.dist.examples}/dependencies" preservelastmodified="yes" />
 		<copy file="${examples}/common/build.xml" toDir="${out.dist.examples}/helloworld" preservelastmodified="yes" />
 		<copy file="${examples}/common/build.xml" toDir="${out.dist.examples}/jasmin" preservelastmodified="yes" />
@@ -379,7 +380,7 @@
   </target>
 
   <target name="eclipse.plugin" depends="jar,eclipse.generate">
-    <jar zipfile="${out}/org.objectweb.asm_${plugin.artifact}.jar">
+    <jar zipfile="${out}/org.ow2.asm_${plugin.artifact}.jar">
       <zipfileset dir="${basedir}">
         <include name="plugin.xml"/>
         <include name="META-INF/MANIFEST.MF"/>      	
@@ -393,7 +394,7 @@
       <manifest>
         <attribute name="Bundle-ManifestVersion" value="2"/>
         <attribute name="Bundle-Name" value="ASM Framework"/>
-        <attribute name="Bundle-SymbolicName" value="org.objectweb.asm;singleton:=true"/>
+        <attribute name="Bundle-SymbolicName" value="org.ow2.asm;singleton:=true"/>
         <attribute name="Bundle-Version" value="${plugin.artifact}"/>
         <attribute name="Bundle-ClassPath" value="output/dist/lib/asm-${product.artifact}.jar,
 output/dist/lib/asm-tree-${product.artifact}.jar,
@@ -403,14 +404,14 @@ output/dist/lib/asm-attrs-${product.artifact}.jar,
 output/dist/lib/asm-util-${product.artifact}.jar"/>
         <attribute name="Bundle-Vendor" value="ObjectWeb.org"/>
         <attribute name="Bundle-Localization" value="plugin"/>
-        <attribute name="Export-Package" value="org.objectweb.asm,
-org.objectweb.asm.attrs,
-org.objectweb.asm.commons,
-org.objectweb.asm.signature,
-org.objectweb.asm.tree,
-org.objectweb.asm.tree.analysis,
-org.objectweb.asm.util,
-org.objectweb.asm.xml"/>
+        <attribute name="Export-Package" value="org.ow2.asm,
+org.ow2.asm.attrs,
+org.ow2.asm.commons,
+org.ow2.asm.signature,
+org.ow2.asm.tree,
+org.ow2.asm.tree.analysis,
+org.ow2.asm.util,
+org.ow2.asm.xml"/>
         <attribute name="Eclipse-AutoStart" value="true"/>
       </manifest>
     </jar>
@@ -418,10 +419,10 @@ org.objectweb.asm.xml"/>
 
   <target name="eclipse.feature" depends="eclipse.plugin">
     <echo file="${out}/feature.xml"><![CDATA[<?xml version="1.0" encoding="UTF-8"?>
-<feature id="org.objectweb.asm.feature" label="ASM Framework"
+<feature id="org.ow2.asm.feature" label="ASM Framework"
       version="${plugin.artifact}" provider-name="ObjectWeb.org">
 
-   <description url="http://asm.objectweb.org/eclipse/asm/index.html">
+   <description url="http://asm.ow2.org/eclipse/asm/index.html">
 Feature contains ASM Java bytecode manipulation framework runtime.
    </description>
 
@@ -446,14 +447,14 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
    </license>
 
    <url>
-      <update label="ASM Framework" url="http://download.forge.objectweb.org/eclipse-update/site.xml"/>
+      <update label="ASM Framework" url="http://download.forge.ow2.org/eclipse-update/site.xml"/>
    </url>
 
-   <plugin id="org.objectweb.asm" download-size="0" install-size="0" version="${plugin.artifact}"/>
+   <plugin id="org.ow2.asm" download-size="0" install-size="0" version="${plugin.artifact}"/>
 
 </feature>]]></echo>
 
-    <jar jarfile="${out}/org.objectweb.asm.feature_${plugin.artifact}.jar">
+    <jar jarfile="${out}/org.ow2.asm.feature_${plugin.artifact}.jar">
       <fileset file="${out}/feature.xml"/>
     </jar>
   </target>
@@ -461,23 +462,23 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
   <target name="eclipse.site" depends="eclipse.feature">
     <echo file="${out}/site.xml"><![CDATA[<?xml version="1.0" encoding="UTF-8"?>
 <site>
-   <description url="http://asm.objectweb.org/eclipse/asm/index.html">
+   <description url="http://asm.ow2.org/eclipse/asm/index.html">
       ASM Framework
    </description>
    
-   <feature url="features/org.objectweb.asm.feature_${plugin.artifact}.jar" id="org.objectweb.asm.feature" version="${plugin.artifact}">
+   <feature url="features/org.ow2.asm.feature_${plugin.artifact}.jar" id="org.ow2.asm.feature" version="${plugin.artifact}">
       <category name="asm"/>
    </feature>
 
    <category-def name="asm" label="ASM Framework"/>
       
-   <archive path="plugins/org.objectweb.asm_${plugin.artifact}.jar" url="http://download.forge.objectweb.org/asm/org.objectweb.asm_${plugin.artifact}.jar"/>
+   <archive path="plugins/org.ow2.asm_${plugin.artifact}.jar" url="http://download.forge.ow2.org/asm/org.ow2.asm_${plugin.artifact}.jar"/>
 </site>]]></echo>
     
-    <zip zipfile="${out}/org.objectweb.asm.update_${plugin.artifact}.zip">
+    <zip zipfile="${out}/org.ow2.asm.update_${plugin.artifact}.zip">
       <zipfileset dir="${out}" includes="site.xml"/>
-      <zipfileset dir="${out}" includes="org.objectweb.asm.feature_${plugin.artifact}.jar" prefix="features"/>
-      <zipfileset dir="${out}" includes="org.objectweb.asm_${plugin.artifact}.jar"  prefix="plugins"/>
+      <zipfileset dir="${out}" includes="org.ow2.asm.feature_${plugin.artifact}.jar" prefix="features"/>
+      <zipfileset dir="${out}" includes="org.ow2.asm_${plugin.artifact}.jar"  prefix="plugins"/>
     </zip>
   </target>
   -->

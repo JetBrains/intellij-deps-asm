@@ -27,10 +27,10 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
  * THE POSSIBILITY OF SUCH DAMAGE.
  */
-import org.objectweb.asm.ClassWriter;
-import org.objectweb.asm.MethodVisitor;
-import org.objectweb.asm.Opcodes;
-import org.objectweb.asm.Label;
+import org.ow2.asm.ClassWriter;
+import org.ow2.asm.MethodVisitor;
+import org.ow2.asm.Opcodes;
+import org.ow2.asm.Label;
 
 import java.io.FileOutputStream;
 

@@ -35,13 +35,13 @@
   <target name="build-jar">
     <jar jarfile="${out.dist.lib}/${ant.project.name}-${product.artifact}.jar"
          basedir="${out.build}">
-      <include name="org/objectweb/asm/xml/*.class"/>
+      <include name="org/ow2/asm/xml/*.class"/>
       <manifest>
         <attribute name="Implementation-Title" value="ASM XML classes"/>
         <attribute name="Implementation-Version" value="${product.artifact}"/> 
         <attribute name="Implementation-Vendor" value="Eugene Kuleshov"/>
         <attribute name="Class-path" value="asm-${product.artifact}.jar asm-util-${product.artifact}.jar asm-attrs-${product.artifact}.jar"/>
-        <attribute name="Main-class" value="org.objectweb.asm.xml.Processor"/>
+        <attribute name="Main-class" value="org.ow2.asm.xml.Processor"/>
       </manifest>
     </jar>
 

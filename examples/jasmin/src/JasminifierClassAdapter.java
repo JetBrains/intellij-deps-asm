@@ -34,24 +34,24 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.objectweb.asm.ClassAdapter;
-import org.objectweb.asm.ClassReader;
-import org.objectweb.asm.ClassVisitor;
-import org.objectweb.asm.Label;
-import org.objectweb.asm.Opcodes;
-import org.objectweb.asm.Type;
-import org.objectweb.asm.commons.EmptyVisitor;
-import org.objectweb.asm.tree.AbstractInsnNode;
-import org.objectweb.asm.tree.AnnotationNode;
-import org.objectweb.asm.tree.ClassNode;
-import org.objectweb.asm.tree.FieldNode;
-import org.objectweb.asm.tree.InnerClassNode;
-import org.objectweb.asm.tree.LabelNode;
-import org.objectweb.asm.tree.LocalVariableNode;
-import org.objectweb.asm.tree.MemberNode;
-import org.objectweb.asm.tree.MethodNode;
-import org.objectweb.asm.tree.TryCatchBlockNode;
-import org.objectweb.asm.util.AbstractVisitor;
+import org.ow2.asm.ClassAdapter;
+import org.ow2.asm.ClassReader;
+import org.ow2.asm.ClassVisitor;
+import org.ow2.asm.Label;
+import org.ow2.asm.Opcodes;
+import org.ow2.asm.Type;
+import org.ow2.asm.commons.EmptyVisitor;
+import org.ow2.asm.tree.AbstractInsnNode;
+import org.ow2.asm.tree.AnnotationNode;
+import org.ow2.asm.tree.ClassNode;
+import org.ow2.asm.tree.FieldNode;
+import org.ow2.asm.tree.InnerClassNode;
+import org.ow2.asm.tree.LabelNode;
+import org.ow2.asm.tree.LocalVariableNode;
+import org.ow2.asm.tree.MemberNode;
+import org.ow2.asm.tree.MethodNode;
+import org.ow2.asm.tree.TryCatchBlockNode;
+import org.ow2.asm.util.AbstractVisitor;
 
 /**
  * A {@link ClassVisitor} that prints a disassembled view of the classes it

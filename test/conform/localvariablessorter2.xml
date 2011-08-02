@@ -33,23 +33,23 @@
   <target name="test.normal" unless="coverage">
     <jar jarfile="${out.test}/agent5.jar">
       <fileset dir="${out}/build">
-        <include name="org/objectweb/asm/**/*.class"/>
+        <include name="org/ow2/asm/**/*.class"/>
       </fileset>
       <fileset dir="${out}/test">
-        <include name="org/objectweb/asm/**/*.class"/>
+        <include name="org/ow2/asm/**/*.class"/>
       </fileset>
       <manifest>
-        <attribute name="Premain-Class" value="org.objectweb.asm.commons.LocalVariablesSorterTest2"/>
+        <attribute name="Premain-Class" value="org.ow2.asm.commons.LocalVariablesSorterTest2"/>
       </manifest>
     </jar>
     <junit fork="yes" 
            printsummary="yes"
            errorproperty="test.failed"
            failureproperty="test.failed">
-      <test name="org.objectweb.asm.commons.LocalVariablesSorterTest2" 
+      <test name="org.ow2.asm.commons.LocalVariablesSorterTest2" 
           fork="yes" 
           todir="${out.test}/reports"
-          outfile="TEST-org.objectweb.asm.commons.LocalVariablesSorterTest2-1">
+          outfile="TEST-org.ow2.asm.commons.LocalVariablesSorterTest2-1">
       </test>
       <formatter type="xml"/>
       <classpath>
@@ -67,10 +67,10 @@
            printsummary="yes"
            errorproperty="test.failed"
            failureproperty="test.failed">
-      <test name="org.objectweb.asm.commons.LocalVariablesSorterTest2" 
+      <test name="org.ow2.asm.commons.LocalVariablesSorterTest2" 
           fork="yes" 
           todir="${out.test}/reports"
-          outfile="TEST-org.objectweb.asm.commons.LocalVariablesSorterTest2-2">
+          outfile="TEST-org.ow2.asm.commons.LocalVariablesSorterTest2-2">
       </test>
       <formatter type="xml"/>
       <classpath>
@@ -89,13 +89,13 @@
   <target name="test.coverage" if="coverage">
     <jar jarfile="${out.test}/agent5.jar">
       <fileset dir="${out}/instr">
-        <include name="org/objectweb/asm/**/*.class"/>
+        <include name="org/ow2/asm/**/*.class"/>
       </fileset>
       <fileset dir="${out}/test">
-        <include name="org/objectweb/asm/**/*.class"/>
+        <include name="org/ow2/asm/**/*.class"/>
       </fileset>
       <manifest>
-        <attribute name="Premain-Class" value="org.objectweb.asm.commons.LocalVariablesSorterTest2"/>
+        <attribute name="Premain-Class" value="org.ow2.asm.commons.LocalVariablesSorterTest2"/>
       </manifest>
     </jar>
     <junit fork="yes" 

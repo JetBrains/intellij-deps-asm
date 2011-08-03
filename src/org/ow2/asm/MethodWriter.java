@@ -876,7 +876,7 @@ class MethodWriter implements MethodVisitor {
     public void visitInvokeDynamicInsn(
         final String name,
         final String desc,
-        final MethodHandle bsm,
+        final Handle bsm,
         final Object... bsmArgs)
     {
         Item i = cw.newInvokeDynamicItem(name, desc, bsm, bsmArgs);

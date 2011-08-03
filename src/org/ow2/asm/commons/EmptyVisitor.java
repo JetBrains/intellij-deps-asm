@@ -34,7 +34,7 @@ import org.ow2.asm.Attribute;
 import org.ow2.asm.ClassVisitor;
 import org.ow2.asm.FieldVisitor;
 import org.ow2.asm.Label;
-import org.ow2.asm.MethodHandle;
+import org.ow2.asm.Handle;
 import org.ow2.asm.MethodVisitor;
 
 /**
@@ -165,7 +165,7 @@ public class EmptyVisitor implements
     public void visitInvokeDynamicInsn(
         String name,
         String desc,
-        MethodHandle bsm,
+        Handle bsm,
         Object... bsmArgs)
     {
     }

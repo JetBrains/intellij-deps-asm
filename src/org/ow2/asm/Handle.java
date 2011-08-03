@@ -31,52 +31,55 @@
 package org.ow2.asm;
 
 /**
- * A constant method handle.
+ * A reference to a field or a method.
  * 
  * @author Remi Forax
  * @author Eric Bruneton
  */
-public final class MethodHandle {
+public final class Handle {
 
     /**
-     * Constant method handle tag, should be a value among Opcodes#MH_GETFIELD,
-     * Opcodes#MH_GETSTATIC, Opcodes#MH_PUTFIELD, Opcodes#MH_PUTSTATIC,
-     * Opcodes#MH_INVOKEVIRTUAL, Opcodes#MH_INVOKESTATIC,
-     * Opcodes#MH_INVOKESPECIAL, Opcodes#MH_NEWINVOKESPECIAL and
-     * Opcodes#MH_INVOKEINTERFACE.
+     * The kind of field or method designated by this Handle. Should be
+     * {@link Opcodes#H_GETFIELD}, {@link Opcodes#H_GETSTATIC},
+     * {@link Opcodes#H_PUTFIELD}, {@link Opcodes#H_PUTSTATIC},
+     * {@link Opcodes#H_INVOKEVIRTUAL}, {@link Opcodes#H_INVOKESTATIC},
+     * {@link Opcodes#H_INVOKESPECIAL}, {@link Opcodes#H_NEWINVOKESPECIAL} or
+     * {@link Opcodes#H_INVOKEINTERFACE}.
      */
     final int tag;
 
     /**
-     * Constant method handle owner internal name.
+     * The internal name of the field or method designed by this handle.
      */
     final String owner;
 
     /**
-     * Constant method handle name. This name is a field name or a method name
-     * depending on the tag value.
+     * The name of the field or method designated by this handle.
      */
     final String name;
 
     /**
-     * Constant method handle descriptor. This name is a field descriptor or a
-     * method descriptor depending on the tag value.
+     * The descriptor of the field or method designated by this handle.
      */
     final String desc;
 
     /**
-     * Constructs a new constant method handle.
+     * Constructs a new field or method handle.
      * 
-     * @param tag the kind of this method handle. Must be Opcodes#MH_GETFIELD,
-     *        Opcodes#MH_GETSTATIC, Opcodes#MH_PUTFIELD, Opcodes#MH_PUTSTATIC,
-     *        Opcodes#MH_INVOKEVIRTUAL, Opcodes#MH_INVOKESTATIC,
-     *        Opcodes#MH_INVOKESPECIAL, Opcodes#MH_NEWINVOKESPECIAL or
-     *        Opcodes#MH_INVOKEINTERFACE.
-     * @param owner the internal name of the field or method owner class.
-     * @param name the name of the field or method.
-     * @param desc the descriptor of the field or method.
+     * @param tag the kind of field or method designated by this Handle. Must be
+     *        {@link Opcodes#H_GETFIELD}, {@link Opcodes#H_GETSTATIC},
+     *        {@link Opcodes#H_PUTFIELD}, {@link Opcodes#H_PUTSTATIC},
+     *        {@link Opcodes#H_INVOKEVIRTUAL}, {@link Opcodes#H_INVOKESTATIC},
+     *        {@link Opcodes#H_INVOKESPECIAL},
+     *        {@link Opcodes#H_NEWINVOKESPECIAL} or
+     *        {@link Opcodes#H_INVOKEINTERFACE}.
+     * @param owner the internal name of the field or method designed by this
+     *        handle.
+     * @param name the name of the field or method designated by this handle.
+     * @param desc the descriptor of the field or method designated by this
+     *        handle.
      */
-    public MethodHandle(int tag, String owner, String name, String desc) {
+    public Handle(int tag, String owner, String name, String desc) {
         this.tag = tag;
         this.owner = owner;
         this.name = name;
@@ -84,39 +87,43 @@ public final class MethodHandle {
     }
 
     /**
-     * Returns the kind of this method handle.
+     * Returns the kind of field or method designated by this handle.
      * 
-     * @return Opcodes#MH_GETFIELD, Opcodes#MH_GETSTATIC, Opcodes#MH_PUTFIELD,
-     *         Opcodes#MH_PUTSTATIC, Opcodes#MH_INVOKEVIRTUAL,
-     *         Opcodes#MH_INVOKESTATIC, Opcodes#MH_INVOKESPECIAL,
-     *         Opcodes#MH_NEWINVOKESPECIAL or Opcodes#MH_INVOKEINTERFACE.
+     * @return {@link Opcodes#H_GETFIELD}, {@link Opcodes#H_GETSTATIC},
+     *         {@link Opcodes#H_PUTFIELD}, {@link Opcodes#H_PUTSTATIC},
+     *         {@link Opcodes#H_INVOKEVIRTUAL}, {@link Opcodes#H_INVOKESTATIC},
+     *         {@link Opcodes#H_INVOKESPECIAL},
+     *         {@link Opcodes#H_NEWINVOKESPECIAL} or
+     *         {@link Opcodes#H_INVOKEINTERFACE}.
      */
     public int getTag() {
         return tag;
     }
 
     /**
-     * Returns the internal name of the field or method owner class.
+     * Returns the internal name of the field or method designed by this
+     * handle.
      * 
-     * @return the internal name of the field or method owner class.
+     * @return the internal name of the field or method designed by this
+     *         handle.
      */
     public String getOwner() {
         return owner;
     }
 
     /**
-     * Returns the name of the field or method.
+     * Returns the name of the field or method designated by this handle.
      * 
-     * @return the name of the field or method.
+     * @return the name of the field or method designated by this handle.
      */
     public String getName() {
         return name;
     }
 
     /**
-     * Returns the descriptor of the field or method.
+     * Returns the descriptor of the field or method designated by this handle.
      * 
-     * @return the descriptor of the field or method.
+     * @return the descriptor of the field or method designated by this handle.
      */
     public String getDesc() {
         return desc;
@@ -127,12 +134,12 @@ public final class MethodHandle {
         if (obj == this) {
             return true;
         }
-        if (!(obj instanceof MethodHandle)) {
+        if (!(obj instanceof Handle)) {
             return false;
         }
-        MethodHandle mHandle = (MethodHandle) obj;
-        return tag == mHandle.tag && owner.equals(mHandle.owner)
-                && name.equals(mHandle.name) && desc.equals(mHandle.desc);
+        Handle h = (Handle) obj;
+        return tag == h.tag && owner.equals(h.owner)
+                && name.equals(h.name) && desc.equals(h.desc);
     }
 
     @Override
@@ -141,9 +148,9 @@ public final class MethodHandle {
     }
 
     /**
-     * Returns the textual representation of this method handle. The textual
+     * Returns the textual representation of this handle. The textual
      * representation is: <pre>owner '.' name desc ' ' '(' tag ')'</pre>. As
-     * this format is fully specifies, it can be parsed if necessary.
+     * this format is unambiguous, it can be parsed if necessary.
      */
     @Override
     public String toString() {

@@ -30,7 +30,7 @@
 package org.ow2.asm.commons;
 
 import org.ow2.asm.Label;
-import org.ow2.asm.MethodHandle;
+import org.ow2.asm.Handle;
 import org.ow2.asm.MethodVisitor;
 import org.ow2.asm.Opcodes;
 import org.ow2.asm.Type;
@@ -483,7 +483,7 @@ public abstract class AdviceAdapter extends GeneratorAdapter implements Opcodes
     public void visitInvokeDynamicInsn(
         String name,
         String desc,
-        MethodHandle bsm,
+        Handle bsm,
         Object... bsmArgs)
     {
         mv.visitInvokeDynamicInsn(name, desc, bsm, bsmArgs);

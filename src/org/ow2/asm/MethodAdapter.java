@@ -127,7 +127,7 @@ public class MethodAdapter implements MethodVisitor {
     public void visitInvokeDynamicInsn(
         final String name,
         final String desc,
-        final MethodHandle bsm,
+        final Handle bsm,
         final Object... bsmArgs)
     {
         mv.visitInvokeDynamicInsn(name, desc, bsm, bsmArgs);

@@ -31,7 +31,7 @@ package org.ow2.asm.tree.analysis;
 
 import java.util.List;
 
-import org.ow2.asm.MethodHandle;
+import org.ow2.asm.Handle;
 import org.ow2.asm.MethodType;
 import org.ow2.asm.Opcodes;
 import org.ow2.asm.Type;
@@ -120,7 +120,7 @@ public class BasicInterpreter implements Opcodes, Interpreter<BasicValue> {
                     return newValue(Type.getObjectType("java/lang/Class"));
                 } else if (cst instanceof MethodType) {
                     return newValue(Type.getObjectType("java/lang/invoke/MethodType"));
-                } else if (cst instanceof MethodHandle) {
+                } else if (cst instanceof Handle) {
                     return newValue(Type.getObjectType("java/lang/invoke/MethodHandle"));
                 } else {
                     return newValue(Type.getType(cst.getClass()));

@@ -31,7 +31,7 @@ package org.ow2.asm.optimizer;
 
 import java.util.HashMap;
 
-import org.ow2.asm.MethodHandle;
+import org.ow2.asm.Handle;
 import org.ow2.asm.MethodType;
 import org.ow2.asm.Opcodes;
 import org.ow2.asm.Type;
@@ -136,14 +136,14 @@ public class ConstantPool extends HashMap<Constant, Constant> {
         return result;
     }
 
-    public Constant newMHandle(final int tag, final String owner, final String name, final String desc) {
+    public Constant newHandle(final int tag, final String owner, final String name, final String desc) {
         key4.set((char)('h' - 1 + tag), owner, name, desc);
         Constant result = get(key4);
         if (result == null) {
-            if (tag <= Opcodes.MH_PUTSTATIC) {
+            if (tag <= Opcodes.H_PUTSTATIC) {
                 newField(owner, name, desc);
             } else {
-                newMethod(owner, name, desc, tag == Opcodes.MH_INVOKEINTERFACE);
+                newMethod(owner, name, desc, tag == Opcodes.H_INVOKEINTERFACE);
             }
             result = new Constant(key4);
             put(result);
@@ -174,9 +174,9 @@ public class ConstantPool extends HashMap<Constant, Constant> {
         } else if (cst instanceof MethodType) {
             MethodType mt = (MethodType) cst;
             return newMethodType(mt.getDescriptor());
-        } else if (cst instanceof MethodHandle) {
-            MethodHandle mh = (MethodHandle) cst;
-            return newMHandle(mh.getTag(), mh.getOwner(), mh.getName(), mh.getDesc());
+        } else if (cst instanceof Handle) {
+            Handle h = (Handle) cst;
+            return newHandle(h.getTag(), h.getOwner(), h.getName(), h.getDesc());
         } else {
             throw new IllegalArgumentException("value " + cst);
         }
@@ -215,13 +215,13 @@ public class ConstantPool extends HashMap<Constant, Constant> {
         return result;
     }
 
-    public Constant newInvokeDynamic(String name, String desc, MethodHandle bsm, Object... bsmArgs)
+    public Constant newInvokeDynamic(String name, String desc, Handle bsm, Object... bsmArgs)
     {
         key5.set(name, desc, bsm, bsmArgs);
         Constant result = get(key5);
         if (result == null) {
             newNameType(name, desc);
-            newMHandle(bsm.getTag(), bsm.getOwner(), bsm.getName(), bsm.getDesc());
+            newHandle(bsm.getTag(), bsm.getOwner(), bsm.getName(), bsm.getDesc());
             for(int i=0; i<bsmArgs.length; i++) {
                 newConst(bsmArgs[i]);
             }

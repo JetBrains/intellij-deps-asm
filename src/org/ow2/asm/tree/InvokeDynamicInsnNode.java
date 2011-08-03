@@ -31,7 +31,7 @@ package org.ow2.asm.tree;
 
 import java.util.Map;
 
-import org.ow2.asm.MethodHandle;
+import org.ow2.asm.Handle;
 import org.ow2.asm.MethodVisitor;
 import org.ow2.asm.Opcodes;
 
@@ -54,7 +54,7 @@ public class InvokeDynamicInsnNode extends AbstractInsnNode {
     /**
      * Bootstrap method
      */
-    public MethodHandle bsm;
+    public Handle bsm;
 
     /**
      * Bootstrap constant arguments
@@ -72,7 +72,7 @@ public class InvokeDynamicInsnNode extends AbstractInsnNode {
     public InvokeDynamicInsnNode(
         final String name,
         final String desc,
-        final MethodHandle bsm,
+        final Handle bsm,
         final Object... bsmArgs)
     {
         super(Opcodes.INVOKEDYNAMIC);

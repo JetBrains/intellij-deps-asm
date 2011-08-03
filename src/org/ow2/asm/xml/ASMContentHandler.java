@@ -38,7 +38,7 @@ import org.ow2.asm.AnnotationVisitor;
 import org.ow2.asm.ClassVisitor;
 import org.ow2.asm.FieldVisitor;
 import org.ow2.asm.Label;
-import org.ow2.asm.MethodHandle;
+import org.ow2.asm.Handle;
 import org.ow2.asm.MethodType;
 import org.ow2.asm.MethodVisitor;
 import org.ow2.asm.Opcodes;
@@ -532,8 +532,8 @@ public class ASMContentHandler extends DefaultHandler implements Opcodes {
                 } else if (Type.getDescriptor(MethodType.class).equals(desc)) {
                     value = new MethodType(val);
 
-                } else if (Type.getDescriptor(MethodHandle.class).equals(desc)) {
-                    value = decodeMHandle(val);
+                } else if (Type.getDescriptor(Handle.class).equals(desc)) {
+                    value = decodeHandle(val);
 
                 } else {
                     // TODO use of default toString().
@@ -544,7 +544,7 @@ public class ASMContentHandler extends DefaultHandler implements Opcodes {
             return value;
         }
 
-        MethodHandle decodeMHandle(final String val) throws SAXException {
+        Handle decodeHandle(final String val) throws SAXException {
             try {
                 int dotIndex = val.indexOf('.');
                 int descIndex = val.indexOf('(', dotIndex + 1);
@@ -554,10 +554,10 @@ public class ASMContentHandler extends DefaultHandler implements Opcodes {
                 String owner = val.substring(0, dotIndex);
                 String name = val.substring(dotIndex + 1, descIndex);
                 String desc = val.substring(descIndex, tagIndex - 1);
-                return new MethodHandle(tag, owner, name, desc);
+                return new Handle(tag, owner, name, desc);
 
             } catch(RuntimeException e) {
-                throw new SAXException("Malformed constant method handle "+val, e);
+                throw new SAXException("Malformed handle "+val, e);
             }
         }
 
@@ -1069,14 +1069,14 @@ public class ASMContentHandler extends DefaultHandler implements Opcodes {
         public final void begin(final String element, final Attributes attrs) throws SAXException {
             push(attrs.getValue("name"));
             push(attrs.getValue("desc"));
-            push(decodeMHandle(attrs.getValue("bsm")));
+            push(decodeHandle(attrs.getValue("bsm")));
             push(new ArrayList<Object>());
         }
 
         @Override
         public final void end(final String element) {
             ArrayList<?> bsmArgs = (ArrayList<?>)pop();
-            MethodHandle bsm = (MethodHandle)pop();
+            Handle bsm = (Handle)pop();
             String desc = (String)pop();
             String name = (String)pop();
             getCodeVisitor().visitInvokeDynamicInsn(name, desc, bsm, bsmArgs.toArray());

@@ -35,7 +35,7 @@ import java.util.List;
 
 import org.ow2.asm.ClassVisitor;
 import org.ow2.asm.Label;
-import org.ow2.asm.MethodHandle;
+import org.ow2.asm.Handle;
 import org.ow2.asm.MethodType;
 import org.ow2.asm.MethodVisitor;
 import org.ow2.asm.Opcodes;
@@ -80,6 +80,7 @@ import org.ow2.asm.Type;
  * @author Juozas Baliuka
  * @author Chris Nokleberg
  * @author Eric Bruneton
+ * @author Prashant Deva
  */
 public class GeneratorAdapter extends LocalVariablesSorter {
 
@@ -460,17 +461,17 @@ public class GeneratorAdapter extends LocalVariablesSorter {
      *
      * @param methodType the constant method type to be pushed on the stack.
      */
-    public void pushMethodType(final MethodType methodType) {
+    public void push(final MethodType methodType) {
         mv.visitLdcInsn(methodType);
     }
 
     /**
-     * Generates the instruction to push a constant method handle on the stack.
+     * Generates the instruction to push a handle on the stack.
      *
-     * @param methodHandle the constant method handle to be pushed on the stack.
+     * @param handle the handle to be pushed on the stack.
      */
-    public void pushMethodType(final MethodHandle methodHandle) {
-        mv.visitLdcInsn(methodHandle);
+    public void push(final Handle handle) {
+        mv.visitLdcInsn(handle);
     }
 
     // ------------------------------------------------------------------------
@@ -914,7 +915,6 @@ public class GeneratorAdapter extends LocalVariablesSorter {
      * of the stack.
      *
      * @param type the type of the top stack value.
-     * @author Prashant Deva
      */
     public void valueOf(final Type type) {
         if (type.getSort() == Type.OBJECT || type.getSort() == Type.ARRAY) {

@@ -48,17 +48,17 @@ public abstract class AbstractVisitor {
     public static final String[] OPCODES;
     
     /**
-     * Types for <code>operand</code> parameter of the
+     * The names of the for <code>operand</code> parameter values of the
      * {@link org.ow2.asm.MethodVisitor#visitIntInsn} method when
      * <code>opcode</code> is <code>NEWARRAY</code>.
      */
     public static final String[] TYPES;
-    
+
     /**
-     * Tag for method handle constant of the
-     * {@link org.ow2.asm.MethodVisitor#visitLdcInsn(Object)} method.
+     * The names of the <code>tag</tag> field values for
+     * {@link org.ow2.asm.Handle}.
      */
-    public static final String[] METHOD_HANDLE_TAG;
+    public static final String[] HANDLE_TAG;
 
     static {
         String s = "NOP,ACONST_NULL,ICONST_M1,ICONST_0,ICONST_1,ICONST_2,"
@@ -99,14 +99,14 @@ public abstract class AbstractVisitor {
             j = l + 1;
         }
         
-        s = "MH_GETFIELD,MH_GETSTATIC,MH_PUTFIELD,MH_PUTSTATIC,"
-          + "MH_INVOKEVIRTUAL,MH_INVOKESTATIC,MH_INVOKESPECIAL,"
-          + "MH_NEWINVOKESPECIAL,MH_INVOKEINTERFACE,";
-        METHOD_HANDLE_TAG = new String[10];
+        s = "H_GETFIELD,H_GETSTATIC,H_PUTFIELD,H_PUTSTATIC,"
+          + "H_INVOKEVIRTUAL,H_INVOKESTATIC,H_INVOKESPECIAL,"
+          + "H_NEWINVOKESPECIAL,H_INVOKEINTERFACE,";
+        HANDLE_TAG = new String[10];
         j = 0;
         i = 1;
         while ((l = s.indexOf(',', j)) > 0) {
-            METHOD_HANDLE_TAG[i++] = s.substring(j, l);
+            HANDLE_TAG[i++] = s.substring(j, l);
             j = l + 1;
         }
     }

@@ -31,7 +31,7 @@ package org.ow2.asm.util;
 
 import org.ow2.asm.AnnotationVisitor;
 import org.ow2.asm.Attribute;
-import org.ow2.asm.MethodHandle;
+import org.ow2.asm.Handle;
 import org.ow2.asm.MethodVisitor;
 import org.ow2.asm.Label;
 import org.ow2.asm.Opcodes;
@@ -303,7 +303,7 @@ public class TraceMethodVisitor extends TraceAbstractVisitor implements
     public void visitInvokeDynamicInsn(
         String name,
         String desc,
-        MethodHandle bsm,
+        Handle bsm,
         Object... bsmArgs)
     {
         buf.setLength(0);

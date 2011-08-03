@@ -31,7 +31,7 @@ package org.ow2.asm.util;
 
 import org.ow2.asm.AnnotationVisitor;
 import org.ow2.asm.Label;
-import org.ow2.asm.MethodHandle;
+import org.ow2.asm.Handle;
 import org.ow2.asm.MethodType;
 import org.ow2.asm.MethodAdapter;
 import org.ow2.asm.MethodVisitor;
@@ -623,17 +623,17 @@ public class CheckMethodAdapter extends MethodAdapter {
     public void visitInvokeDynamicInsn(
         String name,
         String desc,
-        MethodHandle bsm,
+        Handle bsm,
         Object... bsmArgs)
     {
         checkStartCode();
         checkEndCode();
         checkMethodIdentifier(version, name, "name");
         checkMethodDesc(desc);
-        if (bsm.getTag() != Opcodes.MH_INVOKESTATIC
-                && bsm.getTag() != Opcodes.MH_NEWINVOKESPECIAL)
+        if (bsm.getTag() != Opcodes.H_INVOKESTATIC
+                && bsm.getTag() != Opcodes.H_NEWINVOKESPECIAL)
         {
-            throw new IllegalArgumentException("invalid constant method handle tag "
+            throw new IllegalArgumentException("invalid handle tag "
                     + bsm.getTag());
         }
         for (int i = 0; i < bsmArgs.length; i++) {
@@ -979,17 +979,21 @@ public class CheckMethodAdapter extends MethodAdapter {
             if ((version & 0xFFFF) < Opcodes.V1_5) {
                 throw new IllegalArgumentException("ldc of a constant class requires at least version 1.5");
             }
+            int sort = ((Type) cst).getSort();
+            if (sort != Type.OBJECT && sort != Type.ARRAY) {
+                throw new IllegalArgumentException("ldc of a .class constant is limited to non primitive types");                
+            }
         } else if (cst instanceof MethodType) {
             if ((version & 0xFFFF) < Opcodes.V1_7) {
-                throw new IllegalArgumentException("ldc of a constant method type requires at least version 1.7");
+                throw new IllegalArgumentException("ldc of a method type requires at least version 1.7");
             }
-        } else if (cst instanceof MethodHandle) {
+        } else if (cst instanceof Handle) {
             if ((version & 0xFFFF) < Opcodes.V1_7) {
-                throw new IllegalArgumentException("ldc of a constant method handle requires at least version 1.7");
+                throw new IllegalArgumentException("ldc of a handle requires at least version 1.7");
             }
-            int tag = ((MethodHandle) cst).getTag();
-            if (tag < Opcodes.MH_GETFIELD || tag > Opcodes.MH_INVOKEINTERFACE) {
-                throw new IllegalArgumentException("invalid constant method handle tag "
+            int tag = ((Handle) cst).getTag();
+            if (tag < Opcodes.H_GETFIELD || tag > Opcodes.H_INVOKEINTERFACE) {
+                throw new IllegalArgumentException("invalid handle tag "
                         + tag);
             }
         } else {

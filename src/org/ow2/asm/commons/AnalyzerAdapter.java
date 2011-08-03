@@ -35,7 +35,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.ow2.asm.Label;
-import org.ow2.asm.MethodHandle;
+import org.ow2.asm.Handle;
 import org.ow2.asm.MethodType;
 import org.ow2.asm.MethodAdapter;
 import org.ow2.asm.MethodVisitor;
@@ -333,7 +333,7 @@ public class AnalyzerAdapter extends MethodAdapter {
     public void visitInvokeDynamicInsn(
         String name,
         String desc,
-        MethodHandle bsm,
+        Handle bsm,
         Object... bsmArgs)
     {
         if (mv != null) {
@@ -396,7 +396,7 @@ public class AnalyzerAdapter extends MethodAdapter {
             push("java/lang/Class");
         } else if (cst instanceof MethodType) {
             push("java/lang/invoke/MethodType");
-        } else if (cst instanceof MethodHandle) {
+        } else if (cst instanceof Handle) {
             push("java/lang/invoke/MethodHandle");
         } else {
             throw new IllegalArgumentException();

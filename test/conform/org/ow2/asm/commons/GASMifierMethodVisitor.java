@@ -30,7 +30,7 @@
 package org.ow2.asm.commons;
 
 import org.ow2.asm.AnnotationVisitor;
-import org.ow2.asm.MethodHandle;
+import org.ow2.asm.Handle;
 import org.ow2.asm.MethodType;
 import org.ow2.asm.MethodVisitor;
 import org.ow2.asm.Label;
@@ -713,7 +713,7 @@ public class GASMifierMethodVisitor extends ASMifierAbstractVisitor implements
     public void visitInvokeDynamicInsn(
         String name,
         String desc,
-        MethodHandle bsm,
+        Handle bsm,
         Object... bsmArgs)
     {
         buf.setLength(0);
@@ -1064,12 +1064,12 @@ public class GASMifierMethodVisitor extends ASMifierAbstractVisitor implements
             buf.append("Type.getType(\"").append(cst).append("\")");
         } else if (cst instanceof MethodType) {
             buf.append("new MethodType(\"").append(cst).append("\")");
-        } else if (cst instanceof MethodHandle) {
-            MethodHandle mHandle = (MethodHandle) cst;
-            buf.append("new MethodHandle(").append(mHandle.getTag()).
-                append(", \"").append(mHandle.getOwner()).
-                append("\", \"").append(mHandle.getName()).
-                append("\", \"").append(mHandle.getDesc()).append("\")");
+        } else if (cst instanceof Handle) {
+            Handle h = (Handle) cst;
+            buf.append("new Handle(").append(h.getTag()).
+                append(", \"").append(h.getOwner()).
+                append("\", \"").append(h.getName()).
+                append("\", \"").append(h.getDesc()).append("\")");
         } else {
             buf.append(cst);
         }

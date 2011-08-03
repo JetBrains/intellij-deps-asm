@@ -32,7 +32,7 @@ package org.ow2.asm.commons;
 
 import org.ow2.asm.AnnotationVisitor;
 import org.ow2.asm.Label;
-import org.ow2.asm.MethodHandle;
+import org.ow2.asm.Handle;
 import org.ow2.asm.MethodVisitor;
 
 /**
@@ -84,7 +84,7 @@ public class RemappingMethodAdapter extends LocalVariablesSorter {
     public void visitInvokeDynamicInsn(
         String name,
         String desc,
-        MethodHandle bsm,
+        Handle bsm,
         Object... bsmArgs)
     {
         for(int i=0; i<bsmArgs.length; i++) {
@@ -93,7 +93,7 @@ public class RemappingMethodAdapter extends LocalVariablesSorter {
         super.visitInvokeDynamicInsn(
                 remapper.mapInvokeDynamicMethodName(name, desc),
                 remapper.mapMethodDesc(desc),
-                (MethodHandle)remapper.mapValue(bsm),
+                (Handle)remapper.mapValue(bsm),
                 bsmArgs);
     }
 

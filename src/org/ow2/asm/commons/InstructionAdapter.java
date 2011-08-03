@@ -31,7 +31,7 @@
 package org.ow2.asm.commons;
 
 import org.ow2.asm.Label;
-import org.ow2.asm.MethodHandle;
+import org.ow2.asm.Handle;
 import org.ow2.asm.MethodType;
 import org.ow2.asm.MethodAdapter;
 import org.ow2.asm.MethodVisitor;
@@ -515,7 +515,7 @@ public class InstructionAdapter extends MethodAdapter {
     public void visitInvokeDynamicInsn(
         String name,
         String desc,
-        MethodHandle bsm,
+        Handle bsm,
         Object... bsmArgs)
     {
        invokedynamic(name, desc, bsm, bsmArgs);
@@ -620,8 +620,8 @@ public class InstructionAdapter extends MethodAdapter {
             tconst((Type) cst);
         } else if (cst instanceof MethodType) {
             mtconst((MethodType) cst);
-        } else if (cst instanceof MethodHandle) {
-            mhconst((MethodHandle) cst);
+        } else if (cst instanceof Handle) {
+            hconst((Handle) cst);
         } else {
             throw new IllegalArgumentException();
         }
@@ -716,8 +716,8 @@ public class InstructionAdapter extends MethodAdapter {
         mv.visitLdcInsn(mtype);
     }
 
-    public void mhconst(final MethodHandle mhandle) {
-        mv.visitLdcInsn(mhandle);
+    public void hconst(final Handle handle) {
+        mv.visitLdcInsn(handle);
     }
 
     public void load(final int var, final Type type) {
@@ -1039,7 +1039,7 @@ public class InstructionAdapter extends MethodAdapter {
     public void invokedynamic(
         String name,
         String desc,
-        MethodHandle bsm,
+        Handle bsm,
         Object[] bsmArgs)
     {
         mv.visitInvokeDynamicInsn(name, desc, bsm, bsmArgs);

@@ -905,7 +905,7 @@ final class Frame {
                     case ClassWriter.MTYPE:
                         push(OBJECT | cw.addType("java/lang/invoke/MethodType"));
                         break;
-                    // case ClassWriter.MHANDLE_BASE + [1..9]:
+                    // case ClassWriter.HANDLE_BASE + [1..9]:
                     default:
                         push(OBJECT | cw.addType("java/lang/invoke/MethodHandle"));
                 }

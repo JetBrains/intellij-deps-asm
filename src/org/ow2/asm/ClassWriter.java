@@ -229,7 +229,7 @@ public class ClassWriter implements ClassVisitor {
     /**
      * The type of CONSTANT_MethodHandle constant pool items.
      */
-    static final int MHANDLE = 15;
+    static final int HANDLE = 15;
 
     /**
      * The type of CONSTANT_InvokeDynamic constant pool items.
@@ -241,7 +241,7 @@ public class ClassWriter implements ClassVisitor {
      * Internally, ASM store the 9 variations of CONSTANT_MethodHandle into
      * 9 different items.
      */
-    static final int MHANDLE_BASE = 20;
+    static final int HANDLE_BASE = 20;
 
     /**
      * Normal type Item stored in the ClassWriter {@link ClassWriter#typeTable},
@@ -968,9 +968,9 @@ public class ClassWriter implements ClassVisitor {
                     : t.getDescriptor());
         } else if (cst instanceof MethodType) {
             return newMethodTypeItem(((MethodType) cst).desc);
-        } else if (cst instanceof MethodHandle) {
-            MethodHandle mHandle = (MethodHandle) cst;
-            return newMethodHandleItem(mHandle.tag, mHandle.owner, mHandle.name, mHandle.desc);
+        } else if (cst instanceof Handle) {
+            Handle h = (Handle) cst;
+            return newHandleItem(h.tag, h.owner, h.name, h.desc);
         } else {
             throw new IllegalArgumentException("value " + cst);
         }
@@ -1080,37 +1080,38 @@ public class ClassWriter implements ClassVisitor {
     }
 
     /**
-     * Adds a method handle reference to the constant pool of the class being
-     * build. Does nothing if the constant pool already contains a similar item.
-     * <i>This method is intended for {@link Attribute} sub classes, and is
-     * normally not needed by class generators or adapters.</i>
+     * Adds a handle to the constant pool of the class being build. Does nothing
+     * if the constant pool already contains a similar item. <i>This method is
+     * intended for {@link Attribute} sub classes, and is normally not needed by
+     * class generators or adapters.</i>
      * 
-     * @param tag the kind of this method handle. Must be Opcodes#MH_GETFIELD,
-     *        Opcodes#MH_GETSTATIC, Opcodes#MH_PUTFIELD, Opcodes#MH_PUTSTATIC,
-     *        Opcodes#MH_INVOKEVIRTUAL, Opcodes#MH_INVOKESTATIC,
-     *        Opcodes#MH_INVOKESPECIAL, Opcodes#MH_NEWINVOKESPECIAL or
-     *        Opcodes#MH_INVOKEINTERFACE.
+     * @param tag the kind of this handle. Must be {@link Opcodes#H_GETFIELD},
+     *        {@link Opcodes#H_GETSTATIC}, {@link Opcodes#H_PUTFIELD},
+     *        {@link Opcodes#H_PUTSTATIC}, {@link Opcodes#H_INVOKEVIRTUAL},
+     *        {@link Opcodes#H_INVOKESTATIC}, {@link Opcodes#H_INVOKESPECIAL},
+     *        {@link Opcodes#H_NEWINVOKESPECIAL} or
+     *        {@link Opcodes#H_INVOKEINTERFACE}.
      * @param owner the internal name of the field or method owner class.
      * @param name the name of the field or method.
      * @param desc the descriptor of the field or method.
      * @return a new or an already existing method type reference item.
      */
-    Item newMethodHandleItem(
+    Item newHandleItem(
         final int tag,
         final String owner,
         final String name,
         final String desc)
     {
-        key4.set(MHANDLE_BASE + tag, owner, name, desc);
+        key4.set(HANDLE_BASE + tag, owner, name, desc);
         Item result = get(key4);
         if (result == null) {
-            if (tag <= Opcodes.MH_PUTSTATIC) {
-                put112(MHANDLE, tag, newField(owner, name, desc));
+            if (tag <= Opcodes.H_PUTSTATIC) {
+                put112(HANDLE, tag, newField(owner, name, desc));
             } else {
-                put112(MHANDLE, tag, newMethod(owner,
+                put112(HANDLE, tag, newMethod(owner,
                         name,
                         desc,
-                        tag == Opcodes.MH_INVOKEINTERFACE));
+                        tag == Opcodes.H_INVOKEINTERFACE));
             }
             result = new Item(index++, key4);
             put(result);
@@ -1119,29 +1120,30 @@ public class ClassWriter implements ClassVisitor {
     }
 
     /**
-     * Adds a method handle reference to the constant pool of the class being
+     * Adds a handle to the constant pool of the class being
      * build. Does nothing if the constant pool already contains a similar item.
      * <i>This method is intended for {@link Attribute} sub classes, and is
      * normally not needed by class generators or adapters.</i>
      * 
-     * @param tag the kind of this method handle. Must be Opcodes#MH_GETFIELD,
-     *        Opcodes#MH_GETSTATIC, Opcodes#MH_PUTFIELD, Opcodes#MH_PUTSTATIC,
-     *        Opcodes#MH_INVOKEVIRTUAL, Opcodes#MH_INVOKESTATIC,
-     *        Opcodes#MH_INVOKESPECIAL, Opcodes#MH_NEWINVOKESPECIAL or
-     *        Opcodes#MH_INVOKEINTERFACE.
+     * @param tag the kind of this handle. Must be {@link Opcodes#H_GETFIELD},
+     *        {@link Opcodes#H_GETSTATIC}, {@link Opcodes#H_PUTFIELD},
+     *        {@link Opcodes#H_PUTSTATIC}, {@link Opcodes#H_INVOKEVIRTUAL},
+     *        {@link Opcodes#H_INVOKESTATIC}, {@link Opcodes#H_INVOKESPECIAL},
+     *        {@link Opcodes#H_NEWINVOKESPECIAL} or
+     *        {@link Opcodes#H_INVOKEINTERFACE}.
      * @param owner the internal name of the field or method owner class.
      * @param name the name of the field or method.
      * @param desc the descriptor of the field or method.
      * @return the index of a new or already existing method type reference
      *         item.
      */
-    public int newMethodHandle(
+    public int newHandle(
         final int tag,
         final String owner,
         final String name,
         final String desc)
     {
-        return newMethodHandleItem(tag, owner, name, desc).index;
+        return newHandleItem(tag, owner, name, desc).index;
     }
 
     /**
@@ -1150,17 +1152,17 @@ public class ClassWriter implements ClassVisitor {
      * <i>This method is intended for {@link Attribute} sub classes, and is
      * normally not needed by class generators or adapters.</i>
      * 
-     * @param name name of the invokedynamic instruction.
-     * @param desc method descriptor of the invokedynamic instruction.
-     * @param bsm boostrap method as a constant method handle.
-     * @param bsmArgs bootstrap method constant arguments
+     * @param name name of the invoked method.
+     * @param desc descriptor of the invoke method.
+     * @param bsm the bootstrap method.
+     * @param bsmArgs the bootstrap method constant arguments.
      * 
      * @return a new or an already existing invokedynamic type reference item.
      */
     Item newInvokeDynamicItem(
         final String name,
         final String desc,
-        final MethodHandle bsm,
+        final Handle bsm,
         final Object... bsmArgs)
     {
         // cache for performance
@@ -1172,7 +1174,7 @@ public class ClassWriter implements ClassVisitor {
         int position = bootstrapMethods.length; // record current position
 
         int hashCode = bsm.hashCode();
-        bootstrapMethods.putShort(newMethodHandle(bsm.tag,
+        bootstrapMethods.putShort(newHandle(bsm.tag,
                 bsm.owner,
                 bsm.name,
                 bsm.desc));
@@ -1236,18 +1238,18 @@ public class ClassWriter implements ClassVisitor {
      * <i>This method is intended for {@link Attribute} sub classes, and is
      * normally not needed by class generators or adapters.</i>
      * 
-     * @param name name of the invokedynamic instruction.
-     * @param desc method descriptor of the invokedynamic instruction.
-     * @param bsm boostrap method as a constant method handle.
-     * @param bsmArgs bootstrap method constant arguments
+     * @param name name of the invoked method.
+     * @param desc descriptor of the invoke method.
+     * @param bsm the bootstrap method.
+     * @param bsmArgs the bootstrap method constant arguments.
      * 
-     * @return @return the index of a new or already existing invokedynamic
+     * @return the index of a new or already existing invokedynamic
      *         reference item.
      */
     public int newInvokeDynamic(
         final String name,
         final String desc,
-        final MethodHandle bsm,
+        final Handle bsm,
         final Object... bsmArgs)
     {
         return newInvokeDynamicItem(name, desc, bsm, bsmArgs).index;

@@ -30,7 +30,7 @@
 
 package org.ow2.asm.commons;
 
-import org.ow2.asm.MethodHandle;
+import org.ow2.asm.Handle;
 import org.ow2.asm.MethodType;
 import org.ow2.asm.Type;
 import org.ow2.asm.signature.SignatureReader;
@@ -143,12 +143,12 @@ public abstract class Remapper {
         if (value instanceof MethodType) {
             return new MethodType(mapMethodDesc(((MethodType) value).getDescriptor()));
         }
-        if (value instanceof MethodHandle) {
-            MethodHandle mHandle = (MethodHandle)value;
-            return new MethodHandle(mHandle.getTag(),
-                    mapType(mHandle.getOwner()),
-                    mapMethodName(mHandle.getOwner(), mHandle.getName(), mHandle.getDesc()),
-                    mapMethodDesc(mHandle.getDesc()));
+        if (value instanceof Handle) {
+            Handle h = (Handle) value;
+            return new Handle(h.getTag(),
+                    mapType(h.getOwner()),
+                    mapMethodName(h.getOwner(), h.getName(), h.getDesc()),
+                    mapMethodDesc(h.getDesc()));
         }
         return value;
     }

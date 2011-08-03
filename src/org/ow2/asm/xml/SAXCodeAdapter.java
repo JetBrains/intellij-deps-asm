@@ -33,7 +33,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.ow2.asm.AnnotationVisitor;
-import org.ow2.asm.MethodHandle;
+import org.ow2.asm.Handle;
 import org.ow2.asm.MethodVisitor;
 import org.ow2.asm.Opcodes;
 import org.ow2.asm.Label;
@@ -208,7 +208,7 @@ public final class SAXCodeAdapter extends SAXAdapter implements MethodVisitor {
     public void visitInvokeDynamicInsn(
         String name,
         String desc,
-        MethodHandle bsm,
+        Handle bsm,
         Object... bsmArgs)
     {
         AttributesImpl attrs = new AttributesImpl();

@@ -29,7 +29,7 @@
  */
 package org.ow2.asm.tree;
 
-import org.ow2.asm.MethodHandle;
+import org.ow2.asm.Handle;
 import org.ow2.asm.Opcodes;
 
 import junit.framework.TestCase;
@@ -91,7 +91,7 @@ public class ClassNodeUnitTest extends TestCase implements Opcodes {
     }
 
     public void testInvokeDynamicInsnNode() {
-        MethodHandle bsm = new MethodHandle(Opcodes.MH_INVOKESTATIC, "owner", "name", "()V");
+        Handle bsm = new Handle(Opcodes.H_INVOKESTATIC, "owner", "name", "()V");
         InvokeDynamicInsnNode mn = new InvokeDynamicInsnNode(
                 "name",
                 "()V",

@@ -32,7 +32,7 @@ package org.ow2.asm.util;
 import org.ow2.asm.AnnotationVisitor;
 import org.ow2.asm.Attribute;
 import org.ow2.asm.Label;
-import org.ow2.asm.MethodHandle;
+import org.ow2.asm.Handle;
 import org.ow2.asm.MethodType;
 import org.ow2.asm.Type;
 
@@ -149,13 +149,13 @@ public class ASMifierAbstractVisitor extends AbstractVisitor {
             buf.append("new MethodType(\"");
             buf.append(((MethodType) cst).getDescriptor());
             buf.append("\")");
-        } else if (cst instanceof MethodHandle) {
-            buf.append("new MethodHandle(");
-            MethodHandle mHandle = (MethodHandle) cst;
-            buf.append("MethodHandle.").append(METHOD_HANDLE_TAG[mHandle.getTag()]).append(", \"");
-            buf.append(mHandle.getOwner()).append("\", \"");
-            buf.append(mHandle.getName()).append("\", \"");
-            buf.append(mHandle.getDesc()).append("\")");
+        } else if (cst instanceof Handle) {
+            buf.append("new Handle(");
+            Handle h = (Handle) cst;
+            buf.append("Handle.").append(HANDLE_TAG[h.getTag()]).append(", \"");
+            buf.append(h.getOwner()).append("\", \"");
+            buf.append(h.getName()).append("\", \"");
+            buf.append(h.getDesc()).append("\")");
         } else if (cst instanceof Byte) {
             buf.append("new Byte((byte)").append(cst).append(')');
         } else if (cst instanceof Boolean) {

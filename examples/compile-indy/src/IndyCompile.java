@@ -38,7 +38,7 @@ import static org.ow2.asm.Opcodes.ARETURN;
 import static org.ow2.asm.Opcodes.DUP;
 import static org.ow2.asm.Opcodes.IFEQ;
 import static org.ow2.asm.Opcodes.IFNE;
-import static org.ow2.asm.Opcodes.MH_INVOKESTATIC;
+import static org.ow2.asm.Opcodes.H_INVOKESTATIC;
 import static org.ow2.asm.Opcodes.POP;
 import static org.ow2.asm.Opcodes.V1_7;
 
@@ -47,7 +47,7 @@ import java.lang.reflect.Method;
 
 import org.ow2.asm.ClassWriter;
 import org.ow2.asm.Label;
-import org.ow2.asm.MethodHandle;
+import org.ow2.asm.Handle;
 import org.ow2.asm.MethodType;
 import org.ow2.asm.MethodVisitor;
 
@@ -91,11 +91,11 @@ public class IndyCompile extends ClassLoader {
      */
     static abstract class Exp {
 
-        static final MethodHandle CST = getHandle("cst", "Ljava/lang/Object;");
+        static final Handle CST = getHandle("cst", "Ljava/lang/Object;");
 
-        static final MethodHandle UNARY = getHandle("unary", "");
+        static final Handle UNARY = getHandle("unary", "");
 
-        static final MethodHandle BINARY = getHandle("binary", "");
+        static final Handle BINARY = getHandle("binary", "");
 
         /**
          * Returns the maximum variable index used in this expression.
@@ -142,11 +142,11 @@ public class IndyCompile extends ClassLoader {
          */
         abstract void compile(MethodVisitor mv);
 
-        private static MethodHandle getHandle(
+        private static Handle getHandle(
             final String name,
             final String optArgs)
         {
-            return new MethodHandle(MH_INVOKESTATIC,
+            return new Handle(H_INVOKESTATIC,
                     "RT",
                     name,
                     "(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/MethodType;"

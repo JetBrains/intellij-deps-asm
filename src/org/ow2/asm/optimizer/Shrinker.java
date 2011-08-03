@@ -45,7 +45,7 @@ import java.util.TreeSet;
 
 import org.ow2.asm.ClassReader;
 import org.ow2.asm.ClassWriter;
-import org.ow2.asm.MethodHandle;
+import org.ow2.asm.Handle;
 import org.ow2.asm.MethodType;
 import org.ow2.asm.Type;
 import org.ow2.asm.commons.Remapper;
@@ -174,9 +174,9 @@ public class Shrinker {
                         if (d == 0) {
                             d = c1.strVal2.compareTo(c2.strVal2);
                             if (d == 0) {
-                                MethodHandle bsm1 = (MethodHandle)c1.objVal3;
-                                MethodHandle bsm2 = (MethodHandle)c2.objVal3;
-                                d = compareMHandle(bsm1, bsm2);
+                                Handle bsm1 = (Handle)c1.objVal3;
+                                Handle bsm2 = (Handle)c2.objVal3;
+                                d = compareHandle(bsm1, bsm2);
                                 if (d == 0) {
                                     d = compareObjects(c1.objVals, c2.objVals);
                                 }
@@ -197,14 +197,14 @@ public class Shrinker {
             return d;
         }
 
-        private static int compareMHandle(MethodHandle mh1, MethodHandle mh2) {
-            int d = mh1.getTag() - mh2.getTag();
+        private static int compareHandle(Handle h1, Handle h2) {
+            int d = h1.getTag() - h2.getTag();
             if (d == 0) {
-                d = mh1.getOwner().compareTo(mh2.getOwner());
+                d = h1.getOwner().compareTo(h2.getOwner());
                 if (d == 0) {
-                    d = mh1.getName().compareTo(mh2.getName());
+                    d = h1.getName().compareTo(h2.getName());
                     if (d == 0) {
-                        d = mh1.getDesc().compareTo(mh2.getDesc());
+                        d = h1.getDesc().compareTo(h2.getDesc());
                     }
                 }
             }
@@ -226,13 +226,13 @@ public class Shrinker {
                     d = objVal1.getClass().getName().compareTo(objVal2.getClass().getName());
                     if (d == 0) {
                         if (objVal1 instanceof Type) {
-                            d = ((Type)objVal1).getDescriptor().compareTo(((Type)objVal2).getDescriptor());
+                            d = ((Type) objVal1).getDescriptor().compareTo(((Type) objVal2).getDescriptor());
                         } else if (objVal1 instanceof MethodType) {
-                            d = compareMethodType((MethodType)objVal1,(MethodType)objVal2);
-                        } else if (objVal1 instanceof MethodHandle) {
-                            d = compareMHandle((MethodHandle)objVal1,(MethodHandle)objVal2);
+                            d = compareMethodType((MethodType) objVal1,(MethodType) objVal2);
+                        } else if (objVal1 instanceof Handle) {
+                            d = compareHandle((Handle) objVal1,(Handle) objVal2);
                         } else {
-                            d = ((Comparable)objVal1).compareTo(objVal2);
+                            d = ((Comparable) objVal1).compareTo(objVal2);
                         }
                     }
 

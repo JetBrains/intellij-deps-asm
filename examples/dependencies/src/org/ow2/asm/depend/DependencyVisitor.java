@@ -39,7 +39,7 @@ import org.ow2.asm.Attribute;
 import org.ow2.asm.ClassVisitor;
 import org.ow2.asm.FieldVisitor;
 import org.ow2.asm.Label;
-import org.ow2.asm.MethodHandle;
+import org.ow2.asm.Handle;
 import org.ow2.asm.MethodType;
 import org.ow2.asm.MethodVisitor;
 import org.ow2.asm.Type;
@@ -204,7 +204,7 @@ public class DependencyVisitor implements
     public void visitInvokeDynamicInsn(
         String name,
         String desc,
-        MethodHandle bsm,
+        Handle bsm,
         Object... bsmArgs)
     {
         addMethodDesc(desc);
@@ -467,10 +467,10 @@ public class DependencyVisitor implements
             addType((Type) cst);
         } else if (cst instanceof MethodType) {
             addMethodDesc(((MethodType) cst).getDescriptor());
-        } else if (cst instanceof MethodHandle) {
-            MethodHandle mHandle = (MethodHandle) cst;
-            addInternalName(mHandle.getOwner());
-            addMethodDesc(mHandle.getDesc());
+        } else if (cst instanceof Handle) {
+            Handle h = (Handle) cst;
+            addInternalName(h.getOwner());
+            addMethodDesc(h.getDesc());
         }
     }
 }

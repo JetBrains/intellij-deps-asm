@@ -252,15 +252,18 @@ public interface MethodVisitor {
 
     /**
      * Visits an invokedynamic instruction.
-     *
+     * 
      * @param name the method's name.
      * @param desc the method's descriptor (see {@link Type Type}).
-     * @param bsm a constant method handle referencing the bootstrap method.
-     * @param bsmArgs an array of constants use as parameters of the bootstrap method.
-     *        This method is allowed to modify the content of the array so
-     *        a caller should expect that this array may change.
+     * @param bsm the bootstrap method.
+     * @param bsmArgs the bootstrap method constant arguments. Each argument
+     *        must be an {@link Integer}, {@link Float}, {@link Long},
+     *        {@link Double}, {@link String}, {@link Type}, {@link MethodType}
+     *        or {@link Handle} value. This method is allowed to modify the
+     *        content of the array so a caller should expect that this array may
+     *        change.
      */
-    void visitInvokeDynamicInsn(String name, String desc, MethodHandle bsm, Object... bsmArgs);
+    void visitInvokeDynamicInsn(String name, String desc, Handle bsm, Object... bsmArgs);
 
     /**
      * Visits a jump instruction. A jump instruction is an instruction that may
@@ -295,7 +298,7 @@ public interface MethodVisitor {
      *        a non null {@link Integer}, a {@link Float}, a {@link Long}, a
      *        {@link Double} a {@link String}, a {@link Type}  for
      *        <tt>.class</tt> constants, for classes whose version is 49.0,
-     *        a {@link MethodType} or a {@link MethodHandle} for constant method type and
+     *        a {@link MethodType} or a {@link Handle} for constant method type and
      *        constant method handle, for classes whose version is 51.0.
      */
     void visitLdcInsn(Object cst);

@@ -32,7 +32,7 @@ package org.ow2.asm.optimizer;
 import java.util.Arrays;
 
 import org.ow2.asm.ClassWriter;
-import org.ow2.asm.MethodHandle;
+import org.ow2.asm.Handle;
 
 /**
  * A constant pool item.
@@ -212,7 +212,7 @@ class Constant {
     void set(
         final String name,
         final String desc,
-        final MethodHandle bsm,
+        final Handle bsm,
         final Object[] bsmArgs)
     {
         this.type = 'y';
@@ -265,13 +265,13 @@ class Constant {
                 cw.newMethod(strVal1, strVal2, (String)objVal3, true);
                 break;
             case 'y':
-                cw.newInvokeDynamic(strVal1, strVal2, (MethodHandle)objVal3, objVals);
+                cw.newInvokeDynamic(strVal1, strVal2, (Handle)objVal3, objVals);
                 break;
             case 't':
                 cw.newMethodType(strVal1);
                 break;
-            default: //'h' ... 'p': method handle
-                cw.newMethodHandle(type - 'h' + 1, strVal1, strVal2, (String)objVal3);
+            default: //'h' ... 'p': handle
+                cw.newHandle(type - 'h' + 1, strVal1, strVal2, (String)objVal3);
         }
     }
 

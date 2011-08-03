@@ -31,7 +31,7 @@ package org.ow2.asm.tree;
 
 import org.ow2.asm.AnnotationVisitor;
 import org.ow2.asm.ClassVisitor;
-import org.ow2.asm.MethodHandle;
+import org.ow2.asm.Handle;
 import org.ow2.asm.MethodVisitor;
 import org.ow2.asm.Label;
 import org.ow2.asm.Opcodes;
@@ -280,7 +280,7 @@ public class MethodNode extends MemberNode implements MethodVisitor {
     public void visitInvokeDynamicInsn(
         String name,
         String desc,
-        MethodHandle bsm,
+        Handle bsm,
         Object... bsmArgs)
     {
         instructions.add(new InvokeDynamicInsnNode(name, desc, bsm, bsmArgs));

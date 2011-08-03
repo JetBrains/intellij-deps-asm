@@ -30,7 +30,7 @@
 package org.ow2.asm.commons;
 
 import org.ow2.asm.Label;
-import org.ow2.asm.MethodHandle;
+import org.ow2.asm.Handle;
 import org.ow2.asm.MethodAdapter;
 import org.ow2.asm.MethodVisitor;
 import org.ow2.asm.Opcodes;
@@ -144,7 +144,7 @@ public class CodeSizeEvaluator extends MethodAdapter implements Opcodes {
     public void visitInvokeDynamicInsn(
         String name,
         String desc,
-        MethodHandle bsm,
+        Handle bsm,
         Object... bsmArgs)
     {
         minSize += 5;

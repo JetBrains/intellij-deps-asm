@@ -39,7 +39,7 @@ import junit.framework.TestCase;
 
 /**
  * Test for the SerialVerionUid computation.
- * 
+ *
  * @author Alexandre Vasseur
  * @author Eric Bruneton
  */
@@ -48,6 +48,10 @@ public class SerialVersionUIDAdderUnitTest extends TestCase implements
 {
 
     protected final static int aField = 32;
+
+    static {
+        System.setIn(System.in);
+    }
 
     public Object[] aMethod() {
         return null;
@@ -70,6 +74,6 @@ public class SerialVersionUIDAdderUnitTest extends TestCase implements
 
     public void test() throws Throwable {
         long UID = computeSerialVersionUID(getClass().getName());
-        assertEquals(194753646298127968L, UID);
+        assertEquals(3712652668441841667L, UID);
     }
 }

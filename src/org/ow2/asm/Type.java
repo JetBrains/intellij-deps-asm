@@ -241,6 +241,7 @@ public class Type {
      * 
      * @param returnType the return type of the method.
      * @param argumentTypes the argument types of the method.
+     * @return the Java type corresponding to the given argument and return types.
      */
     public static Type getMethodType(final Type returnType, final Type... argumentTypes) {
         return getType(getMethodDescriptor(returnType, argumentTypes));

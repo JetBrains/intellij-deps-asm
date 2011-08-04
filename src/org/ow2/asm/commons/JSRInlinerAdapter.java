@@ -73,17 +73,17 @@ public class JSRInlinerAdapter extends MethodNode implements Opcodes {
     private final MethodVisitor mv;
 
     /**
-     * For each label that is jumped to by a JSR, we create a Subroutine
+     * For each label that is jumped to by a JSR, we create a BitSet
      * instance.
      */
-    private final Map<LabelNode,Subroutine> subroutineHeads = new HashMap<LabelNode,Subroutine>();
+    private final Map<LabelNode,BitSet> subroutineHeads = new HashMap<LabelNode,BitSet>();
 
     /**
      * This subroutine instance denotes the line of execution that is not
      * contained within any subroutine; i.e., the "subroutine" that is executing
      * when a method first begins.
      */
-    private final Subroutine mainSubroutine = new Subroutine();
+    private final BitSet mainSubroutine = new BitSet();
 
     /**
      * This BitSet contains the index of every instruction that belongs to more
@@ -127,7 +127,7 @@ public class JSRInlinerAdapter extends MethodNode implements Opcodes {
         super.visitJumpInsn(opcode, lbl);
         LabelNode ln = ((JumpInsnNode) instructions.getLast()).label;
         if (opcode == JSR && !subroutineHeads.containsKey(ln)) {
-            subroutineHeads.put(ln, new Subroutine());
+            subroutineHeads.put(ln, new BitSet());
         }
     }
 
@@ -141,9 +141,9 @@ public class JSRInlinerAdapter extends MethodNode implements Opcodes {
             markSubroutines();
             if (LOGGING) {
                 log(mainSubroutine.toString());
-                Iterator<Subroutine> it = subroutineHeads.values().iterator();
+                Iterator<BitSet> it = subroutineHeads.values().iterator();
                 while (it.hasNext()) {
-                    Subroutine sub = it.next();
+                    BitSet sub = it.next();
                     log(sub.toString());
                 }
             }
@@ -169,11 +169,11 @@ public class JSRInlinerAdapter extends MethodNode implements Opcodes {
 
         // Go through the head of each subroutine and find any nodes reachable
         // to that subroutine without following any JSR links.
-        for (Iterator<Map.Entry<LabelNode,Subroutine>> it = subroutineHeads.entrySet().iterator(); it.hasNext();)
+        for (Iterator<Map.Entry<LabelNode,BitSet>> it = subroutineHeads.entrySet().iterator(); it.hasNext();)
         {
-            Map.Entry<LabelNode,Subroutine> entry = it.next();
+            Map.Entry<LabelNode,BitSet> entry = it.next();
             LabelNode lab = entry.getKey();
-            Subroutine sub = entry.getValue();
+            BitSet sub = entry.getValue();
             int index = instructions.indexOf(lab);
             markSubroutineWalk(sub, index, anyvisited);
         }
@@ -195,7 +195,7 @@ public class JSRInlinerAdapter extends MethodNode implements Opcodes {
      *        subroutine.
      */
     private void markSubroutineWalk(
-        final Subroutine sub,
+        final BitSet sub,
         final int index,
         final BitSet anyvisited)
     {
@@ -220,13 +220,13 @@ public class JSRInlinerAdapter extends MethodNode implements Opcodes {
 
                 // If the handler has already been processed, skip it.
                 int handlerindex = instructions.indexOf(trycatch.handler);
-                if (sub.instructions.get(handlerindex)) {
+                if (sub.get(handlerindex)) {
                     continue;
                 }
 
                 int startindex = instructions.indexOf(trycatch.start);
                 int endindex = instructions.indexOf(trycatch.end);
-                int nextbit = sub.instructions.nextSetBit(startindex);
+                int nextbit = sub.nextSetBit(startindex);
                 if (nextbit != -1 && nextbit < endindex) {
                     if (LOGGING) {
                         log("Adding exception handler: " + startindex + '-'
@@ -252,7 +252,7 @@ public class JSRInlinerAdapter extends MethodNode implements Opcodes {
      *        subroutine.
      */
     private void markSubroutineWalkDFS(
-        final Subroutine sub,
+        final BitSet sub,
         int index,
         final BitSet anyvisited)
     {
@@ -260,10 +260,10 @@ public class JSRInlinerAdapter extends MethodNode implements Opcodes {
             AbstractInsnNode node = instructions.get(index);
 
             // don't visit a node twice
-            if (sub.instructions.get(index)) {
+            if (sub.get(index)) {
                 return;
             }
-            sub.instructions.set(index);
+            sub.set(index);
 
             // check for those nodes already visited by another subroutine
             if (anyvisited.get(index)) {
@@ -435,7 +435,7 @@ public class JSRInlinerAdapter extends MethodNode implements Opcodes {
                 // safe if the input is verifiable).
                 LabelNode retlabel = null;
                 for (Instantiation p = instant; p != null; p = p.previous) {
-                    if (p.subroutine.ownsInstruction(i)) {
+                    if (p.subroutine.get(i)) {
                         retlabel = p.returnLabel;
                     }
                 }
@@ -449,7 +449,7 @@ public class JSRInlinerAdapter extends MethodNode implements Opcodes {
                 newInstructions.add(new JumpInsnNode(GOTO, retlabel));
             } else if (insn.getOpcode() == JSR) {
                 LabelNode lbl = ((JumpInsnNode) insn).label;
-                Subroutine sub = subroutineHeads.get(lbl);
+                BitSet sub = subroutineHeads.get(lbl);
                 Instantiation newinst = new Instantiation(instant, sub);
                 LabelNode startlbl = newinst.gotoLabel(lbl);
 
@@ -539,24 +539,6 @@ public class JSRInlinerAdapter extends MethodNode implements Opcodes {
         System.err.println(str);
     }
 
-    private static class Subroutine {
-
-        public final BitSet instructions = new BitSet();
-
-        public void addInstruction(final int idx) {
-            instructions.set(idx);
-        }
-
-        public boolean ownsInstruction(final int idx) {
-            return instructions.get(idx);
-        }
-
-        @Override
-        public String toString() {
-            return "Subroutine: " + instructions;
-        }
-    }
-
     /**
      * A class that represents an instantiation of a subroutine. Each
      * instantiation has an associate "stack" --- which is a listing of those
@@ -576,7 +558,7 @@ public class JSRInlinerAdapter extends MethodNode implements Opcodes {
         /**
          * The subroutine this is an instantiation of.
          */
-        public final Subroutine subroutine;
+        public final BitSet subroutine;
 
         /**
          * This table maps Labels from the original source to Labels pointing at
@@ -599,7 +581,7 @@ public class JSRInlinerAdapter extends MethodNode implements Opcodes {
          */
         public final LabelNode returnLabel;
 
-        Instantiation(final Instantiation prev, final Subroutine sub) {
+        Instantiation(final Instantiation prev, final BitSet sub) {
             previous = prev;
             subroutine = sub;
             for (Instantiation p = prev; p != null; p = p.previous) {
@@ -671,7 +653,7 @@ public class JSRInlinerAdapter extends MethodNode implements Opcodes {
          *         instantiation.
          */
         public Instantiation findOwner(final int i) {
-            if (!subroutine.ownsInstruction(i)) {
+            if (!subroutine.get(i)) {
                 return null;
             }
             if (!dualCitizens.get(i)) {
@@ -679,7 +661,7 @@ public class JSRInlinerAdapter extends MethodNode implements Opcodes {
             }
             Instantiation own = this;
             for (Instantiation p = previous; p != null; p = p.previous) {
-                if (p.subroutine.ownsInstruction(i)) {
+                if (p.subroutine.get(i)) {
                     own = p;
                 }
             }

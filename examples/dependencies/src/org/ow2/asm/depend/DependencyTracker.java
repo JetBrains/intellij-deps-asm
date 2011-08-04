@@ -168,9 +168,7 @@ public class DependencyTracker {
                             CELLS_SIZE,
                             CELLS_SIZE);
                 }
-
             }
-
         }
 
         // draw labels

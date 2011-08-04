@@ -120,7 +120,7 @@ public class ClassWriterComputeFramesTest extends AbstractTest {
                 final String superName,
                 final String[] interfaces)
             {
-                super.visit(Opcodes.V1_6,
+                super.visit((version & 0xFFFF) < Opcodes.V1_6 ? Opcodes.V1_6 : version,
                         access,
                         name,
                         signature,

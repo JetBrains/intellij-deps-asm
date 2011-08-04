@@ -33,7 +33,6 @@ import org.ow2.asm.AnnotationVisitor;
 import org.ow2.asm.Attribute;
 import org.ow2.asm.Label;
 import org.ow2.asm.Handle;
-import org.ow2.asm.MethodType;
 import org.ow2.asm.Type;
 
 import java.util.Map;
@@ -144,10 +143,6 @@ public class ASMifierAbstractVisitor extends AbstractVisitor {
         } else if (cst instanceof Type) {
             buf.append("Type.getType(\"");
             buf.append(((Type) cst).getDescriptor());
-            buf.append("\")");
-        } else if (cst instanceof MethodType) {
-            buf.append("new MethodType(\"");
-            buf.append(((MethodType) cst).getDescriptor());
             buf.append("\")");
         } else if (cst instanceof Handle) {
             buf.append("new Handle(");

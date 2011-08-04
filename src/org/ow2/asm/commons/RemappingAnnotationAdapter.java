@@ -33,7 +33,7 @@ package org.ow2.asm.commons;
 import org.ow2.asm.AnnotationVisitor;
 
 /**
- * An <code>AnnotationVisitor</code> adapter for type remapping.
+ * An {@link AnnotationVisitor} adapter for type remapping.
  * 
  * @author Eugene Kuleshov
  */

@@ -36,7 +36,7 @@ import org.ow2.asm.Handle;
 import org.ow2.asm.MethodVisitor;
 
 /**
- * A <code>MethodAdapter</code> for type mapping.
+ * A {@link org.ow2.asm.MethodAdapter MethodAdapter} for type mapping.
  *
  * @author Eugene Kuleshov
  */

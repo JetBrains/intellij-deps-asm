@@ -40,7 +40,6 @@ import org.ow2.asm.ClassVisitor;
 import org.ow2.asm.FieldVisitor;
 import org.ow2.asm.Label;
 import org.ow2.asm.Handle;
-import org.ow2.asm.MethodType;
 import org.ow2.asm.MethodVisitor;
 import org.ow2.asm.Type;
 import org.ow2.asm.signature.SignatureReader;
@@ -447,6 +446,9 @@ public class DependencyVisitor implements
             case Type.OBJECT:
                 addName(t.getInternalName());
                 break;
+            case Type.METHOD:
+                addMethodDesc(t.getDescriptor());
+                break;
         }
     }
 
@@ -465,8 +467,6 @@ public class DependencyVisitor implements
     private void addConstant(final Object cst) {
         if (cst instanceof Type) {
             addType((Type) cst);
-        } else if (cst instanceof MethodType) {
-            addMethodDesc(((MethodType) cst).getDescriptor());
         } else if (cst instanceof Handle) {
             Handle h = (Handle) cst;
             addInternalName(h.getOwner());

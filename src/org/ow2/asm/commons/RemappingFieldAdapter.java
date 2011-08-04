@@ -35,7 +35,7 @@ import org.ow2.asm.Attribute;
 import org.ow2.asm.FieldVisitor;
 
 /**
- * A <code>FieldVisitor</code> adapter for type remapping.
+ * A {@link FieldVisitor} adapter for type remapping.
  * 
  * @author Eugene Kuleshov
  */

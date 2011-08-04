@@ -31,7 +31,6 @@
 package org.ow2.asm.commons;
 
 import org.ow2.asm.Handle;
-import org.ow2.asm.MethodType;
 import org.ow2.asm.Type;
 import org.ow2.asm.signature.SignatureReader;
 import org.ow2.asm.signature.SignatureVisitor;
@@ -79,9 +78,9 @@ public abstract class Remapper {
                 return Type.getType(s);
             case Type.OBJECT:
                 s = map(t.getInternalName());
-                if(s != null) {
-                    return Type.getObjectType(s);
-                }
+                return s != null ? Type.getObjectType(s) : t;
+            case Type.METHOD:
+                return Type.getMethodType(mapMethodDesc(t.getDescriptor()));
         }
         return t;
     }
@@ -139,9 +138,6 @@ public abstract class Remapper {
     public Object mapValue(Object value) {
         if (value instanceof Type) {
             return mapType((Type) value);
-        }
-        if (value instanceof MethodType) {
-            return new MethodType(mapMethodDesc(((MethodType) value).getDescriptor()));
         }
         if (value instanceof Handle) {
             Handle h = (Handle) value;
@@ -222,5 +218,4 @@ public abstract class Remapper {
     public String map(String typeName) {
         return typeName;
     }
-
 }

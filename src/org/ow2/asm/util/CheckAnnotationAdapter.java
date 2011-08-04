@@ -69,6 +69,12 @@ public class CheckAnnotationAdapter implements AnnotationVisitor {
         {
             throw new IllegalArgumentException("Invalid annotation value");
         }
+        if (value instanceof Type) {
+            int sort = ((Type) value).getSort();
+            if (sort != Type.OBJECT && sort != Type.ARRAY) {
+                throw new IllegalArgumentException("Invalid annotation value");                
+            }
+        }
         if (av != null) {
             av.visit(name, value);
         }

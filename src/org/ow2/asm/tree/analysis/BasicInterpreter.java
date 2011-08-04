@@ -32,7 +32,6 @@ package org.ow2.asm.tree.analysis;
 import java.util.List;
 
 import org.ow2.asm.Handle;
-import org.ow2.asm.MethodType;
 import org.ow2.asm.Opcodes;
 import org.ow2.asm.Type;
 import org.ow2.asm.tree.AbstractInsnNode;
@@ -116,14 +115,21 @@ public class BasicInterpreter implements Opcodes, Interpreter<BasicValue> {
                     return BasicValue.LONG_VALUE;
                 } else if (cst instanceof Double) {
                     return BasicValue.DOUBLE_VALUE;
+                } else if (cst instanceof String) {
+                    return newValue(Type.getObjectType("java/lang/String"));
                 } else if (cst instanceof Type) {
-                    return newValue(Type.getObjectType("java/lang/Class"));
-                } else if (cst instanceof MethodType) {
-                    return newValue(Type.getObjectType("java/lang/invoke/MethodType"));
+                    int sort = ((Type) cst).getSort();
+                    if (sort == Type.OBJECT || sort == Type.ARRAY) {
+                        return newValue(Type.getObjectType("java/lang/Class"));
+                    } else if (sort == Type.METHOD) {
+                        return newValue(Type.getObjectType("java/lang/invoke/MethodType"));
+                    } else {
+                        throw new IllegalArgumentException("Illegal LDC constant " + cst);
+                    }
                 } else if (cst instanceof Handle) {
                     return newValue(Type.getObjectType("java/lang/invoke/MethodHandle"));
                 } else {
-                    return newValue(Type.getType(cst.getClass()));
+                    throw new IllegalArgumentException("Illegal LDC constant " + cst);
                 }
             case JSR:
                 return BasicValue.RETURNADDRESS_VALUE;

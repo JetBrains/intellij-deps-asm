@@ -33,7 +33,7 @@ package org.ow2.asm.commons;
 import org.ow2.asm.signature.SignatureVisitor;
 
 /**
- * A <code>SignatureVisitor</code> adapter for type mapping.
+ * A {@link SignatureVisitor} adapter for type mapping.
  * 
  * @author Eugene Kuleshov
  */

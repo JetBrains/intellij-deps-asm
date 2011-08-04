@@ -963,11 +963,14 @@ public class ClassWriter implements ClassVisitor {
             return newString((String) cst);
         } else if (cst instanceof Type) {
             Type t = (Type) cst;
-            return newClassItem(t.getSort() == Type.OBJECT
-                    ? t.getInternalName()
-                    : t.getDescriptor());
-        } else if (cst instanceof MethodType) {
-            return newMethodTypeItem(((MethodType) cst).desc);
+            int s = t.getSort();
+            if (s == Type.ARRAY) {
+                return newClassItem(t.getDescriptor());
+            } else if (s == Type.OBJECT) {
+                return newClassItem(t.getInternalName());
+            } else { // s == Type.METHOD
+                return newMethodTypeItem(t.getDescriptor());
+            }
         } else if (cst instanceof Handle) {
             Handle h = (Handle) cst;
             return newHandleItem(h.tag, h.owner, h.name, h.desc);

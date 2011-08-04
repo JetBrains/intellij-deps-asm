@@ -32,7 +32,6 @@ package org.ow2.asm.optimizer;
 import java.util.HashMap;
 
 import org.ow2.asm.Handle;
-import org.ow2.asm.MethodType;
 import org.ow2.asm.Opcodes;
 import org.ow2.asm.Type;
 
@@ -168,12 +167,16 @@ public class ConstantPool extends HashMap<Constant, Constant> {
             return newString((String) cst);
         } else if (cst instanceof Type) {
             Type t = (Type) cst;
-            return newClass(t.getSort() == Type.OBJECT
-                    ? t.getInternalName()
-                    : t.getDescriptor());
-        } else if (cst instanceof MethodType) {
-            MethodType mt = (MethodType) cst;
-            return newMethodType(mt.getDescriptor());
+            int s = t.getSort();
+            if (s == Type.OBJECT) {
+                return newClass(t.getInternalName());
+            } else if (s == Type.ARRAY) {
+                return newClass(t.getDescriptor());
+            } else if (s == Type.METHOD) {
+                return newMethodType(t.getDescriptor());
+            } else {
+                throw new IllegalArgumentException("value " + cst);
+            }
         } else if (cst instanceof Handle) {
             Handle h = (Handle) cst;
             return newHandle(h.getTag(), h.getOwner(), h.getName(), h.getDesc());

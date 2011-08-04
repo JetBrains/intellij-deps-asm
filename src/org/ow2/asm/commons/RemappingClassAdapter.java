@@ -37,7 +37,7 @@ import org.ow2.asm.FieldVisitor;
 import org.ow2.asm.MethodVisitor;
 
 /**
- * A <code>ClassAdapter</code> for type remapping.
+ * A {@link ClassAdapter} for type remapping.
  * 
  * @author Eugene Kuleshov
  */

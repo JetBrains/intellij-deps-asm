@@ -1532,11 +1532,11 @@ public class ClassReader {
                             String idesc = readUTF8(cpIndex + 2, c);
 
                             int mhIndex = readUnsignedShort(bsmIndex);
-                            Handle bsm = (Handle)readConst(mhIndex, c);
+                            Handle bsm = (Handle) readConst(mhIndex, c);
                             int bsmArgCount = readUnsignedShort(bsmIndex + 2);
                             Object[] bsmArgs = new Object[bsmArgCount];
-                            bsmIndex +=4;
-                            for(int a=0; a<bsmArgCount; a++) {
+                            bsmIndex += 4;
+                            for(int a = 0; a < bsmArgCount; a++) {
                                 int argIndex = readUnsignedShort(bsmIndex);
                                 bsmArgs[a] = readConst(argIndex, c);
                                 bsmIndex += 2;
@@ -2170,14 +2170,13 @@ public class ClassReader {
      * Reads a numeric or string constant pool item in {@link #b b}. <i>This
      * method is intended for {@link Attribute} sub classes, and is normally not
      * needed by class generators or adapters.</i>
-     *
+     * 
      * @param item the index of a constant pool item.
      * @param buf buffer to be used to read the item. This buffer must be
      *        sufficiently large. It is not automatically resized.
-     * @return the {@link Integer}, {@link Float}, {@link Long},
-     *         {@link Double}, {@link String}, {@link Type},
-     *         {@link MethodType} or {@link Handle}
-     *         corresponding to the given constant pool item.
+     * @return the {@link Integer}, {@link Float}, {@link Long}, {@link Double},
+     *         {@link String}, {@link Type} or {@link Handle} corresponding to
+     *         the given constant pool item.
      */
     public Object readConst(final int item, final char[] buf) {
         int index = items[item];
@@ -2195,7 +2194,7 @@ public class ClassReader {
             case ClassWriter.STR:
                 return readUTF8(index, buf);
             case ClassWriter.MTYPE:
-                return new MethodType(readUTF8(index, buf));
+                return Type.getMethodType(readUTF8(index, buf));
 
             //case ClassWriter.HANDLE_BASE + [1..9]:
             default: {

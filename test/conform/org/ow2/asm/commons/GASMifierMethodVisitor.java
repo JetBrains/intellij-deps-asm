@@ -31,7 +31,6 @@ package org.ow2.asm.commons;
 
 import org.ow2.asm.AnnotationVisitor;
 import org.ow2.asm.Handle;
-import org.ow2.asm.MethodType;
 import org.ow2.asm.MethodVisitor;
 import org.ow2.asm.Label;
 import org.ow2.asm.Opcodes;
@@ -1062,8 +1061,6 @@ public class GASMifierMethodVisitor extends ASMifierAbstractVisitor implements
             appendString(buf, (String) cst);
         } else if (cst instanceof Type) {
             buf.append("Type.getType(\"").append(cst).append("\")");
-        } else if (cst instanceof MethodType) {
-            buf.append("new MethodType(\"").append(cst).append("\")");
         } else if (cst instanceof Handle) {
             Handle h = (Handle) cst;
             buf.append("new Handle(").append(h.getTag()).

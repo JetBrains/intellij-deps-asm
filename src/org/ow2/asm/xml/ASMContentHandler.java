@@ -39,7 +39,6 @@ import org.ow2.asm.ClassVisitor;
 import org.ow2.asm.FieldVisitor;
 import org.ow2.asm.Label;
 import org.ow2.asm.Handle;
-import org.ow2.asm.MethodType;
 import org.ow2.asm.MethodVisitor;
 import org.ow2.asm.Opcodes;
 import org.ow2.asm.Type;
@@ -528,9 +527,6 @@ public class ASMContentHandler extends DefaultHandler implements Opcodes {
                     value = new Double(val);
                 } else if (Type.getDescriptor(Type.class).equals(desc)) {
                     value = Type.getType(val);
-
-                } else if (Type.getDescriptor(MethodType.class).equals(desc)) {
-                    value = new MethodType(val);
 
                 } else if (Type.getDescriptor(Handle.class).equals(desc)) {
                     value = decodeHandle(val);

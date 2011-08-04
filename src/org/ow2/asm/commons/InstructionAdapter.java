@@ -32,12 +32,17 @@ package org.ow2.asm.commons;
 
 import org.ow2.asm.Label;
 import org.ow2.asm.Handle;
-import org.ow2.asm.MethodType;
 import org.ow2.asm.MethodAdapter;
 import org.ow2.asm.MethodVisitor;
 import org.ow2.asm.Opcodes;
 import org.ow2.asm.Type;
 
+/**
+ * A {@link MethodAdapter} providing a more detailed API to generate and
+ * transform instructions.
+ * 
+ * @author Eric Bruneton
+ */
 public class InstructionAdapter extends MethodAdapter {
 
     public final static Type OBJECT_TYPE = Type.getType("Ljava/lang/Object;");
@@ -618,8 +623,6 @@ public class InstructionAdapter extends MethodAdapter {
             aconst(cst);
         } else if (cst instanceof Type) {
             tconst((Type) cst);
-        } else if (cst instanceof MethodType) {
-            mtconst((MethodType) cst);
         } else if (cst instanceof Handle) {
             hconst((Handle) cst);
         } else {
@@ -710,10 +713,6 @@ public class InstructionAdapter extends MethodAdapter {
 
     public void tconst(final Type type) {
         mv.visitLdcInsn(type);
-    }
-
-    public void mtconst(final MethodType mtype) {
-        mv.visitLdcInsn(mtype);
     }
 
     public void hconst(final Handle handle) {

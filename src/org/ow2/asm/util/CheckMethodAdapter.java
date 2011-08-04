@@ -32,7 +32,6 @@ package org.ow2.asm.util;
 import org.ow2.asm.AnnotationVisitor;
 import org.ow2.asm.Label;
 import org.ow2.asm.Handle;
-import org.ow2.asm.MethodType;
 import org.ow2.asm.MethodAdapter;
 import org.ow2.asm.MethodVisitor;
 import org.ow2.asm.Opcodes;
@@ -976,15 +975,14 @@ public class CheckMethodAdapter extends MethodAdapter {
 
     void checkLDCConstant(final Object cst) {
         if (cst instanceof Type) {
-            if ((version & 0xFFFF) < Opcodes.V1_5) {
+            int s = ((Type) cst).getSort();
+            if (s != Type.OBJECT && s != Type.ARRAY && s != Type.METHOD) {
+                throw new IllegalArgumentException("Illegal LDC constant value");
+            }
+            if (s != Type.METHOD && (version & 0xFFFF) < Opcodes.V1_5) {
                 throw new IllegalArgumentException("ldc of a constant class requires at least version 1.5");
             }
-            int sort = ((Type) cst).getSort();
-            if (sort != Type.OBJECT && sort != Type.ARRAY) {
-                throw new IllegalArgumentException("ldc of a .class constant is limited to non primitive types");                
-            }
-        } else if (cst instanceof MethodType) {
-            if ((version & 0xFFFF) < Opcodes.V1_7) {
+            if (s == Type.METHOD && (version & 0xFFFF) < Opcodes.V1_7) {
                 throw new IllegalArgumentException("ldc of a method type requires at least version 1.7");
             }
         } else if (cst instanceof Handle) {

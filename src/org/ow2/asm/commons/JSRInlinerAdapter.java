@@ -539,7 +539,7 @@ public class JSRInlinerAdapter extends MethodNode implements Opcodes {
         System.err.println(str);
     }
 
-    protected static class Subroutine {
+    private static class Subroutine {
 
         public final BitSet instructions = new BitSet();
 

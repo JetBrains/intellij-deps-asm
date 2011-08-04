@@ -36,7 +36,6 @@ import java.util.List;
 import org.ow2.asm.ClassVisitor;
 import org.ow2.asm.Label;
 import org.ow2.asm.Handle;
-import org.ow2.asm.MethodType;
 import org.ow2.asm.MethodVisitor;
 import org.ow2.asm.Opcodes;
 import org.ow2.asm.Type;
@@ -454,15 +453,6 @@ public class GeneratorAdapter extends LocalVariablesSorter {
                     mv.visitLdcInsn(value);
             }
         }
-    }
-
-    /**
-     * Generates the instruction to push a constant method type on the stack.
-     *
-     * @param methodType the constant method type to be pushed on the stack.
-     */
-    public void push(final MethodType methodType) {
-        mv.visitLdcInsn(methodType);
     }
 
     /**

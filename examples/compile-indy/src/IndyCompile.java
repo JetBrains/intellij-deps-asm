@@ -48,7 +48,6 @@ import java.lang.reflect.Method;
 import org.ow2.asm.ClassWriter;
 import org.ow2.asm.Label;
 import org.ow2.asm.Handle;
-import org.ow2.asm.MethodType;
 import org.ow2.asm.MethodVisitor;
 
 /**
@@ -120,10 +119,17 @@ public class IndyCompile extends ClassLoader {
                     "java/lang/Object",
                     null);
 
+            // eval method type
+            StringBuffer desc = new StringBuffer('(');
+            for (int i = 0; i <= getMaxVarIndex(); ++i) {
+                desc.append("Ljava/lang/Object;");
+            }
+            desc.append(")Ljava/lang/Object;");
+            
             // eval method
             MethodVisitor mv = cw.visitMethod(ACC_PUBLIC | ACC_STATIC,
                     "eval",
-                    new MethodType(getMaxVarIndex() + 1).toString(),
+                    desc.toString(),
                     null,
                     null);
             compile(mv);

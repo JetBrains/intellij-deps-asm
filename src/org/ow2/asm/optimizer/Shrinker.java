@@ -46,7 +46,6 @@ import java.util.TreeSet;
 import org.ow2.asm.ClassReader;
 import org.ow2.asm.ClassWriter;
 import org.ow2.asm.Handle;
-import org.ow2.asm.MethodType;
 import org.ow2.asm.Type;
 import org.ow2.asm.commons.Remapper;
 import org.ow2.asm.commons.SimpleRemapper;
@@ -211,7 +210,7 @@ public class Shrinker {
             return d;
         }
 
-        private static int compareMethodType(MethodType mtype1, MethodType mtype2) {
+        private static int compareType(Type mtype1, Type mtype2) {
             return mtype1.getDescriptor().compareTo(mtype2.getDescriptor());
         }
 
@@ -226,9 +225,7 @@ public class Shrinker {
                     d = objVal1.getClass().getName().compareTo(objVal2.getClass().getName());
                     if (d == 0) {
                         if (objVal1 instanceof Type) {
-                            d = ((Type) objVal1).getDescriptor().compareTo(((Type) objVal2).getDescriptor());
-                        } else if (objVal1 instanceof MethodType) {
-                            d = compareMethodType((MethodType) objVal1,(MethodType) objVal2);
+                            d = compareType((Type) objVal1, (Type) objVal2);
                         } else if (objVal1 instanceof Handle) {
                             d = compareHandle((Handle) objVal1,(Handle) objVal2);
                         } else {

@@ -36,7 +36,6 @@ import java.util.Map;
 
 import org.ow2.asm.Label;
 import org.ow2.asm.Handle;
-import org.ow2.asm.MethodType;
 import org.ow2.asm.MethodAdapter;
 import org.ow2.asm.MethodVisitor;
 import org.ow2.asm.Opcodes;
@@ -393,9 +392,14 @@ public class AnalyzerAdapter extends MethodAdapter {
         } else if (cst instanceof String) {
             push("java/lang/String");
         } else if (cst instanceof Type) {
-            push("java/lang/Class");
-        } else if (cst instanceof MethodType) {
-            push("java/lang/invoke/MethodType");
+            int sort = ((Type) cst).getSort();
+            if (sort == Type.OBJECT || sort == Type.ARRAY) {
+                push("java/lang/Class");
+            } else if (sort == Type.METHOD) {
+                push("java/lang/invoke/MethodType");
+            } else {
+                throw new IllegalArgumentException();
+            }
         } else if (cst instanceof Handle) {
             push("java/lang/invoke/MethodHandle");
         } else {

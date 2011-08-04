@@ -33,6 +33,11 @@ package org.ow2.asm.commons;
 import java.util.Collections;
 import java.util.Map;
 
+/**
+ * A {@link Remapper} using a {@link Map} to define its mapping.
+ * 
+ * @author Eugene Kuleshov
+ */
 public class SimpleRemapper extends Remapper {
 
     private final Map<String, String> mapping;
@@ -61,5 +66,4 @@ public class SimpleRemapper extends Remapper {
     public String map(String key) {
         return mapping.get(key);
     }
-    
 }

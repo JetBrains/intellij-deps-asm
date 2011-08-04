@@ -54,7 +54,9 @@ public class Generator implements Opcodes {
             new Interface(),
             new JSR(),
             new Outer(),
-            new Wide() };
+            new Wide(),
+            new InvokeDynamic() 
+        };
         for (int i = 0; i < generators.length; ++i) {
             generators[i].generate(args[0]);
         }

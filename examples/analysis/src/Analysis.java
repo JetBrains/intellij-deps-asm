@@ -40,6 +40,7 @@ import org.ow2.asm.tree.IincInsnNode;
 import org.ow2.asm.tree.MethodNode;
 import org.ow2.asm.tree.VarInsnNode;
 import org.ow2.asm.tree.analysis.Analyzer;
+import org.ow2.asm.tree.analysis.BasicValue;
 import org.ow2.asm.tree.analysis.BasicVerifier;
 import org.ow2.asm.tree.analysis.SourceInterpreter;
 import org.ow2.asm.tree.analysis.SourceValue;
@@ -61,12 +62,12 @@ public class Analysis implements Opcodes {
             MethodNode method = methods.get(i);
             if (method.instructions.size() > 0) {
                 if (!analyze(cn, method)) {
-                    Analyzer a = new Analyzer(new BasicVerifier());
+                    Analyzer<?> a = new Analyzer<BasicValue>(new BasicVerifier());
                     try {
                         a.analyze(cn.name, method);
                     } catch (Exception ignored) {
                     }
-                    final Frame[] frames = a.getFrames();
+                    final Frame<?>[] frames = a.getFrames();
 
                     TraceMethodVisitor mv = new TraceMethodVisitor() {
                         @Override
@@ -108,13 +109,13 @@ public class Analysis implements Opcodes {
     public static boolean analyze(final ClassNode c, final MethodNode m)
             throws Exception
     {
-        Analyzer a = new Analyzer(new SourceInterpreter());
-        Frame[] frames = a.analyze(c.name, m);
+        Analyzer<SourceValue> a = new Analyzer<SourceValue>(new SourceInterpreter());
+        Frame<SourceValue>[] frames = a.analyze(c.name, m);
 
         // for each xLOAD instruction, we find the xSTORE instructions that can
         // produce the value loaded by this instruction, and we put them in
         // 'stores'
-        Set stores = new HashSet();
+        Set<AbstractInsnNode> stores = new HashSet<AbstractInsnNode>();
         for (int i = 0; i < m.instructions.size(); ++i) {
             AbstractInsnNode insn = m.instructions.get(i);
             int opcode = insn.getOpcode();
@@ -122,12 +123,12 @@ public class Analysis implements Opcodes {
                 int var = opcode == IINC
                         ? ((IincInsnNode) insn).var
                         : ((VarInsnNode) insn).var;
-                Frame f = frames[i];
+                Frame<SourceValue> f = frames[i];
                 if (f != null) {
-                    Set s = ((SourceValue) f.getLocal(var)).insns;
-                    Iterator j = s.iterator();
+                    Set<AbstractInsnNode> s = f.getLocal(var).insns;
+                    Iterator<AbstractInsnNode> j = s.iterator();
                     while (j.hasNext()) {
-                        insn = (AbstractInsnNode) j.next();
+                        insn = j.next();
                         if (insn instanceof VarInsnNode) {
                             stores.add(insn);
                         }

@@ -41,7 +41,15 @@
 
   <!-- Building of a path which contains external jars -->
 
-  <path id="classpath">
+  <path id="compile-classpath">
+    <pathelement path="${asm.debug.path}"/>
+	<fileset dir="${basedir}">
+	  <include name="lib/*.jar"/>
+	</fileset>
+	<pathelement location="${build}"/>
+  </path>	
+	
+  <path id="runtime-classpath">
     <pathelement path="${asm.path}"/>
     <pathelement path="${asm.tree.path}"/>
     <pathelement path="${asm.analysis.path}"/>
@@ -53,6 +61,8 @@
     </fileset>
     <pathelement location="${build}"/>
   </path>
+	
+  
 
   <!-- ================================== -->
   <!--              EXECUTE               -->
@@ -60,7 +70,7 @@
 
   <target name="execute" depends="compile">
     <java classname="${run.classname}"
-      classpathref="classpath" fork="yes" failonerror="yes">
+      classpathref="runtime-classpath" fork="yes" failonerror="yes">
        <arg line="${run.parameters}"/>
     </java>
   </target>
@@ -72,7 +82,7 @@
   <target name="compile">
     <mkdir dir="${build}"/>
     <javac srcdir="${src}" destdir="${build}" debug="on" source="1.5" target="1.5">
-      <classpath refid="classpath"/>
+      <classpath refid="compile-classpath"/>
       <include name="**/*.java"/>
     </javac>
   </target>

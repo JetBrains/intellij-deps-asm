@@ -120,7 +120,7 @@ public class IndyCompile extends ClassLoader {
                     null);
 
             // eval method type
-            StringBuffer desc = new StringBuffer("(");
+            StringBuilder desc = new StringBuilder("(");
             for (int i = 0; i <= getMaxVarIndex(); ++i) {
                 desc.append("Ljava/lang/Object;");
             }

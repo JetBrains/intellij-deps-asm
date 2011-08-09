@@ -152,18 +152,15 @@ public class MethodOptimizer extends RemappingMethodAdapter implements Opcodes {
             mv.visitLabel(l1);
             mv.visitInsn(ARETURN);
             mv.visitLabel(l2);
+            mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/ClassNotFoundException", "getMessage", "()Ljava/lang/String;");
             mv.visitVarInsn(ASTORE, 1);
             mv.visitTypeInsn(NEW, "java/lang/NoClassDefFoundError");
             mv.visitInsn(DUP);
-            mv.visitMethodInsn(INVOKESPECIAL,
-                    "java/lang/NoClassDefFoundError", "<init>", "()V");
             mv.visitVarInsn(ALOAD, 1);
-            mv.visitMethodInsn(INVOKEVIRTUAL,
-                    "java/lang/NoClassDefFoundError",
-                    "initCause",
-                    "(Ljava/lang/Throwable;)Ljava/lang/Throwable;");
+            mv.visitMethodInsn(INVOKESPECIAL,
+                    "java/lang/NoClassDefFoundError", "<init>", "(Ljava/lang/String;)V");
             mv.visitInsn(ATHROW);
-            mv.visitMaxs(2, 2);
+            mv.visitMaxs(3, 2);
             mv.visitEnd();
 
             classOptimizer.class$ = true;

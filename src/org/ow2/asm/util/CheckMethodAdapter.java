@@ -1599,7 +1599,7 @@ public class CheckMethodAdapter extends MethodAdapter {
     }
 
     /**
-     * Checks that the given lavel is not a label used only for debug purposes.
+     * Checks that the given label is not a label used only for debug purposes.
      * 
      * @param label the label to be checked.
      */

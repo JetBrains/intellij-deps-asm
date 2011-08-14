@@ -574,30 +574,37 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 		<artifact:install file="${out.dist.lib}/asm-parent-${product.artifact}.pom">
 			<artifact:pom file="${out.dist.lib}/asm-parent-${product.artifact}.pom" />
+			<artifact:attach file="${out.dist}/src.zip" type="jar" classifier="sources" />
 		</artifact:install>
 
 		<artifact:install file="${out.dist.lib}/asm-${product.artifact}.jar">
 			<artifact:pom file="${out.dist.lib}/asm-${product.artifact}.pom" />
+			<artifact:attach file="${out.dist}/src.zip" type="jar" classifier="sources" />
 		</artifact:install>
 
 		<artifact:install file="${out.dist.lib}/asm-analysis-${product.artifact}.jar">
 			<artifact:pom file="${out.dist.lib}/asm-analysis-${product.artifact}.pom" />
+			<artifact:attach file="${out.dist}/src.zip" type="jar" classifier="sources" />
 		</artifact:install>
 
 		<artifact:install file="${out.dist.lib}/asm-commons-${product.artifact}.jar">
 			<artifact:pom file="${out.dist.lib}/asm-commons-${product.artifact}.pom" />
+			<artifact:attach file="${out.dist}/src.zip" type="jar" classifier="sources" />
 		</artifact:install>
 
 		<artifact:install file="${out.dist.lib}/asm-tree-${product.artifact}.jar">
 			<artifact:pom file="${out.dist.lib}/asm-tree-${product.artifact}.pom" />
+			<artifact:attach file="${out.dist}/src.zip" type="jar" classifier="sources" />
 		</artifact:install>
 
 		<artifact:install file="${out.dist.lib}/asm-util-${product.artifact}.jar">
 			<artifact:pom file="${out.dist.lib}/asm-util-${product.artifact}.pom" />
+			<artifact:attach file="${out.dist}/src.zip" type="jar" classifier="sources" />
 		</artifact:install>
 
 		<artifact:install file="${out.dist.lib}/asm-xml-${product.artifact}.jar">
 			<artifact:pom file="${out.dist.lib}/asm-xml-${product.artifact}.pom" />
+			<artifact:attach file="${out.dist}/src.zip" type="jar" classifier="sources" />
 		</artifact:install>
 
 		<artifact:install file="${out.dist.lib}/all/asm-all-${product.artifact}.jar">

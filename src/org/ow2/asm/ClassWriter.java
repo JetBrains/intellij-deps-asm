@@ -1571,9 +1571,10 @@ public class ClassWriter implements ClassVisitor {
     protected String getCommonSuperClass(final String type1, final String type2)
     {
         Class<?> c, d;
+        ClassLoader classLoader = getClass().getClassLoader();
         try {
-            c = Class.forName(type1.replace('/', '.'), false, null);
-            d = Class.forName(type2.replace('/', '.'), false, null);
+            c = Class.forName(type1.replace('/', '.'), false, classLoader);
+            d = Class.forName(type2.replace('/', '.'), false, classLoader);
         } catch (Exception e) {
             throw new RuntimeException(e.toString());
         }

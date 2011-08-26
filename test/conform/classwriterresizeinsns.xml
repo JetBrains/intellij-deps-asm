@@ -33,13 +33,13 @@
   <target name="test.normal" unless="coverage">
     <jar jarfile="${out.test}/agent4.jar">
       <fileset dir="${out}/build">
-        <include name="org/ow2/asm/**/*.class"/>
+        <include name="org/objectweb/asm/**/*.class"/>
       </fileset>
       <fileset dir="${out}/test">
-        <include name="org/ow2/asm/**/*.class"/>
+        <include name="org/objectweb/asm/**/*.class"/>
       </fileset>
       <manifest>
-        <attribute name="Premain-Class" value="org.ow2.asm.ClassWriterResizeInsnsTest"/>
+        <attribute name="Premain-Class" value="org.objectweb.asm.ClassWriterResizeInsnsTest"/>
       </manifest>
     </jar>
     <condition property="testclasses" value="${asm.test.class}">
@@ -72,14 +72,14 @@
   <target name="test.coverage" if="coverage">
     <jar jarfile="${out.test}/agent4.jar">
       <fileset dir="${out}/instr">
-        <include name="org/ow2/asm/**/*.class"/>
+        <include name="org/objectweb/asm/**/*.class"/>
       </fileset>
       <fileset dir="${out}/test">
-        <include name="org/ow2/asm/*.class"/>
-        <include name="org/ow2/asm/attrs/*.class"/>
+        <include name="org/objectweb/asm/*.class"/>
+        <include name="org/objectweb/asm/attrs/*.class"/>
       </fileset>
       <manifest>
-        <attribute name="Premain-Class" value="org.ow2.asm.ClassWriterResizeInsnsTest"/>
+        <attribute name="Premain-Class" value="org.objectweb.asm.ClassWriterResizeInsnsTest"/>
       </manifest>
     </jar>
     <junit fork="yes" 

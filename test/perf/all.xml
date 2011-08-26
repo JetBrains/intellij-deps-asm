@@ -30,7 +30,7 @@
 
 <project name="perf" default="test">
   <target name="test">
-    <java classname="org.ow2.asm.ALLPerfTest" fork="yes">
+    <java classname="org.objectweb.asm.ALLPerfTest" fork="yes">
       <classpath>
         <pathelement location="${out.build}"/>
         <pathelement location="${out.test}"/>
@@ -47,6 +47,7 @@
       </classpath>
       <jvmarg value="-Dasm.test.class=${asm.test.class}" /> 
       <jvmarg value="-Xmx512M" /> 
+      <jvmarg value="-Drepeats=5" /> 
     </java>
   </target>
 </project>

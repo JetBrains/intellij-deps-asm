@@ -31,24 +31,24 @@
  * THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import static org.ow2.asm.Opcodes.ACC_PUBLIC;
-import static org.ow2.asm.Opcodes.ACC_STATIC;
-import static org.ow2.asm.Opcodes.ALOAD;
-import static org.ow2.asm.Opcodes.ARETURN;
-import static org.ow2.asm.Opcodes.DUP;
-import static org.ow2.asm.Opcodes.IFEQ;
-import static org.ow2.asm.Opcodes.IFNE;
-import static org.ow2.asm.Opcodes.H_INVOKESTATIC;
-import static org.ow2.asm.Opcodes.POP;
-import static org.ow2.asm.Opcodes.V1_7;
+import static org.objectweb.asm.Opcodes.ACC_PUBLIC;
+import static org.objectweb.asm.Opcodes.ACC_STATIC;
+import static org.objectweb.asm.Opcodes.ALOAD;
+import static org.objectweb.asm.Opcodes.ARETURN;
+import static org.objectweb.asm.Opcodes.DUP;
+import static org.objectweb.asm.Opcodes.H_INVOKESTATIC;
+import static org.objectweb.asm.Opcodes.IFEQ;
+import static org.objectweb.asm.Opcodes.IFNE;
+import static org.objectweb.asm.Opcodes.POP;
+import static org.objectweb.asm.Opcodes.V1_7;
 
 import java.io.FileOutputStream;
 import java.lang.reflect.Method;
 
-import org.ow2.asm.ClassWriter;
-import org.ow2.asm.Label;
-import org.ow2.asm.Handle;
-import org.ow2.asm.MethodVisitor;
+import org.objectweb.asm.ClassWriter;
+import org.objectweb.asm.Handle;
+import org.objectweb.asm.Label;
+import org.objectweb.asm.MethodVisitor;
 
 /**
  * @author Remi Forax

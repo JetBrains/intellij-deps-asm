@@ -35,10 +35,10 @@
            printsummary="yes"
            errorproperty="test.failed"
            failureproperty="test.failed">
-      <test name="org.ow2.asm.tree.analysis.SimpleVerifierTest" 
+      <test name="org.objectweb.asm.tree.analysis.SimpleVerifierTest" 
             fork="yes" 
             todir="${out.test}/reports"
-            outfile="TEST-org.ow2.asm.tree.analysis.SimpleVerifierTest-1">
+            outfile="TEST-org.objectweb.asm.tree.analysis.SimpleVerifierTest-1">
       </test>
       <formatter type="xml"/>
       <classpath refid="test.classpath"/>
@@ -54,10 +54,10 @@
            printsummary="yes"
            errorproperty="test.failed"
            failureproperty="test.failed">
-      <test name="org.ow2.asm.tree.analysis.SimpleVerifierTest" 
+      <test name="org.objectweb.asm.tree.analysis.SimpleVerifierTest" 
             fork="yes" 
             todir="${out.test}/reports"
-            outfile="TEST-org.ow2.asm.tree.analysis.SimpleVerifierTest-2">
+            outfile="TEST-org.objectweb.asm.tree.analysis.SimpleVerifierTest-2">
       </test>
       <formatter type="xml"/>
       <classpath refid="test.classpath"/>

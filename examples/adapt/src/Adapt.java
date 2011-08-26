@@ -27,20 +27,18 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
  * THE POSSIBILITY OF SUCH DAMAGE.
  */
-import org.ow2.asm.FieldVisitor;
-import org.ow2.asm.ClassAdapter;
-import org.ow2.asm.ClassReader;
-import org.ow2.asm.ClassVisitor;
-import org.ow2.asm.ClassWriter;
-import org.ow2.asm.MethodAdapter;
-import org.ow2.asm.MethodVisitor;
-import org.ow2.asm.Opcodes;
-import org.ow2.asm.Type;
-
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Method;
+
+import org.objectweb.asm.ClassReader;
+import org.objectweb.asm.ClassVisitor;
+import org.objectweb.asm.ClassWriter;
+import org.objectweb.asm.FieldVisitor;
+import org.objectweb.asm.MethodVisitor;
+import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.Type;
 
 /**
  * @author Eric Bruneton
@@ -102,12 +100,12 @@ public class Adapt extends ClassLoader {
     }
 }
 
-class TraceFieldClassAdapter extends ClassAdapter implements Opcodes {
+class TraceFieldClassAdapter extends ClassVisitor implements Opcodes {
 
     private String owner;
 
     public TraceFieldClassAdapter(final ClassVisitor cv) {
-        super(cv);
+        super(Opcodes.ASM4, cv);
     }
 
     @Override
@@ -201,12 +199,12 @@ class TraceFieldClassAdapter extends ClassAdapter implements Opcodes {
     }
 }
 
-class TraceFieldCodeAdapter extends MethodAdapter implements Opcodes {
+class TraceFieldCodeAdapter extends MethodVisitor implements Opcodes {
 
     private String owner;
 
     public TraceFieldCodeAdapter(final MethodVisitor mv, final String owner) {
-        super(mv);
+        super(Opcodes.ASM4, mv);
         this.owner = owner;
     }
 

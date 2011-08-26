@@ -41,18 +41,18 @@
 
   <name>ASM</name>
   <description>A very small and fast Java bytecode manipulation framework</description>
-  <url>http://asm.ow2.org/</url>
+  <url>http://asm.objectweb.org/</url>
   
   <organization>
     <name>ObjectWeb</name>
-    <url>http://www.ow2.org/</url>
+    <url>http://www.objectweb.org/</url>
   </organization>
   <inceptionYear>2000</inceptionYear>
   
   <licenses>
     <license>
       <name>BSD</name>
-      <url>http://asm.ow2.org/license.html</url>
+      <url>http://asm.objectweb.org/license.html</url>
     </license>
   </licenses>
 
@@ -139,17 +139,17 @@
   <mailingLists>
     <mailingList>
       <name>ASM Users List</name>
-      <subscribe>sympa@ow2.org?subject=subscribe%20asm</subscribe>
-      <unsubscribe>sympa@ow2.org?subject=unsubscribe%20asm</unsubscribe>
-      <post>asm@ow2.org</post>
-      <archive>http://www.ow2.org/wws/arc/asm</archive>
+      <subscribe>sympa@objectweb.org?subject=subscribe%20asm</subscribe>
+      <unsubscribe>sympa@objectweb.org?subject=unsubscribe%20asm</unsubscribe>
+      <post>asm@objectweb.org</post>
+      <archive>http://www.objectweb.org/wws/arc/asm</archive>
     </mailingList>
     <mailingList>
       <name>ASM Team List</name>
-      <subscribe>sympa@ow2.org?subject=subscribe%20asm-team</subscribe>
-      <unsubscribe>sympa@ow2.org?subject=unsubscribe%20asm-team</unsubscribe>
-      <post>asm-team@ow2.org</post>
-      <archive>http://www.ow2.org/wws/arc/asm-team</archive>
+      <subscribe>sympa@objectweb.org?subject=subscribe%20asm-team</subscribe>
+      <unsubscribe>sympa@objectweb.org?subject=unsubscribe%20asm-team</unsubscribe>
+      <post>asm-team@objectweb.org</post>
+      <archive>http://www.objectweb.org/wws/arc/asm-team</archive>
     </mailingList>
   </mailingLists>
 

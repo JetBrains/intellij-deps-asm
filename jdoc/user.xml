@@ -48,15 +48,15 @@
              use="true">
 
       <sourcepath path="${src}"/>
-      <package name="org.ow2.asm"/>
-      <package name="org.ow2.asm.attrs"/>
-      <package name="org.ow2.asm.commons"/>
-      <package name="org.ow2.asm.signature"/>
-      <package name="org.ow2.asm.tree"/>
-      <package name="org.ow2.asm.tree.analysis"/>
-      <package name="org.ow2.asm.util"/>
-      <package name="org.ow2.asm.util.attrs"/>
-      <package name="org.ow2.asm.xml"/>
+      <package name="org.objectweb.asm"/>
+      <package name="org.objectweb.asm.attrs"/>
+      <package name="org.objectweb.asm.commons"/>
+      <package name="org.objectweb.asm.signature"/>
+      <package name="org.objectweb.asm.tree"/>
+      <package name="org.objectweb.asm.tree.analysis"/>
+      <package name="org.objectweb.asm.util"/>
+      <package name="org.objectweb.asm.util.attrs"/>
+      <package name="org.objectweb.asm.xml"/>
 
       <link href="${jdk.url}" offline="true" packagelistLoc="${jdoc}"/>
 

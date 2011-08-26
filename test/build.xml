@@ -131,7 +131,7 @@
       <include name="**/*.java"/>
     </javac>
     <delete dir="${out.test}/cases"/>
-    <java classname="org.ow2.asm.test.cases.Generator">
+    <java classname="org.objectweb.asm.test.cases.Generator">
       <classpath>
         <pathelement location="${out.build}"/>
         <pathelement location="${out.test}"/>

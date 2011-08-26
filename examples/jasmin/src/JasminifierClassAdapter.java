@@ -34,24 +34,22 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.ow2.asm.ClassAdapter;
-import org.ow2.asm.ClassReader;
-import org.ow2.asm.ClassVisitor;
-import org.ow2.asm.Label;
-import org.ow2.asm.Opcodes;
-import org.ow2.asm.Type;
-import org.ow2.asm.commons.EmptyVisitor;
-import org.ow2.asm.tree.AbstractInsnNode;
-import org.ow2.asm.tree.AnnotationNode;
-import org.ow2.asm.tree.ClassNode;
-import org.ow2.asm.tree.FieldNode;
-import org.ow2.asm.tree.InnerClassNode;
-import org.ow2.asm.tree.LabelNode;
-import org.ow2.asm.tree.LocalVariableNode;
-import org.ow2.asm.tree.MemberNode;
-import org.ow2.asm.tree.MethodNode;
-import org.ow2.asm.tree.TryCatchBlockNode;
-import org.ow2.asm.util.AbstractVisitor;
+import org.objectweb.asm.ClassReader;
+import org.objectweb.asm.ClassVisitor;
+import org.objectweb.asm.Label;
+import org.objectweb.asm.MethodVisitor;
+import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.Type;
+import org.objectweb.asm.tree.AbstractInsnNode;
+import org.objectweb.asm.tree.AnnotationNode;
+import org.objectweb.asm.tree.ClassNode;
+import org.objectweb.asm.tree.FieldNode;
+import org.objectweb.asm.tree.InnerClassNode;
+import org.objectweb.asm.tree.LabelNode;
+import org.objectweb.asm.tree.LocalVariableNode;
+import org.objectweb.asm.tree.MethodNode;
+import org.objectweb.asm.tree.TryCatchBlockNode;
+import org.objectweb.asm.util.AbstractVisitor;
 
 /**
  * A {@link ClassVisitor} that prints a disassembled view of the classes it
@@ -100,7 +98,7 @@ import org.ow2.asm.util.AbstractVisitor;
  *
  * @author Eric Bruneton
  */
-public class JasminifierClassAdapter extends ClassAdapter {
+public class JasminifierClassAdapter extends ClassVisitor {
 
     /**
      * The print writer to be used to print the class.
@@ -165,7 +163,7 @@ public class JasminifierClassAdapter extends ClassAdapter {
      */
     public JasminifierClassAdapter(final PrintWriter pw, final ClassVisitor cv)
     {
-        super(new ClassNode() {
+        super(Opcodes.ASM4, new ClassNode() {
             @Override
             public void visitEnd() {
                 if (cv != null) {
@@ -213,7 +211,8 @@ public class JasminifierClassAdapter extends ClassAdapter {
         if ((cn.access & Opcodes.ACC_DEPRECATED) != 0) {
             pw.println(".deprecated");
         }
-        printAnnotations(cn);
+        printAnnotations(cn.visibleAnnotations, 1);
+        printAnnotations(cn.invisibleAnnotations, 2);
         println(".debug ", cn.sourceDebug == null
                 ? null
                 : '"' + cn.sourceDebug + '"');
@@ -281,7 +280,8 @@ public class JasminifierClassAdapter extends ClassAdapter {
             if (deprecated) {
                 pw.println(".deprecated");
             }
-            printAnnotations(fn);
+            printAnnotations(fn.visibleAnnotations, 1);
+            printAnnotations(fn.invisibleAnnotations, 2);
             if (deprecated || annotations) {
                 pw.println(".end field");
             }
@@ -304,27 +304,18 @@ public class JasminifierClassAdapter extends ClassAdapter {
                 printAnnotationValue(mn.annotationDefault);
                 pw.println(".end annotation");
             }
-            printAnnotations(mn);
+            printAnnotations(mn.visibleAnnotations, 1);
+            printAnnotations(mn.invisibleAnnotations, 2);
             if (mn.visibleParameterAnnotations != null) {
                 for (int j = 0; j < mn.visibleParameterAnnotations.length; ++j)
                 {
-                    List<AnnotationNode> l = mn.visibleParameterAnnotations[j];
-                    if (l != null) {
-                        for (int k = 0; k < l.size(); ++k) {
-                            printAnnotation(l.get(k), 1, j + 1);
-                        }
-                    }
+                    printAnnotations(mn.visibleParameterAnnotations[j], 1);
                 }
             }
             if (mn.invisibleParameterAnnotations != null) {
                 for (int j = 0; j < mn.invisibleParameterAnnotations.length; ++j)
                 {
-                    List<AnnotationNode> l = mn.invisibleParameterAnnotations[j];
-                    if (l != null) {
-                        for (int k = 0; k < l.size(); ++k) {
-                            printAnnotation(l.get(k), 2, j + 1);
-                        }
-                    }
+                    printAnnotations(mn.invisibleParameterAnnotations[j], 2);
                 }
             }
             for (int j = 0; j < mn.exceptions.size(); ++j) {
@@ -349,7 +340,7 @@ public class JasminifierClassAdapter extends ClassAdapter {
                 }
                 for (int j = 0; j < mn.instructions.size(); ++j) {
                     AbstractInsnNode in = mn.instructions.get(j);
-                    in.accept(new EmptyVisitor() {
+                    in.accept(new MethodVisitor(Opcodes.ASM4) {
 
                         @Override
                         public void visitFrame(
@@ -689,18 +680,11 @@ public class JasminifierClassAdapter extends ClassAdapter {
         print(l.getLabel());
     }
 
-    protected void printAnnotations(final MemberNode n) {
-        if (n.visibleAnnotations != null) {
-            for (int j = 0; j < n.visibleAnnotations.size(); ++j) {
-                printAnnotation(n.visibleAnnotations.get(j),
-                        1,
-                        -1);
-            }
-        }
-        if (n.invisibleAnnotations != null) {
-            for (int j = 0; j < n.invisibleAnnotations.size(); ++j) {
-                printAnnotation(n.invisibleAnnotations.get(j),
-                        2,
+    protected void printAnnotations(final List<AnnotationNode> annotations, int visible) {
+        if (annotations != null) {
+            for (int j = 0; j < annotations.size(); ++j) {
+                printAnnotation(annotations.get(j),
+                        visible,
                         -1);
             }
         }

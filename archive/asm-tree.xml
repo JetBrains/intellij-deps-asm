@@ -35,7 +35,7 @@
   <target name="build-jar">
     <jar jarfile="${out.dist.lib}/${ant.project.name}-${product.artifact}.jar"
          basedir="${out.build}">
-      <include name="org/ow2/asm/tree/*.class"/>
+      <include name="org/objectweb/asm/tree/*.class"/>
       <manifest>
         <attribute name="Implementation-Title" value="ASM Tree class visitor"/>
         <attribute name="Implementation-Version" value="${product.artifact}"/> 

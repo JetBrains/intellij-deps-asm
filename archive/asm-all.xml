@@ -36,8 +36,8 @@
     <mkdir dir="${out.dist.lib}/all"/>
     <jar jarfile="${out.dist.lib}/all/${ant.project.name}-${product.artifact}.jar"
          basedir="${out.build}">
-      <include name="org/ow2/asm/**/*.class"/>
-      <exclude name="org/ow2/asm/optimizer/*.class"/>
+      <include name="org/objectweb/asm/**/*.class"/>
+      <exclude name="org/objectweb/asm/optimizer/*.class"/>
       <manifest>
         <attribute name="Implementation-Title" value="ASM all classes"/>
         <attribute name="Implementation-Version" value="${product.artifact}"/> 
@@ -47,9 +47,9 @@
         <attribute name="Bundle-Name"      value="ASM all classes"/>
         <attribute name="Bundle-Vendor"    value="France Telecom R&amp;D"/>
         <attribute name="Bundle-Version"   value="${product.artifact}"/>
-        <attribute name="Bundle-DocURL"    value="http://asm.ow2.org"/>
-        <attribute name="Bundle-SymbolicName" value="org.ow2.asm.all"/>
-        <attribute name="Export-Package" value="org.ow2.asm;version=${product.artifact},org.ow2.asm.signature;version=${product.artifact},org.ow2.asm.commons;version=${product.artifact},org.ow2.asm.tree;version=${product.artifact},org.ow2.asm.tree.analysis;version=${product.artifact},org.ow2.asm.util;version=${product.artifact},org.ow2.asm.xml;version=${product.artifact}"/>
+        <attribute name="Bundle-DocURL"    value="http://asm.objectweb.org"/>
+        <attribute name="Bundle-SymbolicName" value="org.objectweb.asm.all"/>
+        <attribute name="Export-Package" value="org.objectweb.asm;version=${product.artifact},org.objectweb.asm.signature;version=${product.artifact},org.objectweb.asm.commons;version=${product.artifact},org.objectweb.asm.tree;version=${product.artifact},org.objectweb.asm.tree.analysis;version=${product.artifact},org.objectweb.asm.util;version=${product.artifact},org.objectweb.asm.xml;version=${product.artifact}"/>
         <attribute name="Bundle-RequiredExecutionEnvironment" value="J2SE-1.3"/>
       </manifest>
     </jar>

@@ -32,20 +32,22 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-import org.ow2.asm.ClassReader;
-import org.ow2.asm.Opcodes;
-import org.ow2.asm.tree.AbstractInsnNode;
-import org.ow2.asm.tree.ClassNode;
-import org.ow2.asm.tree.IincInsnNode;
-import org.ow2.asm.tree.MethodNode;
-import org.ow2.asm.tree.VarInsnNode;
-import org.ow2.asm.tree.analysis.Analyzer;
-import org.ow2.asm.tree.analysis.BasicValue;
-import org.ow2.asm.tree.analysis.BasicVerifier;
-import org.ow2.asm.tree.analysis.SourceInterpreter;
-import org.ow2.asm.tree.analysis.SourceValue;
-import org.ow2.asm.tree.analysis.Frame;
-import org.ow2.asm.util.TraceMethodVisitor;
+import org.objectweb.asm.ClassReader;
+import org.objectweb.asm.MethodVisitor;
+import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.tree.AbstractInsnNode;
+import org.objectweb.asm.tree.ClassNode;
+import org.objectweb.asm.tree.IincInsnNode;
+import org.objectweb.asm.tree.MethodNode;
+import org.objectweb.asm.tree.VarInsnNode;
+import org.objectweb.asm.tree.analysis.Analyzer;
+import org.objectweb.asm.tree.analysis.BasicValue;
+import org.objectweb.asm.tree.analysis.BasicVerifier;
+import org.objectweb.asm.tree.analysis.Frame;
+import org.objectweb.asm.tree.analysis.SourceInterpreter;
+import org.objectweb.asm.tree.analysis.SourceValue;
+import org.objectweb.asm.util.TraceMethodVisitor;
+import org.objectweb.asm.util.TraceVisitor;
 
 /**
  * @author Eric Bruneton
@@ -69,7 +71,7 @@ public class Analysis implements Opcodes {
                     }
                     final Frame<?>[] frames = a.getFrames();
 
-                    TraceMethodVisitor mv = new TraceMethodVisitor() {
+                    TraceVisitor tv = new TraceVisitor() {
                         @Override
                         public void visitMaxs(
                             final int maxStack,
@@ -91,6 +93,7 @@ public class Analysis implements Opcodes {
                             System.err.println();
                         }
                     };
+                    MethodVisitor mv = new TraceMethodVisitor(tv);
                     for (int j = 0; j < method.instructions.size(); ++j) {
                         Object insn = method.instructions.get(j);
                         ((AbstractInsnNode) insn).accept(mv);

@@ -46,20 +46,19 @@ import java.util.zip.ZipFile;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
-import org.ow2.asm.Attribute;
-import org.ow2.asm.ByteVector;
-import org.ow2.asm.ClassAdapter;
-import org.ow2.asm.ClassReader;
-import org.ow2.asm.ClassVisitor;
-import org.ow2.asm.ClassWriter;
-import org.ow2.asm.Label;
-import org.ow2.asm.Opcodes;
-import org.ow2.asm.util.TraceClassVisitor;
+import org.objectweb.asm.Attribute;
+import org.objectweb.asm.ByteVector;
+import org.objectweb.asm.ClassReader;
+import org.objectweb.asm.ClassVisitor;
+import org.objectweb.asm.ClassWriter;
+import org.objectweb.asm.Label;
+import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.util.TraceClassVisitor;
 
-class ClassFilter extends ClassAdapter {
+class ClassFilter extends ClassVisitor {
 
     public ClassFilter() {
-        super(null);
+        super(Opcodes.ASM4, null);
     }
 
     public void setNext(final ClassVisitor cv) {

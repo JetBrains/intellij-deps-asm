@@ -35,7 +35,7 @@
   <target name="build-jar">
     <jar jarfile="${out.dist.lib}/${ant.project.name}-${product.artifact}.jar"
          basedir="${out.build}">
-      <include name="org/ow2/asm/commons/*.class"/>
+      <include name="org/objectweb/asm/commons/*.class"/>
       <manifest>
         <attribute name="Implementation-Title" value="ASM commons"/>
         <attribute name="Implementation-Version" value="${product.artifact}"/> 

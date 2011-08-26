@@ -32,9 +32,9 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintWriter;
 
-import org.ow2.asm.ClassWriter;
-import org.ow2.asm.jbfc.BFCompiler;
-import org.ow2.asm.util.TraceClassVisitor;
+import org.objectweb.asm.ClassWriter;
+import org.objectweb.asm.jbfc.BFCompiler;
+import org.objectweb.asm.util.TraceClassVisitor;
 
 /**
  * A naive implementation of compiler for Brain**** language.

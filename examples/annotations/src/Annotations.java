@@ -32,15 +32,14 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.ow2.asm.AnnotationVisitor;
-import org.ow2.asm.ClassAdapter;
-import org.ow2.asm.ClassReader;
-import org.ow2.asm.ClassWriter;
-import org.ow2.asm.Label;
-import org.ow2.asm.MethodAdapter;
-import org.ow2.asm.MethodVisitor;
-import org.ow2.asm.Opcodes;
-import org.ow2.asm.Type;
+import org.objectweb.asm.AnnotationVisitor;
+import org.objectweb.asm.ClassReader;
+import org.objectweb.asm.ClassVisitor;
+import org.objectweb.asm.ClassWriter;
+import org.objectweb.asm.Label;
+import org.objectweb.asm.MethodVisitor;
+import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.Type;
 
 public class Annotations {
 
@@ -61,7 +60,7 @@ public class Annotations {
         final String n = Annotations.class.getName();
         final ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_MAXS);
         ClassReader cr = new ClassReader(n);
-        cr.accept(new ClassAdapter(cw) {
+        cr.accept(new ClassVisitor(Opcodes.ASM4, cw) {
 
             @Override
             public MethodVisitor visitMethod(
@@ -77,7 +76,7 @@ public class Annotations {
                         desc,
                         signature,
                         exceptions);
-                return new MethodAdapter(v) {
+                return new MethodVisitor(Opcodes.ASM4, v) {
 
                     private final List<Integer> params = new ArrayList<Integer>();
 

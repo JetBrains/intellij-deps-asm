@@ -1,0 +1,256 @@
+/***
+ * ASM: a very small and fast Java bytecode manipulation framework
+ * Copyright (c) 2000-2007 INRIA, France Telecom
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ * 1. Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in the
+ *    documentation and/or other materials provided with the distribution.
+ * 3. Neither the name of the copyright holders nor the names of its
+ *    contributors may be used to endorse or promote products derived from
+ *    this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
+ * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
+ * THE POSSIBILITY OF SUCH DAMAGE.
+ */
+package org.objectweb.asm.util;
+
+import org.objectweb.asm.AnnotationVisitor;
+import org.objectweb.asm.Attribute;
+import org.objectweb.asm.Handle;
+import org.objectweb.asm.Label;
+import org.objectweb.asm.MethodVisitor;
+import org.objectweb.asm.Opcodes;
+
+/**
+ * A {@link MethodVisitor} that prints a disassembled view of the methods it
+ * visits.
+ *
+ * @author Eric Bruneton
+ */
+public final class TraceMethodVisitor extends MethodVisitor {
+
+    TraceVisitor tv;
+
+    public TraceMethodVisitor(final TraceVisitor tv) {
+        this(null, tv);
+    }
+
+    public TraceMethodVisitor(final MethodVisitor mv, final TraceVisitor tv) {
+        super(Opcodes.ASM4, mv);
+        this.tv = tv;
+    }
+
+    void setNext(MethodVisitor mv) {
+        this.mv = mv;
+    }
+
+    @Override
+    public AnnotationVisitor visitAnnotation(
+        final String desc,
+        final boolean visible)
+    {
+        return tv.visitMethodAnnotation(mv, desc, visible);
+    }
+
+    @Override
+    public void visitAttribute(final Attribute attr) {
+        tv.visitAttribute(attr);
+        super.visitAttribute(attr);
+    }
+
+    @Override
+    public AnnotationVisitor visitAnnotationDefault() {
+        return tv.visitAnnotationDefault(mv);
+    }
+
+    @Override
+    public AnnotationVisitor visitParameterAnnotation(
+        final int parameter,
+        final String desc,
+        final boolean visible)
+    {
+        return tv.visitParameterAnnotation(mv, parameter, desc, visible);
+    }
+
+    @Override
+    public void visitCode() {
+        super.visitCode();
+    }
+
+    @Override
+    public void visitFrame(
+        final int type,
+        final int nLocal,
+        final Object[] local,
+        final int nStack,
+        final Object[] stack)
+    {
+        tv.visitFrame(type, nLocal, local, nStack, stack);
+        super.visitFrame(type, nLocal, local, nStack, stack);
+    }
+
+    @Override
+    public void visitInsn(final int opcode) {
+        tv.visitInsn(opcode);
+        super.visitInsn(opcode);
+    }
+
+    @Override
+    public void visitIntInsn(final int opcode, final int operand) {
+        tv.visitIntInsn(opcode, operand);
+        super.visitIntInsn(opcode, operand);
+    }
+
+    @Override
+    public void visitVarInsn(final int opcode, final int var) {
+        tv.visitVarInsn(opcode, var);
+        super.visitVarInsn(opcode, var);
+    }
+
+    @Override
+    public void visitTypeInsn(final int opcode, final String type) {
+        tv.visitTypeInsn(opcode, type);
+        super.visitTypeInsn(opcode, type);
+    }
+
+    @Override
+    public void visitFieldInsn(
+        final int opcode,
+        final String owner,
+        final String name,
+        final String desc)
+    {
+        tv.visitFieldInsn(opcode, owner, name, desc);
+        super.visitFieldInsn(opcode, owner, name, desc);
+    }
+
+    @Override
+    public void visitMethodInsn(
+        final int opcode,
+        final String owner,
+        final String name,
+        final String desc)
+    {
+        tv.visitMethodInsn(opcode, owner, name, desc);
+        super.visitMethodInsn(opcode, owner, name, desc);
+    }
+
+    @Override
+    public void visitInvokeDynamicInsn(
+        String name,
+        String desc,
+        Handle bsm,
+        Object... bsmArgs)
+    {
+        tv.visitInvokeDynamicInsn(name, desc, bsm, bsmArgs);
+        super.visitInvokeDynamicInsn(name, desc, bsm, bsmArgs);
+    }
+
+    @Override
+    public void visitJumpInsn(final int opcode, final Label label) {
+        tv.visitJumpInsn(opcode, label);
+        super.visitJumpInsn(opcode, label);
+    }
+
+    @Override
+    public void visitLabel(final Label label) {
+        tv.visitLabel(label);
+        super.visitLabel(label);
+    }
+
+    @Override
+    public void visitLdcInsn(final Object cst) {
+        tv.visitLdcInsn(cst);
+        super.visitLdcInsn(cst);
+    }
+
+    @Override
+    public void visitIincInsn(final int var, final int increment) {
+        tv.visitIincInsn(var, increment);
+        super.visitIincInsn(var, increment);
+    }
+
+    @Override
+    public void visitTableSwitchInsn(
+        final int min,
+        final int max,
+        final Label dflt,
+        final Label... labels)
+    {
+        tv.visitTableSwitchInsn(min, max, dflt, labels);
+        super.visitTableSwitchInsn(min, max, dflt, labels);
+    }
+
+    @Override
+    public void visitLookupSwitchInsn(
+        final Label dflt,
+        final int[] keys,
+        final Label[] labels)
+    {
+        tv.visitLookupSwitchInsn(dflt, keys, labels);
+        super.visitLookupSwitchInsn(dflt, keys, labels);
+    }
+
+    @Override
+    public void visitMultiANewArrayInsn(final String desc, final int dims) {
+        tv.visitMultiANewArrayInsn(desc, dims);
+        super.visitMultiANewArrayInsn(desc, dims);
+    }
+
+    @Override
+    public void visitTryCatchBlock(
+        final Label start,
+        final Label end,
+        final Label handler,
+        final String type)
+    {
+        tv.visitTryCatchBlock(start, end, handler, type);
+        super.visitTryCatchBlock(start, end, handler, type);
+    }
+
+    @Override
+    public void visitLocalVariable(
+        final String name,
+        final String desc,
+        final String signature,
+        final Label start,
+        final Label end,
+        final int index)
+    {
+        tv.visitLocalVariable(name, desc, signature, start, end, index);
+        super.visitLocalVariable(name, desc, signature, start, end, index);
+    }
+
+    @Override
+    public void visitLineNumber(final int line, final Label start) {
+        tv.visitLineNumber(line, start);
+        super.visitLineNumber(line, start);
+    }
+
+    @Override
+    public void visitMaxs(final int maxStack, final int maxLocals) {
+        tv.visitMaxs(maxStack, maxLocals);
+        super.visitMaxs(maxStack, maxLocals);
+    }
+
+    @Override
+    public void visitEnd() {
+        tv.visitMethodEnd();
+        super.visitEnd();
+    }
+}

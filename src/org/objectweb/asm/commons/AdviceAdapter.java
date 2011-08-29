@@ -41,7 +41,7 @@ import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
 /**
- * A {@link org.objectweb.asm.MethodAdapter} to insert before, after and around
+ * A {@link org.objectweb.asm.MethodVisitor} to insert before, after and around
  * advices in methods and constructors. <p> The behavior for constructors is
  * like this: <ol>
  *
@@ -60,21 +60,21 @@ import org.objectweb.asm.Type;
  */
 public abstract class AdviceAdapter extends GeneratorAdapter implements Opcodes
 {
-    
+
     private static final Object THIS = new Object();
-    
+
     private static final Object OTHER = new Object();
 
     protected int methodAccess;
-    
+
     protected String methodDesc;
 
     private boolean constructor;
-    
+
     private boolean superInitialized;
-    
+
     private List<Object> stackFrame;
-    
+
     private Map<Label, List<Object>> branches;
 
     /**

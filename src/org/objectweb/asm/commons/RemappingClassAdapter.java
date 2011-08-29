@@ -37,14 +37,14 @@ import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 
 /**
- * A {@link ClassAdapter} for type remapping.
- * 
+ * A {@link ClassVisitor} for type remapping.
+ *
  * @author Eugene Kuleshov
  */
 public class RemappingClassAdapter extends ClassVisitor {
 
     protected final Remapper remapper;
-    
+
     protected String className;
 
     public RemappingClassAdapter(final ClassVisitor cv, final Remapper remapper)
@@ -76,7 +76,7 @@ public class RemappingClassAdapter extends ClassVisitor {
                 remapper.mapType(name),
                 remapper.mapSignature(signature, false),
                 remapper.mapType(superName),
-                interfaces == null ? null 
+                interfaces == null ? null
                         : remapper.mapTypes(interfaces));
     }
 
@@ -135,15 +135,15 @@ public class RemappingClassAdapter extends ClassVisitor {
 
     @Override
     public void visitOuterClass(String owner, String name, String desc) {
-        super.visitOuterClass(remapper.mapType(owner), 
-                name == null ? null : remapper.mapMethodName(owner, name, desc), 
+        super.visitOuterClass(remapper.mapType(owner),
+                name == null ? null : remapper.mapMethodName(owner, name, desc),
                 desc == null ? null : remapper.mapMethodDesc(desc));
     }
 
     protected FieldVisitor createRemappingFieldAdapter(FieldVisitor fv) {
         return new RemappingFieldAdapter(fv, remapper);
     }
-    
+
     protected MethodVisitor createRemappingMethodAdapter(
         int access,
         String newDesc,

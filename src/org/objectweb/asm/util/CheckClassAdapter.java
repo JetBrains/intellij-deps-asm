@@ -54,7 +54,7 @@ import org.objectweb.asm.tree.analysis.Frame;
 import org.objectweb.asm.tree.analysis.SimpleVerifier;
 
 /**
- * A {@link ClassAdapter} that checks that its methods are properly used. More
+ * A {@link ClassVisitor} that checks that its methods are properly used. More
  * precisely this class adapter checks each method call individually, based
  * <i>only</i> on its arguments, but does <i>not</i> check the <i>sequence</i>
  * of method calls. For example, the invalid sequence
@@ -126,7 +126,7 @@ public class CheckClassAdapter extends ClassVisitor {
      * The class version number.
      */
     private int version;
-    
+
     /**
      * <tt>true</tt> if the visit method has been called.
      */
@@ -309,7 +309,7 @@ public class CheckClassAdapter extends ClassVisitor {
      * Constructs a new {@link CheckClassAdapter}. <i>Subclasses must not use
      * this constructor</i>. Instead, they must use the
      * {@link #CheckClassAdapter(int, ClassVisitor, boolean)} version.
-     * 
+     *
      * @param cv the class visitor to which this adapter must delegate calls.
      */
     public CheckClassAdapter(final ClassVisitor cv) {
@@ -320,7 +320,7 @@ public class CheckClassAdapter extends ClassVisitor {
      * Constructs a new {@link CheckClassAdapter}. <i>Subclasses must not use
      * this constructor</i>. Instead, they must use the
      * {@link #CheckClassAdapter(int, ClassVisitor, boolean)} version.
-     * 
+     *
      * @param cv the class visitor to which this adapter must delegate calls.
      * @param checkDataFlow <tt>true</tt> to perform basic data flow checks, or
      *        <tt>false</tt> to not perform any data flow check (see

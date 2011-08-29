@@ -41,7 +41,7 @@ import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
 /**
- * A {@link MethodAdapter} that keeps track of stack map frame changes between
+ * A {@link MethodVisitor} that keeps track of stack map frame changes between
  * {@link #visitFrame(int, int, Object[], int, Object[]) visitFrame} calls. This
  * adapter must be used with the
  * {@link org.objectweb.asm.ClassReader#EXPAND_FRAMES} option. Each visit<i>X</i>
@@ -124,7 +124,7 @@ public class AnalyzerAdapter extends MethodVisitor {
      * constructor</i>. Instead, they must use the
      * {@link #AnalyzerAdapter(int, String, int, String, String, MethodVisitor)}
      * version.
-     * 
+     *
      * @param owner the owner's class name.
      * @param access the method's access flags (see {@link Opcodes}).
      * @param name the method's name.
@@ -141,10 +141,10 @@ public class AnalyzerAdapter extends MethodVisitor {
     {
         this(Opcodes.ASM4, owner, access, name, desc, mv);
     }
-    
+
     /**
      * Creates a new {@link AnalyzerAdapter}.
-     * 
+     *
      * @param api the ASM API version implemented by this visitor. Must be one
      *        of {@link Opcodes#ASM4}.
      * @param owner the owner's class name.

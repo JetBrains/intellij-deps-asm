@@ -33,10 +33,10 @@ Provides a small and fast bytecode manipulation framework.
 
 <p>
 The <a href="http://www.objectweb.org/asm">ASM</a> framework is organized
-around the {@link org.objectweb.asm.ClassVisitor ClassVisitor}, 
-{@link org.objectweb.asm.FieldVisitor FieldVisitor} and 
+around the {@link org.objectweb.asm.ClassVisitor ClassVisitor},
+{@link org.objectweb.asm.FieldVisitor FieldVisitor} and
 {@link org.objectweb.asm.MethodVisitor MethodVisitor} interfaces, which allow
-one to visit the fields and methods of a class, including the bytecode 
+one to visit the fields and methods of a class, including the bytecode
 instructions of each method.
 
 <p>
@@ -64,17 +64,16 @@ that delegates most of the work to another {@link org.objectweb.asm.ClassVisitor
 ClassVisitor}, but that sometimes changes some parameter values,
 or call additional methods, in order to implement the desired
 modification process. In order to make it easier to implement such
-class modifiers, ASM provides the {@link org.objectweb.asm.ClassAdapter
-ClassAdapter} and {@link org.objectweb.asm.MethodAdapter MethodAdapter}
-classes, which implement the {@link org.objectweb.asm.ClassVisitor ClassVisitor} 
-and {@link org.objectweb.asm.MethodVisitor MethodVisitor} interfaces by 
-delegating all work to other visitors. See the "adapt" example in the ASM 
+class modifiers, the {@link org.objectweb.asm.ClassVisitor
+ClassVisitor} and {@link org.objectweb.asm.MethodVisitor MethodVisitor}
+classes delegate by default all the method call they receive to an
+optional visitor. See the "adapt" example in the ASM
 distribution for more details about class modification.
 
 <p>
 The size of the core ASM library, <tt>asm.jar</tt>, is only 42KB, which is much
-smaller than the size of the 
-<a href="http://jakarta.apache.org/bcel">BCEL</a> library (504KB), and than the 
+smaller than the size of the
+<a href="http://jakarta.apache.org/bcel">BCEL</a> library (504KB), and than the
 size of the
 <a href="http://serp.sourceforge.net">SERP</a> library (150KB). ASM is also
 much faster than these tools. Indeed the overhead of a load time class

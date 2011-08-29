@@ -55,11 +55,11 @@ import org.objectweb.asm.tree.TableSwitchInsnNode;
 import org.objectweb.asm.tree.TryCatchBlockNode;
 
 /**
- * A {@link org.objectweb.asm.MethodAdapter} that removes JSR instructions and
+ * A {@link org.objectweb.asm.MethodVisitor} that removes JSR instructions and
  * inlines the referenced subroutines.
- * 
+ *
  * <b>Explanation of how it works</b> TODO
- * 
+ *
  * @author Niko Matsakis
  */
 public class JSRInlinerAdapter extends MethodNode implements Opcodes {
@@ -90,7 +90,7 @@ public class JSRInlinerAdapter extends MethodNode implements Opcodes {
      * constructor</i>. Instead, they must use the
      * {@link #JSRInlinerAdapter(int, MethodVisitor, int, String, String, String, String[])}
      * version.
-     * 
+     *
      * @param mv the <code>MethodVisitor</code> to send the resulting inlined
      *        method code to (use <code>null</code> for none).
      * @param access the method's access flags (see {@link Opcodes}). This
@@ -116,7 +116,7 @@ public class JSRInlinerAdapter extends MethodNode implements Opcodes {
 
     /**
      * Creates a new JSRInliner.
-     * 
+     *
      * @param api the ASM API version implemented by this visitor. Must be one
      *        of {@link Opcodes#ASM4}.
      * @param mv the <code>MethodVisitor</code> to send the resulting inlined
@@ -213,7 +213,7 @@ public class JSRInlinerAdapter extends MethodNode implements Opcodes {
      * codes which are reachable through an exception that may be thrown during
      * the execution of the subroutine. Invoked from
      * <code>markSubroutines()</code>.
-     * 
+     *
      * @param sub the subroutine whose instructions must be computed.
      * @param index an instruction of this subroutine.
      * @param anyvisited indexes of the already visited instructions, i.e.
@@ -270,7 +270,7 @@ public class JSRInlinerAdapter extends MethodNode implements Opcodes {
      * Performs a simple DFS of the instructions, assigning each to the
      * subroutine <code>sub</code>. Starts from <code>index</code>.
      * Invoked only by <code>markSubroutineWalk()</code>.
-     * 
+     *
      * @param sub the subroutine whose instructions must be computed.
      * @param index an instruction of this subroutine.
      * @param anyvisited indexes of the already visited instructions, i.e.
@@ -390,7 +390,7 @@ public class JSRInlinerAdapter extends MethodNode implements Opcodes {
      * <code>instant</code>. May add new instantiations that are invoked by
      * this one to the <code>worklist</code> parameter, and new try/catch
      * blocks to <code>newTryCatchBlocks</code>.
-     * 
+     *
      * @param instant the instantiation that must be performed.
      * @param worklist list of the instantiations that remain to be done.
      * @param newInstructions the instruction list to which the instantiated
@@ -590,14 +590,14 @@ public class JSRInlinerAdapter extends MethodNode implements Opcodes {
          * This table maps Labels from the original source to Labels pointing at
          * code specific to this instantiation, for use in remapping try/catch
          * blocks,as well as gotos.
-         * 
+         *
          * Note that in the presence of dual citizens instructions, that is,
          * instructions which belong to more than one subroutine due to the
          * merging of control flow without a RET instruction, we will map the
          * target label of a GOTO to the label used by the instantiation lowest
          * on the stack. This avoids code duplication during inlining in most
          * cases.
-         * 
+         *
          * @see #findOwner(int)
          */
         public final Map<LabelNode, LabelNode> rangeTable = new HashMap<LabelNode, LabelNode>();
@@ -660,20 +660,20 @@ public class JSRInlinerAdapter extends MethodNode implements Opcodes {
          * Returns the "owner" of a particular instruction relative to this
          * instantiation: the owner referes to the Instantiation which will emit
          * the version of this instruction that we will execute.
-         * 
+         *
          * Typically, the return value is either <code>this</code> or
          * <code>null</code>. <code>this</code> indicates that this
          * instantiation will generate the version of this instruction that we
          * will execute, and <code>null</code> indicates that this
          * instantiation never executes the given instruction.
-         * 
+         *
          * Sometimes, however, an instruction can belong to multiple
          * subroutines; this is called a "dual citizen" instruction (though it
          * may belong to more than 2 subroutines), and occurs when multiple
          * subroutines branch to common points of control. In this case, the
          * owner is the subroutine that appears lowest on the stack, and which
          * also owns the instruction in question.
-         * 
+         *
          * @param i the index of the instruction in the original code
          * @return the "owner" of a particular instruction relative to this
          *         instantiation.
@@ -699,7 +699,7 @@ public class JSRInlinerAdapter extends MethodNode implements Opcodes {
          * thus translating it from a Label in the original code, to a Label in
          * the inlined code that is appropriate for use by an instruction that
          * branched to the original label.
-         * 
+         *
          * @param l The label we will be translating
          * @return a label for use by a branch instruction in the inlined code
          * @see #rangeLabel
@@ -716,7 +716,7 @@ public class JSRInlinerAdapter extends MethodNode implements Opcodes {
          * thus translating it from a Label in the original code, to a Label in
          * the inlined code that is appropriate for use by an try/catch or
          * variable use annotation.
-         * 
+         *
          * @param l The label we will be translating
          * @return a label for use by a try/catch or variable annotation in the
          *         original code

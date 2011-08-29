@@ -32,8 +32,8 @@ package org.objectweb.asm;
 import junit.framework.TestSuite;
 
 /**
- * ClassAdapter tests.
- * 
+ * ClassVisitor tests.
+ *
  * @author Eric Bruneton
  */
 public class ClassAdapterTest extends AbstractTest {
@@ -126,7 +126,7 @@ public class ClassAdapterTest extends AbstractTest {
         public AnnotationAdapter(final AnnotationVisitor av) {
             super(Opcodes.ASM4, av);
         }
-        
+
         @Override
         public AnnotationVisitor visitAnnotation(String name, String desc) {
             return new AnnotationAdapter(super.visitAnnotation(name, desc));
@@ -137,7 +137,7 @@ public class ClassAdapterTest extends AbstractTest {
             return new AnnotationAdapter(super.visitArray(name));
         }
     }
-    
+
     // ------------------------------------------------------------------------
 
     static class TestClassLoader extends ClassLoader {

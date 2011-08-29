@@ -52,7 +52,7 @@ import org.objectweb.asm.tree.analysis.BasicValue;
 import org.objectweb.asm.tree.analysis.BasicVerifier;
 
 /**
- * A {@link MethodAdapter} that checks that its methods are properly used. More
+ * A {@link MethodVisitor} that checks that its methods are properly used. More
  * precisely this method adapter checks each instruction individually, i.e.,
  * each visit method checks some preconditions based <i>only</i> on its
  * arguments - such as the fact that the given opcode is correct for a given
@@ -64,7 +64,7 @@ import org.objectweb.asm.tree.analysis.BasicVerifier;
  * checks are enabled. These checks are enabled by using the
  * {@link #CheckMethodAdapter(int,String,String,MethodVisitor,Map)} constructor.
  * They are not performed if any other constructor is used.
- * 
+ *
  * @author Eric Bruneton
  */
 public class CheckMethodAdapter extends MethodVisitor {
@@ -93,7 +93,7 @@ public class CheckMethodAdapter extends MethodVisitor {
      * Number of visited instructions.
      */
     private int insnCount;
-    
+
     /**
      * The already visited labels. This map associate Integer values to pseudo
      * code offsets.
@@ -351,7 +351,7 @@ public class CheckMethodAdapter extends MethodVisitor {
      * {@link #CheckMethodAdapter(int,String,String,MethodVisitor,Map)}).
      * <i>Subclasses must not use this constructor</i>. Instead, they must use
      * the {@link #CheckMethodAdapter(int, MethodVisitor, Map)} version.
-     * 
+     *
      * @param mv the method visitor to which this adapter must delegate calls.
      */
     public CheckMethodAdapter(final MethodVisitor mv) {
@@ -364,7 +364,7 @@ public class CheckMethodAdapter extends MethodVisitor {
      * {@link #CheckMethodAdapter(int,String,String,MethodVisitor,Map)}).
      * <i>Subclasses must not use this constructor</i>. Instead, they must use
      * the {@link #CheckMethodAdapter(int, MethodVisitor, Map)} version.
-     * 
+     *
      * @param mv the method visitor to which this adapter must delegate calls.
      * @param labels a map of already visited labels (in other methods).
      */
@@ -379,7 +379,7 @@ public class CheckMethodAdapter extends MethodVisitor {
      * Constructs a new {@link CheckMethodAdapter} object. This method adapter
      * will not perform any data flow check (see
      * {@link #CheckMethodAdapter(int,String,String,MethodVisitor,Map)}).
-     * 
+     *
      * @param mv the method visitor to which this adapter must delegate calls.
      * @param labels a map of already visited labels (in other methods).
      */
@@ -399,7 +399,7 @@ public class CheckMethodAdapter extends MethodVisitor {
      * will perform basic data flow checks. For instance in a method whose
      * signature is <tt>void m ()</tt>, the invalid instruction IRETURN, or the
      * invalid sequence IADD L2I will be detected.
-     * 
+     *
      * @param access the method's access flags.
      * @param name the method's name.
      * @param desc the method's descriptor (see {@link Type Type}).
@@ -903,7 +903,7 @@ public class CheckMethodAdapter extends MethodVisitor {
 
     /**
      * Checks a stack frame value.
-     * 
+     *
      * @param value the value to be checked.
      */
     void checkFrameValue(final Object value) {
@@ -928,7 +928,7 @@ public class CheckMethodAdapter extends MethodVisitor {
 
     /**
      * Checks that the type of the given opcode is equal to the given type.
-     * 
+     *
      * @param opcode the opcode to be checked.
      * @param type the expected opcode type.
      */
@@ -940,7 +940,7 @@ public class CheckMethodAdapter extends MethodVisitor {
 
     /**
      * Checks that the given value is a signed byte.
-     * 
+     *
      * @param value the value to be checked.
      * @param msg an message to be used in case of error.
      */
@@ -953,7 +953,7 @@ public class CheckMethodAdapter extends MethodVisitor {
 
     /**
      * Checks that the given value is a signed short.
-     * 
+     *
      * @param value the value to be checked.
      * @param msg an message to be used in case of error.
      */
@@ -966,7 +966,7 @@ public class CheckMethodAdapter extends MethodVisitor {
 
     /**
      * Checks that the given value is an unsigned short.
-     * 
+     *
      * @param value the value to be checked.
      * @param msg an message to be used in case of error.
      */
@@ -980,7 +980,7 @@ public class CheckMethodAdapter extends MethodVisitor {
     /**
      * Checks that the given value is an {@link Integer}, a{@link Float}, a
      * {@link Long}, a {@link Double} or a {@link String}.
-     * 
+     *
      * @param cst the value to be checked.
      */
     static void checkConstant(final Object cst) {
@@ -1020,7 +1020,7 @@ public class CheckMethodAdapter extends MethodVisitor {
 
     /**
      * Checks that the given string is a valid unqualified name.
-     * 
+     *
      * @param version the class version.
      * @param name the string to be checked.
      * @param msg a message to be used in case of error.
@@ -1044,7 +1044,7 @@ public class CheckMethodAdapter extends MethodVisitor {
 
     /**
      * Checks that the given string is a valid Java identifier.
-     * 
+     *
      * @param name the string to be checked.
      * @param msg a message to be used in case of error.
      */
@@ -1054,7 +1054,7 @@ public class CheckMethodAdapter extends MethodVisitor {
 
     /**
      * Checks that the given substring is a valid Java identifier.
-     * 
+     *
      * @param name the string to be checked.
      * @param start index of the first character of the identifier (inclusive).
      * @param end index of the last character of the identifier (exclusive). -1
@@ -1089,7 +1089,7 @@ public class CheckMethodAdapter extends MethodVisitor {
     /**
      * Checks that the given string is a valid Java identifier or is equal to
      * '&lt;init&gt;' or '&lt;clinit&gt;'.
-     * 
+     *
      * @param version the class version.
      * @param name the string to be checked.
      * @param msg a message to be used in case of error.
@@ -1133,7 +1133,7 @@ public class CheckMethodAdapter extends MethodVisitor {
 
     /**
      * Checks that the given string is a valid internal class name.
-     * 
+     *
      * @param name the string to be checked.
      * @param msg a message to be used in case of error.
      */
@@ -1151,7 +1151,7 @@ public class CheckMethodAdapter extends MethodVisitor {
 
     /**
      * Checks that the given substring is a valid internal class name.
-     * 
+     *
      * @param name the string to be checked.
      * @param start index of the first character of the identifier (inclusive).
      * @param end index of the last character of the identifier (exclusive). -1
@@ -1187,7 +1187,7 @@ public class CheckMethodAdapter extends MethodVisitor {
 
     /**
      * Checks that the given string is a valid type descriptor.
-     * 
+     *
      * @param desc the string to be checked.
      * @param canBeVoid <tt>true</tt> if <tt>V</tt> can be considered valid.
      */
@@ -1200,7 +1200,7 @@ public class CheckMethodAdapter extends MethodVisitor {
 
     /**
      * Checks that a the given substring is a valid type descriptor.
-     * 
+     *
      * @param desc the string to be checked.
      * @param start index of the first character of the identifier (inclusive).
      * @param canBeVoid <tt>true</tt> if <tt>V</tt> can be considered valid.
@@ -1264,7 +1264,7 @@ public class CheckMethodAdapter extends MethodVisitor {
 
     /**
      * Checks that the given string is a valid method descriptor.
-     * 
+     *
      * @param desc the string to be checked.
      */
     static void checkMethodDesc(final String desc) {
@@ -1292,7 +1292,7 @@ public class CheckMethodAdapter extends MethodVisitor {
 
     /**
      * Checks a class signature.
-     * 
+     *
      * @param signature a string containing the signature that must be checked.
      */
     static void checkClassSignature(final String signature) {
@@ -1315,7 +1315,7 @@ public class CheckMethodAdapter extends MethodVisitor {
 
     /**
      * Checks a method signature.
-     * 
+     *
      * @param signature a string containing the signature that must be checked.
      */
     static void checkMethodSignature(final String signature) {
@@ -1353,7 +1353,7 @@ public class CheckMethodAdapter extends MethodVisitor {
 
     /**
      * Checks a field signature.
-     * 
+     *
      * @param signature a string containing the signature that must be checked.
      */
     static void checkFieldSignature(final String signature) {
@@ -1366,7 +1366,7 @@ public class CheckMethodAdapter extends MethodVisitor {
 
     /**
      * Checks the formal type parameters of a class or method signature.
-     * 
+     *
      * @param signature a string containing the signature that must be checked.
      * @param pos index of first character to be checked.
      * @return the index of the first character after the checked part.
@@ -1386,7 +1386,7 @@ public class CheckMethodAdapter extends MethodVisitor {
 
     /**
      * Checks a formal type parameter of a class or method signature.
-     * 
+     *
      * @param signature a string containing the signature that must be checked.
      * @param pos index of first character to be checked.
      * @return the index of the first character after the checked part.
@@ -1409,7 +1409,7 @@ public class CheckMethodAdapter extends MethodVisitor {
 
     /**
      * Checks a field type signature.
-     * 
+     *
      * @param signature a string containing the signature that must be checked.
      * @param pos index of first character to be checked.
      * @return the index of the first character after the checked part.
@@ -1434,7 +1434,7 @@ public class CheckMethodAdapter extends MethodVisitor {
 
     /**
      * Checks a class type signature.
-     * 
+     *
      * @param signature a string containing the signature that must be checked.
      * @param pos index of first character to be checked.
      * @return the index of the first character after the checked part.
@@ -1464,7 +1464,7 @@ public class CheckMethodAdapter extends MethodVisitor {
 
     /**
      * Checks the type arguments in a class type signature.
-     * 
+     *
      * @param signature a string containing the signature that must be checked.
      * @param pos index of first character to be checked.
      * @return the index of the first character after the checked part.
@@ -1483,7 +1483,7 @@ public class CheckMethodAdapter extends MethodVisitor {
 
     /**
      * Checks a type argument in a class type signature.
-     * 
+     *
      * @param signature a string containing the signature that must be checked.
      * @param pos index of first character to be checked.
      * @return the index of the first character after the checked part.
@@ -1503,7 +1503,7 @@ public class CheckMethodAdapter extends MethodVisitor {
 
     /**
      * Checks a type variable signature.
-     * 
+     *
      * @param signature a string containing the signature that must be checked.
      * @param pos index of first character to be checked.
      * @return the index of the first character after the checked part.
@@ -1522,7 +1522,7 @@ public class CheckMethodAdapter extends MethodVisitor {
 
     /**
      * Checks a type signature.
-     * 
+     *
      * @param signature a string containing the signature that must be checked.
      * @param pos index of first character to be checked.
      * @return the index of the first character after the checked part.
@@ -1548,7 +1548,7 @@ public class CheckMethodAdapter extends MethodVisitor {
 
     /**
      * Checks an identifier.
-     * 
+     *
      * @param signature a string containing the signature that must be checked.
      * @param pos index of first character to be checked.
      * @return the index of the first character after the checked part.
@@ -1567,7 +1567,7 @@ public class CheckMethodAdapter extends MethodVisitor {
 
     /**
      * Checks a single character.
-     * 
+     *
      * @param signature a string containing the signature that must be checked.
      * @param pos index of first character to be checked.
      * @return the index of the first character after the checked part.
@@ -1583,7 +1583,7 @@ public class CheckMethodAdapter extends MethodVisitor {
 
     /**
      * Returns the signature car at the given index.
-     * 
+     *
      * @param signature a signature.
      * @param pos an index in signature.
      * @return the character at the given index, or 0 if there is no such
@@ -1596,7 +1596,7 @@ public class CheckMethodAdapter extends MethodVisitor {
     /**
      * Checks that the given label is not null. This method can also check that
      * the label has been visited.
-     * 
+     *
      * @param label the label to be checked.
      * @param checkVisited <tt>true</tt> to check that the label has been
      *        visited.
@@ -1619,7 +1619,7 @@ public class CheckMethodAdapter extends MethodVisitor {
 
     /**
      * Checks that the given label is not a label used only for debug purposes.
-     * 
+     *
      * @param label the label to be checked.
      */
     private static void checkNonDebugLabel(final Label label) {
@@ -1637,7 +1637,7 @@ public class CheckMethodAdapter extends MethodVisitor {
 
     /**
      * Returns the Field object corresponding to the Label.status field.
-     * 
+     *
      * @return the Field object corresponding to the Label.status field.
      */
     private static Field getLabelStatusField() {
@@ -1652,7 +1652,7 @@ public class CheckMethodAdapter extends MethodVisitor {
 
     /**
      * Returns the field of the Label class whose name is given.
-     * 
+     *
      * @param name a field name.
      * @return the field of the Label class whose name is given, or null.
      */

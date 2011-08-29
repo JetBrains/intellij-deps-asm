@@ -40,13 +40,13 @@ import org.objectweb.asm.commons.Remapper;
 import org.objectweb.asm.commons.RemappingMethodAdapter;
 
 /**
- * A {@link MethodAdapter} that renames fields and methods, and removes debug
+ * A {@link MethodVisitor} that renames fields and methods, and removes debug
  * info.
- * 
+ *
  * @author Eugene Kuleshov
  */
 public class MethodOptimizer extends RemappingMethodAdapter implements Opcodes {
-    
+
     private final ClassOptimizer classOptimizer;
 
     public MethodOptimizer(

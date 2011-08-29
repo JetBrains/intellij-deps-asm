@@ -35,7 +35,7 @@ import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 
 /**
- * A {@link MethodAdapter} that can be used to approximate method size.
+ * A {@link MethodVisitor} that can be used to approximate method size.
  *
  * @author Eugene Kuleshov
  */

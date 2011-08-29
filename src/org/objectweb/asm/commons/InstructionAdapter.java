@@ -37,9 +37,9 @@ import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
 /**
- * A {@link MethodAdapter} providing a more detailed API to generate and
+ * A {@link MethodVisitor} providing a more detailed API to generate and
  * transform instructions.
- * 
+ *
  * @author Eric Bruneton
  */
 public class InstructionAdapter extends MethodVisitor {
@@ -50,16 +50,16 @@ public class InstructionAdapter extends MethodVisitor {
      * Creates a new {@link InstructionAdapter}. <i>Subclasses must not use this
      * constructor</i>. Instead, they must use the
      * {@link #InstructionAdapter(int, MethodVisitor)} version.
-     * 
+     *
      * @param mv the method visitor to which this adapter delegates calls.
      */
     public InstructionAdapter(final MethodVisitor mv) {
         this(Opcodes.ASM4, mv);
     }
-    
+
     /**
-     * Creates a new {@link InstructionAdapter}. 
-     * 
+     * Creates a new {@link InstructionAdapter}.
+     *
      * @param api the ASM API version implemented by this visitor. Must be one
      *        of {@link Opcodes#ASM4}.
      * @param mv the method visitor to which this adapter delegates calls.

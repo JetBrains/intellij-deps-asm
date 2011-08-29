@@ -46,6 +46,14 @@ import org.objectweb.asm.tree.MethodInsnNode;
  */
 public class BasicVerifier extends BasicInterpreter {
 
+    public BasicVerifier() {
+        super(ASM4);
+    }
+    
+    protected BasicVerifier(final int api) {
+        super(api);
+    }
+
     @Override
     public BasicValue copyOperation(final AbstractInsnNode insn, final BasicValue value)
             throws AnalyzerException

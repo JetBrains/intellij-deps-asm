@@ -179,7 +179,7 @@ public class ClassNode extends ClassVisitor {
      * @param api the ASM API version implemented by this visitor. Must be one
      *        of {@link Opcodes#ASM4}.
      */
-    protected ClassNode(final int api) {
+    public ClassNode(final int api) {
         super(api);
         this.interfaces = new ArrayList<String>();
         this.innerClasses = new ArrayList<InnerClassNode>();
@@ -307,6 +307,18 @@ public class ClassNode extends ClassVisitor {
     // Accept method
     // ------------------------------------------------------------------------
 
+    /**
+     * Checks that this class node is compatible with the given ASM API version.
+     * This methods checks that this node, and all its nodes recursively, do not
+     * contain elements that were introduced in more recent versions of the ASM
+     * API than the given version.
+     * 
+     * @param api an ASM API version. Must be one of {@link Opcodes#ASM4}.
+     */
+    public void check(final int api) {
+        // nothing to do
+    }
+    
     /**
      * Makes the given class visitor visit this class.
      * 

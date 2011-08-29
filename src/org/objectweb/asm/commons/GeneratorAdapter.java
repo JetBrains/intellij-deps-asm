@@ -41,7 +41,7 @@ import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
 /**
- * A {@link org.objectweb.asm.MethodAdapter} with convenient methods to generate
+ * A {@link org.objectweb.asm.MethodVisitor} with convenient methods to generate
  * code. For example, using this adapter, the class below
  *
  * <pre>
@@ -232,7 +232,7 @@ public class GeneratorAdapter extends LocalVariablesSorter {
      * constructor</i>. Instead, they must use the
      * {@link #GeneratorAdapter(int, MethodVisitor, int, String, String)}
      * version.
-     * 
+     *
      * @param mv the method visitor to which this adapter delegates calls.
      * @param access the method's access flags (see {@link Opcodes}).
      * @param name the method's name.
@@ -249,7 +249,7 @@ public class GeneratorAdapter extends LocalVariablesSorter {
 
     /**
      * Creates a new {@link GeneratorAdapter}.
-     * 
+     *
      * @param api the ASM API version implemented by this visitor. Must be one
      *        of {@link Opcodes#ASM4}.
      * @param mv the method visitor to which this adapter delegates calls.
@@ -287,7 +287,7 @@ public class GeneratorAdapter extends LocalVariablesSorter {
     {
         this(mv, access, null, method.getDescriptor());
     }
-    
+
     /**
      * Creates a new {@link GeneratorAdapter}. <i>Subclasses must not use this
      * constructor</i>. Instead, they must use the

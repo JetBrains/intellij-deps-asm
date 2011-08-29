@@ -181,7 +181,7 @@ public class MethodNode extends MethodVisitor {
      * @param api the ASM API version implemented by this visitor. Must be one
      *        of {@link Opcodes#ASM4}.
      */
-    protected MethodNode(final int api) {
+    public MethodNode(final int api) {
         super(api);
         this.instructions = new InsnList();
     }
@@ -226,7 +226,7 @@ public class MethodNode extends MethodVisitor {
      *        (see {@link Type#getInternalName() getInternalName}). May be
      *        <tt>null</tt>.
      */
-    protected MethodNode(
+    public MethodNode(
         final int api,
         final int access,
         final String name,
@@ -527,6 +527,18 @@ public class MethodNode extends MethodVisitor {
     // ------------------------------------------------------------------------
     // Accept method
     // ------------------------------------------------------------------------
+
+    /**
+     * Checks that this method node is compatible with the given ASM API
+     * version. This methods checks that this node, and all its nodes
+     * recursively, do not contain elements that were introduced in more recent
+     * versions of the ASM API than the given version.
+     * 
+     * @param api an ASM API version. Must be one of {@link Opcodes#ASM4}.
+     */
+    public void check(final int api) {
+        // nothing to do
+    }
 
     /**
      * Makes the given class visitor visit this method.

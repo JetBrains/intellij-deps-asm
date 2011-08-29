@@ -606,17 +606,16 @@ public class ClassWriter extends ClassVisitor {
      * "mostly add" bytecode transformations. These optimizations are the
      * following:
      *
-     * <ul> <li>The constant pool from the original class is copied as is in
-     * the new class, which saves time. New constant pool entries will be added
-     * at the end if necessary, but unused constant pool entries <i>won't be
-     * removed</i>.</li> <li>Methods that are not transformed are copied as
-     * is in the new class, directly from the original class bytecode (i.e.
-     * without emitting visit events for all the method instructions), which
-     * saves a <i>lot</i> of time. Untransformed methods are detected by the
-     * fact that the {@link ClassReader} receives {@link MethodVisitor} objects
-     * that come from a {@link ClassWriter} (and not from a custom
-     * {@link ClassAdapter} or any other {@link ClassVisitor} instance).</li>
-     * </ul>
+     * <ul> <li>The constant pool from the original class is copied as is in the
+     * new class, which saves time. New constant pool entries will be added at
+     * the end if necessary, but unused constant pool entries <i>won't be
+     * removed</i>.</li> <li>Methods that are not transformed are copied as is
+     * in the new class, directly from the original class bytecode (i.e. without
+     * emitting visit events for all the method instructions), which saves a
+     * <i>lot</i> of time. Untransformed methods are detected by the fact that
+     * the {@link ClassReader} receives {@link MethodVisitor} objects that come
+     * from a {@link ClassWriter} (and not from any other {@link ClassVisitor}
+     * instance).</li> </ul>
      *
      * @param classReader the {@link ClassReader} used to read the original
      *        class. It will be used to copy the entire constant pool from the
@@ -1063,7 +1062,7 @@ public class ClassWriter extends ClassVisitor {
      * build. Does nothing if the constant pool already contains a similar item.
      * <i>This method is intended for {@link Attribute} sub classes, and is
      * normally not needed by class generators or adapters.</i>
-     * 
+     *
      * @param methodDesc method descriptor of the method type.
      * @return a new or already existing method type reference item.
      */
@@ -1083,7 +1082,7 @@ public class ClassWriter extends ClassVisitor {
      * build. Does nothing if the constant pool already contains a similar item.
      * <i>This method is intended for {@link Attribute} sub classes, and is
      * normally not needed by class generators or adapters.</i>
-     * 
+     *
      * @param methodDesc method descriptor of the method type.
      * @return the index of a new or already existing method type reference
      *         item.
@@ -1097,7 +1096,7 @@ public class ClassWriter extends ClassVisitor {
      * if the constant pool already contains a similar item. <i>This method is
      * intended for {@link Attribute} sub classes, and is normally not needed by
      * class generators or adapters.</i>
-     * 
+     *
      * @param tag the kind of this handle. Must be {@link Opcodes#H_GETFIELD},
      *        {@link Opcodes#H_GETSTATIC}, {@link Opcodes#H_PUTFIELD},
      *        {@link Opcodes#H_PUTSTATIC}, {@link Opcodes#H_INVOKEVIRTUAL},
@@ -1137,7 +1136,7 @@ public class ClassWriter extends ClassVisitor {
      * build. Does nothing if the constant pool already contains a similar item.
      * <i>This method is intended for {@link Attribute} sub classes, and is
      * normally not needed by class generators or adapters.</i>
-     * 
+     *
      * @param tag the kind of this handle. Must be {@link Opcodes#H_GETFIELD},
      *        {@link Opcodes#H_GETSTATIC}, {@link Opcodes#H_PUTFIELD},
      *        {@link Opcodes#H_PUTSTATIC}, {@link Opcodes#H_INVOKEVIRTUAL},
@@ -1164,12 +1163,12 @@ public class ClassWriter extends ClassVisitor {
      * build. Does nothing if the constant pool already contains a similar item.
      * <i>This method is intended for {@link Attribute} sub classes, and is
      * normally not needed by class generators or adapters.</i>
-     * 
+     *
      * @param name name of the invoked method.
      * @param desc descriptor of the invoke method.
      * @param bsm the bootstrap method.
      * @param bsmArgs the bootstrap method constant arguments.
-     * 
+     *
      * @return a new or an already existing invokedynamic type reference item.
      */
     Item newInvokeDynamicItem(
@@ -1250,12 +1249,12 @@ public class ClassWriter extends ClassVisitor {
      * build. Does nothing if the constant pool already contains a similar item.
      * <i>This method is intended for {@link Attribute} sub classes, and is
      * normally not needed by class generators or adapters.</i>
-     * 
+     *
      * @param name name of the invoked method.
      * @param desc descriptor of the invoke method.
      * @param bsm the bootstrap method.
      * @param bsmArgs the bootstrap method constant arguments.
-     * 
+     *
      * @return the index of a new or already existing invokedynamic
      *         reference item.
      */
@@ -1581,9 +1580,10 @@ public class ClassWriter extends ClassVisitor {
     protected String getCommonSuperClass(final String type1, final String type2)
     {
         Class<?> c, d;
+        ClassLoader classLoader = getClass().getClassLoader();
         try {
-            c = Class.forName(type1.replace('/', '.'), false, null);
-            d = Class.forName(type2.replace('/', '.'), false, null);
+            c = Class.forName(type1.replace('/', '.'), false, classLoader);
+            d = Class.forName(type2.replace('/', '.'), false, classLoader);
         } catch (Exception e) {
             throw new RuntimeException(e.toString());
         }

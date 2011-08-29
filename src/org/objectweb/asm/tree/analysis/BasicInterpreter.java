@@ -49,8 +49,19 @@ import org.objectweb.asm.tree.TypeInsnNode;
  * @author Eric Bruneton
  * @author Bing Ran
  */
-public class BasicInterpreter implements Opcodes, Interpreter<BasicValue> {
+public class BasicInterpreter extends Interpreter<BasicValue> implements
+        Opcodes
+{
 
+    public BasicInterpreter() {
+        super(ASM4);
+    }
+    
+    protected BasicInterpreter(final int api) {
+        super(api);
+    }
+    
+    @Override
     public BasicValue newValue(final Type type) {
         if (type == null) {
             return BasicValue.UNINITIALIZED_VALUE;
@@ -78,6 +89,7 @@ public class BasicInterpreter implements Opcodes, Interpreter<BasicValue> {
         }
     }
 
+    @Override
     public BasicValue newOperation(final AbstractInsnNode insn)
             throws AnalyzerException
     {
@@ -142,12 +154,14 @@ public class BasicInterpreter implements Opcodes, Interpreter<BasicValue> {
         }
     }
 
+    @Override
     public BasicValue copyOperation(final AbstractInsnNode insn, final BasicValue value)
             throws AnalyzerException
     {
         return value;
     }
 
+    @Override
     public BasicValue unaryOperation(final AbstractInsnNode insn, final BasicValue value)
             throws AnalyzerException
     {
@@ -236,6 +250,7 @@ public class BasicInterpreter implements Opcodes, Interpreter<BasicValue> {
         }
     }
 
+    @Override
     public BasicValue binaryOperation(
         final AbstractInsnNode insn,
         final BasicValue value1,
@@ -308,6 +323,7 @@ public class BasicInterpreter implements Opcodes, Interpreter<BasicValue> {
         }
     }
 
+    @Override
     public BasicValue ternaryOperation(
         final AbstractInsnNode insn,
         final BasicValue value1,
@@ -317,6 +333,7 @@ public class BasicInterpreter implements Opcodes, Interpreter<BasicValue> {
         return null;
     }
 
+    @Override
     public BasicValue naryOperation(final AbstractInsnNode insn, final List<? extends BasicValue> values)
             throws AnalyzerException
     {
@@ -330,6 +347,7 @@ public class BasicInterpreter implements Opcodes, Interpreter<BasicValue> {
         }
     }
 
+    @Override
     public void returnOperation(
         final AbstractInsnNode insn,
         final BasicValue value,
@@ -337,6 +355,7 @@ public class BasicInterpreter implements Opcodes, Interpreter<BasicValue> {
     {
     }
 
+    @Override
     public BasicValue merge(final BasicValue v, final BasicValue w) {
         if (!v.equals(w)) {
             return BasicValue.UNINITIALIZED_VALUE;

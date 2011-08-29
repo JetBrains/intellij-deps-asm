@@ -145,7 +145,7 @@ public class FieldNode extends FieldVisitor {
      *        an {@link Integer}, a {@link Float}, a {@link Long}, a
      *        {@link Double} or a {@link String}.
      */
-    protected FieldNode(
+    public FieldNode(
         final int api,
         final int access,
         final String name,
@@ -191,6 +191,18 @@ public class FieldNode extends FieldVisitor {
 
     @Override
     public void visitEnd() {        
+    }
+
+    /**
+     * Checks that this field node is compatible with the given ASM API version.
+     * This methods checks that this node, and all its nodes recursively, do not
+     * contain elements that were introduced in more recent versions of the ASM
+     * API than the given version.
+     * 
+     * @param api an ASM API version. Must be one of {@link Opcodes#ASM4}.
+     */
+    public void check(final int api) {
+        // nothing to do
     }
     
     /**

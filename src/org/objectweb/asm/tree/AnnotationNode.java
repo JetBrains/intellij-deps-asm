@@ -78,7 +78,7 @@ public class AnnotationNode extends AnnotationVisitor {
      *        of {@link Opcodes#ASM4}.
      * @param desc the class descriptor of the annotation class.
      */
-    protected AnnotationNode(final int api, final String desc) {
+    public AnnotationNode(final int api, final String desc) {
         super(api);
         this.desc = desc;
     }
@@ -159,6 +159,18 @@ public class AnnotationNode extends AnnotationVisitor {
     // ------------------------------------------------------------------------
     // Accept methods
     // ------------------------------------------------------------------------
+    
+    /**
+     * Checks that this annotation node is compatible with the given ASM API
+     * version. This methods checks that this node, and all its nodes
+     * recursively, do not contain elements that were introduced in more recent
+     * versions of the ASM API than the given version.
+     * 
+     * @param api an ASM API version. Must be one of {@link Opcodes#ASM4}.
+     */
+    public void check(final int api) {
+        // nothing to do
+    }
 
     /**
      * Makes the given visitor visit this annotation.

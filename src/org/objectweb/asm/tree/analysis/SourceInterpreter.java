@@ -46,8 +46,19 @@ import org.objectweb.asm.tree.MethodInsnNode;
  *
  * @author Eric Bruneton
  */
-public class SourceInterpreter implements Opcodes, Interpreter<SourceValue> {
+public class SourceInterpreter extends Interpreter<SourceValue> implements
+        Opcodes
+{
 
+    public SourceInterpreter() {
+        super(ASM4);
+    }
+    
+    protected SourceInterpreter(final int api) {
+        super(api);
+    }
+
+    @Override
     public SourceValue newValue(final Type type) {
         if (type == Type.VOID_TYPE) {
             return null;
@@ -55,6 +66,7 @@ public class SourceInterpreter implements Opcodes, Interpreter<SourceValue> {
         return new SourceValue(type == null ? 1 : type.getSize());
     }
 
+    @Override
     public SourceValue newOperation(final AbstractInsnNode insn) {
         int size;
         switch (insn.getOpcode()) {
@@ -77,10 +89,12 @@ public class SourceInterpreter implements Opcodes, Interpreter<SourceValue> {
         return new SourceValue(size, insn);
     }
 
+    @Override
     public SourceValue copyOperation(final AbstractInsnNode insn, final SourceValue value) {
         return new SourceValue(value.getSize(), insn);
     }
 
+    @Override
     public SourceValue unaryOperation(final AbstractInsnNode insn, final SourceValue value)
     {
         int size;
@@ -104,6 +118,7 @@ public class SourceInterpreter implements Opcodes, Interpreter<SourceValue> {
         return new SourceValue(size, insn);
     }
 
+    @Override
     public SourceValue binaryOperation(
         final AbstractInsnNode insn,
         final SourceValue value1,
@@ -137,6 +152,7 @@ public class SourceInterpreter implements Opcodes, Interpreter<SourceValue> {
         return new SourceValue(size, insn);
     }
 
+    @Override
     public SourceValue ternaryOperation(
         final AbstractInsnNode insn,
         final SourceValue value1,
@@ -146,6 +162,7 @@ public class SourceInterpreter implements Opcodes, Interpreter<SourceValue> {
         return new SourceValue(1, insn);
     }
 
+    @Override
     public SourceValue naryOperation(final AbstractInsnNode insn, final List<? extends SourceValue> values) {
         int size;
         int opcode = insn.getOpcode();
@@ -160,6 +177,7 @@ public class SourceInterpreter implements Opcodes, Interpreter<SourceValue> {
         return new SourceValue(size, insn);
     }
 
+    @Override
     public void returnOperation(
         final AbstractInsnNode insn,
         final SourceValue value,
@@ -167,6 +185,7 @@ public class SourceInterpreter implements Opcodes, Interpreter<SourceValue> {
     {
     }
 
+    @Override
     public SourceValue merge(final SourceValue d, final SourceValue w) {
         if (d.insns instanceof SmallSet && w.insns instanceof SmallSet) {
             Set<AbstractInsnNode> s = ((SmallSet<AbstractInsnNode>) d.insns).union((SmallSet<AbstractInsnNode>) w.insns);

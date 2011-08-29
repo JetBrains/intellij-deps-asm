@@ -39,14 +39,14 @@ import org.objectweb.asm.commons.Remapper;
 import org.objectweb.asm.commons.RemappingClassAdapter;
 
 /**
- * A {@link ClassAdapter} that renames fields and methods, and removes debug
+ * A {@link ClassVisitor} that renames fields and methods, and removes debug
  * info.
- * 
+ *
  * @author Eric Bruneton
  * @author Eugene Kuleshov
  */
 public class ClassOptimizer extends RemappingClassAdapter {
-    
+
     private String pkgName;
     String clsName;
     boolean class$;
@@ -61,7 +61,7 @@ public class ClassOptimizer extends RemappingClassAdapter {
     {
         return super.visitField(access, name, desc, null, null);
     }
-    
+
     // ------------------------------------------------------------------------
     // Overridden methods
     // ------------------------------------------------------------------------
@@ -158,34 +158,34 @@ public class ClassOptimizer extends RemappingClassAdapter {
         final String signature,
         final String[] exceptions)
     {
-        String s = remapper.mapMethodName(className, name, desc); 
+        String s = remapper.mapMethodName(className, name, desc);
         if ("-".equals(s)) {
             return null;
         }
-        
+
         if ((access & (Opcodes.ACC_PUBLIC | Opcodes.ACC_PROTECTED)) == 0) {
             if ("org/objectweb/asm".equals(pkgName) && !name.startsWith("<")
                     && s.equals(name))
             {
                 System.out.println("INFO: " + clsName + "." + s + " could be renamed");
             }
-            return super.visitMethod(access, name, desc, null, exceptions); 
+            return super.visitMethod(access, name, desc, null, exceptions);
         } else {
             if (!s.equals(name)) {
                 throw new RuntimeException("The public or protected method "
                         + className + '.' + name + desc
                         + " must not be renamed.");
             }
-            return super.visitMethod(access, name, desc, null, exceptions); 
+            return super.visitMethod(access, name, desc, null, exceptions);
         }
     }
-    
+
     @Override
     protected MethodVisitor createRemappingMethodAdapter(
         int access,
         String newDesc,
         MethodVisitor mv)
     {
-        return new MethodOptimizer(this, access, newDesc, mv, remapper); 
+        return new MethodOptimizer(this, access, newDesc, mv, remapper);
     }
 }

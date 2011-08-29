@@ -107,6 +107,21 @@ public class SimpleVerifier extends BasicVerifier {
         final List<Type> currentClassInterfaces,
         final boolean isInterface)
     {
+        this(ASM4,
+                currentClass,
+                currentSuperClass,
+                currentClassInterfaces,
+                isInterface);
+    }
+
+    protected SimpleVerifier(
+        final int api,
+        final Type currentClass,
+        final Type currentSuperClass,
+        final List<Type> currentClassInterfaces,
+        final boolean isInterface)
+    {
+        super(api);
         this.currentClass = currentClass;
         this.currentSuperClass = currentSuperClass;
         this.currentClassInterfaces = currentClassInterfaces;

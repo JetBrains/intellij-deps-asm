@@ -34,8 +34,8 @@ import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 
 /**
- * A {@link ClassAdapter} that merges clinit methods into a single one.
- * 
+ * A {@link ClassVisitor} that merges clinit methods into a single one.
+ *
  * @author Eric Bruneton
  */
 public class StaticInitMerger extends ClassVisitor {

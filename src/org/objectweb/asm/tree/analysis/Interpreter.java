@@ -46,8 +46,14 @@ import org.objectweb.asm.tree.AbstractInsnNode;
  * 
  * @author Eric Bruneton
  */
-public interface Interpreter<V extends Value> {
+public abstract class Interpreter<V extends Value> {
 
+    protected final int api;
+    
+    protected Interpreter(final int api) {
+        this.api = api;
+    }
+    
     /**
      * Creates a new value that represents the given type.
      * 
@@ -60,7 +66,7 @@ public interface Interpreter<V extends Value> {
      * @return a value that represents the given type. The size of the returned
      *         value must be equal to the size of the given type.
      */
-    V newValue(Type type);
+    public abstract V newValue(Type type);
 
     /**
      * Interprets a bytecode instruction without arguments. This method is
@@ -74,7 +80,8 @@ public interface Interpreter<V extends Value> {
      * @return the result of the interpretation of the given instruction.
      * @throws AnalyzerException if an error occured during the interpretation.
      */
-    V newOperation(AbstractInsnNode insn) throws AnalyzerException;
+    public abstract V newOperation(AbstractInsnNode insn)
+            throws AnalyzerException;
 
     /**
      * Interprets a bytecode instruction that moves a value on the stack or to
@@ -89,7 +96,7 @@ public interface Interpreter<V extends Value> {
      *         returned value must be <tt>equal</tt> to the given value.
      * @throws AnalyzerException if an error occured during the interpretation.
      */
-    V copyOperation(AbstractInsnNode insn, V value)
+    public abstract V copyOperation(AbstractInsnNode insn, V value)
             throws AnalyzerException;
 
     /**
@@ -107,7 +114,7 @@ public interface Interpreter<V extends Value> {
      * @return the result of the interpretation of the given instruction.
      * @throws AnalyzerException if an error occured during the interpretation.
      */
-    V unaryOperation(AbstractInsnNode insn, V value)
+    public abstract V unaryOperation(AbstractInsnNode insn, V value)
             throws AnalyzerException;
 
     /**
@@ -127,7 +134,7 @@ public interface Interpreter<V extends Value> {
      * @return the result of the interpretation of the given instruction.
      * @throws AnalyzerException if an error occured during the interpretation.
      */
-    V binaryOperation(AbstractInsnNode insn, V value1, V value2)
+    public abstract V binaryOperation(AbstractInsnNode insn, V value1, V value2)
             throws AnalyzerException;
 
     /**
@@ -143,7 +150,7 @@ public interface Interpreter<V extends Value> {
      * @return the result of the interpretation of the given instruction.
      * @throws AnalyzerException if an error occured during the interpretation.
      */
-    V ternaryOperation(
+    public abstract V ternaryOperation(
         AbstractInsnNode insn,
         V value1,
         V value2,
@@ -161,8 +168,9 @@ public interface Interpreter<V extends Value> {
      * @return the result of the interpretation of the given instruction.
      * @throws AnalyzerException if an error occured during the interpretation.
      */
-    V naryOperation(AbstractInsnNode insn, List<? extends V> values)
-            throws AnalyzerException;
+    public abstract V naryOperation(
+        AbstractInsnNode insn,
+        List< ? extends V> values) throws AnalyzerException;
 
     /**
      * Interprets a bytecode return instruction. This method is called for the 
@@ -175,8 +183,10 @@ public interface Interpreter<V extends Value> {
      * @param expected the expected return type of the analyzed method.
      * @throws AnalyzerException if an error occured during the interpretation.
      */
-    void returnOperation(AbstractInsnNode insn, V value, V expected)
-            throws AnalyzerException;
+    public abstract void returnOperation(
+        AbstractInsnNode insn,
+        V value,
+        V expected) throws AnalyzerException;
     
     /**
      * Merges two values. The merge operation must return a value that
@@ -190,5 +200,5 @@ public interface Interpreter<V extends Value> {
      * @return the merged value. If the merged value is equal to <tt>v</tt>,
      *         this method <i>must</i> return <tt>v</tt>.
      */
-    V merge(V v, V w);
+    public abstract V merge(V v, V w);
 }

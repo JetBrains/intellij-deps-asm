@@ -34,13 +34,16 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.objectweb.asm.Attribute;
+import org.objectweb.asm.Handle;
+import org.objectweb.asm.Label;
+import org.objectweb.asm.Opcodes;
 
 /**
- * An abstract visitor.
+ * An abstract converter from visit events to text.
  * 
  * @author Eric Bruneton
  */
-public abstract class AbstractVisitor {
+public abstract class Printer {
 
     /**
      * The names of the Java Virtual Machine opcodes.
@@ -110,7 +113,18 @@ public abstract class AbstractVisitor {
             j = l + 1;
         }
     }
+    
+    /**
+     * The ASM API version implemented by this class. The value of this field
+     * must be one of {@link Opcodes#ASM4}.
+     */
+    protected final int api;
 
+    /**
+     * A buffer that can be used to create strings.
+     */
+    protected final StringBuffer buf;
+    
     /**
      * The text to be printed. Since the code of methods is not necessarily
      * visited in sequential order, one method after the other, but can be
@@ -126,18 +140,183 @@ public abstract class AbstractVisitor {
     public final List<Object> text;
 
     /**
-     * A buffer that can be used to create strings.
+     * Constructs a new {@link Printer}.
      */
-    protected final StringBuffer buf;
-
-    /**
-     * Constructs a new {@link AbstractVisitor}.
-     */
-    protected AbstractVisitor() {
-        this.text = new ArrayList<Object>();
+    protected Printer(final int api) {
+        this.api = api;
         this.buf = new StringBuffer();
+        this.text = new ArrayList<Object>();
     }
+    
+    public abstract void visit(
+        final int version,
+        final int access,
+        final String name,
+        final String signature,
+        final String superName,
+        final String[] interfaces);
 
+    public abstract void visitSource(final String file, final String debug);
+
+    public abstract void visitOuterClass(
+        final String owner,
+        final String name,
+        final String desc);
+
+    public abstract Printer visitClassAnnotation(
+        final String desc,
+        final boolean visible);
+
+    public abstract void visitClassAttribute(final Attribute attr);
+
+    public abstract void visitInnerClass(
+        final String name,
+        final String outerName,
+        final String innerName,
+        final int access);
+
+    public abstract Printer visitField(
+        final int access,
+        final String name,
+        final String desc,
+        final String signature,
+        final Object value);
+
+    public abstract Printer visitMethod(
+        final int access,
+        final String name,
+        final String desc,
+        final String signature,
+        final String[] exceptions);
+
+    public abstract void visitClassEnd();
+
+    // ------------------------------------------------------------------------
+    // Annotations
+    // ------------------------------------------------------------------------
+
+    public abstract void visit(final String name, final Object value);
+
+    public abstract void visitEnum(
+        final String name,
+        final String desc,
+        final String value);
+
+    public abstract Printer visitAnnotation(
+        final String name,
+        final String desc);
+
+    public abstract Printer visitArray(final String name);
+
+    public abstract void visitAnnotationEnd();
+
+    // ------------------------------------------------------------------------
+    // Fields
+    // ------------------------------------------------------------------------
+
+    public abstract Printer visitFieldAnnotation(
+        final String desc,
+        final boolean visible);
+
+    public abstract void visitFieldAttribute(final Attribute attr);
+
+    public abstract void visitFieldEnd();
+
+    // ------------------------------------------------------------------------
+    // Methods
+    // ------------------------------------------------------------------------
+
+    public abstract Printer visitAnnotationDefault();
+
+    public abstract Printer visitMethodAnnotation(
+        final String desc,
+        final boolean visible);
+
+    public abstract Printer visitParameterAnnotation(
+        final int parameter,
+        final String desc,
+        final boolean visible);
+
+    public abstract void visitMethodAttribute(final Attribute attr);
+
+    public abstract void visitCode();
+
+    public abstract void visitFrame(
+        final int type,
+        final int nLocal,
+        final Object[] local,
+        final int nStack,
+        final Object[] stack);
+
+    public abstract void visitInsn(final int opcode);
+
+    public abstract void visitIntInsn(final int opcode, final int operand);
+
+    public abstract void visitVarInsn(final int opcode, final int var);
+
+    public abstract void visitTypeInsn(final int opcode, final String type);
+
+    public abstract void visitFieldInsn(
+        final int opcode,
+        final String owner,
+        final String name,
+        final String desc);
+
+    public abstract void visitMethodInsn(
+        final int opcode,
+        final String owner,
+        final String name,
+        final String desc);
+
+    public abstract void visitInvokeDynamicInsn(
+        String name,
+        String desc,
+        Handle bsm,
+        Object... bsmArgs);
+
+    public abstract void visitJumpInsn(final int opcode, final Label label);
+
+    public abstract void visitLabel(final Label label);
+
+    public abstract void visitLdcInsn(final Object cst);
+
+    public abstract void visitIincInsn(final int var, final int increment);
+
+    public abstract void visitTableSwitchInsn(
+        final int min,
+        final int max,
+        final Label dflt,
+        final Label... labels);
+
+    public abstract void visitLookupSwitchInsn(
+        final Label dflt,
+        final int[] keys,
+        final Label[] labels);
+
+    public abstract void visitMultiANewArrayInsn(
+        final String desc,
+        final int dims);
+
+    public abstract void visitTryCatchBlock(
+        final Label start,
+        final Label end,
+        final Label handler,
+        final String type);
+
+    public abstract void visitLocalVariable(
+        final String name,
+        final String desc,
+        final String signature,
+        final Label start,
+        final Label end,
+        final int index);
+
+    public abstract void visitLineNumber(final int line, final Label start);
+
+    public abstract void visitMaxs(final int maxStack, final int maxLocals);
+
+    public abstract void visitMethodEnd();
+    
     /**
      * Returns the text constructed by this visitor.
      * 
@@ -207,14 +386,5 @@ public abstract class AbstractVisitor {
                 pw.print(o.toString());
             }
         }
-    }
-
-    /**
-     * Returns the default {@link ASMifiable} prototypes.
-     * 
-     * @return the default {@link ASMifiable} prototypes.
-     */
-    public static Attribute[] getDefaultAttributes() {
-        return new Attribute[0];
     }
 }

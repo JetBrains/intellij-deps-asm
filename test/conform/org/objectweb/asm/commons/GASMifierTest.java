@@ -54,7 +54,7 @@ import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.attrs.CodeComment;
 import org.objectweb.asm.attrs.Comment;
-import org.objectweb.asm.util.ASMifierClassVisitor;
+import org.objectweb.asm.util.TraceClassVisitor;
 
 /**
  * GASMifier tests.
@@ -81,7 +81,8 @@ public class GASMifierTest extends AbstractTest {
         }
 
         StringWriter sw = new StringWriter();
-        ASMifierClassVisitor cv = new ASMifierClassVisitor(new GASMifierVisitor(),
+        TraceClassVisitor cv = new TraceClassVisitor(null,
+                new GASMifier(),
                 new PrintWriter(sw));
         cr.accept(new ClassLocalVariablesSorter(cv),
                 new Attribute[] { new Comment(), new CodeComment() },

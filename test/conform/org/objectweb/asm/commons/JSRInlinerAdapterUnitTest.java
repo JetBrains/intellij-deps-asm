@@ -37,7 +37,7 @@ import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.tree.MethodNode;
 import org.objectweb.asm.util.TraceMethodVisitor;
-import org.objectweb.asm.util.TraceVisitor;
+import org.objectweb.asm.util.Textifier;
 
 /**
  * JsrInlinerTest
@@ -57,12 +57,12 @@ public class JSRInlinerAdapterUnitTest extends TestCase {
             @Override
             public void visitEnd() {
                 System.err.println("started w/ method:" + name);
-                TraceVisitor tv = new TraceVisitor();
-                TraceMethodVisitor mv = new TraceMethodVisitor(tv);
+                Textifier t = new Textifier();
+                TraceMethodVisitor mv = new TraceMethodVisitor(t);
                 for (int i = 0; i < instructions.size(); ++i) {
                     instructions.get(i).accept(mv);
                     System.err.print(Integer.toString(i + 100000).substring(1));
-                    System.err.print(" : " + tv.text.get(i));
+                    System.err.print(" : " + t.text.get(i));
                 }
                 super.visitEnd();
                 System.err.println("finished w/ method:" + name);
@@ -1875,7 +1875,7 @@ public class JSRInlinerAdapterUnitTest extends TestCase {
     }
 
     private String getText(final MethodNode mn) {
-        TraceVisitor tv = new TraceVisitor();
+        Textifier tv = new Textifier();
         TraceMethodVisitor tmv = new TraceMethodVisitor(tv);
         mn.accept(tmv);
 

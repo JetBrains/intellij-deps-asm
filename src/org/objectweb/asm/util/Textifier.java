@@ -29,10 +29,13 @@
  */
 package org.objectweb.asm.util;
 
+import java.io.FileInputStream;
+import java.io.PrintWriter;
 import java.util.HashMap;
 import java.util.Map;
 
 import org.objectweb.asm.Attribute;
+import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.Handle;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.Opcodes;
@@ -40,12 +43,11 @@ import org.objectweb.asm.Type;
 import org.objectweb.asm.signature.SignatureReader;
 
 /**
- * An {@link AbstractVisitor} that prints a disassembled view of the classes it
- * visits.
+ * A {@link Printer} that prints a disassembled view of the classes it visits.
  * 
  * @author Eric Bruneton
  */
-public class TraceVisitor extends AbstractVisitor {
+public class Textifier extends Printer {
 
     /**
      * Constant used in {@link #appendDescriptor appendDescriptor} for internal
@@ -101,13 +103,7 @@ public class TraceVisitor extends AbstractVisitor {
      * parameter signatures, formatted in default Java notation (non-bytecode)
      */
     public static final int PARAMETERS_DECLARATION = 8;
-    
-    /**
-     * The ASM API version implemented by this visitor. The value of this field
-     * must be one of {@link Opcodes#ASM4}.
-     */
-    protected final int api;
-    
+        
     /**
      * Tab for class members.
      */
@@ -136,28 +132,72 @@ public class TraceVisitor extends AbstractVisitor {
     private int valueNumber = 0;
 
     /**
-     * Constructs a new {@link TraceVisitor}. <i>Subclasses must not use this
-     * constructor</i>. Instead, they must use the {@link #TraceVisitor(int)}
+     * Constructs a new {@link Textifier}. <i>Subclasses must not use this
+     * constructor</i>. Instead, they must use the {@link #Textifier(int)}
      * version.
      */
-    public TraceVisitor() {
+    public Textifier() {
         this(Opcodes.ASM4);
     }
     
     /**
-     * Constructs a new {@link TraceVisitor}.
+     * Constructs a new {@link Textifier}.
      * 
      * @param api the ASM API version implemented by this visitor. Must be one
      *        of {@link Opcodes#ASM4}.
      */
-    protected TraceVisitor(final int api) {
-        this.api = api;
+    protected Textifier(final int api) {
+        super(api);
     }
     
+    /**
+     * Prints a disassembled view of the given class to the standard output. <p>
+     * Usage: Textifier [-debug] &lt;binary class name or class
+     * file name &gt;
+     * 
+     * @param args the command line arguments.
+     * 
+     * @throws Exception if the class cannot be found, or if an IO exception
+     *         occurs.
+     */
+    public static void main(final String[] args) throws Exception {
+        int i = 0;
+        int flags = ClassReader.SKIP_DEBUG;
+
+        boolean ok = true;
+        if (args.length < 1 || args.length > 2) {
+            ok = false;
+        }
+        if (ok && "-debug".equals(args[0])) {
+            i = 1;
+            flags = 0;
+            if (args.length != 2) {
+                ok = false;
+            }
+        }
+        if (!ok) {
+            System.err.println("Prints a disassembled view of the given class.");
+            System.err.println("Usage: Textifier [-debug] "
+                    + "<fully qualified class name or class file name>");
+            return;
+        }
+        ClassReader cr;
+        if (args[i].endsWith(".class") || args[i].indexOf('\\') > -1
+                || args[i].indexOf('/') > -1)
+        {
+            cr = new ClassReader(new FileInputStream(args[i]));
+        } else {
+            cr = new ClassReader(args[i]);
+        }
+        cr.accept(new TraceClassVisitor(new PrintWriter(System.out)),
+                flags);
+    }
+
     // ------------------------------------------------------------------------
     // Classes
     // ------------------------------------------------------------------------
 
+    @Override
     public void visit(
         final int version,
         final int access,
@@ -219,6 +259,7 @@ public class TraceVisitor extends AbstractVisitor {
         text.add(buf.toString());
     }
 
+    @Override
     public void visitSource(final String file, final String debug) {
         buf.setLength(0);
         if (file != null) {
@@ -238,6 +279,7 @@ public class TraceVisitor extends AbstractVisitor {
         }
     }
 
+    @Override
     public void visitOuterClass(
         final String owner,
         final String name,
@@ -255,7 +297,8 @@ public class TraceVisitor extends AbstractVisitor {
         text.add(buf.toString());
     }
 
-    public TraceVisitor visitClassAnnotation(
+    @Override
+    public Textifier visitClassAnnotation(
         final String desc,
         final boolean visible)
     {
@@ -263,11 +306,13 @@ public class TraceVisitor extends AbstractVisitor {
         return visitAnnotation(desc, visible);
     }
 
+    @Override
     public void visitClassAttribute(final Attribute attr) {
         text.add("\n");
         visitAttribute(attr);
     }
 
+    @Override
     public void visitInnerClass(
         final String name,
         final String outerName,
@@ -289,7 +334,8 @@ public class TraceVisitor extends AbstractVisitor {
         text.add(buf.toString());
     }
 
-    public TraceVisitor visitField(
+    @Override
+    public Textifier visitField(
         final int access,
         final String name,
         final String desc,
@@ -332,12 +378,13 @@ public class TraceVisitor extends AbstractVisitor {
         buf.append('\n');
         text.add(buf.toString());
 
-        TraceVisitor tv = createTraceVisitor();
-        text.add(tv.getText());
-        return tv;
+        Textifier t = createTextifier();
+        text.add(t.getText());
+        return t;
     }
 
-    public TraceVisitor visitMethod(
+    @Override
+    public Textifier visitMethod(
         final int access,
         final String name,
         final String desc,
@@ -399,11 +446,12 @@ public class TraceVisitor extends AbstractVisitor {
         buf.append('\n');
         text.add(buf.toString());
 
-        TraceVisitor tv = createTraceVisitor();
-        text.add(tv.getText());
-        return tv;
+        Textifier t = createTextifier();
+        text.add(t.getText());
+        return t;
     }
 
+    @Override
     public void visitClassEnd() {
         text.add("}\n");
     }
@@ -412,6 +460,7 @@ public class TraceVisitor extends AbstractVisitor {
     // Annotations
     // ------------------------------------------------------------------------
 
+    @Override
     public void visit(final String name, final Object value) {
         buf.setLength(0);
         appendComa(valueNumber++);
@@ -537,6 +586,7 @@ public class TraceVisitor extends AbstractVisitor {
         buf.append(value.getClassName()).append(".class");
     }
 
+    @Override
     public void visitEnum(
         final String name,
         final String desc,
@@ -552,7 +602,8 @@ public class TraceVisitor extends AbstractVisitor {
         text.add(buf.toString());
     }
 
-    public TraceVisitor visitAnnotation(
+    @Override
+    public Textifier visitAnnotation(
         final String name,
         final String desc)
     {
@@ -565,13 +616,14 @@ public class TraceVisitor extends AbstractVisitor {
         appendDescriptor(FIELD_DESCRIPTOR, desc);
         buf.append('(');
         text.add(buf.toString());
-        TraceVisitor tv = createTraceVisitor();
-        text.add(tv.getText());
+        Textifier t = createTextifier();
+        text.add(t.getText());
         text.add(")");
-        return tv;
+        return t;
     }
 
-    public TraceVisitor visitArray(
+    @Override
+    public Textifier visitArray(
         final String name)
     {
         buf.setLength(0);
@@ -581,12 +633,13 @@ public class TraceVisitor extends AbstractVisitor {
         }
         buf.append('{');
         text.add(buf.toString());
-        TraceVisitor tv = createTraceVisitor();
-        text.add(tv.getText());
+        Textifier t = createTextifier();
+        text.add(t.getText());
         text.add("}");
-        return tv;
+        return t;
     }
     
+    @Override
     public void visitAnnotationEnd() {        
     }
 
@@ -594,17 +647,20 @@ public class TraceVisitor extends AbstractVisitor {
     // Fields
     // ------------------------------------------------------------------------
 
-    public TraceVisitor visitFieldAnnotation(
+    @Override
+    public Textifier visitFieldAnnotation(
         final String desc,
         final boolean visible)
     {
         return visitAnnotation(desc, visible);
     }
 
+    @Override
     public void visitFieldAttribute(final Attribute attr) {
         visitAttribute(attr);
     }
     
+    @Override
     public void visitFieldEnd() {
     }
 
@@ -612,22 +668,25 @@ public class TraceVisitor extends AbstractVisitor {
     // Methods
     // ------------------------------------------------------------------------
     
-    public TraceVisitor visitAnnotationDefault() {
+    @Override
+    public Textifier visitAnnotationDefault() {
         text.add(tab2 + "default=");
-        TraceVisitor tv = createTraceVisitor();
-        text.add(tv.getText());
+        Textifier t = createTextifier();
+        text.add(t.getText());
         text.add("\n");
-        return tv;
+        return t;
     }
     
-    public TraceVisitor visitMethodAnnotation(
+    @Override
+    public Textifier visitMethodAnnotation(
         final String desc,
         final boolean visible)
     {
         return visitAnnotation(desc, visible);
     }
 
-    public TraceVisitor visitParameterAnnotation(
+    @Override
+    public Textifier visitParameterAnnotation(
         final int parameter,
         final String desc,
         final boolean visible)
@@ -637,21 +696,22 @@ public class TraceVisitor extends AbstractVisitor {
         appendDescriptor(FIELD_DESCRIPTOR, desc);
         buf.append('(');
         text.add(buf.toString());
-        TraceVisitor tv = createTraceVisitor();
-        text.add(tv.getText());
+        Textifier t = createTextifier();
+        text.add(t.getText());
         text.add(visible ? ") // parameter " : ") // invisible, parameter ");
         text.add(new Integer(parameter));
         text.add("\n");
-        return tv;
+        return t;
     }
 
+    @Override
     public void visitMethodAttribute(final Attribute attr) {
         buf.setLength(0);
         buf.append(tab).append("ATTRIBUTE ");
         appendDescriptor(-1, attr.type);
 
-        if (attr instanceof Traceable) {
-            ((Traceable) attr).trace(buf, labelNames);
+        if (attr instanceof Textifiable) {
+            ((Textifiable) attr).textify(buf, labelNames);
         } else {
             buf.append(" : unknown\n");
         }
@@ -659,9 +719,11 @@ public class TraceVisitor extends AbstractVisitor {
         text.add(buf.toString());
     }
 
+    @Override
     public void visitCode() {        
     }
     
+    @Override
     public void visitFrame(
         final int type,
         final int nLocal,
@@ -701,12 +763,14 @@ public class TraceVisitor extends AbstractVisitor {
         text.add(buf.toString());
     }
 
+    @Override
     public void visitInsn(final int opcode) {
         buf.setLength(0);
         buf.append(tab2).append(OPCODES[opcode]).append('\n');
         text.add(buf.toString());
     }
 
+    @Override
     public void visitIntInsn(final int opcode, final int operand) {
         buf.setLength(0);
         buf.append(tab2)
@@ -719,6 +783,7 @@ public class TraceVisitor extends AbstractVisitor {
         text.add(buf.toString());
     }
 
+    @Override
     public void visitVarInsn(final int opcode, final int var) {
         buf.setLength(0);
         buf.append(tab2)
@@ -729,6 +794,7 @@ public class TraceVisitor extends AbstractVisitor {
         text.add(buf.toString());
     }
 
+    @Override
     public void visitTypeInsn(final int opcode, final String type) {
         buf.setLength(0);
         buf.append(tab2).append(OPCODES[opcode]).append(' ');
@@ -737,6 +803,7 @@ public class TraceVisitor extends AbstractVisitor {
         text.add(buf.toString());
     }
 
+    @Override
     public void visitFieldInsn(
         final int opcode,
         final String owner,
@@ -752,6 +819,7 @@ public class TraceVisitor extends AbstractVisitor {
         text.add(buf.toString());
     }
 
+    @Override
     public void visitMethodInsn(
         final int opcode,
         final String owner,
@@ -767,6 +835,7 @@ public class TraceVisitor extends AbstractVisitor {
         text.add(buf.toString());
     }
 
+    @Override
     public void visitInvokeDynamicInsn(
         String name,
         String desc,
@@ -781,7 +850,7 @@ public class TraceVisitor extends AbstractVisitor {
         for(int i=0; i<bsmArgs.length; i++) {
             Object cst = bsmArgs[i];
             if (cst instanceof String) {
-                AbstractVisitor.appendString(buf, (String) cst);
+                Printer.appendString(buf, (String) cst);
             } else if (cst instanceof Type) {
                 buf.append(((Type) cst).getDescriptor()).append(".class");
             } else {
@@ -794,6 +863,7 @@ public class TraceVisitor extends AbstractVisitor {
         text.add(buf.toString());
     }
 
+    @Override
     public void visitJumpInsn(final int opcode, final Label label) {
         buf.setLength(0);
         buf.append(tab2).append(OPCODES[opcode]).append(' ');
@@ -802,6 +872,7 @@ public class TraceVisitor extends AbstractVisitor {
         text.add(buf.toString());
     }
 
+    @Override
     public void visitLabel(final Label label) {
         buf.setLength(0);
         buf.append(ltab);
@@ -810,11 +881,12 @@ public class TraceVisitor extends AbstractVisitor {
         text.add(buf.toString());
     }
 
+    @Override
     public void visitLdcInsn(final Object cst) {
         buf.setLength(0);
         buf.append(tab2).append("LDC ");
         if (cst instanceof String) {
-            AbstractVisitor.appendString(buf, (String) cst);
+            Printer.appendString(buf, (String) cst);
         } else if (cst instanceof Type) {
             buf.append(((Type) cst).getDescriptor()).append(".class");
         } else {
@@ -824,6 +896,7 @@ public class TraceVisitor extends AbstractVisitor {
         text.add(buf.toString());
     }
 
+    @Override
     public void visitIincInsn(final int var, final int increment) {
         buf.setLength(0);
         buf.append(tab2)
@@ -835,6 +908,7 @@ public class TraceVisitor extends AbstractVisitor {
         text.add(buf.toString());
     }
 
+    @Override
     public void visitTableSwitchInsn(
         final int min,
         final int max,
@@ -854,6 +928,7 @@ public class TraceVisitor extends AbstractVisitor {
         text.add(buf.toString());
     }
 
+    @Override
     public void visitLookupSwitchInsn(
         final Label dflt,
         final int[] keys,
@@ -872,6 +947,7 @@ public class TraceVisitor extends AbstractVisitor {
         text.add(buf.toString());
     }
 
+    @Override
     public void visitMultiANewArrayInsn(final String desc, final int dims) {
         buf.setLength(0);
         buf.append(tab2).append("MULTIANEWARRAY ");
@@ -880,6 +956,7 @@ public class TraceVisitor extends AbstractVisitor {
         text.add(buf.toString());
     }
 
+    @Override
     public void visitTryCatchBlock(
         final Label start,
         final Label end,
@@ -899,6 +976,7 @@ public class TraceVisitor extends AbstractVisitor {
         text.add(buf.toString());
     }
 
+    @Override
     public void visitLocalVariable(
         final String name,
         final String desc,
@@ -931,6 +1009,7 @@ public class TraceVisitor extends AbstractVisitor {
         text.add(buf.toString());
     }
 
+    @Override
     public void visitLineNumber(final int line, final Label start) {
         buf.setLength(0);
         buf.append(tab2).append("LINENUMBER ").append(line).append(' ');
@@ -939,6 +1018,7 @@ public class TraceVisitor extends AbstractVisitor {
         text.add(buf.toString());
     }
 
+    @Override
     public void visitMaxs(final int maxStack, final int maxLocals) {
         buf.setLength(0);
         buf.append(tab2).append("MAXSTACK = ").append(maxStack).append('\n');
@@ -949,6 +1029,7 @@ public class TraceVisitor extends AbstractVisitor {
         text.add(buf.toString());
     }
     
+    @Override
     public void visitMethodEnd() {        
     }
     
@@ -963,7 +1044,7 @@ public class TraceVisitor extends AbstractVisitor {
      * @param visible <tt>true</tt> if the annotation is visible at runtime.
      * @return a visitor to visit the annotation values.
      */
-    public TraceVisitor visitAnnotation(
+    public Textifier visitAnnotation(
         final String desc,
         final boolean visible)
     {
@@ -972,10 +1053,10 @@ public class TraceVisitor extends AbstractVisitor {
         appendDescriptor(FIELD_DESCRIPTOR, desc);
         buf.append('(');
         text.add(buf.toString());
-        TraceVisitor tv = createTraceVisitor();
-        text.add(tv.getText());
+        Textifier t = createTextifier();
+        text.add(t.getText());
         text.add(visible ? ")\n" : ") // invisible\n");
-        return tv;
+        return t;
     }
 
     /**
@@ -988,8 +1069,8 @@ public class TraceVisitor extends AbstractVisitor {
         buf.append(tab).append("ATTRIBUTE ");
         appendDescriptor(-1, attr.type);
 
-        if (attr instanceof Traceable) {
-            ((Traceable) attr).trace(buf, null);
+        if (attr instanceof Textifiable) {
+            ((Textifiable) attr).textify(buf, null);
         } else {
             buf.append(" : unknown\n");
         }
@@ -1006,8 +1087,8 @@ public class TraceVisitor extends AbstractVisitor {
      * 
      * @return a new TraceVisitor.
      */
-    protected TraceVisitor createTraceVisitor() {
-        return new TraceVisitor();
+    protected Textifier createTextifier() {
+        return new Textifier();
     }
     
     /**

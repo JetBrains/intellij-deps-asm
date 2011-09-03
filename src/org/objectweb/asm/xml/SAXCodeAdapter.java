@@ -38,7 +38,7 @@ import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
-import org.objectweb.asm.util.AbstractVisitor;
+import org.objectweb.asm.util.Printer;
 import org.xml.sax.helpers.AttributesImpl;
 
 /**
@@ -163,28 +163,28 @@ public final class SAXCodeAdapter extends MethodVisitor {
 
     @Override
     public final void visitInsn(final int opcode) {
-        sa.addElement(AbstractVisitor.OPCODES[opcode], new AttributesImpl());
+        sa.addElement(Printer.OPCODES[opcode], new AttributesImpl());
     }
 
     @Override
     public final void visitIntInsn(final int opcode, final int operand) {
         AttributesImpl attrs = new AttributesImpl();
         attrs.addAttribute("", "value", "value", "", Integer.toString(operand));
-        sa.addElement(AbstractVisitor.OPCODES[opcode], attrs);
+        sa.addElement(Printer.OPCODES[opcode], attrs);
     }
 
     @Override
     public final void visitVarInsn(final int opcode, final int var) {
         AttributesImpl attrs = new AttributesImpl();
         attrs.addAttribute("", "var", "var", "", Integer.toString(var));
-        sa.addElement(AbstractVisitor.OPCODES[opcode], attrs);
+        sa.addElement(Printer.OPCODES[opcode], attrs);
     }
 
     @Override
     public final void visitTypeInsn(final int opcode, final String type) {
         AttributesImpl attrs = new AttributesImpl();
         attrs.addAttribute("", "desc", "desc", "", type);
-        sa.addElement(AbstractVisitor.OPCODES[opcode], attrs);
+        sa.addElement(Printer.OPCODES[opcode], attrs);
     }
 
     @Override
@@ -198,7 +198,7 @@ public final class SAXCodeAdapter extends MethodVisitor {
         attrs.addAttribute("", "owner", "owner", "", owner);
         attrs.addAttribute("", "name", "name", "", name);
         attrs.addAttribute("", "desc", "desc", "", desc);
-        sa.addElement(AbstractVisitor.OPCODES[opcode], attrs);
+        sa.addElement(Printer.OPCODES[opcode], attrs);
     }
 
     @Override
@@ -212,7 +212,7 @@ public final class SAXCodeAdapter extends MethodVisitor {
         attrs.addAttribute("", "owner", "owner", "", owner);
         attrs.addAttribute("", "name", "name", "", name);
         attrs.addAttribute("", "desc", "desc", "", desc);
-        sa.addElement(AbstractVisitor.OPCODES[opcode], attrs);
+        sa.addElement(Printer.OPCODES[opcode], attrs);
     }
 
     @Override
@@ -237,7 +237,7 @@ public final class SAXCodeAdapter extends MethodVisitor {
     public final void visitJumpInsn(final int opcode, final Label label) {
         AttributesImpl attrs = new AttributesImpl();
         attrs.addAttribute("", "label", "label", "", getLabel(label));
-        sa.addElement(AbstractVisitor.OPCODES[opcode], attrs);
+        sa.addElement(Printer.OPCODES[opcode], attrs);
     }
 
     @Override
@@ -249,7 +249,7 @@ public final class SAXCodeAdapter extends MethodVisitor {
 
     @Override
     public final void visitLdcInsn(final Object cst) {
-        sa.addElement(AbstractVisitor.OPCODES[Opcodes.LDC], getConstantAttribute(cst));
+        sa.addElement(Printer.OPCODES[Opcodes.LDC], getConstantAttribute(cst));
     }
 
     private static AttributesImpl getConstantAttribute(final Object cst) {
@@ -272,7 +272,7 @@ public final class SAXCodeAdapter extends MethodVisitor {
         AttributesImpl attrs = new AttributesImpl();
         attrs.addAttribute("", "var", "var", "", Integer.toString(var));
         attrs.addAttribute("", "inc", "inc", "", Integer.toString(increment));
-        sa.addElement(AbstractVisitor.OPCODES[Opcodes.IINC], attrs);
+        sa.addElement(Printer.OPCODES[Opcodes.IINC], attrs);
     }
 
     @Override
@@ -286,7 +286,7 @@ public final class SAXCodeAdapter extends MethodVisitor {
         attrs.addAttribute("", "min", "min", "", Integer.toString(min));
         attrs.addAttribute("", "max", "max", "", Integer.toString(max));
         attrs.addAttribute("", "dflt", "dflt", "", getLabel(dflt));
-        String o = AbstractVisitor.OPCODES[Opcodes.TABLESWITCH];
+        String o = Printer.OPCODES[Opcodes.TABLESWITCH];
         sa.addStart(o, attrs);
         for (int i = 0; i < labels.length; i++) {
             AttributesImpl att2 = new AttributesImpl();
@@ -304,7 +304,7 @@ public final class SAXCodeAdapter extends MethodVisitor {
     {
         AttributesImpl att = new AttributesImpl();
         att.addAttribute("", "dflt", "dflt", "", getLabel(dflt));
-        String o = AbstractVisitor.OPCODES[Opcodes.LOOKUPSWITCH];
+        String o = Printer.OPCODES[Opcodes.LOOKUPSWITCH];
         sa.addStart(o, att);
         for (int i = 0; i < labels.length; i++) {
             AttributesImpl att2 = new AttributesImpl();
@@ -321,7 +321,7 @@ public final class SAXCodeAdapter extends MethodVisitor {
         AttributesImpl attrs = new AttributesImpl();
         attrs.addAttribute("", "desc", "desc", "", desc);
         attrs.addAttribute("", "dims", "dims", "", Integer.toString(dims));
-        sa.addElement(AbstractVisitor.OPCODES[Opcodes.MULTIANEWARRAY], attrs);
+        sa.addElement(Printer.OPCODES[Opcodes.MULTIANEWARRAY], attrs);
     }
 
     @Override

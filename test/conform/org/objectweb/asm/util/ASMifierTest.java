@@ -73,7 +73,9 @@ public class ASMifierTest extends AbstractTest {
         }
 
         StringWriter sw = new StringWriter();
-        ASMifierClassVisitor cv = new ASMifierClassVisitor(new PrintWriter(sw));
+        TraceClassVisitor cv = new TraceClassVisitor(null,
+                new ASMifier(),
+                new PrintWriter(sw));
         cr.accept(cv, new Attribute[] { new Comment(), new CodeComment() }, 0);
 
         String generated = sw.toString();

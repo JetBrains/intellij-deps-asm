@@ -35,23 +35,22 @@ import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.Opcodes;
 
 /**
- * A {@link FieldVisitor} that prints a disassembled view of the fields it
- * visits.
+ * A {@link FieldVisitor} that prints the fields it visits with a
+ * {@link Printer}.
  * 
  * @author Eric Bruneton
  */
-public final class TraceFieldVisitor extends FieldVisitor
-{
+public final class TraceFieldVisitor extends FieldVisitor {
 
-    TraceVisitor tv;
+    private final Printer p;
 
-    public TraceFieldVisitor(TraceVisitor tv) {
-        this(null, tv);
+    public TraceFieldVisitor(final Printer p) {
+        this(null, p);
     }
 
-    public TraceFieldVisitor(FieldVisitor fv, TraceVisitor tv) {
+    public TraceFieldVisitor(final FieldVisitor fv, final Printer p) {
         super(Opcodes.ASM4, fv);
-        this.tv = tv;
+        this.p = p;
     }
         
     @Override
@@ -59,21 +58,21 @@ public final class TraceFieldVisitor extends FieldVisitor
         final String desc,
         final boolean visible)
     {
-        TraceVisitor tv = this.tv.visitFieldAnnotation(desc, visible);
+        Printer p = this.p.visitFieldAnnotation(desc, visible);
         AnnotationVisitor av = fv == null ? null : fv.visitAnnotation(desc,
                 visible);
-        return new TraceAnnotationVisitor(av, tv);
+        return new TraceAnnotationVisitor(av, p);
     }
 
     @Override
     public void visitAttribute(final Attribute attr) {
-        tv.visitFieldAttribute(attr);
+        p.visitFieldAttribute(attr);
         super.visitAttribute(attr);
     }
 
     @Override
     public void visitEnd() {
-        tv.visitFieldEnd();
+        p.visitFieldEnd();
         super.visitEnd();
     }
 }

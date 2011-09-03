@@ -49,7 +49,7 @@ import org.objectweb.asm.tree.LabelNode;
 import org.objectweb.asm.tree.LocalVariableNode;
 import org.objectweb.asm.tree.MethodNode;
 import org.objectweb.asm.tree.TryCatchBlockNode;
-import org.objectweb.asm.util.AbstractVisitor;
+import org.objectweb.asm.util.Printer;
 
 /**
  * A {@link ClassVisitor} that prints a disassembled view of the classes it
@@ -263,7 +263,7 @@ public class JasminifierClassAdapter extends ClassVisitor {
             }
             if (fn.value instanceof String) {
                 StringBuffer buf = new StringBuffer();
-                AbstractVisitor.appendString(buf, (String) fn.value);
+                Printer.appendString(buf, (String) fn.value);
                 pw.print(" = ");
                 pw.print(buf.toString());
             } else if (fn.value != null) {
@@ -640,13 +640,13 @@ public class JasminifierClassAdapter extends ClassVisitor {
     }
 
     protected void print(final int opcode) {
-        pw.print(AbstractVisitor.OPCODES[opcode].toLowerCase());
+        pw.print(Printer.OPCODES[opcode].toLowerCase());
     }
 
     protected void print(final Object cst) {
         if (cst instanceof String) {
             StringBuffer buf = new StringBuffer();
-            AbstractVisitor.appendString(buf, (String) cst);
+            Printer.appendString(buf, (String) cst);
             pw.print(buf.toString());
         } else if (cst instanceof Float) {
             Float f = (Float) cst;

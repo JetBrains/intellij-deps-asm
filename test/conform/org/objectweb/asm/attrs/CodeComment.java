@@ -37,14 +37,14 @@ import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.util.ASMifiable;
-import org.objectweb.asm.util.Traceable;
+import org.objectweb.asm.util.Textifiable;
 
 /**
  * A non standard code attribute used for testing purposes.
  * 
  * @author Eric Bruneton
  */
-public class CodeComment extends Attribute implements ASMifiable, Traceable {
+public class CodeComment extends Attribute implements ASMifiable, Textifiable {
 
     public CodeComment() {
         super("CodeComment");
@@ -100,6 +100,6 @@ public class CodeComment extends Attribute implements ASMifiable, Traceable {
                 .append(" = new org.objectweb.asm.attrs.CodeComment();");
     }
 
-    public void trace(final StringBuffer buf, final Map<Label, String> labelNames) {
+    public void textify(final StringBuffer buf, final Map<Label, String> labelNames) {
     }
 }

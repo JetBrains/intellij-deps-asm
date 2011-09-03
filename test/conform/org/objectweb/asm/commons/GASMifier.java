@@ -29,17 +29,21 @@
  */
 package org.objectweb.asm.commons;
 
+import java.io.FileInputStream;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.Handle;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
-import org.objectweb.asm.util.ASMifierVisitor;
+import org.objectweb.asm.util.ASMifier;
+import org.objectweb.asm.util.TraceClassVisitor;
 
 /**
  * A {@link MethodVisitor} that prints the ASM code that generates the methods
@@ -48,7 +52,7 @@ import org.objectweb.asm.util.ASMifierVisitor;
  * @author Eric Bruneton
  * @author Eugene Kuleshov
  */
-public class GASMifierVisitor extends ASMifierVisitor implements Opcodes {
+public class GASMifier extends ASMifier implements Opcodes {
 
     int access;
 
@@ -60,14 +64,14 @@ public class GASMifierVisitor extends ASMifierVisitor implements Opcodes {
 
     List<String> localTypes;
 
-    public GASMifierVisitor() {
+    public GASMifier() {
     }
     
-    public GASMifierVisitor(final String name, final int id) {
+    public GASMifier(final String name, final int id) {
         super(Opcodes.ASM4, name, id);
     }
 
-    public GASMifierVisitor(final int access, final String desc) {
+    public GASMifier(final int access, final String desc) {
         super(Opcodes.ASM4, "mg", 0);
         this.access = access;
         this.argumentTypes = Type.getArgumentTypes(desc);
@@ -80,6 +84,48 @@ public class GASMifierVisitor extends ASMifierVisitor implements Opcodes {
         this.localTypes = new ArrayList<String>();
     }
     
+    /**
+     * Prints the ASM source code to generate the given class to the standard
+     * output. <p> Usage: ASMifierClassVisitor [-debug] &lt;fully qualified
+     * class name or class file name&gt;
+     * 
+     * @param args the command line arguments.
+     * 
+     * @throws Exception if the class cannot be found, or if an IO exception
+     *         occurs.
+     */
+    public static void main(final String[] args) throws Exception {
+        int i = 0;
+        int flags = ClassReader.SKIP_DEBUG;
+
+        boolean ok = true;
+        if (args.length < 1 || args.length > 2) {
+            ok = false;
+        }
+        if (ok && args[0].equals("-debug")) {
+            i = 1;
+            flags = 0;
+            if (args.length != 2) {
+                ok = false;
+            }
+        }
+        if (!ok) {
+            System.err.println("Prints the ASM code to generate the given class.");
+            System.err.println("Usage: GASMifierClassVisitor [-debug] "
+                    + "<fully qualified class name or class file name>");
+            System.exit(-1);
+        }
+        ClassReader cr;
+        if (args[i].endsWith(".class")) {
+            cr = new ClassReader(new FileInputStream(args[i]));
+        } else {
+            cr = new ClassReader(args[i]);
+        }
+        cr.accept(new TraceClassVisitor(null,
+                new GASMifier(),
+                new PrintWriter(System.out)), ClassReader.EXPAND_FRAMES | flags);
+    }
+
     @Override
     public void visit(
         final int version,
@@ -103,7 +149,7 @@ public class GASMifierVisitor extends ASMifierVisitor implements Opcodes {
     }
 
     @Override
-    public ASMifierVisitor visitMethod(
+    public ASMifier visitMethod(
         final int access,
         final String name,
         final String desc,
@@ -115,7 +161,7 @@ public class GASMifierVisitor extends ASMifierVisitor implements Opcodes {
         buf.append("mg = new GeneratorAdapter(");
         buf.append(access);
         buf.append(", ");
-        buf.append(GASMifierVisitor.getMethod(name, desc));
+        buf.append(getMethod(name, desc));
         buf.append(", ");
         if (signature == null) {
             buf.append("null");
@@ -127,7 +173,7 @@ public class GASMifierVisitor extends ASMifierVisitor implements Opcodes {
             buf.append("new Type[] {");
             for (int i = 0; i < exceptions.length; ++i) {
                 buf.append(i == 0 ? " " : ", ");
-                buf.append(GASMifierVisitor.getType(exceptions[i]));
+                buf.append(getType(exceptions[i]));
             }
             buf.append(" }");
         } else {
@@ -135,7 +181,7 @@ public class GASMifierVisitor extends ASMifierVisitor implements Opcodes {
         }
         buf.append(", cw);\n");
         text.add(buf.toString());
-        GASMifierVisitor av = new GASMifierVisitor(access, desc);
+        GASMifier av = new GASMifier(access, desc);
         text.add(av.getText());
         text.add("}\n");
         return av;
@@ -840,11 +886,8 @@ public class GASMifierVisitor extends ASMifierVisitor implements Opcodes {
     }
 
     @Override
-    protected ASMifierVisitor createASMifierVisitor(
-        final String name,
-        final int id)
-    {
-        return new GASMifierVisitor(name, id);
+    protected ASMifier createASMifier(final String name, final int id) {
+        return new GASMifier(name, id);
     }
     
     static String getType(final String internalName) {

@@ -29,61 +29,40 @@
  */
 package org.objectweb.asm.util;
 
-import java.io.FileInputStream;
 import java.io.PrintWriter;
 
 import org.objectweb.asm.AnnotationVisitor;
 import org.objectweb.asm.Attribute;
-import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 
 /**
- * A {@link ClassVisitor} that prints a disassembled view of the classes it
- * visits. This class visitor can be used alone (see the {@link #main main}
- * method) to disassemble a class. It can also be used in the middle of class
+ * A {@link ClassVisitor} that prints the classes it visits with a
+ * {@link Printer}. This class visitor can be used in the middle of a class
  * visitor chain to trace the class that is visited at a given point in this
- * chain. This may be uselful for debugging purposes. <p> The trace printed when
+ * chain. This may be useful for debugging purposes. <p> The trace printed when
  * visiting the <tt>Hello</tt> class is the following: <p> <blockquote>
  * 
- * <pre>
- * // class version 49.0 (49)
- * // access flags 0x21
- * public class Hello {
- *
- *  // compiled from: Hello.java
- *
- *   // access flags 0x1
- *   public &lt;init&gt; ()V
- *     ALOAD 0
- *     INVOKESPECIAL java/lang/Object &lt;init&gt; ()V
- *     RETURN
- *     MAXSTACK = 1
- *     MAXLOCALS = 1
- *
- *   // access flags 0x9
- *   public static main ([Ljava/lang/String;)V
- *     GETSTATIC java/lang/System out Ljava/io/PrintStream;
- *     LDC &quot;hello&quot;
- *     INVOKEVIRTUAL java/io/PrintStream println (Ljava/lang/String;)V
- *     RETURN
- *     MAXSTACK = 2
- *     MAXLOCALS = 1
- * }
- * </pre>
+ * <pre> // class version 49.0 (49) // access flags 0x21 public class Hello {
+ * 
+ * // compiled from: Hello.java
+ * 
+ * // access flags 0x1 public &lt;init&gt; ()V ALOAD 0 INVOKESPECIAL
+ * java/lang/Object &lt;init&gt; ()V RETURN MAXSTACK = 1 MAXLOCALS = 1
+ * 
+ * // access flags 0x9 public static main ([Ljava/lang/String;)V GETSTATIC
+ * java/lang/System out Ljava/io/PrintStream; LDC &quot;hello&quot;
+ * INVOKEVIRTUAL java/io/PrintStream println (Ljava/lang/String;)V RETURN
+ * MAXSTACK = 2 MAXLOCALS = 1 } </pre>
  * 
  * </blockquote> where <tt>Hello</tt> is defined by: <p> <blockquote>
  * 
- * <pre>
- * public class Hello {
- *
- *     public static void main(String[] args) {
- *         System.out.println(&quot;hello&quot;);
- *     }
- * }
- * </pre>
+ * <pre> public class Hello {
+ * 
+ * public static void main(String[] args) {
+ * System.out.println(&quot;hello&quot;); } } </pre>
  * 
  * </blockquote>
  * 
@@ -95,56 +74,12 @@ public final class TraceClassVisitor extends ClassVisitor {
     /**
      * The print writer to be used to print the class. May be null.
      */
-    protected final PrintWriter pw;
+    private final PrintWriter pw;
 
     /**
-     * The visitor that actually converts visit events into text.
+     * The object that actually converts visit events into text.
      */
-    private final TraceVisitor tv;
-
-    /**
-     * Prints a disassembled view of the given class to the standard output. <p>
-     * Usage: TraceClassVisitor [-debug] &lt;binary class name or class
-     * file name &gt;
-     * 
-     * @param args the command line arguments.
-     * 
-     * @throws Exception if the class cannot be found, or if an IO exception
-     *         occurs.
-     */
-    public static void main(final String[] args) throws Exception {
-        int i = 0;
-        int flags = ClassReader.SKIP_DEBUG;
-
-        boolean ok = true;
-        if (args.length < 1 || args.length > 2) {
-            ok = false;
-        }
-        if (ok && "-debug".equals(args[0])) {
-            i = 1;
-            flags = 0;
-            if (args.length != 2) {
-                ok = false;
-            }
-        }
-        if (!ok) {
-            System.err.println("Prints a disassembled view of the given class.");
-            System.err.println("Usage: TraceClassVisitor [-debug] "
-                    + "<fully qualified class name or class file name>");
-            return;
-        }
-        ClassReader cr;
-        if (args[i].endsWith(".class") || args[i].indexOf('\\') > -1
-                || args[i].indexOf('/') > -1)
-        {
-            cr = new ClassReader(new FileInputStream(args[i]));
-        } else {
-            cr = new ClassReader(args[i]);
-        }
-        cr.accept(new TraceClassVisitor(new PrintWriter(System.out)),
-                AbstractVisitor.getDefaultAttributes(),
-                flags);
-    }
+    private final Printer p;
 
     /**
      * Constructs a new {@link TraceClassVisitor}.
@@ -163,7 +98,7 @@ public final class TraceClassVisitor extends ClassVisitor {
      * @param pw the print writer to be used to print the class.
      */
     public TraceClassVisitor(final ClassVisitor cv, final PrintWriter pw) {
-        this(cv, new TraceVisitor(), pw);
+        this(cv, new Textifier(), pw);
     }
 
     /**
@@ -171,19 +106,19 @@ public final class TraceClassVisitor extends ClassVisitor {
      * 
      * @param cv the {@link ClassVisitor} to which this visitor delegates calls.
      *        May be <tt>null</tt>.
-     * @param tv the visitor that actually converts visit events into text.
+     * @param p the object that actually converts visit events into text.
      * @param pw the print writer to be used to print the class. May be null if
      *        you simply want to use the result via
-     *        {@link AbstractVisitor#getText()}, instead of printing it.
+     *        {@link Printer#getText()}, instead of printing it.
      */
     public TraceClassVisitor(
         final ClassVisitor cv,
-        final TraceVisitor tv,
+        final Printer p,
         final PrintWriter pw)
     {
         super(Opcodes.ASM4, cv);
         this.pw = pw;
-        this.tv = tv;
+        this.p = p;
     }
 
     @Override
@@ -195,13 +130,13 @@ public final class TraceClassVisitor extends ClassVisitor {
         final String superName,
         final String[] interfaces)
     {
-        tv.visit(version, access, name, signature, superName, interfaces);
+        p.visit(version, access, name, signature, superName, interfaces);
         super.visit(version, access, name, signature, superName, interfaces);
     }
 
     @Override
     public void visitSource(final String file, final String debug) {
-        tv.visitSource(file, debug);
+        p.visitSource(file, debug);
         super.visitSource(file, debug);
     }
 
@@ -211,7 +146,7 @@ public final class TraceClassVisitor extends ClassVisitor {
         final String name,
         final String desc)
     {
-        tv.visitOuterClass(owner, name, desc);
+        p.visitOuterClass(owner, name, desc);
         super.visitOuterClass(owner, name, desc);
     }
 
@@ -220,15 +155,15 @@ public final class TraceClassVisitor extends ClassVisitor {
         final String desc,
         final boolean visible)
     {
-        TraceVisitor tv = this.tv.visitClassAnnotation(desc, visible);
+        Printer p = this.p.visitClassAnnotation(desc, visible);
         AnnotationVisitor av = cv == null ? null : cv.visitAnnotation(desc,
                 visible);
-        return new TraceAnnotationVisitor(av, tv);
+        return new TraceAnnotationVisitor(av, p);
     }
 
     @Override
     public void visitAttribute(final Attribute attr) {
-        tv.visitClassAttribute(attr);
+        p.visitClassAttribute(attr);
         super.visitAttribute(attr);
     }
 
@@ -239,7 +174,7 @@ public final class TraceClassVisitor extends ClassVisitor {
         final String innerName,
         final int access)
     {
-        tv.visitInnerClass(name, outerName, innerName, access);
+        p.visitInnerClass(name, outerName, innerName, access);
         super.visitInnerClass(name, outerName, innerName, access);
     }
 
@@ -251,7 +186,7 @@ public final class TraceClassVisitor extends ClassVisitor {
         final String signature,
         final Object value)
     {
-        TraceVisitor tv = this.tv.visitField(access,
+        Printer p = this.p.visitField(access,
                 name,
                 desc,
                 signature,
@@ -261,7 +196,7 @@ public final class TraceClassVisitor extends ClassVisitor {
                 desc,
                 signature,
                 value);
-        return new TraceFieldVisitor(fv, tv);
+        return new TraceFieldVisitor(fv, p);
     }
 
     @Override
@@ -272,7 +207,7 @@ public final class TraceClassVisitor extends ClassVisitor {
         final String signature,
         final String[] exceptions)
     {
-        TraceVisitor tv = this.tv.visitMethod(access,
+        Printer p = this.p.visitMethod(access,
                 name,
                 desc,
                 signature,
@@ -282,14 +217,14 @@ public final class TraceClassVisitor extends ClassVisitor {
                 desc,
                 signature,
                 exceptions);
-        return new TraceMethodVisitor(mv, tv);
+        return new TraceMethodVisitor(mv, p);
     }
 
     @Override
     public void visitEnd() {
-        tv.visitClassEnd();
+        p.visitClassEnd();
         if (pw != null) {
-            tv.print(pw);
+            p.print(pw);
             pw.flush();
         }
         super.visitEnd();

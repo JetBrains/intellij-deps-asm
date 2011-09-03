@@ -261,8 +261,8 @@ public class CheckClassAdapter extends ClassVisitor {
         final PrintWriter pw)
     {
         Frame<BasicValue>[] frames = a.getFrames();
-        TraceVisitor tv = new TraceVisitor();
-        TraceMethodVisitor mv = new TraceMethodVisitor(tv);
+        Textifier t = new Textifier();
+        TraceMethodVisitor mv = new TraceMethodVisitor(t);
 
         pw.println(method.name + method.desc);
         for (int j = 0; j < method.instructions.size(); ++j) {
@@ -287,11 +287,11 @@ public class CheckClassAdapter extends ClassVisitor {
                 s.append(' ');
             }
             pw.print(Integer.toString(j + 100000).substring(1));
-            pw.print(" " + s + " : " + tv.text.get(tv.text.size() - 1));
+            pw.print(" " + s + " : " + t.text.get(t.text.size() - 1));
         }
         for (int j = 0; j < method.tryCatchBlocks.size(); ++j) {
             method.tryCatchBlocks.get(j).accept(mv);
-            pw.print(" " + tv.text.get(tv.text.size() - 1));
+            pw.print(" " + t.text.get(t.text.size() - 1));
         }
         pw.println();
     }

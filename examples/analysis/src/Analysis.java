@@ -47,7 +47,7 @@ import org.objectweb.asm.tree.analysis.Frame;
 import org.objectweb.asm.tree.analysis.SourceInterpreter;
 import org.objectweb.asm.tree.analysis.SourceValue;
 import org.objectweb.asm.util.TraceMethodVisitor;
-import org.objectweb.asm.util.TraceVisitor;
+import org.objectweb.asm.util.Textifier;
 
 /**
  * @author Eric Bruneton
@@ -71,7 +71,7 @@ public class Analysis implements Opcodes {
                     }
                     final Frame<?>[] frames = a.getFrames();
 
-                    TraceVisitor tv = new TraceVisitor() {
+                    Textifier t = new Textifier() {
                         @Override
                         public void visitMaxs(
                             final int maxStack,
@@ -93,7 +93,7 @@ public class Analysis implements Opcodes {
                             System.err.println();
                         }
                     };
-                    MethodVisitor mv = new TraceMethodVisitor(tv);
+                    MethodVisitor mv = new TraceMethodVisitor(t);
                     for (int j = 0; j < method.instructions.size(); ++j) {
                         Object insn = method.instructions.get(j);
                         ((AbstractInsnNode) insn).accept(mv);

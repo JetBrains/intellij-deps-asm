@@ -1,4 +1,4 @@
-/***
+/**
  * ASM: a very small and fast Java bytecode manipulation framework
  * Copyright (c) 2000-2007 INRIA, France Telecom
  * All rights reserved.
@@ -29,53 +29,26 @@
  */
 package org.objectweb.asm.util;
 
-import org.objectweb.asm.AnnotationVisitor;
-import org.objectweb.asm.Opcodes;
+import java.util.Map;
+
+import org.objectweb.asm.Label;
 
 /**
- * An {@link AnnotationVisitor} that prints the ASM code that generates the
- * annotations it visits.
+ * An {@link org.objectweb.asm.Attribute Attribute} that can print a readable
+ * representation of itself.
  * 
- * @author Eric Bruneton
+ * Implementations should construct readable output from an attribute data
+ * structure. Such representation could be used in unit test assertions.
+ * 
+ * @author Eugene Kuleshov
  */
-public final class ASMifierAnnotationVisitor extends AnnotationVisitor {
+public interface Textifiable {
 
-    private ASMifierVisitor sv;
-    
-    public ASMifierAnnotationVisitor(ASMifierVisitor sv) {
-        super(Opcodes.ASM4);
-        this.sv = sv;
-    }
-
-    @Override
-    public void visit(final String name, final Object value) {
-        sv.visit(name, value);
-    }
-
-    @Override
-    public void visitEnum(
-        final String name,
-        final String desc,
-        final String value)
-    {
-        sv.visitEnum(name, desc, value);
-    }
-
-    @Override
-    public AnnotationVisitor visitAnnotation(
-        final String name,
-        final String desc)
-    {
-        return new ASMifierAnnotationVisitor(sv.visitAnnotation(name, desc));
-    }
-
-    @Override
-    public AnnotationVisitor visitArray(final String name) {
-        return new ASMifierAnnotationVisitor(sv.visitArray(name));
-    }
-
-    @Override
-    public void visitEnd() {
-        sv.visitAnnotationEnd();
-    }
+    /**
+     * Build a human readable representation of this attribute.
+     * 
+     * @param buf a buffer used for printing Java code.
+     * @param labelNames map of label instances to their names.
+     */
+    void textify(StringBuffer buf, Map<Label, String> labelNames);
 }

@@ -29,30 +29,27 @@
  */
 package org.objectweb.asm.util;
 
+import java.io.FileInputStream;
+import java.io.PrintWriter;
 import java.util.HashMap;
 import java.util.Map;
 
 import org.objectweb.asm.Attribute;
+import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.Handle;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
 /**
- * An abstract ASMifier visitor.
- *
+ * A {@link Printer} that prints the ASM code to generate the classes if visits.
+ * 
  * @author Eric Bruneton
  */
-public class ASMifierVisitor extends AbstractVisitor {
-    
+public class ASMifier extends Printer {
+        
     /**
-     * The ASM API version implemented by this visitor. The value of this field
-     * must be one of {@link Opcodes#ASM4}.
-     */
-    protected final int api;
-    
-    /**
-     * The name of the variable for this visitor in the produced code.
+     * The name of the visitor variable in the produced code.
      */
     protected final String name;
 
@@ -83,34 +80,78 @@ public class ASMifierVisitor extends AbstractVisitor {
     private static final int ACCESS_INNER = 1048576;
 
     /**
-     * Constructs a new {@link ASMifierVisitor}. <i>Subclasses must not use this
+     * Constructs a new {@link ASMifier}. <i>Subclasses must not use this
      * constructor</i>. Instead, they must use the
-     * {@link #ASMifierVisitor(int, String, int)} version.
+     * {@link #ASMifier(int, String, int)} version.
      */
-    public ASMifierVisitor() {
+    public ASMifier() {
         this(Opcodes.ASM4, "cw", 0);
     }
 
     /**
-     * Constructs a new {@link ASMifierVisitor}.
+     * Constructs a new {@link ASMifier}.
      * 
-     * @param api the ASM API version implemented by this visitor. Must be one
-     *        of {@link Opcodes#ASM4}.
-     * @param name the name of the variable for this visitor in the produced
-     *        code.
+     * @param api the ASM API version implemented by this class. Must be one of
+     *        {@link Opcodes#ASM4}.
+     * @param name the name of the visitor variable in the produced code.
      * @param id identifier of the annotation visitor variable in the produced
      *        code.
      */
-    protected ASMifierVisitor(final int api, final String name, final int id) {
-        this.api = api;
+    protected ASMifier(final int api, final String name, final int id) {
+        super(api);
         this.name = name;
         this.id = id;
+    }
+
+    /**
+     * Prints the ASM source code to generate the given class to the standard
+     * output. <p> Usage: ASMifier [-debug] &lt;binary
+     * class name or class file name&gt;
+     * 
+     * @param args the command line arguments.
+     * 
+     * @throws Exception if the class cannot be found, or if an IO exception
+     *         occurs.
+     */
+    public static void main(final String[] args) throws Exception {
+        int i = 0;
+        int flags = ClassReader.SKIP_DEBUG;
+
+        boolean ok = true;
+        if (args.length < 1 || args.length > 2) {
+            ok = false;
+        }
+        if (ok && "-debug".equals(args[0])) {
+            i = 1;
+            flags = 0;
+            if (args.length != 2) {
+                ok = false;
+            }
+        }
+        if (!ok) {
+            System.err.println("Prints the ASM code to generate the given class.");
+            System.err.println("Usage: ASMifier [-debug] "
+                    + "<fully qualified class name or class file name>");
+            return;
+        }
+        ClassReader cr;
+        if (args[i].endsWith(".class") || args[i].indexOf('\\') > -1
+                || args[i].indexOf('/') > -1)
+        {
+            cr = new ClassReader(new FileInputStream(args[i]));
+        } else {
+            cr = new ClassReader(args[i]);
+        }
+        cr.accept(new TraceClassVisitor(null,
+                new ASMifier(),
+                new PrintWriter(System.out)), flags);
     }
 
     // ------------------------------------------------------------------------
     // Classes
     // ------------------------------------------------------------------------
     
+    @Override
     public void visit(
         final int version,
         final int access,
@@ -189,6 +230,7 @@ public class ASMifierVisitor extends AbstractVisitor {
         text.add(buf.toString());
     }
 
+    @Override
     public void visitSource(final String file, final String debug) {
         buf.setLength(0);
         buf.append("cw.visitSource(");
@@ -199,6 +241,7 @@ public class ASMifierVisitor extends AbstractVisitor {
         text.add(buf.toString());
     }
 
+    @Override
     public void visitOuterClass(
         final String owner,
         final String name,
@@ -215,17 +258,20 @@ public class ASMifierVisitor extends AbstractVisitor {
         text.add(buf.toString());
     }
     
-    public ASMifierVisitor visitClassAnnotation(
+    @Override
+    public ASMifier visitClassAnnotation(
         final String desc,
         final boolean visible)
     {
         return visitAnnotation(desc, visible);
     }
 
+    @Override
     public void visitClassAttribute(final Attribute attr) {
         visitAttribute(attr);
     }
 
+    @Override
     public void visitInnerClass(
         final String name,
         final String outerName,
@@ -245,7 +291,8 @@ public class ASMifierVisitor extends AbstractVisitor {
         text.add(buf.toString());
     }
 
-    public ASMifierVisitor visitField(
+    @Override
+    public ASMifier visitField(
         final int access,
         final String name,
         final String desc,
@@ -266,13 +313,14 @@ public class ASMifierVisitor extends AbstractVisitor {
         appendConstant(value);
         buf.append(");\n");
         text.add(buf.toString());
-        ASMifierVisitor av = createASMifierVisitor("fv", 0);
-        text.add(av.getText());
+        ASMifier a = createASMifier("fv", 0);
+        text.add(a.getText());
         text.add("}\n");
-        return av;
+        return a;
     }
 
-    public ASMifierVisitor visitMethod(
+    @Override
+    public ASMifier visitMethod(
         final int access,
         final String name,
         final String desc,
@@ -302,12 +350,13 @@ public class ASMifierVisitor extends AbstractVisitor {
         }
         buf.append(");\n");
         text.add(buf.toString());
-        ASMifierVisitor av = createASMifierVisitor("mv", 0);
-        text.add(av.getText());
+        ASMifier a = createASMifier("mv", 0);
+        text.add(a.getText());
         text.add("}\n");
-        return av;
+        return a;
     }
 
+    @Override
     public void visitClassEnd() {
         text.add("cw.visitEnd();\n\n");
         text.add("return cw.toByteArray();\n");
@@ -319,16 +368,18 @@ public class ASMifierVisitor extends AbstractVisitor {
     // Annotations
     // ------------------------------------------------------------------------
 
+    @Override
     public void visit(final String name, final Object value) {
         buf.setLength(0);
         buf.append("av").append(id).append(".visit(");
-        ASMifierVisitor.appendConstant(buf, name);
+        appendConstant(buf, name);
         buf.append(", ");
-        ASMifierVisitor.appendConstant(buf, value);
+        appendConstant(buf, value);
         buf.append(");\n");
         text.add(buf.toString());
     }
 
+    @Override
     public void visitEnum(
         final String name,
         final String desc,
@@ -336,16 +387,17 @@ public class ASMifierVisitor extends AbstractVisitor {
     {
         buf.setLength(0);
         buf.append("av").append(id).append(".visitEnum(");
-        ASMifierVisitor.appendConstant(buf, name);
+        appendConstant(buf, name);
         buf.append(", ");
-        ASMifierVisitor.appendConstant(buf, desc);
+        appendConstant(buf, desc);
         buf.append(", ");
-        ASMifierVisitor.appendConstant(buf, value);
+        appendConstant(buf, value);
         buf.append(");\n");
         text.add(buf.toString());
     }
 
-    public ASMifierVisitor visitAnnotation(
+    @Override
+    public ASMifier visitAnnotation(
         final String name,
         final String desc)
     {
@@ -353,31 +405,33 @@ public class ASMifierVisitor extends AbstractVisitor {
         buf.append("{\n");
         buf.append("AnnotationVisitor av").append(id + 1).append(" = av");
         buf.append(id).append(".visitAnnotation(");
-        ASMifierVisitor.appendConstant(buf, name);
+        appendConstant(buf, name);
         buf.append(", ");
-        ASMifierVisitor.appendConstant(buf, desc);
+        appendConstant(buf, desc);
         buf.append(");\n");
         text.add(buf.toString());
-        ASMifierVisitor av = createASMifierVisitor("av", id + 1);
-        text.add(av.getText());
+        ASMifier a = createASMifier("av", id + 1);
+        text.add(a.getText());
         text.add("}\n");
-        return av;
+        return a;
     }
 
-    public ASMifierVisitor visitArray(final String name) {
+    @Override
+    public ASMifier visitArray(final String name) {
         buf.setLength(0);
         buf.append("{\n");
         buf.append("AnnotationVisitor av").append(id + 1).append(" = av");
         buf.append(id).append(".visitArray(");
-        ASMifierVisitor.appendConstant(buf, name);
+        appendConstant(buf, name);
         buf.append(");\n");
         text.add(buf.toString());
-        ASMifierVisitor av = createASMifierVisitor("av", id + 1);
-        text.add(av.getText());
+        ASMifier a = createASMifier("av", id + 1);
+        text.add(a.getText());
         text.add("}\n");
-        return av;
+        return a;
     }
 
+    @Override
     public void visitAnnotationEnd() {
         buf.setLength(0);
         buf.append("av").append(id).append(".visitEnd();\n");
@@ -388,24 +442,20 @@ public class ASMifierVisitor extends AbstractVisitor {
     // Fields
     // ------------------------------------------------------------------------
     
-    /**
-     * Prints the ASM code that generates the given annotation.
-     *
-     * @param desc the class descriptor of the annotation class.
-     * @param visible <tt>true</tt> if the annotation is visible at runtime.
-     * @return a visitor to visit the annotation values.
-     */
-    public ASMifierVisitor visitFieldAnnotation(
+    @Override
+    public ASMifier visitFieldAnnotation(
         final String desc,
         final boolean visible)
     {
         return visitAnnotation(desc, visible);
     }
     
+    @Override
     public void visitFieldAttribute(final Attribute attr) {
         visitAttribute(attr);
     }
 
+    @Override
     public void visitFieldEnd() {
     }
 
@@ -413,27 +463,30 @@ public class ASMifierVisitor extends AbstractVisitor {
     // Methods
     // ------------------------------------------------------------------------
 
-    public ASMifierVisitor visitAnnotationDefault() {
+    @Override
+    public ASMifier visitAnnotationDefault() {
         buf.setLength(0);
         buf.append("{\n")
                 .append("av0 = ")
                 .append(name)
                 .append(".visitAnnotationDefault();\n");
         text.add(buf.toString());
-        ASMifierVisitor av = createASMifierVisitor("av", 0);
-        text.add(av.getText());
+        ASMifier a = createASMifier("av", 0);
+        text.add(a.getText());
         text.add("}\n");
-        return av;
+        return a;
     }
     
-    public ASMifierVisitor visitMethodAnnotation(
+    @Override
+    public ASMifier visitMethodAnnotation(
         final String desc,
         final boolean visible)
     {
         return visitAnnotation(desc, visible);
     }
 
-    public ASMifierVisitor visitParameterAnnotation(
+    @Override
+    public ASMifier visitParameterAnnotation(
         final int parameter,
         final String desc,
         final boolean visible)
@@ -446,20 +499,23 @@ public class ASMifierVisitor extends AbstractVisitor {
         appendConstant(desc);
         buf.append(", ").append(visible).append(");\n");
         text.add(buf.toString());
-        ASMifierVisitor av = createASMifierVisitor("av", 0);
-        text.add(av.getText());
+        ASMifier a = createASMifier("av", 0);
+        text.add(a.getText());
         text.add("}\n");
-        return av;
+        return a;
     }
     
+    @Override
     public void visitMethodAttribute(final Attribute attr) {
         visitAttribute(attr);
     }
     
+    @Override
     public void visitCode() {
         text.add(name + ".visitCode();\n");
     }
 
+    @Override
     public void visitFrame(
         final int type,
         final int nLocal,
@@ -511,12 +567,14 @@ public class ASMifierVisitor extends AbstractVisitor {
         text.add(buf.toString());
     }
 
+    @Override
     public void visitInsn(final int opcode) {
         buf.setLength(0);
         buf.append(name).append(".visitInsn(").append(OPCODES[opcode]).append(");\n");
         text.add(buf.toString());
     }
 
+    @Override
     public void visitIntInsn(final int opcode, final int operand) {
         buf.setLength(0);
         buf.append(name)
@@ -530,6 +588,7 @@ public class ASMifierVisitor extends AbstractVisitor {
         text.add(buf.toString());
     }
 
+    @Override
     public void visitVarInsn(final int opcode, final int var) {
         buf.setLength(0);
         buf.append(name)
@@ -541,6 +600,7 @@ public class ASMifierVisitor extends AbstractVisitor {
         text.add(buf.toString());
     }
 
+    @Override
     public void visitTypeInsn(final int opcode, final String type) {
         buf.setLength(0);
         buf.append(name).append(".visitTypeInsn(").append(OPCODES[opcode]).append(", ");
@@ -549,6 +609,7 @@ public class ASMifierVisitor extends AbstractVisitor {
         text.add(buf.toString());
     }
 
+    @Override
     public void visitFieldInsn(
         final int opcode,
         final String owner,
@@ -566,6 +627,7 @@ public class ASMifierVisitor extends AbstractVisitor {
         text.add(buf.toString());
     }
 
+    @Override
     public void visitMethodInsn(
         final int opcode,
         final String owner,
@@ -583,6 +645,7 @@ public class ASMifierVisitor extends AbstractVisitor {
         text.add(buf.toString());
     }
 
+    @Override
     public void visitInvokeDynamicInsn(
         String name,
         String desc,
@@ -607,6 +670,7 @@ public class ASMifierVisitor extends AbstractVisitor {
         text.add(buf.toString());
     }
 
+    @Override
     public void visitJumpInsn(final int opcode, final Label label) {
         buf.setLength(0);
         declareLabel(label);
@@ -616,6 +680,7 @@ public class ASMifierVisitor extends AbstractVisitor {
         text.add(buf.toString());
     }
 
+    @Override
     public void visitLabel(final Label label) {
         buf.setLength(0);
         declareLabel(label);
@@ -625,6 +690,7 @@ public class ASMifierVisitor extends AbstractVisitor {
         text.add(buf.toString());
     }
 
+    @Override
     public void visitLdcInsn(final Object cst) {
         buf.setLength(0);
         buf.append(name).append(".visitLdcInsn(");
@@ -633,6 +699,7 @@ public class ASMifierVisitor extends AbstractVisitor {
         text.add(buf.toString());
     }
 
+    @Override
     public void visitIincInsn(final int var, final int increment) {
         buf.setLength(0);
         buf.append(name)
@@ -644,6 +711,7 @@ public class ASMifierVisitor extends AbstractVisitor {
         text.add(buf.toString());
     }
 
+    @Override
     public void visitTableSwitchInsn(
         final int min,
         final int max,
@@ -672,6 +740,7 @@ public class ASMifierVisitor extends AbstractVisitor {
         text.add(buf.toString());
     }
 
+    @Override
     public void visitLookupSwitchInsn(
         final Label dflt,
         final int[] keys,
@@ -698,6 +767,7 @@ public class ASMifierVisitor extends AbstractVisitor {
         text.add(buf.toString());
     }
 
+    @Override
     public void visitMultiANewArrayInsn(final String desc, final int dims) {
         buf.setLength(0);
         buf.append(name).append(".visitMultiANewArrayInsn(");
@@ -706,6 +776,7 @@ public class ASMifierVisitor extends AbstractVisitor {
         text.add(buf.toString());
     }
 
+    @Override
     public void visitTryCatchBlock(
         final Label start,
         final Label end,
@@ -728,6 +799,7 @@ public class ASMifierVisitor extends AbstractVisitor {
         text.add(buf.toString());
     }
 
+    @Override
     public void visitLocalVariable(
         final String name,
         final String desc,
@@ -751,6 +823,7 @@ public class ASMifierVisitor extends AbstractVisitor {
         text.add(buf.toString());
     }
 
+    @Override
     public void visitLineNumber(final int line, final Label start) {
         buf.setLength(0);
         buf.append(name).append(".visitLineNumber(").append(line).append(", ");
@@ -759,6 +832,7 @@ public class ASMifierVisitor extends AbstractVisitor {
         text.add(buf.toString());
     }
 
+    @Override
     public void visitMaxs(final int maxStack, final int maxLocals) {
         buf.setLength(0);
         buf.append(name)
@@ -770,9 +844,7 @@ public class ASMifierVisitor extends AbstractVisitor {
         text.add(buf.toString());
     }
 
-    /**
-     * Prints the ASM code to end the visit.
-     */
+    @Override
     public void visitMethodEnd() {
         buf.setLength(0);
         buf.append(name).append(".visitEnd();\n");
@@ -783,7 +855,7 @@ public class ASMifierVisitor extends AbstractVisitor {
     // Common methods
     // ------------------------------------------------------------------------
     
-    public ASMifierVisitor visitAnnotation(
+    public ASMifier visitAnnotation(
         final String desc,
         final boolean visible)
     {
@@ -795,10 +867,10 @@ public class ASMifierVisitor extends AbstractVisitor {
         appendConstant(desc);
         buf.append(", ").append(visible).append(");\n");
         text.add(buf.toString());
-        ASMifierVisitor av = createASMifierVisitor("av", 0);
-        text.add(av.getText());
+        ASMifier a = createASMifier("av", 0);
+        text.add(a.getText());
         text.add("}\n");
-        return av;
+        return a;
     }
 
     public void visitAttribute(final Attribute attr) {
@@ -820,11 +892,8 @@ public class ASMifierVisitor extends AbstractVisitor {
     // Utility methods
     // ------------------------------------------------------------------------
 
-    protected ASMifierVisitor createASMifierVisitor(
-        final String name,
-        final int id)
-    {
-        return new ASMifierVisitor(Opcodes.ASM4, name, id);
+    protected ASMifier createASMifier(final String name, final int id)    {
+        return new ASMifier(Opcodes.ASM4, name, id);
     }
 
     /**

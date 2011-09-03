@@ -42,7 +42,7 @@ import org.objectweb.asm.Opcodes;
  */
 public final class ASMifierFieldVisitor extends FieldVisitor {
 
-    ASMifierVisitor sv;
+    private ASMifierVisitor sv;
     
     public ASMifierFieldVisitor(ASMifierVisitor sv) {
         super(Opcodes.ASM4);
@@ -54,7 +54,8 @@ public final class ASMifierFieldVisitor extends FieldVisitor {
         final String desc,
         final boolean visible)
     {
-        return sv.visitFieldAnnotation(desc, visible);
+        return new ASMifierAnnotationVisitor(sv.visitFieldAnnotation(desc,
+                visible));
     }
 
     @Override

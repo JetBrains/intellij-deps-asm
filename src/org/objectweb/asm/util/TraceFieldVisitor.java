@@ -53,17 +53,16 @@ public final class TraceFieldVisitor extends FieldVisitor
         super(Opcodes.ASM4, fv);
         this.tv = tv;
     }
-    
-    void setNext(FieldVisitor fv) {
-        this.fv = fv;
-    }
-    
+        
     @Override
     public AnnotationVisitor visitAnnotation(
         final String desc,
         final boolean visible)
     {
-        return tv.visitFieldAnnotation(fv, desc, visible);
+        TraceVisitor tv = this.tv.visitFieldAnnotation(desc, visible);
+        AnnotationVisitor av = fv == null ? null : fv.visitAnnotation(desc,
+                visible);
+        return new TraceAnnotationVisitor(av, tv);
     }
 
     @Override

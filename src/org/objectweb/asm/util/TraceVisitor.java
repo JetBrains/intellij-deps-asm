@@ -32,13 +32,9 @@ package org.objectweb.asm.util;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.objectweb.asm.AnnotationVisitor;
 import org.objectweb.asm.Attribute;
-import org.objectweb.asm.ClassVisitor;
-import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.Handle;
 import org.objectweb.asm.Label;
-import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.signature.SignatureReader;
@@ -259,17 +255,12 @@ public class TraceVisitor extends AbstractVisitor {
         text.add(buf.toString());
     }
 
-    public AnnotationVisitor visitClassAnnotation(
-        final ClassVisitor cv,
+    public TraceVisitor visitClassAnnotation(
         final String desc,
         final boolean visible)
     {
         text.add("\n");
-        TraceAnnotationVisitor tav = visitAnnotation(desc, visible);
-        if (cv != null) {
-            tav.setNext(cv.visitAnnotation(desc, visible));
-        }
-        return tav;        
+        return visitAnnotation(desc, visible);
     }
 
     public void visitClassAttribute(final Attribute attr) {
@@ -298,8 +289,7 @@ public class TraceVisitor extends AbstractVisitor {
         text.add(buf.toString());
     }
 
-    public FieldVisitor visitField(
-        final ClassVisitor cv,
+    public TraceVisitor visitField(
         final int access,
         final String name,
         final String desc,
@@ -342,18 +332,12 @@ public class TraceVisitor extends AbstractVisitor {
         buf.append('\n');
         text.add(buf.toString());
 
-        TraceFieldVisitor tav = new TraceFieldVisitor(createTraceVisitor());
-        text.add(tav.tv.getText());
-
-        if (cv != null) {
-            tav.setNext(cv.visitField(access, name, desc, signature, value));
-        }
-
-        return tav;
+        TraceVisitor tv = createTraceVisitor();
+        text.add(tv.getText());
+        return tv;
     }
 
-    public MethodVisitor visitMethod(
-        final ClassVisitor cv,
+    public TraceVisitor visitMethod(
         final int access,
         final String name,
         final String desc,
@@ -415,14 +399,9 @@ public class TraceVisitor extends AbstractVisitor {
         buf.append('\n');
         text.add(buf.toString());
 
-        TraceMethodVisitor tmv = new TraceMethodVisitor(createTraceVisitor());
-        text.add(tmv.tv.getText());
-
-        if (cv != null) {
-            tmv.setNext(cv.visitMethod(access, name, desc, signature, exceptions));
-        }
-
-        return tmv;
+        TraceVisitor tv = createTraceVisitor();
+        text.add(tv.getText());
+        return tv;
     }
 
     public void visitClassEnd() {
@@ -573,8 +552,7 @@ public class TraceVisitor extends AbstractVisitor {
         text.add(buf.toString());
     }
 
-    public AnnotationVisitor visitAnnotation(
-        final AnnotationVisitor av,
+    public TraceVisitor visitAnnotation(
         final String name,
         final String desc)
     {
@@ -587,17 +565,13 @@ public class TraceVisitor extends AbstractVisitor {
         appendDescriptor(FIELD_DESCRIPTOR, desc);
         buf.append('(');
         text.add(buf.toString());
-        TraceAnnotationVisitor tav = new TraceAnnotationVisitor(createTraceVisitor());
-        text.add(tav.tv.getText());
+        TraceVisitor tv = createTraceVisitor();
+        text.add(tv.getText());
         text.add(")");
-        if (av != null) {
-            tav.setNext(av.visitAnnotation(name, desc));
-        }
-        return tav;
+        return tv;
     }
 
-    public AnnotationVisitor visitArray(
-        final AnnotationVisitor av,
+    public TraceVisitor visitArray(
         final String name)
     {
         buf.setLength(0);
@@ -607,13 +581,10 @@ public class TraceVisitor extends AbstractVisitor {
         }
         buf.append('{');
         text.add(buf.toString());
-        TraceAnnotationVisitor tav = new TraceAnnotationVisitor(createTraceVisitor());
-        text.add(tav.tv.getText());
+        TraceVisitor tv = createTraceVisitor();
+        text.add(tv.getText());
         text.add("}");
-        if (av != null) {
-            tav.setNext(av.visitArray(name));
-        }
-        return tav;
+        return tv;
     }
     
     public void visitAnnotationEnd() {        
@@ -623,16 +594,11 @@ public class TraceVisitor extends AbstractVisitor {
     // Fields
     // ------------------------------------------------------------------------
 
-    public AnnotationVisitor visitFieldAnnotation(
-        final FieldVisitor fv,
+    public TraceVisitor visitFieldAnnotation(
         final String desc,
         final boolean visible)
     {
-        TraceAnnotationVisitor tav = visitAnnotation(desc, visible);
-        if (fv != null) {
-            tav.setNext(fv.visitAnnotation(desc, visible));
-        }
-        return tav;
+        return visitAnnotation(desc, visible);
     }
 
     public void visitFieldAttribute(final Attribute attr) {
@@ -646,31 +612,22 @@ public class TraceVisitor extends AbstractVisitor {
     // Methods
     // ------------------------------------------------------------------------
     
-    public AnnotationVisitor visitAnnotationDefault(final MethodVisitor mv) {
+    public TraceVisitor visitAnnotationDefault() {
         text.add(tab2 + "default=");
-        TraceAnnotationVisitor tav = new TraceAnnotationVisitor(createTraceVisitor());
-        text.add(tav.tv.getText());
+        TraceVisitor tv = createTraceVisitor();
+        text.add(tv.getText());
         text.add("\n");
-        if (mv != null) {
-            tav.setNext(mv.visitAnnotationDefault());
-        }
-        return tav;
+        return tv;
     }
     
-    public AnnotationVisitor visitMethodAnnotation(
-        final MethodVisitor mv,
+    public TraceVisitor visitMethodAnnotation(
         final String desc,
         final boolean visible)
     {
-        TraceAnnotationVisitor tav = visitAnnotation(desc, visible);
-        if (mv != null) {
-            tav.setNext(mv.visitAnnotation(desc, visible));
-        }
-        return tav;
+        return visitAnnotation(desc, visible);
     }
 
-    public AnnotationVisitor visitParameterAnnotation(
-        final MethodVisitor mv,
+    public TraceVisitor visitParameterAnnotation(
         final int parameter,
         final String desc,
         final boolean visible)
@@ -680,15 +637,12 @@ public class TraceVisitor extends AbstractVisitor {
         appendDescriptor(FIELD_DESCRIPTOR, desc);
         buf.append('(');
         text.add(buf.toString());
-        TraceAnnotationVisitor tav = new TraceAnnotationVisitor(createTraceVisitor());
-        text.add(tav.tv.getText());
+        TraceVisitor tv = createTraceVisitor();
+        text.add(tv.getText());
         text.add(visible ? ") // parameter " : ") // invisible, parameter ");
         text.add(new Integer(parameter));
         text.add("\n");
-        if (mv != null) {
-            tav.setNext(mv.visitParameterAnnotation(parameter, desc, visible));
-        }
-        return tav;
+        return tv;
     }
 
     public void visitMethodAttribute(final Attribute attr) {
@@ -1009,7 +963,7 @@ public class TraceVisitor extends AbstractVisitor {
      * @param visible <tt>true</tt> if the annotation is visible at runtime.
      * @return a visitor to visit the annotation values.
      */
-    public TraceAnnotationVisitor visitAnnotation(
+    public TraceVisitor visitAnnotation(
         final String desc,
         final boolean visible)
     {
@@ -1018,10 +972,10 @@ public class TraceVisitor extends AbstractVisitor {
         appendDescriptor(FIELD_DESCRIPTOR, desc);
         buf.append('(');
         text.add(buf.toString());
-        TraceAnnotationVisitor tav = new TraceAnnotationVisitor(createTraceVisitor());
-        text.add(tav.tv.getText());
+        TraceVisitor tv = createTraceVisitor();
+        text.add(tv.getText());
         text.add(visible ? ")\n" : ") // invisible\n");
-        return tav;
+        return tv;
     }
 
     /**

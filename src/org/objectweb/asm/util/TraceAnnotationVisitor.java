@@ -51,10 +51,6 @@ public final class TraceAnnotationVisitor extends AnnotationVisitor {
         this.tv = tv;
     }
 
-    void setNext(AnnotationVisitor av) {
-        this.av = av;
-    }
-
     @Override
     public void visit(final String name, final Object value) {
         tv.visit(name, value);
@@ -76,12 +72,20 @@ public final class TraceAnnotationVisitor extends AnnotationVisitor {
         final String name,
         final String desc)
     {
-        return tv.visitAnnotation(av, name, desc);
+        TraceVisitor tv = this.tv.visitAnnotation(name, desc);
+        AnnotationVisitor av = this.av == null
+                ? null
+                : this.av.visitAnnotation(name, desc);
+        return new TraceAnnotationVisitor(av, tv);
     }
 
     @Override
     public AnnotationVisitor visitArray(final String name) {
-        return tv.visitArray(av, name);
+        TraceVisitor tv = this.tv.visitArray(name);
+        AnnotationVisitor av = this.av == null
+                ? null
+                : this.av.visitArray(name);
+        return new TraceAnnotationVisitor(av, tv);
     }
 
     @Override

@@ -83,7 +83,7 @@ public class GASMifierTest extends AbstractTest {
         StringWriter sw = new StringWriter();
         ASMifierClassVisitor cv = new ASMifierClassVisitor(new GASMifierVisitor(),
                 new PrintWriter(sw));
-        cr.accept(cv,
+        cr.accept(new ClassLocalVariablesSorter(cv),
                 new Attribute[] { new Comment(), new CodeComment() },
                 ClassReader.EXPAND_FRAMES);
 
@@ -98,26 +98,9 @@ public class GASMifierTest extends AbstractTest {
         }
 
         ClassWriter cw = new ClassWriter(0);
-        cr.accept(new ClassVisitor(Opcodes.ASM4, cw) {
-            @Override
-            public MethodVisitor visitMethod(
-                final int access,
-                final String name,
-                final String desc,
-                final String signature,
-                final String[] exceptions)
-            {
-                return new LocalVariablesSorter(access,
-                        desc,
-                        super.visitMethod(access,
-                                name,
-                                desc,
-                                signature,
-                                exceptions));
-            }
-        },
-                new Attribute[] { new Comment(), new CodeComment() },
-                ClassReader.EXPAND_FRAMES);
+        cr.accept(new ClassLocalVariablesSorter(cw), 
+            new Attribute[] { new Comment(), new CodeComment() }, 
+            ClassReader.EXPAND_FRAMES);
         cr = new ClassReader(cw.toByteArray());
 
         String nd = n + "Dump";
@@ -166,6 +149,26 @@ public class GASMifierTest extends AbstractTest {
             Parser p = new Parser(new Scanner(name, new StringReader(source)));
             UnitCompiler uc = new UnitCompiler(p.parseCompilationUnit(), CL);
             return uc.compileUnit(DebuggingInformation.ALL)[0].toByteArray();
+        }
+    }
+    
+    static class ClassLocalVariablesSorter extends ClassVisitor {
+
+        public ClassLocalVariablesSorter(final ClassVisitor cv) {
+            super(Opcodes.ASM4, cv);
+        }
+
+        @Override
+        public MethodVisitor visitMethod(
+            final int access,
+            final String name,
+            final String desc,
+            final String signature,
+            final String[] exceptions)
+        {
+            return new LocalVariablesSorter(access,
+                    desc,
+                    super.visitMethod(access, name, desc, signature, exceptions));
         }
     }
 

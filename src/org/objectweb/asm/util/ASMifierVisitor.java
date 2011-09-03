@@ -32,12 +32,9 @@ package org.objectweb.asm.util;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.objectweb.asm.AnnotationVisitor;
 import org.objectweb.asm.Attribute;
-import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.Handle;
 import org.objectweb.asm.Label;
-import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
@@ -218,7 +215,7 @@ public class ASMifierVisitor extends AbstractVisitor {
         text.add(buf.toString());
     }
     
-    public AnnotationVisitor visitClassAnnotation(
+    public ASMifierVisitor visitClassAnnotation(
         final String desc,
         final boolean visible)
     {
@@ -248,7 +245,7 @@ public class ASMifierVisitor extends AbstractVisitor {
         text.add(buf.toString());
     }
 
-    public FieldVisitor visitField(
+    public ASMifierVisitor visitField(
         final int access,
         final String name,
         final String desc,
@@ -269,13 +266,13 @@ public class ASMifierVisitor extends AbstractVisitor {
         appendConstant(value);
         buf.append(");\n");
         text.add(buf.toString());
-        ASMifierFieldVisitor afv = new ASMifierFieldVisitor(createASMifierVisitor("fv", 0));
-        text.add(afv.sv.getText());
+        ASMifierVisitor av = createASMifierVisitor("fv", 0);
+        text.add(av.getText());
         text.add("}\n");
-        return afv;
+        return av;
     }
 
-    public MethodVisitor visitMethod(
+    public ASMifierVisitor visitMethod(
         final int access,
         final String name,
         final String desc,
@@ -305,10 +302,10 @@ public class ASMifierVisitor extends AbstractVisitor {
         }
         buf.append(");\n");
         text.add(buf.toString());
-        ASMifierMethodVisitor amv = new ASMifierMethodVisitor(createASMifierVisitor("mv", 0));
-        text.add(amv.sv.getText());
+        ASMifierVisitor av = createASMifierVisitor("mv", 0);
+        text.add(av.getText());
         text.add("}\n");
-        return amv;
+        return av;
     }
 
     public void visitClassEnd() {
@@ -348,7 +345,7 @@ public class ASMifierVisitor extends AbstractVisitor {
         text.add(buf.toString());
     }
 
-    public AnnotationVisitor visitAnnotation(
+    public ASMifierVisitor visitAnnotation(
         final String name,
         final String desc)
     {
@@ -361,13 +358,13 @@ public class ASMifierVisitor extends AbstractVisitor {
         ASMifierVisitor.appendConstant(buf, desc);
         buf.append(");\n");
         text.add(buf.toString());
-        ASMifierAnnotationVisitor aav = new ASMifierAnnotationVisitor(createASMifierVisitor("av", id + 1));
-        text.add(aav.sv.getText());
+        ASMifierVisitor av = createASMifierVisitor("av", id + 1);
+        text.add(av.getText());
         text.add("}\n");
-        return aav;
+        return av;
     }
 
-    public AnnotationVisitor visitArray(final String name) {
+    public ASMifierVisitor visitArray(final String name) {
         buf.setLength(0);
         buf.append("{\n");
         buf.append("AnnotationVisitor av").append(id + 1).append(" = av");
@@ -375,10 +372,10 @@ public class ASMifierVisitor extends AbstractVisitor {
         ASMifierVisitor.appendConstant(buf, name);
         buf.append(");\n");
         text.add(buf.toString());
-        ASMifierAnnotationVisitor aav = new ASMifierAnnotationVisitor(createASMifierVisitor("av", id + 1));
-        text.add(aav.sv.getText());
+        ASMifierVisitor av = createASMifierVisitor("av", id + 1);
+        text.add(av.getText());
         text.add("}\n");
-        return aav;
+        return av;
     }
 
     public void visitAnnotationEnd() {
@@ -398,7 +395,7 @@ public class ASMifierVisitor extends AbstractVisitor {
      * @param visible <tt>true</tt> if the annotation is visible at runtime.
      * @return a visitor to visit the annotation values.
      */
-    public AnnotationVisitor visitFieldAnnotation(
+    public ASMifierVisitor visitFieldAnnotation(
         final String desc,
         final boolean visible)
     {
@@ -416,24 +413,27 @@ public class ASMifierVisitor extends AbstractVisitor {
     // Methods
     // ------------------------------------------------------------------------
 
-    public AnnotationVisitor visitAnnotationDefault() {
+    public ASMifierVisitor visitAnnotationDefault() {
         buf.setLength(0);
-        buf.append("{\n").append("av0 = ").append(name).append(".visitAnnotationDefault();\n");
+        buf.append("{\n")
+                .append("av0 = ")
+                .append(name)
+                .append(".visitAnnotationDefault();\n");
         text.add(buf.toString());
-        ASMifierAnnotationVisitor aav = new ASMifierAnnotationVisitor(createASMifierVisitor("av", 0));
-        text.add(aav.sv.getText());
+        ASMifierVisitor av = createASMifierVisitor("av", 0);
+        text.add(av.getText());
         text.add("}\n");
-        return aav;
+        return av;
     }
     
-    public AnnotationVisitor visitMethodAnnotation(
+    public ASMifierVisitor visitMethodAnnotation(
         final String desc,
         final boolean visible)
     {
         return visitAnnotation(desc, visible);
     }
 
-    public AnnotationVisitor visitParameterAnnotation(
+    public ASMifierVisitor visitParameterAnnotation(
         final int parameter,
         final String desc,
         final boolean visible)
@@ -446,10 +446,10 @@ public class ASMifierVisitor extends AbstractVisitor {
         appendConstant(desc);
         buf.append(", ").append(visible).append(");\n");
         text.add(buf.toString());
-        ASMifierAnnotationVisitor aav = new ASMifierAnnotationVisitor(createASMifierVisitor("av", 0));
-        text.add(aav.sv.getText());
+        ASMifierVisitor av = createASMifierVisitor("av", 0);
+        text.add(av.getText());
         text.add("}\n");
-        return aav;
+        return av;
     }
     
     public void visitMethodAttribute(final Attribute attr) {
@@ -783,7 +783,7 @@ public class ASMifierVisitor extends AbstractVisitor {
     // Common methods
     // ------------------------------------------------------------------------
     
-    public AnnotationVisitor visitAnnotation(
+    public ASMifierVisitor visitAnnotation(
         final String desc,
         final boolean visible)
     {
@@ -795,10 +795,10 @@ public class ASMifierVisitor extends AbstractVisitor {
         appendConstant(desc);
         buf.append(", ").append(visible).append(");\n");
         text.add(buf.toString());
-        ASMifierAnnotationVisitor aav = new ASMifierAnnotationVisitor(createASMifierVisitor("av", 0));
-        text.add(aav.sv.getText());
+        ASMifierVisitor av = createASMifierVisitor("av", 0);
+        text.add(av.getText());
         text.add("}\n");
-        return aav;
+        return av;
     }
 
     public void visitAttribute(final Attribute attr) {

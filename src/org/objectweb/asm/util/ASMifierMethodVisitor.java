@@ -45,7 +45,7 @@ import org.objectweb.asm.Opcodes;
  */
 public final class ASMifierMethodVisitor extends MethodVisitor {
 
-    ASMifierVisitor sv;
+    private ASMifierVisitor sv;
 
     public ASMifierMethodVisitor(ASMifierVisitor sv) {
         super(Opcodes.ASM4);
@@ -54,12 +54,13 @@ public final class ASMifierMethodVisitor extends MethodVisitor {
 
     @Override
     public AnnotationVisitor visitAnnotationDefault() {
-        return sv.visitAnnotationDefault();
+        return new ASMifierAnnotationVisitor(sv.visitAnnotationDefault());
     }
 
     @Override
     public AnnotationVisitor visitAnnotation(String desc, boolean visible) {
-        return sv.visitMethodAnnotation(desc, visible);
+        return new ASMifierAnnotationVisitor(sv.visitMethodAnnotation(desc,
+                visible));
     }
 
     @Override
@@ -68,7 +69,9 @@ public final class ASMifierMethodVisitor extends MethodVisitor {
         final String desc,
         final boolean visible)
     {
-        return sv.visitParameterAnnotation(parameter, desc, visible);
+        return new ASMifierAnnotationVisitor(sv.visitParameterAnnotation(parameter,
+                desc,
+                visible));
     }
 
     @Override

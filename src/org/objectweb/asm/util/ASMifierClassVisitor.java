@@ -128,14 +128,14 @@ import org.objectweb.asm.Opcodes;
 public final class ASMifierClassVisitor extends ClassVisitor {
 
     /**
-     * The print writer to be used to print the class.
+     * The print writer to be used to print the class. May be null.
      */
-    final PrintWriter pw;
+    private final PrintWriter pw;
 
     /**
      * The visitor that actually converts visit events into source code.
      */
-    final ASMifierVisitor sv;
+    private final ASMifierVisitor sv;
     
     /**
      * Prints the ASM source code to generate the given class to the standard
@@ -184,7 +184,9 @@ public final class ASMifierClassVisitor extends ClassVisitor {
     /**
      * Constructs a new {@link ASMifierClassVisitor} object.
      * 
-     * @param pw the print writer to be used to print the class.
+     * @param pw the print writer to be used to print the class. May be null if
+     *        you simply want to use the result via
+     *        {@link AbstractVisitor#getText()}, instead of printing it.
      */
     public ASMifierClassVisitor(final PrintWriter pw) {
         this(new ASMifierVisitor(), pw);
@@ -238,7 +240,8 @@ public final class ASMifierClassVisitor extends ClassVisitor {
         final String desc,
         final boolean visible)
     {
-        return sv.visitClassAnnotation(desc, visible);
+        return new ASMifierAnnotationVisitor(sv.visitClassAnnotation(desc,
+                visible));
     }
     
     @Override
@@ -264,7 +267,11 @@ public final class ASMifierClassVisitor extends ClassVisitor {
         final String signature,
         final Object value)
     {
-        return sv.visitField(access, name, desc, signature, value);
+        return new ASMifierFieldVisitor(sv.visitField(access,
+                name,
+                desc,
+                signature,
+                value));
     }
 
     @Override
@@ -275,13 +282,19 @@ public final class ASMifierClassVisitor extends ClassVisitor {
         final String signature,
         final String[] exceptions)
     {
-        return sv.visitMethod(access, name, desc, signature, exceptions);
+        return new ASMifierMethodVisitor(sv.visitMethod(access,
+                name,
+                desc,
+                signature,
+                exceptions));
     }
 
     @Override
     public void visitEnd() {
         sv.visitClassEnd();
-        sv.print(pw);
-        pw.flush();
+        if (pw != null) {
+            sv.print(pw);
+            pw.flush();
+        }
     }
 }

@@ -40,7 +40,7 @@ import org.objectweb.asm.Opcodes;
  */
 public final class ASMifierAnnotationVisitor extends AnnotationVisitor {
 
-    ASMifierVisitor sv;
+    private ASMifierVisitor sv;
     
     public ASMifierAnnotationVisitor(ASMifierVisitor sv) {
         super(Opcodes.ASM4);
@@ -66,12 +66,12 @@ public final class ASMifierAnnotationVisitor extends AnnotationVisitor {
         final String name,
         final String desc)
     {
-        return sv.visitAnnotation(name, desc);
+        return new ASMifierAnnotationVisitor(sv.visitAnnotation(name, desc));
     }
 
     @Override
     public AnnotationVisitor visitArray(final String name) {
-        return sv.visitArray(name);
+        return new ASMifierAnnotationVisitor(sv.visitArray(name));
     }
 
     @Override

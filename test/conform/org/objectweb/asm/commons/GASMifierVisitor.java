@@ -39,7 +39,6 @@ import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
-import org.objectweb.asm.util.ASMifierMethodVisitor;
 import org.objectweb.asm.util.ASMifierVisitor;
 
 /**
@@ -104,7 +103,7 @@ public class GASMifierVisitor extends ASMifierVisitor implements Opcodes {
     }
 
     @Override
-    public MethodVisitor visitMethod(
+    public ASMifierVisitor visitMethod(
         final int access,
         final String name,
         final String desc,
@@ -136,11 +135,10 @@ public class GASMifierVisitor extends ASMifierVisitor implements Opcodes {
         }
         buf.append(", cw);\n");
         text.add(buf.toString());
-        GASMifierVisitor acv = new GASMifierVisitor(access, desc);
-        MethodVisitor mv = new ASMifierMethodVisitor(acv);
-        text.add(acv.getText());
+        GASMifierVisitor av = new GASMifierVisitor(access, desc);
+        text.add(av.getText());
         text.add("}\n");
-        return new LocalVariablesSorter(access, desc, mv);
+        return av;
     }
 
     @Override

@@ -55,16 +55,15 @@ public final class TraceMethodVisitor extends MethodVisitor {
         this.tv = tv;
     }
 
-    void setNext(MethodVisitor mv) {
-        this.mv = mv;
-    }
-
     @Override
     public AnnotationVisitor visitAnnotation(
         final String desc,
         final boolean visible)
     {
-        return tv.visitMethodAnnotation(mv, desc, visible);
+        TraceVisitor tv = this.tv.visitMethodAnnotation(desc, visible);
+        AnnotationVisitor av = mv == null ? null : mv.visitAnnotation(desc,
+                visible);
+        return new TraceAnnotationVisitor(av, tv);
     }
 
     @Override
@@ -75,7 +74,9 @@ public final class TraceMethodVisitor extends MethodVisitor {
 
     @Override
     public AnnotationVisitor visitAnnotationDefault() {
-        return tv.visitAnnotationDefault(mv);
+        TraceVisitor tv = this.tv.visitAnnotationDefault();
+        AnnotationVisitor av = mv == null ? null : mv.visitAnnotationDefault();
+        return new TraceAnnotationVisitor(av, tv);
     }
 
     @Override
@@ -84,7 +85,13 @@ public final class TraceMethodVisitor extends MethodVisitor {
         final String desc,
         final boolean visible)
     {
-        return tv.visitParameterAnnotation(mv, parameter, desc, visible);
+        TraceVisitor tv = this.tv.visitParameterAnnotation(parameter,
+                desc,
+                visible);
+        AnnotationVisitor av = mv == null
+                ? null
+                : mv.visitParameterAnnotation(parameter, desc, visible);
+        return new TraceAnnotationVisitor(av, tv);
     }
 
     @Override

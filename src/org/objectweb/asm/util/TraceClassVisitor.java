@@ -93,7 +93,7 @@ import org.objectweb.asm.Opcodes;
 public final class TraceClassVisitor extends ClassVisitor {
 
     /**
-     * The print writer to be used to print the class.
+     * The print writer to be used to print the class. May be null.
      */
     protected final PrintWriter pw;
 
@@ -172,9 +172,15 @@ public final class TraceClassVisitor extends ClassVisitor {
      * @param cv the {@link ClassVisitor} to which this visitor delegates calls.
      *        May be <tt>null</tt>.
      * @param tv the visitor that actually converts visit events into text.
-     * @param pw the print writer to be used to print the class.
+     * @param pw the print writer to be used to print the class. May be null if
+     *        you simply want to use the result via
+     *        {@link AbstractVisitor#getText()}, instead of printing it.
      */
-    public TraceClassVisitor(final ClassVisitor cv, final TraceVisitor tv, final PrintWriter pw) {
+    public TraceClassVisitor(
+        final ClassVisitor cv,
+        final TraceVisitor tv,
+        final PrintWriter pw)
+    {
         super(Opcodes.ASM4, cv);
         this.pw = pw;
         this.tv = tv;
@@ -214,7 +220,10 @@ public final class TraceClassVisitor extends ClassVisitor {
         final String desc,
         final boolean visible)
     {
-        return tv.visitClassAnnotation(cv, desc, visible);
+        TraceVisitor tv = this.tv.visitClassAnnotation(desc, visible);
+        AnnotationVisitor av = cv == null ? null : cv.visitAnnotation(desc,
+                visible);
+        return new TraceAnnotationVisitor(av, tv);
     }
 
     @Override
@@ -242,7 +251,17 @@ public final class TraceClassVisitor extends ClassVisitor {
         final String signature,
         final Object value)
     {
-        return tv.visitField(cv, access, name, desc, signature, value);
+        TraceVisitor tv = this.tv.visitField(access,
+                name,
+                desc,
+                signature,
+                value);
+        FieldVisitor fv = cv == null ? null : cv.visitField(access,
+                name,
+                desc,
+                signature,
+                value);
+        return new TraceFieldVisitor(fv, tv);
     }
 
     @Override
@@ -253,14 +272,26 @@ public final class TraceClassVisitor extends ClassVisitor {
         final String signature,
         final String[] exceptions)
     {
-        return tv.visitMethod(cv, access, name, desc, signature, exceptions);
+        TraceVisitor tv = this.tv.visitMethod(access,
+                name,
+                desc,
+                signature,
+                exceptions);
+        MethodVisitor mv = cv == null ? null : cv.visitMethod(access,
+                name,
+                desc,
+                signature,
+                exceptions);
+        return new TraceMethodVisitor(mv, tv);
     }
 
     @Override
     public void visitEnd() {
         tv.visitClassEnd();
-        tv.print(pw);
-        pw.flush();
+        if (pw != null) {
+            tv.print(pw);
+            pw.flush();
+        }
         super.visitEnd();
     }
 }

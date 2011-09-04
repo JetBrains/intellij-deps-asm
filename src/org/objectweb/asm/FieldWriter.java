@@ -127,7 +127,7 @@ final class FieldWriter extends FieldVisitor {
     }
 
     // ------------------------------------------------------------------------
-    // Implementation of the FieldVisitor interface
+    // Implementation of the FieldVisitor abstract class
     // ------------------------------------------------------------------------
 
     @Override

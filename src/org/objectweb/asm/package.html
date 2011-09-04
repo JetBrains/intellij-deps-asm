@@ -34,13 +34,14 @@ Provides a small and fast bytecode manipulation framework.
 <p>
 The <a href="http://www.objectweb.org/asm">ASM</a> framework is organized
 around the {@link org.objectweb.asm.ClassVisitor ClassVisitor},
-{@link org.objectweb.asm.FieldVisitor FieldVisitor} and
-{@link org.objectweb.asm.MethodVisitor MethodVisitor} interfaces, which allow
-one to visit the fields and methods of a class, including the bytecode
-instructions of each method.
+{@link org.objectweb.asm.FieldVisitor FieldVisitor},
+{@link org.objectweb.asm.MethodVisitor MethodVisitor} and
+{@link org.objectweb.asm.AnnotationVisitor AnnotationVisitor} abstract classes, 
+which allow one to visit the fields, methods and annotations of a class,
+including the bytecode instructions of each method.
 
 <p>
-In addition to these main interfaces, ASM provides a {@link
+In addition to these main abstract classes, ASM provides a {@link
 org.objectweb.asm.ClassReader ClassReader} class, that can parse an
 existing class and make a given visitor visit it. ASM also provides
 a {@link org.objectweb.asm.ClassWriter ClassWriter} class, which is
@@ -49,7 +50,7 @@ a visitor that generates Java class files.
 <p>
 In order to generate a class from scratch, only the {@link
 org.objectweb.asm.ClassWriter ClassWriter} class is necessary. Indeed,
-in order to generate a class, one must just call its visit<i>XXX</i>
+in order to generate a class, one must just call its visit<i>Xxx</i>
 methods with the appropriate arguments to generate the desired fields
 and methods. See the "helloworld" example in the ASM distribution for
 more details about class generation.
@@ -66,12 +67,12 @@ or call additional methods, in order to implement the desired
 modification process. In order to make it easier to implement such
 class modifiers, the {@link org.objectweb.asm.ClassVisitor
 ClassVisitor} and {@link org.objectweb.asm.MethodVisitor MethodVisitor}
-classes delegate by default all the method call they receive to an
+classes delegate by default all the method calls they receive to an
 optional visitor. See the "adapt" example in the ASM
 distribution for more details about class modification.
 
 <p>
-The size of the core ASM library, <tt>asm.jar</tt>, is only 42KB, which is much
+The size of the core ASM library, <tt>asm.jar</tt>, is only 45KB, which is much
 smaller than the size of the
 <a href="http://jakarta.apache.org/bcel">BCEL</a> library (504KB), and than the
 size of the

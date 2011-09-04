@@ -30,12 +30,12 @@
 package org.objectweb.asm;
 
 /**
- * A visitor to visit a Java method. The methods of this interface must be
+ * A visitor to visit a Java method. The methods of this class must be
  * called in the following order: [ <tt>visitAnnotationDefault</tt> ] (
  * <tt>visitAnnotation</tt> | <tt>visitParameterAnnotation</tt> |
  * <tt>visitAttribute</tt> )* [ <tt>visitCode</tt> ( <tt>visitFrame</tt> |
  * <tt>visit</tt><i>X</i>Insn</tt> | <tt>visitLabel</tt> | <tt>visitTryCatchBlock</tt> |
- * <tt>visitLocalVariable</tt> | <tt>visitLineNumber</tt>)* <tt>visitMaxs</tt> ]
+ * <tt>visitLocalVariable</tt> | <tt>visitLineNumber</tt> )* <tt>visitMaxs</tt> ]
  * <tt>visitEnd</tt>. In addition, the <tt>visit</tt><i>X</i>Insn</tt>
  * and <tt>visitLabel</tt> methods must be called in the sequential order of
  * the bytecode instructions of the visited code, <tt>visitTryCatchBlock</tt>

@@ -460,7 +460,7 @@ class MethodWriter extends MethodVisitor {
     }
 
     // ------------------------------------------------------------------------
-    // Implementation of the MethodVisitor interface
+    // Implementation of the MethodVisitor abstract class
     // ------------------------------------------------------------------------
 
     @Override

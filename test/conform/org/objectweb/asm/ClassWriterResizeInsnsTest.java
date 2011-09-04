@@ -73,35 +73,7 @@ public class ClassWriterResizeInsnsTest extends AbstractTest {
 
     static byte[] transformClass(final byte[] clazz, final int flags) {
         ClassReader cr = new ClassReader(clazz);
-        ClassWriter cw = new ClassWriter(flags) {
-            @Override
-            protected String getCommonSuperClass(
-                final String type1,
-                final String type2)
-            {
-                ClassInfo c, d;
-                try {
-                    c = new ClassInfo(type1, getClass().getClassLoader());
-                    d = new ClassInfo(type2, getClass().getClassLoader());
-                } catch (Throwable e) {
-                    throw new RuntimeException(e);
-                }
-                if (c.isAssignableFrom(d)) {
-                    return type1;
-                }
-                if (d.isAssignableFrom(c)) {
-                    return type2;
-                }
-                if (c.isInterface() || d.isInterface()) {
-                    return "java/lang/Object";
-                } else {
-                    do {
-                        c = c.getSuperclass();
-                    } while (!c.isAssignableFrom(d));
-                    return c.getType().getInternalName();
-                }
-            }
-        };
+        ClassWriter cw = new ComputeClassWriter(flags);
         ClassVisitor ca = new ClassVisitor(Opcodes.ASM4, cw) {
 
             boolean transformed = false;
@@ -116,7 +88,9 @@ public class ClassWriterResizeInsnsTest extends AbstractTest {
                 String[] interfaces)
             {
                 if (flags == ClassWriter.COMPUTE_FRAMES) {
-                    version = Opcodes.V1_6;
+                    version = (version & 0xFFFF) < Opcodes.V1_6
+                            ? Opcodes.V1_6
+                            : version;
                 }
                 super.visit(version,
                         access,

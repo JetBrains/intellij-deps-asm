@@ -60,7 +60,7 @@ The root class is the ClassNode, that can be created from existing bytecode. For
 </pre>
 
 <p>
-Now content of ClassNode can be modified and then
+Now the content of ClassNode can be modified and then
 serialized back into bytecode:
 </p>
 
@@ -70,7 +70,7 @@ serialized back into bytecode:
 </pre>
 
 <p>
-Using simple ClassVisitor it is possible to create MethodNode instances per-method.
+Using a simple ClassVisitor it is possible to create MethodNode instances per-method.
 In this example MethodNode is acting as a buffer that is flushed out at visitEnd() call:
 </p>
 
@@ -78,23 +78,23 @@ In this example MethodNode is acting as a buffer that is flushed out at visitEnd
   ClassReader cr = new ClassReader(source);
   ClassWriter cw = new ClassWriter();
   ClassVisitor cv = new ClassVisitor(cw) {
-      public MethodVisitor visitMethod(int access, String name,
-          String desc, String signature, String[] exceptions) {
-        final MethodVisitor mv = super.visitMethod(access, name, desc, signature, exceptions);
-        MethodNode mn = new MethodNode(access, name, desc, signature, exceptions) {
-            public void visitEnd() {
-              // transform or analyze method code using tree API
-              accept(mv);
-            }
-          };
-      }
-    };
+    public MethodVisitor visitMethod(int access, String name,
+        String desc, String signature, String[] exceptions) {
+      final MethodVisitor mv = super.visitMethod(access, name, desc, signature, exceptions);
+      MethodNode mn = new MethodNode(access, name, desc, signature, exceptions) {
+        public void visitEnd() {
+          // transform or analyze method code using tree API
+          accept(mv);
+        }
+      };
+    }
+  };
   cr.accept(cv, true);
 </pre>
 
 <p>
 Several strategies can be used to construct method code from scratch. The first
-option is to create a MethodNode, and then create XXXInsnNode instances and
+option is to create a MethodNode, and then create XxxInsnNode instances and
 add them to the instructions list:
 </p>
 
@@ -106,8 +106,8 @@ m.instructions.add(new VarInsnNode(ALOAD, 0));
 
 <p>
 Alternatively, you can use the fact that MethodNode is a MethodVisitor, and use
-that to create the XXXInsnNode and add them to the instructions list through
-the standard MethodVisitor interface:
+that to create the XxxInsnNode and add them to the instructions list through
+the standard MethodVisitor methods:
 </p>
 
 <pre>
@@ -120,7 +120,7 @@ m.visitVarInsn(ALOAD, 0);
 If you cannot generate all the instructions in sequential order, i.e. if you
 need to save some pointer in the instruction list and then insert instructions
 at that place after other instructions have been generated, you can use InsnList
-methods insert() and insertBefore() to insert instructions at saved pointer.
+methods insert() and insertBefore() to insert instructions at a saved pointer.
 </p>
 
 <pre>
@@ -150,7 +150,7 @@ while (it.hasNext()) {
 </pre>
 
 <p>
-It is also possible to convert instruction list into the array and iterate trough
+It is also possible to convert an instruction list into an array and iterate trough
 array elements:
 </p>
 
@@ -165,7 +165,7 @@ for(int i = 0; i&lt;insns.length; i++) {
 </pre>
 
 <p>
-If you want to insert these instructions through the MethodVisitor interface,
+If you want to insert these instructions through the MethodVisitor methods,
 you can use another instance of MethodNode as a MethodVisitor and then
 insert instructions collected by that instance into the instruction list.
 For example:

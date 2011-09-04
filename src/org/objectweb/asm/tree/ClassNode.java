@@ -188,7 +188,7 @@ public class ClassNode extends ClassVisitor {
     }
 
     // ------------------------------------------------------------------------
-    // Implementation of the ClassVisitor interface
+    // Implementation of the ClassVisitor abstract class
     // ------------------------------------------------------------------------
 
     @Override

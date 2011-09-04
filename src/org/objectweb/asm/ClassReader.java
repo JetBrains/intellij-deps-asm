@@ -414,7 +414,7 @@ public class ClassReader {
             if ("BootstrapMethods".equals(attrName)) {
                 int boostrapMethodCount = readUnsignedShort(v + 6);
                 int x = v + 8;
-                for (j = 0; j<boostrapMethodCount; j++) {
+                for (j = 0; j < boostrapMethodCount; j++) {
                     int hashCode = readConst(readUnsignedShort(x), buf).hashCode();
                     k = readUnsignedShort(x + 2);
                     u = x + 4;
@@ -648,7 +648,7 @@ public class ClassReader {
                 int boostrapMethodCount = readUnsignedShort(v + 6);
                 bootstrapMethods = new int[boostrapMethodCount];
                 int x = v + 8;
-                for (j=0; j<boostrapMethodCount; j++) {
+                for (j = 0; j < boostrapMethodCount; j++) {
                     bootstrapMethods[j] = x;
                     x += 2 + readUnsignedShort(x + 2) << 1;
                 }

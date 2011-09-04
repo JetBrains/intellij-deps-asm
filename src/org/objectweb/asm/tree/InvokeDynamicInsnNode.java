@@ -41,6 +41,7 @@ import org.objectweb.asm.Opcodes;
  * @author Remi Forax
  */
 public class InvokeDynamicInsnNode extends AbstractInsnNode {
+    
     /**
      * Invokedynamic name.
      */

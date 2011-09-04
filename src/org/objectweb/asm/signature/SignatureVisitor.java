@@ -29,7 +29,6 @@
  */
 package org.objectweb.asm.signature;
 
-import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.Opcodes;
 
 /**

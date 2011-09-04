@@ -77,38 +77,7 @@ public class ClassWriterComputeFramesTest extends AbstractTest {
 
     static byte[] transformClass(final String n, final byte[] clazz) {
         ClassReader cr = new ClassReader(clazz);
-        ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_FRAMES) {
-            @Override
-            protected String getCommonSuperClass(
-                final String type1,
-                final String type2)
-            {
-                if (n.equals("pkg.Frames")) {
-                    return super.getCommonSuperClass(type1, type2);
-                }
-                ClassInfo c, d;
-                try {
-                    c = new ClassInfo(type1, getClass().getClassLoader());
-                    d = new ClassInfo(type2, getClass().getClassLoader());
-                } catch (Throwable e) {
-                    throw new RuntimeException(e);
-                }
-                if (c.isAssignableFrom(d)) {
-                    return type1;
-                }
-                if (d.isAssignableFrom(c)) {
-                    return type2;
-                }
-                if (c.isInterface() || d.isInterface()) {
-                    return "java/lang/Object";
-                } else {
-                    do {
-                        c = c.getSuperclass();
-                    } while (!c.isAssignableFrom(d));
-                    return c.getType().getInternalName();
-                }
-            }
-        };
+        ClassWriter cw = new ComputeClassWriter(ClassWriter.COMPUTE_FRAMES);
         cr.accept(new ClassVisitor(Opcodes.ASM4, cw) {
 
             @Override
@@ -166,133 +135,137 @@ public class ClassWriterComputeFramesTest extends AbstractTest {
 }
 
 /**
- * @author Eugene Kuleshov
+ * A ClassWriter that computes the common super class of two classes without
+ * actually loading them with a ClassLoader.
+ * 
+ * @author Eric Bruneton
  */
-class ClassInfo {
+class ComputeClassWriter extends ClassWriter {
+    
+    private ClassLoader l = getClass().getClassLoader();
 
-    private Type type;
+    public ComputeClassWriter(final int flags) {
+        super(flags);
+    }
 
-    private ClassLoader loader;
-
-    int access;
-
-    String superClass;
-
-    String[] interfaces;
-
-    public ClassInfo(final String type, final ClassLoader loader) {
-        this.loader = loader;
-        this.type = Type.getObjectType(type);
-        String s = type.replace('.', '/') + ".class";
-        InputStream is = null;
-        ClassReader cr;
+    @Override
+    protected String getCommonSuperClass(final String type1, final String type2)
+    {
         try {
-            is = loader.getResourceAsStream(s);
-            cr = new ClassReader(is);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        } finally {
-            if (is != null) {
-                try {
-                    is.close();
-                } catch (Exception e) {
+            ClassReader info1 = typeInfo(type1);
+            ClassReader info2 = typeInfo(type2);
+            if ((info1.getAccess() & Opcodes.ACC_INTERFACE) != 0) {
+                if (typeImplements(type2, info2, type1)) {
+                    return type1;
+                } else {
+                    return "java/lang/Object";
                 }
             }
+            if ((info2.getAccess() & Opcodes.ACC_INTERFACE) != 0) {
+                if (typeImplements(type1, info1, type2)) {
+                    return type2;
+                } else {
+                    return "java/lang/Object";
+                }
+            }
+            StringBuilder b1 = typeAncestors(type1, info1);
+            StringBuilder b2 = typeAncestors(type2, info2);
+            String result = "java/lang/Object";
+            int end1 = b1.length();
+            int end2 = b2.length();
+            while (true) {
+                int start1 = b1.lastIndexOf(";", end1 - 1);
+                int start2 = b2.lastIndexOf(";", end2 - 1);
+                if (start1 != -1 && start2 != -1
+                        && end1 - start1 == end1 - start1)
+                {
+                    String p1 = b1.substring(start1 + 1, end1);
+                    String p2 = b2.substring(start2 + 1, end2);
+                    if (p1.equals(p2)) {
+                        result = p1;
+                        end1 = start1;
+                        end2 = start2;
+                    } else {
+                        return result;
+                    }
+                } else {
+                    return result;
+                }
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e.toString());
         }
+    }
 
-        // optimized version
-        int h = cr.header;
-        ClassInfo.this.access = cr.readUnsignedShort(h);
-        char[] buf = new char[2048];
-        // String name = cr.readClass( cr.header + 2, buf);
-
-        int v = cr.getItem(cr.readUnsignedShort(h + 4));
-        ClassInfo.this.superClass = v == 0 ? null : cr.readUTF8(v, buf);
-        ClassInfo.this.interfaces = new String[cr.readUnsignedShort(h + 6)];
-        h += 8;
-        for (int i = 0; i < interfaces.length; ++i) {
-            interfaces[i] = cr.readClass(h, buf);
-            h += 2;
+    /**
+     * Returns the internal names of the ancestor classes of the given type.
+     * 
+     * @param type the internal name of a class or interface.
+     * @param info the ClassReader corresponding to 'type'.
+     * @return a StringBuilder containing the ancestor classes of 'type',
+     *         separated by ';'. The returned string has the following format:
+     *         ";type1;type2 ... ;typeN", where type1 is 'type', and typeN is a
+     *         direct subclass of Object. If 'type' is Object, the returned
+     *         string is empty.
+     * @throws IOException if the bytecode of 'type' or of some of its ancestor
+     *         class cannot be loaded.
+     */
+    private StringBuilder typeAncestors(String type, ClassReader info)
+            throws IOException
+    {
+        StringBuilder b = new StringBuilder();
+        while (!"java/lang/Object".equals(type)) {
+            b.append(';').append(type);
+            type = info.getSuperName();
+            info = typeInfo(type);
         }
+        return b;
     }
 
-    String getName() {
-        return type.getInternalName();
-    }
-
-    Type getType() {
-        return type;
-    }
-
-    int getModifiers() {
-        return access;
-    }
-
-    ClassInfo getSuperclass() {
-        if (superClass == null) {
-            return null;
-        }
-        return new ClassInfo(superClass, loader);
-    }
-
-    ClassInfo[] getInterfaces() {
-        if (interfaces == null) {
-            return new ClassInfo[0];
-        }
-        ClassInfo[] result = new ClassInfo[interfaces.length];
-        for (int i = 0; i < result.length; ++i) {
-            result[i] = new ClassInfo(interfaces[i], loader);
-        }
-        return result;
-    }
-
-    boolean isInterface() {
-        return (getModifiers() & Opcodes.ACC_INTERFACE) > 0;
-    }
-
-    private boolean implementsInterface(final ClassInfo that) {
-        for (ClassInfo c = this; c != null; c = c.getSuperclass()) {
-            ClassInfo[] tis = c.getInterfaces();
-            for (int i = 0; i < tis.length; ++i) {
-                ClassInfo ti = tis[i];
-                if (ti.type.equals(that.type) || ti.implementsInterface(that)) {
+    /**
+     * Returns true if the given type implements the given interface.
+     * 
+     * @param type the internal name of a class or interface.
+     * @param info the ClassReader corresponding to 'type'.
+     * @param itf the internal name of a interface.
+     * @return true if 'type' implements directly or indirectly 'itf'
+     * @throws IOException if the bytecode of 'type' or of some of its ancestor
+     *         class cannot be loaded.
+     */
+    private boolean typeImplements(String type, ClassReader info, String itf)
+            throws IOException
+    {
+        while (!"java/lang/Object".equals(type)) {
+            String[] itfs = info.getInterfaces();
+            for (int i = 0; i < itfs.length; ++i) {
+                if (itfs[i].equals(itf)) {
                     return true;
                 }
             }
-        }
-        return false;
-    }
-
-    private boolean isSubclassOf(final ClassInfo that) {
-        for (ClassInfo c = this; c != null; c = c.getSuperclass()) {
-            if (c.getSuperclass() != null
-                    && c.getSuperclass().type.equals(that.type))
-            {
-                return true;
+            for (int i = 0; i < itfs.length; ++i) {
+                if (typeImplements(itfs[i], typeInfo(itfs[i]), itf)) {
+                    return true;
+                }
             }
+            type = info.getSuperName();
+            info = typeInfo(type);
         }
         return false;
     }
 
-    public boolean isAssignableFrom(final ClassInfo that) {
-        if (this == that) {
-            return true;
+    /**
+     * Returns a ClassReader corresponding to the given class or interface.
+     * 
+     * @param type the internal name of a class or interface.
+     * @return the ClassReader corresponding to 'type'.
+     * @throws IOException if the bytecode of 'type' cannot be loaded.
+     */
+    private ClassReader typeInfo(final String type) throws IOException {
+        InputStream is = l.getResourceAsStream(type + ".class");
+        try {
+            return new ClassReader(is);
+        } finally {
+            is.close();
         }
-
-        if (that.isSubclassOf(this)) {
-            return true;
-        }
-
-        if (that.implementsInterface(this)) {
-            return true;
-        }
-
-        if (that.isInterface()
-                && getType().getDescriptor().equals("Ljava/lang/Object;"))
-        {
-            return true;
-        }
-
-        return false;
     }
 }

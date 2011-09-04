@@ -161,6 +161,10 @@ public class FieldNode extends FieldVisitor {
         this.value = value;
     }
     
+    // ------------------------------------------------------------------------
+    // Implementation of the FieldVisitor abstract class
+    // ------------------------------------------------------------------------
+
     @Override
     public AnnotationVisitor visitAnnotation(
         final String desc,
@@ -192,6 +196,10 @@ public class FieldNode extends FieldVisitor {
     @Override
     public void visitEnd() {        
     }
+    
+    // ------------------------------------------------------------------------
+    // Accept methods
+    // ------------------------------------------------------------------------
 
     /**
      * Checks that this field node is compatible with the given ASM API version.

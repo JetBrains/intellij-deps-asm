@@ -94,7 +94,7 @@ public class AnnotationNode extends AnnotationVisitor {
     }
 
     // ------------------------------------------------------------------------
-    // Implementation of the AnnotationVisitor interface
+    // Implementation of the AnnotationVisitor abstract class
     // ------------------------------------------------------------------------
 
     @Override

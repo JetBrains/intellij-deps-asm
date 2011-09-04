@@ -205,5 +205,46 @@
       <report todir="${out.test}/reports"/>
     </junitreport-->
   </target>
+
+  <!-- ================================== -->
+  <!-- =====  BINARY COMPATIBILITY   ==== -->
+  <!-- ================================== -->
+  
+  <target name="sigtest-setup">
+    <java classname="com.sun.tdk.signaturetest.Setup">
+      <classpath>
+        <pathelement location="${test}/lib/sigtestdev.jar"/>
+      </classpath>
+      <arg value="-apiversion"/>
+      <arg value="${product.artifact}"/>
+      <arg value="-static"/>
+      <arg value="-classpath"/>
+      <arg value="${java.home}/lib/rt.jar;${out.dist}/lib/all/asm-all-${product.artifact}.jar"/>
+      <arg value="-package"/>
+      <arg value="org.objectweb.asm"/>
+      <arg value="-filename"/>
+      <arg value="${test}/ASM.sig"/>
+    </java>
+  </target>
+
+  <target name="sigtest">
+    <java classname="com.sun.tdk.signaturetest.SignatureTest">
+      <classpath>
+        <pathelement location="${test}/lib/sigtestdev.jar"/>
+      </classpath>
+      <arg value="-apiversion"/>
+      <arg value="${product.artifact}"/>
+      <arg value="-static"/>
+      <arg value="-mode"/>
+      <arg value="bin"/>
+      <arg value="-backward"/>
+      <arg value="-classpath"/>
+      <arg value="${java.home}/lib/rt.jar;${out.dist}/lib/all/asm-all-${product.artifact}.jar"/>
+      <arg value="-package"/>
+      <arg value="org.objectweb.asm"/>
+      <arg value="-filename"/>
+      <arg value="${test}/ASM.sig"/>
+    </java>
+  </target>
   
 </project>

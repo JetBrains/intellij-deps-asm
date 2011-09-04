@@ -526,6 +526,18 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 			<zipfileset dir="${out.dist}" prefix="${product.name}-${product.version}" />
 		</zip>
 	</target>
+	
+	<!-- ================================== -->
+	<!-- =====  BINARY COMPATIBILITY   ==== -->
+	<!-- ================================== -->
+
+	<target name="sigtest-setup" depends="jar">
+		<ant antfile="${test}/build.xml" target="sigtest-setup" inheritRefs="true" />
+	</target>
+
+	<target name="sigtest" depends="jar">
+		<ant antfile="${test}/build.xml" target="sigtest" inheritRefs="true" />
+	</target>
 
 	<!-- =================================== -->
 	<!-- ==========     CLEAN     ========== -->

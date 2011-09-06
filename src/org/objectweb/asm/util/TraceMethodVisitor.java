@@ -39,7 +39,7 @@ import org.objectweb.asm.Opcodes;
 /**
  * A {@link MethodVisitor} that prints the methods it visits with a
  * {@link Printer}.
- * 
+ *
  * @author Eric Bruneton
  */
 public final class TraceMethodVisitor extends MethodVisitor {
@@ -96,6 +96,7 @@ public final class TraceMethodVisitor extends MethodVisitor {
 
     @Override
     public void visitCode() {
+        p.visitCode();
         super.visitCode();
     }
 

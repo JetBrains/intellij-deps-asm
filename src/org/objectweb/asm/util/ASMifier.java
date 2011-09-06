@@ -43,11 +43,11 @@ import org.objectweb.asm.Type;
 
 /**
  * A {@link Printer} that prints the ASM code to generate the classes if visits.
- * 
+ *
  * @author Eric Bruneton
  */
 public class ASMifier extends Printer {
-        
+
     /**
      * The name of the visitor variable in the produced code.
      */
@@ -90,7 +90,7 @@ public class ASMifier extends Printer {
 
     /**
      * Constructs a new {@link ASMifier}.
-     * 
+     *
      * @param api the ASM API version implemented by this class. Must be one of
      *        {@link Opcodes#ASM4}.
      * @param name the name of the visitor variable in the produced code.
@@ -107,9 +107,9 @@ public class ASMifier extends Printer {
      * Prints the ASM source code to generate the given class to the standard
      * output. <p> Usage: ASMifier [-debug] &lt;binary
      * class name or class file name&gt;
-     * 
+     *
      * @param args the command line arguments.
-     * 
+     *
      * @throws Exception if the class cannot be found, or if an IO exception
      *         occurs.
      */
@@ -150,7 +150,7 @@ public class ASMifier extends Printer {
     // ------------------------------------------------------------------------
     // Classes
     // ------------------------------------------------------------------------
-    
+
     @Override
     public void visit(
         final int version,
@@ -257,7 +257,7 @@ public class ASMifier extends Printer {
         buf.append(");\n\n");
         text.add(buf.toString());
     }
-    
+
     @Override
     public ASMifier visitClassAnnotation(
         final String desc,
@@ -437,11 +437,11 @@ public class ASMifier extends Printer {
         buf.append("av").append(id).append(".visitEnd();\n");
         text.add(buf.toString());
     }
-    
+
     // ------------------------------------------------------------------------
     // Fields
     // ------------------------------------------------------------------------
-    
+
     @Override
     public ASMifier visitFieldAnnotation(
         final String desc,
@@ -449,7 +449,7 @@ public class ASMifier extends Printer {
     {
         return visitAnnotation(desc, visible);
     }
-    
+
     @Override
     public void visitFieldAttribute(final Attribute attr) {
         visitAttribute(attr);
@@ -457,6 +457,9 @@ public class ASMifier extends Printer {
 
     @Override
     public void visitFieldEnd() {
+        buf.setLength(0);
+        buf.append(name).append(".visitEnd();\n");
+        text.add(buf.toString());
     }
 
     // ------------------------------------------------------------------------
@@ -476,7 +479,7 @@ public class ASMifier extends Printer {
         text.add("}\n");
         return a;
     }
-    
+
     @Override
     public ASMifier visitMethodAnnotation(
         final String desc,
@@ -504,12 +507,12 @@ public class ASMifier extends Printer {
         text.add("}\n");
         return a;
     }
-    
+
     @Override
     public void visitMethodAttribute(final Attribute attr) {
         visitAttribute(attr);
     }
-    
+
     @Override
     public void visitCode() {
         text.add(name + ".visitCode();\n");
@@ -854,7 +857,7 @@ public class ASMifier extends Printer {
     // ------------------------------------------------------------------------
     // Common methods
     // ------------------------------------------------------------------------
-    
+
     public ASMifier visitAnnotation(
         final String desc,
         final boolean visible)
@@ -887,7 +890,7 @@ public class ASMifier extends Printer {
         }
         text.add(buf.toString());
     }
-    
+
     // ------------------------------------------------------------------------
     // Utility methods
     // ------------------------------------------------------------------------
@@ -899,7 +902,7 @@ public class ASMifier extends Printer {
     /**
      * Appends a string representation of the given access modifiers to {@link
      * #buf buf}.
-     * 
+     *
      * @param access some access modifiers.
      */
     void appendAccess(final int access) {

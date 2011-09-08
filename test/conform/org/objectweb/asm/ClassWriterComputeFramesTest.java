@@ -177,7 +177,7 @@ class ComputeClassWriter extends ClassWriter {
                 int start1 = b1.lastIndexOf(";", end1 - 1);
                 int start2 = b2.lastIndexOf(";", end2 - 1);
                 if (start1 != -1 && start2 != -1
-                        && end1 - start1 == end1 - start1)
+                        && end1 - start1 == end2 - start2)
                 {
                     String p1 = b1.substring(start1 + 1, end1);
                     String p2 = b2.substring(start2 + 1, end2);

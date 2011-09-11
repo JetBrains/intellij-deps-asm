@@ -94,12 +94,12 @@ class Handler {
                     // [hstart,hend[ fully included in [s,e[, h removed
                     h = h.next;
                 } else {
-                    // [hstart,hend[ minus [s,e[ = [hstart,e[
-                    h.end = end;
+                    // [hstart,hend[ minus [s,e[ = [e,hend[
+                    h.start = end;
                 }
             } else if (e >= hend) {
-                // [hstart,hend[ minus [s,e[ = [s,hend[
-                h.start = start;
+                // [hstart,hend[ minus [s,e[ = [hstart,s[
+                h.end = start;
             } else {
                 // [hstart,hend[ minus [s,e[ = [hstart,s[ + [e,hend[
                 Handler g = new Handler();

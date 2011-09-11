@@ -168,6 +168,7 @@
     <ant antfile="${test.conform}/classreader.xml" inheritRefs="true"/>
     <ant antfile="${test.conform}/classwriter.xml" inheritRefs="true"/>
     <ant antfile="${test.conform}/classwritercomputeframes.xml" inheritRefs="true"/>
+    <ant antfile="${test.conform}/classwritercomputeframesdeadcode.xml" inheritRefs="true"/>
     <ant antfile="${test.conform}/classwritercomputemaxs.xml" inheritRefs="true"/>
     <ant antfile="${test.conform}/classwritercopypool.xml" inheritRefs="true"/>
     <ant antfile="${test.conform}/classwriterresizeinsns.xml" inheritRefs="true"/>

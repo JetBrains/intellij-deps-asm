@@ -854,20 +854,28 @@ public class Textifier extends Printer {
         appendDescriptor(METHOD_DESCRIPTOR, desc);
         buf.append(" [");
         appendHandle(bsm);
-        buf.append(", ");
-        for(int i=0; i<bsmArgs.length; i++) {
-            Object cst = bsmArgs[i];
-            if (cst instanceof String) {
-                Printer.appendString(buf, (String) cst);
-            } else if (cst instanceof Type) {
-                buf.append(((Type) cst).getDescriptor()).append(".class");
-            } else {
-                buf.append(cst);
+        buf.append(tab3).append("// arguments:");
+        if(bsmArgs.length == 0) {
+            buf.append(" none");
+        } else {
+            buf.append('\n').append(tab3);
+            for(int i=0; i<bsmArgs.length; i++) {
+                Object cst = bsmArgs[i];
+                if (cst instanceof String) {
+                    Printer.appendString(buf, (String) cst);
+                } else if (cst instanceof Type) {
+                    buf.append(((Type) cst).getDescriptor()).append(".class");
+                } else if (cst instanceof Handle) {
+                    appendHandle((Handle) cst);
+                } else {
+                    buf.append(cst);
+                }
+                buf.append(", ");
             }
-            buf.append(", ");
+            buf.setLength(buf.length() - 2);
         }
-        buf.setLength(buf.length() - 2);
-        buf.append("]\n");
+        buf.append("\n");
+        buf.append(tab2).append("]\n");
         text.add(buf.toString());
     }
 
@@ -1144,13 +1152,46 @@ public class Textifier extends Printer {
      * @param h a handle, non null.
      */
     protected void appendHandle(final Handle h) {
+        buf.append('\n').append(tab3);
+        int tag = h.getTag();
+        buf.append("// handle kind 0x").append(Integer.toHexString(tag)).append(" : ");
+        switch (tag) {
+            case Opcodes.H_GETFIELD:
+                buf.append("GETFIELD");
+                break;
+            case Opcodes.H_GETSTATIC:
+                buf.append("GETSTATIC");
+                break;
+            case Opcodes.H_PUTFIELD:
+                buf.append("PUTFIELD");
+                break;
+            case Opcodes.H_PUTSTATIC:
+                buf.append("PUTSTATIC");
+                break;
+            case Opcodes.H_INVOKEINTERFACE:
+                buf.append("INVOKEINTERFACE");
+                break;
+            case Opcodes.H_INVOKESPECIAL:
+                buf.append("INVOKESPECIAL");
+                break;
+            case Opcodes.H_INVOKESTATIC:
+                buf.append("INVOKESTATIC");
+                break;
+            case Opcodes.H_INVOKEVIRTUAL:
+                buf.append("INVOKEVIRTUAL");
+                break;
+            case Opcodes.H_NEWINVOKESPECIAL:
+                buf.append("NEWINVOKESPECIAL");
+                break;
+        }
+        buf.append('\n');
+        buf.append(tab3);
         appendDescriptor(INTERNAL_NAME, h.getOwner());
         buf.append(".");
         buf.append(h.getName());
+        buf.append("(");
         appendDescriptor(HANDLE_DESCRIPTOR, h.getDesc());
-        buf.append(" (");
-        buf.append(h.getTag());
-        buf.append(')');
+        buf.append(')').append('\n');
     }
 
     /**

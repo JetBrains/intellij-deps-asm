@@ -44,7 +44,7 @@ import org.objectweb.asm.signature.SignatureReader;
 
 /**
  * A {@link Printer} that prints a disassembled view of the classes it visits.
- * 
+ *
  * @author Eric Bruneton
  */
 public class Textifier extends Printer {
@@ -103,12 +103,18 @@ public class Textifier extends Printer {
      * parameter signatures, formatted in default Java notation (non-bytecode)
      */
     public static final int PARAMETERS_DECLARATION = 8;
-        
+
+    /**
+     * Constant used in {@link #appendDescriptor appendDescriptor} for handle
+     * descriptors, formatted in bytecode notation
+     */
+    public static final int HANDLE_DESCRIPTOR = 9;
+
     /**
      * Tab for class members.
      */
     protected String tab = "  ";
-    
+
     /**
      * Tab for bytecode instructions.
      */
@@ -139,24 +145,24 @@ public class Textifier extends Printer {
     public Textifier() {
         this(Opcodes.ASM4);
     }
-    
+
     /**
      * Constructs a new {@link Textifier}.
-     * 
+     *
      * @param api the ASM API version implemented by this visitor. Must be one
      *        of {@link Opcodes#ASM4}.
      */
     protected Textifier(final int api) {
         super(api);
     }
-    
+
     /**
      * Prints a disassembled view of the given class to the standard output. <p>
      * Usage: Textifier [-debug] &lt;binary class name or class
      * file name &gt;
-     * 
+     *
      * @param args the command line arguments.
-     * 
+     *
      * @throws Exception if the class cannot be found, or if an IO exception
      *         occurs.
      */
@@ -455,7 +461,7 @@ public class Textifier extends Printer {
     public void visitClassEnd() {
         text.add("}\n");
     }
-    
+
     // ------------------------------------------------------------------------
     // Annotations
     // ------------------------------------------------------------------------
@@ -638,9 +644,9 @@ public class Textifier extends Printer {
         text.add("}");
         return t;
     }
-    
+
     @Override
-    public void visitAnnotationEnd() {        
+    public void visitAnnotationEnd() {
     }
 
     // ------------------------------------------------------------------------
@@ -659,7 +665,7 @@ public class Textifier extends Printer {
     public void visitFieldAttribute(final Attribute attr) {
         visitAttribute(attr);
     }
-    
+
     @Override
     public void visitFieldEnd() {
     }
@@ -667,7 +673,7 @@ public class Textifier extends Printer {
     // ------------------------------------------------------------------------
     // Methods
     // ------------------------------------------------------------------------
-    
+
     @Override
     public Textifier visitAnnotationDefault() {
         text.add(tab2 + "default=");
@@ -676,7 +682,7 @@ public class Textifier extends Printer {
         text.add("\n");
         return t;
     }
-    
+
     @Override
     public Textifier visitMethodAnnotation(
         final String desc,
@@ -720,9 +726,9 @@ public class Textifier extends Printer {
     }
 
     @Override
-    public void visitCode() {        
+    public void visitCode() {
     }
-    
+
     @Override
     public void visitFrame(
         final int type,
@@ -844,9 +850,11 @@ public class Textifier extends Printer {
     {
         buf.setLength(0);
         buf.append(tab2).append("INVOKEDYNAMIC").append(' ');
-        buf.append(name).append(' ');
+        buf.append(name);
         appendDescriptor(METHOD_DESCRIPTOR, desc);
-        buf.append(" [").append(bsm).append(", ");
+        buf.append(" [");
+        appendHandle(bsm);
+        buf.append(", ");
         for(int i=0; i<bsmArgs.length; i++) {
             Object cst = bsmArgs[i];
             if (cst instanceof String) {
@@ -1028,18 +1036,18 @@ public class Textifier extends Printer {
         buf.append(tab2).append("MAXLOCALS = ").append(maxLocals).append('\n');
         text.add(buf.toString());
     }
-    
+
     @Override
-    public void visitMethodEnd() {        
+    public void visitMethodEnd() {
     }
-    
+
     // ------------------------------------------------------------------------
     // Common methods
-    // ------------------------------------------------------------------------    
-    
+    // ------------------------------------------------------------------------
+
     /**
      * Prints a disassembled view of the given annotation.
-     * 
+     *
      * @param desc the class descriptor of the annotation class.
      * @param visible <tt>true</tt> if the annotation is visible at runtime.
      * @return a visitor to visit the annotation values.
@@ -1061,7 +1069,7 @@ public class Textifier extends Printer {
 
     /**
      * Prints a disassembled view of the given attribute.
-     * 
+     *
      * @param attr an attribute.
      */
     public void visitAttribute(final Attribute attr) {
@@ -1084,17 +1092,17 @@ public class Textifier extends Printer {
 
     /**
      * Creates a new TraceVisitor instance.
-     * 
+     *
      * @return a new TraceVisitor.
      */
     protected Textifier createTextifier() {
         return new Textifier();
     }
-    
+
     /**
      * Appends an internal name, a type descriptor or a type signature to
      * {@link #buf buf}.
-     * 
+     *
      * @param type indicates if desc is an internal name, a field descriptor, a
      *        method descriptor, a class signature, ...
      * @param desc an internal name, type descriptor, or type signature. May be
@@ -1131,9 +1139,24 @@ public class Textifier extends Printer {
     }
 
     /**
+     * Appends the information about the given handle to {@link #buf buf}.
+     *
+     * @param h a handle, non null.
+     */
+    protected void appendHandle(final Handle h) {
+        appendDescriptor(INTERNAL_NAME, h.getOwner());
+        buf.append(".");
+        buf.append(h.getName());
+        appendDescriptor(HANDLE_DESCRIPTOR, h.getDesc());
+        buf.append(" (");
+        buf.append(h.getTag());
+        buf.append(')');
+    }
+
+    /**
      * Appends a string representation of the given access modifiers to {@link
      * #buf buf}.
-     * 
+     *
      * @param access some access modifiers.
      */
     private void appendAccess(final int access) {
@@ -1171,7 +1194,7 @@ public class Textifier extends Printer {
             buf.append("enum ");
         }
     }
-    
+
     private void appendComa(final int i) {
         if (i != 0) {
             buf.append(", ");

@@ -859,7 +859,7 @@ public class Textifier extends Printer {
             buf.append(" none");
         } else {
             buf.append('\n').append(tab3);
-            for(int i=0; i<bsmArgs.length; i++) {
+            for(int i = 0; i < bsmArgs.length; i++) {
                 Object cst = bsmArgs[i];
                 if (cst instanceof String) {
                     Printer.appendString(buf, (String) cst);
@@ -874,7 +874,7 @@ public class Textifier extends Printer {
             }
             buf.setLength(buf.length() - 2);
         }
-        buf.append("\n");
+        buf.append('\n');
         buf.append(tab2).append("]\n");
         text.add(buf.toString());
     }
@@ -1187,9 +1187,9 @@ public class Textifier extends Printer {
         buf.append('\n');
         buf.append(tab3);
         appendDescriptor(INTERNAL_NAME, h.getOwner());
-        buf.append(".");
+        buf.append('.');
         buf.append(h.getName());
-        buf.append("(");
+        buf.append('(');
         appendDescriptor(HANDLE_DESCRIPTOR, h.getDesc());
         buf.append(')').append('\n');
     }

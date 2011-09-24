@@ -1,6 +1,6 @@
 /***
  * ASM tests
- * Copyright (c) 2002-2005 France Telecom
+ * Copyright (c) 2000-2011 INRIA, France Telecom
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -45,7 +45,7 @@ import org.objectweb.asm.Opcodes;
 
 /**
  * ClassNode tests.
- * 
+ *
  * @author Eric Bruneton
  */
 public class ClassNodeTest extends AbstractTest {

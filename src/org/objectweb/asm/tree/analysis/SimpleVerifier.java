@@ -1,6 +1,6 @@
 /***
  * ASM: a very small and fast Java bytecode manipulation framework
- * Copyright (c) 2000-2007 INRIA, France Telecom
+ * Copyright (c) 2000-2011 INRIA, France Telecom
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -37,7 +37,7 @@ import org.objectweb.asm.Type;
  * An extended {@link BasicVerifier} that performs more precise verifications.
  * This verifier computes exact class types, instead of using a single "object
  * reference" type (as done in the {@link BasicVerifier}).
- * 
+ *
  * @author Eric Bruneton
  * @author Bing Ran
  */
@@ -78,7 +78,7 @@ public class SimpleVerifier extends BasicVerifier {
     /**
      * Constructs a new {@link SimpleVerifier} to verify a specific class. This
      * class will not be loaded into the JVM since it may be incorrect.
-     * 
+     *
      * @param currentClass the class that is verified.
      * @param currentSuperClass the super class of the class that is verified.
      * @param isInterface if the class that is verified is an interface.
@@ -94,7 +94,7 @@ public class SimpleVerifier extends BasicVerifier {
     /**
      * Constructs a new {@link SimpleVerifier} to verify a specific class. This
      * class will not be loaded into the JVM since it may be incorrect.
-     * 
+     *
      * @param currentClass the class that is verified.
      * @param currentSuperClass the super class of the class that is verified.
      * @param currentClassInterfaces the interfaces implemented by the class
@@ -132,7 +132,7 @@ public class SimpleVerifier extends BasicVerifier {
      * Set the <code>ClassLoader</code> which will be used to load referenced
      * classes. This is useful if you are verifying multiple interdependent
      * classes.
-     * 
+     *
      * @param loader a <code>ClassLoader</code> to use
      */
     public void setClassLoader(final ClassLoader loader) {

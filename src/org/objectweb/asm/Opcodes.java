@@ -1,6 +1,6 @@
 /***
  * ASM: a very small and fast Java bytecode manipulation framework
- * Copyright (c) 2000-2007 INRIA, France Telecom
+ * Copyright (c) 2000-2011 INRIA, France Telecom
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -42,9 +42,9 @@ package org.objectweb.asm;
  * @author Eugene Kuleshov
  */
 public interface Opcodes {
-    
+
     // ASM API versions
-    
+
     int ASM4 = 4 << 16 | 0 << 8 | 0;
 
     // versions
@@ -92,9 +92,9 @@ public interface Opcodes {
     int T_SHORT = 9;
     int T_INT = 10;
     int T_LONG = 11;
-    
+
     // tags for Handle
-    
+
     int H_GETFIELD = 1;
     int H_GETSTATIC = 2;
     int H_PUTFIELD = 3;

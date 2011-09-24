@@ -1,6 +1,6 @@
 /***
  * ASM tests
- * Copyright (c) 2002-2005 France Telecom
+ * Copyright (c) 2000-2011 INRIA, France Telecom
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -41,7 +41,7 @@ import org.xml.sax.helpers.AttributesImpl;
 
 /**
  * ASMContentHandler unit tests
- * 
+ *
  * @author Eric Bruneton
  */
 public class ASMContentHandlerUnitTest extends TestCase implements Opcodes {
@@ -71,7 +71,7 @@ public class ASMContentHandlerUnitTest extends TestCase implements Opcodes {
                     return this;
                 }
             };
-            
+
             @Override
             public AnnotationVisitor visitAnnotation(
                 String desc,
@@ -132,7 +132,7 @@ public class ASMContentHandlerUnitTest extends TestCase implements Opcodes {
                         return av;
                     }
                 };
-            }            
+            }
         });
         cv = new SAXClassAdapter(h, true);
         cv.visit(V1_5, ACC_PUBLIC, "C", null, "java/lang/Object", null);

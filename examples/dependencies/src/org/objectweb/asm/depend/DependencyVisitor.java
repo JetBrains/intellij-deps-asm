@@ -1,6 +1,6 @@
 /***
  * ASM examples: examples showing how ASM can be used
- * Copyright (c) 2000-2007 INRIA, France Telecom
+ * Copyright (c) 2000-2011 INRIA, France Telecom
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -69,7 +69,7 @@ public class DependencyVisitor extends ClassVisitor
     public DependencyVisitor() {
         super(Opcodes.ASM4);
     }
-    
+
     // ClassVisitor
 
     @Override
@@ -142,20 +142,20 @@ public class DependencyVisitor extends ClassVisitor
         addInternalNames(exceptions);
         return new MethodDependencyVisitor();
     }
-    
+
     class AnnotationDependencyVisitor extends AnnotationVisitor {
-        
+
         public AnnotationDependencyVisitor() {
             super(Opcodes.ASM4);
         }
-        
+
         @Override
         public void visit(final String name, final Object value) {
             if (value instanceof Type) {
                 addType((Type) value);
             }
         }
-    
+
         @Override
         public void visitEnum(
             final String name,
@@ -164,7 +164,7 @@ public class DependencyVisitor extends ClassVisitor
         {
             addDesc(desc);
         }
-    
+
         @Override
         public AnnotationVisitor visitAnnotation(
             final String name,
@@ -173,7 +173,7 @@ public class DependencyVisitor extends ClassVisitor
             addDesc(desc);
             return this;
         }
-    
+
         @Override
         public AnnotationVisitor visitArray(final String name) {
             return this;
@@ -185,25 +185,25 @@ public class DependencyVisitor extends ClassVisitor
         public FieldDependencyVisitor() {
             super(Opcodes.ASM4);
         }
-        
+
         @Override
         public AnnotationVisitor visitAnnotation(String desc, boolean visible) {
             addDesc(desc);
             return new AnnotationDependencyVisitor();
         }
     }
-    
+
     class MethodDependencyVisitor extends MethodVisitor {
-        
+
         public MethodDependencyVisitor() {
             super(Opcodes.ASM4);
         }
-        
+
         @Override
         public AnnotationVisitor visitAnnotationDefault() {
             return new AnnotationDependencyVisitor();
         }
-        
+
         @Override
         public AnnotationVisitor visitAnnotation(
             final String desc,
@@ -222,12 +222,12 @@ public class DependencyVisitor extends ClassVisitor
             addDesc(desc);
             return new AnnotationDependencyVisitor();
         }
-    
+
         @Override
         public void visitTypeInsn(final int opcode, final String type) {
             addType(Type.getObjectType(type));
         }
-    
+
         @Override
         public void visitFieldInsn(
             final int opcode,
@@ -238,7 +238,7 @@ public class DependencyVisitor extends ClassVisitor
             addInternalName(owner);
             addDesc(desc);
         }
-    
+
         @Override
         public void visitMethodInsn(
             final int opcode,
@@ -249,7 +249,7 @@ public class DependencyVisitor extends ClassVisitor
             addInternalName(owner);
             addMethodDesc(desc);
         }
-    
+
         @Override
         public void visitInvokeDynamicInsn(
             String name,
@@ -263,17 +263,17 @@ public class DependencyVisitor extends ClassVisitor
                 addConstant(bsmArgs[i]);
             }
         }
-    
+
         @Override
         public void visitLdcInsn(final Object cst) {
             addConstant(cst);
         }
-    
+
         @Override
         public void visitMultiANewArrayInsn(final String desc, final int dims) {
             addDesc(desc);
         }
-    
+
         @Override
         public void visitLocalVariable(
             final String name,
@@ -304,22 +304,22 @@ public class DependencyVisitor extends ClassVisitor
         String signatureClassName;
 
         public SignatureDependencyVisitor() {
-            super(Opcodes.ASM4);            
+            super(Opcodes.ASM4);
         }
-        
+
         @Override
         public void visitClassType(final String name) {
             signatureClassName = name;
             addInternalName(name);
         }
-    
+
         @Override
         public void visitInnerClassType(final String name) {
             signatureClassName = signatureClassName + "$" + name;
             addInternalName(signatureClassName);
         }
     }
-    
+
     // ---------------------------------------------
 
     private String getGroupKey(String name) {

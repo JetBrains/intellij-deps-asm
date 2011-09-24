@@ -1,6 +1,6 @@
 /***
  * ASM tests
- * Copyright (c) 2002-2005 France Telecom
+ * Copyright (c) 2000-2011 INRIA, France Telecom
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -38,7 +38,7 @@ import org.objectweb.asm.Opcodes;
 /**
  * Generates classes designed so that the "conform" test suite, applied to these
  * classes, covers all the ASM code base.
- * 
+ *
  * @author Eric Bruneton
  */
 public class Generator implements Opcodes {
@@ -55,7 +55,7 @@ public class Generator implements Opcodes {
             new JSR(),
             new Outer(),
             new Wide(),
-            new InvokeDynamic() 
+            new InvokeDynamic()
         };
         for (int i = 0; i < generators.length; ++i) {
             generators[i].generate(args[0]);

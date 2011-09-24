@@ -1,6 +1,6 @@
 /***
  * ASM: a very small and fast Java bytecode manipulation framework
- * Copyright (c) 2000-2007 INRIA, France Telecom
+ * Copyright (c) 2000-2011 INRIA, France Telecom
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -80,7 +80,7 @@ public class MethodNode extends MethodVisitor {
     /**
      * The runtime visible annotations of this method. This list is a list of
      * {@link AnnotationNode} objects. May be <tt>null</tt>.
-     * 
+     *
      * @associates org.objectweb.asm.tree.AnnotationNode
      * @label visible
      */
@@ -89,7 +89,7 @@ public class MethodNode extends MethodVisitor {
     /**
      * The runtime invisible annotations of this method. This list is a list of
      * {@link AnnotationNode} objects. May be <tt>null</tt>.
-     * 
+     *
      * @associates org.objectweb.asm.tree.AnnotationNode
      * @label invisible
      */
@@ -98,7 +98,7 @@ public class MethodNode extends MethodVisitor {
     /**
      * The non standard attributes of this method. This list is a list of
      * {@link Attribute} objects. May be <tt>null</tt>.
-     * 
+     *
      * @associates org.objectweb.asm.Attribute
      */
     public List<Attribute> attrs;
@@ -177,7 +177,7 @@ public class MethodNode extends MethodVisitor {
 
     /**
      * Constructs an uninitialized {@link MethodNode}.
-     * 
+     *
      * @param api the ASM API version implemented by this visitor. Must be one
      *        of {@link Opcodes#ASM4}.
      */
@@ -185,12 +185,12 @@ public class MethodNode extends MethodVisitor {
         super(api);
         this.instructions = new InsnList();
     }
-    
+
     /**
      * Constructs a new {@link MethodNode}. <i>Subclasses must not use this
      * constructor</i>. Instead, they must use the
      * {@link #MethodNode(int, int, String, String, String, String[])} version.
-     * 
+     *
      * @param access the method's access flags (see {@link Opcodes}). This
      *        parameter also indicates if the method is synthetic and/or
      *        deprecated.
@@ -213,7 +213,7 @@ public class MethodNode extends MethodVisitor {
 
     /**
      * Constructs a new {@link MethodNode}.
-     * 
+     *
      * @param api the ASM API version implemented by this visitor. Must be one
      *        of {@link Opcodes#ASM4}.
      * @param access the method's access flags (see {@link Opcodes}). This
@@ -267,7 +267,7 @@ public class MethodNode extends MethodVisitor {
             }
         });
     }
-    
+
     @Override
     public AnnotationVisitor visitAnnotation(
         final String desc,
@@ -287,7 +287,7 @@ public class MethodNode extends MethodVisitor {
         }
         return an;
     }
-    
+
     @Override
     public AnnotationVisitor visitParameterAnnotation(
         final int parameter,
@@ -316,7 +316,7 @@ public class MethodNode extends MethodVisitor {
         }
         return an;
     }
-    
+
     @Override
     public void visitAttribute(final Attribute attr) {
         if (attrs == null) {
@@ -324,7 +324,7 @@ public class MethodNode extends MethodVisitor {
         }
         attrs.add(attr);
     }
-    
+
     @Override
     public void visitCode() {
     }
@@ -485,7 +485,7 @@ public class MethodNode extends MethodVisitor {
     }
 
     @Override
-    public void visitEnd() {    
+    public void visitEnd() {
     }
 
     /**
@@ -533,7 +533,7 @@ public class MethodNode extends MethodVisitor {
      * version. This methods checks that this node, and all its nodes
      * recursively, do not contain elements that were introduced in more recent
      * versions of the ASM API than the given version.
-     * 
+     *
      * @param api an ASM API version. Must be one of {@link Opcodes#ASM4}.
      */
     public void check(final int api) {

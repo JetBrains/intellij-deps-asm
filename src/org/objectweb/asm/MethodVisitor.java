@@ -1,6 +1,6 @@
 /***
  * ASM: a very small and fast Java bytecode manipulation framework
- * Copyright (c) 2000-2007 INRIA, France Telecom
+ * Copyright (c) 2000-2011 INRIA, France Telecom
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -59,10 +59,10 @@ public abstract class MethodVisitor {
      * be null.
      */
     protected MethodVisitor mv;
-    
+
     /**
      * Constructs a new {@link MethodVisitor}.
-     * 
+     *
      * @param api the ASM API version implemented by this visitor. Must be one
      *        of {@link Opcodes#ASM4}.
      */
@@ -72,7 +72,7 @@ public abstract class MethodVisitor {
 
     /**
      * Constructs a new {@link MethodVisitor}.
-     * 
+     *
      * @param api the ASM API version implemented by this visitor. Must be one
      *        of {@link Opcodes#ASM4}.
      * @param mv the method visitor to which this visitor must delegate method
@@ -343,7 +343,7 @@ public abstract class MethodVisitor {
 
     /**
      * Visits an invokedynamic instruction.
-     * 
+     *
      * @param name the method's name.
      * @param desc the method's descriptor (see {@link Type Type}).
      * @param bsm the bootstrap method.
@@ -425,7 +425,7 @@ public abstract class MethodVisitor {
      * } else {
      *   // throw an exception
      * }</pre>
-     * 
+     *
      * @param cst the constant to be loaded on the stack. This parameter must be
      *        a non null {@link Integer}, a {@link Float}, a {@link Long}, a
      *        {@link Double}, a {@link String}, a {@link Type} of OBJECT or ARRAY

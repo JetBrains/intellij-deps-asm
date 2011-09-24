@@ -1,6 +1,6 @@
 /***
  * ASM tests
- * Copyright (c) 2002-2005 France Telecom
+ * Copyright (c) 2000-2011 INRIA, France Telecom
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -52,7 +52,7 @@ import org.objectweb.asm.util.TraceClassVisitor;
 
 /**
  * Super class for test suites based on a jar file.
- * 
+ *
  * @author Eugene Kuleshov
  * @author Eric Bruneton
  */
@@ -200,7 +200,7 @@ public abstract class AbstractTest extends TestCase {
     public String getName() {
         return super.getName() + ": " + n;
     }
-    
+
     static class RemoveUnusedLabelsAdapter extends ClassVisitor {
 
         public RemoveUnusedLabelsAdapter(ClassVisitor cv) {
@@ -216,12 +216,12 @@ public abstract class AbstractTest extends TestCase {
             String[] exceptions)
         {
             return new MethodNode(access, name, desc, signature, exceptions) {
-                
-                /** 
+
+                /**
                  * The labels used in this method.
                  */
                 Set<LabelNode> usedLabels = new HashSet<LabelNode>();
-                
+
                 @Override
                 public void visitLabel(final Label label) {
                     instructions.add(super.getLabelNode(label));
@@ -248,6 +248,6 @@ public abstract class AbstractTest extends TestCase {
                     return n;
                 }
             };
-        }        
+        }
     }
 }

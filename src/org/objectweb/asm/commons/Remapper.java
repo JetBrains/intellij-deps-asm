@@ -1,6 +1,6 @@
 /***
  * ASM: a very small and fast Java bytecode manipulation framework
- * Copyright (c) 2000-2007 INRIA, France Telecom
+ * Copyright (c) 2000-2011 INRIA, France Telecom
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -178,7 +178,7 @@ public abstract class Remapper {
 
     /**
      * Map method name to the new name. Subclasses can override.
-     * 
+     *
      * @param owner owner of the method.
      * @param name name of the method.
      * @param desc descriptor of the method.
@@ -190,7 +190,7 @@ public abstract class Remapper {
 
     /**
      * Map invokedynamic method name to the new name. Subclasses can override.
-     * 
+     *
      * @param name name of the invokedynamic.
      * @param desc descriptor of the invokedynamic.
      * @return new invokdynamic name.
@@ -201,7 +201,7 @@ public abstract class Remapper {
 
     /**
      * Map field name to the new name. Subclasses can override.
-     * 
+     *
      * @param owner owner of the field.
      * @param name name of the field
      * @param desc descriptor of the field
@@ -213,7 +213,7 @@ public abstract class Remapper {
 
     /**
      * Map type name to the new name. Subclasses can override.
-     * 
+     *
      */
     public String map(String typeName) {
         return typeName;

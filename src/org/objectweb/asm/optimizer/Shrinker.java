@@ -1,6 +1,6 @@
 /***
  * ASM: a very small and fast Java bytecode manipulation framework
- * Copyright (c) 2000-2007 INRIA, France Telecom
+ * Copyright (c) 2000-2011 INRIA, France Telecom
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -65,12 +65,12 @@ public class Shrinker {
         int n = args.length - 1;
         for (int i = 0; i < n - 1; ++i) {
             properties.load(new FileInputStream(args[i]));
-        } 
-        
+        }
+
         for(Map.Entry<Object, Object> entry: properties.entrySet()) {
             MAPPING.put((String)entry.getKey(), (String)entry.getValue());
         }
-        
+
         final Set<String> unused = new HashSet<String>(MAPPING.keySet());
 
         File f = new File(args[n - 1]);

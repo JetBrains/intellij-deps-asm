@@ -1,6 +1,6 @@
 /***
  * ASM tests
- * Copyright (c) 2002-2005 France Telecom
+ * Copyright (c) 2000-2011 INRIA, France Telecom
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -41,7 +41,7 @@ import org.objectweb.asm.MethodVisitor;
  * GOTO and IF instructions - these jump instructions are not directly generated
  * in their 'wide' form, but are transformed to this form by the method resizing
  * test). Also covers the V1_2 class version.
- * 
+ *
  * @author Eric Bruneton
  */
 public class Wide extends Generator {

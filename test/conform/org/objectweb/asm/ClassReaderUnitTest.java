@@ -1,6 +1,6 @@
 /***
  * ASM tests
- * Copyright (c) 2002-2005 France Telecom
+ * Copyright (c) 2000-2011 INRIA, France Telecom
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -36,7 +36,7 @@ import junit.framework.TestCase;
 
 /**
  * ClassReader unit tests.
- * 
+ *
  * @author Eric Bruneton
  * @author Eugene Kuleshov
  */
@@ -61,17 +61,17 @@ public class ClassReaderUnitTest extends TestCase implements Opcodes {
         ClassReader cr = new ClassReader(getClass().getName());
         assertEquals(cr.b[0] & 0xFF, cr.readByte(0));
     }
-    
+
     public void testGetAccess() throws Exception {
         String name = getClass().getName();
         assertEquals(Opcodes.ACC_PUBLIC | Opcodes.ACC_SUPER, new ClassReader(name).getAccess());
     }
-    
+
     public void testGetClassName() throws Exception {
         String name = getClass().getName();
         assertEquals(name.replace('.', '/'), new ClassReader(name).getClassName());
     }
-    
+
     public void testGetSuperName() throws Exception {
         assertEquals(TestCase.class.getName().replace('.', '/'), new ClassReader(getClass().getName()).getSuperName());
         assertEquals(null, new ClassReader(Object.class.getName()).getSuperName());
@@ -82,7 +82,7 @@ public class ClassReaderUnitTest extends TestCase implements Opcodes {
         assertNotNull(interfaces);
         assertEquals(1, interfaces.length);
         assertEquals(Opcodes.class.getName().replace('.', '/'), interfaces[0]);
-        
+
         interfaces = new ClassReader(Opcodes.class.getName()).getInterfaces();
         assertNotNull(interfaces);
     }

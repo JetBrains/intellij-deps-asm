@@ -1,6 +1,7 @@
 /***
  * ASM: a very small and fast Java bytecode manipulation framework
- * Copyright (c) 2000-2007 INRIA, France Telecom
+ * Copyright (c) 2000-2011 INRIA, France Telecom
+ * Copyright (c) 2011 Google
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -42,7 +43,7 @@ import org.objectweb.asm.Opcodes;
  */
 public final class TraceFieldVisitor extends FieldVisitor {
 
-    private final Printer p;
+    public final Printer p;
 
     public TraceFieldVisitor(final Printer p) {
         this(null, p);

@@ -1,6 +1,6 @@
 /***
  * ASM: a very small and fast Java bytecode manipulation framework
- * Copyright (c) 2000-2007 INRIA, France Telecom
+ * Copyright (c) 2000-2011 INRIA, France Telecom
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,7 +31,7 @@ package org.objectweb.asm;
 
 /**
  * An {@link AnnotationVisitor} that generates annotations in bytecode form.
- * 
+ *
  * @author Eric Bruneton
  * @author Eugene Kuleshov
  */
@@ -48,7 +48,7 @@ final class AnnotationWriter extends AnnotationVisitor {
     private int size;
 
     /**
-     * <tt>true<tt> if values are named, <tt>false</tt> otherwise. Annotation 
+     * <tt>true<tt> if values are named, <tt>false</tt> otherwise. Annotation
      * writers used for annotation default and annotation arrays use unnamed
      * values.
      */
@@ -89,12 +89,12 @@ final class AnnotationWriter extends AnnotationVisitor {
 
     /**
      * Constructs a new {@link AnnotationWriter}.
-     * 
+     *
      * @param cw the class writer to which this annotation must be added.
      * @param named <tt>true<tt> if values are named, <tt>false</tt> otherwise.
      * @param bv where the annotation values must be stored.
      * @param parent where the number of annotation values must be stored.
-     * @param offset where in <tt>parent</tt> the number of annotation values must 
+     * @param offset where in <tt>parent</tt> the number of annotation values must
      *      be stored.
      */
     AnnotationWriter(
@@ -242,7 +242,7 @@ final class AnnotationWriter extends AnnotationVisitor {
 
     /**
      * Returns the size of this annotation writer list.
-     * 
+     *
      * @return the size of this annotation writer list.
      */
     int getSize() {
@@ -258,7 +258,7 @@ final class AnnotationWriter extends AnnotationVisitor {
     /**
      * Puts the annotations of this annotation writer list into the given byte
      * vector.
-     * 
+     *
      * @param out where the annotations must be put.
      */
     void put(final ByteVector out) {
@@ -285,7 +285,7 @@ final class AnnotationWriter extends AnnotationVisitor {
 
     /**
      * Puts the given annotation lists into the given byte vector.
-     * 
+     *
      * @param panns an array of annotation writer lists.
      * @param off index of the first annotation to be written.
      * @param out where the annotations must be put.

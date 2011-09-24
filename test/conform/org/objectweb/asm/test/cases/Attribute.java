@@ -1,6 +1,6 @@
 /***
  * ASM tests
- * Copyright (c) 2002-2005 France Telecom
+ * Copyright (c) 2000-2011 INRIA, France Telecom
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -42,7 +42,7 @@ import org.objectweb.asm.attrs.Comment;
  * Generates a class with non standard attributes. Covers class, field, method
  * and code attributes. Also covers the V1_3 class version and the SYNTHETIC
  * access flag for classes.
- * 
+ *
  * @author Eric Bruneton
  */
 public class Attribute extends Generator {

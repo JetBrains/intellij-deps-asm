@@ -1,6 +1,6 @@
 /***
  * ASM: a very small and fast Java bytecode manipulation framework
- * Copyright (c) 2000-2007 INRIA, France Telecom
+ * Copyright (c) 2000-2011 INRIA, France Telecom
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -40,7 +40,7 @@ import org.objectweb.asm.Opcodes;
 
 /**
  * A node that represents a TABLESWITCH instruction.
- * 
+ *
  * @author Eric Bruneton
  */
 public class TableSwitchInsnNode extends AbstractInsnNode {
@@ -68,7 +68,7 @@ public class TableSwitchInsnNode extends AbstractInsnNode {
 
     /**
      * Constructs a new {@link TableSwitchInsnNode}.
-     * 
+     *
      * @param min the minimum key value.
      * @param max the maximum key value.
      * @param dflt beginning of the default handler block.

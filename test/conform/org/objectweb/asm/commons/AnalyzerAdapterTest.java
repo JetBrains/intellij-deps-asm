@@ -1,6 +1,6 @@
 /***
  * ASM tests
- * Copyright (c) 2002-2005 France Telecom
+ * Copyright (c) 2000-2011 INRIA, France Telecom
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -40,7 +40,7 @@ import org.objectweb.asm.Opcodes;
 
 /**
  * AnalyzerAdapter tests.
- * 
+ *
  * @author Eric Bruneton
  */
 public class AnalyzerAdapterTest extends AbstractTest {
@@ -103,10 +103,10 @@ public class AnalyzerAdapterTest extends AbstractTest {
         };
         cr.accept(cv, ClassReader.EXPAND_FRAMES);
     }
-    
+
     /**
      * Dummy method to avoid a FindBugs warning.
      */
-    private void skipTest() {        
+    private void skipTest() {
     }
 }

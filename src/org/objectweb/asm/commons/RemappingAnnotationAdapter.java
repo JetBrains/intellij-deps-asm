@@ -1,6 +1,6 @@
 /***
  * ASM: a very small and fast Java bytecode manipulation framework
- * Copyright (c) 2000-2007 INRIA, France Telecom
+ * Copyright (c) 2000-2011 INRIA, France Telecom
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -35,11 +35,11 @@ import org.objectweb.asm.Opcodes;
 
 /**
  * An {@link AnnotationVisitor} adapter for type remapping.
- * 
+ *
  * @author Eugene Kuleshov
  */
 public class RemappingAnnotationAdapter extends AnnotationVisitor {
-        
+
     protected final Remapper remapper;
 
     public RemappingAnnotationAdapter(
@@ -48,7 +48,7 @@ public class RemappingAnnotationAdapter extends AnnotationVisitor {
     {
         this(Opcodes.ASM4, av, remapper);
     }
-    
+
     protected RemappingAnnotationAdapter(
         final int api,
         final AnnotationVisitor av,

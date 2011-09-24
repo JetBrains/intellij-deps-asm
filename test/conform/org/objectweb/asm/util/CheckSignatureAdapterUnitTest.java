@@ -1,6 +1,6 @@
 /***
  * ASM tests
- * Copyright (c) 2002-2005 France Telecom
+ * Copyright (c) 2000-2011 INRIA, France Telecom
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -39,7 +39,7 @@ import org.objectweb.asm.util.TraceSignatureVisitorUnitTest.TestData;
 
 /**
  * CheckSignatureAdapter tests.
- * 
+ *
  * @author Eric Bruneton
  */
 public class CheckSignatureAdapterUnitTest extends TestCase {
@@ -242,7 +242,7 @@ public class CheckSignatureAdapterUnitTest extends TestCase {
         } catch (Exception e) {
         }
     }
-    
+
     public void testIllegalEnd() {
         setup(CheckSignatureAdapter.TYPE_SIGNATURE);
         try {

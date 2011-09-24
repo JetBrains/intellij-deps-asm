@@ -1,6 +1,6 @@
 /***
  * ASM: a very small and fast Java bytecode manipulation framework
- * Copyright (c) 2000-2007 INRIA, France Telecom
+ * Copyright (c) 2000-2011 INRIA, France Telecom
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -40,7 +40,7 @@ import org.objectweb.asm.Opcodes;
 
 /**
  * An abstract converter from visit events to text.
- * 
+ *
  * @author Eric Bruneton
  */
 public abstract class Printer {
@@ -49,7 +49,7 @@ public abstract class Printer {
      * The names of the Java Virtual Machine opcodes.
      */
     public static final String[] OPCODES;
-    
+
     /**
      * The names of the for <code>operand</code> parameter values of the
      * {@link org.objectweb.asm.MethodVisitor#visitIntInsn} method when
@@ -101,7 +101,7 @@ public abstract class Printer {
             TYPES[i++] = s.substring(j, l);
             j = l + 1;
         }
-        
+
         s = "H_GETFIELD,H_GETSTATIC,H_PUTFIELD,H_PUTSTATIC,"
           + "H_INVOKEVIRTUAL,H_INVOKESTATIC,H_INVOKESPECIAL,"
           + "H_NEWINVOKESPECIAL,H_INVOKEINTERFACE,";
@@ -113,7 +113,7 @@ public abstract class Printer {
             j = l + 1;
         }
     }
-    
+
     /**
      * The ASM API version implemented by this class. The value of this field
      * must be one of {@link Opcodes#ASM4}.
@@ -124,7 +124,7 @@ public abstract class Printer {
      * A buffer that can be used to create strings.
      */
     protected final StringBuffer buf;
-    
+
     /**
      * The text to be printed. Since the code of methods is not necessarily
      * visited in sequential order, one method after the other, but can be
@@ -147,9 +147,9 @@ public abstract class Printer {
         this.buf = new StringBuffer();
         this.text = new ArrayList<Object>();
     }
-    
+
     /**
-     * Class header. 
+     * Class header.
      * See {@link org.objectweb.asm.ClassVisitor#visit}.
      */
     public abstract void visit(
@@ -161,7 +161,7 @@ public abstract class Printer {
         final String[] interfaces);
 
     /**
-     * Class source. 
+     * Class source.
      * See {@link org.objectweb.asm.ClassVisitor#visitSource}.
      */
     public abstract void visitSource(final String file, final String debug);
@@ -176,7 +176,7 @@ public abstract class Printer {
         final String desc);
 
     /**
-     * Class annotation. 
+     * Class annotation.
      * See {@link org.objectweb.asm.ClassVisitor#visitAnnotation}.
      */
     public abstract Printer visitClassAnnotation(
@@ -184,13 +184,13 @@ public abstract class Printer {
         final boolean visible);
 
     /**
-     * Class attribute. 
+     * Class attribute.
      * See {@link org.objectweb.asm.ClassVisitor#visitAttribute}.
      */
     public abstract void visitClassAttribute(final Attribute attr);
 
     /**
-     * Class inner name. 
+     * Class inner name.
      * See {@link org.objectweb.asm.ClassVisitor#visitInnerClass}.
      */
     public abstract void visitInnerClass(
@@ -200,7 +200,7 @@ public abstract class Printer {
         final int access);
 
     /**
-     * Class field. 
+     * Class field.
      * See {@link org.objectweb.asm.ClassVisitor#visitField}.
      */
     public abstract Printer visitField(
@@ -211,7 +211,7 @@ public abstract class Printer {
         final Object value);
 
     /**
-     * Class method. 
+     * Class method.
      * See {@link org.objectweb.asm.ClassVisitor#visitMethod}.
      */
     public abstract Printer visitMethod(
@@ -222,7 +222,7 @@ public abstract class Printer {
         final String[] exceptions);
 
     /**
-     * Class end. 
+     * Class end.
      * See {@link org.objectweb.asm.ClassVisitor#visitEnd}.
      */
     public abstract void visitClassEnd();
@@ -232,13 +232,13 @@ public abstract class Printer {
     // ------------------------------------------------------------------------
 
     /**
-     * Annotation value. 
+     * Annotation value.
      * See {@link org.objectweb.asm.AnnotationVisitor#visit}.
      */
     public abstract void visit(final String name, final Object value);
 
     /**
-     * Annotation enum value. 
+     * Annotation enum value.
      * See {@link org.objectweb.asm.AnnotationVisitor#visitEnum}.
      */
     public abstract void visitEnum(
@@ -247,7 +247,7 @@ public abstract class Printer {
         final String value);
 
     /**
-     * Nested annotation value. 
+     * Nested annotation value.
      * See {@link org.objectweb.asm.AnnotationVisitor#visitAnnotation}.
      */
     public abstract Printer visitAnnotation(
@@ -255,13 +255,13 @@ public abstract class Printer {
         final String desc);
 
     /**
-     * Annotation array value. 
+     * Annotation array value.
      * See {@link org.objectweb.asm.AnnotationVisitor#visitArray}.
-     */    
+     */
     public abstract Printer visitArray(final String name);
 
     /**
-     * Annotation end. 
+     * Annotation end.
      * See {@link org.objectweb.asm.AnnotationVisitor#visitEnd}.
      */
     public abstract void visitAnnotationEnd();
@@ -271,7 +271,7 @@ public abstract class Printer {
     // ------------------------------------------------------------------------
 
     /**
-     * Field annotation. 
+     * Field annotation.
      * See {@link org.objectweb.asm.FieldVisitor#visitAnnotation}.
      */
     public abstract Printer visitFieldAnnotation(
@@ -279,13 +279,13 @@ public abstract class Printer {
         final boolean visible);
 
     /**
-     * Field attribute. 
+     * Field attribute.
      * See {@link org.objectweb.asm.FieldVisitor#visitAttribute}.
      */
     public abstract void visitFieldAttribute(final Attribute attr);
 
     /**
-     * Field end. 
+     * Field end.
      * See {@link org.objectweb.asm.FieldVisitor#visitEnd}.
      */
     public abstract void visitFieldEnd();
@@ -295,13 +295,13 @@ public abstract class Printer {
     // ------------------------------------------------------------------------
 
     /**
-     * Method default annotation. 
+     * Method default annotation.
      * See {@link org.objectweb.asm.MethodVisitor#visitAnnotationDefault}.
      */
     public abstract Printer visitAnnotationDefault();
 
     /**
-     * Method annotation. 
+     * Method annotation.
      * See {@link org.objectweb.asm.MethodVisitor#visitAnnotation}.
      */
     public abstract Printer visitMethodAnnotation(
@@ -309,7 +309,7 @@ public abstract class Printer {
         final boolean visible);
 
     /**
-     * Method parameter annotation. 
+     * Method parameter annotation.
      * See {@link org.objectweb.asm.MethodVisitor#visitParameterAnnotation}.
      */
     public abstract Printer visitParameterAnnotation(
@@ -318,19 +318,19 @@ public abstract class Printer {
         final boolean visible);
 
     /**
-     * Method attribute. 
+     * Method attribute.
      * See {@link org.objectweb.asm.MethodVisitor#visitAttribute}.
      */
     public abstract void visitMethodAttribute(final Attribute attr);
 
     /**
-     * Method start. 
+     * Method start.
      * See {@link org.objectweb.asm.MethodVisitor#visitCode}.
      */
     public abstract void visitCode();
 
     /**
-     * Method stack frame. 
+     * Method stack frame.
      * See {@link org.objectweb.asm.MethodVisitor#visitFrame}.
      */
     public abstract void visitFrame(
@@ -341,31 +341,31 @@ public abstract class Printer {
         final Object[] stack);
 
     /**
-     * Method instruction. 
+     * Method instruction.
      * See {@link org.objectweb.asm.MethodVisitor#visitInsn}.
      */
     public abstract void visitInsn(final int opcode);
 
     /**
-     * Method instruction. 
+     * Method instruction.
      * See {@link org.objectweb.asm.MethodVisitor#visitIntInsn}.
      */
     public abstract void visitIntInsn(final int opcode, final int operand);
 
     /**
-     * Method instruction. 
+     * Method instruction.
      * See {@link org.objectweb.asm.MethodVisitor#visitVarInsn}.
      */
     public abstract void visitVarInsn(final int opcode, final int var);
 
     /**
-     * Method instruction. 
+     * Method instruction.
      * See {@link org.objectweb.asm.MethodVisitor#visitTypeInsn}.
      */
     public abstract void visitTypeInsn(final int opcode, final String type);
 
     /**
-     * Method instruction. 
+     * Method instruction.
      * See {@link org.objectweb.asm.MethodVisitor#visitFieldInsn}.
      */
     public abstract void visitFieldInsn(
@@ -375,7 +375,7 @@ public abstract class Printer {
         final String desc);
 
     /**
-     * Method instruction. 
+     * Method instruction.
      * See {@link org.objectweb.asm.MethodVisitor#visitMethodInsn}.
      */
     public abstract void visitMethodInsn(
@@ -385,7 +385,7 @@ public abstract class Printer {
         final String desc);
 
     /**
-     * Method instruction. 
+     * Method instruction.
      * See {@link org.objectweb.asm.MethodVisitor#visitInvokeDynamicInsn}.
      */
     public abstract void visitInvokeDynamicInsn(
@@ -395,31 +395,31 @@ public abstract class Printer {
         Object... bsmArgs);
 
     /**
-     * Method instruction. 
+     * Method instruction.
      * See {@link org.objectweb.asm.MethodVisitor#visitJumpInsn}.
      */
     public abstract void visitJumpInsn(final int opcode, final Label label);
 
     /**
-     * Method label. 
+     * Method label.
      * See {@link org.objectweb.asm.MethodVisitor#visitLabel}.
      */
     public abstract void visitLabel(final Label label);
 
     /**
-     * Method instruction. 
+     * Method instruction.
      * See {@link org.objectweb.asm.MethodVisitor#visitLdcInsn}.
      */
     public abstract void visitLdcInsn(final Object cst);
 
     /**
-     * Method instruction. 
+     * Method instruction.
      * See {@link org.objectweb.asm.MethodVisitor#visitIincInsn}.
      */
     public abstract void visitIincInsn(final int var, final int increment);
 
     /**
-     * Method instruction. 
+     * Method instruction.
      * See {@link org.objectweb.asm.MethodVisitor#visitTableSwitchInsn}.
      */
     public abstract void visitTableSwitchInsn(
@@ -429,7 +429,7 @@ public abstract class Printer {
         final Label... labels);
 
     /**
-     * Method instruction. 
+     * Method instruction.
      * See {@link org.objectweb.asm.MethodVisitor#visitLookupSwitchInsn}.
      */
     public abstract void visitLookupSwitchInsn(
@@ -438,7 +438,7 @@ public abstract class Printer {
         final Label[] labels);
 
     /**
-     * Method instruction. 
+     * Method instruction.
      * See {@link org.objectweb.asm.MethodVisitor#visitMultiANewArrayInsn}.
      */
     public abstract void visitMultiANewArrayInsn(
@@ -446,7 +446,7 @@ public abstract class Printer {
         final int dims);
 
     /**
-     * Method exception handler. 
+     * Method exception handler.
      * See {@link org.objectweb.asm.MethodVisitor#visitTryCatchBlock}.
      */
     public abstract void visitTryCatchBlock(
@@ -456,7 +456,7 @@ public abstract class Printer {
         final String type);
 
     /**
-     * Method debug info. 
+     * Method debug info.
      * See {@link org.objectweb.asm.MethodVisitor#visitLocalVariable}.
      */
     public abstract void visitLocalVariable(
@@ -468,26 +468,26 @@ public abstract class Printer {
         final int index);
 
     /**
-     * Method debug info. 
+     * Method debug info.
      * See {@link org.objectweb.asm.MethodVisitor#visitLineNumber}.
      */
     public abstract void visitLineNumber(final int line, final Label start);
 
     /**
-     * Method max stack and max locals. 
+     * Method max stack and max locals.
      * See {@link org.objectweb.asm.MethodVisitor#visitMaxs}.
      */
     public abstract void visitMaxs(final int maxStack, final int maxLocals);
 
     /**
-     * Method end. 
+     * Method end.
      * See {@link org.objectweb.asm.MethodVisitor#visitEnd}.
      */
     public abstract void visitMethodEnd();
-    
+
     /**
      * Returns the text constructed by this visitor.
-     * 
+     *
      * @return the text constructed by this visitor.
      */
     public List<Object> getText() {
@@ -496,16 +496,16 @@ public abstract class Printer {
 
     /**
      * Prints the text constructed by this visitor.
-     * 
+     *
      * @param pw the print writer to be used.
      */
     public void print(final PrintWriter pw) {
         printList(pw, text);
     }
-    
+
     /**
      * Appends a quoted string to a given buffer.
-     * 
+     *
      * @param buf the buffer where the string must be added.
      * @param s the string to be added.
      */
@@ -540,7 +540,7 @@ public abstract class Printer {
 
     /**
      * Prints the given string tree.
-     * 
+     *
      * @param pw the writer to be used to print the tree.
      * @param l a string tree, i.e., a string list that can contain other string
      *        lists, and so on recursively.

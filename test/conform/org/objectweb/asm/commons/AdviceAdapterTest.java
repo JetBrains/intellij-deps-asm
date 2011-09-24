@@ -1,6 +1,6 @@
 /***
  * ASM tests
- * Copyright (c) 2002-2005 France Telecom
+ * Copyright (c) 2000-2011 INRIA, France Telecom
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -41,7 +41,7 @@ import org.objectweb.asm.Opcodes;
 
 /**
  * AdviceAdapter tests.
- * 
+ *
  * @author Eugene Kuleshov
  */
 public class AdviceAdapterTest extends AbstractTest {
@@ -122,7 +122,7 @@ public class AdviceAdapterTest extends AbstractTest {
             }
 
             return new AdviceAdapter(Opcodes.ASM4, mv, access, name, desc) {
-                
+
                 @Override
                 protected void onMethodEnter() {
                     // mv.visitInsn(NOP);

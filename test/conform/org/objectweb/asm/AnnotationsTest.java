@@ -1,6 +1,6 @@
 /***
  * ASM tests
- * Copyright (c) 2002-2005 France Telecom
+ * Copyright (c) 2000-2011 INRIA, France Telecom
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -33,7 +33,7 @@ import junit.framework.TestSuite;
 
 /**
  * Annotations tests.
- * 
+ *
  * @author Eric Bruneton
  */
 public class AnnotationsTest extends AbstractTest {
@@ -58,7 +58,7 @@ public class AnnotationsTest extends AbstractTest {
         public EmptyAnnotationVisitor() {
             super(Opcodes.ASM4);
         }
-        
+
         @Override
         public AnnotationVisitor visitAnnotation(String name, String desc) {
             return this;
@@ -67,9 +67,9 @@ public class AnnotationsTest extends AbstractTest {
         @Override
         public AnnotationVisitor visitArray(String name) {
             return this;
-        }        
+        }
     }
-    
+
     static class RemoveAnnotationsAdapter1 extends ClassVisitor {
 
         public RemoveAnnotationsAdapter1(final ClassVisitor cv) {

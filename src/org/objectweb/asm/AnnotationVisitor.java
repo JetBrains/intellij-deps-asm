@@ -1,6 +1,6 @@
 /***
  * ASM: a very small and fast Java bytecode manipulation framework
- * Copyright (c) 2000-2007 INRIA, France Telecom
+ * Copyright (c) 2000-2011 INRIA, France Telecom
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,7 +31,7 @@ package org.objectweb.asm;
 
 /**
  * A visitor to visit a Java annotation. The methods of this class must be
- * called in the following order: ( <tt>visit</tt> | <tt>visitEnum</tt> | 
+ * called in the following order: ( <tt>visit</tt> | <tt>visitEnum</tt> |
  * <tt>visitAnnotation</tt> | <tt>visitArray</tt> )* <tt>visitEnd</tt>.
  *
  * @author Eric Bruneton
@@ -44,16 +44,16 @@ public abstract class AnnotationVisitor {
      * must be one of {@link Opcodes#ASM4}.
      */
     protected final int api;
-    
+
     /**
      * The annotation visitor to which this visitor must delegate method calls.
      * May be null.
      */
     protected AnnotationVisitor av;
-    
+
     /**
      * Constructs a new {@link AnnotationVisitor}.
-     * 
+     *
      * @param api the ASM API version implemented by this visitor. Must be one
      *        of {@link Opcodes#ASM4}.
      */
@@ -63,7 +63,7 @@ public abstract class AnnotationVisitor {
 
     /**
      * Constructs a new {@link AnnotationVisitor}.
-     * 
+     *
      * @param api the ASM API version implemented by this visitor. Must be one
      *        of {@link Opcodes#ASM4}.
      * @param av the annotation visitor to which this visitor must delegate
@@ -76,10 +76,10 @@ public abstract class AnnotationVisitor {
         this.api = api;
         this.av = av;
     }
-    
+
     /**
      * Visits a primitive value of the annotation.
-     * 
+     *
      * @param name the value name.
      * @param value the actual value, whose type must be {@link Byte},
      *        {@link Boolean}, {@link Character}, {@link Short}, {@link Integer}
@@ -97,7 +97,7 @@ public abstract class AnnotationVisitor {
 
     /**
      * Visits an enumeration value of the annotation.
-     * 
+     *
      * @param name the value name.
      * @param desc the class descriptor of the enumeration class.
      * @param value the actual enumeration value.
@@ -110,7 +110,7 @@ public abstract class AnnotationVisitor {
 
     /**
      * Visits a nested annotation value of the annotation.
-     * 
+     *
      * @param name the value name.
      * @param desc the class descriptor of the nested annotation class.
      * @return a visitor to visit the actual nested annotation value, or
@@ -131,7 +131,7 @@ public abstract class AnnotationVisitor {
      * types (such as byte, boolean, short, char, int, long, float or double)
      * can be passed as value to {@link #visit visit}. This is what
      * {@link ClassReader} does.
-     * 
+     *
      * @param name the value name.
      * @return a visitor to visit the actual array value elements, or
      *         <tt>null</tt> if this visitor is not interested in visiting

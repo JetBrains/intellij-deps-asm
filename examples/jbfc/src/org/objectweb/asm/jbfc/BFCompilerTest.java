@@ -1,6 +1,6 @@
 /***
  * ASM examples: examples showing how ASM can be used
- * Copyright (c) 2000-2007 INRIA, France Telecom
+ * Copyright (c) 2000-2011 INRIA, France Telecom
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -105,7 +105,7 @@ public class BFCompilerTest {
                         + "+<<]>[>++<[-]]>.>.",
                 ""));
     }
-    
+
     public static void assertEquals(String s1, String s2) {
         if (!s1.equals(s2)) {
             System.out.println("ERROR: expected '" + s1 + "' but got '" + s2 + "'");
@@ -140,11 +140,11 @@ public class BFCompilerTest {
             System.setIn(is);
             System.setOut(os);
         }
-        
+
         String output = new String(bos.toByteArray(), "ASCII");
-        
+
         System.out.println(code + " WITH INPUT '" + input + "' GIVES " + output);
-        
+
         return output;
     }
 

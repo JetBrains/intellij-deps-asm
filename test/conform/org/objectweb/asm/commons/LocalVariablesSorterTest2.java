@@ -1,6 +1,6 @@
 /***
  * ASM tests
- * Copyright (c) 2002-2005 France Telecom
+ * Copyright (c) 2000-2011 INRIA, France Telecom
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -49,7 +49,7 @@ import org.objectweb.asm.util.TraceClassVisitor;
 
 /**
  * LocalVariablesSorter tests.
- * 
+ *
  * @author Eric Bruneton
  */
 public class LocalVariablesSorterTest2 extends AbstractTest {

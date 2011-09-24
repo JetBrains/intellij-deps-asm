@@ -1,6 +1,6 @@
 /***
  * ASM examples: examples showing how ASM can be used
- * Copyright (c) 2000-2007 INRIA, France Telecom
+ * Copyright (c) 2000-2011 INRIA, France Telecom
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -45,7 +45,7 @@ public class Helloworld extends ClassLoader implements Opcodes {
     public static void main(final String args[]) throws Exception {
 
         // Generates the bytecode corresponding to the following Java class:
-        // 
+        //
         // public class Example {
         // public static void main (String[] args) {
         // System.out.println("Hello world!");

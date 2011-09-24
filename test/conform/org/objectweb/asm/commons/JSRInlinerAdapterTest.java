@@ -1,6 +1,6 @@
 /***
  * ASM tests
- * Copyright (c) 2002-2005 France Telecom
+ * Copyright (c) 2000-2011 INRIA, France Telecom
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -40,7 +40,7 @@ import org.objectweb.asm.Opcodes;
 
 /**
  * JSRInliner tests.
- * 
+ *
  * @author Eric Bruneton
  */
 public class JSRInlinerAdapterTest extends AbstractTest {
@@ -56,7 +56,7 @@ public class JSRInlinerAdapterTest extends AbstractTest {
         ClassReader cr = new ClassReader(is);
         ClassWriter cw = new ClassWriter(0);
         cr.accept(new ClassVisitor(Opcodes.ASM4, cw) {
-            
+
             @Override
             public MethodVisitor visitMethod(
                 final int access,

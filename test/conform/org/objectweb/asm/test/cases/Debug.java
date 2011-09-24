@@ -1,6 +1,6 @@
 /***
  * ASM tests
- * Copyright (c) 2002-2005 France Telecom
+ * Copyright (c) 2000-2011 INRIA, France Telecom
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -40,7 +40,7 @@ import org.objectweb.asm.MethodVisitor;
  * Generates a class with debug information. Covers line number tables, local
  * variable tables, source file, source debug, etc. Also covers the
  * serialVersionUID field (to cover a branch in SerialVersionUIDAdder).
- * 
+ *
  * @author Eric Bruneton
  */
 public class Debug extends Generator {

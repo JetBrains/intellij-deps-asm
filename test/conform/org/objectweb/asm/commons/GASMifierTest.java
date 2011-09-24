@@ -1,6 +1,6 @@
 /***
  * ASM tests
- * Copyright (c) 2002-2005 France Telecom
+ * Copyright (c) 2000-2011 INRIA, France Telecom
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -58,7 +58,7 @@ import org.objectweb.asm.util.TraceClassVisitor;
 
 /**
  * GASMifier tests.
- * 
+ *
  * @author Eugene Kuleshov
  * @author Eric Bruneton
  */
@@ -99,8 +99,8 @@ public class GASMifierTest extends AbstractTest {
         }
 
         ClassWriter cw = new ClassWriter(0);
-        cr.accept(new ClassLocalVariablesSorter(cw), 
-            new Attribute[] { new Comment(), new CodeComment() }, 
+        cr.accept(new ClassLocalVariablesSorter(cw),
+            new Attribute[] { new Comment(), new CodeComment() },
             ClassReader.EXPAND_FRAMES);
         cr = new ClassReader(cw.toByteArray());
 
@@ -152,7 +152,7 @@ public class GASMifierTest extends AbstractTest {
             return uc.compileUnit(DebuggingInformation.ALL)[0].toByteArray();
         }
     }
-    
+
     static class ClassLocalVariablesSorter extends ClassVisitor {
 
         public ClassLocalVariablesSorter(final ClassVisitor cv) {

@@ -1,6 +1,6 @@
 /***
  * ASM: a very small and fast Java bytecode manipulation framework
- * Copyright (c) 2000-2007 INRIA, France Telecom
+ * Copyright (c) 2000-2011 INRIA, France Telecom
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -47,7 +47,7 @@ import org.objectweb.asm.Opcodes;
  * of the operand stack elements <i>just before</i> <b>i</b> is executed. <br>
  * <br> (*) this is mandatory only for classes whose version is greater than or
  * equal to {@link Opcodes#V1_6 V1_6}.
- * 
+ *
  * @author Eric Bruneton
  */
 public class FrameNode extends AbstractInsnNode {
@@ -82,7 +82,7 @@ public class FrameNode extends AbstractInsnNode {
 
     /**
      * Constructs a new {@link FrameNode}.
-     * 
+     *
      * @param type the type of this frame. Must be {@link Opcodes#F_NEW} for
      *        expanded frames, or {@link Opcodes#F_FULL},
      *        {@link Opcodes#F_APPEND}, {@link Opcodes#F_CHOP},
@@ -135,7 +135,7 @@ public class FrameNode extends AbstractInsnNode {
 
     /**
      * Makes the given visitor visit this stack map frame.
-     * 
+     *
      * @param mv a method visitor.
      */
     @Override

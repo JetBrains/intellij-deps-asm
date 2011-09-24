@@ -1,6 +1,6 @@
 /***
  * ASM: a very small and fast Java bytecode manipulation framework
- * Copyright (c) 2000-2007 INRIA, France Telecom
+ * Copyright (c) 2000-2011 INRIA, France Telecom
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -66,7 +66,7 @@ public class GASMifier extends ASMifier implements Opcodes {
 
     public GASMifier() {
     }
-    
+
     public GASMifier(final String name, final int id) {
         super(Opcodes.ASM4, name, id);
     }
@@ -83,14 +83,14 @@ public class GASMifier extends ASMifier implements Opcodes {
         this.locals = new HashMap<Integer, Integer>();
         this.localTypes = new ArrayList<String>();
     }
-    
+
     /**
      * Prints the ASM source code to generate the given class to the standard
      * output. <p> Usage: ASMifierClassVisitor [-debug] &lt;fully qualified
      * class name or class file name&gt;
-     * 
+     *
      * @param args the command line arguments.
-     * 
+     *
      * @throws Exception if the class cannot be found, or if an IO exception
      *         occurs.
      */
@@ -889,7 +889,7 @@ public class GASMifier extends ASMifier implements Opcodes {
     protected ASMifier createASMifier(final String name, final int id) {
         return new GASMifier(name, id);
     }
-    
+
     static String getType(final String internalName) {
         return "Type.getObjectType(\"" + internalName + "\")";
     }

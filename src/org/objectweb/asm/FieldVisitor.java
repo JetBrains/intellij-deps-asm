@@ -1,6 +1,6 @@
 /***
  * ASM: a very small and fast Java bytecode manipulation framework
- * Copyright (c) 2000-2007 INRIA, France Telecom
+ * Copyright (c) 2000-2011 INRIA, France Telecom
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -33,7 +33,7 @@ package org.objectweb.asm;
  * A visitor to visit a Java field. The methods of this class must be called
  * in the following order: ( <tt>visitAnnotation</tt> |
  * <tt>visitAttribute</tt> )* <tt>visitEnd</tt>.
- * 
+ *
  * @author Eric Bruneton
  */
 public abstract class FieldVisitor {
@@ -43,31 +43,31 @@ public abstract class FieldVisitor {
      * must be one of {@link Opcodes#ASM4}.
      */
     protected final int api;
-    
+
     /**
      * The field visitor to which this visitor must delegate method calls. May
      * be null.
      */
     protected FieldVisitor fv;
-    
+
     /**
      * Constructs a new {@link FieldVisitor}.
-     * 
+     *
      * @param api the ASM API version implemented by this visitor. Must be one
      *        of {@link Opcodes#ASM4}.
-     */    
+     */
     public FieldVisitor(final int api) {
         this(api, null);
     }
 
     /**
      * Constructs a new {@link FieldVisitor}.
-     * 
+     *
      * @param api the ASM API version implemented by this visitor. Must be one
      *        of {@link Opcodes#ASM4}.
      * @param fv the field visitor to which this visitor must delegate method
      *        calls. May be null.
-     */    
+     */
     public FieldVisitor(final int api, final FieldVisitor fv) {
         /*if (api != Opcodes.ASM4) {
             throw new IllegalArgumentException();
@@ -75,10 +75,10 @@ public abstract class FieldVisitor {
         this.api = api;
         this.fv = fv;
     }
-    
+
     /**
      * Visits an annotation of the field.
-     * 
+     *
      * @param desc the class descriptor of the annotation class.
      * @param visible <tt>true</tt> if the annotation is visible at runtime.
      * @return a visitor to visit the annotation values, or <tt>null</tt> if
@@ -93,7 +93,7 @@ public abstract class FieldVisitor {
 
     /**
      * Visits a non standard attribute of the field.
-     * 
+     *
      * @param attr an attribute.
      */
     public void visitAttribute(Attribute attr) {

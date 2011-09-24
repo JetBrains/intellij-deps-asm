@@ -1,6 +1,6 @@
 /***
  * ASM: a very small and fast Java bytecode manipulation framework
- * Copyright (c) 2000-2007 INRIA, France Telecom
+ * Copyright (c) 2000-2011 INRIA, France Telecom
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -34,7 +34,7 @@ import org.objectweb.asm.signature.SignatureVisitor;
 
 /**
  * A {@link SignatureVisitor} that checks that its methods are properly used.
- * 
+ *
  * @author Eric Bruneton
  */
 public class CheckSignatureAdapter extends SignatureVisitor {
@@ -100,7 +100,7 @@ public class CheckSignatureAdapter extends SignatureVisitor {
      * Creates a new {@link CheckSignatureAdapter} object. <i>Subclasses must
      * not use this constructor</i>. Instead, they must use the
      * {@link #CheckSignatureAdapter(int, int, SignatureVisitor)} version.
-     * 
+     *
      * @param type the type of signature to be checked. See
      *        {@link #CLASS_SIGNATURE}, {@link #METHOD_SIGNATURE} and
      *        {@link #TYPE_SIGNATURE}.
@@ -113,7 +113,7 @@ public class CheckSignatureAdapter extends SignatureVisitor {
 
     /**
      * Creates a new {@link CheckSignatureAdapter} object.
-     * 
+     *
      * @param api the ASM API version implemented by this visitor. Must be one
      *        of {@link Opcodes#ASM4}.
      * @param type the type of signature to be checked. See

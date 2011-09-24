@@ -1,6 +1,6 @@
 /***
  * ASM tests
- * Copyright (c) 2002-2005 France Telecom
+ * Copyright (c) 2000-2011 INRIA, France Telecom
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -44,7 +44,7 @@ import org.objectweb.asm.util.TraceClassVisitor;
 
 /**
  * ClassWriter tests.
- * 
+ *
  * @author Eric Bruneton
  */
 public class ClassWriterComputeFramesTest extends AbstractTest {
@@ -137,11 +137,11 @@ public class ClassWriterComputeFramesTest extends AbstractTest {
 /**
  * A ClassWriter that computes the common super class of two classes without
  * actually loading them with a ClassLoader.
- * 
+ *
  * @author Eric Bruneton
  */
 class ComputeClassWriter extends ClassWriter {
-    
+
     private ClassLoader l = getClass().getClassLoader();
 
     public ComputeClassWriter(final int flags) {
@@ -199,7 +199,7 @@ class ComputeClassWriter extends ClassWriter {
 
     /**
      * Returns the internal names of the ancestor classes of the given type.
-     * 
+     *
      * @param type the internal name of a class or interface.
      * @param info the ClassReader corresponding to 'type'.
      * @return a StringBuilder containing the ancestor classes of 'type',
@@ -224,7 +224,7 @@ class ComputeClassWriter extends ClassWriter {
 
     /**
      * Returns true if the given type implements the given interface.
-     * 
+     *
      * @param type the internal name of a class or interface.
      * @param info the ClassReader corresponding to 'type'.
      * @param itf the internal name of a interface.
@@ -255,7 +255,7 @@ class ComputeClassWriter extends ClassWriter {
 
     /**
      * Returns a ClassReader corresponding to the given class or interface.
-     * 
+     *
      * @param type the internal name of a class or interface.
      * @return the ClassReader corresponding to 'type'.
      * @throws IOException if the bytecode of 'type' cannot be loaded.

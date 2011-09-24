@@ -1,6 +1,6 @@
 /***
  * ASM: a very small and fast Java bytecode manipulation framework
- * Copyright (c) 2000-2007 INRIA, France Telecom
+ * Copyright (c) 2000-2011 INRIA, France Telecom
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -33,14 +33,14 @@ import org.objectweb.asm.tree.AbstractInsnNode;
 
 /**
  * Thrown if a problem occurs during the analysis of a method.
- * 
+ *
  * @author Bing Ran
  * @author Eric Bruneton
  */
 public class AnalyzerException extends Exception {
 
     public final AbstractInsnNode node;
-    
+
     public AnalyzerException(final AbstractInsnNode node, final String msg) {
         super(msg);
         this.node = node;
@@ -52,7 +52,7 @@ public class AnalyzerException extends Exception {
     }
 
     public AnalyzerException(
-        final AbstractInsnNode node, 
+        final AbstractInsnNode node,
         final String msg,
         final Object expected,
         final Value encountered)

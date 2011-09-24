@@ -1,6 +1,6 @@
 /***
  * ASM: a very small and fast Java bytecode manipulation framework
- * Copyright (c) 2000-2007 INRIA, France Telecom
+ * Copyright (c) 2000-2011 INRIA, France Telecom
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -35,17 +35,17 @@ import org.objectweb.asm.signature.SignatureVisitor;
 
 /**
  * A {@link SignatureVisitor} adapter for type mapping.
- * 
+ *
  * @author Eugene Kuleshov
  */
 public class RemappingSignatureAdapter extends SignatureVisitor {
-    
+
     private final SignatureVisitor v;
-    
+
     private final Remapper remapper;
-    
+
     private String className;
-    
+
     public RemappingSignatureAdapter(
         final SignatureVisitor v,
         final Remapper remapper)

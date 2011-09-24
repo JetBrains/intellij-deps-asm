@@ -1,6 +1,6 @@
 /***
  * ASM tests
- * Copyright (c) 2002-2005 France Telecom
+ * Copyright (c) 2000-2011 INRIA, France Telecom
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -33,7 +33,7 @@ import junit.framework.TestSuite;
 
 /**
  * ClassReader tests.
- * 
+ *
  * @author Eric Bruneton
  */
 public class ClassReaderTest extends AbstractTest {
@@ -61,7 +61,7 @@ public class ClassReaderTest extends AbstractTest {
                     return this;
                 }
             };
-            
+
             @Override
             public AnnotationVisitor visitAnnotation(
                 String desc,
@@ -122,7 +122,7 @@ public class ClassReaderTest extends AbstractTest {
                         return av;
                     }
                 };
-            }            
+            }
         }, 0);
     }
 }

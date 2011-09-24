@@ -1,6 +1,6 @@
 /***
  * ASM tests
- * Copyright (c) 2002-2005 France Telecom
+ * Copyright (c) 2000-2011 INRIA, France Telecom
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -37,7 +37,7 @@ import junit.framework.TestCase;
 
 /**
  * Type unit tests.
- * 
+ *
  * @author Eric Bruneton
  */
 public class TypeUnitTest extends TestCase implements Opcodes {
@@ -102,7 +102,7 @@ public class TypeUnitTest extends TestCase implements Opcodes {
     public void testHashcode() {
         Type.getType("Ljava/lang/Object;").hashCode();
     }
-    
+
     public void testObjectType() throws Exception {
         Type t1 = Type.getObjectType("java/lang/Object");
         Type t2 = Type.getType("Ljava/lang/Object;");

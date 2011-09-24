@@ -1,6 +1,6 @@
 /***
  * ASM: a very small and fast Java bytecode manipulation framework
- * Copyright (c) 2000-2007 INRIA, France Telecom
+ * Copyright (c) 2000-2011 INRIA, France Telecom
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -227,7 +227,7 @@ class MethodWriter extends MethodVisitor {
      * Maximum number of local variables for this method.
      */
     private int maxLocals;
-    
+
     /**
      *  Number of local variables in the current stack map frame.
      */
@@ -648,7 +648,7 @@ class MethodWriter extends MethodVisitor {
             previousFrameOffset = code.length;
             ++frameCount;
         }
-        
+
         maxStack = Math.max(maxStack, nStack);
         maxLocals = Math.max(maxLocals, currentLocals);
     }
@@ -1399,7 +1399,7 @@ class MethodWriter extends MethodVisitor {
                 handlerCount += 1;
                 handler = handler.next;
             }
-            
+
             this.maxStack = max;
         } else if (compute == MAXS) {
             // completes the control flow graph with exception handler blocks

@@ -1,6 +1,6 @@
 /***
  * ASM: a very small and fast Java bytecode manipulation framework
- * Copyright (c) 2000-2007 INRIA, France Telecom
+ * Copyright (c) 2000-2011 INRIA, France Telecom
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -1988,7 +1988,7 @@ public class ClassReader {
 
     /**
      *  Returns the number of constant pool items in {@link #b b}.
-     *  
+     *
      *  @return the number of constant pool items in {@link #b b}.
      */
     public int getItemCount() {
@@ -2011,7 +2011,7 @@ public class ClassReader {
     /**
      * Returns the maximum length of the strings contained in the constant pool
      * of the class.
-     * 
+     *
      * @return the maximum length of the strings contained in the constant pool
      *         of the class.
      */
@@ -2174,7 +2174,7 @@ public class ClassReader {
      * Reads a numeric or string constant pool item in {@link #b b}. <i>This
      * method is intended for {@link Attribute} sub classes, and is normally not
      * needed by class generators or adapters.</i>
-     * 
+     *
      * @param item the index of a constant pool item.
      * @param buf buffer to be used to read the item. This buffer must be
      *        sufficiently large. It is not automatically resized.

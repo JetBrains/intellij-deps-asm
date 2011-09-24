@@ -1,6 +1,6 @@
 /***
  * ASM tests
- * Copyright (c) 2002-2005 France Telecom
+ * Copyright (c) 2000-2011 INRIA, France Telecom
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -43,7 +43,7 @@ import org.objectweb.asm.Opcodes;
  * Generates classes with StackMap and StackMapTable attributes. Covers all
  * frame (FULL, SAME, etc.) and frame element types (TOP, NULL, INTEGER, etc.).
  * Also covers the V1_6 class version.
- * 
+ *
  * @author Eric Bruneton
  */
 public class Frames extends Generator {
@@ -808,7 +808,7 @@ public class Frames extends Generator {
     /**
      * Ad hoc class adapter used to rename the FrameTable class and to change
      * its class version.
-     * 
+     *
      * @author Eric Bruneton
      */
     static class RenameAdapter extends ClassVisitor {

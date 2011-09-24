@@ -1,6 +1,6 @@
 /***
  * ASM: a very small and fast Java bytecode manipulation framework
- * Copyright (c) 2000-2007 INRIA, France Telecom
+ * Copyright (c) 2000-2011 INRIA, France Telecom
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -41,7 +41,7 @@ import org.objectweb.asm.Opcodes;
  * @author Remi Forax
  */
 public class InvokeDynamicInsnNode extends AbstractInsnNode {
-    
+
     /**
      * Invokedynamic name.
      */

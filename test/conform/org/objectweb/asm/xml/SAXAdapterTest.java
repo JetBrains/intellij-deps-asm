@@ -1,6 +1,6 @@
 /***
  * ASM XML Adapter
- * Copyright (c) 2004, Eugene Kuleshov
+ * Copyright (c) 2004-2011, Eugene Kuleshov
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -46,7 +46,7 @@ import org.objectweb.asm.Label;
 
 /**
  * SAXAdapter tests
- * 
+ *
  * @author Eugene Kuleshov
  */
 public class SAXAdapterTest extends AbstractTest {
@@ -66,7 +66,7 @@ public class SAXAdapterTest extends AbstractTest {
         handler.startDocument();
         cr.accept(new SAXClassAdapter(handler, false), 0);
         handler.endDocument();
-        
+
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         bos.write(cw.toByteArray());
 

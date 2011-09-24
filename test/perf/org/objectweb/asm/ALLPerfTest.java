@@ -1,6 +1,6 @@
 /***
  * ASM performance test: measures the performances of asm package
- * Copyright (c) 2002-2005 France Telecom
+ * Copyright (c) 2000-2011 INRIA, France Telecom
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -152,7 +152,7 @@ public abstract class ALLPerfTest {
             ClassPool pool;
             @Override
             public void init() {
-                pool = new ClassPool(null);                
+                pool = new ClassPool(null);
             }
             @Override
             public void test(byte[] bytes, int[] errors) throws Exception {
@@ -175,7 +175,7 @@ public abstract class ALLPerfTest {
         };
 
         // get class info and deserialize tests
-        
+
         runTestAll("get class info", "", new RunTest() {
             @Override
             public void test(byte[] bytes, int[] errors) {
@@ -186,7 +186,7 @@ public abstract class ALLPerfTest {
                 cr.getInterfaces();
             }
         });
-        
+
         runTestAll("deserialize", "", new RunTest() {
             @Override
             public void test(byte[] bytes, int[] errors) {
@@ -200,7 +200,7 @@ public abstract class ALLPerfTest {
                 new ClassReader(bytes).accept(new ClassNode(), 0);
             }
         });
-        
+
         System.out.println();
 
         // deserialize and reserialize tests
@@ -242,13 +242,13 @@ public abstract class ALLPerfTest {
 
         compute = false;
         computeFrames = false;
-        
+
         runTest("deserialize and reserialize", "BCEL", nullBCELAdapt);
 
         runTest("deserialize and reserialize",
                 "Aspectj BCEL",
                 nullAspectjBCELAdapt);
-        
+
         runTest("deserialize and reserialize",
                 "Javassist",
                 nullJavassistAdapt);
@@ -282,7 +282,7 @@ public abstract class ALLPerfTest {
         runTest("deserialize and reserialize",
                 "Aspectj BCEL and computeMaxs",
                 nullAspectjBCELAdapt);
-        
+
         // misc. tests
 
         runTest("deserialize and reserialize",
@@ -337,7 +337,7 @@ public abstract class ALLPerfTest {
         });
 
         System.out.println();
-        
+
         // deserialize and reserialize tests with computeFrames
 
         runTest("deserialize and reserialize",
@@ -352,7 +352,7 @@ public abstract class ALLPerfTest {
                 });
 
         // the BCEL+computeFrames tests must be done only at the end, because
-        // after them other tests run very slowly, for some unknown reason 
+        // after them other tests run very slowly, for some unknown reason
         // (memory usage?)
         compute = false;
         computeFrames = true;
@@ -385,9 +385,9 @@ public abstract class ALLPerfTest {
 
     static abstract class RunTest {
 
-        public void init() {            
+        public void init() {
         }
-        
+
         public abstract void test(byte[] bytes, int[] errors) throws Exception;
     }
 
@@ -634,7 +634,7 @@ public abstract class ALLPerfTest {
         c.toByteArray();
         return c;
     }
-    
+
     static class EmptyVisitor extends ClassVisitor {
 
         AnnotationVisitor av = new AnnotationVisitor(Opcodes.ASM4) {
@@ -652,11 +652,11 @@ public abstract class ALLPerfTest {
                 return this;
             }
         };
-        
+
         public EmptyVisitor() {
             super(Opcodes.ASM4);
         }
-        
+
         @Override
         public AnnotationVisitor visitAnnotation(
             String desc,
@@ -717,6 +717,6 @@ public abstract class ALLPerfTest {
                     return av;
                 }
             };
-        }            
+        }
     }
 }

@@ -1,6 +1,6 @@
 /***
  * ASM XML Adapter
- * Copyright (c) 2004, Eugene Kuleshov
+ * Copyright (c) 2004-2011, Eugene Kuleshov
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -36,13 +36,13 @@ import org.xml.sax.helpers.AttributesImpl;
 
 /**
  * SAXAnnotationAdapter
- * 
+ *
  * @author Eugene Kuleshov
  */
 public final class SAXAnnotationAdapter extends AnnotationVisitor {
-    
+
     SAXAdapter sa;
-    
+
     private final String elementName;
 
     public SAXAnnotationAdapter(

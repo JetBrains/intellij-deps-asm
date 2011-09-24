@@ -1,6 +1,6 @@
 /***
  * ASM: a very small and fast Java bytecode manipulation framework
- * Copyright (c) 2000-2007 INRIA, France Telecom
+ * Copyright (c) 2000-2011 INRIA, France Telecom
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -53,7 +53,7 @@ public class RemappingMethodAdapter extends LocalVariablesSorter {
     {
         this(Opcodes.ASM4, access, desc, mv, remapper);
     }
-    
+
     protected RemappingMethodAdapter(
         final int api,
         final int access,
@@ -64,7 +64,7 @@ public class RemappingMethodAdapter extends LocalVariablesSorter {
         super(api, access, desc, mv);
         this.remapper = remapper;
     }
-    
+
     @Override
     public AnnotationVisitor visitAnnotationDefault() {
         AnnotationVisitor av = mv.visitAnnotationDefault();

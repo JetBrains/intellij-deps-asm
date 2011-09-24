@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="ASCII"?>
 <!--
   ASM XML Adapter examples.
-  Copyright (c) 2004, Eugene Kuleshov
+  Copyright (c) 2004-2011, Eugene Kuleshov
   All rights reserved.
  
   Redistribution and use in source and binary forms, with or without

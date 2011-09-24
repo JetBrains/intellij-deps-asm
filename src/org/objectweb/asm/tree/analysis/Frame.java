@@ -1,6 +1,6 @@
 /***
  * ASM: a very small and fast Java bytecode manipulation framework
- * Copyright (c) 2000-2007 INRIA, France Telecom
+ * Copyright (c) 2000-2011 INRIA, France Telecom
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -46,7 +46,7 @@ import org.objectweb.asm.tree.VarInsnNode;
  * variable slots, and an operand stack. Warning: long and double values are
  * represented by <i>two</i> slots in local variables, and by <i>one</i> slot
  * in the operand stack.
- * 
+ *
  * @param <V> type of the Value used for the analysis.
  *
  * @author Eric Bruneton

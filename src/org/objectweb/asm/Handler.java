@@ -1,6 +1,6 @@
 /***
  * ASM: a very small and fast Java bytecode manipulation framework
- * Copyright (c) 2000-2007 INRIA, France Telecom
+ * Copyright (c) 2000-2011 INRIA, France Telecom
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,7 +31,7 @@ package org.objectweb.asm;
 
 /**
  * Information about an exception handler block.
- * 
+ *
  * @author Eric Bruneton
  */
 class Handler {
@@ -67,11 +67,11 @@ class Handler {
      * Next exception handler block info.
      */
     Handler next;
-    
+
     /**
      * Removes the range between start and end from the given exception
      * handlers.
-     * 
+     *
      * @param h an exception handler list.
      * @param start the start of the range to be removed.
      * @param end the end of the range to be removed. Maybe null.

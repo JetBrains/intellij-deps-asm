@@ -1,6 +1,6 @@
 /***
  * ASM: a very small and fast Java bytecode manipulation framework
- * Copyright (c) 2000-2007 INRIA, France Telecom
+ * Copyright (c) 2000-2011 INRIA, France Telecom
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -55,7 +55,7 @@ import org.objectweb.asm.Opcodes;
 
 /**
  * A Jar file optimizer.
- * 
+ *
  * @author Eric Bruneton
  */
 public class JarOptimizer {
@@ -82,13 +82,13 @@ public class JarOptimizer {
                 break;
             }
         }
-        
+
         int argIndex = 1;
         if (args[argIndex].equals("-nodebug")) {
             nodebug = true;
             argIndex++;
         }
-        
+
         optimize(new File(args[argIndex]));
     }
 
@@ -96,7 +96,7 @@ public class JarOptimizer {
         if (nodebug && f.getName().contains("debug")) {
             return;
         }
-        
+
         if (f.isDirectory()) {
             File[] files = f.listFiles();
             for (int i = 0; i < files.length; ++i) {
@@ -147,7 +147,7 @@ public class JarOptimizer {
         public ClassDump() {
             super(Opcodes.ASM4);
         }
-        
+
         @Override
         public void visit(
             final int version,
@@ -195,13 +195,13 @@ public class JarOptimizer {
     static class ClassVerifier extends ClassVisitor {
 
         String owner;
-        
+
         String method;
 
         public ClassVerifier() {
             super(Opcodes.ASM4);
         }
-        
+
         @Override
         public void visit(
             final int version,
@@ -242,7 +242,7 @@ public class JarOptimizer {
                     final String desc)
                 {
                     check(owner, name + desc);
-                }                
+                }
             };
         }
 

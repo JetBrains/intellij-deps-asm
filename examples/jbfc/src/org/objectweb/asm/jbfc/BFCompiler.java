@@ -1,6 +1,6 @@
 /***
  * ASM examples: examples showing how ASM can be used
- * Copyright (c) 2000-2007 INRIA, France Telecom
+ * Copyright (c) 2000-2011 INRIA, France Telecom
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -41,7 +41,7 @@ import org.objectweb.asm.Opcodes;
 /**
  * A naive implementation of compiler for Brain**** language.
  * http://www.muppetlabs.com/~breadbox/bf/ *
- * 
+ *
  * @author Eugene Kuleshov
  */
 public class BFCompiler implements Opcodes {

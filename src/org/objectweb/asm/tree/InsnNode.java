@@ -1,6 +1,6 @@
 /***
  * ASM: a very small and fast Java bytecode manipulation framework
- * Copyright (c) 2000-2007 INRIA, France Telecom
+ * Copyright (c) 2000-2011 INRIA, France Telecom
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -35,14 +35,14 @@ import org.objectweb.asm.MethodVisitor;
 
 /**
  * A node that represents a zero operand instruction.
- * 
+ *
  * @author Eric Bruneton
  */
 public class InsnNode extends AbstractInsnNode {
 
     /**
      * Constructs a new {@link InsnNode}.
-     * 
+     *
      * @param opcode the opcode of the instruction to be constructed. This
      *        opcode must be NOP, ACONST_NULL, ICONST_M1, ICONST_0, ICONST_1,
      *        ICONST_2, ICONST_3, ICONST_4, ICONST_5, LCONST_0, LCONST_1,
@@ -69,7 +69,7 @@ public class InsnNode extends AbstractInsnNode {
 
     /**
      * Makes the given visitor visit this instruction.
-     * 
+     *
      * @param mv a method visitor.
      */
     @Override

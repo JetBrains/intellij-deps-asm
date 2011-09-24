@@ -1,6 +1,6 @@
 /***
  * ASM tests
- * Copyright (c) 2002-2005 France Telecom
+ * Copyright (c) 2000-2011 INRIA, France Telecom
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -42,11 +42,11 @@ import junit.framework.TestSuite;
 
 /**
  * ClassWriter tests.
- * 
+ *
  * @author Eric Bruneton
  */
 public class ClassWriterComputeFramesDeadCodeTest extends AbstractTest {
-    
+
     public static void premain(
         final String agentArgs,
         final Instrumentation inst)
@@ -79,7 +79,7 @@ public class ClassWriterComputeFramesDeadCodeTest extends AbstractTest {
         cr.accept(new ClassVisitor(Opcodes.ASM4, cw) {
 
             private String className;
-            
+
             @Override
             public void visit(
                 final int version,
@@ -112,7 +112,7 @@ public class ClassWriterComputeFramesDeadCodeTest extends AbstractTest {
                         desc,
                         signature,
                         exceptions));
-            }            
+            }
 
         }, ClassReader.SKIP_FRAMES | ClassReader.SKIP_DEBUG);
         byte[] b = cw.toByteArray();
@@ -156,7 +156,7 @@ public class ClassWriterComputeFramesDeadCodeTest extends AbstractTest {
 }
 
 class MethodDeadCodeInserter extends MethodVisitor implements Opcodes {
-    
+
     private Random r;
 
     public MethodDeadCodeInserter(int seed, final MethodVisitor mv) {
@@ -261,7 +261,7 @@ class MethodDeadCodeInserter extends MethodVisitor implements Opcodes {
         super.visitMultiANewArrayInsn(desc, dims);
         insertDeadcode();
     }
-    
+
     private void insertDeadcode() {
         // inserts dead code once every 50 instructions in average
         if (r.nextFloat() < 1.0 / 50.0) {

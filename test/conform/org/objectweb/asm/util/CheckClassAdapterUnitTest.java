@@ -1,6 +1,6 @@
 /***
  * ASM tests
- * Copyright (c) 2002-2005 France Telecom
+ * Copyright (c) 2000-2011 INRIA, France Telecom
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -199,7 +199,7 @@ public class CheckClassAdapterUnitTest extends TestCase implements Opcodes {
         } catch (Exception e) {
         }
     }
-    
+
     public void testIllegalFieldSignature() {
         ClassVisitor cv = new CheckClassAdapter(null);
         cv.visit(V1_1, ACC_PUBLIC, "C", null, "java/lang/Object", null);
@@ -470,7 +470,7 @@ public class CheckClassAdapterUnitTest extends TestCase implements Opcodes {
         } catch (Exception e) {
         }
     }
-    
+
     public void testIllegalDebugLabelUse() throws IOException {
         ClassReader cr = new ClassReader("java.lang.Object");
         ClassWriter cw = new ClassWriter(cr, ClassWriter.COMPUTE_MAXS);
@@ -824,19 +824,19 @@ public class CheckClassAdapterUnitTest extends TestCase implements Opcodes {
             mv.visitTryCatchBlock(m, n, n, null);
             fail();
         } catch (Exception e) {
-        }        
+        }
         try {
             mv.visitTryCatchBlock(n, m, n, null);
             fail();
         } catch (Exception e) {
-        }        
+        }
         try {
             mv.visitTryCatchBlock(n, n, m, null);
             fail();
         } catch (Exception e) {
-        }        
+        }
     }
-    
+
     public void testIllegalDataflow() {
         MethodVisitor mv = new CheckMethodAdapter(ACC_PUBLIC,
                 "m",
@@ -853,7 +853,7 @@ public class CheckClassAdapterUnitTest extends TestCase implements Opcodes {
         } catch (Exception e) {
         }
     }
-    
+
     public void testIllegalDataflobjectweb() {
         MethodVisitor mv = new CheckMethodAdapter(ACC_PUBLIC,
                 "m",

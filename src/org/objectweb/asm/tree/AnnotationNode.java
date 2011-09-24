@@ -1,6 +1,6 @@
 /***
  * ASM: a very small and fast Java bytecode manipulation framework
- * Copyright (c) 2000-2007 INRIA, France Telecom
+ * Copyright (c) 2000-2011 INRIA, France Telecom
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -37,7 +37,7 @@ import org.objectweb.asm.Opcodes;
 
 /**
  * A node that represents an annotationn.
- * 
+ *
  * @author Eric Bruneton
  */
 public class AnnotationNode extends AnnotationVisitor {
@@ -64,7 +64,7 @@ public class AnnotationNode extends AnnotationVisitor {
      * Constructs a new {@link AnnotationNode}. <i>Subclasses must not use this
      * constructor</i>. Instead, they must use the
      * {@link #AnnotationNode(int, String)} version.
-     * 
+     *
      * @param desc the class descriptor of the annotation class.
      */
     public AnnotationNode(final String desc) {
@@ -73,7 +73,7 @@ public class AnnotationNode extends AnnotationVisitor {
 
     /**
      * Constructs a new {@link AnnotationNode}.
-     * 
+     *
      * @param api the ASM API version implemented by this visitor. Must be one
      *        of {@link Opcodes#ASM4}.
      * @param desc the class descriptor of the annotation class.
@@ -85,7 +85,7 @@ public class AnnotationNode extends AnnotationVisitor {
 
     /**
      * Constructs a new {@link AnnotationNode} to visit an array value.
-     * 
+     *
      * @param values where the visited values must be stored.
      */
     AnnotationNode(final List<Object> values) {
@@ -159,13 +159,13 @@ public class AnnotationNode extends AnnotationVisitor {
     // ------------------------------------------------------------------------
     // Accept methods
     // ------------------------------------------------------------------------
-    
+
     /**
      * Checks that this annotation node is compatible with the given ASM API
      * version. This methods checks that this node, and all its nodes
      * recursively, do not contain elements that were introduced in more recent
      * versions of the ASM API than the given version.
-     * 
+     *
      * @param api an ASM API version. Must be one of {@link Opcodes#ASM4}.
      */
     public void check(final int api) {
@@ -174,7 +174,7 @@ public class AnnotationNode extends AnnotationVisitor {
 
     /**
      * Makes the given visitor visit this annotation.
-     * 
+     *
      * @param av an annotation visitor. Maybe <tt>null</tt>.
      */
     public void accept(final AnnotationVisitor av) {
@@ -192,7 +192,7 @@ public class AnnotationNode extends AnnotationVisitor {
 
     /**
      * Makes the given visitor visit a given annotation value.
-     * 
+     *
      * @param av an annotation visitor. Maybe <tt>null</tt>.
      * @param name the value name.
      * @param value the actual value.

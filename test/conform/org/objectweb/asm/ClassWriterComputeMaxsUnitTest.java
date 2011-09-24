@@ -1,6 +1,6 @@
 /***
  * ASM tests
- * Copyright (c) 2002-2005 France Telecom
+ * Copyright (c) 2000-2011 INRIA, France Telecom
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -44,7 +44,7 @@ import junit.framework.TestCase;
 
 /**
  * ClassWriter unit tests for COMPUTE_MAXS option with JSR instructions.
- * 
+ *
  * @author Eric Bruneton
  */
 public class ClassWriterComputeMaxsUnitTest extends TestCase {
@@ -114,7 +114,7 @@ public class ClassWriterComputeMaxsUnitTest extends TestCase {
     protected boolean isComputeMaxs() {
         return true;
     }
-    
+
     private void NOP() {
         mv.visitInsn(Opcodes.NOP);
     }
@@ -288,7 +288,7 @@ public class ClassWriterComputeMaxsUnitTest extends TestCase {
     /**
      * Tests a method which has the most basic <code>try{}finally</code> form
      * imaginable:
-     * 
+     *
      * <pre>
      *   public void a() {
      *     int a = 0;
@@ -349,7 +349,7 @@ public class ClassWriterComputeMaxsUnitTest extends TestCase {
 
     /**
      * Tests a method which has an if/else-if w/in the finally clause:
-     * 
+     *
      * <pre>
      *   public void a() {
      *     int a = 0;
@@ -424,7 +424,7 @@ public class ClassWriterComputeMaxsUnitTest extends TestCase {
 
     /**
      * Tests a simple nested finally:
-     * 
+     *
      * <pre>
      * public void a1() {
      *   int a = 0;
@@ -505,11 +505,11 @@ public class ClassWriterComputeMaxsUnitTest extends TestCase {
     /**
      * This tests a subroutine which has no ret statement, but ends in a
      * "return" instead.
-     * 
+     *
      * We structure this as a try/finally with a break in the finally. Because
      * the while loop is infinite, it's clear from the byte code that the only
      * path which reaches the RETURN instruction is through the subroutine.
-     * 
+     *
      * <pre>
      * public void a1() {
      *   int a = 0;
@@ -574,14 +574,14 @@ public class ClassWriterComputeMaxsUnitTest extends TestCase {
     /**
      * This tests a subroutine which has no ret statement, but ends in a
      * "return" instead.
-     * 
+     *
      * <pre>
      *   ACONST_NULL
      *   JSR L0
      * L0:
-     *   ASTORE 0 
      *   ASTORE 0
-     *   RETURN 
+     *   ASTORE 0
+     *   RETURN
      * </pre>
      */
     public void testSubroutineWithNoRet2() {
@@ -606,11 +606,11 @@ public class ClassWriterComputeMaxsUnitTest extends TestCase {
      * This tests a subroutine which has no ret statement, but instead exits
      * implicitely by branching to code which is not part of the subroutine.
      * (Sadly, this is legal)
-     * 
+     *
      * We structure this as a try/finally in a loop with a break in the finally.
      * The loop is not trivially infinite, so the RETURN statement is reachable
      * both from the JSR subroutine and from the main entry point.
-     * 
+     *
      * <pre>
      * public void a1() {
      *   int a = 0;
@@ -681,7 +681,7 @@ public class ClassWriterComputeMaxsUnitTest extends TestCase {
     /**
      * Tests a nested try/finally with implicit exit from one subroutine to the
      * other subroutine. Equivalent to the following java code:
-     * 
+     *
      * <pre>
      * void m(boolean b) {
      *   try {
@@ -698,7 +698,7 @@ public class ClassWriterComputeMaxsUnitTest extends TestCase {
      *   }
      * }
      * </pre>
-     * 
+     *
      * This example is from the paper, "Subroutine Inlining and Bytecode
      * Abstraction to Simplify Static and Dynamic Analysis" by Cyrille Artho and
      * Armin Biere.
@@ -816,7 +816,7 @@ public class ClassWriterComputeMaxsUnitTest extends TestCase {
     /**
      * This tests a simple subroutine where the control flow jumps back and
      * forth between the subroutine and the caller.
-     * 
+     *
      * This would not normally be produced by a java compiler.
      */
     public void testInterleavedCode() {
@@ -863,7 +863,7 @@ public class ClassWriterComputeMaxsUnitTest extends TestCase {
      * Tests a nested try/finally with implicit exit from one subroutine to the
      * other subroutine, and with a surrounding try/catch thrown in the mix.
      * Equivalent to the following java code:
-     * 
+     *
      * <pre>
      * void m(int b) {
      *   try {
@@ -878,7 +878,7 @@ public class ClassWriterComputeMaxsUnitTest extends TestCase {
      *           if (b) break;
      *         }
      *       }
-     *     } 
+     *     }
      *   } catch (Exception e) {
      *     b += 3;
      *     return;

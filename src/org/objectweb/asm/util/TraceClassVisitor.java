@@ -1,6 +1,7 @@
 /***
  * ASM: a very small and fast Java bytecode manipulation framework
- * Copyright (c) 2000-2007 INRIA, France Telecom
+ * Copyright (c) 2000-2011 INRIA, France Telecom
+ * Copyright (c) 2011 Google
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -79,7 +80,7 @@ public final class TraceClassVisitor extends ClassVisitor {
     /**
      * The object that actually converts visit events into text.
      */
-    private final Printer p;
+    public final Printer p;
 
     /**
      * Constructs a new {@link TraceClassVisitor}.

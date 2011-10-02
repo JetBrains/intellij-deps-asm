@@ -1,6 +1,7 @@
 /***
  * ASM: a very small and fast Java bytecode manipulation framework
  * Copyright (c) 2000-2011 INRIA, France Telecom
+ * Copyright (c) 2011 Google
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -166,6 +167,11 @@ public class MethodNode extends MethodVisitor {
      */
     public List<LocalVariableNode> localVariables;
 
+    /**
+     * If the accept method has been called on this object.
+     */
+    private boolean visited;
+    
     /**
      * Constructs an uninitialized {@link MethodNode}. <i>Subclasses must not
      * use this constructor</i>. Instead, they must use the
@@ -609,6 +615,9 @@ public class MethodNode extends MethodVisitor {
                 an.accept(mv.visitParameterAnnotation(i, an.desc, false));
             }
         }
+        if (visited) {
+            instructions.resetLabels();
+        }
         n = attrs == null ? 0 : attrs.size();
         for (i = 0; i < n; ++i) {
             mv.visitAttribute(attrs.get(i));
@@ -630,6 +639,7 @@ public class MethodNode extends MethodVisitor {
             }
             // visits maxs
             mv.visitMaxs(maxStack, maxLocals);
+            visited = true;
         }
         mv.visitEnd();
     }

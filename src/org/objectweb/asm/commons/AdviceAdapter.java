@@ -1,6 +1,7 @@
 /***
  * ASM: a very small and fast Java bytecode manipulation framework
  * Copyright (c) 2000-2011 INRIA, France Telecom
+ * Copyright (c) 2011 Google
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -396,7 +397,7 @@ public abstract class AdviceAdapter extends GeneratorAdapter implements Opcodes
     @Override
     public void visitIntInsn(final int opcode, final int operand) {
         mv.visitIntInsn(opcode, operand);
-        if (constructor && opcode!=NEWARRAY) {
+        if (constructor && opcode != NEWARRAY) {
             pushValue(OTHER);
         }
     }
@@ -566,6 +567,21 @@ public abstract class AdviceAdapter extends GeneratorAdapter implements Opcodes
         if (constructor) {
             popValue();
             addBranches(dflt, labels);
+        }
+    }
+
+    @Override
+    public void visitTryCatchBlock(
+        Label start,
+        Label end,
+        Label handler,
+        String type)
+    {
+        super.visitTryCatchBlock(start, end, handler, type);
+        if (constructor && !branches.containsKey(handler)) {
+            List<Object> stackFrame = new ArrayList<Object>();
+            stackFrame.add(OTHER);
+            branches.put(handler, stackFrame);
         }
     }
 

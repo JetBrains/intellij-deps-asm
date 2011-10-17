@@ -1,6 +1,7 @@
 /***
  * ASM: a very small and fast Java bytecode manipulation framework
  * Copyright (c) 2000-2011 INRIA, France Telecom
+ * Copyright (c) 2011 Google
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -238,8 +239,8 @@ public class Analyzer<V extends Value> implements Opcodes {
                             throw new AnalyzerException(insnNode, "RET instruction outside of a sub routine");
                         }
                         for (int i = 0; i < subroutine.callers.size(); ++i) {
-                            Object caller = subroutine.callers.get(i);
-                            int call = insns.indexOf((AbstractInsnNode) caller);
+                            JumpInsnNode caller = subroutine.callers.get(i);
+                            int call = insns.indexOf(caller);
                             if (frames[call] != null) {
                                 merge(call + 1,
                                         frames[call],
@@ -535,7 +536,7 @@ public class Analyzer<V extends Value> implements Opcodes {
             frames[insn] = newFrame(afterRET);
             changes = true;
         } else {
-            changes = oldFrame.merge(afterRET, access);
+            changes = oldFrame.merge(afterRET, interpreter);
         }
 
         if (oldSubroutine != null && subroutineBeforeJSR != null) {

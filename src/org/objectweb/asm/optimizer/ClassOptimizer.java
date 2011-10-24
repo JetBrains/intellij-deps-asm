@@ -77,7 +77,12 @@ public class ClassOptimizer extends RemappingClassAdapter {
     {
         super.visit(Opcodes.V1_2, access, name, null, superName, interfaces);
         clsName = name;
-        pkgName = name.substring(0, name.lastIndexOf('/'));
+        int index = name.lastIndexOf('/');
+        if (index > 0) {
+            pkgName = name.substring(0, index);
+        } else {
+            pkgName = "";
+        }
     }
 
     @Override

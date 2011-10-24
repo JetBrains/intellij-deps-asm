@@ -746,11 +746,13 @@ public class GASMifier extends ASMifier implements Opcodes {
     {
         buf.setLength(0);
         buf.append("mg.invokeDynamic(");
-        buf.append(getMethod(name, desc));
+        appendConstant(name);
+        buf.append(", ");
+        appendConstant(desc);
         buf.append(", ");
         appendConstant(bsm);
-        buf.append(", new Object[]{");
-        for(int i=0; i<bsmArgs.length; i++) {
+        buf.append(", new Object[] {");
+        for(int i = 0; i < bsmArgs.length; ++i) {
             appendConstant(bsmArgs[i]);
             if (i != bsmArgs.length - 1) {
               buf.append(", ");

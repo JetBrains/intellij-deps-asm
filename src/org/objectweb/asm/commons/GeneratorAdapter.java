@@ -1366,15 +1366,20 @@ public class GeneratorAdapter extends LocalVariablesSorter {
     }
 
     /**
-     * Generates the instruction to invoke a dynamic method.
+     * Generates an invokedynamic instruction.
      *
-     * @param method the method to be invoked.
+     * @param name the method's name.
+     * @param desc the method's descriptor (see {@link Type Type}).
+     * @param bsm the bootstrap method.
+     * @param bsmArgs the bootstrap method constant arguments. Each argument
+     *        must be an {@link Integer}, {@link Float}, {@link Long},
+     *        {@link Double}, {@link String}, {@link Type} or {@link Handle}
+     *        value. This method is allowed to modify the content of the array
+     *        so a caller should expect that this array may change.
      */
-    /*public void invokeDynamic(final Method method) {
-        invokeInsn(Opcodes.INVOKEDYNAMIC,
-                Type.getObjectType(Opcodes.INVOKEDYNAMIC_OWNER),
-                method);
-    }*/
+    public void invokeDynamic(String name, String desc, Handle bsm, Object... bsmArgs) {
+        mv.visitInvokeDynamicInsn(name, desc, bsm, bsmArgs);
+    }
 
     // ------------------------------------------------------------------------
     // Instructions to create objects and arrays

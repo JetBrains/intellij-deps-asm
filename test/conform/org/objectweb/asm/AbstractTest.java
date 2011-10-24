@@ -124,7 +124,7 @@ public abstract class AbstractTest extends TestCase {
                         fs[i],
                         suite,
                         clazz);
-            } else if (qn.endsWith(".class") && (clazz == null || qn.indexOf(clazz) != -1))
+            } else if (qn.endsWith(".class") && (clazz == null || qn.startsWith("pkg.") || qn.indexOf(clazz) != -1))
             {
                 qn = qn.substring(0, qn.length() - 6);
                 InputStream is = new FileInputStream(fs[i]);

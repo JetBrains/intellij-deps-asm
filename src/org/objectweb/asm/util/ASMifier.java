@@ -663,7 +663,7 @@ public class ASMifier extends Printer {
         buf.append(", ");
         appendConstant(bsm);
         buf.append(", new Object[]{");
-        for(int i=0; i<bsmArgs.length; i++) {
+        for (int i = 0; i < bsmArgs.length; ++i) {
             appendConstant(bsmArgs[i]);
             if (i != bsmArgs.length - 1) {
                 buf.append(", ");
@@ -1079,7 +1079,7 @@ public class ASMifier extends Printer {
         } else if (cst instanceof Handle) {
             buf.append("new Handle(");
             Handle h = (Handle) cst;
-            buf.append("Handle.").append(HANDLE_TAG[h.getTag()]).append(", \"");
+            buf.append("Opcodes.").append(HANDLE_TAG[h.getTag()]).append(", \"");
             buf.append(h.getOwner()).append("\", \"");
             buf.append(h.getName()).append("\", \"");
             buf.append(h.getDesc()).append("\")");

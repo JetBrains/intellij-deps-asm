@@ -483,7 +483,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
   </target>
   -->
 
-	<target name="dist" depends="jar,jdoc,examples">
+	<target name="dist" depends="jar,sigtest,jdoc,examples">
 		<zip zipFile="${out.dist}/src.zip" basedir="${src}" excludes="**/optimizer/**/*" />
 	</target>
 

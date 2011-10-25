@@ -229,23 +229,19 @@
   </target>
 
   <target name="sigtest">
-    <java classname="com.sun.tdk.signaturetest.SignatureTest">
+    <taskdef name="atest" classname="com.sun.tdk.signaturetest.ant.ATest" 
+        classpath="${test}/lib/sigtestdev.jar"/>
+    <atest filename="${test}/ASM.sig"
+        apiversion="${product.artifact}"
+        backward="true" 
+        binary="true"
+        failonerror="true">	
+      <package name="org.objectweb.asm"/>
       <classpath>
-        <pathelement location="${test}/lib/sigtestdev.jar"/>
+        <pathelement location="${java.home}/lib/rt.jar"/>
+        <pathelement location="${out.dist}/lib/all/asm-all-${product.artifact}.jar"/>
       </classpath>
-      <arg value="-apiversion"/>
-      <arg value="${product.artifact}"/>
-      <arg value="-static"/>
-      <arg value="-mode"/>
-      <arg value="bin"/>
-      <arg value="-backward"/>
-      <arg value="-classpath"/>
-      <arg value="${java.home}/lib/rt.jar;${out.dist}/lib/all/asm-all-${product.artifact}.jar"/>
-      <arg value="-package"/>
-      <arg value="org.objectweb.asm"/>
-      <arg value="-filename"/>
-      <arg value="${test}/ASM.sig"/>
-    </java>
+    </atest>
   </target>
   
 </project>

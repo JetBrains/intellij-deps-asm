@@ -33,7 +33,7 @@
 
   <parent>
     <artifactId>asm-parent</artifactId>
-    <groupId>asm</groupId>
+    <groupId>org.ow2.asm</groupId>
     <version>@product.artifact@</version>
   </parent>
 
@@ -44,7 +44,7 @@
   <dependencies>
     <dependency>
       <artifactId>asm</artifactId>
-      <groupId>asm</groupId>
+      <groupId>org.ow2.asm</groupId>
     </dependency>
   </dependencies>
 

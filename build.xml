@@ -28,7 +28,7 @@
  ! THE POSSIBILITY OF SUCH DAMAGE.
 -->
 
-<project name="ASM" default="compile">
+<project name="ASM" default="compile" xmlns:m2="urn:maven-artifact-ant">
 
 	<!-- ==================================== -->
 	<!-- ======== PROPERTY DEFINITION ======= -->
@@ -76,6 +76,12 @@
 		<condition property="paths.configured">
 			<and>
 				<isset property="objectweb.ant.tasks.path" />
+			</and>
+		</condition>
+
+		<condition property="passphrase.configured">
+			<and>
+				<isset property="passphrase" />
 			</and>
 		</condition>
 
@@ -633,7 +639,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 		</artifact:install>
 	</target>
 
-	<target name="maven.deploy" xmlns:artifact="urn:maven-artifact-ant" depends="init,dist.version">
+	<!--target name="maven.deploy" xmlns:artifact="urn:maven-artifact-ant" depends="init,dist.version">
 
 		<artifact:install-provider artifactId="wagon-file" version="1.0-alpha-7" />
 		<artifact:install-provider artifactId="wagon-webdav" version="1.0-alpha-6" />
@@ -686,6 +692,23 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 			<artifact:attach file="${out.dist}/src.zip" type="jar" classifier="sources" />
 			<remoteRepository refid="objectweb.repo" />
 		</artifact:deploy>
+	</target-->
+
+	<target name="maven.deploy.check" unless="passphrase.configured">
+		<echo message="The 'passphrase' property must be configured" />
+		<fail />
+	</target>
+
+	<target name="maven.deploy" depends="init,dist.version,maven.deploy.check">
+		<m2:mvn>
+			<arg value="org.apache.maven.plugins:maven-gpg-plugin:1.4:sign-and-deploy-file" />
+			<arg value="-Durl=${maven-staging-repository-url}" />
+			<arg value="-DrepositoryId=${maven-staging-repository-id}" />
+			<arg value="-DpomFile=${out.dist.lib}/asm-parent-${product.artifact}.pom" />
+			<arg value="-Dfile=${out.dist.lib}/asm-parent-${product.artifact}.pom" />
+			<arg value="-Pow2-release" />
+			<arg value="-Dgpg.passphrase=${passphrase}" />
+		</m2:mvn>
 	</target>
 
 </project>

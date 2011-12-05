@@ -639,61 +639,6 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 		</artifact:install>
 	</target>
 
-	<!--target name="maven.deploy" xmlns:artifact="urn:maven-artifact-ant" depends="init,dist.version">
-
-		<artifact:install-provider artifactId="wagon-file" version="1.0-alpha-7" />
-		<artifact:install-provider artifactId="wagon-webdav" version="1.0-alpha-6" />
-
-		<artifact:remoteRepository id="objectweb.repo" layout="default" url="file:${out}/maven" />
-
-		<artifact:deploy file="${out.dist.lib}/asm-parent-${product.artifact}.pom">
-			<artifact:pom file="${out.dist.lib}/asm-parent-${product.artifact}.pom" />
-			<remoteRepository refid="objectweb.repo" />
-		</artifact:deploy>
-
-		<artifact:deploy file="${out.dist.lib}/asm-${product.artifact}.jar">
-			<artifact:pom file="${out.dist.lib}/asm-${product.artifact}.pom" />
-			<remoteRepository refid="objectweb.repo" />
-		</artifact:deploy>
-
-		<artifact:deploy file="${out.dist.lib}/asm-analysis-${product.artifact}.jar">
-			<artifact:pom file="${out.dist.lib}/asm-analysis-${product.artifact}.pom" />
-			<remoteRepository refid="objectweb.repo" />
-		</artifact:deploy>
-
-		<artifact:deploy file="${out.dist.lib}/asm-commons-${product.artifact}.jar">
-			<artifact:pom file="${out.dist.lib}/asm-commons-${product.artifact}.pom" />
-			<remoteRepository refid="objectweb.repo" />
-		</artifact:deploy>
-
-		<artifact:deploy file="${out.dist.lib}/asm-tree-${product.artifact}.jar">
-			<artifact:pom file="${out.dist.lib}/asm-tree-${product.artifact}.pom" />
-			<remoteRepository refid="objectweb.repo" />
-		</artifact:deploy>
-
-		<artifact:deploy file="${out.dist.lib}/asm-util-${product.artifact}.jar">
-			<artifact:pom file="${out.dist.lib}/asm-util-${product.artifact}.pom" />
-			<remoteRepository refid="objectweb.repo" />
-		</artifact:deploy>
-
-		<artifact:deploy file="${out.dist.lib}/asm-xml-${product.artifact}.jar">
-			<artifact:pom file="${out.dist.lib}/asm-xml-${product.artifact}.pom" />
-			<remoteRepository refid="objectweb.repo" />
-		</artifact:deploy>
-
-		<artifact:deploy file="${out.dist.lib}/all/asm-all-${product.artifact}.jar">
-			<artifact:pom file="${out.dist.lib}/all/asm-all-${product.artifact}.pom" />
-			<artifact:attach file="${out.dist}/src.zip" type="jar" classifier="sources" />
-			<remoteRepository refid="objectweb.repo" />
-		</artifact:deploy>
-
-		<artifact:deploy file="${out.dist.lib}/all/asm-debug-all-${product.artifact}.jar">
-			<artifact:pom file="${out.dist.lib}/all/asm-debug-all-${product.artifact}.pom" />
-			<artifact:attach file="${out.dist}/src.zip" type="jar" classifier="sources" />
-			<remoteRepository refid="objectweb.repo" />
-		</artifact:deploy>
-	</target-->
-
 	<target name="maven.deploy.check" unless="passphrase.configured">
 		<echo message="The 'passphrase' property must be configured" />
 		<fail />
@@ -705,7 +650,87 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 			<arg value="-Durl=${maven-staging-repository-url}" />
 			<arg value="-DrepositoryId=${maven-staging-repository-id}" />
 			<arg value="-DpomFile=${out.dist.lib}/asm-parent-${product.artifact}.pom" />
-			<arg value="-Dfile=${out.dist.lib}/asm-parent-${product.artifact}.pom" />
+			<arg value="-Dfile=${out.dist.lib}/asm-parent-${product.artifact}.jar" />
+			<arg value="-Pow2-release" />
+			<arg value="-Dgpg.passphrase=${passphrase}" />
+		</m2:mvn>
+		
+		<m2:mvn>
+			<arg value="org.apache.maven.plugins:maven-gpg-plugin:1.4:sign-and-deploy-file" />
+			<arg value="-Durl=${maven-staging-repository-url}" />
+			<arg value="-DrepositoryId=${maven-staging-repository-id}" />
+			<arg value="-DpomFile=${out.dist.lib}/asm-${product.artifact}.pom" />
+			<arg value="-Dfile=${out.dist.lib}/asm-${product.artifact}.jar" />
+			<arg value="-Pow2-release" />
+			<arg value="-Dgpg.passphrase=${passphrase}" />
+		</m2:mvn>
+
+		<m2:mvn>
+			<arg value="org.apache.maven.plugins:maven-gpg-plugin:1.4:sign-and-deploy-file" />
+			<arg value="-Durl=${maven-staging-repository-url}" />
+			<arg value="-DrepositoryId=${maven-staging-repository-id}" />
+			<arg value="-DpomFile=${out.dist.lib}/asm-analysis-${product.artifact}.pom" />
+			<arg value="-Dfile=${out.dist.lib}/asm-analysis-${product.artifact}.jar" />
+			<arg value="-Pow2-release" />
+			<arg value="-Dgpg.passphrase=${passphrase}" />
+		</m2:mvn>
+
+		<m2:mvn>
+			<arg value="org.apache.maven.plugins:maven-gpg-plugin:1.4:sign-and-deploy-file" />
+			<arg value="-Durl=${maven-staging-repository-url}" />
+			<arg value="-DrepositoryId=${maven-staging-repository-id}" />
+			<arg value="-DpomFile=${out.dist.lib}/asm-commons-${product.artifact}.pom" />
+			<arg value="-Dfile=${out.dist.lib}/asm-commons-${product.artifact}.jar" />
+			<arg value="-Pow2-release" />
+			<arg value="-Dgpg.passphrase=${passphrase}" />
+		</m2:mvn>
+
+		<m2:mvn>
+			<arg value="org.apache.maven.plugins:maven-gpg-plugin:1.4:sign-and-deploy-file" />
+			<arg value="-Durl=${maven-staging-repository-url}" />
+			<arg value="-DrepositoryId=${maven-staging-repository-id}" />
+			<arg value="-DpomFile=${out.dist.lib}/asm-tree-${product.artifact}.pom" />
+			<arg value="-Dfile=${out.dist.lib}/asm-tree-${product.artifact}.jar" />
+			<arg value="-Pow2-release" />
+			<arg value="-Dgpg.passphrase=${passphrase}" />
+		</m2:mvn>
+
+		<m2:mvn>
+			<arg value="org.apache.maven.plugins:maven-gpg-plugin:1.4:sign-and-deploy-file" />
+			<arg value="-Durl=${maven-staging-repository-url}" />
+			<arg value="-DrepositoryId=${maven-staging-repository-id}" />
+			<arg value="-DpomFile=${out.dist.lib}/asm-util-${product.artifact}.pom" />
+			<arg value="-Dfile=${out.dist.lib}/asm-util-${product.artifact}.jar" />
+			<arg value="-Pow2-release" />
+			<arg value="-Dgpg.passphrase=${passphrase}" />
+		</m2:mvn>
+
+		<m2:mvn>
+			<arg value="org.apache.maven.plugins:maven-gpg-plugin:1.4:sign-and-deploy-file" />
+			<arg value="-Durl=${maven-staging-repository-url}" />
+			<arg value="-DrepositoryId=${maven-staging-repository-id}" />
+			<arg value="-DpomFile=${out.dist.lib}/asm-xml-${product.artifact}.pom" />
+			<arg value="-Dfile=${out.dist.lib}/asm-xml-${product.artifact}.jar" />
+			<arg value="-Pow2-release" />
+			<arg value="-Dgpg.passphrase=${passphrase}" />
+		</m2:mvn>
+
+		<m2:mvn>
+			<arg value="org.apache.maven.plugins:maven-gpg-plugin:1.4:sign-and-deploy-file" />
+			<arg value="-Durl=${maven-staging-repository-url}" />
+			<arg value="-DrepositoryId=${maven-staging-repository-id}" />
+			<arg value="-DpomFile=${out.dist.lib}/all/asm-all-${product.artifact}.pom" />
+			<arg value="-Dfile=${out.dist.lib}/all/asm-all-${product.artifact}.jar" />
+			<arg value="-Pow2-release" />
+			<arg value="-Dgpg.passphrase=${passphrase}" />
+		</m2:mvn>
+
+		<m2:mvn>
+			<arg value="org.apache.maven.plugins:maven-gpg-plugin:1.4:sign-and-deploy-file" />
+			<arg value="-Durl=${maven-staging-repository-url}" />
+			<arg value="-DrepositoryId=${maven-staging-repository-id}" />
+			<arg value="-DpomFile=${out.dist.lib}/all/asm-debug-all-${product.artifact}.pom" />
+			<arg value="-Dfile=${out.dist.lib}/all/asm-debug-all-${product.artifact}.jar" />
 			<arg value="-Pow2-release" />
 			<arg value="-Dgpg.passphrase=${passphrase}" />
 		</m2:mvn>

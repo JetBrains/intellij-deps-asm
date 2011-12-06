@@ -534,6 +534,12 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 		<zip zipFile="${out.zip}/${product.name}-${product.version}-bin.zip">
 			<zipfileset dir="${out.dist}" prefix="${product.name}-${product.version}" />
 		</zip>
+		<jar jarfile="${out.zip}/${product.name}-${product.version}-javadoc.jar" basedir="${out.dist}/doc/javadoc/user">
+			<fileset dir="${out.dist}/doc/javadoc/user" />
+		</jar>
+		<jar jarfile="${out.zip}/${product.name}-${product.version}-sources.jar" basedir="${src}">
+			<fileset dir="${src}" excludes="**/optimizer/**/*" />
+		</jar>
 	</target>
 	
 	<!-- ================================== -->
@@ -591,54 +597,6 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 		<echo message="  -Dtest.name=&lt;test name&gt;  Only a single test. The target &lt;test name&gt; is called" />
 	</target>
 
-	<target name="maven.install" xmlns:artifact="urn:maven-artifact-ant" depends="init,dist.version">
-
-		<artifact:install file="${out.dist.lib}/asm-parent-${product.artifact}.pom">
-			<artifact:pom file="${out.dist.lib}/asm-parent-${product.artifact}.pom" />
-			<artifact:attach file="${out.dist}/src.zip" type="jar" classifier="sources" />
-		</artifact:install>
-
-		<artifact:install file="${out.dist.lib}/asm-${product.artifact}.jar">
-			<artifact:pom file="${out.dist.lib}/asm-${product.artifact}.pom" />
-			<artifact:attach file="${out.dist}/src.zip" type="jar" classifier="sources" />
-		</artifact:install>
-
-		<artifact:install file="${out.dist.lib}/asm-analysis-${product.artifact}.jar">
-			<artifact:pom file="${out.dist.lib}/asm-analysis-${product.artifact}.pom" />
-			<artifact:attach file="${out.dist}/src.zip" type="jar" classifier="sources" />
-		</artifact:install>
-
-		<artifact:install file="${out.dist.lib}/asm-commons-${product.artifact}.jar">
-			<artifact:pom file="${out.dist.lib}/asm-commons-${product.artifact}.pom" />
-			<artifact:attach file="${out.dist}/src.zip" type="jar" classifier="sources" />
-		</artifact:install>
-
-		<artifact:install file="${out.dist.lib}/asm-tree-${product.artifact}.jar">
-			<artifact:pom file="${out.dist.lib}/asm-tree-${product.artifact}.pom" />
-			<artifact:attach file="${out.dist}/src.zip" type="jar" classifier="sources" />
-		</artifact:install>
-
-		<artifact:install file="${out.dist.lib}/asm-util-${product.artifact}.jar">
-			<artifact:pom file="${out.dist.lib}/asm-util-${product.artifact}.pom" />
-			<artifact:attach file="${out.dist}/src.zip" type="jar" classifier="sources" />
-		</artifact:install>
-
-		<artifact:install file="${out.dist.lib}/asm-xml-${product.artifact}.jar">
-			<artifact:pom file="${out.dist.lib}/asm-xml-${product.artifact}.pom" />
-			<artifact:attach file="${out.dist}/src.zip" type="jar" classifier="sources" />
-		</artifact:install>
-
-		<artifact:install file="${out.dist.lib}/all/asm-all-${product.artifact}.jar">
-			<artifact:pom file="${out.dist.lib}/all/asm-all-${product.artifact}.pom" />
-			<artifact:attach file="${out.dist}/src.zip" type="jar" classifier="sources" />
-		</artifact:install>
-
-		<artifact:install file="${out.dist.lib}/all/asm-debug-all-${product.artifact}.jar">
-			<artifact:pom file="${out.dist.lib}/all/asm-debug-all-${product.artifact}.pom" />
-			<artifact:attach file="${out.dist}/src.zip" type="jar" classifier="sources" />
-		</artifact:install>
-	</target>
-
 	<target name="maven.deploy.check" unless="passphrase.configured">
 		<echo message="The 'passphrase' property must be configured" />
 		<fail />
@@ -650,7 +608,9 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 			<arg value="-Durl=${maven-staging-repository-url}" />
 			<arg value="-DrepositoryId=${maven-staging-repository-id}" />
 			<arg value="-DpomFile=${out.dist.lib}/asm-parent-${product.artifact}.pom" />
-			<arg value="-Dfile=${out.dist.lib}/asm-parent-${product.artifact}.jar" />
+			<arg value="-Dfile=${out.dist.lib}/asm-parent-${product.artifact}.pom" />
+			<arg value="-Djavadoc=${out.zip}/${product.name}-${product.version}-javadoc.jar" />
+			<arg value="-Dsources=${out.zip}/${product.name}-${product.version}-sources.jar" />
 			<arg value="-Pow2-release" />
 			<arg value="-Dgpg.passphrase=${passphrase}" />
 		</m2:mvn>
@@ -661,6 +621,8 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 			<arg value="-DrepositoryId=${maven-staging-repository-id}" />
 			<arg value="-DpomFile=${out.dist.lib}/asm-${product.artifact}.pom" />
 			<arg value="-Dfile=${out.dist.lib}/asm-${product.artifact}.jar" />
+			<arg value="-Djavadoc=${out.zip}/${product.name}-${product.version}-javadoc.jar" />
+			<arg value="-Dsources=${out.zip}/${product.name}-${product.version}-sources.jar" />
 			<arg value="-Pow2-release" />
 			<arg value="-Dgpg.passphrase=${passphrase}" />
 		</m2:mvn>
@@ -671,6 +633,8 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 			<arg value="-DrepositoryId=${maven-staging-repository-id}" />
 			<arg value="-DpomFile=${out.dist.lib}/asm-analysis-${product.artifact}.pom" />
 			<arg value="-Dfile=${out.dist.lib}/asm-analysis-${product.artifact}.jar" />
+			<arg value="-Djavadoc=${out.zip}/${product.name}-${product.version}-javadoc.jar" />
+			<arg value="-Dsources=${out.zip}/${product.name}-${product.version}-sources.jar" />
 			<arg value="-Pow2-release" />
 			<arg value="-Dgpg.passphrase=${passphrase}" />
 		</m2:mvn>
@@ -681,6 +645,8 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 			<arg value="-DrepositoryId=${maven-staging-repository-id}" />
 			<arg value="-DpomFile=${out.dist.lib}/asm-commons-${product.artifact}.pom" />
 			<arg value="-Dfile=${out.dist.lib}/asm-commons-${product.artifact}.jar" />
+			<arg value="-Djavadoc=${out.zip}/${product.name}-${product.version}-javadoc.jar" />
+			<arg value="-Dsources=${out.zip}/${product.name}-${product.version}-sources.jar" />
 			<arg value="-Pow2-release" />
 			<arg value="-Dgpg.passphrase=${passphrase}" />
 		</m2:mvn>
@@ -691,6 +657,8 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 			<arg value="-DrepositoryId=${maven-staging-repository-id}" />
 			<arg value="-DpomFile=${out.dist.lib}/asm-tree-${product.artifact}.pom" />
 			<arg value="-Dfile=${out.dist.lib}/asm-tree-${product.artifact}.jar" />
+			<arg value="-Djavadoc=${out.zip}/${product.name}-${product.version}-javadoc.jar" />
+			<arg value="-Dsources=${out.zip}/${product.name}-${product.version}-sources.jar" />
 			<arg value="-Pow2-release" />
 			<arg value="-Dgpg.passphrase=${passphrase}" />
 		</m2:mvn>
@@ -701,6 +669,8 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 			<arg value="-DrepositoryId=${maven-staging-repository-id}" />
 			<arg value="-DpomFile=${out.dist.lib}/asm-util-${product.artifact}.pom" />
 			<arg value="-Dfile=${out.dist.lib}/asm-util-${product.artifact}.jar" />
+			<arg value="-Djavadoc=${out.zip}/${product.name}-${product.version}-javadoc.jar" />
+			<arg value="-Dsources=${out.zip}/${product.name}-${product.version}-sources.jar" />
 			<arg value="-Pow2-release" />
 			<arg value="-Dgpg.passphrase=${passphrase}" />
 		</m2:mvn>
@@ -711,6 +681,8 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 			<arg value="-DrepositoryId=${maven-staging-repository-id}" />
 			<arg value="-DpomFile=${out.dist.lib}/asm-xml-${product.artifact}.pom" />
 			<arg value="-Dfile=${out.dist.lib}/asm-xml-${product.artifact}.jar" />
+			<arg value="-Djavadoc=${out.zip}/${product.name}-${product.version}-javadoc.jar" />
+			<arg value="-Dsources=${out.zip}/${product.name}-${product.version}-sources.jar" />
 			<arg value="-Pow2-release" />
 			<arg value="-Dgpg.passphrase=${passphrase}" />
 		</m2:mvn>
@@ -721,6 +693,8 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 			<arg value="-DrepositoryId=${maven-staging-repository-id}" />
 			<arg value="-DpomFile=${out.dist.lib}/all/asm-all-${product.artifact}.pom" />
 			<arg value="-Dfile=${out.dist.lib}/all/asm-all-${product.artifact}.jar" />
+			<arg value="-Djavadoc=${out.zip}/${product.name}-${product.version}-javadoc.jar" />
+			<arg value="-Dsources=${out.zip}/${product.name}-${product.version}-sources.jar" />
 			<arg value="-Pow2-release" />
 			<arg value="-Dgpg.passphrase=${passphrase}" />
 		</m2:mvn>
@@ -731,6 +705,8 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 			<arg value="-DrepositoryId=${maven-staging-repository-id}" />
 			<arg value="-DpomFile=${out.dist.lib}/all/asm-debug-all-${product.artifact}.pom" />
 			<arg value="-Dfile=${out.dist.lib}/all/asm-debug-all-${product.artifact}.jar" />
+			<arg value="-Djavadoc=${out.zip}/${product.name}-${product.version}-javadoc.jar" />
+			<arg value="-Dsources=${out.zip}/${product.name}-${product.version}-sources.jar" />
 			<arg value="-Pow2-release" />
 			<arg value="-Dgpg.passphrase=${passphrase}" />
 		</m2:mvn>

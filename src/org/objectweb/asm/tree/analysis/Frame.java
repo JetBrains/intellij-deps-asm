@@ -663,7 +663,7 @@ public class Frame<V extends Value> {
             V v = interpreter.merge(values[i], frame.values[i]);
             if (v != values[i]) {
                 values[i] = v;
-                changes |= true;
+                changes = true;
             }
         }
         return changes;

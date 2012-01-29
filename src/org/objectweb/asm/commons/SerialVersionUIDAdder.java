@@ -316,11 +316,7 @@ public class SerialVersionUIDAdder extends ClassVisitor {
         // compute SVUID and add it to the class
         if (computeSVUID && !hasSVUID) {
             try {
-                super.visitField(Opcodes.ACC_FINAL + Opcodes.ACC_STATIC,
-                        "serialVersionUID",
-                        "J",
-                        null,
-                        new Long(computeSVUID()));
+                addSVUID(computeSVUID());
             } catch (Throwable e) {
                 throw new RuntimeException("Error while computing SVUID for "
                         + name, e);
@@ -333,6 +329,17 @@ public class SerialVersionUIDAdder extends ClassVisitor {
     // ------------------------------------------------------------------------
     // Utility methods
     // ------------------------------------------------------------------------
+
+    protected void addSVUID(long svuid) {
+        FieldVisitor fv = cv.visitField(Opcodes.ACC_FINAL + Opcodes.ACC_STATIC,
+                "serialVersionUID",
+                "J",
+                null,
+                new Long(svuid));
+        if (fv != null) {
+            fv.visitEnd();
+        }
+    }
 
     /**
      * Returns the value of SVUID if the class doesn't have one already. Please

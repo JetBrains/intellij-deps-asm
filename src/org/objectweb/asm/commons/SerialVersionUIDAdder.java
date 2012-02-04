@@ -330,6 +330,16 @@ public class SerialVersionUIDAdder extends ClassVisitor {
     // Utility methods
     // ------------------------------------------------------------------------
 
+    /**
+     * Returns true if the class already has a SVUID field. The result of this
+     * method is only valid when visitEnd is or has been called.
+     *
+     * @return true if the class already has a SVUID field.
+     */
+    public boolean hasSVUID() {
+        return hasSVUID;
+    }
+
     protected void addSVUID(long svuid) {
         FieldVisitor fv = cv.visitField(Opcodes.ACC_FINAL + Opcodes.ACC_STATIC,
                 "serialVersionUID",
@@ -342,9 +352,7 @@ public class SerialVersionUIDAdder extends ClassVisitor {
     }
 
     /**
-     * Returns the value of SVUID if the class doesn't have one already. Please
-     * note that 0 is returned if the class already has SVUID, thus use
-     * <code>isHasSVUID</code> to determine if the class already had an SVUID.
+     * Computes and returns the value of SVUID.
      *
      * @return Returns the serial version UID
      * @throws IOException if an I/O error occurs

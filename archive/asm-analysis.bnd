@@ -29,25 +29,23 @@
 ###############################################################################
 
 
-Implementation-Title:  ASM all classes with debug info
+Implementation-Title:  ASM static code analysis framework
 Implementation-Version: ${product.artifact}
 Implementation-Vendor: France Telecom R&D
 
-Bundle-Name: ASM all classes with debug info
+Bundle-Name: ASM static code analysis framework
 Bundle-Vendor: France Telecom R&D
 Bundle-Version: ${product.artifact}
 Bundle-DocURL:  http://asm.objectweb.org
-Bundle-SymbolicName: org.objectweb.asm.all.debug
+Bundle-SymbolicName: org.objectweb.asm.analysis
 
 Export-Package: \
-  !org.objectweb.asm.optimizer.*,\
-  org.objectweb.asm.*;version=${product.artifact}
+  org.objectweb.asm.tree.analysis;version=${product.artifact}
 
 Import-Package: \
-  javax.xml.transform.*;resolution:="optional",\
-  org.xml.sax.*;resolution:="optional"
+  org.objectweb.asm.*;version:="[${product.artifact},${product.artifact}]"
 
-Bundle-RequiredExecutionEnvironment: J2SE-1.5
+Bundle-RequiredExecutionEnvironment: J2SE-1.3
 
 -removeheaders:\
   ANNV,\

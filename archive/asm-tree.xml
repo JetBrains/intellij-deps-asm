@@ -33,15 +33,14 @@
   <target name="dist" depends="build-jar,build-snapshot"/>
 
   <target name="build-jar">
-    <jar jarfile="${out.dist.lib}/${ant.project.name}-${product.artifact}.jar"
-         basedir="${out.build}">
-      <include name="org/objectweb/asm/tree/*.class"/>
-      <manifest>
-        <attribute name="Implementation-Title" value="ASM Tree class visitor"/>
-        <attribute name="Implementation-Version" value="${product.artifact}"/> 
-        <attribute name="Implementation-Vendor" value="France Telecom R&amp;D"/>
-      </manifest>
-    </jar>
+    <taskdef resource="aQute/bnd/ant/taskdef.properties" classpath="${config}/biz.aQute.bnd.jar"/>
+    <bnd
+            classpath="${out.build}"
+            eclipse="true"
+            failok="false"
+            exceptions="true"
+            files="archive/asm-tree.bnd"
+            output="${out.dist.lib}/${ant.project.name}-${product.artifact}.jar"/>
 
     <copy file="${archive}/asm-tree.pom" toFile="${out.dist.lib}/${ant.project.name}-${product.artifact}.pom"/>
     <replace file="${out.dist.lib}/${ant.project.name}-${product.artifact}.pom" token="@product.name@" value="${ant.project.name}"/>

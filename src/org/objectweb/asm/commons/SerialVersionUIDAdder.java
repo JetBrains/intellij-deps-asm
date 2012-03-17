@@ -341,7 +341,8 @@ public class SerialVersionUIDAdder extends ClassVisitor {
     }
 
     protected void addSVUID(long svuid) {
-        FieldVisitor fv = cv.visitField(Opcodes.ACC_FINAL + Opcodes.ACC_STATIC,
+        FieldVisitor fv = super.visitField(
+                Opcodes.ACC_FINAL + Opcodes.ACC_STATIC,
                 "serialVersionUID",
                 "J",
                 null,

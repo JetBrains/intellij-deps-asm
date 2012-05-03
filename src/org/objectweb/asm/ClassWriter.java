@@ -973,12 +973,12 @@ public class ClassWriter extends ClassVisitor {
         } else if (cst instanceof Type) {
             Type t = (Type) cst;
             int s = t.getSort();
-            if (s == Type.ARRAY) {
-                return newClassItem(t.getDescriptor());
-            } else if (s == Type.OBJECT) {
+            if (s == Type.OBJECT) {
                 return newClassItem(t.getInternalName());
-            } else { // s == Type.METHOD
+            } else if (s == Type.METHOD) {
                 return newMethodTypeItem(t.getDescriptor());
+            } else { // s == primitive type or array
+                return newClassItem(t.getDescriptor());
             }
         } else if (cst instanceof Handle) {
             Handle h = (Handle) cst;

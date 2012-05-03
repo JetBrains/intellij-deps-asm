@@ -170,13 +170,11 @@ public class ConstantPool extends HashMap<Constant, Constant> {
             int s = t.getSort();
             if (s == Type.OBJECT) {
                 return newClass(t.getInternalName());
-            } else if (s == Type.ARRAY) {
-                return newClass(t.getDescriptor());
             } else if (s == Type.METHOD) {
                 return newMethodType(t.getDescriptor());
-            } else {
-                throw new IllegalArgumentException("value " + cst);
-            }
+            } else { // s == primitive type or array
+                return newClass(t.getDescriptor());
+            } 
         } else if (cst instanceof Handle) {
             Handle h = (Handle) cst;
             return newHandle(h.getTag(), h.getOwner(), h.getName(), h.getDesc());

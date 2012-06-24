@@ -61,7 +61,7 @@ public class ClassWriterComputeFramesDeadCodeTest extends AbstractTest {
                     throws IllegalClassFormatException
             {
                 String n = className.replace('/', '.');
-                if (n.indexOf("javax") == -1) {
+                if (n.indexOf("javax") == -1 || n.startsWith("invalid.")) {
                     return null;
                 }
                 if (agentArgs.length() == 0 || n.indexOf(agentArgs) != -1) {
@@ -90,7 +90,8 @@ public class ClassWriterComputeFramesDeadCodeTest extends AbstractTest {
                 final String[] interfaces)
             {
                 className = name;
-                super.visit((version & 0xFFFF) < Opcodes.V1_6 ? Opcodes.V1_6 : version,
+                // Set V1_7 version to prevent fallback to old verifier.
+                super.visit((version & 0xFFFF) < Opcodes.V1_7 ? Opcodes.V1_7 : version,
                         access,
                         name,
                         signature,
@@ -122,7 +123,9 @@ public class ClassWriterComputeFramesDeadCodeTest extends AbstractTest {
     }
 
     public static TestSuite suite() throws Exception {
-        return new ClassWriterComputeFramesDeadCodeTest().getSuite();
+        TestSuite suite = new ClassWriterComputeFramesDeadCodeTest().getSuite();
+        suite.addTest(new VerifierTest());
+        return suite;
     }
 
     @Override

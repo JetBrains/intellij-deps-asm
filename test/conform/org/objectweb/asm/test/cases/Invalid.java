@@ -29,54 +29,51 @@
  */
 package org.objectweb.asm.test.cases;
 
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 
-import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.ClassWriter;
+import org.objectweb.asm.Label;
+import org.objectweb.asm.MethodVisitor;
 
 /**
- * Generates classes designed so that the "conform" test suite, applied to these
- * classes, covers all the ASM code base.
+ * Generates a class with missing stack frames (to check that the new JDK7
+ * verifier is triggered, without fallback to the old verifier).
  *
  * @author Eric Bruneton
  */
-public class Generator implements Opcodes {
+public class Invalid extends Generator {
 
-    public static void main(final String[] args) throws IOException {
-        Generator generators[] = {
-            new Annotation(),
-            new Attribute(),
-            new Debug(),
-            new Enum(),
-            new Frames(),
-            new Insns(),
-            new Interface(),
-            new Invalid(),
-            new JSR(),
-            new Outer(),
-            new Wide(),
-            new InvokeDynamic()
-        };
-        for (int i = 0; i < generators.length; ++i) {
-            generators[i].generate(args[0]);
-        }
+    @Override
+    public void generate(final String dir) throws IOException {
+        generate(dir, "invalid/Invalid.class", dump());
     }
 
-    protected void generate(final String dir) throws IOException {
-    }
+    public byte[] dump() {
+        ClassWriter cw = new ClassWriter(0);
+        MethodVisitor mv;
 
-    protected void generate(
-        final String dir,
-        final String path,
-        final byte[] clazz) throws IOException
-    {
-        File f = new File(new File(dir), path);
-        if (!f.getParentFile().exists() && !f.getParentFile().mkdirs()) {
-            throw new IOException("Cannot create directory " + f.getParentFile());
-        }
-        FileOutputStream o = new FileOutputStream(f);
-        o.write(clazz);
-        o.close();
+        cw.visit(V1_7, ACC_PUBLIC, "invalid/Invalid", null, "java/lang/Object", null);
+
+        mv = cw.visitMethod(ACC_PUBLIC, "<init>", "()V", null, null);
+        mv.visitCode();
+        mv.visitVarInsn(ALOAD, 0);
+        mv.visitMethodInsn(INVOKESPECIAL, "java/lang/Object", "<init>", "()V");
+        mv.visitVarInsn(ALOAD, 0);
+        Label ifnull = new Label();
+        Label endif = new Label();
+        mv.visitJumpInsn(IFNULL, ifnull);
+        mv.visitInsn(ICONST_0);
+        mv.visitJumpInsn(GOTO, endif);
+        mv.visitLabel(ifnull);
+        mv.visitInsn(FCONST_0);
+        mv.visitLabel(endif);
+        mv.visitVarInsn(ISTORE, 0);
+        mv.visitInsn(RETURN);
+        mv.visitMaxs(1, 1);
+        mv.visitEnd();
+
+        cw.visitEnd();
+
+        return cw.toByteArray();
     }
 }

@@ -63,7 +63,7 @@ public class ClassWriterComputeFramesTest extends AbstractTest {
                     throws IllegalClassFormatException
             {
                 String n = className.replace('/', '.');
-                if (n.indexOf("junit") != -1) {
+                if (n.indexOf("junit") != -1 || n.startsWith("invalid.")) {
                     return null;
                 }
                 if (agentArgs.length() == 0 || n.indexOf(agentArgs) != -1) {
@@ -89,7 +89,8 @@ public class ClassWriterComputeFramesTest extends AbstractTest {
                 final String superName,
                 final String[] interfaces)
             {
-                super.visit((version & 0xFFFF) < Opcodes.V1_6 ? Opcodes.V1_6 : version,
+                // Set V1_7 version to prevent fallback to old verifier.
+                super.visit((version & 0xFFFF) < Opcodes.V1_7 ? Opcodes.V1_7 : version,
                         access,
                         name,
                         signature,
@@ -102,7 +103,9 @@ public class ClassWriterComputeFramesTest extends AbstractTest {
     }
 
     public static TestSuite suite() throws Exception {
-        return new ClassWriterComputeFramesTest().getSuite();
+        TestSuite suite = new ClassWriterComputeFramesTest().getSuite();
+        suite.addTest(new VerifierTest());
+        return suite;
     }
 
     @Override

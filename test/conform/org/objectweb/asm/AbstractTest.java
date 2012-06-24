@@ -124,13 +124,14 @@ public abstract class AbstractTest extends TestCase {
                         fs[i],
                         suite,
                         clazz);
-            } else if (qn.endsWith(".class") && (clazz == null || qn.startsWith("pkg.") || qn.indexOf(clazz) != -1))
-            {
-                qn = qn.substring(0, qn.length() - 6);
-                InputStream is = new FileInputStream(fs[i]);
-                AbstractTest t = getClass().newInstance();
-                t.init(qn, is);
-                suite.addTest(t);
+            } else if (qn.endsWith(".class") && !qn.startsWith("invalid.")) {
+                if (clazz == null || qn.startsWith("pkg.") || qn.indexOf(clazz) != -1) {
+                    qn = qn.substring(0, qn.length() - 6);
+                    InputStream is = new FileInputStream(fs[i]);
+                    AbstractTest t = getClass().newInstance();
+                    t.init(qn, is);
+                    suite.addTest(t);
+                }
             }
         }
     }
@@ -199,6 +200,23 @@ public abstract class AbstractTest extends TestCase {
     @Override
     public String getName() {
         return super.getName() + ": " + n;
+    }
+    
+    public static class VerifierTest extends TestCase {
+        
+        public VerifierTest() {
+            super("testVerifier");
+        }
+
+        public void testVerifier() throws Exception {
+            try {
+                Class.forName("invalid.Invalid", true, getClass().getClassLoader());
+                fail("The new JDK 7 verifier does not trigger!");
+            } catch (VerifyError ve) {
+                // This is expected since the class is invalid.
+                ve.printStackTrace();
+            }
+        }        
     }
 
     static class RemoveUnusedLabelsAdapter extends ClassVisitor {

@@ -88,8 +88,9 @@ public class ClassWriterResizeInsnsTest extends AbstractTest {
                 String[] interfaces)
             {
                 if (flags == ClassWriter.COMPUTE_FRAMES) {
-                    version = (version & 0xFFFF) < Opcodes.V1_6
-                            ? Opcodes.V1_6
+                    // Set V1_7 version to prevent fallback to old verifier.
+                    version = (version & 0xFFFF) < Opcodes.V1_7
+                            ? Opcodes.V1_7
                             : version;
                 }
                 super.visit(version,
@@ -145,7 +146,9 @@ public class ClassWriterResizeInsnsTest extends AbstractTest {
     }
 
     public static TestSuite suite() throws Exception {
-        return new ClassWriterResizeInsnsTest().getSuite();
+        TestSuite suite = new ClassWriterResizeInsnsTest().getSuite();
+        suite.addTest(new VerifierTest());
+        return suite;
     }
 
     @Override

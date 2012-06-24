@@ -104,8 +104,10 @@ public class LocalVariablesSorterTest2 extends AbstractTest {
     }
 
     public static TestSuite suite() throws Exception {
-        return new LocalVariablesSorterTest2().getSuite();
-    }
+        TestSuite suite = new LocalVariablesSorterTest2().getSuite();
+        suite.addTest(new VerifierTest());
+        return suite;
+    }    
 
     @Override
     public void test() throws Exception {

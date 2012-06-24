@@ -30,8 +30,10 @@
 
 <project name="conform" default="test">
 
+  <property name="agent.jar" value="localvariablessorter2-agent.jar" />
+
   <target name="test.normal" unless="coverage">
-    <jar jarfile="${out.test}/agent5.jar">
+    <jar jarfile="${out.test}/${agent.jar}">
       <fileset dir="${out}/build">
         <include name="org/objectweb/asm/**/*.class"/>
       </fileset>
@@ -55,12 +57,11 @@
       <classpath>
           <pathelement location="${out.test}/cases"/>
       </classpath>
-      <jvmarg value="-javaagent:${out.test}/agent5.jar=${asm.test.class}"/>
+      <jvmarg value="-javaagent:${out.test}/${agent.jar}=${asm.test.class}"/>
       <jvmarg value="-Dasm.test=${asm.test}"/>
       <jvmarg value="-Dasm.test.class=${asm.test.class}"/>
       <jvmarg value="-Dparts=2"/>
       <jvmarg value="-Dpart=0"/>
-      <jvmarg value="-XX:-FailOverToOldVerifier"/>
       <jvmarg value="-Xverify:all"/>
     </junit>
     <junit fork="yes" 
@@ -76,18 +77,17 @@
       <classpath>
           <pathelement location="${out.test}/cases"/>
       </classpath>
-      <jvmarg value="-javaagent:${out.test}/agent5.jar=${asm.test.class}"/>
+      <jvmarg value="-javaagent:${out.test}/${agent.jar}=${asm.test.class}"/>
       <jvmarg value="-Dasm.test=${asm.test}"/>
       <jvmarg value="-Dasm.test.class=${asm.test.class}"/>
       <jvmarg value="-Dparts=2"/>
       <jvmarg value="-Dpart=1"/>
-      <jvmarg value="-XX:-FailOverToOldVerifier"/>
       <jvmarg value="-Xverify:all"/>
     </junit>
   </target>
 
   <target name="test.coverage" if="coverage">
-    <jar jarfile="${out.test}/agent5.jar">
+    <jar jarfile="${out.test}/${agent.jar}">
       <fileset dir="${out}/instr">
         <include name="org/objectweb/asm/**/*.class"/>
       </fileset>
@@ -111,12 +111,10 @@
       <classpath>
           <pathelement location="${out.test}/cases"/>
       </classpath>
-      <jvmarg value="-javaagent:${out.test}/agent5.jar=${asm.test.class}"/>
+      <jvmarg value="-javaagent:${out.test}/${agent.jar}=${asm.test.class}"/>
       <jvmarg value="-Dasm.test=${asm.test}"/>
       <jvmarg value="-Dasm.test.class=${asm.test.class}"/>
       <jvmarg value="-Xbootclasspath/p:${cobertura.runtime.path}"/>
-      <jvmarg value="-XX:-FailOverToOldVerifier"/>
-      <jvmarg value="-Xverify:all"/>
     </junit>
   </target>
 

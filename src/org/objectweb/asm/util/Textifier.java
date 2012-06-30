@@ -1231,6 +1231,9 @@ public class Textifier extends Printer {
         if ((access & Opcodes.ACC_STRICT) != 0) {
             buf.append("strictfp ");
         }
+        if ((access & Opcodes.ACC_SYNTHETIC) != 0) {
+            buf.append("synthetic ");
+        }
         if ((access & Opcodes.ACC_ENUM) != 0) {
             buf.append("enum ");
         }

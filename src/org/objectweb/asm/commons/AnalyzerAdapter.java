@@ -66,11 +66,11 @@ public class AnalyzerAdapter extends MethodVisitor {
      * frame. Primitive types are represented by {@link Opcodes#TOP},
      * {@link Opcodes#INTEGER}, {@link Opcodes#FLOAT}, {@link Opcodes#LONG},
      * {@link Opcodes#DOUBLE},{@link Opcodes#NULL} or
-     * {@link Opcodes#UNINITIALIZED_THIS} (long and double are represented by a
+     * {@link Opcodes#UNINITIALIZED_THIS} (long and double are represented by
      * two elements, the second one being TOP). Reference types are represented
      * by String objects (representing internal names), and uninitialized types
      * by Label objects (this label designates the NEW instruction that created
-     * this uninitialized value). This field is <tt>null</tt> for unreacheable
+     * this uninitialized value). This field is <tt>null</tt> for unreachable
      * instructions.
      */
     public List<Object> locals;
@@ -80,11 +80,11 @@ public class AnalyzerAdapter extends MethodVisitor {
      * frame. Primitive types are represented by {@link Opcodes#TOP},
      * {@link Opcodes#INTEGER}, {@link Opcodes#FLOAT}, {@link Opcodes#LONG},
      * {@link Opcodes#DOUBLE},{@link Opcodes#NULL} or
-     * {@link Opcodes#UNINITIALIZED_THIS} (long and double are represented by a
+     * {@link Opcodes#UNINITIALIZED_THIS} (long and double are represented by
      * two elements, the second one being TOP). Reference types are represented
      * by String objects (representing internal names), and uninitialized types
      * by Label objects (this label designates the NEW instruction that created
-     * this uninitialized value). This field is <tt>null</tt> for unreacheable
+     * this uninitialized value). This field is <tt>null</tt> for unreachable
      * instructions.
      */
     public List<Object> stack;

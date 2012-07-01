@@ -47,6 +47,10 @@ public class ClassWriterTest extends AbstractTest {
         ClassReader cr = new ClassReader(is);
         ClassWriter cw = new ClassWriter(0);
         cr.accept(cw, 0);
-        assertEquals(cr, new ClassReader(cw.toByteArray()));
+        // Also test the ClassReader(byte[],int,int) constructor
+        byte[] b = cw.toByteArray();
+        byte[] c = new byte[b.length + 1];
+        System.arraycopy(b, 0, c, 1, b.length);
+        assertEquals(cr, new ClassReader(c, 1, b.length));
     }
 }

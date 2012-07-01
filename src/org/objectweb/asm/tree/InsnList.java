@@ -236,6 +236,8 @@ public class InsnList {
      *        {@link InsnList}</i>.
      */
     public void add(final AbstractInsnNode insn) {
+        if (insn.prev!=null||insn.next!=null) throw new IllegalStateException("already in a list 1");
+        if (insn.index != -1) throw new IllegalStateException("already in a list 2");
         ++size;
         if (last == null) {
             first = insn;

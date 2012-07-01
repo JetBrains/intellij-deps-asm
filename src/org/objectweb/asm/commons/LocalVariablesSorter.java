@@ -281,8 +281,7 @@ public class LocalVariablesSorter extends MethodVisitor {
                 t = type.getInternalName();
                 break;
         }
-        int local = nextLocal;
-        nextLocal += type.getSize();
+        int local = newLocalMapping(type);
         setLocalType(local, type);
         setFrameLocal(local, t);
         return local;

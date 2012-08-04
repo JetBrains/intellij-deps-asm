@@ -773,7 +773,7 @@ public class ClassWriter extends ClassVisitor {
      * @return the bytecode of the class that was build with this class writer.
      */
     public byte[] toByteArray() {
-        if (index > Short.MAX_VALUE) {
+        if (index > 0xFFFF) {
             throw new RuntimeException("Class file too large!");
         }
         // computes the real size of the bytecode of this class

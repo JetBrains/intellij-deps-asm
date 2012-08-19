@@ -38,7 +38,7 @@ import org.objectweb.asm.Opcodes;
 
 /**
  * StaticInitMerger tests.
- *
+ * 
  * @author Eric Bruneton
  */
 public class StaticInitMergerTest extends TestCase implements Opcodes {
@@ -51,11 +51,8 @@ public class StaticInitMergerTest extends TestCase implements Opcodes {
         cv.visit(V1_1, ACC_PUBLIC, "A", null, "java/lang/Object", null);
         cv.visitField(ACC_PUBLIC + ACC_STATIC, "counter", "I", null, null);
         for (int i = 0; i < 5; ++i) {
-            MethodVisitor mv = cv.visitMethod(ACC_PUBLIC,
-                    "<clinit>",
-                    "()V",
-                    null,
-                    null);
+            MethodVisitor mv = cv.visitMethod(ACC_PUBLIC, "<clinit>", "()V",
+                    null, null);
             mv.visitFieldInsn(GETSTATIC, "A", "counter", "I");
             mv.visitInsn(ICONST_1);
             mv.visitInsn(IADD);
@@ -63,10 +60,7 @@ public class StaticInitMergerTest extends TestCase implements Opcodes {
             mv.visitInsn(RETURN);
             mv.visitMaxs(0, 0);
         }
-        MethodVisitor mv = cv.visitMethod(ACC_PUBLIC,
-                "<init>",
-                "()V",
-                null,
+        MethodVisitor mv = cv.visitMethod(ACC_PUBLIC, "<init>", "()V", null,
                 null);
         mv.visitVarInsn(ALOAD, 0);
         mv.visitMethodInsn(INVOKESPECIAL, "java/lang/Object", "<init>", "()V");

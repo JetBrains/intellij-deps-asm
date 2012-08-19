@@ -41,9 +41,9 @@ import org.objectweb.asm.MethodVisitor;
  * the V1_1 class version (these jump instructions are not directly generated in
  * their 'wide' form, but are transformed to this form by the method resizing
  * test).
- *
+ * 
  * @author Eric Bruneton
- *
+ * 
  */
 public class JSR extends Generator {
 

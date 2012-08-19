@@ -37,7 +37,7 @@ import org.objectweb.asm.util.TraceSignatureVisitorUnitTest.TestData;
 
 /**
  * Signature tests.
- *
+ * 
  * @author Eugene Kuleshov
  * @author Eric Bruneton
  */
@@ -46,15 +46,15 @@ public class SignatureUnitTest extends TestCase {
     public static TestSuite suite() {
         TestSuite suite = new TestSuite(SignatureUnitTest.class.getName());
         for (int i = 0; i < TraceSignatureVisitorUnitTest.DATA.length; i++) {
-            suite.addTest(new SignatureUnitTest(new TestData(TraceSignatureVisitorUnitTest.DATA[i])));
+            suite.addTest(new SignatureUnitTest(new TestData(
+                    TraceSignatureVisitorUnitTest.DATA[i])));
         }
         return suite;
     }
 
     private TestData data;
 
-    private SignatureUnitTest(final TestData data)
-    {
+    private SignatureUnitTest(final TestData data) {
         super("testSignature");
         this.data = data;
     }
@@ -63,15 +63,15 @@ public class SignatureUnitTest extends TestCase {
         SignatureWriter wrt = new SignatureWriter();
         SignatureReader rdr = new SignatureReader(data.signature);
         switch (data.type) {
-            case 'C':
-            case 'M':
-                rdr.accept(wrt);
-                break;
-            case 'F':
-                rdr.acceptType(wrt);
-                break;
-            default:
-                return;
+        case 'C':
+        case 'M':
+            rdr.accept(wrt);
+            break;
+        case 'F':
+            rdr.acceptType(wrt);
+            break;
+        default:
+            return;
         }
         assertEquals(data.signature, wrt.toString());
     }

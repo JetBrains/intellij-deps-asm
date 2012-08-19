@@ -39,7 +39,7 @@ import org.objectweb.asm.Type;
 /**
  * Generates a class using the invokedynamic instruction. Also covers method
  * types and method handles.
- *
+ * 
  * @author Eric Bruneton
  */
 public class InvokeDynamic extends Generator {
@@ -53,20 +53,23 @@ public class InvokeDynamic extends Generator {
         ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_MAXS);
         MethodVisitor mv;
 
-        cw.visit(V1_7,
-                ACC_PUBLIC,
-                "pkg/InvokeDynamic",
-                null,
-                "java/lang/Object",
-                null);
+        cw.visit(V1_7, ACC_PUBLIC, "pkg/InvokeDynamic", null,
+                "java/lang/Object", null);
 
         mv = cw.visitMethod(ACC_PUBLIC, "foo", "()V", null, null);
         mv.visitCode();
-        Handle h = new Handle(H_INVOKESTATIC,
+        Handle h = new Handle(
+                H_INVOKESTATIC,
                 "C",
-                "bsm",
+                "bsm1",
+                "(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/MethodType;Ljava/lang/invoke/MethodType;)Ljava/lang/invoke/CallSite;");
+        mv.visitInvokeDynamicInsn("bar1", "()V", h, Type.getType("()V"));
+        h = new Handle(
+                H_INVOKESTATIC,
+                "C",
+                "bsm2",
                 "(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/MethodType;Ljava/lang/invoke/MethodType;Ljava/lang/invoke/MethodHandle;)Ljava/lang/invoke/CallSite;");
-        mv.visitInvokeDynamicInsn("bar", "()V", h, Type.getType("()V"), h);
+        mv.visitInvokeDynamicInsn("bar2", "()V", h, Type.getType("()V"), h);
         mv.visitInsn(RETURN);
         mv.visitEnd();
 

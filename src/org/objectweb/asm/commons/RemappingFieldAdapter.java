@@ -36,30 +36,27 @@ import org.objectweb.asm.Opcodes;
 
 /**
  * A {@link FieldVisitor} adapter for type remapping.
- *
+ * 
  * @author Eugene Kuleshov
  */
 public class RemappingFieldAdapter extends FieldVisitor {
 
     private final Remapper remapper;
 
-    public RemappingFieldAdapter(final FieldVisitor fv, final Remapper remapper)
-    {
+    public RemappingFieldAdapter(final FieldVisitor fv, final Remapper remapper) {
         this(Opcodes.ASM4, fv, remapper);
     }
 
-    protected RemappingFieldAdapter(
-        final int api,
-        final FieldVisitor fv,
-        final Remapper remapper)
-    {
+    protected RemappingFieldAdapter(final int api, final FieldVisitor fv,
+            final Remapper remapper) {
         super(api, fv);
         this.remapper = remapper;
     }
 
     @Override
     public AnnotationVisitor visitAnnotation(String desc, boolean visible) {
-        AnnotationVisitor av = fv.visitAnnotation(remapper.mapDesc(desc), visible);
+        AnnotationVisitor av = fv.visitAnnotation(remapper.mapDesc(desc),
+                visible);
         return av == null ? null : new RemappingAnnotationAdapter(av, remapper);
     }
 }

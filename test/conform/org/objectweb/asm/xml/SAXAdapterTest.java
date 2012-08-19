@@ -46,7 +46,7 @@ import org.objectweb.asm.Label;
 
 /**
  * SAXAdapter tests
- *
+ * 
  * @author Eugene Kuleshov
  */
 public class SAXAdapterTest extends AbstractTest {
@@ -60,7 +60,8 @@ public class SAXAdapterTest extends AbstractTest {
         ClassReader cr = new ClassReader(is);
         ClassWriter cw = new ClassWriter(0);
 
-        SAXTransformerFactory saxtf = (SAXTransformerFactory) TransformerFactory.newInstance();
+        SAXTransformerFactory saxtf = (SAXTransformerFactory) TransformerFactory
+                .newInstance();
         TransformerHandler handler = saxtf.newTransformerHandler();
         handler.setResult(new SAXResult(new ASMContentHandler(cw)));
         handler.startDocument();
@@ -73,30 +74,19 @@ public class SAXAdapterTest extends AbstractTest {
         ClassWriter cw2 = new ClassWriter(0);
         cr.accept(cw2, new Attribute[] { new Attribute("Comment") {
             @Override
-            protected Attribute read(
-                final ClassReader cr,
-                final int off,
-                final int len,
-                final char[] buf,
-                final int codeOff,
-                final Label[] labels)
-            {
+            protected Attribute read(final ClassReader cr, final int off,
+                    final int len, final char[] buf, final int codeOff,
+                    final Label[] labels) {
                 return null; // skip these attributes
             }
-        },
-            new Attribute("CodeComment") {
-                @Override
-                protected Attribute read(
-                    final ClassReader cr,
-                    final int off,
-                    final int len,
-                    final char[] buf,
-                    final int codeOff,
-                    final Label[] labels)
-                {
-                    return null; // skip these attributes
-                }
-            } }, 0);
+        }, new Attribute("CodeComment") {
+            @Override
+            protected Attribute read(final ClassReader cr, final int off,
+                    final int len, final char[] buf, final int codeOff,
+                    final Label[] labels) {
+                return null; // skip these attributes
+            }
+        } }, 0);
 
         assertEquals(new ClassReader(cw2.toByteArray()),
                 new ClassReader(bos.toByteArray()));

@@ -33,7 +33,7 @@ import junit.framework.TestSuite;
 
 /**
  * ClassVisitor tests.
- *
+ * 
  * @author Eric Bruneton
  */
 public class ClassAdapterTest extends AbstractTest {
@@ -51,63 +51,43 @@ public class ClassAdapterTest extends AbstractTest {
         cr.accept(new ClassVisitor(Opcodes.ASM4, cw) {
 
             @Override
-            public FieldVisitor visitField(
-                int access,
-                String name,
-                String desc,
-                String signature,
-                Object value)
-            {
+            public FieldVisitor visitField(int access, String name,
+                    String desc, String signature, Object value) {
                 return new FieldVisitor(Opcodes.ASM4, super.visitField(access,
-                        name,
-                        desc,
-                        signature,
-                        value))
-                {
+                        name, desc, signature, value)) {
                     @Override
-                    public AnnotationVisitor visitAnnotation(
-                        String desc,
-                        boolean visible)
-                    {
-                        return new AnnotationAdapter(super.visitAnnotation(desc, visible));
+                    public AnnotationVisitor visitAnnotation(String desc,
+                            boolean visible) {
+                        return new AnnotationAdapter(super.visitAnnotation(
+                                desc, visible));
                     }
                 };
             }
 
             @Override
-            public MethodVisitor visitMethod(
-                int access,
-                String name,
-                String desc,
-                String signature,
-                String[] exceptions)
-            {
-                return new MethodVisitor(Opcodes.ASM4, super.visitMethod(access,
-                        name,
-                        desc,
-                        signature,
-                        exceptions))
-                {
+            public MethodVisitor visitMethod(int access, String name,
+                    String desc, String signature, String[] exceptions) {
+                return new MethodVisitor(Opcodes.ASM4, super.visitMethod(
+                        access, name, desc, signature, exceptions)) {
                     @Override
                     public AnnotationVisitor visitAnnotationDefault() {
-                        return new AnnotationAdapter(super.visitAnnotationDefault());
+                        return new AnnotationAdapter(super
+                                .visitAnnotationDefault());
                     }
 
                     @Override
-                    public AnnotationVisitor visitAnnotation(
-                        String desc,
-                        boolean visible)
-                    {
-                        return new AnnotationAdapter(super.visitAnnotation(desc, visible));
+                    public AnnotationVisitor visitAnnotation(String desc,
+                            boolean visible) {
+                        return new AnnotationAdapter(super.visitAnnotation(
+                                desc, visible));
                     }
 
                     @Override
                     public AnnotationVisitor visitParameterAnnotation(
-                        int parameter,
-                        String desc,
-                        boolean visible)
-                    {
-                        return new AnnotationAdapter(super.visitParameterAnnotation(parameter, desc, visible));
+                            int parameter, String desc, boolean visible) {
+                        return new AnnotationAdapter(super
+                                .visitParameterAnnotation(parameter, desc,
+                                        visible));
                     }
                 };
             }

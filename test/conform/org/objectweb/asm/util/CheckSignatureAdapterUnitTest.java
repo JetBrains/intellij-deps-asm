@@ -39,15 +39,17 @@ import org.objectweb.asm.util.TraceSignatureVisitorUnitTest.TestData;
 
 /**
  * CheckSignatureAdapter tests.
- *
+ * 
  * @author Eric Bruneton
  */
 public class CheckSignatureAdapterUnitTest extends TestCase {
 
     public static TestSuite suite() {
-        TestSuite suite = new TestSuite(CheckSignatureAdapterUnitTest.class.getName());
+        TestSuite suite = new TestSuite(
+                CheckSignatureAdapterUnitTest.class.getName());
         for (int i = 0; i < TraceSignatureVisitorUnitTest.DATA.length; i++) {
-            suite.addTest(new CheckSignatureAdapterUnitTest(new TestData(TraceSignatureVisitorUnitTest.DATA[i])));
+            suite.addTest(new CheckSignatureAdapterUnitTest(new TestData(
+                    TraceSignatureVisitorUnitTest.DATA[i])));
         }
         suite.addTestSuite(CheckSignatureAdapterUnitTest.class);
         return suite;
@@ -69,20 +71,20 @@ public class CheckSignatureAdapterUnitTest extends TestCase {
         SignatureWriter wrt = new SignatureWriter();
         SignatureReader rdr = new SignatureReader(data.signature);
         switch (data.type) {
-            case 'C':
-                rdr.accept(new CheckSignatureAdapter(CheckSignatureAdapter.CLASS_SIGNATURE,
-                        wrt));
-                break;
-            case 'M':
-                rdr.accept(new CheckSignatureAdapter(CheckSignatureAdapter.METHOD_SIGNATURE,
-                        wrt));
-                break;
-            case 'F':
-                rdr.acceptType(new CheckSignatureAdapter(CheckSignatureAdapter.TYPE_SIGNATURE,
-                        wrt));
-                break;
-            default:
-                return;
+        case 'C':
+            rdr.accept(new CheckSignatureAdapter(
+                    CheckSignatureAdapter.CLASS_SIGNATURE, wrt));
+            break;
+        case 'M':
+            rdr.accept(new CheckSignatureAdapter(
+                    CheckSignatureAdapter.METHOD_SIGNATURE, wrt));
+            break;
+        case 'F':
+            rdr.acceptType(new CheckSignatureAdapter(
+                    CheckSignatureAdapter.TYPE_SIGNATURE, wrt));
+            break;
+        default:
+            return;
         }
         assertEquals(data.signature, wrt.toString());
     }

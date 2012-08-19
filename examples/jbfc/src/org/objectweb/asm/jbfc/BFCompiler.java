@@ -41,7 +41,7 @@ import org.objectweb.asm.Opcodes;
 /**
  * A naive implementation of compiler for Brain**** language.
  * http://www.muppetlabs.com/~breadbox/bf/ *
- *
+ * 
  * @author Eugene Kuleshov
  */
 public class BFCompiler implements Opcodes {
@@ -54,18 +54,10 @@ public class BFCompiler implements Opcodes {
 
     private static final int V_D = 3;
 
-    public void compile(
-        final Reader r,
-        final String className,
-        final String sourceName,
-        final ClassVisitor cv) throws IOException
-    {
-        cv.visit(Opcodes.V1_3,
-                ACC_PUBLIC,
-                className.replace('.', '/'),
-                null,
-                "java/lang/Object",
-                null);
+    public void compile(final Reader r, final String className,
+            final String sourceName, final ClassVisitor cv) throws IOException {
+        cv.visit(Opcodes.V1_3, ACC_PUBLIC, className.replace('.', '/'), null,
+                "java/lang/Object", null);
         cv.visitSource(sourceName, null);
 
         MethodVisitor mv;
@@ -73,9 +65,7 @@ public class BFCompiler implements Opcodes {
             mv = cv.visitMethod(ACC_PUBLIC, "<init>", "()V", null, null);
             mv.visitCode();
             mv.visitVarInsn(ALOAD, 0);
-            mv.visitMethodInsn(INVOKESPECIAL,
-                    "java/lang/Object",
-                    "<init>",
+            mv.visitMethodInsn(INVOKESPECIAL, "java/lang/Object", "<init>",
                     "()V");
             mv.visitInsn(RETURN);
             mv.visitMaxs(1, 1);
@@ -89,22 +79,15 @@ public class BFCompiler implements Opcodes {
             // 2 Data Pointer
             // 3 Data Array (int[ 30000])
 
-            mv = cv.visitMethod(ACC_PUBLIC + ACC_STATIC,
-                    "main",
-                    "([Ljava/lang/String;)V",
-                    null,
-                    null);
+            mv = cv.visitMethod(ACC_PUBLIC + ACC_STATIC, "main",
+                    "([Ljava/lang/String;)V", null, null);
             mv.visitCode();
 
-            mv.visitFieldInsn(GETSTATIC,
-                    "java/lang/System",
-                    "in",
+            mv.visitFieldInsn(GETSTATIC, "java/lang/System", "in",
                     "Ljava/io/InputStream;");
             mv.visitVarInsn(ASTORE, V_IS);
 
-            mv.visitFieldInsn(GETSTATIC,
-                    "java/lang/System",
-                    "out",
+            mv.visitFieldInsn(GETSTATIC, "java/lang/System", "out",
                     "Ljava/io/PrintStream;");
             mv.visitVarInsn(ASTORE, V_OS);
 
@@ -123,76 +106,72 @@ public class BFCompiler implements Opcodes {
             int c;
             while ((c = r.read()) != -1) {
                 switch (c) {
-                    case '>':
-                        d = storeD(mv, d);
-                        p++;
-                        break;
+                case '>':
+                    d = storeD(mv, d);
+                    p++;
+                    break;
 
-                    case '<':
-                        d = storeD(mv, d);
-                        p--;
-                        break;
+                case '<':
+                    d = storeD(mv, d);
+                    p--;
+                    break;
 
-                    case '+':
-                        p = storeP(mv, p);
-                        d++;
-                        break;
+                case '+':
+                    p = storeP(mv, p);
+                    d++;
+                    break;
 
-                    case '-':
-                        p = storeP(mv, p);
-                        d--;
-                        break;
+                case '-':
+                    p = storeP(mv, p);
+                    d--;
+                    break;
 
-                    case '.':
-                        p = storeP(mv, p);
-                        d = storeD(mv, d);
+                case '.':
+                    p = storeP(mv, p);
+                    d = storeD(mv, d);
 
-                        mv.visitVarInsn(ALOAD, V_OS);
-                        mv.visitVarInsn(ALOAD, V_D);
-                        mv.visitVarInsn(ILOAD, V_P);
-                        mv.visitInsn(IALOAD);
-                        mv.visitMethodInsn(INVOKEVIRTUAL,
-                                "java/io/OutputStream",
-                                "write",
-                                "(I)V");
-                        break;
+                    mv.visitVarInsn(ALOAD, V_OS);
+                    mv.visitVarInsn(ALOAD, V_D);
+                    mv.visitVarInsn(ILOAD, V_P);
+                    mv.visitInsn(IALOAD);
+                    mv.visitMethodInsn(INVOKEVIRTUAL, "java/io/OutputStream",
+                            "write", "(I)V");
+                    break;
 
-                    case ',':
-                        p = storeP(mv, p);
-                        d = storeD(mv, d);
+                case ',':
+                    p = storeP(mv, p);
+                    d = storeD(mv, d);
 
-                        mv.visitVarInsn(ALOAD, V_D);
-                        mv.visitVarInsn(ILOAD, V_P);
-                        mv.visitVarInsn(ALOAD, V_IS);
-                        mv.visitMethodInsn(INVOKEVIRTUAL,
-                                "java/io/InputStream",
-                                "read",
-                                "()I");
-                        mv.visitInsn(IASTORE);
-                        break;
+                    mv.visitVarInsn(ALOAD, V_D);
+                    mv.visitVarInsn(ILOAD, V_P);
+                    mv.visitVarInsn(ALOAD, V_IS);
+                    mv.visitMethodInsn(INVOKEVIRTUAL, "java/io/InputStream",
+                            "read", "()I");
+                    mv.visitInsn(IASTORE);
+                    break;
 
-                    case '[':
-                        p = storeP(mv, p);
-                        d = storeD(mv, d);
+                case '[':
+                    p = storeP(mv, p);
+                    d = storeD(mv, d);
 
-                        Label ls = new Label();
-                        Label le = new Label();
-                        labels.push(ls);
-                        labels.push(le);
-                        mv.visitJumpInsn(GOTO, le);
-                        mv.visitLabel(ls);
-                        break;
+                    Label ls = new Label();
+                    Label le = new Label();
+                    labels.push(ls);
+                    labels.push(le);
+                    mv.visitJumpInsn(GOTO, le);
+                    mv.visitLabel(ls);
+                    break;
 
-                    case ']':
-                        p = storeP(mv, p);
-                        d = storeD(mv, d);
+                case ']':
+                    p = storeP(mv, p);
+                    d = storeD(mv, d);
 
-                        mv.visitLabel(labels.pop());
-                        mv.visitVarInsn(ALOAD, V_D);
-                        mv.visitVarInsn(ILOAD, V_P);
-                        mv.visitInsn(IALOAD);
-                        mv.visitJumpInsn(IFNE, labels.pop());
-                        break;
+                    mv.visitLabel(labels.pop());
+                    mv.visitVarInsn(ALOAD, V_D);
+                    mv.visitVarInsn(ILOAD, V_P);
+                    mv.visitInsn(IALOAD);
+                    mv.visitJumpInsn(IFNE, labels.pop());
+                    break;
                 }
             }
 

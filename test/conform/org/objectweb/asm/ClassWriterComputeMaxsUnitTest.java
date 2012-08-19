@@ -44,7 +44,7 @@ import junit.framework.TestCase;
 
 /**
  * ClassWriter unit tests for COMPUTE_MAXS option with JSR instructions.
- *
+ * 
  * @author Eric Bruneton
  */
 public class ClassWriterComputeMaxsUnitTest extends TestCase {
@@ -83,24 +83,19 @@ public class ClassWriterComputeMaxsUnitTest extends TestCase {
             }
             String l = Type.getInternalName(lClass) + ".";
             String e = Type.getInternalName(eClass) + ".";
-            successors = lClass.getDeclaredField(p.getProperty(l + "successors"));
+            successors = lClass.getDeclaredField(p
+                    .getProperty(l + "successors"));
             successor = lClass.getDeclaredField(p.getProperty(l + "successor"));
             succ = eClass.getDeclaredField(p.getProperty(e + "successor"));
             next = eClass.getDeclaredField(p.getProperty(e + "next"));
         }
         cw = new ClassWriter(isComputeMaxs() ? ClassWriter.COMPUTE_MAXS : 0);
-        cw.visit(Opcodes.V1_1,
-                Opcodes.ACC_PUBLIC,
-                "C",
-                null,
-                "java/lang/Object",
-                null);
+        cw.visit(Opcodes.V1_1, Opcodes.ACC_PUBLIC, "C", null,
+                "java/lang/Object", null);
         mv = cw.visitMethod(Opcodes.ACC_PUBLIC, "<init>", "()V", null, null);
         mv.visitCode();
         mv.visitVarInsn(Opcodes.ALOAD, 0);
-        mv.visitMethodInsn(Opcodes.INVOKESPECIAL,
-                "java/lang/Object",
-                "<init>",
+        mv.visitMethodInsn(Opcodes.INVOKESPECIAL, "java/lang/Object", "<init>",
                 "()V");
         mv.visitInsn(Opcodes.RETURN);
         mv.visitMaxs(1, 1);
@@ -183,11 +178,8 @@ public class ClassWriterComputeMaxsUnitTest extends TestCase {
         mv.visitJumpInsn(Opcodes.IFNE, l);
     }
 
-    private void TRYCATCH(
-        final Label start,
-        final Label end,
-        final Label handler)
-    {
+    private void TRYCATCH(final Label start, final Label end,
+            final Label handler) {
         mv.visitTryCatchBlock(start, end, handler, null);
     }
 
@@ -199,20 +191,14 @@ public class ClassWriterComputeMaxsUnitTest extends TestCase {
         ClassReader cr = new ClassReader(b);
         cr.accept(new ClassVisitor(Opcodes.ASM4) {
             @Override
-            public MethodVisitor visitMethod(
-                final int access,
-                final String name,
-                final String desc,
-                final String signature,
-                final String[] exceptions)
-            {
+            public MethodVisitor visitMethod(final int access,
+                    final String name, final String desc,
+                    final String signature, final String[] exceptions) {
                 if (name.equals("m")) {
                     return new MethodVisitor(Opcodes.ASM4) {
                         @Override
-                        public void visitMaxs(
-                            final int realMaxStack,
-                            final int realMaxLocals)
-                        {
+                        public void visitMaxs(final int realMaxStack,
+                                final int realMaxLocals) {
                             assertEquals("maxStack", maxStack, realMaxStack);
                             assertEquals("maxLocals", maxLocals, realMaxLocals);
                         }
@@ -221,8 +207,7 @@ public class ClassWriterComputeMaxsUnitTest extends TestCase {
                     return null;
                 }
             }
-        },
-                0);
+        }, 0);
 
         try {
             TestClassLoader loader = new TestClassLoader();
@@ -241,9 +226,9 @@ public class ClassWriterComputeMaxsUnitTest extends TestCase {
         } catch (Exception e) {
             fail();
         }
-        Iterator<Map.Entry<Object,Object>> i = p.entrySet().iterator();
+        Iterator<Map.Entry<Object, Object>> i = p.entrySet().iterator();
         while (i.hasNext()) {
-            Map.Entry<Object,Object> entry = i.next();
+            Map.Entry<Object, Object> entry = i.next();
             String key = (String) entry.getKey();
             String value = (String) entry.getValue();
             StringTokenizer st = new StringTokenizer(value, ",");
@@ -288,16 +273,16 @@ public class ClassWriterComputeMaxsUnitTest extends TestCase {
     /**
      * Tests a method which has the most basic <code>try{}finally</code> form
      * imaginable:
-     *
+     * 
      * <pre>
-     *   public void a() {
+     * public void a() {
      *     int a = 0;
      *     try {
-     *       a++;
+     *         a++;
      *     } finally {
-     *       a--;
+     *         a--;
      *     }
-     *   }
+     * }
      * </pre>
      */
     public void testBasic() {
@@ -349,19 +334,19 @@ public class ClassWriterComputeMaxsUnitTest extends TestCase {
 
     /**
      * Tests a method which has an if/else-if w/in the finally clause:
-     *
+     * 
      * <pre>
-     *   public void a() {
+     * public void a() {
      *     int a = 0;
      *     try {
-     *       a++;
+     *         a++;
      *     } finally {
-     *       if (a == 0)
-     *         a+=2;
-     *       else
-     *         a+=3;
+     *         if (a == 0)
+     *             a += 2;
+     *         else
+     *             a += 3;
      *     }
-     *   }
+     * }
      * </pre>
      */
     public void testIfElseInFinally() {
@@ -424,19 +409,19 @@ public class ClassWriterComputeMaxsUnitTest extends TestCase {
 
     /**
      * Tests a simple nested finally:
-     *
+     * 
      * <pre>
      * public void a1() {
-     *   int a = 0;
-     *   try {
-     *     a += 1;
-     *   } finally {
+     *     int a = 0;
      *     try {
-     *       a += 2;
+     *         a += 1;
      *     } finally {
-     *       a += 3;
+     *         try {
+     *             a += 2;
+     *         } finally {
+     *             a += 3;
+     *         }
      *     }
-     *   }
      * }
      * </pre>
      */
@@ -505,22 +490,22 @@ public class ClassWriterComputeMaxsUnitTest extends TestCase {
     /**
      * This tests a subroutine which has no ret statement, but ends in a
      * "return" instead.
-     *
+     * 
      * We structure this as a try/finally with a break in the finally. Because
      * the while loop is infinite, it's clear from the byte code that the only
      * path which reaches the RETURN instruction is through the subroutine.
-     *
+     * 
      * <pre>
      * public void a1() {
-     *   int a = 0;
-     *   while (true) {
-     *     try {
-     *       a += 1;
-     *     } finally {
-     *       a += 2;
-     *       break;
+     *     int a = 0;
+     *     while (true) {
+     *         try {
+     *             a += 1;
+     *         } finally {
+     *             a += 2;
+     *             break;
+     *         }
      *     }
-     *   }
      * }
      * </pre>
      */
@@ -574,7 +559,7 @@ public class ClassWriterComputeMaxsUnitTest extends TestCase {
     /**
      * This tests a subroutine which has no ret statement, but ends in a
      * "return" instead.
-     *
+     * 
      * <pre>
      *   ACONST_NULL
      *   JSR L0
@@ -606,22 +591,22 @@ public class ClassWriterComputeMaxsUnitTest extends TestCase {
      * This tests a subroutine which has no ret statement, but instead exits
      * implicitely by branching to code which is not part of the subroutine.
      * (Sadly, this is legal)
-     *
+     * 
      * We structure this as a try/finally in a loop with a break in the finally.
      * The loop is not trivially infinite, so the RETURN statement is reachable
      * both from the JSR subroutine and from the main entry point.
-     *
+     * 
      * <pre>
      * public void a1() {
-     *   int a = 0;
-     *   while (null == null) {
-     *     try {
-     *       a += 1;
-     *     } finally {
-     *       a += 2;
-     *       break;
+     *     int a = 0;
+     *     while (null == null) {
+     *         try {
+     *             a += 1;
+     *         } finally {
+     *             a += 2;
+     *             break;
+     *         }
      *     }
-     *   }
      * }
      * </pre>
      */
@@ -681,24 +666,25 @@ public class ClassWriterComputeMaxsUnitTest extends TestCase {
     /**
      * Tests a nested try/finally with implicit exit from one subroutine to the
      * other subroutine. Equivalent to the following java code:
-     *
+     * 
      * <pre>
      * void m(boolean b) {
-     *   try {
-     *     return;
-     *   } finally {
-     *     while (b) {
-     *       try {
+     *     try {
      *         return;
-     *       } finally {
-     *         // NOTE --- this break avoids the second return above (weird)
-     *         if (b) break;
-     *       }
+     *     } finally {
+     *         while (b) {
+     *             try {
+     *                 return;
+     *             } finally {
+     *                 // NOTE --- this break avoids the second return above (weird)
+     *                 if (b)
+     *                     break;
+     *             }
+     *         }
      *     }
-     *   }
      * }
      * </pre>
-     *
+     * 
      * This example is from the paper, "Subroutine Inlining and Bytecode
      * Abstraction to Simplify Static and Dynamic Analysis" by Cyrille Artho and
      * Armin Biere.
@@ -816,7 +802,7 @@ public class ClassWriterComputeMaxsUnitTest extends TestCase {
     /**
      * This tests a simple subroutine where the control flow jumps back and
      * forth between the subroutine and the caller.
-     *
+     * 
      * This would not normally be produced by a java compiler.
      */
     public void testInterleavedCode() {
@@ -863,26 +849,28 @@ public class ClassWriterComputeMaxsUnitTest extends TestCase {
      * Tests a nested try/finally with implicit exit from one subroutine to the
      * other subroutine, and with a surrounding try/catch thrown in the mix.
      * Equivalent to the following java code:
-     *
+     * 
      * <pre>
      * void m(int b) {
-     *   try {
      *     try {
-     *       return;
-     *     } finally {
-     *       while (b) {
      *         try {
-     *           return;
+     *             return;
      *         } finally {
-     *           // NOTE --- this break avoids the second return above (weird)
-     *           if (b) break;
+     *             while (b) {
+     *                 try {
+     *                     return;
+     *                 } finally {
+     *                     // NOTE --- this break avoids the second return above
+     *                     // (weird)
+     *                     if (b)
+     *                         break;
+     *                 }
+     *             }
      *         }
-     *       }
+     *     } catch (Exception e) {
+     *         b += 3;
+     *         return;
      *     }
-     *   } catch (Exception e) {
-     *     b += 3;
-     *     return;
-     *   }
      * }
      * </pre>
      */

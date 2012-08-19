@@ -37,7 +37,7 @@ import org.xml.sax.helpers.DefaultHandler;
 
 /**
  * SAXAdapter unit tests
- *
+ * 
  * @author Eric Bruneton
  */
 public class SAXAdapterUnitTest extends TestCase {
@@ -59,25 +59,18 @@ public class SAXAdapterUnitTest extends TestCase {
             }
 
             @Override
-            public void startElement(
-                final String arg0,
-                final String arg1,
-                final String arg2,
-                final Attributes arg3) throws SAXException
-            {
+            public void startElement(final String arg0, final String arg1,
+                    final String arg2, final Attributes arg3)
+                    throws SAXException {
                 throw new SAXException();
             }
 
             @Override
-            public void endElement(
-                final String arg0,
-                final String arg1,
-                final String arg2) throws SAXException
-            {
+            public void endElement(final String arg0, final String arg1,
+                    final String arg2) throws SAXException {
                 throw new SAXException();
             }
-        })
-        {
+        }) {
         };
     }
 

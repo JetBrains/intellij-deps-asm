@@ -39,14 +39,15 @@ import org.objectweb.asm.util.TraceClassVisitor;
 /**
  * A naive implementation of compiler for Brain**** language.
  * http://www.muppetlabs.com/~breadbox/bf/ *
- *
+ * 
  * @author Eugene Kuleshov
  */
 public class jbfc {
 
     public static void main(final String[] args) throws IOException {
         if (args.length < 2) {
-            System.out.println("Usage: jbfc [-v] <bf program file> <java class name>");
+            System.out
+                    .println("Usage: jbfc [-v] <bf program file> <java class name>");
             return;
         }
 

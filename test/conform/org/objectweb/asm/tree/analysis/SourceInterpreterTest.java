@@ -40,7 +40,7 @@ import org.objectweb.asm.tree.MethodNode;
 
 /**
  * SourceInterpreter tests.
- *
+ * 
  * @author Eric Bruneton
  */
 public class SourceInterpreterTest extends AbstractTest {

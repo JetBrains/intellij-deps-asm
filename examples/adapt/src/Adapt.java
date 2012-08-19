@@ -46,10 +46,8 @@ import org.objectweb.asm.Type;
 public class Adapt extends ClassLoader {
 
     @Override
-    protected synchronized Class<?> loadClass(
-        final String name,
-        final boolean resolve) throws ClassNotFoundException
-    {
+    protected synchronized Class<?> loadClass(final String name,
+            final boolean resolve) throws ClassNotFoundException {
         if (name.startsWith("java.")) {
             System.err.println("Adapt: loading class '" + name
                     + "' without on the fly adaptation");
@@ -109,46 +107,30 @@ class TraceFieldClassAdapter extends ClassVisitor implements Opcodes {
     }
 
     @Override
-    public void visit(
-        final int version,
-        final int access,
-        final String name,
-        final String signature,
-        final String superName,
-        final String[] interfaces)
-    {
+    public void visit(final int version, final int access, final String name,
+            final String signature, final String superName,
+            final String[] interfaces) {
         owner = name;
         super.visit(version, access, name, signature, superName, interfaces);
     }
 
     @Override
-    public FieldVisitor visitField(
-        final int access,
-        final String name,
-        final String desc,
-        final String signature,
-        final Object value)
-    {
-        FieldVisitor fv = super.visitField(access, name, desc, signature, value);
+    public FieldVisitor visitField(final int access, final String name,
+            final String desc, final String signature, final Object value) {
+        FieldVisitor fv = super
+                .visitField(access, name, desc, signature, value);
         if ((access & ACC_STATIC) == 0) {
             Type t = Type.getType(desc);
             int size = t.getSize();
 
             // generates getter method
             String gDesc = "()" + desc;
-            MethodVisitor gv = cv.visitMethod(ACC_PRIVATE,
-                    "_get" + name,
-                    gDesc,
-                    null,
-                    null);
-            gv.visitFieldInsn(GETSTATIC,
-                    "java/lang/System",
-                    "err",
+            MethodVisitor gv = cv.visitMethod(ACC_PRIVATE, "_get" + name,
+                    gDesc, null, null);
+            gv.visitFieldInsn(GETSTATIC, "java/lang/System", "err",
                     "Ljava/io/PrintStream;");
             gv.visitLdcInsn("_get" + name + " called");
-            gv.visitMethodInsn(INVOKEVIRTUAL,
-                    "java/io/PrintStream",
-                    "println",
+            gv.visitMethodInsn(INVOKEVIRTUAL, "java/io/PrintStream", "println",
                     "(Ljava/lang/String;)V");
             gv.visitVarInsn(ALOAD, 0);
             gv.visitFieldInsn(GETFIELD, owner, name, desc);
@@ -158,19 +140,12 @@ class TraceFieldClassAdapter extends ClassVisitor implements Opcodes {
 
             // generates setter method
             String sDesc = "(" + desc + ")V";
-            MethodVisitor sv = cv.visitMethod(ACC_PRIVATE,
-                    "_set" + name,
-                    sDesc,
-                    null,
-                    null);
-            sv.visitFieldInsn(GETSTATIC,
-                    "java/lang/System",
-                    "err",
+            MethodVisitor sv = cv.visitMethod(ACC_PRIVATE, "_set" + name,
+                    sDesc, null, null);
+            sv.visitFieldInsn(GETSTATIC, "java/lang/System", "err",
                     "Ljava/io/PrintStream;");
             sv.visitLdcInsn("_set" + name + " called");
-            sv.visitMethodInsn(INVOKEVIRTUAL,
-                    "java/io/PrintStream",
-                    "println",
+            sv.visitMethodInsn(INVOKEVIRTUAL, "java/io/PrintStream", "println",
                     "(Ljava/lang/String;)V");
             sv.visitVarInsn(ALOAD, 0);
             sv.visitVarInsn(t.getOpcode(ILOAD), 1);
@@ -183,17 +158,9 @@ class TraceFieldClassAdapter extends ClassVisitor implements Opcodes {
     }
 
     @Override
-    public MethodVisitor visitMethod(
-        final int access,
-        final String name,
-        final String desc,
-        final String signature,
-        final String[] exceptions)
-    {
-        MethodVisitor mv = cv.visitMethod(access,
-                name,
-                desc,
-                signature,
+    public MethodVisitor visitMethod(final int access, final String name,
+            final String desc, final String signature, final String[] exceptions) {
+        MethodVisitor mv = cv.visitMethod(access, name, desc, signature,
                 exceptions);
         return mv == null ? null : new TraceFieldCodeAdapter(mv, owner);
     }
@@ -209,12 +176,8 @@ class TraceFieldCodeAdapter extends MethodVisitor implements Opcodes {
     }
 
     @Override
-    public void visitFieldInsn(
-        final int opcode,
-        final String owner,
-        final String name,
-        final String desc)
-    {
+    public void visitFieldInsn(final int opcode, final String owner,
+            final String name, final String desc) {
         if (owner.equals(this.owner)) {
             if (opcode == GETFIELD) {
                 // replaces GETFIELD f by INVOKESPECIAL _getf

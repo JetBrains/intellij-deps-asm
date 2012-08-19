@@ -30,10 +30,10 @@
 package org.objectweb.asm;
 
 /**
- * A visitor to visit a Java field. The methods of this class must be called
- * in the following order: ( <tt>visitAnnotation</tt> |
- * <tt>visitAttribute</tt> )* <tt>visitEnd</tt>.
- *
+ * A visitor to visit a Java field. The methods of this class must be called in
+ * the following order: ( <tt>visitAnnotation</tt> | <tt>visitAttribute</tt> )*
+ * <tt>visitEnd</tt>.
+ * 
  * @author Eric Bruneton
  */
 public abstract class FieldVisitor {
@@ -52,9 +52,10 @@ public abstract class FieldVisitor {
 
     /**
      * Constructs a new {@link FieldVisitor}.
-     *
-     * @param api the ASM API version implemented by this visitor. Must be one
-     *        of {@link Opcodes#ASM4}.
+     * 
+     * @param api
+     *            the ASM API version implemented by this visitor. Must be one
+     *            of {@link Opcodes#ASM4}.
      */
     public FieldVisitor(final int api) {
         this(api, null);
@@ -62,25 +63,29 @@ public abstract class FieldVisitor {
 
     /**
      * Constructs a new {@link FieldVisitor}.
-     *
-     * @param api the ASM API version implemented by this visitor. Must be one
-     *        of {@link Opcodes#ASM4}.
-     * @param fv the field visitor to which this visitor must delegate method
-     *        calls. May be null.
+     * 
+     * @param api
+     *            the ASM API version implemented by this visitor. Must be one
+     *            of {@link Opcodes#ASM4}.
+     * @param fv
+     *            the field visitor to which this visitor must delegate method
+     *            calls. May be null.
      */
     public FieldVisitor(final int api, final FieldVisitor fv) {
-        /*if (api != Opcodes.ASM4) {
+        if (api != Opcodes.ASM4) {
             throw new IllegalArgumentException();
-        }*/
+        }
         this.api = api;
         this.fv = fv;
     }
 
     /**
      * Visits an annotation of the field.
-     *
-     * @param desc the class descriptor of the annotation class.
-     * @param visible <tt>true</tt> if the annotation is visible at runtime.
+     * 
+     * @param desc
+     *            the class descriptor of the annotation class.
+     * @param visible
+     *            <tt>true</tt> if the annotation is visible at runtime.
      * @return a visitor to visit the annotation values, or <tt>null</tt> if
      *         this visitor is not interested in visiting this annotation.
      */
@@ -93,8 +98,9 @@ public abstract class FieldVisitor {
 
     /**
      * Visits a non standard attribute of the field.
-     *
-     * @param attr an attribute.
+     * 
+     * @param attr
+     *            an attribute.
      */
     public void visitAttribute(Attribute attr) {
         if (fv != null) {

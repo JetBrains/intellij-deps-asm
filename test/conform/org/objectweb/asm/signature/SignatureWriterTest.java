@@ -40,7 +40,7 @@ import org.objectweb.asm.Opcodes;
 
 /**
  * Signature tests.
- *
+ * 
  * @author Eric Bruneton
  */
 public class SignatureWriterTest extends AbstractTest {
@@ -54,14 +54,8 @@ public class SignatureWriterTest extends AbstractTest {
         ClassReader cr = new ClassReader(is);
         cr.accept(new ClassVisitor(Opcodes.ASM4) {
             @Override
-            public void visit(
-                int version,
-                int access,
-                String name,
-                String signature,
-                String superName,
-                String[] interfaces)
-            {
+            public void visit(int version, int access, String name,
+                    String signature, String superName, String[] interfaces) {
                 if (signature != null) {
                     SignatureReader sr = new SignatureReader(signature);
                     SignatureWriter sw = new SignatureWriter();
@@ -71,13 +65,8 @@ public class SignatureWriterTest extends AbstractTest {
             }
 
             @Override
-            public FieldVisitor visitField(
-                int access,
-                String name,
-                String desc,
-                String signature,
-                Object value)
-            {
+            public FieldVisitor visitField(int access, String name,
+                    String desc, String signature, Object value) {
                 if (signature != null) {
                     SignatureReader sr = new SignatureReader(signature);
                     SignatureWriter sw = new SignatureWriter();
@@ -88,13 +77,8 @@ public class SignatureWriterTest extends AbstractTest {
             }
 
             @Override
-            public MethodVisitor visitMethod(
-                int access,
-                String name,
-                String desc,
-                String signature,
-                String[] exceptions)
-            {
+            public MethodVisitor visitMethod(int access, String name,
+                    String desc, String signature, String[] exceptions) {
                 if (signature != null) {
                     SignatureReader sr = new SignatureReader(signature);
                     SignatureWriter sw = new SignatureWriter();

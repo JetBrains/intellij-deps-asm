@@ -39,7 +39,7 @@ import org.objectweb.asm.tree.MethodNode;
 
 /**
  * SimpleVerifier unit tests.
- *
+ * 
  * @author Eric Bruneton
  */
 public class SimpleVerifierUnitTest extends TestCase implements Opcodes {
@@ -298,9 +298,7 @@ public class SimpleVerifierUnitTest extends TestCase implements Opcodes {
         mn.visitInsn(ACONST_NULL);
         mn.visitTypeInsn(CHECKCAST, "java/util/List");
         mn.visitInsn(FCONST_0);
-        mn.visitMethodInsn(INVOKEINTERFACE,
-                "java/util/List",
-                "get",
+        mn.visitMethodInsn(INVOKEINTERFACE, "java/util/List", "get",
                 "(I)Ljava/lang/Object;");
         assertInvalid();
     }

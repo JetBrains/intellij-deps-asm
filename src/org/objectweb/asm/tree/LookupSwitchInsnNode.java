@@ -40,7 +40,7 @@ import org.objectweb.asm.Opcodes;
 
 /**
  * A node that represents a LOOKUPSWITCH instruction.
- *
+ * 
  * @author Eric Bruneton
  */
 public class LookupSwitchInsnNode extends AbstractInsnNode {
@@ -63,21 +63,22 @@ public class LookupSwitchInsnNode extends AbstractInsnNode {
 
     /**
      * Constructs a new {@link LookupSwitchInsnNode}.
-     *
-     * @param dflt beginning of the default handler block.
-     * @param keys the values of the keys.
-     * @param labels beginnings of the handler blocks. <tt>labels[i]</tt> is
-     *        the beginning of the handler block for the <tt>keys[i]</tt> key.
+     * 
+     * @param dflt
+     *            beginning of the default handler block.
+     * @param keys
+     *            the values of the keys.
+     * @param labels
+     *            beginnings of the handler blocks. <tt>labels[i]</tt> is the
+     *            beginning of the handler block for the <tt>keys[i]</tt> key.
      */
-    public LookupSwitchInsnNode(
-        final LabelNode dflt,
-        final int[] keys,
-        final LabelNode[] labels)
-    {
+    public LookupSwitchInsnNode(final LabelNode dflt, final int[] keys,
+            final LabelNode[] labels) {
         super(Opcodes.LOOKUPSWITCH);
         this.dflt = dflt;
         this.keys = new ArrayList<Integer>(keys == null ? 0 : keys.length);
-        this.labels = new ArrayList<LabelNode>(labels == null ? 0 : labels.length);
+        this.labels = new ArrayList<LabelNode>(labels == null ? 0
+                : labels.length);
         if (keys != null) {
             for (int i = 0; i < keys.length; ++i) {
                 this.keys.add(new Integer(keys[i]));

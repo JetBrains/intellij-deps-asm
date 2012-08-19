@@ -43,7 +43,7 @@ import org.objectweb.asm.Opcodes;
  * Generates classes with StackMap and StackMapTable attributes. Covers all
  * frame (FULL, SAME, etc.) and frame element types (TOP, NULL, INTEGER, etc.).
  * Also covers the V1_6 class version.
- *
+ * 
  * @author Eric Bruneton
  */
 public class Frames extends Generator {
@@ -68,12 +68,8 @@ public class Frames extends Generator {
         MethodVisitor mv;
         FieldVisitor fv;
 
-        cw.visit(V1_6,
-                ACC_PUBLIC + ACC_SUPER,
-                "pkg/FrameTable",
-                null,
-                "java/lang/Object",
-                null);
+        cw.visit(V1_6, ACC_PUBLIC + ACC_SUPER, "pkg/FrameTable", null,
+                "java/lang/Object", null);
 
         fv = cw.visitField(M, "long", "Ljava/lang/Long;", null, null);
         fv.visitEnd();
@@ -102,11 +98,8 @@ public class Frames extends Generator {
         fv = cw.visitField(M, "objectArray", "[Ljava/lang/Object;", null, null);
         fv.visitEnd();
 
-        mv = cw.visitMethod(ACC_PUBLIC,
-                "<init>",
-                "(Ljava/lang/Object;)V",
-                null,
-                null);
+        mv = cw.visitMethod(ACC_PUBLIC, "<init>", "(Ljava/lang/Object;)V",
+                null, null);
         mv.visitCode();
         mv.visitVarInsn(ALOAD, 0);
         mv.visitMethodInsn(INVOKESPECIAL, "java/lang/Object", "<init>", "()V");
@@ -139,10 +132,7 @@ public class Frames extends Generator {
     }
 
     private void uninitializedThisType(final ClassWriter cw) {
-        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC,
-                "<init>",
-                "(I)V",
-                null,
+        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "<init>", "(I)V", null,
                 null);
         mv.visitCode();
         mv.visitVarInsn(ALOAD, 0);
@@ -156,28 +146,19 @@ public class Frames extends Generator {
         mv.visitInsn(ACONST_NULL);
         Label l2 = new Label();
         mv.visitJumpInsn(GOTO, l2);
-        mv.visitFrame(F_FULL,
-                2,
-                new Object[] { UNINITIALIZED_THIS, INTEGER },
-                3,
-                new Object[] { UNINITIALIZED_THIS, l0, l0 });
+        mv.visitFrame(F_FULL, 2, new Object[] { UNINITIALIZED_THIS, INTEGER },
+                3, new Object[] { UNINITIALIZED_THIS, l0, l0 });
         mv.visitLabel(l1);
         mv.visitTypeInsn(NEW, "java/lang/Object");
         mv.visitInsn(DUP);
         mv.visitMethodInsn(INVOKESPECIAL, "java/lang/Object", "<init>", "()V");
-        mv.visitFrame(F_FULL,
-                2,
-                new Object[] { UNINITIALIZED_THIS, INTEGER },
-                4,
-                new Object[] { UNINITIALIZED_THIS, l0, l0, "java/lang/Object" });
+        mv.visitFrame(F_FULL, 2, new Object[] { UNINITIALIZED_THIS, INTEGER },
+                4, new Object[] { UNINITIALIZED_THIS, l0, l0,
+                        "java/lang/Object" });
         mv.visitLabel(l2);
-        mv.visitMethodInsn(INVOKESPECIAL,
-                "pkg/FrameTable",
-                "<init>",
+        mv.visitMethodInsn(INVOKESPECIAL, "pkg/FrameTable", "<init>",
                 "(Ljava/lang/Object;)V");
-        mv.visitMethodInsn(INVOKESPECIAL,
-                "pkg/FrameTable",
-                "<init>",
+        mv.visitMethodInsn(INVOKESPECIAL, "pkg/FrameTable", "<init>",
                 "(Ljava/lang/Object;)V");
         mv.visitInsn(RETURN);
         mv.visitMaxs(0, 0);
@@ -185,11 +166,8 @@ public class Frames extends Generator {
     }
 
     private void uninitializedLocalType(final ClassWriter cw) {
-        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC,
-                "uninitializedLocalType",
-                "(Z)V",
-                null,
-                null);
+        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "uninitializedLocalType",
+                "(Z)V", null, null);
         mv.visitCode();
         Label l0 = new Label();
         mv.visitLabel(l0);
@@ -202,17 +180,13 @@ public class Frames extends Generator {
         mv.visitInsn(LCONST_0);
         Label l2 = new Label();
         mv.visitJumpInsn(GOTO, l2);
-        mv.visitFrame(F_FULL,
-                3,
-                new Object[] { "pkg/FrameTable", INTEGER, l0 },
-                1,
+        mv.visitFrame(F_FULL, 3,
+                new Object[] { "pkg/FrameTable", INTEGER, l0 }, 1,
                 new Object[] { l0 });
         mv.visitLabel(l1);
         mv.visitInsn(LCONST_1);
-        mv.visitFrame(F_FULL,
-                3,
-                new Object[] { "pkg/FrameTable", INTEGER, l0 },
-                2,
+        mv.visitFrame(F_FULL, 3,
+                new Object[] { "pkg/FrameTable", INTEGER, l0 }, 2,
                 new Object[] { l0, LONG });
         mv.visitLabel(l2);
         mv.visitMethodInsn(INVOKESPECIAL, "java/lang/Long", "<init>", "(J)V");
@@ -222,11 +196,8 @@ public class Frames extends Generator {
     }
 
     private void uninitializedStackType(final ClassWriter cw) {
-        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC,
-                "uninitializedStackType",
-                "(Z)V",
-                null,
-                null);
+        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "uninitializedStackType",
+                "(Z)V", null, null);
         mv.visitCode();
         Label l0 = new Label();
         mv.visitLabel(l0);
@@ -239,10 +210,7 @@ public class Frames extends Generator {
         mv.visitMethodInsn(INVOKESPECIAL, "java/lang/Long", "<init>", "(J)V");
         Label l2 = new Label();
         mv.visitJumpInsn(GOTO, l2);
-        mv.visitFrame(F_FULL,
-                1,
-                new Object[] { "pkg/FrameTable" },
-                2,
+        mv.visitFrame(F_FULL, 1, new Object[] { "pkg/FrameTable" }, 2,
                 new Object[] { l0, l0 });
         mv.visitLabel(l1);
         mv.visitInsn(LCONST_1);
@@ -256,11 +224,8 @@ public class Frames extends Generator {
     }
 
     private void nullType(final ClassWriter cw) {
-        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC,
-                "nullType",
-                "(Ljava/lang/String;Ljava/lang/String;)V",
-                null,
-                null);
+        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "nullType",
+                "(Ljava/lang/String;Ljava/lang/String;)V", null, null);
         mv.visitCode();
         mv.visitInsn(ACONST_NULL);
         mv.visitVarInsn(ASTORE, 2);
@@ -272,23 +237,16 @@ public class Frames extends Generator {
         mv.visitVarInsn(ALOAD, 2);
         Label l1 = new Label();
         mv.visitJumpInsn(GOTO, l1);
-        mv.visitFrame(F_FULL, 3, new Object[] {
-            "pkg/FrameTable",
-            "java/lang/String",
-            NULL }, 2, new Object[] { "pkg/FrameTable", NULL });
+        mv.visitFrame(F_FULL, 3, new Object[] { "pkg/FrameTable",
+                "java/lang/String", NULL }, 2, new Object[] { "pkg/FrameTable",
+                NULL });
         mv.visitLabel(l0);
         mv.visitVarInsn(ALOAD, 1);
-        mv.visitFrame(F_FULL, 3, new Object[] {
-            "pkg/FrameTable",
-            "java/lang/String",
-            NULL }, 3, new Object[] {
-            "pkg/FrameTable",
-            NULL,
-            "java/lang/String" });
+        mv.visitFrame(F_FULL, 3, new Object[] { "pkg/FrameTable",
+                "java/lang/String", NULL }, 3, new Object[] { "pkg/FrameTable",
+                NULL, "java/lang/String" });
         mv.visitLabel(l1);
-        mv.visitMethodInsn(INVOKEVIRTUAL,
-                "pkg/FrameTable",
-                "nullType",
+        mv.visitMethodInsn(INVOKEVIRTUAL, "pkg/FrameTable", "nullType",
                 "(Ljava/lang/String;Ljava/lang/String;)V");
         mv.visitInsn(RETURN);
         mv.visitMaxs(0, 0);
@@ -296,11 +254,8 @@ public class Frames extends Generator {
     }
 
     private void topType(final ClassWriter cw) {
-        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC,
-                "topType",
-                "(ZBCSIFJDLjava/lang/Object;)V",
-                null,
-                null);
+        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "topType",
+                "(ZBCSIFJDLjava/lang/Object;)V", null, null);
         mv.visitCode();
         mv.visitVarInsn(ILOAD, 5);
         mv.visitVarInsn(ISTORE, 13);
@@ -316,11 +271,9 @@ public class Frames extends Generator {
     }
 
     private void arrayTypes(final ClassWriter cw) {
-        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC,
-                "fullFrame",
+        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "fullFrame",
                 "(Ljava/lang/String;[[Z[B[C[S[I[F[J[D[Ljava/lang/Object;)V",
-                null,
-                null);
+                null, null);
         mv.visitCode();
         mv.visitLdcInsn(new Long(11L));
         mv.visitVarInsn(LSTORE, 11);
@@ -334,22 +287,10 @@ public class Frames extends Generator {
         Label l0 = new Label();
         mv.visitJumpInsn(IFNONNULL, l0);
         mv.visitInsn(RETURN);
-        mv.visitFrame(F_FULL, 15, new Object[] {
-            "pkg/FrameTable",
-            "java/lang/String",
-            "[[Z",
-            "[B",
-            "[C",
-            "[S",
-            "[I",
-            "[F",
-            "[J",
-            "[D",
-            "[Ljava/lang/Object;",
-            LONG,
-            LONG,
-            LONG,
-            LONG }, 0, new Object[] {});
+        mv.visitFrame(F_FULL, 15, new Object[] { "pkg/FrameTable",
+                "java/lang/String", "[[Z", "[B", "[C", "[S", "[I", "[F", "[J",
+                "[D", "[Ljava/lang/Object;", LONG, LONG, LONG, LONG }, 0,
+                new Object[] {});
         mv.visitLabel(l0);
         mv.visitInsn(RETURN);
         mv.visitMaxs(0, 0);
@@ -357,89 +298,59 @@ public class Frames extends Generator {
     }
 
     private void mergeTypes(final ClassWriter cw) {
-        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC,
-                "mergeTypes",
-                "(Z)V",
-                null,
-                null);
+        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "mergeTypes", "(Z)V",
+                null, null);
         mv.visitCode();
         Label l0 = new Label();
-        mv.visitFieldInsn(GETSTATIC,
-                "pkg/FrameTable",
-                "long",
+        mv.visitFieldInsn(GETSTATIC, "pkg/FrameTable", "long",
                 "Ljava/lang/Long;");
         mv.visitVarInsn(ASTORE, 2);
-        mv.visitFieldInsn(GETSTATIC,
-                "pkg/FrameTable",
-                "number",
+        mv.visitFieldInsn(GETSTATIC, "pkg/FrameTable", "number",
                 "Ljava/lang/Number;");
         mv.visitVarInsn(ASTORE, 3);
-        mv.visitFieldInsn(GETSTATIC,
-                "pkg/FrameTable",
-                "number",
+        mv.visitFieldInsn(GETSTATIC, "pkg/FrameTable", "number",
                 "Ljava/lang/Long;");
         mv.visitVarInsn(ASTORE, 4);
-        mv.visitFieldInsn(GETSTATIC,
-                "pkg/FrameTable",
-                "comparable",
+        mv.visitFieldInsn(GETSTATIC, "pkg/FrameTable", "comparable",
                 "Ljava/lang/Comparable;");
         mv.visitVarInsn(ASTORE, 5);
         mv.visitInsn(ACONST_NULL);
         mv.visitVarInsn(ASTORE, 6);
-        mv.visitFieldInsn(GETSTATIC,
-                "pkg/FrameTable",
-                "double",
+        mv.visitFieldInsn(GETSTATIC, "pkg/FrameTable", "double",
                 "Ljava/lang/Double;");
         mv.visitVarInsn(ASTORE, 7);
         mv.visitInsn(ICONST_0);
         mv.visitVarInsn(ISTORE, 8);
         mv.visitFieldInsn(GETSTATIC, "pkg/FrameTable", "intArray", "[I");
         mv.visitVarInsn(ASTORE, 9);
-        mv.visitFieldInsn(GETSTATIC,
-                "pkg/FrameTable",
-                "double",
+        mv.visitFieldInsn(GETSTATIC, "pkg/FrameTable", "double",
                 "Ljava/lang/Double;");
         mv.visitVarInsn(ASTORE, 10);
         mv.visitInsn(ACONST_NULL);
         mv.visitVarInsn(ASTORE, 11);
 
-        mv.visitFrame(F_FULL, 12, new Object[] {
-            "pkg/FrameTable",
-            INTEGER,
-            "java/lang/Number",
-            "java/lang/Number",
-            "java/lang/Number",
-            "java/lang/Object",
-            NULL,
-            "java/lang/Double",
-            TOP,
-            "java/lang/Object",
-            "java/lang/Object",
-            "[Ljava/lang/Object;" }, 0, null);
+        mv.visitFrame(F_FULL, 12,
+                new Object[] { "pkg/FrameTable", INTEGER, "java/lang/Number",
+                        "java/lang/Number", "java/lang/Number",
+                        "java/lang/Object", NULL, "java/lang/Double", TOP,
+                        "java/lang/Object", "java/lang/Object",
+                        "[Ljava/lang/Object;" }, 0, null);
         mv.visitLabel(l0);
         mv.visitVarInsn(ALOAD, 11);
         mv.visitInsn(ICONST_0);
         mv.visitInsn(ACONST_NULL);
         mv.visitInsn(AASTORE);
 
-        mv.visitFieldInsn(GETSTATIC,
-                "pkg/FrameTable",
-                "double",
+        mv.visitFieldInsn(GETSTATIC, "pkg/FrameTable", "double",
                 "Ljava/lang/Double;");
         mv.visitVarInsn(ASTORE, 2);
-        mv.visitFieldInsn(GETSTATIC,
-                "pkg/FrameTable",
-                "double",
+        mv.visitFieldInsn(GETSTATIC, "pkg/FrameTable", "double",
                 "Ljava/lang/Double;");
         mv.visitVarInsn(ASTORE, 3);
-        mv.visitFieldInsn(GETSTATIC,
-                "pkg/FrameTable",
-                "number",
+        mv.visitFieldInsn(GETSTATIC, "pkg/FrameTable", "number",
                 "Ljava/lang/Number;");
         mv.visitVarInsn(ASTORE, 4);
-        mv.visitFieldInsn(GETSTATIC,
-                "pkg/FrameTable",
-                "serializable",
+        mv.visitFieldInsn(GETSTATIC, "pkg/FrameTable", "serializable",
                 "Ljava/io/Serializable;");
         mv.visitVarInsn(ASTORE, 5);
         mv.visitInsn(ACONST_NULL);
@@ -462,11 +373,8 @@ public class Frames extends Generator {
     }
 
     private void mergeStackTypes(final ClassWriter cw) {
-        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC,
-                "mergeStackTypes",
-                "(Z)V",
-                null,
-                null);
+        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "mergeStackTypes",
+                "(Z)V", null, null);
         mv.visitCode();
         mv.visitInsn(ICONST_0);
         mv.visitInsn(ICONST_1);
@@ -476,17 +384,11 @@ public class Frames extends Generator {
         mv.visitInsn(ICONST_0);
         Label l1 = new Label();
         mv.visitJumpInsn(GOTO, l1);
-        mv.visitFrame(F_FULL,
-                1,
-                new Object[] { "pkg/FrameTable" },
-                2,
+        mv.visitFrame(F_FULL, 1, new Object[] { "pkg/FrameTable" }, 2,
                 new Object[] { INTEGER, INTEGER });
         mv.visitLabel(l0);
         mv.visitInsn(DUP);
-        mv.visitFrame(F_FULL,
-                1,
-                new Object[] { "pkg/FrameTable" },
-                3,
+        mv.visitFrame(F_FULL, 1, new Object[] { "pkg/FrameTable" }, 3,
                 new Object[] { INTEGER, INTEGER, INTEGER });
         mv.visitLabel(l1);
         mv.visitInsn(RETURN);
@@ -495,11 +397,8 @@ public class Frames extends Generator {
     }
 
     private void mergeNullArray(final ClassWriter cw) {
-        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC,
-                "mergeNullArray",
-                "(Z)I",
-                null,
-                null);
+        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "mergeNullArray", "(Z)I",
+                null, null);
         mv.visitCode();
         mv.visitVarInsn(ILOAD, 1);
         Label l1 = new Label();
@@ -509,15 +408,10 @@ public class Frames extends Generator {
         mv.visitVarInsn(ILOAD, 1);
         Label l2 = new Label();
         mv.visitJumpInsn(IFEQ, l2);
-        mv.visitFieldInsn(GETSTATIC,
-                "pkg/FrameTable",
-                "longArray",
+        mv.visitFieldInsn(GETSTATIC, "pkg/FrameTable", "longArray",
                 "[Ljava/lang/Long;");
         mv.visitVarInsn(ASTORE, 2);
-        mv.visitFrame(F_APPEND,
-                1,
-                new Object[] { "[Ljava/lang/Long;" },
-                0,
+        mv.visitFrame(F_APPEND, 1, new Object[] { "[Ljava/lang/Long;" }, 0,
                 null);
         mv.visitLabel(l2);
         mv.visitVarInsn(ALOAD, 2);
@@ -556,11 +450,8 @@ public class Frames extends Generator {
     }
 
     private void appendAndChopFrame(final ClassWriter cw) {
-        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC,
-                "appendAndChopFrame",
-                "(I)V",
-                null,
-                null);
+        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "appendAndChopFrame",
+                "(I)V", null, null);
         mv.visitCode();
         mv.visitInsn(ICONST_0);
         mv.visitVarInsn(ISTORE, 2);
@@ -582,20 +473,14 @@ public class Frames extends Generator {
 
     private void sameLocals1stackItemFrame(final ClassWriter cw) {
         MethodVisitor mv = cw.visitMethod(ACC_PUBLIC,
-                "sameLocals1stackItemFrame",
-                "()I",
-                null,
-                null);
+                "sameLocals1stackItemFrame", "()I", null, null);
         mv.visitCode();
         Label l0 = new Label();
         Label l1 = new Label();
         mv.visitTryCatchBlock(l0, l1, l0, null);
         mv.visitInsn(ICONST_0);
         mv.visitInsn(IRETURN);
-        mv.visitFrame(F_SAME1,
-                0,
-                null,
-                1,
+        mv.visitFrame(F_SAME1, 0, null, 1,
                 new Object[] { "java/lang/Throwable" });
         mv.visitLabel(l0);
         mv.visitVarInsn(ASTORE, 1);
@@ -608,10 +493,7 @@ public class Frames extends Generator {
 
     private void sameLocals1stackItemFrame2(final ClassWriter cw) {
         MethodVisitor mv = cw.visitMethod(ACC_PUBLIC,
-                "sameLocals1stackItemFrame2",
-                "()V",
-                null,
-                null);
+                "sameLocals1stackItemFrame2", "()V", null, null);
         mv.visitCode();
         Label l0 = new Label();
         Label l1 = new Label();
@@ -631,19 +513,13 @@ public class Frames extends Generator {
         mv.visitLabel(l1);
         Label l6 = new Label();
         mv.visitJumpInsn(GOTO, l6);
-        mv.visitFrame(F_SAME1,
-                0,
-                null,
-                1,
+        mv.visitFrame(F_SAME1, 0, null, 1,
                 new Object[] { "java/lang/Exception" });
         mv.visitLabel(l2);
         mv.visitVarInsn(ASTORE, 2);
         mv.visitLabel(l4);
         mv.visitJumpInsn(GOTO, l6);
-        mv.visitFrame(F_SAME1,
-                0,
-                null,
-                1,
+        mv.visitFrame(F_SAME1, 0, null, 1,
                 new Object[] { "java/lang/Throwable" });
         mv.visitLabel(l3);
         mv.visitVarInsn(ASTORE, 3);
@@ -659,10 +535,7 @@ public class Frames extends Generator {
 
     private void sameLocals1stackItemFrameExtended(final ClassWriter cw) {
         MethodVisitor mv = cw.visitMethod(ACC_PUBLIC,
-                "sameLocals1stackItemFrameExtended",
-                "()I",
-                null,
-                null);
+                "sameLocals1stackItemFrameExtended", "()I", null, null);
         mv.visitCode();
         Label l0 = new Label();
         Label l1 = new Label();
@@ -700,10 +573,7 @@ public class Frames extends Generator {
         mv.visitLabel(l1);
         mv.visitInsn(ICONST_0);
         mv.visitInsn(IRETURN);
-        mv.visitFrame(F_SAME1,
-                0,
-                null,
-                1,
+        mv.visitFrame(F_SAME1, 0, null, 1,
                 new Object[] { "java/lang/Throwable" });
         mv.visitLabel(l2);
         mv.visitVarInsn(ASTORE, 27);
@@ -715,11 +585,8 @@ public class Frames extends Generator {
     }
 
     private void sameFrameExtended(final ClassWriter cw) {
-        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC,
-                "sameFrameExtended",
-                "(Z)V",
-                null,
-                null);
+        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "sameFrameExtended",
+                "(Z)V", null, null);
         mv.visitCode();
         mv.visitFrame(F_SAME, 0, null, 0, null);
         Label l0 = new Label();
@@ -762,10 +629,7 @@ public class Frames extends Generator {
     }
 
     private void deadCode(final ClassWriter cw) {
-        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC,
-                "deadCode",
-                "(Z)V",
-                null,
+        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "deadCode", "(Z)V", null,
                 null);
         mv.visitCode();
         Label l0 = new Label();
@@ -778,25 +642,16 @@ public class Frames extends Generator {
         mv.visitFrame(F_SAME, 0, null, 0, null);
         mv.visitLabel(l0);
         mv.visitInsn(RETURN);
-        mv.visitFrame(F_SAME1,
-                0,
-                null,
-                1,
+        mv.visitFrame(F_SAME1, 0, null, 1,
                 new Object[] { "java/lang/Exception" });
         mv.visitLabel(l1);
         mv.visitVarInsn(ASTORE, 2);
         mv.visitInsn(RETURN);
-        mv.visitFrame(F_FULL,
-                0,
-                new Object[] { "pkg/FrameTable", INTEGER },
-                0,
+        mv.visitFrame(F_FULL, 0, new Object[] { "pkg/FrameTable", INTEGER }, 0,
                 null);
         mv.visitLabel(l2);
         mv.visitInsn(RETURN);
-        mv.visitFrame(F_SAME1,
-                0,
-                null,
-                1,
+        mv.visitFrame(F_SAME1, 0, null, 1,
                 new Object[] { "java/lang/Exception" });
         mv.visitLabel(l3);
         mv.visitVarInsn(ASTORE, 2);
@@ -808,7 +663,7 @@ public class Frames extends Generator {
     /**
      * Ad hoc class adapter used to rename the FrameTable class and to change
      * its class version.
-     *
+     * 
      * @author Eric Bruneton
      */
     static class RenameAdapter extends ClassVisitor {
@@ -818,44 +673,23 @@ public class Frames extends Generator {
         }
 
         @Override
-        public void visit(
-            final int version,
-            final int access,
-            final String name,
-            final String signature,
-            final String superName,
-            final String[] interfaces)
-        {
-            super.visit(V1_5,
-                    access,
-                    "pkg/FrameMap",
-                    signature,
-                    superName,
+        public void visit(final int version, final int access,
+                final String name, final String signature,
+                final String superName, final String[] interfaces) {
+            super.visit(V1_5, access, "pkg/FrameMap", signature, superName,
                     interfaces);
         }
 
         @Override
-        public MethodVisitor visitMethod(
-            final int access,
-            final String name,
-            final String desc,
-            final String signature,
-            final String[] exceptions)
-        {
+        public MethodVisitor visitMethod(final int access, final String name,
+                final String desc, final String signature,
+                final String[] exceptions) {
             return new MethodVisitor(Opcodes.ASM4, super.visitMethod(access,
-                    name,
-                    desc,
-                    signature,
-                    exceptions))
-            {
+                    name, desc, signature, exceptions)) {
                 @Override
-                public void visitFrame(
-                    final int type,
-                    final int nLocal,
-                    final Object[] local,
-                    final int nStack,
-                    final Object[] stack)
-                {
+                public void visitFrame(final int type, final int nLocal,
+                        final Object[] local, final int nStack,
+                        final Object[] stack) {
                     Object[] clocal = new Object[local.length];
                     for (int i = 0; i < clocal.length; ++i) {
                         clocal[i] = local[i];
@@ -883,16 +717,10 @@ public class Frames extends Generator {
                 }
 
                 @Override
-                public void visitMethodInsn(
-                    final int opcode,
-                    final String owner,
-                    final String name,
-                    final String desc)
-                {
+                public void visitMethodInsn(final int opcode,
+                        final String owner, final String name, final String desc) {
                     if (owner.equals("pkg/FrameTable")) {
-                        super.visitMethodInsn(opcode,
-                                "pkg/FrameMap",
-                                name,
+                        super.visitMethodInsn(opcode, "pkg/FrameMap", name,
                                 desc);
                     } else {
                         super.visitMethodInsn(opcode, owner, name, desc);

@@ -33,7 +33,7 @@ import junit.framework.TestCase;
 
 /**
  * ClassWriter unit tests.
- *
+ * 
  * @author Eric Bruneton
  */
 public class ClassWriterUnitTest extends TestCase {

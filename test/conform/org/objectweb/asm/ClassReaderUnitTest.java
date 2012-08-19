@@ -36,7 +36,7 @@ import junit.framework.TestCase;
 
 /**
  * ClassReader unit tests.
- *
+ * 
  * @author Eric Bruneton
  * @author Eugene Kuleshov
  */
@@ -64,21 +64,26 @@ public class ClassReaderUnitTest extends TestCase implements Opcodes {
 
     public void testGetAccess() throws Exception {
         String name = getClass().getName();
-        assertEquals(Opcodes.ACC_PUBLIC | Opcodes.ACC_SUPER, new ClassReader(name).getAccess());
+        assertEquals(Opcodes.ACC_PUBLIC | Opcodes.ACC_SUPER, new ClassReader(
+                name).getAccess());
     }
 
     public void testGetClassName() throws Exception {
         String name = getClass().getName();
-        assertEquals(name.replace('.', '/'), new ClassReader(name).getClassName());
+        assertEquals(name.replace('.', '/'),
+                new ClassReader(name).getClassName());
     }
 
     public void testGetSuperName() throws Exception {
-        assertEquals(TestCase.class.getName().replace('.', '/'), new ClassReader(getClass().getName()).getSuperName());
-        assertEquals(null, new ClassReader(Object.class.getName()).getSuperName());
+        assertEquals(TestCase.class.getName().replace('.', '/'),
+                new ClassReader(getClass().getName()).getSuperName());
+        assertEquals(null,
+                new ClassReader(Object.class.getName()).getSuperName());
     }
 
     public void testGetInterfaces() throws Exception {
-        String[] interfaces = new ClassReader(getClass().getName()).getInterfaces();
+        String[] interfaces = new ClassReader(getClass().getName())
+                .getInterfaces();
         assertNotNull(interfaces);
         assertEquals(1, interfaces.length);
         assertEquals(Opcodes.class.getName().replace('.', '/'), interfaces[0]);

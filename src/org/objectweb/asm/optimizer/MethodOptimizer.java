@@ -42,20 +42,15 @@ import org.objectweb.asm.commons.RemappingMethodAdapter;
 /**
  * A {@link MethodVisitor} that renames fields and methods, and removes debug
  * info.
- *
+ * 
  * @author Eugene Kuleshov
  */
 public class MethodOptimizer extends RemappingMethodAdapter implements Opcodes {
 
     private final ClassOptimizer classOptimizer;
 
-    public MethodOptimizer(
-        ClassOptimizer classOptimizer,
-        int access,
-        String desc,
-        MethodVisitor mv,
-        Remapper remapper)
-    {
+    public MethodOptimizer(ClassOptimizer classOptimizer, int access,
+            String desc, MethodVisitor mv, Remapper remapper) {
         super(access, desc, mv, remapper);
         this.classOptimizer = classOptimizer;
     }
@@ -77,24 +72,16 @@ public class MethodOptimizer extends RemappingMethodAdapter implements Opcodes {
     }
 
     @Override
-    public AnnotationVisitor visitParameterAnnotation(
-        final int parameter,
-        final String desc,
-        final boolean visible)
-    {
+    public AnnotationVisitor visitParameterAnnotation(final int parameter,
+            final String desc, final boolean visible) {
         // remove annotations
         return null;
     }
 
     @Override
-    public void visitLocalVariable(
-        final String name,
-        final String desc,
-        final String signature,
-        final Label start,
-        final Label end,
-        final int index)
-    {
+    public void visitLocalVariable(final String name, final String desc,
+            final String signature, final Label start, final Label end,
+            final int index) {
         // remove debug info
     }
 
@@ -104,13 +91,8 @@ public class MethodOptimizer extends RemappingMethodAdapter implements Opcodes {
     }
 
     @Override
-    public void visitFrame(
-        int type,
-        int local,
-        Object[] local2,
-        int stack,
-        Object[] stack2)
-    {
+    public void visitFrame(int type, int local, Object[] local2, int stack,
+            Object[] stack2) {
         // remove frame info
     }
 
@@ -130,34 +112,36 @@ public class MethodOptimizer extends RemappingMethodAdapter implements Opcodes {
         String ldcName = ((Type) cst).getInternalName();
         String fieldName = "class$" + ldcName.replace('/', '$');
 
-        FieldVisitor fv = classOptimizer.syntheticFieldVisitor(ACC_STATIC | ACC_SYNTHETIC,
-                fieldName, "Ljava/lang/Class;");
+        FieldVisitor fv = classOptimizer.syntheticFieldVisitor(ACC_STATIC
+                | ACC_SYNTHETIC, fieldName, "Ljava/lang/Class;");
         fv.visitEnd();
 
         if (!classOptimizer.class$) {
-            MethodVisitor mv = classOptimizer.visitMethod(ACC_STATIC | ACC_SYNTHETIC,
-                    "class$", "(Ljava/lang/String;)Ljava/lang/Class;", null, null);
+            MethodVisitor mv = classOptimizer.visitMethod(ACC_STATIC
+                    | ACC_SYNTHETIC, "class$",
+                    "(Ljava/lang/String;)Ljava/lang/Class;", null, null);
             mv.visitCode();
             Label l0 = new Label();
             Label l1 = new Label();
             Label l2 = new Label();
-            mv.visitTryCatchBlock(l0, l1, l2, "java/lang/ClassNotFoundException");
+            mv.visitTryCatchBlock(l0, l1, l2,
+                    "java/lang/ClassNotFoundException");
             mv.visitLabel(l0);
             mv.visitVarInsn(ALOAD, 0);
-            mv.visitMethodInsn(INVOKESTATIC,
-                    "java/lang/Class",
-                    "forName",
+            mv.visitMethodInsn(INVOKESTATIC, "java/lang/Class", "forName",
                     "(Ljava/lang/String;)Ljava/lang/Class;");
             mv.visitLabel(l1);
             mv.visitInsn(ARETURN);
             mv.visitLabel(l2);
-            mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/ClassNotFoundException", "getMessage", "()Ljava/lang/String;");
+            mv.visitMethodInsn(INVOKEVIRTUAL,
+                    "java/lang/ClassNotFoundException", "getMessage",
+                    "()Ljava/lang/String;");
             mv.visitVarInsn(ASTORE, 1);
             mv.visitTypeInsn(NEW, "java/lang/NoClassDefFoundError");
             mv.visitInsn(DUP);
             mv.visitVarInsn(ALOAD, 1);
-            mv.visitMethodInsn(INVOKESPECIAL,
-                    "java/lang/NoClassDefFoundError", "<init>", "(Ljava/lang/String;)V");
+            mv.visitMethodInsn(INVOKESPECIAL, "java/lang/NoClassDefFoundError",
+                    "<init>", "(Ljava/lang/String;)V");
             mv.visitInsn(ATHROW);
             mv.visitMaxs(3, 2);
             mv.visitEnd();
@@ -170,9 +154,7 @@ public class MethodOptimizer extends RemappingMethodAdapter implements Opcodes {
         Label elseLabel = new Label();
         mv.visitJumpInsn(IFNONNULL, elseLabel);
         mv.visitLdcInsn(ldcName.replace('/', '.'));
-        mv.visitMethodInsn(INVOKESTATIC,
-                clsName,
-                "class$",
+        mv.visitMethodInsn(INVOKESTATIC, clsName, "class$",
                 "(Ljava/lang/String;)Ljava/lang/Class;");
         mv.visitInsn(DUP);
         mv.visitFieldInsn(PUTSTATIC, clsName, fieldName, "Ljava/lang/Class;");

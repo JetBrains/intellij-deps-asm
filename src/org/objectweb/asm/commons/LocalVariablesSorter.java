@@ -41,14 +41,15 @@ import org.objectweb.asm.Type;
  * of using it is via delegation: the next visitor in the chain can indeed add
  * new locals when needed by calling {@link #newLocal} on this adapter (this
  * requires a reference back to this {@link LocalVariablesSorter}).
- *
+ * 
  * @author Chris Nokleberg
  * @author Eugene Kuleshov
  * @author Eric Bruneton
  */
 public class LocalVariablesSorter extends MethodVisitor {
 
-    private static final Type OBJECT_TYPE = Type.getObjectType("java/lang/Object");
+    private static final Type OBJECT_TYPE = Type
+            .getObjectType("java/lang/Object");
 
     /**
      * Mapping from old to new local variable indexes. A local variable at index
@@ -81,34 +82,34 @@ public class LocalVariablesSorter extends MethodVisitor {
      * Creates a new {@link LocalVariablesSorter}. <i>Subclasses must not use
      * this constructor</i>. Instead, they must use the
      * {@link #LocalVariablesSorter(int, int, String, MethodVisitor)} version.
-     *
-     * @param access access flags of the adapted method.
-     * @param desc the method's descriptor (see {@link Type Type}).
-     * @param mv the method visitor to which this adapter delegates calls.
+     * 
+     * @param access
+     *            access flags of the adapted method.
+     * @param desc
+     *            the method's descriptor (see {@link Type Type}).
+     * @param mv
+     *            the method visitor to which this adapter delegates calls.
      */
-    public LocalVariablesSorter(
-        final int access,
-        final String desc,
-        final MethodVisitor mv)
-    {
+    public LocalVariablesSorter(final int access, final String desc,
+            final MethodVisitor mv) {
         this(Opcodes.ASM4, access, desc, mv);
     }
 
     /**
      * Creates a new {@link LocalVariablesSorter}.
-     *
-     * @param api the ASM API version implemented by this visitor. Must be one
-     *        of {@link Opcodes#ASM4}.
-     * @param access access flags of the adapted method.
-     * @param desc the method's descriptor (see {@link Type Type}).
-     * @param mv the method visitor to which this adapter delegates calls.
+     * 
+     * @param api
+     *            the ASM API version implemented by this visitor. Must be one
+     *            of {@link Opcodes#ASM4}.
+     * @param access
+     *            access flags of the adapted method.
+     * @param desc
+     *            the method's descriptor (see {@link Type Type}).
+     * @param mv
+     *            the method visitor to which this adapter delegates calls.
      */
-    protected LocalVariablesSorter(
-        final int api,
-        final int access,
-        final String desc,
-        final MethodVisitor mv)
-    {
+    protected LocalVariablesSorter(final int api, final int access,
+            final String desc, final MethodVisitor mv) {
         super(api, mv);
         Type[] args = Type.getArgumentTypes(desc);
         nextLocal = (Opcodes.ACC_STATIC & access) == 0 ? 1 : 0;
@@ -122,32 +123,32 @@ public class LocalVariablesSorter extends MethodVisitor {
     public void visitVarInsn(final int opcode, final int var) {
         Type type;
         switch (opcode) {
-            case Opcodes.LLOAD:
-            case Opcodes.LSTORE:
-                type = Type.LONG_TYPE;
-                break;
+        case Opcodes.LLOAD:
+        case Opcodes.LSTORE:
+            type = Type.LONG_TYPE;
+            break;
 
-            case Opcodes.DLOAD:
-            case Opcodes.DSTORE:
-                type = Type.DOUBLE_TYPE;
-                break;
+        case Opcodes.DLOAD:
+        case Opcodes.DSTORE:
+            type = Type.DOUBLE_TYPE;
+            break;
 
-            case Opcodes.FLOAD:
-            case Opcodes.FSTORE:
-                type = Type.FLOAT_TYPE;
-                break;
+        case Opcodes.FLOAD:
+        case Opcodes.FSTORE:
+            type = Type.FLOAT_TYPE;
+            break;
 
-            case Opcodes.ILOAD:
-            case Opcodes.ISTORE:
-                type = Type.INT_TYPE;
-                break;
+        case Opcodes.ILOAD:
+        case Opcodes.ISTORE:
+            type = Type.INT_TYPE;
+            break;
 
-            default:
+        default:
             // case Opcodes.ALOAD:
             // case Opcodes.ASTORE:
             // case RET:
-                type = OBJECT_TYPE;
-                break;
+            type = OBJECT_TYPE;
+            break;
         }
         mv.visitVarInsn(opcode, remap(var, type));
     }
@@ -163,28 +164,19 @@ public class LocalVariablesSorter extends MethodVisitor {
     }
 
     @Override
-    public void visitLocalVariable(
-        final String name,
-        final String desc,
-        final String signature,
-        final Label start,
-        final Label end,
-        final int index)
-    {
+    public void visitLocalVariable(final String name, final String desc,
+            final String signature, final Label start, final Label end,
+            final int index) {
         int newIndex = remap(index, Type.getType(desc));
         mv.visitLocalVariable(name, desc, signature, start, end, newIndex);
     }
 
     @Override
-    public void visitFrame(
-        final int type,
-        final int nLocal,
-        final Object[] local,
-        final int nStack,
-        final Object[] stack)
-    {
+    public void visitFrame(final int type, final int nLocal,
+            final Object[] local, final int nStack, final Object[] stack) {
         if (type != Opcodes.F_NEW) { // uncompressed frame
-            throw new IllegalStateException("ClassReader.accept() should be called with EXPAND_FRAMES flag");
+            throw new IllegalStateException(
+                    "ClassReader.accept() should be called with EXPAND_FRAMES flag");
         }
 
         if (!changed) { // optimization for the case where mapping = identity
@@ -250,36 +242,37 @@ public class LocalVariablesSorter extends MethodVisitor {
 
     /**
      * Creates a new local variable of the given type.
-     *
-     * @param type the type of the local variable to be created.
+     * 
+     * @param type
+     *            the type of the local variable to be created.
      * @return the identifier of the newly created local variable.
      */
     public int newLocal(final Type type) {
         Object t;
         switch (type.getSort()) {
-            case Type.BOOLEAN:
-            case Type.CHAR:
-            case Type.BYTE:
-            case Type.SHORT:
-            case Type.INT:
-                t = Opcodes.INTEGER;
-                break;
-            case Type.FLOAT:
-                t = Opcodes.FLOAT;
-                break;
-            case Type.LONG:
-                t = Opcodes.LONG;
-                break;
-            case Type.DOUBLE:
-                t = Opcodes.DOUBLE;
-                break;
-            case Type.ARRAY:
-                t = type.getDescriptor();
-                break;
-            // case Type.OBJECT:
-            default:
-                t = type.getInternalName();
-                break;
+        case Type.BOOLEAN:
+        case Type.CHAR:
+        case Type.BYTE:
+        case Type.SHORT:
+        case Type.INT:
+            t = Opcodes.INTEGER;
+            break;
+        case Type.FLOAT:
+            t = Opcodes.FLOAT;
+            break;
+        case Type.LONG:
+            t = Opcodes.LONG;
+            break;
+        case Type.DOUBLE:
+            t = Opcodes.DOUBLE;
+            break;
+        case Type.ARRAY:
+            t = type.getDescriptor();
+            break;
+        // case Type.OBJECT:
+        default:
+            t = type.getInternalName();
+            break;
         }
         int local = newLocalMapping(type);
         setLocalType(local, type);
@@ -290,10 +283,12 @@ public class LocalVariablesSorter extends MethodVisitor {
     /**
      * Sets the current type of the given local variable. The default
      * implementation of this method does nothing.
-     *
-     * @param local a local variable identifier, as returned by {@link #newLocal
-     *        newLocal()}.
-     * @param type the type of the value being stored in the local variable
+     * 
+     * @param local
+     *            a local variable identifier, as returned by {@link #newLocal
+     *            newLocal()}.
+     * @param type
+     *            the type of the value being stored in the local variable
      */
     protected void setLocalType(final int local, final Type type) {
     }

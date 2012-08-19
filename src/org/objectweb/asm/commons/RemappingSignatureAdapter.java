@@ -35,7 +35,7 @@ import org.objectweb.asm.signature.SignatureVisitor;
 
 /**
  * A {@link SignatureVisitor} adapter for type mapping.
- *
+ * 
  * @author Eugene Kuleshov
  */
 public class RemappingSignatureAdapter extends SignatureVisitor {
@@ -46,18 +46,13 @@ public class RemappingSignatureAdapter extends SignatureVisitor {
 
     private String className;
 
-    public RemappingSignatureAdapter(
-        final SignatureVisitor v,
-        final Remapper remapper)
-    {
+    public RemappingSignatureAdapter(final SignatureVisitor v,
+            final Remapper remapper) {
         this(Opcodes.ASM4, v, remapper);
     }
 
-    protected RemappingSignatureAdapter(
-        final int api,
-        final SignatureVisitor v,
-        final Remapper remapper)
-    {
+    protected RemappingSignatureAdapter(final int api,
+            final SignatureVisitor v, final Remapper remapper) {
         super(api);
         this.v = v;
         this.remapper = remapper;
@@ -73,7 +68,8 @@ public class RemappingSignatureAdapter extends SignatureVisitor {
     public void visitInnerClassType(String name) {
         className = className + '$' + name;
         String remappedName = remapper.mapType(className);
-        v.visitInnerClassType(remappedName.substring(remappedName.lastIndexOf('$') + 1));
+        v.visitInnerClassType(remappedName.substring(remappedName
+                .lastIndexOf('$') + 1));
     }
 
     @Override
@@ -154,5 +150,4 @@ public class RemappingSignatureAdapter extends SignatureVisitor {
     public void visitEnd() {
         v.visitEnd();
     }
-
 }

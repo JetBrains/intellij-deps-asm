@@ -39,7 +39,7 @@ import org.objectweb.asm.ClassReader;
 
 /**
  * CheckClassAdapter tests.
- *
+ * 
  * @author Eric Bruneton
  */
 public class VerifyClassTest extends AbstractTest {

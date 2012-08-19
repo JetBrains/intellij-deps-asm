@@ -37,7 +37,7 @@ import org.objectweb.asm.MethodVisitor;
 /**
  * Generates an interface class. Also covers signatures, default package and non
  * null minor class version number.
- *
+ * 
  * @author Eric Bruneton
  */
 public class Interface extends Generator {
@@ -50,18 +50,13 @@ public class Interface extends Generator {
     public byte[] dump() {
         ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_MAXS);
 
-        cw.visit(1 << 16 | V1_5,
-                ACC_PUBLIC + ACC_ABSTRACT + ACC_INTERFACE,
-                "Interface",
-                "<E:Ljava/lang/Object;>Ljava/lang/Object;",
-                "java/lang/Object",
-                null);
+        cw.visit(1 << 16 | V1_5, ACC_PUBLIC + ACC_ABSTRACT + ACC_INTERFACE,
+                "Interface", "<E:Ljava/lang/Object;>Ljava/lang/Object;",
+                "java/lang/Object", null);
 
-        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC + ACC_ABSTRACT,
-                "m",
+        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC + ACC_ABSTRACT, "m",
                 "(ZBCSIFJDLjava/lang/Object;)Ljava/lang/Object;",
-                "(ZBCSIFJDTE;)TE;",
-                null);
+                "(ZBCSIFJDTE;)TE;", null);
         mv.visitEnd();
 
         cw.visitEnd();

@@ -33,7 +33,7 @@ import junit.framework.TestCase;
 
 /**
  * Label unit tests.
- *
+ * 
  * @author Eric Bruneton
  */
 public class LabelUnitTest extends TestCase {
@@ -45,10 +45,7 @@ public class LabelUnitTest extends TestCase {
     public void testGetOffset() {
         Label l = new Label();
         ClassWriter cw = new ClassWriter(0);
-        MethodVisitor mv = cw.visitMethod(Opcodes.ACC_PUBLIC,
-                "m",
-                "()V",
-                null,
+        MethodVisitor mv = cw.visitMethod(Opcodes.ACC_PUBLIC, "m", "()V", null,
                 null);
         mv.visitCode();
         mv.visitLabel(l);

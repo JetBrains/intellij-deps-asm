@@ -56,15 +56,17 @@ import org.objectweb.asm.util.Printer;
  * visits in Jasmin assembler format. This class visitor can be used alone (see
  * the {@link #main main} method) to disassemble a class. It can also be used in
  * the middle of class visitor chain to trace the class that is visited at a
- * given point in this chain. This may be uselful for debugging purposes. <p>
+ * given point in this chain. This may be uselful for debugging purposes.
+ * <p>
  * The trace printed when visiting the <tt>Hello</tt> class is the following:
- * <p> <blockquote>
- *
+ * <p>
+ * <blockquote>
+ * 
  * <pre>
  * .bytecode 45.3
  * .class public Hello
  * .super java/lang/Object
- *
+ * 
  * .method public <init>()V
  * aload 0
  * invokespecial java/lang/Object/<init>()V
@@ -72,7 +74,7 @@ import org.objectweb.asm.util.Printer;
  * .limit locals 1
  * .limit stack 1
  * .end method
- *
+ * 
  * .method public static main([Ljava/lang/String;)V
  * getstatic java/lang/System/out Ljava/io/PrintStream;
  * ldc "hello"
@@ -82,20 +84,22 @@ import org.objectweb.asm.util.Printer;
  * .limit stack 2
  * .end method
  * </pre>
- *
- * </blockquote> where <tt>Hello</tt> is defined by: <p> <blockquote>
- *
+ * 
+ * </blockquote> where <tt>Hello</tt> is defined by:
+ * <p>
+ * <blockquote>
+ * 
  * <pre>
  * public class Hello {
- *
+ * 
  *     public static void main(String[] args) {
  *         System.out.println(&quot;hello&quot;);
  *     }
  * }
  * </pre>
- *
+ * 
  * </blockquote>
- *
+ * 
  * @author Eric Bruneton
  */
 public class JasminifierClassAdapter extends ClassVisitor {
@@ -112,13 +116,16 @@ public class JasminifierClassAdapter extends ClassVisitor {
 
     /**
      * Prints a disassembled view of the given class in Jasmin assembler format
-     * to the standard output. <p> Usage: JasminifierClassAdapter [-debug]
-     * &lt;fully qualified class name or class file name &gt;
-     *
-     * @param args the command line arguments.
-     *
-     * @throws Exception if the class cannot be found, or if an IO exception
-     *         occurs.
+     * to the standard output.
+     * <p>
+     * Usage: JasminifierClassAdapter [-debug] &lt;fully qualified class name or
+     * class file name &gt;
+     * 
+     * @param args
+     *            the command line arguments.
+     * 
+     * @throws Exception
+     *             if the class cannot be found, or if an IO exception occurs.
      */
     public static void main(final String[] args) throws Exception {
         int i = 0;
@@ -136,33 +143,34 @@ public class JasminifierClassAdapter extends ClassVisitor {
             }
         }
         if (!ok) {
-            System.err.println("Prints a disassembled view of the given class.");
+            System.err
+                    .println("Prints a disassembled view of the given class.");
             System.err.println("Usage: JasminifierClassAdapter [-debug] "
                     + "<fully qualified class name or class file name>");
             return;
         }
         ClassReader cr;
         if (args[i].endsWith(".class") || args[i].indexOf('\\') > -1
-                || args[i].indexOf('/') > -1)
-        {
+                || args[i].indexOf('/') > -1) {
             cr = new ClassReader(new FileInputStream(args[i]));
         } else {
             cr = new ClassReader(args[i]);
         }
-        cr.accept(new JasminifierClassAdapter(new PrintWriter(System.out, true),
-                null),
-                flags | ClassReader.EXPAND_FRAMES);
+        cr.accept(new JasminifierClassAdapter(
+                new PrintWriter(System.out, true), null), flags
+                | ClassReader.EXPAND_FRAMES);
     }
 
     /**
      * Constructs a new {@link JasminifierClassAdapter}.
-     *
-     * @param pw the print writer to be used to print the class.
-     * @param cv the {@link ClassVisitor} to which this visitor delegates calls.
-     *        May be <tt>null</tt>.
+     * 
+     * @param pw
+     *            the print writer to be used to print the class.
+     * @param cv
+     *            the {@link ClassVisitor} to which this visitor delegates
+     *            calls. May be <tt>null</tt>.
      */
-    public JasminifierClassAdapter(final PrintWriter pw, final ClassVisitor cv)
-    {
+    public JasminifierClassAdapter(final PrintWriter pw, final ClassVisitor cv) {
         super(Opcodes.ASM4, new ClassNode() {
             @Override
             public void visitEnd() {
@@ -213,8 +221,7 @@ public class JasminifierClassAdapter extends ClassVisitor {
         }
         printAnnotations(cn.visibleAnnotations, 1);
         printAnnotations(cn.invisibleAnnotations, 2);
-        println(".debug ", cn.sourceDebug == null
-                ? null
+        println(".debug ", cn.sourceDebug == null ? null
                 : '"' + cn.sourceDebug + '"');
 
         for (int i = 0; i < cn.innerClasses.size(); ++i) {
@@ -240,13 +247,11 @@ public class JasminifierClassAdapter extends ClassVisitor {
             FieldNode fn = cn.fields.get(i);
             boolean annotations = false;
             if (fn.visibleAnnotations != null
-                    && fn.visibleAnnotations.size() > 0)
-            {
+                    && fn.visibleAnnotations.size() > 0) {
                 annotations = true;
             }
             if (fn.invisibleAnnotations != null
-                    && fn.invisibleAnnotations.size() > 0)
-            {
+                    && fn.invisibleAnnotations.size() > 0) {
                 annotations = true;
             }
             boolean deprecated = (fn.access & Opcodes.ACC_DEPRECATED) != 0;
@@ -307,14 +312,12 @@ public class JasminifierClassAdapter extends ClassVisitor {
             printAnnotations(mn.visibleAnnotations, 1);
             printAnnotations(mn.invisibleAnnotations, 2);
             if (mn.visibleParameterAnnotations != null) {
-                for (int j = 0; j < mn.visibleParameterAnnotations.length; ++j)
-                {
+                for (int j = 0; j < mn.visibleParameterAnnotations.length; ++j) {
                     printAnnotations(mn.visibleParameterAnnotations[j], 1);
                 }
             }
             if (mn.invisibleParameterAnnotations != null) {
-                for (int j = 0; j < mn.invisibleParameterAnnotations.length; ++j)
-                {
+                for (int j = 0; j < mn.invisibleParameterAnnotations.length; ++j) {
                     printAnnotations(mn.invisibleParameterAnnotations[j], 2);
                 }
             }
@@ -343,16 +346,11 @@ public class JasminifierClassAdapter extends ClassVisitor {
                     in.accept(new MethodVisitor(Opcodes.ASM4) {
 
                         @Override
-                        public void visitFrame(
-                            int type,
-                            int local,
-                            Object[] locals,
-                            int stack,
-                            Object[] stacks)
-                        {
-                            if (type != Opcodes.F_FULL && type != Opcodes.F_NEW)
-                            {
-                                throw new RuntimeException("Compressed frames unsupported, use EXPAND_FRAMES option");
+                        public void visitFrame(int type, int local,
+                                Object[] locals, int stack, Object[] stacks) {
+                            if (type != Opcodes.F_FULL && type != Opcodes.F_NEW) {
+                                throw new RuntimeException(
+                                        "Compressed frames unsupported, use EXPAND_FRAMES option");
                             }
                             pw.println(".stack");
                             for (int i = 0; i < local; ++i) {
@@ -379,31 +377,31 @@ public class JasminifierClassAdapter extends ClassVisitor {
                             print(opcode);
                             if (opcode == Opcodes.NEWARRAY) {
                                 switch (operand) {
-                                    case Opcodes.T_BOOLEAN:
-                                        pw.println(" boolean");
-                                        break;
-                                    case Opcodes.T_CHAR:
-                                        pw.println(" char");
-                                        break;
-                                    case Opcodes.T_FLOAT:
-                                        pw.println(" float");
-                                        break;
-                                    case Opcodes.T_DOUBLE:
-                                        pw.println(" double");
-                                        break;
-                                    case Opcodes.T_BYTE:
-                                        pw.println(" byte");
-                                        break;
-                                    case Opcodes.T_SHORT:
-                                        pw.println(" short");
-                                        break;
-                                    case Opcodes.T_INT:
-                                        pw.println(" int");
-                                        break;
-                                    case Opcodes.T_LONG:
-                                    default:
-                                        pw.println(" long");
-                                        break;
+                                case Opcodes.T_BOOLEAN:
+                                    pw.println(" boolean");
+                                    break;
+                                case Opcodes.T_CHAR:
+                                    pw.println(" char");
+                                    break;
+                                case Opcodes.T_FLOAT:
+                                    pw.println(" float");
+                                    break;
+                                case Opcodes.T_DOUBLE:
+                                    pw.println(" double");
+                                    break;
+                                case Opcodes.T_BYTE:
+                                    pw.println(" byte");
+                                    break;
+                                case Opcodes.T_SHORT:
+                                    pw.println(" short");
+                                    break;
+                                case Opcodes.T_INT:
+                                    pw.println(" int");
+                                    break;
+                                case Opcodes.T_LONG:
+                                default:
+                                    pw.println(" long");
+                                    break;
                                 }
                             } else {
                                 pw.print(' ');
@@ -426,12 +424,8 @@ public class JasminifierClassAdapter extends ClassVisitor {
                         }
 
                         @Override
-                        public void visitFieldInsn(
-                            int opcode,
-                            String owner,
-                            String name,
-                            String desc)
-                        {
+                        public void visitFieldInsn(int opcode, String owner,
+                                String name, String desc) {
                             print(opcode);
                             pw.print(' ');
                             pw.print(owner);
@@ -442,12 +436,8 @@ public class JasminifierClassAdapter extends ClassVisitor {
                         }
 
                         @Override
-                        public void visitMethodInsn(
-                            int opcode,
-                            String owner,
-                            String name,
-                            String desc)
-                        {
+                        public void visitMethodInsn(int opcode, String owner,
+                                String name, String desc) {
                             print(opcode);
                             pw.print(' ');
                             pw.print(owner);
@@ -495,12 +485,8 @@ public class JasminifierClassAdapter extends ClassVisitor {
                         }
 
                         @Override
-                        public void visitTableSwitchInsn(
-                            int min,
-                            int max,
-                            Label dflt,
-                            Label... labels)
-                        {
+                        public void visitTableSwitchInsn(int min, int max,
+                                Label dflt, Label... labels) {
                             pw.print("tableswitch ");
                             pw.println(min);
                             for (int i = 0; i < labels.length; ++i) {
@@ -513,14 +499,11 @@ public class JasminifierClassAdapter extends ClassVisitor {
                         }
 
                         @Override
-                        public void visitLookupSwitchInsn(
-                            Label dflt,
-                            int[] keys,
-                            Label[] labels)
-                        {
+                        public void visitLookupSwitchInsn(Label dflt,
+                                int[] keys, Label[] labels) {
                             if (keys.length == 0) {
                                 pw.print("goto "); // TODO Jasmin bug
-                                                    // workaround
+                                                   // workaround
                                 print(dflt);
                                 pw.println();
                                 return;
@@ -538,10 +521,8 @@ public class JasminifierClassAdapter extends ClassVisitor {
                         }
 
                         @Override
-                        public void visitMultiANewArrayInsn(
-                            String desc,
-                            int dims)
-                        {
+                        public void visitMultiANewArrayInsn(String desc,
+                                int dims) {
                             pw.print("multianewarray ");
                             pw.print(desc);
                             pw.print(' ');
@@ -680,21 +661,17 @@ public class JasminifierClassAdapter extends ClassVisitor {
         print(l.getLabel());
     }
 
-    protected void printAnnotations(final List<AnnotationNode> annotations, int visible) {
+    protected void printAnnotations(final List<AnnotationNode> annotations,
+            int visible) {
         if (annotations != null) {
             for (int j = 0; j < annotations.size(); ++j) {
-                printAnnotation(annotations.get(j),
-                        visible,
-                        -1);
+                printAnnotation(annotations.get(j), visible, -1);
             }
         }
     }
 
-    protected void printAnnotation(
-        final AnnotationNode n,
-        final int visible,
-        final int param)
-    {
+    protected void printAnnotation(final AnnotationNode n, final int visible,
+            final int param) {
         pw.print(".annotation ");
         if (visible > 0) {
             if (param == -1) {

@@ -42,7 +42,7 @@ import org.objectweb.asm.signature.SignatureWriter;
 
 /**
  * CheckSignatureAdapter tests.
- *
+ * 
  * @author Eric Bruneton
  */
 public class CheckSignatureAdapterTest extends AbstractTest {
@@ -56,54 +56,38 @@ public class CheckSignatureAdapterTest extends AbstractTest {
         ClassReader cr = new ClassReader(is);
         cr.accept(new ClassVisitor(Opcodes.ASM4) {
             @Override
-            public void visit(
-                int version,
-                int access,
-                String name,
-                String signature,
-                String superName,
-                String[] interfaces)
-            {
+            public void visit(int version, int access, String name,
+                    String signature, String superName, String[] interfaces) {
                 if (signature != null) {
                     SignatureReader sr = new SignatureReader(signature);
                     SignatureWriter sw = new SignatureWriter();
-                    sr.accept(new CheckSignatureAdapter(CheckSignatureAdapter.CLASS_SIGNATURE,
-                            sw));
+                    sr.accept(new CheckSignatureAdapter(
+                            CheckSignatureAdapter.CLASS_SIGNATURE, sw));
                     assertEquals(signature, sw.toString());
                 }
             }
 
             @Override
-            public FieldVisitor visitField(
-                int access,
-                String name,
-                String desc,
-                String signature,
-                Object value)
-            {
+            public FieldVisitor visitField(int access, String name,
+                    String desc, String signature, Object value) {
                 if (signature != null) {
                     SignatureReader sr = new SignatureReader(signature);
                     SignatureWriter sw = new SignatureWriter();
-                    sr.acceptType(new CheckSignatureAdapter(CheckSignatureAdapter.TYPE_SIGNATURE,
-                            sw));
+                    sr.acceptType(new CheckSignatureAdapter(
+                            CheckSignatureAdapter.TYPE_SIGNATURE, sw));
                     assertEquals(signature, sw.toString());
                 }
                 return null;
             }
 
             @Override
-            public MethodVisitor visitMethod(
-                int access,
-                String name,
-                String desc,
-                String signature,
-                String[] exceptions)
-            {
+            public MethodVisitor visitMethod(int access, String name,
+                    String desc, String signature, String[] exceptions) {
                 if (signature != null) {
                     SignatureReader sr = new SignatureReader(signature);
                     SignatureWriter sw = new SignatureWriter();
-                    sr.accept(new CheckSignatureAdapter(CheckSignatureAdapter.METHOD_SIGNATURE,
-                            sw));
+                    sr.accept(new CheckSignatureAdapter(
+                            CheckSignatureAdapter.METHOD_SIGNATURE, sw));
                     assertEquals(signature, sw.toString());
                 }
                 return null;

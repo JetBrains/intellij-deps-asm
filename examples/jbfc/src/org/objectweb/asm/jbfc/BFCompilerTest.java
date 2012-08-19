@@ -42,7 +42,7 @@ import org.objectweb.asm.ClassWriter;
 /**
  * A naive implementation of compiler for Brain**** language.
  * http://www.muppetlabs.com/~breadbox/bf/ *
- *
+ * 
  * @author Eugene Kuleshov
  */
 public class BFCompilerTest {
@@ -56,7 +56,7 @@ public class BFCompilerTest {
         new BFCompilerTest().testCompileEcho();
         new BFCompilerTest().testCompileYaPi();
         new BFCompilerTest().testCompileTest1();
-	}
+    }
 
     public BFCompilerTest() throws Exception {
         bc = new BFCompiler();
@@ -64,12 +64,12 @@ public class BFCompilerTest {
     }
 
     public void testCompileHelloWorld() throws Throwable {
-        assertEquals("Hello World!\n",
+        assertEquals(
+                "Hello World!\n",
                 execute("Hello",
                         ">+++++++++[<++++++++>-]<.>+++++++[<++++>-]<+.+++++++..+++.[-]>++++++++[<++++>-]"
                                 + "<.#>+++++++++++[<+++++>-]<.>++++++++[<+++>-]<.+++.------.--------.[-]>++++++++["
-                                + "<++++>-]<+.[-]++++++++++.",
-                        ""));
+                                + "<++++>-]<+.[-]++++++++++.", ""));
     }
 
     public void testCompileEcho() throws Throwable {
@@ -95,28 +95,24 @@ public class BFCompilerTest {
                         + "<<<<+++++++++>>>-]<<<<[>>>>>>+<<<<<<-]<[>>>>>>>"
                         + ".<<<<<<<<[+.[-]]>>]>[<]<+\r\n>>>[<.>-]<[-]>>>>>"
                         + "[-]<[>>[<<<<<<<+>>>>>>>-]<<-]]>>[-]>+<<<<[-]<]+"
-                        + "+++++++++.",
-                ""));
+                        + "+++++++++.", ""));
     }
 
     public void testCompileTest1() throws Throwable {
         assertEquals("H\n", execute("Test1",
                 "[]++++++++++[>++++++++++++++++++>+++++++>+<<<-]A;?@![#>>"
-                        + "+<<]>[>++<[-]]>.>.",
-                ""));
+                        + "+<<]>[>++<[-]]>.>.", ""));
     }
 
     public static void assertEquals(String s1, String s2) {
         if (!s1.equals(s2)) {
-            System.out.println("ERROR: expected '" + s1 + "' but got '" + s2 + "'");
+            System.out.println("ERROR: expected '" + s1 + "' but got '" + s2
+                    + "'");
         }
     }
 
-    private String execute(
-        final String name,
-        final String code,
-        final String input) throws Throwable
-    {
+    private String execute(final String name, final String code,
+            final String input) throws Throwable {
         bc.compile(new StringReader(code), name, name, cw);
 
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
@@ -126,9 +122,8 @@ public class BFCompilerTest {
         System.setOut(new PrintStream(bos));
 
         try {
-            TestClassLoader cl = new TestClassLoader(getClass().getClassLoader(),
-                    name,
-                    cw.toByteArray());
+            TestClassLoader cl = new TestClassLoader(getClass()
+                    .getClassLoader(), name, cw.toByteArray());
             Class<?> c = cl.loadClass(name);
             Method m = c.getDeclaredMethod("main",
                     new Class<?>[] { String[].class });
@@ -143,7 +138,8 @@ public class BFCompilerTest {
 
         String output = new String(bos.toByteArray(), "ASCII");
 
-        System.out.println(code + " WITH INPUT '" + input + "' GIVES " + output);
+        System.out
+                .println(code + " WITH INPUT '" + input + "' GIVES " + output);
 
         return output;
     }
@@ -156,11 +152,8 @@ public class BFCompilerTest {
 
         private final byte[] bytecode;
 
-        public TestClassLoader(
-            final ClassLoader cl,
-            final String className,
-            final byte[] bytecode)
-        {
+        public TestClassLoader(final ClassLoader cl, final String className,
+                final byte[] bytecode) {
             super();
             this.cl = cl;
             this.className = className;
@@ -168,12 +161,10 @@ public class BFCompilerTest {
         }
 
         @Override
-        public Class<?> loadClass(final String name) throws ClassNotFoundException
-        {
+        public Class<?> loadClass(final String name)
+                throws ClassNotFoundException {
             if (className.equals(name)) {
-                return super.defineClass(className,
-                        bytecode,
-                        0,
+                return super.defineClass(className, bytecode, 0,
                         bytecode.length);
             }
             return cl.loadClass(name);

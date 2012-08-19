@@ -38,7 +38,7 @@ import org.objectweb.asm.MethodVisitor;
 /**
  * Generates a class with missing stack frames (to check that the new JDK7
  * verifier is triggered, without fallback to the old verifier).
- *
+ * 
  * @author Eric Bruneton
  */
 public class Invalid extends Generator {
@@ -52,7 +52,8 @@ public class Invalid extends Generator {
         ClassWriter cw = new ClassWriter(0);
         MethodVisitor mv;
 
-        cw.visit(V1_7, ACC_PUBLIC, "invalid/Invalid", null, "java/lang/Object", null);
+        cw.visit(V1_7, ACC_PUBLIC, "invalid/Invalid", null, "java/lang/Object",
+                null);
 
         mv = cw.visitMethod(ACC_PUBLIC, "<init>", "()V", null, null);
         mv.visitCode();

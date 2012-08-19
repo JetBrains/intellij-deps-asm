@@ -36,7 +36,7 @@ import org.xml.sax.Attributes;
 
 /**
  * SAXFieldAdapter
- *
+ * 
  * @author Eugene Kuleshov
  */
 public final class SAXFieldAdapter extends FieldVisitor {
@@ -50,15 +50,10 @@ public final class SAXFieldAdapter extends FieldVisitor {
     }
 
     @Override
-    public AnnotationVisitor visitAnnotation(
-        final String desc,
-        final boolean visible)
-    {
-        return new SAXAnnotationAdapter(sa,
-                "annotation",
-                visible ? 1 : -1,
-                null,
-                desc);
+    public AnnotationVisitor visitAnnotation(final String desc,
+            final boolean visible) {
+        return new SAXAnnotationAdapter(sa, "annotation", visible ? 1 : -1,
+                null, desc);
     }
 
     @Override

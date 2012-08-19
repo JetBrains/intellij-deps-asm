@@ -43,14 +43,13 @@ import org.objectweb.asm.Type;
 
 public class Annotations {
 
-    public static void foo(final @NotNull
-    String arg)
-    {
+    public static void foo(final @NotNull String arg) {
         System.out.println(arg);
     }
 
     public static void main(final String[] args) throws Exception {
-        System.out.println("Calling foo(null) results in a NullPointerException:");
+        System.out
+                .println("Calling foo(null) results in a NullPointerException:");
         try {
             foo(null);
         } catch (Exception e) {
@@ -63,18 +62,11 @@ public class Annotations {
         cr.accept(new ClassVisitor(Opcodes.ASM4, cw) {
 
             @Override
-            public MethodVisitor visitMethod(
-                final int access,
-                final String name,
-                final String desc,
-                final String signature,
-                final String[] exceptions)
-            {
+            public MethodVisitor visitMethod(final int access,
+                    final String name, final String desc,
+                    final String signature, final String[] exceptions) {
                 final Type[] args = Type.getArgumentTypes(desc);
-                MethodVisitor v = cv.visitMethod(access,
-                        name,
-                        desc,
-                        signature,
+                MethodVisitor v = cv.visitMethod(access, name, desc, signature,
                         exceptions);
                 return new MethodVisitor(Opcodes.ASM4, v) {
 
@@ -82,13 +74,10 @@ public class Annotations {
 
                     @Override
                     public AnnotationVisitor visitParameterAnnotation(
-                        final int parameter,
-                        final String desc,
-                        final boolean visible)
-                    {
+                            final int parameter, final String desc,
+                            final boolean visible) {
                         AnnotationVisitor av;
-                        av = mv.visitParameterAnnotation(parameter,
-                                desc,
+                        av = mv.visitParameterAnnotation(parameter, desc,
                                 visible);
                         if (desc.equals("LNotNull;")) {
                             params.add(new Integer(parameter));
@@ -113,10 +102,8 @@ public class Annotations {
                             mv.visitInsn(Opcodes.DUP);
                             mv.visitLdcInsn("Argument " + param
                                     + " must not be null");
-                            mv.visitMethodInsn(Opcodes.INVOKESPECIAL,
-                                    c,
-                                    "<init>",
-                                    d);
+                            mv.visitMethodInsn(Opcodes.INVOKESPECIAL, c,
+                                    "<init>", d);
                             mv.visitInsn(Opcodes.ATHROW);
                             mv.visitLabel(end);
                         }
@@ -128,8 +115,7 @@ public class Annotations {
         Class<?> c = new ClassLoader() {
             @Override
             public Class<?> loadClass(final String name)
-                    throws ClassNotFoundException
-            {
+                    throws ClassNotFoundException {
                 if (name.equals(n)) {
                     byte[] b = cw.toByteArray();
                     return defineClass(name, b, 0, b.length);
@@ -139,7 +125,8 @@ public class Annotations {
         }.loadClass(n);
 
         System.out.println();
-        System.out.println("Calling foo(null) on the transformed class results in an IllegalArgumentException:");
+        System.out.println("Calling foo(null) on the transformed class results"
+                + " in an IllegalArgumentException:");
         Method m = c.getMethod("foo", new Class<?>[] { String.class });
         try {
             m.invoke(null, new Object[] { null });

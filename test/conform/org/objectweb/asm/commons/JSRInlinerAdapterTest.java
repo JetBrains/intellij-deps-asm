@@ -40,7 +40,7 @@ import org.objectweb.asm.Opcodes;
 
 /**
  * JSRInliner tests.
- *
+ * 
  * @author Eric Bruneton
  */
 public class JSRInlinerAdapterTest extends AbstractTest {
@@ -58,23 +58,12 @@ public class JSRInlinerAdapterTest extends AbstractTest {
         cr.accept(new ClassVisitor(Opcodes.ASM4, cw) {
 
             @Override
-            public MethodVisitor visitMethod(
-                final int access,
-                final String name,
-                final String desc,
-                final String signature,
-                final String[] exceptions)
-            {
-                MethodVisitor mv = super.visitMethod(access,
-                        name,
-                        desc,
-                        signature,
-                        exceptions);
-                return new JSRInlinerAdapter(mv,
-                        access,
-                        name,
-                        desc,
-                        signature,
+            public MethodVisitor visitMethod(final int access,
+                    final String name, final String desc,
+                    final String signature, final String[] exceptions) {
+                MethodVisitor mv = super.visitMethod(access, name, desc,
+                        signature, exceptions);
+                return new JSRInlinerAdapter(mv, access, name, desc, signature,
                         exceptions);
             }
         }, 0);

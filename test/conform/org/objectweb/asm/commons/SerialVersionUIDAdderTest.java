@@ -36,7 +36,7 @@ import org.objectweb.asm.ClassReader;
 
 /**
  * SerialVerionUIDAdder tests.
- *
+ * 
  * @author Eric Bruneton
  */
 public class SerialVersionUIDAdderTest extends AbstractTest {

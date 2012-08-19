@@ -40,7 +40,7 @@ import org.objectweb.asm.Opcodes;
 
 /**
  * LocalVariableSorter tests.
- *
+ * 
  * @author Eric Bruneton
  */
 public class LocalVariablesSorterTest extends AbstractTest {
@@ -57,20 +57,11 @@ public class LocalVariablesSorterTest extends AbstractTest {
         ClassWriter cw = new ClassWriter(0);
         cr.accept(new ClassVisitor(Opcodes.ASM4, cw) {
             @Override
-            public MethodVisitor visitMethod(
-                final int access,
-                final String name,
-                final String desc,
-                final String signature,
-                final String[] exceptions)
-            {
-                return new LocalVariablesSorter(access,
-                        desc,
-                        super.visitMethod(access,
-                                name,
-                                desc,
-                                signature,
-                                exceptions));
+            public MethodVisitor visitMethod(final int access,
+                    final String name, final String desc,
+                    final String signature, final String[] exceptions) {
+                return new LocalVariablesSorter(access, desc, super
+                        .visitMethod(access, name, desc, signature, exceptions));
             }
         }, ClassReader.EXPAND_FRAMES);
         byte[] b = cw.toByteArray();

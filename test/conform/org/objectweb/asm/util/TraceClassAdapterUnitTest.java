@@ -33,7 +33,7 @@ import junit.framework.TestCase;
 
 /**
  * TraceClassAdapter unit tests
- *
+ * 
  * @author Eric Bruneton
  */
 public class TraceClassAdapterUnitTest extends TestCase {

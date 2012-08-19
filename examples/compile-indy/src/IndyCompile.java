@@ -98,7 +98,7 @@ public class IndyCompile extends ClassLoader {
 
         /**
          * Returns the maximum variable index used in this expression.
-         *
+         * 
          * @return the maximum variable index used in this expression, or -1 if
          *         no variable is used.
          */
@@ -112,12 +112,7 @@ public class IndyCompile extends ClassLoader {
         byte[] compile(final String name) {
             // class header
             ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_FRAMES);
-            cw.visit(V1_7,
-                    ACC_PUBLIC,
-                    name,
-                    null,
-                    "java/lang/Object",
-                    null);
+            cw.visit(V1_7, ACC_PUBLIC, name, null, "java/lang/Object", null);
 
             // eval method type
             StringBuilder desc = new StringBuilder("(");
@@ -125,13 +120,10 @@ public class IndyCompile extends ClassLoader {
                 desc.append("Ljava/lang/Object;");
             }
             desc.append(")Ljava/lang/Object;");
-            
+
             // eval method
-            MethodVisitor mv = cw.visitMethod(ACC_PUBLIC | ACC_STATIC,
-                    "eval",
-                    desc.toString(),
-                    null,
-                    null);
+            MethodVisitor mv = cw.visitMethod(ACC_PUBLIC | ACC_STATIC, "eval",
+                    desc.toString(), null, null);
             compile(mv);
             mv.visitInsn(ARETURN);
             // max stack and max locals automatically computed
@@ -148,11 +140,9 @@ public class IndyCompile extends ClassLoader {
          */
         abstract void compile(MethodVisitor mv);
 
-        private static Handle getHandle(
-            final String name,
-            final String optArgs)
-        {
-            return new Handle(H_INVOKESTATIC,
+        private static Handle getHandle(final String name, final String optArgs) {
+            return new Handle(
+                    H_INVOKESTATIC,
                     "RT",
                     name,
                     "(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/MethodType;"
@@ -307,8 +297,7 @@ public class IndyCompile extends ClassLoader {
             // tests if e1 is false
             mv.visitInsn(DUP);
             // convert to a boolean
-            mv.visitInvokeDynamicInsn("asBoolean",
-                    "(Ljava/lang/Object;)Z",
+            mv.visitInvokeDynamicInsn("asBoolean", "(Ljava/lang/Object;)Z",
                     UNARY);
 
             Label end = new Label();
@@ -339,8 +328,7 @@ public class IndyCompile extends ClassLoader {
             // tests if e1 is true
             mv.visitInsn(DUP);
             // convert to a boolean
-            mv.visitInvokeDynamicInsn("asBoolean",
-                    "(Ljava/lang/Object;)Z",
+            mv.visitInvokeDynamicInsn("asBoolean", "(Ljava/lang/Object;)Z",
                     UNARY);
             Label end = new Label();
             mv.visitJumpInsn(IFNE, end);
@@ -374,8 +362,7 @@ public class IndyCompile extends ClassLoader {
             // compiles e, and applies 'not'
             e.compile(mv);
             mv.visitInvokeDynamicInsn("not",
-                    "(Ljava/lang/Object;)Ljava/lang/Object;",
-                    UNARY);
+                    "(Ljava/lang/Object;)Ljava/lang/Object;", UNARY);
         }
     }
 }

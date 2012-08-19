@@ -37,7 +37,7 @@ import junit.framework.TestCase;
 
 /**
  * Type unit tests.
- *
+ * 
  * @author Eric Bruneton
  */
 public class TypeUnitTest extends TestCase implements Opcodes {

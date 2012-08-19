@@ -35,7 +35,7 @@ import junit.framework.TestCase;
 
 /**
  * SmallSet unit tests.
- *
+ * 
  * @author Eric Bruneton
  */
 public class SmallSetUnitTest extends TestCase {

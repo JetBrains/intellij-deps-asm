@@ -41,7 +41,7 @@ import org.objectweb.asm.util.Textifiable;
 
 /**
  * A non standard attribute used for testing purposes.
- *
+ * 
  * @author Eric Bruneton
  */
 public class Comment extends Attribute implements ASMifiable, Textifiable {
@@ -56,39 +56,26 @@ public class Comment extends Attribute implements ASMifiable, Textifiable {
     }
 
     @Override
-    protected Attribute read(
-        final ClassReader cr,
-        final int off,
-        final int len,
-        final char[] buf,
-        final int codeOff,
-        final Label[] labels)
-    {
+    protected Attribute read(final ClassReader cr, final int off,
+            final int len, final char[] buf, final int codeOff,
+            final Label[] labels) {
 
         return new Comment();
     }
 
     @Override
-    protected ByteVector write(
-        final ClassWriter cw,
-        final byte[] code,
-        final int len,
-        final int maxStack,
-        final int maxLocals)
-    {
+    protected ByteVector write(final ClassWriter cw, final byte[] code,
+            final int len, final int maxStack, final int maxLocals) {
         return new ByteVector();
     }
 
-    public void asmify(
-        final StringBuffer buf,
-        final String varName,
-        final Map<Label, String> labelNames)
-    {
-        buf.append("Attribute ")
-                .append(varName)
+    public void asmify(final StringBuffer buf, final String varName,
+            final Map<Label, String> labelNames) {
+        buf.append("Attribute ").append(varName)
                 .append(" = new org.objectweb.asm.attrs.Comment();");
     }
 
-    public void textify(final StringBuffer buf, final Map<Label, String> labelNames) {
+    public void textify(final StringBuffer buf,
+            final Map<Label, String> labelNames) {
     }
 }

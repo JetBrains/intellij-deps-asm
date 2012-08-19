@@ -58,10 +58,7 @@ public class Helloworld extends ClassLoader implements Opcodes {
         cw.visit(V1_1, ACC_PUBLIC, "Example", null, "java/lang/Object", null);
 
         // creates a MethodWriter for the (implicit) constructor
-        MethodVisitor mw = cw.visitMethod(ACC_PUBLIC,
-                "<init>",
-                "()V",
-                null,
+        MethodVisitor mw = cw.visitMethod(ACC_PUBLIC, "<init>", "()V", null,
                 null);
         // pushes the 'this' variable
         mw.visitVarInsn(ALOAD, 0);
@@ -73,22 +70,15 @@ public class Helloworld extends ClassLoader implements Opcodes {
         mw.visitEnd();
 
         // creates a MethodWriter for the 'main' method
-        mw = cw.visitMethod(ACC_PUBLIC + ACC_STATIC,
-                "main",
-                "([Ljava/lang/String;)V",
-                null,
-                null);
+        mw = cw.visitMethod(ACC_PUBLIC + ACC_STATIC, "main",
+                "([Ljava/lang/String;)V", null, null);
         // pushes the 'out' field (of type PrintStream) of the System class
-        mw.visitFieldInsn(GETSTATIC,
-                "java/lang/System",
-                "out",
+        mw.visitFieldInsn(GETSTATIC, "java/lang/System", "out",
                 "Ljava/io/PrintStream;");
         // pushes the "Hello World!" String constant
         mw.visitLdcInsn("Hello world!");
         // invokes the 'println' method (defined in the PrintStream class)
-        mw.visitMethodInsn(INVOKEVIRTUAL,
-                "java/io/PrintStream",
-                "println",
+        mw.visitMethodInsn(INVOKEVIRTUAL, "java/io/PrintStream", "println",
                 "(Ljava/lang/String;)V");
         mw.visitInsn(RETURN);
         // this code uses a maximum of two stack elements and two local
@@ -104,7 +94,8 @@ public class Helloworld extends ClassLoader implements Opcodes {
         fos.close();
 
         Helloworld loader = new Helloworld();
-        Class<?> exampleClass = loader.defineClass("Example", code, 0, code.length);
+        Class<?> exampleClass = loader.defineClass("Example", code, 0,
+                code.length);
 
         // uses the dynamically generated class to print 'Helloworld'
         exampleClass.getMethods()[0].invoke(null, new Object[] { null });
@@ -118,10 +109,7 @@ public class Helloworld extends ClassLoader implements Opcodes {
 
         // creates a GeneratorAdapter for the (implicit) constructor
         Method m = Method.getMethod("void <init> ()");
-        GeneratorAdapter mg = new GeneratorAdapter(ACC_PUBLIC,
-                m,
-                null,
-                null,
+        GeneratorAdapter mg = new GeneratorAdapter(ACC_PUBLIC, m, null, null,
                 cw);
         mg.loadThis();
         mg.invokeConstructor(Type.getType(Object.class), m);
@@ -131,8 +119,7 @@ public class Helloworld extends ClassLoader implements Opcodes {
         // creates a GeneratorAdapter for the 'main' method
         m = Method.getMethod("void main (String[])");
         mg = new GeneratorAdapter(ACC_PUBLIC + ACC_STATIC, m, null, null, cw);
-        mg.getStatic(Type.getType(System.class),
-                "out",
+        mg.getStatic(Type.getType(System.class), "out",
                 Type.getType(PrintStream.class));
         mg.push("Hello world!");
         mg.invokeVirtual(Type.getType(PrintStream.class),

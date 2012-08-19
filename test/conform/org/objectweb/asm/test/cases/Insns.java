@@ -40,7 +40,7 @@ import org.objectweb.asm.Type;
 /**
  * Generates a class that contain all bytecode instruction types (except JSR and
  * RET). Also covers access flags, signatures, and unicode characters.
- *
+ * 
  * @author Eric Bruneton
  */
 public class Insns extends Generator {
@@ -55,17 +55,14 @@ public class Insns extends Generator {
         FieldVisitor fv;
         MethodVisitor mv;
 
-        cw.visit(V1_5,
+        cw.visit(
+                V1_5,
                 ACC_PUBLIC + ACC_SUPER,
                 "pkg/Insns",
                 "<E:Ljava/lang/Object;F:Ljava/lang/Exception;>Ljava/util/ArrayList<Ljava/lang/String;>;LInterface<TE;>;",
-                "java/util/ArrayList",
-                new String[] { "Interface" });
+                "java/util/ArrayList", new String[] { "Interface" });
 
-        fv = cw.visitField(ACC_PRIVATE + ACC_FINAL,
-                "z",
-                "Z",
-                null,
+        fv = cw.visitField(ACC_PRIVATE + ACC_FINAL, "z", "Z", null,
                 new Integer(1));
         fv.visitEnd();
 
@@ -99,19 +96,15 @@ public class Insns extends Generator {
         mv = cw.visitMethod(ACC_PUBLIC, "<init>", "()V", null, null);
         mv.visitCode();
         mv.visitVarInsn(ALOAD, 0);
-        mv.visitMethodInsn(INVOKESPECIAL,
-                "java/util/ArrayList",
-                "<init>",
+        mv.visitMethodInsn(INVOKESPECIAL, "java/util/ArrayList", "<init>",
                 "()V");
         mv.visitInsn(RETURN);
         mv.visitMaxs(0, 0);
         mv.visitEnd();
 
-        mv = cw.visitMethod(ACC_PUBLIC + ACC_SYNCHRONIZED,
-                "m",
+        mv = cw.visitMethod(ACC_PUBLIC + ACC_SYNCHRONIZED, "m",
                 "(ZBCSIFJDLjava/lang/Object;)Ljava/lang/Object;",
-                "(ZBCSIFJDTE;)TE;",
-                null);
+                "(ZBCSIFJDTE;)TE;", null);
         mv.visitCode();
         mv.visitInsn(ACONST_NULL);
         mv.visitInsn(ARETURN);
@@ -143,11 +136,8 @@ public class Insns extends Generator {
     }
 
     private void constInsns(final ClassWriter cw) {
-        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC,
-                "constInsns",
-                "()V",
-                null,
-                null);
+        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "constInsns", "()V",
+                null, null);
         mv.visitInsn(NOP);
         mv.visitInsn(ACONST_NULL);
         mv.visitInsn(ICONST_M1);
@@ -179,11 +169,8 @@ public class Insns extends Generator {
     }
 
     private void varInsns(final ClassWriter cw) {
-        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC,
-                "varInsns",
-                "(IJFDD)V",
-                null,
-                null);
+        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "varInsns", "(IJFDD)V",
+                null, null);
         mv.visitVarInsn(ILOAD, 1);
         mv.visitVarInsn(IINC, 1);
         mv.visitVarInsn(ISTORE, 1);
@@ -205,11 +192,8 @@ public class Insns extends Generator {
     }
 
     private void arrayInsns(final ClassWriter cw) {
-        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC,
-                "arrayInsns",
-                "()V",
-                null,
-                null);
+        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "arrayInsns", "()V",
+                null, null);
         // boolean arrays
         mv.visitInsn(ICONST_1);
         mv.visitIntInsn(NEWARRAY, T_BOOLEAN);
@@ -307,11 +291,8 @@ public class Insns extends Generator {
     }
 
     private void stackInsns(final ClassWriter cw) {
-        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC,
-                "stackInsns",
-                "()V",
-                null,
-                null);
+        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "stackInsns", "()V",
+                null, null);
         // pop
         mv.visitInsn(ICONST_0);
         mv.visitInsn(POP);
@@ -378,11 +359,8 @@ public class Insns extends Generator {
     }
 
     private void mathInsns(final ClassWriter cw) {
-        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC,
-                "mathInsns",
-                "(IJFD)V",
-                null,
-                null);
+        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "mathInsns", "(IJFD)V",
+                null, null);
         // int math insns
         for (int i = 0; i < 12; ++i) {
             mv.visitVarInsn(ILOAD, 1);
@@ -445,11 +423,8 @@ public class Insns extends Generator {
     }
 
     private void castInsns(final ClassWriter cw) {
-        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC,
-                "castInsns",
-                "(IJFD)V",
-                null,
-                null);
+        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "castInsns", "(IJFD)V",
+                null, null);
         // I2x
         mv.visitVarInsn(ILOAD, 1);
         mv.visitInsn(I2L);
@@ -519,11 +494,8 @@ public class Insns extends Generator {
     }
 
     private void jumpInsns(final ClassWriter cw) {
-        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC,
-                "jumpInsns",
-                "(IJFD)V",
-                null,
-                null);
+        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "jumpInsns", "(IJFD)V",
+                null, null);
         Label l0 = new Label();
         // ifxx
         mv.visitVarInsn(ILOAD, 1);
@@ -602,7 +574,7 @@ public class Insns extends Generator {
         Label l2 = new Label();
         Label l3 = new Label();
         mv.visitVarInsn(ILOAD, 1);
-        mv.visitTableSwitchInsn(0, 2, l3/*default*/, l1, l2, l3 );
+        mv.visitTableSwitchInsn(0, 2, l3/* default */, l1, l2, l3);
         mv.visitLabel(l1);
         mv.visitInsn(ICONST_1);
         mv.visitVarInsn(ISTORE, 7);
@@ -618,10 +590,8 @@ public class Insns extends Generator {
         Label l5 = new Label();
         Label l6 = new Label();
         mv.visitVarInsn(ILOAD, 1);
-        mv.visitLookupSwitchInsn(l6, new int[] { 0, 1, 2 }, new Label[] {
-            l4,
-            l5,
-            l6 });
+        mv.visitLookupSwitchInsn(l6, new int[] { 0, 1, 2 }, new Label[] { l4,
+                l5, l6 });
         mv.visitLabel(l4);
         mv.visitInsn(ICONST_1);
         mv.visitVarInsn(ISTORE, 7);
@@ -677,11 +647,8 @@ public class Insns extends Generator {
     }
 
     private void fieldInsns(final ClassWriter cw) {
-        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC,
-                "fieldInsns",
-                "()V",
-                null,
-                null);
+        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "fieldInsns", "()V",
+                null, null);
         mv.visitFieldInsn(GETSTATIC, "pkg/Insns", "s", "S");
         mv.visitFieldInsn(PUTSTATIC, "pkg/Insns", "s", "S");
         mv.visitVarInsn(ALOAD, 0);
@@ -698,11 +665,8 @@ public class Insns extends Generator {
     }
 
     private void methodInsns(final ClassWriter cw) {
-        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC,
-                "methodInsns",
-                "()V",
-                null,
-                null);
+        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "methodInsns", "()V",
+                null, null);
         // invokstatic
         mv.visitMethodInsn(INVOKESTATIC, "pkg/Insns", "ireturn", "()I");
         // invokespecial
@@ -720,11 +684,8 @@ public class Insns extends Generator {
     }
 
     private void monitorInsns(final ClassWriter cw) {
-        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC,
-                "monitorInsns",
-                "()V",
-                null,
-                null);
+        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "monitorInsns", "()V",
+                null, null);
         mv.visitVarInsn(ALOAD, 0);
         mv.visitInsn(MONITORENTER);
         mv.visitVarInsn(ALOAD, 0);
@@ -735,10 +696,9 @@ public class Insns extends Generator {
     }
 
     private void varargMethod(final ClassWriter cw) {
-        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC + ACC_VARARGS + ACC_STRICT,
-                "varargMethod",
-                "([Ljava/lang/Object;)V",
-                "([Ljava/lang/Object;)V^TF;",
+        MethodVisitor mv = cw.visitMethod(
+                ACC_PUBLIC + ACC_VARARGS + ACC_STRICT, "varargMethod",
+                "([Ljava/lang/Object;)V", "([Ljava/lang/Object;)V^TF;",
                 new String[] { "java/lang/Exception" });
         mv.visitCode();
         mv.visitInsn(RETURN);
@@ -747,34 +707,24 @@ public class Insns extends Generator {
     }
 
     private void bridgeMethod(final ClassWriter cw) {
-        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC,
-                "get",
-                "(I)Ljava/lang/String;",
-                null,
-                null);
+        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "get",
+                "(I)Ljava/lang/String;", null, null);
         mv.visitCode();
         mv.visitVarInsn(ALOAD, 0);
         mv.visitVarInsn(ILOAD, 1);
-        mv.visitMethodInsn(INVOKESPECIAL,
-                "java/util/ArrayList",
-                "get",
+        mv.visitMethodInsn(INVOKESPECIAL, "java/util/ArrayList", "get",
                 "(I)Ljava/lang/Object;");
         mv.visitTypeInsn(CHECKCAST, "java/lang/String");
         mv.visitInsn(ARETURN);
         mv.visitMaxs(0, 0);
         mv.visitEnd();
 
-        mv = cw.visitMethod(ACC_PUBLIC + ACC_BRIDGE + ACC_SYNTHETIC,
-                "get",
-                "(I)Ljava/lang/Object;",
-                "(I)TE;",
-                null);
+        mv = cw.visitMethod(ACC_PUBLIC + ACC_BRIDGE + ACC_SYNTHETIC, "get",
+                "(I)Ljava/lang/Object;", "(I)TE;", null);
         mv.visitCode();
         mv.visitVarInsn(ALOAD, 0);
         mv.visitVarInsn(ILOAD, 1);
-        mv.visitMethodInsn(INVOKEVIRTUAL,
-                "pkg/Insns",
-                "get",
+        mv.visitMethodInsn(INVOKEVIRTUAL, "pkg/Insns", "get",
                 "(I)Ljava/lang/String;");
         mv.visitInsn(ARETURN);
         mv.visitMaxs(0, 0);
@@ -783,18 +733,12 @@ public class Insns extends Generator {
 
     private void nativeMethod(final ClassWriter cw) {
         MethodVisitor mv = cw.visitMethod(ACC_PRIVATE + ACC_NATIVE,
-                "nativeMethod",
-                "()V",
-                null,
-                null);
+                "nativeMethod", "()V", null, null);
         mv.visitEnd();
     }
 
     private void clinitMethod(final ClassWriter cw) {
-        MethodVisitor mv = cw.visitMethod(ACC_STATIC,
-                "<clinit>",
-                "()V",
-                null,
+        MethodVisitor mv = cw.visitMethod(ACC_STATIC, "<clinit>", "()V", null,
                 null);
         mv.visitCode();
         mv.visitInsn(ICONST_1);

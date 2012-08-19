@@ -49,24 +49,18 @@ import org.objectweb.asm.util.TraceClassVisitor;
 
 /**
  * LocalVariablesSorter tests.
- *
+ * 
  * @author Eric Bruneton
  */
 public class LocalVariablesSorterTest2 extends AbstractTest {
 
-    public static void premain(
-        final String agentArgs,
-        final Instrumentation inst)
-    {
+    public static void premain(final String agentArgs,
+            final Instrumentation inst) {
         inst.addTransformer(new ClassFileTransformer() {
-            public byte[] transform(
-                final ClassLoader loader,
-                final String className,
-                final Class<?> classBeingRedefined,
-                final ProtectionDomain domain,
-                final byte[] classFileBuffer)
-                    throws IllegalClassFormatException
-            {
+            public byte[] transform(final ClassLoader loader,
+                    final String className, final Class<?> classBeingRedefined,
+                    final ProtectionDomain domain, final byte[] classFileBuffer)
+                    throws IllegalClassFormatException {
                 String n = className.replace('/', '.');
                 if (agentArgs.length() == 0 || n.indexOf(agentArgs) != -1) {
                     return transformClass(classFileBuffer);
@@ -83,20 +77,11 @@ public class LocalVariablesSorterTest2 extends AbstractTest {
         cr.accept(new ClassVisitor(Opcodes.ASM4, cw) {
 
             @Override
-            public MethodVisitor visitMethod(
-                final int access,
-                final String name,
-                final String desc,
-                final String signature,
-                final String[] exceptions)
-            {
-                return new LocalVariablesSorter(access,
-                        desc,
-                        cv.visitMethod(access,
-                                name,
-                                desc,
-                                signature,
-                                exceptions));
+            public MethodVisitor visitMethod(final int access,
+                    final String name, final String desc,
+                    final String signature, final String[] exceptions) {
+                return new LocalVariablesSorter(access, desc, cv.visitMethod(
+                        access, name, desc, signature, exceptions));
             }
 
         }, ClassReader.EXPAND_FRAMES);
@@ -107,7 +92,7 @@ public class LocalVariablesSorterTest2 extends AbstractTest {
         TestSuite suite = new LocalVariablesSorterTest2().getSuite();
         suite.addTest(new VerifierTest());
         return suite;
-    }    
+    }
 
     @Override
     public void test() throws Exception {

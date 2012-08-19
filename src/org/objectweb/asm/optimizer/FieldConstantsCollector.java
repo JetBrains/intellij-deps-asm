@@ -37,24 +37,21 @@ import org.objectweb.asm.Opcodes;
 /**
  * A {@link FieldVisitor} that collects the {@link Constant}s of the fields it
  * visits.
- *
+ * 
  * @author Eric Bruneton
  */
 public class FieldConstantsCollector extends FieldVisitor {
 
     private final ConstantPool cp;
 
-    public FieldConstantsCollector(final FieldVisitor fv, final ConstantPool cp)
-    {
+    public FieldConstantsCollector(final FieldVisitor fv, final ConstantPool cp) {
         super(Opcodes.ASM4, fv);
         this.cp = cp;
     }
 
     @Override
-    public AnnotationVisitor visitAnnotation(
-        final String desc,
-        final boolean visible)
-    {
+    public AnnotationVisitor visitAnnotation(final String desc,
+            final boolean visible) {
         cp.newUTF8(desc);
         if (visible) {
             cp.newUTF8("RuntimeVisibleAnnotations");

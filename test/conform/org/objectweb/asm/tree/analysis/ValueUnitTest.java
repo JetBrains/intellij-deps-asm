@@ -33,7 +33,7 @@ import junit.framework.TestCase;
 
 /**
  * BasicValue and SourceValue unit tests.
- *
+ * 
  * @author Eric Bruneton
  */
 public class ValueUnitTest extends TestCase {

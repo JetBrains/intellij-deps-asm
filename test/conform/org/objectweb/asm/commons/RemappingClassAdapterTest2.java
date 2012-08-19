@@ -55,8 +55,8 @@ public class RemappingClassAdapterTest2 extends AbstractTest {
                 return "Foo";
             }
         };
-        cr.accept(new RemappingClassAdapter(cw, new SimpleRemapper(map)), ClassReader.EXPAND_FRAMES);
+        cr.accept(new RemappingClassAdapter(cw, new SimpleRemapper(map)),
+                ClassReader.EXPAND_FRAMES);
     }
 
 }
-

@@ -50,24 +50,15 @@ public class CodeSizeEvaluatorTest extends AbstractTest {
         ClassReader cr = new ClassReader(is);
         cr.accept(new ClassVisitor(Opcodes.ASM4, new ClassWriter(0)) {
             @Override
-            public MethodVisitor visitMethod(
-                final int access,
-                final String name,
-                final String desc,
-                final String signature,
-                final String[] exceptions)
-            {
-                MethodVisitor mv = cv.visitMethod(access,
-                        name,
-                        desc,
-                        signature,
-                        exceptions);
+            public MethodVisitor visitMethod(final int access,
+                    final String name, final String desc,
+                    final String signature, final String[] exceptions) {
+                MethodVisitor mv = cv.visitMethod(access, name, desc,
+                        signature, exceptions);
                 return new CodeSizeEvaluator(mv) {
                     @Override
-                    public void visitMaxs(
-                        final int maxStack,
-                        final int maxLocals)
-                    {
+                    public void visitMaxs(final int maxStack,
+                            final int maxLocals) {
                         Label end = new Label();
                         mv.visitLabel(end);
                         mv.visitMaxs(maxStack, maxLocals);

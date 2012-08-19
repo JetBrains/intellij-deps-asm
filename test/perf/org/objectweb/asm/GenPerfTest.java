@@ -85,7 +85,7 @@ import com.claritysys.jvm.classfile.JVM;
 
 /**
  * Performance tests for frameworks that can only do bytecode generation.
- *
+ * 
  * @author Eric Bruneton
  */
 public class GenPerfTest {
@@ -229,42 +229,26 @@ public class GenPerfTest {
     static byte[] asmHelloWorld() {
         ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_MAXS);
 
-        cw.visit(Opcodes.V1_1,
-                Opcodes.ACC_PUBLIC,
-                "HelloWorld",
-                null,
-                "java/lang/Object",
-                null);
+        cw.visit(Opcodes.V1_1, Opcodes.ACC_PUBLIC, "HelloWorld", null,
+                "java/lang/Object", null);
         cw.visitSource("HelloWorld.java", null);
 
-        MethodVisitor mw = cw.visitMethod(Opcodes.ACC_PUBLIC,
-                "<init>",
-                "()V",
-                null,
-                null);
+        MethodVisitor mw = cw.visitMethod(Opcodes.ACC_PUBLIC, "<init>", "()V",
+                null, null);
         mw.visitVarInsn(Opcodes.ALOAD, 0);
-        mw.visitMethodInsn(Opcodes.INVOKESPECIAL,
-                "java/lang/Object",
-                "<init>",
+        mw.visitMethodInsn(Opcodes.INVOKESPECIAL, "java/lang/Object", "<init>",
                 "()V");
         mw.visitInsn(Opcodes.RETURN);
         mw.visitMaxs(0, 0);
         mw.visitEnd();
 
-        mw = cw.visitMethod(Opcodes.ACC_PUBLIC + Opcodes.ACC_STATIC,
-                "main",
-                "([Ljava/lang/String;)V",
-                null,
-                null);
-        mw.visitFieldInsn(Opcodes.GETSTATIC,
-                "java/lang/System",
-                "out",
+        mw = cw.visitMethod(Opcodes.ACC_PUBLIC + Opcodes.ACC_STATIC, "main",
+                "([Ljava/lang/String;)V", null, null);
+        mw.visitFieldInsn(Opcodes.GETSTATIC, "java/lang/System", "out",
                 "Ljava/io/PrintStream;");
         mw.visitLdcInsn("Hello world!");
-        mw.visitMethodInsn(Opcodes.INVOKEVIRTUAL,
-                "java/io/PrintStream",
-                "println",
-                "(Ljava/lang/String;)V");
+        mw.visitMethodInsn(Opcodes.INVOKEVIRTUAL, "java/io/PrintStream",
+                "println", "(Ljava/lang/String;)V");
         mw.visitInsn(Opcodes.RETURN);
         mw.visitMaxs(0, 0);
         mw.visitEnd();
@@ -272,8 +256,8 @@ public class GenPerfTest {
         return cw.toByteArray();
     }
 
-    static Method objectCtor = gnu.bytecode.Type.pointer_type.getDeclaredMethod("<init>",
-            0);
+    static Method objectCtor = gnu.bytecode.Type.pointer_type
+            .getDeclaredMethod("<init>", 0);
 
     static Field outField = ClassType.make("java.lang.System").getField("out");
 
@@ -309,33 +293,26 @@ public class GenPerfTest {
     }
 
     static byte[] csgBytecodeHelloWorld() {
-        ClassFile cf = new ClassFile("HelloWorld",
-                "java/lang/Object",
+        ClassFile cf = new ClassFile("HelloWorld", "java/lang/Object",
                 "HelloWorld.java");
         ConstantPool cp = cf.getConstantPool();
 
         CfMethod method = cf.addMethod(JVM.ACC_PUBLIC, "<init>", "()V");
         CodeBuilder code = new CodeBuilder(method);
         code.add(JVM.ALOAD_0);
-        code.add(JVM.INVOKESPECIAL, cp.addMethodRef(false,
-                "java/lang/Object",
-                "<init>",
-                "()V"));
+        code.add(JVM.INVOKESPECIAL,
+                cp.addMethodRef(false, "java/lang/Object", "<init>", "()V"));
         code.add(JVM.RETURN);
         code.flush();
 
-        method = cf.addMethod(JVM.ACC_PUBLIC + JVM.ACC_STATIC,
-                "main",
+        method = cf.addMethod(JVM.ACC_PUBLIC + JVM.ACC_STATIC, "main",
                 "([Ljava/lang/String;)V");
         code = new CodeBuilder(method);
-        code.add(JVM.GETSTATIC, cp.addFieldRef("java/lang/System",
-                "out",
+        code.add(JVM.GETSTATIC, cp.addFieldRef("java/lang/System", "out",
                 "Ljava/io/PrintStream;"));
         code.add(JVM.LDC, "Hello world!");
         code.add(JVM.INVOKEVIRTUAL, cp.addMethodRef(false,
-                "java/io/PrintStream",
-                "println",
-                "(Ljava/lang/String;)V"));
+                "java/io/PrintStream", "println", "(Ljava/lang/String;)V"));
         code.add(JVM.RETURN);
         code.flush();
 
@@ -345,23 +322,21 @@ public class GenPerfTest {
     static TypeDesc printStream = TypeDesc.forClass("java.io.PrintStream");
 
     static byte[] cojenHelloWorld() throws IOException {
-        org.cojen.classfile.ClassFile cf = new org.cojen.classfile.ClassFile("HelloWorld");
+        org.cojen.classfile.ClassFile cf = new org.cojen.classfile.ClassFile(
+                "HelloWorld");
 
         cf.setSourceFile("HelloWorld.java");
 
         cf.addDefaultConstructor();
 
         TypeDesc[] params = new TypeDesc[] { TypeDesc.STRING.toArrayType() };
-        MethodInfo mi = cf.addMethod(Modifiers.PUBLIC_STATIC,
-                "main",
-                null,
+        MethodInfo mi = cf.addMethod(Modifiers.PUBLIC_STATIC, "main", null,
                 params);
-        org.cojen.classfile.CodeBuilder b = new org.cojen.classfile.CodeBuilder(mi);
+        org.cojen.classfile.CodeBuilder b = new org.cojen.classfile.CodeBuilder(
+                mi);
         b.loadStaticField("java.lang.System", "out", printStream);
         b.loadConstant("Hello world!");
-        b.invokeVirtual(printStream,
-                "println",
-                null,
+        b.invokeVirtual(printStream, "println", null,
                 new TypeDesc[] { TypeDesc.STRING });
         b.returnVoid();
 
@@ -384,14 +359,12 @@ public class GenPerfTest {
 
         ci.sourceFile = "HelloWorld.java";
 
-        jbet.MethodInfo mi = new jbet.MethodInfo("<init>",
-                emptyDesc,
+        jbet.MethodInfo mi = new jbet.MethodInfo("<init>", emptyDesc,
                 jbet.MethodInfo.ACC_PUBLIC);
         mi.code = new Snippit();
         mi.code.push(new Instruction().setAload(0));
         mi.code.push(new Instruction().setInvokeSpecial("java/lang/Object",
-                "<init>",
-                emptyDesc));
+                "<init>", emptyDesc));
         mi.code.push(new Instruction().setReturn());
         mi.maxLocals = 1;
         mi.maxStack = 1;
@@ -400,13 +373,11 @@ public class GenPerfTest {
         mi = new jbet.MethodInfo("main", mainDesc, jbet.MethodInfo.ACC_PUBLIC
                 | jbet.MethodInfo.ACC_STATIC);
         mi.code = new Snippit();
-        mi.code.push(new Instruction().setGetstatic("java/lang/System",
-                "out",
+        mi.code.push(new Instruction().setGetstatic("java/lang/System", "out",
                 printStreamType));
         mi.code.push(new Instruction().setSpush("Hello world!"));
         mi.code.push(new Instruction().setInvokeVirtual("java/io/PrintStream",
-                "println",
-                printlnDesc));
+                "println", printlnDesc));
         mi.maxLocals = 1;
         mi.maxStack = 2;
         ci.addMethod(mi);
@@ -419,84 +390,75 @@ public class GenPerfTest {
         return bos.toByteArray();
     }
 
-    static byte[] jClassLibHelloWorld()
-            throws InvalidByteCodeException, IOException
-    {
+    static byte[] jClassLibHelloWorld() throws InvalidByteCodeException,
+            IOException {
         org.gjt.jclasslib.structures.ClassFile cf = new org.gjt.jclasslib.structures.ClassFile();
         cf.setConstantPool(new CPInfo[0]);
         ConstantPoolUtil.addConstantUTF8Info(cf, "", 0); // dummy constant
         cf.setMajorVersion(45);
         cf.setMinorVersion(3);
         cf.setAccessFlags(AccessFlags.ACC_PUBLIC);
-        cf.setThisClass(ConstantPoolUtil.addConstantClassInfo(cf,
-                "HelloWorld",
+        cf.setThisClass(ConstantPoolUtil.addConstantClassInfo(cf, "HelloWorld",
                 0));
         cf.setSuperClass(ConstantPoolUtil.addConstantClassInfo(cf,
-                "java/lang/Object",
-                0));
+                "java/lang/Object", 0));
 
         SourceFileAttribute sa = new SourceFileAttribute();
         sa.setAttributeNameIndex(ConstantPoolUtil.addConstantUTF8Info(cf,
-                SourceFileAttribute.ATTRIBUTE_NAME,
-                0));
+                SourceFileAttribute.ATTRIBUTE_NAME, 0));
         sa.setSourcefileIndex(ConstantPoolUtil.addConstantUTF8Info(cf,
-                "HelloWorld.java",
-                0));
+                "HelloWorld.java", 0));
 
         org.gjt.jclasslib.structures.MethodInfo mi1 = new org.gjt.jclasslib.structures.MethodInfo();
         mi1.setAccessFlags(AccessFlags.ACC_PUBLIC);
         mi1.setNameIndex(ConstantPoolUtil.addConstantUTF8Info(cf, "<init>", 0));
-        mi1.setDescriptorIndex(ConstantPoolUtil.addConstantUTF8Info(cf,
-                "()V",
+        mi1.setDescriptorIndex(ConstantPoolUtil.addConstantUTF8Info(cf, "()V",
                 0));
         CodeAttribute ca1 = new CodeAttribute();
         ca1.setAttributeNameIndex(ConstantPoolUtil.addConstantUTF8Info(cf,
-                CodeAttribute.ATTRIBUTE_NAME,
-                0));
-        ca1.setCode(ByteCodeWriter.writeByteCode(Arrays.asList(new org.gjt.jclasslib.bytecode.AbstractInstruction[] {
-            new SimpleInstruction(org.gjt.jclasslib.bytecode.Opcodes.OPCODE_ALOAD_0),
-            new ImmediateShortInstruction(org.gjt.jclasslib.bytecode.Opcodes.OPCODE_INVOKESPECIAL,
-                    ConstantPoolUtil.addConstantMethodrefInfo(cf,
-                            "java/lang/Object",
-                            "<init>",
-                            "()V",
-                            0)),
-            new SimpleInstruction(org.gjt.jclasslib.bytecode.Opcodes.OPCODE_RETURN) })));
+                CodeAttribute.ATTRIBUTE_NAME, 0));
+        ca1.setCode(ByteCodeWriter.writeByteCode(Arrays
+                .asList(new org.gjt.jclasslib.bytecode.AbstractInstruction[] {
+                        new SimpleInstruction(
+                                org.gjt.jclasslib.bytecode.Opcodes.OPCODE_ALOAD_0),
+                        new ImmediateShortInstruction(
+                                org.gjt.jclasslib.bytecode.Opcodes.OPCODE_INVOKESPECIAL,
+                                ConstantPoolUtil.addConstantMethodrefInfo(cf,
+                                        "java/lang/Object", "<init>", "()V", 0)),
+                        new SimpleInstruction(
+                                org.gjt.jclasslib.bytecode.Opcodes.OPCODE_RETURN) })));
         ca1.setMaxStack(1);
         ca1.setMaxLocals(1);
         mi1.setAttributes(new AttributeInfo[] { ca1 });
 
         ConstantStringInfo s = new ConstantStringInfo();
         s.setStringIndex(ConstantPoolUtil.addConstantUTF8Info(cf,
-                "Hello world!",
-                0));
+                "Hello world!", 0));
 
         org.gjt.jclasslib.structures.MethodInfo mi2 = new org.gjt.jclasslib.structures.MethodInfo();
         mi2.setAccessFlags(AccessFlags.ACC_PUBLIC | AccessFlags.ACC_STATIC);
         mi2.setNameIndex(ConstantPoolUtil.addConstantUTF8Info(cf, "main", 0));
         mi2.setDescriptorIndex(ConstantPoolUtil.addConstantUTF8Info(cf,
-                "([Ljava/lang/String;)V",
-                0));
+                "([Ljava/lang/String;)V", 0));
         CodeAttribute ca2 = new CodeAttribute();
         ca2.setAttributeNameIndex(ConstantPoolUtil.addConstantUTF8Info(cf,
-                CodeAttribute.ATTRIBUTE_NAME,
-                0));
-        ca2.setCode(ByteCodeWriter.writeByteCode(Arrays.asList(new org.gjt.jclasslib.bytecode.AbstractInstruction[] {
-            new ImmediateShortInstruction(org.gjt.jclasslib.bytecode.Opcodes.OPCODE_GETSTATIC,
-                    ConstantPoolUtil.addConstantFieldrefInfo(cf,
-                            "java/lang/System",
-                            "out",
-                            "Ljava/io/PrintStream;",
-                            0)),
-            new ImmediateByteInstruction(org.gjt.jclasslib.bytecode.Opcodes.OPCODE_LDC,
-                    false,
-                    ConstantPoolUtil.addConstantPoolEntry(cf, s, 0)),
-            new ImmediateShortInstruction(org.gjt.jclasslib.bytecode.Opcodes.OPCODE_INVOKEVIRTUAL,
-                    ConstantPoolUtil.addConstantMethodrefInfo(cf,
-                            "java/io/PrintStream",
-                            "println",
-                            "(Ljava/lang/String;)V",
-                            0)) })));
+                CodeAttribute.ATTRIBUTE_NAME, 0));
+        ca2.setCode(ByteCodeWriter.writeByteCode(Arrays
+                .asList(new org.gjt.jclasslib.bytecode.AbstractInstruction[] {
+                        new ImmediateShortInstruction(
+                                org.gjt.jclasslib.bytecode.Opcodes.OPCODE_GETSTATIC,
+                                ConstantPoolUtil.addConstantFieldrefInfo(cf,
+                                        "java/lang/System", "out",
+                                        "Ljava/io/PrintStream;", 0)),
+                        new ImmediateByteInstruction(
+                                org.gjt.jclasslib.bytecode.Opcodes.OPCODE_LDC,
+                                false, ConstantPoolUtil.addConstantPoolEntry(
+                                        cf, s, 0)),
+                        new ImmediateShortInstruction(
+                                org.gjt.jclasslib.bytecode.Opcodes.OPCODE_INVOKEVIRTUAL,
+                                ConstantPoolUtil.addConstantMethodrefInfo(cf,
+                                        "java/io/PrintStream", "println",
+                                        "(Ljava/lang/String;)V", 0)) })));
         ca2.setMaxStack(2);
         ca2.setMaxLocals(1);
         mi2.setAttributes(new AttributeInfo[] { ca2 });
@@ -530,12 +492,11 @@ public class GenPerfTest {
         il.add(iFactory.invoke(0, "java/lang/Object", "<init>", emptySig));
         il.add(iFactory.returnMethod(method));
 
-        method = c.addMethod(Modifier.PUBLIC | Modifier.STATIC, "main", mainSig);
+        method = c
+                .addMethod(Modifier.PUBLIC | Modifier.STATIC, "main", mainSig);
         il = method.getInstructionList();
         iFactory = il.getInstructionFactory();
-        il.add(iFactory.getField(Modifier.STATIC,
-                "java/lang/System",
-                "out",
+        il.add(iFactory.getField(Modifier.STATIC, "java/lang/System", "out",
                 "Ljava/io/PrintStream;"));
         il.add(iFactory.pushConstant("Hello world!"));
         il.add(iFactory.invoke(0, "java/io/PrintStream", "println", printlnSig));
@@ -546,8 +507,7 @@ public class GenPerfTest {
 
     static byte[] mozillaClassFileHelloWorld() {
         ClassFileWriter c = new ClassFileWriter("HelloWorld",
-                "java/lang/Object",
-                "HelloWorld.java");
+                "java/lang/Object", "HelloWorld.java");
 
         c.startMethod("<init>", "()V", ClassFileWriter.ACC_PUBLIC);
         c.addLoadThis();
@@ -555,17 +515,14 @@ public class GenPerfTest {
         c.add(ByteCode.RETURN);
         c.stopMethod((short) 1);
 
-        c.startMethod("main",
+        c.startMethod(
+                "main",
                 "()V",
                 (short) (ClassFileWriter.ACC_PUBLIC | ClassFileWriter.ACC_STATIC));
-        c.add(ByteCode.GETSTATIC,
-                "java/lang/System",
-                "out",
+        c.add(ByteCode.GETSTATIC, "java/lang/System", "out",
                 "Ljava/io/PrintStream;");
         c.addPush("Hello world!");
-        c.addInvoke(ByteCode.INVOKEVIRTUAL,
-                "java/io/PrintStream",
-                "println",
+        c.addInvoke(ByteCode.INVOKEVIRTUAL, "java/io/PrintStream", "println",
                 "(Ljava/lang/String;)V");
         c.add(ByteCode.RETURN);
         c.stopMethod((short) 1);
@@ -573,40 +530,35 @@ public class GenPerfTest {
         return c.toByteArray();
     }
 
-    static org.apache.bcel.generic.Type printStreamT = org.apache.bcel.generic.Type.getType("Ljava/io/PrintStream;");
+    static org.apache.bcel.generic.Type printStreamT = org.apache.bcel.generic.Type
+            .getType("Ljava/io/PrintStream;");
 
     static byte[] bcelHelloWorld() {
-        ClassGen cg = new ClassGen("HelloWorld",
-                "java/lang/Object",
-                "HelloWorld.java",
-                Constants.ACC_PUBLIC,
-                null);
+        ClassGen cg = new ClassGen("HelloWorld", "java/lang/Object",
+                "HelloWorld.java", Constants.ACC_PUBLIC, null);
 
         cg.addEmptyConstructor(Constants.ACC_PUBLIC);
 
         ConstantPoolGen cp = cg.getConstantPool();
         org.apache.bcel.generic.InstructionList il = new org.apache.bcel.generic.InstructionList();
-        org.apache.bcel.generic.InstructionFactory factory = new org.apache.bcel.generic.InstructionFactory(cg);
+        org.apache.bcel.generic.InstructionFactory factory = new org.apache.bcel.generic.InstructionFactory(
+                cg);
 
         MethodGen mg = new MethodGen(Constants.ACC_STATIC
-                | Constants.ACC_PUBLIC,
-                org.apache.bcel.generic.Type.VOID,
-                new org.apache.bcel.generic.Type[] { new ArrayType(org.apache.bcel.generic.Type.STRING,
-                        1) },
-                null,
-                "main",
-                "HelloWorld",
-                il,
-                cp);
-        il.append(factory.createGetStatic("java/lang/System",
-                "out",
+                | Constants.ACC_PUBLIC, org.apache.bcel.generic.Type.VOID,
+                new org.apache.bcel.generic.Type[] { new ArrayType(
+                        org.apache.bcel.generic.Type.STRING, 1) }, null,
+                "main", "HelloWorld", il, cp);
+        il.append(factory.createGetStatic("java/lang/System", "out",
                 printStreamT));
         il.append(new PUSH(cp, "Hello world!"));
-        il.append(factory.createInvoke("java.io.PrintStream",
-                "println",
-                org.apache.bcel.generic.Type.VOID,
-                new org.apache.bcel.generic.Type[] { org.apache.bcel.generic.Type.STRING },
-                Constants.INVOKESPECIAL));
+        il.append(factory
+                .createInvoke(
+                        "java.io.PrintStream",
+                        "println",
+                        org.apache.bcel.generic.Type.VOID,
+                        new org.apache.bcel.generic.Type[] { org.apache.bcel.generic.Type.STRING },
+                        Constants.INVOKESPECIAL));
 
         mg.setMaxStack();
         cg.addMethod(mg.getMethod());
@@ -614,40 +566,38 @@ public class GenPerfTest {
         return cg.getJavaClass().getBytes();
     }
 
-    static org.aspectj.apache.bcel.generic.Type printStreamAT = org.aspectj.apache.bcel.generic.Type.getType("Ljava/io/PrintStream;");
+    static org.aspectj.apache.bcel.generic.Type printStreamAT = org.aspectj.apache.bcel.generic.Type
+            .getType("Ljava/io/PrintStream;");
 
     static byte[] aspectjBcelHelloWorld() {
-        org.aspectj.apache.bcel.generic.ClassGen cg = new org.aspectj.apache.bcel.generic.ClassGen("HelloWorld",
-                "java/lang/Object",
-                "HelloWorld.java",
-                Constants.ACC_PUBLIC,
-                null);
+        org.aspectj.apache.bcel.generic.ClassGen cg = new org.aspectj.apache.bcel.generic.ClassGen(
+                "HelloWorld", "java/lang/Object", "HelloWorld.java",
+                Constants.ACC_PUBLIC, null);
 
         cg.addEmptyConstructor(Constants.ACC_PUBLIC);
 
-        org.aspectj.apache.bcel.generic.ConstantPoolGen cp = cg.getConstantPool();
+        org.aspectj.apache.bcel.generic.ConstantPoolGen cp = cg
+                .getConstantPool();
         org.aspectj.apache.bcel.generic.InstructionList il = new org.aspectj.apache.bcel.generic.InstructionList();
-        org.aspectj.apache.bcel.generic.InstructionFactory factory = new org.aspectj.apache.bcel.generic.InstructionFactory(cg);
+        org.aspectj.apache.bcel.generic.InstructionFactory factory = new org.aspectj.apache.bcel.generic.InstructionFactory(
+                cg);
 
-        org.aspectj.apache.bcel.generic.MethodGen mg = new org.aspectj.apache.bcel.generic.MethodGen(Constants.ACC_STATIC
-                | Constants.ACC_PUBLIC,
+        org.aspectj.apache.bcel.generic.MethodGen mg = new org.aspectj.apache.bcel.generic.MethodGen(
+                Constants.ACC_STATIC | Constants.ACC_PUBLIC,
                 org.aspectj.apache.bcel.generic.Type.VOID,
-                new org.aspectj.apache.bcel.generic.Type[] { new org.aspectj.apache.bcel.generic.ArrayType(org.aspectj.apache.bcel.generic.Type.STRING,
-                        1) },
-                null,
-                "main",
-                "HelloWorld",
-                il,
-                cp);
-        il.append(factory.createGetStatic("java/lang/System",
-                "out",
+                new org.aspectj.apache.bcel.generic.Type[] { new org.aspectj.apache.bcel.generic.ArrayType(
+                        org.aspectj.apache.bcel.generic.Type.STRING, 1) },
+                null, "main", "HelloWorld", il, cp);
+        il.append(factory.createGetStatic("java/lang/System", "out",
                 printStreamAT));
         il.append(new org.aspectj.apache.bcel.generic.PUSH(cp, "Hello world!"));
-        il.append(factory.createInvoke("java.io.PrintStream",
-                "println",
-                org.aspectj.apache.bcel.generic.Type.VOID,
-                new org.aspectj.apache.bcel.generic.Type[] { org.aspectj.apache.bcel.generic.Type.STRING },
-                Constants.INVOKESPECIAL));
+        il.append(factory
+                .createInvoke(
+                        "java.io.PrintStream",
+                        "println",
+                        org.aspectj.apache.bcel.generic.Type.VOID,
+                        new org.aspectj.apache.bcel.generic.Type[] { org.aspectj.apache.bcel.generic.Type.STRING },
+                        Constants.INVOKESPECIAL));
 
         mg.setMaxStack();
         cg.addMethod(mg.getMethod());

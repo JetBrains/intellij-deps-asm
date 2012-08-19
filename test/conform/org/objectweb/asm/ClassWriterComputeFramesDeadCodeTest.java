@@ -42,24 +42,18 @@ import junit.framework.TestSuite;
 
 /**
  * ClassWriter tests.
- *
+ * 
  * @author Eric Bruneton
  */
 public class ClassWriterComputeFramesDeadCodeTest extends AbstractTest {
 
-    public static void premain(
-        final String agentArgs,
-        final Instrumentation inst)
-    {
+    public static void premain(final String agentArgs,
+            final Instrumentation inst) {
         inst.addTransformer(new ClassFileTransformer() {
-            public byte[] transform(
-                final ClassLoader loader,
-                final String className,
-                final Class<?> classBeingRedefined,
-                final ProtectionDomain domain,
-                final byte[] classFileBuffer)
-                    throws IllegalClassFormatException
-            {
+            public byte[] transform(final ClassLoader loader,
+                    final String className, final Class<?> classBeingRedefined,
+                    final ProtectionDomain domain, final byte[] classFileBuffer)
+                    throws IllegalClassFormatException {
                 String n = className.replace('/', '.');
                 if (n.indexOf("javax") == -1 || n.startsWith("invalid.")) {
                     return null;
@@ -81,43 +75,29 @@ public class ClassWriterComputeFramesDeadCodeTest extends AbstractTest {
             private String className;
 
             @Override
-            public void visit(
-                final int version,
-                final int access,
-                final String name,
-                final String signature,
-                final String superName,
-                final String[] interfaces)
-            {
+            public void visit(final int version, final int access,
+                    final String name, final String signature,
+                    final String superName, final String[] interfaces) {
                 className = name;
                 // Set V1_7 version to prevent fallback to old verifier.
-                super.visit((version & 0xFFFF) < Opcodes.V1_7 ? Opcodes.V1_7 : version,
-                        access,
-                        name,
-                        signature,
-                        superName,
+                super.visit((version & 0xFFFF) < Opcodes.V1_7 ? Opcodes.V1_7
+                        : version, access, name, signature, superName,
                         interfaces);
             }
 
             @Override
-            public MethodVisitor visitMethod(
-                int access,
-                String name,
-                String desc,
-                String signature,
-                String[] exceptions)
-            {
+            public MethodVisitor visitMethod(int access, String name,
+                    String desc, String signature, String[] exceptions) {
                 int seed = (className + "." + name + desc).hashCode();
-                return new MethodDeadCodeInserter(seed, super.visitMethod(access,
-                        name,
-                        desc,
-                        signature,
-                        exceptions));
+                return new MethodDeadCodeInserter(seed, super.visitMethod(
+                        access, name, desc, signature, exceptions));
             }
 
         }, ClassReader.SKIP_FRAMES | ClassReader.SKIP_DEBUG);
         byte[] b = cw.toByteArray();
-        if (n.equals("javax.imageio.ImageIO")) new ClassReader(b).accept(new TraceClassVisitor(new PrintWriter(System.err)), 0);
+        if (n.equals("javax.imageio.ImageIO"))
+            new ClassReader(b).accept(new TraceClassVisitor(new PrintWriter(
+                    System.err)), 0);
 
         return b;
     }
@@ -139,20 +119,21 @@ public class ClassWriterComputeFramesDeadCodeTest extends AbstractTest {
         } catch (ClassFormatError cfe) {
             fail(cfe.getMessage());
         } catch (VerifyError ve) {
-            /*String s = n.replace('.', '/') + ".class";
-            InputStream is = getClass().getClassLoader().getResourceAsStream(s);
-            ClassReader cr = new ClassReader(is);
-            byte[] b = transformClass("", cr.b);
-            StringWriter sw1 = new StringWriter();
-            StringWriter sw2 = new StringWriter();
-            sw2.write(ve.toString() + "\n");
-            ClassVisitor cv1 = new TraceClassVisitor(new PrintWriter(sw1));
-            ClassVisitor cv2 = new TraceClassVisitor(new PrintWriter(sw2));
-            cr.accept(cv1, 0);
-            new ClassReader(b).accept(cv2, 0);
-            String s1 = sw1.toString();
-            String s2 = sw2.toString();
-            assertEquals("different data", s1, s2);*/
+            // String s = n.replace('.', '/') + ".class";
+            // InputStream is =
+            // getClass().getClassLoader().getResourceAsStream(s);
+            // ClassReader cr = new ClassReader(is);
+            // byte[] b = transformClass("", cr.b);
+            // StringWriter sw1 = new StringWriter();
+            // StringWriter sw2 = new StringWriter();
+            // sw2.write(ve.toString() + "\n");
+            // ClassVisitor cv1 = new TraceClassVisitor(new PrintWriter(sw1));
+            // ClassVisitor cv2 = new TraceClassVisitor(new PrintWriter(sw2));
+            // cr.accept(cv1, 0);
+            // new ClassReader(b).accept(cv2, 0);
+            // String s1 = sw1.toString();
+            // String s2 = sw2.toString();
+            // assertEquals("different data", s1, s2);
             fail(ve.getMessage());
         }
     }
@@ -192,34 +173,22 @@ class MethodDeadCodeInserter extends MethodVisitor implements Opcodes {
     }
 
     @Override
-    public void visitFieldInsn(
-        int opcode,
-        String owner,
-        String name,
-        String desc)
-    {
+    public void visitFieldInsn(int opcode, String owner, String name,
+            String desc) {
         super.visitFieldInsn(opcode, owner, name, desc);
         insertDeadcode();
     }
 
     @Override
-    public void visitMethodInsn(
-        int opcode,
-        String owner,
-        String name,
-        String desc)
-    {
+    public void visitMethodInsn(int opcode, String owner, String name,
+            String desc) {
         super.visitMethodInsn(opcode, owner, name, desc);
         insertDeadcode();
     }
 
     @Override
-    public void visitInvokeDynamicInsn(
-        String name,
-        String desc,
-        Handle bsm,
-        Object... bsmArgs)
-    {
+    public void visitInvokeDynamicInsn(String name, String desc, Handle bsm,
+            Object... bsmArgs) {
         super.visitInvokeDynamicInsn(name, desc, bsm, bsmArgs);
         insertDeadcode();
     }
@@ -243,12 +212,8 @@ class MethodDeadCodeInserter extends MethodVisitor implements Opcodes {
     }
 
     @Override
-    public void visitTableSwitchInsn(
-        int min,
-        int max,
-        Label dflt,
-        Label... labels)
-    {
+    public void visitTableSwitchInsn(int min, int max, Label dflt,
+            Label... labels) {
         super.visitTableSwitchInsn(min, max, dflt, labels);
         insertDeadcode();
     }

@@ -33,7 +33,7 @@ import junit.framework.TestSuite;
 
 /**
  * ClassReader tests.
- *
+ * 
  * @author Eric Bruneton
  */
 public class ClassReaderTest extends AbstractTest {
@@ -49,10 +49,8 @@ public class ClassReaderTest extends AbstractTest {
             AnnotationVisitor av = new AnnotationVisitor(Opcodes.ASM4) {
 
                 @Override
-                public AnnotationVisitor visitAnnotation(
-                    String name,
-                    String desc)
-                {
+                public AnnotationVisitor visitAnnotation(String name,
+                        String desc) {
                     return this;
                 }
 
@@ -63,41 +61,27 @@ public class ClassReaderTest extends AbstractTest {
             };
 
             @Override
-            public AnnotationVisitor visitAnnotation(
-                String desc,
-                boolean visible)
-            {
+            public AnnotationVisitor visitAnnotation(String desc,
+                    boolean visible) {
                 return av;
             }
 
             @Override
-            public FieldVisitor visitField(
-                int access,
-                String name,
-                String desc,
-                String signature,
-                Object value)
-            {
+            public FieldVisitor visitField(int access, String name,
+                    String desc, String signature, Object value) {
                 return new FieldVisitor(Opcodes.ASM4) {
 
                     @Override
-                    public AnnotationVisitor visitAnnotation(
-                        String desc,
-                        boolean visible)
-                    {
+                    public AnnotationVisitor visitAnnotation(String desc,
+                            boolean visible) {
                         return av;
                     }
                 };
             }
 
             @Override
-            public MethodVisitor visitMethod(
-                int access,
-                String name,
-                String desc,
-                String signature,
-                String[] exceptions)
-            {
+            public MethodVisitor visitMethod(int access, String name,
+                    String desc, String signature, String[] exceptions) {
                 return new MethodVisitor(Opcodes.ASM4) {
 
                     @Override
@@ -106,19 +90,14 @@ public class ClassReaderTest extends AbstractTest {
                     }
 
                     @Override
-                    public AnnotationVisitor visitAnnotation(
-                        String desc,
-                        boolean visible)
-                    {
+                    public AnnotationVisitor visitAnnotation(String desc,
+                            boolean visible) {
                         return av;
                     }
 
                     @Override
                     public AnnotationVisitor visitParameterAnnotation(
-                        int parameter,
-                        String desc,
-                        boolean visible)
-                    {
+                            int parameter, String desc, boolean visible) {
                         return av;
                     }
                 };

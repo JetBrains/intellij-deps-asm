@@ -78,26 +78,16 @@ class Comment extends Attribute {
     }
 
     @Override
-    protected Attribute read(
-        final ClassReader cr,
-        final int off,
-        final int len,
-        final char[] buf,
-        final int codeOff,
-        final Label[] labels)
-    {
+    protected Attribute read(final ClassReader cr, final int off,
+            final int len, final char[] buf, final int codeOff,
+            final Label[] labels) {
 
         return new Comment();
     }
 
     @Override
-    protected ByteVector write(
-        final ClassWriter cw,
-        final byte[] code,
-        final int len,
-        final int maxStack,
-        final int maxLocals)
-    {
+    protected ByteVector write(final ClassWriter cw, final byte[] code,
+            final int len, final int maxStack, final int maxLocals) {
         return new ByteVector();
     }
 }
@@ -119,25 +109,15 @@ class CodeComment extends Attribute {
     }
 
     @Override
-    protected Attribute read(
-        final ClassReader cr,
-        final int off,
-        final int len,
-        final char[] buf,
-        final int codeOff,
-        final Label[] labels)
-    {
+    protected Attribute read(final ClassReader cr, final int off,
+            final int len, final char[] buf, final int codeOff,
+            final Label[] labels) {
         return new CodeComment();
     }
 
     @Override
-    protected ByteVector write(
-        final ClassWriter cw,
-        final byte[] code,
-        final int len,
-        final int maxStack,
-        final int maxLocals)
-    {
+    protected ByteVector write(final ClassWriter cw, final byte[] code,
+            final int len, final int maxStack, final int maxLocals) {
         return new ByteVector();
     }
 
@@ -150,7 +130,7 @@ class CodeComment extends Attribute {
 
 /**
  * JasminifierAdapterTest tests.
- *
+ * 
  * @author Eric Bruneton
  */
 public class JasminifierClassAdapterTest extends TestCase {
@@ -194,8 +174,9 @@ public class JasminifierClassAdapterTest extends TestCase {
                     ZipEntry e = entries.nextElement();
                     String n = e.getName();
                     String p = n.replace('/', '.');
-                System.out.println(n+" "+clazz);
-                    if (n.endsWith(".class") && (clazz == null || p.indexOf(clazz) != -1)) {
+                    System.out.println(n + " " + clazz);
+                    if (n.endsWith(".class")
+                            && (clazz == null || p.indexOf(clazz) != -1)) {
                         n = p.substring(0, p.length() - 6);
                         if (id % parts == part) {
                             JasminifierClassAdapterTest t;
@@ -212,23 +193,16 @@ public class JasminifierClassAdapterTest extends TestCase {
         return suite;
     }
 
-    private void scanDirectory(
-        final String path,
-        final File f,
-        final TestSuite suite,
-        final String clazz) throws Exception
-    {
+    private void scanDirectory(final String path, final File f,
+            final TestSuite suite, final String clazz) throws Exception {
         File[] fs = f.listFiles();
         for (int i = 0; i < fs.length; ++i) {
             String n = fs[i].getName();
             String qn = path.length() == 0 ? n : path + "." + n;
             if (fs[i].isDirectory()) {
-                scanDirectory(qn,
-                        fs[i],
-                        suite,
-                        clazz);
-            } else if (qn.endsWith(".class") && (clazz == null || qn.indexOf(clazz) != -1))
-            {
+                scanDirectory(qn, fs[i], suite, clazz);
+            } else if (qn.endsWith(".class")
+                    && (clazz == null || qn.indexOf(clazz) != -1)) {
                 qn = qn.substring(0, qn.length() - 6);
                 InputStream is = new FileInputStream(fs[i]);
                 JasminifierClassAdapterTest t;
@@ -240,17 +214,13 @@ public class JasminifierClassAdapterTest extends TestCase {
     }
 
     public void assertEquals(final ClassReader cr1, final ClassReader cr2)
-            throws Exception
-    {
+            throws Exception {
         assertEquals(cr1, cr2, null, null);
     }
 
-    public void assertEquals(
-        final ClassReader cr1,
-        final ClassReader cr2,
-        final ClassFilter filter1,
-        final ClassFilter filter2) throws Exception
-    {
+    public void assertEquals(final ClassReader cr1, final ClassReader cr2,
+            final ClassFilter filter1, final ClassFilter filter2)
+            throws Exception {
         if (!Arrays.equals(cr1.b, cr2.b)) {
             StringWriter sw1 = new StringWriter();
             StringWriter sw2 = new StringWriter();
@@ -281,8 +251,7 @@ public class JasminifierClassAdapterTest extends TestCase {
         ClassReader cr = new ClassReader(is);
         ClassWriter cw = new ClassWriter(0);
         ClassVisitor cv = new JasminifierClassAdapter(pw, cw);
-        cr.accept(cv,
-                new Attribute[] { new Comment(), new CodeComment() },
+        cr.accept(cv, new Attribute[] { new Comment(), new CodeComment() },
                 ClassReader.EXPAND_FRAMES);
         pw.close();
         String jasmin = sw.toString();
@@ -296,29 +265,16 @@ public class JasminifierClassAdapterTest extends TestCase {
         cf.write(bos);
         bos.close();
 
-        assertEquals(cr,
-                new ClassReader(bos.toByteArray()),
-                new ClassFilter() {
+        assertEquals(cr, new ClassReader(bos.toByteArray()), new ClassFilter() {
 
-                    @Override
-                    public void visit(
-                        int version,
-                        int access,
-                        String name,
-                        String signature,
-                        String superName,
-                        String[] interfaces)
-                    {
-                        access |= Opcodes.ACC_SUPER; // Jasmin bug workaround
-                        super.visit(version,
-                                access,
-                                name,
-                                signature,
-                                superName,
-                                interfaces);
-                    }
+            @Override
+            public void visit(int version, int access, String name,
+                    String signature, String superName, String[] interfaces) {
+                access |= Opcodes.ACC_SUPER; // Jasmin bug workaround
+                super.visit(version, access, name, signature, superName,
+                        interfaces);
+            }
 
-                },
-                null);
+        }, null);
     }
 }

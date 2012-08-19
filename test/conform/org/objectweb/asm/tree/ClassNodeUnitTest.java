@@ -36,7 +36,7 @@ import org.objectweb.asm.Opcodes;
 
 /**
  * ClassNode unit tests.
- *
+ * 
  * @author Eric Bruneton
  */
 public class ClassNodeUnitTest extends TestCase implements Opcodes {
@@ -81,9 +81,7 @@ public class ClassNodeUnitTest extends TestCase implements Opcodes {
     }
 
     public void testMethodInsnNode() {
-        MethodInsnNode mn = new MethodInsnNode(INVOKESTATIC,
-                "owner",
-                "name",
+        MethodInsnNode mn = new MethodInsnNode(INVOKESTATIC, "owner", "name",
                 "I");
         mn.setOpcode(INVOKESPECIAL);
         assertEquals(INVOKESPECIAL, mn.getOpcode());
@@ -92,11 +90,8 @@ public class ClassNodeUnitTest extends TestCase implements Opcodes {
 
     public void testInvokeDynamicInsnNode() {
         Handle bsm = new Handle(Opcodes.H_INVOKESTATIC, "owner", "name", "()V");
-        InvokeDynamicInsnNode mn = new InvokeDynamicInsnNode(
-                "name",
-                "()V",
-                bsm,
-                new Object[0]);
+        InvokeDynamicInsnNode mn = new InvokeDynamicInsnNode("name", "()V",
+                bsm, new Object[0]);
 
         assertEquals(INVOKEDYNAMIC, mn.getOpcode());
         assertEquals(AbstractInsnNode.INVOKE_DYNAMIC_INSN, mn.getType());
@@ -134,7 +129,8 @@ public class ClassNodeUnitTest extends TestCase implements Opcodes {
     }
 
     public void testTableSwitchInsnNode() {
-        TableSwitchInsnNode tsn = new TableSwitchInsnNode(0, 1, null, (LabelNode[])null);
+        TableSwitchInsnNode tsn = new TableSwitchInsnNode(0, 1, null,
+                (LabelNode[]) null);
         assertEquals(AbstractInsnNode.TABLESWITCH_INSN, tsn.getType());
     }
 

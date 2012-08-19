@@ -33,7 +33,7 @@ import junit.framework.TestSuite;
 
 /**
  * ClassWriter tests for copyPool() optimization.
- *
+ * 
  * @author Eugene Kuleshov
  */
 public class ClassWriterCopyPoolTest extends AbstractTest {
@@ -60,13 +60,9 @@ public class ClassWriterCopyPoolTest extends AbstractTest {
         }
 
         @Override
-        public MethodVisitor visitMethod(
-            final int access,
-            final String name,
-            final String desc,
-            final String signature,
-            final String[] exceptions)
-        {
+        public MethodVisitor visitMethod(final int access, final String name,
+                final String desc, final String signature,
+                final String[] exceptions) {
             if (exceptions != null && exceptions.length > 0) {
                 exceptions[0] = "java/lang/Throwable";
             }

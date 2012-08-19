@@ -59,36 +59,37 @@ import org.objectweb.asm.tree.analysis.SimpleVerifier;
  * <i>only</i> on its arguments, but does <i>not</i> check the <i>sequence</i>
  * of method calls. For example, the invalid sequence
  * <tt>visitField(ACC_PUBLIC, "i", "I", null)</tt> <tt>visitField(ACC_PUBLIC,
- * "i", "D", null)</tt>
- * will <i>not</i> be detected by this class adapter.
- *
- * <p><code>CheckClassAdapter</code> can be also used to verify bytecode
+ * "i", "D", null)</tt> will <i>not</i> be detected by this class adapter.
+ * 
+ * <p>
+ * <code>CheckClassAdapter</code> can be also used to verify bytecode
  * transformations in order to make sure transformed bytecode is sane. For
  * example:
- *
+ * 
  * <pre>
  *   InputStream is = ...; // get bytes for the source class
  *   ClassReader cr = new ClassReader(is);
  *   ClassWriter cw = new ClassWriter(cr, ClassWriter.COMPUTE_MAXS);
  *   ClassVisitor cv = new <b>MyClassAdapter</b>(new CheckClassAdapter(cw));
  *   cr.accept(cv, 0);
- *
+ * 
  *   StringWriter sw = new StringWriter();
  *   PrintWriter pw = new PrintWriter(sw);
  *   CheckClassAdapter.verify(new ClassReader(cw.toByteArray()), false, pw);
  *   assertTrue(sw.toString(), sw.toString().length()==0);
  * </pre>
- *
+ * 
  * Above code runs transformed bytecode trough the
- * <code>CheckClassAdapter</code>. It won't be exactly the same verification
- * as JVM does, but it run data flow analysis for the code of each method and
+ * <code>CheckClassAdapter</code>. It won't be exactly the same verification as
+ * JVM does, but it run data flow analysis for the code of each method and
  * checks that expectations are met for each method instruction.
- *
- * <p>If method bytecode has errors, assertion text will show the erroneous
+ * 
+ * <p>
+ * If method bytecode has errors, assertion text will show the erroneous
  * instruction number and dump of the failed method with information about
  * locals and stack slot for each instruction. For example (format is -
  * insnNumber locals : stack):
- *
+ * 
  * <pre>
  * org.objectweb.asm.tree.analysis.AnalyzerException: Error at instruction 71: Expected I, but found .
  *   at org.objectweb.asm.tree.analysis.Analyzer.analyze(Analyzer.java:289)
@@ -101,23 +102,24 @@ import org.objectweb.asm.tree.analysis.SimpleVerifier;
  *   ISTORE 2
  * 00001 LinkedBlockingQueue$Itr <b>.</b> I . . . . . .  :
  * ...
- *
+ * 
  * 00071 LinkedBlockingQueue$Itr <b>.</b> I . . . . . .  :
  *   ILOAD 1
  * 00072 <b>?</b>
  *   INVOKESPECIAL java/lang/Integer.<init> (I)V
  * ...
  * </pre>
- *
+ * 
  * In the above output you can see that variable 1 loaded by
  * <code>ILOAD 1</code> instruction at position <code>00071</code> is not
  * initialized. You can also see that at the beginning of the method (code
  * inserted by the transformation) variable 2 is initialized.
- *
- * <p>Note that when used like that, <code>CheckClassAdapter.verify()</code>
- * can trigger additional class loading, because it is using
+ * 
+ * <p>
+ * Note that when used like that, <code>CheckClassAdapter.verify()</code> can
+ * trigger additional class loading, because it is using
  * <code>SimpleVerifier</code>.
- *
+ * 
  * @author Eric Bruneton
  */
 public class CheckClassAdapter extends ClassVisitor {
@@ -159,13 +161,15 @@ public class CheckClassAdapter extends ClassVisitor {
     private boolean checkDataFlow;
 
     /**
-     * Checks a given class. <p> Usage: CheckClassAdapter &lt;binary
-     * class name or class file name&gt;
-     *
-     * @param args the command line arguments.
-     *
-     * @throws Exception if the class cannot be found, or if an IO exception
-     *         occurs.
+     * Checks a given class.
+     * <p>
+     * Usage: CheckClassAdapter &lt;binary class name or class file name&gt;
+     * 
+     * @param args
+     *            the command line arguments.
+     * 
+     * @throws Exception
+     *             if the class cannot be found, or if an IO exception occurs.
      */
     public static void main(final String[] args) throws Exception {
         if (args.length != 1) {
@@ -186,28 +190,27 @@ public class CheckClassAdapter extends ClassVisitor {
 
     /**
      * Checks a given class.
-     *
-     * @param cr a <code>ClassReader</code> that contains bytecode for the
-     *        analysis.
-     * @param loader a <code>ClassLoader</code> which will be used to load
-     *        referenced classes. This is useful if you are verifiying multiple
-     *        interdependent classes.
-     * @param dump true if bytecode should be printed out not only when errors
-     *        are found.
-     * @param pw write where results going to be printed
+     * 
+     * @param cr
+     *            a <code>ClassReader</code> that contains bytecode for the
+     *            analysis.
+     * @param loader
+     *            a <code>ClassLoader</code> which will be used to load
+     *            referenced classes. This is useful if you are verifiying
+     *            multiple interdependent classes.
+     * @param dump
+     *            true if bytecode should be printed out not only when errors
+     *            are found.
+     * @param pw
+     *            write where results going to be printed
      */
-    public static void verify(
-        final ClassReader cr,
-        final ClassLoader loader,
-        final boolean dump,
-        final PrintWriter pw)
-    {
+    public static void verify(final ClassReader cr, final ClassLoader loader,
+            final boolean dump, final PrintWriter pw) {
         ClassNode cn = new ClassNode();
         cr.accept(new CheckClassAdapter(cn, false), ClassReader.SKIP_DEBUG);
 
-        Type syperType = cn.superName == null
-                ? null
-                : Type.getObjectType(cn.superName);
+        Type syperType = cn.superName == null ? null : Type
+                .getObjectType(cn.superName);
         List<MethodNode> methods = cn.methods;
 
         List<Type> interfaces = new ArrayList<Type>();
@@ -217,9 +220,8 @@ public class CheckClassAdapter extends ClassVisitor {
 
         for (int i = 0; i < methods.size(); ++i) {
             MethodNode method = methods.get(i);
-            SimpleVerifier verifier = new SimpleVerifier(Type.getObjectType(cn.name),
-                    syperType,
-                    interfaces,
+            SimpleVerifier verifier = new SimpleVerifier(
+                    Type.getObjectType(cn.name), syperType, interfaces,
                     (cn.access & Opcodes.ACC_INTERFACE) != 0);
             Analyzer<BasicValue> a = new Analyzer<BasicValue>(verifier);
             if (loader != null) {
@@ -240,26 +242,23 @@ public class CheckClassAdapter extends ClassVisitor {
 
     /**
      * Checks a given class
-     *
-     * @param cr a <code>ClassReader</code> that contains bytecode for the
-     *        analysis.
-     * @param dump true if bytecode should be printed out not only when errors
-     *        are found.
-     * @param pw write where results going to be printed
+     * 
+     * @param cr
+     *            a <code>ClassReader</code> that contains bytecode for the
+     *            analysis.
+     * @param dump
+     *            true if bytecode should be printed out not only when errors
+     *            are found.
+     * @param pw
+     *            write where results going to be printed
      */
-    public static void verify(
-        final ClassReader cr,
-        final boolean dump,
-        final PrintWriter pw)
-    {
+    public static void verify(final ClassReader cr, final boolean dump,
+            final PrintWriter pw) {
         verify(cr, null, dump, pw);
     }
 
-    static void printAnalyzerResult(
-        MethodNode method,
-        Analyzer<BasicValue> a,
-        final PrintWriter pw)
-    {
+    static void printAnalyzerResult(MethodNode method, Analyzer<BasicValue> a,
+            final PrintWriter pw) {
         Frame<BasicValue>[] frames = a.getFrames();
         Textifier t = new Textifier();
         TraceMethodVisitor mv = new TraceMethodVisitor(t);
@@ -309,8 +308,9 @@ public class CheckClassAdapter extends ClassVisitor {
      * Constructs a new {@link CheckClassAdapter}. <i>Subclasses must not use
      * this constructor</i>. Instead, they must use the
      * {@link #CheckClassAdapter(int, ClassVisitor, boolean)} version.
-     *
-     * @param cv the class visitor to which this adapter must delegate calls.
+     * 
+     * @param cv
+     *            the class visitor to which this adapter must delegate calls.
      */
     public CheckClassAdapter(final ClassVisitor cv) {
         this(cv, true);
@@ -320,34 +320,35 @@ public class CheckClassAdapter extends ClassVisitor {
      * Constructs a new {@link CheckClassAdapter}. <i>Subclasses must not use
      * this constructor</i>. Instead, they must use the
      * {@link #CheckClassAdapter(int, ClassVisitor, boolean)} version.
-     *
-     * @param cv the class visitor to which this adapter must delegate calls.
-     * @param checkDataFlow <tt>true</tt> to perform basic data flow checks, or
-     *        <tt>false</tt> to not perform any data flow check (see
-     *        {@link CheckMethodAdapter}). This option requires valid maxLocals
-     *        and maxStack values.
+     * 
+     * @param cv
+     *            the class visitor to which this adapter must delegate calls.
+     * @param checkDataFlow
+     *            <tt>true</tt> to perform basic data flow checks, or
+     *            <tt>false</tt> to not perform any data flow check (see
+     *            {@link CheckMethodAdapter}). This option requires valid
+     *            maxLocals and maxStack values.
      */
-    public CheckClassAdapter(final ClassVisitor cv, final boolean checkDataFlow)
-    {
+    public CheckClassAdapter(final ClassVisitor cv, final boolean checkDataFlow) {
         this(Opcodes.ASM4, cv, checkDataFlow);
     }
 
     /**
      * Constructs a new {@link CheckClassAdapter}.
-     *
-     * @param api the ASM API version implemented by this visitor. Must be one
-     *        of {@link Opcodes#ASM4}.
-     * @param cv the class visitor to which this adapter must delegate calls.
-     * @param checkDataFlow <tt>true</tt> to perform basic data flow checks, or
-     *        <tt>false</tt> to not perform any data flow check (see
-     *        {@link CheckMethodAdapter}). This option requires valid maxLocals
-     *        and maxStack values.
+     * 
+     * @param api
+     *            the ASM API version implemented by this visitor. Must be one
+     *            of {@link Opcodes#ASM4}.
+     * @param cv
+     *            the class visitor to which this adapter must delegate calls.
+     * @param checkDataFlow
+     *            <tt>true</tt> to perform basic data flow checks, or
+     *            <tt>false</tt> to not perform any data flow check (see
+     *            {@link CheckMethodAdapter}). This option requires valid
+     *            maxLocals and maxStack values.
      */
-    protected CheckClassAdapter(
-        final int api,
-        final ClassVisitor cv,
-        final boolean checkDataFlow)
-    {
+    protected CheckClassAdapter(final int api, final ClassVisitor cv,
+            final boolean checkDataFlow) {
         super(api, cv);
         this.labels = new HashMap<Label, Integer>();
         this.checkDataFlow = checkDataFlow;
@@ -358,14 +359,9 @@ public class CheckClassAdapter extends ClassVisitor {
     // ------------------------------------------------------------------------
 
     @Override
-    public void visit(
-        final int version,
-        final int access,
-        final String name,
-        final String signature,
-        final String superName,
-        final String[] interfaces)
-    {
+    public void visit(final int version, final int access, final String name,
+            final String signature, final String superName,
+            final String[] interfaces) {
         if (start) {
             throw new IllegalStateException("visit must be called only once");
         }
@@ -375,14 +371,14 @@ public class CheckClassAdapter extends ClassVisitor {
                 + Opcodes.ACC_SUPER + Opcodes.ACC_INTERFACE
                 + Opcodes.ACC_ABSTRACT + Opcodes.ACC_SYNTHETIC
                 + Opcodes.ACC_ANNOTATION + Opcodes.ACC_ENUM
-                + Opcodes.ACC_DEPRECATED
-                + 0x40000); // ClassWriter.ACC_SYNTHETIC_ATTRIBUTE
+                + Opcodes.ACC_DEPRECATED + 0x40000); // ClassWriter.ACC_SYNTHETIC_ATTRIBUTE
         if (name == null || !name.endsWith("package-info")) {
             CheckMethodAdapter.checkInternalName(name, "class name");
         }
         if ("java/lang/Object".equals(name)) {
             if (superName != null) {
-                throw new IllegalArgumentException("The super class name of the Object class must be 'null'");
+                throw new IllegalArgumentException(
+                        "The super class name of the Object class must be 'null'");
             }
         } else {
             CheckMethodAdapter.checkInternalName(superName, "super class name");
@@ -392,7 +388,8 @@ public class CheckClassAdapter extends ClassVisitor {
         }
         if ((access & Opcodes.ACC_INTERFACE) != 0) {
             if (!"java/lang/Object".equals(superName)) {
-                throw new IllegalArgumentException("The super class name of interfaces must be 'java/lang/Object'");
+                throw new IllegalArgumentException(
+                        "The super class name of interfaces must be 'java/lang/Object'");
             }
         }
         if (interfaces != null) {
@@ -409,21 +406,20 @@ public class CheckClassAdapter extends ClassVisitor {
     public void visitSource(final String file, final String debug) {
         checkState();
         if (source) {
-            throw new IllegalStateException("visitSource can be called only once.");
+            throw new IllegalStateException(
+                    "visitSource can be called only once.");
         }
         source = true;
         super.visitSource(file, debug);
     }
 
     @Override
-    public void visitOuterClass(
-        final String owner,
-        final String name,
-        final String desc)
-    {
+    public void visitOuterClass(final String owner, final String name,
+            final String desc) {
         checkState();
         if (outer) {
-            throw new IllegalStateException("visitOuterClass can be called only once.");
+            throw new IllegalStateException(
+                    "visitOuterClass can be called only once.");
         }
         outer = true;
         if (owner == null) {
@@ -436,12 +432,8 @@ public class CheckClassAdapter extends ClassVisitor {
     }
 
     @Override
-    public void visitInnerClass(
-        final String name,
-        final String outerName,
-        final String innerName,
-        final int access)
-    {
+    public void visitInnerClass(final String name, final String outerName,
+            final String innerName, final int access) {
         checkState();
         CheckMethodAdapter.checkInternalName(name, "class name");
         if (outerName != null) {
@@ -459,20 +451,14 @@ public class CheckClassAdapter extends ClassVisitor {
     }
 
     @Override
-    public FieldVisitor visitField(
-        final int access,
-        final String name,
-        final String desc,
-        final String signature,
-        final Object value)
-    {
+    public FieldVisitor visitField(final int access, final String name,
+            final String desc, final String signature, final Object value) {
         checkState();
         checkAccess(access, Opcodes.ACC_PUBLIC + Opcodes.ACC_PRIVATE
                 + Opcodes.ACC_PROTECTED + Opcodes.ACC_STATIC
                 + Opcodes.ACC_FINAL + Opcodes.ACC_VOLATILE
                 + Opcodes.ACC_TRANSIENT + Opcodes.ACC_SYNTHETIC
-                + Opcodes.ACC_ENUM + Opcodes.ACC_DEPRECATED
-                + 0x40000); // ClassWriter.ACC_SYNTHETIC_ATTRIBUTE
+                + Opcodes.ACC_ENUM + Opcodes.ACC_DEPRECATED + 0x40000); // ClassWriter.ACC_SYNTHETIC_ATTRIBUTE
         CheckMethodAdapter.checkUnqualifiedName(version, name, "field name");
         CheckMethodAdapter.checkDesc(desc, false);
         if (signature != null) {
@@ -481,26 +467,21 @@ public class CheckClassAdapter extends ClassVisitor {
         if (value != null) {
             CheckMethodAdapter.checkConstant(value);
         }
-        FieldVisitor av = super.visitField(access, name, desc, signature, value);
+        FieldVisitor av = super
+                .visitField(access, name, desc, signature, value);
         return new CheckFieldAdapter(av);
     }
 
     @Override
-    public MethodVisitor visitMethod(
-        final int access,
-        final String name,
-        final String desc,
-        final String signature,
-        final String[] exceptions)
-    {
+    public MethodVisitor visitMethod(final int access, final String name,
+            final String desc, final String signature, final String[] exceptions) {
         checkState();
         checkAccess(access, Opcodes.ACC_PUBLIC + Opcodes.ACC_PRIVATE
                 + Opcodes.ACC_PROTECTED + Opcodes.ACC_STATIC
                 + Opcodes.ACC_FINAL + Opcodes.ACC_SYNCHRONIZED
                 + Opcodes.ACC_BRIDGE + Opcodes.ACC_VARARGS + Opcodes.ACC_NATIVE
                 + Opcodes.ACC_ABSTRACT + Opcodes.ACC_STRICT
-                + Opcodes.ACC_SYNTHETIC + Opcodes.ACC_DEPRECATED
-                + 0x40000); // ClassWriter.ACC_SYNTHETIC_ATTRIBUTE
+                + Opcodes.ACC_SYNTHETIC + Opcodes.ACC_DEPRECATED + 0x40000); // ClassWriter.ACC_SYNTHETIC_ATTRIBUTE
         CheckMethodAdapter.checkMethodIdentifier(version, name, "method name");
         CheckMethodAdapter.checkMethodDesc(desc);
         if (signature != null) {
@@ -514,27 +495,19 @@ public class CheckClassAdapter extends ClassVisitor {
         }
         CheckMethodAdapter cma;
         if (checkDataFlow) {
-            cma = new CheckMethodAdapter(access,
-                    name,
-                    desc,
-                    super.visitMethod(access, name, desc, signature, exceptions),
-                    labels);
+            cma = new CheckMethodAdapter(access, name, desc, super.visitMethod(
+                    access, name, desc, signature, exceptions), labels);
         } else {
-            cma = new CheckMethodAdapter(super.visitMethod(access,
-                    name,
-                    desc,
-                    signature,
-                    exceptions), labels);
+            cma = new CheckMethodAdapter(super.visitMethod(access, name, desc,
+                    signature, exceptions), labels);
         }
         cma.version = version;
         return cma;
     }
 
     @Override
-    public AnnotationVisitor visitAnnotation(
-        final String desc,
-        final boolean visible)
-    {
+    public AnnotationVisitor visitAnnotation(final String desc,
+            final boolean visible) {
         checkState();
         CheckMethodAdapter.checkDesc(desc, false);
         return new CheckAnnotationAdapter(super.visitAnnotation(desc, visible));
@@ -544,7 +517,8 @@ public class CheckClassAdapter extends ClassVisitor {
     public void visitAttribute(final Attribute attr) {
         checkState();
         if (attr == null) {
-            throw new IllegalArgumentException("Invalid attribute (must not be null)");
+            throw new IllegalArgumentException(
+                    "Invalid attribute (must not be null)");
         }
         super.visitAttribute(attr);
     }
@@ -566,10 +540,12 @@ public class CheckClassAdapter extends ClassVisitor {
      */
     private void checkState() {
         if (!start) {
-            throw new IllegalStateException("Cannot visit member before visit has been called.");
+            throw new IllegalStateException(
+                    "Cannot visit member before visit has been called.");
         }
         if (end) {
-            throw new IllegalStateException("Cannot visit member after visitEnd has been called.");
+            throw new IllegalStateException(
+                    "Cannot visit member after visitEnd has been called.");
         }
     }
 
@@ -577,9 +553,11 @@ public class CheckClassAdapter extends ClassVisitor {
      * Checks that the given access flags do not contain invalid flags. This
      * method also checks that mutually incompatible flags are not set
      * simultaneously.
-     *
-     * @param access the access flags to be checked
-     * @param possibleAccess the valid access flags.
+     * 
+     * @param access
+     *            the access flags to be checked
+     * @param possibleAccess
+     *            the valid access flags.
      */
     static void checkAccess(final int access, final int possibleAccess) {
         if ((access & ~possibleAccess) != 0) {
@@ -590,21 +568,23 @@ public class CheckClassAdapter extends ClassVisitor {
         int pri = (access & Opcodes.ACC_PRIVATE) == 0 ? 0 : 1;
         int pro = (access & Opcodes.ACC_PROTECTED) == 0 ? 0 : 1;
         if (pub + pri + pro > 1) {
-            throw new IllegalArgumentException("public private and protected are mutually exclusive: "
-                    + access);
+            throw new IllegalArgumentException(
+                    "public private and protected are mutually exclusive: "
+                            + access);
         }
         int fin = (access & Opcodes.ACC_FINAL) == 0 ? 0 : 1;
         int abs = (access & Opcodes.ACC_ABSTRACT) == 0 ? 0 : 1;
         if (fin + abs > 1) {
-            throw new IllegalArgumentException("final and abstract are mutually exclusive: "
-                    + access);
+            throw new IllegalArgumentException(
+                    "final and abstract are mutually exclusive: " + access);
         }
     }
 
     /**
      * Checks a class signature.
-     *
-     * @param signature a string containing the signature that must be checked.
+     * 
+     * @param signature
+     *            a string containing the signature that must be checked.
      */
     public static void checkClassSignature(final String signature) {
         // ClassSignature:
@@ -626,8 +606,9 @@ public class CheckClassAdapter extends ClassVisitor {
 
     /**
      * Checks a method signature.
-     *
-     * @param signature a string containing the signature that must be checked.
+     * 
+     * @param signature
+     *            a string containing the signature that must be checked.
      */
     public static void checkMethodSignature(final String signature) {
         // MethodTypeSignature:
@@ -664,8 +645,9 @@ public class CheckClassAdapter extends ClassVisitor {
 
     /**
      * Checks a field signature.
-     *
-     * @param signature a string containing the signature that must be checked.
+     * 
+     * @param signature
+     *            a string containing the signature that must be checked.
      */
     public static void checkFieldSignature(final String signature) {
         int pos = checkFieldTypeSignature(signature, 0);
@@ -677,13 +659,14 @@ public class CheckClassAdapter extends ClassVisitor {
 
     /**
      * Checks the formal type parameters of a class or method signature.
-     *
-     * @param signature a string containing the signature that must be checked.
-     * @param pos index of first character to be checked.
+     * 
+     * @param signature
+     *            a string containing the signature that must be checked.
+     * @param pos
+     *            index of first character to be checked.
      * @return the index of the first character after the checked part.
      */
-    private static int checkFormalTypeParameters(final String signature, int pos)
-    {
+    private static int checkFormalTypeParameters(final String signature, int pos) {
         // FormalTypeParameters:
         // < FormalTypeParameter+ >
 
@@ -697,13 +680,14 @@ public class CheckClassAdapter extends ClassVisitor {
 
     /**
      * Checks a formal type parameter of a class or method signature.
-     *
-     * @param signature a string containing the signature that must be checked.
-     * @param pos index of first character to be checked.
+     * 
+     * @param signature
+     *            a string containing the signature that must be checked.
+     * @param pos
+     *            index of first character to be checked.
      * @return the index of the first character after the checked part.
      */
-    private static int checkFormalTypeParameter(final String signature, int pos)
-    {
+    private static int checkFormalTypeParameter(final String signature, int pos) {
         // FormalTypeParameter:
         // Identifier : FieldTypeSignature? (: FieldTypeSignature)*
 
@@ -720,13 +704,14 @@ public class CheckClassAdapter extends ClassVisitor {
 
     /**
      * Checks a field type signature.
-     *
-     * @param signature a string containing the signature that must be checked.
-     * @param pos index of first character to be checked.
+     * 
+     * @param signature
+     *            a string containing the signature that must be checked.
+     * @param pos
+     *            index of first character to be checked.
      * @return the index of the first character after the checked part.
      */
-    private static int checkFieldTypeSignature(final String signature, int pos)
-    {
+    private static int checkFieldTypeSignature(final String signature, int pos) {
         // FieldTypeSignature:
         // ClassTypeSignature | ArrayTypeSignature | TypeVariableSignature
         //
@@ -734,24 +719,25 @@ public class CheckClassAdapter extends ClassVisitor {
         // [ TypeSignature
 
         switch (getChar(signature, pos)) {
-            case 'L':
-                return checkClassTypeSignature(signature, pos);
-            case '[':
-                return checkTypeSignature(signature, pos + 1);
-            default:
-                return checkTypeVariableSignature(signature, pos);
+        case 'L':
+            return checkClassTypeSignature(signature, pos);
+        case '[':
+            return checkTypeSignature(signature, pos + 1);
+        default:
+            return checkTypeVariableSignature(signature, pos);
         }
     }
 
     /**
      * Checks a class type signature.
-     *
-     * @param signature a string containing the signature that must be checked.
-     * @param pos index of first character to be checked.
+     * 
+     * @param signature
+     *            a string containing the signature that must be checked.
+     * @param pos
+     *            index of first character to be checked.
      * @return the index of the first character after the checked part.
      */
-    private static int checkClassTypeSignature(final String signature, int pos)
-    {
+    private static int checkClassTypeSignature(final String signature, int pos) {
         // ClassTypeSignature:
         // L Identifier ( / Identifier )* TypeArguments? ( . Identifier
         // TypeArguments? )* ;
@@ -775,9 +761,11 @@ public class CheckClassAdapter extends ClassVisitor {
 
     /**
      * Checks the type arguments in a class type signature.
-     *
-     * @param signature a string containing the signature that must be checked.
-     * @param pos index of first character to be checked.
+     * 
+     * @param signature
+     *            a string containing the signature that must be checked.
+     * @param pos
+     *            index of first character to be checked.
      * @return the index of the first character after the checked part.
      */
     private static int checkTypeArguments(final String signature, int pos) {
@@ -794,9 +782,11 @@ public class CheckClassAdapter extends ClassVisitor {
 
     /**
      * Checks a type argument in a class type signature.
-     *
-     * @param signature a string containing the signature that must be checked.
-     * @param pos index of first character to be checked.
+     * 
+     * @param signature
+     *            a string containing the signature that must be checked.
+     * @param pos
+     *            index of first character to be checked.
      * @return the index of the first character after the checked part.
      */
     private static int checkTypeArgument(final String signature, int pos) {
@@ -814,15 +804,15 @@ public class CheckClassAdapter extends ClassVisitor {
 
     /**
      * Checks a type variable signature.
-     *
-     * @param signature a string containing the signature that must be checked.
-     * @param pos index of first character to be checked.
+     * 
+     * @param signature
+     *            a string containing the signature that must be checked.
+     * @param pos
+     *            index of first character to be checked.
      * @return the index of the first character after the checked part.
      */
-    private static int checkTypeVariableSignature(
-        final String signature,
-        int pos)
-    {
+    private static int checkTypeVariableSignature(final String signature,
+            int pos) {
         // TypeVariableSignature:
         // T Identifier ;
 
@@ -833,9 +823,11 @@ public class CheckClassAdapter extends ClassVisitor {
 
     /**
      * Checks a type signature.
-     *
-     * @param signature a string containing the signature that must be checked.
-     * @param pos index of first character to be checked.
+     * 
+     * @param signature
+     *            a string containing the signature that must be checked.
+     * @param pos
+     *            index of first character to be checked.
      * @return the index of the first character after the checked part.
      */
     private static int checkTypeSignature(final String signature, int pos) {
@@ -843,25 +835,27 @@ public class CheckClassAdapter extends ClassVisitor {
         // Z | C | B | S | I | F | J | D | FieldTypeSignature
 
         switch (getChar(signature, pos)) {
-            case 'Z':
-            case 'C':
-            case 'B':
-            case 'S':
-            case 'I':
-            case 'F':
-            case 'J':
-            case 'D':
-                return pos + 1;
-            default:
-                return checkFieldTypeSignature(signature, pos);
+        case 'Z':
+        case 'C':
+        case 'B':
+        case 'S':
+        case 'I':
+        case 'F':
+        case 'J':
+        case 'D':
+            return pos + 1;
+        default:
+            return checkFieldTypeSignature(signature, pos);
         }
     }
 
     /**
      * Checks an identifier.
-     *
-     * @param signature a string containing the signature that must be checked.
-     * @param pos index of first character to be checked.
+     * 
+     * @param signature
+     *            a string containing the signature that must be checked.
+     * @param pos
+     *            index of first character to be checked.
      * @return the index of the first character after the checked part.
      */
     private static int checkIdentifier(final String signature, int pos) {
@@ -878,13 +872,14 @@ public class CheckClassAdapter extends ClassVisitor {
 
     /**
      * Checks a single character.
-     *
-     * @param signature a string containing the signature that must be checked.
-     * @param pos index of first character to be checked.
+     * 
+     * @param signature
+     *            a string containing the signature that must be checked.
+     * @param pos
+     *            index of first character to be checked.
      * @return the index of the first character after the checked part.
      */
-    private static int checkChar(final char c, final String signature, int pos)
-    {
+    private static int checkChar(final char c, final String signature, int pos) {
         if (getChar(signature, pos) == c) {
             return pos + 1;
         }
@@ -894,9 +889,11 @@ public class CheckClassAdapter extends ClassVisitor {
 
     /**
      * Returns the signature car at the given index.
-     *
-     * @param signature a signature.
-     * @param pos an index in signature.
+     * 
+     * @param signature
+     *            a signature.
+     * @param pos
+     *            an index in signature.
      * @return the character at the given index, or 0 if there is no such
      *         character.
      */

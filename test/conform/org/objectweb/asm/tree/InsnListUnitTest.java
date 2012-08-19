@@ -40,7 +40,7 @@ import org.objectweb.asm.Opcodes;
 
 /**
  * InsnList unit tests.
- *
+ * 
  * @author Eric Bruneton
  * @author Eugene Kuleshov
  */
@@ -65,10 +65,8 @@ public class InsnListUnitTest extends TestCase {
         l2.add(in2);
     }
 
-    protected void assertEquals(
-        final AbstractInsnNode[] expected,
-        final AbstractInsnNode[] value)
-    {
+    protected void assertEquals(final AbstractInsnNode[] expected,
+            final AbstractInsnNode[] value) {
         assertEquals(expected.length, value.length);
         for (int i = 0; i < value.length; ++i) {
             assertEquals(expected[i], value[i]);
@@ -124,7 +122,7 @@ public class InsnListUnitTest extends TestCase {
         assertTrue(it.hasNext());
         assertEquals(in2, it.next());
         assertTrue(it.hasNext());
-        it.remove();  // remove in2
+        it.remove(); // remove in2
         assertTrue(it.hasNext());
         assertEquals(insn, it.next());
         assertFalse(it.hasNext());
@@ -733,7 +731,8 @@ class CheckedInsnList extends InsnList {
     }
 
     @Override
-    public void insert(final AbstractInsnNode location, final AbstractInsnNode insn) {
+    public void insert(final AbstractInsnNode location,
+            final AbstractInsnNode insn) {
         if (!(contains(location) && insn.index == -1)) {
             throw new IllegalArgumentException();
         }
@@ -749,7 +748,8 @@ class CheckedInsnList extends InsnList {
     }
 
     @Override
-    public void insertBefore(final AbstractInsnNode location, final AbstractInsnNode insn) {
+    public void insertBefore(final AbstractInsnNode location,
+            final AbstractInsnNode insn) {
         if (!(contains(location) && insn.index == -1)) {
             throw new IllegalArgumentException();
         }
@@ -757,8 +757,9 @@ class CheckedInsnList extends InsnList {
     }
 
     @Override
-    public void insertBefore(final AbstractInsnNode location, final InsnList insns) {
-        if (!(contains(location ) && insns != this)) {
+    public void insertBefore(final AbstractInsnNode location,
+            final InsnList insns) {
+        if (!(contains(location) && insns != this)) {
             throw new IllegalArgumentException();
         }
         super.insertBefore(location, insns);

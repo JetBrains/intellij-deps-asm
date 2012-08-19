@@ -33,7 +33,7 @@ import junit.framework.TestCase;
 
 /**
  * Attribute unit tests.
- *
+ * 
  * @author Eric Bruneton
  */
 public class AttributeUnitTest extends TestCase {

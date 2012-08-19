@@ -40,7 +40,7 @@ import org.objectweb.asm.tree.MethodNode;
 
 /**
  * Verifier tests.
- *
+ * 
  * @author Eric Bruneton
  */
 public class SimpleVerifierTest extends AbstractTest {

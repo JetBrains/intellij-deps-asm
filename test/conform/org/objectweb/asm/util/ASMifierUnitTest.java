@@ -33,7 +33,7 @@ import junit.framework.TestCase;
 
 /**
  * ASMifierClassVisitor unit tests
- *
+ * 
  * @author Eric Bruneton
  */
 public class ASMifierUnitTest extends TestCase {

@@ -42,20 +42,18 @@ import javax.xml.transform.stream.StreamSource;
 
 /**
  * Performance test suite for ASM XML
- *
+ * 
  * @author Eugene Kuleshov
  */
 public class XMLPerfTest {
 
     private static final String[] ENGINES = {
-        "jd.xml.xslt.trax.TransformerFactoryImpl",
-        "net.sf.saxon.TransformerFactoryImpl",
-        "org.apache.xalan.processor.TransformerFactoryImpl", };
+            "jd.xml.xslt.trax.TransformerFactoryImpl",
+            "net.sf.saxon.TransformerFactoryImpl",
+            "org.apache.xalan.processor.TransformerFactoryImpl", };
 
-    private static final String[] TEMPLATES = {
-        "copy.xsl",
-        "linenumbers.xsl",
-        "profile.xsl", };
+    private static final String[] TEMPLATES = { "copy.xsl", "linenumbers.xsl",
+            "profile.xsl", };
 
     public static void main(final String[] args) throws Exception {
         System.err.println("Comparing XSLT performance for ASM XSLT");
@@ -80,8 +78,7 @@ public class XMLPerfTest {
     }
 
     private static void process(final String name, final String engine)
-            throws Exception
-    {
+            throws Exception {
         System.setProperty("javax.xml.transform.TransformerFactory", engine);
         processRep(name, Processor.BYTECODE);
         processRep(name, Processor.MULTI_XML);
@@ -94,17 +91,13 @@ public class XMLPerfTest {
         try {
             Class<?> c = XMLPerfTest.class;
             String u = c.getResource("/java/lang/String.class").toString();
-            final InputStream is = new BufferedInputStream(new URL(u.substring(4,
-                    u.indexOf('!'))).openStream());
+            final InputStream is = new BufferedInputStream(new URL(u.substring(
+                    4, u.indexOf('!'))).openStream());
             final OutputStream os = new IgnoringOutputStream();
-            final StreamSource xslt = name == null
-                    ? null
-                    : new StreamSource(new FileInputStream(name));
+            final StreamSource xslt = name == null ? null : new StreamSource(
+                    new FileInputStream(name));
 
-            Processor p = new DotObserver(Processor.BYTECODE,
-                    outRep,
-                    is,
-                    os,
+            Processor p = new DotObserver(Processor.BYTECODE, outRep, is, os,
                     xslt);
             n = p.process();
 
@@ -123,13 +116,9 @@ public class XMLPerfTest {
 
     private static final class DotObserver extends Processor {
 
-        public DotObserver(
-            final int inRepresenation,
-            final int outRepresentation,
-            final InputStream input,
-            final OutputStream output,
-            final Source xslt)
-        {
+        public DotObserver(final int inRepresenation,
+                final int outRepresentation, final InputStream input,
+                final OutputStream output, final Source xslt) {
             super(inRepresenation, outRepresentation, input, output, xslt);
         }
     }
@@ -146,8 +135,7 @@ public class XMLPerfTest {
 
         @Override
         public final void write(final byte[] b, final int off, final int len)
-                throws IOException
-        {
+                throws IOException {
         }
     }
 }

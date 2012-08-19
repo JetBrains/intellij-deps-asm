@@ -40,7 +40,7 @@ import org.objectweb.asm.tree.MethodNode;
 
 /**
  * Analysis tests.
- *
+ * 
  * @author Eric Bruneton
  */
 public class BasicInterpreterTest extends AbstractTest {
@@ -57,7 +57,8 @@ public class BasicInterpreterTest extends AbstractTest {
         List<MethodNode> methods = cn.methods;
         for (int i = 0; i < methods.size(); ++i) {
             MethodNode method = methods.get(i);
-            Analyzer<BasicValue> a = new Analyzer<BasicValue>(new BasicInterpreter());
+            Analyzer<BasicValue> a = new Analyzer<BasicValue>(
+                    new BasicInterpreter());
             a.analyze(cn.name, method);
         }
     }

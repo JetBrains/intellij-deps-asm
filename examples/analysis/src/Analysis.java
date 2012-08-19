@@ -64,7 +64,8 @@ public class Analysis implements Opcodes {
             MethodNode method = methods.get(i);
             if (method.instructions.size() > 0) {
                 if (!analyze(cn, method)) {
-                    Analyzer<?> a = new Analyzer<BasicValue>(new BasicVerifier());
+                    Analyzer<?> a = new Analyzer<BasicValue>(
+                            new BasicVerifier());
                     try {
                         a.analyze(cn.name, method);
                     } catch (Exception ignored) {
@@ -73,22 +74,22 @@ public class Analysis implements Opcodes {
 
                     Textifier t = new Textifier() {
                         @Override
-                        public void visitMaxs(
-                            final int maxStack,
-                            final int maxLocals)
-                        {
+                        public void visitMaxs(final int maxStack,
+                                final int maxLocals) {
                             for (int i = 0; i < text.size(); ++i) {
-                                StringBuffer s = new StringBuffer(frames[i] == null
-                                        ? "null"
-                                        : frames[i].toString());
+                                StringBuffer s = new StringBuffer(
+                                        frames[i] == null ? "null"
+                                                : frames[i].toString());
                                 while (s.length() < Math.max(20, maxStack
-                                        + maxLocals + 1))
-                                {
+                                        + maxLocals + 1)) {
                                     s.append(' ');
                                 }
                                 System.err.print(Integer.toString(i + 1000)
                                         .substring(1)
-                                        + " " + s + " : " + text.get(i));
+                                        + " "
+                                        + s
+                                        + " : "
+                                        + text.get(i));
                             }
                             System.err.println();
                         }
@@ -110,9 +111,9 @@ public class Analysis implements Opcodes {
      * (in the control flow graph).
      */
     public static boolean analyze(final ClassNode c, final MethodNode m)
-            throws Exception
-    {
-        Analyzer<SourceValue> a = new Analyzer<SourceValue>(new SourceInterpreter());
+            throws Exception {
+        Analyzer<SourceValue> a = new Analyzer<SourceValue>(
+                new SourceInterpreter());
         Frame<SourceValue>[] frames = a.analyze(c.name, m);
 
         // for each xLOAD instruction, we find the xSTORE instructions that can
@@ -123,8 +124,7 @@ public class Analysis implements Opcodes {
             AbstractInsnNode insn = m.instructions.get(i);
             int opcode = insn.getOpcode();
             if ((opcode >= ILOAD && opcode <= ALOAD) || opcode == IINC) {
-                int var = opcode == IINC
-                        ? ((IincInsnNode) insn).var
+                int var = opcode == IINC ? ((IincInsnNode) insn).var
                         : ((VarInsnNode) insn).var;
                 Frame<SourceValue> f = frames[i];
                 if (f != null) {
@@ -148,9 +148,8 @@ public class Analysis implements Opcodes {
             if (opcode >= ISTORE && opcode <= ASTORE) {
                 if (!stores.contains(insn)) {
                     ok = false;
-                    System.err.println("method " + m.name
-                            + ", instruction " + i
-                            + ": useless store instruction");
+                    System.err.println("method " + m.name + ", instruction "
+                            + i + ": useless store instruction");
                 }
             }
         }

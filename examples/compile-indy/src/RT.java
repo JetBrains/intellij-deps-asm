@@ -60,12 +60,8 @@ public class RT {
     /**
      * bootstrap method for constant
      */
-    public static CallSite cst(
-        Lookup lookup,
-        String name,
-        MethodType type,
-        Object constant)
-    {
+    public static CallSite cst(Lookup lookup, String name, MethodType type,
+            Object constant) {
         return new ConstantCallSite(MethodHandles.constant(Object.class,
                 constant));
     }
@@ -76,7 +72,8 @@ public class RT {
     public static CallSite unary(Lookup lookup, String name, MethodType type) {
         MethodHandle target;
         if (name.equals("asBoolean")) {
-            target = MethodHandles.explicitCastArguments(MethodHandles.identity(Object.class),
+            target = MethodHandles.explicitCastArguments(
+                    MethodHandles.identity(Object.class),
                     MethodType.methodType(boolean.class, Object.class));
         } else { // "not"
             target = MethodHandles.explicitCastArguments(NOT,
@@ -109,18 +106,17 @@ public class RT {
      * {@link RT#unary(Lookup, String, MethodType)}
      */
     public static class UnayOps {
-        
+
         public static Object not(boolean b) {
             return !b;
         }
     }
 
     private static final MethodHandle NOT;
-    
+
     static {
         try {
-            NOT = MethodHandles.publicLookup().findStatic(UnayOps.class,
-                    "not",
+            NOT = MethodHandles.publicLookup().findStatic(UnayOps.class, "not",
                     MethodType.methodType(Object.class, boolean.class));
         } catch (ReflectiveOperationException e) {
             throw new LinkageError(e.getMessage(), e);
@@ -139,9 +135,9 @@ public class RT {
      * computed and two new guards will be installed.
      */
     static class BinaryOpCallSite extends MutableCallSite {
-        
+
         private final String opName;
-        
+
         final MethodHandle fallback;
 
         public BinaryOpCallSite(String opName, MethodType type) {
@@ -155,8 +151,8 @@ public class RT {
             // don't forget that && and || are lazy !!
             // System.out.println("fallback called with "+opName+'('+v1.getClass()+','+v2.getClass()+')');
 
-            Class< ? extends Object> class1 = v1.getClass();
-            Class< ? extends Object> class2 = v2.getClass();
+            Class<? extends Object> class1 = v1.getClass();
+            Class<? extends Object> class2 = v2.getClass();
             MethodHandle op = lookupBinaryOp(opName, class1, class2);
 
             // convert arguments
@@ -164,9 +160,7 @@ public class RT {
             MethodType opType = op.type();
             if (opType.parameterType(0) == String.class) {
                 if (opType.parameterType(1) == String.class) {
-                    op = MethodHandles.filterArguments(op,
-                            0,
-                            TO_STRING,
+                    op = MethodHandles.filterArguments(op, 0, TO_STRING,
                             TO_STRING);
                 } else {
                     op = MethodHandles.filterArguments(op, 0, TO_STRING);
@@ -180,52 +174,44 @@ public class RT {
             }
 
             // prepare guard
-            MethodHandle guard = MethodHandles.guardWithTest(TEST1.bindTo(class1),
-                    MethodHandles.guardWithTest(TEST2.bindTo(class2),
-                            op,
-                            fallback),
-                    fallback);
+            MethodHandle guard = MethodHandles.guardWithTest(TEST1
+                    .bindTo(class1), MethodHandles.guardWithTest(
+                    TEST2.bindTo(class2), op, fallback), fallback);
 
             // install the inlining cache
             setTarget(guard);
             return op.invokeWithArguments(v1, v2);
         }
 
-        public static boolean test1(Class< ? > v1Class, Object v1, Object v2) {
+        public static boolean test1(Class<?> v1Class, Object v1, Object v2) {
             return v1.getClass() == v1Class;
         }
 
-        public static boolean test2(Class< ? > v2Class, Object v1, Object v2) {
+        public static boolean test2(Class<?> v2Class, Object v1, Object v2) {
             return v2.getClass() == v2Class;
         }
 
         private static final MethodHandle TO_STRING;
-        
+
         private static final MethodHandle TEST1;
-        
+
         private static final MethodHandle TEST2;
-        
+
         private static final MethodHandle FALLBACK;
-        
+
         static {
             Lookup lookup = MethodHandles.lookup();
             try {
-                TO_STRING = lookup.findVirtual(Object.class,
-                        "toString",
+                TO_STRING = lookup.findVirtual(Object.class, "toString",
                         MethodType.methodType(String.class));
                 MethodType testType = MethodType.methodType(boolean.class,
-                        Class.class,
-                        Object.class,
-                        Object.class);
-                TEST1 = lookup.findStatic(BinaryOpCallSite.class,
-                        "test1",
+                        Class.class, Object.class, Object.class);
+                TEST1 = lookup.findStatic(BinaryOpCallSite.class, "test1",
                         testType);
-                TEST2 = lookup.findStatic(BinaryOpCallSite.class,
-                        "test2",
+                TEST2 = lookup.findStatic(BinaryOpCallSite.class, "test2",
                         testType);
                 FALLBACK = lookup.findVirtual(BinaryOpCallSite.class,
-                        "fallback",
-                        MethodType.genericMethodType(2));
+                        "fallback", MethodType.genericMethodType(2));
             } catch (ReflectiveOperationException e) {
                 throw new LinkageError(e.getMessage(), e);
             }
@@ -240,7 +226,7 @@ public class RT {
      * See {@link RT#lookupBinaryOp(String, Class, Class)} for more info.
      */
     public static class BinaryOps {
-        
+
         public static Object add(int v1, int v2) {
             return v1 + v2;
         }
@@ -287,11 +273,8 @@ public class RT {
      * cached in {@link RT#BINARY_CACHE} to avoid to avoid to do a lookup (a
      * reflective call) on the same method twice.
      */
-    static MethodHandle lookupBinaryOp(
-        String opName,
-        Class< ? > class1,
-        Class< ? > class2)
-    {
+    static MethodHandle lookupBinaryOp(String opName, Class<?> class1,
+            Class<?> class2) {
         int rank = Math.max(RANK_MAP.get(class1), RANK_MAP.get(class2));
         String mangledName = opName + rank;
         MethodHandle mh = BINARY_CACHE.get(mangledName);
@@ -300,12 +283,12 @@ public class RT {
         }
 
         for (; rank < PRIMITIVE_ARRAY.length;) {
-            Class< ? > primitive = PRIMITIVE_ARRAY[rank];
+            Class<?> primitive = PRIMITIVE_ARRAY[rank];
             try {
-                mh = MethodHandles.publicLookup().findStatic(BinaryOps.class,
+                mh = MethodHandles.publicLookup().findStatic(
+                        BinaryOps.class,
                         opName,
-                        MethodType.methodType(Object.class,
-                                primitive,
+                        MethodType.methodType(Object.class, primitive,
                                 primitive));
             } catch (NoSuchMethodException e) {
                 rank = rank + 1;
@@ -321,34 +304,20 @@ public class RT {
                 + class1.getName() + ',' + class2.getName() + ')');
     }
 
-    private static final HashMap<Class< ? >, Integer> RANK_MAP;
-    
-    private static final Class< ? >[] PRIMITIVE_ARRAY;
-    
+    private static final HashMap<Class<?>, Integer> RANK_MAP;
+
+    private static final Class<?>[] PRIMITIVE_ARRAY;
+
     private static final HashMap<String, MethodHandle> BINARY_CACHE;
-    
+
     static {
-        Class< ? >[] primitives = new Class< ? >[] {
-            boolean.class,
-            byte.class,
-            short.class,
-            char.class,
-            int.class,
-            long.class,
-            float.class,
-            double.class,
-            String.class };
-        Class< ? >[] wrappers = new Class< ? >[] {
-            Boolean.class,
-            Byte.class,
-            Short.class,
-            Character.class,
-            Integer.class,
-            Long.class,
-            Float.class,
-            Double.class,
-            String.class };
-        HashMap<Class< ? >, Integer> rankMap = new HashMap<Class< ? >, Integer>();
+        Class<?>[] primitives = new Class<?>[] { boolean.class, byte.class,
+                short.class, char.class, int.class, long.class, float.class,
+                double.class, String.class };
+        Class<?>[] wrappers = new Class<?>[] { Boolean.class, Byte.class,
+                Short.class, Character.class, Integer.class, Long.class,
+                Float.class, Double.class, String.class };
+        HashMap<Class<?>, Integer> rankMap = new HashMap<Class<?>, Integer>();
         for (int i = 0; i < wrappers.length; i++) {
             rankMap.put(wrappers[i], i);
         }

@@ -58,7 +58,7 @@ import org.objectweb.asm.util.TraceClassVisitor;
 
 /**
  * GASMifier tests.
- *
+ * 
  * @author Eugene Kuleshov
  * @author Eric Bruneton
  */
@@ -81,12 +81,10 @@ public class GASMifierTest extends AbstractTest {
         }
 
         StringWriter sw = new StringWriter();
-        TraceClassVisitor cv = new TraceClassVisitor(null,
-                new GASMifier(),
+        TraceClassVisitor cv = new TraceClassVisitor(null, new GASMifier(),
                 new PrintWriter(sw));
-        cr.accept(new ClassLocalVariablesSorter(cv),
-                new Attribute[] { new Comment(), new CodeComment() },
-                ClassReader.EXPAND_FRAMES);
+        cr.accept(new ClassLocalVariablesSorter(cv), new Attribute[] {
+                new Comment(), new CodeComment() }, ClassReader.EXPAND_FRAMES);
 
         String generated = sw.toString();
 
@@ -99,9 +97,8 @@ public class GASMifierTest extends AbstractTest {
         }
 
         ClassWriter cw = new ClassWriter(0);
-        cr.accept(new ClassLocalVariablesSorter(cw),
-            new Attribute[] { new Comment(), new CodeComment() },
-            ClassReader.EXPAND_FRAMES);
+        cr.accept(new ClassLocalVariablesSorter(cw), new Attribute[] {
+                new Comment(), new CodeComment() }, ClassReader.EXPAND_FRAMES);
         cr = new ClassReader(cw.toByteArray());
 
         String nd = n + "Dump";
@@ -142,11 +139,11 @@ public class GASMifierTest extends AbstractTest {
 
     static class Compiler {
 
-        final static IClassLoader CL = new ClassLoaderIClassLoader(new URLClassLoader(new URL[0]));
+        final static IClassLoader CL = new ClassLoaderIClassLoader(
+                new URLClassLoader(new URL[0]));
 
         public byte[] compile(final String name, final String source)
-                throws Exception
-        {
+                throws Exception {
             Parser p = new Parser(new Scanner(name, new StringReader(source)));
             UnitCompiler uc = new UnitCompiler(p.parseCompilationUnit(), CL);
             return uc.compileUnit(DebuggingInformation.ALL)[0].toByteArray();
@@ -160,16 +157,11 @@ public class GASMifierTest extends AbstractTest {
         }
 
         @Override
-        public MethodVisitor visitMethod(
-            final int access,
-            final String name,
-            final String desc,
-            final String signature,
-            final String[] exceptions)
-        {
-            return new LocalVariablesSorter(access,
-                    desc,
-                    super.visitMethod(access, name, desc, signature, exceptions));
+        public MethodVisitor visitMethod(final int access, final String name,
+                final String desc, final String signature,
+                final String[] exceptions) {
+            return new LocalVariablesSorter(access, desc, super.visitMethod(
+                    access, name, desc, signature, exceptions));
         }
     }
 
@@ -180,19 +172,11 @@ public class GASMifierTest extends AbstractTest {
         }
 
         @Override
-        public MethodVisitor visitMethod(
-            final int access,
-            final String name,
-            final String desc,
-            final String signature,
-            final String[] exceptions)
-        {
+        public MethodVisitor visitMethod(final int access, final String name,
+                final String desc, final String signature,
+                final String[] exceptions) {
             return new MethodVisitor(Opcodes.ASM4, super.visitMethod(access,
-                    name,
-                    desc,
-                    signature,
-                    exceptions))
-            {
+                    name, desc, signature, exceptions)) {
                 @Override
                 public void visitMaxs(final int maxStack, final int maxLocals) {
                     super.visitMaxs(0, 0);

@@ -38,26 +38,16 @@ import org.objectweb.asm.Opcodes;
 /**
  * Generates classes designed so that the "conform" test suite, applied to these
  * classes, covers all the ASM code base.
- *
+ * 
  * @author Eric Bruneton
  */
 public class Generator implements Opcodes {
 
     public static void main(final String[] args) throws IOException {
-        Generator generators[] = {
-            new Annotation(),
-            new Attribute(),
-            new Debug(),
-            new Enum(),
-            new Frames(),
-            new Insns(),
-            new Interface(),
-            new Invalid(),
-            new JSR(),
-            new Outer(),
-            new Wide(),
-            new InvokeDynamic()
-        };
+        Generator generators[] = { new Annotation(), new Attribute(),
+                new Debug(), new Enum(), new Frames(), new Insns(),
+                new Interface(), new Invalid(), new JSR(), new Outer(),
+                new Wide(), new InvokeDynamic() };
         for (int i = 0; i < generators.length; ++i) {
             generators[i].generate(args[0]);
         }
@@ -66,14 +56,12 @@ public class Generator implements Opcodes {
     protected void generate(final String dir) throws IOException {
     }
 
-    protected void generate(
-        final String dir,
-        final String path,
-        final byte[] clazz) throws IOException
-    {
+    protected void generate(final String dir, final String path,
+            final byte[] clazz) throws IOException {
         File f = new File(new File(dir), path);
         if (!f.getParentFile().exists() && !f.getParentFile().mkdirs()) {
-            throw new IOException("Cannot create directory " + f.getParentFile());
+            throw new IOException("Cannot create directory "
+                    + f.getParentFile());
         }
         FileOutputStream o = new FileOutputStream(f);
         o.write(clazz);

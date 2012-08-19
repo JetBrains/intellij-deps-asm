@@ -39,13 +39,12 @@ import org.objectweb.asm.ClassVisitor;
 
 /**
  * Test for the SerialVerionUid computation.
- *
+ * 
  * @author Alexandre Vasseur
  * @author Eric Bruneton
  */
 public class SerialVersionUIDAdderUnitTest extends TestCase implements
-        Serializable
-{
+        Serializable {
 
     protected final static int aField = 32;
 
@@ -58,8 +57,7 @@ public class SerialVersionUIDAdderUnitTest extends TestCase implements
     }
 
     private long computeSerialVersionUID(final String className)
-            throws IOException
-    {
+            throws IOException {
         final long[] svuid = new long[1];
         ClassVisitor cv = new SerialVersionUIDAdder(null) {
             @Override

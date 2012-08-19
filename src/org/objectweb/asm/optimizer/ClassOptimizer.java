@@ -41,7 +41,7 @@ import org.objectweb.asm.commons.RemappingClassAdapter;
 /**
  * A {@link ClassVisitor} that renames fields and methods, and removes debug
  * info.
- *
+ * 
  * @author Eric Bruneton
  * @author Eugene Kuleshov
  */
@@ -55,10 +55,8 @@ public class ClassOptimizer extends RemappingClassAdapter {
         super(cv, remapper);
     }
 
-    FieldVisitor syntheticFieldVisitor(final int access,
-        final String name,
-        final String desc)
-    {
+    FieldVisitor syntheticFieldVisitor(final int access, final String name,
+            final String desc) {
         return super.visitField(access, name, desc, null, null);
     }
 
@@ -67,14 +65,9 @@ public class ClassOptimizer extends RemappingClassAdapter {
     // ------------------------------------------------------------------------
 
     @Override
-    public void visit(
-        final int version,
-        final int access,
-        final String name,
-        final String signature,
-        final String superName,
-        final String[] interfaces)
-    {
+    public void visit(final int version, final int access, final String name,
+            final String signature, final String superName,
+            final String[] interfaces) {
         super.visit(Opcodes.V1_2, access, name, null, superName, interfaces);
         clsName = name;
         int index = name.lastIndexOf('/');
@@ -91,19 +84,14 @@ public class ClassOptimizer extends RemappingClassAdapter {
     }
 
     @Override
-    public void visitOuterClass(
-        final String owner,
-        final String name,
-        final String desc)
-    {
+    public void visitOuterClass(final String owner, final String name,
+            final String desc) {
         // remove debug info
     }
 
     @Override
-    public AnnotationVisitor visitAnnotation(
-        final String desc,
-        final boolean visible)
-    {
+    public AnnotationVisitor visitAnnotation(final String desc,
+            final boolean visible) {
         // remove annotations
         return null;
     }
@@ -114,35 +102,26 @@ public class ClassOptimizer extends RemappingClassAdapter {
     }
 
     @Override
-    public void visitInnerClass(
-        final String name,
-        final String outerName,
-        final String innerName,
-        final int access)
-    {
+    public void visitInnerClass(final String name, final String outerName,
+            final String innerName, final int access) {
         // remove debug info
     }
 
     @Override
-    public FieldVisitor visitField(
-        final int access,
-        final String name,
-        final String desc,
-        final String signature,
-        final Object value)
-    {
+    public FieldVisitor visitField(final int access, final String name,
+            final String desc, final String signature, final Object value) {
         String s = remapper.mapFieldName(className, name, desc);
         if ("-".equals(s)) {
             return null;
         }
         if ((access & (Opcodes.ACC_PUBLIC | Opcodes.ACC_PROTECTED)) == 0) {
             if ((access & Opcodes.ACC_FINAL) != 0
-                    && (access & Opcodes.ACC_STATIC) != 0 && desc.length() == 1)
-            {
+                    && (access & Opcodes.ACC_STATIC) != 0 && desc.length() == 1) {
                 return null;
             }
             if ("org/objectweb/asm".equals(pkgName) && s.equals(name)) {
-                System.out.println("INFO: " + clsName + "." + s + " could be renamed");
+                System.out.println("INFO: " + clsName + "." + s
+                        + " could be renamed");
             }
             super.visitField(access, name, desc, null, value);
         } else {
@@ -156,13 +135,8 @@ public class ClassOptimizer extends RemappingClassAdapter {
     }
 
     @Override
-    public MethodVisitor visitMethod(
-        final int access,
-        final String name,
-        final String desc,
-        final String signature,
-        final String[] exceptions)
-    {
+    public MethodVisitor visitMethod(final int access, final String name,
+            final String desc, final String signature, final String[] exceptions) {
         String s = remapper.mapMethodName(className, name, desc);
         if ("-".equals(s)) {
             return null;
@@ -170,9 +144,9 @@ public class ClassOptimizer extends RemappingClassAdapter {
 
         if ((access & (Opcodes.ACC_PUBLIC | Opcodes.ACC_PROTECTED)) == 0) {
             if ("org/objectweb/asm".equals(pkgName) && !name.startsWith("<")
-                    && s.equals(name))
-            {
-                System.out.println("INFO: " + clsName + "." + s + " could be renamed");
+                    && s.equals(name)) {
+                System.out.println("INFO: " + clsName + "." + s
+                        + " could be renamed");
             }
             return super.visitMethod(access, name, desc, null, exceptions);
         } else {
@@ -186,11 +160,8 @@ public class ClassOptimizer extends RemappingClassAdapter {
     }
 
     @Override
-    protected MethodVisitor createRemappingMethodAdapter(
-        int access,
-        String newDesc,
-        MethodVisitor mv)
-    {
+    protected MethodVisitor createRemappingMethodAdapter(int access,
+            String newDesc, MethodVisitor mv) {
         return new MethodOptimizer(this, access, newDesc, mv, remapper);
     }
 }

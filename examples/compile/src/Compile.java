@@ -63,7 +63,7 @@ public class Compile extends ClassLoader {
 
 /**
  * An abstract expression.
- *
+ * 
  * @author Eric Bruneton
  */
 abstract class Exp implements Opcodes {
@@ -75,13 +75,11 @@ abstract class Exp implements Opcodes {
     byte[] compile(final String name) {
         // class header
         ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_MAXS);
-        cw.visit(V1_1, ACC_PUBLIC, name, null, "java/lang/Object", new String[] { Expression.class.getName() });
+        cw.visit(V1_1, ACC_PUBLIC, name, null, "java/lang/Object",
+                new String[] { Expression.class.getName() });
 
         // default public constructor
-        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC,
-                "<init>",
-                "()V",
-                null,
+        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "<init>", "()V", null,
                 null);
         mv.visitVarInsn(ALOAD, 0);
         mv.visitMethodInsn(INVOKESPECIAL, "java/lang/Object", "<init>", "()V");

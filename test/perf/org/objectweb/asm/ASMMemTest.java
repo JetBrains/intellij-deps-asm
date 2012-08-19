@@ -49,26 +49,29 @@ import org.objectweb.asm.tree.MethodNode;
 
 /**
  * Memory performances tests for tree package.
- *
+ * 
  * @author treffer
  */
 public class ASMMemTest {
 
     public static void main(final String[] args) {
         if (args.length < 2) {
-            System.out.println("java ASMMemTest <jar-file> <number-of-classes>");
+            System.out
+                    .println("java ASMMemTest <jar-file> <number-of-classes>");
             System.exit(1);
         }
 
         Runtime runtime = Runtime.getRuntime();
         memDown(runtime);
-        System.out.println("Initial memory load: ".concat(memFormat(getUsedMem(runtime))));
+        System.out.println("Initial memory load: "
+                .concat(memFormat(getUsedMem(runtime))));
 
         LinkedList<byte[]> fileData = new LinkedList<byte[]>();
         int limit = Integer.parseInt(args[1]);
         try {
             long totalSize = 0;
-            JarInputStream jar = new JarInputStream(new FileInputStream(args[0]));
+            JarInputStream jar = new JarInputStream(
+                    new FileInputStream(args[0]));
             JarEntry entry = jar.getNextJarEntry();
             while (fileData.size() < limit && entry != null) {
                 String name = entry.getName();
@@ -81,7 +84,8 @@ public class ASMMemTest {
                         fileData.add(data);
                         totalSize += data.length;
                     } else {
-                        System.err.println("No jar-entry size given... Unimplemented, jar file not supported");
+                        System.err.println("No jar-entry size given... "
+                                + "Unimplemented, jar file not supported");
                     }
                 }
                 entry = jar.getNextJarEntry();
@@ -102,7 +106,8 @@ public class ASMMemTest {
             Iterator<byte[]> files = fileData.iterator();
             result.clear();
             memDown(runtime);
-            System.out.println("Empty memory load: ".concat(memFormat(startmem = getUsedMem(runtime))));
+            System.out.println("Empty memory load: "
+                    .concat(memFormat(startmem = getUsedMem(runtime))));
 
             long time = -System.currentTimeMillis();
             while (files.hasNext()) {
@@ -116,12 +121,13 @@ public class ASMMemTest {
 
             memDown(runtime);
             System.out.println("Time: ".concat(timeFormat(time)));
-            System.out.println("Final memory load: ".concat(memFormat(getUsedMem(runtime))));
-            System.out.println("ASM memory load: ".concat(memFormat(getUsedMem(runtime)
-                    - startmem)));
+            System.out.println("Final memory load: "
+                    .concat(memFormat(getUsedMem(runtime))));
+            System.out.println("ASM memory load: "
+                    .concat(memFormat(getUsedMem(runtime) - startmem)));
             for (int j = 0; j < limit; j++) {
                 ClassNode clazz = result.get(j);
-                 List<MethodNode> l = clazz.methods;
+                List<MethodNode> l = clazz.methods;
                 for (int k = 0, lim = l.size(); k < lim; k++) {
                     MethodNode m = l.get(k);
                     InsnList insn = m.instructions;
@@ -131,8 +137,8 @@ public class ASMMemTest {
                 }
             }
             memDown(runtime);
-            System.out.println("ASM memory load (removed method code): ".concat(memFormat(getUsedMem(runtime)
-                    - startmem)));
+            System.out.println("ASM memory load (removed method code): "
+                    .concat(memFormat(getUsedMem(runtime) - startmem)));
         }
 
     }

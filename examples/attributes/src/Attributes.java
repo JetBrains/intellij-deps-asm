@@ -29,6 +29,7 @@
  */
 import java.io.FileOutputStream;
 import java.io.PrintWriter;
+import java.util.Map;
 
 import org.objectweb.asm.Attribute;
 import org.objectweb.asm.ByteVector;
@@ -39,6 +40,7 @@ import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.util.Textifiable;
 import org.objectweb.asm.util.TraceClassVisitor;
 
 /**
@@ -55,7 +57,8 @@ public class Attributes extends ClassLoader {
         byte[] b = cw.toByteArray();
 
         // stores the adapted class on disk
-        FileOutputStream fos = new FileOutputStream("CommentAttribute.class.new");
+        FileOutputStream fos = new FileOutputStream(
+                "CommentAttribute.class.new");
         try {
             fos.write(b);
         } finally {
@@ -76,43 +79,26 @@ class AddCommentClassAdapter extends ClassVisitor implements Opcodes {
     }
 
     @Override
-    public void visit(
-        final int version,
-        final int access,
-        final String name,
-        final String signature,
-        final String superName,
-        final String[] interfaces)
-    {
+    public void visit(final int version, final int access, final String name,
+            final String signature, final String superName,
+            final String[] interfaces) {
         super.visit(version, access, name, signature, superName, interfaces);
         visitAttribute(new CommentAttribute("this is a class comment"));
     }
 
     @Override
-    public FieldVisitor visitField(
-        final int access,
-        final String name,
-        final String desc,
-        final String signature,
-        final Object value)
-    {
-        FieldVisitor fv = super.visitField(access, name, desc, signature, value);
+    public FieldVisitor visitField(final int access, final String name,
+            final String desc, final String signature, final Object value) {
+        FieldVisitor fv = super
+                .visitField(access, name, desc, signature, value);
         fv.visitAttribute(new CommentAttribute("this is a field comment"));
         return fv;
     }
 
     @Override
-    public MethodVisitor visitMethod(
-        final int access,
-        final String name,
-        final String desc,
-        final String signature,
-        final String[] exceptions)
-    {
-        MethodVisitor mv = cv.visitMethod(access,
-                name,
-                desc,
-                signature,
+    public MethodVisitor visitMethod(final int access, final String name,
+            final String desc, final String signature, final String[] exceptions) {
+        MethodVisitor mv = cv.visitMethod(access, name, desc, signature,
                 exceptions);
         if (mv != null) {
             mv.visitAttribute(new CommentAttribute("this is a method comment"));
@@ -121,7 +107,7 @@ class AddCommentClassAdapter extends ClassVisitor implements Opcodes {
     }
 }
 
-class CommentAttribute extends Attribute {
+class CommentAttribute extends Attribute implements Textifiable {
 
     private String comment;
 
@@ -140,25 +126,19 @@ class CommentAttribute extends Attribute {
     }
 
     @Override
-    protected Attribute read(
-        final ClassReader cr,
-        final int off,
-        final int len,
-        final char[] buf,
-        final int codeOff,
-        final Label[] labels)
-    {
+    protected Attribute read(final ClassReader cr, final int off,
+            final int len, final char[] buf, final int codeOff,
+            final Label[] labels) {
         return new CommentAttribute(cr.readUTF8(off, buf));
     }
 
     @Override
-    protected ByteVector write(
-        final ClassWriter cw,
-        final byte[] code,
-        final int len,
-        final int maxStack,
-        final int maxLocals)
-    {
+    protected ByteVector write(final ClassWriter cw, final byte[] code,
+            final int len, final int maxStack, final int maxLocals) {
         return new ByteVector().putShort(cw.newUTF8(comment));
+    }
+
+    public void textify(StringBuffer buf, Map<Label, String> labelNames) {
+        buf.append(": " + comment + "\n");
     }
 }

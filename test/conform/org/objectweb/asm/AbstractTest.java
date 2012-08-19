@@ -52,7 +52,7 @@ import org.objectweb.asm.util.TraceClassVisitor;
 
 /**
  * Super class for test suites based on a jar file.
- *
+ * 
  * @author Eugene Kuleshov
  * @author Eric Bruneton
  */
@@ -93,7 +93,8 @@ public abstract class AbstractTest extends TestCase {
                     ZipEntry e = entries.nextElement();
                     String n = e.getName();
                     String p = n.replace('/', '.');
-                    if (n.endsWith(".class") && (clazz == null || p.indexOf(clazz) != -1)) {
+                    if (n.endsWith(".class")
+                            && (clazz == null || p.indexOf(clazz) != -1)) {
                         n = p.substring(0, p.length() - 6);
                         if (id % parts == part) {
                             InputStream is = zip.getInputStream(e);
@@ -109,23 +110,17 @@ public abstract class AbstractTest extends TestCase {
         return suite;
     }
 
-    private void scanDirectory(
-        final String path,
-        final File f,
-        final TestSuite suite,
-        final String clazz) throws Exception
-    {
+    private void scanDirectory(final String path, final File f,
+            final TestSuite suite, final String clazz) throws Exception {
         File[] fs = f.listFiles();
         for (int i = 0; i < fs.length; ++i) {
             String n = fs[i].getName();
             String qn = path.length() == 0 ? n : path + "." + n;
             if (fs[i].isDirectory()) {
-                scanDirectory(qn,
-                        fs[i],
-                        suite,
-                        clazz);
+                scanDirectory(qn, fs[i], suite, clazz);
             } else if (qn.endsWith(".class") && !qn.startsWith("invalid.")) {
-                if (clazz == null || qn.startsWith("pkg.") || qn.indexOf(clazz) != -1) {
+                if (clazz == null || qn.startsWith("pkg.")
+                        || qn.indexOf(clazz) != -1) {
                     qn = qn.substring(0, qn.length() - 6);
                     InputStream is = new FileInputStream(fs[i]);
                     AbstractTest t = getClass().newInstance();
@@ -139,17 +134,13 @@ public abstract class AbstractTest extends TestCase {
     public abstract void test() throws Exception;
 
     public void assertEquals(final ClassReader cr1, final ClassReader cr2)
-            throws Exception
-    {
+            throws Exception {
         assertEquals(cr1, cr2, null, null);
     }
 
-    public void assertEquals(
-        final ClassReader cr1,
-        final ClassReader cr2,
-        final ClassVisitor filter1,
-        final ClassVisitor filter2) throws Exception
-    {
+    public void assertEquals(final ClassReader cr1, final ClassReader cr2,
+            final ClassVisitor filter1, final ClassVisitor filter2)
+            throws Exception {
         if (!Arrays.equals(cr1.b, cr2.b)) {
             StringWriter sw1 = new StringWriter();
             StringWriter sw2 = new StringWriter();
@@ -180,8 +171,10 @@ public abstract class AbstractTest extends TestCase {
                  */
                 sw1 = new StringWriter();
                 sw2 = new StringWriter();
-                cv1 = new RemoveUnusedLabelsAdapter(new TraceClassVisitor(new PrintWriter(sw1)));
-                cv2 = new RemoveUnusedLabelsAdapter(new TraceClassVisitor(new PrintWriter(sw2)));
+                cv1 = new RemoveUnusedLabelsAdapter(new TraceClassVisitor(
+                        new PrintWriter(sw1)));
+                cv2 = new RemoveUnusedLabelsAdapter(new TraceClassVisitor(
+                        new PrintWriter(sw2)));
                 if (filter1 != null) {
                     filter1.cv = cv1;
                 }
@@ -201,22 +194,23 @@ public abstract class AbstractTest extends TestCase {
     public String getName() {
         return super.getName() + ": " + n;
     }
-    
+
     public static class VerifierTest extends TestCase {
-        
+
         public VerifierTest() {
             super("testVerifier");
         }
 
         public void testVerifier() throws Exception {
             try {
-                Class.forName("invalid.Invalid", true, getClass().getClassLoader());
+                Class.forName("invalid.Invalid", true, getClass()
+                        .getClassLoader());
                 fail("The new JDK 7 verifier does not trigger!");
             } catch (VerifyError ve) {
                 // This is expected since the class is invalid.
                 ve.printStackTrace();
             }
-        }        
+        }
     }
 
     static class RemoveUnusedLabelsAdapter extends ClassVisitor {
@@ -226,13 +220,8 @@ public abstract class AbstractTest extends TestCase {
         }
 
         @Override
-        public MethodVisitor visitMethod(
-            int access,
-            String name,
-            String desc,
-            String signature,
-            String[] exceptions)
-        {
+        public MethodVisitor visitMethod(int access, String name, String desc,
+                String signature, String[] exceptions) {
             return new MethodNode(access, name, desc, signature, exceptions) {
 
                 /**

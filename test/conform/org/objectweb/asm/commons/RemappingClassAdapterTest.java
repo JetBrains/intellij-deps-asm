@@ -70,7 +70,8 @@ public class RemappingClassAdapterTest extends TestCase implements Opcodes {
 
         assertEquals("D1", cn.name);
         assertEquals("B1", cn.superName);
-        assertEquals(Arrays.asList(new String[] {"I", "I", "C1", "J", "B1"}), cn.interfaces);
+        assertEquals(Arrays.asList(new String[] { "I", "I", "C1", "J", "B1" }),
+                cn.interfaces);
 
         assertEquals("LB1;", field(cn, 0).desc);
         assertEquals("[LB1;", field(cn, 1).desc);
@@ -110,9 +111,13 @@ public class RemappingClassAdapterTest extends TestCase implements Opcodes {
         assertEquals(Collections.EMPTY_LIST, fn0.local);
         assertEquals(Collections.EMPTY_LIST, fn0.stack);
 
-        assertEquals(Arrays.asList(new Object[] {"B1", "C1", "D1"}), ((FrameNode) it.next()).local);
-        assertEquals(Arrays.asList(new Object[] {Opcodes.INTEGER, "C1", Opcodes.INTEGER, "D1"}), ((FrameNode) it.next()).local);
-        assertEquals(Arrays.asList(new Object[] {Opcodes.INTEGER, Opcodes.INTEGER}), ((FrameNode) it.next()).local);
+        assertEquals(Arrays.asList(new Object[] { "B1", "C1", "D1" }),
+                ((FrameNode) it.next()).local);
+        assertEquals(
+                Arrays.asList(new Object[] { Opcodes.INTEGER, "C1",
+                        Opcodes.INTEGER, "D1" }), ((FrameNode) it.next()).local);
+        assertEquals(Arrays.asList(new Object[] { Opcodes.INTEGER,
+                Opcodes.INTEGER }), ((FrameNode) it.next()).local);
         // assertEquals(Collections.EMPTY_LIST, fn0.stack);
 
         TryCatchBlockNode tryCatchBlockNode = mn0.tryCatchBlocks.get(0);
@@ -120,7 +125,7 @@ public class RemappingClassAdapterTest extends TestCase implements Opcodes {
 
         MethodNode mn1 = cn.methods.get(1);
         assertEquals("([[LB1;LC1;LD1;)V", mn1.desc);
-        assertEquals(Arrays.asList(new String[] {"I", "J"}), mn1.exceptions);
+        assertEquals(Arrays.asList(new String[] { "I", "J" }), mn1.exceptions);
     }
 
     private FieldNode field(ClassNode cn, int n) {
@@ -131,9 +136,9 @@ public class RemappingClassAdapterTest extends TestCase implements Opcodes {
         return cn.innerClasses.get(n);
     }
 
-
     public static void dump(ClassVisitor cv) throws Exception {
-        cv.visit(V1_5, 0, "Doo", null, "Boo", new String[] { "I", "I", "Coo", "J", "Boo"});
+        cv.visit(V1_5, 0, "Doo", null, "Boo", new String[] { "I", "I", "Coo",
+                "J", "Boo" });
 
         cv.visitInnerClass("Doo", "Boo", "Doo", 0);
 
@@ -161,22 +166,16 @@ public class RemappingClassAdapterTest extends TestCase implements Opcodes {
         mv.visitTypeInsn(ANEWARRAY, "J");
 
         mv.visitMultiANewArrayInsn("[[LBoo;", 2);
-        mv.visitMethodInsn(INVOKEVIRTUAL,
-                "Doo",
-                "goo",
+        mv.visitMethodInsn(INVOKEVIRTUAL, "Doo", "goo",
                 "([[LBoo;LCoo;LDoo;)LCoo;");
 
         mv.visitFrame(Opcodes.F_NEW, 0, new Object[5], 0, new Object[10]);
-        mv.visitFrame(Opcodes.F_NEW,
-                3, new Object[] { "Boo", "Coo", "Doo" },
+        mv.visitFrame(Opcodes.F_NEW, 3, new Object[] { "Boo", "Coo", "Doo" },
                 0, new Object[0]);
-        mv.visitFrame(Opcodes.F_NEW,
-                4, new Object[] {Opcodes.INTEGER, "Coo", Opcodes.INTEGER, "Doo" },
-                0, new Object[0]);
-        mv.visitFrame(Opcodes.F_NEW,
-                2, new Object[] {Opcodes.INTEGER, Opcodes.INTEGER },
-                0, new Object[0]);
-
+        mv.visitFrame(Opcodes.F_NEW, 4, new Object[] { Opcodes.INTEGER, "Coo",
+                Opcodes.INTEGER, "Doo" }, 0, new Object[0]);
+        mv.visitFrame(Opcodes.F_NEW, 2, new Object[] { Opcodes.INTEGER,
+                Opcodes.INTEGER }, 0, new Object[0]);
 
         Label l = new Label();
 
@@ -189,17 +188,14 @@ public class RemappingClassAdapterTest extends TestCase implements Opcodes {
 
         mv.visitEnd();
 
-        mv = cv.visitMethod(0,
-                "goo",
-                "([[LBoo;LCoo;LDoo;)V",
-                null,
+        mv = cv.visitMethod(0, "goo", "([[LBoo;LCoo;LDoo;)V", null,
                 new String[] { "I", "J" });
         mv.visitEnd();
 
         cv.visitEnd();
     }
 
-//    /*
+    // /*
     public static class Boo {
     }
 
@@ -217,6 +213,7 @@ public class RemappingClassAdapterTest extends TestCase implements Opcodes {
 
         public Doo() {
         }
+
         public Doo(int i, Coo coo, Boo boo) {
         }
 
@@ -249,5 +246,5 @@ public class RemappingClassAdapterTest extends TestCase implements Opcodes {
             return null;
         }
     }
-//    */
+    // */
 }

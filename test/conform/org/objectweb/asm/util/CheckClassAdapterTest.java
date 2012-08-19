@@ -37,7 +37,7 @@ import org.objectweb.asm.ClassWriter;
 
 /**
  * CheckClassAdapter tests.
- *
+ * 
  * @author Eric Bruneton
  */
 public class CheckClassAdapterTest extends AbstractTest {

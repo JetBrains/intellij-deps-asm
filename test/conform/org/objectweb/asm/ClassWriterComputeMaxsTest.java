@@ -33,7 +33,7 @@ import junit.framework.TestSuite;
 
 /**
  * ClassWriter tests.
- *
+ * 
  * @author Eric Bruneton
  */
 public class ClassWriterComputeMaxsTest extends AbstractTest {

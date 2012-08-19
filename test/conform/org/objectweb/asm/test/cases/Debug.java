@@ -40,7 +40,7 @@ import org.objectweb.asm.MethodVisitor;
  * Generates a class with debug information. Covers line number tables, local
  * variable tables, source file, source debug, etc. Also covers the
  * serialVersionUID field (to cover a branch in SerialVersionUIDAdder).
- *
+ * 
  * @author Eric Bruneton
  */
 public class Debug extends Generator {
@@ -53,26 +53,16 @@ public class Debug extends Generator {
     public byte[] dump() {
         ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_MAXS);
 
-        cw.visit(V1_5,
-                ACC_PUBLIC + ACC_SUPER,
-                "pkg/Debug",
-                null,
-                "java/lang/Object",
-                new String[] { "java/io/Serializable" });
+        cw.visit(V1_5, ACC_PUBLIC + ACC_SUPER, "pkg/Debug", null,
+                "java/lang/Object", new String[] { "java/io/Serializable" });
 
         cw.visitSource("Debug.java", "source-debug");
 
         FieldVisitor fv = cw.visitField(ACC_FINAL + ACC_STATIC,
-                "serialVersionUID",
-                "J",
-                null,
-                new Long(1L));
+                "serialVersionUID", "J", null, new Long(1L));
         fv.visitEnd();
 
-        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC,
-                "<init>",
-                "()V",
-                null,
+        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "<init>", "()V", null,
                 null);
         mv.visitCode();
         Label l0 = new Label();

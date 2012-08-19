@@ -84,13 +84,11 @@ public abstract class ALLPerfTest {
 
     static List<String> classNames = new ArrayList<String>();
 
-    private static final int MAX_ITERATION_SEC = Integer.getInteger("max.iteration.sec",
-            10)
-            .intValue();
+    private static final int MAX_ITERATION_SEC = Integer.getInteger(
+            "max.iteration.sec", 10).intValue();
 
-    public static void main(final String[] args)
-            throws IOException, InterruptedException
-    {
+    public static void main(final String[] args) throws IOException,
+            InterruptedException {
         String clazz = System.getProperty("asm.test.class");
         List<String> jars = findFiles(System.getProperty("java.home"), ".jar");
         jars.addAll(findJars(File.pathSeparatorChar,
@@ -150,10 +148,12 @@ public abstract class ALLPerfTest {
 
         RunTest nullJavassistAdapt = new RunTest() {
             ClassPool pool;
+
             @Override
             public void init() {
                 pool = new ClassPool(null);
             }
+
             @Override
             public void test(byte[] bytes, int[] errors) throws Exception {
                 nullJavassistAdapt(pool, bytes);
@@ -163,11 +163,13 @@ public abstract class ALLPerfTest {
         RunTest nullSERPAdapt = new RunTest() {
             Project p;
             BCClass c;
+
             @Override
             public void init() {
                 p = new Project();
                 c = null;
             }
+
             @Override
             public void test(byte[] bytes, int[] errors) throws Exception {
                 c = nullSERPAdapt(p, c, bytes);
@@ -215,99 +217,79 @@ public abstract class ALLPerfTest {
             }
         });
 
-        runTestAll("deserialize and reserialize",
-                "copyPool",
-                new RunTest() {
-                    @Override
-                    public void test(byte[] bytes, int[] errors) {
-                        ClassReader cr = new ClassReader(bytes);
-                        ClassWriter cw = new ClassWriter(cr, 0);
-                        cr.accept(cw, 0);
-                        cw.toByteArray();
-                    }
-                });
+        runTestAll("deserialize and reserialize", "copyPool", new RunTest() {
+            @Override
+            public void test(byte[] bytes, int[] errors) {
+                ClassReader cr = new ClassReader(bytes);
+                ClassWriter cw = new ClassWriter(cr, 0);
+                cr.accept(cw, 0);
+                cw.toByteArray();
+            }
+        });
 
-        runTest("deserialize and reserialize",
-                "tree package",
-                new RunTest() {
-                    @Override
-                    public void test(byte[] bytes, int[] errors) {
-                        ClassWriter cw = new ClassWriter(0);
-                        ClassNode cn = new ClassNode();
-                        new ClassReader(bytes).accept(cn, 0);
-                        cn.accept(cw);
-                        cw.toByteArray();
-                    }
-                });
+        runTest("deserialize and reserialize", "tree package", new RunTest() {
+            @Override
+            public void test(byte[] bytes, int[] errors) {
+                ClassWriter cw = new ClassWriter(0);
+                ClassNode cn = new ClassNode();
+                new ClassReader(bytes).accept(cn, 0);
+                cn.accept(cw);
+                cw.toByteArray();
+            }
+        });
 
         compute = false;
         computeFrames = false;
 
         runTest("deserialize and reserialize", "BCEL", nullBCELAdapt);
 
-        runTest("deserialize and reserialize",
-                "Aspectj BCEL",
+        runTest("deserialize and reserialize", "Aspectj BCEL",
                 nullAspectjBCELAdapt);
 
-        runTest("deserialize and reserialize",
-                "Javassist",
-                nullJavassistAdapt);
+        runTest("deserialize and reserialize", "Javassist", nullJavassistAdapt);
 
-        runTest("deserialize and reserialize",
-                "SERP",
-                nullSERPAdapt);
+        runTest("deserialize and reserialize", "SERP", nullSERPAdapt);
 
         System.out.println();
 
         // deserialize and reserialize tests with computeMaxs
 
-        runTest("deserialize and reserialize",
-                "computeMaxs",
-                new RunTest() {
-                    @Override
-                    public void test(byte[] bytes, int[] errors) {
-                        ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_MAXS);
-                        new ClassReader(bytes).accept(cw, 0);
-                        cw.toByteArray();
-                    }
-                });
+        runTest("deserialize and reserialize", "computeMaxs", new RunTest() {
+            @Override
+            public void test(byte[] bytes, int[] errors) {
+                ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_MAXS);
+                new ClassReader(bytes).accept(cw, 0);
+                cw.toByteArray();
+            }
+        });
 
         compute = true;
         computeFrames = false;
 
-        runTest("deserialize and reserialize",
-                "BCEL and computeMaxs",
+        runTest("deserialize and reserialize", "BCEL and computeMaxs",
                 nullBCELAdapt);
 
-        runTest("deserialize and reserialize",
-                "Aspectj BCEL and computeMaxs",
+        runTest("deserialize and reserialize", "Aspectj BCEL and computeMaxs",
                 nullAspectjBCELAdapt);
 
         // misc. tests
 
-        runTest("deserialize and reserialize",
-                "LocalVariablesSorter",
+        runTest("deserialize and reserialize", "LocalVariablesSorter",
                 new RunTest() {
                     @Override
                     public void test(byte[] bytes, int[] errors) {
                         ClassWriter cw = new ClassWriter(0);
-                        new ClassReader(bytes).accept(new ClassVisitor(Opcodes.ASM4, cw) {
+                        new ClassReader(bytes).accept(new ClassVisitor(
+                                Opcodes.ASM4, cw) {
 
                             @Override
-                            public MethodVisitor visitMethod(
-                                final int access,
-                                final String name,
-                                final String desc,
-                                final String signature,
-                                final String[] exceptions)
-                            {
-                                return new LocalVariablesSorter(access,
-                                        desc,
-                                        cv.visitMethod(access,
-                                                name,
-                                                desc,
-                                                signature,
-                                                exceptions));
+                            public MethodVisitor visitMethod(final int access,
+                                    final String name, final String desc,
+                                    final String signature,
+                                    final String[] exceptions) {
+                                return new LocalVariablesSorter(access, desc,
+                                        cv.visitMethod(access, name, desc,
+                                                signature, exceptions));
                             }
                         }, ClassReader.EXPAND_FRAMES);
                         cw.toByteArray();
@@ -322,10 +304,11 @@ public abstract class ALLPerfTest {
                 ClassReader cr = new ClassReader(bytes);
                 ClassNode cn = new ClassNode();
                 cr.accept(cn, ClassReader.SKIP_DEBUG);
-                 List<MethodNode> methods = cn.methods;
+                List<MethodNode> methods = cn.methods;
                 for (int k = 0; k < methods.size(); ++k) {
                     MethodNode method = methods.get(k);
-                    Analyzer<?> a = new Analyzer<BasicValue>(new SimpleVerifier());
+                    Analyzer<?> a = new Analyzer<BasicValue>(
+                            new SimpleVerifier());
                     try {
                         a.analyze(cn.name, method);
                     } catch (Throwable th) {
@@ -340,29 +323,25 @@ public abstract class ALLPerfTest {
 
         // deserialize and reserialize tests with computeFrames
 
-        runTest("deserialize and reserialize",
-                "computeFrames",
-                new RunTest() {
-                    @Override
-                    public void test(byte[] bytes, int[] errors) {
-                        ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_FRAMES);
-                        new ClassReader(bytes).accept(cw, 0);
-                        cw.toByteArray();
-                    }
-                });
+        runTest("deserialize and reserialize", "computeFrames", new RunTest() {
+            @Override
+            public void test(byte[] bytes, int[] errors) {
+                ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_FRAMES);
+                new ClassReader(bytes).accept(cw, 0);
+                cw.toByteArray();
+            }
+        });
 
         // the BCEL+computeFrames tests must be done only at the end, because
         // after them other tests run very slowly, for some unknown reason
         // (memory usage?)
         compute = false;
         computeFrames = true;
-        runTest("deserialize and reserialize",
-                "BCEL and computeFrames",
+        runTest("deserialize and reserialize", "BCEL and computeFrames",
                 nullBCELAdapt);
 
         runTest("deserialize and reserialize",
-                "Aspectj BCEL and computeFrames",
-                nullAspectjBCELAdapt);
+                "Aspectj BCEL and computeFrames", nullAspectjBCELAdapt);
     }
 
     public static List<String> findFiles(String directory, String suffix) {
@@ -391,37 +370,24 @@ public abstract class ALLPerfTest {
         public abstract void test(byte[] bytes, int[] errors) throws Exception;
     }
 
-    static void runTestAll(
-        String testName,
-        String with,
-        RunTest runTest) throws InterruptedException
-    {
+    static void runTestAll(String testName, String with, RunTest runTest)
+            throws InterruptedException {
         runTest0(1, true, testName, with, runTest);
     }
 
-    static void runTest(
-        String testName,
-        String with,
-        RunTest runTest) throws InterruptedException
-    {
+    static void runTest(String testName, String with, RunTest runTest)
+            throws InterruptedException {
         runTest0(repeats - 1, false, testName, with, runTest);
     }
 
-    static void runTestSome(
-        String testName,
-        String with,
-        RunTest runTest) throws InterruptedException
-    {
+    static void runTestSome(String testName, String with, RunTest runTest)
+            throws InterruptedException {
         runTest0(repeats - 1, true, testName, with, runTest);
     }
 
-    private static void runTest0(
-        int testSkip,
-        boolean startAtZero,
-        String testName,
-        String with,
-        RunTest runTest) throws InterruptedException
-    {
+    private static void runTest0(int testSkip, boolean startAtZero,
+            String testName, String with, RunTest runTest)
+            throws InterruptedException {
         if (with.length() > 0) {
             with = " with " + with;
         }
@@ -439,8 +405,7 @@ public abstract class ALLPerfTest {
             long longest = 0;
             int longestSize = 0;
             int skipped = 0;
-            for (int j = startAtZero ? 0 : i; j < classes.size(); j += testSkip)
-            {
+            for (int j = startAtZero ? 0 : i; j < classes.size(); j += testSkip) {
                 count++;
                 byte[] b = classes.get(j);
                 if (skipBigClasses && b.length > 16 * 1024) {
@@ -475,17 +440,16 @@ public abstract class ALLPerfTest {
                 }
             }
             t = System.currentTimeMillis() - t;
-            String errorStr = errors[0] > 0
-                    ? " (" + errors[0] + " errors)"
+            String errorStr = errors[0] > 0 ? " (" + errors[0] + " errors)"
                     : "";
-            String skippedStr = skipped == 0
-                    ? ""
+            String skippedStr = skipped == 0 ? ""
                     : " ("
                             + skipped
                             + " skipped as BCEL/computeFrames on >16K classes is very slow)";
             String longestStr = "";
             if (longest > 50) {
-                longestStr = " the longest took " + longest + " ms (" + longestSize + " bytes)";
+                longestStr = " the longest took " + longest + " ms ("
+                        + longestSize + " bytes)";
             }
             if (i > 0) {
                 System.out.println("- to " + testName + ' ' + count
@@ -559,15 +523,16 @@ public abstract class ALLPerfTest {
     }
 
     static void nullAspectjBCELAdapt(final byte[] b) throws IOException {
-        org.aspectj.apache.bcel.classfile.JavaClass jc = new org.aspectj.apache.bcel.classfile.ClassParser(new ByteArrayInputStream(b),
-                "class-name").parse();
-        org.aspectj.apache.bcel.generic.ClassGen cg = new org.aspectj.apache.bcel.generic.ClassGen(jc);
-        org.aspectj.apache.bcel.generic.ConstantPoolGen cp = cg.getConstantPool();
+        org.aspectj.apache.bcel.classfile.JavaClass jc = new org.aspectj.apache.bcel.classfile.ClassParser(
+                new ByteArrayInputStream(b), "class-name").parse();
+        org.aspectj.apache.bcel.generic.ClassGen cg = new org.aspectj.apache.bcel.generic.ClassGen(
+                jc);
+        org.aspectj.apache.bcel.generic.ConstantPoolGen cp = cg
+                .getConstantPool();
         org.aspectj.apache.bcel.classfile.Method[] ms = cg.getMethods();
         for (int k = 0; k < ms.length; ++k) {
-            org.aspectj.apache.bcel.generic.MethodGen mg = new org.aspectj.apache.bcel.generic.MethodGen(ms[k],
-                    cg.getClassName(),
-                    cp);
+            org.aspectj.apache.bcel.generic.MethodGen mg = new org.aspectj.apache.bcel.generic.MethodGen(
+                    ms[k], cg.getClassName(), cp);
             boolean lv = ms[k].getLocalVariableTable() == null;
             boolean ln = ms[k].getLineNumberTable() == null;
             if (lv) {
@@ -577,9 +542,11 @@ public abstract class ALLPerfTest {
                 mg.removeLineNumbers();
             }
             mg.stripAttributes(skipDebug);
-            org.aspectj.apache.bcel.generic.InstructionList il = mg.getInstructionList();
+            org.aspectj.apache.bcel.generic.InstructionList il = mg
+                    .getInstructionList();
             if (il != null) {
-                org.aspectj.apache.bcel.generic.InstructionHandle ih = il.getStart();
+                org.aspectj.apache.bcel.generic.InstructionHandle ih = il
+                        .getStart();
                 while (ih != null) {
                     ih = ih.getNext();
                 }
@@ -588,8 +555,8 @@ public abstract class ALLPerfTest {
                     mg.setMaxLocals();
                 }
                 if (computeFrames) {
-                    org.aspectj.apache.bcel.verifier.structurals.ModifiedPass3bVerifier verif = new org.aspectj.apache.bcel.verifier.structurals.ModifiedPass3bVerifier(jc,
-                            k);
+                    org.aspectj.apache.bcel.verifier.structurals.ModifiedPass3bVerifier verif = new org.aspectj.apache.bcel.verifier.structurals.ModifiedPass3bVerifier(
+                            jc, k);
                     verif.do_verify();
                 }
             }
@@ -598,7 +565,8 @@ public abstract class ALLPerfTest {
         cg.getJavaClass().getBytes();
     }
 
-    static void nullJavassistAdapt(ClassPool pool, final byte[] b) throws Exception {
+    static void nullJavassistAdapt(ClassPool pool, final byte[] b)
+            throws Exception {
         CtClass cc = pool.makeClass(new ByteArrayInputStream(b));
         CtMethod[] ms = cc.getDeclaredMethods();
         for (int j = 0; j < ms.length; ++j) {
@@ -612,7 +580,8 @@ public abstract class ALLPerfTest {
         cc.toBytecode();
     }
 
-    static BCClass nullSERPAdapt(Project p, BCClass c, final byte[] b) throws Exception {
+    static BCClass nullSERPAdapt(Project p, BCClass c, final byte[] b)
+            throws Exception {
         if (c != null) {
             p.removeClass(c);
         }
@@ -640,10 +609,7 @@ public abstract class ALLPerfTest {
         AnnotationVisitor av = new AnnotationVisitor(Opcodes.ASM4) {
 
             @Override
-            public AnnotationVisitor visitAnnotation(
-                String name,
-                String desc)
-            {
+            public AnnotationVisitor visitAnnotation(String name, String desc) {
                 return this;
             }
 
@@ -658,41 +624,26 @@ public abstract class ALLPerfTest {
         }
 
         @Override
-        public AnnotationVisitor visitAnnotation(
-            String desc,
-            boolean visible)
-        {
+        public AnnotationVisitor visitAnnotation(String desc, boolean visible) {
             return av;
         }
 
         @Override
-        public FieldVisitor visitField(
-            int access,
-            String name,
-            String desc,
-            String signature,
-            Object value)
-        {
+        public FieldVisitor visitField(int access, String name, String desc,
+                String signature, Object value) {
             return new FieldVisitor(Opcodes.ASM4) {
 
                 @Override
-                public AnnotationVisitor visitAnnotation(
-                    String desc,
-                    boolean visible)
-                {
+                public AnnotationVisitor visitAnnotation(String desc,
+                        boolean visible) {
                     return av;
                 }
             };
         }
 
         @Override
-        public MethodVisitor visitMethod(
-            int access,
-            String name,
-            String desc,
-            String signature,
-            String[] exceptions)
-        {
+        public MethodVisitor visitMethod(int access, String name, String desc,
+                String signature, String[] exceptions) {
             return new MethodVisitor(Opcodes.ASM4) {
 
                 @Override
@@ -701,19 +652,14 @@ public abstract class ALLPerfTest {
                 }
 
                 @Override
-                public AnnotationVisitor visitAnnotation(
-                    String desc,
-                    boolean visible)
-                {
+                public AnnotationVisitor visitAnnotation(String desc,
+                        boolean visible) {
                     return av;
                 }
 
                 @Override
                 public AnnotationVisitor visitParameterAnnotation(
-                    int parameter,
-                    String desc,
-                    boolean visible)
-                {
+                        int parameter, String desc, boolean visible) {
                     return av;
                 }
             };

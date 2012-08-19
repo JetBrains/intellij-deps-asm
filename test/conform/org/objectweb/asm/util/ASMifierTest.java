@@ -52,7 +52,7 @@ import org.objectweb.asm.attrs.Comment;
 
 /**
  * ASMifier tests.
- *
+ * 
  * @author Eugene Kuleshov
  * @author Eric Bruneton
  */
@@ -73,8 +73,7 @@ public class ASMifierTest extends AbstractTest {
         }
 
         StringWriter sw = new StringWriter();
-        TraceClassVisitor cv = new TraceClassVisitor(null,
-                new ASMifier(),
+        TraceClassVisitor cv = new TraceClassVisitor(null, new ASMifier(),
                 new PrintWriter(sw));
         cr.accept(cv, new Attribute[] { new Comment(), new CodeComment() }, 0);
 
@@ -110,11 +109,11 @@ public class ASMifierTest extends AbstractTest {
 
     public static class Compiler {
 
-        final static IClassLoader CL = new ClassLoaderIClassLoader(new URLClassLoader(new URL[0]));
+        final static IClassLoader CL = new ClassLoaderIClassLoader(
+                new URLClassLoader(new URL[0]));
 
         public static byte[] compile(final String name, final String source)
-                throws Exception
-        {
+                throws Exception {
             Parser p = new Parser(new Scanner(name, new StringReader(source)));
             UnitCompiler uc = new UnitCompiler(p.parseCompilationUnit(), CL);
             return uc.compileUnit(DebuggingInformation.ALL)[0].toByteArray();

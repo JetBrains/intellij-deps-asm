@@ -42,7 +42,7 @@ import org.objectweb.asm.attrs.Comment;
  * Generates a class with non standard attributes. Covers class, field, method
  * and code attributes. Also covers the V1_3 class version and the SYNTHETIC
  * access flag for classes.
- *
+ * 
  * @author Eric Bruneton
  */
 public class Attribute extends Generator {
@@ -57,12 +57,8 @@ public class Attribute extends Generator {
         FieldVisitor fv;
         MethodVisitor mv;
 
-        cw.visit(V1_3,
-                ACC_PUBLIC + ACC_SYNTHETIC,
-                "pkg/Attribute",
-                null,
-                "java/lang/Object",
-                null);
+        cw.visit(V1_3, ACC_PUBLIC + ACC_SYNTHETIC, "pkg/Attribute", null,
+                "java/lang/Object", null);
 
         cw.visitAttribute(new Comment());
 

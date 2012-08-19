@@ -53,9 +53,9 @@ import org.objectweb.asm.ClassReader;
 
 /**
  * DependencyTracker
- *
+ * 
  * @author Eugene Kuleshov
- *
+ * 
  * @see "http://www.onjava.com/pub/a/onjava/2005/08/17/asm3.html"
  */
 public class DependencyTracker {
@@ -76,7 +76,7 @@ public class DependencyTracker {
         ZipFile f = new ZipFile(args[0]);
 
         long l1 = System.currentTimeMillis();
-        Enumeration< ? extends ZipEntry> en = f.entries();
+        Enumeration<? extends ZipEntry> en = f.entries();
         while (en.hasMoreElements()) {
             ZipEntry e = en.nextElement();
             String name = e.getName();
@@ -93,18 +93,17 @@ public class DependencyTracker {
         System.err.println("time: " + (l2 - l1) / 1000f + "  " + size);
 
         String[] jarNames = jarPackages.toArray(new String[jarPackages.size()]);
-        String[] classNames = classPackages.toArray(new String[classPackages.size()]);
+        String[] classNames = classPackages.toArray(new String[classPackages
+                .size()]);
         Arrays.sort(jarNames);
         Arrays.sort(classNames);
 
         buildDiagram(jarNames, classNames, globals);
     }
 
-    public static void buildDiagram(
-        final String[] jarNames,
-        final String[] classNames,
-        final Map<String, Map<String, Integer>> globals) throws IOException
-    {
+    public static void buildDiagram(final String[] jarNames,
+            final String[] classNames,
+            final Map<String, Map<String, Integer>> globals) throws IOException {
         // normalize
         int max = 0;
         for (int i = 0; i < classNames.length; i++) {
@@ -163,9 +162,8 @@ public class DependencyTracker {
                     int b = (int) ((float) count * maxcolor / max);
 
                     g.setColor(colors.get(b));
-                    g.fillRect(CELL_PAD + x * (CELLS_SIZE + CELL_PAD),
-                            CELL_PAD + y * (CELLS_SIZE + CELL_PAD),
-                            CELLS_SIZE,
+                    g.fillRect(CELL_PAD + x * (CELLS_SIZE + CELL_PAD), CELL_PAD
+                            + y * (CELLS_SIZE + CELL_PAD), CELLS_SIZE,
                             CELLS_SIZE);
                 }
             }

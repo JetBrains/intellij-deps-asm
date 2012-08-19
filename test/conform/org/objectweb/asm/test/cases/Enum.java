@@ -38,7 +38,7 @@ import org.objectweb.asm.Type;
 
 /**
  * Generates an enum class.
- *
+ * 
  * @author Eric Bruneton
  */
 public class Enum extends Generator {
@@ -53,86 +53,57 @@ public class Enum extends Generator {
         FieldVisitor fv;
         MethodVisitor mv;
 
-        cw.visit(V1_5,
-                ACC_PUBLIC + ACC_FINAL + ACC_SUPER + ACC_ENUM,
-                "pkg/Enum",
-                "Ljava/lang/Enum<Lpkg/Enum;>;",
-                "java/lang/Enum",
+        cw.visit(V1_5, ACC_PUBLIC + ACC_FINAL + ACC_SUPER + ACC_ENUM,
+                "pkg/Enum", "Ljava/lang/Enum<Lpkg/Enum;>;", "java/lang/Enum",
                 null);
 
         fv = cw.visitField(ACC_PUBLIC + ACC_FINAL + ACC_STATIC + ACC_ENUM,
-                "V0",
-                "Lpkg/Enum;",
-                null,
-                null);
+                "V0", "Lpkg/Enum;", null, null);
         fv.visitEnd();
 
         fv = cw.visitField(ACC_PUBLIC + ACC_FINAL + ACC_STATIC + ACC_ENUM,
-                "V1",
-                "Lpkg/Enum;",
-                null,
-                null);
+                "V1", "Lpkg/Enum;", null, null);
         fv.visitEnd();
 
         fv = cw.visitField(ACC_PUBLIC + ACC_FINAL + ACC_STATIC + ACC_ENUM,
-                "V2",
-                "Lpkg/Enum;",
-                null,
-                null);
+                "V2", "Lpkg/Enum;", null, null);
         fv.visitEnd();
 
-        fv = cw.visitField(ACC_PRIVATE + ACC_FINAL + ACC_STATIC + ACC_SYNTHETIC,
-                "$VALUES",
-                "[Lpkg/Enum;",
-                null,
-                null);
+        fv = cw.visitField(
+                ACC_PRIVATE + ACC_FINAL + ACC_STATIC + ACC_SYNTHETIC,
+                "$VALUES", "[Lpkg/Enum;", null, null);
         fv.visitEnd();
 
-        mv = cw.visitMethod(ACC_PUBLIC + ACC_FINAL + ACC_STATIC,
-                "values",
-                "()[Lpkg/Enum;",
-                null,
-                null);
+        mv = cw.visitMethod(ACC_PUBLIC + ACC_FINAL + ACC_STATIC, "values",
+                "()[Lpkg/Enum;", null, null);
         mv.visitCode();
         mv.visitFieldInsn(GETSTATIC, "pkg/Enum", "$VALUES", "[Lpkg/Enum;");
-        mv.visitMethodInsn(INVOKEVIRTUAL,
-                "[Lpkg/Enum;",
-                "clone",
+        mv.visitMethodInsn(INVOKEVIRTUAL, "[Lpkg/Enum;", "clone",
                 "()Ljava/lang/Object;");
         mv.visitTypeInsn(CHECKCAST, "[Lpkg/Enum;");
         mv.visitInsn(ARETURN);
         mv.visitMaxs(0, 0);
         mv.visitEnd();
 
-        mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC,
-                "valueOf",
-                "(Ljava/lang/String;)Lpkg/Enum;",
-                null,
-                null);
+        mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC, "valueOf",
+                "(Ljava/lang/String;)Lpkg/Enum;", null, null);
         mv.visitCode();
         mv.visitLdcInsn(Type.getType("Lpkg/Enum;"));
         mv.visitVarInsn(ALOAD, 0);
-        mv.visitMethodInsn(INVOKESTATIC,
-                "java/lang/Enum",
-                "valueOf",
+        mv.visitMethodInsn(INVOKESTATIC, "java/lang/Enum", "valueOf",
                 "(Ljava/lang/Class;Ljava/lang/String;)Ljava/lang/Enum;");
         mv.visitTypeInsn(CHECKCAST, "pkg/Enum");
         mv.visitInsn(ARETURN);
         mv.visitMaxs(0, 0);
         mv.visitEnd();
 
-        mv = cw.visitMethod(ACC_PRIVATE,
-                "<init>",
-                "(Ljava/lang/String;I)V",
-                "()V",
-                null);
+        mv = cw.visitMethod(ACC_PRIVATE, "<init>", "(Ljava/lang/String;I)V",
+                "()V", null);
         mv.visitCode();
         mv.visitVarInsn(ALOAD, 0);
         mv.visitVarInsn(ALOAD, 1);
         mv.visitVarInsn(ILOAD, 2);
-        mv.visitMethodInsn(INVOKESPECIAL,
-                "java/lang/Enum",
-                "<init>",
+        mv.visitMethodInsn(INVOKESPECIAL, "java/lang/Enum", "<init>",
                 "(Ljava/lang/String;I)V");
         mv.visitInsn(RETURN);
         mv.visitMaxs(0, 0);
@@ -144,27 +115,21 @@ public class Enum extends Generator {
         mv.visitInsn(DUP);
         mv.visitLdcInsn("V0");
         mv.visitInsn(ICONST_0);
-        mv.visitMethodInsn(INVOKESPECIAL,
-                "pkg/Enum",
-                "<init>",
+        mv.visitMethodInsn(INVOKESPECIAL, "pkg/Enum", "<init>",
                 "(Ljava/lang/String;I)V");
         mv.visitFieldInsn(PUTSTATIC, "pkg/Enum", "V0", "Lpkg/Enum;");
         mv.visitTypeInsn(NEW, "pkg/Enum");
         mv.visitInsn(DUP);
         mv.visitLdcInsn("V1");
         mv.visitInsn(ICONST_1);
-        mv.visitMethodInsn(INVOKESPECIAL,
-                "pkg/Enum",
-                "<init>",
+        mv.visitMethodInsn(INVOKESPECIAL, "pkg/Enum", "<init>",
                 "(Ljava/lang/String;I)V");
         mv.visitFieldInsn(PUTSTATIC, "pkg/Enum", "V1", "Lpkg/Enum;");
         mv.visitTypeInsn(NEW, "pkg/Enum");
         mv.visitInsn(DUP);
         mv.visitLdcInsn("V2");
         mv.visitInsn(ICONST_2);
-        mv.visitMethodInsn(INVOKESPECIAL,
-                "pkg/Enum",
-                "<init>",
+        mv.visitMethodInsn(INVOKESPECIAL, "pkg/Enum", "<init>",
                 "(Ljava/lang/String;I)V");
         mv.visitFieldInsn(PUTSTATIC, "pkg/Enum", "V2", "Lpkg/Enum;");
         mv.visitInsn(ICONST_3);

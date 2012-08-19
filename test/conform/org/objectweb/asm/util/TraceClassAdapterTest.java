@@ -44,7 +44,7 @@ import org.objectweb.asm.attrs.Comment;
 
 /**
  * CheckClassAdapter tests.
- *
+ * 
  * @author Eric Bruneton
  */
 public class TraceClassAdapterTest extends AbstractTest {
@@ -57,8 +57,8 @@ public class TraceClassAdapterTest extends AbstractTest {
     public void test() throws Exception {
         ClassReader cr = new ClassReader(is);
         ClassWriter cw = new ClassWriter(0);
-        ClassVisitor cv = new TraceClassVisitor(cw,
-                new PrintWriter(new CharArrayWriter()));
+        ClassVisitor cv = new TraceClassVisitor(cw, new PrintWriter(
+                new CharArrayWriter()));
         cr.accept(cv, new Attribute[] { new Comment(), new CodeComment() }, 0);
         assertEquals(cr, new ClassReader(cw.toByteArray()));
     }

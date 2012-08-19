@@ -39,7 +39,7 @@ import org.objectweb.asm.Type;
 
 /**
  * Generates an annotation class with values of all types and a class using it.
- *
+ * 
  * @author Eric Bruneton
  */
 public class Annotation extends Generator {
@@ -65,11 +65,8 @@ public class Annotation extends Generator {
         MethodVisitor mv;
         AnnotationVisitor av0, av1;
 
-        cw.visit(V1_5,
-                ACC_PUBLIC + ACC_ANNOTATION + ACC_ABSTRACT + ACC_INTERFACE,
-                "pkg/Annotation",
-                null,
-                "java/lang/Object",
+        cw.visit(V1_5, ACC_PUBLIC + ACC_ANNOTATION + ACC_ABSTRACT
+                + ACC_INTERFACE, "pkg/Annotation", null, "java/lang/Object",
                 new String[] { "java/lang/annotation/Annotation" });
 
         mv = cw.visitMethod(M, "byteValue", "()B", null, null);
@@ -240,12 +237,8 @@ public class Annotation extends Generator {
         MethodVisitor mv;
         AnnotationVisitor av0, av1;
 
-        cw.visit(V1_5,
-                ACC_PUBLIC + ACC_SUPER,
-                "pkg/Annotated",
-                null,
-                "java/lang/Object",
-                null);
+        cw.visit(V1_5, ACC_PUBLIC + ACC_SUPER, "pkg/Annotated", null,
+                "java/lang/Object", null);
 
         // visible class annotation
         cw.visitAnnotation(DEPRECATED, true).visitEnd();

@@ -1142,7 +1142,7 @@ public class ClassReader {
         u += 2;
 
         // generates the first (implicit) stack map frame
-        if (FRAMES && stackMap != 0) {
+        if (FRAMES && (stackMap != 0 || unzip)) {
             /*
              * for the first explicit frame the offset is not offset_delta + 1
              * but only offset_delta; setting the implicit frame offset to -1
@@ -1159,6 +1159,8 @@ public class ClassReader {
             if (unzip) {
                 getImplicitFrame(context);
             }
+        }
+        if (FRAMES && stackMap != 0) {
             /*
              * Finds labels for UNINITIALIZED frame types. Instead of decoding
              * each element of the stack map table, we look for 3 consecutive

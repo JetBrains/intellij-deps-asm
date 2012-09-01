@@ -112,6 +112,21 @@ public class CheckMethodAdapter extends MethodVisitor {
     private Set<Label> usedLabels;
 
     /**
+     * If an explicit first frame has been visited before the first instruction.
+     */
+    private boolean hasExplicitFirstFrame;
+
+    /**
+     * Number of visited frames in expanded form.
+     */
+    private int expandedFrames;
+
+    /**
+     * Number of visited frames in compressed form.
+     */
+    private int compressedFrames;
+
+    /**
      * The exception handler ranges. Each pair of list element contains the
      * start and end labels of an exception handler block.
      */
@@ -545,7 +560,22 @@ public class CheckMethodAdapter extends MethodVisitor {
         for (int i = 0; i < nStack; ++i) {
             checkFrameValue(stack[i]);
         }
-
+        if (type == Opcodes.F_NEW) {
+            if (insnCount == 0) {
+                hasExplicitFirstFrame = true;
+            } else if (!hasExplicitFirstFrame) {
+                throw new RuntimeException(
+                        "In expanded form, a first frame must be explicitly "
+                                + "visited before the first instruction.");
+            }
+            ++expandedFrames;
+        } else {
+            ++compressedFrames;
+        }
+        if (expandedFrames > 0 && compressedFrames > 0) {
+            throw new RuntimeException(
+                    "Expanded and compressed frames must not be mixed.");
+        }
         super.visitFrame(type, nLocal, local, nStack, stack);
     }
 

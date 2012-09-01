@@ -175,14 +175,22 @@ public abstract class MethodVisitor {
      * such as GOTO or THROW, that is the target of a jump instruction, or that
      * starts an exception handler block. The visited types must describe the
      * values of the local variables and of the operand stack elements <i>just
-     * before</i> <b>i</b> is executed. <br>
+     * before</i> <b>i</b> is executed.<br>
      * <br>
      * (*) this is mandatory only for classes whose version is greater than or
      * equal to {@link Opcodes#V1_6 V1_6}. <br>
      * <br>
-     * Packed frames are basically "deltas" from the state of the previous frame
-     * (very first frame is implicitly defined by the method's parameters and
-     * access flags):
+     * The frames of a method must be given either in expanded form, or in
+     * compressed form (all frames must use the same format, i.e. you must not
+     * mix expanded and compressed frames within a single method):
+     * <ul>
+     * <li>In expanded form, all frames must have the F_NEW type, and a first
+     * frame corresponding to the method signature must be explicitly visited
+     * before the first instruction.</li>
+     * <li>In compressed form, frames are basically "deltas" from the state of
+     * the previous frame (the first frame, corresponding to the method's
+     * parameters and access flags, is implicit in this form, and must not be
+     * visited):
      * <ul>
      * <li>{@link Opcodes#F_SAME} representing frame with exactly the same
      * locals as the previous frame and with the empty stack.</li>
@@ -197,7 +205,8 @@ public abstract class MethodVisitor {
      * <li>{@link Opcodes#F_CHOP} representing frame with current locals are the
      * same as the locals in the previous frame, except that the last 1-3 locals
      * are absent and with the empty stack (<code>nLocals</code> is 1, 2 or 3).</li>
-     * <li>{@link Opcodes#F_FULL} representing complete frame data.</li> </li>
+     * <li>{@link Opcodes#F_FULL} representing complete frame data.</li></li>
+     * </ul>
      * </ul>
      * 
      * @param type

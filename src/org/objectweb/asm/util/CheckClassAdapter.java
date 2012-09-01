@@ -482,7 +482,10 @@ public class CheckClassAdapter extends ClassVisitor {
                 + Opcodes.ACC_BRIDGE + Opcodes.ACC_VARARGS + Opcodes.ACC_NATIVE
                 + Opcodes.ACC_ABSTRACT + Opcodes.ACC_STRICT
                 + Opcodes.ACC_SYNTHETIC + Opcodes.ACC_DEPRECATED + 0x40000); // ClassWriter.ACC_SYNTHETIC_ATTRIBUTE
-        CheckMethodAdapter.checkMethodIdentifier(version, name, "method name");
+        if (!"<init>".equals(name) && !"<clinit>".equals(name)) {
+            CheckMethodAdapter.checkMethodIdentifier(version, name,
+                    "method name");
+        }
         CheckMethodAdapter.checkMethodDesc(desc);
         if (signature != null) {
             checkMethodSignature(signature);

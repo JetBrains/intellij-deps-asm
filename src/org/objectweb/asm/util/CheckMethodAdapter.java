@@ -75,6 +75,11 @@ public class CheckMethodAdapter extends MethodVisitor {
     public int version;
 
     /**
+     * The access flags of the method.
+     */
+    private int access;
+
+    /**
      * <tt>true</tt> if the visitCode method has been called.
      */
     private boolean startCode;
@@ -438,6 +443,7 @@ public class CheckMethodAdapter extends MethodVisitor {
                 accept(cmv);
             }
         }, labels);
+        this.access = access;
     }
 
     @Override
@@ -475,6 +481,9 @@ public class CheckMethodAdapter extends MethodVisitor {
 
     @Override
     public void visitCode() {
+        if ((access & Opcodes.ACC_ABSTRACT) != 0) {
+            throw new RuntimeException("Abstract methods cannot have code");
+        }
         startCode = true;
         super.visitCode();
     }
@@ -616,7 +625,9 @@ public class CheckMethodAdapter extends MethodVisitor {
         checkStartCode();
         checkEndCode();
         checkOpcode(opcode, 5);
-        checkMethodIdentifier(version, name, "name");
+        if (opcode != Opcodes.INVOKESPECIAL || !"<init>".equals(name)) {
+            checkMethodIdentifier(version, name, "name");
+        }
         checkInternalName(owner, "owner");
         checkMethodDesc(desc);
         super.visitMethodInsn(opcode, owner, name, desc);
@@ -1073,8 +1084,7 @@ public class CheckMethodAdapter extends MethodVisitor {
     }
 
     /**
-     * Checks that the given string is a valid Java identifier or is equal to
-     * '&lt;init&gt;' or '&lt;clinit&gt;'.
+     * Checks that the given string is a valid Java identifier.
      * 
      * @param version
      *            the class version.
@@ -1088,9 +1098,6 @@ public class CheckMethodAdapter extends MethodVisitor {
         if (name == null || name.length() == 0) {
             throw new IllegalArgumentException("Invalid " + msg
                     + " (must not be null or empty)");
-        }
-        if ("<init>".equals(name) || "<clinit>".equals(name)) {
-            return;
         }
         if ((version & 0xFFFF) >= Opcodes.V1_5) {
             for (int i = 0; i < name.length(); ++i) {

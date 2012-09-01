@@ -55,7 +55,7 @@ public class AnalyzerUnitTest extends ClassWriterComputeMaxsUnitTest {
         cw.visitEnd();
         byte[] b = cw.toByteArray();
         ClassReader cr = new ClassReader(b);
-        cr.accept(new ClassVisitor(Opcodes.ASM4) {
+        cr.accept(new ClassVisitor(Opcodes.ASM5) {
             @Override
             public MethodVisitor visitMethod(final int access,
                     final String name, final String desc,

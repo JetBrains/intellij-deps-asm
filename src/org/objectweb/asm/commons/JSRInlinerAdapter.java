@@ -111,7 +111,7 @@ public class JSRInlinerAdapter extends MethodNode implements Opcodes {
     public JSRInlinerAdapter(final MethodVisitor mv, final int access,
             final String name, final String desc, final String signature,
             final String[] exceptions) {
-        this(Opcodes.ASM4, mv, access, name, desc, signature, exceptions);
+        this(Opcodes.ASM5, mv, access, name, desc, signature, exceptions);
     }
 
     /**
@@ -119,7 +119,7 @@ public class JSRInlinerAdapter extends MethodNode implements Opcodes {
      * 
      * @param api
      *            the ASM API version implemented by this visitor. Must be one
-     *            of {@link Opcodes#ASM4}.
+     *            of {@link Opcodes#ASM4} or {@link Opcodes#ASM5}.
      * @param mv
      *            the <code>MethodVisitor</code> to send the resulting inlined
      *            method code to (use <code>null</code> for none).

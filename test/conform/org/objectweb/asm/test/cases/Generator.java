@@ -44,10 +44,10 @@ import org.objectweb.asm.Opcodes;
 public class Generator implements Opcodes {
 
     public static void main(final String[] args) throws IOException {
-        Generator generators[] = { new Annotation(), new Attribute(),
-                new Debug(), new Enum(), new Frames(), new Insns(),
-                new Interface(), new Invalid(), new JSR(), new Outer(),
-                new Wide(), new InvokeDynamic() };
+        Generator generators[] = { new Annotation(), new TypeAnnotation(),
+                new Attribute(), new Debug(), new Enum(), new Frames(),
+                new Insns(), new Interface(), new Invalid(), new JSR(),
+                new Outer(), new Wide(), new InvokeDynamic() };
         for (int i = 0; i < generators.length; ++i) {
             generators[i].generate(args[0]);
         }

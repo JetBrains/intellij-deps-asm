@@ -130,7 +130,7 @@ public final class TraceClassVisitor extends ClassVisitor {
      */
     public TraceClassVisitor(final ClassVisitor cv, final Printer p,
             final PrintWriter pw) {
-        super(Opcodes.ASM4, cv);
+        super(Opcodes.ASM5, cv);
         this.pw = pw;
         this.p = p;
     }
@@ -162,6 +162,16 @@ public final class TraceClassVisitor extends ClassVisitor {
         Printer p = this.p.visitClassAnnotation(desc, visible);
         AnnotationVisitor av = cv == null ? null : cv.visitAnnotation(desc,
                 visible);
+        return new TraceAnnotationVisitor(av, p);
+    }
+
+    @Override
+    public AnnotationVisitor visitTypeAnnotation(int target, long path,
+            String desc, boolean visible) {
+        Printer p = this.p
+                .visitClassTypeAnnotation(target, path, desc, visible);
+        AnnotationVisitor av = cv == null ? null : cv.visitTypeAnnotation(
+                target, path, desc, visible);
         return new TraceAnnotationVisitor(av, p);
     }
 

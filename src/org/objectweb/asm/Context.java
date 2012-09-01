@@ -73,9 +73,39 @@ class Context {
     String desc;
 
     /**
+     * TODO.
+     */
+    Label[] labels;
+
+    /**
+     * The target of the type annotation currently being parsed.
+     */
+    int target;
+
+    /**
+     * The path of the type annotation currently being parsed.
+     */
+    long path;
+
+    /**
      * The offset of the latest stack map frame that has been parsed.
      */
     int offset;
+
+    /**
+     * TODO.
+     */
+    Label[] start;
+
+    /**
+     * TODO.
+     */
+    Label[] end;
+
+    /**
+     * TODO.
+     */
+    int[] index;
 
     /**
      * The encoding of the latest stack map frame that has been parsed.

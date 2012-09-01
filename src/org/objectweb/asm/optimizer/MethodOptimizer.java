@@ -51,7 +51,7 @@ public class MethodOptimizer extends RemappingMethodAdapter implements Opcodes {
 
     public MethodOptimizer(ClassOptimizer classOptimizer, int access,
             String desc, MethodVisitor mv, Remapper remapper) {
-        super(access, desc, mv, remapper);
+        super(Opcodes.ASM5, access, desc, mv, remapper);
         this.classOptimizer = classOptimizer;
     }
 
@@ -68,6 +68,12 @@ public class MethodOptimizer extends RemappingMethodAdapter implements Opcodes {
     @Override
     public AnnotationVisitor visitAnnotation(String desc, boolean visible) {
         // remove annotations
+        return null;
+    }
+
+    @Override
+    public AnnotationVisitor visitTypeAnnotation(int target, long path,
+            String desc, boolean visible) {
         return null;
     }
 

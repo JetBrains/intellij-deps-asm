@@ -49,7 +49,7 @@ public final class TraceFieldVisitor extends FieldVisitor {
     }
 
     public TraceFieldVisitor(final FieldVisitor fv, final Printer p) {
-        super(Opcodes.ASM4, fv);
+        super(Opcodes.ASM5, fv);
         this.p = p;
     }
 
@@ -59,6 +59,16 @@ public final class TraceFieldVisitor extends FieldVisitor {
         Printer p = this.p.visitFieldAnnotation(desc, visible);
         AnnotationVisitor av = fv == null ? null : fv.visitAnnotation(desc,
                 visible);
+        return new TraceAnnotationVisitor(av, p);
+    }
+
+    @Override
+    public AnnotationVisitor visitTypeAnnotation(int target, long path,
+            String desc, boolean visible) {
+        Printer p = this.p
+                .visitFieldTypeAnnotation(target, path, desc, visible);
+        AnnotationVisitor av = fv == null ? null : fv.visitTypeAnnotation(
+                target, path, desc, visible);
         return new TraceAnnotationVisitor(av, p);
     }
 

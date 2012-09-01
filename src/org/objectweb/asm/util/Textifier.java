@@ -143,7 +143,7 @@ public class Textifier extends Printer {
      * version.
      */
     public Textifier() {
-        this(Opcodes.ASM4);
+        this(Opcodes.ASM5);
     }
 
     /**
@@ -151,7 +151,7 @@ public class Textifier extends Printer {
      * 
      * @param api
      *            the ASM API version implemented by this visitor. Must be one
-     *            of {@link Opcodes#ASM4}.
+     *            of {@link Opcodes#ASM4} or {@link Opcodes#ASM5}.
      */
     protected Textifier(final int api) {
         super(api);
@@ -291,6 +291,13 @@ public class Textifier extends Printer {
             final boolean visible) {
         text.add("\n");
         return visitAnnotation(desc, visible);
+    }
+
+    @Override
+    public Printer visitClassTypeAnnotation(int target, long path, String desc,
+            boolean visible) {
+        text.add("\n");
+        return visitTypeAnnotation(target, path, desc, visible);
     }
 
     @Override
@@ -617,6 +624,12 @@ public class Textifier extends Printer {
     }
 
     @Override
+    public Printer visitFieldTypeAnnotation(int target, long path, String desc,
+            boolean visible) {
+        return visitTypeAnnotation(target, path, desc, visible);
+    }
+
+    @Override
     public void visitFieldAttribute(final Attribute attr) {
         visitAttribute(attr);
     }
@@ -642,6 +655,12 @@ public class Textifier extends Printer {
     public Textifier visitMethodAnnotation(final String desc,
             final boolean visible) {
         return visitAnnotation(desc, visible);
+    }
+
+    @Override
+    public Printer visitMethodTypeAnnotation(int target, long path,
+            String desc, boolean visible) {
+        return visitTypeAnnotation(target, path, desc, visible);
     }
 
     @Override
@@ -890,6 +909,12 @@ public class Textifier extends Printer {
     }
 
     @Override
+    public Printer visitInsnAnnotation(int target, long path, String desc,
+            boolean visible) {
+        return visitTypeAnnotation(target, path, desc, visible);
+    }
+
+    @Override
     public void visitTryCatchBlock(final Label start, final Label end,
             final Label handler, final String type) {
         buf.setLength(0);
@@ -903,6 +928,24 @@ public class Textifier extends Printer {
         appendDescriptor(INTERNAL_NAME, type);
         buf.append('\n');
         text.add(buf.toString());
+    }
+
+    @Override
+    public Printer visitTryCatchAnnotation(int target, long path, String desc,
+            boolean visible) {
+        buf.setLength(0);
+        buf.append(tab2).append("TRYCATCHBLOCK @");
+        appendDescriptor(FIELD_DESCRIPTOR, desc);
+        buf.append('(');
+        text.add(buf.toString());
+        Textifier t = createTextifier();
+        text.add(t.getText());
+        buf.setLength(0);
+        buf.append(") : 0x").append(Integer.toHexString(target));
+        buf.append(", 0x").append(Long.toHexString(path));
+        buf.append(visible ? "\n" : " // invisible\n");
+        text.add(buf.toString());
+        return t;
     }
 
     @Override
@@ -929,6 +972,32 @@ public class Textifier extends Printer {
                     .append(sv.getDeclaration()).append('\n');
         }
         text.add(buf.toString());
+    }
+
+    @Override
+    public Printer visitLocalVariableAnnotation(int target, long path,
+            Label[] start, Label[] end, int[] index, String desc,
+            boolean visible) {
+        buf.setLength(0);
+        buf.append(tab2).append("LOCALVARIABLE @");
+        appendDescriptor(FIELD_DESCRIPTOR, desc);
+        buf.append('(');
+        text.add(buf.toString());
+        Textifier t = createTextifier();
+        text.add(t.getText());
+        buf.setLength(0);
+        buf.append(") : 0x").append(Integer.toHexString(target));
+        buf.append(", 0x").append(Long.toHexString(path));
+        for (int i = 0; i < start.length; ++i) {
+            buf.append(" [ ");
+            appendLabel(start[i]);
+            buf.append(" - ");
+            appendLabel(end[i]);
+            buf.append(" - ").append(index[i]).append(" ]");
+        }
+        buf.append(visible ? "\n" : " // invisible\n");
+        text.add(buf.toString());
+        return t;
     }
 
     @Override
@@ -977,6 +1046,38 @@ public class Textifier extends Printer {
         Textifier t = createTextifier();
         text.add(t.getText());
         text.add(visible ? ")\n" : ") // invisible\n");
+        return t;
+    }
+
+    /**
+     * Prints a disassembled view of the given type annotation.
+     * 
+     * @param target
+     *            the path to the annotated type.
+     * @param path
+     *            the path to the annotated type argument, wildcard bound, array
+     *            element type, or static outer type within the target type,
+     *            seen as a tree.
+     * @param desc
+     *            the class descriptor of the annotation class.
+     * @param visible
+     *            <tt>true</tt> if the annotation is visible at runtime.
+     * @return a visitor to visit the annotation values.
+     */
+    public Textifier visitTypeAnnotation(final int target, final long path,
+            final String desc, final boolean visible) {
+        buf.setLength(0);
+        buf.append(tab).append('@');
+        appendDescriptor(FIELD_DESCRIPTOR, desc);
+        buf.append('(');
+        text.add(buf.toString());
+        Textifier t = createTextifier();
+        text.add(t.getText());
+        buf.setLength(0);
+        buf.append(") : 0x").append(Integer.toHexString(target));
+        buf.append(", 0x").append(Long.toHexString(path));
+        buf.append(visible ? "\n" : " // invisible\n");
+        text.add(buf.toString());
         return t;
     }
 

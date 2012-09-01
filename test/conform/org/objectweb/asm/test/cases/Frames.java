@@ -669,7 +669,7 @@ public class Frames extends Generator {
     static class RenameAdapter extends ClassVisitor {
 
         public RenameAdapter(final ClassVisitor cv) {
-            super(Opcodes.ASM4, cv);
+            super(Opcodes.ASM5, cv);
         }
 
         @Override
@@ -684,7 +684,7 @@ public class Frames extends Generator {
         public MethodVisitor visitMethod(final int access, final String name,
                 final String desc, final String signature,
                 final String[] exceptions) {
-            return new MethodVisitor(Opcodes.ASM4, super.visitMethod(access,
+            return new MethodVisitor(Opcodes.ASM5, super.visitMethod(access,
                     name, desc, signature, exceptions)) {
                 @Override
                 public void visitFrame(final int type, final int nLocal,

@@ -47,7 +47,7 @@ public class ClassConstantsCollector extends ClassVisitor {
     private final ConstantPool cp;
 
     public ClassConstantsCollector(final ClassVisitor cv, final ConstantPool cp) {
-        super(Opcodes.ASM4, cv);
+        super(Opcodes.ASM5, cv);
         this.cp = cp;
     }
 
@@ -108,6 +108,19 @@ public class ClassConstantsCollector extends ClassVisitor {
             cp.newUTF8("RuntimeVisibleAnnotations");
         } else {
             cp.newUTF8("RuntimeInvisibleAnnotations");
+        }
+        return new AnnotationConstantsCollector(cv.visitAnnotation(desc,
+                visible), cp);
+    }
+
+    @Override
+    public AnnotationVisitor visitTypeAnnotation(int target, long path,
+            String desc, boolean visible) {
+        cp.newUTF8(desc);
+        if (visible) {
+            cp.newUTF8("RuntimeVisibleTypeAnnotations");
+        } else {
+            cp.newUTF8("RuntimeInvisibleTypeAnnotations");
         }
         return new AnnotationConstantsCollector(cv.visitAnnotation(desc,
                 visible), cp);

@@ -139,7 +139,7 @@ public class AnalyzerAdapter extends MethodVisitor {
      */
     public AnalyzerAdapter(final String owner, final int access,
             final String name, final String desc, final MethodVisitor mv) {
-        this(Opcodes.ASM4, owner, access, name, desc, mv);
+        this(Opcodes.ASM5, owner, access, name, desc, mv);
     }
 
     /**
@@ -147,7 +147,7 @@ public class AnalyzerAdapter extends MethodVisitor {
      * 
      * @param api
      *            the ASM API version implemented by this visitor. Must be one
-     *            of {@link Opcodes#ASM4}.
+     *            of {@link Opcodes#ASM4} or {@link Opcodes#ASM5}.
      * @param owner
      *            the owner's class name.
      * @param access

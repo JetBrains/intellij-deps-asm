@@ -66,7 +66,7 @@ public final class SAXCodeAdapter extends MethodVisitor {
      *            content handler that will be used to send SAX 2.0 events.
      */
     public SAXCodeAdapter(final SAXAdapter sa, final int access) {
-        super(Opcodes.ASM4);
+        super(Opcodes.ASM5);
         this.sa = sa;
         this.labelNames = new HashMap<Label, String>();
 
@@ -339,10 +339,47 @@ public final class SAXCodeAdapter extends MethodVisitor {
     }
 
     @Override
+    public AnnotationVisitor visitTypeAnnotation(int target, long path,
+            String desc, boolean visible) {
+        return new SAXAnnotationAdapter(sa, "typeAnnotation", visible ? 1 : -1,
+                null, desc, target, path);
+    }
+
+    @Override
     public AnnotationVisitor visitParameterAnnotation(final int parameter,
             final String desc, final boolean visible) {
         return new SAXAnnotationAdapter(sa, "parameterAnnotation", visible ? 1
                 : -1, parameter, desc);
+    }
+
+    @Override
+    public AnnotationVisitor visitInsnAnnotation(int target, long path,
+            String desc, boolean visible) {
+        return new SAXAnnotationAdapter(sa, "insnAnnotation", visible ? 1 : -1,
+                null, desc, target, path);
+    }
+
+    @Override
+    public AnnotationVisitor visitTryCatchAnnotation(int target, long path,
+            String desc, boolean visible) {
+        return new SAXAnnotationAdapter(sa, "tryCatchAnnotation", visible ? 1
+                : -1, null, desc, target, path);
+    }
+
+    @Override
+    public AnnotationVisitor visitLocalVariableAnnotation(int target,
+            long path, Label[] start, Label[] end, int[] index, String desc,
+            boolean visible) {
+        String[] s = new String[start.length];
+        String[] e = new String[end.length];
+        for (int i = 0; i < s.length; ++i) {
+            s[i] = getLabel(start[i]);
+        }
+        for (int i = 0; i < e.length; ++i) {
+            e[i] = getLabel(end[i]);
+        }
+        return new SAXAnnotationAdapter(sa, "localVariableAnnotation",
+                visible ? 1 : -1, null, desc, target, path, s, e, index);
     }
 
     @Override

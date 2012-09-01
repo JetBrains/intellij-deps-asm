@@ -55,7 +55,7 @@ public class LocalVariablesSorterTest extends AbstractTest {
     public void test() throws Exception {
         ClassReader cr = new ClassReader(is);
         ClassWriter cw = new ClassWriter(0);
-        cr.accept(new ClassVisitor(Opcodes.ASM4, cw) {
+        cr.accept(new ClassVisitor(Opcodes.ASM5, cw) {
             @Override
             public MethodVisitor visitMethod(final int access,
                     final String name, final String desc,

@@ -58,7 +58,7 @@ import org.objectweb.asm.util.TraceClassVisitor;
 class ClassFilter extends ClassVisitor {
 
     public ClassFilter() {
-        super(Opcodes.ASM4, null);
+        super(Opcodes.ASM5, null);
     }
 
     public void setNext(final ClassVisitor cv) {

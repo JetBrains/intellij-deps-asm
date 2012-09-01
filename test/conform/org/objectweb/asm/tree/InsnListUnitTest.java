@@ -653,7 +653,7 @@ public class InsnListUnitTest extends TestCase {
         l1.add(new InsnNode(77));
 
         final InsnList lst = new InsnList();
-        l1.accept(new MethodVisitor(Opcodes.ASM4) {
+        l1.accept(new MethodVisitor(Opcodes.ASM5) {
             @Override
             public void visitInsn(int opcode) {
                 lst.add(new InsnNode(opcode));

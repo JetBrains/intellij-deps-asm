@@ -393,7 +393,7 @@ public class CheckMethodAdapter extends MethodVisitor {
      */
     public CheckMethodAdapter(final MethodVisitor mv,
             final Map<Label, Integer> labels) {
-        this(Opcodes.ASM4, mv, labels);
+        this(Opcodes.ASM5, mv, labels);
     }
 
     /**
@@ -467,6 +467,16 @@ public class CheckMethodAdapter extends MethodVisitor {
         checkEndMethod();
         checkDesc(desc, false);
         return new CheckAnnotationAdapter(super.visitAnnotation(desc, visible));
+    }
+
+    @Override
+    public AnnotationVisitor visitTypeAnnotation(final int target,
+            final long path, final String desc, final boolean visible) {
+        checkEndMethod();
+        // TODO check target and path
+        CheckMethodAdapter.checkDesc(desc, false);
+        return new CheckAnnotationAdapter(super.visitTypeAnnotation(target,
+                path, desc, visible));
     }
 
     @Override
@@ -799,6 +809,17 @@ public class CheckMethodAdapter extends MethodVisitor {
     }
 
     @Override
+    public AnnotationVisitor visitInsnAnnotation(final int target,
+            final long path, final String desc, final boolean visible) {
+        checkStartCode();
+        checkEndCode();
+        // TODO check target and path
+        CheckMethodAdapter.checkDesc(desc, false);
+        return new CheckAnnotationAdapter(super.visitInsnAnnotation(target,
+                path, desc, visible));
+    }
+
+    @Override
     public void visitTryCatchBlock(final Label start, final Label end,
             final Label handler, final String type) {
         checkStartCode();
@@ -823,6 +844,17 @@ public class CheckMethodAdapter extends MethodVisitor {
     }
 
     @Override
+    public AnnotationVisitor visitTryCatchAnnotation(final int target,
+            final long path, final String desc, final boolean visible) {
+        checkStartCode();
+        checkEndCode();
+        // TODO check target and path
+        CheckMethodAdapter.checkDesc(desc, false);
+        return new CheckAnnotationAdapter(super.visitTryCatchAnnotation(target,
+                path, desc, visible));
+    }
+
+    @Override
     public void visitLocalVariable(final String name, final String desc,
             final String signature, final Label start, final Label end,
             final int index) {
@@ -840,6 +872,33 @@ public class CheckMethodAdapter extends MethodVisitor {
                     "Invalid start and end labels (end must be greater than start)");
         }
         super.visitLocalVariable(name, desc, signature, start, end, index);
+    }
+
+    @Override
+    public AnnotationVisitor visitLocalVariableAnnotation(int target,
+            long path, Label[] start, Label[] end, int[] index, String desc,
+            boolean visible) {
+        checkStartCode();
+        checkEndCode();
+        checkDesc(desc, false);
+        if (start == null || end == null || index == null
+                || end.length != start.length || index.length != start.length) {
+            throw new IllegalArgumentException(
+                    "Invalid start, end and index arrays (must be non null and of identical length");
+        }
+        for (int i = 0; i < start.length; ++i) {
+            checkLabel(start[i], true, "start label");
+            checkLabel(end[i], true, "end label");
+            checkUnsignedShort(index[i], "Invalid variable index");
+            int s = labels.get(start[i]).intValue();
+            int e = labels.get(end[i]).intValue();
+            if (e < s) {
+                throw new IllegalArgumentException(
+                        "Invalid start and end labels (end must be greater than start)");
+            }
+        }
+        return super.visitLocalVariableAnnotation(target, path, start, end,
+                index, desc, visible);
     }
 
     @Override

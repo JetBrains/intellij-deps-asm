@@ -68,7 +68,7 @@ public class Annotations {
                 final Type[] args = Type.getArgumentTypes(desc);
                 MethodVisitor v = cv.visitMethod(access, name, desc, signature,
                         exceptions);
-                return new MethodVisitor(Opcodes.ASM4, v) {
+                return new MethodVisitor(Opcodes.ASM5, v) {
 
                     private final List<Integer> params = new ArrayList<Integer>();
 

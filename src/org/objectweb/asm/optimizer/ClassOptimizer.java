@@ -52,7 +52,7 @@ public class ClassOptimizer extends RemappingClassAdapter {
     boolean class$;
 
     public ClassOptimizer(final ClassVisitor cv, final Remapper remapper) {
-        super(cv, remapper);
+        super(Opcodes.ASM5, cv, remapper);
     }
 
     FieldVisitor syntheticFieldVisitor(final int access, final String name,
@@ -92,6 +92,13 @@ public class ClassOptimizer extends RemappingClassAdapter {
     @Override
     public AnnotationVisitor visitAnnotation(final String desc,
             final boolean visible) {
+        // remove annotations
+        return null;
+    }
+
+    @Override
+    public AnnotationVisitor visitTypeAnnotation(int target, long path,
+            String desc, boolean visible) {
         // remove annotations
         return null;
     }

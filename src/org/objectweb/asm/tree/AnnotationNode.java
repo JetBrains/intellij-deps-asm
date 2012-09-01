@@ -69,7 +69,7 @@ public class AnnotationNode extends AnnotationVisitor {
      *            the class descriptor of the annotation class.
      */
     public AnnotationNode(final String desc) {
-        this(Opcodes.ASM4, desc);
+        this(Opcodes.ASM5, desc);
     }
 
     /**
@@ -77,7 +77,7 @@ public class AnnotationNode extends AnnotationVisitor {
      * 
      * @param api
      *            the ASM API version implemented by this visitor. Must be one
-     *            of {@link Opcodes#ASM4}.
+     *            of {@link Opcodes#ASM4} or {@link Opcodes#ASM5}.
      * @param desc
      *            the class descriptor of the annotation class.
      */
@@ -93,7 +93,7 @@ public class AnnotationNode extends AnnotationVisitor {
      *            where the visited values must be stored.
      */
     AnnotationNode(final List<Object> values) {
-        super(Opcodes.ASM4);
+        super(Opcodes.ASM5);
         this.values = values;
     }
 
@@ -166,7 +166,8 @@ public class AnnotationNode extends AnnotationVisitor {
      * versions of the ASM API than the given version.
      * 
      * @param api
-     *            an ASM API version. Must be one of {@link Opcodes#ASM4}.
+     *            an ASM API version. Must be one of {@link Opcodes#ASM4} or
+     *            {@link Opcodes#ASM5}.
      */
     public void check(final int api) {
         // nothing to do

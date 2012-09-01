@@ -68,7 +68,7 @@ public class AdviceAdapterTest extends AbstractTest {
     static class ReferenceClassAdapter extends ClassVisitor {
 
         public ReferenceClassAdapter(final ClassVisitor cv) {
-            super(Opcodes.ASM4, cv);
+            super(Opcodes.ASM5, cv);
         }
 
         @Override
@@ -90,7 +90,7 @@ public class AdviceAdapterTest extends AbstractTest {
     static class AdviceClassAdapter extends ClassVisitor {
 
         public AdviceClassAdapter(final ClassVisitor cv) {
-            super(Opcodes.ASM4, cv);
+            super(Opcodes.ASM5, cv);
         }
 
         @Override
@@ -105,7 +105,7 @@ public class AdviceAdapterTest extends AbstractTest {
                 return mv;
             }
 
-            return new AdviceAdapter(Opcodes.ASM4, mv, access, name, desc) {
+            return new AdviceAdapter(Opcodes.ASM5, mv, access, name, desc) {
 
                 @Override
                 protected void onMethodEnter() {

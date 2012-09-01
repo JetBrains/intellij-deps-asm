@@ -46,6 +46,7 @@ public interface Opcodes {
     // ASM API versions
 
     int ASM4 = 4 << 16 | 0 << 8 | 0;
+    int ASM5 = 5 << 16 | 0 << 8 | 0;
 
     // versions
 
@@ -56,6 +57,7 @@ public interface Opcodes {
     int V1_5 = 0 << 16 | 49;
     int V1_6 = 0 << 16 | 50;
     int V1_7 = 0 << 16 | 51;
+    int V1_8 = 0 << 16 | 52;
 
     // access flags
 

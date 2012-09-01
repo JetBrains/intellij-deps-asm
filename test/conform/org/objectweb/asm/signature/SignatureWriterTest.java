@@ -52,7 +52,7 @@ public class SignatureWriterTest extends AbstractTest {
     @Override
     public void test() throws Exception {
         ClassReader cr = new ClassReader(is);
-        cr.accept(new ClassVisitor(Opcodes.ASM4) {
+        cr.accept(new ClassVisitor(Opcodes.ASM5) {
             @Override
             public void visit(int version, int access, String name,
                     String signature, String superName, String[] interfaces) {

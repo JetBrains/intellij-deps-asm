@@ -47,7 +47,7 @@ public class RemappingMethodAdapter extends LocalVariablesSorter {
 
     public RemappingMethodAdapter(final int access, final String desc,
             final MethodVisitor mv, final Remapper remapper) {
-        this(Opcodes.ASM4, access, desc, mv, remapper);
+        this(Opcodes.ASM5, access, desc, mv, remapper);
     }
 
     protected RemappingMethodAdapter(final int api, final int access,
@@ -58,21 +58,29 @@ public class RemappingMethodAdapter extends LocalVariablesSorter {
 
     @Override
     public AnnotationVisitor visitAnnotationDefault() {
-        AnnotationVisitor av = mv.visitAnnotationDefault();
+        AnnotationVisitor av = super.visitAnnotationDefault();
         return av == null ? av : new RemappingAnnotationAdapter(av, remapper);
     }
 
     @Override
     public AnnotationVisitor visitAnnotation(String desc, boolean visible) {
-        AnnotationVisitor av = mv.visitAnnotation(remapper.mapDesc(desc),
+        AnnotationVisitor av = super.visitAnnotation(remapper.mapDesc(desc),
                 visible);
+        return av == null ? av : new RemappingAnnotationAdapter(av, remapper);
+    }
+
+    @Override
+    public AnnotationVisitor visitTypeAnnotation(int target, long path,
+            String desc, boolean visible) {
+        AnnotationVisitor av = super.visitTypeAnnotation(target, path,
+                remapper.mapDesc(desc), visible);
         return av == null ? av : new RemappingAnnotationAdapter(av, remapper);
     }
 
     @Override
     public AnnotationVisitor visitParameterAnnotation(int parameter,
             String desc, boolean visible) {
-        AnnotationVisitor av = mv.visitParameterAnnotation(parameter,
+        AnnotationVisitor av = super.visitParameterAnnotation(parameter,
                 remapper.mapDesc(desc), visible);
         return av == null ? av : new RemappingAnnotationAdapter(av, remapper);
     }
@@ -146,6 +154,14 @@ public class RemappingMethodAdapter extends LocalVariablesSorter {
     }
 
     @Override
+    public AnnotationVisitor visitInsnAnnotation(int target, long path,
+            String desc, boolean visible) {
+        AnnotationVisitor av = super.visitInsnAnnotation(target, path,
+                remapper.mapDesc(desc), visible);
+        return av == null ? av : new RemappingAnnotationAdapter(av, remapper);
+    }
+
+    @Override
     public void visitTryCatchBlock(Label start, Label end, Label handler,
             String type) {
         super.visitTryCatchBlock(start, end, handler, type == null ? null
@@ -153,9 +169,26 @@ public class RemappingMethodAdapter extends LocalVariablesSorter {
     }
 
     @Override
+    public AnnotationVisitor visitTryCatchAnnotation(int target, long path,
+            String desc, boolean visible) {
+        AnnotationVisitor av = super.visitTryCatchAnnotation(target, path,
+                remapper.mapDesc(desc), visible);
+        return av == null ? av : new RemappingAnnotationAdapter(av, remapper);
+    }
+
+    @Override
     public void visitLocalVariable(String name, String desc, String signature,
             Label start, Label end, int index) {
         super.visitLocalVariable(name, remapper.mapDesc(desc),
                 remapper.mapSignature(signature, true), start, end, index);
+    }
+
+    @Override
+    public AnnotationVisitor visitLocalVariableAnnotation(int target,
+            long path, Label[] start, Label[] end, int[] index, String desc,
+            boolean visible) {
+        AnnotationVisitor av = super.visitLocalVariableAnnotation(target, path,
+                start, end, index, remapper.mapDesc(desc), visible);
+        return av == null ? av : new RemappingAnnotationAdapter(av, remapper);
     }
 }

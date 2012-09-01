@@ -44,7 +44,7 @@ public class RemappingFieldAdapter extends FieldVisitor {
     private final Remapper remapper;
 
     public RemappingFieldAdapter(final FieldVisitor fv, final Remapper remapper) {
-        this(Opcodes.ASM4, fv, remapper);
+        this(Opcodes.ASM5, fv, remapper);
     }
 
     protected RemappingFieldAdapter(final int api, final FieldVisitor fv,
@@ -57,6 +57,14 @@ public class RemappingFieldAdapter extends FieldVisitor {
     public AnnotationVisitor visitAnnotation(String desc, boolean visible) {
         AnnotationVisitor av = fv.visitAnnotation(remapper.mapDesc(desc),
                 visible);
+        return av == null ? null : new RemappingAnnotationAdapter(av, remapper);
+    }
+
+    @Override
+    public AnnotationVisitor visitTypeAnnotation(int target, long path,
+            String desc, boolean visible) {
+        AnnotationVisitor av = super.visitTypeAnnotation(target, path,
+                remapper.mapDesc(desc), visible);
         return av == null ? null : new RemappingAnnotationAdapter(av, remapper);
     }
 }

@@ -33,8 +33,9 @@ package org.objectweb.asm;
  * A visitor to visit a Java class. The methods of this class must be called in
  * the following order: <tt>visit</tt> [ <tt>visitSource</tt> ] [
  * <tt>visitOuterClass</tt> ] ( <tt>visitAnnotation</tt> |
- * <tt>visitAttribute</tt> )* ( <tt>visitInnerClass</tt> | <tt>visitField</tt> |
- * <tt>visitMethod</tt> )* <tt>visitEnd</tt>.
+ * <tt>visitTypeAnnotation</tt> | <tt>visitAttribute</tt> )* (
+ * <tt>visitInnerClass</tt> | <tt>visitField</tt> | <tt>visitMethod</tt> )*
+ * <tt>visitEnd</tt>.
  * 
  * @author Eric Bruneton
  */
@@ -42,7 +43,7 @@ public abstract class ClassVisitor {
 
     /**
      * The ASM API version implemented by this visitor. The value of this field
-     * must be one of {@link Opcodes#ASM4}.
+     * must be one of {@link Opcodes#ASM4} or {@link Opcodes#ASM5}.
      */
     protected final int api;
 
@@ -57,7 +58,7 @@ public abstract class ClassVisitor {
      * 
      * @param api
      *            the ASM API version implemented by this visitor. Must be one
-     *            of {@link Opcodes#ASM4}.
+     *            of {@link Opcodes#ASM4} or {@link Opcodes#ASM5}.
      */
     public ClassVisitor(final int api) {
         this(api, null);
@@ -68,13 +69,13 @@ public abstract class ClassVisitor {
      * 
      * @param api
      *            the ASM API version implemented by this visitor. Must be one
-     *            of {@link Opcodes#ASM4}.
+     *            of {@link Opcodes#ASM4} or {@link Opcodes#ASM5}.
      * @param cv
      *            the class visitor to which this visitor must delegate method
      *            calls. May be null.
      */
     public ClassVisitor(final int api, final ClassVisitor cv) {
-        if (api != Opcodes.ASM4) {
+        if (api != Opcodes.ASM4 && api != Opcodes.ASM5) {
             throw new IllegalArgumentException();
         }
         this.api = api;
@@ -164,6 +165,46 @@ public abstract class ClassVisitor {
     public AnnotationVisitor visitAnnotation(String desc, boolean visible) {
         if (cv != null) {
             return cv.visitAnnotation(desc, visible);
+        }
+        return null;
+    }
+
+    /**
+     * Visits an annotation on a type in the class signature.
+     * 
+     * @param target
+     *            the path to the annotated type within the signature, seen as a
+     *            tree. Path 0,<i>i</i> targets the <i>i</i>-th type parameter,
+     *            path 0,<i>i</i>,<i>j</i> targets the <i>j</i>-th bound of the
+     *            <i>i</i>-th type parameter, path 1 targets the super class,
+     *            and path 2,<i>i</i> targets the <i>i</i>-th interface. A path
+     *            <i>p1</i>,...,<i>pN</i> is stored as 0xFF<i>pN</i>...<i>p1</i>
+     *            with one byte per element.
+     * @param path
+     *            the path to the annotated type argument, wildcard bound, array
+     *            element type, or static outer type within the target type,
+     *            seen as a tree. For instance, in <tt>@A Map&lt;@B ? extends @C
+     *        String, @D List&lt;@E Object&gt;&gt;</tt>, A, B, C, D, E have
+     *            paths (), (0), (0,0), (1), (1,0) respectively. In
+     *            <tt>@I String @F
+     *        [] @G [] @H []</tt> F, G, H, I have paths (), (0), (1), (2)
+     *            respectively. In <tt>@M O1.@L O2.@K O3.@J NestedStatic</tt> J,
+     *            K, L, M have paths (), (0), (1), (2) respectively. Paths are
+     *            stored with the same format as in 'target'.
+     * @param desc
+     *            the class descriptor of the annotation class.
+     * @param visible
+     *            <tt>true</tt> if the annotation is visible at runtime.
+     * @return a visitor to visit the annotation values, or <tt>null</tt> if
+     *         this visitor is not interested in visiting this annotation.
+     */
+    public AnnotationVisitor visitTypeAnnotation(int target, long path,
+            String desc, boolean visible) {
+        if (api < Opcodes.ASM5) {
+            throw new RuntimeException();
+        }
+        if (cv != null) {
+            return cv.visitTypeAnnotation(target, path, desc, visible);
         }
         return null;
     }

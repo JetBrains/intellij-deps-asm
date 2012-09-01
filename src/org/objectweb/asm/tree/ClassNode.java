@@ -133,6 +133,24 @@ public class ClassNode extends ClassVisitor {
     public List<AnnotationNode> invisibleAnnotations;
 
     /**
+     * The runtime visible type annotations of this class. This list is a list
+     * of {@link TypeAnnotationNode} objects. May be <tt>null</tt>.
+     * 
+     * @associates org.objectweb.asm.tree.TypeAnnotationNode
+     * @label visible
+     */
+    public List<TypeAnnotationNode> visibleTypeAnnotations;
+
+    /**
+     * The runtime invisible type annotations of this class. This list is a list
+     * of {@link TypeAnnotationNode} objects. May be <tt>null</tt>.
+     * 
+     * @associates org.objectweb.asm.tree.TypeAnnotationNode
+     * @label invisible
+     */
+    public List<TypeAnnotationNode> invisibleTypeAnnotations;
+
+    /**
      * The non standard attributes of this class. This list is a list of
      * {@link Attribute} objects. May be <tt>null</tt>.
      * 
@@ -170,7 +188,7 @@ public class ClassNode extends ClassVisitor {
      * version.
      */
     public ClassNode() {
-        this(Opcodes.ASM4);
+        this(Opcodes.ASM5);
     }
 
     /**
@@ -178,7 +196,7 @@ public class ClassNode extends ClassVisitor {
      * 
      * @param api
      *            the ASM API version implemented by this visitor. Must be one
-     *            of {@link Opcodes#ASM4}.
+     *            of {@link Opcodes#ASM4} or {@link Opcodes#ASM5}.
      */
     public ClassNode(final int api) {
         super(api);
@@ -239,6 +257,24 @@ public class ClassNode extends ClassVisitor {
     }
 
     @Override
+    public AnnotationVisitor visitTypeAnnotation(int target, long path,
+            String desc, boolean visible) {
+        TypeAnnotationNode an = new TypeAnnotationNode(target, path, desc);
+        if (visible) {
+            if (visibleTypeAnnotations == null) {
+                visibleTypeAnnotations = new ArrayList<TypeAnnotationNode>(1);
+            }
+            visibleTypeAnnotations.add(an);
+        } else {
+            if (invisibleTypeAnnotations == null) {
+                invisibleTypeAnnotations = new ArrayList<TypeAnnotationNode>(1);
+            }
+            invisibleTypeAnnotations.add(an);
+        }
+        return an;
+    }
+
+    @Override
     public void visitAttribute(final Attribute attr) {
         if (attrs == null) {
             attrs = new ArrayList<Attribute>(1);
@@ -286,10 +322,26 @@ public class ClassNode extends ClassVisitor {
      * API than the given version.
      * 
      * @param api
-     *            an ASM API version. Must be one of {@link Opcodes#ASM4}.
+     *            an ASM API version. Must be one of {@link Opcodes#ASM4} or
+     *            {@link Opcodes#ASM5}.
      */
     public void check(final int api) {
-        // nothing to do
+        if (api == Opcodes.ASM4) {
+            if (visibleTypeAnnotations != null
+                    && visibleTypeAnnotations.size() > 0) {
+                throw new RuntimeException();
+            }
+            if (invisibleTypeAnnotations != null
+                    && invisibleTypeAnnotations.size() > 0) {
+                throw new RuntimeException();
+            }
+            for (FieldNode f : fields) {
+                f.check(api);
+            }
+            for (MethodNode m : methods) {
+                m.check(api);
+            }
+        }
     }
 
     /**
@@ -322,6 +374,18 @@ public class ClassNode extends ClassVisitor {
         for (i = 0; i < n; ++i) {
             AnnotationNode an = invisibleAnnotations.get(i);
             an.accept(cv.visitAnnotation(an.desc, false));
+        }
+        n = visibleTypeAnnotations == null ? 0 : visibleTypeAnnotations.size();
+        for (i = 0; i < n; ++i) {
+            TypeAnnotationNode an = visibleTypeAnnotations.get(i);
+            an.accept(cv.visitTypeAnnotation(an.target, an.path, an.desc, true));
+        }
+        n = invisibleTypeAnnotations == null ? 0 : invisibleTypeAnnotations
+                .size();
+        for (i = 0; i < n; ++i) {
+            TypeAnnotationNode an = invisibleTypeAnnotations.get(i);
+            an.accept(cv
+                    .visitTypeAnnotation(an.target, an.path, an.desc, false));
         }
         n = attrs == null ? 0 : attrs.size();
         for (i = 0; i < n; ++i) {

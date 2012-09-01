@@ -216,7 +216,7 @@ public abstract class AbstractTest extends TestCase {
     static class RemoveUnusedLabelsAdapter extends ClassVisitor {
 
         public RemoveUnusedLabelsAdapter(ClassVisitor cv) {
-            super(Opcodes.ASM4, cv);
+            super(Opcodes.ASM5, cv);
         }
 
         @Override

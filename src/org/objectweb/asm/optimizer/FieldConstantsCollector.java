@@ -45,7 +45,7 @@ public class FieldConstantsCollector extends FieldVisitor {
     private final ConstantPool cp;
 
     public FieldConstantsCollector(final FieldVisitor fv, final ConstantPool cp) {
-        super(Opcodes.ASM4, fv);
+        super(Opcodes.ASM5, fv);
         this.cp = cp;
     }
 
@@ -57,6 +57,19 @@ public class FieldConstantsCollector extends FieldVisitor {
             cp.newUTF8("RuntimeVisibleAnnotations");
         } else {
             cp.newUTF8("RuntimeInvisibleAnnotations");
+        }
+        return new AnnotationConstantsCollector(fv.visitAnnotation(desc,
+                visible), cp);
+    }
+
+    @Override
+    public AnnotationVisitor visitTypeAnnotation(int target, long path,
+            String desc, boolean visible) {
+        cp.newUTF8(desc);
+        if (visible) {
+            cp.newUTF8("RuntimeVisibleTypeAnnotations");
+        } else {
+            cp.newUTF8("RuntimeInvisibleTypeAnnotations");
         }
         return new AnnotationConstantsCollector(fv.visitAnnotation(desc,
                 visible), cp);

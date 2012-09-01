@@ -50,7 +50,7 @@ public class CheckFieldAdapter extends FieldVisitor {
      *            the field visitor to which this adapter must delegate calls.
      */
     public CheckFieldAdapter(final FieldVisitor fv) {
-        this(Opcodes.ASM4, fv);
+        this(Opcodes.ASM5, fv);
     }
 
     /**
@@ -58,7 +58,7 @@ public class CheckFieldAdapter extends FieldVisitor {
      * 
      * @param api
      *            the ASM API version implemented by this visitor. Must be one
-     *            of {@link Opcodes#ASM4}.
+     *            of {@link Opcodes#ASM4} or {@link Opcodes#ASM5}.
      * @param fv
      *            the field visitor to which this adapter must delegate calls.
      */
@@ -72,6 +72,16 @@ public class CheckFieldAdapter extends FieldVisitor {
         checkEnd();
         CheckMethodAdapter.checkDesc(desc, false);
         return new CheckAnnotationAdapter(super.visitAnnotation(desc, visible));
+    }
+
+    @Override
+    public AnnotationVisitor visitTypeAnnotation(final int target,
+            final long path, final String desc, final boolean visible) {
+        checkEnd();
+        // TODO check target and path
+        CheckMethodAdapter.checkDesc(desc, false);
+        return new CheckAnnotationAdapter(super.visitTypeAnnotation(target,
+                path, desc, visible));
     }
 
     @Override

@@ -32,17 +32,23 @@ package org.objectweb.asm;
 /**
  * A visitor to visit a Java method. The methods of this class must be called in
  * the following order: [ <tt>visitAnnotationDefault</tt> ] (
- * <tt>visitAnnotation</tt> | <tt>visitParameterAnnotation</tt> |
+ * <tt>visitAnnotation</tt> | <tt>visitTypeAnnotation</tt> |
  * <tt>visitAttribute</tt> )* [ <tt>visitCode</tt> ( <tt>visitFrame</tt> |
  * <tt>visit</tt><i>X</i>Insn</tt> | <tt>visitLabel</tt> |
- * <tt>visitTryCatchBlock</tt> | <tt>visitLocalVariable</tt> |
- * <tt>visitLineNumber</tt> )* <tt>visitMaxs</tt> ] <tt>visitEnd</tt>. In
- * addition, the <tt>visit</tt><i>X</i>Insn</tt> and <tt>visitLabel</tt> methods
- * must be called in the sequential order of the bytecode instructions of the
- * visited code, <tt>visitTryCatchBlock</tt> must be called <i>before</i> the
- * labels passed as arguments have been visited, and the
- * <tt>visitLocalVariable</tt> and <tt>visitLineNumber</tt> methods must be
- * called <i>after</i> the labels passed as arguments have been visited.
+ * <tt>visitInsnAnnotation</tt> | <tt>visitTryCatchBlock</tt> |
+ * <tt>visitTryCatchBlockAnnotation</tt> | <tt>visitLocalVariable</tt> |
+ * <tt>visitLocalVariableAnnotation</tt> | <tt>visitLineNumber</tt> )*
+ * <tt>visitMaxs</tt> ] <tt>visitEnd</tt>. In addition, the <tt>visit</tt>
+ * <i>X</i>Insn</tt> and <tt>visitLabel</tt> methods must be called in the
+ * sequential order of the bytecode instructions of the visited code,
+ * <tt>visitInsnAnnotation</tt> must be called <i>after</i> the annotated
+ * instruction, <tt>visitTryCatchBlock</tt> must be called <i>before</i> the
+ * labels passed as arguments have been visited,
+ * <tt>visitTryCatchBlockAnnotation</tt> must be called <i>after</i> the
+ * corresponding try catch block has been visited, and the
+ * <tt>visitLocalVariable</tt>, <tt>visitLocalVariableAnnotation</tt> and
+ * <tt>visitLineNumber</tt> methods must be called <i>after</i> the labels
+ * passed as arguments have been visited.
  * 
  * @author Eric Bruneton
  */
@@ -50,7 +56,7 @@ public abstract class MethodVisitor {
 
     /**
      * The ASM API version implemented by this visitor. The value of this field
-     * must be one of {@link Opcodes#ASM4}.
+     * must be one of {@link Opcodes#ASM4} or {@link Opcodes#ASM5}.
      */
     protected final int api;
 
@@ -65,7 +71,7 @@ public abstract class MethodVisitor {
      * 
      * @param api
      *            the ASM API version implemented by this visitor. Must be one
-     *            of {@link Opcodes#ASM4}.
+     *            of {@link Opcodes#ASM4} or {@link Opcodes#ASM5}.
      */
     public MethodVisitor(final int api) {
         this(api, null);
@@ -76,13 +82,13 @@ public abstract class MethodVisitor {
      * 
      * @param api
      *            the ASM API version implemented by this visitor. Must be one
-     *            of {@link Opcodes#ASM4}.
+     *            of {@link Opcodes#ASM4} or {@link Opcodes#ASM5}.
      * @param mv
      *            the method visitor to which this visitor must delegate method
      *            calls. May be null.
      */
     public MethodVisitor(final int api, final MethodVisitor mv) {
-        if (api != Opcodes.ASM4) {
+        if (api != Opcodes.ASM4 && api != Opcodes.ASM5) {
             throw new IllegalArgumentException();
         }
         this.api = api;
@@ -123,6 +129,47 @@ public abstract class MethodVisitor {
     public AnnotationVisitor visitAnnotation(String desc, boolean visible) {
         if (mv != null) {
             return mv.visitAnnotation(desc, visible);
+        }
+        return null;
+    }
+
+    /**
+     * Visits an annotation on a type in the method signature.
+     * 
+     * @param target
+     *            the path to the annotated type within the signature, seen as a
+     *            tree. Path 0,<i>i</i> targets the <i>i</i>-th type parameter,
+     *            path 0,<i>i</i>,<i>j</i> targets the <i>j</i>-th bound of the
+     *            <i>i</i>-th type parameter, path 1 targets the return type,
+     *            path 2 targets the receiver type, path 3,<i>i</i> targets the
+     *            <i>i</i>-th parameter type and path 4,<i>i</i> targets the
+     *            <i>i</i>-th exception type. A path <i>p1</i>,...,<i>pN</i> is
+     *            stored as 0xFF<i>pN</i>...<i>p1</i> with one byte per element.
+     * @param path
+     *            the path to the annotated type argument, wildcard bound, array
+     *            element type, or static outer type within the target type,
+     *            seen as a tree. For instance, in <tt>@A Map&lt;@B ? extends @C
+     *        String, @D List&lt;@E Object&gt;&gt;</tt>, A, B, C, D, E have
+     *            paths (), (0), (0,0), (1), (1,0) respectively. In
+     *            <tt>@I String @F
+     *        [] @G [] @H []</tt> F, G, H, I have paths (), (0), (1), (2)
+     *            respectively. In <tt>@M O1.@L O2.@K O3.@J NestedStatic</tt> J,
+     *            K, L, M have paths (), (0), (1), (2) respectively. Paths are
+     *            stored with the same format as in 'target'.
+     * @param desc
+     *            the class descriptor of the annotation class.
+     * @param visible
+     *            <tt>true</tt> if the annotation is visible at runtime.
+     * @return a visitor to visit the annotation values, or <tt>null</tt> if
+     *         this visitor is not interested in visiting this annotation.
+     */
+    public AnnotationVisitor visitTypeAnnotation(int target, long path,
+            String desc, boolean visible) {
+        if (api < Opcodes.ASM5) {
+            throw new RuntimeException();
+        }
+        if (mv != null) {
+            return mv.visitTypeAnnotation(target, path, desc, visible);
         }
         return null;
     }
@@ -558,6 +605,47 @@ public abstract class MethodVisitor {
         }
     }
 
+    /**
+     * Visits an annotation on an instruction. This method must be called just
+     * <i>after</i> the annotated instruction. It can be called several times
+     * for the same instruction.
+     * 
+     * @param target
+     *            the path to the annotated type within the instruction. This
+     *            path is empty, unless the annotation applies to a
+     *            visitMethodInsn, in which case the path contains a single
+     *            element, the index of the annotated type argument in the
+     *            method or constructor call. A path <i>p1</i>,...,<i>pN</i> is
+     *            stored as 0xFF<i>pN</i>...<i>p1</i> with one byte per element.
+     * @param path
+     *            the path to the annotated type argument, wildcard bound, array
+     *            element type, or static outer type within the target type,
+     *            seen as a tree. For instance, in <tt>@A Map&lt;@B ? extends @C
+     *        String, @D List&lt;@E Object&gt;&gt;</tt>, A, B, C, D, E have
+     *            paths (), (0), (0,0), (1), (1,0) respectively. In
+     *            <tt>@I String @F
+     *        [] @G [] @H []</tt> F, G, H, I have paths (), (0), (1), (2)
+     *            respectively. In <tt>@M O1.@L O2.@K O3.@J NestedStatic</tt> J,
+     *            K, L, M have paths (), (0), (1), (2) respectively. Paths are
+     *            stored with the same format as in 'target'.
+     * @param desc
+     *            the class descriptor of the annotation class.
+     * @param visible
+     *            <tt>true</tt> if the annotation is visible at runtime.
+     * @return a visitor to visit the annotation values, or <tt>null</tt> if
+     *         this visitor is not interested in visiting this annotation.
+     */
+    public AnnotationVisitor visitInsnAnnotation(int target, long path,
+            String desc, boolean visible) {
+        if (api < Opcodes.ASM5) {
+            throw new RuntimeException();
+        }
+        if (mv != null) {
+            return mv.visitInsnAnnotation(target, path, desc, visible);
+        }
+        return null;
+    }
+
     // -------------------------------------------------------------------------
     // Exceptions table entries, debug information, max stack and max locals
     // -------------------------------------------------------------------------
@@ -584,6 +672,47 @@ public abstract class MethodVisitor {
         if (mv != null) {
             mv.visitTryCatchBlock(start, end, handler, type);
         }
+    }
+
+    /**
+     * Visits an annotation on an exception handler type. This method must be
+     * called <i>after</i> the {@link #visitTryCatchBlock} for the annotated
+     * exception handler. It can be called several times for the same exception
+     * handler.
+     * 
+     * @param target
+     *            the path to the annotated exception handler. This path
+     *            contains a single element, the index of the annotated
+     *            exception handler, in the order they are visited by @link
+     *            #visitTryCatchBlock}. A path <i>p1</i>,...,<i>pN</i> is stored
+     *            as 0xFF<i>pN</i>...<i>p1</i> with one byte per element.
+     * @param path
+     *            the path to the annotated type argument, wildcard bound, array
+     *            element type, or static outer type within the target type,
+     *            seen as a tree. For instance, in <tt>@A Map&lt;@B ? extends @C
+     *        String, @D List&lt;@E Object&gt;&gt;</tt>, A, B, C, D, E have
+     *            paths (), (0), (0,0), (1), (1,0) respectively. In
+     *            <tt>@I String @F
+     *        [] @G [] @H []</tt> F, G, H, I have paths (), (0), (1), (2)
+     *            respectively. In <tt>@M O1.@L O2.@K O3.@J NestedStatic</tt> J,
+     *            K, L, M have paths (), (0), (1), (2) respectively. Paths are
+     *            stored with the same format as in 'target'.
+     * @param desc
+     *            the class descriptor of the annotation class.
+     * @param visible
+     *            <tt>true</tt> if the annotation is visible at runtime.
+     * @return a visitor to visit the annotation values, or <tt>null</tt> if
+     *         this visitor is not interested in visiting this annotation.
+     */
+    public AnnotationVisitor visitTryCatchAnnotation(int target, long path,
+            String desc, boolean visible) {
+        if (api < Opcodes.ASM5) {
+            throw new RuntimeException();
+        }
+        if (mv != null) {
+            return mv.visitTryCatchAnnotation(target, path, desc, visible);
+        }
+        return null;
     }
 
     /**
@@ -614,6 +743,56 @@ public abstract class MethodVisitor {
         if (mv != null) {
             mv.visitLocalVariable(name, desc, signature, start, end, index);
         }
+    }
+
+    /**
+     * Visits an annotation on a local variable type.
+     * 
+     * @param target
+     *            the path to the annotated local variable. Path 0 designates a
+     *            local variable, while path 1 indicates a resource variable
+     *            from a try with resource statement. A path
+     *            <i>p1</i>,...,<i>pN</i> is stored as 0xFF<i>pN</i>...<i>p1</i>
+     *            with one byte per element.
+     * @param path
+     *            the path to the annotated type argument, wildcard bound, array
+     *            element type, or static outer type within the target type,
+     *            seen as a tree. For instance, in <tt>@A Map&lt;@B ? extends @C
+     *        String, @D List&lt;@E Object&gt;&gt;</tt>, A, B, C, D, E have
+     *            paths (), (0), (0,0), (1), (1,0) respectively. In
+     *            <tt>@I String @F
+     *        [] @G [] @H []</tt> F, G, H, I have paths (), (0), (1), (2)
+     *            respectively. In <tt>@M O1.@L O2.@K O3.@J NestedStatic</tt> J,
+     *            K, L, M have paths (), (0), (1), (2) respectively. Paths are
+     *            stored with the same format as in 'target'.
+     * @param start
+     *            the fist instructions corresponding to the continuous ranges
+     *            that make the scope of this local variable (inclusive).
+     * @param end
+     *            the last instructions corresponding to the continuous ranges
+     *            that make the scope of this local variable (exclusive). This
+     *            array must have the same size as the 'start' array.
+     * @param index
+     *            the local variable's index in each range. This array must have
+     *            the same size as the 'start' array.
+     * @param desc
+     *            the class descriptor of the annotation class.
+     * @param visible
+     *            <tt>true</tt> if the annotation is visible at runtime.
+     * @return a visitor to visit the annotation values, or <tt>null</tt> if
+     *         this visitor is not interested in visiting this annotation.
+     */
+    public AnnotationVisitor visitLocalVariableAnnotation(int target,
+            long path, Label[] start, Label[] end, int[] index, String desc,
+            boolean visible) {
+        if (api < Opcodes.ASM5) {
+            throw new RuntimeException();
+        }
+        if (mv != null) {
+            return mv.visitLocalVariableAnnotation(target, path, start, end,
+                    index, desc, visible);
+        }
+        return null;
     }
 
     /**

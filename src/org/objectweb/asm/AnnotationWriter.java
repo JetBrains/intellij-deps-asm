@@ -104,7 +104,7 @@ final class AnnotationWriter extends AnnotationVisitor {
      */
     AnnotationWriter(final ClassWriter cw, final boolean named,
             final ByteVector bv, final ByteVector parent, final int offset) {
-        super(Opcodes.ASM4);
+        super(Opcodes.ASM5);
         this.cw = cw;
         this.named = named;
         this.bv = bv;
@@ -314,5 +314,28 @@ final class AnnotationWriter extends AnnotationVisitor {
                 aw = aw.prev;
             }
         }
+    }
+
+    /**
+     * Puts the given annotation type path into the given bytevector.
+     * 
+     * @param path
+     *            a tree path encoded with one byte per element (starting from
+     *            the least significant byte), and terminated with 0xFF.
+     * @param out
+     *            where the path must be put.
+     */
+    static void putLocation(long path, ByteVector out) {
+        int offset = out.length;
+        out.putShort(0); // reserve space for location_length
+        int n = 0;
+        int b;
+        while ((b = (int) (path & 0xFF)) != 0xFF && n < 8) {
+            out.putByte(b); // add a location[] element
+            path = path >>> 8;
+            n++;
+        }
+        // write the final value of location_length
+        out.data[offset + 1] = (byte) n;
     }
 }

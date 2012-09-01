@@ -258,7 +258,7 @@ public class GeneratorAdapter extends LocalVariablesSorter {
      */
     public GeneratorAdapter(final MethodVisitor mv, final int access,
             final String name, final String desc) {
-        this(Opcodes.ASM4, mv, access, name, desc);
+        this(Opcodes.ASM5, mv, access, name, desc);
     }
 
     /**
@@ -266,7 +266,7 @@ public class GeneratorAdapter extends LocalVariablesSorter {
      * 
      * @param api
      *            the ASM API version implemented by this visitor. Must be one
-     *            of {@link Opcodes#ASM4}.
+     *            of {@link Opcodes#ASM4} or {@link Opcodes#ASM5}.
      * @param mv
      *            the method visitor to which this adapter delegates calls.
      * @param access

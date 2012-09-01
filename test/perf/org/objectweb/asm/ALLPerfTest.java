@@ -280,7 +280,7 @@ public abstract class ALLPerfTest {
                     public void test(byte[] bytes, int[] errors) {
                         ClassWriter cw = new ClassWriter(0);
                         new ClassReader(bytes).accept(new ClassVisitor(
-                                Opcodes.ASM4, cw) {
+                                Opcodes.ASM5, cw) {
 
                             @Override
                             public MethodVisitor visitMethod(final int access,
@@ -606,7 +606,7 @@ public abstract class ALLPerfTest {
 
     static class EmptyVisitor extends ClassVisitor {
 
-        AnnotationVisitor av = new AnnotationVisitor(Opcodes.ASM4) {
+        AnnotationVisitor av = new AnnotationVisitor(Opcodes.ASM5) {
 
             @Override
             public AnnotationVisitor visitAnnotation(String name, String desc) {
@@ -620,7 +620,7 @@ public abstract class ALLPerfTest {
         };
 
         public EmptyVisitor() {
-            super(Opcodes.ASM4);
+            super(Opcodes.ASM5);
         }
 
         @Override
@@ -629,13 +629,25 @@ public abstract class ALLPerfTest {
         }
 
         @Override
+        public AnnotationVisitor visitTypeAnnotation(int target, long path,
+                String desc, boolean visible) {
+            return av;
+        }
+
+        @Override
         public FieldVisitor visitField(int access, String name, String desc,
                 String signature, Object value) {
-            return new FieldVisitor(Opcodes.ASM4) {
+            return new FieldVisitor(Opcodes.ASM5) {
 
                 @Override
                 public AnnotationVisitor visitAnnotation(String desc,
                         boolean visible) {
+                    return av;
+                }
+
+                @Override
+                public AnnotationVisitor visitTypeAnnotation(int target,
+                        long path, String desc, boolean visible) {
                     return av;
                 }
             };
@@ -644,7 +656,7 @@ public abstract class ALLPerfTest {
         @Override
         public MethodVisitor visitMethod(int access, String name, String desc,
                 String signature, String[] exceptions) {
-            return new MethodVisitor(Opcodes.ASM4) {
+            return new MethodVisitor(Opcodes.ASM5) {
 
                 @Override
                 public AnnotationVisitor visitAnnotationDefault() {
@@ -658,8 +670,33 @@ public abstract class ALLPerfTest {
                 }
 
                 @Override
+                public AnnotationVisitor visitTypeAnnotation(int target,
+                        long path, String desc, boolean visible) {
+                    return av;
+                }
+
+                @Override
                 public AnnotationVisitor visitParameterAnnotation(
                         int parameter, String desc, boolean visible) {
+                    return av;
+                }
+
+                @Override
+                public AnnotationVisitor visitInsnAnnotation(int target,
+                        long path, String desc, boolean visible) {
+                    return av;
+                }
+
+                @Override
+                public AnnotationVisitor visitTryCatchAnnotation(int target,
+                        long path, String desc, boolean visible) {
+                    return av;
+                }
+
+                @Override
+                public AnnotationVisitor visitLocalVariableAnnotation(
+                        int target, long path, Label[] start, Label[] end,
+                        int[] index, String desc, boolean visible) {
                     return av;
                 }
             };

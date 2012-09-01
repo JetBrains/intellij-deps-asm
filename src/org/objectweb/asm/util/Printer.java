@@ -116,7 +116,7 @@ public abstract class Printer {
 
     /**
      * The ASM API version implemented by this class. The value of this field
-     * must be one of {@link Opcodes#ASM4}.
+     * must be one of {@link Opcodes#ASM4} or {@link Opcodes#ASM5}.
      */
     protected final int api;
 
@@ -173,6 +173,15 @@ public abstract class Printer {
      */
     public abstract Printer visitClassAnnotation(final String desc,
             final boolean visible);
+
+    /**
+     * Class type annotation. See
+     * {@link org.objectweb.asm.ClassVisitor#visitTypeAnnotation}.
+     */
+    public Printer visitClassTypeAnnotation(final int target, final long path,
+            final String desc, final boolean visible) {
+        throw new RuntimeException("Must be overriden");
+    }
 
     /**
      * Class attribute. See
@@ -249,6 +258,15 @@ public abstract class Printer {
             final boolean visible);
 
     /**
+     * Field type annotation. See
+     * {@link org.objectweb.asm.FieldVisitor#visitTypeAnnotation}.
+     */
+    public Printer visitFieldTypeAnnotation(final int target, final long path,
+            final String desc, final boolean visible) {
+        throw new RuntimeException("Must be overriden");
+    }
+
+    /**
      * Field attribute. See
      * {@link org.objectweb.asm.FieldVisitor#visitAttribute}.
      */
@@ -275,6 +293,15 @@ public abstract class Printer {
      */
     public abstract Printer visitMethodAnnotation(final String desc,
             final boolean visible);
+
+    /**
+     * Method type annotation. See
+     * {@link org.objectweb.asm.MethodVisitor#visitTypeAnnotation}.
+     */
+    public Printer visitMethodTypeAnnotation(final int target, final long path,
+            final String desc, final boolean visible) {
+        throw new RuntimeException("Must be overriden");
+    }
 
     /**
      * Method parameter annotation. See
@@ -391,11 +418,29 @@ public abstract class Printer {
             final int dims);
 
     /**
+     * Instruction type annotation. See
+     * {@link org.objectweb.asm.MethodVisitor#visitInsnAnnotation}.
+     */
+    public Printer visitInsnAnnotation(final int target, final long path,
+            final String desc, final boolean visible) {
+        throw new RuntimeException("Must be overriden");
+    }
+
+    /**
      * Method exception handler. See
      * {@link org.objectweb.asm.MethodVisitor#visitTryCatchBlock}.
      */
     public abstract void visitTryCatchBlock(final Label start, final Label end,
             final Label handler, final String type);
+
+    /**
+     * Try catch block type annotation. See
+     * {@link org.objectweb.asm.MethodVisitor#visitTryCatchAnnotation}.
+     */
+    public Printer visitTryCatchAnnotation(final int target, final long path,
+            final String desc, final boolean visible) {
+        throw new RuntimeException("Must be overriden");
+    }
 
     /**
      * Method debug info. See
@@ -404,6 +449,16 @@ public abstract class Printer {
     public abstract void visitLocalVariable(final String name,
             final String desc, final String signature, final Label start,
             final Label end, final int index);
+
+    /**
+     * Local variable type annotation. See
+     * {@link org.objectweb.asm.MethodVisitor#visitTryCatchAnnotation}.
+     */
+    public Printer visitLocalVariableAnnotation(final int target,
+            final long path, final Label[] start, final Label[] end,
+            final int[] index, final String desc, final boolean visible) {
+        throw new RuntimeException("Must be overriden");
+    }
 
     /**
      * Method debug info. See

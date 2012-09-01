@@ -51,7 +51,7 @@ public final class TraceMethodVisitor extends MethodVisitor {
     }
 
     public TraceMethodVisitor(final MethodVisitor mv, final Printer p) {
-        super(Opcodes.ASM4, mv);
+        super(Opcodes.ASM5, mv);
         this.p = p;
     }
 
@@ -61,6 +61,16 @@ public final class TraceMethodVisitor extends MethodVisitor {
         Printer p = this.p.visitMethodAnnotation(desc, visible);
         AnnotationVisitor av = mv == null ? null : mv.visitAnnotation(desc,
                 visible);
+        return new TraceAnnotationVisitor(av, p);
+    }
+
+    @Override
+    public AnnotationVisitor visitTypeAnnotation(int target, long path,
+            String desc, boolean visible) {
+        Printer p = this.p.visitMethodTypeAnnotation(target, path, desc,
+                visible);
+        AnnotationVisitor av = mv == null ? null : mv.visitTypeAnnotation(
+                target, path, desc, visible);
         return new TraceAnnotationVisitor(av, p);
     }
 
@@ -189,10 +199,28 @@ public final class TraceMethodVisitor extends MethodVisitor {
     }
 
     @Override
+    public AnnotationVisitor visitInsnAnnotation(int target, long path,
+            String desc, boolean visible) {
+        Printer p = this.p.visitInsnAnnotation(target, path, desc, visible);
+        AnnotationVisitor av = mv == null ? null : mv.visitInsnAnnotation(
+                target, path, desc, visible);
+        return new TraceAnnotationVisitor(av, p);
+    }
+
+    @Override
     public void visitTryCatchBlock(final Label start, final Label end,
             final Label handler, final String type) {
         p.visitTryCatchBlock(start, end, handler, type);
         super.visitTryCatchBlock(start, end, handler, type);
+    }
+
+    @Override
+    public AnnotationVisitor visitTryCatchAnnotation(int target, long path,
+            String desc, boolean visible) {
+        Printer p = this.p.visitTryCatchAnnotation(target, path, desc, visible);
+        AnnotationVisitor av = mv == null ? null : mv.visitTryCatchAnnotation(
+                target, path, desc, visible);
+        return new TraceAnnotationVisitor(av, p);
     }
 
     @Override
@@ -201,6 +229,18 @@ public final class TraceMethodVisitor extends MethodVisitor {
             final int index) {
         p.visitLocalVariable(name, desc, signature, start, end, index);
         super.visitLocalVariable(name, desc, signature, start, end, index);
+    }
+
+    @Override
+    public AnnotationVisitor visitLocalVariableAnnotation(int target,
+            long path, Label[] start, Label[] end, int[] index, String desc,
+            boolean visible) {
+        Printer p = this.p.visitLocalVariableAnnotation(target, path, start,
+                end, index, desc, visible);
+        AnnotationVisitor av = mv == null ? null : mv
+                .visitLocalVariableAnnotation(target, path, start, end, index,
+                        desc, visible);
+        return new TraceAnnotationVisitor(av, p);
     }
 
     @Override

@@ -43,7 +43,6 @@ import org.objectweb.asm.commons.Method;
 public class Helloworld extends ClassLoader implements Opcodes {
 
     public static void main(final String args[]) throws Exception {
-
         // Generates the bytecode corresponding to the following Java class:
         //
         // public class Example {

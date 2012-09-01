@@ -192,6 +192,18 @@ class MethodWriter extends MethodVisitor {
     private AnnotationWriter ianns;
 
     /**
+     * The runtime visible type annotations of this method. May be <tt>null</tt>
+     * .
+     */
+    private AnnotationWriter tanns;
+
+    /**
+     * The runtime invisible type annotations of this method. May be
+     * <tt>null</tt>.
+     */
+    private AnnotationWriter itanns;
+
+    /**
      * The runtime visible parameter annotations of this method. May be
      * <tt>null</tt>.
      */
@@ -318,6 +330,27 @@ class MethodWriter extends MethodVisitor {
     private ByteVector lineNumber;
 
     /**
+     * The start offset of the last visited instruction.
+     */
+    private int lastCodeOffset;
+
+    /**
+     * The type annotation target type corresponding to the last visited
+     * instruction.
+     */
+    private int lastTypeAnnotationTarget;
+
+    /**
+     * The runtime visible type annotations of the code. May be <tt>null</tt>.
+     */
+    private AnnotationWriter ctanns;
+
+    /**
+     * The runtime invisible type annotations of the code. May be <tt>null</tt>.
+     */
+    private AnnotationWriter ictanns;
+
+    /**
      * The non standard attributes of the method's code.
      */
     private Attribute cattrs;
@@ -421,7 +454,7 @@ class MethodWriter extends MethodVisitor {
             final String desc, final String signature,
             final String[] exceptions, final boolean computeMaxs,
             final boolean computeFrames) {
-        super(Opcodes.ASM4);
+        super(Opcodes.ASM5);
         if (cw.firstMethod == null) {
             cw.firstMethod = this;
         } else {
@@ -491,6 +524,54 @@ class MethodWriter extends MethodVisitor {
         } else {
             aw.next = ianns;
             ianns = aw;
+        }
+        return aw;
+    }
+
+    @Override
+    public AnnotationVisitor visitTypeAnnotation(final int target,
+            final long path, final String desc, final boolean visible) {
+        if (!ClassReader.ANNOTATIONS) {
+            return null;
+        }
+        ByteVector bv = new ByteVector();
+        // write target_type and target_info
+        int p1 = (target >> 8) & 0xFF;
+        int p2 = (target >> 16) & 0xFF;
+        int pathBit = (path & 0xFF) != 0xFF ? 1 : 0;
+        switch (target & 0xFF) {
+        case 0:
+            if (p2 == 0xFF) { // METHOD_TYPE_PARAMETER
+                bv.putShort(pathBit).putByte(p1);
+            } else { // METHOD_TYPE_PARAMETER_BOUND
+                bv.putShort(0x12 + pathBit).put11(p1, p2);
+            }
+            break;
+        case 1: // METHOD_RETURN
+            bv.putShort(0x18 + pathBit);
+            break;
+        case 2: // METHOD_RECEIVER
+            bv.putShort(0x1A + pathBit);
+            break;
+        case 3: // METHOD_PARAMETER
+            bv.putShort(0x1C + pathBit).putByte(p1);
+            break;
+        default: // THROWS
+            bv.putShort(0x1E + pathBit).putShort(p1);
+        }
+        if (pathBit != 0) {
+            AnnotationWriter.putLocation(path, bv);
+        }
+        // write type, and reserve space for values count
+        bv.putShort(cw.newUTF8(desc)).putShort(0);
+        AnnotationWriter aw = new AnnotationWriter(cw, true, bv, bv,
+                bv.length - 2);
+        if (visible) {
+            aw.next = tanns;
+            tanns = aw;
+        } else {
+            aw.next = itanns;
+            itanns = aw;
         }
         return aw;
     }
@@ -644,6 +725,8 @@ class MethodWriter extends MethodVisitor {
 
     @Override
     public void visitInsn(final int opcode) {
+        lastCodeOffset = code.length;
+        lastTypeAnnotationTarget = 0x86; // TYPE_CAST
         // adds the instruction to the bytecode of the method
         code.putByte(opcode);
         // update currentBlock
@@ -669,6 +752,8 @@ class MethodWriter extends MethodVisitor {
 
     @Override
     public void visitIntInsn(final int opcode, final int operand) {
+        lastCodeOffset = code.length;
+        lastTypeAnnotationTarget = 0x86; // TYPE_CAST
         // Label currentBlock = this.currentBlock;
         if (currentBlock != null) {
             if (compute == FRAMES) {
@@ -693,6 +778,8 @@ class MethodWriter extends MethodVisitor {
 
     @Override
     public void visitVarInsn(final int opcode, final int var) {
+        lastCodeOffset = code.length;
+        lastTypeAnnotationTarget = 0x86; // TYPE_CAST
         // Label currentBlock = this.currentBlock;
         if (currentBlock != null) {
             if (compute == FRAMES) {
@@ -751,6 +838,9 @@ class MethodWriter extends MethodVisitor {
 
     @Override
     public void visitTypeInsn(final int opcode, final String type) {
+        lastCodeOffset = code.length;
+        lastTypeAnnotationTarget = opcode == Opcodes.NEW ? 0x8A
+                : (opcode == Opcodes.INSTANCEOF ? 0x88 : 0x86);
         Item i = cw.newClassItem(type);
         // Label currentBlock = this.currentBlock;
         if (currentBlock != null) {
@@ -773,6 +863,8 @@ class MethodWriter extends MethodVisitor {
     @Override
     public void visitFieldInsn(final int opcode, final String owner,
             final String name, final String desc) {
+        lastCodeOffset = code.length;
+        lastTypeAnnotationTarget = 0x86; // TYPE_CAST
         Item i = cw.newFieldItem(owner, name, desc);
         // Label currentBlock = this.currentBlock;
         if (currentBlock != null) {
@@ -811,6 +903,8 @@ class MethodWriter extends MethodVisitor {
     @Override
     public void visitMethodInsn(final int opcode, final String owner,
             final String name, final String desc) {
+        lastCodeOffset = code.length;
+        lastTypeAnnotationTarget = name.equals("<init>") ? 0x8C : 0x8E;
         boolean itf = opcode == Opcodes.INVOKEINTERFACE;
         Item i = cw.newMethodItem(owner, name, desc, itf);
         int argSize = i.intVal;
@@ -863,6 +957,8 @@ class MethodWriter extends MethodVisitor {
     @Override
     public void visitInvokeDynamicInsn(final String name, final String desc,
             final Handle bsm, final Object... bsmArgs) {
+        lastCodeOffset = code.length;
+        lastTypeAnnotationTarget = name.equals("<init>") ? 0x8C : 0x8E;
         Item i = cw.newInvokeDynamicItem(name, desc, bsm, bsmArgs);
         int argSize = i.intVal;
         // Label currentBlock = this.currentBlock;
@@ -902,6 +998,8 @@ class MethodWriter extends MethodVisitor {
 
     @Override
     public void visitJumpInsn(final int opcode, final Label label) {
+        lastCodeOffset = code.length;
+        lastTypeAnnotationTarget = 0x86; // TYPE_CAST
         Label nextInsn = null;
         // Label currentBlock = this.currentBlock;
         if (currentBlock != null) {
@@ -1047,6 +1145,8 @@ class MethodWriter extends MethodVisitor {
 
     @Override
     public void visitLdcInsn(final Object cst) {
+        lastCodeOffset = code.length;
+        lastTypeAnnotationTarget = 0x86; // TYPE_CAST
         Item i = cw.newConstItem(cst);
         // Label currentBlock = this.currentBlock;
         if (currentBlock != null) {
@@ -1080,6 +1180,8 @@ class MethodWriter extends MethodVisitor {
 
     @Override
     public void visitIincInsn(final int var, final int increment) {
+        lastCodeOffset = code.length;
+        lastTypeAnnotationTarget = 0x86; // TYPE_CAST
         if (currentBlock != null) {
             if (compute == FRAMES) {
                 currentBlock.frame.execute(Opcodes.IINC, var, null, null);
@@ -1104,6 +1206,8 @@ class MethodWriter extends MethodVisitor {
     @Override
     public void visitTableSwitchInsn(final int min, final int max,
             final Label dflt, final Label... labels) {
+        lastCodeOffset = code.length;
+        lastTypeAnnotationTarget = 0x86; // TYPE_CAST
         // adds the instruction to the bytecode of the method
         int source = code.length;
         code.putByte(Opcodes.TABLESWITCH);
@@ -1120,6 +1224,8 @@ class MethodWriter extends MethodVisitor {
     @Override
     public void visitLookupSwitchInsn(final Label dflt, final int[] keys,
             final Label[] labels) {
+        lastCodeOffset = code.length;
+        lastTypeAnnotationTarget = 0x86; // TYPE_CAST
         // adds the instruction to the bytecode of the method
         int source = code.length;
         code.putByte(Opcodes.LOOKUPSWITCH);
@@ -1162,6 +1268,8 @@ class MethodWriter extends MethodVisitor {
 
     @Override
     public void visitMultiANewArrayInsn(final String desc, final int dims) {
+        lastCodeOffset = code.length;
+        lastTypeAnnotationTarget = 0x86; // TYPE_CAST
         Item i = cw.newClassItem(desc);
         // Label currentBlock = this.currentBlock;
         if (currentBlock != null) {
@@ -1175,6 +1283,37 @@ class MethodWriter extends MethodVisitor {
         }
         // adds the instruction to the bytecode of the method
         code.put12(Opcodes.MULTIANEWARRAY, i.index).putByte(dims);
+    }
+
+    @Override
+    public AnnotationVisitor visitInsnAnnotation(int target, long path,
+            String desc, boolean visible) {
+        if (!ClassReader.ANNOTATIONS) {
+            return null;
+        }
+        ByteVector bv = new ByteVector();
+        // write target_type and target_info
+        boolean pathBit = (path & 0xFF) != 0xFF;
+        bv.putShort(lastTypeAnnotationTarget + (pathBit ? 1 : 0));
+        bv.putShort(lastCodeOffset);
+        if (lastTypeAnnotationTarget >= 0x8C) {
+            bv.putByte(target & 0xFF);
+        }
+        if (pathBit) {
+            AnnotationWriter.putLocation(path, bv);
+        }
+        // write type, and reserve space for values count
+        bv.putShort(cw.newUTF8(desc)).putShort(0);
+        AnnotationWriter aw = new AnnotationWriter(cw, true, bv, bv,
+                bv.length - 2);
+        if (visible) {
+            aw.next = ctanns;
+            ctanns = aw;
+        } else {
+            aw.next = ictanns;
+            ictanns = aw;
+        }
+        return aw;
     }
 
     @Override
@@ -1193,6 +1332,33 @@ class MethodWriter extends MethodVisitor {
             lastHandler.next = h;
         }
         lastHandler = h;
+    }
+
+    @Override
+    public AnnotationVisitor visitTryCatchAnnotation(int target, long path,
+            String desc, boolean visible) {
+        if (!ClassReader.ANNOTATIONS) {
+            return null;
+        }
+        ByteVector bv = new ByteVector();
+        // write target_type and target_info
+        boolean pathBit = (path & 0xFF) != 0xFF;
+        bv.putShort(0x84 + (pathBit ? 1 : 0)).putShort(target & 0xFF);
+        if (pathBit) {
+            AnnotationWriter.putLocation(path, bv);
+        }
+        // write type, and reserve space for values count
+        bv.putShort(cw.newUTF8(desc)).putShort(0);
+        AnnotationWriter aw = new AnnotationWriter(cw, true, bv, bv,
+                bv.length - 2);
+        if (visible) {
+            aw.next = ctanns;
+            ctanns = aw;
+        } else {
+            aw.next = ictanns;
+            ictanns = aw;
+        }
+        return aw;
     }
 
     @Override
@@ -1225,6 +1391,40 @@ class MethodWriter extends MethodVisitor {
                 maxLocals = n;
             }
         }
+    }
+
+    @Override
+    public AnnotationVisitor visitLocalVariableAnnotation(int target,
+            long path, Label[] start, Label[] end, int[] index, String desc,
+            boolean visible) {
+        if (!ClassReader.ANNOTATIONS) {
+            return null;
+        }
+        ByteVector bv = new ByteVector();
+        // write target_type and target_info
+        boolean pathBit = (path & 0xFF) != 0xFF;
+        int targetType = (target == 0xFF00 ? 0x80 : 0x82) + (pathBit ? 1 : 0);
+        bv.putShort(targetType).putShort(start.length);
+        for (int i = 0; i < start.length; ++i) {
+            bv.putShort(start[i].position)
+                    .putShort(end[i].position - start[i].position)
+                    .putShort(index[i]);
+        }
+        if (pathBit) {
+            AnnotationWriter.putLocation(path, bv);
+        }
+        // write type, and reserve space for values count
+        bv.putShort(cw.newUTF8(desc)).putShort(0);
+        AnnotationWriter aw = new AnnotationWriter(cw, true, bv, bv,
+                bv.length - 2);
+        if (visible) {
+            aw.next = ctanns;
+            ctanns = aw;
+        } else {
+            aw.next = ictanns;
+            ictanns = aw;
+        }
+        return aw;
     }
 
     @Override
@@ -1830,6 +2030,14 @@ class MethodWriter extends MethodVisitor {
                 cw.newUTF8(zip ? "StackMapTable" : "StackMap");
                 size += 8 + stackMap.length;
             }
+            if (ClassReader.ANNOTATIONS && ctanns != null) {
+                cw.newUTF8("RuntimeVisibleTypeAnnotations");
+                size += 8 + ctanns.getSize();
+            }
+            if (ClassReader.ANNOTATIONS && ictanns != null) {
+                cw.newUTF8("RuntimeInvisibleTypeAnnotations");
+                size += 8 + ictanns.getSize();
+            }
             if (cattrs != null) {
                 size += cattrs.getSize(cw, code.data, code.length, maxStack,
                         maxLocals);
@@ -1866,6 +2074,14 @@ class MethodWriter extends MethodVisitor {
         if (ClassReader.ANNOTATIONS && ianns != null) {
             cw.newUTF8("RuntimeInvisibleAnnotations");
             size += 8 + ianns.getSize();
+        }
+        if (ClassReader.ANNOTATIONS && tanns != null) {
+            cw.newUTF8("RuntimeVisibleTypeAnnotations");
+            size += 8 + tanns.getSize();
+        }
+        if (ClassReader.ANNOTATIONS && itanns != null) {
+            cw.newUTF8("RuntimeInvisibleTypeAnnotations");
+            size += 8 + itanns.getSize();
         }
         if (ClassReader.ANNOTATIONS && panns != null) {
             cw.newUTF8("RuntimeVisibleParameterAnnotations");
@@ -1931,6 +2147,12 @@ class MethodWriter extends MethodVisitor {
         if (ClassReader.ANNOTATIONS && ianns != null) {
             ++attributeCount;
         }
+        if (ClassReader.ANNOTATIONS && tanns != null) {
+            ++attributeCount;
+        }
+        if (ClassReader.ANNOTATIONS && itanns != null) {
+            ++attributeCount;
+        }
         if (ClassReader.ANNOTATIONS && panns != null) {
             ++attributeCount;
         }
@@ -1954,6 +2176,12 @@ class MethodWriter extends MethodVisitor {
             }
             if (stackMap != null) {
                 size += 8 + stackMap.length;
+            }
+            if (ClassReader.ANNOTATIONS && ctanns != null) {
+                size += 8 + ctanns.getSize();
+            }
+            if (ClassReader.ANNOTATIONS && ictanns != null) {
+                size += 8 + ictanns.getSize();
             }
             if (cattrs != null) {
                 size += cattrs.getSize(cw, code.data, code.length, maxStack,
@@ -1984,6 +2212,12 @@ class MethodWriter extends MethodVisitor {
             if (stackMap != null) {
                 ++attributeCount;
             }
+            if (ClassReader.ANNOTATIONS && ctanns != null) {
+                ++attributeCount;
+            }
+            if (ClassReader.ANNOTATIONS && ictanns != null) {
+                ++attributeCount;
+            }
             if (cattrs != null) {
                 attributeCount += cattrs.getCount();
             }
@@ -2008,6 +2242,14 @@ class MethodWriter extends MethodVisitor {
                 out.putShort(cw.newUTF8(zip ? "StackMapTable" : "StackMap"));
                 out.putInt(stackMap.length + 2).putShort(frameCount);
                 out.putByteArray(stackMap.data, 0, stackMap.length);
+            }
+            if (ClassReader.ANNOTATIONS && ctanns != null) {
+                out.putShort(cw.newUTF8("RuntimeVisibleTypeAnnotations"));
+                ctanns.put(out);
+            }
+            if (ClassReader.ANNOTATIONS && ictanns != null) {
+                out.putShort(cw.newUTF8("RuntimeInvisibleTypeAnnotations"));
+                ictanns.put(out);
             }
             if (cattrs != null) {
                 cattrs.put(cw, code.data, code.length, maxLocals, maxStack, out);
@@ -2046,6 +2288,14 @@ class MethodWriter extends MethodVisitor {
         if (ClassReader.ANNOTATIONS && ianns != null) {
             out.putShort(cw.newUTF8("RuntimeInvisibleAnnotations"));
             ianns.put(out);
+        }
+        if (ClassReader.ANNOTATIONS && tanns != null) {
+            out.putShort(cw.newUTF8("RuntimeVisibleTypeAnnotations"));
+            tanns.put(out);
+        }
+        if (ClassReader.ANNOTATIONS && itanns != null) {
+            out.putShort(cw.newUTF8("RuntimeInvisibleTypeAnnotations"));
+            itanns.put(out);
         }
         if (ClassReader.ANNOTATIONS && panns != null) {
             out.putShort(cw.newUTF8("RuntimeVisibleParameterAnnotations"));

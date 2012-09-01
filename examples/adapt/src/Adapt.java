@@ -103,7 +103,7 @@ class TraceFieldClassAdapter extends ClassVisitor implements Opcodes {
     private String owner;
 
     public TraceFieldClassAdapter(final ClassVisitor cv) {
-        super(Opcodes.ASM4, cv);
+        super(Opcodes.ASM5, cv);
     }
 
     @Override
@@ -171,7 +171,7 @@ class TraceFieldCodeAdapter extends MethodVisitor implements Opcodes {
     private String owner;
 
     public TraceFieldCodeAdapter(final MethodVisitor mv, final String owner) {
-        super(Opcodes.ASM4, mv);
+        super(Opcodes.ASM5, mv);
         this.owner = owner;
     }
 

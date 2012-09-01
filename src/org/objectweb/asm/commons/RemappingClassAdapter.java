@@ -48,7 +48,7 @@ public class RemappingClassAdapter extends ClassVisitor {
     protected String className;
 
     public RemappingClassAdapter(final ClassVisitor cv, final Remapper remapper) {
-        this(Opcodes.ASM4, cv, remapper);
+        this(Opcodes.ASM5, cv, remapper);
     }
 
     protected RemappingClassAdapter(final int api, final ClassVisitor cv,
@@ -68,8 +68,16 @@ public class RemappingClassAdapter extends ClassVisitor {
 
     @Override
     public AnnotationVisitor visitAnnotation(String desc, boolean visible) {
-        AnnotationVisitor av;
-        av = super.visitAnnotation(remapper.mapDesc(desc), visible);
+        AnnotationVisitor av = super.visitAnnotation(remapper.mapDesc(desc),
+                visible);
+        return av == null ? null : createRemappingAnnotationAdapter(av);
+    }
+
+    @Override
+    public AnnotationVisitor visitTypeAnnotation(int target, long path,
+            String desc, boolean visible) {
+        AnnotationVisitor av = super.visitTypeAnnotation(target, path,
+                remapper.mapDesc(desc), visible);
         return av == null ? null : createRemappingAnnotationAdapter(av);
     }
 

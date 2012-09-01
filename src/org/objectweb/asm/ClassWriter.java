@@ -417,6 +417,16 @@ public class ClassWriter extends ClassVisitor {
     private AnnotationWriter ianns;
 
     /**
+     * The runtime visible type annotations of this class.
+     */
+    private AnnotationWriter tanns;
+
+    /**
+     * The runtime invisible type annotations of this class.
+     */
+    private AnnotationWriter itanns;
+
+    /**
      * The non standard attributes of this class.
      */
     private Attribute attrs;
@@ -595,7 +605,7 @@ public class ClassWriter extends ClassVisitor {
      *            {@link #COMPUTE_FRAMES}.
      */
     public ClassWriter(final int flags) {
-        super(Opcodes.ASM4);
+        super(Opcodes.ASM5);
         index = 1;
         pool = new ByteVector();
         items = new Item[256];
@@ -706,6 +716,49 @@ public class ClassWriter extends ClassVisitor {
         } else {
             aw.next = ianns;
             ianns = aw;
+        }
+        return aw;
+    }
+
+    @Override
+    public final AnnotationVisitor visitTypeAnnotation(int target, long path,
+            final String desc, final boolean visible) {
+        if (!ClassReader.ANNOTATIONS) {
+            return null;
+        }
+        ByteVector bv = new ByteVector();
+        // write target_type and target_info
+        int p1 = (target >> 8) & 0xFF;
+        int p2 = (target >> 16) & 0xFF;
+        int pathBit = (path & 0xFF) != 0xFF ? 1 : 0;
+        switch (target & 0xFF) {
+        case 0:
+            if (p2 == 0xFF) { // CLASS_TYPE_PARAMETER
+                bv.putShort(pathBit).putByte(p1);
+            } else { // CLASS_TYPE_PARAMETER_BOUND
+                bv.putShort(0x12 + pathBit).put11(p1, p2);
+            }
+            break;
+        case 1: // CLASS_EXTENDS (super class)
+            bv.putShort(0x10 + pathBit).putShort(0xFFFF);
+            break;
+        default: // CLASS_EXTENDS (interface)
+            bv.putShort(0x10 + pathBit).putShort(p1);
+            break;
+        }
+        if (pathBit != 0) {
+            AnnotationWriter.putLocation(path, bv);
+        }
+        // write type, and reserve space for values count
+        bv.putShort(newUTF8(desc)).putShort(0);
+        AnnotationWriter aw = new AnnotationWriter(this, true, bv, bv,
+                bv.length - 2);
+        if (visible) {
+            aw.next = tanns;
+            tanns = aw;
+        } else {
+            aw.next = itanns;
+            itanns = aw;
         }
         return aw;
     }
@@ -831,6 +884,16 @@ public class ClassWriter extends ClassVisitor {
             size += 8 + ianns.getSize();
             newUTF8("RuntimeInvisibleAnnotations");
         }
+        if (ClassReader.ANNOTATIONS && tanns != null) {
+            ++attributeCount;
+            size += 8 + tanns.getSize();
+            newUTF8("RuntimeVisibleTypeAnnotations");
+        }
+        if (ClassReader.ANNOTATIONS && itanns != null) {
+            ++attributeCount;
+            size += 8 + itanns.getSize();
+            newUTF8("RuntimeInvisibleTypeAnnotations");
+        }
         if (attrs != null) {
             attributeCount += attrs.getCount();
             size += attrs.getSize(this, null, 0, -1, -1);
@@ -903,6 +966,14 @@ public class ClassWriter extends ClassVisitor {
         if (ClassReader.ANNOTATIONS && ianns != null) {
             out.putShort(newUTF8("RuntimeInvisibleAnnotations"));
             ianns.put(out);
+        }
+        if (ClassReader.ANNOTATIONS && tanns != null) {
+            out.putShort(newUTF8("RuntimeVisibleTypeAnnotations"));
+            tanns.put(out);
+        }
+        if (ClassReader.ANNOTATIONS && itanns != null) {
+            out.putShort(newUTF8("RuntimeInvisibleTypeAnnotations"));
+            itanns.put(out);
         }
         if (attrs != null) {
             attrs.put(this, null, 0, -1, -1, out);

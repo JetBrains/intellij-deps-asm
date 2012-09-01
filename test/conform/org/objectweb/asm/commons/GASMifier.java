@@ -37,12 +37,14 @@ import java.util.List;
 import java.util.Map;
 
 import org.objectweb.asm.ClassReader;
+import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.Handle;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.util.ASMifier;
+import org.objectweb.asm.util.Printer;
 import org.objectweb.asm.util.TraceClassVisitor;
 
 /**
@@ -68,11 +70,11 @@ public class GASMifier extends ASMifier implements Opcodes {
     }
 
     public GASMifier(final String name, final int id) {
-        super(Opcodes.ASM4, name, id);
+        super(Opcodes.ASM5, name, id);
     }
 
     public GASMifier(final int access, final String desc) {
-        super(Opcodes.ASM4, "mg", 0);
+        super(Opcodes.ASM5, "mg", 0);
         this.access = access;
         this.argumentTypes = Type.getArgumentTypes(desc);
         int nextLocal = (Opcodes.ACC_STATIC & access) != 0 ? 0 : 1;
@@ -142,7 +144,7 @@ public class GASMifier extends ASMifier implements Opcodes {
         }
         text.set(n + 5,
                 "ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_MAXS);\n");
-        text.set(n + 7, "GeneratorAdapter mg;\n");
+        text.set(n + 7, "TestGeneratorAdapter mg;\n");
         text.add(n + 1, "import org.objectweb.asm.commons.*;\n");
     }
 
@@ -151,7 +153,7 @@ public class GASMifier extends ASMifier implements Opcodes {
             final String desc, final String signature, final String[] exceptions) {
         buf.setLength(0);
         buf.append("{\n");
-        buf.append("mg = new GeneratorAdapter(");
+        buf.append("mg = new TestGeneratorAdapter(");
         buf.append(access);
         buf.append(", ");
         buf.append(getMethod(name, desc));
@@ -848,6 +850,61 @@ public class GASMifier extends ASMifier implements Opcodes {
         }
         buf.append(", ").append(increment).append(");\n");
         text.add(buf.toString());
+    }
+
+    @Override
+    public void visitLocalVariable(final String name, final String desc,
+            final String signature, final Label start, final Label end,
+            final int index) {
+        String idx = index < firstLocal ? new Integer(index).toString()
+                : "local" + locals.get(new Integer(index));
+        buf.setLength(0);
+        buf.append(this.name).append(".getNext().visitLocalVariable(");
+        appendConstant(name);
+        buf.append(", ");
+        appendConstant(desc);
+        buf.append(", ");
+        appendConstant(signature);
+        buf.append(", ");
+        appendLabel(start);
+        buf.append(", ");
+        appendLabel(end);
+        buf.append(", ").append(idx).append(");\n");
+        text.add(buf.toString());
+    }
+
+    @Override
+    public Printer visitLocalVariableAnnotation(int target, long path,
+            Label[] start, Label[] end, int[] index, String desc,
+            boolean visible) {
+        buf.setLength(0);
+        buf.append("{\n").append("av0 = ").append(name)
+                .append(".getNext().visitLocalVariableAnnotation(");
+        buf.append(target).append(", ").append(path).append(", ");
+        buf.append("new Label[] {");
+        for (int i = 0; i < start.length; ++i) {
+            buf.append(i == 0 ? " " : ", ");
+            appendLabel(start[i]);
+        }
+        buf.append(" }, new Label[] {");
+        for (int i = 0; i < end.length; ++i) {
+            buf.append(i == 0 ? " " : ", ");
+            appendLabel(end[i]);
+        }
+        buf.append(" }, new int[] {");
+        for (int i = 0; i < index.length; ++i) {
+            String idx = index[i] < firstLocal ? new Integer(index[i])
+                    .toString() : "local" + locals.get(new Integer(index[i]));
+            buf.append(i == 0 ? " " : ", ").append(idx);
+        }
+        buf.append(" }, ");
+        appendConstant(desc);
+        buf.append(", ").append(visible).append(");\n");
+        text.add(buf.toString());
+        ASMifier a = createASMifier("av", 0);
+        text.add(a.getText());
+        text.add("}\n");
+        return a;
     }
 
     @Override

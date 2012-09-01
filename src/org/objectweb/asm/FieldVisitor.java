@@ -31,8 +31,8 @@ package org.objectweb.asm;
 
 /**
  * A visitor to visit a Java field. The methods of this class must be called in
- * the following order: ( <tt>visitAnnotation</tt> | <tt>visitAttribute</tt> )*
- * <tt>visitEnd</tt>.
+ * the following order: ( <tt>visitAnnotation</tt> |
+ * <tt>visitTypeAnnotation</tt> | <tt>visitAttribute</tt> )* <tt>visitEnd</tt>.
  * 
  * @author Eric Bruneton
  */
@@ -40,7 +40,7 @@ public abstract class FieldVisitor {
 
     /**
      * The ASM API version implemented by this visitor. The value of this field
-     * must be one of {@link Opcodes#ASM4}.
+     * must be one of {@link Opcodes#ASM4} or {@link Opcodes#ASM5}.
      */
     protected final int api;
 
@@ -55,7 +55,7 @@ public abstract class FieldVisitor {
      * 
      * @param api
      *            the ASM API version implemented by this visitor. Must be one
-     *            of {@link Opcodes#ASM4}.
+     *            of {@link Opcodes#ASM4} or {@link Opcodes#ASM5}.
      */
     public FieldVisitor(final int api) {
         this(api, null);
@@ -66,13 +66,13 @@ public abstract class FieldVisitor {
      * 
      * @param api
      *            the ASM API version implemented by this visitor. Must be one
-     *            of {@link Opcodes#ASM4}.
+     *            of {@link Opcodes#ASM4} or {@link Opcodes#ASM5}.
      * @param fv
      *            the field visitor to which this visitor must delegate method
      *            calls. May be null.
      */
     public FieldVisitor(final int api, final FieldVisitor fv) {
-        if (api != Opcodes.ASM4) {
+        if (api != Opcodes.ASM4 && api != Opcodes.ASM5) {
             throw new IllegalArgumentException();
         }
         this.api = api;
@@ -92,6 +92,40 @@ public abstract class FieldVisitor {
     public AnnotationVisitor visitAnnotation(String desc, boolean visible) {
         if (fv != null) {
             return fv.visitAnnotation(desc, visible);
+        }
+        return null;
+    }
+
+    /**
+     * Visits an annotation on the type of the field.
+     * 
+     * @param target
+     *            unused.
+     * @param path
+     *            the path to the annotated type argument, wildcard bound, array
+     *            element type, or static outer type within the field type, seen
+     *            as a tree. For instance, in <tt>@A Map&lt;@B ? extends @C
+     *        String, @D List&lt;@E Object&gt;&gt;</tt>, A, B, C, D, E have
+     *            paths (), (0), (0,0), (1), (1,0) respectively. In
+     *            <tt>@I String @F
+     *        [] @G [] @H []</tt> F, G, H, I have paths (), (0), (1), (2)
+     *            respectively. In <tt>@M O1.@L O2.@K O3.@J NestedStatic</tt> J,
+     *            K, L, M have paths (), (0), (1), (2) respectively. Paths are
+     *            stored
+     * @param desc
+     *            the class descriptor of the annotation class.
+     * @param visible
+     *            <tt>true</tt> if the annotation is visible at runtime.
+     * @return a visitor to visit the annotation values, or <tt>null</tt> if
+     *         this visitor is not interested in visiting this annotation.
+     */
+    public AnnotationVisitor visitTypeAnnotation(int target, long path,
+            String desc, boolean visible) {
+        if (api < Opcodes.ASM5) {
+            throw new RuntimeException();
+        }
+        if (fv != null) {
+            return fv.visitTypeAnnotation(target, path, desc, visible);
         }
         return null;
     }

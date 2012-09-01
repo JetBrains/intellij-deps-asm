@@ -34,6 +34,7 @@ import junit.framework.TestCase;
 import org.objectweb.asm.AnnotationVisitor;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.FieldVisitor;
+import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.xml.sax.SAXException;
@@ -54,9 +55,9 @@ public class ASMContentHandlerUnitTest extends TestCase implements Opcodes {
 
     @Override
     protected void setUp() throws Exception {
-        h = new ASMContentHandler(new ClassVisitor(Opcodes.ASM4) {
+        h = new ASMContentHandler(new ClassVisitor(Opcodes.ASM5) {
 
-            AnnotationVisitor av = new AnnotationVisitor(Opcodes.ASM4) {
+            AnnotationVisitor av = new AnnotationVisitor(Opcodes.ASM5) {
 
                 @Override
                 public AnnotationVisitor visitAnnotation(String name,
@@ -77,22 +78,35 @@ public class ASMContentHandlerUnitTest extends TestCase implements Opcodes {
             }
 
             @Override
+            public AnnotationVisitor visitTypeAnnotation(int target, long path,
+                    String desc, boolean visible) {
+                return av;
+            }
+
+            @Override
             public FieldVisitor visitField(int access, String name,
                     String desc, String signature, Object value) {
-                return new FieldVisitor(Opcodes.ASM4) {
+                return new FieldVisitor(Opcodes.ASM5) {
 
                     @Override
                     public AnnotationVisitor visitAnnotation(String desc,
                             boolean visible) {
                         return av;
                     }
+
+                    @Override
+                    public AnnotationVisitor visitTypeAnnotation(int target,
+                            long path, String desc, boolean visible) {
+                        return av;
+                    }
+
                 };
             }
 
             @Override
             public MethodVisitor visitMethod(int access, String name,
                     String desc, String signature, String[] exceptions) {
-                return new MethodVisitor(Opcodes.ASM4) {
+                return new MethodVisitor(Opcodes.ASM5) {
 
                     @Override
                     public AnnotationVisitor visitAnnotationDefault() {
@@ -106,8 +120,33 @@ public class ASMContentHandlerUnitTest extends TestCase implements Opcodes {
                     }
 
                     @Override
+                    public AnnotationVisitor visitTypeAnnotation(int target,
+                            long path, String desc, boolean visible) {
+                        return av;
+                    }
+
+                    @Override
                     public AnnotationVisitor visitParameterAnnotation(
                             int parameter, String desc, boolean visible) {
+                        return av;
+                    }
+
+                    @Override
+                    public AnnotationVisitor visitInsnAnnotation(int target,
+                            long path, String desc, boolean visible) {
+                        return av;
+                    }
+
+                    @Override
+                    public AnnotationVisitor visitTryCatchAnnotation(
+                            int target, long path, String desc, boolean visible) {
+                        return av;
+                    }
+
+                    @Override
+                    public AnnotationVisitor visitLocalVariableAnnotation(
+                            int target, long path, Label[] start, Label[] end,
+                            int[] index, String desc, boolean visible) {
                         return av;
                     }
                 };

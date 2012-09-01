@@ -122,7 +122,12 @@ public class ASMContentHandler extends DefaultHandler implements Opcodes {
         RULES.add(BASE + "/method/code/Max", new MaxRule());
 
         RULES.add("*/annotation", new AnnotationRule());
+        RULES.add("*/typeAnnotation", new TypeAnnotationRule());
         RULES.add("*/parameterAnnotation", new AnnotationParameterRule());
+        RULES.add("*/insnAnnotation", new InsnAnnotationRule());
+        RULES.add("*/tryCatchAnnotation", new TryCatchAnnotationRule());
+        RULES.add("*/localVariableAnnotation",
+                new LocalVariableAnnotationRule());
         RULES.add("*/annotationValue", new AnnotationValueRule());
         RULES.add("*/annotationValueAnnotation",
                 new AnnotationValueAnnotationRule());
@@ -1199,6 +1204,38 @@ public class ASMContentHandler extends DefaultHandler implements Opcodes {
         }
     }
 
+    final class TypeAnnotationRule extends Rule {
+
+        @Override
+        public void begin(final String name, final Attributes attrs) {
+            String desc = attrs.getValue("desc");
+            boolean visible = Boolean.valueOf(attrs.getValue("visible"))
+                    .booleanValue();
+            int target = Integer.parseInt(attrs.getValue("target"));
+            long path = Long.parseLong(attrs.getValue("path"));
+
+            Object v = peek();
+            if (v instanceof ClassVisitor) {
+                push(((ClassVisitor) v).visitTypeAnnotation(target, path, desc,
+                        visible));
+            } else if (v instanceof FieldVisitor) {
+                push(((FieldVisitor) v).visitTypeAnnotation(target, path, desc,
+                        visible));
+            } else if (v instanceof MethodVisitor) {
+                push(((MethodVisitor) v).visitTypeAnnotation(target, path,
+                        desc, visible));
+            }
+        }
+
+        @Override
+        public void end(final String name) {
+            AnnotationVisitor av = (AnnotationVisitor) pop();
+            if (av != null) {
+                av.visitEnd();
+            }
+        }
+    }
+
     final class AnnotationParameterRule extends Rule {
 
         @Override
@@ -1210,6 +1247,87 @@ public class ASMContentHandler extends DefaultHandler implements Opcodes {
 
             push(((MethodVisitor) peek()).visitParameterAnnotation(parameter,
                     desc, visible));
+        }
+
+        @Override
+        public void end(final String name) {
+            AnnotationVisitor av = (AnnotationVisitor) pop();
+            if (av != null) {
+                av.visitEnd();
+            }
+        }
+    }
+
+    final class InsnAnnotationRule extends Rule {
+
+        @Override
+        public void begin(final String name, final Attributes attrs) {
+            String desc = attrs.getValue("desc");
+            boolean visible = Boolean.valueOf(attrs.getValue("visible"))
+                    .booleanValue();
+            int target = Integer.parseInt(attrs.getValue("target"));
+            long path = Long.parseLong(attrs.getValue("path"));
+            push(((MethodVisitor) peek()).visitInsnAnnotation(target, path,
+                    desc, visible));
+        }
+
+        @Override
+        public void end(final String name) {
+            AnnotationVisitor av = (AnnotationVisitor) pop();
+            if (av != null) {
+                av.visitEnd();
+            }
+        }
+    }
+
+    final class TryCatchAnnotationRule extends Rule {
+
+        @Override
+        public void begin(final String name, final Attributes attrs) {
+            String desc = attrs.getValue("desc");
+            boolean visible = Boolean.valueOf(attrs.getValue("visible"))
+                    .booleanValue();
+            int target = Integer.parseInt(attrs.getValue("target"));
+            long path = Long.parseLong(attrs.getValue("path"));
+            push(((MethodVisitor) peek()).visitTryCatchAnnotation(target, path,
+                    desc, visible));
+        }
+
+        @Override
+        public void end(final String name) {
+            AnnotationVisitor av = (AnnotationVisitor) pop();
+            if (av != null) {
+                av.visitEnd();
+            }
+        }
+    }
+
+    final class LocalVariableAnnotationRule extends Rule {
+
+        @Override
+        public void begin(final String name, final Attributes attrs) {
+            String desc = attrs.getValue("desc");
+            boolean visible = Boolean.valueOf(attrs.getValue("visible"))
+                    .booleanValue();
+            int target = Integer.parseInt(attrs.getValue("target"));
+            long path = Long.parseLong(attrs.getValue("path"));
+            String[] s = attrs.getValue("start").split(" ");
+            Label[] start = new Label[s.length];
+            for (int i = 0; i < start.length; ++i) {
+                start[i] = getLabel(s[i]);
+            }
+            String[] e = attrs.getValue("end").split(" ");
+            Label[] end = new Label[e.length];
+            for (int i = 0; i < end.length; ++i) {
+                end[i] = getLabel(e[i]);
+            }
+            String[] v = attrs.getValue("index").split(" ");
+            int[] index = new int[v.length];
+            for (int i = 0; i < index.length; ++i) {
+                index[i] = Integer.parseInt(v[i]);
+            }
+            push(((MethodVisitor) peek()).visitLocalVariableAnnotation(target,
+                    path, start, end, index, desc, visible));
         }
 
         @Override

@@ -32,6 +32,7 @@ package org.objectweb.asm.tree;
 import junit.framework.TestCase;
 
 import org.objectweb.asm.Handle;
+import org.objectweb.asm.Label;
 import org.objectweb.asm.Opcodes;
 
 /**
@@ -137,5 +138,19 @@ public class ClassNodeUnitTest extends TestCase implements Opcodes {
     public void testMultiANewArrayInsnNode() {
         MultiANewArrayInsnNode manan = new MultiANewArrayInsnNode("[[I", 2);
         assertEquals(AbstractInsnNode.MULTIANEWARRAY_INSN, manan.getType());
+    }
+
+    public void testCloneMethod() {
+        MethodNode n = new MethodNode();
+        Label l0 = new Label();
+        Label l1 = new Label();
+        n.visitCode();
+        n.visitLabel(l0);
+        n.visitInsn(Opcodes.NOP);
+        n.visitLabel(l1);
+        n.visitEnd();
+        MethodNode n1 = new MethodNode();
+        n.accept(n1);
+        n.accept(n1);
     }
 }

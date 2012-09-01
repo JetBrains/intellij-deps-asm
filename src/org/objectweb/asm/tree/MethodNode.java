@@ -458,7 +458,7 @@ public class MethodNode extends MethodVisitor {
      */
     protected LabelNode getLabelNode(final Label l) {
         if (!(l.info instanceof LabelNode)) {
-            l.info = new LabelNode(l);
+            l.info = new LabelNode();
         }
         return (LabelNode) l.info;
     }

@@ -188,6 +188,8 @@ public class LocalVariablesSorter extends MethodVisitor {
         Object[] oldLocals = new Object[newLocals.length];
         System.arraycopy(newLocals, 0, oldLocals, 0, oldLocals.length);
 
+        updateNewLocals(newLocals);
+
         // copies types from 'local' to 'newLocals'
         // 'newLocals' already contains the variables added with 'newLocal'
 
@@ -281,14 +283,36 @@ public class LocalVariablesSorter extends MethodVisitor {
     }
 
     /**
-     * Sets the current type of the given local variable. The default
-     * implementation of this method does nothing.
+     * Notifies subclasses that a new stack map frame is being visited. The
+     * array argument contains the stack map frame types corresponding to the
+     * local variables added with {@link #newLocal}. This method can update
+     * these types in place for the stack map frame being visited. The default
+     * implementation of this method does nothing, i.e. a local variable added
+     * with {@link #newLocal} will have the same type in all stack map frames.
+     * But this behavior is not always the desired one, for instance if a local
+     * variable is added in the middle of a try/catch block: the frame for the
+     * exception handler should have a TOP type for this new local.
+     * 
+     * @param newLocals
+     *            the stack map frame types corresponding to the local variables
+     *            added with {@link #newLocal} (and null for the others). The
+     *            format of this array is the same as in
+     *            {@link MethodVisitor#visitFrame}, except that long and double
+     *            types use two slots. The types for the current stack map frame
+     *            must be updated in place in this array.
+     */
+    protected void updateNewLocals(Object[] newLocals) {
+    }
+
+    /**
+     * Notifies subclasses that a local variable has been added or remapped. The
+     * default implementation of this method does nothing.
      * 
      * @param local
      *            a local variable identifier, as returned by {@link #newLocal
      *            newLocal()}.
      * @param type
-     *            the type of the value being stored in the local variable
+     *            the type of the value being stored in the local variable.
      */
     protected void setLocalType(final int local, final Type type) {
     }

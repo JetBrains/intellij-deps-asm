@@ -175,17 +175,19 @@
     <ant antfile="${test.conform}/codesizeevaluator.xml" inheritRefs="true"/>
     <ant antfile="${test.conform}/gasmifier.xml" inheritRefs="true"/>
     <ant antfile="${test.conform}/jsrinlineradapter.xml" inheritRefs="true"/>
-    <ant antfile="${test.conform}/localvariablessorter2.xml" inheritRefs="true"/>
     <ant antfile="${test.conform}/localvariablessorter.xml" inheritRefs="true"/>
-    <ant antfile="${test.conform}/remappingadapter2.xml" inheritRefs="true"/>
+    <ant antfile="${test.conform}/localvariablessorter2.xml" inheritRefs="true"/>
     <ant antfile="${test.conform}/remappingadapter.xml" inheritRefs="true"/>
+    <ant antfile="${test.conform}/remappingadapter2.xml" inheritRefs="true"/>
     <ant antfile="${test.conform}/saxadapter.xml" inheritRefs="true"/>
     <ant antfile="${test.conform}/signaturewriter.xml" inheritRefs="true"/>
+    <ant antfile="${test.conform}/simpleverifier.xml" inheritRefs="true"/>    
     <ant antfile="${test.conform}/sourceinterpreter.xml" inheritRefs="true"/>
     <ant antfile="${test.conform}/staticinitmerger.xml" inheritRefs="true"/>
     <ant antfile="${test.conform}/svuidadder.xml" inheritRefs="true"/>
     <ant antfile="${test.conform}/traceclassadapter.xml" inheritRefs="true"/>
     <ant antfile="${test.conform}/unit.xml" inheritRefs="true"/>
+    <ant antfile="${test.conform}/verifyclass.xml" inheritRefs="true"/>
   </target>
 
   <target name="testPerf" depends="compile" if="test-perf">

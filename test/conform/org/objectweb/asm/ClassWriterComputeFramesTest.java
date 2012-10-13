@@ -145,9 +145,13 @@ class ComputeClassWriter extends ClassWriter {
             if ((info1.getAccess() & Opcodes.ACC_INTERFACE) != 0) {
                 if (typeImplements(type2, info2, type1)) {
                     return type1;
-                } else {
-                    return "java/lang/Object";
                 }
+                if ((info2.getAccess() & Opcodes.ACC_INTERFACE) != 0) {
+                    if (typeImplements(type1, info1, type2)) {
+                        return type2;
+                    }
+                }
+                return "java/lang/Object";
             }
             if ((info2.getAccess() & Opcodes.ACC_INTERFACE) != 0) {
                 if (typeImplements(type1, info1, type2)) {

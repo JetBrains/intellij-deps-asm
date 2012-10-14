@@ -1142,7 +1142,7 @@ public class ClassReader {
         u += 2;
 
         // generates the first (implicit) stack map frame
-        if (FRAMES && (stackMap != 0 || unzip)) {
+        if (FRAMES && stackMap != 0) {
             /*
              * for the first explicit frame the offset is not offset_delta + 1
              * but only offset_delta; setting the implicit frame offset to -1
@@ -1159,8 +1159,6 @@ public class ClassReader {
             if (unzip) {
                 getImplicitFrame(context);
             }
-        }
-        if (FRAMES && stackMap != 0) {
             /*
              * Finds labels for UNINITIALIZED frame types. Instead of decoding
              * each element of the stack map table, we look for 3 consecutive
@@ -1198,17 +1196,19 @@ public class ClassReader {
                 }
             }
 
-            // visits the frame(s) for this offset, if any
+            // visits the frame for this offset, if any
             while (FRAMES && frame != null
                     && (frame.offset == offset || frame.offset == -1)) {
                 // if there is a frame for this offset, makes the visitor visit
                 // it, and reads the next frame if there is one.
-                if (!zip || unzip) {
-                    mv.visitFrame(Opcodes.F_NEW, frame.localCount, frame.local,
-                            frame.stackCount, frame.stack);
-                } else if (frame.offset != -1) {
-                    mv.visitFrame(frame.mode, frame.localDiff, frame.local,
-                            frame.stackCount, frame.stack);
+                if (frame.offset != -1) {
+                    if (!zip || unzip) {
+                        mv.visitFrame(Opcodes.F_NEW, frame.localCount,
+                                frame.local, frame.stackCount, frame.stack);
+                    } else {
+                        mv.visitFrame(frame.mode, frame.localDiff, frame.local,
+                                frame.stackCount, frame.stack);
+                    }
                 }
                 if (frameCount > 0) {
                     stackMap = readFrame(stackMap, zip, unzip, labels, frame);

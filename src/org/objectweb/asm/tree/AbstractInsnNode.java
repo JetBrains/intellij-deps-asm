@@ -237,14 +237,15 @@ public abstract class AbstractInsnNode {
                 .size();
         for (int i = 0; i < n; ++i) {
             TypeAnnotationNode an = visibleTypeAnnotations.get(i);
-            an.accept(mv.visitInsnAnnotation(an.target, an.path, an.desc, true));
+            an.accept(mv.visitInsnAnnotation(an.typeRef, an.typePath, an.desc,
+                    true));
         }
         n = invisibleTypeAnnotations == null ? 0 : invisibleTypeAnnotations
                 .size();
         for (int i = 0; i < n; ++i) {
             TypeAnnotationNode an = invisibleTypeAnnotations.get(i);
-            an.accept(mv
-                    .visitInsnAnnotation(an.target, an.path, an.desc, false));
+            an.accept(mv.visitInsnAnnotation(an.typeRef, an.typePath, an.desc,
+                    false));
         }
     }
 
@@ -304,8 +305,8 @@ public abstract class AbstractInsnNode {
             this.visibleTypeAnnotations = new ArrayList<TypeAnnotationNode>();
             for (int i = 0; i < insn.visibleTypeAnnotations.size(); ++i) {
                 TypeAnnotationNode src = insn.visibleTypeAnnotations.get(i);
-                TypeAnnotationNode ann = new TypeAnnotationNode(src.target,
-                        src.path, src.desc);
+                TypeAnnotationNode ann = new TypeAnnotationNode(src.typeRef,
+                        src.typePath, src.desc);
                 src.accept(ann);
                 this.visibleTypeAnnotations.add(ann);
             }
@@ -314,8 +315,8 @@ public abstract class AbstractInsnNode {
             this.invisibleTypeAnnotations = new ArrayList<TypeAnnotationNode>();
             for (int i = 0; i < insn.invisibleTypeAnnotations.size(); ++i) {
                 TypeAnnotationNode src = insn.invisibleTypeAnnotations.get(i);
-                TypeAnnotationNode ann = new TypeAnnotationNode(src.target,
-                        src.path, src.desc);
+                TypeAnnotationNode ann = new TypeAnnotationNode(src.typeRef,
+                        src.typePath, src.desc);
                 src.accept(ann);
                 this.invisibleTypeAnnotations.add(ann);
             }

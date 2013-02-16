@@ -35,6 +35,7 @@ import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.TypePath;
 
 /**
  * A {@link ClassVisitor} for type remapping.
@@ -74,9 +75,9 @@ public class RemappingClassAdapter extends ClassVisitor {
     }
 
     @Override
-    public AnnotationVisitor visitTypeAnnotation(int target, long path,
-            String desc, boolean visible) {
-        AnnotationVisitor av = super.visitTypeAnnotation(target, path,
+    public AnnotationVisitor visitTypeAnnotation(int typeRef,
+            TypePath typePath, String desc, boolean visible) {
+        AnnotationVisitor av = super.visitTypeAnnotation(typeRef, typePath,
                 remapper.mapDesc(desc), visible);
         return av == null ? null : createRemappingAnnotationAdapter(av);
     }

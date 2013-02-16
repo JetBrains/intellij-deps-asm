@@ -40,6 +40,8 @@ import org.objectweb.asm.Handle;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
+import org.objectweb.asm.TypePath;
+import org.objectweb.asm.TypeReference;
 import org.objectweb.asm.signature.SignatureReader;
 
 /**
@@ -294,10 +296,10 @@ public class Textifier extends Printer {
     }
 
     @Override
-    public Printer visitClassTypeAnnotation(int target, long path, String desc,
-            boolean visible) {
+    public Printer visitClassTypeAnnotation(int typeRef, TypePath typePath,
+            String desc, boolean visible) {
         text.add("\n");
-        return visitTypeAnnotation(target, path, desc, visible);
+        return visitTypeAnnotation(typeRef, typePath, desc, visible);
     }
 
     @Override
@@ -624,9 +626,9 @@ public class Textifier extends Printer {
     }
 
     @Override
-    public Printer visitFieldTypeAnnotation(int target, long path, String desc,
-            boolean visible) {
-        return visitTypeAnnotation(target, path, desc, visible);
+    public Printer visitFieldTypeAnnotation(int typeRef, TypePath typePath,
+            String desc, boolean visible) {
+        return visitTypeAnnotation(typeRef, typePath, desc, visible);
     }
 
     @Override
@@ -658,9 +660,9 @@ public class Textifier extends Printer {
     }
 
     @Override
-    public Printer visitMethodTypeAnnotation(int target, long path,
+    public Printer visitMethodTypeAnnotation(int typeRef, TypePath typePath,
             String desc, boolean visible) {
-        return visitTypeAnnotation(target, path, desc, visible);
+        return visitTypeAnnotation(typeRef, typePath, desc, visible);
     }
 
     @Override
@@ -909,9 +911,9 @@ public class Textifier extends Printer {
     }
 
     @Override
-    public Printer visitInsnAnnotation(int target, long path, String desc,
-            boolean visible) {
-        return visitTypeAnnotation(target, path, desc, visible);
+    public Printer visitInsnAnnotation(int typeRef, TypePath typePath,
+            String desc, boolean visible) {
+        return visitTypeAnnotation(typeRef, typePath, desc, visible);
     }
 
     @Override
@@ -931,8 +933,8 @@ public class Textifier extends Printer {
     }
 
     @Override
-    public Printer visitTryCatchAnnotation(int target, long path, String desc,
-            boolean visible) {
+    public Printer visitTryCatchAnnotation(int typeRef, TypePath typePath,
+            String desc, boolean visible) {
         buf.setLength(0);
         buf.append(tab2).append("TRYCATCHBLOCK @");
         appendDescriptor(FIELD_DESCRIPTOR, desc);
@@ -941,8 +943,8 @@ public class Textifier extends Printer {
         Textifier t = createTextifier();
         text.add(t.getText());
         buf.setLength(0);
-        buf.append(") : 0x").append(Integer.toHexString(target));
-        buf.append(", 0x").append(Long.toHexString(path));
+        buf.append(") : ").append(typeRef);
+        buf.append(", ").append(typePath);
         buf.append(visible ? "\n" : " // invisible\n");
         text.add(buf.toString());
         return t;
@@ -975,7 +977,7 @@ public class Textifier extends Printer {
     }
 
     @Override
-    public Printer visitLocalVariableAnnotation(int target, long path,
+    public Printer visitLocalVariableAnnotation(int typeRef, TypePath typePath,
             Label[] start, Label[] end, int[] index, String desc,
             boolean visible) {
         buf.setLength(0);
@@ -986,8 +988,8 @@ public class Textifier extends Printer {
         Textifier t = createTextifier();
         text.add(t.getText());
         buf.setLength(0);
-        buf.append(") : 0x").append(Integer.toHexString(target));
-        buf.append(", 0x").append(Long.toHexString(path));
+        buf.append(") : ").append(typeRef);
+        buf.append(", ").append(typePath);
         for (int i = 0; i < start.length; ++i) {
             buf.append(" [ ");
             appendLabel(start[i]);
@@ -1052,20 +1054,20 @@ public class Textifier extends Printer {
     /**
      * Prints a disassembled view of the given type annotation.
      * 
-     * @param target
-     *            the path to the annotated type.
-     * @param path
+     * @param typeRef
+     *            a reference to the annotated type. See {@link TypeReference}.
+     * @param typePath
      *            the path to the annotated type argument, wildcard bound, array
-     *            element type, or static outer type within the target type,
-     *            seen as a tree.
+     *            element type, or static inner type within 'typeRef'. May be
+     *            <tt>null</tt> if the annotation targets 'typeRef' as a whole.
      * @param desc
      *            the class descriptor of the annotation class.
      * @param visible
      *            <tt>true</tt> if the annotation is visible at runtime.
      * @return a visitor to visit the annotation values.
      */
-    public Textifier visitTypeAnnotation(final int target, final long path,
-            final String desc, final boolean visible) {
+    public Textifier visitTypeAnnotation(final int typeRef,
+            final TypePath typePath, final String desc, final boolean visible) {
         buf.setLength(0);
         buf.append(tab).append('@');
         appendDescriptor(FIELD_DESCRIPTOR, desc);
@@ -1074,8 +1076,8 @@ public class Textifier extends Printer {
         Textifier t = createTextifier();
         text.add(t.getText());
         buf.setLength(0);
-        buf.append(") : 0x").append(Integer.toHexString(target));
-        buf.append(", 0x").append(Long.toHexString(path));
+        buf.append(") : ").append(typeRef);
+        buf.append(", ").append(typePath);
         buf.append(visible ? "\n" : " // invisible\n");
         text.add(buf.toString());
         return t;

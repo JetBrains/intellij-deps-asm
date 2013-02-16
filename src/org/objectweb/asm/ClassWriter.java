@@ -721,34 +721,14 @@ public class ClassWriter extends ClassVisitor {
     }
 
     @Override
-    public final AnnotationVisitor visitTypeAnnotation(int target, long path,
-            final String desc, final boolean visible) {
+    public final AnnotationVisitor visitTypeAnnotation(int typeRef,
+            TypePath typePath, final String desc, final boolean visible) {
         if (!ClassReader.ANNOTATIONS) {
             return null;
         }
         ByteVector bv = new ByteVector();
         // write target_type and target_info
-        int p1 = (target >> 8) & 0xFF;
-        int p2 = (target >> 16) & 0xFF;
-        int pathBit = (path & 0xFF) != 0xFF ? 1 : 0;
-        switch (target & 0xFF) {
-        case 0:
-            if (p2 == 0xFF) { // CLASS_TYPE_PARAMETER
-                bv.putShort(pathBit).putByte(p1);
-            } else { // CLASS_TYPE_PARAMETER_BOUND
-                bv.putShort(0x12 + pathBit).put11(p1, p2);
-            }
-            break;
-        case 1: // CLASS_EXTENDS (super class)
-            bv.putShort(0x10 + pathBit).putShort(0xFFFF);
-            break;
-        default: // CLASS_EXTENDS (interface)
-            bv.putShort(0x10 + pathBit).putShort(p1);
-            break;
-        }
-        if (pathBit != 0) {
-            AnnotationWriter.putLocation(path, bv);
-        }
+        AnnotationWriter.putTarget(typeRef, typePath, bv);
         // write type, and reserve space for values count
         bv.putShort(newUTF8(desc)).putShort(0);
         AnnotationWriter aw = new AnnotationWriter(this, true, bv, bv,

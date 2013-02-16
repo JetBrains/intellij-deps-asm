@@ -33,6 +33,7 @@ import org.objectweb.asm.AnnotationVisitor;
 import org.objectweb.asm.Attribute;
 import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.TypePath;
 
 /**
  * A {@link FieldVisitor} that collects the {@link Constant}s of the fields it
@@ -63,8 +64,8 @@ public class FieldConstantsCollector extends FieldVisitor {
     }
 
     @Override
-    public AnnotationVisitor visitTypeAnnotation(int target, long path,
-            String desc, boolean visible) {
+    public AnnotationVisitor visitTypeAnnotation(int typeRef,
+            TypePath typePath, String desc, boolean visible) {
         cp.newUTF8(desc);
         if (visible) {
             cp.newUTF8("RuntimeVisibleTypeAnnotations");

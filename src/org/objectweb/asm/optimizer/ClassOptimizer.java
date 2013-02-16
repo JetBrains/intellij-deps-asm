@@ -35,6 +35,7 @@ import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.TypePath;
 import org.objectweb.asm.commons.Remapper;
 import org.objectweb.asm.commons.RemappingClassAdapter;
 
@@ -97,8 +98,8 @@ public class ClassOptimizer extends RemappingClassAdapter {
     }
 
     @Override
-    public AnnotationVisitor visitTypeAnnotation(int target, long path,
-            String desc, boolean visible) {
+    public AnnotationVisitor visitTypeAnnotation(int typeRef,
+            TypePath typePath, String desc, boolean visible) {
         // remove annotations
         return null;
     }

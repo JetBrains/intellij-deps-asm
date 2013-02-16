@@ -83,8 +83,8 @@ public class AnnotationsTest extends AbstractTest {
         }
 
         @Override
-        public AnnotationVisitor visitTypeAnnotation(int target, long path,
-                String desc, boolean visible) {
+        public AnnotationVisitor visitTypeAnnotation(int typeRef,
+                TypePath typePath, String desc, boolean visible) {
             return new EmptyAnnotationVisitor();
         }
 
@@ -107,8 +107,8 @@ public class AnnotationsTest extends AbstractTest {
                 }
 
                 @Override
-                public AnnotationVisitor visitTypeAnnotation(int target,
-                        long path, String desc, boolean visible) {
+                public AnnotationVisitor visitTypeAnnotation(int typeRef,
+                        TypePath typePath, String desc, boolean visible) {
                     return new EmptyAnnotationVisitor();
                 }
 
@@ -119,20 +119,20 @@ public class AnnotationsTest extends AbstractTest {
                 }
 
                 @Override
-                public AnnotationVisitor visitInsnAnnotation(int target,
-                        long path, String desc, boolean visible) {
+                public AnnotationVisitor visitInsnAnnotation(int typeRef,
+                        TypePath typePath, String desc, boolean visible) {
                     return new EmptyAnnotationVisitor();
                 }
 
                 @Override
-                public AnnotationVisitor visitTryCatchAnnotation(int target,
-                        long path, String desc, boolean visible) {
+                public AnnotationVisitor visitTryCatchAnnotation(int typeRef,
+                        TypePath typePath, String desc, boolean visible) {
                     return new EmptyAnnotationVisitor();
                 }
 
                 @Override
                 public AnnotationVisitor visitLocalVariableAnnotation(
-                        int target, long path, Label[] start, Label[] end,
+                        int typeRef, TypePath typePath, Label[] start, Label[] end,
                         int[] index, String desc, boolean visible) {
                     return new EmptyAnnotationVisitor();
                 }
@@ -153,7 +153,7 @@ public class AnnotationsTest extends AbstractTest {
         }
 
         @Override
-        public AnnotationVisitor visitTypeAnnotation(int target, long path,
+        public AnnotationVisitor visitTypeAnnotation(int typeRef, TypePath typePath,
                 String desc, boolean visible) {
             return null;
         }
@@ -177,8 +177,8 @@ public class AnnotationsTest extends AbstractTest {
                 }
 
                 @Override
-                public AnnotationVisitor visitTypeAnnotation(int target,
-                        long path, String desc, boolean visible) {
+                public AnnotationVisitor visitTypeAnnotation(int typeRef,
+                        TypePath typePath, String desc, boolean visible) {
                     return null;
                 }
 
@@ -189,20 +189,20 @@ public class AnnotationsTest extends AbstractTest {
                 }
 
                 @Override
-                public AnnotationVisitor visitInsnAnnotation(int target,
-                        long path, String desc, boolean visible) {
+                public AnnotationVisitor visitInsnAnnotation(int typeRef,
+                        TypePath typePath, String desc, boolean visible) {
                     return null;
                 }
 
                 @Override
-                public AnnotationVisitor visitTryCatchAnnotation(int target,
-                        long path, String desc, boolean visible) {
+                public AnnotationVisitor visitTryCatchAnnotation(int typeRef,
+                        TypePath typePath, String desc, boolean visible) {
                     return null;
                 }
 
                 @Override
                 public AnnotationVisitor visitLocalVariableAnnotation(
-                        int target, long path, Label[] start, Label[] end,
+                        int typeRef, TypePath typePath, Label[] start, Label[] end,
                         int[] index, String desc, boolean visible) {
                     return null;
                 }

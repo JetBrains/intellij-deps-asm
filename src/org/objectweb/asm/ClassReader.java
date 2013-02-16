@@ -651,16 +651,16 @@ public class ClassReader {
             for (int i = readUnsignedShort(tanns), v = tanns + 2; i > 0; --i) {
                 v = readAnnotationTarget(context, v);
                 v = readAnnotationValues(v + 2, c, true,
-                        classVisitor.visitTypeAnnotation(context.target,
-                                context.path, readUTF8(v, c), true));
+                        classVisitor.visitTypeAnnotation(context.typeRef,
+                                context.typePath, readUTF8(v, c), true));
             }
         }
         if (ANNOTATIONS && itanns != 0) {
             for (int i = readUnsignedShort(itanns), v = itanns + 2; i > 0; --i) {
                 v = readAnnotationTarget(context, v);
                 v = readAnnotationValues(v + 2, c, true,
-                        classVisitor.visitTypeAnnotation(context.target,
-                                context.path, readUTF8(v, c), false));
+                        classVisitor.visitTypeAnnotation(context.typeRef,
+                                context.typePath, readUTF8(v, c), false));
             }
         }
 
@@ -788,16 +788,16 @@ public class ClassReader {
             for (int i = readUnsignedShort(tanns), v = tanns + 2; i > 0; --i) {
                 v = readAnnotationTarget(context, v);
                 v = readAnnotationValues(v + 2, c, true,
-                        fv.visitTypeAnnotation(context.target, context.path,
-                                readUTF8(v, c), true));
+                        fv.visitTypeAnnotation(context.typeRef,
+                                context.typePath, readUTF8(v, c), true));
             }
         }
         if (ANNOTATIONS && itanns != 0) {
             for (int i = readUnsignedShort(itanns), v = itanns + 2; i > 0; --i) {
                 v = readAnnotationTarget(context, v);
                 v = readAnnotationValues(v + 2, c, true,
-                        fv.visitTypeAnnotation(context.target, context.path,
-                                readUTF8(v, c), false));
+                        fv.visitTypeAnnotation(context.typeRef,
+                                context.typePath, readUTF8(v, c), false));
             }
         }
 
@@ -974,16 +974,16 @@ public class ClassReader {
             for (int i = readUnsignedShort(tanns), v = tanns + 2; i > 0; --i) {
                 v = readAnnotationTarget(context, v);
                 v = readAnnotationValues(v + 2, c, true,
-                        mv.visitTypeAnnotation(context.target, context.path,
-                                readUTF8(v, c), true));
+                        mv.visitTypeAnnotation(context.typeRef,
+                                context.typePath, readUTF8(v, c), true));
             }
         }
         if (ANNOTATIONS && itanns != 0) {
             for (int i = readUnsignedShort(itanns), v = itanns + 2; i > 0; --i) {
                 v = readAnnotationTarget(context, v);
                 v = readAnnotationValues(v + 2, c, true,
-                        mv.visitTypeAnnotation(context.target, context.path,
-                                readUTF8(v, c), false));
+                        mv.visitTypeAnnotation(context.typeRef,
+                                context.typePath, readUTF8(v, c), false));
             }
         }
         if (ANNOTATIONS && mpanns != 0) {
@@ -1167,15 +1167,13 @@ public class ClassReader {
             } else if (ANNOTATIONS
                     && "RuntimeVisibleTypeAnnotations".equals(attrName)) {
                 tanns = readTypeAnnotations(mv, context, u + 8, true);
-                ntoff = tann >= tanns.length
-                        || readUnsignedShort(tanns[tann]) < 0x86 ? -1
-                        : readUnsignedShort(tanns[tann] + 2);
+                ntoff = tanns.length == 0 || readByte(tanns[0]) < 0x43 ? -1
+                        : readUnsignedShort(tanns[0] + 1);
             } else if (ANNOTATIONS
                     && "RuntimeInvisibleTypeAnnotations".equals(attrName)) {
                 itanns = readTypeAnnotations(mv, context, u + 8, false);
-                nitoff = itann >= itanns.length
-                        || readUnsignedShort(itanns[itann]) < 0x86 ? -1
-                        : readUnsignedShort(itanns[itann] + 2);
+                nitoff = itanns.length == 0 || readByte(itanns[0]) < 0x43 ? -1
+                        : readUnsignedShort(itanns[0] + 1);
             } else if (FRAMES && "StackMapTable".equals(attrName)) {
                 if ((context.flags & SKIP_FRAMES) == 0) {
                     stackMap = u + 10;
@@ -1451,23 +1449,22 @@ public class ClassReader {
                 if (ntoff == offset) {
                     int v = readAnnotationTarget(context, tanns[tann]);
                     readAnnotationValues(v + 2, c, true,
-                            mv.visitInsnAnnotation(context.target,
-                                    context.path, readUTF8(v, c), true));
+                            mv.visitInsnAnnotation(context.typeRef,
+                                    context.typePath, readUTF8(v, c), true));
                 }
-                ntoff = ++tann >= tanns.length
-                        || readUnsignedShort(tanns[tann]) < 0x86 ? -1
-                        : readUnsignedShort(tanns[tann] + 2);
+                ntoff = ++tann >= tanns.length || readByte(tanns[tann]) < 0x43 ? -1
+                        : readUnsignedShort(tanns[tann] + 1);
             }
             while (itanns != null && itann < itanns.length && nitoff <= offset) {
                 if (nitoff == offset) {
                     int v = readAnnotationTarget(context, itanns[itann]);
                     readAnnotationValues(v + 2, c, true,
-                            mv.visitInsnAnnotation(context.target,
-                                    context.path, readUTF8(v, c), false));
+                            mv.visitInsnAnnotation(context.typeRef,
+                                    context.typePath, readUTF8(v, c), false));
                 }
                 nitoff = ++itann >= itanns.length
-                        || readUnsignedShort(itanns[itann]) < 0x86 ? -1
-                        : readUnsignedShort(itanns[itann] + 2);
+                        || readByte(itanns[itann]) < 0x43 ? -1
+                        : readUnsignedShort(itanns[itann] + 1);
             }
         }
         if (labels[codeLength] != null) {
@@ -1511,23 +1508,25 @@ public class ClassReader {
         // visits the local variables type annotations
         if (tanns != null) {
             for (int i = 0; i < tanns.length; ++i) {
-                if ((readUnsignedShort(tanns[i]) & 0xFC) == 0x80) {
+                if ((readByte(tanns[i]) >> 1) == (0x40 >> 1)) {
                     int v = readAnnotationTarget(context, tanns[i]);
                     v = readAnnotationValues(v + 2, c, true,
-                            mv.visitLocalVariableAnnotation(context.target,
-                                    context.path, context.start, context.end,
-                                    context.index, readUTF8(v, c), true));
+                            mv.visitLocalVariableAnnotation(context.typeRef,
+                                    context.typePath, context.start,
+                                    context.end, context.index, readUTF8(v, c),
+                                    true));
                 }
             }
         }
         if (itanns != null) {
             for (int i = 0; i < itanns.length; ++i) {
-                if ((readUnsignedShort(itanns[i]) & 0xFC) == 0x80) {
+                if ((readByte(itanns[i]) >> 1) == (0x40 >> 1)) {
                     int v = readAnnotationTarget(context, itanns[i]);
                     v = readAnnotationValues(v + 2, c, true,
-                            mv.visitLocalVariableAnnotation(context.target,
-                                    context.path, context.start, context.end,
-                                    context.index, readUTF8(v, c), false));
+                            mv.visitLocalVariableAnnotation(context.typeRef,
+                                    context.typePath, context.start,
+                                    context.end, context.index, readUTF8(v, c),
+                                    false));
                 }
             }
         }
@@ -1567,160 +1566,136 @@ public class ClassReader {
         u += 2;
         for (int i = 0; i < offsets.length; ++i) {
             offsets[i] = u;
-            int target = readUnsignedShort(u);
-            long path = ((~target) & 0x1) * 0xFF;
-            switch (target >> 1) {
-            case 0x16 >> 1: // FIELD
-            case 0x18 >> 1: // METHOD_RETURN
-            case 0x1A >> 1: // METHOD_RECEIVER
+            int target = readInt(u);
+            switch (target >>> 24) {
+            case 0x00: // CLASS_TYPE_PARAMETER
+            case 0x01: // METHOD_TYPE_PARAMETER
+            case 0x16: // METHOD_FORMAL_PARAMETER
                 u += 2;
                 break;
-            case 0x00 >> 1: // CLASS_TYPE_PARAMETER
-            case 0x02 >> 1: // METHOD_TYPE_PARAMETER
-            case 0x1C >> 1: // METHOD_PARAMETER
-                u += 3;
+            case 0x13: // FIELD
+            case 0x14: // METHOD_RETURN
+            case 0x15: // METHOD_RECEIVER
+                u += 1;
                 break;
-            case 0x10 >> 1: // CLASS_EXTENDS
-            case 0x12 >> 1: // CLASS_TYPE_PARAMETER_BOUND
-            case 0x14 >> 1: // METHOD_TYPE_PARAMETER_BOUND
-            case 0x1E >> 1: // THROWS
-            case 0x86 >> 1: // TYPECAST
-            case 0x88 >> 1: // INSTANCEOF
-            case 0x8A >> 1: // NEW
-                u += 4;
-                break;
-            case 0x80 >> 1: // LOCAL_VARIABLE
-            case 0x82 >> 1: // TODO resource variable type
-                for (int j = readUnsignedShort(u + 2); j > 0; --j) {
-                    int start = readUnsignedShort(u + 4);
-                    int length = readUnsignedShort(u + 6);
+            case 0x40: // LOCAL_VARIABLE
+            case 0x41: // RESOURCE_VARIABLE
+                for (int j = readUnsignedShort(u + 1); j > 0; --j) {
+                    int start = readUnsignedShort(u + 3);
+                    int length = readUnsignedShort(u + 5);
                     readLabel(start, context.labels);
                     readLabel(start + length, context.labels);
                     u += 6;
                 }
+                u += 3;
+                break;
+            case 0x47: // CAST
+            case 0x48: // CONSTRUCTOR_INVOCATION_TYPE_ARGUMENT
+            case 0x49: // METHOD_INVOCATION_TYPE_ARGUMENT
+            case 0x4A: // CONSTRUCTOR_REFERENCE_TYPE_ARGUMENT
+            case 0x4B: // METHOD_REFERENCE_TYPE_ARGUMENT
                 u += 4;
                 break;
-            case 0x84 >> 1: { // TODO exception parameter type
-                target = 0xFF00 | (readUnsignedShort(u + 2) << 8);
-                u += 4;
-                if (path == 0) {
-                    int j = readUnsignedShort(u);
-                    int v = u + 2;
-                    u = v + i;
-                    path = 0xFF << (j * 8);
-                    for (--j; j >= 0; --j) {
-                        path |= readByte(v + j) << (j * 8);
-                    }
-                }
+            // case 0x10: // CLASS_EXTENDS
+            // case 0x11: // CLASS_TYPE_PARAMETER_BOUND
+            // case 0x12: // METHOD_TYPE_PARAMETER_BOUND
+            // case 0x17: // THROWS
+            // case 0x42: // EXCEPTION_PARAMETER
+            // case 0x43: // INSTANCEOF
+            // case 0x44: // NEW
+            // case 0x45: // CONSTRUCTOR_REFERENCE_RECEIVER
+            // case 0x46: // METHOD_REFERENCE_RECEIVER
+            default:
+                u += 3;
+                break;
+            }
+            int pathLength = readByte(u);
+            if ((target >>> 24) == 0x42) {
+                TypePath path = pathLength == 0 ? null : new TypePath(b, u);
+                u += 1 + 2 * pathLength;
                 u = readAnnotationValues(u + 2, c, true,
                         mv.visitTryCatchAnnotation(target, path,
                                 readUTF8(u, c), visible));
-                continue;
+            } else {
+                u = readAnnotationValues(u + 3 + 2 * pathLength, c, true, null);
             }
-            // case 0x8C >> 1: // NEW_TYPE_ARGUMENT
-            // case 0x8E >> 1: // METHOD_TYPE_ARGUMENT
-            default:
-                // skip the offset (2 bytes)
-                u += 5;
-            }
-            u = path == 0 ? u + 2 + readUnsignedShort(u) : u;
-            u = readAnnotationValues(u + 2, c, true, null);
         }
         return offsets;
     }
 
     /**
-     * TODO
+     * Parses the header of a type annotation to extract its target_type and
+     * target_path (the result is stored in the given context), and returns the
+     * start offset of the rest of the type_annotation structure (i.e. the
+     * offset to the type_index field, which is followed by
+     * num_element_value_pairs and then the name,value pairs).
      * 
      * @param context
+     *            information about the class being parsed. This is where the
+     *            extracted target_type and target_path must be stored.
      * @param u
-     * @return
+     *            the start offset of a type_annotation structure.
+     * @return the start offset of the rest of the type_annotation structure.
      */
     private int readAnnotationTarget(final Context context, int u) {
-        int target = readUnsignedShort(u);
-        long path = ((~target) & 0x1) * 0xFF;
-        u += 2;
-        switch (target >> 1) {
-        case 0x00 >> 1: // CLASS_TYPE_PARAMETER
-        case 0x02 >> 1: // METHOD_TYPE_PARAMETER
-            target = 0xFF0000 | (readByte(u) << 8);
+        int target = readInt(u);
+        switch (target >>> 24) {
+        case 0x00: // CLASS_TYPE_PARAMETER
+        case 0x01: // METHOD_TYPE_PARAMETER
+        case 0x16: // METHOD_FORMAL_PARAMETER
+            target &= 0xFFFF0000;
+            u += 2;
+            break;
+        case 0x13: // FIELD
+        case 0x14: // METHOD_RETURN
+        case 0x15: // METHOD_RECEIVER
+            target &= 0xFF000000;
             u += 1;
             break;
-        case 0x10 >> 1: // CLASS_EXTENDS
-            target = readUnsignedShort(u);
-            target = target == 0xFFFF ? 0xFF01 : 0xFF0002 | (target << 8);
-            u += 2;
-            break;
-        case 0x12 >> 1: // CLASS_TYPE_PARAMETER_BOUND
-        case 0x14 >> 1: // METHOD_TYPE_PARAMETER_BOUND
-            target = 0xFF000000 | (readByte(u + 1) << 16) | (readByte(u) << 8);
-            u += 2;
-            break;
-        case 0x16 >> 1: // FIELD
-            target = 0xFF;
-            break;
-        case 0x18 >> 1: // METHOD_RETURN
-            target = 0xFF01;
-            break;
-        case 0x1A >> 1: // METHOD_RECEIVER
-            target = 0xFF02;
-            break;
-        case 0x1C >> 1: // METHOD_PARAMETER
-            target = 0xFF0003 | (readByte(u) << 8);
-            u += 1;
-            break;
-        case 0x1E >> 1: // THROWS
-            target = 0xFF0004 | (readShort(u) << 8);
-            u += 2;
-            break;
-        case 0x80 >> 1: // LOCAL_VARIABLE
-        case 0x82 >> 1: { // TODO resource variable type
-            target = (target >> 1) == (0x80 >> 1) ? 0xFF00 : 0xFF01;
-            int n = readUnsignedShort(u);
+        case 0x40: // LOCAL_VARIABLE
+        case 0x41: { // RESOURCE_VARIABLE
+            target &= 0xFF000000;
+            int n = readUnsignedShort(u + 1);
             context.start = new Label[n];
             context.end = new Label[n];
             context.index = new int[n];
+            u += 3;
             for (int i = 0; i < n; ++i) {
-                int start = readUnsignedShort(u + 2);
-                int length = readUnsignedShort(u + 4);
+                int start = readUnsignedShort(u);
+                int length = readUnsignedShort(u + 2);
                 context.start[i] = readLabel(start, context.labels);
                 context.end[i] = readLabel(start + length, context.labels);
-                context.index[i] = readUnsignedShort(u + 6);
+                context.index[i] = readUnsignedShort(u + 4);
                 u += 6;
             }
-            u += 2;
             break;
         }
-        case 0x84 >> 1: // TODO exception parameter type
-            target = 0xFF00 | readUnsignedShort(u);
-            u += 2;
+        case 0x47: // CAST
+        case 0x48: // CONSTRUCTOR_INVOCATION_TYPE_ARGUMENT
+        case 0x49: // METHOD_INVOCATION_TYPE_ARGUMENT
+        case 0x4A: // CONSTRUCTOR_REFERENCE_TYPE_ARGUMENT
+        case 0x4B: // METHOD_REFERENCE_TYPE_ARGUMENT
+            target &= 0xFF0000FF;
+            u += 4;
             break;
-        case 0x86 >> 1: // TYPECAST
-        case 0x88 >> 1: // INSTANCEOF
-        case 0x8A >> 1: // NEW
-            // skip the offset (2 bytes)
-            target = 0xFF;
-            u += 2;
-            break;
-        // case 0x8C >> 1: // NEW_TYPE_ARGUMENT
-        // case 0x8E >> 1: // METHOD_TYPE_ARGUMENT
+        // case 0x10: // CLASS_EXTENDS
+        // case 0x11: // CLASS_TYPE_PARAMETER_BOUND
+        // case 0x12: // METHOD_TYPE_PARAMETER_BOUND
+        // case 0x17: // THROWS
+        // case 0x42: // EXCEPTION_PARAMETER
+        // case 0x43: // INSTANCEOF
+        // case 0x44: // NEW
+        // case 0x45: // CONSTRUCTOR_REFERENCE_RECEIVER
+        // case 0x46: // METHOD_REFERENCE_RECEIVER
         default:
-            // skip the offset (2 bytes)
-            target = 0xFF00 | readByte(u + 2);
+            target &= (target >>> 24) < 0x43 ? 0xFFFFFF00 : 0xFF000000;
             u += 3;
+            break;
         }
-        if (path == 0) {
-            int i = readUnsignedShort(u);
-            int v = u + 2;
-            u = v + i;
-            path = 0xFF << (i * 8);
-            for (--i; i >= 0; --i) {
-                path |= readByte(v + i) << (i * 8);
-            }
-        }
-        context.target = target;
-        context.path = path;
-        return u;
+        int pathLength = readByte(u);
+        context.typeRef = target;
+        context.typePath = pathLength == 0 ? null : new TypePath(b, u);
+        return u + 1 + 2 * pathLength;
     }
 
     /**

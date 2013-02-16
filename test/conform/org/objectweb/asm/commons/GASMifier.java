@@ -43,6 +43,7 @@ import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
+import org.objectweb.asm.TypePath;
 import org.objectweb.asm.util.ASMifier;
 import org.objectweb.asm.util.Printer;
 import org.objectweb.asm.util.TraceClassVisitor;
@@ -874,13 +875,14 @@ public class GASMifier extends ASMifier implements Opcodes {
     }
 
     @Override
-    public Printer visitLocalVariableAnnotation(int target, long path,
+    public Printer visitLocalVariableAnnotation(int typeRef, TypePath typePath,
             Label[] start, Label[] end, int[] index, String desc,
             boolean visible) {
         buf.setLength(0);
         buf.append("{\n").append("av0 = ").append(name)
                 .append(".getNext().visitLocalVariableAnnotation(");
-        buf.append(target).append(", ").append(path).append(", ");
+        buf.append(typeRef);
+        buf.append(", TypePath.fromString(\"").append(typePath).append("\"), ");
         buf.append("new Label[] {");
         for (int i = 0; i < start.length; ++i) {
             buf.append(i == 0 ? " " : ", ");

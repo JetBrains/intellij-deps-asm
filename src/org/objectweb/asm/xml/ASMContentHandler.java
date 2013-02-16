@@ -42,6 +42,7 @@ import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
+import org.objectweb.asm.TypePath;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
@@ -1211,18 +1212,18 @@ public class ASMContentHandler extends DefaultHandler implements Opcodes {
             String desc = attrs.getValue("desc");
             boolean visible = Boolean.valueOf(attrs.getValue("visible"))
                     .booleanValue();
-            int target = Integer.parseInt(attrs.getValue("target"));
-            long path = Long.parseLong(attrs.getValue("path"));
+            int typeRef = Integer.parseInt(attrs.getValue("typeRef"));
+            TypePath typePath = TypePath.fromString(attrs.getValue("typePath"));
 
             Object v = peek();
             if (v instanceof ClassVisitor) {
-                push(((ClassVisitor) v).visitTypeAnnotation(target, path, desc,
-                        visible));
+                push(((ClassVisitor) v).visitTypeAnnotation(typeRef, typePath,
+                        desc, visible));
             } else if (v instanceof FieldVisitor) {
-                push(((FieldVisitor) v).visitTypeAnnotation(target, path, desc,
-                        visible));
+                push(((FieldVisitor) v).visitTypeAnnotation(typeRef, typePath,
+                        desc, visible));
             } else if (v instanceof MethodVisitor) {
-                push(((MethodVisitor) v).visitTypeAnnotation(target, path,
+                push(((MethodVisitor) v).visitTypeAnnotation(typeRef, typePath,
                         desc, visible));
             }
         }
@@ -1265,10 +1266,10 @@ public class ASMContentHandler extends DefaultHandler implements Opcodes {
             String desc = attrs.getValue("desc");
             boolean visible = Boolean.valueOf(attrs.getValue("visible"))
                     .booleanValue();
-            int target = Integer.parseInt(attrs.getValue("target"));
-            long path = Long.parseLong(attrs.getValue("path"));
-            push(((MethodVisitor) peek()).visitInsnAnnotation(target, path,
-                    desc, visible));
+            int typeRef = Integer.parseInt(attrs.getValue("target"));
+            TypePath typePath = TypePath.fromString(attrs.getValue("path"));
+            push(((MethodVisitor) peek()).visitInsnAnnotation(typeRef,
+                    typePath, desc, visible));
         }
 
         @Override
@@ -1287,10 +1288,10 @@ public class ASMContentHandler extends DefaultHandler implements Opcodes {
             String desc = attrs.getValue("desc");
             boolean visible = Boolean.valueOf(attrs.getValue("visible"))
                     .booleanValue();
-            int target = Integer.parseInt(attrs.getValue("target"));
-            long path = Long.parseLong(attrs.getValue("path"));
-            push(((MethodVisitor) peek()).visitTryCatchAnnotation(target, path,
-                    desc, visible));
+            int typeRef = Integer.parseInt(attrs.getValue("target"));
+            TypePath typePath = TypePath.fromString(attrs.getValue("path"));
+            push(((MethodVisitor) peek()).visitTryCatchAnnotation(typeRef,
+                    typePath, desc, visible));
         }
 
         @Override
@@ -1309,8 +1310,8 @@ public class ASMContentHandler extends DefaultHandler implements Opcodes {
             String desc = attrs.getValue("desc");
             boolean visible = Boolean.valueOf(attrs.getValue("visible"))
                     .booleanValue();
-            int target = Integer.parseInt(attrs.getValue("target"));
-            long path = Long.parseLong(attrs.getValue("path"));
+            int typeRef = Integer.parseInt(attrs.getValue("target"));
+            TypePath typePath = TypePath.fromString(attrs.getValue("path"));
             String[] s = attrs.getValue("start").split(" ");
             Label[] start = new Label[s.length];
             for (int i = 0; i < start.length; ++i) {
@@ -1326,8 +1327,8 @@ public class ASMContentHandler extends DefaultHandler implements Opcodes {
             for (int i = 0; i < index.length; ++i) {
                 index[i] = Integer.parseInt(v[i]);
             }
-            push(((MethodVisitor) peek()).visitLocalVariableAnnotation(target,
-                    path, start, end, index, desc, visible));
+            push(((MethodVisitor) peek()).visitLocalVariableAnnotation(typeRef,
+                    typePath, start, end, index, desc, visible));
         }
 
         @Override

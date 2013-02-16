@@ -79,7 +79,8 @@ public class TypeAnnotations implements Opcodes {
         // targets interface 1, type argument 0
         cv.visitTypeAnnotation(0xFF0102, 0xFF00, "A14", false).visitEnd();
 
-        FieldVisitor fv = cv.visitField(ACC_PUBLIC, "f", "LS;", "LS<TE;TF;>;",
+        FieldVisitor fv = cv.visitField(ACC_PUBLIC, "f", "LS;", 
+                "LMap<LComparable<[[[LObject;>;LList<LDocument;>;>;", //"LS<TE;TF;>;",
                 null);
         av = fv.visitAnnotation("B1", true);
         av.visit("c", "0");

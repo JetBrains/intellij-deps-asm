@@ -136,26 +136,12 @@ public abstract class MethodVisitor {
     /**
      * Visits an annotation on a type in the method signature.
      * 
-     * @param target
-     *            the path to the annotated type within the signature, seen as a
-     *            tree. Path 0,<i>i</i> targets the <i>i</i>-th type parameter,
-     *            path 0,<i>i</i>,<i>j</i> targets the <i>j</i>-th bound of the
-     *            <i>i</i>-th type parameter, path 1 targets the return type,
-     *            path 2 targets the receiver type, path 3,<i>i</i> targets the
-     *            <i>i</i>-th parameter type and path 4,<i>i</i> targets the
-     *            <i>i</i>-th exception type. A path <i>p1</i>,...,<i>pN</i> is
-     *            stored as 0xFF<i>pN</i>...<i>p1</i> with one byte per element.
-     * @param path
+     * @param typeRef
+     *            a reference to the annotated type. See {@link TypeReference}.
+     * @param typePath
      *            the path to the annotated type argument, wildcard bound, array
-     *            element type, or static outer type within the target type,
-     *            seen as a tree. For instance, in <tt>@A Map&lt;@B ? extends @C
-     *        String, @D List&lt;@E Object&gt;&gt;</tt>, A, B, C, D, E have
-     *            paths (), (0), (0,0), (1), (1,0) respectively. In
-     *            <tt>@I String @F
-     *        [] @G [] @H []</tt> F, G, H, I have paths (), (0), (1), (2)
-     *            respectively. In <tt>@M O1.@L O2.@K O3.@J NestedStatic</tt> J,
-     *            K, L, M have paths (), (0), (1), (2) respectively. Paths are
-     *            stored with the same format as in 'target'.
+     *            element type, or static inner type within 'typeRef'. May be
+     *            <tt>null</tt> if the annotation targets 'typeRef' as a whole.
      * @param desc
      *            the class descriptor of the annotation class.
      * @param visible
@@ -163,13 +149,13 @@ public abstract class MethodVisitor {
      * @return a visitor to visit the annotation values, or <tt>null</tt> if
      *         this visitor is not interested in visiting this annotation.
      */
-    public AnnotationVisitor visitTypeAnnotation(int target, long path,
-            String desc, boolean visible) {
+    public AnnotationVisitor visitTypeAnnotation(int typeRef,
+            TypePath typePath, String desc, boolean visible) {
         if (api < Opcodes.ASM5) {
             throw new RuntimeException();
         }
         if (mv != null) {
-            return mv.visitTypeAnnotation(target, path, desc, visible);
+            return mv.visitTypeAnnotation(typeRef, typePath, desc, visible);
         }
         return null;
     }
@@ -610,24 +596,12 @@ public abstract class MethodVisitor {
      * <i>after</i> the annotated instruction. It can be called several times
      * for the same instruction.
      * 
-     * @param target
-     *            the path to the annotated type within the instruction. This
-     *            path is empty, unless the annotation applies to a
-     *            visitMethodInsn, in which case the path contains a single
-     *            element, the index of the annotated type argument in the
-     *            method or constructor call. A path <i>p1</i>,...,<i>pN</i> is
-     *            stored as 0xFF<i>pN</i>...<i>p1</i> with one byte per element.
-     * @param path
+     * @param typeRef
+     *            a reference to the annotated type. See {@link TypeReference}.
+     * @param typePath
      *            the path to the annotated type argument, wildcard bound, array
-     *            element type, or static outer type within the target type,
-     *            seen as a tree. For instance, in <tt>@A Map&lt;@B ? extends @C
-     *        String, @D List&lt;@E Object&gt;&gt;</tt>, A, B, C, D, E have
-     *            paths (), (0), (0,0), (1), (1,0) respectively. In
-     *            <tt>@I String @F
-     *        [] @G [] @H []</tt> F, G, H, I have paths (), (0), (1), (2)
-     *            respectively. In <tt>@M O1.@L O2.@K O3.@J NestedStatic</tt> J,
-     *            K, L, M have paths (), (0), (1), (2) respectively. Paths are
-     *            stored with the same format as in 'target'.
+     *            element type, or static inner type within 'typeRef'. May be
+     *            <tt>null</tt> if the annotation targets 'typeRef' as a whole.
      * @param desc
      *            the class descriptor of the annotation class.
      * @param visible
@@ -635,13 +609,13 @@ public abstract class MethodVisitor {
      * @return a visitor to visit the annotation values, or <tt>null</tt> if
      *         this visitor is not interested in visiting this annotation.
      */
-    public AnnotationVisitor visitInsnAnnotation(int target, long path,
-            String desc, boolean visible) {
+    public AnnotationVisitor visitInsnAnnotation(int typeRef,
+            TypePath typePath, String desc, boolean visible) {
         if (api < Opcodes.ASM5) {
             throw new RuntimeException();
         }
         if (mv != null) {
-            return mv.visitInsnAnnotation(target, path, desc, visible);
+            return mv.visitInsnAnnotation(typeRef, typePath, desc, visible);
         }
         return null;
     }
@@ -680,23 +654,12 @@ public abstract class MethodVisitor {
      * exception handler. It can be called several times for the same exception
      * handler.
      * 
-     * @param target
-     *            the path to the annotated exception handler. This path
-     *            contains a single element, the index of the annotated
-     *            exception handler, in the order they are visited by @link
-     *            #visitTryCatchBlock}. A path <i>p1</i>,...,<i>pN</i> is stored
-     *            as 0xFF<i>pN</i>...<i>p1</i> with one byte per element.
-     * @param path
+     * @param typeRef
+     *            a reference to the annotated type. See {@link TypeReference}.
+     * @param typePath
      *            the path to the annotated type argument, wildcard bound, array
-     *            element type, or static outer type within the target type,
-     *            seen as a tree. For instance, in <tt>@A Map&lt;@B ? extends @C
-     *        String, @D List&lt;@E Object&gt;&gt;</tt>, A, B, C, D, E have
-     *            paths (), (0), (0,0), (1), (1,0) respectively. In
-     *            <tt>@I String @F
-     *        [] @G [] @H []</tt> F, G, H, I have paths (), (0), (1), (2)
-     *            respectively. In <tt>@M O1.@L O2.@K O3.@J NestedStatic</tt> J,
-     *            K, L, M have paths (), (0), (1), (2) respectively. Paths are
-     *            stored with the same format as in 'target'.
+     *            element type, or static inner type within 'typeRef'. May be
+     *            <tt>null</tt> if the annotation targets 'typeRef' as a whole.
      * @param desc
      *            the class descriptor of the annotation class.
      * @param visible
@@ -704,13 +667,13 @@ public abstract class MethodVisitor {
      * @return a visitor to visit the annotation values, or <tt>null</tt> if
      *         this visitor is not interested in visiting this annotation.
      */
-    public AnnotationVisitor visitTryCatchAnnotation(int target, long path,
-            String desc, boolean visible) {
+    public AnnotationVisitor visitTryCatchAnnotation(int typeRef,
+            TypePath typePath, String desc, boolean visible) {
         if (api < Opcodes.ASM5) {
             throw new RuntimeException();
         }
         if (mv != null) {
-            return mv.visitTryCatchAnnotation(target, path, desc, visible);
+            return mv.visitTryCatchAnnotation(typeRef, typePath, desc, visible);
         }
         return null;
     }
@@ -748,23 +711,12 @@ public abstract class MethodVisitor {
     /**
      * Visits an annotation on a local variable type.
      * 
-     * @param target
-     *            the path to the annotated local variable. Path 0 designates a
-     *            local variable, while path 1 indicates a resource variable
-     *            from a try with resource statement. A path
-     *            <i>p1</i>,...,<i>pN</i> is stored as 0xFF<i>pN</i>...<i>p1</i>
-     *            with one byte per element.
-     * @param path
+     * @param typeRef
+     *            a reference to the annotated type. See {@link TypeReference}.
+     * @param typePath
      *            the path to the annotated type argument, wildcard bound, array
-     *            element type, or static outer type within the target type,
-     *            seen as a tree. For instance, in <tt>@A Map&lt;@B ? extends @C
-     *        String, @D List&lt;@E Object&gt;&gt;</tt>, A, B, C, D, E have
-     *            paths (), (0), (0,0), (1), (1,0) respectively. In
-     *            <tt>@I String @F
-     *        [] @G [] @H []</tt> F, G, H, I have paths (), (0), (1), (2)
-     *            respectively. In <tt>@M O1.@L O2.@K O3.@J NestedStatic</tt> J,
-     *            K, L, M have paths (), (0), (1), (2) respectively. Paths are
-     *            stored with the same format as in 'target'.
+     *            element type, or static inner type within 'typeRef'. May be
+     *            <tt>null</tt> if the annotation targets 'typeRef' as a whole.
      * @param start
      *            the fist instructions corresponding to the continuous ranges
      *            that make the scope of this local variable (inclusive).
@@ -782,15 +734,15 @@ public abstract class MethodVisitor {
      * @return a visitor to visit the annotation values, or <tt>null</tt> if
      *         this visitor is not interested in visiting this annotation.
      */
-    public AnnotationVisitor visitLocalVariableAnnotation(int target,
-            long path, Label[] start, Label[] end, int[] index, String desc,
-            boolean visible) {
+    public AnnotationVisitor visitLocalVariableAnnotation(int typeRef,
+            TypePath typePath, Label[] start, Label[] end, int[] index,
+            String desc, boolean visible) {
         if (api < Opcodes.ASM5) {
             throw new RuntimeException();
         }
         if (mv != null) {
-            return mv.visitLocalVariableAnnotation(target, path, start, end,
-                    index, desc, visible);
+            return mv.visitLocalVariableAnnotation(typeRef, typePath, start,
+                    end, index, desc, visible);
         }
         return null;
     }

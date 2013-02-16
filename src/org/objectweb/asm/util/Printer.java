@@ -37,6 +37,7 @@ import org.objectweb.asm.Attribute;
 import org.objectweb.asm.Handle;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.TypePath;
 
 /**
  * An abstract converter from visit events to text.
@@ -178,8 +179,8 @@ public abstract class Printer {
      * Class type annotation. See
      * {@link org.objectweb.asm.ClassVisitor#visitTypeAnnotation}.
      */
-    public Printer visitClassTypeAnnotation(final int target, final long path,
-            final String desc, final boolean visible) {
+    public Printer visitClassTypeAnnotation(final int typeRef,
+            final TypePath typePath, final String desc, final boolean visible) {
         throw new RuntimeException("Must be overriden");
     }
 
@@ -261,8 +262,8 @@ public abstract class Printer {
      * Field type annotation. See
      * {@link org.objectweb.asm.FieldVisitor#visitTypeAnnotation}.
      */
-    public Printer visitFieldTypeAnnotation(final int target, final long path,
-            final String desc, final boolean visible) {
+    public Printer visitFieldTypeAnnotation(final int typeRef,
+            final TypePath typePath, final String desc, final boolean visible) {
         throw new RuntimeException("Must be overriden");
     }
 
@@ -298,8 +299,8 @@ public abstract class Printer {
      * Method type annotation. See
      * {@link org.objectweb.asm.MethodVisitor#visitTypeAnnotation}.
      */
-    public Printer visitMethodTypeAnnotation(final int target, final long path,
-            final String desc, final boolean visible) {
+    public Printer visitMethodTypeAnnotation(final int typeRef,
+            final TypePath typePath, final String desc, final boolean visible) {
         throw new RuntimeException("Must be overriden");
     }
 
@@ -421,8 +422,8 @@ public abstract class Printer {
      * Instruction type annotation. See
      * {@link org.objectweb.asm.MethodVisitor#visitInsnAnnotation}.
      */
-    public Printer visitInsnAnnotation(final int target, final long path,
-            final String desc, final boolean visible) {
+    public Printer visitInsnAnnotation(final int typeRef,
+            final TypePath typePath, final String desc, final boolean visible) {
         throw new RuntimeException("Must be overriden");
     }
 
@@ -437,8 +438,8 @@ public abstract class Printer {
      * Try catch block type annotation. See
      * {@link org.objectweb.asm.MethodVisitor#visitTryCatchAnnotation}.
      */
-    public Printer visitTryCatchAnnotation(final int target, final long path,
-            final String desc, final boolean visible) {
+    public Printer visitTryCatchAnnotation(final int typeRef,
+            final TypePath typePath, final String desc, final boolean visible) {
         throw new RuntimeException("Must be overriden");
     }
 
@@ -454,8 +455,8 @@ public abstract class Printer {
      * Local variable type annotation. See
      * {@link org.objectweb.asm.MethodVisitor#visitTryCatchAnnotation}.
      */
-    public Printer visitLocalVariableAnnotation(final int target,
-            final long path, final Label[] start, final Label[] end,
+    public Printer visitLocalVariableAnnotation(final int typeRef,
+            final TypePath typePath, final Label[] start, final Label[] end,
             final int[] index, final String desc, final boolean visible) {
         throw new RuntimeException("Must be overriden");
     }

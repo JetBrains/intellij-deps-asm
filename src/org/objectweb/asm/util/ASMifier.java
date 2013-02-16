@@ -40,6 +40,7 @@ import org.objectweb.asm.Handle;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
+import org.objectweb.asm.TypePath;
 
 /**
  * A {@link Printer} that prints the ASM code to generate the classes if visits.
@@ -261,9 +262,9 @@ public class ASMifier extends Printer {
     }
 
     @Override
-    public ASMifier visitClassTypeAnnotation(final int target, final long path,
-            final String desc, final boolean visible) {
-        return visitTypeAnnotation(target, path, desc, visible);
+    public ASMifier visitClassTypeAnnotation(final int typeRef,
+            final TypePath typePath, final String desc, final boolean visible) {
+        return visitTypeAnnotation(typeRef, typePath, desc, visible);
     }
 
     @Override
@@ -429,9 +430,9 @@ public class ASMifier extends Printer {
     }
 
     @Override
-    public ASMifier visitFieldTypeAnnotation(final int target, final long path,
-            final String desc, final boolean visible) {
-        return visitTypeAnnotation(target, path, desc, visible);
+    public ASMifier visitFieldTypeAnnotation(final int typeRef,
+            final TypePath typePath, final String desc, final boolean visible) {
+        return visitTypeAnnotation(typeRef, typePath, desc, visible);
     }
 
     @Override
@@ -469,9 +470,9 @@ public class ASMifier extends Printer {
     }
 
     @Override
-    public ASMifier visitMethodTypeAnnotation(final int target,
-            final long path, final String desc, final boolean visible) {
-        return visitTypeAnnotation(target, path, desc, visible);
+    public ASMifier visitMethodTypeAnnotation(final int typeRef,
+            final TypePath typePath, final String desc, final boolean visible) {
+        return visitTypeAnnotation(typeRef, typePath, desc, visible);
     }
 
     @Override
@@ -729,10 +730,10 @@ public class ASMifier extends Printer {
     }
 
     @Override
-    public ASMifier visitInsnAnnotation(final int target, final long path,
-            final String desc, final boolean visible) {
-        return visitTypeAnnotation("visitInsnAnnotation", target, path, desc,
-                visible);
+    public ASMifier visitInsnAnnotation(final int typeRef,
+            final TypePath typePath, final String desc, final boolean visible) {
+        return visitTypeAnnotation("visitInsnAnnotation", typeRef, typePath,
+                desc, visible);
     }
 
     @Override
@@ -755,10 +756,10 @@ public class ASMifier extends Printer {
     }
 
     @Override
-    public ASMifier visitTryCatchAnnotation(final int target, final long path,
-            final String desc, final boolean visible) {
-        return visitTypeAnnotation("visitTryCatchAnnotation", target, path,
-                desc, visible);
+    public ASMifier visitTryCatchAnnotation(final int typeRef,
+            final TypePath typePath, final String desc, final boolean visible) {
+        return visitTypeAnnotation("visitTryCatchAnnotation", typeRef,
+                typePath, desc, visible);
     }
 
     @Override
@@ -781,13 +782,14 @@ public class ASMifier extends Printer {
     }
 
     @Override
-    public Printer visitLocalVariableAnnotation(int target, long path,
+    public Printer visitLocalVariableAnnotation(int typeRef, TypePath typePath,
             Label[] start, Label[] end, int[] index, String desc,
             boolean visible) {
         buf.setLength(0);
         buf.append("{\n").append("av0 = ").append(name)
                 .append(".visitLocalVariableAnnotation(");
-        buf.append(target).append(", ").append(path).append(", ");
+        buf.append(typeRef);
+        buf.append(", TypePath.fromString(\"").append(typePath).append("\"), ");
         buf.append("new Label[] {");
         for (int i = 0; i < start.length; ++i) {
             buf.append(i == 0 ? " " : ", ");
@@ -853,18 +855,19 @@ public class ASMifier extends Printer {
         return a;
     }
 
-    public ASMifier visitTypeAnnotation(final int target, final long path,
-            final String desc, final boolean visible) {
-        return visitTypeAnnotation("visitTypeAnnotation", target, path, desc,
-                visible);
+    public ASMifier visitTypeAnnotation(final int typeRef,
+            final TypePath typePath, final String desc, final boolean visible) {
+        return visitTypeAnnotation("visitTypeAnnotation", typeRef, typePath,
+                desc, visible);
     }
 
-    public ASMifier visitTypeAnnotation(final String method, final int target,
-            final long path, final String desc, final boolean visible) {
+    public ASMifier visitTypeAnnotation(final String method, final int typeRef,
+            final TypePath typePath, final String desc, final boolean visible) {
         buf.setLength(0);
         buf.append("{\n").append("av0 = ").append(name).append(".")
                 .append(method).append("(");
-        buf.append(target).append(", ").append(path).append(", ");
+        buf.append(typeRef);
+        buf.append(", TypePath.fromString(\"").append(typePath).append("\"), ");
         appendConstant(desc);
         buf.append(", ").append(visible).append(");\n");
         text.add(buf.toString());

@@ -42,6 +42,7 @@ import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
+import org.objectweb.asm.TypePath;
 import org.objectweb.asm.signature.SignatureReader;
 import org.objectweb.asm.signature.SignatureVisitor;
 
@@ -100,8 +101,8 @@ public class DependencyVisitor extends ClassVisitor {
     }
 
     @Override
-    public AnnotationVisitor visitTypeAnnotation(final int target,
-            final long path, final String desc, final boolean visible) {
+    public AnnotationVisitor visitTypeAnnotation(final int typeRef,
+            final TypePath typePath, final String desc, final boolean visible) {
         addDesc(desc);
         return new AnnotationDependencyVisitor();
     }
@@ -177,8 +178,9 @@ public class DependencyVisitor extends ClassVisitor {
         }
 
         @Override
-        public AnnotationVisitor visitTypeAnnotation(final int target,
-                final long path, final String desc, final boolean visible) {
+        public AnnotationVisitor visitTypeAnnotation(final int typeRef,
+                final TypePath typePath, final String desc,
+                final boolean visible) {
             addDesc(desc);
             return new AnnotationDependencyVisitor();
         }
@@ -203,8 +205,9 @@ public class DependencyVisitor extends ClassVisitor {
         }
 
         @Override
-        public AnnotationVisitor visitTypeAnnotation(final int target,
-                final long path, final String desc, final boolean visible) {
+        public AnnotationVisitor visitTypeAnnotation(final int typeRef,
+                final TypePath typePath, final String desc,
+                final boolean visible) {
             addDesc(desc);
             return new AnnotationDependencyVisitor();
         }
@@ -256,8 +259,8 @@ public class DependencyVisitor extends ClassVisitor {
         }
 
         @Override
-        public AnnotationVisitor visitInsnAnnotation(int target, long path,
-                String desc, boolean visible) {
+        public AnnotationVisitor visitInsnAnnotation(int typeRef,
+                TypePath typePath, String desc, boolean visible) {
             addDesc(desc);
             return new AnnotationDependencyVisitor();
         }
@@ -270,8 +273,8 @@ public class DependencyVisitor extends ClassVisitor {
         }
 
         @Override
-        public AnnotationVisitor visitLocalVariableAnnotation(int target,
-                long path, Label[] start, Label[] end, int[] index,
+        public AnnotationVisitor visitLocalVariableAnnotation(int typeRef,
+                TypePath typePath, Label[] start, Label[] end, int[] index,
                 String desc, boolean visible) {
             addDesc(desc);
             return new AnnotationDependencyVisitor();
@@ -286,8 +289,8 @@ public class DependencyVisitor extends ClassVisitor {
         }
 
         @Override
-        public AnnotationVisitor visitTryCatchAnnotation(int target, long path,
-                String desc, boolean visible) {
+        public AnnotationVisitor visitTryCatchAnnotation(int typeRef,
+                TypePath typePath, String desc, boolean visible) {
             addDesc(desc);
             return new AnnotationDependencyVisitor();
         }

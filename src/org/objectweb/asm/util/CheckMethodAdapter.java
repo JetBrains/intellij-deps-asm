@@ -46,6 +46,7 @@ import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
+import org.objectweb.asm.TypePath;
 import org.objectweb.asm.tree.MethodNode;
 import org.objectweb.asm.tree.analysis.Analyzer;
 import org.objectweb.asm.tree.analysis.BasicValue;
@@ -470,13 +471,13 @@ public class CheckMethodAdapter extends MethodVisitor {
     }
 
     @Override
-    public AnnotationVisitor visitTypeAnnotation(final int target,
-            final long path, final String desc, final boolean visible) {
+    public AnnotationVisitor visitTypeAnnotation(final int typeRef,
+            final TypePath typePath, final String desc, final boolean visible) {
         checkEndMethod();
         // TODO check target and path
         CheckMethodAdapter.checkDesc(desc, false);
-        return new CheckAnnotationAdapter(super.visitTypeAnnotation(target,
-                path, desc, visible));
+        return new CheckAnnotationAdapter(super.visitTypeAnnotation(typeRef,
+                typePath, desc, visible));
     }
 
     @Override
@@ -809,14 +810,14 @@ public class CheckMethodAdapter extends MethodVisitor {
     }
 
     @Override
-    public AnnotationVisitor visitInsnAnnotation(final int target,
-            final long path, final String desc, final boolean visible) {
+    public AnnotationVisitor visitInsnAnnotation(final int typeRef,
+            final TypePath typePath, final String desc, final boolean visible) {
         checkStartCode();
         checkEndCode();
         // TODO check target and path
         CheckMethodAdapter.checkDesc(desc, false);
-        return new CheckAnnotationAdapter(super.visitInsnAnnotation(target,
-                path, desc, visible));
+        return new CheckAnnotationAdapter(super.visitInsnAnnotation(typeRef,
+                typePath, desc, visible));
     }
 
     @Override
@@ -844,14 +845,14 @@ public class CheckMethodAdapter extends MethodVisitor {
     }
 
     @Override
-    public AnnotationVisitor visitTryCatchAnnotation(final int target,
-            final long path, final String desc, final boolean visible) {
+    public AnnotationVisitor visitTryCatchAnnotation(final int typeRef,
+            final TypePath typePath, final String desc, final boolean visible) {
         checkStartCode();
         checkEndCode();
         // TODO check target and path
         CheckMethodAdapter.checkDesc(desc, false);
-        return new CheckAnnotationAdapter(super.visitTryCatchAnnotation(target,
-                path, desc, visible));
+        return new CheckAnnotationAdapter(super.visitTryCatchAnnotation(
+                typeRef, typePath, desc, visible));
     }
 
     @Override
@@ -875,9 +876,9 @@ public class CheckMethodAdapter extends MethodVisitor {
     }
 
     @Override
-    public AnnotationVisitor visitLocalVariableAnnotation(int target,
-            long path, Label[] start, Label[] end, int[] index, String desc,
-            boolean visible) {
+    public AnnotationVisitor visitLocalVariableAnnotation(int typeRef,
+            TypePath typePath, Label[] start, Label[] end, int[] index,
+            String desc, boolean visible) {
         checkStartCode();
         checkEndCode();
         checkDesc(desc, false);
@@ -897,8 +898,8 @@ public class CheckMethodAdapter extends MethodVisitor {
                         "Invalid start and end labels (end must be greater than start)");
             }
         }
-        return super.visitLocalVariableAnnotation(target, path, start, end,
-                index, desc, visible);
+        return super.visitLocalVariableAnnotation(typeRef, typePath, start,
+                end, index, desc, visible);
     }
 
     @Override

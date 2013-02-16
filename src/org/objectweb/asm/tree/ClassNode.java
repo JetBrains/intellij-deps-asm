@@ -39,6 +39,7 @@ import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.TypePath;
 
 /**
  * A node that represents a class.
@@ -257,9 +258,9 @@ public class ClassNode extends ClassVisitor {
     }
 
     @Override
-    public AnnotationVisitor visitTypeAnnotation(int target, long path,
-            String desc, boolean visible) {
-        TypeAnnotationNode an = new TypeAnnotationNode(target, path, desc);
+    public AnnotationVisitor visitTypeAnnotation(int typeRef,
+            TypePath typePath, String desc, boolean visible) {
+        TypeAnnotationNode an = new TypeAnnotationNode(typeRef, typePath, desc);
         if (visible) {
             if (visibleTypeAnnotations == null) {
                 visibleTypeAnnotations = new ArrayList<TypeAnnotationNode>(1);
@@ -378,14 +379,15 @@ public class ClassNode extends ClassVisitor {
         n = visibleTypeAnnotations == null ? 0 : visibleTypeAnnotations.size();
         for (i = 0; i < n; ++i) {
             TypeAnnotationNode an = visibleTypeAnnotations.get(i);
-            an.accept(cv.visitTypeAnnotation(an.target, an.path, an.desc, true));
+            an.accept(cv.visitTypeAnnotation(an.typeRef, an.typePath, an.desc,
+                    true));
         }
         n = invisibleTypeAnnotations == null ? 0 : invisibleTypeAnnotations
                 .size();
         for (i = 0; i < n; ++i) {
             TypeAnnotationNode an = invisibleTypeAnnotations.get(i);
-            an.accept(cv
-                    .visitTypeAnnotation(an.target, an.path, an.desc, false));
+            an.accept(cv.visitTypeAnnotation(an.typeRef, an.typePath, an.desc,
+                    false));
         }
         n = attrs == null ? 0 : attrs.size();
         for (i = 0; i < n; ++i) {

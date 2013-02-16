@@ -33,6 +33,7 @@ import org.objectweb.asm.AnnotationVisitor;
 import org.objectweb.asm.Attribute;
 import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.TypePath;
 
 /**
  * A {@link FieldVisitor} that prints the fields it visits with a
@@ -63,12 +64,12 @@ public final class TraceFieldVisitor extends FieldVisitor {
     }
 
     @Override
-    public AnnotationVisitor visitTypeAnnotation(int target, long path,
+    public AnnotationVisitor visitTypeAnnotation(int typeRef, TypePath typePath,
             String desc, boolean visible) {
         Printer p = this.p
-                .visitFieldTypeAnnotation(target, path, desc, visible);
+                .visitFieldTypeAnnotation(typeRef, typePath, desc, visible);
         AnnotationVisitor av = fv == null ? null : fv.visitTypeAnnotation(
-                target, path, desc, visible);
+                typeRef, typePath, desc, visible);
         return new TraceAnnotationVisitor(av, p);
     }
 

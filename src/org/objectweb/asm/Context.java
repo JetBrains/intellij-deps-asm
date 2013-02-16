@@ -80,12 +80,12 @@ class Context {
     /**
      * The target of the type annotation currently being parsed.
      */
-    int target;
+    int typeRef;
 
     /**
      * The path of the type annotation currently being parsed.
      */
-    long path;
+    TypePath typePath;
 
     /**
      * The offset of the latest stack map frame that has been parsed.

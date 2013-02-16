@@ -335,12 +335,6 @@ class MethodWriter extends MethodVisitor {
     private int lastCodeOffset;
 
     /**
-     * The type annotation target type corresponding to the last visited
-     * instruction.
-     */
-    private int lastTypeAnnotationTarget;
-
-    /**
      * The runtime visible type annotations of the code. May be <tt>null</tt>.
      */
     private AnnotationWriter ctanns;
@@ -529,39 +523,14 @@ class MethodWriter extends MethodVisitor {
     }
 
     @Override
-    public AnnotationVisitor visitTypeAnnotation(final int target,
-            final long path, final String desc, final boolean visible) {
+    public AnnotationVisitor visitTypeAnnotation(final int typeRef,
+            final TypePath typePath, final String desc, final boolean visible) {
         if (!ClassReader.ANNOTATIONS) {
             return null;
         }
         ByteVector bv = new ByteVector();
         // write target_type and target_info
-        int p1 = (target >> 8) & 0xFF;
-        int p2 = (target >> 16) & 0xFF;
-        int pathBit = (path & 0xFF) != 0xFF ? 1 : 0;
-        switch (target & 0xFF) {
-        case 0:
-            if (p2 == 0xFF) { // METHOD_TYPE_PARAMETER
-                bv.putShort(pathBit).putByte(p1);
-            } else { // METHOD_TYPE_PARAMETER_BOUND
-                bv.putShort(0x12 + pathBit).put11(p1, p2);
-            }
-            break;
-        case 1: // METHOD_RETURN
-            bv.putShort(0x18 + pathBit);
-            break;
-        case 2: // METHOD_RECEIVER
-            bv.putShort(0x1A + pathBit);
-            break;
-        case 3: // METHOD_PARAMETER
-            bv.putShort(0x1C + pathBit).putByte(p1);
-            break;
-        default: // THROWS
-            bv.putShort(0x1E + pathBit).putShort(p1);
-        }
-        if (pathBit != 0) {
-            AnnotationWriter.putLocation(path, bv);
-        }
+        AnnotationWriter.putTarget(typeRef, typePath, bv);
         // write type, and reserve space for values count
         bv.putShort(cw.newUTF8(desc)).putShort(0);
         AnnotationWriter aw = new AnnotationWriter(cw, true, bv, bv,
@@ -726,7 +695,6 @@ class MethodWriter extends MethodVisitor {
     @Override
     public void visitInsn(final int opcode) {
         lastCodeOffset = code.length;
-        lastTypeAnnotationTarget = 0x86; // TYPE_CAST
         // adds the instruction to the bytecode of the method
         code.putByte(opcode);
         // update currentBlock
@@ -753,7 +721,6 @@ class MethodWriter extends MethodVisitor {
     @Override
     public void visitIntInsn(final int opcode, final int operand) {
         lastCodeOffset = code.length;
-        lastTypeAnnotationTarget = 0x86; // TYPE_CAST
         // Label currentBlock = this.currentBlock;
         if (currentBlock != null) {
             if (compute == FRAMES) {
@@ -779,7 +746,6 @@ class MethodWriter extends MethodVisitor {
     @Override
     public void visitVarInsn(final int opcode, final int var) {
         lastCodeOffset = code.length;
-        lastTypeAnnotationTarget = 0x86; // TYPE_CAST
         // Label currentBlock = this.currentBlock;
         if (currentBlock != null) {
             if (compute == FRAMES) {
@@ -839,8 +805,6 @@ class MethodWriter extends MethodVisitor {
     @Override
     public void visitTypeInsn(final int opcode, final String type) {
         lastCodeOffset = code.length;
-        lastTypeAnnotationTarget = opcode == Opcodes.NEW ? 0x8A
-                : (opcode == Opcodes.INSTANCEOF ? 0x88 : 0x86);
         Item i = cw.newClassItem(type);
         // Label currentBlock = this.currentBlock;
         if (currentBlock != null) {
@@ -864,7 +828,6 @@ class MethodWriter extends MethodVisitor {
     public void visitFieldInsn(final int opcode, final String owner,
             final String name, final String desc) {
         lastCodeOffset = code.length;
-        lastTypeAnnotationTarget = 0x86; // TYPE_CAST
         Item i = cw.newFieldItem(owner, name, desc);
         // Label currentBlock = this.currentBlock;
         if (currentBlock != null) {
@@ -904,7 +867,6 @@ class MethodWriter extends MethodVisitor {
     public void visitMethodInsn(final int opcode, final String owner,
             final String name, final String desc) {
         lastCodeOffset = code.length;
-        lastTypeAnnotationTarget = name.equals("<init>") ? 0x8C : 0x8E;
         boolean itf = opcode == Opcodes.INVOKEINTERFACE;
         Item i = cw.newMethodItem(owner, name, desc, itf);
         int argSize = i.intVal;
@@ -958,7 +920,6 @@ class MethodWriter extends MethodVisitor {
     public void visitInvokeDynamicInsn(final String name, final String desc,
             final Handle bsm, final Object... bsmArgs) {
         lastCodeOffset = code.length;
-        lastTypeAnnotationTarget = name.equals("<init>") ? 0x8C : 0x8E;
         Item i = cw.newInvokeDynamicItem(name, desc, bsm, bsmArgs);
         int argSize = i.intVal;
         // Label currentBlock = this.currentBlock;
@@ -999,7 +960,6 @@ class MethodWriter extends MethodVisitor {
     @Override
     public void visitJumpInsn(final int opcode, final Label label) {
         lastCodeOffset = code.length;
-        lastTypeAnnotationTarget = 0x86; // TYPE_CAST
         Label nextInsn = null;
         // Label currentBlock = this.currentBlock;
         if (currentBlock != null) {
@@ -1146,7 +1106,6 @@ class MethodWriter extends MethodVisitor {
     @Override
     public void visitLdcInsn(final Object cst) {
         lastCodeOffset = code.length;
-        lastTypeAnnotationTarget = 0x86; // TYPE_CAST
         Item i = cw.newConstItem(cst);
         // Label currentBlock = this.currentBlock;
         if (currentBlock != null) {
@@ -1181,7 +1140,6 @@ class MethodWriter extends MethodVisitor {
     @Override
     public void visitIincInsn(final int var, final int increment) {
         lastCodeOffset = code.length;
-        lastTypeAnnotationTarget = 0x86; // TYPE_CAST
         if (currentBlock != null) {
             if (compute == FRAMES) {
                 currentBlock.frame.execute(Opcodes.IINC, var, null, null);
@@ -1207,7 +1165,6 @@ class MethodWriter extends MethodVisitor {
     public void visitTableSwitchInsn(final int min, final int max,
             final Label dflt, final Label... labels) {
         lastCodeOffset = code.length;
-        lastTypeAnnotationTarget = 0x86; // TYPE_CAST
         // adds the instruction to the bytecode of the method
         int source = code.length;
         code.putByte(Opcodes.TABLESWITCH);
@@ -1225,7 +1182,6 @@ class MethodWriter extends MethodVisitor {
     public void visitLookupSwitchInsn(final Label dflt, final int[] keys,
             final Label[] labels) {
         lastCodeOffset = code.length;
-        lastTypeAnnotationTarget = 0x86; // TYPE_CAST
         // adds the instruction to the bytecode of the method
         int source = code.length;
         code.putByte(Opcodes.LOOKUPSWITCH);
@@ -1269,7 +1225,6 @@ class MethodWriter extends MethodVisitor {
     @Override
     public void visitMultiANewArrayInsn(final String desc, final int dims) {
         lastCodeOffset = code.length;
-        lastTypeAnnotationTarget = 0x86; // TYPE_CAST
         Item i = cw.newClassItem(desc);
         // Label currentBlock = this.currentBlock;
         if (currentBlock != null) {
@@ -1286,22 +1241,15 @@ class MethodWriter extends MethodVisitor {
     }
 
     @Override
-    public AnnotationVisitor visitInsnAnnotation(int target, long path,
-            String desc, boolean visible) {
+    public AnnotationVisitor visitInsnAnnotation(int typeRef,
+            TypePath typePath, String desc, boolean visible) {
         if (!ClassReader.ANNOTATIONS) {
             return null;
         }
         ByteVector bv = new ByteVector();
         // write target_type and target_info
-        boolean pathBit = (path & 0xFF) != 0xFF;
-        bv.putShort(lastTypeAnnotationTarget + (pathBit ? 1 : 0));
-        bv.putShort(lastCodeOffset);
-        if (lastTypeAnnotationTarget >= 0x8C) {
-            bv.putByte(target & 0xFF);
-        }
-        if (pathBit) {
-            AnnotationWriter.putLocation(path, bv);
-        }
+        typeRef = (typeRef & 0xFF0000FF) | (lastCodeOffset << 8);
+        AnnotationWriter.putTarget(typeRef, typePath, bv);
         // write type, and reserve space for values count
         bv.putShort(cw.newUTF8(desc)).putShort(0);
         AnnotationWriter aw = new AnnotationWriter(cw, true, bv, bv,
@@ -1335,18 +1283,14 @@ class MethodWriter extends MethodVisitor {
     }
 
     @Override
-    public AnnotationVisitor visitTryCatchAnnotation(int target, long path,
-            String desc, boolean visible) {
+    public AnnotationVisitor visitTryCatchAnnotation(int typeRef,
+            TypePath typePath, String desc, boolean visible) {
         if (!ClassReader.ANNOTATIONS) {
             return null;
         }
         ByteVector bv = new ByteVector();
         // write target_type and target_info
-        boolean pathBit = (path & 0xFF) != 0xFF;
-        bv.putShort(0x84 + (pathBit ? 1 : 0)).putShort(target & 0xFF);
-        if (pathBit) {
-            AnnotationWriter.putLocation(path, bv);
-        }
+        AnnotationWriter.putTarget(typeRef, typePath, bv);
         // write type, and reserve space for values count
         bv.putShort(cw.newUTF8(desc)).putShort(0);
         AnnotationWriter aw = new AnnotationWriter(cw, true, bv, bv,
@@ -1394,24 +1338,25 @@ class MethodWriter extends MethodVisitor {
     }
 
     @Override
-    public AnnotationVisitor visitLocalVariableAnnotation(int target,
-            long path, Label[] start, Label[] end, int[] index, String desc,
-            boolean visible) {
+    public AnnotationVisitor visitLocalVariableAnnotation(int typeRef,
+            TypePath typePath, Label[] start, Label[] end, int[] index,
+            String desc, boolean visible) {
         if (!ClassReader.ANNOTATIONS) {
             return null;
         }
         ByteVector bv = new ByteVector();
         // write target_type and target_info
-        boolean pathBit = (path & 0xFF) != 0xFF;
-        int targetType = (target == 0xFF00 ? 0x80 : 0x82) + (pathBit ? 1 : 0);
-        bv.putShort(targetType).putShort(start.length);
+        bv.putByte(typeRef >>> 24).putShort(start.length);
         for (int i = 0; i < start.length; ++i) {
             bv.putShort(start[i].position)
                     .putShort(end[i].position - start[i].position)
                     .putShort(index[i]);
         }
-        if (pathBit) {
-            AnnotationWriter.putLocation(path, bv);
+        if (typePath == null) {
+            bv.putByte(0);
+        } else {
+            int length = typePath.b[typePath.offset] * 2 + 1;
+            bv.putByteArray(typePath.b, typePath.offset, length);
         }
         // write type, and reserve space for values count
         bv.putShort(cw.newUTF8(desc)).putShort(0);

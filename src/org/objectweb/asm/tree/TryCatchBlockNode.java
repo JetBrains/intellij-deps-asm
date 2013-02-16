@@ -113,15 +113,15 @@ public class TryCatchBlockNode {
      *            try catch block nodes.
      */
     public void updateIndex(final int index) {
-        int newTarget = 0xFF | (index << 8);
+        int newTypeRef = 0x42000000 | (index << 8);
         if (visibleTypeAnnotations != null) {
             for (TypeAnnotationNode tan : visibleTypeAnnotations) {
-                tan.target = newTarget;
+                tan.typeRef = newTypeRef;
             }
         }
         if (invisibleTypeAnnotations != null) {
             for (TypeAnnotationNode tan : invisibleTypeAnnotations) {
-                tan.target = newTarget;
+                tan.typeRef = newTypeRef;
             }
         }
     }
@@ -139,15 +139,15 @@ public class TryCatchBlockNode {
                 .size();
         for (int i = 0; i < n; ++i) {
             TypeAnnotationNode an = visibleTypeAnnotations.get(i);
-            an.accept(mv.visitTryCatchAnnotation(an.target, an.path, an.desc,
-                    true));
+            an.accept(mv.visitTryCatchAnnotation(an.typeRef, an.typePath,
+                    an.desc, true));
         }
         n = invisibleTypeAnnotations == null ? 0 : invisibleTypeAnnotations
                 .size();
         for (int i = 0; i < n; ++i) {
             TypeAnnotationNode an = invisibleTypeAnnotations.get(i);
-            an.accept(mv.visitTryCatchAnnotation(an.target, an.path, an.desc,
-                    false));
+            an.accept(mv.visitTryCatchAnnotation(an.typeRef, an.typePath,
+                    an.desc, false));
         }
     }
 }

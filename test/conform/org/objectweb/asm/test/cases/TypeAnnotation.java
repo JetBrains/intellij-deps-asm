@@ -38,6 +38,8 @@ import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
+import org.objectweb.asm.TypePath;
+import org.objectweb.asm.TypeReference;
 
 /**
  * Generates a class with type annotations of all kinds.
@@ -66,28 +68,54 @@ public class TypeAnnotation extends Generator {
         av.visit("b", new Integer(1));
         cv.visitAnnotation("LA2;", false).visitEnd();
         // targets param 0
-        av = cv.visitTypeAnnotation(0xFF0000, 0xFF, "LA3;", true);
+        av = cv.visitTypeAnnotation(
+                TypeReference.newTypeParameterReference(
+                        TypeReference.CLASS_TYPE_PARAMETER, 0).getValue(),
+                null, "LA3;", true);
         av.visitAnnotation("c", "LA4;").visitEnd();
         // targets param 1
-        cv.visitTypeAnnotation(0xFF0100, 0xFF, "LA5;", true).visitEnd();
+        cv.visitTypeAnnotation(
+                TypeReference.newTypeParameterReference(
+                        TypeReference.CLASS_TYPE_PARAMETER, 1).getValue(),
+                null, "LA5;", true).visitEnd();
         // targets param 0, bound 0
-        cv.visitTypeAnnotation(0xFF000000, 0xFF, "LA6;", true).visitEnd();
+        cv.visitTypeAnnotation(
+                TypeReference.newTypeParameterBoundReference(
+                        TypeReference.CLASS_TYPE_PARAMETER_BOUND, 0, 0)
+                        .getValue(), null, "LA6;", true).visitEnd();
         // targets param 1, bound 0
-        cv.visitTypeAnnotation(0xFF000100, 0xFF, "LA7;", true).visitEnd();
+        cv.visitTypeAnnotation(
+                TypeReference.newTypeParameterBoundReference(
+                        TypeReference.CLASS_TYPE_PARAMETER_BOUND, 0, 0)
+                        .getValue(), null, "LA7;", true).visitEnd();
         // targets super class
-        cv.visitTypeAnnotation(0xFF01, 0xFF, "LA8;", true).visitEnd();
+        cv.visitTypeAnnotation(
+                TypeReference.newSuperTypeReference(-1).getValue(), null,
+                "LA8;", true).visitEnd();
         // targets super class, type argument 0
-        cv.visitTypeAnnotation(0xFF01, 0xFF00, "LA9;", true).visitEnd();
+        cv.visitTypeAnnotation(
+                TypeReference.newSuperTypeReference(-1).getValue(),
+                TypePath.fromString("0"), "LA9;", true).visitEnd();
         // targets super class, type argument 1
-        cv.visitTypeAnnotation(0xFF01, 0xFF11, "LA10;", true).visitEnd();
+        cv.visitTypeAnnotation(
+                TypeReference.newSuperTypeReference(-1).getValue(),
+                TypePath.fromString("1"), "LA10;", true).visitEnd();
         // targets interface 0
-        cv.visitTypeAnnotation(0xFF0002, 0xFF, "LA11;", true).visitEnd();
+        cv.visitTypeAnnotation(
+                TypeReference.newSuperTypeReference(0).getValue(), null,
+                "LA11;", true).visitEnd();
         // targets interface 0, type argument 0
-        cv.visitTypeAnnotation(0xFF0002, 0xFF00, "LA12;", true).visitEnd();
+        cv.visitTypeAnnotation(
+                TypeReference.newSuperTypeReference(0).getValue(),
+                TypePath.fromString("0"), "LA12;", true).visitEnd();
         // targets interface 1
-        cv.visitTypeAnnotation(0xFF0102, 0xFF, "LA13;", true).visitEnd();
+        cv.visitTypeAnnotation(
+                TypeReference.newSuperTypeReference(1).getValue(), null,
+                "LA13;", true).visitEnd();
         // targets interface 1, type argument 0
-        cv.visitTypeAnnotation(0xFF0102, 0xFF00, "LA14;", false).visitEnd();
+        cv.visitTypeAnnotation(
+                TypeReference.newSuperTypeReference(1).getValue(),
+                TypePath.fromString("0"), "LA14;", false).visitEnd();
 
         FieldVisitor fv = cv.visitField(ACC_PUBLIC, "f", "Lpkg/S;",
                 "Lpkg/S<TE;TF;>;", null);
@@ -96,9 +124,13 @@ public class TypeAnnotation extends Generator {
         av.visit("d", new Integer(1));
         fv.visitAnnotation("LB2;", false).visitEnd();
         // targets type argument 0
-        fv.visitTypeAnnotation(0xFF, 0xFF00, "LB3;", true).visitEnd();
+        fv.visitTypeAnnotation(
+                TypeReference.newTypeReference(TypeReference.FIELD).getValue(),
+                TypePath.fromString("0"), "LB3;", true).visitEnd();
         // targets type argument 1
-        fv.visitTypeAnnotation(0xFF, 0xFF01, "LB4;", false).visitEnd();
+        fv.visitTypeAnnotation(
+                TypeReference.newTypeReference(TypeReference.FIELD).getValue(),
+                TypePath.fromString("1"), "LB4;", false).visitEnd();
         fv.visitEnd();
 
         String signature = "<E:Lpkg/X;F:Lpkg/Y;>(TE;TF;Lpkg/Z<+TE;+TF;>;)Lpkg/Z<+TE;+TF;>;^Lpkg/E1<TX;>;^Lpkg/E2<TY;>;";
@@ -110,40 +142,78 @@ public class TypeAnnotation extends Generator {
         av.visit("f", new Integer(1));
         mv.visitAnnotation("LC2;", false).visitEnd();
         // targets param 0
-        av = mv.visitTypeAnnotation(0xFF0000, 0xFF, "LC3;", true);
+        av = mv.visitTypeAnnotation(
+                TypeReference.newTypeParameterReference(
+                        TypeReference.METHOD_TYPE_PARAMETER, 0).getValue(),
+                null, "LC3;", true);
         av.visitAnnotation("c", "LC4;").visitEnd();
         // targets param 1
-        mv.visitTypeAnnotation(0xFF0100, 0xFF, "LC5;", true).visitEnd();
+        mv.visitTypeAnnotation(
+                TypeReference.newTypeParameterReference(
+                        TypeReference.METHOD_TYPE_PARAMETER, 1).getValue(),
+                null, "LC5;", true).visitEnd();
         // targets param 0, bound 0
-        mv.visitTypeAnnotation(0xFF000000, 0xFF, "LC6;", true).visitEnd();
+        mv.visitTypeAnnotation(
+                TypeReference.newTypeParameterBoundReference(
+                        TypeReference.METHOD_TYPE_PARAMETER_BOUND, 0, 0)
+                        .getValue(), null, "LC6;", true).visitEnd();
         // targets param 1, bound 0
-        mv.visitTypeAnnotation(0xFF000100, 0xFF, "LC7;", true).visitEnd();
+        mv.visitTypeAnnotation(
+                TypeReference.newTypeParameterBoundReference(
+                        TypeReference.METHOD_TYPE_PARAMETER_BOUND, 1, 0)
+                        .getValue(), null, "LC7;", true).visitEnd();
         // targets return type
-        mv.visitTypeAnnotation(0xFF01, 0xFF, "LC8;", true).visitEnd();
+        mv.visitTypeAnnotation(
+                TypeReference.newTypeReference(TypeReference.METHOD_RETURN)
+                        .getValue(), null, "LC8;", true).visitEnd();
         // targets return type, type argument 0
-        mv.visitTypeAnnotation(0xFF01, 0xFF00, "LC9;", true).visitEnd();
+        mv.visitTypeAnnotation(
+                TypeReference.newTypeReference(TypeReference.METHOD_RETURN)
+                        .getValue(), TypePath.fromString("0"), "LC9;", true)
+                .visitEnd();
         // targets return type, type argument 1
-        mv.visitTypeAnnotation(0xFF01, 0xFF11, "LC10;", true).visitEnd();
+        mv.visitTypeAnnotation(
+                TypeReference.newTypeReference(TypeReference.METHOD_RETURN)
+                        .getValue(), TypePath.fromString("1"), "LC10;", true)
+                .visitEnd();
         // no receiver type (static method)
         //
         // targets parameter 0
-        mv.visitTypeAnnotation(0xFF0003, 0xFF, "LC11;", true).visitEnd();
+        mv.visitTypeAnnotation(
+                TypeReference.newFormalParameterReference(0).getValue(), null,
+                "LC11;", true).visitEnd();
         // targets parameter 1
-        mv.visitTypeAnnotation(0xFF0103, 0xFF, "LC12;", true).visitEnd();
+        mv.visitTypeAnnotation(
+                TypeReference.newFormalParameterReference(1).getValue(), null,
+                "LC12;", true).visitEnd();
         // targets parameter 2
-        mv.visitTypeAnnotation(0xFF0203, 0xFF, "LC13;", true).visitEnd();
+        mv.visitTypeAnnotation(
+                TypeReference.newFormalParameterReference(2).getValue(), null,
+                "LC13;", true).visitEnd();
         // targets parameter 2, type argument 0
-        mv.visitTypeAnnotation(0xFF0203, 0xFF00, "LC14;", true).visitEnd();
+        mv.visitTypeAnnotation(
+                TypeReference.newFormalParameterReference(2).getValue(),
+                TypePath.fromString("0"), "LC14;", true).visitEnd();
         // targets parameter 2, type argument 1
-        mv.visitTypeAnnotation(0xFF0203, 0xFF01, "LC15;", true).visitEnd();
+        mv.visitTypeAnnotation(
+                TypeReference.newFormalParameterReference(2).getValue(),
+                TypePath.fromString("1"), "LC15;", true).visitEnd();
         // targets exception 0
-        mv.visitTypeAnnotation(0xFF0004, 0xFF, "LC16;", true).visitEnd();
+        mv.visitTypeAnnotation(
+                TypeReference.newExceptionReference(0).getValue(), null,
+                "LC16;", true).visitEnd();
         // targets exception 1
-        mv.visitTypeAnnotation(0xFF0104, 0xFF, "LC17;", true).visitEnd();
+        mv.visitTypeAnnotation(
+                TypeReference.newExceptionReference(1).getValue(), null,
+                "LC17;", true).visitEnd();
         // targets exception 0, type argument 0
-        mv.visitTypeAnnotation(0xFF0004, 0xFF00, "LC18;", true).visitEnd();
+        mv.visitTypeAnnotation(
+                TypeReference.newExceptionReference(0).getValue(),
+                TypePath.fromString("0"), "LC18;", true).visitEnd();
         // targets exception 1, type argument 1
-        mv.visitTypeAnnotation(0xFF0104, 0xFF01, "LC19;", false).visitEnd();
+        mv.visitTypeAnnotation(
+                TypeReference.newExceptionReference(1).getValue(),
+                TypePath.fromString("1"), "LC19;", false).visitEnd();
         mv.visitCode();
         Label l0 = new Label();
         Label l1 = new Label();
@@ -156,9 +226,13 @@ public class TypeAnnotation extends Generator {
         mv.visitTryCatchBlock(l2, l3, l7, "pkg/E1");
         mv.visitTryCatchBlock(l5, l6, l7, "pkg/E2");
         // targets try catch block 0
-        mv.visitTryCatchAnnotation(0xFF00, 0xFF, "LC20;", true).visitEnd();
+        mv.visitTryCatchAnnotation(
+                TypeReference.newTryCatchReference(0).getValue(), null,
+                "LC20;", true).visitEnd();
         // targets try catch block 1
-        mv.visitTryCatchAnnotation(0xFF00, 0xFF, "LC21;", false).visitEnd();
+        mv.visitTryCatchAnnotation(
+                TypeReference.newTryCatchReference(1).getValue(), null,
+                "LC21;", false).visitEnd();
         mv.visitVarInsn(ALOAD, 0);
         mv.visitLabel(l0);
         mv.visitVarInsn(ASTORE, 3);
@@ -177,12 +251,16 @@ public class TypeAnnotation extends Generator {
         mv.visitLabel(l4);
         mv.visitVarInsn(ASTORE, 3);
         // targets the astore instruction
-        av = mv.visitInsnAnnotation(0xFF, 0xFF, "LC22;", true);
+        av = mv.visitInsnAnnotation(
+                TypeReference.newTypeArgumentReference(TypeReference.CAST, 0)
+                        .getValue(), null, "LC22;", true);
         av.visit("g", "0");
         av.visit("h", new Integer(1));
         av.visitEnd();
         // targets the astore instruction
-        mv.visitInsnAnnotation(0xFF, 0xFF, "LC23;", false).visitEnd();
+        mv.visitInsnAnnotation(
+                TypeReference.newTypeArgumentReference(TypeReference.CAST, 0)
+                        .getValue(), null, "LC23;", false).visitEnd();
         mv.visitInsn(NOP);
         mv.visitInsn(NOP);
         mv.visitInsn(NOP);
@@ -193,7 +271,9 @@ public class TypeAnnotation extends Generator {
         mv.visitLabel(l7);
         mv.visitVarInsn(ASTORE, 4);
         // targets the astore instruction
-        mv.visitInsnAnnotation(0xFF, 0xFF, "LC24;", true).visitEnd();
+        mv.visitInsnAnnotation(
+                TypeReference.newTypeArgumentReference(TypeReference.CAST, 0)
+                        .getValue(), null, "LC24;", true).visitEnd();
         mv.visitInsn(ACONST_NULL);
         mv.visitInsn(ARETURN);
         mv.visitLocalVariable("a", "Lpkg/X;", "TE;", l0, l1, 3);
@@ -201,21 +281,30 @@ public class TypeAnnotation extends Generator {
         mv.visitLocalVariable("a", "Lpkg/X;", "TE;", l4, l5, 3);
         mv.visitLocalVariable("a", "Lpkg/X;", "TE;", l0, l1, 3);
         // targets local variable a
-        av = mv.visitLocalVariableAnnotation(0xFF00, 0xFF,
-                new Label[] { l0, l4 }, new Label[] { l1, l5 }, new int[] { 3,
-                        3 }, "LD0;", true);
+        av = mv.visitLocalVariableAnnotation(
+                TypeReference.newTypeReference(TypeReference.LOCAL_VARIABLE)
+                        .getValue(), null, new Label[] { l0, l4 }, new Label[] {
+                        l1, l5 }, new int[] { 3, 3 }, "LD0;", true);
         av.visit("i", "0");
         av.visit("j", new Integer(1));
         av.visitEnd();
         // targets local variable b
-        mv.visitLocalVariableAnnotation(0xFF00, 0xFF, new Label[] { l2 },
+        mv.visitLocalVariableAnnotation(
+                TypeReference.newTypeReference(TypeReference.LOCAL_VARIABLE)
+                        .getValue(), null, new Label[] { l2 },
                 new Label[] { l3 }, new int[] { 3 }, "LC25;", true).visitEnd();
         // targets local variable b, type argument 0
-        mv.visitLocalVariableAnnotation(0xFF00, 0xFF00, new Label[] { l2 },
-                new Label[] { l3 }, new int[] { 3 }, "LC26;", true).visitEnd();
+        mv.visitLocalVariableAnnotation(
+                TypeReference.newTypeReference(TypeReference.LOCAL_VARIABLE)
+                        .getValue(), TypePath.fromString("0"),
+                new Label[] { l2 }, new Label[] { l3 }, new int[] { 3 },
+                "LC26;", true).visitEnd();
         // targets local variable b, type argument 1
-        mv.visitLocalVariableAnnotation(0xFF00, 0xFF01, new Label[] { l2 },
-                new Label[] { l3 }, new int[] { 3 }, "LC27;", false).visitEnd();
+        mv.visitLocalVariableAnnotation(
+                TypeReference.newTypeReference(TypeReference.LOCAL_VARIABLE)
+                        .getValue(), TypePath.fromString("1"),
+                new Label[] { l2 }, new Label[] { l3 }, new int[] { 3 },
+                "LC27;", false).visitEnd();
         mv.visitMaxs(1, 5);
         mv.visitEnd();
         cv.visitEnd();

@@ -36,6 +36,7 @@ import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
+import org.objectweb.asm.TypePath;
 import org.objectweb.asm.commons.Remapper;
 import org.objectweb.asm.commons.RemappingMethodAdapter;
 
@@ -72,8 +73,8 @@ public class MethodOptimizer extends RemappingMethodAdapter implements Opcodes {
     }
 
     @Override
-    public AnnotationVisitor visitTypeAnnotation(int target, long path,
-            String desc, boolean visible) {
+    public AnnotationVisitor visitTypeAnnotation(int typeRef,
+            TypePath typePath, String desc, boolean visible) {
         return null;
     }
 

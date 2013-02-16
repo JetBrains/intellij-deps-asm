@@ -36,6 +36,7 @@ import java.util.List;
 
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
+import org.objectweb.asm.TypePath;
 
 /**
  * TODO
@@ -62,9 +63,9 @@ public class LocalVariableAnnotationNode extends TypeAnnotationNode {
     /**
      * TODO
      */
-    public LocalVariableAnnotationNode(int target, long path,
+    public LocalVariableAnnotationNode(int typeRef, TypePath typePath,
             LabelNode[] start, LabelNode[] end, int[] index, String desc) {
-        super(target, path, desc);
+        super(typeRef, typePath, desc);
         this.start = new ArrayList<LabelNode>(start.length);
         this.start.addAll(Arrays.asList(start));
         this.end = new ArrayList<LabelNode>(end.length);
@@ -87,7 +88,7 @@ public class LocalVariableAnnotationNode extends TypeAnnotationNode {
             end[i] = this.end.get(i).getLabel();
             index[i] = this.index.get(i);
         }
-        accept(mv.visitLocalVariableAnnotation(target, path, start, end, index,
-                desc, true));
+        accept(mv.visitLocalVariableAnnotation(typeRef, typePath, start, end,
+                index, desc, true));
     }
 }

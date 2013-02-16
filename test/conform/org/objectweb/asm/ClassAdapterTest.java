@@ -58,10 +58,10 @@ public class ClassAdapterTest extends AbstractTest {
             }
 
             @Override
-            public AnnotationVisitor visitTypeAnnotation(int target, long path,
-                    String desc, boolean visible) {
-                return new AnnotationAdapter(super.visitTypeAnnotation(target,
-                        path, desc, visible));
+            public AnnotationVisitor visitTypeAnnotation(int typeRef,
+                    TypePath typePath, String desc, boolean visible) {
+                return new AnnotationAdapter(super.visitTypeAnnotation(typeRef,
+                        typePath, desc, visible));
             }
 
             @Override
@@ -77,10 +77,10 @@ public class ClassAdapterTest extends AbstractTest {
                     }
 
                     @Override
-                    public AnnotationVisitor visitTypeAnnotation(int target,
-                            long path, String desc, boolean visible) {
+                    public AnnotationVisitor visitTypeAnnotation(int typeRef,
+                            TypePath typePath, String desc, boolean visible) {
                         return new AnnotationAdapter(super.visitTypeAnnotation(
-                                target, path, desc, visible));
+                                typeRef, typePath, desc, visible));
                     }
                 };
             }
@@ -104,10 +104,10 @@ public class ClassAdapterTest extends AbstractTest {
                     }
 
                     @Override
-                    public AnnotationVisitor visitTypeAnnotation(int target,
-                            long path, String desc, boolean visible) {
+                    public AnnotationVisitor visitTypeAnnotation(int typeRef,
+                            TypePath typePath, String desc, boolean visible) {
                         return new AnnotationAdapter(super.visitTypeAnnotation(
-                                target, path, desc, visible));
+                                typeRef, typePath, desc, visible));
                     }
 
                     @Override
@@ -119,27 +119,30 @@ public class ClassAdapterTest extends AbstractTest {
                     }
 
                     @Override
-                    public AnnotationVisitor visitInsnAnnotation(int target,
-                            long path, String desc, boolean visible) {
+                    public AnnotationVisitor visitInsnAnnotation(int typeRef,
+                            TypePath typePath, String desc, boolean visible) {
                         return new AnnotationAdapter(super.visitInsnAnnotation(
-                                target, path, desc, visible));
+                                typeRef, typePath, desc, visible));
                     }
 
                     @Override
                     public AnnotationVisitor visitTryCatchAnnotation(
-                            int target, long path, String desc, boolean visible) {
+                            int typeRef, TypePath typePath, String desc,
+                            boolean visible) {
                         return new AnnotationAdapter(super
-                                .visitTryCatchAnnotation(target, path, desc,
-                                        visible));
+                                .visitTryCatchAnnotation(typeRef, typePath,
+                                        desc, visible));
                     }
 
                     @Override
                     public AnnotationVisitor visitLocalVariableAnnotation(
-                            int target, long path, Label[] start, Label[] end,
-                            int[] index, String desc, boolean visible) {
+                            int typeRef, TypePath typePath, Label[] start,
+                            Label[] end, int[] index, String desc,
+                            boolean visible) {
                         return new AnnotationAdapter(super
-                                .visitLocalVariableAnnotation(target, path,
-                                        start, end, index, desc, visible));
+                                .visitLocalVariableAnnotation(typeRef,
+                                        typePath, start, end, index, desc,
+                                        visible));
                     }
                 };
             }

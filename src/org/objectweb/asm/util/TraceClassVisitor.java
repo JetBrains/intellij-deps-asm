@@ -37,6 +37,7 @@ import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.TypePath;
 
 /**
  * A {@link ClassVisitor} that prints the classes it visits with a
@@ -166,12 +167,12 @@ public final class TraceClassVisitor extends ClassVisitor {
     }
 
     @Override
-    public AnnotationVisitor visitTypeAnnotation(int target, long path,
-            String desc, boolean visible) {
-        Printer p = this.p
-                .visitClassTypeAnnotation(target, path, desc, visible);
+    public AnnotationVisitor visitTypeAnnotation(int typeRef,
+            TypePath typePath, String desc, boolean visible) {
+        Printer p = this.p.visitClassTypeAnnotation(typeRef, typePath, desc,
+                visible);
         AnnotationVisitor av = cv == null ? null : cv.visitTypeAnnotation(
-                target, path, desc, visible);
+                typeRef, typePath, desc, visible);
         return new TraceAnnotationVisitor(av, p);
     }
 

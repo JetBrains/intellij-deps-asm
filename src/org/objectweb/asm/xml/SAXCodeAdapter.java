@@ -38,6 +38,7 @@ import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
+import org.objectweb.asm.TypePath;
 import org.objectweb.asm.util.Printer;
 import org.xml.sax.helpers.AttributesImpl;
 
@@ -339,10 +340,10 @@ public final class SAXCodeAdapter extends MethodVisitor {
     }
 
     @Override
-    public AnnotationVisitor visitTypeAnnotation(int target, long path,
-            String desc, boolean visible) {
+    public AnnotationVisitor visitTypeAnnotation(int typeRef,
+            TypePath typePath, String desc, boolean visible) {
         return new SAXAnnotationAdapter(sa, "typeAnnotation", visible ? 1 : -1,
-                null, desc, target, path);
+                null, desc, typeRef, typePath);
     }
 
     @Override
@@ -353,23 +354,23 @@ public final class SAXCodeAdapter extends MethodVisitor {
     }
 
     @Override
-    public AnnotationVisitor visitInsnAnnotation(int target, long path,
-            String desc, boolean visible) {
+    public AnnotationVisitor visitInsnAnnotation(int typeRef,
+            TypePath typePath, String desc, boolean visible) {
         return new SAXAnnotationAdapter(sa, "insnAnnotation", visible ? 1 : -1,
-                null, desc, target, path);
+                null, desc, typeRef, typePath);
     }
 
     @Override
-    public AnnotationVisitor visitTryCatchAnnotation(int target, long path,
-            String desc, boolean visible) {
+    public AnnotationVisitor visitTryCatchAnnotation(int typeRef,
+            TypePath typePath, String desc, boolean visible) {
         return new SAXAnnotationAdapter(sa, "tryCatchAnnotation", visible ? 1
-                : -1, null, desc, target, path);
+                : -1, null, desc, typeRef, typePath);
     }
 
     @Override
-    public AnnotationVisitor visitLocalVariableAnnotation(int target,
-            long path, Label[] start, Label[] end, int[] index, String desc,
-            boolean visible) {
+    public AnnotationVisitor visitLocalVariableAnnotation(int typeRef,
+            TypePath typePath, Label[] start, Label[] end, int[] index,
+            String desc, boolean visible) {
         String[] s = new String[start.length];
         String[] e = new String[end.length];
         for (int i = 0; i < s.length; ++i) {
@@ -379,7 +380,7 @@ public final class SAXCodeAdapter extends MethodVisitor {
             e[i] = getLabel(end[i]);
         }
         return new SAXAnnotationAdapter(sa, "localVariableAnnotation",
-                visible ? 1 : -1, null, desc, target, path, s, e, index);
+                visible ? 1 : -1, null, desc, typeRef, typePath, s, e, index);
     }
 
     @Override

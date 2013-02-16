@@ -33,6 +33,7 @@ import org.objectweb.asm.AnnotationVisitor;
 import org.objectweb.asm.Attribute;
 import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.TypePath;
 
 /**
  * A {@link FieldVisitor} that checks that its methods are properly used.
@@ -75,13 +76,13 @@ public class CheckFieldAdapter extends FieldVisitor {
     }
 
     @Override
-    public AnnotationVisitor visitTypeAnnotation(final int target,
-            final long path, final String desc, final boolean visible) {
+    public AnnotationVisitor visitTypeAnnotation(final int typeRef,
+            final TypePath typePath, final String desc, final boolean visible) {
         checkEnd();
         // TODO check target and path
         CheckMethodAdapter.checkDesc(desc, false);
-        return new CheckAnnotationAdapter(super.visitTypeAnnotation(target,
-                path, desc, visible));
+        return new CheckAnnotationAdapter(super.visitTypeAnnotation(typeRef,
+                typePath, desc, visible));
     }
 
     @Override

@@ -32,6 +32,7 @@ package org.objectweb.asm.xml;
 import org.objectweb.asm.AnnotationVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
+import org.objectweb.asm.TypePath;
 import org.xml.sax.helpers.AttributesImpl;
 
 /**
@@ -47,42 +48,42 @@ public final class SAXAnnotationAdapter extends AnnotationVisitor {
 
     public SAXAnnotationAdapter(final SAXAdapter sa, final String elementName,
             final int visible, final String name, final String desc) {
-        this(Opcodes.ASM5, sa, elementName, visible, desc, name, -1, -1, -1,
+        this(Opcodes.ASM5, sa, elementName, visible, desc, name, -1, -1, null,
                 null, null, null);
     }
 
     public SAXAnnotationAdapter(final SAXAdapter sa, final String elementName,
             final int visible, final int parameter, final String desc) {
         this(Opcodes.ASM5, sa, elementName, visible, desc, null, parameter, -1,
-                -1, null, null, null);
+                null, null, null, null);
     }
 
     public SAXAnnotationAdapter(final SAXAdapter sa, final String elementName,
             final int visible, final String name, final String desc,
-            final int target, final long path) {
-        this(Opcodes.ASM5, sa, elementName, visible, desc, name, -1, target,
-                path, null, null, null);
+            final int typeRef, final TypePath typePath) {
+        this(Opcodes.ASM5, sa, elementName, visible, desc, name, -1, typeRef,
+                typePath, null, null, null);
     }
 
     public SAXAnnotationAdapter(final SAXAdapter sa, final String elementName,
             final int visible, final String name, final String desc,
-            int target, long path, final String[] start, final String[] end,
-            final int[] index) {
-        this(Opcodes.ASM5, sa, elementName, visible, desc, name, -1, target,
-                path, start, end, index);
+            int typeRef, TypePath typePath, final String[] start,
+            final String[] end, final int[] index) {
+        this(Opcodes.ASM5, sa, elementName, visible, desc, name, -1, typeRef,
+                typePath, start, end, index);
     }
 
     protected SAXAnnotationAdapter(final int api, final SAXAdapter sa,
             final String elementName, final int visible, final String desc,
             final String name, final int parameter) {
-        this(api, sa, elementName, visible, desc, name, parameter, -1, -1,
+        this(api, sa, elementName, visible, desc, name, parameter, -1, null,
                 null, null, null);
     }
 
     protected SAXAnnotationAdapter(final int api, final SAXAdapter sa,
             final String elementName, final int visible, final String desc,
-            final String name, final int parameter, final int target,
-            final long path, final String[] start, final String[] end,
+            final String name, final int parameter, final int typeRef,
+            final TypePath typePath, final String[] start, final String[] end,
             final int[] index) {
         super(api);
         this.sa = sa;
@@ -103,12 +104,13 @@ public final class SAXAnnotationAdapter extends AnnotationVisitor {
         if (desc != null) {
             att.addAttribute("", "desc", "desc", "", desc);
         }
-        if (target != -1) {
-            att.addAttribute("", "target", "target", "",
-                    Integer.toString(target));
+        if (typeRef != -1) {
+            att.addAttribute("", "typeRef", "typeRef", "",
+                    Integer.toString(typeRef));
         }
-        if (path != -1) {
-            att.addAttribute("", "path", "path", "", Long.toString(path));
+        if (typePath != null) {
+            att.addAttribute("", "typePath", "typePath", "",
+                    typePath.toString());
         }
         if (start != null) {
             String value = start[0];

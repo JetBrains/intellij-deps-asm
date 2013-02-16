@@ -99,19 +99,12 @@ public abstract class FieldVisitor {
     /**
      * Visits an annotation on the type of the field.
      * 
-     * @param target
-     *            unused.
-     * @param path
+     * @param typeRef
+     *            a reference to the annotated type. See {@link TypeReference}.
+     * @param typePath
      *            the path to the annotated type argument, wildcard bound, array
-     *            element type, or static outer type within the field type, seen
-     *            as a tree. For instance, in <tt>@A Map&lt;@B ? extends @C
-     *        String, @D List&lt;@E Object&gt;&gt;</tt>, A, B, C, D, E have
-     *            paths (), (0), (0,0), (1), (1,0) respectively. In
-     *            <tt>@I String @F
-     *        [] @G [] @H []</tt> F, G, H, I have paths (), (0), (1), (2)
-     *            respectively. In <tt>@M O1.@L O2.@K O3.@J NestedStatic</tt> J,
-     *            K, L, M have paths (), (0), (1), (2) respectively. Paths are
-     *            stored
+     *            element type, or static inner type within 'typeRef'. May be
+     *            <tt>null</tt> if the annotation targets 'typeRef' as a whole.
      * @param desc
      *            the class descriptor of the annotation class.
      * @param visible
@@ -119,13 +112,13 @@ public abstract class FieldVisitor {
      * @return a visitor to visit the annotation values, or <tt>null</tt> if
      *         this visitor is not interested in visiting this annotation.
      */
-    public AnnotationVisitor visitTypeAnnotation(int target, long path,
-            String desc, boolean visible) {
+    public AnnotationVisitor visitTypeAnnotation(int typeRef,
+            TypePath typePath, String desc, boolean visible) {
         if (api < Opcodes.ASM5) {
             throw new RuntimeException();
         }
         if (fv != null) {
-            return fv.visitTypeAnnotation(target, path, desc, visible);
+            return fv.visitTypeAnnotation(typeRef, typePath, desc, visible);
         }
         return null;
     }

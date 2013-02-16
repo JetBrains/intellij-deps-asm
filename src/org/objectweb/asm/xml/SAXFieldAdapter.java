@@ -32,6 +32,7 @@ package org.objectweb.asm.xml;
 import org.objectweb.asm.AnnotationVisitor;
 import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.TypePath;
 import org.xml.sax.Attributes;
 
 /**
@@ -57,10 +58,10 @@ public final class SAXFieldAdapter extends FieldVisitor {
     }
 
     @Override
-    public AnnotationVisitor visitTypeAnnotation(int target, long path,
-            String desc, boolean visible) {
+    public AnnotationVisitor visitTypeAnnotation(int typeRef,
+            TypePath typePath, String desc, boolean visible) {
         return new SAXAnnotationAdapter(sa, "typeAnnotation", visible ? 1 : -1,
-                null, desc, target, path);
+                null, desc, typeRef, typePath);
     }
 
     @Override

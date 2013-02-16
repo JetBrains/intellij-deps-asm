@@ -37,6 +37,7 @@ import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.TypePath;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.AttributesImpl;
 
@@ -78,8 +79,8 @@ public class ASMContentHandlerUnitTest extends TestCase implements Opcodes {
             }
 
             @Override
-            public AnnotationVisitor visitTypeAnnotation(int target, long path,
-                    String desc, boolean visible) {
+            public AnnotationVisitor visitTypeAnnotation(int typeRef,
+                    TypePath typePath, String desc, boolean visible) {
                 return av;
             }
 
@@ -95,8 +96,8 @@ public class ASMContentHandlerUnitTest extends TestCase implements Opcodes {
                     }
 
                     @Override
-                    public AnnotationVisitor visitTypeAnnotation(int target,
-                            long path, String desc, boolean visible) {
+                    public AnnotationVisitor visitTypeAnnotation(int typeRef,
+                            TypePath typePath, String desc, boolean visible) {
                         return av;
                     }
 
@@ -120,8 +121,8 @@ public class ASMContentHandlerUnitTest extends TestCase implements Opcodes {
                     }
 
                     @Override
-                    public AnnotationVisitor visitTypeAnnotation(int target,
-                            long path, String desc, boolean visible) {
+                    public AnnotationVisitor visitTypeAnnotation(int typeRef,
+                            TypePath typePath, String desc, boolean visible) {
                         return av;
                     }
 
@@ -132,21 +133,23 @@ public class ASMContentHandlerUnitTest extends TestCase implements Opcodes {
                     }
 
                     @Override
-                    public AnnotationVisitor visitInsnAnnotation(int target,
-                            long path, String desc, boolean visible) {
+                    public AnnotationVisitor visitInsnAnnotation(int typeRef,
+                            TypePath typePath, String desc, boolean visible) {
                         return av;
                     }
 
                     @Override
                     public AnnotationVisitor visitTryCatchAnnotation(
-                            int target, long path, String desc, boolean visible) {
+                            int typeRef, TypePath typePath, String desc,
+                            boolean visible) {
                         return av;
                     }
 
                     @Override
                     public AnnotationVisitor visitLocalVariableAnnotation(
-                            int target, long path, Label[] start, Label[] end,
-                            int[] index, String desc, boolean visible) {
+                            int typeRef, TypePath typePath, Label[] start,
+                            Label[] end, int[] index, String desc,
+                            boolean visible) {
                         return av;
                     }
                 };

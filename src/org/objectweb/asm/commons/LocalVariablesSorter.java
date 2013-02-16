@@ -34,6 +34,7 @@ import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
+import org.objectweb.asm.TypePath;
 
 /**
  * A {@link MethodVisitor} that renumbers local variables in their order of
@@ -173,15 +174,15 @@ public class LocalVariablesSorter extends MethodVisitor {
     }
 
     @Override
-    public AnnotationVisitor visitLocalVariableAnnotation(int target,
-            long path, Label[] start, Label[] end, int[] index, String desc,
-            boolean visible) {
+    public AnnotationVisitor visitLocalVariableAnnotation(int typeRef,
+            TypePath typePath, Label[] start, Label[] end, int[] index,
+            String desc, boolean visible) {
         Type t = Type.getType(desc);
         int[] newIndex = new int[index.length];
         for (int i = 0; i < newIndex.length; ++i) {
             newIndex[i] = remap(index[i], t);
         }
-        return mv.visitLocalVariableAnnotation(target, path, start, end,
+        return mv.visitLocalVariableAnnotation(typeRef, typePath, start, end,
                 newIndex, desc, visible);
     }
 

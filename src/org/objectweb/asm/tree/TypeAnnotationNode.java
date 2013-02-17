@@ -55,7 +55,7 @@ public class TypeAnnotationNode extends AnnotationNode {
     /**
      * Constructs a new {@link AnnotationNode}. <i>Subclasses must not use this
      * constructor</i>. Instead, they must use the
-     * {@link #AnnotationNode(int, String)} version.
+     * {@link #TypeAnnotationNode(int, int, TypePath, String)} version.
      * 
      * @param typeRef
      *            a reference to the annotated type. See {@link TypeReference}.

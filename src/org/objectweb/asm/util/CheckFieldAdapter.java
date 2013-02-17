@@ -34,6 +34,7 @@ import org.objectweb.asm.Attribute;
 import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.TypePath;
+import org.objectweb.asm.TypeReference;
 
 /**
  * A {@link FieldVisitor} that checks that its methods are properly used.
@@ -79,7 +80,12 @@ public class CheckFieldAdapter extends FieldVisitor {
     public AnnotationVisitor visitTypeAnnotation(final int typeRef,
             final TypePath typePath, final String desc, final boolean visible) {
         checkEnd();
-        // TODO check target and path
+        int sort = typeRef >>> 24;
+        if (sort != TypeReference.FIELD) {
+            throw new IllegalArgumentException("Invalid type reference sort 0x"
+                    + Integer.toHexString(sort));
+        }
+        CheckClassAdapter.checkTypeRefAndPath(typeRef, typePath);
         CheckMethodAdapter.checkDesc(desc, false);
         return new CheckAnnotationAdapter(super.visitTypeAnnotation(typeRef,
                 typePath, desc, visible));

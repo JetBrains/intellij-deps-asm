@@ -73,7 +73,9 @@ class Context {
     String desc;
 
     /**
-     * TODO.
+     * The label objects, indexed by bytecode offset, of the method currently
+     * being parsed (only bytecode offsets for which a label is needed have a
+     * non null associated Label object).
      */
     Label[] labels;
 
@@ -93,17 +95,20 @@ class Context {
     int offset;
 
     /**
-     * TODO.
+     * The labels corresponding to the start of the local variable ranges in the
+     * local variable type annotation currently being parsed.
      */
     Label[] start;
 
     /**
-     * TODO.
+     * The labels corresponding to the end of the local variable ranges in the
+     * local variable type annotation currently being parsed.
      */
     Label[] end;
 
     /**
-     * TODO.
+     * The local variable indices for each local variable range in the local
+     * variable type annotation currently being parsed.
      */
     int[] index;
 

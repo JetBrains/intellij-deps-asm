@@ -173,7 +173,13 @@ public abstract class ClassVisitor {
      * Visits an annotation on a type in the class signature.
      * 
      * @param typeRef
-     *            a reference to the annotated type. See {@link TypeReference}.
+     *            a reference to the annotated type. The sort of this type
+     *            reference must be {@link TypeReference#CLASS_TYPE_PARAMETER
+     *            CLASS_TYPE_PARAMETER},
+     *            {@link TypeReference#CLASS_TYPE_PARAMETER_BOUND
+     *            CLASS_TYPE_PARAMETER_BOUND} or
+     *            {@link TypeReference#CLASS_EXTENDS CLASS_EXTENDS}. See
+     *            {@link TypeReference}.
      * @param typePath
      *            the path to the annotated type argument, wildcard bound, array
      *            element type, or static inner type within 'typeRef'. May be

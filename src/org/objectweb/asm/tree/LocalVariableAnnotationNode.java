@@ -36,36 +36,97 @@ import java.util.List;
 
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
+import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.TypePath;
+import org.objectweb.asm.TypeReference;
 
 /**
- * TODO
+ * A node that represents a type annotation on a local or resource variable.
  * 
  * @author Eric Bruneton
  */
 public class LocalVariableAnnotationNode extends TypeAnnotationNode {
 
     /**
-     * TODO
+     * The fist instructions corresponding to the continuous ranges that make
+     * the scope of this local variable (inclusive). Must not be <tt>null</tt>.
      */
     public List<LabelNode> start;
 
     /**
-     * TODO
+     * The last instructions corresponding to the continuous ranges that make
+     * the scope of this local variable (exclusive). This list must have the
+     * same size as the 'start' list. Must not be <tt>null</tt>.
      */
     public List<LabelNode> end;
 
     /**
-     * TODO
+     * The local variable's index in each range. This list must have the same
+     * size as the 'start' list. Must not be <tt>null</tt>.
      */
     public List<Integer> index;
 
     /**
-     * TODO
+     * Constructs a new {@link LocalVariableAnnotationNode}. <i>Subclasses must
+     * not use this constructor</i>. Instead, they must use the
+     * {@link #LocalVariableAnnotationNode(int, TypePath, LabelNode[], LabelNode[], int[], String)}
+     * version.
+     * 
+     * @param api
+     *            the ASM API version implemented by this visitor. Must be one
+     *            of {@link Opcodes#ASM4} or {@link Opcodes#ASM5}.
+     * @param typeRef
+     *            a reference to the annotated type. See {@link TypeReference}.
+     * @param typePath
+     *            the path to the annotated type argument, wildcard bound, array
+     *            element type, or static inner type within 'typeRef'. May be
+     *            <tt>null</tt> if the annotation targets 'typeRef' as a whole.
+     * @param start
+     *            the fist instructions corresponding to the continuous ranges
+     *            that make the scope of this local variable (inclusive).
+     * @param end
+     *            the last instructions corresponding to the continuous ranges
+     *            that make the scope of this local variable (exclusive). This
+     *            array must have the same size as the 'start' array.
+     * @param index
+     *            the local variable's index in each range. This array must have
+     *            the same size as the 'start' array.
+     * @param desc
+     *            the class descriptor of the annotation class.
      */
     public LocalVariableAnnotationNode(int typeRef, TypePath typePath,
             LabelNode[] start, LabelNode[] end, int[] index, String desc) {
-        super(typeRef, typePath, desc);
+        this(Opcodes.ASM5, typeRef, typePath, start, end, index, desc);
+    }
+
+    /**
+     * Constructs a new {@link LocalVariableAnnotationNode}.
+     * 
+     * @param api
+     *            the ASM API version implemented by this visitor. Must be one
+     *            of {@link Opcodes#ASM4} or {@link Opcodes#ASM5}.
+     * @param typeRef
+     *            a reference to the annotated type. See {@link TypeReference}.
+     * @param start
+     *            the fist instructions corresponding to the continuous ranges
+     *            that make the scope of this local variable (inclusive).
+     * @param end
+     *            the last instructions corresponding to the continuous ranges
+     *            that make the scope of this local variable (exclusive). This
+     *            array must have the same size as the 'start' array.
+     * @param index
+     *            the local variable's index in each range. This array must have
+     *            the same size as the 'start' array.
+     * @param typePath
+     *            the path to the annotated type argument, wildcard bound, array
+     *            element type, or static inner type within 'typeRef'. May be
+     *            <tt>null</tt> if the annotation targets 'typeRef' as a whole.
+     * @param desc
+     *            the class descriptor of the annotation class.
+     */
+    public LocalVariableAnnotationNode(int api, int typeRef, TypePath typePath,
+            LabelNode[] start, LabelNode[] end, int[] index, String desc) {
+        super(api, typeRef, typePath, desc);
         this.start = new ArrayList<LabelNode>(start.length);
         this.start.addAll(Arrays.asList(start));
         this.end = new ArrayList<LabelNode>(end.length);
@@ -77,7 +138,12 @@ public class LocalVariableAnnotationNode extends TypeAnnotationNode {
     }
 
     /**
-     * TODO
+     * Makes the given visitor visit this type annotation.
+     * 
+     * @param mv
+     *            the visitor that must visit this annotation.
+     * @param visible
+     *            <tt>true</tt> if the annotation is visible at runtime.
      */
     public void accept(final MethodVisitor mv, boolean visible) {
         Label[] start = new Label[this.start.size()];

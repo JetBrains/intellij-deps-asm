@@ -183,6 +183,8 @@ public class TypePath {
             case TYPE_ARGUMENT:
                 result = result + Integer.toString(getStepArgument(i));
                 break;
+            default:
+                result = result + '_';
             }
         }
         return result;

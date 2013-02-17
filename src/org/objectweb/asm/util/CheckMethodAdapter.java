@@ -47,6 +47,7 @@ import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.TypePath;
+import org.objectweb.asm.TypeReference;
 import org.objectweb.asm.tree.MethodNode;
 import org.objectweb.asm.tree.analysis.Analyzer;
 import org.objectweb.asm.tree.analysis.BasicValue;
@@ -474,7 +475,17 @@ public class CheckMethodAdapter extends MethodVisitor {
     public AnnotationVisitor visitTypeAnnotation(final int typeRef,
             final TypePath typePath, final String desc, final boolean visible) {
         checkEndMethod();
-        // TODO check target and path
+        int sort = typeRef >>> 24;
+        if (sort != TypeReference.METHOD_TYPE_PARAMETER
+                && sort != TypeReference.METHOD_TYPE_PARAMETER_BOUND
+                && sort != TypeReference.METHOD_RETURN
+                && sort != TypeReference.METHOD_RECEIVER
+                && sort != TypeReference.METHOD_FORMAL_PARAMETER
+                && sort != TypeReference.THROWS) {
+            throw new IllegalArgumentException("Invalid type reference sort 0x"
+                    + Integer.toHexString(sort));
+        }
+        CheckClassAdapter.checkTypeRefAndPath(typeRef, typePath);
         CheckMethodAdapter.checkDesc(desc, false);
         return new CheckAnnotationAdapter(super.visitTypeAnnotation(typeRef,
                 typePath, desc, visible));
@@ -814,7 +825,19 @@ public class CheckMethodAdapter extends MethodVisitor {
             final TypePath typePath, final String desc, final boolean visible) {
         checkStartCode();
         checkEndCode();
-        // TODO check target and path
+        int sort = typeRef >>> 24;
+        if (sort != TypeReference.INSTANCEOF && sort != TypeReference.NEW
+                && sort != TypeReference.CONSTRUCTOR_REFERENCE_RECEIVER
+                && sort != TypeReference.METHOD_REFERENCE_RECEIVER
+                && sort != TypeReference.CAST
+                && sort != TypeReference.CONSTRUCTOR_INVOCATION_TYPE_ARGUMENT
+                && sort != TypeReference.METHOD_INVOCATION_TYPE_ARGUMENT
+                && sort != TypeReference.CONSTRUCTOR_REFERENCE_TYPE_ARGUMENT
+                && sort != TypeReference.METHOD_REFERENCE_TYPE_ARGUMENT) {
+            throw new IllegalArgumentException("Invalid type reference sort 0x"
+                    + Integer.toHexString(sort));
+        }
+        CheckClassAdapter.checkTypeRefAndPath(typeRef, typePath);
         CheckMethodAdapter.checkDesc(desc, false);
         return new CheckAnnotationAdapter(super.visitInsnAnnotation(typeRef,
                 typePath, desc, visible));
@@ -849,7 +872,12 @@ public class CheckMethodAdapter extends MethodVisitor {
             final TypePath typePath, final String desc, final boolean visible) {
         checkStartCode();
         checkEndCode();
-        // TODO check target and path
+        int sort = typeRef >>> 24;
+        if (sort != TypeReference.EXCEPTION_PARAMETER) {
+            throw new IllegalArgumentException("Invalid type reference sort 0x"
+                    + Integer.toHexString(sort));
+        }
+        CheckClassAdapter.checkTypeRefAndPath(typeRef, typePath);
         CheckMethodAdapter.checkDesc(desc, false);
         return new CheckAnnotationAdapter(super.visitTryCatchAnnotation(
                 typeRef, typePath, desc, visible));
@@ -881,6 +909,13 @@ public class CheckMethodAdapter extends MethodVisitor {
             String desc, boolean visible) {
         checkStartCode();
         checkEndCode();
+        int sort = typeRef >>> 24;
+        if (sort != TypeReference.LOCAL_VARIABLE
+                && sort != TypeReference.RESOURCE_VARIABLE) {
+            throw new IllegalArgumentException("Invalid type reference sort 0x"
+                    + Integer.toHexString(sort));
+        }
+        CheckClassAdapter.checkTypeRefAndPath(typeRef, typePath);
         checkDesc(desc, false);
         if (start == null || end == null || index == null
                 || end.length != start.length || index.length != start.length) {

@@ -1266,8 +1266,8 @@ public class ASMContentHandler extends DefaultHandler implements Opcodes {
             String desc = attrs.getValue("desc");
             boolean visible = Boolean.valueOf(attrs.getValue("visible"))
                     .booleanValue();
-            int typeRef = Integer.parseInt(attrs.getValue("target"));
-            TypePath typePath = TypePath.fromString(attrs.getValue("path"));
+            int typeRef = Integer.parseInt(attrs.getValue("typeRef"));
+            TypePath typePath = TypePath.fromString(attrs.getValue("typePath"));
             push(((MethodVisitor) peek()).visitInsnAnnotation(typeRef,
                     typePath, desc, visible));
         }
@@ -1288,8 +1288,8 @@ public class ASMContentHandler extends DefaultHandler implements Opcodes {
             String desc = attrs.getValue("desc");
             boolean visible = Boolean.valueOf(attrs.getValue("visible"))
                     .booleanValue();
-            int typeRef = Integer.parseInt(attrs.getValue("target"));
-            TypePath typePath = TypePath.fromString(attrs.getValue("path"));
+            int typeRef = Integer.parseInt(attrs.getValue("typeRef"));
+            TypePath typePath = TypePath.fromString(attrs.getValue("typePath"));
             push(((MethodVisitor) peek()).visitTryCatchAnnotation(typeRef,
                     typePath, desc, visible));
         }
@@ -1310,8 +1310,8 @@ public class ASMContentHandler extends DefaultHandler implements Opcodes {
             String desc = attrs.getValue("desc");
             boolean visible = Boolean.valueOf(attrs.getValue("visible"))
                     .booleanValue();
-            int typeRef = Integer.parseInt(attrs.getValue("target"));
-            TypePath typePath = TypePath.fromString(attrs.getValue("path"));
+            int typeRef = Integer.parseInt(attrs.getValue("typeRef"));
+            TypePath typePath = TypePath.fromString(attrs.getValue("typePath"));
             String[] s = attrs.getValue("start").split(" ");
             Label[] start = new Label[s.length];
             for (int i = 0; i < start.length; ++i) {

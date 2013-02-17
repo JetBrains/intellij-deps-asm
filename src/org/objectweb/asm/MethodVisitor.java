@@ -137,7 +137,16 @@ public abstract class MethodVisitor {
      * Visits an annotation on a type in the method signature.
      * 
      * @param typeRef
-     *            a reference to the annotated type. See {@link TypeReference}.
+     *            a reference to the annotated type. The sort of this type
+     *            reference must be {@link TypeReference#METHOD_TYPE_PARAMETER
+     *            METHOD_TYPE_PARAMETER},
+     *            {@link TypeReference#METHOD_TYPE_PARAMETER_BOUND
+     *            METHOD_TYPE_PARAMETER_BOUND},
+     *            {@link TypeReference#METHOD_RETURN METHOD_RETURN},
+     *            {@link TypeReference#METHOD_RECEIVER METHOD_RECEIVER},
+     *            {@link TypeReference#METHOD_FORMAL_PARAMETER
+     *            METHOD_FORMAL_PARAMETER} or {@link TypeReference#THROWS
+     *            THROWS}. See {@link TypeReference}.
      * @param typePath
      *            the path to the annotated type argument, wildcard bound, array
      *            element type, or static inner type within 'typeRef'. May be
@@ -597,7 +606,21 @@ public abstract class MethodVisitor {
      * for the same instruction.
      * 
      * @param typeRef
-     *            a reference to the annotated type. See {@link TypeReference}.
+     *            a reference to the annotated type. The sort of this type
+     *            reference must be {@link TypeReference#INSTANCEOF INSTANCEOF},
+     *            {@link TypeReference#NEW NEW},
+     *            {@link TypeReference#CONSTRUCTOR_REFERENCE_RECEIVER
+     *            CONSTRUCTOR_REFERENCE_RECEIVER},
+     *            {@link TypeReference#METHOD_REFERENCE_RECEIVER
+     *            METHOD_REFERENCE_RECEIVER}, {@link TypeReference#CAST CAST},
+     *            {@link TypeReference#CONSTRUCTOR_INVOCATION_TYPE_ARGUMENT
+     *            CONSTRUCTOR_INVOCATION_TYPE_ARGUMENT},
+     *            {@link TypeReference#METHOD_INVOCATION_TYPE_ARGUMENT
+     *            METHOD_INVOCATION_TYPE_ARGUMENT},
+     *            {@link TypeReference#CONSTRUCTOR_REFERENCE_TYPE_ARGUMENT
+     *            CONSTRUCTOR_REFERENCE_TYPE_ARGUMENT}, or
+     *            {@link TypeReference#METHOD_REFERENCE_TYPE_ARGUMENT
+     *            METHOD_REFERENCE_TYPE_ARGUMENT}. See {@link TypeReference}.
      * @param typePath
      *            the path to the annotated type argument, wildcard bound, array
      *            element type, or static inner type within 'typeRef'. May be
@@ -655,7 +678,9 @@ public abstract class MethodVisitor {
      * handler.
      * 
      * @param typeRef
-     *            a reference to the annotated type. See {@link TypeReference}.
+     *            a reference to the annotated type. The sort of this type
+     *            reference must be {@link TypeReference#EXCEPTION_PARAMETER
+     *            EXCEPTION_PARAMETER}. See {@link TypeReference}.
      * @param typePath
      *            the path to the annotated type argument, wildcard bound, array
      *            element type, or static inner type within 'typeRef'. May be
@@ -712,7 +737,10 @@ public abstract class MethodVisitor {
      * Visits an annotation on a local variable type.
      * 
      * @param typeRef
-     *            a reference to the annotated type. See {@link TypeReference}.
+     *            a reference to the annotated type. The sort of this type
+     *            reference must be {@link TypeReference#LOCAL_VARIABLE
+     *            LOCAL_VARIABLE} or {@link TypeReference#RESOURCE_VARIABLE
+     *            RESOURCE_VARIABLE}. See {@link TypeReference}.
      * @param typePath
      *            the path to the annotated type argument, wildcard bound, array
      *            element type, or static inner type within 'typeRef'. May be

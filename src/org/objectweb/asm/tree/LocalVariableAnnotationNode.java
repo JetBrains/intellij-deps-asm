@@ -72,9 +72,6 @@ public class LocalVariableAnnotationNode extends TypeAnnotationNode {
      * {@link #LocalVariableAnnotationNode(int, TypePath, LabelNode[], LabelNode[], int[], String)}
      * version.
      * 
-     * @param api
-     *            the ASM API version implemented by this visitor. Must be one
-     *            of {@link Opcodes#ASM4} or {@link Opcodes#ASM5}.
      * @param typeRef
      *            a reference to the annotated type. See {@link TypeReference}.
      * @param typePath

@@ -89,7 +89,7 @@ public class TypePath {
     /**
      * Returns the length of this path.
      * 
-     * @return
+     * @return the length of this path.
      */
     public int getLength() {
         return b[offset];
@@ -168,25 +168,26 @@ public class TypePath {
      */
     @Override
     public String toString() {
-        String result = "";
-        for (int i = 0; i < getLength(); ++i) {
+        int length = getLength();
+        StringBuilder result = new StringBuilder(length * 2);
+        for (int i = 0; i < length; ++i) {
             switch (getStep(i)) {
             case ARRAY_ELEMENT:
-                result = result + '[';
+                result.append('[');
                 break;
             case INNER_TYPE:
-                result = result + '.';
+                result.append('.');
                 break;
             case WILDCARD_BOUND:
-                result = result + '*';
+                result.append('*');
                 break;
             case TYPE_ARGUMENT:
-                result = result + Integer.toString(getStepArgument(i));
+                result.append(getStepArgument(i));
                 break;
             default:
-                result = result + '_';
+                result.append('_');
             }
         }
-        return result;
+        return result.toString();
     }
 }

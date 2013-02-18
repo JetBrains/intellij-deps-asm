@@ -840,6 +840,7 @@ public class ClassReader {
         int exception = 0;
         String[] exceptions = null;
         String signature = null;
+        int methodParameters = 0;
         int anns = 0;
         int ianns = 0;
         int tanns = 0;
@@ -892,6 +893,8 @@ public class ClassReader {
             } else if (ANNOTATIONS
                     && "RuntimeInvisibleParameterAnnotations".equals(attrName)) {
                 impanns = u + 8;
+            } else if ("MethodParameters".equals(attrName)) {
+                methodParameters = u + 8;
             } else {
                 Attribute attr = readAttribute(context.attrs, attrName, u + 8,
                         readInt(u + 4), c, -1, null);
@@ -950,6 +953,13 @@ public class ClassReader {
             }
         }
 
+        // visit the method parameters
+        if (methodParameters != 0) {
+            for(int i = b[methodParameters] & 0xFF, v = methodParameters + 1; i>0; --i, v = v + 4) {
+                mv.visitParameter(readUTF8(v, c), readUnsignedShort(v + 2));
+            }
+        }
+        
         // visits the method annotations
         if (ANNOTATIONS && dann != 0) {
             AnnotationVisitor dv = mv.visitAnnotationDefault();

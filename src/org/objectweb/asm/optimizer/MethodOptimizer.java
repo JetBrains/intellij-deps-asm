@@ -61,6 +61,11 @@ public class MethodOptimizer extends RemappingMethodAdapter implements Opcodes {
     // ------------------------------------------------------------------------
 
     @Override
+    public void visitParameter(String name, int access) {
+        // remove parameter info
+    }
+    
+    @Override
     public AnnotationVisitor visitAnnotationDefault() {
         // remove annotations
         return null;

@@ -96,6 +96,8 @@ public class ASMContentHandler extends DefaultHandler implements Opcodes {
         RULES.add(BASE + "/method/exceptions/exception", new ExceptionRule());
         RULES.add(BASE + "/method/exceptions", new ExceptionsRule());
 
+        RULES.add(BASE + "/method/parameter",
+                new MethodParameterRule());
         RULES.add(BASE + "/method/annotationDefault",
                 new AnnotationDefaultRule());
 
@@ -668,6 +670,9 @@ public class ASMContentHandler extends DefaultHandler implements Opcodes {
             if (s.indexOf("deprecated") != -1) {
                 access |= ACC_DEPRECATED;
             }
+            if (s.indexOf("mandated") != -1) {
+                access |= ACC_MANDATED;
+            }
             return access;
         }
     }
@@ -840,6 +845,18 @@ public class ASMContentHandler extends DefaultHandler implements Opcodes {
             String[] exceptions = excs.toArray(new String[excs.size()]);
 
             push(cv.visitMethod(access, name, desc, signature, exceptions));
+        }
+    }
+    
+    /**
+     * MethodParameterRule
+     */
+    final class MethodParameterRule extends Rule {
+        @Override
+        public void begin(final String nm, final Attributes attrs) {
+            String name = attrs.getValue("name");
+            int access = getAccess(attrs.getValue("access"));
+            getCodeVisitor().visitParameter(name, access);
         }
     }
 

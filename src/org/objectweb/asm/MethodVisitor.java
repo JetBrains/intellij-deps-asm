@@ -31,10 +31,10 @@ package org.objectweb.asm;
 
 /**
  * A visitor to visit a Java method. The methods of this class must be called in
- * the following order: [ <tt>visitAnnotationDefault</tt> ] (
- * <tt>visitAnnotation</tt> | <tt>visitTypeAnnotation</tt> |
- * <tt>visitAttribute</tt> )* [ <tt>visitCode</tt> ( <tt>visitFrame</tt> |
- * <tt>visit</tt><i>X</i>Insn</tt> | <tt>visitLabel</tt> |
+ * the following order: [ <tt>visitParameter</tt> ]
+ * [ <tt>visitAnnotationDefault</tt> ] ( <tt>visitAnnotation</tt> |
+ * <tt>visitTypeAnnotation</tt> | <tt>visitAttribute</tt> )* [ <tt>visitCode</tt>
+ * ( <tt>visitFrame</tt> | <tt>visit</tt><i>X</i>Insn</tt> | <tt>visitLabel</tt> |
  * <tt>visitInsnAnnotation</tt> | <tt>visitTryCatchBlock</tt> |
  * <tt>visitTryCatchBlockAnnotation</tt> | <tt>visitLocalVariable</tt> |
  * <tt>visitLocalVariableAnnotation</tt> | <tt>visitLineNumber</tt> )*
@@ -96,9 +96,25 @@ public abstract class MethodVisitor {
     }
 
     // -------------------------------------------------------------------------
-    // Annotations and non standard attributes
+    // Parameters, annotations and non standard attributes
     // -------------------------------------------------------------------------
 
+    /**
+     * Visits a parameter of this method.
+     * 
+     * @param name
+     *            parameter name or null if none is provided.
+     * @param access
+     *            the parameter's access flags,
+     *            only <tt>ACC_FINAL</tt>, <tt>ACC_SYNTHETIC</tt> or/and
+     *            <tt>ACC_MANDATED</tt> are allowed (see {@link Opcodes}).
+     */
+    public void visitParameter(String name, int access) {
+        if (mv != null) {
+            mv.visitParameter(name, access);
+        }
+    }
+    
     /**
      * Visits the default value of this annotation interface method.
      * 

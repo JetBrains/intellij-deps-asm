@@ -53,6 +53,15 @@ public class MethodConstantsCollector extends MethodVisitor {
     }
 
     @Override
+    public void visitParameter(String name, int access) {
+        cp.newUTF8("MethodParameters");
+        if (name != null) {
+            cp.newUTF8(name);
+        }
+        mv.visitParameter(name, access);
+    }
+    
+    @Override
     public AnnotationVisitor visitAnnotationDefault() {
         cp.newUTF8("AnnotationDefault");
         return new AnnotationConstantsCollector(mv.visitAnnotationDefault(), cp);

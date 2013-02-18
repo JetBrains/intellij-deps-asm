@@ -617,6 +617,9 @@ public class JasminifierClassAdapter extends ClassVisitor {
         if ((access & Opcodes.ACC_ENUM) != 0) {
             b.append(" enum");
         }
+        if ((access & Opcodes.ACC_MANDATED) != 0) {
+            b.append(" mandated");
+        }
         return b.toString();
     }
 

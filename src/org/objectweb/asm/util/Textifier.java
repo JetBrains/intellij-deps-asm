@@ -645,6 +645,15 @@ public class Textifier extends Printer {
     // ------------------------------------------------------------------------
 
     @Override
+    public void visitParameter(final String name, final int access) {
+        buf.setLength(0);
+        buf.append(tab2).append("// parameter ");
+        appendAccess(access);
+        buf.append(' ').append((name == null)?"<no name>": name).append('\n');
+        text.add(buf.toString());
+    }
+    
+    @Override
     public Textifier visitAnnotationDefault() {
         text.add(tab2 + "default=");
         Textifier t = createTextifier();
@@ -1247,6 +1256,9 @@ public class Textifier extends Printer {
         }
         if ((access & Opcodes.ACC_SYNTHETIC) != 0) {
             buf.append("synthetic ");
+        }
+        if ((access & Opcodes.ACC_MANDATED) != 0) {
+            buf.append("mandated ");
         }
         if ((access & Opcodes.ACC_ENUM) != 0) {
             buf.append("enum ");

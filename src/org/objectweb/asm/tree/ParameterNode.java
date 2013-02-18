@@ -1,5 +1,5 @@
 /***
- * ASM tests
+ * ASM: a very small and fast Java bytecode manipulation framework
  * Copyright (c) 2000-2011 INRIA, France Telecom
  * All rights reserved.
  *
@@ -27,45 +27,51 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
  * THE POSSIBILITY OF SUCH DAMAGE.
  */
-package org.objectweb.asm.test.cases;
+package org.objectweb.asm.tree;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-
-import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.MethodVisitor;
 
 /**
- * Generates classes designed so that the "conform" test suite, applied to these
- * classes, covers all the ASM code base.
- * 
- * @author Eric Bruneton
+ * A node that represents a parameter access and name.
+ *
+ * @author Remi Forax
  */
-public class Generator implements Opcodes {
+public class ParameterNode {
+    /**
+     * The parameter's name.
+     */
+    public String name;
+    
+    /**
+     * The parameter's access flags (see {@link org.objectweb.asm.Opcodes}). 
+     * Valid values are <tt>ACC_FINAL</tt>, <tt>ACC_SYNTHETIC</tt> and
+     * <tt>ACC_MANDATED</tt>.
+     */
+    public int access;
 
-    public static void main(final String[] args) throws IOException {
-        Generator generators[] = { new MethodParameters(),
-                new Annotation(), new TypeAnnotation(),
-                new Attribute(), new Debug(), new Enum(), new Frames(),
-                new Insns(), new Interface(), new Invalid(), new JSR(),
-                new Outer(), new Wide(), new InvokeDynamic() };
-        for (int i = 0; i < generators.length; ++i) {
-            generators[i].generate(args[0]);
-        }
+    
+    /**
+     * Constructs a new {@link ParameterNode}.
+     *
+     * @param access
+     *            The parameter's access flags. 
+     *            Valid values are <tt>ACC_FINAL</tt>, <tt>ACC_SYNTHETIC</tt>
+     *            or/and <tt>ACC_MANDATED</tt> (see {@link org.objectweb.asm.Opcodes}).
+     * @param name
+     *            the parameter's name.
+     */
+    public ParameterNode(final String name, final int access) {
+        this.name = name;
+        this.access = access;
     }
 
-    protected void generate(final String dir) throws IOException {
-    }
-
-    protected void generate(final String dir, final String path,
-            final byte[] clazz) throws IOException {
-        File f = new File(new File(dir), path);
-        if (!f.getParentFile().exists() && !f.getParentFile().mkdirs()) {
-            throw new IOException("Cannot create directory "
-                    + f.getParentFile());
-        }
-        FileOutputStream o = new FileOutputStream(f);
-        o.write(clazz);
-        o.close();
+    /**
+     * Makes the given visitor visit this parameter declaration.
+     * 
+     * @param mv
+     *            a method visitor.
+     */
+    public void accept(final MethodVisitor mv) {
+        mv.visitParameter(name, access);
     }
 }

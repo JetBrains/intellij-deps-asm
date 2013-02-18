@@ -300,6 +300,16 @@ class MethodWriter extends MethodVisitor {
     private Handler lastHandler;
 
     /**
+     * Number of entries in the MethodParameters attribute.
+     */
+    private int methodParametersCount;
+    
+    /**
+     * The MethodParameters attribute.
+     */
+    private ByteVector methodParameters;
+    
+    /**
      * Number of entries in the LocalVariableTable attribute.
      */
     private int localVarCount;
@@ -493,6 +503,16 @@ class MethodWriter extends MethodVisitor {
     // Implementation of the MethodVisitor abstract class
     // ------------------------------------------------------------------------
 
+    @Override
+    public void visitParameter(String name, int access) {
+        if (methodParameters == null) {
+            methodParameters = new ByteVector();
+        }
+        ++methodParametersCount;
+        methodParameters.putShort(
+                (name == null)? 0: cw.newUTF8(name)).putShort(access);
+    }
+    
     @Override
     public AnnotationVisitor visitAnnotationDefault() {
         if (!ClassReader.ANNOTATIONS) {
@@ -2008,6 +2028,10 @@ class MethodWriter extends MethodVisitor {
             cw.newUTF8(signature);
             size += 8;
         }
+        if (methodParameters != null) {
+            cw.newUTF8("MethodParameters");
+            size += 7 + methodParameters.length;
+        }
         if (ClassReader.ANNOTATIONS && annd != null) {
             cw.newUTF8("AnnotationDefault");
             size += 6 + annd.length;
@@ -2081,6 +2105,9 @@ class MethodWriter extends MethodVisitor {
             ++attributeCount;
         }
         if (ClassReader.SIGNATURES && signature != null) {
+            ++attributeCount;
+        }
+        if (methodParameters != null) {
             ++attributeCount;
         }
         if (ClassReader.ANNOTATIONS && annd != null) {
@@ -2220,6 +2247,11 @@ class MethodWriter extends MethodVisitor {
         if (ClassReader.SIGNATURES && signature != null) {
             out.putShort(cw.newUTF8("Signature")).putInt(2)
                     .putShort(cw.newUTF8(signature));
+        }
+        if (methodParameters != null) {
+            out.putShort(cw.newUTF8("MethodParameters"));
+            out.putInt(methodParameters.length + 1).putByte(methodParametersCount);
+            out.putByteArray(methodParameters.data, 0, methodParameters.length);
         }
         if (ClassReader.ANNOTATIONS && annd != null) {
             out.putShort(cw.newUTF8("AnnotationDefault"));

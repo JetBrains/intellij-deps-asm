@@ -283,6 +283,14 @@ public abstract class Printer {
     // ------------------------------------------------------------------------
 
     /**
+     * Method parameter. See
+     * {@link org.objectweb.asm.MethodVisitor#visitParameter(String, int)}.
+     */
+    public void visitParameter(String name, int access) {
+        throw new RuntimeException("Must be overriden");
+    }
+    
+    /**
      * Method default annotation. See
      * {@link org.objectweb.asm.MethodVisitor#visitAnnotationDefault}.
      */

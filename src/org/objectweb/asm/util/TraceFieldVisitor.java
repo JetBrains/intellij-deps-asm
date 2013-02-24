@@ -64,10 +64,10 @@ public final class TraceFieldVisitor extends FieldVisitor {
     }
 
     @Override
-    public AnnotationVisitor visitTypeAnnotation(int typeRef, TypePath typePath,
-            String desc, boolean visible) {
-        Printer p = this.p
-                .visitFieldTypeAnnotation(typeRef, typePath, desc, visible);
+    public AnnotationVisitor visitTypeAnnotation(int typeRef,
+            TypePath typePath, String desc, boolean visible) {
+        Printer p = this.p.visitFieldTypeAnnotation(typeRef, typePath, desc,
+                visible);
         AnnotationVisitor av = fv == null ? null : fv.visitTypeAnnotation(
                 typeRef, typePath, desc, visible);
         return new TraceAnnotationVisitor(av, p);

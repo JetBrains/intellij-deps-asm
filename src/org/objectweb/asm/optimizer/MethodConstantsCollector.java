@@ -60,7 +60,7 @@ public class MethodConstantsCollector extends MethodVisitor {
         }
         mv.visitParameter(name, access);
     }
-    
+
     @Override
     public AnnotationVisitor visitAnnotationDefault() {
         cp.newUTF8("AnnotationDefault");

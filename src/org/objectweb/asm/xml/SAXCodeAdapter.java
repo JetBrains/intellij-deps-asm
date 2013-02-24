@@ -75,7 +75,7 @@ public final class SAXCodeAdapter extends MethodVisitor {
             sa.addStart("code", new AttributesImpl());
         }
     }
-    
+
     @Override
     public void visitParameter(String name, int access) {
         AttributesImpl attrs = new AttributesImpl();
@@ -87,7 +87,7 @@ public final class SAXCodeAdapter extends MethodVisitor {
         attrs.addAttribute("", "access", "access", "", sb.toString());
         sa.addElement("parameter", attrs);
     }
-    
+
     @Override
     public final void visitCode() {
     }

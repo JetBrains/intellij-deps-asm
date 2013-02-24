@@ -454,12 +454,12 @@ public class ASMifier extends Printer {
     @Override
     public void visitParameter(String parameterName, int access) {
         buf.setLength(0);
-        buf.append(name).append(".visitParameter(")
-                .append(parameterName).append(", ");
+        buf.append(name).append(".visitParameter(").append(parameterName)
+                .append(", ");
         appendAccess(access);
         text.add(buf.append(");\n").toString());
     }
-    
+
     @Override
     public ASMifier visitAnnotationDefault() {
         buf.setLength(0);

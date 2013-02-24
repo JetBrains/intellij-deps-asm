@@ -468,10 +468,10 @@ public class CheckMethodAdapter extends MethodVisitor {
         if (name != null) {
             checkUnqualifiedName(version, name, "name");
         }
-        CheckClassAdapter.checkAccess(access, Opcodes.ACC_FINAL +
-                Opcodes.ACC_MANDATED + Opcodes.ACC_SYNTHETIC);
+        CheckClassAdapter.checkAccess(access, Opcodes.ACC_FINAL
+                + Opcodes.ACC_MANDATED + Opcodes.ACC_SYNTHETIC);
     }
-    
+
     @Override
     public AnnotationVisitor visitAnnotation(final String desc,
             final boolean visible) {

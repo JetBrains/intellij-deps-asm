@@ -303,12 +303,12 @@ class MethodWriter extends MethodVisitor {
      * Number of entries in the MethodParameters attribute.
      */
     private int methodParametersCount;
-    
+
     /**
      * The MethodParameters attribute.
      */
     private ByteVector methodParameters;
-    
+
     /**
      * Number of entries in the LocalVariableTable attribute.
      */
@@ -509,10 +509,10 @@ class MethodWriter extends MethodVisitor {
             methodParameters = new ByteVector();
         }
         ++methodParametersCount;
-        methodParameters.putShort(
-                (name == null)? 0: cw.newUTF8(name)).putShort(access);
+        methodParameters.putShort((name == null) ? 0 : cw.newUTF8(name))
+                .putShort(access);
     }
-    
+
     @Override
     public AnnotationVisitor visitAnnotationDefault() {
         if (!ClassReader.ANNOTATIONS) {
@@ -2250,7 +2250,8 @@ class MethodWriter extends MethodVisitor {
         }
         if (methodParameters != null) {
             out.putShort(cw.newUTF8("MethodParameters"));
-            out.putInt(methodParameters.length + 1).putByte(methodParametersCount);
+            out.putInt(methodParameters.length + 1).putByte(
+                    methodParametersCount);
             out.putByteArray(methodParameters.data, 0, methodParameters.length);
         }
         if (ClassReader.ANNOTATIONS && annd != null) {

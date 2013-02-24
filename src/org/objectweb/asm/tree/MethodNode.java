@@ -83,7 +83,7 @@ public class MethodNode extends MethodVisitor {
      * The method parameter info (access flags and name)
      */
     public List<ParameterNode> parameters;
-    
+
     /**
      * The runtime visible annotations of this method. This list is a list of
      * {@link AnnotationNode} objects. May be <tt>null</tt>.
@@ -310,7 +310,7 @@ public class MethodNode extends MethodVisitor {
         }
         parameters.add(new ParameterNode(name, access));
     }
-    
+
     @Override
     public AnnotationVisitor visitAnnotationDefault() {
         return new AnnotationNode(new ArrayList<Object>(0) {
@@ -706,9 +706,9 @@ public class MethodNode extends MethodVisitor {
         // visits the method parameters
         int i, j, n;
         n = parameters == null ? 0 : parameters.size();
-        for(i = 0; i < n; i++) {
+        for (i = 0; i < n; i++) {
             ParameterNode parameter = parameters.get(i);
-            mv.visitParameter(parameter.name, parameter.access);  
+            mv.visitParameter(parameter.name, parameter.access);
         }
         // visits the method attributes
         if (annotationDefault != null) {

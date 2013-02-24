@@ -955,11 +955,11 @@ public class ClassReader {
 
         // visit the method parameters
         if (methodParameters != 0) {
-            for(int i = b[methodParameters] & 0xFF, v = methodParameters + 1; i>0; --i, v = v + 4) {
+            for (int i = b[methodParameters] & 0xFF, v = methodParameters + 1; i > 0; --i, v = v + 4) {
                 mv.visitParameter(readUTF8(v, c), readUnsignedShort(v + 2));
             }
         }
-        
+
         // visits the method annotations
         if (ANNOTATIONS && dann != 0) {
             AnnotationVisitor dv = mv.visitAnnotationDefault();

@@ -96,8 +96,7 @@ public class ASMContentHandler extends DefaultHandler implements Opcodes {
         RULES.add(BASE + "/method/exceptions/exception", new ExceptionRule());
         RULES.add(BASE + "/method/exceptions", new ExceptionsRule());
 
-        RULES.add(BASE + "/method/parameter",
-                new MethodParameterRule());
+        RULES.add(BASE + "/method/parameter", new MethodParameterRule());
         RULES.add(BASE + "/method/annotationDefault",
                 new AnnotationDefaultRule());
 
@@ -847,7 +846,7 @@ public class ASMContentHandler extends DefaultHandler implements Opcodes {
             push(cv.visitMethod(access, name, desc, signature, exceptions));
         }
     }
-    
+
     /**
      * MethodParameterRule
      */

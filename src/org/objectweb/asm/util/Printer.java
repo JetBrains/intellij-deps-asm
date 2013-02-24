@@ -289,7 +289,7 @@ public abstract class Printer {
     public void visitParameter(String name, int access) {
         throw new RuntimeException("Must be overriden");
     }
-    
+
     /**
      * Method default annotation. See
      * {@link org.objectweb.asm.MethodVisitor#visitAnnotationDefault}.

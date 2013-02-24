@@ -649,10 +649,11 @@ public class Textifier extends Printer {
         buf.setLength(0);
         buf.append(tab2).append("// parameter ");
         appendAccess(access);
-        buf.append(' ').append((name == null)?"<no name>": name).append('\n');
+        buf.append(' ').append((name == null) ? "<no name>" : name)
+                .append('\n');
         text.add(buf.toString());
     }
-    
+
     @Override
     public Textifier visitAnnotationDefault() {
         text.add(tab2 + "default=");

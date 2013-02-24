@@ -31,19 +31,19 @@ package org.objectweb.asm;
 
 /**
  * A visitor to visit a Java method. The methods of this class must be called in
- * the following order: [ <tt>visitParameter</tt> ]
- * [ <tt>visitAnnotationDefault</tt> ] ( <tt>visitAnnotation</tt> |
- * <tt>visitTypeAnnotation</tt> | <tt>visitAttribute</tt> )* [ <tt>visitCode</tt>
- * ( <tt>visitFrame</tt> | <tt>visit</tt><i>X</i>Insn</tt> | <tt>visitLabel</tt> |
- * <tt>visitInsnAnnotation</tt> | <tt>visitTryCatchBlock</tt> |
- * <tt>visitTryCatchBlockAnnotation</tt> | <tt>visitLocalVariable</tt> |
- * <tt>visitLocalVariableAnnotation</tt> | <tt>visitLineNumber</tt> )*
- * <tt>visitMaxs</tt> ] <tt>visitEnd</tt>. In addition, the <tt>visit</tt>
- * <i>X</i>Insn</tt> and <tt>visitLabel</tt> methods must be called in the
- * sequential order of the bytecode instructions of the visited code,
- * <tt>visitInsnAnnotation</tt> must be called <i>after</i> the annotated
- * instruction, <tt>visitTryCatchBlock</tt> must be called <i>before</i> the
- * labels passed as arguments have been visited,
+ * the following order: ( <tt>visitParameter</tt> )* [
+ * <tt>visitAnnotationDefault</tt> ] ( <tt>visitAnnotation</tt> |
+ * <tt>visitTypeAnnotation</tt> | <tt>visitAttribute</tt> )* [
+ * <tt>visitCode</tt> ( <tt>visitFrame</tt> | <tt>visit</tt><i>X</i>Insn</tt> |
+ * <tt>visitLabel</tt> | <tt>visitInsnAnnotation</tt> |
+ * <tt>visitTryCatchBlock</tt> | <tt>visitTryCatchBlockAnnotation</tt> |
+ * <tt>visitLocalVariable</tt> | <tt>visitLocalVariableAnnotation</tt> |
+ * <tt>visitLineNumber</tt> )* <tt>visitMaxs</tt> ] <tt>visitEnd</tt>. In
+ * addition, the <tt>visit</tt> <i>X</i>Insn</tt> and <tt>visitLabel</tt>
+ * methods must be called in the sequential order of the bytecode instructions
+ * of the visited code, <tt>visitInsnAnnotation</tt> must be called <i>after</i>
+ * the annotated instruction, <tt>visitTryCatchBlock</tt> must be called
+ * <i>before</i> the labels passed as arguments have been visited,
  * <tt>visitTryCatchBlockAnnotation</tt> must be called <i>after</i> the
  * corresponding try catch block has been visited, and the
  * <tt>visitLocalVariable</tt>, <tt>visitLocalVariableAnnotation</tt> and
@@ -105,16 +105,16 @@ public abstract class MethodVisitor {
      * @param name
      *            parameter name or null if none is provided.
      * @param access
-     *            the parameter's access flags,
-     *            only <tt>ACC_FINAL</tt>, <tt>ACC_SYNTHETIC</tt> or/and
-     *            <tt>ACC_MANDATED</tt> are allowed (see {@link Opcodes}).
+     *            the parameter's access flags, only <tt>ACC_FINAL</tt>,
+     *            <tt>ACC_SYNTHETIC</tt> or/and <tt>ACC_MANDATED</tt> are
+     *            allowed (see {@link Opcodes}).
      */
     public void visitParameter(String name, int access) {
         if (mv != null) {
             mv.visitParameter(name, access);
         }
     }
-    
+
     /**
      * Visits the default value of this annotation interface method.
      * 

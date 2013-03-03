@@ -110,6 +110,9 @@ public abstract class MethodVisitor {
      *            allowed (see {@link Opcodes}).
      */
     public void visitParameter(String name, int access) {
+        if (api < Opcodes.ASM5) {
+            throw new RuntimeException();
+        }
         if (mv != null) {
             mv.visitParameter(name, access);
         }

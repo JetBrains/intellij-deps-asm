@@ -953,7 +953,8 @@ public class Textifier extends Printer {
         Textifier t = createTextifier();
         text.add(t.getText());
         buf.setLength(0);
-        buf.append(") : ").append(typeRef);
+        buf.append(") : ");
+        appendTypeReference(typeRef);
         buf.append(", ").append(typePath);
         buf.append(visible ? "\n" : " // invisible\n");
         text.add(buf.toString());
@@ -998,7 +999,8 @@ public class Textifier extends Printer {
         Textifier t = createTextifier();
         text.add(t.getText());
         buf.setLength(0);
-        buf.append(") : ").append(typeRef);
+        buf.append(") : ");
+        appendTypeReference(typeRef);
         buf.append(", ").append(typePath);
         for (int i = 0; i < start.length; ++i) {
             buf.append(" [ ");
@@ -1086,7 +1088,8 @@ public class Textifier extends Printer {
         Textifier t = createTextifier();
         text.add(t.getText());
         buf.setLength(0);
-        buf.append(") : ").append(typeRef);
+        buf.append(") : ");
+        appendTypeReference(typeRef);
         buf.append(", ").append(typePath);
         buf.append(visible ? "\n" : " // invisible\n");
         text.add(buf.toString());
@@ -1269,6 +1272,90 @@ public class Textifier extends Printer {
     private void appendComa(final int i) {
         if (i != 0) {
             buf.append(", ");
+        }
+    }
+
+    private void appendTypeReference(final int typeRef) {
+        TypeReference ref = new TypeReference(typeRef);
+        switch (ref.getSort()) {
+        case TypeReference.CLASS_TYPE_PARAMETER:
+            buf.append("CLASS_TYPE_PARAMETER ").append(
+                    ref.getTypeParameterIndex());
+            break;
+        case TypeReference.METHOD_TYPE_PARAMETER:
+            buf.append("METHOD_TYPE_PARAMETER ").append(
+                    ref.getTypeParameterIndex());
+            break;
+        case TypeReference.CLASS_EXTENDS:
+            buf.append("CLASS_EXTENDS ").append(ref.getSuperTypeIndex());
+            break;
+        case TypeReference.CLASS_TYPE_PARAMETER_BOUND:
+            buf.append("CLASS_TYPE_PARAMETER_BOUND ")
+                    .append(ref.getTypeParameterIndex()).append(", ")
+                    .append(ref.getTypeParameterBoundIndex());
+            break;
+        case TypeReference.METHOD_TYPE_PARAMETER_BOUND:
+            buf.append("METHOD_TYPE_PARAMETER_BOUND ")
+                    .append(ref.getTypeParameterIndex()).append(", ")
+                    .append(ref.getTypeParameterBoundIndex());
+            break;
+        case TypeReference.FIELD:
+            buf.append("FIELD");
+            break;
+        case TypeReference.METHOD_RETURN:
+            buf.append("METHOD_RETURN");
+            break;
+        case TypeReference.METHOD_RECEIVER:
+            buf.append("METHOD_RECEIVER");
+            break;
+        case TypeReference.METHOD_FORMAL_PARAMETER:
+            buf.append("METHOD_FORMAL_PARAMETER ").append(
+                    ref.getFormalParameterIndex());
+            break;
+        case TypeReference.THROWS:
+            buf.append("THROWS ").append(ref.getExceptionIndex());
+            break;
+        case TypeReference.LOCAL_VARIABLE:
+            buf.append("LOCAL_VARIABLE");
+            break;
+        case TypeReference.RESOURCE_VARIABLE:
+            buf.append("RESOURCE_VARIABLE");
+            break;
+        case TypeReference.EXCEPTION_PARAMETER:
+            buf.append("EXCEPTION_PARAMETER ").append(
+                    ref.getTryCatchBlockIndex());
+            break;
+        case TypeReference.INSTANCEOF:
+            buf.append("INSTANCEOF");
+            break;
+        case TypeReference.NEW:
+            buf.append("NEW");
+            break;
+        case TypeReference.CONSTRUCTOR_REFERENCE_RECEIVER:
+            buf.append("CONSTRUCTOR_REFERENCE_RECEIVER");
+            break;
+        case TypeReference.METHOD_REFERENCE_RECEIVER:
+            buf.append("METHOD_REFERENCE_RECEIVER");
+            break;
+        case TypeReference.CAST:
+            buf.append("CAST ").append(ref.getTypeArgumentIndex());
+            break;
+        case TypeReference.CONSTRUCTOR_INVOCATION_TYPE_ARGUMENT:
+            buf.append("CONSTRUCTOR_INVOCATION_TYPE_ARGUMENT ").append(
+                    ref.getTypeArgumentIndex());
+            break;
+        case TypeReference.METHOD_INVOCATION_TYPE_ARGUMENT:
+            buf.append("METHOD_INVOCATION_TYPE_ARGUMENT ").append(
+                    ref.getTypeArgumentIndex());
+            break;
+        case TypeReference.CONSTRUCTOR_REFERENCE_TYPE_ARGUMENT:
+            buf.append("CONSTRUCTOR_REFERENCE_TYPE_ARGUMENT ").append(
+                    ref.getTypeArgumentIndex());
+            break;
+        case TypeReference.METHOD_REFERENCE_TYPE_ARGUMENT:
+            buf.append("METHOD_REFERENCE_TYPE_ARGUMENT ").append(
+                    ref.getTypeArgumentIndex());
+            break;
         }
     }
 

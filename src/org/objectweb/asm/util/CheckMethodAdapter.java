@@ -836,8 +836,8 @@ public class CheckMethodAdapter extends MethodVisitor {
         checkEndCode();
         int sort = typeRef >>> 24;
         if (sort != TypeReference.INSTANCEOF && sort != TypeReference.NEW
-                && sort != TypeReference.CONSTRUCTOR_REFERENCE_RECEIVER
-                && sort != TypeReference.METHOD_REFERENCE_RECEIVER
+                && sort != TypeReference.CONSTRUCTOR_REFERENCE
+                && sort != TypeReference.METHOD_REFERENCE
                 && sort != TypeReference.CAST
                 && sort != TypeReference.CONSTRUCTOR_INVOCATION_TYPE_ARGUMENT
                 && sort != TypeReference.METHOD_INVOCATION_TYPE_ARGUMENT

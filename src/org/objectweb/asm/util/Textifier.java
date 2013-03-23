@@ -1331,11 +1331,11 @@ public class Textifier extends Printer {
         case TypeReference.NEW:
             buf.append("NEW");
             break;
-        case TypeReference.CONSTRUCTOR_REFERENCE_RECEIVER:
-            buf.append("CONSTRUCTOR_REFERENCE_RECEIVER");
+        case TypeReference.CONSTRUCTOR_REFERENCE:
+            buf.append("CONSTRUCTOR_REFERENCE");
             break;
-        case TypeReference.METHOD_REFERENCE_RECEIVER:
-            buf.append("METHOD_REFERENCE_RECEIVER");
+        case TypeReference.METHOD_REFERENCE:
+            buf.append("METHOD_REFERENCE");
             break;
         case TypeReference.CAST:
             buf.append("CAST ").append(ref.getTypeArgumentIndex());

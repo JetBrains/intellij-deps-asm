@@ -704,8 +704,8 @@ public class CheckClassAdapter extends ClassVisitor {
         case TypeReference.RESOURCE_VARIABLE:
         case TypeReference.INSTANCEOF:
         case TypeReference.NEW:
-        case TypeReference.CONSTRUCTOR_REFERENCE_RECEIVER:
-        case TypeReference.METHOD_REFERENCE_RECEIVER:
+        case TypeReference.CONSTRUCTOR_REFERENCE:
+        case TypeReference.METHOD_REFERENCE:
             mask = 0xFF000000;
             break;
         case TypeReference.CLASS_EXTENDS:

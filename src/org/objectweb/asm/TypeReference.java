@@ -135,13 +135,13 @@ public class TypeReference {
      * The sort of type references that target the receiver type of a
      * constructor reference. See {@link #getSort getSort}.
      */
-    public final static int CONSTRUCTOR_REFERENCE_RECEIVER = 0x45;
+    public final static int CONSTRUCTOR_REFERENCE = 0x45;
 
     /**
      * The sort of type references that target the receiver type of a method
      * reference. See {@link #getSort getSort}.
      */
-    public final static int METHOD_REFERENCE_RECEIVER = 0x46;
+    public final static int METHOD_REFERENCE = 0x46;
 
     /**
      * The sort of type references that target the type declared in an explicit
@@ -199,9 +199,8 @@ public class TypeReference {
      *            {@link #LOCAL_VARIABLE LOCAL_VARIABLE},
      *            {@link #RESOURCE_VARIABLE RESOURCE_VARIABLE},
      *            {@link #INSTANCEOF INSTANCEOF}, {@link #NEW NEW},
-     *            {@link #CONSTRUCTOR_REFERENCE_RECEIVER
-     *            CONSTRUCTOR_REFERENCE_RECEIVER}, or
-     *            {@link #METHOD_REFERENCE_RECEIVER METHOD_REFERENCE_RECEIVER}.
+     *            {@link #CONSTRUCTOR_REFERENCE CONSTRUCTOR_REFERENCE}, or
+     *            {@link #METHOD_REFERENCE METHOD_REFERENCE}.
      * @return a type reference of the given sort.
      */
     public static TypeReference newTypeReference(int sort) {
@@ -336,10 +335,9 @@ public class TypeReference {
      *         {@link #RESOURCE_VARIABLE RESOURCE_VARIABLE},
      *         {@link #EXCEPTION_PARAMETER EXCEPTION_PARAMETER},
      *         {@link #INSTANCEOF INSTANCEOF}, {@link #NEW NEW},
-     *         {@link #CONSTRUCTOR_REFERENCE_RECEIVER
-     *         CONSTRUCTOR_REFERENCE_RECEIVER},
-     *         {@link #METHOD_REFERENCE_RECEIVER METHOD_REFERENCE_RECEIVER},
-     *         {@link #CAST CAST}, {@link #CONSTRUCTOR_INVOCATION_TYPE_ARGUMENT
+     *         {@link #CONSTRUCTOR_REFERENCE CONSTRUCTOR_REFERENCE},
+     *         {@link #METHOD_REFERENCE METHOD_REFERENCE}, {@link #CAST CAST},
+     *         {@link #CONSTRUCTOR_INVOCATION_TYPE_ARGUMENT
      *         CONSTRUCTOR_INVOCATION_TYPE_ARGUMENT},
      *         {@link #METHOD_INVOCATION_TYPE_ARGUMENT
      *         METHOD_INVOCATION_TYPE_ARGUMENT},

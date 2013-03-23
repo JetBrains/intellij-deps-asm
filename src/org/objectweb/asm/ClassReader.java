@@ -1613,8 +1613,8 @@ public class ClassReader {
             // case 0x42: // EXCEPTION_PARAMETER
             // case 0x43: // INSTANCEOF
             // case 0x44: // NEW
-            // case 0x45: // CONSTRUCTOR_REFERENCE_RECEIVER
-            // case 0x46: // METHOD_REFERENCE_RECEIVER
+            // case 0x45: // CONSTRUCTOR_REFERENCE
+            // case 0x46: // METHOD_REFERENCE
             default:
                 u += 3;
                 break;
@@ -1695,8 +1695,8 @@ public class ClassReader {
         // case 0x42: // EXCEPTION_PARAMETER
         // case 0x43: // INSTANCEOF
         // case 0x44: // NEW
-        // case 0x45: // CONSTRUCTOR_REFERENCE_RECEIVER
-        // case 0x46: // METHOD_REFERENCE_RECEIVER
+        // case 0x45: // CONSTRUCTOR_REFERENCE
+        // case 0x46: // METHOD_REFERENCE
         default:
             target &= (target >>> 24) < 0x43 ? 0xFFFFFF00 : 0xFF000000;
             u += 3;

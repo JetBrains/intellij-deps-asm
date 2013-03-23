@@ -628,10 +628,9 @@ public abstract class MethodVisitor {
      *            a reference to the annotated type. The sort of this type
      *            reference must be {@link TypeReference#INSTANCEOF INSTANCEOF},
      *            {@link TypeReference#NEW NEW},
-     *            {@link TypeReference#CONSTRUCTOR_REFERENCE_RECEIVER
-     *            CONSTRUCTOR_REFERENCE_RECEIVER},
-     *            {@link TypeReference#METHOD_REFERENCE_RECEIVER
-     *            METHOD_REFERENCE_RECEIVER}, {@link TypeReference#CAST CAST},
+     *            {@link TypeReference#CONSTRUCTOR_REFERENCE
+     *            CONSTRUCTOR_REFERENCE}, {@link TypeReference#METHOD_REFERENCE
+     *            METHOD_REFERENCE}, {@link TypeReference#CAST CAST},
      *            {@link TypeReference#CONSTRUCTOR_INVOCATION_TYPE_ARGUMENT
      *            CONSTRUCTOR_INVOCATION_TYPE_ARGUMENT},
      *            {@link TypeReference#METHOD_INVOCATION_TYPE_ARGUMENT

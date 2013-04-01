@@ -1628,7 +1628,7 @@ public class ClassWriter extends ClassVisitor {
 
     /**
      * Returns the common super type of the two given types. The default
-     * implementation of this method <i>loads<i> the two given classes and uses
+     * implementation of this method <i>loads</i> the two given classes and uses
      * the java.lang.Class methods to find the common super class. It can be
      * overridden to compute this common super type in other ways, in particular
      * without actually loading any class, or to take into account the class

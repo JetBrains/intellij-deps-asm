@@ -55,7 +55,7 @@ import org.objectweb.asm.Opcodes;
 
 /**
  * A Jar file optimizer.
- * 
+ *
  * @author Eric Bruneton
  */
 public class JarOptimizer {
@@ -111,6 +111,7 @@ public class JarOptimizer {
             while (e.hasMoreElements()) {
                 ZipEntry ze = e.nextElement();
                 if (ze.isDirectory()) {
+                    out.putNextEntry(ze);
                     continue;
                 }
                 out.putNextEntry(ze);

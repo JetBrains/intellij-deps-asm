@@ -294,6 +294,7 @@ public class LocalVariablesSorter extends MethodVisitor {
         int local = newLocalMapping(type);
         setLocalType(local, type);
         setFrameLocal(local, t);
+        changed = true;
         return local;
     }
 

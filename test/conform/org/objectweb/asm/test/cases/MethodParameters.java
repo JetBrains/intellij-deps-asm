@@ -43,7 +43,7 @@ import org.objectweb.asm.TypeReference;
 
 /**
  * Generates a class with 2 methods with method parameters.
- * 
+ *
  * @author Remi Forax
  */
 public class MethodParameters extends Generator {
@@ -63,11 +63,11 @@ public class MethodParameters extends Generator {
                 null,
                 "java/lang/Object",
                 null);
-        
+
         // static method
         MethodVisitor mv = cv.visitMethod(ACC_PUBLIC + ACC_STATIC, "m",
-                "(ILjava/lang/Object;Ljava/lang/String;Ljava/lang/Object;I)V;", null, null);
-        
+                "(ILjava/lang/Object;Ljava/lang/String;Ljava/lang/Object;I)V", null, null);
+
         // parameter 0 type int
         mv.visitParameter("i", 0);
         // parameter 1 type Object
@@ -78,20 +78,20 @@ public class MethodParameters extends Generator {
         mv.visitParameter("o2", ACC_SYNTHETIC);
         // parameter 4 type Object
         mv.visitParameter("i2", ACC_FINAL + ACC_SYNTHETIC);
-        
+
         mv.visitCode();
         mv.visitInsn(RETURN);
         mv.visitMaxs(0, 5);
         mv.visitEnd();
-        
+
         // abstract method
         MethodVisitor mv2 = cv.visitMethod(ACC_PUBLIC + ACC_ABSTRACT, "m",
-                "(J)V;", null, null);
-        
+                "(J)V", null, null);
+
         // parameter 0 type long
         mv2.visitParameter("l", 0);
         mv2.visitEnd();
-        
+
         cv.visitEnd();
         return cw.toByteArray();
     }

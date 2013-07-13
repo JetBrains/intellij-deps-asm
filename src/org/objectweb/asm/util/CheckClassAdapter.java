@@ -442,7 +442,15 @@ public class CheckClassAdapter extends ClassVisitor {
             CheckMethodAdapter.checkInternalName(outerName, "outer class name");
         }
         if (innerName != null) {
-            CheckMethodAdapter.checkIdentifier(innerName, "inner class name");
+            int start = 0;
+            while (start < innerName.length()
+                    && Character.isDigit(innerName.charAt(start))) {
+                start++;
+            }
+            if (start == 0 || start < innerName.length()) {
+                CheckMethodAdapter.checkIdentifier(innerName, start, -1,
+                        "inner class name");
+            }
         }
         checkAccess(access, Opcodes.ACC_PUBLIC + Opcodes.ACC_PRIVATE
                 + Opcodes.ACC_PROTECTED + Opcodes.ACC_STATIC

@@ -35,6 +35,7 @@ import org.objectweb.asm.Handle;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.TypePath;
 
 /**
  * A {@link MethodVisitor} that prints the methods it visits with a
@@ -51,8 +52,14 @@ public final class TraceMethodVisitor extends MethodVisitor {
     }
 
     public TraceMethodVisitor(final MethodVisitor mv, final Printer p) {
-        super(Opcodes.ASM4, mv);
+        super(Opcodes.ASM5, mv);
         this.p = p;
+    }
+
+    @Override
+    public void visitParameter(String name, int access) {
+        p.visitParameter(name, access);
+        super.visitParameter(name, access);
     }
 
     @Override
@@ -61,6 +68,16 @@ public final class TraceMethodVisitor extends MethodVisitor {
         Printer p = this.p.visitMethodAnnotation(desc, visible);
         AnnotationVisitor av = mv == null ? null : mv.visitAnnotation(desc,
                 visible);
+        return new TraceAnnotationVisitor(av, p);
+    }
+
+    @Override
+    public AnnotationVisitor visitTypeAnnotation(int typeRef,
+            TypePath typePath, String desc, boolean visible) {
+        Printer p = this.p.visitMethodTypeAnnotation(typeRef, typePath, desc,
+                visible);
+        AnnotationVisitor av = mv == null ? null : mv.visitTypeAnnotation(
+                typeRef, typePath, desc, visible);
         return new TraceAnnotationVisitor(av, p);
     }
 
@@ -189,10 +206,30 @@ public final class TraceMethodVisitor extends MethodVisitor {
     }
 
     @Override
+    public AnnotationVisitor visitInsnAnnotation(int typeRef,
+            TypePath typePath, String desc, boolean visible) {
+        Printer p = this.p
+                .visitInsnAnnotation(typeRef, typePath, desc, visible);
+        AnnotationVisitor av = mv == null ? null : mv.visitInsnAnnotation(
+                typeRef, typePath, desc, visible);
+        return new TraceAnnotationVisitor(av, p);
+    }
+
+    @Override
     public void visitTryCatchBlock(final Label start, final Label end,
             final Label handler, final String type) {
         p.visitTryCatchBlock(start, end, handler, type);
         super.visitTryCatchBlock(start, end, handler, type);
+    }
+
+    @Override
+    public AnnotationVisitor visitTryCatchAnnotation(int typeRef,
+            TypePath typePath, String desc, boolean visible) {
+        Printer p = this.p.visitTryCatchAnnotation(typeRef, typePath, desc,
+                visible);
+        AnnotationVisitor av = mv == null ? null : mv.visitTryCatchAnnotation(
+                typeRef, typePath, desc, visible);
+        return new TraceAnnotationVisitor(av, p);
     }
 
     @Override
@@ -201,6 +238,18 @@ public final class TraceMethodVisitor extends MethodVisitor {
             final int index) {
         p.visitLocalVariable(name, desc, signature, start, end, index);
         super.visitLocalVariable(name, desc, signature, start, end, index);
+    }
+
+    @Override
+    public AnnotationVisitor visitLocalVariableAnnotation(int typeRef,
+            TypePath typePath, Label[] start, Label[] end, int[] index,
+            String desc, boolean visible) {
+        Printer p = this.p.visitLocalVariableAnnotation(typeRef, typePath,
+                start, end, index, desc, visible);
+        AnnotationVisitor av = mv == null ? null : mv
+                .visitLocalVariableAnnotation(typeRef, typePath, start, end,
+                        index, desc, visible);
+        return new TraceAnnotationVisitor(av, p);
     }
 
     @Override

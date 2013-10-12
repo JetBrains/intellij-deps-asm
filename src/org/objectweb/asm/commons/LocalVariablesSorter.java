@@ -29,10 +29,12 @@
  */
 package org.objectweb.asm.commons;
 
+import org.objectweb.asm.AnnotationVisitor;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
+import org.objectweb.asm.TypePath;
 
 /**
  * A {@link MethodVisitor} that renumbers local variables in their order of
@@ -92,7 +94,7 @@ public class LocalVariablesSorter extends MethodVisitor {
      */
     public LocalVariablesSorter(final int access, final String desc,
             final MethodVisitor mv) {
-        this(Opcodes.ASM4, access, desc, mv);
+        this(Opcodes.ASM5, access, desc, mv);
     }
 
     /**
@@ -100,7 +102,7 @@ public class LocalVariablesSorter extends MethodVisitor {
      * 
      * @param api
      *            the ASM API version implemented by this visitor. Must be one
-     *            of {@link Opcodes#ASM4}.
+     *            of {@link Opcodes#ASM4} or {@link Opcodes#ASM5}.
      * @param access
      *            access flags of the adapted method.
      * @param desc
@@ -169,6 +171,19 @@ public class LocalVariablesSorter extends MethodVisitor {
             final int index) {
         int newIndex = remap(index, Type.getType(desc));
         mv.visitLocalVariable(name, desc, signature, start, end, newIndex);
+    }
+
+    @Override
+    public AnnotationVisitor visitLocalVariableAnnotation(int typeRef,
+            TypePath typePath, Label[] start, Label[] end, int[] index,
+            String desc, boolean visible) {
+        Type t = Type.getType(desc);
+        int[] newIndex = new int[index.length];
+        for (int i = 0; i < newIndex.length; ++i) {
+            newIndex[i] = remap(index[i], t);
+        }
+        return mv.visitLocalVariableAnnotation(typeRef, typePath, start, end,
+                newIndex, desc, visible);
     }
 
     @Override

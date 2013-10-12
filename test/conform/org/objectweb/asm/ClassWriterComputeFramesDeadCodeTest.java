@@ -70,7 +70,7 @@ public class ClassWriterComputeFramesDeadCodeTest extends AbstractTest {
     static byte[] transformClass(final String n, final byte[] clazz) {
         ClassReader cr = new ClassReader(clazz);
         ClassWriter cw = new ComputeClassWriter(ClassWriter.COMPUTE_FRAMES);
-        cr.accept(new ClassVisitor(Opcodes.ASM4, cw) {
+        cr.accept(new ClassVisitor(Opcodes.ASM5, cw) {
 
             private String className;
 
@@ -144,7 +144,7 @@ class MethodDeadCodeInserter extends MethodVisitor implements Opcodes {
     private Random r;
 
     public MethodDeadCodeInserter(int seed, final MethodVisitor mv) {
-        super(ASM4, mv);
+        super(ASM5, mv);
         r = new Random(seed);
     }
 

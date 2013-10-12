@@ -48,7 +48,7 @@ public class CodeSizeEvaluatorTest extends AbstractTest {
     @Override
     public void test() throws Exception {
         ClassReader cr = new ClassReader(is);
-        cr.accept(new ClassVisitor(Opcodes.ASM4, new ClassWriter(0)) {
+        cr.accept(new ClassVisitor(Opcodes.ASM5, new ClassWriter(0)) {
             @Override
             public MethodVisitor visitMethod(final int access,
                     final String name, final String desc,

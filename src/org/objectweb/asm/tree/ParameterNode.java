@@ -27,45 +27,50 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
  * THE POSSIBILITY OF SUCH DAMAGE.
  */
+package org.objectweb.asm.tree;
 
-package org.objectweb.asm.commons;
-
-import org.objectweb.asm.AnnotationVisitor;
-import org.objectweb.asm.FieldVisitor;
-import org.objectweb.asm.Opcodes;
-import org.objectweb.asm.TypePath;
+import org.objectweb.asm.MethodVisitor;
 
 /**
- * A {@link FieldVisitor} adapter for type remapping.
+ * A node that represents a parameter access and name.
  * 
- * @author Eugene Kuleshov
+ * @author Remi Forax
  */
-public class RemappingFieldAdapter extends FieldVisitor {
+public class ParameterNode {
+    /**
+     * The parameter's name.
+     */
+    public String name;
 
-    private final Remapper remapper;
+    /**
+     * The parameter's access flags (see {@link org.objectweb.asm.Opcodes}).
+     * Valid values are <tt>ACC_FINAL</tt>, <tt>ACC_SYNTHETIC</tt> and
+     * <tt>ACC_MANDATED</tt>.
+     */
+    public int access;
 
-    public RemappingFieldAdapter(final FieldVisitor fv, final Remapper remapper) {
-        this(Opcodes.ASM5, fv, remapper);
+    /**
+     * Constructs a new {@link ParameterNode}.
+     * 
+     * @param access
+     *            The parameter's access flags. Valid values are
+     *            <tt>ACC_FINAL</tt>, <tt>ACC_SYNTHETIC</tt> or/and
+     *            <tt>ACC_MANDATED</tt> (see {@link org.objectweb.asm.Opcodes}).
+     * @param name
+     *            the parameter's name.
+     */
+    public ParameterNode(final String name, final int access) {
+        this.name = name;
+        this.access = access;
     }
 
-    protected RemappingFieldAdapter(final int api, final FieldVisitor fv,
-            final Remapper remapper) {
-        super(api, fv);
-        this.remapper = remapper;
-    }
-
-    @Override
-    public AnnotationVisitor visitAnnotation(String desc, boolean visible) {
-        AnnotationVisitor av = fv.visitAnnotation(remapper.mapDesc(desc),
-                visible);
-        return av == null ? null : new RemappingAnnotationAdapter(av, remapper);
-    }
-
-    @Override
-    public AnnotationVisitor visitTypeAnnotation(int typeRef,
-            TypePath typePath, String desc, boolean visible) {
-        AnnotationVisitor av = super.visitTypeAnnotation(typeRef, typePath,
-                remapper.mapDesc(desc), visible);
-        return av == null ? null : new RemappingAnnotationAdapter(av, remapper);
+    /**
+     * Makes the given visitor visit this parameter declaration.
+     * 
+     * @param mv
+     *            a method visitor.
+     */
+    public void accept(final MethodVisitor mv) {
+        mv.visitParameter(name, access);
     }
 }

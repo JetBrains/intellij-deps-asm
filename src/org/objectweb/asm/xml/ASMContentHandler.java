@@ -42,6 +42,7 @@ import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
+import org.objectweb.asm.TypePath;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
@@ -95,6 +96,7 @@ public class ASMContentHandler extends DefaultHandler implements Opcodes {
         RULES.add(BASE + "/method/exceptions/exception", new ExceptionRule());
         RULES.add(BASE + "/method/exceptions", new ExceptionsRule());
 
+        RULES.add(BASE + "/method/parameter", new MethodParameterRule());
         RULES.add(BASE + "/method/annotationDefault",
                 new AnnotationDefaultRule());
 
@@ -122,7 +124,12 @@ public class ASMContentHandler extends DefaultHandler implements Opcodes {
         RULES.add(BASE + "/method/code/Max", new MaxRule());
 
         RULES.add("*/annotation", new AnnotationRule());
+        RULES.add("*/typeAnnotation", new TypeAnnotationRule());
         RULES.add("*/parameterAnnotation", new AnnotationParameterRule());
+        RULES.add("*/insnAnnotation", new InsnAnnotationRule());
+        RULES.add("*/tryCatchAnnotation", new TryCatchAnnotationRule());
+        RULES.add("*/localVariableAnnotation",
+                new LocalVariableAnnotationRule());
         RULES.add("*/annotationValue", new AnnotationValueRule());
         RULES.add("*/annotationValueAnnotation",
                 new AnnotationValueAnnotationRule());
@@ -662,6 +669,9 @@ public class ASMContentHandler extends DefaultHandler implements Opcodes {
             if (s.indexOf("deprecated") != -1) {
                 access |= ACC_DEPRECATED;
             }
+            if (s.indexOf("mandated") != -1) {
+                access |= ACC_MANDATED;
+            }
             return access;
         }
     }
@@ -834,6 +844,18 @@ public class ASMContentHandler extends DefaultHandler implements Opcodes {
             String[] exceptions = excs.toArray(new String[excs.size()]);
 
             push(cv.visitMethod(access, name, desc, signature, exceptions));
+        }
+    }
+
+    /**
+     * MethodParameterRule
+     */
+    final class MethodParameterRule extends Rule {
+        @Override
+        public void begin(final String nm, final Attributes attrs) {
+            String name = attrs.getValue("name");
+            int access = getAccess(attrs.getValue("access"));
+            getCodeVisitor().visitParameter(name, access);
         }
     }
 
@@ -1199,6 +1221,38 @@ public class ASMContentHandler extends DefaultHandler implements Opcodes {
         }
     }
 
+    final class TypeAnnotationRule extends Rule {
+
+        @Override
+        public void begin(final String name, final Attributes attrs) {
+            String desc = attrs.getValue("desc");
+            boolean visible = Boolean.valueOf(attrs.getValue("visible"))
+                    .booleanValue();
+            int typeRef = Integer.parseInt(attrs.getValue("typeRef"));
+            TypePath typePath = TypePath.fromString(attrs.getValue("typePath"));
+
+            Object v = peek();
+            if (v instanceof ClassVisitor) {
+                push(((ClassVisitor) v).visitTypeAnnotation(typeRef, typePath,
+                        desc, visible));
+            } else if (v instanceof FieldVisitor) {
+                push(((FieldVisitor) v).visitTypeAnnotation(typeRef, typePath,
+                        desc, visible));
+            } else if (v instanceof MethodVisitor) {
+                push(((MethodVisitor) v).visitTypeAnnotation(typeRef, typePath,
+                        desc, visible));
+            }
+        }
+
+        @Override
+        public void end(final String name) {
+            AnnotationVisitor av = (AnnotationVisitor) pop();
+            if (av != null) {
+                av.visitEnd();
+            }
+        }
+    }
+
     final class AnnotationParameterRule extends Rule {
 
         @Override
@@ -1210,6 +1264,87 @@ public class ASMContentHandler extends DefaultHandler implements Opcodes {
 
             push(((MethodVisitor) peek()).visitParameterAnnotation(parameter,
                     desc, visible));
+        }
+
+        @Override
+        public void end(final String name) {
+            AnnotationVisitor av = (AnnotationVisitor) pop();
+            if (av != null) {
+                av.visitEnd();
+            }
+        }
+    }
+
+    final class InsnAnnotationRule extends Rule {
+
+        @Override
+        public void begin(final String name, final Attributes attrs) {
+            String desc = attrs.getValue("desc");
+            boolean visible = Boolean.valueOf(attrs.getValue("visible"))
+                    .booleanValue();
+            int typeRef = Integer.parseInt(attrs.getValue("typeRef"));
+            TypePath typePath = TypePath.fromString(attrs.getValue("typePath"));
+            push(((MethodVisitor) peek()).visitInsnAnnotation(typeRef,
+                    typePath, desc, visible));
+        }
+
+        @Override
+        public void end(final String name) {
+            AnnotationVisitor av = (AnnotationVisitor) pop();
+            if (av != null) {
+                av.visitEnd();
+            }
+        }
+    }
+
+    final class TryCatchAnnotationRule extends Rule {
+
+        @Override
+        public void begin(final String name, final Attributes attrs) {
+            String desc = attrs.getValue("desc");
+            boolean visible = Boolean.valueOf(attrs.getValue("visible"))
+                    .booleanValue();
+            int typeRef = Integer.parseInt(attrs.getValue("typeRef"));
+            TypePath typePath = TypePath.fromString(attrs.getValue("typePath"));
+            push(((MethodVisitor) peek()).visitTryCatchAnnotation(typeRef,
+                    typePath, desc, visible));
+        }
+
+        @Override
+        public void end(final String name) {
+            AnnotationVisitor av = (AnnotationVisitor) pop();
+            if (av != null) {
+                av.visitEnd();
+            }
+        }
+    }
+
+    final class LocalVariableAnnotationRule extends Rule {
+
+        @Override
+        public void begin(final String name, final Attributes attrs) {
+            String desc = attrs.getValue("desc");
+            boolean visible = Boolean.valueOf(attrs.getValue("visible"))
+                    .booleanValue();
+            int typeRef = Integer.parseInt(attrs.getValue("typeRef"));
+            TypePath typePath = TypePath.fromString(attrs.getValue("typePath"));
+            String[] s = attrs.getValue("start").split(" ");
+            Label[] start = new Label[s.length];
+            for (int i = 0; i < start.length; ++i) {
+                start[i] = getLabel(s[i]);
+            }
+            String[] e = attrs.getValue("end").split(" ");
+            Label[] end = new Label[e.length];
+            for (int i = 0; i < end.length; ++i) {
+                end[i] = getLabel(e[i]);
+            }
+            String[] v = attrs.getValue("index").split(" ");
+            int[] index = new int[v.length];
+            for (int i = 0; i < index.length; ++i) {
+                index[i] = Integer.parseInt(v[i]);
+            }
+            push(((MethodVisitor) peek()).visitLocalVariableAnnotation(typeRef,
+                    typePath, start, end, index, desc, visible));
         }
 
         @Override

@@ -55,7 +55,7 @@ public class InstructionAdapter extends MethodVisitor {
      *            the method visitor to which this adapter delegates calls.
      */
     public InstructionAdapter(final MethodVisitor mv) {
-        this(Opcodes.ASM4, mv);
+        this(Opcodes.ASM5, mv);
     }
 
     /**
@@ -63,7 +63,7 @@ public class InstructionAdapter extends MethodVisitor {
      * 
      * @param api
      *            the ASM API version implemented by this visitor. Must be one
-     *            of {@link Opcodes#ASM4}.
+     *            of {@link Opcodes#ASM4} or {@link Opcodes#ASM5}.
      * @param mv
      *            the method visitor to which this adapter delegates calls.
      */

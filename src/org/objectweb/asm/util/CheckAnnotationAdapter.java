@@ -49,7 +49,7 @@ public class CheckAnnotationAdapter extends AnnotationVisitor {
     }
 
     CheckAnnotationAdapter(final AnnotationVisitor av, final boolean named) {
-        super(Opcodes.ASM4, av);
+        super(Opcodes.ASM5, av);
         this.named = named;
     }
 

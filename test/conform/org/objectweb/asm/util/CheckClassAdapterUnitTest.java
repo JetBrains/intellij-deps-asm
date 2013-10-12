@@ -468,7 +468,7 @@ public class CheckClassAdapterUnitTest extends TestCase implements Opcodes {
     public void testIllegalDebugLabelUse() throws IOException {
         ClassReader cr = new ClassReader("java.lang.Object");
         ClassWriter cw = new ClassWriter(cr, ClassWriter.COMPUTE_MAXS);
-        ClassVisitor cv = new ClassVisitor(Opcodes.ASM4, cw) {
+        ClassVisitor cv = new ClassVisitor(Opcodes.ASM5, cw) {
             @Override
             public MethodVisitor visitMethod(int access, String name,
                     String desc, String signature, String[] exceptions) {
@@ -477,7 +477,7 @@ public class CheckClassAdapterUnitTest extends TestCase implements Opcodes {
                 if (next == null) {
                     return next;
                 }
-                return new MethodVisitor(Opcodes.ASM4, new CheckMethodAdapter(
+                return new MethodVisitor(Opcodes.ASM5, new CheckMethodAdapter(
                         next)) {
                     private Label entryLabel = null;
 

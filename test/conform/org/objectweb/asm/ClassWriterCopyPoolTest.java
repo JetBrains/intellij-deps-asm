@@ -56,7 +56,7 @@ public class ClassWriterCopyPoolTest extends AbstractTest {
     static class ChangeExceptionAdapter extends ClassVisitor {
 
         public ChangeExceptionAdapter(final ClassVisitor cv) {
-            super(Opcodes.ASM4, cv);
+            super(Opcodes.ASM5, cv);
         }
 
         @Override

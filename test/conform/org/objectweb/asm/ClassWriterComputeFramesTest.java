@@ -72,7 +72,7 @@ public class ClassWriterComputeFramesTest extends AbstractTest {
     static byte[] transformClass(final String n, final byte[] clazz) {
         ClassReader cr = new ClassReader(clazz);
         ClassWriter cw = new ComputeClassWriter(ClassWriter.COMPUTE_FRAMES);
-        cr.accept(new ClassVisitor(Opcodes.ASM4, cw) {
+        cr.accept(new ClassVisitor(Opcodes.ASM5, cw) {
 
             @Override
             public void visit(final int version, final int access,

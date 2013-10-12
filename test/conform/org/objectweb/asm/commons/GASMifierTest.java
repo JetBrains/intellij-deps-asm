@@ -153,7 +153,7 @@ public class GASMifierTest extends AbstractTest {
     static class ClassLocalVariablesSorter extends ClassVisitor {
 
         public ClassLocalVariablesSorter(final ClassVisitor cv) {
-            super(Opcodes.ASM4, cv);
+            super(Opcodes.ASM5, cv);
         }
 
         @Override
@@ -168,14 +168,14 @@ public class GASMifierTest extends AbstractTest {
     static class Filter extends ClassVisitor {
 
         public Filter() {
-            super(Opcodes.ASM4);
+            super(Opcodes.ASM5);
         }
 
         @Override
         public MethodVisitor visitMethod(final int access, final String name,
                 final String desc, final String signature,
                 final String[] exceptions) {
-            return new MethodVisitor(Opcodes.ASM4, super.visitMethod(access,
+            return new MethodVisitor(Opcodes.ASM5, super.visitMethod(access,
                     name, desc, signature, exceptions)) {
                 @Override
                 public void visitMaxs(final int maxStack, final int maxLocals) {

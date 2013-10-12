@@ -48,12 +48,26 @@ public class ClassAdapterTest extends AbstractTest {
     public void test() throws Exception {
         ClassReader cr = new ClassReader(is);
         ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_MAXS);
-        cr.accept(new ClassVisitor(Opcodes.ASM4, cw) {
+        cr.accept(new ClassVisitor(Opcodes.ASM5, cw) {
+
+            @Override
+            public AnnotationVisitor visitAnnotation(String desc,
+                    boolean visible) {
+                return new AnnotationAdapter(super.visitAnnotation(desc,
+                        visible));
+            }
+
+            @Override
+            public AnnotationVisitor visitTypeAnnotation(int typeRef,
+                    TypePath typePath, String desc, boolean visible) {
+                return new AnnotationAdapter(super.visitTypeAnnotation(typeRef,
+                        typePath, desc, visible));
+            }
 
             @Override
             public FieldVisitor visitField(int access, String name,
                     String desc, String signature, Object value) {
-                return new FieldVisitor(Opcodes.ASM4, super.visitField(access,
+                return new FieldVisitor(Opcodes.ASM5, super.visitField(access,
                         name, desc, signature, value)) {
                     @Override
                     public AnnotationVisitor visitAnnotation(String desc,
@@ -61,13 +75,20 @@ public class ClassAdapterTest extends AbstractTest {
                         return new AnnotationAdapter(super.visitAnnotation(
                                 desc, visible));
                     }
+
+                    @Override
+                    public AnnotationVisitor visitTypeAnnotation(int typeRef,
+                            TypePath typePath, String desc, boolean visible) {
+                        return new AnnotationAdapter(super.visitTypeAnnotation(
+                                typeRef, typePath, desc, visible));
+                    }
                 };
             }
 
             @Override
             public MethodVisitor visitMethod(int access, String name,
                     String desc, String signature, String[] exceptions) {
-                return new MethodVisitor(Opcodes.ASM4, super.visitMethod(
+                return new MethodVisitor(Opcodes.ASM5, super.visitMethod(
                         access, name, desc, signature, exceptions)) {
                     @Override
                     public AnnotationVisitor visitAnnotationDefault() {
@@ -83,10 +104,44 @@ public class ClassAdapterTest extends AbstractTest {
                     }
 
                     @Override
+                    public AnnotationVisitor visitTypeAnnotation(int typeRef,
+                            TypePath typePath, String desc, boolean visible) {
+                        return new AnnotationAdapter(super.visitTypeAnnotation(
+                                typeRef, typePath, desc, visible));
+                    }
+
+                    @Override
                     public AnnotationVisitor visitParameterAnnotation(
                             int parameter, String desc, boolean visible) {
                         return new AnnotationAdapter(super
                                 .visitParameterAnnotation(parameter, desc,
+                                        visible));
+                    }
+
+                    @Override
+                    public AnnotationVisitor visitInsnAnnotation(int typeRef,
+                            TypePath typePath, String desc, boolean visible) {
+                        return new AnnotationAdapter(super.visitInsnAnnotation(
+                                typeRef, typePath, desc, visible));
+                    }
+
+                    @Override
+                    public AnnotationVisitor visitTryCatchAnnotation(
+                            int typeRef, TypePath typePath, String desc,
+                            boolean visible) {
+                        return new AnnotationAdapter(super
+                                .visitTryCatchAnnotation(typeRef, typePath,
+                                        desc, visible));
+                    }
+
+                    @Override
+                    public AnnotationVisitor visitLocalVariableAnnotation(
+                            int typeRef, TypePath typePath, Label[] start,
+                            Label[] end, int[] index, String desc,
+                            boolean visible) {
+                        return new AnnotationAdapter(super
+                                .visitLocalVariableAnnotation(typeRef,
+                                        typePath, start, end, index, desc,
                                         visible));
                     }
                 };
@@ -104,7 +159,7 @@ public class ClassAdapterTest extends AbstractTest {
     static class AnnotationAdapter extends AnnotationVisitor {
 
         public AnnotationAdapter(final AnnotationVisitor av) {
-            super(Opcodes.ASM4, av);
+            super(Opcodes.ASM5, av);
         }
 
         @Override

@@ -47,7 +47,7 @@ import org.objectweb.asm.tree.MethodInsnNode;
 public class BasicVerifier extends BasicInterpreter {
 
     public BasicVerifier() {
-        super(ASM4);
+        super(ASM5);
     }
 
     protected BasicVerifier(final int api) {

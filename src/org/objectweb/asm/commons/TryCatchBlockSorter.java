@@ -37,6 +37,7 @@ import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.tree.MethodNode;
 import org.objectweb.asm.tree.TryCatchBlockNode;
+import org.objectweb.asm.tree.TypeAnnotationNode;
 
 /**
  * A {@link MethodVisitor} adapter to sort the exception handlers. The handlers
@@ -57,7 +58,7 @@ public class TryCatchBlockSorter extends MethodNode {
     public TryCatchBlockSorter(final MethodVisitor mv, final int access,
             final String name, final String desc, final String signature,
             final String[] exceptions) {
-        this(Opcodes.ASM4, mv, access, name, desc, signature, exceptions);
+        this(Opcodes.ASM5, mv, access, name, desc, signature, exceptions);
     }
 
     protected TryCatchBlockSorter(final int api, final MethodVisitor mv,
@@ -85,6 +86,10 @@ public class TryCatchBlockSorter extends MethodNode {
             }
         };
         Collections.sort(tryCatchBlocks, comp);
+        // Updates the 'target' of each try catch block annotation.
+        for (int i = 0; i < tryCatchBlocks.size(); ++i) {
+            tryCatchBlocks.get(i).updateIndex(i);
+        }
         if (mv != null) {
             accept(mv);
         }

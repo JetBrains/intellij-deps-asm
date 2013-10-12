@@ -146,7 +146,7 @@ public class JarOptimizer {
         String owner;
 
         public ClassDump() {
-            super(Opcodes.ASM4);
+            super(Opcodes.ASM5);
         }
 
         @Override
@@ -186,7 +186,7 @@ public class JarOptimizer {
         String method;
 
         public ClassVerifier() {
-            super(Opcodes.ASM4);
+            super(Opcodes.ASM5);
         }
 
         @Override
@@ -201,7 +201,7 @@ public class JarOptimizer {
                 final String desc, final String signature,
                 final String[] exceptions) {
             method = name + desc;
-            return new MethodVisitor(Opcodes.ASM4) {
+            return new MethodVisitor(Opcodes.ASM5) {
                 @Override
                 public void visitFieldInsn(final int opcode,
                         final String owner, final String name, final String desc) {

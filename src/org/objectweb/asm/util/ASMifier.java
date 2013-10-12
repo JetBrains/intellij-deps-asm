@@ -40,10 +40,11 @@ import org.objectweb.asm.Handle;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
+import org.objectweb.asm.TypePath;
 
 /**
  * A {@link Printer} that prints the ASM code to generate the classes if visits.
- * 
+ *
  * @author Eric Bruneton
  */
 public class ASMifier extends Printer {
@@ -85,15 +86,15 @@ public class ASMifier extends Printer {
      * {@link #ASMifier(int, String, int)} version.
      */
     public ASMifier() {
-        this(Opcodes.ASM4, "cw", 0);
+        this(Opcodes.ASM5, "cw", 0);
     }
 
     /**
      * Constructs a new {@link ASMifier}.
-     * 
+     *
      * @param api
      *            the ASM API version implemented by this class. Must be one of
-     *            {@link Opcodes#ASM4}.
+     *            {@link Opcodes#ASM4} or {@link Opcodes#ASM5}.
      * @param name
      *            the name of the visitor variable in the produced code.
      * @param id
@@ -111,10 +112,10 @@ public class ASMifier extends Printer {
      * output.
      * <p>
      * Usage: ASMifier [-debug] &lt;binary class name or class file name&gt;
-     * 
+     *
      * @param args
      *            the command line arguments.
-     * 
+     *
      * @throws Exception
      *             if the class cannot be found, or if an IO exception occurs.
      */
@@ -258,6 +259,12 @@ public class ASMifier extends Printer {
     public ASMifier visitClassAnnotation(final String desc,
             final boolean visible) {
         return visitAnnotation(desc, visible);
+    }
+
+    @Override
+    public ASMifier visitClassTypeAnnotation(final int typeRef,
+            final TypePath typePath, final String desc, final boolean visible) {
+        return visitTypeAnnotation(typeRef, typePath, desc, visible);
     }
 
     @Override
@@ -423,6 +430,12 @@ public class ASMifier extends Printer {
     }
 
     @Override
+    public ASMifier visitFieldTypeAnnotation(final int typeRef,
+            final TypePath typePath, final String desc, final boolean visible) {
+        return visitTypeAnnotation(typeRef, typePath, desc, visible);
+    }
+
+    @Override
     public void visitFieldAttribute(final Attribute attr) {
         visitAttribute(attr);
     }
@@ -437,6 +450,15 @@ public class ASMifier extends Printer {
     // ------------------------------------------------------------------------
     // Methods
     // ------------------------------------------------------------------------
+
+    @Override
+    public void visitParameter(String parameterName, int access) {
+        buf.setLength(0);
+        buf.append(name).append(".visitParameter(").append(parameterName)
+                .append(", ");
+        appendAccess(access);
+        text.add(buf.append(");\n").toString());
+    }
 
     @Override
     public ASMifier visitAnnotationDefault() {
@@ -454,6 +476,12 @@ public class ASMifier extends Printer {
     public ASMifier visitMethodAnnotation(final String desc,
             final boolean visible) {
         return visitAnnotation(desc, visible);
+    }
+
+    @Override
+    public ASMifier visitMethodTypeAnnotation(final int typeRef,
+            final TypePath typePath, final String desc, final boolean visible) {
+        return visitTypeAnnotation(typeRef, typePath, desc, visible);
     }
 
     @Override
@@ -711,6 +739,13 @@ public class ASMifier extends Printer {
     }
 
     @Override
+    public ASMifier visitInsnAnnotation(final int typeRef,
+            final TypePath typePath, final String desc, final boolean visible) {
+        return visitTypeAnnotation("visitInsnAnnotation", typeRef, typePath,
+                desc, visible);
+    }
+
+    @Override
     public void visitTryCatchBlock(final Label start, final Label end,
             final Label handler, final String type) {
         buf.setLength(0);
@@ -730,6 +765,13 @@ public class ASMifier extends Printer {
     }
 
     @Override
+    public ASMifier visitTryCatchAnnotation(final int typeRef,
+            final TypePath typePath, final String desc, final boolean visible) {
+        return visitTypeAnnotation("visitTryCatchAnnotation", typeRef,
+                typePath, desc, visible);
+    }
+
+    @Override
     public void visitLocalVariable(final String name, final String desc,
             final String signature, final Label start, final Label end,
             final int index) {
@@ -746,6 +788,39 @@ public class ASMifier extends Printer {
         appendLabel(end);
         buf.append(", ").append(index).append(");\n");
         text.add(buf.toString());
+    }
+
+    @Override
+    public Printer visitLocalVariableAnnotation(int typeRef, TypePath typePath,
+            Label[] start, Label[] end, int[] index, String desc,
+            boolean visible) {
+        buf.setLength(0);
+        buf.append("{\n").append("av0 = ").append(name)
+                .append(".visitLocalVariableAnnotation(");
+        buf.append(typeRef);
+        buf.append(", TypePath.fromString(\"").append(typePath).append("\"), ");
+        buf.append("new Label[] {");
+        for (int i = 0; i < start.length; ++i) {
+            buf.append(i == 0 ? " " : ", ");
+            appendLabel(start[i]);
+        }
+        buf.append(" }, new Label[] {");
+        for (int i = 0; i < end.length; ++i) {
+            buf.append(i == 0 ? " " : ", ");
+            appendLabel(end[i]);
+        }
+        buf.append(" }, new int[] {");
+        for (int i = 0; i < index.length; ++i) {
+            buf.append(i == 0 ? " " : ", ").append(index[i]);
+        }
+        buf.append(" }, ");
+        appendConstant(desc);
+        buf.append(", ").append(visible).append(");\n");
+        text.add(buf.toString());
+        ASMifier a = createASMifier("av", 0);
+        text.add(a.getText());
+        text.add("}\n");
+        return a;
     }
 
     @Override
@@ -789,6 +864,28 @@ public class ASMifier extends Printer {
         return a;
     }
 
+    public ASMifier visitTypeAnnotation(final int typeRef,
+            final TypePath typePath, final String desc, final boolean visible) {
+        return visitTypeAnnotation("visitTypeAnnotation", typeRef, typePath,
+                desc, visible);
+    }
+
+    public ASMifier visitTypeAnnotation(final String method, final int typeRef,
+            final TypePath typePath, final String desc, final boolean visible) {
+        buf.setLength(0);
+        buf.append("{\n").append("av0 = ").append(name).append(".")
+                .append(method).append("(");
+        buf.append(typeRef);
+        buf.append(", TypePath.fromString(\"").append(typePath).append("\"), ");
+        appendConstant(desc);
+        buf.append(", ").append(visible).append(");\n");
+        text.add(buf.toString());
+        ASMifier a = createASMifier("av", 0);
+        text.add(a.getText());
+        text.add("}\n");
+        return a;
+    }
+
     public void visitAttribute(final Attribute attr) {
         buf.setLength(0);
         buf.append("// ATTRIBUTE ").append(attr.type).append('\n');
@@ -809,13 +906,13 @@ public class ASMifier extends Printer {
     // ------------------------------------------------------------------------
 
     protected ASMifier createASMifier(final String name, final int id) {
-        return new ASMifier(Opcodes.ASM4, name, id);
+        return new ASMifier(Opcodes.ASM5, name, id);
     }
 
     /**
      * Appends a string representation of the given access modifiers to
      * {@link #buf buf}.
-     * 
+     *
      * @param access
      *            some access modifiers.
      */
@@ -958,7 +1055,7 @@ public class ASMifier extends Printer {
     /**
      * Appends a string representation of the given constant to the given
      * buffer.
-     * 
+     *
      * @param cst
      *            an {@link Integer}, {@link Float}, {@link Long},
      *            {@link Double} or {@link String} object. May be <tt>null</tt>.
@@ -970,7 +1067,7 @@ public class ASMifier extends Printer {
     /**
      * Appends a string representation of the given constant to the given
      * buffer.
-     * 
+     *
      * @param buf
      *            a string buffer.
      * @param cst
@@ -1121,7 +1218,7 @@ public class ASMifier extends Printer {
      * Appends a declaration of the given label to {@link #buf buf}. This
      * declaration is of the form "Label lXXX = new Label();". Does nothing if
      * the given label has already been declared.
-     * 
+     *
      * @param l
      *            a label.
      */
@@ -1141,7 +1238,7 @@ public class ASMifier extends Printer {
      * Appends the name of the given label to {@link #buf buf}. The given label
      * <i>must</i> already have a name. One way to ensure this is to always call
      * {@link #declareLabel declared} before calling this method.
-     * 
+     *
      * @param l
      *            a label.
      */

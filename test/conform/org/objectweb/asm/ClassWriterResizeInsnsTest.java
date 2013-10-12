@@ -69,7 +69,7 @@ public class ClassWriterResizeInsnsTest extends AbstractTest {
     static byte[] transformClass(final byte[] clazz, final int flags) {
         ClassReader cr = new ClassReader(clazz);
         ClassWriter cw = new ComputeClassWriter(flags);
-        ClassVisitor ca = new ClassVisitor(Opcodes.ASM4, cw) {
+        ClassVisitor ca = new ClassVisitor(Opcodes.ASM5, cw) {
 
             boolean transformed = false;
 
@@ -89,7 +89,7 @@ public class ClassWriterResizeInsnsTest extends AbstractTest {
             public MethodVisitor visitMethod(final int access,
                     final String name, final String desc,
                     final String signature, final String[] exceptions) {
-                return new MethodVisitor(Opcodes.ASM4, cv.visitMethod(access,
+                return new MethodVisitor(Opcodes.ASM5, cv.visitMethod(access,
                         name, desc, signature, exceptions)) {
                     private final HashSet<Label> labels = new HashSet<Label>();
 

@@ -44,9 +44,9 @@ public class ClassReaderTest extends AbstractTest {
 
     @Override
     public void test() throws Exception {
-        new ClassReader(is).accept(new ClassVisitor(Opcodes.ASM4) {
+        new ClassReader(is).accept(new ClassVisitor(Opcodes.ASM5) {
 
-            AnnotationVisitor av = new AnnotationVisitor(Opcodes.ASM4) {
+            AnnotationVisitor av = new AnnotationVisitor(Opcodes.ASM5) {
 
                 @Override
                 public AnnotationVisitor visitAnnotation(String name,
@@ -67,13 +67,25 @@ public class ClassReaderTest extends AbstractTest {
             }
 
             @Override
+            public AnnotationVisitor visitTypeAnnotation(int typeRef,
+                    TypePath typePath, String desc, boolean visible) {
+                return av;
+            }
+
+            @Override
             public FieldVisitor visitField(int access, String name,
                     String desc, String signature, Object value) {
-                return new FieldVisitor(Opcodes.ASM4) {
+                return new FieldVisitor(Opcodes.ASM5) {
 
                     @Override
                     public AnnotationVisitor visitAnnotation(String desc,
                             boolean visible) {
+                        return av;
+                    }
+
+                    @Override
+                    public AnnotationVisitor visitTypeAnnotation(int typeRef,
+                            TypePath typePath, String desc, boolean visible) {
                         return av;
                     }
                 };
@@ -82,7 +94,7 @@ public class ClassReaderTest extends AbstractTest {
             @Override
             public MethodVisitor visitMethod(int access, String name,
                     String desc, String signature, String[] exceptions) {
-                return new MethodVisitor(Opcodes.ASM4) {
+                return new MethodVisitor(Opcodes.ASM5) {
 
                     @Override
                     public AnnotationVisitor visitAnnotationDefault() {
@@ -96,8 +108,35 @@ public class ClassReaderTest extends AbstractTest {
                     }
 
                     @Override
+                    public AnnotationVisitor visitTypeAnnotation(int typeRef,
+                            TypePath typePath, String desc, boolean visible) {
+                        return av;
+                    }
+
+                    @Override
                     public AnnotationVisitor visitParameterAnnotation(
                             int parameter, String desc, boolean visible) {
+                        return av;
+                    }
+
+                    @Override
+                    public AnnotationVisitor visitInsnAnnotation(int typeRef,
+                            TypePath typePath, String desc, boolean visible) {
+                        return av;
+                    }
+
+                    @Override
+                    public AnnotationVisitor visitTryCatchAnnotation(
+                            int typeRef, TypePath typePath, String desc,
+                            boolean visible) {
+                        return av;
+                    }
+
+                    @Override
+                    public AnnotationVisitor visitLocalVariableAnnotation(
+                            int typeRef, TypePath typePath, Label[] start,
+                            Label[] end, int[] index, String desc,
+                            boolean visible) {
                         return av;
                     }
                 };

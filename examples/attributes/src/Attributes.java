@@ -75,7 +75,7 @@ public class Attributes extends ClassLoader {
 class AddCommentClassAdapter extends ClassVisitor implements Opcodes {
 
     public AddCommentClassAdapter(final ClassVisitor cv) {
-        super(Opcodes.ASM4, cv);
+        super(Opcodes.ASM5, cv);
     }
 
     @Override

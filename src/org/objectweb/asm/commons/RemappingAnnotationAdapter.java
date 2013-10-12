@@ -44,7 +44,7 @@ public class RemappingAnnotationAdapter extends AnnotationVisitor {
 
     public RemappingAnnotationAdapter(final AnnotationVisitor av,
             final Remapper remapper) {
-        this(Opcodes.ASM4, av, remapper);
+        this(Opcodes.ASM5, av, remapper);
     }
 
     protected RemappingAnnotationAdapter(final int api,

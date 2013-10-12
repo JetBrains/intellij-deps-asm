@@ -117,7 +117,7 @@ public class AdviceAdapterUnitTest extends AbstractTest {
         String cname;
 
         public AdviceClassAdapter(final ClassVisitor cv) {
-            super(Opcodes.ASM4, cv);
+            super(Opcodes.ASM5, cv);
         }
 
         @Override
@@ -140,7 +140,7 @@ public class AdviceAdapterUnitTest extends AbstractTest {
                 return mv;
             }
 
-            return new AdviceAdapter(Opcodes.ASM4, mv, access, name, desc) {
+            return new AdviceAdapter(Opcodes.ASM5, mv, access, name, desc) {
 
                 @Override
                 protected void onMethodEnter() {

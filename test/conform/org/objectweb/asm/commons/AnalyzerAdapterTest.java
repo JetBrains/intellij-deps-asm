@@ -63,7 +63,7 @@ public class AnalyzerAdapterTest extends AbstractTest {
             }
         }
         ClassWriter cw = new ClassWriter(0);
-        ClassVisitor cv = new ClassVisitor(Opcodes.ASM4, cw) {
+        ClassVisitor cv = new ClassVisitor(Opcodes.ASM5, cw) {
 
             private String owner;
 

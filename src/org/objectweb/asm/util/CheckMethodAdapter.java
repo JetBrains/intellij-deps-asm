@@ -470,6 +470,7 @@ public class CheckMethodAdapter extends MethodVisitor {
         }
         CheckClassAdapter.checkAccess(access, Opcodes.ACC_FINAL
                 + Opcodes.ACC_MANDATED + Opcodes.ACC_SYNTHETIC);
+        super.visitParameter(name, access);
     }
 
     @Override

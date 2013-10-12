@@ -58,6 +58,8 @@ public final class SAXCodeAdapter extends MethodVisitor {
 
     SAXAdapter sa;
 
+    int access;
+
     private final Map<Label, String> labelNames;
 
     /**
@@ -69,11 +71,8 @@ public final class SAXCodeAdapter extends MethodVisitor {
     public SAXCodeAdapter(final SAXAdapter sa, final int access) {
         super(Opcodes.ASM5);
         this.sa = sa;
+        this.access = access;
         this.labelNames = new HashMap<Label, String>();
-
-        if ((access & (Opcodes.ACC_ABSTRACT | Opcodes.ACC_INTERFACE | Opcodes.ACC_NATIVE)) == 0) {
-            sa.addStart("code", new AttributesImpl());
-        }
     }
 
     @Override
@@ -90,6 +89,9 @@ public final class SAXCodeAdapter extends MethodVisitor {
 
     @Override
     public final void visitCode() {
+        if ((access & (Opcodes.ACC_ABSTRACT | Opcodes.ACC_INTERFACE | Opcodes.ACC_NATIVE)) == 0) {
+            sa.addStart("code", new AttributesImpl());
+        }
     }
 
     @Override

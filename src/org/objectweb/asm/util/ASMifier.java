@@ -454,8 +454,9 @@ public class ASMifier extends Printer {
     @Override
     public void visitParameter(String parameterName, int access) {
         buf.setLength(0);
-        buf.append(name).append(".visitParameter(").append(parameterName)
-                .append(", ");
+        buf.append(name).append(".visitParameter(");
+        appendString(buf, parameterName);
+        buf.append(", ");
         appendAccess(access);
         text.add(buf.append(");\n").toString());
     }
@@ -1045,6 +1046,13 @@ public class ASMifier extends Printer {
                 buf.append(" + ");
             }
             buf.append("ACC_DEPRECATED");
+            first = false;
+        }
+        if ((access & Opcodes.ACC_MANDATED) != 0) {
+            if (!first) {
+                buf.append(" + ");
+            }
+            buf.append("ACC_MANDATED");
             first = false;
         }
         if (first) {

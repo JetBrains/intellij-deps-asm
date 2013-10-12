@@ -328,5 +328,8 @@ public final class SAXClassAdapter extends ClassVisitor {
         if ((access & Opcodes.ACC_DEPRECATED) != 0) {
             sb.append("deprecated ");
         }
+        if ((access & Opcodes.ACC_MANDATED) != 0) {
+            sb.append("mandated ");
+        }
     }
 }

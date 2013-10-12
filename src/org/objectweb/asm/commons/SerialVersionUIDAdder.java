@@ -189,7 +189,7 @@ public class SerialVersionUIDAdder extends ClassVisitor {
     }
 
     // ------------------------------------------------------------------------
-    // Overriden methods
+    // Overridden methods
     // ------------------------------------------------------------------------
 
     /*
@@ -205,7 +205,7 @@ public class SerialVersionUIDAdder extends ClassVisitor {
         if (computeSVUID) {
             this.name = name;
             this.access = access;
-            this.interfaces = interfaces;
+            this.interfaces = Arrays.copyOf(interfaces, interfaces.length);
         }
 
         super.visit(version, access, name, signature, superName, interfaces);

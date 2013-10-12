@@ -113,25 +113,26 @@ public final class SAXAnnotationAdapter extends AnnotationVisitor {
                     typePath.toString());
         }
         if (start != null) {
-            String value = start[0];
+            StringBuffer value = new StringBuffer(start[0]);
             for (int i = 1; i < start.length; ++i) {
-                value = value + " " + start[i];
+                value.append(" ").append(start[i]);
             }
-            att.addAttribute("", "start", "start", "", value);
+            att.addAttribute("", "start", "start", "", value.toString());
         }
         if (end != null) {
-            String value = end[0];
+            StringBuffer value = new StringBuffer(end[0]);
             for (int i = 1; i < end.length; ++i) {
-                value = value + " " + end[i];
+                value.append(" ").append(end[i]);
             }
-            att.addAttribute("", "end", "end", "", value);
+            att.addAttribute("", "end", "end", "", value.toString());
         }
         if (index != null) {
-            String value = Integer.toString(index[0]);
+            StringBuffer value = new StringBuffer();
+            value.append(index[0]);
             for (int i = 1; i < index.length; ++i) {
-                value = value + " " + Integer.toString(index[i]);
+                value.append(" ").append(index[i]);
             }
-            att.addAttribute("", "index", "index", "", value);
+            att.addAttribute("", "index", "index", "", value.toString());
         }
 
         sa.addStart(elementName, att);

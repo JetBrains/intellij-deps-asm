@@ -56,9 +56,8 @@ public class TypeAnnotation extends Generator {
     public byte[] dumpTypeAnnotations() {
         ClassWriter cw = new ClassWriter(0);
         ClassVisitor cv = cw;
-        // TODO replace V_7 with V1_8 once we have JDK8.
         cv.visit(
-                V1_7,
+                V1_8,
                 ACC_PUBLIC,
                 "pkg/TypeAnnotations",
                 "<E:Lpkg/C;F:Lpkg/D;>Lpkg/S<TE;TF;>;Lpkg/I1<TE;>;Lpkg/I2<TF;>;",

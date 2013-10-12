@@ -241,7 +241,7 @@ public class ByteVector {
                         byteLength += 2;
                     }
                 }
-                if (length > 65535) {
+                if (byteLength > 65535) {
                     throw new IllegalArgumentException();
                 }
                 data[length] = (byte) (byteLength >>> 8);

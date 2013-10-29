@@ -439,10 +439,49 @@ public abstract class MethodVisitor {
      * @param desc
      *            the method's descriptor (see {@link Type Type}).
      */
+    @Deprecated
     public void visitMethodInsn(int opcode, String owner, String name,
             String desc) {
+        if (api >= Opcodes.ASM5) {
+            boolean itf = opcode == Opcodes.INVOKEINTERFACE;
+            visitMethodInsn(opcode, owner, name, desc, itf);
+            return;
+        }
         if (mv != null) {
             mv.visitMethodInsn(opcode, owner, name, desc);
+        }
+    }
+
+    /**
+     * Visits a method instruction. A method instruction is an instruction that
+     * invokes a method.
+     * 
+     * @param opcode
+     *            the opcode of the type instruction to be visited. This opcode
+     *            is either INVOKEVIRTUAL, INVOKESPECIAL, INVOKESTATIC or
+     *            INVOKEINTERFACE.
+     * @param owner
+     *            the internal name of the method's owner class (see
+     *            {@link Type#getInternalName() getInternalName}).
+     * @param name
+     *            the method's name.
+     * @param desc
+     *            the method's descriptor (see {@link Type Type}).
+     * @param itf
+     *            if the method's owner class is an interface.
+     */
+    public void visitMethodInsn(int opcode, String owner, String name,
+            String desc, boolean itf) {
+        if (api < Opcodes.ASM5) {
+            if (itf != (opcode == Opcodes.INVOKEINTERFACE)) {
+                throw new IllegalArgumentException(
+                        "INVOKESPECIAL/STATIC on interfaces require ASM 5");
+            }
+            visitMethodInsn(opcode, owner, name, desc);
+            return;
+        }
+        if (mv != null) {
+            mv.visitMethodInsn(opcode, owner, name, desc, itf);
         }
     }
 

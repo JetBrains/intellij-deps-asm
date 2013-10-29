@@ -102,7 +102,8 @@ public class Frames extends Generator {
                 null, null);
         mv.visitCode();
         mv.visitVarInsn(ALOAD, 0);
-        mv.visitMethodInsn(INVOKESPECIAL, "java/lang/Object", "<init>", "()V");
+        mv.visitMethodInsn(INVOKESPECIAL, "java/lang/Object", "<init>", "()V",
+                false);
         mv.visitInsn(RETURN);
         mv.visitMaxs(0, 0);
         mv.visitEnd();
@@ -151,15 +152,16 @@ public class Frames extends Generator {
         mv.visitLabel(l1);
         mv.visitTypeInsn(NEW, "java/lang/Object");
         mv.visitInsn(DUP);
-        mv.visitMethodInsn(INVOKESPECIAL, "java/lang/Object", "<init>", "()V");
+        mv.visitMethodInsn(INVOKESPECIAL, "java/lang/Object", "<init>", "()V",
+                false);
         mv.visitFrame(F_FULL, 2, new Object[] { UNINITIALIZED_THIS, INTEGER },
                 4, new Object[] { UNINITIALIZED_THIS, l0, l0,
                         "java/lang/Object" });
         mv.visitLabel(l2);
         mv.visitMethodInsn(INVOKESPECIAL, "pkg/FrameTable", "<init>",
-                "(Ljava/lang/Object;)V");
+                "(Ljava/lang/Object;)V", false);
         mv.visitMethodInsn(INVOKESPECIAL, "pkg/FrameTable", "<init>",
-                "(Ljava/lang/Object;)V");
+                "(Ljava/lang/Object;)V", false);
         mv.visitInsn(RETURN);
         mv.visitMaxs(0, 0);
         mv.visitEnd();
@@ -189,7 +191,8 @@ public class Frames extends Generator {
                 new Object[] { "pkg/FrameTable", INTEGER, l0 }, 2,
                 new Object[] { l0, LONG });
         mv.visitLabel(l2);
-        mv.visitMethodInsn(INVOKESPECIAL, "java/lang/Long", "<init>", "(J)V");
+        mv.visitMethodInsn(INVOKESPECIAL, "java/lang/Long", "<init>", "(J)V",
+                false);
         mv.visitInsn(RETURN);
         mv.visitMaxs(0, 0);
         mv.visitEnd();
@@ -207,14 +210,16 @@ public class Frames extends Generator {
         Label l1 = new Label();
         mv.visitJumpInsn(IFEQ, l1);
         mv.visitInsn(LCONST_0);
-        mv.visitMethodInsn(INVOKESPECIAL, "java/lang/Long", "<init>", "(J)V");
+        mv.visitMethodInsn(INVOKESPECIAL, "java/lang/Long", "<init>", "(J)V",
+                false);
         Label l2 = new Label();
         mv.visitJumpInsn(GOTO, l2);
         mv.visitFrame(F_FULL, 1, new Object[] { "pkg/FrameTable" }, 2,
                 new Object[] { l0, l0 });
         mv.visitLabel(l1);
         mv.visitInsn(LCONST_1);
-        mv.visitMethodInsn(INVOKESPECIAL, "java/lang/Long", "<init>", "(J)V");
+        mv.visitMethodInsn(INVOKESPECIAL, "java/lang/Long", "<init>", "(J)V",
+                false);
         mv.visitFrame(F_SAME1, 0, null, 1, new Object[] { "java/lang/Long" });
         mv.visitLabel(l2);
         mv.visitVarInsn(ASTORE, 2);
@@ -247,7 +252,7 @@ public class Frames extends Generator {
                 NULL, "java/lang/String" });
         mv.visitLabel(l1);
         mv.visitMethodInsn(INVOKEVIRTUAL, "pkg/FrameTable", "nullType",
-                "(Ljava/lang/String;Ljava/lang/String;)V");
+                "(Ljava/lang/String;Ljava/lang/String;)V", false);
         mv.visitInsn(RETURN);
         mv.visitMaxs(0, 0);
         mv.visitEnd();
@@ -508,7 +513,8 @@ public class Frames extends Generator {
         mv.visitLabel(l0);
         mv.visitTypeInsn(NEW, "java/lang/Object");
         mv.visitInsn(DUP);
-        mv.visitMethodInsn(INVOKESPECIAL, "java/lang/Object", "<init>", "()V");
+        mv.visitMethodInsn(INVOKESPECIAL, "java/lang/Object", "<init>", "()V",
+                false);
         mv.visitVarInsn(ASTORE, 1);
         mv.visitLabel(l1);
         Label l6 = new Label();
@@ -718,12 +724,13 @@ public class Frames extends Generator {
 
                 @Override
                 public void visitMethodInsn(final int opcode,
-                        final String owner, final String name, final String desc) {
+                        final String owner, final String name,
+                        final String desc, final boolean itf) {
                     if (owner.equals("pkg/FrameTable")) {
                         super.visitMethodInsn(opcode, "pkg/FrameMap", name,
-                                desc);
+                                desc, itf);
                     } else {
-                        super.visitMethodInsn(opcode, owner, name, desc);
+                        super.visitMethodInsn(opcode, owner, name, desc, itf);
                     }
                 }
             };

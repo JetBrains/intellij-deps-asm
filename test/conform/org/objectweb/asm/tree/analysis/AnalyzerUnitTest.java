@@ -61,8 +61,8 @@ public class AnalyzerUnitTest extends ClassWriterComputeMaxsUnitTest {
                     final String name, final String desc,
                     final String signature, final String[] exceptions) {
                 if (name.equals("m")) {
-                    return new MethodNode(access, name, desc, signature,
-                            exceptions) {
+                    return new MethodNode(Opcodes.ASM5, access, name, desc,
+                            signature, exceptions) {
                         @Override
                         public void visitEnd() {
                             Analyzer<BasicValue> a = new Analyzer<BasicValue>(

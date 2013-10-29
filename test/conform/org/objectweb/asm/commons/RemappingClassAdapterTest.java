@@ -167,7 +167,7 @@ public class RemappingClassAdapterTest extends TestCase implements Opcodes {
 
         mv.visitMultiANewArrayInsn("[[LBoo;", 2);
         mv.visitMethodInsn(INVOKEVIRTUAL, "Doo", "goo",
-                "([[LBoo;LCoo;LDoo;)LCoo;");
+                "([[LBoo;LCoo;LDoo;)LCoo;", false);
 
         mv.visitFrame(Opcodes.F_NEW, 0, new Object[5], 0, new Object[10]);
         mv.visitFrame(Opcodes.F_NEW, 3, new Object[] { "Boo", "Coo", "Doo" },

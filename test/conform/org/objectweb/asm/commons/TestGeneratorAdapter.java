@@ -32,13 +32,35 @@ package org.objectweb.asm.commons;
 
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.MethodVisitor;
+import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
 public class TestGeneratorAdapter extends GeneratorAdapter {
 
     public TestGeneratorAdapter(int access, Method method, String signature,
             Type[] exceptions, ClassVisitor cv) {
-        super(access, method, signature, exceptions, cv);
+        super(Opcodes.ASM5, cv
+                .visitMethod(access, method.getName(), method.getDescriptor(),
+                        signature, getInternalNames(exceptions)), access,
+                method.getName(), method.getDescriptor());
+    }
+
+    /**
+     * Returns the internal names of the given types.
+     * 
+     * @param types
+     *            a set of types.
+     * @return the internal names of the given types.
+     */
+    private static String[] getInternalNames(final Type[] types) {
+        if (types == null) {
+            return null;
+        }
+        String[] names = new String[types.length];
+        for (int i = 0; i < names.length; ++i) {
+            names[i] = types[i].getInternalName();
+        }
+        return names;
     }
 
     public MethodVisitor getNext() {

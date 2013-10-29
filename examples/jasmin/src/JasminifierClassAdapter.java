@@ -437,7 +437,7 @@ public class JasminifierClassAdapter extends ClassVisitor {
 
                         @Override
                         public void visitMethodInsn(int opcode, String owner,
-                                String name, String desc) {
+                                String name, String desc, boolean itf) {
                             print(opcode);
                             pw.print(' ');
                             pw.print(owner);

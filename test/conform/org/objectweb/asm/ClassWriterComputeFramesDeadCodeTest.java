@@ -181,8 +181,8 @@ class MethodDeadCodeInserter extends MethodVisitor implements Opcodes {
 
     @Override
     public void visitMethodInsn(int opcode, String owner, String name,
-            String desc) {
-        super.visitMethodInsn(opcode, owner, name, desc);
+            String desc, boolean itf) {
+        super.visitMethodInsn(opcode, owner, name, desc, itf);
         insertDeadcode();
     }
 

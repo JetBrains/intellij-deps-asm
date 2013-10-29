@@ -32,14 +32,9 @@ package org.objectweb.asm.test.cases;
 
 import java.io.IOException;
 
-import org.objectweb.asm.AnnotationVisitor;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.ClassWriter;
-import org.objectweb.asm.FieldVisitor;
-import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
-import org.objectweb.asm.TypePath;
-import org.objectweb.asm.TypeReference;
 
 /**
  * Generates a class with 2 methods with method parameters.

@@ -66,7 +66,7 @@ public class BFCompiler implements Opcodes {
             mv.visitCode();
             mv.visitVarInsn(ALOAD, 0);
             mv.visitMethodInsn(INVOKESPECIAL, "java/lang/Object", "<init>",
-                    "()V");
+                    "()V", false);
             mv.visitInsn(RETURN);
             mv.visitMaxs(1, 1);
             mv.visitEnd();
@@ -135,7 +135,7 @@ public class BFCompiler implements Opcodes {
                     mv.visitVarInsn(ILOAD, V_P);
                     mv.visitInsn(IALOAD);
                     mv.visitMethodInsn(INVOKEVIRTUAL, "java/io/OutputStream",
-                            "write", "(I)V");
+                            "write", "(I)V", false);
                     break;
 
                 case ',':
@@ -146,7 +146,7 @@ public class BFCompiler implements Opcodes {
                     mv.visitVarInsn(ILOAD, V_P);
                     mv.visitVarInsn(ALOAD, V_IS);
                     mv.visitMethodInsn(INVOKEVIRTUAL, "java/io/InputStream",
-                            "read", "()I");
+                            "read", "()I", false);
                     mv.visitInsn(IASTORE);
                     break;
 

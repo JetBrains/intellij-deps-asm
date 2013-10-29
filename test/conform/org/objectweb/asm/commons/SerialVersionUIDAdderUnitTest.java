@@ -36,6 +36,7 @@ import junit.framework.TestCase;
 
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassVisitor;
+import org.objectweb.asm.Opcodes;
 
 /**
  * Test for the SerialVerionUid computation.
@@ -59,7 +60,7 @@ public class SerialVersionUIDAdderUnitTest extends TestCase implements
     private long computeSerialVersionUID(final String className)
             throws IOException {
         final long[] svuid = new long[1];
-        ClassVisitor cv = new SerialVersionUIDAdder(null) {
+        ClassVisitor cv = new SerialVersionUIDAdder(Opcodes.ASM5, null) {
             @Override
             protected long computeSVUID() throws IOException {
                 svuid[0] = super.computeSVUID();

@@ -693,7 +693,7 @@ public class CheckClassAdapterUnitTest extends TestCase implements Opcodes {
         MethodVisitor mv = new CheckMethodAdapter(null);
         mv.visitCode();
         try {
-            mv.visitMethodInsn(INVOKEVIRTUAL, "C", null, "()V");
+            mv.visitMethodInsn(INVOKEVIRTUAL, "C", null, "()V", false);
             fail();
         } catch (Exception e) {
         }
@@ -703,7 +703,7 @@ public class CheckClassAdapterUnitTest extends TestCase implements Opcodes {
         MethodVisitor mv = new CheckMethodAdapter(null);
         mv.visitCode();
         try {
-            mv.visitMethodInsn(INVOKEVIRTUAL, "C", "-", "()V");
+            mv.visitMethodInsn(INVOKEVIRTUAL, "C", "-", "()V", false);
             fail();
         } catch (Exception e) {
         }
@@ -713,7 +713,7 @@ public class CheckClassAdapterUnitTest extends TestCase implements Opcodes {
         MethodVisitor mv = new CheckMethodAdapter(null);
         mv.visitCode();
         try {
-            mv.visitMethodInsn(INVOKEVIRTUAL, "C", "a-", "()V");
+            mv.visitMethodInsn(INVOKEVIRTUAL, "C", "a-", "()V", false);
             fail();
         } catch (Exception e) {
         }
@@ -723,7 +723,7 @@ public class CheckClassAdapterUnitTest extends TestCase implements Opcodes {
         MethodVisitor mv = new CheckMethodAdapter(null);
         mv.visitCode();
         try {
-            mv.visitMethodInsn(INVOKEVIRTUAL, "C", "m", null);
+            mv.visitMethodInsn(INVOKEVIRTUAL, "C", "m", null, false);
             fail();
         } catch (Exception e) {
         }
@@ -733,7 +733,7 @@ public class CheckClassAdapterUnitTest extends TestCase implements Opcodes {
         MethodVisitor mv = new CheckMethodAdapter(null);
         mv.visitCode();
         try {
-            mv.visitMethodInsn(INVOKEVIRTUAL, "C", "m", "I");
+            mv.visitMethodInsn(INVOKEVIRTUAL, "C", "m", "I", false);
             fail();
         } catch (Exception e) {
         }
@@ -743,7 +743,7 @@ public class CheckClassAdapterUnitTest extends TestCase implements Opcodes {
         MethodVisitor mv = new CheckMethodAdapter(null);
         mv.visitCode();
         try {
-            mv.visitMethodInsn(INVOKEVIRTUAL, "C", "m", "(V)V");
+            mv.visitMethodInsn(INVOKEVIRTUAL, "C", "m", "(V)V", false);
             fail();
         } catch (Exception e) {
         }
@@ -753,7 +753,27 @@ public class CheckClassAdapterUnitTest extends TestCase implements Opcodes {
         MethodVisitor mv = new CheckMethodAdapter(null);
         mv.visitCode();
         try {
-            mv.visitMethodInsn(INVOKEVIRTUAL, "C", "m", "()VV");
+            mv.visitMethodInsn(INVOKEVIRTUAL, "C", "m", "()VV", false);
+            fail();
+        } catch (Exception e) {
+        }
+    }
+
+    public void testIllegalMethodInsnItf() {
+        MethodVisitor mv = new CheckMethodAdapter(null);
+        mv.visitCode();
+        try {
+            mv.visitMethodInsn(INVOKEINTERFACE, "C", "m", "()V", false);
+            fail();
+        } catch (Exception e) {
+        }
+    }
+
+    public void testIllegalMethodInsnItf2() {
+        MethodVisitor mv = new CheckMethodAdapter(null);
+        mv.visitCode();
+        try {
+            mv.visitMethodInsn(INVOKEVIRTUAL, "C", "m", "()V", true);
             fail();
         } catch (Exception e) {
         }

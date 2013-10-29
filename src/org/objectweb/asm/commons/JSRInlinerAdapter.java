@@ -107,11 +107,16 @@ public class JSRInlinerAdapter extends MethodNode implements Opcodes {
      *            the internal names of the method's exception classes (see
      *            {@link Type#getInternalName() getInternalName}). May be
      *            <tt>null</tt>.
+     * @throws IllegalStateException
+     *             If a subclass calls this constructor.
      */
     public JSRInlinerAdapter(final MethodVisitor mv, final int access,
             final String name, final String desc, final String signature,
             final String[] exceptions) {
         this(Opcodes.ASM5, mv, access, name, desc, signature, exceptions);
+        if (getClass() != JSRInlinerAdapter.class) {
+            throw new IllegalStateException();
+        }
     }
 
     /**

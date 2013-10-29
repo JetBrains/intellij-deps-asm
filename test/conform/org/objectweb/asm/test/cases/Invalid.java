@@ -58,7 +58,8 @@ public class Invalid extends Generator {
         mv = cw.visitMethod(ACC_PUBLIC, "<init>", "()V", null, null);
         mv.visitCode();
         mv.visitVarInsn(ALOAD, 0);
-        mv.visitMethodInsn(INVOKESPECIAL, "java/lang/Object", "<init>", "()V");
+        mv.visitMethodInsn(INVOKESPECIAL, "java/lang/Object", "<init>", "()V",
+                false);
         mv.visitVarInsn(ALOAD, 0);
         Label ifnull = new Label();
         Label endif = new Label();

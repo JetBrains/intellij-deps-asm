@@ -79,7 +79,7 @@ public class Enum extends Generator {
         mv.visitCode();
         mv.visitFieldInsn(GETSTATIC, "pkg/Enum", "$VALUES", "[Lpkg/Enum;");
         mv.visitMethodInsn(INVOKEVIRTUAL, "[Lpkg/Enum;", "clone",
-                "()Ljava/lang/Object;");
+                "()Ljava/lang/Object;", false);
         mv.visitTypeInsn(CHECKCAST, "[Lpkg/Enum;");
         mv.visitInsn(ARETURN);
         mv.visitMaxs(0, 0);
@@ -91,7 +91,7 @@ public class Enum extends Generator {
         mv.visitLdcInsn(Type.getType("Lpkg/Enum;"));
         mv.visitVarInsn(ALOAD, 0);
         mv.visitMethodInsn(INVOKESTATIC, "java/lang/Enum", "valueOf",
-                "(Ljava/lang/Class;Ljava/lang/String;)Ljava/lang/Enum;");
+                "(Ljava/lang/Class;Ljava/lang/String;)Ljava/lang/Enum;", false);
         mv.visitTypeInsn(CHECKCAST, "pkg/Enum");
         mv.visitInsn(ARETURN);
         mv.visitMaxs(0, 0);
@@ -104,7 +104,7 @@ public class Enum extends Generator {
         mv.visitVarInsn(ALOAD, 1);
         mv.visitVarInsn(ILOAD, 2);
         mv.visitMethodInsn(INVOKESPECIAL, "java/lang/Enum", "<init>",
-                "(Ljava/lang/String;I)V");
+                "(Ljava/lang/String;I)V", false);
         mv.visitInsn(RETURN);
         mv.visitMaxs(0, 0);
         mv.visitEnd();
@@ -116,21 +116,21 @@ public class Enum extends Generator {
         mv.visitLdcInsn("V0");
         mv.visitInsn(ICONST_0);
         mv.visitMethodInsn(INVOKESPECIAL, "pkg/Enum", "<init>",
-                "(Ljava/lang/String;I)V");
+                "(Ljava/lang/String;I)V", false);
         mv.visitFieldInsn(PUTSTATIC, "pkg/Enum", "V0", "Lpkg/Enum;");
         mv.visitTypeInsn(NEW, "pkg/Enum");
         mv.visitInsn(DUP);
         mv.visitLdcInsn("V1");
         mv.visitInsn(ICONST_1);
         mv.visitMethodInsn(INVOKESPECIAL, "pkg/Enum", "<init>",
-                "(Ljava/lang/String;I)V");
+                "(Ljava/lang/String;I)V", false);
         mv.visitFieldInsn(PUTSTATIC, "pkg/Enum", "V1", "Lpkg/Enum;");
         mv.visitTypeInsn(NEW, "pkg/Enum");
         mv.visitInsn(DUP);
         mv.visitLdcInsn("V2");
         mv.visitInsn(ICONST_2);
         mv.visitMethodInsn(INVOKESPECIAL, "pkg/Enum", "<init>",
-                "(Ljava/lang/String;I)V");
+                "(Ljava/lang/String;I)V", false);
         mv.visitFieldInsn(PUTSTATIC, "pkg/Enum", "V2", "Lpkg/Enum;");
         mv.visitInsn(ICONST_3);
         mv.visitTypeInsn(ANEWARRAY, "pkg/Enum");

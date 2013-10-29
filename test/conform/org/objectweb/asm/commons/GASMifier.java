@@ -37,7 +37,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.objectweb.asm.ClassReader;
-import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.Handle;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
@@ -68,6 +67,7 @@ public class GASMifier extends ASMifier implements Opcodes {
     List<String> localTypes;
 
     public GASMifier() {
+        super(Opcodes.ASM5, "cw", 0);
     }
 
     public GASMifier(final String name, final int id) {
@@ -686,7 +686,7 @@ public class GASMifier extends ASMifier implements Opcodes {
 
     @Override
     public void visitMethodInsn(final int opcode, final String owner,
-            final String name, final String desc) {
+            final String name, final String desc, final boolean itf) {
         buf.setLength(0);
         switch (opcode) {
         case INVOKEVIRTUAL:

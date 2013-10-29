@@ -147,7 +147,7 @@ public class AdviceAdapterUnitTest extends AbstractTest {
                     mv.visitLdcInsn(cname + "." + name + desc);
                     mv.visitMethodInsn(INVOKESTATIC,
                             "org/objectweb/asm/commons/AdviceAdapterUnitTest",
-                            "enter", "(Ljava/lang/String;)V");
+                            "enter", "(Ljava/lang/String;)V", false);
                 }
 
                 @Override
@@ -155,7 +155,7 @@ public class AdviceAdapterUnitTest extends AbstractTest {
                     mv.visitLdcInsn(cname + "." + name + desc);
                     mv.visitMethodInsn(INVOKESTATIC,
                             "org/objectweb/asm/commons/AdviceAdapterUnitTest",
-                            "exit", "(Ljava/lang/String;)V");
+                            "exit", "(Ljava/lang/String;)V", false);
                 }
 
             };

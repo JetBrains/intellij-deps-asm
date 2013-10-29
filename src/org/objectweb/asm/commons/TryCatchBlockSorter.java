@@ -37,7 +37,6 @@ import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.tree.MethodNode;
 import org.objectweb.asm.tree.TryCatchBlockNode;
-import org.objectweb.asm.tree.TypeAnnotationNode;
 
 /**
  * A {@link MethodVisitor} adapter to sort the exception handlers. The handlers

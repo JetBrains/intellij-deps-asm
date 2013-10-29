@@ -50,6 +50,8 @@ public class MethodOptimizer extends RemappingMethodAdapter implements Opcodes {
 
     private final ClassOptimizer classOptimizer;
 
+    private boolean ldcClass = false;
+
     public MethodOptimizer(ClassOptimizer classOptimizer, int access,
             String desc, MethodVisitor mv, Remapper remapper) {
         super(Opcodes.ASM5, access, desc, mv, remapper);
@@ -141,19 +143,19 @@ public class MethodOptimizer extends RemappingMethodAdapter implements Opcodes {
             mv.visitLabel(l0);
             mv.visitVarInsn(ALOAD, 0);
             mv.visitMethodInsn(INVOKESTATIC, "java/lang/Class", "forName",
-                    "(Ljava/lang/String;)Ljava/lang/Class;");
+                    "(Ljava/lang/String;)Ljava/lang/Class;", false);
             mv.visitLabel(l1);
             mv.visitInsn(ARETURN);
             mv.visitLabel(l2);
             mv.visitMethodInsn(INVOKEVIRTUAL,
                     "java/lang/ClassNotFoundException", "getMessage",
-                    "()Ljava/lang/String;");
+                    "()Ljava/lang/String;", false);
             mv.visitVarInsn(ASTORE, 1);
             mv.visitTypeInsn(NEW, "java/lang/NoClassDefFoundError");
             mv.visitInsn(DUP);
             mv.visitVarInsn(ALOAD, 1);
             mv.visitMethodInsn(INVOKESPECIAL, "java/lang/NoClassDefFoundError",
-                    "<init>", "(Ljava/lang/String;)V");
+                    "<init>", "(Ljava/lang/String;)V", false);
             mv.visitInsn(ATHROW);
             mv.visitMaxs(3, 2);
             mv.visitEnd();
@@ -167,7 +169,7 @@ public class MethodOptimizer extends RemappingMethodAdapter implements Opcodes {
         mv.visitJumpInsn(IFNONNULL, elseLabel);
         mv.visitLdcInsn(ldcName.replace('/', '.'));
         mv.visitMethodInsn(INVOKESTATIC, clsName, "class$",
-                "(Ljava/lang/String;)Ljava/lang/Class;");
+                "(Ljava/lang/String;)Ljava/lang/Class;", false);
         mv.visitInsn(DUP);
         mv.visitFieldInsn(PUTSTATIC, clsName, fieldName, "Ljava/lang/Class;");
         Label endLabel = new Label();
@@ -175,5 +177,11 @@ public class MethodOptimizer extends RemappingMethodAdapter implements Opcodes {
         mv.visitLabel(elseLabel);
         mv.visitFieldInsn(GETSTATIC, clsName, fieldName, "Ljava/lang/Class;");
         mv.visitLabel(endLabel);
+        ldcClass = true;
+    }
+
+    @Override
+    public void visitMaxs(int maxStack, int maxLocals) {
+        super.visitMaxs(ldcClass ? maxStack + 1 : maxStack, maxLocals);
     }
 }

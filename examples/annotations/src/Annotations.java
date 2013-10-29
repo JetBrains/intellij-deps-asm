@@ -103,7 +103,7 @@ public class Annotations {
                             mv.visitLdcInsn("Argument " + param
                                     + " must not be null");
                             mv.visitMethodInsn(Opcodes.INVOKESPECIAL, c,
-                                    "<init>", d);
+                                    "<init>", d, false);
                             mv.visitInsn(Opcodes.ATHROW);
                             mv.visitLabel(end);
                         }

@@ -44,7 +44,7 @@ import org.objectweb.asm.TypePath;
 
 /**
  * A {@link Printer} that prints the ASM code to generate the classes if visits.
- *
+ * 
  * @author Eric Bruneton
  */
 public class ASMifier extends Printer {
@@ -84,14 +84,20 @@ public class ASMifier extends Printer {
      * Constructs a new {@link ASMifier}. <i>Subclasses must not use this
      * constructor</i>. Instead, they must use the
      * {@link #ASMifier(int, String, int)} version.
+     * 
+     * @throws IllegalStateException
+     *             If a subclass calls this constructor.
      */
     public ASMifier() {
         this(Opcodes.ASM5, "cw", 0);
+        if (getClass() != ASMifier.class) {
+            throw new IllegalStateException();
+        }
     }
 
     /**
      * Constructs a new {@link ASMifier}.
-     *
+     * 
      * @param api
      *            the ASM API version implemented by this class. Must be one of
      *            {@link Opcodes#ASM4} or {@link Opcodes#ASM5}.
@@ -112,10 +118,10 @@ public class ASMifier extends Printer {
      * output.
      * <p>
      * Usage: ASMifier [-debug] &lt;binary class name or class file name&gt;
-     *
+     * 
      * @param args
      *            the command line arguments.
-     *
+     * 
      * @throws Exception
      *             if the class cannot be found, or if an IO exception occurs.
      */
@@ -611,9 +617,30 @@ public class ASMifier extends Printer {
         text.add(buf.toString());
     }
 
+    @Deprecated
     @Override
     public void visitMethodInsn(final int opcode, final String owner,
             final String name, final String desc) {
+        if (api >= Opcodes.ASM5) {
+            super.visitMethodInsn(opcode, owner, name, desc);
+            return;
+        }
+        doVisitMethodInsn(opcode, owner, name, desc,
+                opcode == Opcodes.INVOKEINTERFACE);
+    }
+
+    @Override
+    public void visitMethodInsn(final int opcode, final String owner,
+            final String name, final String desc, final boolean itf) {
+        if (api < Opcodes.ASM5) {
+            super.visitMethodInsn(opcode, owner, name, desc, itf);
+            return;
+        }
+        doVisitMethodInsn(opcode, owner, name, desc, itf);
+    }
+
+    private void doVisitMethodInsn(final int opcode, final String owner,
+            final String name, final String desc, final boolean itf) {
         buf.setLength(0);
         buf.append(this.name).append(".visitMethodInsn(")
                 .append(OPCODES[opcode]).append(", ");
@@ -622,6 +649,8 @@ public class ASMifier extends Printer {
         appendConstant(name);
         buf.append(", ");
         appendConstant(desc);
+        buf.append(", ");
+        buf.append(itf ? "true" : "false");
         buf.append(");\n");
         text.add(buf.toString());
     }
@@ -913,7 +942,7 @@ public class ASMifier extends Printer {
     /**
      * Appends a string representation of the given access modifiers to
      * {@link #buf buf}.
-     *
+     * 
      * @param access
      *            some access modifiers.
      */
@@ -1063,7 +1092,7 @@ public class ASMifier extends Printer {
     /**
      * Appends a string representation of the given constant to the given
      * buffer.
-     *
+     * 
      * @param cst
      *            an {@link Integer}, {@link Float}, {@link Long},
      *            {@link Double} or {@link String} object. May be <tt>null</tt>.
@@ -1075,7 +1104,7 @@ public class ASMifier extends Printer {
     /**
      * Appends a string representation of the given constant to the given
      * buffer.
-     *
+     * 
      * @param buf
      *            a string buffer.
      * @param cst
@@ -1226,7 +1255,7 @@ public class ASMifier extends Printer {
      * Appends a declaration of the given label to {@link #buf buf}. This
      * declaration is of the form "Label lXXX = new Label();". Does nothing if
      * the given label has already been declared.
-     *
+     * 
      * @param l
      *            a label.
      */
@@ -1246,7 +1275,7 @@ public class ASMifier extends Printer {
      * Appends the name of the given label to {@link #buf buf}. The given label
      * <i>must</i> already have a name. One way to ensure this is to always call
      * {@link #declareLabel declared} before calling this method.
-     *
+     * 
      * @param l
      *            a label.
      */

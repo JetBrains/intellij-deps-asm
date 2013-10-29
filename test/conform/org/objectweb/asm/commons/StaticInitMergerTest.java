@@ -63,7 +63,8 @@ public class StaticInitMergerTest extends TestCase implements Opcodes {
         MethodVisitor mv = cv.visitMethod(ACC_PUBLIC, "<init>", "()V", null,
                 null);
         mv.visitVarInsn(ALOAD, 0);
-        mv.visitMethodInsn(INVOKESPECIAL, "java/lang/Object", "<init>", "()V");
+        mv.visitMethodInsn(INVOKESPECIAL, "java/lang/Object", "<init>", "()V",
+                false);
         mv.visitInsn(RETURN);
         mv.visitMaxs(0, 0);
         cv.visitEnd();

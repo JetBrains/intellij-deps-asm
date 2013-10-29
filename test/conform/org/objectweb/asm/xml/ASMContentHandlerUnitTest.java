@@ -163,7 +163,8 @@ public class ASMContentHandlerUnitTest extends TestCase implements Opcodes {
         mv = cv.visitMethod(0, "<init>", "()V", null, null);
         mv.visitCode();
         mv.visitVarInsn(ALOAD, 0);
-        mv.visitMethodInsn(INVOKESPECIAL, "java/lang/Object", "<init>", "()V");
+        mv.visitMethodInsn(INVOKESPECIAL, "java/lang/Object", "<init>", "()V",
+                false);
     }
 
     public void testInvalidOpcode() {

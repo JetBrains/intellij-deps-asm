@@ -97,7 +97,7 @@ public class Insns extends Generator {
         mv.visitCode();
         mv.visitVarInsn(ALOAD, 0);
         mv.visitMethodInsn(INVOKESPECIAL, "java/util/ArrayList", "<init>",
-                "()V");
+                "()V", false);
         mv.visitInsn(RETURN);
         mv.visitMaxs(0, 0);
         mv.visitEnd();
@@ -611,7 +611,8 @@ public class Insns extends Generator {
         mv.visitInsn(ICONST_2);
         mv.visitMultiANewArrayInsn("[[I", 2);
         mv.visitVarInsn(ALOAD, 0);
-        mv.visitMethodInsn(INVOKEINTERFACE, "java/util/List", "size", "()V");
+        mv.visitMethodInsn(INVOKEINTERFACE, "java/util/List", "size", "()V",
+                true);
         // end method
         mv.visitInsn(RETURN);
         mv.visitMaxs(0, 0);
@@ -668,16 +669,17 @@ public class Insns extends Generator {
         MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "methodInsns", "()V",
                 null, null);
         // invokstatic
-        mv.visitMethodInsn(INVOKESTATIC, "pkg/Insns", "ireturn", "()I");
+        mv.visitMethodInsn(INVOKESTATIC, "pkg/Insns", "ireturn", "()I", false);
         // invokespecial
         mv.visitVarInsn(ALOAD, 0);
-        mv.visitMethodInsn(INVOKESPECIAL, "pkg/Insns", "lreturn", "()J");
+        mv.visitMethodInsn(INVOKESPECIAL, "pkg/Insns", "lreturn", "()J", false);
         // invokevirtual
         mv.visitVarInsn(ALOAD, 0);
-        mv.visitMethodInsn(INVOKEVIRTUAL, "pkg/Insns", "freturn", "()F");
+        mv.visitMethodInsn(INVOKEVIRTUAL, "pkg/Insns", "freturn", "()F", false);
         // invokeinterface
         mv.visitVarInsn(ALOAD, 0);
-        mv.visitMethodInsn(INVOKEINTERFACE, "java/util/List", "size", "()I");
+        mv.visitMethodInsn(INVOKEINTERFACE, "java/util/List", "size", "()I",
+                true);
         mv.visitInsn(RETURN);
         mv.visitMaxs(0, 0);
         mv.visitEnd();
@@ -713,7 +715,7 @@ public class Insns extends Generator {
         mv.visitVarInsn(ALOAD, 0);
         mv.visitVarInsn(ILOAD, 1);
         mv.visitMethodInsn(INVOKESPECIAL, "java/util/ArrayList", "get",
-                "(I)Ljava/lang/Object;");
+                "(I)Ljava/lang/Object;", false);
         mv.visitTypeInsn(CHECKCAST, "java/lang/String");
         mv.visitInsn(ARETURN);
         mv.visitMaxs(0, 0);
@@ -725,7 +727,7 @@ public class Insns extends Generator {
         mv.visitVarInsn(ALOAD, 0);
         mv.visitVarInsn(ILOAD, 1);
         mv.visitMethodInsn(INVOKEVIRTUAL, "pkg/Insns", "get",
-                "(I)Ljava/lang/String;");
+                "(I)Ljava/lang/String;", false);
         mv.visitInsn(ARETURN);
         mv.visitMaxs(0, 0);
         mv.visitEnd();

@@ -166,9 +166,14 @@ public class SerialVersionUIDAdder extends ClassVisitor {
      * @param cv
      *            a {@link ClassVisitor} to which this visitor will delegate
      *            calls.
+     * @throws IllegalStateException
+     *             If a subclass calls this constructor.
      */
     public SerialVersionUIDAdder(final ClassVisitor cv) {
         this(Opcodes.ASM5, cv);
+        if (getClass() != SerialVersionUIDAdder.class) {
+            throw new IllegalStateException();
+        }
     }
 
     /**

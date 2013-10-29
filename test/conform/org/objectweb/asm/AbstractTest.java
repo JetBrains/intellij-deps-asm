@@ -222,7 +222,8 @@ public abstract class AbstractTest extends TestCase {
         @Override
         public MethodVisitor visitMethod(int access, String name, String desc,
                 String signature, String[] exceptions) {
-            return new MethodNode(access, name, desc, signature, exceptions) {
+            return new MethodNode(Opcodes.ASM5, access, name, desc, signature,
+                    exceptions) {
 
                 /**
                  * The labels used in this method.

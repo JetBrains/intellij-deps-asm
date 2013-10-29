@@ -121,10 +121,9 @@ public class MethodConstantsCollector extends MethodVisitor {
 
     @Override
     public void visitMethodInsn(final int opcode, final String owner,
-            final String name, final String desc) {
-        boolean itf = opcode == Opcodes.INVOKEINTERFACE;
+            final String name, final String desc, final boolean itf) {
         cp.newMethod(owner, name, desc, itf);
-        mv.visitMethodInsn(opcode, owner, name, desc);
+        mv.visitMethodInsn(opcode, owner, name, desc, itf);
     }
 
     @Override

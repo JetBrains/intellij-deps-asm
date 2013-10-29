@@ -131,7 +131,7 @@ class TraceFieldClassAdapter extends ClassVisitor implements Opcodes {
                     "Ljava/io/PrintStream;");
             gv.visitLdcInsn("_get" + name + " called");
             gv.visitMethodInsn(INVOKEVIRTUAL, "java/io/PrintStream", "println",
-                    "(Ljava/lang/String;)V");
+                    "(Ljava/lang/String;)V", false);
             gv.visitVarInsn(ALOAD, 0);
             gv.visitFieldInsn(GETFIELD, owner, name, desc);
             gv.visitInsn(t.getOpcode(IRETURN));
@@ -146,7 +146,7 @@ class TraceFieldClassAdapter extends ClassVisitor implements Opcodes {
                     "Ljava/io/PrintStream;");
             sv.visitLdcInsn("_set" + name + " called");
             sv.visitMethodInsn(INVOKEVIRTUAL, "java/io/PrintStream", "println",
-                    "(Ljava/lang/String;)V");
+                    "(Ljava/lang/String;)V", false);
             sv.visitVarInsn(ALOAD, 0);
             sv.visitVarInsn(t.getOpcode(ILOAD), 1);
             sv.visitFieldInsn(PUTFIELD, owner, name, desc);
@@ -182,12 +182,14 @@ class TraceFieldCodeAdapter extends MethodVisitor implements Opcodes {
             if (opcode == GETFIELD) {
                 // replaces GETFIELD f by INVOKESPECIAL _getf
                 String gDesc = "()" + desc;
-                visitMethodInsn(INVOKESPECIAL, owner, "_get" + name, gDesc);
+                visitMethodInsn(INVOKESPECIAL, owner, "_get" + name, gDesc,
+                        false);
                 return;
             } else if (opcode == PUTFIELD) {
                 // replaces PUTFIELD f by INVOKESPECIAL _setf
                 String sDesc = "(" + desc + ")V";
-                visitMethodInsn(INVOKESPECIAL, owner, "_set" + name, sDesc);
+                visitMethodInsn(INVOKESPECIAL, owner, "_set" + name, sDesc,
+                        false);
                 return;
             }
         }

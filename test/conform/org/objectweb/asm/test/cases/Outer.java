@@ -68,7 +68,8 @@ public class Outer extends Generator {
         mv = cw.visitMethod(ACC_PUBLIC, "<init>", "()V", null, null);
         mv.visitCode();
         mv.visitVarInsn(ALOAD, 0);
-        mv.visitMethodInsn(INVOKESPECIAL, "java/lang/Object", "<init>", "()V");
+        mv.visitMethodInsn(INVOKESPECIAL, "java/lang/Object", "<init>", "()V",
+                false);
         mv.visitInsn(RETURN);
         mv.visitMaxs(0, 0);
         mv.visitEnd();
@@ -79,7 +80,7 @@ public class Outer extends Generator {
         mv.visitInsn(DUP);
         mv.visitVarInsn(ALOAD, 0);
         mv.visitMethodInsn(INVOKESPECIAL, "pkg/Outer$1", "<init>",
-                "(Lpkg/Outer;)V");
+                "(Lpkg/Outer;)V", false);
         mv.visitInsn(POP);
         mv.visitInsn(RETURN);
         mv.visitMaxs(0, 0);
@@ -119,7 +120,7 @@ public class Outer extends Generator {
         mv.visitVarInsn(ALOAD, 1);
         mv.visitFieldInsn(PUTFIELD, "pkg/Outer$1", "this$0", "Lpkg/Outer;");
         mv.visitVarInsn(ALOAD, 0);
-        mv.visitMethodInsn(INVOKESPECIAL, "pkg/Outer", "<init>", "()V");
+        mv.visitMethodInsn(INVOKESPECIAL, "pkg/Outer", "<init>", "()V", false);
         mv.visitInsn(RETURN);
         mv.visitMaxs(0, 0);
         mv.visitEnd();
@@ -130,22 +131,22 @@ public class Outer extends Generator {
         mv.visitTypeInsn(NEW, "java/lang/StringBuilder");
         mv.visitInsn(DUP);
         mv.visitMethodInsn(INVOKESPECIAL, "java/lang/StringBuilder", "<init>",
-                "()V");
+                "()V", false);
         mv.visitVarInsn(ALOAD, 0);
         mv.visitFieldInsn(GETFIELD, "pkg/Outer$1", "this$0", "Lpkg/Outer;");
         mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/StringBuilder", "append",
-                "(Ljava/lang/Object;)Ljava/lang/StringBuilder;");
+                "(Ljava/lang/Object;)Ljava/lang/StringBuilder;", false);
         mv.visitLdcInsn(" ");
         mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/StringBuilder", "append",
-                "(Ljava/lang/String;)Ljava/lang/StringBuilder;");
+                "(Ljava/lang/String;)Ljava/lang/StringBuilder;", false);
         mv.visitVarInsn(ALOAD, 0);
         mv.visitFieldInsn(GETFIELD, "pkg/Outer$1", "this$0", "Lpkg/Outer;");
         mv.visitMethodInsn(INVOKESTATIC, "pkg/Outer", "access$000",
-                "(Lpkg/Outer;)I");
+                "(Lpkg/Outer;)I", false);
         mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/StringBuilder", "append",
-                "(I)Ljava/lang/StringBuilder;");
+                "(I)Ljava/lang/StringBuilder;", false);
         mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/StringBuilder",
-                "toString", "()Ljava/lang/String;");
+                "toString", "()Ljava/lang/String;", false);
         mv.visitInsn(ARETURN);
         mv.visitMaxs(0, 0);
         mv.visitEnd();
@@ -175,7 +176,8 @@ public class Outer extends Generator {
         mv.visitVarInsn(ALOAD, 1);
         mv.visitFieldInsn(PUTFIELD, "pkg/Outer$Inner", "this$0", "Lpkg/Outer;");
         mv.visitVarInsn(ALOAD, 0);
-        mv.visitMethodInsn(INVOKESPECIAL, "java/lang/Object", "<init>", "()V");
+        mv.visitMethodInsn(INVOKESPECIAL, "java/lang/Object", "<init>", "()V",
+                false);
         mv.visitInsn(RETURN);
         mv.visitMaxs(0, 0);
         mv.visitEnd();

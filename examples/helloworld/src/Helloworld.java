@@ -62,7 +62,8 @@ public class Helloworld extends ClassLoader implements Opcodes {
         // pushes the 'this' variable
         mw.visitVarInsn(ALOAD, 0);
         // invokes the super class constructor
-        mw.visitMethodInsn(INVOKESPECIAL, "java/lang/Object", "<init>", "()V");
+        mw.visitMethodInsn(INVOKESPECIAL, "java/lang/Object", "<init>", "()V",
+                false);
         mw.visitInsn(RETURN);
         // this code uses a maximum of one stack element and one local variable
         mw.visitMaxs(1, 1);
@@ -78,7 +79,7 @@ public class Helloworld extends ClassLoader implements Opcodes {
         mw.visitLdcInsn("Hello world!");
         // invokes the 'println' method (defined in the PrintStream class)
         mw.visitMethodInsn(INVOKEVIRTUAL, "java/io/PrintStream", "println",
-                "(Ljava/lang/String;)V");
+                "(Ljava/lang/String;)V", false);
         mw.visitInsn(RETURN);
         // this code uses a maximum of two stack elements and two local
         // variables

@@ -70,7 +70,8 @@ public class Attribute extends Generator {
         mv.visitAttribute(new Comment());
         mv.visitCode();
         mv.visitVarInsn(ALOAD, 0);
-        mv.visitMethodInsn(INVOKESPECIAL, "java/lang/Object", "<init>", "()V");
+        mv.visitMethodInsn(INVOKESPECIAL, "java/lang/Object", "<init>", "()V",
+                false);
 
         /*
          * the following instructions are designed so that this method will be

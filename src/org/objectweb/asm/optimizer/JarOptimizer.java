@@ -55,7 +55,7 @@ import org.objectweb.asm.Opcodes;
 
 /**
  * A Jar file optimizer.
- *
+ * 
  * @author Eric Bruneton
  */
 public class JarOptimizer {
@@ -210,7 +210,8 @@ public class JarOptimizer {
 
                 @Override
                 public void visitMethodInsn(final int opcode,
-                        final String owner, final String name, final String desc) {
+                        final String owner, final String name,
+                        final String desc, final boolean itf) {
                     check(owner, name + desc);
                 }
             };

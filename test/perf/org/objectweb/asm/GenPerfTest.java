@@ -237,7 +237,7 @@ public class GenPerfTest {
                 null, null);
         mw.visitVarInsn(Opcodes.ALOAD, 0);
         mw.visitMethodInsn(Opcodes.INVOKESPECIAL, "java/lang/Object", "<init>",
-                "()V");
+                "()V", false);
         mw.visitInsn(Opcodes.RETURN);
         mw.visitMaxs(0, 0);
         mw.visitEnd();
@@ -248,7 +248,7 @@ public class GenPerfTest {
                 "Ljava/io/PrintStream;");
         mw.visitLdcInsn("Hello world!");
         mw.visitMethodInsn(Opcodes.INVOKEVIRTUAL, "java/io/PrintStream",
-                "println", "(Ljava/lang/String;)V");
+                "println", "(Ljava/lang/String;)V", false);
         mw.visitInsn(Opcodes.RETURN);
         mw.visitMaxs(0, 0);
         mw.visitEnd();

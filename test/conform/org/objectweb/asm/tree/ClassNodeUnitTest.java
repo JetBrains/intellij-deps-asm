@@ -83,7 +83,7 @@ public class ClassNodeUnitTest extends TestCase implements Opcodes {
 
     public void testMethodInsnNode() {
         MethodInsnNode mn = new MethodInsnNode(INVOKESTATIC, "owner", "name",
-                "I");
+                "I", false);
         mn.setOpcode(INVOKESPECIAL);
         assertEquals(INVOKESPECIAL, mn.getOpcode());
         assertEquals(AbstractInsnNode.METHOD_INSN, mn.getType());

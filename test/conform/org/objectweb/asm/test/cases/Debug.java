@@ -71,7 +71,8 @@ public class Debug extends Generator {
         mv.visitLabel(l0);
         mv.visitLineNumber(3, l0);
         mv.visitVarInsn(ALOAD, 0);
-        mv.visitMethodInsn(INVOKESPECIAL, "java/lang/Object", "<init>", "()V");
+        mv.visitMethodInsn(INVOKESPECIAL, "java/lang/Object", "<init>", "()V",
+                false);
         mv.visitInsn(ICONST_0);
         mv.visitJumpInsn(IFEQ, l1);
         mv.visitJumpInsn(GOTO, l1);

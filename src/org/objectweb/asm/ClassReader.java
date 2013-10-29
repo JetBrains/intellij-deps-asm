@@ -1405,6 +1405,7 @@ public class ClassReader {
             case ClassWriter.FIELDORMETH_INSN:
             case ClassWriter.ITFMETH_INSN: {
                 int cpIndex = items[readUnsignedShort(u + 1)];
+                boolean itf = b[cpIndex - 1] == ClassWriter.IMETH;
                 String iowner = readClass(cpIndex, c);
                 cpIndex = items[readUnsignedShort(cpIndex + 2)];
                 String iname = readUTF8(cpIndex, c);
@@ -1412,7 +1413,7 @@ public class ClassReader {
                 if (opcode < Opcodes.INVOKEVIRTUAL) {
                     mv.visitFieldInsn(opcode, iowner, iname, idesc);
                 } else {
-                    mv.visitMethodInsn(opcode, iowner, iname, idesc);
+                    mv.visitMethodInsn(opcode, iowner, iname, idesc, itf);
                 }
                 if (opcode == Opcodes.INVOKEINTERFACE) {
                     u += 5;

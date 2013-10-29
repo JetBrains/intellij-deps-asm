@@ -53,7 +53,8 @@ public class JSRInlinerAdapterUnitTest extends TestCase {
     @Override
     protected void setUp() throws Exception {
         super.setUp();
-        jsr = new JSRInlinerAdapter(null, 0, "m", "()V", null, null) {
+        jsr = new JSRInlinerAdapter(Opcodes.ASM5, null, 0, "m", "()V", null,
+                null) {
             @Override
             public void visitEnd() {
                 System.err.println("started w/ method:" + name);
@@ -160,7 +161,7 @@ public class JSRInlinerAdapterUnitTest extends TestCase {
         mv.visitCode();
         mv.visitVarInsn(Opcodes.ALOAD, 0);
         mv.visitMethodInsn(Opcodes.INVOKESPECIAL, "java/lang/Object", "<init>",
-                "()V");
+                "()V", false);
         mv.visitInsn(Opcodes.RETURN);
         mv.visitMaxs(1, 1);
         mv.visitEnd();

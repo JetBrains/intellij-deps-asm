@@ -123,6 +123,7 @@ public class InsnListUnitTest extends TestCase {
         assertEquals(in2, it.next());
         assertTrue(it.hasNext());
         it.remove(); // remove in2
+        assertTrue(it.hasPrevious());
         assertTrue(it.hasNext());
         assertEquals(insn, it.next());
         assertFalse(it.hasNext());
@@ -210,6 +211,38 @@ public class InsnListUnitTest extends TestCase {
     }
 
     public void testIterator3() {
+        InsnNode insn = new InsnNode(0);
+        l2.add(insn);
+
+        // reverse iteration
+        ListIterator<AbstractInsnNode> it = l2.iterator(3);
+        assertFalse(it.hasNext());
+        assertTrue(it.hasPrevious());
+        assertEquals(insn, it.previous());
+        assertTrue(it.hasPrevious());
+        assertEquals(in2, it.previous());
+        assertTrue(it.hasPrevious());
+        assertEquals(in1, it.previous());
+        assertFalse(it.hasPrevious());
+
+        // reverse iteration with remove()
+        it = l2.iterator(3);
+        assertFalse(it.hasNext());
+        assertTrue(it.hasPrevious());
+        assertEquals(insn, it.previous());
+        it.remove(); // remove insn
+        assertTrue(it.hasPrevious());
+        assertEquals(in2, it.previous());
+        it.remove(); // remove in2
+        assertTrue(it.hasPrevious());
+        assertEquals(in1, it.previous());
+        assertFalse(it.hasPrevious());
+
+        assertEquals(1, l2.size());
+        assertEquals(in1, l2.getFirst());
+    }
+
+    public void testIterator4() {
         try {
             new InsnList().iterator().next();
             fail();

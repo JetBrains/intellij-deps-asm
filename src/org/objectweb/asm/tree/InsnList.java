@@ -527,6 +527,8 @@ public class InsnList {
 
         AbstractInsnNode prev;
 
+        AbstractInsnNode remove;
+
         InsnListIterator(int index) {
             if (index == size()) {
                 next = null;
@@ -548,12 +550,22 @@ public class InsnList {
             AbstractInsnNode result = next;
             prev = result;
             next = result.next;
+            remove = result;
             return result;
         }
 
         public void remove() {
-            InsnList.this.remove(prev);
-            prev = prev.prev;
+            if (remove != null) {
+                if (remove == next) {
+                    next = next.next;
+                } else {
+                    prev = prev.prev;
+                }
+                InsnList.this.remove(remove);
+                remove = null;
+            } else {
+                throw new IllegalStateException();
+            }
         }
 
         public boolean hasPrevious() {
@@ -564,6 +576,7 @@ public class InsnList {
             AbstractInsnNode result = prev;
             next = result;
             prev = result.prev;
+            remove = result;
             return result;
         }
 
@@ -590,6 +603,7 @@ public class InsnList {
         public void add(Object o) {
             InsnList.this.insertBefore(next, (AbstractInsnNode) o);
             prev = (AbstractInsnNode) o;
+            remove = null;
         }
 
         public void set(Object o) {

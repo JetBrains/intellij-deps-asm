@@ -137,6 +137,11 @@ public class Textifier extends Printer {
      */
     protected Map<Label, String> labelNames;
 
+    /**
+     * Class access flags
+     */
+    protected int access;
+
     private int valueNumber = 0;
 
     /**
@@ -216,6 +221,7 @@ public class Textifier extends Printer {
     public void visit(final int version, final int access, final String name,
             final String signature, final String superName,
             final String[] interfaces) {
+        this.access = access;
         int major = version & 0xFFFF;
         int minor = version >>> 16;
         buf.setLength(0);
@@ -417,6 +423,10 @@ public class Textifier extends Printer {
         }
         if ((access & Opcodes.ACC_BRIDGE) != 0) {
             buf.append("bridge ");
+        }
+        if ((this.access & Opcodes.ACC_INTERFACE) != 0
+                && (access & Opcodes.ACC_ABSTRACT) == 0) {
+            buf.append("default ");
         }
 
         buf.append(name);
@@ -827,7 +837,6 @@ public class Textifier extends Printer {
         appendDescriptor(INTERNAL_NAME, owner);
         buf.append('.').append(name).append(' ');
         appendDescriptor(METHOD_DESCRIPTOR, desc);
-        buf.append(' ').append(itf ? "itf" : "");
         buf.append('\n');
         text.add(buf.toString());
     }

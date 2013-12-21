@@ -33,7 +33,7 @@ import junit.framework.TestCase;
 
 /**
  * TraceClassAdapter unit tests
- * 
+ *
  * @author Eric Bruneton
  */
 public class TraceClassAdapterUnitTest extends TestCase {
@@ -44,6 +44,10 @@ public class TraceClassAdapterUnitTest extends TestCase {
         Textifier.main(new String[] { "-debug" });
         Textifier.main(new String[] { s });
         Textifier.main(new String[] { "-debug", s });
+        if(System.getProperty("java.version").startsWith("1.8")){
+            Textifier.main(new String[] { "-debug", "java.util.function.Predicate" });
+            Textifier.main(new String[] { "-debug", "java.util.stream.StreamSpliterators$DoubleWrappingSpliterator" });
+        }
         Textifier.main(new String[] { "output/test/cases/Interface.class" });
     }
 }

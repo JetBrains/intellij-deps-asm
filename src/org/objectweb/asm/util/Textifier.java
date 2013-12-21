@@ -46,7 +46,7 @@ import org.objectweb.asm.signature.SignatureReader;
 
 /**
  * A {@link Printer} that prints a disassembled view of the classes it visits.
- * 
+ *
  * @author Eric Bruneton
  */
 public class Textifier extends Printer {
@@ -148,7 +148,7 @@ public class Textifier extends Printer {
      * Constructs a new {@link Textifier}. <i>Subclasses must not use this
      * constructor</i>. Instead, they must use the {@link #Textifier(int)}
      * version.
-     * 
+     *
      * @throws IllegalStateException
      *             If a subclass calls this constructor.
      */
@@ -161,7 +161,7 @@ public class Textifier extends Printer {
 
     /**
      * Constructs a new {@link Textifier}.
-     * 
+     *
      * @param api
      *            the ASM API version implemented by this visitor. Must be one
      *            of {@link Opcodes#ASM4} or {@link Opcodes#ASM5}.
@@ -174,10 +174,10 @@ public class Textifier extends Printer {
      * Prints a disassembled view of the given class to the standard output.
      * <p>
      * Usage: Textifier [-debug] &lt;binary class name or class file name &gt;
-     * 
+     *
      * @param args
      *            the command line arguments.
-     * 
+     *
      * @throws Exception
      *             if the class cannot be found, or if an IO exception occurs.
      */
@@ -849,26 +849,35 @@ public class Textifier extends Printer {
         buf.append(name);
         appendDescriptor(METHOD_DESCRIPTOR, desc);
         buf.append(" [");
+        buf.append('\n');
         appendHandle(bsm);
+        buf.append('\n');
         buf.append(tab3).append("// arguments:");
         if (bsmArgs.length == 0) {
             buf.append(" none");
         } else {
-            buf.append('\n').append(tab3);
+            buf.append('\n');
             for (int i = 0; i < bsmArgs.length; i++) {
                 Object cst = bsmArgs[i];
                 if (cst instanceof String) {
+                    buf.append(tab3);
                     Printer.appendString(buf, (String) cst);
                 } else if (cst instanceof Type) {
-                    buf.append(((Type) cst).getDescriptor()).append(".class");
+                    buf.append(tab3);
+                    Type type = (Type) cst;
+                    if(type.getSort() == Type.METHOD){
+                        appendDescriptor(METHOD_DESCRIPTOR, type.getDescriptor());
+                    } else {
+                        buf.append(type.getDescriptor()).append(".class");
+                    }
                 } else if (cst instanceof Handle) {
                     appendHandle((Handle) cst);
                 } else {
                     buf.append(cst);
                 }
-                buf.append(", ");
+                buf.append(", \n");
             }
-            buf.setLength(buf.length() - 2);
+            buf.setLength(buf.length() - 3);
         }
         buf.append('\n');
         buf.append(tab2).append("]\n");
@@ -1081,7 +1090,7 @@ public class Textifier extends Printer {
 
     /**
      * Prints a disassembled view of the given annotation.
-     * 
+     *
      * @param desc
      *            the class descriptor of the annotation class.
      * @param visible
@@ -1102,7 +1111,7 @@ public class Textifier extends Printer {
 
     /**
      * Prints a disassembled view of the given type annotation.
-     * 
+     *
      * @param typeRef
      *            a reference to the annotated type. See {@link TypeReference}.
      * @param typePath
@@ -1135,7 +1144,7 @@ public class Textifier extends Printer {
 
     /**
      * Prints a disassembled view of the given attribute.
-     * 
+     *
      * @param attr
      *            an attribute.
      */
@@ -1159,7 +1168,7 @@ public class Textifier extends Printer {
 
     /**
      * Creates a new TraceVisitor instance.
-     * 
+     *
      * @return a new TraceVisitor.
      */
     protected Textifier createTextifier() {
@@ -1169,7 +1178,7 @@ public class Textifier extends Printer {
     /**
      * Appends an internal name, a type descriptor or a type signature to
      * {@link #buf buf}.
-     * 
+     *
      * @param type
      *            indicates if desc is an internal name, a field descriptor, a
      *            method descriptor, a class signature, ...
@@ -1191,7 +1200,7 @@ public class Textifier extends Printer {
     /**
      * Appends the name of the given label to {@link #buf buf}. Creates a new
      * label name if the given label does not yet have one.
-     * 
+     *
      * @param l
      *            a label.
      */
@@ -1209,15 +1218,16 @@ public class Textifier extends Printer {
 
     /**
      * Appends the information about the given handle to {@link #buf buf}.
-     * 
+     *
      * @param h
      *            a handle, non null.
      */
     protected void appendHandle(final Handle h) {
-        buf.append('\n').append(tab3);
+        buf.append(tab3);
         int tag = h.getTag();
         buf.append("// handle kind 0x").append(Integer.toHexString(tag))
                 .append(" : ");
+        boolean isMethodHandle = false;
         switch (tag) {
         case Opcodes.H_GETFIELD:
             buf.append("GETFIELD");
@@ -1233,18 +1243,23 @@ public class Textifier extends Printer {
             break;
         case Opcodes.H_INVOKEINTERFACE:
             buf.append("INVOKEINTERFACE");
+            isMethodHandle = true;
             break;
         case Opcodes.H_INVOKESPECIAL:
             buf.append("INVOKESPECIAL");
+            isMethodHandle = true;
             break;
         case Opcodes.H_INVOKESTATIC:
             buf.append("INVOKESTATIC");
+            isMethodHandle = true;
             break;
         case Opcodes.H_INVOKEVIRTUAL:
             buf.append("INVOKEVIRTUAL");
+            isMethodHandle = true;
             break;
         case Opcodes.H_NEWINVOKESPECIAL:
             buf.append("NEWINVOKESPECIAL");
+            isMethodHandle = true;
             break;
         }
         buf.append('\n');
@@ -1252,15 +1267,19 @@ public class Textifier extends Printer {
         appendDescriptor(INTERNAL_NAME, h.getOwner());
         buf.append('.');
         buf.append(h.getName());
-        buf.append('(');
+        if(!isMethodHandle){
+            buf.append('(');
+        }
         appendDescriptor(HANDLE_DESCRIPTOR, h.getDesc());
-        buf.append(')').append('\n');
+        if(!isMethodHandle){
+            buf.append(')');
+        }
     }
 
     /**
      * Appends a string representation of the given access modifiers to
      * {@link #buf buf}.
-     * 
+     *
      * @param access
      *            some access modifiers.
      */

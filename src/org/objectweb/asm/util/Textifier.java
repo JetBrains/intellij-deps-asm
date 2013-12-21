@@ -140,7 +140,7 @@ public class Textifier extends Printer {
     /**
      * Class access flags
      */
-    protected int access;
+    private int access;
 
     private int valueNumber = 0;
 

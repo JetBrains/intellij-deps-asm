@@ -850,6 +850,7 @@ public class Textifier extends Printer {
         appendDescriptor(METHOD_DESCRIPTOR, desc);
         buf.append(" [");
         buf.append('\n');
+        buf.append(tab3);
         appendHandle(bsm);
         buf.append('\n');
         buf.append(tab3).append("// arguments:");
@@ -858,12 +859,11 @@ public class Textifier extends Printer {
         } else {
             buf.append('\n');
             for (int i = 0; i < bsmArgs.length; i++) {
+                buf.append(tab3);
                 Object cst = bsmArgs[i];
                 if (cst instanceof String) {
-                    buf.append(tab3);
                     Printer.appendString(buf, (String) cst);
                 } else if (cst instanceof Type) {
-                    buf.append(tab3);
                     Type type = (Type) cst;
                     if(type.getSort() == Type.METHOD){
                         appendDescriptor(METHOD_DESCRIPTOR, type.getDescriptor());
@@ -1223,7 +1223,6 @@ public class Textifier extends Printer {
      *            a handle, non null.
      */
     protected void appendHandle(final Handle h) {
-        buf.append(tab3);
         int tag = h.getTag();
         buf.append("// handle kind 0x").append(Integer.toHexString(tag))
                 .append(" : ");

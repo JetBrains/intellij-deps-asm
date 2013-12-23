@@ -425,7 +425,8 @@ public class Textifier extends Printer {
             buf.append("bridge ");
         }
         if ((this.access & Opcodes.ACC_INTERFACE) != 0
-                && (access & Opcodes.ACC_ABSTRACT) == 0) {
+                && (access & Opcodes.ACC_ABSTRACT) == 0
+                && (access & Opcodes.ACC_STATIC) == 0) {
             buf.append("default ");
         }
 

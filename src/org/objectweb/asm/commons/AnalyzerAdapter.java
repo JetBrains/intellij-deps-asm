@@ -211,6 +211,7 @@ public class AnalyzerAdapter extends MethodVisitor {
                 locals.add(types[i].getInternalName());
             }
         }
+        maxLocals = locals.size();
     }
 
     @Override

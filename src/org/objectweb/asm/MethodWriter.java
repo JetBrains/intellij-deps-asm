@@ -2690,6 +2690,18 @@ class MethodWriter extends MethodVisitor {
         if (compute == FRAMES) {
             Label l = labels;
             while (l != null) {
+                /*
+                 * Detects the labels that are just after an IF instruction that
+                 * has been resized with the IFNOT GOTO_W pattern. These labels
+                 * are now the target of a jump instruction (the IFNOT
+                 * instruction). Note that we need the original label position
+                 * here. getNewOffset must therefore never have been called for
+                 * this label.
+                 */
+                u = l.position - 3;
+                if (u >= 0 && resize[u]) {
+                    l.status |= Label.TARGET;
+                }
                 getNewOffset(allIndexes, allSizes, l);
                 l = l.successor;
             }
@@ -2701,8 +2713,6 @@ class MethodWriter extends MethodVisitor {
                             item.intVal);
                 }
             }
-            // TODO insert new frames after the GOTO_W added for resizing the
-            // IFXXX instructions.
             // The stack map frames are not serialized yet, so we don't need
             // to update them. They will be serialized in visitMaxs.
         } else if (frameCount > 0) {

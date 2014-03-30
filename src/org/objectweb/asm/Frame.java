@@ -1432,17 +1432,15 @@ final class Frame {
                 }
             } else if ((t & BASE_KIND) == OBJECT || (t & DIM) != 0) {
                 // if t is any other reference or array type, the merged type
-                // is dim(u) - 1 | Object if u and t have the same dimension,
-                // min(dim(u), dim(t)) | java/lang/Object if u and t have
-                // different array dimensions and the type with the smallest
-                // dimension has a non primitive element type, or Object in the
-                // other cases.
-                int tdim = t & DIM;
-                int udim = u & DIM;
-                int vdim = udim < tdim && (u & BASE_KIND) == OBJECT ? udim
-                        : (tdim < udim && (t & BASE_KIND) == OBJECT ? tdim
-                                : (udim == tdim ? ELEMENT_OF + tdim : 0));
-                v = vdim | OBJECT | cw.addType("java/lang/Object");
+                // is min(udim, tdim) | java/lang/Object, where udim is the
+                // array dimension of u, minus 1 if u is an array type with a
+                // primitive element type (and similarly for tdim).
+                int tdim = (((t & DIM) == 0 || (t & BASE_KIND) == OBJECT) ? 0
+                        : ELEMENT_OF) + (t & DIM);
+                int udim = (((u & DIM) == 0 || (u & BASE_KIND) == OBJECT) ? 0
+                        : ELEMENT_OF) + (u & DIM);
+                v = Math.min(tdim, udim) | OBJECT
+                        | cw.addType("java/lang/Object");
             } else {
                 // if t is any other type, merge(u,t)=TOP
                 v = TOP;

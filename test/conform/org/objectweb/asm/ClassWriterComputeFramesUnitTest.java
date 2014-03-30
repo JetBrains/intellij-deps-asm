@@ -126,8 +126,33 @@ public class ClassWriterComputeFramesUnitTest extends TestCase {
         new TestClassLoader().test(getClassBytes(), "differentDimension3");
     }
 
-    public static Object differentDimension3(boolean b) {
-        return b ? new byte[1][1] : new byte[1][1][1];
+    public static Object[] differentDimension3(boolean b) {
+        return b ? (Object[]) new byte[1][1] : (Object[]) new byte[1][1][1];
+    }
+
+    public void testDifferentDimension4() throws Exception {
+        new TestClassLoader().test(getClassBytes(), "differentDimension4");
+    }
+
+    public static Object[][] differentDimension4(boolean b) {
+        return b ? (Object[][]) new byte[1][1][1]
+                : (Object[][]) new byte[1][1][1][1];
+    }
+
+    public void testDifferentDimension5() throws Exception {
+        new TestClassLoader().test(getClassBytes(), "differentDimension5");
+    }
+
+    public static Object differentDimension5(boolean b) {
+        return b ? new Integer(1) : new byte[1];
+    }
+
+    public void testDifferentDimension6() throws Exception {
+        new TestClassLoader().test(getClassBytes(), "differentDimension6");
+    }
+
+    public static Object differentDimension6(boolean b) {
+        return b ? new Integer(1) : new Float[1];
     }
 
     // ------------------------------------------------------------------------

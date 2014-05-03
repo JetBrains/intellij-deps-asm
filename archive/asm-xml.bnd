@@ -32,7 +32,7 @@
 Implementation-Title:  ASM XML classes
 Implementation-Version: ${product.artifact}
 Implementation-Vendor: Eugene Kuleshov
-Class-Path: asm-${product.artifact}.jar asm-util-${product.artifact}.jar asm-attrs-${product.artifact}.jar
+Class-Path: asm-${product.artifact}.jar asm-util-${product.artifact}.jar
 Main-Class: org.objectweb.asm.xml.Processor
 
 Bundle-Name: ASM xml classes

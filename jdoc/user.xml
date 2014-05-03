@@ -49,13 +49,11 @@
 
       <sourcepath path="${src}"/>
       <package name="org.objectweb.asm"/>
-      <package name="org.objectweb.asm.attrs"/>
       <package name="org.objectweb.asm.commons"/>
       <package name="org.objectweb.asm.signature"/>
       <package name="org.objectweb.asm.tree"/>
       <package name="org.objectweb.asm.tree.analysis"/>
       <package name="org.objectweb.asm.util"/>
-      <package name="org.objectweb.asm.util.attrs"/>
       <package name="org.objectweb.asm.xml"/>
 
       <link href="${jdk.url}" offline="true" packagelistLoc="${jdoc}"/>

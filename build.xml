@@ -398,7 +398,6 @@
         <include name="**/asm-analysis-${product.artifact}.jar"/>
         <include name="**/asm-util-${product.artifact}.jar"/>
         <include name="**/asm-commons-${product.artifact}.jar"/>
-        <include name="**/asm-attrs-${product.artifact}.jar"/>
       </zipfileset>
       <manifest>
         <attribute name="Bundle-ManifestVersion" value="2"/>
@@ -409,12 +408,10 @@
 output/dist/lib/asm-tree-${product.artifact}.jar,
 output/dist/lib/asm-analysis-${product.artifact}.jar,
 output/dist/lib/asm-commons-${product.artifact}.jar,
-output/dist/lib/asm-attrs-${product.artifact}.jar,
 output/dist/lib/asm-util-${product.artifact}.jar"/>
         <attribute name="Bundle-Vendor" value="ObjectWeb.org"/>
         <attribute name="Bundle-Localization" value="plugin"/>
         <attribute name="Export-Package" value="org.objectweb.asm,
-org.objectweb.asm.attrs,
 org.objectweb.asm.commons,
 org.objectweb.asm.signature,
 org.objectweb.asm.tree,

@@ -714,6 +714,7 @@ public class ASMContentHandler extends DefaultHandler implements Opcodes {
     final class InterfaceRule extends Rule {
 
         @Override
+        @SuppressWarnings("unchecked")
         public final void begin(final String name, final Attributes attrs) {
             ((ArrayList<String>) ((HashMap<?, ?>) peek()).get("interfaces"))
                     .add(attrs.getValue("name"));
@@ -822,6 +823,7 @@ public class ASMContentHandler extends DefaultHandler implements Opcodes {
     final class ExceptionRule extends Rule {
 
         @Override
+        @SuppressWarnings("unchecked")
         public final void begin(final String name, final Attributes attrs) {
             ((ArrayList<String>) ((HashMap<?, ?>) peek()).get("exceptions"))
                     .add(attrs.getValue("name"));
@@ -892,6 +894,7 @@ public class ASMContentHandler extends DefaultHandler implements Opcodes {
     final class TableSwitchLabelRule extends Rule {
 
         @Override
+        @SuppressWarnings("unchecked")
         public final void begin(final String name, final Attributes attrs) {
             ((ArrayList<Label>) ((HashMap<?, ?>) peek()).get("labels"))
                     .add(getLabel(attrs.getValue("name")));
@@ -916,6 +919,7 @@ public class ASMContentHandler extends DefaultHandler implements Opcodes {
         public final void end(final String name) {
             HashMap<?, ?> vals = (HashMap<?, ?>) pop();
             Label dflt = getLabel(vals.get("dflt"));
+            @SuppressWarnings("unchecked")
             ArrayList<String> keyList = (ArrayList<String>) vals.get("keys");
             ArrayList<?> lbls = (ArrayList<?>) vals.get("labels");
             Label[] labels = lbls.toArray(new Label[lbls.size()]);
@@ -933,6 +937,7 @@ public class ASMContentHandler extends DefaultHandler implements Opcodes {
     final class LookupSwitchLabelRule extends Rule {
 
         @Override
+        @SuppressWarnings("unchecked")
         public final void begin(final String name, final Attributes attrs) {
             HashMap<?, ?> vals = (HashMap<?, ?>) peek();
             ((ArrayList<Label>) vals.get("labels")).add(getLabel(attrs
@@ -991,6 +996,7 @@ public class ASMContentHandler extends DefaultHandler implements Opcodes {
 
         @Override
         public void begin(final String name, final Attributes attrs) {
+            @SuppressWarnings("unchecked")
             ArrayList<Object> types = (ArrayList<Object>) ((HashMap<?, ?>) peek())
                     .get(name);
             String type = attrs.getValue("type");
@@ -1095,6 +1101,7 @@ public class ASMContentHandler extends DefaultHandler implements Opcodes {
         @Override
         public final void begin(final String element, final Attributes attrs)
                 throws SAXException {
+            @SuppressWarnings("unchecked")
             ArrayList<Object> bsmArgs = (ArrayList<Object>) peek();
             bsmArgs.add(getValue(attrs.getValue("desc"), attrs.getValue("cst")));
         }

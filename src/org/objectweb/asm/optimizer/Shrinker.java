@@ -219,6 +219,7 @@ public class Shrinker {
             return mtype1.getDescriptor().compareTo(mtype2.getDescriptor());
         }
 
+        @SuppressWarnings("unchecked")
         private static int compareObjects(Object[] objVals1, Object[] objVals2) {
             int length = objVals1.length;
             int d = length - objVals2.length;
@@ -235,7 +236,7 @@ public class Shrinker {
                             d = compareHandle((Handle) objVal1,
                                     (Handle) objVal2);
                         } else {
-                            d = ((Comparable) objVal1).compareTo(objVal2);
+                            d = ((Comparable<Object>) objVal1).compareTo(objVal2);
                         }
                     }
 

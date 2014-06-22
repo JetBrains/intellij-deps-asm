@@ -186,6 +186,7 @@
 			</classpath>
 			<src path="${out.build}/tmp" />
 			<include name="**/*.java" />
+			<compilerarg value="-Xlint"/> 
 		</javac>
 	</target>
 

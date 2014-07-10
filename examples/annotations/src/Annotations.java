@@ -80,7 +80,7 @@ public class Annotations {
                         av = mv.visitParameterAnnotation(parameter, desc,
                                 visible);
                         if (desc.equals("LNotNull;")) {
-                            params.add(new Integer(parameter));
+                            params.add(parameter);
                         }
                         return av;
                     }

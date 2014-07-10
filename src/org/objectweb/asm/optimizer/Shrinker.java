@@ -152,16 +152,13 @@ public class Shrinker {
             if (d == 0) {
                 switch (c1.type) {
                 case 'I':
-                    return new Integer(c1.intVal).compareTo(new Integer(
-                            c2.intVal));
+                    return ((Integer)c1.intVal).compareTo(c2.intVal);
                 case 'J':
-                    return new Long(c1.longVal).compareTo(new Long(c2.longVal));
+                    return ((Long)c1.longVal).compareTo(c2.longVal);
                 case 'F':
-                    return new Float(c1.floatVal).compareTo(new Float(
-                            c2.floatVal));
+                    return ((Float)c1.floatVal).compareTo(c2.floatVal);
                 case 'D':
-                    return new Double(c1.doubleVal).compareTo(new Double(
-                            c2.doubleVal));
+                    return ((Double)c1.doubleVal).compareTo(c2.doubleVal);
                 case 's':
                 case 'S':
                 case 'C':

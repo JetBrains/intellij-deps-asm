@@ -737,7 +737,7 @@ public class JasminifierClassAdapter extends ClassVisitor {
             pw.print("[C = ");
             char[] v = (char[]) value;
             for (int i = 0; i < v.length; i++) {
-                pw.print(new Integer(v[i]));
+                pw.print((int)v[i]);
                 pw.print(' ');
             }
             pw.println();

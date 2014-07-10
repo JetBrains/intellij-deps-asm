@@ -320,7 +320,7 @@ public class ASMContentHandler extends DefaultHandler implements Opcodes {
     static {
         String[] types = SAXCodeAdapter.TYPES;
         for (int i = 0; i < types.length; i++) {
-            TYPES.put(types[i], new Integer(i));
+            TYPES.put(types[i], i);
         }
     }
 
@@ -686,7 +686,7 @@ public class ASMContentHandler extends DefaultHandler implements Opcodes {
             int major = Integer.parseInt(attrs.getValue("major"));
             int minor = Integer.parseInt(attrs.getValue("minor"));
             HashMap<String, Object> vals = new HashMap<String, Object>();
-            vals.put("version", new Integer(minor << 16 | major));
+            vals.put("version", minor << 16 | major);
             vals.put("access", attrs.getValue("access"));
             vals.put("name", attrs.getValue("name"));
             vals.put("parent", attrs.getValue("parent"));

@@ -106,7 +106,8 @@ public class Shrinker {
         } else if (f.getName().endsWith(".class")) {
             ConstantPool cp = new ConstantPool();
             ClassReader cr = new ClassReader(new FileInputStream(f));
-            ClassWriter cw = new ClassWriter(0);
+            // auto-boxing removal requires to recompute the maxs 
+            ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_MAXS);
             ClassConstantsCollector ccc = new ClassConstantsCollector(cw, cp);
             ClassOptimizer co = new ClassOptimizer(ccc, remapper);
             cr.accept(co, ClassReader.SKIP_DEBUG);

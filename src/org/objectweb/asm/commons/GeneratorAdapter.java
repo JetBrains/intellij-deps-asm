@@ -1618,11 +1618,13 @@ public class GeneratorAdapter extends LocalVariablesSorter {
      */
     public void catchException(final Label start, final Label end,
             final Type exception) {
+        Label doCatch = new Label();
         if (exception == null) {
-            mv.visitTryCatchBlock(start, end, mark(), null);
+            mv.visitTryCatchBlock(start, end, doCatch, null);
         } else {
-            mv.visitTryCatchBlock(start, end, mark(),
+            mv.visitTryCatchBlock(start, end, doCatch,
                     exception.getInternalName());
         }
+        mark(doCatch);
     }
 }

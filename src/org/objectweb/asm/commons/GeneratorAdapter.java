@@ -1599,7 +1599,7 @@ public class GeneratorAdapter extends LocalVariablesSorter {
      * Marks the end of the visited method.
      */
     public void endMethod() {
-        if ((access & Opcodes.ACC_ABSTRACT) != 0) {
+        if ((access & Opcodes.ACC_ABSTRACT) == 0) {
             mv.visitMaxs(0, 0);
         }
         mv.visitEnd();

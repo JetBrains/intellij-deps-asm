@@ -78,6 +78,7 @@ public class Debug extends Generator {
         mv.visitJumpInsn(GOTO, l1);
         mv.visitLabel(l1);
         mv.visitLineNumber(3, l1);
+        mv.visitLineNumber(42, l1);
         mv.visitInsn(RETURN);
         mv.visitLabel(l2);
         mv.visitLocalVariable("this", "Lpkg/Debug;", "Lpkg/Debug;", l0, l2, 0);

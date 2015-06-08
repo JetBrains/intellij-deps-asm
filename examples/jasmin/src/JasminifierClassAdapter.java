@@ -571,7 +571,7 @@ public class JasminifierClassAdapter extends ClassVisitor {
     }
 
     protected String access(final int access) {
-        StringBuffer b = new StringBuffer();
+        StringBuilder b = new StringBuilder();
         if ((access & Opcodes.ACC_PUBLIC) != 0) {
             b.append(" public");
         }

@@ -77,7 +77,7 @@ public class Analysis implements Opcodes {
                         public void visitMaxs(final int maxStack,
                                 final int maxLocals) {
                             for (int i = 0; i < text.size(); ++i) {
-                                StringBuffer s = new StringBuffer(
+                                StringBuilder s = new StringBuilder(
                                         frames[i] == null ? "null"
                                                 : frames[i].toString());
                                 while (s.length() < Math.max(20, maxStack

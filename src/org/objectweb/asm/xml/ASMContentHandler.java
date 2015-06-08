@@ -362,7 +362,7 @@ public class ASMContentHandler extends DefaultHandler implements Opcodes {
         String name = lName == null || lName.length() == 0 ? qName : lName;
 
         // Compute the current matching rule
-        StringBuffer sb = new StringBuffer(match);
+        StringBuilder sb = new StringBuilder(match);
         if (match.length() > 0) {
             sb.append('/');
         }
@@ -568,7 +568,7 @@ public class ASMContentHandler extends DefaultHandler implements Opcodes {
         }
 
         private final String decode(final String val) throws SAXException {
-            StringBuffer sb = new StringBuffer(val.length());
+            StringBuilder sb = new StringBuilder(val.length());
             try {
                 int n = 0;
                 while (n < val.length()) {

@@ -37,7 +37,7 @@
            failureproperty="test.failed">
       <batchtest fork="yes" todir="${out.test}/reports">
         <fileset dir="${test}/conform">
-          <include name="**/RemappingClassAdapterTest2.java"/>
+          <include name="**/ClassRemapperTest.java"/>
         </fileset>
       </batchtest>
       <formatter type="xml"/>

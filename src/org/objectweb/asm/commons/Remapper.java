@@ -157,7 +157,7 @@ public abstract class Remapper {
         }
         SignatureReader r = new SignatureReader(signature);
         SignatureWriter w = new SignatureWriter();
-        SignatureVisitor a = createRemappingSignatureAdapter(w);
+        SignatureVisitor a = createSignatureRemapper(w);
         if (typeSignature) {
             r.acceptType(a);
         } else {
@@ -166,9 +166,18 @@ public abstract class Remapper {
         return w.toString();
     }
 
+    /**
+     * @deprecated use {@link #createSignatureRemapper} instead.
+     */
+    @Deprecated
     protected SignatureVisitor createRemappingSignatureAdapter(
             SignatureVisitor v) {
-        return new RemappingSignatureAdapter(v, this);
+        return new SignatureRemapper(v, this);
+    }
+
+    protected SignatureVisitor createSignatureRemapper(
+            SignatureVisitor v) {
+        return createRemappingSignatureAdapter(v);
     }
 
     /**

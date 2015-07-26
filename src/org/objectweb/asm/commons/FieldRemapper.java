@@ -30,33 +30,42 @@
 
 package org.objectweb.asm.commons;
 
-import java.util.HashMap;
-import java.util.Map;
+import org.objectweb.asm.AnnotationVisitor;
+import org.objectweb.asm.FieldVisitor;
+import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.TypePath;
 
-import junit.framework.TestSuite;
+/**
+ * A {@link FieldVisitor} adapter for type remapping.
+ * 
+ * @author Eugene Kuleshov
+ */
+public class FieldRemapper extends FieldVisitor {
 
-import org.objectweb.asm.AbstractTest;
-import org.objectweb.asm.ClassReader;
-import org.objectweb.asm.ClassWriter;
+    private final Remapper remapper;
 
-public class RemappingClassAdapterTest2 extends AbstractTest {
+    public FieldRemapper(final FieldVisitor fv, final Remapper remapper) {
+        this(Opcodes.ASM5, fv, remapper);
+    }
 
-    public static TestSuite suite() throws Exception {
-        return new RemappingClassAdapterTest2().getSuite();
+    protected FieldRemapper(final int api, final FieldVisitor fv,
+            final Remapper remapper) {
+        super(api, fv);
+        this.remapper = remapper;
     }
 
     @Override
-    public void test() throws Exception {
-        ClassWriter cw = new ClassWriter(0);
-        ClassReader cr = new ClassReader(is);
-        Map<String, String> map = new HashMap<String, String>() {
-            @Override
-            public String get(Object key) {
-                return "Foo";
-            }
-        };
-        cr.accept(new RemappingClassAdapter(cw, new SimpleRemapper(map)),
-                ClassReader.EXPAND_FRAMES);
+    public AnnotationVisitor visitAnnotation(String desc, boolean visible) {
+        AnnotationVisitor av = fv.visitAnnotation(remapper.mapDesc(desc),
+                visible);
+        return av == null ? null : new AnnotationRemapper(av, remapper);
     }
 
+    @Override
+    public AnnotationVisitor visitTypeAnnotation(int typeRef,
+            TypePath typePath, String desc, boolean visible) {
+        AnnotationVisitor av = super.visitTypeAnnotation(typeRef, typePath,
+                remapper.mapDesc(desc), visible);
+        return av == null ? null : new AnnotationRemapper(av, remapper);
+    }
 }

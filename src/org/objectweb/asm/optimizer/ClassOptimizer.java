@@ -41,7 +41,7 @@ import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.TypePath;
 import org.objectweb.asm.commons.Remapper;
-import org.objectweb.asm.commons.RemappingClassAdapter;
+import org.objectweb.asm.commons.ClassRemapper;
 
 /**
  * A {@link ClassVisitor} that renames fields and methods, and removes debug
@@ -50,7 +50,7 @@ import org.objectweb.asm.commons.RemappingClassAdapter;
  * @author Eric Bruneton
  * @author Eugene Kuleshov
  */
-public class ClassOptimizer extends RemappingClassAdapter {
+public class ClassOptimizer extends ClassRemapper {
 
     private String pkgName;
     String clsName;
@@ -189,9 +189,8 @@ public class ClassOptimizer extends RemappingClassAdapter {
     }
 
     @Override
-    protected MethodVisitor createRemappingMethodAdapter(int access,
-            String newDesc, MethodVisitor mv) {
-        return new MethodOptimizer(this, access, newDesc, mv, remapper);
+    protected MethodVisitor createMethodRemapper(MethodVisitor mv) {
+        return new MethodOptimizer(this, mv, remapper);
     }
 
     @Override

@@ -56,9 +56,9 @@ import org.objectweb.asm.tree.MultiANewArrayInsnNode;
 import org.objectweb.asm.tree.TryCatchBlockNode;
 import org.objectweb.asm.tree.TypeInsnNode;
 
-public class RemappingClassAdapterTest extends TestCase implements Opcodes {
+public class ClassRemapperUnitTest extends TestCase implements Opcodes {
 
-    public void testRemappingClassAdapter() throws Exception {
+    public void testClassRemapper() throws Exception {
         Map<String, String> map = new HashMap<String, String>();
         map.put("Boo", "B1");
         map.put("Coo", "C1");
@@ -66,7 +66,7 @@ public class RemappingClassAdapterTest extends TestCase implements Opcodes {
         Remapper remapper = new SimpleRemapper(map);
 
         ClassNode cn = new ClassNode();
-        dump(new RemappingClassAdapter(cn, remapper));
+        dump(new ClassRemapper(cn, remapper));
 
         assertEquals("D1", cn.name);
         assertEquals("B1", cn.superName);

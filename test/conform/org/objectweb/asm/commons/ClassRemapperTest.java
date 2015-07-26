@@ -30,44 +30,32 @@
 
 package org.objectweb.asm.commons;
 
-import org.objectweb.asm.AnnotationVisitor;
-import org.objectweb.asm.FieldVisitor;
-import org.objectweb.asm.Opcodes;
-import org.objectweb.asm.TypePath;
+import java.util.HashMap;
+import java.util.Map;
 
-/**
- * A {@link FieldVisitor} adapter for type remapping.
- * 
- * @deprecated use {@link FieldRemapper} instead.
- * @author Eugene Kuleshov
- */
-@Deprecated
-public class RemappingFieldAdapter extends FieldVisitor {
+import junit.framework.TestSuite;
 
-    private final Remapper remapper;
+import org.objectweb.asm.AbstractTest;
+import org.objectweb.asm.ClassReader;
+import org.objectweb.asm.ClassWriter;
 
-    public RemappingFieldAdapter(final FieldVisitor fv, final Remapper remapper) {
-        this(Opcodes.ASM5, fv, remapper);
-    }
+public class ClassRemapperTest extends AbstractTest {
 
-    protected RemappingFieldAdapter(final int api, final FieldVisitor fv,
-            final Remapper remapper) {
-        super(api, fv);
-        this.remapper = remapper;
+    public static TestSuite suite() throws Exception {
+        return new ClassRemapperTest().getSuite();
     }
 
     @Override
-    public AnnotationVisitor visitAnnotation(String desc, boolean visible) {
-        AnnotationVisitor av = fv.visitAnnotation(remapper.mapDesc(desc),
-                visible);
-        return av == null ? null : new RemappingAnnotationAdapter(av, remapper);
+    public void test() throws Exception {
+        ClassWriter cw = new ClassWriter(0);
+        ClassReader cr = new ClassReader(is);
+        Map<String, String> map = new HashMap<String, String>() {
+            @Override
+            public String get(Object key) {
+                return "Foo";
+            }
+        };
+        cr.accept(new ClassRemapper(cw, new SimpleRemapper(map)), 0);
     }
 
-    @Override
-    public AnnotationVisitor visitTypeAnnotation(int typeRef,
-            TypePath typePath, String desc, boolean visible) {
-        AnnotationVisitor av = super.visitTypeAnnotation(typeRef, typePath,
-                remapper.mapDesc(desc), visible);
-        return av == null ? null : new RemappingAnnotationAdapter(av, remapper);
-    }
 }

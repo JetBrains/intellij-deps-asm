@@ -43,7 +43,7 @@ Export-Package: \
   org.objectweb.asm.util;version=${product.artifact}
 
 Import-Package: \
-  org.objectweb.asm.*;version:="[${product.artifact},${product.artifact}]"
+  org.objectweb.asm.*;version="[${product.artifact},${product.artifact}]"
 
 Bundle-RequiredExecutionEnvironment: J2SE-1.3
 

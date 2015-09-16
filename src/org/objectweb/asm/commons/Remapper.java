@@ -145,11 +145,13 @@ public abstract class Remapper {
     }
 
     /**
-     * 
+     * @param signature
+     *            signature for mapper
      * @param typeSignature
      *            true if signature is a FieldTypeSignature, such as the
      *            signature parameter of the ClassVisitor.visitField or
      *            MethodVisitor.visitLocalVariable methods
+     * @return signature rewritten as a string
      */
     public String mapSignature(String signature, boolean typeSignature) {
         if (signature == null) {
@@ -225,6 +227,10 @@ public abstract class Remapper {
 
     /**
      * Map type name to the new name. Subclasses can override.
+     * 
+     * @param typeName
+     *            the type name
+     * @return new name, default implementation is the identity.
      */
     public String map(String typeName) {
         return typeName;

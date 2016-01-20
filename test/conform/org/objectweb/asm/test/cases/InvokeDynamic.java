@@ -62,13 +62,15 @@ public class InvokeDynamic extends Generator {
                 H_INVOKESTATIC,
                 "C",
                 "bsm1",
-                "(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/MethodType;Ljava/lang/invoke/MethodType;)Ljava/lang/invoke/CallSite;");
+                "(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/MethodType;Ljava/lang/invoke/MethodType;)Ljava/lang/invoke/CallSite;",
+                false);
         mv.visitInvokeDynamicInsn("bar1", "()V", h, Type.getType("()V"));
         h = new Handle(
                 H_INVOKESTATIC,
                 "C",
                 "bsm2",
-                "(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/MethodType;Ljava/lang/invoke/MethodType;Ljava/lang/invoke/MethodHandle;)Ljava/lang/invoke/CallSite;");
+                "(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/MethodType;Ljava/lang/invoke/MethodType;Ljava/lang/invoke/MethodHandle;)Ljava/lang/invoke/CallSite;",
+                false);
         mv.visitInvokeDynamicInsn("bar2", "()V", h, Type.getType("()V"), h);
         mv.visitInsn(RETURN);
         mv.visitEnd();

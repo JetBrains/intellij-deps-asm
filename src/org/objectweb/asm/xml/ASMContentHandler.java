@@ -554,13 +554,16 @@ public class ASMContentHandler extends DefaultHandler implements Opcodes {
                 int dotIndex = val.indexOf('.');
                 int descIndex = val.indexOf('(', dotIndex + 1);
                 int tagIndex = val.lastIndexOf('(');
-
-                int tag = Integer.parseInt(val.substring(tagIndex + 1,
-                        val.length() - 1));
+                int itfIndex = val.indexOf(' ', tagIndex + 1);
+                
+                boolean itf = itfIndex != -1;
+                int tag = Integer.parseInt(
+                              val.substring(tagIndex + 1,
+                                    itf? val.length() - 1: itfIndex));
                 String owner = val.substring(0, dotIndex);
                 String name = val.substring(dotIndex + 1, descIndex);
                 String desc = val.substring(descIndex, tagIndex - 1);
-                return new Handle(tag, owner, name, desc);
+                return new Handle(tag, owner, name, desc, itf);
 
             } catch (RuntimeException e) {
                 throw new SAXException("Malformed handle " + val, e);

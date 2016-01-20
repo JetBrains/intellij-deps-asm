@@ -146,7 +146,8 @@ public class IndyCompile extends ClassLoader {
                     "RT",
                     name,
                     "(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/MethodType;"
-                            + optArgs + ")Ljava/lang/invoke/CallSite;");
+                            + optArgs + ")Ljava/lang/invoke/CallSite;",
+                    false);
         }
     }
 

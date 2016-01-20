@@ -139,7 +139,7 @@ public abstract class Remapper {
             Handle h = (Handle) value;
             return new Handle(h.getTag(), mapType(h.getOwner()), mapMethodName(
                     h.getOwner(), h.getName(), h.getDesc()),
-                    mapMethodDesc(h.getDesc()));
+                    mapMethodDesc(h.getDesc()), h.isInterface());
         }
         return value;
     }

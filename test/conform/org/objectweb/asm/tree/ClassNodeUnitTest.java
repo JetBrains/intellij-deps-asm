@@ -90,7 +90,7 @@ public class ClassNodeUnitTest extends TestCase implements Opcodes {
     }
 
     public void testInvokeDynamicInsnNode() {
-        Handle bsm = new Handle(Opcodes.H_INVOKESTATIC, "owner", "name", "()V");
+        Handle bsm = new Handle(Opcodes.H_INVOKESTATIC, "owner", "name", "()V", false);
         InvokeDynamicInsnNode mn = new InvokeDynamicInsnNode("name", "()V",
                 bsm, new Object[0]);
 

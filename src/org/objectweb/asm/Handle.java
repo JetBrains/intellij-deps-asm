@@ -96,7 +96,7 @@ public final class Handle {
      */
     @Deprecated
     public Handle(int tag, String owner, String name, String desc) {
-        this(tag, owner, name, desc, false);
+        this(tag, owner, name, desc, tag == Opcodes.H_INVOKEINTERFACE);
     }
 
     /**

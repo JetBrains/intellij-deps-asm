@@ -250,6 +250,35 @@ public class InsnListUnitTest extends TestCase {
         }
     }
 
+    public void testIterator5() {
+        // Call add() on empty list
+        ListIterator<AbstractInsnNode> it = l1.iterator();
+        it.add(new InsnNode(0));
+        assertEquals(1, l1.size());
+
+        // Call set() at end of list
+        it = l1.iterator();
+        it.next();
+        it.set(new InsnNode(1));
+        assertEquals(1, l1.size());
+        assertEquals(1, l1.get(0).opcode);
+
+        // Call add() at end of list
+        it = l2.iterator();
+        it.next();
+        it.next();
+        it.add(new InsnNode(0));
+        assertEquals(3, l2.size());
+
+        // next() after set(), itself after previous()
+        it = l2.iterator();
+        it.next();
+        it.next();
+        it.previous();
+        it.set(new InsnNode(1));
+        assertEquals(1, it.next().opcode);
+    }
+
     public void testInvalidIndexOf() {
         try {
             l1.indexOf(new InsnNode(0));

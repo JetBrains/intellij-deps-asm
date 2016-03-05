@@ -151,7 +151,7 @@ public class ASMMemTest {
         int min = (int) (time / (60 * 1000));
         int sec = (int) ((time / 1000) % 60);
         int msec = (int) (time % 1000);
-        StringBuffer sbuf = new StringBuffer(30);
+        StringBuilder sbuf = new StringBuilder(30);
         if (min > 0) {
             sbuf.append(min);
             sbuf.append("min ");
@@ -175,7 +175,7 @@ public class ASMMemTest {
         int mb = (int) ((mem >> 20) & 0x3FF);
         int kb = (int) ((mem >> 10) & 0x3FF);
         int bytes = (int) (mem & 0x3FF);
-        StringBuffer sbuf = new StringBuffer(30);
+        StringBuilder sbuf = new StringBuilder(30);
         if (gb > 0) {
             sbuf.append(gb);
             sbuf.append("GB ");

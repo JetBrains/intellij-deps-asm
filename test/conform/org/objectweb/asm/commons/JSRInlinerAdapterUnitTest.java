@@ -1866,7 +1866,7 @@ public class JSRInlinerAdapterUnitTest extends TestCase {
         TraceMethodVisitor tmv = new TraceMethodVisitor(tv);
         mn.accept(tmv);
 
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         for (int i = 0; i < tv.text.size(); i++) {
             sb.append(tv.text.get(i));
         }

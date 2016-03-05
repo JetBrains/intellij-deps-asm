@@ -105,8 +105,8 @@ public class AdviceAdapterUnitTest extends AbstractTest {
         System.err.println(off().append("<").toString());
     }
 
-    private static StringBuffer off() {
-        StringBuffer sb = new StringBuffer();
+    private static StringBuilder off() {
+        StringBuilder sb = new StringBuilder();
         for (int i = 0; i < n; i++) {
             sb.append("  ");
         }

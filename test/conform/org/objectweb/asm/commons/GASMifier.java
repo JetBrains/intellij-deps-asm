@@ -957,7 +957,7 @@ public class GASMifier extends ASMifier implements Opcodes {
     static String getMethod(final String name, final String desc) {
         Type rt = Type.getReturnType(desc);
         Type[] argt = Type.getArgumentTypes(desc);
-        StringBuffer buf = new StringBuffer();
+        StringBuilder buf = new StringBuilder();
         buf.append("Method.getMethod(\"");
         buf.append(rt.getClassName()).append(' ');
         buf.append(name).append('(');

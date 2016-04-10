@@ -645,9 +645,9 @@ public class ClassWriter extends ClassVisitor {
      * @param flags
      *            option flags that can be used to modify the default behavior
      *            of this class. <i>These option flags do not affect methods
-     *            that are copied as is in the new class. This means that the
-     *            maximum stack size nor the stack frames will be computed for
-     *            these methods</i>. See {@link #COMPUTE_MAXS},
+     *            that are copied as is in the new class. This means that
+     *            neither the maximum stack size nor the stack frames will be
+     *            computed for these methods</i>. See {@link #COMPUTE_MAXS},
      *            {@link #COMPUTE_FRAMES}.
      */
     public ClassWriter(final ClassReader classReader, final int flags) {

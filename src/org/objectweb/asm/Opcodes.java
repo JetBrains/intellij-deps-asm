@@ -146,6 +146,8 @@ public interface Opcodes {
      */
     int F_SAME1 = 4;
 
+    // do not try to change the following code to use auto-boxing,
+    // these values are compared by reference and not by value
     Integer TOP = new Integer(0);
     Integer INTEGER = new Integer(1);
     Integer FLOAT = new Integer(2);

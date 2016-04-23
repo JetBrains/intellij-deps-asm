@@ -377,7 +377,7 @@ public class Type {
      */
     public static Type getReturnType(final String methodDescriptor) {
         char[] buf = methodDescriptor.toCharArray();
-        return getType(buf, methodDescriptor.indexOf(')') + 1);
+        return getType(buf, methodDescriptor.lastIndexOf(')') + 1);
     }
 
     /**

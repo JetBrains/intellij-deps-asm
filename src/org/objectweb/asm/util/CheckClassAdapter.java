@@ -334,7 +334,7 @@ public class CheckClassAdapter extends ClassVisitor {
      *             If a subclass calls this constructor.
      */
     public CheckClassAdapter(final ClassVisitor cv, final boolean checkDataFlow) {
-        this(Opcodes.ASM5, cv, checkDataFlow);
+        this(Opcodes.ASM6, cv, checkDataFlow);
         if (getClass() != CheckClassAdapter.class) {
             throw new IllegalStateException();
         }
@@ -345,7 +345,7 @@ public class CheckClassAdapter extends ClassVisitor {
      * 
      * @param api
      *            the ASM API version implemented by this visitor. Must be one
-     *            of {@link Opcodes#ASM4} or {@link Opcodes#ASM5}.
+     *            of {@link Opcodes#ASM4}, {@link Opcodes#ASM5} or {@link Opcodes#ASM6}.
      * @param cv
      *            the class visitor to which this adapter must delegate calls.
      * @param checkDataFlow

@@ -605,7 +605,7 @@ public class ClassWriter extends ClassVisitor {
      *            {@link #COMPUTE_FRAMES}.
      */
     public ClassWriter(final int flags) {
-        super(Opcodes.ASM5);
+        super(Opcodes.ASM6);
         index = 1;
         pool = new ByteVector();
         items = new Item[256];

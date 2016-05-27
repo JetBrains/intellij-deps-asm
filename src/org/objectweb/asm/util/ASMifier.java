@@ -89,7 +89,7 @@ public class ASMifier extends Printer {
      *             If a subclass calls this constructor.
      */
     public ASMifier() {
-        this(Opcodes.ASM5, "cw", 0);
+        this(Opcodes.ASM6, "cw", 0);
         if (getClass() != ASMifier.class) {
             throw new IllegalStateException();
         }
@@ -100,7 +100,7 @@ public class ASMifier extends Printer {
      * 
      * @param api
      *            the ASM API version implemented by this class. Must be one of
-     *            {@link Opcodes#ASM4} or {@link Opcodes#ASM5}.
+     *            {@link Opcodes#ASM4}, {@link Opcodes#ASM5} or {@link Opcodes#ASM6}.
      * @param name
      *            the name of the visitor variable in the produced code.
      * @param id
@@ -207,6 +207,12 @@ public class ASMifier extends Printer {
             break;
         case Opcodes.V1_7:
             buf.append("V1_7");
+            break;
+        case Opcodes.V1_8:
+            buf.append("V1_8");
+            break;
+        case Opcodes.V1_9:
+            buf.append("V1_9");
             break;
         default:
             buf.append(version);
@@ -943,7 +949,7 @@ public class ASMifier extends Printer {
     // ------------------------------------------------------------------------
 
     protected ASMifier createASMifier(final String name, final int id) {
-        return new ASMifier(Opcodes.ASM5, name, id);
+        return new ASMifier(Opcodes.ASM6, name, id);
     }
 
     /**

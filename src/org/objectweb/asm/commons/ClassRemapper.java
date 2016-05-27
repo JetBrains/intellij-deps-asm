@@ -49,7 +49,7 @@ public class ClassRemapper extends ClassVisitor {
     protected String className;
 
     public ClassRemapper(final ClassVisitor cv, final Remapper remapper) {
-        this(Opcodes.ASM5, cv, remapper);
+        this(Opcodes.ASM6, cv, remapper);
     }
 
     protected ClassRemapper(final int api, final ClassVisitor cv,

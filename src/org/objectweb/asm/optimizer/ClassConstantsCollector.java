@@ -48,7 +48,7 @@ public class ClassConstantsCollector extends ClassVisitor {
     private final ConstantPool cp;
 
     public ClassConstantsCollector(final ClassVisitor cv, final ConstantPool cp) {
-        super(Opcodes.ASM5, cv);
+        super(Opcodes.ASM6, cv);
         this.cp = cp;
     }
 

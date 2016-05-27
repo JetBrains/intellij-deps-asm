@@ -60,7 +60,7 @@ public class ClassOptimizer extends ClassRemapper {
     List<String> syntheticClassFields = new ArrayList<String>();
 
     public ClassOptimizer(final ClassVisitor cv, final Remapper remapper) {
-        super(Opcodes.ASM5, cv, remapper);
+        super(Opcodes.ASM6, cv, remapper);
     }
 
     FieldVisitor syntheticFieldVisitor(final int access, final String name,
@@ -161,7 +161,7 @@ public class ClassOptimizer extends ClassRemapper {
             hasClinitMethod = true;
             MethodVisitor mv = super.visitMethod(access, name, desc, null,
                     exceptions);
-            return new MethodVisitor(Opcodes.ASM5, mv) {
+            return new MethodVisitor(Opcodes.ASM6, mv) {
                 @Override
                 public void visitCode() {
                     super.visitCode();

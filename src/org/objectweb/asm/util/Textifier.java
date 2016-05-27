@@ -242,15 +242,19 @@ public class Textifier extends Printer {
                     .append(sv.getDeclaration()).append('\n');
         }
 
-        appendAccess(access & ~Opcodes.ACC_SUPER);
+        String internalName = name;
+        appendAccess(access & ~(Opcodes.ACC_SUPER|Opcodes.ACC_MODULE));
         if ((access & Opcodes.ACC_ANNOTATION) != 0) {
             buf.append("@interface ");
         } else if ((access & Opcodes.ACC_INTERFACE) != 0) {
             buf.append("interface ");
+        } else if ((access & Opcodes.ACC_MODULE) != 0) {
+            buf.append("module ");
+            internalName = name.substring(0, name.length() - "/module-info".length());
         } else if ((access & Opcodes.ACC_ENUM) == 0) {
             buf.append("class ");
         }
-        appendDescriptor(INTERNAL_NAME, name);
+        appendDescriptor(INTERNAL_NAME, internalName);
 
         if (superName != null && !"java/lang/Object".equals(superName)) {
             buf.append(" extends ");

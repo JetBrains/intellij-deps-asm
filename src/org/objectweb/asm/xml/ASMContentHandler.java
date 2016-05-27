@@ -675,6 +675,9 @@ public class ASMContentHandler extends DefaultHandler implements Opcodes {
             if (s.indexOf("mandated") != -1) {
                 access |= ACC_MANDATED;
             }
+            if (s.indexOf("module") != -1) {
+                access |= ACC_MODULE;
+            }
             return access;
         }
     }

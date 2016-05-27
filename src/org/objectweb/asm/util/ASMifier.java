@@ -1090,11 +1090,15 @@ public class ASMifier extends Printer {
             buf.append("ACC_DEPRECATED");
             first = false;
         }
-        if ((access & Opcodes.ACC_MANDATED) != 0) {
+        if ((access & (Opcodes.ACC_MANDATED|Opcodes.ACC_MODULE)) != 0) {
             if (!first) {
                 buf.append(" + ");
             }
-            buf.append("ACC_MANDATED");
+            if ((access & ACCESS_CLASS) == 0) {
+                buf.append("ACC_MANDATED");   
+            } else {
+                buf.append("ACC_MODULE");
+            }
             first = false;
         }
         if (first) {

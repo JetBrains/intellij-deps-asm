@@ -251,6 +251,11 @@ public class ASMifier extends Printer {
         buf.append(");\n\n");
         text.add(buf.toString());
     }
+    
+    @Override
+    public Printer visitModule() {
+        return createASMifier("mdv", 0);
+    }
 
     @Override
     public void visitOuterClass(final String owner, final String name,
@@ -363,6 +368,67 @@ public class ASMifier extends Printer {
     }
 
     // ------------------------------------------------------------------------
+    // Module
+    // ------------------------------------------------------------------------
+    
+    @Override
+    public void visitRequire(String module, int access) {
+        buf.setLength(0);
+        buf.append("mdv").append(".visitRequire(");
+        appendConstant(buf, module);
+        buf.append(", ");
+        appendAccess(access);
+        buf.append(");\n");
+        text.add(buf.toString());
+    }
+    
+    @Override
+    public void visitExport(String packaze, String... modules) {
+        buf.setLength(0);
+        buf.append("mdv").append(".visitExport(");
+        appendConstant(buf, packaze);
+        buf.append(", ");
+        if (modules != null && modules.length > 0) {
+            buf.append("new String[] {");
+            for (int i = 0; i < modules.length; ++i) {
+                buf.append(i == 0 ? " " : ", ");
+                appendConstant(modules[i]);
+            }
+            buf.append(" }");
+        } else {
+            buf.append("null");
+        }
+        buf.append(");\n");
+        text.add(buf.toString());
+    }
+    
+    @Override
+    public void visitUse(String service) {
+        buf.setLength(0);
+        buf.append("mdv").append(".visitUse(");
+        appendConstant(buf, service);
+        buf.append(");\n");
+        text.add(buf.toString());
+    }
+    
+    @Override
+    public void visitProvide(String service, String impl) {
+        buf.setLength(0);
+        buf.append("mdv").append(".visitProvide(");
+        appendConstant(buf, service);
+        buf.append(", ");
+        appendConstant(buf, impl);
+        buf.append(");\n");
+        text.add(buf.toString());
+    }
+    
+    @Override
+    public void visitModuleEnd() {
+      // empty    
+    }
+    
+    
+    // ------------------------------------------------------------------------
     // Annotations
     // ------------------------------------------------------------------------
 
@@ -461,7 +527,7 @@ public class ASMifier extends Printer {
     // ------------------------------------------------------------------------
     // Methods
     // ------------------------------------------------------------------------
-
+    
     @Override
     public void visitParameter(String parameterName, int access) {
         buf.setLength(0);

@@ -34,6 +34,7 @@ import org.objectweb.asm.Attribute;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.MethodVisitor;
+import org.objectweb.asm.ModuleVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.TypePath;
 
@@ -90,6 +91,12 @@ public class ClassConstantsCollector extends ClassVisitor {
         cv.visitSource(source, debug);
     }
 
+    @Override
+    public ModuleVisitor visitModule() {
+        cp.newUTF8("Module");
+        return new ModuleConstantsCollector(cv.visitModule(), cp);
+    }
+    
     @Override
     public void visitOuterClass(final String owner, final String name,
             final String desc) {

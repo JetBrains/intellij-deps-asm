@@ -33,6 +33,7 @@ import org.objectweb.asm.AnnotationVisitor;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.MethodVisitor;
+import org.objectweb.asm.ModuleVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.TypePath;
 import org.xml.sax.ContentHandler;
@@ -100,6 +101,13 @@ public final class SAXClassAdapter extends ClassVisitor {
         }
 
         sa.addElement("source", att);
+    }
+    
+    @Override
+    public ModuleVisitor visitModule() {
+        AttributesImpl att = new AttributesImpl();
+        sa.addStart("module", att);
+        return new SAXModuleAdapter(sa);
     }
 
     @Override

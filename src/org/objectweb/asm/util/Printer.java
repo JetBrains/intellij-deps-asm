@@ -197,6 +197,11 @@ public abstract class Printer {
      */
     public abstract void visitSource(final String source, final String debug);
 
+    
+    public Printer visitModule() {
+        throw new RuntimeException("Must be overriden");
+    }
+    
     /**
      * Class outer class.
      * See {@link org.objectweb.asm.ClassVisitor#visitOuterClass}.
@@ -346,6 +351,33 @@ public abstract class Printer {
      */
     public abstract void visitClassEnd();
 
+    // ------------------------------------------------------------------------
+    // Module
+    // ------------------------------------------------------------------------
+    
+    public void visitRequire(String module, int access) {
+        throw new RuntimeException("Must be overriden");
+    }
+    
+    public void visitExport(String packaze, String... modules) {
+        throw new RuntimeException("Must be overriden");
+    }
+    
+    public void visitUse(String service) {
+        throw new RuntimeException("Must be overriden");
+    }
+    
+    public void visitProvide(String service, String impl) {
+        throw new RuntimeException("Must be overriden");
+    }
+    
+    /**
+     * Module end. See {@link org.objectweb.asm.ModuleVisitor#visitEnd}.
+     */
+    public void visitModuleEnd() {
+        throw new RuntimeException("Must be overriden");
+    }
+    
     // ------------------------------------------------------------------------
     // Annotations
     // ------------------------------------------------------------------------

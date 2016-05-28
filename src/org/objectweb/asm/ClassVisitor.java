@@ -130,6 +130,21 @@ public abstract class ClassVisitor {
             cv.visitSource(source, debug);
         }
     }
+    
+    /**
+     * Visit the module corresponding to the class.
+     * @return a visitor to visit the module values, or <tt>null</tt> if
+     *         this visitor is not interested in visiting this module.
+     */
+    public ModuleVisitor visitModule() {
+        if (api < Opcodes.ASM6) {
+            throw new RuntimeException();
+        }
+        if (cv != null) {
+            return cv.visitModule();
+        }
+        return null;
+    }
 
     /**
      * Visits the enclosing class of the class. This method must be called only

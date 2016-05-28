@@ -42,7 +42,6 @@ import java.io.InputStream;
  * @author Eugene Kuleshov
  */
 public class ClassReader {
-
     /**
      * True to enable signatures support.
      */
@@ -560,6 +559,7 @@ public class ClassReader {
         int tanns = 0;
         int itanns = 0;
         int innerClasses = 0;
+        int module = 0;
         Attribute attributes = null;
 
         u = getAttributes();
@@ -600,6 +600,8 @@ public class ClassReader {
             } else if (ANNOTATIONS
                     && "RuntimeInvisibleTypeAnnotations".equals(attrName)) {
                 itanns = u + 8;
+            } else if ("Module".equals(attrName)) {
+                module = u + 8;
             } else if ("BootstrapMethods".equals(attrName)) {
                 int[] bootstrapMethods = new int[readUnsignedShort(u + 8)];
                 for (int j = 0, v = u + 10; j < bootstrapMethods.length; j++) {
@@ -628,6 +630,11 @@ public class ClassReader {
             classVisitor.visitSource(sourceFile, sourceDebug);
         }
 
+        // visits the module info
+        if (module != 0) {
+            readModule(classVisitor, context, module);
+        }
+        
         // visits the outer class
         if (enclosingOwner != null) {
             classVisitor.visitOuterClass(enclosingOwner, enclosingName,
@@ -697,6 +704,62 @@ public class ClassReader {
         classVisitor.visitEnd();
     }
 
+    /**
+     * Reads the module attribute and visit it.
+     * 
+     * @param classVisitor
+     *           the current class visitor
+     * @param context
+     *           information about the class being parsed.
+     * @param moduleOffset
+     *           the start offset of the module attribute in the class file.
+     * @return
+     */
+    private void readModule(final ClassVisitor classVisitor,
+            final Context context, int u) {
+        ModuleVisitor mv = classVisitor.visitModule();
+        if (mv == null) {
+            return;
+        }
+        char[] buffer = context.buffer;
+        
+        // reads provides
+        u += 2;
+        for (int i = readUnsignedShort(u - 2); i > 0; --i) {
+            mv.visitRequire(readUTF8(u, buffer), readUnsignedShort(u + 2));
+            u += 4;
+        }
+        
+        // reads exports
+        u += 2;
+        for (int i = readUnsignedShort(u - 2); i > 0; --i) {
+            String export = readUTF8(u, buffer);
+            String[] tos = new String[readUnsignedShort(u + 2)];
+            u += 4;
+            for (int j = 0; j < tos.length; ++j) {
+                tos[j] = readUTF8(u, buffer);
+                u += 2;
+            }
+            mv.visitExport(export, tos);
+        }
+        
+        // read uses
+        u += 2;
+        for (int i = readUnsignedShort(u - 2); i > 0; --i) {
+            mv.visitUse(readClass(u, buffer));
+            u += 2;
+        }
+        
+        // read provides
+        u += 2;
+        for (int i = readUnsignedShort(u - 2); i > 0; --i) {
+            mv.visitProvide(readClass(u, buffer), readClass(u + 2, buffer));
+            u += 4;
+        }
+        
+        mv.visitEnd();
+    }
+    
     /**
      * Reads a field and makes the given visitor visit it.
      * 

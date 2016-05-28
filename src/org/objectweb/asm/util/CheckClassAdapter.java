@@ -44,6 +44,7 @@ import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
+import org.objectweb.asm.ModuleVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.TypePath;
@@ -421,6 +422,11 @@ public class CheckClassAdapter extends ClassVisitor {
         super.visitSource(file, debug);
     }
 
+    @Override
+    public ModuleVisitor visitModule() {
+        return new CheckModuleAdapter(super.visitModule());
+    }
+    
     @Override
     public void visitOuterClass(final String owner, final String name,
             final String desc) {

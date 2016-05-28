@@ -395,6 +395,11 @@ public class ClassWriter extends ClassVisitor {
     private ByteVector sourceDebug;
 
     /**
+     * The module attribute of this class.
+     */
+    private ModuleWriter moduleWriter;
+    
+    /**
      * The constant pool item that contains the name of the enclosing class of
      * this class.
      */
@@ -693,6 +698,11 @@ public class ClassWriter extends ClassVisitor {
     }
 
     @Override
+    public final ModuleVisitor visitModule() {
+        return moduleWriter = new ModuleWriter(this); 
+    }
+    
+    @Override
     public final void visitOuterClass(final String owner, final String name,
             final String desc) {
         enclosingMethodOwner = newClass(owner);
@@ -893,6 +903,11 @@ public class ClassWriter extends ClassVisitor {
             size += 8 + itanns.getSize();
             newUTF8("RuntimeInvisibleTypeAnnotations");
         }
+        if (moduleWriter != null) {
+            ++attributeCount;
+            size += 6 + moduleWriter.getSize();
+            newUTF8("Module");
+        }
         if (attrs != null) {
             attributeCount += attrs.getCount();
             size += attrs.getSize(this, null, 0, -1, -1);
@@ -940,6 +955,10 @@ public class ClassWriter extends ClassVisitor {
             out.putShort(newUTF8("SourceDebugExtension")).putInt(len);
             out.putByteArray(sourceDebug.data, 0, len);
         }
+        if (moduleWriter != null) {
+            out.putShort(newUTF8("Module"));
+            moduleWriter.put(out);
+        }
         if (enclosingMethodOwner != 0) {
             out.putShort(newUTF8("EnclosingMethod")).putInt(4);
             out.putShort(enclosingMethodOwner).putShort(enclosingMethod);
@@ -981,6 +1000,7 @@ public class ClassWriter extends ClassVisitor {
             anns = null;
             ianns = null;
             attrs = null;
+            moduleWriter = null;
             innerClassesCount = 0;
             innerClasses = null;
             bootstrapMethodsCount = 0;

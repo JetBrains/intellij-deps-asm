@@ -36,6 +36,7 @@ import org.objectweb.asm.Attribute;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.MethodVisitor;
+import org.objectweb.asm.ModuleVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.TypePath;
 
@@ -148,6 +149,13 @@ public final class TraceClassVisitor extends ClassVisitor {
     public void visitSource(final String file, final String debug) {
         p.visitSource(file, debug);
         super.visitSource(file, debug);
+    }
+    
+    @Override
+    public ModuleVisitor visitModule() {
+        Printer p = this.p.visitModule();
+        ModuleVisitor mv =  super.visitModule();
+        return new TraceModuleVisitor(mv, p);
     }
 
     @Override

@@ -38,6 +38,7 @@ import org.objectweb.asm.Attribute;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.MethodVisitor;
+import org.objectweb.asm.ModuleVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.TypePath;
 
@@ -97,6 +98,11 @@ public class ClassNode extends ClassVisitor {
      */
     public String sourceDebug;
 
+    /**
+     * Module information. May be <tt>null</tt>.
+     */
+    public ModuleNode module;
+    
     /**
      * The internal name of the enclosing class of the class. May be
      * <tt>null</tt>.
@@ -235,6 +241,11 @@ public class ClassNode extends ClassVisitor {
     public void visitSource(final String file, final String debug) {
         sourceFile = file;
         sourceDebug = debug;
+    }
+    
+    @Override
+    public ModuleVisitor visitModule() {
+        return module = new ModuleNode(); 
     }
 
     @Override

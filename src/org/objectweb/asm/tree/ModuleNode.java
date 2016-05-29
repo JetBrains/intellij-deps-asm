@@ -142,7 +142,7 @@ public class ModuleNode extends ModuleVisitor {
         if (useCount == uses.length) {
             uses = copyOf(uses, useCount << 1);
         }
-        uses[useCount] = service;
+        uses[useCount++] = service;
     }
     
     @Override

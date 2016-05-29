@@ -734,11 +734,15 @@ public class ClassReader {
         u += 2;
         for (int i = readUnsignedShort(u - 2); i > 0; --i) {
             String export = readUTF8(u, buffer);
-            String[] tos = new String[readUnsignedShort(u + 2)];
+            int exportToCount = readUnsignedShort(u + 2);
             u += 4;
-            for (int j = 0; j < tos.length; ++j) {
-                tos[j] = readUTF8(u, buffer);
-                u += 2;
+            String[] tos = null;
+            if (exportToCount != 0) {
+                tos = new String[exportToCount];
+                for (int j = 0; j < tos.length; ++j) {
+                    tos[j] = readUTF8(u, buffer);
+                    u += 2;
+                }
             }
             mv.visitExport(export, tos);
         }

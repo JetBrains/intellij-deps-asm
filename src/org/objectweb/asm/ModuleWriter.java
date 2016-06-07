@@ -99,6 +99,10 @@ final class ModuleWriter extends ModuleVisitor {
         if (requires == null) {
             requires = new ByteVector();
         }
+        //FIXME fix bad ACC_PUBLIC value (0x0020)
+        if ((access & Opcodes.ACC_PUBLIC) != 0) {
+            access = access & ~ Opcodes.ACC_PUBLIC | 0x0020;
+        }
         requires.putShort(cw.newUTF8(module)).putShort(access);
         requireCount++;
         size += 4;

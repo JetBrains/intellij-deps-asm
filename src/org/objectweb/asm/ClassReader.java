@@ -723,10 +723,16 @@ public class ClassReader {
         }
         char[] buffer = context.buffer;
         
-        // reads provides
+        // reads requires
         u += 2;
         for (int i = readUnsignedShort(u - 2); i > 0; --i) {
-            mv.visitRequire(readUTF8(u, buffer), readUnsignedShort(u + 2));
+            //FIXME emulate ACC_PUBLIC wrong value (0x0020)
+            String module = readUTF8(u, buffer);
+            int access = readUnsignedShort(u + 2);
+            if ((access & 0x0020) != 0) {
+                access = access & ~ 0x0020 | Opcodes.ACC_PUBLIC;
+            }
+            mv.visitRequire(module, access);
             u += 4;
         }
         

@@ -173,7 +173,7 @@ public class ASMifier extends Printer {
         } else {
             text.add("package asm." + name.substring(0, n).replace('/', '.')
                     + ";\n");
-            simpleName = name.substring(n + 1).replace("-", "");
+            simpleName = name.substring(n + 1).replace('-', '_');
         }
         text.add("import java.util.*;\n");
         text.add("import org.objectweb.asm.*;\n");

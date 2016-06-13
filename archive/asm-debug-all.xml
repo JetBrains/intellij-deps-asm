@@ -34,10 +34,9 @@
 
   <target name="build-jar">
     <mkdir dir="${out.dist.lib}/all"/>
-    <taskdef resource="aQute/bnd/ant/taskdef.properties" classpath="${config}/biz.aQute.bnd.jar"/>
+    <taskdef resource="aQute/bnd/ant/taskdef.properties" classpath="${config}/${biz.aQute.bnd.path}"/>
     <bnd
       classpath="${out.build}/tmp"
-      eclipse="true"
       failok="false"
       exceptions="true"
       files="archive/asm-debug-all.bnd"

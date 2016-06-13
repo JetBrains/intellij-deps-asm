@@ -33,6 +33,7 @@
 	<classpathentry kind="lib" path="test/lib/serp-1.14.2.jar"/>
 	<classpathentry kind="lib" path="test/lib/aspectjweaver-1.5.3.jar"/>
 	<classpathentry kind="lib" path="examples/jasmin/test/jasmin.jar"/>
+	<classpathentry kind="lib" path="config/biz.aQute.bnd-3.2.0.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/3"/>
 	<classpathentry kind="output" path="output/eclipse"/>
 </classpath>

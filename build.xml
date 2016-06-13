@@ -76,6 +76,7 @@
 		<condition property="paths.configured">
 			<and>
 				<isset property="objectweb.ant.tasks.path" />
+				<isset property="biz.aQute.bnd.path" />
 			</and>
 		</condition>
 
@@ -183,6 +184,7 @@
 		<javac destdir="${out.build}/tmp" debug="on" source="1.5" target="1.5">
 			<classpath>
 				<pathelement location="${out.build}/tmp" />
+				<pathelement location="${config}/${biz.aQute.bnd.path}" />
 			</classpath>
 			<src path="${out.build}/tmp" />
 			<include name="**/*.java" />
@@ -318,7 +320,14 @@
 		</condition>
 	</target>
 
-	<target name="jar" depends="dist.init,dist.version,compile,shrink">
+	<target name="bnd-module-plugin-jar" depends="compile">
+		 <jar destfile="${out.build}/bnd-module-plugin.jar"
+		      basedir="${out.build}/tmp"
+		 	   includes="org/objectweb/asm/**/*.class">
+		 </jar>
+   </target>
+	
+	<target name="jar" depends="dist.init,dist.version,compile,shrink,bnd-module-plugin-jar">
 		<ant antfile="${archive}/asm.xml" />
 		<ant antfile="${archive}/asm-all.xml" />
 		<ant antfile="${archive}/asm-analysis.xml" />

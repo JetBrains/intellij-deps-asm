@@ -39,12 +39,12 @@ public class ModuleInfoBndPlugin implements AnalyzerPlugin {
     
     ClassWriter writer = new ClassWriter(0);
     String moduleInternalName = moduleName.replace('.', '/');
-    writer.visit(Opcodes.V1_9, Opcodes.ACC_MODULE, moduleInternalName + "/module-info", null, "java/lang/Object", null);
+    writer.visit(Opcodes.V1_9, Opcodes.ACC_MODULE, moduleInternalName + "/module-info", null, null, null);
     
     ModuleVisitor mv = writer.visitModule();
     
- // requires
-    mv.visitRequire("java.base", Opcodes.ACC_PUBLIC);
+    // requires
+    mv.visitRequire("java.base", Opcodes.ACC_PUBLIC|Opcodes.ACC_MANDATED);
     if (requireModules != null) {
       Parameters requireParams = analyzer.parseHeader(requireModules);
       for(String requireName: requireParams.keySet()) {
@@ -61,7 +61,7 @@ public class ModuleInfoBndPlugin implements AnalyzerPlugin {
         if (packageName.endsWith("*")) {
             throw new IllegalStateException("unsupported wildcard packages " + packageName);
         }
-        mv.visitExport(packageName);
+        mv.visitExport(packageName.replace('.', '/'));
       }
     }
     
@@ -86,8 +86,8 @@ public class ModuleInfoBndPlugin implements AnalyzerPlugin {
     byte[] bytecode = writer.toByteArray();
     
     // debug
-    //ClassReader reader = new ClassReader(bytecode);
-    //reader.accept(new TraceClassVisitor(new PrintWriter(System.out)), 0);
+    ClassReader reader = new ClassReader(bytecode);
+    reader.accept(new TraceClassVisitor(new PrintWriter(System.out)), 0);
     
     Jar jar = analyzer.getJar();
     EmbeddedResource moduleInfo = new EmbeddedResource(bytecode, System.currentTimeMillis());

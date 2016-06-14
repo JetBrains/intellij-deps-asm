@@ -23,8 +23,8 @@ public class ModuleInfoBndPlugin implements AnalyzerPlugin {
   private static final String MODULE_VERSION = "Module-Version";
   private static final String MODULE_REQUIRES = "Module-Requires";
   private static final String MODULE_EXPORTS = "Module-Exports";
-  //private static final String PROVIDES_SERVICE = "Provides-Service";
-  //private static final String USES_SERVICE = "Uses-Service";
+  //private static final String MODULE_PROVIDES = "Module-Provides";
+  //private static final String MODULE_USES = "Module-Uses";
   
   public boolean analyzeJar(Analyzer analyzer) throws Exception {
     String moduleName = analyzer.getProperty(MODULE_NAME, analyzer.getProperty(Constants.BUNDLE_SYMBOLICNAME));
@@ -65,8 +65,8 @@ public class ModuleInfoBndPlugin implements AnalyzerPlugin {
       }
     }
     
-    //mv.visitUse("org.objectweb.asm.FunInterface");
-    //mv.visitProvide("org.objectweb.asm.FunInterface", "org.objectweb.asm.FunImpl");
+    //mv.visitUse("org/objectweb/asm/FunInterface");
+    //mv.visitProvide("org/objectweb/asm/FunInterface", "org/objectweb/asm/FunImpl");
     
     mv.visitEnd();
     
@@ -86,8 +86,8 @@ public class ModuleInfoBndPlugin implements AnalyzerPlugin {
     byte[] bytecode = writer.toByteArray();
     
     // debug
-    ClassReader reader = new ClassReader(bytecode);
-    reader.accept(new TraceClassVisitor(new PrintWriter(System.out)), 0);
+    //ClassReader reader = new ClassReader(bytecode);
+    //reader.accept(new TraceClassVisitor(new PrintWriter(System.out)), 0);
     
     Jar jar = analyzer.getJar();
     EmbeddedResource moduleInfo = new EmbeddedResource(bytecode, System.currentTimeMillis());

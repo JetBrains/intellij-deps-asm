@@ -29,6 +29,9 @@
  */
 package org.objectweb.asm.tree;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.ModuleVisitor;
 import org.objectweb.asm.Opcodes;
@@ -39,143 +42,90 @@ import org.objectweb.asm.Opcodes;
  * @author Remi Forax
  */
 public class ModuleNode extends ModuleVisitor {
-    private int requireCount;
-    public String[] requires;
-    public int[] requireAccess;
+    /**
+     * A list of modules can are required by the current module.
+     * May be <tt>null</tt>.
+     */
+    public List<ModuleRequireNode> requires;
     
-    private int exportCount;
-    public String[] exports;
-    public String[][] exportTos;
+    /**
+     * A list of packages that are exported by the current module.
+     * May be <tt>null</tt>.
+     */
+    public List<ModuleExportNode> exports;
     
-    private int useCount;
-    public String[] uses;
+    /**
+     * A list of classes in their internal forms that are used
+     * as a service by the current module. May be <tt>null</tt>.
+     */
+    public List<String> uses;
    
-    private int provideCount;
-    public String[] provides;
-    public String[] provideWiths;
+    /**
+     * A list of services along with their implementations provided
+     * by the current module. May be <tt>null</tt>.
+     */
+    public List<ModuleProvideNode> provides;
 
     public ModuleNode() {
         super(Opcodes.ASM6);
     }
     
     public ModuleNode(final int api,
-            final String[] requires, final int[] requireAccess,
-            final String[] exports, final String[][] exportTos,
-            final String[] uses,
-            final String[] provides, final String[] provideWiths) {
+      List<ModuleRequireNode> requires,
+      List<ModuleExportNode> exports,
+      List<String> uses,
+      List<ModuleProvideNode> provides) {
         super(Opcodes.ASM6);
         this.requires = requires;
-        this.requireCount = requires.length;
-        this.requireAccess = requireAccess;
         this.exports = exports;
-        this.exportCount = exports.length;
-        this.exportTos = exportTos;
         this.uses = uses;
-        this.useCount = uses.length;
         this.provides = provides;
-        this.provideCount = provides.length;
-        this.provideWiths = provideWiths;
         if (getClass() != ModuleNode.class) {
             throw new IllegalStateException();
         }
-    }
-
-    private static String[] copyOf(String[] array, int newSize) {
-        String[] newArray = new String[newSize];
-        System.arraycopy(array, 0, newArray, 0, Math.min(newSize, array.length));
-        return newArray;
-    }
-    private static String[][] copyOf(String[][] array, int newSize) {
-        String[][] newArray = new String[newSize][];
-        System.arraycopy(array, 0, newArray, 0, Math.min(newSize, array.length));
-        return newArray;
-    }
-    private static int[] copyOf(int[] array, int newSize) {
-        int[] newArray = new int[newSize];
-        System.arraycopy(array, 0, newArray, 0, Math.min(newSize, array.length));
-        return newArray;
-    }
-    
-    private static String[] trim(String[] array, int size) {
-        return (array.length == size)? array: copyOf(array, size);
-    }
-    private static String[][] trim(String[][] array, int size) {
-        return (array.length == size)? array: copyOf(array, size);
-    }
-    private static int[] trim(int[] array, int size) {
-        return (array.length == size)? array: copyOf(array, size);
     }
     
     @Override
     public void visitRequire(String module, int access) {
         if (requires == null) {
-            requires = new String[8];
-            requireAccess = new int[8];
+            requires = new ArrayList<ModuleRequireNode>(5);
         }
-        if (requireCount == requires.length) {
-            requires = copyOf(requires, requireCount << 1);
-            requireAccess = copyOf(requireAccess, requireCount << 1);
-        }
-        requires[requireCount] = module;
-        requireAccess[requireCount++] = access;
+        requires.add(new ModuleRequireNode(module, access));
     }
     
     @Override
     public void visitExport(String packaze, String... modules) {
         if (exports == null) {
-            exports = new String[8];
-            exportTos = new String[8][];
+            exports = new ArrayList<ModuleExportNode>(5);
         }
-        if (exportCount == exports.length) {
-            exports = copyOf(exports, exportCount << 1);
-            exportTos = copyOf(exportTos, exportCount << 1);
+        List<String> moduleList = null;
+        if (modules != null) {
+            moduleList = new ArrayList<String>(modules.length);
+            for(int i = 0; i < modules.length; i++) {
+                moduleList.add(modules[i]);
+            }
         }
-        exports[exportCount] = packaze;
-        exportTos[exportCount++] = modules;
+        exports.add(new ModuleExportNode(packaze, moduleList));
     }
     
     @Override
     public void visitUse(String service) {
         if (uses == null) {
-            uses = new String[8];
+            uses = new ArrayList<String>(5);
         }
-        if (useCount == uses.length) {
-            uses = copyOf(uses, useCount << 1);
-        }
-        uses[useCount++] = service;
+        uses.add(service);
     }
     
     @Override
     public void visitProvide(String service, String impl) {
         if (provides == null) {
-            provides = new String[8];
-            provideWiths = new String[8];
+            provides = new ArrayList<ModuleProvideNode>(5);
         }
-        if (provideCount == provides.length) {
-            provides = copyOf(provides, provideCount << 1);
-            provideWiths = copyOf(provideWiths, provideCount << 1);
-        }
-        provides[provideCount] = service;
-        provideWiths[provideCount++] = impl;
+        provides.add(new ModuleProvideNode(service, impl));
     }
     
     @Override
     public void visitEnd() {
-        if (requires != null) {
-            requires = trim(requires, requireCount);
-            requireAccess = trim(requireAccess, requireCount);
-        }
-        if (exports != null) {
-            exports = trim(exports, exportCount);
-            exportTos = trim(exportTos, exportCount);
-        }
-        if (uses != null) {
-            uses = trim(uses, useCount);
-        }
-        if (provides != null) {
-            provides = trim(provides, provideCount);
-            provideWiths = trim(provideWiths, provideCount);
-        }
     }
     
     public void accept(final ClassVisitor cv) {
@@ -184,23 +134,23 @@ public class ModuleNode extends ModuleVisitor {
             return;
         }
         if (requires != null) {
-            for(int i = 0; i < requires.length; i++) {
-                mv.visitRequire(requires[i], requireAccess[i]);
+            for(int i = 0; i < requires.size(); i++) {
+                requires.get(i).accept(mv);
             }
         }
         if (exports != null) {
-            for(int i = 0; i < exports.length; i++) {
-                mv.visitExport(exports[i], exportTos[i]);
+            for(int i = 0; i < exports.size(); i++) {
+                exports.get(i).accept(mv);
             }
         }
         if (uses != null) {
-            for(String use: uses) {
-                mv.visitUse(use);
+            for(int i = 0; i < uses.size(); i++) {
+                mv.visitUse(uses.get(i));
             }
         }
         if (provides != null) {
-            for(int i = 0; i < provides.length; i++) {
-                mv.visitExport(provides[i], provideWiths[i]);
+            for(int i = 0; i < provides.size(); i++) {
+                provides.get(i).accept(mv);
             }
         }
     }

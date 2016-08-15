@@ -779,6 +779,24 @@ public class CheckClassAdapterUnitTest extends TestCase implements Opcodes {
         }
     }
 
+    public void testIllegalMethodInsnItf3() {
+        CheckMethodAdapter mv = new CheckMethodAdapter(null);
+        mv.version = Opcodes.V1_7;
+        mv.visitCode();
+        try {
+            mv.visitMethodInsn(INVOKESPECIAL, "C", "m", "()V", true);
+            fail();
+        } catch (Exception e) {
+        }
+    }
+
+    public void testMethodInsnItf() {
+        CheckMethodAdapter mv = new CheckMethodAdapter(null);
+        mv.version = Opcodes.V1_8;
+        mv.visitCode();
+        mv.visitMethodInsn(INVOKESPECIAL, "C", "m", "()V", true);
+    }
+
     public void testIllegalLdcInsnOperand() {
         MethodVisitor mv = new CheckMethodAdapter(null);
         mv.visitCode();

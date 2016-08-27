@@ -44,10 +44,11 @@ public class ClassWriterResizeInsnsTest extends AbstractTest {
 
     static HashSet<String> success = new HashSet<String>();
     static HashMap<String, Throwable> errors = new HashMap<String, Throwable>();
-
+    
     public static void premain(final String agentArgs,
             final Instrumentation inst) {
         inst.addTransformer(new ClassFileTransformer() {
+            @Override
             public byte[] transform(final ClassLoader loader,
                     final String className, final Class<?> classBeingRedefined,
                     final ProtectionDomain domain, byte[] b)
@@ -55,7 +56,7 @@ public class ClassWriterResizeInsnsTest extends AbstractTest {
                 String n = className.replace('/', '.');
                 if (agentArgs.length() == 0 || n.indexOf(agentArgs) != -1) {
                     try {
-                        b = transformClass(b, ClassWriter.COMPUTE_FRAMES);
+                        b = transformClass(b);
                         success.add(n);
                         return b;
                     } catch (Throwable t) {
@@ -67,9 +68,9 @@ public class ClassWriterResizeInsnsTest extends AbstractTest {
         });
     }
 
-    static byte[] transformClass(final byte[] clazz, final int flags) {
+    static byte[] transformClass(final byte[] clazz) {
         ClassReader cr = new ClassReader(clazz);
-        ClassWriter cw = new ComputeClassWriter(flags);
+        ClassWriter cw = new ClassWriter(0);
         ClassVisitor ca = new ClassVisitor(Opcodes.ASM5, cw) {
 
             boolean transformed = false;
@@ -77,11 +78,9 @@ public class ClassWriterResizeInsnsTest extends AbstractTest {
             @Override
             public void visit(int version, int access, String name,
                     String signature, String superName, String[] interfaces) {
-                if (flags == ClassWriter.COMPUTE_FRAMES) {
-                    // Set V1_7 version to prevent fallback to old verifier.
-                    version = (version & 0xFFFF) < Opcodes.V1_7 ? Opcodes.V1_7
-                            : version;
-                }
+                // Set V1_7 version to prevent fallback to old verifier.
+                version = (version & 0xFFFF) < Opcodes.V1_7 ? Opcodes.V1_7
+                        : version;
                 super.visit(version, access, name, signature, superName,
                         interfaces);
             }
@@ -146,7 +145,7 @@ public class ClassWriterResizeInsnsTest extends AbstractTest {
             throw new Exception(errors.get(n));
         }
         if (!success.contains(n)) {
-          fail(n + " not transformed");
+            fail(n + " not transformed");
         }
     }
 }

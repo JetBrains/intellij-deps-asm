@@ -994,8 +994,6 @@ public class ClassWriter extends ClassVisitor {
             attrs = null;
             innerClassesCount = 0;
             innerClasses = null;
-            bootstrapMethodsCount = 0;
-            bootstrapMethods = null;
             firstField = null;
             lastField = null;
             firstMethod = null;

@@ -45,6 +45,7 @@
       </fileset>
       <fileset dir="${out}/test">
         <include name="org/objectweb/asm/*.class"/>
+        <include name="org/objectweb/asm/attrs/*.class"/>
       </fileset>
       <manifest>
         <attribute name="Premain-Class" value="org.objectweb.asm.ClassWriterResizeInsnsTest"/>

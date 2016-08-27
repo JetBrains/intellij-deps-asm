@@ -33,6 +33,7 @@ import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.IllegalClassFormatException;
 import java.lang.instrument.Instrumentation;
 import java.security.ProtectionDomain;
+import java.util.HashMap;
 import java.util.HashSet;
 
 import junit.framework.TestSuite;
@@ -40,6 +41,9 @@ import junit.framework.TestSuite;
 import org.objectweb.asm.attrs.CodeComment;
 
 public class ClassWriterResizeInsnsTest extends AbstractTest {
+
+    static HashSet<String> success = new HashSet<String>();
+    static HashMap<String, Throwable> errors = new HashMap<String, Throwable>();
 
     public static void premain(final String agentArgs,
             final Instrumentation inst) {
@@ -52,16 +56,13 @@ public class ClassWriterResizeInsnsTest extends AbstractTest {
                 if (agentArgs.length() == 0 || n.indexOf(agentArgs) != -1) {
                     try {
                         b = transformClass(b, ClassWriter.COMPUTE_FRAMES);
-                        if (n.equals("pkg.FrameMap")) {
-                            transformClass(b, 0);
-                        }
+                        success.add(n);
                         return b;
-                    } catch (Throwable e) {
-                        return transformClass(b, 0);
+                    } catch (Throwable t) {
+                        errors.put(n, t);
                     }
-                } else {
-                    return null;
                 }
+                return null;
             }
         });
     }
@@ -127,16 +128,25 @@ public class ClassWriterResizeInsnsTest extends AbstractTest {
 
     @Override
     public void test() throws Exception {
+        if (n.startsWith("pkg.")) {
+            return;
+        }
         try {
             Class.forName(n, true, getClass().getClassLoader());
         } catch (NoClassDefFoundError ncdfe) {
-            // ignored
+            fail(ncdfe.getMessage());
         } catch (UnsatisfiedLinkError ule) {
-            // ignored
+            fail(ule.getMessage());
         } catch (ClassFormatError cfe) {
             fail(cfe.getMessage());
         } catch (VerifyError ve) {
             fail(ve.toString());
+        }
+        if (errors.get(n) != null) {
+            throw new Exception(errors.get(n));
+        }
+        if (!success.contains(n)) {
+          fail(n + " not transformed");
         }
     }
 }

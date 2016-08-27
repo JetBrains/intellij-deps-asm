@@ -221,27 +221,92 @@
       <arg value="${product.artifact}"/>
       <arg value="-static"/>
       <arg value="-classpath"/>
-      <arg value="${java.home}/lib/rt.jar;${out.dist}/lib/all/asm-all-${product.artifact}.jar"/>
+      <arg value="${java.home}/lib/rt.jar:${out.dist}/lib/all/asm-all-${product.artifact}.jar"/>
       <arg value="-package"/>
       <arg value="org.objectweb.asm"/>
       <arg value="-filename"/>
-      <arg value="${test}/ASM.sig"/>
+      <arg value="${test}/ASM-${product.artifact}.sig"/>
     </java>
   </target>
 
   <target name="sigtest">
     <taskdef name="atest" classname="com.sun.tdk.signaturetest.ant.ATest" 
         classpath="${test}/lib/sigtestdev.jar"/>
-    <atest filename="${test}/ASM.sig"
+    <path id="classpath">
+        <pathelement location="${java.home}/lib/rt.jar"/>
+        <pathelement location="${out.dist}/lib/all/asm-all-${product.artifact}.jar"/>
+    </path>
+    <atest filename="${test}/ASM-4.0.sig"
         apiversion="${product.artifact}"
         backward="true" 
         binary="true"
         failonerror="true">	
       <package name="org.objectweb.asm"/>
-      <classpath>
-        <pathelement location="${java.home}/lib/rt.jar"/>
-        <pathelement location="${out.dist}/lib/all/asm-all-${product.artifact}.jar"/>
-      </classpath>
+      <classpath refid="classpath"/>
+    </atest>
+    <atest filename="${test}/ASM-4.1.sig"
+        apiversion="${product.artifact}"
+        backward="true" 
+        binary="true"
+        failonerror="true">	
+      <package name="org.objectweb.asm"/>
+      <classpath refid="classpath"/>
+    </atest>
+    <atest filename="${test}/ASM-4.2.sig"
+        apiversion="${product.artifact}"
+        backward="true" 
+        binary="true"
+        failonerror="true">	
+      <package name="org.objectweb.asm"/>
+      <classpath refid="classpath"/>
+    </atest>
+    <atest filename="${test}/ASM-5.0.sig"
+        apiversion="${product.artifact}"
+        backward="true" 
+        binary="true"
+        failonerror="true">	
+      <package name="org.objectweb.asm"/>
+      <classpath refid="classpath"/>
+    </atest>
+    <atest filename="${test}/ASM-5.0.1.sig"
+        apiversion="${product.artifact}"
+        backward="true" 
+        binary="true"
+        failonerror="true">	
+      <package name="org.objectweb.asm"/>
+      <classpath refid="classpath"/>
+    </atest>
+    <atest filename="${test}/ASM-5.0.2.sig"
+        apiversion="${product.artifact}"
+        backward="true" 
+        binary="true"
+        failonerror="true">	
+      <package name="org.objectweb.asm"/>
+      <classpath refid="classpath"/>
+    </atest>
+    <atest filename="${test}/ASM-5.0.3.sig"
+        apiversion="${product.artifact}"
+        backward="true" 
+        binary="true"
+        failonerror="true">	
+      <package name="org.objectweb.asm"/>
+      <classpath refid="classpath"/>
+    </atest>
+    <atest filename="${test}/ASM-5.0.4.sig"
+        apiversion="${product.artifact}"
+        backward="true" 
+        binary="true"
+        failonerror="true">	
+      <package name="org.objectweb.asm"/>
+      <classpath refid="classpath"/>
+    </atest>
+    <atest filename="${test}/ASM-5.1.sig"
+        apiversion="${product.artifact}"
+        backward="true" 
+        binary="true"
+        failonerror="true">	
+      <package name="org.objectweb.asm"/>
+      <classpath refid="classpath"/>
     </atest>
   </target>
   

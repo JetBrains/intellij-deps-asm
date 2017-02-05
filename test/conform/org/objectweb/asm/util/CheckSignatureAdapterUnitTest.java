@@ -89,6 +89,11 @@ public class CheckSignatureAdapterUnitTest extends TestCase {
         assertEquals(data.signature, wrt.toString());
     }
 
+    public void testNonJavaIdentifier() {
+        setup(CheckSignatureAdapter.CLASS_SIGNATURE);
+        sv.visitSuperclass().visitClassType("Foo Bar");
+    }
+
     public void testIllegalFormalTypeParam() {
         setup(CheckSignatureAdapter.TYPE_SIGNATURE);
         try {

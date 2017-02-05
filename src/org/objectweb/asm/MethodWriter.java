@@ -260,7 +260,7 @@ class MethodWriter extends MethodVisitor {
     /**
      * Number of stack map frames in the StackMapTable attribute.
      */
-    private int frameCount;
+    int frameCount;
 
     /**
      * The StackMapTable attribute.

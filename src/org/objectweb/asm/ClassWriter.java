@@ -989,6 +989,12 @@ public class ClassWriter extends ClassVisitor {
             attrs.put(this, null, 0, -1, -1, out);
         }
         if (hasAsmInsns) {
+            boolean hasFrames = false;
+            mb = firstMethod;
+            while (mb != null) {
+                hasFrames |= mb.frameCount > 0;
+                mb = (MethodWriter) mb.mv;
+            }
             anns = null;
             ianns = null;
             attrs = null;
@@ -998,9 +1004,10 @@ public class ClassWriter extends ClassVisitor {
             lastField = null;
             firstMethod = null;
             lastMethod = null;
-            compute = MethodWriter.INSERTED_FRAMES;
+            compute = hasFrames ? MethodWriter.INSERTED_FRAMES : 0;
             hasAsmInsns = false;
-            new ClassReader(out.data).accept(this, ClassReader.EXPAND_FRAMES
+            new ClassReader(out.data).accept(this, 
+                    (hasFrames ? ClassReader.EXPAND_FRAMES : 0)
                     | ClassReader.EXPAND_ASM_INSNS);
             return toByteArray();
         }

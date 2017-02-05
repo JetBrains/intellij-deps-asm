@@ -1302,7 +1302,8 @@ public class ClassReader {
                 }
             }
         }
-        if ((context.flags & EXPAND_ASM_INSNS) != 0) {
+        if ((context.flags & EXPAND_ASM_INSNS) != 0 
+            && (context.flags & EXPAND_FRAMES) != 0) {
             // Expanding the ASM pseudo instructions can introduce F_INSERT
             // frames, even if the method does not currently have any frame.
             // Also these inserted frames must be computed by simulating the

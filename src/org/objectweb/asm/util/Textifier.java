@@ -414,7 +414,7 @@ public class Textifier extends Printer {
         }
 
         buf.append(tab);
-        appendAccess(access & ~Opcodes.ACC_VOLATILE);
+        appendAccess(access & ~(Opcodes.ACC_VOLATILE | Opcodes.ACC_TRANSIENT));
         if ((access & Opcodes.ACC_NATIVE) != 0) {
             buf.append("native ");
         }

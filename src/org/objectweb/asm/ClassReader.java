@@ -1079,6 +1079,7 @@ public class ClassReader {
                 u += 3;
                 break;
             case ClassWriter.LABELW_INSN:
+            case ClassWriter.ASM_LABELW_INSN:
                 readLabel(offset + readInt(u + 1), labels);
                 u += 5;
                 break;
@@ -1320,6 +1321,7 @@ public class ClassReader {
 
         // visits the instructions
         int opcodeDelta = (context.flags & EXPAND_ASM_INSNS) == 0 ? -33 : 0;
+        boolean insertFrame = false;
         u = codeStart;
         while (u < codeEnd) {
             int offset = u - codeStart;
@@ -1352,6 +1354,9 @@ public class ClassReader {
                         mv.visitFrame(frame.mode, frame.localDiff, frame.local,
                                 frame.stackCount, frame.stack);
                     }
+                    // if there is already a frame for this offset, there is no
+                    // need to insert a new one.
+                    insertFrame = false;
                 }
                 if (frameCount > 0) {
                     stackMap = readFrame(stackMap, zip, unzip, frame);
@@ -1359,6 +1364,13 @@ public class ClassReader {
                 } else {
                     frame = null;
                 }
+            }
+            // inserts a frame for this offset, if requested by setting
+            // insertFrame to true during the previous iteration. The actual
+            // frame content will be computed in MethodWriter.
+            if (FRAMES && insertFrame) {
+                mv.visitFrame(ClassWriter.F_INSERT, 0, null, 0, null);
+                insertFrame = false;
             }
 
             // visits the instruction at this offset
@@ -1395,29 +1407,34 @@ public class ClassReader {
                 opcode = opcode < 218 ? opcode - 49 : opcode - 20;
                 Label target = labels[offset + readUnsignedShort(u + 1)];
                 // replaces GOTO with GOTO_W, JSR with JSR_W and IFxxx
-                // <l> with IFNOTxxx <l'> GOTO_W <l>, where IFNOTxxx is
+                // <l> with IFNOTxxx <L> GOTO_W <l> L:..., where IFNOTxxx is
                 // the "opposite" opcode of IFxxx (i.e., IFNE for IFEQ)
-                // and where <l'> designates the instruction just after
+                // and where <L> designates the instruction just after
                 // the GOTO_W.
                 if (opcode == Opcodes.GOTO || opcode == Opcodes.JSR) {
                     mv.visitJumpInsn(opcode + 33, target);
                 } else {
                     opcode = opcode <= 166 ? ((opcode + 1) ^ 1) - 1
                             : opcode ^ 1;
-                    Label endif = new Label();
+                    Label endif = readLabel(offset + 3, labels);
                     mv.visitJumpInsn(opcode, endif);
                     mv.visitJumpInsn(200, target); // GOTO_W
-                    mv.visitLabel(endif);
-                    // since we introduced an unconditional jump instruction we
-                    // also need to insert a stack map frame here, unless there
-                    // is already one. The actual frame content will be computed
-                    // in MethodWriter.
-                    if (FRAMES && stackMap != 0
-                            && (frame == null || frame.offset != offset + 3)) {
-                        mv.visitFrame(ClassWriter.F_INSERT, 0, null, 0, null);
-                    }
+                    // endif designates the instruction just after GOTO_W,
+                    // and is visited as part of the next instruction. Since
+                    // it is a jump target, we need to insert a frame here.
+                    insertFrame = true;
                 }
                 u += 3;
+                break;
+            }
+            case ClassWriter.ASM_LABELW_INSN: {
+                // replaces the pseudo GOTO_W instruction with a real one.
+                mv.visitJumpInsn(200, labels[offset + readInt(u + 1)]);
+                // The instruction just after is a jump target (because pseudo
+                // GOTO_W are used in patterns IFNOTxxx <L> GOTO_W <l> L:...,
+                // see MethodWriter), so we need to insert a frame here.
+                insertFrame = true;
+                u += 5;
                 break;
             }
             case ClassWriter.WIDE_INSN:

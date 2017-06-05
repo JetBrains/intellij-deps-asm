@@ -174,6 +174,11 @@ public class ClassWriter extends ClassVisitor {
     static final int ASM_LABEL_INSN = 18;
 
     /**
+     * The type of the ASM pseudo instructions with a 4 bytes offset label.
+     */
+    static final int ASM_LABELW_INSN = 19;
+
+    /**
      * Represents a frame inserted between already existing frames. This kind of
      * frame can only be used if the frame content can be computed from the
      * previous existing frame and from the instructions between this existing
@@ -523,11 +528,11 @@ public class ClassWriter extends ClassVisitor {
      */
     static {
         int i;
-        byte[] b = new byte[220];
+        byte[] b = new byte[221];
         String s = "AAAAAAAAAAAAAAAABCLMMDDDDDEEEEEEEEEEEEEEEEEEEEAAAAAAAADD"
                 + "DDDEEEEEEEEEEEEEEEEEEEEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
                 + "AAAAAAAAAAAAAAAAANAAAAAAAAAAAAAAAAAAAAJJJJJJJJJJJJJJJJDOPAA"
-                + "AAAAGGGGGGGHIFBFAAFFAARQJJKKSSSSSSSSSSSSSSSSSS";
+                + "AAAAGGGGGGGHIFBFAAFFAARQJJKKSSSSSSSSSSSSSSSSSST";
         for (i = 0; i < b.length; ++i) {
             b[i] = (byte) (s.charAt(i) - 'A');
         }
@@ -583,6 +588,7 @@ public class ClassWriter extends ClassVisitor {
         // for (i = 202; i < 220; ++i) {
         // b[i] = ASM_LABEL_INSN;
         // }
+        // b[220] = ASM_LABELW_INSN;
         //
         // // LDC(_W) instructions
         // b[Constants.LDC] = LDC_INSN;

@@ -40,7 +40,6 @@ import java.net.URLClassLoader;
 import junit.framework.TestSuite;
 
 import org.codehaus.janino.ClassLoaderIClassLoader;
-import org.codehaus.janino.DebuggingInformation;
 import org.codehaus.janino.IClassLoader;
 import org.codehaus.janino.Parser;
 import org.codehaus.janino.Scanner;
@@ -146,7 +145,7 @@ public class GASMifierTest extends AbstractTest {
                 throws Exception {
             Parser p = new Parser(new Scanner(name, new StringReader(source)));
             UnitCompiler uc = new UnitCompiler(p.parseCompilationUnit(), CL);
-            return uc.compileUnit(DebuggingInformation.ALL)[0].toByteArray();
+            return uc.compileUnit(true, true, true)[0].toByteArray();
         }
     }
 

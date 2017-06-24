@@ -34,11 +34,11 @@
       <classpath>
         <pathelement location="${out.build}"/>
         <pathelement location="${out.test}"/>
+        <pathelement path="${bcel.path}"/>
+        <pathelement path="${aspectj.path}"/>
+        <pathelement path="${serp.path}"/>  
+        <pathelement path="${javassist.path}"/>
         <fileset dir="${test}">
-          <include name="lib/bcel-5.2.jar"/>
-          <include name="lib/aspectjweaver-1.5.3.jar"/>
-          <include name="lib/serp-1.14.2.jar"/>
-          <include name="lib/javassist.3.6.GA.jar"/>
           <!-- xslt engines -->
           <include name="lib/jd.xslt-1.5.5.jar"/>
           <include name="lib/saxon7.jar"/>

@@ -15,23 +15,26 @@
 	<classpathentry kind="src" path="examples/xml"/>
 	<classpathentry kind="src" path="examples/jasmin/src"/>
 	<classpathentry kind="src" path="examples/jasmin/test"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/J2SE-1.5"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8"/>
 	<classpathentry kind="lib" path="test/lib/jd.xslt-1.5.5.jar"/>
 	<classpathentry kind="lib" path="test/lib/saxon7.jar"/>
 	<classpathentry kind="lib" path="test/lib/xalan-2.6.0.jar"/>
-	<classpathentry kind="lib" path="test/lib/csg-bytecode.jar"/>
-	<classpathentry kind="lib" path="test/lib/kawa-1.9.1.jar"/>
-	<classpathentry kind="lib" path="test/lib/cojen-2.0.jar"/>
+	<classpathentry kind="lib" path="test/lib/csg-bytecode-1.0.0.jar"/>
+	<classpathentry kind="lib" path="test/lib/kawa-2.4.jar"/>
+	<classpathentry kind="lib" path="test/lib/cojen-2.2.3.jar"/>
 	<classpathentry kind="lib" path="test/lib/jbet3-R1.jar"/>
 	<classpathentry kind="lib" path="test/lib/jclasslib.jar"/>
-	<classpathentry kind="lib" path="test/lib/jiapi.jar"/>
-	<classpathentry kind="lib" path="test/lib/log4j-1.2.9.jar"/>
-	<classpathentry kind="lib" path="test/lib/rhino1_7R1.jar"/>
-	<classpathentry kind="lib" path="test/lib/bcel-5.2.jar"/>
-	<classpathentry kind="lib" path="test/lib/janino-2.5.11.jar"/>
-	<classpathentry kind="lib" path="test/lib/javassist.3.6.GA.jar"/>
-	<classpathentry kind="lib" path="test/lib/serp-1.14.2.jar"/>
-	<classpathentry kind="lib" path="test/lib/aspectjweaver-1.5.3.jar"/>
+	<classpathentry kind="lib" path="test/lib/jiapi-reflect-0.5.2.jar"/>
+	<classpathentry kind="lib" path="test/lib/jiapi-file-0.5.2.jar"/>
+	<classpathentry kind="lib" path="test/lib/slf4j-api-1.7.25.jar"/>
+	<classpathentry kind="lib" path="test/lib/slf4j-simple-1.7.25.jar"/>
+	<classpathentry kind="lib" path="test/lib/rhino-1.7.7.1.jar"/>
+	<classpathentry kind="lib" path="test/lib/bcel-6.0.jar"/>
+	<classpathentry kind="lib" path="test/lib/janino-3.0.7.jar"/>
+	<classpathentry kind="lib" path="test/lib/commons-compiler-3.0.7.jar"/>
+	<classpathentry kind="lib" path="test/lib/javassist.3.21.0.GA.jar"/>
+	<classpathentry kind="lib" path="test/lib/serp-1.15.1.jar"/>
+	<classpathentry kind="lib" path="test/lib/aspectjweaver-1.8.10.jar"/>
 	<classpathentry kind="lib" path="examples/jasmin/test/jasmin.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/3"/>
 	<classpathentry kind="output" path="output/eclipse"/>

@@ -70,12 +70,12 @@ import org.gjt.jclasslib.structures.constants.ConstantStringInfo;
 import org.mozilla.classfile.ByteCode;
 import org.mozilla.classfile.ClassFileWriter;
 
-import alt.jiapi.reflect.InstructionFactory;
-import alt.jiapi.reflect.InstructionList;
-import alt.jiapi.reflect.JiapiClass;
-import alt.jiapi.reflect.JiapiMethod;
-import alt.jiapi.reflect.MethodExistsException;
-import alt.jiapi.reflect.Signature;
+import net.sf.jiapi.reflect.InstructionFactory;
+import net.sf.jiapi.reflect.InstructionList;
+import net.sf.jiapi.reflect.JiapiClass;
+import net.sf.jiapi.reflect.JiapiMethod;
+import net.sf.jiapi.reflect.MethodExistsException;
+import net.sf.jiapi.reflect.Signature;
 
 import com.claritysys.jvm.builder.CodeBuilder;
 import com.claritysys.jvm.classfile.CfMethod;
@@ -518,7 +518,7 @@ public class GenPerfTest {
         c.startMethod(
                 "main",
                 "()V",
-                (short) (ClassFileWriter.ACC_PUBLIC | ClassFileWriter.ACC_STATIC));
+                ClassFileWriter.ACC_PUBLIC);
         c.add(ByteCode.GETSTATIC, "java/lang/System", "out",
                 "Ljava/io/PrintStream;");
         c.addPush("Hello world!");
@@ -576,7 +576,7 @@ public class GenPerfTest {
 
         cg.addEmptyConstructor(Constants.ACC_PUBLIC);
 
-        org.aspectj.apache.bcel.generic.ConstantPoolGen cp = cg
+        org.aspectj.apache.bcel.classfile.ConstantPool cp = cg
                 .getConstantPool();
         org.aspectj.apache.bcel.generic.InstructionList il = new org.aspectj.apache.bcel.generic.InstructionList();
         org.aspectj.apache.bcel.generic.InstructionFactory factory = new org.aspectj.apache.bcel.generic.InstructionFactory(
@@ -590,7 +590,7 @@ public class GenPerfTest {
                 null, "main", "HelloWorld", il, cp);
         il.append(factory.createGetStatic("java/lang/System", "out",
                 printStreamAT));
-        il.append(new org.aspectj.apache.bcel.generic.PUSH(cp, "Hello world!"));
+        il.append(factory.createConstant("Hello world!"));
         il.append(factory
                 .createInvoke(
                         "java.io.PrintStream",

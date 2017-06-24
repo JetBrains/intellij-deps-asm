@@ -339,9 +339,6 @@ public abstract class ALLPerfTest {
         computeFrames = true;
         runTest("deserialize and reserialize", "BCEL and computeFrames",
                 nullBCELAdapt);
-
-        runTest("deserialize and reserialize",
-                "Aspectj BCEL and computeFrames", nullAspectjBCELAdapt);
     }
 
     public static List<String> findFiles(String directory, String suffix) {
@@ -527,7 +524,7 @@ public abstract class ALLPerfTest {
                 new ByteArrayInputStream(b), "class-name").parse();
         org.aspectj.apache.bcel.generic.ClassGen cg = new org.aspectj.apache.bcel.generic.ClassGen(
                 jc);
-        org.aspectj.apache.bcel.generic.ConstantPoolGen cp = cg
+        org.aspectj.apache.bcel.classfile.ConstantPool cp = cg
                 .getConstantPool();
         org.aspectj.apache.bcel.classfile.Method[] ms = cg.getMethods();
         for (int k = 0; k < ms.length; ++k) {
@@ -553,11 +550,6 @@ public abstract class ALLPerfTest {
                 if (compute) {
                     mg.setMaxStack();
                     mg.setMaxLocals();
-                }
-                if (computeFrames) {
-                    org.aspectj.apache.bcel.verifier.structurals.ModifiedPass3bVerifier verif = new org.aspectj.apache.bcel.verifier.structurals.ModifiedPass3bVerifier(
-                            jc, k);
-                    verif.do_verify();
                 }
             }
             cg.replaceMethod(ms[k], mg.getMethod());

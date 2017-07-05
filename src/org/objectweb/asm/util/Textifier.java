@@ -1267,12 +1267,15 @@ public class Textifier extends Printer {
         appendDescriptor(INTERNAL_NAME, h.getOwner());
         buf.append('.');
         buf.append(h.getName());
-        if(!isMethodHandle){
+        if (!isMethodHandle) {
             buf.append('(');
         }
         appendDescriptor(HANDLE_DESCRIPTOR, h.getDesc());
-        if(!isMethodHandle){
+        if (!isMethodHandle) {
             buf.append(')');
+        }
+        if (h.isInterface()) {
+            buf.append(" itf");
         }
     }
 

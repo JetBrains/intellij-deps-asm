@@ -78,4 +78,9 @@ public class Comment extends Attribute implements ASMifiable, Textifiable {
     public void textify(final StringBuffer buf,
             final Map<Label, String> labelNames) {
     }
+    
+    @Override
+    public String toString() {
+        return "CommentAttribute";
+    }
 }

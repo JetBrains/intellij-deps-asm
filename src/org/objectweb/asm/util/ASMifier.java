@@ -1134,7 +1134,8 @@ public class ASMifier extends Printer {
                     .append(", \"");
             buf.append(h.getOwner()).append("\", \"");
             buf.append(h.getName()).append("\", \"");
-            buf.append(h.getDesc()).append("\")");
+            buf.append(h.getDesc()).append("\", ");
+            buf.append(h.isInterface()).append(")");
         } else if (cst instanceof Byte) {
             buf.append("new Byte((byte)").append(cst).append(')');
         } else if (cst instanceof Boolean) {

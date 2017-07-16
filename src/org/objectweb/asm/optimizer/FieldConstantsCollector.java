@@ -46,7 +46,7 @@ public class FieldConstantsCollector extends FieldVisitor {
     private final ConstantPool cp;
 
     public FieldConstantsCollector(final FieldVisitor fv, final ConstantPool cp) {
-        super(Opcodes.ASM5, fv);
+        super(Opcodes.ASM6, fv);
         this.cp = cp;
     }
 

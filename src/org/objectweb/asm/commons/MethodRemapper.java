@@ -47,7 +47,7 @@ public class MethodRemapper extends MethodVisitor {
     protected final Remapper remapper;
 
     public MethodRemapper(final MethodVisitor mv, final Remapper remapper) {
-        this(Opcodes.ASM5, mv, remapper);
+        this(Opcodes.ASM6, mv, remapper);
     }
 
     protected MethodRemapper(final int api, final MethodVisitor mv,

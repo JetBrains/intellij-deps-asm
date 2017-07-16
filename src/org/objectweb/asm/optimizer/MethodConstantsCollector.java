@@ -48,7 +48,7 @@ public class MethodConstantsCollector extends MethodVisitor {
 
     public MethodConstantsCollector(final MethodVisitor mv,
             final ConstantPool cp) {
-        super(Opcodes.ASM5, mv);
+        super(Opcodes.ASM6, mv);
         this.cp = cp;
     }
 

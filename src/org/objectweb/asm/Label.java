@@ -360,7 +360,7 @@ public class Label {
      *            the position of this label in the bytecode.
      * @param data
      *            the bytecode of the method.
-     * @return <tt>true</tt> if a blank that was left for this label was to
+     * @return <tt>true</tt> if a blank that was left for this label was too
      *         small to store the offset. In such a case the corresponding jump
      *         instruction is replaced with a pseudo instruction (using unused
      *         opcodes) using an unsigned two bytes offset. These pseudo

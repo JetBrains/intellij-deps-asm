@@ -34,6 +34,7 @@ import org.objectweb.asm.AnnotationVisitor;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.MethodVisitor;
+import org.objectweb.asm.ModuleVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.TypePath;
 
@@ -51,7 +52,7 @@ public class RemappingClassAdapter extends ClassVisitor {
     protected String className;
 
     public RemappingClassAdapter(final ClassVisitor cv, final Remapper remapper) {
-        this(Opcodes.ASM5, cv, remapper);
+        this(Opcodes.ASM6, cv, remapper);
     }
 
     protected RemappingClassAdapter(final int api, final ClassVisitor cv,
@@ -69,6 +70,11 @@ public class RemappingClassAdapter extends ClassVisitor {
                 interfaces == null ? null : remapper.mapTypes(interfaces));
     }
 
+    @Override
+    public ModuleVisitor visitModule(String name, int flags, String version) {
+        throw new RuntimeException("RemappingClassAdapter is deprecated, use ClassRemapper instead");
+    }
+    
     @Override
     public AnnotationVisitor visitAnnotation(String desc, boolean visible) {
         AnnotationVisitor av = super.visitAnnotation(remapper.mapDesc(desc),

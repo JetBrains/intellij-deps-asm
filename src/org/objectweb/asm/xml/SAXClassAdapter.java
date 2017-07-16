@@ -33,6 +33,7 @@ import org.objectweb.asm.AnnotationVisitor;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.MethodVisitor;
+import org.objectweb.asm.ModuleVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.TypePath;
 import org.xml.sax.ContentHandler;
@@ -69,6 +70,16 @@ public final class SAXClassAdapter extends ClassVisitor {
      * Pseudo access flag used to distinguish inner class flags.
      */
     private static final int ACCESS_INNER = 1048576;
+    
+    /**
+     * Pseudo access flag used to distinguish module flags.
+     */
+    static final int ACCESS_MODULE = 2097152;
+    
+    /**
+     * Pseudo access flag used to distinguish module requires flags.
+     */
+    static final int ACCESS_MODULE_REQUIRES = 4194304;
 
     /**
      * Constructs a new {@link SAXClassAdapter SAXClassAdapter} object.
@@ -81,7 +92,7 @@ public final class SAXClassAdapter extends ClassVisitor {
      *            {@link ContentHandler#endDocument() endDocument()} events.
      */
     public SAXClassAdapter(final ContentHandler h, boolean singleDocument) {
-        super(Opcodes.ASM5);
+        super(Opcodes.ASM6);
         this.sa = new SAXAdapter(h);
         this.singleDocument = singleDocument;
         if (!singleDocument) {
@@ -100,6 +111,21 @@ public final class SAXClassAdapter extends ClassVisitor {
         }
 
         sa.addElement("source", att);
+    }
+    
+    @Override
+    public ModuleVisitor visitModule(final String name, final int access,
+            final String version) {
+        AttributesImpl att = new AttributesImpl();
+        att.addAttribute("", "name", "name", "", name);
+        StringBuilder sb = new StringBuilder();
+        appendAccess(access | ACCESS_MODULE, sb);
+        att.addAttribute("", "access", "access", "", sb.toString());
+        if (version != null) {
+          att.addAttribute("", "version", "version", "", encode(version));
+        }
+        sa.addStart("module", att);
+        return new SAXModuleAdapter(sa);
     }
 
     @Override
@@ -278,14 +304,26 @@ public final class SAXClassAdapter extends ClassVisitor {
             sb.append("protected ");
         }
         if ((access & Opcodes.ACC_FINAL) != 0) {
-            sb.append("final ");
+            if ((access & ACCESS_MODULE) == 0) {
+                sb.append("final ");
+            } else {
+                sb.append("transitive ");
+            }
         }
         if ((access & Opcodes.ACC_STATIC) != 0) {
             sb.append("static ");
         }
         if ((access & Opcodes.ACC_SUPER) != 0) {
             if ((access & ACCESS_CLASS) == 0) {
-                sb.append("synchronized ");
+                if ((access & ACCESS_MODULE_REQUIRES) != 0) {
+                    sb.append("transitive ");
+                } else {
+                    if ((access & ACCESS_MODULE) == 0) {
+                        sb.append("synchronized ");
+                    } else {
+                        sb.append("open ");
+                    }
+                }
             } else {
                 sb.append("super ");
             }
@@ -294,7 +332,11 @@ public final class SAXClassAdapter extends ClassVisitor {
             if ((access & ACCESS_FIELD) == 0) {
                 sb.append("bridge ");
             } else {
-                sb.append("volatile ");
+                if ((access & ACCESS_MODULE_REQUIRES) == 0) {
+                    sb.append("volatile ");
+                } else {
+                    sb.append("static ");
+                }
             }
         }
         if ((access & Opcodes.ACC_TRANSIENT) != 0) {
@@ -329,7 +371,11 @@ public final class SAXClassAdapter extends ClassVisitor {
             sb.append("deprecated ");
         }
         if ((access & Opcodes.ACC_MANDATED) != 0) {
-            sb.append("mandated ");
+            if ((access & ACCESS_CLASS) == 0) {
+                sb.append("module ");
+            } else {
+                sb.append("mandated ");
+            }
         }
     }
 }

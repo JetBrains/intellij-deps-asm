@@ -117,7 +117,7 @@ public abstract class Printer {
 
     /**
      * The ASM API version implemented by this class. The value of this field
-     * must be one of {@link Opcodes#ASM4} or {@link Opcodes#ASM5}.
+     * must be one of {@link Opcodes#ASM4}, {@link Opcodes#ASM5} or {@link Opcodes#ASM6}.
      */
     protected final int api;
 
@@ -145,7 +145,7 @@ public abstract class Printer {
      *
      * @param api
      *            the ASM API version implemented by this printer. Must be one
-     *            of {@link Opcodes#ASM4} or {@link Opcodes#ASM5}.
+     *            of {@link Opcodes#ASM4}, {@link Opcodes#ASM5} or {@link Opcodes#ASM6}.
      */
     protected Printer(final int api) {
         this.api = api;
@@ -197,6 +197,24 @@ public abstract class Printer {
      */
     public abstract void visitSource(final String source, final String debug);
 
+    
+    /**
+     * Module.
+     * See {@link org.objectweb.asm.ClassVisitor#visitModule(String, int)}.
+     * 
+     * @param name 
+     *            module name.
+     * @param access
+     *            module flags, among {@code ACC_OPEN}, {@code ACC_SYNTHETIC}
+     *            and {@code ACC_MANDATED}.
+     * @param version
+     *            module version or null.
+     * @return
+     */
+    public Printer visitModule(String name, int access, String version) {
+        throw new RuntimeException("Must be overriden");
+    }
+    
     /**
      * Class outer class.
      * See {@link org.objectweb.asm.ClassVisitor#visitOuterClass}.
@@ -346,6 +364,45 @@ public abstract class Printer {
      */
     public abstract void visitClassEnd();
 
+    // ------------------------------------------------------------------------
+    // Module
+    // ------------------------------------------------------------------------
+    
+    public void visitMainClass(String mainClass) {
+        throw new RuntimeException("Must be overriden");
+    }
+
+    public void visitPackage(String packaze) {
+        throw new RuntimeException("Must be overriden");
+    }
+    
+    public void visitRequire(String module, int access, String version) {
+        throw new RuntimeException("Must be overriden");
+    }
+    
+    public void visitExport(String packaze, int access, String... modules) {
+        throw new RuntimeException("Must be overriden");
+    }
+    
+    public void visitOpen(String packaze, int access, String... modules) {
+        throw new RuntimeException("Must be overriden");
+    }
+    
+    public void visitUse(String service) {
+        throw new RuntimeException("Must be overriden");
+    }
+    
+    public void visitProvide(String service, String... providers) {
+        throw new RuntimeException("Must be overriden");
+    }
+    
+    /**
+     * Module end. See {@link org.objectweb.asm.ModuleVisitor#visitEnd}.
+     */
+    public void visitModuleEnd() {
+        throw new RuntimeException("Must be overriden");
+    }
+    
     // ------------------------------------------------------------------------
     // Annotations
     // ------------------------------------------------------------------------

@@ -33,10 +33,9 @@
   <target name="dist" depends="build-jar,build-snapshot"/>
 
   <target name="build-jar">
-    <taskdef resource="aQute/bnd/ant/taskdef.properties" classpath="${config}/biz.aQute.bnd.jar"/>
+    <taskdef resource="aQute/bnd/ant/taskdef.properties" classpath="${config}/${biz.aQute.bnd.path}"/>
     <bnd
             classpath="${out.build}"
-            eclipse="true"
             failok="false"
             exceptions="true"
             files="archive/asm-util.bnd"

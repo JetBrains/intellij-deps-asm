@@ -54,7 +54,7 @@ public class MethodOptimizer extends MethodRemapper implements Opcodes {
 
     public MethodOptimizer(ClassOptimizer classOptimizer, MethodVisitor mv,
             Remapper remapper) {
-        super(Opcodes.ASM5, mv, remapper);
+        super(Opcodes.ASM6, mv, remapper);
         this.classOptimizer = classOptimizer;
     }
 

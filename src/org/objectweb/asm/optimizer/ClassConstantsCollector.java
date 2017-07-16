@@ -34,6 +34,7 @@ import org.objectweb.asm.Attribute;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.MethodVisitor;
+import org.objectweb.asm.ModuleVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.TypePath;
 
@@ -48,7 +49,7 @@ public class ClassConstantsCollector extends ClassVisitor {
     private final ConstantPool cp;
 
     public ClassConstantsCollector(final ClassVisitor cv, final ConstantPool cp) {
-        super(Opcodes.ASM5, cv);
+        super(Opcodes.ASM6, cv);
         this.cp = cp;
     }
 
@@ -90,6 +91,16 @@ public class ClassConstantsCollector extends ClassVisitor {
         cv.visitSource(source, debug);
     }
 
+    @Override
+    public ModuleVisitor visitModule(final String name, final int access,
+            final String version) {
+        cp.newUTF8("Module");
+        cp.newModule(name);
+        cp.newUTF8(version);
+        return new ModuleConstantsCollector(
+                cv.visitModule(name, access, version), cp);
+    }
+    
     @Override
     public void visitOuterClass(final String owner, final String name,
             final String desc) {

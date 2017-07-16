@@ -456,7 +456,7 @@ class MethodWriter extends MethodVisitor {
     MethodWriter(final ClassWriter cw, final int access, final String name,
             final String desc, final String signature,
             final String[] exceptions, final int compute) {
-        super(Opcodes.ASM5);
+        super(Opcodes.ASM6);
         if (cw.firstMethod == null) {
             cw.firstMethod = this;
         } else {
@@ -848,7 +848,7 @@ class MethodWriter extends MethodVisitor {
     @Override
     public void visitTypeInsn(final int opcode, final String type) {
         lastCodeOffset = code.length;
-        Item i = cw.newClassItem(type);
+        Item i = cw.newStringishItem(ClassWriter.CLASS, type);
         // Label currentBlock = this.currentBlock;
         if (currentBlock != null) {
             if (compute == FRAMES || compute == INSERTED_FRAMES) {
@@ -1295,7 +1295,7 @@ class MethodWriter extends MethodVisitor {
     @Override
     public void visitMultiANewArrayInsn(final String desc, final int dims) {
         lastCodeOffset = code.length;
-        Item i = cw.newClassItem(desc);
+        Item i = cw.newStringishItem(ClassWriter.CLASS, desc);
         // Label currentBlock = this.currentBlock;
         if (currentBlock != null) {
             if (compute == FRAMES || compute == INSERTED_FRAMES) {

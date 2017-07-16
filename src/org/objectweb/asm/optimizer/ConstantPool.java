@@ -126,6 +126,29 @@ public class ConstantPool extends HashMap<Constant, Constant> {
         return result;
     }
 
+    public Constant newModule(final String moduleName) {
+        key2.set('m', moduleName, null, null);
+        Constant result = get(key2);
+        if (result == null) {
+            newUTF8(moduleName);
+            result = new Constant(key2);
+            put(result);
+        }
+        return result;
+    }
+    
+    public Constant newPackage(final String packageName) {
+        key2.set('p', packageName, null, null);
+        Constant result = get(key2);
+        if (result == null) {
+            newUTF8(packageName);
+            result = new Constant(key2);
+            put(result);
+        }
+        return result;
+    }
+    
+    
     public Constant newMethodType(final String methodDescriptor) {
         key2.set('t', methodDescriptor, null, null);
         Constant result = get(key2);
@@ -139,7 +162,7 @@ public class ConstantPool extends HashMap<Constant, Constant> {
 
     public Constant newHandle(final int tag, final String owner,
             final String name, final String desc, final boolean itf) {
-        key4.set((char) ('h' + tag - 1 + (itf && tag != Opcodes.H_INVOKEINTERFACE? 4: 0)), owner, name, desc);
+        key4.set((char) ('a' + tag - 1 + (itf && tag != Opcodes.H_INVOKEINTERFACE ? 4 : 0)), owner, name, desc);
         Constant result = get(key4);
         if (result == null) {
             if (tag <= Opcodes.H_PUTSTATIC) {

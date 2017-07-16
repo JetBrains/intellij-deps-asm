@@ -48,7 +48,6 @@ public class ClassWriterResizeInsnsTest extends AbstractTest {
     public static void premain(final String agentArgs,
             final Instrumentation inst) {
         inst.addTransformer(new ClassFileTransformer() {
-            @Override
             public byte[] transform(final ClassLoader loader,
                     final String className, final Class<?> classBeingRedefined,
                     final ProtectionDomain domain, byte[] b)

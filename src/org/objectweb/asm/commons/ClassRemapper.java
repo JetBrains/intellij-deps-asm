@@ -30,10 +30,14 @@
 
 package org.objectweb.asm.commons;
 
+import java.util.List;
+
 import org.objectweb.asm.AnnotationVisitor;
+import org.objectweb.asm.Attribute;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.MethodVisitor;
+import org.objectweb.asm.ModuleVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.TypePath;
 
@@ -49,7 +53,7 @@ public class ClassRemapper extends ClassVisitor {
     protected String className;
 
     public ClassRemapper(final ClassVisitor cv, final Remapper remapper) {
-        this(Opcodes.ASM5, cv, remapper);
+        this(Opcodes.ASM6, cv, remapper);
     }
 
     protected ClassRemapper(final int api, final ClassVisitor cv,
@@ -68,6 +72,12 @@ public class ClassRemapper extends ClassVisitor {
     }
 
     @Override
+    public ModuleVisitor visitModule(String name, int flags, String version) {
+        ModuleVisitor mv = super.visitModule(remapper.mapModuleName(name), flags, version);
+        return mv == null ? null : createModuleRemapper(mv); 
+    }
+    
+    @Override
     public AnnotationVisitor visitAnnotation(String desc, boolean visible) {
         AnnotationVisitor av = super.visitAnnotation(remapper.mapDesc(desc),
                 visible);
@@ -82,6 +92,18 @@ public class ClassRemapper extends ClassVisitor {
         return av == null ? null : createAnnotationRemapper(av);
     }
 
+    @Override
+    public void visitAttribute(Attribute attr) {
+        if (attr instanceof ModuleHashesAttribute) {
+            ModuleHashesAttribute hashesAttr = new ModuleHashesAttribute();
+            List<String> modules = hashesAttr.modules;
+            for(int i = 0; i < modules.size(); i++) {
+                modules.set(i, remapper.mapModuleName(modules.get(i)));
+            }
+        }
+        super.visitAttribute(attr);
+    }
+    
     @Override
     public FieldVisitor visitField(int access, String name, String desc,
             String signature, Object value) {
@@ -128,5 +150,9 @@ public class ClassRemapper extends ClassVisitor {
 
     protected AnnotationVisitor createAnnotationRemapper(AnnotationVisitor av) {
         return new AnnotationRemapper(av, remapper);
+    }
+    
+    protected ModuleVisitor createModuleRemapper(ModuleVisitor mv) {
+        return new ModuleRemapper(mv, remapper);
     }
 }

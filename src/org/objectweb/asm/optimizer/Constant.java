@@ -44,25 +44,25 @@ class Constant {
     /**
      * Type of this constant pool item. A single class is used to represent all
      * constant pool item types, in order to minimize the bytecode size of this
-     * package. The value of this field is I, J, F, D, S, s, C, T, G, M, N, y,
-     * t, [h..r] (for Constant Integer, Long, Float, Double, STR, UTF8, Class,
-     * NameType, Fieldref, Methodref, InterfaceMethodref, InvokeDynamic,
-     * MethodType and MethodHandle constant pool items respectively).
+     * package. The value of this field is I, J, F, D, S, s, C, T, G, M, N, m,
+     * p, y, t, [a..k] (for Constant Integer, Long, Float, Double, STR, UTF8, Class,
+     * NameType, Fieldref, Methodref, InterfaceMethodref, Module, Package,
+     * InvokeDynamic, MethodType,  and MethodHandle constant pool items respectively).
      * 
-     * The 9 variable of MethodHandle constants are stored between h and r
+     * The 9 variable of MethodHandle constants are stored between a and k
      * following this table
      *                    tag   type  interface
-     * H_GETFIELD          1     h    false
-     * H_GETSTATIC         2     i    false
-     * H_PUTFIELD          3     j    false
-     * H_PUTSTATIC         4     k    false
-     * H_INVOKEVIRTUAL     5     l    false
-     * H_INVOKESTATIC      6     m    false
-     * H_INVOKESPECIAL     7     n    false
-     * H_NEWINVOKESPECIAL  8     o    false
-     * H_INVOKEINTERFACE   9     p    true
-     * H_INVOKESTATIC      6     q    true
-     * H_INVOKESPECIAL     7     r    true
+     * H_GETFIELD          1     a    false
+     * H_GETSTATIC         2     b    false
+     * H_PUTFIELD          3     c    false
+     * H_PUTSTATIC         4     d    false
+     * H_INVOKEVIRTUAL     5     e    false
+     * H_INVOKESTATIC      6     f    false
+     * H_INVOKESPECIAL     7     g    false
+     * H_NEWINVOKESPECIAL  8     h    false
+     * H_INVOKEINTERFACE   9     i    true
+     * H_INVOKESTATIC      6     j    true
+     * H_INVOKESPECIAL     7     k    true
      */
     char type;
 
@@ -201,6 +201,8 @@ class Constant {
         case 'S':
         case 'C':
         case 't':
+        case 'm':
+        case 'p':
             hashCode = 0x7FFFFFFF & (type + strVal1.hashCode());
             return;
         case 'T':
@@ -210,7 +212,7 @@ class Constant {
             // case 'G':
             // case 'M':
             // case 'N':
-            // case 'h' ... 'r':
+            // case 'a' ... 'k':
         default:
             hashCode = 0x7FFFFFFF & (type + strVal1.hashCode()
                     * strVal2.hashCode() * strVal3.hashCode());
@@ -309,6 +311,8 @@ class Constant {
             case 's':
             case 'S':
             case 'C':
+            case 'm':
+            case 'p':
             case 't':
                 return c.strVal1.equals(strVal1);
             case 'T':
@@ -320,7 +324,7 @@ class Constant {
                 // case 'G':
                 // case 'M':
                 // case 'N':
-                // case 'h' ... 'r':
+                // case 'a' ... 'k':
             default:
                 return c.strVal1.equals(strVal1) && c.strVal2.equals(strVal2)
                         && c.objVal3.equals(objVal3);

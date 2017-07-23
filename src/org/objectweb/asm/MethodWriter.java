@@ -647,10 +647,10 @@ class MethodWriter extends MethodVisitor {
             int frameIndex = startFrame(code.length, nLocal, nStack);
             for (int i = 0; i < nLocal; ++i) {
                 if (local[i] instanceof String) {
-                    frame[frameIndex++] = Frame.OBJECT
-                            | cw.addType((String) local[i]);
+                    String desc = Type.getObjectType((String) local[i]).getDescriptor();
+                    frame[frameIndex++] = Frame.type(cw, desc);
                 } else if (local[i] instanceof Integer) {
-                    frame[frameIndex++] = ((Integer) local[i]).intValue();
+                    frame[frameIndex++] = Frame.BASE | ((Integer) local[i]).intValue();
                 } else {
                     frame[frameIndex++] = Frame.UNINITIALIZED
                             | cw.addUninitializedType("",
@@ -659,10 +659,10 @@ class MethodWriter extends MethodVisitor {
             }
             for (int i = 0; i < nStack; ++i) {
                 if (stack[i] instanceof String) {
-                    frame[frameIndex++] = Frame.OBJECT
-                            | cw.addType((String) stack[i]);
+                    String desc = Type.getObjectType((String) stack[i]).getDescriptor();
+                    frame[frameIndex++] = Frame.type(cw, desc);
                 } else if (stack[i] instanceof Integer) {
-                    frame[frameIndex++] = ((Integer) stack[i]).intValue();
+                    frame[frameIndex++] = Frame.BASE | ((Integer) stack[i]).intValue();
                 } else {
                     frame[frameIndex++] = Frame.UNINITIALIZED
                             | cw.addUninitializedType("",
@@ -1807,7 +1807,7 @@ class MethodWriter extends MethodVisitor {
             if ((access & ACC_CONSTRUCTOR) == 0) {
                 frame[frameIndex++] = Frame.OBJECT | cw.addType(cw.thisName);
             } else {
-                frame[frameIndex++] = 6; // Opcodes.UNINITIALIZED_THIS;
+                frame[frameIndex++] = Frame.UNINITIALIZED_THIS;
             }
         }
         int i = 1;
@@ -1819,16 +1819,16 @@ class MethodWriter extends MethodVisitor {
             case 'B':
             case 'S':
             case 'I':
-                frame[frameIndex++] = 1; // Opcodes.INTEGER;
+                frame[frameIndex++] = Frame.INTEGER;
                 break;
             case 'F':
-                frame[frameIndex++] = 2; // Opcodes.FLOAT;
+                frame[frameIndex++] = Frame.FLOAT;
                 break;
             case 'J':
-                frame[frameIndex++] = 4; // Opcodes.LONG;
+                frame[frameIndex++] = Frame.LONG;
                 break;
             case 'D':
-                frame[frameIndex++] = 3; // Opcodes.DOUBLE;
+                frame[frameIndex++] = Frame.DOUBLE;
                 break;
             case '[':
                 while (descriptor.charAt(i) == '[') {
@@ -1840,8 +1840,7 @@ class MethodWriter extends MethodVisitor {
                         ++i;
                     }
                 }
-                frame[frameIndex++] = Frame.OBJECT
-                        | cw.addType(descriptor.substring(j, ++i));
+                frame[frameIndex++] = Frame.type(cw, descriptor.substring(j, ++i));
                 break;
             case 'L':
                 while (descriptor.charAt(i) != ';') {

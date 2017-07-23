@@ -1044,7 +1044,8 @@ public class ClassWriter extends ClassVisitor {
             lastField = null;
             firstMethod = null;
             lastMethod = null;
-            compute = hasFrames ? MethodWriter.INSERTED_FRAMES : 0;
+            compute = 
+                hasFrames ? MethodWriter.INSERTED_FRAMES : MethodWriter.NOTHING;
             hasAsmInsns = false;
             new ClassReader(out.data).accept(this, 
                     (hasFrames ? ClassReader.EXPAND_FRAMES : 0)

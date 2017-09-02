@@ -91,37 +91,6 @@
 				<isset property="product.noshrink" />
 			</not>
 		</condition>
-
-		<condition property="SIGV" value="false" else="true">
-			<isset property="nosignatures" />
-		</condition>
-		<condition property="SIG" value="-signatures" else="">
-			<isset property="nosignatures" />
-		</condition>
-		<condition property="ANNV" value="false" else="true">
-			<isset property="noannotations" />
-		</condition>
-		<condition property="ANN" value="-annotations" else="">
-			<isset property="noannotations" />
-		</condition>
-		<condition property="FRAMESV" value="false" else="true">
-			<isset property="noframes" />
-		</condition>
-		<condition property="FRAMES" value="-frames" else="">
-			<isset property="noframes" />
-		</condition>
-		<condition property="WRITERV" value="false" else="true">
-			<isset property="nowriter" />
-		</condition>
-		<condition property="WRITER" value="-writer" else="">
-			<isset property="nowriter" />
-		</condition>
-		<condition property="RESIZEV" value="false" else="true">
-			<isset property="noresize" />
-		</condition>
-		<condition property="RESIZE" value="-resize" else="">
-			<isset property="noresize" />
-		</condition>
 	</target>
 
 	<!-- ================================== -->
@@ -169,18 +138,7 @@
 		</copy>
 	</target>
 
-	<target name="compile-config" unless="config.uptodate">
-		<replace dir="${out.build}/tmp">
-			<include name="**/ClassReader.java" />
-			<replacefilter token="SIGNATURES = true" value="SIGNATURES = ${SIGV}" />
-			<replacefilter token="ANNOTATIONS = true" value="ANNOTATIONS = ${ANNV}" />
-			<replacefilter token="FRAMES = true" value="FRAMES = ${FRAMESV}" />
-			<replacefilter token="WRITER = true" value="WRITER = ${SIGV}" />
-			<replacefilter token="RESIZE = true" value="RESIZE = ${RESIZEV}" />
-		</replace>
-	</target>
-
-	<target name="compile-debug" depends="init,compile-init,compile-config">
+	<target name="compile-debug" depends="init,compile-init">
 		<javac destdir="${out.build}/tmp" debug="on" source="1.5" target="1.5">
 			<classpath>
 				<pathelement location="${out.build}/tmp" />
@@ -199,11 +157,6 @@
 				<pathelement location="${out.build}/tmp" />
 			</classpath>
 			<arg value="${src}/org/objectweb/asm/optimizer/shrink.properties" />
-			<arg value="${src}/org/objectweb/asm/optimizer/shrink${SIG}.properties" />
-			<arg value="${src}/org/objectweb/asm/optimizer/shrink${ANN}.properties" />
-			<arg value="${src}/org/objectweb/asm/optimizer/shrink${FRAMES}.properties" />
-			<arg value="${src}/org/objectweb/asm/optimizer/shrink${WRITER}.properties" />
-			<arg value="${src}/org/objectweb/asm/optimizer/shrink${RESIZE}.properties" />
 			<arg value="${out.build}/tmp" />
 			<arg value="${out.build}" />
 		</java>

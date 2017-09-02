@@ -65,11 +65,6 @@ Bundle-RequiredExecutionEnvironment: J2SE-1.4
 
 
 -removeheaders:\
-  ANNV,\
   DSTAMP,\
-  FRAMESV,\
-  RESIZEV,\
-  SIGV,\
   TODAY,\
-  TSTAMP,\
-  WRITERV
+  TSTAMP

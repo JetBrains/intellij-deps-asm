@@ -64,11 +64,6 @@ Bundle-RequiredExecutionEnvironment: J2SE-1.5
   org.objectweb.asm.optimizer.ModuleInfoBndPlugin;
 
 -removeheaders:\
-  ANNV,\
   DSTAMP,\
-  FRAMESV,\
-  RESIZEV,\
-  SIGV,\
   TODAY,\
-  TSTAMP,\
-  WRITERV
+  TSTAMP

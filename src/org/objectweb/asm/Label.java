@@ -424,7 +424,7 @@ public class Label {
      * @return the first label of the series to which this label belongs.
      */
     Label getFirst() {
-        return !ClassReader.FRAMES || frame == null ? this : frame.owner;
+        return frame == null ? this : frame.owner;
     }
 
     // ------------------------------------------------------------------------

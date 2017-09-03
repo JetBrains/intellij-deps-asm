@@ -36,7 +36,7 @@ public class ModuleInfoBndPlugin implements AnalyzerPlugin {
     //System.out.println(exportPackages);
     
     ClassWriter writer = new ClassWriter(0);
-    writer.visit(Opcodes.V1_9, Opcodes.ACC_MODULE, "module-info", null, null, null);
+    writer.visit(Opcodes.V9, Opcodes.ACC_MODULE, "module-info", null, null, null);
     
     ModuleVisitor mv = writer.visitModule(moduleName, Opcodes.ACC_OPEN, moduleVersion);
     

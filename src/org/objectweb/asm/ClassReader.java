@@ -1155,7 +1155,7 @@ public class ClassReader {
         int codeStart = u;
         int codeEnd = u + codeLength;
         Label[] labels = context.labels = new Label[codeLength + 2];
-        readLabel(codeLength + 1, labels);
+        createLabel(codeLength + 1, labels);
         while (u < codeEnd) {
             int offset = u - codeStart;
             int opcode = b[u] & 0xFF;
@@ -1165,16 +1165,16 @@ public class ClassReader {
                 u += 1;
                 break;
             case ClassWriter.LABEL_INSN:
-                readLabel(offset + readShort(u + 1), labels);
+                createLabel(offset + readShort(u + 1), labels);
                 u += 3;
                 break;
             case ClassWriter.ASM_LABEL_INSN:
-                readLabel(offset + readUnsignedShort(u + 1), labels);
+                createLabel(offset + readUnsignedShort(u + 1), labels);
                 u += 3;
                 break;
             case ClassWriter.LABELW_INSN:
             case ClassWriter.ASM_LABELW_INSN:
-                readLabel(offset + readInt(u + 1), labels);
+                createLabel(offset + readInt(u + 1), labels);
                 u += 5;
                 break;
             case ClassWriter.WIDE_INSN:
@@ -1189,9 +1189,9 @@ public class ClassReader {
                 // skips 0 to 3 padding bytes
                 u = u + 4 - (offset & 3);
                 // reads instruction
-                readLabel(offset + readInt(u), labels);
+                createLabel(offset + readInt(u), labels);
                 for (int i = readInt(u + 8) - readInt(u + 4) + 1; i > 0; --i) {
-                    readLabel(offset + readInt(u + 12), labels);
+                    createLabel(offset + readInt(u + 12), labels);
                     u += 4;
                 }
                 u += 12;
@@ -1200,9 +1200,9 @@ public class ClassReader {
                 // skips 0 to 3 padding bytes
                 u = u + 4 - (offset & 3);
                 // reads instruction
-                readLabel(offset + readInt(u), labels);
+                createLabel(offset + readInt(u), labels);
                 for (int i = readInt(u + 4); i > 0; --i) {
-                    readLabel(offset + readInt(u + 12), labels);
+                    createLabel(offset + readInt(u + 12), labels);
                     u += 8;
                 }
                 u += 8;
@@ -1232,9 +1232,9 @@ public class ClassReader {
 
         // reads the try catch entries to find the labels, and also visits them
         for (int i = readUnsignedShort(u); i > 0; --i) {
-            Label start = readLabel(readUnsignedShort(u + 2), labels);
-            Label end = readLabel(readUnsignedShort(u + 4), labels);
-            Label handler = readLabel(readUnsignedShort(u + 6), labels);
+            Label start = createLabel(readUnsignedShort(u + 2), labels);
+            Label end = createLabel(readUnsignedShort(u + 4), labels);
+            Label handler = createLabel(readUnsignedShort(u + 6), labels);
             String type = readUTF8(items[readUnsignedShort(u + 8)], c);
             mv.visitTryCatchBlock(start, end, handler, type);
             u += 8;
@@ -1265,13 +1265,9 @@ public class ClassReader {
                     varTable = u + 8;
                     for (int j = readUnsignedShort(u + 8), v = u; j > 0; --j) {
                         int label = readUnsignedShort(v + 10);
-                        if (labels[label] == null) {
-                            readLabel(label, labels).status |= Label.DEBUG;
-                        }
+                        createDebugLabel(label, labels);
                         label += readUnsignedShort(v + 12);
-                        if (labels[label] == null) {
-                            readLabel(label, labels).status |= Label.DEBUG;
-                        }
+                        createDebugLabel(label, labels);
                         v += 10;
                     }
                 }
@@ -1281,9 +1277,7 @@ public class ClassReader {
                 if ((context.flags & SKIP_DEBUG) == 0) {
                     for (int j = readUnsignedShort(u + 8), v = u; j > 0; --j) {
                         int label = readUnsignedShort(v + 10);
-                        if (labels[label] == null) {
-                            readLabel(label, labels).status |= Label.DEBUG;
-                        }
+                        createDebugLabel(label, labels);
                         Label l = labels[label];
                         while (l.line > 0) {
                             if (l.next == null) {
@@ -1389,7 +1383,7 @@ public class ClassReader {
                     int v = readUnsignedShort(i + 1);
                     if (v >= 0 && v < codeLength) {
                         if ((b[codeStart + v] & 0xFF) == Opcodes.NEW) {
-                            readLabel(v, labels);
+                            createLabel(v, labels);
                         }
                     }
                 }
@@ -1508,7 +1502,7 @@ public class ClassReader {
                 } else {
                     opcode = opcode <= 166 ? ((opcode + 1) ^ 1) - 1
                             : opcode ^ 1;
-                    Label endif = readLabel(offset + 3, labels);
+                    Label endif = createLabel(offset + 3, labels);
                     mv.visitJumpInsn(opcode, endif);
                     mv.visitJumpInsn(200, target); // GOTO_W
                     // endif designates the instruction just after GOTO_W,
@@ -1784,8 +1778,8 @@ public class ClassReader {
                 for (int j = readUnsignedShort(u + 1); j > 0; --j) {
                     int start = readUnsignedShort(u + 3);
                     int length = readUnsignedShort(u + 5);
-                    readLabel(start, context.labels);
-                    readLabel(start + length, context.labels);
+                    createLabel(start, context.labels);
+                    createLabel(start + length, context.labels);
                     u += 6;
                 }
                 u += 3;
@@ -1864,8 +1858,8 @@ public class ClassReader {
             for (int i = 0; i < n; ++i) {
                 int start = readUnsignedShort(u);
                 int length = readUnsignedShort(u + 2);
-                context.start[i] = readLabel(start, context.labels);
-                context.end[i] = readLabel(start + length, context.labels);
+                context.start[i] = createLabel(start, context.labels);
+                context.end[i] = createLabel(start + length, context.labels);
                 context.index[i] = readUnsignedShort(u + 4);
                 u += 6;
             }
@@ -2285,7 +2279,7 @@ public class ClassReader {
             }
         }
         frame.offset += delta + 1;
-        readLabel(frame.offset, labels);
+        createLabel(frame.offset, labels);
         return stackMap;
     }
 
@@ -2338,7 +2332,7 @@ public class ClassReader {
             v += 2;
             break;
         default: // Uninitialized
-            frame[index] = readLabel(readUnsignedShort(v), labels);
+            frame[index] = createLabel(readUnsignedShort(v), labels);
             v += 2;
         }
         return v;
@@ -2362,6 +2356,18 @@ public class ClassReader {
             labels[offset] = new Label();
         }
         return labels[offset];
+    }
+
+    private Label createLabel(int offset, Label[] labels) {
+      Label label = readLabel(offset, labels);
+      label.status &= ~Label.DEBUG;
+      return label;
+    }
+
+    private void createDebugLabel(int offset, Label[] labels) {
+        if (labels[offset] == null) {
+            readLabel(offset, labels).status |= Label.DEBUG;
+        }
     }
 
     /**

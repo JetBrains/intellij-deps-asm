@@ -2358,12 +2358,33 @@ public class ClassReader {
         return labels[offset];
     }
 
+    /**
+     * Creates a label without the Label.DEBUG flag set, for the given offset.
+     * The label is created with a call to {@link #readLabel} and its
+     * Label.DEBUG flag is cleared.
+     * 
+     * @param offset
+     *            a bytecode offset in a method.
+     * @param labels
+     *            the already created labels, indexed by their offset.
+     * @return a Label without the Label.DEBUG flag set.
+     */
     private Label createLabel(int offset, Label[] labels) {
       Label label = readLabel(offset, labels);
       label.status &= ~Label.DEBUG;
       return label;
     }
 
+    /**
+     * Creates a label with the Label.DEBUG flag set, if there is no already
+     * existing label for the given offset (otherwise does nothing). The label
+     * is created with a call to {@link #readLabel}.
+     * 
+     * @param offset
+     *            a bytecode offset in a method.
+     * @param labels
+     *            the already created labels, indexed by their offset.
+     */
     private void createDebugLabel(int offset, Label[] labels) {
         if (labels[offset] == null) {
             readLabel(offset, labels).status |= Label.DEBUG;

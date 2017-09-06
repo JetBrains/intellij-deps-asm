@@ -215,13 +215,13 @@
   <target name="sigtest-setup">
     <java classname="com.sun.tdk.signaturetest.Setup">
       <classpath>
-        <pathelement location="${test}/lib/sigtestdev.jar"/>
+        <pathelement location="${test}/lib/sigtest-maven-plugin-1.0.jar"/>
       </classpath>
       <arg value="-apiversion"/>
       <arg value="${product.artifact}"/>
       <arg value="-static"/>
       <arg value="-classpath"/>
-      <arg value="${java.home}/lib/rt.jar:${out.dist}/lib/all/asm-all-${product.artifact}.jar"/>
+      <arg value="${java.home}/lib/rt.jar:${out.dist}/lib/asm-${product.artifact}.jar:${out.dist}/lib/asm-tree-${product.artifact}.jar:${out.dist}/lib/asm-analysis-${product.artifact}.jar:${out.dist}/lib/asm-commons-${product.artifact}.jar:${out.dist}/lib/asm-util-${product.artifact}.jar:${out.dist}/lib/asm-xml-${product.artifact}.jar"/>
       <arg value="-package"/>
       <arg value="org.objectweb.asm"/>
       <arg value="-filename"/>
@@ -231,10 +231,14 @@
 
   <target name="sigtest">
     <taskdef name="atest" classname="com.sun.tdk.signaturetest.ant.ATest" 
-        classpath="${test}/lib/sigtestdev.jar"/>
+        classpath="${test}/lib/sigtest-maven-plugin-1.0.jar"/>
     <path id="classpath">
-        <pathelement location="${java.home}/lib/rt.jar"/>
-        <pathelement location="${out.dist}/lib/all/asm-all-${product.artifact}.jar"/>
+        <pathelement location="${out.dist}/lib/asm-${product.artifact}.jar"/>
+        <pathelement location="${out.dist}/lib/asm-tree-${product.artifact}.jar"/>
+        <pathelement location="${out.dist}/lib/asm-analysis-${product.artifact}.jar"/>
+        <pathelement location="${out.dist}/lib/asm-commons-${product.artifact}.jar"/>
+        <pathelement location="${out.dist}/lib/asm-util-${product.artifact}.jar"/>
+        <pathelement location="${out.dist}/lib/asm-xml-${product.artifact}.jar"/>
     </path>
     <atest filename="${test}/ASM-4.0.sig"
         apiversion="${product.artifact}"

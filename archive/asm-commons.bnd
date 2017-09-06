@@ -55,7 +55,7 @@ Bundle-RequiredExecutionEnvironment: J2SE-1.4
   ${out.build}/bnd-module-plugin.jar
   
 -plugin.asm: \
-  org.objectweb.asm.optimizer.ModuleInfoBndPlugin;
+  org.objectweb.asm.tools.ModuleInfoBndPlugin;
 
 -removeheaders:\
   DSTAMP,\

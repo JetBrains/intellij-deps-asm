@@ -40,8 +40,6 @@ import java.io.LineNumberReader;
 import java.io.OutputStream;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
 import java.util.zip.GZIPInputStream;
 
 import org.objectweb.asm.ClassReader;
@@ -50,6 +48,8 @@ import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Handle;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
+
+import aj.org.objectweb.asm.Type;
 
 /**
  * A command line tool to transform classes in order to make them compatible
@@ -65,13 +65,13 @@ public class Retrofitter {
      * The fields and methods of the JDK 1.5 API. Each string has the form
      * "<owner> <name><descriptor>".
      */
-    static final Set<String> API = new HashSet<String>();
+    static final HashSet<String> API = new HashSet<String>();
 
     /**
      * The class hierarchy of the JDK 1.5 API. Maps each class name to the name
      * of its super class.
      */
-    static final Map<String, String> HIERARCHY = new HashMap<String, String>();
+    static final HashMap<String, String> HIERARCHY = new HashMap<String, String>();
 
     /**
      * Transforms the classes from a source directory into a destination
@@ -129,6 +129,9 @@ public class Retrofitter {
         if (src.isDirectory()) {
             boolean result = true;
             File[] files = src.listFiles();
+            if (files == null) {
+                throw new IOException("unable to read files of " + src);
+            }
             for (int i = 0; i < files.length; ++i) {
                 result &= retrofit(files[i], new File(dst, files[i].getName()));
             }
@@ -177,8 +180,8 @@ public class Retrofitter {
         boolean ok;
 
         public ClassVerifier(ClassVisitor cv) {
-            // Make sure use we don't use Java 8 or higher classfile features.
-            // We also want to make sure we don't use Java 6 or 7 classfile
+            // Make sure use we don't use Java 9 or higher classfile features.
+            // We also want to make sure we don't use Java 6, 7 or 8 classfile
             // features (invokedynamic), but this can't be done in the same way.
             // Instead, we use manual checks below.
             super(Opcodes.ASM4, cv);
@@ -193,7 +196,7 @@ public class Retrofitter {
             super.visit(version, access, name, signature, superName,
                     interfaces);
         }
-
+        
         @Override
         public MethodVisitor visitMethod(final int access, final String name,
                 final String desc, final String signature,
@@ -201,7 +204,7 @@ public class Retrofitter {
             currentMethodName = name + desc;
             MethodVisitor mv = super.visitMethod(access, name, desc, signature,
                     exceptions);
-            return new MethodVisitor(Opcodes.ASM6, mv) {
+            return new MethodVisitor(Opcodes.ASM4, mv) {
                 @Override
                 public void visitFieldInsn(final int opcode, final String owner,
                         final String name, final String desc) {
@@ -218,9 +221,28 @@ public class Retrofitter {
                 }
 
                 @Override
+                public void visitLdcInsn(Object cst) {
+                    if (cst instanceof Type) {
+                      int sort = ((Type) cst).getSort();
+                      if (sort == Type.METHOD) {
+                          System.err.println("ERROR: ldc with a MethodType called in "
+                                  + className + ' ' + currentMethodName
+                                  + " is not available in JDK 1.5");
+                          ok = false;
+                      }
+                    } else if (cst instanceof Handle) {
+                        System.err.println("ERROR: ldc with a MethodHandle called in "
+                                + className + ' ' + currentMethodName
+                                + " is not available in JDK 1.5");
+                        ok = false;
+                    }
+                    super.visitLdcInsn(cst);
+                }
+                
+                @Override
                 public void visitInvokeDynamicInsn(String name, String desc,
                         Handle bsm, Object... bsmArgs) {
-                    System.err.println("ERROR: invokedynamic" + " called in "
+                    System.err.println("ERROR: invokedynamic called in "
                             + className + ' ' + currentMethodName
                             + " is not available in JDK 1.5");
                     ok = false;

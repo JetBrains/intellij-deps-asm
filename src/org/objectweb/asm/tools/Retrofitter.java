@@ -49,7 +49,7 @@ import org.objectweb.asm.Handle;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 
-import aj.org.objectweb.asm.Type;
+import org.objectweb.asm.Type;
 
 /**
  * A command line tool to transform classes in order to make them compatible

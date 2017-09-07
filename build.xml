@@ -85,12 +85,6 @@
 				<isset property="passphrase" />
 			</and>
 		</condition>
-
-		<condition property="product.shrink">
-			<not>
-				<isset property="product.noshrink" />
-			</not>
-		</condition>
 	</target>
 
 	<!-- ================================== -->
@@ -128,14 +122,6 @@
 
 	<target name="compile-init">
 		<mkdir dir="${out.build}/tmp" />
-		<condition property="config.uptodate">
-			<uptodate srcfile="${src}/org/objectweb/asm/ClassReader.java" targetfile="${out.build}/tmp/org/objectweb/asm/ClassReader.java" />
-		</condition>
-		<copy todir="${out.build}/tmp">
-			<fileset dir="${src}">
-				<include name="**/*" />
-			</fileset>
-		</copy>
 	</target>
 
 	<target name="compile-debug" depends="init,compile-init">
@@ -144,31 +130,25 @@
 				<pathelement location="${out.build}/tmp" />
 				<pathelement location="${config}/${biz.aQute.bnd.path}" />
 			</classpath>
-			<src path="${out.build}/tmp" />
+			<src path="${src}" />
 			<include name="**/*.java" />
 			<compilerarg value="-Xlint"/> 
 		</javac>
 	</target>
 
-	<target name="shrink" depends="compile-debug" if="product.shrink">
-		<echo message="Shrinking" />
-		<java classname="org.objectweb.asm.optimizer.Shrinker">
+	<target name="retrofit" depends="compile-debug">
+		<echo message="Retrofitting" />
+		<java classname="org.objectweb.asm.tools.Retrofitter" failonerror="true">
 			<classpath>
 				<pathelement location="${out.build}/tmp" />
 			</classpath>
-			<arg value="${src}/org/objectweb/asm/optimizer/shrink.properties" />
+			<arg value="${src}/org/objectweb/asm/tools/jdk1.5.0.12.txt.gz" />
 			<arg value="${out.build}/tmp" />
 			<arg value="${out.build}" />
 		</java>
 	</target>
 
-	<target name="noshrink" depends="compile-debug" if="product.noshrink">
-		<copy todir="${out.build}">
-			<fileset dir="${out.build}/tmp" />
-		</copy>
-	</target>
-
-	<target name="compile" depends="compile-debug,shrink,noshrink" />
+	<target name="compile" depends="compile-debug,retrofit" />
 
 	<!-- =================================== -->
 	<!-- ==========      TEST     ========== -->
@@ -280,25 +260,14 @@
 		 </jar>
         </target>
 	
-	<target name="jar" depends="dist.init,dist.version,compile,shrink,bnd-module-plugin-jar">
+	<target name="jar" depends="dist.init,dist.version,compile,retrofit,bnd-module-plugin-jar">
 		<ant antfile="${archive}/asm.xml" />
-		<ant antfile="${archive}/asm-all.xml" />
 		<ant antfile="${archive}/asm-analysis.xml" />
 		<ant antfile="${archive}/asm-commons.xml" />
-		<ant antfile="${archive}/asm-debug-all.xml" />
 		<ant antfile="${archive}/asm-parent.xml" />
 		<ant antfile="${archive}/asm-tree.xml" />
 		<ant antfile="${archive}/asm-util.xml" />
 		<ant antfile="${archive}/asm-xml.xml" />
-		<java classname="org.objectweb.asm.optimizer.JarOptimizer">
-			<classpath>
-				<pathelement location="${out.build}" />
-			</classpath>
-			<!--arg value="${src}/org/objectweb/asm/optimizer/jdk1.2.2_017.txt.gz"/-->
-			<arg value="${src}/org/objectweb/asm/optimizer/jdk1.3.1_19.txt.gz" />
-			<arg value="-nodebug" />
-			<arg value="${out.dist.lib}" />
-		</java>
 	</target>
 
 	<target name="jdoc" depends="init,dist.init">
@@ -647,29 +616,6 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 			<arg value="-Dgpg.passphrase=${passphrase}" />
 		</m2:mvn>
 
-		<m2:mvn>
-			<arg value="org.apache.maven.plugins:maven-gpg-plugin:1.4:sign-and-deploy-file" />
-			<arg value="-Durl=${maven-staging-repository-url}" />
-			<arg value="-DrepositoryId=${maven-staging-repository-id}" />
-			<arg value="-DpomFile=${out.dist.lib}/all/asm-all-${product.artifact}.pom" />
-			<arg value="-Dfile=${out.dist.lib}/all/asm-all-${product.artifact}.jar" />
-			<arg value="-Djavadoc=${out.zip}/${product.name}-${product.version}-javadoc.jar" />
-			<arg value="-Dsources=${out.zip}/${product.name}-${product.version}-sources.jar" />
-			<arg value="-Pow2-release" />
-			<arg value="-Dgpg.passphrase=${passphrase}" />
-		</m2:mvn>
-
-		<m2:mvn>
-			<arg value="org.apache.maven.plugins:maven-gpg-plugin:1.4:sign-and-deploy-file" />
-			<arg value="-Durl=${maven-staging-repository-url}" />
-			<arg value="-DrepositoryId=${maven-staging-repository-id}" />
-			<arg value="-DpomFile=${out.dist.lib}/all/asm-debug-all-${product.artifact}.pom" />
-			<arg value="-Dfile=${out.dist.lib}/all/asm-debug-all-${product.artifact}.jar" />
-			<arg value="-Djavadoc=${out.zip}/${product.name}-${product.version}-javadoc.jar" />
-			<arg value="-Dsources=${out.zip}/${product.name}-${product.version}-sources.jar" />
-			<arg value="-Pow2-release" />
-			<arg value="-Dgpg.passphrase=${passphrase}" />
-		</m2:mvn>
 	</target>
 
 </project>

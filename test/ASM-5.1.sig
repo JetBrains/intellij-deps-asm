@@ -4,16 +4,16 @@
 CLSS public abstract interface java.io.Serializable
 
 CLSS public java.lang.Exception
-cons protected <init>(java.lang.String,java.lang.Throwable,boolean,boolean)
-cons public <init>()
-cons public <init>(java.lang.String)
-cons public <init>(java.lang.String,java.lang.Throwable)
-cons public <init>(java.lang.Throwable)
+cons protected init(java.lang.String,java.lang.Throwable,boolean,boolean)
+cons public init()
+cons public init(java.lang.String)
+cons public init(java.lang.String,java.lang.Throwable)
+cons public init(java.lang.Throwable)
 supr java.lang.Throwable
 hfds serialVersionUID
 
 CLSS public java.lang.Object
-cons public <init>()
+cons public init()
 meth protected java.lang.Object clone() throws java.lang.CloneNotSupportedException
 meth protected void finalize() throws java.lang.Throwable
 meth public boolean equals(java.lang.Object)
@@ -27,11 +27,11 @@ meth public int hashCode()
 meth public java.lang.String toString()
 
 CLSS public java.lang.Throwable
-cons protected <init>(java.lang.String,java.lang.Throwable,boolean,boolean)
-cons public <init>()
-cons public <init>(java.lang.String)
-cons public <init>(java.lang.String,java.lang.Throwable)
-cons public <init>(java.lang.Throwable)
+cons protected init(java.lang.String,java.lang.Throwable,boolean,boolean)
+cons public init()
+cons public init(java.lang.String)
+cons public init(java.lang.String,java.lang.Throwable)
+cons public init(java.lang.Throwable)
 intf java.io.Serializable
 meth public final java.lang.Throwable[] getSuppressed()
 meth public final void addSuppressed(java.lang.Throwable)
@@ -51,8 +51,8 @@ hfds CAUSE_CAPTION,EMPTY_THROWABLE_ARRAY,NULL_CAUSE_MESSAGE,SELF_SUPPRESSION_MES
 hcls PrintStreamOrWriter,SentinelHolder,WrappedPrintStream,WrappedPrintWriter
 
 CLSS public abstract org.objectweb.asm.AnnotationVisitor
-cons public <init>(int)
-cons public <init>(int,org.objectweb.asm.AnnotationVisitor)
+cons public init(int)
+cons public init(int,org.objectweb.asm.AnnotationVisitor)
 fld protected final int api
 fld protected org.objectweb.asm.AnnotationVisitor av
 meth public org.objectweb.asm.AnnotationVisitor visitAnnotation(java.lang.String,java.lang.String)
@@ -63,7 +63,7 @@ meth public void visitEnum(java.lang.String,java.lang.String,java.lang.String)
 supr java.lang.Object
 
 CLSS public org.objectweb.asm.Attribute
-cons protected <init>(java.lang.String)
+cons protected init(java.lang.String)
 fld public final java.lang.String type
 meth protected org.objectweb.asm.Attribute read(org.objectweb.asm.ClassReader,int,int,char[],int,org.objectweb.asm.Label[])
 meth protected org.objectweb.asm.ByteVector write(org.objectweb.asm.ClassWriter,byte[],int,int,int)
@@ -74,8 +74,8 @@ supr java.lang.Object
 hfds a,b
 
 CLSS public org.objectweb.asm.ByteVector
-cons public <init>()
-cons public <init>(int)
+cons public init()
+cons public init(int)
 meth public org.objectweb.asm.ByteVector putByte(int)
 meth public org.objectweb.asm.ByteVector putByteArray(byte[],int,int)
 meth public org.objectweb.asm.ByteVector putInt(int)
@@ -86,10 +86,10 @@ supr java.lang.Object
 hfds a,b
 
 CLSS public org.objectweb.asm.ClassReader
-cons public <init>(byte[])
-cons public <init>(byte[],int,int)
-cons public <init>(java.io.InputStream) throws java.io.IOException
-cons public <init>(java.lang.String) throws java.io.IOException
+cons public init(byte[])
+cons public init(byte[],int,int)
+cons public init(java.io.InputStream) throws java.io.IOException
+cons public init(java.lang.String) throws java.io.IOException
 fld public final byte[] b
 fld public final int header
 fld public final static int EXPAND_FRAMES = 8
@@ -118,8 +118,8 @@ supr java.lang.Object
 hfds a,c,d
 
 CLSS public abstract org.objectweb.asm.ClassVisitor
-cons public <init>(int)
-cons public <init>(int,org.objectweb.asm.ClassVisitor)
+cons public init(int)
+cons public init(int,org.objectweb.asm.ClassVisitor)
 fld protected final int api
 fld protected org.objectweb.asm.ClassVisitor cv
 meth public org.objectweb.asm.AnnotationVisitor visitAnnotation(java.lang.String,boolean)
@@ -135,8 +135,8 @@ meth public void visitSource(java.lang.String,java.lang.String)
 supr java.lang.Object
 
 CLSS public org.objectweb.asm.ClassWriter
-cons public <init>(int)
-cons public <init>(org.objectweb.asm.ClassReader,int)
+cons public init(int)
+cons public init(org.objectweb.asm.ClassReader,int)
 fld public final static int COMPUTE_FRAMES = 2
 fld public final static int COMPUTE_MAXS = 1
 meth protected java.lang.String getCommonSuperClass(java.lang.String,java.lang.String)
@@ -165,8 +165,8 @@ supr org.objectweb.asm.ClassVisitor
 hfds A,B,C,D,E,G,H,I,J,K,L,M,N,O,a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p,q,r,s,t,u,v,w,x,y,z
 
 CLSS public abstract org.objectweb.asm.FieldVisitor
-cons public <init>(int)
-cons public <init>(int,org.objectweb.asm.FieldVisitor)
+cons public init(int)
+cons public init(int,org.objectweb.asm.FieldVisitor)
 fld protected final int api
 fld protected org.objectweb.asm.FieldVisitor fv
 meth public org.objectweb.asm.AnnotationVisitor visitAnnotation(java.lang.String,boolean)
@@ -176,8 +176,8 @@ meth public void visitEnd()
 supr java.lang.Object
 
 CLSS public final org.objectweb.asm.Handle
-cons public <init>(int,java.lang.String,java.lang.String,java.lang.String)
-cons public <init>(int,java.lang.String,java.lang.String,java.lang.String,boolean)
+cons public init(int,java.lang.String,java.lang.String,java.lang.String)
+cons public init(int,java.lang.String,java.lang.String,java.lang.String,boolean)
 meth public boolean equals(java.lang.Object)
 meth public boolean isInterface()
 meth public int getTag()
@@ -190,7 +190,7 @@ supr java.lang.Object
 hfds a,b,c,d,e
 
 CLSS public org.objectweb.asm.Label
-cons public <init>()
+cons public init()
 fld public java.lang.Object info
 meth public int getOffset()
 meth public java.lang.String toString()
@@ -198,8 +198,8 @@ supr java.lang.Object
 hfds a,b,c,d,e,f,g,h,i,j,k
 
 CLSS public abstract org.objectweb.asm.MethodVisitor
-cons public <init>(int)
-cons public <init>(int,org.objectweb.asm.MethodVisitor)
+cons public init(int)
+cons public init(int,org.objectweb.asm.MethodVisitor)
 fld protected final int api
 fld protected org.objectweb.asm.MethodVisitor mv
 meth public !varargs void visitInvokeDynamicInsn(java.lang.String,java.lang.String,org.objectweb.asm.Handle,java.lang.Object[])
@@ -524,7 +524,7 @@ supr java.lang.Object
 hfds a,b
 
 CLSS public org.objectweb.asm.TypeReference
-cons public <init>(int)
+cons public init(int)
 fld public final static int CAST = 71
 fld public final static int CLASS_EXTENDS = 16
 fld public final static int CLASS_TYPE_PARAMETER = 0
@@ -568,7 +568,7 @@ supr java.lang.Object
 hfds a
 
 CLSS public abstract org.objectweb.asm.commons.AdviceAdapter
-cons protected <init>(int,org.objectweb.asm.MethodVisitor,int,java.lang.String,java.lang.String)
+cons protected init(int,org.objectweb.asm.MethodVisitor,int,java.lang.String,java.lang.String)
 fld protected int methodAccess
 fld protected java.lang.String methodDesc
 intf org.objectweb.asm.Opcodes
@@ -594,8 +594,8 @@ supr org.objectweb.asm.commons.GeneratorAdapter
 hfds OTHER,THIS,branches,constructor,stackFrame,superInitialized
 
 CLSS public org.objectweb.asm.commons.AnalyzerAdapter
-cons protected <init>(int,java.lang.String,int,java.lang.String,java.lang.String,org.objectweb.asm.MethodVisitor)
-cons public <init>(java.lang.String,int,java.lang.String,java.lang.String,org.objectweb.asm.MethodVisitor)
+cons protected init(int,java.lang.String,int,java.lang.String,java.lang.String,org.objectweb.asm.MethodVisitor)
+cons public init(java.lang.String,int,java.lang.String,java.lang.String,org.objectweb.asm.MethodVisitor)
 fld public java.util.List locals
 fld public java.util.List stack
 fld public java.util.Map uninitializedTypes
@@ -620,8 +620,8 @@ supr org.objectweb.asm.MethodVisitor
 hfds class$org$objectweb$asm$commons$AnalyzerAdapter,labels,maxLocals,maxStack,owner
 
 CLSS public org.objectweb.asm.commons.AnnotationRemapper
-cons protected <init>(int,org.objectweb.asm.AnnotationVisitor,org.objectweb.asm.commons.Remapper)
-cons public <init>(org.objectweb.asm.AnnotationVisitor,org.objectweb.asm.commons.Remapper)
+cons protected init(int,org.objectweb.asm.AnnotationVisitor,org.objectweb.asm.commons.Remapper)
+cons public init(org.objectweb.asm.AnnotationVisitor,org.objectweb.asm.commons.Remapper)
 fld protected final org.objectweb.asm.commons.Remapper remapper
 meth public org.objectweb.asm.AnnotationVisitor visitAnnotation(java.lang.String,java.lang.String)
 meth public org.objectweb.asm.AnnotationVisitor visitArray(java.lang.String)
@@ -630,8 +630,8 @@ meth public void visitEnum(java.lang.String,java.lang.String,java.lang.String)
 supr org.objectweb.asm.AnnotationVisitor
 
 CLSS public org.objectweb.asm.commons.ClassRemapper
-cons protected <init>(int,org.objectweb.asm.ClassVisitor,org.objectweb.asm.commons.Remapper)
-cons public <init>(org.objectweb.asm.ClassVisitor,org.objectweb.asm.commons.Remapper)
+cons protected init(int,org.objectweb.asm.ClassVisitor,org.objectweb.asm.commons.Remapper)
+cons public init(org.objectweb.asm.ClassVisitor,org.objectweb.asm.commons.Remapper)
 fld protected final org.objectweb.asm.commons.Remapper remapper
 fld protected java.lang.String className
 meth protected org.objectweb.asm.AnnotationVisitor createAnnotationRemapper(org.objectweb.asm.AnnotationVisitor)
@@ -647,8 +647,8 @@ meth public void visitOuterClass(java.lang.String,java.lang.String,java.lang.Str
 supr org.objectweb.asm.ClassVisitor
 
 CLSS public org.objectweb.asm.commons.CodeSizeEvaluator
-cons protected <init>(int,org.objectweb.asm.MethodVisitor)
-cons public <init>(org.objectweb.asm.MethodVisitor)
+cons protected init(int,org.objectweb.asm.MethodVisitor)
+cons public init(org.objectweb.asm.MethodVisitor)
 intf org.objectweb.asm.Opcodes
 meth public !varargs void visitInvokeDynamicInsn(java.lang.String,java.lang.String,org.objectweb.asm.Handle,java.lang.Object[])
 meth public !varargs void visitTableSwitchInsn(int,int,org.objectweb.asm.Label,org.objectweb.asm.Label[])
@@ -670,18 +670,18 @@ supr org.objectweb.asm.MethodVisitor
 hfds maxSize,minSize
 
 CLSS public org.objectweb.asm.commons.FieldRemapper
-cons protected <init>(int,org.objectweb.asm.FieldVisitor,org.objectweb.asm.commons.Remapper)
-cons public <init>(org.objectweb.asm.FieldVisitor,org.objectweb.asm.commons.Remapper)
+cons protected init(int,org.objectweb.asm.FieldVisitor,org.objectweb.asm.commons.Remapper)
+cons public init(org.objectweb.asm.FieldVisitor,org.objectweb.asm.commons.Remapper)
 meth public org.objectweb.asm.AnnotationVisitor visitAnnotation(java.lang.String,boolean)
 meth public org.objectweb.asm.AnnotationVisitor visitTypeAnnotation(int,org.objectweb.asm.TypePath,java.lang.String,boolean)
 supr org.objectweb.asm.FieldVisitor
 hfds remapper
 
 CLSS public org.objectweb.asm.commons.GeneratorAdapter
-cons protected <init>(int,org.objectweb.asm.MethodVisitor,int,java.lang.String,java.lang.String)
-cons public <init>(int,org.objectweb.asm.commons.Method,java.lang.String,org.objectweb.asm.Type[],org.objectweb.asm.ClassVisitor)
-cons public <init>(int,org.objectweb.asm.commons.Method,org.objectweb.asm.MethodVisitor)
-cons public <init>(org.objectweb.asm.MethodVisitor,int,java.lang.String,java.lang.String)
+cons protected init(int,org.objectweb.asm.MethodVisitor,int,java.lang.String,java.lang.String)
+cons public init(int,org.objectweb.asm.commons.Method,java.lang.String,org.objectweb.asm.Type[],org.objectweb.asm.ClassVisitor)
+cons public init(int,org.objectweb.asm.commons.Method,org.objectweb.asm.MethodVisitor)
+cons public init(org.objectweb.asm.MethodVisitor,int,java.lang.String,java.lang.String)
 fld public final static int ADD = 96
 fld public final static int AND = 126
 fld public final static int DIV = 108
@@ -776,8 +776,8 @@ supr org.objectweb.asm.commons.LocalVariablesSorter
 hfds BOOLEAN_TYPE,BOOLEAN_VALUE,BYTE_TYPE,CHARACTER_TYPE,CHAR_VALUE,CLDESC,DOUBLE_TYPE,DOUBLE_VALUE,FLOAT_TYPE,FLOAT_VALUE,INTEGER_TYPE,INT_VALUE,LONG_TYPE,LONG_VALUE,NUMBER_TYPE,OBJECT_TYPE,SHORT_TYPE,access,argumentTypes,class$org$objectweb$asm$commons$GeneratorAdapter,localTypes,returnType
 
 CLSS public org.objectweb.asm.commons.InstructionAdapter
-cons protected <init>(int,org.objectweb.asm.MethodVisitor)
-cons public <init>(org.objectweb.asm.MethodVisitor)
+cons protected init(int,org.objectweb.asm.MethodVisitor)
+cons public init(org.objectweb.asm.MethodVisitor)
 fld public final static org.objectweb.asm.Type OBJECT_TYPE
 meth public !varargs void tableswitch(int,int,org.objectweb.asm.Label,org.objectweb.asm.Label[])
 meth public !varargs void visitInvokeDynamicInsn(java.lang.String,java.lang.String,org.objectweb.asm.Handle,java.lang.Object[])
@@ -880,8 +880,8 @@ supr org.objectweb.asm.MethodVisitor
 hfds class$org$objectweb$asm$commons$InstructionAdapter
 
 CLSS public org.objectweb.asm.commons.JSRInlinerAdapter
-cons protected <init>(int,org.objectweb.asm.MethodVisitor,int,java.lang.String,java.lang.String,java.lang.String,java.lang.String[])
-cons public <init>(org.objectweb.asm.MethodVisitor,int,java.lang.String,java.lang.String,java.lang.String,java.lang.String[])
+cons protected init(int,org.objectweb.asm.MethodVisitor,int,java.lang.String,java.lang.String,java.lang.String,java.lang.String[])
+cons public init(org.objectweb.asm.MethodVisitor,int,java.lang.String,java.lang.String,java.lang.String,java.lang.String[])
 intf org.objectweb.asm.Opcodes
 meth public void visitEnd()
 meth public void visitJumpInsn(int,org.objectweb.asm.Label)
@@ -889,8 +889,8 @@ supr org.objectweb.asm.tree.MethodNode
 hfds class$org$objectweb$asm$commons$JSRInlinerAdapter,dualCitizens,mainSubroutine,subroutineHeads
 
 CLSS public org.objectweb.asm.commons.LocalVariablesSorter
-cons protected <init>(int,int,java.lang.String,org.objectweb.asm.MethodVisitor)
-cons public <init>(int,java.lang.String,org.objectweb.asm.MethodVisitor)
+cons protected init(int,int,java.lang.String,org.objectweb.asm.MethodVisitor)
+cons public init(int,java.lang.String,org.objectweb.asm.MethodVisitor)
 fld protected final int firstLocal
 fld protected int nextLocal
 meth protected int newLocalMapping(org.objectweb.asm.Type)
@@ -907,8 +907,8 @@ supr org.objectweb.asm.MethodVisitor
 hfds OBJECT_TYPE,class$org$objectweb$asm$commons$LocalVariablesSorter,mapping,newLocals
 
 CLSS public org.objectweb.asm.commons.Method
-cons public <init>(java.lang.String,java.lang.String)
-cons public <init>(java.lang.String,org.objectweb.asm.Type,org.objectweb.asm.Type[])
+cons public init(java.lang.String,java.lang.String)
+cons public init(java.lang.String,org.objectweb.asm.Type,org.objectweb.asm.Type[])
 meth public boolean equals(java.lang.Object)
 meth public int hashCode()
 meth public java.lang.String getDescriptor()
@@ -924,8 +924,8 @@ supr java.lang.Object
 hfds DESCRIPTORS,desc,name
 
 CLSS public org.objectweb.asm.commons.MethodRemapper
-cons protected <init>(int,org.objectweb.asm.MethodVisitor,org.objectweb.asm.commons.Remapper)
-cons public <init>(org.objectweb.asm.MethodVisitor,org.objectweb.asm.commons.Remapper)
+cons protected init(int,org.objectweb.asm.MethodVisitor,org.objectweb.asm.commons.Remapper)
+cons public init(org.objectweb.asm.MethodVisitor,org.objectweb.asm.commons.Remapper)
 fld protected final org.objectweb.asm.commons.Remapper remapper
 meth public !varargs void visitInvokeDynamicInsn(java.lang.String,java.lang.String,org.objectweb.asm.Handle,java.lang.Object[])
 meth public org.objectweb.asm.AnnotationVisitor visitAnnotation(java.lang.String,boolean)
@@ -947,7 +947,7 @@ meth public void visitTypeInsn(int,java.lang.String)
 supr org.objectweb.asm.MethodVisitor
 
 CLSS public abstract org.objectweb.asm.commons.Remapper
-cons public <init>()
+cons public init()
 meth protected org.objectweb.asm.signature.SignatureVisitor createRemappingSignatureAdapter(org.objectweb.asm.signature.SignatureVisitor)
 meth protected org.objectweb.asm.signature.SignatureVisitor createSignatureRemapper(org.objectweb.asm.signature.SignatureVisitor)
 meth public java.lang.Object mapValue(java.lang.Object)
@@ -963,8 +963,8 @@ meth public java.lang.String[] mapTypes(java.lang.String[])
 supr java.lang.Object
 
 CLSS public org.objectweb.asm.commons.RemappingAnnotationAdapter
-cons protected <init>(int,org.objectweb.asm.AnnotationVisitor,org.objectweb.asm.commons.Remapper)
-cons public <init>(org.objectweb.asm.AnnotationVisitor,org.objectweb.asm.commons.Remapper)
+cons protected init(int,org.objectweb.asm.AnnotationVisitor,org.objectweb.asm.commons.Remapper)
+cons public init(org.objectweb.asm.AnnotationVisitor,org.objectweb.asm.commons.Remapper)
 fld protected final org.objectweb.asm.commons.Remapper remapper
 meth public org.objectweb.asm.AnnotationVisitor visitAnnotation(java.lang.String,java.lang.String)
 meth public org.objectweb.asm.AnnotationVisitor visitArray(java.lang.String)
@@ -973,8 +973,8 @@ meth public void visitEnum(java.lang.String,java.lang.String,java.lang.String)
 supr org.objectweb.asm.AnnotationVisitor
 
 CLSS public org.objectweb.asm.commons.RemappingClassAdapter
-cons protected <init>(int,org.objectweb.asm.ClassVisitor,org.objectweb.asm.commons.Remapper)
-cons public <init>(org.objectweb.asm.ClassVisitor,org.objectweb.asm.commons.Remapper)
+cons protected init(int,org.objectweb.asm.ClassVisitor,org.objectweb.asm.commons.Remapper)
+cons public init(org.objectweb.asm.ClassVisitor,org.objectweb.asm.commons.Remapper)
 fld protected final org.objectweb.asm.commons.Remapper remapper
 fld protected java.lang.String className
 meth protected org.objectweb.asm.AnnotationVisitor createRemappingAnnotationAdapter(org.objectweb.asm.AnnotationVisitor)
@@ -990,16 +990,16 @@ meth public void visitOuterClass(java.lang.String,java.lang.String,java.lang.Str
 supr org.objectweb.asm.ClassVisitor
 
 CLSS public org.objectweb.asm.commons.RemappingFieldAdapter
-cons protected <init>(int,org.objectweb.asm.FieldVisitor,org.objectweb.asm.commons.Remapper)
-cons public <init>(org.objectweb.asm.FieldVisitor,org.objectweb.asm.commons.Remapper)
+cons protected init(int,org.objectweb.asm.FieldVisitor,org.objectweb.asm.commons.Remapper)
+cons public init(org.objectweb.asm.FieldVisitor,org.objectweb.asm.commons.Remapper)
 meth public org.objectweb.asm.AnnotationVisitor visitAnnotation(java.lang.String,boolean)
 meth public org.objectweb.asm.AnnotationVisitor visitTypeAnnotation(int,org.objectweb.asm.TypePath,java.lang.String,boolean)
 supr org.objectweb.asm.FieldVisitor
 hfds remapper
 
 CLSS public org.objectweb.asm.commons.RemappingMethodAdapter
-cons protected <init>(int,int,java.lang.String,org.objectweb.asm.MethodVisitor,org.objectweb.asm.commons.Remapper)
-cons public <init>(int,java.lang.String,org.objectweb.asm.MethodVisitor,org.objectweb.asm.commons.Remapper)
+cons protected init(int,int,java.lang.String,org.objectweb.asm.MethodVisitor,org.objectweb.asm.commons.Remapper)
+cons public init(int,java.lang.String,org.objectweb.asm.MethodVisitor,org.objectweb.asm.commons.Remapper)
 fld protected final org.objectweb.asm.commons.Remapper remapper
 meth public !varargs void visitInvokeDynamicInsn(java.lang.String,java.lang.String,org.objectweb.asm.Handle,java.lang.Object[])
 meth public org.objectweb.asm.AnnotationVisitor visitAnnotation(java.lang.String,boolean)
@@ -1021,8 +1021,8 @@ meth public void visitTypeInsn(int,java.lang.String)
 supr org.objectweb.asm.commons.LocalVariablesSorter
 
 CLSS public org.objectweb.asm.commons.RemappingSignatureAdapter
-cons protected <init>(int,org.objectweb.asm.signature.SignatureVisitor,org.objectweb.asm.commons.Remapper)
-cons public <init>(org.objectweb.asm.signature.SignatureVisitor,org.objectweb.asm.commons.Remapper)
+cons protected init(int,org.objectweb.asm.signature.SignatureVisitor,org.objectweb.asm.commons.Remapper)
+cons public init(org.objectweb.asm.signature.SignatureVisitor,org.objectweb.asm.commons.Remapper)
 meth public org.objectweb.asm.signature.SignatureVisitor visitArrayType()
 meth public org.objectweb.asm.signature.SignatureVisitor visitClassBound()
 meth public org.objectweb.asm.signature.SignatureVisitor visitExceptionType()
@@ -1043,8 +1043,8 @@ supr org.objectweb.asm.signature.SignatureVisitor
 hfds className,remapper,v
 
 CLSS public org.objectweb.asm.commons.SerialVersionUIDAdder
-cons protected <init>(int,org.objectweb.asm.ClassVisitor)
-cons public <init>(org.objectweb.asm.ClassVisitor)
+cons protected init(int,org.objectweb.asm.ClassVisitor)
+cons public init(org.objectweb.asm.ClassVisitor)
 meth protected byte[] computeSHAdigest(byte[])
 meth protected long computeSVUID() throws java.io.IOException
 meth protected void addSVUID(long)
@@ -1058,8 +1058,8 @@ supr org.objectweb.asm.ClassVisitor
 hfds access,class$org$objectweb$asm$commons$SerialVersionUIDAdder,computeSVUID,hasSVUID,hasStaticInitializer,interfaces,name,svuidConstructors,svuidFields,svuidMethods
 
 CLSS public org.objectweb.asm.commons.SignatureRemapper
-cons protected <init>(int,org.objectweb.asm.signature.SignatureVisitor,org.objectweb.asm.commons.Remapper)
-cons public <init>(org.objectweb.asm.signature.SignatureVisitor,org.objectweb.asm.commons.Remapper)
+cons protected init(int,org.objectweb.asm.signature.SignatureVisitor,org.objectweb.asm.commons.Remapper)
+cons public init(org.objectweb.asm.signature.SignatureVisitor,org.objectweb.asm.commons.Remapper)
 meth public org.objectweb.asm.signature.SignatureVisitor visitArrayType()
 meth public org.objectweb.asm.signature.SignatureVisitor visitClassBound()
 meth public org.objectweb.asm.signature.SignatureVisitor visitExceptionType()
@@ -1080,8 +1080,8 @@ supr org.objectweb.asm.signature.SignatureVisitor
 hfds classNames,remapper,v
 
 CLSS public org.objectweb.asm.commons.SimpleRemapper
-cons public <init>(java.lang.String,java.lang.String)
-cons public <init>(java.util.Map)
+cons public init(java.lang.String,java.lang.String)
+cons public init(java.util.Map)
 meth public java.lang.String map(java.lang.String)
 meth public java.lang.String mapFieldName(java.lang.String,java.lang.String,java.lang.String)
 meth public java.lang.String mapInvokeDynamicMethodName(java.lang.String,java.lang.String)
@@ -1090,8 +1090,8 @@ supr org.objectweb.asm.commons.Remapper
 hfds mapping
 
 CLSS public org.objectweb.asm.commons.StaticInitMerger
-cons protected <init>(int,java.lang.String,org.objectweb.asm.ClassVisitor)
-cons public <init>(java.lang.String,org.objectweb.asm.ClassVisitor)
+cons protected init(int,java.lang.String,org.objectweb.asm.ClassVisitor)
+cons public init(java.lang.String,org.objectweb.asm.ClassVisitor)
 meth public org.objectweb.asm.MethodVisitor visitMethod(int,java.lang.String,java.lang.String,java.lang.String,java.lang.String[])
 meth public void visit(int,int,java.lang.String,java.lang.String,java.lang.String,java.lang.String[])
 meth public void visitEnd()
@@ -1103,20 +1103,20 @@ meth public abstract void generateCase(int,org.objectweb.asm.Label)
 meth public abstract void generateDefault()
 
 CLSS public org.objectweb.asm.commons.TryCatchBlockSorter
-cons protected <init>(int,org.objectweb.asm.MethodVisitor,int,java.lang.String,java.lang.String,java.lang.String,java.lang.String[])
-cons public <init>(org.objectweb.asm.MethodVisitor,int,java.lang.String,java.lang.String,java.lang.String,java.lang.String[])
+cons protected init(int,org.objectweb.asm.MethodVisitor,int,java.lang.String,java.lang.String,java.lang.String,java.lang.String[])
+cons public init(org.objectweb.asm.MethodVisitor,int,java.lang.String,java.lang.String,java.lang.String,java.lang.String[])
 meth public void visitEnd()
 supr org.objectweb.asm.tree.MethodNode
 
 CLSS public org.objectweb.asm.signature.SignatureReader
-cons public <init>(java.lang.String)
+cons public init(java.lang.String)
 meth public void accept(org.objectweb.asm.signature.SignatureVisitor)
 meth public void acceptType(org.objectweb.asm.signature.SignatureVisitor)
 supr java.lang.Object
 hfds a
 
 CLSS public abstract org.objectweb.asm.signature.SignatureVisitor
-cons public <init>(int)
+cons public init(int)
 fld protected final int api
 fld public final static char EXTENDS = '+'
 fld public final static char INSTANCEOF = '='
@@ -1140,7 +1140,7 @@ meth public void visitTypeVariable(java.lang.String)
 supr java.lang.Object
 
 CLSS public org.objectweb.asm.signature.SignatureWriter
-cons public <init>()
+cons public init()
 meth public java.lang.String toString()
 meth public org.objectweb.asm.signature.SignatureVisitor visitArrayType()
 meth public org.objectweb.asm.signature.SignatureVisitor visitClassBound()
@@ -1162,7 +1162,7 @@ supr org.objectweb.asm.signature.SignatureVisitor
 hfds a,b,c,d
 
 CLSS public abstract org.objectweb.asm.tree.AbstractInsnNode
-cons protected <init>(int)
+cons protected init(int)
 fld protected int opcode
 fld public final static int FIELD_INSN = 4
 fld public final static int FRAME = 14
@@ -1194,8 +1194,8 @@ supr java.lang.Object
 hfds index,next,prev
 
 CLSS public org.objectweb.asm.tree.AnnotationNode
-cons public <init>(int,java.lang.String)
-cons public <init>(java.lang.String)
+cons public init(int,java.lang.String)
+cons public init(java.lang.String)
 fld public java.lang.String desc
 fld public java.util.List values
 meth public org.objectweb.asm.AnnotationVisitor visitAnnotation(java.lang.String,java.lang.String)
@@ -1209,8 +1209,8 @@ supr org.objectweb.asm.AnnotationVisitor
 hfds class$org$objectweb$asm$tree$AnnotationNode
 
 CLSS public org.objectweb.asm.tree.ClassNode
-cons public <init>()
-cons public <init>(int)
+cons public init()
+cons public init(int)
 fld public int access
 fld public int version
 fld public java.lang.String name
@@ -1246,7 +1246,7 @@ supr org.objectweb.asm.ClassVisitor
 hfds class$org$objectweb$asm$tree$ClassNode
 
 CLSS public org.objectweb.asm.tree.FieldInsnNode
-cons public <init>(int,java.lang.String,java.lang.String,java.lang.String)
+cons public init(int,java.lang.String,java.lang.String,java.lang.String)
 fld public java.lang.String desc
 fld public java.lang.String name
 fld public java.lang.String owner
@@ -1257,8 +1257,8 @@ meth public void setOpcode(int)
 supr org.objectweb.asm.tree.AbstractInsnNode
 
 CLSS public org.objectweb.asm.tree.FieldNode
-cons public <init>(int,int,java.lang.String,java.lang.String,java.lang.String,java.lang.Object)
-cons public <init>(int,java.lang.String,java.lang.String,java.lang.String,java.lang.Object)
+cons public init(int,int,java.lang.String,java.lang.String,java.lang.String,java.lang.Object)
+cons public init(int,java.lang.String,java.lang.String,java.lang.String,java.lang.Object)
 fld public int access
 fld public java.lang.Object value
 fld public java.lang.String desc
@@ -1279,7 +1279,7 @@ supr org.objectweb.asm.FieldVisitor
 hfds class$org$objectweb$asm$tree$FieldNode
 
 CLSS public org.objectweb.asm.tree.FrameNode
-cons public <init>(int,int,java.lang.Object[],int,java.lang.Object[])
+cons public init(int,int,java.lang.Object[],int,java.lang.Object[])
 fld public int type
 fld public java.util.List local
 fld public java.util.List stack
@@ -1289,7 +1289,7 @@ meth public void accept(org.objectweb.asm.MethodVisitor)
 supr org.objectweb.asm.tree.AbstractInsnNode
 
 CLSS public org.objectweb.asm.tree.IincInsnNode
-cons public <init>(int,int)
+cons public init(int,int)
 fld public int incr
 fld public int var
 meth public int getType()
@@ -1298,7 +1298,7 @@ meth public void accept(org.objectweb.asm.MethodVisitor)
 supr org.objectweb.asm.tree.AbstractInsnNode
 
 CLSS public org.objectweb.asm.tree.InnerClassNode
-cons public <init>(java.lang.String,java.lang.String,java.lang.String,int)
+cons public init(java.lang.String,java.lang.String,java.lang.String,int)
 fld public int access
 fld public java.lang.String innerName
 fld public java.lang.String name
@@ -1307,7 +1307,7 @@ meth public void accept(org.objectweb.asm.ClassVisitor)
 supr java.lang.Object
 
 CLSS public org.objectweb.asm.tree.InsnList
-cons public <init>()
+cons public init()
 meth public boolean contains(org.objectweb.asm.tree.AbstractInsnNode)
 meth public int indexOf(org.objectweb.asm.tree.AbstractInsnNode)
 meth public int size()
@@ -1334,14 +1334,14 @@ supr java.lang.Object
 hfds cache,first,last,size
 
 CLSS public org.objectweb.asm.tree.InsnNode
-cons public <init>(int)
+cons public init(int)
 meth public int getType()
 meth public org.objectweb.asm.tree.AbstractInsnNode clone(java.util.Map)
 meth public void accept(org.objectweb.asm.MethodVisitor)
 supr org.objectweb.asm.tree.AbstractInsnNode
 
 CLSS public org.objectweb.asm.tree.IntInsnNode
-cons public <init>(int,int)
+cons public init(int,int)
 fld public int operand
 meth public int getType()
 meth public org.objectweb.asm.tree.AbstractInsnNode clone(java.util.Map)
@@ -1350,7 +1350,7 @@ meth public void setOpcode(int)
 supr org.objectweb.asm.tree.AbstractInsnNode
 
 CLSS public org.objectweb.asm.tree.InvokeDynamicInsnNode
-cons public !varargs <init>(java.lang.String,java.lang.String,org.objectweb.asm.Handle,java.lang.Object[])
+cons public !varargs init(java.lang.String,java.lang.String,org.objectweb.asm.Handle,java.lang.Object[])
 fld public java.lang.Object[] bsmArgs
 fld public java.lang.String desc
 fld public java.lang.String name
@@ -1361,7 +1361,7 @@ meth public void accept(org.objectweb.asm.MethodVisitor)
 supr org.objectweb.asm.tree.AbstractInsnNode
 
 CLSS public org.objectweb.asm.tree.JumpInsnNode
-cons public <init>(int,org.objectweb.asm.tree.LabelNode)
+cons public init(int,org.objectweb.asm.tree.LabelNode)
 fld public org.objectweb.asm.tree.LabelNode label
 meth public int getType()
 meth public org.objectweb.asm.tree.AbstractInsnNode clone(java.util.Map)
@@ -1370,8 +1370,8 @@ meth public void setOpcode(int)
 supr org.objectweb.asm.tree.AbstractInsnNode
 
 CLSS public org.objectweb.asm.tree.LabelNode
-cons public <init>()
-cons public <init>(org.objectweb.asm.Label)
+cons public init()
+cons public init(org.objectweb.asm.Label)
 meth public int getType()
 meth public org.objectweb.asm.Label getLabel()
 meth public org.objectweb.asm.tree.AbstractInsnNode clone(java.util.Map)
@@ -1381,7 +1381,7 @@ supr org.objectweb.asm.tree.AbstractInsnNode
 hfds label
 
 CLSS public org.objectweb.asm.tree.LdcInsnNode
-cons public <init>(java.lang.Object)
+cons public init(java.lang.Object)
 fld public java.lang.Object cst
 meth public int getType()
 meth public org.objectweb.asm.tree.AbstractInsnNode clone(java.util.Map)
@@ -1389,7 +1389,7 @@ meth public void accept(org.objectweb.asm.MethodVisitor)
 supr org.objectweb.asm.tree.AbstractInsnNode
 
 CLSS public org.objectweb.asm.tree.LineNumberNode
-cons public <init>(int,org.objectweb.asm.tree.LabelNode)
+cons public init(int,org.objectweb.asm.tree.LabelNode)
 fld public int line
 fld public org.objectweb.asm.tree.LabelNode start
 meth public int getType()
@@ -1398,8 +1398,8 @@ meth public void accept(org.objectweb.asm.MethodVisitor)
 supr org.objectweb.asm.tree.AbstractInsnNode
 
 CLSS public org.objectweb.asm.tree.LocalVariableAnnotationNode
-cons public <init>(int,int,org.objectweb.asm.TypePath,org.objectweb.asm.tree.LabelNode[],org.objectweb.asm.tree.LabelNode[],int[],java.lang.String)
-cons public <init>(int,org.objectweb.asm.TypePath,org.objectweb.asm.tree.LabelNode[],org.objectweb.asm.tree.LabelNode[],int[],java.lang.String)
+cons public init(int,int,org.objectweb.asm.TypePath,org.objectweb.asm.tree.LabelNode[],org.objectweb.asm.tree.LabelNode[],int[],java.lang.String)
+cons public init(int,org.objectweb.asm.TypePath,org.objectweb.asm.tree.LabelNode[],org.objectweb.asm.tree.LabelNode[],int[],java.lang.String)
 fld public java.util.List end
 fld public java.util.List index
 fld public java.util.List start
@@ -1407,7 +1407,7 @@ meth public void accept(org.objectweb.asm.MethodVisitor,boolean)
 supr org.objectweb.asm.tree.TypeAnnotationNode
 
 CLSS public org.objectweb.asm.tree.LocalVariableNode
-cons public <init>(java.lang.String,java.lang.String,java.lang.String,org.objectweb.asm.tree.LabelNode,org.objectweb.asm.tree.LabelNode,int)
+cons public init(java.lang.String,java.lang.String,java.lang.String,org.objectweb.asm.tree.LabelNode,org.objectweb.asm.tree.LabelNode,int)
 fld public int index
 fld public java.lang.String desc
 fld public java.lang.String name
@@ -1418,7 +1418,7 @@ meth public void accept(org.objectweb.asm.MethodVisitor)
 supr java.lang.Object
 
 CLSS public org.objectweb.asm.tree.LookupSwitchInsnNode
-cons public <init>(org.objectweb.asm.tree.LabelNode,int[],org.objectweb.asm.tree.LabelNode[])
+cons public init(org.objectweb.asm.tree.LabelNode,int[],org.objectweb.asm.tree.LabelNode[])
 fld public java.util.List keys
 fld public java.util.List labels
 fld public org.objectweb.asm.tree.LabelNode dflt
@@ -1428,8 +1428,8 @@ meth public void accept(org.objectweb.asm.MethodVisitor)
 supr org.objectweb.asm.tree.AbstractInsnNode
 
 CLSS public org.objectweb.asm.tree.MethodInsnNode
-cons public <init>(int,java.lang.String,java.lang.String,java.lang.String)
-cons public <init>(int,java.lang.String,java.lang.String,java.lang.String,boolean)
+cons public init(int,java.lang.String,java.lang.String,java.lang.String)
+cons public init(int,java.lang.String,java.lang.String,java.lang.String,boolean)
 fld public boolean itf
 fld public java.lang.String desc
 fld public java.lang.String name
@@ -1441,10 +1441,10 @@ meth public void setOpcode(int)
 supr org.objectweb.asm.tree.AbstractInsnNode
 
 CLSS public org.objectweb.asm.tree.MethodNode
-cons public <init>()
-cons public <init>(int)
-cons public <init>(int,int,java.lang.String,java.lang.String,java.lang.String,java.lang.String[])
-cons public <init>(int,java.lang.String,java.lang.String,java.lang.String,java.lang.String[])
+cons public init()
+cons public init(int)
+cons public init(int,int,java.lang.String,java.lang.String,java.lang.String,java.lang.String[])
+cons public init(int,java.lang.String,java.lang.String,java.lang.String,java.lang.String[])
 fld public int access
 fld public int maxLocals
 fld public int maxStack
@@ -1505,7 +1505,7 @@ supr org.objectweb.asm.MethodVisitor
 hfds class$org$objectweb$asm$tree$MethodNode,visited
 
 CLSS public org.objectweb.asm.tree.MultiANewArrayInsnNode
-cons public <init>(java.lang.String,int)
+cons public init(java.lang.String,int)
 fld public int dims
 fld public java.lang.String desc
 meth public int getType()
@@ -1514,14 +1514,14 @@ meth public void accept(org.objectweb.asm.MethodVisitor)
 supr org.objectweb.asm.tree.AbstractInsnNode
 
 CLSS public org.objectweb.asm.tree.ParameterNode
-cons public <init>(java.lang.String,int)
+cons public init(java.lang.String,int)
 fld public int access
 fld public java.lang.String name
 meth public void accept(org.objectweb.asm.MethodVisitor)
 supr java.lang.Object
 
 CLSS public org.objectweb.asm.tree.TableSwitchInsnNode
-cons public !varargs <init>(int,int,org.objectweb.asm.tree.LabelNode,org.objectweb.asm.tree.LabelNode[])
+cons public !varargs init(int,int,org.objectweb.asm.tree.LabelNode,org.objectweb.asm.tree.LabelNode[])
 fld public int max
 fld public int min
 fld public java.util.List labels
@@ -1532,7 +1532,7 @@ meth public void accept(org.objectweb.asm.MethodVisitor)
 supr org.objectweb.asm.tree.AbstractInsnNode
 
 CLSS public org.objectweb.asm.tree.TryCatchBlockNode
-cons public <init>(org.objectweb.asm.tree.LabelNode,org.objectweb.asm.tree.LabelNode,org.objectweb.asm.tree.LabelNode,java.lang.String)
+cons public init(org.objectweb.asm.tree.LabelNode,org.objectweb.asm.tree.LabelNode,org.objectweb.asm.tree.LabelNode,java.lang.String)
 fld public java.lang.String type
 fld public java.util.List invisibleTypeAnnotations
 fld public java.util.List visibleTypeAnnotations
@@ -1544,15 +1544,15 @@ meth public void updateIndex(int)
 supr java.lang.Object
 
 CLSS public org.objectweb.asm.tree.TypeAnnotationNode
-cons public <init>(int,int,org.objectweb.asm.TypePath,java.lang.String)
-cons public <init>(int,org.objectweb.asm.TypePath,java.lang.String)
+cons public init(int,int,org.objectweb.asm.TypePath,java.lang.String)
+cons public init(int,org.objectweb.asm.TypePath,java.lang.String)
 fld public int typeRef
 fld public org.objectweb.asm.TypePath typePath
 supr org.objectweb.asm.tree.AnnotationNode
 hfds class$org$objectweb$asm$tree$TypeAnnotationNode
 
 CLSS public org.objectweb.asm.tree.TypeInsnNode
-cons public <init>(int,java.lang.String)
+cons public init(int,java.lang.String)
 fld public java.lang.String desc
 meth public int getType()
 meth public org.objectweb.asm.tree.AbstractInsnNode clone(java.util.Map)
@@ -1561,7 +1561,7 @@ meth public void setOpcode(int)
 supr org.objectweb.asm.tree.AbstractInsnNode
 
 CLSS public org.objectweb.asm.tree.VarInsnNode
-cons public <init>(int,int)
+cons public init(int,int)
 fld public int var
 meth public int getType()
 meth public org.objectweb.asm.tree.AbstractInsnNode clone(java.util.Map)
@@ -1570,7 +1570,7 @@ meth public void setOpcode(int)
 supr org.objectweb.asm.tree.AbstractInsnNode
 
 CLSS public org.objectweb.asm.tree.analysis.Analyzer
-cons public <init>(org.objectweb.asm.tree.analysis.Interpreter)
+cons public init(org.objectweb.asm.tree.analysis.Interpreter)
 intf org.objectweb.asm.Opcodes
 meth protected boolean newControlFlowExceptionEdge(int,int)
 meth protected boolean newControlFlowExceptionEdge(int,org.objectweb.asm.tree.TryCatchBlockNode)
@@ -1585,15 +1585,15 @@ supr java.lang.Object
 hfds frames,handlers,insns,interpreter,n,queue,queued,subroutines,top
 
 CLSS public org.objectweb.asm.tree.analysis.AnalyzerException
-cons public <init>(org.objectweb.asm.tree.AbstractInsnNode,java.lang.String)
-cons public <init>(org.objectweb.asm.tree.AbstractInsnNode,java.lang.String,java.lang.Object,org.objectweb.asm.tree.analysis.Value)
-cons public <init>(org.objectweb.asm.tree.AbstractInsnNode,java.lang.String,java.lang.Throwable)
+cons public init(org.objectweb.asm.tree.AbstractInsnNode,java.lang.String)
+cons public init(org.objectweb.asm.tree.AbstractInsnNode,java.lang.String,java.lang.Object,org.objectweb.asm.tree.analysis.Value)
+cons public init(org.objectweb.asm.tree.AbstractInsnNode,java.lang.String,java.lang.Throwable)
 fld public final org.objectweb.asm.tree.AbstractInsnNode node
 supr java.lang.Exception
 
 CLSS public org.objectweb.asm.tree.analysis.BasicInterpreter
-cons protected <init>(int)
-cons public <init>()
+cons protected init(int)
+cons public init()
 intf org.objectweb.asm.Opcodes
 meth public org.objectweb.asm.tree.analysis.BasicValue binaryOperation(org.objectweb.asm.tree.AbstractInsnNode,org.objectweb.asm.tree.analysis.BasicValue,org.objectweb.asm.tree.analysis.BasicValue) throws org.objectweb.asm.tree.analysis.AnalyzerException
 meth public org.objectweb.asm.tree.analysis.BasicValue copyOperation(org.objectweb.asm.tree.AbstractInsnNode,org.objectweb.asm.tree.analysis.BasicValue) throws org.objectweb.asm.tree.analysis.AnalyzerException
@@ -1613,7 +1613,7 @@ meth public void returnOperation(org.objectweb.asm.tree.AbstractInsnNode,org.obj
 supr org.objectweb.asm.tree.analysis.Interpreter
 
 CLSS public org.objectweb.asm.tree.analysis.BasicValue
-cons public <init>(org.objectweb.asm.Type)
+cons public init(org.objectweb.asm.Type)
 fld public final static org.objectweb.asm.tree.analysis.BasicValue DOUBLE_VALUE
 fld public final static org.objectweb.asm.tree.analysis.BasicValue FLOAT_VALUE
 fld public final static org.objectweb.asm.tree.analysis.BasicValue INT_VALUE
@@ -1632,8 +1632,8 @@ supr java.lang.Object
 hfds type
 
 CLSS public org.objectweb.asm.tree.analysis.BasicVerifier
-cons protected <init>(int)
-cons public <init>()
+cons protected init(int)
+cons public init()
 meth protected boolean isArrayValue(org.objectweb.asm.tree.analysis.BasicValue)
 meth protected boolean isSubTypeOf(org.objectweb.asm.tree.analysis.BasicValue,org.objectweb.asm.tree.analysis.BasicValue)
 meth protected org.objectweb.asm.tree.analysis.BasicValue getElementValue(org.objectweb.asm.tree.analysis.BasicValue) throws org.objectweb.asm.tree.analysis.AnalyzerException
@@ -1650,8 +1650,8 @@ meth public void returnOperation(org.objectweb.asm.tree.AbstractInsnNode,org.obj
 supr org.objectweb.asm.tree.analysis.BasicInterpreter
 
 CLSS public org.objectweb.asm.tree.analysis.Frame
-cons public <init>(int,int)
-cons public <init>(org.objectweb.asm.tree.analysis.Frame)
+cons public init(int,int)
+cons public init(org.objectweb.asm.tree.analysis.Frame)
 meth public boolean merge(org.objectweb.asm.tree.analysis.Frame,boolean[])
 meth public boolean merge(org.objectweb.asm.tree.analysis.Frame,org.objectweb.asm.tree.analysis.Interpreter) throws org.objectweb.asm.tree.analysis.AnalyzerException
 meth public int getLocals()
@@ -1671,7 +1671,7 @@ supr java.lang.Object
 hfds locals,returnValue,top,values
 
 CLSS public abstract org.objectweb.asm.tree.analysis.Interpreter
-cons protected <init>(int)
+cons protected init(int)
 fld protected final int api
 meth public abstract org.objectweb.asm.tree.analysis.Value binaryOperation(org.objectweb.asm.tree.AbstractInsnNode,org.objectweb.asm.tree.analysis.Value,org.objectweb.asm.tree.analysis.Value) throws org.objectweb.asm.tree.analysis.AnalyzerException
 meth public abstract org.objectweb.asm.tree.analysis.Value copyOperation(org.objectweb.asm.tree.AbstractInsnNode,org.objectweb.asm.tree.analysis.Value) throws org.objectweb.asm.tree.analysis.AnalyzerException
@@ -1685,10 +1685,10 @@ meth public abstract void returnOperation(org.objectweb.asm.tree.AbstractInsnNod
 supr java.lang.Object
 
 CLSS public org.objectweb.asm.tree.analysis.SimpleVerifier
-cons protected <init>(int,org.objectweb.asm.Type,org.objectweb.asm.Type,java.util.List,boolean)
-cons public <init>()
-cons public <init>(org.objectweb.asm.Type,org.objectweb.asm.Type,boolean)
-cons public <init>(org.objectweb.asm.Type,org.objectweb.asm.Type,java.util.List,boolean)
+cons protected init(int,org.objectweb.asm.Type,org.objectweb.asm.Type,java.util.List,boolean)
+cons public init()
+cons public init(org.objectweb.asm.Type,org.objectweb.asm.Type,boolean)
+cons public init(org.objectweb.asm.Type,org.objectweb.asm.Type,java.util.List,boolean)
 meth protected boolean isArrayValue(org.objectweb.asm.tree.analysis.BasicValue)
 meth protected boolean isAssignableFrom(org.objectweb.asm.Type,org.objectweb.asm.Type)
 meth protected boolean isInterface(org.objectweb.asm.Type)
@@ -1703,8 +1703,8 @@ supr org.objectweb.asm.tree.analysis.BasicVerifier
 hfds class$java$lang$Object,currentClass,currentClassInterfaces,currentSuperClass,isInterface,loader
 
 CLSS public org.objectweb.asm.tree.analysis.SourceInterpreter
-cons protected <init>(int)
-cons public <init>()
+cons protected init(int)
+cons public init()
 intf org.objectweb.asm.Opcodes
 meth public org.objectweb.asm.tree.analysis.SourceValue binaryOperation(org.objectweb.asm.tree.AbstractInsnNode,org.objectweb.asm.tree.analysis.SourceValue,org.objectweb.asm.tree.analysis.SourceValue)
 meth public org.objectweb.asm.tree.analysis.SourceValue copyOperation(org.objectweb.asm.tree.AbstractInsnNode,org.objectweb.asm.tree.analysis.SourceValue)
@@ -1724,9 +1724,9 @@ meth public void returnOperation(org.objectweb.asm.tree.AbstractInsnNode,org.obj
 supr org.objectweb.asm.tree.analysis.Interpreter
 
 CLSS public org.objectweb.asm.tree.analysis.SourceValue
-cons public <init>(int)
-cons public <init>(int,java.util.Set)
-cons public <init>(int,org.objectweb.asm.tree.AbstractInsnNode)
+cons public init(int)
+cons public init(int,java.util.Set)
+cons public init(int,org.objectweb.asm.tree.AbstractInsnNode)
 fld public final int size
 fld public final java.util.Set insns
 intf org.objectweb.asm.tree.analysis.Value
@@ -1742,8 +1742,8 @@ CLSS public abstract interface org.objectweb.asm.util.ASMifiable
 meth public abstract void asmify(java.lang.StringBuffer,java.lang.String,java.util.Map)
 
 CLSS public org.objectweb.asm.util.ASMifier
-cons protected <init>(int,java.lang.String,int)
-cons public <init>()
+cons protected init(int,java.lang.String,int)
+cons public init()
 fld protected final int id
 fld protected final java.lang.String name
 fld protected java.util.Map labelNames
@@ -1810,7 +1810,7 @@ supr org.objectweb.asm.util.Printer
 hfds class$org$objectweb$asm$util$ASMifier
 
 CLSS public org.objectweb.asm.util.CheckAnnotationAdapter
-cons public <init>(org.objectweb.asm.AnnotationVisitor)
+cons public init(org.objectweb.asm.AnnotationVisitor)
 meth public org.objectweb.asm.AnnotationVisitor visitAnnotation(java.lang.String,java.lang.String)
 meth public org.objectweb.asm.AnnotationVisitor visitArray(java.lang.String)
 meth public void visit(java.lang.String,java.lang.Object)
@@ -1820,9 +1820,9 @@ supr org.objectweb.asm.AnnotationVisitor
 hfds end,named
 
 CLSS public org.objectweb.asm.util.CheckClassAdapter
-cons protected <init>(int,org.objectweb.asm.ClassVisitor,boolean)
-cons public <init>(org.objectweb.asm.ClassVisitor)
-cons public <init>(org.objectweb.asm.ClassVisitor,boolean)
+cons protected init(int,org.objectweb.asm.ClassVisitor,boolean)
+cons public init(org.objectweb.asm.ClassVisitor)
+cons public init(org.objectweb.asm.ClassVisitor,boolean)
 meth public org.objectweb.asm.AnnotationVisitor visitAnnotation(java.lang.String,boolean)
 meth public org.objectweb.asm.AnnotationVisitor visitTypeAnnotation(int,org.objectweb.asm.TypePath,java.lang.String,boolean)
 meth public org.objectweb.asm.FieldVisitor visitField(int,java.lang.String,java.lang.String,java.lang.String,java.lang.Object)
@@ -1843,8 +1843,8 @@ supr org.objectweb.asm.ClassVisitor
 hfds checkDataFlow,class$org$objectweb$asm$util$CheckClassAdapter,end,labels,outer,source,start,version
 
 CLSS public org.objectweb.asm.util.CheckFieldAdapter
-cons protected <init>(int,org.objectweb.asm.FieldVisitor)
-cons public <init>(org.objectweb.asm.FieldVisitor)
+cons protected init(int,org.objectweb.asm.FieldVisitor)
+cons public init(org.objectweb.asm.FieldVisitor)
 meth public org.objectweb.asm.AnnotationVisitor visitAnnotation(java.lang.String,boolean)
 meth public org.objectweb.asm.AnnotationVisitor visitTypeAnnotation(int,org.objectweb.asm.TypePath,java.lang.String,boolean)
 meth public void visitAttribute(org.objectweb.asm.Attribute)
@@ -1853,10 +1853,10 @@ supr org.objectweb.asm.FieldVisitor
 hfds class$org$objectweb$asm$util$CheckFieldAdapter,end
 
 CLSS public org.objectweb.asm.util.CheckMethodAdapter
-cons protected <init>(int,org.objectweb.asm.MethodVisitor,java.util.Map)
-cons public <init>(int,java.lang.String,java.lang.String,org.objectweb.asm.MethodVisitor,java.util.Map)
-cons public <init>(org.objectweb.asm.MethodVisitor)
-cons public <init>(org.objectweb.asm.MethodVisitor,java.util.Map)
+cons protected init(int,org.objectweb.asm.MethodVisitor,java.util.Map)
+cons public init(int,java.lang.String,java.lang.String,org.objectweb.asm.MethodVisitor,java.util.Map)
+cons public init(org.objectweb.asm.MethodVisitor)
+cons public init(org.objectweb.asm.MethodVisitor,java.util.Map)
 fld public int version
 meth public !varargs void visitInvokeDynamicInsn(java.lang.String,java.lang.String,org.objectweb.asm.Handle,java.lang.Object[])
 meth public !varargs void visitTableSwitchInsn(int,int,org.objectweb.asm.Label,org.objectweb.asm.Label[])
@@ -1893,8 +1893,8 @@ supr org.objectweb.asm.MethodVisitor
 hfds TYPE,access,class$org$objectweb$asm$Label,class$org$objectweb$asm$util$CheckMethodAdapter,compressedFrames,endCode,endMethod,expandedFrames,handlers,insnCount,labelStatusField,labels,lastFrame,startCode,usedLabels
 
 CLSS public org.objectweb.asm.util.CheckSignatureAdapter
-cons protected <init>(int,int,org.objectweb.asm.signature.SignatureVisitor)
-cons public <init>(int,org.objectweb.asm.signature.SignatureVisitor)
+cons protected init(int,int,org.objectweb.asm.signature.SignatureVisitor)
+cons public init(int,org.objectweb.asm.signature.SignatureVisitor)
 fld public final static int CLASS_SIGNATURE = 0
 fld public final static int METHOD_SIGNATURE = 1
 fld public final static int TYPE_SIGNATURE = 2
@@ -1918,7 +1918,7 @@ supr org.objectweb.asm.signature.SignatureVisitor
 hfds canBeVoid,state,sv,type
 
 CLSS public abstract org.objectweb.asm.util.Printer
-cons protected <init>(int)
+cons protected init(int)
 fld protected final int api
 fld protected final java.lang.StringBuffer buf
 fld public final java.util.List text
@@ -1984,8 +1984,8 @@ CLSS public abstract interface org.objectweb.asm.util.Textifiable
 meth public abstract void textify(java.lang.StringBuffer,java.util.Map)
 
 CLSS public org.objectweb.asm.util.Textifier
-cons protected <init>(int)
-cons public <init>()
+cons protected init(int)
+cons public init()
 fld protected java.lang.String ltab
 fld protected java.lang.String tab
 fld protected java.lang.String tab2
@@ -2063,8 +2063,8 @@ supr org.objectweb.asm.util.Printer
 hfds access,class$org$objectweb$asm$util$Textifier,valueNumber
 
 CLSS public final org.objectweb.asm.util.TraceAnnotationVisitor
-cons public <init>(org.objectweb.asm.AnnotationVisitor,org.objectweb.asm.util.Printer)
-cons public <init>(org.objectweb.asm.util.Printer)
+cons public init(org.objectweb.asm.AnnotationVisitor,org.objectweb.asm.util.Printer)
+cons public init(org.objectweb.asm.util.Printer)
 meth public org.objectweb.asm.AnnotationVisitor visitAnnotation(java.lang.String,java.lang.String)
 meth public org.objectweb.asm.AnnotationVisitor visitArray(java.lang.String)
 meth public void visit(java.lang.String,java.lang.Object)
@@ -2074,9 +2074,9 @@ supr org.objectweb.asm.AnnotationVisitor
 hfds p
 
 CLSS public final org.objectweb.asm.util.TraceClassVisitor
-cons public <init>(java.io.PrintWriter)
-cons public <init>(org.objectweb.asm.ClassVisitor,java.io.PrintWriter)
-cons public <init>(org.objectweb.asm.ClassVisitor,org.objectweb.asm.util.Printer,java.io.PrintWriter)
+cons public init(java.io.PrintWriter)
+cons public init(org.objectweb.asm.ClassVisitor,java.io.PrintWriter)
+cons public init(org.objectweb.asm.ClassVisitor,org.objectweb.asm.util.Printer,java.io.PrintWriter)
 fld public final org.objectweb.asm.util.Printer p
 meth public org.objectweb.asm.AnnotationVisitor visitAnnotation(java.lang.String,boolean)
 meth public org.objectweb.asm.AnnotationVisitor visitTypeAnnotation(int,org.objectweb.asm.TypePath,java.lang.String,boolean)
@@ -2092,8 +2092,8 @@ supr org.objectweb.asm.ClassVisitor
 hfds pw
 
 CLSS public final org.objectweb.asm.util.TraceFieldVisitor
-cons public <init>(org.objectweb.asm.FieldVisitor,org.objectweb.asm.util.Printer)
-cons public <init>(org.objectweb.asm.util.Printer)
+cons public init(org.objectweb.asm.FieldVisitor,org.objectweb.asm.util.Printer)
+cons public init(org.objectweb.asm.util.Printer)
 fld public final org.objectweb.asm.util.Printer p
 meth public org.objectweb.asm.AnnotationVisitor visitAnnotation(java.lang.String,boolean)
 meth public org.objectweb.asm.AnnotationVisitor visitTypeAnnotation(int,org.objectweb.asm.TypePath,java.lang.String,boolean)
@@ -2102,8 +2102,8 @@ meth public void visitEnd()
 supr org.objectweb.asm.FieldVisitor
 
 CLSS public final org.objectweb.asm.util.TraceMethodVisitor
-cons public <init>(org.objectweb.asm.MethodVisitor,org.objectweb.asm.util.Printer)
-cons public <init>(org.objectweb.asm.util.Printer)
+cons public init(org.objectweb.asm.MethodVisitor,org.objectweb.asm.util.Printer)
+cons public init(org.objectweb.asm.util.Printer)
 fld public final org.objectweb.asm.util.Printer p
 meth public !varargs void visitInvokeDynamicInsn(java.lang.String,java.lang.String,org.objectweb.asm.Handle,java.lang.Object[])
 meth public !varargs void visitTableSwitchInsn(int,int,org.objectweb.asm.Label,org.objectweb.asm.Label[])
@@ -2139,7 +2139,7 @@ meth public void visitVarInsn(int,int)
 supr org.objectweb.asm.MethodVisitor
 
 CLSS public final org.objectweb.asm.util.TraceSignatureVisitor
-cons public <init>(int)
+cons public init(int)
 meth public java.lang.String getDeclaration()
 meth public java.lang.String getExceptions()
 meth public java.lang.String getReturnType()
@@ -2163,7 +2163,7 @@ supr org.objectweb.asm.signature.SignatureVisitor
 hfds argumentStack,arrayStack,declaration,exceptions,isInterface,returnType,seenFormalParameter,seenInterface,seenInterfaceBound,seenParameter,separator
 
 CLSS public org.objectweb.asm.xml.ASMContentHandler
-cons public <init>(org.objectweb.asm.ClassVisitor)
+cons public init(org.objectweb.asm.ClassVisitor)
 fld protected java.util.Map labels
 fld protected org.objectweb.asm.ClassVisitor cv
 intf org.objectweb.asm.Opcodes
@@ -2173,7 +2173,7 @@ supr org.xml.sax.helpers.DefaultHandler
 hfds BASE,OPCODES,RULES,TYPES,match,stack
 
 CLSS public abstract org.objectweb.asm.xml.ASMContentHandler$Rule
-cons protected <init>(org.objectweb.asm.xml.ASMContentHandler)
+cons protected init(org.objectweb.asm.xml.ASMContentHandler)
 meth protected final int getAccess(java.lang.String)
 meth protected final java.lang.Object getValue(java.lang.String,java.lang.String) throws org.xml.sax.SAXException
 meth protected final org.objectweb.asm.Label getLabel(java.lang.Object)
@@ -2184,7 +2184,7 @@ supr java.lang.Object
 hfds class$org$objectweb$asm$Handle,class$org$objectweb$asm$Type,this$0
 
 CLSS public org.objectweb.asm.xml.Processor
-cons public <init>(int,int,java.io.InputStream,java.io.OutputStream,javax.xml.transform.Source)
+cons public init(int,int,java.io.InputStream,java.io.OutputStream,javax.xml.transform.Source)
 fld public final static int BYTECODE = 1
 fld public final static int MULTI_XML = 2
 fld public final static int SINGLE_XML = 3
@@ -2195,7 +2195,7 @@ supr java.lang.Object
 hfds SINGLE_XML_NAME,inRepresentation,input,n,outRepresentation,output,xslt
 
 CLSS public org.objectweb.asm.xml.SAXAdapter
-cons protected <init>(org.xml.sax.ContentHandler)
+cons protected init(org.xml.sax.ContentHandler)
 meth protected final void addElement(java.lang.String,org.xml.sax.Attributes)
 meth protected final void addEnd(java.lang.String)
 meth protected final void addStart(java.lang.String,org.xml.sax.Attributes)
@@ -2206,12 +2206,12 @@ supr java.lang.Object
 hfds h
 
 CLSS public final org.objectweb.asm.xml.SAXAnnotationAdapter
-cons protected <init>(int,org.objectweb.asm.xml.SAXAdapter,java.lang.String,int,java.lang.String,java.lang.String,int)
-cons protected <init>(int,org.objectweb.asm.xml.SAXAdapter,java.lang.String,int,java.lang.String,java.lang.String,int,int,org.objectweb.asm.TypePath,java.lang.String[],java.lang.String[],int[])
-cons public <init>(org.objectweb.asm.xml.SAXAdapter,java.lang.String,int,int,java.lang.String)
-cons public <init>(org.objectweb.asm.xml.SAXAdapter,java.lang.String,int,java.lang.String,java.lang.String)
-cons public <init>(org.objectweb.asm.xml.SAXAdapter,java.lang.String,int,java.lang.String,java.lang.String,int,org.objectweb.asm.TypePath)
-cons public <init>(org.objectweb.asm.xml.SAXAdapter,java.lang.String,int,java.lang.String,java.lang.String,int,org.objectweb.asm.TypePath,java.lang.String[],java.lang.String[],int[])
+cons protected init(int,org.objectweb.asm.xml.SAXAdapter,java.lang.String,int,java.lang.String,java.lang.String,int)
+cons protected init(int,org.objectweb.asm.xml.SAXAdapter,java.lang.String,int,java.lang.String,java.lang.String,int,int,org.objectweb.asm.TypePath,java.lang.String[],java.lang.String[],int[])
+cons public init(org.objectweb.asm.xml.SAXAdapter,java.lang.String,int,int,java.lang.String)
+cons public init(org.objectweb.asm.xml.SAXAdapter,java.lang.String,int,java.lang.String,java.lang.String)
+cons public init(org.objectweb.asm.xml.SAXAdapter,java.lang.String,int,java.lang.String,java.lang.String,int,org.objectweb.asm.TypePath)
+cons public init(org.objectweb.asm.xml.SAXAdapter,java.lang.String,int,java.lang.String,java.lang.String,int,org.objectweb.asm.TypePath,java.lang.String[],java.lang.String[],int[])
 meth public org.objectweb.asm.AnnotationVisitor visitAnnotation(java.lang.String,java.lang.String)
 meth public org.objectweb.asm.AnnotationVisitor visitArray(java.lang.String)
 meth public void visit(java.lang.String,java.lang.Object)
@@ -2221,7 +2221,7 @@ supr org.objectweb.asm.AnnotationVisitor
 hfds elementName,sa
 
 CLSS public final org.objectweb.asm.xml.SAXClassAdapter
-cons public <init>(org.xml.sax.ContentHandler,boolean)
+cons public init(org.xml.sax.ContentHandler,boolean)
 meth public final void visitEnd()
 meth public final void visitInnerClass(java.lang.String,java.lang.String,java.lang.String,int)
 meth public org.objectweb.asm.AnnotationVisitor visitAnnotation(java.lang.String,boolean)
@@ -2235,7 +2235,7 @@ supr org.objectweb.asm.ClassVisitor
 hfds sa,singleDocument
 
 CLSS public final org.objectweb.asm.xml.SAXCodeAdapter
-cons public <init>(org.objectweb.asm.xml.SAXAdapter,int)
+cons public init(org.objectweb.asm.xml.SAXAdapter,int)
 meth public !varargs final void visitTableSwitchInsn(int,int,org.objectweb.asm.Label,org.objectweb.asm.Label[])
 meth public !varargs void visitInvokeDynamicInsn(java.lang.String,java.lang.String,org.objectweb.asm.Handle,java.lang.Object[])
 meth public final void visitCode()
@@ -2269,7 +2269,7 @@ supr org.objectweb.asm.MethodVisitor
 hfds TYPES,access,labelNames,sa
 
 CLSS public final org.objectweb.asm.xml.SAXFieldAdapter
-cons public <init>(org.objectweb.asm.xml.SAXAdapter,org.xml.sax.Attributes)
+cons public init(org.objectweb.asm.xml.SAXAdapter,org.xml.sax.Attributes)
 meth public org.objectweb.asm.AnnotationVisitor visitAnnotation(java.lang.String,boolean)
 meth public org.objectweb.asm.AnnotationVisitor visitTypeAnnotation(int,org.objectweb.asm.TypePath,java.lang.String,boolean)
 meth public void visitEnd()
@@ -2302,7 +2302,7 @@ meth public abstract void fatalError(org.xml.sax.SAXParseException) throws org.x
 meth public abstract void warning(org.xml.sax.SAXParseException) throws org.xml.sax.SAXException
 
 CLSS public org.xml.sax.helpers.DefaultHandler
-cons public <init>()
+cons public init()
 intf org.xml.sax.ContentHandler
 intf org.xml.sax.DTDHandler
 intf org.xml.sax.EntityResolver

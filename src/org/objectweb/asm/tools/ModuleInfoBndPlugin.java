@@ -1,4 +1,4 @@
-package org.objectweb.asm.optimizer;
+package org.objectweb.asm.tools;
 
 import java.io.PrintWriter;
 

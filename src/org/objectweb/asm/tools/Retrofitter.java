@@ -48,7 +48,6 @@ import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Handle;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
-
 import org.objectweb.asm.Type;
 
 /**
@@ -138,11 +137,15 @@ public class Retrofitter {
             return result;
         } else if (src.getName().endsWith(".class")) {
             if (!dst.exists() || dst.lastModified() < src.lastModified()) {
-                ClassReader classReader = new ClassReader(new FileInputStream(src));
+                ClassReader classReader = new ClassReader(
+                        new FileInputStream(src));
                 ClassWriter classWriter = new ClassWriter(0);
                 // No actual retrofit to do since we compile with target=1.5.
                 ClassVerifier classVerifier = new ClassVerifier(classWriter);
                 classReader.accept(classVerifier, 0);
+                if (!classVerifier.ok) {
+                    return false;
+                }
 
                 if (!dst.getParentFile().exists()
                         && !dst.getParentFile().mkdirs()) {
@@ -155,10 +158,8 @@ public class Retrofitter {
                 } finally {
                     os.close();
                 }
-                return classVerifier.ok;
-            } else {
-                return true;
             }
+            return true;
         } else {
             return true;
         }
@@ -192,11 +193,16 @@ public class Retrofitter {
         public void visit(final int version, final int access,
                 final String name, final String signature,
                 final String superName, final String[] interfaces) {
+            if ((version & 0xFFFF) > Opcodes.V1_5) {
+                System.err.println(
+                        "ERROR: " + name + " version is newer than 1.5");
+                ok = false;
+            }
             className = name;
             super.visit(version, access, name, signature, superName,
                     interfaces);
         }
-        
+
         @Override
         public MethodVisitor visitMethod(final int access, final String name,
                 final String desc, final String signature,
@@ -223,22 +229,25 @@ public class Retrofitter {
                 @Override
                 public void visitLdcInsn(Object cst) {
                     if (cst instanceof Type) {
-                      int sort = ((Type) cst).getSort();
-                      if (sort == Type.METHOD) {
-                          System.err.println("ERROR: ldc with a MethodType called in "
-                                  + className + ' ' + currentMethodName
-                                  + " is not available in JDK 1.5");
-                          ok = false;
-                      }
+                        int sort = ((Type) cst).getSort();
+                        if (sort == Type.METHOD) {
+                            System.err.println(
+                                    "ERROR: ldc with a MethodType called in "
+                                            + className + ' '
+                                            + currentMethodName
+                                            + " is not available in JDK 1.5");
+                            ok = false;
+                        }
                     } else if (cst instanceof Handle) {
-                        System.err.println("ERROR: ldc with a MethodHandle called in "
-                                + className + ' ' + currentMethodName
-                                + " is not available in JDK 1.5");
+                        System.err.println(
+                                "ERROR: ldc with a MethodHandle called in "
+                                        + className + ' ' + currentMethodName
+                                        + " is not available in JDK 1.5");
                         ok = false;
                     }
                     super.visitLdcInsn(cst);
                 }
-                
+
                 @Override
                 public void visitInvokeDynamicInsn(String name, String desc,
                         Handle bsm, Object... bsmArgs) {

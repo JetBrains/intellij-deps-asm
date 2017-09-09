@@ -443,7 +443,7 @@ public class CheckClassAdapter extends ClassVisitor {
         }
         checkAccess(access, Opcodes.ACC_OPEN | Opcodes.ACC_SYNTHETIC);
         return new CheckModuleAdapter(super.visitModule(name, access, version), 
-            (access | Opcodes.ACC_OPEN) != 0);
+            (access & Opcodes.ACC_OPEN) != 0);
     }
     
     @Override

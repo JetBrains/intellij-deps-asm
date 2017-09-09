@@ -37,9 +37,8 @@ package org.objectweb.asm;
  * 
  * The methods {@link #visitRequire(String, int, String)}, {@link #visitExport(String, int, String...)},
  * {@link #visitOpen(String, int, String...)} and {@link #visitPackage(String)}
- * takes as parameter a package name or a module name, unlike the other names which are internal names
- * (names separated by slash), the name of a package or a module are qualified names
- * (names separated by dot).
+ * take as parameter a package name or a module name. Unlike the other names which are internal names
+ * (names separated by slash), module and package names are qualified names (names separated by dot).
  * 
  * @author Remi Forax
  */

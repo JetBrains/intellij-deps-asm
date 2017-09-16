@@ -1,0 +1,4 @@
+Manifest-Version: 1.0
+Created-By: 9 (Oracle Corporation)
+Main-Class: pkg.A
+

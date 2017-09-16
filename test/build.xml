@@ -129,6 +129,9 @@
         debug="on" debuglevel="lines,vars,source">
       <classpath refid="test.classpath"/>
       <include name="**/*.java"/>
+      <exclude name="DefaultPackage/*.java"/>
+      <exclude name="annotations/*.java"/>
+      <exclude name="jdk*/**/*.java"/>
     </javac>
     <delete dir="${out.test}/cases"/>
     <java classname="org.objectweb.asm.test.cases.Generator">

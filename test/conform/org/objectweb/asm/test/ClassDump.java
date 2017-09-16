@@ -37,7 +37,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Stack;
 
@@ -129,7 +128,7 @@ class ClassDump {
      * The constant pool of the input class, used to abstract away its internal
      * representation in the output string.
      */
-    final List<CpInfo> constantPool;
+    final ArrayList<CpInfo> constantPool;
 
     /**
      * An intermediate data structure, used to build the final output string.
@@ -153,7 +152,7 @@ class ClassDump {
      * string. A new map is constructed and assigned to this field for each
      * newly encountered method.
      */
-    Map<Integer, Integer> instructionIndices;
+    HashMap<Integer, Integer> instructionIndices;
 
     /**
      * Creates a new ClassDump instance. The input byte array is parsed and
@@ -214,9 +213,9 @@ class ClassDump {
         }
         parseAttributeList();
 
-        StringBuffer stringBuffer = new StringBuffer();
-        pathToCurrentOutputNode.peek().toString(stringBuffer);
-        return stringBuffer.toString();
+        StringBuilder stringBuilder = new StringBuilder();
+        pathToCurrentOutputNode.peek().toString(stringBuilder);
+        return stringBuilder.toString();
     }
 
     /**
@@ -765,7 +764,6 @@ class ClassDump {
      * @see https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-6.html#jvms-6.5
      */
     private void parseInstructions(int codeLength) throws IOException {
-        instructionIndices.clear();
         int bytecodeOffset = 0; // Number of bytes parsed so far.
         int instructionIndex = 0; // Number of instructions parsed so far.
         while (bytecodeOffset < codeLength) {
@@ -1369,11 +1367,11 @@ class ClassDump {
             throws IOException {
         byte[] attributeData = new byte[attributeLength];
         input.readFully(attributeData);
-        StringBuffer stringBuffer = new StringBuffer();
+        StringBuilder stringBuilder = new StringBuilder();
         for (int i = 0; i < attributeData.length; ++i) {
-            stringBuffer.append(attributeData[i]).append(',');
+            stringBuilder.append(attributeData[i]).append(',');
         }
-        output("debug_extension: ", stringBuffer.toString());
+        output("debug_extension: ", stringBuilder.toString());
     }
 
     /**
@@ -1398,7 +1396,7 @@ class ClassDump {
         int localVariableCount = parseU2("local_variable_table_length: ");
         for (int i = 0; i < localVariableCount; ++i) {
             int startPc = parseU2Label("start_pc: ");
-            parseU2Offset("length: ", startPc);
+            parseU2CodeLength("length: ", startPc);
             parseU2ConstantPoolIndex("name_index: ");
             parseU2ConstantPoolIndex("descriptor_index: ");
             parseU2("index: ");
@@ -1414,7 +1412,7 @@ class ClassDump {
         int localVariableCount = parseU2("local_variable_type_table_length: ");
         for (int i = 0; i < localVariableCount; ++i) {
             int startPc = parseU2Label("start_pc: ");
-            parseU2Offset("length: ", startPc);
+            parseU2CodeLength("length: ", startPc);
             parseU2ConstantPoolIndex("name_index: ");
             parseU2ConstantPoolIndex("signature_index: ");
             parseU2("index: ");
@@ -1487,7 +1485,7 @@ class ClassDump {
             parseAnnotation();
             return;
         case '[':
-            int valueCount = parseU2("@: ");
+            int valueCount = parseU2("[: ");
             for (int i = 0; i < valueCount; ++i) {
                 parseElementValue();
             }
@@ -1597,7 +1595,7 @@ class ClassDump {
             int tableLength = parseU2("table_length: ");
             for (int i = 0; i < tableLength; ++i) {
                 int startPc = parseU2Label("start_pc: ");
-                parseU2Offset("length: ", startPc);
+                parseU2CodeLength("length: ", startPc);
                 parseU2("index: ");
             }
             break;
@@ -1855,36 +1853,38 @@ class ClassDump {
 
     /**
      * Parses an unsigned short containing a bytecode offset (from the start of
-     * the method code).
+     * the method code). Outputs a label corresponding to this offset.
      * 
      * @param name
      *            The symbolic name of this value. Can be null.
      * @return The parsed value.
      */
     private int parseU2Label(String name) throws IOException {
-        int value = input.readUnsignedShort();
+        int bytecodeOffset = input.readUnsignedShort();
         if (name != null) {
-            output(name, newLabel(value));
+            output(name, newLabel(bytecodeOffset));
         }
-        return value;
+        return bytecodeOffset;
     }
 
     /**
-     * Parses an unsigned short containing a bytecode offset (from the given
-     * start position).
+     * Parses an unsigned short containing the length of a bytecode sequence, in
+     * bytes. Outputs a label corresponding to the end of this sequence.
      * 
      * @param name
      *            The symbolic name of this value. Can be null.
-     * @param start
-     *            A bytecode offset from the start of the method code.
+     * @param startOffset
+     *            The start of the bytecode sequence, in bytes from the start of
+     *            the method code.
      * @return The parsed value.
      */
-    private int parseU2Offset(String name, int start) throws IOException {
-        int value = input.readUnsignedShort();
+    private int parseU2CodeLength(String name, int startOffset)
+            throws IOException {
+        int length = input.readUnsignedShort();
         if (name != null) {
-            output(name, newLabel(start + value));
+            output(name, newLabel(startOffset + length));
         }
-        return value;
+        return length;
     }
 
     /**
@@ -1895,11 +1895,11 @@ class ClassDump {
      * @return The constant pool entry at the parsed index.
      */
     private CpInfo parseU1ConstantPoolIndex(String name) throws IOException {
-        CpInfo value = constantPool.get(input.readUnsignedByte());
+        CpInfo cpInfo = constantPool.get(input.readUnsignedByte());
         if (name != null) {
-            output(name, value);
+            output(name, cpInfo);
         }
-        return value;
+        return cpInfo;
     }
 
     /**
@@ -1910,11 +1910,11 @@ class ClassDump {
      * @return The constant pool entry at the parsed index.
      */
     private CpInfo parseU2ConstantPoolIndex(String name) throws IOException {
-        CpInfo value = constantPool.get(input.readUnsignedShort());
+        CpInfo cpInfo = constantPool.get(input.readUnsignedShort());
         if (name != null) {
-            output(name, value);
+            output(name, cpInfo);
         }
-        return value;
+        return cpInfo;
     }
 
     /**
@@ -1926,10 +1926,10 @@ class ClassDump {
      *            A value.
      */
     void output(String name, Object value) {
-        OutputNode currentOutput = pathToCurrentOutputNode.peek();
-        currentOutput.append(name);
-        currentOutput.append(value);
-        currentOutput.append("\n");
+        OutputNode currentOutputNode = pathToCurrentOutputNode.peek();
+        currentOutputNode.append(name);
+        currentOutputNode.append(value);
+        currentOutputNode.append("\n");
     }
 
     /**
@@ -1944,15 +1944,15 @@ class ClassDump {
      *            The arguments of the bytecode instruction.
      */
     void outputInstruction(int index, int opcode, Object... arguments) {
-        OutputNode currentOutput = pathToCurrentOutputNode.peek();
-        currentOutput.append(index);
-        currentOutput.append(": ");
-        currentOutput.append(opcode);
+        OutputNode currentOutputNode = pathToCurrentOutputNode.peek();
+        currentOutputNode.append(index);
+        currentOutputNode.append(": ");
+        currentOutputNode.append(opcode);
         for (Object argument : arguments) {
-            currentOutput.append(" ");
-            currentOutput.append(argument);
+            currentOutputNode.append(" ");
+            currentOutputNode.append(argument);
         }
-        currentOutput.append("\n");
+        currentOutputNode.append("\n");
     }
 
     /**
@@ -1971,14 +1971,14 @@ class ClassDump {
 
         /**
          * Append the string representation of the tree rooted at this node to
-         * the given buffer.
+         * the given builder.
          */
-        void toString(StringBuffer buffer) {
+        void toString(StringBuilder stringBuilder) {
             for (Object child : children) {
                 if (child instanceof OutputNode) {
-                    ((OutputNode) child).toString(buffer);
+                    ((OutputNode) child).toString(stringBuilder);
                 } else {
-                    buffer.append(child);
+                    stringBuilder.append(child);
                 }
             }
         }
@@ -1988,20 +1988,29 @@ class ClassDump {
      * An {@link OutputNode} which sorts its children before computing its
      * string representation. All the children of this node MUST be instances of
      * {@link SortableOutputNode}.
-     *
      */
     static class SortedOutputNode extends OutputNode {
 
         @Override
-        void toString(StringBuffer stringBuffer) {
+        void append(Object child) {
+            if (child instanceof SortableOutputNode) {
+                super.append(child);
+            } else {
+                throw new IllegalArgumentException(
+                        child + " is not a SortableOutputNode");
+            }
+        }
+
+        @Override
+        void toString(StringBuilder stringBuilder) {
             Collections.sort(children, new Comparator<Object>() {
 
-                public int compare(Object arg0, Object arg1) {
-                    return ((SortableOutputNode) arg0).sortingKey
-                            .compareTo(((SortableOutputNode) arg1).sortingKey);
+                public int compare(Object child0, Object child1) {
+                    return ((SortableOutputNode) child0).sortingKey.compareTo(
+                            ((SortableOutputNode) child1).sortingKey);
                 }
             });
-            super.toString(stringBuffer);
+            super.toString(stringBuilder);
         }
     }
 
@@ -2040,13 +2049,13 @@ class ClassDump {
         }
 
         @Override
-        void toString(StringBuffer buffer) {
+        void toString(StringBuilder stringBuilder) {
             Integer instructionIndex = instructionIndices.get(bytecodeOffset);
             if (instructionIndex == null) {
                 throw new RuntimeException(
                         "Invalid bytecode offset:" + bytecodeOffset);
             }
-            buffer.append('<').append(instructionIndex).append('>');
+            stringBuilder.append('<').append(instructionIndex).append('>');
         }
     }
 

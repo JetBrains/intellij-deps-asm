@@ -182,7 +182,7 @@ class ClassDump {
      * 
      * @see https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-4.html#jvms-4.1
      */
-    String parseClassFile() throws IOException {
+    private String parseClassFile() throws IOException {
         parseU4("magic: ");
         parseU2("minor_version: ");
         parseU2("major_version: ");
@@ -281,17 +281,21 @@ class ClassDump {
     }
 
     /** An abstract constant pool entry. */
-    static abstract class CpInfo {
+    private static abstract class CpInfo {
         /** The string representation of this constant. */
-        protected String value;
+        String value;
+
+        // Package-private constructor to avoid a synthetic accessor method.
+        CpInfo() {
+        }
 
         /** Whether this constant uses two entries in the constant pool. */
-        protected boolean useTwoEntries() {
+        boolean useTwoEntries() {
             return false;
         }
 
         /** Computes the string representation of this constant. */
-        protected String computeStringValue() {
+        String computeStringValue() {
             return value;
         }
 
@@ -313,12 +317,12 @@ class ClassDump {
         final int nameIndex;
 
         /** Parses a CONSTANT_Class_info entry. */
-        public ConstantClassInfo() throws IOException {
+        ConstantClassInfo() throws IOException {
             this.nameIndex = parseU2(null);
         }
 
         @Override
-        protected String computeStringValue() {
+        String computeStringValue() {
             return ((ConstantUtf8Info) constantPool.get(nameIndex))
                     .computeStringValue();
         }
@@ -334,13 +338,13 @@ class ClassDump {
         final int nameAndTypeIndex;
 
         /** Parses a CONSTANT_Fieldref_info entry. */
-        public ConstantFieldRefInfo() throws IOException {
+        ConstantFieldRefInfo() throws IOException {
             this.classIndex = parseU2(null);
             this.nameAndTypeIndex = parseU2(null);
         }
 
         @Override
-        protected String computeStringValue() {
+        String computeStringValue() {
             return ((ConstantClassInfo) constantPool.get(classIndex))
                     .computeStringValue() + "."
                     + ((ConstantNameAndTypeInfo) constantPool
@@ -358,13 +362,13 @@ class ClassDump {
         final int nameAndTypeIndex;
 
         /** Parses a CONSTANT_Methodref_info entry. */
-        public ConstantMethodRefInfo() throws IOException {
+        ConstantMethodRefInfo() throws IOException {
             this.classIndex = parseU2(null);
             this.nameAndTypeIndex = parseU2(null);
         }
 
         @Override
-        protected String computeStringValue() {
+        String computeStringValue() {
             return ((ConstantClassInfo) constantPool.get(classIndex))
                     .computeStringValue() + "."
                     + ((ConstantNameAndTypeInfo) constantPool
@@ -382,13 +386,13 @@ class ClassDump {
         final int nameAndTypeIndex;
 
         /** Parses a CONSTANT_InterfaceMethodref_info entry. */
-        public ConstantInterfaceMethodRefInfo() throws IOException {
+        ConstantInterfaceMethodRefInfo() throws IOException {
             this.classIndex = parseU2(null);
             this.nameAndTypeIndex = parseU2(null);
         }
 
         @Override
-        protected String computeStringValue() {
+        String computeStringValue() {
             return ((ConstantClassInfo) constantPool.get(classIndex))
                     .computeStringValue() + "."
                     + ((ConstantNameAndTypeInfo) constantPool
@@ -405,12 +409,12 @@ class ClassDump {
         final int stringIndex;
 
         /** Parses a CONSTANT_String_info entry. */
-        public ConstantStringInfo() throws IOException {
+        ConstantStringInfo() throws IOException {
             this.stringIndex = parseU2(null);
         }
 
         @Override
-        protected String computeStringValue() {
+        String computeStringValue() {
             return ((ConstantUtf8Info) constantPool.get(stringIndex))
                     .computeStringValue();
         }
@@ -424,7 +428,7 @@ class ClassDump {
     private class ConstantIntegerInfo extends CpInfo {
 
         /** Parses a CONSTANT_Integer_info entry. */
-        public ConstantIntegerInfo() throws IOException {
+        ConstantIntegerInfo() throws IOException {
             this.value = Integer.toString(parseU4(null));
         }
     }
@@ -437,7 +441,7 @@ class ClassDump {
     private class ConstantFloatInfo extends CpInfo {
 
         /** Parses a CONSTANT_Float_info entry. */
-        public ConstantFloatInfo() throws IOException {
+        ConstantFloatInfo() throws IOException {
             this.value = Float.toString(Float.intBitsToFloat(parseU4(null)));
         }
     }
@@ -450,14 +454,14 @@ class ClassDump {
     private class ConstantLongInfo extends CpInfo {
 
         /** Parses a CONSTANT_Long_info entry. */
-        public ConstantLongInfo() throws IOException {
+        ConstantLongInfo() throws IOException {
             long highBytes = parseU4(null);
             long lowBytes = parseU4(null) & 0xFFFFFFFFL;
             this.value = Long.toString((highBytes << 32) | lowBytes);
         }
 
         @Override
-        protected boolean useTwoEntries() {
+        boolean useTwoEntries() {
             return true;
         }
     }
@@ -470,7 +474,7 @@ class ClassDump {
     private class ConstantDoubleInfo extends CpInfo {
 
         /** Parses a CONSTANT_Double_info entry. */
-        public ConstantDoubleInfo() throws IOException {
+        ConstantDoubleInfo() throws IOException {
             long highBytes = parseU4(null);
             long lowBytes = parseU4(null) & 0xFFFFFFFFL;
             this.value = Double.toString(
@@ -478,7 +482,7 @@ class ClassDump {
         }
 
         @Override
-        protected boolean useTwoEntries() {
+        boolean useTwoEntries() {
             return true;
         }
     }
@@ -493,13 +497,13 @@ class ClassDump {
         final int descriptorIndex;
 
         /** Parses a CONSTANT_NameAndType_info entry. */
-        public ConstantNameAndTypeInfo() throws IOException {
+        ConstantNameAndTypeInfo() throws IOException {
             this.nameIndex = parseU2(null);
             this.descriptorIndex = parseU2(null);
         }
 
         @Override
-        public String computeStringValue() {
+        String computeStringValue() {
             return ((ConstantUtf8Info) constantPool.get(nameIndex))
                     .computeStringValue()
                     + ((ConstantUtf8Info) constantPool.get(descriptorIndex))
@@ -515,7 +519,7 @@ class ClassDump {
     private class ConstantUtf8Info extends CpInfo {
 
         /** Parses a CONSTANT_Utf8_info entry. */
-        public ConstantUtf8Info() throws IOException {
+        ConstantUtf8Info() throws IOException {
             this.value = input.readUTF();
         }
     }
@@ -530,13 +534,13 @@ class ClassDump {
         final int referenceIndex;
 
         /** Parses a CONSTANT_MethodHandle_info entry. */
-        public ConstantMethodHandleInfo() throws IOException {
+        ConstantMethodHandleInfo() throws IOException {
             this.referenceKind = parseU1(null);
             this.referenceIndex = parseU2(null);
         }
 
         @Override
-        protected String computeStringValue() {
+        String computeStringValue() {
             return referenceKind + "." + constantPool.get(referenceIndex);
         }
     }
@@ -550,12 +554,12 @@ class ClassDump {
         final int descriptorIndex;
 
         /** Parses a CONSTANT_MethodType_info entry. */
-        public ConstantMethodTypeInfo() throws IOException {
+        ConstantMethodTypeInfo() throws IOException {
             this.descriptorIndex = parseU2(null);
         }
 
         @Override
-        protected String computeStringValue() {
+        String computeStringValue() {
             return ((ConstantUtf8Info) constantPool.get(descriptorIndex))
                     .computeStringValue();
         }
@@ -571,13 +575,13 @@ class ClassDump {
         final int nameAndTypeIndex;
 
         /** Parses a CONSTANT_InvokeDynamic_info entry. */
-        public ConstantInvokeDynamicInfo() throws IOException {
+        ConstantInvokeDynamicInfo() throws IOException {
             this.bootstrapMethodAttrIndex = parseU2(null);
             this.nameAndTypeIndex = parseU2(null);
         }
 
         @Override
-        protected String computeStringValue() {
+        String computeStringValue() {
             return bootstrapMethodAttrIndex + "."
                     + ((ConstantNameAndTypeInfo) constantPool
                             .get(nameAndTypeIndex)).computeStringValue();
@@ -593,12 +597,12 @@ class ClassDump {
         final int descriptorIndex;
 
         /** Parses a CONSTANT_Module_info entry. */
-        public ConstantModuleInfo() throws IOException {
+        ConstantModuleInfo() throws IOException {
             this.descriptorIndex = parseU2(null);
         }
 
         @Override
-        protected String computeStringValue() {
+        String computeStringValue() {
             return ((ConstantUtf8Info) constantPool.get(descriptorIndex))
                     .computeStringValue();
         }
@@ -613,12 +617,12 @@ class ClassDump {
         final int descriptorIndex;
 
         /** Parses a CONSTANT_Package_info entry. */
-        public ConstantPackageInfo() throws IOException {
+        ConstantPackageInfo() throws IOException {
             this.descriptorIndex = parseU2(null);
         }
 
         @Override
-        protected String computeStringValue() {
+        String computeStringValue() {
             return ((ConstantUtf8Info) constantPool.get(descriptorIndex))
                     .computeStringValue();
         }
@@ -1925,7 +1929,7 @@ class ClassDump {
      * @param value
      *            A value.
      */
-    void output(String name, Object value) {
+    private void output(String name, Object value) {
         OutputNode currentOutputNode = pathToCurrentOutputNode.peek();
         currentOutputNode.append(name);
         currentOutputNode.append(value);
@@ -1943,7 +1947,7 @@ class ClassDump {
      * @param arguments
      *            The arguments of the bytecode instruction.
      */
-    void outputInstruction(int index, int opcode, Object... arguments) {
+    private void outputInstruction(int index, int opcode, Object... arguments) {
         OutputNode currentOutputNode = pathToCurrentOutputNode.peek();
         currentOutputNode.append(index);
         currentOutputNode.append(": ");
@@ -1960,9 +1964,13 @@ class ClassDump {
      * class (see {@link #pathToCurrentOutputNode}). The children of this node
      * are stored in a list. A child can be an {@link OutputNode} instance.
      */
-    static class OutputNode {
+    private static class OutputNode {
         /** The children of this node. */
         final ArrayList<Object> children = new ArrayList<Object>();
+
+        // Package-private constructor to avoid a synthetic accessor method.
+        OutputNode() {
+        }
 
         /** Append the given child after the last child of this node. */
         void append(Object child) {
@@ -1989,7 +1997,11 @@ class ClassDump {
      * string representation. All the children of this node MUST be instances of
      * {@link SortableOutputNode}.
      */
-    static class SortedOutputNode extends OutputNode {
+    private static class SortedOutputNode extends OutputNode {
+
+        // Package-private constructor to avoid a synthetic accessor method.
+        SortedOutputNode() {
+        }
 
         @Override
         void append(Object child) {
@@ -2018,12 +2030,16 @@ class ClassDump {
      * An {@link OutputNode} suitable for use as a child of a
      * {@link SortedOutputNode}.
      */
-    static class SortableOutputNode extends OutputNode {
+    private static class SortableOutputNode extends OutputNode {
         /**
          * The key used to sort this node and its siblings in their parent
          * {@link SortedOutputNode}.
          */
         String sortingKey;
+
+        // Package-private constructor to avoid a synthetic accessor method.
+        SortableOutputNode() {
+        }
     }
 
     /**
@@ -2031,7 +2047,7 @@ class ClassDump {
      * converted to an instruction index in the string representation of this
      * node.
      */
-    static class LabelOutputNode extends OutputNode {
+    private static class LabelOutputNode extends OutputNode {
         /**
          * A map from bytecode offsets to instruction indices. This map may not
          * contain the value corresponding to {@link #bytecodeOffset} when this
@@ -2068,7 +2084,7 @@ class ClassDump {
      *            method code).
      * @return A {@link LabelOutputNode} for {@link #bytecodeOffset}.
      */
-    LabelOutputNode newLabel(int bytecodeOffset) {
+    private LabelOutputNode newLabel(int bytecodeOffset) {
         return new LabelOutputNode(instructionIndices, bytecodeOffset);
     }
 }

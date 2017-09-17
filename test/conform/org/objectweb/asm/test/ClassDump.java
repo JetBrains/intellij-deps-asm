@@ -30,15 +30,11 @@
 package org.objectweb.asm.test;
 
 import java.io.ByteArrayInputStream;
-import java.io.DataInput;
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
-import java.util.Map;
-import java.util.Stack;
 
 /**
  * A dump of the content of a class file, as a verbose, human "readable" String.
@@ -121,38 +117,8 @@ import java.util.Stack;
  */
 class ClassDump {
 
-    /** The class to dump, as a data input stream. */
-    final DataInput input;
-
-    /**
-     * The constant pool of the input class, used to abstract away its internal
-     * representation in the output string.
-     */
-    final ArrayList<CpInfo> constantPool;
-
-    /**
-     * An intermediate data structure, used to build the final output string.
-     * The final string can't be output fully sequentially, as the input class
-     * is parsed, in particular due to the re-ordering of attributes and
-     * annotations. Instead, a tree of {@link OutputNode} objects is constructed
-     * first, then its nodes are sorted and finally the tree is parsed in Depth
-     * First Search order to build the final output string. This stack contains
-     * the nodes of the tree along the path from the root to the node which is
-     * currently constructed.
-     */
-    final Stack<OutputNode> pathToCurrentOutputNode;
-
-    /** The final string representation of the input class. */
-    final String stringValue;
-
-    /**
-     * A map from bytecode offsets to instruction indices for the <i>current</i>
-     * method, used to abstract away the low level byte code instruction
-     * representation details (e.g. an ldc vs. an ldc_w) in the final output
-     * string. A new map is constructed and assigned to this field for each
-     * newly encountered method.
-     */
-    HashMap<Integer, Integer> instructionIndices;
+    /** The dump of the input class. */
+    private final String dump;
 
     /**
      * Creates a new ClassDump instance. The input byte array is parsed and
@@ -165,614 +131,660 @@ class ClassDump {
      *             if class can't be parsed.
      */
     ClassDump(byte[] bytecode) throws IOException {
-        this.input = new DataInputStream(new ByteArrayInputStream(bytecode));
-        this.constantPool = new ArrayList<CpInfo>();
-        this.pathToCurrentOutputNode = new Stack<OutputNode>();
-        this.pathToCurrentOutputNode.push(new OutputNode());
-        this.stringValue = parseClassFile();
+        Builder builder = new Builder("ClassFile", /* parent = */ null);
+        dumpClassFile(new Parser(bytecode), builder);
+        StringBuilder stringBuilder = new StringBuilder();
+        builder.build(stringBuilder);
+        this.dump = stringBuilder.toString();
     }
 
     @Override
     public String toString() {
-        return stringValue;
+        return dump;
     }
 
     /**
-     * Parses the high level structure of the class.
+     * Parses and dumps the high level structure of the class.
      * 
      * @see https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-4.html#jvms-4.1
      */
-    private String parseClassFile() throws IOException {
-        parseU4("magic: ");
-        parseU2("minor_version: ");
-        parseU2("major_version: ");
-        int constantPoolCount = parseU2(null);
-        constantPool.add(null);
-        for (int i = 1; i < constantPoolCount; ++i) {
-            CpInfo cpInfo = parseCpInfo();
-            constantPool.add(cpInfo);
-            if (cpInfo.useTwoEntries()) {
-                constantPool.add(null);
-                ++i;
-            }
+    private static void dumpClassFile(Parser parser, Builder builder)
+            throws IOException {
+        builder.add("magic: ", parser.u4());
+        builder.add("minor_version: ", parser.u2());
+        builder.add("major_version: ", parser.u2());
+        int constantPoolCount = parser.u2();
+        for (int cpIndex = 1; cpIndex < constantPoolCount;) {
+            CpInfo cpInfo = parseCpInfo(parser, builder);
+            builder.putCpInfo(cpIndex, cpInfo);
+            cpIndex += cpInfo.size();
         }
-        parseU2("access_flags: ");
-        parseU2ConstantPoolIndex("this_class: ");
-        parseU2ConstantPoolIndex("super_class: ");
-        int interfaceCount = parseU2("interfaces_count: ");
+        builder.add("access_flags: ", parser.u2());
+        builder.addCpInfo("this_class: ", parser.u2());
+        builder.addCpInfo("super_class: ", parser.u2());
+        int interfaceCount = builder.add("interfaces_count: ", parser.u2());
         for (int i = 0; i < interfaceCount; ++i) {
-            parseU2ConstantPoolIndex("interface: ");
+            builder.addCpInfo("interface: ", parser.u2());
         }
-        int fieldCount = parseU2("fields_count: ");
+        int fieldCount = builder.add("fields_count: ", parser.u2());
         for (int i = 0; i < fieldCount; ++i) {
-            parseFieldInfo();
+            dumpFieldInfo(parser, builder);
         }
-        int methodCount = parseU2("methods_count: ");
+        int methodCount = builder.add("methods_count: ", parser.u2());
         for (int i = 0; i < methodCount; ++i) {
-            parseMethodInfo();
+            dumpMethodInfo(parser, builder);
         }
-        parseAttributeList();
-
-        StringBuilder stringBuilder = new StringBuilder();
-        pathToCurrentOutputNode.peek().toString(stringBuilder);
-        return stringBuilder.toString();
+        dumpAttributeList(parser, builder);
     }
 
     /**
-     * Parses a list of attributes.
+     * Parses and dumps a list of attributes.
      * 
      * @see https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-4.html#jvms-4.1
      */
-    private void parseAttributeList() throws IOException {
-        int attributeCount = parseU2("attributes_count: ");
-        OutputNode attributeListOutputNode = new SortedOutputNode();
-        pathToCurrentOutputNode.peek().append(attributeListOutputNode);
-        pathToCurrentOutputNode.push(attributeListOutputNode);
+    private static void dumpAttributeList(Parser parser, Builder builder)
+            throws IOException {
+        int attributeCount = builder.add("attributes_count: ", parser.u2());
+        SortedBuilder sortedBuilder = builder.addSortedBuilder();
         for (int i = 0; i < attributeCount; ++i) {
-            parseAttributeInfo();
+            dumpAttributeInfo(parser, sortedBuilder);
         }
-        pathToCurrentOutputNode.pop();
     }
 
     /**
-     * Parses a constant pool entry.
+     * Parses a cp_info structure.
      * 
-     * @return the parsed constant pool entry.
      * @see https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-4.html#jvms-4.4
      */
-    private CpInfo parseCpInfo() throws IOException {
-        int tag = parseU1(null);
+    private static CpInfo parseCpInfo(Parser parser, ClassContext classContext)
+            throws IOException {
+        int tag = parser.u1();
         switch (tag) {
         case 7:
-            return new ConstantClassInfo();
+            return new ConstantClassInfo(parser, classContext);
         case 9:
-            return new ConstantFieldRefInfo();
+            return new ConstantFieldRefInfo(parser, classContext);
         case 10:
-            return new ConstantMethodRefInfo();
+            return new ConstantMethodRefInfo(parser, classContext);
         case 11:
-            return new ConstantInterfaceMethodRefInfo();
+            return new ConstantInterfaceMethodRefInfo(parser, classContext);
         case 8:
-            return new ConstantStringInfo();
+            return new ConstantStringInfo(parser, classContext);
         case 3:
-            return new ConstantIntegerInfo();
+            return new ConstantIntegerInfo(parser);
         case 4:
-            return new ConstantFloatInfo();
+            return new ConstantFloatInfo(parser);
         case 5:
-            return new ConstantLongInfo();
+            return new ConstantLongInfo(parser);
         case 6:
-            return new ConstantDoubleInfo();
+            return new ConstantDoubleInfo(parser);
         case 12:
-            return new ConstantNameAndTypeInfo();
+            return new ConstantNameAndTypeInfo(parser, classContext);
         case 1:
-            return new ConstantUtf8Info();
+            return new ConstantUtf8Info(parser);
         case 15:
-            return new ConstantMethodHandleInfo();
+            return new ConstantMethodHandleInfo(parser, classContext);
         case 16:
-            return new ConstantMethodTypeInfo();
+            return new ConstantMethodTypeInfo(parser, classContext);
         case 18:
-            return new ConstantInvokeDynamicInfo();
+            return new ConstantInvokeDynamicInfo(parser, classContext);
         case 19:
-            return new ConstantModuleInfo();
+            return new ConstantModuleInfo(parser, classContext);
         case 20:
-            return new ConstantPackageInfo();
+            return new ConstantPackageInfo(parser, classContext);
         default:
-            throw new IOException("Invalid constant pool entry tag " + tag);
+            throw new IOException("Invalid constant pool item tag " + tag);
         }
     }
 
-    /** An abstract constant pool entry. */
+    /** An abstract constant pool item. */
     private static abstract class CpInfo {
-        /** The string representation of this constant. */
-        String value;
+        /** The dump of this item. */
+        private String dump;
+        /** The context to use to get the referenced constant pool items. */
+        private final ClassContext classContext;
 
-        // Package-private constructor to avoid a synthetic accessor method.
-        CpInfo() {
+        /** Creates a CpInfo for an item without references to other items. */
+        CpInfo(String dump) {
+            this.dump = dump;
+            this.classContext = null;
         }
 
-        /** Whether this constant uses two entries in the constant pool. */
-        boolean useTwoEntries() {
-            return false;
+        /** Creates a CpInfo for an item with references to other items. */
+        CpInfo(ClassContext classContext) {
+            this.classContext = classContext;
         }
 
-        /** Computes the string representation of this constant. */
-        String computeStringValue() {
-            return value;
+        /** Returns the number of entries used by this item in constant_pool. */
+        int size() {
+            return 1;
+        }
+
+        /** Returns the constant pool item with the given index. */
+        CpInfo getCpInfo(int cpIndex) {
+            return classContext.getCpInfo(cpIndex);
+        }
+
+        /** Dumps this item into a string. */
+        String dump() {
+            return dump;
         }
 
         @Override
         public String toString() {
-            if (value == null) {
-                value = getClass().getSimpleName() + " " + computeStringValue();
+            if (dump == null) {
+                dump = getClass().getSimpleName() + " " + dump();
             }
-            return value;
+            return dump;
         }
     }
 
     /**
-     * A CONSTANT_Class_info entry.
+     * A CONSTANT_Class_info item.
      * 
      * @see https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-4.html#jvms-4.4.1
      */
-    private class ConstantClassInfo extends CpInfo {
-        final int nameIndex;
+    private static class ConstantClassInfo extends CpInfo {
+        private final int nameIndex;
 
-        /** Parses a CONSTANT_Class_info entry. */
-        ConstantClassInfo() throws IOException {
-            this.nameIndex = parseU2(null);
+        /** Parses a CONSTANT_Class_info item. */
+        ConstantClassInfo(Parser parser, ClassContext classContext)
+                throws IOException {
+            super(classContext);
+            this.nameIndex = parser.u2();
         }
 
         @Override
-        String computeStringValue() {
-            return ((ConstantUtf8Info) constantPool.get(nameIndex))
-                    .computeStringValue();
+        String dump() {
+            return ((ConstantUtf8Info) getCpInfo(nameIndex)).dump();
         }
     }
 
     /**
-     * A CONSTANT_Fieldref_info entry.
+     * A CONSTANT_Fieldref_info item.
      * 
      * @see https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-4.html#jvms-4.4.2
      */
-    private class ConstantFieldRefInfo extends CpInfo {
-        final int classIndex;
-        final int nameAndTypeIndex;
+    private static class ConstantFieldRefInfo extends CpInfo {
+        private final int classIndex;
+        private final int nameAndTypeIndex;
 
-        /** Parses a CONSTANT_Fieldref_info entry. */
-        ConstantFieldRefInfo() throws IOException {
-            this.classIndex = parseU2(null);
-            this.nameAndTypeIndex = parseU2(null);
+        /** Parses a CONSTANT_Fieldref_info item. */
+        ConstantFieldRefInfo(Parser parser, ClassContext classContext)
+                throws IOException {
+            super(classContext);
+            this.classIndex = parser.u2();
+            this.nameAndTypeIndex = parser.u2();
         }
 
         @Override
-        String computeStringValue() {
-            return ((ConstantClassInfo) constantPool.get(classIndex))
-                    .computeStringValue() + "."
-                    + ((ConstantNameAndTypeInfo) constantPool
-                            .get(nameAndTypeIndex)).computeStringValue();
+        String dump() {
+            return ((ConstantClassInfo) getCpInfo(classIndex)).dump() + "."
+                    + ((ConstantNameAndTypeInfo) getCpInfo(nameAndTypeIndex))
+                            .dump();
         }
     }
 
     /**
-     * A CONSTANT_Methodref_info entry.
+     * A CONSTANT_Methodref_info item.
      * 
      * @see https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-4.html#jvms-4.4.2
      */
-    private class ConstantMethodRefInfo extends CpInfo {
-        final int classIndex;
-        final int nameAndTypeIndex;
+    private static class ConstantMethodRefInfo extends CpInfo {
+        private final int classIndex;
+        private final int nameAndTypeIndex;
 
-        /** Parses a CONSTANT_Methodref_info entry. */
-        ConstantMethodRefInfo() throws IOException {
-            this.classIndex = parseU2(null);
-            this.nameAndTypeIndex = parseU2(null);
+        /** Parses a CONSTANT_Methodref_info item. */
+        ConstantMethodRefInfo(Parser parser, ClassContext classContext)
+                throws IOException {
+            super(classContext);
+            this.classIndex = parser.u2();
+            this.nameAndTypeIndex = parser.u2();
         }
 
         @Override
-        String computeStringValue() {
-            return ((ConstantClassInfo) constantPool.get(classIndex))
-                    .computeStringValue() + "."
-                    + ((ConstantNameAndTypeInfo) constantPool
-                            .get(nameAndTypeIndex)).computeStringValue();
+        String dump() {
+            return ((ConstantClassInfo) getCpInfo(classIndex)).dump() + "."
+                    + ((ConstantNameAndTypeInfo) getCpInfo(nameAndTypeIndex))
+                            .dump();
         }
     }
 
     /**
-     * A CONSTANT_InterfaceMethodref_info entry.
+     * A CONSTANT_InterfaceMethodref_info item.
      * 
      * @see https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-4.html#jvms-4.4.2
      */
-    private class ConstantInterfaceMethodRefInfo extends CpInfo {
-        final int classIndex;
-        final int nameAndTypeIndex;
+    private static class ConstantInterfaceMethodRefInfo extends CpInfo {
+        private final int classIndex;
+        private final int nameAndTypeIndex;
 
-        /** Parses a CONSTANT_InterfaceMethodref_info entry. */
-        ConstantInterfaceMethodRefInfo() throws IOException {
-            this.classIndex = parseU2(null);
-            this.nameAndTypeIndex = parseU2(null);
+        /** Parses a CONSTANT_InterfaceMethodref_info item. */
+        ConstantInterfaceMethodRefInfo(Parser parser, ClassContext classContext)
+                throws IOException {
+            super(classContext);
+            this.classIndex = parser.u2();
+            this.nameAndTypeIndex = parser.u2();
         }
 
         @Override
-        String computeStringValue() {
-            return ((ConstantClassInfo) constantPool.get(classIndex))
-                    .computeStringValue() + "."
-                    + ((ConstantNameAndTypeInfo) constantPool
-                            .get(nameAndTypeIndex)).computeStringValue();
+        String dump() {
+            return ((ConstantClassInfo) getCpInfo(classIndex)).dump() + "."
+                    + ((ConstantNameAndTypeInfo) getCpInfo(nameAndTypeIndex))
+                            .dump();
         }
     }
 
     /**
-     * A CONSTANT_String_info entry.
+     * A CONSTANT_String_info item.
      * 
      * @see https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-4.html#jvms-4.4.3
      */
-    private class ConstantStringInfo extends CpInfo {
+    private static class ConstantStringInfo extends CpInfo {
         final int stringIndex;
 
-        /** Parses a CONSTANT_String_info entry. */
-        ConstantStringInfo() throws IOException {
-            this.stringIndex = parseU2(null);
+        /** Parses a CONSTANT_String_info item. */
+        ConstantStringInfo(Parser parser, ClassContext classContext)
+                throws IOException {
+            super(classContext);
+            this.stringIndex = parser.u2();
         }
 
         @Override
-        String computeStringValue() {
-            return ((ConstantUtf8Info) constantPool.get(stringIndex))
-                    .computeStringValue();
+        String dump() {
+            return ((ConstantUtf8Info) getCpInfo(stringIndex)).dump();
         }
     }
 
     /**
-     * A CONSTANT_Integer_info entry.
+     * A CONSTANT_Integer_info item.
      * 
      * @see https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-4.html#jvms-4.4.4
      */
-    private class ConstantIntegerInfo extends CpInfo {
+    private static class ConstantIntegerInfo extends CpInfo {
 
-        /** Parses a CONSTANT_Integer_info entry. */
-        ConstantIntegerInfo() throws IOException {
-            this.value = Integer.toString(parseU4(null));
+        /** Parses a CONSTANT_Integer_info item. */
+        ConstantIntegerInfo(Parser parser) throws IOException {
+            super(Integer.toString(parser.u4()));
         }
     }
 
     /**
-     * A CONSTANT_Float_info entry.
+     * A CONSTANT_Float_info item.
      * 
      * @see https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-4.html#jvms-4.4.4
      */
-    private class ConstantFloatInfo extends CpInfo {
+    private static class ConstantFloatInfo extends CpInfo {
 
-        /** Parses a CONSTANT_Float_info entry. */
-        ConstantFloatInfo() throws IOException {
-            this.value = Float.toString(Float.intBitsToFloat(parseU4(null)));
+        /** Parses a CONSTANT_Float_info item. */
+        ConstantFloatInfo(Parser parser) throws IOException {
+            super(Float.toString(Float.intBitsToFloat(parser.u4())));
         }
     }
 
     /**
-     * A CONSTANT_Long_info entry.
+     * A CONSTANT_Long_info item.
      * 
      * @see https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-4.html#jvms-4.4.5
      */
-    private class ConstantLongInfo extends CpInfo {
+    private static class ConstantLongInfo extends CpInfo {
 
-        /** Parses a CONSTANT_Long_info entry. */
-        ConstantLongInfo() throws IOException {
-            long highBytes = parseU4(null);
-            long lowBytes = parseU4(null) & 0xFFFFFFFFL;
-            this.value = Long.toString((highBytes << 32) | lowBytes);
+        /** Parses a CONSTANT_Long_info item. */
+        ConstantLongInfo(Parser parser) throws IOException {
+            super(Long.toString(parser.s8()));
         }
 
         @Override
-        boolean useTwoEntries() {
-            return true;
+        int size() {
+            return 2;
         }
     }
 
     /**
-     * A CONSTANT_Double_info entry.
+     * A CONSTANT_Double_info item.
      * 
      * @see https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-4.html#jvms-4.4.5
      */
-    private class ConstantDoubleInfo extends CpInfo {
+    private static class ConstantDoubleInfo extends CpInfo {
 
-        /** Parses a CONSTANT_Double_info entry. */
-        ConstantDoubleInfo() throws IOException {
-            long highBytes = parseU4(null);
-            long lowBytes = parseU4(null) & 0xFFFFFFFFL;
-            this.value = Double.toString(
-                    Double.longBitsToDouble((highBytes << 32) | lowBytes));
+        /** Parses a CONSTANT_Double_info item. */
+        ConstantDoubleInfo(Parser parser) throws IOException {
+            super(Double.toString(Double.longBitsToDouble(parser.s8())));
         }
 
         @Override
-        boolean useTwoEntries() {
-            return true;
+        int size() {
+            return 2;
         }
     }
 
     /**
-     * A CONSTANT_NameAndType_info entry.
+     * A CONSTANT_NameAndType_info item.
      * 
      * @see https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-4.html#jvms-4.4.6
      */
-    private class ConstantNameAndTypeInfo extends CpInfo {
-        final int nameIndex;
-        final int descriptorIndex;
+    private static class ConstantNameAndTypeInfo extends CpInfo {
+        private final int nameIndex;
+        private final int descriptorIndex;
 
-        /** Parses a CONSTANT_NameAndType_info entry. */
-        ConstantNameAndTypeInfo() throws IOException {
-            this.nameIndex = parseU2(null);
-            this.descriptorIndex = parseU2(null);
+        /** Parses a CONSTANT_NameAndType_info item. */
+        ConstantNameAndTypeInfo(Parser parser, ClassContext classContext)
+                throws IOException {
+            super(classContext);
+            this.nameIndex = parser.u2();
+            this.descriptorIndex = parser.u2();
         }
 
         @Override
-        String computeStringValue() {
-            return ((ConstantUtf8Info) constantPool.get(nameIndex))
-                    .computeStringValue()
-                    + ((ConstantUtf8Info) constantPool.get(descriptorIndex))
-                            .computeStringValue();
+        String dump() {
+            return ((ConstantUtf8Info) getCpInfo(nameIndex)).dump()
+                    + ((ConstantUtf8Info) getCpInfo(descriptorIndex)).dump();
         }
     }
 
     /**
-     * A CONSTANT_Utf8_info entry.
+     * A CONSTANT_Utf8_info item.
      * 
      * @see https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-4.html#jvms-4.4.7
      */
-    private class ConstantUtf8Info extends CpInfo {
+    private static class ConstantUtf8Info extends CpInfo {
 
-        /** Parses a CONSTANT_Utf8_info entry. */
-        ConstantUtf8Info() throws IOException {
-            this.value = input.readUTF();
+        /** Parses a CONSTANT_Utf8_info item. */
+        ConstantUtf8Info(Parser parser) throws IOException {
+            super(parser.utf8());
         }
     }
 
     /**
-     * A CONSTANT_MethodHandle_info entry.
+     * A CONSTANT_MethodHandle_info item.
      * 
      * @see https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-4.html#jvms-4.4.8
      */
-    private class ConstantMethodHandleInfo extends CpInfo {
-        final int referenceKind;
-        final int referenceIndex;
+    private static class ConstantMethodHandleInfo extends CpInfo {
+        private final int referenceKind;
+        private final int referenceIndex;
 
-        /** Parses a CONSTANT_MethodHandle_info entry. */
-        ConstantMethodHandleInfo() throws IOException {
-            this.referenceKind = parseU1(null);
-            this.referenceIndex = parseU2(null);
+        /** Parses a CONSTANT_MethodHandle_info item. */
+        ConstantMethodHandleInfo(Parser parser, ClassContext classContext)
+                throws IOException {
+            super(classContext);
+            this.referenceKind = parser.u1();
+            this.referenceIndex = parser.u2();
         }
 
         @Override
-        String computeStringValue() {
-            return referenceKind + "." + constantPool.get(referenceIndex);
+        String dump() {
+            return referenceKind + "." + getCpInfo(referenceIndex);
         }
     }
 
     /**
-     * A CONSTANT_MethodType_info entry.
+     * A CONSTANT_MethodType_info item.
      * 
      * @see https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-4.html#jvms-4.4.9
      */
-    private class ConstantMethodTypeInfo extends CpInfo {
-        final int descriptorIndex;
+    private static class ConstantMethodTypeInfo extends CpInfo {
+        private final int descriptorIndex;
 
-        /** Parses a CONSTANT_MethodType_info entry. */
-        ConstantMethodTypeInfo() throws IOException {
-            this.descriptorIndex = parseU2(null);
+        /** Parses a CONSTANT_MethodType_info item. */
+        ConstantMethodTypeInfo(Parser parser, ClassContext classContext)
+                throws IOException {
+            super(classContext);
+            this.descriptorIndex = parser.u2();
         }
 
         @Override
-        String computeStringValue() {
-            return ((ConstantUtf8Info) constantPool.get(descriptorIndex))
-                    .computeStringValue();
+        String dump() {
+            return ((ConstantUtf8Info) getCpInfo(descriptorIndex)).dump();
         }
     }
 
     /**
-     * A CONSTANT_InvokeDynamic_info entry.
+     * A CONSTANT_InvokeDynamic_info item.
      * 
      * @see https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-4.html#jvms-4.4.10
      */
-    private class ConstantInvokeDynamicInfo extends CpInfo {
-        final int bootstrapMethodAttrIndex;
-        final int nameAndTypeIndex;
+    private static class ConstantInvokeDynamicInfo extends CpInfo {
+        private final int bootstrapMethodAttrIndex;
+        private final int nameAndTypeIndex;
 
-        /** Parses a CONSTANT_InvokeDynamic_info entry. */
-        ConstantInvokeDynamicInfo() throws IOException {
-            this.bootstrapMethodAttrIndex = parseU2(null);
-            this.nameAndTypeIndex = parseU2(null);
+        /** Parses a CONSTANT_InvokeDynamic_info item. */
+        ConstantInvokeDynamicInfo(Parser parser, ClassContext classContext)
+                throws IOException {
+            super(classContext);
+            this.bootstrapMethodAttrIndex = parser.u2();
+            this.nameAndTypeIndex = parser.u2();
         }
 
         @Override
-        String computeStringValue() {
+        String dump() {
             return bootstrapMethodAttrIndex + "."
-                    + ((ConstantNameAndTypeInfo) constantPool
-                            .get(nameAndTypeIndex)).computeStringValue();
+                    + ((ConstantNameAndTypeInfo) getCpInfo(nameAndTypeIndex))
+                            .dump();
         }
     }
 
     /**
-     * A CONSTANT_Module_info entry.
+     * A CONSTANT_Module_info item.
      * 
-     * TODO Add a link to JVMS se9 when it is available.
+     * @see https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.4.11
      */
-    private class ConstantModuleInfo extends CpInfo {
-        final int descriptorIndex;
+    private static class ConstantModuleInfo extends CpInfo {
+        private final int descriptorIndex;
 
-        /** Parses a CONSTANT_Module_info entry. */
-        ConstantModuleInfo() throws IOException {
-            this.descriptorIndex = parseU2(null);
+        /** Parses a CONSTANT_Module_info item. */
+        ConstantModuleInfo(Parser parser, ClassContext classContext)
+                throws IOException {
+            super(classContext);
+            this.descriptorIndex = parser.u2();
         }
 
         @Override
-        String computeStringValue() {
-            return ((ConstantUtf8Info) constantPool.get(descriptorIndex))
-                    .computeStringValue();
+        String dump() {
+            return ((ConstantUtf8Info) getCpInfo(descriptorIndex)).dump();
         }
     }
 
     /**
-     * A CONSTANT_Package_info entry.
+     * A CONSTANT_Package_info item.
      * 
-     * TODO Add a link to JVMS se9 when it is available.
+     * @see https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.4.12
      */
-    private class ConstantPackageInfo extends CpInfo {
-        final int descriptorIndex;
+    private static class ConstantPackageInfo extends CpInfo {
+        private final int descriptorIndex;
 
-        /** Parses a CONSTANT_Package_info entry. */
-        ConstantPackageInfo() throws IOException {
-            this.descriptorIndex = parseU2(null);
+        /** Parses a CONSTANT_Package_info item. */
+        ConstantPackageInfo(Parser parser, ClassContext classContext)
+                throws IOException {
+            super(classContext);
+            this.descriptorIndex = parser.u2();
         }
 
         @Override
-        String computeStringValue() {
-            return ((ConstantUtf8Info) constantPool.get(descriptorIndex))
-                    .computeStringValue();
+        String dump() {
+            return ((ConstantUtf8Info) getCpInfo(descriptorIndex)).dump();
         }
     }
 
     /**
-     * Parses a field_info structure.
+     * Parses and dumps a field_info structure.
      * 
      * @see https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-4.html#jvms-4.5
      */
-    private void parseFieldInfo() throws IOException {
-        parseU2("access_flags: ");
-        parseU2ConstantPoolIndex("name_index: ");
-        parseU2ConstantPoolIndex("descriptor_index: ");
-        parseAttributeList();
+    private static void dumpFieldInfo(Parser parser, Builder builder)
+            throws IOException {
+        builder.add("access_flags: ", parser.u2());
+        builder.addCpInfo("name_index: ", parser.u2());
+        builder.addCpInfo("descriptor_index: ", parser.u2());
+        dumpAttributeList(parser, builder);
     }
 
     /**
-     * Parses a method_info structure.
+     * Parses and dumps a method_info structure.
      * 
      * @see https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-4.html#jvms-4.6
      */
-    private void parseMethodInfo() throws IOException {
-        instructionIndices = new HashMap<Integer, Integer>();
-        parseU2("access_flags: ");
-        parseU2ConstantPoolIndex("name_index: ");
-        parseU2ConstantPoolIndex("descriptor_index: ");
-        parseAttributeList();
+    private static void dumpMethodInfo(Parser parser, Builder builder)
+            throws IOException {
+        builder.add("access_flags: ", parser.u2());
+        builder.addCpInfo("name_index: ", parser.u2());
+        builder.addCpInfo("descriptor_index: ", parser.u2());
+        dumpAttributeList(parser, builder);
     }
 
     /**
-     * Parses an attribute_info structure.
+     * Parses and dumps an attribute_info structure.
      * 
      * @see https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-4.html#jvms-4.7
      */
-    private void parseAttributeInfo() throws IOException {
-        SortableOutputNode attributeOutputNode = new SortableOutputNode();
-        pathToCurrentOutputNode.peek().append(attributeOutputNode);
-        pathToCurrentOutputNode.push(attributeOutputNode);
-        String attributeName = parseU2ConstantPoolIndex(
-                "attribute_name_index: ").toString();
-        int attributeLength = parseU4(null);
-        attributeOutputNode.sortingKey = attributeName;
+    private static void dumpAttributeInfo(Parser parser,
+            SortedBuilder sortedBuilder) throws IOException {
+        String attributeName = sortedBuilder.getCpInfo(parser.u2()).toString();
+        int attributeLength = parser.u4();
+        Builder builder = sortedBuilder.addBuilder(attributeName);
+        builder.add("attribute_name_index: ", attributeName);
         if (attributeName.equals("ConstantValue")) {
-            parseConstantValueAttribute();
+            dumpConstantValueAttribute(parser, builder);
         } else if (attributeName.equals("Code")) {
-            parseCodeAttribute();
+            dumpCodeAttribute(parser, builder);
         } else if (attributeName.equals("CodeComment")) {
             // empty non-standard attribute used for tests.
         } else if (attributeName.equals("Comment")) {
             // empty non-standard attribute used for tests.
         } else if (attributeName.equals("StackMapTable")) {
-            parseStackMapTableAttribute();
+            dumpStackMapTableAttribute(parser, builder);
         } else if (attributeName.equals("Exceptions")) {
-            parseExceptionsAttribute();
+            dumpExceptionsAttribute(parser, builder);
         } else if (attributeName.equals("InnerClasses")) {
-            parseInnerClassesAttribute();
+            dumpInnerClassesAttribute(parser, builder);
         } else if (attributeName.equals("EnclosingMethod")) {
-            parseEnclosingMethodAttribute();
+            dumpEnclosingMethodAttribute(parser, builder);
         } else if (attributeName.equals("Synthetic")) {
-            parseSyntheticAttribute();
+            dumpSyntheticAttribute(parser, builder);
         } else if (attributeName.equals("Signature")) {
-            parseSignatureAttribute();
+            dumpSignatureAttribute(parser, builder);
         } else if (attributeName.equals("SourceFile")) {
-            parseSourceFileAttribute();
+            dumpSourceFileAttribute(parser, builder);
         } else if (attributeName.equals("SourceDebugExtension")) {
-            parseSourceDebugAttribute(attributeLength);
+            dumpSourceDebugAttribute(attributeLength, parser, builder);
         } else if (attributeName.equals("LineNumberTable")) {
-            parseLineNumberTableAttribute();
+            dumpLineNumberTableAttribute(parser, builder);
         } else if (attributeName.equals("LocalVariableTable")) {
-            parseLocalVariableTableAttribute();
+            dumpLocalVariableTableAttribute(parser, builder);
         } else if (attributeName.equals("LocalVariableTypeTable")) {
-            parseLocalVariableTypeTableAttribute();
+            dumpLocalVariableTypeTableAttribute(parser, builder);
         } else if (attributeName.equals("Deprecated")) {
-            parseDeprecatedAttribute();
+            dumpDeprecatedAttribute(parser, builder);
         } else if (attributeName.equals("RuntimeVisibleAnnotations")) {
-            parseRuntimeVisibleAnnotationsAttribute();
+            dumpRuntimeVisibleAnnotationsAttribute(parser, builder);
         } else if (attributeName.equals("RuntimeInvisibleAnnotations")) {
-            parseRuntimeInvisibleAnnotationsAttribute();
+            dumpRuntimeInvisibleAnnotationsAttribute(parser, builder);
         } else if (attributeName.equals("RuntimeVisibleParameterAnnotations")) {
-            parseRuntimeVisibleParameterAnnotationsAttribute();
+            dumpRuntimeVisibleParameterAnnotationsAttribute(parser, builder);
         } else if (attributeName
                 .equals("RuntimeInvisibleParameterAnnotations")) {
-            parseRuntimeInvisibleParameterAnnotationsAttribute();
+            dumpRuntimeInvisibleParameterAnnotationsAttribute(parser, builder);
         } else if (attributeName.equals("RuntimeVisibleTypeAnnotations")) {
-            parseRuntimeVisibleTypeAnnotationsAttribute();
+            dumpRuntimeVisibleTypeAnnotationsAttribute(parser, builder);
         } else if (attributeName.equals("RuntimeInvisibleTypeAnnotations")) {
-            parseRuntimeInvisibleTypeAnnotationsAttribute();
+            dumpRuntimeInvisibleTypeAnnotationsAttribute(parser, builder);
         } else if (attributeName.equals("AnnotationDefault")) {
-            parseAnnotationDefaultAttribute();
+            dumpAnnotationDefaultAttribute(parser, builder);
         } else if (attributeName.equals("BootstrapMethods")) {
-            parseBootstrapMethodsAttribute();
+            dumpBootstrapMethodsAttribute(parser, builder);
         } else if (attributeName.equals("MethodParameters")) {
-            parseMethodParametersAttribute();
+            dumpMethodParametersAttribute(parser, builder);
         } else if (attributeName.equals("Module")) {
-            parseModuleAttribute();
-        } else if (attributeName.equals("ModuleMainClass")) {
-            parseModuleMainClassAttribute();
+            dumpModuleAttribute(parser, builder);
         } else if (attributeName.equals("ModulePackages")) {
-            parseModulePackagesAttribute();
+            dumpModulePackagesAttribute(parser, builder);
+        } else if (attributeName.equals("ModuleMainClass")) {
+            dumpModuleMainClassAttribute(parser, builder);
         } else if (attributeName.equals("StackMap")) {
-            parseStackMapAttribute();
+            dumpStackMapAttribute(parser, builder);
         } else {
             throw new IOException("Unknown attribute " + attributeName);
         }
-        pathToCurrentOutputNode.pop();
     }
 
     /**
-     * Parses a ConstantValue attribute.
+     * Parses and dumps a ConstantValue attribute.
      * 
      * @see https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-4.html#jvms-4.7.2
      */
-    private void parseConstantValueAttribute() throws IOException {
-        parseU2ConstantPoolIndex("constantvalue_index: ");
+    private static void dumpConstantValueAttribute(Parser parser,
+            Builder builder) throws IOException {
+        builder.addCpInfo("constantvalue_index: ", parser.u2());
     }
 
     /**
-     * Parses a Code attribute.
+     * Parses and dumps a Code attribute.
      * 
      * @see https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-4.html#jvms-4.7.3
      */
-    private void parseCodeAttribute() throws IOException {
-        parseU2("max_stack: ");
-        parseU2("max_locals: ");
-        int codeLength = parseU4(null);
-        parseInstructions(codeLength);
-        int exceptionCount = parseU2("exception_table_length: ");
+    private static void dumpCodeAttribute(Parser parser, Builder builder)
+            throws IOException {
+        builder.add("max_stack: ", parser.u2());
+        builder.add("max_locals: ", parser.u2());
+        int codeLength = parser.u4();
+        dumpInstructions(codeLength, parser, builder);
+        int exceptionCount = builder.add("exception_table_length: ",
+                parser.u2());
         for (int i = 0; i < exceptionCount; ++i) {
-            parseU2Label("start_pc: ");
-            parseU2Label("end_pc: ");
-            parseU2Label("handler_pc: ");
-            parseU2ConstantPoolIndex("catch_type: ");
+            builder.addInsnIndex("start_pc: ", parser.u2());
+            builder.addInsnIndex("end_pc: ", parser.u2());
+            builder.addInsnIndex("handler_pc: ", parser.u2());
+            builder.addCpInfo("catch_type: ", parser.u2());
         }
-        parseAttributeList();
+        dumpAttributeList(parser, builder);
     }
 
     /**
-     * Parses the bytecode instructions of a method.
+     * The index of a bytecode instruction. This index is computed in
+     * {@link #toString}, from the bytecode offset of the instruction, after the
+     * whole class has been parsed. Indeed, due to forward references, the index
+     * of an instruction might not be known when its offset is used.
+     *
+     * Dumps use instruction indices instead of bytecode offsets in order to
+     * abstract away the low level byte code instruction representation details
+     * (e.g. an ldc vs. an ldc_w).
+     */
+    private static class InstructionIndex {
+        /** An offset in bytes from the start of the bytecode of a method. */
+        private final int bytecodeOffset;
+        /** The context to use to find the index from the bytecode offset. */
+        private final MethodContext methodContext;
+
+        InstructionIndex(int bytecodeOffset, MethodContext methodContext) {
+            this.bytecodeOffset = bytecodeOffset;
+            this.methodContext = methodContext;
+        }
+
+        @Override
+        public String toString() {
+            Object insnIndex = methodContext.getInsnIndex(bytecodeOffset);
+            if (insnIndex == null) {
+                throw new RuntimeException(
+                        "Invalid bytecode offset:" + bytecodeOffset);
+            }
+            return "<" + insnIndex + ">";
+        }
+    }
+
+    /**
+     * Parses and dumps the bytecode instructions of a method.
      * 
      * @param codeLength
      *            the number of bytes to parse.
      * @see https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-6.html#jvms-6.5
      */
-    private void parseInstructions(int codeLength) throws IOException {
+    private static void dumpInstructions(int codeLength, Parser parser,
+            Builder builder) throws IOException {
         int bytecodeOffset = 0; // Number of bytes parsed so far.
-        int instructionIndex = 0; // Number of instructions parsed so far.
+        int insnIndex = 0; // Number of instructions parsed so far.
         while (bytecodeOffset < codeLength) {
-            instructionIndices.put(bytecodeOffset, instructionIndex);
-            int opcode = parseU1(null);
+            builder.putInsnIndex(bytecodeOffset, insnIndex);
+            int opcode = parser.u1();
             int startOffset = bytecodeOffset++;
             // Instructions are in alphabetical order of their opcode name, as
             // in the specification. This leads to some duplicated code, but is
@@ -781,53 +793,53 @@ class ClassDump {
             case 0x32: // aaload
             case 0x53: // aastore
             case 0x01: // aconst_null
-                outputInstruction(instructionIndex, opcode);
+                builder.addInsn(insnIndex, opcode);
                 break;
             case 0x19: // aload
-                outputInstruction(instructionIndex, opcode, parseU1(null));
+                builder.addInsn(insnIndex, opcode, parser.u1());
                 bytecodeOffset += 1;
                 break;
             case 0x2A: // aload_0
             case 0x2B: // aload_1
             case 0x2C: // aload_2
             case 0x2D: // aload_3
-                outputInstruction(instructionIndex, 0x19, opcode - 0x2A);
+                builder.addInsn(insnIndex, 0x19, opcode - 0x2A);
                 break;
             case 0xBD: // anewarray
-                outputInstruction(instructionIndex, opcode,
-                        parseU2ConstantPoolIndex(null));
+                builder.addInsn(insnIndex, opcode,
+                        builder.getCpInfo(parser.u2()));
                 bytecodeOffset += 2;
                 break;
             case 0xB0: // areturn
             case 0xBE: // arraylength
-                outputInstruction(instructionIndex, opcode);
+                builder.addInsn(insnIndex, opcode);
                 break;
             case 0x3A: // astore
-                outputInstruction(instructionIndex, opcode, parseU1(null));
+                builder.addInsn(insnIndex, opcode, parser.u1());
                 bytecodeOffset += 1;
                 break;
             case 0x4B: // astore_0
             case 0x4C: // astore_1
             case 0x4D: // astore_2
             case 0x4E: // astore_3
-                outputInstruction(instructionIndex, 0x3A, opcode - 0x4B);
+                builder.addInsn(insnIndex, 0x3A, opcode - 0x4B);
                 break;
             case 0xBF: // athrow
             case 0x33: // baload
             case 0x54: // bastore
-                outputInstruction(instructionIndex, opcode);
+                builder.addInsn(insnIndex, opcode);
                 break;
             case 0x10: // bipush
-                outputInstruction(instructionIndex, opcode, parseU1(null));
+                builder.addInsn(insnIndex, opcode, parser.u1());
                 bytecodeOffset += 1;
                 break;
             case 0x34: // caload
             case 0x55: // castore
-                outputInstruction(instructionIndex, opcode);
+                builder.addInsn(insnIndex, opcode);
                 break;
             case 0xC0: // checkcast
-                outputInstruction(instructionIndex, opcode,
-                        parseU2ConstantPoolIndex(null));
+                builder.addInsn(insnIndex, opcode,
+                        builder.getCpInfo(parser.u2()));
                 bytecodeOffset += 2;
                 break;
             case 0x90: // d2f
@@ -841,33 +853,33 @@ class ClassDump {
             case 0x0E: // dconst_0
             case 0x0F: // dconst_1
             case 0x6F: // ddiv
-                outputInstruction(instructionIndex, opcode);
+                builder.addInsn(insnIndex, opcode);
                 break;
             case 0x18: // dload
-                outputInstruction(instructionIndex, opcode, parseU1(null));
+                builder.addInsn(insnIndex, opcode, parser.u1());
                 bytecodeOffset += 1;
                 break;
             case 0x26: // dload_0
             case 0x27: // dload_1
             case 0x28: // dload_2
             case 0x29: // dload_3
-                outputInstruction(instructionIndex, 0x18, opcode - 0x26);
+                builder.addInsn(insnIndex, 0x18, opcode - 0x26);
                 break;
             case 0x6B: // dmul
             case 0x77: // dneg
             case 0x73: // drem
             case 0xAF: // dreturn
-                outputInstruction(instructionIndex, opcode);
+                builder.addInsn(insnIndex, opcode);
                 break;
             case 0x39: // dstore
-                outputInstruction(instructionIndex, opcode, parseU1(null));
+                builder.addInsn(insnIndex, opcode, parser.u1());
                 bytecodeOffset += 1;
                 break;
             case 0x47: // dstore_0
             case 0x48: // dstore_1
             case 0x49: // dstore_2
             case 0x4A: // dstore_3
-                outputInstruction(instructionIndex, 0x39, opcode - 0x47);
+                builder.addInsn(insnIndex, 0x39, opcode - 0x47);
                 break;
             case 0x67: // dsub
             case 0x59: // dup
@@ -888,51 +900,51 @@ class ClassDump {
             case 0x0C: // fconst_1
             case 0x0D: // fconst_2
             case 0x6E: // fdiv
-                outputInstruction(instructionIndex, opcode);
+                builder.addInsn(insnIndex, opcode);
                 break;
             case 0x17: // fload
-                outputInstruction(instructionIndex, opcode, parseU1(null));
+                builder.addInsn(insnIndex, opcode, parser.u1());
                 bytecodeOffset += 1;
                 break;
             case 0x22: // fload_0
             case 0x23: // fload_1
             case 0x24: // fload_2
             case 0x25: // fload_3
-                outputInstruction(instructionIndex, 0x17, opcode - 0x22);
+                builder.addInsn(insnIndex, 0x17, opcode - 0x22);
                 break;
             case 0x6A: // fmul
             case 0x76: // fneg
             case 0x72: // frem
             case 0xAE: // freturn
-                outputInstruction(instructionIndex, opcode);
+                builder.addInsn(insnIndex, opcode);
                 break;
             case 0x38: // fstore
-                outputInstruction(instructionIndex, opcode, parseU1(null));
+                builder.addInsn(insnIndex, opcode, parser.u1());
                 bytecodeOffset += 1;
                 break;
             case 0x43: // fstore_0
             case 0x44: // fstore_1
             case 0x45: // fstore_2
             case 0x46: // fstore_3
-                outputInstruction(instructionIndex, 0x38, opcode - 0x43);
+                builder.addInsn(insnIndex, 0x38, opcode - 0x43);
                 break;
             case 0x66: // fsub
-                outputInstruction(instructionIndex, opcode);
+                builder.addInsn(insnIndex, opcode);
                 break;
             case 0xB4: // getfield
             case 0xB2: // getstatic
-                outputInstruction(instructionIndex, opcode,
-                        parseU2ConstantPoolIndex(null));
+                builder.addInsn(insnIndex, opcode,
+                        builder.getCpInfo(parser.u2()));
                 bytecodeOffset += 2;
                 break;
             case 0xA7: // goto
-                outputInstruction(instructionIndex, opcode,
-                        newLabel(startOffset + parseS2(null)));
+                builder.addInsn(insnIndex, opcode, new InstructionIndex(
+                        startOffset + parser.s2(), builder));
                 bytecodeOffset += 2;
                 break;
             case 0xC8: // goto_w
-                outputInstruction(instructionIndex, 0xA7,
-                        newLabel(startOffset + parseU4(null)));
+                builder.addInsn(insnIndex, 0xA7, new InstructionIndex(
+                        startOffset + parser.u4(), builder));
                 bytecodeOffset += 4;
                 break;
             case 0x91: // i2b
@@ -953,7 +965,7 @@ class ClassDump {
             case 0x07: // iconst_4
             case 0x08: // iconst_5
             case 0x6C: // idiv
-                outputInstruction(instructionIndex, opcode);
+                builder.addInsn(insnIndex, opcode);
                 break;
             case 0xA5: // if_acmpeq
             case 0xA6: // if_acmpne
@@ -971,51 +983,50 @@ class ClassDump {
             case 0x9E: // ifle
             case 0xC7: // ifnonnull
             case 0xC6: // ifnull
-                outputInstruction(instructionIndex, opcode,
-                        newLabel(startOffset + parseS2(null)));
+                builder.addInsn(insnIndex, opcode, new InstructionIndex(
+                        startOffset + parser.s2(), builder));
                 bytecodeOffset += 2;
                 break;
             case 0x84: // iinc
-                outputInstruction(instructionIndex, opcode, parseU1(null),
-                        parseS1(null));
+                builder.addInsn(insnIndex, opcode, parser.u1(), parser.s1());
                 bytecodeOffset += 2;
                 break;
             case 0x15: // iload
-                outputInstruction(instructionIndex, opcode, parseU1(null));
+                builder.addInsn(insnIndex, opcode, parser.u1());
                 bytecodeOffset += 1;
                 break;
             case 0x1A: // iload_0
             case 0x1B: // iload_1
             case 0x1C: // iload_2
             case 0x1D: // iload_3
-                outputInstruction(instructionIndex, 0x15, opcode - 0x1A);
+                builder.addInsn(insnIndex, 0x15, opcode - 0x1A);
                 break;
             case 0x68: // imul
             case 0x74: // ineg
-                outputInstruction(instructionIndex, opcode);
+                builder.addInsn(insnIndex, opcode);
                 break;
             case 0xC1: // instanceof
-                outputInstruction(instructionIndex, opcode,
-                        parseU2ConstantPoolIndex(null));
+                builder.addInsn(insnIndex, opcode,
+                        builder.getCpInfo(parser.u2()));
                 bytecodeOffset += 2;
                 break;
             case 0xBA: // invokedynamic
-                outputInstruction(instructionIndex, opcode,
-                        parseU2ConstantPoolIndex(null));
-                parseU2(null);
+                builder.addInsn(insnIndex, opcode,
+                        builder.getCpInfo(parser.u2()));
+                parser.u2();
                 bytecodeOffset += 4;
                 break;
             case 0xB9: // invokeinterface
-                outputInstruction(instructionIndex, opcode,
-                        parseU2ConstantPoolIndex(null), parseU1(null));
-                parseU1(null);
+                builder.addInsn(insnIndex, opcode,
+                        builder.getCpInfo(parser.u2()), parser.u1());
+                parser.u1();
                 bytecodeOffset += 4;
                 break;
             case 0xB7: // invokespecial
             case 0xB8: // invokestatic
             case 0xB6: // invokevirtual
-                outputInstruction(instructionIndex, opcode,
-                        parseU2ConstantPoolIndex(null));
+                builder.addInsn(insnIndex, opcode,
+                        builder.getCpInfo(parser.u2()));
                 bytecodeOffset += 2;
                 break;
             case 0x80: // ior
@@ -1023,31 +1034,31 @@ class ClassDump {
             case 0xAC: // ireturn
             case 0x78: // ishl
             case 0x7A: // ishr
-                outputInstruction(instructionIndex, opcode);
+                builder.addInsn(insnIndex, opcode);
                 break;
             case 0x36: // istore
-                outputInstruction(instructionIndex, opcode, parseU1(null));
+                builder.addInsn(insnIndex, opcode, parser.u1());
                 bytecodeOffset += 1;
                 break;
             case 0x3B: // istore_0
             case 0x3C: // istore_1
             case 0x3D: // istore_2
             case 0x3E: // istore_3
-                outputInstruction(instructionIndex, 0x36, opcode - 0x3B);
+                builder.addInsn(insnIndex, 0x36, opcode - 0x3B);
                 break;
             case 0x64: // isub
             case 0x7C: // iushr
             case 0x82: // ixor
-                outputInstruction(instructionIndex, opcode);
+                builder.addInsn(insnIndex, opcode);
                 break;
             case 0xA8: // jsr
-                outputInstruction(instructionIndex, opcode,
-                        newLabel(startOffset + parseS2(null)));
+                builder.addInsn(insnIndex, opcode, new InstructionIndex(
+                        startOffset + parser.s2(), builder));
                 bytecodeOffset += 2;
                 break;
             case 0xC9: // jsr_w
-                outputInstruction(instructionIndex, 0xA8,
-                        newLabel(startOffset + parseU4(null)));
+                builder.addInsn(insnIndex, 0xA8, new InstructionIndex(
+                        startOffset + parser.u4(), builder));
                 bytecodeOffset += 4;
                 break;
             case 0x8A: // l2d
@@ -1060,48 +1071,48 @@ class ClassDump {
             case 0x94: // lcmp
             case 0x09: // lconst_0
             case 0x0A: // lconst_1
-                outputInstruction(instructionIndex, opcode);
+                builder.addInsn(insnIndex, opcode);
                 break;
             case 0x12: // ldc
-                outputInstruction(instructionIndex, opcode,
-                        parseU1ConstantPoolIndex(null));
+                builder.addInsn(insnIndex, opcode,
+                        builder.getCpInfo(parser.u1()));
                 bytecodeOffset += 1;
                 break;
             case 0x13: // ldc_w
             case 0x14: // ldc2_w
-                outputInstruction(instructionIndex, 0x12,
-                        parseU2ConstantPoolIndex(null));
+                builder.addInsn(insnIndex, 0x12,
+                        builder.getCpInfo(parser.u2()));
                 bytecodeOffset += 2;
                 break;
             case 0x6D: // ldiv
-                outputInstruction(instructionIndex, opcode);
+                builder.addInsn(insnIndex, opcode);
                 break;
             case 0x16: // lload
-                outputInstruction(instructionIndex, opcode, parseU1(null));
+                builder.addInsn(insnIndex, opcode, parser.u1());
                 bytecodeOffset += 1;
                 break;
             case 0x1E: // lload_0
             case 0x1F: // lload_1
             case 0x20: // lload_2
             case 0x21: // lload_3
-                outputInstruction(instructionIndex, 0x16, opcode - 0x1E);
+                builder.addInsn(insnIndex, 0x16, opcode - 0x1E);
                 break;
             case 0x69: // lmul
             case 0x75: // lneg
-                outputInstruction(instructionIndex, opcode);
+                builder.addInsn(insnIndex, opcode);
                 break;
             case 0xAB: // lookupswitch
-                outputInstruction(instructionIndex, opcode);
+                builder.addInsn(insnIndex, opcode);
                 while (bytecodeOffset % 4 != 0) {
-                    parseU1(null);
+                    parser.u1();
                     bytecodeOffset++;
                 }
-                output("default: ", newLabel(startOffset + parseU4(null)));
-                int pairCount = parseU4("npairs: ");
+                builder.addInsnIndex("default: ", startOffset + parser.u4());
+                int pairCount = builder.add("npairs: ", parser.u4());
                 bytecodeOffset += 8;
                 for (int i = 0; i < pairCount; ++i) {
-                    output(parseU4(null) + ": ",
-                            newLabel(startOffset + parseU4(null)));
+                    builder.addInsnIndex(parser.u4() + ": ",
+                            startOffset + parser.u4());
                     bytecodeOffset += 8;
                 }
                 break;
@@ -1110,83 +1121,83 @@ class ClassDump {
             case 0xAD: // lreturn
             case 0x79: // lshl
             case 0x7B: // lshr
-                outputInstruction(instructionIndex, opcode);
+                builder.addInsn(insnIndex, opcode);
                 break;
             case 0x37: // lstore
-                outputInstruction(instructionIndex, opcode, parseU1(null));
+                builder.addInsn(insnIndex, opcode, parser.u1());
                 bytecodeOffset += 1;
                 break;
             case 0x3F: // lstore_0
             case 0x40: // lstore_1
             case 0x41: // lstore_2
             case 0x42: // lstore_3
-                outputInstruction(instructionIndex, 0x37, opcode - 0x3F);
+                builder.addInsn(insnIndex, 0x37, opcode - 0x3F);
                 break;
             case 0x65: // lsub
             case 0x7D: // lushr
             case 0x83: // lxor
             case 0xC2: // monitorenter
             case 0xC3: // monitorexit
-                outputInstruction(instructionIndex, opcode);
+                builder.addInsn(insnIndex, opcode);
                 break;
             case 0xC5: // multianewarray
-                outputInstruction(instructionIndex, opcode,
-                        parseU2ConstantPoolIndex(null), parseU1(null));
+                builder.addInsn(insnIndex, opcode,
+                        builder.getCpInfo(parser.u2()), parser.u1());
                 bytecodeOffset += 3;
                 break;
             case 0xBB: // new
-                outputInstruction(instructionIndex, opcode,
-                        parseU2ConstantPoolIndex(null));
+                builder.addInsn(insnIndex, opcode,
+                        builder.getCpInfo(parser.u2()));
                 bytecodeOffset += 2;
                 break;
             case 0xBC: // newarray
-                outputInstruction(instructionIndex, opcode, parseU1(null));
+                builder.addInsn(insnIndex, opcode, parser.u1());
                 bytecodeOffset += 1;
                 break;
             case 0x00: // nop
             case 0x57: // pop
             case 0x58: // pop2
-                outputInstruction(instructionIndex, opcode);
+                builder.addInsn(insnIndex, opcode);
                 break;
             case 0xB5: // putfield
             case 0xB3: // putstatic
-                outputInstruction(instructionIndex, opcode,
-                        parseU2ConstantPoolIndex(null));
+                builder.addInsn(insnIndex, opcode,
+                        builder.getCpInfo(parser.u2()));
                 bytecodeOffset += 2;
                 break;
             case 0xA9: // ret
-                outputInstruction(instructionIndex, opcode, parseU1(null));
+                builder.addInsn(insnIndex, opcode, parser.u1());
                 bytecodeOffset += 1;
                 break;
             case 0xB1: // return
             case 0x35: // saload
             case 0x56: // sastore
-                outputInstruction(instructionIndex, opcode);
+                builder.addInsn(insnIndex, opcode);
                 break;
             case 0x11: // sipush
-                outputInstruction(instructionIndex, opcode, parseS2(null));
+                builder.addInsn(insnIndex, opcode, parser.s2());
                 bytecodeOffset += 2;
                 break;
             case 0x5F: // swap
-                outputInstruction(instructionIndex, opcode);
+                builder.addInsn(insnIndex, opcode);
                 break;
             case 0xAA: // tableswitch
-                outputInstruction(instructionIndex, opcode);
+                builder.addInsn(insnIndex, opcode);
                 while (bytecodeOffset % 4 != 0) {
-                    parseU1(null);
+                    parser.u1();
                     bytecodeOffset++;
                 }
-                output("default: ", newLabel(startOffset + parseU4(null)));
-                int low = parseU4("low: ");
-                int high = parseU4("high: ");
+                builder.addInsnIndex("default: ", startOffset + parser.u4());
+                int low = builder.add("low: ", parser.u4());
+                int high = builder.add("high: ", parser.u4());
                 bytecodeOffset += 12;
                 for (int i = low; i <= high; ++i) {
-                    output(i + ": ", newLabel(startOffset + parseU4(null)));
+                    builder.addInsnIndex(i + ": ", startOffset + parser.u4());
                     bytecodeOffset += 4;
                 }
                 break;
             case 0xC4: // wide
-                opcode = parseU1(null);
+                opcode = parser.u1();
                 bytecodeOffset += 1;
                 switch (opcode) {
                 case 0x15: // iload
@@ -1200,12 +1211,12 @@ class ClassDump {
                 case 0x37: // lstore
                 case 0x39: // dstore
                 case 0xA9: // ret
-                    outputInstruction(instructionIndex, opcode, parseU2(null));
+                    builder.addInsn(insnIndex, opcode, parser.u2());
                     bytecodeOffset += 2;
                     break;
                 case 0x84: // iinc
-                    outputInstruction(instructionIndex, opcode, parseU2(null),
-                            parseS2(null));
+                    builder.addInsn(insnIndex, opcode, parser.u2(),
+                            parser.s2());
                     bytecodeOffset += 4;
                     break;
                 default:
@@ -1215,65 +1226,70 @@ class ClassDump {
             default:
                 throw new IOException("Unknown opcode: " + opcode);
             }
-            instructionIndex++;
+            insnIndex++;
         }
-        instructionIndices.put(bytecodeOffset, instructionIndex);
+        builder.putInsnIndex(bytecodeOffset, insnIndex);
     }
 
     /**
-     * Parses a StackMapTable attribute.
+     * Parses and dumps a StackMapTable attribute.
      * 
      * @see https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-4.html#jvms-4.7.4
      */
-    private void parseStackMapTableAttribute() throws IOException {
-        int entryCount = parseU2("number_of_entries: ");
+    private static void dumpStackMapTableAttribute(Parser parser,
+            Builder builder) throws IOException {
+        int entryCount = builder.add("number_of_entries: ", parser.u2());
         int bytecodeOffset = -1;
         for (int i = 0; i < entryCount; ++i) {
-            int frameType = parseU1(null);
+            int frameType = parser.u1();
             if (frameType < 64) {
                 int offsetDelta = frameType;
                 bytecodeOffset += offsetDelta + 1;
-                output("SAME ", newLabel(bytecodeOffset));
+                builder.addInsnIndex("SAME ", bytecodeOffset);
             } else if (frameType < 128) {
                 int offsetDelta = frameType - 64;
                 bytecodeOffset += offsetDelta + 1;
-                output("SAME_LOCALS_1_STACK_ITEM ", newLabel(bytecodeOffset));
-                parseVerificationTypeInfo();
+                builder.addInsnIndex("SAME_LOCALS_1_STACK_ITEM ",
+                        bytecodeOffset);
+                dumpVerificationTypeInfo(parser, builder);
             } else if (frameType < 247) {
                 throw new IOException("Unknown frame type " + frameType);
             } else if (frameType == 247) {
-                int offsetDelta = parseU2(null);
+                int offsetDelta = parser.u2();
                 bytecodeOffset += offsetDelta + 1;
-                output("SAME_LOCALS_1_STACK_ITEM ", newLabel(bytecodeOffset));
-                parseVerificationTypeInfo();
+                builder.addInsnIndex("SAME_LOCALS_1_STACK_ITEM ",
+                        bytecodeOffset);
+                dumpVerificationTypeInfo(parser, builder);
             } else if (frameType < 251) {
-                int offsetDelta = parseU2(null);
+                int offsetDelta = parser.u2();
                 bytecodeOffset += offsetDelta + 1;
-                output("CHOP_" + (251 - frameType) + " ",
-                        newLabel(bytecodeOffset));
+                builder.addInsnIndex("CHOP_" + (251 - frameType) + " ",
+                        bytecodeOffset);
             } else if (frameType == 251) {
-                int offsetDelta = parseU2(null);
+                int offsetDelta = parser.u2();
                 bytecodeOffset += offsetDelta + 1;
-                output("SAME ", newLabel(bytecodeOffset));
+                builder.addInsnIndex("SAME ", bytecodeOffset);
             } else if (frameType < 255) {
-                int offsetDelta = parseU2(null);
+                int offsetDelta = parser.u2();
                 bytecodeOffset += offsetDelta + 1;
-                output("APPEND_" + (frameType - 251) + " ",
-                        newLabel(bytecodeOffset));
+                builder.addInsnIndex("APPEND_" + (frameType - 251) + " ",
+                        bytecodeOffset);
                 for (int j = 0; j < frameType - 251; ++j) {
-                    parseVerificationTypeInfo();
+                    dumpVerificationTypeInfo(parser, builder);
                 }
             } else if (frameType == 255) {
-                int offsetDelta = parseU2(null);
+                int offsetDelta = parser.u2();
                 bytecodeOffset += offsetDelta + 1;
-                output("FULL ", newLabel(bytecodeOffset));
-                int numberOfLocals = parseU2("number_of_locals: ");
+                builder.addInsnIndex("FULL ", bytecodeOffset);
+                int numberOfLocals = builder.add("number_of_locals: ",
+                        parser.u2());
                 for (int j = 0; j < numberOfLocals; ++j) {
-                    parseVerificationTypeInfo();
+                    dumpVerificationTypeInfo(parser, builder);
                 }
-                int numberOfStackItems = parseU2("number_of_stack_items: ");
+                int numberOfStackItems = builder.add("number_of_stack_items: ",
+                        parser.u2());
                 for (int j = 0; j < numberOfStackItems; ++j) {
-                    parseVerificationTypeInfo();
+                    dumpVerificationTypeInfo(parser, builder);
                 }
             } else {
                 throw new IOException("Unknown frame_type: " + frameType);
@@ -1282,189 +1298,205 @@ class ClassDump {
     }
 
     /**
-     * Parses a verification_type_info structure.
+     * Parses and dumps a verification_type_info structure.
      * 
      * @see https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-4.html#jvms-4.7.2
      */
-    private void parseVerificationTypeInfo() throws IOException {
-        int tag = parseU1("tag: ");
+    private static void dumpVerificationTypeInfo(Parser parser, Builder builder)
+            throws IOException {
+        int tag = builder.add("tag: ", parser.u1());
         if (tag > 8) {
             throw new IOException("Unknown verification_type_info tag: " + tag);
         }
         if (tag == 7) {
-            parseU2ConstantPoolIndex("cpool_index: ");
+            builder.addCpInfo("cpool_index: ", parser.u2());
         } else if (tag == 8) {
-            parseU2Label("offset: ");
+            builder.addInsnIndex("offset: ", parser.u2());
         }
     }
 
     /**
-     * Parses an Exception attribute.
+     * Parses and dumps an Exception attribute.
      * 
      * @see https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-4.html#jvms-4.7.5
      */
-    private void parseExceptionsAttribute() throws IOException {
-        int exceptionCount = parseU2("number_of_exceptions: ");
+    private static void dumpExceptionsAttribute(Parser parser, Builder builder)
+            throws IOException {
+        int exceptionCount = builder.add("number_of_exceptions: ", parser.u2());
         for (int i = 0; i < exceptionCount; ++i) {
-            parseU2ConstantPoolIndex("exception_index: ");
+            builder.addCpInfo("exception_index: ", parser.u2());
         }
     }
 
     /**
-     * Parses an InnerClasses attribute.
+     * Parses and dumps an InnerClasses attribute.
      * 
      * @see https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-4.html#jvms-4.7.6
      */
-    private void parseInnerClassesAttribute() throws IOException {
-        int classCount = parseU2("number_of_classes: ");
+    private static void dumpInnerClassesAttribute(Parser parser,
+            Builder builder) throws IOException {
+        int classCount = builder.add("number_of_classes: ", parser.u2());
         for (int i = 0; i < classCount; ++i) {
-            parseU2ConstantPoolIndex("inner_class_info_index: ");
-            parseU2ConstantPoolIndex("outer_class_info_index: ");
-            parseU2ConstantPoolIndex("inner_name_index: ");
-            parseU2("inner_class_access_flags: ");
+            builder.addCpInfo("inner_class_info_index: ", parser.u2());
+            builder.addCpInfo("outer_class_info_index: ", parser.u2());
+            builder.addCpInfo("inner_name_index: ", parser.u2());
+            builder.add("inner_class_access_flags: ", parser.u2());
         }
     }
 
     /**
-     * Parses an EnclosingMethod attribute.
+     * Parses and dumps an EnclosingMethod attribute.
      * 
      * @see https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-4.html#jvms-4.7.7
      */
-    private void parseEnclosingMethodAttribute() throws IOException {
-        parseU2ConstantPoolIndex("class_index: ");
-        parseU2ConstantPoolIndex("method_index: ");
+    private static void dumpEnclosingMethodAttribute(Parser parser,
+            Builder builder) throws IOException {
+        builder.addCpInfo("class_index: ", parser.u2());
+        builder.addCpInfo("method_index: ", parser.u2());
     }
 
     /**
-     * Parses a Synthetic attribute.
+     * Parses and dumps a Synthetic attribute.
      * 
      * @see https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-4.html#jvms-4.7.8
      */
-    private void parseSyntheticAttribute() {
+    private static void dumpSyntheticAttribute(Parser parser, Builder builder) {
         // Nothing to parse.
     }
 
     /**
-     * Parses a Signature attribute.
+     * Parses and dumps a Signature attribute.
      * 
      * @see https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-4.html#jvms-4.7.9
      */
-    private void parseSignatureAttribute() throws IOException {
-        parseU2ConstantPoolIndex("signature_index: ");
+    private static void dumpSignatureAttribute(Parser parser, Builder builder)
+            throws IOException {
+        builder.addCpInfo("signature_index: ", parser.u2());
     }
 
     /**
-     * Parses a SourceFile attribute.
+     * Parses and dumps a SourceFile attribute.
      * 
      * @see https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-4.html#jvms-4.7.10
      */
-    private void parseSourceFileAttribute() throws IOException {
-        parseU2ConstantPoolIndex("sourcefile_index: ");
+    private static void dumpSourceFileAttribute(Parser parser, Builder builder)
+            throws IOException {
+        builder.addCpInfo("sourcefile_index: ", parser.u2());
     }
 
     /**
-     * Parses a SourceDebug attribute.
+     * Parses and dumps a SourceDebug attribute.
      * 
      * @see https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-4.html#jvms-4.7.11
      */
-    private void parseSourceDebugAttribute(int attributeLength)
-            throws IOException {
-        byte[] attributeData = new byte[attributeLength];
-        input.readFully(attributeData);
+    private static void dumpSourceDebugAttribute(int attributeLength,
+            Parser parser, Builder builder) throws IOException {
+        byte[] attributeData = parser.bytes(attributeLength);
         StringBuilder stringBuilder = new StringBuilder();
         for (int i = 0; i < attributeData.length; ++i) {
             stringBuilder.append(attributeData[i]).append(',');
         }
-        output("debug_extension: ", stringBuilder.toString());
+        builder.add("debug_extension: ", stringBuilder.toString());
     }
 
     /**
-     * Parses a LineNumberTable attribute.
+     * Parses and dumps a LineNumberTable attribute.
      * 
      * @see https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-4.html#jvms-4.7.12
      */
-    private void parseLineNumberTableAttribute() throws IOException {
-        int lineNumberCount = parseU2("line_number_table_length: ");
+    private static void dumpLineNumberTableAttribute(Parser parser,
+            Builder builder) throws IOException {
+        int lineNumberCount = builder.add("line_number_table_length: ",
+                parser.u2());
         for (int i = 0; i < lineNumberCount; ++i) {
-            parseU2Label("start_pc: ");
-            parseU2("line_number: ");
+            builder.addInsnIndex("start_pc: ", parser.u2());
+            builder.add("line_number: ", parser.u2());
         }
     }
 
     /**
-     * Parses a LocalVariableTable attribute.
+     * Parses and dumps a LocalVariableTable attribute.
      * 
      * @see https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-4.html#jvms-4.7.13
      */
-    private void parseLocalVariableTableAttribute() throws IOException {
-        int localVariableCount = parseU2("local_variable_table_length: ");
+    private static void dumpLocalVariableTableAttribute(Parser parser,
+            Builder builder) throws IOException {
+        int localVariableCount = builder.add("local_variable_table_length: ",
+                parser.u2());
         for (int i = 0; i < localVariableCount; ++i) {
-            int startPc = parseU2Label("start_pc: ");
-            parseU2CodeLength("length: ", startPc);
-            parseU2ConstantPoolIndex("name_index: ");
-            parseU2ConstantPoolIndex("descriptor_index: ");
-            parseU2("index: ");
+            int startPc = builder.addInsnIndex("start_pc: ", parser.u2());
+            builder.addInsnIndex("length: ", startPc + parser.u2());
+            builder.addCpInfo("name_index: ", parser.u2());
+            builder.addCpInfo("descriptor_index: ", parser.u2());
+            builder.add("index: ", parser.u2());
         }
     }
 
     /**
-     * Parses a LocalVariableTypeTable attribute.
+     * Parses and dumps a LocalVariableTypeTable attribute.
      * 
      * @see https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-4.html#jvms-4.7.14
      */
-    private void parseLocalVariableTypeTableAttribute() throws IOException {
-        int localVariableCount = parseU2("local_variable_type_table_length: ");
+    private static void dumpLocalVariableTypeTableAttribute(Parser parser,
+            Builder builder) throws IOException {
+        int localVariableCount = builder
+                .add("local_variable_type_table_length: ", parser.u2());
         for (int i = 0; i < localVariableCount; ++i) {
-            int startPc = parseU2Label("start_pc: ");
-            parseU2CodeLength("length: ", startPc);
-            parseU2ConstantPoolIndex("name_index: ");
-            parseU2ConstantPoolIndex("signature_index: ");
-            parseU2("index: ");
+            int startPc = builder.addInsnIndex("start_pc: ", parser.u2());
+            builder.addInsnIndex("length: ", startPc + parser.u2());
+            builder.addCpInfo("name_index: ", parser.u2());
+            builder.addCpInfo("signature_index: ", parser.u2());
+            builder.add("index: ", parser.u2());
         }
     }
 
     /**
-     * Parses a Deprecated attribute.
+     * Parses and dumps a Deprecated attribute.
      * 
      * @see https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-4.html#jvms-4.7.15
      */
-    private void parseDeprecatedAttribute() {
+    private static void dumpDeprecatedAttribute(Parser parser,
+            Builder builder) {
         // Nothing to parse.
     }
 
     /**
-     * Parses a RuntimeVisibleAnnotations attribute.
+     * Parses and dumps a RuntimeVisibleAnnotations attribute.
      * 
      * @see https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-4.html#jvms-4.7.16
      */
-    private void parseRuntimeVisibleAnnotationsAttribute() throws IOException {
-        int annotationCount = parseU2("num_annotations: ");
+    private static void dumpRuntimeVisibleAnnotationsAttribute(Parser parser,
+            Builder builder) throws IOException {
+        int annotationCount = builder.add("num_annotations: ", parser.u2());
         for (int i = 0; i < annotationCount; ++i) {
-            parseAnnotation();
+            dumpAnnotation(parser, builder);
         }
     }
 
     /**
-     * Parses an annotations structure.
+     * Parses and dumps an annotations structure.
      * 
      * @see https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-4.html#jvms-4.7.16
      */
-    private void parseAnnotation() throws IOException {
-        parseU2ConstantPoolIndex("type_index: ");
-        int elementValuePairCount = parseU2("num_element_value_pairs: ");
+    private static void dumpAnnotation(Parser parser, Builder builder)
+            throws IOException {
+        builder.addCpInfo("type_index: ", parser.u2());
+        int elementValuePairCount = builder.add("num_element_value_pairs: ",
+                parser.u2());
         for (int i = 0; i < elementValuePairCount; ++i) {
-            parseU2ConstantPoolIndex("element_name_index: ");
-            parseElementValue();
+            builder.addCpInfo("element_name_index: ", parser.u2());
+            dumpElementValue(parser, builder);
         }
     }
 
     /**
-     * Parses an element_value structure.
+     * Parses and dumps an element_value structure.
      * 
      * @see https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-4.html#jvms-4.7.16.1
      */
-    private void parseElementValue() throws IOException {
-        int tag = parseU1(null);
+    private static void dumpElementValue(Parser parser, Builder builder)
+            throws IOException {
+        int tag = parser.u1();
         switch (tag) {
         case 'B':
         case 'C':
@@ -1475,23 +1507,23 @@ class ClassDump {
         case 'S':
         case 'Z':
         case 's':
-            parseU2ConstantPoolIndex(((char) tag) + ": ");
+            builder.addCpInfo(((char) tag) + ": ", parser.u2());
             return;
         case 'e':
-            parseU2ConstantPoolIndex("e: ");
-            parseU2ConstantPoolIndex("const_name_index: ");
+            builder.addCpInfo("e: ", parser.u2());
+            builder.addCpInfo("const_name_index: ", parser.u2());
             return;
         case 'c':
-            parseU2ConstantPoolIndex(((char) tag) + ": ");
+            builder.addCpInfo(((char) tag) + ": ", parser.u2());
             return;
         case '@':
-            output("@:", " ");
-            parseAnnotation();
+            builder.add("@: ", "");
+            dumpAnnotation(parser, builder);
             return;
         case '[':
-            int valueCount = parseU2("[: ");
+            int valueCount = builder.add("[: ", parser.u2());
             for (int i = 0; i < valueCount; ++i) {
-                parseElementValue();
+                dumpElementValue(parser, builder);
             }
             return;
         default:
@@ -1500,84 +1532,80 @@ class ClassDump {
     }
 
     /**
-     * Parses a RuntimeInvisibleAnnotations attribute.
+     * Parses and dumps a RuntimeInvisibleAnnotations attribute.
      * 
      * @see https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-4.html#jvms-4.7.17
      */
-    private void parseRuntimeInvisibleAnnotationsAttribute()
-            throws IOException {
-        parseRuntimeVisibleAnnotationsAttribute();
+    private static void dumpRuntimeInvisibleAnnotationsAttribute(Parser parser,
+            Builder builder) throws IOException {
+        dumpRuntimeVisibleAnnotationsAttribute(parser, builder);
     }
 
     /**
-     * Parses a RuntimeVisibleParameterAnnotations attribute.
+     * Parses and dumps a RuntimeVisibleParameterAnnotations attribute.
      * 
      * @see https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-4.html#jvms-4.7.18
      */
-    private void parseRuntimeVisibleParameterAnnotationsAttribute()
-            throws IOException {
-        int parameterCount = parseU1("num_parameters: ");
+    private static void dumpRuntimeVisibleParameterAnnotationsAttribute(
+            Parser parser, Builder builder) throws IOException {
+        int parameterCount = builder.add("num_parameters: ", parser.u1());
         for (int i = 0; i < parameterCount; ++i) {
-            int annotationCount = parseU2("num_annotations: ");
+            int annotationCount = builder.add("num_annotations: ", parser.u2());
             for (int j = 0; j < annotationCount; ++j) {
-                parseAnnotation();
+                dumpAnnotation(parser, builder);
             }
         }
     }
 
     /**
-     * Parses a RuntimeInvisibleParameterAnnotations attribute.
+     * Parses and dumps a RuntimeInvisibleParameterAnnotations attribute.
      * 
      * @see https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-4.html#jvms-4.7.19
      */
-    private void parseRuntimeInvisibleParameterAnnotationsAttribute()
-            throws IOException {
-        parseRuntimeVisibleParameterAnnotationsAttribute();
+    private static void dumpRuntimeInvisibleParameterAnnotationsAttribute(
+            Parser parser, Builder builder) throws IOException {
+        dumpRuntimeVisibleParameterAnnotationsAttribute(parser, builder);
     }
 
     /**
-     * Parses a RuntimeVisibleTypeAnnotations attribute.
+     * Parses and dumps a RuntimeVisibleTypeAnnotations attribute.
      * 
      * @see https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-4.html#jvms-4.7.20
      */
-    private void parseRuntimeVisibleTypeAnnotationsAttribute()
-            throws IOException {
-        int annotationCount = parseU2("num_annotations: ");
-        OutputNode typeAnnotationsOutputNode = new SortedOutputNode();
-        pathToCurrentOutputNode.peek().append(typeAnnotationsOutputNode);
-        pathToCurrentOutputNode.push(typeAnnotationsOutputNode);
+    private static void dumpRuntimeVisibleTypeAnnotationsAttribute(
+            Parser parser, Builder builder) throws IOException {
+        int annotationCount = builder.add("num_annotations: ", parser.u2());
+        SortedBuilder sortedBuilder = builder.addSortedBuilder();
         for (int i = 0; i < annotationCount; ++i) {
-            parseTypeAnnotation();
+            dumpTypeAnnotation(parser, sortedBuilder);
         }
-        pathToCurrentOutputNode.pop();
     }
 
     /**
-     * Parses a type_annotation structure.
+     * Parses and dumps a type_annotation structure.
      * 
      * @see https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-4.html#jvms-4.7.20
      */
-    private void parseTypeAnnotation() throws IOException {
-        SortableOutputNode typeAnnotationOutputNode = new SortableOutputNode();
-        pathToCurrentOutputNode.peek().append(typeAnnotationOutputNode);
-        pathToCurrentOutputNode.push(typeAnnotationOutputNode);
-        int targetType = parseU1("target_type: ");
-        typeAnnotationOutputNode.sortingKey = String.valueOf(targetType);
+    private static void dumpTypeAnnotation(Parser parser,
+            SortedBuilder sortedBuilder) throws IOException {
+        int targetType = parser.u1();
+        Builder builder = sortedBuilder.addBuilder(String.valueOf(targetType));
+        builder.add("target_type: ", targetType);
         switch (targetType) {
         case 0x00:
         case 0x01:
             // type_parameter_target
-            parseU1("type_parameter_index: ");
+            builder.add("type_parameter_index: ", parser.u1());
             break;
         case 0x10:
             // supertype_target
-            parseU2("supertype_index: ");
+            builder.add("supertype_index: ", parser.u2());
             break;
         case 0x11:
         case 0x12:
             // type_parameter_bound_target
-            parseU1("type_parameter_index: ");
-            parseU1("bound_index: ");
+            builder.add("type_parameter_index: ", parser.u1());
+            builder.add("bound_index: ", parser.u1());
             break;
         case 0x13:
         case 0x14:
@@ -1587,32 +1615,32 @@ class ClassDump {
             break;
         case 0x16:
             // formal_parameter_target
-            parseU1("formal_parameter_index: ");
+            builder.add("formal_parameter_index: ", parser.u1());
             break;
         case 0x17:
             // throws_target
-            parseU2("throws_type_index: ");
+            builder.add("throws_type_index: ", parser.u2());
             break;
         case 0x40:
         case 0x41:
             // localvar_target
-            int tableLength = parseU2("table_length: ");
+            int tableLength = builder.add("table_length: ", parser.u2());
             for (int i = 0; i < tableLength; ++i) {
-                int startPc = parseU2Label("start_pc: ");
-                parseU2CodeLength("length: ", startPc);
-                parseU2("index: ");
+                int startPc = builder.addInsnIndex("start_pc: ", parser.u2());
+                builder.addInsnIndex("length: ", startPc + parser.u2());
+                builder.add("index: ", parser.u2());
             }
             break;
         case 0x42:
             // catch_target
-            parseU2("exception_table_index: ");
+            builder.add("exception_table_index: ", parser.u2());
             break;
         case 0x43:
         case 0x44:
         case 0x45:
         case 0x46:
             // offset_target
-            parseU2Label("offset: ");
+            builder.addInsnIndex("offset: ", parser.u2());
             break;
         case 0x47:
         case 0x48:
@@ -1620,471 +1648,385 @@ class ClassDump {
         case 0x4A:
         case 0x4B:
             // type_argument_target
-            parseU2Label("offset: ");
-            parseU1("type_argument_index: ");
+            builder.addInsnIndex("offset: ", parser.u2());
+            builder.add("type_argument_index: ", parser.u1());
             break;
         default:
             throw new IOException("Unknown target_type: " + targetType);
         }
-        parseTypePath();
-        parseAnnotation();
-        pathToCurrentOutputNode.pop();
+        dumpTypePath(parser, builder);
+        dumpAnnotation(parser, builder);
     }
 
     /**
-     * Parses a type_path structure.
+     * Parses and dumps a type_path structure.
      * 
      * @see https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-4.html#jvms-4.7.20.2
      */
-    private void parseTypePath() throws IOException {
-        int pathLength = parseU1("path_length: ");
+    private static void dumpTypePath(Parser parser, Builder builder)
+            throws IOException {
+        int pathLength = builder.add("path_length: ", parser.u1());
         for (int i = 0; i < pathLength; ++i) {
-            parseU1("type_path_kind: ");
-            parseU1("type_argument_index: ");
+            builder.add("type_path_kind: ", parser.u1());
+            builder.add("type_argument_index: ", parser.u1());
         }
     }
 
     /**
-     * Parses a RuntimeInvisibleTypeAnnotations attribute.
+     * Parses and dumps a RuntimeInvisibleTypeAnnotations attribute.
      * 
      * @see https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-4.html#jvms-4.7.21
      */
-    private void parseRuntimeInvisibleTypeAnnotationsAttribute()
-            throws IOException {
-        parseRuntimeVisibleTypeAnnotationsAttribute();
+    private static void dumpRuntimeInvisibleTypeAnnotationsAttribute(
+            Parser parser, Builder builder) throws IOException {
+        dumpRuntimeVisibleTypeAnnotationsAttribute(parser, builder);
     }
 
     /**
-     * Parses an AnnotationDefault attribute.
+     * Parses and dumps an AnnotationDefault attribute.
      * 
      * @see https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-4.html#jvms-4.7.22
      */
-    private void parseAnnotationDefaultAttribute() throws IOException {
-        parseElementValue();
+    private static void dumpAnnotationDefaultAttribute(Parser parser,
+            Builder builder) throws IOException {
+        dumpElementValue(parser, builder);
     }
 
     /**
-     * Parses a BootstrapMethods attribute.
+     * Parses and dumps a BootstrapMethods attribute.
      * 
      * @see https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-4.html#jvms-4.7.23
      */
-    private void parseBootstrapMethodsAttribute() throws IOException {
-        int bootstrapMethodCount = parseU2("num_bootstrap_methods: ");
+    private static void dumpBootstrapMethodsAttribute(Parser parser,
+            Builder builder) throws IOException {
+        int bootstrapMethodCount = builder.add("num_bootstrap_methods: ",
+                parser.u2());
         for (int i = 0; i < bootstrapMethodCount; ++i) {
-            parseU2ConstantPoolIndex("bootstrap_method_ref: ");
-            int bootstrapArgumentCount = parseU2("num_bootstrap_arguments: ");
+            builder.addCpInfo("bootstrap_method_ref: ", parser.u2());
+            int bootstrapArgumentCount = builder
+                    .add("num_bootstrap_arguments: ", parser.u2());
             for (int j = 0; j < bootstrapArgumentCount; ++j) {
-                parseU2ConstantPoolIndex("bootstrap_argument: ");
+                builder.addCpInfo("bootstrap_argument: ", parser.u2());
             }
         }
     }
 
     /**
-     * Parses a MethodParameters attribute.
+     * Parses and dumps a MethodParameters attribute.
      * 
      * @see https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-4.html#jvms-4.7.24
      */
-    private void parseMethodParametersAttribute() throws IOException {
-        int parameterCount = parseU1("parameters_count: ");
+    private static void dumpMethodParametersAttribute(Parser parser,
+            Builder builder) throws IOException {
+        int parameterCount = builder.add("parameters_count: ", parser.u1());
         for (int i = 0; i < parameterCount; ++i) {
-            parseU2ConstantPoolIndex("name_index: ");
-            parseU2("access_flags: ");
+            builder.addCpInfo("name_index: ", parser.u2());
+            builder.add("access_flags: ", parser.u2());
         }
     }
 
     /**
-     * Parses a Module attribute.
+     * Parses and dumps a Module attribute.
      * 
-     * TODO Add a link to JVMS se9 when it is available.
+     * @see https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.7.25
      */
-    private void parseModuleAttribute() throws IOException {
-        parseU2ConstantPoolIndex("name: ");
-        parseU2("access: ");
-        parseU2ConstantPoolIndex("version: ");
-        int requireCount = parseU2("require_count: ");
+    private static void dumpModuleAttribute(Parser parser, Builder builder)
+            throws IOException {
+        builder.addCpInfo("name: ", parser.u2());
+        builder.add("access: ", parser.u2());
+        builder.addCpInfo("version: ", parser.u2());
+        int requireCount = builder.add("require_count: ", parser.u2());
         for (int i = 0; i < requireCount; ++i) {
-            parseU2ConstantPoolIndex("name: ");
-            parseU2("access: ");
-            parseU2ConstantPoolIndex("version: ");
+            builder.addCpInfo("name: ", parser.u2());
+            builder.add("access: ", parser.u2());
+            builder.addCpInfo("version: ", parser.u2());
         }
-        int exportCount = parseU2("export_count: ");
+        int exportCount = builder.add("export_count: ", parser.u2());
         for (int i = 0; i < exportCount; ++i) {
-            parseU2ConstantPoolIndex("name: ");
-            parseU2("access: ");
-            int exportToCount = parseU2("export_to_count: ");
+            builder.addCpInfo("name: ", parser.u2());
+            builder.add("access: ", parser.u2());
+            int exportToCount = builder.add("export_to_count: ", parser.u2());
             for (int j = 0; j < exportToCount; ++j) {
-                parseU2ConstantPoolIndex("to: ");
+                builder.addCpInfo("to: ", parser.u2());
             }
         }
-        int openCount = parseU2("open_count: ");
+        int openCount = builder.add("open_count: ", parser.u2());
         for (int i = 0; i < openCount; ++i) {
-            parseU2ConstantPoolIndex("name: ");
-            parseU2("access: ");
-            int openToCount = parseU2("open_to_count: ");
+            builder.addCpInfo("name: ", parser.u2());
+            builder.add("access: ", parser.u2());
+            int openToCount = builder.add("open_to_count: ", parser.u2());
             for (int j = 0; j < openToCount; ++j) {
-                parseU2ConstantPoolIndex("to: ");
+                builder.addCpInfo("to: ", parser.u2());
             }
         }
-        int useCount = parseU2("use_count: ");
+        int useCount = builder.add("use_count: ", parser.u2());
         for (int i = 0; i < useCount; ++i) {
-            parseU2ConstantPoolIndex("use: ");
+            builder.addCpInfo("use: ", parser.u2());
         }
-        int provideCount = parseU2("provide_count: ");
+        int provideCount = builder.add("provide_count: ", parser.u2());
         for (int i = 0; i < provideCount; ++i) {
-            parseU2ConstantPoolIndex("provide: ");
-            int provideWithCount = parseU2("provide_with_count: ");
+            builder.addCpInfo("provide: ", parser.u2());
+            int provideWithCount = builder.add("provide_with_count: ",
+                    parser.u2());
             for (int j = 0; j < provideWithCount; ++j) {
-                parseU2ConstantPoolIndex("with: ");
+                builder.addCpInfo("with: ", parser.u2());
             }
         }
     }
 
     /**
-     * Parses a ModuleMainClass attribute.
-     *
-     * TODO Add a link to JVMS se9 when it is available.
-     */
-    private void parseModuleMainClassAttribute() throws IOException {
-        parseU2ConstantPoolIndex("main_class: ");
-    }
-
-    /**
-     * Parses a ModulePackages attribute.
+     * Parses and dumps a ModulePackages attribute.
      * 
-     * TODO Add a link to JVMS se9 when it is available.
+     * @see https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.7.26
      */
-    private void parseModulePackagesAttribute() throws IOException {
-        int packageCount = parseU2("package_count: ");
+    private static void dumpModulePackagesAttribute(Parser parser,
+            Builder builder) throws IOException {
+        int packageCount = builder.add("package_count: ", parser.u2());
         for (int i = 0; i < packageCount; ++i) {
-            parseU2ConstantPoolIndex("package: ");
+            builder.addCpInfo("package: ", parser.u2());
         }
     }
 
     /**
-     * Parses a StackMap attribute.
+     * Parses and dumps a ModuleMainClass attribute.
+     *
+     * @see https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.7.27
+     */
+    private static void dumpModuleMainClassAttribute(Parser parser,
+            Builder builder) throws IOException {
+        builder.addCpInfo("main_class: ", parser.u2());
+    }
+
+    /**
+     * Parses and dumps a StackMap attribute.
      *
      * @see http://docs.oracle.com/javame/config/cldc/opt-pkgs/api/cldc/api/Appendix1-verifier.pdf
      */
-    private void parseStackMapAttribute() throws IOException {
-        int entryCount = parseU2("number_of_entries: ");
-        for (int i = 0; i < entryCount; ++i) {
-            parseU2Label("offset: ");
-            int numberOfLocals = parseU2("number_of_locals: ");
-            for (int j = 0; j < numberOfLocals; ++j) {
-                parseVerificationTypeInfo();
-            }
-            int numberOfStackItems = parseU2("number_of_stack_items: ");
-            for (int j = 0; j < numberOfStackItems; ++j) {
-                parseVerificationTypeInfo();
-            }
-        }
-    }
-
-    /**
-     * Parses an unsigned byte.
-     * 
-     * @param name
-     *            The symbolic name of this value. Can be null.
-     * @return The parsed value.
-     */
-    int parseU1(String name) throws IOException {
-        int value = input.readUnsignedByte();
-        if (name != null) {
-            output(name, value);
-        }
-        return value;
-    }
-
-    /**
-     * Parses a signed byte.
-     * 
-     * @param name
-     *            The symbolic name of this value. Can be null.
-     * @return The parsed value.
-     */
-    int parseS1(String name) throws IOException {
-        int value = input.readByte();
-        if (name != null) {
-            output(name, value);
-        }
-        return value;
-    }
-
-    /**
-     * Parses an unsigned short.
-     * 
-     * @param name
-     *            The symbolic name of this value. Can be null.
-     * @return The parsed value.
-     */
-    int parseU2(String name) throws IOException {
-        int value = input.readUnsignedShort();
-        if (name != null) {
-            output(name, value);
-        }
-        return value;
-    }
-
-    /**
-     * Parses a signed short.
-     * 
-     * @param name
-     *            The symbolic name of this value. Can be null.
-     * @return The parsed value.
-     */
-    int parseS2(String name) throws IOException {
-        int value = input.readShort();
-        if (name != null) {
-            output(name, value);
-        }
-        return value;
-    }
-
-    /**
-     * Parses an integer.
-     * 
-     * @param name
-     *            The symbolic name of this value. Can be null.
-     * @return The parsed value.
-     */
-    int parseU4(String name) throws IOException {
-        int value = input.readInt();
-        if (name != null) {
-            output(name, value);
-        }
-        return value;
-    }
-
-    /**
-     * Parses an unsigned short containing a bytecode offset (from the start of
-     * the method code). Outputs a label corresponding to this offset.
-     * 
-     * @param name
-     *            The symbolic name of this value. Can be null.
-     * @return The parsed value.
-     */
-    private int parseU2Label(String name) throws IOException {
-        int bytecodeOffset = input.readUnsignedShort();
-        if (name != null) {
-            output(name, newLabel(bytecodeOffset));
-        }
-        return bytecodeOffset;
-    }
-
-    /**
-     * Parses an unsigned short containing the length of a bytecode sequence, in
-     * bytes. Outputs a label corresponding to the end of this sequence.
-     * 
-     * @param name
-     *            The symbolic name of this value. Can be null.
-     * @param startOffset
-     *            The start of the bytecode sequence, in bytes from the start of
-     *            the method code.
-     * @return The parsed value.
-     */
-    private int parseU2CodeLength(String name, int startOffset)
+    private static void dumpStackMapAttribute(Parser parser, Builder builder)
             throws IOException {
-        int length = input.readUnsignedShort();
-        if (name != null) {
-            output(name, newLabel(startOffset + length));
+        int entryCount = builder.add("number_of_entries: ", parser.u2());
+        for (int i = 0; i < entryCount; ++i) {
+            builder.addInsnIndex("offset: ", parser.u2());
+            int numberOfLocals = builder.add("number_of_locals: ", parser.u2());
+            for (int j = 0; j < numberOfLocals; ++j) {
+                dumpVerificationTypeInfo(parser, builder);
+            }
+            int numberOfStackItems = builder.add("number_of_stack_items: ",
+                    parser.u2());
+            for (int j = 0; j < numberOfStackItems; ++j) {
+                dumpVerificationTypeInfo(parser, builder);
+            }
         }
-        return length;
     }
 
     /**
-     * Parses an unsigned byte containing the index of a constant pool entry.
-     * 
-     * @param name
-     *            The symbolic name of this value. Can be null.
-     * @return The constant pool entry at the parsed index.
+     * A simple byte array parser. The method names reflect the type names used
+     * in the Java Virtual Machine Specification for ease of reference.
      */
-    private CpInfo parseU1ConstantPoolIndex(String name) throws IOException {
-        CpInfo cpInfo = constantPool.get(input.readUnsignedByte());
-        if (name != null) {
-            output(name, cpInfo);
+    private static class Parser {
+        private final DataInputStream dataInputStream;
+
+        Parser(byte[] data) {
+            this.dataInputStream = new DataInputStream(
+                    new ByteArrayInputStream(data));
         }
-        return cpInfo;
+
+        int u1() throws IOException {
+            return dataInputStream.readUnsignedByte();
+        }
+
+        int s1() throws IOException {
+            return dataInputStream.readByte();
+        }
+
+        int u2() throws IOException {
+            return dataInputStream.readUnsignedShort();
+        }
+
+        int s2() throws IOException {
+            return dataInputStream.readShort();
+        }
+
+        int u4() throws IOException {
+            return dataInputStream.readInt();
+        }
+
+        long s8() throws IOException {
+            long highBytes = dataInputStream.readInt();
+            long lowBytes = dataInputStream.readInt() & 0xFFFFFFFFL;
+            return (highBytes << 32) | lowBytes;
+        }
+
+        String utf8() throws IOException {
+            return dataInputStream.readUTF();
+        }
+
+        byte[] bytes(int length) throws IOException {
+            byte[] bytes = new byte[length];
+            dataInputStream.readFully(bytes);
+            return bytes;
+        }
+    }
+
+    /** A context to lookup constant pool items from their index. */
+    private static interface ClassContext {
+        CpInfo getCpInfo(int cpIndex);
+    }
+
+    /** A context to lookup instruction indices from their bytecode offset. */
+    private static interface MethodContext {
+        Integer getInsnIndex(int bytecodeOffset);
     }
 
     /**
-     * Parses an unsigned short containing the index of a constant pool entry.
-     * 
-     * @param name
-     *            The symbolic name of this value. Can be null.
-     * @return The constant pool entry at the parsed index.
+     * A helper class to build the dump of a class file. The dump can't be
+     * output fully sequentially, as the input class is parsed, in particular
+     * due to the re-ordering of attributes and annotations. Instead, a tree is
+     * constructed first, then its nodes are sorted and finally the tree is
+     * parsed in Depth First Search order to build the dump. This class is the
+     * super class of the internal nodes of the tree.
+     * <p>
+     * Each internal node is a context that can store a mapping between constant
+     * pool indices and constant pool items and between bytecode offsets and
+     * instructions indices. This can be used to resolve references to such
+     * objects. Contexts inherit from their parent, i.e. if a lookup fails in
+     * some builder, the lookup continues in the parent, and so on until the
+     * root is reached.
      */
-    private CpInfo parseU2ConstantPoolIndex(String name) throws IOException {
-        CpInfo cpInfo = constantPool.get(input.readUnsignedShort());
-        if (name != null) {
-            output(name, cpInfo);
-        }
-        return cpInfo;
-    }
+    private static abstract class AbstractBuilder<T>
+            implements ClassContext, MethodContext {
+        /** Flag used to distinguish CpInfo keys in {@link #context}. */
+        private final static int CP_INFO_KEY = 0xF0000000;
+        /** The parent node of this node. May be null. */
+        private final AbstractBuilder<?> parent;
+        /** The children of this builder. */
+        final ArrayList<T> children;
+        /** The map used to implement the Context interfaces. */
+        private final HashMap<Integer, Object> context;
 
-    /**
-     * Appends a named value to the current {@link OutputNode}.
-     * 
-     * @param name
-     *            The symbolic name of a value.
-     * @param value
-     *            A value.
-     */
-    private void output(String name, Object value) {
-        OutputNode currentOutputNode = pathToCurrentOutputNode.peek();
-        currentOutputNode.append(name);
-        currentOutputNode.append(value);
-        currentOutputNode.append("\n");
-    }
-
-    /**
-     * Appends the string representation of a bytecode instruction to the
-     * current {@link OutputNode}.
-     * 
-     * @param index
-     *            The index of the bytecode instruction.
-     * @param opcode
-     *            The opcode of the bytecode instruction.
-     * @param arguments
-     *            The arguments of the bytecode instruction.
-     */
-    private void outputInstruction(int index, int opcode, Object... arguments) {
-        OutputNode currentOutputNode = pathToCurrentOutputNode.peek();
-        currentOutputNode.append(index);
-        currentOutputNode.append(": ");
-        currentOutputNode.append(opcode);
-        for (Object argument : arguments) {
-            currentOutputNode.append(" ");
-            currentOutputNode.append(argument);
-        }
-        currentOutputNode.append("\n");
-    }
-
-    /**
-     * A node of the intermediate tree used to build the final dump of the input
-     * class (see {@link #pathToCurrentOutputNode}). The children of this node
-     * are stored in a list. A child can be an {@link OutputNode} instance.
-     */
-    private static class OutputNode {
-        /** The children of this node. */
-        final ArrayList<Object> children = new ArrayList<Object>();
-
-        // Package-private constructor to avoid a synthetic accessor method.
-        OutputNode() {
+        AbstractBuilder(AbstractBuilder<?> parent) {
+            this.parent = parent;
+            this.children = new ArrayList<T>();
+            this.context = new HashMap<Integer, Object>();
         }
 
-        /** Append the given child after the last child of this node. */
-        void append(Object child) {
-            children.add(child);
+        public CpInfo getCpInfo(int cpIndex) {
+            return (CpInfo) get(CP_INFO_KEY | cpIndex);
         }
 
-        /**
-         * Append the string representation of the tree rooted at this node to
-         * the given builder.
-         */
-        void toString(StringBuilder stringBuilder) {
+        public Integer getInsnIndex(int bytecodeOffset) {
+            return (Integer) get(bytecodeOffset);
+        }
+
+        /** Registers the CpInfo for the given constant pool index. */
+        void putCpInfo(int cpIndex, CpInfo cpInfo) {
+            context.put(CP_INFO_KEY | cpIndex, cpInfo);
+        }
+
+        /** Registers the instruction index for the given bytecode offset. */
+        void putInsnIndex(int bytecodeOffset, int instructionIndex) {
+            context.put(bytecodeOffset, instructionIndex);
+        }
+
+        /** Recursively appends the builder's children to the given string. */
+        void build(StringBuilder stringBuilder) {
             for (Object child : children) {
-                if (child instanceof OutputNode) {
-                    ((OutputNode) child).toString(stringBuilder);
+                if (child instanceof AbstractBuilder<?>) {
+                    ((AbstractBuilder<?>) child).build(stringBuilder);
                 } else {
                     stringBuilder.append(child);
                 }
             }
         }
-    }
 
-    /**
-     * An {@link OutputNode} which sorts its children before computing its
-     * string representation. All the children of this node MUST be instances of
-     * {@link SortableOutputNode}.
-     */
-    private static class SortedOutputNode extends OutputNode {
-
-        // Package-private constructor to avoid a synthetic accessor method.
-        SortedOutputNode() {
-        }
-
-        @Override
-        void append(Object child) {
-            if (child instanceof SortableOutputNode) {
-                super.append(child);
-            } else {
-                throw new IllegalArgumentException(
-                        child + " is not a SortableOutputNode");
-            }
-        }
-
-        @Override
-        void toString(StringBuilder stringBuilder) {
-            Collections.sort(children, new Comparator<Object>() {
-
-                public int compare(Object child0, Object child1) {
-                    return ((SortableOutputNode) child0).sortingKey.compareTo(
-                            ((SortableOutputNode) child1).sortingKey);
-                }
-            });
-            super.toString(stringBuilder);
-        }
-    }
-
-    /**
-     * An {@link OutputNode} suitable for use as a child of a
-     * {@link SortedOutputNode}.
-     */
-    private static class SortableOutputNode extends OutputNode {
         /**
-         * The key used to sort this node and its siblings in their parent
-         * {@link SortedOutputNode}.
+         * Returns the value associated with the given key in this context or,
+         * if not found, in the parent context (recursively).
          */
-        String sortingKey;
-
-        // Package-private constructor to avoid a synthetic accessor method.
-        SortableOutputNode() {
+        private Object get(int key) {
+            Object value = context.get(key);
+            if (value != null) {
+                return value;
+            }
+            return parent == null ? null : parent.get(key);
         }
     }
 
-    /**
-     * An {@link OutputNode} containing a bytecode offset. This offset is
-     * converted to an instruction index in the string representation of this
-     * node.
-     */
-    private static class LabelOutputNode extends OutputNode {
-        /**
-         * A map from bytecode offsets to instruction indices. This map may not
-         * contain the value corresponding to {@link #bytecodeOffset} when this
-         * node is constructed, but it must contain it when {@link #toString} is
-         * called.
-         */
-        final Map<Integer, Integer> instructionIndices;
-        /** A bytecode offset, from the start of the method. */
-        final int bytecodeOffset;
+    /** An {@link AbstractBuilder} with concrete methods to add children. */
+    private static class Builder extends AbstractBuilder<Object>
+            implements Comparable<Builder> {
+        /** The name of this builder, for sorting in {@link SortedBuilder}. */
+        private final String name;
 
-        LabelOutputNode(Map<Integer, Integer> instructionIndices,
-                int bytecodeOffset) {
-            this.instructionIndices = instructionIndices;
-            this.bytecodeOffset = bytecodeOffset;
+        Builder(String name, AbstractBuilder<?> parent) {
+            super(parent);
+            this.name = name;
+        }
+
+        /** Appends name and value to children and returns value. */
+        <T> T add(String name, T value) {
+            children.add(name);
+            children.add(value);
+            children.add("\n");
+            return value;
+        }
+
+        /**
+         * Appends name and the instruction index corresponding to
+         * bytecodeOffset to children, and returns bytecodeOffset.
+         */
+        int addInsnIndex(String name, int bytecodeOffset) {
+            add(name, new InstructionIndex(bytecodeOffset, this));
+            return bytecodeOffset;
+        }
+
+        /** Appends the given arguments to children. */
+        void addInsn(int insnIndex, int opcode, Object... arguments) {
+            children.add(insnIndex);
+            children.add(": ");
+            children.add(opcode);
+            for (Object argument : arguments) {
+                children.add(" ");
+                children.add(argument);
+            }
+            children.add("\n");
+        }
+
+        /** Appends name and the CpInfo corresponding to cpIndex to children. */
+        void addCpInfo(String name, int cpIndex) {
+            add(name, getCpInfo(cpIndex));
+        }
+
+        /** Appends a new {@link SortedBuilder} to children and returns it. */
+        SortedBuilder addSortedBuilder() {
+            SortedBuilder sortedBuilder = new SortedBuilder(this);
+            children.add(sortedBuilder);
+            return sortedBuilder;
+        }
+
+        public int compareTo(Builder builder) {
+            return name.compareTo(builder.name);
+        }
+    }
+
+    /** An {@link AbstractBuilder} which sorts its children before building. */
+    private static class SortedBuilder extends AbstractBuilder<Builder> {
+
+        SortedBuilder(Builder parent) {
+            super(parent);
+        }
+
+        /** Appends a new {@link Builder} to children and returns it. */
+        Builder addBuilder(String name) {
+            Builder builder = new Builder(name, this);
+            children.add(builder);
+            return builder;
         }
 
         @Override
-        void toString(StringBuilder stringBuilder) {
-            Integer instructionIndex = instructionIndices.get(bytecodeOffset);
-            if (instructionIndex == null) {
-                throw new RuntimeException(
-                        "Invalid bytecode offset:" + bytecodeOffset);
-            }
-            stringBuilder.append('<').append(instructionIndex).append('>');
+        void build(StringBuilder stringBuilder) {
+            Collections.sort(children);
+            super.build(stringBuilder);
         }
-    }
-
-    /**
-     * Creates and returns a {@link LabelOutputNode} for the given bytecode
-     * offset.
-     * 
-     * @param bytecodeOffset
-     *            An offset in the bytecode of a method (from the start of the
-     *            method code).
-     * @return A {@link LabelOutputNode} for {@link #bytecodeOffset}.
-     */
-    private LabelOutputNode newLabel(int bytecodeOffset) {
-        return new LabelOutputNode(instructionIndices, bytecodeOffset);
     }
 }

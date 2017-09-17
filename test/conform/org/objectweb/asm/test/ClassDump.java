@@ -261,8 +261,8 @@ class ClassDump {
         }
 
         /** Returns the constant pool item with the given index. */
-        CpInfo getCpInfo(int cpIndex) {
-            return classContext.getCpInfo(cpIndex);
+        <C extends CpInfo> C getCpInfo(int cpIndex, Class<C> cpInfoType) {
+            return classContext.getCpInfo(cpIndex, cpInfoType);
         }
 
         /** Dumps this item into a string. */
@@ -296,7 +296,7 @@ class ClassDump {
 
         @Override
         String dump() {
-            return ((ConstantUtf8Info) getCpInfo(nameIndex)).dump();
+            return getCpInfo(nameIndex, ConstantUtf8Info.class).dump();
         }
     }
 
@@ -319,8 +319,8 @@ class ClassDump {
 
         @Override
         String dump() {
-            return ((ConstantClassInfo) getCpInfo(classIndex)).dump() + "."
-                    + ((ConstantNameAndTypeInfo) getCpInfo(nameAndTypeIndex))
+            return getCpInfo(classIndex, ConstantClassInfo.class).dump() + "."
+                    + getCpInfo(nameAndTypeIndex, ConstantNameAndTypeInfo.class)
                             .dump();
         }
     }
@@ -344,8 +344,8 @@ class ClassDump {
 
         @Override
         String dump() {
-            return ((ConstantClassInfo) getCpInfo(classIndex)).dump() + "."
-                    + ((ConstantNameAndTypeInfo) getCpInfo(nameAndTypeIndex))
+            return getCpInfo(classIndex, ConstantClassInfo.class).dump() + "."
+                    + getCpInfo(nameAndTypeIndex, ConstantNameAndTypeInfo.class)
                             .dump();
         }
     }
@@ -369,8 +369,8 @@ class ClassDump {
 
         @Override
         String dump() {
-            return ((ConstantClassInfo) getCpInfo(classIndex)).dump() + "."
-                    + ((ConstantNameAndTypeInfo) getCpInfo(nameAndTypeIndex))
+            return getCpInfo(classIndex, ConstantClassInfo.class).dump() + "."
+                    + getCpInfo(nameAndTypeIndex, ConstantNameAndTypeInfo.class)
                             .dump();
         }
     }
@@ -392,7 +392,7 @@ class ClassDump {
 
         @Override
         String dump() {
-            return ((ConstantUtf8Info) getCpInfo(stringIndex)).dump();
+            return getCpInfo(stringIndex, ConstantUtf8Info.class).dump();
         }
     }
 
@@ -477,8 +477,8 @@ class ClassDump {
 
         @Override
         String dump() {
-            return ((ConstantUtf8Info) getCpInfo(nameIndex)).dump()
-                    + ((ConstantUtf8Info) getCpInfo(descriptorIndex)).dump();
+            return getCpInfo(nameIndex, ConstantUtf8Info.class).dump()
+                    + getCpInfo(descriptorIndex, ConstantUtf8Info.class).dump();
         }
     }
 
@@ -514,7 +514,7 @@ class ClassDump {
 
         @Override
         String dump() {
-            return referenceKind + "." + getCpInfo(referenceIndex);
+            return referenceKind + "." + getCpInfo(referenceIndex, CpInfo.class);
         }
     }
 
@@ -535,7 +535,7 @@ class ClassDump {
 
         @Override
         String dump() {
-            return ((ConstantUtf8Info) getCpInfo(descriptorIndex)).dump();
+            return getCpInfo(descriptorIndex, ConstantUtf8Info.class).dump();
         }
     }
 
@@ -559,7 +559,7 @@ class ClassDump {
         @Override
         String dump() {
             return bootstrapMethodAttrIndex + "."
-                    + ((ConstantNameAndTypeInfo) getCpInfo(nameAndTypeIndex))
+                    + getCpInfo(nameAndTypeIndex, ConstantNameAndTypeInfo.class)
                             .dump();
         }
     }
@@ -581,7 +581,7 @@ class ClassDump {
 
         @Override
         String dump() {
-            return ((ConstantUtf8Info) getCpInfo(descriptorIndex)).dump();
+            return getCpInfo(descriptorIndex, ConstantUtf8Info.class).dump();
         }
     }
 
@@ -602,7 +602,7 @@ class ClassDump {
 
         @Override
         String dump() {
-            return ((ConstantUtf8Info) getCpInfo(descriptorIndex)).dump();
+            return getCpInfo(descriptorIndex, ConstantUtf8Info.class).dump();
         }
     }
 
@@ -762,12 +762,7 @@ class ClassDump {
 
         @Override
         public String toString() {
-            Object insnIndex = methodContext.getInsnIndex(bytecodeOffset);
-            if (insnIndex == null) {
-                throw new RuntimeException(
-                        "Invalid bytecode offset:" + bytecodeOffset);
-            }
-            return "<" + insnIndex + ">";
+            return "<" + methodContext.getInsnIndex(bytecodeOffset) + ">";
         }
     }
 
@@ -1870,12 +1865,12 @@ class ClassDump {
 
     /** A context to lookup constant pool items from their index. */
     private static interface ClassContext {
-        CpInfo getCpInfo(int cpIndex);
+        <C extends CpInfo> C getCpInfo(int cpIndex, Class<C> cpInfoType);
     }
 
     /** A context to lookup instruction indices from their bytecode offset. */
     private static interface MethodContext {
-        Integer getInsnIndex(int bytecodeOffset);
+        int getInsnIndex(int bytecodeOffset);
     }
 
     /**
@@ -1910,12 +1905,27 @@ class ClassDump {
             this.context = new HashMap<Integer, Object>();
         }
 
-        public CpInfo getCpInfo(int cpIndex) {
-            return (CpInfo) get(CP_INFO_KEY | cpIndex);
+        /** Lookup constant pool items from their index. */
+        CpInfo getCpInfo(int cpIndex) {
+            return getCpInfo(cpIndex, CpInfo.class);
+        }
+        
+        public <C extends CpInfo> C getCpInfo(int cpIndex, Class<C> cpInfoType) {
+            Object cpInfo = get(CP_INFO_KEY | cpIndex);
+            if (!cpInfoType.isInstance(cpInfo)) {
+                throw new RuntimeException(
+                        "Invalid constant pool type :" + cpInfo.getClass().getName() + " should be " + cpInfoType.getName());
+            }
+            return cpInfoType.cast(cpInfo);
         }
 
-        public Integer getInsnIndex(int bytecodeOffset) {
-            return (Integer) get(bytecodeOffset);
+        public int getInsnIndex(int bytecodeOffset) {
+            Integer insnIndex = (Integer) get(bytecodeOffset);
+            if (insnIndex == null) {
+                throw new RuntimeException(
+                        "Invalid bytecode offset:" + bytecodeOffset);
+            }
+            return insnIndex;
         }
 
         /** Registers the CpInfo for the given constant pool index. */
@@ -2011,7 +2021,6 @@ class ClassDump {
 
     /** An {@link AbstractBuilder} which sorts its children before building. */
     private static class SortedBuilder extends AbstractBuilder<Builder> {
-
         SortedBuilder(Builder parent) {
             super(parent);
         }

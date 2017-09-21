@@ -1056,7 +1056,7 @@ class Frame {
         case Opcodes.AALOAD:
             pop(1);
             t1 = pop();
-            push(ELEMENT_OF + t1);
+            push(t1 == NULL ? t1 : ELEMENT_OF + t1);
             break;
         case Opcodes.ISTORE:
         case Opcodes.FSTORE:

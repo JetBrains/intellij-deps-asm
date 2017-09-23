@@ -2007,7 +2007,7 @@ class ClassDump {
 
         /** Appends name and the CpInfo corresponding to cpIndex to children. */
         void addCpInfo(String name, int cpIndex) {
-            add(name, getCpInfo(cpIndex));
+            add(name, cpIndex == 0 ? 0 : getCpInfo(cpIndex));
         }
 
         /** Appends a new {@link SortedBuilder} to children and returns it. */

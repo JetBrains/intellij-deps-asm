@@ -103,6 +103,7 @@
     <mkdir dir="${out.test}/reports"/>
     <path id="test.classpath">
       <pathelement path="${junit4.path}"/>
+      <pathelement location="${test}/conform"/>
       <pathelement location="${out.build}/tmp"/>
       <pathelement location="${out.test}"/>
       <pathelement path="${bcel.path}"/>

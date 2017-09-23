@@ -69,6 +69,7 @@
 
     <condition property="test.paths.configured">
       <and>
+        <isset property="junit4.path"/>
         <isset property="bcel.path"/>
         <isset property="aspectj.path"/>
         <isset property="serp.path"/>
@@ -101,6 +102,7 @@
     <mkdir dir="${out.test}/cases"/>
     <mkdir dir="${out.test}/reports"/>
     <path id="test.classpath">
+      <pathelement path="${junit4.path}"/>
       <pathelement location="${out.build}/tmp"/>
       <pathelement location="${out.test}"/>
       <pathelement path="${bcel.path}"/>

@@ -146,7 +146,7 @@ class ClassDump {
     /**
      * Parses and dumps the high level structure of the class.
      * 
-     * @see https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-4.html#jvms-4.1
+     * @see https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.1
      */
     private static void dumpClassFile(Parser parser, Builder builder)
             throws IOException {
@@ -180,7 +180,7 @@ class ClassDump {
     /**
      * Parses and dumps a list of attributes.
      * 
-     * @see https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-4.html#jvms-4.1
+     * @see https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.1
      */
     private static void dumpAttributeList(Parser parser, Builder builder)
             throws IOException {
@@ -194,7 +194,7 @@ class ClassDump {
     /**
      * Parses a cp_info structure.
      * 
-     * @see https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-4.html#jvms-4.4
+     * @see https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.4
      */
     private static CpInfo parseCpInfo(Parser parser, ClassContext classContext)
             throws IOException {
@@ -282,7 +282,7 @@ class ClassDump {
     /**
      * A CONSTANT_Class_info item.
      * 
-     * @see https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-4.html#jvms-4.4.1
+     * @see https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.4.1
      */
     private static class ConstantClassInfo extends CpInfo {
         private final int nameIndex;
@@ -303,7 +303,7 @@ class ClassDump {
     /**
      * A CONSTANT_Fieldref_info item.
      * 
-     * @see https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-4.html#jvms-4.4.2
+     * @see https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.4.2
      */
     private static class ConstantFieldRefInfo extends CpInfo {
         private final int classIndex;
@@ -328,7 +328,7 @@ class ClassDump {
     /**
      * A CONSTANT_Methodref_info item.
      * 
-     * @see https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-4.html#jvms-4.4.2
+     * @see https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.4.2
      */
     private static class ConstantMethodRefInfo extends CpInfo {
         private final int classIndex;
@@ -353,7 +353,7 @@ class ClassDump {
     /**
      * A CONSTANT_InterfaceMethodref_info item.
      * 
-     * @see https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-4.html#jvms-4.4.2
+     * @see https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.4.2
      */
     private static class ConstantInterfaceMethodRefInfo extends CpInfo {
         private final int classIndex;
@@ -378,7 +378,7 @@ class ClassDump {
     /**
      * A CONSTANT_String_info item.
      * 
-     * @see https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-4.html#jvms-4.4.3
+     * @see https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.4.3
      */
     private static class ConstantStringInfo extends CpInfo {
         final int stringIndex;
@@ -399,7 +399,7 @@ class ClassDump {
     /**
      * A CONSTANT_Integer_info item.
      * 
-     * @see https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-4.html#jvms-4.4.4
+     * @see https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.4.4
      */
     private static class ConstantIntegerInfo extends CpInfo {
 
@@ -412,7 +412,7 @@ class ClassDump {
     /**
      * A CONSTANT_Float_info item.
      * 
-     * @see https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-4.html#jvms-4.4.4
+     * @see https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.4.4
      */
     private static class ConstantFloatInfo extends CpInfo {
 
@@ -425,7 +425,7 @@ class ClassDump {
     /**
      * A CONSTANT_Long_info item.
      * 
-     * @see https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-4.html#jvms-4.4.5
+     * @see https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.4.5
      */
     private static class ConstantLongInfo extends CpInfo {
 
@@ -443,7 +443,7 @@ class ClassDump {
     /**
      * A CONSTANT_Double_info item.
      * 
-     * @see https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-4.html#jvms-4.4.5
+     * @see https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.4.5
      */
     private static class ConstantDoubleInfo extends CpInfo {
 
@@ -461,7 +461,7 @@ class ClassDump {
     /**
      * A CONSTANT_NameAndType_info item.
      * 
-     * @see https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-4.html#jvms-4.4.6
+     * @see https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.4.6
      */
     private static class ConstantNameAndTypeInfo extends CpInfo {
         private final int nameIndex;
@@ -485,7 +485,7 @@ class ClassDump {
     /**
      * A CONSTANT_Utf8_info item.
      * 
-     * @see https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-4.html#jvms-4.4.7
+     * @see https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.4.7
      */
     private static class ConstantUtf8Info extends CpInfo {
 
@@ -498,7 +498,7 @@ class ClassDump {
     /**
      * A CONSTANT_MethodHandle_info item.
      * 
-     * @see https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-4.html#jvms-4.4.8
+     * @see https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.4.8
      */
     private static class ConstantMethodHandleInfo extends CpInfo {
         private final int referenceKind;
@@ -514,14 +514,15 @@ class ClassDump {
 
         @Override
         String dump() {
-            return referenceKind + "." + getCpInfo(referenceIndex, CpInfo.class);
+            return referenceKind + "."
+                    + getCpInfo(referenceIndex, CpInfo.class);
         }
     }
 
     /**
      * A CONSTANT_MethodType_info item.
      * 
-     * @see https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-4.html#jvms-4.4.9
+     * @see https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.4.9
      */
     private static class ConstantMethodTypeInfo extends CpInfo {
         private final int descriptorIndex;
@@ -542,7 +543,7 @@ class ClassDump {
     /**
      * A CONSTANT_InvokeDynamic_info item.
      * 
-     * @see https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-4.html#jvms-4.4.10
+     * @see https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.4.10
      */
     private static class ConstantInvokeDynamicInfo extends CpInfo {
         private final int bootstrapMethodAttrIndex;
@@ -609,7 +610,7 @@ class ClassDump {
     /**
      * Parses and dumps a field_info structure.
      * 
-     * @see https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-4.html#jvms-4.5
+     * @see https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.5
      */
     private static void dumpFieldInfo(Parser parser, Builder builder)
             throws IOException {
@@ -622,7 +623,7 @@ class ClassDump {
     /**
      * Parses and dumps a method_info structure.
      * 
-     * @see https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-4.html#jvms-4.6
+     * @see https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.6
      */
     private static void dumpMethodInfo(Parser parser, Builder builder)
             throws IOException {
@@ -635,7 +636,7 @@ class ClassDump {
     /**
      * Parses and dumps an attribute_info structure.
      * 
-     * @see https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-4.html#jvms-4.7
+     * @see https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.7
      */
     private static void dumpAttributeInfo(Parser parser,
             SortedBuilder sortedBuilder) throws IOException {
@@ -710,7 +711,7 @@ class ClassDump {
     /**
      * Parses and dumps a ConstantValue attribute.
      * 
-     * @see https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-4.html#jvms-4.7.2
+     * @see https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.7.2
      */
     private static void dumpConstantValueAttribute(Parser parser,
             Builder builder) throws IOException {
@@ -720,7 +721,7 @@ class ClassDump {
     /**
      * Parses and dumps a Code attribute.
      * 
-     * @see https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-4.html#jvms-4.7.3
+     * @see https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.7.3
      */
     private static void dumpCodeAttribute(Parser parser, Builder builder)
             throws IOException {
@@ -771,7 +772,7 @@ class ClassDump {
      * 
      * @param codeLength
      *            the number of bytes to parse.
-     * @see https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-6.html#jvms-6.5
+     * @see https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-6.html#jvms-6.5
      */
     private static void dumpInstructions(int codeLength, Parser parser,
             Builder builder) throws IOException {
@@ -1229,7 +1230,7 @@ class ClassDump {
     /**
      * Parses and dumps a StackMapTable attribute.
      * 
-     * @see https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-4.html#jvms-4.7.4
+     * @see https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.7.4
      */
     private static void dumpStackMapTableAttribute(Parser parser,
             Builder builder) throws IOException {
@@ -1295,7 +1296,7 @@ class ClassDump {
     /**
      * Parses and dumps a verification_type_info structure.
      * 
-     * @see https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-4.html#jvms-4.7.2
+     * @see https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.7.2
      */
     private static void dumpVerificationTypeInfo(Parser parser, Builder builder)
             throws IOException {
@@ -1313,7 +1314,7 @@ class ClassDump {
     /**
      * Parses and dumps an Exception attribute.
      * 
-     * @see https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-4.html#jvms-4.7.5
+     * @see https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.7.5
      */
     private static void dumpExceptionsAttribute(Parser parser, Builder builder)
             throws IOException {
@@ -1326,7 +1327,7 @@ class ClassDump {
     /**
      * Parses and dumps an InnerClasses attribute.
      * 
-     * @see https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-4.html#jvms-4.7.6
+     * @see https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.7.6
      */
     private static void dumpInnerClassesAttribute(Parser parser,
             Builder builder) throws IOException {
@@ -1342,7 +1343,7 @@ class ClassDump {
     /**
      * Parses and dumps an EnclosingMethod attribute.
      * 
-     * @see https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-4.html#jvms-4.7.7
+     * @see https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.7.7
      */
     private static void dumpEnclosingMethodAttribute(Parser parser,
             Builder builder) throws IOException {
@@ -1353,7 +1354,7 @@ class ClassDump {
     /**
      * Parses and dumps a Synthetic attribute.
      * 
-     * @see https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-4.html#jvms-4.7.8
+     * @see https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.7.8
      */
     private static void dumpSyntheticAttribute(Parser parser, Builder builder) {
         // Nothing to parse.
@@ -1362,7 +1363,7 @@ class ClassDump {
     /**
      * Parses and dumps a Signature attribute.
      * 
-     * @see https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-4.html#jvms-4.7.9
+     * @see https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.7.9
      */
     private static void dumpSignatureAttribute(Parser parser, Builder builder)
             throws IOException {
@@ -1372,7 +1373,7 @@ class ClassDump {
     /**
      * Parses and dumps a SourceFile attribute.
      * 
-     * @see https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-4.html#jvms-4.7.10
+     * @see https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.7.10
      */
     private static void dumpSourceFileAttribute(Parser parser, Builder builder)
             throws IOException {
@@ -1382,7 +1383,7 @@ class ClassDump {
     /**
      * Parses and dumps a SourceDebug attribute.
      * 
-     * @see https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-4.html#jvms-4.7.11
+     * @see https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.7.11
      */
     private static void dumpSourceDebugAttribute(int attributeLength,
             Parser parser, Builder builder) throws IOException {
@@ -1397,7 +1398,7 @@ class ClassDump {
     /**
      * Parses and dumps a LineNumberTable attribute.
      * 
-     * @see https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-4.html#jvms-4.7.12
+     * @see https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.7.12
      */
     private static void dumpLineNumberTableAttribute(Parser parser,
             Builder builder) throws IOException {
@@ -1412,7 +1413,7 @@ class ClassDump {
     /**
      * Parses and dumps a LocalVariableTable attribute.
      * 
-     * @see https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-4.html#jvms-4.7.13
+     * @see https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.7.13
      */
     private static void dumpLocalVariableTableAttribute(Parser parser,
             Builder builder) throws IOException {
@@ -1430,7 +1431,7 @@ class ClassDump {
     /**
      * Parses and dumps a LocalVariableTypeTable attribute.
      * 
-     * @see https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-4.html#jvms-4.7.14
+     * @see https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.7.14
      */
     private static void dumpLocalVariableTypeTableAttribute(Parser parser,
             Builder builder) throws IOException {
@@ -1448,7 +1449,7 @@ class ClassDump {
     /**
      * Parses and dumps a Deprecated attribute.
      * 
-     * @see https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-4.html#jvms-4.7.15
+     * @see https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.7.15
      */
     private static void dumpDeprecatedAttribute(Parser parser,
             Builder builder) {
@@ -1458,7 +1459,7 @@ class ClassDump {
     /**
      * Parses and dumps a RuntimeVisibleAnnotations attribute.
      * 
-     * @see https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-4.html#jvms-4.7.16
+     * @see https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.7.16
      */
     private static void dumpRuntimeVisibleAnnotationsAttribute(Parser parser,
             Builder builder) throws IOException {
@@ -1471,7 +1472,7 @@ class ClassDump {
     /**
      * Parses and dumps an annotations structure.
      * 
-     * @see https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-4.html#jvms-4.7.16
+     * @see https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.7.16
      */
     private static void dumpAnnotation(Parser parser, Builder builder)
             throws IOException {
@@ -1487,7 +1488,7 @@ class ClassDump {
     /**
      * Parses and dumps an element_value structure.
      * 
-     * @see https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-4.html#jvms-4.7.16.1
+     * @see https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.7.16.1
      */
     private static void dumpElementValue(Parser parser, Builder builder)
             throws IOException {
@@ -1529,7 +1530,7 @@ class ClassDump {
     /**
      * Parses and dumps a RuntimeInvisibleAnnotations attribute.
      * 
-     * @see https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-4.html#jvms-4.7.17
+     * @see https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.7.17
      */
     private static void dumpRuntimeInvisibleAnnotationsAttribute(Parser parser,
             Builder builder) throws IOException {
@@ -1539,7 +1540,7 @@ class ClassDump {
     /**
      * Parses and dumps a RuntimeVisibleParameterAnnotations attribute.
      * 
-     * @see https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-4.html#jvms-4.7.18
+     * @see https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.7.18
      */
     private static void dumpRuntimeVisibleParameterAnnotationsAttribute(
             Parser parser, Builder builder) throws IOException {
@@ -1555,7 +1556,7 @@ class ClassDump {
     /**
      * Parses and dumps a RuntimeInvisibleParameterAnnotations attribute.
      * 
-     * @see https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-4.html#jvms-4.7.19
+     * @see https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.7.19
      */
     private static void dumpRuntimeInvisibleParameterAnnotationsAttribute(
             Parser parser, Builder builder) throws IOException {
@@ -1565,7 +1566,7 @@ class ClassDump {
     /**
      * Parses and dumps a RuntimeVisibleTypeAnnotations attribute.
      * 
-     * @see https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-4.html#jvms-4.7.20
+     * @see https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.7.20
      */
     private static void dumpRuntimeVisibleTypeAnnotationsAttribute(
             Parser parser, Builder builder) throws IOException {
@@ -1579,7 +1580,7 @@ class ClassDump {
     /**
      * Parses and dumps a type_annotation structure.
      * 
-     * @see https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-4.html#jvms-4.7.20
+     * @see https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.7.20
      */
     private static void dumpTypeAnnotation(Parser parser,
             SortedBuilder sortedBuilder) throws IOException {
@@ -1656,7 +1657,7 @@ class ClassDump {
     /**
      * Parses and dumps a type_path structure.
      * 
-     * @see https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-4.html#jvms-4.7.20.2
+     * @see https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.7.20.2
      */
     private static void dumpTypePath(Parser parser, Builder builder)
             throws IOException {
@@ -1670,7 +1671,7 @@ class ClassDump {
     /**
      * Parses and dumps a RuntimeInvisibleTypeAnnotations attribute.
      * 
-     * @see https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-4.html#jvms-4.7.21
+     * @see https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.7.21
      */
     private static void dumpRuntimeInvisibleTypeAnnotationsAttribute(
             Parser parser, Builder builder) throws IOException {
@@ -1680,7 +1681,7 @@ class ClassDump {
     /**
      * Parses and dumps an AnnotationDefault attribute.
      * 
-     * @see https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-4.html#jvms-4.7.22
+     * @see https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.7.22
      */
     private static void dumpAnnotationDefaultAttribute(Parser parser,
             Builder builder) throws IOException {
@@ -1690,7 +1691,7 @@ class ClassDump {
     /**
      * Parses and dumps a BootstrapMethods attribute.
      * 
-     * @see https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-4.html#jvms-4.7.23
+     * @see https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.7.23
      */
     private static void dumpBootstrapMethodsAttribute(Parser parser,
             Builder builder) throws IOException {
@@ -1709,7 +1710,7 @@ class ClassDump {
     /**
      * Parses and dumps a MethodParameters attribute.
      * 
-     * @see https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-4.html#jvms-4.7.24
+     * @see https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.7.24
      */
     private static void dumpMethodParametersAttribute(Parser parser,
             Builder builder) throws IOException {
@@ -1909,12 +1910,14 @@ class ClassDump {
         CpInfo getCpInfo(int cpIndex) {
             return getCpInfo(cpIndex, CpInfo.class);
         }
-        
-        public <C extends CpInfo> C getCpInfo(int cpIndex, Class<C> cpInfoType) {
+
+        public <C extends CpInfo> C getCpInfo(int cpIndex,
+                Class<C> cpInfoType) {
             Object cpInfo = get(CP_INFO_KEY | cpIndex);
             if (!cpInfoType.isInstance(cpInfo)) {
-                throw new RuntimeException(
-                        "Invalid constant pool type :" + cpInfo.getClass().getName() + " should be " + cpInfoType.getName());
+                throw new RuntimeException("Invalid constant pool type :"
+                        + cpInfo.getClass().getName() + " should be "
+                        + cpInfoType.getName());
             }
             return cpInfoType.cast(cpInfo);
         }
@@ -2019,7 +2022,10 @@ class ClassDump {
         }
     }
 
-    /** An {@link AbstractBuilder} which sorts its children before building. */
+    /**
+     * An {@link AbstractBuilder} which sorts its children by name before
+     * building.
+     */
     private static class SortedBuilder extends AbstractBuilder<Builder> {
         SortedBuilder(Builder parent) {
             super(parent);

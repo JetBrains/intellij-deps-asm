@@ -31,8 +31,8 @@ package org.objectweb.asm.test;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
-import java.io.IOException;
 import java.util.Collection;
 
 import org.junit.Test;
@@ -43,7 +43,7 @@ import org.objectweb.asm.Opcodes;
 
 /**
  * Unit tests for {@link AsmTest}.
- * 
+ *
  * @author Eric Bruneton
  */
 @RunWith(Parameterized.class)
@@ -55,35 +55,31 @@ public class AsmTestTest extends AsmTest {
      */
     @Parameters(name = NAME)
     public static Collection<Object[]> data() {
-        return data(Opcodes.ASM6);
+        return data(Api.ASM6);
     }
 
     /**
-     * Tests that {@link #readClass()} can load each precompiled class. Also
-     * tests {@link #assertThatClass(byte[])}, and {@link #getInternalName()}.
-     * 
-     * @throws IOException
-     *             if the precompiled test class can't be loaded.
+     * Tests that we can get the byte array content of each precompiled class.
      */
     @Test
-    public void testReadClass() throws IOException {
-        assertEquals(asmApi, Opcodes.ASM6);
-        assertThatClass(readClass()).contains(getInternalName());
+    public void testGetBytes() {
+        assertEquals(Opcodes.ASM6, apiParameter.value());
+        assertEquals("ASM6", apiParameter.toString());
+        assertThatClass(classParameter.getBytes())
+                .contains(classParameter.getInternalName());
     }
 
     /**
-     * Tests that each precompiled class can be loaded successfully with
-     * {@link #loadAndInstantiate(String, byte[])}.
-     * 
-     * @throws IOException
-     *             if the precompiled test class can't be loaded.
+     * Tests that we can load (and instantiate) each (non-abstract) precompiled
+     * class.
      */
     @Test
-    public void testLoadAndInstantiate() throws IOException {
-        if (classIsMoreRecentThanCurrentJdk()) {
+    public void testLoadAndInstantiate() {
+        if (classParameter.isMoreRecentThanCurrentJdk()) {
             thrown.expect(UnsupportedClassVersionError.class);
         }
-        assertTrue(loadAndInstantiate(className, readClass()));
+        assertTrue(loadAndInstantiate(classParameter.getName(),
+                classParameter.getBytes()));
     }
 
     /**
@@ -91,40 +87,71 @@ public class AsmTestTest extends AsmTest {
      * to load an invalid or unverifiable class.
      */
     @Test
-    public void testLoadAndInstantiate_invalidClass() throws IOException {
-        if (classIsMoreRecentThanCurrentJdk()) {
+    public void testLoadAndInstantiate_invalidClass() {
+        if (classParameter.isMoreRecentThanCurrentJdk()) {
             return;
         }
-        byte[] classContent = readClass();
-        if (maybeRemoveAttributes(classContent, "StackMapTable")) {
-            // jdk8.AllStructures can't be instantiated because it is abstract.
-            // Bytecode verification is not triggered by simply loading the
-            // class, so no exception is thrown although the class is invalid.
-            if (!className.equals("jdk8.AllStructures")) {
-                thrown.expect(VerifyError.class);
-            }
-        } else if (maybeRemoveAttributes(classContent, "Code")) {
+        byte[] classContent = classParameter.getBytes();
+        switch (classParameter) {
+        case DEFAULT_PACKAGE:
+            break;
+        case JDK3_ALL_INSTRUCTIONS:
+        case JDK3_ALL_STRUCTURES:
+        case JDK3_ANONYMOUS_INNER_CLASS:
+        case JDK3_INNER_CLASS:
+            removeAttributes(classContent, "Code");
             thrown.expect(ClassFormatError.class);
+            break;
+        case JDK3_ATTRIBUTE:
+            break;
+        case JDK5_ALL_INSTRUCTIONS:
+        case JDK5_ALL_STRUCTURES:
+        case JDK5_ENUM:
+            removeAttributes(classContent, "Code");
+            thrown.expect(ClassFormatError.class);
+            break;
+        case JDK5_ANNOTATION:
+            break;
+        case JDK8_ALL_FRAMES:
+        case JDK8_ALL_INSTRUCTIONS:
+            removeAttributes(classContent, "StackMapTable");
+            thrown.expect(VerifyError.class);
+            break;
+        case JDK8_ALL_STRUCTURES:
+        case JDK8_ANONYMOUS_INNER_CLASS:
+        case JDK8_INNER_CLASS:
+            removeAttributes(classContent, "Code");
+            thrown.expect(ClassFormatError.class);
+            break;
+        case JDK9_MODULE:
+            break;
+        default:
+            fail("Unknown precompiled class");
         }
-        loadAndInstantiate(className, classContent);
+        loadAndInstantiate(classParameter.getName(), classContent);
     }
 
     /**
      * "Removes" all the attributes of the given type in a class by altering its
-     * name in the constant pool of the class, to make it unrecognizable.
+     * name in the constant pool of the class, to make it unrecognizable. Fails
+     * if there is not exactly one occurrence of attributeName in classContent.
      */
-    private boolean maybeRemoveAttributes(byte[] classContent,
+    private static void removeAttributes(byte[] classContent,
             String attributeName) {
-        // Changes the first letter of the first occurrence of the attribute
-        // name (which should be in the constant pool).
+        int occurrenceCount = 0;
         for (int i = 0; i < classContent.length - attributeName.length(); ++i) {
-            if (new String(classContent, i, attributeName.length())
-                    .equals(attributeName)) {
+            boolean occurrenceFound = true;
+            for (int j = 0; j < attributeName.length(); ++j) {
+                if (classContent[i + j] != attributeName.charAt(j)) {
+                    occurrenceFound = false;
+                    break;
+                }
+            }
+            if (occurrenceFound) {
                 classContent[i] += 1;
-                return true;
+                occurrenceCount += 1;
             }
         }
-        return false;
+        assertEquals(1, occurrenceCount);
     }
-
 }

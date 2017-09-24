@@ -51,23 +51,44 @@ import org.junit.runners.Parameterized.Parameter;
 import org.objectweb.asm.Opcodes;
 
 /**
- * Base class for the parameterized ASM tests. For instance, to run a test on
- * all the precompiled test classes and, with both the ASM5 and the ASM6 API,
- * use a subclass such as the following:
- * 
+ * Base class for the parameterized ASM tests. ASM can be used to read, write or
+ * transform any Java class, ranging from very old (e.g. JDK 1.3) to very recent
+ * classes, containing all possible class file structures. ASM can also be used
+ * with different variants of its API (ASM4, ASM5 or ASM6). In order to test it
+ * thoroughly, it is therefore necessary to run read, write and transform tests,
+ * for each API version, and for each class in a set of classes containing all
+ * possible class file structures. The purpose of this class is to automate this
+ * process. For this it relies on:
+ * <ul>
+ * <li>a small set of hand-crafted classes designed to contain as much class
+ * file structures as possible (it is impossible to represent all possible
+ * bytecode sequences). These classes are called "precompiled classes" below,
+ * because they are not compiled as part of the build. Instead, they have been
+ * compiled beforehand with the appropriate JDKs (e.g. with the JDK 1.3, 1.5,
+ * etc).</li>
+ * <li>the JUnit framework for parameterized tests. Using the
+ * {@link #data(Api...)} method, subclasses of this class can be instantiated
+ * for each possible (test case, precompiled class, ASM API) tuple. In each
+ * instance, the test case can access the precompiled class and the API version
+ * to be tested with the {@link #classParameter} and {@link #apiParameter}
+ * fields.</li>
+ * </ul>
+ * For instance, to run a test on all the precompiled classes, with both the
+ * ASM5 and the ASM6 API, use a subclass such as the following:
+ *
  * <pre>
  * &#64;RunWith(Parameterized.class)
  * public class MyParameterizedTest extends AsmTest {
- * 
+ *
  *   &#64;Parameters(name = NAME)
  *   public static Collection<Object[]> data() {
- *     return data(Opcodes.ASM5, Opcodes.ASM6);
+ *     return data(Api.ASM5, Api.ASM6);
  *   }
- * 
+ *
  *   &#64;Test
  *   public void testSomeFeature() throws IOException {
- *     byte[] b = readClass();
- *     ClassWriter classWriter = new ClassWriter(asmApi, 0);
+ *     byte[] b = classParameter.getBytes();
+ *     ClassWriter classWriter = new ClassWriter(apiParameter.value(), 0);
  *     ...
  *   }
  * }
@@ -85,131 +106,203 @@ public abstract class AsmTest {
     public static final String NAME = "{0}/{1}";
 
     /**
-     * The fully qualified name of the precompiled test class used in the
-     * current instance of this parameterized test.
+     * The precompiled class to be tested in this parameterized test instance.
      */
     @Parameter(0)
-    public String className;
+    public PrecompiledClass classParameter;
 
     /**
-     * The ASM API version used in the current instance of this parameterized
-     * test. One of {@link Opcodes.ASM4}, {@link Opcodes.ASM5} or
-     * {@link Opcodes.ASM6}.
+     * The ASM API version to be used in this parameterized test instance.
      */
     @Parameter(1)
-    public int asmApi;
+    public Api apiParameter;
 
     /**
-     * Rule that can be used in tests that except some exceptions to be thrown.
+     * Rule that can be used in tests that expect some exceptions to be thrown.
      */
     @Rule
     public ExpectedException thrown = ExpectedException.none();
 
     /**
-     * Builds a list of test parameters for a parameterized test. By returning
-     * this in a static method annotated with &#64;Parameters in your subclass
-     * of this class, your tests will be executed on all the precompiled test
-     * classes, with all the given ASM API versions.
-     * 
-     * @param asmApis
-     *            the ASM API versions that must be tested.
-     * @return a list of pairs (className, asmApi), for all combinations of
-     *         precompiled class names and given ASM API versions.
+     * A precompiled class, hand-crafted to contain some set of class file
+     * structures. These classes are not compiled as part of the build. Instead,
+     * they have been compiled beforehand, with the appropriate JDKs (including
+     * some now very hard to download and install).
      */
-    public static ArrayList<Object[]> data(int... asmApis) {
+    public static enum PrecompiledClass {
+        DEFAULT_PACKAGE("DefaultPackage"),
+        JDK3_ALL_INSTRUCTIONS("jdk3.AllInstructions"),
+        JDK3_ALL_STRUCTURES("jdk3.AllStructures"),
+        JDK3_ANONYMOUS_INNER_CLASS("jdk3.AllStructures$1"),
+        JDK3_INNER_CLASS("jdk3.AllStructures$InnerClass"),
+        JDK3_ATTRIBUTE("jdk3.Attribute"),
+        JDK5_ALL_INSTRUCTIONS("jdk5.AllInstructions"),
+        JDK5_ALL_STRUCTURES("jdk5.AllStructures"),
+        JDK5_ENUM("jdk5.AllStructures$EnumClass"),
+        JDK5_ANNOTATION("jdk5.AllStructures$InvisibleAnnotation"),
+        JDK8_ALL_FRAMES("jdk8.AllFrames"),
+        JDK8_ALL_INSTRUCTIONS("jdk8.AllInstructions"),
+        JDK8_ALL_STRUCTURES("jdk8.AllStructures"),
+        JDK8_ANONYMOUS_INNER_CLASS("jdk8.AllStructures$1"),
+        JDK8_INNER_CLASS("jdk8.AllStructures$InnerClass"),
+        JDK9_MODULE("jdk9.module-info");
+
+        private final String name;
+
+        private PrecompiledClass(String name) {
+            this.name = name;
+        }
+
+        /**
+         * Returns the fully qualified name of this class.
+         */
+        public String getName() {
+            return name;
+        }
+
+        /**
+         * Returns the internal name of this class.
+         */
+        public String getInternalName() {
+            return name.endsWith("module-info") ? "module-info"
+                    : name.replace('.', '/');
+        }
+
+        /**
+         * Returns true if this class was compiled with a JDK which is more
+         * recent than the given ASM API. For instance, returns true for a class
+         * compiled with the JDK 1.8 if the ASM API version is ASM4.
+         *
+         * @param api
+         *            an ASM API version.
+         * @return whether this class was compiled with a JDK which is more
+         *         recent than api.
+         */
+        public boolean isMoreRecentThan(Api api) {
+            if (name.startsWith("jdk8") && api.value() < Opcodes.ASM5) {
+                return true;
+            }
+            if (name.startsWith("jdk9") && api.value() < Opcodes.ASM6) {
+                return true;
+            }
+            return false;
+        }
+
+        /**
+         * Returns true if this class was compiled with a JDK which is more
+         * recent than the JDK used to run the tests.
+         *
+         * @return true if this class was compiled with the JDK9 and the current
+         *         JDK version is strictly less than 9.
+         */
+        public boolean isMoreRecentThanCurrentJdk() {
+            if (name.startsWith("jdk9")) {
+                final String V9 = "1.9";
+                String javaVersion = System.getProperty("java.version");
+                return javaVersion.substring(V9.length()).compareTo(V9) < 0;
+            }
+            return false;
+        }
+
+        /**
+         * Returns the content of this class.
+         */
+        public byte[] getBytes() {
+            InputStream inputStream = null;
+            try {
+                inputStream = ClassLoader.getSystemResourceAsStream(
+                        name.replace('.', '/') + ".class");
+                assertNotNull("Class not found " + name, inputStream);
+                ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+                byte[] data = new byte[inputStream.available()];
+                int bytesRead;
+                while ((bytesRead = inputStream.read(data, 0,
+                        data.length)) != -1) {
+                    outputStream.write(data, 0, bytesRead);
+                }
+                outputStream.flush();
+                return outputStream.toByteArray();
+            } catch (IOException e) {
+                fail("Can't read " + name);
+                return null;
+            } finally {
+                if (inputStream != null) {
+                    try {
+                        inputStream.close();
+                    } catch (IOException ignored) {
+                    }
+                }
+            }
+        }
+
+        @Override
+        public String toString() {
+            return name;
+        }
+    }
+
+    /**
+     * An ASM API version.
+     */
+    public static enum Api {
+        ASM4("ASM4", Opcodes.ASM4),
+        ASM5("ASM5", Opcodes.ASM5),
+        ASM6("ASM6", Opcodes.ASM6);
+
+        private final String name;
+        private final int value;
+
+        private Api(String name, int value) {
+            this.name = name;
+            this.value = value;
+        }
+
+        /**
+         * Returns the int value of this version, as expected by ASM.
+         *
+         * @return one of {@link Opcodes.ASM4},{@link Opcodes.ASM5} or
+         *         {@link Opcodes.ASM6}.
+         */
+        public int value() {
+            return value;
+        }
+
+        /**
+         * Returns a human readable symbol corresponding to this version.
+         *
+         * @return one of "ASM4", "ASM5" or "ASM6".
+         */
+        @Override
+        public String toString() {
+            return name;
+        }
+    }
+
+    /**
+     * Builds a list of test parameters for a parameterized test. By returning
+     * this in a static method annotated with &#64;Parameters in a subclass of
+     * this class, each test case will be executed on all the precompiled
+     * classes, with all the given ASM API versions.
+     *
+     * @param apis
+     *            the ASM API versions that must be tested.
+     * @return all the possible (precompiledClass, api) pairs, for all the
+     *         precompiled classes and all the given ASM API versions.
+     */
+    public static ArrayList<Object[]> data(Api... apis) {
         ArrayList<Object[]> result = new ArrayList<Object[]>();
-        for (int asmApi : asmApis) {
-            result.add(new Object[] { "DefaultPackage", asmApi });
-            result.add(new Object[] { "jdk3.AllInstructions", asmApi });
-            result.add(new Object[] { "jdk3.AllStructures", asmApi });
-            result.add(new Object[] { "jdk3.AllStructures$1", asmApi });
-            result.add(
-                    new Object[] { "jdk3.AllStructures$InnerClass", asmApi });
-            result.add(new Object[] { "jdk3.Attribute", asmApi });
-            result.add(new Object[] { "jdk5.AllInstructions", asmApi });
-            result.add(new Object[] { "jdk5.AllStructures", asmApi });
-            result.add(new Object[] { "jdk5.AllStructures$EnumClass", asmApi });
-            result.add(new Object[] { "jdk5.AllStructures$InvisibleAnnotation",
-                    asmApi });
-            result.add(new Object[] { "jdk8.AllFrames", asmApi });
-            result.add(new Object[] { "jdk8.AllInstructions", asmApi });
-            result.add(new Object[] { "jdk8.AllStructures", asmApi });
-            result.add(new Object[] { "jdk8.AllStructures$1", asmApi });
-            result.add(
-                    new Object[] { "jdk8.AllStructures$InnerClass", asmApi });
-            result.add(new Object[] { "jdk9.module-info", asmApi });
+        for (Api api : apis) {
+            for (PrecompiledClass precompiledClass : PrecompiledClass
+                    .values()) {
+                result.add(new Object[] { precompiledClass, api });
+            }
         }
         return result;
     }
 
     /**
-     * Returns true if {@link #className} was generated with a JDK version which
-     * is more recent than {@link #asmApi}. For instance, returns true for a
-     * class compiled with the JDK 1.8 if the ASM API version is ASM4.
-     * 
-     * @return
-     */
-    public boolean classIsMoreRecentThanAsmApi() {
-        if (className.startsWith("jdk8") && asmApi < Opcodes.ASM5) {
-            return true;
-        }
-        if (className.startsWith("jdk9") && asmApi < Opcodes.ASM6) {
-            return true;
-        }
-        return false;
-    }
-
-    /**
-     * Returns true if {@link #className} was generated with a JDK version which
-     * is more recent than the JDK used to run the tests.
-     * 
-     * @return true if {@link #className} was generated with the JDK9 and the
-     *         current JDK version is strictly less than 9.
-     */
-    public boolean classIsMoreRecentThanCurrentJdk() {
-        String javaVersion = System.getProperty("java.version");
-        if (className.startsWith("jdk9")
-                && javaVersion.substring(3).compareTo("1.9") < 0) {
-            return true;
-        }
-        return false;
-    }
-
-    /**
-     * Returns the internal name of {@link #className}.
-     */
-    public String getInternalName() {
-        return className.endsWith("module-info") ? "module-info"
-                : className.replace('.', '/');
-    }
-
-    /**
-     * Returns the content of {@link #className}.
-     */
-    public byte[] readClass() throws IOException {
-        InputStream inputStream = null;
-        try {
-            inputStream = ClassLoader.getSystemResourceAsStream(
-                    className.replace('.', '/') + ".class");
-            assertNotNull("Class not found " + className, inputStream);
-            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-            byte[] data = new byte[inputStream.available()];
-            int bytesRead;
-            while ((bytesRead = inputStream.read(data, 0, data.length)) != -1) {
-                outputStream.write(data, 0, bytesRead);
-            }
-            outputStream.flush();
-            return outputStream.toByteArray();
-        } finally {
-            if (inputStream != null) {
-                inputStream.close();
-            }
-        }
-    }
-
-    /**
      * Starts an assertion about the given class content.
-     * 
+     *
      * @param classFile
      *            the content of a class.
      * @return the {@link ClassSubject} to use to make actual assertions about
@@ -233,7 +326,7 @@ public abstract class AsmTest {
         /**
          * Asserts that a dump of the subject class into a string representation
          * contains the given string.
-         * 
+         *
          * @param expectedString
          *            a string which should be contained in a dump of the
          *            subject class.
@@ -253,7 +346,7 @@ public abstract class AsmTest {
          * constants in the constant pool, the order of attributes and
          * annotations, and low level details such as ldc vs ldc_w
          * instructions).
-         * 
+         *
          * @param expectedString
          *            a string which should be contained in a dump of the
          *            subject class.
@@ -274,7 +367,7 @@ public abstract class AsmTest {
      * Loads the given class in a new class loader. Also tries to instantiate
      * the loaded class (if it is not an abstract or enum class), in order to
      * check that it passes the bytecode verification step.
-     * 
+     *
      * @param className
      *            the name of the class to load.
      * @param classContent
@@ -323,17 +416,17 @@ public abstract class AsmTest {
     /**
      * A simple ClassLoader to test that a class can be loaded in the JVM.
      */
-    static class ByteClassLoader extends ClassLoader {
+    private static class ByteClassLoader extends ClassLoader {
         private final String className;
         private final byte[] classContent;
         private boolean classLoaded;
 
-        public ByteClassLoader(String className, byte[] classContent) {
+        ByteClassLoader(String className, byte[] classContent) {
             this.className = className;
             this.classContent = classContent;
         }
 
-        public boolean classLoaded() {
+        boolean classLoaded() {
             return classLoaded;
         }
 

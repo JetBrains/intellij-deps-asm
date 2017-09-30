@@ -37,6 +37,7 @@
            failureproperty="test.failed">
       <batchtest fork="yes" todir="${out.test}/reports">
         <fileset dir="${test}/conform">
+          <include name="org/objectweb/asm/ClassReaderTest.java"/>
           <include name="org/objectweb/asm/test/AsmTestTest.java"/>
           <include name="**/*UnitTest.java"/>
         </fileset>

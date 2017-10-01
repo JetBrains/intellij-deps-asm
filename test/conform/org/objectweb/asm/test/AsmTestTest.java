@@ -82,36 +82,29 @@ public class AsmTestTest extends AsmTest {
     byte[] classContent = classParameter.getBytes();
     switch (classParameter) {
       case DEFAULT_PACKAGE:
+      case JDK3_ATTRIBUTE:
+      case JDK5_ANNOTATION:
+      case JDK9_MODULE:
         break;
       case JDK3_ALL_INSTRUCTIONS:
       case JDK3_ALL_STRUCTURES:
       case JDK3_ANONYMOUS_INNER_CLASS:
       case JDK3_INNER_CLASS:
-        removeAttributes(classContent, "Code");
-        thrown.expect(ClassFormatError.class);
-        break;
-      case JDK3_ATTRIBUTE:
-        break;
+      case JDK3_LARGE_METHOD:
       case JDK5_ALL_INSTRUCTIONS:
       case JDK5_ALL_STRUCTURES:
       case JDK5_ENUM:
-        removeAttributes(classContent, "Code");
-        thrown.expect(ClassFormatError.class);
-        break;
-      case JDK5_ANNOTATION:
-        break;
-      case JDK8_ALL_FRAMES:
-      case JDK8_ALL_INSTRUCTIONS:
-        removeAttributes(classContent, "StackMapTable");
-        thrown.expect(VerifyError.class);
-        break;
       case JDK8_ALL_STRUCTURES:
       case JDK8_ANONYMOUS_INNER_CLASS:
       case JDK8_INNER_CLASS:
         removeAttributes(classContent, "Code");
         thrown.expect(ClassFormatError.class);
         break;
-      case JDK9_MODULE:
+      case JDK8_ALL_FRAMES:
+      case JDK8_ALL_INSTRUCTIONS:
+      case JDK8_LARGE_METHOD:
+        removeAttributes(classContent, "StackMapTable");
+        thrown.expect(VerifyError.class);
         break;
       default:
         fail("Unknown precompiled class");

@@ -119,17 +119,19 @@ public abstract class AsmTest {
     JDK3_ALL_INSTRUCTIONS("jdk3.AllInstructions"),
     JDK3_ALL_STRUCTURES("jdk3.AllStructures"),
     JDK3_ANONYMOUS_INNER_CLASS("jdk3.AllStructures$1"),
-    JDK3_INNER_CLASS("jdk3.AllStructures$InnerClass"),
     JDK3_ATTRIBUTE("jdk3.Attribute"),
+    JDK3_INNER_CLASS("jdk3.AllStructures$InnerClass"),
+    JDK3_LARGE_METHOD("jdk3.LargeMethod"),
     JDK5_ALL_INSTRUCTIONS("jdk5.AllInstructions"),
     JDK5_ALL_STRUCTURES("jdk5.AllStructures"),
-    JDK5_ENUM("jdk5.AllStructures$EnumClass"),
     JDK5_ANNOTATION("jdk5.AllStructures$InvisibleAnnotation"),
+    JDK5_ENUM("jdk5.AllStructures$EnumClass"),
     JDK8_ALL_FRAMES("jdk8.AllFrames"),
     JDK8_ALL_INSTRUCTIONS("jdk8.AllInstructions"),
     JDK8_ALL_STRUCTURES("jdk8.AllStructures"),
     JDK8_ANONYMOUS_INNER_CLASS("jdk8.AllStructures$1"),
     JDK8_INNER_CLASS("jdk8.AllStructures$InnerClass"),
+    JDK8_LARGE_METHOD("jdk8.LargeMethod"),
     JDK9_MODULE("jdk9.module-info");
 
     private final String name;

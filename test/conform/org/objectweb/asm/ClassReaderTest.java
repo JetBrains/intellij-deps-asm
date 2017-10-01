@@ -27,121 +27,252 @@
 // THE POSSIBILITY OF SUCH DAMAGE.
 package org.objectweb.asm;
 
-import junit.framework.TestSuite;
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.startsWith;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
+
+import java.io.IOException;
+import java.util.Collection;
+import org.junit.Test;
+import org.junit.runners.Parameterized.Parameters;
+import org.objectweb.asm.test.AsmTest;
 
 /**
  * ClassReader tests.
  *
  * @author Eric Bruneton
  */
-public class ClassReaderTest extends AbstractTest {
+public class ClassReaderTest extends AsmTest {
 
-  public static TestSuite suite() throws Exception {
-    return new ClassReaderTest().getSuite();
+  /** @return test parameters to test all the precompiled classes with all the apis. */
+  @Parameters(name = NAME)
+  public static Collection<Object[]> data() {
+    return data(Api.ASM4, Api.ASM5, Api.ASM6);
   }
 
-  @Override
-  public void test() throws Exception {
-    new ClassReader(is)
-        .accept(
-            new ClassVisitor(Opcodes.ASM5) {
+  /** Tests {@link ClassReader(byte[])] and the basic ClassReader accessors. */
+  @Test
+  public void testByteArrayConstructorAndAccessors() {
+    ClassReader classReader = new ClassReader(classParameter.getBytes());
+    assertTrue(classReader.getAccess() != 0);
+    assertThat(classReader.getClassName(), equalTo(classParameter.getInternalName()));
+    if (classParameter.getInternalName().equals("module-info")) {
+      assertNull(classReader.getSuperName());
+    } else {
+      assertThat(classReader.getSuperName(), startsWith("java"));
+    }
+    assertNotNull(classReader.getInterfaces());
+  }
 
-              AnnotationVisitor av =
-                  new AnnotationVisitor(Opcodes.ASM5) {
+  /** Tests {@link ClassReader(String)} and the basic ClassReader accessors. */
+  @Test
+  public void testNameConstructorAndAccessors() throws IOException {
+    ClassReader classReader = new ClassReader(classParameter.getName());
+    assertTrue(classReader.getAccess() != 0);
+    assertThat(classReader.getClassName(), equalTo(classParameter.getInternalName()));
+    if (classParameter.getInternalName().equals("module-info")) {
+      assertNull(classReader.getSuperName());
+    } else {
+      assertThat(classReader.getSuperName(), startsWith("java"));
+    }
+    assertNotNull(classReader.getInterfaces());
+  }
 
-                    @Override
-                    public AnnotationVisitor visitAnnotation(String name, String desc) {
-                      return this;
-                    }
+  /** Tests {@link ClassReader(java.io.InputStream)} and the basic ClassReader accessors. */
+  @Test
+  public void testStreamConstructorAndAccessors() throws IOException {
+    ClassReader classReader =
+        new ClassReader(
+            ClassLoader.getSystemResourceAsStream(
+                classParameter.getName().replace('.', '/') + ".class"));
+    assertTrue(classReader.getAccess() != 0);
+    assertThat(classReader.getClassName(), equalTo(classParameter.getInternalName()));
+    if (classParameter.getInternalName().equals("module-info")) {
+      assertNull(classReader.getSuperName());
+    } else {
+      assertThat(classReader.getSuperName(), startsWith("java"));
+    }
+    assertNotNull(classReader.getInterfaces());
+  }
 
-                    @Override
-                    public AnnotationVisitor visitArray(String name) {
-                      return this;
-                    }
-                  };
+  /** Tests the ClassReader accept method with an empty visitor. */
+  @Test
+  public void testAcceptWithEmptyVisitor() {
+    ClassReader classReader = new ClassReader(classParameter.getBytes());
+    if (classParameter.isMoreRecentThan(apiParameter)) {
+      thrown.expect(RuntimeException.class);
+    }
+    classReader.accept(new EmptyClassVisitor(apiParameter.value()), 0);
+  }
 
-              @Override
-              public AnnotationVisitor visitAnnotation(String desc, boolean visible) {
-                return av;
-              }
+  /** Tests the ClassReader accept method with an empty visitor and SKIP_DEBUG. */
+  @Test
+  public void testAcceptWithEmptyVisitorAndSkipDebug() {
+    ClassReader classReader = new ClassReader(classParameter.getBytes());
+    if (classParameter.isMoreRecentThan(apiParameter)) {
+      thrown.expect(RuntimeException.class);
+    }
+    classReader.accept(new EmptyClassVisitor(apiParameter.value()), ClassReader.SKIP_DEBUG);
+  }
 
-              @Override
-              public AnnotationVisitor visitTypeAnnotation(
-                  int typeRef, TypePath typePath, String desc, boolean visible) {
-                return av;
-              }
+  /** Tests the ClassReader accept method with an empty visitor and EXPAND_FRAMES. */
+  @Test
+  public void testAcceptWithEmptyVisitorAndExpandFrames() {
+    ClassReader classReader = new ClassReader(classParameter.getBytes());
+    if (classParameter.isMoreRecentThan(apiParameter)) {
+      thrown.expect(RuntimeException.class);
+    }
+    classReader.accept(new EmptyClassVisitor(apiParameter.value()), ClassReader.EXPAND_FRAMES);
+  }
 
-              @Override
-              public FieldVisitor visitField(
-                  int access, String name, String desc, String signature, Object value) {
-                return new FieldVisitor(Opcodes.ASM5) {
+  /** Tests the ClassReader accept method with an empty visitor and SKIP_FRAMES. */
+  @Test
+  public void testAcceptWithEmptyVisitorAndSkipFrames() {
+    ClassReader classReader = new ClassReader(classParameter.getBytes());
+    if (classParameter.isMoreRecentThan(apiParameter)) {
+      thrown.expect(RuntimeException.class);
+    }
+    classReader.accept(new EmptyClassVisitor(apiParameter.value()), ClassReader.SKIP_FRAMES);
+  }
 
-                  @Override
-                  public AnnotationVisitor visitAnnotation(String desc, boolean visible) {
-                    return av;
-                  }
+  /** Tests the ClassReader accept method with an empty visitor and SKIP_CODE. */
+  @Test
+  public void testAcceptWithEmptyVisitorAndSkipCode() {
+    ClassReader classReader = new ClassReader(classParameter.getBytes());
+    if (classParameter.isMoreRecentThan(apiParameter)) {
+      thrown.expect(RuntimeException.class);
+    }
+    classReader.accept(new EmptyClassVisitor(apiParameter.value()), ClassReader.SKIP_CODE);
+  }
 
-                  @Override
-                  public AnnotationVisitor visitTypeAnnotation(
-                      int typeRef, TypePath typePath, String desc, boolean visible) {
-                    return av;
-                  }
-                };
-              }
+  /** Tests the ClassReader accept method with a visitor that skips fields and methods. */
+  @Test
+  public void testAcceptWithEmptyVisitorAndSkipFieldAndMethodContent() {
+    ClassReader classReader = new ClassReader(classParameter.getBytes());
+    if (classParameter == PrecompiledClass.JDK9_MODULE
+        && classParameter.isMoreRecentThan(apiParameter)) {
+      thrown.expect(RuntimeException.class);
+    }
+    classReader.accept(
+        new EmptyClassVisitor(apiParameter.value()) {
+          @Override
+          public FieldVisitor visitField(
+              int access, String name, String desc, String signature, Object value) {
+            return null;
+          }
 
-              @Override
-              public MethodVisitor visitMethod(
-                  int access, String name, String desc, String signature, String[] exceptions) {
-                return new MethodVisitor(Opcodes.ASM5) {
+          @Override
+          public MethodVisitor visitMethod(
+              int access, String name, String desc, String signature, String[] exceptions) {
+            return null;
+          }
+        },
+        0);
+  }
 
-                  @Override
-                  public AnnotationVisitor visitAnnotationDefault() {
-                    return av;
-                  }
+  private static class EmptyClassVisitor extends ClassVisitor {
 
-                  @Override
-                  public AnnotationVisitor visitAnnotation(String desc, boolean visible) {
-                    return av;
-                  }
+    AnnotationVisitor av =
+        new AnnotationVisitor(api) {
 
-                  @Override
-                  public AnnotationVisitor visitTypeAnnotation(
-                      int typeRef, TypePath typePath, String desc, boolean visible) {
-                    return av;
-                  }
+          @Override
+          public AnnotationVisitor visitAnnotation(String name, String desc) {
+            return this;
+          }
 
-                  @Override
-                  public AnnotationVisitor visitParameterAnnotation(
-                      int parameter, String desc, boolean visible) {
-                    return av;
-                  }
+          @Override
+          public AnnotationVisitor visitArray(String name) {
+            return this;
+          }
+        };
 
-                  @Override
-                  public AnnotationVisitor visitInsnAnnotation(
-                      int typeRef, TypePath typePath, String desc, boolean visible) {
-                    return av;
-                  }
+    EmptyClassVisitor(int api) {
+      super(api);
+    }
 
-                  @Override
-                  public AnnotationVisitor visitTryCatchAnnotation(
-                      int typeRef, TypePath typePath, String desc, boolean visible) {
-                    return av;
-                  }
+    @Override
+    public AnnotationVisitor visitAnnotation(String desc, boolean visible) {
+      return av;
+    }
 
-                  @Override
-                  public AnnotationVisitor visitLocalVariableAnnotation(
-                      int typeRef,
-                      TypePath typePath,
-                      Label[] start,
-                      Label[] end,
-                      int[] index,
-                      String desc,
-                      boolean visible) {
-                    return av;
-                  }
-                };
-              }
-            },
-            0);
+    @Override
+    public AnnotationVisitor visitTypeAnnotation(
+        int typeRef, TypePath typePath, String desc, boolean visible) {
+      return av;
+    }
+
+    @Override
+    public FieldVisitor visitField(
+        int access, String name, String desc, String signature, Object value) {
+      return new FieldVisitor(api) {
+
+        @Override
+        public AnnotationVisitor visitAnnotation(String desc, boolean visible) {
+          return av;
+        }
+
+        @Override
+        public AnnotationVisitor visitTypeAnnotation(
+            int typeRef, TypePath typePath, String desc, boolean visible) {
+          return av;
+        }
+      };
+    }
+
+    @Override
+    public MethodVisitor visitMethod(
+        int access, String name, String desc, String signature, String[] exceptions) {
+      return new MethodVisitor(api) {
+
+        @Override
+        public AnnotationVisitor visitAnnotationDefault() {
+          return av;
+        }
+
+        @Override
+        public AnnotationVisitor visitAnnotation(String desc, boolean visible) {
+          return av;
+        }
+
+        @Override
+        public AnnotationVisitor visitTypeAnnotation(
+            int typeRef, TypePath typePath, String desc, boolean visible) {
+          return av;
+        }
+
+        @Override
+        public AnnotationVisitor visitParameterAnnotation(
+            int parameter, String desc, boolean visible) {
+          return av;
+        }
+
+        @Override
+        public AnnotationVisitor visitInsnAnnotation(
+            int typeRef, TypePath typePath, String desc, boolean visible) {
+          return av;
+        }
+
+        @Override
+        public AnnotationVisitor visitTryCatchAnnotation(
+            int typeRef, TypePath typePath, String desc, boolean visible) {
+          return av;
+        }
+
+        @Override
+        public AnnotationVisitor visitLocalVariableAnnotation(
+            int typeRef,
+            TypePath typePath,
+            Label[] start,
+            Label[] end,
+            int[] index,
+            String desc,
+            boolean visible) {
+          return av;
+        }
+      };
+    }
   }
 }

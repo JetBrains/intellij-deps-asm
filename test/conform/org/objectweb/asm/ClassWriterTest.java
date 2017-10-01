@@ -125,7 +125,7 @@ public class ClassWriterTest extends AsmTest {
     byte[] classFile = classParameter.getBytes();
     ClassReader classReader = new ClassReader(classFile);
     ClassWriter classWriter = new ClassWriter(ClassWriter.COMPUTE_FRAMES);
-    // jdk3.AllInstructions and jd3.LargeMethod contains JSR/RET instructions,
+    // jdk3.AllInstructions and jdk3.LargeMethod contain JSR/RET instructions,
     // incompatible with COMPUTE_FRAMES.
     if (classParameter == PrecompiledClass.JDK3_ALL_INSTRUCTIONS
         || classParameter == PrecompiledClass.JDK3_LARGE_METHOD) {
@@ -154,7 +154,7 @@ public class ClassWriterTest extends AsmTest {
     byte[] classFile = classParameter.getBytes();
     ClassReader classReader = new ClassReader(classFile);
     ClassWriter classWriter = new ClassWriter(ClassWriter.COMPUTE_FRAMES);
-    // jdk3.AllInstructions and jd3.LargeMethod contains JSR/RET instructions,
+    // jdk3.AllInstructions and jdk3.LargeMethod contain JSR/RET instructions,
     // incompatible with COMPUTE_FRAMES.
     if (classParameter == PrecompiledClass.JDK3_ALL_INSTRUCTIONS
         || classParameter == PrecompiledClass.JDK3_LARGE_METHOD) {
@@ -183,7 +183,8 @@ public class ClassWriterTest extends AsmTest {
     byte[] classFile = classParameter.getBytes();
     ClassReader classReader = new ClassReader(classFile);
     ClassWriter classWriter = new ClassWriter(ClassWriter.COMPUTE_FRAMES);
-    // jdk3.AllInstructions contains JSR/RET instructions, incompatible with COMPUTE_FRAMES.
+    // jdk3.AllInstructions and jdk3.LargeMethod contain JSR/RET instructions,
+    // incompatible with COMPUTE_FRAMES.
     if (classParameter == PrecompiledClass.JDK3_ALL_INSTRUCTIONS
         || classParameter == PrecompiledClass.JDK3_LARGE_METHOD
         || classParameter.isMoreRecentThan(apiParameter)) {

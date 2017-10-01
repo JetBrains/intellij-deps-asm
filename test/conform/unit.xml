@@ -40,6 +40,7 @@
           <include name="org/objectweb/asm/AttributeTest.java"/>
           <include name="org/objectweb/asm/ClassReaderTest.java"/>
           <include name="org/objectweb/asm/ClassVisitorTest.java"/>
+          <include name="org/objectweb/asm/ClassWriterTest.java"/>
           <include name="org/objectweb/asm/LabelTest.java"/>
           <include name="org/objectweb/asm/MethodVisitorTest.java"/>
           <include name="org/objectweb/asm/TypePathTest.java"/>

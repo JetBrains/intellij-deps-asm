@@ -169,7 +169,6 @@
     <ant antfile="${test.conform}/basicverifier.xml" inheritRefs="true"/>
     <ant antfile="${test.conform}/checkclassadapter.xml" inheritRefs="true"/>
     <ant antfile="${test.conform}/checksignatureadapter.xml" inheritRefs="true"/>
-    <ant antfile="${test.conform}/classadapter.xml" inheritRefs="true"/>
     <ant antfile="${test.conform}/classnode.xml" inheritRefs="true"/>
     <ant antfile="${test.conform}/classreader.xml" inheritRefs="true"/>
     <ant antfile="${test.conform}/classwriter.xml" inheritRefs="true"/>
@@ -185,7 +184,6 @@
     <ant antfile="${test.conform}/localvariablessorter2.xml" inheritRefs="true"/>
     <ant antfile="${test.conform}/classremapper.xml" inheritRefs="true"/>
     <ant antfile="${test.conform}/saxadapter.xml" inheritRefs="true"/>
-    <ant antfile="${test.conform}/signaturewriter.xml" inheritRefs="true"/>
     <ant antfile="${test.conform}/simpleverifier.xml" inheritRefs="true"/>    
     <ant antfile="${test.conform}/sourceinterpreter.xml" inheritRefs="true"/>
     <ant antfile="${test.conform}/staticinitmerger.xml" inheritRefs="true"/>

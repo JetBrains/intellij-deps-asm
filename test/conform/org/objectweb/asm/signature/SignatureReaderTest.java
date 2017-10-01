@@ -27,8 +27,6 @@
 // THE POSSIBILITY OF SUCH DAMAGE.
 package org.objectweb.asm.signature;
 
-import static org.junit.Assert.assertEquals;
-
 import java.util.Collection;
 
 import org.junit.Test;
@@ -40,11 +38,11 @@ import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.test.AsmTest;
 
 /**
- * SignatureWriter tests.
+ * SignatureReader tests.
  *
  * @author Eric Bruneton
  */
-public class SignatureWriterTest extends AsmTest {
+public class SignatureReaderTest extends AsmTest {
 
   /** @return test parameters to test all the precompiled classes with ASM6. */
   @Parameters(name = NAME)
@@ -53,11 +51,10 @@ public class SignatureWriterTest extends AsmTest {
   }
 
   /**
-   * Tests that class, field and method signatures are unchanged by a SignatureReader ->
-   * SignatureWriter transform.
+   * Tests that class, field and method signatures can be read successfully with a SignatureReader.
    */
   @Test
-  public void testReadAndWriteSignature() throws Exception {
+  public void testReadSignature() throws Exception {
     byte[] classFile = classParameter.getBytes();
     ClassReader classReader = new ClassReader(classFile);
     classReader.accept(
@@ -71,9 +68,7 @@ public class SignatureWriterTest extends AsmTest {
               String superName,
               String[] interfaces) {
             if (signature != null) {
-              SignatureWriter signatureWriter = new SignatureWriter();
-              new SignatureReader(signature).accept(signatureWriter);
-              assertEquals(signature, signatureWriter.toString());
+              new SignatureReader(signature).accept(new SignatureVisitor(api) {});
             }
           }
 
@@ -81,9 +76,7 @@ public class SignatureWriterTest extends AsmTest {
           public FieldVisitor visitField(
               int access, String name, String desc, String signature, Object value) {
             if (signature != null) {
-              SignatureWriter signatureWriter = new SignatureWriter();
-              new SignatureReader(signature).acceptType(signatureWriter);
-              assertEquals(signature, signatureWriter.toString());
+              new SignatureReader(signature).acceptType(new SignatureVisitor(api) {});
             }
             return null;
           }
@@ -92,9 +85,7 @@ public class SignatureWriterTest extends AsmTest {
           public MethodVisitor visitMethod(
               int access, String name, String desc, String signature, String[] exceptions) {
             if (signature != null) {
-              SignatureWriter signatureWriter = new SignatureWriter();
-              new SignatureReader(signature).accept(signatureWriter);
-              assertEquals(signature, signatureWriter.toString());
+              new SignatureReader(signature).accept(new SignatureVisitor(api) {});
             }
             return null;
           }

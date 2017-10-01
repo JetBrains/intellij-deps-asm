@@ -27,16 +27,58 @@
 // THE POSSIBILITY OF SUCH DAMAGE.
 package org.objectweb.asm;
 
-import junit.framework.TestCase;
+import org.objectweb.asm.Attribute;
+import org.objectweb.asm.ByteVector;
+import org.objectweb.asm.ClassReader;
+import org.objectweb.asm.ClassWriter;
+import org.objectweb.asm.Label;
 
 /**
- * Attribute unit tests.
+ * A non standard code attribute used for testing purposes.
  *
  * @author Eric Bruneton
  */
-public class AttributeUnitTest extends TestCase {
+public class CodeComment extends Attribute {
 
-  public void testUnknown() {
-    assertTrue(new Attribute("Comment").isUnknown());
+  public CodeComment() {
+    super("CodeComment");
+  }
+
+  @Override
+  public boolean isUnknown() {
+    return false;
+  }
+
+  @Override
+  public boolean isCodeAttribute() {
+    return true;
+  }
+
+  @Override
+  protected Attribute read(
+      final ClassReader cr,
+      final int off,
+      final int len,
+      final char[] buf,
+      final int codeOff,
+      final Label[] labels) {
+
+    return new CodeComment();
+  }
+
+  @Override
+  protected ByteVector write(
+      final ClassWriter cw,
+      final byte[] code,
+      final int len,
+      final int maxStack,
+      final int maxLocals) {
+    return new ByteVector();
+  }
+
+  @Override
+  protected Label[] getLabels() {
+    super.getLabels();
+    return new Label[] {new Label()};
   }
 }

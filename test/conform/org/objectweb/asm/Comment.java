@@ -25,17 +25,49 @@
 // CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
 // THE POSSIBILITY OF SUCH DAMAGE.
-
 package org.objectweb.asm;
 
-import junit.framework.TestCase;
+import org.objectweb.asm.Attribute;
+import org.objectweb.asm.ByteVector;
+import org.objectweb.asm.ClassReader;
+import org.objectweb.asm.ClassWriter;
+import org.objectweb.asm.Label;
 
-public class TypePathUnitTest extends TestCase {
+/**
+ * A non standard attribute used for testing purposes.
+ *
+ * @author Eric Bruneton
+ */
+public class Comment extends Attribute {
 
-  public void testToAndFromString() {
-    assertEquals("[.[*0;", TypePath.fromString("[.[*0").toString());
-    assertEquals("[*0;*[", TypePath.fromString("[*0;*[").toString());
-    assertEquals("10;", TypePath.fromString("10;").toString());
-    assertEquals("1;0;", TypePath.fromString("1;0;").toString());
+  public Comment() {
+    super("Comment");
+  }
+
+  @Override
+  public boolean isUnknown() {
+    return false;
+  }
+
+  @Override
+  protected Attribute read(
+      final ClassReader cr,
+      final int off,
+      final int len,
+      final char[] buf,
+      final int codeOff,
+      final Label[] labels) {
+
+    return new Comment();
+  }
+
+  @Override
+  protected ByteVector write(
+      final ClassWriter cw,
+      final byte[] code,
+      final int len,
+      final int maxStack,
+      final int maxLocals) {
+    return new ByteVector();
   }
 }

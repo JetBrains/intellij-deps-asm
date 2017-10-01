@@ -27,25 +27,47 @@
 // THE POSSIBILITY OF SUCH DAMAGE.
 package org.objectweb.asm;
 
-import junit.framework.TestSuite;
+import org.objectweb.asm.Attribute;
+import org.objectweb.asm.ByteVector;
+import org.objectweb.asm.ClassReader;
+import org.objectweb.asm.ClassWriter;
+import org.objectweb.asm.Label;
 
 /**
- * ClassWriter tests.
+ * A non standard attribute used for testing purposes.
  *
  * @author Eric Bruneton
  */
-public class ClassWriterComputeMaxsTest extends AbstractTest {
+public class Comment extends Attribute {
 
-  public static TestSuite suite() throws Exception {
-    return new ClassWriterComputeMaxsTest().getSuite();
+  public Comment() {
+    super("Comment");
   }
 
   @Override
-  public void test() throws Exception {
-    ClassReader cr = new ClassReader(is);
-    ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_MAXS);
-    cr.accept(cw, 0);
-    // computed maxStack and maxLocals may differ from original class
-    // assertEquals(cr, new ClassReader(cw.toByteArray()));
+  public boolean isUnknown() {
+    return false;
+  }
+
+  @Override
+  protected Attribute read(
+      final ClassReader cr,
+      final int off,
+      final int len,
+      final char[] buf,
+      final int codeOff,
+      final Label[] labels) {
+
+    return new Comment();
+  }
+
+  @Override
+  protected ByteVector write(
+      final ClassWriter cw,
+      final byte[] code,
+      final int len,
+      final int maxStack,
+      final int maxLocals) {
+    return new ByteVector();
   }
 }

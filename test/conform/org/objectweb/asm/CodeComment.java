@@ -27,46 +27,57 @@
 // THE POSSIBILITY OF SUCH DAMAGE.
 package org.objectweb.asm;
 
-import junit.framework.TestSuite;
+import org.objectweb.asm.Attribute;
+import org.objectweb.asm.ByteVector;
+import org.objectweb.asm.ClassReader;
+import org.objectweb.asm.ClassWriter;
+import org.objectweb.asm.Label;
 
 /**
- * ClassWriter tests for copyPool() optimization.
+ * A non standard code attribute used for testing purposes.
  *
- * @author Eugene Kuleshov
+ * @author Eric Bruneton
  */
-public class ClassWriterCopyPoolTest extends AbstractTest {
+public class CodeComment extends Attribute {
 
-  public static TestSuite suite() throws Exception {
-    return new ClassWriterCopyPoolTest().getSuite();
+  public CodeComment() {
+    super("CodeComment");
   }
 
   @Override
-  public void test() throws Exception {
-    ClassReader cr = new ClassReader(is);
-    ClassWriter cw1 = new ClassWriter(0);
-    ClassWriter cw2 = new ClassWriter(cr, 0);
-    cr.accept(new ChangeExceptionAdapter(cw1), 0);
-    cr.accept(new ChangeExceptionAdapter(cw2), 0);
-    assertEquals(new ClassReader(cw1.toByteArray()), new ClassReader(cw2.toByteArray()));
+  public boolean isUnknown() {
+    return false;
   }
 
-  static class ChangeExceptionAdapter extends ClassVisitor {
+  @Override
+  public boolean isCodeAttribute() {
+    return true;
+  }
 
-    public ChangeExceptionAdapter(final ClassVisitor cv) {
-      super(Opcodes.ASM5, cv);
-    }
+  @Override
+  protected Attribute read(
+      final ClassReader cr,
+      final int off,
+      final int len,
+      final char[] buf,
+      final int codeOff,
+      final Label[] labels) {
+    return new CodeComment();
+  }
 
-    @Override
-    public MethodVisitor visitMethod(
-        final int access,
-        final String name,
-        final String desc,
-        final String signature,
-        final String[] exceptions) {
-      if (exceptions != null && exceptions.length > 0) {
-        exceptions[0] = "java/lang/Throwable";
-      }
-      return super.visitMethod(access, name, desc, signature, exceptions);
-    }
+  @Override
+  protected ByteVector write(
+      final ClassWriter cw,
+      final byte[] code,
+      final int len,
+      final int maxStack,
+      final int maxLocals) {
+    return new ByteVector();
+  }
+
+  @Override
+  protected Label[] getLabels() {
+    super.getLabels();
+    return new Label[] {new Label()};
   }
 }

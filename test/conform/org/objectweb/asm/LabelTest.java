@@ -25,56 +25,48 @@
 // CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
 // THE POSSIBILITY OF SUCH DAMAGE.
-package org.objectweb.asm.signature;
+package org.objectweb.asm;
 
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
-import org.objectweb.asm.util.TraceSignatureVisitorUnitTest;
-import org.objectweb.asm.util.TraceSignatureVisitorUnitTest.TestData;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.ExpectedException;
 
 /**
- * Signature tests.
+ * Label tests.
  *
- * @author Eugene Kuleshov
  * @author Eric Bruneton
  */
-public class SignatureUnitTest extends TestCase {
+public class LabelTest {
 
-  public static TestSuite suite() {
-    TestSuite suite = new TestSuite(SignatureUnitTest.class.getName());
-    for (int i = 0; i < TraceSignatureVisitorUnitTest.DATA.length; i++) {
-      suite.addTest(new SignatureUnitTest(new TestData(TraceSignatureVisitorUnitTest.DATA[i])));
-    }
-    return suite;
+  /** Rule that can be used in tests that expect some exceptions to be thrown. */
+  @Rule public ExpectedException thrown = ExpectedException.none();
+
+  /** Tests that {@link Label.toString()} returns strings starting with "L". */
+  @Test
+  public void testToString() {
+    assertTrue(new Label().toString().startsWith("L"));
   }
 
-  private TestData data;
-
-  private SignatureUnitTest(final TestData data) {
-    super("testSignature");
-    this.data = data;
+  /** Tests that {@link Label.getOffset()} returns a correct offset after the label is visited. */
+  @Test
+  public void testGetOffset() {
+    Label label = new Label();
+    ClassWriter classWriter = new ClassWriter(0);
+    MethodVisitor methodVisitor =
+        classWriter.visitMethod(Opcodes.ACC_PUBLIC, "m", "()V", null, null);
+    methodVisitor.visitCode();
+    methodVisitor.visitVarInsn(Opcodes.ALOAD, 0);
+    methodVisitor.visitLabel(label);
+    assertEquals(1, label.getOffset());
   }
 
-  public void testSignature() {
-    SignatureWriter wrt = new SignatureWriter();
-    SignatureReader rdr = new SignatureReader(data.signature);
-    switch (data.type) {
-      case 'C':
-      case 'M':
-        rdr.accept(wrt);
-        break;
-      case 'F':
-        rdr.acceptType(wrt);
-        break;
-      default:
-        return;
-    }
-    assertEquals(data.signature, wrt.toString());
-  }
-
-  @Override
-  public String getName() {
-    return super.getName() + " " + data.signature;
+  /** Tests that {@link Label.getOffset()} throws an exception before the label is visited. */
+  @Test
+  public void testGetOffset_illegalState() {
+    thrown.expect(RuntimeException.class);
+    new Label().getOffset();
   }
 }

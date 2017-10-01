@@ -27,20 +27,24 @@
 // THE POSSIBILITY OF SUCH DAMAGE.
 package org.objectweb.asm;
 
-import java.lang.reflect.Constructor;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
 import java.lang.reflect.Method;
 import java.util.Arrays;
 
-import junit.framework.TestCase;
+import org.junit.Test;
 
 /**
- * Type unit tests.
+ * Type tests.
  *
  * @author Eric Bruneton
  */
-public class TypeUnitTest extends TestCase implements Opcodes {
+public class TypeTest implements Opcodes {
 
-  public void testConstants() {
+  /** Tests that {@link Type.getType(Class)} returns correct values for primitive types. */
+  @Test
+  public void testGetTypeForPrimitiveTypes() {
     assertEquals(Type.INT_TYPE, Type.getType(Integer.TYPE));
     assertEquals(Type.VOID_TYPE, Type.getType(Void.TYPE));
     assertEquals(Type.BOOLEAN_TYPE, Type.getType(Boolean.TYPE));
@@ -52,32 +56,54 @@ public class TypeUnitTest extends TestCase implements Opcodes {
     assertEquals(Type.LONG_TYPE, Type.getType(Long.TYPE));
   }
 
-  public void testInternalName() {
-    String s1 = Type.getType(TypeUnitTest.class).getInternalName();
-    String s2 = Type.getInternalName(TypeUnitTest.class);
-    assertEquals(s1, s2);
+  /**
+   * Tests that {@link Type.getInternalName()} and {@link Type.getInternalName(Class)} return
+   * correct values.
+   */
+  @Test
+  public void testGetInternalName() {
+    String expectedInternalName = "org/objectweb/asm/TypeTest";
+    assertEquals(expectedInternalName, Type.getType(TypeTest.class).getInternalName());
+    assertEquals(expectedInternalName, Type.getInternalName(TypeTest.class));
   }
 
-  public void testConstructorDescriptor() {
-    for (int i = 0; i < String.class.getConstructors().length; ++i) {
-      Constructor<?> c = String.class.getConstructors()[i];
-      Type.getConstructorDescriptor(c);
+  /**
+   * Tests that {@link Type.getConstructorDescriptor(Class)} returns correct values.
+   *
+   * @throws SecurityException
+   * @throws NoSuchMethodException
+   */
+  @Test
+  public void testGetConstructorDescriptor() throws NoSuchMethodException, SecurityException {
+    String constructorDescriptor =
+        Type.getConstructorDescriptor(
+            ClassReader.class.getConstructor(byte[].class, int.class, int.class));
+    assertEquals("([BII)V", constructorDescriptor);
+  }
+
+  /**
+   * Tests that {@link Type.getMethodDescriptor(Method)} returns correct values.
+   *
+   * @throws SecurityException
+   * @throws NoSuchMethodException
+   */
+  @Test
+  public void testGetMethodDescriptor() throws NoSuchMethodException, SecurityException {
+    Method method = Arrays.class.getMethod("binarySearch", byte[].class, byte.class);
+    Type[] argumentTypes = Type.getArgumentTypes(method);
+    for (int i = 0; i < argumentTypes.length; ++i) {
+      assertEquals(Type.getType(method.getParameterTypes()[i]), argumentTypes[i]);
     }
+    Type returnType = Type.getReturnType(method);
+    assertEquals(Type.getType(method.getReturnType()), returnType);
+    assertEquals("([BB)I", Type.getMethodDescriptor(returnType, argumentTypes));
+    assertEquals("([BB)I", Type.getMethodDescriptor(method));
   }
 
-  public void testMethodDescriptor() {
-    for (int i = 0; i < Arrays.class.getMethods().length; ++i) {
-      Method m = Arrays.class.getMethods()[i];
-      Type[] args = Type.getArgumentTypes(m);
-      Type r = Type.getReturnType(m);
-      String d1 = Type.getMethodDescriptor(r, args);
-      String d2 = Type.getMethodDescriptor(m);
-      assertEquals(d1, d2);
-    }
-  }
-
+  /** Tests that {@link Type.getOpcode(int)} returns correct values. */
+  @Test
   public void testGetOpcode() {
-    Type object = Type.getType("Ljava/lang/Object;");
+    Type objectType = Type.getType("Ljava/lang/Object;");
     assertEquals(BALOAD, Type.BOOLEAN_TYPE.getOpcode(IALOAD));
     assertEquals(BALOAD, Type.BYTE_TYPE.getOpcode(IALOAD));
     assertEquals(CALOAD, Type.CHAR_TYPE.getOpcode(IALOAD));
@@ -86,7 +112,7 @@ public class TypeUnitTest extends TestCase implements Opcodes {
     assertEquals(FALOAD, Type.FLOAT_TYPE.getOpcode(IALOAD));
     assertEquals(LALOAD, Type.LONG_TYPE.getOpcode(IALOAD));
     assertEquals(DALOAD, Type.DOUBLE_TYPE.getOpcode(IALOAD));
-    assertEquals(AALOAD, object.getOpcode(IALOAD));
+    assertEquals(AALOAD, objectType.getOpcode(IALOAD));
     assertEquals(IADD, Type.BOOLEAN_TYPE.getOpcode(IADD));
     assertEquals(IADD, Type.BYTE_TYPE.getOpcode(IADD));
     assertEquals(IADD, Type.CHAR_TYPE.getOpcode(IADD));
@@ -97,15 +123,19 @@ public class TypeUnitTest extends TestCase implements Opcodes {
     assertEquals(DADD, Type.DOUBLE_TYPE.getOpcode(IADD));
   }
 
+  /** Tests that {@link Type.hashCode()} returns correct values. */
+  @Test
   public void testHashcode() {
-    Type.getType("Ljava/lang/Object;").hashCode();
+    assertTrue(Type.getType("Ljava/lang/Object;").hashCode() != 0);
   }
 
-  public void testObjectType() throws Exception {
-    Type t1 = Type.getObjectType("java/lang/Object");
-    Type t2 = Type.getType("Ljava/lang/Object;");
-    assertEquals(t2.getSort(), t1.getSort());
-    assertEquals(t2.getClassName(), t1.getClassName());
-    assertEquals(t2.getDescriptor(), t1.getDescriptor());
+  /** Tests that {@link Type.getObjectType(String)} returns correct values. */
+  @Test
+  public void testGetObjectType() throws Exception {
+    Type objectType = Type.getObjectType("java/lang/Object");
+    assertEquals(Type.OBJECT, objectType.getSort());
+    assertEquals("java.lang.Object", objectType.getClassName());
+    assertEquals("Ljava/lang/Object;", objectType.getDescriptor());
+    assertEquals(Type.getType("Ljava/lang/Object;"), objectType);
   }
 }

@@ -30,30 +30,13 @@ package org.objectweb.asm;
 import junit.framework.TestCase;
 
 /**
- * Label unit tests.
+ * Attribute unit tests.
  *
  * @author Eric Bruneton
  */
-public class LabelUnitTest extends TestCase {
+public class AttributeTest extends TestCase {
 
-  public void testToString() {
-    new Label().toString();
-  }
-
-  public void testGetOffset() {
-    Label l = new Label();
-    ClassWriter cw = new ClassWriter(0);
-    MethodVisitor mv = cw.visitMethod(Opcodes.ACC_PUBLIC, "m", "()V", null, null);
-    mv.visitCode();
-    mv.visitLabel(l);
-    assertEquals(0, l.getOffset());
-  }
-
-  public void testIllegalGetOffsetState() {
-    try {
-      new Label().getOffset();
-      fail();
-    } catch (RuntimeException e) {
-    }
+  public void testUnknown() {
+    assertTrue(new Attribute("Comment").isUnknown());
   }
 }

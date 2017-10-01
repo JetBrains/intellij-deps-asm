@@ -171,7 +171,6 @@
     <ant antfile="${test.conform}/checksignatureadapter.xml" inheritRefs="true"/>
     <ant antfile="${test.conform}/classadapter.xml" inheritRefs="true"/>
     <ant antfile="${test.conform}/classnode.xml" inheritRefs="true"/>
-    <ant antfile="${test.conform}/classreader.xml" inheritRefs="true"/>
     <ant antfile="${test.conform}/classwriter.xml" inheritRefs="true"/>
     <ant antfile="${test.conform}/classwritercomputeframes.xml" inheritRefs="true"/>
     <ant antfile="${test.conform}/classwritercomputeframesdeadcode.xml" inheritRefs="true"/>

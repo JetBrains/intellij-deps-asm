@@ -33,19 +33,20 @@ import java.io.StringWriter;
 import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
-
-import junit.framework.TestSuite;
+import java.util.Collection;
 
 import org.codehaus.janino.ClassLoaderIClassLoader;
 import org.codehaus.janino.IClassLoader;
 import org.codehaus.janino.Parser;
 import org.codehaus.janino.Scanner;
 import org.codehaus.janino.UnitCompiler;
-import org.objectweb.asm.AbstractTest;
+import org.junit.Test;
+import org.junit.runners.Parameterized.Parameters;
 import org.objectweb.asm.Attribute;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.attrs.CodeComment;
 import org.objectweb.asm.attrs.Comment;
+import org.objectweb.asm.test.AsmTest;
 
 /**
  * ASMifier tests.
@@ -53,64 +54,62 @@ import org.objectweb.asm.attrs.Comment;
  * @author Eugene Kuleshov
  * @author Eric Bruneton
  */
-public class ASMifierTest extends AbstractTest {
+public class ASMifierTest extends AsmTest {
 
-  public static final TestClassLoader LOADER = new TestClassLoader();
+  private static final IClassLoader ICLASS_LOADER =
+      new ClassLoaderIClassLoader(new URLClassLoader(new URL[0]));
 
-  public static TestSuite suite() throws Exception {
-    return new ASMifierTest().getSuite();
+  /** @return test parameters to test all the precompiled classes with ASM6. */
+  @Parameters(name = NAME)
+  public static Collection<Object[]> data() {
+    return data(Api.ASM6);
   }
 
-  @Override
-  public void test() throws Exception {
-    ClassReader cr = new ClassReader(is);
+  /**
+   * Tests that the code produced with an ASMifier compiles and generates the original class.
+   *
+   * @throws Exception
+   */
+  @Test
+  public void testAsmifyCompileAndExecute() throws Exception {
+    byte[] classFile = classParameter.getBytes();
+    if (classFile.length > Short.MAX_VALUE) return;
 
-    if (cr.b.length > 20000) {
-      return;
+    // Produces the ASMified Java source code corresponding to classParameter.
+    StringWriter stringWriter = new StringWriter();
+    TraceClassVisitor classVisitor =
+        new TraceClassVisitor(null, new ASMifier(), new PrintWriter(stringWriter));
+    new ClassReader(classFile)
+        .accept(classVisitor, new Attribute[] {new Comment(), new CodeComment()}, 0);
+    String asmifiedSource = stringWriter.toString();
+
+    // Compiles and executes this Java source code (skip JDK9 modules, Janino can't compile them).
+    if (classParameter == PrecompiledClass.JDK9_MODULE) return;
+    byte[] asmifiedClassFile = compile(classParameter.getName(), asmifiedSource);
+    String asmifiedClassName = classParameter.getName() + "Dump";
+    if (asmifiedClassName.indexOf('.') != -1) {
+      asmifiedClassName = "asm." + asmifiedClassName;
     }
+    Class<?> asmifiedClass =
+        new TestClassLoader().defineClass(asmifiedClassName, asmifiedClassFile);
+    Method dumpMethod = asmifiedClass.getMethod("dump");
+    byte[] dumpClassFile = (byte[]) dumpMethod.invoke(null);
 
-    StringWriter sw = new StringWriter();
-    TraceClassVisitor cv = new TraceClassVisitor(null, new ASMifier(), new PrintWriter(sw));
-    cr.accept(cv, new Attribute[] {new Comment(), new CodeComment()}, 0);
-
-    String generated = sw.toString();
-
-    byte[] generatorClassData;
-    try {
-      generatorClassData = Compiler.compile(n, generated);
-    } catch (Exception ex) {
-      System.err.println(generated);
-      System.err.println("------------------");
-      throw ex;
-    }
-
-    String nd = n + "Dump";
-    if (n.indexOf('.') != -1) {
-      nd = "asm." + nd;
-    }
-
-    Class<?> c = LOADER.defineClass(nd, generatorClassData);
-    Method m = c.getMethod("dump", new Class[0]);
-    byte[] b = (byte[]) m.invoke(null, new Object[0]);
-
-    assertEquals(cr, new ClassReader(b));
+    assertThatClass(dumpClassFile).isEqualTo(classFile);
   }
 
-  public static class TestClassLoader extends ClassLoader {
+  private static byte[] compile(final String name, final String source) throws Exception {
+    Parser parser = new Parser(new Scanner(name, new StringReader(source)));
+    UnitCompiler unitCompiler = new UnitCompiler(parser.parseCompilationUnit(), ICLASS_LOADER);
+    return unitCompiler.compileUnit(true, true, true)[0].toByteArray();
+  }
+
+  private static class TestClassLoader extends ClassLoader {
+
+    TestClassLoader() {}
 
     public Class<?> defineClass(final String name, final byte[] b) {
       return defineClass(name, b, 0, b.length);
-    }
-  }
-
-  public static class Compiler {
-
-    static final IClassLoader CL = new ClassLoaderIClassLoader(new URLClassLoader(new URL[0]));
-
-    public static byte[] compile(final String name, final String source) throws Exception {
-      Parser p = new Parser(new Scanner(name, new StringReader(source)));
-      UnitCompiler uc = new UnitCompiler(p.parseCompilationUnit(), CL);
-      return uc.compileUnit(true, true, true)[0].toByteArray();
     }
   }
 }

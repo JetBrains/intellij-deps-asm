@@ -59,15 +59,6 @@ public class ClassWriter extends ClassVisitor {
    */
   public static final int COMPUTE_FRAMES = 2;
 
-  /**
-   * Pseudo access flag to distinguish between the synthetic attribute and the synthetic access
-   * flag.
-   */
-  static final int ACC_SYNTHETIC_ATTRIBUTE = 0x40000;
-
-  /** Factor to convert from ACC_SYNTHETIC_ATTRIBUTE to Opcode.ACC_SYNTHETIC. */
-  static final int TO_ACC_SYNTHETIC = ACC_SYNTHETIC_ATTRIBUTE / Opcodes.ACC_SYNTHETIC;
-
   /** The type of instructions without any argument. */
   static final int NOARG_INSN = 0;
 
@@ -738,7 +729,7 @@ public class ClassWriter extends ClassVisitor {
       newUTF8("Deprecated");
     }
     if ((access & Opcodes.ACC_SYNTHETIC) != 0) {
-      if ((version & 0xFFFF) < Opcodes.V1_5 || (access & ACC_SYNTHETIC_ATTRIBUTE) != 0) {
+      if ((version & 0xFFFF) < Opcodes.V1_5) {
         ++attributeCount;
         size += 6;
         newUTF8("Synthetic");
@@ -785,9 +776,7 @@ public class ClassWriter extends ClassVisitor {
     out.putInt(0xCAFEBABE).putInt(version);
     out.putShort(index).putByteArray(pool.data, 0, pool.length);
     int mask =
-        Opcodes.ACC_DEPRECATED
-            | ACC_SYNTHETIC_ATTRIBUTE
-            | ((access & ACC_SYNTHETIC_ATTRIBUTE) / TO_ACC_SYNTHETIC);
+        Opcodes.ACC_DEPRECATED | ((version & 0xFFFF) < Opcodes.V1_5 ? Opcodes.ACC_SYNTHETIC : 0);
     out.putShort(access & ~mask).putShort(name).putShort(superName);
     out.putShort(interfaceCount);
     for (int i = 0; i < interfaceCount; ++i) {
@@ -834,10 +823,8 @@ public class ClassWriter extends ClassVisitor {
     if ((access & Opcodes.ACC_DEPRECATED) != 0) {
       out.putShort(newUTF8("Deprecated")).putInt(0);
     }
-    if ((access & Opcodes.ACC_SYNTHETIC) != 0) {
-      if ((version & 0xFFFF) < Opcodes.V1_5 || (access & ACC_SYNTHETIC_ATTRIBUTE) != 0) {
-        out.putShort(newUTF8("Synthetic")).putInt(0);
-      }
+    if ((access & Opcodes.ACC_SYNTHETIC) != 0 && (version & 0xFFFF) < Opcodes.V1_5) {
+      out.putShort(newUTF8("Synthetic")).putInt(0);
     }
     if (innerClasses != null) {
       out.putShort(newUTF8("InnerClasses"));

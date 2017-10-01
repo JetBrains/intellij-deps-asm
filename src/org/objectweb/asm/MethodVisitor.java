@@ -95,7 +95,7 @@ public abstract class MethodVisitor {
    */
   public void visitParameter(String name, int access) {
     if (api < Opcodes.ASM5) {
-      throw new RuntimeException();
+      throw new RuntimeException("This feature requires ASM5");
     }
     if (mv != null) {
       mv.visitParameter(name, access);
@@ -152,7 +152,7 @@ public abstract class MethodVisitor {
   public AnnotationVisitor visitTypeAnnotation(
       int typeRef, TypePath typePath, String desc, boolean visible) {
     if (api < Opcodes.ASM5) {
-      throw new RuntimeException();
+      throw new RuntimeException("This feature requires ASM5");
     }
     if (mv != null) {
       return mv.visitTypeAnnotation(typeRef, typePath, desc, visible);
@@ -384,7 +384,7 @@ public abstract class MethodVisitor {
   public void visitMethodInsn(int opcode, String owner, String name, String desc, boolean itf) {
     if (api < Opcodes.ASM5) {
       if (itf != (opcode == Opcodes.INVOKEINTERFACE)) {
-        throw new IllegalArgumentException("INVOKESPECIAL/STATIC on interfaces require ASM 5");
+        throw new IllegalArgumentException("INVOKESPECIAL/STATIC on interfaces requires ASM5");
       }
       visitMethodInsn(opcode, owner, name, desc);
       return;
@@ -406,6 +406,9 @@ public abstract class MethodVisitor {
    *     should expect that this array may change.
    */
   public void visitInvokeDynamicInsn(String name, String desc, Handle bsm, Object... bsmArgs) {
+    if (api < Opcodes.ASM5) {
+      throw new RuntimeException("This feature requires ASM5");
+    }
     if (mv != null) {
       mv.visitInvokeDynamicInsn(name, desc, bsm, bsmArgs);
     }
@@ -566,7 +569,7 @@ public abstract class MethodVisitor {
   public AnnotationVisitor visitInsnAnnotation(
       int typeRef, TypePath typePath, String desc, boolean visible) {
     if (api < Opcodes.ASM5) {
-      throw new RuntimeException();
+      throw new RuntimeException("This feature requires ASM5");
     }
     if (mv != null) {
       return mv.visitInsnAnnotation(typeRef, typePath, desc, visible);
@@ -613,7 +616,7 @@ public abstract class MethodVisitor {
   public AnnotationVisitor visitTryCatchAnnotation(
       int typeRef, TypePath typePath, String desc, boolean visible) {
     if (api < Opcodes.ASM5) {
-      throw new RuntimeException();
+      throw new RuntimeException("This feature requires ASM5");
     }
     if (mv != null) {
       return mv.visitTryCatchAnnotation(typeRef, typePath, desc, visible);
@@ -671,7 +674,7 @@ public abstract class MethodVisitor {
       String desc,
       boolean visible) {
     if (api < Opcodes.ASM5) {
-      throw new RuntimeException();
+      throw new RuntimeException("This feature requires ASM5");
     }
     if (mv != null) {
       return mv.visitLocalVariableAnnotation(typeRef, typePath, start, end, index, desc, visible);

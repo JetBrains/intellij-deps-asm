@@ -45,6 +45,14 @@ public final class CheckModuleAdapter extends ModuleVisitor {
 
   public CheckModuleAdapter(final ModuleVisitor mv, final boolean isOpen) {
     super(Opcodes.ASM6, mv);
+    if (getClass() != CheckModuleAdapter.class) {
+      throw new IllegalStateException();
+    }
+    this.isOpen = isOpen;
+  }
+
+  protected CheckModuleAdapter(final int api, final ModuleVisitor mv, final boolean isOpen) {
+    super(api, mv);
     this.isOpen = isOpen;
   }
 

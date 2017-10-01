@@ -27,28 +27,47 @@
 // THE POSSIBILITY OF SUCH DAMAGE.
 package org.objectweb.asm.util;
 
-import junit.framework.TestSuite;
+import java.util.Collection;
 
-import org.objectweb.asm.AbstractTest;
+import org.junit.Test;
+import org.junit.runners.Parameterized.Parameters;
+import org.objectweb.asm.Attribute;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassWriter;
+import org.objectweb.asm.CodeComment;
+import org.objectweb.asm.Comment;
+import org.objectweb.asm.test.AsmTest;
 
 /**
  * CheckClassAdapter tests.
  *
  * @author Eric Bruneton
  */
-public class CheckClassAdapterTest extends AbstractTest {
+public class CheckClassAdapterTest extends AsmTest {
 
-  public static TestSuite suite() throws Exception {
-    return new CheckClassAdapterTest().getSuite();
+  /** @return test parameters to test all the precompiled classes with all the apis. */
+  @Parameters(name = NAME)
+  public static Collection<Object[]> data() {
+    return data(Api.ASM4, Api.ASM5, Api.ASM6);
   }
 
-  @Override
+  /**
+   * Tests that classes are unchanged with a ClassReader->CheckClassAdapter->ClassWriter transform.
+   */
+  @Test
   public void test() throws Exception {
-    ClassReader cr = new ClassReader(is);
-    ClassWriter cw = new ClassWriter(0);
-    cr.accept(new CheckClassAdapter(cw), 0);
-    assertEquals(cr, new ClassReader(cw.toByteArray()));
+    byte[] classFile = classParameter.getBytes();
+    ClassReader classReader = new ClassReader(classFile);
+    ClassWriter classWriter = new ClassWriter(0);
+    if (classParameter.isMoreRecentThan(apiParameter)) {
+      thrown.expect(RuntimeException.class);
+    }
+    classReader.accept(
+        new CheckClassAdapter(apiParameter.value(), classWriter, false), attributes(), 0);
+    assertThatClass(classWriter.toByteArray()).isEqualTo(classFile);
+  }
+
+  private static Attribute[] attributes() {
+    return new Attribute[] {new Comment(), new CodeComment()};
   }
 }

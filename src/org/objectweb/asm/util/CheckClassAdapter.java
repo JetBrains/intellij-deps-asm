@@ -343,7 +343,7 @@ public class CheckClassAdapter extends ClassVisitor {
     if (name == null) {
       throw new IllegalArgumentException("Illegal class name (null)");
     }
-    if (!name.endsWith("package-info")) {
+    if (!name.endsWith("package-info") && !name.endsWith("module-info")) {
       CheckMethodAdapter.checkInternalName(name, "class name");
     }
     if ("java/lang/Object".equals(name)) {
@@ -351,6 +351,11 @@ public class CheckClassAdapter extends ClassVisitor {
         throw new IllegalArgumentException(
             "The super class name of the Object class must be 'null'");
       }
+    } else if (name.endsWith("module-info")) {
+        if (superName != null) {
+          throw new IllegalArgumentException(
+              "The super class name of a module-info class must be 'null'");
+        }
     } else {
       CheckMethodAdapter.checkInternalName(superName, "super class name");
     }
@@ -394,7 +399,7 @@ public class CheckClassAdapter extends ClassVisitor {
     }
     checkAccess(access, Opcodes.ACC_OPEN | Opcodes.ACC_SYNTHETIC);
     return new CheckModuleAdapter(
-        super.visitModule(name, access, version), (access & Opcodes.ACC_OPEN) != 0);
+        api, super.visitModule(name, access, version), (access & Opcodes.ACC_OPEN) != 0);
   }
 
   @Override
@@ -475,7 +480,7 @@ public class CheckClassAdapter extends ClassVisitor {
       CheckMethodAdapter.checkConstant(value);
     }
     FieldVisitor av = super.visitField(access, name, desc, signature, value);
-    return new CheckFieldAdapter(av);
+    return new CheckFieldAdapter(api, av);
   }
 
   @Override
@@ -518,6 +523,7 @@ public class CheckClassAdapter extends ClassVisitor {
     if (checkDataFlow) {
       cma =
           new CheckMethodAdapter(
+              api,
               access,
               name,
               desc,
@@ -526,7 +532,7 @@ public class CheckClassAdapter extends ClassVisitor {
     } else {
       cma =
           new CheckMethodAdapter(
-              super.visitMethod(access, name, desc, signature, exceptions), labels);
+              api, super.visitMethod(access, name, desc, signature, exceptions), labels);
     }
     cma.version = version;
     return cma;

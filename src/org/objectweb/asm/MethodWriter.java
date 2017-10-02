@@ -1964,12 +1964,9 @@ class MethodWriter extends MethodVisitor {
       cw.newUTF8("Exceptions");
       size += 8 + 2 * exceptionCount;
     }
-    if ((access & Opcodes.ACC_SYNTHETIC) != 0) {
-      if ((cw.version & 0xFFFF) < Opcodes.V1_5
-          || (access & ClassWriter.ACC_SYNTHETIC_ATTRIBUTE) != 0) {
-        cw.newUTF8("Synthetic");
-        size += 6;
-      }
+    if ((access & Opcodes.ACC_SYNTHETIC) != 0 && (cw.version & 0xFFFF) < Opcodes.V1_5) {
+      cw.newUTF8("Synthetic");
+      size += 6;
     }
     if ((access & Opcodes.ACC_DEPRECATED) != 0) {
       cw.newUTF8("Deprecated");
@@ -2030,12 +2027,8 @@ class MethodWriter extends MethodVisitor {
    * @param out the byte vector into which the bytecode of this method must be copied.
    */
   final void put(final ByteVector out) {
-    final int FACTOR = ClassWriter.TO_ACC_SYNTHETIC;
     int mask =
-        ACC_CONSTRUCTOR
-            | Opcodes.ACC_DEPRECATED
-            | ClassWriter.ACC_SYNTHETIC_ATTRIBUTE
-            | ((access & ClassWriter.ACC_SYNTHETIC_ATTRIBUTE) / FACTOR);
+        Opcodes.ACC_DEPRECATED | ((cw.version & 0xFFFF) < Opcodes.V1_5 ? Opcodes.ACC_SYNTHETIC : 0);
     out.putShort(access & ~mask).putShort(name).putShort(desc);
     if (classReaderOffset != 0) {
       out.putByteArray(cw.cr.b, classReaderOffset, classReaderLength);
@@ -2048,11 +2041,8 @@ class MethodWriter extends MethodVisitor {
     if (exceptionCount > 0) {
       ++attributeCount;
     }
-    if ((access & Opcodes.ACC_SYNTHETIC) != 0) {
-      if ((cw.version & 0xFFFF) < Opcodes.V1_5
-          || (access & ClassWriter.ACC_SYNTHETIC_ATTRIBUTE) != 0) {
-        ++attributeCount;
-      }
+    if ((access & Opcodes.ACC_SYNTHETIC) != 0 && (cw.version & 0xFFFF) < Opcodes.V1_5) {
+      ++attributeCount;
     }
     if ((access & Opcodes.ACC_DEPRECATED) != 0) {
       ++attributeCount;
@@ -2188,11 +2178,8 @@ class MethodWriter extends MethodVisitor {
         out.putShort(exceptions[i]);
       }
     }
-    if ((access & Opcodes.ACC_SYNTHETIC) != 0) {
-      if ((cw.version & 0xFFFF) < Opcodes.V1_5
-          || (access & ClassWriter.ACC_SYNTHETIC_ATTRIBUTE) != 0) {
-        out.putShort(cw.newUTF8("Synthetic")).putInt(0);
-      }
+    if ((access & Opcodes.ACC_SYNTHETIC) != 0 && (cw.version & 0xFFFF) < Opcodes.V1_5) {
+      out.putShort(cw.newUTF8("Synthetic")).putInt(0);
     }
     if ((access & Opcodes.ACC_DEPRECATED) != 0) {
       out.putShort(cw.newUTF8("Deprecated")).putInt(0);

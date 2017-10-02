@@ -171,7 +171,6 @@
     <ant antfile="${test.conform}/checksignatureadapter.xml" inheritRefs="true"/>
     <ant antfile="${test.conform}/classnode.xml" inheritRefs="true"/>
     <ant antfile="${test.conform}/codesizeevaluator.xml" inheritRefs="true"/>
-    <ant antfile="${test.conform}/gasmifier.xml" inheritRefs="true"/>
     <ant antfile="${test.conform}/jsrinlineradapter.xml" inheritRefs="true"/>
     <ant antfile="${test.conform}/localvariablessorter.xml" inheritRefs="true"/>
     <ant antfile="${test.conform}/localvariablessorter2.xml" inheritRefs="true"/>

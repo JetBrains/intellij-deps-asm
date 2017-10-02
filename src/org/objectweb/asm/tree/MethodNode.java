@@ -660,6 +660,9 @@ public class MethodNode extends MethodVisitor {
             throw new RuntimeException();
           }
         }
+        if (insn instanceof InvokeDynamicInsnNode || insn instanceof FrameNode) {
+          throw new RuntimeException();
+        }
       }
       if (visibleLocalVariableAnnotations != null && visibleLocalVariableAnnotations.size() > 0) {
         throw new RuntimeException();

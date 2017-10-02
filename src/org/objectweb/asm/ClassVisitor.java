@@ -116,10 +116,10 @@ public abstract class ClassVisitor {
   /**
    * Visit the module corresponding to the class.
    *
-   * @param name module name
+   * @param name The fully qualified name (using dots) of the module.
    * @param access module flags, among {@code ACC_OPEN}, {@code ACC_SYNTHETIC} and {@code
    *     ACC_MANDATED}.
-   * @param version module version or null.
+   * @param version module version or <tt>null</tt>.
    * @return a visitor to visit the module values, or <tt>null</tt> if this visitor is not
    *     interested in visiting this module.
    */

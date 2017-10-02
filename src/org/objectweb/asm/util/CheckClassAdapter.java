@@ -392,7 +392,7 @@ public class CheckClassAdapter extends ClassVisitor {
     if (name == null) {
       throw new IllegalArgumentException("Illegal module name (null)");
     }
-    checkAccess(access, Opcodes.ACC_OPEN | Opcodes.ACC_SYNTHETIC);
+    checkAccess(access, Opcodes.ACC_OPEN | Opcodes.ACC_SYNTHETIC | Opcodes.ACC_MANDATED);
     return new CheckModuleAdapter(
         super.visitModule(name, access, version), (access & Opcodes.ACC_OPEN) != 0);
   }

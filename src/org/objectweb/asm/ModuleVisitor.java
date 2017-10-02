@@ -33,11 +33,6 @@ package org.objectweb.asm;
  * <tt>visitExport</tt> | <tt>visitOpen</tt> | <tt>visitUse</tt> | <tt>visitProvide</tt> )*
  * <tt>visitEnd</tt>.
  *
- * <p>The methods {@link #visitRequire(String, int, String)}, {@link #visitExport(String, int,
- * String...)}, {@link #visitOpen(String, int, String...)} and {@link #visitPackage(String)} take as
- * parameter a package name or a module name. Unlike the other names which are internal names (names
- * separated by slash), module and package names are qualified names (names separated by dot).
- *
  * @author Remi Forax
  */
 public abstract class ModuleVisitor {
@@ -87,7 +82,7 @@ public abstract class ModuleVisitor {
   /**
    * Visit a package of the current module.
    *
-   * @param packaze the qualified name of a package.
+   * @param packaze the internal name of a package.
    */
   public void visitPackage(String packaze) {
     if (mv != null) {
@@ -98,10 +93,10 @@ public abstract class ModuleVisitor {
   /**
    * Visits a dependence of the current module.
    *
-   * @param module the qualified name of the dependence.
+   * @param module the fully qualified name (using dots) of the dependence.
    * @param access the access flag of the dependence among ACC_TRANSITIVE, ACC_STATIC_PHASE,
    *     ACC_SYNTHETIC and ACC_MANDATED.
-   * @param version the module version at compile time or null.
+   * @param version the module version at compile time, or <tt>null</tt>.
    */
   public void visitRequire(String module, int access, String version) {
     if (mv != null) {
@@ -112,11 +107,11 @@ public abstract class ModuleVisitor {
   /**
    * Visit an exported package of the current module.
    *
-   * @param packaze the qualified name of the exported package.
+   * @param packaze the internal name of the exported package.
    * @param access the access flag of the exported package, valid values are among {@code
    *     ACC_SYNTHETIC} and {@code ACC_MANDATED}.
-   * @param modules the qualified names of the modules that can access to the public classes of the
-   *     exported package or <tt>null</tt>.
+   * @param modules the fully qualified names (using dots) of the modules that can access the public
+   *     classes of the exported package, or <tt>null</tt>.
    */
   public void visitExport(String packaze, int access, String... modules) {
     if (mv != null) {
@@ -127,11 +122,11 @@ public abstract class ModuleVisitor {
   /**
    * Visit an open package of the current module.
    *
-   * @param packaze the qualified name of the opened package.
+   * @param packaze the internal name of the opened package.
    * @param access the access flag of the opened package, valid values are among {@code
    *     ACC_SYNTHETIC} and {@code ACC_MANDATED}.
-   * @param modules the qualified names of the modules that can use deep reflection to the classes
-   *     of the open package or <tt>null</tt>.
+   * @param modules the fully qualified names (using dots) of the modules that can use deep
+   *     reflection to the classes of the open package, or <tt>null</tt>.
    */
   public void visitOpen(String packaze, int access, String... modules) {
     if (mv != null) {
@@ -154,7 +149,7 @@ public abstract class ModuleVisitor {
   /**
    * Visit an implementation of a service.
    *
-   * @param service the internal name of the service
+   * @param service the internal name of the service.
    * @param providers the internal names of the implementations of the service (there is at least
    *     one provider).
    */

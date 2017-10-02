@@ -27,69 +27,152 @@
 // THE POSSIBILITY OF SUCH DAMAGE.
 package org.objectweb.asm.tree;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
-import junit.framework.TestSuite;
-
-import org.objectweb.asm.AbstractTest;
+import org.junit.Test;
+import org.junit.runners.Parameterized.Parameters;
+import org.objectweb.asm.AnnotationVisitor;
+import org.objectweb.asm.Attribute;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.ClassWriter;
+import org.objectweb.asm.CodeComment;
+import org.objectweb.asm.Comment;
 import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.MethodVisitor;
-import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.ModuleVisitor;
+import org.objectweb.asm.TypePath;
+import org.objectweb.asm.test.AsmTest;
 
 /**
  * ClassNode tests.
  *
  * @author Eric Bruneton
  */
-public class ClassNodeTest extends AbstractTest {
+public class ClassNodeTest extends AsmTest {
 
-  public static TestSuite suite() throws Exception {
-    return new ClassNodeTest().getSuite();
+  /** @return test parameters to test all the precompiled classes with all the apis. */
+  @Parameters(name = NAME)
+  public static Collection<Object[]> data() {
+    return data(Api.ASM4, Api.ASM5, Api.ASM6);
   }
 
-  @Override
-  public void test() throws Exception {
-    ClassReader cr = new ClassReader(is);
-    ClassNode cn = new ClassNode();
-    cr.accept(cn, 0);
-    // clone instructions for testing clone methods
-    for (int i = 0; i < cn.methods.size(); ++i) {
-      MethodNode mn = cn.methods.get(i);
-      Iterator<AbstractInsnNode> it = mn.instructions.iterator();
-      Map<LabelNode, LabelNode> m =
+  /** Tests that classes are unchanged with a ClassReader->ClassNode->ClassWriter transform. */
+  @Test
+  public void testReadAndWrite() {
+    byte[] classFile = classParameter.getBytes();
+    ClassReader classReader = new ClassReader(classFile);
+    ClassNode classNode = new ClassNode(apiParameter.value());
+    classReader.accept(classNode, attributes(), 0);
+
+    ClassWriter classWriter = new ClassWriter(0);
+    classNode.accept(classWriter);
+    assertThatClass(classWriter.toByteArray()).isEqualTo(classFile);
+  }
+
+  /**
+   * Tests that {@link ClassNode.check()} throws an exception for classes that contain elements more
+   * recent than the ASM API version.
+   */
+  @Test
+  public void testCheck() {
+    byte[] classFile = classParameter.getBytes();
+    ClassReader classReader = new ClassReader(classFile);
+    ClassNode classNode = new ClassNode(apiParameter.value());
+    classReader.accept(classNode, attributes(), 0);
+    if (classParameter.isMoreRecentThan(apiParameter)) {
+      thrown.expect(RuntimeException.class);
+    }
+    classNode.check(apiParameter.value());
+  }
+
+  /**
+   * Tests that classes are unchanged with a ClassReader->ClassNode->ClassWriter transform, when all
+   * instructions are cloned.
+   */
+  @Test
+  public void testReadCloneAndWrite() {
+    byte[] classFile = classParameter.getBytes();
+    ClassReader classReader = new ClassReader(classFile);
+    ClassNode classNode = new ClassNode(apiParameter.value());
+    classReader.accept(classNode, attributes(), 0);
+
+    for (MethodNode methodNode : classNode.methods) {
+      Map<LabelNode, LabelNode> labelCloneMap =
           new HashMap<LabelNode, LabelNode>() {
             @Override
             public LabelNode get(final Object o) {
               return (LabelNode) o;
             }
           };
-      while (it.hasNext()) {
-        AbstractInsnNode insn = it.next();
-        mn.instructions.set(insn, insn.clone(m));
+      Iterator<AbstractInsnNode> insnIterator = methodNode.instructions.iterator();
+      while (insnIterator.hasNext()) {
+        AbstractInsnNode insn = insnIterator.next();
+        methodNode.instructions.set(insn, insn.clone(labelCloneMap));
       }
     }
-    // test accept with visitors that remove class members
-    cn.accept(
-        new ClassVisitor(Opcodes.ASM5) {
-          @Override
-          public FieldVisitor visitField(
-              int access, String name, String desc, String signature, Object value) {
-            return null;
-          }
+    ClassWriter classWriter = new ClassWriter(0);
+    classNode.accept(classWriter);
+    assertThatClass(classWriter.toByteArray()).isEqualTo(classFile);
+  }
 
-          @Override
-          public MethodVisitor visitMethod(
-              int access, String name, String desc, String signature, String[] exceptions) {
-            return null;
-          }
-        });
-    ClassWriter cw = new ClassWriter(0);
-    cn.accept(cw);
-    assertEquals(cr, new ClassReader(cw.toByteArray()));
+  /** Tests that ClassNode accepts visitors that remove class elements. */
+  @Test
+  public void testRemoveMembers() {
+    byte[] classFile = classParameter.getBytes();
+    ClassReader classReader = new ClassReader(classFile);
+    ClassNode classNode = new ClassNode(apiParameter.value());
+    classReader.accept(classNode, attributes(), 0);
+
+    ClassWriter classWriter = new ClassWriter(0);
+    classNode.accept(new RemoveMembersClassVisitor(apiParameter.value(), classWriter));
+    ClassWriter expectedClassWriter = new ClassWriter(0);
+    classReader.accept(new RemoveMembersClassVisitor(apiParameter.value(), expectedClassWriter), 0);
+    assertThatClass(classWriter.toByteArray()).isEqualTo(expectedClassWriter.toByteArray());
+  }
+
+  private static Attribute[] attributes() {
+    return new Attribute[] {new Comment(), new CodeComment()};
+  }
+
+  private static class RemoveMembersClassVisitor extends ClassVisitor {
+
+    RemoveMembersClassVisitor(int api, ClassVisitor classVisitor) {
+      super(api, classVisitor);
+    }
+
+    @Override
+    public AnnotationVisitor visitAnnotation(String desc, boolean visible) {
+      return null;
+    }
+
+    @Override
+    public AnnotationVisitor visitTypeAnnotation(
+        int typeRef, TypePath typePath, String desc, boolean visible) {
+      return null;
+    }
+
+    @Override
+    public FieldVisitor visitField(
+        int access, String name, String desc, String signature, Object value) {
+      return null;
+    }
+
+    @Override
+    public MethodVisitor visitMethod(
+        int access, String name, String desc, String signature, String[] exceptions) {
+      return null;
+    }
+
+    @Override
+    public ModuleVisitor visitModule(String name, int access, String version) {
+      return null;
+    }
+
+    @Override
+    public void visitAttribute(Attribute attr) {}
   }
 }

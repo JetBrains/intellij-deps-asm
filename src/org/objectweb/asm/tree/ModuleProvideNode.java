@@ -37,17 +37,17 @@ import org.objectweb.asm.ModuleVisitor;
  * @author Remi Forax
  */
 public class ModuleProvideNode {
-  /** The service name (in its internal form). */
+  /** The internal name of the provided service. */
   public String service;
 
-  /** The service provider names (in their internal form). */
+  /** The internal names of the service providers. */
   public List<String> providers;
 
   /**
    * Constructs a new {@link ModuleProvideNode}.
    *
-   * @param service the service name (in its internal form).
-   * @param providers the service provider names (in their internal form).
+   * @param service the internal name of the provided service.
+   * @param providers the internal names of service providers.
    */
   public ModuleProvideNode(final String service, final List<String> providers) {
     this.service = service;

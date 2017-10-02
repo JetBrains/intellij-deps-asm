@@ -180,7 +180,6 @@
     <ant antfile="${test.conform}/sourceinterpreter.xml" inheritRefs="true"/>
     <ant antfile="${test.conform}/staticinitmerger.xml" inheritRefs="true"/>
     <ant antfile="${test.conform}/svuidadder.xml" inheritRefs="true"/>
-    <ant antfile="${test.conform}/traceclassadapter.xml" inheritRefs="true"/>
     <ant antfile="${test.conform}/unit.xml" inheritRefs="true"/>
     <ant antfile="${test.conform}/verifyclass.xml" inheritRefs="true"/>
   </target>

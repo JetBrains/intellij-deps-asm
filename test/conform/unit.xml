@@ -49,6 +49,7 @@
           <include name="org/objectweb/asm/signature/SignatureWriterTest.java"/>
           <include name="org/objectweb/asm/test/AsmTestTest.java"/>
           <include name="org/objectweb/asm/util/ASMifierTest.java"/>
+          <include name="org/objectweb/asm/util/TraceClassAdapterTest.java"/>
           <include name="**/*UnitTest.java"/>
         </fileset>
       </batchtest>

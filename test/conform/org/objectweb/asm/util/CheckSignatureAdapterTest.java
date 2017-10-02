@@ -77,7 +77,7 @@ public class CheckSignatureAdapterTest extends AsmTest {
               signatureReader.accept(
                   new CheckSignatureAdapter(
                       CheckSignatureAdapter.CLASS_SIGNATURE, signatureWriter));
-              assertThat(signature, equalTo(signatureWriter.toString()));
+              assertThat(signatureWriter.toString(), equalTo(signature));
             }
           }
 
@@ -89,7 +89,7 @@ public class CheckSignatureAdapterTest extends AsmTest {
               SignatureWriter signatureWriter = new SignatureWriter();
               signatureReader.acceptType(
                   new CheckSignatureAdapter(CheckSignatureAdapter.TYPE_SIGNATURE, signatureWriter));
-              assertThat(signature, equalTo(signatureWriter.toString()));
+              assertThat(signatureWriter.toString(), equalTo(signature));
             }
             return null;
           }
@@ -103,7 +103,7 @@ public class CheckSignatureAdapterTest extends AsmTest {
               signatureReader.accept(
                   new CheckSignatureAdapter(
                       CheckSignatureAdapter.METHOD_SIGNATURE, signatureWriter));
-              assertThat(signature, equalTo(signatureWriter.toString()));
+              assertThat(signatureWriter.toString(), equalTo(signature));
             }
             return null;
           }

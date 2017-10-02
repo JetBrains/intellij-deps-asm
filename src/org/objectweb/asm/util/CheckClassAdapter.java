@@ -170,8 +170,9 @@ public class CheckClassAdapter extends ClassVisitor {
    *
    * @param cr a <code>ClassReader</code> that contains bytecode for the analysis.
    * @param loader a <code>ClassLoader</code> which will be used to load referenced classes. This is
-   *     useful if you are verifiying multiple interdependent classes.
-   * @param dump true if bytecode should be printed out not only when errors are found.
+   *     useful if you are verifying multiple interdependent classes.
+   * @param dump if true, analysis results are always printed. Otherwise, they are printed only in
+   *     case of errors.
    * @param pw write where results going to be printed
    */
   public static void verify(
@@ -352,10 +353,10 @@ public class CheckClassAdapter extends ClassVisitor {
             "The super class name of the Object class must be 'null'");
       }
     } else if (name.endsWith("module-info")) {
-        if (superName != null) {
-          throw new IllegalArgumentException(
-              "The super class name of a module-info class must be 'null'");
-        }
+      if (superName != null) {
+        throw new IllegalArgumentException(
+            "The super class name of a module-info class must be 'null'");
+      }
     } else {
       CheckMethodAdapter.checkInternalName(superName, "super class name");
     }

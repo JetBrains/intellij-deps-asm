@@ -182,7 +182,6 @@
     <ant antfile="${test.conform}/svuidadder.xml" inheritRefs="true"/>
     <ant antfile="${test.conform}/traceclassadapter.xml" inheritRefs="true"/>
     <ant antfile="${test.conform}/unit.xml" inheritRefs="true"/>
-    <ant antfile="${test.conform}/verifyclass.xml" inheritRefs="true"/>
   </target>
 
   <target name="testPerf" depends="compile" if="test-perf">

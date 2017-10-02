@@ -27,8 +27,12 @@
 // THE POSSIBILITY OF SUCH DAMAGE.
 package org.objectweb.asm.util;
 
-import java.util.Collection;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.text.IsEmptyString.isEmptyString;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.util.Collection;
 import org.junit.Test;
 import org.junit.runners.Parameterized.Parameters;
 import org.objectweb.asm.Attribute;
@@ -55,7 +59,7 @@ public class CheckClassAdapterTest extends AsmTest {
    * Tests that classes are unchanged with a ClassReader->CheckClassAdapter->ClassWriter transform.
    */
   @Test
-  public void test() throws Exception {
+  public void testCheckClassAdapter_classUnchanged() {
     byte[] classFile = classParameter.getBytes();
     ClassReader classReader = new ClassReader(classFile);
     ClassWriter classWriter = new ClassWriter(0);
@@ -65,6 +69,17 @@ public class CheckClassAdapterTest extends AsmTest {
     classReader.accept(
         new CheckClassAdapter(apiParameter.value(), classWriter, false), attributes(), 0);
     assertThatClass(classWriter.toByteArray()).isEqualTo(classFile);
+  }
+
+  /** Tests that {@link CheckClassAdapter.verify()} succeeds on all precompiled classes. */
+  @Test
+  public void testCheckClassAdapter_verify() {
+    ClassReader classReader = new ClassReader(classParameter.getBytes());
+    StringWriter stringWriter = new StringWriter();
+    PrintWriter printWriter = new PrintWriter(stringWriter);
+    CheckClassAdapter.verify(classReader, /* dump = */ false, printWriter);
+    printWriter.close();
+    assertThat(stringWriter.toString(), isEmptyString());
   }
 
   private static Attribute[] attributes() {

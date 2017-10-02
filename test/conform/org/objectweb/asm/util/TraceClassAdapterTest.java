@@ -29,34 +29,41 @@ package org.objectweb.asm.util;
 
 import java.io.CharArrayWriter;
 import java.io.PrintWriter;
-
-import junit.framework.TestSuite;
-
-import org.objectweb.asm.AbstractTest;
+import java.util.Collection;
+import org.junit.Test;
+import org.junit.runners.Parameterized.Parameters;
 import org.objectweb.asm.Attribute;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.attrs.CodeComment;
 import org.objectweb.asm.attrs.Comment;
+import org.objectweb.asm.test.AsmTest;
 
 /**
  * CheckClassAdapter tests.
  *
  * @author Eric Bruneton
  */
-public class TraceClassAdapterTest extends AbstractTest {
+public class TraceClassAdapterTest extends AsmTest {
 
-  public static TestSuite suite() throws Exception {
-    return new TraceClassAdapterTest().getSuite();
+  /** @return test parameters to test all the precompiled classes with ASM6. */
+  @Parameters(name = NAME)
+  public static Collection<Object[]> data() {
+    return data(Api.ASM6);
   }
 
-  @Override
-  public void test() throws Exception {
-    ClassReader cr = new ClassReader(is);
-    ClassWriter cw = new ClassWriter(0);
-    ClassVisitor cv = new TraceClassVisitor(cw, new PrintWriter(new CharArrayWriter()));
-    cr.accept(cv, new Attribute[] {new Comment(), new CodeComment()}, 0);
-    assertEquals(cr, new ClassReader(cw.toByteArray()));
+  /**
+   * Tests that classes are unchanged with a ClassReader->TraceClassAdapter->ClassWriter transform.
+   */
+  @Test
+  public void testTrace() {
+    byte[] classFile = classParameter.getBytes();
+    ClassReader classReader = new ClassReader(classFile);
+    ClassWriter classWriter = new ClassWriter(0);
+    ClassVisitor classVisitor =
+        new TraceClassVisitor(classWriter, new PrintWriter(new CharArrayWriter()));
+    classReader.accept(classVisitor, new Attribute[] {new Comment(), new CodeComment()}, 0);
+    assertThatClass(classWriter.toByteArray()).isEqualTo(classFile);
   }
 }

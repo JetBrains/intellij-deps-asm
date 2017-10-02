@@ -27,36 +27,40 @@
 // THE POSSIBILITY OF SUCH DAMAGE.
 package org.objectweb.asm.tree.analysis;
 
-import java.util.List;
+import java.util.Collection;
 
-import junit.framework.TestSuite;
-
-import org.objectweb.asm.AbstractTest;
+import org.junit.Test;
+import org.junit.runners.Parameterized.Parameters;
 import org.objectweb.asm.ClassReader;
+import org.objectweb.asm.test.AsmTest;
 import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.MethodNode;
 
 /**
- * Analysis tests.
+ * BasicInterpreter tests.
  *
  * @author Eric Bruneton
  */
-public class BasicInterpreterTest extends AbstractTest {
+public class BasicInterpreterTest extends AsmTest {
 
-  public static TestSuite suite() throws Exception {
-    return new BasicInterpreterTest().getSuite();
+  /** @return test parameters to test all the precompiled classes with ASM6. */
+  @Parameters(name = NAME)
+  public static Collection<Object[]> data() {
+    return data(Api.ASM6);
   }
 
-  @Override
-  public void test() throws Exception {
-    ClassReader cr = new ClassReader(is);
-    ClassNode cn = new ClassNode();
-    cr.accept(cn, 0);
-    List<MethodNode> methods = cn.methods;
-    for (int i = 0; i < methods.size(); ++i) {
-      MethodNode method = methods.get(i);
-      Analyzer<BasicValue> a = new Analyzer<BasicValue>(new BasicInterpreter());
-      a.analyze(cn.name, method);
+  /**
+   * Tests that the precompiled classes can be successfully analyzed with a BasicInterpreter.
+   *
+   * @throws AnalyzerException
+   */
+  @Test
+  public void testAnalyze() throws AnalyzerException {
+    ClassNode classNode = new ClassNode();
+    new ClassReader(classParameter.getBytes()).accept(classNode, 0);
+    for (MethodNode methodNode : classNode.methods) {
+      Analyzer<BasicValue> analyzer = new Analyzer<BasicValue>(new BasicInterpreter());
+      analyzer.analyze(classNode.name, methodNode);
     }
   }
 }

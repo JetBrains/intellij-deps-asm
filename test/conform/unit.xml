@@ -48,6 +48,10 @@
           <include name="org/objectweb/asm/signature/SignatureReaderTest.java"/>
           <include name="org/objectweb/asm/signature/SignatureWriterTest.java"/>
           <include name="org/objectweb/asm/test/AsmTestTest.java"/>
+          <include name="org/objectweb/asm/tree/analysis/BasicInterpreterTest.java"/>
+          <include name="org/objectweb/asm/tree/analysis/BasicVerifierTest.java"/>
+          <include name="org/objectweb/asm/tree/analysis/SimpleVerifierTest.java"/>
+          <include name="org/objectweb/asm/tree/analysis/SourceInterpreterTest.java"/>
           <include name="**/*UnitTest.java"/>
         </fileset>
       </batchtest>

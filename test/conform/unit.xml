@@ -55,6 +55,7 @@
           <include name="org/objectweb/asm/tree/analysis/SourceInterpreterTest.java"/>
           <include name="org/objectweb/asm/util/ASMifierTest.java"/>
           <include name="org/objectweb/asm/util/CheckClassAdapterTest.java"/>
+          <include name="org/objectweb/asm/util/CheckSignatureAdapterTest.java"/>
           <include name="org/objectweb/asm/util/TraceClassAdapterTest.java"/>
           <include name="**/*UnitTest.java"/>
         </fileset>

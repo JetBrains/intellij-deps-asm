@@ -27,27 +27,48 @@
 // THE POSSIBILITY OF SUCH DAMAGE.
 package org.objectweb.asm.commons;
 
-import junit.framework.TestSuite;
+import static org.junit.Assert.assertTrue;
 
-import org.objectweb.asm.AbstractTest;
+import java.util.Collection;
+import org.junit.Test;
+import org.junit.runners.Parameterized.Parameters;
+import org.objectweb.asm.Attribute;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.ClassWriter;
+import org.objectweb.asm.CodeComment;
+import org.objectweb.asm.Comment;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
-import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.test.AsmTest;
 
-public class CodeSizeEvaluatorTest extends AbstractTest {
+/**
+ * CodeSizeEvaluator tests.
+ *
+ * @author Eric Bruneton
+ */
+public class CodeSizeEvaluatorTest extends AsmTest {
 
-  public static TestSuite suite() throws Exception {
-    return new CodeSizeEvaluatorTest().getSuite();
+  /** @return test parameters to test all the precompiled classes with all the apis. */
+  @Parameters(name = NAME)
+  public static Collection<Object[]> data() {
+    return data(Api.ASM4, Api.ASM5, Api.ASM6);
   }
 
-  @Override
-  public void test() throws Exception {
-    ClassReader cr = new ClassReader(is);
-    cr.accept(
-        new ClassVisitor(Opcodes.ASM5, new ClassWriter(0)) {
+  /**
+   * Tests that the size estimations of CodeSizeEvaluator are correct, and that classes are
+   * unchanged with a ClassReader->CodeSizeEvaluator->ClassWriter transform.
+   */
+  @Test
+  public void testSizeEvaluation() {
+    byte[] classFile = classParameter.getBytes();
+    ClassReader classReader = new ClassReader(classFile);
+    ClassWriter classWriter = new ClassWriter(0);
+    if (classParameter.isMoreRecentThan(apiParameter)) {
+      thrown.expect(RuntimeException.class);
+    }
+    classReader.accept(
+        new ClassVisitor(apiParameter.value(), classWriter) {
           @Override
           public MethodVisitor visitMethod(
               final int access,
@@ -56,20 +77,21 @@ public class CodeSizeEvaluatorTest extends AbstractTest {
               final String signature,
               final String[] exceptions) {
             MethodVisitor mv = cv.visitMethod(access, name, desc, signature, exceptions);
-            return new CodeSizeEvaluator(mv) {
+            return new CodeSizeEvaluator(api, mv) {
               @Override
               public void visitMaxs(final int maxStack, final int maxLocals) {
                 Label end = new Label();
                 mv.visitLabel(end);
                 mv.visitMaxs(maxStack, maxLocals);
-                int size = end.getOffset();
-                assertTrue(
-                    getMinSize() + " <= " + size + " <= " + getMaxSize(),
-                    getMinSize() <= size && size <= getMaxSize());
+                int actualSize = end.getOffset();
+                assertTrue(getMinSize() <= actualSize);
+                assertTrue(actualSize <= getMaxSize());
               }
             };
           }
         },
+        new Attribute[] {new Comment(), new CodeComment()},
         0);
+    assertThatClass(classWriter.toByteArray()).isEqualTo(classFile);
   }
 }

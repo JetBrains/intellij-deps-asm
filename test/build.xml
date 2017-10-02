@@ -164,8 +164,6 @@
     <ant antfile="${test.conform}/adviceadapter.xml" inheritRefs="true"/>
     <ant antfile="${test.conform}/analyzeradapter.xml" inheritRefs="true"/>
     <ant antfile="${test.conform}/annotations.xml" inheritRefs="true"/>
-    <ant antfile="${test.conform}/basicinterpreter.xml" inheritRefs="true"/>
-    <ant antfile="${test.conform}/basicverifier.xml" inheritRefs="true"/>
     <ant antfile="${test.conform}/checksignatureadapter.xml" inheritRefs="true"/>
     <ant antfile="${test.conform}/classnode.xml" inheritRefs="true"/>
     <ant antfile="${test.conform}/codesizeevaluator.xml" inheritRefs="true"/>
@@ -175,8 +173,6 @@
     <ant antfile="${test.conform}/localvariablessorter2.xml" inheritRefs="true"/>
     <ant antfile="${test.conform}/classremapper.xml" inheritRefs="true"/>
     <ant antfile="${test.conform}/saxadapter.xml" inheritRefs="true"/>
-    <ant antfile="${test.conform}/simpleverifier.xml" inheritRefs="true"/>    
-    <ant antfile="${test.conform}/sourceinterpreter.xml" inheritRefs="true"/>
     <ant antfile="${test.conform}/staticinitmerger.xml" inheritRefs="true"/>
     <ant antfile="${test.conform}/svuidadder.xml" inheritRefs="true"/>
     <ant antfile="${test.conform}/unit.xml" inheritRefs="true"/>

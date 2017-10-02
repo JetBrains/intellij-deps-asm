@@ -27,78 +27,55 @@
 // THE POSSIBILITY OF SUCH DAMAGE.
 package org.objectweb.asm.xml;
 
-import java.io.ByteArrayOutputStream;
+import java.util.Collection;
 
+import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.TransformerFactoryConfigurationError;
 import javax.xml.transform.sax.SAXResult;
 import javax.xml.transform.sax.SAXTransformerFactory;
 import javax.xml.transform.sax.TransformerHandler;
-
-import junit.framework.TestSuite;
-
-import org.objectweb.asm.AbstractTest;
-import org.objectweb.asm.Attribute;
+import org.junit.Test;
+import org.junit.runners.Parameterized.Parameters;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassWriter;
-import org.objectweb.asm.Label;
+import org.objectweb.asm.test.AsmTest;
+import org.xml.sax.SAXException;
 
 /**
- * SAXAdapter tests
+ * SAXAdapter tests.
  *
  * @author Eugene Kuleshov
  */
-public class SAXAdapterTest extends AbstractTest {
+public class SAXAdapterTest extends AsmTest {
 
-  public static TestSuite suite() throws Exception {
-    return new SAXAdapterTest().getSuite();
+  /** @return test parameters to test all the precompiled classes with ASM6. */
+  @Parameters(name = NAME)
+  public static Collection<Object[]> data() {
+    return data(Api.ASM6);
   }
 
-  @Override
-  public void test() throws Exception {
-    ClassReader cr = new ClassReader(is);
-    ClassWriter cw = new ClassWriter(0);
-
-    SAXTransformerFactory saxtf = (SAXTransformerFactory) TransformerFactory.newInstance();
-    TransformerHandler handler = saxtf.newTransformerHandler();
-    handler.setResult(new SAXResult(new ASMContentHandler(cw)));
-    handler.startDocument();
-    cr.accept(new SAXClassAdapter(handler, false), 0);
-    handler.endDocument();
-
-    ByteArrayOutputStream bos = new ByteArrayOutputStream();
-    bos.write(cw.toByteArray());
-
-    ClassWriter cw2 = new ClassWriter(0);
-    cr.accept(
-        cw2,
-        new Attribute[] {
-          new Attribute("Comment") {
-            @Override
-            protected Attribute read(
-                final ClassReader cr,
-                final int off,
-                final int len,
-                final char[] buf,
-                final int codeOff,
-                final Label[] labels) {
-              return null; // skip these attributes
-            }
-          },
-          new Attribute("CodeComment") {
-            @Override
-            protected Attribute read(
-                final ClassReader cr,
-                final int off,
-                final int len,
-                final char[] buf,
-                final int codeOff,
-                final Label[] labels) {
-              return null; // skip these attributes
-            }
-          }
-        },
-        0);
-
-    assertEquals(new ClassReader(cw2.toByteArray()), new ClassReader(bos.toByteArray()));
+  /**
+   * Tests that classes are unchanged with a ClassReader->SAXClassAdapter->ClassWriter transform.
+   *
+   * @throws TransformerFactoryConfigurationError
+   * @throws TransformerConfigurationException
+   * @throws SAXException
+   */
+  @Test
+  public void testSAXAdapter_classUnchanged()
+      throws TransformerConfigurationException, TransformerFactoryConfigurationError, SAXException {
+    // Non standard attributes are not supported by the XML API.
+    if (classParameter == PrecompiledClass.JDK3_ATTRIBUTE) return;
+    byte[] classFile = classParameter.getBytes();
+    ClassReader classReader = new ClassReader(classFile);
+    ClassWriter classWriter = new ClassWriter(0);
+    TransformerHandler transformerHandler =
+        ((SAXTransformerFactory) TransformerFactory.newInstance()).newTransformerHandler();
+    transformerHandler.setResult(new SAXResult(new ASMContentHandler(classWriter)));
+    transformerHandler.startDocument();
+    classReader.accept(new SAXClassAdapter(transformerHandler, false), 0);
+    transformerHandler.endDocument();
+    assertThatClass(classWriter.toByteArray()).isEqualTo(classFile);
   }
 }

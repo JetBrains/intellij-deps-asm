@@ -84,13 +84,15 @@ public class ASMContentHandler extends DefaultHandler implements Opcodes {
     ModuleRule moduleRule = new ModuleRule();
     RULES.add(BASE + "/module", moduleRule);
     RULES.add(BASE + "/module/main-class", moduleRule);
-    RULES.add(BASE + "/module/target", moduleRule);
     RULES.add(BASE + "/module/packages", moduleRule);
     RULES.add(BASE + "/module/requires", moduleRule);
     RULES.add(BASE + "/module/exports", moduleRule);
     RULES.add(BASE + "/module/exports/to", moduleRule);
+    RULES.add(BASE + "/module/opens", moduleRule);
+    RULES.add(BASE + "/module/opens/to", moduleRule);
     RULES.add(BASE + "/module/uses", moduleRule);
     RULES.add(BASE + "/module/provides", moduleRule);
+    RULES.add(BASE + "/module/provides/with", moduleRule);
 
     RULES.add(BASE + "/field", new FieldRule());
 
@@ -532,7 +534,7 @@ public class ASMContentHandler extends DefaultHandler implements Opcodes {
         int itfIndex = val.indexOf(' ', tagIndex + 1);
 
         boolean itf = itfIndex != -1;
-        int tag = Integer.parseInt(val.substring(tagIndex + 1, itf ? val.length() - 1 : itfIndex));
+        int tag = Integer.parseInt(val.substring(tagIndex + 1, itf ? itfIndex : val.length() - 1));
         String owner = val.substring(0, dotIndex);
         String name = val.substring(dotIndex + 1, descIndex);
         String desc = val.substring(descIndex, tagIndex - 1);
@@ -775,7 +777,7 @@ public class ASMContentHandler extends DefaultHandler implements Opcodes {
       boolean exports = "exports".equals(element);
       boolean opens = "opens".equals(element);
       boolean provides = "provides".equals(element);
-      if (exports | opens | provides) {
+      if (exports || opens || provides) {
         @SuppressWarnings("unchecked")
         ArrayList<String> list = (ArrayList<String>) pop();
         int access = (Integer) pop();

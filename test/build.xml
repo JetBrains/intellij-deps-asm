@@ -176,7 +176,6 @@
     <ant antfile="${test.conform}/localvariablessorter.xml" inheritRefs="true"/>
     <ant antfile="${test.conform}/localvariablessorter2.xml" inheritRefs="true"/>
     <ant antfile="${test.conform}/classremapper.xml" inheritRefs="true"/>
-    <ant antfile="${test.conform}/saxadapter.xml" inheritRefs="true"/>
     <ant antfile="${test.conform}/simpleverifier.xml" inheritRefs="true"/>    
     <ant antfile="${test.conform}/sourceinterpreter.xml" inheritRefs="true"/>
     <ant antfile="${test.conform}/staticinitmerger.xml" inheritRefs="true"/>

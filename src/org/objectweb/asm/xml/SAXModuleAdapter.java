@@ -67,7 +67,7 @@ public final class SAXModuleAdapter extends ModuleVisitor {
     att.addAttribute("", "module", "module", "", module);
     att.addAttribute("", "access", "access", "", sb.toString());
     if (version != null) {
-      att.addAttribute("", "access", "access", "", version);
+      att.addAttribute("", "version", "version", "", version);
     }
     sa.addElement("requires", att);
   }

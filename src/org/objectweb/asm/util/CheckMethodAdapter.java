@@ -402,8 +402,19 @@ public class CheckMethodAdapter extends MethodVisitor {
       final String desc,
       final MethodVisitor cmv,
       final Map<Label, Integer> labels) {
+    this(Opcodes.ASM6, access, name, desc, cmv, labels);
+  }
+
+  protected CheckMethodAdapter(
+      final int api,
+      final int access,
+      final String name,
+      final String desc,
+      final MethodVisitor cmv,
+      final Map<Label, Integer> labels) {
     this(
-        new MethodNode(Opcodes.ASM5, access, name, desc, null, null) {
+        api,
+        new MethodNode(api, access, name, desc, null, null) {
           @Override
           public void visitEnd() {
             Analyzer<BasicValue> a = new Analyzer<BasicValue>(new BasicVerifier());

@@ -168,7 +168,6 @@
     <ant antfile="${test.conform}/basicinterpreter.xml" inheritRefs="true"/>
     <ant antfile="${test.conform}/basicverifier.xml" inheritRefs="true"/>
     <ant antfile="${test.conform}/checkclassadapter.xml" inheritRefs="true"/>
-    <ant antfile="${test.conform}/checksignatureadapter.xml" inheritRefs="true"/>
     <ant antfile="${test.conform}/classnode.xml" inheritRefs="true"/>
     <ant antfile="${test.conform}/codesizeevaluator.xml" inheritRefs="true"/>
     <ant antfile="${test.conform}/gasmifier.xml" inheritRefs="true"/>

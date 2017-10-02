@@ -27,33 +27,42 @@
 // THE POSSIBILITY OF SUCH DAMAGE.
 package org.objectweb.asm.util;
 
-import junit.framework.TestSuite;
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.junit.Assert.assertThat;
 
-import org.objectweb.asm.AbstractTest;
+import java.util.Collection;
+import org.junit.Test;
+import org.junit.runners.Parameterized.Parameters;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.MethodVisitor;
-import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.signature.SignatureReader;
 import org.objectweb.asm.signature.SignatureWriter;
+import org.objectweb.asm.test.AsmTest;
 
 /**
  * CheckSignatureAdapter tests.
  *
  * @author Eric Bruneton
  */
-public class CheckSignatureAdapterTest extends AbstractTest {
+public class CheckSignatureAdapterTest extends AsmTest {
 
-  public static TestSuite suite() throws Exception {
-    return new CheckSignatureAdapterTest().getSuite();
+  /** @return test parameters to test all the precompiled classes with ASM6. */
+  @Parameters(name = NAME)
+  public static Collection<Object[]> data() {
+    return data(Api.ASM6);
   }
 
-  @Override
+  /**
+   * Tests that signatures are unchanged with a
+   * SignatureReader->ChecksignatureAdapter->SignatureWriter transform.
+   */
+  @Test
   public void test() throws Exception {
-    ClassReader cr = new ClassReader(is);
-    cr.accept(
-        new ClassVisitor(Opcodes.ASM5) {
+    ClassReader classReader = new ClassReader(classParameter.getBytes());
+    classReader.accept(
+        new ClassVisitor(apiParameter.value()) {
           @Override
           public void visit(
               int version,
@@ -63,10 +72,12 @@ public class CheckSignatureAdapterTest extends AbstractTest {
               String superName,
               String[] interfaces) {
             if (signature != null) {
-              SignatureReader sr = new SignatureReader(signature);
-              SignatureWriter sw = new SignatureWriter();
-              sr.accept(new CheckSignatureAdapter(CheckSignatureAdapter.CLASS_SIGNATURE, sw));
-              assertEquals(signature, sw.toString());
+              SignatureReader signatureReader = new SignatureReader(signature);
+              SignatureWriter signatureWriter = new SignatureWriter();
+              signatureReader.accept(
+                  new CheckSignatureAdapter(
+                      CheckSignatureAdapter.CLASS_SIGNATURE, signatureWriter));
+              assertThat(signature, equalTo(signatureWriter.toString()));
             }
           }
 
@@ -74,10 +85,11 @@ public class CheckSignatureAdapterTest extends AbstractTest {
           public FieldVisitor visitField(
               int access, String name, String desc, String signature, Object value) {
             if (signature != null) {
-              SignatureReader sr = new SignatureReader(signature);
-              SignatureWriter sw = new SignatureWriter();
-              sr.acceptType(new CheckSignatureAdapter(CheckSignatureAdapter.TYPE_SIGNATURE, sw));
-              assertEquals(signature, sw.toString());
+              SignatureReader signatureReader = new SignatureReader(signature);
+              SignatureWriter signatureWriter = new SignatureWriter();
+              signatureReader.acceptType(
+                  new CheckSignatureAdapter(CheckSignatureAdapter.TYPE_SIGNATURE, signatureWriter));
+              assertThat(signature, equalTo(signatureWriter.toString()));
             }
             return null;
           }
@@ -86,10 +98,12 @@ public class CheckSignatureAdapterTest extends AbstractTest {
           public MethodVisitor visitMethod(
               int access, String name, String desc, String signature, String[] exceptions) {
             if (signature != null) {
-              SignatureReader sr = new SignatureReader(signature);
-              SignatureWriter sw = new SignatureWriter();
-              sr.accept(new CheckSignatureAdapter(CheckSignatureAdapter.METHOD_SIGNATURE, sw));
-              assertEquals(signature, sw.toString());
+              SignatureReader signatureReader = new SignatureReader(signature);
+              SignatureWriter signatureWriter = new SignatureWriter();
+              signatureReader.accept(
+                  new CheckSignatureAdapter(
+                      CheckSignatureAdapter.METHOD_SIGNATURE, signatureWriter));
+              assertThat(signature, equalTo(signatureWriter.toString()));
             }
             return null;
           }

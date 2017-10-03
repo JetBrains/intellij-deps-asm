@@ -138,11 +138,11 @@
 
 	<target name="retrofit" depends="compile-debug">
 		<echo message="Retrofitting" />
-		<java classname="org.objectweb.asm.tools.Retrofitter" failonerror="true">
+		<java classname="org.objectweb.asm.tools.Retrofitter" failonerror="true" fork="true">
 			<classpath>
 				<pathelement location="${out.build}/tmp" />
+				<pathelement location="${src}/org/objectweb/asm/tools" />
 			</classpath>
-			<arg value="${src}/org/objectweb/asm/tools/jdk1.5.0.12.txt.gz" />
 			<arg value="${out.build}/tmp" />
 			<arg value="${out.build}" />
 		</java>

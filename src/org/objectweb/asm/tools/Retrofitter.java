@@ -50,7 +50,9 @@ import org.objectweb.asm.Type;
 
 /**
  * A command line tool to transform classes in order to make them compatible with Java 1.5, and to
- * check that they use only the JDK 1.5 API and JDK 1.5 classfile features.
+ * check that they use only the JDK 1.5 API and JDK 1.5 class file features. The original classes
+ * can either be transformed "in place", or be copied first to destination directory and transformed
+ * here (leaving the original classes unchanged).
  *
  * @author Eric Bruneton
  * @author Eugene Kuleshov
@@ -72,13 +74,14 @@ public class Retrofitter {
    * Transforms the classes from a source directory into a destination directory to make them
    * compatible with the JDK 1.5, and checks that they only use the JDK 1.5 API.
    *
-   * @param args First argument: name of the .txt.gz file specifying the JDK 1.5 API. Second
-   *     argument: source directory. Third argument: destination directory.
+   * @param args First argument: source directory. Optional second argument: destination directory.
+   *     If the second argument is provided classes are copied to this destination directory and
+   *     transformed there. Otherwise they are transformed "in place" in the source directory.
    * @throws IOException if a file can't be read or written.
    */
   public static void main(final String[] args) throws IOException {
-    File api = new File(args[0]);
-    InputStream inputStream = new GZIPInputStream(new FileInputStream(api));
+    InputStream inputStream =
+        new GZIPInputStream(ClassLoader.getSystemResourceAsStream("jdk1.5.0.12.txt.gz"));
     BufferedReader reader = new LineNumberReader(new InputStreamReader(inputStream));
     while (true) {
       String line = reader.readLine();
@@ -95,19 +98,20 @@ public class Retrofitter {
       }
     }
 
-    File src = new File(args[1]);
-    File dst = new File(args[2]);
+    File src = new File(args[0]);
+    File dst = args.length > 1 ? new File(args[1]) : null;
     if (!retrofit(src, dst)) {
       System.exit(1);
     }
   }
 
   /**
-   * Transforms the source class file, or if it is a directory, its files (recursively), into the
-   * destination file or directory, in order to make them compatible with the JDK 1.5.
+   * Transforms the source class file, or if it is a directory, its files (recursively), either in
+   * place or into the destination file or directory, in order to make them compatible with the JDK
+   * 1.5.
    *
    * @param src source file or directory
-   * @param dst destination file or directory
+   * @param dst optional destination file or directory
    * @return true if all the source classes use only the JDK 1.5 API.
    * @throws IOException
    */
@@ -116,32 +120,30 @@ public class Retrofitter {
       boolean result = true;
       File[] files = src.listFiles();
       if (files == null) {
-        throw new IOException("unable to read files of " + src);
+        throw new IOException("Unable to read files of " + src);
       }
       for (int i = 0; i < files.length; ++i) {
-        result &= retrofit(files[i], new File(dst, files[i].getName()));
+        result &= retrofit(files[i], dst == null ? null : new File(dst, files[i].getName()));
       }
       return result;
     } else if (src.getName().endsWith(".class")) {
-      if (!dst.exists() || dst.lastModified() < src.lastModified()) {
+      if (dst == null || !dst.exists() || dst.lastModified() < src.lastModified()) {
         ClassReader classReader = new ClassReader(new FileInputStream(src));
         ClassWriter classWriter = new ClassWriter(0);
         // No actual retrofit to do since we compile with target=1.5.
         ClassVerifier classVerifier = new ClassVerifier(classWriter);
         classReader.accept(classVerifier, 0);
-        if (!classVerifier.ok) {
-          return false;
-        }
 
-        if (!dst.getParentFile().exists() && !dst.getParentFile().mkdirs()) {
+        if (dst != null && !dst.getParentFile().exists() && !dst.getParentFile().mkdirs()) {
           throw new IOException("Cannot create directory " + dst.getParentFile());
         }
-        OutputStream os = new FileOutputStream(dst);
+        OutputStream os = new FileOutputStream(dst == null ? src : dst);
         try {
           os.write(classWriter.toByteArray());
         } finally {
           os.close();
         }
+        return classVerifier.ok;
       }
       return true;
     } else {

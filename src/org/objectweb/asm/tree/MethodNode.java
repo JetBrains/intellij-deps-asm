@@ -630,6 +630,9 @@ public class MethodNode extends MethodVisitor {
    */
   public void check(final int api) {
     if (api == Opcodes.ASM4) {
+      if (parameters != null && parameters.size() > 0) {
+        throw new RuntimeException();
+      }
       if (visibleTypeAnnotations != null && visibleTypeAnnotations.size() > 0) {
         throw new RuntimeException();
       }

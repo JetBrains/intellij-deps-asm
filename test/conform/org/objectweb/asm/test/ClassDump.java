@@ -733,6 +733,10 @@ class ClassDump {
       this.methodContext = methodContext;
     }
 
+    int getBytecodeOffset() {
+      return bytecodeOffset;
+    }
+
     @Override
     public String toString() {
       return "<" + methodContext.getInsnIndex(bytecodeOffset) + ">";
@@ -1590,6 +1594,9 @@ class ClassDump {
         throw new IOException("Unknown target_type: " + targetType);
     }
     dumpTypePath(parser, builder);
+    // Sort type annotations based on the full target_info and type_path (excluding the annotation
+    // content), instead of only on their target_type.
+    builder.sortByContent();
     dumpAnnotation(parser, builder);
   }
 
@@ -1895,7 +1902,7 @@ class ClassDump {
   /** An {@link AbstractBuilder} with concrete methods to add children. */
   private static class Builder extends AbstractBuilder<Object> implements Comparable<Builder> {
     /** The name of this builder, for sorting in {@link SortedBuilder}. */
-    private final String name;
+    private String name;
 
     Builder(String name, AbstractBuilder<?> parent) {
       super(parent);
@@ -1941,6 +1948,20 @@ class ClassDump {
       SortedBuilder sortedBuilder = new SortedBuilder(this);
       children.add(sortedBuilder);
       return sortedBuilder;
+    }
+
+    /** Use the content of this builder, instead of its name, to sort it in a SortedBuilder. */
+    void sortByContent() {
+      StringBuilder stringBuilder = new StringBuilder();
+      for (Object child : children) {
+        if (child instanceof InstructionIndex) {
+          // Instruction index might not be known at this point, use bytecodeOffset instead.
+          stringBuilder.append(((InstructionIndex) child).getBytecodeOffset());
+        } else {
+          stringBuilder.append(child.toString());
+        }
+      }
+      name = stringBuilder.toString();
     }
 
     public int compareTo(Builder builder) {

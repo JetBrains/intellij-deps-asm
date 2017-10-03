@@ -35,7 +35,7 @@ import org.objectweb.asm.ModuleVisitor;
  * @author Remi Forax
  */
 public class ModuleRequireNode {
-  /** The name of the required module. */
+  /** The fully qualified name (using dots) of the required module. */
   public String module;
 
   /**
@@ -51,7 +51,7 @@ public class ModuleRequireNode {
   /**
    * Constructs a new {@link ModuleRequireNode}.
    *
-   * @param module the name of the required module.
+   * @param module the fully qualified name (using dots) of the required module.
    * @param access The access flags. Valid values are <tt>ACC_TRANSITIVE</tt>,
    *     <tt>ACC_STATIC_PHASE</tt>, <tt>ACC_SYNTHETIC</tt> and <tt>ACC_MANDATED</tt> (see {@link
    *     org.objectweb.asm.Opcodes}).

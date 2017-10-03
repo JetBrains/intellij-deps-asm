@@ -40,7 +40,7 @@ import org.objectweb.asm.Opcodes;
  * @author Remi Forax
  */
 public class ModuleNode extends ModuleVisitor {
-  /** Module name */
+  /** The fully qualified name (using dots) of the module. */
   public String name;
 
   /**
@@ -51,10 +51,13 @@ public class ModuleNode extends ModuleVisitor {
   /** Version of the module. May be <tt>null</tt>. */
   public String version;
 
-  /** Name of the main class in internal form May be <tt>null</tt>. */
+  /** Name of the main class in internal form. May be <tt>null</tt>. */
   public String mainClass;
 
-  /** A list of packages that are declared by the current module. May be <tt>null</tt>. */
+  /**
+   * A list of packages that are declared by the current module, specified with internal names. May
+   * be <tt>null</tt>.
+   */
   public List<String> packages;
 
   /** A list of modules can are required by the current module. May be <tt>null</tt>. */
@@ -67,8 +70,8 @@ public class ModuleNode extends ModuleVisitor {
   public List<ModuleOpenNode> opens;
 
   /**
-   * A list of classes in their internal forms that are used as a service by the current module. May
-   * be <tt>null</tt>.
+   * A list of classes that are used as a service by the current module, specified with internal
+   * names. May be <tt>null</tt>.
    */
   public List<String> uses;
 
@@ -78,13 +81,44 @@ public class ModuleNode extends ModuleVisitor {
    */
   public List<ModuleProvideNode> provides;
 
+  /**
+   * Constructs a {@link ModuleNode}. <i>Subclasses must not use this constructor</i>. Instead, they
+   * must use the {@link #ModuleNode(int,String,int,String,List,List,List,List,List)} version.
+   *
+   * @param name The fully qualified name (using dots) of the module.
+   * @param access module flags, among {@code ACC_OPEN}, {@code ACC_SYNTHETIC} and {@code
+   *     ACC_MANDATED}.
+   * @param version module version or <tt>null</tt>.
+   * @throws IllegalStateException If a subclass calls this constructor.
+   */
   public ModuleNode(final String name, final int access, final String version) {
     super(Opcodes.ASM6);
+    if (getClass() != ModuleNode.class) {
+      throw new IllegalStateException();
+    }
     this.name = name;
     this.access = access;
     this.version = version;
   }
 
+  // TODO(forax): why is there no 'mainClass' and 'packages' parameters in this constructor?
+  /**
+   * Constructs a {@link ModuleNode}.
+   *
+   * @param api the ASM API version implemented by this visitor. Must be {@link Opcodes#ASM6}.
+   * @param name The fully qualified name (using dots) of the module.
+   * @param access module flags, among {@code ACC_OPEN}, {@code ACC_SYNTHETIC} and {@code
+   *     ACC_MANDATED}.
+   * @param version module version or <tt>null</tt>.
+   * @param requires A list of modules can are required by the current module. May be <tt>null</tt>.
+   * @param exports A list of packages that are exported by the current module. May be
+   *     <tt>null</tt>.
+   * @param opens A list of packages that are opened by the current module. May be <tt>null</tt>.
+   * @param uses A list of classes that are used as a service by the current module, specified with
+   *     internal names. May be <tt>null</tt>.
+   * @param provides A list of services along with their implementations provided by the current
+   *     module. May be <tt>null</tt>.
+   */
   public ModuleNode(
       final int api,
       final String name,
@@ -104,9 +138,6 @@ public class ModuleNode extends ModuleVisitor {
     this.opens = opens;
     this.uses = uses;
     this.provides = provides;
-    if (getClass() != ModuleNode.class) {
-      throw new IllegalStateException();
-    }
   }
 
   @Override
@@ -196,7 +227,6 @@ public class ModuleNode extends ModuleVisitor {
         mv.visitPackage(packages.get(i));
       }
     }
-
     if (requires != null) {
       for (int i = 0; i < requires.size(); i++) {
         requires.get(i).accept(mv);

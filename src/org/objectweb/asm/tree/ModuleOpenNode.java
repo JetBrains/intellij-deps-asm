@@ -37,7 +37,7 @@ import org.objectweb.asm.ModuleVisitor;
  * @author Remi Forax
  */
 public class ModuleOpenNode {
-  /** The package name. */
+  /** The internal name of the opened package. */
   public String packaze;
 
   /**
@@ -67,6 +67,6 @@ public class ModuleOpenNode {
    * @param mv a module visitor.
    */
   public void accept(final ModuleVisitor mv) {
-    mv.visitExport(packaze, access, (modules == null) ? null : modules.toArray(new String[0]));
+    mv.visitOpen(packaze, access, (modules == null) ? null : modules.toArray(new String[0]));
   }
 }

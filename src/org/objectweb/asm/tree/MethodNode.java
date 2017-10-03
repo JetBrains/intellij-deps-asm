@@ -630,6 +630,9 @@ public class MethodNode extends MethodVisitor {
    */
   public void check(final int api) {
     if (api == Opcodes.ASM4) {
+      if (parameters != null && parameters.size() > 0) {
+        throw new RuntimeException();
+      }
       if (visibleTypeAnnotations != null && visibleTypeAnnotations.size() > 0) {
         throw new RuntimeException();
       }
@@ -659,9 +662,6 @@ public class MethodNode extends MethodVisitor {
           if (itf != (insn.opcode == Opcodes.INVOKEINTERFACE)) {
             throw new RuntimeException();
           }
-        }
-        if (insn instanceof InvokeDynamicInsnNode || insn instanceof FrameNode) {
-          throw new RuntimeException();
         }
       }
       if (visibleLocalVariableAnnotations != null && visibleLocalVariableAnnotations.size() > 0) {

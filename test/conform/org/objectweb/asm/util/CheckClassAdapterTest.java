@@ -27,8 +27,7 @@
 // THE POSSIBILITY OF SUCH DAMAGE.
 package org.objectweb.asm.util;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.text.IsEmptyString.isEmptyString;
+import static org.junit.Assert.assertEquals;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -79,7 +78,7 @@ public class CheckClassAdapterTest extends AsmTest {
     PrintWriter printWriter = new PrintWriter(stringWriter);
     CheckClassAdapter.verify(classReader, /* dump = */ false, printWriter);
     printWriter.close();
-    assertThat(stringWriter.toString(), isEmptyString());
+    assertEquals("", stringWriter.toString());
   }
 
   private static Attribute[] attributes() {

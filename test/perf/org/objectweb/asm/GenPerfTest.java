@@ -40,10 +40,6 @@ import java.io.IOException;
 import java.lang.reflect.Modifier;
 import java.util.Arrays;
 
-import jbet.Descriptor;
-import jbet.Instruction;
-import jbet.Snippit;
-
 import org.apache.bcel.Constants;
 import org.apache.bcel.generic.ArrayType;
 import org.apache.bcel.generic.ClassGen;
@@ -104,9 +100,6 @@ public class GenPerfTest {
       cojenTest();
     }
     for (int i = 0; i < 5; ++i) {
-      jbetTest();
-    }
-    for (int i = 0; i < 5; ++i) {
       jClassLibTest();
     }
     for (int i = 0; i < 5; ++i) {
@@ -157,15 +150,6 @@ public class GenPerfTest {
     }
     t = System.currentTimeMillis() - t;
     System.out.println("Cojen generation time: " + ((float) t) / N + " ms/class");
-  }
-
-  static void jbetTest() throws IOException {
-    long t = System.currentTimeMillis();
-    for (int i = 0; i < N; ++i) {
-      jbetHelloWorld();
-    }
-    t = System.currentTimeMillis() - t;
-    System.out.println("JBET generation time: " + ((float) t) / N + " ms/class");
   }
 
   static void jClassLibTest() throws IOException, InvalidByteCodeException {
@@ -318,47 +302,6 @@ public class GenPerfTest {
 
     ByteArrayOutputStream bos = new ByteArrayOutputStream();
     cf.writeTo(bos);
-
-    return bos.toByteArray();
-  }
-
-  static Descriptor emptyDesc = new Descriptor("()V");
-
-  static Descriptor mainDesc = new Descriptor("([Ljava/lang/String;)V");
-
-  static Descriptor printlnDesc = new Descriptor("(Ljava/lang/String;)V");
-
-  static jbet.Type printStreamType = new jbet.Type("Ljava/io/PrintStream;");
-
-  static byte[] jbetHelloWorld() throws IOException {
-    jbet.ClassInfo ci = new jbet.ClassInfo(null, "HelloWorld");
-
-    ci.sourceFile = "HelloWorld.java";
-
-    jbet.MethodInfo mi = new jbet.MethodInfo("<init>", emptyDesc, jbet.MethodInfo.ACC_PUBLIC);
-    mi.code = new Snippit();
-    mi.code.push(new Instruction().setAload(0));
-    mi.code.push(new Instruction().setInvokeSpecial("java/lang/Object", "<init>", emptyDesc));
-    mi.code.push(new Instruction().setReturn());
-    mi.maxLocals = 1;
-    mi.maxStack = 1;
-    ci.addMethod(mi);
-
-    mi =
-        new jbet.MethodInfo(
-            "main", mainDesc, jbet.MethodInfo.ACC_PUBLIC | jbet.MethodInfo.ACC_STATIC);
-    mi.code = new Snippit();
-    mi.code.push(new Instruction().setGetstatic("java/lang/System", "out", printStreamType));
-    mi.code.push(new Instruction().setSpush("Hello world!"));
-    mi.code.push(new Instruction().setInvokeVirtual("java/io/PrintStream", "println", printlnDesc));
-    mi.maxLocals = 1;
-    mi.maxStack = 2;
-    ci.addMethod(mi);
-
-    ci.resolveConstants();
-
-    ByteArrayOutputStream bos = new ByteArrayOutputStream();
-    ci.writeFile(bos);
 
     return bos.toByteArray();
   }

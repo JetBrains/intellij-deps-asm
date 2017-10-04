@@ -41,7 +41,6 @@ import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
-import org.objectweb.asm.attrs.Comment;
 
 public class CheckClassAdapterUnitTest extends TestCase implements Opcodes {
 
@@ -49,7 +48,7 @@ public class CheckClassAdapterUnitTest extends TestCase implements Opcodes {
     String s = getClass().getName();
     CheckClassAdapter.main(new String[0]);
     CheckClassAdapter.main(new String[] {s});
-    CheckClassAdapter.main(new String[] {"output/test/cases/Interface.class"});
+    CheckClassAdapter.main(new String[] {"java.lang.Object"});
   }
 
   public void testVerifyValidClass() throws Exception {

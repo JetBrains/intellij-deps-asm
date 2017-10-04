@@ -47,6 +47,6 @@ public class TraceClassAdapterUnitTest extends TestCase {
       Textifier.main(
           new String[] {"-debug", "java.util.stream.StreamSpliterators$DoubleWrappingSpliterator"});
     }
-    Textifier.main(new String[] {"output/test/cases/Interface.class"});
+    Textifier.main(new String[] {"java.lang.Object"});
   }
 }

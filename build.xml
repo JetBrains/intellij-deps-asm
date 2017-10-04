@@ -155,7 +155,7 @@
 	<!-- =================================== -->
 
 	<target name="test" depends="compile">
-		<condition property="asm.test" value="${java.home}/lib/rt.jar,${out.test}/cases">
+		<condition property="asm.test" value="${java.home}/lib/rt.jar">
 			<not>
 				<isset property="asm.test" />
 			</not>
@@ -189,12 +189,6 @@
 		</copy>
 		<property name="coverage" value="yes" />
 		<property name="classes" value="${out.instr}" />
-		<property name="asm.test.class" value="pkg" />
-		<condition property="asm.test" value="${out.test}/cases">
-			<not>
-				<isset property="asm.test" />
-			</not>
-		</condition>
 		<condition property="test.type" value="conform">
 			<not>
 				<isset property="test.type" />

@@ -42,6 +42,6 @@ public class ASMifierUnitTest extends TestCase {
     ASMifier.main(new String[] {"-debug"});
     ASMifier.main(new String[] {s});
     ASMifier.main(new String[] {"-debug", s});
-    ASMifier.main(new String[] {"output/test/cases/Interface.class"});
+    ASMifier.main(new String[] {"java.lang.Object"});
   }
 }

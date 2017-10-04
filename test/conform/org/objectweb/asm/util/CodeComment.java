@@ -25,65 +25,73 @@
 // CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
 // THE POSSIBILITY OF SUCH DAMAGE.
+package org.objectweb.asm.util;
 
-package org.objectweb.asm.test.cases;
+import java.util.Map;
 
-import java.io.IOException;
-
-import org.objectweb.asm.ClassVisitor;
+import org.objectweb.asm.Attribute;
+import org.objectweb.asm.ByteVector;
+import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassWriter;
-import org.objectweb.asm.MethodVisitor;
+import org.objectweb.asm.Label;
+import org.objectweb.asm.util.ASMifiable;
+import org.objectweb.asm.util.Textifiable;
 
 /**
- * Generates a class with 2 methods with method parameters.
+ * A non standard code attribute used for testing purposes.
  *
- * @author Remi Forax
+ * @author Eric Bruneton
  */
-public class MethodParameters extends Generator {
+public class CodeComment extends Attribute implements ASMifiable, Textifiable {
+
+  public CodeComment() {
+    super("CodeComment");
+  }
+
   @Override
-  public void generate(final String dir) throws IOException {
-    generate(dir, "pkg/MethodParameters.class", dumpCode());
+  public boolean isUnknown() {
+    return false;
   }
 
-  public byte[] dumpCode() {
-    ClassWriter cw = new ClassWriter(0);
-    ClassVisitor cv = cw;
-    cv.visit(
-        V1_8, ACC_PUBLIC + ACC_ABSTRACT, "pkg/MethodParameters", null, "java/lang/Object", null);
-
-    // static method
-    MethodVisitor mv =
-        cv.visitMethod(
-            ACC_PUBLIC + ACC_STATIC,
-            "m",
-            "(ILjava/lang/Object;Ljava/lang/String;Ljava/lang/Object;I)V",
-            null,
-            null);
-
-    // parameter 0 type int
-    mv.visitParameter("i", 0);
-    // parameter 1 type Object
-    mv.visitParameter("o", ACC_FINAL);
-    // parameter 2 type String
-    mv.visitParameter("s", ACC_MANDATED);
-    // parameter 3 type Object
-    mv.visitParameter("o2", ACC_SYNTHETIC);
-    // parameter 4 type Object
-    mv.visitParameter("i2", ACC_FINAL + ACC_SYNTHETIC);
-
-    mv.visitCode();
-    mv.visitInsn(RETURN);
-    mv.visitMaxs(0, 5);
-    mv.visitEnd();
-
-    // abstract method
-    MethodVisitor mv2 = cv.visitMethod(ACC_PUBLIC + ACC_ABSTRACT, "m", "(J)V", null, null);
-
-    // parameter 0 type long
-    mv2.visitParameter("l", 0);
-    mv2.visitEnd();
-
-    cv.visitEnd();
-    return cw.toByteArray();
+  @Override
+  public boolean isCodeAttribute() {
+    return true;
   }
+
+  @Override
+  protected Attribute read(
+      final ClassReader cr,
+      final int off,
+      final int len,
+      final char[] buf,
+      final int codeOff,
+      final Label[] labels) {
+
+    return new CodeComment();
+  }
+
+  @Override
+  protected ByteVector write(
+      final ClassWriter cw,
+      final byte[] code,
+      final int len,
+      final int maxStack,
+      final int maxLocals) {
+    return new ByteVector();
+  }
+
+  @Override
+  protected Label[] getLabels() {
+    super.getLabels();
+    return new Label[] {new Label()};
+  }
+
+  public void asmify(
+      final StringBuffer buf, final String varName, final Map<Label, String> labelNames) {
+    buf.append("Attribute ")
+        .append(varName)
+        .append(" = new org.objectweb.asm.CodeComment();");
+  }
+
+  public void textify(final StringBuffer buf, final Map<Label, String> labelNames) {}
 }

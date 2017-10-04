@@ -90,7 +90,7 @@ public class CodeComment extends Attribute implements ASMifiable, Textifiable {
       final StringBuffer buf, final String varName, final Map<Label, String> labelNames) {
     buf.append("Attribute ")
         .append(varName)
-        .append(" = new org.objectweb.asm.CodeComment();");
+        .append(" = new org.objectweb.asm.util.CodeComment();");
   }
 
   public void textify(final StringBuffer buf, final Map<Label, String> labelNames) {}

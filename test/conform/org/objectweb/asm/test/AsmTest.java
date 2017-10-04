@@ -40,6 +40,7 @@ import java.lang.reflect.Modifier;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 
 import org.junit.Rule;
 import org.junit.rules.ExpectedException;
@@ -258,10 +259,11 @@ public abstract class AsmTest {
    * @return all the possible (precompiledClass, api) pairs, for all the precompiled classes and all
    *     the given ASM API versions.
    */
-  public static ArrayList<Object[]> data(Api... apis) {
+  public static List<Object[]> data(Api... apis) {
+    PrecompiledClass[] values = PrecompiledClass.values();
     ArrayList<Object[]> result = new ArrayList<Object[]>();
     for (Api api : apis) {
-      for (PrecompiledClass precompiledClass : PrecompiledClass.values()) {
+      for (PrecompiledClass precompiledClass : values) {
         result.add(new Object[] {precompiledClass, api});
       }
     }

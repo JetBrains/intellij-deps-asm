@@ -217,85 +217,455 @@
   <target name="sigtest">
     <taskdef name="atest" classname="com.sun.tdk.signaturetest.ant.ATest" 
         classpath="${test}/lib/sigtest-maven-plugin-1.0.jar"/>
-    <path id="classpath">
-        <pathelement location="${out.dist}/lib/asm-${product.artifact}.jar"/>
-        <pathelement location="${out.dist}/lib/asm-tree-${product.artifact}.jar"/>
-        <pathelement location="${out.dist}/lib/asm-analysis-${product.artifact}.jar"/>
-        <pathelement location="${out.dist}/lib/asm-commons-${product.artifact}.jar"/>
+    <!--path id="classpath">
         <pathelement location="${out.dist}/lib/asm-util-${product.artifact}.jar"/>
         <pathelement location="${out.dist}/lib/asm-xml-${product.artifact}.jar"/>
-    </path>
-    <atest filename="${test}/ASM-4.0.sig"
+    </path-->
+    <atest filename="${test}/conform/org/objectweb/asm/sigtest-4.0.txt"
         apiversion="${product.artifact}"
         backward="true" 
         binary="true"
         failonerror="true">	
       <package name="org.objectweb.asm"/>
-      <classpath refid="classpath"/>
+      <package name="org.objectweb.asm.signature"/>
+      <classpath path="${out.dist}/lib/asm-${product.artifact}.jar"/>
     </atest>
-    <atest filename="${test}/ASM-4.1.sig"
+    <atest filename="${test}/conform/org/objectweb/asm/sigtest-4.1.txt"
         apiversion="${product.artifact}"
         backward="true" 
         binary="true"
         failonerror="true">	
       <package name="org.objectweb.asm"/>
-      <classpath refid="classpath"/>
+      <package name="org.objectweb.asm.signature"/>
+      <classpath path="${out.dist}/lib/asm-${product.artifact}.jar"/>
     </atest>
-    <atest filename="${test}/ASM-4.2.sig"
+    <atest filename="${test}/conform/org/objectweb/asm/sigtest-4.2.txt"
         apiversion="${product.artifact}"
         backward="true" 
         binary="true"
         failonerror="true">	
       <package name="org.objectweb.asm"/>
-      <classpath refid="classpath"/>
+      <package name="org.objectweb.asm.signature"/>
+      <classpath path="${out.dist}/lib/asm-${product.artifact}.jar"/>
     </atest>
-    <atest filename="${test}/ASM-5.0.sig"
+    <atest filename="${test}/conform/org/objectweb/asm/sigtest-5.0.txt"
         apiversion="${product.artifact}"
         backward="true" 
         binary="true"
         failonerror="true">	
       <package name="org.objectweb.asm"/>
-      <classpath refid="classpath"/>
+      <package name="org.objectweb.asm.signature"/>
+      <classpath path="${out.dist}/lib/asm-${product.artifact}.jar"/>
     </atest>
-    <atest filename="${test}/ASM-5.0.1.sig"
+    <atest filename="${test}/conform/org/objectweb/asm/sigtest-5.0.1.txt"
         apiversion="${product.artifact}"
         backward="true" 
         binary="true"
         failonerror="true">	
       <package name="org.objectweb.asm"/>
-      <classpath refid="classpath"/>
+      <package name="org.objectweb.asm.signature"/>
+      <classpath path="${out.dist}/lib/asm-${product.artifact}.jar"/>
     </atest>
-    <atest filename="${test}/ASM-5.0.2.sig"
+    <atest filename="${test}/conform/org/objectweb/asm/sigtest-5.0.2.txt"
         apiversion="${product.artifact}"
         backward="true" 
         binary="true"
         failonerror="true">	
       <package name="org.objectweb.asm"/>
-      <classpath refid="classpath"/>
+      <package name="org.objectweb.asm.signature"/>
+      <classpath path="${out.dist}/lib/asm-${product.artifact}.jar"/>
     </atest>
-    <atest filename="${test}/ASM-5.0.3.sig"
+    <atest filename="${test}/conform/org/objectweb/asm/sigtest-5.0.3.txt"
         apiversion="${product.artifact}"
         backward="true" 
         binary="true"
         failonerror="true">	
       <package name="org.objectweb.asm"/>
-      <classpath refid="classpath"/>
+      <package name="org.objectweb.asm.signature"/>
+      <classpath path="${out.dist}/lib/asm-${product.artifact}.jar"/>
     </atest>
-    <atest filename="${test}/ASM-5.0.4.sig"
+    <atest filename="${test}/conform/org/objectweb/asm/sigtest-5.0.4.txt"
         apiversion="${product.artifact}"
         backward="true" 
         binary="true"
         failonerror="true">	
       <package name="org.objectweb.asm"/>
-      <classpath refid="classpath"/>
+      <package name="org.objectweb.asm.signature"/>
+      <classpath path="${out.dist}/lib/asm-${product.artifact}.jar"/>
     </atest>
-    <atest filename="${test}/ASM-5.1.sig"
+    <atest filename="${test}/conform/org/objectweb/asm/sigtest-5.1.txt"
         apiversion="${product.artifact}"
         backward="true" 
         binary="true"
         failonerror="true">	
       <package name="org.objectweb.asm"/>
-      <classpath refid="classpath"/>
+      <package name="org.objectweb.asm.signature"/>
+      <classpath path="${out.dist}/lib/asm-${product.artifact}.jar"/>
+    </atest>
+
+    <atest filename="${test}/conform/org/objectweb/asm/tree/sigtest-4.0.txt"
+        apiversion="${product.artifact}"
+        backward="true" 
+        binary="true"
+        failonerror="true">	
+      <package name="org.objectweb.asm.tree"/>
+      <classpath path="${out.dist}/lib/asm-tree-${product.artifact}.jar"/>
+    </atest>
+    <atest filename="${test}/conform/org/objectweb/asm/tree/sigtest-4.1.txt"
+        apiversion="${product.artifact}"
+        backward="true" 
+        binary="true"
+        failonerror="true">	
+      <package name="org.objectweb.asm.tree"/>
+      <classpath path="${out.dist}/lib/asm-tree-${product.artifact}.jar"/>
+    </atest>
+    <atest filename="${test}/conform/org/objectweb/asm/tree/sigtest-4.2.txt"
+        apiversion="${product.artifact}"
+        backward="true" 
+        binary="true"
+        failonerror="true">	
+      <package name="org.objectweb.asm.tree"/>
+      <classpath path="${out.dist}/lib/asm-tree-${product.artifact}.jar"/>
+    </atest>
+    <atest filename="${test}/conform/org/objectweb/asm/tree/sigtest-5.0.txt"
+        apiversion="${product.artifact}"
+        backward="true" 
+        binary="true"
+        failonerror="true">	
+      <package name="org.objectweb.asm.tree"/>
+      <classpath path="${out.dist}/lib/asm-tree-${product.artifact}.jar"/>
+    </atest>
+    <atest filename="${test}/conform/org/objectweb/asm/tree/sigtest-5.0.1.txt"
+        apiversion="${product.artifact}"
+        backward="true" 
+        binary="true"
+        failonerror="true">	
+      <package name="org.objectweb.asm.tree"/>
+      <classpath path="${out.dist}/lib/asm-tree-${product.artifact}.jar"/>
+    </atest>
+    <atest filename="${test}/conform/org/objectweb/asm/tree/sigtest-5.0.2.txt"
+        apiversion="${product.artifact}"
+        backward="true" 
+        binary="true"
+        failonerror="true">	
+      <package name="org.objectweb.asm.tree"/>
+      <classpath path="${out.dist}/lib/asm-tree-${product.artifact}.jar"/>
+    </atest>
+    <atest filename="${test}/conform/org/objectweb/asm/tree/sigtest-5.0.3.txt"
+        apiversion="${product.artifact}"
+        backward="true" 
+        binary="true"
+        failonerror="true">	
+      <package name="org.objectweb.asm.tree"/>
+      <classpath path="${out.dist}/lib/asm-tree-${product.artifact}.jar"/>
+    </atest>
+    <atest filename="${test}/conform/org/objectweb/asm/tree/sigtest-5.0.4.txt"
+        apiversion="${product.artifact}"
+        backward="true" 
+        binary="true"
+        failonerror="true">	
+      <package name="org.objectweb.asm.tree"/>
+      <classpath path="${out.dist}/lib/asm-tree-${product.artifact}.jar"/>
+    </atest>
+    <atest filename="${test}/conform/org/objectweb/asm/tree/sigtest-5.1.txt"
+        apiversion="${product.artifact}"
+        backward="true" 
+        binary="true"
+        failonerror="true">	
+      <package name="org.objectweb.asm.tree"/>
+      <classpath path="${out.dist}/lib/asm-tree-${product.artifact}.jar"/>
+    </atest>
+
+    <atest filename="${test}/conform/org/objectweb/asm/tree/analysis/sigtest-4.0.txt"
+        apiversion="${product.artifact}"
+        backward="true" 
+        binary="true"
+        failonerror="true">	
+      <package name="org.objectweb.asm.tree.analysis"/>
+      <classpath path="${out.dist}/lib/asm-analysis-${product.artifact}.jar"/>
+    </atest>
+    <atest filename="${test}/conform/org/objectweb/asm/tree/analysis/sigtest-4.1.txt"
+        apiversion="${product.artifact}"
+        backward="true" 
+        binary="true"
+        failonerror="true">	
+      <package name="org.objectweb.asm.tree.analysis"/>
+      <classpath path="${out.dist}/lib/asm-analysis-${product.artifact}.jar"/>
+    </atest>
+    <atest filename="${test}/conform/org/objectweb/asm/tree/analysis/sigtest-4.2.txt"
+        apiversion="${product.artifact}"
+        backward="true" 
+        binary="true"
+        failonerror="true">	
+      <package name="org.objectweb.asm.tree.analysis"/>
+      <classpath path="${out.dist}/lib/asm-analysis-${product.artifact}.jar"/>
+    </atest>
+    <atest filename="${test}/conform/org/objectweb/asm/tree/analysis/sigtest-5.0.txt"
+        apiversion="${product.artifact}"
+        backward="true" 
+        binary="true"
+        failonerror="true">	
+      <package name="org.objectweb.asm.tree.analysis"/>
+      <classpath path="${out.dist}/lib/asm-analysis-${product.artifact}.jar"/>
+    </atest>
+    <atest filename="${test}/conform/org/objectweb/asm/tree/analysis/sigtest-5.0.1.txt"
+        apiversion="${product.artifact}"
+        backward="true" 
+        binary="true"
+        failonerror="true">	
+      <package name="org.objectweb.asm.tree.analysis"/>
+      <classpath path="${out.dist}/lib/asm-analysis-${product.artifact}.jar"/>
+    </atest>
+    <atest filename="${test}/conform/org/objectweb/asm/tree/analysis/sigtest-5.0.2.txt"
+        apiversion="${product.artifact}"
+        backward="true" 
+        binary="true"
+        failonerror="true">	
+      <package name="org.objectweb.asm.tree.analysis"/>
+      <classpath path="${out.dist}/lib/asm-analysis-${product.artifact}.jar"/>
+    </atest>
+    <atest filename="${test}/conform/org/objectweb/asm/tree/analysis/sigtest-5.0.3.txt"
+        apiversion="${product.artifact}"
+        backward="true" 
+        binary="true"
+        failonerror="true">	
+      <package name="org.objectweb.asm.tree.analysis"/>
+      <classpath path="${out.dist}/lib/asm-analysis-${product.artifact}.jar"/>
+    </atest>
+    <atest filename="${test}/conform/org/objectweb/asm/tree/analysis/sigtest-5.0.4.txt"
+        apiversion="${product.artifact}"
+        backward="true" 
+        binary="true"
+        failonerror="true">	
+      <package name="org.objectweb.asm.tree.analysis"/>
+      <classpath path="${out.dist}/lib/asm-analysis-${product.artifact}.jar"/>
+    </atest>
+    <atest filename="${test}/conform/org/objectweb/asm/tree/analysis/sigtest-5.1.txt"
+        apiversion="${product.artifact}"
+        backward="true" 
+        binary="true"
+        failonerror="true">	
+      <package name="org.objectweb.asm.tree.analysis"/>
+      <classpath path="${out.dist}/lib/asm-analysis-${product.artifact}.jar"/>
+    </atest>
+
+    <atest filename="${test}/conform/org/objectweb/asm/commons/sigtest-4.0.txt"
+        apiversion="${product.artifact}"
+        backward="true" 
+        binary="true"
+        failonerror="true">	
+      <package name="org.objectweb.asm.commons"/>
+      <classpath path="${out.dist}/lib/asm-commons-${product.artifact}.jar"/>
+    </atest>
+    <atest filename="${test}/conform/org/objectweb/asm/commons/sigtest-4.1.txt"
+        apiversion="${product.artifact}"
+        backward="true" 
+        binary="true"
+        failonerror="true">	
+      <package name="org.objectweb.asm.commons"/>
+      <classpath path="${out.dist}/lib/asm-commons-${product.artifact}.jar"/>
+    </atest>
+    <atest filename="${test}/conform/org/objectweb/asm/commons/sigtest-4.2.txt"
+        apiversion="${product.artifact}"
+        backward="true" 
+        binary="true"
+        failonerror="true">	
+      <package name="org.objectweb.asm.commons"/>
+      <classpath path="${out.dist}/lib/asm-commons-${product.artifact}.jar"/>
+    </atest>
+    <atest filename="${test}/conform/org/objectweb/asm/commons/sigtest-5.0.txt"
+        apiversion="${product.artifact}"
+        backward="true" 
+        binary="true"
+        failonerror="true">	
+      <package name="org.objectweb.asm.commons"/>
+      <classpath path="${out.dist}/lib/asm-commons-${product.artifact}.jar"/>
+    </atest>
+    <atest filename="${test}/conform/org/objectweb/asm/commons/sigtest-5.0.1.txt"
+        apiversion="${product.artifact}"
+        backward="true" 
+        binary="true"
+        failonerror="true">	
+      <package name="org.objectweb.asm.commons"/>
+      <classpath path="${out.dist}/lib/asm-commons-${product.artifact}.jar"/>
+    </atest>
+    <atest filename="${test}/conform/org/objectweb/asm/commons/sigtest-5.0.2.txt"
+        apiversion="${product.artifact}"
+        backward="true" 
+        binary="true"
+        failonerror="true">	
+      <package name="org.objectweb.asm.commons"/>
+      <classpath path="${out.dist}/lib/asm-commons-${product.artifact}.jar"/>
+    </atest>
+    <atest filename="${test}/conform/org/objectweb/asm/commons/sigtest-5.0.3.txt"
+        apiversion="${product.artifact}"
+        backward="true" 
+        binary="true"
+        failonerror="true">	
+      <package name="org.objectweb.asm.commons"/>
+      <classpath path="${out.dist}/lib/asm-commons-${product.artifact}.jar"/>
+    </atest>
+    <atest filename="${test}/conform/org/objectweb/asm/commons/sigtest-5.0.4.txt"
+        apiversion="${product.artifact}"
+        backward="true" 
+        binary="true"
+        failonerror="true">	
+      <package name="org.objectweb.asm.commons"/>
+      <classpath path="${out.dist}/lib/asm-commons-${product.artifact}.jar"/>
+    </atest>
+    <atest filename="${test}/conform/org/objectweb/asm/commons/sigtest-5.1.txt"
+        apiversion="${product.artifact}"
+        backward="true" 
+        binary="true"
+        failonerror="true">	
+      <package name="org.objectweb.asm.commons"/>
+      <classpath path="${out.dist}/lib/asm-commons-${product.artifact}.jar"/>
+    </atest>
+
+    <atest filename="${test}/conform/org/objectweb/asm/util/sigtest-4.0.txt"
+        apiversion="${product.artifact}"
+        backward="true" 
+        binary="true"
+        failonerror="true">	
+      <package name="org.objectweb.asm.util"/>
+      <classpath path="${out.dist}/lib/asm-util-${product.artifact}.jar"/>
+    </atest>
+    <atest filename="${test}/conform/org/objectweb/asm/util/sigtest-4.1.txt"
+        apiversion="${product.artifact}"
+        backward="true" 
+        binary="true"
+        failonerror="true">	
+      <package name="org.objectweb.asm.util"/>
+      <classpath path="${out.dist}/lib/asm-util-${product.artifact}.jar"/>
+    </atest>
+    <atest filename="${test}/conform/org/objectweb/asm/util/sigtest-4.2.txt"
+        apiversion="${product.artifact}"
+        backward="true" 
+        binary="true"
+        failonerror="true">	
+      <package name="org.objectweb.asm.util"/>
+      <classpath path="${out.dist}/lib/asm-util-${product.artifact}.jar"/>
+    </atest>
+    <atest filename="${test}/conform/org/objectweb/asm/util/sigtest-5.0.txt"
+        apiversion="${product.artifact}"
+        backward="true" 
+        binary="true"
+        failonerror="true">	
+      <package name="org.objectweb.asm.util"/>
+      <classpath path="${out.dist}/lib/asm-util-${product.artifact}.jar"/>
+    </atest>
+    <atest filename="${test}/conform/org/objectweb/asm/util/sigtest-5.0.1.txt"
+        apiversion="${product.artifact}"
+        backward="true" 
+        binary="true"
+        failonerror="true">	
+      <package name="org.objectweb.asm.util"/>
+      <classpath path="${out.dist}/lib/asm-util-${product.artifact}.jar"/>
+    </atest>
+    <atest filename="${test}/conform/org/objectweb/asm/util/sigtest-5.0.2.txt"
+        apiversion="${product.artifact}"
+        backward="true" 
+        binary="true"
+        failonerror="true">	
+      <package name="org.objectweb.asm.util"/>
+      <classpath path="${out.dist}/lib/asm-util-${product.artifact}.jar"/>
+    </atest>
+    <atest filename="${test}/conform/org/objectweb/asm/util/sigtest-5.0.3.txt"
+        apiversion="${product.artifact}"
+        backward="true" 
+        binary="true"
+        failonerror="true">	
+      <package name="org.objectweb.asm.util"/>
+      <classpath path="${out.dist}/lib/asm-util-${product.artifact}.jar"/>
+    </atest>
+    <atest filename="${test}/conform/org/objectweb/asm/util/sigtest-5.0.4.txt"
+        apiversion="${product.artifact}"
+        backward="true" 
+        binary="true"
+        failonerror="true">	
+      <package name="org.objectweb.asm.util"/>
+      <classpath path="${out.dist}/lib/asm-util-${product.artifact}.jar"/>
+    </atest>
+    <atest filename="${test}/conform/org/objectweb/asm/util/sigtest-5.1.txt"
+        apiversion="${product.artifact}"
+        backward="true" 
+        binary="true"
+        failonerror="true">	
+      <package name="org.objectweb.asm.util"/>
+      <classpath path="${out.dist}/lib/asm-util-${product.artifact}.jar"/>
+    </atest>
+
+    <atest filename="${test}/conform/org/objectweb/asm/xml/sigtest-4.0.txt"
+        apiversion="${product.artifact}"
+        backward="true" 
+        binary="true"
+        failonerror="true">	
+      <package name="org.objectweb.asm.xml"/>
+      <classpath path="${out.dist}/lib/asm-xml-${product.artifact}.jar"/>
+    </atest>
+    <atest filename="${test}/conform/org/objectweb/asm/xml/sigtest-4.1.txt"
+        apiversion="${product.artifact}"
+        backward="true" 
+        binary="true"
+        failonerror="true">	
+      <package name="org.objectweb.asm.xml"/>
+      <classpath path="${out.dist}/lib/asm-xml-${product.artifact}.jar"/>
+    </atest>
+    <atest filename="${test}/conform/org/objectweb/asm/xml/sigtest-4.2.txt"
+        apiversion="${product.artifact}"
+        backward="true" 
+        binary="true"
+        failonerror="true">	
+      <package name="org.objectweb.asm.xml"/>
+      <classpath path="${out.dist}/lib/asm-xml-${product.artifact}.jar"/>
+    </atest>
+    <atest filename="${test}/conform/org/objectweb/asm/xml/sigtest-5.0.txt"
+        apiversion="${product.artifact}"
+        backward="true" 
+        binary="true"
+        failonerror="true">	
+      <package name="org.objectweb.asm.xml"/>
+      <classpath path="${out.dist}/lib/asm-xml-${product.artifact}.jar"/>
+    </atest>
+    <atest filename="${test}/conform/org/objectweb/asm/xml/sigtest-5.0.1.txt"
+        apiversion="${product.artifact}"
+        backward="true" 
+        binary="true"
+        failonerror="true">	
+      <package name="org.objectweb.asm.xml"/>
+      <classpath path="${out.dist}/lib/asm-xml-${product.artifact}.jar"/>
+    </atest>
+    <atest filename="${test}/conform/org/objectweb/asm/xml/sigtest-5.0.2.txt"
+        apiversion="${product.artifact}"
+        backward="true" 
+        binary="true"
+        failonerror="true">	
+      <package name="org.objectweb.asm.xml"/>
+      <classpath path="${out.dist}/lib/asm-xml-${product.artifact}.jar"/>
+    </atest>
+    <atest filename="${test}/conform/org/objectweb/asm/xml/sigtest-5.0.3.txt"
+        apiversion="${product.artifact}"
+        backward="true" 
+        binary="true"
+        failonerror="true">	
+      <package name="org.objectweb.asm.xml"/>
+      <classpath path="${out.dist}/lib/asm-xml-${product.artifact}.jar"/>
+    </atest>
+    <atest filename="${test}/conform/org/objectweb/asm/xml/sigtest-5.0.4.txt"
+        apiversion="${product.artifact}"
+        backward="true" 
+        binary="true"
+        failonerror="true">	
+      <package name="org.objectweb.asm.xml"/>
+      <classpath path="${out.dist}/lib/asm-xml-${product.artifact}.jar"/>
+    </atest>
+    <atest filename="${test}/conform/org/objectweb/asm/xml/sigtest-5.1.txt"
+        apiversion="${product.artifact}"
+        backward="true" 
+        binary="true"
+        failonerror="true">	
+      <package name="org.objectweb.asm.xml"/>
+      <classpath path="${out.dist}/lib/asm-xml-${product.artifact}.jar"/>
     </atest>
   </target>
   

@@ -58,6 +58,7 @@
           <include name="org/objectweb/asm/util/CheckClassAdapterTest.java"/>
           <include name="org/objectweb/asm/util/CheckSignatureAdapterTest.java"/>
           <include name="org/objectweb/asm/util/TraceClassAdapterTest.java"/>
+          <include name="org/objectweb/asm/xml/SAXAdapterTest.java"/>
           <include name="**/*UnitTest.java"/>
         </fileset>
       </batchtest>

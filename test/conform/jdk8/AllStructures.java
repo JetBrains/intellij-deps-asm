@@ -56,7 +56,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Class which, compiled with the JDK 1.5.0, produces the new class file structures from that
+ * Class which, compiled with the JDK 1.8.0, produces the new class file structures from that
  * version (compared to JDK 1.3.0). Must be compiled with "javac -g -parameters".
  */
 @VTA(v = 0)

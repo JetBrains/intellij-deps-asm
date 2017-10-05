@@ -28,7 +28,7 @@
 package jdk8;
 
 /**
- * Class which, compiled with the JDK 1.5.0, produces all the stack map frame types. Must be
+ * Class which, compiled with the JDK 1.8.0, produces all the stack map frame types. Must be
  * compiled with "javac -g -parameters".
  */
 public class AllFrames {
@@ -105,364 +105,63 @@ public class AllFrames {
     s = i == 0 ? "true" : "false";
   }
 
-  // Frames in methods larger than 32K.
-  public AllFrames largeMethod(
-      boolean v0,
-      byte v1,
-      char v2,
-      short v3,
-      int v4,
-      long v5,
-      float v6,
-      double v7,
-      Object v8,
-      boolean[] v9,
-      byte[] v10,
-      char[] v11,
-      short[] v12,
-      int[] v13,
-      long[] v14,
-      float[] v15,
-      double[] v16,
-      Object[] v17) {
-    try {
-      while (v4++ < v5) {
-        f =
-            f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f;
-        f =
-            f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f;
-        f =
-            f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f;
-        f =
-            f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f;
-        f =
-            f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f;
-        f =
-            f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f;
-        f =
-            f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f;
-        f =
-            f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f;
-        f =
-            f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f;
-        f =
-            f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f + f
-                + f + f + f + f + f + f + f + f;
-      }
-    } catch (Throwable t) {
-      return null;
-    } finally {
-      v17[0] = null;
-    }
-    return new AllFrames(v17[f % v17.length], null);
+  // Frame merges: two non-array objects.
+  public static Number m5(boolean b) {
+    return b ? new Integer(1) : new Float(1);
+  }
+
+  // Frame merges: two single-dimensional arrays with object type elements.
+  public static Number[] m6(boolean b) {
+    return b ? new Integer[1] : new Float[1];
+  }
+
+  // Frame merges: two bi-dimensional arrays with object type elements.
+  public static Number[][] m7(boolean b) {
+    return b ? new Integer[1][1] : new Float[1][1];
+  }
+
+  // Frame merges: two bi-dimensional arrays with primitive type elements.
+  public static Object[] m8(boolean b) {
+    return b ? (Object[]) new byte[1][1] : (Object[]) new short[1][1];
+  }
+
+  // Frame merges: two single-dimensional arrays with mixed primitive / object type elements.
+  public static Object m9(boolean b) {
+    return b ? new byte[1] : new Float[1];
+  }
+
+  // Frame merges: two bi-dimensional arrays with mixed primitive / object type elements.
+  public static Object[] m10(boolean b) {
+    return b ? (Object[]) new byte[1][1] : (Object[]) new Float[1][1];
+  }
+
+  // Frame merges: one and two dimensions arrays with identical element type.
+  public static Object m11(boolean b) {
+    return b ? new byte[1] : new byte[1][1];
+  }
+
+  // Frame merges: one and two dimensions arrays with mixed primitive / object type elements.
+  public static Object[] m12(boolean b) {
+    return b ? new Object[1] : new byte[1][1];
+  }
+
+  // Frame merges: two and three dimensions arrays with primitive type elements.
+  public static Object[] m13(boolean b) {
+    return b ? (Object[]) new byte[1][1] : (Object[]) new byte[1][1][1];
+  }
+
+  // Frame merges: three and four dimensions arrays with primitive type elements.
+  public static Object[][] m14(boolean b) {
+    return b ? (Object[][]) new byte[1][1][1] : (Object[][]) new byte[1][1][1][1];
+  }
+
+  // Frame merges: object type and single-dimensional array with primitive type elements.
+  public static Object m15(boolean b) {
+    return b ? new Integer(1) : new byte[1];
+  }
+
+  // Frame merges: object type and single-dimensional array with object type elements.
+  public static Object m16(boolean b) {
+    return b ? new Integer(1) : new Float[1];
   }
 }

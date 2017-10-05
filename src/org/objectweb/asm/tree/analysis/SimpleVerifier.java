@@ -209,17 +209,23 @@ public class SimpleVerifier extends BasicVerifier {
           if (isAssignableFrom(u, t)) {
             return w;
           }
-          // TODO case of array classes of the same dimension
-          // TODO should we look also for a common super interface?
-          // problem: there may be several possible common super
-          // interfaces
+          int dims = 0;
+          if (t.getSort() == Type.ARRAY
+              && u.getSort() == Type.ARRAY
+              && t.getDimensions() == u.getDimensions()
+              && t.getElementType().getSort() == Type.OBJECT
+              && u.getElementType().getSort() == Type.OBJECT) {
+            dims = t.getDimensions();
+            t = t.getElementType();
+            u = u.getElementType();
+          }
           do {
             if (t == null || isInterface(t)) {
-              return BasicValue.REFERENCE_VALUE;
+              return newValue(Type.getObjectType("java/lang/Object"), dims);
             }
             t = getSuperClass(t);
             if (isAssignableFrom(t, u)) {
-              return newValue(t);
+              return newValue(t, dims);
             }
           } while (true);
         }
@@ -227,6 +233,18 @@ public class SimpleVerifier extends BasicVerifier {
       return BasicValue.UNINITIALIZED_VALUE;
     }
     return v;
+  }
+
+  private BasicValue newValue(final Type t, int dims) {
+    if (dims == 0) {
+      return newValue(t);
+    } else {
+      String desc = t.getDescriptor();
+      for (int i = 0; i < dims; ++i) {
+        desc = '[' + desc;
+      }
+      return newValue(Type.getType(desc));
+    }
   }
 
   protected boolean isInterface(final Type t) {

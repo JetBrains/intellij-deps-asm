@@ -51,7 +51,6 @@ import org.apache.bcel.generic.ConstantPoolGen;
 import org.apache.bcel.generic.InstructionHandle;
 import org.apache.bcel.generic.InstructionList;
 import org.apache.bcel.generic.MethodGen;
-import org.apache.bcel.verifier.structurals.ModifiedPass3bVerifier;
 import org.objectweb.asm.commons.LocalVariablesSorter;
 import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.MethodNode;
@@ -360,13 +359,6 @@ public abstract class ALLPerfTest {
             cw.toByteArray();
           }
         });
-
-    // the BCEL+computeFrames tests must be done only at the end, because
-    // after them other tests run very slowly, for some unknown reason
-    // (memory usage?)
-    compute = false;
-    computeFrames = true;
-    runTest("deserialize and reserialize", "BCEL and computeFrames", nullBCELAdapt);
   }
 
   public static List<String> findFiles(String directory, String suffix) {
@@ -558,11 +550,6 @@ public abstract class ALLPerfTest {
         if (compute) {
           mg.setMaxStack();
           mg.setMaxLocals();
-        }
-        if (computeFrames) {
-          ModifiedPass3bVerifier verif;
-          verif = new ModifiedPass3bVerifier(jc, k);
-          verif.do_verify();
         }
       }
       cg.replaceMethod(ms[k], mg.getMethod());

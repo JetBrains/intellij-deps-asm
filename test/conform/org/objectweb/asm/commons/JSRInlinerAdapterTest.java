@@ -27,35 +27,38 @@
 // THE POSSIBILITY OF SUCH DAMAGE.
 package org.objectweb.asm.commons;
 
-import junit.framework.TestSuite;
+import static org.junit.Assert.assertTrue;
 
-import org.objectweb.asm.AbstractTest;
+import java.util.Collection;
+
+import org.junit.Test;
+import org.junit.runners.Parameterized.Parameters;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.MethodVisitor;
-import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.test.AsmTest;
 
 /**
  * JSRInliner tests.
  *
  * @author Eric Bruneton
  */
-public class JSRInlinerAdapterTest extends AbstractTest {
+public class JSRInlinerAdapterTest extends AsmTest {
 
-  private static final TestClassLoader LOADER = new TestClassLoader();
-
-  public static TestSuite suite() throws Exception {
-    return new JSRInlinerAdapterTest().getSuite();
+  /** @return test parameters to test all the precompiled classes with ASM6. */
+  @Parameters(name = NAME)
+  public static Collection<Object[]> data() {
+    return data(Api.ASM6);
   }
 
-  @Override
-  public void test() throws Exception {
-    ClassReader cr = new ClassReader(is);
-    ClassWriter cw = new ClassWriter(0);
-    cr.accept(
-        new ClassVisitor(Opcodes.ASM5, cw) {
-
+  /** Tests that classes transformed with JSRInlinerAdapter can be loaded and instantiated. */
+  @Test
+  public void testInlineJsrAndInstantiate() {
+    ClassReader classReader = new ClassReader(classParameter.getBytes());
+    ClassWriter classWriter = new ClassWriter(0);
+    classReader.accept(
+        new ClassVisitor(apiParameter.value(), classWriter) {
           @Override
           public MethodVisitor visitMethod(
               final int access,
@@ -64,25 +67,13 @@ public class JSRInlinerAdapterTest extends AbstractTest {
               final String signature,
               final String[] exceptions) {
             MethodVisitor mv = super.visitMethod(access, name, desc, signature, exceptions);
-            return new JSRInlinerAdapter(mv, access, name, desc, signature, exceptions);
+            return new JSRInlinerAdapter(api, mv, access, name, desc, signature, exceptions);
           }
         },
         0);
-    byte[] b = cw.toByteArray();
-    try {
-      LOADER.defineClass(n, b);
-    } catch (ClassFormatError cfe) {
-      fail(cfe.getMessage());
-    } catch (Throwable ignored) {
+    if (classParameter.isMoreRecentThanCurrentJdk()) {
+      thrown.expect(UnsupportedClassVersionError.class);
     }
-  }
-
-  // ------------------------------------------------------------------------
-
-  static class TestClassLoader extends ClassLoader {
-
-    public Class<?> defineClass(final String name, final byte[] b) {
-      return defineClass(name, b, 0, b.length);
-    }
+    assertTrue(loadAndInstantiate(classParameter.getName(), classWriter.toByteArray()));
   }
 }

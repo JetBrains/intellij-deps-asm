@@ -27,25 +27,39 @@
 // THE POSSIBILITY OF SUCH DAMAGE.
 package org.objectweb.asm.commons;
 
-import junit.framework.TestSuite;
+import java.util.Collection;
 
-import org.objectweb.asm.AbstractTest;
+import org.junit.Test;
+import org.junit.runners.Parameterized.Parameters;
 import org.objectweb.asm.ClassReader;
+import org.objectweb.asm.ClassWriter;
+import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.test.AsmTest;
 
 /**
  * SerialVerionUIDAdder tests.
  *
  * @author Eric Bruneton
  */
-public class SerialVersionUIDAdderTest extends AbstractTest {
+public class SerialVersionUIDAdderTest extends AsmTest {
 
-  public static TestSuite suite() throws Exception {
-    return new SerialVersionUIDAdderTest().getSuite();
+  /** @return test parameters to test all the precompiled classes with ASM6. */
+  @Parameters(name = NAME)
+  public static Collection<Object[]> data() {
+    return data(Api.ASM6);
   }
 
-  @Override
-  public void test() throws Exception {
-    ClassReader cr = new ClassReader(is);
-    cr.accept(new SerialVersionUIDAdder(null), 0);
+  /**
+   * Tests that SerialVersionUIDAdder succeeds on all precompiled classes, and that it actually adds
+   * a serialVersionUID field.
+   */
+  @Test
+  public void testAddSerialVersionUID() {
+    ClassReader classReader = new ClassReader(classParameter.getBytes());
+    ClassWriter classWriter = new ClassWriter(0);
+    classReader.accept(new SerialVersionUIDAdder(classWriter), 0);
+    if ((classReader.getAccess() & Opcodes.ACC_ENUM) == 0) {
+      assertThatClass(classWriter.toByteArray()).contains("serialVersionUID");
+    }
   }
 }

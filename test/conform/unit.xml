@@ -37,6 +37,7 @@
            failureproperty="test.failed">
       <batchtest fork="yes" todir="${out.test}/reports">
         <fileset dir="${test}/conform">
+          <include name="org/objectweb/asm/AnnotationVisitorTest.java"/>
           <include name="org/objectweb/asm/AttributeTest.java"/>
           <include name="org/objectweb/asm/ClassReaderTest.java"/>
           <include name="org/objectweb/asm/ClassVisitorTest.java"/>

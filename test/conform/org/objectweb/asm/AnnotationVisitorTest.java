@@ -27,33 +27,46 @@
 // THE POSSIBILITY OF SUCH DAMAGE.
 package org.objectweb.asm;
 
-import junit.framework.TestSuite;
+import java.util.Collection;
+
+import org.junit.Test;
+import org.junit.runners.Parameterized.Parameters;
+import org.objectweb.asm.test.AsmTest;
 
 /**
- * Annotations tests.
+ * AnnotationVisitor tests.
  *
  * @author Eric Bruneton
  */
-public class AnnotationsTest extends AbstractTest {
+public class AnnotationVisitorTest extends AsmTest {
 
-  public static TestSuite suite() throws Exception {
-    return new AnnotationsTest().getSuite();
+  /** @return test parameters to test all the precompiled classes with all the apis. */
+  @Parameters(name = NAME)
+  public static Collection<Object[]> data() {
+    return data(Api.ASM4, Api.ASM5, Api.ASM6);
   }
 
-  @Override
-  public void test() throws Exception {
-    ClassReader cr = new ClassReader(is);
-    ClassWriter cw1 = new ClassWriter(0);
-    ClassWriter cw2 = new ClassWriter(0);
-    cr.accept(new RemoveAnnotationsAdapter1(cw1), 0);
-    cr.accept(new RemoveAnnotationsAdapter2(cw2), 0);
-    assertEquals(new ClassReader(cw2.toByteArray()), new ClassReader(cw1.toByteArray()));
+  /**
+   * Tests that ClassReader accepts visitor which return null AnnotationVisitor, and that returning
+   * null AnnotationVisitor is equivalent to returning an EmptyAnnotationVisitor.
+   */
+  @Test
+  public void testRemoveOrDelete() {
+    ClassReader classReader = new ClassReader(classParameter.getBytes());
+    ClassWriter classWriter1 = new ClassWriter(0);
+    ClassWriter classWriter2 = new ClassWriter(0);
+    if (classParameter.isMoreRecentThan(apiParameter)) {
+      thrown.expect(RuntimeException.class);
+    }
+    classReader.accept(new RemoveAnnotationsAdapter(apiParameter.value(), classWriter1), 0);
+    classReader.accept(new DeleteAnnotationsAdapter(apiParameter.value(), classWriter2), 0);
+    assertThatClass(classWriter1.toByteArray()).isEqualTo(classWriter2.toByteArray());
   }
 
   static class EmptyAnnotationVisitor extends AnnotationVisitor {
 
-    public EmptyAnnotationVisitor() {
-      super(Opcodes.ASM5);
+    public EmptyAnnotationVisitor(final int api) {
+      super(api);
     }
 
     @Override
@@ -67,21 +80,21 @@ public class AnnotationsTest extends AbstractTest {
     }
   }
 
-  static class RemoveAnnotationsAdapter1 extends ClassVisitor {
+  static class RemoveAnnotationsAdapter extends ClassVisitor {
 
-    public RemoveAnnotationsAdapter1(final ClassVisitor cv) {
-      super(Opcodes.ASM5, cv);
+    public RemoveAnnotationsAdapter(final int api, final ClassVisitor cv) {
+      super(api, cv);
     }
 
     @Override
     public AnnotationVisitor visitAnnotation(final String desc, final boolean visible) {
-      return new EmptyAnnotationVisitor();
+      return new EmptyAnnotationVisitor(api);
     }
 
     @Override
     public AnnotationVisitor visitTypeAnnotation(
         int typeRef, TypePath typePath, String desc, boolean visible) {
-      return new EmptyAnnotationVisitor();
+      return new EmptyAnnotationVisitor(api);
     }
 
     @Override
@@ -91,41 +104,40 @@ public class AnnotationsTest extends AbstractTest {
         final String desc,
         final String signature,
         final String[] exceptions) {
-      return new MethodVisitor(
-          Opcodes.ASM5, cv.visitMethod(access, name, desc, signature, exceptions)) {
+      return new MethodVisitor(api, cv.visitMethod(access, name, desc, signature, exceptions)) {
 
         @Override
         public AnnotationVisitor visitAnnotationDefault() {
-          return new EmptyAnnotationVisitor();
+          return new EmptyAnnotationVisitor(api);
         }
 
         @Override
         public AnnotationVisitor visitAnnotation(String desc, boolean visible) {
-          return new EmptyAnnotationVisitor();
+          return new EmptyAnnotationVisitor(api);
         }
 
         @Override
         public AnnotationVisitor visitTypeAnnotation(
             int typeRef, TypePath typePath, String desc, boolean visible) {
-          return new EmptyAnnotationVisitor();
+          return new EmptyAnnotationVisitor(api);
         }
 
         @Override
         public AnnotationVisitor visitParameterAnnotation(
             int parameter, String desc, boolean visible) {
-          return new EmptyAnnotationVisitor();
+          return new EmptyAnnotationVisitor(api);
         }
 
         @Override
         public AnnotationVisitor visitInsnAnnotation(
             int typeRef, TypePath typePath, String desc, boolean visible) {
-          return new EmptyAnnotationVisitor();
+          return new EmptyAnnotationVisitor(api);
         }
 
         @Override
         public AnnotationVisitor visitTryCatchAnnotation(
             int typeRef, TypePath typePath, String desc, boolean visible) {
-          return new EmptyAnnotationVisitor();
+          return new EmptyAnnotationVisitor(api);
         }
 
         @Override
@@ -137,16 +149,16 @@ public class AnnotationsTest extends AbstractTest {
             int[] index,
             String desc,
             boolean visible) {
-          return new EmptyAnnotationVisitor();
+          return new EmptyAnnotationVisitor(api);
         }
       };
     }
   }
 
-  static class RemoveAnnotationsAdapter2 extends ClassVisitor {
+  static class DeleteAnnotationsAdapter extends ClassVisitor {
 
-    public RemoveAnnotationsAdapter2(final ClassVisitor cv) {
-      super(Opcodes.ASM5, cv);
+    public DeleteAnnotationsAdapter(final int api, final ClassVisitor cv) {
+      super(api, cv);
     }
 
     @Override
@@ -167,8 +179,7 @@ public class AnnotationsTest extends AbstractTest {
         final String desc,
         final String signature,
         final String[] exceptions) {
-      return new MethodVisitor(
-          Opcodes.ASM5, cv.visitMethod(access, name, desc, signature, exceptions)) {
+      return new MethodVisitor(api, cv.visitMethod(access, name, desc, signature, exceptions)) {
 
         @Override
         public AnnotationVisitor visitAnnotationDefault() {

@@ -46,6 +46,7 @@
           <include name="org/objectweb/asm/MethodVisitorTest.java"/>
           <include name="org/objectweb/asm/TypePathTest.java"/>
           <include name="org/objectweb/asm/TypeTest.java"/>
+          <include name="org/objectweb/asm/commons/AnalyzerAdapterTest.java"/>
           <include name="org/objectweb/asm/commons/CodeSizeEvaluatorTest.java"/>
           <include name="org/objectweb/asm/commons/JSRInlinerAdapterTest.java"/>
           <include name="org/objectweb/asm/commons/LocalVariablesSorterTest.java"/>

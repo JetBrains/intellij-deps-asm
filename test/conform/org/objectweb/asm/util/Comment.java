@@ -25,69 +25,65 @@
 // CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
 // THE POSSIBILITY OF SUCH DAMAGE.
-package org.objectweb.asm.test.cases;
+package org.objectweb.asm.util;
 
-import java.io.IOException;
+import java.util.Map;
 
+import org.objectweb.asm.Attribute;
+import org.objectweb.asm.ByteVector;
+import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassWriter;
-import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.Label;
-import org.objectweb.asm.MethodVisitor;
+import org.objectweb.asm.util.ASMifiable;
+import org.objectweb.asm.util.Textifiable;
 
 /**
- * Generates a class with debug information. Covers line number tables, local variable tables,
- * source file, source debug, etc. Also covers the serialVersionUID field (to cover a branch in
- * SerialVersionUIDAdder).
+ * A non standard attribute used for testing purposes.
  *
  * @author Eric Bruneton
  */
-public class Debug extends Generator {
+public class Comment extends Attribute implements ASMifiable, Textifiable {
 
-  @Override
-  public void generate(final String dir) throws IOException {
-    generate(dir, "pkg/Debug.class", dump());
+  public Comment() {
+    super("Comment");
   }
 
-  public byte[] dump() {
-    ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_MAXS);
+  @Override
+  public boolean isUnknown() {
+    return false;
+  }
 
-    cw.visit(
-        V1_5,
-        ACC_PUBLIC + ACC_SUPER,
-        "pkg/Debug",
-        null,
-        "java/lang/Object",
-        new String[] {"java/io/Serializable"});
+  @Override
+  protected Attribute read(
+      final ClassReader cr,
+      final int off,
+      final int len,
+      final char[] buf,
+      final int codeOff,
+      final Label[] labels) {
 
-    cw.visitSource("Debug.java", "source-debug");
+    return new Comment();
+  }
 
-    FieldVisitor fv =
-        cw.visitField(ACC_FINAL + ACC_STATIC, "serialVersionUID", "J", null, new Long(1L));
-    fv.visitEnd();
+  @Override
+  protected ByteVector write(
+      final ClassWriter cw,
+      final byte[] code,
+      final int len,
+      final int maxStack,
+      final int maxLocals) {
+    return new ByteVector();
+  }
 
-    MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "<init>", "()V", null, null);
-    mv.visitCode();
-    Label l0 = new Label();
-    Label l1 = new Label();
-    Label l2 = new Label();
-    mv.visitLabel(l0);
-    mv.visitLineNumber(3, l0);
-    mv.visitVarInsn(ALOAD, 0);
-    mv.visitMethodInsn(INVOKESPECIAL, "java/lang/Object", "<init>", "()V", false);
-    mv.visitInsn(ICONST_0);
-    mv.visitJumpInsn(IFEQ, l1);
-    mv.visitJumpInsn(GOTO, l1);
-    mv.visitLabel(l1);
-    mv.visitLineNumber(3, l1);
-    mv.visitLineNumber(42, l1);
-    mv.visitInsn(RETURN);
-    mv.visitLabel(l2);
-    mv.visitLocalVariable("this", "Lpkg/Debug;", "Lpkg/Debug;", l0, l2, 0);
-    mv.visitMaxs(0, 0);
-    mv.visitEnd();
+  public void asmify(
+      final StringBuffer buf, final String varName, final Map<Label, String> labelNames) {
+    buf.append("Attribute ").append(varName).append(" = new org.objectweb.asm.util.Comment();");
+  }
 
-    cw.visitEnd();
+  public void textify(final StringBuffer buf, final Map<Label, String> labelNames) {}
 
-    return cw.toByteArray();
+  @Override
+  public String toString() {
+    return "CommentAttribute";
   }
 }

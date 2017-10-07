@@ -44,8 +44,6 @@ import org.junit.Test;
 import org.junit.runners.Parameterized.Parameters;
 import org.objectweb.asm.Attribute;
 import org.objectweb.asm.ClassReader;
-import org.objectweb.asm.attrs.CodeComment;
-import org.objectweb.asm.attrs.Comment;
 import org.objectweb.asm.test.AsmTest;
 
 /**

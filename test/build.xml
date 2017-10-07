@@ -98,7 +98,6 @@
   
   <target name="init" depends="properties,check">  
     <mkdir dir="${out.test}"/>
-    <mkdir dir="${out.test}/cases"/>
     <mkdir dir="${out.test}/reports"/>
     <path id="test.classpath">
       <pathelement path="${junit4.path}"/>
@@ -134,14 +133,6 @@
       <exclude name="annotations/*.java"/>
       <exclude name="jdk*/**/*.java"/>
     </javac>
-    <delete dir="${out.test}/cases"/>
-    <java classname="org.objectweb.asm.test.cases.Generator">
-      <classpath>
-        <pathelement location="${out.build}"/>
-        <pathelement location="${out.test}"/>
-      </classpath>
-      <arg value="${out.test}/cases"/>
-    </java>
   </target>
 
   <target name="compile.test.perf" depends="init">
@@ -214,10 +205,6 @@
   <target name="sigtest">
     <taskdef name="atest" classname="com.sun.tdk.signaturetest.ant.ATest" 
         classpath="${test}/lib/sigtest-maven-plugin-1.0.jar"/>
-    <!--path id="classpath">
-        <pathelement location="${out.dist}/lib/asm-util-${product.artifact}.jar"/>
-        <pathelement location="${out.dist}/lib/asm-xml-${product.artifact}.jar"/>
-    </path-->
     <atest filename="${test}/conform/org/objectweb/asm/sigtest-4.0.txt"
         apiversion="${product.artifact}"
         backward="true" 

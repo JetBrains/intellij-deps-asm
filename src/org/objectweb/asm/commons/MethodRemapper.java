@@ -56,13 +56,13 @@ public class MethodRemapper extends MethodVisitor {
   @Override
   public AnnotationVisitor visitAnnotationDefault() {
     AnnotationVisitor av = super.visitAnnotationDefault();
-    return av == null ? av : new AnnotationRemapper(av, remapper);
+    return av == null ? av : new AnnotationRemapper(api, av, remapper);
   }
 
   @Override
   public AnnotationVisitor visitAnnotation(String desc, boolean visible) {
     AnnotationVisitor av = super.visitAnnotation(remapper.mapDesc(desc), visible);
-    return av == null ? av : new AnnotationRemapper(av, remapper);
+    return av == null ? av : new AnnotationRemapper(api, av, remapper);
   }
 
   @Override
@@ -70,14 +70,14 @@ public class MethodRemapper extends MethodVisitor {
       int typeRef, TypePath typePath, String desc, boolean visible) {
     AnnotationVisitor av =
         super.visitTypeAnnotation(typeRef, typePath, remapper.mapDesc(desc), visible);
-    return av == null ? av : new AnnotationRemapper(av, remapper);
+    return av == null ? av : new AnnotationRemapper(api, av, remapper);
   }
 
   @Override
   public AnnotationVisitor visitParameterAnnotation(int parameter, String desc, boolean visible) {
     AnnotationVisitor av =
         super.visitParameterAnnotation(parameter, remapper.mapDesc(desc), visible);
-    return av == null ? av : new AnnotationRemapper(av, remapper);
+    return av == null ? av : new AnnotationRemapper(api, av, remapper);
   }
 
   @Override
@@ -188,7 +188,7 @@ public class MethodRemapper extends MethodVisitor {
       int typeRef, TypePath typePath, String desc, boolean visible) {
     AnnotationVisitor av =
         super.visitInsnAnnotation(typeRef, typePath, remapper.mapDesc(desc), visible);
-    return av == null ? av : new AnnotationRemapper(av, remapper);
+    return av == null ? av : new AnnotationRemapper(api, av, remapper);
   }
 
   @Override
@@ -201,7 +201,7 @@ public class MethodRemapper extends MethodVisitor {
       int typeRef, TypePath typePath, String desc, boolean visible) {
     AnnotationVisitor av =
         super.visitTryCatchAnnotation(typeRef, typePath, remapper.mapDesc(desc), visible);
-    return av == null ? av : new AnnotationRemapper(av, remapper);
+    return av == null ? av : new AnnotationRemapper(api, av, remapper);
   }
 
   @Override
@@ -223,6 +223,6 @@ public class MethodRemapper extends MethodVisitor {
     AnnotationVisitor av =
         super.visitLocalVariableAnnotation(
             typeRef, typePath, start, end, index, remapper.mapDesc(desc), visible);
-    return av == null ? av : new AnnotationRemapper(av, remapper);
+    return av == null ? av : new AnnotationRemapper(api, av, remapper);
   }
 }

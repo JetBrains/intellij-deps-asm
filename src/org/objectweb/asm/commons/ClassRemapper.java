@@ -155,18 +155,18 @@ public class ClassRemapper extends ClassVisitor {
   }
 
   protected FieldVisitor createFieldRemapper(FieldVisitor fv) {
-    return new FieldRemapper(fv, remapper);
+    return new FieldRemapper(api, fv, remapper);
   }
 
   protected MethodVisitor createMethodRemapper(MethodVisitor mv) {
-    return new MethodRemapper(mv, remapper);
+    return new MethodRemapper(api, mv, remapper);
   }
 
   protected AnnotationVisitor createAnnotationRemapper(AnnotationVisitor av) {
-    return new AnnotationRemapper(av, remapper);
+    return new AnnotationRemapper(api, av, remapper);
   }
 
   protected ModuleVisitor createModuleRemapper(ModuleVisitor mv) {
-    return new ModuleRemapper(mv, remapper);
+    return new ModuleRemapper(api, mv, remapper);
   }
 }

@@ -62,12 +62,12 @@ public class AnnotationRemapper extends AnnotationVisitor {
   @Override
   public AnnotationVisitor visitAnnotation(String name, String desc) {
     AnnotationVisitor v = av.visitAnnotation(name, remapper.mapDesc(desc));
-    return v == null ? null : (v == av ? this : new AnnotationRemapper(v, remapper));
+    return v == null ? null : (v == av ? this : new AnnotationRemapper(api, v, remapper));
   }
 
   @Override
   public AnnotationVisitor visitArray(String name) {
     AnnotationVisitor v = av.visitArray(name);
-    return v == null ? null : (v == av ? this : new AnnotationRemapper(v, remapper));
+    return v == null ? null : (v == av ? this : new AnnotationRemapper(api, v, remapper));
   }
 }

@@ -54,7 +54,7 @@ public class FieldRemapper extends FieldVisitor {
   @Override
   public AnnotationVisitor visitAnnotation(String desc, boolean visible) {
     AnnotationVisitor av = fv.visitAnnotation(remapper.mapDesc(desc), visible);
-    return av == null ? null : new AnnotationRemapper(av, remapper);
+    return av == null ? null : new AnnotationRemapper(api, av, remapper);
   }
 
   @Override
@@ -62,6 +62,6 @@ public class FieldRemapper extends FieldVisitor {
       int typeRef, TypePath typePath, String desc, boolean visible) {
     AnnotationVisitor av =
         super.visitTypeAnnotation(typeRef, typePath, remapper.mapDesc(desc), visible);
-    return av == null ? null : new AnnotationRemapper(av, remapper);
+    return av == null ? null : new AnnotationRemapper(api, av, remapper);
   }
 }

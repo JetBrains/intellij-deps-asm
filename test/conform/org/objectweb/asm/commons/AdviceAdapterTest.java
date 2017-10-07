@@ -27,45 +27,50 @@
 // THE POSSIBILITY OF SUCH DAMAGE.
 package org.objectweb.asm.commons;
 
-import junit.framework.TestSuite;
-import junit.textui.TestRunner;
+import java.util.Collection;
 
-import org.objectweb.asm.AbstractTest;
+import org.junit.Test;
+import org.junit.runners.Parameterized.Parameters;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.test.AsmTest;
 
 /**
  * AdviceAdapter tests.
  *
  * @author Eugene Kuleshov
  */
-public class AdviceAdapterTest extends AbstractTest {
+public class AdviceAdapterTest extends AsmTest {
 
-  public static void main(final String[] args) throws Exception {
-    TestRunner.run(AdviceAdapterTest.suite());
+  /** @return test parameters to test all the precompiled classes with all the apis. */
+  @Parameters(name = NAME)
+  public static Collection<Object[]> data() {
+    return data(Api.ASM4, Api.ASM5, Api.ASM6);
   }
 
-  public static TestSuite suite() throws Exception {
-    return new AdviceAdapterTest().getSuite();
+  @Test
+  public void testEmptyAdviceAdapter() throws Exception {
+    ClassReader classReader = new ClassReader(classParameter.getBytes());
+    ClassWriter expectedClassWriter = new ClassWriter(0);
+    ClassWriter actualClassWriter = new ClassWriter(0);
+    if (classParameter.isMoreRecentThan(apiParameter)) {
+      thrown.expect(RuntimeException.class);
+    }
+    classReader.accept(
+        new ReferenceClassAdapter(apiParameter.value(), expectedClassWriter),
+        ClassReader.EXPAND_FRAMES);
+    classReader.accept(
+        new AdviceClassAdapter(apiParameter.value(), actualClassWriter), ClassReader.EXPAND_FRAMES);
+    assertThatClass(actualClassWriter.toByteArray()).isEqualTo(expectedClassWriter.toByteArray());
   }
 
-  @Override
-  public void test() throws Exception {
-    ClassReader cr = new ClassReader(is);
-    ClassWriter cw1 = new ClassWriter(0);
-    ClassWriter cw2 = new ClassWriter(0);
-    cr.accept(new ReferenceClassAdapter(cw1), ClassReader.EXPAND_FRAMES);
-    cr.accept(new AdviceClassAdapter(cw2), ClassReader.EXPAND_FRAMES);
-    assertEquals(new ClassReader(cw1.toByteArray()), new ClassReader(cw2.toByteArray()));
-  }
+  private static class ReferenceClassAdapter extends ClassVisitor {
 
-  static class ReferenceClassAdapter extends ClassVisitor {
-
-    public ReferenceClassAdapter(final ClassVisitor cv) {
-      super(Opcodes.ASM5, cv);
+    ReferenceClassAdapter(final int api, final ClassVisitor cv) {
+      super(api, cv);
     }
 
     @Override
@@ -75,20 +80,18 @@ public class AdviceAdapterTest extends AbstractTest {
         final String desc,
         final String signature,
         final String[] exceptions) {
-      MethodVisitor mv = cv.visitMethod(access, name, desc, signature, exceptions);
-
+      MethodVisitor mv = super.visitMethod(access, name, desc, signature, exceptions);
       if (mv == null || (access & (Opcodes.ACC_ABSTRACT | Opcodes.ACC_NATIVE)) > 0) {
         return mv;
       }
-
       return new LocalVariablesSorter(access, desc, mv);
     }
   }
 
-  static class AdviceClassAdapter extends ClassVisitor {
+  private static class AdviceClassAdapter extends ClassVisitor {
 
-    public AdviceClassAdapter(final ClassVisitor cv) {
-      super(Opcodes.ASM5, cv);
+    AdviceClassAdapter(final int api, final ClassVisitor cv) {
+      super(api, cv);
     }
 
     @Override
@@ -98,29 +101,11 @@ public class AdviceAdapterTest extends AbstractTest {
         final String desc,
         final String signature,
         final String[] exceptions) {
-      MethodVisitor mv = cv.visitMethod(access, name, desc, signature, exceptions);
-
+      MethodVisitor mv = super.visitMethod(access, name, desc, signature, exceptions);
       if (mv == null || (access & (Opcodes.ACC_ABSTRACT | Opcodes.ACC_NATIVE)) > 0) {
         return mv;
       }
-
-      return new AdviceAdapter(Opcodes.ASM5, mv, access, name, desc) {
-
-        @Override
-        protected void onMethodEnter() {
-          // mv.visitInsn(NOP);
-          // mv.visitInsn(NOP);
-          // mv.visitInsn(NOP);
-        }
-
-        @Override
-        protected void onMethodExit(final int opcode) {
-          // mv.visitInsn(NOP);
-          // mv.visitInsn(NOP);
-          // mv.visitInsn(NOP);
-          // mv.visitInsn(NOP);
-        }
-      };
+      return new AdviceAdapter(api, mv, access, name, desc) {};
     }
   }
 }

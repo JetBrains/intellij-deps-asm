@@ -150,7 +150,6 @@
   <!-- ============================= -->
 
   <target name="testConform" depends="compile" if="test-conform">
-    <ant antfile="${test.conform}/adviceadapter.xml" inheritRefs="true"/>
     <ant antfile="${test.conform}/unit.xml" inheritRefs="true"/>
   </target>
 

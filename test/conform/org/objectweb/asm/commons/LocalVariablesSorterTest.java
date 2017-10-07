@@ -27,34 +27,42 @@
 // THE POSSIBILITY OF SUCH DAMAGE.
 package org.objectweb.asm.commons;
 
-import junit.framework.TestSuite;
+import static org.junit.Assert.assertTrue;
 
-import org.objectweb.asm.AbstractTest;
+import java.util.Collection;
+
+import org.junit.Test;
+import org.junit.runners.Parameterized.Parameters;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.MethodVisitor;
-import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.test.AsmTest;
 
 /**
- * LocalVariableSorter tests.
+ * LocalVariablesSorter tests.
  *
  * @author Eric Bruneton
  */
-public class LocalVariablesSorterTest extends AbstractTest {
+public class LocalVariablesSorterTest extends AsmTest {
 
-  private static final TestClassLoader LOADER = new TestClassLoader();
-
-  public static TestSuite suite() throws Exception {
-    return new LocalVariablesSorterTest().getSuite();
+  /** @return test parameters to test all the precompiled classes with all the apis. */
+  @Parameters(name = NAME)
+  public static Collection<Object[]> data() {
+    return data(Api.ASM4, Api.ASM5, Api.ASM6);
   }
 
-  @Override
-  public void test() throws Exception {
-    ClassReader cr = new ClassReader(is);
-    ClassWriter cw = new ClassWriter(0);
-    cr.accept(
-        new ClassVisitor(Opcodes.ASM5, cw) {
+  @Test
+  public void testSortLocalVariablesAndInstantiate() {
+    ClassReader classReader = new ClassReader(classParameter.getBytes());
+    ClassWriter classWriter = new ClassWriter(0);
+    if (classParameter.isMoreRecentThan(apiParameter)) {
+      thrown.expect(RuntimeException.class);
+    } else if (classParameter.isMoreRecentThanCurrentJdk()) {
+      thrown.expect(UnsupportedClassVersionError.class);
+    }
+    classReader.accept(
+        new ClassVisitor(apiParameter.value(), classWriter) {
           @Override
           public MethodVisitor visitMethod(
               final int access,
@@ -63,25 +71,10 @@ public class LocalVariablesSorterTest extends AbstractTest {
               final String signature,
               final String[] exceptions) {
             return new LocalVariablesSorter(
-                access, desc, super.visitMethod(access, name, desc, signature, exceptions));
+                api, access, desc, super.visitMethod(access, name, desc, signature, exceptions));
           }
         },
         ClassReader.EXPAND_FRAMES);
-    byte[] b = cw.toByteArray();
-    try {
-      LOADER.defineClass(n, b);
-    } catch (ClassFormatError cfe) {
-      fail(cfe.getMessage());
-    } catch (Throwable ignored) {
-    }
-  }
-
-  // ------------------------------------------------------------------------
-
-  static class TestClassLoader extends ClassLoader {
-
-    public Class<?> defineClass(final String name, final byte[] b) {
-      return defineClass(name, b, 0, b.length);
-    }
+    assertTrue(loadAndInstantiate(classParameter.getName(), classWriter.toByteArray()));
   }
 }

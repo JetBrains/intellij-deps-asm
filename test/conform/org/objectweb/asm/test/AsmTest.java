@@ -47,7 +47,6 @@ import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameter;
-import org.objectweb.asm.Opcodes;
 
 /**
  * Base class for the parameterized ASM tests. ASM can be used to read, write or transform any Java
@@ -160,10 +159,10 @@ public abstract class AsmTest {
      * @return whether this class was compiled with a JDK which is more recent than api.
      */
     public boolean isMoreRecentThan(Api api) {
-      if (name.startsWith("jdk8") && api.value() < Opcodes.ASM5) {
+      if (name.startsWith("jdk8") && api.value() < Api.ASM5.value()) {
         return true;
       }
-      if (name.startsWith("jdk9") && api.value() < Opcodes.ASM6) {
+      if (name.startsWith("jdk9") && api.value() < Api.ASM6.value()) {
         return true;
       }
       return false;
@@ -220,9 +219,9 @@ public abstract class AsmTest {
 
   /** An ASM API version. */
   public static enum Api {
-    ASM4("ASM4", Opcodes.ASM4),
-    ASM5("ASM5", Opcodes.ASM5),
-    ASM6("ASM6", Opcodes.ASM6);
+    ASM4("ASM4", 4 << 16),
+    ASM5("ASM5", 5 << 16),
+    ASM6("ASM6", 6 << 16);
 
     private final String name;
     private final int value;

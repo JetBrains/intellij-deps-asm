@@ -37,7 +37,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
-import org.objectweb.asm.Opcodes;
 
 /**
  * Unit tests for {@link AsmTest}.
@@ -56,7 +55,7 @@ public class AsmTestTest extends AsmTest {
   /** Tests that we can get the byte array content of each precompiled class. */
   @Test
   public void testGetBytes() {
-    assertEquals(Opcodes.ASM6, apiParameter.value());
+    assertEquals(Api.ASM6, apiParameter);
     assertEquals("ASM6", apiParameter.toString());
     assertThatClass(classParameter.getBytes()).contains(classParameter.getInternalName());
   }

@@ -31,7 +31,7 @@ import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
-import org.objectweb.asm.AbstractTest;
+import org.junit.Test;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.ClassWriter;
@@ -43,9 +43,9 @@ import org.objectweb.asm.Opcodes;
  *
  * @author Eugene Kuleshov
  */
-public class AdviceAdapterUnitTest extends AbstractTest {
+public class AdviceAdapterUnitTest {
 
-  @Override
+  @Test
   public void test() throws Exception {
     Class<?> c = getClass();
     String name = c.getName();

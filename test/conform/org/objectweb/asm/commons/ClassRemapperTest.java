@@ -45,7 +45,7 @@ public class ClassRemapperTest extends AsmTest {
     return data(Api.ASM4, Api.ASM5, Api.ASM6);
   }
 
-  /** Tests classes transformed with a ClassRemapper can be loaded and instantiated. */
+  /** Tests that classes transformed with a ClassRemapper can be loaded and instantiated. */
   @Test
   public void testRemapLoadAndInstantiate() {
     ClassReader classReader = new ClassReader(classParameter.getBytes());

@@ -27,42 +27,48 @@
 // THE POSSIBILITY OF SUCH DAMAGE.
 package org.objectweb.asm.commons;
 
-import junit.framework.TestSuite;
+import static org.junit.Assert.assertTrue;
 
-import org.objectweb.asm.AbstractTest;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+
+import org.junit.Test;
+import org.junit.runners.Parameterized.Parameters;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.ClassWriter;
+import org.objectweb.asm.Handle;
+import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.test.AsmTest;
 
 /**
  * AnalyzerAdapter tests.
  *
  * @author Eric Bruneton
  */
-public class AnalyzerAdapterTest extends AbstractTest {
+public class AnalyzerAdapterTest extends AsmTest {
 
-  public static TestSuite suite() throws Exception {
-    return new AnalyzerAdapterTest().getSuite();
+  /** @return test parameters to test all the precompiled classes with all the apis. */
+  @Parameters(name = NAME)
+  public static Collection<Object[]> data() {
+    return data(Api.ASM4, Api.ASM5, Api.ASM6);
   }
 
-  @Override
-  public void test() throws Exception {
-    ClassReader cr = new ClassReader(is);
-    if (cr.readInt(4) != Opcodes.V1_6) {
-      try {
-        ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_FRAMES);
-        cr.accept(cw, 0);
-        cr = new ClassReader(cw.toByteArray());
-      } catch (Exception e) {
-        skipTest();
-        return;
-      }
-    }
-    ClassWriter cw = new ClassWriter(0);
-    ClassVisitor cv =
-        new ClassVisitor(Opcodes.ASM5, cw) {
+  /**
+   * Tests that classes with additional frames inserted at each instruction, using the results of an
+   * AnalyzerAdapter, can be instantiated and loaded. This makes sure the intermediate frames
+   * computed by AnalyzerAdapter are correct, i.e. pass bytecode verification.
+   */
+  @Test
+  public void testAnalyzeLoadAndInstantiate() throws Exception {
+    byte[] classFile = classParameter.getBytes();
+    ClassReader classReader = new ClassReader(classFile);
+    ClassWriter classWriter = new ClassWriter(0);
+    ClassVisitor classVisitor =
+        new ClassVisitor(apiParameter.value(), classWriter) {
 
           private String owner;
 
@@ -75,7 +81,7 @@ public class AnalyzerAdapterTest extends AbstractTest {
               final String superName,
               final String[] interfaces) {
             owner = name;
-            cv.visit(version, access, name, signature, superName, interfaces);
+            super.visit(version, access, name, signature, superName, interfaces);
           }
 
           @Override
@@ -85,13 +91,152 @@ public class AnalyzerAdapterTest extends AbstractTest {
               final String desc,
               final String signature,
               final String[] exceptions) {
-            MethodVisitor mv = cv.visitMethod(access, name, desc, signature, exceptions);
-            return new AnalyzerAdapter(owner, access, name, desc, mv);
+            MethodVisitor methodVisitor =
+                super.visitMethod(access, name, desc, signature, exceptions);
+            AnalyzedFramesInserter inserter = new AnalyzedFramesInserter(methodVisitor);
+            AnalyzerAdapter analyzerAdapter =
+                new AnalyzerAdapter(api, owner, access, name, desc, inserter);
+            inserter.analyzer = analyzerAdapter;
+            return analyzerAdapter;
           }
         };
-    cr.accept(cv, ClassReader.EXPAND_FRAMES);
+    // jdk3.AllInstructions and jdk3.LargeMethod contain jsr/ret instructions,
+    // which are not supported.
+    if (classParameter == PrecompiledClass.JDK3_ALL_INSTRUCTIONS
+        || classParameter == PrecompiledClass.JDK3_LARGE_METHOD
+        || classParameter.isMoreRecentThan(apiParameter)) {
+      thrown.expect(RuntimeException.class);
+    } else if (classParameter.isMoreRecentThanCurrentJdk()) {
+      thrown.expect(UnsupportedClassVersionError.class);
+    }
+    classReader.accept(classVisitor, ClassReader.EXPAND_FRAMES);
+    assertTrue(loadAndInstantiate(classParameter.getName(), classWriter.toByteArray()));
   }
 
-  /** Dummy method to avoid a FindBugs warning. */
-  private void skipTest() {}
+  /**
+   * Inserts intermediate frames before each instruction, using the types computed with an
+   * AnalyzerAdapter.
+   */
+  static class AnalyzedFramesInserter extends MethodVisitor {
+
+    AnalyzerAdapter analyzer;
+    private boolean hasOriginalFrame;
+
+    public AnalyzedFramesInserter(MethodVisitor mv) {
+      super(Opcodes.ASM6, mv);
+    }
+
+    @Override
+    public void visitFrame(int type, int nLocal, Object[] local, int nStack, Object[] stack) {
+      super.visitFrame(type, nLocal, local, nStack, stack);
+      hasOriginalFrame = true;
+    }
+
+    private void maybeInsertFrame() {
+      // Don't insert a frame if we already have one for this instruction, from the original class.
+      if (!hasOriginalFrame) {
+        if (analyzer.locals != null && analyzer.stack != null) {
+          ArrayList<Object> local = toFrameTypes(analyzer.locals);
+          ArrayList<Object> stack = toFrameTypes(analyzer.stack);
+          super.visitFrame(
+              Opcodes.F_NEW, local.size(), local.toArray(), stack.size(), stack.toArray());
+        }
+      }
+      hasOriginalFrame = false;
+    }
+
+    /**
+     * Converts local and stack types from AnalyzerAdapter to visitFrame format (long and double are
+     * represented with one element in visitFrame, but with two elements in AnalyzerAdapter).
+     */
+    private ArrayList<Object> toFrameTypes(List<Object> analyzerTypes) {
+      ArrayList<Object> frameTypes = new ArrayList<Object>();
+      for (int i = 0; i < analyzerTypes.size(); ++i) {
+        Object value = analyzerTypes.get(i);
+        frameTypes.add(value);
+        if (value == Opcodes.LONG || value == Opcodes.DOUBLE) {
+          ++i;
+        }
+      }
+      return frameTypes;
+    }
+
+    @Override
+    public void visitInsn(int opcode) {
+      maybeInsertFrame();
+      super.visitInsn(opcode);
+    }
+
+    @Override
+    public void visitIntInsn(int opcode, int operand) {
+      maybeInsertFrame();
+      super.visitIntInsn(opcode, operand);
+    }
+
+    @Override
+    public void visitVarInsn(int opcode, int var) {
+      maybeInsertFrame();
+      super.visitVarInsn(opcode, var);
+    }
+
+    @Override
+    public void visitTypeInsn(int opcode, String type) {
+      maybeInsertFrame();
+      super.visitTypeInsn(opcode, type);
+    }
+
+    @Override
+    public void visitFieldInsn(int opcode, String owner, String name, String desc) {
+      maybeInsertFrame();
+      super.visitFieldInsn(opcode, owner, name, desc);
+    }
+
+    @Override
+    public void visitMethodInsn(int opcode, String owner, String name, String desc, boolean itf) {
+      maybeInsertFrame();
+      super.visitMethodInsn(opcode, owner, name, desc, itf);
+    }
+
+    @Override
+    public void visitInvokeDynamicInsn(String name, String desc, Handle bsm, Object... bsmArgs) {
+      maybeInsertFrame();
+      super.visitInvokeDynamicInsn(name, desc, bsm, bsmArgs);
+    }
+
+    @Override
+    public void visitJumpInsn(int opcode, Label label) {
+      maybeInsertFrame();
+      super.visitJumpInsn(opcode, label);
+    }
+
+    @Override
+    public void visitLdcInsn(Object cst) {
+      maybeInsertFrame();
+      super.visitLdcInsn(cst);
+    }
+
+    @Override
+    public void visitIincInsn(int var, int increment) {
+      maybeInsertFrame();
+      super.visitIincInsn(var, increment);
+    }
+
+    @Override
+    public void visitTableSwitchInsn(int min, int max, Label dflt, Label... labels) {
+      maybeInsertFrame();
+      super.visitTableSwitchInsn(min, max, dflt, labels);
+    }
+
+    @Override
+    public void visitLookupSwitchInsn(Label dflt, int[] keys, Label[] labels) {
+      maybeInsertFrame();
+      super.visitLookupSwitchInsn(dflt, keys, labels);
+    }
+
+    @Override
+    public void visitMultiANewArrayInsn(String desc, int dims) {
+      maybeInsertFrame();
+      super.visitMultiANewArrayInsn(desc, dims);
+    }
+  }
 }

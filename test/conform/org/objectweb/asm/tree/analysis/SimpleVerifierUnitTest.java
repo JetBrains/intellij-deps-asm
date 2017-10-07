@@ -27,8 +27,11 @@
 // THE POSSIBILITY OF SUCH DAMAGE.
 package org.objectweb.asm.tree.analysis;
 
-import junit.framework.TestCase;
+import static org.junit.Assert.fail;
 
+import org.junit.Before;
+import org.junit.Ignore;
+import org.junit.Test;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
@@ -40,14 +43,14 @@ import org.objectweb.asm.tree.MethodNode;
  *
  * @author Eric Bruneton
  */
-public class SimpleVerifierUnitTest extends TestCase implements Opcodes {
+public class SimpleVerifierUnitTest implements Opcodes {
 
   private Analyzer<?> a;
 
   private MethodNode mn;
 
-  @Override
-  protected void setUp() {
+  @Before
+  public void setUp() {
     Type c = Type.getType("LC;");
     Type d = Type.getType("Ljava/lang/Number;");
     a = new Analyzer<BasicValue>(new SimpleVerifier(c, d, false));
@@ -79,17 +82,20 @@ public class SimpleVerifierUnitTest extends TestCase implements Opcodes {
     }
   }
 
+  @Test
   public void testInvalidOpcode() {
     mn.visitInsn(-1);
     assertInvalid();
   }
 
+  @Test
   public void testInvalidPop() {
     mn.visitInsn(LCONST_0);
     mn.visitInsn(POP);
     assertInvalid();
   }
 
+  @Test
   public void testInvalidPop2() {
     mn.visitInsn(LCONST_0);
     mn.visitInsn(ICONST_0);
@@ -97,12 +103,14 @@ public class SimpleVerifierUnitTest extends TestCase implements Opcodes {
     assertInvalid();
   }
 
+  @Test
   public void testInvalidDup() {
     mn.visitInsn(LCONST_0);
     mn.visitInsn(DUP);
     assertInvalid();
   }
 
+  @Test
   public void testInvalidDupx1() {
     mn.visitInsn(LCONST_0);
     mn.visitInsn(ICONST_0);
@@ -110,6 +118,7 @@ public class SimpleVerifierUnitTest extends TestCase implements Opcodes {
     assertInvalid();
   }
 
+  @Test
   public void testInvalidDupx2() {
     mn.visitInsn(LCONST_0);
     mn.visitInsn(ICONST_0);
@@ -118,6 +127,7 @@ public class SimpleVerifierUnitTest extends TestCase implements Opcodes {
     assertInvalid();
   }
 
+  @Test
   public void testInvalidDup2() {
     mn.visitInsn(LCONST_0);
     mn.visitInsn(ICONST_0);
@@ -125,6 +135,7 @@ public class SimpleVerifierUnitTest extends TestCase implements Opcodes {
     assertInvalid();
   }
 
+  @Test
   public void testInvalidDup2x1() {
     mn.visitInsn(LCONST_0);
     mn.visitInsn(ICONST_0);
@@ -133,6 +144,7 @@ public class SimpleVerifierUnitTest extends TestCase implements Opcodes {
     assertInvalid();
   }
 
+  @Test
   public void testInvalidDup2x2() {
     mn.visitInsn(LCONST_0);
     mn.visitInsn(ICONST_0);
@@ -142,6 +154,7 @@ public class SimpleVerifierUnitTest extends TestCase implements Opcodes {
     assertInvalid();
   }
 
+  @Test
   public void testInvalidSwap() {
     mn.visitInsn(LCONST_0);
     mn.visitInsn(ICONST_0);
@@ -149,22 +162,26 @@ public class SimpleVerifierUnitTest extends TestCase implements Opcodes {
     assertInvalid();
   }
 
+  @Test
   public void testInvalidGetLocal() {
     mn.visitVarInsn(ALOAD, 10);
     assertInvalid();
   }
 
+  @Test
   public void testInvalidSetLocal() {
     mn.visitInsn(ACONST_NULL);
     mn.visitVarInsn(ASTORE, 10);
     assertInvalid();
   }
 
+  @Test
   public void testInvalidEmptyStack() {
     mn.visitInsn(POP);
     assertInvalid();
   }
 
+  @Test
   public void testInvalidFullStack() {
     mn.visitInsn(ICONST_0);
     mn.visitInsn(ICONST_0);
@@ -180,6 +197,7 @@ public class SimpleVerifierUnitTest extends TestCase implements Opcodes {
     assertInvalid();
   }
 
+  @Test
   public void testInconsistentStackHeights() {
     Label l0 = new Label();
     mn.visitInsn(ICONST_0);
@@ -189,12 +207,14 @@ public class SimpleVerifierUnitTest extends TestCase implements Opcodes {
     assertInvalid();
   }
 
+  @Test
   public void testInvalidNewArray() {
     mn.visitInsn(ICONST_1);
     mn.visitIntInsn(NEWARRAY, -1);
     assertInvalid();
   }
 
+  @Test
   public void testInvalidAload() {
     mn.visitInsn(ICONST_0);
     mn.visitVarInsn(ISTORE, 1);
@@ -202,42 +222,49 @@ public class SimpleVerifierUnitTest extends TestCase implements Opcodes {
     assertInvalid();
   }
 
+  @Test
   public void testInvalidAstore() {
     mn.visitInsn(ICONST_0);
     mn.visitVarInsn(ASTORE, 1);
     assertInvalid();
   }
 
+  @Test
   public void testInvalidIstore() {
     mn.visitInsn(ACONST_NULL);
     mn.visitVarInsn(ISTORE, 1);
     assertInvalid();
   }
 
+  @Test
   public void testInvalidCheckcast() {
     mn.visitInsn(ICONST_0);
     mn.visitTypeInsn(CHECKCAST, "java/lang/String");
     assertInvalid();
   }
 
+  @Test
   public void testInvalidArraylength() {
     mn.visitInsn(ICONST_0);
     mn.visitInsn(ARRAYLENGTH);
     assertInvalid();
   }
 
+  @Test
   public void testInvalidAthrow() {
     mn.visitInsn(ICONST_0);
     mn.visitInsn(ATHROW);
     assertInvalid();
   }
 
+  @Test
   public void testInvalidIneg() {
     mn.visitInsn(FCONST_0);
     mn.visitInsn(INEG);
     assertInvalid();
   }
 
+  @Test
   public void testInvalidIadd() {
     mn.visitInsn(FCONST_0);
     mn.visitInsn(ICONST_0);
@@ -245,6 +272,7 @@ public class SimpleVerifierUnitTest extends TestCase implements Opcodes {
     assertInvalid();
   }
 
+  @Test
   public void testInvalidIsub() {
     mn.visitInsn(ICONST_0);
     mn.visitInsn(FCONST_0);
@@ -252,6 +280,7 @@ public class SimpleVerifierUnitTest extends TestCase implements Opcodes {
     assertInvalid();
   }
 
+  @Test
   public void testInvalidIastore() {
     mn.visitInsn(ICONST_1);
     mn.visitIntInsn(NEWARRAY, T_INT);
@@ -261,6 +290,7 @@ public class SimpleVerifierUnitTest extends TestCase implements Opcodes {
     assertInvalid();
   }
 
+  @Test
   public void testInvalidFastore() {
     mn.visitInsn(ICONST_1);
     mn.visitIntInsn(NEWARRAY, T_FLOAT);
@@ -270,6 +300,7 @@ public class SimpleVerifierUnitTest extends TestCase implements Opcodes {
     assertInvalid();
   }
 
+  @Test
   public void testInvalidLastore() {
     mn.visitInsn(ICONST_1);
     mn.visitInsn(ICONST_0);
@@ -278,6 +309,7 @@ public class SimpleVerifierUnitTest extends TestCase implements Opcodes {
     assertInvalid();
   }
 
+  @Test
   public void testInvalidMultianewarray() {
     mn.visitInsn(FCONST_1);
     mn.visitInsn(ICONST_2);
@@ -285,6 +317,7 @@ public class SimpleVerifierUnitTest extends TestCase implements Opcodes {
     assertInvalid();
   }
 
+  @Test
   public void testInvalidInvokevirtual() {
     mn.visitInsn(ACONST_NULL);
     mn.visitTypeInsn(CHECKCAST, "java/lang/Object");
@@ -292,6 +325,7 @@ public class SimpleVerifierUnitTest extends TestCase implements Opcodes {
     assertInvalid();
   }
 
+  @Test
   public void testInvalidInvokeinterface() {
     mn.visitInsn(ACONST_NULL);
     mn.visitTypeInsn(CHECKCAST, "java/util/List");
@@ -300,11 +334,13 @@ public class SimpleVerifierUnitTest extends TestCase implements Opcodes {
     assertInvalid();
   }
 
+  @Test
   public void testInvalidRet() {
     mn.visitVarInsn(RET, 1);
     assertInvalid();
   }
 
+  @Test
   public void testInvalidFalloff() {
     mn.visitMaxs(10, 10);
     try {
@@ -316,6 +352,7 @@ public class SimpleVerifierUnitTest extends TestCase implements Opcodes {
     }
   }
 
+  @Test
   public void testInvalidSubroutineFalloff() {
     Label l0 = new Label();
     Label l1 = new Label();
@@ -335,6 +372,7 @@ public class SimpleVerifierUnitTest extends TestCase implements Opcodes {
     }
   }
 
+  @Test
   public void testNestedSubroutines() throws AnalyzerException {
     Label l0 = new Label();
     Label l1 = new Label();
@@ -351,6 +389,7 @@ public class SimpleVerifierUnitTest extends TestCase implements Opcodes {
     assertValid();
   }
 
+  @Test
   public void testSubroutineLocalsAccess() throws AnalyzerException {
     MethodVisitor mv = mn;
     mv.visitCode();
@@ -380,11 +419,11 @@ public class SimpleVerifierUnitTest extends TestCase implements Opcodes {
     assertValid();
   }
 
-  public void _testOverlappingSubroutines() {
-    // TODO currently Analyzer can not detect this situation. The problem
-    // is that other overlapping subroutine situations are valid, such as
-    // when a nested subroutine implicitly returns to its parent
-    // subroutine, without a RET.
+  @Ignore("TODO currently Analyzer can not detect this situation")
+  @Test
+  public void testOverlappingSubroutines() {
+    // The problem is that other overlapping subroutine situations are valid, such as
+    // when a nested subroutine implicitly returns to its parent subroutine, without a RET.
     Label l0 = new Label();
     Label l1 = new Label();
     Label l2 = new Label();
@@ -401,6 +440,7 @@ public class SimpleVerifierUnitTest extends TestCase implements Opcodes {
     assertInvalid();
   }
 
+  @Test
   public void testMerge() throws AnalyzerException {
     Label l0 = new Label();
     mn.visitVarInsn(ALOAD, 0);
@@ -423,6 +463,7 @@ public class SimpleVerifierUnitTest extends TestCase implements Opcodes {
     assertValid();
   }
 
+  @Test
   public void testClassNotFound() {
     Label l0 = new Label();
     mn.visitVarInsn(ALOAD, 0);

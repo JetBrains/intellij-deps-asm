@@ -27,15 +27,18 @@
 // THE POSSIBILITY OF SUCH DAMAGE.
 package org.objectweb.asm.tree.analysis;
 
-import junit.framework.TestCase;
+import static org.junit.Assert.assertFalse;
+
+import org.junit.Test;
 
 /**
  * BasicValue and SourceValue unit tests.
  *
  * @author Eric Bruneton
  */
-public class ValueUnitTest extends TestCase {
+public class ValueUnitTest {
 
+  @Test
   public void testBasicValue() {
     assertFalse(BasicValue.INT_VALUE.equals(new Object()));
     BasicValue.INT_VALUE.hashCode();
@@ -44,6 +47,7 @@ public class ValueUnitTest extends TestCase {
     BasicValue.REFERENCE_VALUE.toString();
   }
 
+  @Test
   public void testSourceValue() {
     new SourceValue(1).hashCode();
     assertFalse(new SourceValue(1).equals(null));

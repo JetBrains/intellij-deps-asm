@@ -27,6 +27,9 @@
 // THE POSSIBILITY OF SUCH DAMAGE.
 package org.objectweb.asm;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
+
 import java.io.ByteArrayInputStream;
 import java.io.FileInputStream;
 import java.lang.reflect.Field;
@@ -38,14 +41,15 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.StringTokenizer;
 
-import junit.framework.TestCase;
+import org.junit.Before;
+import org.junit.Test;
 
 /**
  * ClassWriter unit tests for COMPUTE_MAXS option with JSR instructions.
  *
  * @author Eric Bruneton
  */
-public class ClassWriterComputeMaxsUnitTest extends TestCase {
+public class ClassWriterComputeMaxsUnitTest {
 
   private Field successors;
 
@@ -61,8 +65,8 @@ public class ClassWriterComputeMaxsUnitTest extends TestCase {
 
   private Label start;
 
-  @Override
-  protected void setUp() throws Exception {
+  @Before
+  public void setUp() throws Exception {
     Class<?> lClass = Label.class;
     Class<?> eClass = Edge.class;
     try {
@@ -281,6 +285,7 @@ public class ClassWriterComputeMaxsUnitTest extends TestCase {
    * }
    * </pre>
    */
+  @Test
   public void testBasic() {
     Label L0 = new Label();
     Label L1 = new Label();
@@ -351,6 +356,7 @@ public class ClassWriterComputeMaxsUnitTest extends TestCase {
    * }
    * </pre>
    */
+  @Test
   public void testIfElseInFinally() {
     Label L0 = new Label();
     Label L1 = new Label();
@@ -433,6 +439,7 @@ public class ClassWriterComputeMaxsUnitTest extends TestCase {
    * }
    * </pre>
    */
+  @Test
   public void testSimpleNestedFinally() {
     Label L0 = new Label();
     Label L1 = new Label();
@@ -524,6 +531,7 @@ public class ClassWriterComputeMaxsUnitTest extends TestCase {
    * }
    * </pre>
    */
+  @Test
   public void testSubroutineWithNoRet() {
     Label L0 = new Label();
     Label L1 = new Label();
@@ -589,6 +597,7 @@ public class ClassWriterComputeMaxsUnitTest extends TestCase {
    *   RETURN
    * </pre>
    */
+  @Test
   public void testSubroutineWithNoRet2() {
     Label L0 = new Label();
     Label L1 = new Label();
@@ -629,6 +638,7 @@ public class ClassWriterComputeMaxsUnitTest extends TestCase {
    * }
    * </pre>
    */
+  @Test
   public void testImplicitExit() {
     Label L0 = new Label();
     Label L1 = new Label();
@@ -714,6 +724,7 @@ public class ClassWriterComputeMaxsUnitTest extends TestCase {
    * This example is from the paper, "Subroutine Inlining and Bytecode Abstraction to Simplify
    * Static and Dynamic Analysis" by Cyrille Artho and Armin Biere.
    */
+  @Test
   public void testImplicitExitToAnotherSubroutine() {
     Label T1 = new Label();
     Label C1 = new Label();
@@ -805,6 +816,7 @@ public class ClassWriterComputeMaxsUnitTest extends TestCase {
             + "N45=N5,N10\n");
   }
 
+  @Test
   public void testImplicitExitToAnotherSubroutine2() {
     Label L1 = new Label();
     Label L2 = new Label();
@@ -840,6 +852,7 @@ public class ClassWriterComputeMaxsUnitTest extends TestCase {
    *
    * <p>This would not normally be produced by a java compiler.
    */
+  @Test
   public void testInterleavedCode() {
     Label L1 = new Label();
     Label L2 = new Label();
@@ -907,6 +920,7 @@ public class ClassWriterComputeMaxsUnitTest extends TestCase {
    * }
    * </pre>
    */
+  @Test
   public void testImplicitExitInTryCatch() {
     Label T1 = new Label();
     Label C1 = new Label();

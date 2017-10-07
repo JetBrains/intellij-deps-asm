@@ -27,15 +27,16 @@
 // THE POSSIBILITY OF SUCH DAMAGE.
 package org.objectweb.asm.util;
 
-import junit.framework.TestCase;
+import org.junit.Test;
 
 /**
  * TraceClassAdapter unit tests
  *
  * @author Eric Bruneton
  */
-public class TraceClassAdapterUnitTest extends TestCase {
+public class TraceClassAdapterUnitTest {
 
+  @Test
   public void testTraceClassVisitor() throws Exception {
     String s = getClass().getName();
     Textifier.main(new String[0]);

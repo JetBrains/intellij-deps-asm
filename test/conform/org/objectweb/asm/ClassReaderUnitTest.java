@@ -27,10 +27,15 @@
 // THE POSSIBILITY OF SUCH DAMAGE.
 package org.objectweb.asm;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
 import java.io.IOException;
 import java.io.InputStream;
 
-import junit.framework.TestCase;
+import org.junit.Test;
 
 /**
  * ClassReader unit tests.
@@ -38,8 +43,9 @@ import junit.framework.TestCase;
  * @author Eric Bruneton
  * @author Eugene Kuleshov
  */
-public class ClassReaderUnitTest extends TestCase implements Opcodes {
+public class ClassReaderUnitTest implements Opcodes {
 
+  @Test
   public void testIllegalConstructorArgument() {
     try {
       new ClassReader((InputStream) null);
@@ -48,6 +54,7 @@ public class ClassReaderUnitTest extends TestCase implements Opcodes {
     }
   }
 
+  @Test
   public void testGetItem() throws IOException {
     ClassReader cr = new ClassReader(getClass().getName());
     int item = cr.getItem(1);
@@ -55,28 +62,33 @@ public class ClassReaderUnitTest extends TestCase implements Opcodes {
     assertTrue(item < cr.header);
   }
 
+  @Test
   public void testReadByte() throws IOException {
     ClassReader cr = new ClassReader(getClass().getName());
     assertEquals(cr.b[0] & 0xFF, cr.readByte(0));
   }
 
+  @Test
   public void testGetAccess() throws Exception {
     String name = getClass().getName();
     assertEquals(Opcodes.ACC_PUBLIC | Opcodes.ACC_SUPER, new ClassReader(name).getAccess());
   }
 
+  @Test
   public void testGetClassName() throws Exception {
     String name = getClass().getName();
     assertEquals(name.replace('.', '/'), new ClassReader(name).getClassName());
   }
 
+  @Test
   public void testGetSuperName() throws Exception {
     assertEquals(
-        TestCase.class.getName().replace('.', '/'),
+        Object.class.getName().replace('.', '/'),
         new ClassReader(getClass().getName()).getSuperName());
     assertEquals(null, new ClassReader(Object.class.getName()).getSuperName());
   }
 
+  @Test
   public void testGetInterfaces() throws Exception {
     String[] interfaces = new ClassReader(getClass().getName()).getInterfaces();
     assertNotNull(interfaces);

@@ -27,8 +27,10 @@
 // THE POSSIBILITY OF SUCH DAMAGE.
 package org.objectweb.asm.xml;
 
-import junit.framework.TestCase;
+import static org.junit.Assert.fail;
 
+import org.junit.Before;
+import org.junit.Test;
 import org.objectweb.asm.AnnotationVisitor;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.FieldVisitor;
@@ -44,7 +46,7 @@ import org.xml.sax.helpers.AttributesImpl;
  *
  * @author Eric Bruneton
  */
-public class ASMContentHandlerUnitTest extends TestCase implements Opcodes {
+public class ASMContentHandlerUnitTest implements Opcodes {
 
   ASMContentHandler h;
 
@@ -52,8 +54,8 @@ public class ASMContentHandlerUnitTest extends TestCase implements Opcodes {
 
   MethodVisitor mv;
 
-  @Override
-  protected void setUp() throws Exception {
+  @Before
+  public void setUp() throws Exception {
     h =
         new ASMContentHandler(
             new ClassVisitor(Opcodes.ASM5) {
@@ -165,6 +167,7 @@ public class ASMContentHandlerUnitTest extends TestCase implements Opcodes {
     mv.visitMethodInsn(INVOKESPECIAL, "java/lang/Object", "<init>", "()V", false);
   }
 
+  @Test
   public void testInvalidOpcode() {
     methodSetUp();
     AttributesImpl attrs = new AttributesImpl();
@@ -176,6 +179,7 @@ public class ASMContentHandlerUnitTest extends TestCase implements Opcodes {
     }
   }
 
+  @Test
   public void testInvalidValueDescriptor() {
     methodSetUp();
     AttributesImpl attrs = new AttributesImpl();
@@ -189,6 +193,7 @@ public class ASMContentHandlerUnitTest extends TestCase implements Opcodes {
     }
   }
 
+  @Test
   public void testInvalidValue() {
     methodSetUp();
     AttributesImpl attrs = new AttributesImpl();
@@ -202,6 +207,7 @@ public class ASMContentHandlerUnitTest extends TestCase implements Opcodes {
     }
   }
 
+  @Test
   public void testEndDocument() {
     cv.visitEnd();
     try {

@@ -27,15 +27,18 @@
 // THE POSSIBILITY OF SUCH DAMAGE.
 package org.objectweb.asm;
 
-import junit.framework.TestCase;
+import static org.junit.Assert.assertTrue;
+
+import org.junit.Test;
 
 /**
  * Attribute unit tests.
  *
  * @author Eric Bruneton
  */
-public class AttributeTest extends TestCase {
+public class AttributeTest {
 
+  @Test
   public void testUnknown() {
     assertTrue(new Attribute("Comment").isUnknown());
   }

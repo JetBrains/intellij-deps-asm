@@ -27,15 +27,18 @@
 // THE POSSIBILITY OF SUCH DAMAGE.
 package org.objectweb.asm;
 
-import junit.framework.TestCase;
+import static org.junit.Assert.fail;
+
+import org.junit.Test;
 
 /**
  * ClassWriter unit tests.
  *
  * @author Eric Bruneton
  */
-public class ClassWriterUnitTest extends TestCase {
+public class ClassWriterUnitTest {
 
+  @Test
   public void testNewConst() {
     ClassWriter cw = new ClassWriter(0);
     cw.newConst(new Byte((byte) 0));
@@ -46,6 +49,7 @@ public class ClassWriterUnitTest extends TestCase {
     cw.newMethod("A", "m", "()V", false);
   }
 
+  @Test
   public void testIllegalNewConstArgument() {
     ClassWriter cw = new ClassWriter(0);
     try {
@@ -55,6 +59,7 @@ public class ClassWriterUnitTest extends TestCase {
     }
   }
 
+  @Test
   public void testIllegalGetCommonSuperClassArguments() {
     ClassWriter cw = new ClassWriter(0);
     try {

@@ -27,8 +27,11 @@
 // THE POSSIBILITY OF SUCH DAMAGE.
 package org.objectweb.asm.commons;
 
-import junit.framework.TestCase;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
+import org.junit.Before;
+import org.junit.Test;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
@@ -42,15 +45,14 @@ import org.objectweb.asm.util.Textifier;
  *
  * @author Eugene Kuleshov, Niko Matsakis, Eric Bruneton
  */
-public class JSRInlinerAdapterUnitTest extends TestCase {
+public class JSRInlinerAdapterUnitTest {
 
   private JSRInlinerAdapter jsr;
   private MethodNode exp;
   private MethodVisitor current;
 
-  @Override
-  protected void setUp() throws Exception {
-    super.setUp();
+  @Before
+  public void setUp() throws Exception {
     jsr =
         new JSRInlinerAdapter(Opcodes.ASM5, null, 0, "m", "()V", null, null) {
           @Override
@@ -193,6 +195,7 @@ public class JSRInlinerAdapterUnitTest extends TestCase {
    * }
    * </pre>
    */
+  @Test
   public void testBasic() {
     {
       Label L0 = new Label();
@@ -290,7 +293,7 @@ public class JSRInlinerAdapterUnitTest extends TestCase {
       END(1, 4);
     }
 
-    assertEquals(exp, jsr);
+    assertMethodEquals(exp, jsr);
   }
 
   /**
@@ -310,6 +313,7 @@ public class JSRInlinerAdapterUnitTest extends TestCase {
    * }
    * </pre>
    */
+  @Test
   public void testIfElseInFinally() {
     {
       Label L0 = new Label();
@@ -431,7 +435,7 @@ public class JSRInlinerAdapterUnitTest extends TestCase {
       END(1, 4);
     }
 
-    assertEquals(exp, jsr);
+    assertMethodEquals(exp, jsr);
   }
 
   /**
@@ -452,6 +456,7 @@ public class JSRInlinerAdapterUnitTest extends TestCase {
    * }
    * </pre>
    */
+  @Test
   public void testSimpleNestedFinally() {
     {
       Label L0 = new Label();
@@ -613,7 +618,7 @@ public class JSRInlinerAdapterUnitTest extends TestCase {
       END(2, 6);
     }
 
-    assertEquals(exp, jsr);
+    assertMethodEquals(exp, jsr);
   }
 
   /**
@@ -637,6 +642,7 @@ public class JSRInlinerAdapterUnitTest extends TestCase {
    * }
    * </pre>
    */
+  @Test
   public void testSubroutineWithNoRet() {
     {
       Label L0 = new Label();
@@ -739,7 +745,7 @@ public class JSRInlinerAdapterUnitTest extends TestCase {
       END(1, 4);
     }
 
-    assertEquals(exp, jsr);
+    assertMethodEquals(exp, jsr);
   }
 
   /**
@@ -752,6 +758,7 @@ public class JSRInlinerAdapterUnitTest extends TestCase {
    *   RETURN
    * </pre>
    */
+  @Test
   public void testSubroutineWithNoRet2() {
     {
       Label L0 = new Label();
@@ -783,7 +790,7 @@ public class JSRInlinerAdapterUnitTest extends TestCase {
       END(1, 1);
     }
 
-    assertEquals(exp, jsr);
+    assertMethodEquals(exp, jsr);
   }
 
   /**
@@ -808,6 +815,7 @@ public class JSRInlinerAdapterUnitTest extends TestCase {
    * }
    * </pre>
    */
+  @Test
   public void testImplicitExit() {
     {
       Label L0 = new Label();
@@ -923,7 +931,7 @@ public class JSRInlinerAdapterUnitTest extends TestCase {
       END(1, 4);
     }
 
-    assertEquals(exp, jsr);
+    assertMethodEquals(exp, jsr);
   }
 
   /**
@@ -951,6 +959,7 @@ public class JSRInlinerAdapterUnitTest extends TestCase {
    * This example is from the paper, "Subroutine Inlining and Bytecode Abstraction to Simplify
    * Static and Dynamic Analysis" by Cyrille Artho and Armin Biere.
    */
+  @Test
   public void testImplicitExitToAnotherSubroutine() {
     {
       Label T1 = new Label();
@@ -1185,7 +1194,7 @@ public class JSRInlinerAdapterUnitTest extends TestCase {
       END(1, 6);
     }
 
-    assertEquals(exp, jsr);
+    assertMethodEquals(exp, jsr);
   }
 
   /**
@@ -1195,6 +1204,7 @@ public class JSRInlinerAdapterUnitTest extends TestCase {
    *
    * <p>I don't believe this can be represented in Java.
    */
+  @Test
   public void testCommonCodeWhichMustBeDuplicated() {
     {
       Label L1 = new Label();
@@ -1294,7 +1304,7 @@ public class JSRInlinerAdapterUnitTest extends TestCase {
       END(1, 2);
     }
 
-    assertEquals(exp, jsr);
+    assertMethodEquals(exp, jsr);
   }
 
   /**
@@ -1303,6 +1313,7 @@ public class JSRInlinerAdapterUnitTest extends TestCase {
    *
    * <p>This would not normally be produced by a java compiler.
    */
+  @Test
   public void testInterleavedCode() {
     {
       Label L1 = new Label();
@@ -1393,7 +1404,7 @@ public class JSRInlinerAdapterUnitTest extends TestCase {
       END(1, 3);
     }
 
-    assertEquals(exp, jsr);
+    assertMethodEquals(exp, jsr);
   }
 
   /**
@@ -1424,6 +1435,7 @@ public class JSRInlinerAdapterUnitTest extends TestCase {
    * }
    * </pre>
    */
+  @Test
   public void testImplicitExitInTryCatch() {
     {
       Label T1 = new Label();
@@ -1705,7 +1717,7 @@ public class JSRInlinerAdapterUnitTest extends TestCase {
       END(1, 6);
     }
 
-    assertEquals(exp, jsr);
+    assertMethodEquals(exp, jsr);
   }
 
   /**
@@ -1723,6 +1735,7 @@ public class JSRInlinerAdapterUnitTest extends TestCase {
    *   LV "a" from 1 to 6
    * </pre>
    */
+  @Test
   public void testBasicLineNumberAndLocalVars() {
     {
       Label LM1 = new Label();
@@ -1837,10 +1850,10 @@ public class JSRInlinerAdapterUnitTest extends TestCase {
       END(1, 4);
     }
 
-    assertEquals(exp, jsr);
+    assertMethodEquals(exp, jsr);
   }
 
-  public void assertEquals(final MethodNode exp, final MethodNode actual) {
+  public void assertMethodEquals(final MethodNode exp, final MethodNode actual) {
     String textexp = getText(exp);
     String textact = getText(actual);
     System.err.println("Expected=" + textexp);

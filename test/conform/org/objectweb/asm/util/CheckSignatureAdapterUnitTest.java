@@ -27,66 +27,27 @@
 // THE POSSIBILITY OF SUCH DAMAGE.
 package org.objectweb.asm.util;
 
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
+import static org.junit.Assert.fail;
 
-import org.objectweb.asm.signature.SignatureReader;
+import org.junit.Test;
 import org.objectweb.asm.signature.SignatureVisitor;
-import org.objectweb.asm.signature.SignatureWriter;
-import org.objectweb.asm.util.TraceSignatureVisitorUnitTest.TestData;
 
 /**
  * CheckSignatureAdapter tests.
  *
  * @author Eric Bruneton
  */
-public class CheckSignatureAdapterUnitTest extends TestCase {
-
-  public static TestSuite suite() {
-    TestSuite suite = new TestSuite(CheckSignatureAdapterUnitTest.class.getName());
-    for (int i = 0; i < TraceSignatureVisitorUnitTest.DATA.length; i++) {
-      suite.addTest(
-          new CheckSignatureAdapterUnitTest(new TestData(TraceSignatureVisitorUnitTest.DATA[i])));
-    }
-    suite.addTestSuite(CheckSignatureAdapterUnitTest.class);
-    return suite;
-  }
-
-  private TestData data;
+public class CheckSignatureAdapterUnitTest {
 
   private SignatureVisitor sv;
 
-  public CheckSignatureAdapterUnitTest() {}
-
-  private CheckSignatureAdapterUnitTest(final TestData data) {
-    super("checkSignature");
-    this.data = data;
-  }
-
-  public void checkSignature() {
-    SignatureWriter wrt = new SignatureWriter();
-    SignatureReader rdr = new SignatureReader(data.signature);
-    switch (data.type) {
-      case 'C':
-        rdr.accept(new CheckSignatureAdapter(CheckSignatureAdapter.CLASS_SIGNATURE, wrt));
-        break;
-      case 'M':
-        rdr.accept(new CheckSignatureAdapter(CheckSignatureAdapter.METHOD_SIGNATURE, wrt));
-        break;
-      case 'F':
-        rdr.acceptType(new CheckSignatureAdapter(CheckSignatureAdapter.TYPE_SIGNATURE, wrt));
-        break;
-      default:
-        return;
-    }
-    assertEquals(data.signature, wrt.toString());
-  }
-
+  @Test
   public void testNonJavaIdentifier() {
     setup(CheckSignatureAdapter.CLASS_SIGNATURE);
     sv.visitSuperclass().visitClassType("Foo Bar");
   }
 
+  @Test
   public void testIllegalFormalTypeParam() {
     setup(CheckSignatureAdapter.TYPE_SIGNATURE);
     try {
@@ -96,6 +57,7 @@ public class CheckSignatureAdapterUnitTest extends TestCase {
     }
   }
 
+  @Test
   public void testIllegalClassBound() {
     setup(CheckSignatureAdapter.CLASS_SIGNATURE);
     try {
@@ -105,6 +67,7 @@ public class CheckSignatureAdapterUnitTest extends TestCase {
     }
   }
 
+  @Test
   public void testIllegalInterfaceBound() {
     setup(CheckSignatureAdapter.CLASS_SIGNATURE);
     try {
@@ -114,6 +77,7 @@ public class CheckSignatureAdapterUnitTest extends TestCase {
     }
   }
 
+  @Test
   public void testIllegalSuperclass() {
     setup(CheckSignatureAdapter.METHOD_SIGNATURE);
     try {
@@ -123,6 +87,7 @@ public class CheckSignatureAdapterUnitTest extends TestCase {
     }
   }
 
+  @Test
   public void testIllegalInterface() {
     setup(CheckSignatureAdapter.CLASS_SIGNATURE);
     try {
@@ -132,6 +97,7 @@ public class CheckSignatureAdapterUnitTest extends TestCase {
     }
   }
 
+  @Test
   public void testIllegalParameterType() {
     setup(CheckSignatureAdapter.CLASS_SIGNATURE);
     try {
@@ -141,6 +107,7 @@ public class CheckSignatureAdapterUnitTest extends TestCase {
     }
   }
 
+  @Test
   public void testIllegalReturnType() {
     setup(CheckSignatureAdapter.METHOD_SIGNATURE);
     try {
@@ -151,6 +118,7 @@ public class CheckSignatureAdapterUnitTest extends TestCase {
     }
   }
 
+  @Test
   public void testIllegalExceptionType() {
     setup(CheckSignatureAdapter.METHOD_SIGNATURE);
     try {
@@ -160,6 +128,7 @@ public class CheckSignatureAdapterUnitTest extends TestCase {
     }
   }
 
+  @Test
   public void testIllegalBaseType() {
     setup(CheckSignatureAdapter.TYPE_SIGNATURE);
     try {
@@ -182,6 +151,7 @@ public class CheckSignatureAdapterUnitTest extends TestCase {
     }
   }
 
+  @Test
   public void testIllegalTypeVariable() {
     setup(CheckSignatureAdapter.TYPE_SIGNATURE);
     try {
@@ -192,6 +162,7 @@ public class CheckSignatureAdapterUnitTest extends TestCase {
     }
   }
 
+  @Test
   public void testIllegalArrayType() {
     setup(CheckSignatureAdapter.TYPE_SIGNATURE);
     try {
@@ -202,6 +173,7 @@ public class CheckSignatureAdapterUnitTest extends TestCase {
     }
   }
 
+  @Test
   public void testIllegalClassType() {
     setup(CheckSignatureAdapter.TYPE_SIGNATURE);
     try {
@@ -212,6 +184,7 @@ public class CheckSignatureAdapterUnitTest extends TestCase {
     }
   }
 
+  @Test
   public void testIllegalInnerClassType() {
     setup(CheckSignatureAdapter.TYPE_SIGNATURE);
     try {
@@ -221,6 +194,7 @@ public class CheckSignatureAdapterUnitTest extends TestCase {
     }
   }
 
+  @Test
   public void testIllegalTypeArgument() {
     setup(CheckSignatureAdapter.TYPE_SIGNATURE);
     try {
@@ -243,21 +217,13 @@ public class CheckSignatureAdapterUnitTest extends TestCase {
     }
   }
 
+  @Test
   public void testIllegalEnd() {
     setup(CheckSignatureAdapter.TYPE_SIGNATURE);
     try {
       sv.visitEnd();
       fail();
     } catch (Exception e) {
-    }
-  }
-
-  @Override
-  public String getName() {
-    if (data == null) {
-      return super.getName();
-    } else {
-      return super.getName() + " " + data.signature;
     }
   }
 

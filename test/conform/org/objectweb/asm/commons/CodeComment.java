@@ -25,61 +25,60 @@
 // CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
 // THE POSSIBILITY OF SUCH DAMAGE.
-package org.objectweb.asm.util;
+package org.objectweb.asm.commons;
 
-import static org.junit.Assert.assertEquals;
-
-import java.io.PrintWriter;
-import java.io.StringWriter;
-import java.util.Collection;
-import org.junit.Test;
-import org.junit.runners.Parameterized.Parameters;
 import org.objectweb.asm.Attribute;
+import org.objectweb.asm.ByteVector;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassWriter;
-import org.objectweb.asm.test.AsmTest;
+import org.objectweb.asm.Label;
 
 /**
- * CheckClassAdapter tests.
+ * A non standard code attribute used for testing purposes.
  *
  * @author Eric Bruneton
  */
-public class CheckClassAdapterTest extends AsmTest {
+public class CodeComment extends Attribute {
 
-  /** @return test parameters to test all the precompiled classes with all the apis. */
-  @Parameters(name = NAME)
-  public static Collection<Object[]> data() {
-    return data(Api.ASM4, Api.ASM5, Api.ASM6);
+  public CodeComment() {
+    super("CodeComment");
   }
 
-  /**
-   * Tests that classes are unchanged with a ClassReader->CheckClassAdapter->ClassWriter transform.
-   */
-  @Test
-  public void testCheckClassAdapter_classUnchanged() {
-    byte[] classFile = classParameter.getBytes();
-    ClassReader classReader = new ClassReader(classFile);
-    ClassWriter classWriter = new ClassWriter(0);
-    if (classParameter.isMoreRecentThan(apiParameter)) {
-      thrown.expect(RuntimeException.class);
-    }
-    classReader.accept(
-        new CheckClassAdapter(apiParameter.value(), classWriter, false), attributes(), 0);
-    assertThatClass(classWriter.toByteArray()).isEqualTo(classFile);
+  @Override
+  public boolean isUnknown() {
+    return false;
   }
 
-  /** Tests that {@link CheckClassAdapter.verify()} succeeds on all precompiled classes. */
-  @Test
-  public void testCheckClassAdapter_verify() {
-    ClassReader classReader = new ClassReader(classParameter.getBytes());
-    StringWriter stringWriter = new StringWriter();
-    PrintWriter printWriter = new PrintWriter(stringWriter);
-    CheckClassAdapter.verify(classReader, /* dump = */ false, printWriter);
-    printWriter.close();
-    assertEquals("", stringWriter.toString());
+  @Override
+  public boolean isCodeAttribute() {
+    return true;
   }
 
-  private static Attribute[] attributes() {
-    return new Attribute[] {new Comment(), new CodeComment()};
+  @Override
+  protected Attribute read(
+      final ClassReader cr,
+      final int off,
+      final int len,
+      final char[] buf,
+      final int codeOff,
+      final Label[] labels) {
+
+    return new CodeComment();
+  }
+
+  @Override
+  protected ByteVector write(
+      final ClassWriter cw,
+      final byte[] code,
+      final int len,
+      final int maxStack,
+      final int maxLocals) {
+    return new ByteVector();
+  }
+
+  @Override
+  protected Label[] getLabels() {
+    super.getLabels();
+    return new Label[] {new Label()};
   }
 }

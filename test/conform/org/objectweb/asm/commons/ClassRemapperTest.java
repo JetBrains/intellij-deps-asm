@@ -25,35 +25,66 @@
 // CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
 // THE POSSIBILITY OF SUCH DAMAGE.
-
 package org.objectweb.asm.commons;
 
-import java.util.HashMap;
-import java.util.Map;
+import static org.junit.Assert.assertTrue;
 
-import junit.framework.TestSuite;
+import java.util.Collection;
 
-import org.objectweb.asm.AbstractTest;
+import org.junit.Test;
+import org.junit.runners.Parameterized.Parameters;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassWriter;
+import org.objectweb.asm.test.AsmTest;
 
-public class ClassRemapperTest extends AbstractTest {
+public class ClassRemapperTest extends AsmTest {
 
-  public static TestSuite suite() throws Exception {
-    return new ClassRemapperTest().getSuite();
+  /** @return test parameters to test all the precompiled classes with all the apis. */
+  @Parameters(name = NAME)
+  public static Collection<Object[]> data() {
+    return data(Api.ASM4, Api.ASM5, Api.ASM6);
   }
 
-  @Override
-  public void test() throws Exception {
-    ClassWriter cw = new ClassWriter(0);
-    ClassReader cr = new ClassReader(is);
-    Map<String, String> map =
-        new HashMap<String, String>() {
+  /** Tests that classes transformed with a ClassRemapper can be loaded and instantiated. */
+  @Test
+  public void testRemapLoadAndInstantiate() {
+    ClassReader classReader = new ClassReader(classParameter.getBytes());
+    ClassWriter classWriter = new ClassWriter(0);
+    Remapper upperCaseRemapper =
+        new Remapper() {
+
           @Override
-          public String get(Object key) {
-            return "Foo";
+          public String mapMethodName(String owner, String name, String desc) {
+            if (name.equals("<init>") || name.equals("<clinit>")) {
+              return name;
+            }
+            return owner.equals(classParameter.getInternalName()) ? name.toUpperCase() : name;
+          }
+
+          @Override
+          public String mapInvokeDynamicMethodName(String name, String desc) {
+            return name.toUpperCase();
+          }
+
+          @Override
+          public String mapFieldName(String owner, String name, String desc) {
+            return owner.equals(classParameter.getInternalName()) ? name.toUpperCase() : name;
+          }
+
+          @Override
+          public String map(String typeName) {
+            return typeName.equals(classParameter.getInternalName())
+                ? typeName.toUpperCase()
+                : typeName;
           }
         };
-    cr.accept(new ClassRemapper(cw, new SimpleRemapper(map)), 0);
+    if (classParameter.isMoreRecentThan(apiParameter)) {
+      thrown.expect(RuntimeException.class);
+    } else if (classParameter.isMoreRecentThanCurrentJdk()) {
+      thrown.expect(UnsupportedClassVersionError.class);
+    }
+    classReader.accept(new ClassRemapper(apiParameter.value(), classWriter, upperCaseRemapper), 0);
+    assertTrue(
+        loadAndInstantiate(classParameter.getName().toUpperCase(), classWriter.toByteArray()));
   }
 }

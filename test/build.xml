@@ -152,7 +152,6 @@
   <target name="testConform" depends="compile" if="test-conform">
     <ant antfile="${test.conform}/adviceadapter.xml" inheritRefs="true"/>
     <ant antfile="${test.conform}/analyzeradapter.xml" inheritRefs="true"/>
-    <ant antfile="${test.conform}/annotations.xml" inheritRefs="true"/>
     <ant antfile="${test.conform}/jsrinlineradapter.xml" inheritRefs="true"/>
     <ant antfile="${test.conform}/classremapper.xml" inheritRefs="true"/>
     <ant antfile="${test.conform}/staticinitmerger.xml" inheritRefs="true"/>

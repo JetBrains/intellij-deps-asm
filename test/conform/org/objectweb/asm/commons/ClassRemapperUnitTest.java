@@ -25,8 +25,9 @@
 // CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
 // THE POSSIBILITY OF SUCH DAMAGE.
-
 package org.objectweb.asm.commons;
+
+import static org.junit.Assert.assertEquals;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -34,8 +35,7 @@ import java.util.HashMap;
 import java.util.ListIterator;
 import java.util.Map;
 
-import junit.framework.TestCase;
-
+import org.junit.Test;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
@@ -54,8 +54,9 @@ import org.objectweb.asm.tree.MultiANewArrayInsnNode;
 import org.objectweb.asm.tree.TryCatchBlockNode;
 import org.objectweb.asm.tree.TypeInsnNode;
 
-public class ClassRemapperUnitTest extends TestCase implements Opcodes {
+public class ClassRemapperUnitTest implements Opcodes {
 
+  @Test
   public void testClassRemapper() throws Exception {
     Map<String, String> map = new HashMap<String, String>();
     map.put("Boo", "B1");

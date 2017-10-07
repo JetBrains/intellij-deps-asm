@@ -27,8 +27,9 @@
 // THE POSSIBILITY OF SUCH DAMAGE.
 package org.objectweb.asm.commons;
 
-import junit.framework.TestCase;
+import static org.junit.Assert.assertEquals;
 
+import org.junit.Test;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.MethodVisitor;
@@ -39,10 +40,11 @@ import org.objectweb.asm.Opcodes;
  *
  * @author Eric Bruneton
  */
-public class StaticInitMergerTest extends TestCase implements Opcodes {
+public class StaticInitMergerTest implements Opcodes {
 
   private static final TestClassLoader LOADER = new TestClassLoader();
 
+  @Test
   public void test() throws Exception {
     ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_MAXS);
     ClassVisitor cv = new StaticInitMerger("$clinit$", cw);

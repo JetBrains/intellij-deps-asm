@@ -28,22 +28,26 @@
 
 package org.objectweb.asm.commons;
 
+import static org.junit.Assert.assertEquals;
+
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import junit.framework.TestCase;
+import org.junit.Test;
 
-public class SignatureRemapperUnitTest extends TestCase {
+public class SignatureRemapperUnitTest {
 
-  public static void testRemappingParentOnlyNestedClassExtends() {
+  @Test
+  public void testRemappingParentOnlyNestedClassExtends() {
     Remapper remapper = new SimpleRemapper(Collections.singletonMap("Outer", "RenamedOuter"));
     assertEquals(
         "LRenamedOuter<Ljava/lang/Object;>.Inner;",
         remapper.mapSignature("LOuter<Ljava/lang/Object;>.Inner;", false));
   }
 
-  public static void testRemappingChildOnlyNestedClassExtends() {
+  @Test
+  public void testRemappingChildOnlyNestedClassExtends() {
     Remapper remapper =
         new SimpleRemapper(Collections.singletonMap("Outer$Inner", "Outer$RenamedInner"));
     assertEquals(
@@ -51,7 +55,8 @@ public class SignatureRemapperUnitTest extends TestCase {
         remapper.mapSignature("LOuter<Ljava/lang/Object;>.Inner;", false));
   }
 
-  public static void testRemappingBothParentAndChildNestedClassExtends() {
+  @Test
+  public void testRemappingBothParentAndChildNestedClassExtends() {
     Map<String, String> mapping = new HashMap<String, String>();
     mapping.put("Outer", "RenamedOuter");
     mapping.put("Outer$Inner", "RenamedOuter$RenamedInner");

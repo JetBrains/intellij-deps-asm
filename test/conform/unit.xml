@@ -50,6 +50,7 @@
           <include name="org/objectweb/asm/commons/JSRInlinerAdapterTest.java"/>
           <include name="org/objectweb/asm/commons/LocalVariablesSorterTest.java"/>
           <include name="org/objectweb/asm/commons/SerialVersionUIDAdderTest.java"/>
+          <include name="org/objectweb/asm/commons/StaticInitMergerTest.java"/>
           <include name="org/objectweb/asm/signature/SignatureReaderTest.java"/>
           <include name="org/objectweb/asm/signature/SignatureWriterTest.java"/>
           <include name="org/objectweb/asm/test/AsmTestTest.java"/>

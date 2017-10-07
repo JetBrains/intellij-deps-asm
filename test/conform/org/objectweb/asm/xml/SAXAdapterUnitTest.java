@@ -27,8 +27,10 @@
 // THE POSSIBILITY OF SUCH DAMAGE.
 package org.objectweb.asm.xml;
 
-import junit.framework.TestCase;
+import static org.junit.Assert.fail;
 
+import org.junit.Before;
+import org.junit.Test;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
@@ -38,12 +40,12 @@ import org.xml.sax.helpers.DefaultHandler;
  *
  * @author Eric Bruneton
  */
-public class SAXAdapterUnitTest extends TestCase {
+public class SAXAdapterUnitTest {
 
   SAXAdapter sa;
 
-  @Override
-  protected void setUp() {
+  @Before
+  public void setUp() {
     sa =
         new SAXAdapter(
             new DefaultHandler() {
@@ -73,6 +75,7 @@ public class SAXAdapterUnitTest extends TestCase {
             }) {};
   }
 
+  @Test
   public void testInvalidAddDocumentStart() {
     try {
       sa.addDocumentStart();
@@ -81,6 +84,7 @@ public class SAXAdapterUnitTest extends TestCase {
     }
   }
 
+  @Test
   public void testInvalidAddDocumentEnd() {
     try {
       sa.addDocumentEnd();
@@ -89,6 +93,7 @@ public class SAXAdapterUnitTest extends TestCase {
     }
   }
 
+  @Test
   public void testInvalidAddStart() {
     try {
       sa.addStart("name", null);
@@ -97,6 +102,7 @@ public class SAXAdapterUnitTest extends TestCase {
     }
   }
 
+  @Test
   public void testInvalidAddEnd() {
     try {
       sa.addEnd("name");

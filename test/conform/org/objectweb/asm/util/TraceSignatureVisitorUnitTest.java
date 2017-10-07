@@ -27,11 +27,17 @@
 // THE POSSIBILITY OF SUCH DAMAGE.
 package org.objectweb.asm.util;
 
+import static org.junit.Assert.assertEquals;
+
+import java.util.ArrayList;
+import java.util.List;
 import java.util.StringTokenizer;
 
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
-
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
+import org.junit.runners.Parameterized.Parameter;
+import org.junit.runners.Parameterized.Parameters;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.signature.SignatureReader;
 
@@ -40,7 +46,8 @@ import org.objectweb.asm.signature.SignatureReader;
  *
  * @author Eugene Kuleshov
  */
-public class TraceSignatureVisitorUnitTest extends TestCase {
+@RunWith(Parameterized.class)
+public class TraceSignatureVisitorUnitTest {
 
   public static final String[] DATA = {
     "C|E|<E extends java.lang.Enum<E>> implements java.lang.Comparable<E>, java.io.Serializable"
@@ -80,21 +87,19 @@ public class TraceSignatureVisitorUnitTest extends TestCase {
         + "|<E:Ljava/lang/Object;T::Ljava/lang/Comparable<TE;>;>(Ljava/lang/Object;Ljava/util/Map<Ljava/lang/Object;Ljava/lang/String;>;TT;)Ljava/util/Map<Ljava/lang/Object;Ljava/lang/String;>;",
   };
 
-  public static TestSuite suite() {
-    TestSuite suite = new TestSuite(TraceSignatureVisitorUnitTest.class.getName());
-    for (int i = 0; i < DATA.length; i++) {
-      suite.addTest(new TraceSignatureVisitorUnitTest(new TestData(DATA[i])));
+  @Parameters
+  public static List<Object[]> data() {
+    ArrayList<Object[]> result = new ArrayList<Object[]>();
+    for (String data : DATA) {
+      result.add(new Object[] {new TestData(data)});
     }
-    return suite;
+    return result;
   }
 
-  private TestData data;
+  @Parameter(0)
+  public TestData data;
 
-  private TraceSignatureVisitorUnitTest(final TestData data) {
-    super("testSignature");
-    this.data = data;
-  }
-
+  @Test
   public void testSignature() {
     TraceSignatureVisitor d = new TraceSignatureVisitor(data.access);
     SignatureReader r = new SignatureReader(data.signature);
@@ -117,11 +122,6 @@ public class TraceSignatureVisitorUnitTest extends TestCase {
         assertEquals(data.declaration, fullMethodDeclaration);
         break;
     }
-  }
-
-  @Override
-  public String getName() {
-    return super.getName() + " " + data.signature;
   }
 
   public static class TestData {
@@ -155,6 +155,11 @@ public class TraceSignatureVisitorUnitTest extends TestCase {
 
       this.declaration = st.nextToken();
       this.signature = st.nextToken();
+    }
+
+    @Override
+    public String toString() {
+      return signature;
     }
   }
 }

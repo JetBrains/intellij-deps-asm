@@ -27,22 +27,25 @@
 // THE POSSIBILITY OF SUCH DAMAGE.
 package org.objectweb.asm.tree.analysis;
 
+import static org.junit.Assert.assertEquals;
+
 import java.util.Set;
 
-import junit.framework.TestCase;
+import org.junit.Test;
 
 /**
  * SmallSet unit tests.
  *
  * @author Eric Bruneton
  */
-public class SmallSetUnitTest extends TestCase {
+public class SmallSetUnitTest {
 
   private final Object A = new Object();
   private final Object B = new Object();
   private final Object C = new Object();
   private final Object D = new Object();
 
+  @Test
   public void testSubsetUnion() {
     SmallSet<Object> s1 = new SmallSet<Object>(A, B);
     SmallSet<Object> s2 = new SmallSet<Object>(A, null);
@@ -52,6 +55,7 @@ public class SmallSetUnitTest extends TestCase {
     s1.remove();
   }
 
+  @Test
   public void testDisjointUnion() {
     SmallSet<Object> s1 = new SmallSet<Object>(A, B);
     SmallSet<Object> s2 = new SmallSet<Object>(C, D);

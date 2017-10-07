@@ -27,11 +27,18 @@
 // THE POSSIBILITY OF SUCH DAMAGE.
 package org.objectweb.asm.tree;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNotSame;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
 import java.util.ListIterator;
 import java.util.NoSuchElementException;
 
-import junit.framework.TestCase;
-
+import org.junit.Before;
+import org.junit.Test;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
@@ -42,7 +49,7 @@ import org.objectweb.asm.Opcodes;
  * @author Eric Bruneton
  * @author Eugene Kuleshov
  */
-public class InsnListUnitTest extends TestCase {
+public class InsnListUnitTest {
 
   InsnList l1;
 
@@ -52,9 +59,8 @@ public class InsnListUnitTest extends TestCase {
 
   InsnNode in2;
 
-  @Override
-  protected void setUp() throws Exception {
-    super.setUp();
+  @Before
+  public void setUp() throws Exception {
     l1 = new CheckedInsnList();
     l2 = new CheckedInsnList();
     in1 = new InsnNode(0);
@@ -63,25 +69,29 @@ public class InsnListUnitTest extends TestCase {
     l2.add(in2);
   }
 
-  protected void assertEquals(final AbstractInsnNode[] expected, final AbstractInsnNode[] value) {
+  void assertInsnEquals(final AbstractInsnNode[] expected, final AbstractInsnNode[] value) {
     assertEquals(expected.length, value.length);
     for (int i = 0; i < value.length; ++i) {
       assertEquals(expected[i], value[i]);
     }
   }
 
+  @Test
   public void testSize() {
     assertEquals(0, l1.size());
   }
 
+  @Test
   public void testGetFirst() {
     assertEquals(null, l1.getFirst());
   }
 
+  @Test
   public void testGetLast() {
     assertEquals(null, l1.getLast());
   }
 
+  @Test
   public void testInvalidGet() {
     try {
       l1.get(0);
@@ -90,10 +100,12 @@ public class InsnListUnitTest extends TestCase {
     }
   }
 
+  @Test
   public void testContains() {
     assertEquals(false, l1.contains(new InsnNode(0)));
   }
 
+  @Test
   public void testIterator() {
     InsnNode insn = new InsnNode(0);
 
@@ -178,6 +190,7 @@ public class InsnListUnitTest extends TestCase {
     assertEquals(in2, it.next());
   }
 
+  @Test
   public void testIterator2() {
     ListIterator<AbstractInsnNode> it = l2.iterator(l2.size());
 
@@ -207,6 +220,7 @@ public class InsnListUnitTest extends TestCase {
     assertEquals(3, it.nextIndex());
   }
 
+  @Test
   public void testIterator3() {
     InsnNode insn = new InsnNode(0);
     l2.add(insn);
@@ -239,6 +253,7 @@ public class InsnListUnitTest extends TestCase {
     assertEquals(in1, l2.getFirst());
   }
 
+  @Test
   public void testIterator4() {
     try {
       new InsnList().iterator().next();
@@ -247,6 +262,7 @@ public class InsnListUnitTest extends TestCase {
     }
   }
 
+  @Test
   public void testIterator5() {
     // Call add() on empty list
     ListIterator<AbstractInsnNode> it = l1.iterator();
@@ -276,6 +292,7 @@ public class InsnListUnitTest extends TestCase {
     assertEquals(1, it.next().opcode);
   }
 
+  @Test
   public void testInvalidIndexOf() {
     try {
       l1.indexOf(new InsnNode(0));
@@ -284,10 +301,12 @@ public class InsnListUnitTest extends TestCase {
     }
   }
 
+  @Test
   public void testToArray() {
     assertEquals(0, l1.toArray().length);
   }
 
+  @Test
   public void testInvalidSet() {
     try {
       l1.set(new InsnNode(0), new InsnNode(0));
@@ -296,6 +315,7 @@ public class InsnListUnitTest extends TestCase {
     }
   }
 
+  @Test
   public void testSet() {
     l1.add(new InsnNode(0));
     AbstractInsnNode insn = new InsnNode(0);
@@ -319,6 +339,7 @@ public class InsnListUnitTest extends TestCase {
     assertEquals(insn, l1.get(1));
   }
 
+  @Test
   public void testInvalidAdd() {
     try {
       l1.add(in1);
@@ -327,6 +348,7 @@ public class InsnListUnitTest extends TestCase {
     }
   }
 
+  @Test
   public void testAddEmpty() {
     InsnNode insn = new InsnNode(0);
     l1.add(insn);
@@ -336,11 +358,12 @@ public class InsnListUnitTest extends TestCase {
     assertEquals(insn, l1.get(0));
     assertEquals(true, l1.contains(insn));
     assertEquals(0, l1.indexOf(insn));
-    assertEquals(new AbstractInsnNode[] {insn}, l1.toArray());
+    assertInsnEquals(new AbstractInsnNode[] {insn}, l1.toArray());
     assertEquals(null, insn.getPrevious());
     assertEquals(null, insn.getNext());
   }
 
+  @Test
   public void testAddNonEmpty() {
     InsnNode insn = new InsnNode(0);
     l1.add(new InsnNode(0));
@@ -352,14 +375,16 @@ public class InsnListUnitTest extends TestCase {
     assertEquals(true, l1.contains(insn));
   }
 
+  @Test
   public void testAddEmptyList() {
     l1.add(new InsnList());
     assertEquals(0, l1.size());
     assertEquals(null, l1.getFirst());
     assertEquals(null, l1.getLast());
-    assertEquals(new AbstractInsnNode[0], l1.toArray());
+    assertInsnEquals(new AbstractInsnNode[0], l1.toArray());
   }
 
+  @Test
   public void testInvalidAddAll() {
     try {
       l1.add(l1);
@@ -368,6 +393,7 @@ public class InsnListUnitTest extends TestCase {
     }
   }
 
+  @Test
   public void testAddAllEmpty() {
     l1.add(l2);
     assertEquals(2, l1.size());
@@ -378,9 +404,10 @@ public class InsnListUnitTest extends TestCase {
     assertEquals(true, l1.contains(in2));
     assertEquals(0, l1.indexOf(in1));
     assertEquals(1, l1.indexOf(in2));
-    assertEquals(new AbstractInsnNode[] {in1, in2}, l1.toArray());
+    assertInsnEquals(new AbstractInsnNode[] {in1, in2}, l1.toArray());
   }
 
+  @Test
   public void testAddAllNonEmpty() {
     InsnNode insn = new InsnNode(0);
     l1.add(insn);
@@ -395,9 +422,10 @@ public class InsnListUnitTest extends TestCase {
     assertEquals(0, l1.indexOf(insn));
     assertEquals(1, l1.indexOf(in1));
     assertEquals(2, l1.indexOf(in2));
-    assertEquals(new AbstractInsnNode[] {insn, in1, in2}, l1.toArray());
+    assertInsnEquals(new AbstractInsnNode[] {insn, in1, in2}, l1.toArray());
   }
 
+  @Test
   public void testInvalidInsert() {
     try {
       l1.insert(in1);
@@ -406,6 +434,7 @@ public class InsnListUnitTest extends TestCase {
     }
   }
 
+  @Test
   public void testInsertEmpty() {
     InsnNode insn = new InsnNode(0);
     l1.insert(insn);
@@ -415,9 +444,10 @@ public class InsnListUnitTest extends TestCase {
     assertEquals(insn, l1.get(0));
     assertEquals(true, l1.contains(insn));
     assertEquals(0, l1.indexOf(insn));
-    assertEquals(new AbstractInsnNode[] {insn}, l1.toArray());
+    assertInsnEquals(new AbstractInsnNode[] {insn}, l1.toArray());
   }
 
+  @Test
   public void testInsertNonEmpty() {
     InsnNode insn = new InsnNode(0);
     l1.add(new InsnNode(0));
@@ -429,6 +459,7 @@ public class InsnListUnitTest extends TestCase {
     assertEquals(0, l1.indexOf(insn));
   }
 
+  @Test
   public void testInvalidInsertAll() {
     try {
       l1.insert(l1);
@@ -437,14 +468,16 @@ public class InsnListUnitTest extends TestCase {
     }
   }
 
+  @Test
   public void testInsertAllEmptyList() {
     l1.insert(new InsnList());
     assertEquals(0, l1.size());
     assertEquals(null, l1.getFirst());
     assertEquals(null, l1.getLast());
-    assertEquals(new AbstractInsnNode[0], l1.toArray());
+    assertInsnEquals(new AbstractInsnNode[0], l1.toArray());
   }
 
+  @Test
   public void testInsertAllEmpty() {
     l1.insert(l2);
     assertEquals(2, l1.size(), 2);
@@ -455,9 +488,10 @@ public class InsnListUnitTest extends TestCase {
     assertEquals(true, l1.contains(in2));
     assertEquals(0, l1.indexOf(in1));
     assertEquals(1, l1.indexOf(in2));
-    assertEquals(new AbstractInsnNode[] {in1, in2}, l1.toArray());
+    assertInsnEquals(new AbstractInsnNode[] {in1, in2}, l1.toArray());
   }
 
+  @Test
   public void testInsertAllNonEmpty() {
     InsnNode insn = new InsnNode(0);
     l1.add(insn);
@@ -472,9 +506,10 @@ public class InsnListUnitTest extends TestCase {
     assertEquals(0, l1.indexOf(in1));
     assertEquals(1, l1.indexOf(in2));
     assertEquals(2, l1.indexOf(insn));
-    assertEquals(new AbstractInsnNode[] {in1, in2, insn}, l1.toArray());
+    assertInsnEquals(new AbstractInsnNode[] {in1, in2, insn}, l1.toArray());
   }
 
+  @Test
   public void testInvalidInsert2() {
     try {
       l1.insert(new InsnNode(0), new InsnNode(0));
@@ -483,6 +518,7 @@ public class InsnListUnitTest extends TestCase {
     }
   }
 
+  @Test
   public void testInsert2NotLast() {
     InsnNode insn = new InsnNode(0);
     l2.insert(in1, insn);
@@ -492,9 +528,10 @@ public class InsnListUnitTest extends TestCase {
     assertEquals(in1, l2.get(0));
     assertEquals(true, l2.contains(insn));
     assertEquals(1, l2.indexOf(insn));
-    assertEquals(new AbstractInsnNode[] {in1, insn, in2}, l2.toArray());
+    assertInsnEquals(new AbstractInsnNode[] {in1, insn, in2}, l2.toArray());
   }
 
+  @Test
   public void testInsert2Last() {
     InsnNode insn = new InsnNode(0);
     l2.insert(in2, insn);
@@ -504,9 +541,10 @@ public class InsnListUnitTest extends TestCase {
     assertEquals(in1, l2.get(0));
     assertEquals(true, l2.contains(insn));
     assertEquals(2, l2.indexOf(insn));
-    assertEquals(new AbstractInsnNode[] {in1, in2, insn}, l2.toArray());
+    assertInsnEquals(new AbstractInsnNode[] {in1, in2, insn}, l2.toArray());
   }
 
+  @Test
   public void testInsertBefore() {
     InsnNode insn = new InsnNode(0);
     l2.insertBefore(in2, insn);
@@ -516,9 +554,10 @@ public class InsnListUnitTest extends TestCase {
     assertEquals(insn, l2.get(1));
     assertEquals(true, l2.contains(insn));
     assertEquals(1, l2.indexOf(insn));
-    assertEquals(new AbstractInsnNode[] {in1, insn, in2}, l2.toArray());
+    assertInsnEquals(new AbstractInsnNode[] {in1, insn, in2}, l2.toArray());
   }
 
+  @Test
   public void testInsertBeforeFirst() {
     InsnNode insn = new InsnNode(0);
     l2.insertBefore(in1, insn);
@@ -528,9 +567,10 @@ public class InsnListUnitTest extends TestCase {
     assertEquals(insn, l2.get(0));
     assertEquals(true, l2.contains(insn));
     assertEquals(0, l2.indexOf(insn));
-    assertEquals(new AbstractInsnNode[] {insn, in1, in2}, l2.toArray());
+    assertInsnEquals(new AbstractInsnNode[] {insn, in1, in2}, l2.toArray());
   }
 
+  @Test
   public void testInvalidInsertBefore() {
     try {
       l1.insertBefore(new InsnNode(0), new InsnNode(0));
@@ -539,6 +579,7 @@ public class InsnListUnitTest extends TestCase {
     }
   }
 
+  @Test
   public void testInvalidInsertAll2() {
     try {
       l1.insert(new InsnNode(0), new InsnList());
@@ -547,6 +588,7 @@ public class InsnListUnitTest extends TestCase {
     }
   }
 
+  @Test
   public void testInsertAll2EmptyList() {
     InsnNode insn = new InsnNode(0);
     l1.add(insn);
@@ -554,9 +596,10 @@ public class InsnListUnitTest extends TestCase {
     assertEquals(1, l1.size());
     assertEquals(insn, l1.getFirst());
     assertEquals(insn, l1.getLast());
-    assertEquals(new AbstractInsnNode[] {insn}, l1.toArray());
+    assertInsnEquals(new AbstractInsnNode[] {insn}, l1.toArray());
   }
 
+  @Test
   public void testInsertAll2NotLast() {
     InsnNode insn = new InsnNode(0);
     l1.add(insn);
@@ -573,6 +616,7 @@ public class InsnListUnitTest extends TestCase {
     assertEquals(2, l1.indexOf(in2));
   }
 
+  @Test
   public void testInsertAll2Last() {
     InsnNode insn = new InsnNode(0);
     l1.add(insn);
@@ -587,9 +631,10 @@ public class InsnListUnitTest extends TestCase {
     assertEquals(0, l1.indexOf(insn));
     assertEquals(1, l1.indexOf(in1));
     assertEquals(2, l1.indexOf(in2));
-    assertEquals(new AbstractInsnNode[] {insn, in1, in2}, l1.toArray());
+    assertInsnEquals(new AbstractInsnNode[] {insn, in1, in2}, l1.toArray());
   }
 
+  @Test
   public void testInvalidInsertBeforeAll() {
     try {
       l1.insertBefore(new InsnNode(0), new InsnList());
@@ -598,6 +643,7 @@ public class InsnListUnitTest extends TestCase {
     }
   }
 
+  @Test
   public void testInsertBeforeAll2EmptyList() {
     InsnNode insn = new InsnNode(0);
     l1.add(insn);
@@ -605,9 +651,10 @@ public class InsnListUnitTest extends TestCase {
     assertEquals(1, l1.size());
     assertEquals(insn, l1.getFirst());
     assertEquals(insn, l1.getLast());
-    assertEquals(new AbstractInsnNode[] {insn}, l1.toArray());
+    assertInsnEquals(new AbstractInsnNode[] {insn}, l1.toArray());
   }
 
+  @Test
   public void testInsertBeforeAll2NotLast() {
     InsnNode insn = new InsnNode(0);
     l1.add(new InsnNode(0));
@@ -624,6 +671,7 @@ public class InsnListUnitTest extends TestCase {
     assertEquals(2, l1.indexOf(in2));
   }
 
+  @Test
   public void testInsertBeforeAll2First() {
     InsnNode insn = new InsnNode(0);
     l1.insert(insn);
@@ -638,9 +686,10 @@ public class InsnListUnitTest extends TestCase {
     assertEquals(2, l1.indexOf(insn));
     assertEquals(0, l1.indexOf(in1));
     assertEquals(1, l1.indexOf(in2));
-    assertEquals(new AbstractInsnNode[] {in1, in2, insn}, l1.toArray());
+    assertInsnEquals(new AbstractInsnNode[] {in1, in2, insn}, l1.toArray());
   }
 
+  @Test
   public void testInvalidRemove() {
     try {
       l1.remove(new InsnNode(0));
@@ -648,6 +697,7 @@ public class InsnListUnitTest extends TestCase {
     }
   }
 
+  @Test
   public void testRemoveSingle() {
     InsnNode insn = new InsnNode(0);
     l1.add(insn);
@@ -656,11 +706,12 @@ public class InsnListUnitTest extends TestCase {
     assertEquals(null, l1.getFirst());
     assertEquals(null, l1.getLast());
     assertEquals(false, l1.contains(insn));
-    assertEquals(new AbstractInsnNode[0], l1.toArray());
+    assertInsnEquals(new AbstractInsnNode[0], l1.toArray());
     assertEquals(null, insn.getPrevious());
     assertEquals(null, insn.getNext());
   }
 
+  @Test
   public void testRemoveFirst() {
     InsnNode insn = new InsnNode(0);
     l1.add(insn);
@@ -671,6 +722,7 @@ public class InsnListUnitTest extends TestCase {
     assertEquals(null, insn.getNext());
   }
 
+  @Test
   public void testRemoveMiddle() {
     InsnNode insn = new InsnNode(0);
     l1.add(new InsnNode(0));
@@ -682,6 +734,7 @@ public class InsnListUnitTest extends TestCase {
     assertEquals(null, insn.getNext());
   }
 
+  @Test
   public void testRemoveLast() {
     InsnNode insn = new InsnNode(0);
     l1.add(new InsnNode(0));
@@ -692,6 +745,7 @@ public class InsnListUnitTest extends TestCase {
     assertEquals(null, insn.getNext());
   }
 
+  @Test
   public void testClear() {
     InsnNode insn = new InsnNode(0);
     l1.add(new InsnNode(0));
@@ -702,11 +756,12 @@ public class InsnListUnitTest extends TestCase {
     assertEquals(null, l1.getFirst());
     assertEquals(null, l1.getLast());
     assertEquals(false, l1.contains(insn));
-    assertEquals(new AbstractInsnNode[0], l1.toArray());
+    assertInsnEquals(new AbstractInsnNode[0], l1.toArray());
     assertEquals(null, insn.getPrevious());
     assertEquals(null, insn.getNext());
   }
 
+  @Test
   public void testAcceptor1() {
     l1.add(new InsnNode(55));
     l1.add(new InsnNode(77));
@@ -724,6 +779,7 @@ public class InsnListUnitTest extends TestCase {
     assertEquals(77, lst.get(1).opcode);
   }
 
+  @Test
   public void testResetLabels() throws Exception {
     LabelNode labelNode = new LabelNode();
 

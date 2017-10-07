@@ -27,15 +27,16 @@
 // THE POSSIBILITY OF SUCH DAMAGE.
 package org.objectweb.asm.util;
 
-import junit.framework.TestCase;
+import org.junit.Test;
 
 /**
  * ASMifierClassVisitor unit tests
  *
  * @author Eric Bruneton
  */
-public class ASMifierUnitTest extends TestCase {
+public class ASMifierUnitTest {
 
+  @Test
   public void testASMifierClassVisitor() throws Exception {
     String s = getClass().getName();
     ASMifier.main(new String[0]);

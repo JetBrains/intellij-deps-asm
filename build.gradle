@@ -1,0 +1,397 @@
+// ASM: a very small and fast Java bytecode manipulation framework
+// Copyright (c) 2000-2011 INRIA, France Telecom
+// All rights reserved.
+//
+// Redistribution and use in source and binary forms, with or without
+// modification, are permitted provided that the following conditions
+// are met:
+// 1. Redistributions of source code must retain the above copyright
+//    notice, this list of conditions and the following disclaimer.
+// 2. Redistributions in binary form must reproduce the above copyright
+//    notice, this list of conditions and the following disclaimer in the
+//    documentation and/or other materials provided with the distribution.
+// 3. Neither the name of the copyright holders nor the names of its
+//    contributors may be used to endorse or promote products derived from
+//    this software without specific prior written permission.
+//
+// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+// AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+// ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
+// LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+// CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+// SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+// INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+// CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+// ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
+// THE POSSIBILITY OF SUCH DAMAGE.
+
+plugins { id 'biz.aQute.bnd.builder' version '3.3.0' apply false }
+
+description = 'ASM, a very small and fast Java bytecode manipulation framework'
+
+subprojects {
+  repositories { mavenCentral() }
+  apply plugin: 'java'
+  group = 'org.ow2.asm'
+  version = 6.1
+  ext.provides = []  // The provided java packages, e.g. ['org.objectweb.asm']
+  ext.requires = []  // The required Gradle projects, e.g. [':asm-test']
+  ext.depends = []   // The external dependencies, e.g. ['junit:junit:4.12']
+  ext.runWith = []   // The command line to run this project, if applicable.
+}
+
+// -----------------------------------------------------------------------------
+// Project descriptions
+// -----------------------------------------------------------------------------
+
+project(':asm') {
+  description = parent.description
+  provides = ['org.objectweb.asm', 'org.objectweb.asm.signature']
+}
+
+project(':asm-analysis') {
+  description = "Static code analysis API of ${parent.description}"
+  provides = ['org.objectweb.asm.tree.analysis']
+  requires = [':asm-tree']
+}
+
+project(':asm-commons') {
+  description = "Usefull class adapters based on ${parent.description}"
+  provides = ['org.objectweb.asm.commons']
+  requires = [':asm', ':asm-tree', ':asm-analysis']
+  dependencies { testCompile project(':asm-util') }
+}
+
+project(':asm-test') {
+  description = "Utilities for testing ${parent.description}"
+  provides = ['org.objectweb.asm.test']
+  depends = ['junit:junit:4.12']
+}
+
+project(':asm-tree') {
+  description = "Tree API of ${parent.description}"
+  provides = ['org.objectweb.asm.tree']
+  requires = [':asm']
+}
+
+project(':asm-util') {
+  description = "Utilities for ${parent.description}"
+  provides = ['org.objectweb.asm.util']
+  requires = [':asm', ':asm-tree', ':asm-analysis']
+  dependencies { testCompile 'org.codehaus.janino:janino:3.0.7' }
+}
+
+project(':asm-xml') {
+  description = "XML API of ${parent.description}"
+  provides = ['org.objectweb.asm.xml']
+  requires = [':asm', ':asm-util']
+}
+
+project(':benchmarks') {
+  description = "Benchmarks for ${parent.description}"
+}
+
+project(':benchmarks:memory') {
+  description = "Memory benchmark for ${rootProject.description}"
+  requires = [':asm', ':asm-tree']
+  runWith = ['org.objectweb.asm.ASMMemTest', 
+      "${System.env.JAVA_HOME}/jre/lib/rt.jar", '2000']
+}
+
+project(':benchmarks:read-write') {
+  description = "Read-Write benchmark for ${rootProject.description}"
+  requires = [':asm', ':asm-analysis', ':asm-commons', ':asm-tree']
+  depends = [
+    'net.sourceforge.serp:serp:1.15.1',
+    'org.apache.bcel:bcel:6.0',
+    'org.aspectj:aspectjweaver:1.8.10',
+    'org.javassist:javassist:3.21.0-GA'
+  ]
+  runWith = ['org.objectweb.asm.ALLPerfTest']
+}
+
+project(':benchmarks:write') {
+  description = "Write benchmark for ${rootProject.description}"
+  requires = [':asm']
+  dependencies { 
+    compile files('libs/csg-bytecode-1.0.0.jar', 'libs/jclasslib.jar') 
+  }
+  depends = [
+    'kawa:kawa:1.7',
+    'net.sf.jiapi:jiapi-reflect:0.5.2',
+    'net.sourceforge.serp:serp:1.15.1',
+    'org.apache.bcel:bcel:6.0',
+    'org.aspectj:aspectjweaver:1.8.10',
+    'org.codehaus.janino:janino:3.0.7',
+    'org.cojen:cojen:2.2.5',
+    'org.javassist:javassist:3.21.0-GA',
+    'org.mozilla:rhino:1.7.7.1'
+  ]
+  runWith = ['org.objectweb.asm.GenPerfTest']
+}
+
+project(':examples') {
+  description = "Examples using ${parent.description}"
+}
+
+project(':examples:adapt') {
+  description = "Class transformation example for ${rootProject.description}"
+  requires = [':asm']
+  runWith = ['Adapt', 'ArraySet']
+}
+
+project(':examples:analysis') {
+  description = "Static class analysis example for ${rootProject.description}"
+  requires = [':asm-analysis', ':asm-util']
+  runWith = ['Analysis']
+}
+
+project(':examples:annotations') {
+  description = "Java 5 annotations example for ${rootProject.description}"
+  requires = [':asm']
+  runWith = ['Annotations']
+}
+
+project(':examples:attributes') {
+  description = "Custom attributes example for ${rootProject.description}"
+  requires = [':asm', ':asm-util']
+  runWith = ['Attributes']
+}
+
+project(':examples:compiler') {
+  description = "Small compiler example using ${rootProject.description}"
+  requires = [':asm']
+  runWith = ['Compile']
+}
+
+project(':examples:compiler-indy') {
+  description = "Invokedynamic example for ${rootProject.description}"
+  requires = [':asm']
+  runWith = ['IndyCompile']
+}
+
+project(':examples:dependencies') {
+  description = "Dependency analysis example with ${rootProject.description}"
+  requires = [':asm']
+  runWith = ['org.objectweb.asm.depend.DependencyTracker', 
+      project(':asm').jar.outputs.files.singleFile]
+}
+
+project(':examples:helloworld') {
+  description = "Helloworld example for ${rootProject.description}"
+  requires = [':asm', ':asm-commons']
+  runWith = ['Helloworld']
+}
+
+project(':tools') {
+  description = "Tools used to build ${parent.description}"
+}
+
+project(':tools:bnd-module-plugin') {
+  description = "bnd plugin to build moduleinfo with ${rootProject.description}"
+  // TODO: this compiles asm twice (here and in :asm), find a way to avoid this.
+  sourceSets.main.java.srcDirs += project(':asm').sourceSets.main.java.srcDirs
+  depends = ['biz.aQute.bnd:biz.aQute.bnd:3.4.0']
+}
+
+project(':tools:retrofitter') {
+  description = "JDK 1.5 class retrofitter based on ${rootProject.description}"
+  // TODO: this compiles asm thrice (here, above and in :asm).
+  sourceSets.main.java.srcDirs += project(':asm').sourceSets.main.java.srcDirs
+}
+
+// -----------------------------------------------------------------------------
+// Project tasks creation and configuration
+// -----------------------------------------------------------------------------
+
+// All projects use Java 1.5 and are tested with :asm-test and JUnit.
+subprojects {
+  sourceCompatibility = '1.5'
+  targetCompatibility = '1.5'
+  javadoc { failOnError = false }  // TODO fix the Javadoc and remove this!
+  dependencies {
+    requires.each { projectName -> compile project(projectName) }
+    depends.each { artifactName -> compile artifactName }
+    testCompile 'junit:junit:4.12'
+    testCompile project(':asm-test')
+  }
+}
+
+// Add a run task to all the projects having a non-empty 'runWidth' property.
+configure(subprojects.findAll { it.runWith }) {
+  task run(type: JavaExec) {
+    classpath sourceSets.main.runtimeClasspath
+    main runWith[0]
+    args runWith.drop(1)
+  }
+}
+
+// Configures the projects with a non-empty 'provides' property. These are the
+// ones which are published in Maven. They must be checked for code coverage and
+// backward compatibility, retrofited to Java 1.5, packaged with biz.aQute.bnd
+// and uploaded to Maven with a POM, sources and Javadoc.
+configure(subprojects.findAll { it.provides }) {
+  // Code coverage configuration.
+  apply plugin: 'jacoco'
+
+  // Retrofit the code to Java 1.5, in-place, in compileJava.doLast.
+  task retrofit(type: JavaExec) {
+    classpath project(':tools:retrofitter').sourceSets.main.runtimeClasspath
+    main 'org.objectweb.asm.tools.Retrofitter'
+    args sourceSets.main.output.classesDirs
+  }
+  compileJava.dependsOn ':tools:retrofitter:classes'
+  compileJava.doLast { tasks.retrofit.execute() }
+
+  // Create one backward compatibility checking task for each 'sigtest-*' file
+  // in test/resources, and make the 'test' task depend on all these tasks.
+  if (file('src/test/resources/').exists()) {
+    configurations { sigtest }
+    dependencies { sigtest 'org.netbeans.tools:sigtest-maven-plugin:1.0' }
+    file('src/test/resources/').eachFileMatch(~/sigtest-.*/) { f ->
+      task "${f.name}" (type: JavaExec, dependsOn: 'classes') {
+        inputs.file(f)
+        outputs.file("build/${f.name}")
+        classpath configurations.sigtest
+        main 'com.sun.tdk.signaturetest.Main'
+        args 'Test', '-ApiVersion', version, '-Backward', '-Static', '-Mode',
+            'bin', '-Classpath', sourceSets.main.output.classesDirs.asPath,
+            '-FileName', f, '-Out', outputs.getFiles()[0], '-Package'
+        args provides
+        // The exit value is not 0 in case of success, but 95...
+        ignoreExitValue true
+        doLast {
+          if (!outputs.getFiles()[0].readLines().find {it =~ /STATUS:Passed/}) {
+            throw new GradleException('Sigtest FAILED')
+          }
+        }
+      }
+      test.dependsOn f.name
+    }
+  }
+
+  // Apply the biz.aQute.bnd plugin to package the project as an OSGi bundle, 
+  // with a custom plugin to generate and include a module-info class. Exclude
+  // the asm-test project (the DefaultPackage class prevents it from being a
+  // proper bundle).
+  if (name != 'asm-test') {
+    apply plugin: 'biz.aQute.bnd.builder'
+    jar.dependsOn ':tools:bnd-module-plugin:jar'
+    jar.manifest.attributes(
+      '-classpath': sourceSets.main.output.classesDirs.asPath,
+      '-plugin': 'org.objectweb.asm.tools.ModuleInfoBndPlugin;',
+      '-pluginpath': 
+          project(':tools:bnd-module-plugin').jar.outputs.files.singleFile,
+      '-removeheaders': 'Bnd-LastModified,Build-By,Created-By,Include-Resource,\
+          Require-Capability,Tool',
+      'Bundle-DocURL': 'http://asm.ow2.org',
+      'Bundle-RequiredExecutionEnvironment': 'J2SE-1.5',
+      'Bundle-SymbolicName': provides[0],
+      'Export-Package': provides.collect{"${it};version=6.1"}.join(','),
+      'Implementation-Title': project.description,
+      'Module-Requires': 
+          requires
+              .collect{"${project(it).provides[0]};transitive=true"}
+              .join(',')
+    )
+  }
+
+  // Add tasks to generate the Javadoc and a source jar, to be uploaded to Maven
+  // together with the main jar (containing the compiled code).
+  task javadocJar(type: Jar, dependsOn: 'javadoc') {
+    from javadoc.destinationDir
+    classifier 'javadoc'
+  }
+  task sourcesJar(type: Jar, dependsOn: 'classes') {
+    from sourceSets.main.allSource
+    classifier 'sources'
+  }
+  artifacts {
+    archives javadocJar
+    archives sourcesJar
+  }
+
+  // Add an uploadArchives task, provided by the maven plugin, to generate the
+  // project POM and to upload it, with the classes, sources and Javadoc jars.
+  apply plugin: 'maven'
+  uploadArchives.repositories.mavenDeployer {
+    // TODO: replace this with the OW2 Nexus repository.
+    repository url: 'file://localhost/tmp/myRepo/'
+    pom.project {
+      parent {
+        artifactId 'ow2'
+        groupId 'org.ow2'
+        version '1.5'
+      }
+
+      name jar.baseName
+      description project.description
+      packaging 'jar'
+      inceptionYear '2000'
+      licenses {
+        license {
+          name 'BSD'
+          url 'http://asm.ow2.org/license.html'
+        }
+      }
+
+      url 'http://asm.ow2.org/'
+      mailingLists {
+        mailingList {
+          name 'ASM Users List'
+          subscribe 'https://mail.ow2.org/wws/subscribe/asm'
+          post 'asm@objectweb.org'
+          archive 'https://mail.ow2.org/wws/arc/asm/'
+        }
+        mailingList {
+          name 'ASM Team List'
+          subscribe 'https://mail.ow2.org/wws/subscribe/asm-team'
+          post 'asm-team@objectweb.org'
+          archive 'https://mail.ow2.org/wws/arc/asm-team/'
+        }
+      }
+      issueManagement {
+        url 'https://gitlab.ow2.org/asm/asm/issues'
+      }
+      scm {
+        connection 'scm:git:https://gitlab.ow2.org/asm/asm/'
+        developerConnection 'scm:git:https://gitlab.ow2.org/asm/asm/'
+        url 'https://gitlab.ow2.org/asm/asm/'
+      }
+
+      developers {
+        developer {
+          name 'Eric Bruneton'
+          id 'ebruneton'
+          email 'ebruneton@free.fr'
+          roles {
+            role 'Creator'
+            role 'Java Developer'
+          }
+        }
+        developer {
+          name 'Eugene Kuleshov'
+          id 'eu'
+          email 'eu@javatx.org'
+          roles {
+            role 'Java Developer'
+          }
+        }
+        developer {
+          name 'Remi Forax'
+          id 'forax'
+          email 'forax@univ-mlv.fr'
+          roles {
+            role 'Java Developer'
+          }
+        }
+      }
+      organization {
+        name 'OW2'
+        url 'http://www.ow2.org/'
+      }
+    }
+  }
+}
+

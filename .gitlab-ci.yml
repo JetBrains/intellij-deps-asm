@@ -1,0 +1,13 @@
+image: gradle:4.2.0-jdk8-alpine
+
+build:
+  script:
+    gradle build
+
+test:
+  script:
+    gradle test
+
+upload:
+  script:
+    gradle uploadArchives

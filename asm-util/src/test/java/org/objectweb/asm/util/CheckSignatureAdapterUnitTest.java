@@ -27,9 +27,9 @@
 // THE POSSIBILITY OF SUCH DAMAGE.
 package org.objectweb.asm.util;
 
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.objectweb.asm.signature.SignatureVisitor;
 
 /**
@@ -50,181 +50,105 @@ public class CheckSignatureAdapterUnitTest {
   @Test
   public void testIllegalFormalTypeParam() {
     setup(CheckSignatureAdapter.TYPE_SIGNATURE);
-    try {
-      sv.visitFormalTypeParameter("T");
-      fail();
-    } catch (Exception e) {
-    }
+    assertThrows(Exception.class, () -> sv.visitFormalTypeParameter("T"));
   }
 
   @Test
   public void testIllegalClassBound() {
     setup(CheckSignatureAdapter.CLASS_SIGNATURE);
-    try {
-      sv.visitClassBound();
-      fail();
-    } catch (Exception e) {
-    }
+    assertThrows(Exception.class, () -> sv.visitClassBound());
   }
 
   @Test
   public void testIllegalInterfaceBound() {
     setup(CheckSignatureAdapter.CLASS_SIGNATURE);
-    try {
-      sv.visitInterfaceBound();
-      fail();
-    } catch (Exception e) {
-    }
+    assertThrows(Exception.class, () -> sv.visitInterfaceBound());
   }
 
   @Test
   public void testIllegalSuperclass() {
     setup(CheckSignatureAdapter.METHOD_SIGNATURE);
-    try {
-      sv.visitSuperclass();
-      fail();
-    } catch (Exception e) {
-    }
+    assertThrows(Exception.class, () -> sv.visitSuperclass());
   }
 
   @Test
   public void testIllegalInterface() {
     setup(CheckSignatureAdapter.CLASS_SIGNATURE);
-    try {
-      sv.visitInterface();
-      fail();
-    } catch (Exception e) {
-    }
+    assertThrows(Exception.class, () -> sv.visitInterface());
   }
 
   @Test
   public void testIllegalParameterType() {
     setup(CheckSignatureAdapter.CLASS_SIGNATURE);
-    try {
-      sv.visitParameterType();
-      fail();
-    } catch (Exception e) {
-    }
+    assertThrows(Exception.class, () -> sv.visitParameterType());
   }
 
   @Test
   public void testIllegalReturnType() {
     setup(CheckSignatureAdapter.METHOD_SIGNATURE);
-    try {
-      sv.visitReturnType();
-      sv.visitReturnType();
-      fail();
-    } catch (Exception e) {
-    }
+    sv.visitReturnType();
+    assertThrows(Exception.class, () -> sv.visitReturnType());
   }
 
   @Test
   public void testIllegalExceptionType() {
     setup(CheckSignatureAdapter.METHOD_SIGNATURE);
-    try {
-      sv.visitExceptionType();
-      fail();
-    } catch (Exception e) {
-    }
+    assertThrows(Exception.class, () -> sv.visitExceptionType());
   }
 
   @Test
   public void testIllegalBaseType() {
     setup(CheckSignatureAdapter.TYPE_SIGNATURE);
-    try {
-      sv.visitBaseType('I');
-      sv.visitBaseType('I');
-      fail();
-    } catch (Exception e) {
-    }
+    sv.visitBaseType('I');
+    assertThrows(Exception.class, () -> sv.visitBaseType('I'));
     setup(CheckSignatureAdapter.TYPE_SIGNATURE);
-    try {
-      sv.visitBaseType('V');
-      fail();
-    } catch (Exception e) {
-    }
+    assertThrows(Exception.class, () -> sv.visitBaseType('V'));
     setup(CheckSignatureAdapter.TYPE_SIGNATURE);
-    try {
-      sv.visitBaseType('A');
-      fail();
-    } catch (Exception e) {
-    }
+    assertThrows(Exception.class, () -> sv.visitBaseType('A'));
   }
 
   @Test
   public void testIllegalTypeVariable() {
     setup(CheckSignatureAdapter.TYPE_SIGNATURE);
-    try {
-      sv.visitTypeVariable("T");
-      sv.visitTypeVariable("T");
-      fail();
-    } catch (Exception e) {
-    }
+    sv.visitTypeVariable("T");
+    assertThrows(Exception.class, () -> sv.visitTypeVariable("T"));
   }
 
   @Test
   public void testIllegalArrayType() {
     setup(CheckSignatureAdapter.TYPE_SIGNATURE);
-    try {
-      sv.visitArrayType();
-      sv.visitArrayType();
-      fail();
-    } catch (Exception e) {
-    }
+    sv.visitArrayType();
+    assertThrows(Exception.class, () -> sv.visitArrayType());
   }
 
   @Test
   public void testIllegalClassType() {
     setup(CheckSignatureAdapter.TYPE_SIGNATURE);
-    try {
-      sv.visitClassType("A");
-      sv.visitClassType("A");
-      fail();
-    } catch (Exception e) {
-    }
+    sv.visitClassType("A");
+    assertThrows(Exception.class, () -> sv.visitClassType("A"));
   }
 
   @Test
   public void testIllegalInnerClassType() {
     setup(CheckSignatureAdapter.TYPE_SIGNATURE);
-    try {
-      sv.visitInnerClassType("A");
-      fail();
-    } catch (Exception e) {
-    }
+    assertThrows(Exception.class, () -> sv.visitInnerClassType("A"));
   }
 
   @Test
   public void testIllegalTypeArgument() {
     setup(CheckSignatureAdapter.TYPE_SIGNATURE);
-    try {
-      sv.visitTypeArgument();
-      fail();
-    } catch (Exception e) {
-    }
+    assertThrows(Exception.class, () -> sv.visitTypeArgument());
     setup(CheckSignatureAdapter.TYPE_SIGNATURE);
-    try {
-      sv.visitTypeArgument('+');
-      fail();
-    } catch (Exception e) {
-    }
+    assertThrows(Exception.class, () -> sv.visitTypeArgument('+'));
     setup(CheckSignatureAdapter.TYPE_SIGNATURE);
-    try {
-      sv.visitClassType("A");
-      sv.visitTypeArgument('*');
-      fail();
-    } catch (Exception e) {
-    }
+    sv.visitClassType("A");
+    assertThrows(Exception.class, () -> sv.visitTypeArgument('*'));
   }
 
   @Test
   public void testIllegalEnd() {
     setup(CheckSignatureAdapter.TYPE_SIGNATURE);
-    try {
-      sv.visitEnd();
-      fail();
-    } catch (Exception e) {
-    }
+    assertThrows(Exception.class, () -> sv.visitEnd());
   }
 
   private void setup(int type) {

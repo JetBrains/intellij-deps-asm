@@ -27,11 +27,10 @@
 // THE POSSIBILITY OF SUCH DAMAGE.
 package org.objectweb.asm;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.Test;
 
 /**
  * MethodVisitor tests.
@@ -39,9 +38,6 @@ import org.junit.rules.ExpectedException;
  * @author Eric Bruneton
  */
 public class MethodVisitorTest {
-
-  /** Rule that can be used in tests that expect some exceptions to be thrown. */
-  @Rule public ExpectedException thrown = ExpectedException.none();
 
   /** Tests that we can call the ASM5 visitMethodInsn on an ASM4 visitor, provided itf is false. */
   @Test
@@ -57,8 +53,8 @@ public class MethodVisitorTest {
   public void testBackwardCompatibilityFail() {
     CheckMethodVisitor checkMethodVisitor = new CheckMethodVisitor();
     MethodVisitor methodVisitor = new MethodVisitor4(checkMethodVisitor);
-    thrown.expect(RuntimeException.class);
-    methodVisitor.visitMethodInsn(0, "C", "m", "()V", true);
+    assertThrows(
+        RuntimeException.class, () -> methodVisitor.visitMethodInsn(0, "C", "m", "()V", true));
   }
 
   /**
@@ -78,8 +74,8 @@ public class MethodVisitorTest {
   public void testBackwardCompatibilityOverrideFail() {
     CheckMethodVisitor checkMethodVisitor = new CheckMethodVisitor();
     MethodVisitor methodVisitor = new MethodVisitor4Override(checkMethodVisitor);
-    thrown.expect(RuntimeException.class);
-    methodVisitor.visitMethodInsn(0, "C", "m", "()V", true);
+    assertThrows(
+        RuntimeException.class, () -> methodVisitor.visitMethodInsn(0, "C", "m", "()V", true));
   }
 
   /** Tests the ASM5 visitMethodInsn succeeds on an ASM5 visitor. */

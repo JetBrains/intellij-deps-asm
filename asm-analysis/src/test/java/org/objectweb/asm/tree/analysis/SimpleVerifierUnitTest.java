@@ -27,11 +27,11 @@
 // THE POSSIBILITY OF SUCH DAMAGE.
 package org.objectweb.asm.tree.analysis;
 
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
@@ -49,7 +49,7 @@ public class SimpleVerifierUnitTest implements Opcodes {
 
   private MethodNode mn;
 
-  @Before
+  @BeforeEach
   public void setUp() {
     Type c = Type.getType("LC;");
     Type d = Type.getType("Ljava/lang/Number;");
@@ -73,13 +73,7 @@ public class SimpleVerifierUnitTest implements Opcodes {
   private void assertInvalid() {
     mn.visitInsn(RETURN);
     mn.visitMaxs(10, 10);
-    try {
-      a.analyze("C", mn);
-      fail();
-    } catch (AnalyzerException e) {
-      success();
-    } catch (RuntimeException e) {
-    }
+    assertThrows(AnalyzerException.class, () -> a.analyze("C", mn));
   }
 
   @Test
@@ -343,13 +337,7 @@ public class SimpleVerifierUnitTest implements Opcodes {
   @Test
   public void testInvalidFalloff() {
     mn.visitMaxs(10, 10);
-    try {
-      a.analyze("C", mn);
-      fail();
-    } catch (AnalyzerException e) {
-      success();
-    } catch (RuntimeException e) {
-    }
+    assertThrows(AnalyzerException.class, () -> a.analyze("C", mn));
   }
 
   @Test
@@ -363,13 +351,7 @@ public class SimpleVerifierUnitTest implements Opcodes {
     mn.visitLabel(l0);
     mn.visitJumpInsn(JSR, l1);
     mn.visitMaxs(10, 10);
-    try {
-      a.analyze("C", mn);
-      fail();
-    } catch (AnalyzerException e) {
-      success();
-    } catch (RuntimeException e) {
-    }
+    assertThrows(AnalyzerException.class, () -> a.analyze("C", mn));
   }
 
   @Test
@@ -419,7 +401,7 @@ public class SimpleVerifierUnitTest implements Opcodes {
     assertValid();
   }
 
-  @Ignore("TODO currently Analyzer can not detect this situation")
+  @Disabled("TODO currently Analyzer can not detect this situation")
   @Test
   public void testOverlappingSubroutines() {
     // The problem is that other overlapping subroutine situations are valid, such as
@@ -474,13 +456,6 @@ public class SimpleVerifierUnitTest implements Opcodes {
     mn.visitVarInsn(ASTORE, 1);
     mn.visitJumpInsn(GOTO, l0);
     mn.visitMaxs(10, 10);
-    try {
-      a.analyze("C", mn);
-      fail();
-    } catch (Exception e) {
-    }
+    assertThrows(Exception.class, () -> a.analyze("C", mn));
   }
-
-  /** Dummy method to avoid a FindBugs warning. */
-  private static void success() {}
 }

@@ -27,13 +27,12 @@
 // THE POSSIBILITY OF SUCH DAMAGE.
 package org.objectweb.asm.tree;
 
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
-import org.junit.Test;
-import org.junit.runners.Parameterized.Parameters;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.objectweb.asm.AnnotationVisitor;
 import org.objectweb.asm.Attribute;
 import org.objectweb.asm.ClassReader;
@@ -52,15 +51,10 @@ import org.objectweb.asm.test.AsmTest;
  */
 public class ClassNodeTest extends AsmTest {
 
-  /** @return test parameters to test all the precompiled classes with all the apis. */
-  @Parameters(name = NAME)
-  public static Collection<Object[]> data() {
-    return data(Api.ASM4, Api.ASM5, Api.ASM6);
-  }
-
   /** Tests that classes are unchanged with a ClassReader->ClassNode->ClassWriter transform. */
-  @Test
-  public void testReadAndWrite() {
+  @ParameterizedTest
+  @MethodSource(ALL_CLASSES_AND_ALL_APIS)
+  public void testReadAndWrite(PrecompiledClass classParameter, Api apiParameter) {
     byte[] classFile = classParameter.getBytes();
     ClassReader classReader = new ClassReader(classFile);
     ClassNode classNode = new ClassNode(apiParameter.value());
@@ -75,24 +69,25 @@ public class ClassNodeTest extends AsmTest {
    * Tests that {@link ClassNode.check()} throws an exception for classes that contain elements more
    * recent than the ASM API version.
    */
-  @Test
-  public void testCheck() {
+  @ParameterizedTest
+  @MethodSource(ALL_CLASSES_AND_ALL_APIS)
+  public void testCheck(PrecompiledClass classParameter, Api apiParameter) {
     byte[] classFile = classParameter.getBytes();
     ClassReader classReader = new ClassReader(classFile);
     ClassNode classNode = new ClassNode(apiParameter.value());
     classReader.accept(classNode, attributes(), 0);
-    if (classParameter.isMoreRecentThan(apiParameter)) {
-      thrown.expect(RuntimeException.class);
-    }
-    classNode.check(apiParameter.value());
+    assertThat(() -> classNode.check(apiParameter.value()))
+        .succeedsOrThrows(RuntimeException.class)
+        .when(classParameter.isMoreRecentThan(apiParameter));
   }
 
   /**
    * Tests that classes are unchanged with a ClassReader->ClassNode->ClassWriter transform, when all
    * instructions are cloned.
    */
-  @Test
-  public void testReadCloneAndWrite() {
+  @ParameterizedTest
+  @MethodSource(ALL_CLASSES_AND_ALL_APIS)
+  public void testReadCloneAndWrite(PrecompiledClass classParameter, Api apiParameter) {
     byte[] classFile = classParameter.getBytes();
     ClassReader classReader = new ClassReader(classFile);
     ClassNode classNode = new ClassNode(apiParameter.value());
@@ -118,8 +113,9 @@ public class ClassNodeTest extends AsmTest {
   }
 
   /** Tests that ClassNode accepts visitors that remove class elements. */
-  @Test
-  public void testRemoveMembers() {
+  @ParameterizedTest
+  @MethodSource(ALL_CLASSES_AND_ALL_APIS)
+  public void testRemoveMembers(PrecompiledClass classParameter, Api apiParameter) {
     byte[] classFile = classParameter.getBytes();
     ClassReader classReader = new ClassReader(classFile);
     ClassNode classNode = new ClassNode(apiParameter.value());

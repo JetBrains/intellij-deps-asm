@@ -27,11 +27,11 @@
 // THE POSSIBILITY OF SUCH DAMAGE.
 package org.objectweb.asm.commons;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
@@ -51,7 +51,7 @@ public class JSRInlinerAdapterUnitTest {
   private MethodNode exp;
   private MethodVisitor current;
 
-  @Before
+  @BeforeEach
   public void setUp() throws Exception {
     jsr =
         new JSRInlinerAdapter(Opcodes.ASM5, null, 0, "m", "()V", null, null) {

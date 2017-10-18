@@ -27,10 +27,10 @@
 // THE POSSIBILITY OF SUCH DAMAGE.
 package org.objectweb.asm.xml;
 
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.objectweb.asm.AnnotationVisitor;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.FieldVisitor;
@@ -54,7 +54,7 @@ public class ASMContentHandlerUnitTest implements Opcodes {
 
   MethodVisitor mv;
 
-  @Before
+  @BeforeEach
   public void setUp() throws Exception {
     h =
         new ASMContentHandler(
@@ -168,43 +168,28 @@ public class ASMContentHandlerUnitTest implements Opcodes {
   }
 
   @Test
-  public void testInvalidOpcode() {
+  public void testInvalidOpcode() throws SAXException {
     methodSetUp();
-    AttributesImpl attrs = new AttributesImpl();
-    try {
-      h.startElement("", "opcode", "", attrs);
-      h.endElement("", "opcode", "");
-      fail();
-    } catch (SAXException e) {
-    }
+    AttributesImpl attrs = new AttributesImpl();    
+    assertThrows(SAXException.class, () -> h.startElement("", "opcode", "", attrs));
   }
 
   @Test
-  public void testInvalidValueDescriptor() {
+  public void testInvalidValueDescriptor() throws SAXException {
     methodSetUp();
     AttributesImpl attrs = new AttributesImpl();
     attrs.addAttribute("", "desc", "desc", "", "desc");
     attrs.addAttribute("", "cst", "cst", "", "");
-    try {
-      h.startElement("", "LDC", "", attrs);
-      h.endElement("", "LDC", "");
-      fail();
-    } catch (SAXException e) {
-    }
+    assertThrows(SAXException.class, () -> h.startElement("", "LDC", "", attrs));
   }
 
   @Test
-  public void testInvalidValue() {
+  public void testInvalidValue() throws SAXException {
     methodSetUp();
     AttributesImpl attrs = new AttributesImpl();
     attrs.addAttribute("", "desc", "desc", "", "Ljava/lang/String;");
     attrs.addAttribute("", "cst", "cst", "", "\\");
-    try {
-      h.startElement("", "LDC", "", attrs);
-      h.endElement("", "LDC", "");
-      fail();
-    } catch (SAXException e) {
-    }
+    assertThrows(SAXException.class, () -> h.startElement("", "LDC", "", attrs));
   }
 
   @Test

@@ -27,10 +27,15 @@
 // THE POSSIBILITY OF SUCH DAMAGE.
 package org.objectweb.asm.test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assumptions.assumingThat;
+
+import org.junit.jupiter.api.function.Executable;
+import org.junit.jupiter.params.provider.Arguments;
 
 import java.io.InputStream;
 import java.lang.reflect.Array;
@@ -40,18 +45,12 @@ import java.lang.reflect.Modifier;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.List;
-
-import org.junit.Rule;
-import org.junit.rules.ExpectedException;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
-import org.junit.runners.Parameterized.Parameter;
+import java.util.stream.Stream;
 
 /**
- * Base class for the parameterized ASM tests. ASM can be used to read, write or transform any Java
- * class, ranging from very old (e.g. JDK 1.3) to very recent classes, containing all possible class
- * file structures. ASM can also be used with different variants of its API (ASM4, ASM5 or ASM6). In
+ * Base class for the ASM tests. ASM can be used to read, write or transform any Java class, ranging
+ * from very old (e.g. JDK 1.3) to very recent classes, containing all possible class file
+ * structures. ASM can also be used with different variants of its API (ASM4, ASM5 or ASM6). In
  * order to test it thoroughly, it is therefore necessary to run read, write and transform tests,
  * for each API version, and for each class in a set of classes containing all possible class file
  * structures. The purpose of this class is to automate this process. For this it relies on:
@@ -62,27 +61,20 @@ import org.junit.runners.Parameterized.Parameter;
  *       called "precompiled classes" below, because they are not compiled as part of the build.
  *       Instead, they have been compiled beforehand with the appropriate JDKs (e.g. with the JDK
  *       1.3, 1.5, etc).
- *   <li>the JUnit framework for parameterized tests. Using the {@link #data(Api...)} method,
- *       subclasses of this class can be instantiated for each possible (test case, precompiled
- *       class, ASM API) tuple. In each instance, the test case can access the precompiled class and
- *       the API version to be tested with the {@link #classParameter} and {@link #apiParameter}
- *       fields.
+ *   <li>the JUnit framework for parameterized tests. Using the {@link #allClassesAndAllApis()}
+ *       method, selected test methods can be instantiated for each possible (precompiled class, ASM
+ *       API) tuple.
  * </ul>
  *
  * For instance, to run a test on all the precompiled classes, with both the ASM5 and the ASM6 API,
  * use a subclass such as the following:
  *
  * <pre>
- * &#64;RunWith(Parameterized.class)
  * public class MyParameterizedTest extends AsmTest {
  *
- *   &#64;Parameters(name = NAME)
- *   public static Collection<Object[]> data() {
- *     return data(Api.ASM5, Api.ASM6);
- *   }
- *
- *   &#64;Test
- *   public void testSomeFeature() throws IOException {
+ *   @ParameterizedTest
+ *   @MethodSource(ALL_CLASSES_AND_ALL_APIS)
+ *   public void testSomeFeature(PrecompiledClass classParameter, Api apiParameter) {
  *     byte[] b = classParameter.getBytes();
  *     ClassWriter classWriter = new ClassWriter(apiParameter.value(), 0);
  *     ...
@@ -92,22 +84,19 @@ import org.junit.runners.Parameterized.Parameter;
  *
  * @author Eric Bruneton
  */
-@RunWith(Parameterized.class)
 public abstract class AsmTest {
 
-  /** Naming pattern for the parameterized tests, used in test logs and reports. */
-  public static final String NAME = "{0}/{1}";
+  /**
+   * MethodSource name to be used in parameterized tests that must be instantiated for all possible
+   * (precompiled class, api) pairs.
+   */
+  public final String ALL_CLASSES_AND_ALL_APIS = "allClassesAndAllApis";
 
-  /** The precompiled class to be tested in this parameterized test instance. */
-  @Parameter(0)
-  public PrecompiledClass classParameter;
-
-  /** The ASM API version to be used in this parameterized test instance. */
-  @Parameter(1)
-  public Api apiParameter;
-
-  /** Rule that can be used in tests that expect some exceptions to be thrown. */
-  @Rule public ExpectedException thrown = ExpectedException.none();
+  /**
+   * MethodSource name to be used in parameterized tests that must be instantiated for all
+   * precompiled classes, with the latest api.
+   */
+  public final String ALL_CLASSES_AND_LATEST_API = "allClassesAndLatestApi";
 
   /**
    * A precompiled class, hand-crafted to contain some set of class file structures. These classes
@@ -189,7 +178,7 @@ public abstract class AsmTest {
       InputStream inputStream = null;
       try {
         inputStream = ClassLoader.getSystemResourceAsStream(name.replace('.', '/') + ".class");
-        assertNotNull("Class not found " + name, inputStream);
+        assertNotNull(inputStream, "Class not found " + name);
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         byte[] data = new byte[inputStream.available()];
         int bytesRead;
@@ -252,23 +241,71 @@ public abstract class AsmTest {
   }
 
   /**
-   * Builds a list of test parameters for a parameterized test. By returning this in a static method
-   * annotated with &#64;Parameters in a subclass of this class, each test case will be executed on
-   * all the precompiled classes, with all the given ASM API versions.
+   * Builds a list of test arguments for a parameterized test. Parameterized test cases annotated
+   * with <tt>@MethodSource("allClassesAndAllApis")</tt> will be executed on all the possible
+   * (precompiledClass, api) pairs.
    *
-   * @param apis the ASM API versions that must be tested.
    * @return all the possible (precompiledClass, api) pairs, for all the precompiled classes and all
    *     the given ASM API versions.
    */
-  public static List<Object[]> data(Api... apis) {
-    PrecompiledClass[] values = PrecompiledClass.values();
-    ArrayList<Object[]> result = new ArrayList<Object[]>();
-    for (Api api : apis) {
-      for (PrecompiledClass precompiledClass : values) {
-        result.add(new Object[] {precompiledClass, api});
+  public static Stream<Arguments> allClassesAndAllApis() {
+    return classesAndApis(Api.values());
+  }
+
+  /**
+   * Builds a list of test arguments for a parameterized test. Parameterized test cases annotated
+   * with <tt>@MethodSource("allClassesAndLatestApi")</tt> will be executed on all the precompiled
+   * classes, with the latest api.
+   *
+   * @return all the possible (precompiledClass, ASM6) pairs, for all the precompiled classes.
+   */
+  public static Stream<Arguments> allClassesAndLatestApi() {
+    return classesAndApis(Api.ASM6);
+  }
+
+  private static Stream<Arguments> classesAndApis(Api... apis) {
+    ArrayList<Arguments> result = new ArrayList<>();
+    for (PrecompiledClass precompiledClass : PrecompiledClass.values()) {
+      for (Api api : apis) {
+        result.add(Arguments.of(precompiledClass, api));
       }
     }
-    return result;
+    return result.stream();
+  }
+
+  public static ExecutableSubject assertThat(Executable executable) {
+    return new ExecutableSubject(executable);
+  }
+
+  public static class ExecutableSubject {
+    private final Executable executable;
+
+    ExecutableSubject(final Executable executable) {
+      this.executable = executable;
+    }
+
+    public <T extends Throwable> ExecutableOutcomeSubject<T> succeedsOrThrows(
+        Class<T> expectedType) {
+      return new ExecutableOutcomeSubject<T>(executable, expectedType);
+    }
+  }
+
+  public static class ExecutableOutcomeSubject<T extends Throwable> {
+    private final Executable executable;
+    private final Class<T> expectedType;
+
+    ExecutableOutcomeSubject(final Executable executable, final Class<T> expectedType) {
+      this.executable = executable;
+      this.expectedType = expectedType;
+    }
+
+    public void when(boolean condition) {
+      if (condition) {
+        assertThrows(expectedType, executable);
+      } else {
+        assumingThat(true, executable);
+      }
+    }
   }
 
   /**
@@ -330,9 +367,8 @@ public abstract class AsmTest {
    *
    * @param className the name of the class to load.
    * @param classContent the content of the class to load.
-   * @return whether the class was loaded successfully.
    */
-  public static boolean loadAndInstantiate(String className, byte[] classContent) {
+  public static void loadAndInstantiate(String className, byte[] classContent) {
     ByteClassLoader byteClassLoader = new ByteClassLoader(className, classContent);
     try {
       Class<?> clazz = byteClassLoader.loadClass(className);
@@ -363,7 +399,7 @@ public abstract class AsmTest {
       // If an exception occurs in the invoked constructor, it means the
       // class was successfully verified first.
     }
-    return byteClassLoader.classLoaded();
+    assertTrue(byteClassLoader.classLoaded());
   }
 
   /** A simple ClassLoader to test that a class can be loaded in the JVM. */

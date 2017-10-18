@@ -27,10 +27,10 @@
 // THE POSSIBILITY OF SUCH DAMAGE.
 package org.objectweb.asm.xml;
 
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
@@ -44,7 +44,7 @@ public class SAXAdapterUnitTest {
 
   SAXAdapter sa;
 
-  @Before
+  @BeforeEach
   public void setUp() {
     sa =
         new SAXAdapter(
@@ -77,37 +77,21 @@ public class SAXAdapterUnitTest {
 
   @Test
   public void testInvalidAddDocumentStart() {
-    try {
-      sa.addDocumentStart();
-      fail();
-    } catch (Exception e) {
-    }
+    assertThrows(Exception.class, () -> sa.addDocumentStart());
   }
 
   @Test
   public void testInvalidAddDocumentEnd() {
-    try {
-      sa.addDocumentEnd();
-      fail();
-    } catch (Exception e) {
-    }
+    assertThrows(Exception.class, () -> sa.addDocumentEnd());
   }
 
   @Test
   public void testInvalidAddStart() {
-    try {
-      sa.addStart("name", null);
-      fail();
-    } catch (Exception e) {
-    }
+    assertThrows(Exception.class, () -> sa.addStart("name", null));
   }
 
   @Test
   public void testInvalidAddEnd() {
-    try {
-      sa.addEnd("name");
-      fail();
-    } catch (Exception e) {
-    }
+    assertThrows(Exception.class, () -> sa.addEnd("name"));
   }
 }

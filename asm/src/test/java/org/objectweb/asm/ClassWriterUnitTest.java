@@ -27,9 +27,9 @@
 // THE POSSIBILITY OF SUCH DAMAGE.
 package org.objectweb.asm;
 
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * ClassWriter unit tests.
@@ -52,20 +52,12 @@ public class ClassWriterUnitTest {
   @Test
   public void testIllegalNewConstArgument() {
     ClassWriter cw = new ClassWriter(0);
-    try {
-      cw.newConst(new Object());
-      fail();
-    } catch (RuntimeException e) {
-    }
+    assertThrows(RuntimeException.class, () -> cw.newConst(new Object()));
   }
 
   @Test
   public void testIllegalGetCommonSuperClassArguments() {
     ClassWriter cw = new ClassWriter(0);
-    try {
-      cw.getCommonSuperClass("-", "-");
-      fail();
-    } catch (RuntimeException e) {
-    }
+    assertThrows(RuntimeException.class, () -> cw.getCommonSuperClass("-", "-"));
   }
 }

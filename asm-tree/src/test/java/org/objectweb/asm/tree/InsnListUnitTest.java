@@ -27,18 +27,18 @@
 // THE POSSIBILITY OF SUCH DAMAGE.
 package org.objectweb.asm.tree;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNotSame;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
 
 import java.util.ListIterator;
 import java.util.NoSuchElementException;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
@@ -59,7 +59,7 @@ public class InsnListUnitTest {
 
   InsnNode in2;
 
-  @Before
+  @BeforeEach
   public void setUp() throws Exception {
     l1 = new CheckedInsnList();
     l2 = new CheckedInsnList();
@@ -93,11 +93,7 @@ public class InsnListUnitTest {
 
   @Test
   public void testInvalidGet() {
-    try {
-      l1.get(0);
-      fail();
-    } catch (IndexOutOfBoundsException e) {
-    }
+    assertThrows(IndexOutOfBoundsException.class, () -> l1.get(0));
   }
 
   @Test
@@ -255,11 +251,7 @@ public class InsnListUnitTest {
 
   @Test
   public void testIterator4() {
-    try {
-      new InsnList().iterator().next();
-      fail();
-    } catch (NoSuchElementException e) {
-    }
+    assertThrows(NoSuchElementException.class, () -> new InsnList().iterator().next());
   }
 
   @Test
@@ -294,11 +286,7 @@ public class InsnListUnitTest {
 
   @Test
   public void testInvalidIndexOf() {
-    try {
-      l1.indexOf(new InsnNode(0));
-      fail();
-    } catch (IllegalArgumentException e) {
-    }
+    assertThrows(IllegalArgumentException.class, () -> l1.indexOf(new InsnNode(0)));
   }
 
   @Test
@@ -308,11 +296,7 @@ public class InsnListUnitTest {
 
   @Test
   public void testInvalidSet() {
-    try {
-      l1.set(new InsnNode(0), new InsnNode(0));
-      fail();
-    } catch (IllegalArgumentException e) {
-    }
+    assertThrows(IllegalArgumentException.class, () -> l1.set(new InsnNode(0), new InsnNode(0)));
   }
 
   @Test
@@ -341,11 +325,7 @@ public class InsnListUnitTest {
 
   @Test
   public void testInvalidAdd() {
-    try {
-      l1.add(in1);
-      fail();
-    } catch (IllegalArgumentException e) {
-    }
+    assertThrows(IllegalArgumentException.class, () -> l1.add(in1));
   }
 
   @Test
@@ -386,11 +366,7 @@ public class InsnListUnitTest {
 
   @Test
   public void testInvalidAddAll() {
-    try {
-      l1.add(l1);
-      fail();
-    } catch (IllegalArgumentException e) {
-    }
+    assertThrows(IllegalArgumentException.class, () -> l1.add(l1));
   }
 
   @Test
@@ -427,11 +403,7 @@ public class InsnListUnitTest {
 
   @Test
   public void testInvalidInsert() {
-    try {
-      l1.insert(in1);
-      fail();
-    } catch (IllegalArgumentException e) {
-    }
+    assertThrows(IllegalArgumentException.class, () -> l1.insert(in1));
   }
 
   @Test
@@ -461,11 +433,7 @@ public class InsnListUnitTest {
 
   @Test
   public void testInvalidInsertAll() {
-    try {
-      l1.insert(l1);
-      fail();
-    } catch (IllegalArgumentException e) {
-    }
+    assertThrows(IllegalArgumentException.class, () -> l1.insert(l1));
   }
 
   @Test
@@ -511,11 +479,7 @@ public class InsnListUnitTest {
 
   @Test
   public void testInvalidInsert2() {
-    try {
-      l1.insert(new InsnNode(0), new InsnNode(0));
-      fail();
-    } catch (IllegalArgumentException e) {
-    }
+    assertThrows(IllegalArgumentException.class, () -> l1.insert(new InsnNode(0), new InsnNode(0)));
   }
 
   @Test
@@ -572,20 +536,13 @@ public class InsnListUnitTest {
 
   @Test
   public void testInvalidInsertBefore() {
-    try {
-      l1.insertBefore(new InsnNode(0), new InsnNode(0));
-      fail();
-    } catch (IllegalArgumentException e) {
-    }
+    assertThrows(
+        IllegalArgumentException.class, () -> l1.insertBefore(new InsnNode(0), new InsnNode(0)));
   }
 
   @Test
   public void testInvalidInsertAll2() {
-    try {
-      l1.insert(new InsnNode(0), new InsnList());
-      fail();
-    } catch (IllegalArgumentException e) {
-    }
+    assertThrows(IllegalArgumentException.class, () -> l1.insert(new InsnNode(0), new InsnList()));
   }
 
   @Test
@@ -636,11 +593,8 @@ public class InsnListUnitTest {
 
   @Test
   public void testInvalidInsertBeforeAll() {
-    try {
-      l1.insertBefore(new InsnNode(0), new InsnList());
-      fail();
-    } catch (IllegalArgumentException e) {
-    }
+    assertThrows(
+        IllegalArgumentException.class, () -> l1.insertBefore(new InsnNode(0), new InsnList()));
   }
 
   @Test

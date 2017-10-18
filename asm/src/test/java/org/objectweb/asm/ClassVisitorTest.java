@@ -27,10 +27,10 @@
 // THE POSSIBILITY OF SUCH DAMAGE.
 package org.objectweb.asm;
 
-import java.util.Collection;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import org.junit.Test;
-import org.junit.runners.Parameterized.Parameters;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.objectweb.asm.test.AsmTest;
 
 /**
@@ -40,36 +40,34 @@ import org.objectweb.asm.test.AsmTest;
  */
 public class ClassVisitorTest extends AsmTest {
 
-  /** @return test parameters to test all the precompiled classes with all the apis. */
-  @Parameters(name = NAME)
-  public static Collection<Object[]> data() {
-    return data(Api.ASM4, Api.ASM5, Api.ASM6);
-  }
-
   /**
    * Tests that classes are unchanged when transformed with a ClassReader -> class adapter ->
    * ClassWriter chain, where "class adapter" is a ClassVisitor which returns FieldVisitor,
    * MethodVisitor, ModuleVisitor and AnnotationVisitor instances.
    */
-  @Test
-  public void testReadAndWriteWithEmptyVisitor() {
+  @ParameterizedTest
+  @MethodSource(ALL_CLASSES_AND_ALL_APIS)
+  public void testReadAndWriteWithEmptyVisitor(PrecompiledClass classParameter, Api apiParameter) {
     byte[] classFile = classParameter.getBytes();
     ClassReader classReader = new ClassReader(classFile);
     ClassWriter classWriter = new ClassWriter(0);
     ClassAdapter classAdapter = new ClassAdapter(apiParameter.value(), classWriter);
     if (classParameter.isMoreRecentThan(apiParameter)) {
-      thrown.expect(RuntimeException.class);
+      assertThrows(RuntimeException.class, () -> classReader.accept(classAdapter, attributes(), 0));
+    } else {
+      classReader.accept(classAdapter, attributes(), 0);
+      assertThatClass(classWriter.toByteArray()).isEqualTo(classFile);
     }
-    classReader.accept(classAdapter, attributes(), 0);
-    assertThatClass(classWriter.toByteArray()).isEqualTo(classFile);
   }
 
   /**
    * Tests that a ClassReader -> class adapter -> ClassWriter chain give the same result with or
    * without the copy pool option.
    */
-  @Test
-  public void testReadAndWriteWithCopyPoolAndExceptionAdapter() {
+  @ParameterizedTest
+  @MethodSource(ALL_CLASSES_AND_ALL_APIS)
+  public void testReadAndWriteWithCopyPoolAndExceptionAdapter(
+      PrecompiledClass classParameter, Api apiParameter) {
     byte[] classFile = classParameter.getBytes();
     ClassReader classReader = new ClassReader(classFile);
     ClassWriter classWriter = new ClassWriter(0);

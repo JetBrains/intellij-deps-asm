@@ -27,27 +27,20 @@
 // THE POSSIBILITY OF SUCH DAMAGE.
 package org.objectweb.asm.commons;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import java.util.Collection;
-
-import org.junit.Test;
-import org.junit.runners.Parameterized.Parameters;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.test.AsmTest;
 
 public class ClassRemapperTest extends AsmTest {
 
-  /** @return test parameters to test all the precompiled classes with all the apis. */
-  @Parameters(name = NAME)
-  public static Collection<Object[]> data() {
-    return data(Api.ASM4, Api.ASM5, Api.ASM6);
-  }
-
   /** Tests that classes transformed with a ClassRemapper can be loaded and instantiated. */
-  @Test
-  public void testRemapLoadAndInstantiate() {
+  @ParameterizedTest
+  @MethodSource(ALL_CLASSES_AND_ALL_APIS)
+  public void testRemapLoadAndInstantiate(PrecompiledClass classParameter, Api apiParameter) {
     ClassReader classReader = new ClassReader(classParameter.getBytes());
     ClassWriter classWriter = new ClassWriter(0);
     Remapper upperCaseRemapper =
@@ -78,13 +71,16 @@ public class ClassRemapperTest extends AsmTest {
                 : typeName;
           }
         };
+    ClassRemapper classRemapper =
+        new ClassRemapper(apiParameter.value(), classWriter, upperCaseRemapper);
     if (classParameter.isMoreRecentThan(apiParameter)) {
-      thrown.expect(RuntimeException.class);
-    } else if (classParameter.isMoreRecentThanCurrentJdk()) {
-      thrown.expect(UnsupportedClassVersionError.class);
+      assertThrows(RuntimeException.class, () -> classReader.accept(classRemapper, 0));
+      return;
     }
-    classReader.accept(new ClassRemapper(apiParameter.value(), classWriter, upperCaseRemapper), 0);
-    assertTrue(
-        loadAndInstantiate(classParameter.getName().toUpperCase(), classWriter.toByteArray()));
+    classReader.accept(classRemapper, 0);
+    byte[] classFile = classWriter.toByteArray();
+    assertThat(() -> loadAndInstantiate(classParameter.getName().toUpperCase(), classFile))
+        .succeedsOrThrows(UnsupportedClassVersionError.class)
+        .when(classParameter.isMoreRecentThanCurrentJdk());
   }
 }

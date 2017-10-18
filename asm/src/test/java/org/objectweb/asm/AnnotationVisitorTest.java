@@ -6,13 +6,13 @@
 // modification, are permitted provided that the following conditions
 // are met:
 // 1. Redistributions of source code must retain the above copyright
-//    notice, this list of conditions and the following disclaimer.
+// notice, this list of conditions and the following disclaimer.
 // 2. Redistributions in binary form must reproduce the above copyright
-//    notice, this list of conditions and the following disclaimer in the
-//    documentation and/or other materials provided with the distribution.
+// notice, this list of conditions and the following disclaimer in the
+// documentation and/or other materials provided with the distribution.
 // 3. Neither the name of the copyright holders nor the names of its
-//    contributors may be used to endorse or promote products derived from
-//    this software without specific prior written permission.
+// contributors may be used to endorse or promote products derived from
+// this software without specific prior written permission.
 //
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
 // AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
@@ -27,10 +27,10 @@
 // THE POSSIBILITY OF SUCH DAMAGE.
 package org.objectweb.asm;
 
-import java.util.Collection;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import org.junit.Test;
-import org.junit.runners.Parameterized.Parameters;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.objectweb.asm.test.AsmTest;
 
 /**
@@ -40,32 +40,37 @@ import org.objectweb.asm.test.AsmTest;
  */
 public class AnnotationVisitorTest extends AsmTest {
 
-  /** @return test parameters to test all the precompiled classes with all the apis. */
-  @Parameters(name = NAME)
-  public static Collection<Object[]> data() {
-    return data(Api.ASM4, Api.ASM5, Api.ASM6);
-  }
-
   /**
    * Tests that ClassReader accepts visitor which return null AnnotationVisitor, and that returning
    * null AnnotationVisitor is equivalent to returning an EmptyAnnotationVisitor.
    */
-  @Test
-  public void testRemoveOrDelete() {
+  @ParameterizedTest
+  @MethodSource("allClassesAndAllApis")
+  public void testRemoveOrDelete(PrecompiledClass classParameter, Api apiParameter) {
     ClassReader classReader = new ClassReader(classParameter.getBytes());
     ClassWriter classWriter1 = new ClassWriter(0);
     ClassWriter classWriter2 = new ClassWriter(0);
     if (classParameter.isMoreRecentThan(apiParameter)) {
-      thrown.expect(RuntimeException.class);
+      assertThrows(
+          RuntimeException.class,
+          () ->
+              classReader.accept(
+                  new RemoveAnnotationsAdapter(apiParameter.value(), classWriter1), 0));
+      assertThrows(
+          RuntimeException.class,
+          () ->
+              classReader.accept(
+                  new DeleteAnnotationsAdapter(apiParameter.value(), classWriter2), 0));
+    } else {
+      classReader.accept(new RemoveAnnotationsAdapter(apiParameter.value(), classWriter1), 0);
+      classReader.accept(new DeleteAnnotationsAdapter(apiParameter.value(), classWriter2), 0);
+      assertThatClass(classWriter1.toByteArray()).isEqualTo(classWriter2.toByteArray());
     }
-    classReader.accept(new RemoveAnnotationsAdapter(apiParameter.value(), classWriter1), 0);
-    classReader.accept(new DeleteAnnotationsAdapter(apiParameter.value(), classWriter2), 0);
-    assertThatClass(classWriter1.toByteArray()).isEqualTo(classWriter2.toByteArray());
   }
 
-  static class EmptyAnnotationVisitor extends AnnotationVisitor {
+  private static class EmptyAnnotationVisitor extends AnnotationVisitor {
 
-    public EmptyAnnotationVisitor(final int api) {
+    EmptyAnnotationVisitor(final int api) {
       super(api);
     }
 
@@ -80,9 +85,9 @@ public class AnnotationVisitorTest extends AsmTest {
     }
   }
 
-  static class RemoveAnnotationsAdapter extends ClassVisitor {
+  private static class RemoveAnnotationsAdapter extends ClassVisitor {
 
-    public RemoveAnnotationsAdapter(final int api, final ClassVisitor cv) {
+    RemoveAnnotationsAdapter(final int api, final ClassVisitor cv) {
       super(api, cv);
     }
 
@@ -155,9 +160,9 @@ public class AnnotationVisitorTest extends AsmTest {
     }
   }
 
-  static class DeleteAnnotationsAdapter extends ClassVisitor {
+  private static class DeleteAnnotationsAdapter extends ClassVisitor {
 
-    public DeleteAnnotationsAdapter(final int api, final ClassVisitor cv) {
+    DeleteAnnotationsAdapter(final int api, final ClassVisitor cv) {
       super(api, cv);
     }
 

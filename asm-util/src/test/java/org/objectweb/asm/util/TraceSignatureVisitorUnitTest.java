@@ -27,17 +27,14 @@
 // THE POSSIBILITY OF SUCH DAMAGE.
 package org.objectweb.asm.util;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.StringTokenizer;
+import java.util.stream.Stream;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
-import org.junit.runners.Parameterized.Parameter;
-import org.junit.runners.Parameterized.Parameters;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.signature.SignatureReader;
 
@@ -46,7 +43,6 @@ import org.objectweb.asm.signature.SignatureReader;
  *
  * @author Eugene Kuleshov
  */
-@RunWith(Parameterized.class)
 public class TraceSignatureVisitorUnitTest {
 
   public static final String[] DATA = {
@@ -87,20 +83,17 @@ public class TraceSignatureVisitorUnitTest {
         + "|<E:Ljava/lang/Object;T::Ljava/lang/Comparable<TE;>;>(Ljava/lang/Object;Ljava/util/Map<Ljava/lang/Object;Ljava/lang/String;>;TT;)Ljava/util/Map<Ljava/lang/Object;Ljava/lang/String;>;",
   };
 
-  @Parameters
-  public static List<Object[]> data() {
-    ArrayList<Object[]> result = new ArrayList<Object[]>();
+  public static Stream<TestData> testArguments() {
+    ArrayList<TestData> result = new ArrayList<>();
     for (String data : DATA) {
-      result.add(new Object[] {new TestData(data)});
+      result.add(new TestData(data));
     }
-    return result;
+    return result.stream();
   }
 
-  @Parameter(0)
-  public TestData data;
-
-  @Test
-  public void testSignature() {
+  @ParameterizedTest
+  @MethodSource("testArguments")
+  public void testSignature(TestData data) {
     TraceSignatureVisitor d = new TraceSignatureVisitor(data.access);
     SignatureReader r = new SignatureReader(data.signature);
 

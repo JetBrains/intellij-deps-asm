@@ -27,12 +27,10 @@
 // THE POSSIBILITY OF SUCH DAMAGE.
 package org.objectweb.asm.util;
 
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.junit.Assert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import java.util.Collection;
-import org.junit.Test;
-import org.junit.runners.Parameterized.Parameters;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.FieldVisitor;
@@ -48,18 +46,13 @@ import org.objectweb.asm.test.AsmTest;
  */
 public class CheckSignatureAdapterTest extends AsmTest {
 
-  /** @return test parameters to test all the precompiled classes with ASM6. */
-  @Parameters(name = NAME)
-  public static Collection<Object[]> data() {
-    return data(Api.ASM6);
-  }
-
   /**
    * Tests that signatures are unchanged with a
    * SignatureReader->ChecksignatureAdapter->SignatureWriter transform.
    */
-  @Test
-  public void test() throws Exception {
+  @ParameterizedTest
+  @MethodSource(ALL_CLASSES_AND_LATEST_API)
+  public void test(PrecompiledClass classParameter, Api apiParameter) throws Exception {
     ClassReader classReader = new ClassReader(classParameter.getBytes());
     classReader.accept(
         new ClassVisitor(apiParameter.value()) {
@@ -77,7 +70,7 @@ public class CheckSignatureAdapterTest extends AsmTest {
               signatureReader.accept(
                   new CheckSignatureAdapter(
                       CheckSignatureAdapter.CLASS_SIGNATURE, signatureWriter));
-              assertThat(signatureWriter.toString(), equalTo(signature));
+              assertEquals(signature, signatureWriter.toString());
             }
           }
 
@@ -89,7 +82,7 @@ public class CheckSignatureAdapterTest extends AsmTest {
               SignatureWriter signatureWriter = new SignatureWriter();
               signatureReader.acceptType(
                   new CheckSignatureAdapter(CheckSignatureAdapter.TYPE_SIGNATURE, signatureWriter));
-              assertThat(signatureWriter.toString(), equalTo(signature));
+              assertEquals(signature, signatureWriter.toString());
             }
             return null;
           }
@@ -103,7 +96,7 @@ public class CheckSignatureAdapterTest extends AsmTest {
               signatureReader.accept(
                   new CheckSignatureAdapter(
                       CheckSignatureAdapter.METHOD_SIGNATURE, signatureWriter));
-              assertThat(signatureWriter.toString(), equalTo(signature));
+              assertEquals(signature, signatureWriter.toString());
             }
             return null;
           }

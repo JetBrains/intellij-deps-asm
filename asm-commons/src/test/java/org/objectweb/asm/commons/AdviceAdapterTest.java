@@ -27,10 +27,10 @@
 // THE POSSIBILITY OF SUCH DAMAGE.
 package org.objectweb.asm.commons;
 
-import java.util.Collection;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import org.junit.Test;
-import org.junit.runners.Parameterized.Parameters;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.ClassWriter;
@@ -45,25 +45,28 @@ import org.objectweb.asm.test.AsmTest;
  */
 public class AdviceAdapterTest extends AsmTest {
 
-  /** @return test parameters to test all the precompiled classes with all the apis. */
-  @Parameters(name = NAME)
-  public static Collection<Object[]> data() {
-    return data(Api.ASM4, Api.ASM5, Api.ASM6);
-  }
-
-  @Test
-  public void testEmptyAdviceAdapter() throws Exception {
+  @ParameterizedTest
+  @MethodSource(ALL_CLASSES_AND_ALL_APIS)
+  public void testEmptyAdviceAdapter(PrecompiledClass classParameter, Api apiParameter)
+      throws Exception {
     ClassReader classReader = new ClassReader(classParameter.getBytes());
     ClassWriter expectedClassWriter = new ClassWriter(0);
     ClassWriter actualClassWriter = new ClassWriter(0);
+    ClassVisitor expectedClassVisitor =
+        new ReferenceClassAdapter(apiParameter.value(), expectedClassWriter);
+    ClassVisitor actualClassVisitor =
+        new AdviceClassAdapter(apiParameter.value(), actualClassWriter);
     if (classParameter.isMoreRecentThan(apiParameter)) {
-      thrown.expect(RuntimeException.class);
+      assertThrows(
+          RuntimeException.class,
+          () -> classReader.accept(expectedClassVisitor, ClassReader.EXPAND_FRAMES));
+      assertThrows(
+          RuntimeException.class,
+          () -> classReader.accept(actualClassVisitor, ClassReader.EXPAND_FRAMES));
+      return;
     }
-    classReader.accept(
-        new ReferenceClassAdapter(apiParameter.value(), expectedClassWriter),
-        ClassReader.EXPAND_FRAMES);
-    classReader.accept(
-        new AdviceClassAdapter(apiParameter.value(), actualClassWriter), ClassReader.EXPAND_FRAMES);
+    classReader.accept(expectedClassVisitor, ClassReader.EXPAND_FRAMES);
+    classReader.accept(actualClassVisitor, ClassReader.EXPAND_FRAMES);
     assertThatClass(actualClassWriter.toByteArray()).isEqualTo(expectedClassWriter.toByteArray());
   }
 
@@ -84,7 +87,7 @@ public class AdviceAdapterTest extends AsmTest {
       if (mv == null || (access & (Opcodes.ACC_ABSTRACT | Opcodes.ACC_NATIVE)) > 0) {
         return mv;
       }
-      return new LocalVariablesSorter(access, desc, mv);
+      return new LocalVariablesSorter(api, access, desc, mv);
     }
   }
 

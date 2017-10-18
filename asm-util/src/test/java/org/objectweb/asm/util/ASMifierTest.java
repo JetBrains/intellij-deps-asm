@@ -33,15 +33,14 @@ import java.io.StringWriter;
 import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.util.Collection;
 
 import org.codehaus.janino.ClassLoaderIClassLoader;
 import org.codehaus.janino.IClassLoader;
 import org.codehaus.janino.Parser;
 import org.codehaus.janino.Scanner;
 import org.codehaus.janino.UnitCompiler;
-import org.junit.Test;
-import org.junit.runners.Parameterized.Parameters;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.objectweb.asm.Attribute;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.test.AsmTest;
@@ -57,19 +56,15 @@ public class ASMifierTest extends AsmTest {
   private static final IClassLoader ICLASS_LOADER =
       new ClassLoaderIClassLoader(new URLClassLoader(new URL[0]));
 
-  /** @return test parameters to test all the precompiled classes with ASM6. */
-  @Parameters(name = NAME)
-  public static Collection<Object[]> data() {
-    return data(Api.ASM6);
-  }
-
   /**
    * Tests that the code produced with an ASMifier compiles and generates the original class.
    *
    * @throws Exception
    */
-  @Test
-  public void testAsmifyCompileAndExecute() throws Exception {
+  @ParameterizedTest
+  @MethodSource(ALL_CLASSES_AND_LATEST_API)
+  public void testAsmifyCompileAndExecute(PrecompiledClass classParameter, Api apiParameter)
+      throws Exception {
     byte[] classFile = classParameter.getBytes();
     if (classFile.length > Short.MAX_VALUE) return;
 

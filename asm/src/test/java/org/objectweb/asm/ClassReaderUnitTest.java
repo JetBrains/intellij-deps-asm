@@ -27,15 +27,14 @@
 // THE POSSIBILITY OF SUCH DAMAGE.
 package org.objectweb.asm;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
 import java.io.InputStream;
-
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * ClassReader unit tests.
@@ -47,25 +46,21 @@ public class ClassReaderUnitTest implements Opcodes {
 
   @Test
   public void testIllegalConstructorArgument() {
-    try {
-      new ClassReader((InputStream) null);
-      fail();
-    } catch (IOException e) {
-    }
+    assertThrows(IOException.class, () -> new ClassReader((InputStream) null));
   }
 
   @Test
   public void testGetItem() throws IOException {
-    ClassReader cr = new ClassReader(getClass().getName());
-    int item = cr.getItem(1);
+    ClassReader classReader = new ClassReader(getClass().getName());
+    int item = classReader.getItem(1);
     assertTrue(item >= 10);
-    assertTrue(item < cr.header);
+    assertTrue(item < classReader.header);
   }
 
   @Test
   public void testReadByte() throws IOException {
-    ClassReader cr = new ClassReader(getClass().getName());
-    assertEquals(cr.b[0] & 0xFF, cr.readByte(0));
+    ClassReader classReader = new ClassReader(getClass().getName());
+    assertEquals(classReader.b[0] & 0xFF, classReader.readByte(0));
   }
 
   @Test

@@ -29,9 +29,8 @@ package org.objectweb.asm.util;
 
 import java.io.CharArrayWriter;
 import java.io.PrintWriter;
-import java.util.Collection;
-import org.junit.Test;
-import org.junit.runners.Parameterized.Parameters;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.objectweb.asm.Attribute;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassVisitor;
@@ -45,17 +44,12 @@ import org.objectweb.asm.test.AsmTest;
  */
 public class TraceClassAdapterTest extends AsmTest {
 
-  /** @return test parameters to test all the precompiled classes with ASM6. */
-  @Parameters(name = NAME)
-  public static Collection<Object[]> data() {
-    return data(Api.ASM6);
-  }
-
   /**
    * Tests that classes are unchanged with a ClassReader->TraceClassAdapter->ClassWriter transform.
    */
-  @Test
-  public void testTrace() {
+  @ParameterizedTest
+  @MethodSource(ALL_CLASSES_AND_LATEST_API)
+  public void testTrace(PrecompiledClass classParameter, Api apiParameter) {
     byte[] classFile = classParameter.getBytes();
     ClassReader classReader = new ClassReader(classFile);
     ClassWriter classWriter = new ClassWriter(0);

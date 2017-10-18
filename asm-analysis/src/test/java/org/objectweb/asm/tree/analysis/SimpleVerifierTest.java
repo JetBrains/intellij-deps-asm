@@ -27,10 +27,8 @@
 // THE POSSIBILITY OF SUCH DAMAGE.
 package org.objectweb.asm.tree.analysis;
 
-import java.util.Collection;
-
-import org.junit.Test;
-import org.junit.runners.Parameterized.Parameters;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.test.AsmTest;
 import org.objectweb.asm.tree.ClassNode;
@@ -43,19 +41,15 @@ import org.objectweb.asm.tree.MethodNode;
  */
 public class SimpleVerifierTest extends AsmTest {
 
-  /** @return test parameters to test all the precompiled classes with ASM6. */
-  @Parameters(name = NAME)
-  public static Collection<Object[]> data() {
-    return data(Api.ASM6);
-  }
-
   /**
    * Tests that the precompiled classes can be successfully analyzed with a SimpleVerifier.
    *
    * @throws AnalyzerException
    */
-  @Test
-  public void testAnalyze() throws AnalyzerException {
+  @ParameterizedTest
+  @MethodSource(ALL_CLASSES_AND_LATEST_API)
+  public void testAnalyze(PrecompiledClass classParameter, Api apiParameter)
+      throws AnalyzerException {
     ClassNode classNode = new ClassNode();
     new ClassReader(classParameter.getBytes()).accept(classNode, 0);
     for (MethodNode methodNode : classNode.methods) {

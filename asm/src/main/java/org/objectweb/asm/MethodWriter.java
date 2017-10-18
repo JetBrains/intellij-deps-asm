@@ -2168,7 +2168,7 @@ class MethodWriter extends MethodVisitor {
         ictanns.put(out);
       }
       if (cattrs != null) {
-        cattrs.put(cw, code.data, code.length, maxLocals, maxStack, out);
+        cattrs.put(cw, code.data, code.length, maxStack, maxLocals, out);
       }
     }
     if (exceptionCount > 0) {

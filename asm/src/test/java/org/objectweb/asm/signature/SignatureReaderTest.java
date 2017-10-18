@@ -28,11 +28,10 @@
 package org.objectweb.asm.signature;
 
 import java.util.Collection;
-
 import org.junit.Test;
 import org.junit.runners.Parameterized.Parameters;
-import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.ClassReader;
+import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.test.AsmTest;

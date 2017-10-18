@@ -6,7 +6,7 @@ build:
 
 test:
   script:
-    gradle test
+    gradle test jacocoTestCoverageVerification
 
 upload:
   script:

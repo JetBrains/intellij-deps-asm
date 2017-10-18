@@ -28,7 +28,6 @@
 package org.objectweb.asm;
 
 import java.util.Collection;
-
 import org.junit.Test;
 import org.junit.runners.Parameterized.Parameters;
 import org.objectweb.asm.test.AsmTest;

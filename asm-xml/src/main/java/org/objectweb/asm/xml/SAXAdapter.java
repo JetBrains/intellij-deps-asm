@@ -34,8 +34,11 @@ import org.xml.sax.SAXException;
 /**
  * SAXAdapter
  *
+ * @deprecated This class is no longer maintained, will not support new Java features, and will
+ *     eventually be deleted. Use the asm or asm.tree API instead.
  * @author Eugene Kuleshov
  */
+@Deprecated
 public class SAXAdapter {
 
   private final ContentHandler h;

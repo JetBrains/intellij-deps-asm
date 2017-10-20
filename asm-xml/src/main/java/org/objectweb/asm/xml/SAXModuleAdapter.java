@@ -34,8 +34,11 @@ import org.xml.sax.helpers.AttributesImpl;
 /**
  * Generate SAX event for a module description.
  *
+ * @deprecated This class is no longer maintained, will not support new Java features, and will
+ *     eventually be deleted. Use the asm or asm.tree API instead.
  * @author Remi Forax
  */
+@Deprecated
 public final class SAXModuleAdapter extends ModuleVisitor {
 
   private final SAXAdapter sa;

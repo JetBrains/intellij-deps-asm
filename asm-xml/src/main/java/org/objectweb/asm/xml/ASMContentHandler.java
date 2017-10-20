@@ -51,10 +51,13 @@ import org.xml.sax.helpers.DefaultHandler;
  * file. This class can be feeded by any kind of SAX 2.0 event producers, e.g. XML parser, XSLT or
  * XPath engines, or custom code.
  *
+ * @deprecated This class is no longer maintained, will not support new Java features, and will
+ *     eventually be deleted. Use the asm or asm.tree API instead.
  * @see org.objectweb.asm.xml.SAXClassAdapter
  * @see org.objectweb.asm.xml.Processor
  * @author Eugene Kuleshov
  */
+@Deprecated
 public class ASMContentHandler extends DefaultHandler implements Opcodes {
 
   /** Stack of the intermediate processing contexts. */

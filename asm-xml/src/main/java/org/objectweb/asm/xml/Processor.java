@@ -102,8 +102,11 @@ import org.xml.sax.helpers.XMLReaderFactory;
  *
  * </blockquote>
  *
+ * @deprecated This class is no longer maintained, will not support new Java features, and will
+ *     eventually be deleted. Use the asm or asm.tree API instead.
  * @author Eugene Kuleshov
  */
+@Deprecated
 public class Processor {
 
   public static final int BYTECODE = 1;

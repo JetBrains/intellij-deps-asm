@@ -39,14 +39,6 @@ include(
   'benchmarks:memory',
   'benchmarks:read-write',
   'benchmarks:write',
-  'examples:adapt',
-  'examples:analysis',
-  'examples:annotations',
-  'examples:attributes',
-  'examples:compiler',
-  'examples:compiler-indy',
-  'examples:dependencies',
-  'examples:helloworld',
   'tools:bnd-module-plugin',
   'tools:retrofitter')
 

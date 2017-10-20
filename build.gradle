@@ -131,59 +131,6 @@ project(':benchmarks:write') {
   runWith = ['org.objectweb.asm.GenPerfTest']
 }
 
-project(':examples') {
-  description = "Examples using ${parent.description}"
-}
-
-project(':examples:adapt') {
-  description = "Class transformation example for ${rootProject.description}"
-  requires = [':asm']
-  runWith = ['Adapt', 'ArraySet']
-}
-
-project(':examples:analysis') {
-  description = "Static class analysis example for ${rootProject.description}"
-  requires = [':asm-analysis', ':asm-util']
-  runWith = ['Analysis']
-}
-
-project(':examples:annotations') {
-  description = "Java 5 annotations example for ${rootProject.description}"
-  requires = [':asm']
-  runWith = ['Annotations']
-}
-
-project(':examples:attributes') {
-  description = "Custom attributes example for ${rootProject.description}"
-  requires = [':asm', ':asm-util']
-  runWith = ['Attributes']
-}
-
-project(':examples:compiler') {
-  description = "Small compiler example using ${rootProject.description}"
-  requires = [':asm']
-  runWith = ['Compile']
-}
-
-project(':examples:compiler-indy') {
-  description = "Invokedynamic example for ${rootProject.description}"
-  requires = [':asm']
-  runWith = ['IndyCompile']
-}
-
-project(':examples:dependencies') {
-  description = "Dependency analysis example with ${rootProject.description}"
-  requires = [':asm']
-  runWith = ['org.objectweb.asm.depend.DependencyTracker', 
-      project(':asm').jar.outputs.files.singleFile]
-}
-
-project(':examples:helloworld') {
-  description = "Helloworld example for ${rootProject.description}"
-  requires = [':asm', ':asm-commons']
-  runWith = ['Helloworld']
-}
-
 project(':tools') {
   description = "Tools used to build ${parent.description}"
 }

@@ -261,16 +261,16 @@ final class AnnotationWriter extends AnnotationVisitor {
    * Puts the given annotation lists into the given byte vector.
    *
    * @param panns an array of annotation writer lists.
-   * @param off index of the first annotation to be written.
+   * @param npanns the number of elements in panns to put (elements [0..npanns[ are put).
    * @param out where the annotations must be put.
    */
-  static void put(final AnnotationWriter[] panns, final int off, final ByteVector out) {
-    int size = 1 + 2 * (panns.length - off);
-    for (int i = off; i < panns.length; ++i) {
+  static void put(final AnnotationWriter[] panns, final int npanns, final ByteVector out) {
+    int size = 1 + 2 * npanns;
+    for (int i = 0; i < npanns; ++i) {
       size += panns[i] == null ? 0 : panns[i].getSize();
     }
-    out.putInt(size).putByte(panns.length - off);
-    for (int i = off; i < panns.length; ++i) {
+    out.putInt(size).putByte(npanns);
+    for (int i = 0; i < npanns; ++i) {
       AnnotationWriter aw = panns[i];
       AnnotationWriter last = null;
       int n = 0;

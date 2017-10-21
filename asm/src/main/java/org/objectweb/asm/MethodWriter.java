@@ -171,14 +171,17 @@ class MethodWriter extends MethodVisitor {
   /** The runtime invisible type annotations of this method. May be <tt>null</tt>. */
   private AnnotationWriter itanns;
 
+  /** The number of method parameters that can have runtime visible annotations, or 0. */
+  private int npanns;
+
   /** The runtime visible parameter annotations of this method. May be <tt>null</tt>. */
   private AnnotationWriter[] panns;
 
+  /** The number of method parameters that can have runtime invisible annotations, or 0. */
+  private int nipanns;
+
   /** The runtime invisible parameter annotations of this method. May be <tt>null</tt>. */
   private AnnotationWriter[] ipanns;
-
-  /** The number of synthetic parameters of this method. */
-  private int synthetics;
 
   /** The non standard attributes of the method. */
   private Attribute attrs;
@@ -437,15 +440,18 @@ class MethodWriter extends MethodVisitor {
   }
 
   @Override
+  public void visitAnnotableParameterCount(int parameterCount, boolean visible) {
+    if (visible) {
+      npanns = parameterCount;
+    } else {
+      nipanns = parameterCount;
+    }
+  }
+
+  @Override
   public AnnotationVisitor visitParameterAnnotation(
       final int parameter, final String desc, final boolean visible) {
     ByteVector bv = new ByteVector();
-    if ("Ljava/lang/Synthetic;".equals(desc)) {
-      // workaround for a bug in javac with synthetic parameters
-      // see ClassReader.readParameterAnnotations
-      synthetics = Math.max(synthetics, parameter + 1);
-      return new AnnotationWriter(cw, false, bv, null, 0);
-    }
     // write type, and reserve space for values count
     bv.putShort(cw.newUTF8(desc)).putShort(0);
     AnnotationWriter aw = new AnnotationWriter(cw, true, bv, bv, 2);
@@ -2003,15 +2009,17 @@ class MethodWriter extends MethodVisitor {
     }
     if (panns != null) {
       cw.newUTF8("RuntimeVisibleParameterAnnotations");
-      size += 7 + 2 * (panns.length - synthetics);
-      for (int i = panns.length - 1; i >= synthetics; --i) {
+      int i = npanns == 0 ? panns.length : npanns;
+      size += 7 + 2 * i;
+      for (--i; i >= 0; --i) {
         size += panns[i] == null ? 0 : panns[i].getSize();
       }
     }
     if (ipanns != null) {
       cw.newUTF8("RuntimeInvisibleParameterAnnotations");
-      size += 7 + 2 * (ipanns.length - synthetics);
-      for (int i = ipanns.length - 1; i >= synthetics; --i) {
+      int i = nipanns == 0 ? ipanns.length : nipanns;
+      size += 7 + 2 * i;
+      for (--i; i >= 0; --i) {
         size += ipanns[i] == null ? 0 : ipanns[i].getSize();
       }
     }
@@ -2215,11 +2223,11 @@ class MethodWriter extends MethodVisitor {
     }
     if (panns != null) {
       out.putShort(cw.newUTF8("RuntimeVisibleParameterAnnotations"));
-      AnnotationWriter.put(panns, synthetics, out);
+      AnnotationWriter.put(panns, npanns == 0 ? panns.length : npanns, out);
     }
     if (ipanns != null) {
       out.putShort(cw.newUTF8("RuntimeInvisibleParameterAnnotations"));
-      AnnotationWriter.put(ipanns, synthetics, out);
+      AnnotationWriter.put(ipanns, nipanns == 0 ? ipanns.length : nipanns, out);
     }
     if (attrs != null) {
       attrs.put(cw, null, 0, -1, -1, out);

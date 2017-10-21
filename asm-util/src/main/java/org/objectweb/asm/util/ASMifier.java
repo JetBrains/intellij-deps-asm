@@ -602,6 +602,19 @@ public class ASMifier extends Printer {
   }
 
   @Override
+  public ASMifier visitAnnotableParameterCount(final int parameterCount, final boolean visible) {
+    buf.setLength(0);
+    buf.append(name)
+        .append(".visitAnnotableParameterCount(")
+        .append(parameterCount)
+        .append(", ")
+        .append(visible)
+        .append(");\n");
+    text.add(buf.toString());
+    return this;
+  }
+
+  @Override
   public ASMifier visitParameterAnnotation(
       final int parameter, final String desc, final boolean visible) {
     buf.setLength(0);

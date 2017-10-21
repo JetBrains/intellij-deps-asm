@@ -126,6 +126,16 @@ public class MethodNode extends MethodVisitor {
   public Object annotationDefault;
 
   /**
+   * The number of method parameters than can have runtime visible annotations. This number must be
+   * less or equal than the number of parameter types in the method descriptor (the default value 0
+   * indicates that all the parameters described in the method descriptor can have annotations). It
+   * can be strictly less when a method has synthetic parameters and when these parameters are
+   * ignored when computing parameter indices for the purpose of parameter annotations (see
+   * https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.7.18).
+   */
+  public int visibleAnnotableParameterCount;
+
+  /**
    * The runtime visible parameter annotations of this method. These lists are lists of {@link
    * AnnotationNode} objects. May be <tt>null</tt>.
    *
@@ -133,6 +143,16 @@ public class MethodNode extends MethodVisitor {
    * @label invisible parameters
    */
   public List<AnnotationNode>[] visibleParameterAnnotations;
+
+  /**
+   * The number of method parameters than can have runtime invisible annotations. This number must
+   * be less or equal than the number of parameter types in the method descriptor (the default value
+   * 0 indicates that all the parameters described in the method descriptor can have annotations).
+   * It can be strictly less when a method has synthetic parameters and when these parameters are
+   * ignored when computing parameter indices for the purpose of parameter annotations (see
+   * https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.7.18).
+   */
+  public int invisibleAnnotableParameterCount;
 
   /**
    * The runtime invisible parameter annotations of this method. These lists are lists of {@link
@@ -335,6 +355,15 @@ public class MethodNode extends MethodVisitor {
       invisibleTypeAnnotations.add(an);
     }
     return an;
+  }
+
+  @Override
+  public void visitAnnotableParameterCount(final int parameterCount, final boolean visible) {
+    if (visible) {
+      visibleAnnotableParameterCount = parameterCount;
+    } else {
+      invisibleAnnotableParameterCount = parameterCount;
+    }
   }
 
   @Override
@@ -729,6 +758,9 @@ public class MethodNode extends MethodVisitor {
       TypeAnnotationNode an = invisibleTypeAnnotations.get(i);
       an.accept(mv.visitTypeAnnotation(an.typeRef, an.typePath, an.desc, false));
     }
+    if (visibleAnnotableParameterCount > 0) {
+      mv.visitAnnotableParameterCount(visibleAnnotableParameterCount, true);
+    }
     n = visibleParameterAnnotations == null ? 0 : visibleParameterAnnotations.length;
     for (i = 0; i < n; ++i) {
       List<?> l = visibleParameterAnnotations[i];
@@ -739,6 +771,9 @@ public class MethodNode extends MethodVisitor {
         AnnotationNode an = (AnnotationNode) l.get(j);
         an.accept(mv.visitParameterAnnotation(i, an.desc, true));
       }
+    }
+    if (invisibleAnnotableParameterCount > 0) {
+      mv.visitAnnotableParameterCount(invisibleAnnotableParameterCount, false);
     }
     n = invisibleParameterAnnotations == null ? 0 : invisibleParameterAnnotations.length;
     for (i = 0; i < n; ++i) {

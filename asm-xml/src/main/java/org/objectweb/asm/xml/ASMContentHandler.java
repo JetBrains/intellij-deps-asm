@@ -125,6 +125,7 @@ public class ASMContentHandler extends DefaultHandler implements Opcodes {
 
     RULES.add("*/annotation", new AnnotationRule());
     RULES.add("*/typeAnnotation", new TypeAnnotationRule());
+    RULES.add("*/annotableParameterCount", new AnnotableParameterCountRule());
     RULES.add("*/parameterAnnotation", new AnnotationParameterRule());
     RULES.add("*/insnAnnotation", new InsnAnnotationRule());
     RULES.add("*/tryCatchAnnotation", new TryCatchAnnotationRule());
@@ -1258,6 +1259,16 @@ public class ASMContentHandler extends DefaultHandler implements Opcodes {
       if (av != null) {
         av.visitEnd();
       }
+    }
+  }
+
+  final class AnnotableParameterCountRule extends Rule {
+
+    @Override
+    public void begin(final String name, final Attributes attrs) {
+      int parameterCount = Integer.parseInt(attrs.getValue("count"));
+      boolean visible = Boolean.valueOf(attrs.getValue("visible")).booleanValue();
+      ((MethodVisitor) peek()).visitAnnotableParameterCount(parameterCount, visible);
     }
   }
 

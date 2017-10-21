@@ -251,13 +251,14 @@ configure(subprojects.findAll { it.provides }) {
     dependencies { sigtest 'org.netbeans.tools:sigtest-maven-plugin:1.0' }
     file('src/test/resources/').eachFileMatch(~/sigtest-.*/) { f ->
       task "${f.name}" (type: JavaExec, dependsOn: 'classes') {
-        inputs.file(f)
+        inputs.files(f, sourceSets.main.java)
         outputs.file("build/${f.name}")
         classpath configurations.sigtest
         main 'com.sun.tdk.signaturetest.Main'
         args 'Test', '-ApiVersion', version, '-Backward', '-Static', '-Mode',
-            'bin', '-Classpath', sourceSets.main.output.classesDirs.asPath,
-            '-FileName', f, '-Out', outputs.getFiles()[0], '-Package'
+            'bin', '-Classpath', "${System.env.JAVA_HOME}/jre/lib/rt.jar:" +
+            sourceSets.main.output.classesDirs.asPath, '-FileName', f,
+            '-Out', outputs.getFiles()[0], '-Package'
         args provides
         // The exit value is not 0 in case of success, but 95...
         ignoreExitValue true

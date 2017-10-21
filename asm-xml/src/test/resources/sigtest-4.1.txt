@@ -311,7 +311,7 @@ meth public final void startElement(java.lang.String,java.lang.String,java.lang.
 supr org.xml.sax.helpers.DefaultHandler
 hfds BASE,OPCODES,RULES,TYPES,match,stack
 
-CLSS public abstract org.objectweb.asm.xml.ASMContentHandler$Rule
+CLSS protected abstract org.objectweb.asm.xml.ASMContentHandler$Rule
 cons protected init(org.objectweb.asm.xml.ASMContentHandler)
 meth protected final int getAccess(java.lang.String)
 meth protected final java.lang.Object getValue(java.lang.String,java.lang.String) throws org.xml.sax.SAXException

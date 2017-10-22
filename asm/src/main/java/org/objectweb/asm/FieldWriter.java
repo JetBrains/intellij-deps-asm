@@ -131,8 +131,9 @@ final class FieldWriter extends FieldVisitor {
   public AnnotationVisitor visitTypeAnnotation(
       final int typeRef, final TypePath typePath, final String desc, final boolean visible) {
     ByteVector bv = new ByteVector();
-    // write target_type and target_info
-    AnnotationWriter.putTarget(typeRef, typePath, bv);
+    // write target_type, target_info, and target_path
+    TypeReference.put(typeRef, bv);
+    TypePath.put(typePath, bv);
     // write type, and reserve space for values count
     bv.putShort(cw.newUTF8(desc)).putShort(0);
     AnnotationWriter aw = new AnnotationWriter(cw, true, bv, bv, bv.length - 2);

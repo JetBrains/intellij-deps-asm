@@ -36,74 +36,74 @@ package org.objectweb.asm;
  */
 public class TypePath {
 
-  /**
-   * A type path step that steps into the element type of an array type. See {@link #getStep
-   * getStep}.
-   */
+  /** A type path step that steps into the element type of an array type. See {@link #getStep}. */
   public static final int ARRAY_ELEMENT = 0;
 
-  /**
-   * A type path step that steps into the nested type of a class type. See {@link #getStep getStep}.
-   */
+  /** A type path step that steps into the nested type of a class type. See {@link #getStep}. */
   public static final int INNER_TYPE = 1;
 
-  /**
-   * A type path step that steps into the bound of a wildcard type. See {@link #getStep getStep}.
-   */
+  /** A type path step that steps into the bound of a wildcard type. See {@link #getStep}. */
   public static final int WILDCARD_BOUND = 2;
 
-  /**
-   * A type path step that steps into a type argument of a generic type. See {@link #getStep
-   * getStep}.
-   */
+  /** A type path step that steps into a type argument of a generic type. See {@link #getStep}. */
   public static final int TYPE_ARGUMENT = 3;
 
-  /** The byte array where the path is stored, in Java class file format. */
-  byte[] b;
+  /**
+   * The byte array where the 'type_path' structure - as defined in the Java Virtual Machine
+   * Specification (JVMS) - corresponding to this TypePath is stored. The first byte of the
+   * structure in this array is given by {@link #typePathOffset}.
+   *
+   * @see https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.7.20.2
+   */
+  private final byte[] typePathContainer;
 
-  /** The offset of the first byte of the type path in 'b'. */
-  int offset;
+  /** The offset of the first byte of the type_path JVMS structure in {@link #typePathContainer}. */
+  private final int typePathOffset;
 
   /**
-   * Creates a new type path.
+   * Creates a new TypePath.
    *
-   * @param b the byte array containing the type path in Java class file format.
-   * @param offset the offset of the first byte of the type path in 'b'.
+   * @param typePathContainer a byte array containing a type_path JVMS structure.
+   * @param typePathOffset the offset of the first byte of the type_path structure in
+   *     typePathContainer.
    */
-  TypePath(byte[] b, int offset) {
-    this.b = b;
-    this.offset = offset;
+  TypePath(final byte[] typePathContainer, final int typePathOffset) {
+    this.typePathContainer = typePathContainer;
+    this.typePathOffset = typePathOffset;
   }
 
   /**
-   * Returns the length of this path.
+   * Returns the length of this path, i.e. its number of steps.
    *
    * @return the length of this path.
    */
   public int getLength() {
-    return b[offset];
+    // path_length is stored in the first byte of a type_path.
+    return typePathContainer[typePathOffset];
   }
 
   /**
    * Returns the value of the given step of this path.
    *
    * @param index an index between 0 and {@link #getLength()}, exclusive.
-   * @return {@link #ARRAY_ELEMENT ARRAY_ELEMENT}, {@link #INNER_TYPE INNER_TYPE}, {@link
-   *     #WILDCARD_BOUND WILDCARD_BOUND}, or {@link #TYPE_ARGUMENT TYPE_ARGUMENT}.
+   * @return one of {@link #ARRAY_ELEMENT}, {@link #INNER_TYPE}, {@link #WILDCARD_BOUND}, or {@link
+   *     #TYPE_ARGUMENT}.
    */
-  public int getStep(int index) {
-    return b[offset + 2 * index + 1];
+  public int getStep(final int index) {
+    // Returns the type_path_kind of the path element of the given index.
+    return typePathContainer[typePathOffset + 2 * index + 1];
   }
 
   /**
    * Returns the index of the type argument that the given step is stepping into. This method should
-   * only be used for steps whose value is {@link #TYPE_ARGUMENT TYPE_ARGUMENT}.
+   * only be used for steps whose value is {@link #TYPE_ARGUMENT}.
    *
    * @param index an index between 0 and {@link #getLength()}, exclusive.
    * @return the index of the type argument that the given step is stepping into.
    */
-  public int getStepArgument(int index) {
-    return b[offset + 2 * index + 2];
+  public int getStepArgument(final int index) {
+    // Returns the type_argument_index of the path element of the given index.
+    return typePathContainer[typePathOffset + 2 * index + 2];
   }
 
   /**
@@ -111,45 +111,44 @@ public class TypePath {
    * object.
    *
    * @param typePath a type path in string form, in the format used by {@link #toString()}. May be
-   *     null or empty.
-   * @return the corresponding TypePath object, or null if the path is empty.
+   *     <tt>null</tt> or empty.
+   * @return the corresponding TypePath object, or <tt>null</tt> if the path is empty.
    */
   public static TypePath fromString(final String typePath) {
     if (typePath == null || typePath.length() == 0) {
       return null;
     }
-    int n = typePath.length();
-    ByteVector out = new ByteVector(n);
-    out.putByte(0);
-    for (int i = 0; i < n; ) {
+    int typePathLength = typePath.length();
+    ByteVector output = new ByteVector(typePathLength);
+    output.putByte(0);
+    for (int i = 0; i < typePathLength; ) {
       char c = typePath.charAt(i++);
       if (c == '[') {
-        out.put11(ARRAY_ELEMENT, 0);
+        output.put11(ARRAY_ELEMENT, 0);
       } else if (c == '.') {
-        out.put11(INNER_TYPE, 0);
+        output.put11(INNER_TYPE, 0);
       } else if (c == '*') {
-        out.put11(WILDCARD_BOUND, 0);
+        output.put11(WILDCARD_BOUND, 0);
       } else if (c >= '0' && c <= '9') {
         int typeArg = c - '0';
-        while (i < n && (c = typePath.charAt(i)) >= '0' && c <= '9') {
+        while (i < typePathLength && (c = typePath.charAt(i)) >= '0' && c <= '9') {
           typeArg = typeArg * 10 + c - '0';
           i += 1;
         }
-        if (i < n && typePath.charAt(i) == ';') {
+        if (i < typePathLength && typePath.charAt(i) == ';') {
           i += 1;
         }
-        out.put11(TYPE_ARGUMENT, typeArg);
+        output.put11(TYPE_ARGUMENT, typeArg);
       }
     }
-    out.data[0] = (byte) (out.length / 2);
-    return new TypePath(out.data, 0);
+    output.data[0] = (byte) (output.length / 2);
+    return new TypePath(output.data, 0);
   }
 
   /**
-   * Returns a string representation of this type path. {@link #ARRAY_ELEMENT ARRAY_ELEMENT} steps
-   * are represented with '[', {@link #INNER_TYPE INNER_TYPE} steps with '.', {@link #WILDCARD_BOUND
-   * WILDCARD_BOUND} steps with '*' and {@link #TYPE_ARGUMENT TYPE_ARGUMENT} steps with their type
-   * argument index in decimal form followed by ';'.
+   * Returns a string representation of this type path. {@link #ARRAY_ELEMENT} steps are represented
+   * with '[', {@link #INNER_TYPE} steps with '.', {@link #WILDCARD_BOUND} steps with '*' and {@link
+   * #TYPE_ARGUMENT} steps with their type argument index in decimal form followed by ';'.
    */
   @Override
   public String toString() {
@@ -170,9 +169,25 @@ public class TypePath {
           result.append(getStepArgument(i)).append(';');
           break;
         default:
-          result.append('_');
+          throw new AssertionError();
       }
     }
     return result.toString();
+  }
+
+  /**
+   * Puts the type_path JVMS structure corresponding to the given TypePath into the given
+   * ByteVector.
+   *
+   * @param typePath a TypePath instance, or <tt>null</tt> for empty paths.
+   * @param output where the type path must be put.
+   */
+  static void put(final TypePath typePath, final ByteVector output) {
+    if (typePath == null) {
+      output.putByte(0);
+    } else {
+      int length = typePath.typePathContainer[typePath.typePathOffset] * 2 + 1;
+      output.putByteArray(typePath.typePathContainer, typePath.typePathOffset, length);
+    }
   }
 }

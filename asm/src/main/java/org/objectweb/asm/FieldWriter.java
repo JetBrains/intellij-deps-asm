@@ -116,15 +116,11 @@ final class FieldWriter extends FieldVisitor {
     ByteVector bv = new ByteVector();
     // write type, and reserve space for values count
     bv.putShort(cw.newUTF8(desc)).putShort(0);
-    AnnotationWriter aw = new AnnotationWriter(cw, true, bv, bv, 2);
     if (visible) {
-      aw.next = anns;
-      anns = aw;
+      return anns = new AnnotationWriter(cw, bv, anns);
     } else {
-      aw.next = ianns;
-      ianns = aw;
+      return ianns = new AnnotationWriter(cw, bv, ianns);
     }
-    return aw;
   }
 
   @Override
@@ -135,15 +131,11 @@ final class FieldWriter extends FieldVisitor {
     AnnotationWriter.putTarget(typeRef, typePath, bv);
     // write type, and reserve space for values count
     bv.putShort(cw.newUTF8(desc)).putShort(0);
-    AnnotationWriter aw = new AnnotationWriter(cw, true, bv, bv, bv.length - 2);
     if (visible) {
-      aw.next = tanns;
-      tanns = aw;
+      return tanns = new AnnotationWriter(cw, bv, tanns);
     } else {
-      aw.next = itanns;
-      itanns = aw;
+      return itanns = new AnnotationWriter(cw, bv, itanns);
     }
-    return aw;
   }
 
   @Override
@@ -183,20 +175,16 @@ final class FieldWriter extends FieldVisitor {
       size += 8;
     }
     if (anns != null) {
-      cw.newUTF8("RuntimeVisibleAnnotations");
-      size += 8 + anns.getSize();
+      size += anns.getAnnotationsSize("RuntimeVisibleAnnotations");
     }
     if (ianns != null) {
-      cw.newUTF8("RuntimeInvisibleAnnotations");
-      size += 8 + ianns.getSize();
+      size += ianns.getAnnotationsSize("RuntimeInvisibleAnnotations");
     }
     if (tanns != null) {
-      cw.newUTF8("RuntimeVisibleTypeAnnotations");
-      size += 8 + tanns.getSize();
+      size += tanns.getAnnotationsSize("RuntimeVisibleTypeAnnotations");
     }
     if (itanns != null) {
-      cw.newUTF8("RuntimeInvisibleTypeAnnotations");
-      size += 8 + itanns.getSize();
+      size += itanns.getAnnotationsSize("RuntimeInvisibleTypeAnnotations");
     }
     if (attrs != null) {
       size += attrs.getSize(cw, null, 0, -1, -1);
@@ -257,20 +245,16 @@ final class FieldWriter extends FieldVisitor {
       out.putInt(2).putShort(signature);
     }
     if (anns != null) {
-      out.putShort(cw.newUTF8("RuntimeVisibleAnnotations"));
-      anns.put(out);
+      anns.putAnnotations(cw.newUTF8("RuntimeVisibleAnnotations"), out);
     }
     if (ianns != null) {
-      out.putShort(cw.newUTF8("RuntimeInvisibleAnnotations"));
-      ianns.put(out);
+      ianns.putAnnotations(cw.newUTF8("RuntimeInvisibleAnnotations"), out);
     }
     if (tanns != null) {
-      out.putShort(cw.newUTF8("RuntimeVisibleTypeAnnotations"));
-      tanns.put(out);
+      tanns.putAnnotations(cw.newUTF8("RuntimeVisibleTypeAnnotations"), out);
     }
     if (itanns != null) {
-      out.putShort(cw.newUTF8("RuntimeInvisibleTypeAnnotations"));
-      itanns.put(out);
+      itanns.putAnnotations(cw.newUTF8("RuntimeInvisibleTypeAnnotations"), out);
     }
     if (attrs != null) {
       attrs.put(cw, null, 0, -1, -1, out);

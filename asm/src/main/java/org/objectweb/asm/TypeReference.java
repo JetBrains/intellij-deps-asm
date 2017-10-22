@@ -396,7 +396,7 @@ public class TypeReference {
    *     #targetTypeAndInfo}. LOCAL_VARIABLE and RESOURCE_VARIABLE target types are not supported.
    * @param output where the type reference must be put.
    */
-  static void put(final int targetTypeAndInfo, final ByteVector output) {
+  static void putTarget(final int targetTypeAndInfo, final ByteVector output) {
     switch (targetTypeAndInfo >>> 24) {
       case CLASS_TYPE_PARAMETER:
       case METHOD_TYPE_PARAMETER:

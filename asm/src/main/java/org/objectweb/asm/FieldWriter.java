@@ -132,7 +132,7 @@ final class FieldWriter extends FieldVisitor {
       final int typeRef, final TypePath typePath, final String desc, final boolean visible) {
     ByteVector bv = new ByteVector();
     // write target_type, target_info, and target_path
-    TypeReference.put(typeRef, bv);
+    TypeReference.putTarget(typeRef, bv);
     TypePath.put(typePath, bv);
     // write type, and reserve space for values count
     bv.putShort(cw.newUTF8(desc)).putShort(0);

@@ -221,9 +221,6 @@ class MethodWriter extends MethodVisitor {
    */
   private int[] frame;
 
-  /** Number of elements in the exception handler list. */
-  private int handlerCount;
-
   /** The first element in the exception handler list. */
   private Handler firstHandler;
 
@@ -699,7 +696,7 @@ class MethodWriter extends MethodVisitor {
     } else {
       code.put11(opcode, var);
     }
-    if (opcode >= Opcodes.ISTORE && compute == FRAMES && handlerCount > 0) {
+    if (opcode >= Opcodes.ISTORE && compute == FRAMES && firstHandler != null) {
       visitLabel(new Label());
     }
   }
@@ -1188,17 +1185,11 @@ class MethodWriter extends MethodVisitor {
   @Override
   public void visitTryCatchBlock(
       final Label start, final Label end, final Label handler, final String type) {
-    ++handlerCount;
-    Handler h = new Handler();
-    h.start = start;
-    h.end = end;
-    h.handler = handler;
-    h.desc = type;
-    h.type = type != null ? cw.newClass(type) : 0;
-    if (lastHandler == null) {
+    Handler h = new Handler(start, end, handler, type != null ? cw.newClass(type) : 0, type);
+    if (firstHandler == null) {
       firstHandler = h;
     } else {
-      lastHandler.next = h;
+      lastHandler.nextHandler = h;
     }
     lastHandler = h;
   }
@@ -1302,11 +1293,14 @@ class MethodWriter extends MethodVisitor {
       // completes the control flow graph with exception handler blocks
       Handler handler = firstHandler;
       while (handler != null) {
-        Label l = handler.start.getFirst();
-        Label h = handler.handler.getFirst();
-        Label e = handler.end.getFirst();
+        Label l = handler.startPc.getFirst();
+        Label h = handler.handlerPc.getFirst();
+        Label e = handler.endPc.getFirst();
         // computes the kind of the edges to 'h'
-        String t = handler.desc == null ? "java/lang/Throwable" : handler.desc;
+        String t =
+            handler.catchTypeDescriptor == null
+                ? "java/lang/Throwable"
+                : handler.catchTypeDescriptor;
         int kind = Frame.OBJECT | cw.addType(t);
         // h is an exception handler
         h.status |= Label.TARGET;
@@ -1317,7 +1311,7 @@ class MethodWriter extends MethodVisitor {
           // goes to the next label
           l = l.successor;
         }
-        handler = handler.next;
+        handler = handler.nextHandler;
       }
 
       // creates and visits the first (implicit) frame
@@ -1391,17 +1385,10 @@ class MethodWriter extends MethodVisitor {
             endFrame();
             // removes the start-end range from the exception
             // handlers
-            firstHandler = Handler.remove(firstHandler, l, k);
+            firstHandler = Handler.removeRange(firstHandler, l, k);
           }
         }
         l = l.successor;
-      }
-
-      handler = firstHandler;
-      handlerCount = 0;
-      while (handler != null) {
-        handlerCount += 1;
-        handler = handler.next;
       }
 
       this.maxStack = max;
@@ -1409,9 +1396,9 @@ class MethodWriter extends MethodVisitor {
       // completes the control flow graph with exception handler blocks
       Handler handler = firstHandler;
       while (handler != null) {
-        Label l = handler.start;
-        Label h = handler.handler;
-        Label e = handler.end;
+        Label l = handler.startPc;
+        Label h = handler.handlerPc;
+        Label e = handler.endPc;
         // adds 'h' as a successor of labels between 'start' and 'end'
         while (l != e) {
           // create an edge to 'h' and add it to the successors of 'l'
@@ -1427,7 +1414,7 @@ class MethodWriter extends MethodVisitor {
           // goes to the next label
           l = l.successor;
         }
-        handler = handler.next;
+        handler = handler.nextHandler;
       }
 
       if (subroutines > 0) {
@@ -1888,7 +1875,7 @@ class MethodWriter extends MethodVisitor {
         throw new RuntimeException("Method code too large!");
       }
       cw.newUTF8("Code");
-      size += 18 + code.length + 8 * handlerCount;
+      size += 16 + code.length + Handler.getExceptionTableSize(firstHandler);
       if (localVar != null) {
         cw.newUTF8("LocalVariableTable");
         size += 8 + localVar.length;
@@ -2027,7 +2014,7 @@ class MethodWriter extends MethodVisitor {
     }
     out.putShort(attributeCount);
     if (code.length > 0) {
-      int size = 12 + code.length + 8 * handlerCount;
+      int size = 10 + code.length + Handler.getExceptionTableSize(firstHandler);
       if (localVar != null) {
         size += 8 + localVar.length;
       }
@@ -2052,17 +2039,7 @@ class MethodWriter extends MethodVisitor {
       out.putShort(cw.newUTF8("Code")).putInt(size);
       out.putShort(maxStack).putShort(maxLocals);
       out.putInt(code.length).putByteArray(code.data, 0, code.length);
-      out.putShort(handlerCount);
-      if (handlerCount > 0) {
-        Handler h = firstHandler;
-        while (h != null) {
-          out.putShort(h.start.position)
-              .putShort(h.end.position)
-              .putShort(h.handler.position)
-              .putShort(h.type);
-          h = h.next;
-        }
-      }
+      Handler.putExceptionTable(firstHandler, out);
       attributeCount = 0;
       if (localVar != null) {
         ++attributeCount;

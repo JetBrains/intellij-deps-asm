@@ -51,10 +51,10 @@ public final class Handle {
   final String name;
 
   /** The descriptor of the field or method designated by this handle. */
-  final String desc;
+  final String descriptor;
 
-  /** Indicate if the owner is an interface or not. */
-  final boolean itf;
+  /** Whether the owner is an interface or not. */
+  final boolean isInterface;
 
   /**
    * Constructs a new field or method handle.
@@ -67,13 +67,13 @@ public final class Handle {
    * @param owner the internal name of the class that owns the field or method designated by this
    *     handle.
    * @param name the name of the field or method designated by this handle.
-   * @param desc the descriptor of the field or method designated by this handle.
+   * @param descriptor the descriptor of the field or method designated by this handle.
    * @deprecated this constructor has been superseded by {@link #Handle(int, String, String, String,
    *     boolean)}.
    */
   @Deprecated
-  public Handle(int tag, String owner, String name, String desc) {
-    this(tag, owner, name, desc, tag == Opcodes.H_INVOKEINTERFACE);
+  public Handle(final int tag, final String owner, final String name, final String descriptor) {
+    this(tag, owner, name, descriptor, tag == Opcodes.H_INVOKEINTERFACE);
   }
 
   /**
@@ -87,15 +87,20 @@ public final class Handle {
    * @param owner the internal name of the class that owns the field or method designated by this
    *     handle.
    * @param name the name of the field or method designated by this handle.
-   * @param desc the descriptor of the field or method designated by this handle.
-   * @param itf true if the owner is an interface.
+   * @param descriptor the descriptor of the field or method designated by this handle.
+   * @param isInterface whether the owner is an interface or not.
    */
-  public Handle(int tag, String owner, String name, String desc, boolean itf) {
+  public Handle(
+      final int tag,
+      final String owner,
+      final String name,
+      final String descriptor,
+      final boolean isInterface) {
     this.tag = tag;
     this.owner = owner;
     this.name = name;
-    this.desc = desc;
-    this.itf = itf;
+    this.descriptor = descriptor;
+    this.isInterface = isInterface;
   }
 
   /**
@@ -134,7 +139,7 @@ public final class Handle {
    * @return the descriptor of the field or method designated by this handle.
    */
   public String getDesc() {
-    return desc;
+    return descriptor;
   }
 
   /**
@@ -143,44 +148,42 @@ public final class Handle {
    * @return true if the owner of the field or method designated by this handle is an interface.
    */
   public boolean isInterface() {
-    return itf;
+    return isInterface;
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (obj == this) {
       return true;
     }
     if (!(obj instanceof Handle)) {
       return false;
     }
-    Handle h = (Handle) obj;
-    return tag == h.tag
-        && itf == h.itf
-        && owner.equals(h.owner)
-        && name.equals(h.name)
-        && desc.equals(h.desc);
+    Handle handle = (Handle) obj;
+    return tag == handle.tag
+        && isInterface == handle.isInterface
+        && owner.equals(handle.owner)
+        && name.equals(handle.name)
+        && descriptor.equals(handle.descriptor);
   }
 
   @Override
   public int hashCode() {
-    return tag + (itf ? 64 : 0) + owner.hashCode() * name.hashCode() * desc.hashCode();
+    return tag
+        + (isInterface ? 64 : 0)
+        + owner.hashCode() * name.hashCode() * descriptor.hashCode();
   }
 
   /**
    * Returns the textual representation of this handle. The textual representation is:
    *
-   * <pre>
-   * for a reference to a class:
-   * owner '.' name desc ' ' '(' tag ')'
-   * for a reference to an interface:
-   * owner '.' name desc ' ' '(' tag ' ' itf ')'
-   * </pre>
-   *
-   * . As this format is unambiguous, it can be parsed if necessary.
+   * <ul>
+   *   <li>for a reference to a class: owner "." name desc " (" tag ")",
+   *   <li>for a reference to an interface: owner "." name desc " (" tag " itf )".
+   * </ul>
    */
   @Override
   public String toString() {
-    return owner + '.' + name + desc + " (" + tag + (itf ? " itf" : "") + ')';
+    return owner + '.' + name + descriptor + " (" + tag + (isInterface ? " itf" : "") + ')';
   }
 }

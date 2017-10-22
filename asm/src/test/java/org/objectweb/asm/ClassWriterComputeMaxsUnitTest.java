@@ -31,8 +31,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
 import java.io.ByteArrayInputStream;
-import java.io.FileInputStream;
-import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -50,14 +48,6 @@ import org.junit.Test;
  */
 public class ClassWriterComputeMaxsUnitTest {
 
-  private Field successors;
-
-  private Field successor;
-
-  private Field succ;
-
-  private Field next;
-
   protected ClassWriter cw;
 
   protected MethodVisitor mv;
@@ -66,29 +56,6 @@ public class ClassWriterComputeMaxsUnitTest {
 
   @Before
   public void setUp() throws Exception {
-    Class<?> lClass = Label.class;
-    Class<?> eClass = Edge.class;
-    try {
-      successors = lClass.getDeclaredField("successors");
-      successor = lClass.getDeclaredField("successor");
-      succ = eClass.getDeclaredField("successor");
-      next = eClass.getDeclaredField("next");
-    } catch (RuntimeException exception) {
-      String f = "src/org/objectweb/asm/optimizer/shrink.properties";
-      Properties p = new Properties();
-      FileInputStream is = new FileInputStream(f);
-      try {
-        p.load(is);
-      } finally {
-        is.close();
-      }
-      String l = Type.getInternalName(lClass) + ".";
-      String e = Type.getInternalName(eClass) + ".";
-      successors = lClass.getDeclaredField(p.getProperty(l + "successors"));
-      successor = lClass.getDeclaredField(p.getProperty(l + "successor"));
-      succ = eClass.getDeclaredField(p.getProperty(e + "successor"));
-      next = eClass.getDeclaredField(p.getProperty(e + "next"));
-    }
     cw = new ClassWriter(isComputeMaxs() ? ClassWriter.COMPUTE_MAXS : 0);
     cw.visit(Opcodes.V1_1, Opcodes.ACC_PUBLIC, "C", null, "java/lang/Object", null);
     mv = cw.visitMethod(Opcodes.ACC_PUBLIC, "<init>", "()V", null, null);
@@ -241,21 +208,17 @@ public class ClassWriterComputeMaxsUnitTest {
     }
 
     Map<String, Set<String>> actual = new HashMap<String, Set<String>>();
-    try {
-      Label l = start;
-      while (l != null) {
-        String key = "N" + l.getOffset();
-        Set<String> value = new HashSet<String>();
-        Edge e = (Edge) successors.get(l);
-        while (e != null) {
-          value.add("N" + ((Label) succ.get(e)).getOffset());
-          e = (Edge) next.get(e);
-        }
-        actual.put(key, value);
-        l = (Label) successor.get(l);
+    Label l = start;
+    while (l != null) {
+      String key = "N" + l.getOffset();
+      Set<String> value = new HashSet<String>();
+      Edge e = l.outgoingEdges;
+      while (e != null) {
+        value.add("N" + e.successor.getOffset());
+        e = e.nextEdge;
       }
-    } catch (IllegalAccessException e) {
-      fail();
+      actual.put(key, value);
+      l = l.successor;
     }
 
     assertEquals(expected, actual);

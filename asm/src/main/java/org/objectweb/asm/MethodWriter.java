@@ -875,7 +875,7 @@ class MethodWriter extends MethodVisitor {
         // 'label' is the target of a jump instruction
         label.getFirst().status |= Label.TARGET;
         // adds 'label' as a successor of this basic block
-        addSuccessor(Edge.NORMAL, label);
+        addSuccessor(Edge.JUMP, label);
         if (opcode != Opcodes.GOTO) {
           // creates a Label for the next basic block
           nextInsn = new Label();
@@ -984,7 +984,7 @@ class MethodWriter extends MethodVisitor {
           return;
         }
         // ends current block (with one new successor)
-        addSuccessor(Edge.NORMAL, label);
+        addSuccessor(Edge.JUMP, label);
       }
       // begins a new current block
       currentBlock = label;
@@ -1131,10 +1131,10 @@ class MethodWriter extends MethodVisitor {
       if (compute == FRAMES) {
         currentBlock.frame.execute(Opcodes.LOOKUPSWITCH, 0, null, null);
         // adds current block successors
-        addSuccessor(Edge.NORMAL, dflt);
+        addSuccessor(Edge.JUMP, dflt);
         dflt.getFirst().status |= Label.TARGET;
         for (int i = 0; i < labels.length; ++i) {
-          addSuccessor(Edge.NORMAL, labels[i]);
+          addSuccessor(Edge.JUMP, labels[i]);
           labels[i].getFirst().status |= Label.TARGET;
         }
       } else {
@@ -1312,13 +1312,8 @@ class MethodWriter extends MethodVisitor {
         h.status |= Label.TARGET;
         // adds 'h' as a successor of labels between 'start' and 'end'
         while (l != e) {
-          // creates an edge to 'h'
-          Edge b = new Edge();
-          b.info = kind;
-          b.successor = h;
-          // adds it to the successors of 'l'
-          b.next = l.successors;
-          l.successors = b;
+          // create an edge to 'h' and add it to the outgoing edges of l.
+          l.outgoingEdges = new Edge(kind, h, l.outgoingEdges);
           // goes to the next label
           l = l.successor;
         }
@@ -1356,7 +1351,7 @@ class MethodWriter extends MethodVisitor {
           max = blockMax;
         }
         // updates the successors of the current basic block
-        Edge e = l.successors;
+        Edge e = l.outgoingEdges;
         while (e != null) {
           Label n = e.successor.getFirst();
           boolean change = f.merge(cw, n.frame, e.info);
@@ -1366,7 +1361,7 @@ class MethodWriter extends MethodVisitor {
             n.next = changed;
             changed = n;
           }
-          e = e.next;
+          e = e.nextEdge;
         }
       }
 
@@ -1419,20 +1414,15 @@ class MethodWriter extends MethodVisitor {
         Label e = handler.end;
         // adds 'h' as a successor of labels between 'start' and 'end'
         while (l != e) {
-          // creates an edge to 'h'
-          Edge b = new Edge();
-          b.info = Edge.EXCEPTION;
-          b.successor = h;
-          // adds it to the successors of 'l'
+          // create an edge to 'h' and add it to the successors of 'l'
           if ((l.status & Label.JSR) == 0) {
-            b.next = l.successors;
-            l.successors = b;
+            l.outgoingEdges = new Edge(Edge.EXCEPTION, h, l.outgoingEdges);
           } else {
             // if l is a JSR block, adds b after the first two edges
             // to preserve the hypothesis about JSR block successors
             // order (see {@link #visitJumpInsn})
-            b.next = l.successors.next.next;
-            l.successors.next.next = b;
+            l.outgoingEdges.nextEdge.nextEdge =
+                new Edge(Edge.EXCEPTION, h, l.outgoingEdges.nextEdge.nextEdge);
           }
           // goes to the next label
           l = l.successor;
@@ -1454,7 +1444,7 @@ class MethodWriter extends MethodVisitor {
         while (l != null) {
           if ((l.status & Label.JSR) != 0) {
             // the subroutine is defined by l's TARGET, not by l
-            Label subroutine = l.successors.next.successor;
+            Label subroutine = l.outgoingEdges.nextEdge.successor;
             // if this subroutine has not been visited yet...
             if ((subroutine.status & Label.VISITED) == 0) {
               // ...assigns it a new id and finds its basic blocks
@@ -1474,7 +1464,7 @@ class MethodWriter extends MethodVisitor {
               L = L.successor;
             }
             // the subroutine is defined by l's TARGET, not by l
-            Label subroutine = l.successors.next.successor;
+            Label subroutine = l.outgoingEdges.nextEdge.successor;
             subroutine.visitSubroutine(l, 0, subroutines);
           }
           l = l.successor;
@@ -1505,10 +1495,10 @@ class MethodWriter extends MethodVisitor {
           max = blockMax;
         }
         // analyzes the successors of the block
-        Edge b = l.successors;
+        Edge b = l.outgoingEdges;
         if ((l.status & Label.JSR) != 0) {
           // ignores the first edge of JSR blocks (virtual successor)
-          b = b.next;
+          b = b.nextEdge;
         }
         while (b != null) {
           l = b.successor;
@@ -1521,7 +1511,7 @@ class MethodWriter extends MethodVisitor {
             l.next = stack;
             stack = l;
           }
-          b = b.next;
+          b = b.nextEdge;
         }
       }
       this.maxStack = Math.max(maxStack, max);
@@ -1545,13 +1535,8 @@ class MethodWriter extends MethodVisitor {
    * @param successor the successor block to be added to the current block.
    */
   private void addSuccessor(final int info, final Label successor) {
-    // creates and initializes an Edge object...
-    Edge b = new Edge();
-    b.info = info;
-    b.successor = successor;
-    // ...and adds it to the successor list of the currentBlock block
-    b.next = currentBlock.successors;
-    currentBlock.successors = b;
+    // add a new edge to the outgoing edges of currentBlock
+    currentBlock.outgoingEdges = new Edge(info, successor, currentBlock.outgoingEdges);
   }
 
   /**

@@ -47,9 +47,6 @@ public class Label {
   /** Indicates if the position of this label is known. */
   static final int RESOLVED = 2;
 
-  /** Indicates if this label has been updated, after instruction resizing. */
-  static final int RESIZED = 4;
-
   /**
    * Indicates if this basic block has been pushed in the basic block stack. See {@link
    * MethodWriter#visitMaxs visitMaxs}.
@@ -100,7 +97,6 @@ public class Label {
    *
    * @see #DEBUG
    * @see #RESOLVED
-   * @see #RESIZED
    * @see #PUSHED
    * @see #TARGET
    * @see #STORE
@@ -202,10 +198,10 @@ public class Label {
   Label successor;
 
   /**
-   * The successors of this node in the control flow graph. These successors are stored in a linked
-   * list of {@link Edge Edge} objects, linked to each other by their {@link Edge#next} field.
+   * The outgoing edges of this control flow graph node. These edges are stored in a linked list of
+   * {@link Edge} objects, linked to each other by their {@link Edge#nextEdge} field.
    */
-  Edge successors;
+  Edge outgoingEdges;
 
   /**
    * The next basic block in the basic block stack. This stack is used in the main loop of the fix
@@ -446,11 +442,8 @@ public class Label {
         // adds JSR to the successors of l, if it is a RET block
         if ((l.status & RET) != 0) {
           if (!l.inSameSubroutine(JSR)) {
-            Edge e = new Edge();
-            e.info = l.inputStackTop;
-            e.successor = JSR.successors.successor;
-            e.next = l.successors;
-            l.successors = e;
+            l.outgoingEdges =
+                new Edge(l.inputStackTop, JSR.outgoingEdges.successor, l.outgoingEdges);
           }
         }
       } else {
@@ -462,19 +455,19 @@ public class Label {
         l.addToSubroutine(id, nbSubroutines);
       }
       // pushes each successor of l on the stack, except JSR targets
-      Edge e = l.successors;
+      Edge e = l.outgoingEdges;
       while (e != null) {
-        // if the l block is a JSR block, then 'l.successors.next' leads
+        // if the l block is a JSR block, then 'l.outgoingEdges.nextEdge' leads
         // to the JSR target (see {@link #visitJumpInsn}) and must
         // therefore not be followed
-        if ((l.status & Label.JSR) == 0 || e != l.successors.next) {
+        if ((l.status & Label.JSR) == 0 || e != l.outgoingEdges.nextEdge) {
           // pushes e.successor on the stack if it not already added
           if (e.successor.next == null) {
             e.successor.next = stack;
             stack = e.successor;
           }
         }
-        e = e.next;
+        e = e.nextEdge;
       }
     }
   }

@@ -417,8 +417,9 @@ class MethodWriter extends MethodVisitor {
   public AnnotationVisitor visitTypeAnnotation(
       final int typeRef, final TypePath typePath, final String desc, final boolean visible) {
     ByteVector bv = new ByteVector();
-    // write target_type and target_info
-    AnnotationWriter.putTarget(typeRef, typePath, bv);
+    // write target_type, target_info, and target_path
+    TypeReference.putTarget(typeRef, bv);
+    TypePath.put(typePath, bv);
     // write type, and reserve space for values count
     bv.putShort(cw.newUTF8(desc)).putShort(0);
     if (visible) {
@@ -1172,9 +1173,9 @@ class MethodWriter extends MethodVisitor {
   public AnnotationVisitor visitInsnAnnotation(
       int typeRef, TypePath typePath, String desc, boolean visible) {
     ByteVector bv = new ByteVector();
-    // write target_type and target_info
-    typeRef = (typeRef & 0xFF0000FF) | (lastCodeOffset << 8);
-    AnnotationWriter.putTarget(typeRef, typePath, bv);
+    // write target_type, target_info, and target_path
+    TypeReference.putTarget((typeRef & 0xFF0000FF) | (lastCodeOffset << 8), bv);
+    TypePath.put(typePath, bv);
     // write type, and reserve space for values count
     bv.putShort(cw.newUTF8(desc)).putShort(0);
     if (visible) {
@@ -1206,8 +1207,9 @@ class MethodWriter extends MethodVisitor {
   public AnnotationVisitor visitTryCatchAnnotation(
       int typeRef, TypePath typePath, String desc, boolean visible) {
     ByteVector bv = new ByteVector();
-    // write target_type and target_info
-    AnnotationWriter.putTarget(typeRef, typePath, bv);
+    // write target_type, target_info, and target_path
+    TypeReference.putTarget(typeRef, bv);
+    TypePath.put(typePath, bv);
     // write type, and reserve space for values count
     bv.putShort(cw.newUTF8(desc)).putShort(0);
     if (visible) {
@@ -1267,19 +1269,14 @@ class MethodWriter extends MethodVisitor {
       String desc,
       boolean visible) {
     ByteVector bv = new ByteVector();
-    // write target_type and target_info
+    // write target_type and target_info, and target_path
     bv.putByte(typeRef >>> 24).putShort(start.length);
     for (int i = 0; i < start.length; ++i) {
       bv.putShort(start[i].position)
           .putShort(end[i].position - start[i].position)
           .putShort(index[i]);
     }
-    if (typePath == null) {
-      bv.putByte(0);
-    } else {
-      int length = typePath.b[typePath.offset] * 2 + 1;
-      bv.putByteArray(typePath.b, typePath.offset, length);
-    }
+    TypePath.put(typePath, bv);
     // write type, and reserve space for values count
     bv.putShort(cw.newUTF8(desc)).putShort(0);
     if (visible) {

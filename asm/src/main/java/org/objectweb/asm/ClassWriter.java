@@ -587,8 +587,9 @@ public class ClassWriter extends ClassVisitor {
   public final AnnotationVisitor visitTypeAnnotation(
       int typeRef, TypePath typePath, final String desc, final boolean visible) {
     ByteVector bv = new ByteVector();
-    // write target_type and target_info
-    AnnotationWriter.putTarget(typeRef, typePath, bv);
+    // write target_type, target_info, and target_path
+    TypeReference.putTarget(typeRef, bv);
+    TypePath.put(typePath, bv);
     // write type, and reserve space for values count
     bv.putShort(newUTF8(desc)).putShort(0);
     if (visible) {

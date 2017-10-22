@@ -30,9 +30,8 @@ package org.objectweb.asm;
 import static org.junit.Assert.assertTrue;
 
 import java.util.Collection;
-import java.util.Random;
 import java.util.HashSet;
-
+import java.util.Random;
 import org.junit.Test;
 import org.junit.runners.Parameterized.Parameters;
 import org.objectweb.asm.test.AsmTest;

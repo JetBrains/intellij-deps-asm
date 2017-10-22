@@ -27,6 +27,7 @@
 // THE POSSIBILITY OF SUCH DAMAGE.
 
 plugins { id 'biz.aQute.bnd.builder' version '3.3.0' apply false }
+plugins { id 'com.github.sherter.google-java-format' version '0.6' apply false }
 
 description = 'ASM, a very small and fast Java bytecode manipulation framework'
 
@@ -39,6 +40,7 @@ subprojects {
   ext.requires = []  // The required Gradle projects, e.g. [':asm-test']
   ext.depends = []   // The external dependencies, e.g. ['junit:junit:4.12']
   ext.runWith = []   // The command line to run this project, if applicable.
+  ext.coverage = 0.9 // The minimum code fraction that must be covered by tests.
 }
 
 // -----------------------------------------------------------------------------
@@ -61,6 +63,7 @@ project(':asm-commons') {
   provides = ['org.objectweb.asm.commons']
   requires = [':asm', ':asm-tree', ':asm-analysis']
   dependencies { testCompile project(':asm-util') }
+  coverage = 0.5  // TODO: improve the code coverage of this project.
 }
 
 project(':asm-test') {
@@ -86,6 +89,7 @@ project(':asm-xml') {
   description = "XML API of ${parent.description}"
   provides = ['org.objectweb.asm.xml']
   requires = [':asm', ':asm-util']
+  coverage = 0.8
 }
 
 project(':benchmarks') {
@@ -207,6 +211,8 @@ project(':tools:retrofitter') {
 
 // All projects use Java 1.5 and are tested with :asm-test and JUnit.
 subprojects {
+  apply plugin: 'com.github.sherter.google-java-format'
+  googleJavaFormat.toolVersion = '1.4'
   sourceCompatibility = '1.5'
   targetCompatibility = '1.5'
   javadoc { failOnError = false }  // TODO fix the Javadoc and remove this!
@@ -234,6 +240,20 @@ configure(subprojects.findAll { it.runWith }) {
 configure(subprojects.findAll { it.provides }) {
   // Code coverage configuration.
   apply plugin: 'jacoco'
+  jacocoTestCoverageVerification {
+    // Exclude everything not in org/objectweb/asm/** from coverage checks.
+    afterEvaluate {
+      classDirectories = files(classDirectories.files.collect {
+        fileTree(dir: it, include: 'org/objectweb/asm/**')
+      })
+    }
+    violationRules.rule {
+      limit {
+        counter = 'INSTRUCTION'
+        minimum = coverage
+      }
+    }
+  }
 
   // Retrofit the code to Java 1.5, in-place, in compileJava.doLast.
   task retrofit(type: JavaExec) {
@@ -245,7 +265,7 @@ configure(subprojects.findAll { it.provides }) {
   compileJava.doLast { tasks.retrofit.execute() }
 
   // Create one backward compatibility checking task for each 'sigtest-*' file
-  // in test/resources, and make the 'test' task depend on all these tasks.
+  // in test/resources, and make the 'check' task depend on all these tasks.
   if (file('src/test/resources/').exists()) {
     configurations { sigtest }
     dependencies { sigtest 'org.netbeans.tools:sigtest-maven-plugin:1.0' }
@@ -268,7 +288,7 @@ configure(subprojects.findAll { it.provides }) {
           }
         }
       }
-      test.dependsOn f.name
+      check.dependsOn f.name
     }
   }
 
@@ -289,7 +309,7 @@ configure(subprojects.findAll { it.provides }) {
       'Bundle-DocURL': 'http://asm.ow2.org',
       'Bundle-RequiredExecutionEnvironment': 'J2SE-1.5',
       'Bundle-SymbolicName': provides[0],
-      'Export-Package': provides.collect{"${it};version=6.1"}.join(','),
+      'Export-Package': provides.collect{"${it};version=${version}"}.join(','),
       'Implementation-Title': project.description,
       'Module-Requires': 
           requires

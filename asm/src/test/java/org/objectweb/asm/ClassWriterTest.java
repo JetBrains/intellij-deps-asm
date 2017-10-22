@@ -28,6 +28,7 @@
 package org.objectweb.asm;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.objectweb.asm.test.Assertions.assertThat;
 
 import java.util.HashSet;
 import java.util.Random;

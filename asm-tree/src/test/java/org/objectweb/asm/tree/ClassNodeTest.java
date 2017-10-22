@@ -27,6 +27,8 @@
 // THE POSSIBILITY OF SUCH DAMAGE.
 package org.objectweb.asm.tree;
 
+import static org.objectweb.asm.test.Assertions.assertThat;
+
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;

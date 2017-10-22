@@ -30,11 +30,8 @@ package org.objectweb.asm.test;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.fail;
-import static org.junit.jupiter.api.Assumptions.assumingThat;
 
-import org.junit.jupiter.api.function.Executable;
 import org.junit.jupiter.params.provider.Arguments;
 
 import java.io.InputStream;
@@ -45,6 +42,7 @@ import java.lang.reflect.Modifier;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.stream.Stream;
 
 /**
@@ -264,48 +262,10 @@ public abstract class AsmTest {
   }
 
   private static Stream<Arguments> classesAndApis(Api... apis) {
-    ArrayList<Arguments> result = new ArrayList<>();
-    for (PrecompiledClass precompiledClass : PrecompiledClass.values()) {
-      for (Api api : apis) {
-        result.add(Arguments.of(precompiledClass, api));
-      }
-    }
-    return result.stream();
-  }
-
-  public static ExecutableSubject assertThat(Executable executable) {
-    return new ExecutableSubject(executable);
-  }
-
-  public static class ExecutableSubject {
-    private final Executable executable;
-
-    ExecutableSubject(final Executable executable) {
-      this.executable = executable;
-    }
-
-    public <T extends Throwable> ExecutableOutcomeSubject<T> succeedsOrThrows(
-        Class<T> expectedType) {
-      return new ExecutableOutcomeSubject<T>(executable, expectedType);
-    }
-  }
-
-  public static class ExecutableOutcomeSubject<T extends Throwable> {
-    private final Executable executable;
-    private final Class<T> expectedType;
-
-    ExecutableOutcomeSubject(final Executable executable, final Class<T> expectedType) {
-      this.executable = executable;
-      this.expectedType = expectedType;
-    }
-
-    public void when(boolean condition) {
-      if (condition) {
-        assertThrows(expectedType, executable);
-      } else {
-        assumingThat(true, executable);
-      }
-    }
+    return Arrays.stream(PrecompiledClass.values())
+        .flatMap(
+            precompiledClass ->
+                Arrays.stream(apis).map(api -> Arguments.of(precompiledClass, api)));
   }
 
   /**

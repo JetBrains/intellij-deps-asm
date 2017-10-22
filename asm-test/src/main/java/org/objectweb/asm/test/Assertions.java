@@ -25,47 +25,55 @@
 // CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
 // THE POSSIBILITY OF SUCH DAMAGE.
-package org.objectweb.asm.commons;
+package org.objectweb.asm.test;
 
-import static org.objectweb.asm.test.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assumptions.assumingThat;
 
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.MethodSource;
-import org.objectweb.asm.ClassReader;
-import org.objectweb.asm.ClassVisitor;
-import org.objectweb.asm.ClassWriter;
-import org.objectweb.asm.MethodVisitor;
-import org.objectweb.asm.test.AsmTest;
+import org.junit.jupiter.api.function.Executable;
 
 /**
- * JSRInliner tests.
+ * Provides convenient assertions to check that an executable succeeds or throws an exception,
+ * depending on some condition.
  *
  * @author Eric Bruneton
  */
-public class JSRInlinerAdapterTest extends AsmTest {
+public final class Assertions {
 
-  /** Tests that classes transformed with JSRInlinerAdapter can be loaded and instantiated. */
-  @ParameterizedTest
-  @MethodSource(ALL_CLASSES_AND_LATEST_API)
-  public void testInlineJsrAndInstantiate(PrecompiledClass classParameter, Api apiParameter) {
-    ClassReader classReader = new ClassReader(classParameter.getBytes());
-    ClassWriter classWriter = new ClassWriter(0);
-    classReader.accept(
-        new ClassVisitor(apiParameter.value(), classWriter) {
-          @Override
-          public MethodVisitor visitMethod(
-              final int access,
-              final String name,
-              final String desc,
-              final String signature,
-              final String[] exceptions) {
-            MethodVisitor mv = super.visitMethod(access, name, desc, signature, exceptions);
-            return new JSRInlinerAdapter(api, mv, access, name, desc, signature, exceptions);
-          }
-        },
-        0);
-    assertThat(() -> loadAndInstantiate(classParameter.getName(), classWriter.toByteArray()))
-        .succeedsOrThrows(UnsupportedClassVersionError.class)
-        .when(classParameter.isMoreRecentThanCurrentJdk());
+  private Assertions() {}
+
+  public static ExecutableSubject assertThat(Executable executable) {
+    return new ExecutableSubject(executable);
+  }
+
+  public static class ExecutableSubject {
+    private final Executable executable;
+
+    ExecutableSubject(final Executable executable) {
+      this.executable = executable;
+    }
+
+    public <T extends Throwable> ExecutableOutcomeSubject<T> succeedsOrThrows(
+        Class<T> expectedType) {
+      return new ExecutableOutcomeSubject<T>(executable, expectedType);
+    }
+  }
+
+  public static class ExecutableOutcomeSubject<T extends Throwable> {
+    private final Executable executable;
+    private final Class<T> expectedType;
+
+    ExecutableOutcomeSubject(final Executable executable, final Class<T> expectedType) {
+      this.executable = executable;
+      this.expectedType = expectedType;
+    }
+
+    public void when(boolean condition) {
+      if (condition) {
+        assertThrows(expectedType, executable);
+      } else {
+        assumingThat(true, executable);
+      }
+    }
   }
 }

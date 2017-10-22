@@ -926,7 +926,7 @@ public class ClassWriter extends ClassVisitor {
       }
     } else if (cst instanceof Handle) {
       Handle h = (Handle) cst;
-      return newHandleItem(h.tag, h.owner, h.name, h.desc, h.itf);
+      return newHandleItem(h.tag, h.owner, h.name, h.descriptor, h.isInterface);
     } else {
       throw new IllegalArgumentException("value " + cst);
     }
@@ -1126,7 +1126,8 @@ public class ClassWriter extends ClassVisitor {
     int position = bootstrapMethods.length; // record current position
 
     int hashCode = bsm.hashCode();
-    bootstrapMethods.putShort(newHandle(bsm.tag, bsm.owner, bsm.name, bsm.desc, bsm.isInterface()));
+    bootstrapMethods.putShort(
+        newHandle(bsm.tag, bsm.owner, bsm.name, bsm.descriptor, bsm.isInterface()));
 
     int argsLength = bsmArgs.length;
     bootstrapMethods.putShort(argsLength);

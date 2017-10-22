@@ -148,7 +148,7 @@ final class FieldWriter extends FieldVisitor {
 
   @Override
   public void visitAttribute(final Attribute attr) {
-    attr.next = attrs;
+    attr.nextAttribute = attrs;
     attrs = attr;
   }
 
@@ -199,7 +199,7 @@ final class FieldWriter extends FieldVisitor {
       size += 8 + itanns.getSize();
     }
     if (attrs != null) {
-      size += attrs.getSize(cw, null, 0, -1, -1);
+      size += attrs.getAttributesSize(cw);
     }
     return size;
   }
@@ -239,7 +239,7 @@ final class FieldWriter extends FieldVisitor {
       ++attributeCount;
     }
     if (attrs != null) {
-      attributeCount += attrs.getCount();
+      attributeCount += attrs.getAttributeCount();
     }
     out.putShort(attributeCount);
     if (value != 0) {
@@ -273,7 +273,7 @@ final class FieldWriter extends FieldVisitor {
       itanns.put(out);
     }
     if (attrs != null) {
-      attrs.put(cw, null, 0, -1, -1, out);
+      attrs.putAttributes(cw, out);
     }
   }
 }

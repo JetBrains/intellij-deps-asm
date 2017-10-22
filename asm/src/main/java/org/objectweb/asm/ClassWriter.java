@@ -576,15 +576,11 @@ public class ClassWriter extends ClassVisitor {
     ByteVector bv = new ByteVector();
     // write type, and reserve space for values count
     bv.putShort(newUTF8(desc)).putShort(0);
-    AnnotationWriter aw = new AnnotationWriter(this, true, bv, bv, 2);
     if (visible) {
-      aw.next = anns;
-      anns = aw;
+      return anns = new AnnotationWriter(this, bv, anns);
     } else {
-      aw.next = ianns;
-      ianns = aw;
+      return ianns = new AnnotationWriter(this, bv, ianns);
     }
-    return aw;
   }
 
   @Override
@@ -595,15 +591,11 @@ public class ClassWriter extends ClassVisitor {
     AnnotationWriter.putTarget(typeRef, typePath, bv);
     // write type, and reserve space for values count
     bv.putShort(newUTF8(desc)).putShort(0);
-    AnnotationWriter aw = new AnnotationWriter(this, true, bv, bv, bv.length - 2);
     if (visible) {
-      aw.next = tanns;
-      tanns = aw;
+      return tanns = new AnnotationWriter(this, bv, tanns);
     } else {
-      aw.next = itanns;
-      itanns = aw;
+      return itanns = new AnnotationWriter(this, bv, itanns);
     }
-    return aw;
   }
 
   @Override
@@ -742,23 +734,19 @@ public class ClassWriter extends ClassVisitor {
     }
     if (anns != null) {
       ++attributeCount;
-      size += 8 + anns.getSize();
-      newUTF8("RuntimeVisibleAnnotations");
+      size += anns.getAnnotationsSize("RuntimeVisibleAnnotations");
     }
     if (ianns != null) {
       ++attributeCount;
-      size += 8 + ianns.getSize();
-      newUTF8("RuntimeInvisibleAnnotations");
+      size += ianns.getAnnotationsSize("RuntimeInvisibleAnnotations");
     }
     if (tanns != null) {
       ++attributeCount;
-      size += 8 + tanns.getSize();
-      newUTF8("RuntimeVisibleTypeAnnotations");
+      size += tanns.getAnnotationsSize("RuntimeVisibleTypeAnnotations");
     }
     if (itanns != null) {
       ++attributeCount;
-      size += 8 + itanns.getSize();
-      newUTF8("RuntimeInvisibleTypeAnnotations");
+      size += itanns.getAnnotationsSize("RuntimeInvisibleTypeAnnotations");
     }
     if (moduleWriter != null) {
       attributeCount += 1 + moduleWriter.attributeCount;
@@ -832,20 +820,16 @@ public class ClassWriter extends ClassVisitor {
       out.putByteArray(innerClasses.data, 0, innerClasses.length);
     }
     if (anns != null) {
-      out.putShort(newUTF8("RuntimeVisibleAnnotations"));
-      anns.put(out);
+      anns.putAnnotations(newUTF8("RuntimeVisibleAnnotations"), out);
     }
     if (ianns != null) {
-      out.putShort(newUTF8("RuntimeInvisibleAnnotations"));
-      ianns.put(out);
+      ianns.putAnnotations(newUTF8("RuntimeInvisibleAnnotations"), out);
     }
     if (tanns != null) {
-      out.putShort(newUTF8("RuntimeVisibleTypeAnnotations"));
-      tanns.put(out);
+      tanns.putAnnotations(newUTF8("RuntimeVisibleTypeAnnotations"), out);
     }
     if (itanns != null) {
-      out.putShort(newUTF8("RuntimeInvisibleTypeAnnotations"));
-      itanns.put(out);
+      itanns.putAnnotations(newUTF8("RuntimeInvisibleTypeAnnotations"), out);
     }
     if (attrs != null) {
       attrs.put(this, null, 0, -1, -1, out);

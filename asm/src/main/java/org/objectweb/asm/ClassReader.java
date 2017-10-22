@@ -473,9 +473,9 @@ public class ClassReader {
     char[] c = new char[maxStringLength]; // buffer used to read strings
 
     Context context = new Context();
-    context.attrs = attrs;
-    context.flags = flags;
-    context.buffer = c;
+    context.attributePrototypes = attrs;
+    context.parsingOptions = flags;
+    context.charBuffer = c;
 
     // reads the class declaration
     int access = readUnsignedShort(u);
@@ -550,7 +550,7 @@ public class ClassReader {
           bootstrapMethods[j] = v;
           v += 2 + readUnsignedShort(v + 2) << 1;
         }
-        context.bootstrapMethods = bootstrapMethods;
+        context.bootstrapMethodOffsets = bootstrapMethods;
       } else {
         Attribute attr = readAttribute(attrs, attrName, u + 8, readInt(u + 4), c, -1, null);
         if (attr != null) {
@@ -603,7 +603,10 @@ public class ClassReader {
                 c,
                 true,
                 classVisitor.visitTypeAnnotation(
-                    context.typeRef, context.typePath, readUTF8(v, c), true));
+                    context.currentTypeAnnotationTarget,
+                    context.currentTypeAnnotationTargetPath,
+                    readUTF8(v, c),
+                    true));
       }
     }
     if (itanns != 0) {
@@ -615,7 +618,10 @@ public class ClassReader {
                 c,
                 true,
                 classVisitor.visitTypeAnnotation(
-                    context.typeRef, context.typePath, readUTF8(v, c), false));
+                    context.currentTypeAnnotationTarget,
+                    context.currentTypeAnnotationTargetPath,
+                    readUTF8(v, c),
+                    false));
       }
     }
 
@@ -667,7 +673,7 @@ public class ClassReader {
       final String mainClass,
       int packages) {
 
-    char[] buffer = context.buffer;
+    char[] buffer = context.charBuffer;
 
     // reads module name, flags and version
     String name = readModule(u, buffer);
@@ -773,7 +779,7 @@ public class ClassReader {
    */
   private int readField(final ClassVisitor classVisitor, final Context context, int u) {
     // reads the field declaration
-    char[] c = context.buffer;
+    char[] c = context.charBuffer;
     int access = readUnsignedShort(u);
     String name = readUTF8(u + 2, c);
     String desc = readUTF8(u + 4, c);
@@ -810,7 +816,9 @@ public class ClassReader {
       } else if ("RuntimeInvisibleTypeAnnotations".equals(attrName)) {
         itanns = u + 8;
       } else {
-        Attribute attr = readAttribute(context.attrs, attrName, u + 8, readInt(u + 4), c, -1, null);
+        Attribute attr =
+            readAttribute(
+                context.attributePrototypes, attrName, u + 8, readInt(u + 4), c, -1, null);
         if (attr != null) {
           attr.nextAttribute = attributes;
           attributes = attr;
@@ -845,7 +853,11 @@ public class ClassReader {
                 v + 2,
                 c,
                 true,
-                fv.visitTypeAnnotation(context.typeRef, context.typePath, readUTF8(v, c), true));
+                fv.visitTypeAnnotation(
+                    context.currentTypeAnnotationTarget,
+                    context.currentTypeAnnotationTargetPath,
+                    readUTF8(v, c),
+                    true));
       }
     }
     if (itanns != 0) {
@@ -856,7 +868,11 @@ public class ClassReader {
                 v + 2,
                 c,
                 true,
-                fv.visitTypeAnnotation(context.typeRef, context.typePath, readUTF8(v, c), false));
+                fv.visitTypeAnnotation(
+                    context.currentTypeAnnotationTarget,
+                    context.currentTypeAnnotationTargetPath,
+                    readUTF8(v, c),
+                    false));
       }
     }
 
@@ -884,10 +900,10 @@ public class ClassReader {
    */
   private int readMethod(final ClassVisitor classVisitor, final Context context, int u) {
     // reads the method declaration
-    char[] c = context.buffer;
-    context.access = readUnsignedShort(u);
-    context.name = readUTF8(u + 2, c);
-    context.desc = readUTF8(u + 4, c);
+    char[] c = context.charBuffer;
+    context.currentMethodAccess = readUnsignedShort(u);
+    context.currentMethodName = readUTF8(u + 2, c);
+    context.currentMethodDesc = readUTF8(u + 4, c);
     u += 6;
 
     // reads the method attributes
@@ -911,7 +927,7 @@ public class ClassReader {
       // tests are sorted in decreasing frequency order
       // (based on frequencies observed on typical classes)
       if ("Code".equals(attrName)) {
-        if ((context.flags & SKIP_CODE) == 0) {
+        if ((context.parsingOptions & SKIP_CODE) == 0) {
           code = u + 8;
         }
       } else if ("Exceptions".equals(attrName)) {
@@ -924,7 +940,7 @@ public class ClassReader {
       } else if ("Signature".equals(attrName)) {
         signature = readUTF8(u + 8, c);
       } else if ("Deprecated".equals(attrName)) {
-        context.access |= Opcodes.ACC_DEPRECATED;
+        context.currentMethodAccess |= Opcodes.ACC_DEPRECATED;
       } else if ("RuntimeVisibleAnnotations".equals(attrName)) {
         anns = u + 8;
       } else if ("RuntimeVisibleTypeAnnotations".equals(attrName)) {
@@ -932,7 +948,7 @@ public class ClassReader {
       } else if ("AnnotationDefault".equals(attrName)) {
         dann = u + 8;
       } else if ("Synthetic".equals(attrName)) {
-        context.access |= Opcodes.ACC_SYNTHETIC;
+        context.currentMethodAccess |= Opcodes.ACC_SYNTHETIC;
       } else if ("RuntimeInvisibleAnnotations".equals(attrName)) {
         ianns = u + 8;
       } else if ("RuntimeInvisibleTypeAnnotations".equals(attrName)) {
@@ -944,7 +960,9 @@ public class ClassReader {
       } else if ("MethodParameters".equals(attrName)) {
         methodParameters = u + 8;
       } else {
-        Attribute attr = readAttribute(context.attrs, attrName, u + 8, readInt(u + 4), c, -1, null);
+        Attribute attr =
+            readAttribute(
+                context.attributePrototypes, attrName, u + 8, readInt(u + 4), c, -1, null);
         if (attr != null) {
           attr.nextAttribute = attributes;
           attributes = attr;
@@ -956,7 +974,12 @@ public class ClassReader {
 
     // visits the method declaration
     MethodVisitor mv =
-        classVisitor.visitMethod(context.access, context.name, context.desc, signature, exceptions);
+        classVisitor.visitMethod(
+            context.currentMethodAccess,
+            context.currentMethodName,
+            context.currentMethodDesc,
+            signature,
+            exceptions);
     if (mv == null) {
       return u;
     }
@@ -1033,7 +1056,11 @@ public class ClassReader {
                 v + 2,
                 c,
                 true,
-                mv.visitTypeAnnotation(context.typeRef, context.typePath, readUTF8(v, c), true));
+                mv.visitTypeAnnotation(
+                    context.currentTypeAnnotationTarget,
+                    context.currentTypeAnnotationTargetPath,
+                    readUTF8(v, c),
+                    true));
       }
     }
     if (itanns != 0) {
@@ -1044,7 +1071,11 @@ public class ClassReader {
                 v + 2,
                 c,
                 true,
-                mv.visitTypeAnnotation(context.typeRef, context.typePath, readUTF8(v, c), false));
+                mv.visitTypeAnnotation(
+                    context.currentTypeAnnotationTarget,
+                    context.currentTypeAnnotationTargetPath,
+                    readUTF8(v, c),
+                    false));
       }
     }
     if (mpanns != 0) {
@@ -1084,7 +1115,7 @@ public class ClassReader {
   private void readCode(final MethodVisitor mv, final Context context, int u) {
     // reads the header
     byte[] b = this.b;
-    char[] c = context.buffer;
+    char[] c = context.charBuffer;
     int maxStack = readUnsignedShort(u);
     int maxLocals = readUnsignedShort(u + 2);
     int codeLength = readInt(u + 4);
@@ -1093,7 +1124,7 @@ public class ClassReader {
     // reads the bytecode to find the labels
     int codeStart = u;
     int codeEnd = u + codeLength;
-    Label[] labels = context.labels = new Label[codeLength + 2];
+    Label[] labels = context.currentMethodLabels = new Label[codeLength + 2];
     createLabel(codeLength + 1, labels);
     while (u < codeEnd) {
       int offset = u - codeStart;
@@ -1190,7 +1221,7 @@ public class ClassReader {
     int varTable = 0;
     int varTypeTable = 0;
     boolean zip = true;
-    boolean unzip = (context.flags & EXPAND_FRAMES) != 0;
+    boolean unzip = (context.parsingOptions & EXPAND_FRAMES) != 0;
     int stackMap = 0;
     int stackMapSize = 0;
     int frameCount = 0;
@@ -1200,7 +1231,7 @@ public class ClassReader {
     for (int i = readUnsignedShort(u); i > 0; --i) {
       String attrName = readUTF8(u + 2, c);
       if ("LocalVariableTable".equals(attrName)) {
-        if ((context.flags & SKIP_DEBUG) == 0) {
+        if ((context.parsingOptions & SKIP_DEBUG) == 0) {
           varTable = u + 8;
           for (int j = readUnsignedShort(u + 8), v = u; j > 0; --j) {
             int label = readUnsignedShort(v + 10);
@@ -1213,7 +1244,7 @@ public class ClassReader {
       } else if ("LocalVariableTypeTable".equals(attrName)) {
         varTypeTable = u + 8;
       } else if ("LineNumberTable".equals(attrName)) {
-        if ((context.flags & SKIP_DEBUG) == 0) {
+        if ((context.parsingOptions & SKIP_DEBUG) == 0) {
           for (int j = readUnsignedShort(u + 8), v = u; j > 0; --j) {
             int label = readUnsignedShort(v + 10);
             createDebugLabel(label, labels);
@@ -1239,7 +1270,7 @@ public class ClassReader {
                 ? -1
                 : readUnsignedShort(itanns[0] + 1);
       } else if ("StackMapTable".equals(attrName)) {
-        if ((context.flags & SKIP_FRAMES) == 0) {
+        if ((context.parsingOptions & SKIP_FRAMES) == 0) {
           stackMap = u + 10;
           stackMapSize = readInt(u + 4);
           frameCount = readUnsignedShort(u + 8);
@@ -1263,7 +1294,7 @@ public class ClassReader {
          * (see below).
          */
       } else if ("StackMap".equals(attrName)) {
-        if ((context.flags & SKIP_FRAMES) == 0) {
+        if ((context.parsingOptions & SKIP_FRAMES) == 0) {
           zip = false;
           stackMap = u + 10;
           stackMapSize = readInt(u + 4);
@@ -1275,10 +1306,11 @@ public class ClassReader {
          * by the attribute format.
          */
       } else {
-        for (int j = 0; j < context.attrs.length; ++j) {
-          if (context.attrs[j].type.equals(attrName)) {
+        for (int j = 0; j < context.attributePrototypes.length; ++j) {
+          if (context.attributePrototypes[j].type.equals(attrName)) {
             Attribute attr =
-                context.attrs[j].read(this, u + 8, readInt(u + 4), c, codeStart - 8, labels);
+                context.attributePrototypes[j].read(
+                    this, u + 8, readInt(u + 4), c, codeStart - 8, labels);
             if (attr != null) {
               attr.nextAttribute = attributes;
               attributes = attr;
@@ -1298,13 +1330,13 @@ public class ClassReader {
        * allow the use of the "offset_delta + 1" rule in all cases
        */
       frame = context;
-      frame.offset = -1;
-      frame.mode = 0;
-      frame.localCount = 0;
-      frame.localDiff = 0;
-      frame.stackCount = 0;
-      frame.local = new Object[maxLocals];
-      frame.stack = new Object[maxStack];
+      frame.currentFrameOffset = -1;
+      frame.currentFrameType = 0;
+      frame.currentFrameLocalCount = 0;
+      frame.currentFrameLocalCountDelta = 0;
+      frame.currentFrameStackCount = 0;
+      frame.currentFrameLocalTypes = new Object[maxLocals];
+      frame.currentFrameStackTypes = new Object[maxStack];
       if (unzip) {
         getImplicitFrame(context);
       }
@@ -1330,7 +1362,8 @@ public class ClassReader {
         }
       }
     }
-    if ((context.flags & EXPAND_ASM_INSNS) != 0 && (context.flags & EXPAND_FRAMES) != 0) {
+    if ((context.parsingOptions & EXPAND_ASM_INSNS) != 0
+        && (context.parsingOptions & EXPAND_FRAMES) != 0) {
       // Expanding the ASM pseudo instructions can introduce F_INSERT
       // frames, even if the method does not currently have any frame.
       // Also these inserted frames must be computed by simulating the
@@ -1346,7 +1379,7 @@ public class ClassReader {
     }
 
     // visits the instructions
-    int opcodeDelta = (context.flags & EXPAND_ASM_INSNS) == 0 ? -33 : 0;
+    int opcodeDelta = (context.parsingOptions & EXPAND_ASM_INSNS) == 0 ? -33 : 0;
     boolean insertFrame = false;
     u = codeStart;
     while (u < codeEnd) {
@@ -1358,7 +1391,7 @@ public class ClassReader {
         Label next = l.next;
         l.next = null;
         mv.visitLabel(l);
-        if ((context.flags & SKIP_DEBUG) == 0 && l.line > 0) {
+        if ((context.parsingOptions & SKIP_DEBUG) == 0 && l.line > 0) {
           mv.visitLineNumber(l.line, l);
           while (next != null) {
             mv.visitLineNumber(next.line, l);
@@ -1368,15 +1401,25 @@ public class ClassReader {
       }
 
       // visits the frame for this offset, if any
-      while (frame != null && (frame.offset == offset || frame.offset == -1)) {
+      while (frame != null
+          && (frame.currentFrameOffset == offset || frame.currentFrameOffset == -1)) {
         // if there is a frame for this offset, makes the visitor visit
         // it, and reads the next frame if there is one.
-        if (frame.offset != -1) {
+        if (frame.currentFrameOffset != -1) {
           if (!zip || unzip) {
             mv.visitFrame(
-                Opcodes.F_NEW, frame.localCount, frame.local, frame.stackCount, frame.stack);
+                Opcodes.F_NEW,
+                frame.currentFrameLocalCount,
+                frame.currentFrameLocalTypes,
+                frame.currentFrameStackCount,
+                frame.currentFrameStackTypes);
           } else {
-            mv.visitFrame(frame.mode, frame.localDiff, frame.local, frame.stackCount, frame.stack);
+            mv.visitFrame(
+                frame.currentFrameType,
+                frame.currentFrameLocalCountDelta,
+                frame.currentFrameLocalTypes,
+                frame.currentFrameStackCount,
+                frame.currentFrameStackTypes);
           }
           // if there is already a frame for this offset, there is no
           // need to insert a new one.
@@ -1549,7 +1592,7 @@ public class ClassReader {
         case ClassWriter.INDYMETH_INSN:
           {
             int cpIndex = items[readUnsignedShort(u + 1)];
-            int bsmIndex = context.bootstrapMethods[readUnsignedShort(cpIndex)];
+            int bsmIndex = context.bootstrapMethodOffsets[readUnsignedShort(cpIndex)];
             Handle bsm = (Handle) readConst(readUnsignedShort(bsmIndex), c);
             int bsmArgCount = readUnsignedShort(bsmIndex + 2);
             Object[] bsmArgs = new Object[bsmArgCount];
@@ -1588,7 +1631,11 @@ public class ClassReader {
               v + 2,
               c,
               true,
-              mv.visitInsnAnnotation(context.typeRef, context.typePath, readUTF8(v, c), true));
+              mv.visitInsnAnnotation(
+                  context.currentTypeAnnotationTarget,
+                  context.currentTypeAnnotationTargetPath,
+                  readUTF8(v, c),
+                  true));
         }
         ntoff =
             ++tann >= tanns.length || readByte(tanns[tann]) < 0x43
@@ -1602,7 +1649,11 @@ public class ClassReader {
               v + 2,
               c,
               true,
-              mv.visitInsnAnnotation(context.typeRef, context.typePath, readUTF8(v, c), false));
+              mv.visitInsnAnnotation(
+                  context.currentTypeAnnotationTarget,
+                  context.currentTypeAnnotationTargetPath,
+                  readUTF8(v, c),
+                  false));
         }
         nitoff =
             ++itann >= itanns.length || readByte(itanns[itann]) < 0x43
@@ -1615,7 +1666,7 @@ public class ClassReader {
     }
 
     // visits the local variable tables
-    if ((context.flags & SKIP_DEBUG) == 0 && varTable != 0) {
+    if ((context.parsingOptions & SKIP_DEBUG) == 0 && varTable != 0) {
       int[] typeTable = null;
       if (varTypeTable != 0) {
         u = varTypeTable + 2;
@@ -1663,11 +1714,11 @@ public class ClassReader {
                   c,
                   true,
                   mv.visitLocalVariableAnnotation(
-                      context.typeRef,
-                      context.typePath,
-                      context.start,
-                      context.end,
-                      context.index,
+                      context.currentTypeAnnotationTarget,
+                      context.currentTypeAnnotationTargetPath,
+                      context.currentLocalVariableAnnotationRangeStarts,
+                      context.currentLocalVariableAnnotationRangeEnds,
+                      context.currentLocalVariableAnnotationRangeIndices,
                       readUTF8(v, c),
                       true));
         }
@@ -1683,11 +1734,11 @@ public class ClassReader {
                   c,
                   true,
                   mv.visitLocalVariableAnnotation(
-                      context.typeRef,
-                      context.typePath,
-                      context.start,
-                      context.end,
-                      context.index,
+                      context.currentTypeAnnotationTarget,
+                      context.currentTypeAnnotationTargetPath,
+                      context.currentLocalVariableAnnotationRangeStarts,
+                      context.currentLocalVariableAnnotationRangeEnds,
+                      context.currentLocalVariableAnnotationRangeIndices,
                       readUTF8(v, c),
                       false));
         }
@@ -1718,7 +1769,7 @@ public class ClassReader {
    */
   private int[] readTypeAnnotations(
       final MethodVisitor mv, final Context context, int u, boolean visible) {
-    char[] c = context.buffer;
+    char[] c = context.charBuffer;
     int[] offsets = new int[readUnsignedShort(u)];
     u += 2;
     for (int i = 0; i < offsets.length; ++i) {
@@ -1740,8 +1791,8 @@ public class ClassReader {
           for (int j = readUnsignedShort(u + 1); j > 0; --j) {
             int start = readUnsignedShort(u + 3);
             int length = readUnsignedShort(u + 5);
-            createLabel(start, context.labels);
-            createLabel(start + length, context.labels);
+            createLabel(start, context.currentMethodLabels);
+            createLabel(start + length, context.currentMethodLabels);
             u += 6;
           }
           u += 3;
@@ -1811,16 +1862,18 @@ public class ClassReader {
         { // RESOURCE_VARIABLE
           target &= 0xFF000000;
           int n = readUnsignedShort(u + 1);
-          context.start = new Label[n];
-          context.end = new Label[n];
-          context.index = new int[n];
+          context.currentLocalVariableAnnotationRangeStarts = new Label[n];
+          context.currentLocalVariableAnnotationRangeEnds = new Label[n];
+          context.currentLocalVariableAnnotationRangeIndices = new int[n];
           u += 3;
           for (int i = 0; i < n; ++i) {
             int start = readUnsignedShort(u);
             int length = readUnsignedShort(u + 2);
-            context.start[i] = createLabel(start, context.labels);
-            context.end[i] = createLabel(start + length, context.labels);
-            context.index[i] = readUnsignedShort(u + 4);
+            context.currentLocalVariableAnnotationRangeStarts[i] =
+                createLabel(start, context.currentMethodLabels);
+            context.currentLocalVariableAnnotationRangeEnds[i] =
+                createLabel(start + length, context.currentMethodLabels);
+            context.currentLocalVariableAnnotationRangeIndices[i] = readUnsignedShort(u + 4);
             u += 6;
           }
           break;
@@ -1848,8 +1901,8 @@ public class ClassReader {
         break;
     }
     int pathLength = readByte(u);
-    context.typeRef = target;
-    context.typePath = pathLength == 0 ? null : new TypePath(b, u);
+    context.currentTypeAnnotationTarget = target;
+    context.currentTypeAnnotationTargetPath = pathLength == 0 ? null : new TypePath(b, u);
     return u + 1 + 2 * pathLength;
   }
 
@@ -1871,7 +1924,7 @@ public class ClassReader {
     // equal to the number of parameters in the method descriptor - which
     // includes the synthetic parameters added by the compiler). This work-
     // around supposes that the synthetic parameters are the first ones.
-    int synthetics = Type.getArgumentTypes(context.desc).length - n;
+    int synthetics = Type.getArgumentTypes(context.currentMethodDesc).length - n;
     AnnotationVisitor av;
     for (i = 0; i < synthetics; ++i) {
       // virtual annotation to detect synthetic parameters in MethodWriter
@@ -1880,7 +1933,7 @@ public class ClassReader {
         av.visitEnd();
       }
     }
-    char[] c = context.buffer;
+    char[] c = context.charBuffer;
     for (; i < n + synthetics; ++i) {
       int j = readUnsignedShort(v);
       v += 2;
@@ -2079,14 +2132,14 @@ public class ClassReader {
    * @param frame information about the class being parsed.
    */
   private void getImplicitFrame(final Context frame) {
-    String desc = frame.desc;
-    Object[] locals = frame.local;
+    String desc = frame.currentMethodDesc;
+    Object[] locals = frame.currentFrameLocalTypes;
     int local = 0;
-    if ((frame.access & Opcodes.ACC_STATIC) == 0) {
-      if ("<init>".equals(frame.name)) {
+    if ((frame.currentMethodAccess & Opcodes.ACC_STATIC) == 0) {
+      if ("<init>".equals(frame.currentMethodName)) {
         locals[local++] = Opcodes.UNINITIALIZED_THIS;
       } else {
-        locals[local++] = readClass(header + 2, frame.buffer);
+        locals[local++] = readClass(header + 2, frame.charBuffer);
       }
     }
     int i = 1;
@@ -2132,7 +2185,7 @@ public class ClassReader {
           break loop;
       }
     }
-    frame.localCount = local;
+    frame.currentFrameLocalCount = local;
   }
 
   /**
@@ -2145,69 +2198,69 @@ public class ClassReader {
    * @return the offset of the first byte following the parsed frame.
    */
   private int readFrame(int stackMap, boolean zip, boolean unzip, Context frame) {
-    char[] c = frame.buffer;
-    Label[] labels = frame.labels;
+    char[] c = frame.charBuffer;
+    Label[] labels = frame.currentMethodLabels;
     int tag;
     int delta;
     if (zip) {
       tag = b[stackMap++] & 0xFF;
     } else {
       tag = MethodWriter.FULL_FRAME;
-      frame.offset = -1;
+      frame.currentFrameOffset = -1;
     }
-    frame.localDiff = 0;
+    frame.currentFrameLocalCountDelta = 0;
     if (tag < MethodWriter.SAME_LOCALS_1_STACK_ITEM_FRAME) {
       delta = tag;
-      frame.mode = Opcodes.F_SAME;
-      frame.stackCount = 0;
+      frame.currentFrameType = Opcodes.F_SAME;
+      frame.currentFrameStackCount = 0;
     } else if (tag < MethodWriter.RESERVED) {
       delta = tag - MethodWriter.SAME_LOCALS_1_STACK_ITEM_FRAME;
-      stackMap = readFrameType(frame.stack, 0, stackMap, c, labels);
-      frame.mode = Opcodes.F_SAME1;
-      frame.stackCount = 1;
+      stackMap = readFrameType(frame.currentFrameStackTypes, 0, stackMap, c, labels);
+      frame.currentFrameType = Opcodes.F_SAME1;
+      frame.currentFrameStackCount = 1;
     } else {
       delta = readUnsignedShort(stackMap);
       stackMap += 2;
       if (tag == MethodWriter.SAME_LOCALS_1_STACK_ITEM_FRAME_EXTENDED) {
-        stackMap = readFrameType(frame.stack, 0, stackMap, c, labels);
-        frame.mode = Opcodes.F_SAME1;
-        frame.stackCount = 1;
+        stackMap = readFrameType(frame.currentFrameStackTypes, 0, stackMap, c, labels);
+        frame.currentFrameType = Opcodes.F_SAME1;
+        frame.currentFrameStackCount = 1;
       } else if (tag >= MethodWriter.CHOP_FRAME && tag < MethodWriter.SAME_FRAME_EXTENDED) {
-        frame.mode = Opcodes.F_CHOP;
-        frame.localDiff = MethodWriter.SAME_FRAME_EXTENDED - tag;
-        frame.localCount -= frame.localDiff;
-        frame.stackCount = 0;
+        frame.currentFrameType = Opcodes.F_CHOP;
+        frame.currentFrameLocalCountDelta = MethodWriter.SAME_FRAME_EXTENDED - tag;
+        frame.currentFrameLocalCount -= frame.currentFrameLocalCountDelta;
+        frame.currentFrameStackCount = 0;
       } else if (tag == MethodWriter.SAME_FRAME_EXTENDED) {
-        frame.mode = Opcodes.F_SAME;
-        frame.stackCount = 0;
+        frame.currentFrameType = Opcodes.F_SAME;
+        frame.currentFrameStackCount = 0;
       } else if (tag < MethodWriter.FULL_FRAME) {
-        int local = unzip ? frame.localCount : 0;
+        int local = unzip ? frame.currentFrameLocalCount : 0;
         for (int i = tag - MethodWriter.SAME_FRAME_EXTENDED; i > 0; i--) {
-          stackMap = readFrameType(frame.local, local++, stackMap, c, labels);
+          stackMap = readFrameType(frame.currentFrameLocalTypes, local++, stackMap, c, labels);
         }
-        frame.mode = Opcodes.F_APPEND;
-        frame.localDiff = tag - MethodWriter.SAME_FRAME_EXTENDED;
-        frame.localCount += frame.localDiff;
-        frame.stackCount = 0;
+        frame.currentFrameType = Opcodes.F_APPEND;
+        frame.currentFrameLocalCountDelta = tag - MethodWriter.SAME_FRAME_EXTENDED;
+        frame.currentFrameLocalCount += frame.currentFrameLocalCountDelta;
+        frame.currentFrameStackCount = 0;
       } else { // if (tag == FULL_FRAME) {
-        frame.mode = Opcodes.F_FULL;
+        frame.currentFrameType = Opcodes.F_FULL;
         int n = readUnsignedShort(stackMap);
         stackMap += 2;
-        frame.localDiff = n;
-        frame.localCount = n;
+        frame.currentFrameLocalCountDelta = n;
+        frame.currentFrameLocalCount = n;
         for (int local = 0; n > 0; n--) {
-          stackMap = readFrameType(frame.local, local++, stackMap, c, labels);
+          stackMap = readFrameType(frame.currentFrameLocalTypes, local++, stackMap, c, labels);
         }
         n = readUnsignedShort(stackMap);
         stackMap += 2;
-        frame.stackCount = n;
+        frame.currentFrameStackCount = n;
         for (int stack = 0; n > 0; n--) {
-          stackMap = readFrameType(frame.stack, stack++, stackMap, c, labels);
+          stackMap = readFrameType(frame.currentFrameStackTypes, stack++, stackMap, c, labels);
         }
       }
     }
-    frame.offset += delta + 1;
-    createLabel(frame.offset, labels);
+    frame.currentFrameOffset += delta + 1;
+    createLabel(frame.currentFrameOffset, labels);
     return stackMap;
   }
 

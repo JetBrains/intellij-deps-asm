@@ -109,66 +109,46 @@ public class ClassNode extends ClassVisitor {
   /**
    * The runtime visible annotations of this class. This list is a list of {@link AnnotationNode}
    * objects. May be <tt>null</tt>.
-   *
-   * @associates org.objectweb.asm.tree.AnnotationNode
-   * @label visible
    */
   public List<AnnotationNode> visibleAnnotations;
 
   /**
    * The runtime invisible annotations of this class. This list is a list of {@link AnnotationNode}
    * objects. May be <tt>null</tt>.
-   *
-   * @associates org.objectweb.asm.tree.AnnotationNode
-   * @label invisible
    */
   public List<AnnotationNode> invisibleAnnotations;
 
   /**
    * The runtime visible type annotations of this class. This list is a list of {@link
    * TypeAnnotationNode} objects. May be <tt>null</tt>.
-   *
-   * @associates org.objectweb.asm.tree.TypeAnnotationNode
-   * @label visible
    */
   public List<TypeAnnotationNode> visibleTypeAnnotations;
 
   /**
    * The runtime invisible type annotations of this class. This list is a list of {@link
    * TypeAnnotationNode} objects. May be <tt>null</tt>.
-   *
-   * @associates org.objectweb.asm.tree.TypeAnnotationNode
-   * @label invisible
    */
   public List<TypeAnnotationNode> invisibleTypeAnnotations;
 
   /**
    * The non standard attributes of this class. This list is a list of {@link Attribute} objects.
    * May be <tt>null</tt>.
-   *
-   * @associates org.objectweb.asm.Attribute
    */
   public List<Attribute> attrs;
 
   /**
    * Informations about the inner classes of this class. This list is a list of {@link
    * InnerClassNode} objects.
-   *
-   * @associates org.objectweb.asm.tree.InnerClassNode
    */
   public List<InnerClassNode> innerClasses;
 
   /**
    * The fields of this class. This list is a list of {@link FieldNode} objects.
-   *
-   * @associates org.objectweb.asm.tree.FieldNode
    */
   public List<FieldNode> fields;
 
   /**
    * The methods of this class. This list is a list of {@link MethodNode} objects.
-   *
-   * @associates org.objectweb.asm.tree.MethodNode
    */
   public List<MethodNode> methods;
 

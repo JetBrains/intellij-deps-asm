@@ -53,7 +53,9 @@ public class TypePath {
    * Specification (JVMS) - corresponding to this TypePath is stored. The first byte of the
    * structure in this array is given by {@link #typePathOffset}.
    *
-   * @see https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.7.20.2
+   * @see <a
+   *     href="https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.7.20.2">JVMS
+   *     4.7.20.2</a>
    */
   private final byte[] typePathContainer;
 

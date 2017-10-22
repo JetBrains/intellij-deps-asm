@@ -215,7 +215,6 @@ subprojects {
   googleJavaFormat.toolVersion = '1.4'
   sourceCompatibility = '1.5'
   targetCompatibility = '1.5'
-  javadoc { failOnError = false }  // TODO fix the Javadoc and remove this!
   dependencies {
     requires.each { projectName -> compile project(projectName) }
     depends.each { artifactName -> compile artifactName }

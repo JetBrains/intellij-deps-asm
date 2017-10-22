@@ -52,7 +52,8 @@ class Context {
    * The offsets, from the start of the class file structure, to the first byte of each element of
    * the bootstrap_methods array (in the BootstrapMethod attribute).
    *
-   * @see https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.7.23
+   * @see <a href="https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.7.23">JVMS
+   *     4.7.23</a>
    */
   int[] bootstrapMethodOffsets;
 

@@ -91,10 +91,7 @@ public class RT {
     return callSite;
   }
 
-  /**
-   * Garbage class containing the method used to apply 'not' on a boolean. See {@link
-   * RT#unary(Lookup, String, MethodType)}
-   */
+  /** Garbage class containing the method used to apply 'not' on a boolean. See {@link RT#unary} */
   public static class UnayOps {
 
     public static Object not(boolean b) {
@@ -123,7 +120,7 @@ public class RT {
    * previously computed method handle will be called again. Otherwise, a new method handle will be
    * computed and two new guards will be installed.
    */
-  static class BinaryOpCallSite extends MutableCallSite {
+  public static class BinaryOpCallSite extends MutableCallSite {
 
     private final String opName;
 

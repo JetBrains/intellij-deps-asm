@@ -176,8 +176,11 @@ public class TypeReference {
    * fields which reference bytecode offsets are set to 0 (these offsets are ignored in ClassReader,
    * and recomputed in MethodWriter).
    *
-   * @see https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.7.20
-   * @see https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.7.20.1
+   * @see <a href="https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.7.20">JVMS
+   *     4.7.20</a>
+   * @see <a
+   *     href="https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.7.20.1">JVMS
+   *     4.7.20.1</a>
    */
   private final int targetTypeAndInfo;
 
@@ -185,7 +188,7 @@ public class TypeReference {
    * Creates a new TypeReference.
    *
    * @param typeRef the int encoded value of the type reference, as received in a visit method
-   *     related to type annotations, such as {@link ClassVisitor#visitTypeAnnotation()}.
+   *     related to type annotations, such as {@link ClassVisitor#visitTypeAnnotation}.
    */
   public TypeReference(final int typeRef) {
     this.targetTypeAndInfo = typeRef;

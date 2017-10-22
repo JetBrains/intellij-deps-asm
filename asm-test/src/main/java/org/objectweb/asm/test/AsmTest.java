@@ -234,7 +234,7 @@ public abstract class AsmTest {
     /**
      * Returns the int value of this version, as expected by ASM.
      *
-     * @return one of {@link Opcodes.ASM4},{@link Opcodes.ASM5} or {@link Opcodes.ASM6}.
+     * @return one of the ASM4, ASM5 or ASM6 constants from the ASM Opcodes interface.
      */
     public int value() {
       return value;
@@ -310,7 +310,7 @@ public abstract class AsmTest {
      * representation details (e.g. the order of the constants in the constant pool, the order of
      * attributes and annotations, and low level details such as ldc vs ldc_w instructions).
      *
-     * @param expectedString a string which should be contained in a dump of the subject class.
+     * @param expectedClassFile a class file content which should be equal to the subject class.
      */
     public void isEqualTo(byte[] expectedClassFile) {
       try {

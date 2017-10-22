@@ -154,10 +154,7 @@ public class Attribute {
       final int codeLength,
       final int maxStack,
       final int maxLocals) {
-    ByteVector byteVector = new ByteVector();
-    byteVector.data = content;
-    byteVector.length = content.length;
-    return byteVector;
+    return new ByteVector(content);
   }
 
   /**

@@ -1,0 +1,576 @@
+#Signature file v4.1
+#Version 6.0
+
+CLSS public java.lang.Object
+cons public init()
+meth protected java.lang.Object clone() throws java.lang.CloneNotSupportedException
+meth protected void finalize() throws java.lang.Throwable
+meth public boolean equals(java.lang.Object)
+meth public final java.lang.Class<?> getClass()
+meth public final void notify()
+meth public final void notifyAll()
+meth public final void wait() throws java.lang.InterruptedException
+meth public final void wait(long) throws java.lang.InterruptedException
+meth public final void wait(long,int) throws java.lang.InterruptedException
+meth public int hashCode()
+meth public java.lang.String toString()
+
+CLSS public abstract org.objectweb.asm.AnnotationVisitor
+cons public init(int)
+cons public init(int,org.objectweb.asm.AnnotationVisitor)
+fld protected final int api
+fld protected org.objectweb.asm.AnnotationVisitor av
+meth public org.objectweb.asm.AnnotationVisitor visitAnnotation(java.lang.String,java.lang.String)
+meth public org.objectweb.asm.AnnotationVisitor visitArray(java.lang.String)
+meth public void visit(java.lang.String,java.lang.Object)
+meth public void visitEnd()
+meth public void visitEnum(java.lang.String,java.lang.String,java.lang.String)
+supr java.lang.Object
+
+CLSS public abstract org.objectweb.asm.ClassVisitor
+cons public init(int)
+cons public init(int,org.objectweb.asm.ClassVisitor)
+fld protected final int api
+fld protected org.objectweb.asm.ClassVisitor cv
+meth public org.objectweb.asm.AnnotationVisitor visitAnnotation(java.lang.String,boolean)
+meth public org.objectweb.asm.AnnotationVisitor visitTypeAnnotation(int,org.objectweb.asm.TypePath,java.lang.String,boolean)
+meth public org.objectweb.asm.FieldVisitor visitField(int,java.lang.String,java.lang.String,java.lang.String,java.lang.Object)
+meth public org.objectweb.asm.MethodVisitor visitMethod(int,java.lang.String,java.lang.String,java.lang.String,java.lang.String[])
+meth public org.objectweb.asm.ModuleVisitor visitModule(java.lang.String,int,java.lang.String)
+meth public void visit(int,int,java.lang.String,java.lang.String,java.lang.String,java.lang.String[])
+meth public void visitAttribute(org.objectweb.asm.Attribute)
+meth public void visitEnd()
+meth public void visitInnerClass(java.lang.String,java.lang.String,java.lang.String,int)
+meth public void visitOuterClass(java.lang.String,java.lang.String,java.lang.String)
+meth public void visitSource(java.lang.String,java.lang.String)
+supr java.lang.Object
+
+CLSS public abstract org.objectweb.asm.FieldVisitor
+cons public init(int)
+cons public init(int,org.objectweb.asm.FieldVisitor)
+fld protected final int api
+fld protected org.objectweb.asm.FieldVisitor fv
+meth public org.objectweb.asm.AnnotationVisitor visitAnnotation(java.lang.String,boolean)
+meth public org.objectweb.asm.AnnotationVisitor visitTypeAnnotation(int,org.objectweb.asm.TypePath,java.lang.String,boolean)
+meth public void visitAttribute(org.objectweb.asm.Attribute)
+meth public void visitEnd()
+supr java.lang.Object
+
+CLSS public abstract org.objectweb.asm.MethodVisitor
+cons public init(int)
+cons public init(int,org.objectweb.asm.MethodVisitor)
+fld protected final int api
+fld protected org.objectweb.asm.MethodVisitor mv
+meth public !varargs void visitInvokeDynamicInsn(java.lang.String,java.lang.String,org.objectweb.asm.Handle,java.lang.Object[])
+meth public !varargs void visitTableSwitchInsn(int,int,org.objectweb.asm.Label,org.objectweb.asm.Label[])
+meth public org.objectweb.asm.AnnotationVisitor visitAnnotation(java.lang.String,boolean)
+meth public org.objectweb.asm.AnnotationVisitor visitAnnotationDefault()
+meth public org.objectweb.asm.AnnotationVisitor visitInsnAnnotation(int,org.objectweb.asm.TypePath,java.lang.String,boolean)
+meth public org.objectweb.asm.AnnotationVisitor visitLocalVariableAnnotation(int,org.objectweb.asm.TypePath,org.objectweb.asm.Label[],org.objectweb.asm.Label[],int[],java.lang.String,boolean)
+meth public org.objectweb.asm.AnnotationVisitor visitParameterAnnotation(int,java.lang.String,boolean)
+meth public org.objectweb.asm.AnnotationVisitor visitTryCatchAnnotation(int,org.objectweb.asm.TypePath,java.lang.String,boolean)
+meth public org.objectweb.asm.AnnotationVisitor visitTypeAnnotation(int,org.objectweb.asm.TypePath,java.lang.String,boolean)
+meth public void visitAttribute(org.objectweb.asm.Attribute)
+meth public void visitCode()
+meth public void visitEnd()
+meth public void visitFieldInsn(int,java.lang.String,java.lang.String,java.lang.String)
+meth public void visitFrame(int,int,java.lang.Object[],int,java.lang.Object[])
+meth public void visitIincInsn(int,int)
+meth public void visitInsn(int)
+meth public void visitIntInsn(int,int)
+meth public void visitJumpInsn(int,org.objectweb.asm.Label)
+meth public void visitLabel(org.objectweb.asm.Label)
+meth public void visitLdcInsn(java.lang.Object)
+meth public void visitLineNumber(int,org.objectweb.asm.Label)
+meth public void visitLocalVariable(java.lang.String,java.lang.String,java.lang.String,org.objectweb.asm.Label,org.objectweb.asm.Label,int)
+meth public void visitLookupSwitchInsn(org.objectweb.asm.Label,int[],org.objectweb.asm.Label[])
+meth public void visitMaxs(int,int)
+meth public void visitMethodInsn(int,java.lang.String,java.lang.String,java.lang.String)
+ anno 0 java.lang.Deprecated()
+meth public void visitMethodInsn(int,java.lang.String,java.lang.String,java.lang.String,boolean)
+meth public void visitMultiANewArrayInsn(java.lang.String,int)
+meth public void visitParameter(java.lang.String,int)
+meth public void visitTryCatchBlock(org.objectweb.asm.Label,org.objectweb.asm.Label,org.objectweb.asm.Label,java.lang.String)
+meth public void visitTypeInsn(int,java.lang.String)
+meth public void visitVarInsn(int,int)
+supr java.lang.Object
+
+CLSS public abstract org.objectweb.asm.ModuleVisitor
+cons public init(int)
+cons public init(int,org.objectweb.asm.ModuleVisitor)
+fld protected final int api
+fld protected org.objectweb.asm.ModuleVisitor mv
+meth public !varargs void visitExport(java.lang.String,int,java.lang.String[])
+meth public !varargs void visitOpen(java.lang.String,int,java.lang.String[])
+meth public !varargs void visitProvide(java.lang.String,java.lang.String[])
+meth public void visitEnd()
+meth public void visitMainClass(java.lang.String)
+meth public void visitPackage(java.lang.String)
+meth public void visitRequire(java.lang.String,int,java.lang.String)
+meth public void visitUse(java.lang.String)
+supr java.lang.Object
+
+CLSS public abstract org.objectweb.asm.tree.AbstractInsnNode
+cons protected init(int)
+fld protected int opcode
+fld public final static int FIELD_INSN = 4
+fld public final static int FRAME = 14
+fld public final static int IINC_INSN = 10
+fld public final static int INSN = 0
+fld public final static int INT_INSN = 1
+fld public final static int INVOKE_DYNAMIC_INSN = 6
+fld public final static int JUMP_INSN = 7
+fld public final static int LABEL = 8
+fld public final static int LDC_INSN = 9
+fld public final static int LINE = 15
+fld public final static int LOOKUPSWITCH_INSN = 12
+fld public final static int METHOD_INSN = 5
+fld public final static int MULTIANEWARRAY_INSN = 13
+fld public final static int TABLESWITCH_INSN = 11
+fld public final static int TYPE_INSN = 3
+fld public final static int VAR_INSN = 2
+fld public java.util.List<org.objectweb.asm.tree.TypeAnnotationNode> invisibleTypeAnnotations
+fld public java.util.List<org.objectweb.asm.tree.TypeAnnotationNode> visibleTypeAnnotations
+meth protected final org.objectweb.asm.tree.AbstractInsnNode cloneAnnotations(org.objectweb.asm.tree.AbstractInsnNode)
+meth protected final void acceptAnnotations(org.objectweb.asm.MethodVisitor)
+meth public abstract int getType()
+meth public abstract org.objectweb.asm.tree.AbstractInsnNode clone(java.util.Map<org.objectweb.asm.tree.LabelNode,org.objectweb.asm.tree.LabelNode>)
+meth public abstract void accept(org.objectweb.asm.MethodVisitor)
+meth public int getOpcode()
+meth public org.objectweb.asm.tree.AbstractInsnNode getNext()
+meth public org.objectweb.asm.tree.AbstractInsnNode getPrevious()
+supr java.lang.Object
+hfds index,next,prev
+
+CLSS public org.objectweb.asm.tree.AnnotationNode
+cons public init(int,java.lang.String)
+cons public init(java.lang.String)
+fld public java.lang.String desc
+fld public java.util.List<java.lang.Object> values
+meth public org.objectweb.asm.AnnotationVisitor visitAnnotation(java.lang.String,java.lang.String)
+meth public org.objectweb.asm.AnnotationVisitor visitArray(java.lang.String)
+meth public void accept(org.objectweb.asm.AnnotationVisitor)
+meth public void check(int)
+meth public void visit(java.lang.String,java.lang.Object)
+meth public void visitEnd()
+meth public void visitEnum(java.lang.String,java.lang.String,java.lang.String)
+supr org.objectweb.asm.AnnotationVisitor
+
+CLSS public org.objectweb.asm.tree.ClassNode
+cons public init()
+cons public init(int)
+fld public int access
+fld public int version
+fld public java.lang.String name
+fld public java.lang.String outerClass
+fld public java.lang.String outerMethod
+fld public java.lang.String outerMethodDesc
+fld public java.lang.String signature
+fld public java.lang.String sourceDebug
+fld public java.lang.String sourceFile
+fld public java.lang.String superName
+fld public java.util.List<java.lang.String> interfaces
+fld public java.util.List<org.objectweb.asm.Attribute> attrs
+fld public java.util.List<org.objectweb.asm.tree.AnnotationNode> invisibleAnnotations
+fld public java.util.List<org.objectweb.asm.tree.AnnotationNode> visibleAnnotations
+fld public java.util.List<org.objectweb.asm.tree.FieldNode> fields
+fld public java.util.List<org.objectweb.asm.tree.InnerClassNode> innerClasses
+fld public java.util.List<org.objectweb.asm.tree.MethodNode> methods
+fld public java.util.List<org.objectweb.asm.tree.TypeAnnotationNode> invisibleTypeAnnotations
+fld public java.util.List<org.objectweb.asm.tree.TypeAnnotationNode> visibleTypeAnnotations
+fld public org.objectweb.asm.tree.ModuleNode module
+meth public org.objectweb.asm.AnnotationVisitor visitAnnotation(java.lang.String,boolean)
+meth public org.objectweb.asm.AnnotationVisitor visitTypeAnnotation(int,org.objectweb.asm.TypePath,java.lang.String,boolean)
+meth public org.objectweb.asm.FieldVisitor visitField(int,java.lang.String,java.lang.String,java.lang.String,java.lang.Object)
+meth public org.objectweb.asm.MethodVisitor visitMethod(int,java.lang.String,java.lang.String,java.lang.String,java.lang.String[])
+meth public org.objectweb.asm.ModuleVisitor visitModule(java.lang.String,int,java.lang.String)
+meth public void accept(org.objectweb.asm.ClassVisitor)
+meth public void check(int)
+meth public void visit(int,int,java.lang.String,java.lang.String,java.lang.String,java.lang.String[])
+meth public void visitAttribute(org.objectweb.asm.Attribute)
+meth public void visitEnd()
+meth public void visitInnerClass(java.lang.String,java.lang.String,java.lang.String,int)
+meth public void visitOuterClass(java.lang.String,java.lang.String,java.lang.String)
+meth public void visitSource(java.lang.String,java.lang.String)
+supr org.objectweb.asm.ClassVisitor
+
+CLSS public org.objectweb.asm.tree.FieldInsnNode
+cons public init(int,java.lang.String,java.lang.String,java.lang.String)
+fld public java.lang.String desc
+fld public java.lang.String name
+fld public java.lang.String owner
+meth public int getType()
+meth public org.objectweb.asm.tree.AbstractInsnNode clone(java.util.Map<org.objectweb.asm.tree.LabelNode,org.objectweb.asm.tree.LabelNode>)
+meth public void accept(org.objectweb.asm.MethodVisitor)
+meth public void setOpcode(int)
+supr org.objectweb.asm.tree.AbstractInsnNode
+
+CLSS public org.objectweb.asm.tree.FieldNode
+cons public init(int,int,java.lang.String,java.lang.String,java.lang.String,java.lang.Object)
+cons public init(int,java.lang.String,java.lang.String,java.lang.String,java.lang.Object)
+fld public int access
+fld public java.lang.Object value
+fld public java.lang.String desc
+fld public java.lang.String name
+fld public java.lang.String signature
+fld public java.util.List<org.objectweb.asm.Attribute> attrs
+fld public java.util.List<org.objectweb.asm.tree.AnnotationNode> invisibleAnnotations
+fld public java.util.List<org.objectweb.asm.tree.AnnotationNode> visibleAnnotations
+fld public java.util.List<org.objectweb.asm.tree.TypeAnnotationNode> invisibleTypeAnnotations
+fld public java.util.List<org.objectweb.asm.tree.TypeAnnotationNode> visibleTypeAnnotations
+meth public org.objectweb.asm.AnnotationVisitor visitAnnotation(java.lang.String,boolean)
+meth public org.objectweb.asm.AnnotationVisitor visitTypeAnnotation(int,org.objectweb.asm.TypePath,java.lang.String,boolean)
+meth public void accept(org.objectweb.asm.ClassVisitor)
+meth public void check(int)
+meth public void visitAttribute(org.objectweb.asm.Attribute)
+meth public void visitEnd()
+supr org.objectweb.asm.FieldVisitor
+
+CLSS public org.objectweb.asm.tree.FrameNode
+cons public init(int,int,java.lang.Object[],int,java.lang.Object[])
+fld public int type
+fld public java.util.List<java.lang.Object> local
+fld public java.util.List<java.lang.Object> stack
+meth public int getType()
+meth public org.objectweb.asm.tree.AbstractInsnNode clone(java.util.Map<org.objectweb.asm.tree.LabelNode,org.objectweb.asm.tree.LabelNode>)
+meth public void accept(org.objectweb.asm.MethodVisitor)
+supr org.objectweb.asm.tree.AbstractInsnNode
+
+CLSS public org.objectweb.asm.tree.IincInsnNode
+cons public init(int,int)
+fld public int incr
+fld public int var
+meth public int getType()
+meth public org.objectweb.asm.tree.AbstractInsnNode clone(java.util.Map<org.objectweb.asm.tree.LabelNode,org.objectweb.asm.tree.LabelNode>)
+meth public void accept(org.objectweb.asm.MethodVisitor)
+supr org.objectweb.asm.tree.AbstractInsnNode
+
+CLSS public org.objectweb.asm.tree.InnerClassNode
+cons public init(java.lang.String,java.lang.String,java.lang.String,int)
+fld public int access
+fld public java.lang.String innerName
+fld public java.lang.String name
+fld public java.lang.String outerName
+meth public void accept(org.objectweb.asm.ClassVisitor)
+supr java.lang.Object
+
+CLSS public org.objectweb.asm.tree.InsnList
+cons public init()
+meth public boolean contains(org.objectweb.asm.tree.AbstractInsnNode)
+meth public int indexOf(org.objectweb.asm.tree.AbstractInsnNode)
+meth public int size()
+meth public java.util.ListIterator<org.objectweb.asm.tree.AbstractInsnNode> iterator()
+meth public java.util.ListIterator<org.objectweb.asm.tree.AbstractInsnNode> iterator(int)
+meth public org.objectweb.asm.tree.AbstractInsnNode get(int)
+meth public org.objectweb.asm.tree.AbstractInsnNode getFirst()
+meth public org.objectweb.asm.tree.AbstractInsnNode getLast()
+meth public org.objectweb.asm.tree.AbstractInsnNode[] toArray()
+meth public void accept(org.objectweb.asm.MethodVisitor)
+meth public void add(org.objectweb.asm.tree.AbstractInsnNode)
+meth public void add(org.objectweb.asm.tree.InsnList)
+meth public void clear()
+meth public void insert(org.objectweb.asm.tree.AbstractInsnNode)
+meth public void insert(org.objectweb.asm.tree.AbstractInsnNode,org.objectweb.asm.tree.AbstractInsnNode)
+meth public void insert(org.objectweb.asm.tree.AbstractInsnNode,org.objectweb.asm.tree.InsnList)
+meth public void insert(org.objectweb.asm.tree.InsnList)
+meth public void insertBefore(org.objectweb.asm.tree.AbstractInsnNode,org.objectweb.asm.tree.AbstractInsnNode)
+meth public void insertBefore(org.objectweb.asm.tree.AbstractInsnNode,org.objectweb.asm.tree.InsnList)
+meth public void remove(org.objectweb.asm.tree.AbstractInsnNode)
+meth public void resetLabels()
+meth public void set(org.objectweb.asm.tree.AbstractInsnNode,org.objectweb.asm.tree.AbstractInsnNode)
+supr java.lang.Object
+hfds cache,first,last,size
+hcls InsnListIterator
+
+CLSS public org.objectweb.asm.tree.InsnNode
+cons public init(int)
+meth public int getType()
+meth public org.objectweb.asm.tree.AbstractInsnNode clone(java.util.Map<org.objectweb.asm.tree.LabelNode,org.objectweb.asm.tree.LabelNode>)
+meth public void accept(org.objectweb.asm.MethodVisitor)
+supr org.objectweb.asm.tree.AbstractInsnNode
+
+CLSS public org.objectweb.asm.tree.IntInsnNode
+cons public init(int,int)
+fld public int operand
+meth public int getType()
+meth public org.objectweb.asm.tree.AbstractInsnNode clone(java.util.Map<org.objectweb.asm.tree.LabelNode,org.objectweb.asm.tree.LabelNode>)
+meth public void accept(org.objectweb.asm.MethodVisitor)
+meth public void setOpcode(int)
+supr org.objectweb.asm.tree.AbstractInsnNode
+
+CLSS public org.objectweb.asm.tree.InvokeDynamicInsnNode
+cons public !varargs init(java.lang.String,java.lang.String,org.objectweb.asm.Handle,java.lang.Object[])
+fld public java.lang.Object[] bsmArgs
+fld public java.lang.String desc
+fld public java.lang.String name
+fld public org.objectweb.asm.Handle bsm
+meth public int getType()
+meth public org.objectweb.asm.tree.AbstractInsnNode clone(java.util.Map<org.objectweb.asm.tree.LabelNode,org.objectweb.asm.tree.LabelNode>)
+meth public void accept(org.objectweb.asm.MethodVisitor)
+supr org.objectweb.asm.tree.AbstractInsnNode
+
+CLSS public org.objectweb.asm.tree.JumpInsnNode
+cons public init(int,org.objectweb.asm.tree.LabelNode)
+fld public org.objectweb.asm.tree.LabelNode label
+meth public int getType()
+meth public org.objectweb.asm.tree.AbstractInsnNode clone(java.util.Map<org.objectweb.asm.tree.LabelNode,org.objectweb.asm.tree.LabelNode>)
+meth public void accept(org.objectweb.asm.MethodVisitor)
+meth public void setOpcode(int)
+supr org.objectweb.asm.tree.AbstractInsnNode
+
+CLSS public org.objectweb.asm.tree.LabelNode
+cons public init()
+cons public init(org.objectweb.asm.Label)
+meth public int getType()
+meth public org.objectweb.asm.Label getLabel()
+meth public org.objectweb.asm.tree.AbstractInsnNode clone(java.util.Map<org.objectweb.asm.tree.LabelNode,org.objectweb.asm.tree.LabelNode>)
+meth public void accept(org.objectweb.asm.MethodVisitor)
+meth public void resetLabel()
+supr org.objectweb.asm.tree.AbstractInsnNode
+hfds label
+
+CLSS public org.objectweb.asm.tree.LdcInsnNode
+cons public init(java.lang.Object)
+fld public java.lang.Object cst
+meth public int getType()
+meth public org.objectweb.asm.tree.AbstractInsnNode clone(java.util.Map<org.objectweb.asm.tree.LabelNode,org.objectweb.asm.tree.LabelNode>)
+meth public void accept(org.objectweb.asm.MethodVisitor)
+supr org.objectweb.asm.tree.AbstractInsnNode
+
+CLSS public org.objectweb.asm.tree.LineNumberNode
+cons public init(int,org.objectweb.asm.tree.LabelNode)
+fld public int line
+fld public org.objectweb.asm.tree.LabelNode start
+meth public int getType()
+meth public org.objectweb.asm.tree.AbstractInsnNode clone(java.util.Map<org.objectweb.asm.tree.LabelNode,org.objectweb.asm.tree.LabelNode>)
+meth public void accept(org.objectweb.asm.MethodVisitor)
+supr org.objectweb.asm.tree.AbstractInsnNode
+
+CLSS public org.objectweb.asm.tree.LocalVariableAnnotationNode
+cons public init(int,int,org.objectweb.asm.TypePath,org.objectweb.asm.tree.LabelNode[],org.objectweb.asm.tree.LabelNode[],int[],java.lang.String)
+cons public init(int,org.objectweb.asm.TypePath,org.objectweb.asm.tree.LabelNode[],org.objectweb.asm.tree.LabelNode[],int[],java.lang.String)
+fld public java.util.List<java.lang.Integer> index
+fld public java.util.List<org.objectweb.asm.tree.LabelNode> end
+fld public java.util.List<org.objectweb.asm.tree.LabelNode> start
+meth public void accept(org.objectweb.asm.MethodVisitor,boolean)
+supr org.objectweb.asm.tree.TypeAnnotationNode
+
+CLSS public org.objectweb.asm.tree.LocalVariableNode
+cons public init(java.lang.String,java.lang.String,java.lang.String,org.objectweb.asm.tree.LabelNode,org.objectweb.asm.tree.LabelNode,int)
+fld public int index
+fld public java.lang.String desc
+fld public java.lang.String name
+fld public java.lang.String signature
+fld public org.objectweb.asm.tree.LabelNode end
+fld public org.objectweb.asm.tree.LabelNode start
+meth public void accept(org.objectweb.asm.MethodVisitor)
+supr java.lang.Object
+
+CLSS public org.objectweb.asm.tree.LookupSwitchInsnNode
+cons public init(org.objectweb.asm.tree.LabelNode,int[],org.objectweb.asm.tree.LabelNode[])
+fld public java.util.List<java.lang.Integer> keys
+fld public java.util.List<org.objectweb.asm.tree.LabelNode> labels
+fld public org.objectweb.asm.tree.LabelNode dflt
+meth public int getType()
+meth public org.objectweb.asm.tree.AbstractInsnNode clone(java.util.Map<org.objectweb.asm.tree.LabelNode,org.objectweb.asm.tree.LabelNode>)
+meth public void accept(org.objectweb.asm.MethodVisitor)
+supr org.objectweb.asm.tree.AbstractInsnNode
+
+CLSS public org.objectweb.asm.tree.MethodInsnNode
+cons public init(int,java.lang.String,java.lang.String,java.lang.String)
+ anno 0 java.lang.Deprecated()
+cons public init(int,java.lang.String,java.lang.String,java.lang.String,boolean)
+fld public boolean itf
+fld public java.lang.String desc
+fld public java.lang.String name
+fld public java.lang.String owner
+meth public int getType()
+meth public org.objectweb.asm.tree.AbstractInsnNode clone(java.util.Map<org.objectweb.asm.tree.LabelNode,org.objectweb.asm.tree.LabelNode>)
+meth public void accept(org.objectweb.asm.MethodVisitor)
+meth public void setOpcode(int)
+supr org.objectweb.asm.tree.AbstractInsnNode
+
+CLSS public org.objectweb.asm.tree.MethodNode
+cons public init()
+cons public init(int)
+cons public init(int,int,java.lang.String,java.lang.String,java.lang.String,java.lang.String[])
+cons public init(int,java.lang.String,java.lang.String,java.lang.String,java.lang.String[])
+fld public int access
+fld public int maxLocals
+fld public int maxStack
+fld public java.lang.Object annotationDefault
+fld public java.lang.String desc
+fld public java.lang.String name
+fld public java.lang.String signature
+fld public java.util.List<java.lang.String> exceptions
+fld public java.util.List<org.objectweb.asm.Attribute> attrs
+fld public java.util.List<org.objectweb.asm.tree.AnnotationNode> invisibleAnnotations
+fld public java.util.List<org.objectweb.asm.tree.AnnotationNode> visibleAnnotations
+fld public java.util.List<org.objectweb.asm.tree.AnnotationNode>[] invisibleParameterAnnotations
+fld public java.util.List<org.objectweb.asm.tree.AnnotationNode>[] visibleParameterAnnotations
+fld public java.util.List<org.objectweb.asm.tree.LocalVariableAnnotationNode> invisibleLocalVariableAnnotations
+fld public java.util.List<org.objectweb.asm.tree.LocalVariableAnnotationNode> visibleLocalVariableAnnotations
+fld public java.util.List<org.objectweb.asm.tree.LocalVariableNode> localVariables
+fld public java.util.List<org.objectweb.asm.tree.ParameterNode> parameters
+fld public java.util.List<org.objectweb.asm.tree.TryCatchBlockNode> tryCatchBlocks
+fld public java.util.List<org.objectweb.asm.tree.TypeAnnotationNode> invisibleTypeAnnotations
+fld public java.util.List<org.objectweb.asm.tree.TypeAnnotationNode> visibleTypeAnnotations
+fld public org.objectweb.asm.tree.InsnList instructions
+meth protected org.objectweb.asm.tree.LabelNode getLabelNode(org.objectweb.asm.Label)
+meth public !varargs void visitInvokeDynamicInsn(java.lang.String,java.lang.String,org.objectweb.asm.Handle,java.lang.Object[])
+meth public !varargs void visitTableSwitchInsn(int,int,org.objectweb.asm.Label,org.objectweb.asm.Label[])
+meth public org.objectweb.asm.AnnotationVisitor visitAnnotation(java.lang.String,boolean)
+meth public org.objectweb.asm.AnnotationVisitor visitAnnotationDefault()
+meth public org.objectweb.asm.AnnotationVisitor visitInsnAnnotation(int,org.objectweb.asm.TypePath,java.lang.String,boolean)
+meth public org.objectweb.asm.AnnotationVisitor visitLocalVariableAnnotation(int,org.objectweb.asm.TypePath,org.objectweb.asm.Label[],org.objectweb.asm.Label[],int[],java.lang.String,boolean)
+meth public org.objectweb.asm.AnnotationVisitor visitParameterAnnotation(int,java.lang.String,boolean)
+meth public org.objectweb.asm.AnnotationVisitor visitTryCatchAnnotation(int,org.objectweb.asm.TypePath,java.lang.String,boolean)
+meth public org.objectweb.asm.AnnotationVisitor visitTypeAnnotation(int,org.objectweb.asm.TypePath,java.lang.String,boolean)
+meth public void accept(org.objectweb.asm.ClassVisitor)
+meth public void accept(org.objectweb.asm.MethodVisitor)
+meth public void check(int)
+meth public void visitAttribute(org.objectweb.asm.Attribute)
+meth public void visitCode()
+meth public void visitEnd()
+meth public void visitFieldInsn(int,java.lang.String,java.lang.String,java.lang.String)
+meth public void visitFrame(int,int,java.lang.Object[],int,java.lang.Object[])
+meth public void visitIincInsn(int,int)
+meth public void visitInsn(int)
+meth public void visitIntInsn(int,int)
+meth public void visitJumpInsn(int,org.objectweb.asm.Label)
+meth public void visitLabel(org.objectweb.asm.Label)
+meth public void visitLdcInsn(java.lang.Object)
+meth public void visitLineNumber(int,org.objectweb.asm.Label)
+meth public void visitLocalVariable(java.lang.String,java.lang.String,java.lang.String,org.objectweb.asm.Label,org.objectweb.asm.Label,int)
+meth public void visitLookupSwitchInsn(org.objectweb.asm.Label,int[],org.objectweb.asm.Label[])
+meth public void visitMaxs(int,int)
+meth public void visitMethodInsn(int,java.lang.String,java.lang.String,java.lang.String)
+ anno 0 java.lang.Deprecated()
+meth public void visitMethodInsn(int,java.lang.String,java.lang.String,java.lang.String,boolean)
+meth public void visitMultiANewArrayInsn(java.lang.String,int)
+meth public void visitParameter(java.lang.String,int)
+meth public void visitTryCatchBlock(org.objectweb.asm.Label,org.objectweb.asm.Label,org.objectweb.asm.Label,java.lang.String)
+meth public void visitTypeInsn(int,java.lang.String)
+meth public void visitVarInsn(int,int)
+supr org.objectweb.asm.MethodVisitor
+hfds visited
+
+CLSS public org.objectweb.asm.tree.ModuleExportNode
+cons public init(java.lang.String,int,java.util.List<java.lang.String>)
+fld public int access
+fld public java.lang.String packaze
+fld public java.util.List<java.lang.String> modules
+meth public void accept(org.objectweb.asm.ModuleVisitor)
+supr java.lang.Object
+
+CLSS public org.objectweb.asm.tree.ModuleNode
+cons public init(int,java.lang.String,int,java.lang.String,java.util.List<org.objectweb.asm.tree.ModuleRequireNode>,java.util.List<org.objectweb.asm.tree.ModuleExportNode>,java.util.List<org.objectweb.asm.tree.ModuleOpenNode>,java.util.List<java.lang.String>,java.util.List<org.objectweb.asm.tree.ModuleProvideNode>)
+cons public init(java.lang.String,int,java.lang.String)
+fld public int access
+fld public java.lang.String mainClass
+fld public java.lang.String name
+fld public java.lang.String version
+fld public java.util.List<java.lang.String> packages
+fld public java.util.List<java.lang.String> uses
+fld public java.util.List<org.objectweb.asm.tree.ModuleExportNode> exports
+fld public java.util.List<org.objectweb.asm.tree.ModuleOpenNode> opens
+fld public java.util.List<org.objectweb.asm.tree.ModuleProvideNode> provides
+fld public java.util.List<org.objectweb.asm.tree.ModuleRequireNode> requires
+meth public !varargs void visitExport(java.lang.String,int,java.lang.String[])
+meth public !varargs void visitOpen(java.lang.String,int,java.lang.String[])
+meth public !varargs void visitProvide(java.lang.String,java.lang.String[])
+meth public void accept(org.objectweb.asm.ClassVisitor)
+meth public void visitEnd()
+meth public void visitMainClass(java.lang.String)
+meth public void visitPackage(java.lang.String)
+meth public void visitRequire(java.lang.String,int,java.lang.String)
+meth public void visitUse(java.lang.String)
+supr org.objectweb.asm.ModuleVisitor
+
+CLSS public org.objectweb.asm.tree.ModuleOpenNode
+cons public init(java.lang.String,int,java.util.List<java.lang.String>)
+fld public int access
+fld public java.lang.String packaze
+fld public java.util.List<java.lang.String> modules
+meth public void accept(org.objectweb.asm.ModuleVisitor)
+supr java.lang.Object
+
+CLSS public org.objectweb.asm.tree.ModuleProvideNode
+cons public init(java.lang.String,java.util.List<java.lang.String>)
+fld public java.lang.String service
+fld public java.util.List<java.lang.String> providers
+meth public void accept(org.objectweb.asm.ModuleVisitor)
+supr java.lang.Object
+
+CLSS public org.objectweb.asm.tree.ModuleRequireNode
+cons public init(java.lang.String,int,java.lang.String)
+fld public int access
+fld public java.lang.String module
+fld public java.lang.String version
+meth public void accept(org.objectweb.asm.ModuleVisitor)
+supr java.lang.Object
+
+CLSS public org.objectweb.asm.tree.MultiANewArrayInsnNode
+cons public init(java.lang.String,int)
+fld public int dims
+fld public java.lang.String desc
+meth public int getType()
+meth public org.objectweb.asm.tree.AbstractInsnNode clone(java.util.Map<org.objectweb.asm.tree.LabelNode,org.objectweb.asm.tree.LabelNode>)
+meth public void accept(org.objectweb.asm.MethodVisitor)
+supr org.objectweb.asm.tree.AbstractInsnNode
+
+CLSS public org.objectweb.asm.tree.ParameterNode
+cons public init(java.lang.String,int)
+fld public int access
+fld public java.lang.String name
+meth public void accept(org.objectweb.asm.MethodVisitor)
+supr java.lang.Object
+
+CLSS public org.objectweb.asm.tree.TableSwitchInsnNode
+cons public !varargs init(int,int,org.objectweb.asm.tree.LabelNode,org.objectweb.asm.tree.LabelNode[])
+fld public int max
+fld public int min
+fld public java.util.List<org.objectweb.asm.tree.LabelNode> labels
+fld public org.objectweb.asm.tree.LabelNode dflt
+meth public int getType()
+meth public org.objectweb.asm.tree.AbstractInsnNode clone(java.util.Map<org.objectweb.asm.tree.LabelNode,org.objectweb.asm.tree.LabelNode>)
+meth public void accept(org.objectweb.asm.MethodVisitor)
+supr org.objectweb.asm.tree.AbstractInsnNode
+
+CLSS public org.objectweb.asm.tree.TryCatchBlockNode
+cons public init(org.objectweb.asm.tree.LabelNode,org.objectweb.asm.tree.LabelNode,org.objectweb.asm.tree.LabelNode,java.lang.String)
+fld public java.lang.String type
+fld public java.util.List<org.objectweb.asm.tree.TypeAnnotationNode> invisibleTypeAnnotations
+fld public java.util.List<org.objectweb.asm.tree.TypeAnnotationNode> visibleTypeAnnotations
+fld public org.objectweb.asm.tree.LabelNode end
+fld public org.objectweb.asm.tree.LabelNode handler
+fld public org.objectweb.asm.tree.LabelNode start
+meth public void accept(org.objectweb.asm.MethodVisitor)
+meth public void updateIndex(int)
+supr java.lang.Object
+
+CLSS public org.objectweb.asm.tree.TypeAnnotationNode
+cons public init(int,int,org.objectweb.asm.TypePath,java.lang.String)
+cons public init(int,org.objectweb.asm.TypePath,java.lang.String)
+fld public int typeRef
+fld public org.objectweb.asm.TypePath typePath
+supr org.objectweb.asm.tree.AnnotationNode
+
+CLSS public org.objectweb.asm.tree.TypeInsnNode
+cons public init(int,java.lang.String)
+fld public java.lang.String desc
+meth public int getType()
+meth public org.objectweb.asm.tree.AbstractInsnNode clone(java.util.Map<org.objectweb.asm.tree.LabelNode,org.objectweb.asm.tree.LabelNode>)
+meth public void accept(org.objectweb.asm.MethodVisitor)
+meth public void setOpcode(int)
+supr org.objectweb.asm.tree.AbstractInsnNode
+
+CLSS public org.objectweb.asm.tree.VarInsnNode
+cons public init(int,int)
+fld public int var
+meth public int getType()
+meth public org.objectweb.asm.tree.AbstractInsnNode clone(java.util.Map<org.objectweb.asm.tree.LabelNode,org.objectweb.asm.tree.LabelNode>)
+meth public void accept(org.objectweb.asm.MethodVisitor)
+meth public void setOpcode(int)
+supr org.objectweb.asm.tree.AbstractInsnNode
+

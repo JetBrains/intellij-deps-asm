@@ -457,10 +457,10 @@ class MethodWriter extends MethodVisitor {
   @Override
   public void visitAttribute(final Attribute attr) {
     if (attr.isCodeAttribute()) {
-      attr.next = cattrs;
+      attr.nextAttribute = cattrs;
       cattrs = attr;
     } else {
-      attr.next = attrs;
+      attr.nextAttribute = attrs;
       attrs = attr;
     }
   }
@@ -1928,7 +1928,7 @@ class MethodWriter extends MethodVisitor {
         size += ictanns.getAnnotationsSize("RuntimeInvisibleTypeAnnotations");
       }
       if (cattrs != null) {
-        size += cattrs.getSize(cw, code.data, code.length, maxStack, maxLocals);
+        size += cattrs.getAttributesSize(cw, code.data, code.length, maxStack, maxLocals);
       }
     }
     if (exceptionCount > 0) {
@@ -1979,7 +1979,7 @@ class MethodWriter extends MethodVisitor {
               "RuntimeInvisibleParameterAnnotations", ipanns, synthetics);
     }
     if (attrs != null) {
-      size += attrs.getSize(cw, null, 0, -1, -1);
+      size += attrs.getAttributesSize(cw);
     }
     return size;
   }
@@ -2038,7 +2038,7 @@ class MethodWriter extends MethodVisitor {
       ++attributeCount;
     }
     if (attrs != null) {
-      attributeCount += attrs.getCount();
+      attributeCount += attrs.getAttributeCount();
     }
     out.putShort(attributeCount);
     if (code.length > 0) {
@@ -2062,7 +2062,7 @@ class MethodWriter extends MethodVisitor {
         size += ictanns.getAnnotationsSize("RuntimeInvisibleTypeAnnotations");
       }
       if (cattrs != null) {
-        size += cattrs.getSize(cw, code.data, code.length, maxStack, maxLocals);
+        size += cattrs.getAttributesSize(cw, code.data, code.length, maxStack, maxLocals);
       }
       out.putShort(cw.newUTF8("Code")).putInt(size);
       out.putShort(maxStack).putShort(maxLocals);
@@ -2098,7 +2098,7 @@ class MethodWriter extends MethodVisitor {
         ++attributeCount;
       }
       if (cattrs != null) {
-        attributeCount += cattrs.getCount();
+        attributeCount += cattrs.getAttributeCount();
       }
       out.putShort(attributeCount);
       if (localVar != null) {
@@ -2129,7 +2129,7 @@ class MethodWriter extends MethodVisitor {
         ictanns.putAnnotations(cw.newUTF8("RuntimeInvisibleTypeAnnotations"), out);
       }
       if (cattrs != null) {
-        cattrs.put(cw, code.data, code.length, maxStack, maxLocals, out);
+        cattrs.putAttributes(cw, code.data, code.length, maxStack, maxLocals, out);
       }
     }
     if (exceptionCount > 0) {
@@ -2179,7 +2179,7 @@ class MethodWriter extends MethodVisitor {
           cw.newUTF8("RuntimeInvisibleParameterAnnotations"), ipanns, synthetics, out);
     }
     if (attrs != null) {
-      attrs.put(cw, null, 0, -1, -1, out);
+      attrs.putAttributes(cw, out);
     }
   }
 }

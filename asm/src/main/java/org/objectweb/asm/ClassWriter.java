@@ -601,7 +601,7 @@ public class ClassWriter extends ClassVisitor {
 
   @Override
   public final void visitAttribute(final Attribute attr) {
-    attr.next = attrs;
+    attr.nextAttribute = attrs;
     attrs = attr;
   }
 
@@ -755,8 +755,8 @@ public class ClassWriter extends ClassVisitor {
       newUTF8("Module");
     }
     if (attrs != null) {
-      attributeCount += attrs.getCount();
-      size += attrs.getSize(this, null, 0, -1, -1);
+      attributeCount += attrs.getAttributeCount();
+      size += attrs.getAttributesSize(this);
     }
     size += pool.length;
     // allocates a byte vector of this size, in order to avoid unnecessary
@@ -833,7 +833,7 @@ public class ClassWriter extends ClassVisitor {
       itanns.putAnnotations(newUTF8("RuntimeInvisibleTypeAnnotations"), out);
     }
     if (attrs != null) {
-      attrs.put(this, null, 0, -1, -1, out);
+      attrs.putAttributes(this, out);
     }
     if (hasAsmInsns) {
       boolean hasFrames = false;

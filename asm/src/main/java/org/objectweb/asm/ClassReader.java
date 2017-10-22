@@ -554,7 +554,7 @@ public class ClassReader {
       } else {
         Attribute attr = readAttribute(attrs, attrName, u + 8, readInt(u + 4), c, -1, null);
         if (attr != null) {
-          attr.next = attributes;
+          attr.nextAttribute = attributes;
           attributes = attr;
         }
       }
@@ -621,8 +621,8 @@ public class ClassReader {
 
     // visits the attributes
     while (attributes != null) {
-      Attribute attr = attributes.next;
-      attributes.next = null;
+      Attribute attr = attributes.nextAttribute;
+      attributes.nextAttribute = null;
       classVisitor.visitAttribute(attributes);
       attributes = attr;
     }
@@ -812,7 +812,7 @@ public class ClassReader {
       } else {
         Attribute attr = readAttribute(context.attrs, attrName, u + 8, readInt(u + 4), c, -1, null);
         if (attr != null) {
-          attr.next = attributes;
+          attr.nextAttribute = attributes;
           attributes = attr;
         }
       }
@@ -862,8 +862,8 @@ public class ClassReader {
 
     // visits the field attributes
     while (attributes != null) {
-      Attribute attr = attributes.next;
-      attributes.next = null;
+      Attribute attr = attributes.nextAttribute;
+      attributes.nextAttribute = null;
       fv.visitAttribute(attributes);
       attributes = attr;
     }
@@ -946,7 +946,7 @@ public class ClassReader {
       } else {
         Attribute attr = readAttribute(context.attrs, attrName, u + 8, readInt(u + 4), c, -1, null);
         if (attr != null) {
-          attr.next = attributes;
+          attr.nextAttribute = attributes;
           attributes = attr;
         }
       }
@@ -1056,8 +1056,8 @@ public class ClassReader {
 
     // visits the method attributes
     while (attributes != null) {
-      Attribute attr = attributes.next;
-      attributes.next = null;
+      Attribute attr = attributes.nextAttribute;
+      attributes.nextAttribute = null;
       mv.visitAttribute(attributes);
       attributes = attr;
     }
@@ -1280,7 +1280,7 @@ public class ClassReader {
             Attribute attr =
                 context.attrs[j].read(this, u + 8, readInt(u + 4), c, codeStart - 8, labels);
             if (attr != null) {
-              attr.next = attributes;
+              attr.nextAttribute = attributes;
               attributes = attr;
             }
           }
@@ -1696,8 +1696,8 @@ public class ClassReader {
 
     // visits the code attributes
     while (attributes != null) {
-      Attribute attr = attributes.next;
-      attributes.next = null;
+      Attribute attr = attributes.nextAttribute;
+      attributes.nextAttribute = null;
       mv.visitAttribute(attributes);
       attributes = attr;
     }

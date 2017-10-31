@@ -77,7 +77,7 @@ import org.junit.runners.Parameterized.Parameter;
  * public class MyParameterizedTest extends AsmTest {
  *
  *   &#64;Parameters(name = NAME)
- *   public static Collection<Object[]> data() {
+ *   public static Collection&lt;Object[]&gt; data() {
  *     return data(Api.ASM5, Api.ASM6);
  *   }
  *
@@ -140,12 +140,12 @@ public abstract class AsmTest {
       this.name = name;
     }
 
-    /** Returns the fully qualified name of this class. */
+    /** @return the fully qualified name of this class. */
     public String getName() {
       return name;
     }
 
-    /** Returns the internal name of this class. */
+    /** @return the internal name of this class. */
     public String getInternalName() {
       return name.endsWith("module-info") ? "module-info" : name.replace('.', '/');
     }
@@ -184,7 +184,7 @@ public abstract class AsmTest {
       return false;
     }
 
-    /** Returns the content of this class. */
+    /** @return the content of this class. */
     public byte[] getBytes() {
       InputStream inputStream = null;
       try {

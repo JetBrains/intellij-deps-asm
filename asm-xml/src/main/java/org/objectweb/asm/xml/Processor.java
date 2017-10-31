@@ -74,6 +74,7 @@ import org.xml.sax.helpers.XMLReaderFactory;
  * <blockquote>
  *
  * <table border="1" cellspacing="0" cellpadding="3">
+ * <caption>Possible TransformerFactory values</caption>
  * <tr>
  * <td>jd.xslt</td>
  * <td>jd.xml.xslt.trax.TransformerFactoryImpl</td>

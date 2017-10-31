@@ -36,8 +36,11 @@ import org.xml.sax.helpers.AttributesImpl;
 /**
  * SAXAnnotationAdapter
  *
+ * @deprecated This class is no longer maintained, will not support new Java features, and will
+ *     eventually be deleted. Use the asm or asm.tree API instead.
  * @author Eugene Kuleshov
  */
+@Deprecated
 public final class SAXAnnotationAdapter extends AnnotationVisitor {
 
   SAXAdapter sa;

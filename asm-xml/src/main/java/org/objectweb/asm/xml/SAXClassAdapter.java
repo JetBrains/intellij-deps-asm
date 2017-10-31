@@ -42,10 +42,13 @@ import org.xml.sax.helpers.AttributesImpl;
  * visited class. It can feed any kind of {@link org.xml.sax.ContentHandler ContentHandler}, e.g.
  * XML serializer, XSLT or XQuery engines.
  *
+ * @deprecated This class is no longer maintained, will not support new Java features, and will
+ *     eventually be deleted. Use the asm or asm.tree API instead.
  * @see org.objectweb.asm.xml.Processor
  * @see org.objectweb.asm.xml.ASMContentHandler
  * @author Eugene Kuleshov
  */
+@Deprecated
 public final class SAXClassAdapter extends ClassVisitor {
 
   SAXAdapter sa;

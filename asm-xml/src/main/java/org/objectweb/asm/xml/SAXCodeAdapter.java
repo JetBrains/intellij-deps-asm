@@ -43,10 +43,13 @@ import org.xml.sax.helpers.AttributesImpl;
 /**
  * A {@link MethodVisitor} that generates SAX 2.0 events from the visited method.
  *
+ * @deprecated This class is no longer maintained, will not support new Java features, and will
+ *     eventually be deleted. Use the asm or asm.tree API instead.
  * @see org.objectweb.asm.xml.SAXClassAdapter
  * @see org.objectweb.asm.xml.Processor
  * @author Eugene Kuleshov
  */
+@Deprecated
 public final class SAXCodeAdapter extends MethodVisitor {
 
   static final String[] TYPES = {

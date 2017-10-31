@@ -337,14 +337,14 @@ public class ClassWriter extends ClassVisitor {
    * objects, linked to each other by their {@link FieldWriter#fv} field. This field stores the
    * first element of this list.
    */
-  FieldWriter firstField;
+  private FieldWriter firstField;
 
   /**
    * The fields of this class. These fields are stored in a linked list of {@link FieldWriter}
    * objects, linked to each other by their {@link FieldWriter#fv} field. This field stores the last
    * element of this list.
    */
-  FieldWriter lastField;
+  private FieldWriter lastField;
 
   /**
    * The methods of this class. These methods are stored in a linked list of {@link MethodWriter}
@@ -643,7 +643,13 @@ public class ClassWriter extends ClassVisitor {
       final String desc,
       final String signature,
       final Object value) {
-    return new FieldWriter(this, access, name, desc, signature, value);
+    FieldWriter fieldWriter = new FieldWriter(this, access, name, desc, signature, value);
+    if (firstField == null) {
+      firstField = fieldWriter;
+    } else {
+      lastField.fv = fieldWriter;
+    }
+    return lastField = fieldWriter;
   }
 
   @Override

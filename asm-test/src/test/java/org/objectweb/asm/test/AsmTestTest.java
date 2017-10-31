@@ -70,11 +70,47 @@ public class AsmTestTest extends AsmTest {
   }
 
   /**
-   * Tests that {@link #loadAndInstantiate(String, byte[])} fails when trying to load an invalid or
-   * unverifiable class.
+   * Tests that {@link #loadAndInstantiate(String, byte[])} fails when trying to load a class which
+   * is not well formed.
    */
   @Test
   public void testLoadAndInstantiate_invalidClass() {
+    byte[] classContent = classParameter.getBytes();
+    switch (classParameter) {
+      case DEFAULT_PACKAGE:
+      case JDK3_ATTRIBUTE:
+      case JDK5_ANNOTATION:
+      case JDK9_MODULE:
+        return;
+      case JDK3_ALL_INSTRUCTIONS:
+      case JDK3_ALL_STRUCTURES:
+      case JDK3_ANONYMOUS_INNER_CLASS:
+      case JDK3_INNER_CLASS:
+      case JDK3_LARGE_METHOD:
+      case JDK5_ALL_INSTRUCTIONS:
+      case JDK5_ALL_STRUCTURES:
+      case JDK5_ENUM:
+      case JDK8_ALL_STRUCTURES:
+      case JDK8_ANONYMOUS_INNER_CLASS:
+      case JDK8_INNER_CLASS:
+      case JDK8_ALL_FRAMES:
+      case JDK8_ALL_INSTRUCTIONS:
+      case JDK8_LARGE_METHOD:
+        removeAttributes(classContent, "Code");
+        thrown.expect(AssertionError.class);
+        break;
+      default:
+        fail("Unknown precompiled class");
+    }
+    loadAndInstantiate(classParameter.getName(), classContent);
+  }
+
+  /**
+   * Tests that {@link #doLoadAndInstantiate(String, byte[])} fails when trying to load an invalid
+   * or unverifiable class.
+   */
+  @Test
+  public void testDoLoadAndInstantiate_invalidClass() {
     if (classParameter.isMoreRecentThanCurrentJdk()) {
       return;
     }
@@ -108,7 +144,7 @@ public class AsmTestTest extends AsmTest {
       default:
         fail("Unknown precompiled class");
     }
-    loadAndInstantiate(classParameter.getName(), classContent);
+    doLoadAndInstantiate(classParameter.getName(), classContent);
   }
 
   /**

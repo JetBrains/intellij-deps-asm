@@ -326,13 +326,31 @@ public abstract class AsmTest {
   /**
    * Loads the given class in a new class loader. Also tries to instantiate the loaded class (if it
    * is not an abstract or enum class), in order to check that it passes the bytecode verification
-   * step.
+   * step. Checks as well that the class can be dumped, to make sure that the class is well formed.
    *
    * @param className the name of the class to load.
    * @param classContent the content of the class to load.
    * @return whether the class was loaded successfully.
    */
   public static boolean loadAndInstantiate(String className, byte[] classContent) {
+    try {
+      new ClassDump(classContent);
+    } catch (IOException e) {
+      fail("Class can't be dumped, probably invalid");
+    }
+    return doLoadAndInstantiate(className, classContent);
+  }
+
+  /**
+   * Loads the given class in a new class loader. Also tries to instantiate the loaded class (if it
+   * is not an abstract or enum class), in order to check that it passes the bytecode verification
+   * step.
+   *
+   * @param className the name of the class to load.
+   * @param classContent the content of the class to load.
+   * @return whether the class was loaded successfully.
+   */
+  static boolean doLoadAndInstantiate(String className, byte[] classContent) {
     ByteClassLoader byteClassLoader = new ByteClassLoader(className, classContent);
     try {
       Class<?> clazz = byteClassLoader.loadClass(className);

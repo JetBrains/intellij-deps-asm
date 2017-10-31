@@ -1436,7 +1436,9 @@ public class ClassReader {
       // insertFrame to true during the previous iteration. The actual
       // frame content will be computed in MethodWriter.
       if (insertFrame) {
-        mv.visitFrame(ClassWriter.F_INSERT, 0, null, 0, null);
+        if ((context.flags & EXPAND_FRAMES) != 0) {
+          mv.visitFrame(ClassWriter.F_INSERT, 0, null, 0, null);
+        }
         insertFrame = false;
       }
 

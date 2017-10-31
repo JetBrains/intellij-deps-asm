@@ -33,7 +33,8 @@ package org.objectweb.asm;
  * can be chained together, with their {@link #nextHandler} field, to describe a full JVMS
  * exception_table array.
  *
- * @see https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.7.3
+ * @see <a href="https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.7.3">JVMS
+ *     4.7.3</a>
  * @author Eric Bruneton
  */
 final class Handler {

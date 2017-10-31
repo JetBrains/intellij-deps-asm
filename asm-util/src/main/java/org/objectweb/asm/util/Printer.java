@@ -178,13 +178,13 @@ public abstract class Printer {
   public abstract void visitSource(final String source, final String debug);
 
   /**
-   * Module. See {@link org.objectweb.asm.ClassVisitor#visitModule(String, int)}.
+   * Module. See {@link org.objectweb.asm.ClassVisitor#visitModule}.
    *
    * @param name module name.
    * @param access module flags, among {@code ACC_OPEN}, {@code ACC_SYNTHETIC} and {@code
    *     ACC_MANDATED}.
    * @param version module version or null.
-   * @return
+   * @return the printer.
    */
   public Printer visitModule(String name, int access, String version) {
     throw new RuntimeException("Must be overriden");

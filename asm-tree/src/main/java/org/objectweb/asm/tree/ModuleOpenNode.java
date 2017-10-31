@@ -53,6 +53,8 @@ public class ModuleOpenNode {
    * Constructs a new {@link ModuleOpenNode}.
    *
    * @param packaze the parameter's name.
+   * @param access the module access flags, one or more of {@code ACC_SYNTHETIC} and {@code
+   *     ACC_MANDATED}.
    * @param modules a list of modules that can access to this open package.
    */
   public ModuleOpenNode(final String packaze, final int access, final List<String> modules) {

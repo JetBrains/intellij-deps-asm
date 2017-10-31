@@ -34,8 +34,10 @@ package org.objectweb.asm;
  * attributes can be generated with the {@link #putAnnotations()} method. Similarly, arrays of such
  * lists can be used to generate Runtime[In]VisibleParameterAnnotations attributes.
  *
- * @see https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.7.16
- * @see https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.7.20
+ * @see <a href="https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.7.16">JVMS
+ *     4.7.16</a>
+ * @see <a href="https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.7.20>JVMS
+ *     4.7.20</a>
  * @author Eric Bruneton
  * @author Eugene Kuleshov
  */

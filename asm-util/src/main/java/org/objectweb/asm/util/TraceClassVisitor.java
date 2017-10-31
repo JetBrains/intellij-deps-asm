@@ -45,8 +45,6 @@ import org.objectweb.asm.TypePath;
  *
  * <p>The trace printed when visiting the <tt>Hello</tt> class is the following:
  *
- * <p>
- *
  * <blockquote>
  *
  * <pre>
@@ -66,8 +64,6 @@ import org.objectweb.asm.TypePath;
  * </blockquote>
  *
  * where <tt>Hello</tt> is defined by:
- *
- * <p>
  *
  * <blockquote>
  *

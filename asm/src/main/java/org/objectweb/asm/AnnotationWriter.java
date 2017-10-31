@@ -43,8 +43,8 @@ package org.objectweb.asm;
  */
 final class AnnotationWriter extends AnnotationVisitor {
 
-  /** The ClassWriter to which this AnnotationWriter belongs. */
-  private final ClassWriter parentClassWriter;
+  /** Where the constants used in this AnnotationWriter must be stored. */
+  private final SymbolTable symbolTable;
 
   /**
    * Whether values are named or not. AnnotationWriter instances used for annotation default and
@@ -97,7 +97,7 @@ final class AnnotationWriter extends AnnotationVisitor {
   /**
    * Constructs a new {@link AnnotationWriter}.
    *
-   * @param parentClassWriter the ClassWriter to which this AnnotationWriter belongs.
+   * @param symbolTable where the constants used in this AnnotationWriter must be stored.
    * @param useNamedValues whether values are named or not. AnnotationDefault and annotation arrays
    *     use unnamed values.
    * @param annotation where the 'annotation' or 'type_annotation' JVMS structure corresponding to
@@ -108,12 +108,12 @@ final class AnnotationWriter extends AnnotationVisitor {
    *     other cases (e.g. nested or array annotations).
    */
   AnnotationWriter(
-      final ClassWriter parentClassWriter,
+      final SymbolTable symbolTable,
       final boolean useNamedValues,
       final ByteVector annotation,
       final AnnotationWriter previousAnnotation) {
     super(Opcodes.ASM6);
-    this.parentClassWriter = parentClassWriter;
+    this.symbolTable = symbolTable;
     this.useNamedValues = useNamedValues;
     this.annotation = annotation;
     // By hypothesis, num_element_value_pairs is stored in the last unsigned short of 'annotation'.
@@ -127,7 +127,7 @@ final class AnnotationWriter extends AnnotationVisitor {
   /**
    * Constructs a new {@link AnnotationWriter} using named values.
    *
-   * @param parentClassWriter the ClassWriter to which this AnnotationWriter belongs.
+   * @param symbolTable where the constants used in this AnnotationWriter must be stored.
    * @param annotation where the 'annotation' or 'type_annotation' JVMS structure corresponding to
    *     the visited content must be stored. This ByteVector must already contain all the fields of
    *     the structure except the last one (the element_value_pairs array).
@@ -136,10 +136,10 @@ final class AnnotationWriter extends AnnotationVisitor {
    *     other cases (e.g. nested or array annotations).
    */
   AnnotationWriter(
-      final ClassWriter parentClassWriter,
+      final SymbolTable symbolTable,
       final ByteVector annotation,
       final AnnotationWriter previousAnnotation) {
-    this(parentClassWriter, /* useNamedValues = */ true, annotation, previousAnnotation);
+    this(symbolTable, /* useNamedValues = */ true, annotation, previousAnnotation);
   }
 
   // ------------------------------------------------------------------------
@@ -152,72 +152,72 @@ final class AnnotationWriter extends AnnotationVisitor {
     // See https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.7.16.1.
     ++numElementValuePairs;
     if (useNamedValues) {
-      annotation.putShort(parentClassWriter.newUTF8(name));
+      annotation.putShort(symbolTable.addConstantUtf8(name));
     }
     if (value instanceof String) {
-      annotation.put12('s', parentClassWriter.newUTF8((String) value));
+      annotation.put12('s', symbolTable.addConstantUtf8((String) value));
     } else if (value instanceof Byte) {
-      annotation.put12('B', parentClassWriter.newInteger(((Byte) value).byteValue()).index);
+      annotation.put12('B', symbolTable.addConstantInteger(((Byte) value).byteValue()).index);
     } else if (value instanceof Boolean) {
       int booleanValue = ((Boolean) value).booleanValue() ? 1 : 0;
-      annotation.put12('Z', parentClassWriter.newInteger(booleanValue).index);
+      annotation.put12('Z', symbolTable.addConstantInteger(booleanValue).index);
     } else if (value instanceof Character) {
-      annotation.put12('C', parentClassWriter.newInteger(((Character) value).charValue()).index);
+      annotation.put12('C', symbolTable.addConstantInteger(((Character) value).charValue()).index);
     } else if (value instanceof Short) {
-      annotation.put12('S', parentClassWriter.newInteger(((Short) value).shortValue()).index);
+      annotation.put12('S', symbolTable.addConstantInteger(((Short) value).shortValue()).index);
     } else if (value instanceof Type) {
-      annotation.put12('c', parentClassWriter.newUTF8(((Type) value).getDescriptor()));
+      annotation.put12('c', symbolTable.addConstantUtf8(((Type) value).getDescriptor()));
     } else if (value instanceof byte[]) {
       byte[] byteArray = (byte[]) value;
       annotation.put12('[', byteArray.length);
       for (byte byteValue : byteArray) {
-        annotation.put12('B', parentClassWriter.newInteger(byteValue).index);
+        annotation.put12('B', symbolTable.addConstantInteger(byteValue).index);
       }
     } else if (value instanceof boolean[]) {
       boolean[] booleanArray = (boolean[]) value;
       annotation.put12('[', booleanArray.length);
       for (boolean booleanValue : booleanArray) {
-        annotation.put12('Z', parentClassWriter.newInteger(booleanValue ? 1 : 0).index);
+        annotation.put12('Z', symbolTable.addConstantInteger(booleanValue ? 1 : 0).index);
       }
     } else if (value instanceof short[]) {
       short[] shortArray = (short[]) value;
       annotation.put12('[', shortArray.length);
       for (short shortValue : shortArray) {
-        annotation.put12('S', parentClassWriter.newInteger(shortValue).index);
+        annotation.put12('S', symbolTable.addConstantInteger(shortValue).index);
       }
     } else if (value instanceof char[]) {
       char[] charArray = (char[]) value;
       annotation.put12('[', charArray.length);
       for (char charValue : charArray) {
-        annotation.put12('C', parentClassWriter.newInteger(charValue).index);
+        annotation.put12('C', symbolTable.addConstantInteger(charValue).index);
       }
     } else if (value instanceof int[]) {
       int[] intArray = (int[]) value;
       annotation.put12('[', intArray.length);
       for (int intValue : intArray) {
-        annotation.put12('I', parentClassWriter.newInteger(intValue).index);
+        annotation.put12('I', symbolTable.addConstantInteger(intValue).index);
       }
     } else if (value instanceof long[]) {
       long[] longArray = (long[]) value;
       annotation.put12('[', longArray.length);
       for (long longValue : longArray) {
-        annotation.put12('J', parentClassWriter.newLong(longValue).index);
+        annotation.put12('J', symbolTable.addConstantLong(longValue).index);
       }
     } else if (value instanceof float[]) {
       float[] floatArray = (float[]) value;
       annotation.put12('[', floatArray.length);
       for (float floatValue : floatArray) {
-        annotation.put12('F', parentClassWriter.newFloat(floatValue).index);
+        annotation.put12('F', symbolTable.addConstantFloat(floatValue).index);
       }
     } else if (value instanceof double[]) {
       double[] doubleArray = (double[]) value;
       annotation.put12('[', doubleArray.length);
       for (double doubleValue : doubleArray) {
-        annotation.put12('D', parentClassWriter.newDouble(doubleValue).index);
+        annotation.put12('D', symbolTable.addConstantDouble(doubleValue).index);
       }
     } else {
-      Item constItem = parentClassWriter.newConstItem(value);
-      annotation.put12(".s.IFJDCS".charAt(constItem.type), constItem.index);
+      Symbol symbol = symbolTable.addConstant(value);
+      annotation.put12(".s.IFJDCS".charAt(symbol.tag), symbol.index);
     }
   }
 
@@ -227,11 +227,11 @@ final class AnnotationWriter extends AnnotationVisitor {
     // See https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.7.16.1.
     ++numElementValuePairs;
     if (useNamedValues) {
-      annotation.putShort(parentClassWriter.newUTF8(name));
+      annotation.putShort(symbolTable.addConstantUtf8(name));
     }
     annotation
-        .put12('e', parentClassWriter.newUTF8(desc))
-        .putShort(parentClassWriter.newUTF8(value));
+        .put12('e', symbolTable.addConstantUtf8(desc))
+        .putShort(symbolTable.addConstantUtf8(value));
   }
 
   @Override
@@ -240,11 +240,11 @@ final class AnnotationWriter extends AnnotationVisitor {
     // See https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.7.16.1.
     ++numElementValuePairs;
     if (useNamedValues) {
-      annotation.putShort(parentClassWriter.newUTF8(name));
+      annotation.putShort(symbolTable.addConstantUtf8(name));
     }
     // Write tag and type_index, and reserve 2 bytes for num_element_value_pairs.
-    annotation.put12('@', parentClassWriter.newUTF8(desc)).putShort(0);
-    return new AnnotationWriter(parentClassWriter, annotation, null);
+    annotation.put12('@', symbolTable.addConstantUtf8(desc)).putShort(0);
+    return new AnnotationWriter(symbolTable, annotation, null);
   }
 
   @Override
@@ -253,7 +253,7 @@ final class AnnotationWriter extends AnnotationVisitor {
     // https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.7.16.1
     ++numElementValuePairs;
     if (useNamedValues) {
-      annotation.putShort(parentClassWriter.newUTF8(name));
+      annotation.putShort(symbolTable.addConstantUtf8(name));
     }
     // Write tag, and reserve 2 bytes for num_values. Here we take advantage of the fact that the
     // end of an element_value of array type is similar to the end of an 'annotation' structure: an
@@ -263,7 +263,7 @@ final class AnnotationWriter extends AnnotationVisitor {
     // visit the array elements. Its num_element_value_pairs will correspond to the number of array
     // elements and will be stored in what is in fact num_values.
     annotation.put12('[', 0);
-    return new AnnotationWriter(parentClassWriter, /* useNamedValues = */ false, annotation, null);
+    return new AnnotationWriter(symbolTable, /* useNamedValues = */ false, annotation, null);
   }
 
   @Override
@@ -291,7 +291,7 @@ final class AnnotationWriter extends AnnotationVisitor {
    */
   int getAnnotationsSize(final String attributeName) {
     if (attributeName != null) {
-      parentClassWriter.newUTF8(attributeName);
+      symbolTable.addConstantUtf8(attributeName);
     }
     // The attribute_name_index, attribute_length and num_annotations fields use 8 bytes.
     int attributeSize = 8;

@@ -42,10 +42,10 @@ class CurrentFrame extends Frame {
    * method is called is the stack map frame status just before the given instruction is executed.
    */
   @Override
-  void execute(int opcode, int arg, ClassWriter cw, Item item) {
-    super.execute(opcode, arg, cw, item);
+  void execute(int opcode, int arg, SymbolTable symbolTable, Symbol symbol) {
+    super.execute(opcode, arg, symbolTable, symbol);
     Frame successor = new Frame();
-    merge(cw, successor, 0);
+    merge(symbolTable, successor, 0);
     set(successor);
     owner.inputStackTop = 0;
   }

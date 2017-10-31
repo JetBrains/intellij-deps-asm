@@ -36,8 +36,8 @@ package org.objectweb.asm;
  */
 final class FieldWriter extends FieldVisitor {
 
-  /** The ClassWriter to which this field must be added. */
-  private final ClassWriter parentClassWriter;
+  /** Where the constants used in this FieldWriter must be stored. */
+  private final SymbolTable symbolTable;
 
   /** The access_flags field of the field_info JVMS structure. */
   private final int accessFlags;
@@ -102,7 +102,7 @@ final class FieldWriter extends FieldVisitor {
   /**
    * Constructs a new {@link FieldWriter}.
    *
-   * @param parentClassWriter the ClassWriter to which this field must be added.
+   * @param symbolTable where the constants used in this FieldWriter must be stored.
    * @param access the field's access flags (see {@link Opcodes}).
    * @param name the field's name.
    * @param descriptor the field's descriptor (see {@link Type}).
@@ -110,22 +110,22 @@ final class FieldWriter extends FieldVisitor {
    * @param constantValue the field's constant value. May be <tt>null</tt>.
    */
   FieldWriter(
-      final ClassWriter parentClassWriter,
+      final SymbolTable symbolTable,
       final int access,
       final String name,
       final String descriptor,
       final String signature,
       final Object constantValue) {
     super(Opcodes.ASM6);
-    this.parentClassWriter = parentClassWriter;
+    this.symbolTable = symbolTable;
     this.accessFlags = access;
-    this.nameIndex = parentClassWriter.newUTF8(name);
-    this.descriptorIndex = parentClassWriter.newUTF8(descriptor);
+    this.nameIndex = symbolTable.addConstantUtf8(name);
+    this.descriptorIndex = symbolTable.addConstantUtf8(descriptor);
     if (signature != null) {
-      this.signatureIndex = parentClassWriter.newUTF8(signature);
+      this.signatureIndex = symbolTable.addConstantUtf8(signature);
     }
     if (constantValue != null) {
-      this.constantValueIndex = parentClassWriter.newConstItem(constantValue).index;
+      this.constantValueIndex = symbolTable.addConstant(constantValue).index;
     }
   }
 
@@ -139,13 +139,13 @@ final class FieldWriter extends FieldVisitor {
     // See https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.7.16.
     ByteVector annotation = new ByteVector();
     // Write type_index and reserve space for num_element_value_pairs.
-    annotation.putShort(parentClassWriter.newUTF8(desc)).putShort(0);
+    annotation.putShort(symbolTable.addConstantUtf8(desc)).putShort(0);
     if (visible) {
       return lastRuntimeVisibleAnnotation =
-          new AnnotationWriter(parentClassWriter, annotation, lastRuntimeVisibleAnnotation);
+          new AnnotationWriter(symbolTable, annotation, lastRuntimeVisibleAnnotation);
     } else {
       return lastRuntimeInvisibleAnnotation =
-          new AnnotationWriter(parentClassWriter, annotation, lastRuntimeInvisibleAnnotation);
+          new AnnotationWriter(symbolTable, annotation, lastRuntimeInvisibleAnnotation);
     }
   }
 
@@ -159,14 +159,13 @@ final class FieldWriter extends FieldVisitor {
     TypeReference.putTarget(typeRef, typeAnnotation);
     TypePath.put(typePath, typeAnnotation);
     // Write type_index and reserve space for num_element_value_pairs.
-    typeAnnotation.putShort(parentClassWriter.newUTF8(desc)).putShort(0);
+    typeAnnotation.putShort(symbolTable.addConstantUtf8(desc)).putShort(0);
     if (visible) {
       return lastRuntimeVisibleTypeAnnotation =
-          new AnnotationWriter(parentClassWriter, typeAnnotation, lastRuntimeVisibleTypeAnnotation);
+          new AnnotationWriter(symbolTable, typeAnnotation, lastRuntimeVisibleTypeAnnotation);
     } else {
       return lastRuntimeInvisibleTypeAnnotation =
-          new AnnotationWriter(
-              parentClassWriter, typeAnnotation, lastRuntimeInvisibleTypeAnnotation);
+          new AnnotationWriter(symbolTable, typeAnnotation, lastRuntimeInvisibleTypeAnnotation);
     }
   }
 
@@ -195,25 +194,24 @@ final class FieldWriter extends FieldVisitor {
     int size = 8;
     if (constantValueIndex != 0) {
       // ConstantValue attributes always use 8 bytes.
-      parentClassWriter.newUTF8("ConstantValue");
+      symbolTable.addConstantUtf8("ConstantValue");
       size += 8;
     }
     // Before Java 1.5, synthetic fields are represented with a Synthetic attribute.
-    if ((accessFlags & Opcodes.ACC_SYNTHETIC) != 0
-        && (parentClassWriter.version & 0xFFFF) < Opcodes.V1_5) {
+    if ((accessFlags & Opcodes.ACC_SYNTHETIC) != 0 && symbolTable.majorVersion() < Opcodes.V1_5) {
       // Synthetic attributes always use 6 bytes.
-      parentClassWriter.newUTF8("Synthetic");
+      symbolTable.addConstantUtf8("Synthetic");
       size += 6;
     }
     // ACC_DEPRECATED is ASM specific, the ClassFile format uses a Deprecated attribute instead.
     if ((accessFlags & Opcodes.ACC_DEPRECATED) != 0) {
       // Deprecated attributes always use 6 bytes.
-      parentClassWriter.newUTF8("Deprecated");
+      symbolTable.addConstantUtf8("Deprecated");
       size += 6;
     }
     if (signatureIndex != 0) {
       // Signature attributes always use 8 bytes.
-      parentClassWriter.newUTF8("Signature");
+      symbolTable.addConstantUtf8("Signature");
       size += 8;
     }
     if (lastRuntimeVisibleAnnotation != null) {
@@ -230,7 +228,7 @@ final class FieldWriter extends FieldVisitor {
           lastRuntimeInvisibleTypeAnnotation.getAnnotationsSize("RuntimeInvisibleTypeAnnotations");
     }
     if (firstAttribute != null) {
-      size += firstAttribute.getAttributesSize(parentClassWriter);
+      size += firstAttribute.getAttributesSize(symbolTable);
     }
     return size;
   }
@@ -242,7 +240,7 @@ final class FieldWriter extends FieldVisitor {
    * @param output where the field_info structure must be put.
    */
   void put(final ByteVector output) {
-    boolean useSyntheticAttribute = (parentClassWriter.version & 0xFFFF) < Opcodes.V1_5;
+    boolean useSyntheticAttribute = symbolTable.majorVersion() < Opcodes.V1_5;
     // Put the access_flags, name_index and descriptor_index fields.
     int mask = Opcodes.ACC_DEPRECATED | (useSyntheticAttribute ? Opcodes.ACC_SYNTHETIC : 0);
     output.putShort(accessFlags & ~mask).putShort(nameIndex).putShort(descriptorIndex);
@@ -278,37 +276,37 @@ final class FieldWriter extends FieldVisitor {
     output.putShort(attributesCount);
     // Put the field_info attributes.
     if (constantValueIndex != 0) {
-      output.putShort(parentClassWriter.newUTF8("ConstantValue"));
+      output.putShort(symbolTable.addConstantUtf8("ConstantValue"));
       output.putInt(2).putShort(constantValueIndex);
     }
     if ((accessFlags & Opcodes.ACC_SYNTHETIC) != 0 && useSyntheticAttribute) {
-      output.putShort(parentClassWriter.newUTF8("Synthetic")).putInt(0);
+      output.putShort(symbolTable.addConstantUtf8("Synthetic")).putInt(0);
     }
     if ((accessFlags & Opcodes.ACC_DEPRECATED) != 0) {
-      output.putShort(parentClassWriter.newUTF8("Deprecated")).putInt(0);
+      output.putShort(symbolTable.addConstantUtf8("Deprecated")).putInt(0);
     }
     if (signatureIndex != 0) {
-      output.putShort(parentClassWriter.newUTF8("Signature"));
+      output.putShort(symbolTable.addConstantUtf8("Signature"));
       output.putInt(2).putShort(signatureIndex);
     }
     if (lastRuntimeVisibleAnnotation != null) {
       lastRuntimeVisibleAnnotation.putAnnotations(
-          parentClassWriter.newUTF8("RuntimeVisibleAnnotations"), output);
+          symbolTable.addConstantUtf8("RuntimeVisibleAnnotations"), output);
     }
     if (lastRuntimeInvisibleAnnotation != null) {
       lastRuntimeInvisibleAnnotation.putAnnotations(
-          parentClassWriter.newUTF8("RuntimeInvisibleAnnotations"), output);
+          symbolTable.addConstantUtf8("RuntimeInvisibleAnnotations"), output);
     }
     if (lastRuntimeVisibleTypeAnnotation != null) {
       lastRuntimeVisibleTypeAnnotation.putAnnotations(
-          parentClassWriter.newUTF8("RuntimeVisibleTypeAnnotations"), output);
+          symbolTable.addConstantUtf8("RuntimeVisibleTypeAnnotations"), output);
     }
     if (lastRuntimeInvisibleTypeAnnotation != null) {
       lastRuntimeInvisibleTypeAnnotation.putAnnotations(
-          parentClassWriter.newUTF8("RuntimeInvisibleTypeAnnotations"), output);
+          symbolTable.addConstantUtf8("RuntimeInvisibleTypeAnnotations"), output);
     }
     if (firstAttribute != null) {
-      firstAttribute.putAttributes(parentClassWriter, output);
+      firstAttribute.putAttributes(symbolTable, output);
     }
   }
 }

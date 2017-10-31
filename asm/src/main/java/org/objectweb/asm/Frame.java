@@ -469,7 +469,7 @@ class Frame {
   /**
    * Sets this frame to the given value.
    *
-   * @param cw the ClassWriter to which this label belongs.
+   * @param symbolTable the type table to use to lookup and store stack frame types.
    * @param nLocal the number of local variables.
    * @param local the local variable types. Primitive types are represented by {@link Opcodes#TOP},
    *     {@link Opcodes#INTEGER}, {@link Opcodes#FLOAT}, {@link Opcodes#LONG}, {@link
@@ -481,12 +481,12 @@ class Frame {
    * @param stack the operand stack types (same format as the "local" array).
    */
   final void set(
-      ClassWriter cw,
+      SymbolTable symbolTable,
       final int nLocal,
       final Object[] local,
       final int nStack,
       final Object[] stack) {
-    int i = convert(cw, nLocal, local, inputLocals);
+    int i = convert(symbolTable, nLocal, local, inputLocals);
     while (i < local.length) {
       inputLocals[i++] = TOP;
     }
@@ -497,7 +497,7 @@ class Frame {
       }
     }
     inputStack = new int[nStack + nStackTop];
-    convert(cw, nStack, stack, inputStack);
+    convert(symbolTable, nStack, stack, inputStack);
     outputStackTop = 0;
     initializationCount = 0;
   }
@@ -505,7 +505,7 @@ class Frame {
   /**
    * Converts types from the MethodWriter.visitFrame() format to the Frame format.
    *
-   * @param cw the ClassWriter to which this label belongs.
+   * @param symbolTable the type table to use to lookup and store stack frame types.
    * @param nInput the number of types to convert.
    * @param input the types to convert. Primitive types are represented by {@link Opcodes#TOP},
    *     {@link Opcodes#INTEGER}, {@link Opcodes#FLOAT}, {@link Opcodes#LONG}, {@link
@@ -516,7 +516,7 @@ class Frame {
    * @param output where to store the converted types.
    * @return the number of output elements.
    */
-  private static int convert(ClassWriter cw, int nInput, Object[] input, int[] output) {
+  private static int convert(SymbolTable symbolTable, int nInput, Object[] input, int[] output) {
     int i = 0;
     for (int j = 0; j < nInput; ++j) {
       if (input[j] instanceof Integer) {
@@ -525,9 +525,10 @@ class Frame {
           output[i++] = TOP;
         }
       } else if (input[j] instanceof String) {
-        output[i++] = type(cw, Type.getObjectType((String) input[j]).getDescriptor());
+        output[i++] = type(symbolTable, Type.getObjectType((String) input[j]).getDescriptor());
       } else {
-        output[i++] = UNINITIALIZED | cw.addUninitializedType("", ((Label) input[j]).position);
+        output[i++] =
+            UNINITIALIZED | symbolTable.addUninitializedType("", ((Label) input[j]).position);
       }
     }
     return i;
@@ -621,12 +622,12 @@ class Frame {
   /**
    * Pushes a new type onto the output frame stack.
    *
-   * @param cw the ClassWriter to which this label belongs.
+   * @param symbolTable the type table to use to lookup and store stack frame types.
    * @param desc the descriptor of the type to be pushed. Can also be a method descriptor (in this
    *     case this method pushes its return type onto the output frame stack).
    */
-  private void push(final ClassWriter cw, final String desc) {
-    int type = type(cw, desc);
+  private void push(final SymbolTable symbolTable, final String desc) {
+    int type = type(symbolTable, desc);
     if (type != 0) {
       push(type);
       if (type == LONG || type == DOUBLE) {
@@ -638,11 +639,11 @@ class Frame {
   /**
    * Returns the int encoding of the given type.
    *
-   * @param cw the ClassWriter to which this label belongs.
+   * @param symbolTable the type table to use to lookup and store stack frame types.
    * @param desc a type descriptor.
    * @return the int encoding of the given type.
    */
-  static int type(final ClassWriter cw, final String desc) {
+  static int type(final SymbolTable symbolTable, final String desc) {
     String t;
     int index = desc.charAt(0) == '(' ? desc.indexOf(')') + 1 : 0;
     switch (desc.charAt(index)) {
@@ -663,7 +664,7 @@ class Frame {
       case 'L':
         // stores the internal name, not the descriptor!
         t = desc.substring(index + 1, desc.length() - 1);
-        return OBJECT | cw.addType(t);
+        return OBJECT | symbolTable.addType(t);
         // case '[':
       default:
         // extracts the dimensions and the element type
@@ -701,7 +702,7 @@ class Frame {
           default:
             // stores the internal name, not the descriptor
             t = desc.substring(dims + 1, desc.length() - 1);
-            data = OBJECT | cw.addType(t);
+            data = OBJECT | symbolTable.addType(t);
         }
         return (dims - index) << 28 | data;
     }
@@ -779,18 +780,18 @@ class Frame {
    * Replaces the given type with the appropriate type if it is one of the types on which a
    * constructor is invoked in the basic block.
    *
-   * @param cw the ClassWriter to which this label belongs.
+   * @param symbolTable the type table to use to lookup and store stack frame types.
    * @param t a type
    * @return t or, if t is one of the types on which a constructor is invoked in the basic block,
    *     the type corresponding to this constructor.
    */
-  private int init(final ClassWriter cw, final int t) {
+  private int init(final SymbolTable symbolTable, final int t) {
     int s;
     if (t == UNINITIALIZED_THIS) {
-      s = OBJECT | cw.addType(cw.thisName);
+      s = OBJECT | symbolTable.addType(symbolTable.className());
     } else if ((t & (DIM | BASE_KIND)) == UNINITIALIZED) {
-      String type = cw.typeTable[t & BASE_VALUE].strVal1;
-      s = OBJECT | cw.addType(type);
+      String type = symbolTable.getType(t & BASE_VALUE).value;
+      s = OBJECT | symbolTable.addType(type);
     } else {
       return t;
     }
@@ -813,25 +814,25 @@ class Frame {
   /**
    * Initializes the input frame of the first basic block from the method descriptor.
    *
-   * @param cw the ClassWriter to which this label belongs.
+   * @param symbolTable the type table to use to lookup and store stack frame types.
    * @param access the access flags of the method to which this label belongs.
    * @param args the formal parameter types of this method.
    * @param maxLocals the maximum number of local variables of this method.
    */
   final void initInputFrame(
-      final ClassWriter cw, final int access, final Type[] args, final int maxLocals) {
+      final SymbolTable symbolTable, final int access, final Type[] args, final int maxLocals) {
     inputLocals = new int[maxLocals];
     inputStack = new int[0];
     int i = 0;
     if ((access & Opcodes.ACC_STATIC) == 0) {
       if ((access & MethodWriter.ACC_CONSTRUCTOR) == 0) {
-        inputLocals[i++] = OBJECT | cw.addType(cw.thisName);
+        inputLocals[i++] = OBJECT | symbolTable.addType(symbolTable.className());
       } else {
         inputLocals[i++] = UNINITIALIZED_THIS;
       }
     }
     for (int j = 0; j < args.length; ++j) {
-      int t = type(cw, args[j].getDescriptor());
+      int t = type(symbolTable, args[j].getDescriptor());
       inputLocals[i++] = t;
       if (t == LONG || t == DOUBLE) {
         inputLocals[i++] = TOP;
@@ -847,10 +848,11 @@ class Frame {
    *
    * @param opcode the opcode of the instruction.
    * @param arg the operand of the instruction, if any.
-   * @param cw the class writer to which this label belongs.
+   * @param symbolTable the type table to use to lookup and store stack frame types.
    * @param item the operand of the instructions, if any.
    */
-  void execute(final int opcode, final int arg, final ClassWriter cw, final Item item) {
+  void execute(
+      final int opcode, final int arg, final SymbolTable symbolTable, final Symbol symbol) {
     int t1, t2, t3, t4;
     switch (opcode) {
       case Opcodes.NOP:
@@ -898,33 +900,34 @@ class Frame {
         push(TOP);
         break;
       case Opcodes.LDC:
-        switch (item.type) {
-          case ClassWriter.INT:
+        switch (symbol.tag) {
+          case Symbol.CONSTANT_INTEGER_TAG:
             push(INTEGER);
             break;
-          case ClassWriter.LONG:
+          case Symbol.CONSTANT_LONG_TAG:
             push(LONG);
             push(TOP);
             break;
-          case ClassWriter.FLOAT:
+          case Symbol.CONSTANT_FLOAT_TAG:
             push(FLOAT);
             break;
-          case ClassWriter.DOUBLE:
+          case Symbol.CONSTANT_DOUBLE_TAG:
             push(DOUBLE);
             push(TOP);
             break;
-          case ClassWriter.CLASS:
-            push(OBJECT | cw.addType("java/lang/Class"));
+          case Symbol.CONSTANT_CLASS_TAG:
+            push(OBJECT | symbolTable.addType("java/lang/Class"));
             break;
-          case ClassWriter.STR:
-            push(OBJECT | cw.addType("java/lang/String"));
+          case Symbol.CONSTANT_STRING_TAG:
+            push(OBJECT | symbolTable.addType("java/lang/String"));
             break;
-          case ClassWriter.MTYPE:
-            push(OBJECT | cw.addType("java/lang/invoke/MethodType"));
+          case Symbol.CONSTANT_METHOD_TYPE_TAG:
+            push(OBJECT | symbolTable.addType("java/lang/invoke/MethodType"));
             break;
-            // case ClassWriter.HANDLE_BASE + [1..9]:
+          case Symbol.CONSTANT_METHOD_HANDLE_TAG:
+            push(OBJECT | symbolTable.addType("java/lang/invoke/MethodHandle"));
           default:
-            push(OBJECT | cw.addType("java/lang/invoke/MethodHandle"));
+            throw new AssertionError();
         }
         break;
       case Opcodes.ALOAD:
@@ -1181,38 +1184,38 @@ class Frame {
       case Opcodes.RET:
         throw new RuntimeException("JSR/RET are not supported with computeFrames option");
       case Opcodes.GETSTATIC:
-        push(cw, item.strVal3);
+        push(symbolTable, symbol.value);
         break;
       case Opcodes.PUTSTATIC:
-        pop(item.strVal3);
+        pop(symbol.value);
         break;
       case Opcodes.GETFIELD:
         pop(1);
-        push(cw, item.strVal3);
+        push(symbolTable, symbol.value);
         break;
       case Opcodes.PUTFIELD:
-        pop(item.strVal3);
+        pop(symbol.value);
         pop();
         break;
       case Opcodes.INVOKEVIRTUAL:
       case Opcodes.INVOKESPECIAL:
       case Opcodes.INVOKESTATIC:
       case Opcodes.INVOKEINTERFACE:
-        pop(item.strVal3);
+        pop(symbol.value);
         if (opcode != Opcodes.INVOKESTATIC) {
           t1 = pop();
-          if (opcode == Opcodes.INVOKESPECIAL && item.strVal2.charAt(0) == '<') {
+          if (opcode == Opcodes.INVOKESPECIAL && symbol.name.charAt(0) == '<') {
             init(t1);
           }
         }
-        push(cw, item.strVal3);
+        push(symbolTable, symbol.value);
         break;
       case Opcodes.INVOKEDYNAMIC:
-        pop(item.strVal2);
-        push(cw, item.strVal2);
+        pop(symbol.value);
+        push(symbolTable, symbol.value);
         break;
       case Opcodes.NEW:
-        push(UNINITIALIZED | cw.addUninitializedType(item.strVal1, arg));
+        push(UNINITIALIZED | symbolTable.addUninitializedType(symbol.value, arg));
         break;
       case Opcodes.NEWARRAY:
         pop();
@@ -1238,35 +1241,37 @@ class Frame {
           case Opcodes.T_DOUBLE:
             push(ARRAY_OF | DOUBLE);
             break;
-            // case Opcodes.T_LONG:
-          default:
+          case Opcodes.T_LONG:
             push(ARRAY_OF | LONG);
             break;
+          default:
+            throw new AssertionError();
         }
         break;
       case Opcodes.ANEWARRAY:
-        String s = item.strVal1;
+        String s = symbol.value;
         pop();
         if (s.charAt(0) == '[') {
-          push(cw, '[' + s);
+          push(symbolTable, '[' + s);
         } else {
-          push(ARRAY_OF | OBJECT | cw.addType(s));
+          push(ARRAY_OF | OBJECT | symbolTable.addType(s));
         }
         break;
       case Opcodes.CHECKCAST:
-        s = item.strVal1;
+        s = symbol.value;
         pop();
         if (s.charAt(0) == '[') {
-          push(cw, s);
+          push(symbolTable, s);
         } else {
-          push(OBJECT | cw.addType(s));
+          push(OBJECT | symbolTable.addType(s));
         }
         break;
-        // case Opcodes.MULTIANEWARRAY:
-      default:
+      case Opcodes.MULTIANEWARRAY:
         pop(arg);
-        push(cw, item.strVal1);
+        push(symbolTable, symbol.value);
         break;
+      default:
+        throw new AssertionError();
     }
   }
 
@@ -1275,12 +1280,12 @@ class Frame {
    * block. Returns <tt>true</tt> if the input frame of the given label has been changed by this
    * operation.
    *
-   * @param cw the ClassWriter to which this label belongs.
+   * @param symbolTable the type table to use to lookup and store stack frame types.
    * @param frame the basic block whose input frame must be updated.
    * @param edge the kind of the {@link Edge} between this label and 'label'. See {@link Edge#info}.
    * @return <tt>true</tt> if the input frame of the given label has been changed by this operation.
    */
-  final boolean merge(final ClassWriter cw, final Frame frame, final int edge) {
+  final boolean merge(final SymbolTable symbolTable, final Frame frame, final int edge) {
     boolean changed = false;
     int i, s, dim, kind, t;
 
@@ -1316,21 +1321,21 @@ class Frame {
         t = inputLocals[i];
       }
       if (initializations != null) {
-        t = init(cw, t);
+        t = init(symbolTable, t);
       }
-      changed |= merge(cw, t, frame.inputLocals, i);
+      changed |= merge(symbolTable, t, frame.inputLocals, i);
     }
 
     if (edge > 0) {
       for (i = 0; i < nLocal; ++i) {
         t = inputLocals[i];
-        changed |= merge(cw, t, frame.inputLocals, i);
+        changed |= merge(symbolTable, t, frame.inputLocals, i);
       }
       if (frame.inputStack == null) {
         frame.inputStack = new int[1];
         changed = true;
       }
-      changed |= merge(cw, edge, frame.inputStack, 0);
+      changed |= merge(symbolTable, edge, frame.inputStack, 0);
       return changed;
     }
 
@@ -1343,9 +1348,9 @@ class Frame {
     for (i = 0; i < nInputStack; ++i) {
       t = inputStack[i];
       if (initializations != null) {
-        t = init(cw, t);
+        t = init(symbolTable, t);
       }
-      changed |= merge(cw, t, frame.inputStack, i);
+      changed |= merge(symbolTable, t, frame.inputStack, i);
     }
     for (i = 0; i < outputStackTop; ++i) {
       s = outputStack[i];
@@ -1364,9 +1369,9 @@ class Frame {
         }
       }
       if (initializations != null) {
-        t = init(cw, t);
+        t = init(symbolTable, t);
       }
-      changed |= merge(cw, t, frame.inputStack, nInputStack + i);
+      changed |= merge(symbolTable, t, frame.inputStack, nInputStack + i);
     }
     return changed;
   }
@@ -1375,13 +1380,14 @@ class Frame {
    * Merges the type at the given index in the given type array with the given type. Returns
    * <tt>true</tt> if the type array has been modified by this operation.
    *
-   * @param cw the ClassWriter to which this label belongs.
+   * @param symbolTable the type table to use to lookup and store stack frame types.
    * @param t the type with which the type array element must be merged.
    * @param types an array of types.
    * @param index the index of the type that must be merged in 'types'.
    * @return <tt>true</tt> if the type array has been modified by this operation.
    */
-  private static boolean merge(final ClassWriter cw, int t, final int[] types, final int index) {
+  private static boolean merge(
+      final SymbolTable symbolTable, int t, final int[] types, final int index) {
     int u = types[index];
     if (u == t) {
       // if the types are equal, merge(u,t)=u, so there is no change
@@ -1410,12 +1416,12 @@ class Frame {
           // if t is also a reference type, and if u and t have the
           // same dimension merge(u,t) = dim(t) | common parent of the
           // element types of u and t
-          v = (t & DIM) | OBJECT | cw.getMergedType(t & BASE_VALUE, u & BASE_VALUE);
+          v = (t & DIM) | OBJECT | symbolTable.addMergedType(t & BASE_VALUE, u & BASE_VALUE);
         } else {
           // if u and t are array types, but not with the same element
           // type, merge(u,t) = dim(u) - 1 | java/lang/Object
           int vdim = ELEMENT_OF + (u & DIM);
-          v = vdim | OBJECT | cw.addType("java/lang/Object");
+          v = vdim | OBJECT | symbolTable.addType("java/lang/Object");
         }
       } else if ((t & BASE_KIND) == OBJECT || (t & DIM) != 0) {
         // if t is any other reference or array type, the merged type
@@ -1424,7 +1430,7 @@ class Frame {
         // primitive element type (and similarly for tdim).
         int tdim = (((t & DIM) == 0 || (t & BASE_KIND) == OBJECT) ? 0 : ELEMENT_OF) + (t & DIM);
         int udim = (((u & DIM) == 0 || (u & BASE_KIND) == OBJECT) ? 0 : ELEMENT_OF) + (u & DIM);
-        v = Math.min(tdim, udim) | OBJECT | cw.addType("java/lang/Object");
+        v = Math.min(tdim, udim) | OBJECT | symbolTable.addType("java/lang/Object");
       } else {
         // if t is any other type, merge(u,t)=TOP
         v = TOP;

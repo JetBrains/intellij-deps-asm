@@ -30,10 +30,13 @@ package org.objectweb.asm;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.objectweb.asm.test.Assertions.assertThat;
 
 import java.io.IOException;
+import java.io.InputStream;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.objectweb.asm.test.AsmTest;
@@ -43,7 +46,57 @@ import org.objectweb.asm.test.AsmTest;
  *
  * @author Eric Bruneton
  */
-public class ClassReaderTest extends AsmTest {
+public class ClassReaderTest extends AsmTest implements Opcodes {
+
+  @Test
+  public void testIllegalConstructorArgument() {
+    assertThrows(IOException.class, () -> new ClassReader((InputStream) null));
+  }
+
+  @Test
+  public void testGetItem() throws IOException {
+    ClassReader classReader = new ClassReader(getClass().getName());
+    int item = classReader.getItem(1);
+    assertTrue(item >= 10);
+    assertTrue(item < classReader.header);
+  }
+
+  @Test
+  public void testReadByte() throws IOException {
+    ClassReader classReader = new ClassReader(getClass().getName());
+    assertEquals(classReader.b[0] & 0xFF, classReader.readByte(0));
+  }
+
+  @Test
+  public void testGetAccess() throws Exception {
+    String name = getClass().getName();
+    assertEquals(ACC_PUBLIC | ACC_SUPER, new ClassReader(name).getAccess());
+  }
+
+  @Test
+  public void testGetClassName() throws Exception {
+    String name = getClass().getName();
+    assertEquals(name.replace('.', '/'), new ClassReader(name).getClassName());
+  }
+
+  @Test
+  public void testGetSuperName() throws Exception {
+    assertEquals(
+        AsmTest.class.getName().replace('.', '/'),
+        new ClassReader(getClass().getName()).getSuperName());
+    assertEquals(null, new ClassReader(Object.class.getName()).getSuperName());
+  }
+
+  @Test
+  public void testGetInterfaces() throws Exception {
+    String[] interfaces = new ClassReader(getClass().getName()).getInterfaces();
+    assertNotNull(interfaces);
+    assertEquals(1, interfaces.length);
+    assertEquals(Opcodes.class.getName().replace('.', '/'), interfaces[0]);
+
+    interfaces = new ClassReader(Opcodes.class.getName()).getInterfaces();
+    assertNotNull(interfaces);
+  }
 
   /** Tests {@link ClassReader(byte[])] and the basic ClassReader accessors. */
   @ParameterizedTest

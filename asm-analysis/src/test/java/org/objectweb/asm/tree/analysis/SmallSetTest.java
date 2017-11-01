@@ -25,24 +25,42 @@
 // CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
 // THE POSSIBILITY OF SUCH DAMAGE.
-package org.objectweb.asm.util;
+package org.objectweb.asm.tree.analysis;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import java.util.Set;
 
 import org.junit.jupiter.api.Test;
 
 /**
- * ASMifierClassVisitor unit tests
+ * SmallSet unit tests.
  *
  * @author Eric Bruneton
  */
-public class ASMifierUnitTest {
+public class SmallSetTest {
+
+  private final Object A = new Object();
+  private final Object B = new Object();
+  private final Object C = new Object();
+  private final Object D = new Object();
 
   @Test
-  public void testASMifierClassVisitor() throws Exception {
-    String s = getClass().getName();
-    ASMifier.main(new String[0]);
-    ASMifier.main(new String[] {"-debug"});
-    ASMifier.main(new String[] {s});
-    ASMifier.main(new String[] {"-debug", s});
-    ASMifier.main(new String[] {"java.lang.Object"});
+  public void testSubsetUnion() {
+    SmallSet<Object> s1 = new SmallSet<Object>(A, B);
+    SmallSet<Object> s2 = new SmallSet<Object>(A, null);
+    Set<Object> u = s1.union(s2);
+    Set<Object> v = s2.union(s1);
+    assertEquals(u, v);
+    s1.remove();
+  }
+
+  @Test
+  public void testDisjointUnion() {
+    SmallSet<Object> s1 = new SmallSet<Object>(A, B);
+    SmallSet<Object> s2 = new SmallSet<Object>(C, D);
+    Set<Object> u = s1.union(s2);
+    Set<Object> v = s2.union(s1);
+    assertEquals(u, v);
   }
 }

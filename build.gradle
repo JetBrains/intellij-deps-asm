@@ -181,6 +181,8 @@ subprojects {
     depends.each { artifactName -> compile artifactName }
     testCompile 'org.junit.jupiter:junit-jupiter-api:5.0.1', 
         'org.junit.jupiter:junit-jupiter-params:5.0.1', project(':asm-test')
+    // Workaround for https://github.com/junit-team/junit5-samples/issues/45
+    testCompileOnly 'org.apiguardian:apiguardian-api:1.0.0'
   	testRuntime 'org.junit.jupiter:junit-jupiter-engine:5.0.1'
   }
 }

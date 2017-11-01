@@ -28,7 +28,9 @@
 package org.objectweb.asm.util;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.objectweb.asm.ClassReader;
@@ -36,6 +38,7 @@ import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.signature.SignatureReader;
+import org.objectweb.asm.signature.SignatureVisitor;
 import org.objectweb.asm.signature.SignatureWriter;
 import org.objectweb.asm.test.AsmTest;
 
@@ -45,6 +48,122 @@ import org.objectweb.asm.test.AsmTest;
  * @author Eric Bruneton
  */
 public class CheckSignatureAdapterTest extends AsmTest {
+
+  private SignatureVisitor sv;
+
+  @Test
+  public void testNonJavaIdentifier() {
+    setup(CheckSignatureAdapter.CLASS_SIGNATURE);
+    sv.visitSuperclass().visitClassType("Foo Bar");
+  }
+
+  @Test
+  public void testIllegalFormalTypeParam() {
+    setup(CheckSignatureAdapter.TYPE_SIGNATURE);
+    assertThrows(Exception.class, () -> sv.visitFormalTypeParameter("T"));
+  }
+
+  @Test
+  public void testIllegalClassBound() {
+    setup(CheckSignatureAdapter.CLASS_SIGNATURE);
+    assertThrows(Exception.class, () -> sv.visitClassBound());
+  }
+
+  @Test
+  public void testIllegalInterfaceBound() {
+    setup(CheckSignatureAdapter.CLASS_SIGNATURE);
+    assertThrows(Exception.class, () -> sv.visitInterfaceBound());
+  }
+
+  @Test
+  public void testIllegalSuperclass() {
+    setup(CheckSignatureAdapter.METHOD_SIGNATURE);
+    assertThrows(Exception.class, () -> sv.visitSuperclass());
+  }
+
+  @Test
+  public void testIllegalInterface() {
+    setup(CheckSignatureAdapter.CLASS_SIGNATURE);
+    assertThrows(Exception.class, () -> sv.visitInterface());
+  }
+
+  @Test
+  public void testIllegalParameterType() {
+    setup(CheckSignatureAdapter.CLASS_SIGNATURE);
+    assertThrows(Exception.class, () -> sv.visitParameterType());
+  }
+
+  @Test
+  public void testIllegalReturnType() {
+    setup(CheckSignatureAdapter.METHOD_SIGNATURE);
+    sv.visitReturnType();
+    assertThrows(Exception.class, () -> sv.visitReturnType());
+  }
+
+  @Test
+  public void testIllegalExceptionType() {
+    setup(CheckSignatureAdapter.METHOD_SIGNATURE);
+    assertThrows(Exception.class, () -> sv.visitExceptionType());
+  }
+
+  @Test
+  public void testIllegalBaseType() {
+    setup(CheckSignatureAdapter.TYPE_SIGNATURE);
+    sv.visitBaseType('I');
+    assertThrows(Exception.class, () -> sv.visitBaseType('I'));
+    setup(CheckSignatureAdapter.TYPE_SIGNATURE);
+    assertThrows(Exception.class, () -> sv.visitBaseType('V'));
+    setup(CheckSignatureAdapter.TYPE_SIGNATURE);
+    assertThrows(Exception.class, () -> sv.visitBaseType('A'));
+  }
+
+  @Test
+  public void testIllegalTypeVariable() {
+    setup(CheckSignatureAdapter.TYPE_SIGNATURE);
+    sv.visitTypeVariable("T");
+    assertThrows(Exception.class, () -> sv.visitTypeVariable("T"));
+  }
+
+  @Test
+  public void testIllegalArrayType() {
+    setup(CheckSignatureAdapter.TYPE_SIGNATURE);
+    sv.visitArrayType();
+    assertThrows(Exception.class, () -> sv.visitArrayType());
+  }
+
+  @Test
+  public void testIllegalClassType() {
+    setup(CheckSignatureAdapter.TYPE_SIGNATURE);
+    sv.visitClassType("A");
+    assertThrows(Exception.class, () -> sv.visitClassType("A"));
+  }
+
+  @Test
+  public void testIllegalInnerClassType() {
+    setup(CheckSignatureAdapter.TYPE_SIGNATURE);
+    assertThrows(Exception.class, () -> sv.visitInnerClassType("A"));
+  }
+
+  @Test
+  public void testIllegalTypeArgument() {
+    setup(CheckSignatureAdapter.TYPE_SIGNATURE);
+    assertThrows(Exception.class, () -> sv.visitTypeArgument());
+    setup(CheckSignatureAdapter.TYPE_SIGNATURE);
+    assertThrows(Exception.class, () -> sv.visitTypeArgument('+'));
+    setup(CheckSignatureAdapter.TYPE_SIGNATURE);
+    sv.visitClassType("A");
+    assertThrows(Exception.class, () -> sv.visitTypeArgument('*'));
+  }
+
+  @Test
+  public void testIllegalEnd() {
+    setup(CheckSignatureAdapter.TYPE_SIGNATURE);
+    assertThrows(Exception.class, () -> sv.visitEnd());
+  }
+
+  private void setup(int type) {
+    sv = new CheckSignatureAdapter(type, null);
+  }
 
   /**
    * Tests that signatures are unchanged with a

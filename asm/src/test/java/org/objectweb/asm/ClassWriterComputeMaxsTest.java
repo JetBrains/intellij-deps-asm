@@ -25,27 +25,28 @@
 // CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
 // THE POSSIBILITY OF SUCH DAMAGE.
-package org.objectweb.asm.tree.analysis;
+package org.objectweb.asm;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
 
+import java.io.ByteArrayInputStream;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
+import java.util.StringTokenizer;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.objectweb.asm.ClassReader;
-import org.objectweb.asm.ClassVisitor;
-import org.objectweb.asm.ClassWriter;
-import org.objectweb.asm.Label;
-import org.objectweb.asm.MethodVisitor;
-import org.objectweb.asm.Opcodes;
-import org.objectweb.asm.tree.MethodNode;
 
 /**
- * Analyzer unit tests for methods with JSR instructions.
+ * ClassWriter unit tests for COMPUTE_MAXS option with JSR instructions.
  *
  * @author Eric Bruneton
  */
-public class AnalyzerUnitTest {
+public class ClassWriterComputeMaxsTest {
 
   protected ClassWriter cw;
 
@@ -55,7 +56,7 @@ public class AnalyzerUnitTest {
 
   @BeforeEach
   public void setUp() throws Exception {
-    cw = new ClassWriter(0);
+    cw = new ClassWriter(isComputeMaxs() ? ClassWriter.COMPUTE_MAXS : 0);
     cw.visit(Opcodes.V1_1, Opcodes.ACC_PUBLIC, "C", null, "java/lang/Object", null);
     mv = cw.visitMethod(Opcodes.ACC_PUBLIC, "<init>", "()V", null, null);
     mv.visitCode();
@@ -68,6 +69,10 @@ public class AnalyzerUnitTest {
     mv.visitCode();
     start = new Label();
     LABEL(start);
+  }
+
+  protected boolean isComputeMaxs() {
+    return true;
   }
 
   private void NOP() {
@@ -142,6 +147,83 @@ public class AnalyzerUnitTest {
     mv.visitTryCatchBlock(start, end, handler, null);
   }
 
+  protected void assertMaxs(final int maxStack, final int maxLocals) {
+    mv.visitMaxs(0, 0);
+    mv.visitEnd();
+    cw.visitEnd();
+    byte[] b = cw.toByteArray();
+    ClassReader cr = new ClassReader(b);
+    cr.accept(
+        new ClassVisitor(Opcodes.ASM5) {
+          @Override
+          public MethodVisitor visitMethod(
+              final int access,
+              final String name,
+              final String desc,
+              final String signature,
+              final String[] exceptions) {
+            if (name.equals("m")) {
+              return new MethodVisitor(Opcodes.ASM5) {
+                @Override
+                public void visitMaxs(final int realMaxStack, final int realMaxLocals) {
+                  assertEquals(maxStack, realMaxStack, "maxStack");
+                  assertEquals(maxLocals, realMaxLocals, "maxLocals");
+                }
+              };
+            } else {
+              return null;
+            }
+          }
+        },
+        0);
+
+    try {
+      TestClassLoader loader = new TestClassLoader();
+      Class<?> c = loader.defineClass("C", b);
+      c.newInstance();
+    } catch (Throwable t) {
+      fail(t.getMessage());
+    }
+  }
+
+  protected void assertGraph(final String graph) {
+    Map<String, Set<String>> expected = new HashMap<String, Set<String>>();
+    Properties p = new Properties();
+    try {
+      p.load(new ByteArrayInputStream(graph.getBytes()));
+    } catch (Exception e) {
+      fail(e.getMessage());
+    }
+    Iterator<Map.Entry<Object, Object>> i = p.entrySet().iterator();
+    while (i.hasNext()) {
+      Map.Entry<Object, Object> entry = i.next();
+      String key = (String) entry.getKey();
+      String value = (String) entry.getValue();
+      StringTokenizer st = new StringTokenizer(value, ",");
+      Set<String> s = new HashSet<String>();
+      while (st.hasMoreTokens()) {
+        s.add(st.nextToken());
+      }
+      expected.put(key, s);
+    }
+
+    Map<String, Set<String>> actual = new HashMap<String, Set<String>>();
+    Label l = start;
+    while (l != null) {
+      String key = "N" + l.getOffset();
+      Set<String> value = new HashSet<String>();
+      Edge e = l.outgoingEdges;
+      while (e != null) {
+        value.add("N" + e.successor.getOffset());
+        e = e.nextEdge;
+      }
+      actual.put(key, value);
+      l = l.successor;
+    }
+
+    assertEquals(expected, actual);
+  }
+
   protected static class TestClassLoader extends ClassLoader {
 
     public TestClassLoader() {}
@@ -208,6 +290,15 @@ public class AnalyzerUnitTest {
     TRYCATCH(L1, L4, L2);
 
     assertMaxs(4, 4);
+    assertGraph(
+        "N0=N2\n"
+            + "N2=N22,N8\n"
+            + "N8=N14,N12\n"
+            + "N12=\n"
+            + "N14=N12,N25\n"
+            + "N22=N14,N25,N8\n"
+            + "N25=N27,N8\n"
+            + "N27=\n");
   }
 
   /**
@@ -280,6 +371,16 @@ public class AnalyzerUnitTest {
     TRYCATCH(L1, L6, L2);
 
     assertMaxs(5, 4);
+    assertGraph(
+        "N0=N2\n"
+            + "N2=N34,N8\n"
+            + "N8=N16,N12\n"
+            + "N12=\n"
+            + "N16=N29,N32\n"
+            + "N29=N32\n"
+            + "N32=N37,N12\n"
+            + "N34=N16,N37,N8\n"
+            + "N37=\n");
   }
 
   /**
@@ -357,6 +458,18 @@ public class AnalyzerUnitTest {
     TRYCATCH(L3, L5, L5);
 
     assertMaxs(5, 6);
+    assertGraph(
+        "N0=N2\n"
+            + "N2=N11,N19,N8\n"
+            + "N8=N11,N46\n"
+            + "N11=N19,N16\n"
+            + "N16=\n"
+            + "N19=N26,N30,N38\n"
+            + "N26=N16,N30,N8\n"
+            + "N30=N38,N35\n"
+            + "N35=\n"
+            + "N38=N26,N35\n"
+            + "N46=\n");
   }
 
   /**
@@ -423,6 +536,15 @@ public class AnalyzerUnitTest {
     TRYCATCH(L0, L3, L3);
 
     assertMaxs(1, 4);
+    assertGraph(
+        "N0=N2\n"
+            + "N2=N11,N19,N8\n"
+            + "N8=N11,N26\n"
+            + "N11=N19,N15\n"
+            + "N15=\n"
+            + "N19=N29\n"
+            + "N26=N2\n"
+            + "N29=\n");
   }
 
   /**
@@ -453,6 +575,7 @@ public class AnalyzerUnitTest {
     mv.visitLocalVariable("i", "I", null, L0, L1, 1);
 
     assertMaxs(2, 2);
+    assertGraph("N0=N4,N5\n" + "N4=N5\n" + "N5=\n" + "N8=\n");
   }
 
   /**
@@ -526,6 +649,16 @@ public class AnalyzerUnitTest {
     TRYCATCH(L0, L3, L3);
 
     assertMaxs(1, 4);
+    assertGraph(
+        "N0=N2\n"
+            + "N2=N6,N33\n"
+            + "N6=N23,N12,N15\n"
+            + "N12=N30,N15\n"
+            + "N15=N23,N19\n"
+            + "N19=\n"
+            + "N23=N33\n"
+            + "N30=N6\n"
+            + "N33=\n");
   }
 
   /**
@@ -629,6 +762,20 @@ public class AnalyzerUnitTest {
     TRYCATCH(L, C2, C2);
 
     assertMaxs(5, 6);
+    assertGraph(
+        "N0=N2\n"
+            + "N2=N6,N5,N14\n"
+            + "N5=N6\n"
+            + "N6=N14,N10\n"
+            + "N10=\n"
+            + "N14=N41\n"
+            + "N21=N24,N25,N33\n"
+            + "N24=N25\n"
+            + "N25=N31,N33\n"
+            + "N31=\n"
+            + "N33=N31,N45,N24\n"
+            + "N41=N45,N21\n"
+            + "N45=N5,N10\n");
   }
 
   @Test
@@ -657,6 +804,8 @@ public class AnalyzerUnitTest {
     RET(2);
 
     assertMaxs(1, 4);
+    assertGraph(
+        "N0=N6,N5\n" + "N5=\n" + "N6=N10,N13\n" + "N10=N20\n" + "N13=N20,N10\n" + "N20=N5\n");
   }
 
   /**
@@ -702,6 +851,7 @@ public class AnalyzerUnitTest {
     RETURN();
 
     assertMaxs(4, 3);
+    assertGraph("N0=N5,N8\n" + "N5=N15\n" + "N8=N21\n" + "N15=N28\n" + "N21=N5\n" + "N28=\n");
   }
 
   /**
@@ -813,58 +963,20 @@ public class AnalyzerUnitTest {
     TRYCATCH(T1, OC, OC);
 
     assertMaxs(4, 6);
-  }
-
-  protected void assertMaxs(final int maxStack, final int maxLocals) {
-    mv.visitMaxs(maxStack, maxLocals);
-    mv.visitEnd();
-    cw.visitEnd();
-    byte[] b = cw.toByteArray();
-    ClassReader cr = new ClassReader(b);
-    cr.accept(
-        new ClassVisitor(Opcodes.ASM5) {
-          @Override
-          public MethodVisitor visitMethod(
-              final int access,
-              final String name,
-              final String desc,
-              final String signature,
-              final String[] exceptions) {
-            if (name.equals("m")) {
-              return new MethodNode(Opcodes.ASM5, access, name, desc, signature, exceptions) {
-                @Override
-                public void visitEnd() {
-                  Analyzer<BasicValue> a = new Analyzer<BasicValue>(new BasicInterpreter());
-                  try {
-                    Frame<BasicValue>[] frames = a.analyze("C", this);
-                    int mStack = 0;
-                    int mLocals = 0;
-                    for (int i = 0; i < frames.length; ++i) {
-                      if (frames[i] != null) {
-                        mStack = Math.max(mStack, frames[i].getStackSize());
-                        mLocals = Math.max(mLocals, frames[i].getLocals());
-                      }
-                    }
-                    assertEquals(maxStack, mStack, "maxStack");
-                    assertEquals(maxLocals, mLocals, "maxLocals");
-                  } catch (Exception e) {
-                    fail(e.getMessage());
-                  }
-                }
-              };
-            } else {
-              return null;
-            }
-          }
-        },
-        0);
-
-    try {
-      TestClassLoader loader = new TestClassLoader();
-      Class<?> c = loader.defineClass("C", b);
-      c.newInstance();
-    } catch (Throwable t) {
-      fail(t.getMessage());
-    }
+    assertGraph(
+        "N0=N2\n"
+            + "N2=N6,N45,N5,N12\n"
+            + "N5=N6,N45\n"
+            + "N6=N45,N12,N10\n"
+            + "N10=N45\n"
+            + "N12=N39,N45\n"
+            + "N17=N23,N45,N20,N29\n"
+            + "N20=N23,N45\n"
+            + "N23=N45,N27,N29\n"
+            + "N27=N45\n"
+            + "N29=N43,N45,N20,N27\n"
+            + "N39=N43,N45,N17\n"
+            + "N43=N45,N5,N10\n"
+            + "N45=\n");
   }
 }

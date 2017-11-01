@@ -49,7 +49,7 @@ import org.objectweb.asm.Opcodes;
  * @author Eric Bruneton
  * @author Eugene Kuleshov
  */
-public class InsnListUnitTest {
+public class InsnListTest {
 
   InsnList l1;
 

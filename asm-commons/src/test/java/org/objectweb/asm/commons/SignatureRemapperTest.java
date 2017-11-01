@@ -25,31 +25,44 @@
 // CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
 // THE POSSIBILITY OF SUCH DAMAGE.
-package org.objectweb.asm.tree.analysis;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
+package org.objectweb.asm.commons;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.junit.jupiter.api.Test;
 
-/**
- * BasicValue and SourceValue unit tests.
- *
- * @author Eric Bruneton
- */
-public class ValueUnitTest {
+public class SignatureRemapperTest {
 
   @Test
-  public void testBasicValue() {
-    assertFalse(BasicValue.INT_VALUE.equals(new Object()));
-    BasicValue.INT_VALUE.hashCode();
-    BasicValue.UNINITIALIZED_VALUE.toString();
-    BasicValue.RETURNADDRESS_VALUE.toString();
-    BasicValue.REFERENCE_VALUE.toString();
+  public void testRemappingParentOnlyNestedClassExtends() {
+    Remapper remapper = new SimpleRemapper(Collections.singletonMap("Outer", "RenamedOuter"));
+    assertEquals(
+        "LRenamedOuter<Ljava/lang/Object;>.Inner;",
+        remapper.mapSignature("LOuter<Ljava/lang/Object;>.Inner;", false));
   }
 
   @Test
-  public void testSourceValue() {
-    new SourceValue(1).hashCode();
-    assertFalse(new SourceValue(1).equals(null));
+  public void testRemappingChildOnlyNestedClassExtends() {
+    Remapper remapper =
+        new SimpleRemapper(Collections.singletonMap("Outer$Inner", "Outer$RenamedInner"));
+    assertEquals(
+        "LOuter<Ljava/lang/Object;>.RenamedInner;",
+        remapper.mapSignature("LOuter<Ljava/lang/Object;>.Inner;", false));
+  }
+
+  @Test
+  public void testRemappingBothParentAndChildNestedClassExtends() {
+    Map<String, String> mapping = new HashMap<String, String>();
+    mapping.put("Outer", "RenamedOuter");
+    mapping.put("Outer$Inner", "RenamedOuter$RenamedInner");
+    Remapper remapper = new SimpleRemapper(mapping);
+    assertEquals(
+        "LRenamedOuter<Ljava/lang/Object;>.RenamedInner;",
+        remapper.mapSignature("LOuter<Ljava/lang/Object;>.Inner;", false));
   }
 }

@@ -32,6 +32,7 @@ import static org.objectweb.asm.test.Assertions.assertThat;
 
 import java.util.HashSet;
 import java.util.Random;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.objectweb.asm.test.AsmTest;
@@ -42,6 +43,29 @@ import org.objectweb.asm.test.AsmTest;
  * @author Eric Bruneton
  */
 public class ClassWriterTest extends AsmTest {
+
+  @Test
+  public void testNewConst() {
+    ClassWriter cw = new ClassWriter(0);
+    cw.newConst(new Byte((byte) 0));
+    cw.newConst(new Character('0'));
+    cw.newConst(new Short((short) 0));
+    cw.newConst(Boolean.FALSE);
+    cw.newField("A", "f", "I");
+    cw.newMethod("A", "m", "()V", false);
+  }
+
+  @Test
+  public void testIllegalNewConstArgument() {
+    ClassWriter cw = new ClassWriter(0);
+    assertThrows(RuntimeException.class, () -> cw.newConst(new Object()));
+  }
+
+  @Test
+  public void testIllegalGetCommonSuperClassArguments() {
+    ClassWriter cw = new ClassWriter(0);
+    assertThrows(RuntimeException.class, () -> cw.getCommonSuperClass("-", "-"));
+  }
 
   /** Tests that a ClassReader -> ClassWriter transform leaves classes unchanged. */
   @ParameterizedTest

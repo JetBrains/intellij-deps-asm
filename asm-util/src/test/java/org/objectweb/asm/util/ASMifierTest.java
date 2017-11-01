@@ -27,6 +27,8 @@
 // THE POSSIBILITY OF SUCH DAMAGE.
 package org.objectweb.asm.util;
 
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.io.StringReader;
 import java.io.StringWriter;
@@ -39,6 +41,7 @@ import org.codehaus.janino.IClassLoader;
 import org.codehaus.janino.Parser;
 import org.codehaus.janino.Scanner;
 import org.codehaus.janino.UnitCompiler;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.objectweb.asm.Attribute;
@@ -55,6 +58,25 @@ public class ASMifierTest extends AsmTest {
 
   private static final IClassLoader ICLASS_LOADER =
       new ClassLoaderIClassLoader(new URLClassLoader(new URL[0]));
+
+  @Test
+  public void testASMifierClassVisitor() throws Exception {
+    PrintStream err = System.err;
+    PrintStream out = System.out;
+    System.setErr(new PrintStream(new ByteArrayOutputStream()));
+    System.setOut(new PrintStream(new ByteArrayOutputStream()));
+    try {
+      String s = getClass().getName();
+      ASMifier.main(new String[0]);
+      ASMifier.main(new String[] {"-debug"});
+      ASMifier.main(new String[] {s});
+      ASMifier.main(new String[] {"-debug", s});
+      ASMifier.main(new String[] {"java.lang.Object"});
+    } finally {
+      System.setErr(err);
+      System.setOut(out);
+    }
+  }
 
   /**
    * Tests that the code produced with an ASMifier compiles and generates the original class.

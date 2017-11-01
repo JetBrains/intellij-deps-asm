@@ -27,8 +27,12 @@
 // THE POSSIBILITY OF SUCH DAMAGE.
 package org.objectweb.asm.util;
 
+import java.io.ByteArrayOutputStream;
 import java.io.CharArrayWriter;
+import java.io.PrintStream;
 import java.io.PrintWriter;
+
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.objectweb.asm.Attribute;
@@ -43,6 +47,32 @@ import org.objectweb.asm.test.AsmTest;
  * @author Eric Bruneton
  */
 public class TraceClassAdapterTest extends AsmTest {
+
+  @Test
+  public void testTraceClassVisitor() throws Exception {
+    PrintStream err = System.err;
+    PrintStream out = System.out;
+    System.setErr(new PrintStream(new ByteArrayOutputStream()));
+    System.setOut(new PrintStream(new ByteArrayOutputStream()));
+    try {
+      String s = getClass().getName();
+      Textifier.main(new String[0]);
+      Textifier.main(new String[] {"-debug"});
+      Textifier.main(new String[] {s});
+      Textifier.main(new String[] {"-debug", s});
+      if (System.getProperty("java.version").startsWith("1.8")) {
+        Textifier.main(new String[] {"-debug", "java.util.function.Predicate"});
+        Textifier.main(
+            new String[] {
+              "-debug", "java.util.stream.StreamSpliterators$DoubleWrappingSpliterator"
+            });
+      }
+      Textifier.main(new String[] {"java.lang.Object"});
+    } finally {
+      System.setErr(err);
+      System.setOut(out);
+    }
+  }
 
   /**
    * Tests that classes are unchanged with a ClassReader->TraceClassAdapter->ClassWriter transform.

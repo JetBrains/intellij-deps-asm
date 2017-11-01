@@ -425,12 +425,11 @@ public class CheckMethodAdapter extends MethodVisitor {
                 throw new RuntimeException(
                     "Data flow checking option requires valid, non zero maxLocals and maxStack values.");
               }
-              e.printStackTrace();
               StringWriter sw = new StringWriter();
               PrintWriter pw = new PrintWriter(sw, true);
               CheckClassAdapter.printAnalyzerResult(this, a, pw);
               pw.close();
-              throw new RuntimeException(e.getMessage() + ' ' + sw.toString());
+              throw new RuntimeException(e.getMessage() + ' ' + sw.toString(), e);
             }
             accept(cmv);
           }

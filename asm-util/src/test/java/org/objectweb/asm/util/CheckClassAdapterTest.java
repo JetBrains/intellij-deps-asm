@@ -27,15 +27,16 @@
 // THE POSSIBILITY OF SUCH DAMAGE.
 package org.objectweb.asm.util;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.util.Collection;
-import org.junit.Test;
-import org.junit.runners.Parameterized.Parameters;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.objectweb.asm.Attribute;
 import org.objectweb.asm.ClassReader;
+import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.test.AsmTest;
 
@@ -46,31 +47,29 @@ import org.objectweb.asm.test.AsmTest;
  */
 public class CheckClassAdapterTest extends AsmTest {
 
-  /** @return test parameters to test all the precompiled classes with all the apis. */
-  @Parameters(name = NAME)
-  public static Collection<Object[]> data() {
-    return data(Api.ASM4, Api.ASM5, Api.ASM6);
-  }
-
   /**
    * Tests that classes are unchanged with a ClassReader->CheckClassAdapter->ClassWriter transform.
    */
-  @Test
-  public void testCheckClassAdapter_classUnchanged() {
+  @ParameterizedTest
+  @MethodSource(ALL_CLASSES_AND_ALL_APIS)
+  public void testCheckClassAdapter_classUnchanged(
+      PrecompiledClass classParameter, Api apiParameter) {
     byte[] classFile = classParameter.getBytes();
     ClassReader classReader = new ClassReader(classFile);
     ClassWriter classWriter = new ClassWriter(0);
+    ClassVisitor classVisitor = new CheckClassAdapter(apiParameter.value(), classWriter, false);
     if (classParameter.isMoreRecentThan(apiParameter)) {
-      thrown.expect(RuntimeException.class);
+      assertThrows(RuntimeException.class, () -> classReader.accept(classVisitor, attributes(), 0));
+      return;
     }
-    classReader.accept(
-        new CheckClassAdapter(apiParameter.value(), classWriter, false), attributes(), 0);
+    classReader.accept(classVisitor, attributes(), 0);
     assertThatClass(classWriter.toByteArray()).isEqualTo(classFile);
   }
 
   /** Tests that {@link CheckClassAdapter.verify()} succeeds on all precompiled classes. */
-  @Test
-  public void testCheckClassAdapter_verify() {
+  @ParameterizedTest
+  @MethodSource(ALL_CLASSES_AND_ALL_APIS)
+  public void testCheckClassAdapter_verify(PrecompiledClass classParameter, Api apiParameter) {
     ClassReader classReader = new ClassReader(classParameter.getBytes());
     StringWriter stringWriter = new StringWriter();
     PrintWriter printWriter = new PrintWriter(stringWriter);

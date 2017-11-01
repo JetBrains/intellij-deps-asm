@@ -27,54 +27,47 @@
 // THE POSSIBILITY OF SUCH DAMAGE.
 package org.objectweb.asm.test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.fail;
+import static org.objectweb.asm.test.Assertions.assertThat;
 
-import java.util.Collection;
-
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
-import org.junit.runners.Parameterized.Parameters;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 
 /**
  * Unit tests for {@link AsmTest}.
  *
  * @author Eric Bruneton
  */
-@RunWith(Parameterized.class)
 public class AsmTestTest extends AsmTest {
 
-  /** @return test parameters to test all the precompiled classes with the ASM6 API. */
-  @Parameters(name = NAME)
-  public static Collection<Object[]> data() {
-    return data(Api.ASM6);
-  }
-
   /** Tests that we can get the byte array content of each precompiled class. */
-  @Test
-  public void testGetBytes() {
+  @ParameterizedTest
+  @MethodSource(ALL_CLASSES_AND_LATEST_API)
+  public void testGetBytes(PrecompiledClass classParameter, Api apiParameter) {
     assertEquals(Api.ASM6, apiParameter);
     assertEquals("ASM6", apiParameter.toString());
     assertThatClass(classParameter.getBytes()).contains(classParameter.getInternalName());
   }
 
   /** Tests that we can load (and instantiate) each (non-abstract) precompiled class. */
-  @Test
-  public void testLoadAndInstantiate() {
-    if (classParameter.isMoreRecentThanCurrentJdk()) {
-      thrown.expect(UnsupportedClassVersionError.class);
-    }
-    assertTrue(loadAndInstantiate(classParameter.getName(), classParameter.getBytes()));
+  @ParameterizedTest
+  @MethodSource(ALL_CLASSES_AND_LATEST_API)
+  public void testLoadAndInstantiate(PrecompiledClass classParameter, Api apiParameter) {
+    assertThat(() -> loadAndInstantiate(classParameter.getName(), classParameter.getBytes()))
+        .succeedsOrThrows(UnsupportedClassVersionError.class)
+        .when(classParameter.isMoreRecentThanCurrentJdk());
   }
 
   /**
    * Tests that {@link #loadAndInstantiate(String, byte[])} fails when trying to load a class which
    * is not well formed.
    */
-  @Test
-  public void testLoadAndInstantiate_invalidClass() {
+  @ParameterizedTest
+  @MethodSource(ALL_CLASSES_AND_LATEST_API)
+  public void testLoadAndInstantiate_invalidClass(
+      PrecompiledClass classParameter, Api apiParameter) {
     byte[] classContent = classParameter.getBytes();
     switch (classParameter) {
       case DEFAULT_PACKAGE:
@@ -97,20 +90,22 @@ public class AsmTestTest extends AsmTest {
       case JDK8_ALL_INSTRUCTIONS:
       case JDK8_LARGE_METHOD:
         removeAttributes(classContent, "Code");
-        thrown.expect(AssertionError.class);
+        assertThrows(
+            AssertionError.class, () -> loadAndInstantiate(classParameter.getName(), classContent));
         break;
       default:
         fail("Unknown precompiled class");
     }
-    loadAndInstantiate(classParameter.getName(), classContent);
   }
 
   /**
    * Tests that {@link #doLoadAndInstantiate(String, byte[])} fails when trying to load an invalid
    * or unverifiable class.
    */
-  @Test
-  public void testDoLoadAndInstantiate_invalidClass() {
+  @ParameterizedTest
+  @MethodSource(ALL_CLASSES_AND_LATEST_API)
+  public void testDoLoadAndInstantiate_invalidClass(
+      PrecompiledClass classParameter, Api apiParameter) {
     if (classParameter.isMoreRecentThanCurrentJdk()) {
       return;
     }
@@ -120,6 +115,7 @@ public class AsmTestTest extends AsmTest {
       case JDK3_ATTRIBUTE:
       case JDK5_ANNOTATION:
       case JDK9_MODULE:
+        doLoadAndInstantiate(classParameter.getName(), classContent);
         break;
       case JDK3_ALL_INSTRUCTIONS:
       case JDK3_ALL_STRUCTURES:
@@ -133,18 +129,20 @@ public class AsmTestTest extends AsmTest {
       case JDK8_ANONYMOUS_INNER_CLASS:
       case JDK8_INNER_CLASS:
         removeAttributes(classContent, "Code");
-        thrown.expect(ClassFormatError.class);
+        assertThrows(
+            ClassFormatError.class,
+            () -> doLoadAndInstantiate(classParameter.getName(), classContent));
         break;
       case JDK8_ALL_FRAMES:
       case JDK8_ALL_INSTRUCTIONS:
       case JDK8_LARGE_METHOD:
         removeAttributes(classContent, "StackMapTable");
-        thrown.expect(VerifyError.class);
+        assertThrows(
+            VerifyError.class, () -> doLoadAndInstantiate(classParameter.getName(), classContent));
         break;
       default:
         fail("Unknown precompiled class");
     }
-    doLoadAndInstantiate(classParameter.getName(), classContent);
   }
 
   /**

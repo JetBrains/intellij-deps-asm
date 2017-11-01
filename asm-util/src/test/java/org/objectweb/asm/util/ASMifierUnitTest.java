@@ -27,7 +27,7 @@
 // THE POSSIBILITY OF SUCH DAMAGE.
 package org.objectweb.asm.util;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * ASMifierClassVisitor unit tests

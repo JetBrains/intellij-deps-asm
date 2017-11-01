@@ -27,10 +27,10 @@
 // THE POSSIBILITY OF SUCH DAMAGE.
 package org.objectweb.asm.tree;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.objectweb.asm.Handle;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.Opcodes;
@@ -116,7 +116,7 @@ public class ClassNodeUnitTest implements Opcodes {
   public void testLabelNode() {
     LabelNode ln = new LabelNode();
     assertEquals(AbstractInsnNode.LABEL, ln.getType());
-    assertTrue(ln.getLabel() != null);
+    assertNotNull(ln.getLabel());
     // dummy assignment to instruct FindBugs that Label.info can
     // reference other objects than LabelNode instances
     ln.getLabel().info = new Object();

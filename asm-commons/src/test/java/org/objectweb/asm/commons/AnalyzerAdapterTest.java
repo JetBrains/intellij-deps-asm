@@ -27,14 +27,15 @@
 // THE POSSIBILITY OF SUCH DAMAGE.
 package org.objectweb.asm.commons;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.objectweb.asm.test.Assertions.assertThat;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
-import org.junit.Test;
-import org.junit.runners.Parameterized.Parameters;
+import org.junit.jupiter.api.function.Executable;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.ClassWriter;
@@ -51,19 +52,15 @@ import org.objectweb.asm.test.AsmTest;
  */
 public class AnalyzerAdapterTest extends AsmTest {
 
-  /** @return test parameters to test all the precompiled classes with all the apis. */
-  @Parameters(name = NAME)
-  public static Collection<Object[]> data() {
-    return data(Api.ASM4, Api.ASM5, Api.ASM6);
-  }
-
   /**
    * Tests that classes with additional frames inserted at each instruction, using the results of an
    * AnalyzerAdapter, can be instantiated and loaded. This makes sure the intermediate frames
    * computed by AnalyzerAdapter are correct, i.e. pass bytecode verification.
    */
-  @Test
-  public void testAnalyzeLoadAndInstantiate() throws Exception {
+  @ParameterizedTest
+  @MethodSource(ALL_CLASSES_AND_ALL_APIS)
+  public void testAnalyzeLoadAndInstantiate(PrecompiledClass classParameter, Api apiParameter)
+      throws Exception {
     byte[] classFile = classParameter.getBytes();
     ClassReader classReader = new ClassReader(classFile);
     ClassWriter classWriter = new ClassWriter(0);
@@ -100,17 +97,22 @@ public class AnalyzerAdapterTest extends AsmTest {
             return analyzerAdapter;
           }
         };
+    Executable test =
+        () -> {
+          classReader.accept(classVisitor, ClassReader.EXPAND_FRAMES);
+          loadAndInstantiate(classParameter.getName(), classWriter.toByteArray());
+        };
     // jdk3.AllInstructions and jdk3.LargeMethod contain jsr/ret instructions,
     // which are not supported.
     if (classParameter == PrecompiledClass.JDK3_ALL_INSTRUCTIONS
         || classParameter == PrecompiledClass.JDK3_LARGE_METHOD
         || classParameter.isMoreRecentThan(apiParameter)) {
-      thrown.expect(RuntimeException.class);
-    } else if (classParameter.isMoreRecentThanCurrentJdk()) {
-      thrown.expect(UnsupportedClassVersionError.class);
+      assertThrows(RuntimeException.class, test);
+    } else {
+      assertThat(test)
+          .succeedsOrThrows(UnsupportedClassVersionError.class)
+          .when(classParameter.isMoreRecentThanCurrentJdk());
     }
-    classReader.accept(classVisitor, ClassReader.EXPAND_FRAMES);
-    assertTrue(loadAndInstantiate(classParameter.getName(), classWriter.toByteArray()));
   }
 
   /**

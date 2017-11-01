@@ -27,12 +27,10 @@
 // THE POSSIBILITY OF SUCH DAMAGE.
 package org.objectweb.asm.commons;
 
-import static org.junit.Assert.assertTrue;
+import static org.objectweb.asm.test.Assertions.assertThat;
 
-import java.util.Collection;
-
-import org.junit.Test;
-import org.junit.runners.Parameterized.Parameters;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.ClassWriter;
@@ -46,15 +44,10 @@ import org.objectweb.asm.test.AsmTest;
  */
 public class JSRInlinerAdapterTest extends AsmTest {
 
-  /** @return test parameters to test all the precompiled classes with ASM6. */
-  @Parameters(name = NAME)
-  public static Collection<Object[]> data() {
-    return data(Api.ASM6);
-  }
-
   /** Tests that classes transformed with JSRInlinerAdapter can be loaded and instantiated. */
-  @Test
-  public void testInlineJsrAndInstantiate() {
+  @ParameterizedTest
+  @MethodSource(ALL_CLASSES_AND_LATEST_API)
+  public void testInlineJsrAndInstantiate(PrecompiledClass classParameter, Api apiParameter) {
     ClassReader classReader = new ClassReader(classParameter.getBytes());
     ClassWriter classWriter = new ClassWriter(0);
     classReader.accept(
@@ -71,9 +64,8 @@ public class JSRInlinerAdapterTest extends AsmTest {
           }
         },
         0);
-    if (classParameter.isMoreRecentThanCurrentJdk()) {
-      thrown.expect(UnsupportedClassVersionError.class);
-    }
-    assertTrue(loadAndInstantiate(classParameter.getName(), classWriter.toByteArray()));
+    assertThat(() -> loadAndInstantiate(classParameter.getName(), classWriter.toByteArray()))
+        .succeedsOrThrows(UnsupportedClassVersionError.class)
+        .when(classParameter.isMoreRecentThanCurrentJdk());
   }
 }

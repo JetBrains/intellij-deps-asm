@@ -27,11 +27,11 @@
 // THE POSSIBILITY OF SUCH DAMAGE.
 package org.objectweb.asm.tree.analysis;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.ClassWriter;
@@ -53,7 +53,7 @@ public class AnalyzerUnitTest {
 
   private Label start;
 
-  @Before
+  @BeforeEach
   public void setUp() throws Exception {
     cw = new ClassWriter(0);
     cw.visit(Opcodes.V1_1, Opcodes.ACC_PUBLIC, "C", null, "java/lang/Object", null);
@@ -845,8 +845,8 @@ public class AnalyzerUnitTest {
                         mLocals = Math.max(mLocals, frames[i].getLocals());
                       }
                     }
-                    assertEquals("maxStack", maxStack, mStack);
-                    assertEquals("maxLocals", maxLocals, mLocals);
+                    assertEquals(maxStack, mStack, "maxStack");
+                    assertEquals(maxLocals, mLocals, "maxLocals");
                   } catch (Exception e) {
                     fail(e.getMessage());
                   }

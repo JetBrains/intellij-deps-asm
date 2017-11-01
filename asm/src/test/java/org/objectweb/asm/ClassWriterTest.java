@@ -27,13 +27,13 @@
 // THE POSSIBILITY OF SUCH DAMAGE.
 package org.objectweb.asm;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.objectweb.asm.test.Assertions.assertThat;
 
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.Random;
-import org.junit.Test;
-import org.junit.runners.Parameterized.Parameters;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.objectweb.asm.test.AsmTest;
 
 /**
@@ -43,15 +43,10 @@ import org.objectweb.asm.test.AsmTest;
  */
 public class ClassWriterTest extends AsmTest {
 
-  /** @return test parameters to test all the precompiled classes with all the apis. */
-  @Parameters(name = NAME)
-  public static Collection<Object[]> data() {
-    return data(Api.ASM4, Api.ASM5, Api.ASM6);
-  }
-
   /** Tests that a ClassReader -> ClassWriter transform leaves classes unchanged. */
-  @Test
-  public void testReadAndWrite() {
+  @ParameterizedTest
+  @MethodSource(ALL_CLASSES_AND_ALL_APIS)
+  public void testReadAndWrite(PrecompiledClass classParameter, Api apiParameter) {
     byte[] classFile = classParameter.getBytes();
     ClassReader classReader = new ClassReader(classFile);
     ClassWriter classWriter = new ClassWriter(0);
@@ -63,8 +58,9 @@ public class ClassWriterTest extends AsmTest {
    * Tests that a ClassReader -> ClassWriter transform with the copy pool option leaves classes
    * unchanged.
    */
-  @Test
-  public void testReadAndWriteWithCopyPool() {
+  @ParameterizedTest
+  @MethodSource(ALL_CLASSES_AND_ALL_APIS)
+  public void testReadAndWriteWithCopyPool(PrecompiledClass classParameter, Api apiParameter) {
     byte[] classFile = classParameter.getBytes();
     ClassReader classReader = new ClassReader(classFile);
     ClassWriter classWriter = new ClassWriter(classReader, 0);
@@ -76,8 +72,9 @@ public class ClassWriterTest extends AsmTest {
    * Tests that a ClassReader -> ClassWriter transform with the EXPAND_FRAMES option leaves classes
    * unchanged.
    */
-  @Test
-  public void testReadAndWriteWithExpandFrames() {
+  @ParameterizedTest
+  @MethodSource(ALL_CLASSES_AND_ALL_APIS)
+  public void testReadAndWriteWithExpandFrames(PrecompiledClass classParameter, Api apiParameter) {
     byte[] classFile = classParameter.getBytes();
     ClassReader classReader = new ClassReader(classFile);
     ClassWriter classWriter = new ClassWriter(0);
@@ -90,8 +87,9 @@ public class ClassWriterTest extends AsmTest {
    * unchanged. This is not true in general (the valid max stack and max locals for a given method),
    * but this should be the case with our precompiled classes.
    */
-  @Test
-  public void testReadAndWriteWithComputeMaxs() {
+  @ParameterizedTest
+  @MethodSource(ALL_CLASSES_AND_ALL_APIS)
+  public void testReadAndWriteWithComputeMaxs(PrecompiledClass classParameter, Api apiParameter) {
     byte[] classFile = classParameter.getBytes();
     ClassReader classReader = new ClassReader(classFile);
     ClassWriter classWriter = new ClassWriter(ClassWriter.COMPUTE_MAXS);
@@ -103,37 +101,39 @@ public class ClassWriterTest extends AsmTest {
    * Tests that classes going through a ClassReader -> ClassWriter transform with the COMPUTE_MAXS
    * option can be loaded and pass bytecode verification.
    */
-  @Test
-  public void testReadWriteAndLoadWithComputeMaxs() throws Exception {
+  @ParameterizedTest
+  @MethodSource(ALL_CLASSES_AND_ALL_APIS)
+  public void testReadWriteAndLoadWithComputeMaxs(PrecompiledClass classParameter, Api apiParameter)
+      throws Exception {
     byte[] classFile = classParameter.getBytes();
     ClassReader classReader = new ClassReader(classFile);
     ClassWriter classWriter = new ClassWriter(ClassWriter.COMPUTE_MAXS);
     classReader.accept(classWriter, attributes(), 0);
-    if (classParameter.isMoreRecentThanCurrentJdk()) {
-      thrown.expect(UnsupportedClassVersionError.class);
-    }
-    assertTrue(loadAndInstantiate(classParameter.getName(), classWriter.toByteArray()));
+    assertThat(() -> loadAndInstantiate(classParameter.getName(), classWriter.toByteArray()))
+        .succeedsOrThrows(UnsupportedClassVersionError.class)
+        .when(classParameter.isMoreRecentThanCurrentJdk());
   }
 
   /**
    * Tests that classes going through a ClassReader -> ClassWriter transform with the COMPUTE_FRAMES
    * option can be loaded and pass bytecode verification.
    */
-  @Test
-  public void testReadAndWriteWithComputeFrames() {
+  @ParameterizedTest
+  @MethodSource(ALL_CLASSES_AND_ALL_APIS)
+  public void testReadAndWriteWithComputeFrames(PrecompiledClass classParameter, Api apiParameter) {
     byte[] classFile = classParameter.getBytes();
     ClassReader classReader = new ClassReader(classFile);
     ClassWriter classWriter = new ClassWriter(ClassWriter.COMPUTE_FRAMES);
+
     // jdk3.AllInstructions and jdk3.LargeMethod contain JSR/RET instructions,
     // incompatible with COMPUTE_FRAMES.
     if (classParameter == PrecompiledClass.JDK3_ALL_INSTRUCTIONS
         || classParameter == PrecompiledClass.JDK3_LARGE_METHOD) {
-      thrown.expect(RuntimeException.class);
-    } else if (classParameter.isMoreRecentThanCurrentJdk()) {
-      thrown.expect(UnsupportedClassVersionError.class);
+      assertThrows(RuntimeException.class, () -> classReader.accept(classWriter, attributes(), 0));
+      return;
     }
-
     classReader.accept(classWriter, attributes(), 0);
+
     byte[] newClassFile = classWriter.toByteArray();
     // The computed stack map frames should be equal to the original ones, if any (classes before
     // JDK8 don't have ones). This is not true in general (the valid frames for a given method are
@@ -141,28 +141,34 @@ public class ClassWriterTest extends AsmTest {
     if (classParameter.isMoreRecentThan(Api.ASM4)) {
       assertThatClass(newClassFile).isEqualTo(classFile);
     }
-    assertTrue(loadAndInstantiate(classParameter.getName(), newClassFile));
+    assertThat(() -> loadAndInstantiate(classParameter.getName(), newClassFile))
+        .succeedsOrThrows(UnsupportedClassVersionError.class)
+        .when(classParameter.isMoreRecentThanCurrentJdk());
   }
 
   /**
    * Tests that classes going through a ClassReader -> ClassWriter transform with the SKIP_FRAMES
    * and COMPUTE_FRAMES options can be loaded and pass bytecode verification.
    */
-  @Test
-  public void testReadAndWriteWithSkipAndComputeFrames() {
+  @ParameterizedTest
+  @MethodSource(ALL_CLASSES_AND_ALL_APIS)
+  public void testReadAndWriteWithSkipAndComputeFrames(
+      PrecompiledClass classParameter, Api apiParameter) {
     byte[] classFile = classParameter.getBytes();
     ClassReader classReader = new ClassReader(classFile);
     ClassWriter classWriter = new ClassWriter(ClassWriter.COMPUTE_FRAMES);
+
     // jdk3.AllInstructions and jdk3.LargeMethod contain JSR/RET instructions,
     // incompatible with COMPUTE_FRAMES.
     if (classParameter == PrecompiledClass.JDK3_ALL_INSTRUCTIONS
         || classParameter == PrecompiledClass.JDK3_LARGE_METHOD) {
-      thrown.expect(RuntimeException.class);
-    } else if (classParameter.isMoreRecentThanCurrentJdk()) {
-      thrown.expect(UnsupportedClassVersionError.class);
+      assertThrows(
+          RuntimeException.class,
+          () -> classReader.accept(classWriter, attributes(), ClassReader.SKIP_FRAMES));
+      return;
     }
-
     classReader.accept(classWriter, attributes(), ClassReader.SKIP_FRAMES);
+
     byte[] newClassFile = classWriter.toByteArray();
     // The computed stack map frames should be equal to the original ones, if any (classes before
     // JDK8 don't have ones). This is not true in general (the valid frames for a given method are
@@ -170,52 +176,64 @@ public class ClassWriterTest extends AsmTest {
     if (classParameter.isMoreRecentThan(Api.ASM4)) {
       assertThatClass(newClassFile).isEqualTo(classFile);
     }
-    assertTrue(loadAndInstantiate(classParameter.getName(), newClassFile));
+    assertThat(() -> loadAndInstantiate(classParameter.getName(), newClassFile))
+        .succeedsOrThrows(UnsupportedClassVersionError.class)
+        .when(classParameter.isMoreRecentThanCurrentJdk());
   }
 
   /**
    * Tests that classes with dead code going through a ClassWriter with the COMPUTE_FRAMES option
    * can be loaded and pass bytecode verification.
    */
-  @Test
-  public void testReadAndWriteWithComputeFramesAndDeadCode() {
+  @ParameterizedTest
+  @MethodSource(ALL_CLASSES_AND_ALL_APIS)
+  public void testReadAndWriteWithComputeFramesAndDeadCode(
+      PrecompiledClass classParameter, Api apiParameter) {
     byte[] classFile = classParameter.getBytes();
     ClassReader classReader = new ClassReader(classFile);
     ClassWriter classWriter = new ClassWriter(ClassWriter.COMPUTE_FRAMES);
+    ClassVisitor classVisitor = new DeadCodeInserter(apiParameter.value(), classWriter);
+
     // jdk3.AllInstructions and jdk3.LargeMethod contain JSR/RET instructions,
     // incompatible with COMPUTE_FRAMES.
     if (classParameter == PrecompiledClass.JDK3_ALL_INSTRUCTIONS
         || classParameter == PrecompiledClass.JDK3_LARGE_METHOD
         || classParameter.isMoreRecentThan(apiParameter)) {
-      thrown.expect(RuntimeException.class);
-    } else if (classParameter.isMoreRecentThanCurrentJdk()) {
-      thrown.expect(UnsupportedClassVersionError.class);
+      assertThrows(
+          RuntimeException.class,
+          () -> classReader.accept(classVisitor, attributes(), ClassReader.SKIP_FRAMES));
+      return;
     }
+    classReader.accept(classVisitor, attributes(), ClassReader.SKIP_FRAMES);
 
-    classReader.accept(
-        new DeadCodeInserter(apiParameter.value(), classWriter), ClassReader.SKIP_FRAMES);
-    assertTrue(loadAndInstantiate(classParameter.getName(), classWriter.toByteArray()));
+    assertThat(() -> loadAndInstantiate(classParameter.getName(), classWriter.toByteArray()))
+        .succeedsOrThrows(UnsupportedClassVersionError.class)
+        .when(classParameter.isMoreRecentThanCurrentJdk());
   }
 
   /**
    * Tests that classes with large methods (more than 32k) going through a ClassWriter with no
    * option can be loaded and pass bytecode verification.
    */
-  @Test
-  public void testReadAndWriteWithResizeMethod() {
+  @ParameterizedTest
+  @MethodSource(ALL_CLASSES_AND_ALL_APIS)
+  public void testReadAndWriteWithResizeMethod(PrecompiledClass classParameter, Api apiParameter) {
     byte[] classFile = classParameter.getBytes();
     if (classFile.length > Short.MAX_VALUE) return;
 
     ClassReader classReader = new ClassReader(classFile);
     ClassWriter classWriter = new ClassWriter(0);
-    if (classParameter.isMoreRecentThan(apiParameter)) {
-      thrown.expect(RuntimeException.class);
-    } else if (classParameter.isMoreRecentThanCurrentJdk()) {
-      thrown.expect(UnsupportedClassVersionError.class);
-    }
+    ClassVisitor classVisitor = new NopInserter(apiParameter.value(), classWriter);
 
-    classReader.accept(new NopInserter(apiParameter.value(), classWriter), attributes(), 0);
-    assertTrue(loadAndInstantiate(classParameter.getName(), classWriter.toByteArray()));
+    if (classParameter.isMoreRecentThan(apiParameter)) {
+      assertThrows(RuntimeException.class, () -> classReader.accept(classVisitor, attributes(), 0));
+      return;
+    }
+    classReader.accept(classVisitor, attributes(), 0);
+
+    assertThat(() -> loadAndInstantiate(classParameter.getName(), classWriter.toByteArray()))
+        .succeedsOrThrows(UnsupportedClassVersionError.class)
+        .when(classParameter.isMoreRecentThanCurrentJdk());
   }
 
   private static Attribute[] attributes() {

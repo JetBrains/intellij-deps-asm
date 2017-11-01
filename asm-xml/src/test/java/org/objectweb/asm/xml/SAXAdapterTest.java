@@ -27,16 +27,14 @@
 // THE POSSIBILITY OF SUCH DAMAGE.
 package org.objectweb.asm.xml;
 
-import java.util.Collection;
-
 import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.TransformerFactoryConfigurationError;
 import javax.xml.transform.sax.SAXResult;
 import javax.xml.transform.sax.SAXTransformerFactory;
 import javax.xml.transform.sax.TransformerHandler;
-import org.junit.Test;
-import org.junit.runners.Parameterized.Parameters;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.test.AsmTest;
@@ -49,12 +47,6 @@ import org.xml.sax.SAXException;
  */
 public class SAXAdapterTest extends AsmTest {
 
-  /** @return test parameters to test all the precompiled classes with ASM6. */
-  @Parameters(name = NAME)
-  public static Collection<Object[]> data() {
-    return data(Api.ASM6);
-  }
-
   /**
    * Tests that classes are unchanged with a ClassReader->SAXClassAdapter->ClassWriter transform.
    *
@@ -62,8 +54,9 @@ public class SAXAdapterTest extends AsmTest {
    * @throws TransformerConfigurationException
    * @throws SAXException
    */
-  @Test
-  public void testSAXAdapter_classUnchanged()
+  @ParameterizedTest
+  @MethodSource(ALL_CLASSES_AND_LATEST_API)
+  public void testSAXAdapter_classUnchanged(PrecompiledClass classParameter, Api apiParameter)
       throws TransformerConfigurationException, TransformerFactoryConfigurationError, SAXException {
     // Non standard attributes are not supported by the XML API.
     if (classParameter == PrecompiledClass.JDK3_ATTRIBUTE) return;

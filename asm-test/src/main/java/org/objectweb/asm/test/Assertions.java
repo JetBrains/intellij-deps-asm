@@ -25,31 +25,55 @@
 // CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
 // THE POSSIBILITY OF SUCH DAMAGE.
-package org.objectweb.asm.tree.analysis;
+package org.objectweb.asm.test;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assumptions.assumingThat;
 
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.function.Executable;
 
 /**
- * BasicValue and SourceValue unit tests.
+ * Provides convenient assertions to check that an executable succeeds or throws an exception,
+ * depending on some condition.
  *
  * @author Eric Bruneton
  */
-public class ValueUnitTest {
+public final class Assertions {
 
-  @Test
-  public void testBasicValue() {
-    assertFalse(BasicValue.INT_VALUE.equals(new Object()));
-    BasicValue.INT_VALUE.hashCode();
-    BasicValue.UNINITIALIZED_VALUE.toString();
-    BasicValue.RETURNADDRESS_VALUE.toString();
-    BasicValue.REFERENCE_VALUE.toString();
+  private Assertions() {}
+
+  public static ExecutableSubject assertThat(Executable executable) {
+    return new ExecutableSubject(executable);
   }
 
-  @Test
-  public void testSourceValue() {
-    new SourceValue(1).hashCode();
-    assertFalse(new SourceValue(1).equals(null));
+  public static class ExecutableSubject {
+    private final Executable executable;
+
+    ExecutableSubject(final Executable executable) {
+      this.executable = executable;
+    }
+
+    public <T extends Throwable> ExecutableOutcomeSubject<T> succeedsOrThrows(
+        Class<T> expectedType) {
+      return new ExecutableOutcomeSubject<T>(executable, expectedType);
+    }
+  }
+
+  public static class ExecutableOutcomeSubject<T extends Throwable> {
+    private final Executable executable;
+    private final Class<T> expectedType;
+
+    ExecutableOutcomeSubject(final Executable executable, final Class<T> expectedType) {
+      this.executable = executable;
+      this.expectedType = expectedType;
+    }
+
+    public void when(boolean condition) {
+      if (condition) {
+        assertThrows(expectedType, executable);
+      } else {
+        assumingThat(true, executable);
+      }
+    }
   }
 }

@@ -27,12 +27,11 @@
 // THE POSSIBILITY OF SUCH DAMAGE.
 package org.objectweb.asm;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.Test;
 
 /**
  * Label tests.
@@ -40,9 +39,6 @@ import org.junit.rules.ExpectedException;
  * @author Eric Bruneton
  */
 public class LabelTest {
-
-  /** Rule that can be used in tests that expect some exceptions to be thrown. */
-  @Rule public ExpectedException thrown = ExpectedException.none();
 
   /** Tests that {@link Label.toString()} returns strings starting with "L". */
   @Test
@@ -66,7 +62,6 @@ public class LabelTest {
   /** Tests that {@link Label.getOffset()} throws an exception before the label is visited. */
   @Test
   public void testGetOffset_illegalState() {
-    thrown.expect(RuntimeException.class);
-    new Label().getOffset();
+    assertThrows(RuntimeException.class, () -> new Label().getOffset());
   }
 }

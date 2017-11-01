@@ -26,6 +26,11 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
 // THE POSSIBILITY OF SUCH DAMAGE.
 
+buildscript {
+	repositories { mavenCentral() }
+	dependencies { classpath 'org.junit.platform:junit-platform-gradle-plugin:1.0.1' }
+}
+
 plugins { id 'biz.aQute.bnd.builder' version '3.3.0' apply false }
 plugins { id 'com.github.sherter.google-java-format' version '0.6' apply false }
 
@@ -34,8 +39,12 @@ description = 'ASM, a very small and fast Java bytecode manipulation framework'
 subprojects {
   repositories { mavenCentral() }
   apply plugin: 'java'
+  apply plugin: 'org.junit.platform.gradle.plugin'
+  junitPlatform { filters { engines { 'junit-jupiter' } } }
   group = 'org.ow2.asm'
   version = 6.1
+  sourceCompatibility = '1.5'
+  targetCompatibility = '1.5'
   ext.provides = []  // The provided java packages, e.g. ['org.objectweb.asm']
   ext.requires = []  // The required Gradle projects, e.g. [':asm-test']
   ext.depends = []   // The external dependencies, e.g. ['junit:junit:4.12']
@@ -69,7 +78,10 @@ project(':asm-commons') {
 project(':asm-test') {
   description = "Utilities for testing ${parent.description}"
   provides = ['org.objectweb.asm.test']
-  depends = ['junit:junit:4.12']
+  depends = ['org.junit.jupiter:junit-jupiter-api:5.0.1',
+      'org.junit.jupiter:junit-jupiter-params:5.0.1']
+  sourceCompatibility = '1.8'
+  targetCompatibility = '1.8'
 }
 
 project(':asm-tree') {
@@ -160,13 +172,16 @@ project(':tools:retrofitter') {
 subprojects {
   apply plugin: 'com.github.sherter.google-java-format'
   googleJavaFormat.toolVersion = '1.4'
-  sourceCompatibility = '1.5'
-  targetCompatibility = '1.5'
+  compileTestJava {
+    sourceCompatibility = '1.8'
+    targetCompatibility = '1.8'
+  }
   dependencies {
     requires.each { projectName -> compile project(projectName) }
     depends.each { artifactName -> compile artifactName }
-    testCompile 'junit:junit:4.12'
-    testCompile project(':asm-test')
+    testCompile 'org.junit.jupiter:junit-jupiter-api:5.0.1', 
+        'org.junit.jupiter:junit-jupiter-params:5.0.1', project(':asm-test')
+  	testRuntime 'org.junit.jupiter:junit-jupiter-engine:5.0.1'
   }
 }
 
@@ -184,31 +199,46 @@ configure(subprojects.findAll { it.runWith }) {
 // backward compatibility, retrofited to Java 1.5, packaged with biz.aQute.bnd
 // and uploaded to Maven with a POM, sources and Javadoc.
 configure(subprojects.findAll { it.provides }) {
-  // Code coverage configuration.
+  // Code coverage configuration (JUnit5 is not yet supported by default, we 
+  // need to override the default tasks to make this work).
   apply plugin: 'jacoco'
-  jacocoTestCoverageVerification {
-    // Exclude everything not in org/objectweb/asm/** from coverage checks.
-    afterEvaluate {
-      classDirectories = files(classDirectories.files.collect {
+  afterEvaluate {
+    jacoco { applyTo junitPlatformTest }
+    task jacocoTestReport(type: JacocoReport, overwrite: true) {
+      executionData junitPlatformTest
+      sourceSets sourceSets.main
+      sourceDirectories = files(project.sourceSets.main.allSource.srcDirs)
+      classDirectories = files(project.sourceSets.main.output.collect {
         fileTree(dir: it, include: 'org/objectweb/asm/**')
       })
     }
-    violationRules.rule {
-      limit {
-        counter = 'INSTRUCTION'
-        minimum = coverage
+    task jacocoTestCoverageVerification(
+        type: JacocoCoverageVerification, overwrite: true) {
+      executionData junitPlatformTest
+      sourceSets sourceSets.main
+      sourceDirectories = files(project.sourceSets.main.allSource.srcDirs)
+      classDirectories = files(project.sourceSets.main.output.collect {
+        fileTree(dir: it, include: 'org/objectweb/asm/**')
+      })
+      violationRules.rule {
+        limit {
+          counter = 'INSTRUCTION'
+          minimum = coverage
+        }
       }
     }
   }
 
   // Retrofit the code to Java 1.5, in-place, in compileJava.doLast.
-  task retrofit(type: JavaExec) {
-    classpath project(':tools:retrofitter').sourceSets.main.runtimeClasspath
-    main 'org.objectweb.asm.tools.Retrofitter'
-    args sourceSets.main.output.classesDirs
+  if (name != 'asm-test') {
+    task retrofit(type: JavaExec) {
+      classpath project(':tools:retrofitter').sourceSets.main.runtimeClasspath
+      main 'org.objectweb.asm.tools.Retrofitter'
+      args sourceSets.main.output.classesDirs
+    }
+    compileJava.dependsOn ':tools:retrofitter:classes'
+    compileJava.doLast { tasks.retrofit.execute() }
   }
-  compileJava.dependsOn ':tools:retrofitter:classes'
-  compileJava.doLast { tasks.retrofit.execute() }
 
   // Create one backward compatibility checking task for each 'sigtest-*' file
   // in test/resources, and make the 'check' task depend on all these tasks.

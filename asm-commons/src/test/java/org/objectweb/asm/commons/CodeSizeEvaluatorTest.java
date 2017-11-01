@@ -27,11 +27,11 @@
 // THE POSSIBILITY OF SUCH DAMAGE.
 package org.objectweb.asm.commons;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.util.Collection;
-import org.junit.Test;
-import org.junit.runners.Parameterized.Parameters;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.objectweb.asm.Attribute;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassVisitor;
@@ -47,25 +47,17 @@ import org.objectweb.asm.test.AsmTest;
  */
 public class CodeSizeEvaluatorTest extends AsmTest {
 
-  /** @return test parameters to test all the precompiled classes with all the apis. */
-  @Parameters(name = NAME)
-  public static Collection<Object[]> data() {
-    return data(Api.ASM4, Api.ASM5, Api.ASM6);
-  }
-
   /**
    * Tests that the size estimations of CodeSizeEvaluator are correct, and that classes are
    * unchanged with a ClassReader->CodeSizeEvaluator->ClassWriter transform.
    */
-  @Test
-  public void testSizeEvaluation() {
+  @ParameterizedTest
+  @MethodSource(ALL_CLASSES_AND_ALL_APIS)
+  public void testSizeEvaluation(PrecompiledClass classParameter, Api apiParameter) {
     byte[] classFile = classParameter.getBytes();
     ClassReader classReader = new ClassReader(classFile);
     ClassWriter classWriter = new ClassWriter(0);
-    if (classParameter.isMoreRecentThan(apiParameter)) {
-      thrown.expect(RuntimeException.class);
-    }
-    classReader.accept(
+    ClassVisitor classVisitor =
         new ClassVisitor(apiParameter.value(), classWriter) {
           @Override
           public MethodVisitor visitMethod(
@@ -87,9 +79,16 @@ public class CodeSizeEvaluatorTest extends AsmTest {
               }
             };
           }
-        },
-        new Attribute[] {new Comment(), new CodeComment()},
-        0);
+        };
+    if (classParameter.isMoreRecentThan(apiParameter)) {
+      assertThrows(RuntimeException.class, () -> classReader.accept(classVisitor, attributes(), 0));
+      return;
+    }
+    classReader.accept(classVisitor, attributes(), 0);
     assertThatClass(classWriter.toByteArray()).isEqualTo(classFile);
+  }
+
+  private static Attribute[] attributes() {
+    return new Attribute[] {new Comment(), new CodeComment()};
   }
 }

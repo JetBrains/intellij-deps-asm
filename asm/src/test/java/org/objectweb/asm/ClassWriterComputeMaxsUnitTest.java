@@ -27,8 +27,8 @@
 // THE POSSIBILITY OF SUCH DAMAGE.
 package org.objectweb.asm;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.ByteArrayInputStream;
 import java.util.HashMap;
@@ -38,8 +38,8 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.StringTokenizer;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 /**
  * ClassWriter unit tests for COMPUTE_MAXS option with JSR instructions.
@@ -54,7 +54,7 @@ public class ClassWriterComputeMaxsUnitTest {
 
   private Label start;
 
-  @Before
+  @BeforeEach
   public void setUp() throws Exception {
     cw = new ClassWriter(isComputeMaxs() ? ClassWriter.COMPUTE_MAXS : 0);
     cw.visit(Opcodes.V1_1, Opcodes.ACC_PUBLIC, "C", null, "java/lang/Object", null);
@@ -166,8 +166,8 @@ public class ClassWriterComputeMaxsUnitTest {
               return new MethodVisitor(Opcodes.ASM5) {
                 @Override
                 public void visitMaxs(final int realMaxStack, final int realMaxLocals) {
-                  assertEquals("maxStack", maxStack, realMaxStack);
-                  assertEquals("maxLocals", maxLocals, realMaxLocals);
+                  assertEquals(maxStack, realMaxStack, "maxStack");
+                  assertEquals(maxLocals, realMaxLocals, "maxLocals");
                 }
               };
             } else {
@@ -192,7 +192,7 @@ public class ClassWriterComputeMaxsUnitTest {
     try {
       p.load(new ByteArrayInputStream(graph.getBytes()));
     } catch (Exception e) {
-      fail();
+      fail(e.getMessage());
     }
     Iterator<Map.Entry<Object, Object>> i = p.entrySet().iterator();
     while (i.hasNext()) {

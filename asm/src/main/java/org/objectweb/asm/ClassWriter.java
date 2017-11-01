@@ -756,9 +756,8 @@ public class ClassWriter extends ClassVisitor {
       size += itanns.getAnnotationsSize("RuntimeInvisibleTypeAnnotations");
     }
     if (moduleWriter != null) {
-      attributeCount += 1 + moduleWriter.attributeCount;
-      size += 6 + moduleWriter.size + moduleWriter.attributesSize;
-      newUTF8("Module");
+      attributeCount += moduleWriter.getAttributeCount();
+      size += moduleWriter.getAttributesSize();
     }
     if (attrs != null) {
       attributeCount += attrs.getAttributeCount();
@@ -807,8 +806,6 @@ public class ClassWriter extends ClassVisitor {
       out.putByteArray(sourceDebug.data, 0, len);
     }
     if (moduleWriter != null) {
-      out.putShort(newUTF8("Module"));
-      moduleWriter.put(out);
       moduleWriter.putAttributes(out);
     }
     if (enclosingMethodOwner != 0) {

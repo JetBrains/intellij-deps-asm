@@ -6,9 +6,9 @@ variables:
   GRADLE_USER_HOME: '.gradle'
 
 cache:
-  path:
+  paths:
     # Cache the downloaded dependencies and plugins between builds.
-    '$GRADLE_USER_HOME'
+    - '$GRADLE_USER_HOME'
 
 build:
   script:

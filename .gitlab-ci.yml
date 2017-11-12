@@ -21,3 +21,7 @@ test:
 upload:
   script:
     gradle uploadArchives
+
+sonar:
+  script:
+    'gradle sonarqube -Dsonar.host.url=https://sonarqube.ow2.org'

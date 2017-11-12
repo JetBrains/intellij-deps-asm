@@ -33,6 +33,7 @@ buildscript {
 
 plugins { id 'biz.aQute.bnd.builder' version '3.3.0' apply false }
 plugins { id 'com.github.sherter.google-java-format' version '0.6' apply false }
+plugins { id 'org.sonarqube' version '2.6' apply false }
 
 description = 'ASM, a very small and fast Java bytecode manipulation framework'
 
@@ -292,6 +293,16 @@ configure(subprojects.findAll { it.provides }) {
               .collect{"${project(it).provides[0]};transitive=true"}
               .join(',')
     )
+  }
+
+  // Apply the SonarQube plugin to monitor the code quality of the project.
+  // Use with 'gradlew sonarqube -Dsonar.host.url=https://sonarqube.ow2.org'.
+  apply plugin: 'org.sonarqube'
+  sonarqube {
+    properties {
+      property 'sonar.jacoco.reportPaths',
+          "${project.buildDir}/jacoco/junitPlatformTest.exec"
+    }
   }
 
   // Add tasks to generate the Javadoc and a source jar, to be uploaded to Maven

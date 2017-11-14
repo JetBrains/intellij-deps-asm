@@ -185,8 +185,8 @@ public abstract class MethodVisitor {
    *
    * @param parameter the parameter index. This index must be strictly smaller than the number of
    *     parameters in the method descriptor, and strictly smaller than the parameter count
-   *     specified in {@link #visitAnnotableParameterCount()}. Important note: <i>a parameter index
-   *     i is not required to correspond to the i'th parameter descriptor in the method
+   *     specified in {@link #visitAnnotableParameterCount}. Important note: <i>a parameter index i
+   *     is not required to correspond to the i'th parameter descriptor in the method
    *     descriptor</i>, in particular in case of synthetic parameters (see
    *     https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.7.18).
    * @param desc the class descriptor of the annotation class.

@@ -656,8 +656,7 @@ public class CheckClassAdapterTest extends AsmTest implements Opcodes {
 
   @Test
   public void testIllegalDataflow() {
-    MethodVisitor mv =
-        new CheckMethodAdapter(ACC_PUBLIC, "m", "(I)V", null, new HashMap<Label, Integer>());
+    MethodVisitor mv = new CheckMethodAdapter(ACC_PUBLIC, "m", "(I)V", null, new HashMap<>());
     mv.visitCode();
     mv.visitVarInsn(ILOAD, 1);
     mv.visitInsn(IRETURN);
@@ -667,8 +666,7 @@ public class CheckClassAdapterTest extends AsmTest implements Opcodes {
 
   @Test
   public void testIllegalDataflobjectweb() {
-    MethodVisitor mv =
-        new CheckMethodAdapter(ACC_PUBLIC, "m", "(I)I", null, new HashMap<Label, Integer>());
+    MethodVisitor mv = new CheckMethodAdapter(ACC_PUBLIC, "m", "(I)I", null, new HashMap<>());
     mv.visitCode();
     mv.visitInsn(RETURN);
     mv.visitMaxs(0, 2);

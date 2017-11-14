@@ -64,7 +64,7 @@ public class AdviceAdapterTest extends AsmTest {
     }
   }
 
-  private static class AdvisingClassLoader extends ClassLoader {
+  private static final class AdvisingClassLoader extends ClassLoader {
     private String prefix;
 
     public AdvisingClassLoader(final String prefix) throws IOException {

@@ -60,13 +60,7 @@ public class TraceClassAdapterTest extends AsmTest {
       Textifier.main(new String[] {"-debug"});
       Textifier.main(new String[] {s});
       Textifier.main(new String[] {"-debug", s});
-      if (System.getProperty("java.version").startsWith("1.8")) {
-        Textifier.main(new String[] {"-debug", "java.util.function.Predicate"});
-        Textifier.main(
-            new String[] {
-              "-debug", "java.util.stream.StreamSpliterators$DoubleWrappingSpliterator"
-            });
-      }
+      Textifier.main(new String[] {"-debug", "java.util.function.Predicate"});
       Textifier.main(new String[] {"java.lang.Object"});
     } finally {
       System.setErr(err);

@@ -46,7 +46,7 @@ import org.xml.sax.helpers.AttributesImpl;
  *
  * @author Eric Bruneton
  */
-public class ASMContentHandlerUnitTest implements Opcodes {
+public class ASMContentHandlerTest implements Opcodes {
 
   ASMContentHandler h;
 

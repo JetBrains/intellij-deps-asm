@@ -43,7 +43,7 @@ import org.objectweb.asm.signature.SignatureReader;
  *
  * @author Eugene Kuleshov
  */
-public class TraceSignatureVisitorUnitTest {
+public class TraceSignatureVisitorTest {
 
   public static final String[] DATA = {
     "C|E|<E extends java.lang.Enum<E>> implements java.lang.Comparable<E>, java.io.Serializable"

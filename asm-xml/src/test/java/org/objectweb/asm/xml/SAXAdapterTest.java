@@ -27,18 +27,25 @@
 // THE POSSIBILITY OF SUCH DAMAGE.
 package org.objectweb.asm.xml;
 
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
 import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.TransformerFactoryConfigurationError;
 import javax.xml.transform.sax.SAXResult;
 import javax.xml.transform.sax.SAXTransformerFactory;
 import javax.xml.transform.sax.TransformerHandler;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.test.AsmTest;
+import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
+import org.xml.sax.helpers.DefaultHandler;
 
 /**
  * SAXAdapter tests.
@@ -46,6 +53,59 @@ import org.xml.sax.SAXException;
  * @author Eugene Kuleshov
  */
 public class SAXAdapterTest extends AsmTest {
+
+  SAXAdapter sa;
+
+  @BeforeEach
+  public void setUp() {
+    sa =
+        new SAXAdapter(
+            new DefaultHandler() {
+
+              @Override
+              public void startDocument() throws SAXException {
+                throw new SAXException();
+              }
+
+              @Override
+              public void endDocument() throws SAXException {
+                throw new SAXException();
+              }
+
+              @Override
+              public void startElement(
+                  final String arg0, final String arg1, final String arg2, final Attributes arg3)
+                  throws SAXException {
+                throw new SAXException();
+              }
+
+              @Override
+              public void endElement(final String arg0, final String arg1, final String arg2)
+                  throws SAXException {
+                throw new SAXException();
+              }
+            }) {};
+  }
+
+  @Test
+  public void testInvalidAddDocumentStart() {
+    assertThrows(Exception.class, () -> sa.addDocumentStart());
+  }
+
+  @Test
+  public void testInvalidAddDocumentEnd() {
+    assertThrows(Exception.class, () -> sa.addDocumentEnd());
+  }
+
+  @Test
+  public void testInvalidAddStart() {
+    assertThrows(Exception.class, () -> sa.addStart("name", null));
+  }
+
+  @Test
+  public void testInvalidAddEnd() {
+    assertThrows(Exception.class, () -> sa.addEnd("name"));
+  }
 
   /**
    * Tests that classes are unchanged with a ClassReader->SAXClassAdapter->ClassWriter transform.

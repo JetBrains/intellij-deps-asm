@@ -483,6 +483,20 @@ public abstract class Printer {
   }
 
   /**
+   * Number of method parameters that can have annotations. See {@link
+   * org.objectweb.asm.MethodVisitor#visitAnnotableParameterCount}.
+   *
+   * @param parameterCount the number of method parameters than can have annotations.
+   * @param visible <tt>true</tt> to define the number of method parameters that can have
+   *     annotations visible at runtime, <tt>false</tt> to define the number of method parameters
+   *     that can have annotations invisible at runtime.
+   * @return the printer
+   */
+  public Printer visitAnnotableParameterCount(final int parameterCount, final boolean visible) {
+    throw new RuntimeException("Must be overriden");
+  }
+
+  /**
    * Method parameter annotation. See {@link
    * org.objectweb.asm.MethodVisitor#visitParameterAnnotation}.
    *

@@ -811,6 +811,16 @@ public class Textifier extends Printer {
   }
 
   @Override
+  public Textifier visitAnnotableParameterCount(final int parameterCount, final boolean visible) {
+    buf.setLength(0);
+    buf.append(tab2).append("// annotable parameter count: ");
+    buf.append(parameterCount);
+    buf.append(visible ? " (visible)\n" : " (invisible)\n");
+    text.add(buf.toString());
+    return this;
+  }
+
+  @Override
   public Textifier visitParameterAnnotation(
       final int parameter, final String desc, final boolean visible) {
     buf.setLength(0);

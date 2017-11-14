@@ -89,6 +89,13 @@ public final class TraceMethodVisitor extends MethodVisitor {
   }
 
   @Override
+  public void visitAnnotableParameterCount(
+      final int parameterCount, final boolean visible) {
+    p.visitAnnotableParameterCount(parameterCount, visible);
+    super.visitAnnotableParameterCount(parameterCount, visible);
+  }
+
+  @Override
   public AnnotationVisitor visitParameterAnnotation(
       final int parameter, final String desc, final boolean visible) {
     Printer p = this.p.visitParameterAnnotation(parameter, desc, visible);

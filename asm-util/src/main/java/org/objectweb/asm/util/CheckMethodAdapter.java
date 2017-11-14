@@ -73,6 +73,18 @@ public class CheckMethodAdapter extends MethodVisitor {
   /** The access flags of the method. */
   private int access;
 
+  /**
+   * The number of method parameters that can have runtime visible annotations. 0 means that all the
+   * parameters from the method descriptor can have annotations.
+   */
+  private int npanns;
+
+  /**
+   * The number of method parameters that can have runtime invisible annotations. 0 means that all
+   * the parameters from the method descriptor can have annotations.
+   */
+  private int nipanns;
+
   /** <tt>true</tt> if the visitCode method has been called. */
   private boolean startCode;
 
@@ -482,9 +494,24 @@ public class CheckMethodAdapter extends MethodVisitor {
   }
 
   @Override
+  public void visitAnnotableParameterCount(final int parameterCount, final boolean visible) {
+    checkEndMethod();
+    if (visible) {
+      npanns = parameterCount;
+    } else {
+      nipanns = parameterCount;
+    }
+    super.visitAnnotableParameterCount(parameterCount, visible);
+  }
+
+  @Override
   public AnnotationVisitor visitParameterAnnotation(
       final int parameter, final String desc, final boolean visible) {
     checkEndMethod();
+    if ((visible && npanns > 0 && parameter >= npanns)
+        || (!visible && nipanns > 0 && parameter >= nipanns)) {
+      throw new IllegalArgumentException("Invalid parameter index");
+    }
     checkDesc(desc, false);
     return new CheckAnnotationAdapter(super.visitParameterAnnotation(parameter, desc, visible));
   }

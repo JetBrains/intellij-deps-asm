@@ -135,6 +135,15 @@ class AllStructures<
     return total;
   }
 
+  void localClassConstructor(final String name) {
+    class LocalClass {
+      LocalClass(@Deprecated int value) {
+        System.out.println(name + value);
+      }
+    }
+    new LocalClass(42);
+  }
+
   @Retention(RetentionPolicy.CLASS)
   @interface InvisibleAnnotation {
     byte byteValue() default 1;

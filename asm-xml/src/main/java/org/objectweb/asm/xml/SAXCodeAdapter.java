@@ -361,6 +361,15 @@ public final class SAXCodeAdapter extends MethodVisitor {
   }
 
   @Override
+  public void visitAnnotableParameterCount(
+      final int parameterCount, final boolean visible) {
+    AttributesImpl attrs = new AttributesImpl();
+    attrs.addAttribute("", "count", "count", "", Integer.toString(parameterCount));
+    attrs.addAttribute("", "visible", "visible", "", visible ? "true" : "false");
+    sa.addElement("annotableParameterCount", attrs);
+  }
+
+  @Override
   public AnnotationVisitor visitParameterAnnotation(
       final int parameter, final String desc, final boolean visible) {
     return new SAXAnnotationAdapter(sa, "parameterAnnotation", visible ? 1 : -1, parameter, desc);

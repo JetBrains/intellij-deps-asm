@@ -83,6 +83,7 @@ public class AsmTestTest extends AsmTest {
       case JDK5_ALL_INSTRUCTIONS:
       case JDK5_ALL_STRUCTURES:
       case JDK5_ENUM:
+      case JDK5_LOCAL_CLASS:
       case JDK8_ALL_STRUCTURES:
       case JDK8_ANONYMOUS_INNER_CLASS:
       case JDK8_INNER_CLASS:
@@ -125,6 +126,7 @@ public class AsmTestTest extends AsmTest {
       case JDK5_ALL_INSTRUCTIONS:
       case JDK5_ALL_STRUCTURES:
       case JDK5_ENUM:
+      case JDK5_LOCAL_CLASS:
       case JDK8_ALL_STRUCTURES:
       case JDK8_ANONYMOUS_INNER_CLASS:
       case JDK8_INNER_CLASS:

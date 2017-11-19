@@ -190,7 +190,7 @@ final class ModuleWriter extends ModuleVisitor {
    *
    * @return the size in bytes of the Module, ModulePackages and ModuleMainClass attributes.
    */
-  int getAttributesSize() {
+  int computeAttributesSize() {
     cw.newUTF8("Module");
     // 6 attribute header bytes, 6 bytes for name, flags and version, and 5 * 2 bytes for counts.
     int size =

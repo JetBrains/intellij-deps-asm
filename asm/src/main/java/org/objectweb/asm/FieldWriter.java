@@ -190,7 +190,7 @@ final class FieldWriter extends FieldVisitor {
    *
    * @return the size in bytes of the field_info JVMS structure.
    */
-  int getSize() {
+  int computeFieldInfoSize() {
     // The access_flags, name_index, descriptor_index and attributes_count fields use 8 bytes.
     int size = 8;
     if (constantValueIndex != 0) {
@@ -217,17 +217,19 @@ final class FieldWriter extends FieldVisitor {
       size += 8;
     }
     if (lastRuntimeVisibleAnnotation != null) {
-      size += lastRuntimeVisibleAnnotation.getAnnotationsSize("RuntimeVisibleAnnotations");
+      size += lastRuntimeVisibleAnnotation.computeAnnotationsSize("RuntimeVisibleAnnotations");
     }
     if (lastRuntimeInvisibleAnnotation != null) {
-      size += lastRuntimeInvisibleAnnotation.getAnnotationsSize("RuntimeInvisibleAnnotations");
+      size += lastRuntimeInvisibleAnnotation.computeAnnotationsSize("RuntimeInvisibleAnnotations");
     }
     if (lastRuntimeVisibleTypeAnnotation != null) {
-      size += lastRuntimeVisibleTypeAnnotation.getAnnotationsSize("RuntimeVisibleTypeAnnotations");
+      size +=
+          lastRuntimeVisibleTypeAnnotation.computeAnnotationsSize("RuntimeVisibleTypeAnnotations");
     }
     if (lastRuntimeInvisibleTypeAnnotation != null) {
       size +=
-          lastRuntimeInvisibleTypeAnnotation.getAnnotationsSize("RuntimeInvisibleTypeAnnotations");
+          lastRuntimeInvisibleTypeAnnotation.computeAnnotationsSize(
+              "RuntimeInvisibleTypeAnnotations");
     }
     if (firstAttribute != null) {
       size += firstAttribute.getAttributesSize(parentClassWriter);

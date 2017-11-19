@@ -1870,7 +1870,7 @@ class MethodWriter extends MethodVisitor {
    *
    * @return the size of the bytecode of this method.
    */
-  final int getSize() {
+  final int computeMethodInfoSize() {
     if (classReaderOffset != 0) {
       return 6 + classReaderLength;
     }
@@ -1899,10 +1899,10 @@ class MethodWriter extends MethodVisitor {
         size += 8 + stackMap.length;
       }
       if (ctanns != null) {
-        size += ctanns.getAnnotationsSize("RuntimeVisibleTypeAnnotations");
+        size += ctanns.computeAnnotationsSize("RuntimeVisibleTypeAnnotations");
       }
       if (ictanns != null) {
-        size += ictanns.getAnnotationsSize("RuntimeInvisibleTypeAnnotations");
+        size += ictanns.computeAnnotationsSize("RuntimeInvisibleTypeAnnotations");
       }
       if (cattrs != null) {
         size += cattrs.getAttributesSize(cw, code.data, code.length, maxStack, maxLocals);
@@ -1934,25 +1934,25 @@ class MethodWriter extends MethodVisitor {
       size += 6 + annd.length;
     }
     if (anns != null) {
-      size += anns.getAnnotationsSize("RuntimeVisibleAnnotations");
+      size += anns.computeAnnotationsSize("RuntimeVisibleAnnotations");
     }
     if (ianns != null) {
-      size += ianns.getAnnotationsSize("RuntimeInvisibleAnnotations");
+      size += ianns.computeAnnotationsSize("RuntimeInvisibleAnnotations");
     }
     if (tanns != null) {
-      size += tanns.getAnnotationsSize("RuntimeVisibleTypeAnnotations");
+      size += tanns.computeAnnotationsSize("RuntimeVisibleTypeAnnotations");
     }
     if (itanns != null) {
-      size += itanns.getAnnotationsSize("RuntimeInvisibleTypeAnnotations");
+      size += itanns.computeAnnotationsSize("RuntimeInvisibleTypeAnnotations");
     }
     if (panns != null) {
       size +=
-          AnnotationWriter.getParameterAnnotationsSize(
+          AnnotationWriter.computeParameterAnnotationsSize(
               "RuntimeVisibleParameterAnnotations", panns, npanns == 0 ? panns.length : npanns);
     }
     if (ipanns != null) {
       size +=
-          AnnotationWriter.getParameterAnnotationsSize(
+          AnnotationWriter.computeParameterAnnotationsSize(
               "RuntimeInvisibleParameterAnnotations",
               ipanns,
               nipanns == 0 ? ipanns.length : nipanns);
@@ -2035,10 +2035,10 @@ class MethodWriter extends MethodVisitor {
         size += 8 + stackMap.length;
       }
       if (ctanns != null) {
-        size += ctanns.getAnnotationsSize("RuntimeVisibleTypeAnnotations");
+        size += ctanns.computeAnnotationsSize("RuntimeVisibleTypeAnnotations");
       }
       if (ictanns != null) {
-        size += ictanns.getAnnotationsSize("RuntimeInvisibleTypeAnnotations");
+        size += ictanns.computeAnnotationsSize("RuntimeInvisibleTypeAnnotations");
       }
       if (cattrs != null) {
         size += cattrs.getAttributesSize(cw, code.data, code.length, maxStack, maxLocals);

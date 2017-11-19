@@ -289,7 +289,7 @@ final class AnnotationWriter extends AnnotationVisitor {
    *     annotation and all its predecessors. This includes the size of the attribute_name_index and
    *     attribute_length fields.
    */
-  int getAnnotationsSize(final String attributeName) {
+  int computeAnnotationsSize(final String attributeName) {
     if (attributeName != null) {
       parentClassWriter.newUTF8(attributeName);
     }
@@ -349,20 +349,20 @@ final class AnnotationWriter extends AnnotationVisitor {
    *     to the given sub-array of AnnotationWriter lists. This includes the size of the
    *     attribute_name_index and attribute_length fields.
    */
-  static int getParameterAnnotationsSize(
+  static int computeParameterAnnotationsSize(
       final String attributeName,
       final AnnotationWriter[] annotationWriters,
       final int annotableParameterCount) {
-    // Note: attributeName is added to the constant pool by the call to getAnnotationsSize below.
-    // This assumes that there is at least one non-null element in the annotationWriters sub-array
-    // (which is ensured by the lazy instantiation of this array in MethodWriter).
+    // Note: attributeName is added to the constant pool by the call to computeAnnotationsSize
+    // below. This assumes that there is at least one non-null element in the annotationWriters
+    // sub-array (which is ensured by the lazy instantiation of this array in MethodWriter).
     // The attribute_name_index, attribute_length and num_parameters fields use 7 bytes, and each
     // element of the parameter_annotations array uses 2 bytes for its num_annotations field.
     int attributeSize = 7 + 2 * annotableParameterCount;
     for (int i = 0; i < annotableParameterCount; ++i) {
       AnnotationWriter annotationWriter = annotationWriters[i];
       attributeSize +=
-          annotationWriter == null ? 0 : annotationWriter.getAnnotationsSize(attributeName) - 8;
+          annotationWriter == null ? 0 : annotationWriter.computeAnnotationsSize(attributeName) - 8;
     }
     return attributeSize;
   }
@@ -390,7 +390,7 @@ final class AnnotationWriter extends AnnotationVisitor {
     for (int i = 0; i < annotableParameterCount; ++i) {
       AnnotationWriter annotationWriter = annotationWriters[i];
       attributeLength +=
-          annotationWriter == null ? 0 : annotationWriter.getAnnotationsSize(null) - 8;
+          annotationWriter == null ? 0 : annotationWriter.computeAnnotationsSize(null) - 8;
     }
     output.putShort(attributeNameIndex);
     output.putInt(attributeLength);

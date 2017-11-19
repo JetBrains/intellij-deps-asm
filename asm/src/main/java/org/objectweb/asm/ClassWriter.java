@@ -684,14 +684,14 @@ public class ClassWriter extends ClassVisitor {
     FieldWriter fb = firstField;
     while (fb != null) {
       ++nbFields;
-      size += fb.getSize();
+      size += fb.computeFieldInfoSize();
       fb = (FieldWriter) fb.fv;
     }
     int nbMethods = 0;
     MethodWriter mb = firstMethod;
     while (mb != null) {
       ++nbMethods;
-      size += mb.getSize();
+      size += mb.computeMethodInfoSize();
       mb = (MethodWriter) mb.mv;
     }
     int attributeCount = 0;
@@ -741,24 +741,23 @@ public class ClassWriter extends ClassVisitor {
     }
     if (anns != null) {
       ++attributeCount;
-      size += anns.getAnnotationsSize("RuntimeVisibleAnnotations");
+      size += anns.computeAnnotationsSize("RuntimeVisibleAnnotations");
     }
     if (ianns != null) {
       ++attributeCount;
-      size += ianns.getAnnotationsSize("RuntimeInvisibleAnnotations");
+      size += ianns.computeAnnotationsSize("RuntimeInvisibleAnnotations");
     }
     if (tanns != null) {
       ++attributeCount;
-      size += tanns.getAnnotationsSize("RuntimeVisibleTypeAnnotations");
+      size += tanns.computeAnnotationsSize("RuntimeVisibleTypeAnnotations");
     }
     if (itanns != null) {
       ++attributeCount;
-      size += itanns.getAnnotationsSize("RuntimeInvisibleTypeAnnotations");
+      size += itanns.computeAnnotationsSize("RuntimeInvisibleTypeAnnotations");
     }
     if (moduleWriter != null) {
-      attributeCount += 1 + moduleWriter.attributeCount;
-      size += 6 + moduleWriter.size + moduleWriter.attributesSize;
-      newUTF8("Module");
+      attributeCount += moduleWriter.getAttributeCount();
+      size += moduleWriter.computeAttributesSize();
     }
     if (attrs != null) {
       attributeCount += attrs.getAttributeCount();
@@ -807,8 +806,6 @@ public class ClassWriter extends ClassVisitor {
       out.putByteArray(sourceDebug.data, 0, len);
     }
     if (moduleWriter != null) {
-      out.putShort(newUTF8("Module"));
-      moduleWriter.put(out);
       moduleWriter.putAttributes(out);
     }
     if (enclosingMethodOwner != 0) {

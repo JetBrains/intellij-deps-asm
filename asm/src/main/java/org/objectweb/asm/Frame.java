@@ -34,6 +34,42 @@ package org.objectweb.asm;
  */
 class Frame {
 
+  /**
+   * Internal stack map frame type (in addition to the ones declared in {@link Opcodes}). Represents
+   * a frame inserted between already existing frames. This kind of frame can only be used if the
+   * frame content can be computed from the previous existing frame and from the instructions
+   * between this existing frame and the inserted one, without any knowledge of the type hierarchy.
+   * This kind of frame is only used when an unconditional jump is inserted in a method while
+   * expanding an ASM specific instruction. Keep in sync with Opcodes.java.
+   */
+  static final int F_INSERT = 256;
+
+  // Constants used in the StackMapTable attribute.
+  // See https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.7.4
+
+  static final int SAME_FRAME = 0;
+  static final int SAME_LOCALS_1_STACK_ITEM_FRAME = 64;
+  static final int RESERVED = 128;
+  static final int SAME_LOCALS_1_STACK_ITEM_FRAME_EXTENDED = 247;
+  static final int CHOP_FRAME = 248;
+  static final int SAME_FRAME_EXTENDED = 251;
+  static final int APPEND_FRAME = 252;
+  static final int FULL_FRAME = 255;
+  static final int ITEM_TOP = 0;
+  static final int ITEM_INTEGER = 1;
+  static final int ITEM_FLOAT = 2;
+  static final int ITEM_DOUBLE = 3;
+  static final int ITEM_LONG = 4;
+  static final int ITEM_NULL = 5;
+  static final int ITEM_UNINITIALIZED_THIS = 6;
+  static final int ITEM_OBJECT = 7;
+  static final int ITEM_UNINITIALIZED = 8;
+  // Additional, ASM specific constants used in frame types below.
+  static final int ITEM_ASM_BOOLEAN = 9;
+  static final int ITEM_ASM_BYTE = 10;
+  static final int ITEM_ASM_CHAR = 11;
+  static final int ITEM_ASM_SHORT = 12;
+
   /*
    * Frames are computed in a two steps process: during the visit of each
    * instruction, the state of the frame at the end of current basic block is
@@ -153,37 +189,37 @@ class Frame {
   private static final int STACK = 0x3000000;
 
   /** The TOP type. This is a BASE type. */
-  static final int TOP = BASE | 0;
+  static final int TOP = BASE | ITEM_TOP;
 
   /** The BOOLEAN type. This is a BASE type mainly used for array types. */
-  static final int BOOLEAN = BASE | 9;
+  static final int BOOLEAN = BASE | ITEM_ASM_BOOLEAN;
 
   /** The BYTE type. This is a BASE type mainly used for array types. */
-  static final int BYTE = BASE | 10;
+  static final int BYTE = BASE | ITEM_ASM_BYTE;
 
   /** The CHAR type. This is a BASE type mainly used for array types. */
-  static final int CHAR = BASE | 11;
+  static final int CHAR = BASE | ITEM_ASM_CHAR;
 
   /** The SHORT type. This is a BASE type mainly used for array types. */
-  static final int SHORT = BASE | 12;
+  static final int SHORT = BASE | ITEM_ASM_SHORT;
 
   /** The INTEGER type. This is a BASE type. */
-  static final int INTEGER = BASE | 1;
+  static final int INTEGER = BASE | ITEM_INTEGER;
 
   /** The FLOAT type. This is a BASE type. */
-  static final int FLOAT = BASE | 2;
+  static final int FLOAT = BASE | ITEM_FLOAT;
 
   /** The DOUBLE type. This is a BASE type. */
-  static final int DOUBLE = BASE | 3;
+  static final int DOUBLE = BASE | ITEM_DOUBLE;
 
   /** The LONG type. This is a BASE type. */
-  static final int LONG = BASE | 4;
+  static final int LONG = BASE | ITEM_LONG;
 
   /** The NULL type. This is a BASE type. */
-  static final int NULL = BASE | 5;
+  static final int NULL = BASE | ITEM_NULL;
 
   /** The UNINITIALIZED_THIS type. This is a BASE type. */
-  static final int UNINITIALIZED_THIS = BASE | 6;
+  static final int UNINITIALIZED_THIS = BASE | ITEM_UNINITIALIZED_THIS;
 
   /**
    * The stack size variation corresponding to each JVM instruction. This stack variation is equal

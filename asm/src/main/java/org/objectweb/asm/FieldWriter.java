@@ -31,13 +31,17 @@ package org.objectweb.asm;
  * A {@link FieldVisitor} that generates a corresponding 'field_info' structure, as defined in the
  * Java Virtual Machine Specification (JVMS).
  *
- * @see https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.5
+ * @see <a href="https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.5">JVMS
+ *     4.5</a>
  * @author Eric Bruneton
  */
 final class FieldWriter extends FieldVisitor {
 
   /** Where the constants used in this FieldWriter must be stored. */
   private final SymbolTable symbolTable;
+
+  // Note: fields are ordered as in the field_info structure, and those related to attributes are
+  // ordered as in Section 4.7 of the JVMS.
 
   /**
    * The access_flags field of the field_info JVMS structure. This field can contain ASM specific
@@ -94,8 +98,8 @@ final class FieldWriter extends FieldVisitor {
    *
    * <p><b>WARNING</b>: this list stores the attributes in the <i>reverse</i> order of their visit.
    * firstAttribute is actually the last attribute visited in {@link #visitAttribute}. The {@link
-   * #put} method writes the attributes in the order defined by this list, i.e. in the reverse order
-   * specified by the user.
+   * #putFieldInfo} method writes the attributes in the order defined by this list, i.e. in the
+   * reverse order specified by the user.
    */
   private Attribute firstAttribute;
 
@@ -247,10 +251,10 @@ final class FieldWriter extends FieldVisitor {
    *
    * @param output where the field_info structure must be put.
    */
-  void put(final ByteVector output) {
+  void putFieldInfo(final ByteVector output) {
     boolean useSyntheticAttribute = symbolTable.getMajorVersion() < Opcodes.V1_5;
     // Put the access_flags, name_index and descriptor_index fields.
-    int mask = Opcodes.ACC_DEPRECATED | (useSyntheticAttribute ? Opcodes.ACC_SYNTHETIC : 0);
+    int mask = useSyntheticAttribute ? Opcodes.ACC_SYNTHETIC : 0;
     output.putShort(accessFlags & ~mask).putShort(nameIndex).putShort(descriptorIndex);
     // Compute and put the attributes_count field.
     // For ease of reference, we use here the same attribute order as in Section 4.7 of the JVMS.

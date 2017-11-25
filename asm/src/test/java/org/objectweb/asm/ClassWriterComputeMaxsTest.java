@@ -218,7 +218,7 @@ public class ClassWriterComputeMaxsTest {
         e = e.nextEdge;
       }
       actual.put(key, value);
-      l = l.successor;
+      l = l.nextBasicBlock;
     }
 
     assertEquals(expected, actual);

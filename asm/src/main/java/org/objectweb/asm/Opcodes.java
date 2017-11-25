@@ -34,18 +34,20 @@ package org.objectweb.asm;
  * xSTORE_n opcodes are therefore not defined in this interface. Likewise for LDC, automatically
  * replaced by LDC_W or LDC2_W when necessary, WIDE, GOTO_W and JSR_W.
  *
+ * @see <a href="https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-6.html">JVMS 6</a>
  * @author Eric Bruneton
  * @author Eugene Kuleshov
  */
 public interface Opcodes {
 
-  // ASM API versions
+  // ASM API versions.
 
   int ASM4 = 4 << 16 | 0 << 8 | 0;
   int ASM5 = 5 << 16 | 0 << 8 | 0;
   int ASM6 = 6 << 16 | 0 << 8 | 0;
 
-  // versions
+  // Java ClassFile versions (the minor version is stored in the 16 most significant bits, and the
+  // major version is 16 least significant bits).
 
   int V1_1 = 3 << 16 | 45;
   int V1_2 = 0 << 16 | 46;
@@ -57,7 +59,11 @@ public interface Opcodes {
   int V1_8 = 0 << 16 | 52;
   int V9 = 0 << 16 | 53;
 
-  // access flags
+  // Access flags values, defined in
+  // - https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.1-200-E.1
+  // - https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.5-200-A.1
+  // - https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.6-200-A.1
+  // - https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.7.25
 
   int ACC_PUBLIC = 0x0001; // class, field, method
   int ACC_PRIVATE = 0x0002; // class, field, method
@@ -83,7 +89,7 @@ public interface Opcodes {
   int ACC_MANDATED = 0x8000; // parameter, module, module *
   int ACC_MODULE = 0x8000; // class
 
-  // ASM specific pseudo access flags
+  // ASM specific access flags.
   // WARNING: the 16 least significant bits must NOT be used, to avoid conflicts with standard
   // access flags, and also to make sure that these flags are automatically filtered out when
   // written in class files (because access flags are stored using 16 bits only).
@@ -91,7 +97,8 @@ public interface Opcodes {
   int ACC_DEPRECATED = 0x20000; // class, field, method
   // int ACC_CONSTRUCTOR = 0x40000; // method (defined in MethodWriter).
 
-  // types for NEWARRAY
+  // Possible values for the type operand of the NEWARRAY instruction.
+  // See https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-6.html#jvms-6.5.newarray.
 
   int T_BOOLEAN = 4;
   int T_CHAR = 5;
@@ -102,7 +109,8 @@ public interface Opcodes {
   int T_INT = 10;
   int T_LONG = 11;
 
-  // tags for Handle
+  // Possible values for the reference_kind field of CONSTANT_MethodHandle_info structures.
+  // See https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.4.8.
 
   int H_GETFIELD = 1;
   int H_GETSTATIC = 2;
@@ -114,69 +122,69 @@ public interface Opcodes {
   int H_NEWINVOKESPECIAL = 8;
   int H_INVOKEINTERFACE = 9;
 
-  // stack map frame types
+  // ASM specific stack map frame types, used in {@link ClassVisitor#visitFrame}.
 
-  /** Represents an expanded frame. See {@link ClassReader#EXPAND_FRAMES}. */
+  /** An expanded frame. See {@link ClassReader#EXPAND_FRAMES}. */
   int F_NEW = -1;
 
-  /** Represents a compressed frame with complete frame data. */
+  /** A compressed frame with complete frame data. */
   int F_FULL = 0;
 
   /**
-   * Represents a compressed frame where locals are the same as the locals in the previous frame,
-   * except that additional 1-3 locals are defined, and with an empty stack.
+   * A compressed frame where locals are the same as the locals in the previous frame, except that
+   * additional 1-3 locals are defined, and with an empty stack.
    */
   int F_APPEND = 1;
 
   /**
-   * Represents a compressed frame where locals are the same as the locals in the previous frame,
-   * except that the last 1-3 locals are absent and with an empty stack.
+   * A compressed frame where locals are the same as the locals in the previous frame, except that
+   * the last 1-3 locals are absent and with an empty stack.
    */
   int F_CHOP = 2;
 
   /**
-   * Represents a compressed frame with exactly the same locals as the previous frame and with an
-   * empty stack.
+   * A compressed frame with exactly the same locals as the previous frame and with an empty stack.
    */
   int F_SAME = 3;
 
   /**
-   * Represents a compressed frame with exactly the same locals as the previous frame and with a
-   * single value on the stack.
+   * A compressed frame with exactly the same locals as the previous frame and with a single value
+   * on the stack.
    */
   int F_SAME1 = 4;
 
   //
-  // Represents a frame inserted between already existing frames. Defined in ClassReader.
+  // A frame inserted between already existing frames. Defined in Frame.java.
   //
   // int F_INSERT = 256;
 
-  // Do not try to change the following code to use auto-boxing,
-  // these values are compared by reference and not by value
-  // The constructor of Integer was deprecated in 9
-  // but we are stuck with it by backward compatibility
+  // Do not change the following code to use auto-boxing, these values are compared by reference
+  // and not by value. The constructor of Integer is deprecated in Java 9 but we are stuck with it
+  // by backward compatibility.
   @SuppressWarnings("deprecation")
-  Integer TOP = new Integer(0);
+  Integer TOP = new Integer(Frame.ITEM_TOP);
 
   @SuppressWarnings("deprecation")
-  Integer INTEGER = new Integer(1);
+  Integer INTEGER = new Integer(Frame.ITEM_INTEGER);
 
   @SuppressWarnings("deprecation")
-  Integer FLOAT = new Integer(2);
+  Integer FLOAT = new Integer(Frame.ITEM_FLOAT);
 
   @SuppressWarnings("deprecation")
-  Integer DOUBLE = new Integer(3);
+  Integer DOUBLE = new Integer(Frame.ITEM_DOUBLE);
 
   @SuppressWarnings("deprecation")
-  Integer LONG = new Integer(4);
+  Integer LONG = new Integer(Frame.ITEM_LONG);
 
   @SuppressWarnings("deprecation")
-  Integer NULL = new Integer(5);
+  Integer NULL = new Integer(Frame.ITEM_NULL);
 
   @SuppressWarnings("deprecation")
-  Integer UNINITIALIZED_THIS = new Integer(6);
+  Integer UNINITIALIZED_THIS = new Integer(Frame.ITEM_UNINITIALIZED_THIS);
 
-  // opcodes // visit method (- = idem)
+  // The JVM opcode values (with the MethodVisitor method name used to visit them in comment, and
+  // where '-' means 'same method name as on the previous line').
+  // See https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-6.html.
 
   int NOP = 0; // visitInsn
   int ACONST_NULL = 1; // -
@@ -380,4 +388,23 @@ public interface Opcodes {
   int IFNONNULL = 199; // -
   // int GOTO_W = 200; // -
   // int JSR_W = 201; // -
+  // int ASM_IFEQ = 202; // ASM specific instruction, uses an unsigned short offset
+  // int ASM_IFNE = 203; // -
+  // int ASM_IFLT = 204; // -
+  // int ASM_IFGE = 205; // -
+  // int ASM_IFGT = 206; // -
+  // int ASM_IFLE = 207; // -
+  // int ASM_IF_ICMPEQ = 208; // -
+  // int ASM_IF_ICMPNE = 209; // -
+  // int ASM_IF_ICMPLT = 210; // -
+  // int ASM_IF_ICMPGE = 211; // -
+  // int ASM_IF_ICMPGT = 212; // -
+  // int ASM_IF_ICMPLE = 213; // -
+  // int ASM_IF_ACMPEQ = 214; // -
+  // int ASM_IF_ACMPNE = 215; // -
+  // int ASM_GOTO = 216; // -
+  // int ASM_JSR = 217; // -
+  // int ASM_IFNULL = 218; // -
+  // int ASM_IFNONNULL = 219; // -
+  // int ASM_GOTO_W = 220; // ASM specific instruction
 }

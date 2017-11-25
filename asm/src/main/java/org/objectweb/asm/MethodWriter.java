@@ -38,7 +38,7 @@ package org.objectweb.asm;
  */
 final class MethodWriter extends MethodVisitor {
 
-  // ASM specific access flags
+  // ASM specific access flags.
 
   // WARNING: the 16 least significant bits must NOT be used, to avoid conflicts with standard
   // access flags, and also to make sure that these flags are automatically filtered out when
@@ -51,37 +51,241 @@ final class MethodWriter extends MethodVisitor {
   static final int ACC_CONSTRUCTOR = 0x40000;
 
   /**
-   * Indicates that all the stack map frames must be recomputed from scratch. In this case the
-   * maximum stack size and number of local variables is also recomputed from scratch.
-   *
-   * @see #compute
+   * Indicates that all the stack map frames must be computed. In this case the maximum stack size
+   * and the maximum number of local variables is also computed.
    */
   static final int COMPUTE_ALL_FRAMES = 3;
 
   /**
    * Indicates that the stack map frames of type F_INSERT must be computed. The other frames are not
-   * (re)computed. They should all be of type F_NEW and should be sufficient to compute the content
-   * of the F_INSERT frames, together with the bytecode instructions between a F_NEW and a F_INSERT
+   * computed. They should all be of type F_NEW and should be sufficient to compute the content of
+   * the F_INSERT frames, together with the bytecode instructions between a F_NEW and a F_INSERT
    * frame - and without any knowledge of the type hierarchy (by definition of F_INSERT).
-   *
-   * @see #compute
    */
   static final int COMPUTE_INSERTED_FRAMES = 2;
 
   /**
-   * Indicates that the maximum stack size and number of local variables must be automatically
+   * Indicates that the maximum stack size and the maximum number of local variables must be
    * computed.
-   *
-   * @see #compute
    */
   static final int COMPUTE_MAX_STACK_AND_LOCAL = 1;
 
-  /**
-   * Indicates that nothing must be automatically computed.
-   *
-   * @see #compute
-   */
+  /** Indicates that nothing must be computed. */
   static final int COMPUTE_NOTHING = 0;
+
+  /** {@link #STACK_SIZE_DELTA} is not applicable (not statically known or never used). */
+  private static final int NA = 0;
+
+  /**
+   * The stack size variation corresponding to each JVM opcode. The stack size variation for opcode
+   * 'o' is given by the array element at index 'o'.
+   *
+   * @see <a href="https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-6.html">JVMS 6</a>
+   */
+  private static final int[] STACK_SIZE_DELTA = {
+    0, // nop = 0 (0x0)
+    1, // aconst_null = 1 (0x1)
+    1, // iconst_m1 = 2 (0x2)
+    1, // iconst_0 = 3 (0x3)
+    1, // iconst_1 = 4 (0x4)
+    1, // iconst_2 = 5 (0x5)
+    1, // iconst_3 = 6 (0x6)
+    1, // iconst_4 = 7 (0x7)
+    1, // iconst_5 = 8 (0x8)
+    2, // lconst_0 = 9 (0x9)
+    2, // lconst_1 = 10 (0xa)
+    1, // fconst_0 = 11 (0xb)
+    1, // fconst_1 = 12 (0xc)
+    1, // fconst_2 = 13 (0xd)
+    2, // dconst_0 = 14 (0xe)
+    2, // dconst_1 = 15 (0xf)
+    1, // bipush = 16 (0x10)
+    1, // sipush = 17 (0x11)
+    1, // ldc = 18 (0x12)
+    NA, // ldc_w = 19 (0x13)
+    NA, // ldc2_w = 20 (0x14)
+    1, // iload = 21 (0x15)
+    2, // lload = 22 (0x16)
+    1, // fload = 23 (0x17)
+    2, // dload = 24 (0x18)
+    1, // aload = 25 (0x19)
+    NA, // iload_0 = 26 (0x1a)
+    NA, // iload_1 = 27 (0x1b)
+    NA, // iload_2 = 28 (0x1c)
+    NA, // iload_3 = 29 (0x1d)
+    NA, // lload_0 = 30 (0x1e)
+    NA, // lload_1 = 31 (0x1f)
+    NA, // lload_2 = 32 (0x20)
+    NA, // lload_3 = 33 (0x21)
+    NA, // fload_0 = 34 (0x22)
+    NA, // fload_1 = 35 (0x23)
+    NA, // fload_2 = 36 (0x24)
+    NA, // fload_3 = 37 (0x25)
+    NA, // dload_0 = 38 (0x26)
+    NA, // dload_1 = 39 (0x27)
+    NA, // dload_2 = 40 (0x28)
+    NA, // dload_3 = 41 (0x29)
+    NA, // aload_0 = 42 (0x2a)
+    NA, // aload_1 = 43 (0x2b)
+    NA, // aload_2 = 44 (0x2c)
+    NA, // aload_3 = 45 (0x2d)
+    -1, // iaload = 46 (0x2e)
+    0, // laload = 47 (0x2f)
+    -1, // faload = 48 (0x30)
+    0, // daload = 49 (0x31)
+    -1, // aaload = 50 (0x32)
+    -1, // baload = 51 (0x33)
+    -1, // caload = 52 (0x34)
+    -1, // saload = 53 (0x35)
+    -1, // istore = 54 (0x36)
+    -2, // lstore = 55 (0x37)
+    -1, // fstore = 56 (0x38)
+    -2, // dstore = 57 (0x39)
+    -1, // astore = 58 (0x3a)
+    NA, // istore_0 = 59 (0x3b)
+    NA, // istore_1 = 60 (0x3c)
+    NA, // istore_2 = 61 (0x3d)
+    NA, // istore_3 = 62 (0x3e)
+    NA, // lstore_0 = 63 (0x3f)
+    NA, // lstore_1 = 64 (0x40)
+    NA, // lstore_2 = 65 (0x41)
+    NA, // lstore_3 = 66 (0x42)
+    NA, // fstore_0 = 67 (0x43)
+    NA, // fstore_1 = 68 (0x44)
+    NA, // fstore_2 = 69 (0x45)
+    NA, // fstore_3 = 70 (0x46)
+    NA, // dstore_0 = 71 (0x47)
+    NA, // dstore_1 = 72 (0x48)
+    NA, // dstore_2 = 73 (0x49)
+    NA, // dstore_3 = 74 (0x4a)
+    NA, // astore_0 = 75 (0x4b)
+    NA, // astore_1 = 76 (0x4c)
+    NA, // astore_2 = 77 (0x4d)
+    NA, // astore_3 = 78 (0x4e)
+    -3, // iastore = 79 (0x4f)
+    -4, // lastore = 80 (0x50)
+    -3, // fastore = 81 (0x51)
+    -4, // dastore = 82 (0x52)
+    -3, // aastore = 83 (0x53)
+    -3, // bastore = 84 (0x54)
+    -3, // castore = 85 (0x55)
+    -3, // sastore = 86 (0x56)
+    -1, // pop = 87 (0x57)
+    -2, // pop2 = 88 (0x58)
+    1, // dup = 89 (0x59)
+    1, // dup_x1 = 90 (0x5a)
+    1, // dup_x2 = 91 (0x5b)
+    2, // dup2 = 92 (0x5c)
+    2, // dup2_x1 = 93 (0x5d)
+    2, // dup2_x2 = 94 (0x5e)
+    0, // swap = 95 (0x5f)
+    -1, // iadd = 96 (0x60)
+    -2, // ladd = 97 (0x61)
+    -1, // fadd = 98 (0x62)
+    -2, // dadd = 99 (0x63)
+    -1, // isub = 100 (0x64)
+    -2, // lsub = 101 (0x65)
+    -1, // fsub = 102 (0x66)
+    -2, // dsub = 103 (0x67)
+    -1, // imul = 104 (0x68)
+    -2, // lmul = 105 (0x69)
+    -1, // fmul = 106 (0x6a)
+    -2, // dmul = 107 (0x6b)
+    -1, // idiv = 108 (0x6c)
+    -2, // ldiv = 109 (0x6d)
+    -1, // fdiv = 110 (0x6e)
+    -2, // ddiv = 111 (0x6f)
+    -1, // irem = 112 (0x70)
+    -2, // lrem = 113 (0x71)
+    -1, // frem = 114 (0x72)
+    -2, // drem = 115 (0x73)
+    0, // ineg = 116 (0x74)
+    0, // lneg = 117 (0x75)
+    0, // fneg = 118 (0x76)
+    0, // dneg = 119 (0x77)
+    -1, // ishl = 120 (0x78)
+    -1, // lshl = 121 (0x79)
+    -1, // ishr = 122 (0x7a)
+    -1, // lshr = 123 (0x7b)
+    -1, // iushr = 124 (0x7c)
+    -1, // lushr = 125 (0x7d)
+    -1, // iand = 126 (0x7e)
+    -2, // land = 127 (0x7f)
+    -1, // ior = 128 (0x80)
+    -2, // lor = 129 (0x81)
+    -1, // ixor = 130 (0x82)
+    -2, // lxor = 131 (0x83)
+    0, // iinc = 132 (0x84)
+    1, // i2l = 133 (0x85)
+    0, // i2f = 134 (0x86)
+    1, // i2d = 135 (0x87)
+    -1, // l2i = 136 (0x88)
+    -1, // l2f = 137 (0x89)
+    0, // l2d = 138 (0x8a)
+    0, // f2i = 139 (0x8b)
+    1, // f2l = 140 (0x8c)
+    1, // f2d = 141 (0x8d)
+    -1, // d2i = 142 (0x8e)
+    0, // d2l = 143 (0x8f)
+    -1, // d2f = 144 (0x90)
+    0, // i2b = 145 (0x91)
+    0, // i2c = 146 (0x92)
+    0, // i2s = 147 (0x93)
+    -3, // lcmp = 148 (0x94)
+    -1, // fcmpl = 149 (0x95)
+    -1, // fcmpg = 150 (0x96)
+    -3, // dcmpl = 151 (0x97)
+    -3, // dcmpg = 152 (0x98)
+    -1, // ifeq = 153 (0x99)
+    -1, // ifne = 154 (0x9a)
+    -1, // iflt = 155 (0x9b)
+    -1, // ifge = 156 (0x9c)
+    -1, // ifgt = 157 (0x9d)
+    -1, // ifle = 158 (0x9e)
+    -2, // if_icmpeq = 159 (0x9f)
+    -2, // if_icmpne = 160 (0xa0)
+    -2, // if_icmplt = 161 (0xa1)
+    -2, // if_icmpge = 162 (0xa2)
+    -2, // if_icmpgt = 163 (0xa3)
+    -2, // if_icmple = 164 (0xa4)
+    -2, // if_acmpeq = 165 (0xa5)
+    -2, // if_acmpne = 166 (0xa6)
+    0, // goto = 167 (0xa7)
+    1, // jsr = 168 (0xa8)
+    0, // ret = 169 (0xa9)
+    -1, // tableswitch = 170 (0xaa)
+    -1, // lookupswitch = 171 (0xab)
+    -1, // ireturn = 172 (0xac)
+    -2, // lreturn = 173 (0xad)
+    -1, // freturn = 174 (0xae)
+    -2, // dreturn = 175 (0xaf)
+    -1, // areturn = 176 (0xb0)
+    0, // return = 177 (0xb1)
+    NA, // getstatic = 178 (0xb2)
+    NA, // putstatic = 179 (0xb3)
+    NA, // getfield = 180 (0xb4)
+    NA, // putfield = 181 (0xb5)
+    NA, // invokevirtual = 182 (0xb6)
+    NA, // invokespecial = 183 (0xb7)
+    NA, // invokestatic = 184 (0xb8)
+    NA, // invokeinterface = 185 (0xb9)
+    NA, // invokedynamic = 186 (0xba)
+    1, // new = 187 (0xbb)
+    0, // newarray = 188 (0xbc)
+    0, // anewarray = 189 (0xbd)
+    0, // arraylength = 190 (0xbe)
+    NA, // athrow = 191 (0xbf)
+    0, // checkcast = 192 (0xc0)
+    0, // instanceof = 193 (0xc1)
+    -1, // monitorenter = 194 (0xc2)
+    -1, // monitorexit = 195 (0xc3)
+    NA, // wide = 196 (0xc4)
+    NA, // multianewarray = 197 (0xc5)
+    -1, // ifnull = 198 (0xc6)
+    -1, // ifnonnull = 199 (0xc7)
+    NA, // goto_w = 200 (0xc8)
+    NA // jsr_w = 201 (0xc9)
+  };
 
   /** Where the constants used in this MethodWriter must be stored. */
   private final SymbolTable symbolTable;
@@ -260,15 +464,14 @@ final class MethodWriter extends MethodVisitor {
   // -----------------------------------------------------------------------------------------------
 
   /**
-   * Indicates what must be automatically computed. Must be one of {@link #COMPUTE_ALL_FRAMES},
-   * {@link #COMPUTE_INSERTED_FRAMES}, {@link #COMPUTE_MAX_STACK_AND_LOCAL} or {@link
-   * #COMPUTE_NOTHING}.
+   * Indicates what must be computed. Must be one of {@link #COMPUTE_ALL_FRAMES}, {@link
+   * #COMPUTE_INSERTED_FRAMES}, {@link #COMPUTE_MAX_STACK_AND_LOCAL} or {@link #COMPUTE_NOTHING}.
    */
   private final int compute;
 
   /**
    * The first basic block of the method. The next ones (in bytecode offset order) can be accessed
-   * with the {@link Label#nextBasicBlock} field).
+   * with the {@link Label#nextBasicBlock} field.
    */
   private Label firstBasicBlock;
 
@@ -289,7 +492,7 @@ final class MethodWriter extends MethodVisitor {
   private Label currentBasicBlock;
 
   /**
-   * The (relative) stack size after the last visited instruction. This size is relative to the
+   * The relative stack size after the last visited instruction. This size is relative to the
    * beginning of {@link #currentBasicBlock}, i.e. the true stack size after the last visited
    * instruction is equal to the {@link Label#inputStackTop} of the current basic block plus {@link
    * #relativeStackSize}.
@@ -297,7 +500,7 @@ final class MethodWriter extends MethodVisitor {
   private int relativeStackSize;
 
   /**
-   * The (relative) maximum stack size after the last visited instruction. This size is relative to
+   * The maximum relative stack size after the last visited instruction. This size is relative to
    * the beginning of {@link #currentBasicBlock}, i.e. the true maximum stack size after the last
    * visited instruction is equal to the {@link Label#inputStackTop} of the current basic block plus
    * {@link #maxRelativeStackSize}.
@@ -320,9 +523,11 @@ final class MethodWriter extends MethodVisitor {
    * The current stack map frame. The first element contains the bytecode offset of the instruction
    * to which the frame corresponds, the second element is the number of locals and the third one is
    * the number of stack elements. The local variables start at index 3 and are followed by the
-   * operand stack values. In summary frame[0] = offset, frame[1] = nLocal, frame[2] = nStack,
-   * frame[3] = nLocal. All types are encoded as integers, with the same format as the one used in
-   * {@link Frame}, but limited to {@link Frame#BASE} types.
+   * operand stack elements. In summary frame[0] = offset, frame[1] = nLocal, frame[2] = nStack,
+   * frame[3] = nLocal. Local variables and operand stack entries contain abstract types, as defined
+   * in {@link Frame}, but restricted to {@link Frame#CONSTANT_KIND}, {@link Frame#REFERENCE_KIND}
+   * or {@link Frame#UNINITIALIZED_KIND} abstract types. Long and double types use only one array
+   * entry.
    */
   private int[] currentFrame;
 
@@ -369,7 +574,7 @@ final class MethodWriter extends MethodVisitor {
    * @param descriptor the method's descriptor (see {@link Type}).
    * @param signature the method's signature. May be <tt>null</tt>.
    * @param exceptions the internal names of the method's exceptions. May be <tt>null</tt>.
-   * @param compute Indicates what must be automatically computed (see #compute).
+   * @param compute indicates what must be computed (see #compute).
    */
   MethodWriter(
       final SymbolTable symbolTable,
@@ -398,14 +603,14 @@ final class MethodWriter extends MethodVisitor {
     }
     this.compute = compute;
     if (compute != COMPUTE_NOTHING) {
-      // Update maxLocals and currentLocals
+      // Update maxLocals and currentLocals.
       int argumentsSize = Type.getArgumentsAndReturnSizes(descriptor) >> 2;
       if ((access & Opcodes.ACC_STATIC) != 0) {
         --argumentsSize;
       }
       maxLocals = argumentsSize;
       currentLocals = argumentsSize;
-      // Create and visit the label for the first basic block
+      // Create and visit the label for the first basic block.
       firstBasicBlock = new Label();
       visitLabel(firstBasicBlock);
     }
@@ -428,7 +633,7 @@ final class MethodWriter extends MethodVisitor {
   // -----------------------------------------------------------------------------------------------
 
   @Override
-  public void visitParameter(String name, int access) {
+  public void visitParameter(final String name, final int access) {
     if (parameters == null) {
       parameters = new ByteVector();
     }
@@ -543,53 +748,40 @@ final class MethodWriter extends MethodVisitor {
     if (compute == COMPUTE_INSERTED_FRAMES) {
       if (currentBasicBlock.frame == null) {
         // This should happen only once, for the implicit first frame (which is explicitly visited
-        // in ClassReader if the EXPAND_ASM_INSNS option is used).
-        currentBasicBlock.frame = new CurrentFrame();
-        currentBasicBlock.frame.owner = currentBasicBlock;
-        currentBasicBlock.frame.initInputFrame(
-            symbolTable, accessFlags, Type.getArgumentTypes(descriptor), nLocal);
-        visitImplicitFirstFrame();
+        // in ClassReader if the EXPAND_ASM_INSNS option is used - and COMPUTE_INSERTED_FRAMES
+        // can't be set if EXPAND_ASM_INSNS is not used).
+        currentBasicBlock.frame = new CurrentFrame(currentBasicBlock);
+        currentBasicBlock.frame.setInputFrameFromDescriptor(
+            symbolTable, accessFlags, descriptor, nLocal);
+        currentBasicBlock.frame.accept(this);
       } else {
         if (type == Opcodes.F_NEW) {
-          currentBasicBlock.frame.set(symbolTable, nLocal, local, nStack, stack);
+          currentBasicBlock.frame.setInputFrameFromApiFormat(
+              symbolTable, nLocal, local, nStack, stack);
         } else {
           // In this case type is equal to F_INSERT by hypothesis, and currentBlock.frame contains
           // the stack map frame at the current instruction, computed from the last F_NEW frame
           // and the bytecode instructions in between (via calls to CurrentFrame#execute).
         }
-        visitFrame(currentBasicBlock.frame);
+        currentBasicBlock.frame.accept(this);
       }
     } else if (type == Opcodes.F_NEW) {
       if (previousFrame == null) {
-        visitImplicitFirstFrame();
+        int maxLocals = Type.getArgumentsAndReturnSizes(descriptor) >> 2;
+        Frame implicitFirstFrame = new Frame(new Label());
+        implicitFirstFrame.setInputFrameFromDescriptor(
+            symbolTable, accessFlags, descriptor, maxLocals);
+        implicitFirstFrame.accept(this);
       }
       currentLocals = nLocal;
-      int frameIndex = startFrame(code.length, nLocal, nStack);
+      int frameIndex = visitFrameStart(code.length, nLocal, nStack);
       for (int i = 0; i < nLocal; ++i) {
-        if (local[i] instanceof String) {
-          String descriptor = Type.getObjectType((String) local[i]).getDescriptor();
-          currentFrame[frameIndex++] = Frame.type(symbolTable, descriptor);
-        } else if (local[i] instanceof Integer) {
-          currentFrame[frameIndex++] = Frame.BASE | ((Integer) local[i]).intValue();
-        } else {
-          currentFrame[frameIndex++] =
-              Frame.UNINITIALIZED
-                  | symbolTable.addUninitializedType("", ((Label) local[i]).position);
-        }
+        currentFrame[frameIndex++] = Frame.getAbstractTypeFromApiFormat(symbolTable, local[i]);
       }
       for (int i = 0; i < nStack; ++i) {
-        if (stack[i] instanceof String) {
-          String descriptor = Type.getObjectType((String) stack[i]).getDescriptor();
-          currentFrame[frameIndex++] = Frame.type(symbolTable, descriptor);
-        } else if (stack[i] instanceof Integer) {
-          currentFrame[frameIndex++] = Frame.BASE | ((Integer) stack[i]).intValue();
-        } else {
-          currentFrame[frameIndex++] =
-              Frame.UNINITIALIZED
-                  | symbolTable.addUninitializedType("", ((Label) stack[i]).position);
-        }
+        currentFrame[frameIndex++] = Frame.getAbstractTypeFromApiFormat(symbolTable, stack[i]);
       }
-      endFrame();
+      visitFrameEnd();
     } else {
       int offsetDelta;
       if (stackMapTableEntries == null) {
@@ -611,18 +803,18 @@ final class MethodWriter extends MethodVisitor {
           currentLocals = nLocal;
           stackMapTableEntries.putByte(Frame.FULL_FRAME).putShort(offsetDelta).putShort(nLocal);
           for (int i = 0; i < nLocal; ++i) {
-            writeFrameType(local[i]);
+            putFrameType(local[i]);
           }
           stackMapTableEntries.putShort(nStack);
           for (int i = 0; i < nStack; ++i) {
-            writeFrameType(stack[i]);
+            putFrameType(stack[i]);
           }
           break;
         case Opcodes.F_APPEND:
           currentLocals += nLocal;
           stackMapTableEntries.putByte(Frame.SAME_FRAME_EXTENDED + nLocal).putShort(offsetDelta);
           for (int i = 0; i < nLocal; ++i) {
-            writeFrameType(local[i]);
+            putFrameType(local[i]);
           }
           break;
         case Opcodes.F_CHOP:
@@ -644,7 +836,7 @@ final class MethodWriter extends MethodVisitor {
                 .putByte(Frame.SAME_LOCALS_1_STACK_ITEM_FRAME_EXTENDED)
                 .putShort(offsetDelta);
           }
-          writeFrameType(stack[0]);
+          putFrameType(stack[0]);
           break;
       }
 
@@ -666,7 +858,7 @@ final class MethodWriter extends MethodVisitor {
       if (compute == COMPUTE_ALL_FRAMES || compute == COMPUTE_INSERTED_FRAMES) {
         currentBasicBlock.frame.execute(opcode, 0, null, null);
       } else {
-        int size = relativeStackSize + Frame.SIZE[opcode];
+        int size = relativeStackSize + STACK_SIZE_DELTA[opcode];
         if (size > maxRelativeStackSize) {
           maxRelativeStackSize = size;
         }
@@ -731,7 +923,7 @@ final class MethodWriter extends MethodVisitor {
           currentBasicBlock.inputStackTop = relativeStackSize;
           endCurrentBasicBlockWithNoSuccessor();
         } else { // xLOAD or xSTORE
-          int size = relativeStackSize + Frame.SIZE[opcode];
+          int size = relativeStackSize + STACK_SIZE_DELTA[opcode];
           if (size > maxRelativeStackSize) {
             maxRelativeStackSize = size;
           }
@@ -774,7 +966,7 @@ final class MethodWriter extends MethodVisitor {
     // If needed, update the maximum stack size and number of locals, and stack map frames.
     if (currentBasicBlock != null) {
       if (compute == COMPUTE_ALL_FRAMES || compute == COMPUTE_INSERTED_FRAMES) {
-        currentBasicBlock.frame.execute(opcode, lastBytecodeOffset, symbolTable, typeSymbol);
+        currentBasicBlock.frame.execute(opcode, lastBytecodeOffset, typeSymbol, symbolTable);
       } else if (opcode == Opcodes.NEW) {
         // The stack size delta is 1 for NEW, and 0 for ANEWARRAY, CHECKCAST, or INSTANCEOF.
         int size = relativeStackSize + 1;
@@ -796,7 +988,7 @@ final class MethodWriter extends MethodVisitor {
     // If needed, update the maximum stack size and number of locals, and stack map frames.
     if (currentBasicBlock != null) {
       if (compute == COMPUTE_ALL_FRAMES || compute == COMPUTE_INSERTED_FRAMES) {
-        currentBasicBlock.frame.execute(opcode, 0, symbolTable, fieldrefSymbol);
+        currentBasicBlock.frame.execute(opcode, 0, fieldrefSymbol, symbolTable);
       } else {
         int size;
         char firstDescChar = desc.charAt(0);
@@ -842,7 +1034,7 @@ final class MethodWriter extends MethodVisitor {
     // If needed, update the maximum stack size and number of locals, and stack map frames.
     if (currentBasicBlock != null) {
       if (compute == COMPUTE_ALL_FRAMES || compute == COMPUTE_INSERTED_FRAMES) {
-        currentBasicBlock.frame.execute(opcode, 0, symbolTable, methodrefSymbol);
+        currentBasicBlock.frame.execute(opcode, 0, methodrefSymbol, symbolTable);
       } else {
         int argumentsAndReturnSize = methodrefSymbol.getArgumentsAndReturnSizes();
         int stackSizeDelta = (argumentsAndReturnSize & 3) - (argumentsAndReturnSize >> 2);
@@ -871,7 +1063,7 @@ final class MethodWriter extends MethodVisitor {
     // If needed, update the maximum stack size and number of locals, and stack map frames.
     if (currentBasicBlock != null) {
       if (compute == COMPUTE_ALL_FRAMES || compute == COMPUTE_INSERTED_FRAMES) {
-        currentBasicBlock.frame.execute(Opcodes.INVOKEDYNAMIC, 0, symbolTable, invokeDynamicSymbol);
+        currentBasicBlock.frame.execute(Opcodes.INVOKEDYNAMIC, 0, invokeDynamicSymbol, symbolTable);
       } else {
         int argumentsAndReturnSize = invokeDynamicSymbol.getArgumentsAndReturnSizes();
         int stackSizeDelta = (argumentsAndReturnSize & 3) - (argumentsAndReturnSize >> 2) + 1;
@@ -964,7 +1156,7 @@ final class MethodWriter extends MethodVisitor {
           nextBasicBlock = new Label();
         } else {
           // No need to update maxRelativeStackSize (the stack size delta is always negative).
-          relativeStackSize += Frame.SIZE[baseOpcode];
+          relativeStackSize += STACK_SIZE_DELTA[baseOpcode];
           addSuccessorToCurrentBasicBlock(relativeStackSize, label);
         }
       }
@@ -1006,8 +1198,7 @@ final class MethodWriter extends MethodVisitor {
       // Start a new current basic block.
       currentBasicBlock = label;
       if (label.frame == null) {
-        label.frame = new Frame();
-        label.frame.owner = label;
+        label.frame = new Frame(label);
       }
       // Append it at the end of the basic block list.
       if (lastBasicBlock != null) {
@@ -1026,7 +1217,7 @@ final class MethodWriter extends MethodVisitor {
         // compute is equal to COMPUTE_INSERTED_FRAMES, currentBasicBlock stays unchanged.
         currentBasicBlock = label;
       } else {
-        // Update the frame owner so that a correct frame offset is computed in visitFrame(Frame).
+        // Update the frame owner so that a correct frame offset is computed in Frame.accept().
         currentBasicBlock.frame.owner = label;
       }
     } else if (compute == COMPUTE_MAX_STACK_AND_LOCAL) {
@@ -1066,7 +1257,7 @@ final class MethodWriter extends MethodVisitor {
     // If needed, update the maximum stack size and number of locals, and stack map frames.
     if (currentBasicBlock != null) {
       if (compute == COMPUTE_ALL_FRAMES || compute == COMPUTE_INSERTED_FRAMES) {
-        currentBasicBlock.frame.execute(Opcodes.LDC, 0, symbolTable, constantSymbol);
+        currentBasicBlock.frame.execute(Opcodes.LDC, 0, constantSymbol, symbolTable);
       } else {
         int size = relativeStackSize + (isLongOrDouble ? 2 : 1);
         if (size > maxRelativeStackSize) {
@@ -1164,7 +1355,7 @@ final class MethodWriter extends MethodVisitor {
     // If needed, update the maximum stack size and number of locals, and stack map frames.
     if (currentBasicBlock != null) {
       if (compute == COMPUTE_ALL_FRAMES || compute == COMPUTE_INSERTED_FRAMES) {
-        currentBasicBlock.frame.execute(Opcodes.MULTIANEWARRAY, dims, symbolTable, descSymbol);
+        currentBasicBlock.frame.execute(Opcodes.MULTIANEWARRAY, dims, descSymbol, symbolTable);
       } else {
         // No need to update maxRelativeStackSize (the stack size delta is always negative).
         relativeStackSize += 1 - dims;
@@ -1174,7 +1365,7 @@ final class MethodWriter extends MethodVisitor {
 
   @Override
   public AnnotationVisitor visitInsnAnnotation(
-      int typeRef, TypePath typePath, String desc, boolean visible) {
+      final int typeRef, final TypePath typePath, final String desc, final boolean visible) {
     // Create a ByteVector to hold a 'type_annotation' JVMS structure.
     // See https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.7.20.
     ByteVector typeAnnotation = new ByteVector();
@@ -1208,7 +1399,7 @@ final class MethodWriter extends MethodVisitor {
 
   @Override
   public AnnotationVisitor visitTryCatchAnnotation(
-      int typeRef, TypePath typePath, String desc, boolean visible) {
+      final int typeRef, final TypePath typePath, final String desc, final boolean visible) {
     // Create a ByteVector to hold a 'type_annotation' JVMS structure.
     // See https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.7.20.
     ByteVector typeAnnotation = new ByteVector();
@@ -1267,13 +1458,13 @@ final class MethodWriter extends MethodVisitor {
 
   @Override
   public AnnotationVisitor visitLocalVariableAnnotation(
-      int typeRef,
-      TypePath typePath,
-      Label[] start,
-      Label[] end,
-      int[] index,
-      String desc,
-      boolean visible) {
+      final int typeRef,
+      final TypePath typePath,
+      final Label[] start,
+      final Label[] end,
+      final int[] index,
+      final String desc,
+      final boolean visible) {
     // Create a ByteVector to hold a 'type_annotation' JVMS structure.
     // See https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.7.20.
     ByteVector typeAnnotation = new ByteVector();
@@ -1317,7 +1508,7 @@ final class MethodWriter extends MethodVisitor {
             handler.catchTypeDescriptor == null
                 ? "java/lang/Throwable"
                 : handler.catchTypeDescriptor;
-        int catchType = Frame.OBJECT | symbolTable.addType(catchTypeDescriptor);
+        int catchType = Frame.getAbstractTypeFromInternalName(symbolTable, catchTypeDescriptor);
         // Mark handlerBlock as an exception handler.
         Label handlerBlock = handler.handlerPc.getFirst();
         handlerBlock.status |= Label.TARGET;
@@ -1334,9 +1525,8 @@ final class MethodWriter extends MethodVisitor {
 
       // Create and visit the first (implicit) frame.
       Frame firstFrame = firstBasicBlock.frame;
-      firstFrame.initInputFrame(
-          symbolTable, accessFlags, Type.getArgumentTypes(descriptor), this.maxLocals);
-      visitFrame(firstFrame);
+      firstFrame.setInputFrameFromDescriptor(symbolTable, accessFlags, descriptor, this.maxLocals);
+      firstFrame.accept(this);
 
       // Fix point algorithm: put the first basic block in a list of "changed" blocks (i.e. blocks
       // whose stack map frame has changed) and, while there are changed blocks, remove one from the
@@ -1358,7 +1548,7 @@ final class MethodWriter extends MethodVisitor {
           basicBlock.status |= Label.STORE;
         }
         // Update the (absolute) maximum stack size.
-        int maxBlockStackSize = basicBlock.frame.inputStack.length + basicBlock.outputStackMax;
+        int maxBlockStackSize = basicBlock.frame.getInputStackSize() + basicBlock.outputStackMax;
         if (maxBlockStackSize > maxStackSize) {
           maxStackSize = maxBlockStackSize;
         }
@@ -1384,7 +1574,7 @@ final class MethodWriter extends MethodVisitor {
       Label basicBlock = firstBasicBlock;
       while (basicBlock != null) {
         if ((basicBlock.status & Label.STORE) != 0) {
-          visitFrame(basicBlock.frame);
+          basicBlock.frame.accept(this);
         }
         if ((basicBlock.status & Label.REACHABLE) == 0) {
           // Find the start and end bytecode offsets of this unreachable block.
@@ -1399,9 +1589,10 @@ final class MethodWriter extends MethodVisitor {
             code.data[endOffset] = (byte) Opcodes.ATHROW;
             // Emit a frame for this unreachable block, with no local and a Throwable on the stack
             // (so that the ATHROW could consume this Throwable if it were reachable).
-            int frameIndex = startFrame(startOffset, /* nLocal = */ 0, /* nStack = */ 1);
-            currentFrame[frameIndex] = Frame.OBJECT | symbolTable.addType("java/lang/Throwable");
-            endFrame();
+            int frameIndex = visitFrameStart(startOffset, /* nLocal = */ 0, /* nStack = */ 1);
+            currentFrame[frameIndex] =
+                Frame.getAbstractTypeFromInternalName(symbolTable, "java/lang/Throwable");
+            visitFrameEnd();
             // Removes this unreachable basic block from the exception handler ranges.
             firstHandler = Handler.removeRange(firstHandler, basicBlock, nextBasicBlock);
             // The maximum stack size is now at least one, because of the Throwable declared above.
@@ -1461,10 +1652,10 @@ final class MethodWriter extends MethodVisitor {
         basicBlock = firstBasicBlock;
         while (basicBlock != null) {
           if ((basicBlock.status & Label.BASIC_BLOCK_ENDS_WITH_JSR) != 0) {
-            Label L = firstBasicBlock;
-            while (L != null) {
-              L.status &= ~Label.VISITED2;
-              L = L.nextBasicBlock;
+            Label aBasicBlock = firstBasicBlock;
+            while (aBasicBlock != null) {
+              aBasicBlock.status &= ~Label.VISITED2;
+              aBasicBlock = aBasicBlock.nextBasicBlock;
             }
             // the subroutine is defined by l's TARGET, not by l
             Label subroutine = basicBlock.outgoingEdges.nextEdge.successor;
@@ -1549,8 +1740,7 @@ final class MethodWriter extends MethodVisitor {
   private void endCurrentBasicBlockWithNoSuccessor() {
     if (compute == COMPUTE_ALL_FRAMES) {
       Label nextBasicBlock = new Label();
-      nextBasicBlock.frame = new Frame();
-      nextBasicBlock.frame.owner = nextBasicBlock;
+      nextBasicBlock.frame = new Frame(nextBasicBlock);
       nextBasicBlock.resolve(this, code.length, code.data);
       lastBasicBlock.nextBasicBlock = nextBasicBlock;
       lastBasicBlock = nextBasicBlock;
@@ -1567,135 +1757,14 @@ final class MethodWriter extends MethodVisitor {
   // -----------------------------------------------------------------------------------------------
 
   /**
-   * Visits a frame that has been computed from scratch.
-   *
-   * @param frame the frame that must be visited.
-   */
-  private void visitFrame(final Frame frame) {
-    int nLocal = 0;
-    int nStack = 0;
-    int[] localTypes = frame.inputLocals;
-    int[] stackTypes = frame.inputStack;
-    // Compute the number of locals, ignoring TOP types that are just after a LONG or a DOUBLE, and
-    // all trailing TOP types.
-    for (int i = 0, nTrailingTop = 0; i < localTypes.length; ++i) {
-      int localType = localTypes[i];
-      if (localType == Frame.TOP) {
-        ++nTrailingTop;
-      } else {
-        nLocal += nTrailingTop + 1;
-        nTrailingTop = 0;
-      }
-      if (localType == Frame.LONG || localType == Frame.DOUBLE) {
-        ++i;
-      }
-    }
-    // Compute the stack size, ignoring TOP types that are just after a LONG or a DOUBLE.
-    for (int i = 0; i < stackTypes.length; ++i) {
-      ++nStack;
-      int stackType = stackTypes[i];
-      if (stackType == Frame.LONG || stackType == Frame.DOUBLE) {
-        ++i;
-      }
-    }
-    // Visit the frame and its content.
-    int frameIndex = startFrame(frame.owner.position, nLocal, nStack);
-    for (int i = 0; nLocal > 0; ++i, --nLocal) {
-      int localType = localTypes[i];
-      currentFrame[frameIndex++] = localType;
-      if (localType == Frame.LONG || localType == Frame.DOUBLE) {
-        ++i;
-      }
-    }
-    for (int i = 0; i < stackTypes.length; ++i) {
-      int stackType = stackTypes[i];
-      currentFrame[frameIndex++] = stackType;
-      if (stackType == Frame.LONG || stackType == Frame.DOUBLE) {
-        ++i;
-      }
-    }
-    endFrame();
-  }
-
-  /** Visit the implicit first frame of this method. */
-  private void visitImplicitFirstFrame() {
-    // There can be at most descriptor.length() + 1 locals.
-    int frameIndex =
-        startFrame(/* offset = */ 0, /* nLocal = */ descriptor.length() + 1, /* nStack = */ 0);
-    if ((accessFlags & Opcodes.ACC_STATIC) == 0) {
-      if ((accessFlags & ACC_CONSTRUCTOR) == 0) {
-        currentFrame[frameIndex++] = Frame.OBJECT | symbolTable.addType(symbolTable.getClassName());
-      } else {
-        currentFrame[frameIndex++] = Frame.UNINITIALIZED_THIS;
-      }
-    }
-    // Parse the descriptor to get the local variable types, one char at a time. descriptorOffset
-    // is the offset of the currently parsed char. We skip the first char, always equal to '('.
-    int descriptorOffset = 1;
-    while (true) {
-      // Parse one local variable type descriptor at each loop iteration. First, record the start
-      // offset of the current method argument descriptor.
-      int startOffsetOfCurrentArgumentDescriptor = descriptorOffset;
-      switch (descriptor.charAt(descriptorOffset++)) {
-        case 'Z':
-        case 'C':
-        case 'B':
-        case 'S':
-        case 'I':
-          currentFrame[frameIndex++] = Frame.INTEGER;
-          break;
-        case 'F':
-          currentFrame[frameIndex++] = Frame.FLOAT;
-          break;
-        case 'J':
-          currentFrame[frameIndex++] = Frame.LONG;
-          break;
-        case 'D':
-          currentFrame[frameIndex++] = Frame.DOUBLE;
-          break;
-        case '[':
-          while (descriptor.charAt(descriptorOffset) == '[') {
-            ++descriptorOffset;
-          }
-          if (descriptor.charAt(descriptorOffset) == 'L') {
-            ++descriptorOffset;
-            while (descriptor.charAt(descriptorOffset) != ';') {
-              ++descriptorOffset;
-            }
-          }
-          currentFrame[frameIndex++] =
-              Frame.type(
-                  symbolTable,
-                  descriptor.substring(startOffsetOfCurrentArgumentDescriptor, ++descriptorOffset));
-          break;
-        case 'L':
-          while (descriptor.charAt(descriptorOffset) != ';') {
-            ++descriptorOffset;
-          }
-          currentFrame[frameIndex++] =
-              Frame.OBJECT
-                  | symbolTable.addType(
-                      descriptor.substring(
-                          startOffsetOfCurrentArgumentDescriptor + 1, descriptorOffset++));
-          break;
-        default:
-          // End of the descriptor, store the number of local variables in the frame and return.
-          currentFrame[1] = frameIndex - 3;
-          endFrame();
-          return;
-      }
-    }
-  }
-
-  /**
-   * Starts the visit of a new stack map frame.
+   * Starts the visit of a new stack map frame, stored in {@link #currentFrame}.
    *
    * @param offset the bytecode offset of the instruction to which the frame corresponds.
    * @param nLocal the number of local variables in the frame.
    * @param nStack the number of stack elements in the frame.
    * @return the index of the next element to be written in this frame.
    */
-  private int startFrame(final int offset, final int nLocal, final int nStack) {
+  int visitFrameStart(final int offset, final int nLocal, final int nStack) {
     int frameLength = 3 + nLocal + nStack;
     if (currentFrame == null || currentFrame.length < frameLength) {
       currentFrame = new int[frameLength];
@@ -1707,16 +1776,26 @@ final class MethodWriter extends MethodVisitor {
   }
 
   /**
+   * Sets an abstract type in {@link #currentFrame}.
+   *
+   * @param frameIndex the index of the element to be set in {@link #currentFrame}.
+   * @param abstractType an abstract type.
+   */
+  void visitAbstractType(final int frameIndex, final int abstractType) {
+    currentFrame[frameIndex] = abstractType;
+  }
+
+  /**
    * Ends the visit of {@link #currentFrame} by writing it in the StackMapTable entries and by
    * updating the StackMapTable number_of_entries (except if the current frame is the first one,
    * which is implicit in StackMapTable). Then resets {@link #currentFrame} to <tt>null</tt>.
    */
-  private void endFrame() {
+  void visitFrameEnd() {
     if (previousFrame != null) {
       if (stackMapTableEntries == null) {
         stackMapTableEntries = new ByteVector();
       }
-      writeFrame();
+      putFrame();
       ++stackMapTableNumberOfEntries;
     }
     previousFrame = currentFrame;
@@ -1724,15 +1803,15 @@ final class MethodWriter extends MethodVisitor {
   }
 
   /** Compresses and writes {@link #currentFrame} in a new StackMapTable entry. */
-  private void writeFrame() {
+  private void putFrame() {
     final int nLocal = currentFrame[1];
     final int nStack = currentFrame[2];
     if (symbolTable.getMajorVersion() < Opcodes.V1_6) {
       // Generate a StackMap attribute entry, which are always uncompressed.
       stackMapTableEntries.putShort(currentFrame[0]).putShort(nLocal);
-      writeFrameTypes(3, 3 + nLocal);
+      putAbstractTypes(3, 3 + nLocal);
       stackMapTableEntries.putShort(nStack);
-      writeFrameTypes(3 + nLocal, 3 + nLocal + nStack);
+      putAbstractTypes(3 + nLocal, 3 + nLocal + nStack);
       return;
     }
     final int offsetDelta =
@@ -1781,13 +1860,13 @@ final class MethodWriter extends MethodVisitor {
         break;
       case Frame.SAME_LOCALS_1_STACK_ITEM_FRAME:
         stackMapTableEntries.putByte(Frame.SAME_LOCALS_1_STACK_ITEM_FRAME + offsetDelta);
-        writeFrameTypes(3 + nLocal, 4 + nLocal);
+        putAbstractTypes(3 + nLocal, 4 + nLocal);
         break;
       case Frame.SAME_LOCALS_1_STACK_ITEM_FRAME_EXTENDED:
         stackMapTableEntries
             .putByte(Frame.SAME_LOCALS_1_STACK_ITEM_FRAME_EXTENDED)
             .putShort(offsetDelta);
-        writeFrameTypes(3 + nLocal, 4 + nLocal);
+        putAbstractTypes(3 + nLocal, 4 + nLocal);
         break;
       case Frame.SAME_FRAME_EXTENDED:
         stackMapTableEntries.putByte(Frame.SAME_FRAME_EXTENDED).putShort(offsetDelta);
@@ -1797,98 +1876,47 @@ final class MethodWriter extends MethodVisitor {
         break;
       case Frame.APPEND_FRAME:
         stackMapTableEntries.putByte(Frame.SAME_FRAME_EXTENDED + nLocalDelta).putShort(offsetDelta);
-        writeFrameTypes(3 + previousNlocal, 3 + nLocal);
+        putAbstractTypes(3 + previousNlocal, 3 + nLocal);
         break;
       case Frame.FULL_FRAME:
       default:
         stackMapTableEntries.putByte(Frame.FULL_FRAME).putShort(offsetDelta).putShort(nLocal);
-        writeFrameTypes(3, 3 + nLocal);
+        putAbstractTypes(3, 3 + nLocal);
         stackMapTableEntries.putShort(nStack);
-        writeFrameTypes(3 + nLocal, 3 + nLocal + nStack);
+        putAbstractTypes(3 + nLocal, 3 + nLocal + nStack);
     }
   }
 
   /**
-   * Writes some types of {@link #currentFrame} into the StackMapTableAttribute. This method
-   * converts types from the format used in {@link Frame} to the format used in StackMapTable
-   * attributes. In particular, it converts type table indices to constant pool indices.
+   * Puts some abstract types of {@link #currentFrame} in {@link #stackMapTableEntries} , using the
+   * JVMS verification_type_info format used in StackMapTable attributes.
    *
    * @param start index of the first type in {@link #currentFrame} to write.
    * @param end index of last type in {@link #currentFrame} to write (exclusive).
    */
-  private void writeFrameTypes(final int start, final int end) {
+  private void putAbstractTypes(final int start, final int end) {
     for (int i = start; i < end; ++i) {
-      int frameType = currentFrame[i];
-      int arrayDimensions = (frameType & Frame.DIM) >> 28;
-      if (arrayDimensions == 0) {
-        int baseType = frameType & Frame.BASE_VALUE;
-        switch (frameType & Frame.BASE_KIND) {
-          case Frame.OBJECT:
-            stackMapTableEntries
-                .putByte(Frame.ITEM_OBJECT)
-                .putShort(symbolTable.addConstantClass(symbolTable.getType(baseType).value).index);
-            break;
-          case Frame.UNINITIALIZED:
-            stackMapTableEntries
-                .putByte(Frame.ITEM_UNINITIALIZED)
-                .putShort((int) symbolTable.getType(baseType).data);
-            break;
-          default:
-            stackMapTableEntries.putByte(baseType);
-        }
-      } else {
-        // Case of an array type, we need to build its descriptor first.
-        StringBuilder typeDescriptor = new StringBuilder();
-        while (arrayDimensions-- > 0) {
-          typeDescriptor.append('[');
-        }
-        if ((frameType & Frame.BASE_KIND) == Frame.OBJECT) {
-          typeDescriptor.append('L');
-          typeDescriptor.append(symbolTable.getType(frameType & Frame.BASE_VALUE).value);
-          typeDescriptor.append(';');
-        } else {
-          switch (frameType & 0xF) {
-            case Frame.ITEM_INTEGER:
-              typeDescriptor.append('I');
-              break;
-            case Frame.ITEM_FLOAT:
-              typeDescriptor.append('F');
-              break;
-            case Frame.ITEM_DOUBLE:
-              typeDescriptor.append('D');
-              break;
-            case Frame.ITEM_LONG:
-              typeDescriptor.append('J');
-              break;
-            case Frame.ITEM_ASM_BOOLEAN:
-              typeDescriptor.append('Z');
-              break;
-            case Frame.ITEM_ASM_BYTE:
-              typeDescriptor.append('B');
-              break;
-            case Frame.ITEM_ASM_CHAR:
-              typeDescriptor.append('C');
-              break;
-            case Frame.ITEM_ASM_SHORT:
-              typeDescriptor.append('S');
-              break;
-            default:
-          }
-        }
-        stackMapTableEntries
-            .putByte(Frame.ITEM_OBJECT)
-            .putShort(symbolTable.addConstantClass(typeDescriptor.toString()).index);
-      }
+      Frame.putAbstractType(symbolTable, currentFrame[i], stackMapTableEntries);
     }
   }
 
-  private void writeFrameType(final Object type) {
-    if (type instanceof String) {
+  /**
+   * Puts the given public API frame element type in {@link #stackMapTableEntries} , using the JVMS
+   * verification_type_info format used in StackMapTable attributes.
+   *
+   * @param type a frame element type described using the same format as in {@link
+   *     MethodVisitor#visitFrame}, i.e. either {@link Opcodes#TOP}, {@link Opcodes#INTEGER}, {@link
+   *     Opcodes#FLOAT}, {@link Opcodes#LONG}, {@link Opcodes#DOUBLE}, {@link Opcodes#NULL}, or
+   *     {@link Opcodes#UNINITIALIZED_THIS}, or the internal name of a class, or a Label designating
+   *     a NEW instruction (for uninitialized types).
+   */
+  private void putFrameType(final Object type) {
+    if (type instanceof Integer) {
+      stackMapTableEntries.putByte(((Integer) type).intValue());
+    } else if (type instanceof String) {
       stackMapTableEntries
           .putByte(Frame.ITEM_OBJECT)
           .putShort(symbolTable.addConstantClass((String) type).index);
-    } else if (type instanceof Integer) {
-      stackMapTableEntries.putByte(((Integer) type).intValue());
     } else {
       stackMapTableEntries.putByte(Frame.ITEM_UNINITIALIZED).putShort(((Label) type).position);
     }

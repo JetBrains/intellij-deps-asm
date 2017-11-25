@@ -165,8 +165,8 @@ abstract class Symbol {
    *       {@link #BOOTSTRAP_METHODS_TAG} symbols,
    *   <li>the bytecode offset of the NEW instruction that created an {@link Frame#UNINITIALIZED}
    *       type for {@link #UNINITIALIZED_TYPE_TAG} symbols,
-   *   <li>the indices (in the class' type table) of two source types for {@link #MERGED_TYPE_TAG}
-   *       symbols,
+   *   <li>the indices (in the class' type table) of two {@link #TYPE_TAG} source types for {@link
+   *       #MERGED_TYPE_TAG} symbols,
    *   <li>0 for the other types of symbol.
    * </ul>
    */

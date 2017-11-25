@@ -788,7 +788,7 @@ class Frame {
   private int init(final SymbolTable symbolTable, final int t) {
     int s;
     if (t == UNINITIALIZED_THIS) {
-      s = OBJECT | symbolTable.addType(symbolTable.className());
+      s = OBJECT | symbolTable.addType(symbolTable.getClassName());
     } else if ((t & (DIM | BASE_KIND)) == UNINITIALIZED) {
       String type = symbolTable.getType(t & BASE_VALUE).value;
       s = OBJECT | symbolTable.addType(type);
@@ -826,7 +826,7 @@ class Frame {
     int i = 0;
     if ((access & Opcodes.ACC_STATIC) == 0) {
       if ((access & MethodWriter.ACC_CONSTRUCTOR) == 0) {
-        inputLocals[i++] = OBJECT | symbolTable.addType(symbolTable.className());
+        inputLocals[i++] = OBJECT | symbolTable.addType(symbolTable.getClassName());
       } else {
         inputLocals[i++] = UNINITIALIZED_THIS;
       }

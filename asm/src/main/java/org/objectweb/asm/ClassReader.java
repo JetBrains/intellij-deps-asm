@@ -83,6 +83,296 @@ public class ClassReader {
    */
   static final int EXPAND_ASM_INSNS = 256;
 
+  /** The type of instructions without any argument (e.g. pop). */
+  private static final int NOARG_INSN = 0;
+
+  /** The type of instructions with a signed byte argument (e.g. bipush). */
+  private static final int BYTE_INSN = 1;
+
+  /** The type of instructions with a signed short argument (e.g. sipush). */
+  private static final int SHORT_INSN = 2;
+
+  /** The type of instructions with a local variable index argument (e.g. iload). */
+  private static final int LOCAL_VARIABLE_INSN = 3;
+
+  /** The type of instructions with an implicit local variable index argument (e.g. iload_0). */
+  private static final int IMPLICIT_LOCAL_VARIABLE_INSN = 4;
+
+  /** The type of instructions with a type descriptor argument (e.g. new). */
+  private static final int TYPE_INSN = 5;
+
+  /** The type of field and method invocations instructions (e.g. getfield). */
+  private static final int FIELD_OR_METHOD_INSN = 6;
+
+  /** The type of the invokeinterface instruction. */
+  private static final int INVOKEINTERFACE_INSN = 7;
+
+  /** The type of the invokedynamic instruction. */
+  private static final int INVOKEDYNAMIC_INSN = 8;
+
+  /** The type of instructions with a 2 bytes bytecode offset label (e.g. ifeq). */
+  private static final int LABEL_INSN = 9;
+
+  /** The type of instructions with a 4 bytes bytecode offset label (e.g. goto_w). */
+  private static final int LABEL_WIDE_INSN = 10;
+
+  /** The type of instructions with a byte constant pool argument (e.g. ldc). */
+  private static final int LDC_INSN = 11;
+
+  /** The type of instructions with a short constant pool argument (e.g. ldc_w). */
+  private static final int LDC_WIDE_INSN = 12;
+
+  /** The type of the iinc instruction. */
+  private static final int IINC_INSN = 13;
+
+  /** The type of the tableswitch instruction. */
+  private static final int TABLESWITCH_INSN = 14;
+
+  /** The type of the lookupswitch instruction. */
+  private static final int LOOKUPSWITCH_INSN = 15;
+
+  /** The type of the multianewarray instruction. */
+  private static final int MULTIANEWARRAY_INSN = 16;
+
+  /** The type of the wide instruction. */
+  private static final int WIDE_INSN = 17;
+
+  /** The type of the ASM pseudo instructions with an unsigned short offset. */
+  private static final int ASM_LABEL_INSN = 18;
+
+  /** The type of the ASM pseudo instructions with an int offset. */
+  private static final int ASM_LABEL_WIDE_INSN = 19;
+
+  /**
+   * The instruction type of each JVM opcode. The instruction type of opcode 'o' is given by the
+   * array element at index 'o', and is one of the *_INSN static constant above.
+   *
+   * @see <a href="https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-6.html">JVMS 6</a>
+   */
+  private static final byte[] INSTRUCTION_TYPES = {
+    NOARG_INSN, // nop = 0 (0x00)
+    NOARG_INSN, // aconst_null = 1 (0x01)
+    NOARG_INSN, // iconst_m1 = 2 (0x02)
+    NOARG_INSN, // iconst_0 = 3 (0x03)
+    NOARG_INSN, // iconst_1 = 4 (0x04)
+    NOARG_INSN, // iconst_2 = 5 (0x05)
+    NOARG_INSN, // iconst_3 = 6 (0x06)
+    NOARG_INSN, // iconst_4 = 7 (0x07)
+    NOARG_INSN, // iconst_5 = 8 (0x08)
+    NOARG_INSN, // lconst_0 = 9 (0x09)
+    NOARG_INSN, // lconst_1 = 10 (0x0a)
+    NOARG_INSN, // fconst_0 = 11 (0x0b)
+    NOARG_INSN, // fconst_1 = 12 (0x0c)
+    NOARG_INSN, // fconst_2 = 13 (0x0d)
+    NOARG_INSN, // dconst_0 = 14 (0x0e)
+    NOARG_INSN, // dconst_1 = 15 (0x0f)
+    BYTE_INSN, // bipush = 16 (0x10)
+    SHORT_INSN, // sipush = 17 (0x11)
+    LDC_INSN, // ldc = 18 (0x12)
+    LDC_WIDE_INSN, // ldc_w = 19 (0x13)
+    LDC_WIDE_INSN, // ldc2_w = 20 (0x14)
+    LOCAL_VARIABLE_INSN, // iload = 21 (0x15)
+    LOCAL_VARIABLE_INSN, // lload = 22 (0x16)
+    LOCAL_VARIABLE_INSN, // fload = 23 (0x17)
+    LOCAL_VARIABLE_INSN, // dload = 24 (0x18)
+    LOCAL_VARIABLE_INSN, // aload = 25 (0x19)
+    IMPLICIT_LOCAL_VARIABLE_INSN, // iload_0 = 26 (0x1a)
+    IMPLICIT_LOCAL_VARIABLE_INSN, // iload_1 = 27 (0x1b)
+    IMPLICIT_LOCAL_VARIABLE_INSN, // iload_2 = 28 (0x1c)
+    IMPLICIT_LOCAL_VARIABLE_INSN, // iload_3 = 29 (0x1d)
+    IMPLICIT_LOCAL_VARIABLE_INSN, // lload_0 = 30 (0x1e)
+    IMPLICIT_LOCAL_VARIABLE_INSN, // lload_1 = 31 (0x1f)
+    IMPLICIT_LOCAL_VARIABLE_INSN, // lload_2 = 32 (0x20)
+    IMPLICIT_LOCAL_VARIABLE_INSN, // lload_3 = 33 (0x21)
+    IMPLICIT_LOCAL_VARIABLE_INSN, // fload_0 = 34 (0x22)
+    IMPLICIT_LOCAL_VARIABLE_INSN, // fload_1 = 35 (0x23)
+    IMPLICIT_LOCAL_VARIABLE_INSN, // fload_2 = 36 (0x24)
+    IMPLICIT_LOCAL_VARIABLE_INSN, // fload_3 = 37 (0x25)
+    IMPLICIT_LOCAL_VARIABLE_INSN, // dload_0 = 38 (0x26)
+    IMPLICIT_LOCAL_VARIABLE_INSN, // dload_1 = 39 (0x27)
+    IMPLICIT_LOCAL_VARIABLE_INSN, // dload_2 = 40 (0x28)
+    IMPLICIT_LOCAL_VARIABLE_INSN, // dload_3 = 41 (0x29)
+    IMPLICIT_LOCAL_VARIABLE_INSN, // aload_0 = 42 (0x2a)
+    IMPLICIT_LOCAL_VARIABLE_INSN, // aload_1 = 43 (0x2b)
+    IMPLICIT_LOCAL_VARIABLE_INSN, // aload_2 = 44 (0x2c)
+    IMPLICIT_LOCAL_VARIABLE_INSN, // aload_3 = 45 (0x2d)
+    NOARG_INSN, // iaload = 46 (0x2e)
+    NOARG_INSN, // laload = 47 (0x2f)
+    NOARG_INSN, // faload = 48 (0x30)
+    NOARG_INSN, // daload = 49 (0x31)
+    NOARG_INSN, // aaload = 50 (0x32)
+    NOARG_INSN, // baload = 51 (0x33)
+    NOARG_INSN, // caload = 52 (0x34)
+    NOARG_INSN, // saload = 53 (0x35)
+    LOCAL_VARIABLE_INSN, // istore = 54 (0x36)
+    LOCAL_VARIABLE_INSN, // lstore = 55 (0x37)
+    LOCAL_VARIABLE_INSN, // fstore = 56 (0x38)
+    LOCAL_VARIABLE_INSN, // dstore = 57 (0x39)
+    LOCAL_VARIABLE_INSN, // astore = 58 (0x3a)
+    IMPLICIT_LOCAL_VARIABLE_INSN, // istore_0 = 59 (0x3b)
+    IMPLICIT_LOCAL_VARIABLE_INSN, // istore_1 = 60 (0x3c)
+    IMPLICIT_LOCAL_VARIABLE_INSN, // istore_2 = 61 (0x3d)
+    IMPLICIT_LOCAL_VARIABLE_INSN, // istore_3 = 62 (0x3e)
+    IMPLICIT_LOCAL_VARIABLE_INSN, // lstore_0 = 63 (0x3f)
+    IMPLICIT_LOCAL_VARIABLE_INSN, // lstore_1 = 64 (0x40)
+    IMPLICIT_LOCAL_VARIABLE_INSN, // lstore_2 = 65 (0x41)
+    IMPLICIT_LOCAL_VARIABLE_INSN, // lstore_3 = 66 (0x42)
+    IMPLICIT_LOCAL_VARIABLE_INSN, // fstore_0 = 67 (0x43)
+    IMPLICIT_LOCAL_VARIABLE_INSN, // fstore_1 = 68 (0x44)
+    IMPLICIT_LOCAL_VARIABLE_INSN, // fstore_2 = 69 (0x45)
+    IMPLICIT_LOCAL_VARIABLE_INSN, // fstore_3 = 70 (0x46)
+    IMPLICIT_LOCAL_VARIABLE_INSN, // dstore_0 = 71 (0x47)
+    IMPLICIT_LOCAL_VARIABLE_INSN, // dstore_1 = 72 (0x48)
+    IMPLICIT_LOCAL_VARIABLE_INSN, // dstore_2 = 73 (0x49)
+    IMPLICIT_LOCAL_VARIABLE_INSN, // dstore_3 = 74 (0x4a)
+    IMPLICIT_LOCAL_VARIABLE_INSN, // astore_0 = 75 (0x4b)
+    IMPLICIT_LOCAL_VARIABLE_INSN, // astore_1 = 76 (0x4c)
+    IMPLICIT_LOCAL_VARIABLE_INSN, // astore_2 = 77 (0x4d)
+    IMPLICIT_LOCAL_VARIABLE_INSN, // astore_3 = 78 (0x4e)
+    NOARG_INSN, // iastore = 79 (0x4f)
+    NOARG_INSN, // lastore = 80 (0x50)
+    NOARG_INSN, // fastore = 81 (0x51)
+    NOARG_INSN, // dastore = 82 (0x52)
+    NOARG_INSN, // aastore = 83 (0x53)
+    NOARG_INSN, // bastore = 84 (0x54)
+    NOARG_INSN, // castore = 85 (0x55)
+    NOARG_INSN, // sastore = 86 (0x56)
+    NOARG_INSN, // pop = 87 (0x57)
+    NOARG_INSN, // pop2 = 88 (0x58)
+    NOARG_INSN, // dup = 89 (0x59)
+    NOARG_INSN, // dup_x1 = 90 (0x5a)
+    NOARG_INSN, // dup_x2 = 91 (0x5b)
+    NOARG_INSN, // dup2 = 92 (0x5c)
+    NOARG_INSN, // dup2_x1 = 93 (0x5d)
+    NOARG_INSN, // dup2_x2 = 94 (0x5e)
+    NOARG_INSN, // swap = 95 (0x5f)
+    NOARG_INSN, // iadd = 96 (0x60)
+    NOARG_INSN, // ladd = 97 (0x61)
+    NOARG_INSN, // fadd = 98 (0x62)
+    NOARG_INSN, // dadd = 99 (0x63)
+    NOARG_INSN, // isub = 100 (0x64)
+    NOARG_INSN, // lsub = 101 (0x65)
+    NOARG_INSN, // fsub = 102 (0x66)
+    NOARG_INSN, // dsub = 103 (0x67)
+    NOARG_INSN, // imul = 104 (0x68)
+    NOARG_INSN, // lmul = 105 (0x69)
+    NOARG_INSN, // fmul = 106 (0x6a)
+    NOARG_INSN, // dmul = 107 (0x6b)
+    NOARG_INSN, // idiv = 108 (0x6c)
+    NOARG_INSN, // ldiv = 109 (0x6d)
+    NOARG_INSN, // fdiv = 110 (0x6e)
+    NOARG_INSN, // ddiv = 111 (0x6f)
+    NOARG_INSN, // irem = 112 (0x70)
+    NOARG_INSN, // lrem = 113 (0x71)
+    NOARG_INSN, // frem = 114 (0x72)
+    NOARG_INSN, // drem = 115 (0x73)
+    NOARG_INSN, // ineg = 116 (0x74)
+    NOARG_INSN, // lneg = 117 (0x75)
+    NOARG_INSN, // fneg = 118 (0x76)
+    NOARG_INSN, // dneg = 119 (0x77)
+    NOARG_INSN, // ishl = 120 (0x78)
+    NOARG_INSN, // lshl = 121 (0x79)
+    NOARG_INSN, // ishr = 122 (0x7a)
+    NOARG_INSN, // lshr = 123 (0x7b)
+    NOARG_INSN, // iushr = 124 (0x7c)
+    NOARG_INSN, // lushr = 125 (0x7d)
+    NOARG_INSN, // iand = 126 (0x7e)
+    NOARG_INSN, // land = 127 (0x7f)
+    NOARG_INSN, // ior = 128 (0x80)
+    NOARG_INSN, // lor = 129 (0x81)
+    NOARG_INSN, // ixor = 130 (0x82)
+    NOARG_INSN, // lxor = 131 (0x83)
+    IINC_INSN, // iinc = 132 (0x84)
+    NOARG_INSN, // i2l = 133 (0x85)
+    NOARG_INSN, // i2f = 134 (0x86)
+    NOARG_INSN, // i2d = 135 (0x87)
+    NOARG_INSN, // l2i = 136 (0x88)
+    NOARG_INSN, // l2f = 137 (0x89)
+    NOARG_INSN, // l2d = 138 (0x8a)
+    NOARG_INSN, // f2i = 139 (0x8b)
+    NOARG_INSN, // f2l = 140 (0x8c)
+    NOARG_INSN, // f2d = 141 (0x8d)
+    NOARG_INSN, // d2i = 142 (0x8e)
+    NOARG_INSN, // d2l = 143 (0x8f)
+    NOARG_INSN, // d2f = 144 (0x90)
+    NOARG_INSN, // i2b = 145 (0x91)
+    NOARG_INSN, // i2c = 146 (0x92)
+    NOARG_INSN, // i2s = 147 (0x93)
+    NOARG_INSN, // lcmp = 148 (0x94)
+    NOARG_INSN, // fcmpl = 149 (0x95)
+    NOARG_INSN, // fcmpg = 150 (0x96)
+    NOARG_INSN, // dcmpl = 151 (0x97)
+    NOARG_INSN, // dcmpg = 152 (0x98)
+    LABEL_INSN, // ifeq = 153 (0x99)
+    LABEL_INSN, // ifne = 154 (0x9a)
+    LABEL_INSN, // iflt = 155 (0x9b)
+    LABEL_INSN, // ifge = 156 (0x9c)
+    LABEL_INSN, // ifgt = 157 (0x9d)
+    LABEL_INSN, // ifle = 158 (0x9e)
+    LABEL_INSN, // if_icmpeq = 159 (0x9f)
+    LABEL_INSN, // if_icmpne = 160 (0xa0)
+    LABEL_INSN, // if_icmplt = 161 (0xa1)
+    LABEL_INSN, // if_icmpge = 162 (0xa2)
+    LABEL_INSN, // if_icmpgt = 163 (0xa3)
+    LABEL_INSN, // if_icmple = 164 (0xa4)
+    LABEL_INSN, // if_acmpeq = 165 (0xa5)
+    LABEL_INSN, // if_acmpne = 166 (0xa6)
+    LABEL_INSN, // goto = 167 (0xa7)
+    LABEL_INSN, // jsr = 168 (0xa8)
+    LOCAL_VARIABLE_INSN, // ret = 169 (0xa9)
+    TABLESWITCH_INSN, // tableswitch = 170 (0xaa)
+    LOOKUPSWITCH_INSN, // lookupswitch = 171 (0xab)
+    NOARG_INSN, // ireturn = 172 (0xac)
+    NOARG_INSN, // lreturn = 173 (0xad)
+    NOARG_INSN, // freturn = 174 (0xae)
+    NOARG_INSN, // dreturn = 175 (0xaf)
+    NOARG_INSN, // areturn = 176 (0xb0)
+    NOARG_INSN, // return = 177 (0xb1)
+    FIELD_OR_METHOD_INSN, // getstatic = 178 (0xb2)
+    FIELD_OR_METHOD_INSN, // putstatic = 179 (0xb3)
+    FIELD_OR_METHOD_INSN, // getfield = 180 (0xb4)
+    FIELD_OR_METHOD_INSN, // putfield = 181 (0xb5)
+    FIELD_OR_METHOD_INSN, // invokevirtual = 182 (0xb6)
+    FIELD_OR_METHOD_INSN, // invokespecial = 183 (0xb7)
+    FIELD_OR_METHOD_INSN, // invokestatic = 184 (0xb8)
+    INVOKEINTERFACE_INSN, // invokeinterface = 185 (0xb9)
+    INVOKEDYNAMIC_INSN, // invokedynamic = 186 (0xba)
+    TYPE_INSN, // new = 187 (0xbb)
+    BYTE_INSN, // newarray = 188 (0xbc)
+    TYPE_INSN, // anewarray = 189 (0xbd)
+    NOARG_INSN, // arraylength = 190 (0xbe)
+    NOARG_INSN, // athrow = 191 (0xbf)
+    TYPE_INSN, // checkcast = 192 (0xc0)
+    TYPE_INSN, // instanceof = 193 (0xc1)
+    NOARG_INSN, // monitorenter = 194 (0xc2)
+    NOARG_INSN, // monitorexit = 195 (0xc3)
+    WIDE_INSN, // wide = 196 (0xc4)
+    MULTIANEWARRAY_INSN, // multianewarray = 197 (0xc5)
+    LABEL_INSN, // ifnull = 198 (0xc6)
+    LABEL_INSN, // ifnonnull = 199 (0xc7)
+    LABEL_WIDE_INSN, // goto_w = 200 (0xc8)
+    LABEL_WIDE_INSN, // jsr_w = 201 (0xc9)
+    ASM_LABEL_INSN, // asm_ifeq = 202 (0xca)
+    ASM_LABEL_INSN, // asm_ifne = 203 (0xcb)
+    ASM_LABEL_INSN, // asm_iflt = 204 (0xcc)
+    ASM_LABEL_INSN, // asm_ifge = 205 (0xcd)
+    ASM_LABEL_INSN, // asm_ifgt = 206 (0xce)
+    ASM_LABEL_INSN, // asm_ifle = 207 (0xcf)
+    ASM_LABEL_INSN, // asm_if_icmpeq = 208 (0xd0)
+    ASM_LABEL_INSN, // asm_if_icmpne = 209 (0xd1)
+    ASM_LABEL_INSN, // asm_if_icmplt = 210 (0xd2)
+    ASM_LABEL_INSN, // asm_if_icmpge = 211 (0xd3)
+    ASM_LABEL_INSN, // asm_if_icmpgt = 212 (0xd4)
+    ASM_LABEL_INSN, // asm_if_icmple = 213 (0xd5)
+    ASM_LABEL_INSN, // asm_if_acmpeq = 214 (0xd6)
+    ASM_LABEL_INSN, // asm_if_acmpne = 215 (0xd7)
+    ASM_LABEL_INSN, // asm_goto = 216 (0xd8)
+    ASM_LABEL_INSN, // asm_jsr = 217 (0xd9)
+    ASM_LABEL_INSN, // asm_ifnull = 218 (0xda)
+    ASM_LABEL_INSN, // asm_ifnonnull = 219 (0xdb)
+    ASM_LABEL_WIDE_INSN // asm_goto_w = 220 (0xdc)
+  };
+
   /**
    * The class to be parsed. <i>The content of this array must not be modified. This field is
    * intended for {@link Attribute} sub classes, and is normally not needed by class generators or
@@ -111,9 +401,9 @@ public class ClassReader {
   /** Start index of the class header information (access, name...) in {@link #b b}. */
   public final int header;
 
-  // ------------------------------------------------------------------------
+  // -----------------------------------------------------------------------------------------------
   // Constructors
-  // ------------------------------------------------------------------------
+  // -----------------------------------------------------------------------------------------------
 
   /**
    * Constructs a new {@link ClassReader} object.
@@ -304,9 +594,9 @@ public class ClassReader {
     }
   }
 
-  // ------------------------------------------------------------------------
+  // -----------------------------------------------------------------------------------------------
   // Public methods
-  // ------------------------------------------------------------------------
+  // -----------------------------------------------------------------------------------------------
 
   /**
    * Makes the given visitor visit the Java class of this {@link ClassReader} . This class is the
@@ -995,25 +1285,25 @@ public class ClassReader {
     while (u < codeEnd) {
       int offset = u - codeStart;
       int opcode = b[u] & 0xFF;
-      switch (ClassWriter.TYPE[opcode]) {
-        case ClassWriter.NOARG_INSN:
-        case ClassWriter.IMPLVAR_INSN:
+      switch (INSTRUCTION_TYPES[opcode]) {
+        case NOARG_INSN:
+        case IMPLICIT_LOCAL_VARIABLE_INSN:
           u += 1;
           break;
-        case ClassWriter.LABEL_INSN:
+        case LABEL_INSN:
           createLabel(offset + readShort(u + 1), labels);
           u += 3;
           break;
-        case ClassWriter.ASM_LABEL_INSN:
+        case ASM_LABEL_INSN:
           createLabel(offset + readUnsignedShort(u + 1), labels);
           u += 3;
           break;
-        case ClassWriter.LABELW_INSN:
-        case ClassWriter.ASM_LABELW_INSN:
+        case LABEL_WIDE_INSN:
+        case ASM_LABEL_WIDE_INSN:
           createLabel(offset + readInt(u + 1), labels);
           u += 5;
           break;
-        case ClassWriter.WIDE_INSN:
+        case WIDE_INSN:
           opcode = b[u + 1] & 0xFF;
           if (opcode == Opcodes.IINC) {
             u += 6;
@@ -1021,7 +1311,7 @@ public class ClassReader {
             u += 4;
           }
           break;
-        case ClassWriter.TABL_INSN:
+        case TABLESWITCH_INSN:
           // skips 0 to 3 padding bytes
           u = u + 4 - (offset & 3);
           // reads instruction
@@ -1032,7 +1322,7 @@ public class ClassReader {
           }
           u += 12;
           break;
-        case ClassWriter.LOOK_INSN:
+        case LOOKUPSWITCH_INSN:
           // skips 0 to 3 padding bytes
           u = u + 4 - (offset & 3);
           // reads instruction
@@ -1043,20 +1333,20 @@ public class ClassReader {
           }
           u += 8;
           break;
-        case ClassWriter.VAR_INSN:
-        case ClassWriter.SBYTE_INSN:
-        case ClassWriter.LDC_INSN:
+        case LOCAL_VARIABLE_INSN:
+        case BYTE_INSN:
+        case LDC_INSN:
           u += 2;
           break;
-        case ClassWriter.SHORT_INSN:
-        case ClassWriter.LDCW_INSN:
-        case ClassWriter.FIELDORMETH_INSN:
-        case ClassWriter.TYPE_INSN:
-        case ClassWriter.IINC_INSN:
+        case SHORT_INSN:
+        case LDC_WIDE_INSN:
+        case FIELD_OR_METHOD_INSN:
+        case TYPE_INSN:
+        case IINC_INSN:
           u += 3;
           break;
-        case ClassWriter.ITFMETH_INSN:
-        case ClassWriter.INDYMETH_INSN:
+        case INVOKEINTERFACE_INSN:
+        case INVOKEDYNAMIC_INSN:
           u += 5;
           break;
           // case MANA_INSN:
@@ -1303,19 +1593,19 @@ public class ClassReader {
       // frame content will be computed in MethodWriter.
       if (insertFrame) {
         if ((context.parsingOptions & EXPAND_FRAMES) != 0) {
-          mv.visitFrame(ClassWriter.F_INSERT, 0, null, 0, null);
+          mv.visitFrame(MethodWriter.F_INSERT, 0, null, 0, null);
         }
         insertFrame = false;
       }
 
       // visits the instruction at this offset
       int opcode = b[u] & 0xFF;
-      switch (ClassWriter.TYPE[opcode]) {
-        case ClassWriter.NOARG_INSN:
+      switch (INSTRUCTION_TYPES[opcode]) {
+        case NOARG_INSN:
           mv.visitInsn(opcode);
           u += 1;
           break;
-        case ClassWriter.IMPLVAR_INSN:
+        case IMPLICIT_LOCAL_VARIABLE_INSN:
           if (opcode > Opcodes.ISTORE) {
             opcode -= 59; // ISTORE_0
             mv.visitVarInsn(Opcodes.ISTORE + (opcode >> 2), opcode & 0x3);
@@ -1325,15 +1615,15 @@ public class ClassReader {
           }
           u += 1;
           break;
-        case ClassWriter.LABEL_INSN:
+        case LABEL_INSN:
           mv.visitJumpInsn(opcode, labels[offset + readShort(u + 1)]);
           u += 3;
           break;
-        case ClassWriter.LABELW_INSN:
+        case LABEL_WIDE_INSN:
           mv.visitJumpInsn(opcode + opcodeDelta, labels[offset + readInt(u + 1)]);
           u += 5;
           break;
-        case ClassWriter.ASM_LABEL_INSN:
+        case ASM_LABEL_INSN:
           {
             // changes temporary opcodes 202 to 217 (inclusive), 218
             // and 219 to IFEQ ... JSR (inclusive), IFNULL and
@@ -1360,7 +1650,7 @@ public class ClassReader {
             u += 3;
             break;
           }
-        case ClassWriter.ASM_LABELW_INSN:
+        case ASM_LABEL_WIDE_INSN:
           {
             // replaces the pseudo GOTO_W instruction with a real one.
             mv.visitJumpInsn(200, labels[offset + readInt(u + 1)]);
@@ -1371,7 +1661,7 @@ public class ClassReader {
             u += 5;
             break;
           }
-        case ClassWriter.WIDE_INSN:
+        case WIDE_INSN:
           opcode = b[u + 1] & 0xFF;
           if (opcode == Opcodes.IINC) {
             mv.visitIincInsn(readUnsignedShort(u + 2), readShort(u + 4));
@@ -1381,7 +1671,7 @@ public class ClassReader {
             u += 4;
           }
           break;
-        case ClassWriter.TABL_INSN:
+        case TABLESWITCH_INSN:
           {
             // skips 0 to 3 padding bytes
             u = u + 4 - (offset & 3);
@@ -1398,7 +1688,7 @@ public class ClassReader {
             mv.visitTableSwitchInsn(min, max, labels[label], table);
             break;
           }
-        case ClassWriter.LOOK_INSN:
+        case LOOKUPSWITCH_INSN:
           {
             // skips 0 to 3 padding bytes
             u = u + 4 - (offset & 3);
@@ -1416,28 +1706,28 @@ public class ClassReader {
             mv.visitLookupSwitchInsn(labels[label], keys, values);
             break;
           }
-        case ClassWriter.VAR_INSN:
+        case LOCAL_VARIABLE_INSN:
           mv.visitVarInsn(opcode, b[u + 1] & 0xFF);
           u += 2;
           break;
-        case ClassWriter.SBYTE_INSN:
+        case BYTE_INSN:
           mv.visitIntInsn(opcode, b[u + 1]);
           u += 2;
           break;
-        case ClassWriter.SHORT_INSN:
+        case SHORT_INSN:
           mv.visitIntInsn(opcode, readShort(u + 1));
           u += 3;
           break;
-        case ClassWriter.LDC_INSN:
+        case LDC_INSN:
           mv.visitLdcInsn(readConst(b[u + 1] & 0xFF, c));
           u += 2;
           break;
-        case ClassWriter.LDCW_INSN:
+        case LDC_WIDE_INSN:
           mv.visitLdcInsn(readConst(readUnsignedShort(u + 1), c));
           u += 3;
           break;
-        case ClassWriter.FIELDORMETH_INSN:
-        case ClassWriter.ITFMETH_INSN:
+        case FIELD_OR_METHOD_INSN:
+        case INVOKEINTERFACE_INSN:
           {
             int cpIndex = items[readUnsignedShort(u + 1)];
             boolean itf = b[cpIndex - 1] == Symbol.CONSTANT_INTERFACE_METHODREF_TAG;
@@ -1457,7 +1747,7 @@ public class ClassReader {
             }
             break;
           }
-        case ClassWriter.INDYMETH_INSN:
+        case INVOKEDYNAMIC_INSN:
           {
             int cpIndex = items[readUnsignedShort(u + 1)];
             int bsmIndex = context.bootstrapMethodOffsets[readUnsignedShort(cpIndex)];
@@ -1476,11 +1766,11 @@ public class ClassReader {
             u += 5;
             break;
           }
-        case ClassWriter.TYPE_INSN:
+        case TYPE_INSN:
           mv.visitTypeInsn(opcode, readClass(u + 1, c));
           u += 3;
           break;
-        case ClassWriter.IINC_INSN:
+        case IINC_INSN:
           mv.visitIincInsn(b[u + 1] & 0xFF, b[u + 2]);
           u += 3;
           break;
@@ -2272,9 +2562,9 @@ public class ClassReader {
     return new Attribute(type).read(this, off, len, null, -1, null);
   }
 
-  // ------------------------------------------------------------------------
+  // -----------------------------------------------------------------------------------------------
   // Utility methods: low level parsing
-  // ------------------------------------------------------------------------
+  // -----------------------------------------------------------------------------------------------
 
   /**
    * Returns the number of constant pool items in {@link #b b}.

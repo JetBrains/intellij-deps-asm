@@ -99,10 +99,16 @@ final class SymbolTable {
   final ClassWriter classWriter;
 
   /**
-   * The ClassReader from which this SymbolTable was constructed, or <tt>null</tt> if it constructed
-   * from stratch.
+   * The ClassReader from which this SymbolTable was constructed, or <tt>null</tt> if it was
+   * constructed from stratch.
    */
   private final ClassReader sourceClassReader;
+
+  /** The major version number of the class to which this symbol table belongs. */
+  private int majorVersion;
+
+  /** The internal name of the class to which this symbol table belongs. */
+  private String className;
 
   /**
    * The total number of {@link Entry} instances in {@link #entries}. This includes entries that are
@@ -306,14 +312,28 @@ final class SymbolTable {
     return sourceClassReader;
   }
 
-  /** @return the internal name of the class to which this symbol table belongs. */
-  String className() {
-    return classWriter.thisName;
+  /** @return the major version of the class to which this symbol table belongs. */
+  int getMajorVersion() {
+    return majorVersion;
   }
 
-  /** @return the major version of the class to which this symbol table belongs. */
-  int majorVersion() {
-    return classWriter.version & 0xFFFF;
+  /** @return the internal name of the class to which this symbol table belongs. */
+  String getClassName() {
+    return className;
+  }
+
+  /**
+   * Sets major version and the name of the class to which this symbol table belongs. Also adds the
+   * class name to the constant pool.
+   *
+   * @param majorVersion a major ClassFile version number.
+   * @param name an internal class name
+   * @return the constant pool index of a new or already existing Symbol with the given class name.
+   */
+  int setMajorVersionAndClassName(int majorVersion, String className) {
+    this.majorVersion = majorVersion;
+    this.className = className;
+    return addConstantClass(className).index;
   }
 
   /** @return the number of items in this symbol table's constant_pool array (plus 1). */
@@ -336,9 +356,19 @@ final class SymbolTable {
     output.putShort(constantPoolCount).putByteArray(constantPool.data, 0, constantPool.length);
   }
 
-  /** @return the number of bootstrap methods in this symbol table. */
-  int getBootstrapMethodsLength() {
-    return bootstrapMethods == null ? 0 : bootstrapMethods.length;
+  /**
+   * Returns the size in bytes of this symbol table's BootstrapMethods attribute. Also adds the
+   * attribute name in the constant pool.
+   *
+   * @return the size in bytes of this symbol table's BootstrapMethods attribute.
+   */
+  int computeBootstrapMethodsSize() {
+    if (bootstrapMethods != null) {
+      addConstantUtf8("BootstrapMethods");
+      return 8 + bootstrapMethods.length;
+    } else {
+      return 0;
+    }
   }
 
   /**
@@ -349,9 +379,11 @@ final class SymbolTable {
    */
   void putBootstrapMethods(ByteVector output) {
     if (bootstrapMethods != null) {
-      output.putShort(addConstantUtf8("BootstrapMethods"));
-      output.putInt(bootstrapMethods.length + 2).putShort(bootstrapMethodCount);
-      output.putByteArray(bootstrapMethods.data, 0, bootstrapMethods.length);
+      output
+          .putShort(addConstantUtf8("BootstrapMethods"))
+          .putInt(bootstrapMethods.length + 2)
+          .putShort(bootstrapMethodCount)
+          .putByteArray(bootstrapMethods.data, 0, bootstrapMethods.length);
     }
   }
 

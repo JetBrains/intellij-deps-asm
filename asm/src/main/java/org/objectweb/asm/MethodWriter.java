@@ -83,6 +83,15 @@ class MethodWriter extends MethodVisitor {
   static final int FULL_FRAME = 255; // ff
 
   /**
+   * Represents a frame inserted between already existing frames. This kind of frame can only be
+   * used if the frame content can be computed from the previous existing frame and from the
+   * instructions between this existing frame and the inserted one, without any knowledge of the
+   * type hierarchy. This kind of frame is only used when an unconditional jump is inserted in a
+   * method while expanding an ASM pseudo instruction (see ClassReader).
+   */
+  static final int F_INSERT = 256;
+
+  /**
    * Indicates that the stack map frames must be recomputed from scratch. In this case the maximum
    * stack size and number of local variables is also recomputed from scratch.
    *
@@ -118,7 +127,10 @@ class MethodWriter extends MethodVisitor {
   /** Where the constants used in this MethodWriter must be stored. */
   final SymbolTable symbolTable;
 
-  /** Access flags of this method. */
+  /**
+   * Access flags of this method. This field can contain ASM specific access flags, such as {@link
+   * Opcodes#ACC_DEPRECATED}, which are removed when generating the ClassFile structure.
+   */
   private int access;
 
   /** The index of the constant pool item that contains the name of this method. */
@@ -272,7 +284,7 @@ class MethodWriter extends MethodVisitor {
   /** The number of subroutines in this method. */
   private int subroutines;
 
-  // ------------------------------------------------------------------------
+  // -----------------------------------------------------------------------------------------------
 
   /*
    * Fields for the control flow graph analysis algorithm (used to compute the
@@ -323,9 +335,9 @@ class MethodWriter extends MethodVisitor {
    */
   private int maxStackSize;
 
-  // ------------------------------------------------------------------------
+  // -----------------------------------------------------------------------------------------------
   // Constructor
-  // ------------------------------------------------------------------------
+  // -----------------------------------------------------------------------------------------------
 
   /**
    * Constructs a new {@link MethodWriter}.
@@ -379,9 +391,9 @@ class MethodWriter extends MethodVisitor {
     }
   }
 
-  // ------------------------------------------------------------------------
+  // -----------------------------------------------------------------------------------------------
   // Implementation of the MethodVisitor abstract class
-  // ------------------------------------------------------------------------
+  // -----------------------------------------------------------------------------------------------
 
   @Override
   public void visitParameter(String name, int access) {
@@ -1520,9 +1532,9 @@ class MethodWriter extends MethodVisitor {
   @Override
   public void visitEnd() {}
 
-  // ------------------------------------------------------------------------
+  // -----------------------------------------------------------------------------------------------
   // Utility methods: control flow analysis algorithm
-  // ------------------------------------------------------------------------
+  // -----------------------------------------------------------------------------------------------
 
   /**
    * Adds a successor to the {@link #currentBlock currentBlock} block.
@@ -1555,9 +1567,9 @@ class MethodWriter extends MethodVisitor {
     }
   }
 
-  // ------------------------------------------------------------------------
+  // -----------------------------------------------------------------------------------------------
   // Utility methods: stack map frames
-  // ------------------------------------------------------------------------
+  // -----------------------------------------------------------------------------------------------
 
   /**
    * Visits a frame that has been computed from scratch.
@@ -1619,7 +1631,7 @@ class MethodWriter extends MethodVisitor {
     int frameIndex = startFrame(0, descriptor.length() + 1, 0);
     if ((access & Opcodes.ACC_STATIC) == 0) {
       if ((access & ACC_CONSTRUCTOR) == 0) {
-        frame[frameIndex++] = Frame.OBJECT | symbolTable.addType(symbolTable.className());
+        frame[frameIndex++] = Frame.OBJECT | symbolTable.addType(symbolTable.getClassName());
       } else {
         frame[frameIndex++] = Frame.UNINITIALIZED_THIS;
       }
@@ -1711,7 +1723,7 @@ class MethodWriter extends MethodVisitor {
   private void writeFrame() {
     int clocalsSize = frame[1];
     int cstackSize = frame[2];
-    if (symbolTable.majorVersion() < Opcodes.V1_6) {
+    if (symbolTable.getMajorVersion() < Opcodes.V1_6) {
       stackMap.putShort(frame[0]).putShort(clocalsSize);
       writeFrameTypes(3, 3 + clocalsSize);
       stackMap.putShort(cstackSize);
@@ -1868,9 +1880,9 @@ class MethodWriter extends MethodVisitor {
     }
   }
 
-  // ------------------------------------------------------------------------
+  // -----------------------------------------------------------------------------------------------
   // Utility methods: dump bytecode array
-  // ------------------------------------------------------------------------
+  // -----------------------------------------------------------------------------------------------
 
   /**
    * Returns the size of the bytecode of this method.
@@ -1901,7 +1913,7 @@ class MethodWriter extends MethodVisitor {
         size += 8 + lineNumber.length;
       }
       if (stackMap != null) {
-        boolean zip = symbolTable.majorVersion() >= Opcodes.V1_6;
+        boolean zip = symbolTable.getMajorVersion() >= Opcodes.V1_6;
         symbolTable.addConstantUtf8(zip ? "StackMapTable" : "StackMap");
         size += 8 + stackMap.length;
       }
@@ -1919,7 +1931,7 @@ class MethodWriter extends MethodVisitor {
       symbolTable.addConstantUtf8("Exceptions");
       size += 8 + 2 * exceptionCount;
     }
-    boolean useSyntheticAttribute = symbolTable.majorVersion() < Opcodes.V1_5;
+    boolean useSyntheticAttribute = symbolTable.getMajorVersion() < Opcodes.V1_5;
     if ((access & Opcodes.ACC_SYNTHETIC) != 0 && useSyntheticAttribute) {
       symbolTable.addConstantUtf8("Synthetic");
       size += 6;
@@ -1977,7 +1989,7 @@ class MethodWriter extends MethodVisitor {
    * @param out the byte vector into which the bytecode of this method must be copied.
    */
   final void put(final ByteVector out) {
-    boolean useSyntheticAttribute = symbolTable.majorVersion() < Opcodes.V1_5;
+    boolean useSyntheticAttribute = symbolTable.getMajorVersion() < Opcodes.V1_5;
     int mask = Opcodes.ACC_DEPRECATED | (useSyntheticAttribute ? Opcodes.ACC_SYNTHETIC : 0);
     out.putShort(access & ~mask).putShort(name).putShort(desc);
     if (classReaderOffset != 0) {
@@ -2094,7 +2106,7 @@ class MethodWriter extends MethodVisitor {
         out.putByteArray(lineNumber.data, 0, lineNumber.length);
       }
       if (stackMap != null) {
-        boolean zip = symbolTable.majorVersion() >= Opcodes.V1_6;
+        boolean zip = symbolTable.getMajorVersion() >= Opcodes.V1_6;
         out.putShort(symbolTable.addConstantUtf8(zip ? "StackMapTable" : "StackMap"));
         out.putInt(stackMap.length + 2).putShort(frameCount);
         out.putByteArray(stackMap.data, 0, stackMap.length);

@@ -28,21 +28,21 @@
 package org.objectweb.asm;
 
 /**
- * A {@link ClassVisitor} that generates classes in bytecode form. More precisely this visitor
- * generates a byte array conforming to the Java class file format. It can be used alone, to
- * generate a Java class "from scratch", or with one or more {@link ClassReader ClassReader} and
- * adapter class visitor to generate a modified class from one or more existing Java classes.
+ * A {@link ClassVisitor} that generates a corresponding ClassFile structure, as defined in the Java
+ * Virtual Machine Specification (JVMS). It can be used alone, to generate a Java class "from
+ * scratch", or with one or more {@link ClassReader} and adapter {@link ClassVisitor} to generate a
+ * modified class from one or more existing Java classes.
  *
+ * @see <a href="https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html">JVMS 4</a>
  * @author Eric Bruneton
  */
 public class ClassWriter extends ClassVisitor {
 
   /**
    * Flag to automatically compute the maximum stack size and the maximum number of local variables
-   * of methods. If this flag is set, then the arguments of the {@link MethodVisitor#visitMaxs
-   * visitMaxs} method of the {@link MethodVisitor} returned by the {@link #visitMethod visitMethod}
-   * method will be ignored, and computed automatically from the signature and the bytecode of each
-   * method.
+   * of methods. If this flag is set, then the arguments of the {@link MethodVisitor#visitMaxs}
+   * method of the {@link MethodVisitor} returned by the {@link #visitMethod} method will be
+   * ignored, and computed automatically from the signature and the bytecode of each method.
    *
    * @see #ClassWriter(int)
    */
@@ -52,292 +52,143 @@ public class ClassWriter extends ClassVisitor {
    * Flag to automatically compute the stack map frames of methods from scratch. If this flag is
    * set, then the calls to the {@link MethodVisitor#visitFrame} method are ignored, and the stack
    * map frames are recomputed from the methods bytecode. The arguments of the {@link
-   * MethodVisitor#visitMaxs visitMaxs} method are also ignored and recomputed from the bytecode. In
-   * other words, COMPUTE_FRAMES implies COMPUTE_MAXS.
+   * MethodVisitor#visitMaxs} method are also ignored and recomputed from the bytecode. In other
+   * words, COMPUTE_FRAMES implies COMPUTE_MAXS.
    *
    * @see #ClassWriter(int)
    */
   public static final int COMPUTE_FRAMES = 2;
 
-  /** The type of instructions without any argument. */
-  static final int NOARG_INSN = 0;
-
-  /** The type of instructions with an signed byte argument. */
-  static final int SBYTE_INSN = 1;
-
-  /** The type of instructions with an signed short argument. */
-  static final int SHORT_INSN = 2;
-
-  /** The type of instructions with a local variable index argument. */
-  static final int VAR_INSN = 3;
-
-  /** The type of instructions with an implicit local variable index argument. */
-  static final int IMPLVAR_INSN = 4;
-
-  /** The type of instructions with a type descriptor argument. */
-  static final int TYPE_INSN = 5;
-
-  /** The type of field and method invocations instructions. */
-  static final int FIELDORMETH_INSN = 6;
-
-  /** The type of the INVOKEINTERFACE/INVOKEDYNAMIC instruction. */
-  static final int ITFMETH_INSN = 7;
-
-  /** The type of the INVOKEDYNAMIC instruction. */
-  static final int INDYMETH_INSN = 8;
-
-  /** The type of instructions with a 2 bytes bytecode offset label. */
-  static final int LABEL_INSN = 9;
-
-  /** The type of instructions with a 4 bytes bytecode offset label. */
-  static final int LABELW_INSN = 10;
-
-  /** The type of the LDC instruction. */
-  static final int LDC_INSN = 11;
-
-  /** The type of the LDC_W and LDC2_W instructions. */
-  static final int LDCW_INSN = 12;
-
-  /** The type of the IINC instruction. */
-  static final int IINC_INSN = 13;
-
-  /** The type of the TABLESWITCH instruction. */
-  static final int TABL_INSN = 14;
-
-  /** The type of the LOOKUPSWITCH instruction. */
-  static final int LOOK_INSN = 15;
-
-  /** The type of the MULTIANEWARRAY instruction. */
-  static final int MANA_INSN = 16;
-
-  /** The type of the WIDE instruction. */
-  static final int WIDE_INSN = 17;
+  // Note: fields are ordered as in the ClassFile structure, and those related to attributes are
+  // ordered as in Section 4.7 of the JVMS.
 
   /**
-   * The type of the ASM pseudo instructions with an unsigned 2 bytes offset label (see
-   * Label#resolve).
+   * The minor_version and major_version fields of the JVMS ClassFile structure. minor_version is
+   * stored in the 16 most significant bits, and major_version in the 16 least significant bits.
    */
-  static final int ASM_LABEL_INSN = 18;
+  private int version;
 
-  /** The type of the ASM pseudo instructions with a 4 bytes offset label. */
-  static final int ASM_LABELW_INSN = 19;
+  /** The symbol table for this class (contains the constant_pool and the BootstrapMethods). */
+  private final SymbolTable symbolTable;
 
   /**
-   * Represents a frame inserted between already existing frames. This kind of frame can only be
-   * used if the frame content can be computed from the previous existing frame and from the
-   * instructions between this existing frame and the inserted one, without any knowledge of the
-   * type hierarchy. This kind of frame is only used when an unconditional jump is inserted in a
-   * method while expanding an ASM pseudo instruction (see ClassReader).
+   * The access_flags field of the JVMS ClassFile structure. This field can contain ASM specific
+   * access flags, such as {@link Opcodes#ACC_DEPRECATED}, which are removed when generating the
+   * ClassFile structure.
    */
-  static final int F_INSERT = 256;
+  private int accessFlags;
 
-  /** The instruction types of all JVM opcodes. */
-  static final byte[] TYPE;
+  /** The this_class field of the JVMS ClassFile structure. */
+  private int thisClass;
 
-  /** Minor and major version numbers of the class to be generated. */
-  int version;
+  /** The super_class field of the JVMS ClassFile structure. */
+  private int superClass;
 
-  final SymbolTable symbolTable;
-
-  /** The access flags of this class. */
-  private int access;
-
-  /** The constant pool item that contains the internal name of this class. */
-  private int name;
-
-  /** The internal name of this class. */
-  String thisName;
-
-  /** The constant pool item that contains the signature of this class. */
-  private int signature;
-
-  /** The constant pool item that contains the internal name of the super class of this class. */
-  private int superName;
-
-  /** Number of interfaces implemented or extended by this class or interface. */
+  /** The interface_count field of the JVMS ClassFile structure. */
   private int interfaceCount;
 
-  /**
-   * The interfaces implemented or extended by this class or interface. More precisely, this array
-   * contains the indexes of the constant pool items that contain the internal names of these
-   * interfaces.
-   */
+  /** The 'interfaces' array of the JVMS ClassFile structure. */
   private int[] interfaces;
 
   /**
-   * The index of the constant pool item that contains the name of the source file from which this
-   * class was compiled.
-   */
-  private int sourceFile;
-
-  /** The SourceDebug attribute of this class. */
-  private ByteVector sourceDebug;
-
-  /** The module attribute of this class. */
-  private ModuleWriter moduleWriter;
-
-  /** The constant pool item that contains the name of the enclosing class of this class. */
-  private int enclosingMethodOwner;
-
-  /**
-   * The constant pool item that contains the name and descriptor of the enclosing method of this
-   * class.
-   */
-  private int enclosingMethod;
-
-  /** The runtime visible annotations of this class. */
-  private AnnotationWriter anns;
-
-  /** The runtime invisible annotations of this class. */
-  private AnnotationWriter ianns;
-
-  /** The runtime visible type annotations of this class. */
-  private AnnotationWriter tanns;
-
-  /** The runtime invisible type annotations of this class. */
-  private AnnotationWriter itanns;
-
-  /** The non standard attributes of this class. */
-  private Attribute attrs;
-
-  /** The number of entries in the InnerClasses attribute. */
-  private int innerClassesCount;
-
-  /** The InnerClasses attribute. */
-  private ByteVector innerClasses;
-
-  /**
-   * The fields of this class. These fields are stored in a linked list of {@link FieldWriter}
-   * objects, linked to each other by their {@link FieldWriter#fv} field. This field stores the
-   * first element of this list.
+   * The fields of this class, stored in a linked list of {@link FieldWriter} linked via their
+   * {@link FieldWriter#fv} field. This field stores the first element of this list.
    */
   private FieldWriter firstField;
 
   /**
-   * The fields of this class. These fields are stored in a linked list of {@link FieldWriter}
-   * objects, linked to each other by their {@link FieldWriter#fv} field. This field stores the last
-   * element of this list.
+   * The fields of this class, stored in a linked list of {@link FieldWriter} linked via their
+   * {@link FieldWriter#fv} field. This field stores the last element of this list.
    */
   private FieldWriter lastField;
 
   /**
-   * The methods of this class. These methods are stored in a linked list of {@link MethodWriter}
-   * objects, linked to each other by their {@link MethodWriter#mv} field. This field stores the
-   * first element of this list.
+   * The methods of this class, stored in a linked list of {@link MethodWriter} linked via their
+   * {@link MethodWriter#mv} field. This field stores the first element of this list.
    */
   private MethodWriter firstMethod;
 
   /**
-   * The methods of this class. These methods are stored in a linked list of {@link MethodWriter}
-   * objects, linked to each other by their {@link MethodWriter#mv} field. This field stores the
-   * last element of this list.
+   * The methods of this class, stored in a linked list of {@link MethodWriter} linked via their
+   * {@link MethodWriter#mv} field. This field stores the last element of this list.
    */
   private MethodWriter lastMethod;
 
+  /** The number_of_classes field of the InnerClasses attribute, or 0. */
+  private int numberOfClasses;
+
+  /** The 'classes' array of the InnerClasses attribute, or <tt>null</tt>. */
+  private ByteVector classes;
+
+  /** The class_index field of the EnclosingMethod attribute, or 0. */
+  private int enclosingClassIndex;
+
+  /** The method_index field of the EnclosingMethod attribute. */
+  private int enclosingMethodIndex;
+
+  /** The signature_index field of the Signature attribute, or 0. */
+  private int signatureIndex;
+
+  /** The source_file_index field of the SourceFile attribute, or 0. */
+  private int sourceFileIndex;
+
+  /** The debug_extension field of the SourceDebugExtension attribute, or <tt>null</tt>. */
+  private ByteVector debugExtension;
+
   /**
-   * Indicates what must be automatically computed.
+   * The last runtime visible annotation of this class. The previous ones can be accessed with the
+   * {@link AnnotationWriter#previousAnnotation} field. May be <tt>null</tt>.
+   */
+  private AnnotationWriter lastRuntimeVisibleAnnotation;
+
+  /**
+   * The last runtime invisible annotation of this class. The previous ones can be accessed with the
+   * {@link AnnotationWriter#previousAnnotation} field. May be <tt>null</tt>.
+   */
+  private AnnotationWriter lastRuntimeInvisibleAnnotation;
+
+  /**
+   * The last runtime visible type annotation of this class. The previous ones can be accessed with
+   * the {@link AnnotationWriter#previousAnnotation} field. May be <tt>null</tt>.
+   */
+  private AnnotationWriter lastRuntimeVisibleTypeAnnotation;
+
+  /**
+   * The last runtime invisible type annotation of this class. The previous ones can be accessed
+   * with the {@link AnnotationWriter#previousAnnotation} field. May be <tt>null</tt>.
+   */
+  private AnnotationWriter lastRuntimeInvisibleTypeAnnotation;
+
+  /** The Module attribute of this class, or <tt>null</tt>. */
+  private ModuleWriter moduleWriter;
+
+  /**
+   * The first non standard attribute of this class. The next ones can be accessed with the {@link
+   * Attribute#nextAttribute} field. May be <tt>null</tt>.
    *
-   * @see MethodWriter#compute
+   * <p><b>WARNING</b>: this list stores the attributes in the <i>reverse</i> order of their visit.
+   * firstAttribute is actually the last attribute visited in {@link #visitAttribute}. The {@link
+   * #toByteArray} method writes the attributes in the order defined by this list, i.e. in the
+   * reverse order specified by the user.
+   */
+  private Attribute firstAttribute;
+
+  /**
+   * Indicates what must be automatically computed in {@link MethodWriter}. Must be one of {@link
+   * MethodWriter#NOTHING}, {@link MethodWriter#MAXS}, {@link MethodWriter#INSERTED_FRAMES}, or
+   * {@link MethodWriter#FRAMES}.
    */
   private int compute;
 
-  // ------------------------------------------------------------------------
-  // Static initializer
-  // ------------------------------------------------------------------------
-
-  /** Computes the instruction types of JVM opcodes. */
-  static {
-    int i;
-    byte[] b = new byte[221];
-    String s =
-        "AAAAAAAAAAAAAAAABCLMMDDDDDEEEEEEEEEEEEEEEEEEEEAAAAAAAADD"
-            + "DDDEEEEEEEEEEEEEEEEEEEEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
-            + "AAAAAAAAAAAAAAAAANAAAAAAAAAAAAAAAAAAAAJJJJJJJJJJJJJJJJDOPAA"
-            + "AAAAGGGGGGGHIFBFAAFFAARQJJKKSSSSSSSSSSSSSSSSSST";
-    for (i = 0; i < b.length; ++i) {
-      b[i] = (byte) (s.charAt(i) - 'A');
-    }
-    TYPE = b;
-
-    // code to generate the above string
-    //
-    // // SBYTE_INSN instructions
-    // b[Constants.NEWARRAY] = SBYTE_INSN;
-    // b[Constants.BIPUSH] = SBYTE_INSN;
-    //
-    // // SHORT_INSN instructions
-    // b[Constants.SIPUSH] = SHORT_INSN;
-    //
-    // // (IMPL)VAR_INSN instructions
-    // b[Constants.RET] = VAR_INSN;
-    // for (i = Constants.ILOAD; i <= Constants.ALOAD; ++i) {
-    // b[i] = VAR_INSN;
-    // }
-    // for (i = Constants.ISTORE; i <= Constants.ASTORE; ++i) {
-    // b[i] = VAR_INSN;
-    // }
-    // for (i = 26; i <= 45; ++i) { // ILOAD_0 to ALOAD_3
-    // b[i] = IMPLVAR_INSN;
-    // }
-    // for (i = 59; i <= 78; ++i) { // ISTORE_0 to ASTORE_3
-    // b[i] = IMPLVAR_INSN;
-    // }
-    //
-    // // TYPE_INSN instructions
-    // b[Constants.NEW] = TYPE_INSN;
-    // b[Constants.ANEWARRAY] = TYPE_INSN;
-    // b[Constants.CHECKCAST] = TYPE_INSN;
-    // b[Constants.INSTANCEOF] = TYPE_INSN;
-    //
-    // // (Set)FIELDORMETH_INSN instructions
-    // for (i = Constants.GETSTATIC; i <= Constants.INVOKESTATIC; ++i) {
-    // b[i] = FIELDORMETH_INSN;
-    // }
-    // b[Constants.INVOKEINTERFACE] = ITFMETH_INSN;
-    // b[Constants.INVOKEDYNAMIC] = INDYMETH_INSN;
-    //
-    // // LABEL(W)_INSN instructions
-    // for (i = Constants.IFEQ; i <= Constants.JSR; ++i) {
-    // b[i] = LABEL_INSN;
-    // }
-    // b[Constants.IFNULL] = LABEL_INSN;
-    // b[Constants.IFNONNULL] = LABEL_INSN;
-    // b[200] = LABELW_INSN; // GOTO_W
-    // b[201] = LABELW_INSN; // JSR_W
-    // // temporary opcodes used internally by ASM - see Label and
-    // MethodWriter
-    // for (i = 202; i < 220; ++i) {
-    // b[i] = ASM_LABEL_INSN;
-    // }
-    // b[220] = ASM_LABELW_INSN;
-    //
-    // // LDC(_W) instructions
-    // b[Constants.LDC] = LDC_INSN;
-    // b[19] = LDCW_INSN; // LDC_W
-    // b[20] = LDCW_INSN; // LDC2_W
-    //
-    // // special instructions
-    // b[Constants.IINC] = IINC_INSN;
-    // b[Constants.TABLESWITCH] = TABL_INSN;
-    // b[Constants.LOOKUPSWITCH] = LOOK_INSN;
-    // b[Constants.MULTIANEWARRAY] = MANA_INSN;
-    // b[196] = WIDE_INSN; // WIDE
-    //
-    // for (i = 0; i < b.length; ++i) {
-    // System.err.print((char)('A' + b[i]));
-    // }
-    // System.err.println();
-  }
-
-  // ------------------------------------------------------------------------
+  // -----------------------------------------------------------------------------------------------
   // Constructor
-  // ------------------------------------------------------------------------
+  // -----------------------------------------------------------------------------------------------
 
   /**
    * Constructs a new {@link ClassWriter} object.
    *
-   * @param flags option flags that can be used to modify the default behavior of this class. See
-   *     {@link #COMPUTE_MAXS}, {@link #COMPUTE_FRAMES}.
+   * @param flags option flags that can be used to modify the default behavior of this class. Must
+   *     be zero or more of {@link #COMPUTE_MAXS} and {@link #COMPUTE_FRAMES}.
    */
   public ClassWriter(final int flags) {
     this(null, flags);
@@ -348,9 +199,10 @@ public class ClassWriter extends ClassVisitor {
    * transformations. These optimizations are the following:
    *
    * <ul>
-   *   <li>The constant pool from the original class is copied as is in the new class, which saves
-   *       time. New constant pool entries will be added at the end if necessary, but unused
-   *       constant pool entries <i>won't be removed</i>.
+   *   <li>The constant pool and bootstrap methods from the original class are copied as is in the
+   *       new class, which saves time. New constant pool entries and new bootstrap methods will be
+   *       added at the end if necessary, but unused constant pool entries or bootstrap methods
+   *       <i>won't be removed</i>.
    *   <li>Methods that are not transformed are copied as is in the new class, directly from the
    *       original class bytecode (i.e. without emitting visit events for all the method
    *       instructions), which saves a <i>lot</i> of time. Untransformed methods are detected by
@@ -359,12 +211,12 @@ public class ClassWriter extends ClassVisitor {
    * </ul>
    *
    * @param classReader the {@link ClassReader} used to read the original class. It will be used to
-   *     copy the entire constant pool from the original class and also to copy other fragments of
-   *     original bytecode where applicable.
-   * @param flags option flags that can be used to modify the default behavior of this class.
-   *     <i>These option flags do not affect methods that are copied as is in the new class. This
-   *     means that neither the maximum stack size nor the stack frames will be computed for these
-   *     methods</i>. See {@link #COMPUTE_MAXS}, {@link #COMPUTE_FRAMES}.
+   *     copy the entire constant pool and bootstrap methods from the original class and also to
+   *     copy other fragments of original bytecode where applicable.
+   * @param flags option flags that can be used to modify the default behavior of this class.Must be
+   *     zero or more of {@link #COMPUTE_MAXS} and {@link #COMPUTE_FRAMES}. <i>These option flags do
+   *     not affect methods that are copied as is in the new class. This means that neither the
+   *     maximum stack size nor the stack frames will be computed for these methods</i>.
    */
   public ClassWriter(final ClassReader classReader, final int flags) {
     super(Opcodes.ASM6);
@@ -375,9 +227,9 @@ public class ClassWriter extends ClassVisitor {
             : ((flags & COMPUTE_MAXS) != 0 ? MethodWriter.MAXS : MethodWriter.NOTHING);
   }
 
-  // ------------------------------------------------------------------------
+  // -----------------------------------------------------------------------------------------------
   // Implementation of the ClassVisitor abstract class
-  // ------------------------------------------------------------------------
+  // -----------------------------------------------------------------------------------------------
 
   @Override
   public final void visit(
@@ -388,13 +240,12 @@ public class ClassWriter extends ClassVisitor {
       final String superName,
       final String[] interfaces) {
     this.version = version;
-    this.access = access;
-    this.name = symbolTable.addConstantClass(name).index;
-    thisName = name;
+    this.accessFlags = access;
+    this.thisClass = symbolTable.setMajorVersionAndClassName(version & 0xFFFF, name);
     if (signature != null) {
-      this.signature = symbolTable.addConstantUtf8(signature);
+      this.signatureIndex = symbolTable.addConstantUtf8(signature);
     }
-    this.superName = superName == null ? 0 : symbolTable.addConstantClass(superName).index;
+    this.superClass = superName == null ? 0 : symbolTable.addConstantClass(superName).index;
     if (interfaces != null && interfaces.length > 0) {
       interfaceCount = interfaces.length;
       this.interfaces = new int[interfaceCount];
@@ -407,10 +258,10 @@ public class ClassWriter extends ClassVisitor {
   @Override
   public final void visitSource(final String file, final String debug) {
     if (file != null) {
-      sourceFile = symbolTable.addConstantUtf8(file);
+      sourceFileIndex = symbolTable.addConstantUtf8(file);
     }
     if (debug != null) {
-      sourceDebug = new ByteVector().encodeUTF8(debug, 0, Integer.MAX_VALUE);
+      debugExtension = new ByteVector().encodeUTF8(debug, 0, Integer.MAX_VALUE);
     }
   }
 
@@ -419,7 +270,7 @@ public class ClassWriter extends ClassVisitor {
       final String name, final int access, final String version) {
     return moduleWriter =
         new ModuleWriter(
-            this,
+            symbolTable,
             symbolTable.addConstantModule(name).index,
             access,
             version == null ? 0 : symbolTable.addConstantUtf8(version));
@@ -427,74 +278,78 @@ public class ClassWriter extends ClassVisitor {
 
   @Override
   public final void visitOuterClass(final String owner, final String name, final String desc) {
-    enclosingMethodOwner = symbolTable.addConstantClass(owner).index;
+    enclosingClassIndex = symbolTable.addConstantClass(owner).index;
     if (name != null && desc != null) {
-      enclosingMethod = symbolTable.addConstantNameAndType(name, desc);
+      enclosingMethodIndex = symbolTable.addConstantNameAndType(name, desc);
     }
   }
 
   @Override
   public final AnnotationVisitor visitAnnotation(final String desc, final boolean visible) {
-    ByteVector bv = new ByteVector();
-    // write type, and reserve space for values count
-    bv.putShort(symbolTable.addConstantUtf8(desc)).putShort(0);
+    // Create a ByteVector to hold an 'annotation' JVMS structure.
+    // See https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.7.16.
+    ByteVector annotation = new ByteVector();
+    // Write type_index and reserve space for num_element_value_pairs.
+    annotation.putShort(symbolTable.addConstantUtf8(desc)).putShort(0);
     if (visible) {
-      return anns = new AnnotationWriter(symbolTable, bv, anns);
+      return lastRuntimeVisibleAnnotation =
+          new AnnotationWriter(symbolTable, annotation, lastRuntimeVisibleAnnotation);
     } else {
-      return ianns = new AnnotationWriter(symbolTable, bv, ianns);
+      return lastRuntimeInvisibleAnnotation =
+          new AnnotationWriter(symbolTable, annotation, lastRuntimeInvisibleAnnotation);
     }
   }
 
   @Override
   public final AnnotationVisitor visitTypeAnnotation(
       int typeRef, TypePath typePath, final String desc, final boolean visible) {
-    ByteVector bv = new ByteVector();
-    // write target_type, target_info, and target_path
-    TypeReference.putTarget(typeRef, bv);
-    TypePath.put(typePath, bv);
-    // write type, and reserve space for values count
-    bv.putShort(symbolTable.addConstantUtf8(desc)).putShort(0);
+    // Create a ByteVector to hold a 'type_annotation' JVMS structure.
+    // See https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.7.20.
+    ByteVector typeAnnotation = new ByteVector();
+    // Write target_type, target_info, and target_path.
+    TypeReference.putTarget(typeRef, typeAnnotation);
+    TypePath.put(typePath, typeAnnotation);
+    // Write type_index and reserve space for num_element_value_pairs.
+    typeAnnotation.putShort(symbolTable.addConstantUtf8(desc)).putShort(0);
     if (visible) {
-      return tanns = new AnnotationWriter(symbolTable, bv, tanns);
+      return lastRuntimeVisibleTypeAnnotation =
+          new AnnotationWriter(symbolTable, typeAnnotation, lastRuntimeVisibleTypeAnnotation);
     } else {
-      return itanns = new AnnotationWriter(symbolTable, bv, itanns);
+      return lastRuntimeInvisibleTypeAnnotation =
+          new AnnotationWriter(symbolTable, typeAnnotation, lastRuntimeInvisibleTypeAnnotation);
     }
   }
 
   @Override
-  public final void visitAttribute(final Attribute attr) {
-    attr.nextAttribute = attrs;
-    attrs = attr;
+  public final void visitAttribute(final Attribute attribute) {
+    // Store the attributes in the <i>reverse</i> order of their visit by this method.
+    attribute.nextAttribute = firstAttribute;
+    firstAttribute = attribute;
   }
 
   @Override
   public final void visitInnerClass(
       final String name, final String outerName, final String innerName, final int access) {
-    if (innerClasses == null) {
-      innerClasses = new ByteVector();
+    if (classes == null) {
+      classes = new ByteVector();
     }
-    // Sec. 4.7.6 of the JVMS states "Every CONSTANT_Class_info entry in the
-    // constant_pool table which represents a class or interface C that is
-    // not a package member must have exactly one corresponding entry in the
-    // classes array". To avoid duplicates we keep track in the info field
-    // of the Symbol of each CONSTANT_Class_info entry C whether an inner
-    // class entry has already been added for C (this field is unused for
-    // class entries, and changing its value does not change the hashcode
-    // and equality tests). If so we store the index of this inner class
-    // entry (plus one) in intVal. This trick allows duplicate detection in
-    // O(1) time.
-    Symbol nameItem = symbolTable.addConstantClass(name);
-    if (nameItem.info == 0) {
-      ++innerClassesCount;
-      innerClasses.putShort(nameItem.index);
-      innerClasses.putShort(outerName == null ? 0 : symbolTable.addConstantClass(outerName).index);
-      innerClasses.putShort(innerName == null ? 0 : symbolTable.addConstantUtf8(innerName));
-      innerClasses.putShort(access);
-      nameItem.info = innerClassesCount;
+    // Section 4.7.6 of the JVMS states "Every CONSTANT_Class_info entry in the constant_pool table
+    // which represents a class or interface C that is not a package member must have exactly one
+    // corresponding entry in the classes array". To avoid duplicates we keep track in the info
+    // field of the Symbol of each CONSTANT_Class_info entry C whether an inner class entry has
+    // already been added for C. If so, we store the index of this inner class entry (plus one) in
+    // the info field. This trick allows duplicate detection in O(1) time.
+    Symbol nameSymbol = symbolTable.addConstantClass(name);
+    if (nameSymbol.info == 0) {
+      ++numberOfClasses;
+      classes.putShort(nameSymbol.index);
+      classes.putShort(outerName == null ? 0 : symbolTable.addConstantClass(outerName).index);
+      classes.putShort(innerName == null ? 0 : symbolTable.addConstantUtf8(innerName));
+      classes.putShort(access);
+      nameSymbol.info = numberOfClasses;
     } else {
-      // Compare the inner classes entry nameItem.intVal - 1 with the
-      // arguments of this method and throw an exception if there is a
-      // difference?
+      // Compare the inner classes entry nameSymbol.info - 1 with the arguments of this method and
+      // throw an exception if there is a difference?
     }
   }
 
@@ -534,204 +389,224 @@ public class ClassWriter extends ClassVisitor {
   @Override
   public final void visitEnd() {}
 
-  // ------------------------------------------------------------------------
+  // -----------------------------------------------------------------------------------------------
   // Other public methods
-  // ------------------------------------------------------------------------
+  // -----------------------------------------------------------------------------------------------
 
   /**
-   * Returns the bytecode of the class that was build with this class writer.
+   * Returns the content of the class file that was built by this ClassWriter.
    *
-   * @return the bytecode of the class that was build with this class writer.
+   * @return the binary content of the JVMS ClassFile structure that was built by this ClassWriter.
    */
   public byte[] toByteArray() {
-    if (symbolTable.getConstantPoolCount() > 0xFFFF) {
-      throw new RuntimeException("Class file too large!");
-    }
-    // computes the real size of the bytecode of this class
+    // First step: compute the size in bytes of the ClassFile structure
+    // The magic field uses 4 bytes, 10 mandatory fields (minor_version, major_version,
+    // constant_pool_count, access_flags, this_class, super_class, interfaces_count, fields_count,
+    // methods_count and attributes_count) use 2 bytes each, and each interface uses 2 bytes too.
     int size = 24 + 2 * interfaceCount;
-    int nbFields = 0;
-    FieldWriter fb = firstField;
-    while (fb != null) {
-      ++nbFields;
-      size += fb.computeFieldInfoSize();
-      fb = (FieldWriter) fb.fv;
+    int fieldsCount = 0;
+    FieldWriter fieldWriter = firstField;
+    while (fieldWriter != null) {
+      ++fieldsCount;
+      size += fieldWriter.computeFieldInfoSize();
+      fieldWriter = (FieldWriter) fieldWriter.fv;
     }
-    int nbMethods = 0;
-    MethodWriter mb = firstMethod;
-    while (mb != null) {
-      ++nbMethods;
-      size += mb.computeMethodInfoSize();
-      mb = (MethodWriter) mb.mv;
+    int methodsCount = 0;
+    MethodWriter methodWriter = firstMethod;
+    while (methodWriter != null) {
+      ++methodsCount;
+      size += methodWriter.computeMethodInfoSize();
+      methodWriter = (MethodWriter) methodWriter.mv;
     }
-    int attributeCount = 0;
-    if (symbolTable.getBootstrapMethodsLength() > 0) {
-      // we put it as first attribute in order to improve a bit
-      // bootstrap methods copying in SymbolTable.
-      ++attributeCount;
-      size += 8 + symbolTable.getBootstrapMethodsLength();
-      symbolTable.addConstantUtf8("BootstrapMethods");
+    // For ease of reference, we use here the same attribute order as in Section 4.7 of the JVMS.
+    int attributesCount = 0;
+    if (classes != null) {
+      ++attributesCount;
+      size += 8 + classes.length;
+      symbolTable.addConstantUtf8("InnerClasses");
     }
-    if (signature != 0) {
-      ++attributeCount;
-      size += 8;
-      symbolTable.addConstantUtf8("Signature");
-    }
-    if (sourceFile != 0) {
-      ++attributeCount;
-      size += 8;
-      symbolTable.addConstantUtf8("SourceFile");
-    }
-    if (sourceDebug != null) {
-      ++attributeCount;
-      size += sourceDebug.length + 6;
-      symbolTable.addConstantUtf8("SourceDebugExtension");
-    }
-    if (enclosingMethodOwner != 0) {
-      ++attributeCount;
+    if (enclosingClassIndex != 0) {
+      ++attributesCount;
       size += 10;
       symbolTable.addConstantUtf8("EnclosingMethod");
     }
-    if ((access & Opcodes.ACC_DEPRECATED) != 0) {
-      ++attributeCount;
-      size += 6;
-      symbolTable.addConstantUtf8("Deprecated");
-    }
-    if ((access & Opcodes.ACC_SYNTHETIC) != 0) {
+    if ((accessFlags & Opcodes.ACC_SYNTHETIC) != 0) {
       if ((version & 0xFFFF) < Opcodes.V1_5) {
-        ++attributeCount;
+        ++attributesCount;
         size += 6;
         symbolTable.addConstantUtf8("Synthetic");
       }
     }
-    if (innerClasses != null) {
-      ++attributeCount;
-      size += 8 + innerClasses.length;
-      symbolTable.addConstantUtf8("InnerClasses");
+    if (signatureIndex != 0) {
+      ++attributesCount;
+      size += 8;
+      symbolTable.addConstantUtf8("Signature");
     }
-    if (anns != null) {
-      ++attributeCount;
-      size += anns.computeAnnotationsSize("RuntimeVisibleAnnotations");
+    if (sourceFileIndex != 0) {
+      ++attributesCount;
+      size += 8;
+      symbolTable.addConstantUtf8("SourceFile");
     }
-    if (ianns != null) {
-      ++attributeCount;
-      size += ianns.computeAnnotationsSize("RuntimeInvisibleAnnotations");
+    if (debugExtension != null) {
+      ++attributesCount;
+      size += 6 + debugExtension.length;
+      symbolTable.addConstantUtf8("SourceDebugExtension");
     }
-    if (tanns != null) {
-      ++attributeCount;
-      size += tanns.computeAnnotationsSize("RuntimeVisibleTypeAnnotations");
+    if ((accessFlags & Opcodes.ACC_DEPRECATED) != 0) {
+      ++attributesCount;
+      size += 6;
+      symbolTable.addConstantUtf8("Deprecated");
     }
-    if (itanns != null) {
-      ++attributeCount;
-      size += itanns.computeAnnotationsSize("RuntimeInvisibleTypeAnnotations");
+    if (lastRuntimeVisibleAnnotation != null) {
+      ++attributesCount;
+      size += lastRuntimeVisibleAnnotation.computeAnnotationsSize("RuntimeVisibleAnnotations");
+    }
+    if (lastRuntimeInvisibleAnnotation != null) {
+      ++attributesCount;
+      size += lastRuntimeInvisibleAnnotation.computeAnnotationsSize("RuntimeInvisibleAnnotations");
+    }
+    if (lastRuntimeVisibleTypeAnnotation != null) {
+      ++attributesCount;
+      size +=
+          lastRuntimeVisibleTypeAnnotation.computeAnnotationsSize("RuntimeVisibleTypeAnnotations");
+    }
+    if (lastRuntimeInvisibleTypeAnnotation != null) {
+      ++attributesCount;
+      size +=
+          lastRuntimeInvisibleTypeAnnotation.computeAnnotationsSize(
+              "RuntimeInvisibleTypeAnnotations");
+    }
+    if (symbolTable.computeBootstrapMethodsSize() > 0) {
+      ++attributesCount;
+      size += symbolTable.computeBootstrapMethodsSize();
     }
     if (moduleWriter != null) {
-      attributeCount += moduleWriter.getAttributeCount();
+      attributesCount += moduleWriter.getAttributeCount();
       size += moduleWriter.computeAttributesSize();
     }
-    if (attrs != null) {
-      attributeCount += attrs.getAttributeCount();
-      size += attrs.getAttributesSize(symbolTable);
+    if (firstAttribute != null) {
+      attributesCount += firstAttribute.getAttributeCount();
+      size += firstAttribute.getAttributesSize(symbolTable);
     }
+    // IMPORTANT: this must be the last part of the ClassFile size computation, because the previous
+    // statements can add attribute names to the constant pool, thereby changing its size!
     size += symbolTable.getConstantPoolLength();
-    // allocates a byte vector of this size, in order to avoid unnecessary
-    // arraycopy operations in the ByteVector.enlarge() method
-    ByteVector out = new ByteVector(size);
-    out.putInt(0xCAFEBABE).putInt(version);
-    symbolTable.putConstantPool(out);
+    if (symbolTable.getConstantPoolCount() > 0xFFFF) {
+      throw new RuntimeException("Class file too large!");
+    }
+
+    // Second step: allocate a ByteVector of the correct size (in order to avoid any array copy in
+    // dynamic resizes) and fill it with the ClassFile content.
+    ByteVector result = new ByteVector(size);
+    result.putInt(0xCAFEBABE).putInt(version);
+    symbolTable.putConstantPool(result);
     int mask =
         Opcodes.ACC_DEPRECATED | ((version & 0xFFFF) < Opcodes.V1_5 ? Opcodes.ACC_SYNTHETIC : 0);
-    out.putShort(access & ~mask).putShort(name).putShort(superName);
-    out.putShort(interfaceCount);
+    result.putShort(accessFlags & ~mask).putShort(thisClass).putShort(superClass);
+    result.putShort(interfaceCount);
     for (int i = 0; i < interfaceCount; ++i) {
-      out.putShort(interfaces[i]);
+      result.putShort(interfaces[i]);
     }
-    out.putShort(nbFields);
-    fb = firstField;
-    while (fb != null) {
-      fb.put(out);
-      fb = (FieldWriter) fb.fv;
+    result.putShort(fieldsCount);
+    fieldWriter = firstField;
+    while (fieldWriter != null) {
+      fieldWriter.put(result);
+      fieldWriter = (FieldWriter) fieldWriter.fv;
     }
+    result.putShort(methodsCount);
     boolean hasAsmInsns = false;
-    out.putShort(nbMethods);
-    mb = firstMethod;
-    while (mb != null) {
-      mb.put(out);
-      hasAsmInsns |= mb.hasAsmInsns;
-      mb = (MethodWriter) mb.mv;
+    methodWriter = firstMethod;
+    while (methodWriter != null) {
+      methodWriter.put(result);
+      hasAsmInsns |= methodWriter.hasAsmInsns;
+      methodWriter = (MethodWriter) methodWriter.mv;
     }
-    out.putShort(attributeCount);
-    symbolTable.putBootstrapMethods(out);
-    if (signature != 0) {
-      out.putShort(symbolTable.addConstantUtf8("Signature")).putInt(2).putShort(signature);
+    // For ease of reference, we use here the same attribute order as in Section 4.7 of the JVMS.
+    result.putShort(attributesCount);
+    if (classes != null) {
+      result.putShort(symbolTable.addConstantUtf8("InnerClasses"));
+      result.putInt(classes.length + 2).putShort(numberOfClasses);
+      result.putByteArray(classes.data, 0, classes.length);
     }
-    if (sourceFile != 0) {
-      out.putShort(symbolTable.addConstantUtf8("SourceFile")).putInt(2).putShort(sourceFile);
+    if (enclosingClassIndex != 0) {
+      result.putShort(symbolTable.addConstantUtf8("EnclosingMethod")).putInt(4);
+      result.putShort(enclosingClassIndex).putShort(enclosingMethodIndex);
     }
-    if (sourceDebug != null) {
-      int len = sourceDebug.length;
-      out.putShort(symbolTable.addConstantUtf8("SourceDebugExtension")).putInt(len);
-      out.putByteArray(sourceDebug.data, 0, len);
+    if ((accessFlags & Opcodes.ACC_SYNTHETIC) != 0 && (version & 0xFFFF) < Opcodes.V1_5) {
+      result.putShort(symbolTable.addConstantUtf8("Synthetic")).putInt(0);
     }
+    if (signatureIndex != 0) {
+      result.putShort(symbolTable.addConstantUtf8("Signature")).putInt(2).putShort(signatureIndex);
+    }
+    if (sourceFileIndex != 0) {
+      result
+          .putShort(symbolTable.addConstantUtf8("SourceFile"))
+          .putInt(2)
+          .putShort(sourceFileIndex);
+    }
+    if (debugExtension != null) {
+      int length = debugExtension.length;
+      result.putShort(symbolTable.addConstantUtf8("SourceDebugExtension")).putInt(length);
+      result.putByteArray(debugExtension.data, 0, length);
+    }
+    if ((accessFlags & Opcodes.ACC_DEPRECATED) != 0) {
+      result.putShort(symbolTable.addConstantUtf8("Deprecated")).putInt(0);
+    }
+    if (lastRuntimeVisibleAnnotation != null) {
+      lastRuntimeVisibleAnnotation.putAnnotations(
+          symbolTable.addConstantUtf8("RuntimeVisibleAnnotations"), result);
+    }
+    if (lastRuntimeInvisibleAnnotation != null) {
+      lastRuntimeInvisibleAnnotation.putAnnotations(
+          symbolTable.addConstantUtf8("RuntimeInvisibleAnnotations"), result);
+    }
+    if (lastRuntimeVisibleTypeAnnotation != null) {
+      lastRuntimeVisibleTypeAnnotation.putAnnotations(
+          symbolTable.addConstantUtf8("RuntimeVisibleTypeAnnotations"), result);
+    }
+    if (lastRuntimeInvisibleTypeAnnotation != null) {
+      lastRuntimeInvisibleTypeAnnotation.putAnnotations(
+          symbolTable.addConstantUtf8("RuntimeInvisibleTypeAnnotations"), result);
+    }
+    symbolTable.putBootstrapMethods(result);
     if (moduleWriter != null) {
-      moduleWriter.putAttributes(out);
+      moduleWriter.putAttributes(result);
     }
-    if (enclosingMethodOwner != 0) {
-      out.putShort(symbolTable.addConstantUtf8("EnclosingMethod")).putInt(4);
-      out.putShort(enclosingMethodOwner).putShort(enclosingMethod);
+    if (firstAttribute != null) {
+      firstAttribute.putAttributes(symbolTable, result);
     }
-    if ((access & Opcodes.ACC_DEPRECATED) != 0) {
-      out.putShort(symbolTable.addConstantUtf8("Deprecated")).putInt(0);
-    }
-    if ((access & Opcodes.ACC_SYNTHETIC) != 0 && (version & 0xFFFF) < Opcodes.V1_5) {
-      out.putShort(symbolTable.addConstantUtf8("Synthetic")).putInt(0);
-    }
-    if (innerClasses != null) {
-      out.putShort(symbolTable.addConstantUtf8("InnerClasses"));
-      out.putInt(innerClasses.length + 2).putShort(innerClassesCount);
-      out.putByteArray(innerClasses.data, 0, innerClasses.length);
-    }
-    if (anns != null) {
-      anns.putAnnotations(symbolTable.addConstantUtf8("RuntimeVisibleAnnotations"), out);
-    }
-    if (ianns != null) {
-      ianns.putAnnotations(symbolTable.addConstantUtf8("RuntimeInvisibleAnnotations"), out);
-    }
-    if (tanns != null) {
-      tanns.putAnnotations(symbolTable.addConstantUtf8("RuntimeVisibleTypeAnnotations"), out);
-    }
-    if (itanns != null) {
-      itanns.putAnnotations(symbolTable.addConstantUtf8("RuntimeInvisibleTypeAnnotations"), out);
-    }
-    if (attrs != null) {
-      attrs.putAttributes(symbolTable, out);
-    }
+
+    // Third step: do a ClassReader->ClassWriter round trip if the generated class contains ASM
+    // pseudo instructions due to large forward jumps.
     if (hasAsmInsns) {
       boolean hasFrames = false;
-      mb = firstMethod;
-      while (mb != null) {
-        hasFrames |= mb.frameCount > 0;
-        mb = (MethodWriter) mb.mv;
+      methodWriter = firstMethod;
+      while (methodWriter != null) {
+        hasFrames |= methodWriter.frameCount > 0;
+        methodWriter = (MethodWriter) methodWriter.mv;
       }
-      anns = null;
-      ianns = null;
-      attrs = null;
-      moduleWriter = null;
       firstField = null;
       lastField = null;
       firstMethod = null;
       lastMethod = null;
+      lastRuntimeVisibleAnnotation = null;
+      lastRuntimeInvisibleAnnotation = null;
+      lastRuntimeVisibleTypeAnnotation = null;
+      lastRuntimeInvisibleTypeAnnotation = null;
+      moduleWriter = null;
+      firstAttribute = null;
       compute = hasFrames ? MethodWriter.INSERTED_FRAMES : MethodWriter.NOTHING;
-      hasAsmInsns = false;
-      new ClassReader(out.data)
+      new ClassReader(result.data)
           .accept(this, (hasFrames ? ClassReader.EXPAND_FRAMES : 0) | ClassReader.EXPAND_ASM_INSNS);
       return toByteArray();
+    } else {
+      return result.data;
     }
-    return out.data;
   }
 
-  // ------------------------------------------------------------------------
-  // Utility methods: constant pool management
-  // ------------------------------------------------------------------------
+  // -----------------------------------------------------------------------------------------------
+  // Utility methods: constant pool management for Attribute sub classes
+  // -----------------------------------------------------------------------------------------------
 
   /**
    * Adds a number or string constant to the constant pool of the class being build. Does nothing if
@@ -906,6 +781,10 @@ public class ClassWriter extends ClassVisitor {
     return symbolTable.addConstantNameAndType(name, desc);
   }
 
+  // -----------------------------------------------------------------------------------------------
+  // Default method to compute common super classes when computing stack map frames
+  // -----------------------------------------------------------------------------------------------
+
   /**
    * Returns the common super type of the two given types. The default implementation of this method
    * <i>loads</i> the two given classes and uses the java.lang.Class methods to find the common
@@ -919,27 +798,27 @@ public class ClassWriter extends ClassVisitor {
    * @return the internal name of the common super class of the two given classes.
    */
   protected String getCommonSuperClass(final String type1, final String type2) {
-    Class<?> c, d;
+    Class<?> class1, class2;
     ClassLoader classLoader = getClass().getClassLoader();
     try {
-      c = Class.forName(type1.replace('/', '.'), false, classLoader);
-      d = Class.forName(type2.replace('/', '.'), false, classLoader);
+      class1 = Class.forName(type1.replace('/', '.'), false, classLoader);
+      class2 = Class.forName(type2.replace('/', '.'), false, classLoader);
     } catch (Exception e) {
       throw new RuntimeException(e.toString());
     }
-    if (c.isAssignableFrom(d)) {
+    if (class1.isAssignableFrom(class2)) {
       return type1;
     }
-    if (d.isAssignableFrom(c)) {
+    if (class2.isAssignableFrom(class1)) {
       return type2;
     }
-    if (c.isInterface() || d.isInterface()) {
+    if (class1.isInterface() || class2.isInterface()) {
       return "java/lang/Object";
     } else {
       do {
-        c = c.getSuperclass();
-      } while (!c.isAssignableFrom(d));
-      return c.getName().replace('.', '/');
+        class1 = class1.getSuperclass();
+      } while (!class1.isAssignableFrom(class2));
+      return class1.getName().replace('.', '/');
     }
   }
 }

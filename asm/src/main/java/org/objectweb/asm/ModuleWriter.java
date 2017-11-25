@@ -40,8 +40,8 @@ package org.objectweb.asm;
  * @author Remi Forax
  */
 final class ModuleWriter extends ModuleVisitor {
-  /** The class writer to which this ModuleWriter belongs. */
-  private final ClassWriter cw;
+  /** Where the constants used in this AnnotationWriter must be stored. */
+  private final SymbolTable symbolTable;
 
   /** The module_name_index field of the JVMS Module attribute. */
   private final int moduleNameIndex;
@@ -91,9 +91,9 @@ final class ModuleWriter extends ModuleVisitor {
   /** The main_class_index field of the JVMS ModuleMainClass attribute, or 0. */
   private int mainClassIndex;
 
-  ModuleWriter(final ClassWriter cw, final int name, final int access, final int version) {
+  ModuleWriter(final SymbolTable symbolTable, final int name, final int access, final int version) {
     super(Opcodes.ASM6);
-    this.cw = cw;
+    this.symbolTable = symbolTable;
     this.moduleNameIndex = name;
     this.moduleFlags = access;
     this.moduleVersionIndex = version;
@@ -107,33 +107,33 @@ final class ModuleWriter extends ModuleVisitor {
 
   @Override
   public void visitMainClass(String mainClass) {
-    this.mainClassIndex = cw.newClass(mainClass);
+    this.mainClassIndex = symbolTable.addConstantClass(mainClass).index;
   }
 
   @Override
   public void visitPackage(String packaze) {
-    packageIndex.putShort(cw.newPackage(packaze));
+    packageIndex.putShort(symbolTable.addConstantPackage(packaze).index);
     packageCount++;
   }
 
   @Override
   public void visitRequire(String module, int access, String version) {
     requires
-        .putShort(cw.newModule(module))
+        .putShort(symbolTable.addConstantModule(module).index)
         .putShort(access)
-        .putShort(version == null ? 0 : cw.newUTF8(version));
+        .putShort(version == null ? 0 : symbolTable.addConstantUtf8(version));
     requiresCount++;
   }
 
   @Override
   public void visitExport(String packaze, int access, String... modules) {
-    exports.putShort(cw.newPackage(packaze)).putShort(access);
+    exports.putShort(symbolTable.addConstantPackage(packaze).index).putShort(access);
     if (modules == null) {
       exports.putShort(0);
     } else {
       exports.putShort(modules.length);
       for (String module : modules) {
-        exports.putShort(cw.newModule(module));
+        exports.putShort(symbolTable.addConstantModule(module).index);
       }
     }
     exportsCount++;
@@ -141,13 +141,13 @@ final class ModuleWriter extends ModuleVisitor {
 
   @Override
   public void visitOpen(String packaze, int access, String... modules) {
-    opens.putShort(cw.newPackage(packaze)).putShort(access);
+    opens.putShort(symbolTable.addConstantPackage(packaze).index).putShort(access);
     if (modules == null) {
       opens.putShort(0);
     } else {
       opens.putShort(modules.length);
       for (String module : modules) {
-        opens.putShort(cw.newModule(module));
+        opens.putShort(symbolTable.addConstantModule(module).index);
       }
     }
     opensCount++;
@@ -155,16 +155,16 @@ final class ModuleWriter extends ModuleVisitor {
 
   @Override
   public void visitUse(String service) {
-    usesIndex.putShort(cw.newClass(service));
+    usesIndex.putShort(symbolTable.addConstantClass(service).index);
     usesCount++;
   }
 
   @Override
   public void visitProvide(String service, String... providers) {
-    provides.putShort(cw.newClass(service));
+    provides.putShort(symbolTable.addConstantClass(service).index);
     provides.putShort(providers.length);
     for (String provider : providers) {
-      provides.putShort(cw.newClass(provider));
+      provides.putShort(symbolTable.addConstantClass(provider).index);
     }
     providesCount++;
   }
@@ -191,17 +191,17 @@ final class ModuleWriter extends ModuleVisitor {
    * @return the size in bytes of the Module, ModulePackages and ModuleMainClass attributes.
    */
   int computeAttributesSize() {
-    cw.newUTF8("Module");
+    symbolTable.addConstantUtf8("Module");
     // 6 attribute header bytes, 6 bytes for name, flags and version, and 5 * 2 bytes for counts.
     int size =
         22 + requires.length + exports.length + opens.length + usesIndex.length + provides.length;
     if (packageCount > 0) {
-      cw.newUTF8("ModulePackages");
+      symbolTable.addConstantUtf8("ModulePackages");
       // 6 attribute header bytes, and 2 bytes for package_count.
       size += 8 + packageIndex.length;
     }
     if (mainClassIndex > 0) {
-      cw.newUTF8("ModuleMainClass");
+      symbolTable.addConstantUtf8("ModuleMainClass");
       // 6 attribute header bytes, and 2 bytes for main_class_index.
       size += 8;
     }
@@ -219,7 +219,7 @@ final class ModuleWriter extends ModuleVisitor {
     int moduleAttributeLength =
         16 + requires.length + exports.length + opens.length + usesIndex.length + provides.length;
     output
-        .putShort(cw.newUTF8("Module"))
+        .putShort(symbolTable.addConstantUtf8("Module"))
         .putInt(moduleAttributeLength)
         .putShort(moduleNameIndex)
         .putShort(moduleFlags)
@@ -236,13 +236,16 @@ final class ModuleWriter extends ModuleVisitor {
         .putByteArray(provides.data, 0, provides.length);
     if (packageCount > 0) {
       output
-          .putShort(cw.newUTF8("ModulePackages"))
+          .putShort(symbolTable.addConstantUtf8("ModulePackages"))
           .putInt(2 + packageIndex.length)
           .putShort(packageCount)
           .putByteArray(packageIndex.data, 0, packageIndex.length);
     }
     if (mainClassIndex > 0) {
-      output.putShort(cw.newUTF8("ModuleMainClass")).putInt(2).putShort(mainClassIndex);
+      output
+          .putShort(symbolTable.addConstantUtf8("ModuleMainClass"))
+          .putInt(2)
+          .putShort(mainClassIndex);
     }
   }
 }

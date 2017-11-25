@@ -90,9 +90,9 @@ final class AnnotationWriter extends AnnotationVisitor {
    */
   private AnnotationWriter nextAnnotation;
 
-  // ------------------------------------------------------------------------
+  // -----------------------------------------------------------------------------------------------
   // Constructors
-  // ------------------------------------------------------------------------
+  // -----------------------------------------------------------------------------------------------
 
   /**
    * Constructs a new {@link AnnotationWriter}.
@@ -142,9 +142,9 @@ final class AnnotationWriter extends AnnotationVisitor {
     this(symbolTable, /* useNamedValues = */ true, annotation, previousAnnotation);
   }
 
-  // ------------------------------------------------------------------------
+  // -----------------------------------------------------------------------------------------------
   // Implementation of the AnnotationVisitor abstract class
-  // ------------------------------------------------------------------------
+  // -----------------------------------------------------------------------------------------------
 
   @Override
   public void visit(final String name, final Object value) {
@@ -275,9 +275,9 @@ final class AnnotationWriter extends AnnotationVisitor {
     }
   }
 
-  // ------------------------------------------------------------------------
+  // -----------------------------------------------------------------------------------------------
   // Utility methods
-  // ------------------------------------------------------------------------
+  // -----------------------------------------------------------------------------------------------
 
   /**
    * Returns the size of a Runtime[In]Visible[Type]Annotations attribute containing this annotation

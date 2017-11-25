@@ -73,9 +73,9 @@ public class SignatureWriter extends SignatureVisitor {
     super(Opcodes.ASM6);
   }
 
-  // ------------------------------------------------------------------------
+  // -----------------------------------------------------------------------------------------------
   // Implementation of the SignatureVisitor interface
-  // ------------------------------------------------------------------------
+  // -----------------------------------------------------------------------------------------------
 
   @Override
   public void visitFormalTypeParameter(final String name) {
@@ -215,9 +215,9 @@ public class SignatureWriter extends SignatureVisitor {
     return stringBuilder.toString();
   }
 
-  // ------------------------------------------------------------------------
+  // -----------------------------------------------------------------------------------------------
   // Utility methods
-  // ------------------------------------------------------------------------
+  // -----------------------------------------------------------------------------------------------
 
   /** Ends the formal type parameters section of the signature. */
   private void endFormals() {

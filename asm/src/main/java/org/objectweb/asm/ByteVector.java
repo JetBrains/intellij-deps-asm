@@ -136,6 +136,29 @@ public class ByteVector {
   }
 
   /**
+   * Puts two bytes and a short into this byte vector. The byte vector is automatically enlarged if
+   * necessary.
+   *
+   * @param byteValue1 a byte.
+   * @param byteValue2 another byte.
+   * @param shortValue a short.
+   * @return this byte vector.
+   */
+  ByteVector put112(final int byteValue1, final int byteValue2, final int shortValue) {
+    int currentLength = length;
+    if (currentLength + 4 > data.length) {
+      enlarge(4);
+    }
+    byte[] currentData = data;
+    currentData[currentLength++] = (byte) byteValue1;
+    currentData[currentLength++] = (byte) byteValue2;
+    currentData[currentLength++] = (byte) (shortValue >>> 8);
+    currentData[currentLength++] = (byte) shortValue;
+    length = currentLength;
+    return this;
+  }
+
+  /**
    * Puts an int into this byte vector. The byte vector is automatically enlarged if necessary.
    *
    * @param intValue an int.
@@ -151,6 +174,30 @@ public class ByteVector {
     currentData[currentLength++] = (byte) (intValue >>> 16);
     currentData[currentLength++] = (byte) (intValue >>> 8);
     currentData[currentLength++] = (byte) intValue;
+    length = currentLength;
+    return this;
+  }
+
+  /**
+   * Puts one byte and two shorts into this byte vector. The byte vector is automatically enlarged
+   * if necessary.
+   *
+   * @param byteValue a byte.
+   * @param shortValue1 a short.
+   * @param shortValue2 another short.
+   * @return this byte vector.
+   */
+  ByteVector put122(final int byteValue, final int shortValue1, final int shortValue2) {
+    int currentLength = length;
+    if (currentLength + 5 > data.length) {
+      enlarge(5);
+    }
+    byte[] currentData = data;
+    currentData[currentLength++] = (byte) byteValue;
+    currentData[currentLength++] = (byte) (shortValue1 >>> 8);
+    currentData[currentLength++] = (byte) shortValue1;
+    currentData[currentLength++] = (byte) (shortValue2 >>> 8);
+    currentData[currentLength++] = (byte) shortValue2;
     length = currentLength;
     return this;
   }

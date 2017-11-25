@@ -147,37 +147,38 @@ public class ClassReader {
       items[i] = index + 1;
       int size;
       switch (b[index]) {
-        case ClassWriter.FIELD:
-        case ClassWriter.METH:
-        case ClassWriter.IMETH:
-        case ClassWriter.INT:
-        case ClassWriter.FLOAT:
-        case ClassWriter.NAME_TYPE:
-        case ClassWriter.INDY:
+        case Symbol.CONSTANT_FIELDREF_TAG:
+        case Symbol.CONSTANT_METHODREF_TAG:
+        case Symbol.CONSTANT_INTERFACE_METHODREF_TAG:
+        case Symbol.CONSTANT_INTEGER_TAG:
+        case Symbol.CONSTANT_FLOAT_TAG:
+        case Symbol.CONSTANT_NAME_AND_TYPE_TAG:
+        case Symbol.CONSTANT_INVOKE_DYNAMIC_TAG:
           size = 5;
           break;
-        case ClassWriter.LONG:
-        case ClassWriter.DOUBLE:
+        case Symbol.CONSTANT_LONG_TAG:
+        case Symbol.CONSTANT_DOUBLE_TAG:
           size = 9;
           ++i;
           break;
-        case ClassWriter.UTF8:
+        case Symbol.CONSTANT_UTF8_TAG:
           size = 3 + readUnsignedShort(index + 1);
           if (size > max) {
             max = size;
           }
           break;
-        case ClassWriter.HANDLE:
+        case Symbol.CONSTANT_METHOD_HANDLE_TAG:
           size = 4;
           break;
-          // case ClassWriter.CLASS:
-          // case ClassWriter.STR:
-          // case ClassWriter.MTYPE
-          // case ClassWriter.PACKAGE:
-          // case ClassWriter.MODULE:
-        default:
+        case Symbol.CONSTANT_CLASS_TAG:
+        case Symbol.CONSTANT_STRING_TAG:
+        case Symbol.CONSTANT_METHOD_TYPE_TAG:
+        case Symbol.CONSTANT_PACKAGE_TAG:
+        case Symbol.CONSTANT_MODULE_TAG:
           size = 3;
           break;
+        default:
+          throw new AssertionError();
       }
       index += size;
     }
@@ -237,141 +238,6 @@ public class ClassReader {
       }
     }
     return interfaces;
-  }
-
-  /**
-   * Copies the constant pool data into the given {@link ClassWriter}. Should be called before the
-   * {@link #accept(ClassVisitor,int)} method.
-   *
-   * @param classWriter the {@link ClassWriter} to copy constant pool into.
-   */
-  void copyPool(final ClassWriter classWriter) {
-    char[] buf = new char[maxStringLength];
-    int ll = items.length;
-    Item[] items2 = new Item[ll];
-    for (int i = 1; i < ll; i++) {
-      int index = items[i];
-      int tag = b[index - 1];
-      Item item = new Item(i);
-      int nameType;
-      switch (tag) {
-        case ClassWriter.FIELD:
-        case ClassWriter.METH:
-        case ClassWriter.IMETH:
-          nameType = items[readUnsignedShort(index + 2)];
-          item.set(
-              tag, readClass(index, buf), readUTF8(nameType, buf), readUTF8(nameType + 2, buf));
-          break;
-        case ClassWriter.INT:
-          item.set(readInt(index));
-          break;
-        case ClassWriter.FLOAT:
-          item.set(Float.intBitsToFloat(readInt(index)));
-          break;
-        case ClassWriter.NAME_TYPE:
-          item.set(tag, readUTF8(index, buf), readUTF8(index + 2, buf), null);
-          break;
-        case ClassWriter.LONG:
-          item.set(readLong(index));
-          ++i;
-          break;
-        case ClassWriter.DOUBLE:
-          item.set(Double.longBitsToDouble(readLong(index)));
-          ++i;
-          break;
-        case ClassWriter.UTF8:
-          {
-            String s = strings[i];
-            if (s == null) {
-              index = items[i];
-              s = strings[i] = readUTF(index + 2, readUnsignedShort(index), buf);
-            }
-            item.set(tag, s, null, null);
-            break;
-          }
-        case ClassWriter.HANDLE:
-          {
-            int fieldOrMethodRef = items[readUnsignedShort(index + 1)];
-            nameType = items[readUnsignedShort(fieldOrMethodRef + 2)];
-            item.set(
-                ClassWriter.HANDLE_BASE + readByte(index),
-                readClass(fieldOrMethodRef, buf),
-                readUTF8(nameType, buf),
-                readUTF8(nameType + 2, buf));
-            break;
-          }
-        case ClassWriter.INDY:
-          if (classWriter.bootstrapMethods == null) {
-            copyBootstrapMethods(classWriter, items2, buf);
-          }
-          nameType = items[readUnsignedShort(index + 2)];
-          item.set(readUTF8(nameType, buf), readUTF8(nameType + 2, buf), readUnsignedShort(index));
-          break;
-          // case ClassWriter.STR:
-          // case ClassWriter.CLASS:
-          // case ClassWriter.MTYPE:
-          // case ClassWriter.MODULE:
-          // case ClassWriter.PACKAGE:
-        default:
-          item.set(tag, readUTF8(index, buf), null, null);
-          break;
-      }
-
-      int index2 = item.hashCode % items2.length;
-      item.next = items2[index2];
-      items2[index2] = item;
-    }
-
-    int off = items[1] - 1;
-    classWriter.pool.putByteArray(b, off, header - off);
-    classWriter.items = items2;
-    classWriter.threshold = (int) (0.75d * ll);
-    classWriter.index = ll;
-  }
-
-  /**
-   * Copies the bootstrap method data into the given {@link ClassWriter}. Should be called before
-   * the {@link #accept(ClassVisitor,int)} method.
-   *
-   * @param classWriter the {@link ClassWriter} to copy bootstrap methods into.
-   */
-  private void copyBootstrapMethods(
-      final ClassWriter classWriter, final Item[] items, final char[] c) {
-    // finds the "BootstrapMethods" attribute
-    int u = getAttributes();
-    boolean found = false;
-    for (int i = readUnsignedShort(u); i > 0; --i) {
-      String attrName = readUTF8(u + 2, c);
-      if ("BootstrapMethods".equals(attrName)) {
-        found = true;
-        break;
-      }
-      u += 6 + readInt(u + 4);
-    }
-    if (!found) {
-      return;
-    }
-    // copies the bootstrap methods in the class writer
-    int boostrapMethodCount = readUnsignedShort(u + 8);
-    for (int j = 0, v = u + 10; j < boostrapMethodCount; j++) {
-      int position = v - u - 10;
-      int hashCode = readConst(readUnsignedShort(v), c).hashCode();
-      for (int k = readUnsignedShort(v + 2); k > 0; --k) {
-        hashCode ^= readConst(readUnsignedShort(v + 4), c).hashCode();
-        v += 2;
-      }
-      v += 4;
-      Item item = new Item(j);
-      item.set(position, hashCode & 0x7FFFFFFF);
-      int index = item.hashCode % items.length;
-      item.next = items[index];
-      items[index] = item;
-    }
-    int attrSize = readInt(u + 4);
-    ByteVector bootstrapMethods = new ByteVector(attrSize + 62);
-    bootstrapMethods.putByteArray(b, u + 10, attrSize - 2);
-    classWriter.bootstrapMethodsCount = boostrapMethodCount;
-    classWriter.bootstrapMethods = bootstrapMethods;
   }
 
   /**
@@ -996,7 +862,7 @@ public class ClassReader {
      */
     if (mv instanceof MethodWriter) {
       MethodWriter mw = (MethodWriter) mv;
-      if (mw.cw.cr == this && signature == mw.signature) {
+      if (mw.symbolTable.getSource() == this && signature == mw.signature) {
         boolean sameExceptions = false;
         if (exceptions == null) {
           sameExceptions = mw.exceptionCount == 0;
@@ -1574,7 +1440,7 @@ public class ClassReader {
         case ClassWriter.ITFMETH_INSN:
           {
             int cpIndex = items[readUnsignedShort(u + 1)];
-            boolean itf = b[cpIndex - 1] == ClassWriter.IMETH;
+            boolean itf = b[cpIndex - 1] == Symbol.CONSTANT_INTERFACE_METHODREF_TAG;
             String iowner = readClass(cpIndex, c);
             cpIndex = items[readUnsignedShort(cpIndex + 2)];
             String iname = readUTF8(cpIndex, c);
@@ -2349,7 +2215,7 @@ public class ClassReader {
    *
    * @return the start index of the attribute_info structure of this class.
    */
-  private int getAttributes() {
+  final int getAttributes() {
     // skips the header
     int u = header + 8 + readUnsignedShort(header + 6) * 2;
     // skips fields and methods
@@ -2518,11 +2384,15 @@ public class ClassReader {
     if (index == 0 || item == 0) {
       return null;
     }
+    return readUTF(item, buf);
+  }
+
+  final String readUTF(int item, final char[] buf) {
     String s = strings[item];
     if (s != null) {
       return s;
     }
-    index = items[item];
+    int index = items[item];
     return strings[item] = readUTF(index + 2, readUnsignedShort(index), buf);
   }
 
@@ -2642,30 +2512,32 @@ public class ClassReader {
   public Object readConst(final int item, final char[] buf) {
     int index = items[item];
     switch (b[index - 1]) {
-      case ClassWriter.INT:
+      case Symbol.CONSTANT_INTEGER_TAG:
         return readInt(index);
-      case ClassWriter.FLOAT:
+      case Symbol.CONSTANT_FLOAT_TAG:
         return Float.intBitsToFloat(readInt(index));
-      case ClassWriter.LONG:
+      case Symbol.CONSTANT_LONG_TAG:
         return readLong(index);
-      case ClassWriter.DOUBLE:
+      case Symbol.CONSTANT_DOUBLE_TAG:
         return Double.longBitsToDouble(readLong(index));
-      case ClassWriter.CLASS:
+      case Symbol.CONSTANT_CLASS_TAG:
         return Type.getObjectType(readUTF8(index, buf));
-      case ClassWriter.STR:
+      case Symbol.CONSTANT_STRING_TAG:
         return readUTF8(index, buf);
-      case ClassWriter.MTYPE:
+      case Symbol.CONSTANT_METHOD_TYPE_TAG:
         return Type.getMethodType(readUTF8(index, buf));
-      default: // case ClassWriter.HANDLE_BASE + [1..9]:
+      case Symbol.CONSTANT_METHOD_HANDLE_TAG:
         int tag = readByte(index);
         int[] items = this.items;
         int cpIndex = items[readUnsignedShort(index + 1)];
-        boolean itf = b[cpIndex - 1] == ClassWriter.IMETH;
+        boolean itf = b[cpIndex - 1] == Symbol.CONSTANT_INTERFACE_METHODREF_TAG;
         String owner = readClass(cpIndex, buf);
         cpIndex = items[readUnsignedShort(cpIndex + 2)];
         String name = readUTF8(cpIndex, buf);
         String desc = readUTF8(cpIndex + 2, buf);
         return new Handle(tag, owner, name, desc, itf);
+      default:
+        throw new AssertionError();
     }
   }
 }

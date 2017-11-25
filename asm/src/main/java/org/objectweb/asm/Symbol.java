@@ -173,7 +173,10 @@ abstract class Symbol {
   final long data;
 
   /**
-   * Additional data for this symbol, generally computed lazily. This is:
+   * Additional information about this symbol, generally computed lazily. <i>Warning: the value of
+   * this field is ignored when comparing Symbol instances</i> (to avoid duplicate entries in a
+   * SymbolTable). Therefore, this field should only contain data that can be computed from the
+   * other fields of this class. It contains:
    *
    * <ul>
    *   <li>the {@link Type#getArgumentsAndReturnSizes} of the symbol's method descriptor for {@link

@@ -36,17 +36,21 @@ package org.objectweb.asm;
  */
 class CurrentFrame extends Frame {
 
+  CurrentFrame(Label owner) {
+    super(owner);
+  }
+
   /**
    * Sets this CurrentFrame to the input stack map frame of the next "current" instruction, i.e. the
    * instruction just after the given one. It is assumed that the value of this object when this
    * method is called is the stack map frame status just before the given instruction is executed.
    */
   @Override
-  void execute(int opcode, int arg, SymbolTable symbolTable, Symbol symbol) {
-    super.execute(opcode, arg, symbolTable, symbol);
-    Frame successor = new Frame();
+  void execute(int opcode, int arg, Symbol symbolArg, SymbolTable symbolTable) {
+    super.execute(opcode, arg, symbolArg, symbolTable);
+    Frame successor = new Frame(null);
     merge(symbolTable, successor, 0);
-    set(successor);
+    copyFrom(successor);
     owner.inputStackTop = 0;
   }
 }

@@ -1131,10 +1131,11 @@ final class SymbolTable {
    * Adds a merged type in the type table of this symbol table. Does nothing if the type table
    * already contains a similar type.
    *
-   * @param typeTableIndex1 a type, specified by its index in the type table.
-   * @param typeTableIndex2 another type, specified by its index in the type table.
-   * @return the index of a new or already existing type Symbol, corresponding to the common super
-   *     class of the given types.
+   * @param typeTableIndex1 a {@link #TYPE_TAG} type, specified by its index in the type table.
+   * @param typeTableIndex2 another {@link #TYPE_TAG} type, specified by its index in the type
+   *     table.
+   * @return the index of a new or already existing {@link #TYPE_TAG} type Symbol, corresponding to
+   *     the common super class of the given types.
    */
   int addMergedType(final int typeTableIndex1, final int typeTableIndex2) {
     // TODO sort the arguments? The merge result should be independent of their order.

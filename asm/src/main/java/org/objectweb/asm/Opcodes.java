@@ -84,8 +84,12 @@ public interface Opcodes {
   int ACC_MODULE = 0x8000; // class
 
   // ASM specific pseudo access flags
+  // WARNING: the 16 least significant bits must NOT be used, to avoid conflicts with standard
+  // access flags, and also to make sure that these flags are automatically filtered out when
+  // written in class files (because access flags are stored using 16 bits only).
 
   int ACC_DEPRECATED = 0x20000; // class, field, method
+  // int ACC_CONSTRUCTOR = 0x40000; // method (defined in MethodWriter).
 
   // types for NEWARRAY
 
@@ -141,6 +145,11 @@ public interface Opcodes {
    * single value on the stack.
    */
   int F_SAME1 = 4;
+
+  //
+  // Represents a frame inserted between already existing frames. Defined in ClassReader.
+  //
+  // int F_INSERT = 256;
 
   // Do not try to change the following code to use auto-boxing,
   // these values are compared by reference and not by value

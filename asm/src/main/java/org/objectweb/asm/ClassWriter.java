@@ -175,8 +175,8 @@ public class ClassWriter extends ClassVisitor {
 
   /**
    * Indicates what must be automatically computed in {@link MethodWriter}. Must be one of {@link
-   * MethodWriter#NOTHING}, {@link MethodWriter#MAXS}, {@link MethodWriter#INSERTED_FRAMES}, or
-   * {@link MethodWriter#FRAMES}.
+   * MethodWriter#COMPUTE_NOTHING}, {@link MethodWriter#COMPUTE_MAX_STACK_AND_LOCAL}, {@link
+   * MethodWriter#COMPUTE_INSERTED_FRAMES}, or {@link MethodWriter#COMPUTE_ALL_FRAMES}.
    */
   private int compute;
 
@@ -221,10 +221,13 @@ public class ClassWriter extends ClassVisitor {
   public ClassWriter(final ClassReader classReader, final int flags) {
     super(Opcodes.ASM6);
     symbolTable = classReader == null ? new SymbolTable(this) : new SymbolTable(this, classReader);
-    this.compute =
-        (flags & COMPUTE_FRAMES) != 0
-            ? MethodWriter.FRAMES
-            : ((flags & COMPUTE_MAXS) != 0 ? MethodWriter.MAXS : MethodWriter.NOTHING);
+    if ((flags & COMPUTE_FRAMES) != 0) {
+      this.compute = MethodWriter.COMPUTE_ALL_FRAMES;
+    } else if ((flags & COMPUTE_MAXS) != 0) {
+      this.compute = MethodWriter.COMPUTE_MAX_STACK_AND_LOCAL;
+    } else {
+      this.compute = MethodWriter.COMPUTE_NOTHING;
+    }
   }
 
   // -----------------------------------------------------------------------------------------------
@@ -500,8 +503,7 @@ public class ClassWriter extends ClassVisitor {
     ByteVector result = new ByteVector(size);
     result.putInt(0xCAFEBABE).putInt(version);
     symbolTable.putConstantPool(result);
-    int mask =
-        Opcodes.ACC_DEPRECATED | ((version & 0xFFFF) < Opcodes.V1_5 ? Opcodes.ACC_SYNTHETIC : 0);
+    int mask = (version & 0xFFFF) < Opcodes.V1_5 ? Opcodes.ACC_SYNTHETIC : 0;
     result.putShort(accessFlags & ~mask).putShort(thisClass).putShort(superClass);
     result.putShort(interfaceCount);
     for (int i = 0; i < interfaceCount; ++i) {
@@ -510,15 +512,17 @@ public class ClassWriter extends ClassVisitor {
     result.putShort(fieldsCount);
     fieldWriter = firstField;
     while (fieldWriter != null) {
-      fieldWriter.put(result);
+      fieldWriter.putFieldInfo(result);
       fieldWriter = (FieldWriter) fieldWriter.fv;
     }
     result.putShort(methodsCount);
-    boolean hasAsmInsns = false;
+    boolean hasFrames = false;
+    boolean hasAsmInstructions = false;
     methodWriter = firstMethod;
     while (methodWriter != null) {
-      methodWriter.put(result);
-      hasAsmInsns |= methodWriter.hasAsmInsns;
+      hasFrames |= methodWriter.hasFrames();
+      hasAsmInstructions |= methodWriter.hasAsmInstructions();
+      methodWriter.putMethodInfo(result);
       methodWriter = (MethodWriter) methodWriter.mv;
     }
     // For ease of reference, we use here the same attribute order as in Section 4.7 of the JVMS.
@@ -577,14 +581,8 @@ public class ClassWriter extends ClassVisitor {
     }
 
     // Third step: do a ClassReader->ClassWriter round trip if the generated class contains ASM
-    // pseudo instructions due to large forward jumps.
-    if (hasAsmInsns) {
-      boolean hasFrames = false;
-      methodWriter = firstMethod;
-      while (methodWriter != null) {
-        hasFrames |= methodWriter.frameCount > 0;
-        methodWriter = (MethodWriter) methodWriter.mv;
-      }
+    // specific instructions due to large forward jumps.
+    if (hasAsmInstructions) {
       firstField = null;
       lastField = null;
       firstMethod = null;
@@ -595,7 +593,7 @@ public class ClassWriter extends ClassVisitor {
       lastRuntimeInvisibleTypeAnnotation = null;
       moduleWriter = null;
       firstAttribute = null;
-      compute = hasFrames ? MethodWriter.INSERTED_FRAMES : MethodWriter.NOTHING;
+      compute = hasFrames ? MethodWriter.COMPUTE_INSERTED_FRAMES : MethodWriter.COMPUTE_NOTHING;
       new ClassReader(result.data)
           .accept(this, (hasFrames ? ClassReader.EXPAND_FRAMES : 0) | ClassReader.EXPAND_ASM_INSNS);
       return toByteArray();

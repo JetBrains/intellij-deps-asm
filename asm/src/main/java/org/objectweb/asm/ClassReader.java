@@ -71,10 +71,10 @@ public class ClassReader {
   public static final int EXPAND_FRAMES = 8;
 
   /**
-   * Flag to expand the ASM pseudo instructions into an equivalent sequence of standard bytecode
+   * Flag to expand the ASM specific instructions into an equivalent sequence of standard bytecode
    * instructions. When resolving a forward jump it may happen that the signed 2 bytes offset
    * reserved for it is not sufficient to store the bytecode offset. In this case the jump
-   * instruction is replaced with a temporary ASM pseudo instruction using an unsigned 2 bytes
+   * instruction is replaced with a temporary ASM specific instruction using an unsigned 2 bytes
    * offset (see Label#resolve). This internal flag is used to re-read classes containing such
    * instructions, in order to replace them with standard instructions. In addition, when this flag
    * is used, GOTO_W and JSR_W are <i>not</i> converted into GOTO and JSR, to make sure that
@@ -137,10 +137,10 @@ public class ClassReader {
   /** The type of the wide instruction. */
   private static final int WIDE_INSN = 17;
 
-  /** The type of the ASM pseudo instructions with an unsigned short offset. */
+  /** The type of the ASM specific instructions with an unsigned short offset. */
   private static final int ASM_LABEL_INSN = 18;
 
-  /** The type of the ASM pseudo instructions with an int offset. */
+  /** The type of the ASM specific instructions with an int offset. */
   private static final int ASM_LABEL_WIDE_INSN = 19;
 
   /**
@@ -1066,7 +1066,7 @@ public class ClassReader {
     int code = 0;
     int exception = 0;
     String[] exceptions = null;
-    String signature = null;
+    int signature = 0;
     int methodParameters = 0;
     int anns = 0;
     int ianns = 0;
@@ -1094,7 +1094,7 @@ public class ClassReader {
           exception += 2;
         }
       } else if ("Signature".equals(attrName)) {
-        signature = readUTF8(u + 8, c);
+        signature = readUnsignedShort(u + 8);
       } else if ("Deprecated".equals(attrName)) {
         context.currentMethodAccess |= Opcodes.ACC_DEPRECATED;
       } else if ("RuntimeVisibleAnnotations".equals(attrName)) {
@@ -1134,7 +1134,7 @@ public class ClassReader {
             context.currentMethodAccess,
             context.currentMethodName,
             context.currentMethodDesc,
-            signature,
+            signature == 0 ? null : readUTF(signature, c),
             exceptions);
     if (mv == null) {
       return u;
@@ -1152,15 +1152,15 @@ public class ClassReader {
      */
     if (mv instanceof MethodWriter) {
       MethodWriter mw = (MethodWriter) mv;
-      if (mw.symbolTable.getSource() == this && signature == mw.signature) {
+      if (mw.getSource() == this && signature == mw.signatureIndex) {
         boolean sameExceptions = false;
         if (exceptions == null) {
-          sameExceptions = mw.exceptionCount == 0;
-        } else if (exceptions.length == mw.exceptionCount) {
+          sameExceptions = mw.numberOfExceptions == 0;
+        } else if (exceptions.length == mw.numberOfExceptions) {
           sameExceptions = true;
           for (int j = exceptions.length - 1; j >= 0; --j) {
             exception -= 2;
-            if (mw.exceptions[j] != readUnsignedShort(exception)) {
+            if (mw.exceptionIndexTable[j] != readUnsignedShort(exception)) {
               sameExceptions = false;
               break;
             }
@@ -1172,8 +1172,8 @@ public class ClassReader {
            * save a byte array copy operation. The real copy will be
            * done in ClassWriter.toByteArray().
            */
-          mw.classReaderOffset = firstAttribute;
-          mw.classReaderLength = u - firstAttribute;
+          mw.sourceOffset = firstAttribute;
+          mw.sourceLength = u - firstAttribute;
           return u;
         }
       }
@@ -1405,11 +1405,12 @@ public class ClassReader {
             int label = readUnsignedShort(v + 10);
             createDebugLabel(label, labels);
             Label l = labels[label];
+            // TODO find another method, nextChangedBlock should not be used for this!
             while (l.line > 0) {
-              if (l.next == null) {
-                l.next = new Label();
+              if (l.nextChangedBlock == null) {
+                l.nextChangedBlock = new Label();
               }
-              l = l.next;
+              l = l.nextChangedBlock;
             }
             l.line = readUnsignedShort(v + 12);
             v += 4;
@@ -1520,7 +1521,7 @@ public class ClassReader {
     }
     if ((context.parsingOptions & EXPAND_ASM_INSNS) != 0
         && (context.parsingOptions & EXPAND_FRAMES) != 0) {
-      // Expanding the ASM pseudo instructions can introduce F_INSERT
+      // Expanding the ASM specific instructions can introduce F_INSERT
       // frames, even if the method does not currently have any frame.
       // Also these inserted frames must be computed by simulating the
       // effect of the bytecode instructions one by one, starting from the
@@ -1544,14 +1545,14 @@ public class ClassReader {
       // visits the label and line number for this offset, if any
       Label l = labels[offset];
       if (l != null) {
-        Label next = l.next;
-        l.next = null;
+        Label next = l.nextChangedBlock;
+        l.nextChangedBlock = null;
         mv.visitLabel(l);
         if ((context.parsingOptions & SKIP_DEBUG) == 0 && l.line > 0) {
           mv.visitLineNumber(l.line, l);
           while (next != null) {
             mv.visitLineNumber(next.line, l);
-            next = next.next;
+            next = next.nextChangedBlock;
           }
         }
       }
@@ -1593,7 +1594,7 @@ public class ClassReader {
       // frame content will be computed in MethodWriter.
       if (insertFrame) {
         if ((context.parsingOptions & EXPAND_FRAMES) != 0) {
-          mv.visitFrame(MethodWriter.F_INSERT, 0, null, 0, null);
+          mv.visitFrame(Frame.F_INSERT, 0, null, 0, null);
         }
         insertFrame = false;
       }
@@ -2349,41 +2350,41 @@ public class ClassReader {
     if (zip) {
       tag = b[stackMap++] & 0xFF;
     } else {
-      tag = MethodWriter.FULL_FRAME;
+      tag = Frame.FULL_FRAME;
       frame.currentFrameOffset = -1;
     }
     frame.currentFrameLocalCountDelta = 0;
-    if (tag < MethodWriter.SAME_LOCALS_1_STACK_ITEM_FRAME) {
+    if (tag < Frame.SAME_LOCALS_1_STACK_ITEM_FRAME) {
       delta = tag;
       frame.currentFrameType = Opcodes.F_SAME;
       frame.currentFrameStackCount = 0;
-    } else if (tag < MethodWriter.RESERVED) {
-      delta = tag - MethodWriter.SAME_LOCALS_1_STACK_ITEM_FRAME;
+    } else if (tag < Frame.RESERVED) {
+      delta = tag - Frame.SAME_LOCALS_1_STACK_ITEM_FRAME;
       stackMap = readFrameType(frame.currentFrameStackTypes, 0, stackMap, c, labels);
       frame.currentFrameType = Opcodes.F_SAME1;
       frame.currentFrameStackCount = 1;
     } else {
       delta = readUnsignedShort(stackMap);
       stackMap += 2;
-      if (tag == MethodWriter.SAME_LOCALS_1_STACK_ITEM_FRAME_EXTENDED) {
+      if (tag == Frame.SAME_LOCALS_1_STACK_ITEM_FRAME_EXTENDED) {
         stackMap = readFrameType(frame.currentFrameStackTypes, 0, stackMap, c, labels);
         frame.currentFrameType = Opcodes.F_SAME1;
         frame.currentFrameStackCount = 1;
-      } else if (tag >= MethodWriter.CHOP_FRAME && tag < MethodWriter.SAME_FRAME_EXTENDED) {
+      } else if (tag >= Frame.CHOP_FRAME && tag < Frame.SAME_FRAME_EXTENDED) {
         frame.currentFrameType = Opcodes.F_CHOP;
-        frame.currentFrameLocalCountDelta = MethodWriter.SAME_FRAME_EXTENDED - tag;
+        frame.currentFrameLocalCountDelta = Frame.SAME_FRAME_EXTENDED - tag;
         frame.currentFrameLocalCount -= frame.currentFrameLocalCountDelta;
         frame.currentFrameStackCount = 0;
-      } else if (tag == MethodWriter.SAME_FRAME_EXTENDED) {
+      } else if (tag == Frame.SAME_FRAME_EXTENDED) {
         frame.currentFrameType = Opcodes.F_SAME;
         frame.currentFrameStackCount = 0;
-      } else if (tag < MethodWriter.FULL_FRAME) {
+      } else if (tag < Frame.FULL_FRAME) {
         int local = unzip ? frame.currentFrameLocalCount : 0;
-        for (int i = tag - MethodWriter.SAME_FRAME_EXTENDED; i > 0; i--) {
+        for (int i = tag - Frame.SAME_FRAME_EXTENDED; i > 0; i--) {
           stackMap = readFrameType(frame.currentFrameLocalTypes, local++, stackMap, c, labels);
         }
         frame.currentFrameType = Opcodes.F_APPEND;
-        frame.currentFrameLocalCountDelta = tag - MethodWriter.SAME_FRAME_EXTENDED;
+        frame.currentFrameLocalCountDelta = tag - Frame.SAME_FRAME_EXTENDED;
         frame.currentFrameLocalCount += frame.currentFrameLocalCountDelta;
         frame.currentFrameStackCount = 0;
       } else { // if (tag == FULL_FRAME) {
@@ -2424,32 +2425,33 @@ public class ClassReader {
       final Object[] frame, final int index, int v, final char[] buf, final Label[] labels) {
     int type = b[v++] & 0xFF;
     switch (type) {
-      case 0:
+      case Frame.ITEM_TOP:
         frame[index] = Opcodes.TOP;
         break;
-      case 1:
+      case Frame.ITEM_INTEGER:
         frame[index] = Opcodes.INTEGER;
         break;
-      case 2:
+      case Frame.ITEM_FLOAT:
         frame[index] = Opcodes.FLOAT;
         break;
-      case 3:
+      case Frame.ITEM_DOUBLE:
         frame[index] = Opcodes.DOUBLE;
         break;
-      case 4:
+      case Frame.ITEM_LONG:
         frame[index] = Opcodes.LONG;
         break;
-      case 5:
+      case Frame.ITEM_NULL:
         frame[index] = Opcodes.NULL;
         break;
-      case 6:
+      case Frame.ITEM_UNINITIALIZED_THIS:
         frame[index] = Opcodes.UNINITIALIZED_THIS;
         break;
-      case 7: // Object
+      case Frame.ITEM_OBJECT:
         frame[index] = readClass(v, buf);
         v += 2;
         break;
-      default: // Uninitialized
+      case Frame.ITEM_UNINITIALIZED:
+      default:
         frame[index] = createLabel(readUnsignedShort(v), labels);
         v += 2;
     }
@@ -2483,7 +2485,7 @@ public class ClassReader {
    */
   private Label createLabel(int offset, Label[] labels) {
     Label label = readLabel(offset, labels);
-    label.status &= ~Label.DEBUG;
+    label.status &= ~Label.DEBUG_ONLY;
     return label;
   }
 
@@ -2496,7 +2498,7 @@ public class ClassReader {
    */
   private void createDebugLabel(int offset, Label[] labels) {
     if (labels[offset] == null) {
-      readLabel(offset, labels).status |= Label.DEBUG;
+      readLabel(offset, labels).status |= Label.DEBUG_ONLY;
     }
   }
 

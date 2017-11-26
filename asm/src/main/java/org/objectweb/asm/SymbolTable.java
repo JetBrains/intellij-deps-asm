@@ -191,12 +191,12 @@ final class SymbolTable {
     this.sourceClassReader = classReader;
 
     // Copy the constant pool binary content.
-    byte[] classFile = classReader.b;
+    byte[] inputBytes = classReader.b;
     int constantPoolOffset = classReader.getItem(1) - 1;
     int constantPoolLength = classReader.header - constantPoolOffset;
     constantPoolCount = classReader.getItemCount();
     constantPool = new ByteVector(constantPoolLength);
-    constantPool.putByteArray(classFile, constantPoolOffset, constantPoolLength);
+    constantPool.putByteArray(inputBytes, constantPoolOffset, constantPoolLength);
 
     // Add the constant pool items in the symbol table entries. Reserve enough space in 'entries' to
     // avoid too many hash set collisions (entries is not dynamically resized by the addConstant*
@@ -205,7 +205,7 @@ final class SymbolTable {
     char[] charBuffer = new char[classReader.getMaxStringLength()];
     for (int itemIndex = 1; itemIndex < constantPoolCount; itemIndex++) {
       int itemOffset = classReader.getItem(itemIndex);
-      int itemTag = classFile[itemOffset - 1];
+      int itemTag = inputBytes[itemOffset - 1];
       int nameAndTypeItemOffset;
       switch (itemTag) {
         case Symbol.CONSTANT_FIELDREF_TAG:
@@ -272,33 +272,35 @@ final class SymbolTable {
     }
 
     // Copy the BootstrapMethods 'bootstrap_methods' array binary content, if any.
-    int currentAttributeOffset = classReader.getAttributes();
-    for (int i = classReader.readUnsignedShort(currentAttributeOffset); i > 0; --i) {
-      String attributeName = classReader.readUTF8(currentAttributeOffset + 2, charBuffer);
+    int currentAttributeOffset = classReader.getFirstAttributeOffset();
+    for (int i = classReader.readUnsignedShort(currentAttributeOffset - 2); i > 0; --i) {
+      String attributeName = classReader.readUTF8(currentAttributeOffset, charBuffer);
       if ("BootstrapMethods".equals(attributeName)) {
-        bootstrapMethodCount = classReader.readUnsignedShort(currentAttributeOffset + 8);
+        bootstrapMethodCount = classReader.readUnsignedShort(currentAttributeOffset + 6);
         break;
       }
-      currentAttributeOffset += 6 + classReader.readInt(currentAttributeOffset + 4);
+      currentAttributeOffset += 6 + classReader.readInt(currentAttributeOffset + 2);
     }
     if (bootstrapMethodCount > 0) {
       // Compute the offset and the length of the BootstrapMethods 'bootstrap_methods' array.
-      int bootstrapMethodsOffset = currentAttributeOffset + 10;
-      int bootstrapMethodsLength = classReader.readInt(bootstrapMethodsOffset - 6) - 2;
+      int bootstrapMethodsOffset = currentAttributeOffset + 8;
+      int bootstrapMethodsLength = classReader.readInt(currentAttributeOffset + 2) - 2;
       this.bootstrapMethods = new ByteVector(bootstrapMethodsLength);
-      bootstrapMethods.putByteArray(classFile, bootstrapMethodsOffset, bootstrapMethodsLength);
+      bootstrapMethods.putByteArray(inputBytes, bootstrapMethodsOffset, bootstrapMethodsLength);
 
       // Add each bootstrap method in the symbol table entries.
       for (int i = 0, currentOffset = bootstrapMethodsOffset; i < bootstrapMethodCount; i++) {
         int offset = currentOffset - bootstrapMethodsOffset;
         int bootstrapMethodRef = classReader.readUnsignedShort(currentOffset);
+        currentOffset += 2;
+        int numBootstrapArguments = classReader.readUnsignedShort(currentOffset);
+        currentOffset += 2;
         int hashCode = classReader.readConst(bootstrapMethodRef, charBuffer).hashCode();
-        for (int j = classReader.readUnsignedShort(currentOffset + 2); j > 0; --j) {
-          int bootstrapArgument = classReader.readUnsignedShort(currentOffset + 4);
-          hashCode ^= classReader.readConst(bootstrapArgument, charBuffer).hashCode();
+        while (numBootstrapArguments-- > 0) {
+          int bootstrapArgument = classReader.readUnsignedShort(currentOffset);
           currentOffset += 2;
+          hashCode ^= classReader.readConst(bootstrapArgument, charBuffer).hashCode();
         }
-        currentOffset += 4;
         add(new Entry(i, Symbol.BOOTSTRAP_METHOD_TAG, offset, hashCode & 0x7FFFFFFF));
       }
     }

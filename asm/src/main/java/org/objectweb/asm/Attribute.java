@@ -48,7 +48,7 @@ public class Attribute {
    * The 6 header bytes of the attribute (attribute_name_index and attribute_length) are <i>not</i>
    * included.
    */
-  byte[] content;
+  private byte[] content;
 
   /**
    * The next attribute in this attribute list (Attribute instances can be linked via this field to

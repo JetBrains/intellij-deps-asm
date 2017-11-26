@@ -73,7 +73,7 @@ final class MethodWriter extends MethodVisitor {
   /** Indicates that nothing must be computed. */
   static final int COMPUTE_NOTHING = 0;
 
-  /** {@link #STACK_SIZE_DELTA} is not applicable (not statically known or never used). */
+  /** Indicates that {@link #STACK_SIZE_DELTA} is not applicable (not constant or never used). */
   private static final int NA = 0;
 
   /**

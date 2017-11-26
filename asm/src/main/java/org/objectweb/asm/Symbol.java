@@ -99,7 +99,9 @@ abstract class Symbol {
   /** The tag value of a normal type entry in the (ASM specific) type table of a class. */
   static final int TYPE_TAG = 128;
 
-  /** The tag value of an {@link Frame#UNINITIALIZED} type entry in the type table of a class. */
+  /**
+   * The tag value of an {@link Frame#ITEM_UNINITIALIZED} type entry in the type table of a class.
+   */
   static final int UNINITIALIZED_TYPE_TAG = 129;
 
   /** The tag value of a merged type entry in the (ASM specific) type table of a class. */
@@ -162,9 +164,9 @@ abstract class Symbol {
    *   <li>the CONSTANT_InvokeDynamic_info bootstrap_method_attr_index field value for {@link
    *       #CONSTANT_INVOKE_DYNAMIC_TAG} symbols,
    *   <li>the offset of a bootstrap method in the BootstrapMethods boostrap_methods array, for
-   *       {@link #BOOTSTRAP_METHODS_TAG} symbols,
-   *   <li>the bytecode offset of the NEW instruction that created an {@link Frame#UNINITIALIZED}
-   *       type for {@link #UNINITIALIZED_TYPE_TAG} symbols,
+   *       {@link #BOOTSTRAP_METHOD_TAG} symbols,
+   *   <li>the bytecode offset of the NEW instruction that created an {@link
+   *       Frame#ITEM_UNINITIALIZED} type for {@link #UNINITIALIZED_TYPE_TAG} symbols,
    *   <li>the indices (in the class' type table) of two {@link #TYPE_TAG} source types for {@link
    *       #MERGED_TYPE_TAG} symbols,
    *   <li>0 for the other types of symbol.
@@ -223,7 +225,6 @@ abstract class Symbol {
    *     {@link #info} for efficiency). This should only be used for {@link
    *     #CONSTANT_METHODREF_TAG}, {@link #CONSTANT_INTERFACE_METHODREF_TAG} and {@link
    *     #CONSTANT_INVOKE_DYNAMIC_TAG} symbols.
-   * @return
    */
   int getArgumentsAndReturnSizes() {
     if (info == 0) {

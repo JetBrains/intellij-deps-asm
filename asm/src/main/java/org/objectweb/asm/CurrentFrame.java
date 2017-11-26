@@ -34,7 +34,7 @@ package org.objectweb.asm;
  *
  * @author Eric Bruneton
  */
-class CurrentFrame extends Frame {
+final class CurrentFrame extends Frame {
 
   CurrentFrame(Label owner) {
     super(owner);

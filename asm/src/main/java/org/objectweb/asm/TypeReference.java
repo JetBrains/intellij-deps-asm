@@ -167,8 +167,8 @@ public class TypeReference {
    * The target_type and target_info structures - as defined in the Java Virtual Machine
    * Specification (JVMS) - corresponding to this type reference. target_type uses one byte, and all
    * the target_info union fields use up to 3 bytes (except localvar_target, handled with the
-   * specific method {@link MethodVisitor#visitLocalVariableAnnotation()}). Thus, both structures
-   * can be stored in an int.
+   * specific method {@link MethodVisitor#visitLocalVariableAnnotation}). Thus, both structures can
+   * be stored in an int.
    *
    * <p>This int field stores target_type (called the TypeReference 'sort' in the public API of this
    * class) in its most significant byte, followed by the target_info fields. Depending on

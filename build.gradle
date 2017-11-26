@@ -307,6 +307,16 @@ configure(subprojects.findAll { it.provides }) {
     }
   }
 
+  // Add a task to generate a private javadoc and add it as a dependency of the
+  // 'check' task.
+  task privateJavadoc(type: Javadoc) {    
+    source = sourceSets.main.allJava
+    classpath = configurations.compile
+    destinationDir = file("${javadoc.destinationDir}-private")
+    options.memberLevel = JavadocMemberLevel.PRIVATE
+  }
+  check.dependsOn privateJavadoc
+
   // Add tasks to generate the Javadoc and a source jar, to be uploaded to Maven
   // together with the main jar (containing the compiled code).
   task javadocJar(type: Jar, dependsOn: 'javadoc') {

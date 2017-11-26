@@ -49,25 +49,25 @@ import java.util.HashMap;
  * fields_count: 0
  * methods_count: 2
  * access_flags: 1
- * name_index: <init>
+ * name_index: &lt;init&gt;
  * descriptor_index: ()V
  * attributes_count: 1
  * attribute_name_index: Code
  * max_stack: 1
  * max_locals: 1
  * 0: 25 0
- * 1: 183 ConstantMethodRefInfo java/lang/Object.<init>()V
+ * 1: 183 ConstantMethodRefInfo java/lang/Object.&lt;init&gt;()V
  * 2: 177
  * exception_table_length: 0
  * attributes_count: 2
  * attribute_name_index: LineNumberTable
  * line_number_table_length: 1
- * start_pc: <0>
+ * start_pc: &lt;0&gt;
  * line_number: 31
  * attribute_name_index: LocalVariableTable
  * local_variable_table_length: 1
- * start_pc: <0>
- * length: <3>
+ * start_pc: &lt;0&gt;
+ * length: &lt;3&gt;
  * name_index: this
  * descriptor_index: LHelloWorld;
  * index: 0
@@ -86,14 +86,14 @@ import java.util.HashMap;
  * attributes_count: 2
  * attribute_name_index: LineNumberTable
  * line_number_table_length: 2
- * start_pc: <0>
+ * start_pc: &lt;0&gt;
  * line_number: 33
- * start_pc: <3>
+ * start_pc: &lt;3&gt;
  * line_number: 34
  * attribute_name_index: LocalVariableTable
  * local_variable_table_length: 1
- * start_pc: <0>
- * length: <4>
+ * start_pc: &lt;0&gt;
+ * length: &lt;4&gt;
  * name_index: args
  * descriptor_index: [Ljava/lang/String;
  * index: 0
@@ -122,7 +122,7 @@ class ClassDump {
    * representation by this constructor. The result can then be obtained with {@link #toString}.
    *
    * @param bytecode the content of a class file.
-   * @throws IOException if class can't be parsed.
+   * @throws IOException if the class can't be parsed.
    */
   ClassDump(byte[] bytecode) throws IOException {
     Builder builder = new Builder("ClassFile", /* parent = */ null);
@@ -140,6 +140,9 @@ class ClassDump {
   /**
    * Parses and dumps the high level structure of the class.
    *
+   * @param parser a class parser.
+   * @param builder a dump builder.
+   * @throws IOException if the class can't be parsed.
    * @see <a href="https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.1">JVMS
    *     4.1</a>
    */
@@ -174,6 +177,9 @@ class ClassDump {
   /**
    * Parses and dumps a list of attributes.
    *
+   * @param parser a class parser.
+   * @param builder a dump builder.
+   * @throws IOException if the class can't be parsed.
    * @see <a href="https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.1">JVMS
    *     4.1</a>
    */
@@ -188,6 +194,10 @@ class ClassDump {
   /**
    * Parses a cp_info structure.
    *
+   * @param parser a class parser.
+   * @param classContext a context to lookup constant pool items from their index.
+   * @return the parsed constant pool item.
+   * @throws IOException if the class can't be parsed.
    * @see <a href="https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.4">JVMS
    *     4.4</a>
    */
@@ -238,28 +248,41 @@ class ClassDump {
     /** The context to use to get the referenced constant pool items. */
     private final ClassContext classContext;
 
-    /** Creates a CpInfo for an item without references to other items. */
+    /**
+     * Creates a CpInfo for an item without references to other items.
+     *
+     * @param dump the dump of this item.
+     */
     CpInfo(String dump) {
       this.dump = dump;
       this.classContext = null;
     }
 
-    /** Creates a CpInfo for an item with references to other items. */
+    /**
+     * Creates a CpInfo for an item with references to other items.
+     *
+     * @param classContext a context to lookup constant pool items from their index.
+     */
     CpInfo(ClassContext classContext) {
       this.classContext = classContext;
     }
 
-    /** Returns the number of entries used by this item in constant_pool. */
+    /** @return the number of entries used by this item in constant_pool. */
     int size() {
       return 1;
     }
 
-    /** Returns the constant pool item with the given index. */
+    /**
+     * @param <C> a CpInfo subclass.
+     * @param cpIndex a constant pool entry index.
+     * @param cpInfoType the expected type of the constant pool entry.
+     * @return the constant pool item with the given index.
+     */
     <C extends CpInfo> C getCpInfo(int cpIndex, Class<C> cpInfoType) {
       return classContext.getCpInfo(cpIndex, cpInfoType);
     }
 
-    /** Dumps this item into a string. */
+    /** @return the dump of this item. */
     String dump() {
       return dump;
     }
@@ -282,7 +305,13 @@ class ClassDump {
   private static class ConstantClassInfo extends CpInfo {
     private final int nameIndex;
 
-    /** Parses a CONSTANT_Class_info item. */
+    /**
+     * Parses a CONSTANT_Class_info item.
+     *
+     * @param parser a class parser.
+     * @param classContext a context to lookup constant pool items from their index.
+     * @throws IOException if the class can't be parsed.
+     */
     ConstantClassInfo(Parser parser, ClassContext classContext) throws IOException {
       super(classContext);
       this.nameIndex = parser.u2();
@@ -304,7 +333,13 @@ class ClassDump {
     private final int classIndex;
     private final int nameAndTypeIndex;
 
-    /** Parses a CONSTANT_Fieldref_info item. */
+    /**
+     * Parses a CONSTANT_Fieldref_info item.
+     *
+     * @param parser a class parser.
+     * @param classContext a context to lookup constant pool items from their index.
+     * @throws IOException if the class can't be parsed.
+     */
     ConstantFieldRefInfo(Parser parser, ClassContext classContext) throws IOException {
       super(classContext);
       this.classIndex = parser.u2();
@@ -329,7 +364,13 @@ class ClassDump {
     private final int classIndex;
     private final int nameAndTypeIndex;
 
-    /** Parses a CONSTANT_Methodref_info item. */
+    /**
+     * Parses a CONSTANT_Methodref_info item.
+     *
+     * @param parser a class parser.
+     * @param classContext a context to lookup constant pool items from their index.
+     * @throws IOException if the class can't be parsed.
+     */
     ConstantMethodRefInfo(Parser parser, ClassContext classContext) throws IOException {
       super(classContext);
       this.classIndex = parser.u2();
@@ -354,7 +395,13 @@ class ClassDump {
     private final int classIndex;
     private final int nameAndTypeIndex;
 
-    /** Parses a CONSTANT_InterfaceMethodref_info item. */
+    /**
+     * Parses a CONSTANT_InterfaceMethodref_info item.
+     *
+     * @param parser a class parser.
+     * @param classContext a context to lookup constant pool items from their index.
+     * @throws IOException if the class can't be parsed.
+     */
     ConstantInterfaceMethodRefInfo(Parser parser, ClassContext classContext) throws IOException {
       super(classContext);
       this.classIndex = parser.u2();
@@ -378,7 +425,13 @@ class ClassDump {
   private static class ConstantStringInfo extends CpInfo {
     final int stringIndex;
 
-    /** Parses a CONSTANT_String_info item. */
+    /**
+     * Parses a CONSTANT_String_info item.
+     *
+     * @param parser a class parser.
+     * @param classContext a context to lookup constant pool items from their index.
+     * @throws IOException if the class can't be parsed.
+     */
     ConstantStringInfo(Parser parser, ClassContext classContext) throws IOException {
       super(classContext);
       this.stringIndex = parser.u2();
@@ -398,7 +451,12 @@ class ClassDump {
    */
   private static class ConstantIntegerInfo extends CpInfo {
 
-    /** Parses a CONSTANT_Integer_info item. */
+    /**
+     * Parses a CONSTANT_Integer_info item.
+     *
+     * @param parser a class parser.
+     * @throws IOException if the class can't be parsed.
+     */
     ConstantIntegerInfo(Parser parser) throws IOException {
       super(Integer.toString(parser.u4()));
     }
@@ -412,7 +470,12 @@ class ClassDump {
    */
   private static class ConstantFloatInfo extends CpInfo {
 
-    /** Parses a CONSTANT_Float_info item. */
+    /**
+     * Parses a CONSTANT_Float_info item.
+     *
+     * @param parser a class parser.
+     * @throws IOException if the class can't be parsed.
+     */
     ConstantFloatInfo(Parser parser) throws IOException {
       super(Float.toString(Float.intBitsToFloat(parser.u4())));
     }
@@ -426,7 +489,12 @@ class ClassDump {
    */
   private static class ConstantLongInfo extends CpInfo {
 
-    /** Parses a CONSTANT_Long_info item. */
+    /**
+     * Parses a CONSTANT_Long_info item.
+     *
+     * @param parser a class parser.
+     * @throws IOException if the class can't be parsed.
+     */
     ConstantLongInfo(Parser parser) throws IOException {
       super(Long.toString(parser.s8()));
     }
@@ -445,7 +513,12 @@ class ClassDump {
    */
   private static class ConstantDoubleInfo extends CpInfo {
 
-    /** Parses a CONSTANT_Double_info item. */
+    /**
+     * Parses a CONSTANT_Double_info item.
+     *
+     * @param parser a class parser.
+     * @throws IOException if the class can't be parsed.
+     */
     ConstantDoubleInfo(Parser parser) throws IOException {
       super(Double.toString(Double.longBitsToDouble(parser.s8())));
     }
@@ -466,7 +539,13 @@ class ClassDump {
     private final int nameIndex;
     private final int descriptorIndex;
 
-    /** Parses a CONSTANT_NameAndType_info item. */
+    /**
+     * Parses a CONSTANT_NameAndType_info item.
+     *
+     * @param parser a class parser.
+     * @param classContext a context to lookup constant pool items from their index.
+     * @throws IOException if the class can't be parsed.
+     */
     ConstantNameAndTypeInfo(Parser parser, ClassContext classContext) throws IOException {
       super(classContext);
       this.nameIndex = parser.u2();
@@ -488,7 +567,12 @@ class ClassDump {
    */
   private static class ConstantUtf8Info extends CpInfo {
 
-    /** Parses a CONSTANT_Utf8_info item. */
+    /**
+     * Parses a CONSTANT_Utf8_info item.
+     *
+     * @param parser a class parser.
+     * @throws IOException if the class can't be parsed.
+     */
     ConstantUtf8Info(Parser parser) throws IOException {
       super(parser.utf8());
     }
@@ -504,7 +588,13 @@ class ClassDump {
     private final int referenceKind;
     private final int referenceIndex;
 
-    /** Parses a CONSTANT_MethodHandle_info item. */
+    /**
+     * Parses a CONSTANT_MethodHandle_info item.
+     *
+     * @param parser a class parser.
+     * @param classContext a context to lookup constant pool items from their index.
+     * @throws IOException if the class can't be parsed.
+     */
     ConstantMethodHandleInfo(Parser parser, ClassContext classContext) throws IOException {
       super(classContext);
       this.referenceKind = parser.u1();
@@ -526,7 +616,13 @@ class ClassDump {
   private static class ConstantMethodTypeInfo extends CpInfo {
     private final int descriptorIndex;
 
-    /** Parses a CONSTANT_MethodType_info item. */
+    /**
+     * Parses a CONSTANT_MethodType_info item.
+     *
+     * @param parser a class parser.
+     * @param classContext a context to lookup constant pool items from their index.
+     * @throws IOException if the class can't be parsed.
+     */
     ConstantMethodTypeInfo(Parser parser, ClassContext classContext) throws IOException {
       super(classContext);
       this.descriptorIndex = parser.u2();
@@ -548,7 +644,13 @@ class ClassDump {
     private final int bootstrapMethodAttrIndex;
     private final int nameAndTypeIndex;
 
-    /** Parses a CONSTANT_InvokeDynamic_info item. */
+    /**
+     * Parses a CONSTANT_InvokeDynamic_info item.
+     *
+     * @param parser a class parser.
+     * @param classContext a context to lookup constant pool items from their index.
+     * @throws IOException if the class can't be parsed.
+     */
     ConstantInvokeDynamicInfo(Parser parser, ClassContext classContext) throws IOException {
       super(classContext);
       this.bootstrapMethodAttrIndex = parser.u2();
@@ -572,7 +674,13 @@ class ClassDump {
   private static class ConstantModuleInfo extends CpInfo {
     private final int descriptorIndex;
 
-    /** Parses a CONSTANT_Module_info item. */
+    /**
+     * Parses a CONSTANT_Module_info item.
+     *
+     * @param parser a class parser.
+     * @param classContext a context to lookup constant pool items from their index.
+     * @throws IOException if the class can't be parsed.
+     */
     ConstantModuleInfo(Parser parser, ClassContext classContext) throws IOException {
       super(classContext);
       this.descriptorIndex = parser.u2();
@@ -593,7 +701,13 @@ class ClassDump {
   private static class ConstantPackageInfo extends CpInfo {
     private final int descriptorIndex;
 
-    /** Parses a CONSTANT_Package_info item. */
+    /**
+     * Parses a CONSTANT_Package_info item.
+     *
+     * @param parser a class parser.
+     * @param classContext a context to lookup constant pool items from their index.
+     * @throws IOException if the class can't be parsed.
+     */
     ConstantPackageInfo(Parser parser, ClassContext classContext) throws IOException {
       super(classContext);
       this.descriptorIndex = parser.u2();
@@ -608,6 +722,9 @@ class ClassDump {
   /**
    * Parses and dumps a field_info structure.
    *
+   * @param parser a class parser.
+   * @param builder a dump builder.
+   * @throws IOException if the class can't be parsed.
    * @see <a href="https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.5">JVMS
    *     4.5</a>
    */
@@ -621,6 +738,9 @@ class ClassDump {
   /**
    * Parses and dumps a method_info structure.
    *
+   * @param parser a class parser.
+   * @param builder a dump builder.
+   * @throws IOException if the class can't be parsed.
    * @see <a href="https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.6">JVMS
    *     4.6</a>
    */
@@ -634,6 +754,9 @@ class ClassDump {
   /**
    * Parses and dumps an attribute_info structure.
    *
+   * @param parser a class parser.
+   * @param sortedBuilder a dump builder.
+   * @throws IOException if the class can't be parsed.
    * @see <a href="https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.7">JVMS
    *     4.7</a>
    */
@@ -709,6 +832,9 @@ class ClassDump {
   /**
    * Parses and dumps a ConstantValue attribute.
    *
+   * @param parser a class parser.
+   * @param builder a dump builder.
+   * @throws IOException if the class can't be parsed.
    * @see <a href="https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.7.2">JVMS
    *     4.7.2</a>
    */
@@ -720,6 +846,9 @@ class ClassDump {
   /**
    * Parses and dumps a Code attribute.
    *
+   * @param parser a class parser.
+   * @param builder a dump builder.
+   * @throws IOException if the class can't be parsed.
    * @see <a href="https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.7.3">JVMS
    *     4.7.3</a>
    */
@@ -771,6 +900,9 @@ class ClassDump {
    * Parses and dumps the bytecode instructions of a method.
    *
    * @param codeLength the number of bytes to parse.
+   * @param parser a class parser.
+   * @param builder a dump builder.
+   * @throws IOException if the class can't be parsed.
    * @see <a href="https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-6.html#jvms-6.5">JVMS
    *     6.5</a>
    */
@@ -1216,6 +1348,9 @@ class ClassDump {
   /**
    * Parses and dumps a StackMapTable attribute.
    *
+   * @param parser a class parser.
+   * @param builder a dump builder.
+   * @throws IOException if the class can't be parsed.
    * @see <a href="https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.7.4">JVMS
    *     4.7.4</a>
    */
@@ -1277,6 +1412,9 @@ class ClassDump {
   /**
    * Parses and dumps a verification_type_info structure.
    *
+   * @param parser a class parser.
+   * @param builder a dump builder.
+   * @throws IOException if the class can't be parsed.
    * @see <a href="https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.7.2">JVMS
    *     4.7.2</a>
    */
@@ -1295,6 +1433,9 @@ class ClassDump {
   /**
    * Parses and dumps an Exception attribute.
    *
+   * @param parser a class parser.
+   * @param builder a dump builder.
+   * @throws IOException if the class can't be parsed.
    * @see <a href="https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.7.5">JVMS
    *     4.7.5</a>
    */
@@ -1308,6 +1449,9 @@ class ClassDump {
   /**
    * Parses and dumps an InnerClasses attribute.
    *
+   * @param parser a class parser.
+   * @param builder a dump builder.
+   * @throws IOException if the class can't be parsed.
    * @see <a href="https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.7.6">JVMS
    *     4.7.6</a>
    */
@@ -1324,6 +1468,9 @@ class ClassDump {
   /**
    * Parses and dumps an EnclosingMethod attribute.
    *
+   * @param parser a class parser.
+   * @param builder a dump builder.
+   * @throws IOException if the class can't be parsed.
    * @see <a href="https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.7.7">JVMS
    *     4.7.7</a>
    */
@@ -1336,6 +1483,8 @@ class ClassDump {
   /**
    * Parses and dumps a Synthetic attribute.
    *
+   * @param parser a class parser.
+   * @param builder a dump builder.
    * @see <a href="https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.7.8">JVMS
    *     4.7.8</a>
    */
@@ -1346,6 +1495,9 @@ class ClassDump {
   /**
    * Parses and dumps a Signature attribute.
    *
+   * @param parser a class parser.
+   * @param builder a dump builder.
+   * @throws IOException if the class can't be parsed.
    * @see <a href="https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.7.9">JVMS
    *     4.7.9</a>
    */
@@ -1356,6 +1508,9 @@ class ClassDump {
   /**
    * Parses and dumps a SourceFile attribute.
    *
+   * @param parser a class parser.
+   * @param builder a dump builder.
+   * @throws IOException if the class can't be parsed.
    * @see <a href="https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.7.10">JVMS
    *     4.7.10</a>
    */
@@ -1366,6 +1521,10 @@ class ClassDump {
   /**
    * Parses and dumps a SourceDebug attribute.
    *
+   * @param attributeLength the length of the SourceDebug attribute (excluding its 6 header bytes).
+   * @param parser a class parser.
+   * @param builder a dump builder.
+   * @throws IOException if the class can't be parsed.
    * @see <a href="https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.7.11">JVMS
    *     4.7.11</a>
    */
@@ -1382,6 +1541,9 @@ class ClassDump {
   /**
    * Parses and dumps a LineNumberTable attribute.
    *
+   * @param parser a class parser.
+   * @param builder a dump builder.
+   * @throws IOException if the class can't be parsed.
    * @see <a href="https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.7.12">JVMS
    *     4.7.12</a>
    */
@@ -1397,6 +1559,9 @@ class ClassDump {
   /**
    * Parses and dumps a LocalVariableTable attribute.
    *
+   * @param parser a class parser.
+   * @param builder a dump builder.
+   * @throws IOException if the class can't be parsed.
    * @see <a href="https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.7.13">JVMS
    *     4.7.13</a>
    */
@@ -1415,6 +1580,9 @@ class ClassDump {
   /**
    * Parses and dumps a LocalVariableTypeTable attribute.
    *
+   * @param parser a class parser.
+   * @param builder a dump builder.
+   * @throws IOException if the class can't be parsed.
    * @see <a href="https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.7.14">JVMS
    *     4.7.14</a>
    */
@@ -1433,6 +1601,8 @@ class ClassDump {
   /**
    * Parses and dumps a Deprecated attribute.
    *
+   * @param parser a class parser.
+   * @param builder a dump builder.
    * @see <a href="https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.7.15">JVMS
    *     4.7.15</a>
    */
@@ -1443,6 +1613,9 @@ class ClassDump {
   /**
    * Parses and dumps a RuntimeVisibleAnnotations attribute.
    *
+   * @param parser a class parser.
+   * @param builder a dump builder.
+   * @throws IOException if the class can't be parsed.
    * @see <a href="https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.7.16">JVMS
    *     4.7.16</a>
    */
@@ -1457,6 +1630,9 @@ class ClassDump {
   /**
    * Parses and dumps an annotations structure.
    *
+   * @param parser a class parser.
+   * @param builder a dump builder.
+   * @throws IOException if the class can't be parsed.
    * @see <a href="https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.7.16">JVMS
    *     4.7.16</a>
    */
@@ -1472,6 +1648,9 @@ class ClassDump {
   /**
    * Parses and dumps an element_value structure.
    *
+   * @param parser a class parser.
+   * @param builder a dump builder.
+   * @throws IOException if the class can't be parsed.
    * @see <a
    *     href="https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.7.16.1">JVMS
    *     4.7.16.1</a>
@@ -1515,6 +1694,9 @@ class ClassDump {
   /**
    * Parses and dumps a RuntimeInvisibleAnnotations attribute.
    *
+   * @param parser a class parser.
+   * @param builder a dump builder.
+   * @throws IOException if the class can't be parsed.
    * @see <a href="https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.7.17">JVMS
    *     4.7.17</a>
    */
@@ -1526,6 +1708,9 @@ class ClassDump {
   /**
    * Parses and dumps a RuntimeVisibleParameterAnnotations attribute.
    *
+   * @param parser a class parser.
+   * @param builder a dump builder.
+   * @throws IOException if the class can't be parsed.
    * @see <a href="https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.7.18">JVMS
    *     4.7.18</a>
    */
@@ -1543,6 +1728,9 @@ class ClassDump {
   /**
    * Parses and dumps a RuntimeInvisibleParameterAnnotations attribute.
    *
+   * @param parser a class parser.
+   * @param builder a dump builder.
+   * @throws IOException if the class can't be parsed.
    * @see <a href="https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.7.19">JVMS
    *     4.7.19</a>
    */
@@ -1554,6 +1742,9 @@ class ClassDump {
   /**
    * Parses and dumps a RuntimeVisibleTypeAnnotations attribute.
    *
+   * @param parser a class parser.
+   * @param builder a dump builder.
+   * @throws IOException if the class can't be parsed.
    * @see <a href="https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.7.20">JVMS
    *     4.7.20</a>
    */
@@ -1569,6 +1760,9 @@ class ClassDump {
   /**
    * Parses and dumps a type_annotation structure.
    *
+   * @param parser a class parser.
+   * @param sortedBuilder a dump builder.
+   * @throws IOException if the class can't be parsed.
    * @see <a href="https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.7.20">JVMS
    *     4.7.20</a>
    */
@@ -1650,6 +1844,9 @@ class ClassDump {
   /**
    * Parses and dumps a type_path structure.
    *
+   * @param parser a class parser.
+   * @param builder a dump builder.
+   * @throws IOException if the class can't be parsed.
    * @see <a
    *     href="https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.7.20.2">JVMS
    *     4.7.20.2</a>
@@ -1665,6 +1862,9 @@ class ClassDump {
   /**
    * Parses and dumps a RuntimeInvisibleTypeAnnotations attribute.
    *
+   * @param parser a class parser.
+   * @param builder a dump builder.
+   * @throws IOException if the class can't be parsed.
    * @see <a href="https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.7.21">JVMS
    *     4.7.21</a>
    */
@@ -1676,6 +1876,9 @@ class ClassDump {
   /**
    * Parses and dumps an AnnotationDefault attribute.
    *
+   * @param parser a class parser.
+   * @param builder a dump builder.
+   * @throws IOException if the class can't be parsed.
    * @see <a href="https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.7.22">JVMS
    *     4.7.22</a>
    */
@@ -1687,6 +1890,9 @@ class ClassDump {
   /**
    * Parses and dumps a BootstrapMethods attribute.
    *
+   * @param parser a class parser.
+   * @param builder a dump builder.
+   * @throws IOException if the class can't be parsed.
    * @see <a href="https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.7.23">JVMS
    *     4.7.23</a>
    */
@@ -1705,6 +1911,9 @@ class ClassDump {
   /**
    * Parses and dumps a MethodParameters attribute.
    *
+   * @param parser a class parser.
+   * @param builder a dump builder.
+   * @throws IOException if the class can't be parsed.
    * @see <a href="https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.7.24">JVMS
    *     4.7.24</a>
    */
@@ -1720,6 +1929,9 @@ class ClassDump {
   /**
    * Parses and dumps a Module attribute.
    *
+   * @param parser a class parser.
+   * @param builder a dump builder.
+   * @throws IOException if the class can't be parsed.
    * @see <a href="https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.7.25">JVMS
    *     4.7.25</a>
    */
@@ -1768,6 +1980,9 @@ class ClassDump {
   /**
    * Parses and dumps a ModulePackages attribute.
    *
+   * @param parser a class parser.
+   * @param builder a dump builder.
+   * @throws IOException if the class can't be parsed.
    * @see <a href="https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.7.26">JVMS
    *     4.7.26</a>
    */
@@ -1782,6 +1997,9 @@ class ClassDump {
   /**
    * Parses and dumps a ModuleMainClass attribute.
    *
+   * @param parser a class parser.
+   * @param builder a dump builder.
+   * @throws IOException if the class can't be parsed.
    * @see <a href="https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.7.27">JVMS
    *     4.7.27</a>
    */
@@ -1793,6 +2011,9 @@ class ClassDump {
   /**
    * Parses and dumps a StackMap attribute.
    *
+   * @param parser a class parser.
+   * @param builder a dump builder.
+   * @throws IOException if the class can't be parsed.
    * @see <a
    *     href="http://docs.oracle.com/javame/config/cldc/opt-pkgs/api/cldc/api/Appendix1-verifier.pdf">CLDC</a>
    */
@@ -1897,11 +2118,17 @@ class ClassDump {
       this.context = new HashMap<Integer, Object>();
     }
 
-    /** Lookup constant pool items from their index. */
+    /**
+     * Lookup constant pool items from their index.
+     *
+     * @param cpIndex a constant pool item index.
+     * @return the constant pool item at the given index.
+     */
     CpInfo getCpInfo(int cpIndex) {
       return getCpInfo(cpIndex, CpInfo.class);
     }
 
+    @Override
     public <C extends CpInfo> C getCpInfo(int cpIndex, Class<C> cpInfoType) {
       Object cpInfo = get(CP_INFO_KEY | cpIndex);
       if (!cpInfoType.isInstance(cpInfo)) {
@@ -1914,6 +2141,7 @@ class ClassDump {
       return cpInfoType.cast(cpInfo);
     }
 
+    @Override
     public int getInsnIndex(int bytecodeOffset) {
       Integer insnIndex = (Integer) get(bytecodeOffset);
       if (insnIndex == null) {
@@ -1922,17 +2150,31 @@ class ClassDump {
       return insnIndex;
     }
 
-    /** Registers the CpInfo for the given constant pool index. */
+    /**
+     * Registers the CpInfo for the given constant pool index.
+     *
+     * @param cpIndex a constant pool item index.
+     * @param cpInfo a constant pool item.
+     */
     void putCpInfo(int cpIndex, CpInfo cpInfo) {
       context.put(CP_INFO_KEY | cpIndex, cpInfo);
     }
 
-    /** Registers the instruction index for the given bytecode offset. */
+    /**
+     * Registers the instruction index for the given bytecode offset.
+     *
+     * @param bytecodeOffset a bytecode offset.
+     * @param instructionIndex the index of a bytecode instruction.
+     */
     void putInsnIndex(int bytecodeOffset, int instructionIndex) {
       context.put(bytecodeOffset, instructionIndex);
     }
 
-    /** Recursively appends the builder's children to the given string. */
+    /**
+     * Recursively appends the builder's children to the given string.
+     *
+     * @param stringBuilder a string builder.
+     */
     void build(StringBuilder stringBuilder) {
       for (Object child : children) {
         if (child instanceof AbstractBuilder<?>) {
@@ -1944,8 +2186,9 @@ class ClassDump {
     }
 
     /**
-     * Returns the value associated with the given key in this context or, if not found, in the
-     * parent context (recursively).
+     * @param key a context key.
+     * @return the value associated with the given key in this context or, if not found, in the
+     *     parent context (recursively).
      */
     private Object get(int key) {
       Object value = context.get(key);
@@ -1966,7 +2209,14 @@ class ClassDump {
       this.name = name;
     }
 
-    /** Appends name and value to children and returns value. */
+    /**
+     * Appends name and value to children and returns value.
+     *
+     * @param <T> a value type.
+     * @param name a name.
+     * @param value a value.
+     * @return value
+     */
     <T> T add(String name, T value) {
       children.add(name);
       children.add(value);
@@ -1977,13 +2227,23 @@ class ClassDump {
     /**
      * Appends name and the instruction index corresponding to bytecodeOffset to children, and
      * returns bytecodeOffset.
+     *
+     * @param name a name.
+     * @param bytecodeOffset the offset of a bytecode instruction.
+     * @return bytecodeOffset.
      */
     int addInsnIndex(String name, int bytecodeOffset) {
       add(name, new InstructionIndex(bytecodeOffset, this));
       return bytecodeOffset;
     }
 
-    /** Appends the given arguments to children. */
+    /**
+     * Appends the given arguments to children.
+     *
+     * @param insnIndex the index of a bytecode instruction.
+     * @param opcode a bytecode instruction opcode.
+     * @param arguments the bytecode instruction arguments.
+     */
     void addInsn(int insnIndex, int opcode, Object... arguments) {
       children.add(insnIndex);
       children.add(": ");
@@ -1995,12 +2255,21 @@ class ClassDump {
       children.add("\n");
     }
 
-    /** Appends name and the CpInfo corresponding to cpIndex to children. */
+    /**
+     * Appends name and the CpInfo corresponding to cpIndex to children.
+     *
+     * @param name a name.
+     * @param cpIndex a constant pool item index.
+     */
     void addCpInfo(String name, int cpIndex) {
       add(name, cpIndex == 0 ? 0 : getCpInfo(cpIndex));
     }
 
-    /** Appends a new {@link SortedBuilder} to children and returns it. */
+    /**
+     * Appends a new {@link SortedBuilder} to children and returns it.
+     *
+     * @return a new {@link SortedBuilder}.
+     */
     SortedBuilder addSortedBuilder() {
       SortedBuilder sortedBuilder = new SortedBuilder(this);
       children.add(sortedBuilder);
@@ -2032,7 +2301,12 @@ class ClassDump {
       super(parent);
     }
 
-    /** Appends a new {@link Builder} to children and returns it. */
+    /**
+     * Appends a new {@link Builder} to children and returns it.
+     *
+     * @param name the name of the new builder.
+     * @return the new builder.
+     */
     Builder addBuilder(String name) {
       Builder builder = new Builder(name, this);
       children.add(builder);

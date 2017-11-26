@@ -33,7 +33,7 @@ package org.objectweb.asm;
  *
  * @author Eric Bruneton
  */
-class Context {
+final class Context {
 
   /** Prototypes of the attributes that must be parsed in this class. */
   Attribute[] attributePrototypes;
@@ -105,8 +105,8 @@ class Context {
   int currentFrameOffset;
 
   /**
-   * The type of the current stack map frame. One of {@link Opcodes.F_FULL}, {@link
-   * Opcodes.F_APPEND}, {@link Opcodes.F_CHOP}, {@link Opcodes.F_SAME} or {@link Opcodes.F_SAME1}.
+   * The type of the current stack map frame. One of {@link Opcodes#F_FULL}, {@link
+   * Opcodes#F_APPEND}, {@link Opcodes#F_CHOP}, {@link Opcodes#F_SAME} or {@link Opcodes#F_SAME1}.
    */
   int currentFrameType;
 
@@ -126,7 +126,7 @@ class Context {
   /**
    * The types of the local variables in the current stack map frame. Each type is represented with
    * a single array element (even long and double), using the format described in {@link
-   * MethodVisitor#visitFrame()}. Depending on {@link #currentFrameType}, this contains the types of
+   * MethodVisitor#visitFrame}. Depending on {@link #currentFrameType}, this contains the types of
    * all the local variables, or only those of the additional ones (compared to the previous frame).
    */
   Object[] currentFrameLocalTypes;
@@ -140,7 +140,7 @@ class Context {
   /**
    * The types of the stack elements in the current stack map frame. Each type is represented with a
    * single array element (even long and double), using the format described in {@link
-   * MethodVisitor#visitFrame()}.
+   * MethodVisitor#visitFrame}.
    */
   Object[] currentFrameStackTypes;
 }

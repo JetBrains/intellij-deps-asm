@@ -470,8 +470,8 @@ public class Processor {
   }
 
   /**
-   * A {@link ContentHandlerFactory ContentHandlerFactory} is used to create {@link
-   * org.xml.sax.ContentHandler ContentHandler} instances for concrete context.
+   * A {@link ContentHandlerFactory} is used to create {@link ContentHandler} instances for concrete
+   * context.
    */
   private static interface ContentHandlerFactory {
 
@@ -564,19 +564,11 @@ public class Processor {
   }
 
   /**
-   * A {@link org.xml.sax.ContentHandler ContentHandler} and {@link org.xml.sax.ext.LexicalHandler
-   * LexicalHandler} that serializes XML from SAX 2.0 events into {@link java.io.Writer Writer}.
+   * A {@link ContentHandler} and {@link LexicalHandler } that serializes XML from SAX 2.0 events
+   * into {@link Writer}.
    *
-   * <p><i>
-   *
-   * <blockquote>
-   *
-   * This implementation does not support namespaces, entity definitions (uncluding DTD), CDATA and
-   * text elements.
-   *
-   * </blockquote>
-   *
-   * </i>
+   * <p><i>This implementation does not support namespaces, entity definitions (uncluding DTD),
+   * CDATA and </i>
    */
   private static final class SAXWriter extends DefaultHandler implements LexicalHandler {
     private static final char[] OFF =
@@ -756,11 +748,9 @@ public class Processor {
   }
 
   /**
-   * A {@link org.xml.sax.ContentHandler ContentHandler} that splits XML documents into smaller
-   * chunks. Each chunk is processed by the nested {@link org.xml.sax.ContentHandler ContentHandler}
-   * obtained from {@link java.net.ContentHandlerFactory ContentHandlerFactory}. This is useful for
-   * running XSLT engine against large XML document that will hardly fit into the memory all
-   * together.
+   * A {@link ContentHandler} that splits XML documents into smaller chunks. Each chunk is processed
+   * by the nested {@link ContentHandler}. This is useful for running XSLT engine against large XML
+   * document that will hardly fit into the memory all together.
    *
    * <p>TODO use complete path for subdocumentRoot
    */
@@ -776,12 +766,12 @@ public class Processor {
     private ContentHandler subdocumentHandler;
 
     /**
-     * Constructs a new {@link InputSlicingHandler SubdocumentHandler} object.
+     * Constructs a new {@link InputSlicingHandler} object.
      *
      * @param subdocumentRoot name/path to the root element of the subdocument
      * @param rootHandler content handler for the entire document (subdocument envelope).
-     * @param subdocumentHandlerFactory a {@link ContentHandlerFactory ContentHandlerFactory} used
-     *     to create {@link ContentHandler ContentHandler} instances for subdocuments.
+     * @param subdocumentHandlerFactory a {@link ContentHandlerFactory} used to create {@link
+     *     ContentHandler} instances for subdocuments.
      */
     InputSlicingHandler(
         final String subdocumentRoot,
@@ -851,11 +841,10 @@ public class Processor {
   }
 
   /**
-   * A {@link org.xml.sax.ContentHandler ContentHandler} that splits XML documents into smaller
-   * chunks. Each chunk is processed by the nested {@link org.xml.sax.ContentHandler ContentHandler}
-   * obtained from {@link java.net.ContentHandlerFactory ContentHandlerFactory}. This is useful for
-   * running XSLT engine against large XML document that will hardly fit into the memory all
-   * together.
+   * A {@link ContentHandler} that splits XML documents into smaller chunks. Each chunk is processed
+   * by the nested {@link ContentHandler} obtained from {@link ContentHandlerFactory}. This is
+   * useful for running XSLT engine against large XML document that will hardly fit into the memory
+   * all together.
    *
    * <p>TODO use complete path for subdocumentRoot
    */
@@ -873,10 +862,10 @@ public class Processor {
     private ContentHandler subdocumentHandler;
 
     /**
-     * Constructs a new {@link OutputSlicingHandler SubdocumentHandler} object.
+     * Constructs a new {@link OutputSlicingHandler} object.
      *
-     * @param subdocumentHandlerFactory a {@link ContentHandlerFactory ContentHandlerFactory} used
-     *     to create {@link ContentHandler ContentHandler} instances for subdocuments.
+     * @param subdocumentHandlerFactory a {@link ContentHandlerFactory} used to create {@link
+     *     ContentHandler} instances for subdocuments.
      * @param entryElement TODO.
      * @param isXml TODO.
      */

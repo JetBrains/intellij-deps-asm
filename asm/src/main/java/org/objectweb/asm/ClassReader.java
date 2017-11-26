@@ -918,7 +918,7 @@ public class ClassReader {
    * @param context information about the class being parsed.
    * @param moduleOffset the offset of the Module attribute (excluding the attribute_info's
    *     attribute_name_index and attribute_length fields).
-   * @param modulePackages the offset of the ModulePackages attribute (excluding the
+   * @param modulePackagesOffset the offset of the ModulePackages attribute (excluding the
    *     attribute_info's attribute_name_index and attribute_length fields), or 0.
    * @param moduleMainClass the string corresponding to the ModuleMainClass attribute, or null.
    */

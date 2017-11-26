@@ -54,7 +54,7 @@ public class SignatureWriter extends SignatureVisitor {
    * boolean encoded in one bit. The top of the stack is the least significant bit. Pushing false =
    * *2, pushing true = *2+1, popping = /2.
    *
-   * <p>Class type arguments must be surrounded with '<' and '>' and, because
+   * <p>Class type arguments must be surrounded with '&lt;' and '&gt;' and, because
    *
    * <ol>
    *   <li>class types can be nested (because type arguments can themselves be class types),

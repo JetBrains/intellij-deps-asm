@@ -127,9 +127,9 @@ public class Label {
    * byte of the forward reference itself. In fact the sign of the first integer indicates if this
    * reference uses 2 or 4 bytes, and its absolute value gives the position of the bytecode
    * instruction. This array is also used as a bitset to store the subroutines to which a basic
-   * block belongs. This information is needed in {@linked MethodWriter#visitMaxs}, after all
-   * forward references have been resolved. Hence the same array can be used for both purposes
-   * without problems.
+   * block belongs. This information is needed in {@link MethodWriter#visitMaxs}, after all forward
+   * references have been resolved. Hence the same array can be used for both purposes without
+   * problems.
    */
   private int[] srcAndRefPositions;
 

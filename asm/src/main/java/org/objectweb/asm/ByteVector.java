@@ -55,7 +55,11 @@ public class ByteVector {
     data = new byte[initialCapacity];
   }
 
-  /** Constructs a new {@link ByteVector} from the given initial data. */
+  /**
+   * Constructs a new {@link ByteVector} from the given initial data.
+   *
+   * @param data the initial data of the new byte vector.
+   */
   ByteVector(final byte[] data) {
     this.data = data;
     this.length = data.length;
@@ -269,7 +273,7 @@ public class ByteVector {
   /**
    * Puts an UTF8 string into this byte vector. The byte vector is automatically enlarged if
    * necessary. The string length is encoded in two bytes before the encoded characters, if there is
-   * space for that (i.e. if this.length - offset - 2 >= 0).
+   * space for that (i.e. if this.length - offset - 2 &gt;= 0).
    *
    * @param stringValue the String to encode.
    * @param offset the index of the first character to encode. The previous characters are supposed

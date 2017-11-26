@@ -34,6 +34,7 @@ package org.objectweb.asm;
  * <tt>visitEnd</tt>.
  *
  * @author Remi Forax
+ * @author Eric Bruneton
  */
 public abstract class ModuleVisitor {
   /**

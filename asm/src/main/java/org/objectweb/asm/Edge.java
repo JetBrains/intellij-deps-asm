@@ -75,7 +75,13 @@ final class Edge {
    */
   Edge nextEdge;
 
-  /** Creates a new Edge. */
+  /**
+   * Creates a new Edge.
+   *
+   * @param info see {@link #info}.
+   * @param successor see {@link #successor}.
+   * @param nextEdge see {@link #nextEdge}.
+   */
   Edge(final int info, final Label successor, final Edge nextEdge) {
     this.info = info;
     this.successor = successor;

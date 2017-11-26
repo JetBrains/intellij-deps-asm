@@ -382,6 +382,8 @@ public class JSRInlinerAdapter extends MethodNode implements Opcodes {
    * @param newInstructions the instruction list to which the instantiated code must be appended.
    * @param newTryCatchBlocks the exception handler list to which the instantiated handlers must be
    *     appended.
+   * @param newLocalVariables the local variables list to which the instantiated local variables
+   *     must be appended.
    */
   private void emitSubroutine(
       final Instantiation instant,

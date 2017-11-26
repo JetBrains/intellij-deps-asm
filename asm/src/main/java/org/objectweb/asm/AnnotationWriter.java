@@ -31,12 +31,12 @@ package org.objectweb.asm;
  * An {@link AnnotationVisitor} that generates a corresponding 'annotation' or 'type_annotation'
  * structure, as defined in the Java Virtual Machine Specification (JVMS). AnnotationWriter
  * instances can be chained in a doubly linked list, from which Runtime[In]Visible[Type]Annotations
- * attributes can be generated with the {@link #putAnnotations()} method. Similarly, arrays of such
+ * attributes can be generated with the {@link #putAnnotations} method. Similarly, arrays of such
  * lists can be used to generate Runtime[In]VisibleParameterAnnotations attributes.
  *
  * @see <a href="https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.7.16">JVMS
  *     4.7.16</a>
- * @see <a href="https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.7.20>JVMS
+ * @see <a href="https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.7.20">JVMS
  *     4.7.20</a>
  * @author Eric Bruneton
  * @author Eugene Kuleshov

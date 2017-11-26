@@ -950,6 +950,7 @@ public class CheckClassAdapter extends ClassVisitor {
   /**
    * Checks a single character.
    *
+   * @param c a character.
    * @param signature a string containing the signature that must be checked.
    * @param pos index of first character to be checked.
    * @return the index of the first character after the checked part.

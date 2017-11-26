@@ -55,7 +55,7 @@ public final class Assertions {
 
     public <T extends Throwable> ExecutableOutcomeSubject<T> succeedsOrThrows(
         Class<T> expectedType) {
-      return new ExecutableOutcomeSubject<T>(executable, expectedType);
+      return new ExecutableOutcomeSubject<>(executable, expectedType);
     }
   }
 

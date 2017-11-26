@@ -88,20 +88,20 @@ public abstract class AsmTest {
    * MethodSource name to be used in parameterized tests that must be instantiated for all possible
    * (precompiled class, api) pairs.
    */
-  public final String ALL_CLASSES_AND_ALL_APIS = "allClassesAndAllApis";
+  public static final String ALL_CLASSES_AND_ALL_APIS = "allClassesAndAllApis";
 
   /**
    * MethodSource name to be used in parameterized tests that must be instantiated for all
    * precompiled classes, with the latest api.
    */
-  public final String ALL_CLASSES_AND_LATEST_API = "allClassesAndLatestApi";
+  public static final String ALL_CLASSES_AND_LATEST_API = "allClassesAndLatestApi";
 
   /**
    * A precompiled class, hand-crafted to contain some set of class file structures. These classes
    * are not compiled as part of the build. Instead, they have been compiled beforehand, with the
    * appropriate JDKs (including some now very hard to download and install).
    */
-  public static enum PrecompiledClass {
+  public enum PrecompiledClass {
     DEFAULT_PACKAGE("DefaultPackage"),
     JDK3_ALL_INSTRUCTIONS("jdk3.AllInstructions"),
     JDK3_ALL_STRUCTURES("jdk3.AllStructures"),
@@ -150,10 +150,7 @@ public abstract class AsmTest {
       if (name.startsWith("jdk8") && api.value() < Api.ASM5.value()) {
         return true;
       }
-      if (name.startsWith("jdk9") && api.value() < Api.ASM6.value()) {
-        return true;
-      }
-      return false;
+      return name.startsWith("jdk9") && api.value() < Api.ASM6.value();
     }
 
     /**
@@ -165,18 +162,17 @@ public abstract class AsmTest {
      */
     public boolean isMoreRecentThanCurrentJdk() {
       if (name.startsWith("jdk9")) {
-        final String V9 = "1.9";
+        final String v9 = "1.9";
         String javaVersion = System.getProperty("java.version");
-        return javaVersion.substring(V9.length()).compareTo(V9) < 0;
+        return javaVersion.substring(v9.length()).compareTo(v9) < 0;
       }
       return false;
     }
 
     /** @return the content of this class. */
     public byte[] getBytes() {
-      InputStream inputStream = null;
-      try {
-        inputStream = ClassLoader.getSystemResourceAsStream(name.replace('.', '/') + ".class");
+      String resourceName = name.replace('.', '/') + ".class";
+      try (InputStream inputStream = ClassLoader.getSystemResourceAsStream(resourceName)) {
         assertNotNull(inputStream, "Class not found " + name);
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         byte[] data = new byte[inputStream.available()];
@@ -188,14 +184,7 @@ public abstract class AsmTest {
         return outputStream.toByteArray();
       } catch (IOException e) {
         fail("Can't read " + name);
-        return null;
-      } finally {
-        if (inputStream != null) {
-          try {
-            inputStream.close();
-          } catch (IOException ignored) {
-          }
-        }
+        return new byte[0];
       }
     }
 
@@ -206,7 +195,7 @@ public abstract class AsmTest {
   }
 
   /** An ASM API version. */
-  public static enum Api {
+  public enum Api {
     ASM4("ASM4", 4 << 16),
     ASM5("ASM5", 5 << 16),
     ASM6("ASM6", 6 << 16);
@@ -354,7 +343,7 @@ public abstract class AsmTest {
       Class<?> clazz = byteClassLoader.loadClass(className);
       if (!clazz.isEnum() && (clazz.getModifiers() & Modifier.ABSTRACT) == 0) {
         Constructor<?> constructor = clazz.getDeclaredConstructors()[0];
-        ArrayList<Object> arguments = new ArrayList<Object>();
+        ArrayList<Object> arguments = new ArrayList<>();
         for (Class<?> parameterType : constructor.getParameterTypes()) {
           arguments.add(Array.get(Array.newInstance(parameterType, 1), 0));
         }
@@ -364,20 +353,14 @@ public abstract class AsmTest {
     } catch (ClassNotFoundException e) {
       // Should never happen given the ByteClassLoader implementation.
       fail("Can't find class " + className);
-    } catch (InstantiationException e) {
-      // Should never happen since we don't try to instantiate classes
-      // that can't be instantiated (abstract and enum classes).
-      fail("Can't instantiate class " + className);
-    } catch (IllegalAccessException e) {
-      // Should never happen since we use setAccessible(true).
-      fail("Can't instantiate class " + className);
-    } catch (IllegalArgumentException e) {
-      // Should never happen since we create the appropriate constructor
-      // arguments for the expected constructor parameters.
+    } catch (InstantiationException | IllegalAccessException | IllegalArgumentException e) {
+      // Should never happen since we don't try to instantiate classes that can't be instantiated
+      // (abstract and enum classes), we use setAccessible(true), and we create the appropriate
+      // constructor arguments for the expected constructor parameters.
       fail("Can't instantiate class " + className);
     } catch (InvocationTargetException e) {
-      // If an exception occurs in the invoked constructor, it means the
-      // class was successfully verified first.
+      // If an exception occurs in the invoked constructor, it means the class was successfully
+      // verified first.
     }
     return byteClassLoader.classLoaded();
   }

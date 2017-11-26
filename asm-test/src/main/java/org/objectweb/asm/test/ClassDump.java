@@ -2131,7 +2131,7 @@ class ClassDump {
     @Override
     public <C extends CpInfo> C getCpInfo(int cpIndex, Class<C> cpInfoType) {
       Object cpInfo = get(CP_INFO_KEY | cpIndex);
-      if (!cpInfoType.isInstance(cpInfo)) {
+      if (cpInfo != null && !cpInfoType.isInstance(cpInfo)) {
         throw new RuntimeException(
             "Invalid constant pool type :"
                 + cpInfo.getClass().getName()
@@ -2292,6 +2292,10 @@ class ClassDump {
 
     public int compareTo(Builder builder) {
       return name.compareTo(builder.name);
+    }
+
+    public boolean equals(Object other) {
+      return (other instanceof Builder) && name.equals(((Builder) other).name);
     }
   }
 

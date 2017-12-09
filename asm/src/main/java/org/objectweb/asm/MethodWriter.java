@@ -482,7 +482,7 @@ final class MethodWriter extends MethodVisitor {
   /**
    * The relative stack size after the last visited instruction. This size is relative to the
    * beginning of {@link #currentBasicBlock}, i.e. the true stack size after the last visited
-   * instruction is equal to the {@link Label#inputStackTop} of the current basic block plus {@link
+   * instruction is equal to the {@link Label#inputStackSize} of the current basic block plus {@link
    * #relativeStackSize}.
    */
   private int relativeStackSize;
@@ -490,8 +490,8 @@ final class MethodWriter extends MethodVisitor {
   /**
    * The maximum relative stack size after the last visited instruction. This size is relative to
    * the beginning of {@link #currentBasicBlock}, i.e. the true maximum stack size after the last
-   * visited instruction is equal to the {@link Label#inputStackTop} of the current basic block plus
-   * {@link #maxRelativeStackSize}.
+   * visited instruction is equal to the {@link Label#inputStackSize} of the current basic block
+   * plus {@link #maxRelativeStackSize}.
    */
   private int maxRelativeStackSize;
 

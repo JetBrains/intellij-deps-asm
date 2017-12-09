@@ -146,8 +146,7 @@ public class Label {
    * The flags that indicate the type and status of this label or its corresponding basic block.
    * Must be zero or more of {@link #FLAG_DEBUG_ONLY}, {@link #FLAG_JUMP_TARGET}, {@link
    * #FLAG_RESOLVED}, {@link #FLAG_REACHABLE}, {@link #FLAG_SUBROUTINE_CALLER}, {@link
-   * #FLAG_SUBROUTINE_START}, {@link #FLAG_SUBROUTINE_BODY}, {@link #FLAG_SUBROUTINE_END} and {@link
-   * #FLAG_PROCESSED}.
+   * #FLAG_SUBROUTINE_START}, {@link #FLAG_SUBROUTINE_BODY}, {@link #FLAG_SUBROUTINE_END}.
    */
   short flags;
 
@@ -186,7 +185,7 @@ public class Label {
    *             the forward reference,
    *         <li>'reference' contains the type and the offset in the bytecode where the forward
    *             reference value must be stored, which can be extracted with {@link
-   *             #FORWARD_REFERENCE_TYPE_MASK} and {@link #REFERENCE_REFERENCE_HANDLE_MASK}.
+   *             #FORWARD_REFERENCE_TYPE_MASK} and {@link #FORWARD_REFERENCE_HANDLE_MASK}.
    *       </ul>
    *       For instance, for an ifnull instruction at bytecode offset x, 'source' is equal to x, and
    *       'reference' is of type {@link #FORWARD_REFERENCE_TYPE_SHORT} with value x + 1 (because
@@ -493,7 +492,8 @@ public class Label {
    * <p>Note: a precondition and postcondition of this method is that all labels must have a null
    * {@link #nextListElement}.
    *
-   * @param id the id of the subroutine starting with the basic block corresponding to this label.
+   * @param subroutineId the id of the subroutine starting with the basic block corresponding to
+   *     this label.
    * @param numSubroutine the total number of subroutines in the method.
    */
   final void markSubroutine(final int subroutineId, final int numSubroutine) {
@@ -583,7 +583,7 @@ public class Label {
    * blocks to process, and returns the new list.
    *
    * @param listOfLabelsToProcess a list of basic blocks to process, linked together with their
-   *     {@link #nextUnprocessedBlock} field.
+   *     {@link #nextListElement} field.
    * @return the new list of blocks to process.
    */
   private Label pushSuccessors(Label listOfLabelsToProcess) {

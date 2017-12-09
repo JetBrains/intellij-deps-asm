@@ -51,6 +51,5 @@ final class CurrentFrame extends Frame {
     Frame successor = new Frame(null);
     merge(symbolTable, successor, 0);
     copyFrom(successor);
-    owner.inputStackTop = 0;
   }
 }

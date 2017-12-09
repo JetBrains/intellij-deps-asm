@@ -122,10 +122,10 @@ final class Handler {
     } else {
       firstHandler.nextHandler = removeRange(firstHandler.nextHandler, start, end);
     }
-    int handlerStart = firstHandler.startPc.position;
-    int handlerEnd = firstHandler.endPc.position;
-    int rangeStart = start.position;
-    int rangeEnd = end == null ? Integer.MAX_VALUE : end.position;
+    int handlerStart = firstHandler.startPc.bytecodeOffset;
+    int handlerEnd = firstHandler.endPc.bytecodeOffset;
+    int rangeStart = start.bytecodeOffset;
+    int rangeEnd = end == null ? Integer.MAX_VALUE : end.bytecodeOffset;
     // Return early if [handlerStart,handlerEnd[ and [rangeStart,rangeEnd[ don't intersect.
     if (rangeStart >= handlerEnd || rangeEnd <= handlerStart) {
       return firstHandler;
@@ -188,9 +188,9 @@ final class Handler {
     Handler handler = firstHandler;
     while (handler != null) {
       output
-          .putShort(handler.startPc.position)
-          .putShort(handler.endPc.position)
-          .putShort(handler.handlerPc.position)
+          .putShort(handler.startPc.bytecodeOffset)
+          .putShort(handler.endPc.bytecodeOffset)
+          .putShort(handler.handlerPc.bytecodeOffset)
           .putShort(handler.catchType);
       handler = handler.nextHandler;
     }

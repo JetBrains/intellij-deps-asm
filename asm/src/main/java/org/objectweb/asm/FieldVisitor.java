@@ -60,27 +60,28 @@ public abstract class FieldVisitor {
    *
    * @param api the ASM API version implemented by this visitor. Must be one of {@link
    *     Opcodes#ASM4}, {@link Opcodes#ASM5} or {@link Opcodes#ASM6}.
-   * @param fv the field visitor to which this visitor must delegate method calls. May be null.
+   * @param fieldVisitor the field visitor to which this visitor must delegate method calls. May be
+   *     null.
    */
-  public FieldVisitor(final int api, final FieldVisitor fv) {
+  public FieldVisitor(final int api, final FieldVisitor fieldVisitor) {
     if (api < Opcodes.ASM4 || api > Opcodes.ASM6) {
       throw new IllegalArgumentException();
     }
     this.api = api;
-    this.fv = fv;
+    this.fv = fieldVisitor;
   }
 
   /**
    * Visits an annotation of the field.
    *
-   * @param desc the class descriptor of the annotation class.
+   * @param descriptor the class descriptor of the annotation class.
    * @param visible <tt>true</tt> if the annotation is visible at runtime.
    * @return a visitor to visit the annotation values, or <tt>null</tt> if this visitor is not
    *     interested in visiting this annotation.
    */
-  public AnnotationVisitor visitAnnotation(String desc, boolean visible) {
+  public AnnotationVisitor visitAnnotation(final String descriptor, final boolean visible) {
     if (fv != null) {
-      return fv.visitAnnotation(desc, visible);
+      return fv.visitAnnotation(descriptor, visible);
     }
     return null;
   }
@@ -93,18 +94,18 @@ public abstract class FieldVisitor {
    * @param typePath the path to the annotated type argument, wildcard bound, array element type, or
    *     static inner type within 'typeRef'. May be <tt>null</tt> if the annotation targets
    *     'typeRef' as a whole.
-   * @param desc the class descriptor of the annotation class.
+   * @param descriptor the class descriptor of the annotation class.
    * @param visible <tt>true</tt> if the annotation is visible at runtime.
    * @return a visitor to visit the annotation values, or <tt>null</tt> if this visitor is not
    *     interested in visiting this annotation.
    */
   public AnnotationVisitor visitTypeAnnotation(
-      int typeRef, TypePath typePath, String desc, boolean visible) {
+      final int typeRef, final TypePath typePath, final String descriptor, final boolean visible) {
     if (api < Opcodes.ASM5) {
       throw new RuntimeException();
     }
     if (fv != null) {
-      return fv.visitTypeAnnotation(typeRef, typePath, desc, visible);
+      return fv.visitTypeAnnotation(typeRef, typePath, descriptor, visible);
     }
     return null;
   }
@@ -112,11 +113,11 @@ public abstract class FieldVisitor {
   /**
    * Visits a non standard attribute of the field.
    *
-   * @param attr an attribute.
+   * @param attribute an attribute.
    */
-  public void visitAttribute(Attribute attr) {
+  public void visitAttribute(final Attribute attribute) {
     if (fv != null) {
-      fv.visitAttribute(attr);
+      fv.visitAttribute(attribute);
     }
   }
 

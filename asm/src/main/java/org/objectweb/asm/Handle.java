@@ -152,14 +152,14 @@ public final class Handle {
   }
 
   @Override
-  public boolean equals(final Object obj) {
-    if (obj == this) {
+  public boolean equals(final Object object) {
+    if (object == this) {
       return true;
     }
-    if (!(obj instanceof Handle)) {
+    if (!(object instanceof Handle)) {
       return false;
     }
-    Handle handle = (Handle) obj;
+    Handle handle = (Handle) object;
     return tag == handle.tag
         && isInterface == handle.isInterface
         && owner.equals(handle.owner)
@@ -178,8 +178,8 @@ public final class Handle {
    * Returns the textual representation of this handle. The textual representation is:
    *
    * <ul>
-   *   <li>for a reference to a class: owner "." name desc " (" tag ")",
-   *   <li>for a reference to an interface: owner "." name desc " (" tag " itf )".
+   *   <li>for a reference to a class: owner "." name descriptor " (" tag ")",
+   *   <li>for a reference to an interface: owner "." name descriptor " (" tag " itf )".
    * </ul>
    */
   @Override

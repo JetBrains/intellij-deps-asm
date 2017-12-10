@@ -636,12 +636,12 @@ final class MethodWriter extends MethodVisitor {
   }
 
   @Override
-  public AnnotationVisitor visitAnnotation(final String desc, final boolean visible) {
+  public AnnotationVisitor visitAnnotation(final String descriptor, final boolean visible) {
     // Create a ByteVector to hold an 'annotation' JVMS structure.
     // See https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.7.16.
     ByteVector annotation = new ByteVector();
     // Write type_index and reserve space for num_element_value_pairs.
-    annotation.putShort(symbolTable.addConstantUtf8(desc)).putShort(0);
+    annotation.putShort(symbolTable.addConstantUtf8(descriptor)).putShort(0);
     if (visible) {
       return lastRuntimeVisibleAnnotation =
           new AnnotationWriter(symbolTable, annotation, lastRuntimeVisibleAnnotation);
@@ -653,7 +653,7 @@ final class MethodWriter extends MethodVisitor {
 
   @Override
   public AnnotationVisitor visitTypeAnnotation(
-      final int typeRef, final TypePath typePath, final String desc, final boolean visible) {
+      final int typeRef, final TypePath typePath, final String descriptor, final boolean visible) {
     // Create a ByteVector to hold a 'type_annotation' JVMS structure.
     // See https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.7.20.
     ByteVector typeAnnotation = new ByteVector();
@@ -661,7 +661,7 @@ final class MethodWriter extends MethodVisitor {
     TypeReference.putTarget(typeRef, typeAnnotation);
     TypePath.put(typePath, typeAnnotation);
     // Write type_index and reserve space for num_element_value_pairs.
-    typeAnnotation.putShort(symbolTable.addConstantUtf8(desc)).putShort(0);
+    typeAnnotation.putShort(symbolTable.addConstantUtf8(descriptor)).putShort(0);
     if (visible) {
       return lastRuntimeVisibleTypeAnnotation =
           new AnnotationWriter(symbolTable, typeAnnotation, lastRuntimeVisibleTypeAnnotation);
@@ -682,12 +682,12 @@ final class MethodWriter extends MethodVisitor {
 
   @Override
   public AnnotationVisitor visitParameterAnnotation(
-      final int parameter, final String desc, final boolean visible) {
+      final int parameter, final String annotationDescriptor, final boolean visible) {
     // Create a ByteVector to hold an 'annotation' JVMS structure.
     // See https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.7.16.
     ByteVector annotation = new ByteVector();
     // Write type_index and reserve space for num_element_value_pairs.
-    annotation.putShort(symbolTable.addConstantUtf8(desc)).putShort(0);
+    annotation.putShort(symbolTable.addConstantUtf8(annotationDescriptor)).putShort(0);
     if (visible) {
       if (lastRuntimeVisibleParameterAnnotations == null) {
         lastRuntimeVisibleParameterAnnotations =
@@ -967,10 +967,10 @@ final class MethodWriter extends MethodVisitor {
 
   @Override
   public void visitFieldInsn(
-      final int opcode, final String owner, final String name, final String desc) {
+      final int opcode, final String owner, final String name, final String descriptor) {
     lastBytecodeOffset = code.length;
     // Add the instruction to the bytecode of the method.
-    Symbol fieldrefSymbol = symbolTable.addConstantFieldref(owner, name, desc);
+    Symbol fieldrefSymbol = symbolTable.addConstantFieldref(owner, name, descriptor);
     code.put12(opcode, fieldrefSymbol.index);
     // If needed, update the maximum stack size and number of locals, and stack map frames.
     if (currentBasicBlock != null) {
@@ -978,7 +978,7 @@ final class MethodWriter extends MethodVisitor {
         currentBasicBlock.frame.execute(opcode, 0, fieldrefSymbol, symbolTable);
       } else {
         int size;
-        char firstDescChar = desc.charAt(0);
+        char firstDescChar = descriptor.charAt(0);
         switch (opcode) {
           case Opcodes.GETSTATIC:
             size = relativeStackSize + (firstDescChar == 'D' || firstDescChar == 'J' ? 2 : 1);
@@ -1007,11 +1007,11 @@ final class MethodWriter extends MethodVisitor {
       final int opcode,
       final String owner,
       final String name,
-      final String desc,
-      final boolean itf) {
+      final String descriptor,
+      final boolean isInterface) {
     lastBytecodeOffset = code.length;
     // Add the instruction to the bytecode of the method.
-    Symbol methodrefSymbol = symbolTable.addConstantMethodref(owner, name, desc, itf);
+    Symbol methodrefSymbol = symbolTable.addConstantMethodref(owner, name, descriptor, isInterface);
     if (opcode == Opcodes.INVOKEINTERFACE) {
       code.put12(Opcodes.INVOKEINTERFACE, methodrefSymbol.index)
           .put11(methodrefSymbol.getArgumentsAndReturnSizes() >> 2, 0);
@@ -1041,10 +1041,15 @@ final class MethodWriter extends MethodVisitor {
 
   @Override
   public void visitInvokeDynamicInsn(
-      final String name, final String desc, final Handle bsm, final Object... bsmArgs) {
+      final String name,
+      final String descriptor,
+      final Handle bootstrapMethodHandle,
+      final Object... bootstrapMethodArguments) {
     lastBytecodeOffset = code.length;
     // Add the instruction to the bytecode of the method.
-    Symbol invokeDynamicSymbol = symbolTable.addConstantInvokeDynamic(name, desc, bsm, bsmArgs);
+    Symbol invokeDynamicSymbol =
+        symbolTable.addConstantInvokeDynamic(
+            name, descriptor, bootstrapMethodHandle, bootstrapMethodArguments);
     code.put12(Opcodes.INVOKEDYNAMIC, invokeDynamicSymbol.index);
     code.putShort(0);
     // If needed, update the maximum stack size and number of locals, and stack map frames.
@@ -1239,10 +1244,10 @@ final class MethodWriter extends MethodVisitor {
   }
 
   @Override
-  public void visitLdcInsn(final Object cst) {
+  public void visitLdcInsn(final Object value) {
     lastBytecodeOffset = code.length;
     // Add the instruction to the bytecode of the method.
-    Symbol constantSymbol = symbolTable.addConstant(cst);
+    Symbol constantSymbol = symbolTable.addConstant(value);
     int constantIndex = constantSymbol.index;
     boolean isLongOrDouble =
         constantSymbol.tag == Symbol.CONSTANT_LONG_TAG
@@ -1347,25 +1352,26 @@ final class MethodWriter extends MethodVisitor {
   }
 
   @Override
-  public void visitMultiANewArrayInsn(final String desc, final int dims) {
+  public void visitMultiANewArrayInsn(final String descriptor, final int numDimensions) {
     lastBytecodeOffset = code.length;
     // Add the instruction to the bytecode of the method.
-    Symbol descSymbol = symbolTable.addConstantClass(desc);
-    code.put12(Opcodes.MULTIANEWARRAY, descSymbol.index).putByte(dims);
+    Symbol descSymbol = symbolTable.addConstantClass(descriptor);
+    code.put12(Opcodes.MULTIANEWARRAY, descSymbol.index).putByte(numDimensions);
     // If needed, update the maximum stack size and number of locals, and stack map frames.
     if (currentBasicBlock != null) {
       if (compute == COMPUTE_ALL_FRAMES || compute == COMPUTE_INSERTED_FRAMES) {
-        currentBasicBlock.frame.execute(Opcodes.MULTIANEWARRAY, dims, descSymbol, symbolTable);
+        currentBasicBlock.frame.execute(
+            Opcodes.MULTIANEWARRAY, numDimensions, descSymbol, symbolTable);
       } else {
         // No need to update maxRelativeStackSize (the stack size delta is always negative).
-        relativeStackSize += 1 - dims;
+        relativeStackSize += 1 - numDimensions;
       }
     }
   }
 
   @Override
   public AnnotationVisitor visitInsnAnnotation(
-      final int typeRef, final TypePath typePath, final String desc, final boolean visible) {
+      final int typeRef, final TypePath typePath, final String descriptor, final boolean visible) {
     // Create a ByteVector to hold a 'type_annotation' JVMS structure.
     // See https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.7.20.
     ByteVector typeAnnotation = new ByteVector();
@@ -1373,7 +1379,7 @@ final class MethodWriter extends MethodVisitor {
     TypeReference.putTarget((typeRef & 0xFF0000FF) | (lastBytecodeOffset << 8), typeAnnotation);
     TypePath.put(typePath, typeAnnotation);
     // Write type_index and reserve space for num_element_value_pairs.
-    typeAnnotation.putShort(symbolTable.addConstantUtf8(desc)).putShort(0);
+    typeAnnotation.putShort(symbolTable.addConstantUtf8(descriptor)).putShort(0);
     if (visible) {
       return lastCodeRuntimeVisibleTypeAnnotation =
           new AnnotationWriter(symbolTable, typeAnnotation, lastCodeRuntimeVisibleTypeAnnotation);
@@ -1399,7 +1405,7 @@ final class MethodWriter extends MethodVisitor {
 
   @Override
   public AnnotationVisitor visitTryCatchAnnotation(
-      final int typeRef, final TypePath typePath, final String desc, final boolean visible) {
+      final int typeRef, final TypePath typePath, final String descriptor, final boolean visible) {
     // Create a ByteVector to hold a 'type_annotation' JVMS structure.
     // See https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.7.20.
     ByteVector typeAnnotation = new ByteVector();
@@ -1407,7 +1413,7 @@ final class MethodWriter extends MethodVisitor {
     TypeReference.putTarget(typeRef, typeAnnotation);
     TypePath.put(typePath, typeAnnotation);
     // Write type_index and reserve space for num_element_value_pairs.
-    typeAnnotation.putShort(symbolTable.addConstantUtf8(desc)).putShort(0);
+    typeAnnotation.putShort(symbolTable.addConstantUtf8(descriptor)).putShort(0);
     if (visible) {
       return lastCodeRuntimeVisibleTypeAnnotation =
           new AnnotationWriter(symbolTable, typeAnnotation, lastCodeRuntimeVisibleTypeAnnotation);
@@ -1420,7 +1426,7 @@ final class MethodWriter extends MethodVisitor {
   @Override
   public void visitLocalVariable(
       final String name,
-      final String desc,
+      final String descriptor,
       final String signature,
       final Label start,
       final Label end,
@@ -1445,10 +1451,10 @@ final class MethodWriter extends MethodVisitor {
         .putShort(start.bytecodeOffset)
         .putShort(end.bytecodeOffset - start.bytecodeOffset)
         .putShort(symbolTable.addConstantUtf8(name))
-        .putShort(symbolTable.addConstantUtf8(desc))
+        .putShort(symbolTable.addConstantUtf8(descriptor))
         .putShort(index);
     if (compute != COMPUTE_NOTHING) {
-      char firstDescChar = desc.charAt(0);
+      char firstDescChar = descriptor.charAt(0);
       int currentLocals = index + (firstDescChar == 'J' || firstDescChar == 'D' ? 2 : 1);
       if (currentLocals > maxLocals) {
         maxLocals = currentLocals;
@@ -1463,7 +1469,7 @@ final class MethodWriter extends MethodVisitor {
       final Label[] start,
       final Label[] end,
       final int[] index,
-      final String desc,
+      final String descriptor,
       final boolean visible) {
     // Create a ByteVector to hold a 'type_annotation' JVMS structure.
     // See https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.7.20.
@@ -1478,7 +1484,7 @@ final class MethodWriter extends MethodVisitor {
     }
     TypePath.put(typePath, typeAnnotation);
     // Write type_index and reserve space for num_element_value_pairs.
-    typeAnnotation.putShort(symbolTable.addConstantUtf8(desc)).putShort(0);
+    typeAnnotation.putShort(symbolTable.addConstantUtf8(descriptor)).putShort(0);
     if (visible) {
       return lastCodeRuntimeVisibleTypeAnnotation =
           new AnnotationWriter(symbolTable, typeAnnotation, lastCodeRuntimeVisibleTypeAnnotation);
@@ -1986,7 +1992,7 @@ final class MethodWriter extends MethodVisitor {
       }
       if (firstCodeAttribute != null) {
         size +=
-            firstCodeAttribute.getAttributesSize(
+            firstCodeAttribute.computeAttributesSize(
                 symbolTable, code.data, code.length, maxStack, maxLocals);
       }
     }
@@ -2050,7 +2056,7 @@ final class MethodWriter extends MethodVisitor {
       size += 7 + parameters.length;
     }
     if (firstAttribute != null) {
-      size += firstAttribute.getAttributesSize(symbolTable);
+      size += firstAttribute.computeAttributesSize(symbolTable);
     }
     return size;
   }
@@ -2155,7 +2161,7 @@ final class MethodWriter extends MethodVisitor {
       }
       if (firstCodeAttribute != null) {
         size +=
-            firstCodeAttribute.getAttributesSize(
+            firstCodeAttribute.computeAttributesSize(
                 symbolTable, code.data, code.length, maxStack, maxLocals);
         codeAttributeCount += firstCodeAttribute.getAttributeCount();
       }

@@ -170,7 +170,7 @@ final class SymbolTable {
    *
    * @param classWriter a ClassWriter.
    */
-  SymbolTable(ClassWriter classWriter) {
+  SymbolTable(final ClassWriter classWriter) {
     this.classWriter = classWriter;
     this.sourceClassReader = null;
     this.entries = new Entry[256];
@@ -186,7 +186,7 @@ final class SymbolTable {
    * @param classReader the ClassReader whose constant pool and bootstrap methods must be copied to
    *     initialize the SymbolTable.
    */
-  SymbolTable(ClassWriter classWriter, ClassReader classReader) {
+  SymbolTable(final ClassWriter classWriter, final ClassReader classReader) {
     this.classWriter = classWriter;
     this.sourceClassReader = classReader;
 
@@ -325,14 +325,14 @@ final class SymbolTable {
   }
 
   /**
-   * Sets major version and the name of the class to which this symbol table belongs. Also adds the
-   * class name to the constant pool.
+   * Sets the major version and the name of the class to which this symbol table belongs. Also adds
+   * the class name to the constant pool.
    *
    * @param majorVersion a major ClassFile version number.
    * @param className an internal class name.
    * @return the constant pool index of a new or already existing Symbol with the given class name.
    */
-  int setMajorVersionAndClassName(int majorVersion, String className) {
+  int setMajorVersionAndClassName(final int majorVersion, final String className) {
     this.majorVersion = majorVersion;
     this.className = className;
     return addConstantClass(className).index;
@@ -354,7 +354,7 @@ final class SymbolTable {
    *
    * @param output where the JVMS ClassFile's constant_pool array must be put.
    */
-  void putConstantPool(ByteVector output) {
+  void putConstantPool(final ByteVector output) {
     output.putShort(constantPoolCount).putByteArray(constantPool.data, 0, constantPool.length);
   }
 
@@ -379,7 +379,7 @@ final class SymbolTable {
    *
    * @param output where the JVMS BootstrapMethods attribute must be put.
    */
-  void putBootstrapMethods(ByteVector output) {
+  void putBootstrapMethods(final ByteVector output) {
     if (bootstrapMethods != null) {
       output
           .putShort(addConstantUtf8("BootstrapMethods"))
@@ -989,7 +989,7 @@ final class SymbolTable {
   }
 
   // -----------------------------------------------------------------------------------------------
-  // Bootstrap methods entries management.
+  // Bootstrap method entries management.
   // -----------------------------------------------------------------------------------------------
 
   /**
@@ -1078,7 +1078,7 @@ final class SymbolTable {
    * @param typeIndex a type table index.
    * @return the type table element whose index is given.
    */
-  Symbol getType(int typeIndex) {
+  Symbol getType(final int typeIndex) {
     return typeTable[typeIndex];
   }
 

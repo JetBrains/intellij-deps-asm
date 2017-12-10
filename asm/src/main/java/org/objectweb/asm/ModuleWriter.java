@@ -41,6 +41,7 @@ package org.objectweb.asm;
  * @author Eric Bruneton
  */
 final class ModuleWriter extends ModuleVisitor {
+
   /** Where the constants used in this AnnotationWriter must be stored. */
   private final SymbolTable symbolTable;
 
@@ -107,18 +108,18 @@ final class ModuleWriter extends ModuleVisitor {
   }
 
   @Override
-  public void visitMainClass(String mainClass) {
+  public void visitMainClass(final String mainClass) {
     this.mainClassIndex = symbolTable.addConstantClass(mainClass).index;
   }
 
   @Override
-  public void visitPackage(String packaze) {
+  public void visitPackage(final String packaze) {
     packageIndex.putShort(symbolTable.addConstantPackage(packaze).index);
     packageCount++;
   }
 
   @Override
-  public void visitRequire(String module, int access, String version) {
+  public void visitRequire(final String module, final int access, final String version) {
     requires
         .putShort(symbolTable.addConstantModule(module).index)
         .putShort(access)
@@ -127,7 +128,7 @@ final class ModuleWriter extends ModuleVisitor {
   }
 
   @Override
-  public void visitExport(String packaze, int access, String... modules) {
+  public void visitExport(final String packaze, final int access, final String... modules) {
     exports.putShort(symbolTable.addConstantPackage(packaze).index).putShort(access);
     if (modules == null) {
       exports.putShort(0);
@@ -141,7 +142,7 @@ final class ModuleWriter extends ModuleVisitor {
   }
 
   @Override
-  public void visitOpen(String packaze, int access, String... modules) {
+  public void visitOpen(final String packaze, final int access, final String... modules) {
     opens.putShort(symbolTable.addConstantPackage(packaze).index).putShort(access);
     if (modules == null) {
       opens.putShort(0);
@@ -155,13 +156,13 @@ final class ModuleWriter extends ModuleVisitor {
   }
 
   @Override
-  public void visitUse(String service) {
+  public void visitUse(final String service) {
     usesIndex.putShort(symbolTable.addConstantClass(service).index);
     usesCount++;
   }
 
   @Override
-  public void visitProvide(String service, String... providers) {
+  public void visitProvide(final String service, final String... providers) {
     provides.putShort(symbolTable.addConstantClass(service).index);
     provides.putShort(providers.length);
     for (String provider : providers) {
@@ -172,7 +173,7 @@ final class ModuleWriter extends ModuleVisitor {
 
   @Override
   public void visitEnd() {
-    // empty
+    // Nothing to do.
   }
 
   /**
@@ -215,7 +216,7 @@ final class ModuleWriter extends ModuleVisitor {
    *
    * @param output where the attributes must be put.
    */
-  void putAttributes(ByteVector output) {
+  void putAttributes(final ByteVector output) {
     // 6 bytes for name, flags and version, and 5 * 2 bytes for counts.
     int moduleAttributeLength =
         16 + requires.length + exports.length + opens.length + usesIndex.length + provides.length;

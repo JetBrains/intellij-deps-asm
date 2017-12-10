@@ -63,7 +63,7 @@ final class AnnotationWriter extends AnnotationVisitor {
    *
    * <p>Note: as an exception to the above rules, for AnnotationDefault attributes (which contain a
    * single element_value by definition), this ByteVector is initially empty when passed to the
-   * constructor, and numElementValuePairsOffset is set to -1.
+   * constructor, and {@link #numElementValuePairsOffset} is set to -1.
    */
   private final ByteVector annotation;
 
@@ -222,7 +222,7 @@ final class AnnotationWriter extends AnnotationVisitor {
   }
 
   @Override
-  public void visitEnum(final String name, final String desc, final String value) {
+  public void visitEnum(final String name, final String descriptor, final String value) {
     // Case of an element_value with an enum_const_value field.
     // See https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.7.16.1.
     ++numElementValuePairs;
@@ -230,12 +230,12 @@ final class AnnotationWriter extends AnnotationVisitor {
       annotation.putShort(symbolTable.addConstantUtf8(name));
     }
     annotation
-        .put12('e', symbolTable.addConstantUtf8(desc))
+        .put12('e', symbolTable.addConstantUtf8(descriptor))
         .putShort(symbolTable.addConstantUtf8(value));
   }
 
   @Override
-  public AnnotationVisitor visitAnnotation(final String name, final String desc) {
+  public AnnotationVisitor visitAnnotation(final String name, final String descriptor) {
     // Case of an element_value with an annotation_value field.
     // See https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.7.16.1.
     ++numElementValuePairs;
@@ -243,7 +243,7 @@ final class AnnotationWriter extends AnnotationVisitor {
       annotation.putShort(symbolTable.addConstantUtf8(name));
     }
     // Write tag and type_index, and reserve 2 bytes for num_element_value_pairs.
-    annotation.put12('@', symbolTable.addConstantUtf8(desc)).putShort(0);
+    annotation.put12('@', symbolTable.addConstantUtf8(descriptor)).putShort(0);
     return new AnnotationWriter(symbolTable, annotation, null);
   }
 

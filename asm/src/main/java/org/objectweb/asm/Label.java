@@ -28,38 +28,38 @@
 package org.objectweb.asm;
 
 /**
- * A label represents a position in the bytecode of a method. Labels are used for jump, goto, and
- * switch instructions, and for try catch blocks. A label designates the <i>instruction</i> that is
- * just after. Note however that there can be other elements between a label and the instruction it
- * designates (such as other labels, stack map frames, line numbers, etc.).
+ * A position in the bytecode of a method. Labels are used for jump, goto, and switch instructions,
+ * and for try catch blocks. A label designates the <i>instruction</i> that is just after. Note
+ * however that there can be other elements between a label and the instruction it designates (such
+ * as other labels, stack map frames, line numbers, etc.).
  *
  * @author Eric Bruneton
  */
 public class Label {
 
   /**
-   * A flag indicating that this label is only used for debug attributes. Such a label is not the
-   * start of a basic block, the target of a jump instruction, or an exception handler. It can be
-   * safely ignored in control flow graph analysis algorithms (for optimization purposes).
+   * A flag indicating that a label is only used for debug attributes. Such a label is not the start
+   * of a basic block, the target of a jump instruction, or an exception handler. It can be safely
+   * ignored in control flow graph analysis algorithms (for optimization purposes).
    */
   static final int FLAG_DEBUG_ONLY = 1;
 
   /**
-   * A flag indicating that this label is the target of a jump instruction, or the start of an
+   * A flag indicating that a label is the target of a jump instruction, or the start of an
    * exception handler.
    */
   static final int FLAG_JUMP_TARGET = 2;
 
-  /** A flag indicating that the bytecode offset of this label is known. */
+  /** A flag indicating that the bytecode offset of a label is known. */
   static final int FLAG_RESOLVED = 4;
 
-  /** A flag indicating that this label corresponds to a reachable basic block. */
+  /** A flag indicating that a label corresponds to a reachable basic block. */
   static final int FLAG_REACHABLE = 8;
 
   /**
-   * A flag indicating that the basic block corresponding to this label ends with a subroutine call.
-   * By construction in {@link MethodWriter#visitJumpInsn}, labels with this flag set have at least
-   * two outgoing edges:
+   * A flag indicating that the basic block corresponding to a label ends with a subroutine call. By
+   * construction in {@link MethodWriter#visitJumpInsn}, labels with this flag set have at least two
+   * outgoing edges:
    *
    * <ul>
    *   <li>the first one corresponds to the instruction that follows the jsr instruction in the
@@ -74,17 +74,14 @@ public class Label {
   static final int FLAG_SUBROUTINE_CALLER = 16;
 
   /**
-   * A flag indicating that the basic block corresponding to this label is the start of a
-   * subroutine.
+   * A flag indicating that the basic block corresponding to a label is the start of a subroutine.
    */
   static final int FLAG_SUBROUTINE_START = 32;
 
-  /** A flag indicating that the basic block corresponding to this label is part of a subroutine. */
+  /** A flag indicating that the basic block corresponding to a label is part of a subroutine. */
   static final int FLAG_SUBROUTINE_BODY = 64;
 
-  /**
-   * A flag indicating that the basic block corresponding to this label is the end of a subroutine.
-   */
+  /** A flag indicating that the basic block corresponding to a label is the end of a subroutine. */
   static final int FLAG_SUBROUTINE_END = 128;
 
   /**
@@ -143,10 +140,10 @@ public class Label {
   public Object info;
 
   /**
-   * The flags that indicate the type and status of this label or its corresponding basic block.
-   * Must be zero or more of {@link #FLAG_DEBUG_ONLY}, {@link #FLAG_JUMP_TARGET}, {@link
-   * #FLAG_RESOLVED}, {@link #FLAG_REACHABLE}, {@link #FLAG_SUBROUTINE_CALLER}, {@link
-   * #FLAG_SUBROUTINE_START}, {@link #FLAG_SUBROUTINE_BODY}, {@link #FLAG_SUBROUTINE_END}.
+   * The type and status of this label or its corresponding basic block. Must be zero or more of
+   * {@link #FLAG_DEBUG_ONLY}, {@link #FLAG_JUMP_TARGET}, {@link #FLAG_RESOLVED}, {@link
+   * #FLAG_REACHABLE}, {@link #FLAG_SUBROUTINE_CALLER}, {@link #FLAG_SUBROUTINE_START}, {@link
+   * #FLAG_SUBROUTINE_BODY}, {@link #FLAG_SUBROUTINE_END}.
    */
   short flags;
 
@@ -174,7 +171,7 @@ public class Label {
   private short valueCount;
 
   /**
-   * Additional values associated with this label.
+   * The additional values associated with this label.
    *
    * <ul>
    *   <li>before {@link MethodWriter#computeMaxStackAndLocal}, this array contains the forward

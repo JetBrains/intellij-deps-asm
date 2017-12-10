@@ -141,10 +141,10 @@ class Frame {
   /** The number of right shift bits to use to get the array dimensions of an abstract type. */
   private static final int DIM_SHIFT = 28;
 
-  /** Constant to be added to an abstract type to get one with one more array dimension. */
+  /** The constant to be added to an abstract type to get one with one more array dimension. */
   private static final int ARRAY_OF = +1 << DIM_SHIFT;
 
-  /** Constant to be added to an abstract type to get one with one less array dimension. */
+  /** The constant to be added to an abstract type to get one with one less array dimension. */
   private static final int ELEMENT_OF = -1 << DIM_SHIFT;
 
   // Possible values for the KIND field of an abstract type.
@@ -158,9 +158,9 @@ class Frame {
   // Possible flags for the FLAGS field of an abstract type.
 
   /**
-   * For LOCAL_KIND and STACK_KIND abstract types, indicates that if the resolved, concrete type is
-   * LONG or DOUBLE, TOP should be used instead (because the value has been partially overridden
-   * with an xSTORE instruction).
+   * A flag used for LOCAL_KIND and STACK_KIND abstract types, indicating that if the resolved,
+   * concrete type is LONG or DOUBLE, TOP should be used instead (because the value has been
+   * partially overridden with an xSTORE instruction).
    */
   private static final int TOP_IF_LONG_OR_DOUBLE_FLAG = 0x00100000 & FLAGS_MASK;
 

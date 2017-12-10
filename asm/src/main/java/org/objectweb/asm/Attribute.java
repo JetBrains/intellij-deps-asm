@@ -44,7 +44,7 @@ public class Attribute {
   public final String type;
 
   /**
-   * The raw content of this attribute, used only for unknown attributes (see {@link #isUnknown()}).
+   * The raw content of this attribute, only used for unknown attributes (see {@link #isUnknown()}).
    * The 6 header bytes of the attribute (attribute_name_index and attribute_length) are <i>not</i>
    * included.
    */
@@ -183,12 +183,12 @@ public class Attribute {
    * @return the size of all the attributes in this attribute list. This size includes the size of
    *     the attribute headers.
    */
-  final int getAttributesSize(final SymbolTable symbolTable) {
+  final int computeAttributesSize(final SymbolTable symbolTable) {
     final byte[] code = null;
     final int codeLength = 0;
     final int maxStack = -1;
     final int maxLocals = -1;
-    return getAttributesSize(symbolTable, code, codeLength, maxStack, maxLocals);
+    return computeAttributesSize(symbolTable, code, codeLength, maxStack, maxLocals);
   }
 
   /**
@@ -209,7 +209,7 @@ public class Attribute {
    * @return the size of all the attributes in this attribute list. This size includes the size of
    *     the attribute headers.
    */
-  final int getAttributesSize(
+  final int computeAttributesSize(
       final SymbolTable symbolTable,
       final byte[] code,
       final int codeLength,

@@ -27,12 +27,15 @@
 // THE POSSIBILITY OF SUCH DAMAGE.
 package org.objectweb.asm;
 
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.lang.reflect.Method;
 import java.util.Arrays;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 /**
  * Type tests.
@@ -41,68 +44,266 @@ import org.junit.jupiter.api.Test;
  */
 public class TypeTest implements Opcodes {
 
-  /** Tests that {@link Type.getType(Class)} returns correct values for primitive types. */
   @Test
-  public void testGetTypeForPrimitiveTypes() {
-    assertEquals(Type.INT_TYPE, Type.getType(Integer.TYPE));
-    assertEquals(Type.VOID_TYPE, Type.getType(Void.TYPE));
-    assertEquals(Type.BOOLEAN_TYPE, Type.getType(Boolean.TYPE));
-    assertEquals(Type.BYTE_TYPE, Type.getType(Byte.TYPE));
-    assertEquals(Type.CHAR_TYPE, Type.getType(Character.TYPE));
-    assertEquals(Type.SHORT_TYPE, Type.getType(Short.TYPE));
-    assertEquals(Type.DOUBLE_TYPE, Type.getType(Double.TYPE));
-    assertEquals(Type.FLOAT_TYPE, Type.getType(Float.TYPE));
-    assertEquals(Type.LONG_TYPE, Type.getType(Long.TYPE));
+  public void testTypeConstants() {
+    assertEquals(Type.VOID, Type.VOID_TYPE.getSort());
+    assertEquals(Type.BOOLEAN, Type.BOOLEAN_TYPE.getSort());
+    assertEquals(Type.CHAR, Type.CHAR_TYPE.getSort());
+    assertEquals(Type.BYTE, Type.BYTE_TYPE.getSort());
+    assertEquals(Type.SHORT, Type.SHORT_TYPE.getSort());
+    assertEquals(Type.INT, Type.INT_TYPE.getSort());
+    assertEquals(Type.FLOAT, Type.FLOAT_TYPE.getSort());
+    assertEquals(Type.LONG, Type.LONG_TYPE.getSort());
+    assertEquals(Type.DOUBLE, Type.DOUBLE_TYPE.getSort());
+
+    assertEquals(0, Type.VOID_TYPE.getSize());
+    assertEquals(1, Type.BOOLEAN_TYPE.getSize());
+    assertEquals(1, Type.CHAR_TYPE.getSize());
+    assertEquals(1, Type.BYTE_TYPE.getSize());
+    assertEquals(1, Type.SHORT_TYPE.getSize());
+    assertEquals(1, Type.INT_TYPE.getSize());
+    assertEquals(1, Type.FLOAT_TYPE.getSize());
+    assertEquals(2, Type.LONG_TYPE.getSize());
+    assertEquals(2, Type.DOUBLE_TYPE.getSize());
+
+    assertEquals("V", Type.VOID_TYPE.getDescriptor());
+    assertEquals("Z", Type.BOOLEAN_TYPE.getDescriptor());
+    assertEquals("C", Type.CHAR_TYPE.getDescriptor());
+    assertEquals("B", Type.BYTE_TYPE.getDescriptor());
+    assertEquals("S", Type.SHORT_TYPE.getDescriptor());
+    assertEquals("I", Type.INT_TYPE.getDescriptor());
+    assertEquals("F", Type.FLOAT_TYPE.getDescriptor());
+    assertEquals("J", Type.LONG_TYPE.getDescriptor());
+    assertEquals("J", Type.LONG_TYPE.getDescriptor());
+    assertEquals("D", Type.DOUBLE_TYPE.getDescriptor());
   }
 
-  /**
-   * Tests that {@link Type.getInternalName()} and {@link Type.getInternalName(Class)} return
-   * correct values.
-   */
+  @ParameterizedTest
+  @ValueSource(
+    strings = {
+      "I",
+      "V",
+      "Z",
+      "B",
+      "C",
+      "S",
+      "D",
+      "F",
+      "J",
+      "LI;",
+      "LV;",
+      "Ljava/lang/Object;",
+      "[I",
+      "[LI;",
+      "[[Ljava/lang/Object;",
+      "(IZBCSDFJLI;LV;Ljava/lang/Object;[I[LI;[[Ljava/lang/Object;)V",
+      "()I",
+      "()LI;",
+      "()Ljava/lang/Object;",
+      "()[I",
+      "()[LI;",
+      "()[[Ljava/lang/Object;"
+    }
+  )
+  public void testGetTypeFromDescriptor(final String descriptor) {
+    Type type = Type.getType(descriptor);
+    assertEquals(descriptor, type.getDescriptor());
+    assertEquals(descriptor, type.toString());
+  }
+
+  @ParameterizedTest
+  @ValueSource(strings = {"I", "V", "java/lang/Object", "[I", "[LI;", "[[Ljava/lang/Object;"})
+  public void testGetObjectType(final String internalName) throws Exception {
+    Type type = Type.getObjectType(internalName);
+    assertEquals(internalName, type.getInternalName());
+    assertEquals(internalName.charAt(0) == '[' ? Type.ARRAY : Type.OBJECT, type.getSort());
+  }
+
+  @ParameterizedTest
+  @ValueSource(
+    strings = {
+      "(IZBCSDFJLI;LV;Ljava/lang/Object;[I[LI;[[Ljava/lang/Object;)V",
+      "()I",
+      "()LI;",
+      "()Ljava/lang/Object;",
+      "()[I",
+      "()[LI;",
+      "()[[Ljava/lang/Object;"
+    }
+  )
+  public void testGetMethodTypeFromDescriptor(final String methodDescriptor) {
+    Type type = Type.getMethodType(methodDescriptor);
+    assertEquals(Type.METHOD, type.getSort());
+    assertEquals(methodDescriptor, type.getDescriptor());
+    assertEquals(methodDescriptor, type.toString());
+  }
+
+  @ParameterizedTest
+  @ValueSource(
+    strings = {
+      "(IZBCSDFJLI;LV;Ljava/lang/Object;[I[LI;[[Ljava/lang/Object;)V",
+      "()I",
+      "()LI;",
+      "()Ljava/lang/Object;",
+      "()[I",
+      "()[LI;",
+      "()[[Ljava/lang/Object;"
+    }
+  )
+  public void testGetMethodGetArgumentsAndGetReturnType(final String methodDescriptor) {
+    Type[] argumentTypes = Type.getArgumentTypes(methodDescriptor);
+    Type returnType = Type.getReturnType(methodDescriptor);
+    Type methodType = Type.getMethodType(returnType, argumentTypes);
+    assertEquals(Type.METHOD, methodType.getSort());
+    assertEquals(methodDescriptor, methodType.getDescriptor());
+    assertArrayEquals(argumentTypes, methodType.getArgumentTypes());
+    assertEquals(returnType, methodType.getReturnType());
+  }
+
+  @Test
+  public void testGetTypeFromClass() {
+    assertEquals(Type.VOID_TYPE, Type.getType(void.class));
+    assertEquals(Type.BOOLEAN_TYPE, Type.getType(boolean.class));
+    assertEquals(Type.CHAR_TYPE, Type.getType(char.class));
+    assertEquals(Type.BYTE_TYPE, Type.getType(byte.class));
+    assertEquals(Type.SHORT_TYPE, Type.getType(short.class));
+    assertEquals(Type.INT_TYPE, Type.getType(int.class));
+    assertEquals(Type.FLOAT_TYPE, Type.getType(float.class));
+    assertEquals(Type.LONG_TYPE, Type.getType(long.class));
+    assertEquals(Type.DOUBLE_TYPE, Type.getType(double.class));
+    assertEquals("Ljava/lang/Object;", Type.getType(Object.class).getDescriptor());
+    assertEquals("[Ljava/lang/Object;", Type.getType(Object[].class).getDescriptor());
+  }
+
+  @Test
+  public void testGetTypeFromConstructor() throws NoSuchMethodException, SecurityException {
+    Type type = Type.getType(ClassReader.class.getConstructor(byte[].class, int.class, int.class));
+    assertEquals("([BII)V", type.getDescriptor());
+  }
+
+  @Test
+  public void testGetTypeFromMethod() throws NoSuchMethodException, SecurityException {
+    Type type = Type.getType(Arrays.class.getMethod("binarySearch", byte[].class, byte.class));
+    assertEquals("([BB)I", type.getDescriptor());
+  }
+
+  @Test
+  public void testGetArgumentTypesFromMethod() throws NoSuchMethodException, SecurityException {
+    Type[] argumentTypes =
+        Type.getArgumentTypes(Arrays.class.getMethod("binarySearch", byte[].class, byte.class));
+    assertArrayEquals(new Type[] {Type.getType(byte[].class), Type.BYTE_TYPE}, argumentTypes);
+  }
+
+  @Test
+  public void testGetReturnTypeFromMethod() throws NoSuchMethodException, SecurityException {
+    Type returnType =
+        Type.getReturnType(Arrays.class.getMethod("binarySearch", byte[].class, byte.class));
+    assertEquals(Type.INT_TYPE, returnType);
+  }
+
+  @Test
+  public void testGetArgumentsAndReturnSizeFromDescriptor() {
+    assertEquals(
+        17 << 2,
+        Type.getArgumentsAndReturnSizes(
+            "(IZBCSDFJLI;LV;Ljava/lang/Object;[I[LI;[[Ljava/lang/Object;)V"));
+    assertEquals(1 << 2 | 1, Type.getArgumentsAndReturnSizes("()I"));
+    assertEquals(1 << 2 | 1, Type.getArgumentsAndReturnSizes("()F"));
+    assertEquals(1 << 2 | 2, Type.getArgumentsAndReturnSizes("()J"));
+    assertEquals(1 << 2 | 2, Type.getArgumentsAndReturnSizes("()D"));
+    assertEquals(1 << 2 | 1, Type.getArgumentsAndReturnSizes("()LD;"));
+  }
+
+  @Test
+  public void testGetSort() {
+    assertEquals(Type.ARRAY, Type.getType("[LI;").getSort());
+    assertEquals(Type.ARRAY, Type.getObjectType("[LI;").getSort());
+    assertEquals(Type.OBJECT, Type.getType("LI;").getSort());
+    assertEquals(Type.OBJECT, Type.getObjectType("I").getSort());
+  }
+
+  @Test
+  public void testGetDimensions() {
+    assertEquals(1, Type.getType("[I").getDimensions());
+    assertEquals(3, Type.getType("[[[LI;").getDimensions());
+  }
+
+  @Test
+  public void testGetElementType() {
+    assertEquals(Type.INT_TYPE, Type.getType("[I").getElementType());
+    assertEquals(Type.getObjectType("I"), Type.getType("[[[LI;").getElementType());
+  }
+
+  @Test
+  public void testGetClassName() {
+    assertEquals("void", Type.VOID_TYPE.getClassName());
+    assertEquals("boolean", Type.BOOLEAN_TYPE.getClassName());
+    assertEquals("char", Type.CHAR_TYPE.getClassName());
+    assertEquals("byte", Type.BYTE_TYPE.getClassName());
+    assertEquals("short", Type.SHORT_TYPE.getClassName());
+    assertEquals("int", Type.INT_TYPE.getClassName());
+    assertEquals("float", Type.FLOAT_TYPE.getClassName());
+    assertEquals("long", Type.LONG_TYPE.getClassName());
+    assertEquals("double", Type.DOUBLE_TYPE.getClassName());
+    assertEquals("I[]", Type.getObjectType("[LI;").getClassName());
+    assertEquals("java.lang.Object", Type.getObjectType("java/lang/Object").getClassName());
+    assertEquals("java.lang.Object", Type.getType("Ljava/lang/Object;").getClassName());
+  }
+
   @Test
   public void testGetInternalName() {
-    String expectedInternalName = "org/objectweb/asm/TypeTest";
-    assertEquals(expectedInternalName, Type.getType(TypeTest.class).getInternalName());
-    assertEquals(expectedInternalName, Type.getInternalName(TypeTest.class));
+    assertEquals("[LI;", Type.getObjectType("[LI;").getInternalName());
+    assertEquals("java/lang/Object", Type.getObjectType("java/lang/Object").getInternalName());
+    assertEquals("java/lang/Object", Type.getType("Ljava/lang/Object;").getInternalName());
   }
 
-  /**
-   * Tests that {@link Type.getConstructorDescriptor(Class)} returns correct values.
-   *
-   * @throws SecurityException
-   * @throws NoSuchMethodException
-   */
   @Test
-  public void testGetConstructorDescriptor() throws NoSuchMethodException, SecurityException {
-    String constructorDescriptor =
-        Type.getConstructorDescriptor(
-            ClassReader.class.getConstructor(byte[].class, int.class, int.class));
-    assertEquals("([BII)V", constructorDescriptor);
+  public void testGetArgumentsAndReturnSize() {
+    Type type = Type.getType("(IZBCSDFJLI;LV;Ljava/lang/Object;[I[LI;[[Ljava/lang/Object;)V");
+    assertEquals(17 << 2, type.getArgumentsAndReturnSizes());
   }
 
-  /**
-   * Tests that {@link Type.getMethodDescriptor(Method)} returns correct values.
-   *
-   * @throws SecurityException
-   * @throws NoSuchMethodException
-   */
   @Test
-  public void testGetMethodDescriptor() throws NoSuchMethodException, SecurityException {
-    Method method = Arrays.class.getMethod("binarySearch", byte[].class, byte.class);
-    Type[] argumentTypes = Type.getArgumentTypes(method);
-    for (int i = 0; i < argumentTypes.length; ++i) {
-      assertEquals(Type.getType(method.getParameterTypes()[i]), argumentTypes[i]);
-    }
-    Type returnType = Type.getReturnType(method);
-    assertEquals(Type.getType(method.getReturnType()), returnType);
-    assertEquals("([BB)I", Type.getMethodDescriptor(returnType, argumentTypes));
-    assertEquals("([BB)I", Type.getMethodDescriptor(method));
+  public void testGetDescriptor() {
+    assertEquals("[LI;", Type.getObjectType("[LI;").getDescriptor());
+    assertEquals("Ljava/lang/Object;", Type.getObjectType("java/lang/Object").getDescriptor());
+    assertEquals("Ljava/lang/Object;", Type.getType("Ljava/lang/Object;").getDescriptor());
   }
 
-  /** Tests that {@link Type.getOpcode(int)} returns correct values. */
+  @Test
+  public void testGetMethodDescriptor() {
+    assertEquals("(IJ)V", Type.getMethodDescriptor(Type.VOID_TYPE, Type.INT_TYPE, Type.LONG_TYPE));
+    assertEquals(
+        "(Ljava/lang/Object;)V",
+        Type.getMethodDescriptor(Type.VOID_TYPE, Type.getType("Ljava/lang/Object;")));
+    assertEquals(
+        "(Ljava/lang/Object;)V",
+        Type.getMethodDescriptor(Type.VOID_TYPE, Type.getObjectType("java/lang/Object")));
+  }
+
+  @Test
+  public void testGetInternalNameFromClass() {
+    assertEquals("java/lang/Object", Type.getInternalName(Object.class));
+    assertEquals("[Ljava/lang/Object;", Type.getInternalName(Object[].class));
+  }
+
+  @Test
+  public void testGetDescriptorFromClass() {
+    assertEquals("V", Type.getDescriptor(void.class));
+    assertEquals("Z", Type.getDescriptor(boolean.class));
+    assertEquals("C", Type.getDescriptor(char.class));
+    assertEquals("B", Type.getDescriptor(byte.class));
+    assertEquals("S", Type.getDescriptor(short.class));
+    assertEquals("I", Type.getDescriptor(int.class));
+    assertEquals("F", Type.getDescriptor(float.class));
+    assertEquals("J", Type.getDescriptor(long.class));
+    assertEquals("D", Type.getDescriptor(double.class));
+    assertEquals("Ljava/lang/Object;", Type.getDescriptor(Object.class));
+    assertEquals("[Ljava/lang/Object;", Type.getDescriptor(Object[].class));
+  }
+
   @Test
   public void testGetOpcode() {
-    Type objectType = Type.getType("Ljava/lang/Object;");
     assertEquals(BALOAD, Type.BOOLEAN_TYPE.getOpcode(IALOAD));
     assertEquals(BALOAD, Type.BYTE_TYPE.getOpcode(IALOAD));
     assertEquals(CALOAD, Type.CHAR_TYPE.getOpcode(IALOAD));
@@ -111,7 +312,10 @@ public class TypeTest implements Opcodes {
     assertEquals(FALOAD, Type.FLOAT_TYPE.getOpcode(IALOAD));
     assertEquals(LALOAD, Type.LONG_TYPE.getOpcode(IALOAD));
     assertEquals(DALOAD, Type.DOUBLE_TYPE.getOpcode(IALOAD));
-    assertEquals(AALOAD, objectType.getOpcode(IALOAD));
+    assertEquals(AALOAD, Type.getType("Ljava/lang/Object;").getOpcode(IALOAD));
+    assertEquals(AALOAD, Type.getObjectType("java/lang/Object").getOpcode(IALOAD));
+    assertEquals(AASTORE, Type.getType("Ljava/lang/Object;").getOpcode(IASTORE));
+    assertEquals(AASTORE, Type.getObjectType("java/lang/Object").getOpcode(IASTORE));
     assertEquals(IADD, Type.BOOLEAN_TYPE.getOpcode(IADD));
     assertEquals(IADD, Type.BYTE_TYPE.getOpcode(IADD));
     assertEquals(IADD, Type.CHAR_TYPE.getOpcode(IADD));
@@ -122,19 +326,23 @@ public class TypeTest implements Opcodes {
     assertEquals(DADD, Type.DOUBLE_TYPE.getOpcode(IADD));
   }
 
-  /** Tests that {@link Type.hashCode()} returns correct values. */
+  @Test
+  public void testEquals() {
+    assertFalse(Type.getObjectType("I").equals(null));
+    assertFalse(Type.getObjectType("I").equals(Type.INT_TYPE));
+    assertFalse(Type.getObjectType("I").equals(Type.getObjectType("HI")));
+    assertFalse(Type.getObjectType("I").equals(Type.getObjectType("J")));
+    assertTrue(Type.getObjectType("I").equals(Type.getType("LI;")));
+    assertTrue(Type.getType("LI;").equals(Type.getObjectType("I")));
+    assertTrue(Type.INT_TYPE.equals(Type.getType("I")));
+  }
+
   @Test
   public void testHashcode() {
     assertTrue(Type.getType("Ljava/lang/Object;").hashCode() != 0);
-  }
-
-  /** Tests that {@link Type.getObjectType(String)} returns correct values. */
-  @Test
-  public void testGetObjectType() throws Exception {
-    Type objectType = Type.getObjectType("java/lang/Object");
-    assertEquals(Type.OBJECT, objectType.getSort());
-    assertEquals("java.lang.Object", objectType.getClassName());
-    assertEquals("Ljava/lang/Object;", objectType.getDescriptor());
-    assertEquals(Type.getType("Ljava/lang/Object;"), objectType);
+    assertTrue(
+        Type.getType("Ljava/lang/Object;").hashCode()
+            == Type.getObjectType("java/lang/Object").hashCode());
+    assertTrue(Type.INT_TYPE.hashCode() != Type.getObjectType("I").hashCode());
   }
 }

@@ -39,21 +39,22 @@ package org.objectweb.asm;
 public class ClassWriter extends ClassVisitor {
 
   /**
-   * Flag to automatically compute the maximum stack size and the maximum number of local variables
-   * of methods. If this flag is set, then the arguments of the {@link MethodVisitor#visitMaxs}
-   * method of the {@link MethodVisitor} returned by the {@link #visitMethod} method will be
-   * ignored, and computed automatically from the signature and the bytecode of each method.
+   * A flag to automatically compute the maximum stack size and the maximum number of local
+   * variables of methods. If this flag is set, then the arguments of the {@link
+   * MethodVisitor#visitMaxs} method of the {@link MethodVisitor} returned by the {@link
+   * #visitMethod} method will be ignored, and computed automatically from the signature and the
+   * bytecode of each method.
    *
    * @see #ClassWriter(int)
    */
   public static final int COMPUTE_MAXS = 1;
 
   /**
-   * Flag to automatically compute the stack map frames of methods from scratch. If this flag is
+   * A flag to automatically compute the stack map frames of methods from scratch. If this flag is
    * set, then the calls to the {@link MethodVisitor#visitFrame} method are ignored, and the stack
    * map frames are recomputed from the methods bytecode. The arguments of the {@link
    * MethodVisitor#visitMaxs} method are also ignored and recomputed from the bytecode. In other
-   * words, COMPUTE_FRAMES implies COMPUTE_MAXS.
+   * words, {@link #COMPUTE_FRAMES} implies {@link #COMPUTE_MAXS}.
    *
    * @see #ClassWriter(int)
    */
@@ -280,20 +281,21 @@ public class ClassWriter extends ClassVisitor {
   }
 
   @Override
-  public final void visitOuterClass(final String owner, final String name, final String desc) {
+  public final void visitOuterClass(
+      final String owner, final String name, final String descriptor) {
     enclosingClassIndex = symbolTable.addConstantClass(owner).index;
-    if (name != null && desc != null) {
-      enclosingMethodIndex = symbolTable.addConstantNameAndType(name, desc);
+    if (name != null && descriptor != null) {
+      enclosingMethodIndex = symbolTable.addConstantNameAndType(name, descriptor);
     }
   }
 
   @Override
-  public final AnnotationVisitor visitAnnotation(final String desc, final boolean visible) {
+  public final AnnotationVisitor visitAnnotation(final String descriptor, final boolean visible) {
     // Create a ByteVector to hold an 'annotation' JVMS structure.
     // See https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.7.16.
     ByteVector annotation = new ByteVector();
     // Write type_index and reserve space for num_element_value_pairs.
-    annotation.putShort(symbolTable.addConstantUtf8(desc)).putShort(0);
+    annotation.putShort(symbolTable.addConstantUtf8(descriptor)).putShort(0);
     if (visible) {
       return lastRuntimeVisibleAnnotation =
           new AnnotationWriter(symbolTable, annotation, lastRuntimeVisibleAnnotation);
@@ -305,7 +307,7 @@ public class ClassWriter extends ClassVisitor {
 
   @Override
   public final AnnotationVisitor visitTypeAnnotation(
-      int typeRef, TypePath typePath, final String desc, final boolean visible) {
+      int typeRef, TypePath typePath, final String descriptor, final boolean visible) {
     // Create a ByteVector to hold a 'type_annotation' JVMS structure.
     // See https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.7.20.
     ByteVector typeAnnotation = new ByteVector();
@@ -313,7 +315,7 @@ public class ClassWriter extends ClassVisitor {
     TypeReference.putTarget(typeRef, typeAnnotation);
     TypePath.put(typePath, typeAnnotation);
     // Write type_index and reserve space for num_element_value_pairs.
-    typeAnnotation.putShort(symbolTable.addConstantUtf8(desc)).putShort(0);
+    typeAnnotation.putShort(symbolTable.addConstantUtf8(descriptor)).putShort(0);
     if (visible) {
       return lastRuntimeVisibleTypeAnnotation =
           new AnnotationWriter(symbolTable, typeAnnotation, lastRuntimeVisibleTypeAnnotation);
@@ -360,10 +362,11 @@ public class ClassWriter extends ClassVisitor {
   public final FieldVisitor visitField(
       final int access,
       final String name,
-      final String desc,
+      final String descriptor,
       final String signature,
       final Object value) {
-    FieldWriter fieldWriter = new FieldWriter(symbolTable, access, name, desc, signature, value);
+    FieldWriter fieldWriter =
+        new FieldWriter(symbolTable, access, name, descriptor, signature, value);
     if (firstField == null) {
       firstField = fieldWriter;
     } else {
@@ -376,11 +379,11 @@ public class ClassWriter extends ClassVisitor {
   public final MethodVisitor visitMethod(
       final int access,
       final String name,
-      final String desc,
+      final String descriptor,
       final String signature,
       final String[] exceptions) {
     MethodWriter methodWriter =
-        new MethodWriter(symbolTable, access, name, desc, signature, exceptions, compute);
+        new MethodWriter(symbolTable, access, name, descriptor, signature, exceptions, compute);
     if (firstMethod == null) {
       firstMethod = methodWriter;
     } else {
@@ -402,7 +405,7 @@ public class ClassWriter extends ClassVisitor {
    * @return the binary content of the JVMS ClassFile structure that was built by this ClassWriter.
    */
   public byte[] toByteArray() {
-    // First step: compute the size in bytes of the ClassFile structure
+    // First step: compute the size in bytes of the ClassFile structure.
     // The magic field uses 4 bytes, 10 mandatory fields (minor_version, major_version,
     // constant_pool_count, access_flags, this_class, super_class, interfaces_count, fields_count,
     // methods_count and attributes_count) use 2 bytes each, and each interface uses 2 bytes too.
@@ -489,7 +492,7 @@ public class ClassWriter extends ClassVisitor {
     }
     if (firstAttribute != null) {
       attributesCount += firstAttribute.getAttributeCount();
-      size += firstAttribute.getAttributesSize(symbolTable);
+      size += firstAttribute.computeAttributesSize(symbolTable);
     }
     // IMPORTANT: this must be the last part of the ClassFile size computation, because the previous
     // statements can add attribute names to the constant pool, thereby changing its size!
@@ -611,12 +614,12 @@ public class ClassWriter extends ClassVisitor {
    * the constant pool already contains a similar item. <i>This method is intended for {@link
    * Attribute} sub classes, and is normally not needed by class generators or adapters.</i>
    *
-   * @param cst the value of the constant to be added to the constant pool. This parameter must be
+   * @param value the value of the constant to be added to the constant pool. This parameter must be
    *     an {@link Integer}, a {@link Float}, a {@link Long}, a {@link Double} or a {@link String}.
    * @return the index of a new or already existing constant item with the given value.
    */
-  public int newConst(final Object cst) {
-    return symbolTable.addConstant(cst).index;
+  public int newConst(final Object value) {
+    return symbolTable.addConstant(value).index;
   }
 
   /**
@@ -648,11 +651,11 @@ public class ClassWriter extends ClassVisitor {
    * constant pool already contains a similar item. <i>This method is intended for {@link Attribute}
    * sub classes, and is normally not needed by class generators or adapters.</i>
    *
-   * @param methodDesc method descriptor of the method type.
+   * @param methodDescriptor method descriptor of the method type.
    * @return the index of a new or already existing method type reference item.
    */
-  public int newMethodType(final String methodDesc) {
-    return symbolTable.addConstantMethodType(methodDesc).index;
+  public int newMethodType(final String methodDescriptor) {
+    return symbolTable.addConstantMethodType(methodDescriptor).index;
   }
 
   /**
@@ -690,14 +693,15 @@ public class ClassWriter extends ClassVisitor {
    *     {@link Opcodes#H_NEWINVOKESPECIAL} or {@link Opcodes#H_INVOKEINTERFACE}.
    * @param owner the internal name of the field or method owner class.
    * @param name the name of the field or method.
-   * @param desc the descriptor of the field or method.
+   * @param descriptor the descriptor of the field or method.
    * @return the index of a new or already existing method type reference item.
    * @deprecated this method is superseded by {@link #newHandle(int, String, String, String,
    *     boolean)}.
    */
   @Deprecated
-  public int newHandle(final int tag, final String owner, final String name, final String desc) {
-    return newHandle(tag, owner, name, desc, tag == Opcodes.H_INVOKEINTERFACE);
+  public int newHandle(
+      final int tag, final String owner, final String name, final String descriptor) {
+    return newHandle(tag, owner, name, descriptor, tag == Opcodes.H_INVOKEINTERFACE);
   }
 
   /**
@@ -711,13 +715,17 @@ public class ClassWriter extends ClassVisitor {
    *     {@link Opcodes#H_NEWINVOKESPECIAL} or {@link Opcodes#H_INVOKEINTERFACE}.
    * @param owner the internal name of the field or method owner class.
    * @param name the name of the field or method.
-   * @param desc the descriptor of the field or method.
-   * @param itf true if the owner is an interface.
+   * @param descriptor the descriptor of the field or method.
+   * @param isInterface true if the owner is an interface.
    * @return the index of a new or already existing method type reference item.
    */
   public int newHandle(
-      final int tag, final String owner, final String name, final String desc, final boolean itf) {
-    return symbolTable.addConstantMethodHandle(tag, owner, name, desc, itf).index;
+      final int tag,
+      final String owner,
+      final String name,
+      final String descriptor,
+      final boolean isInterface) {
+    return symbolTable.addConstantMethodHandle(tag, owner, name, descriptor, isInterface).index;
   }
 
   /**
@@ -726,14 +734,19 @@ public class ClassWriter extends ClassVisitor {
    * Attribute} sub classes, and is normally not needed by class generators or adapters.</i>
    *
    * @param name name of the invoked method.
-   * @param desc descriptor of the invoke method.
-   * @param bsm the bootstrap method.
-   * @param bsmArgs the bootstrap method constant arguments.
+   * @param descriptor descriptor of the invoke method.
+   * @param bootstrapMethodHandle the bootstrap method.
+   * @param bootstrapMethodArguments the bootstrap method constant arguments.
    * @return the index of a new or already existing invokedynamic reference item.
    */
   public int newInvokeDynamic(
-      final String name, final String desc, final Handle bsm, final Object... bsmArgs) {
-    return symbolTable.addConstantInvokeDynamic(name, desc, bsm, bsmArgs).index;
+      final String name,
+      final String descriptor,
+      final Handle bootstrapMethodHandle,
+      final Object... bootstrapMethodArguments) {
+    return symbolTable.addConstantInvokeDynamic(
+            name, descriptor, bootstrapMethodHandle, bootstrapMethodArguments)
+        .index;
   }
 
   /**
@@ -743,11 +756,11 @@ public class ClassWriter extends ClassVisitor {
    *
    * @param owner the internal name of the field's owner class.
    * @param name the field's name.
-   * @param desc the field's descriptor.
+   * @param descriptor the field's descriptor.
    * @return the index of a new or already existing field reference item.
    */
-  public int newField(final String owner, final String name, final String desc) {
-    return symbolTable.addConstantFieldref(owner, name, desc).index;
+  public int newField(final String owner, final String name, final String descriptor) {
+    return symbolTable.addConstantFieldref(owner, name, descriptor).index;
   }
 
   /**
@@ -757,13 +770,13 @@ public class ClassWriter extends ClassVisitor {
    *
    * @param owner the internal name of the method's owner class.
    * @param name the method's name.
-   * @param desc the method's descriptor.
-   * @param itf <tt>true</tt> if <tt>owner</tt> is an interface.
+   * @param descriptor the method's descriptor.
+   * @param isInterface <tt>true</tt> if <tt>owner</tt> is an interface.
    * @return the index of a new or already existing method reference item.
    */
   public int newMethod(
-      final String owner, final String name, final String desc, final boolean itf) {
-    return symbolTable.addConstantMethodref(owner, name, desc, itf).index;
+      final String owner, final String name, final String descriptor, final boolean isInterface) {
+    return symbolTable.addConstantMethodref(owner, name, descriptor, isInterface).index;
   }
 
   /**
@@ -772,11 +785,11 @@ public class ClassWriter extends ClassVisitor {
    * sub classes, and is normally not needed by class generators or adapters.</i>
    *
    * @param name a name.
-   * @param desc a type descriptor.
+   * @param descriptor a type descriptor.
    * @return the index of a new or already existing name and type item.
    */
-  public int newNameType(final String name, final String desc) {
-    return symbolTable.addConstantNameAndType(name, desc);
+  public int newNameType(final String name, final String descriptor) {
+    return symbolTable.addConstantNameAndType(name, descriptor);
   }
 
   // -----------------------------------------------------------------------------------------------

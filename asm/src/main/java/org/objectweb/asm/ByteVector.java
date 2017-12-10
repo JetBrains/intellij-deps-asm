@@ -38,7 +38,7 @@ public class ByteVector {
   /** The content of this vector. Only the first {@link #length} bytes contain real data. */
   byte[] data;
 
-  /** Actual number of bytes in this vector. */
+  /** The actual number of bytes in this vector. */
   int length;
 
   /** Constructs a new {@link ByteVector} with a default initial capacity. */
@@ -47,7 +47,7 @@ public class ByteVector {
   }
 
   /**
-   * Constructs a new {@link ByteVector ByteVector} with the given initial capacity.
+   * Constructs a new {@link ByteVector} with the given initial capacity.
    *
    * @param initialCapacity the initial capacity of the byte vector to be constructed.
    */
@@ -249,12 +249,10 @@ public class ByteVector {
       enlarge(2 + charLength);
     }
     byte[] currentData = data;
-    // optimistic algorithm: instead of computing the byte length and then
-    // serializing the string (which requires two loops), we assume the byte
-    // length is equal to char length (which is the most frequent case), and
-    // we start serializing the string right away. During the serialization,
-    // if we find that this assumption is wrong, we continue with the
-    // general method.
+    // Optimistic algorithm: instead of computing the byte length and then serializing the string
+    // (which requires two loops), we assume the byte length is equal to char length (which is the
+    // most frequent case), and we start serializing the string right away. During the
+    // serialization, if we find that this assumption is wrong, we continue with the general method.
     currentData[currentLength++] = (byte) (charLength >>> 8);
     currentData[currentLength++] = (byte) charLength;
     for (int i = 0; i < charLength; ++i) {
@@ -348,7 +346,7 @@ public class ByteVector {
   }
 
   /**
-   * Enlarge this byte vector so that it can receive 'size' more bytes.
+   * Enlarges this byte vector so that it can receive 'size' more bytes.
    *
    * @param size number of additional bytes that this byte vector should be able to receive.
    */

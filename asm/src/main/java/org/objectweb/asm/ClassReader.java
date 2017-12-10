@@ -44,21 +44,21 @@ import java.io.InputStream;
 public class ClassReader {
 
   /**
-   * Flag to skip the Code attributes. If this flag is set the Code attributes are neither parsed
+   * A flag to skip the Code attributes. If this flag is set the Code attributes are neither parsed
    * nor visited.
    */
   public static final int SKIP_CODE = 1;
 
   /**
-   * Flag to skip the SourceFile, SourceDebugExtension, LocalVariableTable, LocalVariableTypeTable
+   * A flag to skip the SourceFile, SourceDebugExtension, LocalVariableTable, LocalVariableTypeTable
    * and LineNumberTable attributes. If this flag is set these attributes are neither parsed nor
    * visited (i.e. {@link ClassVisitor#visitSource}, {@link MethodVisitor#visitLocalVariable} and
-   * {@link MethodVisitor#visitLineNumber} are not be called).
+   * {@link MethodVisitor#visitLineNumber} are not called).
    */
   public static final int SKIP_DEBUG = 2;
 
   /**
-   * Flag to skip the StackMap and StackMapTable attributes. If this flag is set these attributes
+   * A flag to skip the StackMap and StackMapTable attributes. If this flag is set these attributes
    * are neither parsed nor visited (i.e. {@link MethodVisitor#visitFrame} is not called). This flag
    * is useful when the {@link ClassWriter#COMPUTE_FRAMES} option is used: it avoids visiting frames
    * that will be ignored and recomputed from scratch.
@@ -66,16 +66,16 @@ public class ClassReader {
   public static final int SKIP_FRAMES = 4;
 
   /**
-   * Flag to expand the stack map frames. By default stack map frames are visited in their original
-   * format (i.e. "expanded" for classes whose version is less than V1_6, and "compressed" for the
-   * other classes). If this flag is set, stack map frames are always visited in expanded format
-   * (this option adds a decompression/recompression step in ClassReader and ClassWriter which
-   * degrades performances quite a lot).
+   * A flag to expand the stack map frames. By default stack map frames are visited in their
+   * original format (i.e. "expanded" for classes whose version is less than V1_6, and "compressed"
+   * for the other classes). If this flag is set, stack map frames are always visited in expanded
+   * format (this option adds a decompression/compression step in ClassReader and ClassWriter which
+   * degrades performance quite a lot).
    */
   public static final int EXPAND_FRAMES = 8;
 
   /**
-   * Flag to expand the ASM specific instructions into an equivalent sequence of standard bytecode
+   * A flag to expand the ASM specific instructions into an equivalent sequence of standard bytecode
    * instructions. When resolving a forward jump it may happen that the signed 2 bytes offset
    * reserved for it is not sufficient to store the bytecode offset. In this case the jump
    * instruction is replaced with a temporary ASM specific instruction using an unsigned 2 bytes
@@ -1504,7 +1504,6 @@ public class ClassReader {
         case Constants.SIPUSH:
         case Constants.LDC_W:
         case Constants.LDC2_W:
-
         case Constants.GETSTATIC:
         case Constants.PUTSTATIC:
         case Constants.GETFIELD:
@@ -1780,7 +1779,7 @@ public class ClassReader {
         }
       }
 
-      // Inserts a stack map frame for this bytecode offset, if requested by setting insertFrame to
+      // Insert a stack map frame for this bytecode offset, if requested by setting insertFrame to
       // true during the previous iteration. The actual frame content is computed in MethodWriter.
       if (insertFrame) {
         if ((context.parsingOptions & EXPAND_FRAMES) != 0) {
@@ -2448,7 +2447,7 @@ public class ClassReader {
         case TypeReference.LOCAL_VARIABLE:
         case TypeReference.RESOURCE_VARIABLE:
           // A localvar_target has a variable size, which depends on the value of their table_length
-          // field. It also reference bytecode offsets, for which we need labels.
+          // field. It also references bytecode offsets, for which we need labels.
           int tableLength = readUnsignedShort(currentOffset + 1);
           currentOffset += 3;
           while (tableLength-- > 0) {

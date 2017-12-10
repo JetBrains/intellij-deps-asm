@@ -61,14 +61,15 @@ public abstract class ClassVisitor {
    *
    * @param api the ASM API version implemented by this visitor. Must be one of {@link
    *     Opcodes#ASM4}, {@link Opcodes#ASM5} or {@link Opcodes#ASM6}.
-   * @param cv the class visitor to which this visitor must delegate method calls. May be null.
+   * @param classVisitor the class visitor to which this visitor must delegate method calls. May be
+   *     null.
    */
-  public ClassVisitor(final int api, final ClassVisitor cv) {
+  public ClassVisitor(final int api, final ClassVisitor classVisitor) {
     if (api < Opcodes.ASM4 || api > Opcodes.ASM6) {
       throw new IllegalArgumentException();
     }
     this.api = api;
-    this.cv = cv;
+    this.cv = classVisitor;
   }
 
   /**
@@ -88,12 +89,12 @@ public abstract class ClassVisitor {
    *     Type#getInternalName() getInternalName}). May be <tt>null</tt>.
    */
   public void visit(
-      int version,
-      int access,
-      String name,
-      String signature,
-      String superName,
-      String[] interfaces) {
+      final int version,
+      final int access,
+      final String name,
+      final String signature,
+      final String superName,
+      final String[] interfaces) {
     if (cv != null) {
       cv.visit(version, access, name, signature, superName, interfaces);
     }
@@ -104,10 +105,10 @@ public abstract class ClassVisitor {
    *
    * @param source the name of the source file from which the class was compiled. May be
    *     <tt>null</tt>.
-   * @param debug additional debug information to compute the correspondance between source and
+   * @param debug additional debug information to compute the correspondence between source and
    *     compiled elements of the class. May be <tt>null</tt>.
    */
-  public void visitSource(String source, String debug) {
+  public void visitSource(final String source, final String debug) {
     if (cv != null) {
       cv.visitSource(source, debug);
     }
@@ -123,7 +124,7 @@ public abstract class ClassVisitor {
    * @return a visitor to visit the module values, or <tt>null</tt> if this visitor is not
    *     interested in visiting this module.
    */
-  public ModuleVisitor visitModule(String name, int access, String version) {
+  public ModuleVisitor visitModule(final String name, final int access, final String version) {
     if (api < Opcodes.ASM6) {
       throw new RuntimeException();
     }
@@ -140,26 +141,26 @@ public abstract class ClassVisitor {
    * @param owner internal name of the enclosing class of the class.
    * @param name the name of the method that contains the class, or <tt>null</tt> if the class is
    *     not enclosed in a method of its enclosing class.
-   * @param desc the descriptor of the method that contains the class, or <tt>null</tt> if the class
-   *     is not enclosed in a method of its enclosing class.
+   * @param descriptor the descriptor of the method that contains the class, or <tt>null</tt> if the
+   *     class is not enclosed in a method of its enclosing class.
    */
-  public void visitOuterClass(String owner, String name, String desc) {
+  public void visitOuterClass(final String owner, final String name, final String descriptor) {
     if (cv != null) {
-      cv.visitOuterClass(owner, name, desc);
+      cv.visitOuterClass(owner, name, descriptor);
     }
   }
 
   /**
    * Visits an annotation of the class.
    *
-   * @param desc the class descriptor of the annotation class.
+   * @param descriptor the class descriptor of the annotation class.
    * @param visible <tt>true</tt> if the annotation is visible at runtime.
    * @return a visitor to visit the annotation values, or <tt>null</tt> if this visitor is not
    *     interested in visiting this annotation.
    */
-  public AnnotationVisitor visitAnnotation(String desc, boolean visible) {
+  public AnnotationVisitor visitAnnotation(final String descriptor, final boolean visible) {
     if (cv != null) {
-      return cv.visitAnnotation(desc, visible);
+      return cv.visitAnnotation(descriptor, visible);
     }
     return null;
   }
@@ -168,24 +169,24 @@ public abstract class ClassVisitor {
    * Visits an annotation on a type in the class signature.
    *
    * @param typeRef a reference to the annotated type. The sort of this type reference must be
-   *     {@link TypeReference#CLASS_TYPE_PARAMETER CLASS_TYPE_PARAMETER}, {@link
-   *     TypeReference#CLASS_TYPE_PARAMETER_BOUND CLASS_TYPE_PARAMETER_BOUND} or {@link
-   *     TypeReference#CLASS_EXTENDS CLASS_EXTENDS}. See {@link TypeReference}.
+   *     {@link TypeReference#CLASS_TYPE_PARAMETER}, {@link
+   *     TypeReference#CLASS_TYPE_PARAMETER_BOUND} or {@link TypeReference#CLASS_EXTENDS}. See
+   *     {@link TypeReference}.
    * @param typePath the path to the annotated type argument, wildcard bound, array element type, or
    *     static inner type within 'typeRef'. May be <tt>null</tt> if the annotation targets
    *     'typeRef' as a whole.
-   * @param desc the class descriptor of the annotation class.
+   * @param descriptor the class descriptor of the annotation class.
    * @param visible <tt>true</tt> if the annotation is visible at runtime.
    * @return a visitor to visit the annotation values, or <tt>null</tt> if this visitor is not
    *     interested in visiting this annotation.
    */
   public AnnotationVisitor visitTypeAnnotation(
-      int typeRef, TypePath typePath, String desc, boolean visible) {
+      final int typeRef, final TypePath typePath, final String descriptor, final boolean visible) {
     if (api < Opcodes.ASM5) {
       throw new RuntimeException();
     }
     if (cv != null) {
-      return cv.visitTypeAnnotation(typeRef, typePath, desc, visible);
+      return cv.visitTypeAnnotation(typeRef, typePath, descriptor, visible);
     }
     return null;
   }
@@ -193,11 +194,11 @@ public abstract class ClassVisitor {
   /**
    * Visits a non standard attribute of the class.
    *
-   * @param attr an attribute.
+   * @param attribute an attribute.
    */
-  public void visitAttribute(Attribute attr) {
+  public void visitAttribute(final Attribute attribute) {
     if (cv != null) {
-      cv.visitAttribute(attr);
+      cv.visitAttribute(attribute);
     }
   }
 
@@ -214,7 +215,8 @@ public abstract class ClassVisitor {
    * @param access the access flags of the inner class as originally declared in the enclosing
    *     class.
    */
-  public void visitInnerClass(String name, String outerName, String innerName, int access) {
+  public void visitInnerClass(
+      final String name, final String outerName, final String innerName, final int access) {
     if (cv != null) {
       cv.visitInnerClass(name, outerName, innerName, access);
     }
@@ -226,7 +228,7 @@ public abstract class ClassVisitor {
    * @param access the field's access flags (see {@link Opcodes}). This parameter also indicates if
    *     the field is synthetic and/or deprecated.
    * @param name the field's name.
-   * @param desc the field's descriptor (see {@link Type Type}).
+   * @param descriptor the field's descriptor (see {@link Type Type}).
    * @param signature the field's signature. May be <tt>null</tt> if the field's type does not use
    *     generic types.
    * @param value the field's initial value. This parameter, which may be <tt>null</tt> if the field
@@ -239,9 +241,13 @@ public abstract class ClassVisitor {
    *     visitor is not interested in visiting these annotations and attributes.
    */
   public FieldVisitor visitField(
-      int access, String name, String desc, String signature, Object value) {
+      final int access,
+      final String name,
+      final String descriptor,
+      final String signature,
+      final Object value) {
     if (cv != null) {
-      return cv.visitField(access, name, desc, signature, value);
+      return cv.visitField(access, name, descriptor, signature, value);
     }
     return null;
   }
@@ -254,7 +260,7 @@ public abstract class ClassVisitor {
    * @param access the method's access flags (see {@link Opcodes}). This parameter also indicates if
    *     the method is synthetic and/or deprecated.
    * @param name the method's name.
-   * @param desc the method's descriptor (see {@link Type Type}).
+   * @param descriptor the method's descriptor (see {@link Type Type}).
    * @param signature the method's signature. May be <tt>null</tt> if the method parameters, return
    *     type and exceptions do not use generic types.
    * @param exceptions the internal names of the method's exception classes (see {@link
@@ -263,9 +269,13 @@ public abstract class ClassVisitor {
    *     is not interested in visiting the code of this method.
    */
   public MethodVisitor visitMethod(
-      int access, String name, String desc, String signature, String[] exceptions) {
+      final int access,
+      final String name,
+      final String descriptor,
+      final String signature,
+      final String[] exceptions) {
     if (cv != null) {
-      return cv.visitMethod(access, name, desc, signature, exceptions);
+      return cv.visitMethod(access, name, descriptor, signature, exceptions);
     }
     return null;
   }

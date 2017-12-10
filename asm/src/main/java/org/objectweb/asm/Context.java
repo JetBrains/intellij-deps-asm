@@ -35,7 +35,7 @@ package org.objectweb.asm;
  */
 final class Context {
 
-  /** Prototypes of the attributes that must be parsed in this class. */
+  /** The prototypes of the attributes that must be parsed in this class. */
   Attribute[] attributePrototypes;
 
   /**

@@ -38,7 +38,7 @@ package org.objectweb.asm;
  *       previous state of this so called "output frame".
  *   <li>After all instructions have been visited, a fix point algorithm is used in MethodWriter to
  *       compute the "input frame" of each basic block (i.e. the stack map frame at the beginning of
- *       the basic block). See {@link MethodWriter#visitMaxs}.
+ *       the basic block). See {@link MethodWriter#computeAllFrames}.
  * </ul>
  *
  * <p>Output stack map frames are computed relatively to the input frame of the basic block, which
@@ -101,16 +101,6 @@ package org.objectweb.asm;
  * @author Eric Bruneton
  */
 class Frame {
-
-  /**
-   * A frame inserted between already existing frames. This internal stack map frame type (in
-   * addition to the ones declared in {@link Opcodes}) can only be used if the frame content can be
-   * computed from the previous existing frame and from the instructions between this existing frame
-   * and the inserted one, without any knowledge of the type hierarchy. This kind of frame is only
-   * used when an unconditional jump is inserted in a method while expanding an ASM specific
-   * instruction. Keep in sync with Opcodes.java.
-   */
-  static final int F_INSERT = 256;
 
   // Constants used in the StackMapTable attribute.
   // See https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.7.4.
@@ -195,20 +185,28 @@ class Frame {
   /** The basic block to which these input and output stack map frames correspond. */
   Label owner;
 
-  /** The input stack map frame locals. */
+  /** The input stack map frame locals. This is an array of abstract types. */
   private int[] inputLocals;
 
-  /** The input stack map frame stack. */
+  /** The input stack map frame stack. This is an array of abstract types. */
   private int[] inputStack;
 
-  /** The output stack map frame locals. */
+  /** The output stack map frame locals. This is an array of abstract types. */
   private int[] outputLocals;
 
-  /** The output stack map frame stack. */
+  /** The output stack map frame stack. This is an array of abstract types. */
   private int[] outputStack;
 
+  /**
+   * The start of the output stack, relatively to the input stack. This offset is always negative or
+   * null. A null offset means that the output stack must be appended to the input stack. A -n
+   * offset means that the first n output stack elements must replace the top n input stack
+   * elements, and that the other elements must be appended to the input stack.
+   */
+  private short outputStackStart;
+
   /** The index of the top stack element in {@link #outputStack}. */
-  private int outputStackTop;
+  private short outputStackTop;
 
   /** The number of types that are initialized in the basic block. See {@link #initializations}. */
   private int initializationCount;
@@ -247,7 +245,8 @@ class Frame {
       String descriptor = Type.getObjectType((String) type).getDescriptor();
       return getAbstractTypeFromDescriptor(symbolTable, descriptor, 0);
     } else {
-      return UNINITIALIZED_KIND | symbolTable.addUninitializedType("", ((Label) type).position);
+      return UNINITIALIZED_KIND
+          | symbolTable.addUninitializedType("", ((Label) type).bytecodeOffset);
     }
   }
 
@@ -361,6 +360,7 @@ class Frame {
   final void copyFrom(final Frame frame) {
     inputLocals = frame.inputLocals;
     inputStack = frame.inputStack;
+    outputStackStart = 0;
     outputLocals = frame.outputLocals;
     outputStack = frame.outputStack;
     outputStackTop = frame.outputStackTop;
@@ -391,7 +391,7 @@ class Frame {
     inputStack = new int[0];
     int inputLocalIndex = 0;
     if ((access & Opcodes.ACC_STATIC) == 0) {
-      if ((access & MethodWriter.ACC_CONSTRUCTOR) == 0) {
+      if ((access & Constants.ACC_CONSTRUCTOR) == 0) {
         inputLocals[inputLocalIndex++] =
             REFERENCE_KIND | symbolTable.addType(symbolTable.getClassName());
       } else {
@@ -526,7 +526,7 @@ class Frame {
     outputStack[outputStackTop++] = abstractType;
     // Updates the maximum size reached by the output stack, if needed (note that this size is
     // relative to the input stack size, which is not known yet).
-    int outputStackSize = owner.inputStackTop + outputStackTop;
+    short outputStackSize = (short) (outputStackStart + outputStackTop);
     if (outputStackSize > owner.outputStackMax) {
       owner.outputStackMax = outputStackSize;
     }
@@ -559,7 +559,7 @@ class Frame {
       return outputStack[--outputStackTop];
     } else {
       // If the output frame stack is empty, pop from the input stack.
-      return STACK_KIND | -(--owner.inputStackTop);
+      return STACK_KIND | -(--outputStackStart);
     }
   }
 
@@ -574,7 +574,7 @@ class Frame {
     } else {
       // If the number of elements to be popped is greater than the number of elements in the output
       // stack, clear it, and pop the remaining elements from the input stack.
-      owner.inputStackTop -= elements - outputStackTop;
+      outputStackStart -= elements - outputStackTop;
       outputStackTop = 0;
     }
   }
@@ -1195,7 +1195,7 @@ class Frame {
     // Compute the concrete types of the stack operands at the end of the basic block corresponding
     // to this frame, by resolving its abstract output types, and merge these concrete types with
     // those of the stack operands in the input frame of dstFrame.
-    int nInputStack = inputStack.length + owner.inputStackTop;
+    int nInputStack = inputStack.length + outputStackStart;
     if (dstFrame.inputStack == null) {
       dstFrame.inputStack = new int[nInputStack + outputStackTop];
       frameChanged = true;
@@ -1368,7 +1368,7 @@ class Frame {
       }
     }
     // Visit the frame and its content.
-    int frameIndex = methodWriter.visitFrameStart(owner.position, nLocal, nStack);
+    int frameIndex = methodWriter.visitFrameStart(owner.bytecodeOffset, nLocal, nStack);
     for (int i = 0; nLocal > 0; ++i, --nLocal) {
       int localType = localTypes[i];
       methodWriter.visitAbstractType(frameIndex++, localType);

@@ -38,18 +38,6 @@ package org.objectweb.asm;
  */
 final class MethodWriter extends MethodVisitor {
 
-  // ASM specific access flags.
-
-  // WARNING: the 16 least significant bits must NOT be used, to avoid conflicts with standard
-  // access flags, and also to make sure that these flags are automatically filtered out when
-  // written in class files (because access flags are stored using 16 bits only).
-
-  // Keep in sync with Opcodes.java (central place collecting all access flags, to make sure there
-  // are no duplicates).
-
-  /** ASM specific access flag used to denote constructors. */
-  static final int ACC_CONSTRUCTOR = 0x40000;
-
   /**
    * Indicates that all the stack map frames must be computed. In this case the maximum stack size
    * and the maximum number of local variables is also computed.
@@ -494,7 +482,7 @@ final class MethodWriter extends MethodVisitor {
   /**
    * The relative stack size after the last visited instruction. This size is relative to the
    * beginning of {@link #currentBasicBlock}, i.e. the true stack size after the last visited
-   * instruction is equal to the {@link Label#inputStackTop} of the current basic block plus {@link
+   * instruction is equal to the {@link Label#inputStackSize} of the current basic block plus {@link
    * #relativeStackSize}.
    */
   private int relativeStackSize;
@@ -502,8 +490,8 @@ final class MethodWriter extends MethodVisitor {
   /**
    * The maximum relative stack size after the last visited instruction. This size is relative to
    * the beginning of {@link #currentBasicBlock}, i.e. the true maximum stack size after the last
-   * visited instruction is equal to the {@link Label#inputStackTop} of the current basic block plus
-   * {@link #maxRelativeStackSize}.
+   * visited instruction is equal to the {@link Label#inputStackSize} of the current basic block
+   * plus {@link #maxRelativeStackSize}.
    */
   private int maxRelativeStackSize;
 
@@ -586,7 +574,7 @@ final class MethodWriter extends MethodVisitor {
       final int compute) {
     super(Opcodes.ASM6);
     this.symbolTable = symbolTable;
-    this.accessFlags = "<init>".equals(name) ? access | ACC_CONSTRUCTOR : access;
+    this.accessFlags = "<init>".equals(name) ? access | Constants.ACC_CONSTRUCTOR : access;
     this.nameIndex = symbolTable.addConstantUtf8(name);
     this.descriptorIndex = symbolTable.addConstantUtf8(descriptor);
     this.descriptor = descriptor;
@@ -901,13 +889,13 @@ final class MethodWriter extends MethodVisitor {
     if (var < 4 && opcode != Opcodes.RET) {
       int optimizedOpcode;
       if (opcode < Opcodes.ISTORE) {
-        optimizedOpcode = 26 /* ILOAD_0 */ + ((opcode - Opcodes.ILOAD) << 2) + var;
+        optimizedOpcode = Constants.ILOAD_0 + ((opcode - Opcodes.ILOAD) << 2) + var;
       } else {
-        optimizedOpcode = 59 /* ISTORE_0 */ + ((opcode - Opcodes.ISTORE) << 2) + var;
+        optimizedOpcode = Constants.ISTORE_0 + ((opcode - Opcodes.ISTORE) << 2) + var;
       }
       code.putByte(optimizedOpcode);
     } else if (var >= 256) {
-      code.putByte(196 /* WIDE */).put12(opcode, var);
+      code.putByte(Constants.WIDE).put12(opcode, var);
     } else {
       code.put11(opcode, var);
     }
@@ -918,9 +906,8 @@ final class MethodWriter extends MethodVisitor {
       } else {
         if (opcode == Opcodes.RET) {
           // No stack size delta.
-          currentBasicBlock.status |= Label.BASIC_BLOCK_ENDS_WITH_RET;
-          // Save 'relativeStackSize' for future use in {@link Label#visitSubroutine}.
-          currentBasicBlock.inputStackTop = relativeStackSize;
+          currentBasicBlock.flags |= Label.FLAG_SUBROUTINE_END;
+          currentBasicBlock.outputStackSize = (short) relativeStackSize;
           endCurrentBasicBlockWithNoSuccessor();
         } else { // xLOAD or xSTORE
           int size = relativeStackSize + STACK_SIZE_DELTA[opcode];
@@ -1081,17 +1068,19 @@ final class MethodWriter extends MethodVisitor {
     lastBytecodeOffset = code.length;
     // Add the instruction to the bytecode of the method.
     // Compute the 'base' opcode, i.e. GOTO or JSR if opcode is GOTO_W or JSR_W, otherwise opcode.
-    int baseOpcode = opcode >= 200 /* GOTO_W */ ? opcode - 33 : opcode;
+    int baseOpcode =
+        opcode >= Constants.GOTO_W ? opcode - Constants.WIDE_JUMP_OPCODE_DELTA : opcode;
     boolean nextInsnIsJumpTarget = false;
-    if ((label.status & Label.RESOLVED) != 0 && label.position - code.length < Short.MIN_VALUE) {
+    if ((label.flags & Label.FLAG_RESOLVED) != 0
+        && label.bytecodeOffset - code.length < Short.MIN_VALUE) {
       // Case of a backward jump with an offset < -32768. In this case we automatically replace GOTO
       // with GOTO_W, JSR with JSR_W and IFxxx <l> with IFNOTxxx <L> GOTO_W <l> L:..., where
       // IFNOTxxx is the "opposite" opcode of IFxxx (e.g. IFNE for IFEQ) and where <L> designates
       // the instruction just after the GOTO_W.
       if (baseOpcode == Opcodes.GOTO) {
-        code.putByte(200 /* GOTO_W */);
+        code.putByte(Constants.GOTO_W);
       } else if (baseOpcode == Opcodes.JSR) {
-        code.putByte(201 /* JSR_W */);
+        code.putByte(Constants.JSR_W);
       } else {
         // Put the "opposite" opcode of baseOpcode. This can be done by flipping the least
         // significant bit for IFNULL and IFNONNULL, and similarly for IFEQ ... IF_ACMPEQ (with a
@@ -1104,23 +1093,23 @@ final class MethodWriter extends MethodVisitor {
         // specific instructions. To not miss this additional frame, we need to use an ASM_GOTO_W
         // here, which has the unfortunate effect of forcing this additional round trip (which in
         // some case would not have been really necessary, but we can't know this at this point).
-        code.putByte(220 /* ASM_GOTO_W */);
+        code.putByte(Constants.ASM_GOTO_W);
         hasAsmInstructions = true;
         // The instruction after the GOTO_W becomes the target of the IFNOT instruction.
         nextInsnIsJumpTarget = true;
       }
-      label.put(this, code, code.length - 1, true);
+      label.put(code, code.length - 1, true);
     } else if (baseOpcode != opcode) {
       // Case of a GOTO_W or JSR_W specified by the user (normally ClassReader when used to remove
       // ASM specific instructions). In this case we keep the original instruction.
       code.putByte(opcode);
-      label.put(this, code, code.length - 1, true);
+      label.put(code, code.length - 1, true);
     } else {
       // Case of a jump with an offset >= -32768, or of a jump with an unknown offset. In these
       // cases we store the offset in 2 bytes (which will be increased via a ClassReader ->
       // ClassWriter round trip if it turns out that 2 bytes are not sufficient).
       code.putByte(baseOpcode);
-      label.put(this, code, code.length - 1, false);
+      label.put(code, code.length - 1, false);
     }
 
     // If needed, update the maximum stack size and number of locals, and stack map frames.
@@ -1129,7 +1118,7 @@ final class MethodWriter extends MethodVisitor {
       if (compute == COMPUTE_ALL_FRAMES) {
         currentBasicBlock.frame.execute(baseOpcode, 0, null, null);
         // Record the fact that 'label' is the target of a jump instruction.
-        label.getFirst().status |= Label.TARGET;
+        label.getCanonicalInstance().flags |= Label.FLAG_JUMP_TARGET;
         // Add 'label' as a successor of the current basic block.
         addSuccessorToCurrentBasicBlock(Edge.JUMP, label);
         if (baseOpcode != Opcodes.GOTO) {
@@ -1143,14 +1132,17 @@ final class MethodWriter extends MethodVisitor {
       } else {
         if (baseOpcode == Opcodes.JSR) {
           // Record the fact that 'label' designates a subroutine, if not already done.
-          if ((label.status & Label.SUBROUTINE) == 0) {
-            label.status |= Label.SUBROUTINE;
+          if ((label.flags & Label.FLAG_SUBROUTINE_START) == 0) {
+            label.flags |= Label.FLAG_SUBROUTINE_START;
             ++numSubroutines;
           }
-          currentBasicBlock.status |= Label.BASIC_BLOCK_ENDS_WITH_JSR;
-          // Note that, by construction in this method, a JSR block has at least two successors in
-          // the control flow graph: the first one (added below) leads to the instruction after the
-          // JSR, while the second one (added here) leads to the JSR target.
+          currentBasicBlock.flags |= Label.FLAG_SUBROUTINE_CALLER;
+          // Note that, by construction in this method, a block which calls a subroutine has at
+          // least two successors in the control flow graph: the first one (added below) leads to
+          // the instruction after the JSR, while the second one (added here) leads to the JSR
+          // target. Note that the first successor is virtual (it does not correspond to a possible
+          // execution path): it is only used to compute the successors of the basic blocks ending
+          // with a ret, in {@link Label#addSubroutineRetSuccessors}.
           addSuccessorToCurrentBasicBlock(relativeStackSize + 1, label);
           // The instruction after the JSR starts a new basic block.
           nextBasicBlock = new Label();
@@ -1164,7 +1156,7 @@ final class MethodWriter extends MethodVisitor {
       // instruction as a successor of the current block, and to start a new basic block.
       if (nextBasicBlock != null) {
         if (nextInsnIsJumpTarget) {
-          nextBasicBlock.status |= Label.TARGET;
+          nextBasicBlock.flags |= Label.FLAG_JUMP_TARGET;
         }
         visitLabel(nextBasicBlock);
       }
@@ -1177,33 +1169,37 @@ final class MethodWriter extends MethodVisitor {
   @Override
   public void visitLabel(final Label label) {
     // Resolve the forward references to this label, if any.
-    hasAsmInstructions |= label.resolve(this, code.length, code.data);
+    hasAsmInstructions |= label.resolve(code.data, code.length);
     // visitLabel starts a new basic block (except for debug only labels), so we need to update the
     // previous and current block references and list of successors.
-    if ((label.status & Label.DEBUG_ONLY) != 0) {
+    if ((label.flags & Label.FLAG_DEBUG_ONLY) != 0) {
       return;
     }
     if (compute == COMPUTE_ALL_FRAMES) {
       if (currentBasicBlock != null) {
-        if (label.position == currentBasicBlock.position) {
-          // If 'label' has the same offset as the current basic block, don't start a new one
-          // (instead merge their flags and make them share the same stack frame).
-          currentBasicBlock.status |= (label.status & Label.TARGET);
+        if (label.bytecodeOffset == currentBasicBlock.bytecodeOffset) {
+          // We use {@link Label#getCanonicalInstance} to store the state of a basic block in only
+          // one place, but this does not work for labels which have not been visited yet.
+          // Therefore, when we detect here two labels having the same bytecode offset, we need to
+          // - consolidate the state scattered in these two instances into the canonical instance:
+          currentBasicBlock.flags |= (label.flags & Label.FLAG_JUMP_TARGET);
+          // - make sure the two instances share the same Frame instance (the implementation of
+          // {@link Label#getCanonicalInstance} relies on this property):
+          // assert label.frame == null;
           label.frame = currentBasicBlock.frame;
+          // - and make sure to NOT assign 'label' into 'currentBasicBlock' or 'lastBasicBlock', so
+          // that they still refer to the canonical instance for this bytecode offset.
           return;
         }
         // End the current basic block (with one new successor).
         addSuccessorToCurrentBasicBlock(Edge.JUMP, label);
       }
-      // Start a new current basic block.
-      currentBasicBlock = label;
-      if (label.frame == null) {
-        label.frame = new Frame(label);
-      }
-      // Append it at the end of the basic block list.
+      // Append 'label' at the end of the basic block list.
       if (lastBasicBlock != null) {
-        if (label.position == lastBasicBlock.position) {
-          lastBasicBlock.status |= (label.status & Label.TARGET);
+        if (label.bytecodeOffset == lastBasicBlock.bytecodeOffset) {
+          // Same comment as above.
+          lastBasicBlock.flags |= (label.flags & Label.FLAG_JUMP_TARGET);
+          // assert label.frame == null;
           label.frame = lastBasicBlock.frame;
           currentBasicBlock = lastBasicBlock;
           return;
@@ -1211,6 +1207,10 @@ final class MethodWriter extends MethodVisitor {
         lastBasicBlock.nextBasicBlock = label;
       }
       lastBasicBlock = label;
+      // Make it the new current basic block.
+      currentBasicBlock = label;
+      // assert label.frame == null;
+      label.frame = new Frame(label);
     } else if (compute == COMPUTE_INSERTED_FRAMES) {
       if (currentBasicBlock == null) {
         // This case should happen only once, for the visitLabel call in the constructor. Indeed, if
@@ -1223,7 +1223,7 @@ final class MethodWriter extends MethodVisitor {
     } else if (compute == COMPUTE_MAX_STACK_AND_LOCAL) {
       if (currentBasicBlock != null) {
         // End the current basic block (with one new successor).
-        currentBasicBlock.outputStackMax = maxRelativeStackSize;
+        currentBasicBlock.outputStackMax = (short) maxRelativeStackSize;
         addSuccessorToCurrentBasicBlock(relativeStackSize, label);
       }
       // Start a new current basic block, and reset the current and maximum relative stack sizes.
@@ -1248,9 +1248,9 @@ final class MethodWriter extends MethodVisitor {
         constantSymbol.tag == Symbol.CONSTANT_LONG_TAG
             || constantSymbol.tag == Symbol.CONSTANT_DOUBLE_TAG;
     if (isLongOrDouble) {
-      code.put12(20 /* LDC2_W */, constantIndex);
+      code.put12(Constants.LDC2_W, constantIndex);
     } else if (constantIndex >= 256) {
-      code.put12(19 /* LDC_W */, constantIndex);
+      code.put12(Constants.LDC_W, constantIndex);
     } else {
       code.put11(Opcodes.LDC, constantIndex);
     }
@@ -1273,7 +1273,7 @@ final class MethodWriter extends MethodVisitor {
     lastBytecodeOffset = code.length;
     // Add the instruction to the bytecode of the method.
     if ((var > 255) || (increment > 127) || (increment < -128)) {
-      code.putByte(196 /* WIDE */).put12(Opcodes.IINC, var).putShort(increment);
+      code.putByte(Constants.WIDE).put12(Opcodes.IINC, var).putShort(increment);
     } else {
       code.putByte(Opcodes.IINC).put11(var, increment);
     }
@@ -1297,10 +1297,10 @@ final class MethodWriter extends MethodVisitor {
     lastBytecodeOffset = code.length;
     // Add the instruction to the bytecode of the method.
     code.putByte(Opcodes.TABLESWITCH).putByteArray(null, 0, (4 - code.length % 4) % 4);
-    dflt.put(this, code, lastBytecodeOffset, true);
+    dflt.put(code, lastBytecodeOffset, true);
     code.putInt(min).putInt(max);
     for (Label label : labels) {
-      label.put(this, code, lastBytecodeOffset, true);
+      label.put(code, lastBytecodeOffset, true);
     }
     // If needed, update the maximum stack size and number of locals, and stack map frames.
     visitSwitchInsn(dflt, labels);
@@ -1311,11 +1311,11 @@ final class MethodWriter extends MethodVisitor {
     lastBytecodeOffset = code.length;
     // Add the instruction to the bytecode of the method.
     code.putByte(Opcodes.LOOKUPSWITCH).putByteArray(null, 0, (4 - code.length % 4) % 4);
-    dflt.put(this, code, lastBytecodeOffset, true);
+    dflt.put(code, lastBytecodeOffset, true);
     code.putInt(labels.length);
     for (int i = 0; i < labels.length; ++i) {
       code.putInt(keys[i]);
-      labels[i].put(this, code, lastBytecodeOffset, true);
+      labels[i].put(code, lastBytecodeOffset, true);
     }
     // If needed, update the maximum stack size and number of locals, and stack map frames.
     visitSwitchInsn(dflt, labels);
@@ -1327,10 +1327,10 @@ final class MethodWriter extends MethodVisitor {
         currentBasicBlock.frame.execute(Opcodes.LOOKUPSWITCH, 0, null, null);
         // Add all the labels as successors of the current basic block.
         addSuccessorToCurrentBasicBlock(Edge.JUMP, dflt);
-        dflt.getFirst().status |= Label.TARGET;
+        dflt.getCanonicalInstance().flags |= Label.FLAG_JUMP_TARGET;
         for (Label label : labels) {
           addSuccessorToCurrentBasicBlock(Edge.JUMP, label);
-          label.getFirst().status |= Label.TARGET;
+          label.getCanonicalInstance().flags |= Label.FLAG_JUMP_TARGET;
         }
       } else {
         // No need to update maxRelativeStackSize (the stack size delta is always negative).
@@ -1431,8 +1431,8 @@ final class MethodWriter extends MethodVisitor {
       }
       ++localVariableTypeTableLength;
       localVariableTypeTable
-          .putShort(start.position)
-          .putShort(end.position - start.position)
+          .putShort(start.bytecodeOffset)
+          .putShort(end.bytecodeOffset - start.bytecodeOffset)
           .putShort(symbolTable.addConstantUtf8(name))
           .putShort(symbolTable.addConstantUtf8(signature))
           .putShort(index);
@@ -1442,8 +1442,8 @@ final class MethodWriter extends MethodVisitor {
     }
     ++localVariableTableLength;
     localVariableTable
-        .putShort(start.position)
-        .putShort(end.position - start.position)
+        .putShort(start.bytecodeOffset)
+        .putShort(end.bytecodeOffset - start.bytecodeOffset)
         .putShort(symbolTable.addConstantUtf8(name))
         .putShort(symbolTable.addConstantUtf8(desc))
         .putShort(index);
@@ -1472,8 +1472,8 @@ final class MethodWriter extends MethodVisitor {
     typeAnnotation.putByte(typeRef >>> 24).putShort(start.length);
     for (int i = 0; i < start.length; ++i) {
       typeAnnotation
-          .putShort(start[i].position)
-          .putShort(end[i].position - start[i].position)
+          .putShort(start[i].bytecodeOffset)
+          .putShort(end[i].bytecodeOffset - start[i].bytecodeOffset)
           .putShort(index[i]);
     }
     TypePath.put(typePath, typeAnnotation);
@@ -1494,222 +1494,224 @@ final class MethodWriter extends MethodVisitor {
       lineNumberTable = new ByteVector();
     }
     ++lineNumberTableLength;
-    lineNumberTable.putShort(start.position);
+    lineNumberTable.putShort(start.bytecodeOffset);
     lineNumberTable.putShort(line);
   }
 
   @Override
   public void visitMaxs(final int maxStack, final int maxLocals) {
     if (compute == COMPUTE_ALL_FRAMES) {
-      // Complete the control flow graph with exception handler blocks.
-      Handler handler = firstHandler;
-      while (handler != null) {
-        String catchTypeDescriptor =
-            handler.catchTypeDescriptor == null
-                ? "java/lang/Throwable"
-                : handler.catchTypeDescriptor;
-        int catchType = Frame.getAbstractTypeFromInternalName(symbolTable, catchTypeDescriptor);
-        // Mark handlerBlock as an exception handler.
-        Label handlerBlock = handler.handlerPc.getFirst();
-        handlerBlock.status |= Label.TARGET;
-        // Add handlerBlock as a successor of all the basic blocks in the exception handler range.
-        Label handlerRangeBlock = handler.startPc.getFirst();
-        Label handlerRangeEnd = handler.endPc.getFirst();
-        while (handlerRangeBlock != handlerRangeEnd) {
-          handlerRangeBlock.outgoingEdges =
-              new Edge(catchType, handlerBlock, handlerRangeBlock.outgoingEdges);
-          handlerRangeBlock = handlerRangeBlock.nextBasicBlock;
-        }
-        handler = handler.nextHandler;
-      }
-
-      // Create and visit the first (implicit) frame.
-      Frame firstFrame = firstBasicBlock.frame;
-      firstFrame.setInputFrameFromDescriptor(symbolTable, accessFlags, descriptor, this.maxLocals);
-      firstFrame.accept(this);
-
-      // Fix point algorithm: put the first basic block in a list of "changed" blocks (i.e. blocks
-      // whose stack map frame has changed) and, while there are changed blocks, remove one from the
-      // list and update the stack map frames of its successor blocks in the control flow graph
-      // (which might change them, in which case these blocks are added to the changedBlocks list).
-      // Also compute the maximum stack size of the method, as a by-product.
-      firstBasicBlock.status |= Label.BASIC_BLOCK_CHANGED;
-      Label changedBlocks = firstBasicBlock;
-      int maxStackSize = 0;
-      while (changedBlocks != null) {
-        // Get the first basic block from the changedBlocks list and remove it from this list.
-        Label basicBlock = changedBlocks;
-        changedBlocks = changedBlocks.nextChangedBlock;
-        basicBlock.status &= ~Label.BASIC_BLOCK_CHANGED;
-        // By definition, basicBlock is reachable.
-        basicBlock.status |= Label.REACHABLE;
-        // If it is also a jump target, it must be stored in the StackMapTable attribute.
-        if ((basicBlock.status & Label.TARGET) != 0) {
-          basicBlock.status |= Label.STORE;
-        }
-        // Update the (absolute) maximum stack size.
-        int maxBlockStackSize = basicBlock.frame.getInputStackSize() + basicBlock.outputStackMax;
-        if (maxBlockStackSize > maxStackSize) {
-          maxStackSize = maxBlockStackSize;
-        }
-        // Update the successor blocks of basicBlock in the control flow graph.
-        Edge outgoingEdge = basicBlock.outgoingEdges;
-        while (outgoingEdge != null) {
-          Label successorBlock = outgoingEdge.successor.getFirst();
-          boolean successorBlockChanged =
-              basicBlock.frame.merge(symbolTable, successorBlock.frame, outgoingEdge.info);
-          if (successorBlockChanged && (successorBlock.status & Label.BASIC_BLOCK_CHANGED) == 0) {
-            // If successorBlock has changed and is not in changedBlocks, add it to this list.
-            successorBlock.status |= Label.BASIC_BLOCK_CHANGED;
-            successorBlock.nextChangedBlock = changedBlocks;
-            changedBlocks = successorBlock;
-          }
-          outgoingEdge = outgoingEdge.nextEdge;
-        }
-      }
-
-      // Loop over all the basic blocks and visit the stack map frames that must be stored in the
-      // StackMapTable attribute. Also replace unreachable code with NOP* ATHROW, and remove it from
-      // exception handler ranges.
-      Label basicBlock = firstBasicBlock;
-      while (basicBlock != null) {
-        if ((basicBlock.status & Label.STORE) != 0) {
-          basicBlock.frame.accept(this);
-        }
-        if ((basicBlock.status & Label.REACHABLE) == 0) {
-          // Find the start and end bytecode offsets of this unreachable block.
-          Label nextBasicBlock = basicBlock.nextBasicBlock;
-          int startOffset = basicBlock.position;
-          int endOffset = (nextBasicBlock == null ? code.length : nextBasicBlock.position) - 1;
-          if (endOffset >= startOffset) {
-            // Replace its instructions with NOP ... NOP ATHROW.
-            for (int i = startOffset; i < endOffset; ++i) {
-              code.data[i] = Opcodes.NOP;
-            }
-            code.data[endOffset] = (byte) Opcodes.ATHROW;
-            // Emit a frame for this unreachable block, with no local and a Throwable on the stack
-            // (so that the ATHROW could consume this Throwable if it were reachable).
-            int frameIndex = visitFrameStart(startOffset, /* nLocal = */ 0, /* nStack = */ 1);
-            currentFrame[frameIndex] =
-                Frame.getAbstractTypeFromInternalName(symbolTable, "java/lang/Throwable");
-            visitFrameEnd();
-            // Removes this unreachable basic block from the exception handler ranges.
-            firstHandler = Handler.removeRange(firstHandler, basicBlock, nextBasicBlock);
-            // The maximum stack size is now at least one, because of the Throwable declared above.
-            maxStackSize = Math.max(maxStackSize, 1);
-          }
-        }
-        basicBlock = basicBlock.nextBasicBlock;
-      }
-
-      this.maxStack = maxStackSize;
+      computeAllFrames();
     } else if (compute == COMPUTE_MAX_STACK_AND_LOCAL) {
-      // Complete the control flow graph with exception handler blocks.
-      Handler handler = firstHandler;
-      while (handler != null) {
-        Label handlerBlock = handler.handlerPc;
-        Label handlerRangeBlock = handler.startPc;
-        Label handlerRangeEnd = handler.endPc;
-        // Add handlerBlock as a successor of all the basic blocks in the exception handler range.
-        while (handlerRangeBlock != handlerRangeEnd) {
-          if ((handlerRangeBlock.status & Label.BASIC_BLOCK_ENDS_WITH_JSR) == 0) {
-            handlerRangeBlock.outgoingEdges =
-                new Edge(Edge.EXCEPTION, handlerBlock, handlerRangeBlock.outgoingEdges);
-          } else {
-            // If handlerRangeBlock is a JSR block, add handlerBlock after the first two outgoing
-            // edges to preserve the hypothesis about JSR block successors order
-            // (see {@link #visitJumpInsn}).
-            handlerRangeBlock.outgoingEdges.nextEdge.nextEdge =
-                new Edge(
-                    Edge.EXCEPTION,
-                    handlerBlock,
-                    handlerRangeBlock.outgoingEdges.nextEdge.nextEdge);
-          }
-          handlerRangeBlock = handlerRangeBlock.nextBasicBlock;
-        }
-        handler = handler.nextHandler;
-      }
-
-      // Complete the control flow graph with the successor blocks of subroutines, if needed.
-      if (numSubroutines > 0) {
-        // First step: find the subroutines. This step determines, for each basic block, to which
-        // subroutine(s) it belongs. Start with the main "subroutine":
-        firstBasicBlock.visitSubroutine(null, 1, numSubroutines);
-        // Then, loop over all the basic blocks to find those that belong to real subroutines.
-        int subroutineId = 0;
-        Label basicBlock = firstBasicBlock;
-        while (basicBlock != null) {
-          if ((basicBlock.status & Label.SUBROUTINE) != 0
-              && (basicBlock.status & Label.VISITED) == 0) {
-            // If this subroutine has not been visited yet, find its basic blocks.
-            subroutineId += 1;
-            basicBlock.visitSubroutine(
-                null, (subroutineId / 32L) << 32 | (1L << (subroutineId % 32)), numSubroutines);
-          }
-          basicBlock = basicBlock.nextBasicBlock;
-        }
-        // Second step: find the successor blocks of the subroutines.
-        basicBlock = firstBasicBlock;
-        while (basicBlock != null) {
-          if ((basicBlock.status & Label.BASIC_BLOCK_ENDS_WITH_JSR) != 0) {
-            Label aBasicBlock = firstBasicBlock;
-            while (aBasicBlock != null) {
-              aBasicBlock.status &= ~Label.VISITED2;
-              aBasicBlock = aBasicBlock.nextBasicBlock;
-            }
-            // the subroutine is defined by l's TARGET, not by l
-            Label subroutine = basicBlock.outgoingEdges.nextEdge.successor;
-            subroutine.visitSubroutine(basicBlock, 0, numSubroutines);
-          }
-          basicBlock = basicBlock.nextBasicBlock;
-        }
-      }
-
-      // Data flow algorithm: put the first basic block in a list of "changed" blocks (i.e. blocks
-      // whose input stack size has changed) and, while there are changed blocks, remove one from
-      // the list, update the input stack size of its successor blocks in the control flow graph,
-      // and put these blocks in the changedBlocks list (if not already done).
-      firstBasicBlock.status |= Label.BASIC_BLOCK_CHANGED;
-      Label changedBlocks = firstBasicBlock;
-      int maxStackSize = 0;
-      while (changedBlocks != null) {
-        // Get the first basic block from the changedBlocks list and remove it from this list.
-        Label basicBlock = changedBlocks;
-        changedBlocks = changedBlocks.nextChangedBlock;
-        // Don't remove the BASIC_BLOCK_CHANGED flag: if the code is valid, the maximum stack size
-        // can be computed with at most one visit per basic block (which is enforced here by not
-        // clearing this flag). Note that property does not hold when computing stack map frames.
-        // Compute the (absolute) input stack size and maximum stack size of this block.
-        int inputStackTop = basicBlock.inputStackTop;
-        int maxBlockStackSize = inputStackTop + basicBlock.outputStackMax;
-        // updates the global max stack size
-        if (maxBlockStackSize > maxStackSize) {
-          maxStackSize = maxBlockStackSize;
-        }
-        // Update the input stack size of the successor blocks of basicBlock in the control flow
-        // graph, and put these blocks in changedBlocks if not already done.
-        Edge outgoingEdge = basicBlock.outgoingEdges;
-        if ((basicBlock.status & Label.BASIC_BLOCK_ENDS_WITH_JSR) != 0) {
-          // Ignore the first outgoing edge of JSR blocks (virtual successor).
-          outgoingEdge = outgoingEdge.nextEdge;
-        }
-        while (outgoingEdge != null) {
-          Label successorBlock = outgoingEdge.successor;
-          if ((successorBlock.status & Label.BASIC_BLOCK_CHANGED) == 0) {
-            successorBlock.inputStackTop =
-                outgoingEdge.info == Edge.EXCEPTION ? 1 : inputStackTop + outgoingEdge.info;
-            successorBlock.status |= Label.BASIC_BLOCK_CHANGED;
-            successorBlock.nextChangedBlock = changedBlocks;
-            changedBlocks = successorBlock;
-          }
-          outgoingEdge = outgoingEdge.nextEdge;
-        }
-      }
-      this.maxStack = Math.max(maxStack, maxStackSize);
+      computeMaxStackAndLocal();
     } else {
       this.maxStack = maxStack;
       this.maxLocals = maxLocals;
     }
+  }
+
+  /** Computes all the stack map frames of the method, from scratch. */
+  private void computeAllFrames() {
+    // Complete the control flow graph with exception handler blocks.
+    Handler handler = firstHandler;
+    while (handler != null) {
+      String catchTypeDescriptor =
+          handler.catchTypeDescriptor == null ? "java/lang/Throwable" : handler.catchTypeDescriptor;
+      int catchType = Frame.getAbstractTypeFromInternalName(symbolTable, catchTypeDescriptor);
+      // Mark handlerBlock as an exception handler.
+      Label handlerBlock = handler.handlerPc.getCanonicalInstance();
+      handlerBlock.flags |= Label.FLAG_JUMP_TARGET;
+      // Add handlerBlock as a successor of all the basic blocks in the exception handler range.
+      Label handlerRangeBlock = handler.startPc.getCanonicalInstance();
+      Label handlerRangeEnd = handler.endPc.getCanonicalInstance();
+      while (handlerRangeBlock != handlerRangeEnd) {
+        handlerRangeBlock.outgoingEdges =
+            new Edge(catchType, handlerBlock, handlerRangeBlock.outgoingEdges);
+        handlerRangeBlock = handlerRangeBlock.nextBasicBlock;
+      }
+      handler = handler.nextHandler;
+    }
+
+    // Create and visit the first (implicit) frame.
+    Frame firstFrame = firstBasicBlock.frame;
+    firstFrame.setInputFrameFromDescriptor(symbolTable, accessFlags, descriptor, this.maxLocals);
+    firstFrame.accept(this);
+
+    // Fix point algorithm: add the first basic block to a list of blocks to process (i.e. blocks
+    // whose stack map frame has changed) and, while there are blocks to process, remove one from
+    // the list and update the stack map frames of its successor blocks in the control flow graph
+    // (which might change them, in which case these blocks must be processed too, and are thus
+    // added to the list of blocks to process). Also compute the maximum stack size of the method,
+    // as a by-product.
+    Label listOfBlocksToProcess = firstBasicBlock;
+    listOfBlocksToProcess.nextListElement = Label.EMPTY_LIST;
+    int maxStackSize = 0;
+    while (listOfBlocksToProcess != Label.EMPTY_LIST) {
+      // Remove a basic block from the list of blocks to process.
+      Label basicBlock = listOfBlocksToProcess;
+      listOfBlocksToProcess = listOfBlocksToProcess.nextListElement;
+      basicBlock.nextListElement = null;
+      // By definition, basicBlock is reachable.
+      basicBlock.flags |= Label.FLAG_REACHABLE;
+      // Update the (absolute) maximum stack size.
+      int maxBlockStackSize = basicBlock.frame.getInputStackSize() + basicBlock.outputStackMax;
+      if (maxBlockStackSize > maxStackSize) {
+        maxStackSize = maxBlockStackSize;
+      }
+      // Update the successor blocks of basicBlock in the control flow graph.
+      Edge outgoingEdge = basicBlock.outgoingEdges;
+      while (outgoingEdge != null) {
+        Label successorBlock = outgoingEdge.successor.getCanonicalInstance();
+        boolean successorBlockChanged =
+            basicBlock.frame.merge(symbolTable, successorBlock.frame, outgoingEdge.info);
+        if (successorBlockChanged && successorBlock.nextListElement == null) {
+          // If successorBlock has changed it must be processed. Thus, if it is not already in the
+          // list of blocks to process, add it to this list.
+          successorBlock.nextListElement = listOfBlocksToProcess;
+          listOfBlocksToProcess = successorBlock;
+        }
+        outgoingEdge = outgoingEdge.nextEdge;
+      }
+    }
+
+    // Loop over all the basic blocks and visit the stack map frames that must be stored in the
+    // StackMapTable attribute. Also replace unreachable code with NOP* ATHROW, and remove it from
+    // exception handler ranges.
+    Label basicBlock = firstBasicBlock;
+    while (basicBlock != null) {
+      if ((basicBlock.flags & (Label.FLAG_JUMP_TARGET | Label.FLAG_REACHABLE))
+          == (Label.FLAG_JUMP_TARGET | Label.FLAG_REACHABLE)) {
+        basicBlock.frame.accept(this);
+      }
+      if ((basicBlock.flags & Label.FLAG_REACHABLE) == 0) {
+        // Find the start and end bytecode offsets of this unreachable block.
+        Label nextBasicBlock = basicBlock.nextBasicBlock;
+        int startOffset = basicBlock.bytecodeOffset;
+        int endOffset = (nextBasicBlock == null ? code.length : nextBasicBlock.bytecodeOffset) - 1;
+        if (endOffset >= startOffset) {
+          // Replace its instructions with NOP ... NOP ATHROW.
+          for (int i = startOffset; i < endOffset; ++i) {
+            code.data[i] = Opcodes.NOP;
+          }
+          code.data[endOffset] = (byte) Opcodes.ATHROW;
+          // Emit a frame for this unreachable block, with no local and a Throwable on the stack
+          // (so that the ATHROW could consume this Throwable if it were reachable).
+          int frameIndex = visitFrameStart(startOffset, /* nLocal = */ 0, /* nStack = */ 1);
+          currentFrame[frameIndex] =
+              Frame.getAbstractTypeFromInternalName(symbolTable, "java/lang/Throwable");
+          visitFrameEnd();
+          // Remove this unreachable basic block from the exception handler ranges.
+          firstHandler = Handler.removeRange(firstHandler, basicBlock, nextBasicBlock);
+          // The maximum stack size is now at least one, because of the Throwable declared above.
+          maxStackSize = Math.max(maxStackSize, 1);
+        }
+      }
+      basicBlock = basicBlock.nextBasicBlock;
+    }
+
+    this.maxStack = maxStackSize;
+  }
+
+  /** Computes the maximum stack size of the method. */
+  private void computeMaxStackAndLocal() {
+    // Complete the control flow graph with exception handler blocks.
+    Handler handler = firstHandler;
+    while (handler != null) {
+      Label handlerBlock = handler.handlerPc;
+      Label handlerRangeBlock = handler.startPc;
+      Label handlerRangeEnd = handler.endPc;
+      // Add handlerBlock as a successor of all the basic blocks in the exception handler range.
+      while (handlerRangeBlock != handlerRangeEnd) {
+        if ((handlerRangeBlock.flags & Label.FLAG_SUBROUTINE_CALLER) == 0) {
+          handlerRangeBlock.outgoingEdges =
+              new Edge(Edge.EXCEPTION, handlerBlock, handlerRangeBlock.outgoingEdges);
+        } else {
+          // If handlerRangeBlock is a JSR block, add handlerBlock after the first two outgoing
+          // edges to preserve the hypothesis about JSR block successors order (see
+          // {@link #visitJumpInsn}).
+          handlerRangeBlock.outgoingEdges.nextEdge.nextEdge =
+              new Edge(
+                  Edge.EXCEPTION, handlerBlock, handlerRangeBlock.outgoingEdges.nextEdge.nextEdge);
+        }
+        handlerRangeBlock = handlerRangeBlock.nextBasicBlock;
+      }
+      handler = handler.nextHandler;
+    }
+
+    // Complete the control flow graph with the successor blocks of subroutines, if needed.
+    if (numSubroutines > 0) {
+      // First step: find the subroutines. This step determines, for each basic block, to which
+      // subroutine(s) it belongs. Start with the main "subroutine":
+      int subroutineId = 0;
+      firstBasicBlock.markSubroutine(subroutineId, numSubroutines);
+      // Then, loop over all the basic blocks to find those that belong to real subroutines.
+      Label basicBlock = firstBasicBlock;
+      while (basicBlock != null) {
+        if ((basicBlock.flags & Label.FLAG_SUBROUTINE_START) != 0
+            && (basicBlock.flags & Label.FLAG_SUBROUTINE_BODY) == 0) {
+          // If this subroutine has not been marked yet, find its basic blocks.
+          subroutineId += 1;
+          basicBlock.markSubroutine(subroutineId, numSubroutines);
+        }
+        basicBlock = basicBlock.nextBasicBlock;
+      }
+      // Second step: find the successors in the control flow graph of each subroutine basic block
+      // 'r' ending with a RET instruction. These successors are the virtual successors of the basic
+      // blocks ending with JSR instructions (see {@link #visitJumpInsn)} that can reach 'r'.
+      basicBlock = firstBasicBlock;
+      while (basicBlock != null) {
+        if ((basicBlock.flags & Label.FLAG_SUBROUTINE_CALLER) != 0) {
+          // By construction, jsr targets are stored in the second outgoing edge of basic blocks
+          // that ends with a jsr instruction (see {@link #FLAG_SUBROUTINE_CALLER}).
+          Label subroutine = basicBlock.outgoingEdges.nextEdge.successor;
+          subroutine.addSubroutineRetSuccessors(basicBlock, numSubroutines);
+        }
+        basicBlock = basicBlock.nextBasicBlock;
+      }
+    }
+
+    // Data flow algorithm: put the first basic block in a list of blocks to process (i.e. blocks
+    // whose input stack size has changed) and, while there are blocks to process, remove one
+    // from the list, update the input stack size of its successor blocks in the control flow
+    // graph, and add these blocks to the list of blocks to process (if not already done).
+    Label listOfBlocksToProcess = firstBasicBlock;
+    listOfBlocksToProcess.nextListElement = Label.EMPTY_LIST;
+    int maxStackSize = 0;
+    while (listOfBlocksToProcess != Label.EMPTY_LIST) {
+      // Remove a basic block from the list of blocks to process. Note that we don't reset
+      // basicBlock.nextListElement to null on purpose, to make sure we don't reprocess already
+      // processed basic blocks.
+      Label basicBlock = listOfBlocksToProcess;
+      listOfBlocksToProcess = listOfBlocksToProcess.nextListElement;
+      // Compute the (absolute) input stack size and maximum stack size of this block.
+      int inputStackTop = basicBlock.inputStackSize;
+      int maxBlockStackSize = inputStackTop + basicBlock.outputStackMax;
+      // Update the absolute maximum stack size of the method.
+      if (maxBlockStackSize > maxStackSize) {
+        maxStackSize = maxBlockStackSize;
+      }
+      // Update the input stack size of the successor blocks of basicBlock in the control flow
+      // graph, and add these blocks to the list of blocks to process, if not already done.
+      Edge outgoingEdge = basicBlock.outgoingEdges;
+      if ((basicBlock.flags & Label.FLAG_SUBROUTINE_CALLER) != 0) {
+        // Ignore the first outgoing edge of the basic blocks ending with a jsr: these are virtual
+        // edges which lead to the instruction just after the jsr, and do not correspond to a
+        // possible execution path (see {@link #visitJumpInsn} and
+        // {@link Label#FLAG_SUBROUTINE_CALLER}).
+        outgoingEdge = outgoingEdge.nextEdge;
+      }
+      while (outgoingEdge != null) {
+        Label successorBlock = outgoingEdge.successor;
+        if (successorBlock.nextListElement == null) {
+          successorBlock.inputStackSize =
+              (short) (outgoingEdge.info == Edge.EXCEPTION ? 1 : inputStackTop + outgoingEdge.info);
+          successorBlock.nextListElement = listOfBlocksToProcess;
+          listOfBlocksToProcess = successorBlock;
+        }
+        outgoingEdge = outgoingEdge.nextEdge;
+      }
+    }
+    this.maxStack = Math.max(maxStack, maxStackSize);
   }
 
   @Override
@@ -1741,11 +1743,11 @@ final class MethodWriter extends MethodVisitor {
     if (compute == COMPUTE_ALL_FRAMES) {
       Label nextBasicBlock = new Label();
       nextBasicBlock.frame = new Frame(nextBasicBlock);
-      nextBasicBlock.resolve(this, code.length, code.data);
+      nextBasicBlock.resolve(code.data, code.length);
       lastBasicBlock.nextBasicBlock = nextBasicBlock;
       lastBasicBlock = nextBasicBlock;
     } else {
-      currentBasicBlock.outputStackMax = maxRelativeStackSize;
+      currentBasicBlock.outputStackMax = (short) maxRelativeStackSize;
     }
     if (compute != COMPUTE_INSERTED_FRAMES) {
       currentBasicBlock = null;
@@ -1918,7 +1920,9 @@ final class MethodWriter extends MethodVisitor {
           .putByte(Frame.ITEM_OBJECT)
           .putShort(symbolTable.addConstantClass((String) type).index);
     } else {
-      stackMapTableEntries.putByte(Frame.ITEM_UNINITIALIZED).putShort(((Label) type).position);
+      stackMapTableEntries
+          .putByte(Frame.ITEM_UNINITIALIZED)
+          .putShort(((Label) type).bytecodeOffset);
     }
   }
 

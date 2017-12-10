@@ -299,7 +299,7 @@ public abstract class ALLPerfTest {
             ClassWriter cw = new ClassWriter(0);
             new ClassReader(bytes)
                 .accept(
-                    new ClassVisitor(Opcodes.ASM5, cw) {
+                    new ClassVisitor(Opcodes.ASM6, cw) {
 
                       @Override
                       public MethodVisitor visitMethod(
@@ -632,7 +632,7 @@ public abstract class ALLPerfTest {
   static class EmptyVisitor extends ClassVisitor {
 
     AnnotationVisitor av =
-        new AnnotationVisitor(Opcodes.ASM5) {
+        new AnnotationVisitor(Opcodes.ASM6) {
 
           @Override
           public AnnotationVisitor visitAnnotation(String name, String desc) {
@@ -646,7 +646,7 @@ public abstract class ALLPerfTest {
         };
 
     public EmptyVisitor() {
-      super(Opcodes.ASM5);
+      super(Opcodes.ASM6);
     }
 
     @Override
@@ -663,7 +663,7 @@ public abstract class ALLPerfTest {
     @Override
     public FieldVisitor visitField(
         int access, String name, String desc, String signature, Object value) {
-      return new FieldVisitor(Opcodes.ASM5) {
+      return new FieldVisitor(Opcodes.ASM6) {
 
         @Override
         public AnnotationVisitor visitAnnotation(String desc, boolean visible) {
@@ -681,7 +681,7 @@ public abstract class ALLPerfTest {
     @Override
     public MethodVisitor visitMethod(
         int access, String name, String desc, String signature, String[] exceptions) {
-      return new MethodVisitor(Opcodes.ASM5) {
+      return new MethodVisitor(Opcodes.ASM6) {
 
         @Override
         public AnnotationVisitor visitAnnotationDefault() {

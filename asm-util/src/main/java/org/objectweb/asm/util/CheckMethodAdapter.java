@@ -124,8 +124,8 @@ public class CheckMethodAdapter extends MethodVisitor {
   /** Code of the visit method to be used for each opcode. */
   private static final int[] TYPE;
 
-  /** The Label.status field. */
-  private static Field labelStatusField;
+  /** The Label.flags field. */
+  private static Field labelFlagsField;
 
   static {
     String s =
@@ -1411,10 +1411,10 @@ public class CheckMethodAdapter extends MethodVisitor {
    * @param label the label to be checked.
    */
   private static void checkNonDebugLabel(final Label label) {
-    Field f = getLabelStatusField();
+    Field f = getLabelFlagsField();
     int status = 0;
     try {
-      status = f == null ? 0 : ((Integer) f.get(label)).intValue();
+      status = f == null ? 0 : ((Short) f.get(label)).shortValue();
     } catch (IllegalAccessException e) {
       throw new Error("Internal error");
     }
@@ -1425,18 +1425,15 @@ public class CheckMethodAdapter extends MethodVisitor {
   }
 
   /**
-   * Returns the Field object corresponding to the Label.status field.
+   * Returns the Field object corresponding to the Label.flags field.
    *
-   * @return the Field object corresponding to the Label.status field.
+   * @return the Field object corresponding to the Label.flags field.
    */
-  private static Field getLabelStatusField() {
-    if (labelStatusField == null) {
-      labelStatusField = getLabelField("a");
-      if (labelStatusField == null) {
-        labelStatusField = getLabelField("status");
-      }
+  private static Field getLabelFlagsField() {
+    if (labelFlagsField == null) {
+      labelFlagsField = getLabelField("flags");
     }
-    return labelStatusField;
+    return labelFlagsField;
   }
 
   /**

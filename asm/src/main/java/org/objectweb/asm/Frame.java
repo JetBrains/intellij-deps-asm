@@ -1241,7 +1241,7 @@ class Frame {
    * Returns <tt>true</tt> if the type array has been modified by this operation.
    *
    * @param symbolTable the type table to use to lookup and store type {@link Symbol}.
-   * @param srcType the abstract type with which the abstract type array element must be merged.
+   * @param sourceType the abstract type with which the abstract type array element must be merged.
    *     This type should be of {@link #CONSTANT_KIND}, {@link #REFERENCE_KIND} or {@link
    *     #UNINITIALIZED_KIND} kind, with positive or null array dimensions.
    * @param dstTypes an array of abstract types. These types should be of {@link #CONSTANT_KIND},
@@ -1251,13 +1251,17 @@ class Frame {
    * @return <tt>true</tt> if the type array has been modified by this operation.
    */
   private static boolean merge(
-      final SymbolTable symbolTable, int srcType, final int[] dstTypes, final int dstIndex) {
+      final SymbolTable symbolTable,
+      final int sourceType,
+      final int[] dstTypes,
+      final int dstIndex) {
     int dstType = dstTypes[dstIndex];
-    if (dstType == srcType) {
-      // If the types are equal, merge(srcType, dstType) = dstType, so there is no change.
+    if (dstType == sourceType) {
+      // If the types are equal, merge(sourceType, dstType) = dstType, so there is no change.
       return false;
     }
-    if ((srcType & ~DIM_MASK) == NULL) {
+    int srcType = sourceType;
+    if ((sourceType & ~DIM_MASK) == NULL) {
       if (dstType == NULL) {
         return false;
       }

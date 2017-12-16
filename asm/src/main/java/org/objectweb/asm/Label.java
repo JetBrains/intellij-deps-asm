@@ -584,7 +584,8 @@ public class Label {
    *     {@link #nextListElement} field.
    * @return the new list of blocks to process.
    */
-  private Label pushSuccessors(Label listOfLabelsToProcess) {
+  private Label pushSuccessors(final Label listOfLabelsToProcess) {
+    Label newListOfLabelsToProcess = listOfLabelsToProcess;
     Edge outgoingEdge = outgoingEdges;
     while (outgoingEdge != null) {
       // By construction, the second outgoing edge of a basic block that ends with a jsr instruction
@@ -594,12 +595,12 @@ public class Label {
       if (!isJsrTarget && outgoingEdge.successor.nextListElement == null) {
         // Add this successor to the list of blocks to process, if it does not already belong to a
         // list of labels.
-        outgoingEdge.successor.nextListElement = listOfLabelsToProcess;
-        listOfLabelsToProcess = outgoingEdge.successor;
+        outgoingEdge.successor.nextListElement = newListOfLabelsToProcess;
+        newListOfLabelsToProcess = outgoingEdge.successor;
       }
       outgoingEdge = outgoingEdge.nextEdge;
     }
-    return listOfLabelsToProcess;
+    return newListOfLabelsToProcess;
   }
 
   /**

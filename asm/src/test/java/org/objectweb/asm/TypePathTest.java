@@ -28,6 +28,7 @@
 package org.objectweb.asm;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import org.junit.jupiter.api.Test;
 
@@ -67,5 +68,9 @@ public class TypePathTest {
     assertEquals("[*0;*[", TypePath.fromString("[*0;*[").toString());
     assertEquals("10;", TypePath.fromString("10;").toString());
     assertEquals("1;0;", TypePath.fromString("1;0;").toString());
+
+    assertThrows(IllegalArgumentException.class, () -> TypePath.fromString("-"));
+    assertThrows(IllegalArgumentException.class, () -> TypePath.fromString("="));
+    assertThrows(IllegalArgumentException.class, () -> TypePath.fromString("1-"));
   }
 }

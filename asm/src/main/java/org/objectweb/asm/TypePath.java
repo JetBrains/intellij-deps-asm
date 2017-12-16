@@ -140,9 +140,13 @@ public class TypePath {
             typeArg = typeArg * 10 + c - '0';
           } else if (c == ';') {
             break;
+          } else {
+            throw new IllegalArgumentException();
           }
         }
         output.put11(TYPE_ARGUMENT, typeArg);
+      } else {
+        throw new IllegalArgumentException();
       }
     }
     output.data[0] = (byte) (output.length / 2);

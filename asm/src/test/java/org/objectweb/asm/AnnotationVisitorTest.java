@@ -29,6 +29,7 @@ package org.objectweb.asm;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.objectweb.asm.test.AsmTest;
@@ -39,6 +40,12 @@ import org.objectweb.asm.test.AsmTest;
  * @author Eric Bruneton
  */
 public class AnnotationVisitorTest extends AsmTest {
+
+  @Test
+  public void testConstuctor() {
+    assertThrows(IllegalArgumentException.class, () -> new AnnotationVisitor(0) {});
+    assertThrows(IllegalArgumentException.class, () -> new AnnotationVisitor(Integer.MAX_VALUE) {});
+  }
 
   /**
    * Tests that ClassReader accepts visitor which return null AnnotationVisitor, and that returning

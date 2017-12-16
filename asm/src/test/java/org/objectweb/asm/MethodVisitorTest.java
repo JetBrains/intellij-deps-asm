@@ -39,6 +39,33 @@ import org.junit.jupiter.api.Test;
  */
 public class MethodVisitorTest {
 
+  @Test
+  public void testConstuctor() {
+    assertThrows(IllegalArgumentException.class, () -> new MethodVisitor(0) {});
+    assertThrows(IllegalArgumentException.class, () -> new MethodVisitor(Integer.MAX_VALUE) {});
+  }
+
+  @Test
+  public void testAsm5Features() {
+    MethodVisitor methodVisitor = new MethodVisitor(Opcodes.ASM4, null) {};
+    assertThrows(UnsupportedOperationException.class, () -> methodVisitor.visitParameter(null, 0));
+    assertThrows(
+        UnsupportedOperationException.class,
+        () -> methodVisitor.visitTypeAnnotation(0, null, null, false));
+    assertThrows(
+        UnsupportedOperationException.class,
+        () -> methodVisitor.visitInvokeDynamicInsn(null, null, null));
+    assertThrows(
+        UnsupportedOperationException.class,
+        () -> methodVisitor.visitInsnAnnotation(0, null, null, false));
+    assertThrows(
+        UnsupportedOperationException.class,
+        () -> methodVisitor.visitTryCatchAnnotation(0, null, null, false));
+    assertThrows(
+        UnsupportedOperationException.class,
+        () -> methodVisitor.visitLocalVariableAnnotation(0, null, null, null, null, null, false));
+  }
+
   /** Tests that we can call the ASM5 visitMethodInsn on an ASM4 visitor, provided itf is false. */
   @Test
   public void testBackwardCompatibilityOk() {

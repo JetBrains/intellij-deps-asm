@@ -179,7 +179,7 @@ public final class Handle {
    *
    * <ul>
    *   <li>for a reference to a class: owner "." name descriptor " (" tag ")",
-   *   <li>for a reference to an interface: owner "." name descriptor " (" tag " itf )".
+   *   <li>for a reference to an interface: owner "." name descriptor " (" tag " itf)".
    * </ul>
    */
   @Override

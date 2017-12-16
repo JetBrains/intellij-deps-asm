@@ -2187,7 +2187,7 @@ public class ClassReader {
           currentOffset += 4;
           break;
         default:
-          throw new IllegalArgumentException();
+          throw new AssertionError();
       }
 
       // Visit the runtime visible instruction annotations, if any.
@@ -3098,9 +3098,11 @@ public class ClassReader {
         currentOffset += 2;
         break;
       case Frame.ITEM_UNINITIALIZED:
-      default:
         frame[index] = createLabel(readUnsignedShort(currentOffset), labels);
         currentOffset += 2;
+        break;
+      default:
+        throw new IllegalArgumentException();
     }
     return currentOffset;
   }

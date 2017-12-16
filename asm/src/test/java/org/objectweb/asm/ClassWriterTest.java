@@ -27,6 +27,7 @@
 // THE POSSIBILITY OF SUCH DAMAGE.
 package org.objectweb.asm;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.objectweb.asm.test.Assertions.assertThat;
 
@@ -51,20 +52,48 @@ public class ClassWriterTest extends AsmTest {
     cw.newConst(new Character('0'));
     cw.newConst(new Short((short) 0));
     cw.newConst(Boolean.FALSE);
+    cw.newUTF8("A");
+    cw.newClass("A");
+    cw.newMethodType("()V");
+    cw.newModule("A");
+    cw.newPackage("A");
+    cw.newHandle(Opcodes.H_GETFIELD, "A", "h", "I");
+    cw.newHandle(Opcodes.H_GETFIELD, "A", "h", "I", false);
+    cw.newInvokeDynamic("m", "()V", new Handle(Opcodes.H_GETFIELD, "A", "h", "I", false));
     cw.newField("A", "f", "I");
     cw.newMethod("A", "m", "()V", false);
+    cw.newNameType("m", "()V");
+
+    assertThrows(IllegalArgumentException.class, () -> cw.newConst(new Object()));
   }
 
   @Test
-  public void testIllegalNewConstArgument() {
+  public void testConstantPoolSizeTooLarge() {
     ClassWriter cw = new ClassWriter(0);
-    assertThrows(RuntimeException.class, () -> cw.newConst(new Object()));
+    for (int i = 0; i < 65536; ++i) {
+      cw.newConst(Integer.valueOf(i));
+    }
+    assertThrows(IndexOutOfBoundsException.class, () -> cw.toByteArray());
   }
 
   @Test
-  public void testIllegalGetCommonSuperClassArguments() {
+  public void testGetCommonSuperClass() {
     ClassWriter cw = new ClassWriter(0);
-    assertThrows(RuntimeException.class, () -> cw.getCommonSuperClass("-", "-"));
+    assertEquals(
+        "java/lang/Object", cw.getCommonSuperClass("java/lang/Object", "java/lang/Integer"));
+    assertEquals(
+        "java/lang/Object", cw.getCommonSuperClass("java/lang/Integer", "java/lang/Object"));
+    assertEquals(
+        "java/lang/Object", cw.getCommonSuperClass("java/lang/Integer", "java/lang/Runnable"));
+    assertEquals(
+        "java/lang/Object", cw.getCommonSuperClass("java/lang/Runnable", "java/lang/Integer"));
+    assertEquals(
+        "java/lang/Throwable",
+        cw.getCommonSuperClass("java/lang/IndexOutOfBoundsException", "java/lang/AssertionError"));
+    assertThrows(
+        TypeNotPresentException.class, () -> cw.getCommonSuperClass("-", "java/lang/Object"));
+    assertThrows(
+        TypeNotPresentException.class, () -> cw.getCommonSuperClass("java/lang/Object", "-"));
   }
 
   /** Tests that a ClassReader -> ClassWriter transform leaves classes unchanged. */
@@ -258,6 +287,46 @@ public class ClassWriterTest extends AsmTest {
     assertThat(() -> loadAndInstantiate(classParameter.getName(), classWriter.toByteArray()))
         .succeedsOrThrows(UnsupportedClassVersionError.class)
         .when(classParameter.isMoreRecentThanCurrentJdk());
+  }
+
+  /** Tests modules without any optional data (ModulePackage, ModuleMainClass, etc). */
+  @Test
+  public void testReadAndWriteWithBasicModule() {
+    byte[] classFile = PrecompiledClass.JDK9_MODULE.getBytes();
+    ClassReader classReader = new ClassReader(classFile);
+    ClassWriter classWriter = new ClassWriter(0);
+    ClassVisitor classVisitor =
+        new ClassVisitor(Opcodes.ASM6, classWriter) {
+
+          @Override
+          public ModuleVisitor visitModule(String name, int access, String version) {
+            return new ModuleVisitor(api, super.visitModule(name, access, version)) {
+
+              @Override
+              public void visitMainClass(String mainClass) {}
+
+              @Override
+              public void visitPackage(String packaze) {}
+
+              @Override
+              public void visitRequire(String module, int access, String version) {
+                super.visitRequire(module, access, null);
+              }
+
+              @Override
+              public void visitExport(String packaze, int access, String... modules) {
+                super.visitExport(packaze, access, (String[]) null);
+              }
+
+              @Override
+              public void visitOpen(String packaze, int access, String... modules) {
+                super.visitOpen(packaze, access, (String[]) null);
+              }
+            };
+          }
+        };
+    classReader.accept(classVisitor, null, 0);
+    classWriter.toByteArray();
   }
 
   private static Attribute[] attributes() {

@@ -30,6 +30,7 @@ package org.objectweb.asm;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Arrays;
@@ -109,6 +110,11 @@ public class TypeTest implements Opcodes {
     Type type = Type.getType(descriptor);
     assertEquals(descriptor, type.getDescriptor());
     assertEquals(descriptor, type.toString());
+  }
+
+  @Test
+  public void testGetTypeFromInvalidDescriptor() {
+    assertThrows(IllegalArgumentException.class, () -> Type.getType("-"));
   }
 
   @ParameterizedTest
@@ -324,6 +330,13 @@ public class TypeTest implements Opcodes {
     assertEquals(FADD, Type.FLOAT_TYPE.getOpcode(IADD));
     assertEquals(LADD, Type.LONG_TYPE.getOpcode(IADD));
     assertEquals(DADD, Type.DOUBLE_TYPE.getOpcode(IADD));
+
+    Class<UnsupportedOperationException> expectedException = UnsupportedOperationException.class;
+    assertThrows(expectedException, () -> Type.getType("LI;").getOpcode(IADD));
+    assertThrows(expectedException, () -> Type.getType("[I").getOpcode(IADD));
+    assertThrows(expectedException, () -> Type.getObjectType("I").getOpcode(IADD));
+    assertThrows(expectedException, () -> Type.getMethodType("()V").getOpcode(IADD));
+    assertThrows(expectedException, () -> Type.getMethodType("()V").getOpcode(IALOAD));
   }
 
   @Test

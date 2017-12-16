@@ -149,6 +149,21 @@ public class ClassReaderTest extends AsmTest implements Opcodes {
     assertNotNull(classReader.getInterfaces());
   }
 
+  /** Tests the ClassReader accept method with a default visitor. */
+  @ParameterizedTest
+  @MethodSource(ALL_CLASSES_AND_ALL_APIS)
+  public void testAcceptWithDefaultVisitor(PrecompiledClass classParameter, Api apiParameter) {
+    ClassReader classReader = new ClassReader(classParameter.getBytes());
+    ClassVisitor classVisitor = new ClassVisitor(apiParameter.value()) {};
+    boolean hasModules = classParameter == PrecompiledClass.JDK9_MODULE;
+    boolean hasTypeAnnotations = classParameter == PrecompiledClass.JDK8_ALL_STRUCTURES;
+    assertThat(() -> classReader.accept(classVisitor, 0))
+        .succeedsOrThrows(RuntimeException.class)
+        .when(
+            (hasModules && apiParameter.value() < ASM6)
+                || (hasTypeAnnotations && apiParameter.value() < ASM5));
+  }
+
   /** Tests the ClassReader accept method with an empty visitor. */
   @ParameterizedTest
   @MethodSource(ALL_CLASSES_AND_ALL_APIS)
@@ -208,14 +223,64 @@ public class ClassReaderTest extends AsmTest implements Opcodes {
         .when(classParameter.isMoreRecentThan(apiParameter));
   }
 
-  /** Tests the ClassReader accept method with a visitor that skips fields and methods. */
+  /**
+   * Tests the ClassReader accept method with default annotation, field, method and module visitors.
+   */
   @ParameterizedTest
   @MethodSource(ALL_CLASSES_AND_ALL_APIS)
-  public void testAcceptWithEmptyVisitorAndSkipFieldAndMethodContent(
+  public void testAcceptWithDefaultAnnotationFieldMethodAndModuleVisitor(
       PrecompiledClass classParameter, Api apiParameter) {
     ClassReader classReader = new ClassReader(classParameter.getBytes());
     ClassVisitor classVisitor =
         new EmptyClassVisitor(apiParameter.value()) {
+
+          @Override
+          public AnnotationVisitor visitAnnotation(String desc, boolean visible) {
+            return new AnnotationVisitor(api) {};
+          }
+
+          @Override
+          public AnnotationVisitor visitTypeAnnotation(
+              int typeRef, TypePath typePath, String desc, boolean visible) {
+            return new AnnotationVisitor(api) {};
+          }
+
+          @Override
+          public ModuleVisitor visitModule(String name, int access, String version) {
+            return new ModuleVisitor(api) {};
+          }
+
+          @Override
+          public FieldVisitor visitField(
+              int access, String name, String desc, String signature, Object value) {
+            return new FieldVisitor(api) {};
+          }
+
+          @Override
+          public MethodVisitor visitMethod(
+              int access, String name, String desc, String signature, String[] exceptions) {
+            return new MethodVisitor(api) {};
+          }
+        };
+    assertThat(() -> classReader.accept(classVisitor, 0))
+        .succeedsOrThrows(RuntimeException.class)
+        .when(classParameter.isMoreRecentThan(apiParameter));
+  }
+
+  /** Tests the ClassReader accept method with a visitor that skips fields, methods and modules. */
+  @ParameterizedTest
+  @MethodSource(ALL_CLASSES_AND_ALL_APIS)
+  public void testAcceptWithEmptyVisitorAndSkipFieldMethodAndModuleContent(
+      PrecompiledClass classParameter, Api apiParameter) {
+    ClassReader classReader = new ClassReader(classParameter.getBytes());
+    ClassVisitor classVisitor =
+        new EmptyClassVisitor(apiParameter.value()) {
+
+          @Override
+          public ModuleVisitor visitModule(String name, int access, String version) {
+            return null;
+          }
+
           @Override
           public FieldVisitor visitField(
               int access, String name, String desc, String signature, Object value) {
@@ -228,11 +293,7 @@ public class ClassReaderTest extends AsmTest implements Opcodes {
             return null;
           }
         };
-    assertThat(() -> classReader.accept(classVisitor, 0))
-        .succeedsOrThrows(RuntimeException.class)
-        .when(
-            classParameter == PrecompiledClass.JDK9_MODULE
-                && classParameter.isMoreRecentThan(apiParameter));
+    classReader.accept(classVisitor, 0);
   }
 
   private static class EmptyClassVisitor extends ClassVisitor {

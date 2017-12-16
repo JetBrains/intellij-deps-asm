@@ -6,13 +6,13 @@
 // modification, are permitted provided that the following conditions
 // are met:
 // 1. Redistributions of source code must retain the above copyright
-// notice, this list of conditions and the following disclaimer.
+//    notice, this list of conditions and the following disclaimer.
 // 2. Redistributions in binary form must reproduce the above copyright
-// notice, this list of conditions and the following disclaimer in the
-// documentation and/or other materials provided with the distribution.
+//    notice, this list of conditions and the following disclaimer in the
+//    documentation and/or other materials provided with the distribution.
 // 3. Neither the name of the copyright holders nor the names of its
-// contributors may be used to endorse or promote products derived from
-// this software without specific prior written permission.
+//    contributors may be used to endorse or promote products derived from
+//    this software without specific prior written permission.
 //
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
 // AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
@@ -27,25 +27,20 @@
 // THE POSSIBILITY OF SUCH DAMAGE.
 package org.objectweb.asm;
 
-import static org.junit.jupiter.api.Assertions.assertArrayEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import org.junit.jupiter.api.Test;
 
 /**
- * Attribute unit tests.
+ * FieldVisitor tests.
  *
  * @author Eric Bruneton
  */
-public class AttributeTest {
+public class FieldVisitorTest {
 
   @Test
-  public void testIsUnknown() {
-    assertTrue(new Attribute("Comment").isUnknown());
-  }
-
-  @Test
-  public void testGetLabels() {
-    assertArrayEquals(new Label[0], new Attribute("Comment").getLabels());
+  public void testConstuctor() {
+    assertThrows(IllegalArgumentException.class, () -> new FieldVisitor(0) {});
+    assertThrows(IllegalArgumentException.class, () -> new FieldVisitor(Integer.MAX_VALUE) {});
   }
 }

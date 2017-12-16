@@ -27,12 +27,16 @@
 // THE POSSIBILITY OF SUCH DAMAGE.
 package org.objectweb.asm.signature;
 
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.MethodVisitor;
+import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.test.AsmTest;
 
 /**
@@ -85,5 +89,12 @@ public class SignatureReaderTest extends AsmTest {
           }
         },
         0);
+  }
+
+  @Test
+  public void testReadInvalidSignature() {
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> new SignatureReader("-").accept(new SignatureVisitor(Opcodes.ASM6) {}));
   }
 }

@@ -257,7 +257,7 @@ public class ByteVector {
     currentData[currentLength++] = (byte) charLength;
     for (int i = 0; i < charLength; ++i) {
       char charValue = stringValue.charAt(i);
-      if (charValue >= '\001' && charValue <= '\177') {
+      if (charValue >= '\u0001' && charValue <= '\u007F') {
         currentData[currentLength++] = (byte) charValue;
       } else {
         length = currentLength;
@@ -285,12 +285,12 @@ public class ByteVector {
     int byteLength = offset;
     for (int i = offset; i < charLength; ++i) {
       char charValue = stringValue.charAt(i);
-      if (charValue >= '\001' && charValue <= '\177') {
+      if (charValue >= '\u0001' && charValue <= '\u007F') {
         byteLength++;
-      } else if (charValue > '\u07FF') {
-        byteLength += 3;
-      } else {
+      } else if (charValue <= '\u07FF') {
         byteLength += 2;
+      } else {
+        byteLength += 3;
       }
     }
     if (byteLength > maxByteLength) {
@@ -308,14 +308,14 @@ public class ByteVector {
     int currentLength = length;
     for (int i = offset; i < charLength; ++i) {
       char charValue = stringValue.charAt(i);
-      if (charValue >= '\001' && charValue <= '\177') {
+      if (charValue >= '\u0001' && charValue <= '\u007F') {
         data[currentLength++] = (byte) charValue;
-      } else if (charValue > '\u07FF') {
-        data[currentLength++] = (byte) (0xE0 | charValue >> 12 & 0xF);
-        data[currentLength++] = (byte) (0x80 | charValue >> 6 & 0x3F);
+      } else if (charValue <= '\u07FF') {
+        data[currentLength++] = (byte) (0xC0 | charValue >> 6 & 0x1F);
         data[currentLength++] = (byte) (0x80 | charValue & 0x3F);
       } else {
-        data[currentLength++] = (byte) (0xC0 | charValue >> 6 & 0x1F);
+        data[currentLength++] = (byte) (0xE0 | charValue >> 12 & 0xF);
+        data[currentLength++] = (byte) (0x80 | charValue >> 6 & 0x3F);
         data[currentLength++] = (byte) (0x80 | charValue & 0x3F);
       }
     }

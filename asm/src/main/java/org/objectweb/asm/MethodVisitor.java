@@ -96,7 +96,7 @@ public abstract class MethodVisitor {
    */
   public void visitParameter(final String name, final int access) {
     if (api < Opcodes.ASM5) {
-      throw new RuntimeException("This feature requires ASM5");
+      throw new UnsupportedOperationException("This feature requires ASM5");
     }
     if (mv != null) {
       mv.visitParameter(name, access);
@@ -153,7 +153,7 @@ public abstract class MethodVisitor {
   public AnnotationVisitor visitTypeAnnotation(
       final int typeRef, final TypePath typePath, final String descriptor, final boolean visible) {
     if (api < Opcodes.ASM5) {
-      throw new RuntimeException("This feature requires ASM5");
+      throw new UnsupportedOperationException("This feature requires ASM5");
     }
     if (mv != null) {
       return mv.visitTypeAnnotation(typeRef, typePath, descriptor, visible);
@@ -266,8 +266,8 @@ public abstract class MethodVisitor {
    * @param nLocal the number of local variables in the visited frame.
    * @param local the local variable types in this frame. This array must not be modified. Primitive
    *     types are represented by {@link Opcodes#TOP}, {@link Opcodes#INTEGER}, {@link
-   *     Opcodes#FLOAT}, {@link Opcodes#LONG}, {@link Opcodes#DOUBLE},{@link Opcodes#NULL} or {@link
-   *     Opcodes#UNINITIALIZED_THIS} (long and double are represented by a single element).
+   *     Opcodes#FLOAT}, {@link Opcodes#LONG}, {@link Opcodes#DOUBLE}, {@link Opcodes#NULL} or
+   *     {@link Opcodes#UNINITIALIZED_THIS} (long and double are represented by a single element).
    *     Reference types are represented by String objects (representing internal names), and
    *     uninitialized types by Label objects (this label designates the NEW instruction that
    *     created this uninitialized value).
@@ -390,6 +390,7 @@ public abstract class MethodVisitor {
    *     getInternalName}).
    * @param name the method's name.
    * @param descriptor the method's descriptor (see {@link Type Type}).
+   * @deprecated
    */
   @Deprecated
   public void visitMethodInsn(
@@ -450,7 +451,7 @@ public abstract class MethodVisitor {
       final Handle bootstrapMethodHandle,
       final Object... bootstrapMethodArguments) {
     if (api < Opcodes.ASM5) {
-      throw new RuntimeException("This feature requires ASM5");
+      throw new UnsupportedOperationException("This feature requires ASM5");
     }
     if (mv != null) {
       mv.visitInvokeDynamicInsn(name, descriptor, bootstrapMethodHandle, bootstrapMethodArguments);
@@ -613,7 +614,7 @@ public abstract class MethodVisitor {
   public AnnotationVisitor visitInsnAnnotation(
       final int typeRef, final TypePath typePath, final String descriptor, final boolean visible) {
     if (api < Opcodes.ASM5) {
-      throw new RuntimeException("This feature requires ASM5");
+      throw new UnsupportedOperationException("This feature requires ASM5");
     }
     if (mv != null) {
       return mv.visitInsnAnnotation(typeRef, typePath, descriptor, visible);
@@ -661,7 +662,7 @@ public abstract class MethodVisitor {
   public AnnotationVisitor visitTryCatchAnnotation(
       final int typeRef, final TypePath typePath, final String descriptor, final boolean visible) {
     if (api < Opcodes.ASM5) {
-      throw new RuntimeException("This feature requires ASM5");
+      throw new UnsupportedOperationException("This feature requires ASM5");
     }
     if (mv != null) {
       return mv.visitTryCatchAnnotation(typeRef, typePath, descriptor, visible);
@@ -724,7 +725,7 @@ public abstract class MethodVisitor {
       final String descriptor,
       final boolean visible) {
     if (api < Opcodes.ASM5) {
-      throw new RuntimeException("This feature requires ASM5");
+      throw new UnsupportedOperationException("This feature requires ASM5");
     }
     if (mv != null) {
       return mv.visitLocalVariableAnnotation(

@@ -95,7 +95,7 @@ public class Attribute {
    *     code attribute that contains labels.
    */
   protected Label[] getLabels() {
-    return null;
+    return new Label[0];
   }
 
   /**

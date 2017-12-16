@@ -39,7 +39,7 @@ package org.objectweb.asm.signature;
 public class SignatureReader {
 
   /** The JVMS signature to be read. */
-  private final String signature;
+  private final String signatureValue;
 
   /**
    * Constructs a {@link SignatureReader} for the given signature.
@@ -47,7 +47,7 @@ public class SignatureReader {
    * @param signature A <i>JavaTypeSignature</i>, <i>ClassSignature</i> or <i>MethodSignature</i>.
    */
   public SignatureReader(final String signature) {
-    this.signature = signature;
+    this.signatureValue = signature;
   }
 
   /**
@@ -61,7 +61,7 @@ public class SignatureReader {
    * @param signatureVistor the visitor that must visit this signature.
    */
   public void accept(final SignatureVisitor signatureVistor) {
-    String signature = this.signature;
+    String signature = this.signatureValue;
     int length = signature.length();
     int offset; // Current offset in the parsed signature (parsed from left to right).
     char currentChar; // The signature character at 'offset', or just before.
@@ -137,7 +137,7 @@ public class SignatureReader {
    * @param signatureVisitor the visitor that must visit this signature.
    */
   public void acceptType(final SignatureVisitor signatureVisitor) {
-    parseType(this.signature, 0, signatureVisitor);
+    parseType(signatureValue, 0, signatureVisitor);
   }
 
   /**
@@ -151,10 +151,10 @@ public class SignatureReader {
   private static int parseType(
       final String signature, final int startOffset, final SignatureVisitor signatureVisitor) {
     int offset = startOffset; // Current offset in the parsed signature.
-    char currentChar; // The signature character at 'offset'.
+    char currentChar = signature.charAt(offset++); // The signature character at 'offset'.
 
     // Switch based on the first character of the JavaTypeSignature, which indicates its kind.
-    switch (currentChar = signature.charAt(offset++)) {
+    switch (currentChar) {
       case 'Z':
       case 'C':
       case 'B':
@@ -204,7 +204,7 @@ public class SignatureReader {
             // of a new class name, which is necessarily an inner class name.
             if (currentChar == ';') {
               signatureVisitor.visitEnd();
-              return offset;
+              break;
             }
             start = offset;
             visited = false;
@@ -221,12 +221,8 @@ public class SignatureReader {
             }
             visited = true;
             // Now, parse the TypeArgument(s), one at a time.
-            top:
-            while (true) {
-              switch (currentChar = signature.charAt(offset)) {
-                case '>':
-                  // End of the TypeArguments.
-                  break top;
+            while ((currentChar = signature.charAt(offset)) != '>') {
+              switch (currentChar) {
                 case '*':
                   // Unbounded TypeArgument.
                   ++offset;
@@ -247,9 +243,10 @@ public class SignatureReader {
             }
           }
         }
+        return offset;
 
       default:
-        throw new AssertionError();
+        throw new IllegalArgumentException();
     }
   }
 }

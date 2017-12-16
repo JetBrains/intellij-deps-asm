@@ -393,7 +393,9 @@ public class ClassWriter extends ClassVisitor {
   }
 
   @Override
-  public final void visitEnd() {}
+  public final void visitEnd() {
+    // Nothing to do.
+  }
 
   // -----------------------------------------------------------------------------------------------
   // Other public methods
@@ -436,12 +438,10 @@ public class ClassWriter extends ClassVisitor {
       size += 10;
       symbolTable.addConstantUtf8("EnclosingMethod");
     }
-    if ((accessFlags & Opcodes.ACC_SYNTHETIC) != 0) {
-      if ((version & 0xFFFF) < Opcodes.V1_5) {
-        ++attributesCount;
-        size += 6;
-        symbolTable.addConstantUtf8("Synthetic");
-      }
+    if ((accessFlags & Opcodes.ACC_SYNTHETIC) != 0 && (version & 0xFFFF) < Opcodes.V1_5) {
+      ++attributesCount;
+      size += 6;
+      symbolTable.addConstantUtf8("Synthetic");
     }
     if (signatureIndex != 0) {
       ++attributesCount;
@@ -498,7 +498,7 @@ public class ClassWriter extends ClassVisitor {
     // statements can add attribute names to the constant pool, thereby changing its size!
     size += symbolTable.getConstantPoolLength();
     if (symbolTable.getConstantPoolCount() > 0xFFFF) {
-      throw new RuntimeException("Class file too large!");
+      throw new IndexOutOfBoundsException("Class file too large!");
     }
 
     // Second step: allocate a ByteVector of the correct size (in order to avoid any array copy in
@@ -809,13 +809,18 @@ public class ClassWriter extends ClassVisitor {
    * @return the internal name of the common super class of the two given classes.
    */
   protected String getCommonSuperClass(final String type1, final String type2) {
-    Class<?> class1, class2;
     ClassLoader classLoader = getClass().getClassLoader();
+    Class<?> class1;
     try {
       class1 = Class.forName(type1.replace('/', '.'), false, classLoader);
+    } catch (Exception e) {
+      throw new TypeNotPresentException(type1, e);
+    }
+    Class<?> class2;
+    try {
       class2 = Class.forName(type2.replace('/', '.'), false, classLoader);
     } catch (Exception e) {
-      throw new RuntimeException(e.toString());
+      throw new TypeNotPresentException(type2, e);
     }
     if (class1.isAssignableFrom(class2)) {
       return type1;

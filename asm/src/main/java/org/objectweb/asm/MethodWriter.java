@@ -720,7 +720,9 @@ final class MethodWriter extends MethodVisitor {
   }
 
   @Override
-  public void visitCode() {}
+  public void visitCode() {
+    // Nothing to do.
+  }
 
   @Override
   public void visitFrame(
@@ -755,10 +757,10 @@ final class MethodWriter extends MethodVisitor {
       }
     } else if (type == Opcodes.F_NEW) {
       if (previousFrame == null) {
-        int maxLocals = Type.getArgumentsAndReturnSizes(descriptor) >> 2;
+        int argumentsSize = Type.getArgumentsAndReturnSizes(descriptor) >> 2;
         Frame implicitFirstFrame = new Frame(new Label());
         implicitFirstFrame.setInputFrameFromDescriptor(
-            symbolTable, accessFlags, descriptor, maxLocals);
+            symbolTable, accessFlags, descriptor, argumentsSize);
         implicitFirstFrame.accept(this);
       }
       currentLocals = nLocal;
@@ -826,6 +828,8 @@ final class MethodWriter extends MethodVisitor {
           }
           putFrameType(stack[0]);
           break;
+        default:
+          throw new IllegalArgumentException();
       }
 
       previousFrameOffset = code.length;
@@ -919,17 +923,17 @@ final class MethodWriter extends MethodVisitor {
       }
     }
     if (compute != COMPUTE_NOTHING) {
-      int currentLocals;
+      int currentMaxLocals;
       if (opcode == Opcodes.LLOAD
           || opcode == Opcodes.DLOAD
           || opcode == Opcodes.LSTORE
           || opcode == Opcodes.DSTORE) {
-        currentLocals = var + 2;
+        currentMaxLocals = var + 2;
       } else {
-        currentLocals = var + 1;
+        currentMaxLocals = var + 1;
       }
-      if (currentLocals > maxLocals) {
-        maxLocals = currentLocals;
+      if (currentMaxLocals > maxLocals) {
+        maxLocals = currentMaxLocals;
       }
     }
     if (opcode >= Opcodes.ISTORE && compute == COMPUTE_ALL_FRAMES && firstHandler != null) {
@@ -1189,8 +1193,8 @@ final class MethodWriter extends MethodVisitor {
           // - consolidate the state scattered in these two instances into the canonical instance:
           currentBasicBlock.flags |= (label.flags & Label.FLAG_JUMP_TARGET);
           // - make sure the two instances share the same Frame instance (the implementation of
-          // {@link Label#getCanonicalInstance} relies on this property):
-          // assert label.frame == null;
+          // {@link Label#getCanonicalInstance} relies on this property; here label.frame should be
+          // null):
           label.frame = currentBasicBlock.frame;
           // - and make sure to NOT assign 'label' into 'currentBasicBlock' or 'lastBasicBlock', so
           // that they still refer to the canonical instance for this bytecode offset.
@@ -1204,7 +1208,7 @@ final class MethodWriter extends MethodVisitor {
         if (label.bytecodeOffset == lastBasicBlock.bytecodeOffset) {
           // Same comment as above.
           lastBasicBlock.flags |= (label.flags & Label.FLAG_JUMP_TARGET);
-          // assert label.frame == null;
+          // Here label.frame should be null.
           label.frame = lastBasicBlock.frame;
           currentBasicBlock = lastBasicBlock;
           return;
@@ -1214,7 +1218,7 @@ final class MethodWriter extends MethodVisitor {
       lastBasicBlock = label;
       // Make it the new current basic block.
       currentBasicBlock = label;
-      // assert label.frame == null;
+      // Here label.frame should be null.
       label.frame = new Frame(label);
     } else if (compute == COMPUTE_INSERTED_FRAMES) {
       if (currentBasicBlock == null) {
@@ -1283,15 +1287,14 @@ final class MethodWriter extends MethodVisitor {
       code.putByte(Opcodes.IINC).put11(var, increment);
     }
     // If needed, update the maximum stack size and number of locals, and stack map frames.
-    if (currentBasicBlock != null) {
-      if (compute == COMPUTE_ALL_FRAMES || compute == COMPUTE_INSERTED_FRAMES) {
-        currentBasicBlock.frame.execute(Opcodes.IINC, var, null, null);
-      }
+    if (currentBasicBlock != null
+        && (compute == COMPUTE_ALL_FRAMES || compute == COMPUTE_INSERTED_FRAMES)) {
+      currentBasicBlock.frame.execute(Opcodes.IINC, var, null, null);
     }
     if (compute != COMPUTE_NOTHING) {
-      int currentLocals = var + 1;
-      if (currentLocals > maxLocals) {
-        maxLocals = currentLocals;
+      int currentMaxLocals = var + 1;
+      if (currentMaxLocals > maxLocals) {
+        maxLocals = currentMaxLocals;
       }
     }
   }
@@ -1455,9 +1458,9 @@ final class MethodWriter extends MethodVisitor {
         .putShort(index);
     if (compute != COMPUTE_NOTHING) {
       char firstDescChar = descriptor.charAt(0);
-      int currentLocals = index + (firstDescChar == 'J' || firstDescChar == 'D' ? 2 : 1);
-      if (currentLocals > maxLocals) {
-        maxLocals = currentLocals;
+      int currentMaxLocals = index + (firstDescChar == 'J' || firstDescChar == 'D' ? 2 : 1);
+      if (currentMaxLocals > maxLocals) {
+        maxLocals = currentMaxLocals;
       }
     }
   }
@@ -1670,7 +1673,7 @@ final class MethodWriter extends MethodVisitor {
           // By construction, jsr targets are stored in the second outgoing edge of basic blocks
           // that ends with a jsr instruction (see {@link #FLAG_SUBROUTINE_CALLER}).
           Label subroutine = basicBlock.outgoingEdges.nextEdge.successor;
-          subroutine.addSubroutineRetSuccessors(basicBlock, numSubroutines);
+          subroutine.addSubroutineRetSuccessors(basicBlock);
         }
         basicBlock = basicBlock.nextBasicBlock;
       }
@@ -1721,7 +1724,9 @@ final class MethodWriter extends MethodVisitor {
   }
 
   @Override
-  public void visitEnd() {}
+  public void visitEnd() {
+    // Nothing to do.
+  }
 
   // -----------------------------------------------------------------------------------------------
   // Utility methods: control flow analysis algorithm
@@ -1844,6 +1849,9 @@ final class MethodWriter extends MethodVisitor {
         case 3:
           type = Frame.APPEND_FRAME;
           break;
+        default:
+          // Keep the FULL_FRAME type.
+          break;
       }
     } else if (nLocalDelta == 0 && nStack == 1) {
       type =
@@ -1953,7 +1961,7 @@ final class MethodWriter extends MethodVisitor {
     // For ease of reference, we use here the same attribute order as in Section 4.7 of the JVMS.
     if (code.length > 0) {
       if (code.length > 65535) {
-        throw new RuntimeException("Method code too large!");
+        throw new IndexOutOfBoundsException("Method code too large!");
       }
       symbolTable.addConstantUtf8("Code");
       // The Code attribute has 6 header bytes, plus 2, 2, 4 and 2 bytes respectively for max_stack,

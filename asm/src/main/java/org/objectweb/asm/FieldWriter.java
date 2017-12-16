@@ -185,7 +185,9 @@ final class FieldWriter extends FieldVisitor {
   }
 
   @Override
-  public void visitEnd() {}
+  public void visitEnd() {
+    // Nothing to do.
+  }
 
   // -----------------------------------------------------------------------------------------------
   // Utility methods

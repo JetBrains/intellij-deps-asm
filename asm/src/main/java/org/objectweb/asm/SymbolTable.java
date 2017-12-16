@@ -203,7 +203,8 @@ final class SymbolTable {
     // method calls below), and to account for bootstrap method entries.
     entries = new Entry[constantPoolCount * 2];
     char[] charBuffer = new char[classReader.getMaxStringLength()];
-    for (int itemIndex = 1; itemIndex < constantPoolCount; itemIndex++) {
+    int itemIndex = 1;
+    while (itemIndex < constantPoolCount) {
       int itemOffset = classReader.getItem(itemIndex);
       int itemTag = inputBytes[itemOffset - 1];
       int nameAndTypeItemOffset;
@@ -232,7 +233,7 @@ final class SymbolTable {
           break;
         case Symbol.CONSTANT_LONG_TAG:
         case Symbol.CONSTANT_DOUBLE_TAG:
-          addConstantLong(itemIndex++, itemTag, classReader.readLong(itemOffset));
+          addConstantLong(itemIndex, itemTag, classReader.readLong(itemOffset));
           break;
         case Symbol.CONSTANT_UTF8_TAG:
           addConstantUtf8(itemIndex, classReader.readUTF(itemIndex, charBuffer));
@@ -267,8 +268,10 @@ final class SymbolTable {
               itemIndex, itemTag, classReader.readUTF8(itemOffset, charBuffer));
           break;
         default:
-          throw new AssertionError();
+          throw new IllegalArgumentException();
       }
+      itemIndex +=
+          (itemTag == Symbol.CONSTANT_LONG_TAG || itemTag == Symbol.CONSTANT_DOUBLE_TAG) ? 2 : 1;
     }
 
     // Copy the BootstrapMethods 'bootstrap_methods' array binary content, if any.
@@ -285,11 +288,12 @@ final class SymbolTable {
       // Compute the offset and the length of the BootstrapMethods 'bootstrap_methods' array.
       int bootstrapMethodsOffset = currentAttributeOffset + 8;
       int bootstrapMethodsLength = classReader.readInt(currentAttributeOffset + 2) - 2;
-      this.bootstrapMethods = new ByteVector(bootstrapMethodsLength);
+      bootstrapMethods = new ByteVector(bootstrapMethodsLength);
       bootstrapMethods.putByteArray(inputBytes, bootstrapMethodsOffset, bootstrapMethodsLength);
 
       // Add each bootstrap method in the symbol table entries.
-      for (int i = 0, currentOffset = bootstrapMethodsOffset; i < bootstrapMethodCount; i++) {
+      int currentOffset = bootstrapMethodsOffset;
+      for (int i = 0; i < bootstrapMethodCount; i++) {
         int offset = currentOffset - bootstrapMethodsOffset;
         int bootstrapMethodRef = classReader.readUnsignedShort(currentOffset);
         currentOffset += 2;
@@ -1002,16 +1006,16 @@ final class SymbolTable {
    */
   Symbol addBootstrapMethod(
       final Handle bootstrapMethodHandle, final Object... bootstrapMethodArguments) {
-    ByteVector bootstrapMethods = this.bootstrapMethods;
-    if (bootstrapMethods == null) {
-      bootstrapMethods = this.bootstrapMethods = new ByteVector();
+    ByteVector bootstrapMethodsAttribute = bootstrapMethods;
+    if (bootstrapMethodsAttribute == null) {
+      bootstrapMethodsAttribute = bootstrapMethods = new ByteVector();
     }
 
     // Write the bootstrap method in the BootstrapMethods table. This is necessary to be able to
     // compare it with existing ones, and will be reverted below if there is already a similar
     // bootstrap method.
-    int bootstrapMethodOffset = bootstrapMethods.length;
-    bootstrapMethods.putShort(
+    int bootstrapMethodOffset = bootstrapMethodsAttribute.length;
+    bootstrapMethodsAttribute.putShort(
         addConstantMethodHandle(
                 bootstrapMethodHandle.tag,
                 bootstrapMethodHandle.owner,
@@ -1020,13 +1024,13 @@ final class SymbolTable {
                 bootstrapMethodHandle.isInterface())
             .index);
     int numBootstrapArguments = bootstrapMethodArguments.length;
-    bootstrapMethods.putShort(numBootstrapArguments);
+    bootstrapMethodsAttribute.putShort(numBootstrapArguments);
     for (int i = 0; i < numBootstrapArguments; i++) {
-      bootstrapMethods.putShort(addConstant(bootstrapMethodArguments[i]).index);
+      bootstrapMethodsAttribute.putShort(addConstant(bootstrapMethodArguments[i]).index);
     }
 
     // Compute the length and the hash code of the bootstrap method.
-    int bootstrapMethodlength = bootstrapMethods.length - bootstrapMethodOffset;
+    int bootstrapMethodlength = bootstrapMethodsAttribute.length - bootstrapMethodOffset;
     int hashCode = bootstrapMethodHandle.hashCode();
     for (int i = 0; i < numBootstrapArguments; i++) {
       hashCode ^= bootstrapMethodArguments[i].hashCode();

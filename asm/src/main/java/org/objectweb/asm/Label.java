@@ -287,7 +287,9 @@ public class Label {
   // -----------------------------------------------------------------------------------------------
 
   /** Constructs a new label. */
-  public Label() {}
+  public Label() {
+    // Nothing to do.
+  }
 
   /**
    * Returns the bytecode offset corresponding to this label. This offset is computed from the start
@@ -527,9 +529,8 @@ public class Label {
    *
    * @param subroutineCaller a basic block that ends with a jsr to the basic block corresponding to
    *     this label. This label is supposed to correspond to the start of a subroutine.
-   * @param numSubroutine the total number of subroutines in the method.
    */
-  final void addSubroutineRetSuccessors(final Label subroutineCaller, final int numSubroutine) {
+  final void addSubroutineRetSuccessors(final Label subroutineCaller) {
     // Data flow algorithm: put this basic block in a list blocks to process (which are blocks
     // belonging to a subroutine starting with this label) and, while there are blocks to process,
     // remove one from the list, put it in a list of blocks that have been processed, add a return
@@ -568,9 +569,9 @@ public class Label {
     // Reset the {@link #nextListElement} of all the basic blocks that have been processed to null,
     // so that this method can be called again with a different subroutine or subroutine caller.
     while (listOfProcessedBlocks != EMPTY_LIST) {
-      Label nextListElement = listOfProcessedBlocks.nextListElement;
+      Label newListOfProcessedBlocks = listOfProcessedBlocks.nextListElement;
       listOfProcessedBlocks.nextListElement = null;
-      listOfProcessedBlocks = nextListElement;
+      listOfProcessedBlocks = newListOfProcessedBlocks;
     }
   }
 
@@ -590,13 +591,11 @@ public class Label {
       // leads to the jsr target (see {@link #FLAG_SUBROUTINE_CALLER}).
       boolean isJsrTarget =
           (flags & Label.FLAG_SUBROUTINE_CALLER) != 0 && outgoingEdge == outgoingEdges.nextEdge;
-      if (!isJsrTarget) {
+      if (!isJsrTarget && outgoingEdge.successor.nextListElement == null) {
         // Add this successor to the list of blocks to process, if it does not already belong to a
         // list of labels.
-        if (outgoingEdge.successor.nextListElement == null) {
-          outgoingEdge.successor.nextListElement = listOfLabelsToProcess;
-          listOfLabelsToProcess = outgoingEdge.successor;
-        }
+        outgoingEdge.successor.nextListElement = listOfLabelsToProcess;
+        listOfLabelsToProcess = outgoingEdge.successor;
       }
       outgoingEdge = outgoingEdge.nextEdge;
     }

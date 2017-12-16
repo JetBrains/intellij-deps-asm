@@ -151,7 +151,8 @@ class ClassDump {
     builder.add("minor_version: ", parser.u2());
     builder.add("major_version: ", parser.u2());
     int constantPoolCount = parser.u2();
-    for (int cpIndex = 1; cpIndex < constantPoolCount; ) {
+    int cpIndex = 1;
+    while (cpIndex < constantPoolCount) {
       CpInfo cpInfo = parseCpInfo(parser, builder);
       builder.putCpInfo(cpIndex, cpInfo);
       cpIndex += cpInfo.size();
@@ -745,10 +746,8 @@ class ClassDump {
    *     4.6</a>
    */
   private static void dumpMethodInfo(Parser parser, Builder builder) throws IOException {
-    builder.add("access_flags: ", parser.u2());
-    builder.addCpInfo("name_index: ", parser.u2());
-    builder.addCpInfo("descriptor_index: ", parser.u2());
-    dumpAttributeList(parser, builder);
+    // method_info has the same top level structure as field_info.
+    dumpFieldInfo(parser, builder);
   }
 
   /**
@@ -783,7 +782,7 @@ class ClassDump {
     } else if (attributeName.equals("EnclosingMethod")) {
       dumpEnclosingMethodAttribute(parser, builder);
     } else if (attributeName.equals("Synthetic")) {
-      dumpSyntheticAttribute(parser, builder);
+      dumpSyntheticAttribute();
     } else if (attributeName.equals("Signature")) {
       dumpSignatureAttribute(parser, builder);
     } else if (attributeName.equals("SourceFile")) {
@@ -797,7 +796,7 @@ class ClassDump {
     } else if (attributeName.equals("LocalVariableTypeTable")) {
       dumpLocalVariableTypeTableAttribute(parser, builder);
     } else if (attributeName.equals("Deprecated")) {
-      dumpDeprecatedAttribute(parser, builder);
+      dumpDeprecatedAttribute();
     } else if (attributeName.equals("RuntimeVisibleAnnotations")) {
       dumpRuntimeVisibleAnnotationsAttribute(parser, builder);
     } else if (attributeName.equals("RuntimeInvisibleAnnotations")) {
@@ -1483,12 +1482,10 @@ class ClassDump {
   /**
    * Parses and dumps a Synthetic attribute.
    *
-   * @param parser a class parser.
-   * @param builder a dump builder.
    * @see <a href="https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.7.8">JVMS
    *     4.7.8</a>
    */
-  private static void dumpSyntheticAttribute(Parser parser, Builder builder) {
+  private static void dumpSyntheticAttribute() {
     // Nothing to parse.
   }
 
@@ -1601,12 +1598,10 @@ class ClassDump {
   /**
    * Parses and dumps a Deprecated attribute.
    *
-   * @param parser a class parser.
-   * @param builder a dump builder.
    * @see <a href="https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.7.15">JVMS
    *     4.7.15</a>
    */
-  private static void dumpDeprecatedAttribute(Parser parser, Builder builder) {
+  private static void dumpDeprecatedAttribute() {
     // Nothing to parse.
   }
 
@@ -2114,8 +2109,8 @@ class ClassDump {
 
     AbstractBuilder(AbstractBuilder<?> parent) {
       this.parent = parent;
-      this.children = new ArrayList<T>();
-      this.context = new HashMap<Integer, Object>();
+      this.children = new ArrayList<>();
+      this.context = new HashMap<>();
     }
 
     /**
@@ -2132,7 +2127,7 @@ class ClassDump {
     public <C extends CpInfo> C getCpInfo(int cpIndex, Class<C> cpInfoType) {
       Object cpInfo = get(CP_INFO_KEY | cpIndex);
       if (cpInfo != null && !cpInfoType.isInstance(cpInfo)) {
-        throw new RuntimeException(
+        throw new IllegalArgumentException(
             "Invalid constant pool type :"
                 + cpInfo.getClass().getName()
                 + " should be "
@@ -2145,7 +2140,7 @@ class ClassDump {
     public int getInsnIndex(int bytecodeOffset) {
       Integer insnIndex = (Integer) get(bytecodeOffset);
       if (insnIndex == null) {
-        throw new RuntimeException("Invalid bytecode offset:" + bytecodeOffset);
+        throw new IllegalArgumentException("Invalid bytecode offset:" + bytecodeOffset);
       }
       return insnIndex;
     }
@@ -2294,11 +2289,17 @@ class ClassDump {
       return name.compareTo(builder.name);
     }
 
+    @Override
     public boolean equals(Object other) {
       return (other instanceof Builder) && name.equals(((Builder) other).name);
     }
-  }
 
+    @Override
+    public int hashCode() {
+      return name.hashCode();
+    }
+  }
+  
   /** An {@link AbstractBuilder} which sorts its children by name before building. */
   private static class SortedBuilder extends AbstractBuilder<Builder> {
     SortedBuilder(Builder parent) {

@@ -234,8 +234,10 @@ public class Type {
         return DOUBLE_TYPE;
       } else if (clazz == Float.TYPE) {
         return FLOAT_TYPE;
-      } else /* if (clazz == Long.TYPE) */ {
+      } else if (clazz == Long.TYPE) {
         return LONG_TYPE;
+      } else {
+        throw new AssertionError();
       }
     } else {
       return getType(getDescriptor(clazz));
@@ -282,7 +284,9 @@ public class Type {
         currentOffset++;
       }
       if (valueBuffer[currentOffset++] == 'L') {
-        while (valueBuffer[currentOffset++] != ';') {}
+        while (valueBuffer[currentOffset++] != ';') {
+          // Skip the argument descriptor content.
+        }
       }
       ++numArgumentTypes;
     }
@@ -299,7 +303,9 @@ public class Type {
         currentOffset++;
       }
       if (valueBuffer[currentOffset++] == 'L') {
-        while (valueBuffer[currentOffset++] != ';') {}
+        while (valueBuffer[currentOffset++] != ';') {
+          // Skip the argument descriptor content.
+        }
       }
       argumentTypes[currentArgumentTypeIndex++] =
           getType(
@@ -339,7 +345,9 @@ public class Type {
         currentOffset++;
       }
       if (valueBuffer[currentOffset++] == 'L') {
-        while (valueBuffer[currentOffset++] != ';') {}
+        while (valueBuffer[currentOffset++] != ';') {
+          // Skip the argument descriptor content.
+        }
       }
     }
     return getType(valueBuffer, currentOffset + 1, valueBuffer.length - currentOffset - 1);
@@ -379,15 +387,21 @@ public class Type {
           currentOffset++;
         }
         if (methodDescriptor.charAt(currentOffset++) == 'L') {
-          while (methodDescriptor.charAt(currentOffset++) != ';') {}
+          while (methodDescriptor.charAt(currentOffset++) != ';') {
+            // Skip the argument descriptor content.
+          }
         }
         argumentsSize += 1;
       }
       currentChar = methodDescriptor.charAt(currentOffset);
     }
     currentChar = methodDescriptor.charAt(currentOffset + 1);
-    int returnSize = currentChar == 'V' ? 0 : (currentChar == 'J' || currentChar == 'D' ? 2 : 1);
-    return argumentsSize << 2 | returnSize;
+    if (currentChar == 'V') {
+      return argumentsSize << 2;
+    } else {
+      int returnSize = (currentChar == 'J' || currentChar == 'D') ? 2 : 1;
+      return argumentsSize << 2 | returnSize;
+    }
   }
 
   /**
@@ -426,7 +440,7 @@ public class Type {
       case '(':
         return new Type(METHOD, descriptorBuffer, descriptorOffset, descriptorLength);
       default:
-        throw new AssertionError();
+        throw new IllegalArgumentException();
     }
   }
 
@@ -704,8 +718,10 @@ public class Type {
         descriptor = 'D';
       } else if (currentClass == Float.TYPE) {
         descriptor = 'F';
-      } else /* if (currentClass == Long.TYPE) */ {
+      } else if (currentClass == Long.TYPE) {
         descriptor = 'J';
+      } else {
+        throw new AssertionError();
       }
       stringBuilder.append(descriptor);
     } else {
@@ -786,6 +802,7 @@ public class Type {
         case INTERNAL:
           return opcode + (Opcodes.AALOAD - Opcodes.IALOAD);
         case METHOD:
+          throw new UnsupportedOperationException();
         default:
           throw new AssertionError();
       }
@@ -807,6 +824,7 @@ public class Type {
         case OBJECT:
         case INTERNAL:
         case METHOD:
+          throw new UnsupportedOperationException();
         default:
           throw new AssertionError();
       }

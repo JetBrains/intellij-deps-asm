@@ -430,7 +430,7 @@ public class TypeReference {
         output.put12(targetTypeAndInfo >>> 24, (targetTypeAndInfo & 0xFFFF00) >> 8);
         break;
       default:
-        throw new AssertionError();
+        throw new IllegalArgumentException();
     }
   }
 }

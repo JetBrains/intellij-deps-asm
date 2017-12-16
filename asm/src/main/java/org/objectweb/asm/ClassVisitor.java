@@ -126,7 +126,7 @@ public abstract class ClassVisitor {
    */
   public ModuleVisitor visitModule(final String name, final int access, final String version) {
     if (api < Opcodes.ASM6) {
-      throw new RuntimeException();
+      throw new UnsupportedOperationException();
     }
     if (cv != null) {
       return cv.visitModule(name, access, version);
@@ -183,7 +183,7 @@ public abstract class ClassVisitor {
   public AnnotationVisitor visitTypeAnnotation(
       final int typeRef, final TypePath typePath, final String descriptor, final boolean visible) {
     if (api < Opcodes.ASM5) {
-      throw new RuntimeException();
+      throw new UnsupportedOperationException();
     }
     if (cv != null) {
       return cv.visitTypeAnnotation(typeRef, typePath, descriptor, visible);

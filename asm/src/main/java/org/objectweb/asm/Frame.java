@@ -328,11 +328,11 @@ class Frame {
             typeValue = REFERENCE_KIND | symbolTable.addType(internalName);
             break;
           default:
-            throw new AssertionError();
+            throw new IllegalArgumentException();
         }
         return ((elementDescriptorOffset - offset) << DIM_SHIFT) | typeValue;
       default:
-        throw new AssertionError();
+        throw new IllegalArgumentException();
     }
   }
 
@@ -445,7 +445,8 @@ class Frame {
       }
     }
     inputStack = new int[nStack + nStackTop];
-    for (int inputStackIndex = 0, i = 0; i < nStack; ++i) {
+    int inputStackIndex = 0;
+    for (int i = 0; i < nStack; ++i) {
       inputStack[inputStackIndex++] = getAbstractTypeFromApiFormat(symbolTable, stack[i]);
       if (stack[i] == Opcodes.LONG || stack[i] == Opcodes.DOUBLE) {
         inputStack[inputStackIndex++] = TOP;
@@ -746,6 +747,7 @@ class Frame {
             break;
           case Symbol.CONSTANT_METHOD_HANDLE_TAG:
             push(REFERENCE_KIND | symbolTable.addType("java/lang/invoke/MethodHandle"));
+            break;
           default:
             throw new AssertionError();
         }
@@ -753,22 +755,11 @@ class Frame {
       case Opcodes.ALOAD:
         push(getLocal(arg));
         break;
-      case Opcodes.IALOAD:
-      case Opcodes.BALOAD:
-      case Opcodes.CALOAD:
-      case Opcodes.SALOAD:
-        pop(2);
-        push(INTEGER);
-        break;
       case Opcodes.LALOAD:
       case Opcodes.D2L:
         pop(2);
         push(LONG);
         push(TOP);
-        break;
-      case Opcodes.FALOAD:
-        pop(2);
-        push(FLOAT);
         break;
       case Opcodes.DALOAD:
       case Opcodes.L2D:
@@ -917,6 +908,10 @@ class Frame {
         push(abstractType1);
         push(abstractType2);
         break;
+      case Opcodes.IALOAD:
+      case Opcodes.BALOAD:
+      case Opcodes.CALOAD:
+      case Opcodes.SALOAD:
       case Opcodes.IADD:
       case Opcodes.ISUB:
       case Opcodes.IMUL:
@@ -947,6 +942,7 @@ class Frame {
         push(LONG);
         push(TOP);
         break;
+      case Opcodes.FALOAD:
       case Opcodes.FADD:
       case Opcodes.FSUB:
       case Opcodes.FMUL:
@@ -1006,7 +1002,7 @@ class Frame {
         break;
       case Opcodes.JSR:
       case Opcodes.RET:
-        throw new RuntimeException("JSR/RET are not supported with computeFrames option");
+        throw new IllegalArgumentException("JSR/RET are not supported with computeFrames option");
       case Opcodes.GETSTATIC:
         push(symbolTable, argSymbol.value);
         break;
@@ -1069,7 +1065,7 @@ class Frame {
             push(ARRAY_OF | LONG);
             break;
           default:
-            throw new AssertionError();
+            throw new IllegalArgumentException();
         }
         break;
       case Opcodes.ANEWARRAY:
@@ -1095,7 +1091,7 @@ class Frame {
         push(symbolTable, argSymbol.value);
         break;
       default:
-        throw new AssertionError();
+        throw new IllegalArgumentException();
     }
   }
 
@@ -1341,47 +1337,44 @@ class Frame {
    *     Frame}.
    */
   final void accept(final MethodWriter methodWriter) {
-    int nLocal = 0;
-    int nStack = 0;
-    int[] localTypes = inputLocals;
-    int[] stackTypes = inputStack;
     // Compute the number of locals, ignoring TOP types that are just after a LONG or a DOUBLE, and
     // all trailing TOP types.
-    for (int i = 0, nTrailingTop = 0; i < localTypes.length; ++i) {
+    int[] localTypes = inputLocals;
+    int nLocal = 0;
+    int nTrailingTop = 0;
+    int i = 0;
+    while (i < localTypes.length) {
       int localType = localTypes[i];
+      i += (localType == LONG || localType == DOUBLE) ? 2 : 1;
       if (localType == TOP) {
-        ++nTrailingTop;
+        nTrailingTop++;
       } else {
         nLocal += nTrailingTop + 1;
         nTrailingTop = 0;
       }
-      if (localType == LONG || localType == DOUBLE) {
-        ++i;
-      }
     }
     // Compute the stack size, ignoring TOP types that are just after a LONG or a DOUBLE.
-    for (int i = 0; i < stackTypes.length; ++i) {
-      ++nStack;
+    int[] stackTypes = inputStack;
+    int nStack = 0;
+    i = 0;
+    while (i < stackTypes.length) {
       int stackType = stackTypes[i];
-      if (stackType == LONG || stackType == DOUBLE) {
-        ++i;
-      }
+      i += (stackType == LONG || stackType == DOUBLE) ? 2 : 1;
+      nStack++;
     }
     // Visit the frame and its content.
     int frameIndex = methodWriter.visitFrameStart(owner.bytecodeOffset, nLocal, nStack);
-    for (int i = 0; nLocal > 0; ++i, --nLocal) {
+    i = 0;
+    while (nLocal-- > 0) {
       int localType = localTypes[i];
+      i += (localType == LONG || localType == DOUBLE) ? 2 : 1;
       methodWriter.visitAbstractType(frameIndex++, localType);
-      if (localType == LONG || localType == DOUBLE) {
-        ++i;
-      }
     }
-    for (int i = 0; i < stackTypes.length; ++i) {
+    i = 0;
+    while (nStack-- > 0) {
       int stackType = stackTypes[i];
+      i += (stackType == LONG || stackType == DOUBLE) ? 2 : 1;
       methodWriter.visitAbstractType(frameIndex++, stackType);
-      if (stackType == LONG || stackType == DOUBLE) {
-        ++i;
-      }
     }
     methodWriter.visitFrameEnd();
   }

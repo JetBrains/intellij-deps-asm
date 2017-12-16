@@ -431,56 +431,61 @@ public class ClassWriter extends ClassVisitor {
     if (classes != null) {
       ++attributesCount;
       size += 8 + classes.length;
-      symbolTable.addConstantUtf8("InnerClasses");
+      symbolTable.addConstantUtf8(Constants.INNER_CLASSES);
     }
     if (enclosingClassIndex != 0) {
       ++attributesCount;
       size += 10;
-      symbolTable.addConstantUtf8("EnclosingMethod");
+      symbolTable.addConstantUtf8(Constants.ENCLOSING_METHOD);
     }
     if ((accessFlags & Opcodes.ACC_SYNTHETIC) != 0 && (version & 0xFFFF) < Opcodes.V1_5) {
       ++attributesCount;
       size += 6;
-      symbolTable.addConstantUtf8("Synthetic");
+      symbolTable.addConstantUtf8(Constants.SYNTHETIC);
     }
     if (signatureIndex != 0) {
       ++attributesCount;
       size += 8;
-      symbolTable.addConstantUtf8("Signature");
+      symbolTable.addConstantUtf8(Constants.SIGNATURE);
     }
     if (sourceFileIndex != 0) {
       ++attributesCount;
       size += 8;
-      symbolTable.addConstantUtf8("SourceFile");
+      symbolTable.addConstantUtf8(Constants.SOURCE_FILE);
     }
     if (debugExtension != null) {
       ++attributesCount;
       size += 6 + debugExtension.length;
-      symbolTable.addConstantUtf8("SourceDebugExtension");
+      symbolTable.addConstantUtf8(Constants.SOURCE_DEBUG_EXTENSION);
     }
     if ((accessFlags & Opcodes.ACC_DEPRECATED) != 0) {
       ++attributesCount;
       size += 6;
-      symbolTable.addConstantUtf8("Deprecated");
+      symbolTable.addConstantUtf8(Constants.DEPRECATED);
     }
     if (lastRuntimeVisibleAnnotation != null) {
       ++attributesCount;
-      size += lastRuntimeVisibleAnnotation.computeAnnotationsSize("RuntimeVisibleAnnotations");
+      size +=
+          lastRuntimeVisibleAnnotation.computeAnnotationsSize(
+              Constants.RUNTIME_VISIBLE_ANNOTATIONS);
     }
     if (lastRuntimeInvisibleAnnotation != null) {
       ++attributesCount;
-      size += lastRuntimeInvisibleAnnotation.computeAnnotationsSize("RuntimeInvisibleAnnotations");
+      size +=
+          lastRuntimeInvisibleAnnotation.computeAnnotationsSize(
+              Constants.RUNTIME_INVISIBLE_ANNOTATIONS);
     }
     if (lastRuntimeVisibleTypeAnnotation != null) {
       ++attributesCount;
       size +=
-          lastRuntimeVisibleTypeAnnotation.computeAnnotationsSize("RuntimeVisibleTypeAnnotations");
+          lastRuntimeVisibleTypeAnnotation.computeAnnotationsSize(
+              Constants.RUNTIME_VISIBLE_TYPE_ANNOTATIONS);
     }
     if (lastRuntimeInvisibleTypeAnnotation != null) {
       ++attributesCount;
       size +=
           lastRuntimeInvisibleTypeAnnotation.computeAnnotationsSize(
-              "RuntimeInvisibleTypeAnnotations");
+              Constants.RUNTIME_INVISIBLE_TYPE_ANNOTATIONS);
     }
     if (symbolTable.computeBootstrapMethodsSize() > 0) {
       ++attributesCount;
@@ -531,49 +536,59 @@ public class ClassWriter extends ClassVisitor {
     // For ease of reference, we use here the same attribute order as in Section 4.7 of the JVMS.
     result.putShort(attributesCount);
     if (classes != null) {
-      result.putShort(symbolTable.addConstantUtf8("InnerClasses"));
-      result.putInt(classes.length + 2).putShort(numberOfClasses);
-      result.putByteArray(classes.data, 0, classes.length);
+      result
+          .putShort(symbolTable.addConstantUtf8(Constants.INNER_CLASSES))
+          .putInt(classes.length + 2)
+          .putShort(numberOfClasses)
+          .putByteArray(classes.data, 0, classes.length);
     }
     if (enclosingClassIndex != 0) {
-      result.putShort(symbolTable.addConstantUtf8("EnclosingMethod")).putInt(4);
-      result.putShort(enclosingClassIndex).putShort(enclosingMethodIndex);
+      result
+          .putShort(symbolTable.addConstantUtf8(Constants.ENCLOSING_METHOD))
+          .putInt(4)
+          .putShort(enclosingClassIndex)
+          .putShort(enclosingMethodIndex);
     }
     if ((accessFlags & Opcodes.ACC_SYNTHETIC) != 0 && (version & 0xFFFF) < Opcodes.V1_5) {
-      result.putShort(symbolTable.addConstantUtf8("Synthetic")).putInt(0);
+      result.putShort(symbolTable.addConstantUtf8(Constants.SYNTHETIC)).putInt(0);
     }
     if (signatureIndex != 0) {
-      result.putShort(symbolTable.addConstantUtf8("Signature")).putInt(2).putShort(signatureIndex);
+      result
+          .putShort(symbolTable.addConstantUtf8(Constants.SIGNATURE))
+          .putInt(2)
+          .putShort(signatureIndex);
     }
     if (sourceFileIndex != 0) {
       result
-          .putShort(symbolTable.addConstantUtf8("SourceFile"))
+          .putShort(symbolTable.addConstantUtf8(Constants.SOURCE_FILE))
           .putInt(2)
           .putShort(sourceFileIndex);
     }
     if (debugExtension != null) {
       int length = debugExtension.length;
-      result.putShort(symbolTable.addConstantUtf8("SourceDebugExtension")).putInt(length);
-      result.putByteArray(debugExtension.data, 0, length);
+      result
+          .putShort(symbolTable.addConstantUtf8(Constants.SOURCE_DEBUG_EXTENSION))
+          .putInt(length)
+          .putByteArray(debugExtension.data, 0, length);
     }
     if ((accessFlags & Opcodes.ACC_DEPRECATED) != 0) {
-      result.putShort(symbolTable.addConstantUtf8("Deprecated")).putInt(0);
+      result.putShort(symbolTable.addConstantUtf8(Constants.DEPRECATED)).putInt(0);
     }
     if (lastRuntimeVisibleAnnotation != null) {
       lastRuntimeVisibleAnnotation.putAnnotations(
-          symbolTable.addConstantUtf8("RuntimeVisibleAnnotations"), result);
+          symbolTable.addConstantUtf8(Constants.RUNTIME_VISIBLE_ANNOTATIONS), result);
     }
     if (lastRuntimeInvisibleAnnotation != null) {
       lastRuntimeInvisibleAnnotation.putAnnotations(
-          symbolTable.addConstantUtf8("RuntimeInvisibleAnnotations"), result);
+          symbolTable.addConstantUtf8(Constants.RUNTIME_INVISIBLE_ANNOTATIONS), result);
     }
     if (lastRuntimeVisibleTypeAnnotation != null) {
       lastRuntimeVisibleTypeAnnotation.putAnnotations(
-          symbolTable.addConstantUtf8("RuntimeVisibleTypeAnnotations"), result);
+          symbolTable.addConstantUtf8(Constants.RUNTIME_VISIBLE_TYPE_ANNOTATIONS), result);
     }
     if (lastRuntimeInvisibleTypeAnnotation != null) {
       lastRuntimeInvisibleTypeAnnotation.putAnnotations(
-          symbolTable.addConstantUtf8("RuntimeInvisibleTypeAnnotations"), result);
+          symbolTable.addConstantUtf8(Constants.RUNTIME_INVISIBLE_TYPE_ANNOTATIONS), result);
     }
     symbolTable.putBootstrapMethods(result);
     if (moduleWriter != null) {

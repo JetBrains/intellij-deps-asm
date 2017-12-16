@@ -370,7 +370,7 @@ final class SymbolTable {
    */
   int computeBootstrapMethodsSize() {
     if (bootstrapMethods != null) {
-      addConstantUtf8("BootstrapMethods");
+      addConstantUtf8(Constants.BOOTSTRAP_METHODS);
       return 8 + bootstrapMethods.length;
     } else {
       return 0;
@@ -386,7 +386,7 @@ final class SymbolTable {
   void putBootstrapMethods(final ByteVector output) {
     if (bootstrapMethods != null) {
       output
-          .putShort(addConstantUtf8("BootstrapMethods"))
+          .putShort(addConstantUtf8(Constants.BOOTSTRAP_METHODS))
           .putInt(bootstrapMethods.length + 2)
           .putShort(bootstrapMethodCount)
           .putByteArray(bootstrapMethods.data, 0, bootstrapMethods.length);

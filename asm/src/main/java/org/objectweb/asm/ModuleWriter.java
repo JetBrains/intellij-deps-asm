@@ -193,17 +193,17 @@ final class ModuleWriter extends ModuleVisitor {
    * @return the size in bytes of the Module, ModulePackages and ModuleMainClass attributes.
    */
   int computeAttributesSize() {
-    symbolTable.addConstantUtf8("Module");
+    symbolTable.addConstantUtf8(Constants.MODULE);
     // 6 attribute header bytes, 6 bytes for name, flags and version, and 5 * 2 bytes for counts.
     int size =
         22 + requires.length + exports.length + opens.length + usesIndex.length + provides.length;
     if (packageCount > 0) {
-      symbolTable.addConstantUtf8("ModulePackages");
+      symbolTable.addConstantUtf8(Constants.MODULE_PACKAGES);
       // 6 attribute header bytes, and 2 bytes for package_count.
       size += 8 + packageIndex.length;
     }
     if (mainClassIndex > 0) {
-      symbolTable.addConstantUtf8("ModuleMainClass");
+      symbolTable.addConstantUtf8(Constants.MODULE_MAIN_CLASS);
       // 6 attribute header bytes, and 2 bytes for main_class_index.
       size += 8;
     }
@@ -221,7 +221,7 @@ final class ModuleWriter extends ModuleVisitor {
     int moduleAttributeLength =
         16 + requires.length + exports.length + opens.length + usesIndex.length + provides.length;
     output
-        .putShort(symbolTable.addConstantUtf8("Module"))
+        .putShort(symbolTable.addConstantUtf8(Constants.MODULE))
         .putInt(moduleAttributeLength)
         .putShort(moduleNameIndex)
         .putShort(moduleFlags)
@@ -238,14 +238,14 @@ final class ModuleWriter extends ModuleVisitor {
         .putByteArray(provides.data, 0, provides.length);
     if (packageCount > 0) {
       output
-          .putShort(symbolTable.addConstantUtf8("ModulePackages"))
+          .putShort(symbolTable.addConstantUtf8(Constants.MODULE_PACKAGES))
           .putInt(2 + packageIndex.length)
           .putShort(packageCount)
           .putByteArray(packageIndex.data, 0, packageIndex.length);
     }
     if (mainClassIndex > 0) {
       output
-          .putShort(symbolTable.addConstantUtf8("ModuleMainClass"))
+          .putShort(symbolTable.addConstantUtf8(Constants.MODULE_MAIN_CLASS))
           .putInt(2)
           .putShort(mainClassIndex);
     }

@@ -48,6 +48,8 @@ package org.objectweb.asm;
  */
 public abstract class MethodVisitor {
 
+  private static final String REQUIRES_ASM5 = "This feature requires ASM5";
+
   /**
    * The ASM API version implemented by this visitor. The value of this field must be one of {@link
    * Opcodes#ASM4}, {@link Opcodes#ASM5} or {@link Opcodes#ASM6}.
@@ -96,7 +98,7 @@ public abstract class MethodVisitor {
    */
   public void visitParameter(final String name, final int access) {
     if (api < Opcodes.ASM5) {
-      throw new UnsupportedOperationException("This feature requires ASM5");
+      throw new UnsupportedOperationException(REQUIRES_ASM5);
     }
     if (mv != null) {
       mv.visitParameter(name, access);
@@ -153,7 +155,7 @@ public abstract class MethodVisitor {
   public AnnotationVisitor visitTypeAnnotation(
       final int typeRef, final TypePath typePath, final String descriptor, final boolean visible) {
     if (api < Opcodes.ASM5) {
-      throw new UnsupportedOperationException("This feature requires ASM5");
+      throw new UnsupportedOperationException(REQUIRES_ASM5);
     }
     if (mv != null) {
       return mv.visitTypeAnnotation(typeRef, typePath, descriptor, visible);
@@ -451,7 +453,7 @@ public abstract class MethodVisitor {
       final Handle bootstrapMethodHandle,
       final Object... bootstrapMethodArguments) {
     if (api < Opcodes.ASM5) {
-      throw new UnsupportedOperationException("This feature requires ASM5");
+      throw new UnsupportedOperationException(REQUIRES_ASM5);
     }
     if (mv != null) {
       mv.visitInvokeDynamicInsn(name, descriptor, bootstrapMethodHandle, bootstrapMethodArguments);
@@ -614,7 +616,7 @@ public abstract class MethodVisitor {
   public AnnotationVisitor visitInsnAnnotation(
       final int typeRef, final TypePath typePath, final String descriptor, final boolean visible) {
     if (api < Opcodes.ASM5) {
-      throw new UnsupportedOperationException("This feature requires ASM5");
+      throw new UnsupportedOperationException(REQUIRES_ASM5);
     }
     if (mv != null) {
       return mv.visitInsnAnnotation(typeRef, typePath, descriptor, visible);
@@ -662,7 +664,7 @@ public abstract class MethodVisitor {
   public AnnotationVisitor visitTryCatchAnnotation(
       final int typeRef, final TypePath typePath, final String descriptor, final boolean visible) {
     if (api < Opcodes.ASM5) {
-      throw new UnsupportedOperationException("This feature requires ASM5");
+      throw new UnsupportedOperationException(REQUIRES_ASM5);
     }
     if (mv != null) {
       return mv.visitTryCatchAnnotation(typeRef, typePath, descriptor, visible);
@@ -725,7 +727,7 @@ public abstract class MethodVisitor {
       final String descriptor,
       final boolean visible) {
     if (api < Opcodes.ASM5) {
-      throw new UnsupportedOperationException("This feature requires ASM5");
+      throw new UnsupportedOperationException(REQUIRES_ASM5);
     }
     if (mv != null) {
       return mv.visitLocalVariableAnnotation(

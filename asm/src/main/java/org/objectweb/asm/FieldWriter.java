@@ -205,41 +205,46 @@ final class FieldWriter extends FieldVisitor {
     // For ease of reference, we use here the same attribute order as in Section 4.7 of the JVMS.
     if (constantValueIndex != 0) {
       // ConstantValue attributes always use 8 bytes.
-      symbolTable.addConstantUtf8("ConstantValue");
+      symbolTable.addConstantUtf8(Constants.CONSTANT_VALUE);
       size += 8;
     }
     // Before Java 1.5, synthetic fields are represented with a Synthetic attribute.
     if ((accessFlags & Opcodes.ACC_SYNTHETIC) != 0
         && symbolTable.getMajorVersion() < Opcodes.V1_5) {
       // Synthetic attributes always use 6 bytes.
-      symbolTable.addConstantUtf8("Synthetic");
+      symbolTable.addConstantUtf8(Constants.SYNTHETIC);
       size += 6;
     }
     if (signatureIndex != 0) {
       // Signature attributes always use 8 bytes.
-      symbolTable.addConstantUtf8("Signature");
+      symbolTable.addConstantUtf8(Constants.SIGNATURE);
       size += 8;
     }
     // ACC_DEPRECATED is ASM specific, the ClassFile format uses a Deprecated attribute instead.
     if ((accessFlags & Opcodes.ACC_DEPRECATED) != 0) {
       // Deprecated attributes always use 6 bytes.
-      symbolTable.addConstantUtf8("Deprecated");
+      symbolTable.addConstantUtf8(Constants.DEPRECATED);
       size += 6;
     }
     if (lastRuntimeVisibleAnnotation != null) {
-      size += lastRuntimeVisibleAnnotation.computeAnnotationsSize("RuntimeVisibleAnnotations");
+      size +=
+          lastRuntimeVisibleAnnotation.computeAnnotationsSize(
+              Constants.RUNTIME_VISIBLE_ANNOTATIONS);
     }
     if (lastRuntimeInvisibleAnnotation != null) {
-      size += lastRuntimeInvisibleAnnotation.computeAnnotationsSize("RuntimeInvisibleAnnotations");
+      size +=
+          lastRuntimeInvisibleAnnotation.computeAnnotationsSize(
+              Constants.RUNTIME_INVISIBLE_ANNOTATIONS);
     }
     if (lastRuntimeVisibleTypeAnnotation != null) {
       size +=
-          lastRuntimeVisibleTypeAnnotation.computeAnnotationsSize("RuntimeVisibleTypeAnnotations");
+          lastRuntimeVisibleTypeAnnotation.computeAnnotationsSize(
+              Constants.RUNTIME_VISIBLE_TYPE_ANNOTATIONS);
     }
     if (lastRuntimeInvisibleTypeAnnotation != null) {
       size +=
           lastRuntimeInvisibleTypeAnnotation.computeAnnotationsSize(
-              "RuntimeInvisibleTypeAnnotations");
+              Constants.RUNTIME_INVISIBLE_TYPE_ANNOTATIONS);
     }
     if (firstAttribute != null) {
       size += firstAttribute.computeAttributesSize(symbolTable);
@@ -292,34 +297,38 @@ final class FieldWriter extends FieldVisitor {
     // Put the field_info attributes.
     // For ease of reference, we use here the same attribute order as in Section 4.7 of the JVMS.
     if (constantValueIndex != 0) {
-      output.putShort(symbolTable.addConstantUtf8("ConstantValue"));
-      output.putInt(2).putShort(constantValueIndex);
+      output
+          .putShort(symbolTable.addConstantUtf8(Constants.CONSTANT_VALUE))
+          .putInt(2)
+          .putShort(constantValueIndex);
     }
     if ((accessFlags & Opcodes.ACC_SYNTHETIC) != 0 && useSyntheticAttribute) {
-      output.putShort(symbolTable.addConstantUtf8("Synthetic")).putInt(0);
+      output.putShort(symbolTable.addConstantUtf8(Constants.SYNTHETIC)).putInt(0);
     }
     if (signatureIndex != 0) {
-      output.putShort(symbolTable.addConstantUtf8("Signature"));
-      output.putInt(2).putShort(signatureIndex);
+      output
+          .putShort(symbolTable.addConstantUtf8(Constants.SIGNATURE))
+          .putInt(2)
+          .putShort(signatureIndex);
     }
     if ((accessFlags & Opcodes.ACC_DEPRECATED) != 0) {
-      output.putShort(symbolTable.addConstantUtf8("Deprecated")).putInt(0);
+      output.putShort(symbolTable.addConstantUtf8(Constants.DEPRECATED)).putInt(0);
     }
     if (lastRuntimeVisibleAnnotation != null) {
       lastRuntimeVisibleAnnotation.putAnnotations(
-          symbolTable.addConstantUtf8("RuntimeVisibleAnnotations"), output);
+          symbolTable.addConstantUtf8(Constants.RUNTIME_VISIBLE_ANNOTATIONS), output);
     }
     if (lastRuntimeInvisibleAnnotation != null) {
       lastRuntimeInvisibleAnnotation.putAnnotations(
-          symbolTable.addConstantUtf8("RuntimeInvisibleAnnotations"), output);
+          symbolTable.addConstantUtf8(Constants.RUNTIME_INVISIBLE_ANNOTATIONS), output);
     }
     if (lastRuntimeVisibleTypeAnnotation != null) {
       lastRuntimeVisibleTypeAnnotation.putAnnotations(
-          symbolTable.addConstantUtf8("RuntimeVisibleTypeAnnotations"), output);
+          symbolTable.addConstantUtf8(Constants.RUNTIME_VISIBLE_TYPE_ANNOTATIONS), output);
     }
     if (lastRuntimeInvisibleTypeAnnotation != null) {
       lastRuntimeInvisibleTypeAnnotation.putAnnotations(
-          symbolTable.addConstantUtf8("RuntimeInvisibleTypeAnnotations"), output);
+          symbolTable.addConstantUtf8(Constants.RUNTIME_INVISIBLE_TYPE_ANNOTATIONS), output);
     }
     if (firstAttribute != null) {
       firstAttribute.putAttributes(symbolTable, output);

@@ -31,11 +31,12 @@ package jdk5;
  * Class which, compiled with the JDK 1.5.0, produces the new JVM instructions from that version
  * (compared to JDK 1.3.0). Also contain all the other instructions that can be used in JDK 1.5
  * classes (which excludes jsr and ret), so that ASM classes which don't support jsr or ret (and
- * therefore can't be tested with jdk3.AllIsntructions) can still be tested on all instructions.
+ * therefore can't be tested with jdk3.AllInstructions) can still be tested on all instructions.
  * Must be compiled with "javac -g".
  */
 class AllInstructions {
   private Class c;
+  private Class d;
   private int f;
   private long g;
   private AllInstructions field;
@@ -48,6 +49,7 @@ class AllInstructions {
   // New instruction in JDK 1.5.
   public void ldcWithClassConstant() {
     c = AllInstructions.class;
+    d = AllInstructions[].class;
   }
 
   public static int intInstructions(

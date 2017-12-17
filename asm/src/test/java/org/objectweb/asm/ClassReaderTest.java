@@ -38,6 +38,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.objectweb.asm.test.AsmTest;
 
@@ -294,6 +295,28 @@ public class ClassReaderTest extends AsmTest implements Opcodes {
           }
         };
     classReader.accept(classVisitor, 0);
+  }
+
+  /** Tests that reading an invalid class throws an exception. */
+  @ParameterizedTest
+  @EnumSource(InvalidClass.class)
+  public void testInvalidClasses(InvalidClass invalidClass) {
+    if (invalidClass == InvalidClass.INVALID_CLASS_VERSION
+        || invalidClass == InvalidClass.INVALID_CP_INFO_TAG) {
+      assertThrows(IllegalArgumentException.class, () -> new ClassReader(invalidClass.getBytes()));
+    } else {
+      ClassReader classReader = new ClassReader(invalidClass.getBytes());
+      if (invalidClass == InvalidClass.INVALID_CONSTANT_POOL_INDEX
+          || invalidClass == InvalidClass.INVALID_BYTECODE_OFFSET) {
+        assertThrows(
+            ArrayIndexOutOfBoundsException.class,
+            () -> classReader.accept(new EmptyClassVisitor(ASM6), 0));
+      } else {
+        assertThrows(
+            IllegalArgumentException.class,
+            () -> classReader.accept(new EmptyClassVisitor(ASM6), 0));
+      }
+    }
   }
 
   private static class EmptyClassVisitor extends ClassVisitor {

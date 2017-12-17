@@ -339,13 +339,13 @@ public class Label {
       if (otherLineNumbers == null) {
         otherLineNumbers = new int[LINE_NUMBERS_CAPACITY_INCREMENT];
       }
-      int otherLineNumberCount = otherLineNumbers[0]++;
-      if (otherLineNumberCount >= otherLineNumbers.length) {
+      int otherLineNumberIndex = ++otherLineNumbers[0];
+      if (otherLineNumberIndex >= otherLineNumbers.length) {
         int[] newLineNumbers = new int[otherLineNumbers.length + VALUES_CAPACITY_INCREMENT];
         System.arraycopy(otherLineNumbers, 0, newLineNumbers, 0, otherLineNumbers.length);
         otherLineNumbers = newLineNumbers;
       }
-      otherLineNumbers[otherLineNumberCount] = lineNumber;
+      otherLineNumbers[otherLineNumberIndex] = lineNumber;
     }
   }
 

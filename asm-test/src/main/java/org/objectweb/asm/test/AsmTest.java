@@ -172,21 +172,41 @@ public abstract class AsmTest {
 
     /** @return the content of this class. */
     public byte[] getBytes() {
-      String resourceName = name.replace('.', '/') + ".class";
-      try (InputStream inputStream = ClassLoader.getSystemResourceAsStream(resourceName)) {
-        assertNotNull(inputStream, "Class not found " + name);
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        byte[] data = new byte[inputStream.available()];
-        int bytesRead;
-        while ((bytesRead = inputStream.read(data, 0, data.length)) != -1) {
-          outputStream.write(data, 0, bytesRead);
-        }
-        outputStream.flush();
-        return outputStream.toByteArray();
-      } catch (IOException e) {
-        fail("Can't read " + name);
-        return new byte[0];
-      }
+      return AsmTest.getBytes(name);
+    }
+
+    @Override
+    public String toString() {
+      return name;
+    }
+  }
+
+  /**
+   * An invalid class, hand-crafted to contain some set of invalid class file structures. These
+   * classes are not compiled as part of the build. Instead, they have been compiled beforehand, and
+   * then manually edited to introduce errors.
+   */
+  public enum InvalidClass {
+    INVALID_BYTECODE_OFFSET("invalid.InvalidBytecodeOffset"),
+    INVALID_CLASS_VERSION("invalid.InvalidClassVersion"),
+    INVALID_CONSTANT_POOL_INDEX("invalid.InvalidConstantPoolIndex"),
+    INVALID_CP_INFO_TAG("invalid.InvalidCpInfoTag"),
+    INVALID_ELEMENT_VALUE("invalid.InvalidElementValue"),
+    INVALID_INSN_TYPE_ANNOTATION_TARGET_TYPE("invalid.InvalidInsnTypeAnnotationTargetType"),
+    INVALID_OPCODE("invalid.InvalidOpcode"),
+    INVALID_STACK_MAP_FRAME_TYPE("invalid.InvalidStackMapFrameType"),
+    INVALID_TYPE_ANNOTATION_TARGET_TYPE("invalid.InvalidTypeAnnotationTargetType"),
+    INVALID_VERIFICATION_TYPE_INFO("invalid.InvalidVerificationTypeInfo");
+
+    private final String name;
+
+    private InvalidClass(String name) {
+      this.name = name;
+    }
+
+    /** @return the content of this class. */
+    public byte[] getBytes() {
+      return AsmTest.getBytes(name);
     }
 
     @Override
@@ -288,7 +308,7 @@ public abstract class AsmTest {
       try {
         String dump = new ClassDump(classFile).toString();
         assertTrue(dump.contains(expectedString));
-      } catch (IOException e) {
+      } catch (IOException | IllegalArgumentException e) {
         fail("Class can't be dumped");
       }
     }
@@ -305,7 +325,7 @@ public abstract class AsmTest {
         String dump = new ClassDump(classFile).toString();
         String expectedDump = new ClassDump(expectedClassFile).toString();
         assertEquals(expectedDump, dump);
-      } catch (IOException e) {
+      } catch (IOException | IllegalArgumentException e) {
         fail("Class can't be dumped");
       }
     }
@@ -389,6 +409,24 @@ public abstract class AsmTest {
       } else {
         return super.loadClass(name, resolve);
       }
+    }
+  }
+
+  private static byte[] getBytes(String name) {
+    String resourceName = name.replace('.', '/') + ".class";
+    try (InputStream inputStream = ClassLoader.getSystemResourceAsStream(resourceName)) {
+      assertNotNull(inputStream, "Class not found " + name);
+      ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+      byte[] data = new byte[inputStream.available()];
+      int bytesRead;
+      while ((bytesRead = inputStream.read(data, 0, data.length)) != -1) {
+        outputStream.write(data, 0, bytesRead);
+      }
+      outputStream.flush();
+      return outputStream.toByteArray();
+    } catch (IOException e) {
+      fail("Can't read " + name);
+      return new byte[0];
     }
   }
 }

@@ -56,10 +56,11 @@ public class AllFrames {
 
   // Frame types: same, same_locals_1_stack_item, full_frame.
   // Element types: primitive types and object.
-  public int m0(boolean b, byte y, char c, short s, int i, float f, long l, double d, Object o) {
+  public int m0(boolean b, byte y, char c, short s, int i, float f, long l, double d, Object o,
+      Object[] p, Object[][] q) {
     return b
-        ? m0(!b, y, c, s, i - 1, f - 1f, l - 1l, d - 1d, o)
-        : m0(!b, y, c, s, i + 1, f + 1f, l + 1l, d + 1d, o);
+        ? m0(!b, y, c, s, i - 1, f - 1f, l - 1l, d - 1d, o, p, q)
+        : m0(!b, y, c, s, i + 1, f + 1f, l + 1l, d + 1d, o, p, q);
   }
 
   // Frame types: append.
@@ -132,7 +133,7 @@ public class AllFrames {
 
   // Frame merges: two bi-dimensional arrays with mixed primitive / object type elements.
   public static Object[] m10(boolean b) {
-    return b ? (Object[]) new byte[1][1] : (Object[]) new Float[1][1];
+    return b ? (Object[]) new byte[1][1] : (Object[]) new Float[1][];
   }
 
   // Frame merges: one and two dimensions arrays with identical element type.
@@ -157,11 +158,36 @@ public class AllFrames {
 
   // Frame merges: object type and single-dimensional array with primitive type elements.
   public static Object m15(boolean b) {
-    return b ? new Integer(1) : new byte[1];
+    return b ? new Integer(1) : new char[1];
   }
 
   // Frame merges: object type and single-dimensional array with object type elements.
   public static Object m16(boolean b) {
     return b ? new Integer(1) : new Float[1];
+  }
+
+  // Frame merges: two single-dimensional arrays with different primitive type elements.
+  public Object m17(boolean b) {
+    return b ? new int[0] : new boolean[0];
+  }
+
+  // Frame merges: two single-dimensional arrays with different primitive type elements.
+  public Object m18(boolean b) {
+    return b ? new short[0] : new float[0];
+  }
+
+  // Frame merges: two single-dimensional arrays with different primitive type elements.
+  public Object m19(boolean b) {
+    return b ? new double[0] : new long[0];
+  }
+
+  // Frame merges: null type and object type.
+  public static Object m20(boolean b) {
+    return b ? null : new Integer(1);
+  }
+
+  // Frame merges: object type and null type.
+  public static Object m21(boolean b) {
+    return b ? new Integer(1) : null;
   }
 }

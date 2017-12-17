@@ -47,7 +47,7 @@ public interface Opcodes {
   int ASM6 = 6 << 16 | 0 << 8;
 
   // Java ClassFile versions (the minor version is stored in the 16 most significant bits, and the
-  // major version is 16 least significant bits).
+  // major version in the 16 least significant bits).
 
   int V1_1 = 3 << 16 | 45;
   int V1_2 = 0 << 16 | 46;

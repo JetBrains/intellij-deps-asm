@@ -149,7 +149,11 @@ class ClassDump {
   private static void dumpClassFile(Parser parser, Builder builder) throws IOException {
     builder.add("magic: ", parser.u4());
     builder.add("minor_version: ", parser.u2());
-    builder.add("major_version: ", parser.u2());
+    int majorVersion = parser.u2();
+    if (majorVersion >= /* V10 = */ 54) {
+      throw new IOException("Unsupported class version");
+    }
+    builder.add("major_version: ", majorVersion);
     int constantPoolCount = parser.u2();
     int cpIndex = 1;
     while (cpIndex < constantPoolCount) {
@@ -1390,7 +1394,7 @@ class ClassDump {
         for (int j = 0; j < frameType - 251; ++j) {
           dumpVerificationTypeInfo(parser, builder);
         }
-      } else if (frameType == 255) {
+      } else {
         int offsetDelta = parser.u2();
         bytecodeOffset += offsetDelta + 1;
         builder.addInsnIndex("FULL ", bytecodeOffset);
@@ -1402,8 +1406,6 @@ class ClassDump {
         for (int j = 0; j < numberOfStackItems; ++j) {
           dumpVerificationTypeInfo(parser, builder);
         }
-      } else {
-        throw new IOException("Unknown frame_type: " + frameType);
       }
     }
   }
@@ -2126,9 +2128,11 @@ class ClassDump {
     @Override
     public <C extends CpInfo> C getCpInfo(int cpIndex, Class<C> cpInfoType) {
       Object cpInfo = get(CP_INFO_KEY | cpIndex);
-      if (cpInfo != null && !cpInfoType.isInstance(cpInfo)) {
+      if (cpInfo == null) {
+        throw new IllegalArgumentException("Invalid constant pool index: " + cpIndex);
+      } else if (!cpInfoType.isInstance(cpInfo)) {
         throw new IllegalArgumentException(
-            "Invalid constant pool type :"
+            "Invalid constant pool type: "
                 + cpInfo.getClass().getName()
                 + " should be "
                 + cpInfoType.getName());
@@ -2140,7 +2144,7 @@ class ClassDump {
     public int getInsnIndex(int bytecodeOffset) {
       Integer insnIndex = (Integer) get(bytecodeOffset);
       if (insnIndex == null) {
-        throw new IllegalArgumentException("Invalid bytecode offset:" + bytecodeOffset);
+        throw new IllegalArgumentException("Invalid bytecode offset: " + bytecodeOffset);
       }
       return insnIndex;
     }

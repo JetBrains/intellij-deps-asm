@@ -32,7 +32,9 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.objectweb.asm.test.Assertions.assertThat;
 
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
 import org.junit.jupiter.params.provider.MethodSource;
 
 /**
@@ -42,13 +44,38 @@ import org.junit.jupiter.params.provider.MethodSource;
  */
 public class AsmTestTest extends AsmTest {
 
+  /** Tests the isMoreRecentThan method. */
+  @ParameterizedTest
+  @MethodSource(ALL_CLASSES_AND_ALL_APIS)
+  public void testIsMoreRecentThan(PrecompiledClass classParameter, Api apiParameter) {
+    byte[] classContent = classParameter.getBytes();
+    int majorVersion = (classContent[6] & 0xFF) << 8 | (classContent[7] & 0xFF);
+    boolean isMoreRecent = classParameter.isMoreRecentThan(apiParameter);
+    switch (apiParameter) {
+      case ASM4:
+        assertEquals(majorVersion > /* V7 = */ 51, isMoreRecent);
+        break;
+      case ASM5:
+        assertEquals(majorVersion > /* V8 = */ 52, isMoreRecent);
+        break;
+      case ASM6:
+        assertEquals(majorVersion > /* V10 = */ 54, isMoreRecent);
+        break;
+      default:
+        fail("Unknown API value");
+    }
+  }
+
   /** Tests that we can get the byte array content of each precompiled class. */
   @ParameterizedTest
   @MethodSource(ALL_CLASSES_AND_LATEST_API)
   public void testGetBytes(PrecompiledClass classParameter, Api apiParameter) {
     assertEquals(Api.ASM6, apiParameter);
+    assertEquals(0x00060000, apiParameter.value());
     assertEquals("ASM6", apiParameter.toString());
-    assertThatClass(classParameter.getBytes()).contains(classParameter.getInternalName());
+    byte[] classContent = classParameter.getBytes();
+    assertThatClass(classContent).contains(classParameter.getInternalName());
+    assertThatClass(classContent).isEqualTo(classContent);
   }
 
   /** Tests that we can load (and instantiate) each (non-abstract) precompiled class. */
@@ -170,5 +197,14 @@ public class AsmTestTest extends AsmTest {
       }
     }
     assertEquals(1, occurrenceCount);
+  }
+
+  /** Tests that dumping an invalid class fails with an IOException. */
+  @ParameterizedTest
+  @EnumSource(InvalidClass.class)
+  public void testDumpInvalidClass(InvalidClass invalidClass) {
+    byte[] classContent = invalidClass.getBytes();
+    assertThrows(AssertionError.class, () -> assertThatClass(classContent).contains("invalid"));
+    assertThrows(AssertionError.class, () -> assertThatClass(classContent).isEqualTo(classContent));
   }
 }

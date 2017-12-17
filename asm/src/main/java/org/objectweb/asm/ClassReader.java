@@ -2439,16 +2439,6 @@ public class ClassReader {
       // target_info field depends on the value of target_type.
       int targetType = readInt(currentOffset);
       switch (targetType >>> 24) {
-        case TypeReference.CLASS_TYPE_PARAMETER:
-        case TypeReference.METHOD_TYPE_PARAMETER:
-        case TypeReference.METHOD_FORMAL_PARAMETER:
-          currentOffset += 2;
-          break;
-        case TypeReference.FIELD:
-        case TypeReference.METHOD_RETURN:
-        case TypeReference.METHOD_RECEIVER:
-          currentOffset += 1;
-          break;
         case TypeReference.LOCAL_VARIABLE:
         case TypeReference.RESOURCE_VARIABLE:
           // A localvar_target has a variable size, which depends on the value of their table_length
@@ -2482,7 +2472,14 @@ public class ClassReader {
         case TypeReference.METHOD_REFERENCE:
           currentOffset += 3;
           break;
+        case TypeReference.CLASS_TYPE_PARAMETER:
+        case TypeReference.METHOD_TYPE_PARAMETER:
+        case TypeReference.METHOD_FORMAL_PARAMETER:
+        case TypeReference.FIELD:
+        case TypeReference.METHOD_RETURN:
+        case TypeReference.METHOD_RECEIVER:
         default:
+          // TypeReference type which can't be used in Code attribute, or which is unknown.
           throw new IllegalArgumentException();
       }
       // Parse the rest of the type_annotation structure, starting with the target_path structure
@@ -2995,7 +2992,7 @@ public class ClassReader {
               currentOffset, context.currentFrameStackTypes, 0, charBuffer, labels);
       context.currentFrameType = Opcodes.F_SAME1;
       context.currentFrameStackCount = 1;
-    } else {
+    } else if (frameType >= Frame.SAME_LOCALS_1_STACK_ITEM_FRAME_EXTENDED) {
       offsetDelta = readUnsignedShort(currentOffset);
       currentOffset += 2;
       if (frameType == Frame.SAME_LOCALS_1_STACK_ITEM_FRAME_EXTENDED) {
@@ -3023,7 +3020,7 @@ public class ClassReader {
         context.currentFrameLocalCountDelta = frameType - Frame.SAME_FRAME_EXTENDED;
         context.currentFrameLocalCount += context.currentFrameLocalCountDelta;
         context.currentFrameStackCount = 0;
-      } else if (frameType == Frame.FULL_FRAME) {
+      } else {
         final int numberOfLocals = readUnsignedShort(currentOffset);
         currentOffset += 2;
         context.currentFrameType = Opcodes.F_FULL;
@@ -3043,6 +3040,8 @@ public class ClassReader {
                   currentOffset, context.currentFrameStackTypes, stack, charBuffer, labels);
         }
       }
+    } else {
+      throw new IllegalArgumentException();
     }
     context.currentFrameOffset += offsetDelta + 1;
     createLabel(context.currentFrameOffset, labels);

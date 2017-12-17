@@ -80,6 +80,7 @@ public class AsmTestTest extends AsmTest {
       case JDK3_ANONYMOUS_INNER_CLASS:
       case JDK3_INNER_CLASS:
       case JDK3_LARGE_METHOD:
+      case JDK3_STACK_MAP_ATTRIBUTE:
       case JDK5_ALL_INSTRUCTIONS:
       case JDK5_ALL_STRUCTURES:
       case JDK5_ENUM:
@@ -123,6 +124,7 @@ public class AsmTestTest extends AsmTest {
       case JDK3_ANONYMOUS_INNER_CLASS:
       case JDK3_INNER_CLASS:
       case JDK3_LARGE_METHOD:
+      case JDK3_STACK_MAP_ATTRIBUTE:
       case JDK5_ALL_INSTRUCTIONS:
       case JDK5_ALL_STRUCTURES:
       case JDK5_ENUM:

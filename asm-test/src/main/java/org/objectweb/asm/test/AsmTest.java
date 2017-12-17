@@ -109,6 +109,7 @@ public abstract class AsmTest {
     JDK3_ATTRIBUTE("jdk3.Attribute"),
     JDK3_INNER_CLASS("jdk3.AllStructures$InnerClass"),
     JDK3_LARGE_METHOD("jdk3.LargeMethod"),
+    JDK3_STACK_MAP_ATTRIBUTE("jdk3.StackMapAttribute"),
     JDK5_ALL_INSTRUCTIONS("jdk5.AllInstructions"),
     JDK5_ALL_STRUCTURES("jdk5.AllStructures"),
     JDK5_ANNOTATION("jdk5.AllStructures$InvisibleAnnotation"),

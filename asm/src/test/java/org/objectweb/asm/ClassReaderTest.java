@@ -307,6 +307,7 @@ public class ClassReaderTest extends AsmTest implements Opcodes {
     } else {
       ClassReader classReader = new ClassReader(invalidClass.getBytes());
       if (invalidClass == InvalidClass.INVALID_CONSTANT_POOL_INDEX
+          || invalidClass == InvalidClass.INVALID_CONSTANT_POOL_REFERENCE
           || invalidClass == InvalidClass.INVALID_BYTECODE_OFFSET) {
         assertThrows(
             ArrayIndexOutOfBoundsException.class,

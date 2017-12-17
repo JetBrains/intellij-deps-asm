@@ -110,6 +110,7 @@ public abstract class AsmTest {
     JDK3_INNER_CLASS("jdk3.AllStructures$InnerClass"),
     JDK3_LARGE_METHOD("jdk3.LargeMethod"),
     JDK3_STACK_MAP_ATTRIBUTE("jdk3.StackMapAttribute"),
+    JDK3_SWAP("jdk3.Swap"),
     JDK5_ALL_INSTRUCTIONS("jdk5.AllInstructions"),
     JDK5_ALL_STRUCTURES("jdk5.AllStructures"),
     JDK5_ANNOTATION("jdk5.AllStructures$InvisibleAnnotation"),
@@ -190,13 +191,15 @@ public abstract class AsmTest {
     INVALID_BYTECODE_OFFSET("invalid.InvalidBytecodeOffset"),
     INVALID_CLASS_VERSION("invalid.InvalidClassVersion"),
     INVALID_CONSTANT_POOL_INDEX("invalid.InvalidConstantPoolIndex"),
+    INVALID_CONSTANT_POOL_REFERENCE("invalid.InvalidConstantPoolReference"),
     INVALID_CP_INFO_TAG("invalid.InvalidCpInfoTag"),
     INVALID_ELEMENT_VALUE("invalid.InvalidElementValue"),
     INVALID_INSN_TYPE_ANNOTATION_TARGET_TYPE("invalid.InvalidInsnTypeAnnotationTargetType"),
     INVALID_OPCODE("invalid.InvalidOpcode"),
     INVALID_STACK_MAP_FRAME_TYPE("invalid.InvalidStackMapFrameType"),
     INVALID_TYPE_ANNOTATION_TARGET_TYPE("invalid.InvalidTypeAnnotationTargetType"),
-    INVALID_VERIFICATION_TYPE_INFO("invalid.InvalidVerificationTypeInfo");
+    INVALID_VERIFICATION_TYPE_INFO("invalid.InvalidVerificationTypeInfo"),
+    INVALID_WIDE_OPCODE("invalid.InvalidWideOpcode");
 
     private final String name;
 

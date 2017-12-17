@@ -1454,10 +1454,25 @@ public class ClassReader {
           currentOffset += 5;
           break;
         case Constants.WIDE:
-          if ((classFileBuffer[currentOffset + 1] & 0xFF) == Opcodes.IINC) {
-            currentOffset += 6;
-          } else {
-            currentOffset += 4;
+          switch (classFileBuffer[currentOffset + 1] & 0xFF) {
+            case Constants.ILOAD:
+            case Constants.FLOAD:
+            case Constants.ALOAD:
+            case Constants.LLOAD:
+            case Constants.DLOAD:
+            case Constants.ISTORE:
+            case Constants.FSTORE:
+            case Constants.ASTORE:
+            case Constants.LSTORE:
+            case Constants.DSTORE:
+            case Constants.RET:
+              currentOffset += 4;
+              break;
+            case Constants.IINC:
+              currentOffset += 6;
+              break;
+            default:
+              throw new IllegalArgumentException();
           }
           break;
         case Constants.TABLESWITCH:

@@ -329,44 +329,6 @@ public class ClassWriterTest extends AsmTest {
     classWriter.toByteArray();
   }
 
-  /**
-   * Tests classes with several line numbers for the same bytecode offset. Ideally we should use a
-   * precompiled class having this property, but this seems really hard to find. Instead, we
-   * generate some classes with this property using ASM, with {@link #duplicateLineNumbers}.
-   */
-  @ParameterizedTest
-  @MethodSource(ALL_CLASSES_AND_LATEST_API)
-  public void testMultipleLineNumbers(PrecompiledClass classParameter, Api apiParameter) {
-    byte[] classFile = duplicateLineNumbers(classParameter.getBytes());
-    ClassWriter classWriter = new ClassWriter(0);
-    new ClassReader(classFile).accept(classWriter, 0);
-    assertThatClass(classWriter.toByteArray()).isEqualTo(classFile);
-  }
-
-  private static byte[] duplicateLineNumbers(byte[] classFile) {
-    ClassWriter classWriter = new ClassWriter(0);
-    ClassVisitor resetLineNumberVisitor =
-        new ClassVisitor(Opcodes.ASM6, classWriter) {
-
-          @Override
-          public MethodVisitor visitMethod(
-              int access, String name, String descriptor, String signature, String[] exceptions) {
-            return new MethodVisitor(
-                api, super.visitMethod(access, name, descriptor, signature, exceptions)) {
-
-              @Override
-              public void visitLineNumber(int line, Label start) {
-                for (int i = 0; i < line % 6; ++i) {
-                  super.visitLineNumber(line + i, start);
-                }
-              }
-            };
-          }
-        };
-    new ClassReader(classFile).accept(resetLineNumberVisitor, 0);
-    return classWriter.toByteArray();
-  }
-
   private static Attribute[] attributes() {
     return new Attribute[] {new Comment(), new CodeComment()};
   }

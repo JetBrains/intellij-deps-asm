@@ -119,7 +119,7 @@ public class SAXAdapterTest extends AsmTest {
   public void testSAXAdapter_classUnchanged(PrecompiledClass classParameter, Api apiParameter)
       throws TransformerConfigurationException, TransformerFactoryConfigurationError, SAXException {
     // Non standard attributes are not supported by the XML API.
-    if (classParameter == PrecompiledClass.JDK3_ATTRIBUTE) return;
+    if (classParameter == PrecompiledClass.JDK3_ARTIFICIAL_STRUCTURES) return;
     byte[] classFile = classParameter.getBytes();
     ClassReader classReader = new ClassReader(classFile);
     ClassWriter classWriter = new ClassWriter(0);

@@ -31,35 +31,47 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 
 import org.objectweb.asm.ClassWriter;
+import org.objectweb.asm.CodeComment;
+import org.objectweb.asm.Comment;
 import org.objectweb.asm.FieldVisitor;
+import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
-import org.objectweb.asm.attrs.CodeComment;
-import org.objectweb.asm.attrs.Comment;
 
 /**
- * Generates a class with non standard attributes. Covers class, field, method and code attributes.
- * Also covers the class, field and method Synthetic attributes. Ideally we should not use ASM to
- * generate this class (which is later used to test ASM), but this would be hard to do.
+ * Generates a class with structures, instructions and patterns that cannot be produced by compiling
+ * a Java source file with the javac compiler. This includes:
+ *
+ * <ul>
+ *   <li>the class, field and method Synthetic attribute (now replaced with an access flag),
+ *   <li>the StackMap attribute (which was used for pre-verification in J2ME CLDC 1.1),
+ *   <li>non standard class, field, method and code attributes,
+ *   <li>the nop and swap instructions,
+ *   <li>several line numbers per bytecode offset.
+ * </ul>
+ *
+ * Ideally we should not use ASM to generate this class (which is later used to test ASM), but this
+ * would be hard to do.
  *
  * @author Eric Bruneton
  */
-public class DumpAttribute implements Opcodes {
+public class DumpArtificialStructures implements Opcodes {
 
   public static void main(String[] args) throws IOException {
-    FileOutputStream fos = new FileOutputStream("Attribute.class");
+    FileOutputStream fos = new FileOutputStream("ArtificialStructures.class");
     fos.write(dump());
     fos.close();
   }
 
   private static byte[] dump() {
-    ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_MAXS);
+    ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_FRAMES);
     FieldVisitor fv;
     MethodVisitor mv;
 
-    cw.visit(V1_3, ACC_PUBLIC + ACC_SYNTHETIC, "jdk3/Attribute", null, "java/lang/Object", null);
+    cw.visit(
+        V1_3, ACC_PUBLIC + ACC_SUPER, "jdk3/ArtificialStructures", null, "java/lang/Object", null);
 
-    cw.visitSource("Attribute.java", "source-debug");
+    cw.visitSource("ArtificialStructures.java", "source-debug");
 
     cw.visitAttribute(new Comment());
 
@@ -67,14 +79,41 @@ public class DumpAttribute implements Opcodes {
     fv.visitAttribute(new Comment());
     fv.visitEnd();
 
-    mv = cw.visitMethod(ACC_PUBLIC + ACC_SYNTHETIC, "<init>", "()V", null, null);
+    mv = cw.visitMethod(ACC_PUBLIC + ACC_SYNTHETIC, "<init>", "(Ljava/lang/String;)V", null, null);
     mv.visitAttribute(new Comment());
     mv.visitCode();
     mv.visitVarInsn(ALOAD, 0);
     mv.visitMethodInsn(INVOKESPECIAL, "java/lang/Object", "<init>", "()V", false);
+    mv.visitInsn(NOP);
     mv.visitInsn(RETURN);
     mv.visitMaxs(0, 0);
     mv.visitAttribute(new CodeComment());
+    mv.visitEnd();
+
+    mv = cw.visitMethod(0, "<init>", "(Z)V", null, null);
+    mv.visitCode();
+    mv.visitVarInsn(ILOAD, 1);
+    mv.visitVarInsn(ALOAD, 0);
+    mv.visitInsn(SWAP);
+    Label elseLabel = new Label();
+    mv.visitJumpInsn(IFEQ, elseLabel);
+    mv.visitLdcInsn("1");
+    Label endIfLabel = new Label();
+    mv.visitJumpInsn(GOTO, endIfLabel);
+    mv.visitLabel(elseLabel);
+    mv.visitLineNumber(1, elseLabel);
+    mv.visitLineNumber(3, elseLabel);
+    mv.visitLdcInsn("0");
+    mv.visitLabel(endIfLabel);
+    mv.visitLineNumber(5, endIfLabel);
+    mv.visitLineNumber(7, endIfLabel);
+    mv.visitLineNumber(11, endIfLabel);
+    mv.visitLineNumber(13, endIfLabel);
+    mv.visitLineNumber(17, endIfLabel);
+    mv.visitMethodInsn(
+        INVOKESPECIAL, "jdk3/ArtificialStructures", "<init>", "(Ljava/lang/String;)V", false);
+    mv.visitInsn(RETURN);
+    mv.visitMaxs(0, 0);
     mv.visitEnd();
 
     cw.visitEnd();

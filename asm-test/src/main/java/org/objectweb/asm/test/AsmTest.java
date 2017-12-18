@@ -106,11 +106,9 @@ public abstract class AsmTest {
     JDK3_ALL_INSTRUCTIONS("jdk3.AllInstructions"),
     JDK3_ALL_STRUCTURES("jdk3.AllStructures"),
     JDK3_ANONYMOUS_INNER_CLASS("jdk3.AllStructures$1"),
-    JDK3_ATTRIBUTE("jdk3.Attribute"),
+    JDK3_ARTIFICIAL_STRUCTURES("jdk3.ArtificialStructures"),
     JDK3_INNER_CLASS("jdk3.AllStructures$InnerClass"),
     JDK3_LARGE_METHOD("jdk3.LargeMethod"),
-    JDK3_STACK_MAP_ATTRIBUTE("jdk3.StackMapAttribute"),
-    JDK3_SWAP("jdk3.Swap"),
     JDK5_ALL_INSTRUCTIONS("jdk5.AllInstructions"),
     JDK5_ALL_STRUCTURES("jdk5.AllStructures"),
     JDK5_ANNOTATION("jdk5.AllStructures$InvisibleAnnotation"),
@@ -346,7 +344,7 @@ public abstract class AsmTest {
   public static boolean loadAndInstantiate(String className, byte[] classContent) {
     try {
       new ClassDump(classContent);
-    } catch (IOException e) {
+    } catch (IOException | IllegalArgumentException e) {
       fail("Class can't be dumped, probably invalid");
     }
     return doLoadAndInstantiate(className, classContent);

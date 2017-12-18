@@ -32,7 +32,6 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.objectweb.asm.test.Assertions.assertThat;
 
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -92,40 +91,11 @@ public class AsmTestTest extends AsmTest {
    * is not well formed.
    */
   @ParameterizedTest
-  @MethodSource(ALL_CLASSES_AND_LATEST_API)
-  public void testLoadAndInstantiate_invalidClass(
-      PrecompiledClass classParameter, Api apiParameter) {
-    byte[] classContent = classParameter.getBytes();
-    switch (classParameter) {
-      case DEFAULT_PACKAGE:
-      case JDK3_ATTRIBUTE:
-      case JDK5_ANNOTATION:
-      case JDK9_MODULE:
-        return;
-      case JDK3_ALL_INSTRUCTIONS:
-      case JDK3_ALL_STRUCTURES:
-      case JDK3_ANONYMOUS_INNER_CLASS:
-      case JDK3_INNER_CLASS:
-      case JDK3_LARGE_METHOD:
-      case JDK3_STACK_MAP_ATTRIBUTE:
-      case JDK3_SWAP:
-      case JDK5_ALL_INSTRUCTIONS:
-      case JDK5_ALL_STRUCTURES:
-      case JDK5_ENUM:
-      case JDK5_LOCAL_CLASS:
-      case JDK8_ALL_STRUCTURES:
-      case JDK8_ANONYMOUS_INNER_CLASS:
-      case JDK8_INNER_CLASS:
-      case JDK8_ALL_FRAMES:
-      case JDK8_ALL_INSTRUCTIONS:
-      case JDK8_LARGE_METHOD:
-        removeAttributes(classContent, "Code");
-        assertThrows(
-            AssertionError.class, () -> loadAndInstantiate(classParameter.getName(), classContent));
-        break;
-      default:
-        fail("Unknown precompiled class");
-    }
+  @EnumSource(InvalidClass.class)
+  public void testLoadAndInstantiate_invalidClass(InvalidClass invalidClass) {
+    byte[] classContent = invalidClass.getBytes();
+    assertThrows(
+        AssertionError.class, () -> loadAndInstantiate(invalidClass.toString(), classContent));
   }
 
   /**
@@ -133,80 +103,32 @@ public class AsmTestTest extends AsmTest {
    * or unverifiable class.
    */
   @ParameterizedTest
-  @MethodSource(ALL_CLASSES_AND_LATEST_API)
-  public void testDoLoadAndInstantiate_invalidClass(
-      PrecompiledClass classParameter, Api apiParameter) {
-    if (classParameter.isMoreRecentThanCurrentJdk()) {
-      return;
-    }
-    byte[] classContent = classParameter.getBytes();
-    switch (classParameter) {
-      case DEFAULT_PACKAGE:
-      case JDK3_ATTRIBUTE:
-      case JDK5_ANNOTATION:
-      case JDK9_MODULE:
-        doLoadAndInstantiate(classParameter.getName(), classContent);
+  @EnumSource(InvalidClass.class)
+  public void testDoLoadAndInstantiate_invalidClass(InvalidClass invalidClass) {
+    byte[] classContent = invalidClass.getBytes();
+    switch (invalidClass) {
+      case INVALID_ELEMENT_VALUE:
+      case INVALID_TYPE_ANNOTATION_TARGET_TYPE:
+      case INVALID_INSN_TYPE_ANNOTATION_TARGET_TYPE:
         break;
-      case JDK3_ALL_INSTRUCTIONS:
-      case JDK3_ALL_STRUCTURES:
-      case JDK3_ANONYMOUS_INNER_CLASS:
-      case JDK3_INNER_CLASS:
-      case JDK3_LARGE_METHOD:
-      case JDK3_STACK_MAP_ATTRIBUTE:
-      case JDK3_SWAP:
-      case JDK5_ALL_INSTRUCTIONS:
-      case JDK5_ALL_STRUCTURES:
-      case JDK5_ENUM:
-      case JDK5_LOCAL_CLASS:
-      case JDK8_ALL_STRUCTURES:
-      case JDK8_ANONYMOUS_INNER_CLASS:
-      case JDK8_INNER_CLASS:
-        removeAttributes(classContent, "Code");
+      case INVALID_BYTECODE_OFFSET:
+      case INVALID_OPCODE:
+      case INVALID_WIDE_OPCODE:
+        assertThrows(
+            VerifyError.class, () -> doLoadAndInstantiate(invalidClass.toString(), classContent));
+        break;
+      case INVALID_CLASS_VERSION:
+      case INVALID_CONSTANT_POOL_INDEX:
+      case INVALID_CONSTANT_POOL_REFERENCE:
+      case INVALID_CP_INFO_TAG:
+      case INVALID_STACK_MAP_FRAME_TYPE:
+      case INVALID_VERIFICATION_TYPE_INFO:
         assertThrows(
             ClassFormatError.class,
-            () -> doLoadAndInstantiate(classParameter.getName(), classContent));
-        break;
-      case JDK8_ALL_FRAMES:
-      case JDK8_ALL_INSTRUCTIONS:
-      case JDK8_LARGE_METHOD:
-        removeAttributes(classContent, "StackMapTable");
-        assertThrows(
-            VerifyError.class, () -> doLoadAndInstantiate(classParameter.getName(), classContent));
+            () -> doLoadAndInstantiate(invalidClass.toString(), classContent));
         break;
       default:
-        fail("Unknown precompiled class");
+        fail("Unknown invalid class");
     }
-  }
-
-  /**
-   * "Removes" all the attributes of the given type in a class by altering its name in the constant
-   * pool of the class, to make it unrecognizable. Fails if there is not exactly one occurrence of
-   * attributeName in classContent.
-   */
-  private static void removeAttributes(byte[] classContent, String attributeName) {
-    int occurrenceCount = 0;
-    for (int i = 0; i < classContent.length - attributeName.length(); ++i) {
-      boolean occurrenceFound = true;
-      for (int j = 0; j < attributeName.length(); ++j) {
-        if (classContent[i + j] != attributeName.charAt(j)) {
-          occurrenceFound = false;
-          break;
-        }
-      }
-      if (occurrenceFound) {
-        classContent[i] += 1;
-        occurrenceCount += 1;
-      }
-    }
-    assertEquals(1, occurrenceCount);
-  }
-
-  /** Tests that dumping an invalid class fails with an IOException. */
-  @ParameterizedTest
-  @EnumSource(InvalidClass.class)
-  public void testDumpInvalidClass(InvalidClass invalidClass) {
-    byte[] classContent = invalidClass.getBytes();
-    assertThrows(AssertionError.class, () -> assertThatClass(classContent).contains("invalid"));
-    assertThrows(AssertionError.class, () -> assertThatClass(classContent).isEqualTo(classContent));
   }
 }

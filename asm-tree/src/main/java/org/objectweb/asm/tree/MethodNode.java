@@ -679,8 +679,7 @@ public class MethodNode extends MethodVisitor {
     // Visit the parameters.
     if (parameters != null) {
       for (int i = 0, n = parameters.size(); i < n; i++) {
-        ParameterNode parameter = parameters.get(i);
-        methodVisitor.visitParameter(parameter.name, parameter.access);
+        parameters.get(i).accept(methodVisitor);
       }
     }
     // Visit the annotations.

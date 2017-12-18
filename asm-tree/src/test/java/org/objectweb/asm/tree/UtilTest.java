@@ -27,57 +27,34 @@
 // THE POSSIBILITY OF SUCH DAMAGE.
 package org.objectweb.asm.tree;
 
-import org.objectweb.asm.Attribute;
-import org.objectweb.asm.ByteVector;
-import org.objectweb.asm.ClassReader;
-import org.objectweb.asm.ClassWriter;
-import org.objectweb.asm.Label;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import org.junit.jupiter.api.Test;
 
 /**
- * A non standard code attribute used for testing purposes.
+ * Util tests.
  *
  * @author Eric Bruneton
  */
-public class CodeComment extends Attribute {
+public class UtilTest {
 
-  public CodeComment() {
-    super("CodeComment");
+  @Test
+  public void testNullAsArrayList() {
+    assertTrue(Util.asArrayList((Object[]) null).isEmpty());
+    assertTrue(Util.asArrayList((byte[]) null).isEmpty());
+    assertTrue(Util.asArrayList((boolean[]) null).isEmpty());
+    assertTrue(Util.asArrayList((short[]) null).isEmpty());
+    assertTrue(Util.asArrayList((char[]) null).isEmpty());
+    assertTrue(Util.asArrayList((int[]) null).isEmpty());
+    assertTrue(Util.asArrayList((float[]) null).isEmpty());
+    assertTrue(Util.asArrayList((long[]) null).isEmpty());
+    assertTrue(Util.asArrayList((double[]) null).isEmpty());
   }
 
-  @Override
-  public boolean isUnknown() {
-    return false;
-  }
-
-  @Override
-  public boolean isCodeAttribute() {
-    return true;
-  }
-
-  @Override
-  protected Attribute read(
-      final ClassReader classReader,
-      final int offset,
-      final int length,
-      final char[] charBuffer,
-      final int codeAttributeOffset,
-      final Label[] labels) {
-    return new CodeComment();
-  }
-
-  @Override
-  protected ByteVector write(
-      final ClassWriter classWriter,
-      final byte[] code,
-      final int codeLength,
-      final int maxStack,
-      final int maxLocals) {
-    return new ByteVector();
-  }
-
-  @Override
-  protected Label[] getLabels() {
-    super.getLabels();
-    return new Label[] {new Label()};
+  @Test
+  public void testAsArrayListWithLength() {
+    assertEquals(3, Util.asArrayList(3).size());
+    assertEquals(3, Util.asArrayList(3, new Object[] {1, 2, 3, 4, 5}).size());
   }
 }

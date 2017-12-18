@@ -29,8 +29,11 @@ package org.objectweb.asm.tree;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.objectweb.asm.test.Assertions.assertThat;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -60,128 +63,269 @@ import org.objectweb.asm.test.AsmTest;
 public class ClassNodeTest extends AsmTest implements Opcodes {
 
   @Test
+  public void testClassNode() {
+    ClassNode classNode = new ClassNode();
+    assertTrue(classNode.interfaces.isEmpty());
+    assertTrue(classNode.innerClasses.isEmpty());
+    assertTrue(classNode.fields.isEmpty());
+    assertTrue(classNode.methods.isEmpty());
+
+    assertThrows(IllegalStateException.class, () -> new ClassNode() {});
+  }
+
+  @Test
+  public void testModuleNode() {
+    ModuleNode moduleNode = new ModuleNode("module", 123, "1.0");
+    assertEquals("module", moduleNode.name);
+    assertEquals(123, moduleNode.access);
+    assertEquals("1.0", moduleNode.version);
+
+    ModuleNode otherModuleNode =
+        new ModuleNode(Opcodes.ASM6, "otherModule", 456, "2.0", null, null, null, null, null);
+    moduleNode.accept(
+        new ClassVisitor(Opcodes.ASM6) {
+          @Override
+          public ModuleVisitor visitModule(String name, int access, String version) {
+            return otherModuleNode;
+          }
+        });
+
+    assertThrows(IllegalStateException.class, () -> new ModuleNode("module", 123, "1.0") {});
+  }
+
+  @Test
+  public void testFieldNode() {
+    FieldNode fieldNode = new FieldNode(123, "field", "I", null, null);
+    assertEquals(123, fieldNode.access);
+    assertEquals("field", fieldNode.name);
+    assertEquals("I", fieldNode.desc);
+    assertThrows(
+        IllegalStateException.class, () -> new FieldNode(123, "field", "I", null, null) {});
+  }
+
+  @Test
+  public void testMethodNode() {
+    MethodNode methodNode = new MethodNode(123, "method", "()V", null, null);
+    assertEquals(123, methodNode.access);
+    assertEquals("method", methodNode.name);
+    assertEquals("()V", methodNode.desc);
+    assertThrows(IllegalStateException.class, () -> new MethodNode() {});
+  }
+
+  @Test
+  public void testAnnotationNode() {
+    AnnotationNode annotationNode = new AnnotationNode("LI;");
+    assertEquals("LI;", annotationNode.desc);
+    assertThrows(IllegalStateException.class, () -> new AnnotationNode("LI;") {});
+  }
+
+  @Test
+  public void testTypeAnnotationNode() {
+    TypePath typePath = TypePath.fromString("[");
+    TypeAnnotationNode typeAnnotationNode = new TypeAnnotationNode(123, typePath, "LI;");
+    assertEquals(123, typeAnnotationNode.typeRef);
+    assertEquals(typePath, typeAnnotationNode.typePath);
+    assertEquals("LI;", typeAnnotationNode.desc);
+    assertThrows(
+        IllegalStateException.class, () -> new TypeAnnotationNode(123, typePath, "LI;") {});
+  }
+
+  @Test
   public void testFrameNode() {
-    FrameNode fn = new FrameNode(F_SAME, 0, null, 0, null);
-    assertEquals(AbstractInsnNode.FRAME, fn.getType());
+    Object[] locals = new Object[] {"l"};
+    Object[] stack = new Object[] {"s", "t"};
+    FrameNode frameNode = new FrameNode(F_FULL, 1, locals, 2, stack);
+    assertEquals(AbstractInsnNode.FRAME, frameNode.getType());
+    assertEquals(F_FULL, frameNode.type);
+    assertEquals(Arrays.asList(locals), frameNode.local);
+    assertEquals(Arrays.asList(stack), frameNode.stack);
   }
 
   @Test
   public void testInsnNode() {
-    InsnNode in = new InsnNode(NOP);
-    assertEquals(in.getOpcode(), NOP);
-    assertEquals(AbstractInsnNode.INSN, in.getType());
+    InsnNode insnNode = new InsnNode(NOP);
+    assertEquals(AbstractInsnNode.INSN, insnNode.getType());
+    assertEquals(insnNode.getOpcode(), NOP);
   }
 
   @Test
   public void testIntInsnNode() {
-    IntInsnNode iin = new IntInsnNode(BIPUSH, 0);
-    iin.setOpcode(SIPUSH);
-    assertEquals(SIPUSH, iin.getOpcode());
-    assertEquals(AbstractInsnNode.INT_INSN, iin.getType());
+    IntInsnNode intInsnNode = new IntInsnNode(BIPUSH, 0);
+    intInsnNode.setOpcode(SIPUSH);
+    assertEquals(SIPUSH, intInsnNode.getOpcode());
+    assertEquals(AbstractInsnNode.INT_INSN, intInsnNode.getType());
   }
 
   @Test
   public void testVarInsnNode() {
-    VarInsnNode vn = new VarInsnNode(ALOAD, 0);
-    vn.setOpcode(ASTORE);
-    assertEquals(ASTORE, vn.getOpcode());
-    assertEquals(AbstractInsnNode.VAR_INSN, vn.getType());
+    VarInsnNode varInsnNode = new VarInsnNode(ALOAD, 123);
+    assertEquals(ALOAD, varInsnNode.getOpcode());
+    assertEquals(AbstractInsnNode.VAR_INSN, varInsnNode.getType());
+    assertEquals(123, varInsnNode.var);
+
+    varInsnNode.setOpcode(ASTORE);
+    assertEquals(ASTORE, varInsnNode.getOpcode());
   }
 
   @Test
   public void testTypeInsnNode() {
-    TypeInsnNode tin = new TypeInsnNode(NEW, "java/lang/Object");
-    tin.setOpcode(CHECKCAST);
-    assertEquals(CHECKCAST, tin.getOpcode());
-    assertEquals(AbstractInsnNode.TYPE_INSN, tin.getType());
+    TypeInsnNode typeInsnNode = new TypeInsnNode(NEW, "java/lang/Object");
+    assertEquals(NEW, typeInsnNode.getOpcode());
+    assertEquals(AbstractInsnNode.TYPE_INSN, typeInsnNode.getType());
+    assertEquals("java/lang/Object", typeInsnNode.desc);
+
+    typeInsnNode.setOpcode(CHECKCAST);
+    assertEquals(CHECKCAST, typeInsnNode.getOpcode());
   }
 
   @Test
   public void testFieldInsnNode() {
-    FieldInsnNode fn = new FieldInsnNode(GETSTATIC, "owner", "name", "I");
-    fn.setOpcode(PUTSTATIC);
-    assertEquals(PUTSTATIC, fn.getOpcode());
-    assertEquals(AbstractInsnNode.FIELD_INSN, fn.getType());
+    FieldInsnNode fieldInsnNode = new FieldInsnNode(GETSTATIC, "owner", "name", "I");
+    assertEquals(AbstractInsnNode.FIELD_INSN, fieldInsnNode.getType());
+    assertEquals(GETSTATIC, fieldInsnNode.getOpcode());
+    assertEquals("owner", fieldInsnNode.owner);
+    assertEquals("name", fieldInsnNode.name);
+    assertEquals("I", fieldInsnNode.desc);
+
+    fieldInsnNode.setOpcode(PUTSTATIC);
+    assertEquals(PUTSTATIC, fieldInsnNode.getOpcode());
+  }
+
+  @Test
+  public void testMethodInsnNodeDeprecated() {
+    MethodInsnNode methodInsnNode = new MethodInsnNode(INVOKESTATIC, "owner", "name", "()I");
+    assertEquals(AbstractInsnNode.METHOD_INSN, methodInsnNode.getType());
+    assertEquals(INVOKESTATIC, methodInsnNode.getOpcode());
+    assertEquals(false, methodInsnNode.itf);
+
+    methodInsnNode = new MethodInsnNode(INVOKEINTERFACE, "owner", "name", "()I");
+    assertEquals(AbstractInsnNode.METHOD_INSN, methodInsnNode.getType());
+    assertEquals(INVOKEINTERFACE, methodInsnNode.getOpcode());
+    assertEquals(true, methodInsnNode.itf);
   }
 
   @Test
   public void testMethodInsnNode() {
-    MethodInsnNode mn = new MethodInsnNode(INVOKESTATIC, "owner", "name", "I", false);
-    mn.setOpcode(INVOKESPECIAL);
-    assertEquals(INVOKESPECIAL, mn.getOpcode());
-    assertEquals(AbstractInsnNode.METHOD_INSN, mn.getType());
+    MethodInsnNode methodInsnNode = new MethodInsnNode(INVOKESTATIC, "owner", "name", "()I", false);
+    assertEquals(AbstractInsnNode.METHOD_INSN, methodInsnNode.getType());
+    assertEquals(INVOKESTATIC, methodInsnNode.getOpcode());
+    assertEquals("owner", methodInsnNode.owner);
+    assertEquals("name", methodInsnNode.name);
+    assertEquals("()I", methodInsnNode.desc);
+    assertEquals(false, methodInsnNode.itf);
+
+    methodInsnNode.setOpcode(INVOKESPECIAL);
+    assertEquals(INVOKESPECIAL, methodInsnNode.getOpcode());
   }
 
   @Test
   public void testInvokeDynamicInsnNode() {
-    Handle bsm = new Handle(Opcodes.H_INVOKESTATIC, "owner", "name", "()V", false);
-    InvokeDynamicInsnNode mn = new InvokeDynamicInsnNode("name", "()V", bsm, new Object[0]);
+    Handle handle = new Handle(Opcodes.H_INVOKESTATIC, "owner", "name", "()V", false);
+    Object[] bootstrapMethodArguments = new Object[] {"s"};
+    InvokeDynamicInsnNode invokeDynamicInsnNode =
+        new InvokeDynamicInsnNode("name", "()V", handle, bootstrapMethodArguments);
 
-    assertEquals(INVOKEDYNAMIC, mn.getOpcode());
-    assertEquals(AbstractInsnNode.INVOKE_DYNAMIC_INSN, mn.getType());
+    assertEquals(INVOKEDYNAMIC, invokeDynamicInsnNode.getOpcode());
+    assertEquals(AbstractInsnNode.INVOKE_DYNAMIC_INSN, invokeDynamicInsnNode.getType());
+    assertEquals("name", invokeDynamicInsnNode.name);
+    assertEquals("()V", invokeDynamicInsnNode.desc);
+    assertEquals(handle, invokeDynamicInsnNode.bsm);
+    assertEquals(bootstrapMethodArguments, invokeDynamicInsnNode.bsmArgs);
   }
 
   @Test
   public void testJumpInsnNode() {
-    JumpInsnNode jn = new JumpInsnNode(GOTO, new LabelNode());
-    jn.setOpcode(IFEQ);
-    assertEquals(IFEQ, jn.getOpcode());
-    assertEquals(AbstractInsnNode.JUMP_INSN, jn.getType());
+    LabelNode labelNode = new LabelNode();
+    JumpInsnNode jumpInsnNode = new JumpInsnNode(GOTO, labelNode);
+    assertEquals(GOTO, jumpInsnNode.getOpcode());
+    assertEquals(AbstractInsnNode.JUMP_INSN, jumpInsnNode.getType());
+    assertEquals(labelNode, jumpInsnNode.label);
+
+    jumpInsnNode.setOpcode(IFEQ);
+    assertEquals(IFEQ, jumpInsnNode.getOpcode());
   }
 
   @Test
   public void testLabelNode() {
-    LabelNode ln = new LabelNode();
-    assertEquals(AbstractInsnNode.LABEL, ln.getType());
-    assertNotNull(ln.getLabel());
-    // dummy assignment to instruct FindBugs that Label.info can
-    // reference other objects than LabelNode instances
-    ln.getLabel().info = new Object();
+    LabelNode labelNode = new LabelNode();
+    assertEquals(AbstractInsnNode.LABEL, labelNode.getType());
+    assertNotNull(labelNode.getLabel());
+
+    Label label = new Label();
+    labelNode = new LabelNode(label);
+    assertEquals(label, labelNode.getLabel());
   }
 
   @Test
   public void testIincInsnNode() {
-    IincInsnNode iincn = new IincInsnNode(1, 1);
-    assertEquals(AbstractInsnNode.IINC_INSN, iincn.getType());
+    IincInsnNode iincnInsnNode = new IincInsnNode(1, 2);
+    assertEquals(AbstractInsnNode.IINC_INSN, iincnInsnNode.getType());
+    assertEquals(1, iincnInsnNode.var);
+    assertEquals(2, iincnInsnNode.incr);
   }
 
   @Test
   public void testLdcInsnNode() {
-    LdcInsnNode ldcn = new LdcInsnNode("s");
-    assertEquals(AbstractInsnNode.LDC_INSN, ldcn.getType());
+    LdcInsnNode ldcInsnNode = new LdcInsnNode("s");
+    assertEquals(AbstractInsnNode.LDC_INSN, ldcInsnNode.getType());
+    assertEquals("s", ldcInsnNode.cst);
   }
 
   @Test
   public void testLookupSwitchInsnNode() {
-    LookupSwitchInsnNode lsn = new LookupSwitchInsnNode(null, null, null);
-    assertEquals(AbstractInsnNode.LOOKUPSWITCH_INSN, lsn.getType());
+    LabelNode dflt = new LabelNode();
+    int[] keys = new int[] {1};
+    LabelNode[] labels = new LabelNode[] {new LabelNode()};
+    LookupSwitchInsnNode lookupSwitchInsnNode = new LookupSwitchInsnNode(dflt, keys, labels);
+    assertEquals(AbstractInsnNode.LOOKUPSWITCH_INSN, lookupSwitchInsnNode.getType());
+    assertEquals(dflt, lookupSwitchInsnNode.dflt);
+    assertEquals(Arrays.asList(new Integer[] {1}), lookupSwitchInsnNode.keys);
+    assertEquals(Arrays.asList(labels), lookupSwitchInsnNode.labels);
   }
 
   @Test
   public void testTableSwitchInsnNode() {
-    TableSwitchInsnNode tsn = new TableSwitchInsnNode(0, 1, null, (LabelNode[]) null);
-    assertEquals(AbstractInsnNode.TABLESWITCH_INSN, tsn.getType());
+    LabelNode dflt = new LabelNode();
+    LabelNode[] labels = new LabelNode[] {new LabelNode()};
+    TableSwitchInsnNode tableSwitchInsnNode = new TableSwitchInsnNode(0, 1, dflt, labels);
+    assertEquals(AbstractInsnNode.TABLESWITCH_INSN, tableSwitchInsnNode.getType());
+    assertEquals(0, tableSwitchInsnNode.min);
+    assertEquals(1, tableSwitchInsnNode.max);
+    assertEquals(dflt, tableSwitchInsnNode.dflt);
+    assertEquals(Arrays.asList(labels), tableSwitchInsnNode.labels);
   }
 
   @Test
   public void testMultiANewArrayInsnNode() {
-    MultiANewArrayInsnNode manan = new MultiANewArrayInsnNode("[[I", 2);
-    assertEquals(AbstractInsnNode.MULTIANEWARRAY_INSN, manan.getType());
+    MultiANewArrayInsnNode multiANewArrayInsnNode = new MultiANewArrayInsnNode("[[I", 2);
+    assertEquals(AbstractInsnNode.MULTIANEWARRAY_INSN, multiANewArrayInsnNode.getType());
+    assertEquals("[[I", multiANewArrayInsnNode.desc);
+    assertEquals(2, multiANewArrayInsnNode.dims);
+  }
+
+  @Test
+  public void testLineNumberNode() {
+    LabelNode labelNode = new LabelNode();
+    LineNumberNode lineNumberNode = new LineNumberNode(42, labelNode);
+    assertEquals(42, lineNumberNode.line);
+    assertEquals(labelNode, lineNumberNode.start);
+    assertEquals(AbstractInsnNode.LINE, lineNumberNode.getType());
   }
 
   @Test
   public void testCloneMethod() {
-    MethodNode n = new MethodNode();
-    Label l0 = new Label();
-    Label l1 = new Label();
-    n.visitCode();
-    n.visitLabel(l0);
-    n.visitInsn(Opcodes.NOP);
-    n.visitLabel(l1);
-    n.visitEnd();
-    MethodNode n1 = new MethodNode();
-    n.accept(n1);
-    n.accept(n1);
+    MethodNode methodNode = new MethodNode();
+    Label label0 = new Label();
+    Label label1 = new Label();
+    methodNode.visitCode();
+    methodNode.visitLabel(label0);
+    methodNode.visitInsn(Opcodes.NOP);
+    methodNode.visitLabel(label1);
+    methodNode.visitEnd();
+    MethodNode methodNode1 = new MethodNode();
+    methodNode.accept(methodNode1);
+    methodNode.accept(methodNode1);
+    assertEquals(6, methodNode1.instructions.size());
   }
 
   /** Tests that classes are unchanged with a ClassReader->ClassNode->ClassWriter transform. */
@@ -199,7 +343,7 @@ public class ClassNodeTest extends AsmTest implements Opcodes {
   }
 
   /**
-   * Tests that {@link ClassNode.check()} throws an exception for classes that contain elements more
+   * Tests that {@link ClassNode#check} throws an exception for classes that contain elements more
    * recent than the ASM API version.
    */
   @ParameterizedTest
@@ -220,6 +364,7 @@ public class ClassNodeTest extends AsmTest implements Opcodes {
    */
   @ParameterizedTest
   @MethodSource(ALL_CLASSES_AND_ALL_APIS)
+  @SuppressWarnings("serial")
   public void testReadCloneAndWrite(PrecompiledClass classParameter, Api apiParameter) {
     byte[] classFile = classParameter.getBytes();
     ClassReader classReader = new ClassReader(classFile);
@@ -272,25 +417,25 @@ public class ClassNodeTest extends AsmTest implements Opcodes {
     }
 
     @Override
-    public AnnotationVisitor visitAnnotation(String desc, boolean visible) {
+    public AnnotationVisitor visitAnnotation(String descriptor, boolean visible) {
       return null;
     }
 
     @Override
     public AnnotationVisitor visitTypeAnnotation(
-        int typeRef, TypePath typePath, String desc, boolean visible) {
+        int typeRef, TypePath typePath, String descriptor, boolean visible) {
       return null;
     }
 
     @Override
     public FieldVisitor visitField(
-        int access, String name, String desc, String signature, Object value) {
+        int access, String name, String descriptor, String signature, Object value) {
       return null;
     }
 
     @Override
     public MethodVisitor visitMethod(
-        int access, String name, String desc, String signature, String[] exceptions) {
+        int access, String name, String descriptor, String signature, String[] exceptions) {
       return null;
     }
 
@@ -300,6 +445,6 @@ public class ClassNodeTest extends AsmTest implements Opcodes {
     }
 
     @Override
-    public void visitAttribute(Attribute attr) {}
+    public void visitAttribute(Attribute attribute) {}
   }
 }

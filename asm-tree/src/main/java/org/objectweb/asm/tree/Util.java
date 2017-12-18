@@ -32,7 +32,7 @@ import java.util.List;
 
 /**
  * Utility methods to convert an array of primitive or object values to a mutable ArrayList, not
- * baked by the array (unlike {@link Arrays#asList}).
+ * baked by the array (unlike {@link java.util.Arrays#asList}).
  *
  * @author Eric Bruneton
  */

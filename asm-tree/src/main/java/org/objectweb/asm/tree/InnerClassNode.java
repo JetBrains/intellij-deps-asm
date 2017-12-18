@@ -36,15 +36,12 @@ import org.objectweb.asm.ClassVisitor;
  */
 public class InnerClassNode {
 
-  /**
-   * The internal name of an inner class (see {@link org.objectweb.asm.Type#getInternalName()
-   * getInternalName}).
-   */
+  /** The internal name of an inner class (see {@link org.objectweb.asm.Type#getInternalName()}). */
   public String name;
 
   /**
    * The internal name of the class to which the inner class belongs (see {@link
-   * org.objectweb.asm.Type#getInternalName() getInternalName}). May be <tt>null</tt>.
+   * org.objectweb.asm.Type#getInternalName()}). May be <tt>null</tt>.
    */
   public String outerName;
 
@@ -61,9 +58,9 @@ public class InnerClassNode {
    * Constructs a new {@link InnerClassNode}.
    *
    * @param name the internal name of an inner class (see {@link
-   *     org.objectweb.asm.Type#getInternalName() getInternalName}).
+   *     org.objectweb.asm.Type#getInternalName()}).
    * @param outerName the internal name of the class to which the inner class belongs (see {@link
-   *     org.objectweb.asm.Type#getInternalName() getInternalName}). May be <tt>null</tt>.
+   *     org.objectweb.asm.Type#getInternalName()}). May be <tt>null</tt>.
    * @param innerName the (simple) name of the inner class inside its enclosing class. May be
    *     <tt>null</tt> for anonymous inner classes.
    * @param access the access flags of the inner class as originally declared in the enclosing
@@ -80,9 +77,9 @@ public class InnerClassNode {
   /**
    * Makes the given class visitor visit this inner class.
    *
-   * @param cv a class visitor.
+   * @param classVisitor a class visitor.
    */
-  public void accept(final ClassVisitor cv) {
-    cv.visitInnerClass(name, outerName, innerName, access);
+  public void accept(final ClassVisitor classVisitor) {
+    classVisitor.visitInnerClass(name, outerName, innerName, access);
   }
 }

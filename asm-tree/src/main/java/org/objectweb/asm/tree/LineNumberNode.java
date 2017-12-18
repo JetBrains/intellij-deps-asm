@@ -64,12 +64,12 @@ public class LineNumberNode extends AbstractInsnNode {
   }
 
   @Override
-  public void accept(final MethodVisitor mv) {
-    mv.visitLineNumber(line, start.getLabel());
+  public void accept(final MethodVisitor methodVisitor) {
+    methodVisitor.visitLineNumber(line, start.getLabel());
   }
 
   @Override
-  public AbstractInsnNode clone(final Map<LabelNode, LabelNode> labels) {
-    return new LineNumberNode(line, clone(start, labels));
+  public AbstractInsnNode clone(final Map<LabelNode, LabelNode> clonedLabels) {
+    return new LineNumberNode(line, clone(start, clonedLabels));
   }
 }

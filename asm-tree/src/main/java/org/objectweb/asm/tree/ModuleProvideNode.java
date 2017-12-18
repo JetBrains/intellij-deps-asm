@@ -37,17 +37,19 @@ import org.objectweb.asm.ModuleVisitor;
  * @author Remi Forax
  */
 public class ModuleProvideNode {
-  /** The internal name of the provided service. */
+  
+  /** The internal name of the service. */
   public String service;
 
-  /** The internal names of the service providers. */
+  /** The internal names of the implementations of the service (there is at least one provider). */
   public List<String> providers;
 
   /**
    * Constructs a new {@link ModuleProvideNode}.
    *
-   * @param service the internal name of the provided service.
-   * @param providers the internal names of service providers.
+   * @param service the internal name of the service.
+   * @param providers the internal names of the implementations of the service (there is at least
+   *     one provider).
    */
   public ModuleProvideNode(final String service, final List<String> providers) {
     this.service = service;
@@ -57,9 +59,9 @@ public class ModuleProvideNode {
   /**
    * Makes the given module visitor visit this require declaration.
    *
-   * @param mv a module visitor.
+   * @param moduleVisitor a module visitor.
    */
-  public void accept(final ModuleVisitor mv) {
-    mv.visitProvide(service, providers.toArray(new String[0]));
+  public void accept(final ModuleVisitor moduleVisitor) {
+    moduleVisitor.visitProvide(service, providers.toArray(new String[providers.size()]));
   }
 }

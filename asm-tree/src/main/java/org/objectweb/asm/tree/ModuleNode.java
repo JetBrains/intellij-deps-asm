@@ -40,55 +40,48 @@ import org.objectweb.asm.Opcodes;
  * @author Remi Forax
  */
 public class ModuleNode extends ModuleVisitor {
-  /** The fully qualified name (using dots) of the module. */
+
+  /** The fully qualified name (using dots) of this module. */
   public String name;
 
   /**
-   * Module access flags, among {@code ACC_OPEN}, {@code ACC_SYNTHETIC} and {@code ACC_MANDATED}.
+   * The module's access flags, among {@code ACC_OPEN}, {@code ACC_SYNTHETIC} and {@code
+   * ACC_MANDATED}.
    */
   public int access;
 
-  /** Version of the module. May be <tt>null</tt>. */
+  /** The version of this module. May be <tt>null</tt>. */
   public String version;
 
-  /** Name of the main class in internal form. May be <tt>null</tt>. */
+  /** The internal name of the main class of this module. May be <tt>null</tt>. */
   public String mainClass;
 
-  /**
-   * A list of packages that are declared by the current module, specified with internal names. May
-   * be <tt>null</tt>.
-   */
+  /** The internal name of the packages declared by this module. May be <tt>null</tt>. */
   public List<String> packages;
 
-  /** A list of modules can are required by the current module. May be <tt>null</tt>. */
+  /** The dependencies of this module. May be <tt>null</tt>. */
   public List<ModuleRequireNode> requires;
 
-  /** A list of packages that are exported by the current module. May be <tt>null</tt>. */
+  /** The packages exported by this module. May be <tt>null</tt>. */
   public List<ModuleExportNode> exports;
 
-  /** A list of packages that are opened by the current module. May be <tt>null</tt>. */
+  /** The packages opened by this module. May be <tt>null</tt>. */
   public List<ModuleOpenNode> opens;
 
-  /**
-   * A list of classes that are used as a service by the current module, specified with internal
-   * names. May be <tt>null</tt>.
-   */
+  /** The internal names of the services used by this module. May be <tt>null</tt>. */
   public List<String> uses;
 
-  /**
-   * A list of services along with their implementations provided by the current module. May be
-   * <tt>null</tt>.
-   */
+  /** The services provided by this module. May be <tt>null</tt>. */
   public List<ModuleProvideNode> provides;
 
   /**
    * Constructs a {@link ModuleNode}. <i>Subclasses must not use this constructor</i>. Instead, they
    * must use the {@link #ModuleNode(int,String,int,String,List,List,List,List,List)} version.
    *
-   * @param name The fully qualified name (using dots) of the module.
-   * @param access module flags, among {@code ACC_OPEN}, {@code ACC_SYNTHETIC} and {@code
+   * @param name the fully qualified name (using dots) of the module.
+   * @param access the module access flags, among {@code ACC_OPEN}, {@code ACC_SYNTHETIC} and {@code
    *     ACC_MANDATED}.
-   * @param version module version or <tt>null</tt>.
+   * @param version the module version, or <tt>null</tt>.
    * @throws IllegalStateException If a subclass calls this constructor.
    */
   public ModuleNode(final String name, final int access, final String version) {
@@ -106,18 +99,15 @@ public class ModuleNode extends ModuleVisitor {
    * Constructs a {@link ModuleNode}.
    *
    * @param api the ASM API version implemented by this visitor. Must be {@link Opcodes#ASM6}.
-   * @param name The fully qualified name (using dots) of the module.
-   * @param access module flags, among {@code ACC_OPEN}, {@code ACC_SYNTHETIC} and {@code
+   * @param name the fully qualified name (using dots) of the module.
+   * @param access the module access flags, among {@code ACC_OPEN}, {@code ACC_SYNTHETIC} and {@code
    *     ACC_MANDATED}.
-   * @param version module version or <tt>null</tt>.
-   * @param requires A list of modules can are required by the current module. May be <tt>null</tt>.
-   * @param exports A list of packages that are exported by the current module. May be
-   *     <tt>null</tt>.
-   * @param opens A list of packages that are opened by the current module. May be <tt>null</tt>.
-   * @param uses A list of classes that are used as a service by the current module, specified with
-   *     internal names. May be <tt>null</tt>.
-   * @param provides A list of services along with their implementations provided by the current
-   *     module. May be <tt>null</tt>.
+   * @param version the module version, or <tt>null</tt>.
+   * @param requires The dependencies of this module. May be <tt>null</tt>.
+   * @param exports The packages exported by this module. May be <tt>null</tt>.
+   * @param opens The packages opened by this module. May be <tt>null</tt>.
+   * @param uses The internal names of the services used by this module. May be <tt>null</tt>.
+   * @param provides The services provided by this module. May be <tt>null</tt>.
    */
   public ModuleNode(
       final int api,
@@ -141,12 +131,12 @@ public class ModuleNode extends ModuleVisitor {
   }
 
   @Override
-  public void visitMainClass(String mainClass) {
+  public void visitMainClass(final String mainClass) {
     this.mainClass = mainClass;
   }
 
   @Override
-  public void visitPackage(String packaze) {
+  public void visitPackage(final String packaze) {
     if (packages == null) {
       packages = new ArrayList<String>(5);
     }
@@ -154,7 +144,7 @@ public class ModuleNode extends ModuleVisitor {
   }
 
   @Override
-  public void visitRequire(String module, int access, String version) {
+  public void visitRequire(final String module, final int access, final String version) {
     if (requires == null) {
       requires = new ArrayList<ModuleRequireNode>(5);
     }
@@ -162,37 +152,23 @@ public class ModuleNode extends ModuleVisitor {
   }
 
   @Override
-  public void visitExport(String packaze, int access, String... modules) {
+  public void visitExport(final String packaze, final int access, final String... modules) {
     if (exports == null) {
       exports = new ArrayList<ModuleExportNode>(5);
     }
-    List<String> moduleList = null;
-    if (modules != null) {
-      moduleList = new ArrayList<String>(modules.length);
-      for (int i = 0; i < modules.length; i++) {
-        moduleList.add(modules[i]);
-      }
-    }
-    exports.add(new ModuleExportNode(packaze, access, moduleList));
+    exports.add(new ModuleExportNode(packaze, access, Util.asArrayList(modules)));
   }
 
   @Override
-  public void visitOpen(String packaze, int access, String... modules) {
+  public void visitOpen(final String packaze, final int access, final String... modules) {
     if (opens == null) {
       opens = new ArrayList<ModuleOpenNode>(5);
     }
-    List<String> moduleList = null;
-    if (modules != null) {
-      moduleList = new ArrayList<String>(modules.length);
-      for (int i = 0; i < modules.length; i++) {
-        moduleList.add(modules[i]);
-      }
-    }
-    opens.add(new ModuleOpenNode(packaze, access, moduleList));
+    opens.add(new ModuleOpenNode(packaze, access, Util.asArrayList(modules)));
   }
 
   @Override
-  public void visitUse(String service) {
+  public void visitUse(final String service) {
     if (uses == null) {
       uses = new ArrayList<String>(5);
     }
@@ -200,56 +176,54 @@ public class ModuleNode extends ModuleVisitor {
   }
 
   @Override
-  public void visitProvide(String service, String... providers) {
+  public void visitProvide(final String service, final String... providers) {
     if (provides == null) {
       provides = new ArrayList<ModuleProvideNode>(5);
     }
-    ArrayList<String> providerList = new ArrayList<String>(providers.length);
-    for (int i = 0; i < providers.length; i++) {
-      providerList.add(providers[i]);
-    }
-    provides.add(new ModuleProvideNode(service, providerList));
+    provides.add(new ModuleProvideNode(service, Util.asArrayList(providers)));
   }
 
   @Override
-  public void visitEnd() {}
+  public void visitEnd() {
+    // Nothing to do.
+  }
 
-  public void accept(final ClassVisitor cv) {
-    ModuleVisitor mv = cv.visitModule(name, access, version);
-    if (mv == null) {
+  public void accept(final ClassVisitor classVisitor) {
+    ModuleVisitor moduleVisitor = classVisitor.visitModule(name, access, version);
+    if (moduleVisitor == null) {
       return;
     }
     if (mainClass != null) {
-      mv.visitMainClass(mainClass);
+      moduleVisitor.visitMainClass(mainClass);
     }
     if (packages != null) {
-      for (int i = 0; i < packages.size(); i++) {
-        mv.visitPackage(packages.get(i));
+      for (int i = 0, n = packages.size(); i < n; i++) {
+        moduleVisitor.visitPackage(packages.get(i));
       }
     }
     if (requires != null) {
-      for (int i = 0; i < requires.size(); i++) {
-        requires.get(i).accept(mv);
+      for (int i = 0, n = requires.size(); i < n; i++) {
+        requires.get(i).accept(moduleVisitor);
       }
     }
     if (exports != null) {
-      for (int i = 0; i < exports.size(); i++) {
-        exports.get(i).accept(mv);
+      for (int i = 0, n = exports.size(); i < n; i++) {
+        exports.get(i).accept(moduleVisitor);
       }
     }
     if (opens != null) {
-      for (int i = 0; i < opens.size(); i++) {
-        opens.get(i).accept(mv);
+      for (int i = 0, n = opens.size(); i < n; i++) {
+        opens.get(i).accept(moduleVisitor);
       }
     }
     if (uses != null) {
-      for (int i = 0; i < uses.size(); i++) {
-        mv.visitUse(uses.get(i));
+      for (int i = 0, n = uses.size(); i < n; i++) {
+        moduleVisitor.visitUse(uses.get(i));
       }
     }
     if (provides != null) {
-      for (int i = 0; i < provides.size(); i++) {
-        provides.get(i).accept(mv);
+      for (int i = 0, n = provides.size(); i < n; i++) {
+        provides.get(i).accept(moduleVisitor);
       }
     }
   }

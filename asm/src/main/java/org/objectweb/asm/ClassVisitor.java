@@ -75,7 +75,8 @@ public abstract class ClassVisitor {
   /**
    * Visits the header of the class.
    *
-   * @param version the class version.
+   * @param version the class version. The minor version is stored in the 16 most significant bits,
+   *     and the major version in the 16 least significant bits.
    * @param access the class's access flags (see {@link Opcodes}). This parameter also indicates if
    *     the class is deprecated.
    * @param name the internal name of the class (see {@link Type#getInternalName()
@@ -117,10 +118,10 @@ public abstract class ClassVisitor {
   /**
    * Visit the module corresponding to the class.
    *
-   * @param name The fully qualified name (using dots) of the module.
-   * @param access module flags, among {@code ACC_OPEN}, {@code ACC_SYNTHETIC} and {@code
+   * @param name the fully qualified name (using dots) of the module.
+   * @param access the module access flags, among {@code ACC_OPEN}, {@code ACC_SYNTHETIC} and {@code
    *     ACC_MANDATED}.
-   * @param version module version or <tt>null</tt>.
+   * @param version the module version, or <tt>null</tt>.
    * @return a visitor to visit the module values, or <tt>null</tt> if this visitor is not
    *     interested in visiting this module.
    */

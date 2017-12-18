@@ -35,7 +35,7 @@ import org.objectweb.asm.MethodVisitor;
 /** An {@link AbstractInsnNode} that encapsulates a {@link Label}. */
 public class LabelNode extends AbstractInsnNode {
 
-  private Label label;
+  private Label value;
 
   public LabelNode() {
     super(-1);
@@ -43,7 +43,7 @@ public class LabelNode extends AbstractInsnNode {
 
   public LabelNode(final Label label) {
     super(-1);
-    this.label = label;
+    this.value = label;
   }
 
   @Override
@@ -52,23 +52,23 @@ public class LabelNode extends AbstractInsnNode {
   }
 
   public Label getLabel() {
-    if (label == null) {
-      label = new Label();
+    if (value == null) {
+      value = new Label();
     }
-    return label;
+    return value;
   }
 
   @Override
-  public void accept(final MethodVisitor cv) {
-    cv.visitLabel(getLabel());
+  public void accept(final MethodVisitor methodVisitor) {
+    methodVisitor.visitLabel(getLabel());
   }
 
   @Override
-  public AbstractInsnNode clone(final Map<LabelNode, LabelNode> labels) {
-    return labels.get(this);
+  public AbstractInsnNode clone(final Map<LabelNode, LabelNode> clonedLabels) {
+    return clonedLabels.get(this);
   }
 
   public void resetLabel() {
-    label = null;
+    value = null;
   }
 }

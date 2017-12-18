@@ -42,7 +42,7 @@ public class MethodInsnNode extends AbstractInsnNode {
 
   /**
    * The internal name of the method's owner class (see {@link
-   * org.objectweb.asm.Type#getInternalName() getInternalName}).
+   * org.objectweb.asm.Type#getInternalName()}).
    */
   public String owner;
 
@@ -52,7 +52,7 @@ public class MethodInsnNode extends AbstractInsnNode {
   /** The method's descriptor (see {@link org.objectweb.asm.Type}). */
   public String desc;
 
-  /** If the method's owner class if an interface. */
+  /** Whether the method's owner class if an interface. */
   public boolean itf;
 
   /**
@@ -61,14 +61,15 @@ public class MethodInsnNode extends AbstractInsnNode {
    * @param opcode the opcode of the type instruction to be constructed. This opcode must be
    *     INVOKEVIRTUAL, INVOKESPECIAL, INVOKESTATIC or INVOKEINTERFACE.
    * @param owner the internal name of the method's owner class (see {@link
-   *     org.objectweb.asm.Type#getInternalName() getInternalName}).
+   *     org.objectweb.asm.Type#getInternalName()}).
    * @param name the method's name.
-   * @param desc the method's descriptor (see {@link org.objectweb.asm.Type}).
+   * @param descriptor the method's descriptor (see {@link org.objectweb.asm.Type}).
+   * @deprecated
    */
   @Deprecated
   public MethodInsnNode(
-      final int opcode, final String owner, final String name, final String desc) {
-    this(opcode, owner, name, desc, opcode == Opcodes.INVOKEINTERFACE);
+      final int opcode, final String owner, final String name, final String descriptor) {
+    this(opcode, owner, name, descriptor, opcode == Opcodes.INVOKEINTERFACE);
   }
 
   /**
@@ -77,22 +78,22 @@ public class MethodInsnNode extends AbstractInsnNode {
    * @param opcode the opcode of the type instruction to be constructed. This opcode must be
    *     INVOKEVIRTUAL, INVOKESPECIAL, INVOKESTATIC or INVOKEINTERFACE.
    * @param owner the internal name of the method's owner class (see {@link
-   *     org.objectweb.asm.Type#getInternalName() getInternalName}).
+   *     org.objectweb.asm.Type#getInternalName()}).
    * @param name the method's name.
-   * @param desc the method's descriptor (see {@link org.objectweb.asm.Type}).
-   * @param itf if the method's owner class is an interface.
+   * @param descriptor the method's descriptor (see {@link org.objectweb.asm.Type}).
+   * @param isInterface if the method's owner class is an interface.
    */
   public MethodInsnNode(
       final int opcode,
       final String owner,
       final String name,
-      final String desc,
-      final boolean itf) {
+      final String descriptor,
+      final boolean isInterface) {
     super(opcode);
     this.owner = owner;
     this.name = name;
-    this.desc = desc;
-    this.itf = itf;
+    this.desc = descriptor;
+    this.itf = isInterface;
   }
 
   /**
@@ -111,13 +112,13 @@ public class MethodInsnNode extends AbstractInsnNode {
   }
 
   @Override
-  public void accept(final MethodVisitor mv) {
-    mv.visitMethodInsn(opcode, owner, name, desc, itf);
-    acceptAnnotations(mv);
+  public void accept(final MethodVisitor methodVisitor) {
+    methodVisitor.visitMethodInsn(opcode, owner, name, desc, itf);
+    acceptAnnotations(methodVisitor);
   }
 
   @Override
-  public AbstractInsnNode clone(final Map<LabelNode, LabelNode> labels) {
-    return new MethodInsnNode(opcode, owner, name, desc, itf);
+  public AbstractInsnNode clone(final Map<LabelNode, LabelNode> clonedLabels) {
+    return new MethodInsnNode(opcode, owner, name, desc, itf).cloneAnnotations(this);
   }
 }

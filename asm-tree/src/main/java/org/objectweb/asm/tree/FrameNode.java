@@ -28,7 +28,6 @@
 package org.objectweb.asm.tree;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -44,7 +43,7 @@ import org.objectweb.asm.Opcodes;
  * elements <i>just before</i> <b>i</b> is executed. <br>
  * <br>
  * (*) this is mandatory only for classes whose version is greater than or equal to {@link
- * Opcodes#V1_6 V1_6}.
+ * Opcodes#V1_6}.
  *
  * @author Eric Bruneton
  */
@@ -101,20 +100,22 @@ public class FrameNode extends AbstractInsnNode {
     switch (type) {
       case Opcodes.F_NEW:
       case Opcodes.F_FULL:
-        this.local = asList(nLocal, local);
-        this.stack = asList(nStack, stack);
+        this.local = Util.asArrayList(nLocal, local);
+        this.stack = Util.asArrayList(nStack, stack);
         break;
       case Opcodes.F_APPEND:
-        this.local = asList(nLocal, local);
+        this.local = Util.asArrayList(nLocal, local);
         break;
       case Opcodes.F_CHOP:
-        this.local = Arrays.asList(new Object[nLocal]);
+        this.local = Util.asArrayList(nLocal);
         break;
       case Opcodes.F_SAME:
         break;
       case Opcodes.F_SAME1:
-        this.stack = asList(1, stack);
+        this.stack = Util.asArrayList(1, stack);
         break;
+      default:
+        throw new IllegalArgumentException();
     }
   }
 
@@ -123,75 +124,66 @@ public class FrameNode extends AbstractInsnNode {
     return FRAME;
   }
 
-  /**
-   * Makes the given visitor visit this stack map frame.
-   *
-   * @param mv a method visitor.
-   */
   @Override
-  public void accept(final MethodVisitor mv) {
+  public void accept(final MethodVisitor methodVisitor) {
     switch (type) {
       case Opcodes.F_NEW:
       case Opcodes.F_FULL:
-        mv.visitFrame(type, local.size(), asArray(local), stack.size(), asArray(stack));
+        methodVisitor.visitFrame(type, local.size(), asArray(local), stack.size(), asArray(stack));
         break;
       case Opcodes.F_APPEND:
-        mv.visitFrame(type, local.size(), asArray(local), 0, null);
+        methodVisitor.visitFrame(type, local.size(), asArray(local), 0, null);
         break;
       case Opcodes.F_CHOP:
-        mv.visitFrame(type, local.size(), null, 0, null);
+        methodVisitor.visitFrame(type, local.size(), null, 0, null);
         break;
       case Opcodes.F_SAME:
-        mv.visitFrame(type, 0, null, 0, null);
+        methodVisitor.visitFrame(type, 0, null, 0, null);
         break;
       case Opcodes.F_SAME1:
-        mv.visitFrame(type, 0, null, 1, asArray(stack));
+        methodVisitor.visitFrame(type, 0, null, 1, asArray(stack));
         break;
+      default:
+        throw new IllegalArgumentException();
     }
   }
 
   @Override
-  public AbstractInsnNode clone(final Map<LabelNode, LabelNode> labels) {
+  public AbstractInsnNode clone(final Map<LabelNode, LabelNode> clonedLabels) {
     FrameNode clone = new FrameNode();
     clone.type = type;
     if (local != null) {
       clone.local = new ArrayList<Object>();
-      for (int i = 0; i < local.size(); ++i) {
-        Object l = local.get(i);
-        if (l instanceof LabelNode) {
-          l = labels.get(l);
+      for (int i = 0, n = local.size(); i < n; ++i) {
+        Object localElement = local.get(i);
+        if (localElement instanceof LabelNode) {
+          localElement = clonedLabels.get(localElement);
         }
-        clone.local.add(l);
+        clone.local.add(localElement);
       }
     }
     if (stack != null) {
       clone.stack = new ArrayList<Object>();
-      for (int i = 0; i < stack.size(); ++i) {
-        Object s = stack.get(i);
-        if (s instanceof LabelNode) {
-          s = labels.get(s);
+      for (int i = 0, n = stack.size(); i < n; ++i) {
+        Object stackElement = stack.get(i);
+        if (stackElement instanceof LabelNode) {
+          stackElement = clonedLabels.get(stackElement);
         }
-        clone.stack.add(s);
+        clone.stack.add(stackElement);
       }
     }
     return clone;
   }
 
-  // ------------------------------------------------------------------------
-
-  private static List<Object> asList(final int n, final Object[] o) {
-    return Arrays.asList(o).subList(0, n);
-  }
-
-  private static Object[] asArray(final List<Object> l) {
-    Object[] objs = new Object[l.size()];
-    for (int i = 0; i < objs.length; ++i) {
-      Object o = l.get(i);
+  private static Object[] asArray(final List<Object> list) {
+    Object[] array = new Object[list.size()];
+    for (int i = 0, n = array.length; i < n; ++i) {
+      Object o = list.get(i);
       if (o instanceof LabelNode) {
         o = ((LabelNode) o).getLabel();
       }
-      objs[i] = o;
+      array[i] = o;
     }
-    return objs;
+    return array;
   }
 }

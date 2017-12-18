@@ -71,13 +71,13 @@ public class VarInsnNode extends AbstractInsnNode {
   }
 
   @Override
-  public void accept(final MethodVisitor mv) {
-    mv.visitVarInsn(opcode, var);
-    acceptAnnotations(mv);
+  public void accept(final MethodVisitor methodVisitor) {
+    methodVisitor.visitVarInsn(opcode, var);
+    acceptAnnotations(methodVisitor);
   }
 
   @Override
-  public AbstractInsnNode clone(final Map<LabelNode, LabelNode> labels) {
+  public AbstractInsnNode clone(final Map<LabelNode, LabelNode> clonedLabels) {
     return new VarInsnNode(opcode, var).cloneAnnotations(this);
   }
 }

@@ -27,8 +27,6 @@
 // THE POSSIBILITY OF SUCH DAMAGE.
 package org.objectweb.asm.tree;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -70,10 +68,7 @@ public class TableSwitchInsnNode extends AbstractInsnNode {
     this.min = min;
     this.max = max;
     this.dflt = dflt;
-    this.labels = new ArrayList<LabelNode>();
-    if (labels != null) {
-      this.labels.addAll(Arrays.asList(labels));
-    }
+    this.labels = Util.asArrayList(labels);
   }
 
   @Override
@@ -82,18 +77,18 @@ public class TableSwitchInsnNode extends AbstractInsnNode {
   }
 
   @Override
-  public void accept(final MethodVisitor mv) {
-    Label[] labels = new Label[this.labels.size()];
-    for (int i = 0; i < labels.length; ++i) {
-      labels[i] = this.labels.get(i).getLabel();
+  public void accept(final MethodVisitor methodVisitor) {
+    Label[] labelsArray = new Label[this.labels.size()];
+    for (int i = 0, n = labelsArray.length; i < n; ++i) {
+      labelsArray[i] = this.labels.get(i).getLabel();
     }
-    mv.visitTableSwitchInsn(min, max, dflt.getLabel(), labels);
-    acceptAnnotations(mv);
+    methodVisitor.visitTableSwitchInsn(min, max, dflt.getLabel(), labelsArray);
+    acceptAnnotations(methodVisitor);
   }
 
   @Override
-  public AbstractInsnNode clone(final Map<LabelNode, LabelNode> labels) {
-    return new TableSwitchInsnNode(min, max, clone(dflt, labels), clone(this.labels, labels))
+  public AbstractInsnNode clone(final Map<LabelNode, LabelNode> clonedLabels) {
+    return new TableSwitchInsnNode(min, max, clone(dflt, clonedLabels), clone(labels, clonedLabels))
         .cloneAnnotations(this);
   }
 }

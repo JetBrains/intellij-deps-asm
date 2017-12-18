@@ -28,8 +28,6 @@
 
 package org.objectweb.asm.tree;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import org.objectweb.asm.Label;
@@ -79,7 +77,7 @@ public class LocalVariableAnnotationNode extends TypeAnnotationNode {
    *     this local variable (exclusive). This array must have the same size as the 'start' array.
    * @param index the local variable's index in each range. This array must have the same size as
    *     the 'start' array.
-   * @param desc the class descriptor of the annotation class.
+   * @param descriptor the class descriptor of the annotation class.
    */
   public LocalVariableAnnotationNode(
       int typeRef,
@@ -87,8 +85,8 @@ public class LocalVariableAnnotationNode extends TypeAnnotationNode {
       LabelNode[] start,
       LabelNode[] end,
       int[] index,
-      String desc) {
-    this(Opcodes.ASM6, typeRef, typePath, start, end, index, desc);
+      String descriptor) {
+    this(Opcodes.ASM6, typeRef, typePath, start, end, index, descriptor);
   }
 
   /**
@@ -106,7 +104,7 @@ public class LocalVariableAnnotationNode extends TypeAnnotationNode {
    * @param typePath the path to the annotated type argument, wildcard bound, array element type, or
    *     static inner type within 'typeRef'. May be <tt>null</tt> if the annotation targets
    *     'typeRef' as a whole.
-   * @param desc the class descriptor of the annotation class.
+   * @param descriptor the class descriptor of the annotation class.
    */
   public LocalVariableAnnotationNode(
       int api,
@@ -115,33 +113,30 @@ public class LocalVariableAnnotationNode extends TypeAnnotationNode {
       LabelNode[] start,
       LabelNode[] end,
       int[] index,
-      String desc) {
-    super(api, typeRef, typePath, desc);
-    this.start = new ArrayList<LabelNode>(start.length);
-    this.start.addAll(Arrays.asList(start));
-    this.end = new ArrayList<LabelNode>(end.length);
-    this.end.addAll(Arrays.asList(end));
-    this.index = new ArrayList<Integer>(index.length);
-    for (int i : index) {
-      this.index.add(i);
-    }
+      String descriptor) {
+    super(api, typeRef, typePath, descriptor);
+    this.start = Util.asArrayList(start);
+    this.end = Util.asArrayList(end);
+    this.index = Util.asArrayList(index);
   }
 
   /**
    * Makes the given visitor visit this type annotation.
    *
-   * @param mv the visitor that must visit this annotation.
+   * @param methodVisitor the visitor that must visit this annotation.
    * @param visible <tt>true</tt> if the annotation is visible at runtime.
    */
-  public void accept(final MethodVisitor mv, boolean visible) {
-    Label[] start = new Label[this.start.size()];
-    Label[] end = new Label[this.end.size()];
-    int[] index = new int[this.index.size()];
-    for (int i = 0; i < start.length; ++i) {
-      start[i] = this.start.get(i).getLabel();
-      end[i] = this.end.get(i).getLabel();
-      index[i] = this.index.get(i);
+  public void accept(final MethodVisitor methodVisitor, boolean visible) {
+    Label[] startLabels = new Label[this.start.size()];
+    Label[] endLabels = new Label[this.end.size()];
+    int[] indices = new int[this.index.size()];
+    for (int i = 0, n = startLabels.length; i < n; ++i) {
+      startLabels[i] = this.start.get(i).getLabel();
+      endLabels[i] = this.end.get(i).getLabel();
+      indices[i] = this.index.get(i);
     }
-    accept(mv.visitLocalVariableAnnotation(typeRef, typePath, start, end, index, desc, visible));
+    accept(
+        methodVisitor.visitLocalVariableAnnotation(
+            typeRef, typePath, startLabels, endLabels, indices, desc, visible));
   }
 }

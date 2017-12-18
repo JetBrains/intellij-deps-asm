@@ -38,41 +38,35 @@ import org.objectweb.asm.MethodVisitor;
  */
 public class TryCatchBlockNode {
 
-  /** Beginning of the exception handler's scope (inclusive). */
+  /** The beginning of the exception handler's scope (inclusive). */
   public LabelNode start;
 
-  /** End of the exception handler's scope (exclusive). */
+  /** The end of the exception handler's scope (exclusive). */
   public LabelNode end;
 
-  /** Beginning of the exception handler's code. */
+  /** The beginning of the exception handler's code. */
   public LabelNode handler;
 
   /**
-   * Internal name of the type of exceptions handled by the handler. May be <tt>null</tt> to catch
-   * any exceptions (for "finally" blocks).
+   * The internal name of the type of exceptions handled by the handler. May be <tt>null</tt> to
+   * catch any exceptions (for "finally" blocks).
    */
   public String type;
 
-  /**
-   * The runtime visible type annotations on the exception handler type. This list is a list of
-   * {@link TypeAnnotationNode} objects. May be <tt>null</tt>.
-   */
+  /** The runtime visible type annotations on the exception handler type. May be <tt>null</tt>. */
   public List<TypeAnnotationNode> visibleTypeAnnotations;
 
-  /**
-   * The runtime invisible type annotations on the exception handler type. This list is a list of
-   * {@link TypeAnnotationNode} objects. May be <tt>null</tt>.
-   */
+  /** The runtime invisible type annotations on the exception handler type. May be <tt>null</tt>. */
   public List<TypeAnnotationNode> invisibleTypeAnnotations;
 
   /**
    * Constructs a new {@link TryCatchBlockNode}.
    *
-   * @param start beginning of the exception handler's scope (inclusive).
-   * @param end end of the exception handler's scope (exclusive).
-   * @param handler beginning of the exception handler's code.
-   * @param type internal name of the type of exceptions handled by the handler, or <tt>null</tt> to
-   *     catch any exceptions (for "finally" blocks).
+   * @param start the beginning of the exception handler's scope (inclusive).
+   * @param end the end of the exception handler's scope (exclusive).
+   * @param handler the beginning of the exception handler's code.
+   * @param type the internal name of the type of exceptions handled by the handler, or
+   *     <tt>null</tt> to catch any exceptions (for "finally" blocks).
    */
   public TryCatchBlockNode(
       final LabelNode start, final LabelNode end, final LabelNode handler, final String type) {
@@ -92,13 +86,13 @@ public class TryCatchBlockNode {
   public void updateIndex(final int index) {
     int newTypeRef = 0x42000000 | (index << 8);
     if (visibleTypeAnnotations != null) {
-      for (TypeAnnotationNode tan : visibleTypeAnnotations) {
-        tan.typeRef = newTypeRef;
+      for (int i = 0, n = visibleTypeAnnotations.size(); i < n; ++i) {
+        visibleTypeAnnotations.get(i).typeRef = newTypeRef;
       }
     }
     if (invisibleTypeAnnotations != null) {
-      for (TypeAnnotationNode tan : invisibleTypeAnnotations) {
-        tan.typeRef = newTypeRef;
+      for (int i = 0, n = invisibleTypeAnnotations.size(); i < n; ++i) {
+        invisibleTypeAnnotations.get(i).typeRef = newTypeRef;
       }
     }
   }
@@ -106,20 +100,26 @@ public class TryCatchBlockNode {
   /**
    * Makes the given visitor visit this try catch block.
    *
-   * @param mv a method visitor.
+   * @param methodVisitor a method visitor.
    */
-  public void accept(final MethodVisitor mv) {
-    mv.visitTryCatchBlock(
+  public void accept(final MethodVisitor methodVisitor) {
+    methodVisitor.visitTryCatchBlock(
         start.getLabel(), end.getLabel(), handler == null ? null : handler.getLabel(), type);
-    int n = visibleTypeAnnotations == null ? 0 : visibleTypeAnnotations.size();
-    for (int i = 0; i < n; ++i) {
-      TypeAnnotationNode an = visibleTypeAnnotations.get(i);
-      an.accept(mv.visitTryCatchAnnotation(an.typeRef, an.typePath, an.desc, true));
+    if (visibleTypeAnnotations != null) {
+      for (int i = 0, n = visibleTypeAnnotations.size(); i < n; ++i) {
+        TypeAnnotationNode typeAnnotation = visibleTypeAnnotations.get(i);
+        typeAnnotation.accept(
+            methodVisitor.visitTryCatchAnnotation(
+                typeAnnotation.typeRef, typeAnnotation.typePath, typeAnnotation.desc, true));
+      }
     }
-    n = invisibleTypeAnnotations == null ? 0 : invisibleTypeAnnotations.size();
-    for (int i = 0; i < n; ++i) {
-      TypeAnnotationNode an = invisibleTypeAnnotations.get(i);
-      an.accept(mv.visitTryCatchAnnotation(an.typeRef, an.typePath, an.desc, false));
+    if (invisibleTypeAnnotations != null) {
+      for (int i = 0, n = invisibleTypeAnnotations.size(); i < n; ++i) {
+        TypeAnnotationNode typeAnnotation = invisibleTypeAnnotations.get(i);
+        typeAnnotation.accept(
+            methodVisitor.visitTryCatchAnnotation(
+                typeAnnotation.typeRef, typeAnnotation.typePath, typeAnnotation.desc, false));
+      }
     }
   }
 }

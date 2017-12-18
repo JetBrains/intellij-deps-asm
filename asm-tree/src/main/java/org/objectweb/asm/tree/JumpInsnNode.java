@@ -76,13 +76,13 @@ public class JumpInsnNode extends AbstractInsnNode {
   }
 
   @Override
-  public void accept(final MethodVisitor mv) {
-    mv.visitJumpInsn(opcode, label.getLabel());
-    acceptAnnotations(mv);
+  public void accept(final MethodVisitor methodVisitor) {
+    methodVisitor.visitJumpInsn(opcode, label.getLabel());
+    acceptAnnotations(methodVisitor);
   }
 
   @Override
-  public AbstractInsnNode clone(final Map<LabelNode, LabelNode> labels) {
-    return new JumpInsnNode(opcode, clone(label, labels)).cloneAnnotations(this);
+  public AbstractInsnNode clone(final Map<LabelNode, LabelNode> clonedLabels) {
+    return new JumpInsnNode(opcode, clone(label, clonedLabels)).cloneAnnotations(this);
   }
 }

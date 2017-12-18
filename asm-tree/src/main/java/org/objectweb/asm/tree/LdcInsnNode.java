@@ -49,12 +49,12 @@ public class LdcInsnNode extends AbstractInsnNode {
   /**
    * Constructs a new {@link LdcInsnNode}.
    *
-   * @param cst the constant to be loaded on the stack. This parameter must be a non null {@link
+   * @param value the constant to be loaded on the stack. This parameter must be a non null {@link
    *     Integer}, a {@link Float}, a {@link Long}, a {@link Double} or a {@link String}.
    */
-  public LdcInsnNode(final Object cst) {
+  public LdcInsnNode(final Object value) {
     super(Opcodes.LDC);
-    this.cst = cst;
+    this.cst = value;
   }
 
   @Override
@@ -63,13 +63,13 @@ public class LdcInsnNode extends AbstractInsnNode {
   }
 
   @Override
-  public void accept(final MethodVisitor mv) {
-    mv.visitLdcInsn(cst);
-    acceptAnnotations(mv);
+  public void accept(final MethodVisitor methodVisitor) {
+    methodVisitor.visitLdcInsn(cst);
+    acceptAnnotations(methodVisitor);
   }
 
   @Override
-  public AbstractInsnNode clone(final Map<LabelNode, LabelNode> labels) {
+  public AbstractInsnNode clone(final Map<LabelNode, LabelNode> clonedLabels) {
     return new LdcInsnNode(cst).cloneAnnotations(this);
   }
 }

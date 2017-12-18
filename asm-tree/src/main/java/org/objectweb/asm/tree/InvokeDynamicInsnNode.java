@@ -32,6 +32,7 @@ import java.util.Map;
 import org.objectweb.asm.Handle;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.Type;
 
 /**
  * A node that represents an invokedynamic instruction.
@@ -40,33 +41,39 @@ import org.objectweb.asm.Opcodes;
  */
 public class InvokeDynamicInsnNode extends AbstractInsnNode {
 
-  /** Invokedynamic name. */
+  /** The method's name. */
   public String name;
 
-  /** Invokedynamic descriptor. */
+  /** The method's descriptor (see {@link org.objectweb.asm.Type}). */
   public String desc;
 
-  /** Bootstrap method */
+  /** The bootstrap method. */
   public Handle bsm;
 
-  /** Bootstrap constant arguments */
+  /** The bootstrap method constant arguments. */
   public Object[] bsmArgs;
 
   /**
    * Constructs a new {@link InvokeDynamicInsnNode}.
    *
-   * @param name invokedynamic name.
-   * @param desc invokedynamic descriptor (see {@link org.objectweb.asm.Type}).
-   * @param bsm the bootstrap method.
-   * @param bsmArgs the boostrap constant arguments.
+   * @param name the method's name.
+   * @param descriptor the method's descriptor (see {@link Type Type}).
+   * @param bootstrapMethodHandle the bootstrap method.
+   * @param bootstrapMethodArguments the bootstrap method constant arguments. Each argument must be
+   *     an {@link Integer}, {@link Float}, {@link Long}, {@link Double}, {@link String}, {@link
+   *     Type} or {@link Handle} value. This method is allowed to modify the content of the array so
+   *     a caller should expect that this array may change.
    */
   public InvokeDynamicInsnNode(
-      final String name, final String desc, final Handle bsm, final Object... bsmArgs) {
+      final String name,
+      final String descriptor,
+      final Handle bootstrapMethodHandle,
+      final Object... bootstrapMethodArguments) {
     super(Opcodes.INVOKEDYNAMIC);
     this.name = name;
-    this.desc = desc;
-    this.bsm = bsm;
-    this.bsmArgs = bsmArgs;
+    this.desc = descriptor;
+    this.bsm = bootstrapMethodHandle;
+    this.bsmArgs = bootstrapMethodArguments;
   }
 
   @Override
@@ -75,13 +82,13 @@ public class InvokeDynamicInsnNode extends AbstractInsnNode {
   }
 
   @Override
-  public void accept(final MethodVisitor mv) {
-    mv.visitInvokeDynamicInsn(name, desc, bsm, bsmArgs);
-    acceptAnnotations(mv);
+  public void accept(final MethodVisitor methodVisitor) {
+    methodVisitor.visitInvokeDynamicInsn(name, desc, bsm, bsmArgs);
+    acceptAnnotations(methodVisitor);
   }
 
   @Override
-  public AbstractInsnNode clone(final Map<LabelNode, LabelNode> labels) {
+  public AbstractInsnNode clone(final Map<LabelNode, LabelNode> clonedLabels) {
     return new InvokeDynamicInsnNode(name, desc, bsm, bsmArgs).cloneAnnotations(this);
   }
 }

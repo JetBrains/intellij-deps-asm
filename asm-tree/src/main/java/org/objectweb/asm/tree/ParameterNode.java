@@ -30,11 +30,12 @@ package org.objectweb.asm.tree;
 import org.objectweb.asm.MethodVisitor;
 
 /**
- * A node that represents a parameter access and name.
+ * A node that represents a parameter of a method.
  *
  * @author Remi Forax
  */
 public class ParameterNode {
+  
   /** The parameter's name. */
   public String name;
 
@@ -60,9 +61,9 @@ public class ParameterNode {
   /**
    * Makes the given visitor visit this parameter declaration.
    *
-   * @param mv a method visitor.
+   * @param methodVisitor a method visitor.
    */
-  public void accept(final MethodVisitor mv) {
-    mv.visitParameter(name, access);
+  public void accept(final MethodVisitor methodVisitor) {
+    methodVisitor.visitParameter(name, access);
   }
 }

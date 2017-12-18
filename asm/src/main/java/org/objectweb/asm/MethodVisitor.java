@@ -583,7 +583,7 @@ public abstract class MethodVisitor {
    * Visits a MULTIANEWARRAY instruction.
    *
    * @param descriptor an array type descriptor (see {@link Type Type}).
-   * @param numDimensions number of dimensions of the array to allocate.
+   * @param numDimensions the number of dimensions of the array to allocate.
    */
   public void visitMultiANewArrayInsn(final String descriptor, final int numDimensions) {
     if (mv != null) {
@@ -631,11 +631,11 @@ public abstract class MethodVisitor {
   /**
    * Visits a try catch block.
    *
-   * @param start beginning of the exception handler's scope (inclusive).
-   * @param end end of the exception handler's scope (exclusive).
-   * @param handler beginning of the exception handler's code.
-   * @param type internal name of the type of exceptions handled by the handler, or <tt>null</tt> to
-   *     catch any exceptions (for "finally" blocks).
+   * @param start the beginning of the exception handler's scope (inclusive).
+   * @param end the end of the exception handler's scope (exclusive).
+   * @param handler the beginning of the exception handler's code.
+   * @param type the internal name of the type of exceptions handled by the handler, or
+   *     <tt>null</tt> to catch any exceptions (for "finally" blocks).
    * @throws IllegalArgumentException if one of the labels has already been visited by this visitor
    *     (by the {@link #visitLabel visitLabel} method).
    */

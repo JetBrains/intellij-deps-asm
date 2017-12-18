@@ -37,6 +37,7 @@ import org.objectweb.asm.ModuleVisitor;
  * @author Remi Forax
  */
 public class ModuleExportNode {
+
   /** The internal name of the exported package. */
   public String packaze;
 
@@ -47,7 +48,7 @@ public class ModuleExportNode {
   public int access;
 
   /**
-   * A list of modules that can access this exported package, specified with fully qualified names
+   * The list of modules that can access this exported package, specified with fully qualified names
    * (using dots). May be <tt>null</tt>.
    */
   public List<String> modules;
@@ -70,9 +71,10 @@ public class ModuleExportNode {
   /**
    * Makes the given module visitor visit this export declaration.
    *
-   * @param mv a module visitor.
+   * @param moduleVisitor a module visitor.
    */
-  public void accept(final ModuleVisitor mv) {
-    mv.visitExport(packaze, access, (modules == null) ? null : modules.toArray(new String[0]));
+  public void accept(final ModuleVisitor moduleVisitor) {
+    moduleVisitor.visitExport(
+        packaze, access, modules == null ? null : modules.toArray(new String[modules.size()]));
   }
 }

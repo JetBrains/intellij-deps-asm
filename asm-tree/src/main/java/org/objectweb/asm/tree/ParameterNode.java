@@ -35,7 +35,7 @@ import org.objectweb.asm.MethodVisitor;
  * @author Remi Forax
  */
 public class ParameterNode {
-  
+
   /** The parameter's name. */
   public String name;
 

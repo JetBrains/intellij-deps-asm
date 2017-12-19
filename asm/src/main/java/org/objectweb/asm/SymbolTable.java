@@ -1184,35 +1184,42 @@ final class SymbolTable {
   // Static helper methods to compute hash codes.
   // -----------------------------------------------------------------------------------------------
 
-  private static int hash(int tag, int value) {
+  private static int hash(final int tag, final int value) {
     return 0x7FFFFFFF & (tag + value);
   }
 
-  private static int hash(int tag, long value) {
+  private static int hash(final int tag, final long value) {
     return 0x7FFFFFFF & (tag + (int) value + (int) (value >>> 32));
   }
 
-  private static int hash(int tag, String value) {
+  private static int hash(final int tag, final String value) {
     return 0x7FFFFFFF & (tag + value.hashCode());
   }
 
-  private static int hash(int tag, String value1, int value2) {
+  private static int hash(final int tag, final String value1, final int value2) {
     return 0x7FFFFFFF & (tag + value1.hashCode() + value2);
   }
 
-  private static int hash(int tag, String value1, String value2) {
+  private static int hash(final int tag, final String value1, final String value2) {
     return 0x7FFFFFFF & (tag + value1.hashCode() * value2.hashCode());
   }
 
-  private static int hash(int tag, String value1, String value2, int value3) {
+  private static int hash(
+      final int tag, final String value1, final String value2, final int value3) {
     return 0x7FFFFFFF & (tag + value1.hashCode() * value2.hashCode() * (value3 + 1));
   }
 
-  private static int hash(int tag, String value1, String value2, String value3) {
+  private static int hash(
+      final int tag, final String value1, final String value2, final String value3) {
     return 0x7FFFFFFF & (tag + value1.hashCode() * value2.hashCode() * value3.hashCode());
   }
 
-  private static int hash(int tag, String value1, String value2, String value3, int value4) {
+  private static int hash(
+      final int tag,
+      final String value1,
+      final String value2,
+      final String value3,
+      final int value4) {
     return 0x7FFFFFFF & (tag + value1.hashCode() * value2.hashCode() * value3.hashCode() * value4);
   }
 }

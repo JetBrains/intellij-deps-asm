@@ -66,7 +66,10 @@ public class MethodVisitorTest {
         () -> methodVisitor.visitLocalVariableAnnotation(0, null, null, null, null, null, false));
   }
 
-  /** Tests that we can call the ASM5 visitMethodInsn on an ASM4 visitor, provided itf is false. */
+  /**
+   * Tests that we can call the ASM5 visitMethodInsn on an ASM4 visitor, provided isInterface is
+   * false.
+   */
   @Test
   public void testBackwardCompatibilityOk() {
     CheckMethodVisitor checkMethodVisitor = new CheckMethodVisitor();
@@ -75,7 +78,7 @@ public class MethodVisitorTest {
     assertEquals("m", checkMethodVisitor.lastVisitedMethodName);
   }
 
-  /** Tests the ASM5 visitMethodInsn fails on an ASM4 visitor, if itf is true. */
+  /** Tests the ASM5 visitMethodInsn fails on an ASM4 visitor, if isInterface is true. */
   @Test
   public void testBackwardCompatibilityFail() {
     CheckMethodVisitor checkMethodVisitor = new CheckMethodVisitor();
@@ -86,7 +89,7 @@ public class MethodVisitorTest {
 
   /**
    * Tests that the ASM5 visitMethodInsn of an ASM4 visitor delegates calls to the ASM4
-   * visitMethodInsn, provided itf is false.
+   * visitMethodInsn, provided isInterface is false.
    */
   @Test
   public void testBackwardCompatibilityOverride() {
@@ -96,7 +99,7 @@ public class MethodVisitorTest {
     assertEquals("mv4", checkMethodVisitor.lastVisitedMethodName);
   }
 
-  /** Tests the ASM5 visitMethodInsn fails on an ASM4 visitor, if itf is true. */
+  /** Tests the ASM5 visitMethodInsn fails on an ASM4 visitor, if isInterface is true. */
   @Test
   public void testBackwardCompatibilityOverrideFail() {
     CheckMethodVisitor checkMethodVisitor = new CheckMethodVisitor();
@@ -155,7 +158,7 @@ public class MethodVisitorTest {
 
   /** An ASM4 {@link MethodVisitor} which does not override the ASM4 visitMethodInsn method. */
   private static class MethodVisitor4 extends MethodVisitor {
-    MethodVisitor4(MethodVisitor methodVisitor) {
+    MethodVisitor4(final MethodVisitor methodVisitor) {
       super(Opcodes.ASM4, methodVisitor);
     }
   }
@@ -165,20 +168,21 @@ public class MethodVisitorTest {
    * at the end of method names.
    */
   private static class MethodVisitor4Override extends MethodVisitor {
-    MethodVisitor4Override(MethodVisitor methodVisitor) {
+    MethodVisitor4Override(final MethodVisitor methodVisitor) {
       super(Opcodes.ASM4, methodVisitor);
     }
 
     @Deprecated
     @Override
-    public void visitMethodInsn(int opcode, String owner, String name, String desc) {
-      super.visitMethodInsn(opcode, owner, name + "v4", desc);
+    public void visitMethodInsn(
+        final int opcode, final String owner, final String name, final String descriptor) {
+      super.visitMethodInsn(opcode, owner, name + "v4", descriptor);
     }
   }
 
   /** An ASM5 {@link MethodVisitor} which does not override the ASM5 visitMethodInsn method. */
   private static class MethodVisitor5 extends MethodVisitor {
-    MethodVisitor5(MethodVisitor methodVisitor) {
+    MethodVisitor5(final MethodVisitor methodVisitor) {
       super(Opcodes.ASM5, methodVisitor);
     }
   }
@@ -188,13 +192,18 @@ public class MethodVisitorTest {
    * at the end of method names.
    */
   private static class MethodVisitor5Override extends MethodVisitor {
-    MethodVisitor5Override(MethodVisitor methodVisitor) {
+    MethodVisitor5Override(final MethodVisitor methodVisitor) {
       super(Opcodes.ASM5, methodVisitor);
     }
 
     @Override
-    public void visitMethodInsn(int opcode, String owner, String name, String desc, boolean itf) {
-      super.visitMethodInsn(opcode, owner, name + "v5", desc, itf);
+    public void visitMethodInsn(
+        final int opcode,
+        final String owner,
+        final String name,
+        final String descriptor,
+        final boolean isInterface) {
+      super.visitMethodInsn(opcode, owner, name + "v5", descriptor, isInterface);
     }
   }
 
@@ -210,7 +219,12 @@ public class MethodVisitorTest {
     }
 
     @Override
-    public void visitMethodInsn(int opcode, String owner, String name, String desc, boolean itf) {
+    public void visitMethodInsn(
+        final int opcode,
+        final String owner,
+        final String name,
+        final String descriptor,
+        final boolean isInterface) {
       this.lastVisitedMethodName = name;
     }
   }

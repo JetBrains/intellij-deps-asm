@@ -672,7 +672,7 @@ final class MethodWriter extends MethodVisitor {
   }
 
   @Override
-  public void visitAnnotableParameterCount(int parameterCount, boolean visible) {
+  public void visitAnnotableParameterCount(final int parameterCount, final boolean visible) {
     if (visible) {
       visibleAnnotableParameterCount = parameterCount;
     } else {
@@ -1950,7 +1950,7 @@ final class MethodWriter extends MethodVisitor {
    *
    * @return the size in bytes of the method_info JVMS structure.
    */
-  final int computeMethodInfoSize() {
+  int computeMethodInfoSize() {
     // If this method_info must be copied from an existing one, the size computation is trivial.
     if (sourceOffset != 0) {
       // sourceLength excludes the first 6 bytes for access_flags, name_index and descriptor_index.
@@ -2080,7 +2080,7 @@ final class MethodWriter extends MethodVisitor {
    *
    * @param output where the method_info structure must be put.
    */
-  final void putMethodInfo(final ByteVector output) {
+  void putMethodInfo(final ByteVector output) {
     boolean useSyntheticAttribute = symbolTable.getMajorVersion() < Opcodes.V1_5;
     int mask = useSyntheticAttribute ? Opcodes.ACC_SYNTHETIC : 0;
     output.putShort(accessFlags & ~mask).putShort(nameIndex).putShort(descriptorIndex);

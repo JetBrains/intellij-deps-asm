@@ -274,7 +274,7 @@ public class MethodNode extends MethodVisitor {
 
   @Override
   public AnnotationVisitor visitTypeAnnotation(
-      int typeRef, TypePath typePath, String descriptor, boolean visible) {
+      final int typeRef, final TypePath typePath, final String descriptor, final boolean visible) {
     TypeAnnotationNode typeAnnotation = new TypeAnnotationNode(typeRef, typePath, descriptor);
     if (visible) {
       if (visibleTypeAnnotations == null) {
@@ -487,7 +487,7 @@ public class MethodNode extends MethodVisitor {
 
   @Override
   public AnnotationVisitor visitTryCatchAnnotation(
-      int typeRef, TypePath typePath, String descriptor, boolean visible) {
+      final int typeRef, final TypePath typePath, final String descriptor, final boolean visible) {
     TryCatchBlockNode tryCatchBlock = tryCatchBlocks.get((typeRef & 0x00FFFF00) >> 8);
     TypeAnnotationNode typeAnnotation = new TypeAnnotationNode(typeRef, typePath, descriptor);
     if (visible) {
@@ -639,8 +639,8 @@ public class MethodNode extends MethodVisitor {
           throw new UnsupportedClassVersionException();
         }
         if (insn instanceof MethodInsnNode) {
-          boolean itf = ((MethodInsnNode) insn).itf;
-          if (itf != (insn.opcode == Opcodes.INVOKEINTERFACE)) {
+          boolean isInterface = ((MethodInsnNode) insn).itf;
+          if (isInterface != (insn.opcode == Opcodes.INVOKEINTERFACE)) {
             throw new UnsupportedClassVersionException();
           }
         }

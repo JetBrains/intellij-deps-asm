@@ -345,7 +345,7 @@ class Frame {
    *
    * @param owner the basic block to which these input and output stack map frames correspond.
    */
-  Frame(Label owner) {
+  Frame(final Label owner) {
     this.owner = owner;
   }
 

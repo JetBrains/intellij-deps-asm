@@ -91,6 +91,7 @@ project(':asm-tree') {
   description = "Tree API of ${parent.description}"
   provides = ['org.objectweb.asm.tree']
   requires = [':asm']
+  coverage = 0.95
 }
 
 project(':asm-util') {

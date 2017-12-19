@@ -398,8 +398,8 @@ public abstract class MethodVisitor {
   public void visitMethodInsn(
       final int opcode, final String owner, final String name, final String descriptor) {
     if (api >= Opcodes.ASM5) {
-      boolean itf = opcode == Opcodes.INVOKEINTERFACE;
-      visitMethodInsn(opcode, owner, name, descriptor, itf);
+      boolean isInterface = opcode == Opcodes.INVOKEINTERFACE;
+      visitMethodInsn(opcode, owner, name, descriptor, isInterface);
       return;
     }
     if (mv != null) {

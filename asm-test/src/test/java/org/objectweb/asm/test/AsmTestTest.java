@@ -46,7 +46,7 @@ public class AsmTestTest extends AsmTest {
   /** Tests the isMoreRecentThan method. */
   @ParameterizedTest
   @MethodSource(ALL_CLASSES_AND_ALL_APIS)
-  public void testIsMoreRecentThan(PrecompiledClass classParameter, Api apiParameter) {
+  public void testIsMoreRecentThan(final PrecompiledClass classParameter, final Api apiParameter) {
     byte[] classContent = classParameter.getBytes();
     int majorVersion = (classContent[6] & 0xFF) << 8 | (classContent[7] & 0xFF);
     boolean isMoreRecent = classParameter.isMoreRecentThan(apiParameter);
@@ -68,7 +68,7 @@ public class AsmTestTest extends AsmTest {
   /** Tests that we can get the byte array content of each precompiled class. */
   @ParameterizedTest
   @MethodSource(ALL_CLASSES_AND_LATEST_API)
-  public void testGetBytes(PrecompiledClass classParameter, Api apiParameter) {
+  public void testGetBytes(final PrecompiledClass classParameter, final Api apiParameter) {
     assertEquals(Api.ASM6, apiParameter);
     assertEquals(0x00060000, apiParameter.value());
     assertEquals("ASM6", apiParameter.toString());
@@ -80,7 +80,7 @@ public class AsmTestTest extends AsmTest {
   /** Tests that we can load (and instantiate) each (non-abstract) precompiled class. */
   @ParameterizedTest
   @MethodSource(ALL_CLASSES_AND_LATEST_API)
-  public void testLoadAndInstantiate(PrecompiledClass classParameter, Api apiParameter) {
+  public void testLoadAndInstantiate(final PrecompiledClass classParameter, final Api apiParameter) {
     assertThat(() -> loadAndInstantiate(classParameter.getName(), classParameter.getBytes()))
         .succeedsOrThrows(UnsupportedClassVersionError.class)
         .when(classParameter.isMoreRecentThanCurrentJdk());
@@ -92,7 +92,7 @@ public class AsmTestTest extends AsmTest {
    */
   @ParameterizedTest
   @EnumSource(InvalidClass.class)
-  public void testLoadAndInstantiate_invalidClass(InvalidClass invalidClass) {
+  public void testLoadAndInstantiate_invalidClass(final InvalidClass invalidClass) {
     byte[] classContent = invalidClass.getBytes();
     assertThrows(
         AssertionError.class, () -> loadAndInstantiate(invalidClass.toString(), classContent));
@@ -104,7 +104,7 @@ public class AsmTestTest extends AsmTest {
    */
   @ParameterizedTest
   @EnumSource(InvalidClass.class)
-  public void testDoLoadAndInstantiate_invalidClass(InvalidClass invalidClass) {
+  public void testDoLoadAndInstantiate_invalidClass(final InvalidClass invalidClass) {
     byte[] classContent = invalidClass.getBytes();
     switch (invalidClass) {
       case INVALID_ELEMENT_VALUE:

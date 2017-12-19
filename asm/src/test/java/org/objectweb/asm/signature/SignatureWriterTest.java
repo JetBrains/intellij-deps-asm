@@ -50,20 +50,20 @@ public class SignatureWriterTest extends AsmTest {
    */
   @ParameterizedTest
   @MethodSource(ALL_CLASSES_AND_LATEST_API)
-  public void testReadAndWriteSignature(PrecompiledClass classParameter, Api apiParameter)
-      throws Exception {
+  public void testReadAndWriteSignature(
+      final PrecompiledClass classParameter, final Api apiParameter) throws Exception {
     byte[] classFile = classParameter.getBytes();
     ClassReader classReader = new ClassReader(classFile);
     classReader.accept(
         new ClassVisitor(apiParameter.value()) {
           @Override
           public void visit(
-              int version,
-              int access,
-              String name,
-              String signature,
-              String superName,
-              String[] interfaces) {
+              final int version,
+              final int access,
+              final String name,
+              final String signature,
+              final String superName,
+              final String[] interfaces) {
             if (signature != null) {
               SignatureWriter signatureWriter = new SignatureWriter();
               new SignatureReader(signature).accept(signatureWriter);
@@ -73,7 +73,11 @@ public class SignatureWriterTest extends AsmTest {
 
           @Override
           public FieldVisitor visitField(
-              int access, String name, String desc, String signature, Object value) {
+              final int access,
+              final String name,
+              final String descriptor,
+              final String signature,
+              final Object value) {
             if (signature != null) {
               SignatureWriter signatureWriter = new SignatureWriter();
               new SignatureReader(signature).acceptType(signatureWriter);
@@ -84,7 +88,11 @@ public class SignatureWriterTest extends AsmTest {
 
           @Override
           public MethodVisitor visitMethod(
-              int access, String name, String desc, String signature, String[] exceptions) {
+              final int access,
+              final String name,
+              final String descriptor,
+              final String signature,
+              final String[] exceptions) {
             if (signature != null) {
               SignatureWriter signatureWriter = new SignatureWriter();
               new SignatureReader(signature).accept(signatureWriter);

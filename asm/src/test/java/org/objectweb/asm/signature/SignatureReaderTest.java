@@ -51,7 +51,7 @@ public class SignatureReaderTest extends AsmTest {
    */
   @ParameterizedTest
   @MethodSource(ALL_CLASSES_AND_LATEST_API)
-  public void testReadSignature(PrecompiledClass classParameter, Api apiParameter)
+  public void testReadSignature(final PrecompiledClass classParameter, final Api apiParameter)
       throws Exception {
     byte[] classFile = classParameter.getBytes();
     ClassReader classReader = new ClassReader(classFile);
@@ -59,12 +59,12 @@ public class SignatureReaderTest extends AsmTest {
         new ClassVisitor(apiParameter.value()) {
           @Override
           public void visit(
-              int version,
-              int access,
-              String name,
-              String signature,
-              String superName,
-              String[] interfaces) {
+              final int version,
+              final int access,
+              final String name,
+              final String signature,
+              final String superName,
+              final String[] interfaces) {
             if (signature != null) {
               new SignatureReader(signature).accept(new SignatureVisitor(api) {});
             }
@@ -72,7 +72,11 @@ public class SignatureReaderTest extends AsmTest {
 
           @Override
           public FieldVisitor visitField(
-              int access, String name, String desc, String signature, Object value) {
+              final int access,
+              final String name,
+              final String descriptor,
+              final String signature,
+              final Object value) {
             if (signature != null) {
               new SignatureReader(signature).acceptType(new SignatureVisitor(api) {});
             }
@@ -81,7 +85,11 @@ public class SignatureReaderTest extends AsmTest {
 
           @Override
           public MethodVisitor visitMethod(
-              int access, String name, String desc, String signature, String[] exceptions) {
+              final int access,
+              final String name,
+              final String descriptor,
+              final String signature,
+              final String[] exceptions) {
             if (signature != null) {
               new SignatureReader(signature).accept(new SignatureVisitor(api) {});
             }

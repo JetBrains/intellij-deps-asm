@@ -85,7 +85,7 @@ public class ClassNodeTest extends AsmTest implements Opcodes {
     moduleNode.accept(
         new ClassVisitor(Opcodes.ASM6) {
           @Override
-          public ModuleVisitor visitModule(String name, int access, String version) {
+          public ModuleVisitor visitModule(final String name, final int access, final String version) {
             return otherModuleNode;
           }
         });
@@ -331,7 +331,7 @@ public class ClassNodeTest extends AsmTest implements Opcodes {
   /** Tests that classes are unchanged with a ClassReader->ClassNode->ClassWriter transform. */
   @ParameterizedTest
   @MethodSource(ALL_CLASSES_AND_ALL_APIS)
-  public void testReadAndWrite(PrecompiledClass classParameter, Api apiParameter) {
+  public void testReadAndWrite(final PrecompiledClass classParameter, final Api apiParameter) {
     byte[] classFile = classParameter.getBytes();
     ClassReader classReader = new ClassReader(classFile);
     ClassNode classNode = new ClassNode(apiParameter.value());
@@ -348,7 +348,7 @@ public class ClassNodeTest extends AsmTest implements Opcodes {
    */
   @ParameterizedTest
   @MethodSource(ALL_CLASSES_AND_ALL_APIS)
-  public void testCheck(PrecompiledClass classParameter, Api apiParameter) {
+  public void testCheck(final PrecompiledClass classParameter, final Api apiParameter) {
     byte[] classFile = classParameter.getBytes();
     ClassReader classReader = new ClassReader(classFile);
     ClassNode classNode = new ClassNode(apiParameter.value());
@@ -365,7 +365,7 @@ public class ClassNodeTest extends AsmTest implements Opcodes {
   @ParameterizedTest
   @MethodSource(ALL_CLASSES_AND_ALL_APIS)
   @SuppressWarnings("serial")
-  public void testReadCloneAndWrite(PrecompiledClass classParameter, Api apiParameter) {
+  public void testReadCloneAndWrite(final PrecompiledClass classParameter, final Api apiParameter) {
     byte[] classFile = classParameter.getBytes();
     ClassReader classReader = new ClassReader(classFile);
     ClassNode classNode = new ClassNode(apiParameter.value());
@@ -393,7 +393,7 @@ public class ClassNodeTest extends AsmTest implements Opcodes {
   /** Tests that ClassNode accepts visitors that remove class elements. */
   @ParameterizedTest
   @MethodSource(ALL_CLASSES_AND_ALL_APIS)
-  public void testRemoveMembers(PrecompiledClass classParameter, Api apiParameter) {
+  public void testRemoveMembers(final PrecompiledClass classParameter, final Api apiParameter) {
     byte[] classFile = classParameter.getBytes();
     ClassReader classReader = new ClassReader(classFile);
     ClassNode classNode = new ClassNode(apiParameter.value());
@@ -412,39 +412,39 @@ public class ClassNodeTest extends AsmTest implements Opcodes {
 
   private static class RemoveMembersClassVisitor extends ClassVisitor {
 
-    RemoveMembersClassVisitor(int api, ClassVisitor classVisitor) {
+    RemoveMembersClassVisitor(final int api, final ClassVisitor classVisitor) {
       super(api, classVisitor);
     }
 
     @Override
-    public AnnotationVisitor visitAnnotation(String descriptor, boolean visible) {
+    public AnnotationVisitor visitAnnotation(final String descriptor, final boolean visible) {
       return null;
     }
 
     @Override
     public AnnotationVisitor visitTypeAnnotation(
-        int typeRef, TypePath typePath, String descriptor, boolean visible) {
+        final int typeRef, final TypePath typePath, final String descriptor, final boolean visible) {
       return null;
     }
 
     @Override
     public FieldVisitor visitField(
-        int access, String name, String descriptor, String signature, Object value) {
+        final int access, final String name, final String descriptor, final String signature, final Object value) {
       return null;
     }
 
     @Override
     public MethodVisitor visitMethod(
-        int access, String name, String descriptor, String signature, String[] exceptions) {
+        final int access, final String name, final String descriptor, final String signature, final String[] exceptions) {
       return null;
     }
 
     @Override
-    public ModuleVisitor visitModule(String name, int access, String version) {
+    public ModuleVisitor visitModule(final String name, final int access, final String version) {
       return null;
     }
 
     @Override
-    public void visitAttribute(Attribute attribute) {}
+    public void visitAttribute(final Attribute attribute) {}
   }
 }

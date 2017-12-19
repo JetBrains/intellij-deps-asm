@@ -124,7 +124,7 @@ class ClassDump {
    * @param bytecode the content of a class file.
    * @throws IOException if the class can't be parsed.
    */
-  ClassDump(byte[] bytecode) throws IOException {
+  ClassDump(final byte[] bytecode) throws IOException {
     Builder builder = new Builder("ClassFile", /* parent = */ null);
     dumpClassFile(new Parser(bytecode), builder);
     StringBuilder stringBuilder = new StringBuilder();
@@ -146,7 +146,7 @@ class ClassDump {
    * @see <a href="https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.1">JVMS
    *     4.1</a>
    */
-  private static void dumpClassFile(Parser parser, Builder builder) throws IOException {
+  private static void dumpClassFile(final Parser parser, final Builder builder) throws IOException {
     builder.add("magic: ", parser.u4());
     builder.add("minor_version: ", parser.u2());
     int majorVersion = parser.u2();
@@ -188,7 +188,7 @@ class ClassDump {
    * @see <a href="https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.1">JVMS
    *     4.1</a>
    */
-  private static void dumpAttributeList(Parser parser, Builder builder) throws IOException {
+  private static void dumpAttributeList(final Parser parser, final Builder builder) throws IOException {
     int attributeCount = builder.add("attributes_count: ", parser.u2());
     SortedBuilder sortedBuilder = builder.addSortedBuilder();
     for (int i = 0; i < attributeCount; ++i) {
@@ -206,7 +206,7 @@ class ClassDump {
    * @see <a href="https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.4">JVMS
    *     4.4</a>
    */
-  private static CpInfo parseCpInfo(Parser parser, ClassContext classContext) throws IOException {
+  private static CpInfo parseCpInfo(final Parser parser, final ClassContext classContext) throws IOException {
     int tag = parser.u1();
     switch (tag) {
       case 7:
@@ -258,7 +258,7 @@ class ClassDump {
      *
      * @param dump the dump of this item.
      */
-    CpInfo(String dump) {
+    CpInfo(final String dump) {
       this.dump = dump;
       this.classContext = null;
     }
@@ -268,7 +268,7 @@ class ClassDump {
      *
      * @param classContext a context to lookup constant pool items from their index.
      */
-    CpInfo(ClassContext classContext) {
+    CpInfo(final ClassContext classContext) {
       this.classContext = classContext;
     }
 
@@ -283,7 +283,7 @@ class ClassDump {
      * @param cpInfoType the expected type of the constant pool entry.
      * @return the constant pool item with the given index.
      */
-    <C extends CpInfo> C getCpInfo(int cpIndex, Class<C> cpInfoType) {
+    <C extends CpInfo> C getCpInfo(final int cpIndex, final Class<C> cpInfoType) {
       return classContext.getCpInfo(cpIndex, cpInfoType);
     }
 
@@ -317,7 +317,7 @@ class ClassDump {
      * @param classContext a context to lookup constant pool items from their index.
      * @throws IOException if the class can't be parsed.
      */
-    ConstantClassInfo(Parser parser, ClassContext classContext) throws IOException {
+    ConstantClassInfo(final Parser parser, final ClassContext classContext) throws IOException {
       super(classContext);
       this.nameIndex = parser.u2();
     }
@@ -345,7 +345,7 @@ class ClassDump {
      * @param classContext a context to lookup constant pool items from their index.
      * @throws IOException if the class can't be parsed.
      */
-    ConstantFieldRefInfo(Parser parser, ClassContext classContext) throws IOException {
+    ConstantFieldRefInfo(final Parser parser, final ClassContext classContext) throws IOException {
       super(classContext);
       this.classIndex = parser.u2();
       this.nameAndTypeIndex = parser.u2();
@@ -376,7 +376,7 @@ class ClassDump {
      * @param classContext a context to lookup constant pool items from their index.
      * @throws IOException if the class can't be parsed.
      */
-    ConstantMethodRefInfo(Parser parser, ClassContext classContext) throws IOException {
+    ConstantMethodRefInfo(final Parser parser, final ClassContext classContext) throws IOException {
       super(classContext);
       this.classIndex = parser.u2();
       this.nameAndTypeIndex = parser.u2();
@@ -407,7 +407,7 @@ class ClassDump {
      * @param classContext a context to lookup constant pool items from their index.
      * @throws IOException if the class can't be parsed.
      */
-    ConstantInterfaceMethodRefInfo(Parser parser, ClassContext classContext) throws IOException {
+    ConstantInterfaceMethodRefInfo(final Parser parser, final ClassContext classContext) throws IOException {
       super(classContext);
       this.classIndex = parser.u2();
       this.nameAndTypeIndex = parser.u2();
@@ -437,7 +437,7 @@ class ClassDump {
      * @param classContext a context to lookup constant pool items from their index.
      * @throws IOException if the class can't be parsed.
      */
-    ConstantStringInfo(Parser parser, ClassContext classContext) throws IOException {
+    ConstantStringInfo(final Parser parser, final ClassContext classContext) throws IOException {
       super(classContext);
       this.stringIndex = parser.u2();
     }
@@ -462,7 +462,7 @@ class ClassDump {
      * @param parser a class parser.
      * @throws IOException if the class can't be parsed.
      */
-    ConstantIntegerInfo(Parser parser) throws IOException {
+    ConstantIntegerInfo(final Parser parser) throws IOException {
       super(Integer.toString(parser.u4()));
     }
   }
@@ -481,7 +481,7 @@ class ClassDump {
      * @param parser a class parser.
      * @throws IOException if the class can't be parsed.
      */
-    ConstantFloatInfo(Parser parser) throws IOException {
+    ConstantFloatInfo(final Parser parser) throws IOException {
       super(Float.toString(Float.intBitsToFloat(parser.u4())));
     }
   }
@@ -500,7 +500,7 @@ class ClassDump {
      * @param parser a class parser.
      * @throws IOException if the class can't be parsed.
      */
-    ConstantLongInfo(Parser parser) throws IOException {
+    ConstantLongInfo(final Parser parser) throws IOException {
       super(Long.toString(parser.s8()));
     }
 
@@ -524,7 +524,7 @@ class ClassDump {
      * @param parser a class parser.
      * @throws IOException if the class can't be parsed.
      */
-    ConstantDoubleInfo(Parser parser) throws IOException {
+    ConstantDoubleInfo(final Parser parser) throws IOException {
       super(Double.toString(Double.longBitsToDouble(parser.s8())));
     }
 
@@ -551,7 +551,7 @@ class ClassDump {
      * @param classContext a context to lookup constant pool items from their index.
      * @throws IOException if the class can't be parsed.
      */
-    ConstantNameAndTypeInfo(Parser parser, ClassContext classContext) throws IOException {
+    ConstantNameAndTypeInfo(final Parser parser, final ClassContext classContext) throws IOException {
       super(classContext);
       this.nameIndex = parser.u2();
       this.descriptorIndex = parser.u2();
@@ -578,7 +578,7 @@ class ClassDump {
      * @param parser a class parser.
      * @throws IOException if the class can't be parsed.
      */
-    ConstantUtf8Info(Parser parser) throws IOException {
+    ConstantUtf8Info(final Parser parser) throws IOException {
       super(parser.utf8());
     }
   }
@@ -600,7 +600,7 @@ class ClassDump {
      * @param classContext a context to lookup constant pool items from their index.
      * @throws IOException if the class can't be parsed.
      */
-    ConstantMethodHandleInfo(Parser parser, ClassContext classContext) throws IOException {
+    ConstantMethodHandleInfo(final Parser parser, final ClassContext classContext) throws IOException {
       super(classContext);
       this.referenceKind = parser.u1();
       this.referenceIndex = parser.u2();
@@ -628,7 +628,7 @@ class ClassDump {
      * @param classContext a context to lookup constant pool items from their index.
      * @throws IOException if the class can't be parsed.
      */
-    ConstantMethodTypeInfo(Parser parser, ClassContext classContext) throws IOException {
+    ConstantMethodTypeInfo(final Parser parser, final ClassContext classContext) throws IOException {
       super(classContext);
       this.descriptorIndex = parser.u2();
     }
@@ -656,7 +656,7 @@ class ClassDump {
      * @param classContext a context to lookup constant pool items from their index.
      * @throws IOException if the class can't be parsed.
      */
-    ConstantInvokeDynamicInfo(Parser parser, ClassContext classContext) throws IOException {
+    ConstantInvokeDynamicInfo(final Parser parser, final ClassContext classContext) throws IOException {
       super(classContext);
       this.bootstrapMethodAttrIndex = parser.u2();
       this.nameAndTypeIndex = parser.u2();
@@ -686,7 +686,7 @@ class ClassDump {
      * @param classContext a context to lookup constant pool items from their index.
      * @throws IOException if the class can't be parsed.
      */
-    ConstantModuleInfo(Parser parser, ClassContext classContext) throws IOException {
+    ConstantModuleInfo(final Parser parser, final ClassContext classContext) throws IOException {
       super(classContext);
       this.descriptorIndex = parser.u2();
     }
@@ -713,7 +713,7 @@ class ClassDump {
      * @param classContext a context to lookup constant pool items from their index.
      * @throws IOException if the class can't be parsed.
      */
-    ConstantPackageInfo(Parser parser, ClassContext classContext) throws IOException {
+    ConstantPackageInfo(final Parser parser, final ClassContext classContext) throws IOException {
       super(classContext);
       this.descriptorIndex = parser.u2();
     }
@@ -733,7 +733,7 @@ class ClassDump {
    * @see <a href="https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.5">JVMS
    *     4.5</a>
    */
-  private static void dumpFieldInfo(Parser parser, Builder builder) throws IOException {
+  private static void dumpFieldInfo(final Parser parser, final Builder builder) throws IOException {
     builder.add("access_flags: ", parser.u2());
     builder.addCpInfo("name_index: ", parser.u2());
     builder.addCpInfo("descriptor_index: ", parser.u2());
@@ -749,7 +749,7 @@ class ClassDump {
    * @see <a href="https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.6">JVMS
    *     4.6</a>
    */
-  private static void dumpMethodInfo(Parser parser, Builder builder) throws IOException {
+  private static void dumpMethodInfo(final Parser parser, final Builder builder) throws IOException {
     // method_info has the same top level structure as field_info.
     dumpFieldInfo(parser, builder);
   }
@@ -763,7 +763,7 @@ class ClassDump {
    * @see <a href="https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.7">JVMS
    *     4.7</a>
    */
-  private static void dumpAttributeInfo(Parser parser, SortedBuilder sortedBuilder)
+  private static void dumpAttributeInfo(final Parser parser, final SortedBuilder sortedBuilder)
       throws IOException {
     String attributeName = sortedBuilder.getCpInfo(parser.u2()).toString();
     int attributeLength = parser.u4();
@@ -841,7 +841,7 @@ class ClassDump {
    * @see <a href="https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.7.2">JVMS
    *     4.7.2</a>
    */
-  private static void dumpConstantValueAttribute(Parser parser, Builder builder)
+  private static void dumpConstantValueAttribute(final Parser parser, final Builder builder)
       throws IOException {
     builder.addCpInfo("constantvalue_index: ", parser.u2());
   }
@@ -855,7 +855,7 @@ class ClassDump {
    * @see <a href="https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.7.3">JVMS
    *     4.7.3</a>
    */
-  private static void dumpCodeAttribute(Parser parser, Builder builder) throws IOException {
+  private static void dumpCodeAttribute(final Parser parser, final Builder builder) throws IOException {
     builder.add("max_stack: ", parser.u2());
     builder.add("max_locals: ", parser.u2());
     int codeLength = parser.u4();
@@ -884,7 +884,7 @@ class ClassDump {
     /** The context to use to find the index from the bytecode offset. */
     private final MethodContext methodContext;
 
-    InstructionIndex(int bytecodeOffset, MethodContext methodContext) {
+    InstructionIndex(final int bytecodeOffset, final MethodContext methodContext) {
       this.bytecodeOffset = bytecodeOffset;
       this.methodContext = methodContext;
     }
@@ -909,7 +909,7 @@ class ClassDump {
    * @see <a href="https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-6.html#jvms-6.5">JVMS
    *     6.5</a>
    */
-  private static void dumpInstructions(int codeLength, Parser parser, Builder builder)
+  private static void dumpInstructions(final int codeLength, final Parser parser, final Builder builder)
       throws IOException {
     int bytecodeOffset = 0; // Number of bytes parsed so far.
     int insnIndex = 0; // Number of instructions parsed so far.
@@ -1357,7 +1357,7 @@ class ClassDump {
    * @see <a href="https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.7.4">JVMS
    *     4.7.4</a>
    */
-  private static void dumpStackMapTableAttribute(Parser parser, Builder builder)
+  private static void dumpStackMapTableAttribute(final Parser parser, final Builder builder)
       throws IOException {
     int entryCount = builder.add("number_of_entries: ", parser.u2());
     int bytecodeOffset = -1;
@@ -1419,7 +1419,7 @@ class ClassDump {
    * @see <a href="https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.7.2">JVMS
    *     4.7.2</a>
    */
-  private static void dumpVerificationTypeInfo(Parser parser, Builder builder) throws IOException {
+  private static void dumpVerificationTypeInfo(final Parser parser, final Builder builder) throws IOException {
     int tag = builder.add("tag: ", parser.u1());
     if (tag > 8) {
       throw new IOException("Unknown verification_type_info tag: " + tag);
@@ -1440,7 +1440,7 @@ class ClassDump {
    * @see <a href="https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.7.5">JVMS
    *     4.7.5</a>
    */
-  private static void dumpExceptionsAttribute(Parser parser, Builder builder) throws IOException {
+  private static void dumpExceptionsAttribute(final Parser parser, final Builder builder) throws IOException {
     int exceptionCount = builder.add("number_of_exceptions: ", parser.u2());
     for (int i = 0; i < exceptionCount; ++i) {
       builder.addCpInfo("exception_index: ", parser.u2());
@@ -1456,7 +1456,7 @@ class ClassDump {
    * @see <a href="https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.7.6">JVMS
    *     4.7.6</a>
    */
-  private static void dumpInnerClassesAttribute(Parser parser, Builder builder) throws IOException {
+  private static void dumpInnerClassesAttribute(final Parser parser, final Builder builder) throws IOException {
     int classCount = builder.add("number_of_classes: ", parser.u2());
     for (int i = 0; i < classCount; ++i) {
       builder.addCpInfo("inner_class_info_index: ", parser.u2());
@@ -1475,7 +1475,7 @@ class ClassDump {
    * @see <a href="https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.7.7">JVMS
    *     4.7.7</a>
    */
-  private static void dumpEnclosingMethodAttribute(Parser parser, Builder builder)
+  private static void dumpEnclosingMethodAttribute(final Parser parser, final Builder builder)
       throws IOException {
     builder.addCpInfo("class_index: ", parser.u2());
     builder.addCpInfo("method_index: ", parser.u2());
@@ -1500,7 +1500,7 @@ class ClassDump {
    * @see <a href="https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.7.9">JVMS
    *     4.7.9</a>
    */
-  private static void dumpSignatureAttribute(Parser parser, Builder builder) throws IOException {
+  private static void dumpSignatureAttribute(final Parser parser, final Builder builder) throws IOException {
     builder.addCpInfo("signature_index: ", parser.u2());
   }
 
@@ -1513,7 +1513,7 @@ class ClassDump {
    * @see <a href="https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.7.10">JVMS
    *     4.7.10</a>
    */
-  private static void dumpSourceFileAttribute(Parser parser, Builder builder) throws IOException {
+  private static void dumpSourceFileAttribute(final Parser parser, final Builder builder) throws IOException {
     builder.addCpInfo("sourcefile_index: ", parser.u2());
   }
 
@@ -1527,7 +1527,7 @@ class ClassDump {
    * @see <a href="https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.7.11">JVMS
    *     4.7.11</a>
    */
-  private static void dumpSourceDebugAttribute(int attributeLength, Parser parser, Builder builder)
+  private static void dumpSourceDebugAttribute(final int attributeLength, final Parser parser, final Builder builder)
       throws IOException {
     byte[] attributeData = parser.bytes(attributeLength);
     StringBuilder stringBuilder = new StringBuilder();
@@ -1546,7 +1546,7 @@ class ClassDump {
    * @see <a href="https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.7.12">JVMS
    *     4.7.12</a>
    */
-  private static void dumpLineNumberTableAttribute(Parser parser, Builder builder)
+  private static void dumpLineNumberTableAttribute(final Parser parser, final Builder builder)
       throws IOException {
     int lineNumberCount = builder.add("line_number_table_length: ", parser.u2());
     for (int i = 0; i < lineNumberCount; ++i) {
@@ -1564,7 +1564,7 @@ class ClassDump {
    * @see <a href="https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.7.13">JVMS
    *     4.7.13</a>
    */
-  private static void dumpLocalVariableTableAttribute(Parser parser, Builder builder)
+  private static void dumpLocalVariableTableAttribute(final Parser parser, final Builder builder)
       throws IOException {
     int localVariableCount = builder.add("local_variable_table_length: ", parser.u2());
     for (int i = 0; i < localVariableCount; ++i) {
@@ -1585,7 +1585,7 @@ class ClassDump {
    * @see <a href="https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.7.14">JVMS
    *     4.7.14</a>
    */
-  private static void dumpLocalVariableTypeTableAttribute(Parser parser, Builder builder)
+  private static void dumpLocalVariableTypeTableAttribute(final Parser parser, final Builder builder)
       throws IOException {
     int localVariableCount = builder.add("local_variable_type_table_length: ", parser.u2());
     for (int i = 0; i < localVariableCount; ++i) {
@@ -1616,7 +1616,7 @@ class ClassDump {
    * @see <a href="https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.7.16">JVMS
    *     4.7.16</a>
    */
-  private static void dumpRuntimeVisibleAnnotationsAttribute(Parser parser, Builder builder)
+  private static void dumpRuntimeVisibleAnnotationsAttribute(final Parser parser, final Builder builder)
       throws IOException {
     int annotationCount = builder.add("num_annotations: ", parser.u2());
     for (int i = 0; i < annotationCount; ++i) {
@@ -1633,7 +1633,7 @@ class ClassDump {
    * @see <a href="https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.7.16">JVMS
    *     4.7.16</a>
    */
-  private static void dumpAnnotation(Parser parser, Builder builder) throws IOException {
+  private static void dumpAnnotation(final Parser parser, final Builder builder) throws IOException {
     builder.addCpInfo("type_index: ", parser.u2());
     int elementValuePairCount = builder.add("num_element_value_pairs: ", parser.u2());
     for (int i = 0; i < elementValuePairCount; ++i) {
@@ -1652,7 +1652,7 @@ class ClassDump {
    *     href="https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.7.16.1">JVMS
    *     4.7.16.1</a>
    */
-  private static void dumpElementValue(Parser parser, Builder builder) throws IOException {
+  private static void dumpElementValue(final Parser parser, final Builder builder) throws IOException {
     int tag = parser.u1();
     switch (tag) {
       case 'B':
@@ -1697,7 +1697,7 @@ class ClassDump {
    * @see <a href="https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.7.17">JVMS
    *     4.7.17</a>
    */
-  private static void dumpRuntimeInvisibleAnnotationsAttribute(Parser parser, Builder builder)
+  private static void dumpRuntimeInvisibleAnnotationsAttribute(final Parser parser, final Builder builder)
       throws IOException {
     dumpRuntimeVisibleAnnotationsAttribute(parser, builder);
   }
@@ -1712,7 +1712,7 @@ class ClassDump {
    *     4.7.18</a>
    */
   private static void dumpRuntimeVisibleParameterAnnotationsAttribute(
-      Parser parser, Builder builder) throws IOException {
+      final Parser parser, final Builder builder) throws IOException {
     int parameterCount = builder.add("num_parameters: ", parser.u1());
     for (int i = 0; i < parameterCount; ++i) {
       int annotationCount = builder.add("num_annotations: ", parser.u2());
@@ -1732,7 +1732,7 @@ class ClassDump {
    *     4.7.19</a>
    */
   private static void dumpRuntimeInvisibleParameterAnnotationsAttribute(
-      Parser parser, Builder builder) throws IOException {
+      final Parser parser, final Builder builder) throws IOException {
     dumpRuntimeVisibleParameterAnnotationsAttribute(parser, builder);
   }
 
@@ -1745,7 +1745,7 @@ class ClassDump {
    * @see <a href="https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.7.20">JVMS
    *     4.7.20</a>
    */
-  private static void dumpRuntimeVisibleTypeAnnotationsAttribute(Parser parser, Builder builder)
+  private static void dumpRuntimeVisibleTypeAnnotationsAttribute(final Parser parser, final Builder builder)
       throws IOException {
     int annotationCount = builder.add("num_annotations: ", parser.u2());
     SortedBuilder sortedBuilder = builder.addSortedBuilder();
@@ -1763,7 +1763,7 @@ class ClassDump {
    * @see <a href="https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.7.20">JVMS
    *     4.7.20</a>
    */
-  private static void dumpTypeAnnotation(Parser parser, SortedBuilder sortedBuilder)
+  private static void dumpTypeAnnotation(final Parser parser, final SortedBuilder sortedBuilder)
       throws IOException {
     int targetType = parser.u1();
     Builder builder = sortedBuilder.addBuilder(String.valueOf(targetType));
@@ -1848,7 +1848,7 @@ class ClassDump {
    *     href="https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.7.20.2">JVMS
    *     4.7.20.2</a>
    */
-  private static void dumpTypePath(Parser parser, Builder builder) throws IOException {
+  private static void dumpTypePath(final Parser parser, final Builder builder) throws IOException {
     int pathLength = builder.add("path_length: ", parser.u1());
     for (int i = 0; i < pathLength; ++i) {
       builder.add("type_path_kind: ", parser.u1());
@@ -1865,7 +1865,7 @@ class ClassDump {
    * @see <a href="https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.7.21">JVMS
    *     4.7.21</a>
    */
-  private static void dumpRuntimeInvisibleTypeAnnotationsAttribute(Parser parser, Builder builder)
+  private static void dumpRuntimeInvisibleTypeAnnotationsAttribute(final Parser parser, final Builder builder)
       throws IOException {
     dumpRuntimeVisibleTypeAnnotationsAttribute(parser, builder);
   }
@@ -1879,7 +1879,7 @@ class ClassDump {
    * @see <a href="https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.7.22">JVMS
    *     4.7.22</a>
    */
-  private static void dumpAnnotationDefaultAttribute(Parser parser, Builder builder)
+  private static void dumpAnnotationDefaultAttribute(final Parser parser, final Builder builder)
       throws IOException {
     dumpElementValue(parser, builder);
   }
@@ -1893,7 +1893,7 @@ class ClassDump {
    * @see <a href="https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.7.23">JVMS
    *     4.7.23</a>
    */
-  private static void dumpBootstrapMethodsAttribute(Parser parser, Builder builder)
+  private static void dumpBootstrapMethodsAttribute(final Parser parser, final Builder builder)
       throws IOException {
     int bootstrapMethodCount = builder.add("num_bootstrap_methods: ", parser.u2());
     for (int i = 0; i < bootstrapMethodCount; ++i) {
@@ -1914,7 +1914,7 @@ class ClassDump {
    * @see <a href="https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.7.24">JVMS
    *     4.7.24</a>
    */
-  private static void dumpMethodParametersAttribute(Parser parser, Builder builder)
+  private static void dumpMethodParametersAttribute(final Parser parser, final Builder builder)
       throws IOException {
     int parameterCount = builder.add("parameters_count: ", parser.u1());
     for (int i = 0; i < parameterCount; ++i) {
@@ -1932,7 +1932,7 @@ class ClassDump {
    * @see <a href="https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.7.25">JVMS
    *     4.7.25</a>
    */
-  private static void dumpModuleAttribute(Parser parser, Builder builder) throws IOException {
+  private static void dumpModuleAttribute(final Parser parser, final Builder builder) throws IOException {
     builder.addCpInfo("name: ", parser.u2());
     builder.add("access: ", parser.u2());
     builder.addCpInfo("version: ", parser.u2());
@@ -1983,7 +1983,7 @@ class ClassDump {
    * @see <a href="https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.7.26">JVMS
    *     4.7.26</a>
    */
-  private static void dumpModulePackagesAttribute(Parser parser, Builder builder)
+  private static void dumpModulePackagesAttribute(final Parser parser, final Builder builder)
       throws IOException {
     int packageCount = builder.add("package_count: ", parser.u2());
     for (int i = 0; i < packageCount; ++i) {
@@ -2000,7 +2000,7 @@ class ClassDump {
    * @see <a href="https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.7.27">JVMS
    *     4.7.27</a>
    */
-  private static void dumpModuleMainClassAttribute(Parser parser, Builder builder)
+  private static void dumpModuleMainClassAttribute(final Parser parser, final Builder builder)
       throws IOException {
     builder.addCpInfo("main_class: ", parser.u2());
   }
@@ -2014,7 +2014,7 @@ class ClassDump {
    * @see <a
    *     href="http://docs.oracle.com/javame/config/cldc/opt-pkgs/api/cldc/api/Appendix1-verifier.pdf">CLDC</a>
    */
-  private static void dumpStackMapAttribute(Parser parser, Builder builder) throws IOException {
+  private static void dumpStackMapAttribute(final Parser parser, final Builder builder) throws IOException {
     int entryCount = builder.add("number_of_entries: ", parser.u2());
     for (int i = 0; i < entryCount; ++i) {
       builder.addInsnIndex("offset: ", parser.u2());
@@ -2036,7 +2036,7 @@ class ClassDump {
   private static class Parser {
     private final DataInputStream dataInputStream;
 
-    Parser(byte[] data) {
+    Parser(final byte[] data) {
       this.dataInputStream = new DataInputStream(new ByteArrayInputStream(data));
     }
 
@@ -2070,7 +2070,7 @@ class ClassDump {
       return dataInputStream.readUTF();
     }
 
-    byte[] bytes(int length) throws IOException {
+    byte[] bytes(final int length) throws IOException {
       byte[] bytes = new byte[length];
       dataInputStream.readFully(bytes);
       return bytes;
@@ -2078,12 +2078,12 @@ class ClassDump {
   }
 
   /** A context to lookup constant pool items from their index. */
-  private static interface ClassContext {
+  private interface ClassContext {
     <C extends CpInfo> C getCpInfo(int cpIndex, Class<C> cpInfoType);
   }
 
   /** A context to lookup instruction indices from their bytecode offset. */
-  private static interface MethodContext {
+  private interface MethodContext {
     int getInsnIndex(int bytecodeOffset);
   }
 
@@ -2109,7 +2109,7 @@ class ClassDump {
     /** The map used to implement the Context interfaces. */
     private final HashMap<Integer, Object> context;
 
-    AbstractBuilder(AbstractBuilder<?> parent) {
+    AbstractBuilder(final AbstractBuilder<?> parent) {
       this.parent = parent;
       this.children = new ArrayList<>();
       this.context = new HashMap<>();
@@ -2121,12 +2121,12 @@ class ClassDump {
      * @param cpIndex a constant pool item index.
      * @return the constant pool item at the given index.
      */
-    CpInfo getCpInfo(int cpIndex) {
+    CpInfo getCpInfo(final int cpIndex) {
       return getCpInfo(cpIndex, CpInfo.class);
     }
 
     @Override
-    public <C extends CpInfo> C getCpInfo(int cpIndex, Class<C> cpInfoType) {
+    public <C extends CpInfo> C getCpInfo(final int cpIndex, final Class<C> cpInfoType) {
       Object cpInfo = get(CP_INFO_KEY | cpIndex);
       if (cpInfo == null) {
         throw new IllegalArgumentException("Invalid constant pool index: " + cpIndex);
@@ -2141,7 +2141,7 @@ class ClassDump {
     }
 
     @Override
-    public int getInsnIndex(int bytecodeOffset) {
+    public int getInsnIndex(final int bytecodeOffset) {
       Integer insnIndex = (Integer) get(bytecodeOffset);
       if (insnIndex == null) {
         throw new IllegalArgumentException("Invalid bytecode offset: " + bytecodeOffset);
@@ -2155,7 +2155,7 @@ class ClassDump {
      * @param cpIndex a constant pool item index.
      * @param cpInfo a constant pool item.
      */
-    void putCpInfo(int cpIndex, CpInfo cpInfo) {
+    void putCpInfo(final int cpIndex, final CpInfo cpInfo) {
       context.put(CP_INFO_KEY | cpIndex, cpInfo);
     }
 
@@ -2165,7 +2165,7 @@ class ClassDump {
      * @param bytecodeOffset a bytecode offset.
      * @param instructionIndex the index of a bytecode instruction.
      */
-    void putInsnIndex(int bytecodeOffset, int instructionIndex) {
+    void putInsnIndex(final int bytecodeOffset, final int instructionIndex) {
       context.put(bytecodeOffset, instructionIndex);
     }
 
@@ -2174,7 +2174,7 @@ class ClassDump {
      *
      * @param stringBuilder a string builder.
      */
-    void build(StringBuilder stringBuilder) {
+    void build(final StringBuilder stringBuilder) {
       for (Object child : children) {
         if (child instanceof AbstractBuilder<?>) {
           ((AbstractBuilder<?>) child).build(stringBuilder);
@@ -2189,7 +2189,7 @@ class ClassDump {
      * @return the value associated with the given key in this context or, if not found, in the
      *     parent context (recursively).
      */
-    private Object get(int key) {
+    private Object get(final int key) {
       Object value = context.get(key);
       if (value != null) {
         return value;
@@ -2203,7 +2203,7 @@ class ClassDump {
     /** The name of this builder, for sorting in {@link SortedBuilder}. */
     private String name;
 
-    Builder(String name, AbstractBuilder<?> parent) {
+    Builder(final String name, final AbstractBuilder<?> parent) {
       super(parent);
       this.name = name;
     }
@@ -2216,7 +2216,7 @@ class ClassDump {
      * @param value a value.
      * @return value
      */
-    <T> T add(String name, T value) {
+    <T> T add(final String name, final T value) {
       children.add(name);
       children.add(value);
       children.add("\n");
@@ -2231,7 +2231,7 @@ class ClassDump {
      * @param bytecodeOffset the offset of a bytecode instruction.
      * @return bytecodeOffset.
      */
-    int addInsnIndex(String name, int bytecodeOffset) {
+    int addInsnIndex(final String name, final int bytecodeOffset) {
       add(name, new InstructionIndex(bytecodeOffset, this));
       return bytecodeOffset;
     }
@@ -2243,7 +2243,7 @@ class ClassDump {
      * @param opcode a bytecode instruction opcode.
      * @param arguments the bytecode instruction arguments.
      */
-    void addInsn(int insnIndex, int opcode, Object... arguments) {
+    void addInsn(final int insnIndex, final int opcode, final Object... arguments) {
       children.add(insnIndex);
       children.add(": ");
       children.add(opcode);
@@ -2260,7 +2260,7 @@ class ClassDump {
      * @param name a name.
      * @param cpIndex a constant pool item index.
      */
-    void addCpInfo(String name, int cpIndex) {
+    void addCpInfo(final String name, final int cpIndex) {
       add(name, cpIndex == 0 ? 0 : getCpInfo(cpIndex));
     }
 
@@ -2289,12 +2289,12 @@ class ClassDump {
       name = stringBuilder.toString();
     }
 
-    public int compareTo(Builder builder) {
+    public int compareTo(final Builder builder) {
       return name.compareTo(builder.name);
     }
 
     @Override
-    public boolean equals(Object other) {
+    public boolean equals(final Object other) {
       return (other instanceof Builder) && name.equals(((Builder) other).name);
     }
 
@@ -2303,10 +2303,10 @@ class ClassDump {
       return name.hashCode();
     }
   }
-  
+
   /** An {@link AbstractBuilder} which sorts its children by name before building. */
   private static class SortedBuilder extends AbstractBuilder<Builder> {
-    SortedBuilder(Builder parent) {
+    SortedBuilder(final Builder parent) {
       super(parent);
     }
 
@@ -2316,14 +2316,14 @@ class ClassDump {
      * @param name the name of the new builder.
      * @return the new builder.
      */
-    Builder addBuilder(String name) {
+    Builder addBuilder(final String name) {
       Builder builder = new Builder(name, this);
       children.add(builder);
       return builder;
     }
 
     @Override
-    void build(StringBuilder stringBuilder) {
+    void build(final StringBuilder stringBuilder) {
       Collections.sort(children);
       super.build(stringBuilder);
     }

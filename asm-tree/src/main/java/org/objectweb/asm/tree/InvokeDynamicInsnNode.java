@@ -32,7 +32,6 @@ import java.util.Map;
 import org.objectweb.asm.Handle;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
-import org.objectweb.asm.Type;
 
 /**
  * A node that represents an invokedynamic instruction.
@@ -57,12 +56,12 @@ public class InvokeDynamicInsnNode extends AbstractInsnNode {
    * Constructs a new {@link InvokeDynamicInsnNode}.
    *
    * @param name the method's name.
-   * @param descriptor the method's descriptor (see {@link Type Type}).
+   * @param descriptor the method's descriptor (see {@link org.objectweb.asm.Type}).
    * @param bootstrapMethodHandle the bootstrap method.
    * @param bootstrapMethodArguments the bootstrap method constant arguments. Each argument must be
    *     an {@link Integer}, {@link Float}, {@link Long}, {@link Double}, {@link String}, {@link
-   *     Type} or {@link Handle} value. This method is allowed to modify the content of the array so
-   *     a caller should expect that this array may change.
+   *     org.objectweb.asm.Type} or {@link Handle} value. This method is allowed to modify the
+   *     content of the array so a caller should expect that this array may change.
    */
   public InvokeDynamicInsnNode(
       final String name,

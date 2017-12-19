@@ -74,10 +74,4 @@ public class CodeComment extends Attribute {
       final int maxLocals) {
     return new ByteVector();
   }
-
-  @Override
-  protected Label[] getLabels() {
-    super.getLabels();
-    return new Label[] {new Label()};
-  }
 }

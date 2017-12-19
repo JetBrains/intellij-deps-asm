@@ -241,7 +241,7 @@ public class ClassReader {
    * @return the content of the given input stream.
    * @throws IOException if a problem occurs during reading.
    */
-  private static byte[] readStream(final InputStream inputStream, boolean close)
+  private static byte[] readStream(final InputStream inputStream, final boolean close)
       throws IOException {
     if (inputStream == null) {
       throw new IOException("Class not found");
@@ -757,7 +757,7 @@ public class ClassReader {
    * @return the offset of the first byte following the field_info structure.
    */
   private int readField(
-      final ClassVisitor classVisitor, final Context context, int fieldInfoOffset) {
+      final ClassVisitor classVisitor, final Context context, final int fieldInfoOffset) {
     char[] charBuffer = context.charBuffer;
 
     // Read the access_flags, name_index and descriptor_index fields.
@@ -2147,13 +2147,13 @@ public class ClassReader {
             int nameAndTypeCpInfoOffset = cpInfoOffsets[readUnsignedShort(cpInfoOffset + 2)];
             String owner = readClass(cpInfoOffset, charBuffer);
             String name = readUTF8(nameAndTypeCpInfoOffset, charBuffer);
-            String desc = readUTF8(nameAndTypeCpInfoOffset + 2, charBuffer);
+            String descriptor = readUTF8(nameAndTypeCpInfoOffset + 2, charBuffer);
             if (opcode < Opcodes.INVOKEVIRTUAL) {
-              methodVisitor.visitFieldInsn(opcode, owner, name, desc);
+              methodVisitor.visitFieldInsn(opcode, owner, name, descriptor);
             } else {
-              boolean itf =
+              boolean isInterface =
                   classFileBuffer[cpInfoOffset - 1] == Symbol.CONSTANT_INTERFACE_METHODREF_TAG;
-              methodVisitor.visitMethodInsn(opcode, owner, name, desc, itf);
+              methodVisitor.visitMethodInsn(opcode, owner, name, descriptor, isInterface);
             }
             if (opcode == Opcodes.INVOKEINTERFACE) {
               currentOffset += 5;
@@ -2167,7 +2167,7 @@ public class ClassReader {
             int cpInfoOffset = cpInfoOffsets[readUnsignedShort(currentOffset + 1)];
             int nameAndTypeCpInfoOffset = cpInfoOffsets[readUnsignedShort(cpInfoOffset + 2)];
             String name = readUTF8(nameAndTypeCpInfoOffset, charBuffer);
-            String desc = readUTF8(nameAndTypeCpInfoOffset + 2, charBuffer);
+            String descriptor = readUTF8(nameAndTypeCpInfoOffset + 2, charBuffer);
             int bootstrapMethodOffset =
                 context.bootstrapMethodOffsets[readUnsignedShort(cpInfoOffset)];
             Handle handle =
@@ -2180,7 +2180,7 @@ public class ClassReader {
                   readConst(readUnsignedShort(bootstrapMethodOffset), charBuffer);
               bootstrapMethodOffset += 2;
             }
-            methodVisitor.visitInvokeDynamicInsn(name, desc, handle, boostrapMethodArguments);
+            methodVisitor.visitInvokeDynamicInsn(name, descriptor, handle, boostrapMethodArguments);
             currentOffset += 5;
             break;
           }
@@ -2541,7 +2541,7 @@ public class ClassReader {
    *     if there is no such type_annotation of if it does not have a bytecode offset.
    */
   private int getTypeAnnotationBytecodeOffset(
-      int[] typeAnnotationOffsets, int typeAnnotationIndex) {
+      final int[] typeAnnotationOffsets, final int typeAnnotationIndex) {
     if (typeAnnotationOffsets == null
         || typeAnnotationIndex >= typeAnnotationOffsets.length
         || readByte(typeAnnotationOffsets[typeAnnotationIndex]) < TypeReference.INSTANCEOF) {
@@ -2979,7 +2979,7 @@ public class ClassReader {
    * @return the end offset of the JVMS 'stack_map_frame' or 'full_frame' structure.
    */
   private int readStackMapFrame(
-      int stackMapFrameOffset,
+      final int stackMapFrameOffset,
       final boolean compressed,
       final boolean expand,
       final Context context) {
@@ -3328,7 +3328,7 @@ public class ClassReader {
    *     large. It is not automatically resized.
    * @return the String corresponding to the specified CONSTANT_Utf8 entry.
    */
-  final String readUTF(int constantPoolEntryIndex, final char[] charBuffer) {
+  final String readUTF(final int constantPoolEntryIndex, final char[] charBuffer) {
     String value = constantUtf8Values[constantPoolEntryIndex];
     if (value != null) {
       return value;
@@ -3465,9 +3465,10 @@ public class ClassReader {
         int nameAndTypeCpInfoOffset = cpInfoOffsets[readUnsignedShort(referenceCpInfoOffset + 2)];
         String owner = readClass(referenceCpInfoOffset, charBuffer);
         String name = readUTF8(nameAndTypeCpInfoOffset, charBuffer);
-        String desc = readUTF8(nameAndTypeCpInfoOffset + 2, charBuffer);
-        boolean itf = b[referenceCpInfoOffset - 1] == Symbol.CONSTANT_INTERFACE_METHODREF_TAG;
-        return new Handle(referenceKind, owner, name, desc, itf);
+        String descriptor = readUTF8(nameAndTypeCpInfoOffset + 2, charBuffer);
+        boolean isInterface =
+            b[referenceCpInfoOffset - 1] == Symbol.CONSTANT_INTERFACE_METHODREF_TAG;
+        return new Handle(referenceKind, owner, name, descriptor, isInterface);
       default:
         throw new IllegalArgumentException();
     }

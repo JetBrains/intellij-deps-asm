@@ -170,7 +170,7 @@ public abstract class AbstractInsnNode {
    *
    * @param methodVisitor a method visitor.
    */
-  public abstract void accept(final MethodVisitor methodVisitor);
+  public abstract void accept(MethodVisitor methodVisitor);
 
   /**
    * Makes the given visitor visit the annotations of this instruction.
@@ -203,7 +203,7 @@ public abstract class AbstractInsnNode {
    * @return a copy of this instruction. The returned instruction does not belong to any {@link
    *     InsnList}.
    */
-  public abstract AbstractInsnNode clone(final Map<LabelNode, LabelNode> clonedLabels);
+  public abstract AbstractInsnNode clone(Map<LabelNode, LabelNode> clonedLabels);
 
   /**
    * Returns the clone of the given label.

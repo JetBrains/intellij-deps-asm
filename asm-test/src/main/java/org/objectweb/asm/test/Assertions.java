@@ -42,7 +42,7 @@ public final class Assertions {
 
   private Assertions() {}
 
-  public static ExecutableSubject assertThat(Executable executable) {
+  public static ExecutableSubject assertThat(final Executable executable) {
     return new ExecutableSubject(executable);
   }
 
@@ -54,7 +54,7 @@ public final class Assertions {
     }
 
     public <T extends Throwable> ExecutableOutcomeSubject<T> succeedsOrThrows(
-        Class<T> expectedType) {
+        final Class<T> expectedType) {
       return new ExecutableOutcomeSubject<>(executable, expectedType);
     }
   }
@@ -68,7 +68,7 @@ public final class Assertions {
       this.expectedType = expectedType;
     }
 
-    public void when(boolean condition) {
+    public void when(final boolean condition) {
       if (condition) {
         assertThrows(expectedType, executable);
       } else {

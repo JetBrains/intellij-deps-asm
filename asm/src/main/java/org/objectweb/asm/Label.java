@@ -413,7 +413,7 @@ public class Label {
    * @param referenceHandle the offset in the bytecode where the forward reference value must be
    *     stored.
    */
-  private final void addForwardReference(
+  private void addForwardReference(
       final int sourceInsnBytecodeOffset, final int referenceType, final int referenceHandle) {
     if (values == null) {
       values = new int[VALUES_CAPACITY_INCREMENT];
@@ -608,7 +608,7 @@ public class Label {
    *     method.
    * @return whether this basic block belongs to the given subroutine.
    */
-  private final boolean isInSubroutine(final int subroutineId) {
+  private boolean isInSubroutine(final int subroutineId) {
     if ((flags & Label.FLAG_SUBROUTINE_BODY) != 0) {
       return (values[subroutineId / 32] & (1 << (subroutineId % 32))) != 0;
     }
@@ -619,7 +619,7 @@ public class Label {
    * @param basicBlock another basic block.
    * @return whether this basic block and the given one belong to a common subroutine.
    */
-  private final boolean isInSameSubroutine(final Label basicBlock) {
+  private boolean isInSameSubroutine(final Label basicBlock) {
     if ((flags & FLAG_SUBROUTINE_BODY) == 0 || (basicBlock.flags & FLAG_SUBROUTINE_BODY) == 0) {
       return false;
     }
@@ -637,7 +637,7 @@ public class Label {
    * @param subroutineId a subroutine id, between 0 and numSubroutine (inclusive).
    * @param numSubroutine the total number of subroutines in the method.
    */
-  private final void addToSubroutine(final int subroutineId, final int numSubroutine) {
+  private void addToSubroutine(final int subroutineId, final int numSubroutine) {
     if ((flags & FLAG_SUBROUTINE_BODY) == 0) {
       flags |= FLAG_SUBROUTINE_BODY;
       values = new int[numSubroutine / 32 + 1];

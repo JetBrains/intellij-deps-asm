@@ -48,25 +48,26 @@ import org.junit.jupiter.api.Test;
  */
 public class ClassWriterComputeMaxsTest {
 
-  protected ClassWriter cw;
+  protected ClassWriter classWriter;
 
-  protected MethodVisitor mv;
+  protected MethodVisitor methodVisitor;
 
   private Label start;
 
   @BeforeEach
   public void setUp() throws Exception {
-    cw = new ClassWriter(isComputeMaxs() ? ClassWriter.COMPUTE_MAXS : 0);
-    cw.visit(Opcodes.V1_1, Opcodes.ACC_PUBLIC, "C", null, "java/lang/Object", null);
-    mv = cw.visitMethod(Opcodes.ACC_PUBLIC, "<init>", "()V", null, null);
-    mv.visitCode();
-    mv.visitVarInsn(Opcodes.ALOAD, 0);
-    mv.visitMethodInsn(Opcodes.INVOKESPECIAL, "java/lang/Object", "<init>", "()V", false);
-    mv.visitInsn(Opcodes.RETURN);
-    mv.visitMaxs(1, 1);
-    mv.visitEnd();
-    mv = cw.visitMethod(Opcodes.ACC_PUBLIC, "m", "()V", null, null);
-    mv.visitCode();
+    classWriter = new ClassWriter(isComputeMaxs() ? ClassWriter.COMPUTE_MAXS : 0);
+    classWriter.visit(Opcodes.V1_1, Opcodes.ACC_PUBLIC, "C", null, "java/lang/Object", null);
+    methodVisitor = classWriter.visitMethod(Opcodes.ACC_PUBLIC, "<init>", "()V", null, null);
+    methodVisitor.visitCode();
+    methodVisitor.visitVarInsn(Opcodes.ALOAD, 0);
+    methodVisitor.visitMethodInsn(
+        Opcodes.INVOKESPECIAL, "java/lang/Object", "<init>", "()V", false);
+    methodVisitor.visitInsn(Opcodes.RETURN);
+    methodVisitor.visitMaxs(1, 1);
+    methodVisitor.visitEnd();
+    methodVisitor = classWriter.visitMethod(Opcodes.ACC_PUBLIC, "m", "()V", null, null);
+    methodVisitor.visitCode();
     start = new Label();
     LABEL(start);
   }
@@ -76,82 +77,82 @@ public class ClassWriterComputeMaxsTest {
   }
 
   private void NOP() {
-    mv.visitInsn(Opcodes.NOP);
+    methodVisitor.visitInsn(Opcodes.NOP);
   }
 
   private void PUSH() {
-    mv.visitInsn(Opcodes.ICONST_0);
+    methodVisitor.visitInsn(Opcodes.ICONST_0);
   }
 
   private void ICONST_0() {
-    mv.visitInsn(Opcodes.ICONST_0);
+    methodVisitor.visitInsn(Opcodes.ICONST_0);
   }
 
   private void ISTORE(final int var) {
-    mv.visitVarInsn(Opcodes.ISTORE, var);
+    methodVisitor.visitVarInsn(Opcodes.ISTORE, var);
   }
 
   private void ALOAD(final int var) {
-    mv.visitVarInsn(Opcodes.ALOAD, var);
+    methodVisitor.visitVarInsn(Opcodes.ALOAD, var);
   }
 
   private void ILOAD(final int var) {
-    mv.visitVarInsn(Opcodes.ILOAD, var);
+    methodVisitor.visitVarInsn(Opcodes.ILOAD, var);
   }
 
   private void ASTORE(final int var) {
-    mv.visitVarInsn(Opcodes.ASTORE, var);
+    methodVisitor.visitVarInsn(Opcodes.ASTORE, var);
   }
 
   private void RET(final int var) {
-    mv.visitVarInsn(Opcodes.RET, var);
+    methodVisitor.visitVarInsn(Opcodes.RET, var);
   }
 
   private void ATHROW() {
-    mv.visitInsn(Opcodes.ATHROW);
+    methodVisitor.visitInsn(Opcodes.ATHROW);
   }
 
   private void ACONST_NULL() {
-    mv.visitInsn(Opcodes.ACONST_NULL);
+    methodVisitor.visitInsn(Opcodes.ACONST_NULL);
   }
 
   private void RETURN() {
-    mv.visitInsn(Opcodes.RETURN);
+    methodVisitor.visitInsn(Opcodes.RETURN);
   }
 
   private void LABEL(final Label l) {
-    mv.visitLabel(l);
+    methodVisitor.visitLabel(l);
   }
 
   private void IINC(final int var, final int amnt) {
-    mv.visitIincInsn(var, amnt);
+    methodVisitor.visitIincInsn(var, amnt);
   }
 
   private void GOTO(final Label l) {
-    mv.visitJumpInsn(Opcodes.GOTO, l);
+    methodVisitor.visitJumpInsn(Opcodes.GOTO, l);
   }
 
   private void JSR(final Label l) {
-    mv.visitJumpInsn(Opcodes.JSR, l);
+    methodVisitor.visitJumpInsn(Opcodes.JSR, l);
   }
 
   private void IFNONNULL(final Label l) {
-    mv.visitJumpInsn(Opcodes.IFNONNULL, l);
+    methodVisitor.visitJumpInsn(Opcodes.IFNONNULL, l);
   }
 
   private void IFNE(final Label l) {
-    mv.visitJumpInsn(Opcodes.IFNE, l);
+    methodVisitor.visitJumpInsn(Opcodes.IFNE, l);
   }
 
   private void TRYCATCH(final Label start, final Label end, final Label handler) {
-    mv.visitTryCatchBlock(start, end, handler, null);
+    methodVisitor.visitTryCatchBlock(start, end, handler, null);
   }
 
   protected void assertMaxs(final int maxStack, final int maxLocals) {
-    mv.visitMaxs(0, 0);
-    mv.visitEnd();
-    cw.visitEnd();
-    byte[] b = cw.toByteArray();
+    methodVisitor.visitMaxs(0, 0);
+    methodVisitor.visitEnd();
+    classWriter.visitEnd();
+    byte[] b = classWriter.toByteArray();
     ClassReader cr = new ClassReader(b);
     cr.accept(
         new ClassVisitor(Opcodes.ASM5) {
@@ -159,7 +160,7 @@ public class ClassWriterComputeMaxsTest {
           public MethodVisitor visitMethod(
               final int access,
               final String name,
-              final String desc,
+              final String descriptor,
               final String signature,
               final String[] exceptions) {
             if (name.equals("m")) {
@@ -572,7 +573,7 @@ public class ClassWriterComputeMaxsTest {
     ASTORE(0);
     RETURN();
     LABEL(L1); // N8
-    mv.visitLocalVariable("i", "I", null, L0, L1, 1);
+    methodVisitor.visitLocalVariable("i", "I", null, L0, L1, 1);
 
     assertMaxs(2, 2);
     assertGraph("N0=N4,N5\n" + "N4=N5\n" + "N5=\n" + "N8=\n");

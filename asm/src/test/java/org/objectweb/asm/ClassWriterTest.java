@@ -47,59 +47,66 @@ public class ClassWriterTest extends AsmTest {
 
   @Test
   public void testNewConst() {
-    ClassWriter cw = new ClassWriter(0);
-    cw.newConst(new Byte((byte) 0));
-    cw.newConst(new Character('0'));
-    cw.newConst(new Short((short) 0));
-    cw.newConst(Boolean.FALSE);
-    cw.newUTF8("A");
-    cw.newClass("A");
-    cw.newMethodType("()V");
-    cw.newModule("A");
-    cw.newPackage("A");
-    cw.newHandle(Opcodes.H_GETFIELD, "A", "h", "I");
-    cw.newHandle(Opcodes.H_GETFIELD, "A", "h", "I", false);
-    cw.newInvokeDynamic("m", "()V", new Handle(Opcodes.H_GETFIELD, "A", "h", "I", false));
-    cw.newField("A", "f", "I");
-    cw.newMethod("A", "m", "()V", false);
-    cw.newNameType("m", "()V");
+    ClassWriter classWriter = new ClassWriter(0);
+    classWriter.newConst(new Byte((byte) 0));
+    classWriter.newConst(new Character('0'));
+    classWriter.newConst(new Short((short) 0));
+    classWriter.newConst(Boolean.FALSE);
+    classWriter.newUTF8("A");
+    classWriter.newClass("A");
+    classWriter.newMethodType("()V");
+    classWriter.newModule("A");
+    classWriter.newPackage("A");
+    classWriter.newHandle(Opcodes.H_GETFIELD, "A", "h", "I");
+    classWriter.newHandle(Opcodes.H_GETFIELD, "A", "h", "I", false);
+    classWriter.newInvokeDynamic("m", "()V", new Handle(Opcodes.H_GETFIELD, "A", "h", "I", false));
+    classWriter.newField("A", "f", "I");
+    classWriter.newMethod("A", "m", "()V", false);
+    classWriter.newNameType("m", "()V");
 
-    assertThrows(IllegalArgumentException.class, () -> cw.newConst(new Object()));
+    assertThrows(IllegalArgumentException.class, () -> classWriter.newConst(new Object()));
   }
 
   @Test
   public void testConstantPoolSizeTooLarge() {
-    ClassWriter cw = new ClassWriter(0);
+    ClassWriter classWriter = new ClassWriter(0);
     for (int i = 0; i < 65536; ++i) {
-      cw.newConst(Integer.valueOf(i));
+      classWriter.newConst(Integer.valueOf(i));
     }
-    assertThrows(IndexOutOfBoundsException.class, () -> cw.toByteArray());
+    assertThrows(IndexOutOfBoundsException.class, () -> classWriter.toByteArray());
   }
 
   @Test
   public void testGetCommonSuperClass() {
-    ClassWriter cw = new ClassWriter(0);
+    ClassWriter classWriter = new ClassWriter(0);
     assertEquals(
-        "java/lang/Object", cw.getCommonSuperClass("java/lang/Object", "java/lang/Integer"));
+        "java/lang/Object",
+        classWriter.getCommonSuperClass("java/lang/Object", "java/lang/Integer"));
     assertEquals(
-        "java/lang/Object", cw.getCommonSuperClass("java/lang/Integer", "java/lang/Object"));
+        "java/lang/Object",
+        classWriter.getCommonSuperClass("java/lang/Integer", "java/lang/Object"));
     assertEquals(
-        "java/lang/Object", cw.getCommonSuperClass("java/lang/Integer", "java/lang/Runnable"));
+        "java/lang/Object",
+        classWriter.getCommonSuperClass("java/lang/Integer", "java/lang/Runnable"));
     assertEquals(
-        "java/lang/Object", cw.getCommonSuperClass("java/lang/Runnable", "java/lang/Integer"));
+        "java/lang/Object",
+        classWriter.getCommonSuperClass("java/lang/Runnable", "java/lang/Integer"));
     assertEquals(
         "java/lang/Throwable",
-        cw.getCommonSuperClass("java/lang/IndexOutOfBoundsException", "java/lang/AssertionError"));
+        classWriter.getCommonSuperClass(
+            "java/lang/IndexOutOfBoundsException", "java/lang/AssertionError"));
     assertThrows(
-        TypeNotPresentException.class, () -> cw.getCommonSuperClass("-", "java/lang/Object"));
+        TypeNotPresentException.class,
+        () -> classWriter.getCommonSuperClass("-", "java/lang/Object"));
     assertThrows(
-        TypeNotPresentException.class, () -> cw.getCommonSuperClass("java/lang/Object", "-"));
+        TypeNotPresentException.class,
+        () -> classWriter.getCommonSuperClass("java/lang/Object", "-"));
   }
 
   /** Tests that a ClassReader -> ClassWriter transform leaves classes unchanged. */
   @ParameterizedTest
   @MethodSource(ALL_CLASSES_AND_ALL_APIS)
-  public void testReadAndWrite(PrecompiledClass classParameter, Api apiParameter) {
+  public void testReadAndWrite(final PrecompiledClass classParameter, final Api apiParameter) {
     byte[] classFile = classParameter.getBytes();
     ClassReader classReader = new ClassReader(classFile);
     ClassWriter classWriter = new ClassWriter(0);
@@ -113,7 +120,8 @@ public class ClassWriterTest extends AsmTest {
    */
   @ParameterizedTest
   @MethodSource(ALL_CLASSES_AND_ALL_APIS)
-  public void testReadAndWriteWithCopyPool(PrecompiledClass classParameter, Api apiParameter) {
+  public void testReadAndWriteWithCopyPool(
+      final PrecompiledClass classParameter, final Api apiParameter) {
     byte[] classFile = classParameter.getBytes();
     ClassReader classReader = new ClassReader(classFile);
     ClassWriter classWriter = new ClassWriter(classReader, 0);
@@ -127,7 +135,8 @@ public class ClassWriterTest extends AsmTest {
    */
   @ParameterizedTest
   @MethodSource(ALL_CLASSES_AND_ALL_APIS)
-  public void testReadAndWriteWithExpandFrames(PrecompiledClass classParameter, Api apiParameter) {
+  public void testReadAndWriteWithExpandFrames(
+      final PrecompiledClass classParameter, final Api apiParameter) {
     byte[] classFile = classParameter.getBytes();
     ClassReader classReader = new ClassReader(classFile);
     ClassWriter classWriter = new ClassWriter(0);
@@ -142,7 +151,8 @@ public class ClassWriterTest extends AsmTest {
    */
   @ParameterizedTest
   @MethodSource(ALL_CLASSES_AND_ALL_APIS)
-  public void testReadAndWriteWithComputeMaxs(PrecompiledClass classParameter, Api apiParameter) {
+  public void testReadAndWriteWithComputeMaxs(
+      final PrecompiledClass classParameter, final Api apiParameter) {
     byte[] classFile = classParameter.getBytes();
     ClassReader classReader = new ClassReader(classFile);
     ClassWriter classWriter = new ClassWriter(ClassWriter.COMPUTE_MAXS);
@@ -156,8 +166,8 @@ public class ClassWriterTest extends AsmTest {
    */
   @ParameterizedTest
   @MethodSource(ALL_CLASSES_AND_ALL_APIS)
-  public void testReadWriteAndLoadWithComputeMaxs(PrecompiledClass classParameter, Api apiParameter)
-      throws Exception {
+  public void testReadWriteAndLoadWithComputeMaxs(
+      final PrecompiledClass classParameter, final Api apiParameter) throws Exception {
     byte[] classFile = classParameter.getBytes();
     ClassReader classReader = new ClassReader(classFile);
     ClassWriter classWriter = new ClassWriter(ClassWriter.COMPUTE_MAXS);
@@ -173,7 +183,8 @@ public class ClassWriterTest extends AsmTest {
    */
   @ParameterizedTest
   @MethodSource(ALL_CLASSES_AND_ALL_APIS)
-  public void testReadAndWriteWithComputeFrames(PrecompiledClass classParameter, Api apiParameter) {
+  public void testReadAndWriteWithComputeFrames(
+      final PrecompiledClass classParameter, final Api apiParameter) {
     byte[] classFile = classParameter.getBytes();
     ClassReader classReader = new ClassReader(classFile);
     ClassWriter classWriter = new ClassWriter(ClassWriter.COMPUTE_FRAMES);
@@ -206,7 +217,7 @@ public class ClassWriterTest extends AsmTest {
   @ParameterizedTest
   @MethodSource(ALL_CLASSES_AND_ALL_APIS)
   public void testReadAndWriteWithSkipAndComputeFrames(
-      PrecompiledClass classParameter, Api apiParameter) {
+      final PrecompiledClass classParameter, final Api apiParameter) {
     byte[] classFile = classParameter.getBytes();
     ClassReader classReader = new ClassReader(classFile);
     ClassWriter classWriter = new ClassWriter(ClassWriter.COMPUTE_FRAMES);
@@ -241,7 +252,7 @@ public class ClassWriterTest extends AsmTest {
   @ParameterizedTest
   @MethodSource(ALL_CLASSES_AND_ALL_APIS)
   public void testReadAndWriteWithComputeFramesAndDeadCode(
-      PrecompiledClass classParameter, Api apiParameter) {
+      final PrecompiledClass classParameter, final Api apiParameter) {
     byte[] classFile = classParameter.getBytes();
     ClassReader classReader = new ClassReader(classFile);
     ClassWriter classWriter = new ClassWriter(ClassWriter.COMPUTE_FRAMES);
@@ -270,7 +281,8 @@ public class ClassWriterTest extends AsmTest {
    */
   @ParameterizedTest
   @MethodSource(ALL_CLASSES_AND_ALL_APIS)
-  public void testReadAndWriteWithResizeMethod(PrecompiledClass classParameter, Api apiParameter) {
+  public void testReadAndWriteWithResizeMethod(
+      final PrecompiledClass classParameter, final Api apiParameter) {
     byte[] classFile = classParameter.getBytes();
     if (classFile.length > Short.MAX_VALUE) return;
 
@@ -299,27 +311,31 @@ public class ClassWriterTest extends AsmTest {
         new ClassVisitor(Opcodes.ASM6, classWriter) {
 
           @Override
-          public ModuleVisitor visitModule(String name, int access, String version) {
+          public ModuleVisitor visitModule(
+              final String name, final int access, final String version) {
             return new ModuleVisitor(api, super.visitModule(name, access, version)) {
 
               @Override
-              public void visitMainClass(String mainClass) {}
+              public void visitMainClass(final String mainClass) {}
 
               @Override
-              public void visitPackage(String packaze) {}
+              public void visitPackage(final String packaze) {}
 
               @Override
-              public void visitRequire(String module, int access, String version) {
+              public void visitRequire(
+                  final String module, final int access, final String version) {
                 super.visitRequire(module, access, null);
               }
 
               @Override
-              public void visitExport(String packaze, int access, String... modules) {
+              public void visitExport(
+                  final String packaze, final int access, final String... modules) {
                 super.visitExport(packaze, access, (String[]) null);
               }
 
               @Override
-              public void visitOpen(String packaze, int access, String... modules) {
+              public void visitOpen(
+                  final String packaze, final int access, final String... modules) {
                 super.visitOpen(packaze, access, (String[]) null);
               }
             };
@@ -337,8 +353,8 @@ public class ClassWriterTest extends AsmTest {
 
     private String className;
 
-    DeadCodeInserter(int api, ClassVisitor cv) {
-      super(api, cv);
+    DeadCodeInserter(final int api, final ClassVisitor classVisitor) {
+      super(api, classVisitor);
     }
 
     @Override
@@ -362,10 +378,14 @@ public class ClassWriterTest extends AsmTest {
 
     @Override
     public MethodVisitor visitMethod(
-        int access, String name, String desc, String signature, String[] exceptions) {
-      int seed = (className + "." + name + desc).hashCode();
+        final int access,
+        final String name,
+        final String descriptor,
+        final String signature,
+        final String[] exceptions) {
+      int seed = (className + "." + name + descriptor).hashCode();
       return new MethodDeadCodeInserter(
-          api, seed, super.visitMethod(access, name, desc, signature, exceptions));
+          api, seed, super.visitMethod(access, name, descriptor, signature, exceptions));
     }
   }
 
@@ -374,91 +394,103 @@ public class ClassWriterTest extends AsmTest {
     private Random r;
     private boolean inserted;
 
-    MethodDeadCodeInserter(int api, int seed, final MethodVisitor mv) {
-      super(api, mv);
+    MethodDeadCodeInserter(final int api, final int seed, final MethodVisitor methodVisitor) {
+      super(api, methodVisitor);
       r = new Random(seed);
     }
 
     @Override
-    public void visitInsn(int opcode) {
+    public void visitInsn(final int opcode) {
       super.visitInsn(opcode);
       maybeInsertDeadCode();
     }
 
     @Override
-    public void visitIntInsn(int opcode, int operand) {
+    public void visitIntInsn(final int opcode, final int operand) {
       super.visitIntInsn(opcode, operand);
       maybeInsertDeadCode();
     }
 
     @Override
-    public void visitVarInsn(int opcode, int var) {
+    public void visitVarInsn(final int opcode, final int var) {
       super.visitVarInsn(opcode, var);
       maybeInsertDeadCode();
     }
 
     @Override
-    public void visitTypeInsn(int opcode, String type) {
+    public void visitTypeInsn(final int opcode, final String type) {
       super.visitTypeInsn(opcode, type);
       maybeInsertDeadCode();
     }
 
     @Override
-    public void visitFieldInsn(int opcode, String owner, String name, String desc) {
-      super.visitFieldInsn(opcode, owner, name, desc);
+    public void visitFieldInsn(
+        final int opcode, final String owner, final String name, final String descriptor) {
+      super.visitFieldInsn(opcode, owner, name, descriptor);
       maybeInsertDeadCode();
     }
 
     @Override
-    public void visitMethodInsn(int opcode, String owner, String name, String desc, boolean itf) {
-      super.visitMethodInsn(opcode, owner, name, desc, itf);
+    public void visitMethodInsn(
+        final int opcode,
+        final String owner,
+        final String name,
+        final String descriptor,
+        final boolean isInterface) {
+      super.visitMethodInsn(opcode, owner, name, descriptor, isInterface);
       maybeInsertDeadCode();
     }
 
     @Override
-    public void visitInvokeDynamicInsn(String name, String desc, Handle bsm, Object... bsmArgs) {
-      super.visitInvokeDynamicInsn(name, desc, bsm, bsmArgs);
+    public void visitInvokeDynamicInsn(
+        final String name,
+        final String descriptor,
+        final Handle bootstrapMethodHandle,
+        final Object... bootstrapMethodArguments) {
+      super.visitInvokeDynamicInsn(
+          name, descriptor, bootstrapMethodHandle, bootstrapMethodArguments);
       maybeInsertDeadCode();
     }
 
     @Override
-    public void visitJumpInsn(int opcode, Label label) {
+    public void visitJumpInsn(final int opcode, final Label label) {
       super.visitJumpInsn(opcode, label);
       maybeInsertDeadCode();
     }
 
     @Override
-    public void visitLdcInsn(Object cst) {
-      super.visitLdcInsn(cst);
+    public void visitLdcInsn(final Object value) {
+      super.visitLdcInsn(value);
       maybeInsertDeadCode();
     }
 
     @Override
-    public void visitIincInsn(int var, int increment) {
+    public void visitIincInsn(final int var, final int increment) {
       super.visitIincInsn(var, increment);
       maybeInsertDeadCode();
     }
 
     @Override
-    public void visitTableSwitchInsn(int min, int max, Label dflt, Label... labels) {
+    public void visitTableSwitchInsn(
+        final int min, final int max, final Label dflt, final Label... labels) {
       super.visitTableSwitchInsn(min, max, dflt, labels);
       maybeInsertDeadCode();
     }
 
     @Override
-    public void visitLookupSwitchInsn(Label dflt, int[] keys, Label[] labels) {
+    public void visitLookupSwitchInsn(final Label dflt, final int[] keys, final Label[] labels) {
       super.visitLookupSwitchInsn(dflt, keys, labels);
       maybeInsertDeadCode();
     }
 
     @Override
-    public void visitMultiANewArrayInsn(String desc, int dims) {
-      super.visitMultiANewArrayInsn(desc, dims);
+    public void visitMultiANewArrayInsn(final String descriptor, final int numDimensions) {
+      super.visitMultiANewArrayInsn(descriptor, numDimensions);
       maybeInsertDeadCode();
     }
 
     @Override
-    public void visitMaxs(int maxStack, int maxLocals) {
+    public void visitMaxs(final int maxStack, final int maxLocals) {
       if (!inserted) {
         insertDeadCode();
       }
@@ -485,14 +517,19 @@ public class ClassWriterTest extends AsmTest {
 
     boolean transformed = false;
 
-    NopInserter(int api, ClassVisitor cv) {
-      super(api, cv);
+    NopInserter(final int api, final ClassVisitor classVisitor) {
+      super(api, classVisitor);
     }
 
     @Override
     public MethodVisitor visitMethod(
-        int access, String name, String desc, String signature, String[] exceptions) {
-      return new MethodVisitor(api, cv.visitMethod(access, name, desc, signature, exceptions)) {
+        final int access,
+        final String name,
+        final String descriptor,
+        final String signature,
+        final String[] exceptions) {
+      return new MethodVisitor(
+          api, cv.visitMethod(access, name, descriptor, signature, exceptions)) {
         private final HashSet<Label> labels = new HashSet<Label>();
 
         @Override

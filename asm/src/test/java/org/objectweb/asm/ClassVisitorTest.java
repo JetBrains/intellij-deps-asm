@@ -54,7 +54,8 @@ public class ClassVisitorTest extends AsmTest {
    */
   @ParameterizedTest
   @MethodSource(ALL_CLASSES_AND_ALL_APIS)
-  public void testReadAndWriteWithEmptyVisitor(PrecompiledClass classParameter, Api apiParameter) {
+  public void testReadAndWriteWithEmptyVisitor(
+      final PrecompiledClass classParameter, final Api apiParameter) {
     byte[] classFile = classParameter.getBytes();
     ClassReader classReader = new ClassReader(classFile);
     ClassWriter classWriter = new ClassWriter(0);
@@ -74,7 +75,7 @@ public class ClassVisitorTest extends AsmTest {
   @ParameterizedTest
   @MethodSource(ALL_CLASSES_AND_ALL_APIS)
   public void testReadAndWriteWithCopyPoolAndExceptionAdapter(
-      PrecompiledClass classParameter, Api apiParameter) {
+      final PrecompiledClass classParameter, final Api apiParameter) {
     byte[] classFile = classParameter.getBytes();
     ClassReader classReader = new ClassReader(classFile);
     ClassWriter classWriter = new ClassWriter(0);
@@ -90,80 +91,95 @@ public class ClassVisitorTest extends AsmTest {
 
   private static class AnnotationAdapter extends AnnotationVisitor {
 
-    AnnotationAdapter(int api, AnnotationVisitor av) {
-      super(api, av);
+    AnnotationAdapter(final int api, final AnnotationVisitor annotationVisitor) {
+      super(api, annotationVisitor);
     }
 
     @Override
-    public AnnotationVisitor visitAnnotation(String name, String desc) {
-      return new AnnotationAdapter(api, super.visitAnnotation(name, desc));
+    public AnnotationVisitor visitAnnotation(final String name, final String descriptor) {
+      return new AnnotationAdapter(api, super.visitAnnotation(name, descriptor));
     }
 
     @Override
-    public AnnotationVisitor visitArray(String name) {
+    public AnnotationVisitor visitArray(final String name) {
       return new AnnotationAdapter(api, super.visitArray(name));
     }
   }
 
   private static class ClassAdapter extends ClassVisitor {
 
-    ClassAdapter(int api, ClassVisitor cv) {
-      super(api, cv);
+    ClassAdapter(final int api, final ClassVisitor classVisitor) {
+      super(api, classVisitor);
     }
 
     @Override
-    public AnnotationVisitor visitAnnotation(String desc, boolean visible) {
-      return new AnnotationAdapter(api, super.visitAnnotation(desc, visible));
+    public AnnotationVisitor visitAnnotation(final String descriptor, final boolean visible) {
+      return new AnnotationAdapter(api, super.visitAnnotation(descriptor, visible));
     }
 
     @Override
     public AnnotationVisitor visitTypeAnnotation(
-        int typeRef, TypePath typePath, String desc, boolean visible) {
+        final int typeRef,
+        final TypePath typePath,
+        final String descriptor,
+        final boolean visible) {
       return new AnnotationAdapter(
-          api, super.visitTypeAnnotation(typeRef, typePath, desc, visible));
+          api, super.visitTypeAnnotation(typeRef, typePath, descriptor, visible));
     }
 
     @Override
     public FieldVisitor visitField(
-        int access, String name, String desc, String signature, Object value) {
-      return new FieldAdapter(api, super.visitField(access, name, desc, signature, value));
+        final int access,
+        final String name,
+        final String descriptor,
+        final String signature,
+        final Object value) {
+      return new FieldAdapter(api, super.visitField(access, name, descriptor, signature, value));
     }
 
     @Override
     public MethodVisitor visitMethod(
-        int access, String name, String desc, String signature, String[] exceptions) {
-      return new MethodAdapter(api, super.visitMethod(access, name, desc, signature, exceptions));
+        final int access,
+        final String name,
+        final String descriptor,
+        final String signature,
+        final String[] exceptions) {
+      return new MethodAdapter(
+          api, super.visitMethod(access, name, descriptor, signature, exceptions));
     }
 
     @Override
-    public ModuleVisitor visitModule(String name, int access, String version) {
+    public ModuleVisitor visitModule(final String name, final int access, final String version) {
       return new ModuleVisitor(api, super.visitModule(name, access, version)) {};
     }
   };
 
   private static class FieldAdapter extends FieldVisitor {
 
-    FieldAdapter(int api, FieldVisitor fv) {
-      super(api, fv);
+    FieldAdapter(final int api, final FieldVisitor fieldVisitor) {
+      super(api, fieldVisitor);
     }
 
     @Override
-    public AnnotationVisitor visitAnnotation(String desc, boolean visible) {
-      return new AnnotationAdapter(api, super.visitAnnotation(desc, visible));
+    public AnnotationVisitor visitAnnotation(final String descriptor, final boolean visible) {
+      return new AnnotationAdapter(api, super.visitAnnotation(descriptor, visible));
     }
 
     @Override
     public AnnotationVisitor visitTypeAnnotation(
-        int typeRef, TypePath typePath, String desc, boolean visible) {
+        final int typeRef,
+        final TypePath typePath,
+        final String descriptor,
+        final boolean visible) {
       return new AnnotationAdapter(
-          api, super.visitTypeAnnotation(typeRef, typePath, desc, visible));
+          api, super.visitTypeAnnotation(typeRef, typePath, descriptor, visible));
     }
   }
 
   private static class MethodAdapter extends MethodVisitor {
 
-    MethodAdapter(int api, MethodVisitor mv) {
-      super(api, mv);
+    MethodAdapter(final int api, final MethodVisitor methodVisitor) {
+      super(api, methodVisitor);
     }
 
     @Override
@@ -172,68 +188,80 @@ public class ClassVisitorTest extends AsmTest {
     }
 
     @Override
-    public AnnotationVisitor visitAnnotation(String desc, boolean visible) {
-      return new AnnotationAdapter(api, super.visitAnnotation(desc, visible));
+    public AnnotationVisitor visitAnnotation(final String descriptor, final boolean visible) {
+      return new AnnotationAdapter(api, super.visitAnnotation(descriptor, visible));
     }
 
     @Override
     public AnnotationVisitor visitTypeAnnotation(
-        int typeRef, TypePath typePath, String desc, boolean visible) {
+        final int typeRef,
+        final TypePath typePath,
+        final String descriptor,
+        final boolean visible) {
       return new AnnotationAdapter(
-          api, super.visitTypeAnnotation(typeRef, typePath, desc, visible));
+          api, super.visitTypeAnnotation(typeRef, typePath, descriptor, visible));
     }
 
     @Override
-    public AnnotationVisitor visitParameterAnnotation(int parameter, String desc, boolean visible) {
-      return new AnnotationAdapter(api, super.visitParameterAnnotation(parameter, desc, visible));
+    public AnnotationVisitor visitParameterAnnotation(
+        final int parameter, final String descriptor, final boolean visible) {
+      return new AnnotationAdapter(
+          api, super.visitParameterAnnotation(parameter, descriptor, visible));
     }
 
     @Override
     public AnnotationVisitor visitInsnAnnotation(
-        int typeRef, TypePath typePath, String desc, boolean visible) {
+        final int typeRef,
+        final TypePath typePath,
+        final String descriptor,
+        final boolean visible) {
       return new AnnotationAdapter(
-          api, super.visitInsnAnnotation(typeRef, typePath, desc, visible));
+          api, super.visitInsnAnnotation(typeRef, typePath, descriptor, visible));
     }
 
     @Override
     public AnnotationVisitor visitTryCatchAnnotation(
-        int typeRef, TypePath typePath, String desc, boolean visible) {
+        final int typeRef,
+        final TypePath typePath,
+        final String descriptor,
+        final boolean visible) {
       return new AnnotationAdapter(
-          api, super.visitTryCatchAnnotation(typeRef, typePath, desc, visible));
+          api, super.visitTryCatchAnnotation(typeRef, typePath, descriptor, visible));
     }
 
     @Override
     public AnnotationVisitor visitLocalVariableAnnotation(
-        int typeRef,
-        TypePath typePath,
-        Label[] start,
-        Label[] end,
-        int[] index,
-        String desc,
-        boolean visible) {
+        final int typeRef,
+        final TypePath typePath,
+        final Label[] start,
+        final Label[] end,
+        final int[] index,
+        final String descriptor,
+        final boolean visible) {
       return new AnnotationAdapter(
           api,
-          super.visitLocalVariableAnnotation(typeRef, typePath, start, end, index, desc, visible));
+          super.visitLocalVariableAnnotation(
+              typeRef, typePath, start, end, index, descriptor, visible));
     }
   }
 
   private static class ChangeExceptionAdapter extends ClassVisitor {
 
-    ChangeExceptionAdapter(final ClassVisitor cv) {
-      super(Opcodes.ASM6, cv);
+    ChangeExceptionAdapter(final ClassVisitor classVisitor) {
+      super(Opcodes.ASM6, classVisitor);
     }
 
     @Override
     public MethodVisitor visitMethod(
         final int access,
         final String name,
-        final String desc,
+        final String descriptor,
         final String signature,
         final String[] exceptions) {
       if (exceptions != null && exceptions.length > 0) {
         exceptions[0] = "java/lang/Throwable";
       }
-      return super.visitMethod(access, name, desc, signature, exceptions);
+      return super.visitMethod(access, name, descriptor, signature, exceptions);
     }
   }
 }

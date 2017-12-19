@@ -37,7 +37,7 @@ import org.objectweb.asm.ModuleVisitor;
  * @author Remi Forax
  */
 public class ModuleProvideNode {
-  
+
   /** The internal name of the service. */
   public String service;
 

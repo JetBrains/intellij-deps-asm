@@ -704,7 +704,7 @@ public class InsnListTest {
     list1.add(new InsnNode(0));
     list1.add(insn);
     list1.add(new InsnNode(0));
-    list1.clear();    
+    list1.clear();
     assertEquals(0, list1.size());
     assertEquals(null, list1.getFirst());
     assertEquals(null, list1.getLast());
@@ -723,7 +723,7 @@ public class InsnListTest {
     list1.accept(
         new MethodVisitor(Opcodes.ASM6) {
           @Override
-          public void visitInsn(int opcode) {
+          public void visitInsn(final int opcode) {
             insnList.add(new InsnNode(opcode));
           }
         });

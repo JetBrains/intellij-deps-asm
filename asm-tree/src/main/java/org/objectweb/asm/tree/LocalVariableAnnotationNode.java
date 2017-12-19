@@ -34,7 +34,6 @@ import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.TypePath;
-import org.objectweb.asm.TypeReference;
 
 /**
  * A node that represents a type annotation on a local or resource variable.
@@ -67,7 +66,7 @@ public class LocalVariableAnnotationNode extends TypeAnnotationNode {
    * constructor</i>. Instead, they must use the {@link #LocalVariableAnnotationNode(int, TypePath,
    * LabelNode[], LabelNode[], int[], String)} version.
    *
-   * @param typeRef a reference to the annotated type. See {@link TypeReference}.
+   * @param typeRef a reference to the annotated type. See {@link org.objectweb.asm.TypeReference}.
    * @param typePath the path to the annotated type argument, wildcard bound, array element type, or
    *     static inner type within 'typeRef'. May be <tt>null</tt> if the annotation targets
    *     'typeRef' as a whole.
@@ -80,12 +79,12 @@ public class LocalVariableAnnotationNode extends TypeAnnotationNode {
    * @param descriptor the class descriptor of the annotation class.
    */
   public LocalVariableAnnotationNode(
-      int typeRef,
-      TypePath typePath,
-      LabelNode[] start,
-      LabelNode[] end,
-      int[] index,
-      String descriptor) {
+      final int typeRef,
+      final TypePath typePath,
+      final LabelNode[] start,
+      final LabelNode[] end,
+      final int[] index,
+      final String descriptor) {
     this(Opcodes.ASM6, typeRef, typePath, start, end, index, descriptor);
   }
 
@@ -94,7 +93,7 @@ public class LocalVariableAnnotationNode extends TypeAnnotationNode {
    *
    * @param api the ASM API version implemented by this visitor. Must be one of {@link
    *     Opcodes#ASM4}, {@link Opcodes#ASM5} or {@link Opcodes#ASM6}.
-   * @param typeRef a reference to the annotated type. See {@link TypeReference}.
+   * @param typeRef a reference to the annotated type. See {@link org.objectweb.asm.TypeReference}.
    * @param start the fist instructions corresponding to the continuous ranges that make the scope
    *     of this local variable (inclusive).
    * @param end the last instructions corresponding to the continuous ranges that make the scope of
@@ -107,13 +106,13 @@ public class LocalVariableAnnotationNode extends TypeAnnotationNode {
    * @param descriptor the class descriptor of the annotation class.
    */
   public LocalVariableAnnotationNode(
-      int api,
-      int typeRef,
-      TypePath typePath,
-      LabelNode[] start,
-      LabelNode[] end,
-      int[] index,
-      String descriptor) {
+      final int api,
+      final int typeRef,
+      final TypePath typePath,
+      final LabelNode[] start,
+      final LabelNode[] end,
+      final int[] index,
+      final String descriptor) {
     super(api, typeRef, typePath, descriptor);
     this.start = Util.asArrayList(start);
     this.end = Util.asArrayList(end);
@@ -126,7 +125,7 @@ public class LocalVariableAnnotationNode extends TypeAnnotationNode {
    * @param methodVisitor the visitor that must visit this annotation.
    * @param visible <tt>true</tt> if the annotation is visible at runtime.
    */
-  public void accept(final MethodVisitor methodVisitor, boolean visible) {
+  public void accept(final MethodVisitor methodVisitor, final boolean visible) {
     Label[] startLabels = new Label[this.start.size()];
     Label[] endLabels = new Label[this.end.size()];
     int[] indices = new int[this.index.size()];

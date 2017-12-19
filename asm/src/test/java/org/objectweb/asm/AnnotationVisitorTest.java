@@ -53,7 +53,7 @@ public class AnnotationVisitorTest extends AsmTest {
    */
   @ParameterizedTest
   @MethodSource("allClassesAndAllApis")
-  public void testRemoveOrDelete(PrecompiledClass classParameter, Api apiParameter) {
+  public void testRemoveOrDelete(final PrecompiledClass classParameter, final Api apiParameter) {
     ClassReader classReader = new ClassReader(classParameter.getBytes());
     ClassWriter classWriter1 = new ClassWriter(0);
     ClassWriter classWriter2 = new ClassWriter(0);
@@ -82,30 +82,33 @@ public class AnnotationVisitorTest extends AsmTest {
     }
 
     @Override
-    public AnnotationVisitor visitAnnotation(String name, String desc) {
+    public AnnotationVisitor visitAnnotation(final String name, final String descriptor) {
       return this;
     }
 
     @Override
-    public AnnotationVisitor visitArray(String name) {
+    public AnnotationVisitor visitArray(final String name) {
       return this;
     }
   }
 
   private static class RemoveAnnotationsAdapter extends ClassVisitor {
 
-    RemoveAnnotationsAdapter(final int api, final ClassVisitor cv) {
-      super(api, cv);
+    RemoveAnnotationsAdapter(final int api, final ClassVisitor classVisitor) {
+      super(api, classVisitor);
     }
 
     @Override
-    public AnnotationVisitor visitAnnotation(final String desc, final boolean visible) {
+    public AnnotationVisitor visitAnnotation(final String descriptor, final boolean visible) {
       return new EmptyAnnotationVisitor(api);
     }
 
     @Override
     public AnnotationVisitor visitTypeAnnotation(
-        int typeRef, TypePath typePath, String desc, boolean visible) {
+        final int typeRef,
+        final TypePath typePath,
+        final String descriptor,
+        final boolean visible) {
       return new EmptyAnnotationVisitor(api);
     }
 
@@ -113,10 +116,11 @@ public class AnnotationVisitorTest extends AsmTest {
     public MethodVisitor visitMethod(
         final int access,
         final String name,
-        final String desc,
+        final String descriptor,
         final String signature,
         final String[] exceptions) {
-      return new MethodVisitor(api, cv.visitMethod(access, name, desc, signature, exceptions)) {
+      return new MethodVisitor(
+          api, cv.visitMethod(access, name, descriptor, signature, exceptions)) {
 
         @Override
         public AnnotationVisitor visitAnnotationDefault() {
@@ -124,43 +128,52 @@ public class AnnotationVisitorTest extends AsmTest {
         }
 
         @Override
-        public AnnotationVisitor visitAnnotation(String desc, boolean visible) {
+        public AnnotationVisitor visitAnnotation(final String descriptor, final boolean visible) {
           return new EmptyAnnotationVisitor(api);
         }
 
         @Override
         public AnnotationVisitor visitTypeAnnotation(
-            int typeRef, TypePath typePath, String desc, boolean visible) {
+            final int typeRef,
+            final TypePath typePath,
+            final String descriptor,
+            final boolean visible) {
           return new EmptyAnnotationVisitor(api);
         }
 
         @Override
         public AnnotationVisitor visitParameterAnnotation(
-            int parameter, String desc, boolean visible) {
+            final int parameter, final String descriptor, final boolean visible) {
           return new EmptyAnnotationVisitor(api);
         }
 
         @Override
         public AnnotationVisitor visitInsnAnnotation(
-            int typeRef, TypePath typePath, String desc, boolean visible) {
+            final int typeRef,
+            final TypePath typePath,
+            final String descriptor,
+            final boolean visible) {
           return new EmptyAnnotationVisitor(api);
         }
 
         @Override
         public AnnotationVisitor visitTryCatchAnnotation(
-            int typeRef, TypePath typePath, String desc, boolean visible) {
+            final int typeRef,
+            final TypePath typePath,
+            final String descriptor,
+            final boolean visible) {
           return new EmptyAnnotationVisitor(api);
         }
 
         @Override
         public AnnotationVisitor visitLocalVariableAnnotation(
-            int typeRef,
-            TypePath typePath,
-            Label[] start,
-            Label[] end,
-            int[] index,
-            String desc,
-            boolean visible) {
+            final int typeRef,
+            final TypePath typePath,
+            final Label[] start,
+            final Label[] end,
+            final int[] index,
+            final String descriptor,
+            final boolean visible) {
           return new EmptyAnnotationVisitor(api);
         }
       };
@@ -169,18 +182,21 @@ public class AnnotationVisitorTest extends AsmTest {
 
   private static class DeleteAnnotationsAdapter extends ClassVisitor {
 
-    DeleteAnnotationsAdapter(final int api, final ClassVisitor cv) {
-      super(api, cv);
+    DeleteAnnotationsAdapter(final int api, final ClassVisitor classVisitor) {
+      super(api, classVisitor);
     }
 
     @Override
-    public AnnotationVisitor visitAnnotation(final String desc, final boolean visible) {
+    public AnnotationVisitor visitAnnotation(final String descriptor, final boolean visible) {
       return null;
     }
 
     @Override
     public AnnotationVisitor visitTypeAnnotation(
-        int typeRef, TypePath typePath, String desc, boolean visible) {
+        final int typeRef,
+        final TypePath typePath,
+        final String descriptor,
+        final boolean visible) {
       return null;
     }
 
@@ -188,10 +204,11 @@ public class AnnotationVisitorTest extends AsmTest {
     public MethodVisitor visitMethod(
         final int access,
         final String name,
-        final String desc,
+        final String descriptor,
         final String signature,
         final String[] exceptions) {
-      return new MethodVisitor(api, cv.visitMethod(access, name, desc, signature, exceptions)) {
+      return new MethodVisitor(
+          api, cv.visitMethod(access, name, descriptor, signature, exceptions)) {
 
         @Override
         public AnnotationVisitor visitAnnotationDefault() {
@@ -199,43 +216,52 @@ public class AnnotationVisitorTest extends AsmTest {
         }
 
         @Override
-        public AnnotationVisitor visitAnnotation(String desc, boolean visible) {
+        public AnnotationVisitor visitAnnotation(final String descriptor, final boolean visible) {
           return null;
         }
 
         @Override
         public AnnotationVisitor visitTypeAnnotation(
-            int typeRef, TypePath typePath, String desc, boolean visible) {
+            final int typeRef,
+            final TypePath typePath,
+            final String descriptor,
+            final boolean visible) {
           return null;
         }
 
         @Override
         public AnnotationVisitor visitParameterAnnotation(
-            int parameter, String desc, boolean visible) {
+            final int parameter, final String descriptor, final boolean visible) {
           return null;
         }
 
         @Override
         public AnnotationVisitor visitInsnAnnotation(
-            int typeRef, TypePath typePath, String desc, boolean visible) {
+            final int typeRef,
+            final TypePath typePath,
+            final String descriptor,
+            final boolean visible) {
           return null;
         }
 
         @Override
         public AnnotationVisitor visitTryCatchAnnotation(
-            int typeRef, TypePath typePath, String desc, boolean visible) {
+            final int typeRef,
+            final TypePath typePath,
+            final String descriptor,
+            final boolean visible) {
           return null;
         }
 
         @Override
         public AnnotationVisitor visitLocalVariableAnnotation(
-            int typeRef,
-            TypePath typePath,
-            Label[] start,
-            Label[] end,
-            int[] index,
-            String desc,
-            boolean visible) {
+            final int typeRef,
+            final TypePath typePath,
+            final Label[] start,
+            final Label[] end,
+            final int[] index,
+            final String descriptor,
+            final boolean visible) {
           return null;
         }
       };

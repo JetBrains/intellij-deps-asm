@@ -58,65 +58,67 @@ import org.objectweb.asm.Opcodes;
 public class DumpArtificialStructures implements Opcodes {
 
   public static void main(String[] args) throws IOException {
-    FileOutputStream fos = new FileOutputStream("ArtificialStructures.class");
-    fos.write(dump());
-    fos.close();
+    FileOutputStream fileOutputStream = new FileOutputStream("ArtificialStructures.class");
+    fileOutputStream.write(dump());
+    fileOutputStream.close();
   }
 
   private static byte[] dump() {
-    ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_FRAMES);
-    FieldVisitor fv;
-    MethodVisitor mv;
+    ClassWriter classWriter = new ClassWriter(ClassWriter.COMPUTE_FRAMES);
+    FieldVisitor fieldVisitor;
+    MethodVisitor methodVisitor;
 
-    cw.visit(
+    classWriter.visit(
         V1_3, ACC_PUBLIC + ACC_SUPER, "jdk3/ArtificialStructures", null, "java/lang/Object", null);
 
-    cw.visitSource("ArtificialStructures.java", "source-debug");
+    classWriter.visitSource("ArtificialStructures.java", "source-debug");
 
-    cw.visitAttribute(new Comment());
+    classWriter.visitAttribute(new Comment());
 
-    fv = cw.visitField(ACC_PUBLIC + ACC_SYNTHETIC, "f", "I", null, null);
-    fv.visitAttribute(new Comment());
-    fv.visitEnd();
+    fieldVisitor = classWriter.visitField(ACC_PUBLIC + ACC_SYNTHETIC, "f", "I", null, null);
+    fieldVisitor.visitAttribute(new Comment());
+    fieldVisitor.visitEnd();
 
-    mv = cw.visitMethod(ACC_PUBLIC + ACC_SYNTHETIC, "<init>", "(Ljava/lang/String;)V", null, null);
-    mv.visitAttribute(new Comment());
-    mv.visitCode();
-    mv.visitVarInsn(ALOAD, 0);
-    mv.visitMethodInsn(INVOKESPECIAL, "java/lang/Object", "<init>", "()V", false);
-    mv.visitInsn(NOP);
-    mv.visitInsn(RETURN);
-    mv.visitMaxs(0, 0);
-    mv.visitAttribute(new CodeComment());
-    mv.visitEnd();
+    methodVisitor =
+        classWriter.visitMethod(
+            ACC_PUBLIC + ACC_SYNTHETIC, "<init>", "(Ljava/lang/String;)V", null, null);
+    methodVisitor.visitAttribute(new Comment());
+    methodVisitor.visitCode();
+    methodVisitor.visitVarInsn(ALOAD, 0);
+    methodVisitor.visitMethodInsn(INVOKESPECIAL, "java/lang/Object", "<init>", "()V", false);
+    methodVisitor.visitInsn(NOP);
+    methodVisitor.visitInsn(RETURN);
+    methodVisitor.visitMaxs(0, 0);
+    methodVisitor.visitAttribute(new CodeComment());
+    methodVisitor.visitEnd();
 
-    mv = cw.visitMethod(0, "<init>", "(Z)V", null, null);
-    mv.visitCode();
-    mv.visitVarInsn(ILOAD, 1);
-    mv.visitVarInsn(ALOAD, 0);
-    mv.visitInsn(SWAP);
+    methodVisitor = classWriter.visitMethod(0, "<init>", "(Z)V", null, null);
+    methodVisitor.visitCode();
+    methodVisitor.visitVarInsn(ILOAD, 1);
+    methodVisitor.visitVarInsn(ALOAD, 0);
+    methodVisitor.visitInsn(SWAP);
     Label elseLabel = new Label();
-    mv.visitJumpInsn(IFEQ, elseLabel);
-    mv.visitLdcInsn("1");
+    methodVisitor.visitJumpInsn(IFEQ, elseLabel);
+    methodVisitor.visitLdcInsn("1");
     Label endIfLabel = new Label();
-    mv.visitJumpInsn(GOTO, endIfLabel);
-    mv.visitLabel(elseLabel);
-    mv.visitLineNumber(1, elseLabel);
-    mv.visitLineNumber(3, elseLabel);
-    mv.visitLdcInsn("0");
-    mv.visitLabel(endIfLabel);
-    mv.visitLineNumber(5, endIfLabel);
-    mv.visitLineNumber(7, endIfLabel);
-    mv.visitLineNumber(11, endIfLabel);
-    mv.visitLineNumber(13, endIfLabel);
-    mv.visitLineNumber(17, endIfLabel);
-    mv.visitMethodInsn(
+    methodVisitor.visitJumpInsn(GOTO, endIfLabel);
+    methodVisitor.visitLabel(elseLabel);
+    methodVisitor.visitLineNumber(1, elseLabel);
+    methodVisitor.visitLineNumber(3, elseLabel);
+    methodVisitor.visitLdcInsn("0");
+    methodVisitor.visitLabel(endIfLabel);
+    methodVisitor.visitLineNumber(5, endIfLabel);
+    methodVisitor.visitLineNumber(7, endIfLabel);
+    methodVisitor.visitLineNumber(11, endIfLabel);
+    methodVisitor.visitLineNumber(13, endIfLabel);
+    methodVisitor.visitLineNumber(17, endIfLabel);
+    methodVisitor.visitMethodInsn(
         INVOKESPECIAL, "jdk3/ArtificialStructures", "<init>", "(Ljava/lang/String;)V", false);
-    mv.visitInsn(RETURN);
-    mv.visitMaxs(0, 0);
-    mv.visitEnd();
+    methodVisitor.visitInsn(RETURN);
+    methodVisitor.visitMaxs(0, 0);
+    methodVisitor.visitEnd();
 
-    cw.visitEnd();
-    return cw.toByteArray();
+    classWriter.visitEnd();
+    return classWriter.toByteArray();
   }
 }

@@ -307,7 +307,7 @@ public class ClassWriter extends ClassVisitor {
 
   @Override
   public final AnnotationVisitor visitTypeAnnotation(
-      int typeRef, TypePath typePath, final String descriptor, final boolean visible) {
+      final int typeRef, final TypePath typePath, final String descriptor, final boolean visible) {
     // Create a ByteVector to hold a 'type_annotation' JVMS structure.
     // See https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.7.20.
     ByteVector typeAnnotation = new ByteVector();

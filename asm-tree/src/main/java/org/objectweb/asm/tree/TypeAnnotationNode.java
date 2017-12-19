@@ -29,7 +29,6 @@ package org.objectweb.asm.tree;
 
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.TypePath;
-import org.objectweb.asm.TypeReference;
 
 /**
  * A node that represents a type annotation.
@@ -38,7 +37,7 @@ import org.objectweb.asm.TypeReference;
  */
 public class TypeAnnotationNode extends AnnotationNode {
 
-  /** A reference to the annotated type. See {@link TypeReference}. */
+  /** A reference to the annotated type. See {@link org.objectweb.asm.TypeReference}. */
   public int typeRef;
 
   /**
@@ -52,7 +51,7 @@ public class TypeAnnotationNode extends AnnotationNode {
    * Constructs a new {@link AnnotationNode}. <i>Subclasses must not use this constructor</i>.
    * Instead, they must use the {@link #TypeAnnotationNode(int, int, TypePath, String)} version.
    *
-   * @param typeRef a reference to the annotated type. See {@link TypeReference}.
+   * @param typeRef a reference to the annotated type. See {@link org.objectweb.asm.TypeReference}.
    * @param typePath the path to the annotated type argument, wildcard bound, array element type, or
    *     static inner type within 'typeRef'. May be <tt>null</tt> if the annotation targets
    *     'typeRef' as a whole.
@@ -71,7 +70,7 @@ public class TypeAnnotationNode extends AnnotationNode {
    *
    * @param api the ASM API version implemented by this visitor. Must be one of {@link
    *     Opcodes#ASM4}, {@link Opcodes#ASM5} or {@link Opcodes#ASM6}.
-   * @param typeRef a reference to the annotated type. See {@link TypeReference}.
+   * @param typeRef a reference to the annotated type. See {@link org.objectweb.asm.TypeReference}.
    * @param typePath the path to the annotated type argument, wildcard bound, array element type, or
    *     static inner type within 'typeRef'. May be <tt>null</tt> if the annotation targets
    *     'typeRef' as a whole.

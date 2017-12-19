@@ -124,7 +124,7 @@ public abstract class AsmTest {
 
     private final String name;
 
-    private PrecompiledClass(String name) {
+    PrecompiledClass(final String name) {
       this.name = name;
     }
 
@@ -146,7 +146,7 @@ public abstract class AsmTest {
      * @param api an ASM API version.
      * @return whether this class was compiled with a JDK which is more recent than api.
      */
-    public boolean isMoreRecentThan(Api api) {
+    public boolean isMoreRecentThan(final Api api) {
       if (name.startsWith("jdk8") && api.value() < Api.ASM5.value()) {
         return true;
       }
@@ -201,7 +201,7 @@ public abstract class AsmTest {
 
     private final String name;
 
-    private InvalidClass(String name) {
+    InvalidClass(final String name) {
       this.name = name;
     }
 
@@ -225,7 +225,7 @@ public abstract class AsmTest {
     private final String name;
     private final int value;
 
-    private Api(String name, int value) {
+    Api(final String name, final int value) {
       this.name = name;
       this.value = value;
     }
@@ -273,7 +273,7 @@ public abstract class AsmTest {
     return classesAndApis(Api.ASM6);
   }
 
-  private static Stream<Arguments> classesAndApis(Api... apis) {
+  private static Stream<Arguments> classesAndApis(final Api... apis) {
     return Arrays.stream(PrecompiledClass.values())
         .flatMap(
             precompiledClass ->
@@ -286,7 +286,7 @@ public abstract class AsmTest {
    * @param classFile the content of a class.
    * @return the {@link ClassSubject} to use to make actual assertions about the given class.
    */
-  public static ClassSubject assertThatClass(byte[] classFile) {
+  public static ClassSubject assertThatClass(final byte[] classFile) {
     return new ClassSubject(classFile);
   }
 
@@ -295,7 +295,7 @@ public abstract class AsmTest {
     /** The content of the class to be tested. */
     private final byte[] classFile;
 
-    ClassSubject(byte[] classFile) {
+    ClassSubject(final byte[] classFile) {
       this.classFile = classFile;
     }
 
@@ -305,7 +305,7 @@ public abstract class AsmTest {
      *
      * @param expectedString a string which should be contained in a dump of the subject class.
      */
-    public void contains(String expectedString) {
+    public void contains(final String expectedString) {
       try {
         String dump = new ClassDump(classFile).toString();
         assertTrue(dump.contains(expectedString));
@@ -321,7 +321,7 @@ public abstract class AsmTest {
      *
      * @param expectedClassFile a class file content which should be equal to the subject class.
      */
-    public void isEqualTo(byte[] expectedClassFile) {
+    public void isEqualTo(final byte[] expectedClassFile) {
       try {
         String dump = new ClassDump(classFile).toString();
         String expectedDump = new ClassDump(expectedClassFile).toString();
@@ -341,7 +341,7 @@ public abstract class AsmTest {
    * @param classContent the content of the class to load.
    * @return whether the class was loaded successfully.
    */
-  public static boolean loadAndInstantiate(String className, byte[] classContent) {
+  public static boolean loadAndInstantiate(final String className, final byte[] classContent) {
     try {
       new ClassDump(classContent);
     } catch (IOException | IllegalArgumentException e) {
@@ -359,7 +359,7 @@ public abstract class AsmTest {
    * @param classContent the content of the class to load.
    * @return whether the class was loaded successfully.
    */
-  static boolean doLoadAndInstantiate(String className, byte[] classContent) {
+  static boolean doLoadAndInstantiate(final String className, final byte[] classContent) {
     ByteClassLoader byteClassLoader = new ByteClassLoader(className, classContent);
     try {
       Class<?> clazz = byteClassLoader.loadClass(className);
@@ -393,7 +393,7 @@ public abstract class AsmTest {
     private final byte[] classContent;
     private boolean classLoaded;
 
-    ByteClassLoader(String className, byte[] classContent) {
+    ByteClassLoader(final String className, final byte[] classContent) {
       this.className = className;
       this.classContent = classContent;
     }
@@ -403,7 +403,7 @@ public abstract class AsmTest {
     }
 
     @Override
-    protected Class<?> loadClass(String name, boolean resolve) throws ClassNotFoundException {
+    protected Class<?> loadClass(final String name, final boolean resolve) throws ClassNotFoundException {
       if (name.equals(className)) {
         classLoaded = true;
         return defineClass(className, classContent, 0, classContent.length);
@@ -413,7 +413,7 @@ public abstract class AsmTest {
     }
   }
 
-  private static byte[] getBytes(String name) {
+  private static byte[] getBytes(final String name) {
     String resourceName = name.replace('.', '/') + ".class";
     try (InputStream inputStream = ClassLoader.getSystemResourceAsStream(resourceName)) {
       assertNotNull(inputStream, "Class not found " + name);

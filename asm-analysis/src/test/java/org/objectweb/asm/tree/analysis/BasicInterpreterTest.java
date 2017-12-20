@@ -27,6 +27,9 @@
 // THE POSSIBILITY OF SUCH DAMAGE.
 package org.objectweb.asm.tree.analysis;
 
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.objectweb.asm.ClassReader;
@@ -40,6 +43,11 @@ import org.objectweb.asm.tree.MethodNode;
  * @author Eric Bruneton
  */
 public class BasicInterpreterTest extends AsmTest {
+
+  @Test
+  public void testConstructor() {
+    assertThrows(IllegalStateException.class, () -> new BasicInterpreter() {});
+  }
 
   /**
    * Tests that the precompiled classes can be successfully analyzed with a BasicInterpreter.

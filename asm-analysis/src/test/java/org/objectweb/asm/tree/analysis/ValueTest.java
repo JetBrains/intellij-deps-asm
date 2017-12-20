@@ -27,12 +27,18 @@
 // THE POSSIBILITY OF SUCH DAMAGE.
 package org.objectweb.asm.tree.analysis;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
+import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.Type;
+import org.objectweb.asm.tree.InsnNode;
 
 /**
- * BasicValue and SourceValue unit tests.
+ * BasicValue and SourceValue tests.
  *
  * @author Eric Bruneton
  */
@@ -40,16 +46,35 @@ public class ValueTest {
 
   @Test
   public void testBasicValue() {
+    assertTrue(BasicValue.UNINITIALIZED_VALUE.equals(new BasicValue(null)));
+    assertTrue(BasicValue.INT_VALUE.equals(new BasicValue(Type.INT_TYPE)));
+    assertTrue(BasicValue.INT_VALUE.equals(BasicValue.INT_VALUE));
     assertFalse(BasicValue.INT_VALUE.equals(new Object()));
-    BasicValue.INT_VALUE.hashCode();
-    BasicValue.UNINITIALIZED_VALUE.toString();
-    BasicValue.RETURNADDRESS_VALUE.toString();
-    BasicValue.REFERENCE_VALUE.toString();
+
+    assertTrue(BasicValue.REFERENCE_VALUE.isReference());
+    assertTrue(new BasicValue(Type.getObjectType("[I")).isReference());
+    assertFalse(BasicValue.UNINITIALIZED_VALUE.isReference());
+    assertFalse(BasicValue.INT_VALUE.isReference());
+
+    assertEquals(0, BasicValue.UNINITIALIZED_VALUE.hashCode());
+    assertNotEquals(0, BasicValue.INT_VALUE.hashCode());
+
+    assertEquals(".", BasicValue.UNINITIALIZED_VALUE.toString());
+    assertEquals("A", BasicValue.RETURNADDRESS_VALUE.toString());
+    assertEquals("R", BasicValue.REFERENCE_VALUE.toString());
+    assertEquals("LI;", new BasicValue(Type.getObjectType("I")).toString());
   }
 
   @Test
   public void testSourceValue() {
-    new SourceValue(1).hashCode();
+    assertEquals(2, new SourceValue(2).getSize());
+
+    assertTrue(new SourceValue(1).equals(new SourceValue(1)));
+    assertFalse(new SourceValue(1).equals(new SourceValue(1, new InsnNode(Opcodes.NOP))));
+    assertFalse(new SourceValue(1).equals(new SourceValue(2)));
     assertFalse(new SourceValue(1).equals(null));
+
+    assertEquals(0, new SourceValue(1).hashCode());
+    assertNotEquals(0, new SourceValue(1, new InsnNode(Opcodes.NOP)).hashCode());
   }
 }

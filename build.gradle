@@ -50,7 +50,7 @@ subprojects {
   ext.requires = []  // The required Gradle projects, e.g. [':asm-test']
   ext.depends = []   // The external dependencies, e.g. ['junit:junit:4.12']
   ext.runWith = []   // The command line to run this project, if applicable.
-  ext.coverage = 0.9 // The minimum code fraction that must be covered by tests.
+  ext.minCodeCoverage = 0.95 // The minimum code coverage fraction.
 }
 
 // -----------------------------------------------------------------------------
@@ -60,7 +60,6 @@ subprojects {
 project(':asm') {
   description = parent.description
   provides = ['org.objectweb.asm', 'org.objectweb.asm.signature']
-  coverage = 0.95
 }
 
 project(':asm-analysis') {
@@ -74,7 +73,7 @@ project(':asm-commons') {
   provides = ['org.objectweb.asm.commons']
   requires = [':asm', ':asm-tree', ':asm-analysis']
   dependencies { testCompile project(':asm-util') }
-  coverage = 0.5  // TODO: improve the code coverage of this project.
+  minCodeCoverage = 0.5  // TODO: improve the code coverage of this project.
 }
 
 project(':asm-test') {
@@ -84,14 +83,12 @@ project(':asm-test') {
       'org.junit.jupiter:junit-jupiter-params:5.0.1']
   sourceCompatibility = '1.8'
   targetCompatibility = '1.8'
-  coverage = 0.95
 }
 
 project(':asm-tree') {
   description = "Tree API of ${parent.description}"
   provides = ['org.objectweb.asm.tree']
   requires = [':asm']
-  coverage = 0.95
 }
 
 project(':asm-util') {
@@ -99,13 +96,14 @@ project(':asm-util') {
   provides = ['org.objectweb.asm.util']
   requires = [':asm', ':asm-tree', ':asm-analysis']
   dependencies { testCompile 'org.codehaus.janino:janino:3.0.7' }
+  minCodeCoverage = 0.9
 }
 
 project(':asm-xml') {
   description = "XML API of ${parent.description}"
   provides = ['org.objectweb.asm.xml']
   requires = [':asm', ':asm-util']
-  coverage = 0.8
+  minCodeCoverage = 0.8
 }
 
 project(':benchmarks') {
@@ -229,7 +227,7 @@ configure(subprojects.findAll { it.provides }) {
       violationRules.rule {
         limit {
           counter = 'INSTRUCTION'
-          minimum = coverage
+          minimum = minCodeCoverage
         }
       }
     }

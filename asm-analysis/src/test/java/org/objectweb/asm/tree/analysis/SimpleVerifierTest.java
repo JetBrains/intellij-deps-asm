@@ -27,7 +27,11 @@
 // THE POSSIBILITY OF SUCH DAMAGE.
 package org.objectweb.asm.tree.analysis;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import java.util.Arrays;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
@@ -36,7 +40,6 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.Label;
-import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.test.AsmTest;
@@ -56,9 +59,9 @@ public class SimpleVerifierTest extends AsmTest implements Opcodes {
 
   @BeforeEach
   public void setUp() {
-    Type c = Type.getType("LC;");
-    Type d = Type.getType("Ljava/lang/Number;");
-    anaylzer = new Analyzer<BasicValue>(new SimpleVerifier(c, d, false));
+    Type baseType = Type.getType("LC;");
+    Type superType = Type.getType("Ljava/lang/Number;");
+    anaylzer = new Analyzer<BasicValue>(new SimpleVerifier(baseType, superType, false));
     methodNode = new MethodNode(ACC_PUBLIC, "m", "()V", null, null);
   }
 
@@ -79,6 +82,11 @@ public class SimpleVerifierTest extends AsmTest implements Opcodes {
     methodNode.visitInsn(RETURN);
     methodNode.visitMaxs(10, 10);
     assertThrows(AnalyzerException.class, () -> anaylzer.analyze("C", methodNode));
+  }
+
+  @Test
+  public void testConstructor() {
+    assertThrows(IllegalStateException.class, () -> new SimpleVerifier() {});
   }
 
   @Test
@@ -198,11 +206,11 @@ public class SimpleVerifierTest extends AsmTest implements Opcodes {
 
   @Test
   public void testInconsistentStackHeights() {
-    Label l0 = new Label();
+    Label ifLabel = new Label();
     methodNode.visitInsn(ICONST_0);
-    methodNode.visitJumpInsn(IFEQ, l0);
+    methodNode.visitJumpInsn(IFEQ, ifLabel);
     methodNode.visitInsn(ICONST_0);
-    methodNode.visitLabel(l0);
+    methodNode.visitLabel(ifLabel);
     assertInvalid();
   }
 
@@ -348,30 +356,30 @@ public class SimpleVerifierTest extends AsmTest implements Opcodes {
 
   @Test
   public void testInvalidSubroutineFalloff() {
-    Label l0 = new Label();
-    Label l1 = new Label();
-    methodNode.visitJumpInsn(GOTO, l0);
-    methodNode.visitLabel(l1);
+    Label gotoLabel = new Label();
+    Label jsrLabel = new Label();
+    methodNode.visitJumpInsn(GOTO, gotoLabel);
+    methodNode.visitLabel(jsrLabel);
     methodNode.visitVarInsn(ASTORE, 1);
     methodNode.visitVarInsn(RET, 1);
-    methodNode.visitLabel(l0);
-    methodNode.visitJumpInsn(JSR, l1);
+    methodNode.visitLabel(gotoLabel);
+    methodNode.visitJumpInsn(JSR, jsrLabel);
     methodNode.visitMaxs(10, 10);
     assertThrows(AnalyzerException.class, () -> anaylzer.analyze("C", methodNode));
   }
 
   @Test
   public void testNestedSubroutines() throws AnalyzerException {
-    Label l0 = new Label();
-    Label l1 = new Label();
-    methodNode.visitJumpInsn(JSR, l0);
+    Label subroutine1Label = new Label();
+    Label subroutine2Label = new Label();
+    methodNode.visitJumpInsn(JSR, subroutine1Label);
     methodNode.visitInsn(RETURN);
-    methodNode.visitLabel(l0);
+    methodNode.visitLabel(subroutine1Label);
     methodNode.visitVarInsn(ASTORE, 1);
-    methodNode.visitJumpInsn(JSR, l1);
-    methodNode.visitJumpInsn(JSR, l1);
+    methodNode.visitJumpInsn(JSR, subroutine2Label);
+    methodNode.visitJumpInsn(JSR, subroutine2Label);
     methodNode.visitVarInsn(RET, 1);
-    methodNode.visitLabel(l1);
+    methodNode.visitLabel(subroutine2Label);
     methodNode.visitVarInsn(ASTORE, 2);
     methodNode.visitVarInsn(RET, 2);
     assertValid();
@@ -379,31 +387,31 @@ public class SimpleVerifierTest extends AsmTest implements Opcodes {
 
   @Test
   public void testSubroutineLocalsAccess() throws AnalyzerException {
-    MethodVisitor mv = methodNode;
-    mv.visitCode();
-    Label l0 = new Label();
-    Label l1 = new Label();
-    Label l2 = new Label();
-    Label l3 = new Label();
-    mv.visitTryCatchBlock(l0, l0, l1, null);
-    mv.visitTryCatchBlock(l0, l2, l2, "java/lang/RuntimeException");
-    mv.visitLabel(l0);
-    mv.visitJumpInsn(JSR, l3);
-    mv.visitInsn(RETURN);
-    mv.visitLabel(l1);
-    mv.visitVarInsn(ASTORE, 1);
-    mv.visitJumpInsn(JSR, l3);
-    mv.visitVarInsn(ALOAD, 1);
-    mv.visitInsn(ATHROW);
-    mv.visitLabel(l3);
-    mv.visitVarInsn(ASTORE, 2);
-    mv.visitInsn(ACONST_NULL);
-    mv.visitVarInsn(ASTORE, 3);
-    mv.visitVarInsn(RET, 2);
-    mv.visitLabel(l2);
-    mv.visitVarInsn(ASTORE, 4);
-    mv.visitVarInsn(ALOAD, 4);
-    mv.visitInsn(ATHROW);
+    methodNode.visitCode();
+    Label startLabel = new Label();
+    Label exceptionHandler1Label = new Label();
+    Label exceptionHandler2Label = new Label();
+    Label subroutineLabel = new Label();
+    methodNode.visitTryCatchBlock(startLabel, startLabel, exceptionHandler1Label, null);
+    methodNode.visitTryCatchBlock(
+        startLabel, exceptionHandler2Label, exceptionHandler2Label, "java/lang/RuntimeException");
+    methodNode.visitLabel(startLabel);
+    methodNode.visitJumpInsn(JSR, subroutineLabel);
+    methodNode.visitInsn(RETURN);
+    methodNode.visitLabel(exceptionHandler1Label);
+    methodNode.visitVarInsn(ASTORE, 1);
+    methodNode.visitJumpInsn(JSR, subroutineLabel);
+    methodNode.visitVarInsn(ALOAD, 1);
+    methodNode.visitInsn(ATHROW);
+    methodNode.visitLabel(subroutineLabel);
+    methodNode.visitVarInsn(ASTORE, 2);
+    methodNode.visitInsn(ACONST_NULL);
+    methodNode.visitVarInsn(ASTORE, 3);
+    methodNode.visitVarInsn(RET, 2);
+    methodNode.visitLabel(exceptionHandler2Label);
+    methodNode.visitVarInsn(ASTORE, 4);
+    methodNode.visitVarInsn(ALOAD, 4);
+    methodNode.visitInsn(ATHROW);
     assertValid();
   }
 
@@ -412,25 +420,25 @@ public class SimpleVerifierTest extends AsmTest implements Opcodes {
   public void testOverlappingSubroutines() {
     // The problem is that other overlapping subroutine situations are valid, such as
     // when a nested subroutine implicitly returns to its parent subroutine, without a RET.
-    Label l0 = new Label();
-    Label l1 = new Label();
-    Label l2 = new Label();
-    methodNode.visitJumpInsn(JSR, l0);
-    methodNode.visitJumpInsn(JSR, l1);
+    Label subroutine1Label = new Label();
+    Label subroutine2Label = new Label();
+    Label endSubroutineLabel = new Label();
+    methodNode.visitJumpInsn(JSR, subroutine1Label);
+    methodNode.visitJumpInsn(JSR, subroutine2Label);
     methodNode.visitInsn(RETURN);
-    methodNode.visitLabel(l0);
+    methodNode.visitLabel(subroutine1Label);
     methodNode.visitVarInsn(ASTORE, 1);
-    methodNode.visitJumpInsn(GOTO, l2);
-    methodNode.visitLabel(l1);
+    methodNode.visitJumpInsn(GOTO, endSubroutineLabel);
+    methodNode.visitLabel(subroutine2Label);
     methodNode.visitVarInsn(ASTORE, 1);
-    methodNode.visitLabel(l2);
+    methodNode.visitLabel(endSubroutineLabel);
     methodNode.visitVarInsn(RET, 1);
     assertInvalid();
   }
 
   @Test
   public void testMerge() throws AnalyzerException {
-    Label l0 = new Label();
+    Label loopLabel = new Label();
     methodNode.visitVarInsn(ALOAD, 0);
     methodNode.visitVarInsn(ASTORE, 1);
     methodNode.visitInsn(ACONST_NULL);
@@ -438,7 +446,7 @@ public class SimpleVerifierTest extends AsmTest implements Opcodes {
     methodNode.visitVarInsn(ASTORE, 2);
     methodNode.visitVarInsn(ALOAD, 0);
     methodNode.visitVarInsn(ASTORE, 3);
-    methodNode.visitLabel(l0);
+    methodNode.visitLabel(loopLabel);
     methodNode.visitInsn(ACONST_NULL);
     methodNode.visitTypeInsn(CHECKCAST, "java/lang/Number");
     methodNode.visitVarInsn(ASTORE, 1);
@@ -447,22 +455,60 @@ public class SimpleVerifierTest extends AsmTest implements Opcodes {
     methodNode.visitInsn(ACONST_NULL);
     methodNode.visitTypeInsn(CHECKCAST, "java/lang/Integer");
     methodNode.visitVarInsn(ASTORE, 3);
-    methodNode.visitJumpInsn(GOTO, l0);
+    methodNode.visitJumpInsn(GOTO, loopLabel);
     assertValid();
   }
 
   @Test
   public void testClassNotFound() {
-    Label l0 = new Label();
+    Label loopLabel = new Label();
     methodNode.visitVarInsn(ALOAD, 0);
     methodNode.visitVarInsn(ASTORE, 1);
-    methodNode.visitLabel(l0);
+    methodNode.visitLabel(loopLabel);
     methodNode.visitInsn(ACONST_NULL);
     methodNode.visitTypeInsn(CHECKCAST, "D");
     methodNode.visitVarInsn(ASTORE, 1);
-    methodNode.visitJumpInsn(GOTO, l0);
+    methodNode.visitJumpInsn(GOTO, loopLabel);
     methodNode.visitMaxs(10, 10);
     assertThrows(Exception.class, () -> anaylzer.analyze("C", methodNode));
+  }
+
+  @Test
+  void testIsAssignableFrom() {
+    Type baseType = Type.getObjectType("C");
+    Type superType = Type.getObjectType("D");
+    Type interfaceType = Type.getObjectType("I");
+    new SimpleVerifier(ASM6, baseType, superType, Arrays.asList(interfaceType), false) {
+
+      void test() {
+        assertTrue(isAssignableFrom(baseType, baseType));
+        assertTrue(isAssignableFrom(superType, baseType));
+        assertTrue(isAssignableFrom(interfaceType, baseType));
+      }
+
+      @Override
+      protected Class<?> getClass(final Type type) {
+        // Return dummy classes, to make sure isAssignable in test() does not rely on them.
+        if (type == baseType) return int.class;
+        if (type == superType) return float.class;
+        if (type == interfaceType) return double.class;
+        return super.getClass(type);
+      }
+    }.test();
+
+    new SimpleVerifier(ASM6, interfaceType, null, null, true) {
+
+      void test() {
+        assertTrue(isAssignableFrom(interfaceType, baseType));
+        assertTrue(isAssignableFrom(interfaceType, Type.getObjectType("[I")));
+        assertFalse(isAssignableFrom(interfaceType, Type.INT_TYPE));
+      }
+
+      @Override
+      protected Type getSuperClass(final Type type) {
+        return superType;
+      }
+    }.test();
   }
 
   /**

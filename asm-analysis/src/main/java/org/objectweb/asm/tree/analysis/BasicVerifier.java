@@ -430,6 +430,7 @@ public class BasicVerifier extends BasicInterpreter {
    *
    * @param objectArrayValue a value corresponding to array of object (or array) references.
    * @return the value corresponding to the type of the elements of 'objectArrayValue'.
+   * @throws AnalyzerException if objectArrayValue does not correspond to an array type.
    */
   protected BasicValue getElementValue(final BasicValue objectArrayValue) throws AnalyzerException {
     return BasicValue.REFERENCE_VALUE;

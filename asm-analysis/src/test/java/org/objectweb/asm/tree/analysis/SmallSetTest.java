@@ -41,7 +41,7 @@ import java.util.Set;
 import org.junit.jupiter.api.Test;
 
 /**
- * SmallSet unit tests.
+ * SmallSet tests.
  *
  * @author Eric Bruneton
  */

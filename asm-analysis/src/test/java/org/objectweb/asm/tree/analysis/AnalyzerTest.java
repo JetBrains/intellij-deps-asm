@@ -41,105 +41,106 @@ import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.tree.MethodNode;
 
 /**
- * Analyzer unit tests for methods with JSR instructions.
+ * Analyzer tests.
  *
  * @author Eric Bruneton
  */
 public class AnalyzerTest {
 
-  protected ClassWriter cw;
+  protected ClassWriter classWriter;
 
-  protected MethodVisitor mv;
+  protected MethodVisitor methodVisitor;
 
-  private Label start;
+  private Label startLabel;
 
   @BeforeEach
   public void setUp() throws Exception {
-    cw = new ClassWriter(0);
-    cw.visit(Opcodes.V1_1, Opcodes.ACC_PUBLIC, "C", null, "java/lang/Object", null);
-    mv = cw.visitMethod(Opcodes.ACC_PUBLIC, "<init>", "()V", null, null);
-    mv.visitCode();
-    mv.visitVarInsn(Opcodes.ALOAD, 0);
-    mv.visitMethodInsn(Opcodes.INVOKESPECIAL, "java/lang/Object", "<init>", "()V", false);
-    mv.visitInsn(Opcodes.RETURN);
-    mv.visitMaxs(1, 1);
-    mv.visitEnd();
-    mv = cw.visitMethod(Opcodes.ACC_PUBLIC, "m", "()V", null, null);
-    mv.visitCode();
-    start = new Label();
-    LABEL(start);
+    classWriter = new ClassWriter(0);
+    classWriter.visit(Opcodes.V1_1, Opcodes.ACC_PUBLIC, "C", null, "java/lang/Object", null);
+    methodVisitor = classWriter.visitMethod(Opcodes.ACC_PUBLIC, "<init>", "()V", null, null);
+    methodVisitor.visitCode();
+    methodVisitor.visitVarInsn(Opcodes.ALOAD, 0);
+    methodVisitor.visitMethodInsn(
+        Opcodes.INVOKESPECIAL, "java/lang/Object", "<init>", "()V", false);
+    methodVisitor.visitInsn(Opcodes.RETURN);
+    methodVisitor.visitMaxs(1, 1);
+    methodVisitor.visitEnd();
+    methodVisitor = classWriter.visitMethod(Opcodes.ACC_PUBLIC, "m", "()V", null, null);
+    methodVisitor.visitCode();
+    startLabel = new Label();
+    LABEL(startLabel);
   }
 
   private void NOP() {
-    mv.visitInsn(Opcodes.NOP);
+    methodVisitor.visitInsn(Opcodes.NOP);
   }
 
   private void PUSH() {
-    mv.visitInsn(Opcodes.ICONST_0);
+    methodVisitor.visitInsn(Opcodes.ICONST_0);
   }
 
   private void ICONST_0() {
-    mv.visitInsn(Opcodes.ICONST_0);
+    methodVisitor.visitInsn(Opcodes.ICONST_0);
   }
 
   private void ISTORE(final int var) {
-    mv.visitVarInsn(Opcodes.ISTORE, var);
+    methodVisitor.visitVarInsn(Opcodes.ISTORE, var);
   }
 
   private void ALOAD(final int var) {
-    mv.visitVarInsn(Opcodes.ALOAD, var);
+    methodVisitor.visitVarInsn(Opcodes.ALOAD, var);
   }
 
   private void ILOAD(final int var) {
-    mv.visitVarInsn(Opcodes.ILOAD, var);
+    methodVisitor.visitVarInsn(Opcodes.ILOAD, var);
   }
 
   private void ASTORE(final int var) {
-    mv.visitVarInsn(Opcodes.ASTORE, var);
+    methodVisitor.visitVarInsn(Opcodes.ASTORE, var);
   }
 
   private void RET(final int var) {
-    mv.visitVarInsn(Opcodes.RET, var);
+    methodVisitor.visitVarInsn(Opcodes.RET, var);
   }
 
   private void ATHROW() {
-    mv.visitInsn(Opcodes.ATHROW);
+    methodVisitor.visitInsn(Opcodes.ATHROW);
   }
 
   private void ACONST_NULL() {
-    mv.visitInsn(Opcodes.ACONST_NULL);
+    methodVisitor.visitInsn(Opcodes.ACONST_NULL);
   }
 
   private void RETURN() {
-    mv.visitInsn(Opcodes.RETURN);
+    methodVisitor.visitInsn(Opcodes.RETURN);
   }
 
   private void LABEL(final Label l) {
-    mv.visitLabel(l);
+    methodVisitor.visitLabel(l);
   }
 
   private void IINC(final int var, final int amnt) {
-    mv.visitIincInsn(var, amnt);
+    methodVisitor.visitIincInsn(var, amnt);
   }
 
   private void GOTO(final Label l) {
-    mv.visitJumpInsn(Opcodes.GOTO, l);
+    methodVisitor.visitJumpInsn(Opcodes.GOTO, l);
   }
 
   private void JSR(final Label l) {
-    mv.visitJumpInsn(Opcodes.JSR, l);
+    methodVisitor.visitJumpInsn(Opcodes.JSR, l);
   }
 
   private void IFNONNULL(final Label l) {
-    mv.visitJumpInsn(Opcodes.IFNONNULL, l);
+    methodVisitor.visitJumpInsn(Opcodes.IFNONNULL, l);
   }
 
   private void IFNE(final Label l) {
-    mv.visitJumpInsn(Opcodes.IFNE, l);
+    methodVisitor.visitJumpInsn(Opcodes.IFNE, l);
   }
 
   private void TRYCATCH(final Label start, final Label end, final Label handler) {
-    mv.visitTryCatchBlock(start, end, handler, null);
+    methodVisitor.visitTryCatchBlock(start, end, handler, null);
   }
 
   protected static class TestClassLoader extends ClassLoader {
@@ -173,35 +174,35 @@ public class AnalyzerTest {
     Label L3 = new Label();
     Label L4 = new Label();
 
-    ICONST_0(); // N0
+    ICONST_0();
     ISTORE(1);
 
-    /* L0: body of try block */
-    LABEL(L0); // N2
+    /* L0: body of try block. */
+    LABEL(L0);
     IINC(1, 1);
     GOTO(L1);
 
-    /* L2: exception handler */
-    LABEL(L2); // N8
+    /* L2: exception handler. */
+    LABEL(L2);
     ASTORE(3);
     JSR(L3);
-    ALOAD(3); // N12
+    ALOAD(3);
     ATHROW();
 
-    /* L3: subroutine */
-    LABEL(L3); // N14
+    /* L3: subroutine. */
+    LABEL(L3);
     ASTORE(2);
     IINC(1, -1);
     PUSH();
     PUSH();
     RET(2);
 
-    /* L1: non-exceptional exit from try block */
-    LABEL(L1); // N22
+    /* L1: non-exceptional exit from try block. */
+    LABEL(L1);
     JSR(L3);
-    PUSH(); // N25
     PUSH();
-    LABEL(L4); // N27
+    PUSH();
+    LABEL(L4);
     RETURN();
 
     TRYCATCH(L0, L2, L2);
@@ -237,25 +238,25 @@ public class AnalyzerTest {
     Label L5 = new Label();
     Label L6 = new Label();
 
-    ICONST_0(); // N0
+    ICONST_0();
     ISTORE(1);
 
-    /* L0: body of try block */
-    LABEL(L0); // N2
+    /* L0: body of try block. */
+    LABEL(L0);
     IINC(1, 1);
     GOTO(L1);
 
-    /* L2: exception handler */
-    LABEL(L2); // N8
+    /* L2: exception handler. */
+    LABEL(L2);
     ASTORE(3);
     JSR(L3);
-    PUSH(); // N12
+    PUSH();
     PUSH();
     ALOAD(3);
     ATHROW();
 
-    /* L3: subroutine */
-    LABEL(L3); // N16
+    /* L3: subroutine. */
+    LABEL(L3);
     ASTORE(2);
     PUSH();
     PUSH();
@@ -264,16 +265,16 @@ public class AnalyzerTest {
     IINC(1, 2);
     GOTO(L5);
 
-    LABEL(L4); // N29
+    LABEL(L4);
     IINC(1, 3);
 
-    LABEL(L5); // N32 common exit
+    LABEL(L5);
     RET(2);
 
-    /* L1: non-exceptional exit from try block */
-    LABEL(L1); // N34
+    /* L1: non-exceptional exit from try block. */
+    LABEL(L1);
     JSR(L3);
-    LABEL(L6); // N37
+    LABEL(L6);
     RETURN();
 
     TRYCATCH(L0, L2, L2);
@@ -309,48 +310,48 @@ public class AnalyzerTest {
     Label L4 = new Label();
     Label L5 = new Label();
 
-    ICONST_0(); // N0
+    ICONST_0();
     ISTORE(1);
 
-    // L0: Body of try block:
-    LABEL(L0); // N2
+    // L0: Body of try block.
+    LABEL(L0);
     IINC(1, 1);
     JSR(L3);
-    GOTO(L1); // N8
+    GOTO(L1);
 
-    // L2: First exception handler:
-    LABEL(L2); // N11
+    // L2: First exception handler.
+    LABEL(L2);
     ASTORE(4);
     JSR(L3);
-    ALOAD(4); // N16
+    ALOAD(4);
     ATHROW();
 
-    // L3: First subroutine:
-    LABEL(L3); // N19
+    // L3: First subroutine.
+    LABEL(L3);
     ASTORE(2);
     IINC(1, 2);
     JSR(L4);
-    PUSH(); // N26
+    PUSH();
     PUSH();
     RET(2);
 
-    // L5: Second exception handler:
-    LABEL(L5); // N30
+    // L5: Second exception handler.
+    LABEL(L5);
     ASTORE(5);
     JSR(L4);
-    ALOAD(5); // N35
+    ALOAD(5);
     ATHROW();
 
-    // L4: Second subroutine:
-    LABEL(L4); // N38
+    // L4: Second subroutine.
+    LABEL(L4);
     ASTORE(3);
     PUSH();
     PUSH();
     IINC(1, 3);
     RET(3);
 
-    // L1: On normal exit, try block jumps here:
-    LABEL(L1); // N46
+    // L1: On normal exit, try block jumps here.
+    LABEL(L1);
     RETURN();
 
     TRYCATCH(L0, L2, L2);
@@ -388,36 +389,36 @@ public class AnalyzerTest {
     Label L3 = new Label();
     Label L4 = new Label();
 
-    ICONST_0(); // N0
+    ICONST_0();
     ISTORE(1);
 
-    // L0: while loop header/try block
-    LABEL(L0); // N2
+    // L0: while loop header/try block.
+    LABEL(L0);
     IINC(1, 1);
     JSR(L1);
-    GOTO(L2); // N8
+    GOTO(L2);
 
-    // L3: implicit catch block
-    LABEL(L3); // N11
+    // L3: implicit catch block.
+    LABEL(L3);
     ASTORE(2);
     JSR(L1);
-    PUSH(); // N15
+    PUSH();
     PUSH();
     ALOAD(2);
     ATHROW();
 
-    // L1: subroutine ...
-    LABEL(L1); // N19
+    // L1: subroutine which does not return.
+    LABEL(L1);
     ASTORE(3);
     IINC(1, 2);
-    GOTO(L4); // ...not that it does not return!
+    GOTO(L4);
 
-    // L2: end of the loop... goes back to the top!
-    LABEL(L2); // N26
+    // L2: end of the loop, goes back to the top.
+    LABEL(L2);
     GOTO(L0);
 
     // L4:
-    LABEL(L4); // N29
+    LABEL(L4);
     RETURN();
 
     TRYCATCH(L0, L3, L3);
@@ -442,15 +443,15 @@ public class AnalyzerTest {
     Label L0 = new Label();
     Label L1 = new Label();
 
-    ACONST_NULL(); // N0
+    ACONST_NULL();
     JSR(L0);
-    NOP(); // N4
-    LABEL(L0); // N5
+    NOP();
+    LABEL(L0);
     ASTORE(0);
     ASTORE(0);
     RETURN();
-    LABEL(L1); // N8
-    mv.visitLocalVariable("i", "I", null, L0, L1, 1);
+    LABEL(L1);
+    methodVisitor.visitLocalVariable("i", "I", null, L0, L1, 1);
 
     assertMaxs(2, 2);
   }
@@ -486,41 +487,41 @@ public class AnalyzerTest {
     Label L4 = new Label();
     Label L5 = new Label();
 
-    ICONST_0(); // N0
+    ICONST_0();
     ISTORE(1);
 
-    // L5: while loop header
-    LABEL(L5); // N2
+    // L5: while loop header.
+    LABEL(L5);
     ACONST_NULL();
     IFNONNULL(L4);
 
-    // L0: try block
-    LABEL(L0); // N6
+    // L0: try block.
+    LABEL(L0);
     IINC(1, 1);
     JSR(L1);
-    GOTO(L2); // N12
+    GOTO(L2);
 
-    // L3: implicit catch block
-    LABEL(L3); // N15
+    // L3: implicit catch block.
+    LABEL(L3);
     ASTORE(2);
     JSR(L1);
-    ALOAD(2); // N19
+    ALOAD(2);
     PUSH();
     PUSH();
     ATHROW();
 
-    // L1: subroutine ...
-    LABEL(L1); // N23
+    // L1: subroutine which does not return.
+    LABEL(L1);
     ASTORE(3);
     IINC(1, 2);
-    GOTO(L4); // ...not that it does not return!
+    GOTO(L4);
 
-    // L2: end of the loop... goes back to the top!
-    LABEL(L2); // N30
+    // L2: end of the loop, goes back to the top.
+    LABEL(L2);
     GOTO(L0);
 
     // L4:
-    LABEL(L4); // N33
+    LABEL(L4);
     RETURN();
 
     TRYCATCH(L0, L3, L3);
@@ -564,65 +565,65 @@ public class AnalyzerTest {
     Label W = new Label();
     Label X = new Label();
 
-    // variable numbers:
+    // Variable numbers:
     int b = 1;
     int e1 = 2;
     int e2 = 3;
     int r1 = 4;
     int r2 = 5;
 
-    ICONST_0(); // N0
+    ICONST_0();
     ISTORE(1);
 
-    // T1: first try:
-    LABEL(T1); // N2
+    // T1: first try.
+    LABEL(T1);
     JSR(S1);
-    RETURN(); // N5
+    RETURN();
 
-    // C1: exception handler for first try
-    LABEL(C1); // N6
+    // C1: exception handler for first try.
+    LABEL(C1);
     ASTORE(e1);
     JSR(S1);
-    PUSH(); // N10
+    PUSH();
     PUSH();
     ALOAD(e1);
     ATHROW();
 
-    // S1: first finally handler
-    LABEL(S1); // N14
+    // S1: first finally handler.
+    LABEL(S1);
     ASTORE(r1);
     PUSH();
     PUSH();
     GOTO(W);
 
-    // L: body of while loop, also second try
-    LABEL(L); // N21
+    // L: body of while loop, also second try.
+    LABEL(L);
     JSR(S2);
-    RETURN(); // N24
+    RETURN();
 
-    // C2: exception handler for second try
-    LABEL(C2); // N25
+    // C2: exception handler for second try.
+    LABEL(C2);
     ASTORE(e2);
     PUSH();
     PUSH();
     JSR(S2);
-    ALOAD(e2); // N31
+    ALOAD(e2);
     ATHROW();
 
-    // S2: second finally handler
-    LABEL(S2); // N33
+    // S2: second finally handler.
+    LABEL(S2);
     ASTORE(r2);
     ILOAD(b);
     IFNE(X);
     RET(r2);
 
-    // W: test for the while loop
-    LABEL(W); // N41
+    // W: test for the while loop.
+    LABEL(W);
     ILOAD(b);
-    IFNE(L); // falls through to X
+    IFNE(L); // falls through to X.
 
-    // X: exit from finally{} block
-    LABEL(X); // N45
+    // X: exit from finally{} block.
+    LABEL(X);
     RET(r1);
 
     TRYCATCH(T1, C1, C1);
@@ -637,23 +638,23 @@ public class AnalyzerTest {
     Label L2 = new Label();
     Label L3 = new Label();
 
-    ICONST_0(); // N0
+    ICONST_0();
     ISTORE(1);
     JSR(L1);
-    RETURN(); // N5
+    RETURN();
 
-    LABEL(L1); // N6
+    LABEL(L1);
     ASTORE(2);
     JSR(L2);
-    GOTO(L3); // N10
+    GOTO(L3);
 
-    LABEL(L2); // N13
+    LABEL(L2);
     ASTORE(3);
     ILOAD(1);
     IFNE(L3);
     RET(3);
 
-    LABEL(L3); // N20
+    LABEL(L3);
     RET(2);
 
     assertMaxs(1, 4);
@@ -672,31 +673,31 @@ public class AnalyzerTest {
     Label L3 = new Label();
     Label L4 = new Label();
 
-    ICONST_0(); // N0
+    ICONST_0();
     ISTORE(1);
     JSR(L1);
-    GOTO(L2); // N5
+    GOTO(L2);
 
-    // L1: subroutine 1
-    LABEL(L1); // N8
+    // L1: subroutine 1.
+    LABEL(L1);
     ASTORE(2);
     IINC(1, 1);
     GOTO(L3);
 
-    // L2: second part of main subroutine
-    LABEL(L2); // N15
+    // L2: second part of main subroutine.
+    LABEL(L2);
     IINC(1, 2);
     GOTO(L4);
 
-    // L3: second part of subroutine 1
-    LABEL(L3); // N21
+    // L3: second part of subroutine 1.
+    LABEL(L3);
     IINC(1, 4);
     PUSH();
     PUSH();
     RET(2);
 
-    // L4: third part of main subroutine
-    LABEL(L4); // N28
+    // L4: third part of main subroutine.
+    LABEL(L4);
     PUSH();
     PUSH();
     RETURN();
@@ -744,49 +745,49 @@ public class AnalyzerTest {
     Label X = new Label();
     Label OC = new Label();
 
-    // variable numbers:
+    // Variable numbers.
     int b = 1;
     int e1 = 2;
     int e2 = 3;
     int r1 = 4;
     int r2 = 5;
 
-    ICONST_0(); // N0
+    ICONST_0();
     ISTORE(1);
 
-    // T1: first try:
-    LABEL(T1); // N2
+    // T1: first try.
+    LABEL(T1);
     JSR(S1);
-    RETURN(); // N5
+    RETURN();
 
-    // C1: exception handler for first try
-    LABEL(C1); // N6
+    // C1: exception handler for first try.
+    LABEL(C1);
     ASTORE(e1);
     JSR(S1);
-    ALOAD(e1); // N10
+    ALOAD(e1);
     ATHROW();
 
-    // S1: first finally handler
-    LABEL(S1); // N12
+    // S1: first finally handler.
+    LABEL(S1);
     ASTORE(r1);
     GOTO(W);
 
-    // L: body of while loop, also second try
-    LABEL(L); // N17
+    // L: body of while loop, also second try.
+    LABEL(L);
     JSR(S2);
-    PUSH(); // N20
+    PUSH();
     PUSH();
     RETURN();
 
-    // C2: exception handler for second try
-    LABEL(C2); // N23
+    // C2: exception handler for second try.
+    LABEL(C2);
     ASTORE(e2);
     JSR(S2);
-    ALOAD(e2); // N27
+    ALOAD(e2);
     ATHROW();
 
-    // S2: second finally handler
-    LABEL(S2); // N29
+    // S2: second finally handler.
+    LABEL(S2);
     ASTORE(r2);
     ILOAD(b);
     IFNE(X);
@@ -794,17 +795,17 @@ public class AnalyzerTest {
     PUSH();
     RET(r2);
 
-    // W: test for the while loop
-    LABEL(W); // N39
+    // W: test for the while loop.
+    LABEL(W);
     ILOAD(b);
-    IFNE(L); // falls through to X
+    IFNE(L); // falls through to X.
 
-    // X: exit from finally{} block
-    LABEL(X); // N43
+    // X: exit from finally{} block.
+    LABEL(X);
     RET(r1);
 
-    // OC: outermost catch
-    LABEL(OC); // N45
+    // OC: outermost catch.
+    LABEL(OC);
     IINC(b, 3);
     RETURN();
 
@@ -816,12 +817,12 @@ public class AnalyzerTest {
   }
 
   protected void assertMaxs(final int maxStack, final int maxLocals) {
-    mv.visitMaxs(maxStack, maxLocals);
-    mv.visitEnd();
-    cw.visitEnd();
-    byte[] b = cw.toByteArray();
-    ClassReader cr = new ClassReader(b);
-    cr.accept(
+    methodVisitor.visitMaxs(maxStack, maxLocals);
+    methodVisitor.visitEnd();
+    classWriter.visitEnd();
+    byte[] classFile = classWriter.toByteArray();
+    ClassReader classReader = new ClassReader(classFile);
+    classReader.accept(
         new ClassVisitor(Opcodes.ASM5) {
           @Override
           public MethodVisitor visitMethod(
@@ -861,8 +862,7 @@ public class AnalyzerTest {
 
     try {
       TestClassLoader loader = new TestClassLoader();
-      Class<?> c = loader.defineClass("C", b);
-      c.newInstance();
+      loader.defineClass("C", classFile).newInstance();
     } catch (Throwable t) {
       fail(t.getMessage());
     }

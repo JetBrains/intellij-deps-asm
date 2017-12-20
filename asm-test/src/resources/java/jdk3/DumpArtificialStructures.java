@@ -47,6 +47,7 @@ import org.objectweb.asm.Opcodes;
  *   <li>the StackMap attribute (which was used for pre-verification in J2ME CLDC 1.1),
  *   <li>non standard class, field, method and code attributes,
  *   <li>the nop and swap instructions,
+ *   <li>some variants of the dup_x2 and dup2_x2 instructions,
  *   <li>several line numbers per bytecode offset.
  * </ul>
  *
@@ -114,6 +115,62 @@ public class DumpArtificialStructures implements Opcodes {
     methodVisitor.visitLineNumber(17, endIfLabel);
     methodVisitor.visitMethodInsn(
         INVOKESPECIAL, "jdk3/ArtificialStructures", "<init>", "(Ljava/lang/String;)V", false);
+    methodVisitor.visitInsn(RETURN);
+    methodVisitor.visitMaxs(0, 0);
+    methodVisitor.visitEnd();
+
+    methodVisitor = classWriter.visitMethod(ACC_STATIC, "dup_x2", "(IJ)V", null, null);
+    methodVisitor.visitCode();
+    methodVisitor.visitVarInsn(LLOAD, 1);
+    methodVisitor.visitVarInsn(ILOAD, 0);
+    methodVisitor.visitInsn(DUP_X2);
+    methodVisitor.visitInsn(I2L);
+    methodVisitor.visitInsn(LADD);
+    methodVisitor.visitMethodInsn(
+        INVOKESTATIC, "jdk3/ArtificialStructures", "dup_x2", "(IJ)V", false);
+    methodVisitor.visitInsn(RETURN);
+    methodVisitor.visitMaxs(0, 0);
+    methodVisitor.visitEnd();
+
+    methodVisitor = classWriter.visitMethod(ACC_STATIC, "dup2_x2", "(IIII)V", null, null);
+    methodVisitor.visitCode();
+    methodVisitor.visitVarInsn(ILOAD, 3);
+    methodVisitor.visitVarInsn(ILOAD, 2);
+    methodVisitor.visitVarInsn(ILOAD, 1);
+    methodVisitor.visitVarInsn(ILOAD, 0);
+    methodVisitor.visitInsn(DUP2_X2);
+    methodVisitor.visitInsn(IADD);
+    methodVisitor.visitInsn(IADD);
+    methodVisitor.visitMethodInsn(
+        INVOKESTATIC, "jdk3/ArtificialStructures", "dup2_x2", "(IIII)V", false);
+    methodVisitor.visitInsn(RETURN);
+    methodVisitor.visitMaxs(0, 0);
+    methodVisitor.visitEnd();
+
+    methodVisitor = classWriter.visitMethod(ACC_STATIC, "dup2_x2", "(IIJ)V", null, null);
+    methodVisitor.visitCode();
+    methodVisitor.visitVarInsn(LLOAD, 2);
+    methodVisitor.visitVarInsn(ILOAD, 1);
+    methodVisitor.visitVarInsn(ILOAD, 0);
+    methodVisitor.visitInsn(DUP2_X2);
+    methodVisitor.visitInsn(IADD);
+    methodVisitor.visitInsn(I2L);
+    methodVisitor.visitInsn(LADD);
+    methodVisitor.visitMethodInsn(
+        INVOKESTATIC, "jdk3/ArtificialStructures", "dup2_x2", "(IIJ)V", false);
+    methodVisitor.visitInsn(RETURN);
+    methodVisitor.visitMaxs(0, 0);
+    methodVisitor.visitEnd();
+
+    methodVisitor = classWriter.visitMethod(ACC_STATIC, "dup2_x2", "(JD)V", null, null);
+    methodVisitor.visitCode();
+    methodVisitor.visitVarInsn(DLOAD, 2);
+    methodVisitor.visitVarInsn(LLOAD, 0);
+    methodVisitor.visitInsn(DUP2_X2);
+    methodVisitor.visitInsn(L2D);
+    methodVisitor.visitInsn(DADD);
+    methodVisitor.visitMethodInsn(
+        INVOKESTATIC, "jdk3/ArtificialStructures", "dup2_x2", "(JD)V", false);
     methodVisitor.visitInsn(RETURN);
     methodVisitor.visitMaxs(0, 0);
     methodVisitor.visitEnd();

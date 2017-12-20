@@ -237,8 +237,16 @@ class AllInstructions {
     return f++;
   }
 
+  public void dup2Instruction(long[] v0, int i, int j) {
+    v0[i] |= (1L << j);
+  }
+
   public long dup2X1Instruction() {
     return g++;
+  }
+
+  public void dup2X1InstructionVariant(String[] v0, int i, Object o) {
+    v0[i] += " " + o.toString();
   }
 
   public void dupX2Instruction(int[] v0, int[] v1) {

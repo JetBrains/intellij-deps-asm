@@ -30,37 +30,60 @@ package org.objectweb.asm.tree.analysis;
 import org.objectweb.asm.tree.AbstractInsnNode;
 
 /**
- * Thrown if a problem occurs during the analysis of a method.
+ * An exception thrown if a problem occurs during the analysis of a method.
  *
  * @author Bing Ran
  * @author Eric Bruneton
  */
-@SuppressWarnings("serial")
 public class AnalyzerException extends Exception {
 
-  public final AbstractInsnNode node;
+  private static final long serialVersionUID = 3154190448018943333L;
+  
+  /** The bytecode instruction where the analysis failed. */
+  public final transient AbstractInsnNode node;
 
-  public AnalyzerException(final AbstractInsnNode node, final String msg) {
-    super(msg);
-    this.node = node;
+  /**
+   * Creates a new {@link AnalyzerException}.
+   *
+   * @param insn the bytecode instruction where the analysis failed.
+   * @param message the reason why the analysis failed.
+   */
+  public AnalyzerException(final AbstractInsnNode insn, final String message) {
+    super(message);
+    this.node = insn;
   }
 
+  /**
+   * Creates a new {@link AnalyzerException}.
+   *
+   * @param insn the bytecode instruction where the analysis failed.
+   * @param message the reason why the analysis failed.
+   * @param cause the cause of the failure.
+   */
   public AnalyzerException(
-      final AbstractInsnNode node, final String msg, final Throwable exception) {
-    super(msg, exception);
-    this.node = node;
+      final AbstractInsnNode insn, final String message, final Throwable cause) {
+    super(message, cause);
+    this.node = insn;
   }
 
+  /**
+   * Creates a new {@link AnalyzerException}.
+   *
+   * @param insn the bytecode instruction where the analysis failed.
+   * @param message the reason why the analysis failed.
+   * @param expected an expected value.
+   * @param actual the actual value, different from the expected one.
+   */
   public AnalyzerException(
-      final AbstractInsnNode node,
-      final String msg,
+      final AbstractInsnNode insn,
+      final String message,
       final Object expected,
-      final Value encountered) {
+      final Value actual) {
     super(
-        (msg == null ? "Expected " : msg + ": expected ")
+        (message == null ? "Expected " : message + ": expected ")
             + expected
             + ", but found "
-            + encountered);
-    this.node = node;
+            + actual);
+    this.node = insn;
   }
 }

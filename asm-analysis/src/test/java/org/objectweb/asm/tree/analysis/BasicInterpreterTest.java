@@ -48,7 +48,7 @@ public class BasicInterpreterTest extends AsmTest {
    */
   @ParameterizedTest
   @MethodSource(ALL_CLASSES_AND_LATEST_API)
-  public void testAnalyze(PrecompiledClass classParameter, Api apiParameter)
+  public void testAnalyze(final PrecompiledClass classParameter, final Api apiParameter)
       throws AnalyzerException {
     ClassNode classNode = new ClassNode();
     new ClassReader(classParameter.getBytes()).accept(classNode, 0);

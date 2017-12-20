@@ -49,10 +49,30 @@ import org.objectweb.asm.tree.TypeInsnNode;
  */
 public class BasicInterpreter extends Interpreter<BasicValue> implements Opcodes {
 
+  /**
+   * Special type used for the <tt>null</tt> literal. This is an object reference type with
+   * descriptor 'Lnull;'.
+   */
+  public static final Type NULL_TYPE = Type.getObjectType("null");
+
+  /**
+   * Creates a new {@link BasicInterpreter} for the latest ASM API version. <i>Subclasses must not
+   * use this constructor</i>. Instead, they must use the {@link #BasicInterpreter(int)} version.
+   */
   public BasicInterpreter() {
     super(ASM6);
+    if (getClass() != BasicInterpreter.class) {
+      throw new IllegalStateException();
+    }
   }
 
+  /**
+   * Creates a new {@link BasicInterpreter}.
+   *
+   * @param api the ASM API version supported by this interpreter. Must be one of {@link
+   *     org.objectweb.asm.Opcodes#ASM4}, {@link org.objectweb.asm.Opcodes#ASM5} or {@link
+   *     org.objectweb.asm.Opcodes#ASM6}.
+   */
   protected BasicInterpreter(final int api) {
     super(api);
   }
@@ -81,7 +101,7 @@ public class BasicInterpreter extends Interpreter<BasicValue> implements Opcodes
       case Type.OBJECT:
         return BasicValue.REFERENCE_VALUE;
       default:
-        throw new Error("Internal error");
+        throw new AssertionError();
     }
   }
 
@@ -89,7 +109,7 @@ public class BasicInterpreter extends Interpreter<BasicValue> implements Opcodes
   public BasicValue newOperation(final AbstractInsnNode insn) throws AnalyzerException {
     switch (insn.getOpcode()) {
       case ACONST_NULL:
-        return newValue(Type.getObjectType("null"));
+        return newValue(NULL_TYPE);
       case ICONST_M1:
       case ICONST_0:
       case ICONST_1:
@@ -112,30 +132,30 @@ public class BasicInterpreter extends Interpreter<BasicValue> implements Opcodes
       case SIPUSH:
         return BasicValue.INT_VALUE;
       case LDC:
-        Object cst = ((LdcInsnNode) insn).cst;
-        if (cst instanceof Integer) {
+        Object value = ((LdcInsnNode) insn).cst;
+        if (value instanceof Integer) {
           return BasicValue.INT_VALUE;
-        } else if (cst instanceof Float) {
+        } else if (value instanceof Float) {
           return BasicValue.FLOAT_VALUE;
-        } else if (cst instanceof Long) {
+        } else if (value instanceof Long) {
           return BasicValue.LONG_VALUE;
-        } else if (cst instanceof Double) {
+        } else if (value instanceof Double) {
           return BasicValue.DOUBLE_VALUE;
-        } else if (cst instanceof String) {
+        } else if (value instanceof String) {
           return newValue(Type.getObjectType("java/lang/String"));
-        } else if (cst instanceof Type) {
-          int sort = ((Type) cst).getSort();
+        } else if (value instanceof Type) {
+          int sort = ((Type) value).getSort();
           if (sort == Type.OBJECT || sort == Type.ARRAY) {
             return newValue(Type.getObjectType("java/lang/Class"));
           } else if (sort == Type.METHOD) {
             return newValue(Type.getObjectType("java/lang/invoke/MethodType"));
           } else {
-            throw new IllegalArgumentException("Illegal LDC constant " + cst);
+            throw new AnalyzerException(insn, "Illegal LDC value " + value);
           }
-        } else if (cst instanceof Handle) {
+        } else if (value instanceof Handle) {
           return newValue(Type.getObjectType("java/lang/invoke/MethodHandle"));
         } else {
-          throw new IllegalArgumentException("Illegal LDC constant " + cst);
+          throw new AnalyzerException(insn, "Illegal LDC value " + value);
         }
       case JSR:
         return BasicValue.RETURNADDRESS_VALUE;
@@ -144,7 +164,7 @@ public class BasicInterpreter extends Interpreter<BasicValue> implements Opcodes
       case NEW:
         return newValue(Type.getObjectType(((TypeInsnNode) insn).desc));
       default:
-        throw new Error("Internal error.");
+        throw new AssertionError();
     }
   }
 
@@ -218,18 +238,17 @@ public class BasicInterpreter extends Interpreter<BasicValue> implements Opcodes
           case T_LONG:
             return newValue(Type.getType("[J"));
           default:
-            throw new AnalyzerException(insn, "Invalid array type");
+            break;
         }
+        throw new AnalyzerException(insn, "Invalid array type");
       case ANEWARRAY:
-        String desc = ((TypeInsnNode) insn).desc;
-        return newValue(Type.getType("[" + Type.getObjectType(desc)));
+        return newValue(Type.getType("[" + Type.getObjectType(((TypeInsnNode) insn).desc)));
       case ARRAYLENGTH:
         return BasicValue.INT_VALUE;
       case ATHROW:
         return null;
       case CHECKCAST:
-        desc = ((TypeInsnNode) insn).desc;
-        return newValue(Type.getObjectType(desc));
+        return newValue(Type.getObjectType(((TypeInsnNode) insn).desc));
       case INSTANCEOF:
         return BasicValue.INT_VALUE;
       case MONITORENTER:
@@ -238,7 +257,7 @@ public class BasicInterpreter extends Interpreter<BasicValue> implements Opcodes
       case IFNONNULL:
         return null;
       default:
-        throw new Error("Internal error.");
+        throw new AssertionError();
     }
   }
 
@@ -309,7 +328,7 @@ public class BasicInterpreter extends Interpreter<BasicValue> implements Opcodes
       case PUTFIELD:
         return null;
       default:
-        throw new Error("Internal error.");
+        throw new AssertionError();
     }
   }
 
@@ -340,13 +359,15 @@ public class BasicInterpreter extends Interpreter<BasicValue> implements Opcodes
   @Override
   public void returnOperation(
       final AbstractInsnNode insn, final BasicValue value, final BasicValue expected)
-      throws AnalyzerException {}
+      throws AnalyzerException {
+    // Nothing to do.
+  }
 
   @Override
-  public BasicValue merge(final BasicValue v, final BasicValue w) {
-    if (!v.equals(w)) {
+  public BasicValue merge(final BasicValue value1, final BasicValue value2) {
+    if (!value1.equals(value2)) {
       return BasicValue.UNINITIALIZED_VALUE;
     }
-    return v;
+    return value1;
   }
 }

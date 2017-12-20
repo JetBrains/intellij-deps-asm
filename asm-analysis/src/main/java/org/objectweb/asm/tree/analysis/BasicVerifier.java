@@ -43,10 +43,24 @@ import org.objectweb.asm.tree.MethodInsnNode;
  */
 public class BasicVerifier extends BasicInterpreter {
 
+  /**
+   * Creates a new {@link BasicVerifier} for the latest ASM API version. <i>Subclasses must not use
+   * this constructor</i>. Instead, they must use the {@link #BasicVerifier(int)} version.
+   */
   public BasicVerifier() {
     super(ASM6);
+    if (getClass() != BasicVerifier.class) {
+      throw new IllegalStateException();
+    }
   }
 
+  /**
+   * Creates a new {@link BasicVerifier}.
+   *
+   * @param api the ASM API version supported by this interpreter. Must be one of {@link
+   *     org.objectweb.asm.Opcodes#ASM4}, {@link org.objectweb.asm.Opcodes#ASM5} or {@link
+   *     org.objectweb.asm.Opcodes#ASM6}.
+   */
   protected BasicVerifier(final int api) {
     super(api);
   }
@@ -141,16 +155,12 @@ public class BasicVerifier extends BasicInterpreter {
       case GETFIELD:
         expected = newValue(Type.getObjectType(((FieldInsnNode) insn).owner));
         break;
-      case CHECKCAST:
-        if (!value.isReference()) {
-          throw new AnalyzerException(insn, null, "an object reference", value);
-        }
-        return super.unaryOperation(insn, value);
       case ARRAYLENGTH:
         if (!isArrayValue(value)) {
           throw new AnalyzerException(insn, null, "an array reference", value);
         }
         return super.unaryOperation(insn, value);
+      case CHECKCAST:
       case ARETURN:
       case ATHROW:
       case INSTANCEOF:
@@ -166,7 +176,7 @@ public class BasicVerifier extends BasicInterpreter {
         expected = newValue(Type.getType(((FieldInsnNode) insn).desc));
         break;
       default:
-        throw new Error("Internal error.");
+        throw new AssertionError();
     }
     if (!isSubTypeOf(value, expected)) {
       throw new AnalyzerException(insn, null, expected, value);
@@ -281,12 +291,12 @@ public class BasicVerifier extends BasicInterpreter {
         expected2 = BasicValue.REFERENCE_VALUE;
         break;
       case PUTFIELD:
-        FieldInsnNode fin = (FieldInsnNode) insn;
-        expected1 = newValue(Type.getObjectType(fin.owner));
-        expected2 = newValue(Type.getType(fin.desc));
+        FieldInsnNode fieldInsn = (FieldInsnNode) insn;
+        expected1 = newValue(Type.getObjectType(fieldInsn.owner));
+        expected2 = newValue(Type.getType(fieldInsn.desc));
         break;
       default:
-        throw new Error("Internal error.");
+        throw new AssertionError();
     }
     if (!isSubTypeOf(value1, expected1)) {
       throw new AnalyzerException(insn, "First argument", expected1, value1);
@@ -347,7 +357,7 @@ public class BasicVerifier extends BasicInterpreter {
         expected3 = BasicValue.REFERENCE_VALUE;
         break;
       default:
-        throw new Error("Internal error.");
+        throw new AssertionError();
     }
     if (!isSubTypeOf(value1, expected1)) {
       throw new AnalyzerException(
@@ -380,16 +390,16 @@ public class BasicVerifier extends BasicInterpreter {
           throw new AnalyzerException(insn, "Method owner", newValue(owner), values.get(0));
         }
       }
-      String desc =
+      String methodDescriptor =
           (opcode == INVOKEDYNAMIC)
               ? ((InvokeDynamicInsnNode) insn).desc
               : ((MethodInsnNode) insn).desc;
-      Type[] args = Type.getArgumentTypes(desc);
+      Type[] args = Type.getArgumentTypes(methodDescriptor);
       while (i < values.size()) {
         BasicValue expected = newValue(args[j++]);
-        BasicValue encountered = values.get(i++);
-        if (!isSubTypeOf(encountered, expected)) {
-          throw new AnalyzerException(insn, "Argument " + j, expected, encountered);
+        BasicValue actual = values.get(i++);
+        if (!isSubTypeOf(actual, expected)) {
+          throw new AnalyzerException(insn, "Argument " + j, expected, actual);
         }
       }
     }
@@ -405,14 +415,35 @@ public class BasicVerifier extends BasicInterpreter {
     }
   }
 
+  /**
+   * Returns whether the given value corresponds to an array reference.
+   *
+   * @param value a value.
+   * @return whether 'value' corresponds to an array reference.
+   */
   protected boolean isArrayValue(final BasicValue value) {
     return value.isReference();
   }
 
+  /**
+   * Returns the value corresponding to the type of the elements of the given array reference value.
+   *
+   * @param objectArrayValue a value corresponding to array of object (or array) references.
+   * @return the value corresponding to the type of the elements of 'objectArrayValue'.
+   */
   protected BasicValue getElementValue(final BasicValue objectArrayValue) throws AnalyzerException {
     return BasicValue.REFERENCE_VALUE;
   }
 
+  /**
+   * Returns whether the type corresponding to the first argument is a subtype of the type
+   * corresponding to the second argument.
+   *
+   * @param value a value.
+   * @param expected another value.
+   * @return whether the type corresponding to 'value' is a subtype of the type corresponding to
+   *     'expected'.
+   */
   protected boolean isSubTypeOf(final BasicValue value, final BasicValue expected) {
     return value.equals(expected);
   }

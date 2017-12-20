@@ -46,10 +46,24 @@ import org.objectweb.asm.tree.MethodInsnNode;
  */
 public class SourceInterpreter extends Interpreter<SourceValue> implements Opcodes {
 
+  /**
+   * Creates a new {@link SourceInterpreter} for the latest ASM API version. <i>Subclasses must not
+   * use this constructor</i>. Instead, they must use the {@link #SourceInterpreter(int)} version.
+   */
   public SourceInterpreter() {
     super(ASM6);
+    if (getClass() != SourceInterpreter.class) {
+      throw new IllegalStateException();
+    }
   }
 
+  /**
+   * Creates a new {@link SourceInterpreter}.
+   *
+   * @param api the ASM API version supported by this interpreter. Must be one of {@link
+   *     org.objectweb.asm.Opcodes#ASM4}, {@link org.objectweb.asm.Opcodes#ASM5} or {@link
+   *     org.objectweb.asm.Opcodes#ASM6}.
+   */
   protected SourceInterpreter(final int api) {
     super(api);
   }
@@ -73,8 +87,8 @@ public class SourceInterpreter extends Interpreter<SourceValue> implements Opcod
         size = 2;
         break;
       case LDC:
-        Object cst = ((LdcInsnNode) insn).cst;
-        size = cst instanceof Long || cst instanceof Double ? 2 : 1;
+        Object value = ((LdcInsnNode) insn).cst;
+        size = value instanceof Long || value instanceof Double ? 2 : 1;
         break;
       case GETSTATIC:
         size = Type.getType(((FieldInsnNode) insn).desc).getSize();
@@ -160,37 +174,38 @@ public class SourceInterpreter extends Interpreter<SourceValue> implements Opcod
     int opcode = insn.getOpcode();
     if (opcode == MULTIANEWARRAY) {
       size = 1;
+    } else if (opcode == INVOKEDYNAMIC) {
+      size = Type.getReturnType(((InvokeDynamicInsnNode) insn).desc).getSize();
     } else {
-      String desc =
-          (opcode == INVOKEDYNAMIC)
-              ? ((InvokeDynamicInsnNode) insn).desc
-              : ((MethodInsnNode) insn).desc;
-      size = Type.getReturnType(desc).getSize();
+      size = Type.getReturnType(((MethodInsnNode) insn).desc).getSize();
     }
     return new SourceValue(size, insn);
   }
 
   @Override
   public void returnOperation(
-      final AbstractInsnNode insn, final SourceValue value, final SourceValue expected) {}
+      final AbstractInsnNode insn, final SourceValue value, final SourceValue expected) {
+    // Nothing to do.
+  }
 
   @Override
-  public SourceValue merge(final SourceValue d, final SourceValue w) {
-    if (d.insns instanceof SmallSet && w.insns instanceof SmallSet) {
-      Set<AbstractInsnNode> s =
-          ((SmallSet<AbstractInsnNode>) d.insns).union((SmallSet<AbstractInsnNode>) w.insns);
-      if (s == d.insns && d.size == w.size) {
-        return d;
+  public SourceValue merge(final SourceValue value1, final SourceValue value2) {
+    if (value1.insns instanceof SmallSet && value2.insns instanceof SmallSet) {
+      Set<AbstractInsnNode> setUnion =
+          ((SmallSet<AbstractInsnNode>) value1.insns)
+              .union((SmallSet<AbstractInsnNode>) value2.insns);
+      if (setUnion == value1.insns && value1.size == value2.size) {
+        return value1;
       } else {
-        return new SourceValue(Math.min(d.size, w.size), s);
+        return new SourceValue(Math.min(value1.size, value2.size), setUnion);
       }
     }
-    if (d.size != w.size || !d.insns.containsAll(w.insns)) {
-      HashSet<AbstractInsnNode> s = new HashSet<AbstractInsnNode>();
-      s.addAll(d.insns);
-      s.addAll(w.insns);
-      return new SourceValue(Math.min(d.size, w.size), s);
+    if (value1.size != value2.size || !value1.insns.containsAll(value2.insns)) {
+      HashSet<AbstractInsnNode> setUnion = new HashSet<AbstractInsnNode>();
+      setUnion.addAll(value1.insns);
+      setUnion.addAll(value2.insns);
+      return new SourceValue(Math.min(value1.size, value2.size), setUnion);
     }
-    return d;
+    return value1;
   }
 }

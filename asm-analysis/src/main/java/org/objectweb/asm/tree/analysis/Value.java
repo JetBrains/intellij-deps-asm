@@ -28,14 +28,15 @@
 package org.objectweb.asm.tree.analysis;
 
 /**
- * An immutable symbolic value for semantic interpretation of bytecode.
+ * An immutable symbolic value for the semantic interpretation of bytecode.
  *
  * @author Eric Bruneton
  */
 public interface Value {
 
   /**
-   * Returns the size of this value in words.
+   * Returns the size of this value in 32 bits words. This size should be 1 for byte, boolean, char,
+   * short, int, float, object and array types, and 2 for long and double.
    *
    * @return either 1 or 2.
    */

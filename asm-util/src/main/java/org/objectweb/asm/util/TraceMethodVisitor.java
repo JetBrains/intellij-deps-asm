@@ -42,66 +42,74 @@ import org.objectweb.asm.TypePath;
  */
 public final class TraceMethodVisitor extends MethodVisitor {
 
+  /** The printer to convert the visited method into text. */
   public final Printer p;
 
-  public TraceMethodVisitor(final Printer p) {
-    this(null, p);
+  /**
+   * Constructs a new {@link TraceMethodVisitor}.
+   *
+   * @param printer the printer to convert the visited method into text.
+   */
+  public TraceMethodVisitor(final Printer printer) {
+    this(null, printer);
   }
 
-  public TraceMethodVisitor(final MethodVisitor mv, final Printer p) {
-    super(Opcodes.ASM6, mv);
-    this.p = p;
+  /**
+   * Constructs a new {@link TraceMethodVisitor}.
+   *
+   * @param methodVisitor the method visitor to which to delegate calls.  May be <tt>null</tt>.
+   * @param printer the printer to convert the visited method into text.
+   */
+  public TraceMethodVisitor(final MethodVisitor methodVisitor, final Printer printer) {
+    super(Opcodes.ASM6, methodVisitor);
+    this.p = printer;
   }
 
   @Override
-  public void visitParameter(String name, int access) {
+  public void visitParameter(final String name, final int access) {
     p.visitParameter(name, access);
     super.visitParameter(name, access);
   }
 
   @Override
-  public AnnotationVisitor visitAnnotation(final String desc, final boolean visible) {
-    Printer p = this.p.visitMethodAnnotation(desc, visible);
-    AnnotationVisitor av = mv == null ? null : mv.visitAnnotation(desc, visible);
-    return new TraceAnnotationVisitor(av, p);
+  public AnnotationVisitor visitAnnotation(final String descriptor, final boolean visible) {
+    Printer annotationPrinter = p.visitMethodAnnotation(descriptor, visible);
+    return new TraceAnnotationVisitor(
+        super.visitAnnotation(descriptor, visible), annotationPrinter);
   }
 
   @Override
   public AnnotationVisitor visitTypeAnnotation(
-      int typeRef, TypePath typePath, String desc, boolean visible) {
-    Printer p = this.p.visitMethodTypeAnnotation(typeRef, typePath, desc, visible);
-    AnnotationVisitor av =
-        mv == null ? null : mv.visitTypeAnnotation(typeRef, typePath, desc, visible);
-    return new TraceAnnotationVisitor(av, p);
+      final int typeRef, final TypePath typePath, final String descriptor, final boolean visible) {
+    Printer annotationPrinter = p.visitMethodTypeAnnotation(typeRef, typePath, descriptor, visible);
+    return new TraceAnnotationVisitor(
+        super.visitTypeAnnotation(typeRef, typePath, descriptor, visible), annotationPrinter);
   }
 
   @Override
-  public void visitAttribute(final Attribute attr) {
-    p.visitMethodAttribute(attr);
-    super.visitAttribute(attr);
+  public void visitAttribute(final Attribute attribute) {
+    p.visitMethodAttribute(attribute);
+    super.visitAttribute(attribute);
   }
 
   @Override
   public AnnotationVisitor visitAnnotationDefault() {
-    Printer p = this.p.visitAnnotationDefault();
-    AnnotationVisitor av = mv == null ? null : mv.visitAnnotationDefault();
-    return new TraceAnnotationVisitor(av, p);
+    Printer annotationPrinter = p.visitAnnotationDefault();
+    return new TraceAnnotationVisitor(super.visitAnnotationDefault(), annotationPrinter);
   }
 
   @Override
-  public void visitAnnotableParameterCount(
-      final int parameterCount, final boolean visible) {
+  public void visitAnnotableParameterCount(final int parameterCount, final boolean visible) {
     p.visitAnnotableParameterCount(parameterCount, visible);
     super.visitAnnotableParameterCount(parameterCount, visible);
   }
 
   @Override
   public AnnotationVisitor visitParameterAnnotation(
-      final int parameter, final String desc, final boolean visible) {
-    Printer p = this.p.visitParameterAnnotation(parameter, desc, visible);
-    AnnotationVisitor av =
-        mv == null ? null : mv.visitParameterAnnotation(parameter, desc, visible);
-    return new TraceAnnotationVisitor(av, p);
+      final int parameter, final String descriptor, final boolean visible) {
+    Printer annotationPrinter = p.visitParameterAnnotation(parameter, descriptor, visible);
+    return new TraceAnnotationVisitor(
+        super.visitParameterAnnotation(parameter, descriptor, visible), annotationPrinter);
   }
 
   @Override
@@ -147,40 +155,51 @@ public final class TraceMethodVisitor extends MethodVisitor {
 
   @Override
   public void visitFieldInsn(
-      final int opcode, final String owner, final String name, final String desc) {
-    p.visitFieldInsn(opcode, owner, name, desc);
-    super.visitFieldInsn(opcode, owner, name, desc);
+      final int opcode, final String owner, final String name, final String descriptor) {
+    p.visitFieldInsn(opcode, owner, name, descriptor);
+    super.visitFieldInsn(opcode, owner, name, descriptor);
   }
 
+  /** @deprecated*/
   @Deprecated
   @Override
-  public void visitMethodInsn(int opcode, String owner, String name, String desc) {
+  public void visitMethodInsn(
+      final int opcode, final String owner, final String name, final String descriptor) {
     if (api >= Opcodes.ASM5) {
-      super.visitMethodInsn(opcode, owner, name, desc);
+      super.visitMethodInsn(opcode, owner, name, descriptor);
       return;
     }
-    p.visitMethodInsn(opcode, owner, name, desc);
+    p.visitMethodInsn(opcode, owner, name, descriptor);
     if (mv != null) {
-      mv.visitMethodInsn(opcode, owner, name, desc);
+      mv.visitMethodInsn(opcode, owner, name, descriptor);
     }
   }
 
   @Override
-  public void visitMethodInsn(int opcode, String owner, String name, String desc, boolean itf) {
+  public void visitMethodInsn(
+      final int opcode,
+      final String owner,
+      final String name,
+      final String descriptor,
+      final boolean isInterface) {
     if (api < Opcodes.ASM5) {
-      super.visitMethodInsn(opcode, owner, name, desc, itf);
+      super.visitMethodInsn(opcode, owner, name, descriptor, isInterface);
       return;
     }
-    p.visitMethodInsn(opcode, owner, name, desc, itf);
+    p.visitMethodInsn(opcode, owner, name, descriptor, isInterface);
     if (mv != null) {
-      mv.visitMethodInsn(opcode, owner, name, desc, itf);
+      mv.visitMethodInsn(opcode, owner, name, descriptor, isInterface);
     }
   }
 
   @Override
-  public void visitInvokeDynamicInsn(String name, String desc, Handle bsm, Object... bsmArgs) {
-    p.visitInvokeDynamicInsn(name, desc, bsm, bsmArgs);
-    super.visitInvokeDynamicInsn(name, desc, bsm, bsmArgs);
+  public void visitInvokeDynamicInsn(
+      final String name,
+      final String descriptor,
+      final Handle bootstrapMethodHandle,
+      final Object... bootstrapMethodArguments) {
+    p.visitInvokeDynamicInsn(name, descriptor, bootstrapMethodHandle, bootstrapMethodArguments);
+    super.visitInvokeDynamicInsn(name, descriptor, bootstrapMethodHandle, bootstrapMethodArguments);
   }
 
   @Override
@@ -196,9 +215,9 @@ public final class TraceMethodVisitor extends MethodVisitor {
   }
 
   @Override
-  public void visitLdcInsn(final Object cst) {
-    p.visitLdcInsn(cst);
-    super.visitLdcInsn(cst);
+  public void visitLdcInsn(final Object value) {
+    p.visitLdcInsn(value);
+    super.visitLdcInsn(value);
   }
 
   @Override
@@ -221,18 +240,17 @@ public final class TraceMethodVisitor extends MethodVisitor {
   }
 
   @Override
-  public void visitMultiANewArrayInsn(final String desc, final int dims) {
-    p.visitMultiANewArrayInsn(desc, dims);
-    super.visitMultiANewArrayInsn(desc, dims);
+  public void visitMultiANewArrayInsn(final String descriptor, final int numDimensions) {
+    p.visitMultiANewArrayInsn(descriptor, numDimensions);
+    super.visitMultiANewArrayInsn(descriptor, numDimensions);
   }
 
   @Override
   public AnnotationVisitor visitInsnAnnotation(
-      int typeRef, TypePath typePath, String desc, boolean visible) {
-    Printer p = this.p.visitInsnAnnotation(typeRef, typePath, desc, visible);
-    AnnotationVisitor av =
-        mv == null ? null : mv.visitInsnAnnotation(typeRef, typePath, desc, visible);
-    return new TraceAnnotationVisitor(av, p);
+      final int typeRef, final TypePath typePath, final String descriptor, final boolean visible) {
+    Printer annotationPrinter = p.visitInsnAnnotation(typeRef, typePath, descriptor, visible);
+    return new TraceAnnotationVisitor(
+        super.visitInsnAnnotation(typeRef, typePath, descriptor, visible), annotationPrinter);
   }
 
   @Override
@@ -244,41 +262,39 @@ public final class TraceMethodVisitor extends MethodVisitor {
 
   @Override
   public AnnotationVisitor visitTryCatchAnnotation(
-      int typeRef, TypePath typePath, String desc, boolean visible) {
-    Printer p = this.p.visitTryCatchAnnotation(typeRef, typePath, desc, visible);
-    AnnotationVisitor av =
-        mv == null ? null : mv.visitTryCatchAnnotation(typeRef, typePath, desc, visible);
-    return new TraceAnnotationVisitor(av, p);
+      final int typeRef, final TypePath typePath, final String descriptor, final boolean visible) {
+    Printer annotationPrinter = p.visitTryCatchAnnotation(typeRef, typePath, descriptor, visible);
+    return new TraceAnnotationVisitor(
+        super.visitTryCatchAnnotation(typeRef, typePath, descriptor, visible), annotationPrinter);
   }
 
   @Override
   public void visitLocalVariable(
       final String name,
-      final String desc,
+      final String descriptor,
       final String signature,
       final Label start,
       final Label end,
       final int index) {
-    p.visitLocalVariable(name, desc, signature, start, end, index);
-    super.visitLocalVariable(name, desc, signature, start, end, index);
+    p.visitLocalVariable(name, descriptor, signature, start, end, index);
+    super.visitLocalVariable(name, descriptor, signature, start, end, index);
   }
 
   @Override
   public AnnotationVisitor visitLocalVariableAnnotation(
-      int typeRef,
-      TypePath typePath,
-      Label[] start,
-      Label[] end,
-      int[] index,
-      String desc,
-      boolean visible) {
-    Printer p =
-        this.p.visitLocalVariableAnnotation(typeRef, typePath, start, end, index, desc, visible);
-    AnnotationVisitor av =
-        mv == null
-            ? null
-            : mv.visitLocalVariableAnnotation(typeRef, typePath, start, end, index, desc, visible);
-    return new TraceAnnotationVisitor(av, p);
+      final int typeRef,
+      final TypePath typePath,
+      final Label[] start,
+      final Label[] end,
+      final int[] index,
+      final String descriptor,
+      final boolean visible) {
+    Printer annotationPrinter =
+        p.visitLocalVariableAnnotation(typeRef, typePath, start, end, index, descriptor, visible);
+    return new TraceAnnotationVisitor(
+        super.visitLocalVariableAnnotation(
+            typeRef, typePath, start, end, index, descriptor, visible),
+        annotationPrinter);
   }
 
   @Override

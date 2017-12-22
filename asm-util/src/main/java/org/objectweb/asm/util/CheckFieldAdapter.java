@@ -34,20 +34,25 @@ import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.TypePath;
 import org.objectweb.asm.TypeReference;
 
-/** A {@link FieldVisitor} that checks that its methods are properly used. */
+/**
+ * A {@link FieldVisitor} that checks that its methods are properly used.
+ *
+ * @author Eric Bruneton
+ */
 public class CheckFieldAdapter extends FieldVisitor {
 
-  private boolean end;
+  /** Whether the {@link #visitEnd} method has been called. */
+  private boolean visitEndCalled;
 
   /**
    * Constructs a new {@link CheckFieldAdapter}. <i>Subclasses must not use this constructor</i>.
    * Instead, they must use the {@link #CheckFieldAdapter(int, FieldVisitor)} version.
    *
-   * @param fv the field visitor to which this adapter must delegate calls.
+   * @param fieldVisitor the field visitor to which this adapter must delegate calls.
    * @throws IllegalStateException If a subclass calls this constructor.
    */
-  public CheckFieldAdapter(final FieldVisitor fv) {
-    this(Opcodes.ASM6, fv);
+  public CheckFieldAdapter(final FieldVisitor fieldVisitor) {
+    this(Opcodes.ASM6, fieldVisitor);
     if (getClass() != CheckFieldAdapter.class) {
       throw new IllegalStateException();
     }
@@ -58,51 +63,52 @@ public class CheckFieldAdapter extends FieldVisitor {
    *
    * @param api the ASM API version implemented by this visitor. Must be one of {@link
    *     Opcodes#ASM4}, {@link Opcodes#ASM5} or {@link Opcodes#ASM6}.
-   * @param fv the field visitor to which this adapter must delegate calls.
+   * @param fieldVisitor the field visitor to which this adapter must delegate calls.
    */
-  protected CheckFieldAdapter(final int api, final FieldVisitor fv) {
-    super(api, fv);
+  protected CheckFieldAdapter(final int api, final FieldVisitor fieldVisitor) {
+    super(api, fieldVisitor);
   }
 
   @Override
-  public AnnotationVisitor visitAnnotation(final String desc, final boolean visible) {
-    checkEnd();
-    CheckMethodAdapter.checkDesc(desc, false);
-    return new CheckAnnotationAdapter(super.visitAnnotation(desc, visible));
+  public AnnotationVisitor visitAnnotation(final String descriptor, final boolean visible) {
+    checkVisitEndNotCalled();
+    CheckMethodAdapter.checkDescriptor(descriptor, false);
+    return new CheckAnnotationAdapter(super.visitAnnotation(descriptor, visible));
   }
 
   @Override
   public AnnotationVisitor visitTypeAnnotation(
-      final int typeRef, final TypePath typePath, final String desc, final boolean visible) {
-    checkEnd();
-    int sort = typeRef >>> 24;
+      final int typeRef, final TypePath typePath, final String descriptor, final boolean visible) {
+    checkVisitEndNotCalled();
+    int sort = new TypeReference(typeRef).getSort();
     if (sort != TypeReference.FIELD) {
       throw new IllegalArgumentException(
           "Invalid type reference sort 0x" + Integer.toHexString(sort));
     }
     CheckClassAdapter.checkTypeRefAndPath(typeRef, typePath);
-    CheckMethodAdapter.checkDesc(desc, false);
-    return new CheckAnnotationAdapter(super.visitTypeAnnotation(typeRef, typePath, desc, visible));
+    CheckMethodAdapter.checkDescriptor(descriptor, false);
+    return new CheckAnnotationAdapter(
+        super.visitTypeAnnotation(typeRef, typePath, descriptor, visible));
   }
 
   @Override
-  public void visitAttribute(final Attribute attr) {
-    checkEnd();
-    if (attr == null) {
+  public void visitAttribute(final Attribute attribute) {
+    checkVisitEndNotCalled();
+    if (attribute == null) {
       throw new IllegalArgumentException("Invalid attribute (must not be null)");
     }
-    super.visitAttribute(attr);
+    super.visitAttribute(attribute);
   }
 
   @Override
   public void visitEnd() {
-    checkEnd();
-    end = true;
+    checkVisitEndNotCalled();
+    visitEndCalled = true;
     super.visitEnd();
   }
 
-  private void checkEnd() {
-    if (end) {
+  private void checkVisitEndNotCalled() {
+    if (visitEndCalled) {
       throw new IllegalStateException("Cannot call a visit method after visitEnd has been called");
     }
   }

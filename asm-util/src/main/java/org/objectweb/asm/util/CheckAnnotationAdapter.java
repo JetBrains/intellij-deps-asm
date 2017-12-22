@@ -38,22 +38,27 @@ import org.objectweb.asm.Type;
  */
 public class CheckAnnotationAdapter extends AnnotationVisitor {
 
-  private final boolean named;
+  /**
+   * Whether the values of the visited annotation are named. AnnotationVisitor instances used for
+   * annotation default and annotation arrays use unnamed values.
+   */
+  private final boolean useNamedValue;
 
-  private boolean end;
+  /** Whether the {@link #visitEnd} method has been called. */
+  private boolean visitEndCalled;
 
-  public CheckAnnotationAdapter(final AnnotationVisitor av) {
-    this(av, true);
+  public CheckAnnotationAdapter(final AnnotationVisitor annotationVisitor) {
+    this(annotationVisitor, true);
   }
 
-  CheckAnnotationAdapter(final AnnotationVisitor av, final boolean named) {
-    super(Opcodes.ASM6, av);
-    this.named = named;
+  CheckAnnotationAdapter(final AnnotationVisitor annotationVisitor, final boolean useNamedValues) {
+    super(Opcodes.ASM6, annotationVisitor);
+    this.useNamedValue = useNamedValues;
   }
 
   @Override
   public void visit(final String name, final Object value) {
-    checkEnd();
+    checkVisitEndNotCalled();
     checkName(name);
     if (!(value instanceof Byte
         || value instanceof Boolean
@@ -75,63 +80,54 @@ public class CheckAnnotationAdapter extends AnnotationVisitor {
         || value instanceof double[])) {
       throw new IllegalArgumentException("Invalid annotation value");
     }
-    if (value instanceof Type) {
-      int sort = ((Type) value).getSort();
-      if (sort == Type.METHOD) {
-        throw new IllegalArgumentException("Invalid annotation value");
-      }
+    if (value instanceof Type && ((Type) value).getSort() == Type.METHOD) {
+      throw new IllegalArgumentException("Invalid annotation value");
     }
-    if (av != null) {
-      av.visit(name, value);
-    }
+    super.visit(name, value);
   }
 
   @Override
-  public void visitEnum(final String name, final String desc, final String value) {
-    checkEnd();
+  public void visitEnum(final String name, final String descriptor, final String value) {
+    checkVisitEndNotCalled();
     checkName(name);
-    CheckMethodAdapter.checkDesc(desc, false);
+    CheckMethodAdapter.checkDescriptor(descriptor, false);
     if (value == null) {
       throw new IllegalArgumentException("Invalid enum value");
     }
-    if (av != null) {
-      av.visitEnum(name, desc, value);
-    }
+    super.visitEnum(name, descriptor, value);
   }
 
   @Override
-  public AnnotationVisitor visitAnnotation(final String name, final String desc) {
-    checkEnd();
+  public AnnotationVisitor visitAnnotation(final String name, final String descriptor) {
+    checkVisitEndNotCalled();
     checkName(name);
-    CheckMethodAdapter.checkDesc(desc, false);
-    return new CheckAnnotationAdapter(av == null ? null : av.visitAnnotation(name, desc));
+    CheckMethodAdapter.checkDescriptor(descriptor, false);
+    return new CheckAnnotationAdapter(super.visitAnnotation(name, descriptor));
   }
 
   @Override
   public AnnotationVisitor visitArray(final String name) {
-    checkEnd();
+    checkVisitEndNotCalled();
     checkName(name);
-    return new CheckAnnotationAdapter(av == null ? null : av.visitArray(name), false);
+    return new CheckAnnotationAdapter(super.visitArray(name), false);
   }
 
   @Override
   public void visitEnd() {
-    checkEnd();
-    end = true;
-    if (av != null) {
-      av.visitEnd();
-    }
-  }
-
-  private void checkEnd() {
-    if (end) {
-      throw new IllegalStateException("Cannot call a visit method after visitEnd has been called");
-    }
+    checkVisitEndNotCalled();
+    visitEndCalled = true;
+    super.visitEnd();
   }
 
   private void checkName(final String name) {
-    if (named && name == null) {
+    if (useNamedValue && name == null) {
       throw new IllegalArgumentException("Annotation value name must not be null");
+    }
+  }
+
+  private void checkVisitEndNotCalled() {
+    if (visitEndCalled) {
+      throw new IllegalStateException("Cannot call a visit method after visitEnd has been called");
     }
   }
 }

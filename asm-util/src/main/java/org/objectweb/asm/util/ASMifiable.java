@@ -26,19 +26,19 @@ import java.util.Map;
 import org.objectweb.asm.Label;
 
 /**
- * An {@link org.objectweb.asm.Attribute Attribute} that can print the ASM code to create an
- * equivalent attribute.
+ * An {@link org.objectweb.asm.Attribute} that can generate the ASM code to create an equivalent
+ * attribute.
  *
  * @author Eugene Kuleshov
  */
 public interface ASMifiable {
 
   /**
-   * Prints the ASM code to create an attribute equal to this attribute.
+   * Generates the ASM code to create an attribute equal to this attribute.
    *
-   * @param buf a buffer used for printing Java code.
-   * @param varName name of the variable in a printed code used to store attribute instance.
-   * @param labelNames map of label instances to their names.
+   * @param outputBuffer where the generated code must be appended.
+   * @param visitorVariableName the name of the visitor variable in the produced code.
+   * @param labelNames the names of the labels in the generated code.
    */
-  void asmify(StringBuffer buf, String varName, Map<Label, String> labelNames);
+  void asmify(StringBuffer outputBuffer, String visitorVariableName, Map<Label, String> labelNames);
 }

@@ -30,12 +30,9 @@ package org.objectweb.asm;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
 
-import java.io.ByteArrayInputStream;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Map;
-import java.util.Properties;
 import java.util.Set;
 import java.util.StringTokenizer;
 import org.junit.jupiter.api.BeforeEach;
@@ -48,15 +45,15 @@ import org.junit.jupiter.api.Test;
  */
 public class ClassWriterComputeMaxsTest {
 
-  protected ClassWriter classWriter;
+  private ClassWriter classWriter;
 
-  protected MethodVisitor methodVisitor;
+  private MethodVisitor methodVisitor;
 
   private Label start;
 
   @BeforeEach
   public void setUp() throws Exception {
-    classWriter = new ClassWriter(isComputeMaxs() ? ClassWriter.COMPUTE_MAXS : 0);
+    classWriter = new ClassWriter(ClassWriter.COMPUTE_MAXS);
     classWriter.visit(Opcodes.V1_1, Opcodes.ACC_PUBLIC, "C", null, "java/lang/Object", null);
     methodVisitor = classWriter.visitMethod(Opcodes.ACC_PUBLIC, "<init>", "()V", null, null);
     methodVisitor.visitCode();
@@ -70,10 +67,6 @@ public class ClassWriterComputeMaxsTest {
     methodVisitor.visitCode();
     start = new Label();
     LABEL(start);
-  }
-
-  protected boolean isComputeMaxs() {
-    return true;
   }
 
   private void NOP() {
@@ -120,41 +113,41 @@ public class ClassWriterComputeMaxsTest {
     methodVisitor.visitInsn(Opcodes.RETURN);
   }
 
-  private void LABEL(final Label l) {
-    methodVisitor.visitLabel(l);
+  private void LABEL(final Label label) {
+    methodVisitor.visitLabel(label);
   }
 
-  private void IINC(final int var, final int amnt) {
-    methodVisitor.visitIincInsn(var, amnt);
+  private void IINC(final int var, final int increment) {
+    methodVisitor.visitIincInsn(var, increment);
   }
 
-  private void GOTO(final Label l) {
-    methodVisitor.visitJumpInsn(Opcodes.GOTO, l);
+  private void GOTO(final Label label) {
+    methodVisitor.visitJumpInsn(Opcodes.GOTO, label);
   }
 
-  private void JSR(final Label l) {
-    methodVisitor.visitJumpInsn(Opcodes.JSR, l);
+  private void JSR(final Label label) {
+    methodVisitor.visitJumpInsn(Opcodes.JSR, label);
   }
 
-  private void IFNONNULL(final Label l) {
-    methodVisitor.visitJumpInsn(Opcodes.IFNONNULL, l);
+  private void IFNONNULL(final Label label) {
+    methodVisitor.visitJumpInsn(Opcodes.IFNONNULL, label);
   }
 
-  private void IFNE(final Label l) {
-    methodVisitor.visitJumpInsn(Opcodes.IFNE, l);
+  private void IFNE(final Label label) {
+    methodVisitor.visitJumpInsn(Opcodes.IFNE, label);
   }
 
   private void TRYCATCH(final Label start, final Label end, final Label handler) {
     methodVisitor.visitTryCatchBlock(start, end, handler, null);
   }
 
-  protected void assertMaxs(final int maxStack, final int maxLocals) {
+  private void assertMaxs(final int maxStack, final int maxLocals) {
     methodVisitor.visitMaxs(0, 0);
     methodVisitor.visitEnd();
     classWriter.visitEnd();
-    byte[] b = classWriter.toByteArray();
-    ClassReader cr = new ClassReader(b);
-    cr.accept(
+    byte[] classFile = classWriter.toByteArray();
+    ClassReader classReader = new ClassReader(classFile);
+    classReader.accept(
         new ClassVisitor(Opcodes.ASM5) {
           @Override
           public MethodVisitor visitMethod(
@@ -180,57 +173,47 @@ public class ClassWriterComputeMaxsTest {
 
     try {
       TestClassLoader loader = new TestClassLoader();
-      Class<?> c = loader.defineClass("C", b);
-      c.newInstance();
+      loader.defineClass("C", classFile).newInstance();
     } catch (Throwable t) {
       fail(t.getMessage());
     }
   }
 
-  protected void assertGraph(final String graph) {
+  private void assertGraph(final String... nodes) {
     Map<String, Set<String>> expected = new HashMap<String, Set<String>>();
-    Properties p = new Properties();
-    try {
-      p.load(new ByteArrayInputStream(graph.getBytes()));
-    } catch (Exception e) {
-      fail(e.getMessage());
-    }
-    Iterator<Map.Entry<Object, Object>> i = p.entrySet().iterator();
-    while (i.hasNext()) {
-      Map.Entry<Object, Object> entry = i.next();
-      String key = (String) entry.getKey();
-      String value = (String) entry.getValue();
-      StringTokenizer st = new StringTokenizer(value, ",");
-      Set<String> s = new HashSet<String>();
-      while (st.hasMoreTokens()) {
-        s.add(st.nextToken());
+    for (String node : nodes) {
+      StringTokenizer stringTokenizer = new StringTokenizer(node, "=,");
+      String key = stringTokenizer.nextToken();
+      Set<String> values = new HashSet<String>();
+      while (stringTokenizer.hasMoreTokens()) {
+        values.add(stringTokenizer.nextToken());
       }
-      expected.put(key, s);
+      expected.put(key, values);
     }
 
     Map<String, Set<String>> actual = new HashMap<String, Set<String>>();
-    Label l = start;
-    while (l != null) {
-      String key = "N" + l.getOffset();
+    Label currentLabel = start;
+    while (currentLabel != null) {
+      String key = "N" + currentLabel.getOffset();
       Set<String> value = new HashSet<String>();
-      Edge e = l.outgoingEdges;
-      while (e != null) {
-        value.add("N" + e.successor.getOffset());
-        e = e.nextEdge;
+      Edge outgoingEdge = currentLabel.outgoingEdges;
+      while (outgoingEdge != null) {
+        value.add("N" + outgoingEdge.successor.getOffset());
+        outgoingEdge = outgoingEdge.nextEdge;
       }
       actual.put(key, value);
-      l = l.nextBasicBlock;
+      currentLabel = currentLabel.nextBasicBlock;
     }
 
     assertEquals(expected, actual);
   }
 
-  protected static class TestClassLoader extends ClassLoader {
+  private static class TestClassLoader extends ClassLoader {
 
     public TestClassLoader() {}
 
-    public Class<?> defineClass(final String name, final byte[] b) {
-      return defineClass(name, b, 0, b.length);
+    public Class<?> defineClass(final String name, final byte[] classFile) {
+      return defineClass(name, classFile, 0, classFile.length);
     }
   }
 
@@ -259,19 +242,19 @@ public class ClassWriterComputeMaxsTest {
     ICONST_0(); // N0
     ISTORE(1);
 
-    /* L0: body of try block */
+    // L0: body of try block.
     LABEL(L0); // N2
     IINC(1, 1);
     GOTO(L1);
 
-    /* L2: exception handler */
+    // L2: exception handler.
     LABEL(L2); // N8
     ASTORE(3);
     JSR(L3);
     ALOAD(3); // N12
     ATHROW();
 
-    /* L3: subroutine */
+    // L3: subroutine.
     LABEL(L3); // N14
     ASTORE(2);
     IINC(1, -1);
@@ -279,7 +262,7 @@ public class ClassWriterComputeMaxsTest {
     PUSH();
     RET(2);
 
-    /* L1: non-exceptional exit from try block */
+    // L1: non-exceptional exit from try block.
     LABEL(L1); // N22
     JSR(L3);
     PUSH(); // N25
@@ -292,14 +275,14 @@ public class ClassWriterComputeMaxsTest {
 
     assertMaxs(4, 4);
     assertGraph(
-        "N0=N2\n"
-            + "N2=N22,N8\n"
-            + "N8=N14,N12\n"
-            + "N12=\n"
-            + "N14=N12,N25\n"
-            + "N22=N14,N25,N8\n"
-            + "N25=N27,N8\n"
-            + "N27=\n");
+        "N0=N2",
+        "N2=N22,N8",
+        "N8=N14,N12",
+        "N12=",
+        "N14=N12,N25",
+        "N22=N14,N25,N8",
+        "N25=N27,N8",
+        "N27=");
   }
 
   /**
@@ -332,12 +315,12 @@ public class ClassWriterComputeMaxsTest {
     ICONST_0(); // N0
     ISTORE(1);
 
-    /* L0: body of try block */
+    // L0: body of try block.
     LABEL(L0); // N2
     IINC(1, 1);
     GOTO(L1);
 
-    /* L2: exception handler */
+    // L2: exception handler.
     LABEL(L2); // N8
     ASTORE(3);
     JSR(L3);
@@ -346,7 +329,7 @@ public class ClassWriterComputeMaxsTest {
     ALOAD(3);
     ATHROW();
 
-    /* L3: subroutine */
+    // L3: subroutine.
     LABEL(L3); // N16
     ASTORE(2);
     PUSH();
@@ -362,7 +345,7 @@ public class ClassWriterComputeMaxsTest {
     LABEL(L5); // N32 common exit
     RET(2);
 
-    /* L1: non-exceptional exit from try block */
+    // L1: non-exceptional exit from try block.
     LABEL(L1); // N34
     JSR(L3);
     LABEL(L6); // N37
@@ -373,15 +356,15 @@ public class ClassWriterComputeMaxsTest {
 
     assertMaxs(5, 4);
     assertGraph(
-        "N0=N2\n"
-            + "N2=N34,N8\n"
-            + "N8=N16,N12\n"
-            + "N12=\n"
-            + "N16=N29,N32\n"
-            + "N29=N32\n"
-            + "N32=N37,N12\n"
-            + "N34=N16,N37,N8\n"
-            + "N37=\n");
+        "N0=N2",
+        "N2=N34,N8",
+        "N8=N16,N12",
+        "N12=",
+        "N16=N29,N32",
+        "N29=N32",
+        "N32=N37,N12",
+        "N34=N16,N37,N8",
+        "N37=");
   }
 
   /**
@@ -414,20 +397,20 @@ public class ClassWriterComputeMaxsTest {
     ICONST_0(); // N0
     ISTORE(1);
 
-    // L0: Body of try block:
+    // L0: Body of try block.
     LABEL(L0); // N2
     IINC(1, 1);
     JSR(L3);
     GOTO(L1); // N8
 
-    // L2: First exception handler:
+    // L2: First exception handler.
     LABEL(L2); // N11
     ASTORE(4);
     JSR(L3);
     ALOAD(4); // N16
     ATHROW();
 
-    // L3: First subroutine:
+    // L3: First subroutine.
     LABEL(L3); // N19
     ASTORE(2);
     IINC(1, 2);
@@ -436,14 +419,14 @@ public class ClassWriterComputeMaxsTest {
     PUSH();
     RET(2);
 
-    // L5: Second exception handler:
+    // L5: Second exception handler;
     LABEL(L5); // N30
     ASTORE(5);
     JSR(L4);
     ALOAD(5); // N35
     ATHROW();
 
-    // L4: Second subroutine:
+    // L4: Second subroutine.
     LABEL(L4); // N38
     ASTORE(3);
     PUSH();
@@ -460,17 +443,17 @@ public class ClassWriterComputeMaxsTest {
 
     assertMaxs(5, 6);
     assertGraph(
-        "N0=N2\n"
-            + "N2=N11,N19,N8\n"
-            + "N8=N11,N46\n"
-            + "N11=N19,N16\n"
-            + "N16=\n"
-            + "N19=N26,N30,N38\n"
-            + "N26=N16,N30,N8\n"
-            + "N30=N38,N35\n"
-            + "N35=\n"
-            + "N38=N26,N35\n"
-            + "N46=\n");
+        "N0=N2",
+        "N2=N11,N19,N8",
+        "N8=N11,N46",
+        "N11=N19,N16",
+        "N16=",
+        "N19=N26,N30,N38",
+        "N26=N16,N30,N8",
+        "N30=N38,N35",
+        "N35=",
+        "N38=N26,N35",
+        "N46=");
   }
 
   /**
@@ -505,13 +488,13 @@ public class ClassWriterComputeMaxsTest {
     ICONST_0(); // N0
     ISTORE(1);
 
-    // L0: while loop header/try block
+    // L0: while loop header/try block.
     LABEL(L0); // N2
     IINC(1, 1);
     JSR(L1);
     GOTO(L2); // N8
 
-    // L3: implicit catch block
+    // L3: implicit catch block.
     LABEL(L3); // N11
     ASTORE(2);
     JSR(L1);
@@ -520,13 +503,13 @@ public class ClassWriterComputeMaxsTest {
     ALOAD(2);
     ATHROW();
 
-    // L1: subroutine ...
+    // L1: subroutine which does not return.
     LABEL(L1); // N19
     ASTORE(3);
     IINC(1, 2);
-    GOTO(L4); // ...not that it does not return!
+    GOTO(L4);
 
-    // L2: end of the loop... goes back to the top!
+    // L2: end of the loop, goes back to the top.
     LABEL(L2); // N26
     GOTO(L0);
 
@@ -538,14 +521,7 @@ public class ClassWriterComputeMaxsTest {
 
     assertMaxs(1, 4);
     assertGraph(
-        "N0=N2\n"
-            + "N2=N11,N19,N8\n"
-            + "N8=N11,N26\n"
-            + "N11=N19,N15\n"
-            + "N15=\n"
-            + "N19=N29\n"
-            + "N26=N2\n"
-            + "N29=\n");
+        "N0=N2", "N2=N11,N19,N8", "N8=N11,N26", "N11=N19,N15", "N15=", "N19=N29", "N26=N2", "N29=");
   }
 
   /**
@@ -576,7 +552,7 @@ public class ClassWriterComputeMaxsTest {
     methodVisitor.visitLocalVariable("i", "I", null, L0, L1, 1);
 
     assertMaxs(2, 2);
-    assertGraph("N0=N4,N5\n" + "N4=N5\n" + "N5=\n" + "N8=\n");
+    assertGraph("N0=N4,N5", "N4=N5", "N5=", "N8=");
   }
 
   /**
@@ -613,18 +589,18 @@ public class ClassWriterComputeMaxsTest {
     ICONST_0(); // N0
     ISTORE(1);
 
-    // L5: while loop header
+    // L5: while loop header.
     LABEL(L5); // N2
     ACONST_NULL();
     IFNONNULL(L4);
 
-    // L0: try block
+    // L0: try block.
     LABEL(L0); // N6
     IINC(1, 1);
     JSR(L1);
     GOTO(L2); // N12
 
-    // L3: implicit catch block
+    // L3: implicit catch block.
     LABEL(L3); // N15
     ASTORE(2);
     JSR(L1);
@@ -633,13 +609,13 @@ public class ClassWriterComputeMaxsTest {
     PUSH();
     ATHROW();
 
-    // L1: subroutine ...
+    // L1: subroutine which does not return.
     LABEL(L1); // N23
     ASTORE(3);
     IINC(1, 2);
-    GOTO(L4); // ...not that it does not return!
+    GOTO(L4);
 
-    // L2: end of the loop... goes back to the top!
+    // L2: end of the loop, goes back to the top.
     LABEL(L2); // N30
     GOTO(L0);
 
@@ -651,15 +627,15 @@ public class ClassWriterComputeMaxsTest {
 
     assertMaxs(1, 4);
     assertGraph(
-        "N0=N2\n"
-            + "N2=N6,N33\n"
-            + "N6=N23,N12,N15\n"
-            + "N12=N30,N15\n"
-            + "N15=N23,N19\n"
-            + "N19=\n"
-            + "N23=N33\n"
-            + "N30=N6\n"
-            + "N33=\n");
+        "N0=N2",
+        "N2=N6,N33",
+        "N6=N23,N12,N15",
+        "N12=N30,N15",
+        "N15=N23,N19",
+        "N19=",
+        "N23=N33",
+        "N30=N6",
+        "N33=");
   }
 
   /**
@@ -698,7 +674,7 @@ public class ClassWriterComputeMaxsTest {
     Label W = new Label();
     Label X = new Label();
 
-    // variable numbers:
+    // Variable numbers:
     int b = 1;
     int e1 = 2;
     int e2 = 3;
@@ -708,12 +684,12 @@ public class ClassWriterComputeMaxsTest {
     ICONST_0(); // N0
     ISTORE(1);
 
-    // T1: first try:
+    // T1: first try.
     LABEL(T1); // N2
     JSR(S1);
     RETURN(); // N5
 
-    // C1: exception handler for first try
+    // C1: exception handler for first try.
     LABEL(C1); // N6
     ASTORE(e1);
     JSR(S1);
@@ -729,12 +705,12 @@ public class ClassWriterComputeMaxsTest {
     PUSH();
     GOTO(W);
 
-    // L: body of while loop, also second try
+    // L: body of while loop, also second try;
     LABEL(L); // N21
     JSR(S2);
     RETURN(); // N24
 
-    // C2: exception handler for second try
+    // C2: exception handler for second try.
     LABEL(C2); // N25
     ASTORE(e2);
     PUSH();
@@ -743,19 +719,19 @@ public class ClassWriterComputeMaxsTest {
     ALOAD(e2); // N31
     ATHROW();
 
-    // S2: second finally handler
+    // S2: second finally handler.
     LABEL(S2); // N33
     ASTORE(r2);
     ILOAD(b);
     IFNE(X);
     RET(r2);
 
-    // W: test for the while loop
+    // W: test for the while loop.
     LABEL(W); // N41
     ILOAD(b);
-    IFNE(L); // falls through to X
+    IFNE(L); // falls through to X.
 
-    // X: exit from finally{} block
+    // X: exit from finally block.
     LABEL(X); // N45
     RET(r1);
 
@@ -764,19 +740,19 @@ public class ClassWriterComputeMaxsTest {
 
     assertMaxs(5, 6);
     assertGraph(
-        "N0=N2\n"
-            + "N2=N6,N5,N14\n"
-            + "N5=N6\n"
-            + "N6=N14,N10\n"
-            + "N10=\n"
-            + "N14=N41\n"
-            + "N21=N24,N25,N33\n"
-            + "N24=N25\n"
-            + "N25=N31,N33\n"
-            + "N31=\n"
-            + "N33=N31,N45,N24\n"
-            + "N41=N45,N21\n"
-            + "N45=N5,N10\n");
+        "N0=N2",
+        "N2=N6,N5,N14",
+        "N5=N6",
+        "N6=N14,N10",
+        "N10=",
+        "N14=N41",
+        "N21=N24,N25,N33",
+        "N24=N25",
+        "N25=N31,N33",
+        "N31=",
+        "N33=N31,N45,N24",
+        "N41=N45,N21",
+        "N45=N5,N10");
   }
 
   @Test
@@ -805,8 +781,7 @@ public class ClassWriterComputeMaxsTest {
     RET(2);
 
     assertMaxs(1, 4);
-    assertGraph(
-        "N0=N6,N5\n" + "N5=\n" + "N6=N10,N13\n" + "N10=N20\n" + "N13=N20,N10\n" + "N20=N5\n");
+    assertGraph("N0=N6,N5", "N5=", "N6=N10,N13", "N10=N20", "N13=N20,N10", "N20=N5");
   }
 
   /**
@@ -827,32 +802,32 @@ public class ClassWriterComputeMaxsTest {
     JSR(L1);
     GOTO(L2); // N5
 
-    // L1: subroutine 1
+    // L1: subroutine 1.
     LABEL(L1); // N8
     ASTORE(2);
     IINC(1, 1);
     GOTO(L3);
 
-    // L2: second part of main subroutine
+    // L2: second part of main subroutine.
     LABEL(L2); // N15
     IINC(1, 2);
     GOTO(L4);
 
-    // L3: second part of subroutine 1
+    // L3: second part of subroutine 1.
     LABEL(L3); // N21
     IINC(1, 4);
     PUSH();
     PUSH();
     RET(2);
 
-    // L4: third part of main subroutine
+    // L4: third part of main subroutine.
     LABEL(L4); // N28
     PUSH();
     PUSH();
     RETURN();
 
     assertMaxs(4, 3);
-    assertGraph("N0=N5,N8\n" + "N5=N15\n" + "N8=N21\n" + "N15=N28\n" + "N21=N5\n" + "N28=\n");
+    assertGraph("N0=N5,N8", "N5=N15", "N8=N21", "N15=N28", "N21=N5", "N28=");
   }
 
   /**
@@ -895,7 +870,7 @@ public class ClassWriterComputeMaxsTest {
     Label X = new Label();
     Label OC = new Label();
 
-    // variable numbers:
+    // Variable numbers:
     int b = 1;
     int e1 = 2;
     int e2 = 3;
@@ -910,33 +885,33 @@ public class ClassWriterComputeMaxsTest {
     JSR(S1);
     RETURN(); // N5
 
-    // C1: exception handler for first try
+    // C1: exception handler for first try.
     LABEL(C1); // N6
     ASTORE(e1);
     JSR(S1);
     ALOAD(e1); // N10
     ATHROW();
 
-    // S1: first finally handler
+    // S1: first finally handler.
     LABEL(S1); // N12
     ASTORE(r1);
     GOTO(W);
 
-    // L: body of while loop, also second try
+    // L: body of while loop, also second try.
     LABEL(L); // N17
     JSR(S2);
     PUSH(); // N20
     PUSH();
     RETURN();
 
-    // C2: exception handler for second try
+    // C2: exception handler for second try.
     LABEL(C2); // N23
     ASTORE(e2);
     JSR(S2);
     ALOAD(e2); // N27
     ATHROW();
 
-    // S2: second finally handler
+    // S2: second finally handler.
     LABEL(S2); // N29
     ASTORE(r2);
     ILOAD(b);
@@ -945,16 +920,16 @@ public class ClassWriterComputeMaxsTest {
     PUSH();
     RET(r2);
 
-    // W: test for the while loop
+    // W: test for the while loop.
     LABEL(W); // N39
     ILOAD(b);
-    IFNE(L); // falls through to X
+    IFNE(L); // falls through to X.
 
-    // X: exit from finally{} block
+    // X: exit from finally block.
     LABEL(X); // N43
     RET(r1);
 
-    // OC: outermost catch
+    // OC: outermost catch.
     LABEL(OC); // N45
     IINC(b, 3);
     RETURN();
@@ -965,19 +940,19 @@ public class ClassWriterComputeMaxsTest {
 
     assertMaxs(4, 6);
     assertGraph(
-        "N0=N2\n"
-            + "N2=N6,N45,N5,N12\n"
-            + "N5=N6,N45\n"
-            + "N6=N45,N12,N10\n"
-            + "N10=N45\n"
-            + "N12=N39,N45\n"
-            + "N17=N23,N45,N20,N29\n"
-            + "N20=N23,N45\n"
-            + "N23=N45,N27,N29\n"
-            + "N27=N45\n"
-            + "N29=N43,N45,N20,N27\n"
-            + "N39=N43,N45,N17\n"
-            + "N43=N45,N5,N10\n"
-            + "N45=\n");
+        "N0=N2",
+        "N2=N6,N45,N5,N12",
+        "N5=N6,N45",
+        "N6=N45,N12,N10",
+        "N10=N45",
+        "N12=N39,N45",
+        "N17=N23,N45,N20,N29",
+        "N20=N23,N45",
+        "N23=N45,N27,N29",
+        "N27=N45",
+        "N29=N43,N45,N20,N27",
+        "N39=N43,N45,N17",
+        "N43=N45,N5,N10",
+        "N45=");
   }
 }

@@ -391,12 +391,12 @@ public class ClassWriterTest extends AsmTest {
 
   private static class MethodDeadCodeInserter extends MethodVisitor implements Opcodes {
 
-    private Random r;
+    private Random random;
     private boolean inserted;
 
     MethodDeadCodeInserter(final int api, final int seed, final MethodVisitor methodVisitor) {
       super(api, methodVisitor);
-      r = new Random(seed);
+      random = new Random(seed);
     }
 
     @Override
@@ -499,16 +499,16 @@ public class ClassWriterTest extends AsmTest {
 
     private void maybeInsertDeadCode() {
       // Inserts dead code once every 50 instructions in average.
-      if (!inserted && r.nextFloat() < 1.0 / 50.0) {
+      if (!inserted && random.nextFloat() < 1.0 / 50.0) {
         insertDeadCode();
       }
     }
 
     private void insertDeadCode() {
       Label end = new Label();
-      mv.visitJumpInsn(Opcodes.GOTO, end);
-      mv.visitLdcInsn("DEAD CODE");
-      mv.visitLabel(end);
+      visitJumpInsn(Opcodes.GOTO, end);
+      visitLdcInsn("DEAD CODE");
+      visitLabel(end);
       inserted = true;
     }
   }
@@ -529,7 +529,7 @@ public class ClassWriterTest extends AsmTest {
         final String signature,
         final String[] exceptions) {
       return new MethodVisitor(
-          api, cv.visitMethod(access, name, descriptor, signature, exceptions)) {
+          api, super.visitMethod(access, name, descriptor, signature, exceptions)) {
         private final HashSet<Label> labels = new HashSet<Label>();
 
         @Override
@@ -543,7 +543,7 @@ public class ClassWriterTest extends AsmTest {
           if (!transformed && labels.contains(label)) {
             transformed = true;
             for (int i = 0; i <= Short.MAX_VALUE; ++i) {
-              mv.visitInsn(Opcodes.NOP);
+              visitInsn(Opcodes.NOP);
             }
           }
           super.visitJumpInsn(opcode, label);

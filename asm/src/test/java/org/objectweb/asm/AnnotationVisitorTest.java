@@ -120,7 +120,7 @@ public class AnnotationVisitorTest extends AsmTest {
         final String signature,
         final String[] exceptions) {
       return new MethodVisitor(
-          api, cv.visitMethod(access, name, descriptor, signature, exceptions)) {
+          api, super.visitMethod(access, name, descriptor, signature, exceptions)) {
 
         @Override
         public AnnotationVisitor visitAnnotationDefault() {
@@ -208,7 +208,7 @@ public class AnnotationVisitorTest extends AsmTest {
         final String signature,
         final String[] exceptions) {
       return new MethodVisitor(
-          api, cv.visitMethod(access, name, descriptor, signature, exceptions)) {
+          api, super.visitMethod(access, name, descriptor, signature, exceptions)) {
 
         @Override
         public AnnotationVisitor visitAnnotationDefault() {

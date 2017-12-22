@@ -63,7 +63,7 @@ public class TypePath {
   private final int typePathOffset;
 
   /**
-   * Creates a new TypePath.
+   * Constructs a new TypePath.
    *
    * @param typePathContainer a byte array containing a type_path JVMS structure.
    * @param typePathOffset the offset of the first byte of the type_path structure in

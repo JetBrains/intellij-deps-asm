@@ -60,7 +60,7 @@ public class SourceValue implements Value {
   public final Set<AbstractInsnNode> insns;
 
   /**
-   * Creates a new {@link SourceValue}.
+   * Constructs a new {@link SourceValue}.
    *
    * @param size the size of this value, in 32 bits words. This size is 1 for byte, boolean, char,
    *     short, int, float, object and array types, and 2 for long and double.
@@ -70,7 +70,7 @@ public class SourceValue implements Value {
   }
 
   /**
-   * Creates a new {@link SourceValue}.
+   * Constructs a new {@link SourceValue}.
    *
    * @param size the size of this value, in 32 bits words. This size is 1 for byte, boolean, char,
    *     short, int, float, object and array types, and 2 for long and double.
@@ -82,7 +82,7 @@ public class SourceValue implements Value {
   }
 
   /**
-   * Creates a new {@link SourceValue}.
+   * Constructs a new {@link SourceValue}.
    *
    * @param size the size of this value, in 32 bits words. This size is 1 for byte, boolean, char,
    *     short, int, float, object and array types, and 2 for long and double.

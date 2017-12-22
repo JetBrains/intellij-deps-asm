@@ -43,7 +43,7 @@ public class AnalyzerException extends Exception {
   public final transient AbstractInsnNode node;
 
   /**
-   * Creates a new {@link AnalyzerException}.
+   * Constructs a new {@link AnalyzerException}.
    *
    * @param insn the bytecode instruction where the analysis failed.
    * @param message the reason why the analysis failed.
@@ -54,7 +54,7 @@ public class AnalyzerException extends Exception {
   }
 
   /**
-   * Creates a new {@link AnalyzerException}.
+   * Constructs a new {@link AnalyzerException}.
    *
    * @param insn the bytecode instruction where the analysis failed.
    * @param message the reason why the analysis failed.
@@ -67,7 +67,7 @@ public class AnalyzerException extends Exception {
   }
 
   /**
-   * Creates a new {@link AnalyzerException}.
+   * Constructs a new {@link AnalyzerException}.
    *
    * @param insn the bytecode instruction where the analysis failed.
    * @param message the reason why the analysis failed.

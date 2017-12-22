@@ -139,11 +139,10 @@ public abstract class MethodVisitor {
    * Visits an annotation on a type in the method signature.
    *
    * @param typeRef a reference to the annotated type. The sort of this type reference must be
-   *     {@link TypeReference#METHOD_TYPE_PARAMETER METHOD_TYPE_PARAMETER}, {@link
-   *     TypeReference#METHOD_TYPE_PARAMETER_BOUND METHOD_TYPE_PARAMETER_BOUND}, {@link
-   *     TypeReference#METHOD_RETURN METHOD_RETURN}, {@link TypeReference#METHOD_RECEIVER
-   *     METHOD_RECEIVER}, {@link TypeReference#METHOD_FORMAL_PARAMETER METHOD_FORMAL_PARAMETER} or
-   *     {@link TypeReference#THROWS THROWS}. See {@link TypeReference}.
+   *     {@link TypeReference#METHOD_TYPE_PARAMETER}, {@link
+   *     TypeReference#METHOD_TYPE_PARAMETER_BOUND}, {@link TypeReference#METHOD_RETURN}, {@link
+   *     TypeReference#METHOD_RECEIVER}, {@link TypeReference#METHOD_FORMAL_PARAMETER} or {@link
+   *     TypeReference#THROWS}. See {@link TypeReference}.
    * @param typePath the path to the annotated type argument, wildcard bound, array element type, or
    *     static inner type within 'typeRef'. May be <tt>null</tt> if the annotation targets
    *     'typeRef' as a whole.
@@ -231,7 +230,7 @@ public abstract class MethodVisitor {
    * of the operand stack elements <i>just before</i> <b>i</b> is executed.<br>
    * <br>
    * (*) this is mandatory only for classes whose version is greater than or equal to {@link
-   * Opcodes#V1_6 V1_6}. <br>
+   * Opcodes#V1_6}. <br>
    * <br>
    * The frames of a method must be given either in expanded form, or in compressed form (all frames
    * must use the same format, i.e. you must not mix expanded and compressed frames within a single
@@ -357,7 +356,7 @@ public abstract class MethodVisitor {
    * @param opcode the opcode of the type instruction to be visited. This opcode is either NEW,
    *     ANEWARRAY, CHECKCAST or INSTANCEOF.
    * @param type the operand of the instruction to be visited. This operand must be the internal
-   *     name of an object or array class (see {@link Type#getInternalName() getInternalName}).
+   *     name of an object or array class (see {@link Type#getInternalName()}).
    */
   public void visitTypeInsn(final int opcode, final String type) {
     if (mv != null) {
@@ -371,10 +370,9 @@ public abstract class MethodVisitor {
    *
    * @param opcode the opcode of the type instruction to be visited. This opcode is either
    *     GETSTATIC, PUTSTATIC, GETFIELD or PUTFIELD.
-   * @param owner the internal name of the field's owner class (see {@link Type#getInternalName()
-   *     getInternalName}).
+   * @param owner the internal name of the field's owner class (see {@link Type#getInternalName()}).
    * @param name the field's name.
-   * @param descriptor the field's descriptor (see {@link Type Type}).
+   * @param descriptor the field's descriptor (see {@link Type}).
    */
   public void visitFieldInsn(
       final int opcode, final String owner, final String name, final String descriptor) {
@@ -388,10 +386,10 @@ public abstract class MethodVisitor {
    *
    * @param opcode the opcode of the type instruction to be visited. This opcode is either
    *     INVOKEVIRTUAL, INVOKESPECIAL, INVOKESTATIC or INVOKEINTERFACE.
-   * @param owner the internal name of the method's owner class (see {@link Type#getInternalName()
-   *     getInternalName}).
+   * @param owner the internal name of the method's owner class (see {@link
+   *     Type#getInternalName()}).
    * @param name the method's name.
-   * @param descriptor the method's descriptor (see {@link Type Type}).
+   * @param descriptor the method's descriptor (see {@link Type}).
    * @deprecated
    */
   @Deprecated
@@ -412,10 +410,10 @@ public abstract class MethodVisitor {
    *
    * @param opcode the opcode of the type instruction to be visited. This opcode is either
    *     INVOKEVIRTUAL, INVOKESPECIAL, INVOKESTATIC or INVOKEINTERFACE.
-   * @param owner the internal name of the method's owner class (see {@link Type#getInternalName()
-   *     getInternalName}).
+   * @param owner the internal name of the method's owner class (see {@link
+   *     Type#getInternalName()}).
    * @param name the method's name.
-   * @param descriptor the method's descriptor (see {@link Type Type}).
+   * @param descriptor the method's descriptor (see {@link Type}).
    * @param isInterface if the method's owner class is an interface.
    */
   public void visitMethodInsn(
@@ -440,7 +438,7 @@ public abstract class MethodVisitor {
    * Visits an invokedynamic instruction.
    *
    * @param name the method's name.
-   * @param descriptor the method's descriptor (see {@link Type Type}).
+   * @param descriptor the method's descriptor (see {@link Type}).
    * @param bootstrapMethodHandle the bootstrap method.
    * @param bootstrapMethodArguments the bootstrap method constant arguments. Each argument must be
    *     an {@link Integer}, {@link Float}, {@link Long}, {@link Double}, {@link String}, {@link
@@ -479,7 +477,7 @@ public abstract class MethodVisitor {
   /**
    * Visits a label. A label designates the instruction that will be visited just after it.
    *
-   * @param label a {@link Label Label} object.
+   * @param label a {@link Label} object.
    */
   public void visitLabel(final Label label) {
     if (mv != null) {
@@ -582,7 +580,7 @@ public abstract class MethodVisitor {
   /**
    * Visits a MULTIANEWARRAY instruction.
    *
-   * @param descriptor an array type descriptor (see {@link Type Type}).
+   * @param descriptor an array type descriptor (see {@link Type}).
    * @param numDimensions the number of dimensions of the array to allocate.
    */
   public void visitMultiANewArrayInsn(final String descriptor, final int numDimensions) {
@@ -596,15 +594,12 @@ public abstract class MethodVisitor {
    * annotated instruction. It can be called several times for the same instruction.
    *
    * @param typeRef a reference to the annotated type. The sort of this type reference must be
-   *     {@link TypeReference#INSTANCEOF INSTANCEOF}, {@link TypeReference#NEW NEW}, {@link
-   *     TypeReference#CONSTRUCTOR_REFERENCE CONSTRUCTOR_REFERENCE}, {@link
-   *     TypeReference#METHOD_REFERENCE METHOD_REFERENCE}, {@link TypeReference#CAST CAST}, {@link
-   *     TypeReference#CONSTRUCTOR_INVOCATION_TYPE_ARGUMENT CONSTRUCTOR_INVOCATION_TYPE_ARGUMENT},
-   *     {@link TypeReference#METHOD_INVOCATION_TYPE_ARGUMENT METHOD_INVOCATION_TYPE_ARGUMENT},
-   *     {@link TypeReference#CONSTRUCTOR_REFERENCE_TYPE_ARGUMENT
-   *     CONSTRUCTOR_REFERENCE_TYPE_ARGUMENT}, or {@link
-   *     TypeReference#METHOD_REFERENCE_TYPE_ARGUMENT METHOD_REFERENCE_TYPE_ARGUMENT}. See {@link
-   *     TypeReference}.
+   *     {@link TypeReference#INSTANCEOF}, {@link TypeReference#NEW}, {@link
+   *     TypeReference#CONSTRUCTOR_REFERENCE}, {@link TypeReference#METHOD_REFERENCE}, {@link
+   *     TypeReference#CAST}, {@link TypeReference#CONSTRUCTOR_INVOCATION_TYPE_ARGUMENT}, {@link
+   *     TypeReference#METHOD_INVOCATION_TYPE_ARGUMENT}, {@link
+   *     TypeReference#CONSTRUCTOR_REFERENCE_TYPE_ARGUMENT}, or {@link
+   *     TypeReference#METHOD_REFERENCE_TYPE_ARGUMENT}. See {@link TypeReference}.
    * @param typePath the path to the annotated type argument, wildcard bound, array element type, or
    *     static inner type within 'typeRef'. May be <tt>null</tt> if the annotation targets
    *     'typeRef' as a whole.
@@ -637,7 +632,7 @@ public abstract class MethodVisitor {
    * @param type the internal name of the type of exceptions handled by the handler, or
    *     <tt>null</tt> to catch any exceptions (for "finally" blocks).
    * @throws IllegalArgumentException if one of the labels has already been visited by this visitor
-   *     (by the {@link #visitLabel visitLabel} method).
+   *     (by the {@link #visitLabel} method).
    */
   public void visitTryCatchBlock(
       final Label start, final Label end, final Label handler, final String type) {
@@ -652,7 +647,7 @@ public abstract class MethodVisitor {
    * for the same exception handler.
    *
    * @param typeRef a reference to the annotated type. The sort of this type reference must be
-   *     {@link TypeReference#EXCEPTION_PARAMETER EXCEPTION_PARAMETER}. See {@link TypeReference}.
+   *     {@link TypeReference#EXCEPTION_PARAMETER}. See {@link TypeReference}.
    * @param typePath the path to the annotated type argument, wildcard bound, array element type, or
    *     static inner type within 'typeRef'. May be <tt>null</tt> if the annotation targets
    *     'typeRef' as a whole.
@@ -684,7 +679,7 @@ public abstract class MethodVisitor {
    * @param end the last instruction corresponding to the scope of this local variable (exclusive).
    * @param index the local variable's index.
    * @throws IllegalArgumentException if one of the labels has not already been visited by this
-   *     visitor (by the {@link #visitLabel visitLabel} method).
+   *     visitor (by the {@link #visitLabel} method).
    */
   public void visitLocalVariable(
       final String name,
@@ -702,8 +697,8 @@ public abstract class MethodVisitor {
    * Visits an annotation on a local variable type.
    *
    * @param typeRef a reference to the annotated type. The sort of this type reference must be
-   *     {@link TypeReference#LOCAL_VARIABLE LOCAL_VARIABLE} or {@link
-   *     TypeReference#RESOURCE_VARIABLE RESOURCE_VARIABLE}. See {@link TypeReference}.
+   *     {@link TypeReference#LOCAL_VARIABLE} or {@link TypeReference#RESOURCE_VARIABLE}. See {@link
+   *     TypeReference}.
    * @param typePath the path to the annotated type argument, wildcard bound, array element type, or
    *     static inner type within 'typeRef'. May be <tt>null</tt> if the annotation targets
    *     'typeRef' as a whole.
@@ -743,7 +738,7 @@ public abstract class MethodVisitor {
    *     compiled.
    * @param start the first instruction corresponding to this line number.
    * @throws IllegalArgumentException if <tt>start</tt> has not already been visited by this visitor
-   *     (by the {@link #visitLabel visitLabel} method).
+   *     (by the {@link #visitLabel} method).
    */
   public void visitLineNumber(final int line, final Label start) {
     if (mv != null) {

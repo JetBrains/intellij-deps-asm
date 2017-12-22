@@ -79,15 +79,14 @@ public abstract class ClassVisitor {
    *     and the major version in the 16 least significant bits.
    * @param access the class's access flags (see {@link Opcodes}). This parameter also indicates if
    *     the class is deprecated.
-   * @param name the internal name of the class (see {@link Type#getInternalName()
-   *     getInternalName}).
+   * @param name the internal name of the class (see {@link Type#getInternalName()}).
    * @param signature the signature of this class. May be <tt>null</tt> if the class is not a
    *     generic one, and does not extend or implement generic classes or interfaces.
-   * @param superName the internal of name of the super class (see {@link Type#getInternalName()
-   *     getInternalName}). For interfaces, the super class is {@link Object}. May be <tt>null</tt>,
-   *     but only for the {@link Object} class.
+   * @param superName the internal of name of the super class (see {@link Type#getInternalName()}).
+   *     For interfaces, the super class is {@link Object}. May be <tt>null</tt>, but only for the
+   *     {@link Object} class.
    * @param interfaces the internal names of the class's interfaces (see {@link
-   *     Type#getInternalName() getInternalName}). May be <tt>null</tt>.
+   *     Type#getInternalName()}). May be <tt>null</tt>.
    */
   public void visit(
       final int version,
@@ -207,10 +206,9 @@ public abstract class ClassVisitor {
    * Visits information about an inner class. This inner class is not necessarily a member of the
    * class being visited.
    *
-   * @param name the internal name of an inner class (see {@link Type#getInternalName()
-   *     getInternalName}).
+   * @param name the internal name of an inner class (see {@link Type#getInternalName()}).
    * @param outerName the internal name of the class to which the inner class belongs (see {@link
-   *     Type#getInternalName() getInternalName}). May be <tt>null</tt> for not member classes.
+   *     Type#getInternalName()}). May be <tt>null</tt> for not member classes.
    * @param innerName the (simple) name of the inner class inside its enclosing class. May be
    *     <tt>null</tt> for anonymous inner classes.
    * @param access the access flags of the inner class as originally declared in the enclosing
@@ -229,7 +227,7 @@ public abstract class ClassVisitor {
    * @param access the field's access flags (see {@link Opcodes}). This parameter also indicates if
    *     the field is synthetic and/or deprecated.
    * @param name the field's name.
-   * @param descriptor the field's descriptor (see {@link Type Type}).
+   * @param descriptor the field's descriptor (see {@link Type}).
    * @param signature the field's signature. May be <tt>null</tt> if the field's type does not use
    *     generic types.
    * @param value the field's initial value. This parameter, which may be <tt>null</tt> if the field
@@ -261,11 +259,11 @@ public abstract class ClassVisitor {
    * @param access the method's access flags (see {@link Opcodes}). This parameter also indicates if
    *     the method is synthetic and/or deprecated.
    * @param name the method's name.
-   * @param descriptor the method's descriptor (see {@link Type Type}).
+   * @param descriptor the method's descriptor (see {@link Type}).
    * @param signature the method's signature. May be <tt>null</tt> if the method parameters, return
    *     type and exceptions do not use generic types.
    * @param exceptions the internal names of the method's exception classes (see {@link
-   *     Type#getInternalName() getInternalName}). May be <tt>null</tt>.
+   *     Type#getInternalName()}). May be <tt>null</tt>.
    * @return an object to visit the byte code of the method, or <tt>null</tt> if this class visitor
    *     is not interested in visiting the code of this method.
    */

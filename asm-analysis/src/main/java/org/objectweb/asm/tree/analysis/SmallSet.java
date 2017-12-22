@@ -54,14 +54,14 @@ final class SmallSet<T> extends AbstractSet<T> {
   // Constructors
   // -----------------------------------------------------------------------------------------------
 
-  /** Creates an empty set. */
+  /** Constructs an empty set. */
   SmallSet() {
     this.element1 = null;
     this.element2 = null;
   }
 
   /**
-   * Creates a set with exactly one element.
+   * Constructs a set with exactly one element.
    *
    * @param element the unique set element.
    */
@@ -71,7 +71,7 @@ final class SmallSet<T> extends AbstractSet<T> {
   }
 
   /**
-   * Creates a new {@link SmallSet}.
+   * Constructs a new {@link SmallSet}.
    *
    * @param element1 see {@link #element1}.
    * @param element2 see {@link #element2}.

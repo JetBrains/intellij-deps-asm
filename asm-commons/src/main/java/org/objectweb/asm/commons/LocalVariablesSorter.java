@@ -66,7 +66,7 @@ public class LocalVariablesSorter extends MethodVisitor {
   protected int nextLocal;
 
   /**
-   * Creates a new {@link LocalVariablesSorter}. <i>Subclasses must not use this constructor</i>.
+   * Constructs a new {@link LocalVariablesSorter}. <i>Subclasses must not use this constructor</i>.
    * Instead, they must use the {@link #LocalVariablesSorter(int, int, String, MethodVisitor)}
    * version.
    *
@@ -83,7 +83,7 @@ public class LocalVariablesSorter extends MethodVisitor {
   }
 
   /**
-   * Creates a new {@link LocalVariablesSorter}.
+   * Constructs a new {@link LocalVariablesSorter}.
    *
    * @param api the ASM API version implemented by this visitor. Must be one of {@link
    *     Opcodes#ASM4}, {@link Opcodes#ASM5} or {@link Opcodes#ASM6}.
@@ -246,7 +246,7 @@ public class LocalVariablesSorter extends MethodVisitor {
   // -------------
 
   /**
-   * Creates a new local variable of the given type.
+   * Constructs a new local variable of the given type.
    *
    * @param type the type of the local variable to be created.
    * @return the identifier of the newly created local variable.

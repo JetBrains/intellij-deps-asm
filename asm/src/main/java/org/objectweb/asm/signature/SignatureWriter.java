@@ -40,19 +40,19 @@ import org.objectweb.asm.Opcodes;
  */
 public class SignatureWriter extends SignatureVisitor {
 
-  /** Builder used to construct the signature. */
+  /** The builder used to construct the visited signature. */
   private final StringBuilder stringBuilder = new StringBuilder();
 
-  /** Indicates if the signature contains formal type parameters. */
+  /** Whether the visited signature contains formal type parameters. */
   private boolean hasFormals;
 
-  /** Indicates if the signature contains method parameter types. */
+  /** Whether the visited signature contains method parameter types. */
   private boolean hasParameters;
 
   /**
-   * Stack used to keep track of class types that have arguments. Each element of this stack is a
-   * boolean encoded in one bit. The top of the stack is the least significant bit. Pushing false =
-   * *2, pushing true = *2+1, popping = /2.
+   * The stack used to keep track of class types that have arguments. Each element of this stack is
+   * a boolean encoded in one bit. The top of the stack is the least significant bit. Pushing false
+   * = *2, pushing true = *2+1, popping = /2.
    *
    * <p>Class type arguments must be surrounded with '&lt;' and '&gt;' and, because
    *
@@ -68,7 +68,7 @@ public class SignatureWriter extends SignatureVisitor {
    */
   private int argumentStack;
 
-  /** Constructs a new {@link SignatureWriter} object. */
+  /** Constructs a new {@link SignatureWriter}. */
   public SignatureWriter() {
     super(Opcodes.ASM6);
   }

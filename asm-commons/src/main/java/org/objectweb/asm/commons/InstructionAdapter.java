@@ -44,7 +44,7 @@ public class InstructionAdapter extends MethodVisitor {
   public static final Type OBJECT_TYPE = Type.getType("Ljava/lang/Object;");
 
   /**
-   * Creates a new {@link InstructionAdapter}. <i>Subclasses must not use this constructor</i>.
+   * Constructs a new {@link InstructionAdapter}. <i>Subclasses must not use this constructor</i>.
    * Instead, they must use the {@link #InstructionAdapter(int, MethodVisitor)} version.
    *
    * @param mv the method visitor to which this adapter delegates calls.
@@ -58,7 +58,7 @@ public class InstructionAdapter extends MethodVisitor {
   }
 
   /**
-   * Creates a new {@link InstructionAdapter}.
+   * Constructs a new {@link InstructionAdapter}.
    *
    * @param api the ASM API version implemented by this visitor. Must be one of {@link
    *     Opcodes#ASM4}, {@link Opcodes#ASM5} or {@link Opcodes#ASM6}.

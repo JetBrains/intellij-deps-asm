@@ -584,7 +584,7 @@ public class Processor {
     private int ident = 0;
 
     /**
-     * Creates <code>SAXWriter</code>.
+     * Constructs <code>SAXWriter</code>.
      *
      * @param w writer
      * @param optimizeEmptyElements if set to <code>true</code>, short XML syntax will be used for

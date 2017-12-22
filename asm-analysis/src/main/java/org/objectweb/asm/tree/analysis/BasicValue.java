@@ -63,7 +63,7 @@ public class BasicValue implements Value {
   private final Type type;
 
   /**
-   * Creates a new {@link BasicValue} of the given type.
+   * Constructs a new {@link BasicValue} of the given type.
    *
    * @param type the value type.
    */

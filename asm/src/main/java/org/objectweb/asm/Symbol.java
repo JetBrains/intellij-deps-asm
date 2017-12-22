@@ -194,7 +194,7 @@ abstract class Symbol {
   int info;
 
   /**
-   * Creates a new Symbol. This constructor can't be used directly because the Symbol class is
+   * Constructs a new Symbol. This constructor can't be used directly because the Symbol class is
    * abstract. Instead, use the factory methods of the {@link SymbolTable} class.
    *
    * @param index the symbol index in the constant pool, in the BootstrapMethods attribute, or in

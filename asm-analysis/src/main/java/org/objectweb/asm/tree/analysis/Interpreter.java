@@ -52,7 +52,7 @@ public abstract class Interpreter<V extends Value> {
   protected final int api;
 
   /**
-   * Creates a new {@link Interpreter}.
+   * Constructs a new {@link Interpreter}.
    *
    * @param api the ASM API version supported by this interpreter. Must be one of {@link
    *     org.objectweb.asm.Opcodes#ASM4}, {@link org.objectweb.asm.Opcodes#ASM5} or {@link

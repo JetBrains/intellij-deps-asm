@@ -43,7 +43,7 @@ public final class ModuleTargetAttribute extends Attribute {
   public String platform;
 
   /**
-   * Creates an attribute with a platform name.
+   * Constructs an attribute with a platform name.
    *
    * @param platform the platform name on which the module can run.
    */
@@ -53,7 +53,7 @@ public final class ModuleTargetAttribute extends Attribute {
   }
 
   /**
-   * Creates an empty attribute that can be used as prototype to be passed as argument of the method
+   * Constructs an empty attribute that can be used as prototype to be passed as argument of the method
    * {@link ClassReader#accept(org.objectweb.asm.ClassVisitor, Attribute[], int)}.
    */
   public ModuleTargetAttribute() {

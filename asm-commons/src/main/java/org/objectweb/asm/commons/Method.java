@@ -64,7 +64,7 @@ public class Method {
   }
 
   /**
-   * Creates a new {@link Method}.
+   * Constructs a new {@link Method}.
    *
    * @param name the method's name.
    * @param desc the method's descriptor.
@@ -75,7 +75,7 @@ public class Method {
   }
 
   /**
-   * Creates a new {@link Method}.
+   * Constructs a new {@link Method}.
    *
    * @param name the method's name.
    * @param returnType the method's return type.

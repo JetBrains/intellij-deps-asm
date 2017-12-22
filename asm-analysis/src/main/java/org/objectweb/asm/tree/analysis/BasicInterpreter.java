@@ -56,7 +56,7 @@ public class BasicInterpreter extends Interpreter<BasicValue> implements Opcodes
   public static final Type NULL_TYPE = Type.getObjectType("null");
 
   /**
-   * Creates a new {@link BasicInterpreter} for the latest ASM API version. <i>Subclasses must not
+   * Constructs a new {@link BasicInterpreter} for the latest ASM API version. <i>Subclasses must not
    * use this constructor</i>. Instead, they must use the {@link #BasicInterpreter(int)} version.
    */
   public BasicInterpreter() {
@@ -67,7 +67,7 @@ public class BasicInterpreter extends Interpreter<BasicValue> implements Opcodes
   }
 
   /**
-   * Creates a new {@link BasicInterpreter}.
+   * Constructs a new {@link BasicInterpreter}.
    *
    * @param api the ASM API version supported by this interpreter. Must be one of {@link
    *     org.objectweb.asm.Opcodes#ASM4}, {@link org.objectweb.asm.Opcodes#ASM5} or {@link

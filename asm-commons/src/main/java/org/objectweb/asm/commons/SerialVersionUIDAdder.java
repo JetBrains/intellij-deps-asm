@@ -138,7 +138,7 @@ public class SerialVersionUIDAdder extends ClassVisitor {
   private Collection<Item> svuidMethods;
 
   /**
-   * Creates a new {@link SerialVersionUIDAdder}. <i>Subclasses must not use this constructor</i>.
+   * Constructs a new {@link SerialVersionUIDAdder}. <i>Subclasses must not use this constructor</i>.
    * Instead, they must use the {@link #SerialVersionUIDAdder(int, ClassVisitor)} version.
    *
    * @param cv a {@link ClassVisitor} to which this visitor will delegate calls.
@@ -152,7 +152,7 @@ public class SerialVersionUIDAdder extends ClassVisitor {
   }
 
   /**
-   * Creates a new {@link SerialVersionUIDAdder}.
+   * Constructs a new {@link SerialVersionUIDAdder}.
    *
    * @param api the ASM API version implemented by this visitor. Must be one of {@link
    *     Opcodes#ASM4}, {@link Opcodes#ASM5} or {@link Opcodes#ASM6}.

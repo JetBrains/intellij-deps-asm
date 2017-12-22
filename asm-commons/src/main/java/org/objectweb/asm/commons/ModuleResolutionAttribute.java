@@ -64,7 +64,7 @@ public final class ModuleResolutionAttribute extends Attribute {
   public int resolution;
 
   /**
-   * Creates an attribute with a resolution state value.
+   * Constructs an attribute with a resolution state value.
    *
    * @param resolution the resolution state among {@link #RESOLUTION_WARN_DEPRECATED}, {@link
    *     #RESOLUTION_WARN_DEPRECATED_FOR_REMOVAL}, and {@link #RESOLUTION_WARN_INCUBATING}.
@@ -75,7 +75,7 @@ public final class ModuleResolutionAttribute extends Attribute {
   }
 
   /**
-   * Creates an empty attribute that can be used as prototype to be passed as argument of the method
+   * Constructs an empty attribute that can be used as prototype to be passed as argument of the method
    * {@link ClassReader#accept(org.objectweb.asm.ClassVisitor, Attribute[], int)}.
    */
   public ModuleResolutionAttribute() {

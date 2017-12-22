@@ -77,7 +77,7 @@ final class Edge {
   Edge nextEdge;
 
   /**
-   * Creates a new Edge.
+   * Constructs a new Edge.
    *
    * @param info see {@link #info}.
    * @param successor see {@link #successor}.

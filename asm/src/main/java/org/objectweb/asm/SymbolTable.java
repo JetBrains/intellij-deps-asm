@@ -166,7 +166,7 @@ final class SymbolTable {
   private Entry[] typeTable;
 
   /**
-   * Creates a new, empty SymbolTable for the given ClassWriter.
+   * Constructs a new, empty SymbolTable for the given ClassWriter.
    *
    * @param classWriter a ClassWriter.
    */
@@ -179,7 +179,7 @@ final class SymbolTable {
   }
 
   /**
-   * Creates a new SymbolTable for the given ClassWriter, initialized with the constant pool and
+   * Constructs a new SymbolTable for the given ClassWriter, initialized with the constant pool and
    * bootstrap methods of the given ClassReader.
    *
    * @param classWriter a ClassWriter.

@@ -53,7 +53,7 @@ final class Subroutine {
   final List<JumpInsnNode> callers;
 
   /**
-   * Creates a new {@link Subroutine}.
+   * Constructs a new {@link Subroutine}.
    *
    * @param start the start of this subroutine.
    * @param maxLocals the local variables that are read or written by this subroutine.
@@ -67,7 +67,7 @@ final class Subroutine {
   }
 
   /**
-   * Creates a copy of the given {@link Subroutine}.
+   * Constructs a copy of the given {@link Subroutine}.
    *
    * @param subroutine the subroutine to copy.
    */

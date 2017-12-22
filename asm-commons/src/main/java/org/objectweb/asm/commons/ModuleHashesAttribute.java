@@ -48,7 +48,7 @@ public final class ModuleHashesAttribute extends Attribute {
   public List<byte[]> hashes;
 
   /**
-   * Creates an attribute with a hashing algorithm, a list of module names, and a list of the same
+   * Constructs an attribute with a hashing algorithm, a list of module names, and a list of the same
    * length of hashes.
    *
    * @param algorithm the hashing algorithm name.
@@ -64,7 +64,7 @@ public final class ModuleHashesAttribute extends Attribute {
   }
 
   /**
-   * Creates an empty attribute that can be used as prototype to be passed as argument of the method
+   * Constructs an empty attribute that can be used as prototype to be passed as argument of the method
    * {@link ClassReader#accept(org.objectweb.asm.ClassVisitor, Attribute[], int)}.
    */
   public ModuleHashesAttribute() {

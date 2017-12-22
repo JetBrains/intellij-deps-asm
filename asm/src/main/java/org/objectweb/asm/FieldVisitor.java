@@ -90,7 +90,7 @@ public abstract class FieldVisitor {
    * Visits an annotation on the type of the field.
    *
    * @param typeRef a reference to the annotated type. The sort of this type reference must be
-   *     {@link TypeReference#FIELD FIELD}. See {@link TypeReference}.
+   *     {@link TypeReference#FIELD}. See {@link TypeReference}.
    * @param typePath the path to the annotated type argument, wildcard bound, array element type, or
    *     static inner type within 'typeRef'. May be <tt>null</tt> if the annotation targets
    *     'typeRef' as a whole.

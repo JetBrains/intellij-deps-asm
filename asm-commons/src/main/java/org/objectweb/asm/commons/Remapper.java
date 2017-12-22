@@ -166,7 +166,7 @@ public abstract class Remapper {
   }
 
   /**
-   * Creates a new remapper for signatures.
+   * Constructs a new remapper for signatures.
    *
    * @param v the SignatureVisitor the remapper must delegate to.
    * @return the newly created remapper.
@@ -178,7 +178,7 @@ public abstract class Remapper {
   }
 
   /**
-   * Creates a new remapper for signatures.
+   * Constructs a new remapper for signatures.
    *
    * @param v the SignatureVisitor the remapper must delegate to.
    * @return the newly created remapper.

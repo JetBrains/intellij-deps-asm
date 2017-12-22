@@ -183,7 +183,7 @@ public class GeneratorAdapter extends LocalVariablesSorter {
   private final List<Type> localTypes = new ArrayList<Type>();
 
   /**
-   * Creates a new {@link GeneratorAdapter}. <i>Subclasses must not use this constructor</i>.
+   * Constructs a new {@link GeneratorAdapter}. <i>Subclasses must not use this constructor</i>.
    * Instead, they must use the {@link #GeneratorAdapter(int, MethodVisitor, int, String, String)}
    * version.
    *
@@ -202,7 +202,7 @@ public class GeneratorAdapter extends LocalVariablesSorter {
   }
 
   /**
-   * Creates a new {@link GeneratorAdapter}.
+   * Constructs a new {@link GeneratorAdapter}.
    *
    * @param api the ASM API version implemented by this visitor. Must be one of {@link
    *     Opcodes#ASM4}, {@link Opcodes#ASM5} or {@link Opcodes#ASM6}.
@@ -224,7 +224,7 @@ public class GeneratorAdapter extends LocalVariablesSorter {
   }
 
   /**
-   * Creates a new {@link GeneratorAdapter}. <i>Subclasses must not use this constructor</i>.
+   * Constructs a new {@link GeneratorAdapter}. <i>Subclasses must not use this constructor</i>.
    * Instead, they must use the {@link #GeneratorAdapter(int, MethodVisitor, int, String, String)}
    * version.
    *
@@ -237,7 +237,7 @@ public class GeneratorAdapter extends LocalVariablesSorter {
   }
 
   /**
-   * Creates a new {@link GeneratorAdapter}. <i>Subclasses must not use this constructor</i>.
+   * Constructs a new {@link GeneratorAdapter}. <i>Subclasses must not use this constructor</i>.
    * Instead, they must use the {@link #GeneratorAdapter(int, MethodVisitor, int, String, String)}
    * version.
    *
@@ -878,7 +878,7 @@ public class GeneratorAdapter extends LocalVariablesSorter {
   // ------------------------------------------------------------------------
 
   /**
-   * Creates a new {@link Label}.
+   * Constructs a new {@link Label}.
    *
    * @return a new {@link Label}.
    */

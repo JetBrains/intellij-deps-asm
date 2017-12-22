@@ -47,7 +47,7 @@ import org.objectweb.asm.tree.MethodInsnNode;
 public class SourceInterpreter extends Interpreter<SourceValue> implements Opcodes {
 
   /**
-   * Creates a new {@link SourceInterpreter} for the latest ASM API version. <i>Subclasses must not
+   * Constructs a new {@link SourceInterpreter} for the latest ASM API version. <i>Subclasses must not
    * use this constructor</i>. Instead, they must use the {@link #SourceInterpreter(int)} version.
    */
   public SourceInterpreter() {
@@ -58,7 +58,7 @@ public class SourceInterpreter extends Interpreter<SourceValue> implements Opcod
   }
 
   /**
-   * Creates a new {@link SourceInterpreter}.
+   * Constructs a new {@link SourceInterpreter}.
    *
    * @param api the ASM API version supported by this interpreter. Must be one of {@link
    *     org.objectweb.asm.Opcodes#ASM4}, {@link org.objectweb.asm.Opcodes#ASM5} or {@link

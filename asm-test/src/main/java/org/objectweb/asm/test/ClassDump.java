@@ -118,7 +118,7 @@ class ClassDump {
   private final String dump;
 
   /**
-   * Creates a new ClassDump instance. The input byte array is parsed and converted to a string
+   * Constructs a new ClassDump instance. The input byte array is parsed and converted to a string
    * representation by this constructor. The result can then be obtained with {@link #toString}.
    *
    * @param bytecode the content of a class file.
@@ -254,7 +254,7 @@ class ClassDump {
     private final ClassContext classContext;
 
     /**
-     * Creates a CpInfo for an item without references to other items.
+     * Constructs a CpInfo for an item without references to other items.
      *
      * @param dump the dump of this item.
      */
@@ -264,7 +264,7 @@ class ClassDump {
     }
 
     /**
-     * Creates a CpInfo for an item with references to other items.
+     * Constructs a CpInfo for an item with references to other items.
      *
      * @param classContext a context to lookup constant pool items from their index.
      */

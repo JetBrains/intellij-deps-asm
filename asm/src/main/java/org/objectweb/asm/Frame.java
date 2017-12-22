@@ -341,7 +341,7 @@ class Frame {
   // -----------------------------------------------------------------------------------------------
 
   /**
-   * Creates a new Frame.
+   * Constructs a new Frame.
    *
    * @param owner the basic block to which these input and output stack map frames correspond.
    */

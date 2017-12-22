@@ -80,7 +80,7 @@ public class JSRInlinerAdapter extends MethodNode implements Opcodes {
   final BitSet dualCitizens = new BitSet();
 
   /**
-   * Creates a new JSRInliner. <i>Subclasses must not use this constructor</i>. Instead, they must
+   * Constructs a new JSRInliner. <i>Subclasses must not use this constructor</i>. Instead, they must
    * use the {@link #JSRInlinerAdapter(int, MethodVisitor, int, String, String, String, String[])}
    * version.
    *
@@ -109,7 +109,7 @@ public class JSRInlinerAdapter extends MethodNode implements Opcodes {
   }
 
   /**
-   * Creates a new JSRInliner.
+   * Constructs a new JSRInliner.
    *
    * @param api the ASM API version implemented by this visitor. Must be one of {@link
    *     Opcodes#ASM4}, {@link Opcodes#ASM5} or {@link Opcodes#ASM6}.

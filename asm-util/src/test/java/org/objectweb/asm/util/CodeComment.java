@@ -34,8 +34,6 @@ import org.objectweb.asm.ByteVector;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Label;
-import org.objectweb.asm.util.ASMifiable;
-import org.objectweb.asm.util.Textifiable;
 
 /**
  * A non standard code attribute used for testing purposes.
@@ -60,7 +58,7 @@ public class CodeComment extends Attribute implements ASMifiable, Textifiable {
 
   @Override
   protected Attribute read(
-      final ClassReader cr,
+      final ClassReader classReader,
       final int off,
       final int len,
       final char[] buf,
@@ -78,12 +76,6 @@ public class CodeComment extends Attribute implements ASMifiable, Textifiable {
       final int maxStack,
       final int maxLocals) {
     return new ByteVector();
-  }
-
-  @Override
-  protected Label[] getLabels() {
-    super.getLabels();
-    return new Label[] {new Label()};
   }
 
   public void asmify(

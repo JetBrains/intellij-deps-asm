@@ -98,7 +98,7 @@ public class AnalyzerAdapter extends MethodVisitor {
   private String owner;
 
   /**
-   * Creates a new {@link AnalyzerAdapter}. <i>Subclasses must not use this constructor</i>.
+   * Constructs a new {@link AnalyzerAdapter}. <i>Subclasses must not use this constructor</i>.
    * Instead, they must use the {@link #AnalyzerAdapter(int, String, int, String, String,
    * MethodVisitor)} version.
    *
@@ -122,7 +122,7 @@ public class AnalyzerAdapter extends MethodVisitor {
   }
 
   /**
-   * Creates a new {@link AnalyzerAdapter}.
+   * Constructs a new {@link AnalyzerAdapter}.
    *
    * @param api the ASM API version implemented by this visitor. Must be one of {@link
    *     Opcodes#ASM4}, {@link Opcodes#ASM5} or {@link Opcodes#ASM6}.

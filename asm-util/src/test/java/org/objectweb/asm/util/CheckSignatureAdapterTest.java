@@ -161,7 +161,7 @@ public class CheckSignatureAdapterTest extends AsmTest {
     assertThrows(Exception.class, () -> sv.visitEnd());
   }
 
-  private void setup(int type) {
+  private void setup(final int type) {
     sv = new CheckSignatureAdapter(type, null);
   }
 
@@ -171,18 +171,18 @@ public class CheckSignatureAdapterTest extends AsmTest {
    */
   @ParameterizedTest
   @MethodSource(ALL_CLASSES_AND_LATEST_API)
-  public void test(PrecompiledClass classParameter, Api apiParameter) throws Exception {
+  public void test(final PrecompiledClass classParameter, final Api apiParameter) throws Exception {
     ClassReader classReader = new ClassReader(classParameter.getBytes());
     classReader.accept(
         new ClassVisitor(apiParameter.value()) {
           @Override
           public void visit(
-              int version,
-              int access,
-              String name,
-              String signature,
-              String superName,
-              String[] interfaces) {
+              final int version,
+              final int access,
+              final String name,
+              final String signature,
+              final String superName,
+              final String[] interfaces) {
             if (signature != null) {
               SignatureReader signatureReader = new SignatureReader(signature);
               SignatureWriter signatureWriter = new SignatureWriter();
@@ -195,7 +195,7 @@ public class CheckSignatureAdapterTest extends AsmTest {
 
           @Override
           public FieldVisitor visitField(
-              int access, String name, String desc, String signature, Object value) {
+              final int access, final String name, final String descriptor, final String signature, final Object value) {
             if (signature != null) {
               SignatureReader signatureReader = new SignatureReader(signature);
               SignatureWriter signatureWriter = new SignatureWriter();
@@ -208,7 +208,7 @@ public class CheckSignatureAdapterTest extends AsmTest {
 
           @Override
           public MethodVisitor visitMethod(
-              int access, String name, String desc, String signature, String[] exceptions) {
+              final int access, final String name, final String descriptor, final String signature, final String[] exceptions) {
             if (signature != null) {
               SignatureReader signatureReader = new SignatureReader(signature);
               SignatureWriter signatureWriter = new SignatureWriter();

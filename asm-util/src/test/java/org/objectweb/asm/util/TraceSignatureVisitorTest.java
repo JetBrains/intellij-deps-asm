@@ -93,7 +93,7 @@ public class TraceSignatureVisitorTest {
 
   @ParameterizedTest
   @MethodSource("testArguments")
-  public void testSignature(TestData data) {
+  public void testSignature(final TestData data) {
     TraceSignatureVisitor d = new TraceSignatureVisitor(data.access);
     SignatureReader r = new SignatureReader(data.signature);
 
@@ -114,6 +114,8 @@ public class TraceSignatureVisitorTest {
                 + (d.getExceptions() != null ? d.getExceptions() : "");
         assertEquals(data.declaration, fullMethodDeclaration);
         break;
+      default:
+        throw new IllegalArgumentException();
     }
   }
 

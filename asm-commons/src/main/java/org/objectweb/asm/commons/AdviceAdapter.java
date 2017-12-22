@@ -74,7 +74,7 @@ public abstract class AdviceAdapter extends GeneratorAdapter implements Opcodes 
   private Map<Label, List<Object>> branches;
 
   /**
-   * Creates a new {@link AdviceAdapter}.
+   * Constructs a new {@link AdviceAdapter}.
    *
    * @param api the ASM API version implemented by this visitor. Must be one of {@link
    *     Opcodes#ASM4}, {@link Opcodes#ASM5} or {@link Opcodes#ASM6}.

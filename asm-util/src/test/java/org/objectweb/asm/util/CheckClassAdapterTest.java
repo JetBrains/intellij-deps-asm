@@ -77,8 +77,8 @@ public class CheckClassAdapterTest extends AsmTest implements Opcodes {
 
   @Test
   public void testVerifyValidClass() throws Exception {
-    ClassReader cr = new ClassReader(getClass().getName());
-    CheckClassAdapter.verify(cr, true, new PrintWriter(new StringWriter()));
+    ClassReader classReader = new ClassReader(getClass().getName());
+    CheckClassAdapter.verify(classReader, true, new PrintWriter(new StringWriter()));
   }
 
   @Test
@@ -93,8 +93,8 @@ public class CheckClassAdapterTest extends AsmTest implements Opcodes {
     mv.visitMaxs(1, 31);
     mv.visitEnd();
     cw.visitEnd();
-    ClassReader cr = new ClassReader(cw.toByteArray());
-    CheckClassAdapter.verify(cr, true, new PrintWriter(new StringWriter()));
+    ClassReader classReader = new ClassReader(cw.toByteArray());
+    CheckClassAdapter.verify(classReader, true, new PrintWriter(new StringWriter()));
   }
 
   @Test
@@ -371,14 +371,14 @@ public class CheckClassAdapterTest extends AsmTest implements Opcodes {
 
   @Test
   public void testIllegalDebugLabelUse() throws IOException {
-    ClassReader cr = new ClassReader("java.lang.Object");
-    ClassWriter cw = new ClassWriter(cr, ClassWriter.COMPUTE_MAXS);
+    ClassReader classReader = new ClassReader("java.lang.Object");
+    ClassWriter cw = new ClassWriter(classReader, ClassWriter.COMPUTE_MAXS);
     ClassVisitor cv =
         new ClassVisitor(Opcodes.ASM5, cw) {
           @Override
           public MethodVisitor visitMethod(
-              int access, String name, String desc, String signature, String[] exceptions) {
-            final MethodVisitor next = cv.visitMethod(access, name, desc, signature, exceptions);
+              final int access, final String name, final String descriptor, final String signature, final String[] exceptions) {
+            final MethodVisitor next = cv.visitMethod(access, name, descriptor, signature, exceptions);
             if (next == null) {
               return next;
             }
@@ -386,7 +386,7 @@ public class CheckClassAdapterTest extends AsmTest implements Opcodes {
               private Label entryLabel = null;
 
               @Override
-              public void visitLabel(Label label) {
+              public void visitLabel(final Label label) {
                 if (entryLabel == null) {
                   entryLabel = label;
                 }
@@ -394,7 +394,7 @@ public class CheckClassAdapterTest extends AsmTest implements Opcodes {
               }
 
               @Override
-              public void visitMaxs(int maxStack, int maxLocals) {
+              public void visitMaxs(final int maxStack, final int maxLocals) {
                 Label unwindhandler = new Label();
                 mv.visitLabel(unwindhandler);
                 mv.visitInsn(Opcodes.ATHROW); // rethrow
@@ -404,7 +404,7 @@ public class CheckClassAdapterTest extends AsmTest implements Opcodes {
             };
           }
         };
-    assertThrows(Exception.class, () -> cr.accept(cv, ClassReader.EXPAND_FRAMES));
+    assertThrows(Exception.class, () -> classReader.accept(cv, ClassReader.EXPAND_FRAMES));
   }
 
   @Test
@@ -706,7 +706,7 @@ public class CheckClassAdapterTest extends AsmTest implements Opcodes {
   @ParameterizedTest
   @MethodSource(ALL_CLASSES_AND_ALL_APIS)
   public void testCheckClassAdapter_classUnchanged(
-      PrecompiledClass classParameter, Api apiParameter) {
+      final PrecompiledClass classParameter, final Api apiParameter) {
     byte[] classFile = classParameter.getBytes();
     ClassReader classReader = new ClassReader(classFile);
     ClassWriter classWriter = new ClassWriter(0);
@@ -722,7 +722,7 @@ public class CheckClassAdapterTest extends AsmTest implements Opcodes {
   /** Tests that {@link CheckClassAdapter.verify()} succeeds on all precompiled classes. */
   @ParameterizedTest
   @MethodSource(ALL_CLASSES_AND_ALL_APIS)
-  public void testCheckClassAdapter_verify(PrecompiledClass classParameter, Api apiParameter) {
+  public void testCheckClassAdapter_verify(final PrecompiledClass classParameter, final Api apiParameter) {
     ClassReader classReader = new ClassReader(classParameter.getBytes());
     StringWriter stringWriter = new StringWriter();
     PrintWriter printWriter = new PrintWriter(stringWriter);

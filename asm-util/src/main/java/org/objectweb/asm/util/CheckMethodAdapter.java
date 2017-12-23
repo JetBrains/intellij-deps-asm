@@ -501,7 +501,7 @@ public class CheckMethodAdapter extends MethodVisitor {
         && sort != TypeReference.THROWS) {
       throw new IllegalArgumentException(INVALID_TYPE_REFERENCE + Integer.toHexString(sort));
     }
-    CheckClassAdapter.checkTypeRefAndPath(typeRef, typePath);
+    CheckClassAdapter.checkTypeRef(typeRef);
     CheckMethodAdapter.checkDescriptor(descriptor, false);
     return new CheckAnnotationAdapter(
         super.visitTypeAnnotation(typeRef, typePath, descriptor, visible));
@@ -905,7 +905,7 @@ public class CheckMethodAdapter extends MethodVisitor {
         && sort != TypeReference.METHOD_REFERENCE_TYPE_ARGUMENT) {
       throw new IllegalArgumentException(INVALID_TYPE_REFERENCE + Integer.toHexString(sort));
     }
-    CheckClassAdapter.checkTypeRefAndPath(typeRef, typePath);
+    CheckClassAdapter.checkTypeRef(typeRef);
     CheckMethodAdapter.checkDescriptor(descriptor, false);
     return new CheckAnnotationAdapter(
         super.visitInsnAnnotation(typeRef, typePath, descriptor, visible));
@@ -941,7 +941,7 @@ public class CheckMethodAdapter extends MethodVisitor {
     if (sort != TypeReference.EXCEPTION_PARAMETER) {
       throw new IllegalArgumentException(INVALID_TYPE_REFERENCE + Integer.toHexString(sort));
     }
-    CheckClassAdapter.checkTypeRefAndPath(typeRef, typePath);
+    CheckClassAdapter.checkTypeRef(typeRef);
     CheckMethodAdapter.checkDescriptor(descriptor, false);
     return new CheckAnnotationAdapter(
         super.visitTryCatchAnnotation(typeRef, typePath, descriptor, visible));
@@ -986,7 +986,7 @@ public class CheckMethodAdapter extends MethodVisitor {
     if (sort != TypeReference.LOCAL_VARIABLE && sort != TypeReference.RESOURCE_VARIABLE) {
       throw new IllegalArgumentException(INVALID_TYPE_REFERENCE + Integer.toHexString(sort));
     }
-    CheckClassAdapter.checkTypeRefAndPath(typeRef, typePath);
+    CheckClassAdapter.checkTypeRef(typeRef);
     checkDescriptor(descriptor, false);
     if (start == null
         || end == null

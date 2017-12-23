@@ -37,7 +37,7 @@ import org.objectweb.asm.Opcodes;
  *
  * @author Remi Forax
  */
-public final class CheckModuleAdapter extends ModuleVisitor {
+public class CheckModuleAdapter extends ModuleVisitor {
 
   /** Whether the visited module is open. */
   private final boolean isOpen;

@@ -96,7 +96,6 @@ project(':asm-util') {
   provides = ['org.objectweb.asm.util']
   requires = [':asm', ':asm-tree', ':asm-analysis']
   dependencies { testCompile 'org.codehaus.janino:janino:3.0.7' }
-  minCodeCoverage = 0.9
 }
 
 project(':asm-xml') {

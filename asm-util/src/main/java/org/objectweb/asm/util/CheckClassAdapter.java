@@ -560,7 +560,7 @@ public class CheckClassAdapter extends ClassVisitor {
       throw new IllegalArgumentException(
           "Invalid type reference sort 0x" + Integer.toHexString(sort));
     }
-    checkTypeRefAndPath(typeRef, typePath);
+    checkTypeRef(typeRef);
     CheckMethodAdapter.checkDescriptor(descriptor, false);
     return new CheckAnnotationAdapter(
         super.visitTypeAnnotation(typeRef, typePath, descriptor, visible));
@@ -718,72 +718,6 @@ public class CheckClassAdapter extends ClassVisitor {
     int pos = checkReferenceTypeSignature(signature, 0);
     if (pos != signature.length()) {
       throw new IllegalArgumentException(signature + ERROR_AT + pos);
-    }
-  }
-
-  /**
-   * Checks the reference to a type in a type annotation.
-   *
-   * @param typeRef a reference to an annotated type.
-   * @param typePath the path to the annotated type argument, wildcard bound, array element type, or
-   *     static inner type within 'typeRef'. May be <tt>null</tt> if the annotation targets
-   *     'typeRef' as a whole.
-   */
-  static void checkTypeRefAndPath(final int typeRef, final TypePath typePath) {
-    int mask = 0;
-    switch (typeRef >>> 24) {
-      case TypeReference.CLASS_TYPE_PARAMETER:
-      case TypeReference.METHOD_TYPE_PARAMETER:
-      case TypeReference.METHOD_FORMAL_PARAMETER:
-        mask = 0xFFFF0000;
-        break;
-      case TypeReference.FIELD:
-      case TypeReference.METHOD_RETURN:
-      case TypeReference.METHOD_RECEIVER:
-      case TypeReference.LOCAL_VARIABLE:
-      case TypeReference.RESOURCE_VARIABLE:
-      case TypeReference.INSTANCEOF:
-      case TypeReference.NEW:
-      case TypeReference.CONSTRUCTOR_REFERENCE:
-      case TypeReference.METHOD_REFERENCE:
-        mask = 0xFF000000;
-        break;
-      case TypeReference.CLASS_EXTENDS:
-      case TypeReference.CLASS_TYPE_PARAMETER_BOUND:
-      case TypeReference.METHOD_TYPE_PARAMETER_BOUND:
-      case TypeReference.THROWS:
-      case TypeReference.EXCEPTION_PARAMETER:
-        mask = 0xFFFFFF00;
-        break;
-      case TypeReference.CAST:
-      case TypeReference.CONSTRUCTOR_INVOCATION_TYPE_ARGUMENT:
-      case TypeReference.METHOD_INVOCATION_TYPE_ARGUMENT:
-      case TypeReference.CONSTRUCTOR_REFERENCE_TYPE_ARGUMENT:
-      case TypeReference.METHOD_REFERENCE_TYPE_ARGUMENT:
-        mask = 0xFF0000FF;
-        break;
-      default:
-        throw new IllegalArgumentException(
-            "Invalid type reference sort 0x" + Integer.toHexString(typeRef >>> 24));
-    }
-    if ((typeRef & ~mask) != 0) {
-      throw new IllegalArgumentException(
-          "Invalid type reference 0x" + Integer.toHexString(typeRef));
-    }
-    if (typePath != null) {
-      for (int i = 0; i < typePath.getLength(); ++i) {
-        int step = typePath.getStep(i);
-        if (step != TypePath.ARRAY_ELEMENT
-            && step != TypePath.INNER_TYPE
-            && step != TypePath.TYPE_ARGUMENT
-            && step != TypePath.WILDCARD_BOUND) {
-          throw new IllegalArgumentException("Invalid type path step " + i + " in " + typePath);
-        }
-        if (step != TypePath.TYPE_ARGUMENT && typePath.getStepArgument(i) != 0) {
-          throw new IllegalArgumentException(
-              "Invalid type path step argument for step " + i + " in " + typePath);
-        }
-      }
     }
   }
 
@@ -1030,5 +964,52 @@ public class CheckClassAdapter extends ClassVisitor {
    */
   private static char getChar(final String string, final int pos) {
     return pos < string.length() ? string.charAt(pos) : (char) 0;
+  }
+
+  /**
+   * Checks the reference to a type in a type annotation.
+   *
+   * @param typeRef a reference to an annotated type.
+   */
+  static void checkTypeRef(final int typeRef) {
+    int mask = 0;
+    switch (typeRef >>> 24) {
+      case TypeReference.CLASS_TYPE_PARAMETER:
+      case TypeReference.METHOD_TYPE_PARAMETER:
+      case TypeReference.METHOD_FORMAL_PARAMETER:
+        mask = 0xFFFF0000;
+        break;
+      case TypeReference.FIELD:
+      case TypeReference.METHOD_RETURN:
+      case TypeReference.METHOD_RECEIVER:
+      case TypeReference.LOCAL_VARIABLE:
+      case TypeReference.RESOURCE_VARIABLE:
+      case TypeReference.INSTANCEOF:
+      case TypeReference.NEW:
+      case TypeReference.CONSTRUCTOR_REFERENCE:
+      case TypeReference.METHOD_REFERENCE:
+        mask = 0xFF000000;
+        break;
+      case TypeReference.CLASS_EXTENDS:
+      case TypeReference.CLASS_TYPE_PARAMETER_BOUND:
+      case TypeReference.METHOD_TYPE_PARAMETER_BOUND:
+      case TypeReference.THROWS:
+      case TypeReference.EXCEPTION_PARAMETER:
+        mask = 0xFFFFFF00;
+        break;
+      case TypeReference.CAST:
+      case TypeReference.CONSTRUCTOR_INVOCATION_TYPE_ARGUMENT:
+      case TypeReference.METHOD_INVOCATION_TYPE_ARGUMENT:
+      case TypeReference.CONSTRUCTOR_REFERENCE_TYPE_ARGUMENT:
+      case TypeReference.METHOD_REFERENCE_TYPE_ARGUMENT:
+        mask = 0xFF0000FF;
+        break;
+      default:
+        throw new AssertionError();
+    }
+    if ((typeRef & ~mask) != 0) {
+      throw new IllegalArgumentException(
+          "Invalid type reference 0x" + Integer.toHexString(typeRef));
+    }
   }
 }

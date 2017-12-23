@@ -27,59 +27,69 @@
 // THE POSSIBILITY OF SUCH DAMAGE.
 package org.objectweb.asm.util;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
 import java.io.ByteArrayOutputStream;
-import java.io.CharArrayWriter;
+import java.io.IOException;
 import java.io.PrintStream;
-import java.io.PrintWriter;
 
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.MethodSource;
-import org.objectweb.asm.Attribute;
-import org.objectweb.asm.ClassReader;
-import org.objectweb.asm.ClassVisitor;
-import org.objectweb.asm.ClassWriter;
-import org.objectweb.asm.test.AsmTest;
+import org.objectweb.asm.Opcodes;
 
 /**
- * CheckClassAdapter tests.
+ * Textifier tests.
  *
+ * @author Eugene Kuleshov
  * @author Eric Bruneton
  */
-public class TraceClassAdapterTest extends AsmTest {
+public class TextifierTest {
 
   @Test
-  public void testTraceClassVisitor() throws Exception {
+  public void testConstructor() {
+    assertThrows(IllegalStateException.class, () -> new Textifier() {});
+  }
+
+  @Test
+  public void testBackwardCompatibility() {
+    Textifier textifier = new Textifier();
+    textifier.visitMethodInsn(Opcodes.INVOKESPECIAL, "owner", "name", "()V");
+    assertEquals("    INVOKESPECIAL owner.name ()V\n", textifier.getText().get(0));
+  }
+
+  @Test
+  public void testBackwardCompatibilityAsm4() {
+    Textifier textifier = new Textifier(Opcodes.ASM4) {};
+    textifier.visitMethodInsn(Opcodes.INVOKESPECIAL, "owner", "name", "()V");
+    textifier.visitMethodInsn(Opcodes.INVOKESPECIAL, "owner", "name", "()V", false);
+    String expectedText = "    INVOKESPECIAL owner.name ()V\n";
+    assertEquals(expectedText, textifier.getText().get(0));
+    assertEquals(expectedText, textifier.getText().get(1));
+  }
+
+  @Test
+  public void testMain() throws Exception {
     PrintStream err = System.err;
     PrintStream out = System.out;
     System.setErr(new PrintStream(new ByteArrayOutputStream()));
     System.setOut(new PrintStream(new ByteArrayOutputStream()));
     try {
-      String s = getClass().getName();
+      String thisClassName = getClass().getName();
+      String thisClassFilePath =
+          ClassLoader.getSystemResource(thisClassName.replace('.', '/') + ".class").getPath();
       Textifier.main(new String[0]);
       Textifier.main(new String[] {"-debug"});
-      Textifier.main(new String[] {s});
-      Textifier.main(new String[] {"-debug", s});
+      Textifier.main(new String[] {thisClassName});
+      Textifier.main(new String[] {thisClassFilePath});
+      Textifier.main(new String[] {"-debug", thisClassName});
       Textifier.main(new String[] {"-debug", "java.util.function.Predicate"});
       Textifier.main(new String[] {"java.lang.Object"});
+      Textifier.main(new String[] {"-debug", thisClassName, "extraArgument"});
+      assertThrows(IOException.class, () -> Textifier.main(new String[] {"DoNotExist.class"}));
+      assertThrows(IOException.class, () -> Textifier.main(new String[] {"do\\not\\exist"}));
     } finally {
       System.setErr(err);
       System.setOut(out);
     }
-  }
-
-  /**
-   * Tests that classes are unchanged with a ClassReader->TraceClassAdapter->ClassWriter transform.
-   */
-  @ParameterizedTest
-  @MethodSource(ALL_CLASSES_AND_LATEST_API)
-  public void testTrace(final PrecompiledClass classParameter, final Api apiParameter) {
-    byte[] classFile = classParameter.getBytes();
-    ClassReader classReader = new ClassReader(classFile);
-    ClassWriter classWriter = new ClassWriter(0);
-    ClassVisitor classVisitor =
-        new TraceClassVisitor(classWriter, new PrintWriter(new CharArrayWriter()));
-    classReader.accept(classVisitor, new Attribute[] {new Comment(), new CodeComment()}, 0);
-    assertThatClass(classWriter.toByteArray()).isEqualTo(classFile);
   }
 }

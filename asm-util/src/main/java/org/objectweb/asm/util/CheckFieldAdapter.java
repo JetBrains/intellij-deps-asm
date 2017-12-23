@@ -85,7 +85,7 @@ public class CheckFieldAdapter extends FieldVisitor {
       throw new IllegalArgumentException(
           "Invalid type reference sort 0x" + Integer.toHexString(sort));
     }
-    CheckClassAdapter.checkTypeRefAndPath(typeRef, typePath);
+    CheckClassAdapter.checkTypeRef(typeRef);
     CheckMethodAdapter.checkDescriptor(descriptor, false);
     return new CheckAnnotationAdapter(
         super.visitTypeAnnotation(typeRef, typePath, descriptor, visible));

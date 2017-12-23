@@ -28,6 +28,7 @@
 package org.objectweb.asm.util;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -63,6 +64,23 @@ public class ASMifier extends Printer {
   private static final String END_ARRAY = " });\n";
   private static final String END_PARAMETERS = ");\n\n";
   private static final String VISIT_END = ".visitEnd();\n";
+
+  private static final Map<Integer, String> CLASS_VERSIONS;
+
+  static {
+    HashMap<Integer, String> classVersions = new HashMap<Integer, String>();
+    classVersions.put(Opcodes.V1_1, "V1_1");
+    classVersions.put(Opcodes.V1_2, "V1_2");
+    classVersions.put(Opcodes.V1_3, "V1_3");
+    classVersions.put(Opcodes.V1_4, "V1_4");
+    classVersions.put(Opcodes.V1_5, "V1_5");
+    classVersions.put(Opcodes.V1_6, "V1_6");
+    classVersions.put(Opcodes.V1_7, "V1_7");
+    classVersions.put(Opcodes.V1_8, "V1_8");
+    classVersions.put(Opcodes.V9, "V9");
+    classVersions.put(Opcodes.V10, "V10");
+    CLASS_VERSIONS = Collections.unmodifiableMap(classVersions);
+  }
 
   /** The name of the visitor variable in the produced code. */
   protected final String name;
@@ -160,40 +178,11 @@ public class ASMifier extends Printer {
 
     stringBuilder.setLength(0);
     stringBuilder.append("classWriter.visit(");
-    switch (version) {
-      case Opcodes.V1_1:
-        stringBuilder.append("V1_1");
-        break;
-      case Opcodes.V1_2:
-        stringBuilder.append("V1_2");
-        break;
-      case Opcodes.V1_3:
-        stringBuilder.append("V1_3");
-        break;
-      case Opcodes.V1_4:
-        stringBuilder.append("V1_4");
-        break;
-      case Opcodes.V1_5:
-        stringBuilder.append("V1_5");
-        break;
-      case Opcodes.V1_6:
-        stringBuilder.append("V1_6");
-        break;
-      case Opcodes.V1_7:
-        stringBuilder.append("V1_7");
-        break;
-      case Opcodes.V1_8:
-        stringBuilder.append("V1_8");
-        break;
-      case Opcodes.V9:
-        stringBuilder.append("V9");
-        break;
-      case Opcodes.V10:
-        stringBuilder.append("V10");
-        break;
-      default:
-        stringBuilder.append(version);
-        break;
+    String versionString = CLASS_VERSIONS.get(version);
+    if (versionString != null) {
+      stringBuilder.append(versionString);
+    } else {
+      stringBuilder.append(version);
     }
     stringBuilder.append(", ");
     appendAccessFlags(access | ACCESS_CLASS);

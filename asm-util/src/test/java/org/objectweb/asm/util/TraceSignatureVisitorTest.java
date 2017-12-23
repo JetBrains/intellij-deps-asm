@@ -28,15 +28,23 @@
 package org.objectweb.asm.util;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.StringTokenizer;
 import java.util.stream.Stream;
 
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.signature.SignatureReader;
+import org.objectweb.asm.test.AsmTest.Api;
+import org.objectweb.asm.test.AsmTest.PrecompiledClass;
 
 /**
  * TraceSignatureVisitor unit tests.
@@ -45,116 +53,130 @@ import org.objectweb.asm.signature.SignatureReader;
  */
 public class TraceSignatureVisitorTest {
 
-  public static final String[] DATA = {
-    "C|E|<E extends java.lang.Enum<E>> implements java.lang.Comparable<E>, java.io.Serializable"
-        + "|<E:Ljava/lang/Enum<TE;>;>Ljava/lang/Object;Ljava/lang/Comparable<TE;>;Ljava/io/Serializable;",
-    "C|I|<D extends java.lang.reflect.GenericDeclaration> extends java.lang.reflect.Type"
-        + "|<D::Ljava/lang/reflect/GenericDeclaration;>Ljava/lang/Object;Ljava/lang/reflect/Type;",
-    "C|C|<K, V> extends java.util.AbstractMap<K, V> implements java.util.concurrent.ConcurrentMap<K, V>, java.io.Serializable"
-        + "|<K:Ljava/lang/Object;V:Ljava/lang/Object;>Ljava/util/AbstractMap<TK;TV;>;Ljava/util/concurrent/ConcurrentMap<TK;TV;>;Ljava/io/Serializable;",
-    "C|C|<K extends java.lang.Enum<K>, V> extends java.util.AbstractMap<K, V> implements java.io.Serializable, java.lang.Cloneable"
-        + "|<K:Ljava/lang/Enum<TK;>;V:Ljava/lang/Object;>Ljava/util/AbstractMap<TK;TV;>;Ljava/io/Serializable;Ljava/lang/Cloneable;",
-    "F|C|java.lang.Class<?>|Ljava/lang/Class<*>;",
-    "F|C|java.lang.reflect.Constructor<T>|Ljava/lang/reflect/Constructor<TT;>;",
-    "F|C|T[]|[TT;",
-    "F|C|java.util.Hashtable<?, ?>|Ljava/util/Hashtable<**>;",
-    "F|C|java.util.concurrent.atomic.AtomicReferenceFieldUpdater<java.io.BufferedInputStream, byte[]>"
-        + "|Ljava/util/concurrent/atomic/AtomicReferenceFieldUpdater<Ljava/io/BufferedInputStream;[B>;",
-    "F|C|AA<byte[][]>|LAA<[[B>;",
-    "F|C|AA<java.util.Map<java.lang.String, java.lang.String>[][]>"
-        + "|LAA<[[Ljava/util/Map<Ljava/lang/String;Ljava/lang/String;>;>;",
-    "F|C|java.util.Hashtable<java.lang.Object, java.lang.String>"
-        + "|Ljava/util/Hashtable<Ljava/lang/Object;Ljava/lang/String;>;",
-    "M|C|void(boolean, byte, char, short, int, float, long, double)" + "|(ZBCSIFJD)V",
-    "M|C|void()E, F|()V^TE;^TF;",
-    "M|C|java.lang.Class<? extends E><E extends java.lang.Class>()"
-        + "|<E:Ljava/lang/Class;>()Ljava/lang/Class<+TE;>;",
-    "M|C|java.lang.Class<? super E><E extends java.lang.Class>()"
-        + "|<E:Ljava/lang/Class;>()Ljava/lang/Class<-TE;>;",
-    "M|C|void(A<E>.B)|(LA<TE;>.B;)V",
-    "M|C|void(A<E>.B<F>)|(LA<TE;>.B<TF;>;)V",
-    "M|C|void(java.lang.String, java.lang.Class<?>, java.lang.reflect.Method[], java.lang.reflect.Method, java.lang.reflect.Method)"
-        + "|(Ljava/lang/String;Ljava/lang/Class<*>;[Ljava/lang/reflect/Method;Ljava/lang/reflect/Method;Ljava/lang/reflect/Method;)V",
-    "M|C|java.util.Map<java.lang.Object, java.lang.String>(java.lang.Object, java.util.Map<java.lang.Object, java.lang.String>)"
-        + "|(Ljava/lang/Object;Ljava/util/Map<Ljava/lang/Object;Ljava/lang/String;>;)Ljava/util/Map<Ljava/lang/Object;Ljava/lang/String;>;",
-    "M|C|java.util.Map<java.lang.Object, java.lang.String><T>(java.lang.Object, java.util.Map<java.lang.Object, java.lang.String>, T)"
-        + "|<T:Ljava/lang/Object;>(Ljava/lang/Object;Ljava/util/Map<Ljava/lang/Object;Ljava/lang/String;>;TT;)Ljava/util/Map<Ljava/lang/Object;Ljava/lang/String;>;",
-    "M|C|java.util.Map<java.lang.Object, java.lang.String><E, T extends java.lang.Comparable<E>>(java.lang.Object, java.util.Map<java.lang.Object, java.lang.String>, T)"
-        + "|<E:Ljava/lang/Object;T::Ljava/lang/Comparable<TE;>;>(Ljava/lang/Object;Ljava/util/Map<Ljava/lang/Object;Ljava/lang/String;>;TT;)Ljava/util/Map<Ljava/lang/Object;Ljava/lang/String;>;",
+  private static final String[][] CLASS_SIGNATURES = {
+    {
+      "false",
+      "<E extends java.lang.Enum<E>> implements java.lang.Comparable<E>, java.io.Serializable",
+      "<E:Ljava/lang/Enum<TE;>;>Ljava/lang/Object;Ljava/lang/Comparable<TE;>;Ljava/io/Serializable;"
+    },
+    {
+      "true",
+      "<D extends java.lang.reflect.GenericDeclaration> extends java.lang.reflect.Type",
+      "<D::Ljava/lang/reflect/GenericDeclaration;>Ljava/lang/Object;Ljava/lang/reflect/Type;"
+    },
+    {
+      "false",
+      "<K, V> extends java.util.AbstractMap<K, V> implements java.util.concurrent.ConcurrentMap<K, V>, java.io.Serializable",
+      "<K:Ljava/lang/Object;V:Ljava/lang/Object;>Ljava/util/AbstractMap<TK;TV;>;Ljava/util/concurrent/ConcurrentMap<TK;TV;>;Ljava/io/Serializable;"
+    },
+    {
+      "false",
+      "<K extends java.lang.Enum<K>, V> extends java.util.AbstractMap<K, V> implements java.io.Serializable, java.lang.Cloneable",
+      "<K:Ljava/lang/Enum<TK;>;V:Ljava/lang/Object;>Ljava/util/AbstractMap<TK;TV;>;Ljava/io/Serializable;Ljava/lang/Cloneable;"
+    }
   };
 
-  public static Stream<TestData> testArguments() {
-    ArrayList<TestData> result = new ArrayList<>();
-    for (String data : DATA) {
-      result.add(new TestData(data));
+  private static final String[][] FIELD_SIGNATURES = {
+    {"T[]", "[TT;"},
+    {"AA<byte[][]>", "LAA<[[B>;"},
+    {"java.lang.Class<?>", "Ljava/lang/Class<*>;"},
+    {"java.lang.reflect.Constructor<T>", "Ljava/lang/reflect/Constructor<TT;>;"},
+    {"java.util.Hashtable<?, ?>", "Ljava/util/Hashtable<**>;"},
+    {
+      "java.util.concurrent.atomic.AtomicReferenceFieldUpdater<java.io.BufferedInputStream, byte[]>",
+      "Ljava/util/concurrent/atomic/AtomicReferenceFieldUpdater<Ljava/io/BufferedInputStream;[B>;"
+    },
+    {
+      "AA<java.util.Map<java.lang.String, java.lang.String>[][]>",
+      "LAA<[[Ljava/util/Map<Ljava/lang/String;Ljava/lang/String;>;>;"
+    },
+    {
+      "java.util.Hashtable<java.lang.Object, java.lang.String>",
+      "Ljava/util/Hashtable<Ljava/lang/Object;Ljava/lang/String;>;"
     }
-    return result.stream();
+  };
+
+  private static final String[][] METHOD_SIGNATURES = {
+    {"void()E, F", "()V^TE;^TF;"},
+    {"void(A<E>.B)", "(LA<TE;>.B;)V"},
+    {"void(A<E>.B<F>)", "(LA<TE;>.B<TF;>;)V"},
+    {"void(boolean, byte, char, short, int, float, long, double)", "(ZBCSIFJD)V"},
+    {
+      "java.lang.Class<? extends E><E extends java.lang.Class>()",
+      "<E:Ljava/lang/Class;>()Ljava/lang/Class<+TE;>;"
+    },
+    {
+      "java.lang.Class<? super E><E extends java.lang.Class>()",
+      "<E:Ljava/lang/Class;>()Ljava/lang/Class<-TE;>;"
+    },
+    {
+      "void(java.lang.String, java.lang.Class<?>, java.lang.reflect.Method[], java.lang.reflect.Method, java.lang.reflect.Method)",
+      "(Ljava/lang/String;Ljava/lang/Class<*>;[Ljava/lang/reflect/Method;Ljava/lang/reflect/Method;Ljava/lang/reflect/Method;)V"
+    },
+    {
+      "java.util.Map<java.lang.Object, java.lang.String>(java.lang.Object, java.util.Map<java.lang.Object, java.lang.String>)",
+      "(Ljava/lang/Object;Ljava/util/Map<Ljava/lang/Object;Ljava/lang/String;>;)Ljava/util/Map<Ljava/lang/Object;Ljava/lang/String;>;"
+    },
+    {
+      "java.util.Map<java.lang.Object, java.lang.String><T>(java.lang.Object, java.util.Map<java.lang.Object, java.lang.String>, T)",
+      "<T:Ljava/lang/Object;>(Ljava/lang/Object;Ljava/util/Map<Ljava/lang/Object;Ljava/lang/String;>;TT;)Ljava/util/Map<Ljava/lang/Object;Ljava/lang/String;>;"
+    },
+    {
+      "java.util.Map<java.lang.Object, java.lang.String><E, T extends java.lang.Comparable<E>>(java.lang.Object, java.util.Map<java.lang.Object, java.lang.String>, T)",
+      "<E:Ljava/lang/Object;T::Ljava/lang/Comparable<TE;>;>(Ljava/lang/Object;Ljava/util/Map<Ljava/lang/Object;Ljava/lang/String;>;TT;)Ljava/util/Map<Ljava/lang/Object;Ljava/lang/String;>;"
+    }
+  };
+
+  public static Stream<Arguments> classSignatures() {
+    return Arrays.stream(CLASS_SIGNATURES).map(values -> Arguments.of((Object[]) values));
+  }
+
+  public static Stream<Arguments> fieldSignatures() {
+    return Arrays.stream(FIELD_SIGNATURES).map(values -> Arguments.of((Object[]) values));
+  }
+
+  public static Stream<Arguments> methodSignatures() {
+    return Arrays.stream(METHOD_SIGNATURES).map(values -> Arguments.of((Object[]) values));
   }
 
   @ParameterizedTest
-  @MethodSource("testArguments")
-  public void testSignature(final TestData data) {
-    TraceSignatureVisitor d = new TraceSignatureVisitor(data.access);
-    SignatureReader r = new SignatureReader(data.signature);
-
-    switch (data.type) {
-      case 'C':
-        r.accept(d);
-        assertEquals(data.declaration, d.getDeclaration());
-        break;
-      case 'F':
-        r.acceptType(d);
-        assertEquals(data.declaration, d.getDeclaration());
-        break;
-      case 'M':
-        r.accept(d);
-        String fullMethodDeclaration =
-            d.getReturnType()
-                + d.getDeclaration()
-                + (d.getExceptions() != null ? d.getExceptions() : "");
-        assertEquals(data.declaration, fullMethodDeclaration);
-        break;
-      default:
-        throw new IllegalArgumentException();
-    }
+  @MethodSource("classSignatures")
+  public void testClassSignature(
+      final boolean isInterface, final String declaration, final String signature) {
+    TraceSignatureVisitor traceSignatureVisitor =
+        new TraceSignatureVisitor(isInterface ? Opcodes.ACC_INTERFACE : 0);
+    SignatureReader signatureReader = new SignatureReader(signature);
+    signatureReader.accept(traceSignatureVisitor);
+    assertEquals(declaration, traceSignatureVisitor.getDeclaration());
   }
 
-  public static class TestData {
+  @ParameterizedTest
+  @MethodSource("fieldSignatures")
+  public void testFieldSignature(final String declaration, final String signature) {
+    TraceSignatureVisitor traceSignatureVisitor = new TraceSignatureVisitor(0);
+    SignatureReader signatureReader = new SignatureReader(signature);
+    signatureReader.acceptType(traceSignatureVisitor);
+    assertEquals(declaration, traceSignatureVisitor.getDeclaration());
+  }
 
-    public final char type;
+  @ParameterizedTest
+  @MethodSource("methodSignatures")
+  public void testMethodSignature(final String declaration, final String signature) {
+    TraceSignatureVisitor traceSignatureVisitor = new TraceSignatureVisitor(0);
+    SignatureReader signatureReader = new SignatureReader(signature);
+    signatureReader.accept(traceSignatureVisitor);
+    String fullMethodDeclaration =
+        traceSignatureVisitor.getReturnType()
+            + traceSignatureVisitor.getDeclaration()
+            + (traceSignatureVisitor.getExceptions() != null
+                ? traceSignatureVisitor.getExceptions()
+                : "");
+    assertEquals(declaration, fullMethodDeclaration);
+  }
 
-    public final int access;
-
-    public final String declaration;
-
-    public final String signature;
-
-    public TestData(final String data) {
-      StringTokenizer st = new StringTokenizer(data, "|");
-      this.type = st.nextToken().charAt(0);
-
-      String acc = st.nextToken();
-      switch (acc.charAt(0)) {
-        case 'E':
-          this.access = Opcodes.ACC_ENUM;
-          break;
-        case 'I':
-          this.access = Opcodes.ACC_INTERFACE;
-          break;
-        case 'A':
-          this.access = Opcodes.ACC_ANNOTATION;
-          break;
-        default:
-          this.access = 0;
-      }
-
-      this.declaration = st.nextToken();
-      this.signature = st.nextToken();
-    }
-
-    @Override
-    public String toString() {
-      return signature;
-    }
+  @Test
+  public void testInvalidSignature() {
+    TraceSignatureVisitor traceSignatureVisitor = new TraceSignatureVisitor(0);
+    assertThrows(IllegalArgumentException.class, () -> traceSignatureVisitor.visitBaseType('-'));
   }
 }

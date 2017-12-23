@@ -572,7 +572,7 @@ public class Analyzer<V extends Value> implements Opcodes {
       frames[insnIndex] = newFrame(frameAfterRet);
       changed = true;
     } else {
-      changed = oldFrame.merge(frameAfterRet, interpreter);
+      changed = oldFrame.merge(frameAfterRet, localsUsed);
     }
     Subroutine oldSubroutine = subroutines[insnIndex];
     if (oldSubroutine != null && subroutineBeforeJsr != null) {

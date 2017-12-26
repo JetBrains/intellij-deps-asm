@@ -36,6 +36,7 @@ include(
   'asm-tree',
   'asm-util',
   'asm-xml',
+  'benchmarks:classes',
   'benchmarks:memory',
   'benchmarks:read-write',
   'benchmarks:write',

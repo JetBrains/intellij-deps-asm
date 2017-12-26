@@ -43,6 +43,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.StringTokenizer;
 import java.util.stream.Stream;
 
 /**
@@ -83,6 +84,8 @@ import java.util.stream.Stream;
  * @author Eric Bruneton
  */
 public abstract class AsmTest {
+
+  private static final String MODULE_INFO = "module-info";
 
   /**
    * MethodSource name to be used in parameterized tests that must be instantiated for all possible
@@ -135,7 +138,7 @@ public abstract class AsmTest {
 
     /** @return the internal name of this class. */
     public String getInternalName() {
-      return name.endsWith("module-info") ? "module-info" : name.replace('.', '/');
+      return name.endsWith(MODULE_INFO) ? MODULE_INFO : name.replace('.', '/');
     }
 
     /**
@@ -162,9 +165,7 @@ public abstract class AsmTest {
      */
     public boolean isMoreRecentThanCurrentJdk() {
       if (name.startsWith("jdk9")) {
-        final String v9 = "1.9";
-        String javaVersion = System.getProperty("java.version");
-        return javaVersion.substring(v9.length()).compareTo(v9) < 0;
+        return getMajorJavaVersion() < 9;
       }
       return false;
     }
@@ -280,6 +281,12 @@ public abstract class AsmTest {
                 Arrays.stream(apis).map(api -> Arguments.of(precompiledClass, api)));
   }
 
+  private static int getMajorJavaVersion() {
+    String javaVersion = System.getProperty("java.version");
+    String javaMajorVersion = new StringTokenizer(javaVersion, "._").nextToken();
+    return Integer.parseInt(javaMajorVersion);
+  }
+
   /**
    * Starts an assertion about the given class content.
    *
@@ -334,8 +341,9 @@ public abstract class AsmTest {
 
   /**
    * Loads the given class in a new class loader. Also tries to instantiate the loaded class (if it
-   * is not an abstract or enum class), in order to check that it passes the bytecode verification
-   * step. Checks as well that the class can be dumped, to make sure that the class is well formed.
+   * is not an abstract or enum class, or a module-info class), in order to check that it passes the
+   * bytecode verification step. Checks as well that the class can be dumped, to make sure that the
+   * class is well formed.
    *
    * @param className the name of the class to load.
    * @param classContent the content of the class to load.
@@ -347,7 +355,15 @@ public abstract class AsmTest {
     } catch (IOException | IllegalArgumentException e) {
       fail("Class can't be dumped, probably invalid");
     }
-    return doLoadAndInstantiate(className, classContent);
+    if (className.endsWith(MODULE_INFO)) {
+      if (getMajorJavaVersion() < 9) {
+        throw new UnsupportedClassVersionError();
+      } else {
+        return true;
+      }
+    } else {
+      return doLoadAndInstantiate(className, classContent);
+    }
   }
 
   /**
@@ -403,7 +419,8 @@ public abstract class AsmTest {
     }
 
     @Override
-    protected Class<?> loadClass(final String name, final boolean resolve) throws ClassNotFoundException {
+    protected Class<?> loadClass(final String name, final boolean resolve)
+        throws ClassNotFoundException {
       if (name.equals(className)) {
         classLoaded = true;
         return defineClass(className, classContent, 0, classContent.length);

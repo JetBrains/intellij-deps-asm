@@ -63,7 +63,6 @@ import org.objectweb.asm.tree.TypeInsnNode;
 
 public class ClassRemapperTest extends AsmTest implements Opcodes {
 
-
   @Test
   public void testClassRemapper() throws Exception {
     Map<String, String> map = new HashMap<String, String>();
@@ -253,6 +252,9 @@ public class ClassRemapperTest extends AsmTest implements Opcodes {
   @ParameterizedTest
   @MethodSource(ALL_CLASSES_AND_ALL_APIS)
   public void testRemapLoadAndInstantiate(PrecompiledClass classParameter, Api apiParameter) {
+    String internalName = classParameter.getInternalName();
+    String remappedInternalName =
+        internalName.equals("module-info") ? internalName : internalName.toUpperCase();
     ClassReader classReader = new ClassReader(classParameter.getBytes());
     ClassWriter classWriter = new ClassWriter(0);
     Remapper upperCaseRemapper =
@@ -263,7 +265,7 @@ public class ClassRemapperTest extends AsmTest implements Opcodes {
             if (name.equals("<init>") || name.equals("<clinit>")) {
               return name;
             }
-            return owner.equals(classParameter.getInternalName()) ? name.toUpperCase() : name;
+            return owner.equals(internalName) ? name.toUpperCase() : name;
           }
 
           @Override
@@ -273,14 +275,12 @@ public class ClassRemapperTest extends AsmTest implements Opcodes {
 
           @Override
           public String mapFieldName(String owner, String name, String desc) {
-            return owner.equals(classParameter.getInternalName()) ? name.toUpperCase() : name;
+            return owner.equals(internalName) ? name.toUpperCase() : name;
           }
 
           @Override
           public String map(String typeName) {
-            return typeName.equals(classParameter.getInternalName())
-                ? typeName.toUpperCase()
-                : typeName;
+            return typeName.equals(internalName) ? remappedInternalName : typeName;
           }
         };
     ClassRemapper classRemapper =
@@ -291,7 +291,7 @@ public class ClassRemapperTest extends AsmTest implements Opcodes {
     }
     classReader.accept(classRemapper, 0);
     byte[] classFile = classWriter.toByteArray();
-    assertThat(() -> loadAndInstantiate(classParameter.getName().toUpperCase(), classFile))
+    assertThat(() -> loadAndInstantiate(remappedInternalName.replace('/', '.'), classFile))
         .succeedsOrThrows(UnsupportedClassVersionError.class)
         .when(classParameter.isMoreRecentThanCurrentJdk());
   }

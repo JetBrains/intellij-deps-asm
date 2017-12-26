@@ -44,8 +44,8 @@ subprojects {
   junitPlatform { filters { engines { 'junit-jupiter' } } }
   group = 'org.ow2.asm'
   version = 6.1
-  sourceCompatibility = '1.5'
-  targetCompatibility = '1.5'
+  sourceCompatibility = '1.6'
+  targetCompatibility = '1.6'
   ext.provides = []  // The provided java packages, e.g. ['org.objectweb.asm']
   ext.requires = []  // The required Gradle projects, e.g. [':asm-test']
   ext.depends = []   // The external dependencies, e.g. ['junit:junit:4.12']
@@ -109,11 +109,36 @@ project(':benchmarks') {
   description = "Benchmarks for ${parent.description}"
 }
 
+project(':benchmarks:classes') {
+  description = "A set of .class files to benchmark ${parent.description}"
+  if (JavaVersion.current().isJava9Compatible()) { 
+    task classes(overwrite: true) {
+      file("${System.env.JAVA_HOME}/jmods").eachFile() { f ->
+        task "${f.name}" (type: Exec) {
+          inputs.file(f)
+          outputs.file("${sourceSets.main.output.classesDirs.asPath}/${f.name}")
+          executable "${System.env.JAVA_HOME}/bin/jmod"
+          args 'extract', '--dir', outputs.getFiles()[0], f
+        }
+        classes.dependsOn f.name
+      }
+    }
+  } else {
+    task classes(type: Copy, overwrite: true) {
+      from zipTree("${System.env.JAVA_HOME}/jre/lib/rt.jar")
+      into sourceSets.main.output.classesDirs.asPath
+    }
+  }
+}
+
 project(':benchmarks:memory') {
   description = "Memory benchmark for ${rootProject.description}"
   requires = [':asm', ':asm-tree']
   runWith = ['org.objectweb.asm.ASMMemTest', 
-      "${System.env.JAVA_HOME}/jre/lib/rt.jar", '2000']
+      project(':benchmarks:classes').sourceSets.main.output.classesDirs.asPath]
+  afterEvaluate {
+    run.dependsOn project(':benchmarks:classes').classes
+  }
 }
 
 project(':benchmarks:read-write') {
@@ -125,7 +150,11 @@ project(':benchmarks:read-write') {
     'org.aspectj:aspectjweaver:1.8.10',
     'org.javassist:javassist:3.21.0-GA'
   ]
-  runWith = ['org.objectweb.asm.ALLPerfTest']
+  runWith = ['org.objectweb.asm.ALLPerfTest', 
+      project(':benchmarks:classes').sourceSets.main.output.classesDirs.asPath]
+  afterEvaluate {
+    run.dependsOn project(':benchmarks:classes').classes
+  }
 }
 
 project(':benchmarks:write') {

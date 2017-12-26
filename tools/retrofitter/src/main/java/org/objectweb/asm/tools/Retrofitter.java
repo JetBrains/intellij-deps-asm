@@ -130,9 +130,9 @@ public class Retrofitter {
       if (dst == null || !dst.exists() || dst.lastModified() < src.lastModified()) {
         ClassReader classReader = new ClassReader(new FileInputStream(src));
         ClassWriter classWriter = new ClassWriter(0);
-        // No actual retrofit to do since we compile with target=1.5.
         ClassVerifier classVerifier = new ClassVerifier(classWriter);
-        classReader.accept(classVerifier, 0);
+        ClassRetrofitter classRetrofitter = new ClassRetrofitter(classVerifier);
+        classReader.accept(classRetrofitter, ClassReader.SKIP_FRAMES);
 
         if (dst != null && !dst.getParentFile().exists() && !dst.getParentFile().mkdirs()) {
           throw new IOException("Cannot create directory " + dst.getParentFile());
@@ -151,6 +151,25 @@ public class Retrofitter {
     }
   }
 
+  /** A ClassVisitor that retrofits classes from 1.6 to 1.5 version. */
+  static class ClassRetrofitter extends ClassVisitor {
+
+    public ClassRetrofitter(ClassVisitor classVisitor) {
+      super(Opcodes.ASM6, classVisitor);
+    }
+
+    @Override
+    public void visit(
+        final int version,
+        final int access,
+        final String name,
+        final String signature,
+        final String superName,
+        final String[] interfaces) {
+      super.visit(Opcodes.V1_5, access, name, signature, superName, interfaces);
+    }
+  }
+
   /**
    * A ClassVisitor checking that a class uses only JDK 1.5 class file features and the JDK 1.5 API.
    */
@@ -165,12 +184,12 @@ public class Retrofitter {
     /** Whether the class uses only JDK 1.5 class file features and APIs. */
     boolean ok;
 
-    public ClassVerifier(ClassVisitor cv) {
+    public ClassVerifier(final ClassVisitor classVisitor) {
       // Make sure use we don't use Java 9 or higher classfile features.
       // We also want to make sure we don't use Java 6, 7 or 8 classfile
       // features (invokedynamic), but this can't be done in the same way.
       // Instead, we use manual checks below.
-      super(Opcodes.ASM4, cv);
+      super(Opcodes.ASM4, classVisitor);
       ok = true;
     }
 

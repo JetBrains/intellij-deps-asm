@@ -153,29 +153,15 @@ public interface Opcodes {
    */
   int F_SAME1 = 4;
 
-  // Do not change the following code to use auto-boxing, these values are compared by reference
-  // and not by value. The constructor of Integer is deprecated in Java 9 but we are stuck with it
-  // by backward compatibility.
-  @SuppressWarnings("deprecation")
-  Integer TOP = new Integer(Frame.ITEM_TOP);
+  // Standard stack map frame element types, used in {@link ClassVisitor#visitFrame}.
 
-  @SuppressWarnings("deprecation")
-  Integer INTEGER = new Integer(Frame.ITEM_INTEGER);
-
-  @SuppressWarnings("deprecation")
-  Integer FLOAT = new Integer(Frame.ITEM_FLOAT);
-
-  @SuppressWarnings("deprecation")
-  Integer DOUBLE = new Integer(Frame.ITEM_DOUBLE);
-
-  @SuppressWarnings("deprecation")
-  Integer LONG = new Integer(Frame.ITEM_LONG);
-
-  @SuppressWarnings("deprecation")
-  Integer NULL = new Integer(Frame.ITEM_NULL);
-
-  @SuppressWarnings("deprecation")
-  Integer UNINITIALIZED_THIS = new Integer(Frame.ITEM_UNINITIALIZED_THIS);
+  Integer TOP = Integer.valueOf(Frame.ITEM_TOP);
+  Integer INTEGER = Integer.valueOf(Frame.ITEM_INTEGER);
+  Integer FLOAT = Integer.valueOf(Frame.ITEM_FLOAT);
+  Integer DOUBLE = Integer.valueOf(Frame.ITEM_DOUBLE);
+  Integer LONG = Integer.valueOf(Frame.ITEM_LONG);
+  Integer NULL = Integer.valueOf(Frame.ITEM_NULL);
+  Integer UNINITIALIZED_THIS = Integer.valueOf(Frame.ITEM_UNINITIALIZED_THIS);
 
   // The JVM opcode values (with the MethodVisitor method name used to visit them in comment, and
   // where '-' means 'same method name as on the previous line').

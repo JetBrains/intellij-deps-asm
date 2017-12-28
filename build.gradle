@@ -27,12 +27,13 @@
 // THE POSSIBILITY OF SUCH DAMAGE.
 
 buildscript {
-	repositories { mavenCentral() }
-	dependencies { classpath 'org.junit.platform:junit-platform-gradle-plugin:1.0.1' }
+  repositories { mavenCentral() }
+  dependencies { classpath 'org.junit.platform:junit-platform-gradle-plugin:1.0.1' }
 }
 
 plugins { id 'biz.aQute.bnd.builder' version '3.3.0' apply false }
 plugins { id 'com.github.sherter.google-java-format' version '0.6' apply false }
+plugins { id 'me.champeau.gradle.jmh' version '0.4.4' apply false }
 plugins { id 'org.sonarqube' version '2.6' apply false }
 
 description = 'ASM, a very small and fast Java bytecode manipulation framework'
@@ -118,14 +119,25 @@ project(':benchmarks:memory') {
 
 project(':benchmarks:read-write') {
   description = "Read-Write benchmark for ${rootProject.description}"
-  requires = [':asm', ':asm-analysis', ':asm-commons', ':asm-tree']
+  apply plugin: 'me.champeau.gradle.jmh'
+  dependencies { jmh project(':asm'), project(':asm-tree') }
   depends = [
     'net.sourceforge.serp:serp:1.15.1',
     'org.apache.bcel:bcel:6.0',
     'org.aspectj:aspectjweaver:1.8.10',
     'org.javassist:javassist:3.21.0-GA'
   ]
-  runWith = ['org.objectweb.asm.ALLPerfTest']
+  ['4.0', '5.0.1', '6.0'].each { version ->
+    configurations.create("asm${version}")
+    dependencies.add("asm${version}", "org.ow2.asm:asm:${version}@jar")
+    dependencies.add("asm${version}", "org.ow2.asm:asm-tree:${version}@jar")
+    task "asm${version}"(type: Copy) {
+      from configurations."asm${version}".collect { zipTree(it) }
+      into "${buildDir}/asm${version}"
+    }
+    classes.dependsOn "asm${version}"
+  }
+  jmh { fork = 1; warmupIterations = 5; iterations = 20 }
 }
 
 project(':benchmarks:write') {

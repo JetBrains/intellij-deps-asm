@@ -51,9 +51,9 @@ public abstract class Adapter {
     }
   }
 
-  /** @return the version of this class adapter */
+  /** @return the version of this class adapter, or an empty string if there is no version */
   public String getVersion() {
-    return null;
+    return "";
   }
 
   /**

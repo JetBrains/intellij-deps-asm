@@ -51,17 +51,16 @@ public class BCELAdapter extends Adapter {
     try {
       javaClass = new ClassParser(new ByteArrayInputStream(classFile), "class-name").parse();
     } catch (Exception e) {
-      throw new IllegalArgumentException();
+      throw new IllegalArgumentException(e);
     }
     ClassGen classGen = new ClassGen(javaClass);
     ConstantPoolGen constantPoolGen = classGen.getConstantPool();
-    Method[] methods = classGen.getMethods();
-    for (int i = 0; i < methods.length; ++i) {
-      MethodGen methodGen = new MethodGen(methods[i], classGen.getClassName(), constantPoolGen);
-      if (methods[i].getLocalVariableTable() == null) {
+    for (Method method : classGen.getMethods()) {
+      MethodGen methodGen = new MethodGen(method, classGen.getClassName(), constantPoolGen);
+      if (method.getLocalVariableTable() == null) {
         methodGen.removeLocalVariables();
       }
-      if (methods[i].getLineNumberTable() == null) {
+      if (method.getLineNumberTable() == null) {
         methodGen.removeLineNumbers();
       }
       InstructionList insnList = methodGen.getInstructionList();
@@ -75,7 +74,7 @@ public class BCELAdapter extends Adapter {
           methodGen.setMaxLocals();
         }
       }
-      classGen.replaceMethod(methods[i], methodGen.getMethod());
+      classGen.replaceMethod(method, methodGen.getMethod());
     }
     return classGen.getJavaClass().getBytes();
   }

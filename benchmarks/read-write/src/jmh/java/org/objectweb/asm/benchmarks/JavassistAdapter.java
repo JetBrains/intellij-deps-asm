@@ -51,7 +51,7 @@ public class JavassistAdapter extends Adapter {
       dataOutputStream.close();
       return byteArrayOutputStream.toByteArray();
     } catch (Exception e) {
-      throw new IllegalArgumentException();
+      throw new IllegalArgumentException(e);
     }
   }
 }

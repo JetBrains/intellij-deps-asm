@@ -45,9 +45,8 @@ public class SERPAdapter extends Adapter {
   public byte[] readAndWrite(final byte[] classFile, final boolean computeMaxs) {
     BCClass bcClass = new Project().loadClass(new ByteArrayInputStream(classFile));
     bcClass.getDeclaredFields();
-    BCMethod[] bcMethods = bcClass.getDeclaredMethods();
-    for (int i = 0; i < bcMethods.length; ++i) {
-      Code code = bcMethods[i].getCode(false);
+    for (BCMethod bcMethod : bcClass.getDeclaredMethods()) {
+      Code code = bcMethod.getCode(false);
       if (code != null) {
         while (code.hasNext()) {
           code.next();

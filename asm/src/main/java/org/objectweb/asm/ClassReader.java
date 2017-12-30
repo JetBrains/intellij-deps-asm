@@ -990,8 +990,10 @@ public class ClassReader {
       currentOffset += 6;
       // The tests are sorted in decreasing frequency order (based on frequencies observed on
       // typical classes).
-      if (Constants.CODE.equals(attributeName) && (context.parsingOptions & SKIP_CODE) == 0) {
-        codeOffset = currentOffset;
+      if (Constants.CODE.equals(attributeName)) {
+        if ((context.parsingOptions & SKIP_CODE) == 0) {
+          codeOffset = currentOffset;
+        }
       } else if (Constants.EXCEPTIONS.equals(attributeName)) {
         exceptionsOffset = currentOffset;
         exceptions = new String[readUnsignedShort(exceptionsOffset)];

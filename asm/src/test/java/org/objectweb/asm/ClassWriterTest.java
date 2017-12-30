@@ -115,6 +115,21 @@ public class ClassWriterTest extends AsmTest {
   }
 
   /**
+   * Tests that a ClassReader -> ClassWriter transform with the SKIP_CODE option produces a valid
+   * class.
+   */
+  @ParameterizedTest
+  @MethodSource(ALL_CLASSES_AND_ALL_APIS)
+  public void testReadAndWriteWithSkipCode(
+      final PrecompiledClass classParameter, final Api apiParameter) {
+    byte[] classFile = classParameter.getBytes();
+    ClassReader classReader = new ClassReader(classFile);
+    ClassWriter classWriter = new ClassWriter(0);
+    classReader.accept(classWriter, attributes(), ClassReader.SKIP_CODE);
+    assertThatClass(classWriter.toByteArray()).contains(classParameter.getInternalName());
+  }
+
+  /**
    * Tests that a ClassReader -> ClassWriter transform with the copy pool option leaves classes
    * unchanged.
    */

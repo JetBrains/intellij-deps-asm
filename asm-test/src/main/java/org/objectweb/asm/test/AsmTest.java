@@ -310,7 +310,7 @@ public abstract class AsmTest {
         String dump = new ClassDump(classFile).toString();
         assertTrue(dump.contains(expectedString));
       } catch (IOException | IllegalArgumentException e) {
-        fail("Class can't be dumped");
+        fail("Class can't be dumped", e);
       }
     }
 
@@ -327,7 +327,7 @@ public abstract class AsmTest {
         String expectedDump = new ClassDump(expectedClassFile).toString();
         assertEquals(expectedDump, dump);
       } catch (IOException | IllegalArgumentException e) {
-        fail("Class can't be dumped");
+        fail("Class can't be dumped", e);
       }
     }
   }
@@ -345,7 +345,7 @@ public abstract class AsmTest {
     try {
       new ClassDump(classContent);
     } catch (IOException | IllegalArgumentException e) {
-      fail("Class can't be dumped, probably invalid");
+      fail("Class can't be dumped, probably invalid", e);
     }
     return doLoadAndInstantiate(className, classContent);
   }
@@ -374,12 +374,12 @@ public abstract class AsmTest {
       }
     } catch (ClassNotFoundException e) {
       // Should never happen given the ByteClassLoader implementation.
-      fail("Can't find class " + className);
+      fail("Can't find class " + className, e);
     } catch (InstantiationException | IllegalAccessException | IllegalArgumentException e) {
       // Should never happen since we don't try to instantiate classes that can't be instantiated
       // (abstract and enum classes), we use setAccessible(true), and we create the appropriate
       // constructor arguments for the expected constructor parameters.
-      fail("Can't instantiate class " + className);
+      fail("Can't instantiate class " + className, e);
     } catch (InvocationTargetException e) {
       // If an exception occurs in the invoked constructor, it means the class was successfully
       // verified first.
@@ -426,7 +426,7 @@ public abstract class AsmTest {
       outputStream.flush();
       return outputStream.toByteArray();
     } catch (IOException e) {
-      fail("Can't read " + name);
+      fail("Can't read " + name, e);
       return new byte[0];
     }
   }

@@ -49,7 +49,7 @@ public class ASMGenerator extends Generator {
       } catch (NoSuchFieldException e) {
       }
     }
-    return null;
+    return "";
   }
 
   @Override

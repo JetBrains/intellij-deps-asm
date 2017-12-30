@@ -27,12 +27,13 @@
 // THE POSSIBILITY OF SUCH DAMAGE.
 
 buildscript {
-	repositories { mavenCentral() }
-	dependencies { classpath 'org.junit.platform:junit-platform-gradle-plugin:1.0.1' }
+  repositories { mavenCentral() }
+  dependencies { classpath 'org.junit.platform:junit-platform-gradle-plugin:1.0.1' }
 }
 
 plugins { id 'biz.aQute.bnd.builder' version '3.3.0' apply false }
 plugins { id 'com.github.sherter.google-java-format' version '0.6' apply false }
+plugins { id 'me.champeau.gradle.jmh' version '0.4.4' apply false }
 plugins { id 'org.sonarqube' version '2.6' apply false }
 
 description = 'ASM, a very small and fast Java bytecode manipulation framework'
@@ -159,22 +160,32 @@ project(':benchmarks:read-write') {
 
 project(':benchmarks:write') {
   description = "Write benchmark for ${rootProject.description}"
-  requires = [':asm']
+  apply plugin: 'me.champeau.gradle.jmh'
+  sourceCompatibility = '1.8'
+  targetCompatibility = '1.8'
+  ['4', '5', '6'].each { version -> 
+    configurations.create("asm${version}")
+    dependencies.add("asm${version}", "org.ow2.asm:asm:${version}.0@jar")
+    task "asm${version}"(type: Copy) {
+      from configurations."asm${version}".collect { zipTree(it) }
+      into "${buildDir}/asm${version}"
+    }
+    classes.dependsOn "asm${version}"
+  }
+  classes.dependsOn project(':asm').classes
   dependencies { 
     compile files('libs/csg-bytecode-1.0.0.jar', 'libs/jclasslib.jar') 
+    jmhCompileOnly project(':asm')
   }
   depends = [
     'kawa:kawa:1.7',
     'net.sf.jiapi:jiapi-reflect:0.5.2',
-    'net.sourceforge.serp:serp:1.15.1',
     'org.apache.bcel:bcel:6.0',
     'org.aspectj:aspectjweaver:1.8.10',
-    'org.codehaus.janino:janino:3.0.7',
     'org.cojen:cojen:2.2.5',
-    'org.javassist:javassist:3.21.0-GA',
     'org.mozilla:rhino:1.7.7.1'
   ]
-  runWith = ['org.objectweb.asm.GenPerfTest']
+  jmh { fork = 1; warmupIterations = 5; iterations = 20 }
 }
 
 project(':tools') {
@@ -280,7 +291,7 @@ configure(subprojects.findAll { it.provides }) {
     file('src/test/resources/').eachFileMatch(~/sigtest-.*/) { f ->
       task "${f.name}" (type: JavaExec, dependsOn: 'classes') {
         inputs.files(f, sourceSets.main.java)
-        outputs.file("build/${f.name}")
+        outputs.file("${buildDir}/${f.name}")
         classpath configurations.sigtest
         main 'com.sun.tdk.signaturetest.Main'
         args 'Test', '-ApiVersion', version, '-Backward', '-Static', '-Mode',

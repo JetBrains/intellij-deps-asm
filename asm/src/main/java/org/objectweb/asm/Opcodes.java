@@ -155,13 +155,13 @@ public interface Opcodes {
 
   // Standard stack map frame element types, used in {@link ClassVisitor#visitFrame}.
 
-  Integer TOP = Integer.valueOf(Frame.ITEM_TOP);
-  Integer INTEGER = Integer.valueOf(Frame.ITEM_INTEGER);
-  Integer FLOAT = Integer.valueOf(Frame.ITEM_FLOAT);
-  Integer DOUBLE = Integer.valueOf(Frame.ITEM_DOUBLE);
-  Integer LONG = Integer.valueOf(Frame.ITEM_LONG);
-  Integer NULL = Integer.valueOf(Frame.ITEM_NULL);
-  Integer UNINITIALIZED_THIS = Integer.valueOf(Frame.ITEM_UNINITIALIZED_THIS);
+  Integer TOP = Frame.ITEM_TOP;
+  Integer INTEGER = Frame.ITEM_INTEGER;
+  Integer FLOAT = Frame.ITEM_FLOAT;
+  Integer DOUBLE = Frame.ITEM_DOUBLE;
+  Integer LONG = Frame.ITEM_LONG;
+  Integer NULL = Frame.ITEM_NULL;
+  Integer UNINITIALIZED_THIS = Frame.ITEM_UNINITIALIZED_THIS;
 
   // The JVM opcode values (with the MethodVisitor method name used to visit them in comment, and
   // where '-' means 'same method name as on the previous line').

@@ -38,7 +38,6 @@ import org.objectweb.asm.Opcodes;
  * @author Remi Forax
  */
 public class CheckModuleAdapter extends ModuleVisitor {
-
   /** Whether the visited module is open. */
   private final boolean isOpen;
 
@@ -57,6 +56,9 @@ public class CheckModuleAdapter extends ModuleVisitor {
   /** The internal names of the services provided by the visited module. */
   private final HashSet<String> providedServices = new HashSet<String>();
 
+  /** The class version number. */
+  int classVersion;
+  
   /** Whether the {@link #visitEnd} method has been called. */
   private boolean visitEndCalled;
 
@@ -114,6 +116,12 @@ public class CheckModuleAdapter extends ModuleVisitor {
             | Opcodes.ACC_TRANSITIVE
             | Opcodes.ACC_SYNTHETIC
             | Opcodes.ACC_MANDATED);
+    if (classVersion >= Opcodes.V10 && module.equals("java.base")) {
+    	if ((access & (Opcodes.ACC_STATIC_PHASE | Opcodes.ACC_TRANSITIVE)) != 0) {
+    	  throw new IllegalArgumentException("Invalid access flags: " + access +
+    	      " java.base can not be declared ACC_TRANSITIVE or ACC_STATIC_PHASE");
+    	}
+    }
     super.visitRequire(module, access, version);
   }
 

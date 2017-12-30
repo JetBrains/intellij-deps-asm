@@ -25,20 +25,27 @@
 // CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
 // THE POSSIBILITY OF SUCH DAMAGE.
+package org.objectweb.asm.benchmarks;
 
-rootProject.name = 'ASM'
+/**
+ * A factory of in-memory Java class file models.
+ * 
+ * @author Eric Bruneton
+ */
+public interface Factory {
 
-include(
-  'asm',
-  'asm-analysis',
-  'asm-commons',
-  'asm-test',
-  'asm-tree',
-  'asm-util',
-  'asm-xml',
-  'benchmarks:memory',
-  'benchmarks:read-write',
-  'benchmarks:write',
-  'tools:bnd-module-plugin',
-  'tools:retrofitter')
+  /** @return the version of this factory. */
+  String getVersion();
 
+  /**
+   * @param classFile a JVMS ClassFile structure
+   * @return a "high level" representation of the given class.
+   */
+  Object newClass(final byte[] classFile);
+  
+  /**
+   * @param classFile a JVMS ClassFile structure
+   * @return a tree structure representation of the given class.
+   */
+  Object newClassNode(final byte[] classFile);
+}

@@ -50,7 +50,6 @@ subprojects {
   ext.provides = []  // The provided java packages, e.g. ['org.objectweb.asm']
   ext.requires = []  // The required Gradle projects, e.g. [':asm-test']
   ext.depends = []   // The external dependencies, e.g. ['junit:junit:4.12']
-  ext.runWith = []   // The command line to run this project, if applicable.
   ext.minCodeCoverage = 0.95 // The minimum code coverage fraction.
 }
 
@@ -110,35 +109,23 @@ project(':benchmarks') {
   description = "Benchmarks for ${parent.description}"
 }
 
-project(':benchmarks:classes') {
-  description = "A set of .class files to benchmark ${parent.description}"
-  if (JavaVersion.current().isJava9Compatible()) { 
-    task classes(overwrite: true) {
-      file("${System.env.JAVA_HOME}/jmods").eachFile() { f ->
-        task "${f.name}" (type: Exec) {
-          inputs.file(f)
-          outputs.file("${sourceSets.main.output.classesDirs.asPath}/${f.name}")
-          executable "${System.env.JAVA_HOME}/bin/jmod"
-          args 'extract', '--dir', outputs.getFiles()[0], f
-        }
-        classes.dependsOn f.name
-      }
-    }
-  } else {
-    task classes(type: Copy, overwrite: true) {
-      from zipTree("${System.env.JAVA_HOME}/jre/lib/rt.jar")
-      into sourceSets.main.output.classesDirs.asPath
-    }
-  }
-}
-
 project(':benchmarks:memory') {
   description = "Memory benchmark for ${rootProject.description}"
-  requires = [':asm', ':asm-tree']
-  runWith = ['org.objectweb.asm.ASMMemTest', 
-      project(':benchmarks:classes').sourceSets.main.output.classesDirs.asPath]
-  afterEvaluate {
-    run.dependsOn project(':benchmarks:classes').classes
+  apply plugin: 'me.champeau.gradle.jmh'
+  dependencies { jmh project(':asm'), project(':asm-tree') }
+  ['4.0', '5.0.1', '6.0'].each { version ->
+    configurations.create("asm${version}")
+    dependencies.add("asm${version}", "org.ow2.asm:asm:${version}@jar")
+    dependencies.add("asm${version}", "org.ow2.asm:asm-tree:${version}@jar")
+    task "asm${version}"(type: Copy) {
+      from configurations."asm${version}".collect { zipTree(it) }
+      into "${buildDir}/asm${version}"
+    }
+    classes.dependsOn "asm${version}"
+  }
+  jmh { 
+    fork = 1; warmupIterations = 5; iterations = 5; 
+    profilers = ['org.objectweb.asm.benchmarks.MemoryProfiler'] 
   }
 }
 
@@ -232,15 +219,6 @@ subprojects {
     // Workaround for https://github.com/junit-team/junit5-samples/issues/45
     testCompileOnly 'org.apiguardian:apiguardian-api:1.0.0'
   	testRuntime 'org.junit.jupiter:junit-jupiter-engine:5.0.1'
-  }
-}
-
-// Add a run task to all the projects having a non-empty 'runWidth' property.
-configure(subprojects.findAll { it.runWith }) {
-  task run(type: JavaExec) {
-    classpath sourceSets.main.runtimeClasspath
-    main runWith[0]
-    args runWith.drop(1)
   }
 }
 

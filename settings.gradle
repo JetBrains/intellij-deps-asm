@@ -36,9 +36,7 @@ include(
   'asm-tree',
   'asm-util',
   'asm-xml',
-  'benchmarks:memory',
-  'benchmarks:read-write',
-  'benchmarks:write',
+  'benchmarks',
   'tools:bnd-module-plugin',
   'tools:retrofitter')
 

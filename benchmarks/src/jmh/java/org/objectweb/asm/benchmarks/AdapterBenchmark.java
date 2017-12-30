@@ -27,19 +27,15 @@
 // THE POSSIBILITY OF SUCH DAMAGE.
 package org.objectweb.asm.benchmarks;
 
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.URL;
-import java.net.URLClassLoader;
-import java.util.ArrayList;
+import java.util.concurrent.TimeUnit;
 
 import org.openjdk.jmh.annotations.Benchmark;
+import org.openjdk.jmh.annotations.Fork;
+import org.openjdk.jmh.annotations.Measurement;
 import org.openjdk.jmh.annotations.Scope;
 import org.openjdk.jmh.annotations.Setup;
 import org.openjdk.jmh.annotations.State;
+import org.openjdk.jmh.annotations.Warmup;
 import org.openjdk.jmh.infra.Blackhole;
 
 /**
@@ -48,19 +44,11 @@ import org.openjdk.jmh.infra.Blackhole;
  *
  * @author Eric Bruneton
  */
+@Fork(1)
+@Warmup(iterations = 5, time = 1, timeUnit = TimeUnit.SECONDS)
+@Measurement(iterations = 20, time = 1, timeUnit = TimeUnit.SECONDS)
 @State(Scope.Thread)
-public class AdapterBenchmark {
-
-  // The directories where the different versions of ASM can be found.
-  private static final String BUILD_DIR = "/benchmarks/read-write/build/";
-  private static final String ASM4_0 = BUILD_DIR + "asm4.0/";
-  private static final String ASM5_0 = BUILD_DIR + "asm5.0.1/";
-  private static final String ASM6_0 = BUILD_DIR + "asm6.0/";
-  private static final String ASM_CORE_6_1 = "/asm/build/classes/java/main/";
-  private static final String ASM_TREE_6_1 = "/asm-tree/build/classes/java/main/";
-
-  // The fully qualified name of the ASMAdapter class.
-  private static final String ASM_ADAPTER = "org.objectweb.asm.benchmarks.ASMAdapter";
+public class AdapterBenchmark extends AbstractBenchmark {
 
   private Adapter asm4_0;
   private Adapter asm5_0;
@@ -71,7 +59,9 @@ public class AdapterBenchmark {
   private Adapter javassist;
   private Adapter serp;
 
-  private ArrayList<byte[]> classFiles;
+  public AdapterBenchmark() {
+    super("org.objectweb.asm.benchmarks.ASMAdapter");
+  }
 
   /**
    * Prepares the benchmark by creating an {@link Adapter} for each library to be tested, and by
@@ -81,20 +71,15 @@ public class AdapterBenchmark {
    */
   @Setup
   public void prepare() throws Exception {
-    String userDir = System.getProperty("user.dir");
-    String baseUrl = "file://" + userDir;
-    asm4_0 = new ASMAdapterFactory(new URL[] {new URL(baseUrl + ASM4_0)}).newAsmAdapter();
-    asm5_0 = new ASMAdapterFactory(new URL[] {new URL(baseUrl + ASM5_0)}).newAsmAdapter();
-    asm6_0 = new ASMAdapterFactory(new URL[] {new URL(baseUrl + ASM6_0)}).newAsmAdapter();
-    asm6_1 =
-        new ASMAdapterFactory(
-                new URL[] {new URL(baseUrl + ASM_CORE_6_1), new URL(baseUrl + ASM_TREE_6_1)})
-            .newAsmAdapter();
-
+    asm4_0 = (Adapter) new AsmBenchmarkFactory(AsmVersion.V4_0).newAsmBenchmark();
+    asm5_0 = (Adapter) new AsmBenchmarkFactory(AsmVersion.V5_0).newAsmBenchmark();
+    asm6_0 = (Adapter) new AsmBenchmarkFactory(AsmVersion.V6_0).newAsmBenchmark();
+    asm6_1 = (Adapter) new AsmBenchmarkFactory(AsmVersion.V6_1).newAsmBenchmark();
     aspectJBcel = new AspectJBCELAdapter();
     bcel = new BCELAdapter();
     javassist = new JavassistAdapter();
     serp = new SERPAdapter();
+
     // Check that the correct versions of ASM have been loaded.
     if (!asm4_0.getVersion().equals("ASM4")
         || !asm5_0.getVersion().equals("ASM5")
@@ -103,39 +88,7 @@ public class AdapterBenchmark {
       throw new IllegalStateException();
     }
 
-    classFiles = new ArrayList<byte[]>();
-    findClasses(new File(userDir + ASM_CORE_6_1), classFiles);
-    findClasses(new File(userDir + ASM_TREE_6_1), classFiles);
-  }
-
-  private static void findClasses(final File directory, final ArrayList<byte[]> classFiles)
-      throws IOException {
-    for (File file : directory.listFiles()) {
-      if (file.isDirectory()) {
-        findClasses(file, classFiles);
-      } else if (file.getName().endsWith(".class")) {
-        classFiles.add(readInputStream(new FileInputStream(file)));
-      }
-    }
-  }
-
-  private static byte[] readInputStream(final InputStream inputStream) throws IOException {
-    try {
-      ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-      byte[] data = new byte[8192];
-      int bytesRead;
-      while ((bytesRead = inputStream.read(data, 0, data.length)) != -1) {
-        outputStream.write(data, 0, bytesRead);
-      }
-      outputStream.flush();
-      return outputStream.toByteArray();
-    } finally {
-      try {
-        inputStream.close();
-      } catch (IOException e) {
-        // Nothing to do.
-      }
-    }
+    prepareClasses();
   }
 
   @Benchmark
@@ -408,60 +361,6 @@ public class AdapterBenchmark {
   public void readAndWriteWithObjectModel_asm6_1(final Blackhole blackhole) {
     for (byte[] classFile : classFiles) {
       blackhole.consume(asm6_1.readAndWriteWithObjectModel(classFile));
-    }
-  }
-
-  /** A factory of {@link ASMAdapter} objects, using a specific version of the ASM library. */
-  private static class ASMAdapterFactory extends URLClassLoader {
-
-    /**
-     * Constructs an {@link ASMAdapterFactory}.
-     *
-     * @param asmDirectories the directories where the ASM library classes can be found.
-     */
-    ASMAdapterFactory(final URL[] asmDirectories) {
-      super(asmDirectories);
-    }
-
-    /**
-     * @return a new {@link ASMAdapter} instance.
-     * @throws Exception
-     */
-    public Adapter newAsmAdapter() throws Exception {
-      return (Adapter) loadClass(ASM_ADAPTER).newInstance();
-    }
-
-    protected Class<?> loadClass(final String name, final boolean resolve)
-        throws ClassNotFoundException {
-      // Force the loading of the ASMAdapter class by this class loader (and not its parent). This
-      // is needed to make sure that the classes it references (i.e. the ASM library classes) will
-      // be loaded by this class loader too.
-      if (name.startsWith(ASM_ADAPTER)) {
-        try {
-          byte[] classFile =
-              readInputStream(getResourceAsStream(name.replace('.', '/') + ".class"));
-          Class<?> c = defineClass(name, classFile, 0, classFile.length);
-          if (resolve) {
-            resolveClass(c);
-          }
-          return c;
-        } catch (Exception e) {
-          throw new ClassNotFoundException(name, e);
-        }
-      }
-      // Look for the specified class *first* in asmDirectories, *then* using the parent class
-      // loader. This is the reverse of the default lookup order, and is necessary to make sure we
-      // load the correct version of ASM (the parent class loader may have an ASM version in its
-      // class path, because some components of the JMH framework depend on ASM).
-      try {
-        Class<?> c = findClass(name);
-        if (resolve) {
-          resolveClass(c);
-        }
-        return c;
-      } catch (ClassNotFoundException e) {
-        return super.loadClass(name, resolve);
-      }
     }
   }
 }

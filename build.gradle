@@ -144,18 +144,25 @@ project(':benchmarks:memory') {
 
 project(':benchmarks:read-write') {
   description = "Read-Write benchmark for ${rootProject.description}"
-  requires = [':asm', ':asm-analysis', ':asm-commons', ':asm-tree']
+  apply plugin: 'me.champeau.gradle.jmh'
+  dependencies { jmh project(':asm'), project(':asm-tree') }
   depends = [
     'net.sourceforge.serp:serp:1.15.1',
     'org.apache.bcel:bcel:6.0',
     'org.aspectj:aspectjweaver:1.8.10',
     'org.javassist:javassist:3.21.0-GA'
   ]
-  runWith = ['org.objectweb.asm.ALLPerfTest', 
-      project(':benchmarks:classes').sourceSets.main.output.classesDirs.asPath]
-  afterEvaluate {
-    run.dependsOn project(':benchmarks:classes').classes
+  ['4.0', '5.0.1', '6.0'].each { version ->
+    configurations.create("asm${version}")
+    dependencies.add("asm${version}", "org.ow2.asm:asm:${version}@jar")
+    dependencies.add("asm${version}", "org.ow2.asm:asm-tree:${version}@jar")
+    task "asm${version}"(type: Copy) {
+      from configurations."asm${version}".collect { zipTree(it) }
+      into "${buildDir}/asm${version}"
+    }
+    classes.dependsOn "asm${version}"
   }
+  jmh { fork = 1; warmupIterations = 5; iterations = 20 }
 }
 
 project(':benchmarks:write') {

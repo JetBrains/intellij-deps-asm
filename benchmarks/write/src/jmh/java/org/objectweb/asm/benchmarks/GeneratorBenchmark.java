@@ -187,8 +187,7 @@ public class GeneratorBenchmark {
       // is needed to make sure that the classes it references (i.e. the ASM library classes) will
       // be loaded by this class loader too.
       if (name.equals(ASM_GENERATOR)) {
-        InputStream inputStream = getResourceAsStream(name.replace('.', '/') + ".class");
-        try {
+        try (InputStream inputStream = getResourceAsStream(name.replace('.', '/') + ".class")) {
           ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
           byte[] data = new byte[inputStream.available()];
           int bytesRead;
@@ -204,12 +203,6 @@ public class GeneratorBenchmark {
           return c;
         } catch (Exception e) {
           throw new ClassNotFoundException(name, e);
-        } finally {
-          try {
-            inputStream.close();
-          } catch (IOException e) {
-            // Nothing to do.
-          }
         }
       }
       // Look for the specified class *first* in asmDirectory, *then* using the parent class loader.

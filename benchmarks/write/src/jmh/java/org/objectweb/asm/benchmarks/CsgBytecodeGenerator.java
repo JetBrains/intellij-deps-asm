@@ -38,12 +38,7 @@ import com.claritysys.jvm.classfile.JVM;
  *
  * @author Eric Bruneton
  */
-public class CsgBytecodeGenerator implements Generator {
-
-  @Override
-  public String getVersion() {
-    return null;
-  }
+public class CsgBytecodeGenerator extends Generator {
 
   @Override
   public byte[] generateClass() {

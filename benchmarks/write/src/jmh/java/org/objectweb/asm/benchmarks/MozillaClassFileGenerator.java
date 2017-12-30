@@ -35,12 +35,7 @@ import org.mozilla.classfile.ClassFileWriter;
  *
  * @author Eric Bruneton
  */
-public class MozillaClassFileGenerator implements Generator {
-
-  @Override
-  public String getVersion() {
-    return null;
-  }
+public class MozillaClassFileGenerator extends Generator {
 
   @Override
   public byte[] generateClass() {

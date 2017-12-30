@@ -51,12 +51,7 @@ import org.gjt.jclasslib.structures.constants.ConstantStringInfo;
  *
  * @author Eric Bruneton
  */
-public class JClassLibGenerator implements Generator {
-
-  @Override
-  public String getVersion() {
-    return null;
-  }
+public class JClassLibGenerator extends Generator {
 
   @Override
   public byte[] generateClass() {

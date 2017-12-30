@@ -36,8 +36,9 @@ import org.objectweb.asm.Opcodes;
  *
  * @author Eric Bruneton
  */
-public class ASMGenerator implements Generator {
+public class ASMGenerator extends Generator {
 
+  @Override
   public String getVersion() {
     for (int i = 6; i >= 4; --i) {
       try {
@@ -48,9 +49,10 @@ public class ASMGenerator implements Generator {
       } catch (NoSuchFieldException e) {
       }
     }
-    return "";
+    return null;
   }
 
+  @Override
   public byte[] generateClass() {
     ClassWriter classWriter = new ClassWriter(ClassWriter.COMPUTE_MAXS);
 

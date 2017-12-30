@@ -32,15 +32,17 @@ package org.objectweb.asm.benchmarks;
  *
  * @author Eric Bruneton
  */
-public interface Generator {
+public abstract class Generator {
 
-  /** @return the version of this generator. */
-  String getVersion();
+  /** @return the version of this generator, or an empty string if there is no version. */
+  public String getVersion() {
+    return "";
+  }
 
   /**
    * Generates a "Hello World!" class.
    *
    * @return the JVMS ClassFile structure of the generated class.
    */
-  byte[] generateClass();
+  public abstract byte[] generateClass();
 }

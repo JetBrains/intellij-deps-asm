@@ -42,14 +42,9 @@ import org.apache.bcel.generic.Type;
  *
  * @author Eric Bruneton
  */
-public class BCELGenerator implements Generator {
+public class BCELGenerator extends Generator {
 
   private static final Type PRINT_STREAM_TYPE = Type.getType("Ljava/io/PrintStream;");
-
-  @Override
-  public String getVersion() {
-    return null;
-  }
 
   @Override
   public byte[] generateClass() {

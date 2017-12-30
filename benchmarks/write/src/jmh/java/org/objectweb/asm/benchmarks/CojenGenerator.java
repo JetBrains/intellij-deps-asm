@@ -41,14 +41,9 @@ import org.cojen.classfile.TypeDesc;
  *
  * @author Eric Bruneton
  */
-public class CojenGenerator implements Generator {
+public class CojenGenerator extends Generator {
 
-  static TypeDesc printStream = TypeDesc.forClass("java.io.PrintStream");
-
-  @Override
-  public String getVersion() {
-    return null;
-  }
+  private static final TypeDesc PRINT_STREAM = TypeDesc.forClass("java.io.PrintStream");
 
   @Override
   public byte[] generateClass() {
@@ -61,9 +56,9 @@ public class CojenGenerator implements Generator {
     TypeDesc[] params = new TypeDesc[] {TypeDesc.STRING.toArrayType()};
     MethodInfo methodInfo = classFile.addMethod(Modifiers.PUBLIC_STATIC, "main", null, params);
     CodeBuilder codeBuilder = new CodeBuilder(methodInfo);
-    codeBuilder.loadStaticField("java.lang.System", "out", printStream);
+    codeBuilder.loadStaticField("java.lang.System", "out", PRINT_STREAM);
     codeBuilder.loadConstant("Hello world!");
-    codeBuilder.invokeVirtual(printStream, "println", null, new TypeDesc[] {TypeDesc.STRING});
+    codeBuilder.invokeVirtual(PRINT_STREAM, "println", null, new TypeDesc[] {TypeDesc.STRING});
     codeBuilder.returnVoid();
 
     try {

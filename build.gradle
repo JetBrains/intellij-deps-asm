@@ -132,6 +132,8 @@ project(':benchmarks:read-write') {
 project(':benchmarks:write') {
   description = "Write benchmark for ${rootProject.description}"
   apply plugin: 'me.champeau.gradle.jmh'
+  sourceCompatibility = '1.8'
+  targetCompatibility = '1.8'
   ['4', '5', '6'].each { version -> 
     configurations.create("asm${version}")
     dependencies.add("asm${version}", "org.ow2.asm:asm:${version}.0@jar")

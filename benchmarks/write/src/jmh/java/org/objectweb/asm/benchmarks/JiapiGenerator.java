@@ -40,18 +40,11 @@ import net.sf.jiapi.reflect.Signature;
  *
  * @author Eric Bruneton
  */
-public class JiapiGenerator implements Generator {
+public class JiapiGenerator extends Generator {
 
   private static final Signature EMPTY_SIGNATURE = new Signature("()V");
-
   private static final Signature MAIN_SIGNATURE = new Signature("([Ljava/lang/String;)V");
-
   private static final Signature PRINTLN_SIGNATURE = new Signature("(Ljava/lang/String;)V");
-
-  @Override
-  public String getVersion() {
-    return null;
-  }
 
   @Override
   public byte[] generateClass() {

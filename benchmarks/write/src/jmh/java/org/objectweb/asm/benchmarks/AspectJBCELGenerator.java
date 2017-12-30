@@ -41,14 +41,9 @@ import org.aspectj.apache.bcel.generic.Type;
  *
  * @author Eric Bruneton
  */
-public class AspectJBCELGenerator implements Generator {
+public class AspectJBCELGenerator extends Generator {
 
   private static final Type PRINT_STREAM_TYPE = Type.getType("Ljava/io/PrintStream;");
-
-  @Override
-  public String getVersion() {
-    return null;
-  }
 
   @Override
   public byte[] generateClass() {

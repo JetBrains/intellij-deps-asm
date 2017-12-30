@@ -39,20 +39,13 @@ import gnu.bytecode.Type;
  *
  * @author Eric Bruneton
  */
-public class GnuByteCodeGenerator implements Generator {
+public class GnuByteCodeGenerator extends Generator {
 
   private static final Method OBJECT_CONSTRUCTOR = Type.pointer_type.getDeclaredMethod("<init>", 0);
-
   private static final Field OUT_FIELD = ClassType.make("java.lang.System").getField("out");
-
   private static final Method PRINTLN_METHOD =
       ClassType.make("java.io.PrintStream")
           .getDeclaredMethod("println", new Type[] {Type.string_type});
-
-  @Override
-  public String getVersion() {
-    return null;
-  }
 
   @Override
   public byte[] generateClass() {

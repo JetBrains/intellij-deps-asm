@@ -67,7 +67,7 @@ public class MemoryBenchmark {
   private Factory asm6_0;
   private Factory asm6_1;
 
-  private List<byte[]> classFiles;
+  private ArrayList<byte[]> classFiles;
 
   /**
    * Prepares the benchmark by creating a {@link Factory} for each library to be tested, and by
@@ -95,14 +95,15 @@ public class MemoryBenchmark {
     }
 
     classFiles = new ArrayList<byte[]>();
-    findClasses(new File(userDir + ASM_CORE_6_1));
-    findClasses(new File(userDir + ASM_TREE_6_1));
+    findClasses(new File(userDir + ASM_CORE_6_1), classFiles);
+    findClasses(new File(userDir + ASM_TREE_6_1), classFiles);
   }
 
-  private void findClasses(final File directory) throws IOException {
+  private static void findClasses(final File directory, final ArrayList<byte[]> classFiles)
+      throws IOException {
     for (File file : directory.listFiles()) {
       if (file.isDirectory()) {
-        findClasses(file);
+        findClasses(file, classFiles);
       } else if (file.getName().endsWith(".class")) {
         classFiles.add(readInputStream(new FileInputStream(file)));
       }
@@ -112,7 +113,7 @@ public class MemoryBenchmark {
   private static byte[] readInputStream(final InputStream inputStream) throws IOException {
     try {
       ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-      byte[] data = new byte[inputStream.available()];
+      byte[] data = new byte[8192];
       int bytesRead;
       while ((bytesRead = inputStream.read(data, 0, data.length)) != -1) {
         outputStream.write(data, 0, bytesRead);

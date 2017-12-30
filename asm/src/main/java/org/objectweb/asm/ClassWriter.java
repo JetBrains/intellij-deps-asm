@@ -605,6 +605,8 @@ public class ClassWriter extends ClassVisitor {
       lastField = null;
       firstMethod = null;
       lastMethod = null;
+      numberOfClasses = 0;
+      classes = null;
       lastRuntimeVisibleAnnotation = null;
       lastRuntimeInvisibleAnnotation = null;
       lastRuntimeVisibleTypeAnnotation = null;

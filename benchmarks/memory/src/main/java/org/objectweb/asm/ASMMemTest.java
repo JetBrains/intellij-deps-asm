@@ -27,15 +27,12 @@
 // THE POSSIBILITY OF SUCH DAMAGE.
 package org.objectweb.asm;
 
+import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.jar.JarEntry;
-import java.util.jar.JarInputStream;
 
 import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.InsnList;
@@ -52,53 +49,30 @@ import org.objectweb.asm.tree.MethodNode;
  */
 public class ASMMemTest {
 
-  public static void main(final String[] args) {
-    if (args.length < 2) {
-      System.out.println("java ASMMemTest <jar-file> <number-of-classes>");
-      System.exit(1);
-    }
+  static List<byte[]> classes = new ArrayList<byte[]>();
 
+  public static void main(final String[] args) throws IOException {
     Runtime runtime = Runtime.getRuntime();
     memDown(runtime);
     System.out.println("Initial memory load: ".concat(memFormat(getUsedMem(runtime))));
 
-    LinkedList<byte[]> fileData = new LinkedList<byte[]>();
-    int limit = Integer.parseInt(args[1]);
-    try {
-      long totalSize = 0;
-      JarInputStream jar = new JarInputStream(new FileInputStream(args[0]));
-      JarEntry entry = jar.getNextJarEntry();
-      while (fileData.size() < limit && entry != null) {
-        String name = entry.getName();
-        if (name.endsWith(".class")) {
-          if (entry.getSize() != -1) {
-            int len = (int) entry.getSize();
-            byte[] data = new byte[len];
-            int l = jar.read(data);
-            assert l == len;
-            fileData.add(data);
-            totalSize += data.length;
-          } else {
-            System.err.println(
-                "No jar-entry size given... " + "Unimplemented, jar file not supported");
-          }
-        }
-        entry = jar.getNextJarEntry();
-      }
-      System.out.println(
-          memFormat(totalSize) + " class data, ~" + memFormat(totalSize / limit) + " per class.");
-    } catch (FileNotFoundException e) {
-      e.printStackTrace();
-    } catch (IOException e) {
-      e.printStackTrace();
+    findClasses(new File(args[0]));
+    long totalSize = 0;
+    for (byte[] clazz : classes) {
+      totalSize += clazz.length;
     }
+    System.out.println(
+        memFormat(totalSize)
+            + " class data, ~"
+            + memFormat(totalSize / classes.size())
+            + " per class.");
 
-    ArrayList<ClassNode> result = new ArrayList<ClassNode>(fileData.size());
+    ArrayList<ClassNode> result = new ArrayList<ClassNode>(classes.size());
     long startmem;
 
     for (int i = 0; i < 10; i++) {
       System.out.println("\n> Run ".concat(Integer.toString(i + 1)));
-      Iterator<byte[]> files = fileData.iterator();
+      Iterator<byte[]> files = classes.iterator();
       result.clear();
       memDown(runtime);
       System.out.println("Empty memory load: ".concat(memFormat(startmem = getUsedMem(runtime))));
@@ -117,7 +91,7 @@ public class ASMMemTest {
       System.out.println("Time: ".concat(timeFormat(time)));
       System.out.println("Final memory load: ".concat(memFormat(getUsedMem(runtime))));
       System.out.println("ASM memory load: ".concat(memFormat(getUsedMem(runtime) - startmem)));
-      for (int j = 0; j < limit; j++) {
+      for (int j = 0; j < classes.size(); j++) {
         ClassNode clazz = result.get(j);
         List<MethodNode> l = clazz.methods;
         for (int k = 0, lim = l.size(); k < lim; k++) {
@@ -132,6 +106,22 @@ public class ASMMemTest {
       System.out.println(
           "ASM memory load (removed method code): "
               .concat(memFormat(getUsedMem(runtime) - startmem)));
+    }
+  }
+
+  public static void findClasses(File directory) throws IOException {
+    File[] files = directory.listFiles();
+    for (int i = 0; i < files.length; i++) {
+      File file = files[i];
+      if (file.isDirectory()) {
+        findClasses(file);
+      } else if (file.getName().endsWith(".class")) {
+        ClassReader classReader = new ClassReader(new FileInputStream(file));
+        classes.add(classReader.b);
+        if (classes.size() % 2500 == 0) {
+          System.out.println("... searching, found " + classes.size() + " classes.");
+        }
+      }
     }
   }
 

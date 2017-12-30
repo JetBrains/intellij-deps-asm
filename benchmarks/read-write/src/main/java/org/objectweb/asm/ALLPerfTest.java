@@ -29,15 +29,10 @@ package org.objectweb.asm;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.Enumeration;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipFile;
 
 import javassist.ClassPool;
 import javassist.CtClass;
@@ -85,46 +80,10 @@ public abstract class ALLPerfTest {
       Integer.getInteger("max.iteration.sec", 10).intValue();
 
   public static void main(final String[] args) throws IOException, InterruptedException {
-    String clazz = System.getProperty("asm.test.class");
-    List<String> jars = findFiles(System.getProperty("java.home"), ".jar");
-    jars.addAll(findJars(File.pathSeparatorChar, System.getProperty("java.class.path")));
-    repeats = Integer.getInteger("repeats", 3).intValue() + 1;
-
-    Set<String> classesFound = new HashSet<String>();
-    for (int i = 0; i < jars.size(); i++) {
-      ZipFile zip;
-      try {
-        zip = new ZipFile(jars.get(i));
-      } catch (IOException e) {
-        System.err.println("Error openning " + jars.get(i));
-        e.printStackTrace();
-        continue;
-      }
-
-      Enumeration<? extends ZipEntry> entries = zip.entries();
-      while (entries.hasMoreElements()) {
-        ZipEntry e = entries.nextElement();
-        String s = e.getName();
-        if (s.endsWith(".class")) {
-          s = s.substring(0, s.length() - 6).replace('/', '.');
-          if (!classesFound.add(s)) {
-            continue;
-          }
-          if (clazz == null || s.indexOf(clazz) != -1) {
-            InputStream is = zip.getInputStream(e);
-            byte[] bytes = new ClassReader(is).b;
-            classes.add(bytes);
-            classNames.add(s);
-            is.close();
-            if (classes.size() % 2500 == 0) {
-              System.out.println("... searching, found " + classes.size() + " classes.");
-            }
-          }
-        }
-      }
-      zip.close();
-    }
+    findClasses(new File(args[0]));
     System.out.println("Found " + classes.size() + " classes.");
+
+    repeats = Integer.getInteger("repeats", 3).intValue() + 1;
 
     RunTest nullBCELAdapt =
         new RunTest() {
@@ -361,20 +320,19 @@ public abstract class ALLPerfTest {
         });
   }
 
-  public static List<String> findFiles(String directory, String suffix) {
-    List<String> matches = new ArrayList<String>();
-    findFiles(matches, new File(directory), suffix);
-    return matches;
-  }
-
-  static void findFiles(List<String> matches, File directory, String suffix) {
+  public static void findClasses(File directory) throws IOException {
     File[] files = directory.listFiles();
     for (int i = 0; i < files.length; i++) {
       File file = files[i];
       if (file.isDirectory()) {
-        findFiles(matches, file, suffix);
-      } else if (file.getName().endsWith(suffix)) {
-        matches.add(file.getAbsolutePath());
+        findClasses(file);
+      } else if (file.getName().endsWith(".class")) {
+        ClassReader classReader = new ClassReader(new FileInputStream(file));
+        classes.add(classReader.b);
+        classNames.add(classReader.getClassName());        
+        if (classes.size() % 2500 == 0) {
+          System.out.println("... searching, found " + classes.size() + " classes.");
+        }
       }
     }
   }
@@ -508,21 +466,6 @@ public abstract class ALLPerfTest {
             + " kB per sec).");
     System.gc();
     Thread.sleep(2500);
-  }
-
-  private static List<String> findJars(char pathSeparatorChar, String s) {
-    List<String> ret = new ArrayList<String>();
-    int start = 0;
-    int pos = s.indexOf(pathSeparatorChar);
-    while (pos >= 0) {
-      String name = s.substring(start, pos);
-      if (name.endsWith(".jar")) {
-        ret.add(name);
-      }
-      start = pos + 1;
-      pos = s.indexOf(pathSeparatorChar, start);
-    }
-    return ret;
   }
 
   static void nullBCELAdapt(final byte[] b) throws IOException {

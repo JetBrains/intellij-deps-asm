@@ -311,9 +311,18 @@ public class ClassWriterTest extends AsmTest {
     }
     classReader.accept(classVisitor, attributes(), 0);
 
-    assertThat(() -> loadAndInstantiate(classParameter.getName(), classWriter.toByteArray()))
+    byte[] transformedClass = classWriter.toByteArray();
+    assertThat(() -> loadAndInstantiate(classParameter.getName(), transformedClass))
         .succeedsOrThrows(UnsupportedClassVersionError.class)
         .when(classParameter.isMoreRecentThanCurrentJdk());
+
+    // The transformed class should have the same structure as the original one.
+    ClassWriter originalClassWithoutCode = new ClassWriter(0);
+    classReader.accept(originalClassWithoutCode, ClassReader.SKIP_CODE);
+    ClassWriter transformedClassWithoutCode = new ClassWriter(0);
+    new ClassReader(transformedClass).accept(transformedClassWithoutCode, ClassReader.SKIP_CODE);
+    assertThatClass(transformedClassWithoutCode.toByteArray())
+        .isEqualTo(originalClassWithoutCode.toByteArray());
   }
 
   /** Tests modules without any optional data (ModulePackage, ModuleMainClass, etc). */

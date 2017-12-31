@@ -1,4 +1,4 @@
-image: gradle:4.4.1-jdk9
+image: gradle:4.4.1-jdk8-alpine
 
 variables:
   # Set the location of the dependency cache to a local directory, so that it
@@ -12,16 +12,7 @@ cache:
 
 build:
   script:
-    gradle build
-
-test:
-  script:
-    gradle test jacocoTestCoverageVerification
-
-upload:
-  script:
-    gradle uploadArchives
-
-sonar:
-  script:
-    'gradle sonarqube -Dsonar.host.url=https://sonarqube.ow2.org'
+    - gradle build
+    - gradle test jacocoTestCoverageVerification
+    - gradle uploadArchives
+    - 'gradle sonarqube -Dsonar.host.url=https://sonarqube.ow2.org'

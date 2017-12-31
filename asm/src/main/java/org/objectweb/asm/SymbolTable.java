@@ -100,7 +100,7 @@ final class SymbolTable {
 
   /**
    * The ClassReader from which this SymbolTable was constructed, or <tt>null</tt> if it was
-   * constructed from stratch.
+   * constructed from scratch.
    */
   private final ClassReader sourceClassReader;
 
@@ -278,7 +278,7 @@ final class SymbolTable {
     int currentAttributeOffset = classReader.getFirstAttributeOffset();
     for (int i = classReader.readUnsignedShort(currentAttributeOffset - 2); i > 0; --i) {
       String attributeName = classReader.readUTF8(currentAttributeOffset, charBuffer);
-      if ("BootstrapMethods".equals(attributeName)) {
+      if (Constants.BOOTSTRAP_METHODS.equals(attributeName)) {
         bootstrapMethodCount = classReader.readUnsignedShort(currentAttributeOffset + 6);
         break;
       }

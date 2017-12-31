@@ -27,17 +27,15 @@
 // THE POSSIBILITY OF SUCH DAMAGE.
 package org.objectweb.asm.benchmarks;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URLClassLoader;
+import java.util.concurrent.TimeUnit;
 
 import org.openjdk.jmh.annotations.Benchmark;
+import org.openjdk.jmh.annotations.Fork;
+import org.openjdk.jmh.annotations.Measurement;
 import org.openjdk.jmh.annotations.Scope;
 import org.openjdk.jmh.annotations.Setup;
 import org.openjdk.jmh.annotations.State;
+import org.openjdk.jmh.annotations.Warmup;
 
 /**
  * A benchmark to measure the performance of several libraries when generating a "Hello World!"
@@ -45,31 +43,28 @@ import org.openjdk.jmh.annotations.State;
  *
  * @author Eric Bruneton
  */
+@Fork(1)
+@Warmup(iterations = 5, time = 1, timeUnit = TimeUnit.SECONDS)
+@Measurement(iterations = 20, time = 1, timeUnit = TimeUnit.SECONDS)
 @State(Scope.Thread)
-public class GeneratorBenchmark {
+public class GeneratorBenchmark extends AbstractBenchmark {
 
-  // The directories where the different versions of ASM can be found.
-  private static final String BUILD_DIR = "/benchmarks/write/build/";
-  private static final String ASM4_0 = BUILD_DIR + "asm4/";
-  private static final String ASM5_0 = BUILD_DIR + "asm5/";
-  private static final String ASM6_0 = BUILD_DIR + "asm6/";
-  private static final String ASM6_1 = "/asm/build/classes/java/main/";
+  private Generator asm4_0;
+  private Generator asm5_0;
+  private Generator asm6_0;
+  private Generator asm6_1;
+  private Generator aspectJBcel;
+  private Generator bcel;
+  private Generator cojen;
+  private Generator csgBytecode;
+  private Generator gnuByteCode;
+  private Generator jclassLib;
+  private Generator jiapi;
+  private Generator mozillaClassFile;
 
-  // The fully qualified name of the ASMGenerator class.
-  private static final String ASM_GENERATOR = "org.objectweb.asm.benchmarks.ASMGenerator";
-
-  Generator asm4_0;
-  Generator asm5_0;
-  Generator asm6_0;
-  Generator asm6_1;
-  Generator aspectJBcel;
-  Generator bcel;
-  Generator cojen;
-  Generator csgBytecode;
-  Generator gnuByteCode;
-  Generator jclassLib;
-  Generator jiapi;
-  Generator mozillaClassFile;
+  public GeneratorBenchmark() {
+    super("org.objectweb.asm.benchmarks.ASMGenerator");
+  }
 
   /**
    * Prepares the benchmark by creating a {@link Generator} for each library to be tested.
@@ -78,11 +73,10 @@ public class GeneratorBenchmark {
    */
   @Setup
   public void prepare() throws Exception {
-    String userDir = System.getProperty("user.dir");
-    asm4_0 = new ASMGeneratorFactory(userDir + ASM4_0).newAsmGenerator();
-    asm5_0 = new ASMGeneratorFactory(userDir + ASM5_0).newAsmGenerator();
-    asm6_0 = new ASMGeneratorFactory(userDir + ASM6_0).newAsmGenerator();
-    asm6_1 = new ASMGeneratorFactory(userDir + ASM6_1).newAsmGenerator();
+    asm4_0 = (Generator) new AsmBenchmarkFactory(AsmVersion.V4_0).newAsmBenchmark();
+    asm5_0 = (Generator) new AsmBenchmarkFactory(AsmVersion.V5_0).newAsmBenchmark();
+    asm6_0 = (Generator) new AsmBenchmarkFactory(AsmVersion.V6_0).newAsmBenchmark();
+    asm6_1 = (Generator) new AsmBenchmarkFactory(AsmVersion.V6_1).newAsmBenchmark();
     aspectJBcel = new AspectJBCELGenerator();
     bcel = new BCELGenerator();
     cojen = new CojenGenerator();
@@ -91,6 +85,7 @@ public class GeneratorBenchmark {
     jclassLib = new JClassLibGenerator();
     jiapi = new JiapiGenerator();
     mozillaClassFile = new MozillaClassFileGenerator();
+
     // Check that the correct versions of ASM have been loaded.
     if (!asm4_0.getVersion().equals("ASM4")
         || !asm5_0.getVersion().equals("ASM5")
@@ -158,66 +153,5 @@ public class GeneratorBenchmark {
   @Benchmark
   public byte[] mozillaClassFile() {
     return mozillaClassFile.generateClass();
-  }
-
-  /** A factory of {@link ASMGenerator} objects, using a specific version of the ASM library. */
-  private static class ASMGeneratorFactory extends URLClassLoader {
-
-    /**
-     * Constructs a {@link ASMGeneratorFactory}.
-     *
-     * @param asmDirectory the directory where the ASM library classes can be found.
-     * @throws MalformedURLException
-     */
-    ASMGeneratorFactory(final String asmDirectory) throws MalformedURLException {
-      super(new URL[] {new URL("file://" + asmDirectory)});
-    }
-
-    /**
-     * @return a new {@link ASMGenerator} instance.
-     * @throws Exception
-     */
-    public Generator newAsmGenerator() throws Exception {
-      return (Generator) loadClass(ASM_GENERATOR).newInstance();
-    }
-
-    protected Class<?> loadClass(final String name, final boolean resolve)
-        throws ClassNotFoundException {
-      // Force the loading of the ASMGenerator class by this class loader (and not its parent). This
-      // is needed to make sure that the classes it references (i.e. the ASM library classes) will
-      // be loaded by this class loader too.
-      if (name.equals(ASM_GENERATOR)) {
-        try (InputStream inputStream = getResourceAsStream(name.replace('.', '/') + ".class")) {
-          ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-          byte[] data = new byte[inputStream.available()];
-          int bytesRead;
-          while ((bytesRead = inputStream.read(data, 0, data.length)) != -1) {
-            outputStream.write(data, 0, bytesRead);
-          }
-          outputStream.flush();
-          byte[] classFile = outputStream.toByteArray();
-          Class<?> c = defineClass(name, classFile, 0, classFile.length);
-          if (resolve) {
-            resolveClass(c);
-          }
-          return c;
-        } catch (Exception e) {
-          throw new ClassNotFoundException(name, e);
-        }
-      }
-      // Look for the specified class *first* in asmDirectory, *then* using the parent class loader.
-      // This is the reverse of the default lookup order, and is necessary to make sure we load the
-      // correct version of ASM (the parent class loader may have an ASM version in its class path,
-      // because some components of the JMH framework depend on ASM).
-      try {
-        Class<?> c = findClass(name);
-        if (resolve) {
-          resolveClass(c);
-        }
-        return c;
-      } catch (ClassNotFoundException e) {
-        return super.loadClass(name, resolve);
-      }
-    }
   }
 }

@@ -32,68 +32,67 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
-import java.util.List;
-
-import org.openjdk.jmh.annotations.Benchmark;
-import org.openjdk.jmh.annotations.Scope;
-import org.openjdk.jmh.annotations.Setup;
-import org.openjdk.jmh.annotations.State;
 
 /**
- * A benchmark to measure the memory usage of several Java bytecode libraries when reading Java
- * classes.
+ * A benchmark to benchmark different versions of ASM and possibly other bytecode libraries.
  *
  * @author Eric Bruneton
  */
-@State(Scope.Thread)
-public class MemoryBenchmark {
+public abstract class AbstractBenchmark {
 
   // The directories where the different versions of ASM can be found.
-  private static final String BUILD_DIR = "/benchmarks/memory/build/";
+  private static final String BUILD_DIR = "/benchmarks/build/";
   private static final String ASM4_0 = BUILD_DIR + "asm4.0/";
   private static final String ASM5_0 = BUILD_DIR + "asm5.0.1/";
   private static final String ASM6_0 = BUILD_DIR + "asm6.0/";
   private static final String ASM_CORE_6_1 = "/asm/build/classes/java/main/";
   private static final String ASM_TREE_6_1 = "/asm-tree/build/classes/java/main/";
 
-  // The fully qualified name of the ASMFactory class.
-  private static final String ASM_FACTORY = "org.objectweb.asm.benchmarks.ASMFactory";
+  private final String asmBenchmarkClass;
+  private final String userDir;
 
-  private Factory asm4_0;
-  private Factory asm5_0;
-  private Factory asm6_0;
-  private Factory asm6_1;
+  /** Some class files that can be used as input data for benchmarks. */
+  protected ArrayList<byte[]> classFiles;
 
-  private ArrayList<byte[]> classFiles;
+  /** The ASM versions that can be benchmarked. */
+  public enum AsmVersion {
+    V4_0,
+    V5_0,
+    V6_0,
+    V6_1;
+
+    URL[] getUrls(final String baseUrl) throws MalformedURLException {
+      switch (this) {
+        case V4_0:
+          return new URL[] {new URL(baseUrl + ASM4_0)};
+        case V5_0:
+          return new URL[] {new URL(baseUrl + ASM5_0)};
+        case V6_0:
+          return new URL[] {new URL(baseUrl + ASM6_0)};
+        case V6_1:
+          return new URL[] {new URL(baseUrl + ASM_CORE_6_1), new URL(baseUrl + ASM_TREE_6_1)};
+        default:
+          throw new AssertionError();
+      }
+    }
+  }
 
   /**
-   * Prepares the benchmark by creating a {@link Factory} for each library to be tested, and by
-   * loading some test data (i.e. some classes to read).
+   * Constructs a new {@link AbstractBenchmark}.
    *
-   * @throws Exception if an error occurs.
+   * @param asmBenchmarkClass the benchmark class to instantiate for the ASM benchmarks.
    */
-  @Setup
-  public void prepare() throws Exception {
-    String userDir = System.getProperty("user.dir");
-    String baseUrl = "file://" + userDir;
-    asm4_0 = new ASMFactoryFactory(new URL[] {new URL(baseUrl + ASM4_0)}).newAsmFactory();
-    asm5_0 = new ASMFactoryFactory(new URL[] {new URL(baseUrl + ASM5_0)}).newAsmFactory();
-    asm6_0 = new ASMFactoryFactory(new URL[] {new URL(baseUrl + ASM6_0)}).newAsmFactory();
-    asm6_1 =
-        new ASMFactoryFactory(
-                new URL[] {new URL(baseUrl + ASM_CORE_6_1), new URL(baseUrl + ASM_TREE_6_1)})
-            .newAsmFactory();
-    // Check that the correct versions of ASM have been loaded.
-    if (!asm4_0.getVersion().equals("ASM4")
-        || !asm5_0.getVersion().equals("ASM5")
-        || !asm6_0.getVersion().equals("ASM6")
-        || !asm6_1.getVersion().equals("ASM6")) {
-      throw new IllegalStateException();
-    }
+  protected AbstractBenchmark(final String asmBenchmarkClass) {
+    this.asmBenchmarkClass = asmBenchmarkClass;
+    this.userDir = System.getProperty("user.dir");
+  }
 
+  /** Creates and populates {@link #classFiles} with some class files read from disk. */
+  protected void prepareClasses() throws IOException {
     classFiles = new ArrayList<byte[]>();
     findClasses(new File(userDir + ASM_CORE_6_1), classFiles);
     findClasses(new File(userDir + ASM_TREE_6_1), classFiles);
@@ -129,88 +128,39 @@ public class MemoryBenchmark {
     }
   }
 
-  @Benchmark
-  public void newClass_asm4_0() {
-    for (byte[] classFile : classFiles) {
-      MemoryProfiler.keepReference(asm4_0.newClass(classFile));
-    }
-  }
-
-  @Benchmark
-  public void newClass_asm5_0() {
-    for (byte[] classFile : classFiles) {
-      MemoryProfiler.keepReference(asm5_0.newClass(classFile));
-    }
-  }
-
-  @Benchmark
-  public void newClass_asm6_0() {
-    for (byte[] classFile : classFiles) {
-      MemoryProfiler.keepReference(asm6_0.newClass(classFile));
-    }
-  }
-
-  @Benchmark
-  public void newClass_asm6_1() {
-    for (byte[] classFile : classFiles) {
-      MemoryProfiler.keepReference(asm6_1.newClass(classFile));
-    }
-  }
-
-  @Benchmark
-  public void newClassNode_asm4_0() {
-    for (byte[] classFile : classFiles) {
-      MemoryProfiler.keepReference(asm4_0.newClassNode(classFile));
-    }
-  }
-
-  @Benchmark
-  public void newClassNode_asm5_0() {
-    for (byte[] classFile : classFiles) {
-      MemoryProfiler.keepReference(asm5_0.newClassNode(classFile));
-    }
-  }
-
-  @Benchmark
-  public void newClassNode_asm6_0() {
-    for (byte[] classFile : classFiles) {
-      MemoryProfiler.keepReference(asm6_0.newClassNode(classFile));
-    }
-  }
-
-  @Benchmark
-  public void newClassNode_asm6_1() {
-    for (byte[] classFile : classFiles) {
-      MemoryProfiler.keepReference(asm6_1.newClassNode(classFile));
-    }
-  }
-
-  /** A factory of {@link ASMFactory} objects, using a specific version of the ASM library. */
-  private static class ASMFactoryFactory extends URLClassLoader {
+  /** A factory of ASM benchmark objects, using a specific version of the ASM library. */
+  class AsmBenchmarkFactory extends URLClassLoader {
 
     /**
-     * Constructs an {@link ASMFactoryFactory}.
+     * Constructs an {@link AsmBenchmarkFactory}.
      *
      * @param asmDirectories the directories where the ASM library classes can be found.
+     * @param asmBenchmarkClass the class that must be instantiated by this factory.
+     * @throws MalformedURLException
      */
-    ASMFactoryFactory(final URL[] asmDirectories) {
-      super(asmDirectories);
+    AsmBenchmarkFactory(final AsmVersion asmVersion) throws MalformedURLException {
+      super(asmVersion.getUrls("file://" + userDir));
     }
 
     /**
-     * @return a new {@link ASMFactory} instance.
+     * @return a new instance of the class specified in the benchmark's constructor.
+     * @throws ClassNotFoundException
+     * @throws IllegalAccessException
+     * @throws InstantiationException
      * @throws Exception
      */
-    public Factory newAsmFactory() throws Exception {
-      return (Factory) loadClass(ASM_FACTORY).newInstance();
+    public Object newAsmBenchmark()
+        throws InstantiationException, IllegalAccessException, ClassNotFoundException {
+      return loadClass(asmBenchmarkClass).newInstance();
     }
 
+    @Override
     protected Class<?> loadClass(final String name, final boolean resolve)
         throws ClassNotFoundException {
-      // Force the loading of the ASMFactory class by this class loader (and not its parent). This
-      // is needed to make sure that the classes it references (i.e. the ASM library classes) will
-      // be loaded by this class loader too.
-      if (name.startsWith(ASM_FACTORY)) {
+      // Force the loading of the asmBenchmarkClass class by this class loader (and not its parent).
+      // This is needed to make sure that the classes it references (i.e. the ASM library classes)
+      // will be loaded by this class loader too.
+      if (name.startsWith(asmBenchmarkClass)) {
         try {
           byte[] classFile =
               readInputStream(getResourceAsStream(name.replace('.', '/') + ".class"));

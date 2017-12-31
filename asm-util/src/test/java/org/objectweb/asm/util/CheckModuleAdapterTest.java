@@ -30,6 +30,8 @@ package org.objectweb.asm.util;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import org.junit.jupiter.api.Test;
+import org.objectweb.asm.ModuleVisitor;
+import org.objectweb.asm.Opcodes;
 
 /**
  * CheckModuleAdapter tests.
@@ -76,5 +78,39 @@ public class CheckModuleAdapterTest {
   public void testIllegalMemberVisitAfterEnd() {
     checkModuleAdapter.visitEnd();
     assertThrows(RuntimeException.class, () -> checkModuleAdapter.visitUse("service"));
+  }
+  
+  @Test // see issue #317804
+  public void testRequireJavaBaseTransitive() {
+    CheckClassAdapter adapter = new CheckClassAdapter(null, false);
+    adapter.visit(Opcodes.V10, Opcodes.ACC_PUBLIC, "module-info", null, null, null);
+    ModuleVisitor moduleVisitor = adapter.visitModule("org.objectweb.asm", 0, null);
+    assertThrows(IllegalArgumentException.class, () -> moduleVisitor.visitRequire("java.base", Opcodes.ACC_TRANSITIVE, null));
+  }
+  
+  @Test  // see issue #317804
+  public void testRequireJavaBaseStaticPhase() {
+    CheckClassAdapter adapter = new CheckClassAdapter(null, false);
+    adapter.visit(Opcodes.V10, Opcodes.ACC_PUBLIC, "module-info", null, null, null);
+    ModuleVisitor moduleVisitor = adapter.visitModule("org.objectweb.asm", 0, null);
+    assertThrows(IllegalArgumentException.class, () -> moduleVisitor.visitRequire("java.base", Opcodes.ACC_STATIC_PHASE, null));
+  }
+  
+  @Test  // see issue #317804
+  public void testRequireJavaBaseTransitiveAndStaticPhase() {
+    CheckClassAdapter adapter = new CheckClassAdapter(null, false);
+    adapter.visit(Opcodes.V10, Opcodes.ACC_PUBLIC, "module-info", null, null, null);
+    ModuleVisitor moduleVisitor = adapter.visitModule("org.objectweb.asm", 0, null);
+    assertThrows(IllegalArgumentException.class, () -> moduleVisitor.visitRequire("java.base", Opcodes.ACC_TRANSITIVE | Opcodes.ACC_STATIC_PHASE, null));
+  }
+  
+  @Test // see issue #317804
+  public void testRequireJavaBaseTransitiveOrStaticPhaseAreIgnoredUnderJVMS9() {
+    CheckClassAdapter adapter = new CheckClassAdapter(null, false);
+    adapter.visit(Opcodes.V9, Opcodes.ACC_PUBLIC, "module-info", null, null, null);
+    ModuleVisitor moduleVisitor = adapter.visitModule("org.objectweb.asm", 0, null);
+    moduleVisitor.visitRequire("java.base", Opcodes.ACC_TRANSITIVE | Opcodes.ACC_STATIC_PHASE, null);
+    moduleVisitor.visitEnd();
+    adapter.visitEnd();
   }
 }

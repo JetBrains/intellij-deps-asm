@@ -403,8 +403,10 @@ public class CheckClassAdapter extends ClassVisitor {
     visitModuleCalled = true;
     checkFullyQualifiedName(name, "module name");
     checkAccess(access, Opcodes.ACC_OPEN | Opcodes.ACC_SYNTHETIC | Opcodes.ACC_MANDATED);
-    return new CheckModuleAdapter(
+    CheckModuleAdapter checkModuleAdapter = new CheckModuleAdapter(
         api, super.visitModule(name, access, version), (access & Opcodes.ACC_OPEN) != 0);
+    checkModuleAdapter.classVersion = this.version;
+    return checkModuleAdapter;
   }
 
   @Override

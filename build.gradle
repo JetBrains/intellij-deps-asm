@@ -188,8 +188,8 @@ configure(subprojects.findAll { it.provides }) {
   // Code coverage configuration (JUnit5 is not yet supported by default, we 
   // need to override the default tasks to make this work).
   apply plugin: 'jacoco'
+  jacoco { applyTo junitPlatformTest }
   afterEvaluate {
-    jacoco { applyTo junitPlatformTest }
     task jacocoTestReport(type: JacocoReport, overwrite: true) {
       executionData junitPlatformTest
       sourceSets sourceSets.main

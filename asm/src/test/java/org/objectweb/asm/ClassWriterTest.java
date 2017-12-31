@@ -316,7 +316,7 @@ public class ClassWriterTest extends AsmTest {
         .succeedsOrThrows(UnsupportedClassVersionError.class)
         .when(classParameter.isMoreRecentThanCurrentJdk());
 
-    // The transformed class should have the same structure as the original one.
+    // The transformed class should have the same structure as the original one (#317792).
     ClassWriter originalClassWithoutCode = new ClassWriter(0);
     classReader.accept(originalClassWithoutCode, ClassReader.SKIP_CODE);
     ClassWriter transformedClassWithoutCode = new ClassWriter(0);

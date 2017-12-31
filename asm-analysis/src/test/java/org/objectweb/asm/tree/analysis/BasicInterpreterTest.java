@@ -27,7 +27,11 @@
 // THE POSSIBILITY OF SUCH DAMAGE.
 package org.objectweb.asm.tree.analysis;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+
+import java.io.FileInputStream;
+import java.io.IOException;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -50,6 +54,25 @@ public class BasicInterpreterTest extends AsmTest {
   }
 
   /**
+   * Tests that stack map frames are correctly merged when a JSR instruction can be reached from two
+   * different control flow paths, with different local variable types (#316204).
+   *
+   * @throws IOException
+   * @throws AnalyzerException
+   */
+  @Test
+  public void testMergeWithJsrReachableFromTwoDifferentPaths()
+      throws IOException, AnalyzerException {
+    ClassReader classReader =
+        new ClassReader(new FileInputStream("src/test/resources/Issue316204.class"));
+    ClassNode classNode = new ClassNode();
+    classReader.accept(classNode, 0);
+    Analyzer<BasicValue> analyzer = new Analyzer<>(new BasicInterpreter());
+    analyzer.analyze(classNode.name, getMethod(classNode, "basicStopBundles"));
+    assertEquals("RIR..... ", analyzer.getFrames()[104].toString());
+  }
+
+  /**
    * Tests that the precompiled classes can be successfully analyzed with a BasicInterpreter.
    *
    * @throws AnalyzerException
@@ -64,5 +87,14 @@ public class BasicInterpreterTest extends AsmTest {
       Analyzer<BasicValue> analyzer = new Analyzer<BasicValue>(new BasicInterpreter());
       analyzer.analyze(classNode.name, methodNode);
     }
+  }
+
+  private static MethodNode getMethod(final ClassNode classNode, final String name) {
+    for (MethodNode methodNode : classNode.methods) {
+      if (methodNode.name.equals(name)) {
+        return methodNode;
+      }
+    }
+    return null;
   }
 }

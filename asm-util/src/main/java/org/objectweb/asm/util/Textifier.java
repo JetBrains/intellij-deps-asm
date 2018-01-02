@@ -235,6 +235,15 @@ public class Textifier extends Printer {
   }
 
   @Override
+  public void visitNestHost(String nestHost) {
+    stringBuilder.setLength(0);
+    stringBuilder.append(tab).append("NESTHOST ");
+    appendDescriptor(INTERNAL_NAME, nestHost);
+    stringBuilder.append('\n');
+    text.add(stringBuilder.toString());
+  }
+
+  @Override
   public void visitOuterClass(final String owner, final String name, final String descriptor) {
     stringBuilder.setLength(0);
     stringBuilder.append(tab).append("OUTERCLASS ");
@@ -265,6 +274,15 @@ public class Textifier extends Printer {
   public void visitClassAttribute(final Attribute attribute) {
     text.add("\n");
     visitAttribute(attribute);
+  }
+
+  @Override
+  public void visitNestMember(final String nestMember) {
+    stringBuilder.setLength(0);
+    stringBuilder.append(tab).append("NESTMEMBER ");
+    appendDescriptor(INTERNAL_NAME, nestMember);
+    stringBuilder.append('\n');
+    text.add(stringBuilder.toString());
   }
 
   @Override

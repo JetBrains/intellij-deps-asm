@@ -29,9 +29,10 @@ package org.objectweb.asm;
 
 /**
  * A visitor to visit a Java class. The methods of this class must be called in the following order:
- * <tt>visit</tt> [ <tt>visitSource</tt> ] [ <tt>visitModule</tt> ][ <tt>visitOuterClass</tt> ] (
- * <tt>visitAnnotation</tt> | <tt>visitTypeAnnotation</tt> | <tt>visitAttribute</tt> )* (
- * <tt>visitInnerClass</tt> | <tt>visitField</tt> | <tt>visitMethod</tt> )* <tt>visitEnd</tt>.
+ * <tt>visit</tt> [ <tt>visitSource</tt> ] [ <tt>visitModule</tt> ][ <tt>visitNestHost</tt> ][
+ * <tt>visitOuterClass</tt> ] ( <tt>visitAnnotation</tt> | <tt>visitTypeAnnotation</tt> |
+ * <tt>visitAttribute</tt> )* ( <tt>visitNestMember</tt> | <tt>visitInnerClass</tt> |
+ * <tt>visitField</tt> | <tt>visitMethod</tt> )* <tt>visitEnd</tt>.
  *
  * @author Eric Bruneton
  */
@@ -135,6 +136,21 @@ public abstract class ClassVisitor {
   }
 
   /**
+   * Visits the nest host class of the current class. A nest is a set of classes of the same package
+   * that share access to their private members. The host class should list the current class as
+   * {@link #visitNestMember(String) nest member}. This method must be called only once and only if
+   * the current class is a member of a nest. A class is implicitly its own nest, so it's invalid to
+   * call this method with the current class as argument.
+   *
+   * @param nestHost the internal name of the host class of the nest.
+   */
+  public void visitNestHost(final String nestHost) {
+    if (cv != null) {
+      cv.visitNestHost(nestHost);
+    }
+  }
+
+  /**
    * Visits the enclosing class of the class. This method must be called only if the class has an
    * enclosing class.
    *
@@ -199,6 +215,19 @@ public abstract class ClassVisitor {
   public void visitAttribute(final Attribute attribute) {
     if (cv != null) {
       cv.visitAttribute(attribute);
+    }
+  }
+
+  /**
+   * Visits a member of the nest. A nest is a set of classes of the same package that share access
+   * to their private members. The nest member should declare the current class as its {@link
+   * #visitNestMember(String) host class}.
+   *
+   * @param nestMember the internal name of a nest member.
+   */
+  public void visitNestMember(String nestMember) {
+    if (cv != null) {
+      cv.visitNestMember(nestMember);
     }
   }
 

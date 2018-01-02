@@ -385,6 +385,21 @@ public abstract class Printer {
   }
 
   /**
+   * Nest host class. See {@link org.objectweb.asm.ClassVisitor#visitNestHost}.
+   *
+   * <p>Visits the nest host class of the current class. A nest is a set of classes of the same
+   * package that share access to their private members. The host class should list the current
+   * class as {@link #visitNestMember(String) nest member}. This method must be called only once and
+   * only if the current class is a member of a nest. A class is implicitly its own nest, so it's
+   * invalid to call this method with the current class as argument.
+   *
+   * @param nestHost the internal name of the host class of the nest.
+   */
+  public void visitNestHost(final String nestHost) {
+    throw new UnsupportedOperationException(UNSUPPORTED_OPERATION);
+  }
+
+  /**
    * Class outer class. See {@link org.objectweb.asm.ClassVisitor#visitOuterClass}.
    *
    * @param owner internal name of the enclosing class of the class.
@@ -430,6 +445,19 @@ public abstract class Printer {
    * @param attribute an attribute.
    */
   public abstract void visitClassAttribute(Attribute attribute);
+
+  /**
+   * Nest member name. See {@link org.objectweb.asm.ClassVisitor#visitNestMember}.
+   *
+   * <p>Visits a member of the nest. A nest is a set of classes of the same package that share
+   * access to their private members. The nest member should declare the current class as its {@link
+   * #visitNestMember(String) host class}.
+   *
+   * @param nestMember the internal name of a nest member.
+   */
+  public void visitNestMember(final String nestMember) {
+    throw new RuntimeException("Must be overriden");
+  }
 
   /**
    * Class inner name. See {@link org.objectweb.asm.ClassVisitor#visitInnerClass}.

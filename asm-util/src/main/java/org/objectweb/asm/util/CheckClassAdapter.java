@@ -128,6 +128,14 @@ public class CheckClassAdapter extends ClassVisitor {
   /** Whether the {@link #visitOuterClass} method has been called. */
   private boolean visitOuterClassCalled;
 
+  /** Whether the {@link #visitNestHost} method has been called. */
+  private boolean visitNestHostCalled;
+
+  /**
+   * Package of all nest members. Not <tt>null</tt> if the visitNestMember method has been called.
+   */
+  private String nestMemberPackageName;
+
   /** Whether the {@link #visitEnd} method has been called. */
   private boolean visitEndCalled;
 
@@ -403,10 +411,46 @@ public class CheckClassAdapter extends ClassVisitor {
     visitModuleCalled = true;
     checkFullyQualifiedName(name, "module name");
     checkAccess(access, Opcodes.ACC_OPEN | Opcodes.ACC_SYNTHETIC | Opcodes.ACC_MANDATED);
-    CheckModuleAdapter checkModuleAdapter = new CheckModuleAdapter(
-        api, super.visitModule(name, access, version), (access & Opcodes.ACC_OPEN) != 0);
+    CheckModuleAdapter checkModuleAdapter =
+        new CheckModuleAdapter(
+            api, super.visitModule(name, access, version), (access & Opcodes.ACC_OPEN) != 0);
     checkModuleAdapter.classVersion = this.version;
     return checkModuleAdapter;
+  }
+
+  @Override
+  public void visitNestHost(final String nestHost) {
+    checkState();
+    CheckMethodAdapter.checkInternalName(nestHost, "nestHost");
+    if (visitNestHostCalled) {
+      throw new IllegalStateException("visitNestHost can be called only once.");
+    }
+    if (nestMemberPackageName != null) {
+      throw new IllegalStateException(
+          "visitNestHost and and visitNestMember are mutually exclusive.");
+    }
+    visitNestHostCalled = true;
+    super.visitNestHost(nestHost);
+  }
+
+  @Override
+  public void visitNestMember(final String nestMember) {
+    checkState();
+    CheckMethodAdapter.checkInternalName(nestMember, "nestMember");
+    if (visitNestHostCalled) {
+      throw new IllegalStateException(
+          "visitMemberOfNest and and visitNestHost are mutually exclusive.");
+    }
+    String packageName = packageName(nestMember);
+    if (nestMemberPackageName == null) {
+      nestMemberPackageName = packageName;
+    } else {
+      if (!nestMemberPackageName.equals(packageName)) {
+        throw new IllegalStateException(
+            "nest member " + nestMember + " should be in the package " + nestMemberPackageName);
+      }
+    }
+    super.visitNestMember(nestMember);
   }
 
   @Override
@@ -1013,5 +1057,19 @@ public class CheckClassAdapter extends ClassVisitor {
       throw new IllegalArgumentException(
           "Invalid type reference 0x" + Integer.toHexString(typeRef));
     }
+  }
+
+  /**
+   * Returns the package name of an internal name.
+   *
+   * @param name an internal name.
+   * @return the package name or "" if there is no package
+   */
+  private static String packageName(String name) {
+    int index = name.lastIndexOf('/');
+    if (index == -1) {
+      return "";
+    }
+    return name.substring(0, index);
   }
 }

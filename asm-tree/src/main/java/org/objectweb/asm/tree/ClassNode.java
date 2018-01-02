@@ -121,6 +121,12 @@ public class ClassNode extends ClassVisitor {
   /** The inner classes of this class. */
   public List<InnerClassNode> innerClasses;
 
+  /** The nest host class of this class */
+  public String nestHostClass;
+
+  /** The nest members of this class */
+  public List<String> nestMembers;
+
   /** The fields of this class. */
   public List<FieldNode> fields;
 
@@ -187,6 +193,11 @@ public class ClassNode extends ClassVisitor {
   }
 
   @Override
+  public void visitNestHost(String nestHost) {
+    this.nestHostClass = nestHost;
+  }
+
+  @Override
   public void visitOuterClass(final String owner, final String name, final String descriptor) {
     outerClass = owner;
     outerMethod = name;
@@ -234,6 +245,14 @@ public class ClassNode extends ClassVisitor {
       attrs = new ArrayList<Attribute>(1);
     }
     attrs.add(attribute);
+  }
+
+  @Override
+  public void visitNestMember(String nestMember) {
+    if (nestMembers == null) {
+      nestMembers = new ArrayList<String>();
+    }
+    nestMembers.add(nestMember);
   }
 
   @Override
@@ -343,6 +362,10 @@ public class ClassNode extends ClassVisitor {
     if (module != null) {
       module.accept(classVisitor);
     }
+    // Visit nest host class
+    if (nestHostClass != null) {
+      classVisitor.visitNestHost(nestHostClass);
+    }
     // Visit the outer class.
     if (outerClass != null) {
       classVisitor.visitOuterClass(outerClass, outerMethod, outerMethodDesc);
@@ -380,6 +403,12 @@ public class ClassNode extends ClassVisitor {
     if (attrs != null) {
       for (int i = 0, n = attrs.size(); i < n; ++i) {
         classVisitor.visitAttribute(attrs.get(i));
+      }
+    }
+    // visit nest members
+    if (nestMembers != null) {
+      for (int i = 0, n = nestMembers.size(); i < n; ++i) {
+        classVisitor.visitNestMember(nestMembers.get(i));
       }
     }
     // Visit the inner classes.

@@ -140,6 +140,16 @@ public class RemappingClassAdapter extends ClassVisitor {
         desc == null ? null : remapper.mapMethodDesc(desc));
   }
 
+  @Override
+  public void visitNestHost(String nestHost) {
+    throw new RuntimeException("RemappingClassAdapter is deprecated, use ClassRemapper instead");
+  }
+
+  @Override
+  public void visitNestMember(String nestMember) {
+    throw new RuntimeException("RemappingClassAdapter is deprecated, use ClassRemapper instead");
+  }
+
   protected FieldVisitor createRemappingFieldAdapter(FieldVisitor fv) {
     return new RemappingFieldAdapter(fv, remapper);
   }

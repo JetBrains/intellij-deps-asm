@@ -154,6 +154,16 @@ public class ClassRemapper extends ClassVisitor {
         desc == null ? null : remapper.mapMethodDesc(desc));
   }
 
+  @Override
+  public void visitNestHost(String nestHost) {
+    super.visitNestHost(remapper.mapType(nestHost));
+  }
+
+  @Override
+  public void visitNestMember(String nestMember) {
+    super.visitNestMember(remapper.mapType(nestMember));
+  }
+
   protected FieldVisitor createFieldRemapper(FieldVisitor fv) {
     return new FieldRemapper(api, fv, remapper);
   }

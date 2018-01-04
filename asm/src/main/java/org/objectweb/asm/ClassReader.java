@@ -106,10 +106,19 @@ public class ClassReader {
   private final int[] cpInfoOffsets;
 
   /**
-   * The String objects corresponding to the CONSTANT_Utf8 items. This cache avoids multiple parsing
-   * of a given CONSTANT_Utf8 constant pool item.
+   * The String or Condy objects respectively corresponding to the CONSTANT_Utf8 and
+   * CONSTANT_Dynamic items. This cache avoids multiple parsing of those constant pool items.
    */
-  private final String[] constantUtf8Values;
+  private final Object[] cacheValues;
+
+  /**
+   * The start offsets in {@link ClassReader#b} of each element of the bootstrap_methods array (in
+   * the BootstrapMethod attribute).
+   *
+   * @see <a href="https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.7.23">JVMS
+   *     4.7.23</a>
+   */
+  int[] bootstrapMethodOffsets;
 
   /**
    * A conservative estimate of the maximum length of the strings contained in the constant pool of
@@ -152,7 +161,7 @@ public class ClassReader {
     // minor_version and major_version fields, which use 4, 2 and 2 bytes respectively.
     int constantPoolCount = readUnsignedShort(classFileOffset + 8);
     cpInfoOffsets = new int[constantPoolCount];
-    constantUtf8Values = new String[constantPoolCount];
+    cacheValues = new Object[constantPoolCount];
     // Compute the offset of each constant pool entry, as well as a conservative estimate of the
     // maximum length of the constant pool strings. The first constant pool entry is after the
     // magic, minor_version, major_version and constant_pool_count fields, which use 4, 2, 2 and 2
@@ -172,6 +181,7 @@ public class ClassReader {
         case Symbol.CONSTANT_FLOAT_TAG:
         case Symbol.CONSTANT_NAME_AND_TYPE_TAG:
         case Symbol.CONSTANT_INVOKE_DYNAMIC_TAG:
+        case Symbol.CONSTANT_DYNAMIC_TAG:
           cpInfoSize = 5;
           break;
         case Symbol.CONSTANT_LONG_TAG:
@@ -453,7 +463,7 @@ public class ClassReader {
           currentBootstrapMethodOffset +=
               4 + readUnsignedShort(currentBootstrapMethodOffset + 2) * 2;
         }
-        context.bootstrapMethodOffsets = bootstrapMethodOffsets;
+        this.bootstrapMethodOffsets = bootstrapMethodOffsets;
       } else {
         Attribute attribute =
             readAttribute(
@@ -2170,8 +2180,7 @@ public class ClassReader {
             int nameAndTypeCpInfoOffset = cpInfoOffsets[readUnsignedShort(cpInfoOffset + 2)];
             String name = readUTF8(nameAndTypeCpInfoOffset, charBuffer);
             String descriptor = readUTF8(nameAndTypeCpInfoOffset + 2, charBuffer);
-            int bootstrapMethodOffset =
-                context.bootstrapMethodOffsets[readUnsignedShort(cpInfoOffset)];
+            int bootstrapMethodOffset = bootstrapMethodOffsets[readUnsignedShort(cpInfoOffset)];
             Handle handle =
                 (Handle) readConst(readUnsignedShort(bootstrapMethodOffset), charBuffer);
             Object[] boostrapMethodArguments =
@@ -3331,13 +3340,14 @@ public class ClassReader {
    * @return the String corresponding to the specified CONSTANT_Utf8 entry.
    */
   final String readUTF(final int constantPoolEntryIndex, final char[] charBuffer) {
-    String value = constantUtf8Values[constantPoolEntryIndex];
+    String value = (String) cacheValues[constantPoolEntryIndex];
     if (value != null) {
       return value;
     }
     int cpInfoOffset = cpInfoOffsets[constantPoolEntryIndex];
-    return constantUtf8Values[constantPoolEntryIndex] =
-        readUTF(cpInfoOffset + 2, readUnsignedShort(cpInfoOffset), charBuffer);
+    value = readUTF(cpInfoOffset + 2, readUnsignedShort(cpInfoOffset), charBuffer);
+    cacheValues[constantPoolEntryIndex] = value;
+    return value;
   }
 
   /**
@@ -3433,16 +3443,62 @@ public class ClassReader {
   }
 
   /**
+   * Reads a CONSTANT_Dynamic constant pool entry in {@link #b}.
+   *
+   * @param constantPoolEntryIndex the index of a CONSTANT_Dynamic entry in the class's constant
+   *     pool table.
+   * @param charBuffer the buffer to be used to read the string. This buffer must be sufficiently
+   *     large. It is not automatically resized.
+   * @return the Condy corresponding to the specified CONSTANT_Dynamic entry.
+   */
+  private Condy readConstantDynamic(final int constantPoolEntryIndex, final char[] charBuffer) {
+    Condy condy = (Condy) cacheValues[constantPoolEntryIndex];
+    if (condy != null) {
+      return condy;
+    }
+    int offset = cpInfoOffsets[constantPoolEntryIndex];
+    condy = decodeConstantDynamic(offset, charBuffer);
+    cacheValues[constantPoolEntryIndex] = condy;
+    return condy;
+  }
+
+  /**
+   * Reads a CONSTANT_Dynamic constant pool entry at a constant pool offset.
+   *
+   * @param offset the start offset of an unsigned short value in {@link #b}, whose value is the
+   *     index of a CONSTANT_Dynamic entry in class's constant pool table.
+   * @param charBuffer the buffer to be used to read the string. This buffer must be sufficiently
+   *     large. It is not automatically resized.
+   * @return the Condy corresponding to the specified CONSTANT_Dynamic entry.
+   */
+  private Condy decodeConstantDynamic(final int offset, final char[] charBuffer) {
+    int bsmIndex = bootstrapMethodOffsets[readUnsignedShort(offset)];
+    Handle bsm = (Handle) readConst(readUnsignedShort(bsmIndex), charBuffer);
+    int bsmArgCount = readUnsignedShort(bsmIndex + 2);
+    Object[] bsmArgs = new Object[bsmArgCount];
+    bsmIndex += 4;
+    for (int i = 0; i < bsmArgCount; i++) {
+      bsmArgs[i] = readConst(readUnsignedShort(bsmIndex), charBuffer);
+      bsmIndex += 2;
+    }
+    int cpOffset = cpInfoOffsets[readShort(offset + 2)];
+    String name = readUTF8(cpOffset, charBuffer);
+    String desc = readUTF8(cpOffset + 2, charBuffer);
+    return new Condy(name, desc, bsm, bsmArgs);
+  }
+
+  /**
    * Reads a numeric or string constant pool entry in {@link #b}. <i>This method is intended for
    * {@link Attribute} sub classes, and is normally not needed by class generators or adapters.</i>
    *
    * @param constantPoolEntryIndex the index of a CONSTANT_Integer, CONSTANT_Float, CONSTANT_Long,
-   *     CONSTANT_Double, CONSTANT_Class, CONSTANT_String, CONSTANT_MethodType or
-   *     CONSTANT_MethodHandle entry in the class's constant pool.
+   *     CONSTANT_Double, CONSTANT_Class, CONSTANT_String, CONSTANT_MethodType,
+   *     CONSTANT_MethodHandle or CONSTANT_Dynamic entry in the class's constant pool.
    * @param charBuffer the buffer to be used to read strings. This buffer must be sufficiently
    *     large. It is not automatically resized.
    * @return the {@link Integer}, {@link Float}, {@link Long}, {@link Double}, {@link String},
-   *     {@link Type} or {@link Handle} corresponding to the specified constant pool entry.
+   *     {@link Type}, {@link Handle} or {@link Condy} corresponding to the specified constant pool
+   *     entry.
    */
   public Object readConst(final int constantPoolEntryIndex, final char[] charBuffer) {
     int cpInfoOffset = cpInfoOffsets[constantPoolEntryIndex];
@@ -3471,6 +3527,8 @@ public class ClassReader {
         boolean isInterface =
             b[referenceCpInfoOffset - 1] == Symbol.CONSTANT_INTERFACE_METHODREF_TAG;
         return new Handle(referenceKind, owner, name, descriptor, isInterface);
+      case Symbol.CONSTANT_DYNAMIC_TAG:
+        return readConstantDynamic(constantPoolEntryIndex, charBuffer);
       default:
         throw new IllegalArgumentException();
     }

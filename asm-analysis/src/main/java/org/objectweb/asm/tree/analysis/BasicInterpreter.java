@@ -29,6 +29,7 @@ package org.objectweb.asm.tree.analysis;
 
 import java.util.List;
 
+import org.objectweb.asm.Condy;
 import org.objectweb.asm.Handle;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
@@ -154,6 +155,8 @@ public class BasicInterpreter extends Interpreter<BasicValue> implements Opcodes
           }
         } else if (value instanceof Handle) {
           return newValue(Type.getObjectType("java/lang/invoke/MethodHandle"));
+        } else if (value instanceof Condy) {
+          return newValue(Type.getType(((Condy)value).getDescriptor()));
         } else {
           throw new AnalyzerException(insn, "Illegal LDC value " + value);
         }

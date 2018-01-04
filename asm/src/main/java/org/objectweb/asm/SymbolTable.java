@@ -250,10 +250,12 @@ final class SymbolTable {
               classReader.readUTF8(nameAndTypeItemOffset, charBuffer),
               classReader.readUTF8(nameAndTypeItemOffset + 2, charBuffer));
           break;
+        case Symbol.CONSTANT_DYNAMIC_TAG:
         case Symbol.CONSTANT_INVOKE_DYNAMIC_TAG:
           nameAndTypeItemOffset =
               classReader.getItem(classReader.readUnsignedShort(itemOffset + 2));
-          addConstantInvokeDynamic(
+          addConstantBootstrapReference(
+              itemTag,
               itemIndex,
               classReader.readUTF8(nameAndTypeItemOffset, charBuffer),
               classReader.readUTF8(nameAndTypeItemOffset + 2, charBuffer),
@@ -498,6 +500,10 @@ final class SymbolTable {
       Handle handle = (Handle) value;
       return addConstantMethodHandle(
           handle.tag, handle.owner, handle.name, handle.descriptor, handle.isInterface);
+    } else if (value instanceof Condy) {
+      Condy condy = (Condy) value;
+      return addConstantDynamic(
+          condy.name, condy.descriptor, condy.bootstrapMethod, condy.bootstrapArguments);
     } else {
       throw new IllegalArgumentException("value " + value);
     }
@@ -866,6 +872,27 @@ final class SymbolTable {
   }
 
   /**
+   * Adds a CONSTANT_Dynamic_info to the constant pool of this symbol table. Also adds the related
+   * bootstrap method to the BootstrapMethods of this symbol table. Does nothing if the constant
+   * pool already contains a similar item.
+   *
+   * @param name a method name.
+   * @param descriptor a field descriptor.
+   * @param bootstrapMethodHandle a bootstrap method handle.
+   * @param bootstrapMethodArguments the bootstrap method arguments.
+   * @return a new or already existing Symbol with the given value.
+   */
+  Symbol addConstantDynamic(
+      final String name,
+      final String descriptor,
+      final Handle bootstrapMethodHandle,
+      final Object... bootstrapMethodArguments) {
+    Symbol bootstrapMethod = addBootstrapMethod(bootstrapMethodHandle, bootstrapMethodArguments);
+    return addConstantBootstrapReference(
+        Symbol.CONSTANT_DYNAMIC_TAG, name, descriptor, bootstrapMethod.index);
+  }
+
+  /**
    * Adds a CONSTANT_InvokeDynamic_info to the constant pool of this symbol table. Also adds the
    * related bootstrap method to the BootstrapMethods of this symbol table. Does nothing if the
    * constant pool already contains a similar item.
@@ -882,21 +909,24 @@ final class SymbolTable {
       final Handle bootstrapMethodHandle,
       final Object... bootstrapMethodArguments) {
     Symbol bootstrapMethod = addBootstrapMethod(bootstrapMethodHandle, bootstrapMethodArguments);
-    return addConstantInvokeDynamic(name, descriptor, bootstrapMethod.index);
+    return addConstantBootstrapReference(
+        Symbol.CONSTANT_INVOKE_DYNAMIC_TAG, name, descriptor, bootstrapMethod.index);
   }
 
   /**
-   * Adds a CONSTANT_InvokeDynamic_info to the constant pool of this symbol table. Does nothing if
-   * the constant pool already contains a similar item.
+   * Adds a CONSTANT_Dynamic or a CONSTANT_InvokeDynamic_info to the constant pool of this symbol
+   * table. Does nothing if the constant pool already contains a similar item.
    *
+   * @param tag one of {@link Symbol#CONSTANT_DYNAMIC_TAG} or {@link
+   *     Symbol#CONSTANT_INVOKE_DYNAMIC_TAG}.
    * @param name a method name.
-   * @param descriptor a method descriptor.
+   * @param descriptor a field descriptor for CONSTANT_DYNAMIC_TAG) or a method descriptor for
+   *     CONSTANT_INVOKE_DYNAMIC_TAG.
    * @param bootstrapMethodIndex the index of a bootstrap method in the BootstrapMethods attribute.
    * @return a new or already existing Symbol with the given value.
    */
-  private Symbol addConstantInvokeDynamic(
-      final String name, final String descriptor, final int bootstrapMethodIndex) {
-    final int tag = Symbol.CONSTANT_INVOKE_DYNAMIC_TAG;
+  private Symbol addConstantBootstrapReference(
+      final int tag, final String name, final String descriptor, final int bootstrapMethodIndex) {
     int hashCode = hash(tag, name, descriptor, bootstrapMethodIndex);
     Entry entry = get(hashCode);
     while (entry != null) {
@@ -916,16 +946,23 @@ final class SymbolTable {
   }
 
   /**
-   * Adds a new CONSTANT_InvokeDynamic_info to the constant pool of this symbol table.
+   * Adds a new CONSTANT_Dynamic_info or CONSTANT_InvokeDynamic_info to the constant pool of this
+   * symbol table.
    *
+   * @param tag one of {@link Symbol#CONSTANT_DYNAMIC_TAG} or {@link
+   *     Symbol#CONSTANT_INVOKE_DYNAMIC_TAG}.
    * @param index the constant pool index of the new Symbol.
    * @param name a method name.
-   * @param descriptor a method descriptor.
+   * @param descriptor a field descriptor for CONSTANT_DYNAMIC_TAG) or a method descriptor for
+   *     CONSTANT_INVOKE_DYNAMIC_TAG.
    * @param bootstrapMethodIndex the index of a bootstrap method in the BootstrapMethods attribute.
    */
-  private void addConstantInvokeDynamic(
-      final int index, final String name, final String descriptor, final int bootstrapMethodIndex) {
-    final int tag = Symbol.CONSTANT_INVOKE_DYNAMIC_TAG;
+  private void addConstantBootstrapReference(
+      final int index,
+      final int tag,
+      final String name,
+      final String descriptor,
+      final int bootstrapMethodIndex) {
     int hashCode = hash(tag, name, descriptor, bootstrapMethodIndex);
     add(new Entry(index, tag, null, name, descriptor, bootstrapMethodIndex, hashCode));
   }
@@ -1011,6 +1048,15 @@ final class SymbolTable {
       bootstrapMethodsAttribute = bootstrapMethods = new ByteVector();
     }
 
+    // CONDY can be recursive (and INDY can have CONDY bootstrap method arguments)
+    // so reserve them as constant pool constant first so the call to
+    // addConstant() when writing will only use already existing constants
+    // This loop can also stackoverflow if a CONDY reference itself,
+    // let burn into flame at that point
+    for (Object bootstrapMethodArgument : bootstrapMethodArguments) {
+      addConstant(bootstrapMethodArgument);
+    }
+
     // Write the bootstrap method in the BootstrapMethods table. This is necessary to be able to
     // compare it with existing ones, and will be reverted below if there is already a similar
     // bootstrap method.
@@ -1025,15 +1071,17 @@ final class SymbolTable {
             .index);
     int numBootstrapArguments = bootstrapMethodArguments.length;
     bootstrapMethodsAttribute.putShort(numBootstrapArguments);
-    for (int i = 0; i < numBootstrapArguments; i++) {
-      bootstrapMethodsAttribute.putShort(addConstant(bootstrapMethodArguments[i]).index);
+    for (Object bootstrapMethodArgument : bootstrapMethodArguments) {
+      bootstrapMethodsAttribute.putShort(addConstant(bootstrapMethodArgument).index);
     }
 
     // Compute the length and the hash code of the bootstrap method.
+    // TODO Eric: should we merge this loop with the one that preallocate
+    // the bootstrap constants
     int bootstrapMethodlength = bootstrapMethodsAttribute.length - bootstrapMethodOffset;
     int hashCode = bootstrapMethodHandle.hashCode();
-    for (int i = 0; i < numBootstrapArguments; i++) {
-      hashCode ^= bootstrapMethodArguments[i].hashCode();
+    for (Object bootstrapMethodArgument : bootstrapMethodArguments) {
+      hashCode ^= bootstrapMethodArgument.hashCode();
     }
     hashCode &= 0x7FFFFFFF;
 

@@ -44,7 +44,7 @@ subprojects {
   apply plugin: 'org.junit.platform.gradle.plugin'
   junitPlatform { filters { engines { 'junit-jupiter' } } }
   group = 'org.ow2.asm'
-  version = 6.1
+  version = '6.1-beta'
   sourceCompatibility = '1.6'
   targetCompatibility = '1.6'
   ext.provides = []  // The provided java packages, e.g. ['org.objectweb.asm']
@@ -319,8 +319,14 @@ configure(subprojects.findAll { it.provides }) {
   // project POM and to upload it, with the classes, sources and Javadoc jars.
   apply plugin: 'maven'
   uploadArchives.repositories.mavenDeployer {
-    // TODO: replace this with the OW2 Nexus repository.
-    repository url: 'file://localhost/tmp/myRepo/'
+    if (rootProject.hasProperty('nexusUserName')) {
+      repository(url: 'http://repository.ow2.org/nexus/service/local/' + 
+          'staging/deploy/maven2') {
+        authentication(userName: nexusUserName, password: nexusPassword)
+      }
+    } else {
+      repository url: 'file://localhost/tmp/myRepo/'
+    }
     pom.project {
       parent {
         artifactId 'ow2'

@@ -456,7 +456,7 @@ public abstract class Printer {
    * @param nestMember the internal name of a nest member.
    */
   public void visitNestMember(final String nestMember) {
-    throw new RuntimeException("Must be overriden");
+    throw new UnsupportedOperationException(UNSUPPORTED_OPERATION);
   }
 
   /**

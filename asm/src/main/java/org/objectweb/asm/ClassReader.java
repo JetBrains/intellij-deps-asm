@@ -400,9 +400,9 @@ public class ClassReader {
     int modulePackagesOffset = 0;
     // - The string corresponding to the ModuleMainClass attribute, or null.
     String moduleMainClass = null;
-    // - The string corresponding to the NestHost attribute, or null
+    // - The string corresponding to the NestHost attribute, or null.
     String nestHostClass = null;
-    // the offset of the NestMembers attribute, or 0.
+    // - The offset of the NestMembers attribute, or 0.
     int nestMembersOffset = 0;
     // - The non standard attributes (linked with their {@link Attribute#nextAttribute} field).
     //   This list in the <i>reverse order</i> or their order in the ClassFile structure.
@@ -494,7 +494,7 @@ public class ClassReader {
       readModule(classVisitor, context, moduleOffset, modulePackagesOffset, moduleMainClass);
     }
 
-    // Visit the NestHost attribute
+    // Visit the NestHost attribute.
     if (nestHostClass != null) {
       classVisitor.visitNestHost(nestHostClass);
     }
@@ -601,7 +601,7 @@ public class ClassReader {
       attributes = nextAttribute;
     }
 
-    // Visit the NestedMembers attribute
+    // Visit the NestedMembers attribute.
     if (nestMembersOffset != 0) {
       int numberOfNestMembers = readUnsignedShort(nestMembersOffset);
       int currentNestMemberOffset = nestMembersOffset + 2;

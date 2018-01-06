@@ -115,15 +115,6 @@ public class ClassWriter extends ClassVisitor {
    */
   private MethodWriter lastMethod;
 
-  /** The host_class_index field of the NestHost attribute, or 0. */
-  private int nestHostClassIndex;
-
-  /** The number_of_classes field of the NestMembers attribute, or 0. */
-  private int numberOfNestMemberClasses;
-
-  /** The 'classes' array of the NestMembers attribute, or <tt>null</tt>. */
-  private ByteVector nestMemberClasses;
-
   /** The number_of_classes field of the InnerClasses attribute, or 0. */
   private int numberOfInnerClasses;
 
@@ -171,6 +162,15 @@ public class ClassWriter extends ClassVisitor {
 
   /** The Module attribute of this class, or <tt>null</tt>. */
   private ModuleWriter moduleWriter;
+
+  /** The host_class_index field of the NestHost attribute, or 0. */
+  private int nestHostClassIndex;
+
+  /** The number_of_classes field of the NestMembers attribute, or 0. */
+  private int numberOfNestMemberClasses;
+
+  /** The 'classes' array of the NestMembers attribute, or <tt>null</tt>. */
+  private ByteVector nestMemberClasses;
 
   /**
    * The first non standard attribute of this class. The next ones can be accessed with the {@link
@@ -461,16 +461,6 @@ public class ClassWriter extends ClassVisitor {
       size += 10;
       symbolTable.addConstantUtf8(Constants.ENCLOSING_METHOD);
     }
-    if (nestHostClassIndex != 0) {
-      ++attributesCount;
-      size += 8;
-      symbolTable.addConstantUtf8(Constants.NEST_HOST);
-    }
-    if (nestMemberClasses != null) {
-      ++attributesCount;
-      size += 8 + nestMemberClasses.length;
-      symbolTable.addConstantUtf8(Constants.NEST_MEMBERS);
-    }
     if ((accessFlags & Opcodes.ACC_SYNTHETIC) != 0 && (version & 0xFFFF) < Opcodes.V1_5) {
       ++attributesCount;
       size += 6;
@@ -528,6 +518,16 @@ public class ClassWriter extends ClassVisitor {
       attributesCount += moduleWriter.getAttributeCount();
       size += moduleWriter.computeAttributesSize();
     }
+    if (nestHostClassIndex != 0) {
+      ++attributesCount;
+      size += 8;
+      symbolTable.addConstantUtf8(Constants.NEST_HOST);
+    }
+    if (nestMemberClasses != null) {
+      ++attributesCount;
+      size += 8 + nestMemberClasses.length;
+      symbolTable.addConstantUtf8(Constants.NEST_MEMBERS);
+    }
     if (firstAttribute != null) {
       attributesCount += firstAttribute.getAttributeCount();
       size += firstAttribute.computeAttributesSize(symbolTable);
@@ -582,19 +582,6 @@ public class ClassWriter extends ClassVisitor {
           .putShort(enclosingClassIndex)
           .putShort(enclosingMethodIndex);
     }
-    if (nestHostClassIndex != 0) {
-      result
-          .putShort(symbolTable.addConstantUtf8(Constants.NEST_HOST))
-          .putInt(2)
-          .putShort(nestHostClassIndex);
-    }
-    if (nestMemberClasses != null) {
-      result
-          .putShort(symbolTable.addConstantUtf8(Constants.NEST_MEMBERS))
-          .putInt(nestMemberClasses.length + 2)
-          .putShort(numberOfNestMemberClasses)
-          .putByteArray(nestMemberClasses.data, 0, nestMemberClasses.length);
-    }
     if ((accessFlags & Opcodes.ACC_SYNTHETIC) != 0 && (version & 0xFFFF) < Opcodes.V1_5) {
       result.putShort(symbolTable.addConstantUtf8(Constants.SYNTHETIC)).putInt(0);
     }
@@ -639,6 +626,19 @@ public class ClassWriter extends ClassVisitor {
     symbolTable.putBootstrapMethods(result);
     if (moduleWriter != null) {
       moduleWriter.putAttributes(result);
+    }
+    if (nestHostClassIndex != 0) {
+      result
+          .putShort(symbolTable.addConstantUtf8(Constants.NEST_HOST))
+          .putInt(2)
+          .putShort(nestHostClassIndex);
+    }
+    if (nestMemberClasses != null) {
+      result
+          .putShort(symbolTable.addConstantUtf8(Constants.NEST_MEMBERS))
+          .putInt(nestMemberClasses.length + 2)
+          .putShort(numberOfNestMemberClasses)
+          .putByteArray(nestMemberClasses.data, 0, nestMemberClasses.length);
     }
     if (firstAttribute != null) {
       firstAttribute.putAttributes(symbolTable, result);

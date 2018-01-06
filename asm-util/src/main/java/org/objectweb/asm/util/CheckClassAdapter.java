@@ -132,7 +132,8 @@ public class CheckClassAdapter extends ClassVisitor {
   private boolean visitNestHostCalled;
 
   /**
-   * Package of all nest members. Not <tt>null</tt> if the visitNestMember method has been called.
+   * The common package of all the nest members. Not <tt>null</tt> if the visitNestMember method has
+   * been called.
    */
   private String nestMemberPackageName;
 
@@ -426,8 +427,7 @@ public class CheckClassAdapter extends ClassVisitor {
       throw new IllegalStateException("visitNestHost can be called only once.");
     }
     if (nestMemberPackageName != null) {
-      throw new IllegalStateException(
-          "visitNestHost and and visitNestMember are mutually exclusive.");
+      throw new IllegalStateException("visitNestHost and visitNestMember are mutually exclusive.");
     }
     visitNestHostCalled = true;
     super.visitNestHost(nestHost);
@@ -444,11 +444,9 @@ public class CheckClassAdapter extends ClassVisitor {
     String packageName = packageName(nestMember);
     if (nestMemberPackageName == null) {
       nestMemberPackageName = packageName;
-    } else {
-      if (!nestMemberPackageName.equals(packageName)) {
-        throw new IllegalStateException(
-            "nest member " + nestMember + " should be in the package " + nestMemberPackageName);
-      }
+    } else if (!nestMemberPackageName.equals(packageName)) {
+      throw new IllegalStateException(
+          "nest member " + nestMember + " should be in the package " + nestMemberPackageName);
     }
     super.visitNestMember(nestMember);
   }
@@ -1063,9 +1061,9 @@ public class CheckClassAdapter extends ClassVisitor {
    * Returns the package name of an internal name.
    *
    * @param name an internal name.
-   * @return the package name or "" if there is no package
+   * @return the package name or "" if there is no package.
    */
-  private static String packageName(String name) {
+  private static String packageName(final String name) {
     int index = name.lastIndexOf('/');
     if (index == -1) {
       return "";

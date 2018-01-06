@@ -225,7 +225,7 @@ public abstract class ClassVisitor {
    *
    * @param nestMember the internal name of a nest member.
    */
-  public void visitNestMember(String nestMember) {
+  public void visitNestMember(final String nestMember) {
     if (cv != null) {
       cv.visitNestMember(nestMember);
     }

@@ -238,7 +238,7 @@ public class ASMifier extends Printer {
   @Override
   public void visitNestHost(final String nestHost) {
     stringBuilder.setLength(0);
-    stringBuilder.append("cw.visitNestHost(");
+    stringBuilder.append("classWriter.visitNestHost(");
     appendConstant(nestHost);
     stringBuilder.append(");\n\n");
     text.add(stringBuilder.toString());
@@ -276,7 +276,7 @@ public class ASMifier extends Printer {
   @Override
   public void visitNestMember(final String nestMember) {
     stringBuilder.setLength(0);
-    stringBuilder.append("cw.visitNestMember(");
+    stringBuilder.append("classWriter.visitNestMember(");
     appendConstant(nestMember);
     stringBuilder.append(");\n\n");
     text.add(stringBuilder.toString());

@@ -830,7 +830,7 @@ public class Type {
         case OBJECT:
         case INTERNAL:
           if (opcode != Opcodes.ILOAD && opcode != Opcodes.ISTORE && opcode != Opcodes.IRETURN) {
-        	throw new UnsupportedOperationException();
+            throw new UnsupportedOperationException();
           }
           return opcode + (Opcodes.ARETURN - Opcodes.IRETURN);
         case METHOD:

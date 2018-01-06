@@ -15,4 +15,3 @@ build:
     - gradle build
     - gradle test jacocoTestCoverageVerification
     - gradle uploadArchives
-    - 'gradle sonarqube -Dsonar.host.url=https://sonarqube.ow2.org'

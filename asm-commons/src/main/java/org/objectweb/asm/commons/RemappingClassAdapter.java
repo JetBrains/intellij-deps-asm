@@ -50,7 +50,7 @@ public class RemappingClassAdapter extends ClassVisitor {
   protected String className;
 
   public RemappingClassAdapter(final ClassVisitor cv, final Remapper remapper) {
-    this(Opcodes.ASM6, cv, remapper);
+    this(Opcodes.ASM7, cv, remapper);
   }
 
   protected RemappingClassAdapter(final int api, final ClassVisitor cv, final Remapper remapper) {

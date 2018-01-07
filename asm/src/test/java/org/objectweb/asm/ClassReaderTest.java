@@ -334,11 +334,11 @@ public class ClassReaderTest extends AsmTest implements Opcodes {
           || invalidClass == InvalidClass.INVALID_BYTECODE_OFFSET) {
         assertThrows(
             ArrayIndexOutOfBoundsException.class,
-            () -> classReader.accept(new EmptyClassVisitor(ASM6), 0));
+            () -> classReader.accept(new EmptyClassVisitor(ASM7), 0));
       } else {
         assertThrows(
             IllegalArgumentException.class,
-            () -> classReader.accept(new EmptyClassVisitor(ASM6), 0));
+            () -> classReader.accept(new EmptyClassVisitor(ASM7), 0));
       }
     }
   }

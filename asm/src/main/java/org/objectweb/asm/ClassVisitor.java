@@ -40,7 +40,7 @@ public abstract class ClassVisitor {
 
   /**
    * The ASM API version implemented by this visitor. The value of this field must be one of {@link
-   * Opcodes#ASM4}, {@link Opcodes#ASM5} or {@link Opcodes#ASM6}.
+   * Opcodes#ASM4}, {@link Opcodes#ASM5}, {@link Opcodes#ASM6} or {@link Opcodes#ASM7}.
    */
   protected final int api;
 
@@ -51,7 +51,7 @@ public abstract class ClassVisitor {
    * Constructs a new {@link ClassVisitor}.
    *
    * @param api the ASM API version implemented by this visitor. Must be one of {@link
-   *     Opcodes#ASM4}, {@link Opcodes#ASM5} or {@link Opcodes#ASM6}.
+   *     Opcodes#ASM4}, {@link Opcodes#ASM5}, {@link Opcodes#ASM6} or {@link Opcodes#ASM7}.
    */
   public ClassVisitor(final int api) {
     this(api, null);
@@ -61,12 +61,12 @@ public abstract class ClassVisitor {
    * Constructs a new {@link ClassVisitor}.
    *
    * @param api the ASM API version implemented by this visitor. Must be one of {@link
-   *     Opcodes#ASM4}, {@link Opcodes#ASM5} or {@link Opcodes#ASM6}.
+   *     Opcodes#ASM4}, {@link Opcodes#ASM5}, {@link Opcodes#ASM6} or {@link Opcodes#ASM7}.
    * @param classVisitor the class visitor to which this visitor must delegate method calls. May be
    *     null.
    */
   public ClassVisitor(final int api, final ClassVisitor classVisitor) {
-    if (api < Opcodes.ASM4 || api > Opcodes.ASM6) {
+    if (api < Opcodes.ASM4 || api > Opcodes.ASM7) {
       throw new IllegalArgumentException();
     }
     this.api = api;
@@ -145,6 +145,9 @@ public abstract class ClassVisitor {
    * @param nestHost the internal name of the host class of the nest.
    */
   public void visitNestHost(final String nestHost) {
+    if (api < Opcodes.ASM7) {
+      throw new UnsupportedOperationException();
+    }
     if (cv != null) {
       cv.visitNestHost(nestHost);
     }
@@ -226,6 +229,9 @@ public abstract class ClassVisitor {
    * @param nestMember the internal name of a nest member.
    */
   public void visitNestMember(final String nestMember) {
+    if (api < Opcodes.ASM7) {
+      throw new UnsupportedOperationException();
+    }
     if (cv != null) {
       cv.visitNestMember(nestMember);
     }

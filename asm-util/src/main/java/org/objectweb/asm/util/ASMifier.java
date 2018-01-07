@@ -79,6 +79,7 @@ public class ASMifier extends Printer {
     classVersions.put(Opcodes.V1_8, "V1_8");
     classVersions.put(Opcodes.V9, "V9");
     classVersions.put(Opcodes.V10, "V10");
+    classVersions.put(Opcodes.V11, "V11");
     CLASS_VERSIONS = Collections.unmodifiableMap(classVersions);
   }
 
@@ -98,7 +99,7 @@ public class ASMifier extends Printer {
    * @throws IllegalStateException If a subclass calls this constructor.
    */
   public ASMifier() {
-    this(Opcodes.ASM6, "classWriter", 0);
+    this(Opcodes.ASM7, "classWriter", 0);
     if (getClass() != ASMifier.class) {
       throw new IllegalStateException();
     }
@@ -108,7 +109,7 @@ public class ASMifier extends Printer {
    * Constructs a new {@link ASMifier}.
    *
    * @param api the ASM API version implemented by this class. Must be one of {@link Opcodes#ASM4},
-   *     {@link Opcodes#ASM5} or {@link Opcodes#ASM6}.
+   *     {@link Opcodes#ASM5}, {@link Opcodes#ASM6} or {@link Opcodes#ASM7}.
    * @param visitorVariableName the name of the visitor variable in the produced code.
    * @param annotationVisitorId identifier of the annotation visitor variable in the produced code.
    */

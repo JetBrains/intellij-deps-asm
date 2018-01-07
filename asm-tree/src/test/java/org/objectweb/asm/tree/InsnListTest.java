@@ -721,7 +721,7 @@ public class InsnListTest {
 
     final InsnList insnList = new InsnList();
     list1.accept(
-        new MethodVisitor(Opcodes.ASM6) {
+        new MethodVisitor(Opcodes.ASM7) {
           @Override
           public void visitInsn(final int opcode) {
             insnList.add(new InsnNode(opcode));

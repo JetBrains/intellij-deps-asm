@@ -81,9 +81,9 @@ public class ClassNodeTest extends AsmTest implements Opcodes {
     assertEquals("1.0", moduleNode.version);
 
     ModuleNode otherModuleNode =
-        new ModuleNode(Opcodes.ASM6, "otherModule", 456, "2.0", null, null, null, null, null);
+        new ModuleNode(Opcodes.ASM7, "otherModule", 456, "2.0", null, null, null, null, null);
     moduleNode.accept(
-        new ClassVisitor(Opcodes.ASM6) {
+        new ClassVisitor(Opcodes.ASM7) {
           @Override
           public ModuleVisitor visitModule(final String name, final int access, final String version) {
             return otherModuleNode;

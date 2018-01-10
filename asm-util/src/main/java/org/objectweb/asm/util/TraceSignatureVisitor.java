@@ -217,7 +217,8 @@ public final class TraceSignatureVisitor extends SignatureVisitor {
 
   @Override
   public void visitTypeVariable(final String name) {
-    declaration.append(name);
+    declaration.append(separator).append(name);
+    separator = "";
     endType();
   }
 

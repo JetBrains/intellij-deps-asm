@@ -53,7 +53,7 @@ import org.objectweb.asm.Type;
  * can be generated as follows:
  *
  * <pre>
- * ClassWriter cw = new ClassWriter(true);
+ * ClassWriter cw = new ClassWriter(0);
  * cw.visit(V1_1, ACC_PUBLIC, &quot;Example&quot;, null, &quot;java/lang/Object&quot;, null);
  *
  * Method m = Method.getMethod(&quot;void &lt;init&gt; ()&quot;);

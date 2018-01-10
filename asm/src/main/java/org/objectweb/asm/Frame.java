@@ -648,7 +648,8 @@ class Frame {
           if (abstractType == UNINITIALIZED_THIS) {
             return REFERENCE_KIND | symbolTable.addType(symbolTable.getClassName());
           } else {
-            return REFERENCE_KIND | symbolTable.addType(symbolTable.getType(value).value);
+            return REFERENCE_KIND
+                | symbolTable.addType(symbolTable.getType(abstractType & VALUE_MASK).value);
           }
         }
       }

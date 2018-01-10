@@ -612,7 +612,7 @@ public class ClassWriter extends ClassVisitor {
       moduleWriter = null;
       firstAttribute = null;
       compute = hasFrames ? MethodWriter.COMPUTE_INSERTED_FRAMES : MethodWriter.COMPUTE_NOTHING;
-      new ClassReader(result.data)
+      new ClassReader(result.data, 0, /* checkClassVersion = */ false)
           .accept(this, (hasFrames ? ClassReader.EXPAND_FRAMES : 0) | ClassReader.EXPAND_ASM_INSNS);
       return toByteArray();
     } else {

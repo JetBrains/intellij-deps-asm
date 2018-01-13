@@ -611,7 +611,6 @@ public class ClassWriter extends ClassVisitor {
       lastRuntimeVisibleTypeAnnotation = null;
       lastRuntimeInvisibleTypeAnnotation = null;
       moduleWriter = null;
-      symbolTable.resetBootstrapMethods();
       firstAttribute = null;
       compute = hasFrames ? MethodWriter.COMPUTE_INSERTED_FRAMES : MethodWriter.COMPUTE_NOTHING;
       new ClassReader(result.data, 0, /* checkClassVersion = */ false)

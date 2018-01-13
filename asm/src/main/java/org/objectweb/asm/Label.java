@@ -640,7 +640,7 @@ public class Label {
   private void addToSubroutine(final int subroutineId, final int numSubroutine) {
     if ((flags & FLAG_SUBROUTINE_BODY) == 0) {
       flags |= FLAG_SUBROUTINE_BODY;
-      values = new int[numSubroutine / 32 + 1];
+      values = new int[(numSubroutine - 1) / 32 + 1];
     }
     values[subroutineId / 32] |= (1 << (subroutineId % 32));
   }

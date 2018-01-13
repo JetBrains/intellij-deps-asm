@@ -159,7 +159,8 @@ public class ClassReader {
     // Check the class' major_version. This field is after the magic and minor_version fields, which
     // use 4 and 2 bytes respectively.
     if (checkClassVersion && readShort(classFileOffset + 6) > Opcodes.V10) {
-      throw new IllegalArgumentException();
+      throw new IllegalArgumentException(
+          "Unsupported class file major version " + readShort(classFileOffset + 6));
     }
     // Create the constant pool arrays. The constant_pool_count field is after the magic,
     // minor_version and major_version fields, which use 4, 2 and 2 bytes respectively.

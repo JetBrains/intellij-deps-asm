@@ -167,6 +167,12 @@ public class TypeTest implements Opcodes {
   }
 
   @Test
+  public void testGetReturnTypeFromDescriptor() {
+    assertEquals(Type.INT_TYPE, Type.getReturnType("()I"));
+    assertEquals(Type.INT_TYPE, Type.getReturnType("(Lpkg/classMethod();)I"));
+  }
+
+  @Test
   public void testGetTypeFromClass() {
     assertEquals(Type.VOID_TYPE, Type.getType(void.class));
     assertEquals(Type.BOOLEAN_TYPE, Type.getType(boolean.class));

@@ -393,6 +393,11 @@ final class SymbolTable {
     }
   }
 
+  void resetBootstrapMethods() {
+    bootstrapMethodCount = 0;
+    bootstrapMethods = null;
+  }
+
   // -----------------------------------------------------------------------------------------------
   // Generic symbol table entries management.
   // -----------------------------------------------------------------------------------------------

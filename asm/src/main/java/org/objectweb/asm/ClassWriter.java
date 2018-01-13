@@ -601,6 +601,7 @@ public class ClassWriter extends ClassVisitor {
     // Third step: do a ClassReader->ClassWriter round trip if the generated class contains ASM
     // specific instructions due to large forward jumps.
     if (hasAsmInstructions) {
+      Attribute[] attributes = getAttributePrototypes();
       firstField = null;
       lastField = null;
       firstMethod = null;
@@ -614,11 +615,35 @@ public class ClassWriter extends ClassVisitor {
       firstAttribute = null;
       compute = hasFrames ? MethodWriter.COMPUTE_INSERTED_FRAMES : MethodWriter.COMPUTE_NOTHING;
       new ClassReader(result.data, 0, /* checkClassVersion = */ false)
-          .accept(this, (hasFrames ? ClassReader.EXPAND_FRAMES : 0) | ClassReader.EXPAND_ASM_INSNS);
+          .accept(
+              this,
+              attributes,
+              (hasFrames ? ClassReader.EXPAND_FRAMES : 0) | ClassReader.EXPAND_ASM_INSNS);
       return toByteArray();
     } else {
       return result.data;
     }
+  }
+
+  /**
+   * Returns the prototypes of the attributes used by this class, its fields and its methods.
+   *
+   * @return the prototypes of the attributes used by this class, its fields and its methods.
+   */
+  private Attribute[] getAttributePrototypes() {
+    Attribute.Set attributePrototypes = new Attribute.Set();
+    attributePrototypes.addAttributes(firstAttribute);
+    FieldWriter fieldWriter = firstField;
+    while (fieldWriter != null) {
+      fieldWriter.addAttributePrototypes(attributePrototypes);
+      fieldWriter = (FieldWriter) fieldWriter.fv;
+    }
+    MethodWriter methodWriter = firstMethod;
+    while (methodWriter != null) {
+      methodWriter.addAttributePrototypes(attributePrototypes);
+      methodWriter = (MethodWriter) methodWriter.mv;
+    }
+    return attributePrototypes.toArray();
   }
 
   // -----------------------------------------------------------------------------------------------

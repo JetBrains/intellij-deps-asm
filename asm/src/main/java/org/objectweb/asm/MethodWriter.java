@@ -2303,4 +2303,14 @@ final class MethodWriter extends MethodVisitor {
       firstAttribute.putAttributes(symbolTable, output);
     }
   }
+
+  /**
+   * Adds the attributes of this method to the given set of attribute prototypes.
+   *
+   * @param attributePrototypes a set of attribute prototypes.
+   */
+  final void addAttributePrototypes(final Attribute.Set attributePrototypes) {
+    attributePrototypes.addAttributes(firstAttribute);
+    attributePrototypes.addAttributes(firstCodeAttribute);
+  }
 }

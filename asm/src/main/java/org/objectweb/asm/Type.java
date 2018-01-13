@@ -337,20 +337,8 @@ public class Type {
    */
   public static Type getReturnType(final String methodDescriptor) {
     final char[] valueBuffer = methodDescriptor.toCharArray();
-    // Skip the first character, which is always a '('.
-    int currentOffset = 1;
-    // Skip the argument types, one at a each loop iteration.
-    while (valueBuffer[currentOffset] != ')') {
-      while (valueBuffer[currentOffset] == '[') {
-        currentOffset++;
-      }
-      if (valueBuffer[currentOffset++] == 'L') {
-        while (valueBuffer[currentOffset++] != ';') {
-          // Skip the argument descriptor content.
-        }
-      }
-    }
-    return getType(valueBuffer, currentOffset + 1, valueBuffer.length - currentOffset - 1);
+    int returnTypeOffset = methodDescriptor.indexOf(')') + 1;
+    return getType(valueBuffer, returnTypeOffset, valueBuffer.length - returnTypeOffset);
   }
 
   /**

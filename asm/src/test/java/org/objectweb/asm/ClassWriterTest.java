@@ -77,6 +77,28 @@ public class ClassWriterTest extends AsmTest {
   }
 
   @Test
+  void testMethodCodeSizeTooLarge() {
+    generateClassWithMethodCodeSize(65535).toByteArray();
+    assertThrows(
+        IndexOutOfBoundsException.class,
+        () -> generateClassWithMethodCodeSize(65536).toByteArray());
+  }
+
+  private ClassWriter generateClassWithMethodCodeSize(final int codeSize) {
+    ClassWriter classWriter = new ClassWriter(0);
+    MethodVisitor methodVisitor =
+        classWriter.visitMethod(Opcodes.ACC_STATIC, "m", "()V", null, null);
+    methodVisitor.visitCode();
+    for (int i = 0; i < codeSize - 1; ++i) {
+      methodVisitor.visitInsn(Opcodes.NOP);
+    }
+    methodVisitor.visitInsn(Opcodes.RETURN);
+    methodVisitor.visitMaxs(0, 0);
+    methodVisitor.visitEnd();
+    return classWriter;
+  }
+
+  @Test
   public void testGetCommonSuperClass() {
     ClassWriter classWriter = new ClassWriter(0);
     assertEquals(

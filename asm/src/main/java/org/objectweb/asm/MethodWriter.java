@@ -1960,7 +1960,7 @@ final class MethodWriter extends MethodVisitor {
     int size = 8;
     // For ease of reference, we use here the same attribute order as in Section 4.7 of the JVMS.
     if (code.length > 0) {
-      if (code.length > 65536) {
+      if (code.length > 65535) {
         throw new IndexOutOfBoundsException("Method code too large!");
       }
       symbolTable.addConstantUtf8(Constants.CODE);

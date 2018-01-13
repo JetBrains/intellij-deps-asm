@@ -93,6 +93,7 @@ public class ClassWriterTest extends AsmTest {
       methodVisitor.visitInsn(Opcodes.NOP);
     }
     methodVisitor.visitInsn(Opcodes.RETURN);
+    methodVisitor.visitMaxs(0, 0);
     methodVisitor.visitEnd();
     return classWriter;
   }

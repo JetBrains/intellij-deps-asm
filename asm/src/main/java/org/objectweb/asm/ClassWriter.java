@@ -265,7 +265,7 @@ public class ClassWriter extends ClassVisitor {
       sourceFileIndex = symbolTable.addConstantUtf8(file);
     }
     if (debug != null) {
-      debugExtension = new ByteVector().encodeUTF8(debug, 0, Integer.MAX_VALUE);
+      debugExtension = new ByteVector().putUTF8(debug);
     }
   }
 
@@ -455,7 +455,7 @@ public class ClassWriter extends ClassVisitor {
     }
     if (debugExtension != null) {
       ++attributesCount;
-      size += 6 + debugExtension.length;
+      size += 4 + debugExtension.length;
       symbolTable.addConstantUtf8(Constants.SOURCE_DEBUG_EXTENSION);
     }
     if ((accessFlags & Opcodes.ACC_DEPRECATED) != 0) {
@@ -565,11 +565,11 @@ public class ClassWriter extends ClassVisitor {
           .putShort(sourceFileIndex);
     }
     if (debugExtension != null) {
-      int length = debugExtension.length;
+      int length = debugExtension.length - 2;
       result
           .putShort(symbolTable.addConstantUtf8(Constants.SOURCE_DEBUG_EXTENSION))
           .putInt(length)
-          .putByteArray(debugExtension.data, 0, length);
+          .putByteArray(debugExtension.data, 2, length);
     }
     if ((accessFlags & Opcodes.ACC_DEPRECATED) != 0) {
       result.putShort(symbolTable.addConstantUtf8(Constants.DEPRECATED)).putInt(0);

@@ -612,7 +612,7 @@ public class ClassWriter extends ClassVisitor {
       lastRuntimeInvisibleTypeAnnotation = null;
       moduleWriter = null;
       firstAttribute = null;
-      compute = hasFrames ? MethodWriter.COMPUTE_ALL_FRAMES : MethodWriter.COMPUTE_NOTHING;
+      compute = hasFrames ? MethodWriter.COMPUTE_INSERTED_FRAMES : MethodWriter.COMPUTE_NOTHING;
       new ClassReader(result.data, 0, /* checkClassVersion = */ false)
           .accept(
               this,

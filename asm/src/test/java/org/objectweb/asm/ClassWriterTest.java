@@ -314,7 +314,9 @@ public class ClassWriterTest extends AsmTest {
 
   /**
    * Tests that classes with large methods (more than 32k) going through a ClassWriter with no
-   * option can be loaded and pass bytecode verification.
+   * option can be loaded and pass bytecode verification. Also tests that frames are not recomputed
+   * from stratch during this process (by making sure that {@link ClassWriter#getCommonSuperClass}
+   * is not called).
    */
   @ParameterizedTest
   @MethodSource(ALL_CLASSES_AND_ALL_APIS)
@@ -324,7 +326,7 @@ public class ClassWriterTest extends AsmTest {
     if (classFile.length > Short.MAX_VALUE) return;
 
     ClassReader classReader = new ClassReader(classFile);
-    ClassWriter classWriter = new ClassWriter(0);
+    ClassWriter classWriter = new ClassWriterWithoutGetCommonSuperClass();
     ForwardJumpNopInserter forwardJumpNopInserter =
         new ForwardJumpNopInserter(apiParameter.value(), classWriter);
 
@@ -336,7 +338,7 @@ public class ClassWriterTest extends AsmTest {
     }
     classReader.accept(forwardJumpNopInserter, attributes(), 0);
     if (!forwardJumpNopInserter.transformed) {
-      classWriter = new ClassWriter(0);
+      classWriter = new ClassWriterWithoutGetCommonSuperClass();
       classReader.accept(
           new WideForwardJumpInserter(apiParameter.value(), classWriter), attributes(), 0);
     }
@@ -661,6 +663,21 @@ public class ClassWriterTest extends AsmTest {
           }
         }
       };
+    }
+  }
+
+  /**
+   * A ClassWriter whose {@link ClassWriter#getCommonSuperClass} method always throws an exception.
+   */
+  private static class ClassWriterWithoutGetCommonSuperClass extends ClassWriter {
+
+    public ClassWriterWithoutGetCommonSuperClass() {
+      super(0);
+    }
+
+    @Override
+    protected String getCommonSuperClass(final String type1, final String type2) {
+      throw new UnsupportedOperationException();
     }
   }
 }

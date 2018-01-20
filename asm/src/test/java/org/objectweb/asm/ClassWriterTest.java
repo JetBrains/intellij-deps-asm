@@ -201,8 +201,8 @@ public class ClassWriterTest extends AsmTest {
   }
 
   /**
-   * Tests a ClassReader -> ClassWriter transform with the COMPUTE_MAXS option works correctly on
-   * classes with very large or deeply nested subroutines (#307600, #311642).
+   * Tests that a ClassReader -> ClassWriter transform with the COMPUTE_MAXS option works correctly
+   * on classes with very large or deeply nested subroutines (#307600, #311642).
    *
    * @throws IOException
    */

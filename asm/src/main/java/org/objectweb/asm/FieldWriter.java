@@ -336,11 +336,11 @@ final class FieldWriter extends FieldVisitor {
   }
 
   /**
-   * Adds the attributes of this field to the given set of attribute prototypes.
+   * Collects the attributes of this field into the given set of attribute prototypes.
    *
    * @param attributePrototypes a set of attribute prototypes.
    */
-  final void addAttributePrototypes(final Attribute.Set attributePrototypes) {
+  final void collectAttributePrototypes(final Attribute.Set attributePrototypes) {
     attributePrototypes.addAttributes(firstAttribute);
   }
 }

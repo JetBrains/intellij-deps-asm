@@ -2666,16 +2666,9 @@ public class ClassReader {
       final boolean visible) {
     int currentOffset = runtimeParameterAnnotationsOffset;
     int numParameters = b[currentOffset++] & 0xFF;
-    int synthetics = Type.getArgumentTypes(context.currentMethodDescriptor).length - numParameters;
+    methodVisitor.visitAnnotableParameterCount(numParameters, visible);
     char[] charBuffer = context.charBuffer;
-    for (int i = 0; i < synthetics; ++i) {
-      AnnotationVisitor annotationVisitor =
-          methodVisitor.visitParameterAnnotation(i, "Ljava/lang/Synthetic;", false);
-      if (annotationVisitor != null) {
-        annotationVisitor.visitEnd();
-      }
-    }
-    for (int i = synthetics; i < numParameters + synthetics; ++i) {
+    for (int i = 0; i < numParameters; ++i) {
       int numAnnotations = readUnsignedShort(currentOffset);
       currentOffset += 2;
       while (numAnnotations-- > 0) {

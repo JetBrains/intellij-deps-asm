@@ -343,7 +343,8 @@ final class AnnotationWriter extends AnnotationVisitor {
    * @param attributeName one of "Runtime[In]VisibleParameterAnnotations".
    * @param annotationWriters an array of AnnotationWriter lists (designated by their <i>last</i>
    *     element).
-   * @param synthetics .
+   * @param annotableParameterCount the number of elements in annotationWriters to take into account
+   *     (elements [0..annotableParameterCount[ are taken into account).
    * @return the size in bytes of a Runtime[In]VisibleParameterAnnotations attribute corresponding
    *     to the given sub-array of AnnotationWriter lists. This includes the size of the
    *     attribute_name_index and attribute_length fields.
@@ -351,14 +352,14 @@ final class AnnotationWriter extends AnnotationVisitor {
   static int computeParameterAnnotationsSize(
       final String attributeName,
       final AnnotationWriter[] annotationWriters,
-      final int synthetics) {
+      final int annotableParameterCount) {
     // Note: attributeName is added to the constant pool by the call to computeAnnotationsSize
     // below. This assumes that there is at least one non-null element in the annotationWriters
     // sub-array (which is ensured by the lazy instantiation of this array in MethodWriter).
     // The attribute_name_index, attribute_length and num_parameters fields use 7 bytes, and each
     // element of the parameter_annotations array uses 2 bytes for its num_annotations field.
-    int attributeSize = 7 + 2 * (annotationWriters.length - synthetics);
-    for (int i = synthetics; i < annotationWriters.length; ++i) {
+    int attributeSize = 7 + 2 * annotableParameterCount;
+    for (int i = 0; i < annotableParameterCount; ++i) {
       AnnotationWriter annotationWriter = annotationWriters[i];
       attributeSize +=
           annotationWriter == null ? 0 : annotationWriter.computeAnnotationsSize(attributeName) - 8;
@@ -374,26 +375,27 @@ final class AnnotationWriter extends AnnotationVisitor {
    *     Runtime[In]VisibleParameterAnnotations).
    * @param annotationWriters an array of AnnotationWriter lists (designated by their <i>last</i>
    *     element).
-   * @param synthetics .
+   * @param annotableParameterCount the number of elements in annotationWriters to put (elements
+   *     [0..annotableParameterCount[ are put).
    * @param output where the attribute must be put.
    */
   static void putParameterAnnotations(
       final int attributeNameIndex,
       final AnnotationWriter[] annotationWriters,
-      final int synthetics,
+      final int annotableParameterCount,
       final ByteVector output) {
     // The num_parameters field uses 1 byte, and each element of the parameter_annotations array
     // uses 2 bytes for its num_annotations field.
-    int attributeLength = 1 + 2 * (annotationWriters.length - synthetics);
-    for (int i = synthetics; i < annotationWriters.length; ++i) {
+    int attributeLength = 1 + 2 * annotableParameterCount;
+    for (int i = 0; i < annotableParameterCount; ++i) {
       AnnotationWriter annotationWriter = annotationWriters[i];
       attributeLength +=
           annotationWriter == null ? 0 : annotationWriter.computeAnnotationsSize(null) - 8;
     }
     output.putShort(attributeNameIndex);
     output.putInt(attributeLength);
-    output.putByte(annotationWriters.length - synthetics);
-    for (int i = synthetics; i < annotationWriters.length; ++i) {
+    output.putByte(annotableParameterCount);
+    for (int i = 0; i < annotableParameterCount; ++i) {
       AnnotationWriter annotationWriter = annotationWriters[i];
       AnnotationWriter firstAnnotation = null;
       int numAnnotations = 0;

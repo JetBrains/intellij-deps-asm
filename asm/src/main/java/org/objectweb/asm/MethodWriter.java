@@ -395,7 +395,8 @@ final class MethodWriter extends MethodVisitor {
    */
   private AnnotationWriter lastRuntimeInvisibleAnnotation;
 
-  private int synthetics;
+  /** The number of method parameters that can have runtime visible annotations, or 0. */
+  private int visibleAnnotableParameterCount;
 
   /**
    * The runtime visible parameter annotations of this method. Each array element contains the last
@@ -403,6 +404,9 @@ final class MethodWriter extends MethodVisitor {
    * the {@link AnnotationWriter#previousAnnotation} field). May be <tt>null</tt>.
    */
   private AnnotationWriter[] lastRuntimeVisibleParameterAnnotations;
+
+  /** The number of method parameters that can have runtime visible annotations, or 0. */
+  private int invisibleAnnotableParameterCount;
 
   /**
    * The runtime invisible parameter annotations of this method. Each array element contains the
@@ -668,7 +672,13 @@ final class MethodWriter extends MethodVisitor {
   }
 
   @Override
-  public void visitAnnotableParameterCount(final int parameterCount, final boolean visible) {}
+  public void visitAnnotableParameterCount(final int parameterCount, final boolean visible) {
+    if (visible) {
+      visibleAnnotableParameterCount = parameterCount;
+    } else {
+      invisibleAnnotableParameterCount = parameterCount;
+    }
+  }
 
   @Override
   public AnnotationVisitor visitParameterAnnotation(
@@ -676,10 +686,6 @@ final class MethodWriter extends MethodVisitor {
     // Create a ByteVector to hold an 'annotation' JVMS structure.
     // See https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.7.16.
     ByteVector annotation = new ByteVector();
-    if ("Ljava/lang/Synthetic;".equals(annotationDescriptor)) {
-      synthetics = Math.max(synthetics, parameter + 1);
-      return new AnnotationWriter(symbolTable, false, annotation, null);
-    }
     // Write type_index and reserve space for num_element_value_pairs.
     annotation.putShort(symbolTable.addConstantUtf8(annotationDescriptor)).putShort(0);
     if (visible) {
@@ -2030,14 +2036,18 @@ final class MethodWriter extends MethodVisitor {
           AnnotationWriter.computeParameterAnnotationsSize(
               Constants.RUNTIME_VISIBLE_PARAMETER_ANNOTATIONS,
               lastRuntimeVisibleParameterAnnotations,
-              synthetics);
+              visibleAnnotableParameterCount == 0
+                  ? lastRuntimeVisibleParameterAnnotations.length
+                  : visibleAnnotableParameterCount);
     }
     if (lastRuntimeInvisibleParameterAnnotations != null) {
       size +=
           AnnotationWriter.computeParameterAnnotationsSize(
               Constants.RUNTIME_INVISIBLE_PARAMETER_ANNOTATIONS,
               lastRuntimeInvisibleParameterAnnotations,
-              synthetics);
+              invisibleAnnotableParameterCount == 0
+                  ? lastRuntimeInvisibleParameterAnnotations.length
+                  : invisibleAnnotableParameterCount);
     }
     if (lastRuntimeVisibleTypeAnnotation != null) {
       size +=
@@ -2254,14 +2264,18 @@ final class MethodWriter extends MethodVisitor {
       AnnotationWriter.putParameterAnnotations(
           symbolTable.addConstantUtf8(Constants.RUNTIME_VISIBLE_PARAMETER_ANNOTATIONS),
           lastRuntimeVisibleParameterAnnotations,
-          synthetics,
+          visibleAnnotableParameterCount == 0
+              ? lastRuntimeVisibleParameterAnnotations.length
+              : visibleAnnotableParameterCount,
           output);
     }
     if (lastRuntimeInvisibleParameterAnnotations != null) {
       AnnotationWriter.putParameterAnnotations(
           symbolTable.addConstantUtf8(Constants.RUNTIME_INVISIBLE_PARAMETER_ANNOTATIONS),
           lastRuntimeInvisibleParameterAnnotations,
-          synthetics,
+          invisibleAnnotableParameterCount == 0
+              ? lastRuntimeInvisibleParameterAnnotations.length
+              : invisibleAnnotableParameterCount,
           output);
     }
     if (lastRuntimeVisibleTypeAnnotation != null) {

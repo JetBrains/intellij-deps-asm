@@ -784,7 +784,9 @@ class Frame {
             setLocal(arg - 1, TOP);
           } else if ((previousLocalType & KIND_MASK) == LOCAL_KIND
               || (previousLocalType & KIND_MASK) == STACK_KIND) {
-            setLocal(arg - 1, previousLocalType);
+            // The type of the previous local variable is not known yet, but if it later appears
+            // to be LONG or DOUBLE, we should then use TOP instead.
+            setLocal(arg - 1, previousLocalType | TOP_IF_LONG_OR_DOUBLE_FLAG);
           }
         }
         break;
@@ -800,7 +802,9 @@ class Frame {
             setLocal(arg - 1, TOP);
           } else if ((previousLocalType & KIND_MASK) == LOCAL_KIND
               || (previousLocalType & KIND_MASK) == STACK_KIND) {
-            setLocal(arg - 1, previousLocalType);
+            // The type of the previous local variable is not known yet, but if it later appears
+            // to be LONG or DOUBLE, we should then use TOP instead.
+            setLocal(arg - 1, previousLocalType | TOP_IF_LONG_OR_DOUBLE_FLAG);
           }
         }
         break;

@@ -99,6 +99,13 @@ public class ClassWriterTest extends AsmTest {
   }
 
   @Test
+  void testLargeSourceDebugExtension() {
+    ClassWriter classWriter = new ClassWriter(0);
+    classWriter.visitSource("Test.java", new String(new char[100000]));
+    classWriter.toByteArray();
+  }
+
+  @Test
   public void testGetCommonSuperClass() {
     ClassWriter classWriter = new ClassWriter(0);
     assertEquals(

@@ -99,7 +99,7 @@ public class ClassReaderTest extends AsmTest implements Opcodes {
     assertNotNull(interfaces);
   }
 
-  /** Tests {@link ClassReader(byte[])] and the basic ClassReader accessors. */
+  /** Tests {@link ClassReader(byte[])} and the basic ClassReader accessors. */
   @ParameterizedTest
   @MethodSource(ALL_CLASSES_AND_ALL_APIS)
   public void testByteArrayConstructorAndAccessors(
@@ -115,7 +115,7 @@ public class ClassReaderTest extends AsmTest implements Opcodes {
     assertNotNull(classReader.getInterfaces());
   }
 
-  /** Tests {@link ClassReader(byte[],int,int)] and the basic ClassReader accessors. */
+  /** Tests {@link ClassReader(byte[],int,int)} and the basic ClassReader accessors. */
   @ParameterizedTest
   @MethodSource(ALL_CLASSES_AND_LATEST_API)
   public void testByteArrayConstructorWithOffsetAndAccessors(

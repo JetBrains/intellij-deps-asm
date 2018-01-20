@@ -115,6 +115,40 @@ public class ClassReaderTest extends AsmTest implements Opcodes {
     assertNotNull(classReader.getInterfaces());
   }
 
+  /** Tests {@link ClassReader(byte[],int,int)] and the basic ClassReader accessors. */
+  @ParameterizedTest
+  @MethodSource(ALL_CLASSES_AND_LATEST_API)
+  public void testByteArrayConstructorWithOffsetAndAccessors(
+      final PrecompiledClass classParameter, final Api apiParameter) {
+    byte[] classFile = classParameter.getBytes();
+    byte[] byteBuffer = new byte[classFile.length + 1];
+    System.arraycopy(classFile, 0, byteBuffer, 1, classFile.length);
+    ClassReader classReader = new ClassReader(byteBuffer, 1, classFile.length);
+    assertTrue(classReader.getAccess() != 0);
+    assertEquals(classParameter.getInternalName(), classReader.getClassName());
+    if (classParameter.getInternalName().equals("module-info")) {
+      assertNull(classReader.getSuperName());
+    } else {
+      assertTrue(classReader.getSuperName().startsWith("java"));
+    }
+    assertNotNull(classReader.getInterfaces());
+
+    classReader.accept(
+        new ClassVisitor(Opcodes.ASM6) {
+          @Override
+          public void visit(
+              final int version,
+              final int access,
+              final String name,
+              final String signature,
+              final String superName,
+              final String[] interfaces) {
+            assertTrue((version & 0xFFFF) >= (Opcodes.V1_1 & 0xFFFF));
+          }
+        },
+        0);
+  }
+
   /** Tests {@link ClassReader(String)} and the basic ClassReader accessors. */
   @ParameterizedTest
   @MethodSource(ALL_CLASSES_AND_ALL_APIS)

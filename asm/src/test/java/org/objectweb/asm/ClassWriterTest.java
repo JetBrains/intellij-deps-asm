@@ -77,7 +77,7 @@ public class ClassWriterTest extends AsmTest {
   }
 
   @Test
-  void testMethodCodeSizeTooLarge() {
+  public void testMethodCodeSizeTooLarge() {
     generateClassWithMethodCodeSize(65535).toByteArray();
     assertThrows(
         IndexOutOfBoundsException.class,
@@ -96,6 +96,19 @@ public class ClassWriterTest extends AsmTest {
     methodVisitor.visitMaxs(0, 0);
     methodVisitor.visitEnd();
     return classWriter;
+  }
+
+  @Test
+  public void testIllegalConsecutiveFrames() {
+    MethodVisitor methodVisitor =
+        new ClassWriter(0).visitMethod(Opcodes.ACC_STATIC, "m", "()V", null, null);
+    methodVisitor.visitCode();
+    methodVisitor.visitFrame(Opcodes.F_SAME, 0, null, 0, null);
+    methodVisitor.visitFrame(Opcodes.F_SAME, 0, null, 0, null);
+    assertThrows(
+        IllegalStateException.class,
+        () ->
+            methodVisitor.visitFrame(Opcodes.F_APPEND, 1, new Object[] {Opcodes.INTEGER}, 0, null));
   }
 
   @Test

@@ -158,8 +158,9 @@ public class ClassReader {
     this.b = classFileBuffer;
     // Check the class' major_version. This field is after the magic and minor_version fields, which
     // use 4 and 2 bytes respectively.
-    if (checkClassVersion && readShort(6) > Opcodes.V10) {
-      throw new IllegalArgumentException("Unsupported class file major version " + readShort(6));
+    if (checkClassVersion && readShort(classFileOffset + 6) > Opcodes.V10) {
+      throw new IllegalArgumentException(
+          "Unsupported class file major version " + readShort(classFileOffset + 6));
     }
     // Create the constant pool arrays. The constant_pool_count field is after the magic,
     // minor_version and major_version fields, which use 4, 2 and 2 bytes respectively.
@@ -485,7 +486,8 @@ public class ClassReader {
 
     // Visit the class declaration. The minor_version and major_version fields start 6 bytes before
     // the first constant pool entry, which itself starts at cpInfoOffsets[1] - 1 (by definition).
-    classVisitor.visit(readInt(4), accessFlags, thisClass, signature, superClass, interfaces);
+    classVisitor.visit(
+        readInt(cpInfoOffsets[1] - 7), accessFlags, thisClass, signature, superClass, interfaces);
 
     // Visit the SourceFile and SourceDebugExtenstion attributes.
     if ((parsingOptions & SKIP_DEBUG) == 0

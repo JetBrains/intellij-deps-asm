@@ -779,13 +779,6 @@ final class MethodWriter extends MethodVisitor {
         offsetDelta = code.length;
       } else {
         offsetDelta = code.length - previousFrameOffset - 1;
-        if (offsetDelta < 0) {
-          if (type == Opcodes.F_SAME) {
-            return;
-          } else {
-            throw new IllegalStateException();
-          }
-        }
       }
 
       switch (type) {

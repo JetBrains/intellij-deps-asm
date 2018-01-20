@@ -325,13 +325,21 @@ public class ClassWriterTest extends AsmTest {
 
     ClassReader classReader = new ClassReader(classFile);
     ClassWriter classWriter = new ClassWriter(0);
-    ClassVisitor classVisitor = new NopInserter(apiParameter.value(), classWriter);
+    ForwardJumpNopInserter forwardJumpNopInserter =
+        new ForwardJumpNopInserter(apiParameter.value(), classWriter);
 
     if (classParameter.isMoreRecentThan(apiParameter)) {
-      assertThrows(RuntimeException.class, () -> classReader.accept(classVisitor, attributes(), 0));
+      assertThrows(
+          RuntimeException.class,
+          () -> classReader.accept(forwardJumpNopInserter, attributes(), 0));
       return;
     }
-    classReader.accept(classVisitor, attributes(), 0);
+    classReader.accept(forwardJumpNopInserter, attributes(), 0);
+    if (!forwardJumpNopInserter.transformed) {
+      classWriter = new ClassWriter(0);
+      classReader.accept(
+          new WideForwardJumpInserter(apiParameter.value(), classWriter), attributes(), 0);
+    }
 
     byte[] transformedClass = classWriter.toByteArray();
     assertThat(() -> loadAndInstantiate(classParameter.getName(), transformedClass))
@@ -559,11 +567,12 @@ public class ClassWriterTest extends AsmTest {
     }
   }
 
-  private static class NopInserter extends ClassVisitor {
+  /** Inserts NOP instructions after the first forward jump found, to get a wide jump. */
+  private static class ForwardJumpNopInserter extends ClassVisitor {
 
-    boolean transformed = false;
+    boolean transformed;
 
-    NopInserter(final int api, final ClassVisitor classVisitor) {
+    ForwardJumpNopInserter(final int api, final ClassVisitor classVisitor) {
       super(api, classVisitor);
     }
 
@@ -593,6 +602,63 @@ public class ClassWriterTest extends AsmTest {
             }
           }
           super.visitJumpInsn(opcode, label);
+        }
+      };
+    }
+  }
+
+  /** Inserts a wide forward jump in the first non-abstract method that is found. */
+  private static class WideForwardJumpInserter extends ClassVisitor {
+
+    private boolean needFrames;
+    private boolean transformed;
+
+    WideForwardJumpInserter(final int api, final ClassVisitor classVisitor) {
+      super(api, classVisitor);
+    }
+
+    @Override
+    public void visit(
+        final int version,
+        final int access,
+        final String name,
+        final String signature,
+        final String superName,
+        final String[] interfaces) {
+      needFrames = (version & 0xFFFF) >= Opcodes.V1_7;
+      super.visit(version, access, name, signature, superName, interfaces);
+    }
+
+    @Override
+    public MethodVisitor visitMethod(
+        final int access,
+        final String name,
+        final String descriptor,
+        final String signature,
+        final String[] exceptions) {
+      return new MethodVisitor(
+          api, super.visitMethod(access, name, descriptor, signature, exceptions)) {
+
+        @Override
+        public void visitCode() {
+          super.visitCode();
+          if (!transformed) {
+            Label startLabel = new Label();
+            visitJumpInsn(Opcodes.GOTO, startLabel);
+            if (needFrames) {
+              visitLabel(new Label());
+              visitFrame(Opcodes.F_SAME, 0, null, 0, null);
+            }
+            for (int i = 0; i <= Short.MAX_VALUE; ++i) {
+              visitInsn(Opcodes.NOP);
+            }
+            visitLabel(startLabel);
+            if (needFrames) {
+              visitFrame(Opcodes.F_SAME, 0, null, 0, null);
+              visitInsn(Opcodes.NOP);
+            }
+            transformed = true;
+          }
         }
       };
     }

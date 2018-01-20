@@ -502,7 +502,7 @@ public class ClassWriter extends ClassVisitor {
     // IMPORTANT: this must be the last part of the ClassFile size computation, because the previous
     // statements can add attribute names to the constant pool, thereby changing its size!
     size += symbolTable.getConstantPoolLength();
-    if (symbolTable.getConstantPoolCount() > Short.MAX_VALUE) {
+    if (symbolTable.getConstantPoolCount() > 0xFFFF) {
       throw new IndexOutOfBoundsException("Class file too large!");
     }
 

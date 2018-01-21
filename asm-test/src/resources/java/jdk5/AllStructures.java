@@ -60,7 +60,7 @@ import java.io.IOException;
   floatArrayValue = {0f},
   doubleArrayValue = {0d},
   stringArrayValue = {"0"},
-  classArrayValue = {AllStructures.class},
+  classArrayValue = {AllStructures.class, int.class, int[].class},
   enumArrayValue = {AllStructures.EnumClass.VALUE0},
   annotationArrayValue = {@Deprecated},
   otherArrayValue = {}
@@ -188,7 +188,7 @@ class AllStructures<
 
     String[] stringArrayValue() default {"1"};
 
-    Class[] classArrayValue() default {Object.class};
+    Class[] classArrayValue() default {Object.class, int.class, int[].class};
 
     EnumClass[] enumArrayValue() default {EnumClass.VALUE1};
 

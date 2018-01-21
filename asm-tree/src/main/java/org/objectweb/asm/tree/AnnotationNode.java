@@ -101,25 +101,7 @@ public class AnnotationNode extends AnnotationVisitor {
     if (this.desc != null) {
       values.add(name);
     }
-    if (value instanceof byte[]) {
-      values.add(Util.asArrayList((byte[]) value));
-    } else if (value instanceof boolean[]) {
-      values.add(Util.asArrayList((boolean[]) value));
-    } else if (value instanceof short[]) {
-      values.add(Util.asArrayList((short[]) value));
-    } else if (value instanceof char[]) {
-      values.add(Util.asArrayList((char[]) value));
-    } else if (value instanceof int[]) {
-      values.add(Util.asArrayList((int[]) value));
-    } else if (value instanceof long[]) {
-      values.add(Util.asArrayList((long[]) value));
-    } else if (value instanceof float[]) {
-      values.add(Util.asArrayList((float[]) value));
-    } else if (value instanceof double[]) {
-      values.add(Util.asArrayList((double[]) value));
-    } else {
-      values.add(value);
-    }
+    values.add(value);
   }
 
   @Override

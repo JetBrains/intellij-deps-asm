@@ -216,11 +216,13 @@ public class AnnotationNode extends AnnotationVisitor {
         annotationValue.accept(annotationVisitor.visitAnnotation(name, annotationValue.desc));
       } else if (value instanceof List) {
         AnnotationVisitor arrayAnnotationVisitor = annotationVisitor.visitArray(name);
-        List<?> arrayValue = (List<?>) value;
-        for (int i = 0, n = arrayValue.size(); i < n; ++i) {
-          accept(arrayAnnotationVisitor, null, arrayValue.get(i));
+        if (arrayAnnotationVisitor != null) {
+          List<?> arrayValue = (List<?>) value;
+          for (int i = 0, n = arrayValue.size(); i < n; ++i) {
+            accept(arrayAnnotationVisitor, null, arrayValue.get(i));
+          }
+          arrayAnnotationVisitor.visitEnd();
         }
-        arrayAnnotationVisitor.visitEnd();
       } else {
         annotationVisitor.visit(name, value);
       }

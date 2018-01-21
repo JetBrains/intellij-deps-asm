@@ -221,7 +221,6 @@ public class CheckClassAdapter extends ClassVisitor {
         printAnalyzerResult(method, analyzer, printWriter);
       }
     }
-    printWriter.flush();
   }
 
   static void printAnalyzerResult(

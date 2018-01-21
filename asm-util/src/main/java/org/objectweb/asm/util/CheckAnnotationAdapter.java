@@ -80,7 +80,9 @@ public class CheckAnnotationAdapter extends AnnotationVisitor {
         || value instanceof double[])) {
       throw new IllegalArgumentException("Invalid annotation value");
     }
-    if (value instanceof Type && ((Type) value).getSort() == Type.METHOD) {
+    if (value instanceof Type
+        && ((Type) value).getSort() != Type.OBJECT
+        && ((Type) value).getSort() != Type.ARRAY) {
       throw new IllegalArgumentException("Invalid annotation value");
     }
     super.visit(name, value);

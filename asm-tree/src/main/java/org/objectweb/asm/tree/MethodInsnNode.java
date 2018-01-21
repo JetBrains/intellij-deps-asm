@@ -114,6 +114,7 @@ public class MethodInsnNode extends AbstractInsnNode {
   @Override
   public void accept(final MethodVisitor methodVisitor) {
     methodVisitor.visitMethodInsn(opcode, owner, name, desc, itf);
+    acceptAnnotations(methodVisitor);
   }
 
   @Override

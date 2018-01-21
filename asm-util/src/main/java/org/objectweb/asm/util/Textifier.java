@@ -1245,9 +1245,6 @@ public class Textifier extends Printer {
     if ((accessFlags & Opcodes.ACC_STRICT) != 0) {
       stringBuilder.append("strictfp ");
     }
-    if ((accessFlags & Opcodes.ACC_SYNTHETIC) != 0) {
-      stringBuilder.append("synthetic ");
-    }
     if ((accessFlags & Opcodes.ACC_MANDATED) != 0) {
       stringBuilder.append("mandated ");
     }

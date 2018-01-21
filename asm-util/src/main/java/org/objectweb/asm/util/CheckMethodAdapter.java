@@ -448,6 +448,10 @@ public class CheckMethodAdapter extends MethodVisitor {
             try {
               analyzer.analyze("dummy", this);
             } catch (IndexOutOfBoundsException e) {
+              if (maxLocals == 0 && maxStack == 0) {
+                throw new IllegalArgumentException(
+                    "Data flow checking option requires valid, non zero maxLocals and maxStack.");
+              }
               throwError(analyzer, e);
             } catch (AnalyzerException e) {
               throwError(analyzer, e);

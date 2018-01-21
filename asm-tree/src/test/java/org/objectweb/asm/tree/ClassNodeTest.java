@@ -85,7 +85,8 @@ public class ClassNodeTest extends AsmTest implements Opcodes {
     moduleNode.accept(
         new ClassVisitor(Opcodes.ASM6) {
           @Override
-          public ModuleVisitor visitModule(final String name, final int access, final String version) {
+          public ModuleVisitor visitModule(
+              final String name, final int access, final String version) {
             return otherModuleNode;
           }
         });
@@ -117,6 +118,35 @@ public class ClassNodeTest extends AsmTest implements Opcodes {
     AnnotationNode annotationNode = new AnnotationNode("LI;");
     assertEquals("LI;", annotationNode.desc);
     assertThrows(IllegalStateException.class, () -> new AnnotationNode("LI;") {});
+
+    annotationNode.visit("bytes", new byte[] {0, 1});
+    annotationNode.visit("booleans", new boolean[] {false, true});
+    annotationNode.visit("shorts", new short[] {0, 1});
+    annotationNode.visit("chars", new char[] {'0', '1'});
+    annotationNode.visit("ints", new int[] {0, 1});
+    annotationNode.visit("longs", new long[] {0L, 1L});
+    annotationNode.visit("floats", new float[] {0.0f, 1.0f});
+    annotationNode.visit("doubles", new double[] {0.0, 1.0});
+    annotationNode.visit("string", "value");
+
+    assertEquals("bytes", annotationNode.values.get(0));
+    assertEquals(Arrays.asList(new Byte[] {0, 1}), annotationNode.values.get(1));
+    assertEquals("booleans", annotationNode.values.get(2));
+    assertEquals(Arrays.asList(new Boolean[] {false, true}), annotationNode.values.get(3));
+    assertEquals("shorts", annotationNode.values.get(4));
+    assertEquals(Arrays.asList(new Short[] {0, 1}), annotationNode.values.get(5));
+    assertEquals("chars", annotationNode.values.get(6));
+    assertEquals(Arrays.asList(new Character[] {'0', '1'}), annotationNode.values.get(7));
+    assertEquals("ints", annotationNode.values.get(8));
+    assertEquals(Arrays.asList(new Integer[] {0, 1}), annotationNode.values.get(9));
+    assertEquals("longs", annotationNode.values.get(10));
+    assertEquals(Arrays.asList(new Long[] {0L, 1L}), annotationNode.values.get(11));
+    assertEquals("floats", annotationNode.values.get(12));
+    assertEquals(Arrays.asList(new Float[] {0.0f, 1.0f}), annotationNode.values.get(13));
+    assertEquals("doubles", annotationNode.values.get(14));
+    assertEquals(Arrays.asList(new Double[] {0.0, 1.0}), annotationNode.values.get(15));
+    assertEquals("string", annotationNode.values.get(16));
+    assertEquals("value", annotationNode.values.get(17));
   }
 
   @Test
@@ -423,19 +453,30 @@ public class ClassNodeTest extends AsmTest implements Opcodes {
 
     @Override
     public AnnotationVisitor visitTypeAnnotation(
-        final int typeRef, final TypePath typePath, final String descriptor, final boolean visible) {
+        final int typeRef,
+        final TypePath typePath,
+        final String descriptor,
+        final boolean visible) {
       return null;
     }
 
     @Override
     public FieldVisitor visitField(
-        final int access, final String name, final String descriptor, final String signature, final Object value) {
+        final int access,
+        final String name,
+        final String descriptor,
+        final String signature,
+        final Object value) {
       return null;
     }
 
     @Override
     public MethodVisitor visitMethod(
-        final int access, final String name, final String descriptor, final String signature, final String[] exceptions) {
+        final int access,
+        final String name,
+        final String descriptor,
+        final String signature,
+        final String[] exceptions) {
       return null;
     }
 

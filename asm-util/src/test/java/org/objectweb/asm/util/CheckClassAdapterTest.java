@@ -209,6 +209,7 @@ public class CheckClassAdapterTest extends AsmTest implements Opcodes {
   @Test
   public void testIllegalInnerClassName() {
     checkClassAdapter.visit(V1_1, ACC_PUBLIC, "C", null, "java/lang/Object", null);
+    checkClassAdapter.visitInnerClass("name", "outerName", "0validInnerName", 0);
     assertThrows(
         Exception.class,
         () -> checkClassAdapter.visitInnerClass("name", "outerName", "0illegalInnerName;", 0));

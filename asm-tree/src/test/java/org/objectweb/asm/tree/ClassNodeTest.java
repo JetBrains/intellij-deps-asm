@@ -85,7 +85,8 @@ public class ClassNodeTest extends AsmTest implements Opcodes {
     moduleNode.accept(
         new ClassVisitor(Opcodes.ASM6) {
           @Override
-          public ModuleVisitor visitModule(final String name, final int access, final String version) {
+          public ModuleVisitor visitModule(
+              final String name, final int access, final String version) {
             return otherModuleNode;
           }
         });
@@ -117,6 +118,22 @@ public class ClassNodeTest extends AsmTest implements Opcodes {
     AnnotationNode annotationNode = new AnnotationNode("LI;");
     assertEquals("LI;", annotationNode.desc);
     assertThrows(IllegalStateException.class, () -> new AnnotationNode("LI;") {});
+
+    annotationNode.visit("ints", new int[] {0, 1});
+    annotationNode.visitAnnotation("annotation", "Lpkg/Annotation;");
+    annotationNode.accept(
+        new AnnotationVisitor(Opcodes.ASM6) {
+
+          @Override
+          public AnnotationVisitor visitAnnotation(final String name, final String descriptor) {
+            return null;
+          }
+
+          @Override
+          public AnnotationVisitor visitArray(final String name) {
+            return null;
+          }
+        });
   }
 
   @Test
@@ -423,19 +440,30 @@ public class ClassNodeTest extends AsmTest implements Opcodes {
 
     @Override
     public AnnotationVisitor visitTypeAnnotation(
-        final int typeRef, final TypePath typePath, final String descriptor, final boolean visible) {
+        final int typeRef,
+        final TypePath typePath,
+        final String descriptor,
+        final boolean visible) {
       return null;
     }
 
     @Override
     public FieldVisitor visitField(
-        final int access, final String name, final String descriptor, final String signature, final Object value) {
+        final int access,
+        final String name,
+        final String descriptor,
+        final String signature,
+        final Object value) {
       return null;
     }
 
     @Override
     public MethodVisitor visitMethod(
-        final int access, final String name, final String descriptor, final String signature, final String[] exceptions) {
+        final int access,
+        final String name,
+        final String descriptor,
+        final String signature,
+        final String[] exceptions) {
       return null;
     }
 

@@ -649,7 +649,7 @@ public class Frame<V extends Value> {
     boolean changed = false;
     for (int i = 0; i < nLocals + nStack; ++i) {
       V v = interpreter.merge(values[i], frame.values[i]);
-      if (!v.equals(values[i])) {
+      if (v != values[i]) {
         values[i] = v;
         changed = true;
       }

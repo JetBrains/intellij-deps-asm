@@ -27,8 +27,10 @@
 // THE POSSIBILITY OF SUCH DAMAGE.
 package org.objectweb.asm.tree.analysis;
 
+import static java.time.Duration.ofSeconds;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTimeoutPreemptively;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -37,6 +39,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.objectweb.asm.ClassReader;
+import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.test.AsmTest;
 import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.MethodNode;
@@ -70,6 +73,30 @@ public class BasicInterpreterTest extends AsmTest {
     Analyzer<BasicValue> analyzer = new Analyzer<>(new BasicInterpreter());
     analyzer.analyze(classNode.name, getMethod(classNode, "basicStopBundles"));
     assertEquals("RIR..... ", analyzer.getFrames()[104].toString());
+  }
+
+  /**
+   * Tests that the analyzer does not loop infinitely, even if the {@link Interpreter#merge} method
+   * does not follow its required contract (namely that if the merge result is equal to the first
+   * argument, the first argument should be returned - see #316326).
+   *
+   * @throws AnalyzerException
+   */
+  @Test
+  public void testAnalyzeWithBadInterpreter() throws AnalyzerException {
+    ClassNode classNode = new ClassNode();
+    new ClassReader(PrecompiledClass.JDK8_ALL_FRAMES.getBytes()).accept(classNode, 0);
+    for (MethodNode methodNode : classNode.methods) {
+      Analyzer<BasicValue> analyzer =
+          new Analyzer<BasicValue>(
+              new BasicInterpreter(Opcodes.ASM6) {
+                @Override
+                public BasicValue merge(final BasicValue value1, final BasicValue value2) {
+                  return new BasicValue(super.merge(value1, value2).getType());
+                }
+              });
+      assertTimeoutPreemptively(ofSeconds(1), () -> analyzer.analyze("Test", methodNode));
+    }
   }
 
   /**

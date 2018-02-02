@@ -352,7 +352,7 @@ public class ClassWriter extends ClassVisitor {
       nestMemberClasses = new ByteVector();
     }
     ++numberOfNestMemberClasses;
-    innerClasses.putShort(symbolTable.addConstantClass(nestMember).index);
+    nestMemberClasses.putShort(symbolTable.addConstantClass(nestMember).index);
   }
 
   @Override

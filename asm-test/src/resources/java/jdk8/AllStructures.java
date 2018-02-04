@@ -147,4 +147,6 @@ public abstract class AllStructures<
       this.f = f;
     }
   }
+
+  private class 𝔻 {}
 }

@@ -221,9 +221,13 @@ public class ClassReaderTest extends AsmTest implements Opcodes {
       final PrecompiledClass classParameter, final Api apiParameter) {
     ClassReader classReader = new ClassReader(classParameter.getBytes());
     ClassVisitor classVisitor = new EmptyClassVisitor(apiParameter.value());
+    // jdk8.ArtificialStructures contains structures which require ASM5, but only inside the method
+    // code. Here we skip the code, so this class can be read with ASM4.
     assertThat(() -> classReader.accept(classVisitor, ClassReader.SKIP_CODE))
         .succeedsOrThrows(RuntimeException.class)
-        .when(classParameter.isMoreRecentThan(apiParameter));
+        .when(
+            classParameter.isMoreRecentThan(apiParameter)
+                && classParameter != PrecompiledClass.JDK8_ARTIFICIAL_STRUCTURES);
   }
 
   /**

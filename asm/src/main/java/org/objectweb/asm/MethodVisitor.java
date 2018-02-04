@@ -530,6 +530,11 @@ public abstract class MethodVisitor {
    *     constants, for classes whose version is 51.0.
    */
   public void visitLdcInsn(final Object value) {
+    if (api < Opcodes.ASM5
+        && (value instanceof Handle
+            || (value instanceof Type && ((Type) value).getSort() == Type.METHOD))) {
+      throw new UnsupportedOperationException(REQUIRES_ASM5);
+    }
     if (mv != null) {
       mv.visitLdcInsn(value);
     }

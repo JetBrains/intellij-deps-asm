@@ -36,6 +36,7 @@ import static org.objectweb.asm.test.Assertions.assertThat;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.concurrent.atomic.AtomicBoolean;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
@@ -352,6 +353,36 @@ public class ClassReaderTest extends AsmTest implements Opcodes {
           }
         };
     classReader.accept(classVisitor, 0);
+  }
+
+  @Test
+  public void testParameterAnnotationIndices() {
+    final AtomicBoolean success = new AtomicBoolean(false);
+    ClassReader classReader = new ClassReader(PrecompiledClass.JDK5_LOCAL_CLASS.getBytes());
+    classReader.accept(
+        new ClassVisitor(Opcodes.ASM6) {
+          @Override
+          public MethodVisitor visitMethod(
+              final int access,
+              final String name,
+              final String descriptor,
+              final String signature,
+              final String[] exceptions) {
+            return new MethodVisitor(Opcodes.ASM6, null) {
+              @Override
+              public AnnotationVisitor visitParameterAnnotation(
+                  final int parameter, final String descriptor, final boolean visible) {
+                if (descriptor.equals("Ljava/lang/Deprecated;")) {
+                  assertEquals(0, parameter);
+                  success.set(true);
+                }
+                return null;
+              }
+            };
+          }
+        },
+        0);
+    assertTrue(success.get());
   }
 
   /** Tests that reading an invalid class throws an exception. */

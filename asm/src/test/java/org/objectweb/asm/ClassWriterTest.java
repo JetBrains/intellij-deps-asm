@@ -31,6 +31,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.objectweb.asm.test.Assertions.assertThat;
 
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.util.HashSet;
 import java.util.Random;
 import org.junit.jupiter.api.Test;
@@ -252,6 +254,23 @@ public class ClassWriterTest extends AsmTest {
     ClassWriter classWriter = new ClassWriter(ClassWriter.COMPUTE_MAXS);
     classReader.accept(classWriter, attributes(), 0);
     assertThatClass(classWriter.toByteArray()).isEqualTo(classFile);
+  }
+
+  /**
+   * Tests that a ClassReader -> ClassWriter transform with the COMPUTE_MAXS option works correctly
+   * on classes with very large or deeply nested subroutines (#307600, #311642).
+   *
+   * @throws IOException
+   */
+  @ParameterizedTest
+  @ValueSource(strings = {"Issue307600.class", "Issue311642.class"})
+  public void testReadAndWriteWithComputeMaxsAndLargeSubroutines(final String classFileName)
+      throws IOException {
+    ClassReader classReader =
+        new ClassReader(new FileInputStream("src/test/resources/" + classFileName));
+    ClassWriter classWriter = new ClassWriter(ClassWriter.COMPUTE_MAXS);
+    classReader.accept(classWriter, attributes(), 0);
+    classWriter.toByteArray();
   }
 
   /**

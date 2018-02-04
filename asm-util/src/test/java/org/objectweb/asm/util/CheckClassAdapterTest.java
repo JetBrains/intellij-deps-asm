@@ -29,12 +29,14 @@ package org.objectweb.asm.util;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -85,8 +87,19 @@ public class CheckClassAdapterTest extends AsmTest implements Opcodes {
 
   @Test
   public void testVerifyValidClass() throws Exception {
+    AtomicBoolean success = new AtomicBoolean(false);
     ClassReader classReader = new ClassReader(getClass().getName());
-    CheckClassAdapter.verify(classReader, true, new PrintWriter(new StringWriter()));
+    CheckClassAdapter.verify(
+        classReader,
+        true,
+        new PrintWriter(new StringWriter()) {
+          @Override
+          public void flush() {
+            super.flush();
+            success.set(true);
+          }
+        });
+    assertTrue(success.get());
   }
 
   @Test

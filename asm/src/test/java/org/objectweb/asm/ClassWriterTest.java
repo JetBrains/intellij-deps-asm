@@ -110,6 +110,19 @@ public class ClassWriterTest extends AsmTest {
   }
 
   @Test
+  public void testIllegalConsecutiveFrames() {
+    MethodVisitor methodVisitor =
+        new ClassWriter(0).visitMethod(Opcodes.ACC_STATIC, "m", "()V", null, null);
+    methodVisitor.visitCode();
+    methodVisitor.visitFrame(Opcodes.F_SAME, 0, null, 0, null);
+    methodVisitor.visitFrame(Opcodes.F_SAME, 0, null, 0, null);
+    assertThrows(
+        IllegalStateException.class,
+        () ->
+            methodVisitor.visitFrame(Opcodes.F_APPEND, 1, new Object[] {Opcodes.INTEGER}, 0, null));
+  }
+
+  @Test
   public void testGetCommonSuperClass() {
     ClassWriter classWriter = new ClassWriter(0);
     assertEquals(

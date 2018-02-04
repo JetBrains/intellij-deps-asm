@@ -123,6 +123,39 @@ public class ClassWriterTest extends AsmTest {
   }
 
   @Test
+  public void testComputeFramesMergeLongOrDouble() {
+    ClassWriter classWriter = new ClassWriter(ClassWriter.COMPUTE_FRAMES);
+    classWriter.visit(Opcodes.V1_7, Opcodes.ACC_PUBLIC, "A", null, "java/lang/Object", null);
+    // Generate a default constructor, so that we can instantiate the class.
+    MethodVisitor methodVisitor =
+        classWriter.visitMethod(Opcodes.ACC_PUBLIC, "<init>", "()V", null, null);
+    methodVisitor.visitCode();
+    methodVisitor.visitVarInsn(Opcodes.ALOAD, 0);
+    methodVisitor.visitMethodInsn(
+        Opcodes.INVOKESPECIAL, "java/lang/Object", "<init>", "()V", false);
+    methodVisitor.visitInsn(Opcodes.RETURN);
+    methodVisitor.visitMaxs(0, 0);
+    methodVisitor.visitEnd();
+
+    // A method with a long local variable using slots 0 and 1, with an int stored in slot 1 in a
+    // branch. At the end of the method, the stack map frame should contain 'TOP' for slot 0,
+    // otherwise the class instantiation fails with a verification error.
+    methodVisitor = classWriter.visitMethod(Opcodes.ACC_STATIC, "m", "(J)V", null, null);
+    methodVisitor.visitCode();
+    methodVisitor.visitInsn(Opcodes.ICONST_0);
+    Label label = new Label();
+    methodVisitor.visitJumpInsn(Opcodes.IFNE, label);
+    methodVisitor.visitInsn(Opcodes.ICONST_0);
+    methodVisitor.visitVarInsn(Opcodes.ISTORE, 1);
+    methodVisitor.visitLabel(label);
+    methodVisitor.visitInsn(Opcodes.RETURN);
+    methodVisitor.visitMaxs(0, 0);
+    methodVisitor.visitEnd();
+    classWriter.visitEnd();
+    loadAndInstantiate("A", classWriter.toByteArray());
+  }
+
+  @Test
   public void testGetCommonSuperClass() {
     ClassWriter classWriter = new ClassWriter(0);
     assertEquals(

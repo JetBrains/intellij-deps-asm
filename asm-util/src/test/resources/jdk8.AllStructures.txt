@@ -62,6 +62,8 @@ public abstract class jdk8/AllStructures extends java/util/HashMap  implements j
 
   @Lannotations/ITUA;(v=13) : CLASS_TYPE_PARAMETER_BOUND 2, 1, 0; // invisible
   // access flags 0x2
+  private INNERCLASS jdk8/AllStructures$𝔻 jdk8/AllStructures 𝔻
+  // access flags 0x2
   private INNERCLASS jdk8/AllStructures$InnerClass jdk8/AllStructures InnerClass
   // access flags 0x0
   INNERCLASS jdk8/AllStructures$1 null null
@@ -231,7 +233,7 @@ public abstract class jdk8/AllStructures extends java/util/HashMap  implements j
   // declaration: void <U, V>()
   private static m()V
    L0
-    LINENUMBER 122 L0
+    LINENUMBER 121 L0
     RETURN
     MAXSTACK = 0
     MAXLOCALS = 0
@@ -239,7 +241,7 @@ public abstract class jdk8/AllStructures extends java/util/HashMap  implements j
   // access flags 0x2
   private n()D
    L0
-    LINENUMBER 127 L0
+    LINENUMBER 126 L0
     ALOAD 0
     GETFIELD jdk8/AllStructures.g : D
     DRETURN
@@ -253,7 +255,7 @@ public abstract class jdk8/AllStructures extends java/util/HashMap  implements j
   // access flags 0x2
   private anonymousInnerClass()Ljava/lang/Runnable; throws java/lang/Exception 
    L0
-    LINENUMBER 131 L0
+    LINENUMBER 130 L0
     NEW jdk8/AllStructures$1
     DUP
     ALOAD 0

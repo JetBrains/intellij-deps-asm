@@ -128,6 +128,7 @@ public class ClassNodeTest extends AsmTest implements Opcodes {
     annotationNode.visit("floats", new float[] {0.0f, 1.0f});
     annotationNode.visit("doubles", new double[] {0.0, 1.0});
     annotationNode.visit("string", "value");
+    annotationNode.visitAnnotation("annotation", "Lpkg/Annotation;");
 
     assertEquals("bytes", annotationNode.values.get(0));
     assertEquals(Arrays.asList(new Byte[] {0, 1}), annotationNode.values.get(1));
@@ -147,6 +148,20 @@ public class ClassNodeTest extends AsmTest implements Opcodes {
     assertEquals(Arrays.asList(new Double[] {0.0, 1.0}), annotationNode.values.get(15));
     assertEquals("string", annotationNode.values.get(16));
     assertEquals("value", annotationNode.values.get(17));
+
+    annotationNode.accept(
+        new AnnotationVisitor(Opcodes.ASM6) {
+
+          @Override
+          public AnnotationVisitor visitAnnotation(final String name, final String descriptor) {
+            return null;
+          }
+
+          @Override
+          public AnnotationVisitor visitArray(final String name) {
+            return null;
+          }
+        });
   }
 
   @Test

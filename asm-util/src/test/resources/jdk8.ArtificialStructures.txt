@@ -1,0 +1,20 @@
+// class version 52.0 (52)
+// access flags 0x21
+public class jdk8/ArtificialStructures {
+
+
+  // access flags 0x1
+  public <init>()V
+    ALOAD 0
+    INVOKESPECIAL java/lang/Object.<init> ()V
+    RETURN
+    MAXSTACK = 1
+    MAXLOCALS = 1
+
+  // access flags 0x9
+  public static methodType()Ljava/lang/invoke/MethodType;
+    LDC (I)I.class
+    ARETURN
+    MAXSTACK = 1
+    MAXLOCALS = 0
+}

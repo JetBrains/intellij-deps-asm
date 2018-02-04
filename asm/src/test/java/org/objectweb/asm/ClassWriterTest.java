@@ -36,6 +36,7 @@ import java.util.Random;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.objectweb.asm.test.AsmTest;
 
 /**
@@ -67,35 +68,38 @@ public class ClassWriterTest extends AsmTest {
     assertThrows(IllegalArgumentException.class, () -> classWriter.newConst(new Object()));
   }
 
-  @Test
-  public void testConstantPoolSizeTooLarge() {
+  @ParameterizedTest
+  @ValueSource(ints = {65535, 65536})
+  public void testConstantPoolSizeTooLarge(final int constantPoolCount) {
     ClassWriter classWriter = new ClassWriter(0);
-    for (int i = 0; i < 65536; ++i) {
+    for (int i = 0; i < constantPoolCount - 1; ++i) {
       classWriter.newConst(Integer.valueOf(i));
     }
-    assertThrows(IndexOutOfBoundsException.class, () -> classWriter.toByteArray());
+    if (constantPoolCount > 65535) {
+      assertThrows(IndexOutOfBoundsException.class, () -> classWriter.toByteArray());
+    } else {
+      classWriter.toByteArray();
+    }
   }
 
-  @Test
-  void testMethodCodeSizeTooLarge() {
-    generateClassWithMethodCodeSize(65535).toByteArray();
-    assertThrows(
-        IndexOutOfBoundsException.class,
-        () -> generateClassWithMethodCodeSize(65536).toByteArray());
-  }
-
-  private ClassWriter generateClassWithMethodCodeSize(final int codeSize) {
+  @ParameterizedTest
+  @ValueSource(ints = {65535, 65536})
+  void testMethodCodeSizeTooLarge(final int methodCodeSize) {
     ClassWriter classWriter = new ClassWriter(0);
     MethodVisitor methodVisitor =
         classWriter.visitMethod(Opcodes.ACC_STATIC, "m", "()V", null, null);
     methodVisitor.visitCode();
-    for (int i = 0; i < codeSize - 1; ++i) {
+    for (int i = 0; i < methodCodeSize - 1; ++i) {
       methodVisitor.visitInsn(Opcodes.NOP);
     }
     methodVisitor.visitInsn(Opcodes.RETURN);
     methodVisitor.visitMaxs(0, 0);
     methodVisitor.visitEnd();
-    return classWriter;
+    if (methodCodeSize > 65535) {
+      assertThrows(IndexOutOfBoundsException.class, () -> classWriter.toByteArray());
+    } else {
+      classWriter.toByteArray();
+    }
   }
 
   @Test

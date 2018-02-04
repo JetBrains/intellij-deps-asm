@@ -114,8 +114,11 @@ public abstract class AllStructures<
     if (l2 instanceof @VTUA(v = 82) @ITUA(v = 83) HashMap) {
       return l2;
     }
-    return new @VTUA(v = 84) @ITUA(v = 85) HashMap<V0, V1>();
+    AllStructures.<@VTUA(v = 84) V0, @ITUA(v = 85) V1>m();
+    return new @VTUA(v = 86) @ITUA(v = 87) HashMap<@VTUA(v = 88) V0, @ITUA(v = 89) V1>();
   }
+  
+  private static <U, V> void m() {}
 
   private double g;
 

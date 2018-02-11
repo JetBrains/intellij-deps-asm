@@ -606,13 +606,7 @@ public class AnalyzerAdapter extends MethodVisitor {
       case Opcodes.AALOAD:
         pop(1);
         t1 = pop();
-        if (t1 instanceof String) {
-          pushDesc(((String) t1).substring(1));
-        } else if (t1 == Opcodes.NULL) {
-          push(t1);
-        } else {
-          push("java/lang/Object");
-        }
+        pushDesc(((String) t1).substring(1));
         break;
       case Opcodes.ISTORE:
       case Opcodes.FSTORE:

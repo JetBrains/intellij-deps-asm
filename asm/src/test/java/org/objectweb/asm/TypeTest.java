@@ -312,6 +312,8 @@ public class TypeTest implements Opcodes {
     assertEquals("D", Type.getDescriptor(double.class));
     assertEquals("Ljava/lang/Object;", Type.getDescriptor(Object.class));
     assertEquals("[Ljava/lang/Object;", Type.getDescriptor(Object[].class));
+    assertEquals("[[Ljava/lang/Object;", Type.getDescriptor(Object[][].class));
+    assertEquals("[[I", Type.getDescriptor(int[][].class));
   }
 
   @Test

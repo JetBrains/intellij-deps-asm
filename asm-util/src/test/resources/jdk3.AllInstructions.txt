@@ -1686,4 +1686,29 @@ class jdk3/AllInstructions {
     LOCALVARIABLE t Ljava/lang/Throwable; L2 L6 3
     MAXSTACK = 2
     MAXLOCALS = 7
+
+  // access flags 0x1
+  public readNullArray()Ljava/lang/Object;
+    TRYCATCHBLOCK L0 L1 L1 java/lang/NullPointerException
+   L2
+    LINENUMBER 278 L2
+    ACONST_NULL
+    ASTORE 1
+   L0
+    LINENUMBER 280 L0
+    ALOAD 1
+    ICONST_0
+    AALOAD
+    ARETURN
+   L1
+    LINENUMBER 282 L1
+    ASTORE 2
+    ACONST_NULL
+    ARETURN
+   L3
+    LOCALVARIABLE this Ljdk3/AllInstructions; L2 L3 0
+    LOCALVARIABLE array [Ljava/lang/Object; L0 L3 1
+    LOCALVARIABLE e Ljava/lang/NullPointerException; L1 L3 2
+    MAXSTACK = 2
+    MAXLOCALS = 3
 }

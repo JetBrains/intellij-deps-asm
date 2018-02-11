@@ -1664,4 +1664,32 @@ class jdk5/AllInstructions {
     LOCALVARIABLE u0 I L0 L10 2
     MAXSTACK = 2
     MAXLOCALS = 6
+
+  // access flags 0x1
+  public readNullArray()Ljava/lang/Object;
+    TRYCATCHBLOCK L0 L1 L2 java/lang/NullPointerException
+   L3
+    LINENUMBER 281 L3
+    ACONST_NULL
+    ASTORE 1
+   L0
+    LINENUMBER 283 L0
+    ALOAD 1
+    ICONST_0
+    AALOAD
+   L1
+    ARETURN
+   L2
+    LINENUMBER 284 L2
+    ASTORE 2
+   L4
+    LINENUMBER 285 L4
+    ACONST_NULL
+    ARETURN
+   L5
+    LOCALVARIABLE e Ljava/lang/NullPointerException; L4 L5 2
+    LOCALVARIABLE this Ljdk5/AllInstructions; L3 L5 0
+    LOCALVARIABLE array [Ljava/lang/Object; L0 L5 1
+    MAXSTACK = 2
+    MAXLOCALS = 3
 }

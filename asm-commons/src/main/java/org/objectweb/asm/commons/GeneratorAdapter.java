@@ -961,7 +961,16 @@ public class GeneratorAdapter extends LocalVariablesSorter {
         mv.visitJumpInsn(intOp, label);
         return;
     }
-    mv.visitJumpInsn(mode, label);
+    int jumpMode = mode;
+    switch (mode) {
+      case GE:
+        jumpMode = LT;
+        break;
+      case LE:
+        jumpMode = GT;
+        break;
+    }
+    mv.visitJumpInsn(jumpMode, label);
   }
 
   /**
@@ -1168,7 +1177,7 @@ public class GeneratorAdapter extends LocalVariablesSorter {
    * @param opcode the instruction's opcode.
    * @param type the class in which the method is defined.
    * @param method the method to be invoked.
-   * @param itf whether the 'type' class is an interface or not. 
+   * @param itf whether the 'type' class is an interface or not.
    */
   private void invokeInsn(
       final int opcode, final Type type, final Method method, final boolean itf) {

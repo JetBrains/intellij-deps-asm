@@ -349,7 +349,7 @@ public class Textifier extends Printer {
     }
 
     stringBuilder.append(tab);
-    appendAccess(access & ~(Opcodes.ACC_VOLATILE | Opcodes.ACC_TRANSIENT));
+    appendAccess(access & ~Opcodes.ACC_TRANSIENT);
     if ((access & Opcodes.ACC_NATIVE) != 0) {
       stringBuilder.append("native ");
     }

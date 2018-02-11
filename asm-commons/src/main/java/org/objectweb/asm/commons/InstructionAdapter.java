@@ -622,37 +622,42 @@ public class InstructionAdapter extends MethodVisitor {
   }
 
   @Override
-  public void visitLdcInsn(final Object cst) {
-    if (cst instanceof Integer) {
-      int val = ((Integer) cst).intValue();
+  public void visitLdcInsn(final Object value) {
+    if (api < Opcodes.ASM5
+        && (value instanceof Handle
+            || (value instanceof Type && ((Type) value).getSort() == Type.METHOD))) {
+      throw new UnsupportedOperationException();
+    }
+    if (value instanceof Integer) {
+      int val = ((Integer) value).intValue();
       iconst(val);
-    } else if (cst instanceof Byte) {
-      int val = ((Byte) cst).intValue();
+    } else if (value instanceof Byte) {
+      int val = ((Byte) value).intValue();
       iconst(val);
-    } else if (cst instanceof Character) {
-      int val = ((Character) cst).charValue();
+    } else if (value instanceof Character) {
+      int val = ((Character) value).charValue();
       iconst(val);
-    } else if (cst instanceof Short) {
-      int val = ((Short) cst).intValue();
+    } else if (value instanceof Short) {
+      int val = ((Short) value).intValue();
       iconst(val);
-    } else if (cst instanceof Boolean) {
-      int val = ((Boolean) cst).booleanValue() ? 1 : 0;
+    } else if (value instanceof Boolean) {
+      int val = ((Boolean) value).booleanValue() ? 1 : 0;
       iconst(val);
-    } else if (cst instanceof Float) {
-      float val = ((Float) cst).floatValue();
+    } else if (value instanceof Float) {
+      float val = ((Float) value).floatValue();
       fconst(val);
-    } else if (cst instanceof Long) {
-      long val = ((Long) cst).longValue();
+    } else if (value instanceof Long) {
+      long val = ((Long) value).longValue();
       lconst(val);
-    } else if (cst instanceof Double) {
-      double val = ((Double) cst).doubleValue();
+    } else if (value instanceof Double) {
+      double val = ((Double) value).doubleValue();
       dconst(val);
-    } else if (cst instanceof String) {
-      aconst(cst);
-    } else if (cst instanceof Type) {
-      tconst((Type) cst);
-    } else if (cst instanceof Handle) {
-      hconst((Handle) cst);
+    } else if (value instanceof String) {
+      aconst(value);
+    } else if (value instanceof Type) {
+      tconst((Type) value);
+    } else if (value instanceof Handle) {
+      hconst((Handle) value);
     } else {
       throw new IllegalArgumentException();
     }
@@ -1042,7 +1047,7 @@ public class InstructionAdapter extends MethodVisitor {
 
   @Deprecated
   public void invokestatic(final String owner, final String name, final String desc) {
-    if (api < Opcodes.ASM5) {
+    if (api >= Opcodes.ASM5) {
       invokestatic(owner, name, desc, false);
       return;
     }

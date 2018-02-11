@@ -138,9 +138,8 @@ public class SerialVersionUIDAdder extends ClassVisitor {
   private Collection<Item> svuidMethods;
 
   /**
-   * Constructs a new {@link SerialVersionUIDAdder}. <i>Subclasses must not use this
-   * constructor</i>. Instead, they must use the {@link #SerialVersionUIDAdder(int, ClassVisitor)}
-   * version.
+   * Constructs a new {@link SerialVersionUIDAdder}. <i>Subclasses must not use this constructor</i>.
+   * Instead, they must use the {@link #SerialVersionUIDAdder(int, ClassVisitor)} version.
    *
    * @param cv a {@link ClassVisitor} to which this visitor will delegate calls.
    * @throws IllegalStateException If a subclass calls this constructor.
@@ -291,16 +290,8 @@ public class SerialVersionUIDAdder extends ClassVisitor {
   @Override
   public void visitInnerClass(
       final String aname, final String outerName, final String innerName, final int attr_access) {
-    if (outerName != null && innerName != null && name != null) {
-      int len = name.length();
-      int ilen = innerName.length();
-      int olen = outerName.length();
-      if (len == olen + 1 + ilen
-          && this.name.startsWith(outerName)
-          && this.name.endsWith(innerName)
-          && this.name.charAt(olen) == '$') {
-        this.access = attr_access;
-      }
+    if ((name != null) && name.equals(aname)) {
+      this.access = attr_access;
     }
     super.visitInnerClass(aname, outerName, innerName, attr_access);
   }

@@ -696,7 +696,7 @@ public class Type {
    */
   private static void appendDescriptor(final StringBuilder stringBuilder, final Class<?> clazz) {
     Class<?> currentClass = clazz;
-    if (currentClass.isArray()) {
+    while (currentClass.isArray()) {
       stringBuilder.append('[');
       currentClass = currentClass.getComponentType();
     }

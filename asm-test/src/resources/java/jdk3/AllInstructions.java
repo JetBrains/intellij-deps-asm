@@ -273,4 +273,13 @@ class AllInstructions {
     }
     return u0;
   }
+
+  public Object readNullArray() {
+    Object[] array = null;
+    try {
+      return array[0];
+    } catch (NullPointerException e) {
+      return null;
+    }
+  }
 }

@@ -61,7 +61,7 @@ public class MethodRemapper extends MethodVisitor {
 
   @Override
   public AnnotationVisitor visitAnnotation(String desc, boolean visible) {
-    AnnotationVisitor av = super.visitAnnotation(remapper.mapType(desc), visible);
+    AnnotationVisitor av = super.visitAnnotation(remapper.mapDesc(desc), visible);
     return av == null ? av : new AnnotationRemapper(api, av, remapper);
   }
 
@@ -76,7 +76,7 @@ public class MethodRemapper extends MethodVisitor {
   @Override
   public AnnotationVisitor visitParameterAnnotation(int parameter, String desc, boolean visible) {
     AnnotationVisitor av =
-        super.visitParameterAnnotation(parameter, remapper.mapType(desc), visible);
+        super.visitParameterAnnotation(parameter, remapper.mapDesc(desc), visible);
     return av == null ? av : new AnnotationRemapper(api, av, remapper);
   }
 

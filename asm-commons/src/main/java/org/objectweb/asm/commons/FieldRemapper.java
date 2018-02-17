@@ -53,7 +53,7 @@ public class FieldRemapper extends FieldVisitor {
 
   @Override
   public AnnotationVisitor visitAnnotation(String desc, boolean visible) {
-    AnnotationVisitor av = fv.visitAnnotation(remapper.mapType(desc), visible);
+    AnnotationVisitor av = fv.visitAnnotation(remapper.mapDesc(desc), visible);
     return av == null ? null : new AnnotationRemapper(api, av, remapper);
   }
 

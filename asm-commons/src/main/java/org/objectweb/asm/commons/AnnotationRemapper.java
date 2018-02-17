@@ -56,12 +56,12 @@ public class AnnotationRemapper extends AnnotationVisitor {
 
   @Override
   public void visitEnum(String name, String desc, String value) {
-    av.visitEnum(name, remapper.mapType(desc), value);
+    av.visitEnum(name, remapper.mapDesc(desc), value);
   }
 
   @Override
   public AnnotationVisitor visitAnnotation(String name, String desc) {
-    AnnotationVisitor v = av.visitAnnotation(name, remapper.mapType(desc));
+    AnnotationVisitor v = av.visitAnnotation(name, remapper.mapDesc(desc));
     return v == null ? null : (v == av ? this : new AnnotationRemapper(api, v, remapper));
   }
 

@@ -60,6 +60,7 @@ import org.objectweb.asm.tree.MethodNode;
 import org.objectweb.asm.tree.MultiANewArrayInsnNode;
 import org.objectweb.asm.tree.TryCatchBlockNode;
 import org.objectweb.asm.tree.TypeInsnNode;
+import org.objectweb.asm.util.CheckMethodAdapter;
 
 public class ClassRemapperTest extends AsmTest implements Opcodes {
 
@@ -314,6 +315,20 @@ public class ClassRemapperTest extends AsmTest implements Opcodes {
     }
 
     @Override
+    public String mapDesc(final String descriptor) {
+      checkDescriptor(descriptor);
+      return super.mapDesc(descriptor);
+    }
+
+    @Override
+    public String mapType(final String type) {
+      if (type != null && !type.equals("module-info")) {
+        checkInternalName(type);
+      }
+      return super.mapType(type);
+    }
+
+    @Override
     public String mapMethodName(final String owner, final String name, final String descriptor) {
       if (name.equals("<init>") || name.equals("<clinit>")) {
         return name;
@@ -335,5 +350,17 @@ public class ClassRemapperTest extends AsmTest implements Opcodes {
     public String map(final String typeName) {
       return typeName.equals(internalClassName) ? remappedInternalClassName : typeName;
     }
+  }
+
+  private static void checkDescriptor(final String descriptor) {
+    CheckMethodAdapter checkMethodAdapter = new CheckMethodAdapter(null);
+    checkMethodAdapter.visitCode();
+    checkMethodAdapter.visitFieldInsn(Opcodes.GETFIELD, "Owner", "name", descriptor);
+  }
+
+  private static void checkInternalName(final String internalName) {
+    CheckMethodAdapter checkMethodAdapter = new CheckMethodAdapter(null);
+    checkMethodAdapter.visitCode();
+    checkMethodAdapter.visitFieldInsn(Opcodes.GETFIELD, internalName, "name", "I");
   }
 }

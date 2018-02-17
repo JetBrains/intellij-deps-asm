@@ -751,37 +751,50 @@ public class JSRInlinerAdapterTest extends AsmTest {
   }
 
   /**
-   * This tests a subroutine which has no ret statement, but ends in a "return" instead.
+   * This tests a subroutine which has no ret statement, but ends in a "return" instead. The code
+   * after the JSR appears to fall through the end of the method, but is in fact unreachable and
+   * therefore valid.
    *
    * <pre>
    *   JSR L0
+   *   GOTO L1
    * L0:
    *   ASTORE 0
    *   RETURN
+   * L1:
+   *   ACONST_NULL
    * </pre>
    */
   @Test
   public void testSubroutineWithNoRet2() {
     {
       Label L0 = new Label();
+      Label L1 = new Label();
 
       setCurrent(jsr);
       JSR(L0);
+      GOTO(L1);
       LABEL(L0);
       ASTORE(0);
       RETURN();
+      LABEL(L1);
+      ACONST_NULL();
       END(1, 1);
     }
 
     {
       Label L0_1a = new Label();
       Label L0_1b = new Label();
+      Label L1 = new Label();
 
       setCurrent(exp);
 
       ACONST_NULL();
       GOTO(L0_1a);
       LABEL(L0_1b);
+      GOTO(L1);
+      LABEL(L1);
+      ACONST_NULL();
 
       // L0_1a: First instantiation of subroutine:
       LABEL(L0_1a);

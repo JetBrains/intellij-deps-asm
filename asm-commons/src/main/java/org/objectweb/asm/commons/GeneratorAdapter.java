@@ -920,10 +920,10 @@ public class GeneratorAdapter extends LocalVariablesSorter {
         mv.visitInsn(Opcodes.LCMP);
         break;
       case Type.DOUBLE:
-        mv.visitInsn(mode == GE || mode == GT ? Opcodes.DCMPL : Opcodes.DCMPG);
+        mv.visitInsn(mode == GE || mode == GT ? Opcodes.DCMPG : Opcodes.DCMPL);
         break;
       case Type.FLOAT:
-        mv.visitInsn(mode == GE || mode == GT ? Opcodes.FCMPL : Opcodes.FCMPG);
+        mv.visitInsn(mode == GE || mode == GT ? Opcodes.FCMPG : Opcodes.FCMPL);
         break;
       case Type.ARRAY:
       case Type.OBJECT:

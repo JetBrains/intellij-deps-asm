@@ -85,7 +85,7 @@ public class ClassRemapper extends ClassVisitor {
 
   @Override
   public AnnotationVisitor visitAnnotation(String desc, boolean visible) {
-    AnnotationVisitor av = super.visitAnnotation(remapper.mapDesc(desc), visible);
+    AnnotationVisitor av = super.visitAnnotation(remapper.mapType(desc), visible);
     return av == null ? null : createAnnotationRemapper(av);
   }
 

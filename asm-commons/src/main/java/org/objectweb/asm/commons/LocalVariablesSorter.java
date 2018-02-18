@@ -65,8 +65,6 @@ public class LocalVariablesSorter extends MethodVisitor {
   /** Index of the next local variable to be created by {@link #newLocal}. */
   protected int nextLocal;
 
-  private boolean changed;
-
   /**
    * Constructs a new {@link LocalVariablesSorter}. <i>Subclasses must not use this constructor</i>.
    * Instead, they must use the {@link #LocalVariablesSorter(int, int, String, MethodVisitor)}
@@ -188,10 +186,6 @@ public class LocalVariablesSorter extends MethodVisitor {
       throw new IllegalStateException(
           "ClassReader.accept() should be called with EXPAND_FRAMES flag");
     }
-    if (!changed) { // optimization for the case where mapping = identity
-      mv.visitFrame(type, nLocal, local, nStack, stack);
-      return;
-    }
 
     // creates a copy of newLocals
     Object[] oldLocals = new Object[newLocals.length];
@@ -287,7 +281,6 @@ public class LocalVariablesSorter extends MethodVisitor {
     int local = newLocalMapping(type);
     setLocalType(local, type);
     setFrameLocal(local, t);
-    changed = true;
     return local;
   }
 
@@ -344,9 +337,6 @@ public class LocalVariablesSorter extends MethodVisitor {
       mapping[key] = value + 1;
     } else {
       value--;
-    }
-    if (value != var) {
-      changed = true;
     }
     return value;
   }

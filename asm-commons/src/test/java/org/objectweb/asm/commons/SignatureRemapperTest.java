@@ -56,6 +56,15 @@ public class SignatureRemapperTest {
   }
 
   @Test
+  public void testRemappingChildOnlyNestedClassExtends_IdentifiersWith$() {
+    Remapper remapper =
+        new SimpleRemapper(Collections.singletonMap("Outer$Inner$1", "Outer$RenamedInner$1"));
+    assertEquals(
+        "LOuter<Ljava/lang/Object;>.RenamedInner$1;",
+        remapper.mapSignature("LOuter<Ljava/lang/Object;>.Inner$1;", false));
+  }
+
+  @Test
   public void testRemappingBothParentAndChildNestedClassExtends() {
     Map<String, String> mapping = new HashMap<String, String>();
     mapping.put("Outer", "RenamedOuter");

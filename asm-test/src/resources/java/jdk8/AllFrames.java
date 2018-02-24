@@ -211,4 +211,11 @@ public class AllFrames {
   public static Object m21(boolean b) {
     return b ? new Integer(1) : null;
   }
+
+  // Frame AALOAD from null array (no frame in original class because ASM can't compute the exact
+  // same frame as javac, but usefull for tests that compute frame types at each instruction).
+  public static int m23() {
+    Integer[] array = null;
+    return array[0].intValue();
+  }
 }

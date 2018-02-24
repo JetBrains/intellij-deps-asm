@@ -30,12 +30,18 @@ package org.objectweb.asm.commons;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.objectweb.asm.test.Assertions.assertThat;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.MethodVisitor;
+import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.test.AsmTest;
 
 /**
@@ -76,5 +82,27 @@ public class LocalVariablesSorterTest extends AsmTest {
     assertThat(() -> loadAndInstantiate(classParameter.getName(), classWriter.toByteArray()))
         .succeedsOrThrows(UnsupportedClassVersionError.class)
         .when(classParameter.isMoreRecentThanCurrentJdk());
+  }
+
+  @Test
+  public void testSortLocalVariablesAndInstantiate() throws FileNotFoundException, IOException {
+    ClassReader classReader =
+        new ClassReader(new FileInputStream("src/test/resources/Issue317586.class"));
+    ClassWriter classWriter = new ClassWriter(0);
+    ClassVisitor classVisitor =
+        new ClassVisitor(Opcodes.ASM6, classWriter) {
+          @Override
+          public MethodVisitor visitMethod(
+              final int access,
+              final String name,
+              final String desc,
+              final String signature,
+              final String[] exceptions) {
+            return new LocalVariablesSorter(
+                api, access, desc, super.visitMethod(access, name, desc, signature, exceptions));
+          }
+        };
+    classReader.accept(classVisitor, ClassReader.EXPAND_FRAMES);
+    loadAndInstantiate("app1.Main$BadLocal", classWriter.toByteArray());
   }
 }

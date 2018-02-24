@@ -208,6 +208,7 @@ public class AnalyzerAdapter extends MethodVisitor {
     }
     visitFrameTypes(nLocal, local, this.locals);
     visitFrameTypes(nStack, stack, this.stack);
+    maxLocals = Math.max(maxLocals, this.locals.size());
     maxStack = Math.max(maxStack, this.stack.size());
   }
 
@@ -241,6 +242,12 @@ public class AnalyzerAdapter extends MethodVisitor {
   @Override
   public void visitVarInsn(final int opcode, final int var) {
     super.visitVarInsn(opcode, var);
+    boolean isLongOrDouble =
+        opcode == Opcodes.LLOAD
+            || opcode == Opcodes.DLOAD
+            || opcode == Opcodes.LSTORE
+            || opcode == Opcodes.DSTORE;
+    maxLocals = Math.max(maxLocals, var + (isLongOrDouble ? 2 : 1));
     execute(opcode, var, null);
   }
 
@@ -400,6 +407,7 @@ public class AnalyzerAdapter extends MethodVisitor {
   @Override
   public void visitIincInsn(final int var, final int increment) {
     super.visitIincInsn(var, increment);
+    maxLocals = Math.max(maxLocals, var + 1);
     execute(Opcodes.IINC, var, null);
   }
 
@@ -424,6 +432,14 @@ public class AnalyzerAdapter extends MethodVisitor {
   public void visitMultiANewArrayInsn(final String desc, final int dims) {
     super.visitMultiANewArrayInsn(desc, dims);
     execute(Opcodes.MULTIANEWARRAY, dims, desc);
+  }
+
+  @Override
+  public void visitLocalVariable(
+      String name, String descriptor, String signature, Label start, Label end, int index) {
+    char firstDescChar = descriptor.charAt(0);
+    maxLocals = Math.max(maxLocals, index + (firstDescChar == 'J' || firstDescChar == 'D' ? 2 : 1));
+    super.visitLocalVariable(name, descriptor, signature, start, end, index);
   }
 
   @Override

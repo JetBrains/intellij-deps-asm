@@ -29,6 +29,7 @@ package org.objectweb.asm.commons;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.objectweb.asm.commons.GeneratorAdapter.GE;
+import static org.objectweb.asm.commons.GeneratorAdapter.LE;
 
 import java.util.stream.Collectors;
 
@@ -51,6 +52,10 @@ public class GeneratorAdapterTest {
   public void testIfCmp() {
     assertEquals("IF_ICMPGE L0", new Generator().ifCmp(Type.INT_TYPE, GE, new Label()));
     assertEquals("LCMP IFGE L0", new Generator().ifCmp(Type.LONG_TYPE, GE, new Label()));
+    assertEquals("FCMPL IFGE L0", new Generator().ifCmp(Type.FLOAT_TYPE, GE, new Label()));
+    assertEquals("FCMPG IFLE L0", new Generator().ifCmp(Type.FLOAT_TYPE, LE, new Label()));
+    assertEquals("DCMPL IFGE L0", new Generator().ifCmp(Type.DOUBLE_TYPE, GE, new Label()));
+    assertEquals("DCMPG IFLE L0", new Generator().ifCmp(Type.DOUBLE_TYPE, LE, new Label()));
   }
 
   private static class Generator {

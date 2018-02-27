@@ -36,6 +36,7 @@ import static org.objectweb.asm.test.Assertions.assertThat;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.concurrent.atomic.AtomicBoolean;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
@@ -99,7 +100,7 @@ public class ClassReaderTest extends AsmTest implements Opcodes {
     assertNotNull(interfaces);
   }
 
-  /** Tests {@link ClassReader(byte[])] and the basic ClassReader accessors. */
+  /** Tests {@link ClassReader(byte[])} and the basic ClassReader accessors. */
   @ParameterizedTest
   @MethodSource(ALL_CLASSES_AND_ALL_APIS)
   public void testByteArrayConstructorAndAccessors(
@@ -113,6 +114,40 @@ public class ClassReaderTest extends AsmTest implements Opcodes {
       assertTrue(classReader.getSuperName().startsWith("java"));
     }
     assertNotNull(classReader.getInterfaces());
+  }
+
+  /** Tests {@link ClassReader(byte[],int,int)} and the basic ClassReader accessors. */
+  @ParameterizedTest
+  @MethodSource(ALL_CLASSES_AND_LATEST_API)
+  public void testByteArrayConstructorWithOffsetAndAccessors(
+      final PrecompiledClass classParameter, final Api apiParameter) {
+    byte[] classFile = classParameter.getBytes();
+    byte[] byteBuffer = new byte[classFile.length + 1];
+    System.arraycopy(classFile, 0, byteBuffer, 1, classFile.length);
+    ClassReader classReader = new ClassReader(byteBuffer, 1, classFile.length);
+    assertTrue(classReader.getAccess() != 0);
+    assertEquals(classParameter.getInternalName(), classReader.getClassName());
+    if (classParameter.getInternalName().equals("module-info")) {
+      assertNull(classReader.getSuperName());
+    } else {
+      assertTrue(classReader.getSuperName().startsWith("java"));
+    }
+    assertNotNull(classReader.getInterfaces());
+
+    classReader.accept(
+        new ClassVisitor(Opcodes.ASM6) {
+          @Override
+          public void visit(
+              final int version,
+              final int access,
+              final String name,
+              final String signature,
+              final String superName,
+              final String[] interfaces) {
+            assertTrue((version & 0xFFFF) >= (Opcodes.V1_1 & 0xFFFF));
+          }
+        },
+        0);
   }
 
   /** Tests {@link ClassReader(String)} and the basic ClassReader accessors. */
@@ -221,9 +256,13 @@ public class ClassReaderTest extends AsmTest implements Opcodes {
       final PrecompiledClass classParameter, final Api apiParameter) {
     ClassReader classReader = new ClassReader(classParameter.getBytes());
     ClassVisitor classVisitor = new EmptyClassVisitor(apiParameter.value());
+    // jdk8.ArtificialStructures contains structures which require ASM5, but only inside the method
+    // code. Here we skip the code, so this class can be read with ASM4.
     assertThat(() -> classReader.accept(classVisitor, ClassReader.SKIP_CODE))
         .succeedsOrThrows(RuntimeException.class)
-        .when(classParameter.isMoreRecentThan(apiParameter));
+        .when(
+            classParameter.isMoreRecentThan(apiParameter)
+                && classParameter != PrecompiledClass.JDK8_ARTIFICIAL_STRUCTURES);
   }
 
   /**
@@ -318,6 +357,36 @@ public class ClassReaderTest extends AsmTest implements Opcodes {
           }
         };
     classReader.accept(classVisitor, 0);
+  }
+
+  @Test
+  public void testParameterAnnotationIndices() {
+    final AtomicBoolean success = new AtomicBoolean(false);
+    ClassReader classReader = new ClassReader(PrecompiledClass.JDK5_LOCAL_CLASS.getBytes());
+    classReader.accept(
+        new ClassVisitor(Opcodes.ASM6) {
+          @Override
+          public MethodVisitor visitMethod(
+              final int access,
+              final String name,
+              final String descriptor,
+              final String signature,
+              final String[] exceptions) {
+            return new MethodVisitor(Opcodes.ASM6, null) {
+              @Override
+              public AnnotationVisitor visitParameterAnnotation(
+                  final int parameter, final String descriptor, final boolean visible) {
+                if (descriptor.equals("Ljava/lang/Deprecated;")) {
+                  assertEquals(0, parameter);
+                  success.set(true);
+                }
+                return null;
+              }
+            };
+          }
+        },
+        0);
+    assertTrue(success.get());
   }
 
   /** Tests that reading an invalid class throws an exception. */

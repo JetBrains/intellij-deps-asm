@@ -37,6 +37,8 @@ import java.util.Set;
 import java.util.StringTokenizer;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 /**
  * ClassWriter unit tests for COMPUTE_MAXS option with JSR instructions.
@@ -218,7 +220,8 @@ public class ClassWriterComputeMaxsTest {
   }
 
   /**
-   * Tests a method which has the most basic <code>try{}finally</code> form imaginable:
+   * Tests a method which has the most basic <code>try{}finally{}</code> form imaginable (repeated
+   * one or more times):
    *
    * <pre>
    * public void a() {
@@ -228,61 +231,67 @@ public class ClassWriterComputeMaxsTest {
    *     } finally {
    *         a--;
    *     }
+   *     // ... same try {} finally {} repeated 0 or more times ...
    * }
    * </pre>
    */
-  @Test
-  public void testBasic() {
-    Label L0 = new Label();
-    Label L1 = new Label();
-    Label L2 = new Label();
-    Label L3 = new Label();
-    Label L4 = new Label();
+  @ParameterizedTest
+  @ValueSource(ints = {1, 31, 32, 33})
+  public void testBasic(final int numSubroutines) {
+    for (int i = 0; i < numSubroutines; ++i) {
+      Label L0 = new Label();
+      Label L1 = new Label();
+      Label L2 = new Label();
+      Label L3 = new Label();
+      Label L4 = new Label();
 
-    ICONST_0(); // N0
-    ISTORE(1);
+      ICONST_0(); // N0
+      ISTORE(1);
 
-    // L0: body of try block.
-    LABEL(L0); // N2
-    IINC(1, 1);
-    GOTO(L1);
+      // L0: body of try block.
+      LABEL(L0); // N2
+      IINC(1, 1);
+      GOTO(L1);
 
-    // L2: exception handler.
-    LABEL(L2); // N8
-    ASTORE(3);
-    JSR(L3);
-    ALOAD(3); // N12
-    ATHROW();
+      // L2: exception handler.
+      LABEL(L2); // N8
+      ASTORE(3);
+      JSR(L3);
+      ALOAD(3); // N12
+      ATHROW();
 
-    // L3: subroutine.
-    LABEL(L3); // N14
-    ASTORE(2);
-    IINC(1, -1);
-    PUSH();
-    PUSH();
-    RET(2);
+      // L3: subroutine.
+      LABEL(L3); // N14
+      ASTORE(2);
+      IINC(1, -1);
+      PUSH();
+      PUSH();
+      RET(2);
 
-    // L1: non-exceptional exit from try block.
-    LABEL(L1); // N22
-    JSR(L3);
-    PUSH(); // N25
-    PUSH();
-    LABEL(L4); // N27
-    RETURN();
+      // L1: non-exceptional exit from try block.
+      LABEL(L1); // N22
+      JSR(L3);
+      PUSH(); // N25
+      PUSH();
+      LABEL(L4); // N27
+      RETURN();
 
-    TRYCATCH(L0, L2, L2);
-    TRYCATCH(L1, L4, L2);
+      TRYCATCH(L0, L2, L2);
+      TRYCATCH(L1, L4, L2);
+    }
 
     assertMaxs(4, 4);
-    assertGraph(
-        "N0=N2",
-        "N2=N22,N8",
-        "N8=N14,N12",
-        "N12=",
-        "N14=N12,N25",
-        "N22=N14,N25,N8",
-        "N25=N27,N8",
-        "N27=");
+    if (numSubroutines == 1) {
+      assertGraph(
+          "N0=N2",
+          "N2=N22,N8",
+          "N8=N14,N12",
+          "N12=",
+          "N14=N12,N25",
+          "N22=N14,N25,N8",
+          "N25=N27,N8",
+          "N27=");
+    }
   }
 
   /**

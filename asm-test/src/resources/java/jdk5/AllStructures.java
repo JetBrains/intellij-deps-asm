@@ -29,6 +29,7 @@ package jdk5;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.io.IOException;
@@ -60,19 +61,20 @@ import java.io.IOException;
   floatArrayValue = {0f},
   doubleArrayValue = {0d},
   stringArrayValue = {"0"},
-  classArrayValue = {AllStructures.class},
+  classArrayValue = {AllStructures.class, int.class, int[].class},
   enumArrayValue = {AllStructures.EnumClass.VALUE0},
   annotationArrayValue = {@Deprecated},
   otherArrayValue = {}
 )
 class AllStructures<
-    U0,
-    U1 extends Number,
-    U2 extends List<String>,
-    U3 extends List<?>,
-    U4 extends List<? extends Number>,
-    U5 extends List<? super Number>,
-    U6 extends Number & Runnable & Cloneable> {
+        U0,
+        U1 extends Number,
+        U2 extends List<String>,
+        U3 extends List<?>,
+        U4 extends List<? extends Number>,
+        U5 extends List<? super Number>,
+        U6 extends Number & Runnable & Cloneable>
+    implements Comparator<Integer> {
 
   @Deprecated
   @InvisibleAnnotation(otherArrayValue = {2})
@@ -144,6 +146,11 @@ class AllStructures<
     new LocalClass(42);
   }
 
+  // Generates a bridge method.
+  public int compare(Integer a, Integer b) {
+    return a < b ? -1 : 1;
+  }
+
   @Retention(RetentionPolicy.CLASS)
   @interface InvisibleAnnotation {
     byte byteValue() default 1;
@@ -188,7 +195,7 @@ class AllStructures<
 
     String[] stringArrayValue() default {"1"};
 
-    Class[] classArrayValue() default {Object.class};
+    Class[] classArrayValue() default {Object.class, int.class, int[].class};
 
     EnumClass[] enumArrayValue() default {EnumClass.VALUE1};
 

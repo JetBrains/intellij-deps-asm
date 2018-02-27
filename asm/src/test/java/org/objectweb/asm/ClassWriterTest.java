@@ -31,11 +31,14 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.objectweb.asm.test.Assertions.assertThat;
 
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.util.HashSet;
 import java.util.Random;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.objectweb.asm.test.AsmTest;
 
 /**
@@ -69,13 +72,91 @@ public class ClassWriterTest extends AsmTest {
     assertThrows(IllegalArgumentException.class, () -> classWriter.newConst(new Object()));
   }
 
-  @Test
-  public void testConstantPoolSizeTooLarge() {
+  @ParameterizedTest
+  @ValueSource(ints = {65535, 65536})
+  public void testConstantPoolSizeTooLarge(final int constantPoolCount) {
     ClassWriter classWriter = new ClassWriter(0);
-    for (int i = 0; i < 65536; ++i) {
+    for (int i = 0; i < constantPoolCount - 1; ++i) {
       classWriter.newConst(Integer.valueOf(i));
     }
-    assertThrows(IndexOutOfBoundsException.class, () -> classWriter.toByteArray());
+    if (constantPoolCount > 65535) {
+      assertThrows(IndexOutOfBoundsException.class, () -> classWriter.toByteArray());
+    } else {
+      classWriter.toByteArray();
+    }
+  }
+
+  @ParameterizedTest
+  @ValueSource(ints = {65535, 65536})
+  void testMethodCodeSizeTooLarge(final int methodCodeSize) {
+    ClassWriter classWriter = new ClassWriter(0);
+    MethodVisitor methodVisitor =
+        classWriter.visitMethod(Opcodes.ACC_STATIC, "m", "()V", null, null);
+    methodVisitor.visitCode();
+    for (int i = 0; i < methodCodeSize - 1; ++i) {
+      methodVisitor.visitInsn(Opcodes.NOP);
+    }
+    methodVisitor.visitInsn(Opcodes.RETURN);
+    methodVisitor.visitMaxs(0, 0);
+    methodVisitor.visitEnd();
+    if (methodCodeSize > 65535) {
+      assertThrows(IndexOutOfBoundsException.class, () -> classWriter.toByteArray());
+    } else {
+      classWriter.toByteArray();
+    }
+  }
+
+  @Test
+  void testLargeSourceDebugExtension() {
+    ClassWriter classWriter = new ClassWriter(0);
+    classWriter.visitSource("Test.java", new String(new char[100000]));
+    classWriter.toByteArray();
+  }
+
+  @Test
+  public void testIllegalConsecutiveFrames() {
+    MethodVisitor methodVisitor =
+        new ClassWriter(0).visitMethod(Opcodes.ACC_STATIC, "m", "()V", null, null);
+    methodVisitor.visitCode();
+    methodVisitor.visitFrame(Opcodes.F_SAME, 0, null, 0, null);
+    methodVisitor.visitFrame(Opcodes.F_SAME, 0, null, 0, null);
+    assertThrows(
+        IllegalStateException.class,
+        () ->
+            methodVisitor.visitFrame(Opcodes.F_APPEND, 1, new Object[] {Opcodes.INTEGER}, 0, null));
+  }
+
+  @Test
+  public void testComputeFramesMergeLongOrDouble() {
+    ClassWriter classWriter = new ClassWriter(ClassWriter.COMPUTE_FRAMES);
+    classWriter.visit(Opcodes.V1_7, Opcodes.ACC_PUBLIC, "A", null, "java/lang/Object", null);
+    // Generate a default constructor, so that we can instantiate the class.
+    MethodVisitor methodVisitor =
+        classWriter.visitMethod(Opcodes.ACC_PUBLIC, "<init>", "()V", null, null);
+    methodVisitor.visitCode();
+    methodVisitor.visitVarInsn(Opcodes.ALOAD, 0);
+    methodVisitor.visitMethodInsn(
+        Opcodes.INVOKESPECIAL, "java/lang/Object", "<init>", "()V", false);
+    methodVisitor.visitInsn(Opcodes.RETURN);
+    methodVisitor.visitMaxs(0, 0);
+    methodVisitor.visitEnd();
+
+    // A method with a long local variable using slots 0 and 1, with an int stored in slot 1 in a
+    // branch. At the end of the method, the stack map frame should contain 'TOP' for slot 0,
+    // otherwise the class instantiation fails with a verification error.
+    methodVisitor = classWriter.visitMethod(Opcodes.ACC_STATIC, "m", "(J)V", null, null);
+    methodVisitor.visitCode();
+    methodVisitor.visitInsn(Opcodes.ICONST_0);
+    Label label = new Label();
+    methodVisitor.visitJumpInsn(Opcodes.IFNE, label);
+    methodVisitor.visitInsn(Opcodes.ICONST_0);
+    methodVisitor.visitVarInsn(Opcodes.ISTORE, 1);
+    methodVisitor.visitLabel(label);
+    methodVisitor.visitInsn(Opcodes.RETURN);
+    methodVisitor.visitMaxs(0, 0);
+    methodVisitor.visitEnd();
+    classWriter.visitEnd();
+    loadAndInstantiate("A", classWriter.toByteArray());
   }
 
   @Test
@@ -175,6 +256,23 @@ public class ClassWriterTest extends AsmTest {
     ClassWriter classWriter = new ClassWriter(ClassWriter.COMPUTE_MAXS);
     classReader.accept(classWriter, attributes(), 0);
     assertThatClass(classWriter.toByteArray()).isEqualTo(classFile);
+  }
+
+  /**
+   * Tests that a ClassReader -> ClassWriter transform with the COMPUTE_MAXS option works correctly
+   * on classes with very large or deeply nested subroutines (#307600, #311642).
+   *
+   * @throws IOException
+   */
+  @ParameterizedTest
+  @ValueSource(strings = {"Issue307600.class", "Issue311642.class"})
+  public void testReadAndWriteWithComputeMaxsAndLargeSubroutines(final String classFileName)
+      throws IOException {
+    ClassReader classReader =
+        new ClassReader(new FileInputStream("src/test/resources/" + classFileName));
+    ClassWriter classWriter = new ClassWriter(ClassWriter.COMPUTE_MAXS);
+    classReader.accept(classWriter, attributes(), 0);
+    classWriter.toByteArray();
   }
 
   /**
@@ -294,7 +392,9 @@ public class ClassWriterTest extends AsmTest {
 
   /**
    * Tests that classes with large methods (more than 32k) going through a ClassWriter with no
-   * option can be loaded and pass bytecode verification.
+   * option can be loaded and pass bytecode verification. Also tests that frames are not recomputed
+   * from stratch during this process (by making sure that {@link ClassWriter#getCommonSuperClass}
+   * is not called).
    */
   @ParameterizedTest
   @MethodSource(ALL_CLASSES_AND_ALL_APIS)
@@ -304,14 +404,22 @@ public class ClassWriterTest extends AsmTest {
     if (classFile.length > Short.MAX_VALUE) return;
 
     ClassReader classReader = new ClassReader(classFile);
-    ClassWriter classWriter = new ClassWriter(0);
-    ClassVisitor classVisitor = new NopInserter(apiParameter.value(), classWriter);
+    ClassWriter classWriter = new ClassWriterWithoutGetCommonSuperClass();
+    ForwardJumpNopInserter forwardJumpNopInserter =
+        new ForwardJumpNopInserter(apiParameter.value(), classWriter);
 
     if (classParameter.isMoreRecentThan(apiParameter)) {
-      assertThrows(RuntimeException.class, () -> classReader.accept(classVisitor, attributes(), 0));
+      assertThrows(
+          RuntimeException.class,
+          () -> classReader.accept(forwardJumpNopInserter, attributes(), 0));
       return;
     }
-    classReader.accept(classVisitor, attributes(), 0);
+    classReader.accept(forwardJumpNopInserter, attributes(), 0);
+    if (!forwardJumpNopInserter.transformed) {
+      classWriter = new ClassWriterWithoutGetCommonSuperClass();
+      classReader.accept(
+          new WideForwardJumpInserter(apiParameter.value(), classWriter), attributes(), 0);
+    }
 
     byte[] transformedClass = classWriter.toByteArray();
     assertThat(() -> loadAndInstantiate(classParameter.getName(), transformedClass))
@@ -539,11 +647,12 @@ public class ClassWriterTest extends AsmTest {
     }
   }
 
-  private static class NopInserter extends ClassVisitor {
+  /** Inserts NOP instructions after the first forward jump found, to get a wide jump. */
+  private static class ForwardJumpNopInserter extends ClassVisitor {
 
-    boolean transformed = false;
+    boolean transformed;
 
-    NopInserter(final int api, final ClassVisitor classVisitor) {
+    ForwardJumpNopInserter(final int api, final ClassVisitor classVisitor) {
       super(api, classVisitor);
     }
 
@@ -575,6 +684,78 @@ public class ClassWriterTest extends AsmTest {
           super.visitJumpInsn(opcode, label);
         }
       };
+    }
+  }
+
+  /** Inserts a wide forward jump in the first non-abstract method that is found. */
+  private static class WideForwardJumpInserter extends ClassVisitor {
+
+    private boolean needFrames;
+    private boolean transformed;
+
+    WideForwardJumpInserter(final int api, final ClassVisitor classVisitor) {
+      super(api, classVisitor);
+    }
+
+    @Override
+    public void visit(
+        final int version,
+        final int access,
+        final String name,
+        final String signature,
+        final String superName,
+        final String[] interfaces) {
+      needFrames = (version & 0xFFFF) >= Opcodes.V1_7;
+      super.visit(version, access, name, signature, superName, interfaces);
+    }
+
+    @Override
+    public MethodVisitor visitMethod(
+        final int access,
+        final String name,
+        final String descriptor,
+        final String signature,
+        final String[] exceptions) {
+      return new MethodVisitor(
+          api, super.visitMethod(access, name, descriptor, signature, exceptions)) {
+
+        @Override
+        public void visitCode() {
+          super.visitCode();
+          if (!transformed) {
+            Label startLabel = new Label();
+            visitJumpInsn(Opcodes.GOTO, startLabel);
+            if (needFrames) {
+              visitLabel(new Label());
+              visitFrame(Opcodes.F_SAME, 0, null, 0, null);
+            }
+            for (int i = 0; i <= Short.MAX_VALUE; ++i) {
+              visitInsn(Opcodes.NOP);
+            }
+            visitLabel(startLabel);
+            if (needFrames) {
+              visitFrame(Opcodes.F_SAME, 0, null, 0, null);
+              visitInsn(Opcodes.NOP);
+            }
+            transformed = true;
+          }
+        }
+      };
+    }
+  }
+
+  /**
+   * A ClassWriter whose {@link ClassWriter#getCommonSuperClass} method always throws an exception.
+   */
+  private static class ClassWriterWithoutGetCommonSuperClass extends ClassWriter {
+
+    public ClassWriterWithoutGetCommonSuperClass() {
+      super(0);
+    }
+
+    @Override
+    protected String getCommonSuperClass(final String type1, final String type2) {
+      throw new UnsupportedOperationException();
     }
   }
 }

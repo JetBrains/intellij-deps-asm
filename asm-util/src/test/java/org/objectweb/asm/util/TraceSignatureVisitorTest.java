@@ -73,6 +73,11 @@ public class TraceSignatureVisitorTest {
       "false",
       "<K extends java.lang.Enum<K>, V> extends java.util.AbstractMap<K, V> implements java.io.Serializable, java.lang.Cloneable",
       "<K:Ljava/lang/Enum<TK;>;V:Ljava/lang/Object;>Ljava/util/AbstractMap<TK;TV;>;Ljava/io/Serializable;Ljava/lang/Cloneable;"
+    },
+    {
+      "false",
+      "<T, R extends T>",
+      "<T:Ljava/lang/Object;R:TT;>Ljava/lang/Object;"
     }
   };
 

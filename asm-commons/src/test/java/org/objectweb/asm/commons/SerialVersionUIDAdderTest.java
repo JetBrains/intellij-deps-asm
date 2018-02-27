@@ -73,6 +73,12 @@ public class SerialVersionUIDAdderTest extends AsmTest {
   }
 
   @Test
+  public void testAnonymousInnerClass() throws Throwable {
+    long UID = computeSerialVersionUID(SerialVersionAnonymousInnerClass.class.getName() + "$1");
+    assertEquals(-1842070664294792585L, UID);
+  }
+
+  @Test
   public void testInterface() throws Throwable {
     long UID = computeSerialVersionUID(SerialVersionInterface.class.getName());
     assertEquals(-1271936742430161320L, UID);
@@ -113,6 +119,12 @@ class SerialVersionClass implements Serializable {
   public static Object[] aMethod() {
     return null;
   }
+}
+
+class SerialVersionAnonymousInnerClass implements Serializable {
+
+  public static final SerialVersionAnonymousInnerClass anonymousInnerClass =
+      new SerialVersionAnonymousInnerClass() {};
 }
 
 interface SerialVersionInterface extends Serializable {

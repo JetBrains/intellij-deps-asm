@@ -1259,13 +1259,11 @@ public class CheckMethodAdapter extends MethodVisitor {
     if (name == null || (endPos == -1 ? name.length() <= startPos : endPos <= startPos)) {
       throw new IllegalArgumentException(INVALID + message + MUST_NOT_BE_NULL_OR_EMPTY);
     }
-    if (!Character.isJavaIdentifierStart(name.charAt(startPos))) {
-      throw new IllegalArgumentException(
-          INVALID + message + " (must be a valid Java identifier): " + name);
-    }
     int max = endPos == -1 ? name.length() : endPos;
-    for (int i = startPos + 1; i < max; ++i) {
-      if (!Character.isJavaIdentifierPart(name.charAt(i))) {
+    for (int i = startPos; i < max; i = name.offsetByCodePoints(i, 1)) {
+      if (i == startPos
+          ? !Character.isJavaIdentifierStart(name.codePointAt(i))
+          : !Character.isJavaIdentifierPart(name.codePointAt(i))) {
         throw new IllegalArgumentException(
             INVALID + message + " (must be a valid Java identifier): " + name);
       }
@@ -1292,19 +1290,14 @@ public class CheckMethodAdapter extends MethodVisitor {
       }
       return;
     }
-    if (!Character.isJavaIdentifierStart(name.charAt(0))) {
-      throw new IllegalArgumentException(
-          INVALID
-              + message
-              + " (must be a '<init>', '<clinit>' or a valid Java identifier): "
-              + name);
-    }
-    for (int i = 1; i < name.length(); ++i) {
-      if (!Character.isJavaIdentifierPart(name.charAt(i))) {
+    for (int i = 0; i < name.length(); i = name.offsetByCodePoints(i, 1)) {
+      if (i == 0
+          ? !Character.isJavaIdentifierStart(name.codePointAt(i))
+          : !Character.isJavaIdentifierPart(name.codePointAt(i))) {
         throw new IllegalArgumentException(
             INVALID
                 + message
-                + " (must be '<init>' or '<clinit>' or a valid Java identifier): "
+                + " (must be a '<init>', '<clinit>' or a valid Java identifier): "
                 + name);
       }
     }

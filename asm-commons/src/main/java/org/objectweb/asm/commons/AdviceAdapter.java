@@ -97,7 +97,7 @@ public abstract class AdviceAdapter extends GeneratorAdapter implements Opcodes 
 
   @Override
   public void visitCode() {
-    mv.visitCode();
+    super.visitCode();
     if (constructor) {
       stackFrame = new ArrayList<Object>();
       branches = new HashMap<Label, List<Object>>();
@@ -109,7 +109,7 @@ public abstract class AdviceAdapter extends GeneratorAdapter implements Opcodes 
 
   @Override
   public void visitLabel(final Label label) {
-    mv.visitLabel(label);
+    super.visitLabel(label);
     if (constructor && branches != null) {
       List<Object> frame = branches.get(label);
       if (frame != null) {
@@ -298,7 +298,7 @@ public abstract class AdviceAdapter extends GeneratorAdapter implements Opcodes 
           break;
       }
     }
-    mv.visitInsn(opcode);
+    super.visitInsn(opcode);
   }
 
   @Override
@@ -335,7 +335,7 @@ public abstract class AdviceAdapter extends GeneratorAdapter implements Opcodes 
   @Override
   public void visitFieldInsn(
       final int opcode, final String owner, final String name, final String desc) {
-    mv.visitFieldInsn(opcode, owner, name, desc);
+    super.visitFieldInsn(opcode, owner, name, desc);
     if (constructor) {
       char c = desc.charAt(0);
       boolean longOrDouble = c == 'J' || c == 'D';
@@ -370,7 +370,7 @@ public abstract class AdviceAdapter extends GeneratorAdapter implements Opcodes 
 
   @Override
   public void visitIntInsn(final int opcode, final int operand) {
-    mv.visitIntInsn(opcode, operand);
+    super.visitIntInsn(opcode, operand);
     if (constructor && opcode != NEWARRAY) {
       pushValue(OTHER);
     }
@@ -378,7 +378,7 @@ public abstract class AdviceAdapter extends GeneratorAdapter implements Opcodes 
 
   @Override
   public void visitLdcInsn(final Object cst) {
-    mv.visitLdcInsn(cst);
+    super.visitLdcInsn(cst);
     if (constructor) {
       pushValue(OTHER);
       if (cst instanceof Double || cst instanceof Long) {
@@ -389,7 +389,7 @@ public abstract class AdviceAdapter extends GeneratorAdapter implements Opcodes 
 
   @Override
   public void visitMultiANewArrayInsn(final String desc, final int dims) {
-    mv.visitMultiANewArrayInsn(desc, dims);
+    super.visitMultiANewArrayInsn(desc, dims);
     if (constructor) {
       for (int i = 0; i < dims; i++) {
         popValue();
@@ -400,7 +400,7 @@ public abstract class AdviceAdapter extends GeneratorAdapter implements Opcodes 
 
   @Override
   public void visitTypeInsn(final int opcode, final String type) {
-    mv.visitTypeInsn(opcode, type);
+    super.visitTypeInsn(opcode, type);
     // ANEWARRAY, CHECKCAST or INSTANCEOF don't change stack
     if (constructor && opcode == NEW) {
       pushValue(OTHER);
@@ -474,7 +474,7 @@ public abstract class AdviceAdapter extends GeneratorAdapter implements Opcodes 
 
   @Override
   public void visitInvokeDynamicInsn(String name, String desc, Handle bsm, Object... bsmArgs) {
-    mv.visitInvokeDynamicInsn(name, desc, bsm, bsmArgs);
+    super.visitInvokeDynamicInsn(name, desc, bsm, bsmArgs);
     if (constructor) {
       Type[] types = Type.getArgumentTypes(desc);
       for (int i = 0; i < types.length; i++) {
@@ -496,7 +496,7 @@ public abstract class AdviceAdapter extends GeneratorAdapter implements Opcodes 
 
   @Override
   public void visitJumpInsn(final int opcode, final Label label) {
-    mv.visitJumpInsn(opcode, label);
+    super.visitJumpInsn(opcode, label);
     if (constructor) {
       switch (opcode) {
         case IFEQ:
@@ -530,7 +530,7 @@ public abstract class AdviceAdapter extends GeneratorAdapter implements Opcodes 
 
   @Override
   public void visitLookupSwitchInsn(final Label dflt, final int[] keys, final Label[] labels) {
-    mv.visitLookupSwitchInsn(dflt, keys, labels);
+    super.visitLookupSwitchInsn(dflt, keys, labels);
     if (constructor) {
       popValue();
       addBranches(dflt, labels);
@@ -540,7 +540,7 @@ public abstract class AdviceAdapter extends GeneratorAdapter implements Opcodes 
   @Override
   public void visitTableSwitchInsn(
       final int min, final int max, final Label dflt, final Label... labels) {
-    mv.visitTableSwitchInsn(min, max, dflt, labels);
+    super.visitTableSwitchInsn(min, max, dflt, labels);
     if (constructor) {
       popValue();
       addBranches(dflt, labels);

@@ -33,9 +33,17 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
+import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.test.AsmTest;
 
 /**
  * Textifier tests.
@@ -43,7 +51,7 @@ import org.objectweb.asm.Opcodes;
  * @author Eugene Kuleshov
  * @author Eric Bruneton
  */
-public class TextifierTest {
+public class TextifierTest extends AsmTest {
 
   @Test
   public void testConstructor() {
@@ -91,5 +99,30 @@ public class TextifierTest {
       System.setErr(err);
       System.setOut(out);
     }
+  }
+
+  /**
+   * Tests that the text produced with a Textifier is equal to the expected text.
+   *
+   * @throws Exception
+   */
+  @ParameterizedTest
+  @MethodSource(ALL_CLASSES_AND_LATEST_API)
+  public void testTextify(final PrecompiledClass classParameter, final Api apiParameter)
+      throws Exception {
+    byte[] classFile = classParameter.getBytes();
+    if (classFile.length >= 32768) {
+      return;
+    }
+
+    StringWriter stringWriter = new StringWriter();
+    new ClassReader(classFile).accept(new TraceClassVisitor(new PrintWriter(stringWriter)), 0);
+    stringWriter.close();
+
+    String expectedText =
+        new String(
+            Files.readAllBytes(
+                Paths.get("src/test/resources/" + classParameter.getName() + ".txt")));
+    assertEquals(expectedText, stringWriter.toString());
   }
 }

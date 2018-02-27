@@ -197,9 +197,7 @@ public class AnalyzerAdapter extends MethodVisitor {
           "ClassReader.accept() should be called with EXPAND_FRAMES flag");
     }
 
-    if (mv != null) {
-      mv.visitFrame(type, nLocal, local, nStack, stack);
-    }
+    super.visitFrame(type, nLocal, local, nStack, stack);
 
     if (this.locals != null) {
       this.locals.clear();
@@ -210,6 +208,7 @@ public class AnalyzerAdapter extends MethodVisitor {
     }
     visitFrameTypes(nLocal, local, this.locals);
     visitFrameTypes(nStack, stack, this.stack);
+    maxLocals = Math.max(maxLocals, this.locals.size());
     maxStack = Math.max(maxStack, this.stack.size());
   }
 
@@ -226,9 +225,7 @@ public class AnalyzerAdapter extends MethodVisitor {
 
   @Override
   public void visitInsn(final int opcode) {
-    if (mv != null) {
-      mv.visitInsn(opcode);
-    }
+    super.visitInsn(opcode);
     execute(opcode, 0, null);
     if ((opcode >= Opcodes.IRETURN && opcode <= Opcodes.RETURN) || opcode == Opcodes.ATHROW) {
       this.locals = null;
@@ -238,17 +235,19 @@ public class AnalyzerAdapter extends MethodVisitor {
 
   @Override
   public void visitIntInsn(final int opcode, final int operand) {
-    if (mv != null) {
-      mv.visitIntInsn(opcode, operand);
-    }
+    super.visitIntInsn(opcode, operand);
     execute(opcode, operand, null);
   }
 
   @Override
   public void visitVarInsn(final int opcode, final int var) {
-    if (mv != null) {
-      mv.visitVarInsn(opcode, var);
-    }
+    super.visitVarInsn(opcode, var);
+    boolean isLongOrDouble =
+        opcode == Opcodes.LLOAD
+            || opcode == Opcodes.DLOAD
+            || opcode == Opcodes.LSTORE
+            || opcode == Opcodes.DSTORE;
+    maxLocals = Math.max(maxLocals, var + (isLongOrDouble ? 2 : 1));
     execute(opcode, var, null);
   }
 
@@ -267,18 +266,14 @@ public class AnalyzerAdapter extends MethodVisitor {
         uninitializedTypes.put(labels.get(i), type);
       }
     }
-    if (mv != null) {
-      mv.visitTypeInsn(opcode, type);
-    }
+    super.visitTypeInsn(opcode, type);
     execute(opcode, 0, type);
   }
 
   @Override
   public void visitFieldInsn(
       final int opcode, final String owner, final String name, final String desc) {
-    if (mv != null) {
-      mv.visitFieldInsn(opcode, owner, name, desc);
-    }
+    super.visitFieldInsn(opcode, owner, name, desc);
     execute(opcode, 0, desc);
   }
 
@@ -344,9 +339,7 @@ public class AnalyzerAdapter extends MethodVisitor {
 
   @Override
   public void visitInvokeDynamicInsn(String name, String desc, Handle bsm, Object... bsmArgs) {
-    if (mv != null) {
-      mv.visitInvokeDynamicInsn(name, desc, bsm, bsmArgs);
-    }
+    super.visitInvokeDynamicInsn(name, desc, bsm, bsmArgs);
     if (this.locals == null) {
       labels = null;
       return;
@@ -358,9 +351,7 @@ public class AnalyzerAdapter extends MethodVisitor {
 
   @Override
   public void visitJumpInsn(final int opcode, final Label label) {
-    if (mv != null) {
-      mv.visitJumpInsn(opcode, label);
-    }
+    super.visitJumpInsn(opcode, label);
     execute(opcode, 0, null);
     if (opcode == Opcodes.GOTO) {
       this.locals = null;
@@ -370,9 +361,7 @@ public class AnalyzerAdapter extends MethodVisitor {
 
   @Override
   public void visitLabel(final Label label) {
-    if (mv != null) {
-      mv.visitLabel(label);
-    }
+    super.visitLabel(label);
     if (labels == null) {
       labels = new ArrayList<Label>(3);
     }
@@ -381,9 +370,7 @@ public class AnalyzerAdapter extends MethodVisitor {
 
   @Override
   public void visitLdcInsn(final Object cst) {
-    if (mv != null) {
-      mv.visitLdcInsn(cst);
-    }
+    super.visitLdcInsn(cst);
     if (this.locals == null) {
       labels = null;
       return;
@@ -419,18 +406,15 @@ public class AnalyzerAdapter extends MethodVisitor {
 
   @Override
   public void visitIincInsn(final int var, final int increment) {
-    if (mv != null) {
-      mv.visitIincInsn(var, increment);
-    }
+    super.visitIincInsn(var, increment);
+    maxLocals = Math.max(maxLocals, var + 1);
     execute(Opcodes.IINC, var, null);
   }
 
   @Override
   public void visitTableSwitchInsn(
       final int min, final int max, final Label dflt, final Label... labels) {
-    if (mv != null) {
-      mv.visitTableSwitchInsn(min, max, dflt, labels);
-    }
+    super.visitTableSwitchInsn(min, max, dflt, labels);
     execute(Opcodes.TABLESWITCH, 0, null);
     this.locals = null;
     this.stack = null;
@@ -438,9 +422,7 @@ public class AnalyzerAdapter extends MethodVisitor {
 
   @Override
   public void visitLookupSwitchInsn(final Label dflt, final int[] keys, final Label[] labels) {
-    if (mv != null) {
-      mv.visitLookupSwitchInsn(dflt, keys, labels);
-    }
+    super.visitLookupSwitchInsn(dflt, keys, labels);
     execute(Opcodes.LOOKUPSWITCH, 0, null);
     this.locals = null;
     this.stack = null;
@@ -448,10 +430,16 @@ public class AnalyzerAdapter extends MethodVisitor {
 
   @Override
   public void visitMultiANewArrayInsn(final String desc, final int dims) {
-    if (mv != null) {
-      mv.visitMultiANewArrayInsn(desc, dims);
-    }
+    super.visitMultiANewArrayInsn(desc, dims);
     execute(Opcodes.MULTIANEWARRAY, dims, desc);
+  }
+
+  @Override
+  public void visitLocalVariable(
+      String name, String descriptor, String signature, Label start, Label end, int index) {
+    char firstDescChar = descriptor.charAt(0);
+    maxLocals = Math.max(maxLocals, index + (firstDescChar == 'J' || firstDescChar == 'D' ? 2 : 1));
+    super.visitLocalVariable(name, descriptor, signature, start, end, index);
   }
 
   @Override

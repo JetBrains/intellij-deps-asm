@@ -142,11 +142,25 @@ public class ClassReader {
    */
   public ClassReader(
       final byte[] classFileBuffer, final int classFileOffset, final int classFileLength) {
+    this(classFileBuffer, classFileOffset, /* checkClassVersion = */ true);
+  }
+
+  /**
+   * Constructs a new {@link ClassReader} object. <i>This internal constructor must not be exposed
+   * as a public API</i>.
+   *
+   * @param classFileBuffer a byte array containing the JVMS ClassFile structure to be read.
+   * @param classFileOffset the offset in byteBuffer of the first byte of the ClassFile to be read.
+   * @param checkClassVersion whether to check the class version or not.
+   */
+  ClassReader(
+      final byte[] classFileBuffer, final int classFileOffset, final boolean checkClassVersion) {
     this.b = classFileBuffer;
     // Check the class' major_version. This field is after the magic and minor_version fields, which
     // use 4 and 2 bytes respectively.
-    if (readShort(classFileOffset + 6) > Opcodes.V10) {
-      throw new IllegalArgumentException();
+    if (checkClassVersion && readShort(classFileOffset + 6) > Opcodes.V10) {
+      throw new IllegalArgumentException(
+          "Unsupported class file major version " + readShort(classFileOffset + 6));
     }
     // Create the constant pool arrays. The constant_pool_count field is after the magic,
     // minor_version and major_version fields, which use 4, 2 and 2 bytes respectively.

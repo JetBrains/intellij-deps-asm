@@ -643,6 +643,12 @@ public class MethodNode extends MethodVisitor {
           if (isInterface != (insn.opcode == Opcodes.INVOKEINTERFACE)) {
             throw new UnsupportedClassVersionException();
           }
+        } else if (insn instanceof LdcInsnNode) {
+          Object value = ((LdcInsnNode) insn).cst;
+          if (value instanceof Handle
+              || (value instanceof Type && ((Type) value).getSort() == Type.METHOD)) {
+            throw new UnsupportedClassVersionException();
+          }
         }
       }
       if (visibleLocalVariableAnnotations != null && !visibleLocalVariableAnnotations.isEmpty()) {

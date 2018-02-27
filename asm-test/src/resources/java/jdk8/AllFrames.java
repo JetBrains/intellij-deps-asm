@@ -27,6 +27,8 @@
 // THE POSSIBILITY OF SUCH DAMAGE.
 package jdk8;
 
+import java.io.UnsupportedEncodingException;
+
 /**
  * Class which, compiled with the JDK 1.8.0, produces all the stack map frame types. Must be
  * compiled with "javac -g -parameters".
@@ -56,11 +58,30 @@ public class AllFrames {
 
   // Frame types: same, same_locals_1_stack_item, full_frame.
   // Element types: primitive types and object.
-  public int m0(boolean b, byte y, char c, short s, int i, float f, long l, double d, Object o,
-      Object[] p, Object[][] q) {
+  public int m0(
+      boolean b,
+      byte y,
+      char c,
+      short s,
+      int i,
+      float f,
+      long l,
+      double d,
+      Object o,
+      Object[] p,
+      Object[][] q) {
     return b
         ? m0(!b, y, c, s, i - 1, f - 1f, l - 1l, d - 1d, o, p, q)
         : m0(!b, y, c, s, i + 1, f + 1f, l + 1l, d + 1d, o, p, q);
+  }
+
+  // Element types: uninitialized (multiple per frame).
+  public String m0(byte[] bytes, boolean b) {
+    try {
+      return bytes == null ? null : new String(bytes, b ? "a" : "b");
+    } catch (UnsupportedEncodingException e) {
+      return null;
+    }
   }
 
   // Frame types: append.
@@ -189,5 +210,12 @@ public class AllFrames {
   // Frame merges: object type and null type.
   public static Object m21(boolean b) {
     return b ? new Integer(1) : null;
+  }
+
+  // Frame AALOAD from null array (no frame in original class because ASM can't compute the exact
+  // same frame as javac, but usefull for tests that compute frame types at each instruction).
+  public static int m23() {
+    Integer[] array = null;
+    return array[0].intValue();
   }
 }

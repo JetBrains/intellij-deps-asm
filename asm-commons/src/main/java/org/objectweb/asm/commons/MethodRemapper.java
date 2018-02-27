@@ -158,14 +158,15 @@ public class MethodRemapper extends MethodVisitor {
 
   @Override
   public void visitInvokeDynamicInsn(String name, String desc, Handle bsm, Object... bsmArgs) {
+    Object[] remappedBsmArgs = new Object[bsmArgs.length];
     for (int i = 0; i < bsmArgs.length; i++) {
-      bsmArgs[i] = remapper.mapValue(bsmArgs[i]);
+      remappedBsmArgs[i] = remapper.mapValue(bsmArgs[i]);
     }
     super.visitInvokeDynamicInsn(
         remapper.mapInvokeDynamicMethodName(name, desc),
         remapper.mapMethodDesc(desc),
         (Handle) remapper.mapValue(bsm),
-        bsmArgs);
+        remappedBsmArgs);
   }
 
   @Override

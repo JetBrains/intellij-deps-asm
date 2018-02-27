@@ -60,6 +60,7 @@ import org.objectweb.asm.tree.MethodNode;
 import org.objectweb.asm.tree.MultiANewArrayInsnNode;
 import org.objectweb.asm.tree.TryCatchBlockNode;
 import org.objectweb.asm.tree.TypeInsnNode;
+import org.objectweb.asm.util.CheckMethodAdapter;
 
 public class ClassRemapperTest extends AsmTest implements Opcodes {
 
@@ -251,38 +252,12 @@ public class ClassRemapperTest extends AsmTest implements Opcodes {
   /** Tests that classes transformed with a ClassRemapper can be loaded and instantiated. */
   @ParameterizedTest
   @MethodSource(ALL_CLASSES_AND_ALL_APIS)
-  public void testRemapLoadAndInstantiate(PrecompiledClass classParameter, Api apiParameter) {
-    String internalName = classParameter.getInternalName();
-    String remappedInternalName =
-        internalName.equals("module-info") ? internalName : internalName.toUpperCase();
+  public void testRemapLoadAndInstantiate(
+      final PrecompiledClass classParameter, final Api apiParameter) {
     ClassReader classReader = new ClassReader(classParameter.getBytes());
     ClassWriter classWriter = new ClassWriter(0);
-    Remapper upperCaseRemapper =
-        new Remapper() {
+    UpperCaseRemapper upperCaseRemapper = new UpperCaseRemapper(classParameter.getInternalName());
 
-          @Override
-          public String mapMethodName(String owner, String name, String desc) {
-            if (name.equals("<init>") || name.equals("<clinit>")) {
-              return name;
-            }
-            return owner.equals(internalName) ? name.toUpperCase() : name;
-          }
-
-          @Override
-          public String mapInvokeDynamicMethodName(String name, String desc) {
-            return name.toUpperCase();
-          }
-
-          @Override
-          public String mapFieldName(String owner, String name, String desc) {
-            return owner.equals(internalName) ? name.toUpperCase() : name;
-          }
-
-          @Override
-          public String map(String typeName) {
-            return typeName.equals(internalName) ? remappedInternalName : typeName;
-          }
-        };
     ClassRemapper classRemapper =
         new ClassRemapper(apiParameter.value(), classWriter, upperCaseRemapper);
     if (classParameter.isMoreRecentThan(apiParameter)) {
@@ -291,8 +266,101 @@ public class ClassRemapperTest extends AsmTest implements Opcodes {
     }
     classReader.accept(classRemapper, 0);
     byte[] classFile = classWriter.toByteArray();
-    assertThat(() -> loadAndInstantiate(remappedInternalName.replace('/', '.'), classFile))
+    assertThat(() -> loadAndInstantiate(upperCaseRemapper.getRemappedClassName(), classFile))
         .succeedsOrThrows(UnsupportedClassVersionError.class)
         .when(classParameter.isMoreRecentThanCurrentJdk());
+  }
+
+  /**
+   * Tests that classes transformed with a ClassNode and ClassRemapper can be loaded and
+   * instantiated.
+   */
+  @ParameterizedTest
+  @MethodSource(ALL_CLASSES_AND_ALL_APIS)
+  public void testRemapLoadAndInstantiateWithTreeApi(
+      final PrecompiledClass classParameter, final Api apiParameter) {
+    ClassNode classNode = new ClassNode();
+    new ClassReader(classParameter.getBytes()).accept(classNode, 0);
+
+    ClassWriter classWriter = new ClassWriter(0);
+    UpperCaseRemapper upperCaseRemapper = new UpperCaseRemapper(classParameter.getInternalName());
+    ClassRemapper classRemapper =
+        new ClassRemapper(apiParameter.value(), classWriter, upperCaseRemapper);
+    if (classParameter.isMoreRecentThan(apiParameter)) {
+      assertThrows(RuntimeException.class, () -> classNode.accept(classRemapper));
+      return;
+    }
+    classNode.accept(classRemapper);
+    byte[] classFile = classWriter.toByteArray();
+    assertThat(() -> loadAndInstantiate(upperCaseRemapper.getRemappedClassName(), classFile))
+        .succeedsOrThrows(UnsupportedClassVersionError.class)
+        .when(classParameter.isMoreRecentThanCurrentJdk());
+  }
+
+  static class UpperCaseRemapper extends Remapper {
+
+    private final String internalClassName;
+    private final String remappedInternalClassName;
+
+    public UpperCaseRemapper(final String internalClassName) {
+      this.internalClassName = internalClassName;
+      this.remappedInternalClassName =
+          internalClassName.equals("module-info")
+              ? internalClassName
+              : internalClassName.toUpperCase();
+    }
+
+    String getRemappedClassName() {
+      return remappedInternalClassName.replace('/', '.');
+    }
+
+    @Override
+    public String mapDesc(final String descriptor) {
+      checkDescriptor(descriptor);
+      return super.mapDesc(descriptor);
+    }
+
+    @Override
+    public String mapType(final String type) {
+      if (type != null && !type.equals("module-info")) {
+        checkInternalName(type);
+      }
+      return super.mapType(type);
+    }
+
+    @Override
+    public String mapMethodName(final String owner, final String name, final String descriptor) {
+      if (name.equals("<init>") || name.equals("<clinit>")) {
+        return name;
+      }
+      return owner.equals(internalClassName) ? name.toUpperCase() : name;
+    }
+
+    @Override
+    public String mapInvokeDynamicMethodName(final String name, final String descriptor) {
+      return name.toUpperCase();
+    }
+
+    @Override
+    public String mapFieldName(final String owner, final String name, final String descriptor) {
+      return owner.equals(internalClassName) ? name.toUpperCase() : name;
+    }
+
+    @Override
+    public String map(final String typeName) {
+      return typeName.equals(internalClassName) ? remappedInternalClassName : typeName;
+    }
+  }
+
+  private static void checkDescriptor(final String descriptor) {
+    CheckMethodAdapter checkMethodAdapter = new CheckMethodAdapter(null);
+    checkMethodAdapter.visitCode();
+    checkMethodAdapter.visitFieldInsn(Opcodes.GETFIELD, "Owner", "name", descriptor);
+  }
+
+  private static void checkInternalName(final String internalName) {
+    CheckMethodAdapter checkMethodAdapter = new CheckMethodAdapter(null);
+    checkMethodAdapter.visitCode();
+    checkMethodAdapter.visitFieldInsn(Opcodes.GETFIELD, internalName, "name", "I");
   }
 }

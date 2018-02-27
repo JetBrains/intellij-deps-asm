@@ -277,4 +277,47 @@ public class Attribute {
       attribute = attribute.nextAttribute;
     }
   }
+
+  /** A set of attribute prototypes (attributes with the same type are considered equal). */
+  static final class Set {
+
+    private static final int SIZE_INCREMENT = 6;
+
+    private int size;
+    private Attribute[] data = new Attribute[SIZE_INCREMENT];
+
+    void addAttributes(final Attribute attributeList) {
+      Attribute attribute = attributeList;
+      while (attribute != null) {
+        if (!contains(attribute)) {
+          add(attribute);
+        }
+        attribute = attribute.nextAttribute;
+      }
+    }
+
+    Attribute[] toArray() {
+      Attribute[] result = new Attribute[size];
+      System.arraycopy(data, 0, result, 0, size);
+      return result;
+    }
+
+    private boolean contains(final Attribute attribute) {
+      for (int i = 0; i < size; ++i) {
+        if (data[i].type.equals(attribute.type)) {
+          return true;
+        }
+      }
+      return false;
+    }
+
+    private void add(final Attribute attribute) {
+      if (size >= data.length) {
+        Attribute[] newData = new Attribute[data.length + SIZE_INCREMENT];
+        System.arraycopy(data, 0, newData, 0, size);
+        data = newData;
+      }
+      data[size++] = attribute;
+    }
+  }
 }

@@ -63,9 +63,7 @@ public class CodeSizeEvaluator extends MethodVisitor implements Opcodes {
   public void visitInsn(final int opcode) {
     minSize += 1;
     maxSize += 1;
-    if (mv != null) {
-      mv.visitInsn(opcode);
-    }
+    super.visitInsn(opcode);
   }
 
   @Override
@@ -77,9 +75,7 @@ public class CodeSizeEvaluator extends MethodVisitor implements Opcodes {
       minSize += 2;
       maxSize += 2;
     }
-    if (mv != null) {
-      mv.visitIntInsn(opcode, operand);
-    }
+    super.visitIntInsn(opcode, operand);
   }
 
   @Override
@@ -94,18 +90,14 @@ public class CodeSizeEvaluator extends MethodVisitor implements Opcodes {
       minSize += 2;
       maxSize += 2;
     }
-    if (mv != null) {
-      mv.visitVarInsn(opcode, var);
-    }
+    super.visitVarInsn(opcode, var);
   }
 
   @Override
   public void visitTypeInsn(final int opcode, final String type) {
     minSize += 3;
     maxSize += 3;
-    if (mv != null) {
-      mv.visitTypeInsn(opcode, type);
-    }
+    super.visitTypeInsn(opcode, type);
   }
 
   @Override
@@ -113,9 +105,7 @@ public class CodeSizeEvaluator extends MethodVisitor implements Opcodes {
       final int opcode, final String owner, final String name, final String desc) {
     minSize += 3;
     maxSize += 3;
-    if (mv != null) {
-      mv.visitFieldInsn(opcode, owner, name, desc);
-    }
+    super.visitFieldInsn(opcode, owner, name, desc);
   }
 
   @Deprecated
@@ -161,9 +151,7 @@ public class CodeSizeEvaluator extends MethodVisitor implements Opcodes {
   public void visitInvokeDynamicInsn(String name, String desc, Handle bsm, Object... bsmArgs) {
     minSize += 5;
     maxSize += 5;
-    if (mv != null) {
-      mv.visitInvokeDynamicInsn(name, desc, bsm, bsmArgs);
-    }
+    super.visitInvokeDynamicInsn(name, desc, bsm, bsmArgs);
   }
 
   @Override
@@ -174,9 +162,7 @@ public class CodeSizeEvaluator extends MethodVisitor implements Opcodes {
     } else {
       maxSize += 8;
     }
-    if (mv != null) {
-      mv.visitJumpInsn(opcode, label);
-    }
+    super.visitJumpInsn(opcode, label);
   }
 
   @Override
@@ -188,9 +174,7 @@ public class CodeSizeEvaluator extends MethodVisitor implements Opcodes {
       minSize += 2;
       maxSize += 3;
     }
-    if (mv != null) {
-      mv.visitLdcInsn(cst);
-    }
+    super.visitLdcInsn(cst);
   }
 
   @Override
@@ -202,9 +186,7 @@ public class CodeSizeEvaluator extends MethodVisitor implements Opcodes {
       minSize += 3;
       maxSize += 3;
     }
-    if (mv != null) {
-      mv.visitIincInsn(var, increment);
-    }
+    super.visitIincInsn(var, increment);
   }
 
   @Override
@@ -212,26 +194,20 @@ public class CodeSizeEvaluator extends MethodVisitor implements Opcodes {
       final int min, final int max, final Label dflt, final Label... labels) {
     minSize += 13 + labels.length * 4;
     maxSize += 16 + labels.length * 4;
-    if (mv != null) {
-      mv.visitTableSwitchInsn(min, max, dflt, labels);
-    }
+    super.visitTableSwitchInsn(min, max, dflt, labels);
   }
 
   @Override
   public void visitLookupSwitchInsn(final Label dflt, final int[] keys, final Label[] labels) {
     minSize += 9 + keys.length * 8;
     maxSize += 12 + keys.length * 8;
-    if (mv != null) {
-      mv.visitLookupSwitchInsn(dflt, keys, labels);
-    }
+    super.visitLookupSwitchInsn(dflt, keys, labels);
   }
 
   @Override
   public void visitMultiANewArrayInsn(final String desc, final int dims) {
     minSize += 4;
     maxSize += 4;
-    if (mv != null) {
-      mv.visitMultiANewArrayInsn(desc, dims);
-    }
+    super.visitMultiANewArrayInsn(desc, dims);
   }
 }

@@ -77,6 +77,7 @@ public class Textifier extends Printer {
   /** The type of method handle descriptors. See {@link #appendDescriptor}. */
   public static final int HANDLE_DESCRIPTOR = 9;
 
+  private static final String CLASS_SUFFIX = ".class";
   private static final String DEPRECATED = "// DEPRECATED\n";
   private static final String INVISIBLE = " // invisible\n";
 
@@ -625,7 +626,7 @@ public class Textifier extends Printer {
   }
 
   private void visitType(final Type value) {
-    stringBuilder.append(value.getClassName()).append(".class");
+    stringBuilder.append(value.getClassName()).append(CLASS_SUFFIX);
   }
 
   @Override
@@ -974,7 +975,7 @@ public class Textifier extends Printer {
     if (value instanceof String) {
       Printer.appendString(stringBuilder, (String) value);
     } else if (value instanceof Type) {
-      visitType((Type) value);
+      stringBuilder.append(((Type) value).getDescriptor()).append(CLASS_SUFFIX);
     } else {
       stringBuilder.append(value);
     }

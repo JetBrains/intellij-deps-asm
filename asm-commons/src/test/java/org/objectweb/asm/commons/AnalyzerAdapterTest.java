@@ -92,7 +92,14 @@ public class AnalyzerAdapterTest extends AsmTest {
                 super.visitMethod(access, name, desc, signature, exceptions);
             AnalyzedFramesInserter inserter = new AnalyzedFramesInserter(methodVisitor);
             AnalyzerAdapter analyzerAdapter =
-                new AnalyzerAdapter(api, owner, access, name, desc, inserter);
+                new AnalyzerAdapter(api, owner, access, name, desc, inserter) {
+
+                  @Override
+                  public void visitMaxs(int maxStack, int maxLocals) {
+                    // AnalyzerAdapter should correctly recompute maxLocals from scratch.
+                    super.visitMaxs(maxStack, 0);
+                  }
+                };
             inserter.analyzer = analyzerAdapter;
             return analyzerAdapter;
           }

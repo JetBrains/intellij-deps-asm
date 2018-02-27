@@ -73,7 +73,7 @@ project(':asm-commons') {
   provides = ['org.objectweb.asm.commons']
   requires = [':asm', ':asm-tree', ':asm-analysis']
   dependencies { testCompile project(':asm-util') }
-  minCodeCoverage = 0.5  // TODO: improve the code coverage of this project.
+  minCodeCoverage = 0.85  // TODO: improve the code coverage of this project.
 }
 
 project(':asm-test') {
@@ -190,22 +190,21 @@ configure(subprojects.findAll { it.provides }) {
   apply plugin: 'jacoco'
   jacoco { applyTo junitPlatformTest }
   afterEvaluate {
+    def classes = files(project.sourceSets.main.output.collect { fileTree(
+      dir: it, include: 'org/objectweb/asm/**', exclude: '**/Remapping*'
+    )})
     task jacocoTestReport(type: JacocoReport, overwrite: true) {
       executionData junitPlatformTest
       sourceSets sourceSets.main
       sourceDirectories = files(project.sourceSets.main.allSource.srcDirs)
-      classDirectories = files(project.sourceSets.main.output.collect {
-        fileTree(dir: it, include: 'org/objectweb/asm/**')
-      })
+      classDirectories = classes
     }
     task jacocoTestCoverageVerification(
         type: JacocoCoverageVerification, overwrite: true) {
       executionData junitPlatformTest
       sourceSets sourceSets.main
       sourceDirectories = files(project.sourceSets.main.allSource.srcDirs)
-      classDirectories = files(project.sourceSets.main.output.collect {
-        fileTree(dir: it, include: 'org/objectweb/asm/**')
-      })
+      classDirectories = classes
       violationRules.rule {
         limit {
           counter = 'INSTRUCTION'
@@ -319,8 +318,14 @@ configure(subprojects.findAll { it.provides }) {
   // project POM and to upload it, with the classes, sources and Javadoc jars.
   apply plugin: 'maven'
   uploadArchives.repositories.mavenDeployer {
-    // TODO: replace this with the OW2 Nexus repository.
-    repository url: 'file://localhost/tmp/myRepo/'
+    if (rootProject.hasProperty('nexusUserName')) {
+      repository(url: 'http://repository.ow2.org/nexus/service/local/' + 
+          'staging/deploy/maven2') {
+        authentication(userName: nexusUserName, password: nexusPassword)
+      }
+    } else {
+      repository url: 'file://localhost/tmp/myRepo/'
+    }
     pom.project {
       parent {
         artifactId 'ow2'

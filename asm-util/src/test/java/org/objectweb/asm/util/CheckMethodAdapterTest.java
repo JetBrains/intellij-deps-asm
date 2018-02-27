@@ -28,6 +28,7 @@
 package org.objectweb.asm.util;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -68,8 +69,10 @@ public class CheckMethodAdapterTest extends AsmTest implements Opcodes {
     checkMethodAdapterWithDataFlowCheck.visitVarInsn(ALOAD, 0);
     checkMethodAdapterWithDataFlowCheck.visitInsn(RETURN);
     checkMethodAdapterWithDataFlowCheck.visitMaxs(0, 0);
-    assertThrows(
-        IllegalArgumentException.class, () -> checkMethodAdapterWithDataFlowCheck.visitEnd());
+    IllegalArgumentException exception =
+        assertThrows(
+            IllegalArgumentException.class, () -> checkMethodAdapterWithDataFlowCheck.visitEnd());
+    assertTrue(exception.getMessage().contains("non zero maxLocals and maxStack"));
   }
 
   @Test
@@ -486,8 +489,7 @@ public class CheckMethodAdapterTest extends AsmTest implements Opcodes {
     checkMethodAdapter.version = Opcodes.V1_8;
     assertThrows(
         RuntimeException.class,
-        () ->
-            checkMethodAdapter.visitLdcInsn(new Handle(-1, "o", "m", "()V", false)));
+        () -> checkMethodAdapter.visitLdcInsn(new Handle(-1, "o", "m", "()V", false)));
   }
 
   @Test

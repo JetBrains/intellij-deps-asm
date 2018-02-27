@@ -696,7 +696,7 @@ public class Type {
    */
   private static void appendDescriptor(final StringBuilder stringBuilder, final Class<?> clazz) {
     Class<?> currentClass = clazz;
-    if (currentClass.isArray()) {
+    while (currentClass.isArray()) {
       stringBuilder.append('[');
       currentClass = currentClass.getComponentType();
     }
@@ -802,12 +802,18 @@ public class Type {
         case INTERNAL:
           return opcode + (Opcodes.AALOAD - Opcodes.IALOAD);
         case METHOD:
+        case VOID:
           throw new UnsupportedOperationException();
         default:
           throw new AssertionError();
       }
     } else {
       switch (sort) {
+        case VOID:
+          if (opcode != Opcodes.IRETURN) {
+            throw new UnsupportedOperationException();
+          }
+          return Opcodes.RETURN;
         case BOOLEAN:
         case BYTE:
         case CHAR:
@@ -815,14 +821,18 @@ public class Type {
         case INT:
           return opcode;
         case FLOAT:
-          return opcode + (Opcodes.FLOAD - Opcodes.ILOAD);
+          return opcode + (Opcodes.FRETURN - Opcodes.IRETURN);
         case LONG:
-          return opcode + (Opcodes.LLOAD - Opcodes.ILOAD);
+          return opcode + (Opcodes.LRETURN - Opcodes.IRETURN);
         case DOUBLE:
-          return opcode + (Opcodes.DLOAD - Opcodes.ILOAD);
+          return opcode + (Opcodes.DRETURN - Opcodes.IRETURN);
         case ARRAY:
         case OBJECT:
         case INTERNAL:
+          if (opcode != Opcodes.ILOAD && opcode != Opcodes.ISTORE && opcode != Opcodes.IRETURN) {
+            throw new UnsupportedOperationException();
+          }
+          return opcode + (Opcodes.ARETURN - Opcodes.IRETURN);
         case METHOD:
           throw new UnsupportedOperationException();
         default:

@@ -27,6 +27,7 @@
 // THE POSSIBILITY OF SUCH DAMAGE.
 package org.objectweb.asm.commons;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.objectweb.asm.test.Assertions.assertThat;
 
@@ -42,7 +43,9 @@ import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.Type;
 import org.objectweb.asm.test.AsmTest;
+import org.objectweb.asm.tree.MethodNode;
 
 /**
  * LocalVariablesSorter tests.
@@ -50,6 +53,51 @@ import org.objectweb.asm.test.AsmTest;
  * @author Eric Bruneton
  */
 public class LocalVariablesSorterTest extends AsmTest {
+
+  @Test
+  public void testConstructor() {
+    new LocalVariablesSorter(Opcodes.ACC_PUBLIC, "()V", new MethodNode());
+    assertThrows(
+        IllegalStateException.class,
+        () -> new LocalVariablesSorter(Opcodes.ACC_PUBLIC, "()V", new MethodNode()) {});
+  }
+
+  @Test
+  public void testVisitFrame() {
+    LocalVariablesSorter localVariablesSorter =
+        new LocalVariablesSorter(Opcodes.ACC_PUBLIC, "()V", new MethodNode());
+    localVariablesSorter.visitFrame(Opcodes.F_NEW, 0, null, 0, null);
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> localVariablesSorter.visitFrame(Opcodes.F_FULL, 0, null, 0, null));
+  }
+
+  @Test
+  public void testNewLocal() {
+    LocalVariablesSorter localVariablesSorter =
+        new LocalVariablesSorter(Opcodes.ACC_STATIC, "()V", new MethodNode());
+
+    localVariablesSorter.newLocal(Type.BOOLEAN_TYPE);
+    assertEquals(1, localVariablesSorter.nextLocal);
+    localVariablesSorter.newLocal(Type.BYTE_TYPE);
+    assertEquals(2, localVariablesSorter.nextLocal);
+    localVariablesSorter.newLocal(Type.CHAR_TYPE);
+    assertEquals(3, localVariablesSorter.nextLocal);
+    localVariablesSorter.newLocal(Type.SHORT_TYPE);
+    assertEquals(4, localVariablesSorter.nextLocal);
+    localVariablesSorter.newLocal(Type.INT_TYPE);
+    assertEquals(5, localVariablesSorter.nextLocal);
+    localVariablesSorter.newLocal(Type.FLOAT_TYPE);
+    assertEquals(6, localVariablesSorter.nextLocal);
+    localVariablesSorter.newLocal(Type.LONG_TYPE);
+    assertEquals(8, localVariablesSorter.nextLocal);
+    localVariablesSorter.newLocal(Type.DOUBLE_TYPE);
+    assertEquals(10, localVariablesSorter.nextLocal);
+    localVariablesSorter.newLocal(Type.getObjectType("pkg/Class"));
+    assertEquals(11, localVariablesSorter.nextLocal);
+    localVariablesSorter.newLocal(Type.getType("[I"));
+    assertEquals(12, localVariablesSorter.nextLocal);
+  }
 
   @ParameterizedTest
   @MethodSource(ALL_CLASSES_AND_ALL_APIS)

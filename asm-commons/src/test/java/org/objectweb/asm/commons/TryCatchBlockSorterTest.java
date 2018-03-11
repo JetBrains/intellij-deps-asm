@@ -80,11 +80,6 @@ public class TryCatchBlockSorterTest extends AsmTest {
           }
         };
 
-    if (classParameter.isMoreRecentThan(apiParameter)) {
-      assertThrows(RuntimeException.class, () -> classReader.accept(classVisitor, 0));
-      return;
-    }
-
     classReader.accept(classVisitor, 0);
     assertThat(() -> loadAndInstantiate(classParameter.getName(), classWriter.toByteArray()))
         .succeedsOrThrows(UnsupportedClassVersionError.class)

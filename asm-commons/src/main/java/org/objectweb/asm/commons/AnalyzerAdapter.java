@@ -194,7 +194,7 @@ public class AnalyzerAdapter extends MethodVisitor {
       final Object[] stack) {
     if (type != Opcodes.F_NEW) { // uncompressed frame
       throw new IllegalArgumentException(
-          "LocalVariablesSorter only accepts expanded frames (see ClassReader.EXPAND_FRAMES)");
+          "AnalyzerAdapter only accepts expanded frames (see ClassReader.EXPAND_FRAMES)");
     }
 
     super.visitFrame(type, nLocal, local, nStack, stack);

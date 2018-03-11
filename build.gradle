@@ -41,7 +41,7 @@ subprojects {
   repositories { mavenCentral() }
   apply plugin: 'java'
   group = 'org.ow2.asm'
-  version = '6.1-beta2'
+  version = '6.1'
   sourceCompatibility = '1.6'
   targetCompatibility = '1.6'
   test { useJUnitPlatform() }

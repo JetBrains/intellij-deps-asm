@@ -31,11 +31,13 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTimeoutPreemptively;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.objectweb.asm.test.Assertions.assertThat;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.time.Duration;
 import java.util.concurrent.atomic.AtomicBoolean;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -183,6 +185,27 @@ public class ClassReaderTest extends AsmTest implements Opcodes {
       assertTrue(classReader.getSuperName().startsWith("java"));
     }
     assertNotNull(classReader.getInterfaces());
+  }
+
+  /** Tests {@link ClassReader(java.io.InputStream)} with an empty stream. */
+  @Test
+  public void testStreamConstructorWithEmptyStream() throws IOException {
+    InputStream inputStream =
+        new InputStream() {
+
+          @Override
+          public int available() throws IOException {
+            return 0;
+          }
+
+          @Override
+          public int read() throws IOException {
+            return -1;
+          }
+        };
+    assertTimeoutPreemptively(
+        Duration.ofMillis(100),
+        () -> assertThrows(RuntimeException.class, () -> new ClassReader(inputStream)));
   }
 
   /** Tests the ClassReader accept method with a default visitor. */

@@ -27,16 +27,27 @@
 // THE POSSIBILITY OF SUCH DAMAGE.
 package org.objectweb.asm.commons;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import java.util.stream.Collectors;
+
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.objectweb.asm.Attribute;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.ClassWriter;
+import org.objectweb.asm.Handle;
+import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
+import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.Type;
 import org.objectweb.asm.test.AsmTest;
+import org.objectweb.asm.tree.MethodNode;
+import org.objectweb.asm.util.Textifier;
+import org.objectweb.asm.util.TraceMethodVisitor;
 
 /**
  * InstructionAdapter tests.
@@ -44,6 +55,134 @@ import org.objectweb.asm.test.AsmTest;
  * @author Eric Bruneton
  */
 public class InstructionAdapterTest extends AsmTest {
+
+  @Test
+  public void testConstructor() {
+    new InstructionAdapter(new MethodNode());
+    assertThrows(IllegalStateException.class, () -> new InstructionAdapter(new MethodNode()) {});
+  }
+
+  @Test
+  public void testIllegalVisitInsn() {
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> new InstructionAdapter(new MethodNode()).visitInsn(Opcodes.GOTO));
+  }
+
+  @Test
+  public void testIllegalVisitIntInsn() {
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> new InstructionAdapter(new MethodNode()).visitIntInsn(Opcodes.GOTO, 0));
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> new InstructionAdapter(new MethodNode()).visitIntInsn(Opcodes.NEWARRAY, 0));
+  }
+
+  @Test
+  public void testIllegalVisitVarInsn() {
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> new InstructionAdapter(new MethodNode()).visitVarInsn(Opcodes.GOTO, 0));
+  }
+
+  @Test
+  public void testIllegalVisitTypeInsn() {
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> new InstructionAdapter(new MethodNode()).visitTypeInsn(Opcodes.GOTO, "pkg/Class"));
+  }
+
+  @Test
+  public void testIllegalVisitFieldInsn() {
+    assertThrows(
+        IllegalArgumentException.class,
+        () ->
+            new InstructionAdapter(new MethodNode())
+                .visitFieldInsn(Opcodes.INVOKEVIRTUAL, "pkg/Class", "name", "I"));
+  }
+
+  @Test
+  public void testIllegalVisitMethodInsn() {
+    assertThrows(
+        IllegalArgumentException.class,
+        () ->
+            new InstructionAdapter(new MethodNode())
+                .visitMethodInsn(Opcodes.GETFIELD, "pkg/Class", "name", "I"));
+  }
+
+  @Test
+  public void testIllegalVisitJumpInsn() {
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> new InstructionAdapter(new MethodNode()).visitJumpInsn(Opcodes.NOP, new Label()));
+  }
+
+  @Test
+  public void testVisitLdcInsn() {
+    Textifier textifier = new Textifier();
+    InstructionAdapter instructionAdapter =
+        new InstructionAdapter(new TraceMethodVisitor(textifier));
+    instructionAdapter.visitLdcInsn(Boolean.FALSE);
+    instructionAdapter.visitLdcInsn(Boolean.TRUE);
+    instructionAdapter.visitLdcInsn(Byte.valueOf((byte) 2));
+    instructionAdapter.visitLdcInsn(Character.valueOf('3'));
+    instructionAdapter.visitLdcInsn(Short.valueOf((short) 4));
+    instructionAdapter.visitLdcInsn(Integer.valueOf(5));
+    instructionAdapter.visitLdcInsn(Long.valueOf(6));
+    instructionAdapter.visitLdcInsn(Float.valueOf(7.0f));
+    instructionAdapter.visitLdcInsn(Double.valueOf(8.0));
+    instructionAdapter.visitLdcInsn("9");
+    instructionAdapter.visitLdcInsn(Type.getObjectType("pkg/Class"));
+    instructionAdapter.visitLdcInsn(
+        new Handle(Opcodes.H_GETFIELD, "pkg/Class", "name", "I", /* isInterface= */ false));
+
+    assertEquals(
+        "ICONST_0 ICONST_1 ICONST_2 BIPUSH 51 ICONST_4 ICONST_5 LDC 6 LDC 7.0 LDC 8.0 LDC \"9\" "
+            + "LDC Lpkg/Class;.class LDC pkg/Class.nameI (1)",
+        textifier
+            .text
+            .stream()
+            .map(text -> text.toString().trim())
+            .collect(Collectors.joining(" ")));
+  }
+
+  @Test
+  public void testInvokeSpecial() {
+    new InstructionAdapter(new MethodNode()).invokespecial("pkg/Class", "name", "()V");
+    assertThrows(
+        IllegalArgumentException.class,
+        () ->
+            new InstructionAdapter(Opcodes.ASM4, null)
+                .invokespecial("pkg/Class", "name", "()V", /* isInterface= */ true));
+  }
+
+  @Test
+  public void testInvokeVirtual() {
+    new InstructionAdapter(new MethodNode()).invokevirtual("pkg/Class", "name", "()V");
+    assertThrows(
+        IllegalArgumentException.class,
+        () ->
+            new InstructionAdapter(Opcodes.ASM4, null)
+                .invokevirtual("pkg/Class", "name", "()V", /* isInterface= */ true));
+  }
+
+  @Test
+  public void testInvokeStatic() {
+    new InstructionAdapter(new MethodNode()).invokestatic("pkg/Class", "name", "()V");
+    assertThrows(
+        IllegalArgumentException.class,
+        () ->
+            new InstructionAdapter(Opcodes.ASM4, null)
+                .invokestatic("pkg/Class", "name", "()V", /* isInterface= */ true));
+  }
+
+  @Test
+  public void testIllegalVisitLdcInsn() {
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> new InstructionAdapter(new MethodNode()).visitLdcInsn(new Object()));
+  }
 
   /** Tests that classes transformed with an InstructionAdapter are unchanged. */
   @ParameterizedTest

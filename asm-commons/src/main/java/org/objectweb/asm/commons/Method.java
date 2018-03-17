@@ -138,7 +138,7 @@ public class Method {
     int space = method.indexOf(' ');
     int start = method.indexOf('(', space) + 1;
     int end = method.indexOf(')', start);
-    if (space == -1 || start == -1 || end == -1) {
+    if (space == -1 || start == 0 || end == -1) {
       throw new IllegalArgumentException();
     }
     String returnType = method.substring(0, space);

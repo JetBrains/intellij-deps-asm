@@ -28,6 +28,7 @@
 package org.objectweb.asm.commons;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.objectweb.asm.test.Assertions.assertThat;
 
@@ -191,6 +192,14 @@ public class JSRInlinerAdapterTest extends AsmTest {
     public Class<?> defineClass(final String name, final byte[] b) {
       return defineClass(name, b, 0, b.length);
     }
+  }
+
+  @Test
+  public void testConstructor() {
+    new JSRInlinerAdapter(null, Opcodes.ACC_PUBLIC, "name", "()V", null, null);
+    assertThrows(
+        IllegalStateException.class,
+        () -> new JSRInlinerAdapter(null, Opcodes.ACC_PUBLIC, "name", "()V", null, null) {});
   }
 
   /**

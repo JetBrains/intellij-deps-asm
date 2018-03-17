@@ -28,6 +28,7 @@
 package org.objectweb.asm.commons;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -64,6 +65,12 @@ public class SerialVersionUIDAdderTest extends AsmTest {
         };
     new ClassReader(className).accept(cv, 0);
     return svuid[0];
+  }
+
+  @Test
+  public void testConstructor() {
+    new SerialVersionUIDAdder(null);
+    assertThrows(IllegalStateException.class, () -> new SerialVersionUIDAdder(null) {});
   }
 
   @Test

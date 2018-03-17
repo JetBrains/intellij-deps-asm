@@ -183,8 +183,8 @@ public class LocalVariablesSorter extends MethodVisitor {
       final int nStack,
       final Object[] stack) {
     if (type != Opcodes.F_NEW) { // uncompressed frame
-      throw new IllegalStateException(
-          "ClassReader.accept() should be called with EXPAND_FRAMES flag");
+      throw new IllegalArgumentException(
+          "LocalVariablesSorter only accepts expanded frames (see ClassReader.EXPAND_FRAMES)");
     }
 
     // creates a copy of newLocals

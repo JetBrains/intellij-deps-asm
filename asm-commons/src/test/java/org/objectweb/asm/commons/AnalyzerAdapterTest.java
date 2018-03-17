@@ -33,6 +33,7 @@ import static org.objectweb.asm.test.Assertions.assertThat;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.Executable;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -51,6 +52,24 @@ import org.objectweb.asm.test.AsmTest;
  * @author Eric Bruneton
  */
 public class AnalyzerAdapterTest extends AsmTest {
+
+  @Test
+  public void testConstructor() {
+    new AnalyzerAdapter("pkg/Class", Opcodes.ACC_PUBLIC, "name", "()V", null);
+    assertThrows(
+        IllegalStateException.class,
+        () -> new AnalyzerAdapter("pkg/Class", Opcodes.ACC_PUBLIC, "name", "()V", null) {});
+  }
+
+  @Test
+  public void testVisitFrame() {
+    AnalyzerAdapter analyzerAdapter =
+        new AnalyzerAdapter("pkg/Class", Opcodes.ACC_PUBLIC, "name", "()V", null);
+    analyzerAdapter.visitFrame(Opcodes.F_NEW, 0, null, 0, null);
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> analyzerAdapter.visitFrame(Opcodes.F_FULL, 0, null, 0, null));
+  }
 
   /**
    * Tests that classes with additional frames inserted at each instruction, using the results of an

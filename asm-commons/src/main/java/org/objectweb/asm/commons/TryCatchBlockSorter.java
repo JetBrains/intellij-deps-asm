@@ -58,6 +58,9 @@ public class TryCatchBlockSorter extends MethodNode {
       final String signature,
       final String[] exceptions) {
     this(Opcodes.ASM6, mv, access, name, desc, signature, exceptions);
+    if (getClass() != TryCatchBlockSorter.class) {
+      throw new IllegalStateException();
+    }
   }
 
   protected TryCatchBlockSorter(

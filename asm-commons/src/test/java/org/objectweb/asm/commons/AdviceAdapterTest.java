@@ -29,16 +29,16 @@ package org.objectweb.asm.commons;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
+import java.util.function.Consumer;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.ClassWriter;
+import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.test.AsmTest;
@@ -46,186 +46,394 @@ import org.objectweb.asm.test.AsmTest;
 /**
  * AdviceAdapter tests.
  *
- * @author Eugene Kuleshov
+ * @author Eric Bruneton
  */
 public class AdviceAdapterTest extends AsmTest {
 
   @Test
-  public void test() throws Exception {
-    Class<?> c = getClass();
-    String name = c.getName();
-    AdvisingClassLoader cl = new AdvisingClassLoader(name + "$");
-    Class<?> cc = cl.loadClass(name + "$B");
-    Method m = cc.getMethod("run", new Class<?>[] {Integer.TYPE});
-    try {
-      m.invoke(null, new Object[] {new Integer(0)});
-    } catch (InvocationTargetException e) {
-      throw (Exception) e.getTargetException();
-    }
+  public void testSimpleConstructor() {
+    testCase(
+        (MethodGenerator methodGenerator) -> {
+          methodGenerator.visitVarInsn(Opcodes.ALOAD, 0);
+          methodGenerator.visitMethodInsn(
+              Opcodes.INVOKESPECIAL, "java/lang/Object", "<init>", "()V", false);
+          methodGenerator.expectMethodEnter();
+          methodGenerator.expectMethodExit();
+          methodGenerator.visitInsn(Opcodes.RETURN);
+        });
   }
 
-  private static final class AdvisingClassLoader extends ClassLoader {
-    private String prefix;
+  @Test
+  public void testConstructorWithTwoSuperInitInTwoBranches() {
+    testCase(
+        (MethodGenerator methodGenerator) -> {
+          Label label0 = new Label();
+          Label label1 = new Label();
+          methodGenerator.visitVarInsn(Opcodes.ILOAD, 1);
+          methodGenerator.visitInsn(Opcodes.ICONST_1);
+          methodGenerator.visitInsn(Opcodes.ICONST_2);
+          methodGenerator.visitInsn(Opcodes.IADD);
+          methodGenerator.visitJumpInsn(Opcodes.IF_ICMPEQ, label0);
+          methodGenerator.visitVarInsn(Opcodes.ALOAD, 0);
+          methodGenerator.visitMethodInsn(
+              Opcodes.INVOKESPECIAL, "java/lang/Object", "<init>", "()V", false);
+          methodGenerator.expectMethodEnter();
+          methodGenerator.visitJumpInsn(Opcodes.GOTO, label1);
 
-    public AdvisingClassLoader(final String prefix) throws IOException {
-      this.prefix = prefix;
+          methodGenerator.visitLabel(label0);
+          methodGenerator.visitVarInsn(Opcodes.ALOAD, 0);
+          methodGenerator.visitMethodInsn(
+              Opcodes.INVOKESPECIAL, "java/lang/Object", "<init>", "()V", false);
+          methodGenerator.expectMethodEnter();
+
+          methodGenerator.visitLabel(label1);
+          methodGenerator.visitTypeInsn(Opcodes.NEW, "java/lang/RuntimeException");
+          methodGenerator.visitInsn(Opcodes.DUP);
+          methodGenerator.visitMethodInsn(
+              Opcodes.INVOKESPECIAL, "java/lang/RuntimeException", "<init>", "()V", false);
+          methodGenerator.expectMethodExit();
+          methodGenerator.visitInsn(Opcodes.ATHROW);
+        });
+  }
+
+  @ParameterizedTest
+  @ValueSource(strings = {"true", "false"})
+  public void testConstructorWithTwoSuperInitInTwoSwitchBranches(final boolean useTableSwitch) {
+    testCase(
+        (MethodGenerator methodGenerator) -> {
+          Label label0 = new Label();
+          Label label1 = new Label();
+          Label label2 = new Label();
+          methodGenerator.visitVarInsn(Opcodes.ILOAD, 1);
+          methodGenerator.visitInsn(Opcodes.ICONST_1);
+          methodGenerator.visitInsn(Opcodes.ICONST_2);
+          methodGenerator.visitInsn(Opcodes.IADD);
+          if (useTableSwitch) {
+            methodGenerator.visitTableSwitchInsn(0, 1, label0, new Label[] {label0, label1});
+          } else {
+            methodGenerator.visitLookupSwitchInsn(label0, new int[] {1}, new Label[] {label1});
+          }
+          for (int i = 0; i < 2; ++i) {
+            methodGenerator.visitLabel(i == 0 ? label0 : label1);
+            methodGenerator.visitVarInsn(Opcodes.ALOAD, 0);
+            methodGenerator.visitMethodInsn(
+                Opcodes.INVOKESPECIAL, "java/lang/Object", "<init>", "()V", false);
+            methodGenerator.expectMethodEnter();
+            methodGenerator.visitJumpInsn(Opcodes.GOTO, label2);
+          }
+          methodGenerator.visitLabel(label2);
+          methodGenerator.visitTypeInsn(Opcodes.NEW, "java/lang/RuntimeException");
+          methodGenerator.visitInsn(Opcodes.DUP);
+          methodGenerator.visitMethodInsn(
+              Opcodes.INVOKESPECIAL, "java/lang/RuntimeException", "<init>", "()V", false);
+          methodGenerator.expectMethodExit();
+          methodGenerator.visitInsn(Opcodes.ATHROW);
+        });
+  }
+
+  @Test
+  public void testConstructorWithSuperInitsInNormalAndHandlerBranches() {
+    testCase(
+        (MethodGenerator methodGenerator) -> {
+          Label label0 = new Label();
+          Label label1 = new Label();
+          Label label2 = new Label();
+          Label label3 = new Label();
+          methodGenerator.visitTryCatchBlock(label0, label1, label2, "java/lang/Exception");
+          methodGenerator.visitLabel(label0);
+          methodGenerator.visitInsn(Opcodes.NOP);
+          methodGenerator.visitLabel(label1);
+
+          methodGenerator.visitVarInsn(Opcodes.ALOAD, 0);
+          methodGenerator.visitMethodInsn(
+              Opcodes.INVOKESPECIAL, "java/lang/Object", "<init>", "()V", false);
+          methodGenerator.expectMethodEnter();
+          methodGenerator.visitJumpInsn(Opcodes.GOTO, label3);
+
+          methodGenerator.visitLabel(label2);
+          methodGenerator.visitInsn(Opcodes.POP);
+          methodGenerator.visitVarInsn(Opcodes.ALOAD, 0);
+          methodGenerator.visitMethodInsn(
+              Opcodes.INVOKESPECIAL, "java/lang/Object", "<init>", "()V", false);
+          methodGenerator.expectMethodEnter();
+
+          methodGenerator.visitLabel(label3);
+          methodGenerator.expectMethodExit();
+          methodGenerator.visitInsn(Opcodes.RETURN);
+        });
+  }
+
+  @Test
+  public void testConstructorWithUnitThisInTwoBranches() {
+    testCase(
+        (MethodGenerator methodGenerator) -> {
+          Label label0 = new Label();
+          Label label1 = new Label();
+          methodGenerator.visitVarInsn(Opcodes.ILOAD, 1);
+          methodGenerator.visitInsn(Opcodes.I2L);
+          methodGenerator.visitInsn(Opcodes.LCONST_0);
+          methodGenerator.visitInsn(Opcodes.LCONST_1);
+          methodGenerator.visitInsn(Opcodes.LADD);
+          methodGenerator.visitInsn(Opcodes.LCMP);
+          methodGenerator.visitJumpInsn(Opcodes.IFEQ, label0);
+          methodGenerator.visitInsn(Opcodes.NOP);
+          methodGenerator.visitTypeInsn(Opcodes.NEW, "C");
+          methodGenerator.visitInsn(Opcodes.DUP);
+          methodGenerator.visitMethodInsn(Opcodes.INVOKESPECIAL, "C", "<init>", "()V", false);
+          // No method enter here because the above call does not initializes 'this'.
+          methodGenerator.visitVarInsn(Opcodes.ASTORE, 1);
+          methodGenerator.visitVarInsn(Opcodes.ALOAD, 0);
+          methodGenerator.visitJumpInsn(Opcodes.GOTO, label1);
+          methodGenerator.visitLabel(label0);
+          methodGenerator.visitInsn(Opcodes.ICONST_0);
+          methodGenerator.visitVarInsn(Opcodes.ALOAD, 0);
+          methodGenerator.visitInsn(Opcodes.SWAP);
+          methodGenerator.visitInsn(Opcodes.POP);
+          methodGenerator.visitLabel(label1);
+          methodGenerator.visitMethodInsn(
+              Opcodes.INVOKESPECIAL, "java/lang/Object", "<init>", "()V", false);
+          methodGenerator.expectMethodEnter();
+          methodGenerator.expectMethodExit();
+          methodGenerator.visitInsn(Opcodes.RETURN);
+        });
+  }
+
+  @Test
+  public void testConstructorWithDupX1() {
+    testCase(
+        (MethodGenerator methodGenerator) -> {
+          methodGenerator.visitTypeInsn(Opcodes.NEW, "C");
+          methodGenerator.visitVarInsn(Opcodes.ASTORE, 1);
+          methodGenerator.visitVarInsn(Opcodes.ALOAD, 1);
+          methodGenerator.visitVarInsn(Opcodes.ALOAD, 0);
+          methodGenerator.visitInsn(Opcodes.DUP_X1);
+          methodGenerator.visitInsn(Opcodes.POP);
+          methodGenerator.visitMethodInsn(Opcodes.INVOKESPECIAL, "C", "<init>", "()V", false);
+          // No method enter here because the above call does not initializes 'this'.
+          methodGenerator.visitMethodInsn(Opcodes.INVOKESPECIAL, "C", "<init>", "()V", false);
+          methodGenerator.expectMethodEnter();
+          methodGenerator.expectMethodExit();
+          methodGenerator.visitInsn(Opcodes.RETURN);
+        });
+  }
+
+  @Test
+  public void testConstructorWithDupX2() {
+    testCase(
+        (MethodGenerator methodGenerator) -> {
+          methodGenerator.visitTypeInsn(Opcodes.NEW, "C");
+          methodGenerator.visitVarInsn(Opcodes.ASTORE, 1);
+          methodGenerator.visitVarInsn(Opcodes.ALOAD, 1);
+          methodGenerator.visitInsn(Opcodes.ACONST_NULL);
+          methodGenerator.visitVarInsn(Opcodes.ALOAD, 0);
+          methodGenerator.visitInsn(Opcodes.DUP_X2);
+          methodGenerator.visitInsn(Opcodes.POP2);
+          methodGenerator.visitMethodInsn(Opcodes.INVOKESPECIAL, "C", "<init>", "()V", false);
+          // No method enter here because the above call does not initializes 'this'.
+          methodGenerator.visitMethodInsn(Opcodes.INVOKESPECIAL, "C", "<init>", "()V", false);
+          methodGenerator.expectMethodEnter();
+          methodGenerator.expectMethodExit();
+          methodGenerator.visitInsn(Opcodes.RETURN);
+        });
+  }
+
+  @Test
+  public void testConstructorWithDup2() {
+    testCase(
+        (MethodGenerator methodGenerator) -> {
+          methodGenerator.visitTypeInsn(Opcodes.NEW, "C");
+          methodGenerator.visitVarInsn(Opcodes.ASTORE, 1);
+          methodGenerator.visitVarInsn(Opcodes.ALOAD, 0);
+          methodGenerator.visitVarInsn(Opcodes.ALOAD, 1);
+          methodGenerator.visitInsn(Opcodes.DUP2);
+          methodGenerator.visitInsn(Opcodes.POP2);
+          methodGenerator.visitMethodInsn(Opcodes.INVOKESPECIAL, "C", "<init>", "()V", false);
+          // No method enter here because the above call does not initializes 'this'.
+          methodGenerator.visitMethodInsn(Opcodes.INVOKESPECIAL, "C", "<init>", "()V", false);
+          methodGenerator.expectMethodEnter();
+          methodGenerator.expectMethodExit();
+          methodGenerator.visitInsn(Opcodes.RETURN);
+        });
+  }
+
+  @Test
+  public void testConstructorWithDup2X1() {
+    testCase(
+        (MethodGenerator methodGenerator) -> {
+          methodGenerator.visitTypeInsn(Opcodes.NEW, "C");
+          methodGenerator.visitVarInsn(Opcodes.ASTORE, 1);
+          methodGenerator.visitInsn(Opcodes.ACONST_NULL);
+          methodGenerator.visitVarInsn(Opcodes.ALOAD, 0);
+          methodGenerator.visitVarInsn(Opcodes.ALOAD, 1);
+          methodGenerator.visitInsn(Opcodes.DUP2_X1);
+          methodGenerator.visitInsn(Opcodes.POP2);
+          methodGenerator.visitInsn(Opcodes.POP);
+          methodGenerator.visitMethodInsn(Opcodes.INVOKESPECIAL, "C", "<init>", "()V", false);
+          // No method enter here because the above call does not initializes 'this'.
+          methodGenerator.visitMethodInsn(Opcodes.INVOKESPECIAL, "C", "<init>", "()V", false);
+          methodGenerator.expectMethodEnter();
+          methodGenerator.expectMethodExit();
+          methodGenerator.visitInsn(Opcodes.RETURN);
+        });
+  }
+
+  @Test
+  public void testConstructorWithDup2X2() {
+    testCase(
+        (MethodGenerator methodGenerator) -> {
+          methodGenerator.visitTypeInsn(Opcodes.NEW, "C");
+          methodGenerator.visitVarInsn(Opcodes.ASTORE, 1);
+          methodGenerator.visitInsn(Opcodes.LCONST_0);
+          methodGenerator.visitVarInsn(Opcodes.ALOAD, 0);
+          methodGenerator.visitVarInsn(Opcodes.ALOAD, 1);
+          methodGenerator.visitInsn(Opcodes.DUP2_X2);
+          methodGenerator.visitInsn(Opcodes.POP2);
+          methodGenerator.visitInsn(Opcodes.POP2);
+          methodGenerator.visitMethodInsn(Opcodes.INVOKESPECIAL, "C", "<init>", "()V", false);
+          // No method enter here because the above call does not initializes 'this'.
+          methodGenerator.visitMethodInsn(Opcodes.INVOKESPECIAL, "C", "<init>", "()V", false);
+          methodGenerator.expectMethodEnter();
+          methodGenerator.expectMethodExit();
+          methodGenerator.visitInsn(Opcodes.RETURN);
+        });
+  }
+
+  @Test
+  public void testConstructorWithLongsAndArrays() {
+    testCase(
+        (MethodGenerator methodGenerator) -> {
+          methodGenerator.visitVarInsn(Opcodes.ALOAD, 0);
+          methodGenerator.visitTypeInsn(Opcodes.NEW, "C");
+          methodGenerator.visitFieldInsn(Opcodes.GETSTATIC, "java/lang/Long", "MAX_VALUE", "J");
+          methodGenerator.visitVarInsn(Opcodes.LSTORE, 2);
+          methodGenerator.visitInsn(Opcodes.ICONST_1);
+          methodGenerator.visitIntInsn(Opcodes.NEWARRAY, Opcodes.T_LONG);
+          methodGenerator.visitInsn(Opcodes.ICONST_0);
+          methodGenerator.visitLdcInsn(123L);
+          methodGenerator.visitInsn(Opcodes.LASTORE);
+          methodGenerator.visitMethodInsn(Opcodes.INVOKESPECIAL, "C", "<init>", "()V", false);
+          // No method enter here because the above call does not initializes 'this'.
+          methodGenerator.visitMethodInsn(Opcodes.INVOKESPECIAL, "C", "<init>", "()V", false);
+          methodGenerator.expectMethodEnter();
+          methodGenerator.expectMethodExit();
+          methodGenerator.visitInsn(Opcodes.RETURN);
+        });
+  }
+
+  @Test
+  public void testConstructorWithMultiAnewArray() {
+    testCase(
+        (MethodGenerator methodGenerator) -> {
+          methodGenerator.visitVarInsn(Opcodes.ALOAD, 0);
+          methodGenerator.visitInsn(Opcodes.ICONST_1);
+          methodGenerator.visitInsn(Opcodes.ICONST_2);
+          methodGenerator.visitMultiANewArrayInsn("[[I", 2);
+          methodGenerator.visitFieldInsn(Opcodes.PUTSTATIC, "C", "f", "[[I");
+          methodGenerator.visitMethodInsn(Opcodes.INVOKESPECIAL, "C", "<init>", "()V", false);
+          methodGenerator.expectMethodEnter();
+          methodGenerator.expectMethodExit();
+          methodGenerator.visitInsn(Opcodes.RETURN);
+        });
+  }
+
+  @Test
+  public void testInvalidConstructor() {
+    Consumer<MethodGenerator> constructorGenerator =
+        new Consumer<MethodGenerator>() {
+
+          @Override
+          public void accept(MethodGenerator methodGenerator) {
+            methodGenerator.visitVarInsn(Opcodes.ALOAD, 0);
+            methodGenerator.visitMethodInsn(
+                Opcodes.INVOKESPECIAL, "java/lang/Object", "<init>", "()V", false);
+            methodGenerator.visitVarInsn(Opcodes.ILOAD, 1);
+            methodGenerator.visitInsn(Opcodes.IRETURN);
+          }
+        };
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> generateClass(constructorGenerator, /* expectedClass= */ false));
+  }
+
+  private static void testCase(Consumer<MethodGenerator> testCaseGenerator) {
+    byte[] actualClass = generateClass(testCaseGenerator, /* expectedClass= */ false);
+    byte[] expectedClass = generateClass(testCaseGenerator, /* expectedClass= */ true);
+    assertThatClass(actualClass).isEqualTo(expectedClass);
+    loadAndInstantiate("C", actualClass);
+  }
+
+  private static byte[] generateClass(
+      Consumer<MethodGenerator> constructorGenerator, boolean expectedClass) {
+    ClassWriter classWriter = new ClassWriter(ClassWriter.COMPUTE_MAXS);
+    classWriter.visit(Opcodes.V1_5, Opcodes.ACC_PUBLIC, "C", null, "java/lang/Object", null);
+
+    classWriter.visitField(Opcodes.ACC_STATIC, "f", "[[I", null, null);
+
+    String descriptor = "(I)V";
+    MethodVisitor methodVisitor =
+        classWriter.visitMethod(Opcodes.ACC_PUBLIC, "<init>", descriptor, null, null);
+    MethodGenerator methodGenerator;
+    if (expectedClass) {
+      methodGenerator = new MethodGenerator(methodVisitor, /* expectedClass= */ true);
+    } else {
+      methodGenerator =
+          new MethodGenerator(
+              new AdviceAdapter(
+                  Opcodes.ASM6, methodVisitor, Opcodes.ACC_PUBLIC, "<init>", descriptor) {
+
+                @Override
+                protected void onMethodEnter() {
+                  generateAdvice(this, /* enter= */ true);
+                }
+
+                @Override
+                protected void onMethodExit(int opcode) {
+                  generateAdvice(this, /* enter= */ false);
+                }
+              },
+              /* expectedClass= */ false);
+    }
+    methodGenerator.visitCode();
+    constructorGenerator.accept(methodGenerator);
+    methodGenerator.visitMaxs(0, 0);
+    methodGenerator.visitEnd();
+
+    classWriter.visitEnd();
+    return classWriter.toByteArray();
+  }
+
+  private static class MethodGenerator extends MethodVisitor {
+
+    private final boolean expectedClass;
+
+    MethodGenerator(final MethodVisitor methodVisitor, final boolean expectedClass) {
+      super(Opcodes.ASM6, methodVisitor);
+      this.expectedClass = expectedClass;
     }
 
-    @Override
-    public Class<?> loadClass(final String name) throws ClassNotFoundException {
-      if (name.startsWith(prefix)) {
-        try {
-          ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_MAXS);
-          ClassReader cr =
-              new ClassReader(
-                  getClass().getResourceAsStream("/" + name.replace('.', '/') + ".class"));
-          cr.accept(new AdviceClassAdapter(cw), ClassReader.EXPAND_FRAMES);
-          byte[] bytecode = cw.toByteArray();
-          return super.defineClass(name, bytecode, 0, bytecode.length);
-        } catch (IOException ex) {
-          throw new ClassNotFoundException("Load error: " + ex.toString(), ex);
-        }
+    public void expectMethodEnter() {
+      if (expectedClass) {
+        generateAdvice(this, /* enter= */ true);
       }
-      return super.loadClass(name);
-    }
-  }
-
-  // test callback
-  private static int n = 0;
-
-  public static void enter(final String msg) {
-    n++;
-  }
-
-  public static void exit(final String msg) {
-    n--;
-  }
-
-  private static StringBuilder off() {
-    StringBuilder sb = new StringBuilder();
-    for (int i = 0; i < n; i++) {
-      sb.append("  ");
-    }
-    return sb;
-  }
-
-  static class AdviceClassAdapter extends ClassVisitor implements Opcodes {
-    String cname;
-
-    public AdviceClassAdapter(final ClassVisitor cv) {
-      super(Opcodes.ASM5, cv);
     }
 
-    @Override
-    public void visit(
-        final int version,
-        final int access,
-        final String name,
-        final String signature,
-        final String superName,
-        final String[] interfaces) {
-      this.cname = name;
-      super.visit(version, access, name, signature, superName, interfaces);
-    }
-
-    @Override
-    public MethodVisitor visitMethod(
-        final int access,
-        final String name,
-        final String desc,
-        final String signature,
-        final String[] exceptions) {
-      MethodVisitor mv = cv.visitMethod(access, name, desc, signature, exceptions);
-
-      if (mv == null || (access & (Opcodes.ACC_ABSTRACT | Opcodes.ACC_NATIVE)) > 0) {
-        return mv;
+    public void expectMethodExit() {
+      if (expectedClass) {
+        generateAdvice(this, /* enter= */ false);
       }
-
-      return new AdviceAdapter(Opcodes.ASM5, mv, access, name, desc) {
-
-        @Override
-        protected void onMethodEnter() {
-          mv.visitLdcInsn(cname + "." + name + desc);
-          mv.visitMethodInsn(
-              INVOKESTATIC,
-              "org/objectweb/asm/commons/AdviceAdapterTest",
-              "enter",
-              "(Ljava/lang/String;)V",
-              false);
-        }
-
-        @Override
-        protected void onMethodExit(final int opcode) {
-          mv.visitLdcInsn(cname + "." + name + desc);
-          mv.visitMethodInsn(
-              INVOKESTATIC,
-              "org/objectweb/asm/commons/AdviceAdapterTest",
-              "exit",
-              "(Ljava/lang/String;)V",
-              false);
-        }
-      };
     }
   }
 
-  // TEST CLASSES
-
-  public static class A {
-    final String s;
-
-    public A(final String s) {
-      this.s = s;
-    }
-
-    public A(final A a) {
-      this.s = a.s;
-    }
-  }
-
-  public static class B extends A {
-
-    public B() {
-      super(new B(""));
-      test(this);
-    }
-
-    public B(final A a) {
-      super(a);
-      test(this);
-    }
-
-    public B(final String s) {
-      super(s == null ? new A("") : new A(s));
-      test(this);
-    }
-
-    private static A aa;
-
-    public B(final String s, final A a) {
-      this(s == null ? aa = new A(s) : a);
-      A aa = new A("");
-      test(aa);
-    }
-
-    public B(final String s, final String s1) {
-      super(s != null ? new A(getA(s1).s) : new A(s));
-      test(this);
-    }
-
-    private void test(final Object b) {}
-
-    private static A getA(final String s) {
-      return new A(s);
-    }
-
-    // execute all
-    public static void run(final int n) {
-      new B();
-      new B(new A(""));
-      new B(new B());
-      new B("", new A(""));
-      new B("", "");
-    }
+  private static void generateAdvice(final MethodVisitor methodVisitor, final boolean enter) {
+    methodVisitor.visitFieldInsn(
+        Opcodes.GETSTATIC, "java/lang/System", "err", "Ljava/io/PrintStream;");
+    methodVisitor.visitLdcInsn(enter ? "enter" : "exit");
+    methodVisitor.visitMethodInsn(
+        Opcodes.INVOKEVIRTUAL,
+        "java/io/PrintStream",
+        "println",
+        "(Ljava/lang/String;)V", /* isInterface= */
+        false);
   }
 
   @ParameterizedTest
@@ -255,43 +463,45 @@ public class AdviceAdapterTest extends AsmTest {
 
   private static class ReferenceClassAdapter extends ClassVisitor {
 
-    ReferenceClassAdapter(final int api, final ClassVisitor cv) {
-      super(api, cv);
+    ReferenceClassAdapter(final int api, final ClassVisitor classVisitor) {
+      super(api, classVisitor);
     }
 
     @Override
     public MethodVisitor visitMethod(
         final int access,
         final String name,
-        final String desc,
+        final String descriptor,
         final String signature,
         final String[] exceptions) {
-      MethodVisitor mv = super.visitMethod(access, name, desc, signature, exceptions);
-      if (mv == null || (access & (Opcodes.ACC_ABSTRACT | Opcodes.ACC_NATIVE)) > 0) {
-        return mv;
+      MethodVisitor methodVisitor =
+          super.visitMethod(access, name, descriptor, signature, exceptions);
+      if (methodVisitor == null || (access & (Opcodes.ACC_ABSTRACT | Opcodes.ACC_NATIVE)) > 0) {
+        return methodVisitor;
       }
-      return new LocalVariablesSorter(api, access, desc, mv);
+      return new LocalVariablesSorter(api, access, descriptor, methodVisitor);
     }
   }
 
   private static class EmptyAdviceClassAdapter extends ClassVisitor {
 
-    EmptyAdviceClassAdapter(final int api, final ClassVisitor cv) {
-      super(api, cv);
+    EmptyAdviceClassAdapter(final int api, final ClassVisitor classVisitor) {
+      super(api, classVisitor);
     }
 
     @Override
     public MethodVisitor visitMethod(
         final int access,
         final String name,
-        final String desc,
+        final String descriptor,
         final String signature,
         final String[] exceptions) {
-      MethodVisitor mv = super.visitMethod(access, name, desc, signature, exceptions);
-      if (mv == null || (access & (Opcodes.ACC_ABSTRACT | Opcodes.ACC_NATIVE)) > 0) {
-        return mv;
+      MethodVisitor methodVisitor =
+          super.visitMethod(access, name, descriptor, signature, exceptions);
+      if (methodVisitor == null || (access & (Opcodes.ACC_ABSTRACT | Opcodes.ACC_NATIVE)) > 0) {
+        return methodVisitor;
       }
-      return new AdviceAdapter(api, mv, access, name, desc) {};
+      return new AdviceAdapter(api, methodVisitor, access, name, descriptor) {};
     }
   }
 }

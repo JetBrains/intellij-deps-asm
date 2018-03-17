@@ -35,6 +35,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.ClassWriter;
@@ -136,6 +137,15 @@ public class JSRInlinerAdapterTest extends AsmTest {
 
   private void IFNE(final Label l) {
     this.current.visitJumpInsn(Opcodes.IFNE, l);
+  }
+
+  private void SWITCH(
+      final Label defaultLabel, final int key, final Label target, final boolean useTableSwitch) {
+    if (useTableSwitch) {
+      this.current.visitTableSwitchInsn(key, key, defaultLabel, new Label[] {target});
+    } else {
+      this.current.visitLookupSwitchInsn(defaultLabel, new int[] {key}, new Label[] {target});
+    }
   }
 
   private void TRYCATCH(final Label start, final Label end, final Label handler) {
@@ -418,7 +428,7 @@ public class JSRInlinerAdapterTest extends AsmTest {
       GOTO(L3_1b);
       LABEL(new Label()); // extra label emitted due to impl quirks
 
-      // L3_2a: First instantiation of subroutine:
+      // L3_2a: Second instantiation of subroutine:
       LABEL(L3_2a);
       ASTORE(2);
       ILOAD(1);
@@ -433,6 +443,158 @@ public class JSRInlinerAdapterTest extends AsmTest {
 
       TRYCATCH(L0, L2, L2);
       TRYCATCH(L1, L6, L2);
+
+      END(1, 4);
+    }
+
+    assertMethodEquals(exp, jsr);
+  }
+
+  /**
+   * Tests a method which has a lookupswitch or tableswitch w/in the finally clause:
+   *
+   * <pre>
+   * public void a() {
+   *     int a = 0;
+   *     try {
+   *         a++;
+   *     } finally {
+   *         switch (a) {
+   *             case 0:
+   *                 a += 2;
+   *                 break;
+   *             default:
+   *                 a += 3;
+   *         }
+   *     }
+   * }
+   * </pre>
+   */
+  @ParameterizedTest
+  @ValueSource(strings = { "true", "false" })
+  public void testLookupOrTableSwitchInFinally(boolean useTableSwitch) {
+    {
+      Label L0 = new Label();
+      Label L1 = new Label();
+      Label L2 = new Label();
+      Label L3 = new Label();
+      Label L4 = new Label();
+      Label L5 = new Label();
+      Label L6 = new Label();
+      Label L7 = new Label();
+
+      setCurrent(jsr);
+      ICONST_0();
+      ISTORE(1);
+
+      /* L0: body of try block */
+      LABEL(L0);
+      IINC(1, 1);
+      GOTO(L1);
+
+      /* L2: exception handler */
+      LABEL(L2);
+      ASTORE(3);
+      JSR(L3);
+      ALOAD(3);
+      ATHROW();
+
+      /* L3: subroutine */
+      LABEL(L3);
+      ASTORE(2);
+      ILOAD(1);
+      SWITCH(L5, 0, L4, useTableSwitch);
+      LABEL(L4); // L4: 'case 0:'
+      IINC(1, 2);
+      GOTO(L6);
+      LABEL(L5); // L5: 'default:'
+      IINC(1, 3);
+      LABEL(L6); // L6: common exit
+      RET(2);
+
+      /* L1: non-exceptional exit from try block */
+      LABEL(L1);
+      JSR(L3);
+      LABEL(L7); // L6 is used in the TRYCATCH below
+      RETURN();
+
+      TRYCATCH(L0, L2, L2);
+      TRYCATCH(L1, L7, L2);
+
+      END(1, 4);
+    }
+
+    {
+      Label L0 = new Label();
+      Label L1 = new Label();
+      Label L2 = new Label();
+      Label L3_1a = new Label();
+      Label L3_1b = new Label();
+      Label L3_2a = new Label();
+      Label L3_2b = new Label();
+      Label L4_1 = new Label();
+      Label L4_2 = new Label();
+      Label L5_1 = new Label();
+      Label L5_2 = new Label();
+      Label L6_1 = new Label();
+      Label L6_2 = new Label();
+      Label L7 = new Label();
+
+      setCurrent(exp);
+      ICONST_0();
+      ISTORE(1);
+      // L0: try/catch block
+      LABEL(L0);
+      IINC(1, 1);
+      GOTO(L1);
+
+      // L2: Exception handler:
+      LABEL(L2);
+      ASTORE(3);
+      ACONST_NULL();
+      GOTO(L3_1a);
+      LABEL(L3_1b); // L3_1b;
+      ALOAD(3);
+      ATHROW();
+
+      // L1: On non-exceptional exit, try block leads here:
+      LABEL(L1);
+      ACONST_NULL();
+      GOTO(L3_2a);
+      LABEL(L3_2b); // L3_2b
+      LABEL(L7); // L7
+      RETURN();
+
+      // L3_1a: First instantiation of subroutine:
+      LABEL(L3_1a);
+      ASTORE(2);
+      ILOAD(1);
+      SWITCH(L5_1, 0, L4_1, useTableSwitch);
+      LABEL(L4_1); // L4_1: 'case 0:'
+      IINC(1, 2);
+      GOTO(L6_1);
+      LABEL(L5_1); // L5_1: 'default:'
+      IINC(1, 3);
+      LABEL(L6_1); // L6_1: common exit
+      GOTO(L3_1b);
+      LABEL(new Label()); // extra label emitted due to impl quirks
+
+      // L3_2a: Second instantiation of subroutine:
+      LABEL(L3_2a);
+      ASTORE(2);
+      ILOAD(1);
+      SWITCH(L5_2, 0, L4_2, useTableSwitch);
+      LABEL(L4_2); // L4_2: 'case 0:'
+      IINC(1, 2);
+      GOTO(L6_2);
+      LABEL(L5_2); // L5_2: 'default:'
+      IINC(1, 3);
+      LABEL(L6_2); // L6_2: common exit
+      GOTO(L3_2b);
+      LABEL(new Label()); // extra label emitted due to impl quirks
+
+      TRYCATCH(L0, L2, L2);
+      TRYCATCH(L1, L7, L2);
 
       END(1, 4);
     }

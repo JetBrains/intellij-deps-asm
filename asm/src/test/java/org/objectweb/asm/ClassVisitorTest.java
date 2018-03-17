@@ -32,6 +32,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.objectweb.asm.test.AsmTest;
 
 /**
@@ -83,6 +84,21 @@ public class ClassVisitorTest extends AsmTest {
     classReader.accept(new ChangeExceptionAdapter(classWriter), attributes(), 0);
     classReader.accept(new ChangeExceptionAdapter(classWriterWithCopyPool), attributes(), 0);
     assertThatClass(classWriterWithCopyPool.toByteArray()).isEqualTo(classWriter.toByteArray());
+  }
+
+  /** Test that classes with only visible or only invisible annotations can be read correctly. */
+  @ParameterizedTest
+  @ValueSource(strings = {"true", "false"})
+  public void testReadAndWriteWithRemoveAnnotationAdapter(final boolean visibilityValue) {
+    ClassWriter classWriter = new ClassWriter(0);
+    new ClassReader(PrecompiledClass.JDK8_ALL_STRUCTURES.getBytes())
+        .accept(new RemoveAnnotationAdapter(classWriter, visibilityValue), 0);
+    byte[] classFile = classWriter.toByteArray();
+
+    ClassWriter newClassWriter = new ClassWriter(0);
+    new ClassReader(classFile)
+        .accept(new RemoveAnnotationAdapter(newClassWriter, visibilityValue), 0);
+    assertThatClass(newClassWriter.toByteArray()).isEqualTo(classFile);
   }
 
   static Attribute[] attributes() {
@@ -262,6 +278,149 @@ public class ClassVisitorTest extends AsmTest {
         exceptions[0] = "java/lang/Throwable";
       }
       return super.visitMethod(access, name, descriptor, signature, exceptions);
+    }
+  }
+
+  /** A class visitor which removes either all visible or all invisible [type] annotations. */
+  private static class RemoveAnnotationAdapter extends ClassVisitor {
+
+    private final boolean visibilityValue;
+
+    RemoveAnnotationAdapter(final ClassVisitor classVisitor, final boolean visibilityValue) {
+      super(Opcodes.ASM6, classVisitor);
+      this.visibilityValue = visibilityValue;
+    }
+
+    @Override
+    public AnnotationVisitor visitAnnotation(final String descriptor, final boolean visible) {
+      if (visible == visibilityValue) {
+        return null;
+      }
+      return super.visitAnnotation(descriptor, visible);
+    }
+
+    @Override
+    public AnnotationVisitor visitTypeAnnotation(
+        final int typeRef,
+        final TypePath typePath,
+        final String descriptor,
+        final boolean visible) {
+      if (visible == visibilityValue) {
+        return null;
+      }
+      return super.visitTypeAnnotation(typeRef, typePath, descriptor, visible);
+    }
+
+    @Override
+    public FieldVisitor visitField(
+        final int access,
+        final String name,
+        final String descriptor,
+        final String signature,
+        final Object value) {
+      return new FieldVisitor(api, super.visitField(access, name, descriptor, signature, value)) {
+
+        @Override
+        public AnnotationVisitor visitAnnotation(final String descriptor, final boolean visible) {
+          if (visible == visibilityValue) {
+            return null;
+          }
+          return super.visitAnnotation(descriptor, visible);
+        }
+
+        @Override
+        public AnnotationVisitor visitTypeAnnotation(
+            final int typeRef,
+            final TypePath typePath,
+            final String descriptor,
+            final boolean visible) {
+          if (visible == visibilityValue) {
+            return null;
+          }
+          return super.visitTypeAnnotation(typeRef, typePath, descriptor, visible);
+        }
+      };
+    }
+
+    @Override
+    public MethodVisitor visitMethod(
+        final int access,
+        final String name,
+        final String descriptor,
+        final String signature,
+        final String[] exceptions) {
+      return new MethodVisitor(
+          api, super.visitMethod(access, name, descriptor, signature, exceptions)) {
+
+        @Override
+        public AnnotationVisitor visitAnnotation(final String descriptor, final boolean visible) {
+          if (visible == visibilityValue) {
+            return null;
+          }
+          return super.visitAnnotation(descriptor, visible);
+        }
+
+        @Override
+        public AnnotationVisitor visitTypeAnnotation(
+            final int typeRef,
+            final TypePath typePath,
+            final String descriptor,
+            final boolean visible) {
+          if (visible == visibilityValue) {
+            return null;
+          }
+          return super.visitTypeAnnotation(typeRef, typePath, descriptor, visible);
+        }
+
+        @Override
+        public AnnotationVisitor visitParameterAnnotation(
+            final int parameter, final String descriptor, final boolean visible) {
+          if (visible == visibilityValue) {
+            return null;
+          }
+          return super.visitParameterAnnotation(parameter, descriptor, visible);
+        }
+
+        @Override
+        public AnnotationVisitor visitInsnAnnotation(
+            final int typeRef,
+            final TypePath typePath,
+            final String descriptor,
+            final boolean visible) {
+          if (visible == visibilityValue) {
+            return null;
+          }
+          return super.visitInsnAnnotation(typeRef, typePath, descriptor, visible);
+        }
+
+        @Override
+        public AnnotationVisitor visitTryCatchAnnotation(
+            final int typeRef,
+            final TypePath typePath,
+            final String descriptor,
+            final boolean visible) {
+          if (visible == visibilityValue) {
+            return null;
+          }
+          return super.visitTryCatchAnnotation(typeRef, typePath, descriptor, visible);
+        }
+
+        @Override
+        public AnnotationVisitor visitLocalVariableAnnotation(
+            final int typeRef,
+            final TypePath typePath,
+            final Label[] start,
+            final Label[] end,
+            final int[] index,
+            final String descriptor,
+            final boolean visible) {
+          if (visible == visibilityValue) {
+            return null;
+          }
+          return super.visitLocalVariableAnnotation(
+              typeRef, typePath, start, end, index, descriptor, visible);
+        }
+      };
     }
   }
 }

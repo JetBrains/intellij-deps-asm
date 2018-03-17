@@ -2354,7 +2354,7 @@ public class ClassReader {
     // Visit the local variable type annotations of the RuntimeInvisibleTypeAnnotations attribute.
     if (invisibleTypeAnnotationOffsets != null) {
       for (int i = 0; i < invisibleTypeAnnotationOffsets.length; ++i) {
-        int targetType = readByte(visibleTypeAnnotationOffsets[i]);
+        int targetType = readByte(invisibleTypeAnnotationOffsets[i]);
         if (targetType == TypeReference.LOCAL_VARIABLE
             || targetType == TypeReference.RESOURCE_VARIABLE) {
           // Parse the target_type, target_info and target_path fields.

@@ -87,6 +87,9 @@ public class ClassReader {
    */
   static final int EXPAND_ASM_INSNS = 256;
 
+  /** The size of the temporary byte array used to read class input streams chunk by chunk. */
+  private static final int INPUT_STREAM_DATA_CHUNK_SIZE = 4096;
+
   /**
    * A byte array containing the JVMS ClassFile structure to be parsed. <i>The content of this array
    * must not be modified. This field is intended for {@link Attribute} sub classes, and is normally
@@ -262,7 +265,7 @@ public class ClassReader {
     }
     try {
       ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-      byte[] data = new byte[inputStream.available()];
+      byte[] data = new byte[INPUT_STREAM_DATA_CHUNK_SIZE];
       int bytesRead;
       while ((bytesRead = inputStream.read(data, 0, data.length)) != -1) {
         outputStream.write(data, 0, bytesRead);

@@ -41,7 +41,7 @@ subprojects {
   repositories { mavenCentral() }
   apply plugin: 'java'
   group = 'org.ow2.asm'
-  version = '6.1'
+  version = '6.1.1' + (rootProject.hasProperty('release') ? '' : '-SNAPSHOT')
   sourceCompatibility = '1.6'
   targetCompatibility = '1.6'
   test { useJUnitPlatform() }
@@ -300,9 +300,14 @@ configure(subprojects.findAll { it.provides }) {
   // project POM and to upload it, with the classes, sources and Javadoc jars.
   apply plugin: 'maven'
   uploadArchives.repositories.mavenDeployer {
-    if (rootProject.hasProperty('nexusUserName')) {
-      repository(url: 'http://repository.ow2.org/nexus/service/local/' + 
-          'staging/deploy/maven2') {
+    def nexusUserName = System.env.NEXUS_USER_NAME
+    def nexusPassword = System.env.NEXUS_PASSWORD
+    if (nexusUserName != null) {
+      def baseUrl = 'http://repository.ow2.org/nexus/'
+      repository(url: baseUrl + 'service/local/staging/deploy/maven2') {
+        authentication(userName: nexusUserName, password: nexusPassword)
+      }
+      snapshotRepository(url: baseUrl + 'content/repositories/snapshots') {
         authentication(userName: nexusUserName, password: nexusPassword)
       }
     } else {

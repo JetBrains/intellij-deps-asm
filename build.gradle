@@ -40,8 +40,9 @@ description = 'ASM, a very small and fast Java bytecode manipulation framework'
 subprojects {
   repositories { mavenCentral() }
   apply plugin: 'java'
+  def snapshotSuffix = rootProject.hasProperty('release') ? '' : '-SNAPSHOT'
   group = 'org.ow2.asm'
-  version = '6.1.1' + (rootProject.hasProperty('release') ? '' : '-SNAPSHOT')
+  version = '6.1.1' + snapshotSuffix
   sourceCompatibility = '1.6'
   targetCompatibility = '1.6'
   test { useJUnitPlatform() }

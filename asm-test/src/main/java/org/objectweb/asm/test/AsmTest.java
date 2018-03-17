@@ -85,6 +85,10 @@ import java.util.stream.Stream;
  */
 public abstract class AsmTest {
 
+  /** The size of the temporary byte array used to read class input streams chunk by chunk. */
+  private static final int INPUT_STREAM_DATA_CHUNK_SIZE = 4096;
+
+  /** The name of JDK9 module classes. */
   private static final String MODULE_INFO = "module-info";
 
   /**
@@ -436,7 +440,7 @@ public abstract class AsmTest {
     try (InputStream inputStream = ClassLoader.getSystemResourceAsStream(resourceName)) {
       assertNotNull(inputStream, "Class not found " + name);
       ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-      byte[] data = new byte[inputStream.available()];
+      byte[] data = new byte[INPUT_STREAM_DATA_CHUNK_SIZE];
       int bytesRead;
       while ((bytesRead = inputStream.read(data, 0, data.length)) != -1) {
         outputStream.write(data, 0, bytesRead);

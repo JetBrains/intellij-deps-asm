@@ -337,16 +337,33 @@ public class AdviceAdapterTest extends AsmTest {
   }
 
   @Test
+  public void testConstructorWithBranchesAfterSuperInit() {
+    testCase(
+        (MethodGenerator methodGenerator) -> {
+          methodGenerator.visitVarInsn(Opcodes.ALOAD, 0);
+          methodGenerator.visitMethodInsn(
+              Opcodes.INVOKESPECIAL, "java/lang/Object", "<init>", "()V", false);
+          methodGenerator.expectMethodEnter();
+          Label label1 = new Label();
+          methodGenerator.visitJumpInsn(Opcodes.GOTO, label1);
+          Label label2 = new Label();
+          methodGenerator.visitLabel(label2);
+          methodGenerator.visitInsn(Opcodes.POP);          
+          methodGenerator.expectMethodExit();
+          methodGenerator.visitInsn(Opcodes.RETURN);
+          methodGenerator.visitLabel(label1);
+          methodGenerator.visitLdcInsn(Opcodes.ICONST_0);
+          methodGenerator.visitJumpInsn(Opcodes.GOTO, label2);
+        });
+  }
+
+  @Test
   public void testInvalidConstructor() {
     Consumer<MethodGenerator> constructorGenerator =
         new Consumer<MethodGenerator>() {
 
           @Override
           public void accept(MethodGenerator methodGenerator) {
-            methodGenerator.visitVarInsn(Opcodes.ALOAD, 0);
-            methodGenerator.visitMethodInsn(
-                Opcodes.INVOKESPECIAL, "java/lang/Object", "<init>", "()V", false);
-            methodGenerator.visitVarInsn(Opcodes.ILOAD, 1);
             methodGenerator.visitInsn(Opcodes.IRETURN);
           }
         };

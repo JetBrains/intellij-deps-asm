@@ -74,8 +74,8 @@ public abstract class AdviceAdapter extends GeneratorAdapter implements Opcodes 
   private Map<Label, Branch> branches;
 
   private static final class Branch {
-    List<Object> stackFrame;
-    boolean superInitialized;
+    final List<Object> stackFrame;
+    final boolean superInitialized;
 
     Branch(List<Object> stackFrame, boolean superInitialized) {
       this.stackFrame = stackFrame;

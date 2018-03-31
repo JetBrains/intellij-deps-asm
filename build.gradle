@@ -72,7 +72,6 @@ project(':asm-commons') {
   provides = ['org.objectweb.asm.commons']
   requires = [':asm', ':asm-tree', ':asm-analysis']
   dependencies { testCompile project(':asm-util') }
-  minCodeCoverage = 0.85  // TODO: improve the code coverage of this project.
 }
 
 project(':asm-test') {

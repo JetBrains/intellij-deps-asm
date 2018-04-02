@@ -348,7 +348,7 @@ public class AdviceAdapterTest extends AsmTest {
           methodGenerator.visitJumpInsn(Opcodes.GOTO, label1);
           Label label2 = new Label();
           methodGenerator.visitLabel(label2);
-          methodGenerator.visitInsn(Opcodes.POP);          
+          methodGenerator.visitInsn(Opcodes.POP);
           methodGenerator.expectMethodExit();
           methodGenerator.visitInsn(Opcodes.RETURN);
           methodGenerator.visitLabel(label1);
@@ -363,7 +363,7 @@ public class AdviceAdapterTest extends AsmTest {
         new Consumer<MethodGenerator>() {
 
           @Override
-          public void accept(MethodGenerator methodGenerator) {
+          public void accept(final MethodGenerator methodGenerator) {
             methodGenerator.visitInsn(Opcodes.IRETURN);
           }
         };
@@ -372,7 +372,7 @@ public class AdviceAdapterTest extends AsmTest {
         () -> generateClass(constructorGenerator, /* expectedClass= */ false));
   }
 
-  private static void testCase(Consumer<MethodGenerator> testCaseGenerator) {
+  private static void testCase(final Consumer<MethodGenerator> testCaseGenerator) {
     byte[] actualClass = generateClass(testCaseGenerator, /* expectedClass= */ false);
     byte[] expectedClass = generateClass(testCaseGenerator, /* expectedClass= */ true);
     assertThatClass(actualClass).isEqualTo(expectedClass);
@@ -380,7 +380,7 @@ public class AdviceAdapterTest extends AsmTest {
   }
 
   private static byte[] generateClass(
-      Consumer<MethodGenerator> constructorGenerator, boolean expectedClass) {
+      final Consumer<MethodGenerator> constructorGenerator, final boolean expectedClass) {
     ClassWriter classWriter = new ClassWriter(ClassWriter.COMPUTE_MAXS);
     classWriter.visit(Opcodes.V1_5, Opcodes.ACC_PUBLIC, "C", null, "java/lang/Object", null);
 
@@ -404,7 +404,7 @@ public class AdviceAdapterTest extends AsmTest {
                 }
 
                 @Override
-                protected void onMethodExit(int opcode) {
+                protected void onMethodExit(final int opcode) {
                   generateAdvice(this, /* enter= */ false);
                 }
               },
@@ -449,13 +449,13 @@ public class AdviceAdapterTest extends AsmTest {
         Opcodes.INVOKEVIRTUAL,
         "java/io/PrintStream",
         "println",
-        "(Ljava/lang/String;)V", /* isInterface= */
-        false);
+        "(Ljava/lang/String;)V",
+        /* isInterface= */ false);
   }
 
   @ParameterizedTest
   @MethodSource(ALL_CLASSES_AND_ALL_APIS)
-  public void testEmptyAdviceAdapter(PrecompiledClass classParameter, Api apiParameter)
+  public void testEmptyAdviceAdapter(final PrecompiledClass classParameter, final Api apiParameter)
       throws Exception {
     ClassReader classReader = new ClassReader(classParameter.getBytes());
     ClassWriter expectedClassWriter = new ClassWriter(0);

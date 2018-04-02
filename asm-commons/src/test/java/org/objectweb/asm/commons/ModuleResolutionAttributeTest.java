@@ -54,7 +54,7 @@ public class ModuleResolutionAttributeTest {
             new ClassVisitor(Opcodes.ASM6) {
 
               @Override
-              public void visitAttribute(Attribute attribute) {
+              public void visitAttribute(final Attribute attribute) {
                 if (attribute instanceof ModuleResolutionAttribute) {
                   moduleResolutionAttribute.resolution =
                       ((ModuleResolutionAttribute) attribute).resolution;

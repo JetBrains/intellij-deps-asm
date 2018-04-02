@@ -29,10 +29,9 @@ package org.objectweb.asm.commons;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.objectweb.asm.test.Assertions.assertThat;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -49,150 +48,14 @@ import org.objectweb.asm.util.Textifier;
 import org.objectweb.asm.util.TraceMethodVisitor;
 
 /**
- * JSRInliner tests.
+ * JSRInlinerAdapter tests.
  *
  * @author Eric Bruneton
  */
 public class JSRInlinerAdapterTest extends AsmTest {
 
-  private JSRInlinerAdapter jsr;
-  private MethodNode exp;
-  private MethodVisitor current;
-
-  @BeforeEach
-  public void setUp() throws Exception {
-    jsr =
-        new JSRInlinerAdapter(Opcodes.ASM5, null, 0, "m", "()V", null, null) {
-          @Override
-          public void visitEnd() {
-            Textifier t = new Textifier();
-            TraceMethodVisitor mv = new TraceMethodVisitor(t);
-            for (int i = 0; i < instructions.size(); ++i) {
-              instructions.get(i).accept(mv);
-            }
-            super.visitEnd();
-          }
-        };
-    exp = new MethodNode(0, "m", "()V", null, null);
-  }
-
-  private void setCurrent(final MethodVisitor cv) {
-    this.current = cv;
-  }
-
-  private void ICONST_0() {
-    this.current.visitInsn(Opcodes.ICONST_0);
-  }
-
-  private void ISTORE(final int var) {
-    this.current.visitVarInsn(Opcodes.ISTORE, var);
-  }
-
-  private void ALOAD(final int var) {
-    this.current.visitVarInsn(Opcodes.ALOAD, var);
-  }
-
-  private void ILOAD(final int var) {
-    this.current.visitVarInsn(Opcodes.ILOAD, var);
-  }
-
-  private void ASTORE(final int var) {
-    this.current.visitVarInsn(Opcodes.ASTORE, var);
-  }
-
-  private void RET(final int var) {
-    this.current.visitVarInsn(Opcodes.RET, var);
-  }
-
-  private void ATHROW() {
-    this.current.visitInsn(Opcodes.ATHROW);
-  }
-
-  private void ACONST_NULL() {
-    this.current.visitInsn(Opcodes.ACONST_NULL);
-  }
-
-  private void RETURN() {
-    this.current.visitInsn(Opcodes.RETURN);
-  }
-
-  private void LABEL(final Label l) {
-    this.current.visitLabel(l);
-  }
-
-  private void IINC(final int var, final int amnt) {
-    this.current.visitIincInsn(var, amnt);
-  }
-
-  private void GOTO(final Label l) {
-    this.current.visitJumpInsn(Opcodes.GOTO, l);
-  }
-
-  private void JSR(final Label l) {
-    this.current.visitJumpInsn(Opcodes.JSR, l);
-  }
-
-  private void IFNONNULL(final Label l) {
-    this.current.visitJumpInsn(Opcodes.IFNONNULL, l);
-  }
-
-  private void IFNE(final Label l) {
-    this.current.visitJumpInsn(Opcodes.IFNE, l);
-  }
-
-  private void SWITCH(
-      final Label defaultLabel, final int key, final Label target, final boolean useTableSwitch) {
-    if (useTableSwitch) {
-      this.current.visitTableSwitchInsn(key, key, defaultLabel, new Label[] {target});
-    } else {
-      this.current.visitLookupSwitchInsn(defaultLabel, new int[] {key}, new Label[] {target});
-    }
-  }
-
-  private void TRYCATCH(final Label start, final Label end, final Label handler) {
-    this.current.visitTryCatchBlock(start, end, handler, null);
-  }
-
-  private void LINE(final int line, final Label start) {
-    this.current.visitLineNumber(line, start);
-  }
-
-  private void LOCALVAR(
-      final String name, final String desc, final int index, final Label start, final Label end) {
-    this.current.visitLocalVariable(name, desc, null, start, end, index);
-  }
-
-  private void END(final int maxStack, final int maxLocals) {
-    this.current.visitMaxs(maxStack, maxLocals);
-    this.current.visitEnd();
-    ClassWriter cw = new ClassWriter(0);
-    cw.visit(Opcodes.V1_1, Opcodes.ACC_PUBLIC, "C", null, "java/lang/Object", null);
-    MethodVisitor mv = cw.visitMethod(Opcodes.ACC_PUBLIC, "<init>", "()V", null, null);
-    mv.visitCode();
-    mv.visitVarInsn(Opcodes.ALOAD, 0);
-    mv.visitMethodInsn(Opcodes.INVOKESPECIAL, "java/lang/Object", "<init>", "()V", false);
-    mv.visitInsn(Opcodes.RETURN);
-    mv.visitMaxs(1, 1);
-    mv.visitEnd();
-    ((MethodNode) this.current).accept(cw);
-    cw.visitEnd();
-    byte[] b = cw.toByteArray();
-    try {
-      TestClassLoader loader = new TestClassLoader();
-      Class<?> c = loader.defineClass("C", b);
-      c.newInstance();
-    } catch (Throwable t) {
-      fail(t.getMessage());
-    }
-    this.current = null;
-  }
-
-  static class TestClassLoader extends ClassLoader {
-
-    public Class<?> defineClass(final String name, final byte[] b) {
-      return defineClass(name, b, 0, b.length);
-    }
-  }
+  private JSRInlinerAdapter inlinedMethod = new JSRInlinerAdapter(null, 0, "m", "()V", null, null);
+  private MethodNode expectedMethod = new MethodNode(0, "m", "()V", null, null);
 
   @Test
   public void testConstructor() {
@@ -207,256 +70,203 @@ public class JSRInlinerAdapterTest extends AsmTest {
    *
    * <pre>
    * public void a() {
-   *     int a = 0;
-   *     try {
-   *         a++;
-   *     } finally {
-   *         a--;
-   *     }
+   *   int a = 0;
+   *   try {
+   *     a++;
+   *   } finally {
+   *     a--;
+   *   }
    * }
    * </pre>
    */
   @Test
   public void testBasic() {
-    {
-      Label L0 = new Label();
-      Label L1 = new Label();
-      Label L2 = new Label();
-      Label L3 = new Label();
-      Label L4 = new Label();
+    Label l0 = new Label();
+    Label l1 = new Label();
+    Label l2 = new Label();
+    Label l3 = new Label();
+    Label l4 = new Label();
+    new Generator(inlinedMethod)
+        .ICONST_0()
+        .ISTORE(1)
+        .LABEL(l0) // L0: body of try block.
+        .IINC(1, 1)
+        .GOTO(l1)
+        .LABEL(l2) // L2: exception handler.
+        .ASTORE(3)
+        .JSR(l3)
+        .ALOAD(3)
+        .ATHROW()
+        .LABEL(l3) // L3: subroutine.
+        .ASTORE(2)
+        .IINC(1, -1)
+        .RET(2)
+        .LABEL(l1) // L1: non-exceptional exit from try block.
+        .JSR(l3)
+        .LABEL(l4)
+        .RETURN()
+        .TRYCATCH(l0, l2, l2)
+        .TRYCATCH(l1, l4, l2)
+        .END(1, 4);
 
-      setCurrent(jsr);
-      ICONST_0();
-      ISTORE(1);
+    Label L0 = new Label();
+    Label L1 = new Label();
+    Label L2 = new Label();
+    Label L3_1a = new Label();
+    Label L3_1b = new Label();
+    Label L3_2a = new Label();
+    Label L3_2b = new Label();
+    Label L4 = new Label();
+    new Generator(expectedMethod)
+        .ICONST_0()
+        .ISTORE(1)
+        .LABEL(L0) // L0: try/catch block.
+        .IINC(1, 1)
+        .GOTO(L1)
+        .LABEL(L2) // L2: Exception handler:
+        .ASTORE(3)
+        .ACONST_NULL()
+        .GOTO(L3_1a)
+        .LABEL(L3_1b)
+        .ALOAD(3)
+        .ATHROW()
+        .LABEL(L1) // L1: On non-exceptional exit, try block leads here:
+        .ACONST_NULL()
+        .GOTO(L3_2a)
+        .LABEL(L3_2b)
+        .LABEL(L4)
+        .RETURN()
+        .LABEL(L3_1a) // L3_1a: First instantiation of subroutine:
+        .ASTORE(2)
+        .IINC(1, -1)
+        .GOTO(L3_1b)
+        .LABEL()
+        .LABEL(L3_2a) // L3_2a: Second instantiation of subroutine:
+        .ASTORE(2)
+        .IINC(1, -1)
+        .GOTO(L3_2b)
+        .LABEL()
+        .TRYCATCH(L0, L2, L2)
+        .TRYCATCH(L1, L4, L2)
+        .END(1, 4);
 
-      /* L0: body of try block */
-      LABEL(L0);
-      IINC(1, 1);
-      GOTO(L1);
-
-      /* L2: exception handler */
-      LABEL(L2);
-      ASTORE(3);
-      JSR(L3);
-      ALOAD(3);
-      ATHROW();
-
-      /* L3: subroutine */
-      LABEL(L3);
-      ASTORE(2);
-      IINC(1, -1);
-      RET(2);
-
-      /* L1: non-exceptional exit from try block */
-      LABEL(L1);
-      JSR(L3);
-      LABEL(L4); // L4
-      RETURN();
-
-      TRYCATCH(L0, L2, L2);
-      TRYCATCH(L1, L4, L2);
-
-      END(1, 4);
-    }
-
-    {
-      Label L0 = new Label();
-      Label L1 = new Label();
-      Label L2 = new Label();
-      Label L3_1a = new Label();
-      Label L3_1b = new Label();
-      Label L3_2a = new Label();
-      Label L3_2b = new Label();
-      Label L4 = new Label();
-
-      setCurrent(exp);
-      ICONST_0();
-      ISTORE(1);
-      // L0: try/catch block
-      LABEL(L0);
-      IINC(1, 1);
-      GOTO(L1);
-
-      // L2: Exception handler:
-      LABEL(L2);
-      ASTORE(3);
-      ACONST_NULL();
-      GOTO(L3_1a);
-      LABEL(L3_1b); // L3_1b;
-      ALOAD(3);
-      ATHROW();
-
-      // L1: On non-exceptional exit, try block leads here:
-      LABEL(L1);
-      ACONST_NULL();
-      GOTO(L3_2a);
-      LABEL(L3_2b); // L3_2b
-      LABEL(L4); // L4
-      RETURN();
-
-      // L3_1a: First instantiation of subroutine:
-      LABEL(L3_1a);
-      ASTORE(2);
-      IINC(1, -1);
-      GOTO(L3_1b);
-      LABEL(new Label()); // extra label emitted due to impl quirks
-
-      // L3_2a: Second instantiation of subroutine:
-      LABEL(L3_2a);
-      ASTORE(2);
-      IINC(1, -1);
-      GOTO(L3_2b);
-      LABEL(new Label()); // extra label emitted due to impl quirks
-
-      TRYCATCH(L0, L2, L2);
-      TRYCATCH(L1, L4, L2);
-
-      END(1, 4);
-    }
-
-    assertMethodEquals(exp, jsr);
+    assertMethodEquals(expectedMethod, inlinedMethod);
   }
 
   /**
-   * Tests a method which has an if/else-if w/in the finally clause:
+   * Tests a method which has an if/else in the finally clause:
    *
    * <pre>
    * public void a() {
-   *     int a = 0;
-   *     try {
-   *         a++;
-   *     } finally {
-   *         if (a == 0)
-   *             a += 2;
-   *         else
-   *             a += 3;
+   *   int a = 0;
+   *   try {
+   *     a++;
+   *   } finally {
+   *     if (a == 0) {
+   *       a += 2;
+   *     } else {
+   *       a += 3;
    *     }
+   *   }
    * }
    * </pre>
    */
   @Test
   public void testIfElseInFinally() {
-    {
-      Label L0 = new Label();
-      Label L1 = new Label();
-      Label L2 = new Label();
-      Label L3 = new Label();
-      Label L4 = new Label();
-      Label L5 = new Label();
-      Label L6 = new Label();
+    Label l0 = new Label();
+    Label l1 = new Label();
+    Label l2 = new Label();
+    Label l3 = new Label();
+    Label l4 = new Label();
+    Label l5 = new Label();
+    Label l6 = new Label();
+    new Generator(inlinedMethod)
+        .ICONST_0()
+        .ISTORE(1)
+        .LABEL(l0) // L0: body of try block.
+        .IINC(1, 1)
+        .GOTO(l1)
+        .LABEL(l2) // L2: exception handler.
+        .ASTORE(3)
+        .JSR(l3)
+        .ALOAD(3)
+        .ATHROW()
+        .LABEL(l3) // L3: subroutine.
+        .ASTORE(2)
+        .ILOAD(1)
+        .IFNE(l4)
+        .IINC(1, 2)
+        .GOTO(l5)
+        .LABEL(l4) // L4: a != 0
+        .IINC(1, 3)
+        .LABEL(l5) // L5: common exit.
+        .RET(2)
+        .LABEL(l1) // L1: non-exceptional exit from try block.
+        .JSR(l3)
+        .LABEL(l6) // L6 is used in the TRYCATCH below.
+        .RETURN()
+        .TRYCATCH(l0, l2, l2)
+        .TRYCATCH(l1, l6, l2)
+        .END(1, 4);
 
-      setCurrent(jsr);
-      ICONST_0();
-      ISTORE(1);
+    Label L0 = new Label();
+    Label L1 = new Label();
+    Label L2 = new Label();
+    Label L3_1a = new Label();
+    Label L3_1b = new Label();
+    Label L3_2a = new Label();
+    Label L3_2b = new Label();
+    Label L4_1 = new Label();
+    Label L4_2 = new Label();
+    Label L5_1 = new Label();
+    Label L5_2 = new Label();
+    Label L6 = new Label();
+    new Generator(expectedMethod)
+        .ICONST_0()
+        .ISTORE(1)
+        .LABEL(L0) // L0: try/catch block.
+        .IINC(1, 1)
+        .GOTO(L1)
+        .LABEL(L2) // L2: Exception handler:
+        .ASTORE(3)
+        .ACONST_NULL()
+        .GOTO(L3_1a)
+        .LABEL(L3_1b)
+        .ALOAD(3)
+        .ATHROW()
+        .LABEL(L1) // L1: On non-exceptional exit, try block leads here:
+        .ACONST_NULL()
+        .GOTO(L3_2a)
+        .LABEL(L3_2b)
+        .LABEL(L6)
+        .RETURN()
+        .LABEL(L3_1a) // L3_1a: First instantiation of subroutine:
+        .ASTORE(2)
+        .ILOAD(1)
+        .IFNE(L4_1)
+        .IINC(1, 2)
+        .GOTO(L5_1)
+        .LABEL(L4_1) // L4_1: a != 0
+        .IINC(1, 3)
+        .LABEL(L5_1) // L5_1: common exit.
+        .GOTO(L3_1b)
+        .LABEL()
+        .LABEL(L3_2a) // L3_2a: Second instantiation of subroutine:
+        .ASTORE(2)
+        .ILOAD(1)
+        .IFNE(L4_2)
+        .IINC(1, 2)
+        .GOTO(L5_2)
+        .LABEL(L4_2) // L4_2: a != 0
+        .IINC(1, 3)
+        .LABEL(L5_2) // L5_2: common exit.
+        .GOTO(L3_2b)
+        .LABEL()
+        .TRYCATCH(L0, L2, L2)
+        .TRYCATCH(L1, L6, L2)
+        .END(1, 4);
 
-      /* L0: body of try block */
-      LABEL(L0);
-      IINC(1, 1);
-      GOTO(L1);
-
-      /* L2: exception handler */
-      LABEL(L2);
-      ASTORE(3);
-      JSR(L3);
-      ALOAD(3);
-      ATHROW();
-
-      /* L3: subroutine */
-      LABEL(L3);
-      ASTORE(2);
-      ILOAD(1);
-      IFNE(L4);
-      IINC(1, 2);
-      GOTO(L5);
-      LABEL(L4); // L4: a != 0
-      IINC(1, 3);
-      LABEL(L5); // L5: common exit
-      RET(2);
-
-      /* L1: non-exceptional exit from try block */
-      LABEL(L1);
-      JSR(L3);
-      LABEL(L6); // L6 is used in the TRYCATCH below
-      RETURN();
-
-      TRYCATCH(L0, L2, L2);
-      TRYCATCH(L1, L6, L2);
-
-      END(1, 4);
-    }
-
-    {
-      Label L0 = new Label();
-      Label L1 = new Label();
-      Label L2 = new Label();
-      Label L3_1a = new Label();
-      Label L3_1b = new Label();
-      Label L3_2a = new Label();
-      Label L3_2b = new Label();
-      Label L4_1 = new Label();
-      Label L4_2 = new Label();
-      Label L5_1 = new Label();
-      Label L5_2 = new Label();
-      Label L6 = new Label();
-
-      setCurrent(exp);
-      ICONST_0();
-      ISTORE(1);
-      // L0: try/catch block
-      LABEL(L0);
-      IINC(1, 1);
-      GOTO(L1);
-
-      // L2: Exception handler:
-      LABEL(L2);
-      ASTORE(3);
-      ACONST_NULL();
-      GOTO(L3_1a);
-      LABEL(L3_1b); // L3_1b;
-      ALOAD(3);
-      ATHROW();
-
-      // L1: On non-exceptional exit, try block leads here:
-      LABEL(L1);
-      ACONST_NULL();
-      GOTO(L3_2a);
-      LABEL(L3_2b); // L3_2b
-      LABEL(L6); // L6
-      RETURN();
-
-      // L3_1a: First instantiation of subroutine:
-      LABEL(L3_1a);
-      ASTORE(2);
-      ILOAD(1);
-      IFNE(L4_1);
-      IINC(1, 2);
-      GOTO(L5_1);
-      LABEL(L4_1); // L4_1: a != 0
-      IINC(1, 3);
-      LABEL(L5_1); // L5_1: common exit
-      GOTO(L3_1b);
-      LABEL(new Label()); // extra label emitted due to impl quirks
-
-      // L3_2a: Second instantiation of subroutine:
-      LABEL(L3_2a);
-      ASTORE(2);
-      ILOAD(1);
-      IFNE(L4_2);
-      IINC(1, 2);
-      GOTO(L5_2);
-      LABEL(L4_2); // L4_2: a != 0
-      IINC(1, 3);
-      LABEL(L5_2); // L5_2: common exit
-      GOTO(L3_2b);
-      LABEL(new Label()); // extra label emitted due to impl quirks
-
-      TRYCATCH(L0, L2, L2);
-      TRYCATCH(L1, L6, L2);
-
-      END(1, 4);
-    }
-
-    assertMethodEquals(exp, jsr);
+    assertMethodEquals(expectedMethod, inlinedMethod);
   }
 
   /**
@@ -464,151 +274,124 @@ public class JSRInlinerAdapterTest extends AsmTest {
    *
    * <pre>
    * public void a() {
-   *     int a = 0;
-   *     try {
-   *         a++;
-   *     } finally {
-   *         switch (a) {
-   *             case 0:
-   *                 a += 2;
-   *                 break;
-   *             default:
-   *                 a += 3;
-   *         }
+   *   int a = 0;
+   *   try {
+   *     a++;
+   *   } finally {
+   *     switch (a) {
+   *       case 0:
+   *         a += 2;
+   *         break;
+   *       default:
+   *         a += 3;
    *     }
+   *   }
    * }
    * </pre>
    */
   @ParameterizedTest
-  @ValueSource(strings = { "true", "false" })
-  public void testLookupOrTableSwitchInFinally(boolean useTableSwitch) {
-    {
-      Label L0 = new Label();
-      Label L1 = new Label();
-      Label L2 = new Label();
-      Label L3 = new Label();
-      Label L4 = new Label();
-      Label L5 = new Label();
-      Label L6 = new Label();
-      Label L7 = new Label();
+  @ValueSource(strings = {"true", "false"})
+  public void testLookupOrTableSwitchInFinally(final boolean useTableSwitch) {
+    Label l0 = new Label();
+    Label l1 = new Label();
+    Label l2 = new Label();
+    Label l3 = new Label();
+    Label l4 = new Label();
+    Label l5 = new Label();
+    Label l6 = new Label();
+    Label l7 = new Label();
+    new Generator(inlinedMethod)
+        .ICONST_0()
+        .ISTORE(1)
+        .LABEL(l0) // L0: body of try block.
+        .IINC(1, 1)
+        .GOTO(l1)
+        .LABEL(l2) // L2: exception handler.
+        .ASTORE(3)
+        .JSR(l3)
+        .ALOAD(3)
+        .ATHROW()
+        .LABEL(l3) // L3: subroutine.
+        .ASTORE(2)
+        .ILOAD(1)
+        .SWITCH(l5, 0, l4, useTableSwitch)
+        .LABEL(l4) // L4: 'case 0:'
+        .IINC(1, 2)
+        .GOTO(l6)
+        .LABEL(l5) // L5: 'default:'
+        .IINC(1, 3)
+        .LABEL(l6) // L6: common exit.
+        .RET(2)
+        .LABEL(l1) // L1: non-exceptional exit from try block.
+        .JSR(l3)
+        .LABEL(l7) // L7 is used in the TRYCATCH below
+        .RETURN()
+        .TRYCATCH(l0, l2, l2)
+        .TRYCATCH(l1, l7, l2)
+        .END(1, 4);
 
-      setCurrent(jsr);
-      ICONST_0();
-      ISTORE(1);
+    Label L0 = new Label();
+    Label L1 = new Label();
+    Label L2 = new Label();
+    Label L3_1a = new Label();
+    Label L3_1b = new Label();
+    Label L3_2a = new Label();
+    Label L3_2b = new Label();
+    Label L4_1 = new Label();
+    Label L4_2 = new Label();
+    Label L5_1 = new Label();
+    Label L5_2 = new Label();
+    Label L6_1 = new Label();
+    Label L6_2 = new Label();
+    Label L7 = new Label();
+    new Generator(expectedMethod)
+        .ICONST_0()
+        .ISTORE(1)
+        .LABEL(L0) // L0: try/catch block.
+        .IINC(1, 1)
+        .GOTO(L1)
+        .LABEL(L2) // L2: Exception handler:
+        .ASTORE(3)
+        .ACONST_NULL()
+        .GOTO(L3_1a)
+        .LABEL(L3_1b)
+        .ALOAD(3)
+        .ATHROW()
+        .LABEL(L1) // L1: On non-exceptional exit, try block leads here:
+        .ACONST_NULL()
+        .GOTO(L3_2a)
+        .LABEL(L3_2b)
+        .LABEL(L7)
+        .RETURN()
+        .LABEL(L3_1a) // L3_1a: First instantiation of subroutine:
+        .ASTORE(2)
+        .ILOAD(1)
+        .SWITCH(L5_1, 0, L4_1, useTableSwitch)
+        .LABEL(L4_1) // L4_1: 'case 0:'
+        .IINC(1, 2)
+        .GOTO(L6_1)
+        .LABEL(L5_1) // L5_1: 'default:'
+        .IINC(1, 3)
+        .LABEL(L6_1) // L6_1: common exit.
+        .GOTO(L3_1b)
+        .LABEL()
+        .LABEL(L3_2a) // L3_2a: Second instantiation of subroutine:
+        .ASTORE(2)
+        .ILOAD(1)
+        .SWITCH(L5_2, 0, L4_2, useTableSwitch)
+        .LABEL(L4_2) // L4_2: 'case 0:'
+        .IINC(1, 2)
+        .GOTO(L6_2)
+        .LABEL(L5_2) // L5_2: 'default:'
+        .IINC(1, 3)
+        .LABEL(L6_2) // L6_2: common exit.
+        .GOTO(L3_2b)
+        .LABEL()
+        .TRYCATCH(L0, L2, L2)
+        .TRYCATCH(L1, L7, L2)
+        .END(1, 4);
 
-      /* L0: body of try block */
-      LABEL(L0);
-      IINC(1, 1);
-      GOTO(L1);
-
-      /* L2: exception handler */
-      LABEL(L2);
-      ASTORE(3);
-      JSR(L3);
-      ALOAD(3);
-      ATHROW();
-
-      /* L3: subroutine */
-      LABEL(L3);
-      ASTORE(2);
-      ILOAD(1);
-      SWITCH(L5, 0, L4, useTableSwitch);
-      LABEL(L4); // L4: 'case 0:'
-      IINC(1, 2);
-      GOTO(L6);
-      LABEL(L5); // L5: 'default:'
-      IINC(1, 3);
-      LABEL(L6); // L6: common exit
-      RET(2);
-
-      /* L1: non-exceptional exit from try block */
-      LABEL(L1);
-      JSR(L3);
-      LABEL(L7); // L6 is used in the TRYCATCH below
-      RETURN();
-
-      TRYCATCH(L0, L2, L2);
-      TRYCATCH(L1, L7, L2);
-
-      END(1, 4);
-    }
-
-    {
-      Label L0 = new Label();
-      Label L1 = new Label();
-      Label L2 = new Label();
-      Label L3_1a = new Label();
-      Label L3_1b = new Label();
-      Label L3_2a = new Label();
-      Label L3_2b = new Label();
-      Label L4_1 = new Label();
-      Label L4_2 = new Label();
-      Label L5_1 = new Label();
-      Label L5_2 = new Label();
-      Label L6_1 = new Label();
-      Label L6_2 = new Label();
-      Label L7 = new Label();
-
-      setCurrent(exp);
-      ICONST_0();
-      ISTORE(1);
-      // L0: try/catch block
-      LABEL(L0);
-      IINC(1, 1);
-      GOTO(L1);
-
-      // L2: Exception handler:
-      LABEL(L2);
-      ASTORE(3);
-      ACONST_NULL();
-      GOTO(L3_1a);
-      LABEL(L3_1b); // L3_1b;
-      ALOAD(3);
-      ATHROW();
-
-      // L1: On non-exceptional exit, try block leads here:
-      LABEL(L1);
-      ACONST_NULL();
-      GOTO(L3_2a);
-      LABEL(L3_2b); // L3_2b
-      LABEL(L7); // L7
-      RETURN();
-
-      // L3_1a: First instantiation of subroutine:
-      LABEL(L3_1a);
-      ASTORE(2);
-      ILOAD(1);
-      SWITCH(L5_1, 0, L4_1, useTableSwitch);
-      LABEL(L4_1); // L4_1: 'case 0:'
-      IINC(1, 2);
-      GOTO(L6_1);
-      LABEL(L5_1); // L5_1: 'default:'
-      IINC(1, 3);
-      LABEL(L6_1); // L6_1: common exit
-      GOTO(L3_1b);
-      LABEL(new Label()); // extra label emitted due to impl quirks
-
-      // L3_2a: Second instantiation of subroutine:
-      LABEL(L3_2a);
-      ASTORE(2);
-      ILOAD(1);
-      SWITCH(L5_2, 0, L4_2, useTableSwitch);
-      LABEL(L4_2); // L4_2: 'case 0:'
-      IINC(1, 2);
-      GOTO(L6_2);
-      LABEL(L5_2); // L5_2: 'default:'
-      IINC(1, 3);
-      LABEL(L6_2); // L6_2: common exit
-      GOTO(L3_2b);
-      LABEL(new Label()); // extra label emitted due to impl quirks
-
-      TRYCATCH(L0, L2, L2);
-      TRYCATCH(L1, L7, L2);
-
-      END(1, 4);
-    }
-
-    assertMethodEquals(exp, jsr);
+    assertMethodEquals(expectedMethod, inlinedMethod);
   }
 
   /**
@@ -616,182 +399,140 @@ public class JSRInlinerAdapterTest extends AsmTest {
    *
    * <pre>
    * public void a1() {
-   *     int a = 0;
+   *   int a = 0;
+   *   try {
+   *     a += 1;
+   *   } finally {
    *     try {
-   *         a += 1;
+   *       a += 2;
    *     } finally {
-   *         try {
-   *             a += 2;
-   *         } finally {
-   *             a += 3;
-   *         }
+   *       a += 3;
    *     }
+   *   }
    * }
    * </pre>
    */
   @Test
   public void testSimpleNestedFinally() {
-    {
-      Label L0 = new Label();
-      Label L1 = new Label();
-      Label L2 = new Label();
-      Label L3 = new Label();
-      Label L4 = new Label();
-      Label L5 = new Label();
+    Label l0 = new Label();
+    Label l1 = new Label();
+    Label l2 = new Label();
+    Label l3 = new Label();
+    Label l4 = new Label();
+    Label l5 = new Label();
+    new Generator(inlinedMethod)
+        .ICONST_0()
+        .ISTORE(1)
+        .LABEL(l0) // L0: Body of try block:
+        .IINC(1, 1)
+        .JSR(l3)
+        .GOTO(l1)
+        .LABEL(l2) // L2: First exception handler:
+        .JSR(l3)
+        .ATHROW()
+        .LABEL(l3) // L3: First subroutine:
+        .ASTORE(2)
+        .IINC(1, 2)
+        .JSR(l4)
+        .RET(2)
+        .LABEL(l5) // L5: Second exception handler:
+        .JSR(l4)
+        .ATHROW()
+        .LABEL(l4) // L4: Second subroutine:
+        .ASTORE(3)
+        .IINC(1, 3)
+        .RET(3)
+        .LABEL(l1) // L1: On normal exit, try block jumps here:
+        .RETURN()
+        .TRYCATCH(l0, l2, l2)
+        .TRYCATCH(l3, l5, l5)
+        .END(2, 6);
 
-      setCurrent(jsr);
+    Label L0 = new Label();
+    Label L1 = new Label();
+    Label L2 = new Label();
+    Label L3_1a = new Label();
+    Label L3_1b = new Label();
+    Label L3_2a = new Label();
+    Label L3_2b = new Label();
+    Label L4_1a = new Label();
+    Label L4_1b = new Label();
+    Label L4_2a = new Label();
+    Label L4_2b = new Label();
+    Label L4_3a = new Label();
+    Label L4_3b = new Label();
+    Label L4_4a = new Label();
+    Label L4_4b = new Label();
+    Label L5_1 = new Label();
+    Label L5_2 = new Label();
+    new Generator(expectedMethod)
+        .ICONST_0()
+        .ISTORE(1)
+        .LABEL(L0) // L0: Body of try block:
+        .IINC(1, 1)
+        .ACONST_NULL()
+        .GOTO(L3_1a)
+        .LABEL(L3_1b)
+        .GOTO(L1)
+        .LABEL(L2) // L2: First exception handler:
+        .ACONST_NULL()
+        .GOTO(L3_2a)
+        .LABEL(L3_2b)
+        .ATHROW()
+        .LABEL(L1) // L1: On normal exit, try block jumps here:
+        .RETURN()
+        .LABEL(L3_1a) // L3_1a: First instantiation of first subroutine:
+        .ASTORE(2)
+        .IINC(1, 2)
+        .ACONST_NULL()
+        .GOTO(L4_1a)
+        .LABEL(L4_1b)
+        .GOTO(L3_1b)
+        .LABEL(L5_1)
+        .ACONST_NULL()
+        .GOTO(L4_2a)
+        .LABEL(L4_2b)
+        .ATHROW()
+        .LABEL()
+        .LABEL(L3_2a) // L3_2a: Second instantiation of first subroutine:
+        .ASTORE(2)
+        .IINC(1, 2)
+        .ACONST_NULL()
+        .GOTO(L4_3a)
+        .LABEL(L4_3b)
+        .GOTO(L3_2b)
+        .LABEL(L5_2)
+        .ACONST_NULL()
+        .GOTO(L4_4a)
+        .LABEL(L4_4b)
+        .ATHROW()
+        .LABEL()
+        .LABEL(L4_1a) // L4_1a: First instantiation of second subroutine:
+        .ASTORE(3)
+        .IINC(1, 3)
+        .GOTO(L4_1b)
+        .LABEL()
+        .LABEL(L4_2a) // L4_2a: Second instantiation of second subroutine:
+        .ASTORE(3)
+        .IINC(1, 3)
+        .GOTO(L4_2b)
+        .LABEL()
+        .LABEL(L4_3a) // L4_3a: Third instantiation of second subroutine:
+        .ASTORE(3)
+        .IINC(1, 3)
+        .GOTO(L4_3b)
+        .LABEL()
+        .LABEL(L4_4a) // L4_4a: Fourth instantiation of second subroutine:
+        .ASTORE(3)
+        .IINC(1, 3)
+        .GOTO(L4_4b)
+        .LABEL()
+        .TRYCATCH(L0, L2, L2)
+        .TRYCATCH(L3_1a, L5_1, L5_1)
+        .TRYCATCH(L3_2a, L5_2, L5_2)
+        .END(2, 6);
 
-      ICONST_0();
-      ISTORE(1);
-
-      // L0: Body of try block:
-      LABEL(L0);
-      IINC(1, 1);
-      JSR(L3);
-      GOTO(L1);
-
-      // L2: First exception handler:
-      LABEL(L2);
-      JSR(L3);
-      ATHROW();
-
-      // L3: First subroutine:
-      LABEL(L3);
-      ASTORE(2);
-      IINC(1, 2);
-      JSR(L4);
-      RET(2);
-
-      // L5: Second exception handler:
-      LABEL(L5);
-      JSR(L4);
-      ATHROW();
-
-      // L4: Second subroutine:
-      LABEL(L4);
-      ASTORE(3);
-      IINC(1, 3);
-      RET(3);
-
-      // L1: On normal exit, try block jumps here:
-      LABEL(L1);
-      RETURN();
-
-      TRYCATCH(L0, L2, L2);
-      TRYCATCH(L3, L5, L5);
-
-      END(2, 6);
-    }
-
-    {
-      Label L0 = new Label();
-      Label L1 = new Label();
-      Label L2 = new Label();
-      Label L3_1a = new Label();
-      Label L3_1b = new Label();
-      Label L3_2a = new Label();
-      Label L3_2b = new Label();
-      Label L4_1a = new Label();
-      Label L4_1b = new Label();
-      Label L4_2a = new Label();
-      Label L4_2b = new Label();
-      Label L4_3a = new Label();
-      Label L4_3b = new Label();
-      Label L4_4a = new Label();
-      Label L4_4b = new Label();
-      Label L5_1 = new Label();
-      Label L5_2 = new Label();
-
-      setCurrent(exp);
-
-      ICONST_0();
-      ISTORE(1);
-
-      // L0: Body of try block:
-      LABEL(L0);
-      IINC(1, 1);
-      ACONST_NULL();
-      GOTO(L3_1a);
-      LABEL(L3_1b); // L3_1b
-      GOTO(L1);
-
-      // L2: First exception handler:
-      LABEL(L2);
-      ACONST_NULL();
-      GOTO(L3_2a);
-      LABEL(L3_2b); // L3_2b
-      ATHROW();
-
-      // L1: On normal exit, try block jumps here:
-      LABEL(L1);
-      RETURN();
-
-      // L3_1a: First instantiation of first subroutine:
-      LABEL(L3_1a);
-      ASTORE(2);
-      IINC(1, 2);
-      ACONST_NULL();
-      GOTO(L4_1a);
-      LABEL(L4_1b); // L4_1b
-      GOTO(L3_1b);
-      LABEL(L5_1); // L5_1
-      ACONST_NULL();
-      GOTO(L4_2a);
-      LABEL(L4_2b); // L4_2b
-      ATHROW();
-      LABEL(new Label()); // extra label emitted due to impl quirks
-
-      // L3_2a: Second instantiation of first subroutine:
-      LABEL(L3_2a);
-      ASTORE(2);
-      IINC(1, 2);
-      ACONST_NULL();
-      GOTO(L4_3a);
-      LABEL(L4_3b); // L4_3b
-      GOTO(L3_2b);
-      LABEL(L5_2); // L5_2
-      ACONST_NULL();
-      GOTO(L4_4a);
-      LABEL(L4_4b); // L4_4b
-      ATHROW();
-      LABEL(new Label()); // extra label emitted due to impl quirks
-
-      // L4_1a: First instantiation of second subroutine:
-      LABEL(L4_1a);
-      ASTORE(3);
-      IINC(1, 3);
-      GOTO(L4_1b);
-      LABEL(new Label()); // extra label emitted due to impl quirks
-
-      // L4_2a: Second instantiation of second subroutine:
-      LABEL(L4_2a);
-      ASTORE(3);
-      IINC(1, 3);
-      GOTO(L4_2b);
-      LABEL(new Label()); // extra label emitted due to impl quirks
-
-      // L4_3a: Third instantiation of second subroutine:
-      LABEL(L4_3a);
-      ASTORE(3);
-      IINC(1, 3);
-      GOTO(L4_3b);
-      LABEL(new Label()); // extra label emitted due to impl quirks
-
-      // L4_4a: Fourth instantiation of second subroutine:
-      LABEL(L4_4a);
-      ASTORE(3);
-      IINC(1, 3);
-      GOTO(L4_4b);
-      LABEL(new Label()); // extra label emitted due to impl quirks
-
-      TRYCATCH(L0, L2, L2);
-      TRYCATCH(L3_1a, L5_1, L5_1);
-      TRYCATCH(L3_2a, L5_2, L5_2);
-
-      END(2, 6);
-    }
-
-    assertMethodEquals(exp, jsr);
+    assertMethodEquals(expectedMethod, inlinedMethod);
   }
 
   /**
@@ -803,122 +544,92 @@ public class JSRInlinerAdapterTest extends AsmTest {
    *
    * <pre>
    * public void a1() {
-   *     int a = 0;
-   *     while (true) {
-   *         try {
-   *             a += 1;
-   *         } finally {
-   *             a += 2;
-   *             break;
-   *         }
+   *   int a = 0;
+   *   while (true) {
+   *     try {
+   *       a += 1;
+   *     } finally {
+   *       a += 2;
+   *       break;
    *     }
+   *   }
    * }
    * </pre>
    */
   @Test
   public void testSubroutineWithNoRet() {
-    {
-      Label L0 = new Label();
-      Label L1 = new Label();
-      Label L2 = new Label();
-      Label L3 = new Label();
-      Label L4 = new Label();
+    Label l0 = new Label();
+    Label l1 = new Label();
+    Label l2 = new Label();
+    Label l3 = new Label();
+    Label l4 = new Label();
+    new Generator(inlinedMethod)
+        .ICONST_0()
+        .ISTORE(1)
+        .LABEL(l0) // L0: while loop header/try block.
+        .IINC(1, 1)
+        .JSR(l1)
+        .GOTO(l2)
+        .LABEL(l3) // L3: implicit catch block.
+        .ASTORE(2)
+        .JSR(l1)
+        .ALOAD(2)
+        .ATHROW()
+        .LABEL(l1) // L1: subroutine ...
+        .ASTORE(3)
+        .IINC(1, 2)
+        .GOTO(l4) // ... note that it does not return!
+        .LABEL(l2) // L2: end of the loop... goes back to the top!
+        .GOTO(l0)
+        .LABEL(l4) // L4:
+        .RETURN()
+        .TRYCATCH(l0, l3, l3)
+        .END(1, 4);
 
-      setCurrent(jsr);
-      ICONST_0();
-      ISTORE(1);
+    Label L0 = new Label();
+    Label L1_1a = new Label();
+    Label L1_1b = new Label();
+    Label L1_2a = new Label();
+    Label L1_2b = new Label();
+    Label L2 = new Label();
+    Label L3 = new Label();
+    Label L4_1 = new Label();
+    Label L4_2 = new Label();
+    new Generator(expectedMethod)
+        .ICONST_0()
+        .ISTORE(1)
+        .LABEL(L0) // L0: while loop header/try block.
+        .IINC(1, 1)
+        .ACONST_NULL()
+        .GOTO(L1_1a)
+        .LABEL(L1_1b)
+        .GOTO(L2)
+        .LABEL(L3) // L3: implicit catch block.
+        .ASTORE(2)
+        .ACONST_NULL()
+        .GOTO(L1_2a)
+        .LABEL(L1_2b)
+        .ALOAD(2)
+        .ATHROW()
+        .LABEL(L2) // L2: end of the loop... goes back to the top!
+        .GOTO(L0)
+        .LABEL()
+        .LABEL(L1_1a) // L1_1a: first instantiation of subroutine ...
+        .ASTORE(3)
+        .IINC(1, 2)
+        .GOTO(L4_1) // ...note that it does not return!
+        .LABEL(L4_1)
+        .RETURN()
+        .LABEL(L1_2a) // L1_2a: second instantiation of subroutine ...
+        .ASTORE(3)
+        .IINC(1, 2)
+        .GOTO(L4_2) // ...note that it does not return!
+        .LABEL(L4_2)
+        .RETURN()
+        .TRYCATCH(L0, L3, L3)
+        .END(1, 4);
 
-      // L0: while loop header/try block
-      LABEL(L0);
-      IINC(1, 1);
-      JSR(L1);
-      GOTO(L2);
-
-      // L3: implicit catch block
-      LABEL(L3);
-      ASTORE(2);
-      JSR(L1);
-      ALOAD(2);
-      ATHROW();
-
-      // L1: subroutine ...
-      LABEL(L1);
-      ASTORE(3);
-      IINC(1, 2);
-      GOTO(L4); // ...not that it does not return!
-
-      // L2: end of the loop... goes back to the top!
-      LABEL(L2);
-      GOTO(L0);
-
-      // L4:
-      LABEL(L4);
-      RETURN();
-
-      TRYCATCH(L0, L3, L3);
-
-      END(1, 4);
-    }
-
-    {
-      Label L0 = new Label();
-      Label L1_1a = new Label();
-      Label L1_1b = new Label();
-      Label L1_2a = new Label();
-      Label L1_2b = new Label();
-      Label L2 = new Label();
-      Label L3 = new Label();
-      Label L4_1 = new Label();
-      Label L4_2 = new Label();
-
-      setCurrent(exp);
-      ICONST_0();
-      ISTORE(1);
-
-      // L0: while loop header/try block
-      LABEL(L0);
-      IINC(1, 1);
-      ACONST_NULL();
-      GOTO(L1_1a);
-      LABEL(L1_1b); // L1_1b
-      GOTO(L2);
-
-      // L3: implicit catch block
-      LABEL(L3);
-      ASTORE(2);
-      ACONST_NULL();
-      GOTO(L1_2a);
-      LABEL(L1_2b); // L1_2b
-      ALOAD(2);
-      ATHROW();
-
-      // L2: end of the loop... goes back to the top!
-      LABEL(L2);
-      GOTO(L0);
-      LABEL(new Label()); // extra label emitted due to impl quirks
-
-      // L1_1a: first instantiation of subroutine ...
-      LABEL(L1_1a);
-      ASTORE(3);
-      IINC(1, 2);
-      GOTO(L4_1); // ...not that it does not return!
-      LABEL(L4_1);
-      RETURN();
-
-      // L1_2a: second instantiation of subroutine ...
-      LABEL(L1_2a);
-      ASTORE(3);
-      IINC(1, 2);
-      GOTO(L4_2); // ...not that it does not return!
-      LABEL(L4_2);
-      RETURN();
-
-      TRYCATCH(L0, L3, L3);
-
-      END(1, 4);
-    }
-
-    assertMethodEquals(exp, jsr);
+    assertMethodEquals(expectedMethod, inlinedMethod);
   }
 
   /**
@@ -938,49 +649,39 @@ public class JSRInlinerAdapterTest extends AsmTest {
    */
   @Test
   public void testSubroutineWithNoRet2() {
-    {
-      Label L0 = new Label();
-      Label L1 = new Label();
+    Label l0 = new Label();
+    Label l1 = new Label();
+    new Generator(inlinedMethod)
+        .JSR(l0)
+        .GOTO(l1)
+        .LABEL(l0)
+        .ASTORE(0)
+        .RETURN()
+        .LABEL(l1)
+        .ACONST_NULL()
+        .END(1, 1);
 
-      setCurrent(jsr);
-      JSR(L0);
-      GOTO(L1);
-      LABEL(L0);
-      ASTORE(0);
-      RETURN();
-      LABEL(L1);
-      ACONST_NULL();
-      END(1, 1);
-    }
+    Label L0_1a = new Label();
+    Label L0_1b = new Label();
+    Label L1 = new Label();
+    new Generator(expectedMethod)
+        .ACONST_NULL()
+        .GOTO(L0_1a)
+        .LABEL(L0_1b)
+        .GOTO(L1)
+        .LABEL(L1)
+        .ACONST_NULL()
+        .LABEL(L0_1a) // L0_1a: First instantiation of subroutine:
+        .ASTORE(0)
+        .RETURN()
+        .LABEL()
+        .END(1, 1);
 
-    {
-      Label L0_1a = new Label();
-      Label L0_1b = new Label();
-      Label L1 = new Label();
-
-      setCurrent(exp);
-
-      ACONST_NULL();
-      GOTO(L0_1a);
-      LABEL(L0_1b);
-      GOTO(L1);
-      LABEL(L1);
-      ACONST_NULL();
-
-      // L0_1a: First instantiation of subroutine:
-      LABEL(L0_1a);
-      ASTORE(0);
-      RETURN();
-      LABEL(new Label()); // extra label emitted due to impl quirks
-
-      END(1, 1);
-    }
-
-    assertMethodEquals(exp, jsr);
+    assertMethodEquals(expectedMethod, inlinedMethod);
   }
 
   /**
-   * This tests a subroutine which has no ret statement, but instead exits implicitely by branching
+   * This tests a subroutine which has no ret statement, but instead exits implicitly by branching
    * to code which is not part of the subroutine. (Sadly, this is legal)
    *
    * <p>We structure this as a try/finally in a loop with a break in the finally. The loop is not
@@ -989,135 +690,99 @@ public class JSRInlinerAdapterTest extends AsmTest {
    *
    * <pre>
    * public void a1() {
-   *     int a = 0;
-   *     while (null == null) {
-   *         try {
-   *             a += 1;
-   *         } finally {
-   *             a += 2;
-   *             break;
-   *         }
+   *   int a = 0;
+   *   while (null == null) {
+   *     try {
+   *       a += 1;
+   *     } finally {
+   *       a += 2;
+   *       break;
    *     }
+   *   }
    * }
    * </pre>
    */
   @Test
   public void testImplicitExit() {
-    {
-      Label L0 = new Label();
-      Label L1 = new Label();
-      Label L2 = new Label();
-      Label L3 = new Label();
-      Label L4 = new Label();
-      Label L5 = new Label();
+    Label l0 = new Label();
+    Label l1 = new Label();
+    Label l2 = new Label();
+    Label l3 = new Label();
+    Label l4 = new Label();
+    Label l5 = new Label();
+    new Generator(inlinedMethod)
+        .ICONST_0()
+        .ISTORE(1)
+        .LABEL(l5) // L5: while loop header.
+        .ACONST_NULL()
+        .IFNONNULL(l4)
+        .LABEL(l0) // L0: try block.
+        .IINC(1, 1)
+        .JSR(l1)
+        .GOTO(l2)
+        .LABEL(l3) // L3: implicit catch block.
+        .ASTORE(2)
+        .JSR(l1)
+        .ALOAD(2)
+        .ATHROW()
+        .LABEL(l1) // L1: subroutine ...
+        .ASTORE(3)
+        .IINC(1, 2)
+        .GOTO(l4) // ... note that it does not return!
+        .LABEL(l2) // L2: end of the loop... goes back to the top!
+        .GOTO(l0)
+        .LABEL(l4) // L4:
+        .RETURN()
+        .TRYCATCH(l0, l3, l3)
+        .END(1, 4);
 
-      setCurrent(jsr);
-      ICONST_0();
-      ISTORE(1);
+    Label L0 = new Label();
+    Label L1_1a = new Label();
+    Label L1_1b = new Label();
+    Label L1_2a = new Label();
+    Label L1_2b = new Label();
+    Label L2 = new Label();
+    Label L3 = new Label();
+    Label L4 = new Label();
+    Label L5 = new Label();
+    new Generator(expectedMethod)
+        .ICONST_0()
+        .ISTORE(1)
+        .LABEL(L5) // L5: while loop header.
+        .ACONST_NULL()
+        .IFNONNULL(L4)
+        .LABEL(L0) // L0: while loop header/try block.
+        .IINC(1, 1)
+        .ACONST_NULL()
+        .GOTO(L1_1a)
+        .LABEL(L1_1b)
+        .GOTO(L2)
+        .LABEL(L3) // L3: implicit catch block.
+        .ASTORE(2)
+        .ACONST_NULL()
+        .GOTO(L1_2a)
+        .LABEL(L1_2b)
+        .ALOAD(2)
+        .ATHROW()
+        .LABEL(L2) // L2: end of the loop... goes back to the top!
+        .GOTO(L0)
+        .LABEL(L4) // L4: exit, not part of subroutine.
+        // Note that the two subroutine instantiations branch here.
+        .RETURN()
+        .LABEL(L1_1a) // L1_1a: first instantiation of subroutine ...
+        .ASTORE(3)
+        .IINC(1, 2)
+        .GOTO(L4) // ... note that it does not return!
+        .LABEL()
+        .LABEL(L1_2a) // L1_2a: second instantiation of subroutine ...
+        .ASTORE(3)
+        .IINC(1, 2)
+        .GOTO(L4) // ... note that it does not return!
+        .LABEL()
+        .TRYCATCH(L0, L3, L3)
+        .END(1, 4);
 
-      // L5: while loop header
-      LABEL(L5);
-      ACONST_NULL();
-      IFNONNULL(L4);
-
-      // L0: try block
-      LABEL(L0);
-      IINC(1, 1);
-      JSR(L1);
-      GOTO(L2);
-
-      // L3: implicit catch block
-      LABEL(L3);
-      ASTORE(2);
-      JSR(L1);
-      ALOAD(2);
-      ATHROW();
-
-      // L1: subroutine ...
-      LABEL(L1);
-      ASTORE(3);
-      IINC(1, 2);
-      GOTO(L4); // ...not that it does not return!
-
-      // L2: end of the loop... goes back to the top!
-      LABEL(L2);
-      GOTO(L0);
-
-      // L4:
-      LABEL(L4);
-      RETURN();
-
-      TRYCATCH(L0, L3, L3);
-
-      END(1, 4);
-    }
-
-    {
-      Label L0 = new Label();
-      Label L1_1a = new Label();
-      Label L1_1b = new Label();
-      Label L1_2a = new Label();
-      Label L1_2b = new Label();
-      Label L2 = new Label();
-      Label L3 = new Label();
-      Label L4 = new Label();
-      Label L5 = new Label();
-
-      setCurrent(exp);
-      ICONST_0();
-      ISTORE(1);
-
-      // L5: while loop header
-      LABEL(L5);
-      ACONST_NULL();
-      IFNONNULL(L4);
-
-      // L0: while loop header/try block
-      LABEL(L0);
-      IINC(1, 1);
-      ACONST_NULL();
-      GOTO(L1_1a);
-      LABEL(L1_1b); // L1_1b
-      GOTO(L2);
-
-      // L3: implicit catch block
-      LABEL(L3);
-      ASTORE(2);
-      ACONST_NULL();
-      GOTO(L1_2a);
-      LABEL(L1_2b); // L1_2b
-      ALOAD(2);
-      ATHROW();
-
-      // L2: end of the loop... goes back to the top!
-      LABEL(L2);
-      GOTO(L0);
-
-      // L4: exit, not part of subroutine
-      // Note that the two subroutine instantiations branch here
-      LABEL(L4);
-      RETURN();
-
-      // L1_1a: first instantiation of subroutine ...
-      LABEL(L1_1a);
-      ASTORE(3);
-      IINC(1, 2);
-      GOTO(L4); // ...note that it does not return!
-      LABEL(new Label()); // extra label emitted due to impl quirks
-
-      // L1_2a: second instantiation of subroutine ...
-      LABEL(L1_2a);
-      ASTORE(3);
-      IINC(1, 2);
-      GOTO(L4); // ...note that it does not return!
-      LABEL(new Label()); // extra label emitted due to impl quirks
-
-      TRYCATCH(L0, L3, L3);
-
-      END(1, 4);
-    }
-
-    assertMethodEquals(exp, jsr);
+    assertMethodEquals(expectedMethod, inlinedMethod);
   }
 
   /**
@@ -1126,19 +791,20 @@ public class JSRInlinerAdapterTest extends AsmTest {
    *
    * <pre>
    * void m(boolean b) {
-   *     try {
+   *   try {
+   *     return;
+   *   } finally {
+   *     while (b) {
+   *       try {
    *         return;
-   *     } finally {
-   *         while (b) {
-   *             try {
-   *                 return;
-   *             } finally {
-   *                 // NOTE --- this break avoids the second return above (weird)
-   *                 if (b)
-   *                     break;
-   *             }
+   *       } finally {
+   *         // NOTE --- this break avoids the second return above (weird)
+   *         if (b) {
+   *           break;
    *         }
+   *       }
    *     }
+   *   }
    * }
    * </pre>
    *
@@ -1147,240 +813,169 @@ public class JSRInlinerAdapterTest extends AsmTest {
    */
   @Test
   public void testImplicitExitToAnotherSubroutine() {
-    {
-      Label T1 = new Label();
-      Label C1 = new Label();
-      Label S1 = new Label();
-      Label L = new Label();
-      Label C2 = new Label();
-      Label S2 = new Label();
-      Label W = new Label();
-      Label X = new Label();
+    // Variable numbers.
+    int b = 1;
+    int e1 = 2;
+    int e2 = 3;
+    int r1 = 4;
+    int r2 = 5;
 
-      // variable numbers:
-      int b = 1;
-      int e1 = 2;
-      int e2 = 3;
-      int r1 = 4;
-      int r2 = 5;
+    Label t1 = new Label();
+    Label c1 = new Label();
+    Label s1 = new Label();
+    Label l = new Label();
+    Label c2 = new Label();
+    Label s2 = new Label();
+    Label w = new Label();
+    Label x = new Label();
+    new Generator(inlinedMethod)
+        .ICONST_0()
+        .ISTORE(1)
+        .LABEL(t1) // T1: first try:
+        .JSR(s1)
+        .RETURN()
+        .LABEL(c1) // C1: exception handler for first try.
+        .ASTORE(e1)
+        .JSR(s1)
+        .ALOAD(e1)
+        .ATHROW()
+        .LABEL(s1) // S1: first finally handler.
+        .ASTORE(r1)
+        .GOTO(w)
+        .LABEL(l) // L: body of while loop, also second try.
+        .JSR(s2)
+        .RETURN()
+        .LABEL(c2) // C2: exception handler for second try.
+        .ASTORE(e2)
+        .JSR(s2)
+        .ALOAD(e2)
+        .ATHROW()
+        .LABEL(s2) // S2: second finally handler.
+        .ASTORE(r2)
+        .ILOAD(b)
+        .IFNE(x)
+        .RET(r2)
+        .LABEL(w) // W: test for the while loop.
+        .ILOAD(b)
+        .IFNE(l) // Falls through to X.
+        .LABEL(x) // X: exit from finally{} block
+        .RET(r1)
+        .TRYCATCH(t1, c1, c1)
+        .TRYCATCH(l, c2, c2)
+        .END(1, 6);
 
-      setCurrent(jsr);
+    Label T1 = new Label();
+    Label C1 = new Label();
+    Label S1_1a = new Label();
+    Label S1_1b = new Label();
+    Label S1_2a = new Label();
+    Label S1_2b = new Label();
+    Label L_1 = new Label();
+    Label L_2 = new Label();
+    Label C2_1 = new Label();
+    Label C2_2 = new Label();
+    Label S2_1_1a = new Label();
+    Label S2_1_1b = new Label();
+    Label S2_1_2a = new Label();
+    Label S2_1_2b = new Label();
+    Label S2_2_1a = new Label();
+    Label S2_2_1b = new Label();
+    Label S2_2_2a = new Label();
+    Label S2_2_2b = new Label();
+    Label W_1 = new Label();
+    Label W_2 = new Label();
+    Label X_1 = new Label();
+    Label X_2 = new Label();
+    new Generator(expectedMethod)
+        // --- Main Subroutine ---
+        .ICONST_0()
+        .ISTORE(1)
+        .LABEL(T1) // T1: first try:
+        .ACONST_NULL()
+        .GOTO(S1_1a)
+        .LABEL(S1_1b)
+        .RETURN()
+        .LABEL(C1) // C1: exception handler for first try.
+        .ASTORE(e1)
+        .ACONST_NULL()
+        .GOTO(S1_2a)
+        .LABEL(S1_2b)
+        .ALOAD(e1)
+        .ATHROW()
+        .LABEL()
+        // --- First instantiation of first subroutine ---
+        .LABEL(S1_1a) // S1: first finally handler.
+        .ASTORE(r1)
+        .GOTO(W_1)
+        .LABEL(L_1) // L_1: body of while loop, also second try.
+        .ACONST_NULL()
+        .GOTO(S2_1_1a)
+        .LABEL(S2_1_1b)
+        .RETURN()
+        .LABEL(C2_1) // C2_1: exception handler for second try.
+        .ASTORE(e2)
+        .ACONST_NULL()
+        .GOTO(S2_1_2a)
+        .LABEL(S2_1_2b)
+        .ALOAD(e2)
+        .ATHROW()
+        .LABEL(W_1) // W_1: test for the while loop.
+        .ILOAD(b)
+        .IFNE(L_1) // Falls through to X_1.
+        .LABEL(X_1) // X_1: exit from finally{} block.
+        .GOTO(S1_1b)
+        // --- Second instantiation of first subroutine ---
+        .LABEL(S1_2a) // S1: first finally handler.
+        .ASTORE(r1)
+        .GOTO(W_2)
+        .LABEL(L_2) // L_2: body of while loop, also second try.
+        .ACONST_NULL()
+        .GOTO(S2_2_1a)
+        .LABEL(S2_2_1b)
+        .RETURN()
+        .LABEL(C2_2) // C2_2: exception handler for second try.
+        .ASTORE(e2)
+        .ACONST_NULL()
+        .GOTO(S2_2_2a)
+        .LABEL(S2_2_2b)
+        .ALOAD(e2)
+        .ATHROW()
+        .LABEL(W_2) // W_2: test for the while loop.
+        .ILOAD(b)
+        .IFNE(L_2) // Falls through to X_2.
+        .LABEL(X_2) // X_2: exit from finally{} block.
+        .GOTO(S1_2b)
+        // --- Second subroutine's 4 instantiations ---
+        .LABEL(S2_1_1a) // S2_1_1a:
+        .ASTORE(r2)
+        .ILOAD(b)
+        .IFNE(X_1)
+        .GOTO(S2_1_1b)
+        .LABEL()
+        .LABEL(S2_1_2a) // S2_1_2a:
+        .ASTORE(r2)
+        .ILOAD(b)
+        .IFNE(X_1)
+        .GOTO(S2_1_2b)
+        .LABEL()
+        .LABEL(S2_2_1a)
+        .ASTORE(r2)
+        .ILOAD(b)
+        .IFNE(X_2)
+        .GOTO(S2_2_1b)
+        .LABEL()
+        .LABEL(S2_2_2a)
+        .ASTORE(r2)
+        .ILOAD(b)
+        .IFNE(X_2)
+        .GOTO(S2_2_2b)
+        .LABEL()
+        .TRYCATCH(T1, C1, C1)
+        .TRYCATCH(L_1, C2_1, C2_1)
+        .TRYCATCH(L_2, C2_2, C2_2)
+        .END(1, 6);
 
-      ICONST_0();
-      ISTORE(1);
-
-      // T1: first try:
-      LABEL(T1);
-      JSR(S1);
-      RETURN();
-
-      // C1: exception handler for first try
-      LABEL(C1);
-      ASTORE(e1);
-      JSR(S1);
-      ALOAD(e1);
-      ATHROW();
-
-      // S1: first finally handler
-      LABEL(S1);
-      ASTORE(r1);
-      GOTO(W);
-
-      // L: body of while loop, also second try
-      LABEL(L);
-      JSR(S2);
-      RETURN();
-
-      // C2: exception handler for second try
-      LABEL(C2);
-      ASTORE(e2);
-      JSR(S2);
-      ALOAD(e2);
-      ATHROW();
-
-      // S2: second finally handler
-      LABEL(S2);
-      ASTORE(r2);
-      ILOAD(b);
-      IFNE(X);
-      RET(r2);
-
-      // W: test for the while loop
-      LABEL(W);
-      ILOAD(b);
-      IFNE(L); // falls through to X
-
-      // X: exit from finally{} block
-      LABEL(X);
-      RET(r1);
-
-      TRYCATCH(T1, C1, C1);
-      TRYCATCH(L, C2, C2);
-
-      END(1, 6);
-    }
-
-    {
-      Label T1 = new Label();
-      Label C1 = new Label();
-      Label S1_1a = new Label();
-      Label S1_1b = new Label();
-      Label S1_2a = new Label();
-      Label S1_2b = new Label();
-      Label L_1 = new Label();
-      Label L_2 = new Label();
-      Label C2_1 = new Label();
-      Label C2_2 = new Label();
-      Label S2_1_1a = new Label();
-      Label S2_1_1b = new Label();
-      Label S2_1_2a = new Label();
-      Label S2_1_2b = new Label();
-      Label S2_2_1a = new Label();
-      Label S2_2_1b = new Label();
-      Label S2_2_2a = new Label();
-      Label S2_2_2b = new Label();
-      Label W_1 = new Label();
-      Label W_2 = new Label();
-      Label X_1 = new Label();
-      Label X_2 = new Label();
-
-      // variable numbers:
-      int b = 1;
-      int e1 = 2;
-      int e2 = 3;
-      int r1 = 4;
-      int r2 = 5;
-
-      setCurrent(exp);
-
-      // --- Main Subroutine ---
-
-      ICONST_0();
-      ISTORE(1);
-
-      // T1: first try:
-      LABEL(T1);
-      ACONST_NULL();
-      GOTO(S1_1a);
-      LABEL(S1_1b);
-      RETURN();
-
-      // C1: exception handler for first try
-      LABEL(C1);
-      ASTORE(e1);
-      ACONST_NULL();
-      GOTO(S1_2a);
-      LABEL(S1_2b);
-      ALOAD(e1);
-      ATHROW();
-      LABEL(new Label()); // extra label emitted due to impl quirks
-
-      // --- First instantiation of first subroutine ---
-
-      // S1: first finally handler
-      LABEL(S1_1a);
-      ASTORE(r1);
-      GOTO(W_1);
-
-      // L_1: body of while loop, also second try
-      LABEL(L_1);
-      ACONST_NULL();
-      GOTO(S2_1_1a);
-      LABEL(S2_1_1b);
-      RETURN();
-
-      // C2_1: exception handler for second try
-      LABEL(C2_1);
-      ASTORE(e2);
-      ACONST_NULL();
-      GOTO(S2_1_2a);
-      LABEL(S2_1_2b);
-      ALOAD(e2);
-      ATHROW();
-
-      // W_1: test for the while loop
-      LABEL(W_1);
-      ILOAD(b);
-      IFNE(L_1); // falls through to X_1
-
-      // X_1: exit from finally{} block
-      LABEL(X_1);
-      GOTO(S1_1b);
-
-      // --- Second instantiation of first subroutine ---
-
-      // S1: first finally handler
-      LABEL(S1_2a);
-      ASTORE(r1);
-      GOTO(W_2);
-
-      // L_2: body of while loop, also second try
-      LABEL(L_2);
-      ACONST_NULL();
-      GOTO(S2_2_1a);
-      LABEL(S2_2_1b);
-      RETURN();
-
-      // C2_2: exception handler for second try
-      LABEL(C2_2);
-      ASTORE(e2);
-      ACONST_NULL();
-      GOTO(S2_2_2a);
-      LABEL(S2_2_2b);
-      ALOAD(e2);
-      ATHROW();
-
-      // W_2: test for the while loop
-      LABEL(W_2);
-      ILOAD(b);
-      IFNE(L_2); // falls through to X_2
-
-      // X_2: exit from finally{} block
-      LABEL(X_2);
-      GOTO(S1_2b);
-
-      // --- Second subroutine's 4 instantiations ---
-
-      // S2_1_1a:
-      LABEL(S2_1_1a);
-      ASTORE(r2);
-      ILOAD(b);
-      IFNE(X_1);
-      GOTO(S2_1_1b);
-      LABEL(new Label()); // extra label emitted due to impl quirks
-
-      // S2_1_2a:
-      LABEL(S2_1_2a);
-      ASTORE(r2);
-      ILOAD(b);
-      IFNE(X_1);
-      GOTO(S2_1_2b);
-      LABEL(new Label()); // extra label emitted due to impl quirks
-
-      // S2_2_1a:
-      LABEL(S2_2_1a);
-      ASTORE(r2);
-      ILOAD(b);
-      IFNE(X_2);
-      GOTO(S2_2_1b);
-      LABEL(new Label()); // extra label emitted due to impl quirks
-
-      // S2_2_2a:
-      LABEL(S2_2_2a);
-      ASTORE(r2);
-      ILOAD(b);
-      IFNE(X_2);
-      GOTO(S2_2_2b);
-      LABEL(new Label()); // extra label emitted due to impl quirks
-
-      TRYCATCH(T1, C1, C1);
-      TRYCATCH(L_1, C2_1, C2_1); // duplicated try/finally for each...
-      TRYCATCH(L_2, C2_2, C2_2); // ...instantiation of first sub
-
-      END(1, 6);
-    }
-
-    assertMethodEquals(exp, jsr);
+    assertMethodEquals(expectedMethod, inlinedMethod);
   }
 
   /**
@@ -1392,105 +987,81 @@ public class JSRInlinerAdapterTest extends AsmTest {
    */
   @Test
   public void testCommonCodeWhichMustBeDuplicated() {
-    {
-      Label L1 = new Label();
-      Label L2 = new Label();
-      Label L3 = new Label();
+    Label l1 = new Label();
+    Label l2 = new Label();
+    Label l3 = new Label();
+    new Generator(inlinedMethod)
+        .ICONST_0()
+        .ISTORE(1)
+        // Invoke the two subroutines, each twice:
+        .JSR(l1)
+        .JSR(l1)
+        .JSR(l2)
+        .JSR(l2)
+        .RETURN()
+        .LABEL(l1) // L1: subroutine 1.
+        .IINC(1, 1)
+        .GOTO(l3) // ... note that it does not return!
+        .LABEL(l2) // L2: subroutine 2.
+        .IINC(1, 2)
+        .GOTO(l3) // ... note that it does not return!
+        .LABEL(l3) // L3: common code to both subroutines: exit method.
+        .RETURN()
+        .END(1, 2);
 
-      setCurrent(jsr);
-      ICONST_0();
-      ISTORE(1);
+    Label L1_1a = new Label();
+    Label L1_1b = new Label();
+    Label L1_2a = new Label();
+    Label L1_2b = new Label();
+    Label L2_1a = new Label();
+    Label L2_1b = new Label();
+    Label L2_2a = new Label();
+    Label L2_2b = new Label();
+    Label L3_1 = new Label();
+    Label L3_2 = new Label();
+    Label L3_3 = new Label();
+    Label L3_4 = new Label();
+    new Generator(expectedMethod)
+        .ICONST_0()
+        .ISTORE(1)
+        // Invoke the two subroutines, each twice:
+        .ACONST_NULL()
+        .GOTO(L1_1a)
+        .LABEL(L1_1b)
+        .ACONST_NULL()
+        .GOTO(L1_2a)
+        .LABEL(L1_2b)
+        .ACONST_NULL()
+        .GOTO(L2_1a)
+        .LABEL(L2_1b)
+        .ACONST_NULL()
+        .GOTO(L2_2a)
+        .LABEL(L2_2b)
+        .RETURN()
+        .LABEL()
+        .LABEL(L1_1a) // L1_1a: instantiation 1 of subroutine 1.
+        .IINC(1, 1)
+        .GOTO(L3_1) // ... note that it does not return!
+        .LABEL(L3_1)
+        .RETURN()
+        .LABEL(L1_2a) // L1_2a: instantiation 2 of subroutine 1.
+        .IINC(1, 1)
+        .GOTO(L3_2) // ... note that it does not return!
+        .LABEL(L3_2)
+        .RETURN()
+        .LABEL(L2_1a) // L2_1a: instantiation 1 of subroutine 2.
+        .IINC(1, 2)
+        .GOTO(L3_3) // ...note that it does not return!
+        .LABEL(L3_3)
+        .RETURN()
+        .LABEL(L2_2a) // L2_2a: instantiation 2 of subroutine 2.
+        .IINC(1, 2)
+        .GOTO(L3_4) // ... note that it does not return!
+        .LABEL(L3_4)
+        .RETURN()
+        .END(1, 2);
 
-      // Invoke the two subroutines, each twice:
-      JSR(L1);
-      JSR(L1);
-      JSR(L2);
-      JSR(L2);
-      RETURN();
-
-      // L1: subroutine 1
-      LABEL(L1);
-      IINC(1, 1);
-      GOTO(L3); // ...note that it does not return!
-
-      // L2: subroutine 2
-      LABEL(L2);
-      IINC(1, 2);
-      GOTO(L3); // ...note that it does not return!
-
-      // L3: common code to both subroutines: exit method
-      LABEL(L3);
-      RETURN();
-
-      END(1, 2);
-    }
-
-    {
-      Label L1_1a = new Label();
-      Label L1_1b = new Label();
-      Label L1_2a = new Label();
-      Label L1_2b = new Label();
-      Label L2_1a = new Label();
-      Label L2_1b = new Label();
-      Label L2_2a = new Label();
-      Label L2_2b = new Label();
-      Label L3_1 = new Label();
-      Label L3_2 = new Label();
-      Label L3_3 = new Label();
-      Label L3_4 = new Label();
-
-      setCurrent(exp);
-      ICONST_0();
-      ISTORE(1);
-
-      // Invoke the two subroutines, each twice:
-      ACONST_NULL();
-      GOTO(L1_1a);
-      LABEL(L1_1b);
-      ACONST_NULL();
-      GOTO(L1_2a);
-      LABEL(L1_2b);
-      ACONST_NULL();
-      GOTO(L2_1a);
-      LABEL(L2_1b);
-      ACONST_NULL();
-      GOTO(L2_2a);
-      LABEL(L2_2b);
-      RETURN();
-      LABEL(new Label()); // extra label emitted due to impl quirks
-
-      // L1_1a: instantiation 1 of subroutine 1
-      LABEL(L1_1a);
-      IINC(1, 1);
-      GOTO(L3_1); // ...note that it does not return!
-      LABEL(L3_1);
-      RETURN();
-
-      // L1_2a: instantiation 2 of subroutine 1
-      LABEL(L1_2a);
-      IINC(1, 1);
-      GOTO(L3_2); // ...note that it does not return!
-      LABEL(L3_2);
-      RETURN();
-
-      // L2_1a: instantiation 1 of subroutine 2
-      LABEL(L2_1a);
-      IINC(1, 2);
-      GOTO(L3_3); // ...note that it does not return!
-      LABEL(L3_3);
-      RETURN();
-
-      // L2_2a: instantiation 2 of subroutine 2
-      LABEL(L2_2a);
-      IINC(1, 2);
-      GOTO(L3_4); // ...note that it does not return!
-      LABEL(L3_4);
-      RETURN();
-
-      END(1, 2);
-    }
-
-    assertMethodEquals(exp, jsr);
+    assertMethodEquals(expectedMethod, inlinedMethod);
   }
 
   /**
@@ -1501,96 +1072,74 @@ public class JSRInlinerAdapterTest extends AsmTest {
    */
   @Test
   public void testInterleavedCode() {
-    {
-      Label L1 = new Label();
-      Label L2 = new Label();
-      Label L3 = new Label();
-      Label L4 = new Label();
+    Label l1 = new Label();
+    Label l2 = new Label();
+    Label l3 = new Label();
+    Label l4 = new Label();
+    new Generator(inlinedMethod)
+        .ICONST_0()
+        .ISTORE(1)
+        // Invoke the subroutine, each twice:
+        .JSR(l1)
+        .GOTO(l2)
+        .LABEL(l1) // L1: subroutine 1.
+        .ASTORE(2)
+        .IINC(1, 1)
+        .GOTO(l3)
+        .LABEL(l2) // L2: second part of main subroutine.
+        .IINC(1, 2)
+        .GOTO(l4)
+        .LABEL(l3) // L3: second part of subroutine 1.
+        .IINC(1, 4)
+        .RET(2)
+        .LABEL(l4) // L4: third part of main subroutine.
+        .JSR(l1)
+        .RETURN()
+        .END(1, 3);
 
-      setCurrent(jsr);
-      ICONST_0();
-      ISTORE(1);
+    Label L1_1a = new Label();
+    Label L1_1b = new Label();
+    Label L1_2a = new Label();
+    Label L1_2b = new Label();
+    Label L2 = new Label();
+    Label L3_1 = new Label();
+    Label L3_2 = new Label();
+    Label L4 = new Label();
+    new Generator(expectedMethod)
+        // Main routine:
+        .ICONST_0()
+        .ISTORE(1)
+        .ACONST_NULL()
+        .GOTO(L1_1a)
+        .LABEL(L1_1b)
+        .GOTO(L2)
+        .LABEL(L2)
+        .IINC(1, 2)
+        .GOTO(L4)
+        .LABEL(L4)
+        .ACONST_NULL()
+        .GOTO(L1_2a)
+        .LABEL(L1_2b)
+        .RETURN()
+        .LABEL(L1_1a) // L1_1: instantiation #1.
+        .ASTORE(2)
+        .IINC(1, 1)
+        .GOTO(L3_1)
+        .LABEL(L3_1)
+        .IINC(1, 4)
+        .GOTO(L1_1b)
+        .LABEL()
+        .LABEL(L1_2a) // L1_2: instantiation #2.
+        .ASTORE(2)
+        .IINC(1, 1)
+        .GOTO(L3_2)
+        .LABEL(L3_2)
+        .IINC(1, 4)
+        .GOTO(L1_2b)
+        .LABEL()
+        .END(1, 3);
 
-      // Invoke the subroutine, each twice:
-      JSR(L1);
-      GOTO(L2);
-
-      // L1: subroutine 1
-      LABEL(L1);
-      ASTORE(2);
-      IINC(1, 1);
-      GOTO(L3);
-
-      // L2: second part of main subroutine
-      LABEL(L2);
-      IINC(1, 2);
-      GOTO(L4);
-
-      // L3: second part of subroutine 1
-      LABEL(L3);
-      IINC(1, 4);
-      RET(2);
-
-      // L4: third part of main subroutine
-      LABEL(L4);
-      JSR(L1);
-      RETURN();
-
-      END(1, 3);
-    }
-
-    {
-      Label L1_1a = new Label();
-      Label L1_1b = new Label();
-      Label L1_2a = new Label();
-      Label L1_2b = new Label();
-      Label L2 = new Label();
-      Label L3_1 = new Label();
-      Label L3_2 = new Label();
-      Label L4 = new Label();
-
-      setCurrent(exp);
-
-      // Main routine:
-      ICONST_0();
-      ISTORE(1);
-      ACONST_NULL();
-      GOTO(L1_1a);
-      LABEL(L1_1b);
-      GOTO(L2);
-      LABEL(L2);
-      IINC(1, 2);
-      GOTO(L4);
-      LABEL(L4);
-      ACONST_NULL();
-      GOTO(L1_2a);
-      LABEL(L1_2b);
-      RETURN();
-
-      // L1_1: instantiation #1
-      LABEL(L1_1a);
-      ASTORE(2);
-      IINC(1, 1);
-      GOTO(L3_1);
-      LABEL(L3_1);
-      IINC(1, 4);
-      GOTO(L1_1b);
-      LABEL(new Label()); // extra label emitted due to impl quirks
-
-      // L1_2: instantiation #2
-      LABEL(L1_2a);
-      ASTORE(2);
-      IINC(1, 1);
-      GOTO(L3_2);
-      LABEL(L3_2);
-      IINC(1, 4);
-      GOTO(L1_2b);
-      LABEL(new Label()); // extra label emitted due to impl quirks
-
-      END(1, 3);
-    }
-
-    assertMethodEquals(exp, jsr);
+    assertMethodEquals(expectedMethod, inlinedMethod);
   }
 
   /**
@@ -1599,311 +1148,229 @@ public class JSRInlinerAdapterTest extends AsmTest {
    *
    * <pre>
    * void m(int b) {
+   *   try {
    *     try {
+   *       return;
+   *     } finally {
+   *       while (b) {
    *         try {
-   *             return;
+   *           return;
    *         } finally {
-   *             while (b) {
-   *                 try {
-   *                     return;
-   *                 } finally {
-   *                     // NOTE --- this break avoids the second return above
-   *                     // (weird)
-   *                     if (b)
-   *                         break;
-   *                 }
-   *             }
+   *           // NOTE --- this break avoids the second return above (weird)
+   *           if (b) {
+   *             break;
+   *           }
    *         }
-   *     } catch (Exception e) {
-   *         b += 3;
-   *         return;
+   *       }
    *     }
+   *   } catch (Exception e) {
+   *     b += 3;
+   *     return;
+   *   }
    * }
    * </pre>
    */
   @Test
   public void testImplicitExitInTryCatch() {
-    {
-      Label T1 = new Label();
-      Label C1 = new Label();
-      Label S1 = new Label();
-      Label L = new Label();
-      Label C2 = new Label();
-      Label S2 = new Label();
-      Label W = new Label();
-      Label X = new Label();
-      Label OT = new Label();
-      Label OC = new Label();
+    // Variable numbers:
+    int b = 1;
+    int e1 = 2;
+    int e2 = 3;
+    int r1 = 4;
+    int r2 = 5;
 
-      // variable numbers:
-      int b = 1;
-      int e1 = 2;
-      int e2 = 3;
-      int r1 = 4;
-      int r2 = 5;
+    Label t1 = new Label();
+    Label c1 = new Label();
+    Label s1 = new Label();
+    Label l = new Label();
+    Label c2 = new Label();
+    Label s2 = new Label();
+    Label w = new Label();
+    Label x = new Label();
+    Label ot = new Label();
+    Label oc = new Label();
+    new Generator(inlinedMethod)
+        .ICONST_0()
+        .ISTORE(1)
+        .LABEL(ot) // OT: outermost try.
+        .LABEL(t1) // T1: first try:
+        .JSR(s1)
+        .RETURN()
+        .LABEL(c1) // C1: exception handler for first try.
+        .ASTORE(e1)
+        .JSR(s1)
+        .ALOAD(e1)
+        .ATHROW()
+        .LABEL(s1) // S1: first finally handler.
+        .ASTORE(r1)
+        .GOTO(w)
+        .LABEL(l) // L: body of while loop, also second try.
+        .JSR(s2)
+        .RETURN()
+        .LABEL(c2) // C2: exception handler for second try.
+        .ASTORE(e2)
+        .JSR(s2)
+        .ALOAD(e2)
+        .ATHROW()
+        .LABEL(s2) // S2: second finally handler.
+        .ASTORE(r2)
+        .ILOAD(b)
+        .IFNE(x)
+        .RET(r2)
+        .LABEL(w) // W: test for the while loop.
+        .ILOAD(b)
+        .IFNE(l) // Falls through to X.
+        .LABEL(x) // X: exit from finally{} block.
+        .RET(r1)
+        .LABEL(oc) // OC: outermost catch.
+        .IINC(b, 3)
+        .RETURN()
+        .TRYCATCH(t1, c1, c1)
+        .TRYCATCH(l, c2, c2)
+        .TRYCATCH(ot, oc, oc)
+        .END(1, 6);
 
-      setCurrent(jsr);
+    Label T1 = new Label();
+    Label C1 = new Label();
+    Label S1_1a = new Label();
+    Label S1_1b = new Label();
+    Label S1_2a = new Label();
+    Label S1_2b = new Label();
+    Label L_1 = new Label();
+    Label L_2 = new Label();
+    Label C2_1 = new Label();
+    Label C2_2 = new Label();
+    Label S2_1_1a = new Label();
+    Label S2_1_1b = new Label();
+    Label S2_1_2a = new Label();
+    Label S2_1_2b = new Label();
+    Label S2_2_1a = new Label();
+    Label S2_2_1b = new Label();
+    Label S2_2_2a = new Label();
+    Label S2_2_2b = new Label();
+    Label W_1 = new Label();
+    Label W_2 = new Label();
+    Label X_1 = new Label();
+    Label X_2 = new Label();
+    Label OT_1 = S1_1a;
+    Label OT_2 = S1_2a;
+    Label OT_1_1 = S2_1_1a;
+    Label OT_1_2 = S2_1_2a;
+    Label OT_2_1 = S2_2_1a;
+    Label OT_2_2 = S2_2_2a;
+    Label OC = new Label();
+    Label OC_1 = new Label();
+    Label OC_2 = new Label();
+    Label OC_1_1 = new Label();
+    Label OC_1_2 = new Label();
+    Label OC_2_1 = new Label();
+    Label OC_2_2 = new Label();
+    new Generator(expectedMethod)
+        // --- Main Subroutine ---
+        .ICONST_0()
+        .ISTORE(1)
+        .LABEL(T1) // T1: outermost try / first try:
+        .ACONST_NULL()
+        .GOTO(S1_1a)
+        .LABEL(S1_1b)
+        .RETURN()
+        .LABEL(C1) // C1: exception handler for first try.
+        .ASTORE(e1)
+        .ACONST_NULL()
+        .GOTO(S1_2a)
+        .LABEL(S1_2b)
+        .ALOAD(e1)
+        .ATHROW()
+        .LABEL(OC) // OC: Outermost catch.
+        .IINC(b, 3)
+        .RETURN()
+        // --- First instantiation of first subroutine ---
+        .LABEL(S1_1a) // S1: first finally handler.
+        .ASTORE(r1)
+        .GOTO(W_1)
+        .LABEL(L_1) // L_1: body of while loop, also second try.
+        .ACONST_NULL()
+        .GOTO(S2_1_1a)
+        .LABEL(S2_1_1b)
+        .RETURN()
+        .LABEL(C2_1) // C2_1: exception handler for second try.
+        .ASTORE(e2)
+        .ACONST_NULL()
+        .GOTO(S2_1_2a)
+        .LABEL(S2_1_2b)
+        .ALOAD(e2)
+        .ATHROW()
+        .LABEL(W_1) // W_1: test for the while loop.
+        .ILOAD(b)
+        .IFNE(L_1) // Falls through to X_1.
+        .LABEL(X_1) // X_1: exit from finally{} block.
+        .GOTO(S1_1b)
+        .LABEL(OC_1)
+        // --- Second instantiation of first subroutine ---
+        .LABEL(S1_2a) // S1: first finally handler.
+        .ASTORE(r1)
+        .GOTO(W_2)
+        .LABEL(L_2) // L_2: body of while loop, also second try.
+        .ACONST_NULL()
+        .GOTO(S2_2_1a)
+        .LABEL(S2_2_1b)
+        .RETURN()
+        .LABEL(C2_2) // C2_2: exception handler for second try.
+        .ASTORE(e2)
+        .ACONST_NULL()
+        .GOTO(S2_2_2a)
+        .LABEL(S2_2_2b)
+        .ALOAD(e2)
+        .ATHROW()
+        .LABEL(W_2) // W_2: test for the while loop.
+        .ILOAD(b)
+        .IFNE(L_2) // Falls through to X_2.
+        .LABEL(X_2) // X_2: exit from finally{} block.
+        .GOTO(S1_2b)
+        .LABEL(OC_2)
+        // --- Second subroutine's 4 instantiations ---
+        .LABEL(S2_1_1a)
+        .ASTORE(r2)
+        .ILOAD(b)
+        .IFNE(X_1)
+        .GOTO(S2_1_1b)
+        .LABEL(OC_1_1)
+        .LABEL(S2_1_2a)
+        .ASTORE(r2)
+        .ILOAD(b)
+        .IFNE(X_1)
+        .GOTO(S2_1_2b)
+        .LABEL(OC_1_2)
+        .LABEL(S2_2_1a)
+        .ASTORE(r2)
+        .ILOAD(b)
+        .IFNE(X_2)
+        .GOTO(S2_2_1b)
+        .LABEL(OC_2_1)
+        .LABEL(S2_2_2a)
+        .ASTORE(r2)
+        .ILOAD(b)
+        .IFNE(X_2)
+        .GOTO(S2_2_2b)
+        .LABEL(OC_2_2)
+        // Main subroutine handlers:
+        .TRYCATCH(T1, C1, C1)
+        .TRYCATCH(T1, OC, OC)
+        // First instance of first subroutine try/catch handlers:
+        // Note: reuses handler code from main subroutine.
+        .TRYCATCH(L_1, C2_1, C2_1)
+        .TRYCATCH(OT_1, OC_1, OC)
+        // Second instance of first sub try/catch handlers:
+        .TRYCATCH(L_2, C2_2, C2_2)
+        .TRYCATCH(OT_2, OC_2, OC)
+        // All 4 instances of second subroutine:
+        .TRYCATCH(OT_1_1, OC_1_1, OC)
+        .TRYCATCH(OT_1_2, OC_1_2, OC)
+        .TRYCATCH(OT_2_1, OC_2_1, OC)
+        .TRYCATCH(OT_2_2, OC_2_2, OC)
+        .END(1, 6);
 
-      ICONST_0();
-      ISTORE(1);
-
-      // OT: outermost try
-      LABEL(OT);
-
-      // T1: first try:
-      LABEL(T1);
-      JSR(S1);
-      RETURN();
-
-      // C1: exception handler for first try
-      LABEL(C1);
-      ASTORE(e1);
-      JSR(S1);
-      ALOAD(e1);
-      ATHROW();
-
-      // S1: first finally handler
-      LABEL(S1);
-      ASTORE(r1);
-      GOTO(W);
-
-      // L: body of while loop, also second try
-      LABEL(L);
-      JSR(S2);
-      RETURN();
-
-      // C2: exception handler for second try
-      LABEL(C2);
-      ASTORE(e2);
-      JSR(S2);
-      ALOAD(e2);
-      ATHROW();
-
-      // S2: second finally handler
-      LABEL(S2);
-      ASTORE(r2);
-      ILOAD(b);
-      IFNE(X);
-      RET(r2);
-
-      // W: test for the while loop
-      LABEL(W);
-      ILOAD(b);
-      IFNE(L); // falls through to X
-
-      // X: exit from finally{} block
-      LABEL(X);
-      RET(r1);
-
-      // OC: outermost catch
-      LABEL(OC);
-      IINC(b, 3);
-      RETURN();
-
-      TRYCATCH(T1, C1, C1);
-      TRYCATCH(L, C2, C2);
-      TRYCATCH(OT, OC, OC);
-
-      END(1, 6);
-    }
-
-    {
-      Label T1 = new Label();
-      Label C1 = new Label();
-      Label S1_1a = new Label();
-      Label S1_1b = new Label();
-      Label S1_2a = new Label();
-      Label S1_2b = new Label();
-      Label L_1 = new Label();
-      Label L_2 = new Label();
-      Label C2_1 = new Label();
-      Label C2_2 = new Label();
-      Label S2_1_1a = new Label();
-      Label S2_1_1b = new Label();
-      Label S2_1_2a = new Label();
-      Label S2_1_2b = new Label();
-      Label S2_2_1a = new Label();
-      Label S2_2_1b = new Label();
-      Label S2_2_2a = new Label();
-      Label S2_2_2b = new Label();
-      Label W_1 = new Label();
-      Label W_2 = new Label();
-      Label X_1 = new Label();
-      Label X_2 = new Label();
-      Label OT_1 = S1_1a;
-      Label OT_2 = S1_2a;
-      Label OT_1_1 = S2_1_1a;
-      Label OT_1_2 = S2_1_2a;
-      Label OT_2_1 = S2_2_1a;
-      Label OT_2_2 = S2_2_2a;
-      Label OC = new Label();
-      Label OC_1 = new Label();
-      Label OC_2 = new Label();
-      Label OC_1_1 = new Label();
-      Label OC_1_2 = new Label();
-      Label OC_2_1 = new Label();
-      Label OC_2_2 = new Label();
-
-      // variable numbers:
-      int b = 1;
-      int e1 = 2;
-      int e2 = 3;
-      int r1 = 4;
-      int r2 = 5;
-
-      setCurrent(exp);
-
-      // --- Main Subroutine ---
-
-      ICONST_0();
-      ISTORE(1);
-
-      // T1: outermost try / first try:
-      LABEL(T1);
-      ACONST_NULL();
-      GOTO(S1_1a);
-      LABEL(S1_1b);
-      RETURN();
-
-      // C1: exception handler for first try
-      LABEL(C1);
-      ASTORE(e1);
-      ACONST_NULL();
-      GOTO(S1_2a);
-      LABEL(S1_2b);
-      ALOAD(e1);
-      ATHROW();
-
-      // OC: Outermost catch
-      LABEL(OC);
-      IINC(b, 3);
-      RETURN();
-
-      // --- First instantiation of first subroutine ---
-
-      // S1: first finally handler
-      LABEL(S1_1a);
-      ASTORE(r1);
-      GOTO(W_1);
-
-      // L_1: body of while loop, also second try
-      LABEL(L_1);
-      ACONST_NULL();
-      GOTO(S2_1_1a);
-      LABEL(S2_1_1b);
-      RETURN();
-
-      // C2_1: exception handler for second try
-      LABEL(C2_1);
-      ASTORE(e2);
-      ACONST_NULL();
-      GOTO(S2_1_2a);
-      LABEL(S2_1_2b);
-      ALOAD(e2);
-      ATHROW();
-
-      // W_1: test for the while loop
-      LABEL(W_1);
-      ILOAD(b);
-      IFNE(L_1); // falls through to X_1
-
-      // X_1: exit from finally{} block
-      LABEL(X_1);
-      GOTO(S1_1b);
-
-      LABEL(OC_1);
-
-      // --- Second instantiation of first subroutine ---
-
-      // S1: first finally handler
-      LABEL(S1_2a);
-      ASTORE(r1);
-      GOTO(W_2);
-
-      // L_2: body of while loop, also second try
-      LABEL(L_2);
-      ACONST_NULL();
-      GOTO(S2_2_1a);
-      LABEL(S2_2_1b);
-      RETURN();
-
-      // C2_2: exception handler for second try
-      LABEL(C2_2);
-      ASTORE(e2);
-      ACONST_NULL();
-      GOTO(S2_2_2a);
-      LABEL(S2_2_2b);
-      ALOAD(e2);
-      ATHROW();
-
-      // W_2: test for the while loop
-      LABEL(W_2);
-      ILOAD(b);
-      IFNE(L_2); // falls through to X_2
-
-      // X_2: exit from finally{} block
-      LABEL(X_2);
-      GOTO(S1_2b);
-
-      LABEL(OC_2);
-
-      // --- Second subroutine's 4 instantiations ---
-
-      // S2_1_1a:
-      LABEL(S2_1_1a);
-      ASTORE(r2);
-      ILOAD(b);
-      IFNE(X_1);
-      GOTO(S2_1_1b);
-      LABEL(OC_1_1);
-
-      // S2_1_2a:
-      LABEL(S2_1_2a);
-      ASTORE(r2);
-      ILOAD(b);
-      IFNE(X_1);
-      GOTO(S2_1_2b);
-      LABEL(OC_1_2);
-
-      // S2_2_1a:
-      LABEL(S2_2_1a);
-      ASTORE(r2);
-      ILOAD(b);
-      IFNE(X_2);
-      GOTO(S2_2_1b);
-      LABEL(OC_2_1);
-
-      // S2_2_2a:
-      LABEL(S2_2_2a);
-      ASTORE(r2);
-      ILOAD(b);
-      IFNE(X_2);
-      GOTO(S2_2_2b);
-      LABEL(OC_2_2);
-
-      // main subroutine handlers:
-      TRYCATCH(T1, C1, C1);
-      TRYCATCH(T1, OC, OC);
-
-      // first instance of first sub try/catch handlers:
-      TRYCATCH(L_1, C2_1, C2_1);
-      TRYCATCH(OT_1, OC_1, OC); // note: reuses handler code from main
-      // sub
-
-      // second instance of first sub try/catch handlers:
-      TRYCATCH(L_2, C2_2, C2_2);
-      TRYCATCH(OT_2, OC_2, OC);
-
-      // all 4 instances of second sub:
-      TRYCATCH(OT_1_1, OC_1_1, OC);
-      TRYCATCH(OT_1_2, OC_1_2, OC);
-      TRYCATCH(OT_2_1, OC_2_1, OC);
-      TRYCATCH(OT_2_2, OC_2_2, OC);
-
-      END(1, 6);
-    }
-
-    assertMethodEquals(exp, jsr);
+    assertMethodEquals(expectedMethod, inlinedMethod);
   }
 
   /**
@@ -1911,156 +1378,269 @@ public class JSRInlinerAdapterTest extends AsmTest {
    *
    * <pre>
    *   public void a() {
-   * 1    int a = 0;
-   * 2    try {
-   * 3      a++;
-   * 4    } finally {
-   * 5      a--;
-   * 6    }
+   * 1   int a = 0;
+   * 2   try {
+   * 3     a++;
+   * 4   } finally {
+   * 5     a--;
+   * 6   }
    *   }
    *   LV "a" from 1 to 6
    * </pre>
    */
   @Test
   public void testBasicLineNumberAndLocalVars() {
-    {
-      Label LM1 = new Label();
-      Label L0 = new Label();
-      Label L1 = new Label();
-      Label L2 = new Label();
-      Label L3 = new Label();
-      Label L4 = new Label();
+    Label lm1 = new Label();
+    Label l0 = new Label();
+    Label l1 = new Label();
+    Label l2 = new Label();
+    Label l3 = new Label();
+    Label l4 = new Label();
+    new Generator(inlinedMethod)
+        .LABEL(lm1)
+        .LINE(1, lm1)
+        .ICONST_0()
+        .ISTORE(1)
+        .LABEL(l0) // L0: body of try block.
+        .LINE(3, l0)
+        .IINC(1, 1)
+        .GOTO(l1)
+        .LABEL(l2) // L2: exception handler.
+        .ASTORE(3)
+        .JSR(l3)
+        .ALOAD(3)
+        .ATHROW()
+        .LABEL(l3) // L3: subroutine.
+        .LINE(5, l3)
+        .ASTORE(2)
+        .IINC(1, -1)
+        .RET(2)
+        .LABEL(l1) // L1: non-exceptional exit from try block.
+        .JSR(l3)
+        .LABEL(l4)
+        .RETURN()
+        .TRYCATCH(l0, l2, l2)
+        .TRYCATCH(l1, l4, l2)
+        .LOCALVAR("a", "I", 1, lm1, l4)
+        .END(1, 4);
 
-      setCurrent(jsr);
-      LABEL(LM1);
-      LINE(1, LM1);
-      ICONST_0();
-      ISTORE(1);
+    Label LM1 = new Label();
+    Label L0 = new Label();
+    Label L1 = new Label();
+    Label L2 = new Label();
+    Label L3_1a = new Label();
+    Label L3_1b = new Label();
+    Label L3_1c = new Label();
+    Label L3_2a = new Label();
+    Label L3_2b = new Label();
+    Label L3_2c = new Label();
+    Label L4 = new Label();
+    new Generator(expectedMethod)
+        .LABEL(LM1)
+        .LINE(1, LM1)
+        .ICONST_0()
+        .ISTORE(1)
+        .LABEL(L0) // L0: try/catch block.
+        .LINE(3, L0)
+        .IINC(1, 1)
+        .GOTO(L1)
+        .LABEL(L2) // L2: Exception handler:
+        .ASTORE(3)
+        .ACONST_NULL()
+        .GOTO(L3_1a)
+        .LABEL(L3_1b)
+        .ALOAD(3)
+        .ATHROW()
+        .LABEL(L1) // L1: On non-exceptional exit, try block leads here:
+        .ACONST_NULL()
+        .GOTO(L3_2a)
+        .LABEL(L3_2b)
+        .LABEL(L4)
+        .RETURN()
+        .LABEL(L3_1a) // L3_1a: First instantiation of subroutine:
+        .LINE(5, L3_1a)
+        .ASTORE(2)
+        .IINC(1, -1)
+        .GOTO(L3_1b)
+        .LABEL(L3_1c)
+        .LABEL(L3_2a) // L3_2a: Second instantiation of subroutine:
+        .LINE(5, L3_2a)
+        .ASTORE(2)
+        .IINC(1, -1)
+        .GOTO(L3_2b)
+        .LABEL(L3_2c)
+        .TRYCATCH(L0, L2, L2)
+        .TRYCATCH(L1, L4, L2)
+        .LOCALVAR("a", "I", 1, LM1, L4)
+        .LOCALVAR("a", "I", 1, L3_1a, L3_1c)
+        .LOCALVAR("a", "I", 1, L3_2a, L3_2c)
+        .END(1, 4);
 
-      /* L0: body of try block */
-      LABEL(L0);
-      LINE(3, L0);
-      IINC(1, 1);
-      GOTO(L1);
-
-      /* L2: exception handler */
-      LABEL(L2);
-      ASTORE(3);
-      JSR(L3);
-      ALOAD(3);
-      ATHROW();
-
-      /* L3: subroutine */
-      LABEL(L3);
-      LINE(5, L3);
-      ASTORE(2);
-      IINC(1, -1);
-      RET(2);
-
-      /* L1: non-exceptional exit from try block */
-      LABEL(L1);
-      JSR(L3);
-      LABEL(L4); // L4
-      RETURN();
-
-      TRYCATCH(L0, L2, L2);
-      TRYCATCH(L1, L4, L2);
-      LOCALVAR("a", "I", 1, LM1, L4);
-
-      END(1, 4);
-    }
-
-    {
-      Label LM1 = new Label();
-      Label L0 = new Label();
-      Label L1 = new Label();
-      Label L2 = new Label();
-      Label L3_1a = new Label();
-      Label L3_1b = new Label();
-      Label L3_1c = new Label();
-      Label L3_2a = new Label();
-      Label L3_2b = new Label();
-      Label L3_2c = new Label();
-      Label L4 = new Label();
-
-      setCurrent(exp);
-      LABEL(LM1);
-      LINE(1, LM1);
-      ICONST_0();
-      ISTORE(1);
-      // L0: try/catch block
-      LABEL(L0);
-      LINE(3, L0);
-      IINC(1, 1);
-      GOTO(L1);
-
-      // L2: Exception handler:
-      LABEL(L2);
-      ASTORE(3);
-      ACONST_NULL();
-      GOTO(L3_1a);
-      LABEL(L3_1b); // L3_1b;
-      ALOAD(3);
-      ATHROW();
-
-      // L1: On non-exceptional exit, try block leads here:
-      LABEL(L1);
-      ACONST_NULL();
-      GOTO(L3_2a);
-      LABEL(L3_2b); // L3_2b
-      LABEL(L4); // L4
-      RETURN();
-
-      // L3_1a: First instantiation of subroutine:
-      LABEL(L3_1a);
-      LINE(5, L3_1a);
-      ASTORE(2);
-      IINC(1, -1);
-      GOTO(L3_1b);
-      LABEL(L3_1c);
-
-      // L3_2a: Second instantiation of subroutine:
-      LABEL(L3_2a);
-      LINE(5, L3_2a);
-      ASTORE(2);
-      IINC(1, -1);
-      GOTO(L3_2b);
-      LABEL(L3_2c);
-
-      TRYCATCH(L0, L2, L2);
-      TRYCATCH(L1, L4, L2);
-      LOCALVAR("a", "I", 1, LM1, L4);
-      LOCALVAR("a", "I", 1, L3_1a, L3_1c);
-      LOCALVAR("a", "I", 1, L3_2a, L3_2c);
-
-      END(1, 4);
-    }
-
-    assertMethodEquals(exp, jsr);
+    assertMethodEquals(expectedMethod, inlinedMethod);
   }
 
-  public void assertMethodEquals(final MethodNode exp, final MethodNode actual) {
-    String textexp = getText(exp);
-    String textact = getText(actual);
-    assertEquals(textexp, textact);
+  private static class Generator {
+
+    private final MethodNode methodNode;
+
+    Generator(final MethodNode methodNode) {
+      this.methodNode = methodNode;
+    }
+
+    Generator ICONST_0() {
+      methodNode.visitInsn(Opcodes.ICONST_0);
+      return this;
+    }
+
+    Generator ISTORE(final int var) {
+      methodNode.visitVarInsn(Opcodes.ISTORE, var);
+      return this;
+    }
+
+    Generator ALOAD(final int var) {
+      methodNode.visitVarInsn(Opcodes.ALOAD, var);
+      return this;
+    }
+
+    Generator ILOAD(final int var) {
+      methodNode.visitVarInsn(Opcodes.ILOAD, var);
+      return this;
+    }
+
+    Generator ASTORE(final int var) {
+      methodNode.visitVarInsn(Opcodes.ASTORE, var);
+      return this;
+    }
+
+    Generator RET(final int var) {
+      methodNode.visitVarInsn(Opcodes.RET, var);
+      return this;
+    }
+
+    Generator ATHROW() {
+      methodNode.visitInsn(Opcodes.ATHROW);
+      return this;
+    }
+
+    Generator ACONST_NULL() {
+      methodNode.visitInsn(Opcodes.ACONST_NULL);
+      return this;
+    }
+
+    Generator RETURN() {
+      methodNode.visitInsn(Opcodes.RETURN);
+      return this;
+    }
+
+    Generator LABEL() {
+      methodNode.visitLabel(new Label());
+      return this;
+    }
+
+    Generator LABEL(final Label label) {
+      methodNode.visitLabel(label);
+      return this;
+    }
+
+    Generator IINC(final int var, final int increment) {
+      methodNode.visitIincInsn(var, increment);
+      return this;
+    }
+
+    Generator GOTO(final Label label) {
+      methodNode.visitJumpInsn(Opcodes.GOTO, label);
+      return this;
+    }
+
+    Generator JSR(final Label label) {
+      methodNode.visitJumpInsn(Opcodes.JSR, label);
+      return this;
+    }
+
+    Generator IFNONNULL(final Label label) {
+      methodNode.visitJumpInsn(Opcodes.IFNONNULL, label);
+      return this;
+    }
+
+    Generator IFNE(final Label label) {
+      methodNode.visitJumpInsn(Opcodes.IFNE, label);
+      return this;
+    }
+
+    Generator SWITCH(
+        final Label defaultLabel, final int key, final Label target, final boolean useTableSwitch) {
+      if (useTableSwitch) {
+        methodNode.visitTableSwitchInsn(key, key, defaultLabel, new Label[] {target});
+      } else {
+        methodNode.visitLookupSwitchInsn(defaultLabel, new int[] {key}, new Label[] {target});
+      }
+      return this;
+    }
+
+    Generator TRYCATCH(final Label start, final Label end, final Label handler) {
+      methodNode.visitTryCatchBlock(start, end, handler, null);
+      return this;
+    }
+
+    Generator LINE(final int line, final Label start) {
+      methodNode.visitLineNumber(line, start);
+      return this;
+    }
+
+    Generator LOCALVAR(
+        final String name,
+        final String descriptor,
+        final int index,
+        final Label start,
+        final Label end) {
+      methodNode.visitLocalVariable(name, descriptor, null, start, end, index);
+      return this;
+    }
+
+    void END(final int maxStack, final int maxLocals) {
+      methodNode.visitMaxs(maxStack, maxLocals);
+      methodNode.visitEnd();
+
+      ClassWriter classWriter = new ClassWriter(0);
+      classWriter.visit(Opcodes.V1_1, Opcodes.ACC_PUBLIC, "C", null, "java/lang/Object", null);
+      MethodVisitor methodVisitor =
+          classWriter.visitMethod(Opcodes.ACC_PUBLIC, "<init>", "()V", null, null);
+      methodVisitor.visitCode();
+      methodVisitor.visitVarInsn(Opcodes.ALOAD, 0);
+      methodVisitor.visitMethodInsn(
+          Opcodes.INVOKESPECIAL, "java/lang/Object", "<init>", "()V", false);
+      methodVisitor.visitInsn(Opcodes.RETURN);
+      methodVisitor.visitMaxs(1, 1);
+      methodVisitor.visitEnd();
+      methodNode.accept(classWriter);
+      classWriter.visitEnd();
+
+      assertTrue(loadAndInstantiate("C", classWriter.toByteArray()));
+    }
   }
 
-  private String getText(final MethodNode mn) {
-    Textifier tv = new Textifier();
-    TraceMethodVisitor tmv = new TraceMethodVisitor(tv);
-    mn.accept(tmv);
+  private void assertMethodEquals(final MethodNode expected, final MethodNode actual) {
+    String expectedText = getText(expected);
+    String actualText = getText(actual);
+    assertEquals(expectedText, actualText);
+  }
 
-    StringBuilder sb = new StringBuilder();
-    for (int i = 0; i < tv.text.size(); i++) {
-      sb.append(tv.text.get(i));
+  private String getText(final MethodNode methodNode) {
+    Textifier textifier = new Textifier();
+    methodNode.accept(new TraceMethodVisitor(textifier));
+
+    StringBuilder stringBuilder = new StringBuilder();
+    for (Object o : textifier.text) {
+      stringBuilder.append(o);
     }
-    return sb.toString();
+    return stringBuilder.toString();
   }
 
   /** Tests that classes transformed with JSRInlinerAdapter can be loaded and instantiated. */
   @ParameterizedTest
   @MethodSource(ALL_CLASSES_AND_LATEST_API)
-  public void testInlineJsrAndInstantiate(PrecompiledClass classParameter, Api apiParameter) {
+  public void testInlineJsrAndInstantiate(
+      final PrecompiledClass classParameter, final Api apiParameter) {
     ClassReader classReader = new ClassReader(classParameter.getBytes());
     ClassWriter classWriter = new ClassWriter(0);
     classReader.accept(
@@ -2069,11 +1649,13 @@ public class JSRInlinerAdapterTest extends AsmTest {
           public MethodVisitor visitMethod(
               final int access,
               final String name,
-              final String desc,
+              final String descriptor,
               final String signature,
               final String[] exceptions) {
-            MethodVisitor mv = super.visitMethod(access, name, desc, signature, exceptions);
-            return new JSRInlinerAdapter(api, mv, access, name, desc, signature, exceptions);
+            MethodVisitor methodVisitor =
+                super.visitMethod(access, name, descriptor, signature, exceptions);
+            return new JSRInlinerAdapter(
+                api, methodVisitor, access, name, descriptor, signature, exceptions);
           }
         },
         0);

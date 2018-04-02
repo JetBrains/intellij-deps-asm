@@ -53,7 +53,7 @@ public class CodeSizeEvaluatorTest extends AsmTest {
    */
   @ParameterizedTest
   @MethodSource(ALL_CLASSES_AND_ALL_APIS)
-  public void testSizeEvaluation(PrecompiledClass classParameter, Api apiParameter) {
+  public void testSizeEvaluation(final PrecompiledClass classParameter, final Api apiParameter) {
     byte[] classFile = classParameter.getBytes();
     ClassReader classReader = new ClassReader(classFile);
     ClassWriter classWriter = new ClassWriter(0);
@@ -63,16 +63,17 @@ public class CodeSizeEvaluatorTest extends AsmTest {
           public MethodVisitor visitMethod(
               final int access,
               final String name,
-              final String desc,
+              final String descriptor,
               final String signature,
               final String[] exceptions) {
-            MethodVisitor mv = cv.visitMethod(access, name, desc, signature, exceptions);
-            return new CodeSizeEvaluator(api, mv) {
+            MethodVisitor methodVisitor =
+                super.visitMethod(access, name, descriptor, signature, exceptions);
+            return new CodeSizeEvaluator(api, methodVisitor) {
               @Override
               public void visitMaxs(final int maxStack, final int maxLocals) {
                 Label end = new Label();
-                mv.visitLabel(end);
-                mv.visitMaxs(maxStack, maxLocals);
+                visitLabel(end);
+                super.visitMaxs(maxStack, maxLocals);
                 int actualSize = end.getOffset();
                 assertTrue(getMinSize() <= actualSize);
                 assertTrue(actualSize <= getMaxSize());

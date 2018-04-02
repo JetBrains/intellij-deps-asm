@@ -36,6 +36,11 @@ import java.util.Map;
 
 import org.junit.jupiter.api.Test;
 
+/**
+ * SignatureRemapper tests.
+ *
+ * @author Eric Bruneton
+ */
 public class SignatureRemapperTest {
 
   @Test

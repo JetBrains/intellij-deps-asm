@@ -58,7 +58,7 @@ public class TryCatchBlockSorterTest extends AsmTest {
   @ParameterizedTest
   @MethodSource(ALL_CLASSES_AND_LATEST_API)
   public void testSortTryCatchBlocksAndInstantiate(
-      PrecompiledClass classParameter, Api apiParameter) {
+      final PrecompiledClass classParameter, final Api apiParameter) {
     ClassReader classReader = new ClassReader(classParameter.getBytes());
     ClassWriter classWriter = new ClassWriter(0);
     ClassVisitor classVisitor =
@@ -67,14 +67,14 @@ public class TryCatchBlockSorterTest extends AsmTest {
           public MethodVisitor visitMethod(
               final int access,
               final String name,
-              final String desc,
+              final String descriptor,
               final String signature,
               final String[] exceptions) {
             return new TryCatchBlockSorter(
-                super.visitMethod(access, name, desc, signature, exceptions),
+                super.visitMethod(access, name, descriptor, signature, exceptions),
                 access,
                 name,
-                desc,
+                descriptor,
                 signature,
                 exceptions);
           }

@@ -56,11 +56,11 @@ public class CodeComment extends Attribute {
 
   @Override
   protected Attribute read(
-      final ClassReader cr,
-      final int off,
-      final int len,
-      final char[] buf,
-      final int codeOff,
+      final ClassReader classReader,
+      final int offset,
+      final int length,
+      final char[] charBuffer,
+      final int codeOffset,
       final Label[] labels) {
 
     return new CodeComment();
@@ -68,9 +68,9 @@ public class CodeComment extends Attribute {
 
   @Override
   protected ByteVector write(
-      final ClassWriter cw,
+      final ClassWriter classWriter,
       final byte[] code,
-      final int len,
+      final int codeLength,
       final int maxStack,
       final int maxLocals) {
     return new ByteVector();

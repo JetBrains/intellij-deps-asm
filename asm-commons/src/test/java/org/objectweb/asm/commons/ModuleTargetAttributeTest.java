@@ -54,7 +54,7 @@ public class ModuleTargetAttributeTest {
             new ClassVisitor(Opcodes.ASM6) {
 
               @Override
-              public void visitAttribute(Attribute attribute) {
+              public void visitAttribute(final Attribute attribute) {
                 if (attribute instanceof ModuleTargetAttribute) {
                   moduleTargetAttribute.platform = ((ModuleTargetAttribute) attribute).platform;
                 }

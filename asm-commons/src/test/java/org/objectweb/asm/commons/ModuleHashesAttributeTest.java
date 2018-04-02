@@ -64,7 +64,7 @@ public class ModuleHashesAttributeTest {
             new ClassVisitor(Opcodes.ASM6) {
 
               @Override
-              public void visitAttribute(Attribute attribute) {
+              public void visitAttribute(final Attribute attribute) {
                 if (attribute instanceof ModuleHashesAttribute) {
                   moduleHashesAttribute.algorithm = ((ModuleHashesAttribute) attribute).algorithm;
                   moduleHashesAttribute.modules = ((ModuleHashesAttribute) attribute).modules;

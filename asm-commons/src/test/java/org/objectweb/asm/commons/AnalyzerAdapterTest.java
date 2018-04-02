@@ -78,8 +78,8 @@ public class AnalyzerAdapterTest extends AsmTest {
    */
   @ParameterizedTest
   @MethodSource(ALL_CLASSES_AND_ALL_APIS)
-  public void testAnalyzeLoadAndInstantiate(PrecompiledClass classParameter, Api apiParameter)
-      throws Exception {
+  public void testAnalyzeLoadAndInstantiate(
+      final PrecompiledClass classParameter, final Api apiParameter) throws Exception {
     byte[] classFile = classParameter.getBytes();
     ClassReader classReader = new ClassReader(classFile);
     ClassWriter classWriter = new ClassWriter(0);
@@ -104,22 +104,22 @@ public class AnalyzerAdapterTest extends AsmTest {
           public MethodVisitor visitMethod(
               final int access,
               final String name,
-              final String desc,
+              final String descriptor,
               final String signature,
               final String[] exceptions) {
             MethodVisitor methodVisitor =
-                super.visitMethod(access, name, desc, signature, exceptions);
+                super.visitMethod(access, name, descriptor, signature, exceptions);
             AnalyzedFramesInserter inserter = new AnalyzedFramesInserter(methodVisitor);
             AnalyzerAdapter analyzerAdapter =
-                new AnalyzerAdapter(api, owner, access, name, desc, inserter) {
+                new AnalyzerAdapter(api, owner, access, name, descriptor, inserter) {
 
                   @Override
-                  public void visitMaxs(int maxStack, int maxLocals) {
+                  public void visitMaxs(final int maxStack, final int maxLocals) {
                     // AnalyzerAdapter should correctly recompute maxLocals from scratch.
                     super.visitMaxs(maxStack, 0);
                   }
                 };
-            inserter.analyzer = analyzerAdapter;
+            inserter.setAnalyzerAdapter(analyzerAdapter);
             return analyzerAdapter;
           }
         };
@@ -147,15 +147,24 @@ public class AnalyzerAdapterTest extends AsmTest {
    */
   static class AnalyzedFramesInserter extends MethodVisitor {
 
-    AnalyzerAdapter analyzer;
+    private AnalyzerAdapter analyzerAdapter;
     private boolean hasOriginalFrame;
 
-    public AnalyzedFramesInserter(MethodVisitor mv) {
-      super(Opcodes.ASM6, mv);
+    AnalyzedFramesInserter(final MethodVisitor methodVisitor) {
+      super(Opcodes.ASM6, methodVisitor);
+    }
+
+    void setAnalyzerAdapter(final AnalyzerAdapter analyzerAdapter) {
+      this.analyzerAdapter = analyzerAdapter;
     }
 
     @Override
-    public void visitFrame(int type, int nLocal, Object[] local, int nStack, Object[] stack) {
+    public void visitFrame(
+        final int type,
+        final int nLocal,
+        final Object[] local,
+        final int nStack,
+        final Object[] stack) {
       super.visitFrame(type, nLocal, local, nStack, stack);
       hasOriginalFrame = true;
     }
@@ -163,9 +172,9 @@ public class AnalyzerAdapterTest extends AsmTest {
     private void maybeInsertFrame() {
       // Don't insert a frame if we already have one for this instruction, from the original class.
       if (!hasOriginalFrame) {
-        if (analyzer.locals != null && analyzer.stack != null) {
-          ArrayList<Object> local = toFrameTypes(analyzer.locals);
-          ArrayList<Object> stack = toFrameTypes(analyzer.stack);
+        if (analyzerAdapter.locals != null && analyzerAdapter.stack != null) {
+          ArrayList<Object> local = toFrameTypes(analyzerAdapter.locals);
+          ArrayList<Object> stack = toFrameTypes(analyzerAdapter.stack);
           super.visitFrame(
               Opcodes.F_NEW, local.size(), local.toArray(), stack.size(), stack.toArray());
         }
@@ -177,7 +186,7 @@ public class AnalyzerAdapterTest extends AsmTest {
      * Converts local and stack types from AnalyzerAdapter to visitFrame format (long and double are
      * represented with one element in visitFrame, but with two elements in AnalyzerAdapter).
      */
-    private ArrayList<Object> toFrameTypes(List<Object> analyzerTypes) {
+    private ArrayList<Object> toFrameTypes(final List<Object> analyzerTypes) {
       ArrayList<Object> frameTypes = new ArrayList<Object>();
       for (int i = 0; i < analyzerTypes.size(); ++i) {
         Object value = analyzerTypes.get(i);
@@ -190,81 +199,93 @@ public class AnalyzerAdapterTest extends AsmTest {
     }
 
     @Override
-    public void visitInsn(int opcode) {
+    public void visitInsn(final int opcode) {
       maybeInsertFrame();
       super.visitInsn(opcode);
     }
 
     @Override
-    public void visitIntInsn(int opcode, int operand) {
+    public void visitIntInsn(final int opcode, final int operand) {
       maybeInsertFrame();
       super.visitIntInsn(opcode, operand);
     }
 
     @Override
-    public void visitVarInsn(int opcode, int var) {
+    public void visitVarInsn(final int opcode, final int var) {
       maybeInsertFrame();
       super.visitVarInsn(opcode, var);
     }
 
     @Override
-    public void visitTypeInsn(int opcode, String type) {
+    public void visitTypeInsn(final int opcode, final String type) {
       maybeInsertFrame();
       super.visitTypeInsn(opcode, type);
     }
 
     @Override
-    public void visitFieldInsn(int opcode, String owner, String name, String desc) {
+    public void visitFieldInsn(
+        final int opcode, final String owner, final String name, final String descriptor) {
       maybeInsertFrame();
-      super.visitFieldInsn(opcode, owner, name, desc);
+      super.visitFieldInsn(opcode, owner, name, descriptor);
     }
 
     @Override
-    public void visitMethodInsn(int opcode, String owner, String name, String desc, boolean itf) {
+    public void visitMethodInsn(
+        final int opcode,
+        final String owner,
+        final String name,
+        final String descriptor,
+        final boolean isInterface) {
       maybeInsertFrame();
-      super.visitMethodInsn(opcode, owner, name, desc, itf);
+      super.visitMethodInsn(opcode, owner, name, descriptor, isInterface);
     }
 
     @Override
-    public void visitInvokeDynamicInsn(String name, String desc, Handle bsm, Object... bsmArgs) {
+    public void visitInvokeDynamicInsn(
+        final String name,
+        final String descriptor,
+        final Handle bootstrapMethodHandle,
+        final Object... bootstrapMethodArguments) {
       maybeInsertFrame();
-      super.visitInvokeDynamicInsn(name, desc, bsm, bsmArgs);
+      super.visitInvokeDynamicInsn(
+          name, descriptor, bootstrapMethodHandle, bootstrapMethodArguments);
     }
 
     @Override
-    public void visitJumpInsn(int opcode, Label label) {
+    public void visitJumpInsn(final int opcode, final Label label) {
       maybeInsertFrame();
       super.visitJumpInsn(opcode, label);
     }
 
     @Override
-    public void visitLdcInsn(Object cst) {
+    public void visitLdcInsn(final Object value) {
       maybeInsertFrame();
-      super.visitLdcInsn(cst);
+      super.visitLdcInsn(value);
     }
 
     @Override
-    public void visitIincInsn(int var, int increment) {
+    public void visitIincInsn(final int var, final int increment) {
       maybeInsertFrame();
       super.visitIincInsn(var, increment);
     }
 
     @Override
-    public void visitTableSwitchInsn(int min, int max, Label dflt, Label... labels) {
+    public void visitTableSwitchInsn(
+        final int min, final int max, final Label dflt, final Label... labels) {
       maybeInsertFrame();
       super.visitTableSwitchInsn(min, max, dflt, labels);
     }
 
     @Override
-    public void visitLookupSwitchInsn(Label dflt, int[] keys, Label[] labels) {
+    public void visitLookupSwitchInsn(final Label dflt, final int[] keys, final Label[] labels) {
       maybeInsertFrame();
       super.visitLookupSwitchInsn(dflt, keys, labels);
     }
 
     @Override
-    public void visitMultiANewArrayInsn(String desc, int dims) {
+    public void visitMultiANewArrayInsn(final String descriptor, final int numDimensions) {
       maybeInsertFrame();
-      super.visitMultiANewArrayInsn(desc, dims);
+      super.visitMultiANewArrayInsn(descriptor, numDimensions);
     }
   }
 }

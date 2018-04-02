@@ -799,11 +799,11 @@ public class GeneratorAdapterTest {
     private final Textifier textifier;
     private final GeneratorAdapter generatorAdapter;
 
-    public Generator() {
+    Generator() {
       this(Opcodes.ACC_PUBLIC, "m", "()V");
     }
 
-    public Generator(final int access, final String name, final String descriptor) {
+    Generator(final int access, final String name, final String descriptor) {
       textifier = new Textifier();
       generatorAdapter =
           new GeneratorAdapter(
@@ -1058,7 +1058,7 @@ public class GeneratorAdapterTest {
     }
 
     @Override
-    public void generateCase(int key, Label end) {
+    public void generateCase(final int key, final Label end) {
       generatorAdapter.push(key);
     }
 
@@ -1113,8 +1113,12 @@ public class GeneratorAdapterTest {
     }
 
     public String invokeDynamic(
-        final String name, final String desc, final Handle bsm, final Object... bsmArgs) {
-      generatorAdapter.invokeDynamic(name, desc, bsm, bsmArgs);
+        final String name,
+        final String descriptor,
+        final Handle bootstrapMethodHandle,
+        final Object... bootstrapMethodArguments) {
+      generatorAdapter.invokeDynamic(
+          name, descriptor, bootstrapMethodHandle, bootstrapMethodArguments);
       return toString();
     }
 

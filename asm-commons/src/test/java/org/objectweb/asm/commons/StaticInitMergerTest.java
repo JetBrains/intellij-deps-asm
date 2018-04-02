@@ -40,42 +40,39 @@ import org.objectweb.asm.Opcodes;
  *
  * @author Eric Bruneton
  */
-public class StaticInitMergerTest implements Opcodes {
-
-  private static final TestClassLoader LOADER = new TestClassLoader();
+public class StaticInitMergerTest {
 
   @Test
   public void test() throws Exception {
-    ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_MAXS);
-    ClassVisitor cv = new StaticInitMerger("$clinit$", cw);
-    cv.visit(V1_1, ACC_PUBLIC, "A", null, "java/lang/Object", null);
-    cv.visitField(ACC_PUBLIC + ACC_STATIC, "counter", "I", null, null);
+    ClassWriter classWriter = new ClassWriter(ClassWriter.COMPUTE_MAXS);
+    ClassVisitor classVisitor = new StaticInitMerger("$clinit$", classWriter);
+    classVisitor.visit(Opcodes.V1_1, Opcodes.ACC_PUBLIC, "A", null, "java/lang/Object", null);
+    classVisitor.visitField(Opcodes.ACC_PUBLIC + Opcodes.ACC_STATIC, "counter", "I", null, null);
     for (int i = 0; i < 5; ++i) {
-      MethodVisitor mv = cv.visitMethod(ACC_PUBLIC, "<clinit>", "()V", null, null);
-      mv.visitFieldInsn(GETSTATIC, "A", "counter", "I");
-      mv.visitInsn(ICONST_1);
-      mv.visitInsn(IADD);
-      mv.visitFieldInsn(PUTSTATIC, "A", "counter", "I");
-      mv.visitInsn(RETURN);
-      mv.visitMaxs(0, 0);
+      MethodVisitor methodVisitor =
+          classVisitor.visitMethod(Opcodes.ACC_PUBLIC, "<clinit>", "()V", null, null);
+      methodVisitor.visitFieldInsn(Opcodes.GETSTATIC, "A", "counter", "I");
+      methodVisitor.visitInsn(Opcodes.ICONST_1);
+      methodVisitor.visitInsn(Opcodes.IADD);
+      methodVisitor.visitFieldInsn(Opcodes.PUTSTATIC, "A", "counter", "I");
+      methodVisitor.visitInsn(Opcodes.RETURN);
+      methodVisitor.visitMaxs(0, 0);
     }
-    MethodVisitor mv = cv.visitMethod(ACC_PUBLIC, "<init>", "()V", null, null);
-    mv.visitVarInsn(ALOAD, 0);
-    mv.visitMethodInsn(INVOKESPECIAL, "java/lang/Object", "<init>", "()V", false);
-    mv.visitInsn(RETURN);
-    mv.visitMaxs(0, 0);
-    cv.visitEnd();
+    MethodVisitor methodVisitor =
+        classVisitor.visitMethod(Opcodes.ACC_PUBLIC, "<init>", "()V", null, null);
+    methodVisitor.visitVarInsn(Opcodes.ALOAD, 0);
+    methodVisitor.visitMethodInsn(
+        Opcodes.INVOKESPECIAL, "java/lang/Object", "<init>", "()V", false);
+    methodVisitor.visitInsn(Opcodes.RETURN);
+    methodVisitor.visitMaxs(0, 0);
+    classVisitor.visitEnd();
 
-    Class<?> c = LOADER.defineClass("A", cw.toByteArray());
-    assertEquals(c.getField("counter").getInt(c.newInstance()), 5);
-  }
-
-  // ------------------------------------------------------------------------
-
-  static class TestClassLoader extends ClassLoader {
-
-    public Class<?> defineClass(final String name, final byte[] b) {
-      return defineClass(name, b, 0, b.length);
-    }
+    Class<?> aClass =
+        new ClassLoader() {
+          public Class<?> defineClass(final String name, final byte[] classFile) {
+            return defineClass(name, classFile, 0, classFile.length);
+          }
+        }.defineClass("A", classWriter.toByteArray());
+    assertEquals(aClass.getField("counter").getInt(aClass.newInstance()), 5);
   }
 }

@@ -102,7 +102,7 @@ public class LocalVariablesSorterTest extends AsmTest {
   @ParameterizedTest
   @MethodSource(ALL_CLASSES_AND_ALL_APIS)
   public void testSortLocalVariablesAndInstantiate(
-      PrecompiledClass classParameter, Api apiParameter) {
+      final PrecompiledClass classParameter, final Api apiParameter) {
     ClassReader classReader = new ClassReader(classParameter.getBytes());
     ClassWriter classWriter = new ClassWriter(0);
     ClassVisitor classVisitor =
@@ -111,11 +111,14 @@ public class LocalVariablesSorterTest extends AsmTest {
           public MethodVisitor visitMethod(
               final int access,
               final String name,
-              final String desc,
+              final String descriptor,
               final String signature,
               final String[] exceptions) {
             return new LocalVariablesSorter(
-                api, access, desc, super.visitMethod(access, name, desc, signature, exceptions));
+                api,
+                access,
+                descriptor,
+                super.visitMethod(access, name, descriptor, signature, exceptions));
           }
         };
 
@@ -143,11 +146,14 @@ public class LocalVariablesSorterTest extends AsmTest {
           public MethodVisitor visitMethod(
               final int access,
               final String name,
-              final String desc,
+              final String descriptor,
               final String signature,
               final String[] exceptions) {
             return new LocalVariablesSorter(
-                api, access, desc, super.visitMethod(access, name, desc, signature, exceptions));
+                api,
+                access,
+                descriptor,
+                super.visitMethod(access, name, descriptor, signature, exceptions));
           }
         };
     classReader.accept(classVisitor, ClassReader.EXPAND_FRAMES);

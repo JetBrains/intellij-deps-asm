@@ -53,8 +53,8 @@ import org.objectweb.asm.Opcodes;
  * </pre>
  *
  * <p>The SVUID algorithm can be found at <a href=
- * "http://java.sun.com/j2se/1.4.2/docs/guide/serialization/spec/class.html"
- * >http://java.sun.com/j2se/1.4.2/docs/guide/serialization/spec/class.html</a>:
+ * "https://docs.oracle.com/javase/10/docs/specs/serialization/class.html#stream-unique-identifiers"
+ * >https://docs.oracle.com/javase/10/docs/specs/serialization/class.html#stream-unique-identifiers</a>:
  *
  * <p>The serialVersionUID is computed using the signature of a stream of bytes that reflect the
  * class definition. The National Institute of Standards and Technology (NIST) Secure Hash Algorithm
@@ -293,7 +293,7 @@ public class SerialVersionUIDAdder extends ClassVisitor {
     if (computeSVUID && !hasSVUID) {
       try {
         addSVUID(computeSVUID());
-      } catch (Exception e) {
+      } catch (IOException e) {
         throw new IllegalStateException("Error while computing SVUID for " + name, e);
       }
     }
@@ -459,7 +459,7 @@ public class SerialVersionUIDAdder extends ClassVisitor {
   // Inner classes
   // -----------------------------------------------------------------------------------------------
 
-  private static class Item implements Comparable<Item> {
+  private static final class Item implements Comparable<Item> {
 
     final String name;
     final int access;
@@ -482,7 +482,8 @@ public class SerialVersionUIDAdder extends ClassVisitor {
     @Override
     public boolean equals(final Object other) {
       if (other instanceof Item) {
-        return compareTo((Item) other) == 0;
+        Item item = (Item) other;
+        return name.equals(item.name) && descriptor.equals(item.descriptor);
       }
       return false;
     }

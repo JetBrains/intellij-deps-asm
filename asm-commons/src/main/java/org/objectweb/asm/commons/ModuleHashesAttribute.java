@@ -127,9 +127,10 @@ public final class ModuleHashesAttribute extends Attribute {
       int numModules = modules.size();
       byteVector.putShort(numModules);
       for (int i = 0; i < numModules; ++i) {
+        String module = modules.get(i);
         byte[] hash = hashes.get(i);
         byteVector
-            .putShort(classWriter.newModule(modules.get(i)))
+            .putShort(classWriter.newModule(module))
             .putShort(hash.length)
             .putByteArray(hash, 0, hash.length);
       }

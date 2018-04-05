@@ -51,16 +51,17 @@ public class Method {
   private static final Map<String, String> PRIMITIVE_TYPE_DESCRIPTORS;
 
   static {
-    PRIMITIVE_TYPE_DESCRIPTORS = new HashMap<String, String>();
-    PRIMITIVE_TYPE_DESCRIPTORS.put("void", "V");
-    PRIMITIVE_TYPE_DESCRIPTORS.put("byte", "B");
-    PRIMITIVE_TYPE_DESCRIPTORS.put("char", "C");
-    PRIMITIVE_TYPE_DESCRIPTORS.put("double", "D");
-    PRIMITIVE_TYPE_DESCRIPTORS.put("float", "F");
-    PRIMITIVE_TYPE_DESCRIPTORS.put("int", "I");
-    PRIMITIVE_TYPE_DESCRIPTORS.put("long", "J");
-    PRIMITIVE_TYPE_DESCRIPTORS.put("short", "S");
-    PRIMITIVE_TYPE_DESCRIPTORS.put("boolean", "Z");
+    HashMap<String, String> descriptors = new HashMap<String, String>();
+    descriptors.put("void", "V");
+    descriptors.put("byte", "B");
+    descriptors.put("char", "C");
+    descriptors.put("double", "D");
+    descriptors.put("float", "F");
+    descriptors.put("int", "I");
+    descriptors.put("long", "J");
+    descriptors.put("short", "S");
+    descriptors.put("boolean", "Z");
+    PRIMITIVE_TYPE_DESCRIPTORS = descriptors;
   }
 
   /**

@@ -270,6 +270,9 @@ configure(subprojects.findAll { it.provides }) {
   // Apply the SonarQube plugin to monitor the code quality of the project.
   // Use with 'gradlew sonarqube -Dsonar.host.url=https://sonarqube.ow2.org'.
   apply plugin: 'org.sonarqube'
+  sonarqube {
+    properties { property 'sonar.projectKey', "ASM:${project.name}" }
+  }
 
   // Add a task to generate a private javadoc and add it as a dependency of the
   // 'check' task.

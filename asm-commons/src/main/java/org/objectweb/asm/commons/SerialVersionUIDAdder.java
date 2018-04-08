@@ -35,6 +35,7 @@ import java.security.MessageDigest;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Comparator;
 
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.FieldVisitor;
@@ -447,7 +448,18 @@ public class SerialVersionUIDAdder extends ClassVisitor {
       throws IOException {
     int size = itemCollection.size();
     Item[] items = itemCollection.toArray(new Item[size]);
-    Arrays.sort(items);
+    Arrays.sort(
+        items,
+        new Comparator<Item>() {
+          @Override
+          public int compare(final Item item1, final Item item2) {
+            int result = item1.name.compareTo(item2.name);
+            if (result == 0) {
+              result = item1.descriptor.compareTo(item2.descriptor);
+            }
+            return result;
+          }
+        });
     for (Item item : items) {
       dataOutputStream.writeUTF(item.name);
       dataOutputStream.writeInt(item.access);
@@ -459,7 +471,7 @@ public class SerialVersionUIDAdder extends ClassVisitor {
   // Inner classes
   // -----------------------------------------------------------------------------------------------
 
-  private static final class Item implements Comparable<Item> {
+  private static final class Item {
 
     final String name;
     final int access;
@@ -469,28 +481,6 @@ public class SerialVersionUIDAdder extends ClassVisitor {
       this.name = name;
       this.access = access;
       this.descriptor = descriptor;
-    }
-
-    public int compareTo(final Item other) {
-      int result = name.compareTo(other.name);
-      if (result == 0) {
-        result = descriptor.compareTo(other.descriptor);
-      }
-      return result;
-    }
-
-    @Override
-    public boolean equals(final Object other) {
-      if (other instanceof Item) {
-        Item item = (Item) other;
-        return name.equals(item.name) && descriptor.equals(item.descriptor);
-      }
-      return false;
-    }
-
-    @Override
-    public int hashCode() {
-      return (name + descriptor).hashCode();
     }
   }
 }

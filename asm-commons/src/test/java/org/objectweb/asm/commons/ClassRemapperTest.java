@@ -31,6 +31,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.objectweb.asm.test.Assertions.assertThat;
 
+import java.util.Arrays;
+
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -55,6 +57,26 @@ public class ClassRemapperTest extends AsmTest {
         new ClassRemapper(classNode, new SimpleRemapper("pkg/C", "new/pkg/C"));
     classRemapper.visit(Opcodes.V1_5, Opcodes.ACC_PUBLIC, "pkg/C", null, "java/lang/Object", null);
     assertEquals("new/pkg/C", classNode.name);
+  }
+
+  @Test
+  public void testRenameModuleHashes() {
+    ClassNode classNode = new ClassNode();
+    ClassRemapper classRemapper =
+        new ClassRemapper(
+            classNode,
+            new Remapper() {
+
+              @Override
+              public String mapModuleName(String name) {
+                return "new." + name;
+              }
+            });
+    classRemapper.visit(Opcodes.V1_5, Opcodes.ACC_PUBLIC, "C", null, "java/lang/Object", null);
+    classRemapper.visitAttribute(
+        new ModuleHashesAttribute("algorithm", Arrays.asList("pkg.C"), Arrays.asList(new byte[0])));
+    assertEquals("C", classNode.name);
+    assertEquals("new.pkg.C", ((ModuleHashesAttribute) classNode.attrs.get(0)).modules.get(0));
   }
 
   /** Tests that classes transformed with a ClassRemapper can be loaded and instantiated. */

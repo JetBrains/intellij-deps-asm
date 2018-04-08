@@ -72,7 +72,7 @@ public class SerialVersionUIDAdderTest extends AsmTest {
   @Test
   public void testClass() throws Throwable {
     long actualSvuid = computeSerialVersionUID(SerialVersionClass.class.getName());
-    assertEquals(4737241769335595888L, actualSvuid);
+    assertEquals(-6502746299017468033L, actualSvuid);
   }
 
   @Test
@@ -120,6 +120,9 @@ public class SerialVersionUIDAdderTest extends AsmTest {
 class SerialVersionClass implements Serializable {
 
   protected static final int aField = 32;
+
+  static {
+  }
 
   public static Object[] aMethod() {
     return null;

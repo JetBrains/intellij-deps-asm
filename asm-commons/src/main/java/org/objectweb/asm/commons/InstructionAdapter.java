@@ -639,7 +639,7 @@ public class InstructionAdapter extends MethodVisitor {
       throw new UnsupportedOperationException();
     }
     if (value instanceof Integer) {
-      iconst(((Integer) value).intValue());
+      iconst((Integer) value);
     } else if (value instanceof Byte) {
       iconst(((Byte) value).intValue());
     } else if (value instanceof Character) {
@@ -649,11 +649,11 @@ public class InstructionAdapter extends MethodVisitor {
     } else if (value instanceof Boolean) {
       iconst(((Boolean) value).booleanValue() ? 1 : 0);
     } else if (value instanceof Float) {
-      fconst(((Float) value).floatValue());
+      fconst((Float) value);
     } else if (value instanceof Long) {
-      lconst(((Long) value).longValue());
+      lconst((Long) value);
     } else if (value instanceof Double) {
-      dconst(((Double) value).doubleValue());
+      dconst((Double) value);
     } else if (value instanceof String) {
       aconst(value);
     } else if (value instanceof Type) {

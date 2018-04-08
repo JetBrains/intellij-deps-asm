@@ -58,7 +58,7 @@ public class CheckModuleAdapter extends ModuleVisitor {
 
   /** The class version number. */
   int classVersion;
-  
+
   /** Whether the {@link #visitEnd} method has been called. */
   private boolean visitEndCalled;
 
@@ -95,20 +95,21 @@ public class CheckModuleAdapter extends ModuleVisitor {
 
   @Override
   public void visitMainClass(final String mainClass) {
-    CheckMethodAdapter.checkInternalName(mainClass, "module main class");
+    // Modules can only appear in V9 or more classes.
+    CheckMethodAdapter.checkInternalName(Opcodes.V9, mainClass, "module main class");
     super.visitMainClass(mainClass);
   }
 
   @Override
   public void visitPackage(final String packaze) {
-    CheckMethodAdapter.checkInternalName(packaze, "module package");
+    CheckMethodAdapter.checkInternalName(Opcodes.V9, packaze, "module package");
     super.visitPackage(packaze);
   }
 
   @Override
   public void visitRequire(final String module, final int access, final String version) {
     checkVisitEndNotCalled();
-    CheckClassAdapter.checkFullyQualifiedName(module, "required module");
+    CheckClassAdapter.checkFullyQualifiedName(Opcodes.V9, module, "required module");
     checkNameNotAlreadyDeclared(module, requiredModules, "Modules requires");
     CheckClassAdapter.checkAccess(
         access,
@@ -116,10 +117,13 @@ public class CheckModuleAdapter extends ModuleVisitor {
             | Opcodes.ACC_TRANSITIVE
             | Opcodes.ACC_SYNTHETIC
             | Opcodes.ACC_MANDATED);
-    if (classVersion >= Opcodes.V10 && module.equals("java.base") &&
-        (access & (Opcodes.ACC_STATIC_PHASE | Opcodes.ACC_TRANSITIVE)) != 0) {
-      throw new IllegalArgumentException("Invalid access flags: " + access +
-          " java.base can not be declared ACC_TRANSITIVE or ACC_STATIC_PHASE");
+    if (classVersion >= Opcodes.V10
+        && module.equals("java.base")
+        && (access & (Opcodes.ACC_STATIC_PHASE | Opcodes.ACC_TRANSITIVE)) != 0) {
+      throw new IllegalArgumentException(
+          "Invalid access flags: "
+              + access
+              + " java.base can not be declared ACC_TRANSITIVE or ACC_STATIC_PHASE");
     }
     super.visitRequire(module, access, version);
   }
@@ -127,12 +131,12 @@ public class CheckModuleAdapter extends ModuleVisitor {
   @Override
   public void visitExport(final String packaze, final int access, final String... modules) {
     checkVisitEndNotCalled();
-    CheckMethodAdapter.checkInternalName(packaze, "package name");
+    CheckMethodAdapter.checkInternalName(Opcodes.V9, packaze, "package name");
     checkNameNotAlreadyDeclared(packaze, exportedPackages, "Module exports");
     CheckClassAdapter.checkAccess(access, Opcodes.ACC_SYNTHETIC | Opcodes.ACC_MANDATED);
     if (modules != null) {
       for (String module : modules) {
-        CheckClassAdapter.checkFullyQualifiedName(module, "module export to");
+        CheckClassAdapter.checkFullyQualifiedName(Opcodes.V9, module, "module export to");
       }
     }
     super.visitExport(packaze, access, modules);
@@ -144,12 +148,12 @@ public class CheckModuleAdapter extends ModuleVisitor {
     if (isOpen) {
       throw new UnsupportedOperationException("An open module can not use open directive");
     }
-    CheckMethodAdapter.checkInternalName(packaze, "package name");
+    CheckMethodAdapter.checkInternalName(Opcodes.V9, packaze, "package name");
     checkNameNotAlreadyDeclared(packaze, openedPackages, "Module opens");
     CheckClassAdapter.checkAccess(access, Opcodes.ACC_SYNTHETIC | Opcodes.ACC_MANDATED);
     if (modules != null) {
       for (String module : modules) {
-        CheckClassAdapter.checkFullyQualifiedName(module, "module open to");
+        CheckClassAdapter.checkFullyQualifiedName(Opcodes.V9, module, "module open to");
       }
     }
     super.visitOpen(packaze, access, modules);
@@ -158,7 +162,7 @@ public class CheckModuleAdapter extends ModuleVisitor {
   @Override
   public void visitUse(final String service) {
     checkVisitEndNotCalled();
-    CheckMethodAdapter.checkInternalName(service, "service");
+    CheckMethodAdapter.checkInternalName(Opcodes.V9, service, "service");
     checkNameNotAlreadyDeclared(service, usedServices, "Module uses");
     super.visitUse(service);
   }
@@ -166,13 +170,13 @@ public class CheckModuleAdapter extends ModuleVisitor {
   @Override
   public void visitProvide(final String service, final String... providers) {
     checkVisitEndNotCalled();
-    CheckMethodAdapter.checkInternalName(service, "service");
+    CheckMethodAdapter.checkInternalName(Opcodes.V9, service, "service");
     checkNameNotAlreadyDeclared(service, providedServices, "Module provides");
     if (providers == null || providers.length == 0) {
       throw new IllegalArgumentException("Providers cannot be null or empty");
     }
     for (String provider : providers) {
-      CheckMethodAdapter.checkInternalName(provider, "provider");
+      CheckMethodAdapter.checkInternalName(Opcodes.V9, provider, "provider");
     }
     super.visitProvide(service, providers);
   }

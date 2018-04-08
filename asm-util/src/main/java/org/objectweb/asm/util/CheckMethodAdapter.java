@@ -484,7 +484,7 @@ public class CheckMethodAdapter extends MethodVisitor {
   @Override
   public AnnotationVisitor visitAnnotation(final String descriptor, final boolean visible) {
     checkVisitEndNotCalled();
-    checkDescriptor(descriptor, false);
+    checkDescriptor(version, descriptor, false);
     return new CheckAnnotationAdapter(super.visitAnnotation(descriptor, visible));
   }
 
@@ -502,7 +502,7 @@ public class CheckMethodAdapter extends MethodVisitor {
       throw new IllegalArgumentException(INVALID_TYPE_REFERENCE + Integer.toHexString(sort));
     }
     CheckClassAdapter.checkTypeRef(typeRef);
-    CheckMethodAdapter.checkDescriptor(descriptor, false);
+    CheckMethodAdapter.checkDescriptor(version, descriptor, false);
     return new CheckAnnotationAdapter(
         super.visitTypeAnnotation(typeRef, typePath, descriptor, visible));
   }
@@ -536,7 +536,7 @@ public class CheckMethodAdapter extends MethodVisitor {
             && parameter >= invisibleAnnotableParameterCount)) {
       throw new IllegalArgumentException("Invalid parameter index");
     }
-    checkDescriptor(descriptor, false);
+    checkDescriptor(version, descriptor, false);
     return new CheckAnnotationAdapter(
         super.visitParameterAnnotation(parameter, descriptor, visible));
   }
@@ -680,7 +680,7 @@ public class CheckMethodAdapter extends MethodVisitor {
     checkVisitCodeCalled();
     checkVisitMaxsNotCalled();
     checkOpcodeMethod(opcode, Method.VISIT_TYPE_INSN);
-    checkInternalName(type, "type");
+    checkInternalName(version, type, "type");
     if (opcode == Opcodes.NEW && type.charAt(0) == '[') {
       throw new IllegalArgumentException("NEW cannot be used to create arrays: " + type);
     }
@@ -694,9 +694,9 @@ public class CheckMethodAdapter extends MethodVisitor {
     checkVisitCodeCalled();
     checkVisitMaxsNotCalled();
     checkOpcodeMethod(opcode, Method.VISIT_FIELD_INSN);
-    checkInternalName(owner, "owner");
+    checkInternalName(version, owner, "owner");
     checkUnqualifiedName(version, name, "name");
-    checkDescriptor(descriptor, false);
+    checkDescriptor(version, descriptor, false);
     super.visitFieldInsn(opcode, owner, name, descriptor);
     ++insnCount;
   }
@@ -739,8 +739,8 @@ public class CheckMethodAdapter extends MethodVisitor {
     if (opcode != Opcodes.INVOKESPECIAL || !"<init>".equals(name)) {
       checkMethodIdentifier(version, name, "name");
     }
-    checkInternalName(owner, "owner");
-    checkMethodDescriptor(descriptor);
+    checkInternalName(version, owner, "owner");
+    checkMethodDescriptor(version, descriptor);
     if (opcode == Opcodes.INVOKEVIRTUAL && isInterface) {
       throw new IllegalArgumentException("INVOKEVIRTUAL can't be used with interfaces");
     }
@@ -770,7 +770,7 @@ public class CheckMethodAdapter extends MethodVisitor {
     checkVisitCodeCalled();
     checkVisitMaxsNotCalled();
     checkMethodIdentifier(version, name, "name");
-    checkMethodDescriptor(descriptor);
+    checkMethodDescriptor(version, descriptor);
     if (bootstrapMethodHandle.getTag() != Opcodes.H_INVOKESTATIC
         && bootstrapMethodHandle.getTag() != Opcodes.H_NEWINVOKESPECIAL) {
       throw new IllegalArgumentException("invalid handle tag " + bootstrapMethodHandle.getTag());
@@ -870,7 +870,7 @@ public class CheckMethodAdapter extends MethodVisitor {
   public void visitMultiANewArrayInsn(final String descriptor, final int numDimensions) {
     checkVisitCodeCalled();
     checkVisitMaxsNotCalled();
-    checkDescriptor(descriptor, false);
+    checkDescriptor(version, descriptor, false);
     if (descriptor.charAt(0) != '[') {
       throw new IllegalArgumentException(
           "Invalid descriptor (must be an array type descriptor): " + descriptor);
@@ -906,7 +906,7 @@ public class CheckMethodAdapter extends MethodVisitor {
       throw new IllegalArgumentException(INVALID_TYPE_REFERENCE + Integer.toHexString(sort));
     }
     CheckClassAdapter.checkTypeRef(typeRef);
-    CheckMethodAdapter.checkDescriptor(descriptor, false);
+    CheckMethodAdapter.checkDescriptor(version, descriptor, false);
     return new CheckAnnotationAdapter(
         super.visitInsnAnnotation(typeRef, typePath, descriptor, visible));
   }
@@ -925,7 +925,7 @@ public class CheckMethodAdapter extends MethodVisitor {
       throw new IllegalStateException("Try catch blocks must be visited before their labels");
     }
     if (type != null) {
-      checkInternalName(type, "type");
+      checkInternalName(version, type, "type");
     }
     super.visitTryCatchBlock(start, end, handler, type);
     handlers.add(start);
@@ -942,7 +942,7 @@ public class CheckMethodAdapter extends MethodVisitor {
       throw new IllegalArgumentException(INVALID_TYPE_REFERENCE + Integer.toHexString(sort));
     }
     CheckClassAdapter.checkTypeRef(typeRef);
-    CheckMethodAdapter.checkDescriptor(descriptor, false);
+    CheckMethodAdapter.checkDescriptor(version, descriptor, false);
     return new CheckAnnotationAdapter(
         super.visitTryCatchAnnotation(typeRef, typePath, descriptor, visible));
   }
@@ -958,7 +958,7 @@ public class CheckMethodAdapter extends MethodVisitor {
     checkVisitCodeCalled();
     checkVisitMaxsNotCalled();
     checkUnqualifiedName(version, name, "name");
-    checkDescriptor(descriptor, false);
+    checkDescriptor(version, descriptor, false);
     checkLabel(start, true, START_LABEL);
     checkLabel(end, true, END_LABEL);
     checkUnsignedShort(index, INVALID_LOCAL_VARIABLE_INDEX);
@@ -987,7 +987,7 @@ public class CheckMethodAdapter extends MethodVisitor {
       throw new IllegalArgumentException(INVALID_TYPE_REFERENCE + Integer.toHexString(sort));
     }
     CheckClassAdapter.checkTypeRef(typeRef);
-    checkDescriptor(descriptor, false);
+    checkDescriptor(version, descriptor, false);
     if (start == null
         || end == null
         || index == null
@@ -1093,7 +1093,7 @@ public class CheckMethodAdapter extends MethodVisitor {
         || value == Opcodes.UNINITIALIZED_THIS) {
       return;
     } else if (value instanceof String) {
-      checkInternalName((String) value, "Invalid stack frame value");
+      checkInternalName(version, (String) value, "Invalid stack frame value");
     } else if (value instanceof Label) {
       referencedLabels.add((Label) value);
     } else {
@@ -1203,31 +1203,13 @@ public class CheckMethodAdapter extends MethodVisitor {
    * @param message the message to use in case of error.
    */
   static void checkUnqualifiedName(final int version, final String name, final String message) {
-    if ((version & 0xFFFF) < Opcodes.V1_5) {
-      checkIdentifier(name, message);
-    } else {
-      for (int i = 0; i < name.length(); ++i) {
-        if (".;[/".indexOf(name.charAt(i)) != -1) {
-          throw new IllegalArgumentException(
-              INVALID + message + " (must be a valid unqualified name): " + name);
-        }
-      }
-    }
-  }
-
-  /**
-   * Checks that the given string is a valid Java identifier.
-   *
-   * @param name the string to be checked.
-   * @param message the message to use in case of error.
-   */
-  private static void checkIdentifier(final String name, final String message) {
-    checkIdentifier(name, 0, -1, message);
+    checkIdentifier(version, name, 0, -1, message);
   }
 
   /**
    * Checks that the given substring is a valid Java identifier.
    *
+   * @param version the class version.
    * @param name the string to be checked.
    * @param startPos the index of the first character of the identifier (inclusive).
    * @param endPos the index of the last character of the identifier (exclusive). -1 is equivalent
@@ -1235,11 +1217,24 @@ public class CheckMethodAdapter extends MethodVisitor {
    * @param message the message to use in case of error.
    */
   static void checkIdentifier(
-      final String name, final int startPos, final int endPos, final String message) {
+      final int version,
+      final String name,
+      final int startPos,
+      final int endPos,
+      final String message) {
     if (name == null || (endPos == -1 ? name.length() <= startPos : endPos <= startPos)) {
       throw new IllegalArgumentException(INVALID + message + MUST_NOT_BE_NULL_OR_EMPTY);
     }
     int max = endPos == -1 ? name.length() : endPos;
+    if ((version & 0xFFFF) >= Opcodes.V1_5) {
+      for (int i = startPos; i < max; i = name.offsetByCodePoints(i, 1)) {
+        if (".;[/".indexOf(name.codePointAt(i)) != -1) {
+          throw new IllegalArgumentException(
+              INVALID + message + " (must not contain . ; [ or /): " + name);
+        }
+      }
+      return;
+    }
     for (int i = startPos; i < max; i = name.offsetByCodePoints(i, 1)) {
       if (i == startPos
           ? !Character.isJavaIdentifierStart(name.codePointAt(i))
@@ -1262,8 +1257,8 @@ public class CheckMethodAdapter extends MethodVisitor {
       throw new IllegalArgumentException(INVALID + message + MUST_NOT_BE_NULL_OR_EMPTY);
     }
     if ((version & 0xFFFF) >= Opcodes.V1_5) {
-      for (int i = 0; i < name.length(); ++i) {
-        if (".;[/<>".indexOf(name.charAt(i)) != -1) {
+      for (int i = 0; i < name.length(); i = name.offsetByCodePoints(i, 1)) {
+        if (".;[/<>".indexOf(name.codePointAt(i)) != -1) {
           throw new IllegalArgumentException(
               INVALID + message + " (must be a valid unqualified name): " + name);
         }
@@ -1286,35 +1281,38 @@ public class CheckMethodAdapter extends MethodVisitor {
   /**
    * Checks that the given string is a valid internal class name or array type descriptor.
    *
+   * @param version the class version.
    * @param name the string to be checked.
    * @param message the message to use in case of error.
    */
-  static void checkInternalName(final String name, final String message) {
+  static void checkInternalName(final int version, final String name, final String message) {
     if (name == null || name.length() == 0) {
       throw new IllegalArgumentException(INVALID + message + MUST_NOT_BE_NULL_OR_EMPTY);
     }
     if (name.charAt(0) == '[') {
-      checkDescriptor(name, false);
+      checkDescriptor(version, name, false);
     } else {
-      checkInternalClassName(name, message);
+      checkInternalClassName(version, name, message);
     }
   }
 
   /**
    * Checks that the given string is a valid internal class name.
    *
+   * @param version the class version.
    * @param name the string to be checked.
    * @param message the message to use in case of error.
    */
-  private static void checkInternalClassName(final String name, final String message) {
+  private static void checkInternalClassName(
+      final int version, final String name, final String message) {
     try {
       int startIndex = 0;
       int slashIndex;
       while ((slashIndex = name.indexOf('/', startIndex + 1)) != -1) {
-        CheckMethodAdapter.checkIdentifier(name, startIndex, slashIndex, null);
+        CheckMethodAdapter.checkIdentifier(version, name, startIndex, slashIndex, null);
         startIndex = slashIndex + 1;
       }
-      CheckMethodAdapter.checkIdentifier(name, startIndex, name.length(), null);
+      CheckMethodAdapter.checkIdentifier(version, name, startIndex, name.length(), null);
     } catch (IllegalArgumentException e) {
       throw new IllegalArgumentException(
           INVALID + message + " (must be an internal class name): " + name);
@@ -1324,11 +1322,12 @@ public class CheckMethodAdapter extends MethodVisitor {
   /**
    * Checks that the given string is a valid type descriptor.
    *
+   * @param version the class version.
    * @param descriptor the string to be checked.
    * @param canBeVoid <tt>true</tt> if <tt>V</tt> can be considered valid.
    */
-  static void checkDescriptor(final String descriptor, final boolean canBeVoid) {
-    int endPos = checkDescriptor(descriptor, 0, canBeVoid);
+  static void checkDescriptor(final int version, final String descriptor, final boolean canBeVoid) {
+    int endPos = checkDescriptor(version, descriptor, 0, canBeVoid);
     if (endPos != descriptor.length()) {
       throw new IllegalArgumentException(INVALID_DESCRIPTOR + descriptor);
     }
@@ -1337,13 +1336,14 @@ public class CheckMethodAdapter extends MethodVisitor {
   /**
    * Checks that a the given substring is a valid type descriptor.
    *
+   * @param version the class version.
    * @param descriptor the string to be checked.
    * @param startPos the index of the first character of the type descriptor (inclusive).
    * @param canBeVoid whether <tt>V</tt> can be considered valid.
    * @return the index of the last character of the type descriptor, plus one.
    */
   private static int checkDescriptor(
-      final String descriptor, final int startPos, final boolean canBeVoid) {
+      final int version, final String descriptor, final int startPos, final boolean canBeVoid) {
     if (descriptor == null || startPos >= descriptor.length()) {
       throw new IllegalArgumentException("Invalid type descriptor (must not be null or empty)");
     }
@@ -1369,7 +1369,7 @@ public class CheckMethodAdapter extends MethodVisitor {
           ++pos;
         }
         if (pos < descriptor.length()) {
-          return checkDescriptor(descriptor, pos, false);
+          return checkDescriptor(version, descriptor, pos, false);
         } else {
           throw new IllegalArgumentException(INVALID_DESCRIPTOR + descriptor);
         }
@@ -1379,7 +1379,7 @@ public class CheckMethodAdapter extends MethodVisitor {
           throw new IllegalArgumentException(INVALID_DESCRIPTOR + descriptor);
         }
         try {
-          checkInternalClassName(descriptor.substring(startPos + 1, endPos), null);
+          checkInternalClassName(version, descriptor.substring(startPos + 1, endPos), null);
         } catch (IllegalArgumentException unused) {
           throw new IllegalArgumentException(INVALID_DESCRIPTOR + descriptor);
         }
@@ -1392,9 +1392,10 @@ public class CheckMethodAdapter extends MethodVisitor {
   /**
    * Checks that the given string is a valid method descriptor.
    *
+   * @param version the class version.
    * @param descriptor the string to be checked.
    */
-  static void checkMethodDescriptor(final String descriptor) {
+  static void checkMethodDescriptor(final int version, final String descriptor) {
     if (descriptor == null || descriptor.length() == 0) {
       throw new IllegalArgumentException("Invalid method descriptor (must not be null or empty)");
     }
@@ -1407,10 +1408,10 @@ public class CheckMethodAdapter extends MethodVisitor {
         if (descriptor.charAt(pos) == 'V') {
           throw new IllegalArgumentException(INVALID_DESCRIPTOR + descriptor);
         }
-        pos = checkDescriptor(descriptor, pos, false);
+        pos = checkDescriptor(version, descriptor, pos, false);
       } while (pos < descriptor.length() && descriptor.charAt(pos) != ')');
     }
-    pos = checkDescriptor(descriptor, pos + 1, true);
+    pos = checkDescriptor(version, descriptor, pos + 1, true);
     if (pos != descriptor.length()) {
       throw new IllegalArgumentException(INVALID_DESCRIPTOR + descriptor);
     }

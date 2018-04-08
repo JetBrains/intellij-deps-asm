@@ -72,7 +72,8 @@ public class CheckFieldAdapter extends FieldVisitor {
   @Override
   public AnnotationVisitor visitAnnotation(final String descriptor, final boolean visible) {
     checkVisitEndNotCalled();
-    CheckMethodAdapter.checkDescriptor(descriptor, false);
+    // Annotations can only appear in V1_5 or more classes.
+    CheckMethodAdapter.checkDescriptor(Opcodes.V1_5, descriptor, false);
     return new CheckAnnotationAdapter(super.visitAnnotation(descriptor, visible));
   }
 
@@ -86,7 +87,7 @@ public class CheckFieldAdapter extends FieldVisitor {
           "Invalid type reference sort 0x" + Integer.toHexString(sort));
     }
     CheckClassAdapter.checkTypeRef(typeRef);
-    CheckMethodAdapter.checkDescriptor(descriptor, false);
+    CheckMethodAdapter.checkDescriptor(Opcodes.V1_5, descriptor, false);
     return new CheckAnnotationAdapter(
         super.visitTypeAnnotation(typeRef, typePath, descriptor, visible));
   }

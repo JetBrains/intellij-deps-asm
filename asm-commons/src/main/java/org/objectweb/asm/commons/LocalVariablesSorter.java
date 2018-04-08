@@ -296,7 +296,9 @@ public class LocalVariablesSorter extends MethodVisitor {
    *     {@link MethodVisitor#visitFrame}, except that long and double types use two slots. The
    *     types for the current stack map frame must be updated in place in this array.
    */
-  protected void updateNewLocals(final Object[] newLocals) {}
+  protected void updateNewLocals(final Object[] newLocals) {
+    // The default implementation does nothing.    
+  }
 
   /**
    * Notifies subclasses that a local variable has been added or remapped. The default
@@ -305,7 +307,9 @@ public class LocalVariablesSorter extends MethodVisitor {
    * @param local a local variable identifier, as returned by {@link #newLocal}.
    * @param type the type of the value being stored in the local variable.
    */
-  protected void setLocalType(final int local, final Type type) {}
+  protected void setLocalType(final int local, final Type type) {
+    // The default implementation does nothing.
+  }
 
   private void setFrameLocal(final int local, final Object type) {
     int numLocals = remappedLocalTypes.length;

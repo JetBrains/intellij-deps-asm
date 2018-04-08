@@ -1005,6 +1005,7 @@ public class InstructionAdapter extends MethodVisitor {
     mv.visitFieldInsn(Opcodes.PUTFIELD, owner, name, descriptor);
   }
 
+  /** @deprecated */
   @Deprecated
   public void invokevirtual(final String owner, final String name, final String descriptor) {
     if (api >= Opcodes.ASM5) {
@@ -1026,6 +1027,7 @@ public class InstructionAdapter extends MethodVisitor {
     mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, owner, name, descriptor, isInterface);
   }
 
+  /** @deprecated */
   @Deprecated
   public void invokespecial(final String owner, final String name, final String descriptor) {
     if (api >= Opcodes.ASM5) {
@@ -1047,6 +1049,7 @@ public class InstructionAdapter extends MethodVisitor {
     mv.visitMethodInsn(Opcodes.INVOKESPECIAL, owner, name, descriptor, isInterface);
   }
 
+  /** @deprecated */
   @Deprecated
   public void invokestatic(final String owner, final String name, final String descriptor) {
     if (api >= Opcodes.ASM5) {

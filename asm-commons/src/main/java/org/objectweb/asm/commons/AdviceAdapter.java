@@ -432,6 +432,7 @@ public abstract class AdviceAdapter extends GeneratorAdapter implements Opcodes 
     }
   }
 
+  /** @deprecated */
   @Deprecated
   @Override
   public void visitMethodInsn(
@@ -564,9 +565,9 @@ public abstract class AdviceAdapter extends GeneratorAdapter implements Opcodes 
     if (isConstructor
         && !superClassConstructorCalled
         && !forwardJumpStackFrames.containsKey(handler)) {
-      List<Object> stackFrame = new ArrayList<Object>();
-      stackFrame.add(OTHER);
-      forwardJumpStackFrames.put(handler, stackFrame);
+      List<Object> handlerStackFrame = new ArrayList<Object>();
+      handlerStackFrame.add(OTHER);
+      forwardJumpStackFrames.put(handler, handlerStackFrame);
     }
   }
 

@@ -39,10 +39,9 @@ import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
 /**
- * A {@link org.objectweb.asm.MethodVisitor} to insert before, after and around advices in methods
- * and constructors.
+ * A {@link MethodVisitor} to insert before, after and around advices in methods and constructors.
  *
- * <p>The behavior for constructors is like this:
+ * <p>The behavior for constructors is the following:
  *
  * <ol>
  *   <li>as long as the INVOKESPECIAL for the object initialization has not been reached, every
@@ -57,60 +56,71 @@ import org.objectweb.asm.Type;
  */
 public abstract class AdviceAdapter extends GeneratorAdapter implements Opcodes {
 
-  private static final Object THIS = new Object();
+  /** The "uninitialized this" value. */
+  private static final Object UNINITIALIZED_THIS = new Object();
 
+  /** Any value other than "uninitialized this". */
   private static final Object OTHER = new Object();
 
+  private static final String INVALID_OPCODE = "Invalid opcode ";
+
+  /** The access flags of the visited method. */
   protected int methodAccess;
 
+  /** The descriptor of the visited method. */
   protected String methodDesc;
 
-  private boolean constructor;
+  /** Whether the visited method is a constructor. */
+  private boolean isConstructor;
 
-  private boolean superInitialized;
+  /**
+   * Whether the super class constructor has been called (if the visited method is a constructor).
+   */
+  private boolean superClassConstructorCalled;
 
+  /**
+   * The values on the current execution stack frame (long and double are represented by two
+   * elements). Each value is either {@link #UNINITIALIZED_THIS} (for the uninitialized this value),
+   * or {@link #OTHER} (for any other value). This field is only maintained for constructors, in
+   * branches where the super class constructor has not been called yet.
+   */
   private List<Object> stackFrame;
 
-  private Map<Label, Branch> branches;
-
-  private static final class Branch {
-    final List<Object> stackFrame;
-    final boolean superInitialized;
-
-    Branch(List<Object> stackFrame, boolean superInitialized) {
-      this.stackFrame = stackFrame;
-      this.superInitialized = superInitialized;
-    }
-  }
+  /**
+   * The stack map frames corresponding to the labels of the forward jumps made before the super
+   * class constructor has been called (note that the Java Virtual Machine forbids backward jumps
+   * before the super class constructor is called). This field is only maintained for constructors.
+   */
+  private Map<Label, List<Object>> forwardJumpStackFrames;
 
   /**
    * Constructs a new {@link AdviceAdapter}.
    *
    * @param api the ASM API version implemented by this visitor. Must be one of {@link
    *     Opcodes#ASM4}, {@link Opcodes#ASM5} or {@link Opcodes#ASM6}.
-   * @param mv the method visitor to which this adapter delegates calls.
+   * @param methodVisitor the method visitor to which this adapter delegates calls.
    * @param access the method's access flags (see {@link Opcodes}).
    * @param name the method's name.
-   * @param desc the method's descriptor (see {@link Type Type}).
+   * @param descriptor the method's descriptor (see {@link Type Type}).
    */
   protected AdviceAdapter(
       final int api,
-      final MethodVisitor mv,
+      final MethodVisitor methodVisitor,
       final int access,
       final String name,
-      final String desc) {
-    super(api, mv, access, name, desc);
+      final String descriptor) {
+    super(api, methodVisitor, access, name, descriptor);
     methodAccess = access;
-    methodDesc = desc;
-    constructor = "<init>".equals(name);
+    methodDesc = descriptor;
+    isConstructor = "<init>".equals(name);
   }
 
   @Override
   public void visitCode() {
     super.visitCode();
-    if (constructor) {
+    if (isConstructor) {
       stackFrame = new ArrayList<Object>();
-      branches = new HashMap<Label, Branch>();
+      forwardJumpStackFrames = new HashMap<Label, List<Object>>();
     } else {
       onMethodEnter();
     }
@@ -119,20 +129,20 @@ public abstract class AdviceAdapter extends GeneratorAdapter implements Opcodes 
   @Override
   public void visitLabel(final Label label) {
     super.visitLabel(label);
-    if (constructor && branches != null) {
-      Branch branch = branches.get(label);
-      if (branch != null) {
-        stackFrame = branch.stackFrame;
-        superInitialized = branch.superInitialized;
-        branches.remove(label);
+    if (isConstructor && forwardJumpStackFrames != null) {
+      List<Object> labelStackFrame = forwardJumpStackFrames.get(label);
+      if (labelStackFrame != null) {
+        stackFrame = labelStackFrame;
+        superClassConstructorCalled = false;
+        forwardJumpStackFrames.remove(label);
       }
     }
   }
 
   @Override
   public void visitInsn(final int opcode) {
-    if (constructor && !superInitialized) {
-      int s;
+    if (isConstructor && !superClassConstructorCalled) {
+      int stackSize;
       switch (opcode) {
         case IRETURN:
         case FRETURN:
@@ -264,33 +274,35 @@ public abstract class AdviceAdapter extends GeneratorAdapter implements Opcodes 
           pushValue(peekValue());
           break;
         case DUP_X1:
-          s = stackFrame.size();
-          stackFrame.add(s - 2, stackFrame.get(s - 1));
+          stackSize = stackFrame.size();
+          stackFrame.add(stackSize - 2, stackFrame.get(stackSize - 1));
           break;
         case DUP_X2:
-          s = stackFrame.size();
-          stackFrame.add(s - 3, stackFrame.get(s - 1));
+          stackSize = stackFrame.size();
+          stackFrame.add(stackSize - 3, stackFrame.get(stackSize - 1));
           break;
         case DUP2:
-          s = stackFrame.size();
-          stackFrame.add(s - 2, stackFrame.get(s - 1));
-          stackFrame.add(s - 2, stackFrame.get(s - 1));
+          stackSize = stackFrame.size();
+          stackFrame.add(stackSize - 2, stackFrame.get(stackSize - 1));
+          stackFrame.add(stackSize - 2, stackFrame.get(stackSize - 1));
           break;
         case DUP2_X1:
-          s = stackFrame.size();
-          stackFrame.add(s - 3, stackFrame.get(s - 1));
-          stackFrame.add(s - 3, stackFrame.get(s - 1));
+          stackSize = stackFrame.size();
+          stackFrame.add(stackSize - 3, stackFrame.get(stackSize - 1));
+          stackFrame.add(stackSize - 3, stackFrame.get(stackSize - 1));
           break;
         case DUP2_X2:
-          s = stackFrame.size();
-          stackFrame.add(s - 4, stackFrame.get(s - 1));
-          stackFrame.add(s - 4, stackFrame.get(s - 1));
+          stackSize = stackFrame.size();
+          stackFrame.add(stackSize - 4, stackFrame.get(stackSize - 1));
+          stackFrame.add(stackSize - 4, stackFrame.get(stackSize - 1));
           break;
         case SWAP:
-          s = stackFrame.size();
-          stackFrame.add(s - 2, stackFrame.get(s - 1));
-          stackFrame.remove(s);
+          stackSize = stackFrame.size();
+          stackFrame.add(stackSize - 2, stackFrame.get(stackSize - 1));
+          stackFrame.remove(stackSize);
           break;
+        default:
+          throw new IllegalArgumentException(INVALID_OPCODE + opcode);
       }
     } else {
       switch (opcode) {
@@ -303,6 +315,8 @@ public abstract class AdviceAdapter extends GeneratorAdapter implements Opcodes 
         case ATHROW:
           onMethodExit(opcode);
           break;
+        default:
+          break;
       }
     }
     super.visitInsn(opcode);
@@ -311,7 +325,7 @@ public abstract class AdviceAdapter extends GeneratorAdapter implements Opcodes 
   @Override
   public void visitVarInsn(final int opcode, final int var) {
     super.visitVarInsn(opcode, var);
-    if (constructor && !superInitialized) {
+    if (isConstructor && !superClassConstructorCalled) {
       switch (opcode) {
         case ILOAD:
         case FLOAD:
@@ -323,7 +337,7 @@ public abstract class AdviceAdapter extends GeneratorAdapter implements Opcodes 
           pushValue(OTHER);
           break;
         case ALOAD:
-          pushValue(var == 0 ? THIS : OTHER);
+          pushValue(var == 0 ? UNINITIALIZED_THIS : OTHER);
           break;
         case ASTORE:
         case ISTORE:
@@ -335,17 +349,19 @@ public abstract class AdviceAdapter extends GeneratorAdapter implements Opcodes 
           popValue();
           popValue();
           break;
+        default:
+          throw new IllegalArgumentException(INVALID_OPCODE + opcode);
       }
     }
   }
 
   @Override
   public void visitFieldInsn(
-      final int opcode, final String owner, final String name, final String desc) {
-    super.visitFieldInsn(opcode, owner, name, desc);
-    if (constructor && !superInitialized) {
-      char c = desc.charAt(0);
-      boolean longOrDouble = c == 'J' || c == 'D';
+      final int opcode, final String owner, final String name, final String descriptor) {
+    super.visitFieldInsn(opcode, owner, name, descriptor);
+    if (isConstructor && !superClassConstructorCalled) {
+      char firstDescriptorChar = descriptor.charAt(0);
+      boolean longOrDouble = firstDescriptorChar == 'J' || firstDescriptorChar == 'D';
       switch (opcode) {
         case GETSTATIC:
           pushValue(OTHER);
@@ -366,11 +382,13 @@ public abstract class AdviceAdapter extends GeneratorAdapter implements Opcodes 
             popValue();
           }
           break;
-          // case GETFIELD:
-        default:
+        case GETFIELD:
           if (longOrDouble) {
             pushValue(OTHER);
           }
+          break;
+        default:
+          throw new IllegalArgumentException(INVALID_OPCODE + opcode);
       }
     }
   }
@@ -378,27 +396,27 @@ public abstract class AdviceAdapter extends GeneratorAdapter implements Opcodes 
   @Override
   public void visitIntInsn(final int opcode, final int operand) {
     super.visitIntInsn(opcode, operand);
-    if (constructor && !superInitialized && opcode != NEWARRAY) {
+    if (isConstructor && !superClassConstructorCalled && opcode != NEWARRAY) {
       pushValue(OTHER);
     }
   }
 
   @Override
-  public void visitLdcInsn(final Object cst) {
-    super.visitLdcInsn(cst);
-    if (constructor && !superInitialized) {
+  public void visitLdcInsn(final Object value) {
+    super.visitLdcInsn(value);
+    if (isConstructor && !superClassConstructorCalled) {
       pushValue(OTHER);
-      if (cst instanceof Double || cst instanceof Long) {
+      if (value instanceof Double || value instanceof Long) {
         pushValue(OTHER);
       }
     }
   }
 
   @Override
-  public void visitMultiANewArrayInsn(final String desc, final int dims) {
-    super.visitMultiANewArrayInsn(desc, dims);
-    if (constructor && !superInitialized) {
-      for (int i = 0; i < dims; i++) {
+  public void visitMultiANewArrayInsn(final String descriptor, final int numDimensions) {
+    super.visitMultiANewArrayInsn(descriptor, numDimensions);
+    if (isConstructor && !superClassConstructorCalled) {
+      for (int i = 0; i < numDimensions; i++) {
         popValue();
       }
       pushValue(OTHER);
@@ -408,8 +426,8 @@ public abstract class AdviceAdapter extends GeneratorAdapter implements Opcodes 
   @Override
   public void visitTypeInsn(final int opcode, final String type) {
     super.visitTypeInsn(opcode, type);
-    // ANEWARRAY, CHECKCAST or INSTANCEOF don't change stack
-    if (constructor && !superInitialized && opcode == NEW) {
+    // ANEWARRAY, CHECKCAST or INSTANCEOF don't change stack.
+    if (isConstructor && !superClassConstructorCalled && opcode == NEW) {
       pushValue(OTHER);
     }
   }
@@ -417,13 +435,13 @@ public abstract class AdviceAdapter extends GeneratorAdapter implements Opcodes 
   @Deprecated
   @Override
   public void visitMethodInsn(
-      final int opcode, final String owner, final String name, final String desc) {
+      final int opcode, final String owner, final String name, final String descriptor) {
     if (api >= Opcodes.ASM5) {
-      super.visitMethodInsn(opcode, owner, name, desc);
+      super.visitMethodInsn(opcode, owner, name, descriptor);
       return;
     }
-    mv.visitMethodInsn(opcode, owner, name, desc, opcode == Opcodes.INVOKEINTERFACE);
-    doVisitMethodInsn(opcode, desc);
+    mv.visitMethodInsn(opcode, owner, name, descriptor, opcode == Opcodes.INVOKEINTERFACE);
+    doVisitMethodInsn(opcode, descriptor);
   }
 
   @Override
@@ -431,42 +449,41 @@ public abstract class AdviceAdapter extends GeneratorAdapter implements Opcodes 
       final int opcode,
       final String owner,
       final String name,
-      final String desc,
-      final boolean itf) {
+      final String descriptor,
+      final boolean isInterface) {
     if (api < Opcodes.ASM5) {
-      super.visitMethodInsn(opcode, owner, name, desc, itf);
+      super.visitMethodInsn(opcode, owner, name, descriptor, isInterface);
       return;
     }
-    mv.visitMethodInsn(opcode, owner, name, desc, itf);
-    doVisitMethodInsn(opcode, desc);
+    mv.visitMethodInsn(opcode, owner, name, descriptor, isInterface);
+    doVisitMethodInsn(opcode, descriptor);
   }
 
-  private void doVisitMethodInsn(int opcode, final String desc) {
-    if (constructor && !superInitialized) {
-      Type[] types = Type.getArgumentTypes(desc);
-      for (int i = 0; i < types.length; i++) {
+  private void doVisitMethodInsn(final int opcode, final String descriptor) {
+    if (isConstructor && !superClassConstructorCalled) {
+      for (Type argumentType : Type.getArgumentTypes(descriptor)) {
         popValue();
-        if (types[i].getSize() == 2) {
+        if (argumentType.getSize() == 2) {
           popValue();
         }
       }
       switch (opcode) {
         case INVOKEINTERFACE:
         case INVOKEVIRTUAL:
-          popValue(); // objectref
+          popValue();
           break;
         case INVOKESPECIAL:
-          Object type = popValue(); // objectref
-          if (type == THIS && !superInitialized) {
+          Object value = popValue();
+          if (value == UNINITIALIZED_THIS && !superClassConstructorCalled) {
             onMethodEnter();
-            superInitialized = true;
+            superClassConstructorCalled = true;
           }
           break;
         default:
           break;
       }
 
-      Type returnType = Type.getReturnType(desc);
+      Type returnType = Type.getReturnType(descriptor);
       if (returnType != Type.VOID_TYPE) {
         pushValue(OTHER);
         if (returnType.getSize() == 2) {
@@ -477,15 +494,19 @@ public abstract class AdviceAdapter extends GeneratorAdapter implements Opcodes 
   }
 
   @Override
-  public void visitInvokeDynamicInsn(String name, String desc, Handle bsm, Object... bsmArgs) {
-    super.visitInvokeDynamicInsn(name, desc, bsm, bsmArgs);
-    doVisitMethodInsn(Opcodes.INVOKEDYNAMIC, desc);
+  public void visitInvokeDynamicInsn(
+      final String name,
+      final String descriptor,
+      final Handle bootstrapMethodHandle,
+      final Object... bootstrapMethodArguments) {
+    super.visitInvokeDynamicInsn(name, descriptor, bootstrapMethodHandle, bootstrapMethodArguments);
+    doVisitMethodInsn(Opcodes.INVOKEDYNAMIC, descriptor);
   }
 
   @Override
   public void visitJumpInsn(final int opcode, final Label label) {
     super.visitJumpInsn(opcode, label);
-    if (constructor && !superInitialized) {
+    if (isConstructor && !superClassConstructorCalled) {
       switch (opcode) {
         case IFEQ:
         case IFNE:
@@ -511,17 +532,19 @@ public abstract class AdviceAdapter extends GeneratorAdapter implements Opcodes 
         case JSR:
           pushValue(OTHER);
           break;
+        default:
+          break;
       }
-      addBranch(label);
+      addForwardJump(label);
     }
   }
 
   @Override
   public void visitLookupSwitchInsn(final Label dflt, final int[] keys, final Label[] labels) {
     super.visitLookupSwitchInsn(dflt, keys, labels);
-    if (constructor && !superInitialized) {
+    if (isConstructor && !superClassConstructorCalled) {
       popValue();
-      addBranches(dflt, labels);
+      addForwardJumps(dflt, labels);
     }
   }
 
@@ -529,34 +552,36 @@ public abstract class AdviceAdapter extends GeneratorAdapter implements Opcodes 
   public void visitTableSwitchInsn(
       final int min, final int max, final Label dflt, final Label... labels) {
     super.visitTableSwitchInsn(min, max, dflt, labels);
-    if (constructor && !superInitialized) {
+    if (isConstructor && !superClassConstructorCalled) {
       popValue();
-      addBranches(dflt, labels);
+      addForwardJumps(dflt, labels);
     }
   }
 
   @Override
   public void visitTryCatchBlock(Label start, Label end, Label handler, String type) {
     super.visitTryCatchBlock(start, end, handler, type);
-    if (constructor && !branches.containsKey(handler)) {
+    if (isConstructor
+        && !superClassConstructorCalled
+        && !forwardJumpStackFrames.containsKey(handler)) {
       List<Object> stackFrame = new ArrayList<Object>();
       stackFrame.add(OTHER);
-      branches.put(handler, new Branch(stackFrame, superInitialized));
+      forwardJumpStackFrames.put(handler, stackFrame);
     }
   }
 
-  private void addBranches(final Label dflt, final Label[] labels) {
-    addBranch(dflt);
-    for (int i = 0; i < labels.length; i++) {
-      addBranch(labels[i]);
+  private void addForwardJumps(final Label dflt, final Label[] labels) {
+    addForwardJump(dflt);
+    for (Label label : labels) {
+      addForwardJump(label);
     }
   }
 
-  private void addBranch(final Label label) {
-    if (branches.containsKey(label)) {
+  private void addForwardJump(final Label label) {
+    if (forwardJumpStackFrames.containsKey(label)) {
       return;
     }
-    branches.put(label, new Branch(new ArrayList<Object>(stackFrame), superInitialized));
+    forwardJumpStackFrames.put(label, new ArrayList<Object>(stackFrame));
   }
 
   private Object popValue() {
@@ -567,53 +592,52 @@ public abstract class AdviceAdapter extends GeneratorAdapter implements Opcodes 
     return stackFrame.get(stackFrame.size() - 1);
   }
 
-  private void pushValue(final Object o) {
-    stackFrame.add(o);
+  private void pushValue(final Object value) {
+    stackFrame.add(value);
   }
 
   /**
-   * Called at the beginning of the method or after super class call in the constructor. <br>
-   * <br>
-   * <i>Custom code can use or change all the local variables, but should not change state of the
-   * stack.</i>
+   * Generates the "before" advice for the visited method. The default implementation of this method
+   * does nothing. Subclasses can use or change all the local variables, but should not change state
+   * of the stack. This method is called at the beginning of the method or after super class
+   * constructor has been called (in constructors).
    */
   protected void onMethodEnter() {}
 
   /**
-   * Called before explicit exit from the method using either return or throw. Top element on the
-   * stack contains the return value or exception instance. For example:
+   * Generates the "after" advice for the visited method. The default implementation of this method
+   * does nothing. Subclasses can use or change all the local variables, but should not change state
+   * of the stack. This method is called at the end of the method, just before return and athrow
+   * instructions. The top element on the stack contains the return value or the exception instance.
+   * For example:
    *
    * <pre>
-   *   public void onMethodExit(int opcode) {
-   *     if(opcode==RETURN) {
-   *         visitInsn(ACONST_NULL);
-   *     } else if(opcode==ARETURN || opcode==ATHROW) {
-   *         dup();
+   * public void onMethodExit(final int opcode) {
+   *   if (opcode == RETURN) {
+   *     visitInsn(ACONST_NULL);
+   *   } else if (opcode == ARETURN || opcode == ATHROW) {
+   *     dup();
+   *   } else {
+   *     if (opcode == LRETURN || opcode == DRETURN) {
+   *       dup2();
    *     } else {
-   *         if(opcode==LRETURN || opcode==DRETURN) {
-   *             dup2();
-   *         } else {
-   *             dup();
-   *         }
-   *         box(Type.getReturnType(this.methodDesc));
+   *       dup();
    *     }
-   *     visitIntInsn(SIPUSH, opcode);
-   *     visitMethodInsn(INVOKESTATIC, owner, "onExit", "(Ljava/lang/Object;I)V");
+   *     box(Type.getReturnType(this.methodDesc));
    *   }
+   *   visitIntInsn(SIPUSH, opcode);
+   *   visitMethodInsn(INVOKESTATIC, owner, "onExit", "(Ljava/lang/Object;I)V");
+   * }
    *
-   *   // an actual call back method
-   *   public static void onExit(Object param, int opcode) {
-   *     ...
+   * // An actual call back method.
+   * public static void onExit(final Object exitValue, final int opcode) {
+   *   ...
+   * }
    * </pre>
    *
-   * <br>
-   * <br>
-   * <i>Custom code can use or change all the local variables, but should not change state of the
-   * stack.</i>
-   *
-   * @param opcode one of the RETURN, IRETURN, FRETURN, ARETURN, LRETURN, DRETURN or ATHROW
+   * @param opcode one of {@link Opcodes#RETURN}, {@link Opcodes#IRETURN}, {@link Opcodes#FRETURN},
+   *     {@link Opcodes#ARETURN}, {@link Opcodes#LRETURN}, {@link Opcodes#DRETURN} or {@link
+   *     Opcodes#ATHROW}.
    */
-  protected void onMethodExit(int opcode) {}
-
-  // TODO onException, onMethodCall
+  protected void onMethodExit(final int opcode) {}
 }

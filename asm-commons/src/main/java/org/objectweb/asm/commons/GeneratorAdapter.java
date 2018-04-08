@@ -898,7 +898,6 @@ public class GeneratorAdapter extends LocalVariablesSorter {
         break;
       default:
         unboxMethod = null;
-        break;
     }
     if (unboxMethod == null) {
       checkCast(type);

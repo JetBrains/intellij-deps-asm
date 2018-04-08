@@ -133,6 +133,19 @@ public class CheckClassAdapterTest extends AsmTest implements Opcodes {
   }
 
   @Test
+  public void testNonJavaIdentifierClassNamePre15() {
+    assertThrows(
+        Exception.class,
+        () -> checkClassAdapter.visit(V1_4, 0, "class name", null, "java/lang/Object", null));
+  }
+
+  @Test
+  public void testNonJavaIdentifierClassNamePost15() {
+    // Checks that no error is thrown.
+    checkClassAdapter.visit(V1_5, 0, "class name", null, "java/lang/Object", null);
+  }
+
+  @Test
   public void testIllegalSuperClass() {
     assertThrows(
         Exception.class,

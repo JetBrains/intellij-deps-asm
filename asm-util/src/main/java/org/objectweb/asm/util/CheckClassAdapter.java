@@ -353,7 +353,7 @@ public class CheckClassAdapter extends ClassVisitor {
       throw new IllegalArgumentException("Illegal class name (null)");
     }
     if (!name.endsWith("package-info") && !name.endsWith("module-info")) {
-      CheckMethodAdapter.checkInternalName(name, "class name");
+      CheckMethodAdapter.checkInternalName(version, name, "class name");
     }
     if ("java/lang/Object".equals(name)) {
       if (superName != null) {
@@ -366,7 +366,7 @@ public class CheckClassAdapter extends ClassVisitor {
             "The super class name of a module-info class must be 'null'");
       }
     } else {
-      CheckMethodAdapter.checkInternalName(superName, "super class name");
+      CheckMethodAdapter.checkInternalName(version, superName, "super class name");
     }
     if (signature != null) {
       checkClassSignature(signature);
@@ -377,7 +377,8 @@ public class CheckClassAdapter extends ClassVisitor {
     }
     if (interfaces != null) {
       for (int i = 0; i < interfaces.length; ++i) {
-        CheckMethodAdapter.checkInternalName(interfaces[i], "interface name at index " + i);
+        CheckMethodAdapter.checkInternalName(
+            version, interfaces[i], "interface name at index " + i);
       }
     }
     this.version = version;
@@ -401,10 +402,11 @@ public class CheckClassAdapter extends ClassVisitor {
       throw new IllegalStateException("visitModule can be called only once.");
     }
     visitModuleCalled = true;
-    checkFullyQualifiedName(name, "module name");
+    checkFullyQualifiedName(this.version, name, "module name");
     checkAccess(access, Opcodes.ACC_OPEN | Opcodes.ACC_SYNTHETIC | Opcodes.ACC_MANDATED);
-    CheckModuleAdapter checkModuleAdapter = new CheckModuleAdapter(
-        api, super.visitModule(name, access, version), (access & Opcodes.ACC_OPEN) != 0);
+    CheckModuleAdapter checkModuleAdapter =
+        new CheckModuleAdapter(
+            api, super.visitModule(name, access, version), (access & Opcodes.ACC_OPEN) != 0);
     checkModuleAdapter.classVersion = this.version;
     return checkModuleAdapter;
   }
@@ -420,7 +422,7 @@ public class CheckClassAdapter extends ClassVisitor {
       throw new IllegalArgumentException("Illegal outer class owner");
     }
     if (descriptor != null) {
-      CheckMethodAdapter.checkMethodDescriptor(descriptor);
+      CheckMethodAdapter.checkMethodDescriptor(version, descriptor);
     }
     super.visitOuterClass(owner, name, descriptor);
   }
@@ -429,9 +431,9 @@ public class CheckClassAdapter extends ClassVisitor {
   public void visitInnerClass(
       final String name, final String outerName, final String innerName, final int access) {
     checkState();
-    CheckMethodAdapter.checkInternalName(name, "class name");
+    CheckMethodAdapter.checkInternalName(version, name, "class name");
     if (outerName != null) {
-      CheckMethodAdapter.checkInternalName(outerName, "outer class name");
+      CheckMethodAdapter.checkInternalName(version, outerName, "outer class name");
     }
     if (innerName != null) {
       int startIndex = 0;
@@ -439,7 +441,7 @@ public class CheckClassAdapter extends ClassVisitor {
         startIndex++;
       }
       if (startIndex == 0 || startIndex < innerName.length()) {
-        CheckMethodAdapter.checkIdentifier(innerName, startIndex, -1, "inner class name");
+        CheckMethodAdapter.checkIdentifier(version, innerName, startIndex, -1, "inner class name");
       }
     }
     checkAccess(
@@ -478,7 +480,7 @@ public class CheckClassAdapter extends ClassVisitor {
             | Opcodes.ACC_ENUM
             | Opcodes.ACC_DEPRECATED);
     CheckMethodAdapter.checkUnqualifiedName(version, name, "field name");
-    CheckMethodAdapter.checkDescriptor(descriptor, /* canBeVoid = */ false);
+    CheckMethodAdapter.checkDescriptor(version, descriptor, /* canBeVoid = */ false);
     if (signature != null) {
       checkFieldSignature(signature);
     }
@@ -514,13 +516,14 @@ public class CheckClassAdapter extends ClassVisitor {
     if (!"<init>".equals(name) && !"<clinit>".equals(name)) {
       CheckMethodAdapter.checkMethodIdentifier(version, name, "method name");
     }
-    CheckMethodAdapter.checkMethodDescriptor(descriptor);
+    CheckMethodAdapter.checkMethodDescriptor(version, descriptor);
     if (signature != null) {
       checkMethodSignature(signature);
     }
     if (exceptions != null) {
       for (int i = 0; i < exceptions.length; ++i) {
-        CheckMethodAdapter.checkInternalName(exceptions[i], "exception name at index " + i);
+        CheckMethodAdapter.checkInternalName(
+            version, exceptions[i], "exception name at index " + i);
       }
     }
     CheckMethodAdapter checkMethodAdapter;
@@ -547,7 +550,7 @@ public class CheckClassAdapter extends ClassVisitor {
   @Override
   public AnnotationVisitor visitAnnotation(final String descriptor, final boolean visible) {
     checkState();
-    CheckMethodAdapter.checkDescriptor(descriptor, false);
+    CheckMethodAdapter.checkDescriptor(version, descriptor, false);
     return new CheckAnnotationAdapter(super.visitAnnotation(descriptor, visible));
   }
 
@@ -563,7 +566,7 @@ public class CheckClassAdapter extends ClassVisitor {
           "Invalid type reference sort 0x" + Integer.toHexString(sort));
     }
     checkTypeRef(typeRef);
-    CheckMethodAdapter.checkDescriptor(descriptor, false);
+    CheckMethodAdapter.checkDescriptor(version, descriptor, false);
     return new CheckAnnotationAdapter(
         super.visitTypeAnnotation(typeRef, typePath, descriptor, visible));
   }
@@ -622,18 +625,19 @@ public class CheckClassAdapter extends ClassVisitor {
   /**
    * Checks that the given name is a fully qualified name, using dots.
    *
+   * @param version the class version.
    * @param name the name to be checked.
    * @param source the source of 'name' (e.g 'module' for a module name).
    */
-  static void checkFullyQualifiedName(final String name, final String source) {
+  static void checkFullyQualifiedName(final int version, final String name, final String source) {
     try {
       int startIndex = 0;
       int dotIndex;
       while ((dotIndex = name.indexOf('.', startIndex + 1)) != -1) {
-        CheckMethodAdapter.checkIdentifier(name, startIndex, dotIndex, null);
+        CheckMethodAdapter.checkIdentifier(version, name, startIndex, dotIndex, null);
         startIndex = dotIndex + 1;
       }
-      CheckMethodAdapter.checkIdentifier(name, startIndex, name.length(), null);
+      CheckMethodAdapter.checkIdentifier(version, name, startIndex, name.length(), null);
     } catch (IllegalArgumentException e) {
       throw new IllegalArgumentException(
           "Invalid " + source + " (must be a fully qualified name): " + name);
@@ -759,7 +763,7 @@ public class CheckClassAdapter extends ClassVisitor {
     // InterfaceBound:
     //   : ReferenceTypeSignature
     int pos = startPos;
-    pos = checkIdentifier(signature, pos);
+    pos = checkSignatureIdentifier(signature, pos);
     pos = checkChar(':', signature, pos);
     if ("L[T".indexOf(getChar(signature, pos)) != -1) {
       pos = checkReferenceTypeSignature(signature, pos);
@@ -814,15 +818,15 @@ public class CheckClassAdapter extends ClassVisitor {
     //   . SimpleClassTypeSignature
     int pos = startPos;
     pos = checkChar('L', signature, pos);
-    pos = checkIdentifier(signature, pos);
+    pos = checkSignatureIdentifier(signature, pos);
     while (getChar(signature, pos) == '/') {
-      pos = checkIdentifier(signature, pos + 1);
+      pos = checkSignatureIdentifier(signature, pos + 1);
     }
     if (getChar(signature, pos) == '<') {
       pos = checkTypeArguments(signature, pos);
     }
     while (getChar(signature, pos) == '.') {
-      pos = checkIdentifier(signature, pos + 1);
+      pos = checkSignatureIdentifier(signature, pos + 1);
       if (getChar(signature, pos) == '<') {
         pos = checkTypeArguments(signature, pos);
       }
@@ -888,7 +892,7 @@ public class CheckClassAdapter extends ClassVisitor {
     //  T Identifier ;
     int pos = startPos;
     pos = checkChar('T', signature, pos);
-    pos = checkIdentifier(signature, pos);
+    pos = checkSignatureIdentifier(signature, pos);
     return checkChar(';', signature, pos);
   }
 
@@ -930,14 +934,13 @@ public class CheckClassAdapter extends ClassVisitor {
    * @param startPos index of first character to be checked.
    * @return the index of the first character after the checked part.
    */
-  private static int checkIdentifier(final String signature, final int startPos) {
+  private static int checkSignatureIdentifier(final String signature, final int startPos) {
     int pos = startPos;
-    if (!Character.isJavaIdentifierStart(getChar(signature, pos))) {
-      throw new IllegalArgumentException(signature + ": identifier expected at index " + pos);
+    while (pos < signature.length() && ".;[/<>:".indexOf(signature.codePointAt(pos)) == -1) {
+      pos = signature.offsetByCodePoints(pos, 1);
     }
-    ++pos;
-    while (Character.isJavaIdentifierPart(getChar(signature, pos))) {
-      ++pos;
+    if (pos == startPos) {
+      throw new IllegalArgumentException(signature + ": identifier expected at index " + startPos);
     }
     return pos;
   }

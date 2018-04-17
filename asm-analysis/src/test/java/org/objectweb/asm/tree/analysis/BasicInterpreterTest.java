@@ -31,6 +31,7 @@ import static java.time.Duration.ofSeconds;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTimeoutPreemptively;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -100,7 +101,8 @@ public class BasicInterpreterTest extends AsmTest {
   }
 
   /**
-   * Tests that the precompiled classes can be successfully analyzed with a BasicInterpreter.
+   * Tests that the precompiled classes can be successfully analyzed with a BasicInterpreter, and
+   * that Analyzer can be subclassed to use custom frames.
    *
    * @throws AnalyzerException
    */
@@ -111,8 +113,22 @@ public class BasicInterpreterTest extends AsmTest {
     ClassNode classNode = new ClassNode();
     new ClassReader(classParameter.getBytes()).accept(classNode, 0);
     for (MethodNode methodNode : classNode.methods) {
-      Analyzer<BasicValue> analyzer = new Analyzer<BasicValue>(new BasicInterpreter());
+      Analyzer<BasicValue> analyzer =
+          new Analyzer<BasicValue>(new BasicInterpreter()) {
+            @Override
+            protected Frame<BasicValue> newFrame(final int nLocals, final int nStack) {
+              return new CustomFrame(nLocals, nStack);
+            }
+
+            @Override
+            protected Frame<BasicValue> newFrame(final Frame<? extends BasicValue> src) {
+              return new CustomFrame(src);
+            }
+          };
       analyzer.analyze(classNode.name, methodNode);
+      for (Frame<? extends BasicValue> frame : analyzer.getFrames()) {
+        assertTrue(frame == null || frame instanceof CustomFrame);
+      }
     }
   }
 
@@ -123,5 +139,22 @@ public class BasicInterpreterTest extends AsmTest {
       }
     }
     return null;
+  }
+
+  private static class CustomFrame extends Frame<BasicValue> {
+
+    CustomFrame(final int nLocals, final int nStack) {
+      super(nLocals, nStack);
+    }
+
+    CustomFrame(final Frame<? extends BasicValue> frame) {
+      super(frame);
+    }
+
+    @Override
+    public Frame<BasicValue> init(final Frame<? extends BasicValue> frame) {
+      assertTrue(frame instanceof CustomFrame);
+      return super.init(frame);
+    }
   }
 }

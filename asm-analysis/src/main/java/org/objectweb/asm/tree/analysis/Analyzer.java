@@ -273,7 +273,7 @@ public class Analyzer<V extends Value> implements Opcodes {
               catchType = Type.getObjectType(tryCatchBlock.type);
             }
             if (newControlFlowExceptionEdge(insnIndex, tryCatchBlock)) {
-              Frame<V> handler = new Frame<V>(oldFrame);
+              Frame<V> handler = newFrame(oldFrame);
               handler.clearStack();
               handler.push(interpreter.newValue(catchType));
               merge(insnList.indexOf(tryCatchBlock.handler), handler, subroutine);
@@ -406,7 +406,7 @@ public class Analyzer<V extends Value> implements Opcodes {
    * @return the symbolic state of the execution stack frame at each bytecode instruction of the
    *     method. The size of the returned array is equal to the number of instructions (and labels)
    *     of the method. A given frame is <tt>null</tt> if the corresponding instruction cannot be
-   *     reached, or if an error occured during the analysis of the method.
+   *     reached, or if an error occurred during the analysis of the method.
    */
   public Frame<V>[] getFrames() {
     return frames;
@@ -457,7 +457,7 @@ public class Analyzer<V extends Value> implements Opcodes {
 
   /**
    * Creates a control flow graph edge. The default implementation of this method does nothing. It
-   * can be overriden in order to construct the control flow graph of a method (this method is
+   * can be overridden in order to construct the control flow graph of a method (this method is
    * called by the {@link #analyze} method during its visit of the method's code).
    *
    * @param insnIndex an instruction index.

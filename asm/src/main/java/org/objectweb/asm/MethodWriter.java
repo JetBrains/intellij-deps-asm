@@ -375,13 +375,13 @@ final class MethodWriter extends MethodVisitor {
   // Other method_info attributes:
 
   /** The number_of_exceptions field of the Exceptions attribute. */
-  final int numberOfExceptions;
+  private final int numberOfExceptions;
 
   /** The exception_index_table array of the Exceptions attribute, or <tt>null</tt>. */
-  final int[] exceptionIndexTable;
+  private final int[] exceptionIndexTable;
 
   /** The signature_index field of the Signature attribute. */
-  final int signatureIndex;
+  private final int signatureIndex;
 
   /**
    * The last runtime visible annotation of this method. The previous ones can be accessed with the
@@ -538,16 +538,17 @@ final class MethodWriter extends MethodVisitor {
   private int lastBytecodeOffset;
 
   /**
-   * The offset in bytes in {@link #getSource} from which the method_info for this method (excluding
-   * its first 6 bytes) must be copied, or 0.
+   * The offset in bytes in {@link SymbolTable#getSource} from which the method_info for this method
+   * (excluding its first 6 bytes) must be copied, or 0.
    */
-  int sourceOffset;
+  private int sourceOffset;
 
   /**
-   * The length in bytes in {@link #getSource} which must be copied to get the method_info for this
-   * method (excluding its first 6 bytes for access_flags, name_index and descriptor_index).
+   * The length in bytes in {@link SymbolTable#getSource} which must be copied to get the
+   * method_info for this method (excluding its first 6 bytes for access_flags, name_index and
+   * descriptor_index).
    */
-  int sourceLength;
+  private int sourceLength;
 
   // -----------------------------------------------------------------------------------------------
   // Constructor and accessors
@@ -602,10 +603,6 @@ final class MethodWriter extends MethodVisitor {
       firstBasicBlock = new Label();
       visitLabel(firstBasicBlock);
     }
-  }
-
-  ClassReader getSource() {
-    return symbolTable.getSource();
   }
 
   boolean hasFrames() {
@@ -1945,6 +1942,64 @@ final class MethodWriter extends MethodVisitor {
   // -----------------------------------------------------------------------------------------------
 
   /**
+   * Returns whether the attributes of this method can be copied from the attributes of the given
+   * method (assuming there is no method visitor between the given ClassReader and this
+   * MethodWriter). This method should only be called just after this MethodWriter has been created,
+   * and before any content is visited. It returns true if the attributes corresponding to the
+   * constructor arguments (at most a Signature, an Exception, a Deprecated and a Synthetic
+   * attribute) are the same as the corresponding attributes in the given method.
+   *
+   * @param source the source ClassReader from which the attributes of this method might be copied.
+   * @param methodInfoOffset the offset in 'source.b' of the method_info JVMS structure from which
+   *     the attributes of this method might be copied.
+   * @param methodInfoLength the length in 'source.b' of the method_info JVMS structure from which
+   *     the attributes of this method might be copied.
+   * @param access the access flags (including the ASM specific ones) of the method_info JVMS
+   *     structure from which the attributes of this method might be copied.
+   * @param signatureIndex the constant pool index contained in the Signature attribute of the
+   *     method_info JVMS structure from which the attributes of this method might be copied, or 0.
+   * @param exceptionsOffset the offset in 'source.b' of the Exceptions attribute of the method_info
+   *     JVMS structure from which the attributes of this method might be copied, or 0.
+   * @return whether the attributes of this method can be copied from the attributes of the
+   *     method_info JVMS structure in 'source.b', between 'methodInfoOffset' and 'methodInfoOffset'
+   *     + 'methodInfoLength'.
+   */
+  boolean canCopyMethodAttributes(
+      final ClassReader source,
+      final int methodInfoOffset,
+      final int methodInfoLength,
+      final int access,
+      final int signatureIndex,
+      final int exceptionsOffset) {
+    if (source != symbolTable.getSource()
+        || signatureIndex != this.signatureIndex
+        || (access & Opcodes.ACC_DEPRECATED) != (accessFlags & Opcodes.ACC_DEPRECATED)) {
+      return false;
+    }
+    boolean useSyntheticAttribute = symbolTable.getMajorVersion() < Opcodes.V1_5;
+    if (useSyntheticAttribute
+        && (access & Opcodes.ACC_SYNTHETIC) != (accessFlags & Opcodes.ACC_SYNTHETIC)) {
+      return false;
+    }
+    if (exceptionsOffset == 0) {
+      if (numberOfExceptions != 0) {
+        return false;
+      }
+    } else if (source.readUnsignedShort(exceptionsOffset) == numberOfExceptions) {
+      int currentExceptionOffset = exceptionsOffset + 2;
+      for (int i = 0; i < numberOfExceptions; ++i) {
+        if (source.readUnsignedShort(currentExceptionOffset) != exceptionIndexTable[i]) {
+          return false;
+        }
+        currentExceptionOffset += 2;
+      }
+    }
+    this.sourceOffset = methodInfoOffset + 6;
+    this.sourceLength = methodInfoLength - 6;
+    return true;
+  }
+
+  /**
    * Returns the size of the method_info JVMS structure generated by this MethodWriter. Also add the
    * names of the attributes of this method in the constant pool.
    *
@@ -2086,7 +2141,7 @@ final class MethodWriter extends MethodVisitor {
     output.putShort(accessFlags & ~mask).putShort(nameIndex).putShort(descriptorIndex);
     // If this method_info must be copied from an existing one, copy it now and return early.
     if (sourceOffset != 0) {
-      output.putByteArray(getSource().b, sourceOffset, sourceLength);
+      output.putByteArray(symbolTable.getSource().b, sourceOffset, sourceLength);
       return;
     }
     // For ease of reference, we use here the same attribute order as in Section 4.7 of the JVMS.

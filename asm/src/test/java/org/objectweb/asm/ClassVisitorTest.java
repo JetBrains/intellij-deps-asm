@@ -320,7 +320,7 @@ public class ClassVisitorTest extends AsmTest {
   private static class ChangeAccessAdapter extends ClassVisitor {
 
     private final int accessFlags;
-    
+
     ChangeAccessAdapter(final ClassVisitor classVisitor, final int accessFlags) {
       super(Opcodes.ASM6, classVisitor);
       this.accessFlags = accessFlags;
@@ -333,8 +333,7 @@ public class ClassVisitorTest extends AsmTest {
         final String descriptor,
         final String signature,
         final String[] exceptions) {
-      return super.visitMethod(
-          access ^ accessFlags, name, descriptor, signature, exceptions);
+      return super.visitMethod(access ^ accessFlags, name, descriptor, signature, exceptions);
     }
   }
 

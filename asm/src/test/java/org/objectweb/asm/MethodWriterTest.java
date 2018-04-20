@@ -42,8 +42,8 @@ import org.junit.jupiter.api.Test;
 public class MethodWriterTest {
 
   /**
-   * Tests that the non-static fields of Constants are the expected ones. This test is designed to
-   * fail each time new attributes are added to Constants, and serves as a reminder to update the
+   * Tests that the attribute name fields of Constants are the expected ones. This test is designed
+   * to fail each time new attributes are added to Constants, and serves as a reminder to update the
    * {@link MethodWriter#canCopyMethodAttributes} method, if needed.
    */
   @Test

@@ -1994,6 +1994,9 @@ final class MethodWriter extends MethodVisitor {
         currentExceptionOffset += 2;
       }
     }
+    // Don't copy the attributes yet, instead store their location in the source class reader so
+    // they can be copied later, in {@link #putMethodInfo}. Note that we skip the 6 header bytes
+    // of the method_info JVMS structure.
     this.sourceOffset = methodInfoOffset + 6;
     this.sourceLength = methodInfoLength - 6;
     return true;

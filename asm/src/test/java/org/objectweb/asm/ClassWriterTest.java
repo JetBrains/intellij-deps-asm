@@ -27,12 +27,16 @@
 // THE POSSIBILITY OF SUCH DAMAGE.
 package org.objectweb.asm;
 
+import static java.util.stream.Collectors.toSet;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.objectweb.asm.test.Assertions.assertThat;
 
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Random;
 import org.junit.jupiter.api.Test;
@@ -47,6 +51,52 @@ import org.objectweb.asm.test.AsmTest;
  * @author Eric Bruneton
  */
 public class ClassWriterTest extends AsmTest {
+
+  /**
+   * Tests that the non-static fields of ClassWriter are the expected ones. This test is designed to
+   * fail each time new fields are added to ClassWriter, and serves as a reminder to update the
+   * field reset logic in {@link ClassWriter#toByteArray()}, if needed, each time a new field is
+   * added.
+   */
+  @Test
+  public void testInstanceFields() {
+    // IMPORTANT: if this fails, update the string list AND update the logic that resets the
+    // ClassWriter fields in ClassWriter.toByteArray(), if needed (this logic is used to do a
+    // ClassReader->ClassWriter round trip to remove the ASM specific instructions due to large
+    // forward jumps).
+    assertEquals(
+        new HashSet<String>(
+            Arrays.asList(
+                "version",
+                "symbolTable",
+                "accessFlags",
+                "thisClass",
+                "superClass",
+                "interfaceCount",
+                "interfaces",
+                "firstField",
+                "lastField",
+                "firstMethod",
+                "lastMethod",
+                "numberOfClasses",
+                "classes",
+                "enclosingClassIndex",
+                "enclosingMethodIndex",
+                "signatureIndex",
+                "sourceFileIndex",
+                "debugExtension",
+                "lastRuntimeVisibleAnnotation",
+                "lastRuntimeInvisibleAnnotation",
+                "lastRuntimeVisibleTypeAnnotation",
+                "lastRuntimeInvisibleTypeAnnotation",
+                "moduleWriter",
+                "firstAttribute",
+                "compute")),
+        Arrays.stream(ClassWriter.class.getDeclaredFields())
+            .filter(field -> !Modifier.isStatic(field.getModifiers()))
+            .map(Field::getName)
+            .collect(toSet()));
+  }
 
   @Test
   public void testNewConst() {

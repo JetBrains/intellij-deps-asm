@@ -103,6 +103,7 @@ project(':asm-xml') {
   minCodeCoverage = 0.8
 }
 
+// Use "gradle benchmarks:jmh [-PjmhInclude='<regex>']" to run the benchmarks.
 project(':benchmarks') {
   description = "Benchmarks for ${rootProject.description}"
   apply plugin: 'me.champeau.gradle.jmh'
@@ -132,9 +133,12 @@ project(':benchmarks') {
     }
     classes.dependsOn "asm${version}"
   }
-  jmh { 
+  jmh {
     jmhVersion = '1.19'
     profilers = ['org.objectweb.asm.benchmarks.MemoryProfiler']
+    if (rootProject.hasProperty('jmhInclude')) {
+      include = [jmhInclude]
+    }
   }
 }
 

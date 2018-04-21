@@ -79,6 +79,10 @@ public class AnalyzerTest {
     methodVisitor.visitInsn(Opcodes.ICONST_0);
   }
 
+  private void POP() {
+    methodVisitor.visitInsn(Opcodes.POP);
+  }
+
   private void ICONST_0() {
     methodVisitor.visitInsn(Opcodes.ICONST_0);
   }
@@ -814,6 +818,78 @@ public class AnalyzerTest {
     TRYCATCH(T1, OC, OC);
 
     assertMaxs(4, 6);
+  }
+
+  /**
+   * Tests an example coming from distilled down version of
+   * com/sun/corba/ee/impl/protocol/CorbaClientDelegateImpl from GlassFish 2. See issue #317823.
+   */
+  @Test
+  public void testGlassFish2CorbaClientDelegateImplExample() {
+    Label l0 = new Label();
+    Label l1 = new Label();
+    Label l2 = new Label();
+    Label l3 = new Label();
+    Label l4 = new Label();
+    Label l5 = new Label();
+    Label l6 = new Label();
+    Label l7 = new Label();
+    Label l8 = new Label();
+    Label l9 = new Label();
+    Label l10 = new Label();
+    Label l11 = new Label();
+    Label l12 = new Label();
+
+    LABEL(l0);
+    JSR(l9);
+    LABEL(l1);
+    GOTO(l10);
+    LABEL(l2);
+    POP();
+    JSR(l9);
+    LABEL(l3);
+    ACONST_NULL();
+    ATHROW();
+    LABEL(l9);
+    ASTORE(1);
+    RET(1);
+    LABEL(l10);
+    ACONST_NULL();
+    ACONST_NULL();
+    ACONST_NULL();
+    POP();
+    POP();
+    POP();
+    LABEL(l4);
+    GOTO(l11);
+    LABEL(l5);
+    POP();
+    GOTO(l11);
+    ACONST_NULL();
+    ATHROW();
+    LABEL(l11);
+    ICONST_0();
+    IFNE(l0);
+    JSR(l12);
+    LABEL(l6);
+    RETURN();
+    LABEL(l7);
+    POP();
+    JSR(l12);
+    LABEL(l8);
+    ACONST_NULL();
+    ATHROW();
+    LABEL(l12);
+    ASTORE(2);
+    RET(2);
+
+    TRYCATCH(l0, l1, l2);
+    TRYCATCH(l2, l3, l2);
+    TRYCATCH(l0, l4, l5);
+    TRYCATCH(l0, l6, l7);
+    TRYCATCH(l7, l8, l7);
+
+    assertMaxs(3, 3);
   }
 
   protected void assertMaxs(final int maxStack, final int maxLocals) {

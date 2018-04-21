@@ -1374,6 +1374,175 @@ public class JSRInlinerAdapterTest extends AsmTest {
   }
 
   /**
+   * Tests an example coming from distilled down version of
+   * com/sun/corba/ee/impl/protocol/CorbaClientDelegateImpl from GlassFish 2. See issue #317823.
+   */
+  @Test
+  public void testGlassFish2CorbaClientDelegateImplExample() {
+    Label l0 = new Label();
+    Label l1 = new Label();
+    Label l2 = new Label();
+    Label l3 = new Label();
+    Label l4 = new Label();
+    Label l5 = new Label();
+    Label l6 = new Label();
+    Label l7 = new Label();
+    Label l8 = new Label();
+    Label l9 = new Label();
+    Label l10 = new Label();
+    Label l11 = new Label();
+    Label l12 = new Label();
+
+    new Generator(inlinedMethod)
+        .LABEL(l0)
+        .JSR(l9)
+        .LABEL(l1)
+        .GOTO(l10)
+        .LABEL(l2)
+        .POP()
+        .JSR(l9)
+        .LABEL(l3)
+        .ACONST_NULL()
+        .ATHROW()
+        .LABEL(l9)
+        .ASTORE(1)
+        .RET(1)
+        .LABEL(l10)
+        .ACONST_NULL()
+        .ACONST_NULL()
+        .ACONST_NULL()
+        .POP()
+        .POP()
+        .POP()
+        .LABEL(l4)
+        .GOTO(l11)
+        .LABEL(l5)
+        .POP()
+        .GOTO(l11)
+        .ACONST_NULL()
+        .ATHROW()
+        .LABEL(l11)
+        .ICONST_0()
+        .IFNE(l0)
+        .JSR(l12)
+        .LABEL(l6)
+        .RETURN()
+        .LABEL(l7)
+        .POP()
+        .JSR(l12)
+        .LABEL(l8)
+        .ACONST_NULL()
+        .ATHROW()
+        .LABEL(l12)
+        .ASTORE(2)
+        .RET(2)
+        .TRYCATCH(l0, l1, l2)
+        .TRYCATCH(l2, l3, l2)
+        .TRYCATCH(l0, l4, l5)
+        .TRYCATCH(l0, l6, l7)
+        .TRYCATCH(l7, l8, l7)
+        .END(3, 3);
+
+    Label L0 = new Label();
+    Label L1 = new Label();
+    Label L2 = new Label();
+    Label L3 = new Label();
+    Label L4 = new Label();
+    Label L5 = new Label();
+    Label L6 = new Label();
+    Label L7 = new Label();
+    Label L8 = new Label();
+    Label L9_1a = new Label();
+    Label L9_1b = new Label();
+    Label L9_1c = new Label();
+    Label L9_2a = new Label();
+    Label L9_2b = new Label();
+    Label L10 = new Label();
+    Label L11 = new Label();
+    Label L12_1a = new Label();
+    Label L12_1b = new Label();
+    Label L12_1c = new Label();
+    Label L12_2a = new Label();
+    Label L12_2b = new Label();
+    new Generator(expectedMethod)
+        // --- Main Subroutine ---
+        .LABEL(L0)
+        .ACONST_NULL()
+        .GOTO(L9_1a)
+        .LABEL(L9_1b)
+        .LABEL(L1)
+        .GOTO(L10)
+        .LABEL(L2)
+        .POP()
+        .ACONST_NULL()
+        .GOTO(L9_2a)
+        .LABEL(L9_2b)
+        .LABEL(L3)
+        .ACONST_NULL()
+        .ATHROW()
+        .LABEL(L10)
+        .ACONST_NULL()
+        .ACONST_NULL()
+        .ACONST_NULL()
+        .POP()
+        .POP()
+        .POP()
+        .LABEL(L4)
+        .GOTO(L11)
+        .LABEL(L5)
+        .POP()
+        .GOTO(L11)
+        // [some dead code skipped here]
+        .LABEL(L11)
+        .ICONST_0()
+        .IFNE(L0)
+        .ACONST_NULL()
+        .GOTO(L12_1a)
+        .LABEL(L12_1b)
+        .LABEL(L6)
+        .RETURN()
+        .LABEL(L7)
+        .POP()
+        .ACONST_NULL()
+        .GOTO(L12_2a)
+        .LABEL(L12_2b)
+        .LABEL(L8)
+        .ACONST_NULL()
+        .ATHROW()
+        // --- First instantiation of first subroutine ---
+        .LABEL()
+        .LABEL(L9_1a)
+        .ASTORE(1)
+        .GOTO(L9_1b)
+        .LABEL(L9_1c)
+        // --- Second instantiation of first subroutine ---
+        .LABEL(L9_2a)
+        .ASTORE(1)
+        .GOTO(L9_2b)
+        .LABEL(L12_1c)
+        // --- First instantiation of second subroutine ---
+        .LABEL(L12_1a)
+        .ASTORE(2)
+        .GOTO(L12_1b)
+        // --- Second instantiation of second subroutine ---
+        .LABEL(L12_2a)
+        .ASTORE(2)
+        .GOTO(L12_2b)
+        .TRYCATCH(L0, L1, L2)
+        .TRYCATCH(L2, L3, L2)
+        .TRYCATCH(L0, L4, L5)
+        .TRYCATCH(L0, L6, L7)
+        .TRYCATCH(L7, L8, L7)
+        .TRYCATCH(L9_1a, L9_1c, L5)
+        .TRYCATCH(L9_1a, L9_1c, L7)
+        .TRYCATCH(L9_2a, L12_1c, L5)
+        .TRYCATCH(L9_2a, L12_1c, L7)
+        .END(3, 3);
+
+    assertMethodEquals(expectedMethod, inlinedMethod);
+  }
+
+  /**
    * Tests a method which has line numbers and local variable declarations.
    *
    * <pre>
@@ -1489,6 +1658,11 @@ public class JSRInlinerAdapterTest extends AsmTest {
 
     Generator ICONST_0() {
       methodNode.visitInsn(Opcodes.ICONST_0);
+      return this;
+    }
+
+    Generator POP() {
+      methodNode.visitInsn(Opcodes.POP);
       return this;
     }
 

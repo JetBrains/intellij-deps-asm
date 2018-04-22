@@ -50,7 +50,7 @@ public class RemappingClassAdapter extends ClassVisitor {
   protected String className;
 
   public RemappingClassAdapter(final ClassVisitor cv, final Remapper remapper) {
-    this(Opcodes.ASM7, cv, remapper);
+    this(Opcodes.ASM6, cv, remapper);
   }
 
   protected RemappingClassAdapter(final int api, final ClassVisitor cv, final Remapper remapper) {
@@ -138,16 +138,6 @@ public class RemappingClassAdapter extends ClassVisitor {
         remapper.mapType(owner),
         name == null ? null : remapper.mapMethodName(owner, name, desc),
         desc == null ? null : remapper.mapMethodDesc(desc));
-  }
-
-  @Override
-  public void visitNestHost(String nestHost) {
-    throw new RuntimeException("RemappingClassAdapter is deprecated, use ClassRemapper instead");
-  }
-
-  @Override
-  public void visitNestMember(String nestMember) {
-    throw new RuntimeException("RemappingClassAdapter is deprecated, use ClassRemapper instead");
   }
 
   protected FieldVisitor createRemappingFieldAdapter(FieldVisitor fv) {

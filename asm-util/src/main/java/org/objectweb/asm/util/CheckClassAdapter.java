@@ -316,7 +316,7 @@ public class CheckClassAdapter extends ClassVisitor {
    * Constructs a new {@link CheckClassAdapter}.
    *
    * @param api the ASM API version implemented by this visitor. Must be one of {@link
-   *     Opcodes#ASM4}, {@link Opcodes#ASM5}, {@link Opcodes#ASM6}  or {@link Opcodes#ASM7}.
+   *     Opcodes#ASM4}, {@link Opcodes#ASM5}, {@link Opcodes#ASM6} or {@link Opcodes#ASM7}.
    * @param classVisitor the class visitor to which this adapter must delegate calls.
    * @param checkDataFlow <tt>true</tt> to perform basic data flow checks, or <tt>false</tt> to not
    *     perform any data flow check (see {@link CheckMethodAdapter}). This option requires valid
@@ -439,7 +439,7 @@ public class CheckClassAdapter extends ClassVisitor {
     CheckMethodAdapter.checkInternalName(nestMember, "nestMember");
     if (visitNestHostCalled) {
       throw new IllegalStateException(
-          "visitMemberOfNest and and visitNestHost are mutually exclusive.");
+          "visitMemberOfNest and visitNestHost are mutually exclusive.");
     }
     String packageName = packageName(nestMember);
     if (nestMemberPackageName == null) {

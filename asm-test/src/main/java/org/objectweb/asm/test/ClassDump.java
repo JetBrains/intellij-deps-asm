@@ -2015,7 +2015,7 @@ class ClassDump {
    * @param parser a class parser.
    * @param builder a dump builder.
    * @throws IOException if the class can't be parsed.
-   * @see <a href="https://docs.oracle.com/javase/specs/jvms/se11/html/jvms-4.html#jvms-4.7.27">JVMS
+   * @see <a href="https://docs.oracle.com/javase/specs/jvms/se11/html/jvms-4.html#jvms-4.7.28">JVMS
    *     4.7.28</a>
    */
   private static void dumpNestHostAttribute(final Parser parser, final Builder builder)
@@ -2029,7 +2029,7 @@ class ClassDump {
    * @param parser a class parser.
    * @param builder a dump builder.
    * @throws IOException if the class can't be parsed.
-   * @see <a href="https://docs.oracle.com/javase/specs/jvms/se11/html/jvms-4.html#jvms-4.7.27">JVMS
+   * @see <a href="https://docs.oracle.com/javase/specs/jvms/se11/html/jvms-4.html#jvms-4.7.29">JVMS
    *     4.7.29</a>
    */
   private static void dumpNestMembersAttribute(final Parser parser, final Builder builder)

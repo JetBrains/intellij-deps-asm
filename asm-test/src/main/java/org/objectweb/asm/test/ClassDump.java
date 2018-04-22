@@ -150,7 +150,7 @@ class ClassDump {
     builder.add("magic: ", parser.u4());
     builder.add("minor_version: ", parser.u2());
     int majorVersion = parser.u2();
-    if (majorVersion >= /* V10 = */ 54) {
+    if (majorVersion > /* V11 = */ 55) {
       throw new IOException("Unsupported class version");
     }
     builder.add("major_version: ", majorVersion);
@@ -825,6 +825,10 @@ class ClassDump {
       dumpModulePackagesAttribute(parser, builder);
     } else if (attributeName.equals("ModuleMainClass")) {
       dumpModuleMainClassAttribute(parser, builder);
+    } else if (attributeName.equals("NestHost")) {
+      dumpNestHostAttribute(parser, builder);
+    } else if (attributeName.equals("NestMembers")) {
+      dumpNestMembersAttribute(parser, builder);
     } else if (attributeName.equals("StackMap")) {
       dumpStackMapAttribute(parser, builder);
     } else {
@@ -2003,6 +2007,37 @@ class ClassDump {
   private static void dumpModuleMainClassAttribute(final Parser parser, final Builder builder)
       throws IOException {
     builder.addCpInfo("main_class: ", parser.u2());
+  }
+
+  /**
+   * Parses and dumps a NestHost attribute.
+   *
+   * @param parser a class parser.
+   * @param builder a dump builder.
+   * @throws IOException if the class can't be parsed.
+   * @see <a href="https://docs.oracle.com/javase/specs/jvms/se11/html/jvms-4.html#jvms-4.7.28">JVMS
+   *     4.7.28</a>
+   */
+  private static void dumpNestHostAttribute(final Parser parser, final Builder builder)
+      throws IOException {
+    builder.addCpInfo("host_class: ", parser.u2());
+  }
+
+  /**
+   * Parses and dumps a NestMembers attribute.
+   *
+   * @param parser a class parser.
+   * @param builder a dump builder.
+   * @throws IOException if the class can't be parsed.
+   * @see <a href="https://docs.oracle.com/javase/specs/jvms/se11/html/jvms-4.html#jvms-4.7.29">JVMS
+   *     4.7.29</a>
+   */
+  private static void dumpNestMembersAttribute(final Parser parser, final Builder builder)
+      throws IOException {
+    int numberOfClasses = builder.add("number_of_classes: ", parser.u2());
+    for (int i = 0; i < numberOfClasses; ++i) {
+      builder.addCpInfo("class: ", parser.u2());
+    }
   }
 
   /**

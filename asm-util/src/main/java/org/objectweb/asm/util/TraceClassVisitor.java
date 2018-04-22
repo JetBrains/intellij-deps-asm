@@ -118,7 +118,7 @@ public final class TraceClassVisitor extends ClassVisitor {
    */
   public TraceClassVisitor(
       final ClassVisitor classVisitor, final Printer printer, final PrintWriter printWriter) {
-    super(Opcodes.ASM6, classVisitor);
+    super(Opcodes.ASM7, classVisitor);
     this.printWriter = printWriter;
     this.p = printer;
   }

@@ -132,7 +132,7 @@ public class AnalyzerAdapterTest extends AsmTest {
     private boolean hasOriginalFrame;
 
     public AnalyzedFramesInserter(MethodVisitor mv) {
-      super(Opcodes.ASM6, mv);
+      super(Opcodes.ASM7, mv);
     }
 
     @Override

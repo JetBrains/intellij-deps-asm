@@ -40,7 +40,7 @@ public class ModuleRemapper extends ModuleVisitor {
   private final Remapper remapper;
 
   public ModuleRemapper(final ModuleVisitor mv, final Remapper remapper) {
-    this(Opcodes.ASM6, mv, remapper);
+    this(Opcodes.ASM7, mv, remapper);
   }
 
   protected ModuleRemapper(final int api, final ModuleVisitor mv, final Remapper remapper) {

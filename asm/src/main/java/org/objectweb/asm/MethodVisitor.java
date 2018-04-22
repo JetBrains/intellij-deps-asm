@@ -52,7 +52,7 @@ public abstract class MethodVisitor {
 
   /**
    * The ASM API version implemented by this visitor. The value of this field must be one of {@link
-   * Opcodes#ASM4}, {@link Opcodes#ASM5} or {@link Opcodes#ASM6}.
+   * Opcodes#ASM4}, {@link Opcodes#ASM5}, {@link Opcodes#ASM6} or {@link Opcodes#ASM7}..
    */
   protected final int api;
 
@@ -63,7 +63,7 @@ public abstract class MethodVisitor {
    * Constructs a new {@link MethodVisitor}.
    *
    * @param api the ASM API version implemented by this visitor. Must be one of {@link
-   *     Opcodes#ASM4}, {@link Opcodes#ASM5} or {@link Opcodes#ASM6}.
+   *     Opcodes#ASM4}, {@link Opcodes#ASM5}, {@link Opcodes#ASM6} or {@link Opcodes#ASM7}..
    */
   public MethodVisitor(final int api) {
     this(api, null);
@@ -73,12 +73,12 @@ public abstract class MethodVisitor {
    * Constructs a new {@link MethodVisitor}.
    *
    * @param api the ASM API version implemented by this visitor. Must be one of {@link
-   *     Opcodes#ASM4}, {@link Opcodes#ASM5} or {@link Opcodes#ASM6}.
+   *     Opcodes#ASM4}, {@link Opcodes#ASM5}, {@link Opcodes#ASM6} or {@link Opcodes#ASM7}..
    * @param methodVisitor the method visitor to which this visitor must delegate method calls. May
    *     be null.
    */
   public MethodVisitor(final int api, final MethodVisitor methodVisitor) {
-    if (api < Opcodes.ASM4 || api > Opcodes.ASM6) {
+    if (api < Opcodes.ASM4 || api > Opcodes.ASM7) {
       throw new IllegalArgumentException();
     }
     this.api = api;
@@ -537,6 +537,9 @@ public abstract class MethodVisitor {
         && (value instanceof Handle
             || (value instanceof Type && ((Type) value).getSort() == Type.METHOD))) {
       throw new UnsupportedOperationException(REQUIRES_ASM5);
+    }
+    if (api < Opcodes.ASM7 && value instanceof Condy) {
+      throw new UnsupportedOperationException("This feature requires ASM7");
     }
     if (mv != null) {
       mv.visitLdcInsn(value);

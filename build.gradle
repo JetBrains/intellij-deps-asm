@@ -28,29 +28,32 @@
 
 buildscript {
   repositories { mavenCentral() }
-  dependencies { classpath 'org.junit.platform:junit-platform-gradle-plugin:1.0.1' }
 }
 
 plugins { id 'biz.aQute.bnd.builder' version '3.3.0' apply false }
 plugins { id 'com.github.sherter.google-java-format' version '0.6' apply false }
-plugins { id 'me.champeau.gradle.jmh' version '0.4.4' apply false }
-plugins { id 'org.sonarqube' version '2.6' apply false }
+plugins { id 'me.champeau.gradle.jmh' version '0.4.5' apply false }
+plugins { id 'org.sonarqube' version '2.6.2' apply false }
 
 description = 'ASM, a very small and fast Java bytecode manipulation framework'
 
 subprojects {
   repositories { mavenCentral() }
   apply plugin: 'java'
-  apply plugin: 'org.junit.platform.gradle.plugin'
-  junitPlatform { filters { engines { 'junit-jupiter' } } }
+  def snapshotSuffix = rootProject.hasProperty('release') ? '' : '-SNAPSHOT'
   group = 'org.ow2.asm'
-  version = 7.0
+  version = '7.0' + snapshotSuffix
   sourceCompatibility = '1.6'
   targetCompatibility = '1.6'
+  test { useJUnitPlatform() }
   ext.provides = []  // The provided java packages, e.g. ['org.objectweb.asm']
   ext.requires = []  // The required Gradle projects, e.g. [':asm-test']
   ext.depends = []   // The external dependencies, e.g. ['junit:junit:4.12']
   ext.minCodeCoverage = 0.95 // The minimum code coverage fraction.
+  // Some external dependencies (such as Jacoco) depend transitively on ASM, and
+  // without this rule Gradle can mix ASM jars of different versions (e.g.
+  // asm-6.0.jar with the asm-tree.jar built locally).
+  configurations.all { resolutionStrategy { preferProjectModules() } }
 }
 
 // -----------------------------------------------------------------------------
@@ -79,8 +82,8 @@ project(':asm-commons') {
 project(':asm-test') {
   description = "Utilities for testing ${parent.description}"
   provides = ['org.objectweb.asm.test']
-  depends = ['org.junit.jupiter:junit-jupiter-api:5.0.1',
-      'org.junit.jupiter:junit-jupiter-params:5.0.1']
+  depends = ['org.junit.jupiter:junit-jupiter-api:5.1.0',
+      'org.junit.jupiter:junit-jupiter-params:5.1.0']
   sourceCompatibility = '1.8'
   targetCompatibility = '1.8'
 }
@@ -105,6 +108,7 @@ project(':asm-xml') {
   minCodeCoverage = 0.8
 }
 
+// Use "gradle benchmarks:jmh [-PjmhInclude='<regex>']" to run the benchmarks.
 project(':benchmarks') {
   description = "Benchmarks for ${rootProject.description}"
   apply plugin: 'me.champeau.gradle.jmh'
@@ -134,9 +138,12 @@ project(':benchmarks') {
     }
     classes.dependsOn "asm${version}"
   }
-  jmh { 
-    jmhVersion = '1.19'
+  jmh {
+    jmhVersion = '1.20'
     profilers = ['org.objectweb.asm.benchmarks.MemoryProfiler']
+    if (rootProject.hasProperty('jmhInclude')) {
+      include = [jmhInclude]
+    }
   }
 }
 
@@ -172,12 +179,18 @@ subprojects {
   dependencies {
     requires.each { projectName -> compile project(projectName) }
     depends.each { artifactName -> compile artifactName }
-    testCompile 'org.junit.jupiter:junit-jupiter-api:5.0.1', 
-        'org.junit.jupiter:junit-jupiter-params:5.0.1', project(':asm-test')
-    // Workaround for https://github.com/junit-team/junit5-samples/issues/45
-    testCompileOnly 'org.apiguardian:apiguardian-api:1.0.0'
-  	testRuntime 'org.junit.jupiter:junit-jupiter-engine:5.0.1'
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.1.0',
+        'org.junit.jupiter:junit-jupiter-params:5.1.0'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.1.0'
+    testCompile project(':asm-test')
   }
+}
+
+// Exclude anything deprecated or outside asm packages from code coverage.
+def jacocoClasses(project) {
+  return files(project.sourceSets.main.output.collect { fileTree(
+    dir: it, include: 'org/objectweb/asm/**', exclude: '**/Remapping*'
+  )})
 }
 
 // Configures the projects with a non-empty 'provides' property. These are the
@@ -185,34 +198,18 @@ subprojects {
 // backward compatibility, retrofited to Java 1.5, packaged with biz.aQute.bnd
 // and uploaded to Maven with a POM, sources and Javadoc.
 configure(subprojects.findAll { it.provides }) {
-  // Code coverage configuration (JUnit5 is not yet supported by default, we 
-  // need to override the default tasks to make this work).
+  // Code coverage configuration.
   apply plugin: 'jacoco'
-  jacoco { applyTo junitPlatformTest }
-  afterEvaluate {
-    def classes = files(project.sourceSets.main.output.collect { fileTree(
-      dir: it, include: 'org/objectweb/asm/**', exclude: '**/Remapping*'
-    )})
-    task jacocoTestReport(type: JacocoReport, overwrite: true) {
-      executionData junitPlatformTest
-      sourceSets sourceSets.main
-      sourceDirectories = files(project.sourceSets.main.allSource.srcDirs)
-      classDirectories = classes
-    }
-    task jacocoTestCoverageVerification(
-        type: JacocoCoverageVerification, overwrite: true) {
-      executionData junitPlatformTest
-      sourceSets sourceSets.main
-      sourceDirectories = files(project.sourceSets.main.allSource.srcDirs)
-      classDirectories = classes
-      violationRules.rule {
-        limit {
-          counter = 'INSTRUCTION'
-          minimum = minCodeCoverage
-        }
-      }
-    }
+  jacocoTestReport {
+    afterEvaluate { classDirectories = jacocoClasses(project) }
   }
+  jacocoTestCoverageVerification {
+    violationRules.rule {
+      limit { counter = 'INSTRUCTION'; minimum = minCodeCoverage }
+    }
+    afterEvaluate { classDirectories = jacocoClasses(project) }
+  }
+  check.dependsOn jacocoTestCoverageVerification
 
   // Retrofit the code to Java 1.5, in-place, in compileJava.doLast.
   if (name != 'asm-test') {
@@ -237,9 +234,9 @@ configure(subprojects.findAll { it.provides }) {
         classpath configurations.sigtest
         main 'com.sun.tdk.signaturetest.Main'
         args 'Test', '-ApiVersion', version, '-Backward', '-Static', '-Mode',
-            'bin', '-Classpath', "${System.env.JAVA_HOME}/jre/lib/rt.jar:" +
-            sourceSets.main.output.classesDirs.asPath, '-FileName', f,
-            '-Out', outputs.getFiles()[0], '-Package'
+            'bin', '-Classpath', project(':tools').file('jdk8-api.jar').path +
+            File.pathSeparator + sourceSets.main.output.classesDirs.asPath,
+            '-FileName', f, '-Out', outputs.getFiles()[0], '-Package'
         args provides
         // The exit value is not 0 in case of success, but 95...
         ignoreExitValue true
@@ -283,10 +280,7 @@ configure(subprojects.findAll { it.provides }) {
   // Use with 'gradlew sonarqube -Dsonar.host.url=https://sonarqube.ow2.org'.
   apply plugin: 'org.sonarqube'
   sonarqube {
-    properties {
-      property 'sonar.jacoco.reportPaths',
-          "${project.buildDir}/jacoco/junitPlatformTest.exec"
-    }
+    properties { property 'sonar.projectKey', "ASM:${project.name}" }
   }
 
   // Add a task to generate a private javadoc and add it as a dependency of the
@@ -318,9 +312,14 @@ configure(subprojects.findAll { it.provides }) {
   // project POM and to upload it, with the classes, sources and Javadoc jars.
   apply plugin: 'maven'
   uploadArchives.repositories.mavenDeployer {
-    if (rootProject.hasProperty('nexusUserName')) {
-      repository(url: 'http://repository.ow2.org/nexus/service/local/' + 
-          'staging/deploy/maven2') {
+    def nexusUserName = System.env.NEXUS_USER_NAME
+    def nexusPassword = System.env.NEXUS_PASSWORD
+    if (nexusUserName != null) {
+      def baseUrl = 'http://repository.ow2.org/nexus/'
+      repository(url: baseUrl + 'service/local/staging/deploy/maven2') {
+        authentication(userName: nexusUserName, password: nexusPassword)
+      }
+      snapshotRepository(url: baseUrl + 'content/repositories/snapshots') {
         authentication(userName: nexusUserName, password: nexusPassword)
       }
     } else {

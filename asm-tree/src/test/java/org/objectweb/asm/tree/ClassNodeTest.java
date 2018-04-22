@@ -501,6 +501,12 @@ public class ClassNodeTest extends AsmTest implements Opcodes {
     }
 
     @Override
+    public void visitNestHost(final String nestHost) {}
+
+    @Override
+    public void visitNestMember(final String nestMember) {}
+
+    @Override
     public void visitAttribute(final Attribute attribute) {}
   }
 }

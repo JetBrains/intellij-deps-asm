@@ -523,7 +523,12 @@ public class SimpleVerifierTest extends AsmTest implements Opcodes {
     ClassNode classNode = new ClassNode();
     new ClassReader(classParameter.getBytes()).accept(classNode, 0);
     for (MethodNode methodNode : classNode.methods) {
-      Analyzer<BasicValue> analyzer = new Analyzer<BasicValue>(new SimpleVerifier());
+      Analyzer<BasicValue> analyzer =
+          new Analyzer<BasicValue>(
+              new SimpleVerifier(
+                  Type.getObjectType(classNode.name),
+                  Type.getObjectType(classNode.superName),
+                  (classNode.access & Opcodes.ACC_INTERFACE) != 0));
       analyzer.analyze(classNode.name, methodNode);
     }
   }

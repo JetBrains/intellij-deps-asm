@@ -60,6 +60,9 @@ public class AsmTestTest extends AsmTest {
       case ASM6:
         assertEquals(majorVersion > /* V10 = */ 54, isMoreRecent);
         break;
+      case ASM7:
+        assertEquals(majorVersion > /* V11 = */ 55, isMoreRecent);
+        break;
       default:
         fail("Unknown API value");
     }
@@ -69,9 +72,9 @@ public class AsmTestTest extends AsmTest {
   @ParameterizedTest
   @MethodSource(ALL_CLASSES_AND_LATEST_API)
   public void testGetBytes(final PrecompiledClass classParameter, final Api apiParameter) {
-    assertEquals(Api.ASM6, apiParameter);
-    assertEquals(0x00060000, apiParameter.value());
-    assertEquals("ASM6", apiParameter.toString());
+    assertEquals(Api.ASM7, apiParameter);
+    assertEquals(0x00070000, apiParameter.value());
+    assertEquals("ASM7", apiParameter.toString());
     byte[] classContent = classParameter.getBytes();
     assertThatClass(classContent).contains(classParameter.getInternalName());
     assertThatClass(classContent).isEqualTo(classContent);

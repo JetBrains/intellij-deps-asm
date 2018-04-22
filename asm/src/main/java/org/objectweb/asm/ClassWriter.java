@@ -657,6 +657,9 @@ public class ClassWriter extends ClassVisitor {
       lastRuntimeVisibleTypeAnnotation = null;
       lastRuntimeInvisibleTypeAnnotation = null;
       moduleWriter = null;
+      nestHostClassIndex = 0;
+      numberOfNestMemberClasses = 0;
+      nestMemberClasses = null;
       firstAttribute = null;
       compute = hasFrames ? MethodWriter.COMPUTE_INSERTED_FRAMES : MethodWriter.COMPUTE_NOTHING;
       new ClassReader(result.data, 0, /* checkClassVersion = */ false)

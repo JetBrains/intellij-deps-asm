@@ -135,7 +135,7 @@ public class ClassReaderTest extends AsmTest implements Opcodes {
     assertNotNull(classReader.getInterfaces());
 
     classReader.accept(
-        new ClassVisitor(Opcodes.ASM6) {
+        new ClassVisitor(Opcodes.ASM7) {
           @Override
           public void visit(
               final int version,
@@ -192,12 +192,16 @@ public class ClassReaderTest extends AsmTest implements Opcodes {
       final PrecompiledClass classParameter, final Api apiParameter) {
     ClassReader classReader = new ClassReader(classParameter.getBytes());
     ClassVisitor classVisitor = new ClassVisitor(apiParameter.value()) {};
+    boolean hasNestHostOrMembers =
+        classParameter == PrecompiledClass.JDK11_ALL_STRUCTURES
+            || classParameter == PrecompiledClass.JDK11_ALL_STRUCTURES_NESTED;
     boolean hasModules = classParameter == PrecompiledClass.JDK9_MODULE;
     boolean hasTypeAnnotations = classParameter == PrecompiledClass.JDK8_ALL_STRUCTURES;
     assertThat(() -> classReader.accept(classVisitor, 0))
         .succeedsOrThrows(RuntimeException.class)
         .when(
-            (hasModules && apiParameter.value() < ASM6)
+            (hasNestHostOrMembers && apiParameter.value() < ASM7)
+                || (hasModules && apiParameter.value() < ASM6)
                 || (hasTypeAnnotations && apiParameter.value() < ASM5));
   }
 
@@ -321,7 +325,10 @@ public class ClassReaderTest extends AsmTest implements Opcodes {
         .when(classParameter.isMoreRecentThan(apiParameter));
   }
 
-  /** Tests the ClassReader accept method with a visitor that skips fields, methods and modules. */
+  /**
+   * Tests the ClassReader accept method with a visitor that skips fields, methods, modules and nest
+   * host and members.
+   */
   @ParameterizedTest
   @MethodSource(ALL_CLASSES_AND_ALL_APIS)
   public void testAcceptWithEmptyVisitorAndSkipFieldMethodAndModuleContent(
@@ -355,6 +362,12 @@ public class ClassReaderTest extends AsmTest implements Opcodes {
               final String[] exceptions) {
             return null;
           }
+
+          @Override
+          public void visitNestHost(final String nestHost) {}
+
+          @Override
+          public void visitNestMember(final String nestMember) {}
         };
     classReader.accept(classVisitor, 0);
   }
@@ -364,7 +377,7 @@ public class ClassReaderTest extends AsmTest implements Opcodes {
     final AtomicBoolean success = new AtomicBoolean(false);
     ClassReader classReader = new ClassReader(PrecompiledClass.JDK5_LOCAL_CLASS.getBytes());
     classReader.accept(
-        new ClassVisitor(Opcodes.ASM6) {
+        new ClassVisitor(Opcodes.ASM7) {
           @Override
           public MethodVisitor visitMethod(
               final int access,
@@ -372,7 +385,7 @@ public class ClassReaderTest extends AsmTest implements Opcodes {
               final String descriptor,
               final String signature,
               final String[] exceptions) {
-            return new MethodVisitor(Opcodes.ASM6, null) {
+            return new MethodVisitor(Opcodes.ASM7, null) {
               @Override
               public AnnotationVisitor visitParameterAnnotation(
                   final int parameter, final String descriptor, final boolean visible) {

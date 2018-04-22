@@ -729,7 +729,7 @@ class ClassDump {
   /**
    * A CONSTANT_Dynamic_info item.
    *
-   * @see <a href="https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.4.10">JVMS
+   * @see <a href="https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.4.13">JVMS
    *     4.4.13</a>
    */
   private static class ConstantDynamicInfo extends CpInfo {

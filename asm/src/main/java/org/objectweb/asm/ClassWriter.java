@@ -849,7 +849,7 @@ public class ClassWriter extends ClassVisitor {
    * @return the internal name of the common super class of the two given classes.
    */
   protected String getCommonSuperClass(final String type1, final String type2) {
-    ClassLoader classLoader = getClass().getClassLoader();
+    ClassLoader classLoader = getClassLoader();
     Class<?> class1;
     try {
       class1 = Class.forName(type1.replace('/', '.'), false, classLoader);
@@ -876,5 +876,16 @@ public class ClassWriter extends ClassVisitor {
       } while (!class1.isAssignableFrom(class2));
       return class1.getName().replace('.', '/');
     }
+  }
+
+  /**
+   * Returns the {@link ClassLoader} to be used by the default implementation of {@link
+   * #getCommonSuperClass(String, String)}, that of this {@link ClassWriter}'s runtime type by
+   * default.
+   *
+   * @return ClassLoader
+   */
+  protected ClassLoader getClassLoader() {
+    return getClass().getClassLoader();
   }
 }

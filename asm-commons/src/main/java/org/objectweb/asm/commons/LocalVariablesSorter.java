@@ -76,7 +76,7 @@ public class LocalVariablesSorter extends MethodVisitor {
    * @throws IllegalStateException If a subclass calls this constructor.
    */
   public LocalVariablesSorter(final int access, final String desc, final MethodVisitor mv) {
-    this(Opcodes.ASM6, access, desc, mv);
+    this(Opcodes.ASM7, access, desc, mv);
     if (getClass() != LocalVariablesSorter.class) {
       throw new IllegalStateException();
     }
@@ -86,7 +86,7 @@ public class LocalVariablesSorter extends MethodVisitor {
    * Constructs a new {@link LocalVariablesSorter}.
    *
    * @param api the ASM API version implemented by this visitor. Must be one of {@link
-   *     Opcodes#ASM4}, {@link Opcodes#ASM5} or {@link Opcodes#ASM6}.
+   *     Opcodes#ASM4}, {@link Opcodes#ASM5}, {@link Opcodes#ASM6} or {@link Opcodes#ASM7}.
    * @param access access flags of the adapted method.
    * @param desc the method's descriptor (see {@link Type Type}).
    * @param mv the method visitor to which this adapter delegates calls.

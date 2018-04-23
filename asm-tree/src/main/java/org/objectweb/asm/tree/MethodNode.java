@@ -33,6 +33,7 @@ import java.util.List;
 import org.objectweb.asm.AnnotationVisitor;
 import org.objectweb.asm.Attribute;
 import org.objectweb.asm.ClassVisitor;
+import org.objectweb.asm.Condy;
 import org.objectweb.asm.Handle;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
@@ -155,7 +156,7 @@ public class MethodNode extends MethodVisitor {
    * @throws IllegalStateException If a subclass calls this constructor.
    */
   public MethodNode() {
-    this(Opcodes.ASM6);
+    this(Opcodes.ASM7);
     if (getClass() != MethodNode.class) {
       throw new IllegalStateException();
     }
@@ -165,7 +166,7 @@ public class MethodNode extends MethodVisitor {
    * Constructs an uninitialized {@link MethodNode}.
    *
    * @param api the ASM API version implemented by this visitor. Must be one of {@link
-   *     Opcodes#ASM4}, {@link Opcodes#ASM5} or {@link Opcodes#ASM6}.
+   *     Opcodes#ASM4}, {@link Opcodes#ASM5}, {@link Opcodes#ASM6} or {@link Opcodes#ASM7}.
    */
   public MethodNode(final int api) {
     super(api);
@@ -191,7 +192,7 @@ public class MethodNode extends MethodVisitor {
       final String descriptor,
       final String signature,
       final String[] exceptions) {
-    this(Opcodes.ASM6, access, name, descriptor, signature, exceptions);
+    this(Opcodes.ASM7, access, name, descriptor, signature, exceptions);
     if (getClass() != MethodNode.class) {
       throw new IllegalStateException();
     }
@@ -201,7 +202,7 @@ public class MethodNode extends MethodVisitor {
    * Constructs a new {@link MethodNode}.
    *
    * @param api the ASM API version implemented by this visitor. Must be one of {@link
-   *     Opcodes#ASM4}, {@link Opcodes#ASM5} or {@link Opcodes#ASM6}.
+   *     Opcodes#ASM4}, {@link Opcodes#ASM5}, {@link Opcodes#ASM6} or {@link Opcodes#ASM7}.
    * @param access the method's access flags (see {@link Opcodes}). This parameter also indicates if
    *     the method is synthetic and/or deprecated.
    * @param name the method's name.
@@ -603,8 +604,8 @@ public class MethodNode extends MethodVisitor {
    * that this node, and all its children recursively, do not contain elements that were introduced
    * in more recent versions of the ASM API than the given version.
    *
-   * @param api an ASM API version. Must be one of {@link Opcodes#ASM4}, {@link Opcodes#ASM5} or
-   *     {@link Opcodes#ASM6}.
+   * @param api an ASM API version. Must be one of {@link Opcodes#ASM4}, {@link Opcodes#ASM5},
+   *     {@link Opcodes#ASM6} or {@link Opcodes#ASM7}.
    */
   public void check(final int api) {
     if (api == Opcodes.ASM4) {
@@ -657,6 +658,17 @@ public class MethodNode extends MethodVisitor {
       if (invisibleLocalVariableAnnotations != null
           && !invisibleLocalVariableAnnotations.isEmpty()) {
         throw new UnsupportedClassVersionException();
+      }
+    }
+    if (api < Opcodes.ASM7) {
+      for (int i = instructions.size() - 1; i >= 0; --i) {
+        AbstractInsnNode insn = instructions.get(i);
+        if (insn instanceof LdcInsnNode) {
+          Object value = ((LdcInsnNode) insn).cst;
+          if (value instanceof Condy) {
+            throw new UnsupportedClassVersionException();
+          }
+        }
       }
     }
   }

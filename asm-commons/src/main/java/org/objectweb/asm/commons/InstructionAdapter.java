@@ -28,6 +28,7 @@
 
 package org.objectweb.asm.commons;
 
+import org.objectweb.asm.Condy;
 import org.objectweb.asm.Handle;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
@@ -51,7 +52,7 @@ public class InstructionAdapter extends MethodVisitor {
    * @throws IllegalStateException If a subclass calls this constructor.
    */
   public InstructionAdapter(final MethodVisitor mv) {
-    this(Opcodes.ASM6, mv);
+    this(Opcodes.ASM7, mv);
     if (getClass() != InstructionAdapter.class) {
       throw new IllegalStateException();
     }
@@ -61,7 +62,7 @@ public class InstructionAdapter extends MethodVisitor {
    * Constructs a new {@link InstructionAdapter}.
    *
    * @param api the ASM API version implemented by this visitor. Must be one of {@link
-   *     Opcodes#ASM4}, {@link Opcodes#ASM5} or {@link Opcodes#ASM6}.
+   *     Opcodes#ASM4}, {@link Opcodes#ASM5}, {@link Opcodes#ASM6} or {@link Opcodes#ASM7}.
    * @param mv the method visitor to which this adapter delegates calls.
    */
   protected InstructionAdapter(final int api, final MethodVisitor mv) {
@@ -628,6 +629,9 @@ public class InstructionAdapter extends MethodVisitor {
             || (value instanceof Type && ((Type) value).getSort() == Type.METHOD))) {
       throw new UnsupportedOperationException();
     }
+    if (api < Opcodes.ASM7 && value instanceof Condy) {
+      throw new UnsupportedOperationException();
+    }
     if (value instanceof Integer) {
       int val = ((Integer) value).intValue();
       iconst(val);
@@ -658,6 +662,8 @@ public class InstructionAdapter extends MethodVisitor {
       tconst((Type) value);
     } else if (value instanceof Handle) {
       hconst((Handle) value);
+    } else if (value instanceof Condy) {
+      cconst((Condy) value);
     } else {
       throw new IllegalArgumentException();
     }
@@ -742,6 +748,10 @@ public class InstructionAdapter extends MethodVisitor {
 
   public void hconst(final Handle handle) {
     mv.visitLdcInsn(handle);
+  }
+
+  public void cconst(final Condy condy) {
+    mv.visitLdcInsn(condy);
   }
 
   public void load(final int var, final Type type) {

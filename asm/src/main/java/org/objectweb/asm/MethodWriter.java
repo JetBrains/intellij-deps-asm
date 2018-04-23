@@ -519,8 +519,8 @@ final class MethodWriter extends MethodVisitor {
    */
   private int[] currentFrame;
 
-  /** The number of subroutines in this method. */
-  private int numSubroutines;
+  /** Whether this method contains subroutines. */
+  private boolean hasSubroutines;
 
   // -----------------------------------------------------------------------------------------------
   // Other miscellaneous status fields
@@ -1140,7 +1140,7 @@ final class MethodWriter extends MethodVisitor {
           // Record the fact that 'label' designates a subroutine, if not already done.
           if ((label.flags & Label.FLAG_SUBROUTINE_START) == 0) {
             label.flags |= Label.FLAG_SUBROUTINE_START;
-            ++numSubroutines;
+            hasSubroutines = true;
           }
           currentBasicBlock.flags |= Label.FLAG_SUBROUTINE_CALLER;
           // Note that, by construction in this method, a block which calls a subroutine has at
@@ -1645,19 +1645,18 @@ final class MethodWriter extends MethodVisitor {
     }
 
     // Complete the control flow graph with the successor blocks of subroutines, if needed.
-    if (numSubroutines > 0) {
+    if (hasSubroutines) {
       // First step: find the subroutines. This step determines, for each basic block, to which
       // subroutine(s) it belongs. Start with the main "subroutine":
-      int subroutineId = 0;
-      firstBasicBlock.markSubroutine(subroutineId, numSubroutines);
+      short subroutineId = 1;
+      firstBasicBlock.markSubroutine(subroutineId);
       // Then, loop over all the basic blocks to find those that belong to real subroutines.
       Label basicBlock = firstBasicBlock;
       while (basicBlock != null) {
-        if ((basicBlock.flags & Label.FLAG_SUBROUTINE_START) != 0
-            && (basicBlock.flags & Label.FLAG_SUBROUTINE_BODY) == 0) {
+        if ((basicBlock.flags & Label.FLAG_SUBROUTINE_START) != 0 && basicBlock.subroutineId == 0) {
           // If this subroutine has not been marked yet, find its basic blocks.
           subroutineId += 1;
-          basicBlock.markSubroutine(subroutineId, numSubroutines);
+          basicBlock.markSubroutine(subroutineId);
         }
         basicBlock = basicBlock.nextBasicBlock;
       }

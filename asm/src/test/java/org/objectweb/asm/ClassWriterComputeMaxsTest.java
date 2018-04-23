@@ -28,6 +28,7 @@
 package org.objectweb.asm;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.HashMap;
@@ -77,6 +78,10 @@ public class ClassWriterComputeMaxsTest {
 
   private void PUSH() {
     methodVisitor.visitInsn(Opcodes.ICONST_0);
+  }
+
+  private void POP() {
+    methodVisitor.visitInsn(Opcodes.POP);
   }
 
   private void ICONST_0() {
@@ -199,6 +204,14 @@ public class ClassWriterComputeMaxsTest {
       String key = "N" + currentLabel.getOffset();
       Set<String> value = new HashSet<String>();
       Edge outgoingEdge = currentLabel.outgoingEdges;
+      if ((currentLabel.flags & Label.FLAG_SUBROUTINE_CALLER) != 0) {
+        // Ignore the first outgoing edge of the basic blocks ending with a jsr: these are virtual
+        // edges which lead to the instruction just after the jsr, and do not correspond to a
+        // possible execution path (see {@link #visitJumpInsn} and
+        // {@link Label#FLAG_SUBROUTINE_CALLER}).
+        assertNotNull(outgoingEdge);
+        outgoingEdge = outgoingEdge.nextEdge;
+      }
       while (outgoingEdge != null) {
         value.add("N" + outgoingEdge.successor.getOffset());
         outgoingEdge = outgoingEdge.nextEdge;
@@ -285,10 +298,10 @@ public class ClassWriterComputeMaxsTest {
       assertGraph(
           "N0=N2",
           "N2=N22,N8",
-          "N8=N14,N12",
+          "N8=N14",
           "N12=",
           "N14=N12,N25",
-          "N22=N14,N25,N8",
+          "N22=N14,N8",
           "N25=N27,N8",
           "N27=");
     }
@@ -367,12 +380,12 @@ public class ClassWriterComputeMaxsTest {
     assertGraph(
         "N0=N2",
         "N2=N34,N8",
-        "N8=N16,N12",
+        "N8=N16",
         "N12=",
         "N16=N29,N32",
         "N29=N32",
         "N32=N37,N12",
-        "N34=N16,N37,N8",
+        "N34=N16,N8",
         "N37=");
   }
 
@@ -453,13 +466,13 @@ public class ClassWriterComputeMaxsTest {
     assertMaxs(5, 6);
     assertGraph(
         "N0=N2",
-        "N2=N11,N19,N8",
+        "N2=N11,N19",
         "N8=N11,N46",
-        "N11=N19,N16",
+        "N11=N19",
         "N16=",
-        "N19=N26,N30,N38",
+        "N19=N30,N38",
         "N26=N16,N30,N8",
-        "N30=N38,N35",
+        "N30=N38",
         "N35=",
         "N38=N26,N35",
         "N46=");
@@ -530,7 +543,7 @@ public class ClassWriterComputeMaxsTest {
 
     assertMaxs(1, 4);
     assertGraph(
-        "N0=N2", "N2=N11,N19,N8", "N8=N11,N26", "N11=N19,N15", "N15=", "N19=N29", "N26=N2", "N29=");
+        "N0=N2", "N2=N11,N19", "N8=N11,N26", "N11=N19", "N15=", "N19=N29", "N26=N2", "N29=");
   }
 
   /**
@@ -561,11 +574,11 @@ public class ClassWriterComputeMaxsTest {
     methodVisitor.visitLocalVariable("i", "I", null, L0, L1, 1);
 
     assertMaxs(2, 2);
-    assertGraph("N0=N4,N5", "N4=N5", "N5=", "N8=");
+    assertGraph("N0=N5", "N4=N5", "N5=", "N8=");
   }
 
   /**
-   * This tests a subroutine which has no ret statement, but instead exits implicitely by branching
+   * This tests a subroutine which has no ret statement, but instead exits implicitly by branching
    * to code which is not part of the subroutine. (Sadly, this is legal)
    *
    * <p>We structure this as a try/finally in a loop with a break in the finally. The loop is not
@@ -638,9 +651,9 @@ public class ClassWriterComputeMaxsTest {
     assertGraph(
         "N0=N2",
         "N2=N6,N33",
-        "N6=N23,N12,N15",
+        "N6=N23,N15",
         "N12=N30,N15",
-        "N15=N23,N19",
+        "N15=N23",
         "N19=",
         "N23=N33",
         "N30=N6",
@@ -750,14 +763,14 @@ public class ClassWriterComputeMaxsTest {
     assertMaxs(5, 6);
     assertGraph(
         "N0=N2",
-        "N2=N6,N5,N14",
+        "N2=N6,N14",
         "N5=N6",
-        "N6=N14,N10",
+        "N6=N14",
         "N10=",
         "N14=N41",
-        "N21=N24,N25,N33",
+        "N21=N25,N33",
         "N24=N25",
-        "N25=N31,N33",
+        "N25=N33",
         "N31=",
         "N33=N31,N45,N24",
         "N41=N45,N21",
@@ -790,7 +803,7 @@ public class ClassWriterComputeMaxsTest {
     RET(2);
 
     assertMaxs(1, 4);
-    assertGraph("N0=N6,N5", "N5=", "N6=N10,N13", "N10=N20", "N13=N20,N10", "N20=N5");
+    assertGraph("N0=N6", "N5=", "N6=N13", "N10=N20", "N13=N20,N10", "N20=N5");
   }
 
   /**
@@ -836,7 +849,7 @@ public class ClassWriterComputeMaxsTest {
     RETURN();
 
     assertMaxs(4, 3);
-    assertGraph("N0=N5,N8", "N5=N15", "N8=N21", "N15=N28", "N21=N5", "N28=");
+    assertGraph("N0=N8", "N5=N15", "N8=N21", "N15=N28", "N21=N5", "N28=");
   }
 
   /**
@@ -950,18 +963,104 @@ public class ClassWriterComputeMaxsTest {
     assertMaxs(4, 6);
     assertGraph(
         "N0=N2",
-        "N2=N6,N45,N5,N12",
+        "N2=N6,N45,N12",
         "N5=N6,N45",
-        "N6=N45,N12,N10",
+        "N6=N45,N12",
         "N10=N45",
         "N12=N39,N45",
-        "N17=N23,N45,N20,N29",
+        "N17=N23,N45,N29",
         "N20=N23,N45",
-        "N23=N45,N27,N29",
+        "N23=N45,N29",
         "N27=N45",
         "N29=N43,N45,N20,N27",
         "N39=N43,N45,N17",
         "N43=N45,N5,N10",
         "N45=");
+  }
+
+  /**
+   * Tests an example coming from distilled down version of
+   * com/sun/corba/ee/impl/protocol/CorbaClientDelegateImpl from GlassFish 2. See issue #317823.
+   */
+  @Test
+  public void testGlassFish2CorbaClientDelegateImplExample() {
+    Label l0 = new Label();
+    Label l1 = new Label();
+    Label l2 = new Label();
+    Label l3 = new Label();
+    Label l4 = new Label();
+    Label l5 = new Label();
+    Label l6 = new Label();
+    Label l7 = new Label();
+    Label l8 = new Label();
+    Label l9 = new Label();
+    Label l10 = new Label();
+    Label l11 = new Label();
+    Label l12 = new Label();
+
+    LABEL(l0); // N0
+    JSR(l9);
+    LABEL(l1); // N3
+    GOTO(l10);
+    LABEL(l2); // N6
+    POP();
+    JSR(l9);
+    LABEL(l3); // N10
+    ACONST_NULL();
+    ATHROW();
+    LABEL(l9); // N12
+    ASTORE(1);
+    RET(1);
+    LABEL(l10); // N15
+    ACONST_NULL();
+    ACONST_NULL();
+    ACONST_NULL();
+    POP();
+    POP();
+    POP();
+    LABEL(l4); // N21
+    GOTO(l11);
+    LABEL(l5); // N24
+    POP();
+    GOTO(l11);
+    ACONST_NULL();
+    ATHROW();
+    LABEL(l11); // N30
+    ICONST_0();
+    IFNE(l0);
+    JSR(l12);
+    LABEL(l6); // N37
+    RETURN();
+    LABEL(l7); // N38
+    POP();
+    JSR(l12);
+    LABEL(l8); // N42
+    ACONST_NULL();
+    ATHROW();
+    LABEL(l12); // N44
+    ASTORE(2);
+    RET(2);
+
+    TRYCATCH(l0, l1, l2);
+    TRYCATCH(l2, l3, l2);
+    TRYCATCH(l0, l4, l5);
+    TRYCATCH(l0, l6, l7);
+    TRYCATCH(l7, l8, l7);
+
+    assertMaxs(3, 3);
+    assertGraph(
+        "N0=N6,N12,N24,N38",
+        "N3=N15,N24,N38",
+        "N6=N6,N12,N24,N38",
+        "N10=N24,N38",
+        "N12=N3,N10,N24,N38",
+        "N15=N21,N24,N38",
+        "N21=N30,N38",
+        "N24=N30,N38",
+        "N30=N0,N38,N44",
+        "N37=",
+        "N38=N38,N44",
+        "N42=",
+        "N44=N37,N42");
   }
 }

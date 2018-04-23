@@ -86,6 +86,42 @@ public class ClassVisitorTest extends AsmTest {
     assertThatClass(classWriterWithCopyPool.toByteArray()).isEqualTo(classWriter.toByteArray());
   }
 
+  /**
+   * Tests that a ClassReader -> class adapter -> ClassWriter chain give the same result with or
+   * without the copy pool option.
+   */
+  @ParameterizedTest
+  @MethodSource(ALL_CLASSES_AND_ALL_APIS)
+  public void testReadAndWriteWithCopyPoolAndDeprecatedAdapter(
+      final PrecompiledClass classParameter, final Api apiParameter) {
+    byte[] classFile = classParameter.getBytes();
+    ClassReader classReader = new ClassReader(classFile);
+    ClassWriter classWriter = new ClassWriter(0);
+    ClassWriter classWriterWithCopyPool = new ClassWriter(classReader, 0);
+    int access = Opcodes.ACC_DEPRECATED;
+    classReader.accept(new ChangeAccessAdapter(classWriter, access), attributes(), 0);
+    classReader.accept(new ChangeAccessAdapter(classWriterWithCopyPool, access), attributes(), 0);
+    assertThatClass(classWriterWithCopyPool.toByteArray()).isEqualTo(classWriter.toByteArray());
+  }
+
+  /**
+   * Tests that a ClassReader -> class adapter -> ClassWriter chain give the same result with or
+   * without the copy pool option.
+   */
+  @ParameterizedTest
+  @MethodSource(ALL_CLASSES_AND_ALL_APIS)
+  public void testReadAndWriteWithCopyPoolAndSyntheticAdapter(
+      final PrecompiledClass classParameter, final Api apiParameter) {
+    byte[] classFile = classParameter.getBytes();
+    ClassReader classReader = new ClassReader(classFile);
+    ClassWriter classWriter = new ClassWriter(0);
+    ClassWriter classWriterWithCopyPool = new ClassWriter(classReader, 0);
+    int access = Opcodes.ACC_SYNTHETIC;
+    classReader.accept(new ChangeAccessAdapter(classWriter, access), attributes(), 0);
+    classReader.accept(new ChangeAccessAdapter(classWriterWithCopyPool, access), attributes(), 0);
+    assertThatClass(classWriterWithCopyPool.toByteArray()).isEqualTo(classWriter.toByteArray());
+  }
+
   /** Test that classes with only visible or only invisible annotations can be read correctly. */
   @ParameterizedTest
   @ValueSource(strings = {"true", "false"})
@@ -278,6 +314,26 @@ public class ClassVisitorTest extends AsmTest {
         exceptions[0] = "java/lang/Throwable";
       }
       return super.visitMethod(access, name, descriptor, signature, exceptions);
+    }
+  }
+
+  private static class ChangeAccessAdapter extends ClassVisitor {
+
+    private final int accessFlags;
+
+    ChangeAccessAdapter(final ClassVisitor classVisitor, final int accessFlags) {
+      super(Opcodes.ASM6, classVisitor);
+      this.accessFlags = accessFlags;
+    }
+
+    @Override
+    public MethodVisitor visitMethod(
+        final int access,
+        final String name,
+        final String descriptor,
+        final String signature,
+        final String[] exceptions) {
+      return super.visitMethod(access ^ accessFlags, name, descriptor, signature, exceptions);
     }
   }
 

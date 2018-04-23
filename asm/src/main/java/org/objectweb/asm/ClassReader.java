@@ -976,8 +976,8 @@ public class ClassReader {
     int exceptionsOffset = 0;
     // - The strings corresponding to the Exceptions attribute, or null.
     String[] exceptions = null;
-    // - The string corresponding to the Signature attribute, or null.
-    int signature = 0;
+    // - The constant pool index contained in the Signature attribute, or 0.
+    int signatureIndex = 0;
     // - The offset of the RuntimeVisibleAnnotations attribute, or 0.
     int runtimeVisibleAnnotationsOffset = 0;
     // - The offset of the RuntimeInvisibleAnnotations attribute, or 0.
@@ -1020,7 +1020,7 @@ public class ClassReader {
           currentExceptionOffset += 2;
         }
       } else if (Constants.SIGNATURE.equals(attributeName)) {
-        signature = readUnsignedShort(currentOffset);
+        signatureIndex = readUnsignedShort(currentOffset);
       } else if (Constants.DEPRECATED.equals(attributeName)) {
         context.currentMethodAccessFlags |= Opcodes.ACC_DEPRECATED;
       } else if (Constants.RUNTIME_VISIBLE_ANNOTATIONS.equals(attributeName)) {
@@ -1063,42 +1063,26 @@ public class ClassReader {
             context.currentMethodAccessFlags,
             context.currentMethodName,
             context.currentMethodDescriptor,
-            signature == 0 ? null : readUTF(signature, charBuffer),
+            signatureIndex == 0 ? null : readUTF(signatureIndex, charBuffer),
             exceptions);
     if (methodVisitor == null) {
       return currentOffset;
     }
 
     // If the returned MethodVisitor is in fact a MethodWriter, it means there is no method
-    // adapter between the reader and the writer. If, in addition, the writer's constant pool was
-    // copied from this reader (mw.getSource() == this), and the signature and exceptions of the
-    // method have not been changed, then it is possible to skip all visit events and just copy the
-    // original code of the method to the writer (the access_flags, name_index and descriptor_index
-    // can have been changed, this is not important since they are not copied from the reader).
+    // adapter between the reader and the writer. In this case, it might be possible to copy
+    // the method attributes directly into the writer. If so, return early without visiting
+    // the content of these attributes.
     if (methodVisitor instanceof MethodWriter) {
       MethodWriter methodWriter = (MethodWriter) methodVisitor;
-      if (methodWriter.getSource() == this && signature == methodWriter.signatureIndex) {
-        boolean sameExceptions = false;
-        if (exceptions == null) {
-          sameExceptions = methodWriter.numberOfExceptions == 0;
-        } else if (exceptions.length == methodWriter.numberOfExceptions) {
-          sameExceptions = true;
-          int currentExceptionOffset = exceptionsOffset + 2;
-          for (int i = 0; i < exceptions.length; ++i) {
-            if (methodWriter.exceptionIndexTable[i] != readUnsignedShort(currentExceptionOffset)) {
-              sameExceptions = false;
-              break;
-            }
-            currentExceptionOffset += 2;
-          }
-        }
-        if (sameExceptions) {
-          // We do not copy directly the code into methodWriter to save a byte array copy operation.
-          // The real copy will be done in {@link MethodWriter#putMethodInfo}.
-          methodWriter.sourceOffset = methodInfoOffset + 6;
-          methodWriter.sourceLength = currentOffset - methodWriter.sourceOffset;
-          return currentOffset;
-        }
+      if (methodWriter.canCopyMethodAttributes(
+          this,
+          methodInfoOffset,
+          currentOffset - methodInfoOffset,
+          context.currentMethodAccessFlags,
+          signatureIndex,
+          exceptionsOffset)) {
+        return currentOffset;
       }
     }
 

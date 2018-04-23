@@ -33,7 +33,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.objectweb.asm.Attribute;
-import org.objectweb.asm.Condy;
+import org.objectweb.asm.ConstantDynamic;
 import org.objectweb.asm.Handle;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.Opcodes;
@@ -163,7 +163,7 @@ public class ASMifier extends Printer {
     text.add("import org.objectweb.asm.Attribute;\n");
     text.add("import org.objectweb.asm.ClassReader;\n");
     text.add("import org.objectweb.asm.ClassWriter;\n");
-    text.add("import org.objectweb.asm.Condy;\n");
+    text.add("import org.objectweb.asm.ConstantDynamic;\n");
     text.add("import org.objectweb.asm.FieldVisitor;\n");
     text.add("import org.objectweb.asm.Handle;\n");
     text.add("import org.objectweb.asm.Label;\n");
@@ -1361,17 +1361,17 @@ public class ASMifier extends Printer {
       stringBuilder.append(handle.getName()).append("\", \"");
       stringBuilder.append(handle.getDesc()).append("\", ");
       stringBuilder.append(handle.isInterface()).append(")");
-    } else if (value instanceof Condy) {
-      stringBuilder.append("new Condy(\"");
-      Condy c = (Condy) value;
-      stringBuilder.append(c.getName()).append("\", \"");
-      stringBuilder.append(c.getDescriptor()).append("\", ");
-      appendConstant(c.getBootrapMethod());
+    } else if (value instanceof ConstantDynamic) {
+      stringBuilder.append("new ConstantDynamic(\"");
+      ConstantDynamic constantDynamic = (ConstantDynamic) value;
+      stringBuilder.append(constantDynamic.getName()).append("\", \"");
+      stringBuilder.append(constantDynamic.getDescriptor()).append("\", ");
+      appendConstant(constantDynamic.getBootstrapMethod());
       stringBuilder.append(", new Object[] {");
-      Object[] bootstrapArguments = c.getBootstrapArguments();
-      for (int i = 0; i < bootstrapArguments.length; ++i) {
-        appendConstant(bootstrapArguments[i]);
-        if (i != bootstrapArguments.length - 1) {
+      Object[] bootstrapMethodArguments = constantDynamic.getBootstrapMethodArguments();
+      for (int i = 0; i < bootstrapMethodArguments.length; ++i) {
+        appendConstant(bootstrapMethodArguments[i]);
+        if (i != bootstrapMethodArguments.length - 1) {
           stringBuilder.append(", ");
         }
       }

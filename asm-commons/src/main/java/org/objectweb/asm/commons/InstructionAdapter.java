@@ -28,7 +28,7 @@
 
 package org.objectweb.asm.commons;
 
-import org.objectweb.asm.Condy;
+import org.objectweb.asm.ConstantDynamic;
 import org.objectweb.asm.Handle;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
@@ -629,7 +629,7 @@ public class InstructionAdapter extends MethodVisitor {
             || (value instanceof Type && ((Type) value).getSort() == Type.METHOD))) {
       throw new UnsupportedOperationException();
     }
-    if (api < Opcodes.ASM7 && value instanceof Condy) {
+    if (api < Opcodes.ASM7 && value instanceof ConstantDynamic) {
       throw new UnsupportedOperationException();
     }
     if (value instanceof Integer) {
@@ -662,8 +662,8 @@ public class InstructionAdapter extends MethodVisitor {
       tconst((Type) value);
     } else if (value instanceof Handle) {
       hconst((Handle) value);
-    } else if (value instanceof Condy) {
-      cconst((Condy) value);
+    } else if (value instanceof ConstantDynamic) {
+      cconst((ConstantDynamic) value);
     } else {
       throw new IllegalArgumentException();
     }
@@ -750,8 +750,8 @@ public class InstructionAdapter extends MethodVisitor {
     mv.visitLdcInsn(handle);
   }
 
-  public void cconst(final Condy condy) {
-    mv.visitLdcInsn(condy);
+  public void cconst(final ConstantDynamic constantDynamic) {
+    mv.visitLdcInsn(constantDynamic);
   }
 
   public void load(final int var, final Type type) {

@@ -779,7 +779,7 @@ public class ClassWriter extends ClassVisitor {
    * @param bootstrapMethodArguments the bootstrap method constant arguments.
    * @return the index of a new or already existing dynamic constant reference item.
    */
-  public int newCondy(
+  public int newConstantDynamic(
       final String name,
       final String descriptor,
       final Handle bootstrapMethodHandle,

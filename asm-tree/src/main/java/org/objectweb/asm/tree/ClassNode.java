@@ -121,10 +121,10 @@ public class ClassNode extends ClassVisitor {
   /** The inner classes of this class. */
   public List<InnerClassNode> innerClasses;
 
-  /** The internal name of the nest host class of this class. */
+  /** The internal name of the nest host class of this class. May be <tt>null</tt>. */
   public String nestHostClass;
 
-  /** The internal names of the nest members of this class. */
+  /** The internal names of the nest members of this class. May be <tt>null</tt>. */
   public List<String> nestMembers;
 
   /** The fields of this class. */

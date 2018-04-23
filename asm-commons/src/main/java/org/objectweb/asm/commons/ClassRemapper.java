@@ -155,12 +155,12 @@ public class ClassRemapper extends ClassVisitor {
   }
 
   @Override
-  public void visitNestHost(String nestHost) {
+  public void visitNestHost(final String nestHost) {
     super.visitNestHost(remapper.mapType(nestHost));
   }
 
   @Override
-  public void visitNestMember(String nestMember) {
+  public void visitNestMember(final String nestMember) {
     super.visitNestMember(remapper.mapType(nestMember));
   }
 

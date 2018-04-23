@@ -136,11 +136,12 @@ public abstract class ClassVisitor {
   }
 
   /**
-   * Visits the nest host class of the current class. A nest is a set of classes of the same package
-   * that share access to their private members. The host class should list the current class as
-   * {@link #visitNestMember(String) nest member}. This method must be called only once and only if
-   * the current class is a member of a nest. A class is implicitly its own nest, so it's invalid to
-   * call this method with the current class as argument.
+   * Visits the nest host class of the class. A nest is a set of classes of the same package that
+   * share access to their private members. One of these classes, called the host, lists the other
+   * members of the nest, which in turn should link to the host of their nest. This method must be
+   * called only once and only if the visited class is a non-host member of a nest. A class is
+   * implicitly its own nest, so it's invalid to call this method with the visited class name as
+   * argument.
    *
    * @param nestHost the internal name of the host class of the nest.
    */
@@ -223,8 +224,10 @@ public abstract class ClassVisitor {
 
   /**
    * Visits a member of the nest. A nest is a set of classes of the same package that share access
-   * to their private members. The nest member should declare the current class as its {@link
-   * #visitNestMember(String) host class}.
+   * to their private members. One of these classes, called the host, lists the other members of the
+   * nest, which in turn should link to the host of their nest. This method must be called only if
+   * the visited class is the host of a nest. A nest host is implicitly a member of its own nest, so
+   * it's invalid to call this method with the visited class name as argument.
    *
    * @param nestMember the internal name of a nest member.
    */

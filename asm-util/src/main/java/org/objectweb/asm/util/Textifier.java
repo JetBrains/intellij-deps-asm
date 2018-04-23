@@ -236,7 +236,7 @@ public class Textifier extends Printer {
   }
 
   @Override
-  public void visitNestHost(String nestHost) {
+  public void visitNestHost(final String nestHost) {
     stringBuilder.setLength(0);
     stringBuilder.append(tab).append("NESTHOST ");
     appendDescriptor(INTERNAL_NAME, nestHost);

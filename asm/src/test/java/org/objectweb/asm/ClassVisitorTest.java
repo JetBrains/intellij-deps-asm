@@ -31,6 +31,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.objectweb.asm.test.AsmTest;
@@ -120,6 +121,40 @@ public class ClassVisitorTest extends AsmTest {
     classReader.accept(new ChangeAccessAdapter(classWriter, access), attributes(), 0);
     classReader.accept(new ChangeAccessAdapter(classWriterWithCopyPool, access), attributes(), 0);
     assertThatClass(classWriterWithCopyPool.toByteArray()).isEqualTo(classWriter.toByteArray());
+  }
+
+  /**
+   * Tests that a ClassReader -> class adapter -> ClassWriter chain give the same result with or
+   * without the copy pool option, when the class version is changed (and optionally a synthetic
+   * attribute as well).
+   */
+  @ParameterizedTest
+  @CsvSource({"true, true", "true, false", "false, true", "false, false"})
+  public void testReadAndWriteWithCopyPoolAndSyntheticAdapter(
+      final boolean upgradeVersion, final boolean changeSynthetic) {
+    ClassWriter sourceClassWriter = new ClassWriter(0);
+    sourceClassWriter.visit(
+        upgradeVersion ? Opcodes.V1_4 : Opcodes.V1_5,
+        Opcodes.ACC_ABSTRACT,
+        "C",
+        null,
+        "java/lang/Object",
+        null);
+    sourceClassWriter
+        .visitMethod(Opcodes.ACC_ABSTRACT | Opcodes.ACC_SYNTHETIC, "m", "()V", null, null)
+        .visitEnd();
+    sourceClassWriter.visitEnd();
+
+    ClassReader classReader = new ClassReader(sourceClassWriter.toByteArray());
+    ClassWriter classWriter = new ClassWriter(0);
+    ClassWriter copyPoolClassWriter = new ClassWriter(classReader, 0);
+    int version = upgradeVersion ? Opcodes.V1_5 : Opcodes.V1_4;
+    int access = changeSynthetic ? Opcodes.ACC_SYNTHETIC : 0;
+    classReader.accept(
+        new ChangeVersionAdapter(new ChangeAccessAdapter(classWriter, access), version), 0);
+    classReader.accept(
+        new ChangeVersionAdapter(new ChangeAccessAdapter(copyPoolClassWriter, access), version), 0);
+    assertThatClass(copyPoolClassWriter.toByteArray()).isEqualTo(classWriter.toByteArray());
   }
 
   /** Test that classes with only visible or only invisible annotations can be read correctly. */
@@ -314,6 +349,27 @@ public class ClassVisitorTest extends AsmTest {
         exceptions[0] = "java/lang/Throwable";
       }
       return super.visitMethod(access, name, descriptor, signature, exceptions);
+    }
+  }
+
+  private static class ChangeVersionAdapter extends ClassVisitor {
+
+    private final int newVersion;
+
+    ChangeVersionAdapter(final ClassVisitor classVisitor, final int newVersion) {
+      super(Opcodes.ASM6, classVisitor);
+      this.newVersion = newVersion;
+    }
+
+    @Override
+    public void visit(
+        final int version,
+        final int access,
+        final String name,
+        final String signature,
+        final String superName,
+        final String[] interfaces) {
+      super.visit(newVersion, access, name, signature, superName, interfaces);
     }
   }
 

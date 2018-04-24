@@ -976,6 +976,8 @@ public class ClassReader {
     int exceptionsOffset = 0;
     // - The strings corresponding to the Exceptions attribute, or null.
     String[] exceptions = null;
+    // - Whether the method has a Synthetic attribute.
+    boolean synthetic = false;
     // - The constant pool index contained in the Signature attribute, or 0.
     int signatureIndex = 0;
     // - The offset of the RuntimeVisibleAnnotations attribute, or 0.
@@ -1030,6 +1032,7 @@ public class ClassReader {
       } else if (Constants.ANNOTATION_DEFAULT.equals(attributeName)) {
         annotationDefaultOffset = currentOffset;
       } else if (Constants.SYNTHETIC.equals(attributeName)) {
+        synthetic = true;
         context.currentMethodAccessFlags |= Opcodes.ACC_SYNTHETIC;
       } else if (Constants.RUNTIME_INVISIBLE_ANNOTATIONS.equals(attributeName)) {
         runtimeInvisibleAnnotationsOffset = currentOffset;
@@ -1079,7 +1082,8 @@ public class ClassReader {
           this,
           methodInfoOffset,
           currentOffset - methodInfoOffset,
-          context.currentMethodAccessFlags,
+          synthetic,
+          (context.currentMethodAccessFlags & Opcodes.ACC_DEPRECATED) != 0,
           signatureIndex,
           exceptionsOffset)) {
         return currentOffset;

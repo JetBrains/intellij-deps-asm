@@ -1953,8 +1953,10 @@ final class MethodWriter extends MethodVisitor {
    *     the attributes of this method might be copied.
    * @param methodInfoLength the length in 'source.b' of the method_info JVMS structure from which
    *     the attributes of this method might be copied.
-   * @param access the access flags (including the ASM specific ones) of the method_info JVMS
-   *     structure from which the attributes of this method might be copied.
+   * @param hasSyntheticAttribute whether the method_info JVMS structure from which the attributes
+   *     of this method might be copied contains a Synthetic attribute.
+   * @param hasDeprecatedAttribute whether the method_info JVMS structure from which the attributes
+   *     of this method might be copied contains a Deprecated attribute.
    * @param signatureIndex the constant pool index contained in the Signature attribute of the
    *     method_info JVMS structure from which the attributes of this method might be copied, or 0.
    * @param exceptionsOffset the offset in 'source.b' of the Exceptions attribute of the method_info
@@ -1967,17 +1969,18 @@ final class MethodWriter extends MethodVisitor {
       final ClassReader source,
       final int methodInfoOffset,
       final int methodInfoLength,
-      final int access,
+      final boolean hasSyntheticAttribute,
+      final boolean hasDeprecatedAttribute,
       final int signatureIndex,
       final int exceptionsOffset) {
     if (source != symbolTable.getSource()
         || signatureIndex != this.signatureIndex
-        || (access & Opcodes.ACC_DEPRECATED) != (accessFlags & Opcodes.ACC_DEPRECATED)) {
+        || hasDeprecatedAttribute != ((accessFlags & Opcodes.ACC_DEPRECATED) != 0)) {
       return false;
     }
-    boolean useSyntheticAttribute = symbolTable.getMajorVersion() < Opcodes.V1_5;
-    if (useSyntheticAttribute
-        && (access & Opcodes.ACC_SYNTHETIC) != (accessFlags & Opcodes.ACC_SYNTHETIC)) {
+    boolean needSyntheticAttribute =
+        symbolTable.getMajorVersion() < Opcodes.V1_5 && (accessFlags & Opcodes.ACC_SYNTHETIC) != 0;
+    if (hasSyntheticAttribute != needSyntheticAttribute) {
       return false;
     }
     if (exceptionsOffset == 0) {

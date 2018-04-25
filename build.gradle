@@ -244,7 +244,7 @@ configure(subprojects.findAll { it.provides }) {
     // Define a task to create a sigtest file for the current version.
     task "buildSigtest" (type: JavaExec, dependsOn: 'classes') {
       inputs.files(sourceSets.main.java)
-      outputs.file("src/test/resources/sigtest-${version}")
+      outputs.file("src/test/resources/sigtest-${version}.txt")
       classpath configurations.sigtest
       main 'com.sun.tdk.signaturetest.Main'
       args 'Setup', '-ApiVersion', version, '-FileName', outputs.getFiles()[0],

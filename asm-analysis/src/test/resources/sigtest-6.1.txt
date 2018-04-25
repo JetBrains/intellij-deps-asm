@@ -1,0 +1,433 @@
+#Signature file v4.1
+#Version 6.1
+
+CLSS public abstract interface java.io.Serializable
+
+CLSS public java.lang.Exception
+cons protected init(java.lang.String,java.lang.Throwable,boolean,boolean)
+cons public init()
+cons public init(java.lang.String)
+cons public init(java.lang.String,java.lang.Throwable)
+cons public init(java.lang.Throwable)
+supr java.lang.Throwable
+hfds serialVersionUID
+
+CLSS public java.lang.Object
+cons public init()
+meth protected java.lang.Object clone() throws java.lang.CloneNotSupportedException
+meth protected void finalize() throws java.lang.Throwable
+meth public boolean equals(java.lang.Object)
+meth public final java.lang.Class<?> getClass()
+meth public final void notify()
+meth public final void notifyAll()
+meth public final void wait() throws java.lang.InterruptedException
+meth public final void wait(long) throws java.lang.InterruptedException
+meth public final void wait(long,int) throws java.lang.InterruptedException
+meth public int hashCode()
+meth public java.lang.String toString()
+
+CLSS public java.lang.Throwable
+cons protected init(java.lang.String,java.lang.Throwable,boolean,boolean)
+cons public init()
+cons public init(java.lang.String)
+cons public init(java.lang.String,java.lang.Throwable)
+cons public init(java.lang.Throwable)
+intf java.io.Serializable
+meth public final java.lang.Throwable[] getSuppressed()
+meth public final void addSuppressed(java.lang.Throwable)
+meth public java.lang.StackTraceElement[] getStackTrace()
+meth public java.lang.String getLocalizedMessage()
+meth public java.lang.String getMessage()
+meth public java.lang.String toString()
+meth public java.lang.Throwable fillInStackTrace()
+meth public java.lang.Throwable getCause()
+meth public java.lang.Throwable initCause(java.lang.Throwable)
+meth public void printStackTrace()
+meth public void printStackTrace(java.io.PrintStream)
+meth public void printStackTrace(java.io.PrintWriter)
+meth public void setStackTrace(java.lang.StackTraceElement[])
+supr java.lang.Object
+hfds CAUSE_CAPTION,EMPTY_THROWABLE_ARRAY,NULL_CAUSE_MESSAGE,SELF_SUPPRESSION_MESSAGE,SUPPRESSED_CAPTION,SUPPRESSED_SENTINEL,UNASSIGNED_STACK,backtrace,cause,detailMessage,serialVersionUID,stackTrace,suppressedExceptions
+hcls PrintStreamOrWriter,SentinelHolder,WrappedPrintStream,WrappedPrintWriter
+
+CLSS public abstract interface org.objectweb.asm.Opcodes
+fld public final static int AALOAD = 50
+fld public final static int AASTORE = 83
+fld public final static int ACC_ABSTRACT = 1024
+fld public final static int ACC_ANNOTATION = 8192
+fld public final static int ACC_BRIDGE = 64
+fld public final static int ACC_DEPRECATED = 131072
+fld public final static int ACC_ENUM = 16384
+fld public final static int ACC_FINAL = 16
+fld public final static int ACC_INTERFACE = 512
+fld public final static int ACC_MANDATED = 32768
+fld public final static int ACC_MODULE = 32768
+fld public final static int ACC_NATIVE = 256
+fld public final static int ACC_OPEN = 32
+fld public final static int ACC_PRIVATE = 2
+fld public final static int ACC_PROTECTED = 4
+fld public final static int ACC_PUBLIC = 1
+fld public final static int ACC_STATIC = 8
+fld public final static int ACC_STATIC_PHASE = 64
+fld public final static int ACC_STRICT = 2048
+fld public final static int ACC_SUPER = 32
+fld public final static int ACC_SYNCHRONIZED = 32
+fld public final static int ACC_SYNTHETIC = 4096
+fld public final static int ACC_TRANSIENT = 128
+fld public final static int ACC_TRANSITIVE = 32
+fld public final static int ACC_VARARGS = 128
+fld public final static int ACC_VOLATILE = 64
+fld public final static int ACONST_NULL = 1
+fld public final static int ALOAD = 25
+fld public final static int ANEWARRAY = 189
+fld public final static int ARETURN = 176
+fld public final static int ARRAYLENGTH = 190
+fld public final static int ASM4 = 262144
+fld public final static int ASM5 = 327680
+fld public final static int ASM6 = 393216
+fld public final static int ASTORE = 58
+fld public final static int ATHROW = 191
+fld public final static int BALOAD = 51
+fld public final static int BASTORE = 84
+fld public final static int BIPUSH = 16
+fld public final static int CALOAD = 52
+fld public final static int CASTORE = 85
+fld public final static int CHECKCAST = 192
+fld public final static int D2F = 144
+fld public final static int D2I = 142
+fld public final static int D2L = 143
+fld public final static int DADD = 99
+fld public final static int DALOAD = 49
+fld public final static int DASTORE = 82
+fld public final static int DCMPG = 152
+fld public final static int DCMPL = 151
+fld public final static int DCONST_0 = 14
+fld public final static int DCONST_1 = 15
+fld public final static int DDIV = 111
+fld public final static int DLOAD = 24
+fld public final static int DMUL = 107
+fld public final static int DNEG = 119
+fld public final static int DREM = 115
+fld public final static int DRETURN = 175
+fld public final static int DSTORE = 57
+fld public final static int DSUB = 103
+fld public final static int DUP = 89
+fld public final static int DUP2 = 92
+fld public final static int DUP2_X1 = 93
+fld public final static int DUP2_X2 = 94
+fld public final static int DUP_X1 = 90
+fld public final static int DUP_X2 = 91
+fld public final static int F2D = 141
+fld public final static int F2I = 139
+fld public final static int F2L = 140
+fld public final static int FADD = 98
+fld public final static int FALOAD = 48
+fld public final static int FASTORE = 81
+fld public final static int FCMPG = 150
+fld public final static int FCMPL = 149
+fld public final static int FCONST_0 = 11
+fld public final static int FCONST_1 = 12
+fld public final static int FCONST_2 = 13
+fld public final static int FDIV = 110
+fld public final static int FLOAD = 23
+fld public final static int FMUL = 106
+fld public final static int FNEG = 118
+fld public final static int FREM = 114
+fld public final static int FRETURN = 174
+fld public final static int FSTORE = 56
+fld public final static int FSUB = 102
+fld public final static int F_APPEND = 1
+fld public final static int F_CHOP = 2
+fld public final static int F_FULL = 0
+fld public final static int F_NEW = -1
+fld public final static int F_SAME = 3
+fld public final static int F_SAME1 = 4
+fld public final static int GETFIELD = 180
+fld public final static int GETSTATIC = 178
+fld public final static int GOTO = 167
+fld public final static int H_GETFIELD = 1
+fld public final static int H_GETSTATIC = 2
+fld public final static int H_INVOKEINTERFACE = 9
+fld public final static int H_INVOKESPECIAL = 7
+fld public final static int H_INVOKESTATIC = 6
+fld public final static int H_INVOKEVIRTUAL = 5
+fld public final static int H_NEWINVOKESPECIAL = 8
+fld public final static int H_PUTFIELD = 3
+fld public final static int H_PUTSTATIC = 4
+fld public final static int I2B = 145
+fld public final static int I2C = 146
+fld public final static int I2D = 135
+fld public final static int I2F = 134
+fld public final static int I2L = 133
+fld public final static int I2S = 147
+fld public final static int IADD = 96
+fld public final static int IALOAD = 46
+fld public final static int IAND = 126
+fld public final static int IASTORE = 79
+fld public final static int ICONST_0 = 3
+fld public final static int ICONST_1 = 4
+fld public final static int ICONST_2 = 5
+fld public final static int ICONST_3 = 6
+fld public final static int ICONST_4 = 7
+fld public final static int ICONST_5 = 8
+fld public final static int ICONST_M1 = 2
+fld public final static int IDIV = 108
+fld public final static int IFEQ = 153
+fld public final static int IFGE = 156
+fld public final static int IFGT = 157
+fld public final static int IFLE = 158
+fld public final static int IFLT = 155
+fld public final static int IFNE = 154
+fld public final static int IFNONNULL = 199
+fld public final static int IFNULL = 198
+fld public final static int IF_ACMPEQ = 165
+fld public final static int IF_ACMPNE = 166
+fld public final static int IF_ICMPEQ = 159
+fld public final static int IF_ICMPGE = 162
+fld public final static int IF_ICMPGT = 163
+fld public final static int IF_ICMPLE = 164
+fld public final static int IF_ICMPLT = 161
+fld public final static int IF_ICMPNE = 160
+fld public final static int IINC = 132
+fld public final static int ILOAD = 21
+fld public final static int IMUL = 104
+fld public final static int INEG = 116
+fld public final static int INSTANCEOF = 193
+fld public final static int INVOKEDYNAMIC = 186
+fld public final static int INVOKEINTERFACE = 185
+fld public final static int INVOKESPECIAL = 183
+fld public final static int INVOKESTATIC = 184
+fld public final static int INVOKEVIRTUAL = 182
+fld public final static int IOR = 128
+fld public final static int IREM = 112
+fld public final static int IRETURN = 172
+fld public final static int ISHL = 120
+fld public final static int ISHR = 122
+fld public final static int ISTORE = 54
+fld public final static int ISUB = 100
+fld public final static int IUSHR = 124
+fld public final static int IXOR = 130
+fld public final static int JSR = 168
+fld public final static int L2D = 138
+fld public final static int L2F = 137
+fld public final static int L2I = 136
+fld public final static int LADD = 97
+fld public final static int LALOAD = 47
+fld public final static int LAND = 127
+fld public final static int LASTORE = 80
+fld public final static int LCMP = 148
+fld public final static int LCONST_0 = 9
+fld public final static int LCONST_1 = 10
+fld public final static int LDC = 18
+fld public final static int LDIV = 109
+fld public final static int LLOAD = 22
+fld public final static int LMUL = 105
+fld public final static int LNEG = 117
+fld public final static int LOOKUPSWITCH = 171
+fld public final static int LOR = 129
+fld public final static int LREM = 113
+fld public final static int LRETURN = 173
+fld public final static int LSHL = 121
+fld public final static int LSHR = 123
+fld public final static int LSTORE = 55
+fld public final static int LSUB = 101
+fld public final static int LUSHR = 125
+fld public final static int LXOR = 131
+fld public final static int MONITORENTER = 194
+fld public final static int MONITOREXIT = 195
+fld public final static int MULTIANEWARRAY = 197
+fld public final static int NEW = 187
+fld public final static int NEWARRAY = 188
+fld public final static int NOP = 0
+fld public final static int POP = 87
+fld public final static int POP2 = 88
+fld public final static int PUTFIELD = 181
+fld public final static int PUTSTATIC = 179
+fld public final static int RET = 169
+fld public final static int RETURN = 177
+fld public final static int SALOAD = 53
+fld public final static int SASTORE = 86
+fld public final static int SIPUSH = 17
+fld public final static int SWAP = 95
+fld public final static int TABLESWITCH = 170
+fld public final static int T_BOOLEAN = 4
+fld public final static int T_BYTE = 8
+fld public final static int T_CHAR = 5
+fld public final static int T_DOUBLE = 7
+fld public final static int T_FLOAT = 6
+fld public final static int T_INT = 10
+fld public final static int T_LONG = 11
+fld public final static int T_SHORT = 9
+fld public final static int V10 = 54
+fld public final static int V1_1 = 196653
+fld public final static int V1_2 = 46
+fld public final static int V1_3 = 47
+fld public final static int V1_4 = 48
+fld public final static int V1_5 = 49
+fld public final static int V1_6 = 50
+fld public final static int V1_7 = 51
+fld public final static int V1_8 = 52
+fld public final static int V9 = 53
+fld public final static java.lang.Integer DOUBLE
+fld public final static java.lang.Integer FLOAT
+fld public final static java.lang.Integer INTEGER
+fld public final static java.lang.Integer LONG
+fld public final static java.lang.Integer NULL
+fld public final static java.lang.Integer TOP
+fld public final static java.lang.Integer UNINITIALIZED_THIS
+
+CLSS public org.objectweb.asm.tree.analysis.Analyzer<%0 extends org.objectweb.asm.tree.analysis.Value>
+cons public init(org.objectweb.asm.tree.analysis.Interpreter<{org.objectweb.asm.tree.analysis.Analyzer%0}>)
+intf org.objectweb.asm.Opcodes
+meth protected boolean newControlFlowExceptionEdge(int,int)
+meth protected boolean newControlFlowExceptionEdge(int,org.objectweb.asm.tree.TryCatchBlockNode)
+meth protected org.objectweb.asm.tree.analysis.Frame<{org.objectweb.asm.tree.analysis.Analyzer%0}> newFrame(int,int)
+meth protected org.objectweb.asm.tree.analysis.Frame<{org.objectweb.asm.tree.analysis.Analyzer%0}> newFrame(org.objectweb.asm.tree.analysis.Frame<? extends {org.objectweb.asm.tree.analysis.Analyzer%0}>)
+meth protected void init(java.lang.String,org.objectweb.asm.tree.MethodNode) throws org.objectweb.asm.tree.analysis.AnalyzerException
+meth protected void newControlFlowEdge(int,int)
+meth public java.util.List<org.objectweb.asm.tree.TryCatchBlockNode> getHandlers(int)
+meth public org.objectweb.asm.tree.analysis.Frame<{org.objectweb.asm.tree.analysis.Analyzer%0}>[] analyze(java.lang.String,org.objectweb.asm.tree.MethodNode) throws org.objectweb.asm.tree.analysis.AnalyzerException
+meth public org.objectweb.asm.tree.analysis.Frame<{org.objectweb.asm.tree.analysis.Analyzer%0}>[] getFrames()
+supr java.lang.Object
+hfds frames,handlers,inInstructionsToProcess,insnList,insnListSize,instructionsToProcess,interpreter,numInstructionsToProcess,subroutines
+
+CLSS public org.objectweb.asm.tree.analysis.AnalyzerException
+cons public init(org.objectweb.asm.tree.AbstractInsnNode,java.lang.String)
+cons public init(org.objectweb.asm.tree.AbstractInsnNode,java.lang.String,java.lang.Object,org.objectweb.asm.tree.analysis.Value)
+cons public init(org.objectweb.asm.tree.AbstractInsnNode,java.lang.String,java.lang.Throwable)
+fld public final org.objectweb.asm.tree.AbstractInsnNode node
+supr java.lang.Exception
+hfds serialVersionUID
+
+CLSS public org.objectweb.asm.tree.analysis.BasicInterpreter
+cons protected init(int)
+cons public init()
+fld public final static org.objectweb.asm.Type NULL_TYPE
+intf org.objectweb.asm.Opcodes
+meth public org.objectweb.asm.tree.analysis.BasicValue binaryOperation(org.objectweb.asm.tree.AbstractInsnNode,org.objectweb.asm.tree.analysis.BasicValue,org.objectweb.asm.tree.analysis.BasicValue) throws org.objectweb.asm.tree.analysis.AnalyzerException
+meth public org.objectweb.asm.tree.analysis.BasicValue copyOperation(org.objectweb.asm.tree.AbstractInsnNode,org.objectweb.asm.tree.analysis.BasicValue) throws org.objectweb.asm.tree.analysis.AnalyzerException
+meth public org.objectweb.asm.tree.analysis.BasicValue merge(org.objectweb.asm.tree.analysis.BasicValue,org.objectweb.asm.tree.analysis.BasicValue)
+meth public org.objectweb.asm.tree.analysis.BasicValue naryOperation(org.objectweb.asm.tree.AbstractInsnNode,java.util.List<? extends org.objectweb.asm.tree.analysis.BasicValue>) throws org.objectweb.asm.tree.analysis.AnalyzerException
+meth public org.objectweb.asm.tree.analysis.BasicValue newOperation(org.objectweb.asm.tree.AbstractInsnNode) throws org.objectweb.asm.tree.analysis.AnalyzerException
+meth public org.objectweb.asm.tree.analysis.BasicValue newValue(org.objectweb.asm.Type)
+meth public org.objectweb.asm.tree.analysis.BasicValue ternaryOperation(org.objectweb.asm.tree.AbstractInsnNode,org.objectweb.asm.tree.analysis.BasicValue,org.objectweb.asm.tree.analysis.BasicValue,org.objectweb.asm.tree.analysis.BasicValue) throws org.objectweb.asm.tree.analysis.AnalyzerException
+meth public org.objectweb.asm.tree.analysis.BasicValue unaryOperation(org.objectweb.asm.tree.AbstractInsnNode,org.objectweb.asm.tree.analysis.BasicValue) throws org.objectweb.asm.tree.analysis.AnalyzerException
+meth public void returnOperation(org.objectweb.asm.tree.AbstractInsnNode,org.objectweb.asm.tree.analysis.BasicValue,org.objectweb.asm.tree.analysis.BasicValue) throws org.objectweb.asm.tree.analysis.AnalyzerException
+supr org.objectweb.asm.tree.analysis.Interpreter<org.objectweb.asm.tree.analysis.BasicValue>
+
+CLSS public org.objectweb.asm.tree.analysis.BasicValue
+cons public init(org.objectweb.asm.Type)
+fld public final static org.objectweb.asm.tree.analysis.BasicValue DOUBLE_VALUE
+fld public final static org.objectweb.asm.tree.analysis.BasicValue FLOAT_VALUE
+fld public final static org.objectweb.asm.tree.analysis.BasicValue INT_VALUE
+fld public final static org.objectweb.asm.tree.analysis.BasicValue LONG_VALUE
+fld public final static org.objectweb.asm.tree.analysis.BasicValue REFERENCE_VALUE
+fld public final static org.objectweb.asm.tree.analysis.BasicValue RETURNADDRESS_VALUE
+fld public final static org.objectweb.asm.tree.analysis.BasicValue UNINITIALIZED_VALUE
+intf org.objectweb.asm.tree.analysis.Value
+meth public boolean equals(java.lang.Object)
+meth public boolean isReference()
+meth public int getSize()
+meth public int hashCode()
+meth public java.lang.String toString()
+meth public org.objectweb.asm.Type getType()
+supr java.lang.Object
+hfds type
+
+CLSS public org.objectweb.asm.tree.analysis.BasicVerifier
+cons protected init(int)
+cons public init()
+meth protected boolean isArrayValue(org.objectweb.asm.tree.analysis.BasicValue)
+meth protected boolean isSubTypeOf(org.objectweb.asm.tree.analysis.BasicValue,org.objectweb.asm.tree.analysis.BasicValue)
+meth protected org.objectweb.asm.tree.analysis.BasicValue getElementValue(org.objectweb.asm.tree.analysis.BasicValue) throws org.objectweb.asm.tree.analysis.AnalyzerException
+meth public org.objectweb.asm.tree.analysis.BasicValue binaryOperation(org.objectweb.asm.tree.AbstractInsnNode,org.objectweb.asm.tree.analysis.BasicValue,org.objectweb.asm.tree.analysis.BasicValue) throws org.objectweb.asm.tree.analysis.AnalyzerException
+meth public org.objectweb.asm.tree.analysis.BasicValue copyOperation(org.objectweb.asm.tree.AbstractInsnNode,org.objectweb.asm.tree.analysis.BasicValue) throws org.objectweb.asm.tree.analysis.AnalyzerException
+meth public org.objectweb.asm.tree.analysis.BasicValue naryOperation(org.objectweb.asm.tree.AbstractInsnNode,java.util.List<? extends org.objectweb.asm.tree.analysis.BasicValue>) throws org.objectweb.asm.tree.analysis.AnalyzerException
+meth public org.objectweb.asm.tree.analysis.BasicValue ternaryOperation(org.objectweb.asm.tree.AbstractInsnNode,org.objectweb.asm.tree.analysis.BasicValue,org.objectweb.asm.tree.analysis.BasicValue,org.objectweb.asm.tree.analysis.BasicValue) throws org.objectweb.asm.tree.analysis.AnalyzerException
+meth public org.objectweb.asm.tree.analysis.BasicValue unaryOperation(org.objectweb.asm.tree.AbstractInsnNode,org.objectweb.asm.tree.analysis.BasicValue) throws org.objectweb.asm.tree.analysis.AnalyzerException
+meth public void returnOperation(org.objectweb.asm.tree.AbstractInsnNode,org.objectweb.asm.tree.analysis.BasicValue,org.objectweb.asm.tree.analysis.BasicValue) throws org.objectweb.asm.tree.analysis.AnalyzerException
+supr org.objectweb.asm.tree.analysis.BasicInterpreter
+
+CLSS public org.objectweb.asm.tree.analysis.Frame<%0 extends org.objectweb.asm.tree.analysis.Value>
+cons public init(int,int)
+cons public init(org.objectweb.asm.tree.analysis.Frame<? extends {org.objectweb.asm.tree.analysis.Frame%0}>)
+meth public boolean merge(org.objectweb.asm.tree.analysis.Frame<? extends {org.objectweb.asm.tree.analysis.Frame%0}>,boolean[])
+meth public boolean merge(org.objectweb.asm.tree.analysis.Frame<? extends {org.objectweb.asm.tree.analysis.Frame%0}>,org.objectweb.asm.tree.analysis.Interpreter<{org.objectweb.asm.tree.analysis.Frame%0}>) throws org.objectweb.asm.tree.analysis.AnalyzerException
+meth public int getLocals()
+meth public int getMaxStackSize()
+meth public int getStackSize()
+meth public java.lang.String toString()
+meth public org.objectweb.asm.tree.analysis.Frame<{org.objectweb.asm.tree.analysis.Frame%0}> init(org.objectweb.asm.tree.analysis.Frame<? extends {org.objectweb.asm.tree.analysis.Frame%0}>)
+meth public void clearStack()
+meth public void execute(org.objectweb.asm.tree.AbstractInsnNode,org.objectweb.asm.tree.analysis.Interpreter<{org.objectweb.asm.tree.analysis.Frame%0}>) throws org.objectweb.asm.tree.analysis.AnalyzerException
+meth public void push({org.objectweb.asm.tree.analysis.Frame%0})
+meth public void setLocal(int,{org.objectweb.asm.tree.analysis.Frame%0})
+meth public void setReturn({org.objectweb.asm.tree.analysis.Frame%0})
+meth public {org.objectweb.asm.tree.analysis.Frame%0} getLocal(int)
+meth public {org.objectweb.asm.tree.analysis.Frame%0} getStack(int)
+meth public {org.objectweb.asm.tree.analysis.Frame%0} pop()
+supr java.lang.Object
+hfds nLocals,nStack,returnValue,values
+
+CLSS public abstract org.objectweb.asm.tree.analysis.Interpreter<%0 extends org.objectweb.asm.tree.analysis.Value>
+cons protected init(int)
+fld protected final int api
+meth public abstract void returnOperation(org.objectweb.asm.tree.AbstractInsnNode,{org.objectweb.asm.tree.analysis.Interpreter%0},{org.objectweb.asm.tree.analysis.Interpreter%0}) throws org.objectweb.asm.tree.analysis.AnalyzerException
+meth public abstract {org.objectweb.asm.tree.analysis.Interpreter%0} binaryOperation(org.objectweb.asm.tree.AbstractInsnNode,{org.objectweb.asm.tree.analysis.Interpreter%0},{org.objectweb.asm.tree.analysis.Interpreter%0}) throws org.objectweb.asm.tree.analysis.AnalyzerException
+meth public abstract {org.objectweb.asm.tree.analysis.Interpreter%0} copyOperation(org.objectweb.asm.tree.AbstractInsnNode,{org.objectweb.asm.tree.analysis.Interpreter%0}) throws org.objectweb.asm.tree.analysis.AnalyzerException
+meth public abstract {org.objectweb.asm.tree.analysis.Interpreter%0} merge({org.objectweb.asm.tree.analysis.Interpreter%0},{org.objectweb.asm.tree.analysis.Interpreter%0})
+meth public abstract {org.objectweb.asm.tree.analysis.Interpreter%0} naryOperation(org.objectweb.asm.tree.AbstractInsnNode,java.util.List<? extends {org.objectweb.asm.tree.analysis.Interpreter%0}>) throws org.objectweb.asm.tree.analysis.AnalyzerException
+meth public abstract {org.objectweb.asm.tree.analysis.Interpreter%0} newOperation(org.objectweb.asm.tree.AbstractInsnNode) throws org.objectweb.asm.tree.analysis.AnalyzerException
+meth public abstract {org.objectweb.asm.tree.analysis.Interpreter%0} newValue(org.objectweb.asm.Type)
+meth public abstract {org.objectweb.asm.tree.analysis.Interpreter%0} ternaryOperation(org.objectweb.asm.tree.AbstractInsnNode,{org.objectweb.asm.tree.analysis.Interpreter%0},{org.objectweb.asm.tree.analysis.Interpreter%0},{org.objectweb.asm.tree.analysis.Interpreter%0}) throws org.objectweb.asm.tree.analysis.AnalyzerException
+meth public abstract {org.objectweb.asm.tree.analysis.Interpreter%0} unaryOperation(org.objectweb.asm.tree.AbstractInsnNode,{org.objectweb.asm.tree.analysis.Interpreter%0}) throws org.objectweb.asm.tree.analysis.AnalyzerException
+supr java.lang.Object
+
+CLSS public org.objectweb.asm.tree.analysis.SimpleVerifier
+cons protected init(int,org.objectweb.asm.Type,org.objectweb.asm.Type,java.util.List<org.objectweb.asm.Type>,boolean)
+cons public init()
+cons public init(org.objectweb.asm.Type,org.objectweb.asm.Type,boolean)
+cons public init(org.objectweb.asm.Type,org.objectweb.asm.Type,java.util.List<org.objectweb.asm.Type>,boolean)
+meth protected boolean isArrayValue(org.objectweb.asm.tree.analysis.BasicValue)
+meth protected boolean isAssignableFrom(org.objectweb.asm.Type,org.objectweb.asm.Type)
+meth protected boolean isInterface(org.objectweb.asm.Type)
+meth protected boolean isSubTypeOf(org.objectweb.asm.tree.analysis.BasicValue,org.objectweb.asm.tree.analysis.BasicValue)
+meth protected java.lang.Class<?> getClass(org.objectweb.asm.Type)
+meth protected org.objectweb.asm.Type getSuperClass(org.objectweb.asm.Type)
+meth protected org.objectweb.asm.tree.analysis.BasicValue getElementValue(org.objectweb.asm.tree.analysis.BasicValue) throws org.objectweb.asm.tree.analysis.AnalyzerException
+meth public org.objectweb.asm.tree.analysis.BasicValue merge(org.objectweb.asm.tree.analysis.BasicValue,org.objectweb.asm.tree.analysis.BasicValue)
+meth public org.objectweb.asm.tree.analysis.BasicValue newValue(org.objectweb.asm.Type)
+meth public void setClassLoader(java.lang.ClassLoader)
+supr org.objectweb.asm.tree.analysis.BasicVerifier
+hfds currentClass,currentClassInterfaces,currentSuperClass,isInterface,loader
+
+CLSS public org.objectweb.asm.tree.analysis.SourceInterpreter
+cons protected init(int)
+cons public init()
+intf org.objectweb.asm.Opcodes
+meth public org.objectweb.asm.tree.analysis.SourceValue binaryOperation(org.objectweb.asm.tree.AbstractInsnNode,org.objectweb.asm.tree.analysis.SourceValue,org.objectweb.asm.tree.analysis.SourceValue)
+meth public org.objectweb.asm.tree.analysis.SourceValue copyOperation(org.objectweb.asm.tree.AbstractInsnNode,org.objectweb.asm.tree.analysis.SourceValue)
+meth public org.objectweb.asm.tree.analysis.SourceValue merge(org.objectweb.asm.tree.analysis.SourceValue,org.objectweb.asm.tree.analysis.SourceValue)
+meth public org.objectweb.asm.tree.analysis.SourceValue naryOperation(org.objectweb.asm.tree.AbstractInsnNode,java.util.List<? extends org.objectweb.asm.tree.analysis.SourceValue>)
+meth public org.objectweb.asm.tree.analysis.SourceValue newOperation(org.objectweb.asm.tree.AbstractInsnNode)
+meth public org.objectweb.asm.tree.analysis.SourceValue newValue(org.objectweb.asm.Type)
+meth public org.objectweb.asm.tree.analysis.SourceValue ternaryOperation(org.objectweb.asm.tree.AbstractInsnNode,org.objectweb.asm.tree.analysis.SourceValue,org.objectweb.asm.tree.analysis.SourceValue,org.objectweb.asm.tree.analysis.SourceValue)
+meth public org.objectweb.asm.tree.analysis.SourceValue unaryOperation(org.objectweb.asm.tree.AbstractInsnNode,org.objectweb.asm.tree.analysis.SourceValue)
+meth public void returnOperation(org.objectweb.asm.tree.AbstractInsnNode,org.objectweb.asm.tree.analysis.SourceValue,org.objectweb.asm.tree.analysis.SourceValue)
+supr org.objectweb.asm.tree.analysis.Interpreter<org.objectweb.asm.tree.analysis.SourceValue>
+
+CLSS public org.objectweb.asm.tree.analysis.SourceValue
+cons public init(int)
+cons public init(int,java.util.Set<org.objectweb.asm.tree.AbstractInsnNode>)
+cons public init(int,org.objectweb.asm.tree.AbstractInsnNode)
+fld public final int size
+fld public final java.util.Set<org.objectweb.asm.tree.AbstractInsnNode> insns
+intf org.objectweb.asm.tree.analysis.Value
+meth public boolean equals(java.lang.Object)
+meth public int getSize()
+meth public int hashCode()
+supr java.lang.Object
+
+CLSS public abstract interface org.objectweb.asm.tree.analysis.Value
+meth public abstract int getSize()
+

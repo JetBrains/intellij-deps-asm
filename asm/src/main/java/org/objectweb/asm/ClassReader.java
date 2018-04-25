@@ -3371,11 +3371,12 @@ public class ClassReader {
    */
   final String readUTF(final int constantPoolEntryIndex, final char[] charBuffer) {
     String value = (String) cpInfoValues[constantPoolEntryIndex];
-    if (value == null) {
-      int cpInfoOffset = cpInfoOffsets[constantPoolEntryIndex];
-      value = readUTF(cpInfoOffset + 2, readUnsignedShort(cpInfoOffset), charBuffer);
-      cpInfoValues[constantPoolEntryIndex] = value;
+    if (value != null) {
+      return value;
     }
+    int cpInfoOffset = cpInfoOffsets[constantPoolEntryIndex];
+    value = readUTF(cpInfoOffset + 2, readUnsignedShort(cpInfoOffset), charBuffer);
+    cpInfoValues[constantPoolEntryIndex] = value;
     return value;
   }
 
@@ -3483,23 +3484,23 @@ public class ClassReader {
   private ConstantDynamic readConstantDynamic(
       final int constantPoolEntryIndex, final char[] charBuffer) {
     ConstantDynamic constantDynamic = (ConstantDynamic) cpInfoValues[constantPoolEntryIndex];
-    if (constantDynamic == null) {
-      int cpInfoOffset = cpInfoOffsets[constantPoolEntryIndex];
-      int nameAndTypeCpInfoOffset = cpInfoOffsets[readUnsignedShort(cpInfoOffset + 2)];
-      String name = readUTF8(nameAndTypeCpInfoOffset, charBuffer);
-      String descriptor = readUTF8(nameAndTypeCpInfoOffset + 2, charBuffer);
-      int bootstrapMethodOffset = bootstrapMethodOffsets[readUnsignedShort(cpInfoOffset)];
-      Handle handle = (Handle) readConst(readUnsignedShort(bootstrapMethodOffset), charBuffer);
-      Object[] bootstrapMethodArguments = new Object[readUnsignedShort(bootstrapMethodOffset + 2)];
-      bootstrapMethodOffset += 4;
-      for (int i = 0; i < bootstrapMethodArguments.length; i++) {
-        bootstrapMethodArguments[i] =
-            readConst(readUnsignedShort(bootstrapMethodOffset), charBuffer);
-        bootstrapMethodOffset += 2;
-      }
-      constantDynamic = new ConstantDynamic(name, descriptor, handle, bootstrapMethodArguments);
-      cpInfoValues[constantPoolEntryIndex] = constantDynamic;
+    if (constantDynamic != null) {
+      return constantDynamic;
     }
+    int cpInfoOffset = cpInfoOffsets[constantPoolEntryIndex];
+    int nameAndTypeCpInfoOffset = cpInfoOffsets[readUnsignedShort(cpInfoOffset + 2)];
+    String name = readUTF8(nameAndTypeCpInfoOffset, charBuffer);
+    String descriptor = readUTF8(nameAndTypeCpInfoOffset + 2, charBuffer);
+    int bootstrapMethodOffset = bootstrapMethodOffsets[readUnsignedShort(cpInfoOffset)];
+    Handle handle = (Handle) readConst(readUnsignedShort(bootstrapMethodOffset), charBuffer);
+    Object[] bootstrapMethodArguments = new Object[readUnsignedShort(bootstrapMethodOffset + 2)];
+    bootstrapMethodOffset += 4;
+    for (int i = 0; i < bootstrapMethodArguments.length; i++) {
+      bootstrapMethodArguments[i] = readConst(readUnsignedShort(bootstrapMethodOffset), charBuffer);
+      bootstrapMethodOffset += 2;
+    }
+    constantDynamic = new ConstantDynamic(name, descriptor, handle, bootstrapMethodArguments);
+    cpInfoValues[constantPoolEntryIndex] = constantDynamic;
     return constantDynamic;
   }
 

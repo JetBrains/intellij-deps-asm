@@ -40,6 +40,7 @@ description = 'ASM, a very small and fast Java bytecode manipulation framework'
 subprojects {
   repositories { mavenCentral() }
   apply plugin: 'java'
+  apply plugin: 'jacoco'
   def snapshotSuffix = rootProject.hasProperty('release') ? '' : '-SNAPSHOT'
   group = 'org.ow2.asm'
   version = '6.1.2' + snapshotSuffix
@@ -194,7 +195,6 @@ def jacocoClasses(project) {
 // and uploaded to Maven with a POM, sources and Javadoc.
 configure(subprojects.findAll { it.provides }) {
   // Code coverage configuration.
-  apply plugin: 'jacoco'
   jacocoTestReport {
     afterEvaluate { classDirectories = jacocoClasses(project) }
   }

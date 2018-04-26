@@ -94,7 +94,7 @@ final class ModuleWriter extends ModuleVisitor {
   private int mainClassIndex;
 
   ModuleWriter(final SymbolTable symbolTable, final int name, final int access, final int version) {
-    super(Opcodes.ASM7);
+    super(Opcodes.ASM6);
     this.symbolTable = symbolTable;
     this.moduleNameIndex = name;
     this.moduleFlags = access;

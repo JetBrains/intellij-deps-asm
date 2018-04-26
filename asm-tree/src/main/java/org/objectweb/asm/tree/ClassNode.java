@@ -121,11 +121,19 @@ public class ClassNode extends ClassVisitor {
   /** The inner classes of this class. */
   public List<InnerClassNode> innerClasses;
 
-  /** The internal name of the nest host class of this class. May be <tt>null</tt>. */
-  public String nestHostClass;
+  /**
+   * <b>Experimental, use at your own risk. This field will be renamed when it becomes stable, this
+   * will break existing code using it</b>. The internal name of the nest host class of this class.
+   * May be <tt>null</tt>.
+   */
+  public String nestHostClassExperimental;
 
-  /** The internal names of the nest members of this class. May be <tt>null</tt>. */
-  public List<String> nestMembers;
+  /**
+   * <b>Experimental, use at your own risk. This field will be renamed when it becomes stable, this
+   * will break existing code using it</b>. The internal names of the nest members of this class.
+   * May be <tt>null</tt>.
+   */
+  public List<String> nestMembersExperimental;
 
   /** The fields of this class. */
   public List<FieldNode> fields;
@@ -140,7 +148,7 @@ public class ClassNode extends ClassVisitor {
    * @throws IllegalStateException If a subclass calls this constructor.
    */
   public ClassNode() {
-    this(Opcodes.ASM7);
+    this(Opcodes.ASM6);
     if (getClass() != ClassNode.class) {
       throw new IllegalStateException();
     }
@@ -150,7 +158,7 @@ public class ClassNode extends ClassVisitor {
    * Constructs a new {@link ClassNode}.
    *
    * @param api the ASM API version implemented by this visitor. Must be one of {@link
-   *     Opcodes#ASM4}, {@link Opcodes#ASM5}, {@link Opcodes#ASM6} or {@link Opcodes#ASM7}.
+   *     Opcodes#ASM4}, {@link Opcodes#ASM5}, {@link Opcodes#ASM6} or {@link Opcodes#ASM7_EXPERIMENTAL}.
    */
   public ClassNode(final int api) {
     super(api);
@@ -193,8 +201,8 @@ public class ClassNode extends ClassVisitor {
   }
 
   @Override
-  public void visitNestHost(final String nestHost) {
-    this.nestHostClass = nestHost;
+  public void visitNestHostExperimental(final String nestHost) {
+    this.nestHostClassExperimental = nestHost;
   }
 
   @Override
@@ -248,11 +256,11 @@ public class ClassNode extends ClassVisitor {
   }
 
   @Override
-  public void visitNestMember(final String nestMember) {
-    if (nestMembers == null) {
-      nestMembers = new ArrayList<String>();
+  public void visitNestMemberExperimental(final String nestMember) {
+    if (nestMembersExperimental == null) {
+      nestMembersExperimental = new ArrayList<String>();
     }
-    nestMembers.add(nestMember);
+    nestMembersExperimental.add(nestMember);
   }
 
   @Override
@@ -301,10 +309,11 @@ public class ClassNode extends ClassVisitor {
    * in more recent versions of the ASM API than the given version.
    *
    * @param api an ASM API version. Must be one of {@link Opcodes#ASM4}, {@link Opcodes#ASM5},
-   *     {@link Opcodes#ASM6} or {@link Opcodes#ASM7}.
+   *     {@link Opcodes#ASM6} or {@link Opcodes#ASM7_EXPERIMENTAL}.
    */
   public void check(final int api) {
-    if (api < Opcodes.ASM7 && (nestHostClass != null || nestMembers != null)) {
+    if (api < Opcodes.ASM7_EXPERIMENTAL
+        && (nestHostClassExperimental != null || nestMembersExperimental != null)) {
       throw new UnsupportedClassVersionException();
     }
     if (api < Opcodes.ASM6 && module != null) {
@@ -366,8 +375,8 @@ public class ClassNode extends ClassVisitor {
       module.accept(classVisitor);
     }
     // Visit the nest host class.
-    if (nestHostClass != null) {
-      classVisitor.visitNestHost(nestHostClass);
+    if (nestHostClassExperimental != null) {
+      classVisitor.visitNestHostExperimental(nestHostClassExperimental);
     }
     // Visit the outer class.
     if (outerClass != null) {
@@ -409,9 +418,9 @@ public class ClassNode extends ClassVisitor {
       }
     }
     // Visit the nest members.
-    if (nestMembers != null) {
-      for (int i = 0, n = nestMembers.size(); i < n; ++i) {
-        classVisitor.visitNestMember(nestMembers.get(i));
+    if (nestMembersExperimental != null) {
+      for (int i = 0, n = nestMembersExperimental.size(); i < n; ++i) {
+        classVisitor.visitNestMemberExperimental(nestMembersExperimental.get(i));
       }
     }
     // Visit the inner classes.

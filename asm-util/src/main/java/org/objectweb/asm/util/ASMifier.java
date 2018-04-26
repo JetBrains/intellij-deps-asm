@@ -99,7 +99,7 @@ public class ASMifier extends Printer {
    * @throws IllegalStateException If a subclass calls this constructor.
    */
   public ASMifier() {
-    this(Opcodes.ASM7, "classWriter", 0);
+    this(Opcodes.ASM6, "classWriter", 0);
     if (getClass() != ASMifier.class) {
       throw new IllegalStateException();
     }
@@ -109,7 +109,7 @@ public class ASMifier extends Printer {
    * Constructs a new {@link ASMifier}.
    *
    * @param api the ASM API version implemented by this class. Must be one of {@link Opcodes#ASM4},
-   *     {@link Opcodes#ASM5}, {@link Opcodes#ASM6} or {@link Opcodes#ASM7}.
+   *     {@link Opcodes#ASM5}, {@link Opcodes#ASM6} or {@link Opcodes#ASM7_EXPERIMENTAL}.
    * @param visitorVariableName the name of the visitor variable in the produced code.
    * @param annotationVisitorId identifier of the annotation visitor variable in the produced code.
    */
@@ -237,9 +237,9 @@ public class ASMifier extends Printer {
   }
 
   @Override
-  public void visitNestHost(final String nestHost) {
+  public void visitNestHostExperimental(final String nestHost) {
     stringBuilder.setLength(0);
-    stringBuilder.append("classWriter.visitNestHost(");
+    stringBuilder.append("classWriter.visitNestHostExperimental(");
     appendConstant(nestHost);
     stringBuilder.append(");\n\n");
     text.add(stringBuilder.toString());
@@ -275,9 +275,9 @@ public class ASMifier extends Printer {
   }
 
   @Override
-  public void visitNestMember(final String nestMember) {
+  public void visitNestMemberExperimental(final String nestMember) {
     stringBuilder.setLength(0);
-    stringBuilder.append("classWriter.visitNestMember(");
+    stringBuilder.append("classWriter.visitNestMemberExperimental(");
     appendConstant(nestMember);
     stringBuilder.append(");\n\n");
     text.add(stringBuilder.toString());

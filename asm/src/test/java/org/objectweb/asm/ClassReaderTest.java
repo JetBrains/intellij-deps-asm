@@ -135,7 +135,7 @@ public class ClassReaderTest extends AsmTest implements Opcodes {
     assertNotNull(classReader.getInterfaces());
 
     classReader.accept(
-        new ClassVisitor(Opcodes.ASM7) {
+        new ClassVisitor(apiParameter.value()) {
           @Override
           public void visit(
               final int version,
@@ -200,7 +200,7 @@ public class ClassReaderTest extends AsmTest implements Opcodes {
     assertThat(() -> classReader.accept(classVisitor, 0))
         .succeedsOrThrows(RuntimeException.class)
         .when(
-            (hasNestHostOrMembers && apiParameter.value() < ASM7)
+            (hasNestHostOrMembers && apiParameter.value() < ASM7_EXPERIMENTAL)
                 || (hasModules && apiParameter.value() < ASM6)
                 || (hasTypeAnnotations && apiParameter.value() < ASM5));
   }
@@ -364,10 +364,10 @@ public class ClassReaderTest extends AsmTest implements Opcodes {
           }
 
           @Override
-          public void visitNestHost(final String nestHost) {}
+          public void visitNestHostExperimental(final String nestHost) {}
 
           @Override
-          public void visitNestMember(final String nestMember) {}
+          public void visitNestMemberExperimental(final String nestMember) {}
         };
     classReader.accept(classVisitor, 0);
   }
@@ -377,7 +377,7 @@ public class ClassReaderTest extends AsmTest implements Opcodes {
     final AtomicBoolean success = new AtomicBoolean(false);
     ClassReader classReader = new ClassReader(PrecompiledClass.JDK5_LOCAL_CLASS.getBytes());
     classReader.accept(
-        new ClassVisitor(Opcodes.ASM7) {
+        new ClassVisitor(Opcodes.ASM6) {
           @Override
           public MethodVisitor visitMethod(
               final int access,
@@ -385,7 +385,7 @@ public class ClassReaderTest extends AsmTest implements Opcodes {
               final String descriptor,
               final String signature,
               final String[] exceptions) {
-            return new MethodVisitor(Opcodes.ASM7, null) {
+            return new MethodVisitor(Opcodes.ASM6, null) {
               @Override
               public AnnotationVisitor visitParameterAnnotation(
                   final int parameter, final String descriptor, final boolean visible) {
@@ -416,11 +416,11 @@ public class ClassReaderTest extends AsmTest implements Opcodes {
           || invalidClass == InvalidClass.INVALID_BYTECODE_OFFSET) {
         assertThrows(
             ArrayIndexOutOfBoundsException.class,
-            () -> classReader.accept(new EmptyClassVisitor(ASM7), 0));
+            () -> classReader.accept(new EmptyClassVisitor(ASM7_EXPERIMENTAL), 0));
       } else {
         assertThrows(
             IllegalArgumentException.class,
-            () -> classReader.accept(new EmptyClassVisitor(ASM7), 0));
+            () -> classReader.accept(new EmptyClassVisitor(ASM7_EXPERIMENTAL), 0));
       }
     }
   }

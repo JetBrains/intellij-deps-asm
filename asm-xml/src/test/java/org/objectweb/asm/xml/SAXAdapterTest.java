@@ -39,7 +39,7 @@ import javax.xml.transform.sax.TransformerHandler;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.MethodSource;
+import org.junit.jupiter.params.provider.EnumSource;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.test.AsmTest;
@@ -115,8 +115,8 @@ public class SAXAdapterTest extends AsmTest {
    * @throws SAXException
    */
   @ParameterizedTest
-  @MethodSource(ALL_CLASSES_AND_LATEST_API)
-  public void testSAXAdapter_classUnchanged(PrecompiledClass classParameter, Api apiParameter)
+  @EnumSource(PrecompiledClass.class)
+  public void testSAXAdapter_classUnchanged(PrecompiledClass classParameter)
       throws TransformerConfigurationException, TransformerFactoryConfigurationError, SAXException {
     // Non standard attributes and features introduced in JDK11 or more are not supported.
     if (classParameter == PrecompiledClass.JDK3_ARTIFICIAL_STRUCTURES

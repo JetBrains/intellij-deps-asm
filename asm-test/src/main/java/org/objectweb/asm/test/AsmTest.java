@@ -231,7 +231,7 @@ public abstract class AsmTest {
     ASM4("ASM4", 4 << 16),
     ASM5("ASM5", 5 << 16),
     ASM6("ASM6", 6 << 16),
-    ASM7("ASM7", 7 << 16);
+    ASM7("ASM7", 1 << 24 | 7 << 16);
 
     private final String name;
     private final int value;

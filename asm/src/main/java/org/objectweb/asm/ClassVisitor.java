@@ -40,7 +40,7 @@ public abstract class ClassVisitor {
 
   /**
    * The ASM API version implemented by this visitor. The value of this field must be one of {@link
-   * Opcodes#ASM4}, {@link Opcodes#ASM5}, {@link Opcodes#ASM6} or {@link Opcodes#ASM7}.
+   * Opcodes#ASM4}, {@link Opcodes#ASM5}, {@link Opcodes#ASM6} or {@link Opcodes#ASM7_EXPERIMENTAL}.
    */
   protected final int api;
 
@@ -51,7 +51,8 @@ public abstract class ClassVisitor {
    * Constructs a new {@link ClassVisitor}.
    *
    * @param api the ASM API version implemented by this visitor. Must be one of {@link
-   *     Opcodes#ASM4}, {@link Opcodes#ASM5}, {@link Opcodes#ASM6} or {@link Opcodes#ASM7}.
+   *     Opcodes#ASM4}, {@link Opcodes#ASM5}, {@link Opcodes#ASM6} or {@link
+   *     Opcodes#ASM7_EXPERIMENTAL}.
    */
   public ClassVisitor(final int api) {
     this(api, null);
@@ -61,12 +62,16 @@ public abstract class ClassVisitor {
    * Constructs a new {@link ClassVisitor}.
    *
    * @param api the ASM API version implemented by this visitor. Must be one of {@link
-   *     Opcodes#ASM4}, {@link Opcodes#ASM5}, {@link Opcodes#ASM6} or {@link Opcodes#ASM7}.
+   *     Opcodes#ASM4}, {@link Opcodes#ASM5}, {@link Opcodes#ASM6} or {@link
+   *     Opcodes#ASM7_EXPERIMENTAL}.
    * @param classVisitor the class visitor to which this visitor must delegate method calls. May be
    *     null.
    */
   public ClassVisitor(final int api, final ClassVisitor classVisitor) {
-    if (api < Opcodes.ASM4 || api > Opcodes.ASM7) {
+    if (api != Opcodes.ASM6
+        && api != Opcodes.ASM5
+        && api != Opcodes.ASM4
+        && api != Opcodes.ASM7_EXPERIMENTAL) {
       throw new IllegalArgumentException();
     }
     this.api = api;
@@ -136,21 +141,24 @@ public abstract class ClassVisitor {
   }
 
   /**
-   * Visits the nest host class of the class. A nest is a set of classes of the same package that
-   * share access to their private members. One of these classes, called the host, lists the other
-   * members of the nest, which in turn should link to the host of their nest. This method must be
-   * called only once and only if the visited class is a non-host member of a nest. A class is
-   * implicitly its own nest, so it's invalid to call this method with the visited class name as
-   * argument.
+   * <b>Experimental, use at your own risk. This method will be renamed when it becomes stable, this
+   * will break existing code using it</b>. Visits the nest host class of the class. A nest is a set
+   * of classes of the same package that share access to their private members. One of these
+   * classes, called the host, lists the other members of the nest, which in turn should link to the
+   * host of their nest. This method must be called only once and only if the visited class is a
+   * non-host member of a nest. A class is implicitly its own nest, so it's invalid to call this
+   * method with the visited class name as argument.
    *
    * @param nestHost the internal name of the host class of the nest.
+   * @deprecated
    */
-  public void visitNestHost(final String nestHost) {
-    if (api < Opcodes.ASM7) {
+  @Deprecated
+  public void visitNestHostExperimental(final String nestHost) {
+    if (api < Opcodes.ASM7_EXPERIMENTAL) {
       throw new UnsupportedOperationException();
     }
     if (cv != null) {
-      cv.visitNestHost(nestHost);
+      cv.visitNestHostExperimental(nestHost);
     }
   }
 
@@ -223,20 +231,24 @@ public abstract class ClassVisitor {
   }
 
   /**
-   * Visits a member of the nest. A nest is a set of classes of the same package that share access
-   * to their private members. One of these classes, called the host, lists the other members of the
-   * nest, which in turn should link to the host of their nest. This method must be called only if
-   * the visited class is the host of a nest. A nest host is implicitly a member of its own nest, so
-   * it's invalid to call this method with the visited class name as argument.
+   * <b>Experimental, use at your own risk. This method will be renamed when it becomes stable, this
+   * will break existing code using it</b>. Visits a member of the nest. A nest is a set of classes
+   * of the same package that share access to their private members. One of these classes, called
+   * the host, lists the other members of the nest, which in turn should link to the host of their
+   * nest. This method must be called only if the visited class is the host of a nest. A nest host
+   * is implicitly a member of its own nest, so it's invalid to call this method with the visited
+   * class name as argument.
    *
    * @param nestMember the internal name of a nest member.
+   * @deprecated
    */
-  public void visitNestMember(final String nestMember) {
-    if (api < Opcodes.ASM7) {
+  @Deprecated()
+  public void visitNestMemberExperimental(final String nestMember) {
+    if (api < Opcodes.ASM7_EXPERIMENTAL) {
       throw new UnsupportedOperationException();
     }
     if (cv != null) {
-      cv.visitNestMember(nestMember);
+      cv.visitNestMemberExperimental(nestMember);
     }
   }
 

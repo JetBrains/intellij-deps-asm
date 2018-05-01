@@ -35,7 +35,7 @@ import java.util.List;
 
 import org.objectweb.asm.Attribute;
 import org.objectweb.asm.ClassReader;
-import org.objectweb.asm.Condy;
+import org.objectweb.asm.ConstantDynamic;
 import org.objectweb.asm.Handle;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.Opcodes;
@@ -930,8 +930,8 @@ public abstract class Printer {
    *     Integer}, a {@link Float}, a {@link Long}, a {@link Double}, a {@link String}, a {@link
    *     Type} of OBJECT or ARRAY sort for <tt>.class</tt> constants, for classes whose version is
    *     49, a {@link Type} of METHOD sort for MethodType, a {@link Handle} for MethodHandle
-   *     constants, for classes whose version is 51 or a {@link Condy} for a constant dynamic for
-   *     classes whose version is 55.
+   *     constants, for classes whose version is 51 or a {@link ConstantDynamic} for a constant
+   *     dynamic for classes whose version is 55.
    */
   public abstract void visitLdcInsn(Object value);
 

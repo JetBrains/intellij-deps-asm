@@ -33,7 +33,7 @@ import java.util.List;
 import org.objectweb.asm.AnnotationVisitor;
 import org.objectweb.asm.Attribute;
 import org.objectweb.asm.ClassVisitor;
-import org.objectweb.asm.Condy;
+import org.objectweb.asm.ConstantDynamic;
 import org.objectweb.asm.Handle;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
@@ -665,7 +665,7 @@ public class MethodNode extends MethodVisitor {
         AbstractInsnNode insn = instructions.get(i);
         if (insn instanceof LdcInsnNode) {
           Object value = ((LdcInsnNode) insn).cst;
-          if (value instanceof Condy) {
+          if (value instanceof ConstantDynamic) {
             throw new UnsupportedClassVersionException();
           }
         }

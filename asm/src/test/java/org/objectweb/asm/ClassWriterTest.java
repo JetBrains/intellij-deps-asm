@@ -63,7 +63,7 @@ public class ClassWriterTest extends AsmTest {
     classWriter.newHandle(Opcodes.H_GETFIELD, "A", "h", "I");
     classWriter.newHandle(Opcodes.H_GETFIELD, "A", "h", "I", false);
     classWriter.newInvokeDynamic("m", "()V", new Handle(Opcodes.H_GETFIELD, "A", "h", "I", false));
-    classWriter.newCondy(
+    classWriter.newConstantDynamic(
         "m", "Ljava/lang/String;", new Handle(Opcodes.H_INVOKESTATIC, "A", "m", "()V", false));
     classWriter.newField("A", "f", "I");
     classWriter.newMethod("A", "m", "()V", false);

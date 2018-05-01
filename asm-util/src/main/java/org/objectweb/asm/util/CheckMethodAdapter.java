@@ -38,7 +38,7 @@ import java.util.Set;
 
 import org.objectweb.asm.AnnotationVisitor;
 import org.objectweb.asm.Attribute;
-import org.objectweb.asm.Condy;
+import org.objectweb.asm.ConstantDynamic;
 import org.objectweb.asm.Handle;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
@@ -776,7 +776,7 @@ public class CheckMethodAdapter extends MethodVisitor {
         && bootstrapMethodHandle.getTag() != Opcodes.H_NEWINVOKESPECIAL) {
       throw new IllegalArgumentException("invalid handle tag " + bootstrapMethodHandle.getTag());
     }
-    for (Object bootstrapMethodArgument: bootstrapMethodArguments) {
+    for (Object bootstrapMethodArgument : bootstrapMethodArguments) {
       checkLdcConstant(bootstrapMethodArgument);
     }
     super.visitInvokeDynamicInsn(name, descriptor, bootstrapMethodHandle, bootstrapMethodArguments);
@@ -1185,7 +1185,7 @@ public class CheckMethodAdapter extends MethodVisitor {
       }
     } else if (value instanceof Handle) {
       if ((version & 0xFFFF) < Opcodes.V1_7) {
-        throw new IllegalArgumentException("ldc of a handle requires at least version 1.7");
+        throw new IllegalArgumentException("ldc of a Handle requires at least version 1.7");
       }
       Handle handle = (Handle) value;
       int tag = handle.getTag();
@@ -1199,17 +1199,17 @@ public class CheckMethodAdapter extends MethodVisitor {
         checkMethodDescriptor(handle.getDesc());
       }
       checkMethodIdentifier(this.version, handle.getName(), "handle name");
-    } else if (value instanceof Condy) {
-        if ((version & 0xFFFF) < Opcodes.V11) {
-          throw new IllegalArgumentException("ldc of a handle requires at least version 1.7");
-        }
-        Condy condy = (Condy) value;
-        checkMethodIdentifier(this.version, condy.getName(), "constant dynamic name");
-        checkDescriptor(condy.getDescriptor(), false);
-        checkLdcConstant(condy.getBootrapMethod());
-        for (Object bootstrapArgument:  condy.getBootstrapArguments()) {
-          checkLdcConstant(bootstrapArgument);
-        }
+    } else if (value instanceof ConstantDynamic) {
+      if ((version & 0xFFFF) < Opcodes.V11) {
+        throw new IllegalArgumentException("ldc of a ConstantDynamic requires at least version 11");
+      }
+      ConstantDynamic constantDynamic = (ConstantDynamic) value;
+      checkMethodIdentifier(this.version, constantDynamic.getName(), "constant dynamic name");
+      checkDescriptor(constantDynamic.getDescriptor(), false);
+      checkLdcConstant(constantDynamic.getBootstrapMethod());
+      for (Object bootstrapArgument : constantDynamic.getBootstrapMethodArguments()) {
+        checkLdcConstant(bootstrapArgument);
+      }
     } else {
       checkConstant(value);
     }

@@ -442,8 +442,8 @@ public abstract class MethodVisitor {
    * @param bootstrapMethodHandle the bootstrap method.
    * @param bootstrapMethodArguments the bootstrap method constant arguments. Each argument must be
    *     an {@link Integer}, {@link Float}, {@link Long}, {@link Double}, {@link String}, {@link
-   *     Type}, {@link Handle} or {@link Condy} value. This method is allowed to modify the content
-   *     of the array so a caller should expect that this array may change.
+   *     Type}, {@link Handle} or {@link ConstantDynamic} value. This method is allowed to modify
+   *     the content of the array so a caller should expect that this array may change.
    */
   public void visitInvokeDynamicInsn(
       final String name,
@@ -529,8 +529,8 @@ public abstract class MethodVisitor {
    *     Integer}, a {@link Float}, a {@link Long}, a {@link Double}, a {@link String}, a {@link
    *     Type} of OBJECT or ARRAY sort for <tt>.class</tt> constants, for classes whose version is
    *     49, a {@link Type} of METHOD sort for MethodType, a {@link Handle} for MethodHandle
-   *     constants, for classes whose version is 51 or a {@link Condy} for a constant dynamic for
-   *     classes whose version is 55.
+   *     constants, for classes whose version is 51 or a {@link ConstantDynamic} for a constant
+   *     dynamic for classes whose version is 55.
    */
   public void visitLdcInsn(final Object value) {
     if (api < Opcodes.ASM5
@@ -538,7 +538,7 @@ public abstract class MethodVisitor {
             || (value instanceof Type && ((Type) value).getSort() == Type.METHOD))) {
       throw new UnsupportedOperationException(REQUIRES_ASM5);
     }
-    if (api < Opcodes.ASM7 && value instanceof Condy) {
+    if (api < Opcodes.ASM7 && value instanceof ConstantDynamic) {
       throw new UnsupportedOperationException("This feature requires ASM7");
     }
     if (mv != null) {

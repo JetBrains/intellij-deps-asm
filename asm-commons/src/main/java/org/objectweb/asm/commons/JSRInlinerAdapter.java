@@ -102,7 +102,7 @@ public class JSRInlinerAdapter extends MethodNode implements Opcodes {
       final String desc,
       final String signature,
       final String[] exceptions) {
-    this(Opcodes.ASM7, mv, access, name, desc, signature, exceptions);
+    this(Opcodes.ASM6, mv, access, name, desc, signature, exceptions);
     if (getClass() != JSRInlinerAdapter.class) {
       throw new IllegalStateException();
     }
@@ -112,7 +112,7 @@ public class JSRInlinerAdapter extends MethodNode implements Opcodes {
    * Constructs a new JSRInliner.
    *
    * @param api the ASM API version implemented by this visitor. Must be one of {@link
-   *     Opcodes#ASM4}, {@link Opcodes#ASM5}, {@link Opcodes#ASM6} or {@link Opcodes#ASM7}.
+   *     Opcodes#ASM4}, {@link Opcodes#ASM5}, {@link Opcodes#ASM6} or {@link Opcodes#ASM7_EXPERIMENTAL}.
    * @param mv the <code>MethodVisitor</code> to send the resulting inlined method code to (use
    *     <code>null</code> for none).
    * @param access the method's access flags (see {@link Opcodes}). This parameter also indicates if

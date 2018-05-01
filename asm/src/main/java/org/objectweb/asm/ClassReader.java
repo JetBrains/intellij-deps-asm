@@ -510,7 +510,7 @@ public class ClassReader {
 
     // Visit the NestHost attribute.
     if (nestHostClass != null) {
-      classVisitor.visitNestHost(nestHostClass);
+      classVisitor.visitNestHostExperimental(nestHostClass);
     }
 
     // Visit the EnclosingMethod attribute.
@@ -620,7 +620,7 @@ public class ClassReader {
       int numberOfNestMembers = readUnsignedShort(nestMembersOffset);
       int currentNestMemberOffset = nestMembersOffset + 2;
       while (numberOfNestMembers-- > 0) {
-        classVisitor.visitNestMember(readClass(currentNestMemberOffset, charBuffer));
+        classVisitor.visitNestMemberExperimental(readClass(currentNestMemberOffset, charBuffer));
         currentNestMemberOffset += 2;
       }
     }

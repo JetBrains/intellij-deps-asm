@@ -51,7 +51,7 @@ public class ClassRemapper extends ClassVisitor {
   protected String className;
 
   public ClassRemapper(final ClassVisitor cv, final Remapper remapper) {
-    this(Opcodes.ASM7, cv, remapper);
+    this(Opcodes.ASM6, cv, remapper);
   }
 
   protected ClassRemapper(final int api, final ClassVisitor cv, final Remapper remapper) {
@@ -155,13 +155,13 @@ public class ClassRemapper extends ClassVisitor {
   }
 
   @Override
-  public void visitNestHost(final String nestHost) {
-    super.visitNestHost(remapper.mapType(nestHost));
+  public void visitNestHostExperimental(final String nestHost) {
+    super.visitNestHostExperimental(remapper.mapType(nestHost));
   }
 
   @Override
-  public void visitNestMember(final String nestMember) {
-    super.visitNestMember(remapper.mapType(nestMember));
+  public void visitNestMemberExperimental(final String nestMember) {
+    super.visitNestMemberExperimental(remapper.mapType(nestMember));
   }
 
   protected FieldVisitor createFieldRemapper(FieldVisitor fv) {

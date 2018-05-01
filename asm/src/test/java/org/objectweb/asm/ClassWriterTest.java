@@ -440,7 +440,7 @@ public class ClassWriterTest extends AsmTest {
     ClassReader classReader = new ClassReader(classFile);
     ClassWriter classWriter = new ClassWriter(0);
     ClassVisitor classVisitor =
-        new ClassVisitor(Opcodes.ASM7, classWriter) {
+        new ClassVisitor(Opcodes.ASM6, classWriter) {
 
           @Override
           public ModuleVisitor visitModule(

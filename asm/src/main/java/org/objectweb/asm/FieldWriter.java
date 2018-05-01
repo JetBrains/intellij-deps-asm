@@ -124,7 +124,7 @@ final class FieldWriter extends FieldVisitor {
       final String descriptor,
       final String signature,
       final Object constantValue) {
-    super(Opcodes.ASM7);
+    super(Opcodes.ASM6);
     this.symbolTable = symbolTable;
     this.accessFlags = access;
     this.nameIndex = symbolTable.addConstantUtf8(name);

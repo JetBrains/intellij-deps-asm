@@ -45,7 +45,14 @@ public interface Opcodes {
   int ASM4 = 4 << 16 | 0 << 8;
   int ASM5 = 5 << 16 | 0 << 8;
   int ASM6 = 6 << 16 | 0 << 8;
-  int ASM7 = 7 << 16 | 0 << 8;
+
+  /**
+   * <b>Experimental, use at your own risk. This field will be renamed when it becomes stable, this
+   * will break existing code using it</b>.
+   *
+   * @deprecated This API is experimental.
+   */
+  @Deprecated int ASM7_EXPERIMENTAL = 1 << 24 | 7 << 16 | 0 << 8;
 
   // Java ClassFile versions (the minor version is stored in the 16 most significant bits, and the
   // major version in the 16 least significant bits).

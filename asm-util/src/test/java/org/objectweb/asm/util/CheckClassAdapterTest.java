@@ -302,7 +302,7 @@ public class CheckClassAdapterTest extends AsmTest implements Opcodes {
 
   /** Tests that {@link CheckClassAdapter.verify()} succeeds on all precompiled classes. */
   @ParameterizedTest
-  @MethodSource(ALL_CLASSES_AND_ALL_APIS)
+  @MethodSource(ALL_CLASSES_AND_LATEST_API)
   public void testCheckClassAdapter_verify(
       final PrecompiledClass classParameter, final Api apiParameter) {
     ClassReader classReader = new ClassReader(classParameter.getBytes());

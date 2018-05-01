@@ -59,7 +59,7 @@ public class TypeAnnotationNode extends AnnotationNode {
    * @throws IllegalStateException If a subclass calls this constructor.
    */
   public TypeAnnotationNode(final int typeRef, final TypePath typePath, final String descriptor) {
-    this(Opcodes.ASM7, typeRef, typePath, descriptor);
+    this(Opcodes.ASM6, typeRef, typePath, descriptor);
     if (getClass() != TypeAnnotationNode.class) {
       throw new IllegalStateException();
     }
@@ -69,7 +69,7 @@ public class TypeAnnotationNode extends AnnotationNode {
    * Constructs a new {@link AnnotationNode}.
    *
    * @param api the ASM API version implemented by this visitor. Must be one of {@link
-   *     Opcodes#ASM4}, {@link Opcodes#ASM5}, {@link Opcodes#ASM6} or {@link Opcodes#ASM7}.
+   *     Opcodes#ASM4}, {@link Opcodes#ASM5}, {@link Opcodes#ASM6} or {@link Opcodes#ASM7_EXPERIMENTAL}.
    * @param typeRef a reference to the annotated type. See {@link org.objectweb.asm.TypeReference}.
    * @param typePath the path to the annotated type argument, wildcard bound, array element type, or
    *     static inner type within 'typeRef'. May be <tt>null</tt> if the annotation targets

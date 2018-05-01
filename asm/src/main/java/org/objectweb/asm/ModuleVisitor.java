@@ -39,7 +39,7 @@ package org.objectweb.asm;
 public abstract class ModuleVisitor {
   /**
    * The ASM API version implemented by this visitor. The value of this field must be one of {@link
-   * Opcodes#ASM6} or {@link Opcodes#ASM7}.
+   * Opcodes#ASM6} or {@link Opcodes#ASM7_EXPERIMENTAL}.
    */
   protected final int api;
 
@@ -50,7 +50,7 @@ public abstract class ModuleVisitor {
    * Constructs a new {@link ModuleVisitor}.
    *
    * @param api the ASM API version implemented by this visitor. Must be one of {@link Opcodes#ASM6}
-   *     or {@link Opcodes#ASM7}.
+   *     or {@link Opcodes#ASM7_EXPERIMENTAL}.
    */
   public ModuleVisitor(final int api) {
     this(api, null);
@@ -60,7 +60,7 @@ public abstract class ModuleVisitor {
    * Constructs a new {@link ModuleVisitor}.
    *
    * @param api the ASM API version implemented by this visitor. Must be one of {@link Opcodes#ASM6}
-   *     or {@link Opcodes#ASM7}.
+   *     or {@link Opcodes#ASM7_EXPERIMENTAL}.
    * @param moduleVisitor the module visitor to which this visitor must delegate method calls. May
    *     be null.
    */

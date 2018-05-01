@@ -61,7 +61,7 @@ public class BasicInterpreter extends Interpreter<BasicValue> implements Opcodes
    * version.
    */
   public BasicInterpreter() {
-    super(ASM7);
+    super(ASM6);
     if (getClass() != BasicInterpreter.class) {
       throw new IllegalStateException();
     }
@@ -72,7 +72,7 @@ public class BasicInterpreter extends Interpreter<BasicValue> implements Opcodes
    *
    * @param api the ASM API version supported by this interpreter. Must be one of {@link
    *     org.objectweb.asm.Opcodes#ASM4}, {@link org.objectweb.asm.Opcodes#ASM5}, {@link
-   *     org.objectweb.asm.Opcodes#ASM6} or {@link org.objectweb.asm.Opcodes#ASM7}.
+   *     org.objectweb.asm.Opcodes#ASM6} or {@link org.objectweb.asm.Opcodes#ASM7_EXPERIMENTAL}.
    */
   protected BasicInterpreter(final int api) {
     super(api);

@@ -398,7 +398,7 @@ public abstract class Printer {
    * argument.
    *
    * @param nestHost the internal name of the host class of the nest.
-   * @deprecated
+   * @deprecated This API is experimental.
    */
   @Deprecated
   public void visitNestHostExperimental(final String nestHost) {
@@ -464,7 +464,7 @@ public abstract class Printer {
    * nest, so it's invalid to call this method with the visited class name as argument.
    *
    * @param nestMember the internal name of a nest member.
-   * @deprecated
+   * @deprecated This API is experimental.
    */
   @Deprecated
   public void visitNestMemberExperimental(final String nestMember) {

@@ -90,7 +90,7 @@ public class BasicInterpreterTest extends AsmTest {
     for (MethodNode methodNode : classNode.methods) {
       Analyzer<BasicValue> analyzer =
           new Analyzer<BasicValue>(
-              new BasicInterpreter(Opcodes.ASM6) {
+              new BasicInterpreter(Opcodes.ASM7_EXPERIMENTAL) {
                 @Override
                 public BasicValue merge(final BasicValue value1, final BasicValue value2) {
                   return new BasicValue(super.merge(value1, value2).getType());

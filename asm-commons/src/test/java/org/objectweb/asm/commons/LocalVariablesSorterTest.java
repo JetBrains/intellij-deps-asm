@@ -141,7 +141,7 @@ public class LocalVariablesSorterTest extends AsmTest {
         new ClassReader(new FileInputStream("src/test/resources/Issue317586.class"));
     ClassWriter classWriter = new ClassWriter(0);
     ClassVisitor classVisitor =
-        new ClassVisitor(Opcodes.ASM6, classWriter) {
+        new ClassVisitor(Opcodes.ASM7_EXPERIMENTAL, classWriter) {
           @Override
           public MethodVisitor visitMethod(
               final int access,

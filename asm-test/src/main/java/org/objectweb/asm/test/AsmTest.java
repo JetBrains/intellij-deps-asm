@@ -129,6 +129,7 @@ public abstract class AsmTest {
     JDK8_INNER_CLASS("jdk8.AllStructures$InnerClass"),
     JDK8_LARGE_METHOD("jdk8.LargeMethod"),
     JDK9_MODULE("jdk9.module-info"),
+    JDK11_ALL_INSTRUCTIONS("jdk11.AllInstructions"),
     JDK11_ALL_STRUCTURES("jdk11.AllStructures"),
     JDK11_ALL_STRUCTURES_NESTED("jdk11.AllStructures$Nested");
 

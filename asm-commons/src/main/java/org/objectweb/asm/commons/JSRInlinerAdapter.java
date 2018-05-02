@@ -111,7 +111,8 @@ public class JSRInlinerAdapter extends MethodNode implements Opcodes {
    *     Opcodes#ASM4}, {@link Opcodes#ASM5}, {@link Opcodes#ASM6} or {@link Opcodes#ASM7_EXPERIMENTAL}.
    * @param methodVisitor the method visitor to send the resulting inlined method code to, or <code>
    *     null</code>.
-   * @param access the method's access flags.
+   * @param access the method's access flags (see {@link Opcodes}). This parameter also indicates if
+   *     the method is synthetic and/or deprecated.
    * @param name the method's name.
    * @param descriptor the method's descriptor.
    * @param signature the method's signature. May be <tt>null</tt>.

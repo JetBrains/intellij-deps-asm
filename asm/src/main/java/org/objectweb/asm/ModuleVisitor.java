@@ -65,7 +65,7 @@ public abstract class ModuleVisitor {
    *     be null.
    */
   public ModuleVisitor(final int api, final ModuleVisitor moduleVisitor) {
-    if (api < Opcodes.ASM6) {
+    if (api != Opcodes.ASM6 && api != Opcodes.ASM7_EXPERIMENTAL) {
       throw new IllegalArgumentException();
     }
     this.api = api;

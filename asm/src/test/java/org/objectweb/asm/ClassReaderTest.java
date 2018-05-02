@@ -284,12 +284,14 @@ public class ClassReaderTest extends AsmTest implements Opcodes {
     ClassReader classReader = new ClassReader(classParameter.getBytes());
     ClassVisitor classVisitor = new EmptyClassVisitor(apiParameter.value());
     // jdk8.ArtificialStructures contains structures which require ASM5, but only inside the method
-    // code. Here we skip the code, so this class can be read with ASM4.
+    // code. Here we skip the code, so this class can be read with ASM4. Likewise for
+    // jdk11.AllInstructions.
     assertThat(() -> classReader.accept(classVisitor, ClassReader.SKIP_CODE))
         .succeedsOrThrows(RuntimeException.class)
         .when(
             classParameter.isMoreRecentThan(apiParameter)
-                && classParameter != PrecompiledClass.JDK8_ARTIFICIAL_STRUCTURES);
+                && classParameter != PrecompiledClass.JDK8_ARTIFICIAL_STRUCTURES
+                && classParameter != PrecompiledClass.JDK11_ALL_INSTRUCTIONS);
   }
 
   /**
@@ -400,7 +402,7 @@ public class ClassReaderTest extends AsmTest implements Opcodes {
     final AtomicBoolean success = new AtomicBoolean(false);
     ClassReader classReader = new ClassReader(PrecompiledClass.JDK5_LOCAL_CLASS.getBytes());
     classReader.accept(
-        new ClassVisitor(Opcodes.ASM6) {
+        new ClassVisitor(Opcodes.ASM7_EXPERIMENTAL) {
           @Override
           public MethodVisitor visitMethod(
               final int access,
@@ -408,7 +410,7 @@ public class ClassReaderTest extends AsmTest implements Opcodes {
               final String descriptor,
               final String signature,
               final String[] exceptions) {
-            return new MethodVisitor(Opcodes.ASM6, null) {
+            return new MethodVisitor(api, null) {
               @Override
               public AnnotationVisitor visitParameterAnnotation(
                   final int parameter, final String descriptor, final boolean visible) {

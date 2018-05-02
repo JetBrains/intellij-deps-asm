@@ -56,7 +56,7 @@ public final class TraceAnnotationVisitor extends AnnotationVisitor {
    * @param printer the printer to convert the visited annotation into text.
    */
   public TraceAnnotationVisitor(final AnnotationVisitor annotationVisitor, final Printer printer) {
-    super(Opcodes.ASM6, annotationVisitor);
+    super(Opcodes.ASM7_EXPERIMENTAL, annotationVisitor);
     this.printer = printer;
   }
 

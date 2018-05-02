@@ -237,6 +237,8 @@ class ClassDump {
         return new ConstantMethodHandleInfo(parser, classContext);
       case 16:
         return new ConstantMethodTypeInfo(parser, classContext);
+      case 17:
+        return new ConstantDynamicInfo(parser, classContext);
       case 18:
         return new ConstantInvokeDynamicInfo(parser, classContext);
       case 19:
@@ -728,6 +730,37 @@ class ClassDump {
     @Override
     String dump() {
       return getCpInfo(descriptorIndex, ConstantUtf8Info.class).dump();
+    }
+  }
+
+  /**
+   * A CONSTANT_Dynamic_info item.
+   *
+   * @see <a href="https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.4.13">JVMS
+   *     4.4.13</a>
+   */
+  private static class ConstantDynamicInfo extends CpInfo {
+    private final int bootstrapMethodAttrIndex;
+    private final int nameAndTypeIndex;
+
+    /**
+     * Parses a CONSTANT_Dynamic_info item.
+     *
+     * @param parser a class parser.
+     * @param classContext a context to lookup constant pool items from their index.
+     * @throws IOException if the class can't be parsed.
+     */
+    ConstantDynamicInfo(final Parser parser, final ClassContext classContext) throws IOException {
+      super(classContext);
+      this.bootstrapMethodAttrIndex = parser.u2();
+      this.nameAndTypeIndex = parser.u2();
+    }
+
+    @Override
+    String dump() {
+      return bootstrapMethodAttrIndex
+          + "."
+          + getCpInfo(nameAndTypeIndex, ConstantNameAndTypeInfo.class).dump();
     }
   }
 

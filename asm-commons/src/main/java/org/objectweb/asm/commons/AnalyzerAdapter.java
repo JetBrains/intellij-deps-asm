@@ -32,6 +32,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.objectweb.asm.ConstantDynamic;
 import org.objectweb.asm.Handle;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
@@ -409,6 +410,8 @@ public class AnalyzerAdapter extends MethodVisitor {
       }
     } else if (value instanceof Handle) {
       push("java/lang/invoke/MethodHandle");
+    } else if (value instanceof ConstantDynamic) {
+      pushDescriptor(((ConstantDynamic) value).getDescriptor());
     } else {
       throw new IllegalArgumentException();
     }

@@ -38,6 +38,7 @@ import java.util.Set;
 
 import org.objectweb.asm.AnnotationVisitor;
 import org.objectweb.asm.Attribute;
+import org.objectweb.asm.ConstantDynamic;
 import org.objectweb.asm.Handle;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
@@ -775,8 +776,8 @@ public class CheckMethodAdapter extends MethodVisitor {
         && bootstrapMethodHandle.getTag() != Opcodes.H_NEWINVOKESPECIAL) {
       throw new IllegalArgumentException("invalid handle tag " + bootstrapMethodHandle.getTag());
     }
-    for (int i = 0; i < bootstrapMethodArguments.length; i++) {
-      checkLdcConstant(bootstrapMethodArguments[i]);
+    for (Object bootstrapMethodArgument : bootstrapMethodArguments) {
+      checkLdcConstant(bootstrapMethodArgument);
     }
     super.visitInvokeDynamicInsn(name, descriptor, bootstrapMethodHandle, bootstrapMethodArguments);
     ++insnCount;
@@ -1184,11 +1185,30 @@ public class CheckMethodAdapter extends MethodVisitor {
       }
     } else if (value instanceof Handle) {
       if ((version & 0xFFFF) < Opcodes.V1_7) {
-        throw new IllegalArgumentException("ldc of a handle requires at least version 1.7");
+        throw new IllegalArgumentException("ldc of a Handle requires at least version 1.7");
       }
-      int tag = ((Handle) value).getTag();
+      Handle handle = (Handle) value;
+      int tag = handle.getTag();
       if (tag < Opcodes.H_GETFIELD || tag > Opcodes.H_INVOKEINTERFACE) {
         throw new IllegalArgumentException("invalid handle tag " + tag);
+      }
+      checkInternalName(this.version, handle.getOwner(), "handle owner");
+      if (tag <= Opcodes.H_PUTSTATIC) {
+        checkDescriptor(this.version, handle.getDesc(), false);
+      } else {
+        checkMethodDescriptor(this.version, handle.getDesc());
+      }
+      checkMethodIdentifier(this.version, handle.getName(), "handle name");
+    } else if (value instanceof ConstantDynamic) {
+      if ((version & 0xFFFF) < Opcodes.V11) {
+        throw new IllegalArgumentException("ldc of a ConstantDynamic requires at least version 11");
+      }
+      ConstantDynamic constantDynamic = (ConstantDynamic) value;
+      checkMethodIdentifier(this.version, constantDynamic.getName(), "constant dynamic name");
+      checkDescriptor(this.version, constantDynamic.getDescriptor(), false);
+      checkLdcConstant(constantDynamic.getBootstrapMethod());
+      for (Object bootstrapArgument : constantDynamic.getBootstrapMethodArguments()) {
+        checkLdcConstant(bootstrapArgument);
       }
     } else {
       checkConstant(value);

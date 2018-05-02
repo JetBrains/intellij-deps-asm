@@ -116,6 +116,8 @@ public class ClassWriterTest extends AsmTest {
     classWriter.newHandle(Opcodes.H_GETFIELD, "A", "h", "I");
     classWriter.newHandle(Opcodes.H_GETFIELD, "A", "h", "I", false);
     classWriter.newInvokeDynamic("m", "()V", new Handle(Opcodes.H_GETFIELD, "A", "h", "I", false));
+    classWriter.newConstantDynamic(
+        "m", "Ljava/lang/String;", new Handle(Opcodes.H_INVOKESTATIC, "A", "m", "()V", false));
     classWriter.newField("A", "f", "I");
     classWriter.newMethod("A", "m", "()V", false);
     classWriter.newNameType("m", "()V");
@@ -493,7 +495,7 @@ public class ClassWriterTest extends AsmTest {
     ClassReader classReader = new ClassReader(classFile);
     ClassWriter classWriter = new ClassWriter(0);
     ClassVisitor classVisitor =
-        new ClassVisitor(Opcodes.ASM6, classWriter) {
+        new ClassVisitor(Opcodes.ASM7_EXPERIMENTAL, classWriter) {
 
           @Override
           public ModuleVisitor visitModule(

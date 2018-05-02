@@ -33,6 +33,7 @@ import java.util.List;
 import org.objectweb.asm.AnnotationVisitor;
 import org.objectweb.asm.Attribute;
 import org.objectweb.asm.ClassVisitor;
+import org.objectweb.asm.ConstantDynamic;
 import org.objectweb.asm.Handle;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
@@ -657,6 +658,17 @@ public class MethodNode extends MethodVisitor {
       if (invisibleLocalVariableAnnotations != null
           && !invisibleLocalVariableAnnotations.isEmpty()) {
         throw new UnsupportedClassVersionException();
+      }
+    }
+    if (api != Opcodes.ASM7_EXPERIMENTAL) {
+      for (int i = instructions.size() - 1; i >= 0; --i) {
+        AbstractInsnNode insn = instructions.get(i);
+        if (insn instanceof LdcInsnNode) {
+          Object value = ((LdcInsnNode) insn).cst;
+          if (value instanceof ConstantDynamic) {
+            throw new UnsupportedClassVersionException();
+          }
+        }
       }
     }
   }

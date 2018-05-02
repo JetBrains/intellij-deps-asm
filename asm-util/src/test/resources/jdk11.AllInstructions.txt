@@ -1,0 +1,20 @@
+// class version 55.0 (55)
+// access flags 0x21
+public class jdk11/AllInstructions {
+
+
+  // access flags 0x1
+  public <init>()V
+    ALOAD 0
+    INVOKESPECIAL java/lang/Object.<init> ()V
+    RETURN
+    MAXSTACK = 1
+    MAXLOCALS = 1
+
+  // access flags 0x1
+  public m()Ljava/lang/Object;
+    LDC name : Ljava/lang/Object; HandleOwner.handleField(Ljava/lang/Object;)Ljava/lang/Object; (6) [argumentName : Ljava/lang/Object; ArgumentHandleOwner.argumentHandleNameLjava/lang/Object; (2) []]
+    ARETURN
+    MAXSTACK = 1
+    MAXLOCALS = 1
+}

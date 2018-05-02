@@ -109,7 +109,7 @@ public class Textifier extends Printer {
    * @throws IllegalStateException If a subclass calls this constructor.
    */
   public Textifier() {
-    this(Opcodes.ASM7);
+    this(Opcodes.ASM6);
     if (getClass() != Textifier.class) {
       throw new IllegalStateException();
     }
@@ -119,7 +119,7 @@ public class Textifier extends Printer {
    * Constructs a new {@link Textifier}.
    *
    * @param api the ASM API version implemented by this visitor. Must be one of {@link
-   *     Opcodes#ASM4}, {@link Opcodes#ASM5}, {@link Opcodes#ASM6} or {@link Opcodes#ASM7}.
+   *     Opcodes#ASM4}, {@link Opcodes#ASM5}, {@link Opcodes#ASM6} or {@link Opcodes#ASM7_EXPERIMENTAL}.
    */
   protected Textifier(final int api) {
     super(api);

@@ -254,7 +254,7 @@ public class CheckMethodAdapterTest extends AsmTest implements Opcodes {
     ClassReader classReader = new ClassReader("java.lang.Object");
     ClassWriter classWriter = new ClassWriter(classReader, ClassWriter.COMPUTE_MAXS);
     ClassVisitor classVisitor =
-        new ClassVisitor(Opcodes.ASM7, classWriter) {
+        new ClassVisitor(Opcodes.ASM7_EXPERIMENTAL, classWriter) {
           @Override
           public MethodVisitor visitMethod(
               final int access,

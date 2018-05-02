@@ -85,14 +85,14 @@ public class LocalVariableAnnotationNode extends TypeAnnotationNode {
       final LabelNode[] end,
       final int[] index,
       final String descriptor) {
-    this(Opcodes.ASM7, typeRef, typePath, start, end, index, descriptor);
+    this(Opcodes.ASM6, typeRef, typePath, start, end, index, descriptor);
   }
 
   /**
    * Constructs a new {@link LocalVariableAnnotationNode}.
    *
    * @param api the ASM API version implemented by this visitor. Must be one of {@link
-   *     Opcodes#ASM4}, {@link Opcodes#ASM5}, {@link Opcodes#ASM6} or {@link Opcodes#ASM7}.
+   *     Opcodes#ASM4}, {@link Opcodes#ASM5}, {@link Opcodes#ASM6} or {@link Opcodes#ASM7_EXPERIMENTAL}.
    * @param typeRef a reference to the annotated type. See {@link org.objectweb.asm.TypeReference}.
    * @param start the fist instructions corresponding to the continuous ranges that make the scope
    *     of this local variable (inclusive).

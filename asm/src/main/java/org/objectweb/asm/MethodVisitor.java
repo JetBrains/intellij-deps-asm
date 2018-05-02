@@ -52,7 +52,8 @@ public abstract class MethodVisitor {
 
   /**
    * The ASM API version implemented by this visitor. The value of this field must be one of {@link
-   * Opcodes#ASM4}, {@link Opcodes#ASM5}, {@link Opcodes#ASM6} or {@link Opcodes#ASM7}..
+   * Opcodes#ASM4}, {@link Opcodes#ASM5}, {@link Opcodes#ASM6} or {@link
+   * Opcodes#ASM7_EXPERIMENTAL}..
    */
   protected final int api;
 
@@ -63,7 +64,8 @@ public abstract class MethodVisitor {
    * Constructs a new {@link MethodVisitor}.
    *
    * @param api the ASM API version implemented by this visitor. Must be one of {@link
-   *     Opcodes#ASM4}, {@link Opcodes#ASM5}, {@link Opcodes#ASM6} or {@link Opcodes#ASM7}..
+   *     Opcodes#ASM4}, {@link Opcodes#ASM5}, {@link Opcodes#ASM6} or {@link
+   *     Opcodes#ASM7_EXPERIMENTAL}..
    */
   public MethodVisitor(final int api) {
     this(api, null);
@@ -73,12 +75,16 @@ public abstract class MethodVisitor {
    * Constructs a new {@link MethodVisitor}.
    *
    * @param api the ASM API version implemented by this visitor. Must be one of {@link
-   *     Opcodes#ASM4}, {@link Opcodes#ASM5}, {@link Opcodes#ASM6} or {@link Opcodes#ASM7}..
+   *     Opcodes#ASM4}, {@link Opcodes#ASM5}, {@link Opcodes#ASM6} or {@link
+   *     Opcodes#ASM7_EXPERIMENTAL}..
    * @param methodVisitor the method visitor to which this visitor must delegate method calls. May
    *     be null.
    */
   public MethodVisitor(final int api, final MethodVisitor methodVisitor) {
-    if (api < Opcodes.ASM4 || api > Opcodes.ASM7) {
+    if (api != Opcodes.ASM6
+        && api != Opcodes.ASM5
+        && api != Opcodes.ASM4
+        && api != Opcodes.ASM7_EXPERIMENTAL) {
       throw new IllegalArgumentException();
     }
     this.api = api;
@@ -538,7 +544,7 @@ public abstract class MethodVisitor {
             || (value instanceof Type && ((Type) value).getSort() == Type.METHOD))) {
       throw new UnsupportedOperationException(REQUIRES_ASM5);
     }
-    if (api < Opcodes.ASM7 && value instanceof ConstantDynamic) {
+    if (api != Opcodes.ASM7_EXPERIMENTAL && value instanceof ConstantDynamic) {
       throw new UnsupportedOperationException("This feature requires ASM7");
     }
     if (mv != null) {

@@ -52,7 +52,7 @@ public class CheckAnnotationAdapter extends AnnotationVisitor {
   }
 
   CheckAnnotationAdapter(final AnnotationVisitor annotationVisitor, final boolean useNamedValues) {
-    super(Opcodes.ASM7, annotationVisitor);
+    super(Opcodes.ASM6, annotationVisitor);
     this.useNamedValue = useNamedValues;
   }
 

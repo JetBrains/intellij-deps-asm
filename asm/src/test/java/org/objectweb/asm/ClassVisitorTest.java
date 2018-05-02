@@ -248,7 +248,7 @@ public class ClassVisitorTest extends AsmTest {
   private static class ChangeExceptionAdapter extends ClassVisitor {
 
     ChangeExceptionAdapter(final ClassVisitor classVisitor) {
-      super(Opcodes.ASM7, classVisitor);
+      super(Opcodes.ASM7_EXPERIMENTAL, classVisitor);
     }
 
     @Override

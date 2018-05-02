@@ -35,6 +35,7 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
@@ -121,8 +122,10 @@ public class TextifierTest extends AsmTest {
 
     String expectedText =
         new String(
-            Files.readAllBytes(
-                Paths.get("src/test/resources/" + classParameter.getName() + ".txt")));
+                Files.readAllBytes(
+                    Paths.get("src/test/resources/" + classParameter.getName() + ".txt")),
+                StandardCharsets.UTF_8)
+            .replace("\r", "");
     assertEquals(expectedText, stringWriter.toString());
   }
 }

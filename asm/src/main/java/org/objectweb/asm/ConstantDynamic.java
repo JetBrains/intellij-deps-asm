@@ -33,7 +33,9 @@ import java.util.Arrays;
  * A constant whose value is computed at runtime, with a bootstrap method.
  *
  * @author Remi Forax
+ * @deprecated This API is experimental.
  */
+@Deprecated
 public final class ConstantDynamic {
 
   /** The constant name (can be arbitrary). */

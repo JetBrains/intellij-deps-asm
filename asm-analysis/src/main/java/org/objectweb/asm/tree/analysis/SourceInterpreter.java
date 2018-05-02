@@ -51,7 +51,7 @@ public class SourceInterpreter extends Interpreter<SourceValue> implements Opcod
    * use this constructor</i>. Instead, they must use the {@link #SourceInterpreter(int)} version.
    */
   public SourceInterpreter() {
-    super(ASM7);
+    super(ASM6);
     if (getClass() != SourceInterpreter.class) {
       throw new IllegalStateException();
     }
@@ -61,7 +61,7 @@ public class SourceInterpreter extends Interpreter<SourceValue> implements Opcod
    * Constructs a new {@link SourceInterpreter}.
    *
    * @param api the ASM API version supported by this interpreter. Must be one of {@link
-   *     Opcodes#ASM4}, {@link Opcodes#ASM5}, {@link Opcodes#ASM6} or {@link Opcodes#ASM7}.
+   *     Opcodes#ASM4}, {@link Opcodes#ASM5}, {@link Opcodes#ASM6} or {@link Opcodes#ASM7_EXPERIMENTAL}.
    */
   protected SourceInterpreter(final int api) {
     super(api);

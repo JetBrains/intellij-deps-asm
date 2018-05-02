@@ -116,7 +116,7 @@ public class AnalyzerAdapter extends MethodVisitor {
       final String name,
       final String desc,
       final MethodVisitor mv) {
-    this(Opcodes.ASM7, owner, access, name, desc, mv);
+    this(Opcodes.ASM6, owner, access, name, desc, mv);
     if (getClass() != AnalyzerAdapter.class) {
       throw new IllegalStateException();
     }
@@ -126,7 +126,7 @@ public class AnalyzerAdapter extends MethodVisitor {
    * Constructs a new {@link AnalyzerAdapter}.
    *
    * @param api the ASM API version implemented by this visitor. Must be one of {@link
-   *     Opcodes#ASM4}, {@link Opcodes#ASM5}, {@link Opcodes#ASM6} or {@link Opcodes#ASM7}.
+   *     Opcodes#ASM4}, {@link Opcodes#ASM5}, {@link Opcodes#ASM6} or {@link Opcodes#ASM7_EXPERIMENTAL}.
    * @param owner the owner's class name.
    * @param access the method's access flags (see {@link Opcodes}).
    * @param name the method's name.

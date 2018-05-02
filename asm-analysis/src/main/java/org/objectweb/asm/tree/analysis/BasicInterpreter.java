@@ -61,7 +61,7 @@ public class BasicInterpreter extends Interpreter<BasicValue> implements Opcodes
    * use this constructor</i>. Instead, they must use the {@link #BasicInterpreter(int)} version.
    */
   public BasicInterpreter() {
-    super(ASM7);
+    super(ASM6);
     if (getClass() != BasicInterpreter.class) {
       throw new IllegalStateException();
     }
@@ -71,7 +71,7 @@ public class BasicInterpreter extends Interpreter<BasicValue> implements Opcodes
    * Constructs a new {@link BasicInterpreter}.
    *
    * @param api the ASM API version supported by this interpreter. Must be one of {@link
-   *     Opcodes#ASM4}, {@link Opcodes#ASM5}, {@link Opcodes#ASM6} or {@link Opcodes#ASM7}.
+   *     Opcodes#ASM4}, {@link Opcodes#ASM5}, {@link Opcodes#ASM6} or {@link Opcodes#ASM7_EXPERIMENTAL}.
    */
   protected BasicInterpreter(final int api) {
     super(api);

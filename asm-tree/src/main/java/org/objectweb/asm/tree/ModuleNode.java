@@ -85,7 +85,7 @@ public class ModuleNode extends ModuleVisitor {
    * @throws IllegalStateException If a subclass calls this constructor.
    */
   public ModuleNode(final String name, final int access, final String version) {
-    super(Opcodes.ASM7);
+    super(Opcodes.ASM6);
     if (getClass() != ModuleNode.class) {
       throw new IllegalStateException();
     }
@@ -99,7 +99,7 @@ public class ModuleNode extends ModuleVisitor {
    * Constructs a {@link ModuleNode}.
    *
    * @param api the ASM API version implemented by this visitor. Must be {@link Opcodes#ASM6} or
-   *     {@link Opcodes#ASM7}.
+   *     {@link Opcodes#ASM7_EXPERIMENTAL}.
    * @param name the fully qualified name (using dots) of the module.
    * @param access the module access flags, among {@code ACC_OPEN}, {@code ACC_SYNTHETIC} and {@code
    *     ACC_MANDATED}.

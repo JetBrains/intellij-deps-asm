@@ -269,7 +269,7 @@ public class PrinterTest {
 
   @Test
   public void testUnsupportedOperations() {
-    Printer printer = new StubPrinter(Opcodes.ASM7);
+    Printer printer = new StubPrinter(Opcodes.ASM7_EXPERIMENTAL);
     assertThrows(UnsupportedOperationException.class, () -> printer.visitModule(null, 0, null));
     assertThrows(UnsupportedOperationException.class, () -> printer.visitModule(null, 0, null));
     assertThrows(

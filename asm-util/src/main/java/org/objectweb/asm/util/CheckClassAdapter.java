@@ -191,7 +191,7 @@ public class CheckClassAdapter extends ClassVisitor {
       final boolean printResults,
       final PrintWriter printWriter) {
     ClassNode classNode = new ClassNode();
-    classReader.accept(new CheckClassAdapter(classNode, false), ClassReader.SKIP_DEBUG);
+    classReader.accept(new CheckClassAdapter(Opcodes.ASM7_EXPERIMENTAL, classNode, false) {}, ClassReader.SKIP_DEBUG);
 
     Type syperType = classNode.superName == null ? null : Type.getObjectType(classNode.superName);
     List<MethodNode> methods = classNode.methods;
@@ -297,7 +297,7 @@ public class CheckClassAdapter extends ClassVisitor {
    * @throws IllegalStateException If a subclass calls this constructor.
    */
   public CheckClassAdapter(final ClassVisitor classVisitor, final boolean checkDataFlow) {
-    this(Opcodes.ASM7, classVisitor, checkDataFlow);
+    this(Opcodes.ASM6, classVisitor, checkDataFlow);
     if (getClass() != CheckClassAdapter.class) {
       throw new IllegalStateException();
     }
@@ -307,7 +307,7 @@ public class CheckClassAdapter extends ClassVisitor {
    * Constructs a new {@link CheckClassAdapter}.
    *
    * @param api the ASM API version implemented by this visitor. Must be one of {@link
-   *     Opcodes#ASM4}, {@link Opcodes#ASM5}, {@link Opcodes#ASM6} or {@link Opcodes#ASM7}.
+   *     Opcodes#ASM4}, {@link Opcodes#ASM5}, {@link Opcodes#ASM6} or {@link Opcodes#ASM7_EXPERIMENTAL}.
    * @param classVisitor the class visitor to which this adapter must delegate calls.
    * @param checkDataFlow <tt>true</tt> to perform basic data flow checks, or <tt>false</tt> to not
    *     perform any data flow check (see {@link CheckMethodAdapter}). This option requires valid

@@ -59,7 +59,7 @@ public final class TraceFieldVisitor extends FieldVisitor {
    * @param printer the printer to convert the visited field into text.
    */
   public TraceFieldVisitor(final FieldVisitor fieldVisitor, final Printer printer) {
-    super(Opcodes.ASM7, fieldVisitor);
+    super(Opcodes.ASM7_EXPERIMENTAL, fieldVisitor);
     this.p = printer;
   }
 

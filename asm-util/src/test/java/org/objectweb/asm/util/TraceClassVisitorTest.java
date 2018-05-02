@@ -77,7 +77,7 @@ public class TraceClassVisitorTest extends AsmTest {
     ClassReader classReader = new ClassReader(classFile);
     classReader.accept(new TraceClassVisitor(new PrintWriter(new CharArrayWriter())), 0);
     classReader.accept(
-        new ClassVisitor(Opcodes.ASM7) {
+        new ClassVisitor(Opcodes.ASM7_EXPERIMENTAL) {
 
           @Override
           public ModuleVisitor visitModule(String name, int access, String version) {

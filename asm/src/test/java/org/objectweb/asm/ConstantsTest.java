@@ -63,6 +63,7 @@ public class ConstantsTest {
         case "ASM4":
         case "ASM5":
         case "ASM6":
+        case "ASM7_EXPERIMENTAL":
           assertFalse(asmVersions.contains(field.getInt(null)));
           asmVersions.add(field.getInt(null));
           break;
@@ -76,6 +77,7 @@ public class ConstantsTest {
         case "V1_8":
         case "V9":
         case "V10":
+        case "V11":
           assertFalse(classVersions.contains(field.getInt(null)));
           classVersions.add(field.getInt(null));
           break;

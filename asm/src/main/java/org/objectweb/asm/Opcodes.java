@@ -34,7 +34,7 @@ package org.objectweb.asm;
  * xSTORE_n opcodes are therefore not defined in this interface. Likewise for LDC, automatically
  * replaced by LDC_W or LDC2_W when necessary, WIDE, GOTO_W and JSR_W.
  *
- * @see <a href="https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-6.html">JVMS 6</a>
+ * @see <a href="https://docs.oracle.com/javase/specs/jvms/se11/html/jvms-6.html">JVMS 6</a>
  * @author Eric Bruneton
  * @author Eugene Kuleshov
  */
@@ -45,6 +45,14 @@ public interface Opcodes {
   int ASM4 = 4 << 16 | 0 << 8;
   int ASM5 = 5 << 16 | 0 << 8;
   int ASM6 = 6 << 16 | 0 << 8;
+
+  /**
+   * <b>Experimental, use at your own risk. This field will be renamed when it becomes stable, this
+   * will break existing code using it</b>.
+   *
+   * @deprecated This API is experimental.
+   */
+  @Deprecated int ASM7_EXPERIMENTAL = 1 << 24 | 7 << 16 | 0 << 8;
 
   // Java ClassFile versions (the minor version is stored in the 16 most significant bits, and the
   // major version in the 16 least significant bits).
@@ -59,6 +67,7 @@ public interface Opcodes {
   int V1_8 = 0 << 16 | 52;
   int V9 = 0 << 16 | 53;
   int V10 = 0 << 16 | 54;
+  int V11 = 0 << 16 | 55;
 
   // Access flags values, defined in
   // - https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.1-200-E.1

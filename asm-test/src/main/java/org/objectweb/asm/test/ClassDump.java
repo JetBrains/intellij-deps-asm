@@ -150,7 +150,7 @@ class ClassDump {
     builder.add("magic: ", parser.u4());
     builder.add("minor_version: ", parser.u2());
     int majorVersion = parser.u2();
-    if (majorVersion >= /* V10 = */ 54) {
+    if (majorVersion > /* V11 = */ 55) {
       throw new IOException("Unsupported class version");
     }
     builder.add("major_version: ", majorVersion);
@@ -188,7 +188,8 @@ class ClassDump {
    * @see <a href="https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.1">JVMS
    *     4.1</a>
    */
-  private static void dumpAttributeList(final Parser parser, final Builder builder) throws IOException {
+  private static void dumpAttributeList(final Parser parser, final Builder builder)
+      throws IOException {
     int attributeCount = builder.add("attributes_count: ", parser.u2());
     SortedBuilder sortedBuilder = builder.addSortedBuilder();
     for (int i = 0; i < attributeCount; ++i) {
@@ -206,7 +207,8 @@ class ClassDump {
    * @see <a href="https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.4">JVMS
    *     4.4</a>
    */
-  private static CpInfo parseCpInfo(final Parser parser, final ClassContext classContext) throws IOException {
+  private static CpInfo parseCpInfo(final Parser parser, final ClassContext classContext)
+      throws IOException {
     int tag = parser.u1();
     switch (tag) {
       case 7:
@@ -407,7 +409,8 @@ class ClassDump {
      * @param classContext a context to lookup constant pool items from their index.
      * @throws IOException if the class can't be parsed.
      */
-    ConstantInterfaceMethodRefInfo(final Parser parser, final ClassContext classContext) throws IOException {
+    ConstantInterfaceMethodRefInfo(final Parser parser, final ClassContext classContext)
+        throws IOException {
       super(classContext);
       this.classIndex = parser.u2();
       this.nameAndTypeIndex = parser.u2();
@@ -551,7 +554,8 @@ class ClassDump {
      * @param classContext a context to lookup constant pool items from their index.
      * @throws IOException if the class can't be parsed.
      */
-    ConstantNameAndTypeInfo(final Parser parser, final ClassContext classContext) throws IOException {
+    ConstantNameAndTypeInfo(final Parser parser, final ClassContext classContext)
+        throws IOException {
       super(classContext);
       this.nameIndex = parser.u2();
       this.descriptorIndex = parser.u2();
@@ -600,7 +604,8 @@ class ClassDump {
      * @param classContext a context to lookup constant pool items from their index.
      * @throws IOException if the class can't be parsed.
      */
-    ConstantMethodHandleInfo(final Parser parser, final ClassContext classContext) throws IOException {
+    ConstantMethodHandleInfo(final Parser parser, final ClassContext classContext)
+        throws IOException {
       super(classContext);
       this.referenceKind = parser.u1();
       this.referenceIndex = parser.u2();
@@ -628,7 +633,8 @@ class ClassDump {
      * @param classContext a context to lookup constant pool items from their index.
      * @throws IOException if the class can't be parsed.
      */
-    ConstantMethodTypeInfo(final Parser parser, final ClassContext classContext) throws IOException {
+    ConstantMethodTypeInfo(final Parser parser, final ClassContext classContext)
+        throws IOException {
       super(classContext);
       this.descriptorIndex = parser.u2();
     }
@@ -656,7 +662,8 @@ class ClassDump {
      * @param classContext a context to lookup constant pool items from their index.
      * @throws IOException if the class can't be parsed.
      */
-    ConstantInvokeDynamicInfo(final Parser parser, final ClassContext classContext) throws IOException {
+    ConstantInvokeDynamicInfo(final Parser parser, final ClassContext classContext)
+        throws IOException {
       super(classContext);
       this.bootstrapMethodAttrIndex = parser.u2();
       this.nameAndTypeIndex = parser.u2();
@@ -749,7 +756,8 @@ class ClassDump {
    * @see <a href="https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.6">JVMS
    *     4.6</a>
    */
-  private static void dumpMethodInfo(final Parser parser, final Builder builder) throws IOException {
+  private static void dumpMethodInfo(final Parser parser, final Builder builder)
+      throws IOException {
     // method_info has the same top level structure as field_info.
     dumpFieldInfo(parser, builder);
   }
@@ -825,6 +833,10 @@ class ClassDump {
       dumpModulePackagesAttribute(parser, builder);
     } else if (attributeName.equals("ModuleMainClass")) {
       dumpModuleMainClassAttribute(parser, builder);
+    } else if (attributeName.equals("NestHost")) {
+      dumpNestHostAttribute(parser, builder);
+    } else if (attributeName.equals("NestMembers")) {
+      dumpNestMembersAttribute(parser, builder);
     } else if (attributeName.equals("StackMap")) {
       dumpStackMapAttribute(parser, builder);
     } else {
@@ -855,7 +867,8 @@ class ClassDump {
    * @see <a href="https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.7.3">JVMS
    *     4.7.3</a>
    */
-  private static void dumpCodeAttribute(final Parser parser, final Builder builder) throws IOException {
+  private static void dumpCodeAttribute(final Parser parser, final Builder builder)
+      throws IOException {
     builder.add("max_stack: ", parser.u2());
     builder.add("max_locals: ", parser.u2());
     int codeLength = parser.u4();
@@ -909,8 +922,8 @@ class ClassDump {
    * @see <a href="https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-6.html#jvms-6.5">JVMS
    *     6.5</a>
    */
-  private static void dumpInstructions(final int codeLength, final Parser parser, final Builder builder)
-      throws IOException {
+  private static void dumpInstructions(
+      final int codeLength, final Parser parser, final Builder builder) throws IOException {
     int bytecodeOffset = 0; // Number of bytes parsed so far.
     int insnIndex = 0; // Number of instructions parsed so far.
     while (bytecodeOffset < codeLength) {
@@ -1419,7 +1432,8 @@ class ClassDump {
    * @see <a href="https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.7.2">JVMS
    *     4.7.2</a>
    */
-  private static void dumpVerificationTypeInfo(final Parser parser, final Builder builder) throws IOException {
+  private static void dumpVerificationTypeInfo(final Parser parser, final Builder builder)
+      throws IOException {
     int tag = builder.add("tag: ", parser.u1());
     if (tag > 8) {
       throw new IOException("Unknown verification_type_info tag: " + tag);
@@ -1440,7 +1454,8 @@ class ClassDump {
    * @see <a href="https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.7.5">JVMS
    *     4.7.5</a>
    */
-  private static void dumpExceptionsAttribute(final Parser parser, final Builder builder) throws IOException {
+  private static void dumpExceptionsAttribute(final Parser parser, final Builder builder)
+      throws IOException {
     int exceptionCount = builder.add("number_of_exceptions: ", parser.u2());
     for (int i = 0; i < exceptionCount; ++i) {
       builder.addCpInfo("exception_index: ", parser.u2());
@@ -1456,7 +1471,8 @@ class ClassDump {
    * @see <a href="https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.7.6">JVMS
    *     4.7.6</a>
    */
-  private static void dumpInnerClassesAttribute(final Parser parser, final Builder builder) throws IOException {
+  private static void dumpInnerClassesAttribute(final Parser parser, final Builder builder)
+      throws IOException {
     int classCount = builder.add("number_of_classes: ", parser.u2());
     for (int i = 0; i < classCount; ++i) {
       builder.addCpInfo("inner_class_info_index: ", parser.u2());
@@ -1500,7 +1516,8 @@ class ClassDump {
    * @see <a href="https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.7.9">JVMS
    *     4.7.9</a>
    */
-  private static void dumpSignatureAttribute(final Parser parser, final Builder builder) throws IOException {
+  private static void dumpSignatureAttribute(final Parser parser, final Builder builder)
+      throws IOException {
     builder.addCpInfo("signature_index: ", parser.u2());
   }
 
@@ -1513,7 +1530,8 @@ class ClassDump {
    * @see <a href="https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.7.10">JVMS
    *     4.7.10</a>
    */
-  private static void dumpSourceFileAttribute(final Parser parser, final Builder builder) throws IOException {
+  private static void dumpSourceFileAttribute(final Parser parser, final Builder builder)
+      throws IOException {
     builder.addCpInfo("sourcefile_index: ", parser.u2());
   }
 
@@ -1527,8 +1545,8 @@ class ClassDump {
    * @see <a href="https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.7.11">JVMS
    *     4.7.11</a>
    */
-  private static void dumpSourceDebugAttribute(final int attributeLength, final Parser parser, final Builder builder)
-      throws IOException {
+  private static void dumpSourceDebugAttribute(
+      final int attributeLength, final Parser parser, final Builder builder) throws IOException {
     byte[] attributeData = parser.bytes(attributeLength);
     StringBuilder stringBuilder = new StringBuilder();
     for (int i = 0; i < attributeData.length; ++i) {
@@ -1585,8 +1603,8 @@ class ClassDump {
    * @see <a href="https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.7.14">JVMS
    *     4.7.14</a>
    */
-  private static void dumpLocalVariableTypeTableAttribute(final Parser parser, final Builder builder)
-      throws IOException {
+  private static void dumpLocalVariableTypeTableAttribute(
+      final Parser parser, final Builder builder) throws IOException {
     int localVariableCount = builder.add("local_variable_type_table_length: ", parser.u2());
     for (int i = 0; i < localVariableCount; ++i) {
       int startPc = builder.addInsnIndex("start_pc: ", parser.u2());
@@ -1616,8 +1634,8 @@ class ClassDump {
    * @see <a href="https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.7.16">JVMS
    *     4.7.16</a>
    */
-  private static void dumpRuntimeVisibleAnnotationsAttribute(final Parser parser, final Builder builder)
-      throws IOException {
+  private static void dumpRuntimeVisibleAnnotationsAttribute(
+      final Parser parser, final Builder builder) throws IOException {
     int annotationCount = builder.add("num_annotations: ", parser.u2());
     for (int i = 0; i < annotationCount; ++i) {
       dumpAnnotation(parser, builder);
@@ -1633,7 +1651,8 @@ class ClassDump {
    * @see <a href="https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.7.16">JVMS
    *     4.7.16</a>
    */
-  private static void dumpAnnotation(final Parser parser, final Builder builder) throws IOException {
+  private static void dumpAnnotation(final Parser parser, final Builder builder)
+      throws IOException {
     builder.addCpInfo("type_index: ", parser.u2());
     int elementValuePairCount = builder.add("num_element_value_pairs: ", parser.u2());
     for (int i = 0; i < elementValuePairCount; ++i) {
@@ -1652,7 +1671,8 @@ class ClassDump {
    *     href="https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.7.16.1">JVMS
    *     4.7.16.1</a>
    */
-  private static void dumpElementValue(final Parser parser, final Builder builder) throws IOException {
+  private static void dumpElementValue(final Parser parser, final Builder builder)
+      throws IOException {
     int tag = parser.u1();
     switch (tag) {
       case 'B':
@@ -1697,8 +1717,8 @@ class ClassDump {
    * @see <a href="https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.7.17">JVMS
    *     4.7.17</a>
    */
-  private static void dumpRuntimeInvisibleAnnotationsAttribute(final Parser parser, final Builder builder)
-      throws IOException {
+  private static void dumpRuntimeInvisibleAnnotationsAttribute(
+      final Parser parser, final Builder builder) throws IOException {
     dumpRuntimeVisibleAnnotationsAttribute(parser, builder);
   }
 
@@ -1745,8 +1765,8 @@ class ClassDump {
    * @see <a href="https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.7.20">JVMS
    *     4.7.20</a>
    */
-  private static void dumpRuntimeVisibleTypeAnnotationsAttribute(final Parser parser, final Builder builder)
-      throws IOException {
+  private static void dumpRuntimeVisibleTypeAnnotationsAttribute(
+      final Parser parser, final Builder builder) throws IOException {
     int annotationCount = builder.add("num_annotations: ", parser.u2());
     SortedBuilder sortedBuilder = builder.addSortedBuilder();
     for (int i = 0; i < annotationCount; ++i) {
@@ -1865,8 +1885,8 @@ class ClassDump {
    * @see <a href="https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.7.21">JVMS
    *     4.7.21</a>
    */
-  private static void dumpRuntimeInvisibleTypeAnnotationsAttribute(final Parser parser, final Builder builder)
-      throws IOException {
+  private static void dumpRuntimeInvisibleTypeAnnotationsAttribute(
+      final Parser parser, final Builder builder) throws IOException {
     dumpRuntimeVisibleTypeAnnotationsAttribute(parser, builder);
   }
 
@@ -1932,7 +1952,8 @@ class ClassDump {
    * @see <a href="https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.7.25">JVMS
    *     4.7.25</a>
    */
-  private static void dumpModuleAttribute(final Parser parser, final Builder builder) throws IOException {
+  private static void dumpModuleAttribute(final Parser parser, final Builder builder)
+      throws IOException {
     builder.addCpInfo("name: ", parser.u2());
     builder.add("access: ", parser.u2());
     builder.addCpInfo("version: ", parser.u2());
@@ -2006,6 +2027,37 @@ class ClassDump {
   }
 
   /**
+   * Parses and dumps a NestHost attribute.
+   *
+   * @param parser a class parser.
+   * @param builder a dump builder.
+   * @throws IOException if the class can't be parsed.
+   * @see <a href="https://docs.oracle.com/javase/specs/jvms/se11/html/jvms-4.html#jvms-4.7.28">JVMS
+   *     4.7.28</a>
+   */
+  private static void dumpNestHostAttribute(final Parser parser, final Builder builder)
+      throws IOException {
+    builder.addCpInfo("host_class: ", parser.u2());
+  }
+
+  /**
+   * Parses and dumps a NestMembers attribute.
+   *
+   * @param parser a class parser.
+   * @param builder a dump builder.
+   * @throws IOException if the class can't be parsed.
+   * @see <a href="https://docs.oracle.com/javase/specs/jvms/se11/html/jvms-4.html#jvms-4.7.29">JVMS
+   *     4.7.29</a>
+   */
+  private static void dumpNestMembersAttribute(final Parser parser, final Builder builder)
+      throws IOException {
+    int numberOfClasses = builder.add("number_of_classes: ", parser.u2());
+    for (int i = 0; i < numberOfClasses; ++i) {
+      builder.addCpInfo("class: ", parser.u2());
+    }
+  }
+
+  /**
    * Parses and dumps a StackMap attribute.
    *
    * @param parser a class parser.
@@ -2014,7 +2066,8 @@ class ClassDump {
    * @see <a
    *     href="http://docs.oracle.com/javame/config/cldc/opt-pkgs/api/cldc/api/Appendix1-verifier.pdf">CLDC</a>
    */
-  private static void dumpStackMapAttribute(final Parser parser, final Builder builder) throws IOException {
+  private static void dumpStackMapAttribute(final Parser parser, final Builder builder)
+      throws IOException {
     int entryCount = builder.add("number_of_entries: ", parser.u2());
     for (int i = 0; i < entryCount; ++i) {
       builder.addInsnIndex("offset: ", parser.u2());

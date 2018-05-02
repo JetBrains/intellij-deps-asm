@@ -197,8 +197,8 @@ public class FieldNode extends FieldVisitor {
    * that this node, and all its children recursively, do not contain elements that were introduced
    * in more recent versions of the ASM API than the given version.
    *
-   * @param api an ASM API version. Must be one of {@link Opcodes#ASM4}, {@link Opcodes#ASM5} or
-   *     {@link Opcodes#ASM6}.
+   * @param api an ASM API version. Must be one of {@link Opcodes#ASM4}, {@link Opcodes#ASM5},
+   *     {@link Opcodes#ASM6} or {@link Opcodes#ASM7_EXPERIMENTAL}.
    */
   public void check(final int api) {
     if (api == Opcodes.ASM4) {

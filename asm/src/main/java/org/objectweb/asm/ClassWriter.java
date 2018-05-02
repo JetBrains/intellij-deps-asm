@@ -116,10 +116,10 @@ public class ClassWriter extends ClassVisitor {
   private MethodWriter lastMethod;
 
   /** The number_of_classes field of the InnerClasses attribute, or 0. */
-  private int numberOfClasses;
+  private int numberOfInnerClasses;
 
   /** The 'classes' array of the InnerClasses attribute, or <tt>null</tt>. */
-  private ByteVector classes;
+  private ByteVector innerClasses;
 
   /** The class_index field of the EnclosingMethod attribute, or 0. */
   private int enclosingClassIndex;
@@ -162,6 +162,15 @@ public class ClassWriter extends ClassVisitor {
 
   /** The Module attribute of this class, or <tt>null</tt>. */
   private ModuleWriter moduleWriter;
+
+  /** The host_class_index field of the NestHost attribute, or 0. */
+  private int nestHostClassIndex;
+
+  /** The number_of_classes field of the NestMembers attribute, or 0. */
+  private int numberOfNestMemberClasses;
+
+  /** The 'classes' array of the NestMembers attribute, or <tt>null</tt>. */
+  private ByteVector nestMemberClasses;
 
   /**
    * The first non standard attribute of this class. The next ones can be accessed with the {@link
@@ -281,6 +290,11 @@ public class ClassWriter extends ClassVisitor {
   }
 
   @Override
+  public void visitNestHostExperimental(final String nestHost) {
+    nestHostClassIndex = symbolTable.addConstantClass(nestHost).index;
+  }
+
+  @Override
   public final void visitOuterClass(
       final String owner, final String name, final String descriptor) {
     enclosingClassIndex = symbolTable.addConstantClass(owner).index;
@@ -333,10 +347,19 @@ public class ClassWriter extends ClassVisitor {
   }
 
   @Override
+  public void visitNestMemberExperimental(final String nestMember) {
+    if (nestMemberClasses == null) {
+      nestMemberClasses = new ByteVector();
+    }
+    ++numberOfNestMemberClasses;
+    nestMemberClasses.putShort(symbolTable.addConstantClass(nestMember).index);
+  }
+
+  @Override
   public final void visitInnerClass(
       final String name, final String outerName, final String innerName, final int access) {
-    if (classes == null) {
-      classes = new ByteVector();
+    if (innerClasses == null) {
+      innerClasses = new ByteVector();
     }
     // Section 4.7.6 of the JVMS states "Every CONSTANT_Class_info entry in the constant_pool table
     // which represents a class or interface C that is not a package member must have exactly one
@@ -346,12 +369,12 @@ public class ClassWriter extends ClassVisitor {
     // the info field. This trick allows duplicate detection in O(1) time.
     Symbol nameSymbol = symbolTable.addConstantClass(name);
     if (nameSymbol.info == 0) {
-      ++numberOfClasses;
-      classes.putShort(nameSymbol.index);
-      classes.putShort(outerName == null ? 0 : symbolTable.addConstantClass(outerName).index);
-      classes.putShort(innerName == null ? 0 : symbolTable.addConstantUtf8(innerName));
-      classes.putShort(access);
-      nameSymbol.info = numberOfClasses;
+      ++numberOfInnerClasses;
+      innerClasses.putShort(nameSymbol.index);
+      innerClasses.putShort(outerName == null ? 0 : symbolTable.addConstantClass(outerName).index);
+      innerClasses.putShort(innerName == null ? 0 : symbolTable.addConstantUtf8(innerName));
+      innerClasses.putShort(access);
+      nameSymbol.info = numberOfInnerClasses;
     } else {
       // Compare the inner classes entry nameSymbol.info - 1 with the arguments of this method and
       // throw an exception if there is a difference?
@@ -428,9 +451,9 @@ public class ClassWriter extends ClassVisitor {
     }
     // For ease of reference, we use here the same attribute order as in Section 4.7 of the JVMS.
     int attributesCount = 0;
-    if (classes != null) {
+    if (innerClasses != null) {
       ++attributesCount;
-      size += 8 + classes.length;
+      size += 8 + innerClasses.length;
       symbolTable.addConstantUtf8(Constants.INNER_CLASSES);
     }
     if (enclosingClassIndex != 0) {
@@ -495,6 +518,16 @@ public class ClassWriter extends ClassVisitor {
       attributesCount += moduleWriter.getAttributeCount();
       size += moduleWriter.computeAttributesSize();
     }
+    if (nestHostClassIndex != 0) {
+      ++attributesCount;
+      size += 8;
+      symbolTable.addConstantUtf8(Constants.NEST_HOST);
+    }
+    if (nestMemberClasses != null) {
+      ++attributesCount;
+      size += 8 + nestMemberClasses.length;
+      symbolTable.addConstantUtf8(Constants.NEST_MEMBERS);
+    }
     if (firstAttribute != null) {
       attributesCount += firstAttribute.getAttributeCount();
       size += firstAttribute.computeAttributesSize(symbolTable);
@@ -535,12 +568,12 @@ public class ClassWriter extends ClassVisitor {
     }
     // For ease of reference, we use here the same attribute order as in Section 4.7 of the JVMS.
     result.putShort(attributesCount);
-    if (classes != null) {
+    if (innerClasses != null) {
       result
           .putShort(symbolTable.addConstantUtf8(Constants.INNER_CLASSES))
-          .putInt(classes.length + 2)
-          .putShort(numberOfClasses)
-          .putByteArray(classes.data, 0, classes.length);
+          .putInt(innerClasses.length + 2)
+          .putShort(numberOfInnerClasses)
+          .putByteArray(innerClasses.data, 0, innerClasses.length);
     }
     if (enclosingClassIndex != 0) {
       result
@@ -594,6 +627,19 @@ public class ClassWriter extends ClassVisitor {
     if (moduleWriter != null) {
       moduleWriter.putAttributes(result);
     }
+    if (nestHostClassIndex != 0) {
+      result
+          .putShort(symbolTable.addConstantUtf8(Constants.NEST_HOST))
+          .putInt(2)
+          .putShort(nestHostClassIndex);
+    }
+    if (nestMemberClasses != null) {
+      result
+          .putShort(symbolTable.addConstantUtf8(Constants.NEST_MEMBERS))
+          .putInt(nestMemberClasses.length + 2)
+          .putShort(numberOfNestMemberClasses)
+          .putByteArray(nestMemberClasses.data, 0, nestMemberClasses.length);
+    }
     if (firstAttribute != null) {
       firstAttribute.putAttributes(symbolTable, result);
     }
@@ -611,6 +657,9 @@ public class ClassWriter extends ClassVisitor {
       lastRuntimeVisibleTypeAnnotation = null;
       lastRuntimeInvisibleTypeAnnotation = null;
       moduleWriter = null;
+      nestHostClassIndex = 0;
+      numberOfNestMemberClasses = 0;
+      nestMemberClasses = null;
       firstAttribute = null;
       compute = hasFrames ? MethodWriter.COMPUTE_INSERTED_FRAMES : MethodWriter.COMPUTE_NOTHING;
       new ClassReader(result.data, 0, /* checkClassVersion = */ false)

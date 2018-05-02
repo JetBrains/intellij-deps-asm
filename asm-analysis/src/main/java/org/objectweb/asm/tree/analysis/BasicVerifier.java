@@ -44,8 +44,8 @@ import org.objectweb.asm.tree.MethodInsnNode;
 public class BasicVerifier extends BasicInterpreter {
 
   /**
-   * Constructs a new {@link BasicVerifier} for the latest ASM API version. <i>Subclasses must not use
-   * this constructor</i>. Instead, they must use the {@link #BasicVerifier(int)} version.
+   * Constructs a new {@link BasicVerifier} for the latest ASM API version. <i>Subclasses must not
+   * use this constructor</i>. Instead, they must use the {@link #BasicVerifier(int)} version.
    */
   public BasicVerifier() {
     super(ASM6);
@@ -58,8 +58,8 @@ public class BasicVerifier extends BasicInterpreter {
    * Constructs a new {@link BasicVerifier}.
    *
    * @param api the ASM API version supported by this interpreter. Must be one of {@link
-   *     org.objectweb.asm.Opcodes#ASM4}, {@link org.objectweb.asm.Opcodes#ASM5} or {@link
-   *     org.objectweb.asm.Opcodes#ASM6}.
+   *     org.objectweb.asm.Opcodes#ASM4}, {@link org.objectweb.asm.Opcodes#ASM5}, {@link
+   *     org.objectweb.asm.Opcodes#ASM6} or {@link org.objectweb.asm.Opcodes#ASM7_EXPERIMENTAL}.
    */
   protected BasicVerifier(final int api) {
     super(api);

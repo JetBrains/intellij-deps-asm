@@ -335,7 +335,7 @@ public class ClassVisitorTest extends AsmTest {
   private static class ChangeExceptionAdapter extends ClassVisitor {
 
     ChangeExceptionAdapter(final ClassVisitor classVisitor) {
-      super(Opcodes.ASM6, classVisitor);
+      super(Opcodes.ASM7_EXPERIMENTAL, classVisitor);
     }
 
     @Override
@@ -357,7 +357,7 @@ public class ClassVisitorTest extends AsmTest {
     private final int newVersion;
 
     ChangeVersionAdapter(final ClassVisitor classVisitor, final int newVersion) {
-      super(Opcodes.ASM6, classVisitor);
+      super(Opcodes.ASM7_EXPERIMENTAL, classVisitor);
       this.newVersion = newVersion;
     }
 
@@ -378,7 +378,7 @@ public class ClassVisitorTest extends AsmTest {
     private final int accessFlags;
 
     ChangeAccessAdapter(final ClassVisitor classVisitor, final int accessFlags) {
-      super(Opcodes.ASM6, classVisitor);
+      super(Opcodes.ASM7_EXPERIMENTAL, classVisitor);
       this.accessFlags = accessFlags;
     }
 
@@ -399,7 +399,7 @@ public class ClassVisitorTest extends AsmTest {
     private final boolean visibilityValue;
 
     RemoveAnnotationAdapter(final ClassVisitor classVisitor, final boolean visibilityValue) {
-      super(Opcodes.ASM6, classVisitor);
+      super(Opcodes.ASM7_EXPERIMENTAL, classVisitor);
       this.visibilityValue = visibilityValue;
     }
 

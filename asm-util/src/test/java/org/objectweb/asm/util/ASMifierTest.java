@@ -129,7 +129,10 @@ public class ASMifierTest extends AsmTest {
     // Produce the ASMified Java source code corresponding to classParameter.
     StringWriter stringWriter = new StringWriter();
     TraceClassVisitor classVisitor =
-        new TraceClassVisitor(null, new ASMifier(), new PrintWriter(stringWriter));
+        new TraceClassVisitor(
+            null,
+            new ASMifier(apiParameter.value(), "classWriter", 0) {},
+            new PrintWriter(stringWriter));
     new ClassReader(classFile)
         .accept(classVisitor, new Attribute[] {new Comment(), new CodeComment()}, 0);
     String asmifiedSource = stringWriter.toString();

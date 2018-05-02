@@ -289,7 +289,7 @@ public abstract class Printer {
 
   /**
    * The ASM API version implemented by this class. The value of this field must be one of {@link
-   * Opcodes#ASM4}, {@link Opcodes#ASM5} or {@link Opcodes#ASM6}.
+   * Opcodes#ASM4}, {@link Opcodes#ASM5}, {@link Opcodes#ASM6} or {@link Opcodes#ASM7_EXPERIMENTAL}.
    */
   protected final int api;
 
@@ -323,7 +323,8 @@ public abstract class Printer {
    * Constructs a new {@link Printer}.
    *
    * @param api the ASM API version implemented by this printer. Must be one of {@link
-   *     Opcodes#ASM4}, {@link Opcodes#ASM5} or {@link Opcodes#ASM6}.
+   *     Opcodes#ASM4}, {@link Opcodes#ASM5}, {@link Opcodes#ASM6} or {@link
+   *     Opcodes#ASM7_EXPERIMENTAL}.
    */
   protected Printer(final int api) {
     this.api = api;
@@ -385,6 +386,26 @@ public abstract class Printer {
   }
 
   /**
+   * <b>Experimental, use at your own risk. This method will be renamed when it becomes stable, this
+   * will break existing code using it</b>. Nest host class. See {@link
+   * org.objectweb.asm.ClassVisitor#visitNestHostExperimental}.
+   *
+   * <p>Visits the nest host class of the class. A nest is a set of classes of the same package that
+   * share access to their private members. One of these classes, called the host, lists the other
+   * members of the nest, which in turn should link to the host of their nest. This method must be
+   * called only once and only if the visited class is a non-host member of a nest. A class is
+   * implicitly its own nest, so it's invalid to call this method with the visited class name as
+   * argument.
+   *
+   * @param nestHost the internal name of the host class of the nest.
+   * @deprecated This API is experimental.
+   */
+  @Deprecated
+  public void visitNestHostExperimental(final String nestHost) {
+    throw new UnsupportedOperationException(UNSUPPORTED_OPERATION);
+  }
+
+  /**
    * Class outer class. See {@link org.objectweb.asm.ClassVisitor#visitOuterClass}.
    *
    * @param owner internal name of the enclosing class of the class.
@@ -430,6 +451,25 @@ public abstract class Printer {
    * @param attribute an attribute.
    */
   public abstract void visitClassAttribute(Attribute attribute);
+
+  /**
+   * <b>Experimental, use at your own risk. This method will be renamed when it becomes stable, this
+   * will break existing code using it</b>. Nest member name. See {@link
+   * org.objectweb.asm.ClassVisitor#visitNestMemberExperimental}.
+   *
+   * <p>Visits a member of the nest. A nest is a set of classes of the same package that share
+   * access to their private members. One of these classes, called the host, lists the other members
+   * of the nest, which in turn should link to the host of their nest. This method must be called
+   * only if the visited class is the host of a nest. A nest host is implicitly a member of its own
+   * nest, so it's invalid to call this method with the visited class name as argument.
+   *
+   * @param nestMember the internal name of a nest member.
+   * @deprecated This API is experimental.
+   */
+  @Deprecated
+  public void visitNestMemberExperimental(final String nestMember) {
+    throw new UnsupportedOperationException(UNSUPPORTED_OPERATION);
+  }
 
   /**
    * Class inner name. See {@link org.objectweb.asm.ClassVisitor#visitInnerClass}.

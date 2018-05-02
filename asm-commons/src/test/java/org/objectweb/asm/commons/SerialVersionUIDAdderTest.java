@@ -110,7 +110,7 @@ public class SerialVersionUIDAdderTest extends AsmTest {
       final PrecompiledClass classParameter, final Api apiParameter) {
     ClassReader classReader = new ClassReader(classParameter.getBytes());
     ClassWriter classWriter = new ClassWriter(0);
-    classReader.accept(new SerialVersionUIDAdder(classWriter), 0);
+    classReader.accept(new SerialVersionUIDAdder(Opcodes.ASM7_EXPERIMENTAL, classWriter) {}, 0);
     if ((classReader.getAccess() & Opcodes.ACC_ENUM) == 0) {
       assertThatClass(classWriter.toByteArray()).contains("serialVersionUID");
     }

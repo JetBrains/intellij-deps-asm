@@ -78,7 +78,9 @@ public class MethodWriterTest {
                 Constants.METHOD_PARAMETERS,
                 Constants.MODULE,
                 Constants.MODULE_PACKAGES,
-                Constants.MODULE_MAIN_CLASS)),
+                Constants.MODULE_MAIN_CLASS,
+                Constants.NEST_HOST,
+                Constants.NEST_MEMBERS)),
         Arrays.stream(Constants.class.getDeclaredFields())
             .filter(field -> field.getType() == String.class)
             .map(

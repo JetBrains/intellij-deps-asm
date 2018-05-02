@@ -119,7 +119,7 @@ public class Textifier extends Printer {
    * Constructs a new {@link Textifier}.
    *
    * @param api the ASM API version implemented by this visitor. Must be one of {@link
-   *     Opcodes#ASM4}, {@link Opcodes#ASM5} or {@link Opcodes#ASM6}.
+   *     Opcodes#ASM4}, {@link Opcodes#ASM5}, {@link Opcodes#ASM6} or {@link Opcodes#ASM7_EXPERIMENTAL}.
    */
   protected Textifier(final int api) {
     super(api);
@@ -236,6 +236,15 @@ public class Textifier extends Printer {
   }
 
   @Override
+  public void visitNestHostExperimental(final String nestHost) {
+    stringBuilder.setLength(0);
+    stringBuilder.append(tab).append("NESTHOST ");
+    appendDescriptor(INTERNAL_NAME, nestHost);
+    stringBuilder.append('\n');
+    text.add(stringBuilder.toString());
+  }
+
+  @Override
   public void visitOuterClass(final String owner, final String name, final String descriptor) {
     stringBuilder.setLength(0);
     stringBuilder.append(tab).append("OUTERCLASS ");
@@ -266,6 +275,15 @@ public class Textifier extends Printer {
   public void visitClassAttribute(final Attribute attribute) {
     text.add("\n");
     visitAttribute(attribute);
+  }
+
+  @Override
+  public void visitNestMemberExperimental(final String nestMember) {
+    stringBuilder.setLength(0);
+    stringBuilder.append(tab).append("NESTMEMBER ");
+    appendDescriptor(INTERNAL_NAME, nestMember);
+    stringBuilder.append('\n');
+    text.add(stringBuilder.toString());
   }
 
   @Override

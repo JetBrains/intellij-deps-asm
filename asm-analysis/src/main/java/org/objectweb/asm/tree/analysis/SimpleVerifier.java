@@ -105,8 +105,8 @@ public class SimpleVerifier extends BasicVerifier {
    * loaded into the JVM since it may be incorrect.
    *
    * @param api the ASM API version supported by this verifier. Must be one of {@link
-   *     org.objectweb.asm.Opcodes#ASM4}, {@link org.objectweb.asm.Opcodes#ASM5} or {@link
-   *     org.objectweb.asm.Opcodes#ASM6}.
+   *     org.objectweb.asm.Opcodes#ASM4}, {@link org.objectweb.asm.Opcodes#ASM5}, {@link
+   *     org.objectweb.asm.Opcodes#ASM6} or {@link org.objectweb.asm.Opcodes#ASM7_EXPERIMENTAL}.
    * @param currentClass the type of the class to be verified.
    * @param currentSuperClass the type of the super class of the class to be verified.
    * @param currentClassInterfaces the types of the interfaces directly implemented by the class to

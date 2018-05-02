@@ -98,7 +98,8 @@ public class ModuleNode extends ModuleVisitor {
   /**
    * Constructs a {@link ModuleNode}.
    *
-   * @param api the ASM API version implemented by this visitor. Must be {@link Opcodes#ASM6}.
+   * @param api the ASM API version implemented by this visitor. Must be one of {@link Opcodes#ASM6}
+   *     or {@link Opcodes#ASM7_EXPERIMENTAL}.
    * @param name the fully qualified name (using dots) of the module.
    * @param access the module access flags, among {@code ACC_OPEN}, {@code ACC_SYNTHETIC} and {@code
    *     ACC_MANDATED}.

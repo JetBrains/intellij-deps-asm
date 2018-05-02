@@ -160,7 +160,7 @@ public class SerialVersionUIDAdder extends ClassVisitor {
    * Constructs a new {@link SerialVersionUIDAdder}.
    *
    * @param api the ASM API version implemented by this visitor. Must be one of {@link
-   *     Opcodes#ASM4}, {@link Opcodes#ASM5} or {@link Opcodes#ASM6}.
+   *     Opcodes#ASM4}, {@link Opcodes#ASM5}, {@link Opcodes#ASM6} or {@link Opcodes#ASM7_EXPERIMENTAL}.
    * @param classVisitor a {@link ClassVisitor} to which this visitor will delegate calls.
    */
   protected SerialVersionUIDAdder(final int api, final ClassVisitor classVisitor) {

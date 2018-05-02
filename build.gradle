@@ -43,7 +43,7 @@ subprojects {
   apply plugin: 'jacoco'
   def snapshotSuffix = rootProject.hasProperty('release') ? '' : '-SNAPSHOT'
   group = 'org.ow2.asm'
-  version = '6.1.2' + snapshotSuffix
+  version = '6.2' + snapshotSuffix
   sourceCompatibility = '1.6'
   targetCompatibility = '1.6'
   test { useJUnitPlatform() }
@@ -51,6 +51,10 @@ subprojects {
   ext.requires = []  // The required Gradle projects, e.g. [':asm-test']
   ext.depends = []   // The external dependencies, e.g. ['junit:junit:4.12']
   ext.minCodeCoverage = 0.95 // The minimum code coverage fraction.
+  // Some external dependencies (such as Jacoco) depend transitively on ASM, and
+  // without this rule Gradle can mix ASM jars of different versions (e.g.
+  // asm-6.0.jar with the asm-tree.jar built locally).
+  configurations.all { resolutionStrategy { preferProjectModules() } }
 }
 
 // -----------------------------------------------------------------------------

@@ -131,7 +131,7 @@ public class CheckSignatureAdapter extends SignatureVisitor {
    * Constructs a new {@link CheckSignatureAdapter}.
    *
    * @param api the ASM API version implemented by this visitor. Must be one of {@link
-   *     Opcodes#ASM4}, {@link Opcodes#ASM5} or {@link Opcodes#ASM6}.
+   *     Opcodes#ASM4}, {@link Opcodes#ASM5}, {@link Opcodes#ASM6} or {@link Opcodes#ASM7_EXPERIMENTAL}.
    * @param type the type of signature to be checked. See {@link #CLASS_SIGNATURE}, {@link
    *     #METHOD_SIGNATURE} and {@link #TYPE_SIGNATURE}.
    * @param signatureVisitor the visitor to which this adapter must delegate calls. May be

@@ -161,7 +161,7 @@ public class ClassReader {
     this.b = classFileBuffer;
     // Check the class' major_version. This field is after the magic and minor_version fields, which
     // use 4 and 2 bytes respectively.
-    if (checkClassVersion && readShort(classFileOffset + 6) > Opcodes.V10) {
+    if (checkClassVersion && readShort(classFileOffset + 6) > Opcodes.V11) {
       throw new IllegalArgumentException(
           "Unsupported class file major version " + readShort(classFileOffset + 6));
     }
@@ -417,6 +417,10 @@ public class ClassReader {
     int modulePackagesOffset = 0;
     // - The string corresponding to the ModuleMainClass attribute, or null.
     String moduleMainClass = null;
+    // - The string corresponding to the NestHost attribute, or null.
+    String nestHostClass = null;
+    // - The offset of the NestMembers attribute, or 0.
+    int nestMembersOffset = 0;
     // - The non standard attributes (linked with their {@link Attribute#nextAttribute} field).
     //   This list in the <i>reverse order</i> or their order in the ClassFile structure.
     Attribute attributes = null;
@@ -435,6 +439,10 @@ public class ClassReader {
         innerClassesOffset = currentAttributeOffset;
       } else if (Constants.ENCLOSING_METHOD.equals(attributeName)) {
         enclosingMethodOffset = currentAttributeOffset;
+      } else if (Constants.NEST_HOST.equals(attributeName)) {
+        nestHostClass = readClass(currentAttributeOffset, charBuffer);
+      } else if (Constants.NEST_MEMBERS.equals(attributeName)) {
+        nestMembersOffset = currentAttributeOffset;
       } else if (Constants.SIGNATURE.equals(attributeName)) {
         signature = readUTF8(currentAttributeOffset, charBuffer);
       } else if (Constants.RUNTIME_VISIBLE_ANNOTATIONS.equals(attributeName)) {
@@ -501,6 +509,11 @@ public class ClassReader {
     // Visit the Module, ModulePackages and ModuleMainClass attributes.
     if (moduleOffset != 0) {
       readModule(classVisitor, context, moduleOffset, modulePackagesOffset, moduleMainClass);
+    }
+
+    // Visit the NestHost attribute.
+    if (nestHostClass != null) {
+      classVisitor.visitNestHostExperimental(nestHostClass);
     }
 
     // Visit the EnclosingMethod attribute.
@@ -603,6 +616,16 @@ public class ClassReader {
       attributes.nextAttribute = null;
       classVisitor.visitAttribute(attributes);
       attributes = nextAttribute;
+    }
+
+    // Visit the NestedMembers attribute.
+    if (nestMembersOffset != 0) {
+      int numberOfNestMembers = readUnsignedShort(nestMembersOffset);
+      int currentNestMemberOffset = nestMembersOffset + 2;
+      while (numberOfNestMembers-- > 0) {
+        classVisitor.visitNestMemberExperimental(readClass(currentNestMemberOffset, charBuffer));
+        currentNestMemberOffset += 2;
+      }
     }
 
     // Visit the InnerClasses attribute.

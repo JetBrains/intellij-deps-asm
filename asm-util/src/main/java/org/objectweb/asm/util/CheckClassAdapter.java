@@ -128,6 +128,15 @@ public class CheckClassAdapter extends ClassVisitor {
   /** Whether the {@link #visitOuterClass} method has been called. */
   private boolean visitOuterClassCalled;
 
+  /** Whether the {@link #visitNestHostExperimental} method has been called. */
+  private boolean visitNestHostCalled;
+
+  /**
+   * The common package of all the nest members. Not <tt>null</tt> if the visitNestMember method has
+   * been called.
+   */
+  private String nestMemberPackageName;
+
   /** Whether the {@link #visitEnd} method has been called. */
   private boolean visitEndCalled;
 
@@ -191,7 +200,9 @@ public class CheckClassAdapter extends ClassVisitor {
       final boolean printResults,
       final PrintWriter printWriter) {
     ClassNode classNode = new ClassNode();
-    classReader.accept(new CheckClassAdapter(classNode, false), ClassReader.SKIP_DEBUG);
+    classReader.accept(
+        new CheckClassAdapter(Opcodes.ASM7_EXPERIMENTAL, classNode, false) {},
+        ClassReader.SKIP_DEBUG);
 
     Type syperType = classNode.superName == null ? null : Type.getObjectType(classNode.superName);
     List<MethodNode> methods = classNode.methods;
@@ -307,7 +318,8 @@ public class CheckClassAdapter extends ClassVisitor {
    * Constructs a new {@link CheckClassAdapter}.
    *
    * @param api the ASM API version implemented by this visitor. Must be one of {@link
-   *     Opcodes#ASM4}, {@link Opcodes#ASM5} or {@link Opcodes#ASM6}.
+   *     Opcodes#ASM4}, {@link Opcodes#ASM5}, {@link Opcodes#ASM6} or {@link
+   *     Opcodes#ASM7_EXPERIMENTAL}.
    * @param classVisitor the class visitor to which this adapter must delegate calls.
    * @param checkDataFlow <tt>true</tt> to perform basic data flow checks, or <tt>false</tt> to not
    *     perform any data flow check (see {@link CheckMethodAdapter}). This option requires valid
@@ -409,6 +421,38 @@ public class CheckClassAdapter extends ClassVisitor {
             api, super.visitModule(name, access, version), (access & Opcodes.ACC_OPEN) != 0);
     checkModuleAdapter.classVersion = this.version;
     return checkModuleAdapter;
+  }
+
+  @Override
+  public void visitNestHostExperimental(final String nestHost) {
+    checkState();
+    CheckMethodAdapter.checkInternalName(version, nestHost, "nestHost");
+    if (visitNestHostCalled) {
+      throw new IllegalStateException("visitNestHost can be called only once.");
+    }
+    if (nestMemberPackageName != null) {
+      throw new IllegalStateException("visitNestHost and visitNestMember are mutually exclusive.");
+    }
+    visitNestHostCalled = true;
+    super.visitNestHostExperimental(nestHost);
+  }
+
+  @Override
+  public void visitNestMemberExperimental(final String nestMember) {
+    checkState();
+    CheckMethodAdapter.checkInternalName(version, nestMember, "nestMember");
+    if (visitNestHostCalled) {
+      throw new IllegalStateException(
+          "visitMemberOfNest and visitNestHost are mutually exclusive.");
+    }
+    String packageName = packageName(nestMember);
+    if (nestMemberPackageName == null) {
+      nestMemberPackageName = packageName;
+    } else if (!nestMemberPackageName.equals(packageName)) {
+      throw new IllegalStateException(
+          "nest member " + nestMember + " should be in the package " + nestMemberPackageName);
+    }
+    super.visitNestMemberExperimental(nestMember);
   }
 
   @Override
@@ -1016,5 +1060,19 @@ public class CheckClassAdapter extends ClassVisitor {
       throw new IllegalArgumentException(
           "Invalid type reference 0x" + Integer.toHexString(typeRef));
     }
+  }
+
+  /**
+   * Returns the package name of an internal name.
+   *
+   * @param name an internal name.
+   * @return the package name or "" if there is no package.
+   */
+  private static String packageName(final String name) {
+    int index = name.lastIndexOf('/');
+    if (index == -1) {
+      return "";
+    }
+    return name.substring(0, index);
   }
 }

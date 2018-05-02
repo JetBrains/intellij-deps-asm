@@ -79,6 +79,7 @@ public class ASMifier extends Printer {
     classVersions.put(Opcodes.V1_8, "V1_8");
     classVersions.put(Opcodes.V9, "V9");
     classVersions.put(Opcodes.V10, "V10");
+    classVersions.put(Opcodes.V11, "V11");
     CLASS_VERSIONS = Collections.unmodifiableMap(classVersions);
   }
 
@@ -108,7 +109,7 @@ public class ASMifier extends Printer {
    * Constructs a new {@link ASMifier}.
    *
    * @param api the ASM API version implemented by this class. Must be one of {@link Opcodes#ASM4},
-   *     {@link Opcodes#ASM5} or {@link Opcodes#ASM6}.
+   *     {@link Opcodes#ASM5}, {@link Opcodes#ASM6} or {@link Opcodes#ASM7_EXPERIMENTAL}.
    * @param visitorVariableName the name of the visitor variable in the produced code.
    * @param annotationVisitorId identifier of the annotation visitor variable in the produced code.
    */
@@ -236,6 +237,15 @@ public class ASMifier extends Printer {
   }
 
   @Override
+  public void visitNestHostExperimental(final String nestHost) {
+    stringBuilder.setLength(0);
+    stringBuilder.append("classWriter.visitNestHostExperimental(");
+    appendConstant(nestHost);
+    stringBuilder.append(");\n\n");
+    text.add(stringBuilder.toString());
+  }
+
+  @Override
   public void visitOuterClass(final String owner, final String name, final String descriptor) {
     stringBuilder.setLength(0);
     stringBuilder.append("classWriter.visitOuterClass(");
@@ -262,6 +272,15 @@ public class ASMifier extends Printer {
   @Override
   public void visitClassAttribute(final Attribute attribute) {
     visitAttribute(attribute);
+  }
+
+  @Override
+  public void visitNestMemberExperimental(final String nestMember) {
+    stringBuilder.setLength(0);
+    stringBuilder.append("classWriter.visitNestMemberExperimental(");
+    appendConstant(nestMember);
+    stringBuilder.append(");\n\n");
+    text.add(stringBuilder.toString());
   }
 
   @Override

@@ -55,8 +55,8 @@ public class ClassWriterTest extends AsmTest {
   /**
    * Tests that the non-static fields of ClassWriter are the expected ones. This test is designed to
    * fail each time new fields are added to ClassWriter, and serves as a reminder to update the
-   * field reset logic in {@link ClassWriter#toByteArray()}, if needed, each time a new field is
-   * added.
+   * field reset logic in {@link ClassWriter#replaceAsmInstructions()}, if needed, each time a new
+   * field is added.
    */
   @Test
   public void testInstanceFields() {

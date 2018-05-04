@@ -1648,22 +1648,28 @@ final class MethodWriter extends MethodVisitor {
     if (hasSubroutines) {
       // First step: find the subroutines. This step determines, for each basic block, to which
       // subroutine(s) it belongs. Start with the main "subroutine":
-      short subroutineId = 1;
-      firstBasicBlock.markSubroutine(subroutineId);
-      // Then, loop over all the basic blocks to find those that belong to real subroutines.
-      Label basicBlock = firstBasicBlock;
-      while (basicBlock != null) {
-        if ((basicBlock.flags & Label.FLAG_SUBROUTINE_START) != 0 && basicBlock.subroutineId == 0) {
-          // If this subroutine has not been marked yet, find its basic blocks.
-          subroutineId += 1;
-          basicBlock.markSubroutine(subroutineId);
+      short numSubroutines = 1;
+      firstBasicBlock.markSubroutine(numSubroutines);
+      // Then, mark the subroutines called by the main subroutine, then the subroutines called by
+      // those called by the main subroutine, etc.
+      for (short currentSubroutine = 1; currentSubroutine <= numSubroutines; ++currentSubroutine) {
+        Label basicBlock = firstBasicBlock;
+        while (basicBlock != null) {
+          if ((basicBlock.flags & Label.FLAG_SUBROUTINE_CALLER) != 0
+              && basicBlock.subroutineId == currentSubroutine) {
+            Label jsrTarget = basicBlock.outgoingEdges.nextEdge.successor;
+            if (jsrTarget.subroutineId == 0) {
+              // If this subroutine has not been marked yet, find its basic blocks.
+              jsrTarget.markSubroutine(++numSubroutines);
+            }
+          }
+          basicBlock = basicBlock.nextBasicBlock;
         }
-        basicBlock = basicBlock.nextBasicBlock;
       }
       // Second step: find the successors in the control flow graph of each subroutine basic block
       // 'r' ending with a RET instruction. These successors are the virtual successors of the basic
       // blocks ending with JSR instructions (see {@link #visitJumpInsn)} that can reach 'r'.
-      basicBlock = firstBasicBlock;
+      Label basicBlock = firstBasicBlock;
       while (basicBlock != null) {
         if ((basicBlock.flags & Label.FLAG_SUBROUTINE_CALLER) != 0) {
           // By construction, jsr targets are stored in the second outgoing edge of basic blocks

@@ -1063,4 +1063,42 @@ public class ClassWriterComputeMaxsTest {
         "N42=",
         "N44=N37,N42");
   }
+
+  /**
+   * Tests a nested subroutine with implicit exit from the nested subroutine to the outer one, with
+   * the second subroutine coming first in the bytecode instructions sequence.
+   */
+  @Test
+  public void testImplicitExitToAnotherSubroutineInverted() {
+    Label l1 = new Label();
+    Label l2 = new Label();
+    Label l3 = new Label();
+    Label l4 = new Label();
+    Label l5 = new Label();
+
+    GOTO(l4); // N0
+    // Second subroutine, returns to caller of first subroutine.
+    LABEL(l2); // N3
+    ASTORE(2);
+    LABEL(l3); // N4
+    RET(1);
+    // First subroutine.
+    LABEL(l1); // N6
+    ASTORE(1);
+    ALOAD(0);
+    IFNONNULL(l3);
+    JSR(l2); // This JSR never returns, the following code is unreachable.
+    ACONST_NULL(); // N14
+    ACONST_NULL();
+    ACONST_NULL();
+    RETURN();
+    // Main "subroutine".
+    LABEL(l4); // N18
+    JSR(l1);
+    LABEL(l5); // N21
+    RETURN();
+
+    assertMaxs(1, 3);
+    assertGraph("N0=N18", "N3=N4", "N4=N21", "N6=N3,N4", "N14=", "N18=N6", "N21=");
+  }
 }

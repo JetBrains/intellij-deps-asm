@@ -56,8 +56,12 @@ public class ClassWriterComputeMaxsTest {
 
   @BeforeEach
   public void setUp() throws Exception {
+    init(Opcodes.V1_1);
+  }
+
+  private void init(final int classVersion) {
     classWriter = new ClassWriter(ClassWriter.COMPUTE_MAXS);
-    classWriter.visit(Opcodes.V1_1, Opcodes.ACC_PUBLIC, "C", null, "java/lang/Object", null);
+    classWriter.visit(classVersion, Opcodes.ACC_PUBLIC, "C", null, "java/lang/Object", null);
     methodVisitor = classWriter.visitMethod(Opcodes.ACC_PUBLIC, "<init>", "()V", null, null);
     methodVisitor.visitCode();
     methodVisitor.visitVarInsn(Opcodes.ALOAD, 0);
@@ -1100,5 +1104,28 @@ public class ClassWriterComputeMaxsTest {
 
     assertMaxs(1, 3);
     assertGraph("N0=N18", "N3=N4", "N4=N21", "N6=N3,N4", "N14=", "N18=N6", "N21=");
+  }
+
+  /**
+   * Tests computing the maximum stack size from the existing stack map frames and the instructions
+   * in between, when dead code is present.
+   */
+  @Test
+  public void testComputeMaxsFromFramesWithDeadCode() {
+    init(Opcodes.V1_7);
+    Label l0 = new Label();
+
+    RETURN();
+    // With the default compute maxs algorithm, this dead code block is not considered for the
+    // maximum stack size, which works fine for classes up to V1_6. Starting with V1_7, stack map
+    // frames are mandatory, even for dead code, and the maximum stack size must take dead code into
+    // account. Hopefully it can be computed from the stack map frames, and the instructions in
+    // between (without any control flow graph construction or algorithm).
+    LABEL(l0);
+    methodVisitor.visitFrame(Opcodes.F_SAME, 0, null, 0, null);
+    ACONST_NULL();
+    RETURN();
+
+    assertMaxs(1, 1);
   }
 }

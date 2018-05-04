@@ -266,6 +266,9 @@ public class ClassWriter extends ClassVisitor {
         this.interfaces[i] = symbolTable.addConstantClass(interfaces[i]).index;
       }
     }
+    if (compute == MethodWriter.COMPUTE_MAX_STACK_AND_LOCAL && (version & 0xFFFF) >= Opcodes.V1_7) {
+      compute = MethodWriter.COMPUTE_MAX_STACK_AND_LOCAL_FROM_FRAMES;
+    }
   }
 
   @Override

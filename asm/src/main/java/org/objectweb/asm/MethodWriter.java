@@ -38,11 +38,22 @@ package org.objectweb.asm;
  */
 final class MethodWriter extends MethodVisitor {
 
+  /** Indicates that nothing must be computed. */
+  static final int COMPUTE_NOTHING = 0;
+
   /**
-   * Indicates that all the stack map frames must be computed. In this case the maximum stack size
-   * and the maximum number of local variables is also computed.
+   * Indicates that the maximum stack size and the maximum number of local variables must be
+   * computed, from scratch.
    */
-  static final int COMPUTE_ALL_FRAMES = 3;
+  static final int COMPUTE_MAX_STACK_AND_LOCAL = 1;
+
+  /**
+   * Indicates that the maximum stack size and the maximum number of local variables must be
+   * computed, from the existing stack map frames. This can be done more efficiently than with the
+   * control flow graph algorithm used for {@link #COMPUTE_MAX_STACK_AND_LOCAL}, by using a linear
+   * scan of the bytecode instructions.
+   */
+  static final int COMPUTE_MAX_STACK_AND_LOCAL_FROM_FRAMES = 2;
 
   /**
    * Indicates that the stack map frames of type F_INSERT must be computed. The other frames are not
@@ -50,16 +61,13 @@ final class MethodWriter extends MethodVisitor {
    * the F_INSERT frames, together with the bytecode instructions between a F_NEW and a F_INSERT
    * frame - and without any knowledge of the type hierarchy (by definition of F_INSERT).
    */
-  static final int COMPUTE_INSERTED_FRAMES = 2;
+  static final int COMPUTE_INSERTED_FRAMES = 3;
 
   /**
-   * Indicates that the maximum stack size and the maximum number of local variables must be
-   * computed.
+   * Indicates that all the stack map frames must be computed. In this case the maximum stack size
+   * and the maximum number of local variables is also computed.
    */
-  static final int COMPUTE_MAX_STACK_AND_LOCAL = 1;
-
-  /** Indicates that nothing must be computed. */
-  static final int COMPUTE_NOTHING = 0;
+  static final int COMPUTE_ALL_FRAMES = 4;
 
   /** Indicates that {@link #STACK_SIZE_DELTA} is not applicable (not constant or never used). */
   private static final int NA = 0;
@@ -471,11 +479,12 @@ final class MethodWriter extends MethodVisitor {
 
   /**
    * The current basic block, i.e. the basic block of the last visited instruction. When {@link
-   * #compute} is equal to {@link #COMPUTE_ALL_FRAMES}, this field is <tt>null</tt> for unreachable
-   * code. When {@link #compute} is equal to {@link #COMPUTE_INSERTED_FRAMES}, this field stays
+   * #compute} is equal to {@link #COMPUTE_MAX_STACK_AND_LOCAL} or {@link #COMPUTE_ALL_FRAMES}, this
+   * field is <tt>null</tt> for unreachable code. When {@link #compute} is equal to {@link
+   * #COMPUTE_MAX_STACK_AND_LOCAL_FROM_FRAMES} or {@link #COMPUTE_INSERTED_FRAMES}, this field stays
    * unchanged throughout the whole method (i.e. the whole code is seen as a single basic block;
-   * indeed, the existing frames are sufficient by hypothesis to compute any intermediate frame
-   * without using any control flow graph).
+   * indeed, the existing frames are sufficient by hypothesis to compute any intermediate frame -
+   * and the maximum stack size as well - without using any control flow graph).
    */
   private Label currentBasicBlock;
 
@@ -483,7 +492,10 @@ final class MethodWriter extends MethodVisitor {
    * The relative stack size after the last visited instruction. This size is relative to the
    * beginning of {@link #currentBasicBlock}, i.e. the true stack size after the last visited
    * instruction is equal to the {@link Label#inputStackSize} of the current basic block plus {@link
-   * #relativeStackSize}.
+   * #relativeStackSize}. When {@link #compute} is equal to {@link
+   * #COMPUTE_MAX_STACK_AND_LOCAL_FROM_FRAMES}, {@link #currentBasicBlock} is always the start of
+   * the method, so this relative size is also equal to the absolute stack size after the last
+   * visited instruction.
    */
   private int relativeStackSize;
 
@@ -491,7 +503,10 @@ final class MethodWriter extends MethodVisitor {
    * The maximum relative stack size after the last visited instruction. This size is relative to
    * the beginning of {@link #currentBasicBlock}, i.e. the true maximum stack size after the last
    * visited instruction is equal to the {@link Label#inputStackSize} of the current basic block
-   * plus {@link #maxRelativeStackSize}.
+   * plus {@link #maxRelativeStackSize}.When {@link #compute} is equal to {@link
+   * #COMPUTE_MAX_STACK_AND_LOCAL_FROM_FRAMES}, {@link #currentBasicBlock} is always the start of
+   * the method, so this relative size is also equal to the absolute maximum stack size after the
+   * last visited instruction.
    */
   private int maxRelativeStackSize;
 
@@ -833,6 +848,13 @@ final class MethodWriter extends MethodVisitor {
       ++stackMapTableNumberOfEntries;
     }
 
+    if (compute == COMPUTE_MAX_STACK_AND_LOCAL_FROM_FRAMES) {
+      relativeStackSize = nStack;
+      if (nStack > maxRelativeStackSize) {
+        maxRelativeStackSize = relativeStackSize;
+      }
+    }
+
     maxStack = Math.max(maxStack, nStack);
     maxLocals = Math.max(maxLocals, currentLocals);
   }
@@ -1135,6 +1157,9 @@ final class MethodWriter extends MethodVisitor {
         }
       } else if (compute == COMPUTE_INSERTED_FRAMES) {
         currentBasicBlock.frame.execute(baseOpcode, 0, null, null);
+      } else if (compute == COMPUTE_MAX_STACK_AND_LOCAL_FROM_FRAMES) {
+        // No need to update maxRelativeStackSize (the stack size delta is always negative).
+        relativeStackSize += STACK_SIZE_DELTA[baseOpcode];
       } else {
         if (baseOpcode == Opcodes.JSR) {
           // Record the fact that 'label' designates a subroutine, if not already done.
@@ -1241,6 +1266,11 @@ final class MethodWriter extends MethodVisitor {
         lastBasicBlock.nextBasicBlock = label;
       }
       lastBasicBlock = label;
+    } else if (compute == COMPUTE_MAX_STACK_AND_LOCAL_FROM_FRAMES && currentBasicBlock == null) {
+      // This case should happen only once, for the visitLabel call in the constructor. Indeed, if
+      // compute is equal to COMPUTE_MAX_STACK_AND_LOCAL_FROM_FRAMES, currentBasicBlock stays
+      // unchanged.
+      currentBasicBlock = label;
     }
   }
 
@@ -1337,7 +1367,7 @@ final class MethodWriter extends MethodVisitor {
           addSuccessorToCurrentBasicBlock(Edge.JUMP, label);
           label.getCanonicalInstance().flags |= Label.FLAG_JUMP_TARGET;
         }
-      } else {
+      } else if (compute == COMPUTE_MAX_STACK_AND_LOCAL) {
         // No need to update maxRelativeStackSize (the stack size delta is always negative).
         --relativeStackSize;
         // Add all the labels as successors of the current basic block.
@@ -1510,6 +1540,8 @@ final class MethodWriter extends MethodVisitor {
       computeAllFrames();
     } else if (compute == COMPUTE_MAX_STACK_AND_LOCAL) {
       computeMaxStackAndLocal();
+    } else if (compute == COMPUTE_MAX_STACK_AND_LOCAL_FROM_FRAMES) {
+      this.maxStack = maxRelativeStackSize;
     } else {
       this.maxStack = maxStack;
       this.maxLocals = maxLocals;
@@ -1687,7 +1719,7 @@ final class MethodWriter extends MethodVisitor {
     // graph, and add these blocks to the list of blocks to process (if not already done).
     Label listOfBlocksToProcess = firstBasicBlock;
     listOfBlocksToProcess.nextListElement = Label.EMPTY_LIST;
-    int maxStackSize = 0;
+    int maxStackSize = maxStack;
     while (listOfBlocksToProcess != Label.EMPTY_LIST) {
       // Remove a basic block from the list of blocks to process. Note that we don't reset
       // basicBlock.nextListElement to null on purpose, to make sure we don't reprocess already
@@ -1722,7 +1754,7 @@ final class MethodWriter extends MethodVisitor {
         outgoingEdge = outgoingEdge.nextEdge;
       }
     }
-    this.maxStack = Math.max(maxStack, maxStackSize);
+    this.maxStack = maxStackSize;
   }
 
   @Override
@@ -1759,10 +1791,9 @@ final class MethodWriter extends MethodVisitor {
       nextBasicBlock.resolve(code.data, code.length);
       lastBasicBlock.nextBasicBlock = nextBasicBlock;
       lastBasicBlock = nextBasicBlock;
-    } else {
+      currentBasicBlock = null;
+    } else if (compute == COMPUTE_MAX_STACK_AND_LOCAL) {
       currentBasicBlock.outputStackMax = (short) maxRelativeStackSize;
-    }
-    if (compute != COMPUTE_INSERTED_FRAMES) {
       currentBasicBlock = null;
     }
   }

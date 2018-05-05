@@ -427,14 +427,19 @@ public class ClassReaderTest extends AsmTest implements Opcodes {
         0);
     assertTrue(success.get());
   }
-  
+
   @Test
   public void testPreviewMinorVersion() {
     ClassReader classReader = new ClassReader(PrecompiledClass.JDK11_LAMBDA_CONDY.getBytes());
     classReader.accept(
         new ClassVisitor(Opcodes.ASM7_EXPERIMENTAL) {
           @Override
-          public void visit(int version, int access, String name, String signature, String superName,
+          public void visit(
+              int version,
+              int access,
+              String name,
+              String signature,
+              String superName,
               String[] interfaces) {
             assertTrue((version & Opcodes.V_PREVIEW) == Opcodes.V_PREVIEW);
           }

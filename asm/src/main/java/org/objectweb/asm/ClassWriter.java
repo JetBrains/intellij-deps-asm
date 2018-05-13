@@ -45,6 +45,11 @@ public class ClassWriter extends ClassVisitor {
    * #visitMethod} method will be ignored, and computed automatically from the signature and the
    * bytecode of each method.
    *
+   * <p><b>Note:</b> for classes whose version is {@link Opcodes#V1_7} of more, this option requires
+   * valid stack map frames. The maximum stack size is then computed from these frames, and from the
+   * bytecode instructions in between. If stack map frames are not present or must be recomputed,
+   * used {@link #COMPUTE_FRAMES} instead.
+   *
    * @see #ClassWriter(int)
    */
   public static final int COMPUTE_MAXS = 1;
@@ -265,6 +270,9 @@ public class ClassWriter extends ClassVisitor {
       for (int i = 0; i < interfaceCount; ++i) {
         this.interfaces[i] = symbolTable.addConstantClass(interfaces[i]).index;
       }
+    }
+    if (compute == MethodWriter.COMPUTE_MAX_STACK_AND_LOCAL && (version & 0xFFFF) >= Opcodes.V1_7) {
+      compute = MethodWriter.COMPUTE_MAX_STACK_AND_LOCAL_FROM_FRAMES;
     }
   }
 

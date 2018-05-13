@@ -33,7 +33,7 @@ package org.objectweb.asm;
  * scratch", or with one or more {@link ClassReader} and adapter {@link ClassVisitor} to generate a
  * modified class from one or more existing Java classes.
  *
- * @see <a href="https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html">JVMS 4</a>
+ * @see <a href= "https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html">JVMS 4</a>
  * @author Eric Bruneton
  */
 public class ClassWriter extends ClassVisitor {
@@ -44,6 +44,11 @@ public class ClassWriter extends ClassVisitor {
    * MethodVisitor#visitMaxs} method of the {@link MethodVisitor} returned by the {@link
    * #visitMethod} method will be ignored, and computed automatically from the signature and the
    * bytecode of each method.
+   *
+   * <p><b>Note:</b> for classes whose version is {@link Opcodes#V1_7} of more, this option requires
+   * valid stack map frames. The maximum stack size is then computed from these frames, and from the
+   * bytecode instructions in between. If stack map frames are not present or must be recomputed,
+   * used {@link #COMPUTE_FRAMES} instead.
    *
    * @see #ClassWriter(int)
    */
@@ -60,7 +65,8 @@ public class ClassWriter extends ClassVisitor {
    */
   public static final int COMPUTE_FRAMES = 2;
 
-  // Note: fields are ordered as in the ClassFile structure, and those related to attributes are
+  // Note: fields are ordered as in the ClassFile structure, and those related to
+  // attributes are
   // ordered as in Section 4.7 of the JVMS.
 
   /**
@@ -309,7 +315,8 @@ public class ClassWriter extends ClassVisitor {
   @Override
   public final AnnotationVisitor visitAnnotation(final String descriptor, final boolean visible) {
     // Create a ByteVector to hold an 'annotation' JVMS structure.
-    // See https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.7.16.
+    // See
+    // https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.7.16.
     ByteVector annotation = new ByteVector();
     // Write type_index and reserve space for num_element_value_pairs.
     annotation.putShort(symbolTable.addConstantUtf8(descriptor)).putShort(0);
@@ -326,7 +333,8 @@ public class ClassWriter extends ClassVisitor {
   public final AnnotationVisitor visitTypeAnnotation(
       final int typeRef, final TypePath typePath, final String descriptor, final boolean visible) {
     // Create a ByteVector to hold a 'type_annotation' JVMS structure.
-    // See https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.7.20.
+    // See
+    // https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.7.20.
     ByteVector typeAnnotation = new ByteVector();
     // Write target_type, target_info, and target_path.
     TypeReference.putTarget(typeRef, typeAnnotation);
@@ -344,7 +352,8 @@ public class ClassWriter extends ClassVisitor {
 
   @Override
   public final void visitAttribute(final Attribute attribute) {
-    // Store the attributes in the <i>reverse</i> order of their visit by this method.
+    // Store the attributes in the <i>reverse</i> order of their visit by this
+    // method.
     attribute.nextAttribute = firstAttribute;
     firstAttribute = attribute;
   }
@@ -364,11 +373,16 @@ public class ClassWriter extends ClassVisitor {
     if (innerClasses == null) {
       innerClasses = new ByteVector();
     }
-    // Section 4.7.6 of the JVMS states "Every CONSTANT_Class_info entry in the constant_pool table
-    // which represents a class or interface C that is not a package member must have exactly one
-    // corresponding entry in the classes array". To avoid duplicates we keep track in the info
-    // field of the Symbol of each CONSTANT_Class_info entry C whether an inner class entry has
-    // already been added for C. If so, we store the index of this inner class entry (plus one) in
+    // Section 4.7.6 of the JVMS states "Every CONSTANT_Class_info entry in the
+    // constant_pool table
+    // which represents a class or interface C that is not a package member must
+    // have exactly one
+    // corresponding entry in the classes array". To avoid duplicates we keep track
+    // in the info
+    // field of the Symbol of each CONSTANT_Class_info entry C whether an inner
+    // class entry has
+    // already been added for C. If so, we store the index of this inner class entry
+    // (plus one) in
     // the info field. This trick allows duplicate detection in O(1) time.
     Symbol nameSymbol = symbolTable.addConstantClass(name);
     if (nameSymbol.info == 0) {
@@ -379,7 +393,8 @@ public class ClassWriter extends ClassVisitor {
       innerClasses.putShort(access);
       nameSymbol.info = numberOfInnerClasses;
     } else {
-      // Compare the inner classes entry nameSymbol.info - 1 with the arguments of this method and
+      // Compare the inner classes entry nameSymbol.info - 1 with the arguments of
+      // this method and
       // throw an exception if there is a difference?
     }
   }
@@ -434,9 +449,12 @@ public class ClassWriter extends ClassVisitor {
    */
   public byte[] toByteArray() {
     // First step: compute the size in bytes of the ClassFile structure.
-    // The magic field uses 4 bytes, 10 mandatory fields (minor_version, major_version,
-    // constant_pool_count, access_flags, this_class, super_class, interfaces_count, fields_count,
-    // methods_count and attributes_count) use 2 bytes each, and each interface uses 2 bytes too.
+    // The magic field uses 4 bytes, 10 mandatory fields (minor_version,
+    // major_version,
+    // constant_pool_count, access_flags, this_class, super_class, interfaces_count,
+    // fields_count,
+    // methods_count and attributes_count) use 2 bytes each, and each interface uses
+    // 2 bytes too.
     int size = 24 + 2 * interfaceCount;
     int fieldsCount = 0;
     FieldWriter fieldWriter = firstField;
@@ -452,7 +470,8 @@ public class ClassWriter extends ClassVisitor {
       size += methodWriter.computeMethodInfoSize();
       methodWriter = (MethodWriter) methodWriter.mv;
     }
-    // For ease of reference, we use here the same attribute order as in Section 4.7 of the JVMS.
+    // For ease of reference, we use here the same attribute order as in Section 4.7
+    // of the JVMS.
     int attributesCount = 0;
     if (innerClasses != null) {
       ++attributesCount;
@@ -535,14 +554,17 @@ public class ClassWriter extends ClassVisitor {
       attributesCount += firstAttribute.getAttributeCount();
       size += firstAttribute.computeAttributesSize(symbolTable);
     }
-    // IMPORTANT: this must be the last part of the ClassFile size computation, because the previous
-    // statements can add attribute names to the constant pool, thereby changing its size!
+    // IMPORTANT: this must be the last part of the ClassFile size computation,
+    // because the previous
+    // statements can add attribute names to the constant pool, thereby changing its
+    // size!
     size += symbolTable.getConstantPoolLength();
     if (symbolTable.getConstantPoolCount() > 0xFFFF) {
       throw new IndexOutOfBoundsException("Class file too large!");
     }
 
-    // Second step: allocate a ByteVector of the correct size (in order to avoid any array copy in
+    // Second step: allocate a ByteVector of the correct size (in order to avoid any
+    // array copy in
     // dynamic resizes) and fill it with the ClassFile content.
     ByteVector result = new ByteVector(size);
     result.putInt(0xCAFEBABE).putInt(version);
@@ -569,7 +591,8 @@ public class ClassWriter extends ClassVisitor {
       methodWriter.putMethodInfo(result);
       methodWriter = (MethodWriter) methodWriter.mv;
     }
-    // For ease of reference, we use here the same attribute order as in Section 4.7 of the JVMS.
+    // For ease of reference, we use here the same attribute order as in Section 4.7
+    // of the JVMS.
     result.putShort(attributesCount);
     if (innerClasses != null) {
       result
@@ -919,7 +942,8 @@ public class ClassWriter extends ClassVisitor {
   }
 
   // -----------------------------------------------------------------------------------------------
-  // Default method to compute common super classes when computing stack map frames
+  // Default method to compute common super classes when computing stack map
+  // frames
   // -----------------------------------------------------------------------------------------------
 
   /**

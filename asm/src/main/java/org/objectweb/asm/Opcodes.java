@@ -34,7 +34,7 @@ package org.objectweb.asm;
  * xSTORE_n opcodes are therefore not defined in this interface. Likewise for LDC, automatically
  * replaced by LDC_W or LDC2_W when necessary, WIDE, GOTO_W and JSR_W.
  *
- * @see <a href= "https://docs.oracle.com/javase/specs/jvms/se11/html/jvms-6.html">JVMS 6</a>
+ * @see <a href="https://docs.oracle.com/javase/specs/jvms/se11/html/jvms-6.html">JVMS 6</a>
  * @author Eric Bruneton
  * @author Eugene Kuleshov
  */

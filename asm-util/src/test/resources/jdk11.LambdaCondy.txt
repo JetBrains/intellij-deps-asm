@@ -1,0 +1,45 @@
+// class version 55.65535 (-65481)
+// access flags 0x21
+public class jdk11/LambdaCondy {
+
+  // compiled from: LambdaCondy.java
+  // access flags 0x19
+  public final static INNERCLASS java/lang/invoke/MethodHandles$Lookup java/lang/invoke/MethodHandles Lookup
+
+  // access flags 0x1
+  public <init>()V
+   L0
+    LINENUMBER 36 L0
+    ALOAD 0
+    INVOKESPECIAL java/lang/Object.<init> ()V
+    RETURN
+    MAXSTACK = 1
+    MAXLOCALS = 1
+
+  // access flags 0x9
+  public static main([Ljava/lang/String;)V
+   L0
+    LINENUMBER 38 L0
+    LDC run : Ljava/lang/Runnable; java/lang/invoke/LambdaMetafactory.metafactory(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/Class;Ljava/lang/invoke/MethodType;Ljava/lang/invoke/MethodHandle;Ljava/lang/invoke/MethodType;)Ljava/lang/Object; (6) [()V, jdk11/LambdaCondy.lambda$main$0()V (6), ()V]
+    ASTORE 1
+   L1
+    LINENUMBER 39 L1
+    ALOAD 1
+    INVOKEINTERFACE java/lang/Runnable.run ()V (itf)
+   L2
+    LINENUMBER 40 L2
+    RETURN
+    MAXSTACK = 1
+    MAXLOCALS = 2
+
+  // access flags 0x100A
+  private static synthetic lambda$main$0()V
+   L0
+    LINENUMBER 38 L0
+    GETSTATIC java/lang/System.out : Ljava/io/PrintStream;
+    LDC "hello condy"
+    INVOKEVIRTUAL java/io/PrintStream.println (Ljava/lang/String;)V
+    RETURN
+    MAXSTACK = 2
+    MAXLOCALS = 0
+}

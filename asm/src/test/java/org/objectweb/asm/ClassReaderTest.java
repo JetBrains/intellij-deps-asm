@@ -285,13 +285,14 @@ public class ClassReaderTest extends AsmTest implements Opcodes {
     ClassVisitor classVisitor = new EmptyClassVisitor(apiParameter.value());
     // jdk8.ArtificialStructures contains structures which require ASM5, but only inside the method
     // code. Here we skip the code, so this class can be read with ASM4. Likewise for
-    // jdk11.AllInstructions.
+    // jdk11.AllInstructions and jdk11.LambdaCondy.
     assertThat(() -> classReader.accept(classVisitor, ClassReader.SKIP_CODE))
         .succeedsOrThrows(RuntimeException.class)
         .when(
             classParameter.isMoreRecentThan(apiParameter)
                 && classParameter != PrecompiledClass.JDK8_ARTIFICIAL_STRUCTURES
-                && classParameter != PrecompiledClass.JDK11_ALL_INSTRUCTIONS);
+                && classParameter != PrecompiledClass.JDK11_ALL_INSTRUCTIONS
+                && classParameter != PrecompiledClass.JDK11_LAMBDA_CONDY);
   }
 
   /**
@@ -425,6 +426,25 @@ public class ClassReaderTest extends AsmTest implements Opcodes {
         },
         0);
     assertTrue(success.get());
+  }
+
+  @Test
+  public void testPreviewMinorVersion() {
+    ClassReader classReader = new ClassReader(PrecompiledClass.JDK11_LAMBDA_CONDY.getBytes());
+    classReader.accept(
+        new ClassVisitor(Opcodes.ASM7_EXPERIMENTAL) {
+          @Override
+          public void visit(
+              int version,
+              int access,
+              String name,
+              String signature,
+              String superName,
+              String[] interfaces) {
+            assertTrue((version & Opcodes.V_PREVIEW) == Opcodes.V_PREVIEW);
+          }
+        },
+        0);
   }
 
   /** Tests that reading an invalid class throws an exception. */

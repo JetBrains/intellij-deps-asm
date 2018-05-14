@@ -79,12 +79,9 @@ public interface Opcodes {
   int V_PREVIEW = 0xFFFF0000;
 
   // Access flags values, defined in
-  // -
-  // https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.1-200-E.1
-  // -
-  // https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.5-200-A.1
-  // -
-  // https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.6-200-A.1
+  // - https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.1-200-E.1
+  // - https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.5-200-A.1
+  // - https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.6-200-A.1
   // - https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.7.25
 
   int ACC_PUBLIC = 0x0001; // class, field, method
@@ -112,17 +109,14 @@ public interface Opcodes {
   int ACC_MODULE = 0x8000; // class
 
   // ASM specific access flags.
-  // WARNING: the 16 least significant bits must NOT be used, to avoid conflicts
-  // with standard
-  // access flags, and also to make sure that these flags are automatically
-  // filtered out when
+  // WARNING: the 16 least significant bits must NOT be used, to avoid conflicts with standard
+  // access flags, and also to make sure that these flags are automatically filtered out when
   // written in class files (because access flags are stored using 16 bits only).
 
   int ACC_DEPRECATED = 0x20000; // class, field, method
 
   // Possible values for the type operand of the NEWARRAY instruction.
-  // See
-  // https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-6.html#jvms-6.5.newarray.
+  // See https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-6.html#jvms-6.5.newarray.
 
   int T_BOOLEAN = 4;
   int T_CHAR = 5;
@@ -133,10 +127,8 @@ public interface Opcodes {
   int T_INT = 10;
   int T_LONG = 11;
 
-  // Possible values for the reference_kind field of CONSTANT_MethodHandle_info
-  // structures.
-  // See
-  // https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.4.8.
+  // Possible values for the reference_kind field of CONSTANT_MethodHandle_info structures.
+  // See https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.4.8.
 
   int H_GETFIELD = 1;
   int H_GETSTATIC = 2;
@@ -179,8 +171,7 @@ public interface Opcodes {
    */
   int F_SAME1 = 4;
 
-  // Standard stack map frame element types, used in {@link
-  // ClassVisitor#visitFrame}.
+  // Standard stack map frame element types, used in {@link ClassVisitor#visitFrame}.
 
   Integer TOP = Frame.ITEM_TOP;
   Integer INTEGER = Frame.ITEM_INTEGER;
@@ -190,8 +181,7 @@ public interface Opcodes {
   Integer NULL = Frame.ITEM_NULL;
   Integer UNINITIALIZED_THIS = Frame.ITEM_UNINITIALIZED_THIS;
 
-  // The JVM opcode values (with the MethodVisitor method name used to visit them
-  // in comment, and
+  // The JVM opcode values (with the MethodVisitor method name used to visit them in comment, and
   // where '-' means 'same method name as on the previous line').
   // See https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-6.html.
 

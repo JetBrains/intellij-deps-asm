@@ -242,7 +242,7 @@ public abstract class ClassVisitor {
    * @param nestMember the internal name of a nest member.
    * @deprecated This API is experimental.
    */
-  @Deprecated()
+  @Deprecated
   public void visitNestMemberExperimental(final String nestMember) {
     if (api < Opcodes.ASM7_EXPERIMENTAL) {
       throw new UnsupportedOperationException();

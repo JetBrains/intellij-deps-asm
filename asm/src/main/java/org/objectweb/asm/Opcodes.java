@@ -73,10 +73,12 @@ public interface Opcodes {
   /**
    * Version flag indicating that the class is using 'preview' features.
    *
-   * <p>{@code version & V_PREVIEW == V_PREVIEW} tests if a version is flagged with {@code
-   * V_PREVIEW}.
+   * <p>{@code version & V_PREVIEW_EXPERIMENTAL == V_PREVIEW_EXPERIMENTAL} tests if a version is
+   * flagged with {@code V_PREVIEW_EXPERIMENTAL}.
+   *
+   * @deprecated This API is experimental.
    */
-  int V_PREVIEW = 0xFFFF0000;
+  @Deprecated int V_PREVIEW_EXPERIMENTAL = 0xFFFF0000;
 
   // Access flags values, defined in
   // - https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.1-200-E.1

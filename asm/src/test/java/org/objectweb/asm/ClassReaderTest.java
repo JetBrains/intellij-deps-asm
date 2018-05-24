@@ -441,7 +441,8 @@ public class ClassReaderTest extends AsmTest implements Opcodes {
               String signature,
               String superName,
               String[] interfaces) {
-            assertTrue((version & Opcodes.V_PREVIEW) == Opcodes.V_PREVIEW);
+            assertTrue(
+                (version & Opcodes.V_PREVIEW_EXPERIMENTAL) == Opcodes.V_PREVIEW_EXPERIMENTAL);
           }
         },
         0);

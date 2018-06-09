@@ -222,6 +222,7 @@ public class InsnList {
    * @param insnNode an instruction, <i>which must not belong to any {@link InsnList}</i>.
    */
   public void add(final AbstractInsnNode insnNode) {
+    ensureNotOwned(insnNode);
     ++size;
     if (lastInsn == null) {
       firstInsn = insnNode;
@@ -472,6 +473,20 @@ public class InsnList {
         ((LabelNode) currentInsn).resetLabel();
       }
       currentInsn = currentInsn.nextInsn;
+    }
+  }
+
+  /** Ensures that the given node does not already belong to an <tt>InsnList</tt> */
+  private void ensureNotOwned(AbstractInsnNode insnNode) {
+    if (insnNode.previousInsn != null || insnNode.nextInsn != null || insnNode.index != -1) {
+      // Adding an instruction that still refers to others (in the same or another InsnList)
+      // leads to hard to debug bugs.
+      // Initially everything may look ok (e.g. iteration follows `next` thus a stale `prev`
+      // isn't noticed). However, a stale link brings the doubly-linked into disarray
+      // e.g. upon removing an element, which results in the `next` of a stale `prev` being
+      // updated, among other failure scenarios. Better fail early.
+      throw new IllegalArgumentException(
+              "Instruction " + insnNode + " belongs to another InsnList.");
     }
   }
 

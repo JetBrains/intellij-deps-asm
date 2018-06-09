@@ -54,6 +54,8 @@ public class InsnListTest {
 
   private InsnList list2;
 
+  private InsnList list3Unchecked;
+
   private InsnNode insn1;
 
   private InsnNode insn2;
@@ -66,6 +68,7 @@ public class InsnListTest {
     insn2 = new InsnNode(0);
     list2.add(insn1);
     list2.add(insn2);
+    list3Unchecked = new InsnList();
   }
 
   void assertEqualInsnArrays(final AbstractInsnNode[] expected, final AbstractInsnNode[] value) {
@@ -745,6 +748,11 @@ public class InsnListTest {
     list1.resetLabels();
 
     assertNotSame(label, labelNode.getLabel());
+  }
+
+  @Test
+  public void testAddNodeAssociatedWithAnotherList() {
+    assertThrows(IllegalArgumentException.class, () -> list3Unchecked.add(insn1));
   }
 
   /** An InsnList which checks that its methods are properly used. */

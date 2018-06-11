@@ -274,7 +274,7 @@ public class Analyzer<V extends Value> implements Opcodes {
             if (newControlFlowExceptionEdge(insnIndex, tryCatchBlock)) {
               Frame<V> handler = newFrame(oldFrame);
               handler.clearStack();
-              handler.push(interpreter.newValue(catchType));
+              handler.push(interpreter.newExceptionValue(tryCatchBlock, handler, catchType));
               merge(insnList.indexOf(tryCatchBlock.handler), handler, subroutine);
             }
           }
@@ -381,21 +381,29 @@ public class Analyzer<V extends Value> implements Opcodes {
   private Frame<V> computeInitialFrame(final String owner, final MethodNode method) {
     Frame<V> frame = newFrame(method.maxLocals, method.maxStack);
     int currentLocal = 0;
-    if ((method.access & ACC_STATIC) == 0) {
+    boolean isInstanceMethod = (method.access & ACC_STATIC) == 0;
+    if (isInstanceMethod) {
       Type ownerType = Type.getObjectType(owner);
-      frame.setLocal(currentLocal++, interpreter.newValue(ownerType));
+      frame.setLocal(
+          currentLocal, interpreter.newParameterValue(isInstanceMethod, currentLocal, ownerType));
+      currentLocal++;
     }
     Type[] argumentTypes = Type.getArgumentTypes(method.desc);
     for (int i = 0; i < argumentTypes.length; ++i) {
-      frame.setLocal(currentLocal++, interpreter.newValue(argumentTypes[i]));
+      frame.setLocal(
+          currentLocal,
+          interpreter.newParameterValue(isInstanceMethod, currentLocal, argumentTypes[i]));
+      currentLocal++;
       if (argumentTypes[i].getSize() == 2) {
-        frame.setLocal(currentLocal++, interpreter.newValue(null));
+        frame.setLocal(currentLocal, interpreter.newEmptyValueAfterSize2Local(currentLocal));
+        currentLocal++;
       }
     }
     while (currentLocal < method.maxLocals) {
-      frame.setLocal(currentLocal++, interpreter.newValue(null));
+      frame.setLocal(currentLocal, interpreter.newEmptyNonParameterLocalValue(currentLocal));
+      currentLocal++;
     }
-    frame.setReturn(interpreter.newValue(Type.getReturnType(method.desc)));
+    frame.setReturn(interpreter.newReturnTypeValue(Type.getReturnType(method.desc)));
     return frame;
   }
 

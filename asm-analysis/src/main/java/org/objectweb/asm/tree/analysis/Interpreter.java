@@ -30,6 +30,7 @@ package org.objectweb.asm.tree.analysis;
 import java.util.List;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.AbstractInsnNode;
+import org.objectweb.asm.tree.TryCatchBlockNode;
 
 /**
  * A semantic bytecode interpreter. More precisely, this interpreter only manages the computation of
@@ -67,6 +68,14 @@ public abstract class Interpreter<V extends Value> {
    * <p>Called for method parameters (including <code>this</code>), exception handler variable and
    * with <code>null</code> type for variables reserved by long and double types.
    *
+   * <p>An interpreter may choose to implement one or more of {@link
+   * Interpreter#newReturnTypeValue(Type)}, {@link Interpreter#newParameterValue(boolean, int,
+   * Type)}, {@link Interpreter#newEmptyNonParameterLocalValue(int)}, {@link
+   * Interpreter#newEmptyValueAfterSize2Local(int)}, {@link
+   * Interpreter#newEmptyValueForPreviousSize2Local(int)}, {@link
+   * Interpreter#newExceptionValue(TryCatchBlockNode, Frame, Type)} to distinguish different types
+   * of new value.
+   *
    * @param type a primitive or reference type, or <tt>null</tt> to represent an uninitialized
    *     value.
    * @return a value that represents the given type. The size of the returned value must be equal to
@@ -87,6 +96,104 @@ public abstract class Interpreter<V extends Value> {
    * @throws AnalyzerException if an error occurred during the interpretation.
    */
   public abstract V newOperation(AbstractInsnNode insn) throws AnalyzerException;
+
+  /**
+   * Called by the analyzer for initializing the return type value of a frame.
+   *
+   * <p>By default, calls <code>newValue(type)</code>.
+   *
+   * @param type a primitive or reference type, or <tt>null</tt> to represent an uninitialized
+   *     value.
+   * @return a value that represents the given type. The size of the returned value must be equal to
+   *     the size of the given type.
+   * @since ASM 1.7
+   */
+  public V newReturnTypeValue(Type type) {
+    return newValue(type);
+  }
+
+  /**
+   * Called by the analyzer when initializing the value of a parameter in a frame.
+   *
+   * <p>By default, calls <code>newValue(type)</code>.
+   *
+   * @param isInstanceMethod <tt>true</tt> if the owner of the parameter is is non-static method, a
+   *     primitive or reference type, or <tt>false</tt> otherwise. value.
+   * @param type a primitive or reference type, or <tt>null</tt> to represent an uninitialized
+   *     value.
+   * @return a value that represents the given type. The size of the returned value must be equal to
+   *     the size of the given type.
+   * @since ASM 1.7
+   */
+  public V newParameterValue(boolean isInstanceMethod, int local, Type type) {
+    return newValue(type);
+  }
+
+  /**
+   * Called by the analyzer when initializing a non-parameter local in a frame. This method has to
+   * return a size-1 value representing an empty slot.
+   *
+   * <p>By default, calls <code>newValue(null)</code>.
+   *
+   * @param local The index of the local in the frame.
+   * @return a value that represents the given type. The size of the returned value must be equal to
+   *     the size of the given type.
+   * @since ASM 1.7
+   */
+  public V newEmptyNonParameterLocalValue(int local) {
+    return newValue(null);
+  }
+
+  /**
+   * Called by the analyzer and the interpreter. When initializing or setting the value of a size-2
+   * local, the value of the subsequent slot is reset using this method. This method has to return a
+   * size-1 value representing an empty slot.
+   *
+   * <p>By default, calls <code>newValue(null)</code>.
+   *
+   * @param local The index of the local in the frame.
+   * @return a value that represents the given type. The size of the returned value must be equal to
+   *     the size of the given type.
+   * @since ASM 1.7
+   */
+  public V newEmptyValueAfterSize2Local(int local) {
+    return newValue(null);
+  }
+
+  /**
+   * Called by the interpreter. When setting the value of a local variable, the interpreter checks
+   * whether the current value stored at the preceding index is of size-2. In this case, the
+   * preceding size-2 value is no longer valid and reset using this method. This method has to
+   * return a size-1 value representing an empty slot.
+   *
+   * <p>By default, calls <code>newValue(null)</code>.
+   *
+   * @param local The index of the local in the frame.
+   * @return a value that represents the given type. The size of the returned value must be equal to
+   *     the size of the given type.
+   * @since ASM 1.7
+   */
+  public V newEmptyValueForPreviousSize2Local(int local) {
+    return newValue(null);
+  }
+
+  /**
+   * Called by the analyzer when initializing the exception value on the call stack at the entry of
+   * an exception handler.
+   *
+   * <p>By default, calls <code>newValue(exceptionType)</code>.
+   *
+   * @param tryCatchBlockNode The exception handler
+   * @param handlerFrame The frame of the handler catching an exception from the current instruction
+   * @param exceptionType The excption type handled by this handler.
+   * @return a value that represents the given type. The size of the returned value must be equal to
+   *     the size of the given type.
+   * @since ASM 1.7
+   */
+  public V newExceptionValue(
+      TryCatchBlockNode tryCatchBlockNode, Frame handlerFrame, Type exceptionType) {
+    return newValue(exceptionType);
+  }
 
   /**
    * Interprets a bytecode instruction that moves a value on the stack or to or from local

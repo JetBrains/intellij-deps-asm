@@ -136,7 +136,8 @@ public class ClassWriterTest extends AsmTest {
       classWriter.newConst(Integer.valueOf(i));
     }
     if (constantPoolCount > 65535) {
-      ClassTooLargeException thrown = assertThrows(ClassTooLargeException.class, () -> classWriter.toByteArray());
+      ClassTooLargeException thrown =
+          assertThrows(ClassTooLargeException.class, () -> classWriter.toByteArray());
       assertEquals(className, thrown.getClassName());
       assertEquals(constantPoolCount, thrown.getConstantPoolCount());
       assertEquals("Class file too large: A", thrown.getMessage());
@@ -161,7 +162,8 @@ public class ClassWriterTest extends AsmTest {
     methodVisitor.visitMaxs(0, 0);
     methodVisitor.visitEnd();
     if (methodCodeSize > 65535) {
-      MethodTooLargeException thrown = assertThrows(MethodTooLargeException.class, () -> classWriter.toByteArray());
+      MethodTooLargeException thrown =
+          assertThrows(MethodTooLargeException.class, () -> classWriter.toByteArray());
       assertEquals(methodName, thrown.getMethodName());
       assertNull(thrown.getClassName());
       assertEquals(descriptor, thrown.getDescriptor());

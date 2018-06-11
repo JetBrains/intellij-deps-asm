@@ -2062,7 +2062,8 @@ final class MethodWriter extends MethodVisitor {
     // For ease of reference, we use here the same attribute order as in Section 4.7 of the JVMS.
     if (code.length > 0) {
       if (code.length > 65535) {
-        throw new MethodTooLargeException(symbolTable.getClassName(), name, descriptor, code.length);
+        throw new MethodTooLargeException(
+            symbolTable.getClassName(), name, descriptor, code.length);
       }
       symbolTable.addConstantUtf8(Constants.CODE);
       // The Code attribute has 6 header bytes, plus 2, 2, 4 and 2 bytes respectively for max_stack,

@@ -242,7 +242,7 @@ public class ByteVector {
   public ByteVector putUTF8(final String stringValue) {
     int charLength = stringValue.length();
     if (charLength > 65535) {
-      throw new IllegalArgumentException();
+      throw new IllegalArgumentException("Maximum size for a UTF-8 string constant exceeded");
     }
     int currentLength = length;
     if (currentLength + 2 + charLength > data.length) {

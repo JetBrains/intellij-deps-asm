@@ -143,8 +143,10 @@ public class ClassWriterTest extends AsmTest {
   @ValueSource(ints = {65535, 65536})
   void testMethodCodeSizeTooLarge(final int methodCodeSize) {
     ClassWriter classWriter = new ClassWriter(0);
+    String methodName = "m";
+    String descriptor = "()V";
     MethodVisitor methodVisitor =
-        classWriter.visitMethod(Opcodes.ACC_STATIC, "m", "()V", null, null);
+        classWriter.visitMethod(Opcodes.ACC_STATIC, methodName, descriptor, null, null);
     methodVisitor.visitCode();
     for (int i = 0; i < methodCodeSize - 1; ++i) {
       methodVisitor.visitInsn(Opcodes.NOP);
@@ -153,7 +155,12 @@ public class ClassWriterTest extends AsmTest {
     methodVisitor.visitMaxs(0, 0);
     methodVisitor.visitEnd();
     if (methodCodeSize > 65535) {
-      assertThrows(IndexOutOfBoundsException.class, () -> classWriter.toByteArray());
+      MethodTooLargeException thrown = assertThrows(MethodTooLargeException.class, () -> classWriter.toByteArray());
+      assertEquals(methodName, thrown.getMethodName());
+      assertEquals(null, thrown.getClassName());
+      assertEquals(descriptor, thrown.getDescriptor());
+      assertEquals(methodCodeSize, thrown.getCodeSize());
+      assertEquals("Method code too large: m ()V", thrown.getMessage());
     } else {
       classWriter.toByteArray();
     }

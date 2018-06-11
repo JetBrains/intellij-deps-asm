@@ -305,6 +305,9 @@ final class MethodWriter extends MethodVisitor {
   /** The descriptor of this method. */
   private final String descriptor;
 
+  /** The name of this method. */
+  private final String name;
+
   // Code attribute fields and sub attributes:
 
   /** The max_stack field of the Code attribute. */
@@ -592,6 +595,7 @@ final class MethodWriter extends MethodVisitor {
     this.symbolTable = symbolTable;
     this.accessFlags = "<init>".equals(name) ? access | Constants.ACC_CONSTRUCTOR : access;
     this.nameIndex = symbolTable.addConstantUtf8(name);
+    this.name = name;
     this.descriptorIndex = symbolTable.addConstantUtf8(descriptor);
     this.descriptor = descriptor;
     this.signatureIndex = signature == null ? 0 : symbolTable.addConstantUtf8(signature);
@@ -2058,7 +2062,7 @@ final class MethodWriter extends MethodVisitor {
     // For ease of reference, we use here the same attribute order as in Section 4.7 of the JVMS.
     if (code.length > 0) {
       if (code.length > 65535) {
-        throw new IndexOutOfBoundsException("Method code too large!");
+        throw new MethodTooLargeException(symbolTable.getClassName(), name, descriptor, code.length);
       }
       symbolTable.addConstantUtf8(Constants.CODE);
       // The Code attribute has 6 header bytes, plus 2, 2, 4 and 2 bytes respectively for max_stack,

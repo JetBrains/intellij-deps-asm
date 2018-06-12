@@ -190,7 +190,6 @@ public class InsnList {
    * @param newInsnNode another instruction, <i>which must not belong to any {@link InsnList}</i>.
    */
   public void set(final AbstractInsnNode oldInsnNode, final AbstractInsnNode newInsnNode) {
-    ensureNotOwned(newInsnNode);
     AbstractInsnNode nextInsn = oldInsnNode.nextInsn;
     newInsnNode.nextInsn = nextInsn;
     if (nextInsn != null) {
@@ -223,7 +222,6 @@ public class InsnList {
    * @param insnNode an instruction, <i>which must not belong to any {@link InsnList}</i>.
    */
   public void add(final AbstractInsnNode insnNode) {
-    ensureNotOwned(insnNode);
     ++size;
     if (lastInsn == null) {
       firstInsn = insnNode;
@@ -232,6 +230,7 @@ public class InsnList {
       lastInsn.nextInsn = insnNode;
       insnNode.previousInsn = lastInsn;
     }
+    insnNode.nextInsn = null;
     lastInsn = insnNode;
     cache = null;
     insnNode.index = 0; // insnNode now belongs to an InsnList.
@@ -267,7 +266,6 @@ public class InsnList {
    * @param insnNode an instruction, <i>which must not belong to any {@link InsnList}</i>.
    */
   public void insert(final AbstractInsnNode insnNode) {
-    ensureNotOwned(insnNode);
     ++size;
     if (firstInsn == null) {
       firstInsn = insnNode;
@@ -313,7 +311,6 @@ public class InsnList {
    *     InsnList}</i>.
    */
   public void insert(final AbstractInsnNode previousInsn, final AbstractInsnNode insnNode) {
-    ensureNotOwned(insnNode);
     ++size;
     AbstractInsnNode nextInsn = previousInsn.nextInsn;
     if (nextInsn == null) {
@@ -364,7 +361,6 @@ public class InsnList {
    *     InsnList}</i>.
    */
   public void insertBefore(final AbstractInsnNode nextInsn, final AbstractInsnNode insnNode) {
-    ensureNotOwned(insnNode);
     ++size;
     AbstractInsnNode previousInsn = nextInsn.previousInsn;
     if (previousInsn == null) {
@@ -477,20 +473,6 @@ public class InsnList {
         ((LabelNode) currentInsn).resetLabel();
       }
       currentInsn = currentInsn.nextInsn;
-    }
-  }
-
-  /** Ensures that the given node does not already belong to an <tt>InsnList</tt> */
-  private void ensureNotOwned(AbstractInsnNode insnNode) {
-    if (insnNode.previousInsn != null || insnNode.nextInsn != null || insnNode.index != -1) {
-      // Adding an instruction that still refers to others (in the same or another InsnList)
-      // leads to hard to debug bugs.
-      // Initially everything may look ok (e.g. iteration follows `next` thus a stale `prev`
-      // isn't noticed). However, a stale link brings the doubly-linked into disarray
-      // e.g. upon removing an element, which results in the `next` of a stale `prev` being
-      // updated, among other failure scenarios. Better fail early.
-      throw new IllegalArgumentException(
-              "Instruction " + insnNode + " belongs to another InsnList.");
     }
   }
 

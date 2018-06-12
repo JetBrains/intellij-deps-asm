@@ -190,6 +190,7 @@ public class InsnList {
    * @param newInsnNode another instruction, <i>which must not belong to any {@link InsnList}</i>.
    */
   public void set(final AbstractInsnNode oldInsnNode, final AbstractInsnNode newInsnNode) {
+    ensureNotOwned(newInsnNode);
     AbstractInsnNode nextInsn = oldInsnNode.nextInsn;
     newInsnNode.nextInsn = nextInsn;
     if (nextInsn != null) {
@@ -266,6 +267,7 @@ public class InsnList {
    * @param insnNode an instruction, <i>which must not belong to any {@link InsnList}</i>.
    */
   public void insert(final AbstractInsnNode insnNode) {
+    ensureNotOwned(insnNode);
     ++size;
     if (firstInsn == null) {
       firstInsn = insnNode;
@@ -311,6 +313,7 @@ public class InsnList {
    *     InsnList}</i>.
    */
   public void insert(final AbstractInsnNode previousInsn, final AbstractInsnNode insnNode) {
+    ensureNotOwned(insnNode);
     ++size;
     AbstractInsnNode nextInsn = previousInsn.nextInsn;
     if (nextInsn == null) {
@@ -361,6 +364,7 @@ public class InsnList {
    *     InsnList}</i>.
    */
   public void insertBefore(final AbstractInsnNode nextInsn, final AbstractInsnNode insnNode) {
+    ensureNotOwned(insnNode);
     ++size;
     AbstractInsnNode previousInsn = nextInsn.previousInsn;
     if (previousInsn == null) {

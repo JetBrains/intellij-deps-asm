@@ -752,7 +752,14 @@ public class InsnListTest {
 
   @Test
   public void testAddNodeAssociatedWithAnotherList() {
+    InsnNode insnNode = new InsnNode(0);
     assertThrows(IllegalArgumentException.class, () -> list3Unchecked.add(insn1));
+    assertThrows(IllegalArgumentException.class, () -> list3Unchecked.insert(insn1));
+    list3Unchecked.insert(insnNode);
+    assertThrows(IllegalArgumentException.class, () -> list3Unchecked.insert(insnNode, insn1));
+    assertThrows(IllegalArgumentException.class, () -> list3Unchecked.insertBefore(insnNode, insn1));
+    assertThrows(IllegalArgumentException.class, () -> list3Unchecked.set(insnNode, insn1));
+    assertThrows(IllegalArgumentException.class, () -> list3Unchecked.set(insnNode, insn1));
   }
 
   /** An InsnList which checks that its methods are properly used. */

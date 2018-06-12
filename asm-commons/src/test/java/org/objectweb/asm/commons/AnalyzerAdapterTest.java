@@ -32,7 +32,6 @@ import static org.objectweb.asm.test.Assertions.assertThat;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.Executable;
 import org.junit.jupiter.params.ParameterizedTest;

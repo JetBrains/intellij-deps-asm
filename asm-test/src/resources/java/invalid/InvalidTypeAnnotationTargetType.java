@@ -37,6 +37,6 @@ import java.lang.annotation.Target;
 @interface Nullable {}
 
 public class InvalidTypeAnnotationTargetType {
-  
+
   public @Nullable String field;
 }

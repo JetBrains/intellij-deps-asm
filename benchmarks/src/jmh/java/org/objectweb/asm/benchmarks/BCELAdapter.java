@@ -28,7 +28,6 @@
 package org.objectweb.asm.benchmarks;
 
 import java.io.ByteArrayInputStream;
-
 import org.apache.bcel.classfile.ClassParser;
 import org.apache.bcel.classfile.JavaClass;
 import org.apache.bcel.classfile.Method;

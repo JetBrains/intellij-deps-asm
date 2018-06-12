@@ -57,7 +57,7 @@ public final class TraceMethodVisitor extends MethodVisitor {
   /**
    * Constructs a new {@link TraceMethodVisitor}.
    *
-   * @param methodVisitor the method visitor to which to delegate calls.  May be <tt>null</tt>.
+   * @param methodVisitor the method visitor to which to delegate calls. May be <tt>null</tt>.
    * @param printer the printer to convert the visited method into text.
    */
   public TraceMethodVisitor(final MethodVisitor methodVisitor, final Printer printer) {
@@ -160,7 +160,7 @@ public final class TraceMethodVisitor extends MethodVisitor {
     super.visitFieldInsn(opcode, owner, name, descriptor);
   }
 
-  /** @deprecated*/
+  /** @deprecated */
   @Deprecated
   @Override
   public void visitMethodInsn(

@@ -30,7 +30,6 @@ package org.objectweb.asm.tree.analysis;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.AbstractInsnNode;

@@ -84,7 +84,7 @@ public class MethodTest {
             "boolean name(byte, char, short, int, float, long, double, pkg.Class, pkg.Class[])");
     assertEquals("name", method.getName());
     assertEquals("(BCSIFJDLpkg/Class;[Lpkg/Class;)Z", method.getDescriptor());
-    
+
     assertThrows(IllegalArgumentException.class, () -> Method.getMethod("name()"));
     assertThrows(IllegalArgumentException.class, () -> Method.getMethod("void name"));
     assertThrows(IllegalArgumentException.class, () -> Method.getMethod("void name(]"));

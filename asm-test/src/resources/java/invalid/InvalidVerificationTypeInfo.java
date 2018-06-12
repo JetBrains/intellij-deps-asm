@@ -29,8 +29,7 @@ package invalid;
 
 public class InvalidVerificationTypeInfo {
 
-  public InvalidVerificationTypeInfo(String s) {    
-  }
+  public InvalidVerificationTypeInfo(String s) {}
 
   public InvalidVerificationTypeInfo(boolean b) {
     this(b ? "true" : "false");

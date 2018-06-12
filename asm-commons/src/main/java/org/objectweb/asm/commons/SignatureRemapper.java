@@ -29,7 +29,6 @@
 package org.objectweb.asm.commons;
 
 import java.util.ArrayList;
-
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.signature.SignatureVisitor;
 

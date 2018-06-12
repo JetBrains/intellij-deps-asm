@@ -37,7 +37,7 @@ import java.lang.annotation.Target;
 @interface Nullable {}
 
 public class InvalidInsnTypeAnnotationTargetType {
-  
+
   public void method() {
     @Nullable String local = null;
   }

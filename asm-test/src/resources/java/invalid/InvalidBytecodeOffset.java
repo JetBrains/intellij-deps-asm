@@ -28,9 +28,9 @@
 package invalid;
 
 public class InvalidBytecodeOffset {
-  
+
   public final int f;
-  
+
   public InvalidBytecodeOffset(boolean b) {
     this.f = b ? 1 : 0;
   }

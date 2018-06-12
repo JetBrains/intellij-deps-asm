@@ -30,21 +30,14 @@ package org.objectweb.asm.util;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.StringTokenizer;
 import java.util.stream.Stream;
-
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
-import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.MethodSource;
-import org.junit.jupiter.params.provider.ValueSource;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.signature.SignatureReader;
-import org.objectweb.asm.test.AsmTest.Api;
-import org.objectweb.asm.test.AsmTest.PrecompiledClass;
 
 /**
  * TraceSignatureVisitor unit tests.
@@ -74,11 +67,7 @@ public class TraceSignatureVisitorTest {
       "<K extends java.lang.Enum<K>, V> extends java.util.AbstractMap<K, V> implements java.io.Serializable, java.lang.Cloneable",
       "<K:Ljava/lang/Enum<TK;>;V:Ljava/lang/Object;>Ljava/util/AbstractMap<TK;TV;>;Ljava/io/Serializable;Ljava/lang/Cloneable;"
     },
-    {
-      "false",
-      "<T, R extends T>",
-      "<T:Ljava/lang/Object;R:TT;>Ljava/lang/Object;"
-    }
+    {"false", "<T, R extends T>", "<T:Ljava/lang/Object;R:TT;>Ljava/lang/Object;"}
   };
 
   private static final String[][] FIELD_SIGNATURES = {

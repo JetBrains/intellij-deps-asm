@@ -32,7 +32,6 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.io.IOException;
 import java.io.Serializable;
-
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -121,8 +120,7 @@ class SerialVersionClass implements Serializable {
 
   protected static final int aField = 32;
 
-  static {
-  }
+  static {}
 
   public static Object[] aMethod() {
     return null;

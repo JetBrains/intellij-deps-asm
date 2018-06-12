@@ -37,7 +37,6 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -81,7 +80,8 @@ public class ClassNodeTest extends AsmTest implements Opcodes {
     assertEquals("1.0", moduleNode.version);
 
     ModuleNode otherModuleNode =
-        new ModuleNode(Opcodes.ASM7_EXPERIMENTAL, "otherModule", 456, "2.0", null, null, null, null, null);
+        new ModuleNode(
+            Opcodes.ASM7_EXPERIMENTAL, "otherModule", 456, "2.0", null, null, null, null, null);
     moduleNode.accept(
         new ClassVisitor(Opcodes.ASM7_EXPERIMENTAL) {
           @Override

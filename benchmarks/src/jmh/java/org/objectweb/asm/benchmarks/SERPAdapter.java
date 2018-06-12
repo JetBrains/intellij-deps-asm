@@ -28,7 +28,6 @@
 package org.objectweb.asm.benchmarks;
 
 import java.io.ByteArrayInputStream;
-
 import serp.bytecode.BCClass;
 import serp.bytecode.BCMethod;
 import serp.bytecode.Code;

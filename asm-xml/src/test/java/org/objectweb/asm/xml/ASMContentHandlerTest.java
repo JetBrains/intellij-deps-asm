@@ -170,7 +170,7 @@ public class ASMContentHandlerTest implements Opcodes {
   @Test
   public void testInvalidOpcode() throws SAXException {
     methodSetUp();
-    AttributesImpl attrs = new AttributesImpl();    
+    AttributesImpl attrs = new AttributesImpl();
     assertThrows(SAXException.class, () -> h.startElement("", "opcode", "", attrs));
   }
 

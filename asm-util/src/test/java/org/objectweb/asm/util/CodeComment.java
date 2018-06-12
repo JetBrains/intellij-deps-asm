@@ -28,7 +28,6 @@
 package org.objectweb.asm.util;
 
 import java.util.Map;
-
 import org.objectweb.asm.Attribute;
 import org.objectweb.asm.ByteVector;
 import org.objectweb.asm.ClassReader;
@@ -80,9 +79,7 @@ public class CodeComment extends Attribute implements ASMifiable, Textifiable {
 
   public void asmify(
       final StringBuffer buf, final String varName, final Map<Label, String> labelNames) {
-    buf.append("Attribute ")
-        .append(varName)
-        .append(" = new org.objectweb.asm.util.CodeComment();");
+    buf.append("Attribute ").append(varName).append(" = new org.objectweb.asm.util.CodeComment();");
   }
 
   public void textify(final StringBuffer buf, final Map<Label, String> labelNames) {}

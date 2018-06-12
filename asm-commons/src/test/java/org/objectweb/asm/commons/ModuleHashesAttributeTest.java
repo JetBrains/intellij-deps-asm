@@ -31,7 +31,6 @@ import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.Arrays;
-
 import org.junit.jupiter.api.Test;
 import org.objectweb.asm.Attribute;
 import org.objectweb.asm.ClassReader;

@@ -28,7 +28,6 @@
 package org.objectweb.asm.tree.analysis;
 
 import java.util.Set;
-
 import org.objectweb.asm.tree.AbstractInsnNode;
 
 /**

@@ -29,7 +29,6 @@ package org.objectweb.asm.tree;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import org.objectweb.asm.AnnotationVisitor;
 import org.objectweb.asm.Opcodes;
 
@@ -71,7 +70,8 @@ public class AnnotationNode extends AnnotationVisitor {
    * Constructs a new {@link AnnotationNode}.
    *
    * @param api the ASM API version implemented by this visitor. Must be one of {@link
-   *     Opcodes#ASM4}, {@link Opcodes#ASM5}, {@link Opcodes#ASM6} or {@link Opcodes#ASM7_EXPERIMENTAL}.
+   *     Opcodes#ASM4}, {@link Opcodes#ASM5}, {@link Opcodes#ASM6} or {@link
+   *     Opcodes#ASM7_EXPERIMENTAL}.
    * @param descriptor the class descriptor of the annotation class.
    */
   public AnnotationNode(final int api, final String descriptor) {

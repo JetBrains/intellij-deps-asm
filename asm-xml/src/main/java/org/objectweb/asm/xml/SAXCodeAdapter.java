@@ -29,7 +29,6 @@ package org.objectweb.asm.xml;
 
 import java.util.HashMap;
 import java.util.Map;
-
 import org.objectweb.asm.AnnotationVisitor;
 import org.objectweb.asm.Handle;
 import org.objectweb.asm.Label;
@@ -361,8 +360,7 @@ public final class SAXCodeAdapter extends MethodVisitor {
   }
 
   @Override
-  public void visitAnnotableParameterCount(
-      final int parameterCount, final boolean visible) {
+  public void visitAnnotableParameterCount(final int parameterCount, final boolean visible) {
     AttributesImpl attrs = new AttributesImpl();
     attrs.addAttribute("", "count", "count", "", Integer.toString(parameterCount));
     attrs.addAttribute("", "visible", "visible", "", visible ? "true" : "false");

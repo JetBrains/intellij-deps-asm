@@ -28,7 +28,6 @@
 package org.objectweb.asm.tree;
 
 import java.util.List;
-
 import org.objectweb.asm.ModuleVisitor;
 
 /**

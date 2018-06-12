@@ -30,7 +30,6 @@ package org.objectweb.asm.commons;
 
 import java.util.Collections;
 import java.util.Comparator;
-
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.tree.MethodNode;

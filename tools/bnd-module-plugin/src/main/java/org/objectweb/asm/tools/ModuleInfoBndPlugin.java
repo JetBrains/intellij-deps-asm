@@ -27,16 +27,15 @@
 // THE POSSIBILITY OF SUCH DAMAGE.
 package org.objectweb.asm.tools;
 
-import org.objectweb.asm.ClassWriter;
-import org.objectweb.asm.ModuleVisitor;
-import org.objectweb.asm.Opcodes;
-
 import aQute.bnd.header.Attrs;
 import aQute.bnd.header.Parameters;
 import aQute.bnd.osgi.Analyzer;
 import aQute.bnd.osgi.Constants;
 import aQute.bnd.osgi.EmbeddedResource;
 import aQute.bnd.service.AnalyzerPlugin;
+import org.objectweb.asm.ClassWriter;
+import org.objectweb.asm.ModuleVisitor;
+import org.objectweb.asm.Opcodes;
 
 /**
  * An biz.aQute.bnd plugin to generate a module-info class from the name, version, requires and

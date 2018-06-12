@@ -253,8 +253,8 @@ public abstract class Remapper {
   }
 
   /**
-   * Maps a package name to its new name. The default implementation of this method returns the given
-   * name, unchanged. Subclasses can override.
+   * Maps a package name to its new name. The default implementation of this method returns the
+   * given name, unchanged. Subclasses can override.
    *
    * @param name the fully qualified name of the package (using dots).
    * @return the new name of the package.

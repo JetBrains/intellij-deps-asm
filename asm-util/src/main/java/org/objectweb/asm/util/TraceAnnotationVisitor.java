@@ -52,7 +52,8 @@ public final class TraceAnnotationVisitor extends AnnotationVisitor {
   /**
    * Constructs a new {@link TraceAnnotationVisitor}.
    *
-   * @param annotationVisitor the annotation visitor to which to delegate calls. May be <tt>null</tt>.
+   * @param annotationVisitor the annotation visitor to which to delegate calls. May be
+   *     <tt>null</tt>.
    * @param printer the printer to convert the visited annotation into text.
    */
   public TraceAnnotationVisitor(final AnnotationVisitor annotationVisitor, final Printer printer) {

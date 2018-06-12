@@ -29,7 +29,7 @@ package org.objectweb.asm.benchmarks;
 
 /**
  * A factory of in-memory Java class file models.
- * 
+ *
  * @author Eric Bruneton
  */
 public interface Factory {
@@ -42,7 +42,7 @@ public interface Factory {
    * @return a "high level" representation of the given class.
    */
   Object newClass(final byte[] classFile);
-  
+
   /**
    * @param classFile a JVMS ClassFile structure
    * @return a tree structure representation of the given class.

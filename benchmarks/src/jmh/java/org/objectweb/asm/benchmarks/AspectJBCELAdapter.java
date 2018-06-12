@@ -28,7 +28,6 @@
 package org.objectweb.asm.benchmarks;
 
 import java.io.ByteArrayInputStream;
-
 import org.aspectj.apache.bcel.classfile.ClassParser;
 import org.aspectj.apache.bcel.classfile.ConstantPool;
 import org.aspectj.apache.bcel.classfile.JavaClass;

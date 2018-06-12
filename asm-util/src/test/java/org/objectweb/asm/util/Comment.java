@@ -28,7 +28,6 @@
 package org.objectweb.asm.util;
 
 import java.util.Map;
-
 import org.objectweb.asm.Attribute;
 import org.objectweb.asm.ByteVector;
 import org.objectweb.asm.ClassReader;

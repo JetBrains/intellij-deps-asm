@@ -39,7 +39,6 @@ import static org.objectweb.asm.commons.GeneratorAdapter.NE;
 
 import java.util.Arrays;
 import java.util.stream.Collectors;
-
 import org.junit.jupiter.api.Test;
 import org.objectweb.asm.Handle;
 import org.objectweb.asm.Label;
@@ -807,7 +806,11 @@ public class GeneratorAdapterTest {
       textifier = new Textifier();
       generatorAdapter =
           new GeneratorAdapter(
-              Opcodes.ASM7_EXPERIMENTAL, new TraceMethodVisitor(textifier), access, name, descriptor);
+              Opcodes.ASM7_EXPERIMENTAL,
+              new TraceMethodVisitor(textifier),
+              access,
+              name,
+              descriptor);
     }
 
     public String push(final boolean value) {

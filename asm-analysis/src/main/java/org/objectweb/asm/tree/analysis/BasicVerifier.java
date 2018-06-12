@@ -28,7 +28,6 @@
 package org.objectweb.asm.tree.analysis;
 
 import java.util.List;
-
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.FieldInsnNode;

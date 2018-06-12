@@ -91,7 +91,8 @@ public class LocalVariablesSorter extends MethodVisitor {
    * Constructs a new {@link LocalVariablesSorter}.
    *
    * @param api the ASM API version implemented by this visitor. Must be one of {@link
-   *     Opcodes#ASM4}, {@link Opcodes#ASM5}, {@link Opcodes#ASM6} or {@link Opcodes#ASM7_EXPERIMENTAL}.
+   *     Opcodes#ASM4}, {@link Opcodes#ASM5}, {@link Opcodes#ASM6} or {@link
+   *     Opcodes#ASM7_EXPERIMENTAL}.
    * @param access access flags of the adapted method.
    * @param descriptor the method's descriptor (see {@link Type}).
    * @param methodVisitor the method visitor to which this adapter delegates calls.
@@ -297,7 +298,7 @@ public class LocalVariablesSorter extends MethodVisitor {
    *     types for the current stack map frame must be updated in place in this array.
    */
   protected void updateNewLocals(final Object[] newLocals) {
-    // The default implementation does nothing.    
+    // The default implementation does nothing.
   }
 
   /**

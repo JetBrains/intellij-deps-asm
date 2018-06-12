@@ -28,7 +28,6 @@
 package org.objectweb.asm.util;
 
 import java.util.EnumSet;
-
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.signature.SignatureVisitor;
 
@@ -131,7 +130,8 @@ public class CheckSignatureAdapter extends SignatureVisitor {
    * Constructs a new {@link CheckSignatureAdapter}.
    *
    * @param api the ASM API version implemented by this visitor. Must be one of {@link
-   *     Opcodes#ASM4}, {@link Opcodes#ASM5}, {@link Opcodes#ASM6} or {@link Opcodes#ASM7_EXPERIMENTAL}.
+   *     Opcodes#ASM4}, {@link Opcodes#ASM5}, {@link Opcodes#ASM6} or {@link
+   *     Opcodes#ASM7_EXPERIMENTAL}.
    * @param type the type of signature to be checked. See {@link #CLASS_SIGNATURE}, {@link
    *     #METHOD_SIGNATURE} and {@link #TYPE_SIGNATURE}.
    * @param signatureVisitor the visitor to which this adapter must delegate calls. May be

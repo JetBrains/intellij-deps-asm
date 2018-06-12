@@ -29,8 +29,7 @@ package invalid;
 
 public class InvalidStackMapFrameType {
 
-  public InvalidStackMapFrameType(String s) {    
-  }
+  public InvalidStackMapFrameType(String s) {}
 
   public InvalidStackMapFrameType(boolean b) {
     this(b ? "true" : "false");

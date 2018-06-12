@@ -27,12 +27,11 @@
 // THE POSSIBILITY OF SUCH DAMAGE.
 package jdk5;
 
+import java.io.IOException;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Map;
-import java.io.IOException;
 
 /**
  * Class which, compiled with the JDK 1.5.0, produces the new class file structures from that

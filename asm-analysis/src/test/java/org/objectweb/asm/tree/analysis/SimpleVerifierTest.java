@@ -32,7 +32,6 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Arrays;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
@@ -478,7 +477,8 @@ public class SimpleVerifierTest extends AsmTest implements Opcodes {
     Type baseType = Type.getObjectType("C");
     Type superType = Type.getObjectType("D");
     Type interfaceType = Type.getObjectType("I");
-    new SimpleVerifier(ASM7_EXPERIMENTAL, baseType, superType, Arrays.asList(interfaceType), false) {
+    new SimpleVerifier(
+        ASM7_EXPERIMENTAL, baseType, superType, Arrays.asList(interfaceType), false) {
 
       void test() {
         assertTrue(isAssignableFrom(baseType, baseType));

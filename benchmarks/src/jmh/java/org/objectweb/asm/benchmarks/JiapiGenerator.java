@@ -28,7 +28,6 @@
 package org.objectweb.asm.benchmarks;
 
 import java.lang.reflect.Modifier;
-
 import net.sf.jiapi.reflect.InstructionFactory;
 import net.sf.jiapi.reflect.InstructionList;
 import net.sf.jiapi.reflect.JiapiClass;

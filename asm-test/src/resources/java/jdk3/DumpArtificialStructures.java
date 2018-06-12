@@ -29,7 +29,6 @@ package jdk3;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
-
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.CodeComment;
 import org.objectweb.asm.Comment;

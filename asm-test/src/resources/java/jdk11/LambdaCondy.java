@@ -28,10 +28,10 @@
 package jdk11;
 
 /**
- * By default with jdk 11, constant lambda are compiled using constant dynamic
- * The classfile was generated with the amber (branch condy-folding) compiler. 
- * 
- * /usr/jdk/jdk-11/bin/javac -source 11 --enable-preview jdk11/LambdaCondy.java
+ * By default with jdk 11, constant lambda are compiled using constant dynamic The classfile was
+ * generated with the amber (branch condy-folding) compiler.
+ *
+ * <p>/usr/jdk/jdk-11/bin/javac -source 11 --enable-preview jdk11/LambdaCondy.java
  */
 public class LambdaCondy {
   public static void main(String[] args) {

@@ -29,7 +29,6 @@ package org.objectweb.asm.benchmarks;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-
 import org.cojen.classfile.ClassFile;
 import org.cojen.classfile.CodeBuilder;
 import org.cojen.classfile.MethodInfo;

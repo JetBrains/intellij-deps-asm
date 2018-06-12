@@ -35,7 +35,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
 import org.objectweb.asm.AnnotationVisitor;
 import org.objectweb.asm.Attribute;
 import org.objectweb.asm.ConstantDynamic;
@@ -378,7 +377,8 @@ public class CheckMethodAdapter extends MethodVisitor {
    * data flow check (see {@link #CheckMethodAdapter(int,String,String,MethodVisitor,Map)}).
    *
    * @param api the ASM API version implemented by this CheckMethodAdapter. Must be one of {@link
-   *     Opcodes#ASM4}, {@link Opcodes#ASM5}, {@link Opcodes#ASM6} or {@link Opcodes#ASM7_EXPERIMENTAL}.
+   *     Opcodes#ASM4}, {@link Opcodes#ASM5}, {@link Opcodes#ASM6} or {@link
+   *     Opcodes#ASM7_EXPERIMENTAL}.
    * @param methodVisitor the method visitor to which this adapter must delegate calls.
    * @param labelInsnIndices the index of the instruction designated by each visited label so far
    *     (in other methods). This map is updated with the labels from the visited method.
@@ -425,7 +425,8 @@ public class CheckMethodAdapter extends MethodVisitor {
    * instruction IRETURN, or the invalid sequence IADD L2I will be detected.
    *
    * @param api the ASM API version implemented by this CheckMethodAdapter. Must be one of {@link
-   *     Opcodes#ASM4}, {@link Opcodes#ASM5}, {@link Opcodes#ASM6} or {@link Opcodes#ASM7_EXPERIMENTAL}.
+   *     Opcodes#ASM4}, {@link Opcodes#ASM5}, {@link Opcodes#ASM6} or {@link
+   *     Opcodes#ASM7_EXPERIMENTAL}.
    * @param access the method's access flags.
    * @param name the method's name.
    * @param descriptor the method's descriptor (see {@link Type}).

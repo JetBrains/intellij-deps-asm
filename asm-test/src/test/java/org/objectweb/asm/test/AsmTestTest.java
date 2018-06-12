@@ -83,7 +83,8 @@ public class AsmTestTest extends AsmTest {
   /** Tests that we can load (and instantiate) each (non-abstract) precompiled class. */
   @ParameterizedTest
   @MethodSource(ALL_CLASSES_AND_LATEST_API)
-  public void testLoadAndInstantiate(final PrecompiledClass classParameter, final Api apiParameter) {
+  public void testLoadAndInstantiate(
+      final PrecompiledClass classParameter, final Api apiParameter) {
     assertThat(() -> loadAndInstantiate(classParameter.getName(), classParameter.getBytes()))
         .succeedsOrThrows(UnsupportedClassVersionError.class)
         .when(classParameter.isMoreRecentThanCurrentJdk());

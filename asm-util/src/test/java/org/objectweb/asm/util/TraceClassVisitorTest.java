@@ -29,7 +29,6 @@ package org.objectweb.asm.util;
 
 import java.io.CharArrayWriter;
 import java.io.PrintWriter;
-
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.objectweb.asm.AnnotationVisitor;
@@ -40,7 +39,6 @@ import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.ModuleVisitor;
-import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.test.AsmTest;
 
 /**

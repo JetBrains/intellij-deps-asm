@@ -28,7 +28,6 @@
 package org.objectweb.asm.util;
 
 import java.io.PrintWriter;
-
 import org.objectweb.asm.AnnotationVisitor;
 import org.objectweb.asm.Attribute;
 import org.objectweb.asm.ClassVisitor;

@@ -27,11 +27,16 @@
 // THE POSSIBILITY OF SUCH DAMAGE.
 
 buildscript {
-  repositories { mavenCentral() }
+  repositories {
+    mavenCentral()
+    maven { url 'https://oss.sonatype.org/content/repositories/snapshots/' }
+  }
+  dependencies {
+    classpath 'com.github.sherter.googlejavaformatgradleplugin:google-java-format-gradle-plugin:0.7-SNAPSHOT'
+  }
 }
 
 plugins { id 'biz.aQute.bnd.builder' version '3.3.0' apply false }
-plugins { id 'com.github.sherter.google-java-format' version '0.6' apply false }
 plugins { id 'me.champeau.gradle.jmh' version '0.4.5' apply false }
 plugins { id 'org.sonarqube' version '2.6.2' apply false }
 
@@ -171,7 +176,7 @@ project(':tools:retrofitter') {
 // All projects use Java 1.6 and are tested with :asm-test and JUnit.
 subprojects {
   apply plugin: 'com.github.sherter.google-java-format'
-  googleJavaFormat.toolVersion = '1.4'
+  googleJavaFormat.exclude 'src/resources/java/**/*'
   compileTestJava {
     sourceCompatibility = '1.8'
     targetCompatibility = '1.8'

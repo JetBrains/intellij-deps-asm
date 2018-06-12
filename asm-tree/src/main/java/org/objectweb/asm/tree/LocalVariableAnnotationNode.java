@@ -29,7 +29,6 @@
 package org.objectweb.asm.tree;
 
 import java.util.List;
-
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
@@ -92,7 +91,8 @@ public class LocalVariableAnnotationNode extends TypeAnnotationNode {
    * Constructs a new {@link LocalVariableAnnotationNode}.
    *
    * @param api the ASM API version implemented by this visitor. Must be one of {@link
-   *     Opcodes#ASM4}, {@link Opcodes#ASM5}, {@link Opcodes#ASM6} or {@link Opcodes#ASM7_EXPERIMENTAL}.
+   *     Opcodes#ASM4}, {@link Opcodes#ASM5}, {@link Opcodes#ASM6} or {@link
+   *     Opcodes#ASM7_EXPERIMENTAL}.
    * @param typeRef a reference to the annotated type. See {@link org.objectweb.asm.TypeReference}.
    * @param start the fist instructions corresponding to the continuous ranges that make the scope
    *     of this local variable (inclusive).

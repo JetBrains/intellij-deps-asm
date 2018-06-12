@@ -30,7 +30,6 @@ package org.objectweb.asm.benchmarks;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
-
 import javassist.ClassPool;
 import javassist.CtClass;
 

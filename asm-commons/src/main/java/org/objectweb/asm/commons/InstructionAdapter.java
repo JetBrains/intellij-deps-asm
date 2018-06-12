@@ -63,7 +63,8 @@ public class InstructionAdapter extends MethodVisitor {
    * Constructs a new {@link InstructionAdapter}.
    *
    * @param api the ASM API version implemented by this visitor. Must be one of {@link
-   *     Opcodes#ASM4}, {@link Opcodes#ASM5}, {@link Opcodes#ASM6} or {@link Opcodes#ASM7_EXPERIMENTAL}.
+   *     Opcodes#ASM4}, {@link Opcodes#ASM5}, {@link Opcodes#ASM6} or {@link
+   *     Opcodes#ASM7_EXPERIMENTAL}.
    * @param methodVisitor the method visitor to which this adapter delegates calls.
    */
   protected InstructionAdapter(final int api, final MethodVisitor methodVisitor) {

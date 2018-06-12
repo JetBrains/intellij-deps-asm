@@ -22,7 +22,6 @@
 package org.objectweb.asm.util;
 
 import java.util.Map;
-
 import org.objectweb.asm.Label;
 
 /**

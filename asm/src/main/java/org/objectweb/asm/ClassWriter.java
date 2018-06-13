@@ -436,8 +436,10 @@ public class ClassWriter extends ClassVisitor {
    * Returns the content of the class file that was built by this ClassWriter.
    *
    * @return the binary content of the JVMS ClassFile structure that was built by this ClassWriter.
+   * @throws ClassTooLargeException if the constant pool of the class is too large.
+   * @throws MethodTooLargeException if the Code attribute of a method is too large.
    */
-  public byte[] toByteArray() {
+  public byte[] toByteArray() throws ClassTooLargeException, MethodTooLargeException {
     // First step: compute the size in bytes of the ClassFile structure.
     // The magic field uses 4 bytes, 10 mandatory fields (minor_version, major_version,
     // constant_pool_count, access_flags, this_class, super_class, interfaces_count, fields_count,
@@ -543,8 +545,9 @@ public class ClassWriter extends ClassVisitor {
     // IMPORTANT: this must be the last part of the ClassFile size computation, because the previous
     // statements can add attribute names to the constant pool, thereby changing its size!
     size += symbolTable.getConstantPoolLength();
-    if (symbolTable.getConstantPoolCount() > 0xFFFF) {
-      throw new IndexOutOfBoundsException("Class file too large!");
+    int constantPoolCount = symbolTable.getConstantPoolCount();
+    if (constantPoolCount > 0xFFFF) {
+      throw new ClassTooLargeException(symbolTable.getClassName(), constantPoolCount);
     }
 
     // Second step: allocate a ByteVector of the correct size (in order to avoid any array copy in

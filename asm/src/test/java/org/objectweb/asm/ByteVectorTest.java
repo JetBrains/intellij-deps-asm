@@ -31,7 +31,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.util.Arrays;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 /**
  * ByteVector tests.
@@ -113,10 +116,27 @@ public class ByteVectorTest {
     assertContains(byteVector, 0, 8, 'a', -64, -128, -62, -128, -32, -96, -128);
 
     char[] charBuffer = new char[32768];
-    for (int i = 0; i < charBuffer.length; ++i) {
-      charBuffer[i] = '\u07FF';
+    Arrays.fill(charBuffer, '\u07FF');
+    IllegalArgumentException thrown =
+        assertThrows(
+            IllegalArgumentException.class, () -> byteVector.putUTF8(new String(charBuffer)));
+    assertEquals("UTF8 string too large", thrown.getMessage());
+  }
+
+  @ParameterizedTest
+  @ValueSource(ints = {65535, 65536})
+  public void testPutUTF8_tooLong(int size) {
+    ByteVector byteVector = new ByteVector(0);
+    char[] charBuffer = new char[size];
+    Arrays.fill(charBuffer, 'A');
+    String utf8 = new String(charBuffer);
+    if (size > 65535) {
+      IllegalArgumentException thrown =
+          assertThrows(IllegalArgumentException.class, () -> byteVector.putUTF8(utf8));
+      assertEquals("UTF8 string too large", thrown.getMessage());
+    } else {
+      byteVector.putUTF8(utf8);
     }
-    assertThrows(IllegalArgumentException.class, () -> byteVector.putUTF8(new String(charBuffer)));
   }
 
   @Test

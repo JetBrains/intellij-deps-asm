@@ -54,6 +54,8 @@ public class InsnListTest {
 
   private InsnList list2;
 
+  private InsnList list3Unchecked;
+
   private InsnNode insn1;
 
   private InsnNode insn2;
@@ -62,6 +64,7 @@ public class InsnListTest {
   public void setUp() throws Exception {
     list1 = new CheckedInsnList();
     list2 = new CheckedInsnList();
+    list3Unchecked = new InsnList();
     insn1 = new InsnNode(0);
     insn2 = new InsnNode(0);
     list2.add(insn1);
@@ -323,6 +326,16 @@ public class InsnListTest {
   }
 
   @Test
+  public void testSetNodeAssociatedWithAnotherList() {
+    InsnNode insnNode = new InsnNode(0);
+    list3Unchecked.add(insnNode);
+    list3Unchecked.set(insnNode, insn1);
+    ListIterator<AbstractInsnNode> iterator = list3Unchecked.iterator();
+    iterator.next();
+    assertFalse(iterator.hasNext());
+  }
+
+  @Test
   public void testInvalidAdd() {
     assertThrows(IllegalArgumentException.class, () -> list1.add(insn1));
   }
@@ -352,6 +365,14 @@ public class InsnListTest {
     assertEquals(1, list1.indexOf(insn));
     assertEquals(insn, list1.get(1));
     assertEquals(true, list1.contains(insn));
+  }
+
+  @Test
+  public void testAddNodeAssociatedWithAnotherList() {
+    list3Unchecked.add(insn1);
+    ListIterator<AbstractInsnNode> iterator = list3Unchecked.iterator();
+    iterator.next();
+    assertFalse(iterator.hasNext());
   }
 
   @Test

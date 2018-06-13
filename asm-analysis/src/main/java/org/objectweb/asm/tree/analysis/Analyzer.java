@@ -395,12 +395,12 @@ public class Analyzer<V extends Value> implements Opcodes {
           interpreter.newParameterValue(isInstanceMethod, currentLocal, argumentTypes[i]));
       currentLocal++;
       if (argumentTypes[i].getSize() == 2) {
-        frame.setLocal(currentLocal, interpreter.newEmptyValueAfterSize2Local(currentLocal));
+        frame.setLocal(currentLocal, interpreter.newEmptyValue(currentLocal));
         currentLocal++;
       }
     }
     while (currentLocal < method.maxLocals) {
-      frame.setLocal(currentLocal, interpreter.newEmptyNonParameterLocalValue(currentLocal));
+      frame.setLocal(currentLocal, interpreter.newEmptyValue(currentLocal));
       currentLocal++;
     }
     frame.setReturn(interpreter.newReturnTypeValue(Type.getReturnType(method.desc)));

@@ -854,7 +854,13 @@ final class MethodWriter extends MethodVisitor {
 
     if (compute == COMPUTE_MAX_STACK_AND_LOCAL_FROM_FRAMES) {
       relativeStackSize = nStack;
-      if (nStack > maxRelativeStackSize) {
+      for (int i = 0; i < nStack; ++i) {
+        Object st = stack[i];
+        if (st == Opcodes.LONG || st == Opcodes.DOUBLE) {
+          relativeStackSize++;
+        }
+      }
+      if (relativeStackSize > maxRelativeStackSize) {
         maxRelativeStackSize = relativeStackSize;
       }
     }

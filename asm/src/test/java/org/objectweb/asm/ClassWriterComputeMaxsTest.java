@@ -1128,4 +1128,19 @@ public class ClassWriterComputeMaxsTest {
 
     assertMaxs(1, 1);
   }
+
+  @Test
+  public void testComputeMaxsFromFrameWithLong() {
+    init(Opcodes.V1_7);
+    Label l0 = new Label();
+
+    methodVisitor.visitMethodInsn(Opcodes.INVOKESTATIC, "ABC", "get", "()J", false);
+    GOTO(l0);
+    LABEL(l0);
+    methodVisitor.visitFrame(Opcodes.F_NEW, 0, null, 1, new Object[] {Opcodes.LONG});
+    ACONST_NULL();
+    RETURN();
+
+    assertMaxs(3, 1);
+  }
 }

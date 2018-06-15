@@ -30,6 +30,7 @@ package org.objectweb.asm.tree.analysis;
 import java.util.List;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.AbstractInsnNode;
+import org.objectweb.asm.tree.TryCatchBlockNode;
 
 /**
  * A semantic bytecode interpreter. More precisely, this interpreter only manages the computation of
@@ -67,12 +68,82 @@ public abstract class Interpreter<V extends Value> {
    * <p>Called for method parameters (including <code>this</code>), exception handler variable and
    * with <code>null</code> type for variables reserved by long and double types.
    *
+   * <p>An interpreter may choose to implement one or more of {@link
+   * Interpreter#newReturnTypeValue(Type)}, {@link Interpreter#newParameterValue(boolean, int,
+   * Type)}, {@link Interpreter#newEmptyValue(int)}, {@link
+   * Interpreter#newExceptionValue(TryCatchBlockNode, Frame, Type)} to distinguish different types
+   * of new value.
+   *
    * @param type a primitive or reference type, or <tt>null</tt> to represent an uninitialized
    *     value.
    * @return a value that represents the given type. The size of the returned value must be equal to
    *     the size of the given type.
    */
   public abstract V newValue(Type type);
+
+  /**
+   * Creates a new value that represents the given parameter type. This method is called to
+   * initialize the value of a local corresponding to a method parameter in a frame.
+   *
+   * <p>By default, calls <code>newValue(type)</code>.
+   *
+   * @param isInstanceMethod <tt>true</tt> if the method is non-static.
+   * @param local the local variable index.
+   * @param type a primitive or reference type.
+   * @return a value that represents the given type. The size of the returned value must be equal to
+   *     the size of the given type.
+   */
+  public V newParameterValue(final boolean isInstanceMethod, final int local, final Type type) {
+    return newValue(type);
+  }
+
+  /**
+   * Creates a new value that represents the given return type. This method is called to initialize
+   * the return type value of a frame.
+   *
+   * <p>By default, calls <code>newValue(type)</code>.
+   *
+   * @param type a primitive or reference type.
+   * @return a value that represents the given type. The size of the returned value must be equal to
+   *     the size of the given type.
+   */
+  public V newReturnTypeValue(final Type type) {
+    return newValue(type);
+  }
+
+  /**
+   * Creates a new uninitialized value for a local variable. This method is called to initialize the
+   * value of a local that does not correspond to a method parameter, and to reset one half of a
+   * size-2 value when the other half is assigned a size-1 value.
+   *
+   * <p>By default, calls <code>newValue(null)</code>.
+   *
+   * @param local the local variable index.
+   * @return a value representing an uninitialized value. The size of the returned value must be
+   *     equal to 1.
+   */
+  public V newEmptyValue(final int local) {
+    return newValue(null);
+  }
+
+  /**
+   * Creates a new value that represents the given exception type. This method is called to
+   * initialize the exception value on the call stack at the entry of an exception handler.
+   *
+   * <p>By default, calls <code>newValue(exceptionType)</code>.
+   *
+   * @param tryCatchBlockNode the exception handler.
+   * @param handlerFrame the exception handler frame.
+   * @param exceptionType the exception type handled by this handler.
+   * @return a value that represents the given <tt>exceptionType</tt>. The size of the returned
+   *     value must be equal to 1.
+   */
+  public V newExceptionValue(
+      final TryCatchBlockNode tryCatchBlockNode,
+      final Frame<V> handlerFrame,
+      final Type exceptionType) {
+    return newValue(exceptionType);
+  }
 
   /**
    * Interprets a bytecode instruction without arguments. This method is called for the following

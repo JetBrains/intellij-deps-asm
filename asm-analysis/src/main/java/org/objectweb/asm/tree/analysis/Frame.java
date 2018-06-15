@@ -275,12 +275,12 @@ public class Frame<V extends Value> {
         var = ((VarInsnNode) insn).var;
         setLocal(var, value1);
         if (value1.getSize() == 2) {
-          setLocal(var + 1, interpreter.newValue(null));
+          setLocal(var + 1, interpreter.newEmptyValue(var + 1));
         }
         if (var > 0) {
           Value local = getLocal(var - 1);
           if (local != null && local.getSize() == 2) {
-            setLocal(var - 1, interpreter.newValue(null));
+            setLocal(var - 1, interpreter.newEmptyValue(var - 1));
           }
         }
         break;

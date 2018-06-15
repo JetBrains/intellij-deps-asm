@@ -84,7 +84,6 @@ package org.objectweb.asm;
  *         <li>a position relatively to the top of the stack of the input stack frame, if KIND is
  *             equal to {@link #STACK_KIND},
  *       </ul>
- *
  * </ul>
  *
  * <p>Output frames can contain abstract types of any kind and with a positive or negative array

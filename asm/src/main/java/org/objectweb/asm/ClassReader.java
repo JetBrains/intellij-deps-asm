@@ -3249,8 +3249,8 @@ public class ClassReader {
       final Label[] labels) {
     for (int i = 0; i < attributePrototypes.length; ++i) {
       if (attributePrototypes[i].type.equals(type)) {
-        return attributePrototypes[i]
-            .read(this, offset, length, charBuffer, codeAttributeOffset, labels);
+        return attributePrototypes[i].read(
+            this, offset, length, charBuffer, codeAttributeOffset, labels);
       }
     }
     return new Attribute(type).read(this, offset, length, null, -1, null);

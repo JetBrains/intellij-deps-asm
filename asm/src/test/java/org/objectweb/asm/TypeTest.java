@@ -81,31 +81,30 @@ public class TypeTest implements Opcodes {
 
   @ParameterizedTest
   @ValueSource(
-    strings = {
-      "I",
-      "V",
-      "Z",
-      "B",
-      "C",
-      "S",
-      "D",
-      "F",
-      "J",
-      "LI;",
-      "LV;",
-      "Ljava/lang/Object;",
-      "[I",
-      "[LI;",
-      "[[Ljava/lang/Object;",
-      "(IZBCSDFJLI;LV;Ljava/lang/Object;[I[LI;[[Ljava/lang/Object;)V",
-      "()I",
-      "()LI;",
-      "()Ljava/lang/Object;",
-      "()[I",
-      "()[LI;",
-      "()[[Ljava/lang/Object;"
-    }
-  )
+      strings = {
+        "I",
+        "V",
+        "Z",
+        "B",
+        "C",
+        "S",
+        "D",
+        "F",
+        "J",
+        "LI;",
+        "LV;",
+        "Ljava/lang/Object;",
+        "[I",
+        "[LI;",
+        "[[Ljava/lang/Object;",
+        "(IZBCSDFJLI;LV;Ljava/lang/Object;[I[LI;[[Ljava/lang/Object;)V",
+        "()I",
+        "()LI;",
+        "()Ljava/lang/Object;",
+        "()[I",
+        "()[LI;",
+        "()[[Ljava/lang/Object;"
+      })
   public void testGetTypeFromDescriptor(final String descriptor) {
     Type type = Type.getType(descriptor);
     assertEquals(descriptor, type.getDescriptor());
@@ -127,16 +126,15 @@ public class TypeTest implements Opcodes {
 
   @ParameterizedTest
   @ValueSource(
-    strings = {
-      "(IZBCSDFJLI;LV;Ljava/lang/Object;[I[LI;[[Ljava/lang/Object;)V",
-      "()I",
-      "()LI;",
-      "()Ljava/lang/Object;",
-      "()[I",
-      "()[LI;",
-      "()[[Ljava/lang/Object;"
-    }
-  )
+      strings = {
+        "(IZBCSDFJLI;LV;Ljava/lang/Object;[I[LI;[[Ljava/lang/Object;)V",
+        "()I",
+        "()LI;",
+        "()Ljava/lang/Object;",
+        "()[I",
+        "()[LI;",
+        "()[[Ljava/lang/Object;"
+      })
   public void testGetMethodTypeFromDescriptor(final String methodDescriptor) {
     Type type = Type.getMethodType(methodDescriptor);
     assertEquals(Type.METHOD, type.getSort());
@@ -146,16 +144,15 @@ public class TypeTest implements Opcodes {
 
   @ParameterizedTest
   @ValueSource(
-    strings = {
-      "(IZBCSDFJLI;LV;Ljava/lang/Object;[I[LI;[[Ljava/lang/Object;)V",
-      "()I",
-      "()LI;",
-      "()Ljava/lang/Object;",
-      "()[I",
-      "()[LI;",
-      "()[[Ljava/lang/Object;"
-    }
-  )
+      strings = {
+        "(IZBCSDFJLI;LV;Ljava/lang/Object;[I[LI;[[Ljava/lang/Object;)V",
+        "()I",
+        "()LI;",
+        "()Ljava/lang/Object;",
+        "()[I",
+        "()[LI;",
+        "()[[Ljava/lang/Object;"
+      })
   public void testGetMethodGetArgumentsAndGetReturnType(final String methodDescriptor) {
     Type[] argumentTypes = Type.getArgumentTypes(methodDescriptor);
     Type returnType = Type.getReturnType(methodDescriptor);

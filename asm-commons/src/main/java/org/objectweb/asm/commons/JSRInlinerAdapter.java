@@ -372,8 +372,8 @@ public class JSRInlinerAdapter extends MethodNode implements Opcodes {
           LabelNode clonedJsrLabelNode = newInstantiation.getClonedLabelForJumpInsn(jsrLabelNode);
           // Replace the JSR instruction with a GOTO to the instantiated subroutine, and push NULL
           // for what was once the return address value. This hack allows us to avoid doing any sort
-          // of data flow analysis to figure out which instructions manipulate the old return address
-          // value pointer which is now known to be unneeded.
+          // of data flow analysis to figure out which instructions manipulate the old return
+          // address value pointer which is now known to be unneeded.
           newInstructions.add(new InsnNode(ACONST_NULL));
           newInstructions.add(new JumpInsnNode(GOTO, clonedJsrLabelNode));
           newInstructions.add(newInstantiation.returnLabel);

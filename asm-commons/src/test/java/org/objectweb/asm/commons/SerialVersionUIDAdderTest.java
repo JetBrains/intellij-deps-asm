@@ -120,7 +120,8 @@ class SerialVersionClass implements Serializable {
 
   protected static final int aField = 32;
 
-  static {}
+  static {
+  }
 
   public static Object[] aMethod() {
     return null;

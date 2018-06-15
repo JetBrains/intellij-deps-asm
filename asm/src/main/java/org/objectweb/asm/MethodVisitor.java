@@ -259,7 +259,6 @@ public abstract class MethodVisitor {
    *             the empty stack (<code>nLocals</code> is 1, 2 or 3).
    *         <li>{@link Opcodes#F_FULL} representing complete frame data.
    *       </ul>
-   *
    * </ul>
    *
    * <br>

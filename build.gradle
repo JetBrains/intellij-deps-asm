@@ -27,16 +27,11 @@
 // THE POSSIBILITY OF SUCH DAMAGE.
 
 buildscript {
-  repositories {
-    mavenCentral()
-    maven { url 'https://oss.sonatype.org/content/repositories/snapshots/' }
-  }
-  dependencies {
-    classpath 'com.github.sherter.googlejavaformatgradleplugin:google-java-format-gradle-plugin:0.7-SNAPSHOT'
-  }
+  repositories { mavenCentral() }
 }
 
 plugins { id 'biz.aQute.bnd.builder' version '3.3.0' apply false }
+plugins { id 'com.github.sherter.google-java-format' version '0.7.1' apply false }
 plugins { id 'me.champeau.gradle.jmh' version '0.4.5' apply false }
 plugins { id 'org.sonarqube' version '2.6.2' apply false }
 

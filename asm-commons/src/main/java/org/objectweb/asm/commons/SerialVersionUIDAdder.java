@@ -76,28 +76,24 @@ import org.objectweb.asm.Opcodes;
  *         <li>The modifiers of the field written as a 32-bit integer.
  *         <li>The descriptor of the field in UTF encoding
  *       </ol>
- *
  *   <li>If a class initializer exists, write out the following:
  *       <ol>
  *         <li>The name of the method, &lt;clinit&gt;, in UTF encoding.
  *         <li>The modifier of the method, STATIC, written as a 32-bit integer.
  *         <li>The descriptor of the method, ()V, in UTF encoding.
  *       </ol>
- *
  *   <li>For each non-private constructor sorted by method name and signature:
  *       <ol>
  *         <li>The name of the method, &lt;init&gt;, in UTF encoding.
  *         <li>The modifiers of the method written as a 32-bit integer.
  *         <li>The descriptor of the method in UTF encoding.
  *       </ol>
- *
  *   <li>For each non-private method sorted by method name and signature:
  *       <ol>
  *         <li>The name of the method in UTF encoding.
  *         <li>The modifiers of the method written as a 32-bit integer.
  *         <li>The descriptor of the method in UTF encoding.
  *       </ol>
- *
  *   <li>The SHA-1 algorithm is executed on the stream of bytes produced by DataOutputStream and
  *       produces five 32-bit values sha[0..4].
  *   <li>The hash value is assembled from the first and second 32-bit values of the SHA-1 message

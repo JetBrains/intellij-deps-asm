@@ -64,7 +64,7 @@ public class SimpleRemapper extends Remapper {
    * Constructs a new {@link SimpleRemapper} with the given mapping.
    *
    * @param oldName the key corresponding to a method, field or internal name (see {@link
-   *     SimpleRemapper(Map)} for the format of these keys).
+   *     #SimpleRemapper(Map)} for the format of these keys).
    * @param newName the new method, field or internal name.
    */
   public SimpleRemapper(final String oldName, final String newName) {

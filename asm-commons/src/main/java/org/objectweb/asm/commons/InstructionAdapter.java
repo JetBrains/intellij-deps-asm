@@ -1017,9 +1017,9 @@ public class InstructionAdapter extends MethodVisitor {
   }
 
   /**
-   * @param owner
-   * @param name
-   * @param descriptor
+   * @param owner the internal name of the method's owner class.
+   * @param name the method's name.
+   * @param descriptor the method's descriptor (see {@link Type}).
    * @deprecated
    */
   @Deprecated
@@ -1044,9 +1044,9 @@ public class InstructionAdapter extends MethodVisitor {
   }
 
   /**
-   * @param owner
-   * @param name
-   * @param descriptor
+   * @param owner the internal name of the method's owner class.
+   * @param name the method's name.
+   * @param descriptor the method's descriptor (see {@link Type}).
    * @deprecated
    */
   @Deprecated
@@ -1071,9 +1071,9 @@ public class InstructionAdapter extends MethodVisitor {
   }
 
   /**
-   * @param owner
-   * @param name
-   * @param descriptor
+   * @param owner the internal name of the method's owner class.
+   * @param name the method's name.
+   * @param descriptor the method's descriptor (see {@link Type}).
    * @deprecated
    */
   @Deprecated

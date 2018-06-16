@@ -2003,6 +2003,8 @@ final class MethodWriter extends MethodVisitor {
    *     of this method might be copied contains a Synthetic attribute.
    * @param hasDeprecatedAttribute whether the method_info JVMS structure from which the attributes
    *     of this method might be copied contains a Deprecated attribute.
+   * @param descriptorIndex the descriptor_index field of the method_info JVMS structure from which
+   *     the attributes of this method might be copied.
    * @param signatureIndex the constant pool index contained in the Signature attribute of the
    *     method_info JVMS structure from which the attributes of this method might be copied, or 0.
    * @param exceptionsOffset the offset in 'source.b' of the Exceptions attribute of the method_info
@@ -2017,9 +2019,16 @@ final class MethodWriter extends MethodVisitor {
       final int methodInfoLength,
       final boolean hasSyntheticAttribute,
       final boolean hasDeprecatedAttribute,
+      final int descriptorIndex,
       final int signatureIndex,
       final int exceptionsOffset) {
+    // If the method descriptor has changed, with more locals than the max_locals field of the
+    // original Code attribute, if any, then the original method attributes can't be copied. A
+    // conservative check on the descriptor changes alone ensures this (being more precise is not
+    // worth the additional complexity, because these cases should be rare -- if a transform changes
+    // a method descriptor, most of the time it needs to change the method's code too).
     if (source != symbolTable.getSource()
+        || descriptorIndex != this.descriptorIndex
         || signatureIndex != this.signatureIndex
         || hasDeprecatedAttribute != ((accessFlags & Opcodes.ACC_DEPRECATED) != 0)) {
       return false;

@@ -1132,6 +1132,7 @@ public class ClassReader {
           currentOffset - methodInfoOffset,
           synthetic,
           (context.currentMethodAccessFlags & Opcodes.ACC_DEPRECATED) != 0,
+          readUnsignedShort(methodInfoOffset + 4),
           signatureIndex,
           exceptionsOffset)) {
         return currentOffset;

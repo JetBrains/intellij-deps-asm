@@ -29,6 +29,9 @@ package org.objectweb.asm;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
@@ -154,6 +157,34 @@ public class ClassVisitorTest extends AsmTest {
         new ChangeVersionAdapter(new ChangeAccessAdapter(classWriter, access), version), 0);
     classReader.accept(
         new ChangeVersionAdapter(new ChangeAccessAdapter(copyPoolClassWriter, access), version), 0);
+    assertThatClass(copyPoolClassWriter.toByteArray()).isEqualTo(classWriter.toByteArray());
+  }
+
+  /**
+   * Tests that a ClassReader -> class adapter -> ClassWriter chain give the same result when the
+   * descriptor of a method is changed.
+   */
+  @Test
+  public void testReadAndWriteWithCopyPoolAndChangeDescriptor() {
+    ClassWriter sourceClassWriter = new ClassWriter(ClassWriter.COMPUTE_MAXS);
+    sourceClassWriter.visit(
+        Opcodes.V1_7, Opcodes.ACC_ABSTRACT, "C", null, "java/lang/Object", null);
+    MethodVisitor methodVisitor =
+        sourceClassWriter.visitMethod(Opcodes.ACC_PUBLIC, "<init>", "()V", null, null);
+    methodVisitor.visitCode();
+    methodVisitor.visitVarInsn(Opcodes.ALOAD, 0);
+    methodVisitor.visitMethodInsn(
+        Opcodes.INVOKESPECIAL, "java/lang/Object", "<init>", "()V", false);
+    methodVisitor.visitInsn(Opcodes.RETURN);
+    methodVisitor.visitMaxs(0, 0);
+    methodVisitor.visitEnd();
+    sourceClassWriter.visitEnd();
+
+    ClassReader classReader = new ClassReader(sourceClassWriter.toByteArray());
+    ClassWriter classWriter = new ClassWriter(ClassWriter.COMPUTE_MAXS);
+    ClassWriter copyPoolClassWriter = new ClassWriter(classReader, ClassWriter.COMPUTE_MAXS);
+    classReader.accept(new AddParameterAdapter(classWriter), 0);
+    classReader.accept(new AddParameterAdapter(copyPoolClassWriter), 0);
     assertThatClass(copyPoolClassWriter.toByteArray()).isEqualTo(classWriter.toByteArray());
   }
 
@@ -533,6 +564,33 @@ public class ClassVisitorTest extends AsmTest {
               typeRef, typePath, start, end, index, descriptor, visible);
         }
       };
+    }
+  }
+
+  /** A class visitor which adds a parameter to the declared method descriptors. */
+  private static class AddParameterAdapter extends ClassVisitor {
+
+    public AddParameterAdapter(final ClassVisitor classVisitor) {
+      super(Opcodes.ASM7_EXPERIMENTAL, classVisitor);
+    }
+
+    @Override
+    public MethodVisitor visitMethod(
+        final int access,
+        final String name,
+        final String descriptor,
+        final String signature,
+        final String[] exceptions) {
+      List<Type> argumentTypes = new ArrayList<>(Arrays.asList(Type.getArgumentTypes(descriptor)));
+      argumentTypes.add(Type.INT_TYPE);
+      Type returnType = Type.getReturnType(descriptor);
+      return super.visitMethod(
+          access,
+          name,
+          Type.getMethodDescriptor(
+              returnType, argumentTypes.toArray(new Type[argumentTypes.size()])),
+          signature,
+          exceptions);
     }
   }
 }

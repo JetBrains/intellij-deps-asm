@@ -185,7 +185,12 @@ public class ClassReaderTest extends AsmTest implements Opcodes {
 
     Executable constructor = () -> new ClassReader(invalidClass.getBytes());
 
-    assertThrows(IllegalArgumentException.class, constructor);
+    //[JB: accept any version]
+    if (invalidClass == InvalidClass.INVALID_CLASS_VERSION) {
+      new ClassReader(invalidClass.getBytes());
+    } else {
+      assertThrows(IllegalArgumentException.class, constructor);
+    }
   }
 
   /** Tests {@link ClassReader#ClassReader(String)} and the basic ClassReader accessors. */

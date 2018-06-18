@@ -357,6 +357,8 @@ public class ClassNodeTest extends AsmTest implements Opcodes {
     assertEquals(AbstractInsnNode.LINE, lineNumberNode.getType());
   }
 
+  //[JB: needed for Coverage agent]
+  @org.junit.jupiter.api.Disabled
   @Test
   public void testCloneMethod() {
     MethodNode methodNode = new MethodNode();

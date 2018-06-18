@@ -54,6 +54,8 @@ public interface Opcodes {
    */
   @Deprecated int ASM7_EXPERIMENTAL = 1 << 24 | 7 << 16 | 0 << 8;
 
+  int API_VERSION = ASM7_EXPERIMENTAL; //[JB: convenience constant]
+
   // Java ClassFile versions (the minor version is stored in the 16 most
   // significant bits, and the
   // major version in the 16 least significant bits).

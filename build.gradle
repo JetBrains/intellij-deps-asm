@@ -27,7 +27,7 @@
 // THE POSSIBILITY OF SUCH DAMAGE.
 
 buildscript {
-  repositories { mavenCentral() }
+  repositories { maven { url = uri("https://cache-redirector.jetbrains.com/maven-central") } }
   dependencies { classpath 'org.netbeans.tools:sigtest-maven-plugin:1.5' }
 }
 
@@ -52,7 +52,7 @@ allprojects {
 }
 
 subprojects {
-  repositories { mavenCentral() }
+  repositories { maven { url = uri("https://cache-redirector.jetbrains.com/maven-central") } }
   apply plugin: 'java-library'
   apply plugin: 'jacoco'
   java {
@@ -465,4 +465,10 @@ configure([rootProject] + subprojects.findAll { it.provides }) {
     sign publishing.publications.maven
   }
   tasks.withType(GenerateModuleMetadata) { enabled = false }
+}
+
+//[JB] applying the packaging/publishing script
+//[JB] usage: `gradle clean jar -Prelease`, then `gradle -Pintellij.asm fatJar fatSources [publish]`
+if (hasProperty('intellij.asm')) {
+  apply from: 'intellij-deps-asm.gradle'
 }

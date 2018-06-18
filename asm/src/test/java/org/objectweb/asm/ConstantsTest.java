@@ -388,6 +388,7 @@ public class ConstantsTest {
         case "WIDE_JUMP_OPCODE_DELTA":
         case "ASM_OPCODE_DELTA":
         case "ASM_IFNULL_OPCODE_DELTA":
+        case "API_VERSION": //[JB: convenience constant]
           // Nothing to check.
           break;
         default:

@@ -35,6 +35,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.lang.invoke.MethodHandles;
 import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.List;
@@ -213,6 +214,18 @@ public class ConstantsTest {
     Executable checkIsPreview = () -> Constants.checkIsPreview(previewStream);
 
     assertDoesNotThrow(checkIsPreview);
+  }
+
+  //[JB: ensures `Opcodes#API_VERSION` constant points to the latest non-experimental API version]
+  @Test
+  public void testVersionConstantIsActual() throws ReflectiveOperationException {
+    List<Field> constants = getConstants(ConstantType.ASM_VERSION);
+    int maxVersion = constants.stream()
+            .filter(f -> !f.getName().endsWith("_EXPERIMENTAL"))
+            .mapToInt(f -> Integer.parseInt(f.getName().substring(3)))
+            .max().orElseThrow(() -> new IllegalStateException("No recognizable version constants: " + constants));
+    int versionValue = (int)Opcodes.class.getField("ASM" + maxVersion).get(null);
+    assertEquals(versionValue, Opcodes.API_VERSION);
   }
 
   private static List<Field> getConstants(final ConstantType constantType) {
@@ -542,6 +555,7 @@ public class ConstantsTest {
       case "ASM_IFNULL_OPCODE_DELTA":
       case "SOURCE_DEPRECATED":
       case "SOURCE_MASK":
+      case "API_VERSION": //[JB: convenience constant]
         return ConstantType.OTHER;
       default:
         throw new IllegalArgumentException("Unknown constant " + field.getName());

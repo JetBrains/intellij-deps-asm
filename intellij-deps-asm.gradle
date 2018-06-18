@@ -1,0 +1,95 @@
+//[JB] The script renames ASM packages using the given prefix, merges modules into "fat" artifacts, and publishes them.
+//[JB] Relies on build artifacts, so run `gradle jar` first.
+
+plugins { id 'com.jfrog.bintray' version '1.8.4' }
+
+apply plugin: 'maven-publish'
+
+repositories { jcenter() }
+configurations { jarJar }
+dependencies { jarJar 'org.pantsbuild:jarjar:1.6.5' }
+
+configure(project) {
+  ant.taskdef(name: 'jarJar', classname: 'org.pantsbuild.jarjar.JarJarTask', classpath: configurations.jarJar.asPath)
+
+  project.ext.prefix = project.ext.properties.get('intellij.asm.prefix', 'org.jetbrains')
+  project.ext.dirPrefix = project.ext.prefix.replace('.', '/')
+
+  def moduleNames = project.ext.properties.get('intellij.asm.modules', 'commons,tree,analysis,util') as String
+  def modules = ['asm'] + moduleNames.split(',').findAll { !it.isEmpty() }.collect { "asm-${it}" }
+
+  project.ext.jarFiles = []
+  project.ext.srcDirs = []
+  for (module in modules) {
+    def libsDir = file("${module}/build/libs")
+    assert libsDir.isDirectory(): "artifacts directory '${libsDir}' doesn't seem to exist"
+    def jars = libsDir.listFiles()
+    def mainJar = jars.find { it.name.matches(/${module}-[\d.]+(-[^-]+)?\.jar/) }
+    assert mainJar != null: "unable to detect main .jar in ${jars}"
+    project.ext.jarFiles += mainJar
+
+    def srcDir = file("${module}/src/main/java")
+    assert srcDir.isDirectory(): "source directory '${srcDir}' doesn't seem to exist"
+    project.ext.srcDirs += srcDir
+
+    if (module == 'asm') {
+      project.version = mainJar.name.find(/asm-(.+)\.jar/, { it[1] })
+    }
+  }
+
+  project.ext.jarFile = "asm-all-${project.version}.jar"
+  project.ext.srcFile = "asm-all-${project.version}-sources.jar"
+
+  println "prefix: ${project.ext.prefix}"
+  println "modules: ${modules}"
+  println "version: ${project.version}"
+}
+
+task('fatJar') {
+  inputs.files(project.ext.jarFiles as File[])
+  outputs.file(project.ext.jarFile)
+  doLast {
+    ant.jarJar(destFile: project.ext.jarFile) {
+      project.ext.jarFiles.each { zipfileset(src: it, excludes: 'module-info.class META-INF/**') }
+      rule(pattern: 'org.objectweb.asm.**', result: "${project.ext.prefix}.@0")
+    }
+  }
+}
+
+task('fatSources', type: Zip) {
+  archiveFileName = project.ext.srcFile
+  destinationDirectory = file("$projectDir")
+  from project.ext.srcDirs as File[]
+  filter { it.replace('org.objectweb.asm', "${project.ext.prefix}.org.objectweb.asm") }
+  into project.ext.dirPrefix
+}
+
+tasks.findByName('bintrayUpload').dependsOn('fatJar', 'fatSources')
+
+publishing {
+  publications {
+    BinTray(MavenPublication) {
+      groupId 'org.jetbrains.intellij.deps'
+      artifactId 'asm-all'
+      artifact source: project.ext.jarFile
+      artifact source: project.ext.srcFile, classifier: 'sources'
+    }
+  }
+}
+
+bintray {
+  user = System.getenv('BINTRAY_USER')
+  key = System.getenv('BINTRAY_KEY')
+  publish = true
+
+  pkg {
+    repo = 'intellij-third-party-dependencies'
+    userOrg = 'jetbrains'
+    name = 'asm-all'
+    vcsUrl = 'https://github.com/JetBrains/intellij-deps-asm'
+    licenses = ['Apache-2.0']
+    version { name = project.version }
+  }
+
+  publications = ['BinTray']
+}

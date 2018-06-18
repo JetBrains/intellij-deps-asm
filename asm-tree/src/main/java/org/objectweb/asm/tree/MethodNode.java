@@ -570,7 +570,7 @@ public class MethodNode extends MethodVisitor {
    */
   protected LabelNode getLabelNode(final Label label) {
     if (!(label.info instanceof LabelNode)) {
-      label.info = new LabelNode();
+      label.info = new LabelNode(label); //[JB: needed for Coverage agent]
     }
     return (LabelNode) label.info;
   }

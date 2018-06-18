@@ -452,8 +452,10 @@ public class ClassReaderTest extends AsmTest implements Opcodes {
   @ParameterizedTest
   @EnumSource(InvalidClass.class)
   public void testInvalidClasses(final InvalidClass invalidClass) {
-    if (invalidClass == InvalidClass.INVALID_CLASS_VERSION
-        || invalidClass == InvalidClass.INVALID_CP_INFO_TAG) {
+    //[JB: accept any version]
+    if (invalidClass == InvalidClass.INVALID_CLASS_VERSION) {
+      new ClassReader(invalidClass.getBytes());
+    } else if (invalidClass == InvalidClass.INVALID_CP_INFO_TAG) {
       assertThrows(IllegalArgumentException.class, () -> new ClassReader(invalidClass.getBytes()));
     } else {
       ClassReader classReader = new ClassReader(invalidClass.getBytes());

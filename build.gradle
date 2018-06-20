@@ -153,15 +153,21 @@ project(':tools') {
 
 project(':tools:bnd-module-plugin') {
   description = "bnd plugin to build moduleinfo with ${rootProject.description}"
-  // TODO: this compiles asm twice (here and in :asm), find a way to avoid this.
-  sourceSets.main.java.srcDirs += project(':asm').sourceSets.main.java.srcDirs
   depends = ['biz.aQute.bnd:biz.aQute.bnd:3.4.0']
+  def asmClasses = project(':asm').sourceSets.main.output
+  dependencies {
+    implementation asmClasses
+  }
+  jar {
+    from asmClasses
+  }
 }
 
 project(':tools:retrofitter') {
   description = "JDK 1.5 class retrofitter based on ${rootProject.description}"
-  // TODO: this compiles asm thrice (here, above and in :asm).
-  sourceSets.main.java.srcDirs += project(':asm').sourceSets.main.java.srcDirs
+  dependencies {
+    implementation project(':asm').sourceSets.main.output
+  }
 }
 
 // -----------------------------------------------------------------------------
@@ -217,8 +223,7 @@ configure(subprojects.findAll { it.provides }) {
       main 'org.objectweb.asm.tools.Retrofitter'
       args sourceSets.main.output.classesDirs
     }
-    compileJava.dependsOn ':tools:retrofitter:classes'
-    compileJava.doLast { tasks.retrofit.execute() }
+    jar.dependsOn tasks.retrofit
   }
 
   // Create one backward compatibility checking task for each 'sigtest-*' file

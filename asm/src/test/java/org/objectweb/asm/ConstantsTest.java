@@ -79,6 +79,7 @@ public class ConstantsTest {
         case "V9":
         case "V10":
         case "V11":
+        case "V12":
           assertFalse(classVersions.contains(field.getInt(null)));
           classVersions.add(field.getInt(null));
           break;

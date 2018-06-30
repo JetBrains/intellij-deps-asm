@@ -411,6 +411,8 @@ public class GeneratorAdapterTest {
     assertEquals("", new Generator().cast(Type.SHORT_TYPE, Type.INT_TYPE));
 
     assertThrows(
+        IllegalArgumentException.class, () -> new Generator().cast(Type.VOID_TYPE, Type.INT_TYPE));
+    assertThrows(
         IllegalArgumentException.class, () -> new Generator().cast(Type.INT_TYPE, Type.VOID_TYPE));
   }
 

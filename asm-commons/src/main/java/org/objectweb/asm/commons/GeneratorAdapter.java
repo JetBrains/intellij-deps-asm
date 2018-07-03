@@ -745,7 +745,7 @@ public class GeneratorAdapter extends LocalVariablesSorter {
           || from.getSort() > Type.DOUBLE
           || to.getSort() < Type.BOOLEAN
           || to.getSort() > Type.DOUBLE) {
-        throw new IllegalArgumentException();
+        throw new IllegalArgumentException("Cannot cast from " + from + " to " + to);
       }
       if (from == Type.DOUBLE_TYPE) {
         if (to == Type.FLOAT_TYPE) {

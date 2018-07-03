@@ -407,6 +407,11 @@ public class GeneratorAdapterTest {
     assertEquals("I2C", new Generator().cast(Type.INT_TYPE, Type.CHAR_TYPE));
     assertEquals("I2S", new Generator().cast(Type.INT_TYPE, Type.SHORT_TYPE));
 
+    assertEquals("", new Generator().cast(Type.BYTE_TYPE, Type.INT_TYPE));
+    assertEquals("", new Generator().cast(Type.SHORT_TYPE, Type.INT_TYPE));
+
+    assertThrows(
+        IllegalArgumentException.class, () -> new Generator().cast(Type.VOID_TYPE, Type.INT_TYPE));
     assertThrows(
         IllegalArgumentException.class, () -> new Generator().cast(Type.INT_TYPE, Type.VOID_TYPE));
   }

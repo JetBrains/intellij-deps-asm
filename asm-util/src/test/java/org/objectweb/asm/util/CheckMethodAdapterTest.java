@@ -489,6 +489,11 @@ public class CheckMethodAdapterTest extends AsmTest implements Opcodes {
     assertThrows(
         RuntimeException.class,
         () -> checkMethodAdapter.visitLdcInsn(new Handle(-1, "o", "m", "()V", false)));
+    
+    checkMethodAdapter.visitLdcInsn(new Handle(Opcodes.H_NEWINVOKESPECIAL, "o", "<init>", "()V", false));
+    assertThrows(
+        RuntimeException.class,
+        () -> checkMethodAdapter.visitLdcInsn(new Handle(Opcodes.H_INVOKEVIRTUAL, "o", "<init>", "()V", false)));
   }
 
   @Test

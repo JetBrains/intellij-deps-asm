@@ -1199,7 +1199,10 @@ public class CheckMethodAdapter extends MethodVisitor {
       } else {
         checkMethodDescriptor(this.version, handle.getDesc());
       }
-      checkMethodIdentifier(this.version, handle.getName(), "handle name");
+      String handleName = handle.getName();
+      if (!("<init>".equals(handleName) && tag == Opcodes.H_NEWINVOKESPECIAL)) {
+        checkMethodIdentifier(this.version, handleName, "handle name");
+      }
     } else if (value instanceof ConstantDynamic) {
       if ((version & 0xFFFF) < Opcodes.V11) {
         throw new IllegalArgumentException("ldc of a ConstantDynamic requires at least version 11");

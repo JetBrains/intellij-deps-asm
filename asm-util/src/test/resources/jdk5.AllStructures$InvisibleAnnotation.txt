@@ -1,6 +1,6 @@
 // class version 49.0 (49)
 // access flags 0x2600
-abstract @interface jdk5/AllStructures$InvisibleAnnotation implements java/lang/annotation/Annotation  {
+abstract @interface jdk5/AllStructures$InvisibleAnnotation implements java/lang/annotation/Annotation {
 
   // compiled from: AllStructures.java
 

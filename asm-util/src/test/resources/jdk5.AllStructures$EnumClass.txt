@@ -2,7 +2,7 @@
 // access flags 0x4030
 // signature Ljava/lang/Enum<Ljdk5/AllStructures$EnumClass;>;
 // declaration:  extends java.lang.Enum<jdk5.AllStructures$EnumClass>
-final enum jdk5/AllStructures$EnumClass extends java/lang/Enum  {
+final enum jdk5/AllStructures$EnumClass extends java/lang/Enum {
 
   // compiled from: AllStructures.java
   // access flags 0x4018

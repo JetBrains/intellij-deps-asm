@@ -2,7 +2,7 @@
 // access flags 0x421
 // signature <U0:Ljava/lang/Object;U1::Ljava/util/List<TU0;>;U2::Ljava/util/Collection<TU0;>;>Ljava/util/HashMap<TU0;TU1;>;Ljava/util/concurrent/Callable<TU0;>;Ljava/util/concurrent/Future<TU1;>;
 // declaration: <U0, U1 extends java.util.List<U0>, U2 extends java.util.Collection<U0>> extends java.util.HashMap<U0, U1> implements java.util.concurrent.Callable<U0>, java.util.concurrent.Future<U1>
-public abstract class jdk8/AllStructures extends java/util/HashMap  implements java/util/concurrent/Callable java/util/concurrent/Future  {
+public abstract class jdk8/AllStructures extends java/util/HashMap implements java/util/concurrent/Callable java/util/concurrent/Future {
 
   // compiled from: AllStructures.java
 

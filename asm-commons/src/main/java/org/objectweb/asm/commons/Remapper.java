@@ -215,6 +215,26 @@ public abstract class Remapper {
   }
 
   /**
+   * Maps an inner class name to its new name. The default implementation of this method provides a
+   * strategy that will work for inner classes produced by Java, but not necessarily other
+   * languages. Subclasses can override.
+   *
+   * @param name the fully-qualified internal name of the inner class.
+   * @param ownerName the internal name of the owner class of the inner class.
+   * @param innerName the internal name of the inner class.
+   * @return the new inner name of the inner class.
+   */
+  public String mapInnerClassName(
+      final String name, final String ownerName, final String innerName) {
+    final String remappedInnerName = this.mapType(name);
+    if (remappedInnerName.contains("$")) {
+      return remappedInnerName.substring(remappedInnerName.lastIndexOf('$') + 1);
+    } else {
+      return innerName;
+    }
+  }
+
+  /**
    * Maps a method name to its new name. The default implementation of this method returns the given
    * name, unchanged. Subclasses can override.
    *

@@ -1,6 +1,6 @@
 // class version 45.3 (196653)
 // access flags 0x420
-abstract class jdk3/AllStructures implements java/lang/Runnable java/lang/Cloneable java/io/Serializable  {
+abstract class jdk3/AllStructures implements java/lang/Runnable java/lang/Cloneable java/io/Serializable {
 
   // compiled from: AllStructures.java
   // access flags 0x2

@@ -191,13 +191,14 @@ public class Textifier extends Printer {
     if (superName != null && !"java/lang/Object".equals(superName)) {
       stringBuilder.append(" extends ");
       appendDescriptor(INTERNAL_NAME, superName);
-      stringBuilder.append(' ');
     }
     if (interfaces != null && interfaces.length > 0) {
       stringBuilder.append(" implements ");
       for (int i = 0; i < interfaces.length; ++i) {
         appendDescriptor(INTERNAL_NAME, interfaces[i]);
-        stringBuilder.append(' ');
+        if (i != interfaces.length - 1) {
+          stringBuilder.append(' ');
+        }
       }
     }
     stringBuilder.append(" {\n\n");

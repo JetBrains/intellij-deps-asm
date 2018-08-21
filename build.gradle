@@ -283,6 +283,7 @@ configure(subprojects.findAll { it.provides }) {
       'Bundle-SymbolicName': provides[0],
       'Export-Package': provides.collect{"${it};version=${version}"}.join(','),
       'Implementation-Title': project.description,
+      'Implementation-Version': "${version}",
       'Module-Requires': 
           requires
               .collect{"${project(it).provides[0]};transitive=true"}

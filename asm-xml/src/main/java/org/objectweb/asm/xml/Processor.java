@@ -66,8 +66,8 @@ import org.xml.sax.helpers.XMLReaderFactory;
  * Processor is a command line tool that can be used for bytecode waving directed by XSL
  * transformation.
  *
- * <p>In order to use a concrete XSLT engine, system property
- * <tt>javax.xml.transform.TransformerFactory</tt> must be set to one of the following values.
+ * <p>In order to use a concrete XSLT engine, system property {@code
+ * javax.xml.transform.TransformerFactory} must be set to one of the following values.
  *
  * <blockquote>
  *

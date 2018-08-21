@@ -57,7 +57,7 @@ public final class TraceMethodVisitor extends MethodVisitor {
   /**
    * Constructs a new {@link TraceMethodVisitor}.
    *
-   * @param methodVisitor the method visitor to which to delegate calls. May be <tt>null</tt>.
+   * @param methodVisitor the method visitor to which to delegate calls. May be {@literal null}.
    * @param printer the printer to convert the visited method into text.
    */
   public TraceMethodVisitor(final MethodVisitor methodVisitor, final Printer printer) {

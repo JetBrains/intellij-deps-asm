@@ -57,9 +57,9 @@ import org.objectweb.asm.tree.analysis.SimpleVerifier;
 /**
  * A {@link ClassVisitor} that checks that its methods are properly used. More precisely this class
  * adapter checks each method call individually, based <i>only</i> on its arguments, but does
- * <i>not</i> check the <i>sequence</i> of method calls. For example, the invalid sequence
- * <tt>visitField(ACC_PUBLIC, "i", "I", null)</tt> <tt>visitField(ACC_PUBLIC, "i", "D", null)</tt>
- * will <i>not</i> be detected by this class adapter.
+ * <i>not</i> check the <i>sequence</i> of method calls. For example, the invalid sequence {@code
+ * visitField(ACC_PUBLIC, "i", "I", null)} {@code visitField(ACC_PUBLIC, "i", "D", null)} will
+ * <i>not</i> be detected by this class adapter.
  *
  * <p><code>CheckClassAdapter</code> can be also used to verify bytecode transformations in order to
  * make sure that the transformed bytecode is sane. For example:
@@ -131,8 +131,8 @@ public class CheckClassAdapter extends ClassVisitor {
   private boolean visitNestHostCalled;
 
   /**
-   * The common package of all the nest members. Not <tt>null</tt> if the visitNestMember method has
-   * been called.
+   * The common package of all the nest members. Not {@literal null} if the visitNestMember method
+   * has been called.
    */
   private String nestMemberPackageName;
 
@@ -189,7 +189,7 @@ public class CheckClassAdapter extends ClassVisitor {
    *
    * @param classReader the class to be checked.
    * @param loader a <code>ClassLoader</code> which will be used to load referenced classes. May be
-   *     <tt>null</tt>.
+   *     {@literal null}.
    * @param printResults whether to print the results of the bytecode verification.
    * @param printWriter where the results (or the stack trace in case of error) must be printed.
    */
@@ -320,9 +320,9 @@ public class CheckClassAdapter extends ClassVisitor {
    *     Opcodes#ASM4}, {@link Opcodes#ASM5}, {@link Opcodes#ASM6} or {@link
    *     Opcodes#ASM7_EXPERIMENTAL}.
    * @param classVisitor the class visitor to which this adapter must delegate calls.
-   * @param checkDataFlow <tt>true</tt> to perform basic data flow checks, or <tt>false</tt> to not
-   *     perform any data flow check (see {@link CheckMethodAdapter}). This option requires valid
-   *     maxLocals and maxStack values.
+   * @param checkDataFlow {@literal true} to perform basic data flow checks, or {@literal false} to
+   *     not perform any data flow check (see {@link CheckMethodAdapter}). This option requires
+   *     valid maxLocals and maxStack values.
    */
   protected CheckClassAdapter(
       final int api, final ClassVisitor classVisitor, final boolean checkDataFlow) {

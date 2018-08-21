@@ -268,7 +268,7 @@ public abstract class AsmTest {
 
   /**
    * Builds a list of test arguments for a parameterized test. Parameterized test cases annotated
-   * with <tt>@MethodSource("allClassesAndAllApis")</tt> will be executed on all the possible
+   * with {@code @MethodSource("allClassesAndAllApis")} will be executed on all the possible
    * (precompiledClass, api) pairs.
    *
    * @return all the possible (precompiledClass, api) pairs, for all the precompiled classes and all
@@ -280,7 +280,7 @@ public abstract class AsmTest {
 
   /**
    * Builds a list of test arguments for a parameterized test. Parameterized test cases annotated
-   * with <tt>@MethodSource("allClassesAndLatestApi")</tt> will be executed on all the precompiled
+   * with {@code @MethodSource("allClassesAndLatestApi")} will be executed on all the precompiled
    * classes, with the latest api.
    *
    * @return all the possible (precompiledClass, ASM7) pairs, for all the precompiled classes.

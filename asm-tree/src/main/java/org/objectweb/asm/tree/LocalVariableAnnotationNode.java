@@ -43,20 +43,20 @@ public class LocalVariableAnnotationNode extends TypeAnnotationNode {
 
   /**
    * The fist instructions corresponding to the continuous ranges that make the scope of this local
-   * variable (inclusive). Must not be <tt>null</tt>.
+   * variable (inclusive). Must not be {@literal null}.
    */
   public List<LabelNode> start;
 
   /**
    * The last instructions corresponding to the continuous ranges that make the scope of this local
    * variable (exclusive). This list must have the same size as the 'start' list. Must not be
-   * <tt>null</tt>.
+   * {@literal null}.
    */
   public List<LabelNode> end;
 
   /**
    * The local variable's index in each range. This list must have the same size as the 'start'
-   * list. Must not be <tt>null</tt>.
+   * list. Must not be {@literal null}.
    */
   public List<Integer> index;
 
@@ -67,7 +67,7 @@ public class LocalVariableAnnotationNode extends TypeAnnotationNode {
    *
    * @param typeRef a reference to the annotated type. See {@link org.objectweb.asm.TypeReference}.
    * @param typePath the path to the annotated type argument, wildcard bound, array element type, or
-   *     static inner type within 'typeRef'. May be <tt>null</tt> if the annotation targets
+   *     static inner type within 'typeRef'. May be {@literal null} if the annotation targets
    *     'typeRef' as a whole.
    * @param start the fist instructions corresponding to the continuous ranges that make the scope
    *     of this local variable (inclusive).
@@ -101,7 +101,7 @@ public class LocalVariableAnnotationNode extends TypeAnnotationNode {
    * @param index the local variable's index in each range. This array must have the same size as
    *     the 'start' array.
    * @param typePath the path to the annotated type argument, wildcard bound, array element type, or
-   *     static inner type within 'typeRef'. May be <tt>null</tt> if the annotation targets
+   *     static inner type within 'typeRef'. May be {@literal null} if the annotation targets
    *     'typeRef' as a whole.
    * @param descriptor the class descriptor of the annotation class.
    */
@@ -123,7 +123,7 @@ public class LocalVariableAnnotationNode extends TypeAnnotationNode {
    * Makes the given visitor visit this type annotation.
    *
    * @param methodVisitor the visitor that must visit this annotation.
-   * @param visible <tt>true</tt> if the annotation is visible at runtime.
+   * @param visible {@literal true} if the annotation is visible at runtime.
    */
   public void accept(final MethodVisitor methodVisitor, final boolean visible) {
     Label[] startLabels = new Label[this.start.size()];

@@ -99,7 +99,7 @@ final class SymbolTable {
   final ClassWriter classWriter;
 
   /**
-   * The ClassReader from which this SymbolTable was constructed, or <tt>null</tt> if it was
+   * The ClassReader from which this SymbolTable was constructed, or {@literal null} if it was
    * constructed from scratch.
    */
   private final ClassReader sourceClassReader;
@@ -161,7 +161,7 @@ final class SymbolTable {
    * be stored in the constant pool. This type table is used by the control flow and data flow
    * analysis algorithm used to compute stack map frames from scratch. This array stores {@link
    * Symbol#TYPE_TAG} and {@link Symbol#UNINITIALIZED_TYPE_TAG}) Symbol. The type symbol at index
-   * <tt>i</tt> has its {@link Symbol#index} equal to <tt>i</tt> (and vice versa).
+   * {@code i} has its {@link Symbol#index} equal to {@code i} (and vice versa).
    */
   private Entry[] typeTable;
 
@@ -313,8 +313,8 @@ final class SymbolTable {
   }
 
   /**
-   * @return the ClassReader from which this SymbolTable was constructed, or <tt>null</tt> if it was
-   *     constructed from scratch.
+   * @return the ClassReader from which this SymbolTable was constructed, or {@literal null} if it
+   *     was constructed from scratch.
    */
   ClassReader getSource() {
     return sourceClassReader;

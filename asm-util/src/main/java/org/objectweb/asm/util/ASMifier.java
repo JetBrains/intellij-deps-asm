@@ -1081,7 +1081,7 @@ public class ASMifier extends Printer {
    * Visits a class, field or method annotation.
    *
    * @param descriptor the class descriptor of the annotation class.
-   * @param visible <tt>true</tt> if the annotation is visible at runtime.
+   * @param visible {@literal true} if the annotation is visible at runtime.
    * @return a new {@link ASMifier} to visit the annotation values.
    */
   public ASMifier visitAnnotation(final String descriptor, final boolean visible) {
@@ -1106,10 +1106,10 @@ public class ASMifier extends Printer {
    * @param typeRef a reference to the annotated type. The sort of this type reference must be
    *     {@link org.objectweb.asm.TypeReference#FIELD}. See {@link org.objectweb.asm.TypeReference}.
    * @param typePath the path to the annotated type argument, wildcard bound, array element type, or
-   *     static inner type within 'typeRef'. May be <tt>null</tt> if the annotation targets
+   *     static inner type within 'typeRef'. May be {@literal null} if the annotation targets
    *     'typeRef' as a whole.
    * @param descriptor the class descriptor of the annotation class.
-   * @param visible <tt>true</tt> if the annotation is visible at runtime.
+   * @param visible {@literal true} if the annotation is visible at runtime.
    * @return a new {@link ASMifier} to visit the annotation values.
    */
   public ASMifier visitTypeAnnotation(
@@ -1124,10 +1124,10 @@ public class ASMifier extends Printer {
    * @param typeRef a reference to the annotated type. The sort of this type reference must be
    *     {@link org.objectweb.asm.TypeReference#FIELD}. See {@link org.objectweb.asm.TypeReference}.
    * @param typePath the path to the annotated type argument, wildcard bound, array element type, or
-   *     static inner type within 'typeRef'. May be <tt>null</tt> if the annotation targets
+   *     static inner type within 'typeRef'. May be {@literal null} if the annotation targets
    *     'typeRef' as a whole.
    * @param descriptor the class descriptor of the annotation class.
-   * @param visible <tt>true</tt> if the annotation is visible at runtime.
+   * @param visible {@literal true} if the annotation is visible at runtime.
    * @return a new {@link ASMifier} to visit the annotation values.
    */
   public ASMifier visitTypeAnnotation(
@@ -1361,7 +1361,7 @@ public class ASMifier extends Printer {
    *
    * @param value a {@link String}, {@link Type}, {@link Handle}, {@link Byte}, {@link Short},
    *     {@link Character}, {@link Integer}, {@link Float}, {@link Long} or {@link Double} object,
-   *     or an array of primitive values. May be <tt>null</tt>.
+   *     or an array of primitive values. May be {@literal null}.
    */
   protected void appendConstant(final Object value) {
     if (value == null) {

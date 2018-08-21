@@ -49,7 +49,7 @@ import org.objectweb.asm.tree.VarInsnNode;
 public class Frame<V extends Value> {
 
   /**
-   * The expected return type of the analyzed method, or <tt>null</tt> if the method returns void.
+   * The expected return type of the analyzed method, or {@literal null} if the method returns void.
    */
   private V returnValue;
 
@@ -104,7 +104,7 @@ public class Frame<V extends Value> {
   /**
    * Sets the expected return type of the analyzed method.
    *
-   * @param v the expected return type of the analyzed method, or <tt>null</tt> if the method
+   * @param v the expected return type of the analyzed method, or {@literal null} if the method
    *     returns void.
    */
   public void setReturn(final V v) {
@@ -647,8 +647,8 @@ public class Frame<V extends Value> {
    *
    * @param frame a frame. This frame is left unchanged by this method.
    * @param interpreter the interpreter used to merge values.
-   * @return <tt>true</tt> if this frame has been changed as a result of the merge operation, or
-   *     <tt>false</tt> otherwise.
+   * @return {@literal true} if this frame has been changed as a result of the merge operation, or
+   *     {@literal false} otherwise.
    * @throws AnalyzerException if the frames have incompatible sizes.
    */
   public boolean merge(final Frame<? extends V> frame, final Interpreter<V> interpreter)
@@ -675,8 +675,8 @@ public class Frame<V extends Value> {
    * @param localsUsed the local variables that are read or written by the subroutine. The i-th
    *     element is true if and only if the local variable at index i is read or written by the
    *     subroutine.
-   * @return <tt>true</tt> if this frame has been changed as a result of the merge operation, or
-   *     <tt>false</tt> otherwise.
+   * @return {@literal true} if this frame has been changed as a result of the merge operation, or
+   *     {@literal false} otherwise.
    */
   public boolean merge(final Frame<? extends V> frame, final boolean[] localsUsed) {
     boolean changed = false;

@@ -48,7 +48,7 @@ public class ModuleExportNode {
 
   /**
    * The list of modules that can access this exported package, specified with fully qualified names
-   * (using dots). May be <tt>null</tt>.
+   * (using dots). May be {@literal null}.
    */
   public List<String> modules;
 

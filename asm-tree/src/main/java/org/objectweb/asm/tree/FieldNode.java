@@ -55,29 +55,29 @@ public class FieldNode extends FieldVisitor {
   /** The field's descriptor (see {@link org.objectweb.asm.Type}). */
   public String desc;
 
-  /** The field's signature. May be <tt>null</tt>. */
+  /** The field's signature. May be {@literal null}. */
   public String signature;
 
   /**
-   * The field's initial value. This field, which may be <tt>null</tt> if the field does not have an
-   * initial value, must be an {@link Integer}, a {@link Float}, a {@link Long}, a {@link Double} or
-   * a {@link String}.
+   * The field's initial value. This field, which may be {@literal null} if the field does not have
+   * an initial value, must be an {@link Integer}, a {@link Float}, a {@link Long}, a {@link Double}
+   * or a {@link String}.
    */
   public Object value;
 
-  /** The runtime visible annotations of this field. May be <tt>null</tt>. */
+  /** The runtime visible annotations of this field. May be {@literal null}. */
   public List<AnnotationNode> visibleAnnotations;
 
-  /** The runtime invisible annotations of this field. May be <tt>null</tt>. */
+  /** The runtime invisible annotations of this field. May be {@literal null}. */
   public List<AnnotationNode> invisibleAnnotations;
 
-  /** The runtime visible type annotations of this field. May be <tt>null</tt>. */
+  /** The runtime visible type annotations of this field. May be {@literal null}. */
   public List<TypeAnnotationNode> visibleTypeAnnotations;
 
-  /** The runtime invisible type annotations of this field. May be <tt>null</tt>. */
+  /** The runtime invisible type annotations of this field. May be {@literal null}. */
   public List<TypeAnnotationNode> invisibleTypeAnnotations;
 
-  /** The non standard attributes of this field. * May be <tt>null</tt>. */
+  /** The non standard attributes of this field. * May be {@literal null}. */
   public List<Attribute> attrs;
 
   /**
@@ -89,8 +89,8 @@ public class FieldNode extends FieldVisitor {
    * @param name the field's name.
    * @param descriptor the field's descriptor (see {@link org.objectweb.asm.Type}).
    * @param signature the field's signature.
-   * @param value the field's initial value. This parameter, which may be <tt>null</tt> if the field
-   *     does not have an initial value, must be an {@link Integer}, a {@link Float}, a {@link
+   * @param value the field's initial value. This parameter, which may be {@literal null} if the
+   *     field does not have an initial value, must be an {@link Integer}, a {@link Float}, a {@link
    *     Long}, a {@link Double} or a {@link String}.
    * @throws IllegalStateException If a subclass calls this constructor.
    */
@@ -116,8 +116,8 @@ public class FieldNode extends FieldVisitor {
    * @param name the field's name.
    * @param descriptor the field's descriptor (see {@link org.objectweb.asm.Type}).
    * @param signature the field's signature.
-   * @param value the field's initial value. This parameter, which may be <tt>null</tt> if the field
-   *     does not have an initial value, must be an {@link Integer}, a {@link Float}, a {@link
+   * @param value the field's initial value. This parameter, which may be {@literal null} if the
+   *     field does not have an initial value, must be an {@link Integer}, a {@link Float}, a {@link
    *     Long}, a {@link Double} or a {@link String}.
    */
   public FieldNode(

@@ -60,12 +60,12 @@ public class ClassNode extends ClassVisitor {
   /** The internal name of this class (see {@link org.objectweb.asm.Type#getInternalName}). */
   public String name;
 
-  /** The signature of this class. May be <tt>null</tt>. */
+  /** The signature of this class. May be {@literal null}. */
   public String signature;
 
   /**
    * The internal of name of the super class (see {@link org.objectweb.asm.Type#getInternalName}).
-   * For interfaces, the super class is {@link Object}. May be <tt>null</tt>, but only for the
+   * For interfaces, the super class is {@link Object}. May be {@literal null}, but only for the
    * {@link Object} class.
    */
   public String superName;
@@ -76,45 +76,45 @@ public class ClassNode extends ClassVisitor {
    */
   public List<String> interfaces;
 
-  /** The name of the source file from which this class was compiled. May be <tt>null</tt>. */
+  /** The name of the source file from which this class was compiled. May be {@literal null}. */
   public String sourceFile;
 
   /**
-   * The correspondence between source and compiled elements of this class. May be <tt>null</tt>.
+   * The correspondence between source and compiled elements of this class. May be {@literal null}.
    */
   public String sourceDebug;
 
-  /** The module stored in this class. May be <tt>null</tt>. */
+  /** The module stored in this class. May be {@literal null}. */
   public ModuleNode module;
 
-  /** The internal name of the enclosing class of this class. May be <tt>null</tt>. */
+  /** The internal name of the enclosing class of this class. May be {@literal null}. */
   public String outerClass;
 
   /**
-   * The name of the method that contains this class, or <tt>null</tt> if this class is not enclosed
-   * in a method.
+   * The name of the method that contains this class, or {@literal null} if this class is not
+   * enclosed in a method.
    */
   public String outerMethod;
 
   /**
-   * The descriptor of the method that contains this class, or <tt>null</tt> if this class is not
+   * The descriptor of the method that contains this class, or {@literal null} if this class is not
    * enclosed in a method.
    */
   public String outerMethodDesc;
 
-  /** The runtime visible annotations of this class. May be <tt>null</tt>. */
+  /** The runtime visible annotations of this class. May be {@literal null}. */
   public List<AnnotationNode> visibleAnnotations;
 
-  /** The runtime invisible annotations of this class. May be <tt>null</tt>. */
+  /** The runtime invisible annotations of this class. May be {@literal null}. */
   public List<AnnotationNode> invisibleAnnotations;
 
-  /** The runtime visible type annotations of this class. May be <tt>null</tt>. */
+  /** The runtime visible type annotations of this class. May be {@literal null}. */
   public List<TypeAnnotationNode> visibleTypeAnnotations;
 
-  /** The runtime invisible type annotations of this class. May be <tt>null</tt>. */
+  /** The runtime invisible type annotations of this class. May be {@literal null}. */
   public List<TypeAnnotationNode> invisibleTypeAnnotations;
 
-  /** The non standard attributes of this class. May be <tt>null</tt>. */
+  /** The non standard attributes of this class. May be {@literal null}. */
   public List<Attribute> attrs;
 
   /** The inner classes of this class. */
@@ -123,14 +123,14 @@ public class ClassNode extends ClassVisitor {
   /**
    * <b>Experimental, use at your own risk. This field will be renamed when it becomes stable, this
    * will break existing code using it</b>. The internal name of the nest host class of this class.
-   * May be <tt>null</tt>.
+   * May be {@literal null}.
    */
   public String nestHostClassExperimental;
 
   /**
    * <b>Experimental, use at your own risk. This field will be renamed when it becomes stable, this
    * will break existing code using it</b>. The internal names of the nest members of this class.
-   * May be <tt>null</tt>.
+   * May be {@literal null}.
    */
   public List<String> nestMembersExperimental;
 

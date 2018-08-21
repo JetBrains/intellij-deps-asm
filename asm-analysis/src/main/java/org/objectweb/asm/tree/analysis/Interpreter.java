@@ -74,7 +74,7 @@ public abstract class Interpreter<V extends Value> {
    * Interpreter#newExceptionValue(TryCatchBlockNode, Frame, Type)} to distinguish different types
    * of new value.
    *
-   * @param type a primitive or reference type, or <tt>null</tt> to represent an uninitialized
+   * @param type a primitive or reference type, or {@literal null} to represent an uninitialized
    *     value.
    * @return a value that represents the given type. The size of the returned value must be equal to
    *     the size of the given type.
@@ -87,7 +87,7 @@ public abstract class Interpreter<V extends Value> {
    *
    * <p>By default, calls <code>newValue(type)</code>.
    *
-   * @param isInstanceMethod <tt>true</tt> if the method is non-static.
+   * @param isInstanceMethod {@literal true} if the method is non-static.
    * @param local the local variable index.
    * @param type a primitive or reference type.
    * @return a value that represents the given type. The size of the returned value must be equal to
@@ -135,8 +135,8 @@ public abstract class Interpreter<V extends Value> {
    * @param tryCatchBlockNode the exception handler.
    * @param handlerFrame the exception handler frame.
    * @param exceptionType the exception type handled by this handler.
-   * @return a value that represents the given <tt>exceptionType</tt>. The size of the returned
-   *     value must be equal to 1.
+   * @return a value that represents the given {@code exceptionType}. The size of the returned value
+   *     must be equal to 1.
    */
   public V newExceptionValue(
       final TryCatchBlockNode tryCatchBlockNode,
@@ -169,7 +169,7 @@ public abstract class Interpreter<V extends Value> {
    * @param insn the bytecode instruction to be interpreted.
    * @param value the value that must be moved by the instruction.
    * @return the result of the interpretation of the given instruction. The returned value must be
-   *     <tt>equal</tt> to the given value.
+   *     {@code equal} to the given value.
    * @throws AnalyzerException if an error occurred during the interpretation.
    */
   public abstract V copyOperation(AbstractInsnNode insn, V value) throws AnalyzerException;
@@ -261,8 +261,8 @@ public abstract class Interpreter<V extends Value> {
    *
    * @param value1 a value.
    * @param value2 another value.
-   * @return the merged value. If the merged value is equal to <tt>value1</tt>, this method
-   *     <i>must</i> return <tt>value1</tt>.
+   * @return the merged value. If the merged value is equal to {@code value1}, this method
+   *     <i>must</i> return {@code value1}.
    */
   public abstract V merge(V value1, V value2);
 }

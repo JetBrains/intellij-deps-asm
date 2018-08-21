@@ -50,7 +50,7 @@ import org.objectweb.asm.tree.TypeInsnNode;
 public class BasicInterpreter extends Interpreter<BasicValue> implements Opcodes {
 
   /**
-   * Special type used for the <tt>null</tt> literal. This is an object reference type with
+   * Special type used for the {@literal null} literal. This is an object reference type with
    * descriptor 'Lnull;'.
    */
   public static final Type NULL_TYPE = Type.getObjectType("null");

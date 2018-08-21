@@ -48,7 +48,7 @@ public class AnnotationNode extends AnnotationVisitor {
    * Boolean}, {@link Character}, {@link Short}, {@link Integer}, {@link Long}, {@link Float},
    * {@link Double}, {@link String} or {@link org.objectweb.asm.Type}, or a two elements String
    * array (for enumeration values), an {@link AnnotationNode}, or a {@link List} of values of one
-   * of the preceding types. The list may be <tt>null</tt> if there is no name value pair.
+   * of the preceding types. The list may be {@literal null} if there is no name value pair.
    */
   public List<Object> values;
 
@@ -183,7 +183,7 @@ public class AnnotationNode extends AnnotationVisitor {
   /**
    * Makes the given visitor visit this annotation.
    *
-   * @param annotationVisitor an annotation visitor. Maybe <tt>null</tt>.
+   * @param annotationVisitor an annotation visitor. Maybe {@literal null}.
    */
   public void accept(final AnnotationVisitor annotationVisitor) {
     if (annotationVisitor != null) {
@@ -201,7 +201,7 @@ public class AnnotationNode extends AnnotationVisitor {
   /**
    * Makes the given visitor visit a given annotation value.
    *
-   * @param annotationVisitor an annotation visitor. Maybe <tt>null</tt>.
+   * @param annotationVisitor an annotation visitor. Maybe {@literal null}.
    * @param name the value name.
    * @param value the actual value.
    */

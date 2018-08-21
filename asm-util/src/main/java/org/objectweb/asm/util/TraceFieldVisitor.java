@@ -55,7 +55,7 @@ public final class TraceFieldVisitor extends FieldVisitor {
   /**
    * Constructs a new {@link TraceFieldVisitor}.
    *
-   * @param fieldVisitor the field visitor to which to delegate calls. May be <tt>null</tt>.
+   * @param fieldVisitor the field visitor to which to delegate calls. May be {@literal null}.
    * @param printer the printer to convert the visited field into text.
    */
   public TraceFieldVisitor(final FieldVisitor fieldVisitor, final Printer printer) {

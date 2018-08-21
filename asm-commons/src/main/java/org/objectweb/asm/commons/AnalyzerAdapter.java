@@ -62,7 +62,7 @@ public class AnalyzerAdapter extends MethodVisitor {
    * double are represented by two elements, the second one being TOP). Reference types are
    * represented by String objects (representing internal names), and uninitialized types by Label
    * objects (this label designates the NEW instruction that created this uninitialized value). This
-   * field is <tt>null</tt> for unreachable instructions.
+   * field is {@literal null} for unreachable instructions.
    */
   public List<Object> locals;
 
@@ -73,11 +73,11 @@ public class AnalyzerAdapter extends MethodVisitor {
    * double are represented by two elements, the second one being TOP). Reference types are
    * represented by String objects (representing internal names), and uninitialized types by Label
    * objects (this label designates the NEW instruction that created this uninitialized value). This
-   * field is <tt>null</tt> for unreachable instructions.
+   * field is {@literal null} for unreachable instructions.
    */
   public List<Object> stack;
 
-  /** The labels that designate the next instruction to be visited. May be <tt>null</tt>. */
+  /** The labels that designate the next instruction to be visited. May be {@literal null}. */
   private List<Label> labels;
 
   /**
@@ -106,8 +106,8 @@ public class AnalyzerAdapter extends MethodVisitor {
    * @param access the method's access flags (see {@link Opcodes}).
    * @param name the method's name.
    * @param descriptor the method's descriptor (see {@link Type}).
-   * @param methodVisitor the method visitor to which this adapter delegates calls. May be
-   *     <tt>null</tt>.
+   * @param methodVisitor the method visitor to which this adapter delegates calls. May be {@literal
+   *     null}.
    * @throws IllegalStateException If a subclass calls this constructor.
    */
   public AnalyzerAdapter(
@@ -132,8 +132,8 @@ public class AnalyzerAdapter extends MethodVisitor {
    * @param access the method's access flags (see {@link Opcodes}).
    * @param name the method's name.
    * @param descriptor the method's descriptor (see {@link Type}).
-   * @param methodVisitor the method visitor to which this adapter delegates calls. May be
-   *     <tt>null</tt>.
+   * @param methodVisitor the method visitor to which this adapter delegates calls. May be {@literal
+   *     null}.
    */
   protected AnalyzerAdapter(
       final int api,

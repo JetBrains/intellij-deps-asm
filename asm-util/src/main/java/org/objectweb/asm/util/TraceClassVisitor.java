@@ -42,8 +42,8 @@ import org.objectweb.asm.TypePath;
  * visitor can be used in the middle of a class visitor chain to trace the class that is visited at
  * a given point in this chain. This may be useful for debugging purposes.
  *
- * <p>When used with a {@link Textifier}, the trace printed when visiting the <tt>Hello</tt> class
- * is the following:
+ * <p>When used with a {@link Textifier}, the trace printed when visiting the {@code Hello} class is
+ * the following:
  *
  * <pre>
  * // class version 49.0 (49) // access flags 0x21 public class Hello {
@@ -67,7 +67,7 @@ import org.objectweb.asm.TypePath;
  * }
  * </pre>
  *
- * where <tt>Hello</tt> is defined by:
+ * where {@code Hello} is defined by:
  *
  * <pre>
  * public class Hello {
@@ -83,7 +83,7 @@ import org.objectweb.asm.TypePath;
  */
 public final class TraceClassVisitor extends ClassVisitor {
 
-  /** The print writer to be used to print the class. May be <tt>null</tt>. */
+  /** The print writer to be used to print the class. May be {@literal null}. */
   private final PrintWriter printWriter;
 
   /** The printer to convert the visited class into text. */
@@ -92,7 +92,7 @@ public final class TraceClassVisitor extends ClassVisitor {
   /**
    * Constructs a new {@link TraceClassVisitor}.
    *
-   * @param printWriter the print writer to be used to print the class. May be <tt>null</tt>.
+   * @param printWriter the print writer to be used to print the class. May be {@literal null}.
    */
   public TraceClassVisitor(final PrintWriter printWriter) {
     this(null, printWriter);
@@ -101,8 +101,8 @@ public final class TraceClassVisitor extends ClassVisitor {
   /**
    * Constructs a new {@link TraceClassVisitor}.
    *
-   * @param classVisitor the class visitor to which to delegate calls. May be <tt>null</tt>.
-   * @param printWriter the print writer to be used to print the class. May be <tt>null</tt>.
+   * @param classVisitor the class visitor to which to delegate calls. May be {@literal null}.
+   * @param printWriter the print writer to be used to print the class. May be {@literal null}.
    */
   public TraceClassVisitor(final ClassVisitor classVisitor, final PrintWriter printWriter) {
     this(classVisitor, new Textifier(), printWriter);
@@ -111,9 +111,9 @@ public final class TraceClassVisitor extends ClassVisitor {
   /**
    * Constructs a new {@link TraceClassVisitor}.
    *
-   * @param classVisitor the class visitor to which to delegate calls. May be <tt>null</tt>.
+   * @param classVisitor the class visitor to which to delegate calls. May be {@literal null}.
    * @param printer the printer to convert the visited class into text.
-   * @param printWriter the print writer to be used to print the class. May be <tt>null</tt>.
+   * @param printWriter the print writer to be used to print the class. May be {@literal null}.
    */
   public TraceClassVisitor(
       final ClassVisitor classVisitor, final Printer printer, final PrintWriter printWriter) {

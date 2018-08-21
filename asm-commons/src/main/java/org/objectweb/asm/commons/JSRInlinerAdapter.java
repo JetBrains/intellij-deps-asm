@@ -86,8 +86,8 @@ public class JSRInlinerAdapter extends MethodNode implements Opcodes {
    * @param access the method's access flags.
    * @param name the method's name.
    * @param descriptor the method's descriptor.
-   * @param signature the method's signature. May be <tt>null</tt>.
-   * @param exceptions the internal names of the method's exception classes. May be <tt>null</tt>.
+   * @param signature the method's signature. May be {@literal null}.
+   * @param exceptions the internal names of the method's exception classes. May be {@literal null}.
    * @throws IllegalStateException if a subclass calls this constructor.
    */
   public JSRInlinerAdapter(
@@ -115,8 +115,8 @@ public class JSRInlinerAdapter extends MethodNode implements Opcodes {
    *     the method is synthetic and/or deprecated.
    * @param name the method's name.
    * @param descriptor the method's descriptor.
-   * @param signature the method's signature. May be <tt>null</tt>.
-   * @param exceptions the internal names of the method's exception classes. May be <tt>null</tt>.
+   * @param signature the method's signature. May be {@literal null}.
+   * @param exceptions the internal names of the method's exception classes. May be {@literal null}.
    */
   protected JSRInlinerAdapter(
       final int api,
@@ -420,8 +420,8 @@ public class JSRInlinerAdapter extends MethodNode implements Opcodes {
   private class Instantiation extends AbstractMap<LabelNode, LabelNode> {
 
     /**
-     * The instantiation from which this one was created (or <tt>null</tt> for the instantiation of
-     * the main "subroutine").
+     * The instantiation from which this one was created (or {@literal null} for the instantiation
+     * of the main "subroutine").
      */
     final Instantiation parent;
 

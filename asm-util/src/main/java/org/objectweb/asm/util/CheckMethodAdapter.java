@@ -58,7 +58,7 @@ import org.objectweb.asm.tree.analysis.BasicVerifier;
  * correct for a given visit method. This adapter can also perform some basic data flow checks (more
  * precisely those that can be performed without the full class hierarchy - see {@link
  * org.objectweb.asm.tree.analysis.BasicVerifier}). For instance in a method whose signature is
- * <tt>void m ()</tt>, the invalid instruction IRETURN, or the invalid sequence IADD L2I will be
+ * {@code void m ()}, the invalid instruction IRETURN, or the invalid sequence IADD L2I will be
  * detected if the data flow checks are enabled. These checks are enabled by using the {@link
  * #CheckMethodAdapter(int,String,String,MethodVisitor,Map)} constructor. They are not performed if
  * any other constructor is used.
@@ -395,7 +395,7 @@ public class CheckMethodAdapter extends MethodVisitor {
 
   /**
    * Constructs a new {@link CheckMethodAdapter} object. This method adapter will perform basic data
-   * flow checks. For instance in a method whose signature is <tt>void m ()</tt>, the invalid
+   * flow checks. For instance in a method whose signature is {@code void m ()}, the invalid
    * instruction IRETURN, or the invalid sequence IADD L2I will be detected. <i>Subclasses must not
    * use this constructor</i>. Instead, they must use the {@link
    * #CheckMethodAdapter(int,int,String,String,MethodVisitor,Map)} version.
@@ -421,7 +421,7 @@ public class CheckMethodAdapter extends MethodVisitor {
 
   /**
    * Constructs a new {@link CheckMethodAdapter} object. This method adapter will perform basic data
-   * flow checks. For instance in a method whose signature is <tt>void m ()</tt>, the invalid
+   * flow checks. For instance in a method whose signature is {@code void m ()}, the invalid
    * instruction IRETURN, or the invalid sequence IADD L2I will be detected.
    *
    * @param api the ASM API version implemented by this CheckMethodAdapter. Must be one of {@link
@@ -1237,7 +1237,7 @@ public class CheckMethodAdapter extends MethodVisitor {
    * @param name the string to be checked.
    * @param startPos the index of the first character of the identifier (inclusive).
    * @param endPos the index of the last character of the identifier (exclusive). -1 is equivalent
-   *     to <tt>name.length()</tt> if name is not <tt>null</tt>.
+   *     to {@code name.length()} if name is not {@literal null}.
    * @param message the message to use in case of error.
    */
   static void checkIdentifier(
@@ -1348,7 +1348,7 @@ public class CheckMethodAdapter extends MethodVisitor {
    *
    * @param version the class version.
    * @param descriptor the string to be checked.
-   * @param canBeVoid <tt>true</tt> if <tt>V</tt> can be considered valid.
+   * @param canBeVoid {@literal true} if {@code V} can be considered valid.
    */
   static void checkDescriptor(final int version, final String descriptor, final boolean canBeVoid) {
     int endPos = checkDescriptor(version, descriptor, 0, canBeVoid);
@@ -1363,7 +1363,7 @@ public class CheckMethodAdapter extends MethodVisitor {
    * @param version the class version.
    * @param descriptor the string to be checked.
    * @param startPos the index of the first character of the type descriptor (inclusive).
-   * @param canBeVoid whether <tt>V</tt> can be considered valid.
+   * @param canBeVoid whether {@code V} can be considered valid.
    * @return the index of the last character of the type descriptor, plus one.
    */
   private static int checkDescriptor(

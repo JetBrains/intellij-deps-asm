@@ -59,7 +59,7 @@ public class MethodNode extends MethodVisitor {
   /** The method's descriptor (see {@link Type}). */
   public String desc;
 
-  /** The method's signature. May be <tt>null</tt>. */
+  /** The method's signature. May be {@literal null}. */
   public String signature;
 
   /** The internal names of the method's exception classes (see {@link Type#getInternalName()}). */
@@ -68,19 +68,19 @@ public class MethodNode extends MethodVisitor {
   /** The method parameter info (access flags and name) */
   public List<ParameterNode> parameters;
 
-  /** The runtime visible annotations of this method. May be <tt>null</tt>. */
+  /** The runtime visible annotations of this method. May be {@literal null}. */
   public List<AnnotationNode> visibleAnnotations;
 
-  /** The runtime invisible annotations of this method. May be <tt>null</tt>. */
+  /** The runtime invisible annotations of this method. May be {@literal null}. */
   public List<AnnotationNode> invisibleAnnotations;
 
-  /** The runtime visible type annotations of this method. May be <tt>null</tt>. */
+  /** The runtime visible type annotations of this method. May be {@literal null}. */
   public List<TypeAnnotationNode> visibleTypeAnnotations;
 
-  /** The runtime invisible type annotations of this method. May be <tt>null</tt>. */
+  /** The runtime invisible type annotations of this method. May be {@literal null}. */
   public List<TypeAnnotationNode> invisibleTypeAnnotations;
 
-  /** The non standard attributes of this method. May be <tt>null</tt>. */
+  /** The non standard attributes of this method. May be {@literal null}. */
   public List<Attribute> attrs;
 
   /**
@@ -88,7 +88,7 @@ public class MethodNode extends MethodVisitor {
    * {@link Boolean}, {@link Character}, {@link Short}, {@link Integer}, {@link Long}, {@link
    * Float}, {@link Double}, {@link String} or {@link Type}, or an two elements String array (for
    * enumeration values), a {@link AnnotationNode}, or a {@link List} of values of one of the
-   * preceding types. May be <tt>null</tt>.
+   * preceding types. May be {@literal null}.
    */
   public Object annotationDefault;
 
@@ -104,7 +104,7 @@ public class MethodNode extends MethodVisitor {
 
   /**
    * The runtime visible parameter annotations of this method. These lists are lists of {@link
-   * AnnotationNode} objects. May be <tt>null</tt>.
+   * AnnotationNode} objects. May be {@literal null}.
    */
   public List<AnnotationNode>[] visibleParameterAnnotations;
 
@@ -120,7 +120,7 @@ public class MethodNode extends MethodVisitor {
 
   /**
    * The runtime invisible parameter annotations of this method. These lists are lists of {@link
-   * AnnotationNode} objects. May be <tt>null</tt>.
+   * AnnotationNode} objects. May be {@literal null}.
    */
   public List<AnnotationNode>[] invisibleParameterAnnotations;
 
@@ -136,13 +136,13 @@ public class MethodNode extends MethodVisitor {
   /** The maximum number of local variables of this method. */
   public int maxLocals;
 
-  /** The local variables of this method. May be <tt>null</tt> */
+  /** The local variables of this method. May be {@literal null} */
   public List<LocalVariableNode> localVariables;
 
-  /** The visible local variable annotations of this method. May be <tt>null</tt> */
+  /** The visible local variable annotations of this method. May be {@literal null} */
   public List<LocalVariableAnnotationNode> visibleLocalVariableAnnotations;
 
-  /** The invisible local variable annotations of this method. May be <tt>null</tt> */
+  /** The invisible local variable annotations of this method. May be {@literal null} */
   public List<LocalVariableAnnotationNode> invisibleLocalVariableAnnotations;
 
   /** Whether the accept method has been called on this object. */
@@ -181,9 +181,9 @@ public class MethodNode extends MethodVisitor {
    *     the method is synthetic and/or deprecated.
    * @param name the method's name.
    * @param descriptor the method's descriptor (see {@link Type}).
-   * @param signature the method's signature. May be <tt>null</tt>.
+   * @param signature the method's signature. May be {@literal null}.
    * @param exceptions the internal names of the method's exception classes (see {@link
-   *     Type#getInternalName()}). May be <tt>null</tt>.
+   *     Type#getInternalName()}). May be {@literal null}.
    * @throws IllegalStateException If a subclass calls this constructor.
    */
   public MethodNode(
@@ -208,9 +208,9 @@ public class MethodNode extends MethodVisitor {
    *     the method is synthetic and/or deprecated.
    * @param name the method's name.
    * @param descriptor the method's descriptor (see {@link Type}).
-   * @param signature the method's signature. May be <tt>null</tt>.
+   * @param signature the method's signature. May be {@literal null}.
    * @param exceptions the internal names of the method's exception classes (see {@link
-   *     Type#getInternalName()}). May be <tt>null</tt>.
+   *     Type#getInternalName()}). May be {@literal null}.
    */
   public MethodNode(
       final int api,

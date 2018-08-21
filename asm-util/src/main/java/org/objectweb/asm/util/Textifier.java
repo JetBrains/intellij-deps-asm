@@ -1165,7 +1165,7 @@ public class Textifier extends Printer {
    * Prints a disassembled view of the given annotation.
    *
    * @param descriptor the class descriptor of the annotation class.
-   * @param visible <tt>true</tt> if the annotation is visible at runtime.
+   * @param visible {@literal true} if the annotation is visible at runtime.
    * @return a visitor to visit the annotation values.
    */
   public Textifier visitAnnotation(final String descriptor, final boolean visible) {
@@ -1182,10 +1182,10 @@ public class Textifier extends Printer {
    *
    * @param typeRef a reference to the annotated type. See {@link TypeReference}.
    * @param typePath the path to the annotated type argument, wildcard bound, array element type, or
-   *     static inner type within 'typeRef'. May be <tt>null</tt> if the annotation targets
+   *     static inner type within 'typeRef'. May be {@literal null} if the annotation targets
    *     'typeRef' as a whole.
    * @param descriptor the class descriptor of the annotation class.
-   * @param visible <tt>true</tt> if the annotation is visible at runtime.
+   * @param visible {@literal true} if the annotation is visible at runtime.
    * @return a visitor to visit the annotation values.
    */
   public Textifier visitTypeAnnotation(
@@ -1295,7 +1295,7 @@ public class Textifier extends Printer {
    *     #FIELD_DESCRIPTOR}, {@link #FIELD_SIGNATURE}, {@link #METHOD_DESCRIPTOR}, {@link
    *     #METHOD_SIGNATURE}, {@link #CLASS_SIGNATURE}, {@link #TYPE_DECLARATION}, {@link
    *     #CLASS_DECLARATION}, {@link #PARAMETERS_DECLARATION} of {@link #HANDLE_DESCRIPTOR}.
-   * @param value an internal name, type descriptor or a type signature. May be <tt>null</tt>.
+   * @param value an internal name, type descriptor or a type signature. May be {@literal null}.
    */
   protected void appendDescriptor(final int type, final String value) {
     if (type == CLASS_SIGNATURE || type == FIELD_SIGNATURE || type == METHOD_SIGNATURE) {
@@ -1572,7 +1572,7 @@ public class Textifier extends Printer {
   /**
    * Creates and adds to {@link #text} a new {@link Textifier}, followed by the given string.
    *
-   * @param endText the text to add to {@link #text} after the textifier. May be <tt>null</tt>.
+   * @param endText the text to add to {@link #text} after the textifier. May be {@literal null}.
    * @return the newly created {@link Textifier}.
    */
   private Textifier addNewTextifier(final String endText) {

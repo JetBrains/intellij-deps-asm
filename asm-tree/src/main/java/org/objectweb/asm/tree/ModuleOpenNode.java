@@ -48,7 +48,7 @@ public class ModuleOpenNode {
 
   /**
    * The fully qualified names (using dots) of the modules that can use deep reflection to the
-   * classes of the open package, or <tt>null</tt>.
+   * classes of the open package, or {@literal null}.
    */
   public List<String> modules;
 
@@ -59,7 +59,7 @@ public class ModuleOpenNode {
    * @param access the access flag of the opened package, valid values are among {@code
    *     ACC_SYNTHETIC} and {@code ACC_MANDATED}.
    * @param modules the fully qualified names (using dots) of the modules that can use deep
-   *     reflection to the classes of the open package, or <tt>null</tt>.
+   *     reflection to the classes of the open package, or {@literal null}.
    */
   public ModuleOpenNode(final String packaze, final int access, final List<String> modules) {
     this.packaze = packaze;

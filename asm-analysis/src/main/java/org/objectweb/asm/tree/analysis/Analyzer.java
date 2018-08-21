@@ -96,8 +96,8 @@ public class Analyzer<V extends Value> implements Opcodes {
    * @param method the method to be analyzed.
    * @return the symbolic state of the execution stack frame at each bytecode instruction of the
    *     method. The size of the returned array is equal to the number of instructions (and labels)
-   *     of the method. A given frame is <tt>null</tt> if and only if the corresponding instruction
-   *     cannot be reached (dead code).
+   *     of the method. A given frame is {@literal null} if and only if the corresponding
+   *     instruction cannot be reached (dead code).
    * @throws AnalyzerException if a problem occurs during the analysis.
    */
   @SuppressWarnings("unchecked")
@@ -412,7 +412,7 @@ public class Analyzer<V extends Value> implements Opcodes {
    *
    * @return the symbolic state of the execution stack frame at each bytecode instruction of the
    *     method. The size of the returned array is equal to the number of instructions (and labels)
-   *     of the method. A given frame is <tt>null</tt> if the corresponding instruction cannot be
+   *     of the method. A given frame is {@literal null} if the corresponding instruction cannot be
    *     reached, or if an error occurred during the analysis of the method.
    */
   public Frame<V>[] getFrames() {

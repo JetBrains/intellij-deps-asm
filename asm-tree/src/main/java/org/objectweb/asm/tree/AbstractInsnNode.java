@@ -94,14 +94,14 @@ public abstract class AbstractInsnNode {
   /**
    * The runtime visible type annotations of this instruction. This field is only used for real
    * instructions (i.e. not for labels, frames, or line number nodes). This list is a list of {@link
-   * TypeAnnotationNode} objects. May be <tt>null</tt>.
+   * TypeAnnotationNode} objects. May be {@literal null}.
    */
   public List<TypeAnnotationNode> visibleTypeAnnotations;
 
   /**
    * The runtime invisible type annotations of this instruction. This field is only used for real
    * instructions (i.e. not for labels, frames, or line number nodes). This list is a list of {@link
-   * TypeAnnotationNode} objects. May be <tt>null</tt>.
+   * TypeAnnotationNode} objects. May be {@literal null}.
    */
   public List<TypeAnnotationNode> invisibleTypeAnnotations;
 
@@ -148,7 +148,7 @@ public abstract class AbstractInsnNode {
    * Returns the previous instruction in the list to which this instruction belongs, if any.
    *
    * @return the previous instruction in the list to which this instruction belongs, if any. May be
-   *     <tt>null</tt>.
+   *     {@literal null}.
    */
   public AbstractInsnNode getPrevious() {
     return previousInsn;
@@ -158,7 +158,7 @@ public abstract class AbstractInsnNode {
    * Returns the next instruction in the list to which this instruction belongs, if any.
    *
    * @return the next instruction in the list to which this instruction belongs, if any. May be
-   *     <tt>null</tt>.
+   *     {@literal null}.
    */
   public AbstractInsnNode getNext() {
     return nextInsn;

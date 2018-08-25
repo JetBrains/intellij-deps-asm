@@ -53,6 +53,8 @@ public class AdapterBenchmark extends AbstractBenchmark {
   private Adapter asm5_0;
   private Adapter asm6_0;
   private Adapter asm6_1;
+  private Adapter asm6_2;
+  private Adapter asmCurrent;
   private Adapter aspectJBcel;
   private Adapter bcel;
   private Adapter javassist;
@@ -74,6 +76,8 @@ public class AdapterBenchmark extends AbstractBenchmark {
     asm5_0 = (Adapter) new AsmBenchmarkFactory(AsmVersion.V5_0).newAsmBenchmark();
     asm6_0 = (Adapter) new AsmBenchmarkFactory(AsmVersion.V6_0).newAsmBenchmark();
     asm6_1 = (Adapter) new AsmBenchmarkFactory(AsmVersion.V6_1).newAsmBenchmark();
+    asm6_2 = (Adapter) new AsmBenchmarkFactory(AsmVersion.V6_2).newAsmBenchmark();
+    asmCurrent = (Adapter) new AsmBenchmarkFactory(AsmVersion.V_CURRENT).newAsmBenchmark();
     aspectJBcel = new AspectJBCELAdapter();
     bcel = new BCELAdapter();
     javassist = new JavassistAdapter();
@@ -83,7 +87,9 @@ public class AdapterBenchmark extends AbstractBenchmark {
     if (!asm4_0.getVersion().equals("ASM4")
         || !asm5_0.getVersion().equals("ASM5")
         || !asm6_0.getVersion().equals("ASM6")
-        || !asm6_1.getVersion().equals("ASM6")) {
+        || !asm6_1.getVersion().equals("ASM6")
+        || !asm6_2.getVersion().equals("ASM6")
+        || !asmCurrent.getVersion().equals("ASM6")) {
       throw new IllegalStateException();
     }
 
@@ -119,6 +125,20 @@ public class AdapterBenchmark extends AbstractBenchmark {
   }
 
   @Benchmark
+  public void getClassInfo_asm6_2(final Blackhole blackhole) {
+    for (byte[] classFile : classFiles) {
+      blackhole.consume(asm6_2.getClassInfo(classFile));
+    }
+  }
+
+  @Benchmark
+  public void getClassInfo_asmCurrent(final Blackhole blackhole) {
+    for (byte[] classFile : classFiles) {
+      blackhole.consume(asmCurrent.getClassInfo(classFile));
+    }
+  }
+
+  @Benchmark
   public void getClassObjectModel_asm4_0(final Blackhole blackhole) {
     for (byte[] classFile : classFiles) {
       blackhole.consume(asm4_0.getClassObjectModel(classFile));
@@ -143,6 +163,20 @@ public class AdapterBenchmark extends AbstractBenchmark {
   public void getClassObjectModel_asm6_1(final Blackhole blackhole) {
     for (byte[] classFile : classFiles) {
       blackhole.consume(asm6_1.getClassObjectModel(classFile));
+    }
+  }
+
+  @Benchmark
+  public void getClassObjectModel_asm6_2(final Blackhole blackhole) {
+    for (byte[] classFile : classFiles) {
+      blackhole.consume(asm6_2.getClassObjectModel(classFile));
+    }
+  }
+
+  @Benchmark
+  public void getClassObjectModel_asmCurrent(final Blackhole blackhole) {
+    for (byte[] classFile : classFiles) {
+      blackhole.consume(asmCurrent.getClassObjectModel(classFile));
     }
   }
 
@@ -175,6 +209,20 @@ public class AdapterBenchmark extends AbstractBenchmark {
   }
 
   @Benchmark
+  public void read_asm6_2(final Blackhole blackhole) {
+    for (byte[] classFile : classFiles) {
+      blackhole.consume(asm6_2.read(classFile));
+    }
+  }
+
+  @Benchmark
+  public void read_asmCurrent(final Blackhole blackhole) {
+    for (byte[] classFile : classFiles) {
+      blackhole.consume(asmCurrent.read(classFile));
+    }
+  }
+
+  @Benchmark
   public void readAndWrite_asm4_0(final Blackhole blackhole) {
     for (byte[] classFile : classFiles) {
       blackhole.consume(asm4_0.readAndWrite(classFile, /* computeMaxs = */ false));
@@ -199,6 +247,20 @@ public class AdapterBenchmark extends AbstractBenchmark {
   public void readAndWrite_asm6_1(final Blackhole blackhole) {
     for (byte[] classFile : classFiles) {
       blackhole.consume(asm6_1.readAndWrite(classFile, /* computeMaxs = */ false));
+    }
+  }
+
+  @Benchmark
+  public void readAndWrite_asm6_2(final Blackhole blackhole) {
+    for (byte[] classFile : classFiles) {
+      blackhole.consume(asm6_2.readAndWrite(classFile, /* computeMaxs = */ false));
+    }
+  }
+
+  @Benchmark
+  public void readAndWrite_asmCurrent(final Blackhole blackhole) {
+    for (byte[] classFile : classFiles) {
+      blackhole.consume(asmCurrent.readAndWrite(classFile, /* computeMaxs = */ false));
     }
   }
 
@@ -259,6 +321,20 @@ public class AdapterBenchmark extends AbstractBenchmark {
   }
 
   @Benchmark
+  public void readAndWriteWithComputeFrames_asm6_2(final Blackhole blackhole) {
+    for (byte[] classFile : classFiles) {
+      blackhole.consume(asm6_2.readAndWriteWithComputeFrames(classFile));
+    }
+  }
+
+  @Benchmark
+  public void readAndWriteWithComputeFrames_asmCurrent(final Blackhole blackhole) {
+    for (byte[] classFile : classFiles) {
+      blackhole.consume(asmCurrent.readAndWriteWithComputeFrames(classFile));
+    }
+  }
+
+  @Benchmark
   public void readAndWriteWithComputeMaxs_asm4_0(final Blackhole blackhole) {
     for (byte[] classFile : classFiles) {
       blackhole.consume(asm4_0.readAndWrite(classFile, /* computeMaxs = */ true));
@@ -283,6 +359,20 @@ public class AdapterBenchmark extends AbstractBenchmark {
   public void readAndWriteWithComputeMaxs_asm6_1(final Blackhole blackhole) {
     for (byte[] classFile : classFiles) {
       blackhole.consume(asm6_1.readAndWrite(classFile, /* computeMaxs = */ true));
+    }
+  }
+
+  @Benchmark
+  public void readAndWriteWithComputeMaxs_asm6_2(final Blackhole blackhole) {
+    for (byte[] classFile : classFiles) {
+      blackhole.consume(asm6_2.readAndWrite(classFile, /* computeMaxs = */ true));
+    }
+  }
+
+  @Benchmark
+  public void readAndWriteWithComputeMaxs_asmCurrent(final Blackhole blackhole) {
+    for (byte[] classFile : classFiles) {
+      blackhole.consume(asmCurrent.readAndWrite(classFile, /* computeMaxs = */ true));
     }
   }
 
@@ -336,6 +426,20 @@ public class AdapterBenchmark extends AbstractBenchmark {
   }
 
   @Benchmark
+  public void readAndWriteWithCopyPool_asm6_2(final Blackhole blackhole) {
+    for (byte[] classFile : classFiles) {
+      blackhole.consume(asm6_2.readAndWriteWithCopyPool(classFile));
+    }
+  }
+
+  @Benchmark
+  public void readAndWriteWithCopyPool_asmCurrent(final Blackhole blackhole) {
+    for (byte[] classFile : classFiles) {
+      blackhole.consume(asmCurrent.readAndWriteWithCopyPool(classFile));
+    }
+  }
+
+  @Benchmark
   public void readAndWriteWithObjectModel_asm4_0(final Blackhole blackhole) {
     for (byte[] classFile : classFiles) {
       blackhole.consume(asm4_0.readAndWriteWithObjectModel(classFile));
@@ -360,6 +464,20 @@ public class AdapterBenchmark extends AbstractBenchmark {
   public void readAndWriteWithObjectModel_asm6_1(final Blackhole blackhole) {
     for (byte[] classFile : classFiles) {
       blackhole.consume(asm6_1.readAndWriteWithObjectModel(classFile));
+    }
+  }
+
+  @Benchmark
+  public void readAndWriteWithObjectModel_asm6_2(final Blackhole blackhole) {
+    for (byte[] classFile : classFiles) {
+      blackhole.consume(asm6_2.readAndWriteWithObjectModel(classFile));
+    }
+  }
+
+  @Benchmark
+  public void readAndWriteWithObjectModel_asmCurrent(final Blackhole blackhole) {
+    for (byte[] classFile : classFiles) {
+      blackhole.consume(asmCurrent.readAndWriteWithObjectModel(classFile));
     }
   }
 }

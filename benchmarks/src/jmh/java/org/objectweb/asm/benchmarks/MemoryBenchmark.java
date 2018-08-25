@@ -52,6 +52,8 @@ public class MemoryBenchmark extends AbstractBenchmark {
   private Factory asm5_0;
   private Factory asm6_0;
   private Factory asm6_1;
+  private Factory asm6_2;
+  private Factory asmCurrent;
 
   public MemoryBenchmark() {
     super("org.objectweb.asm.benchmarks.ASMFactory");
@@ -69,12 +71,16 @@ public class MemoryBenchmark extends AbstractBenchmark {
     asm5_0 = (Factory) new AsmBenchmarkFactory(AsmVersion.V5_0).newAsmBenchmark();
     asm6_0 = (Factory) new AsmBenchmarkFactory(AsmVersion.V6_0).newAsmBenchmark();
     asm6_1 = (Factory) new AsmBenchmarkFactory(AsmVersion.V6_1).newAsmBenchmark();
+    asm6_2 = (Factory) new AsmBenchmarkFactory(AsmVersion.V6_2).newAsmBenchmark();
+    asmCurrent = (Factory) new AsmBenchmarkFactory(AsmVersion.V_CURRENT).newAsmBenchmark();
 
     // Check that the correct versions of ASM have been loaded.
     if (!asm4_0.getVersion().equals("ASM4")
         || !asm5_0.getVersion().equals("ASM5")
         || !asm6_0.getVersion().equals("ASM6")
-        || !asm6_1.getVersion().equals("ASM6")) {
+        || !asm6_1.getVersion().equals("ASM6")
+        || !asm6_2.getVersion().equals("ASM6")
+        || !asmCurrent.getVersion().equals("ASM6")) {
       throw new IllegalStateException();
     }
 
@@ -110,6 +116,20 @@ public class MemoryBenchmark extends AbstractBenchmark {
   }
 
   @Benchmark
+  public void newClass_asm6_2() {
+    for (byte[] classFile : classFiles) {
+      MemoryProfiler.keepReference(asm6_2.newClass(classFile));
+    }
+  }
+
+  @Benchmark
+  public void newClass_asmCurrent() {
+    for (byte[] classFile : classFiles) {
+      MemoryProfiler.keepReference(asmCurrent.newClass(classFile));
+    }
+  }
+
+  @Benchmark
   public void newClassNode_asm4_0() {
     for (byte[] classFile : classFiles) {
       MemoryProfiler.keepReference(asm4_0.newClassNode(classFile));
@@ -134,6 +154,20 @@ public class MemoryBenchmark extends AbstractBenchmark {
   public void newClassNode_asm6_1() {
     for (byte[] classFile : classFiles) {
       MemoryProfiler.keepReference(asm6_1.newClassNode(classFile));
+    }
+  }
+
+  @Benchmark
+  public void newClassNode_asm6_2() {
+    for (byte[] classFile : classFiles) {
+      MemoryProfiler.keepReference(asm6_2.newClassNode(classFile));
+    }
+  }
+
+  @Benchmark
+  public void newClassNode_asmCurrent() {
+    for (byte[] classFile : classFiles) {
+      MemoryProfiler.keepReference(asmCurrent.newClassNode(classFile));
     }
   }
 }

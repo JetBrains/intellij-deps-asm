@@ -49,8 +49,10 @@ public abstract class AbstractBenchmark {
   private static final String ASM4_0 = BUILD_DIR + "asm4.0/";
   private static final String ASM5_0 = BUILD_DIR + "asm5.0.1/";
   private static final String ASM6_0 = BUILD_DIR + "asm6.0/";
-  private static final String ASM_CORE_6_1 = "/asm/build/classes/java/main/";
-  private static final String ASM_TREE_6_1 = "/asm-tree/build/classes/java/main/";
+  private static final String ASM6_1 = BUILD_DIR + "asm6.1.1/";
+  private static final String ASM6_2 = BUILD_DIR + "asm6.2.1/";
+  private static final String ASM_CORE_CURRENT = "/asm/build/classes/java/main/";
+  private static final String ASM_TREE_CURRENT = "/asm-tree/build/classes/java/main/";
 
   private final String asmBenchmarkClass;
   private final String userDir;
@@ -63,7 +65,9 @@ public abstract class AbstractBenchmark {
     V4_0,
     V5_0,
     V6_0,
-    V6_1;
+    V6_1,
+    V6_2,
+    V_CURRENT;
 
     URL[] getUrls(final String baseUrl) throws MalformedURLException {
       switch (this) {
@@ -74,7 +78,13 @@ public abstract class AbstractBenchmark {
         case V6_0:
           return new URL[] {new URL(baseUrl + ASM6_0)};
         case V6_1:
-          return new URL[] {new URL(baseUrl + ASM_CORE_6_1), new URL(baseUrl + ASM_TREE_6_1)};
+          return new URL[] {new URL(baseUrl + ASM6_1)};
+        case V6_2:
+          return new URL[] {new URL(baseUrl + ASM6_2)};
+        case V_CURRENT:
+          return new URL[] {
+            new URL(baseUrl + ASM_CORE_CURRENT), new URL(baseUrl + ASM_TREE_CURRENT)
+          };
         default:
           throw new AssertionError();
       }
@@ -94,8 +104,8 @@ public abstract class AbstractBenchmark {
   /** Creates and populates {@link #classFiles} with some class files read from disk. */
   protected void prepareClasses() throws IOException {
     classFiles = new ArrayList<byte[]>();
-    findClasses(new File(userDir + ASM_CORE_6_1), classFiles);
-    findClasses(new File(userDir + ASM_TREE_6_1), classFiles);
+    findClasses(new File(userDir + ASM_CORE_CURRENT), classFiles);
+    findClasses(new File(userDir + ASM_TREE_CURRENT), classFiles);
   }
 
   private static void findClasses(final File directory, final ArrayList<byte[]> classFiles)
@@ -134,8 +144,7 @@ public abstract class AbstractBenchmark {
     /**
      * Constructs an {@link AsmBenchmarkFactory}.
      *
-     * @param asmDirectories the directories where the ASM library classes can be found.
-     * @param asmBenchmarkClass the class that must be instantiated by this factory.
+     * @param asmVersion the ASM version to use.
      * @throws MalformedURLException
      */
     AsmBenchmarkFactory(final AsmVersion asmVersion) throws MalformedURLException {
@@ -147,7 +156,6 @@ public abstract class AbstractBenchmark {
      * @throws ClassNotFoundException
      * @throws IllegalAccessException
      * @throws InstantiationException
-     * @throws Exception
      */
     public Object newAsmBenchmark()
         throws InstantiationException, IllegalAccessException, ClassNotFoundException {

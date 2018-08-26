@@ -139,6 +139,7 @@ project(':benchmarks') {
     classes.dependsOn "asm${version}"
   }
   jmh {
+    jvmArgsAppend = "-Duser.dir=${rootDir}"
     resultFormat = 'CSV'
     profilers = ['org.objectweb.asm.benchmarks.MemoryProfiler']
     if (rootProject.hasProperty('jmhInclude')) {

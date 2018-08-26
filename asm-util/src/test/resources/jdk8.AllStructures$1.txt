@@ -26,7 +26,7 @@ class jdk8/AllStructures$1 implements java/lang/Runnable {
    L1
     LOCALVARIABLE this Ljdk8/AllStructures$1; L0 L1 0
     // signature Ljdk8/AllStructures$1;
-    // declaration:  extends jdk8.AllStructures$1
+    // declaration: this extends jdk8.AllStructures$1
     LOCALVARIABLE this$0 Ljdk8/AllStructures; L0 L1 1
     MAXSTACK = 2
     MAXLOCALS = 2
@@ -66,7 +66,7 @@ class jdk8/AllStructures$1 implements java/lang/Runnable {
    L3
     LOCALVARIABLE this Ljdk8/AllStructures$1; L0 L3 0
     // signature Ljdk8/AllStructures$1;
-    // declaration:  extends jdk8.AllStructures$1
+    // declaration: this extends jdk8.AllStructures$1
     LOCALVARIABLE f D L1 L3 1
     LOCALVARIABLE @Lannotations/VTUA;(v=0) : LOCAL_VARIABLE, null [ L1 - L3 - 1 ]
     LOCALVARIABLE @Lannotations/ITUA;(v=1) : LOCAL_VARIABLE, null [ L1 - L3 - 1 ] // invisible

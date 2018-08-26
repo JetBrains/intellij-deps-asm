@@ -38,7 +38,7 @@ class jdk8/AllStructures$InnerClass {
    L3
     LOCALVARIABLE this Ljdk8/AllStructures$InnerClass; L0 L3 0
     // signature Ljdk8/AllStructures<TU0;TU1;TU2;>.InnerClass;
-    // declaration:  extends jdk8.AllStructures<U0, U1, U2>.InnerClass
+    // declaration: this extends jdk8.AllStructures<U0, U1, U2>.InnerClass
     LOCALVARIABLE f D L0 L3 2
     MAXSTACK = 3
     MAXLOCALS = 4
@@ -55,7 +55,7 @@ class jdk8/AllStructures$InnerClass {
    L1
     LOCALVARIABLE this Ljdk8/AllStructures$InnerClass; L0 L1 0
     // signature Ljdk8/AllStructures<TU0;TU1;TU2;>.InnerClass;
-    // declaration:  extends jdk8.AllStructures<U0, U1, U2>.InnerClass
+    // declaration: this extends jdk8.AllStructures<U0, U1, U2>.InnerClass
     LOCALVARIABLE x0 Ljdk8/AllStructures; L0 L1 1
     LOCALVARIABLE x1 D L0 L1 2
     LOCALVARIABLE x2 Ljdk8/AllStructures$1; L0 L1 4

@@ -94,7 +94,7 @@ public class ASMAdapter extends Adapter {
   @Override
   public byte[] readAndWrite(final byte[] classFile, final boolean computeMaxs) {
     ClassReader classReader = new ClassReader(classFile);
-    ClassWriter classWriter = new ClassWriter(0);
+    ClassWriter classWriter = new ClassWriter(computeMaxs ? classWriter.COMPUTE_MAXS : 0);
     classReader.accept(classWriter, 0);
     return classWriter.toByteArray();
   }

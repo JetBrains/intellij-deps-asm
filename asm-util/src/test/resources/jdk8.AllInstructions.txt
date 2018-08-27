@@ -20,7 +20,7 @@ class jdk8/AllInstructions {
 
   // access flags 0x1
   // signature (Ljava/util/List<Ljava/lang/String;>;)V
-  // declaration: void (java.util.List<java.lang.String>)
+  // declaration: void invokedynamic(java.util.List<java.lang.String>)
   public invokedynamic(Ljava/util/List;)V
     // parameter  strings
    L0
@@ -62,10 +62,10 @@ class jdk8/AllInstructions {
     LOCALVARIABLE this Ljdk8/AllInstructions; L0 L3 0
     LOCALVARIABLE strings Ljava/util/List; L0 L3 1
     // signature Ljava/util/List<Ljava/lang/String;>;
-    // declaration:  extends java.util.List<java.lang.String>
+    // declaration: strings extends java.util.List<java.lang.String>
     LOCALVARIABLE validStrings Ljava/util/List; L1 L3 2
     // signature Ljava/util/List<Ljava/lang/String;>;
-    // declaration:  extends java.util.List<java.lang.String>
+    // declaration: validStrings extends java.util.List<java.lang.String>
     MAXSTACK = 4
     MAXLOCALS = 3
 

@@ -1,7 +1,7 @@
 // class version 49.0 (49)
 // access flags 0x4030
 // signature Ljava/lang/Enum<Ljdk5/AllStructures$EnumClass;>;
-// declaration:  extends java.lang.Enum<jdk5.AllStructures$EnumClass>
+// declaration: jdk5/AllStructures$EnumClass extends java.lang.Enum<jdk5.AllStructures$EnumClass>
 final enum jdk5/AllStructures$EnumClass extends java/lang/Enum {
 
   // compiled from: AllStructures.java
@@ -50,7 +50,7 @@ final enum jdk5/AllStructures$EnumClass extends java/lang/Enum {
 
   // access flags 0x2
   // signature (I)V
-  // declaration: void (int)
+  // declaration: void <init>(int)
   private <init>(Ljava/lang/String;II)V
    L0
     LINENUMBER 207 L0

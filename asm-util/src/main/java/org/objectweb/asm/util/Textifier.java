@@ -175,7 +175,7 @@ public class Textifier extends Printer {
 
     appendDescriptor(CLASS_SIGNATURE, signature);
     if (signature != null) {
-      appendJavaDeclaration(signature);
+      appendJavaDeclaration(name, signature);
     }
 
     appendAccess(access & ~(Opcodes.ACC_SUPER | Opcodes.ACC_MODULE));
@@ -323,7 +323,7 @@ public class Textifier extends Printer {
       stringBuilder.append(tab);
       appendDescriptor(FIELD_SIGNATURE, signature);
       stringBuilder.append(tab);
-      appendJavaDeclaration(signature);
+      appendJavaDeclaration(name, signature);
     }
 
     stringBuilder.append(tab);
@@ -364,7 +364,7 @@ public class Textifier extends Printer {
       stringBuilder.append(tab);
       appendDescriptor(METHOD_SIGNATURE, signature);
       stringBuilder.append(tab);
-      appendJavaDeclaration(signature);
+      appendJavaDeclaration(name, signature);
     }
 
     stringBuilder.append(tab);
@@ -1097,7 +1097,7 @@ public class Textifier extends Printer {
       stringBuilder.append(tab2);
       appendDescriptor(FIELD_SIGNATURE, signature);
       stringBuilder.append(tab2);
-      appendJavaDeclaration(signature);
+      appendJavaDeclaration(name, signature);
     }
     text.add(stringBuilder.toString());
   }
@@ -1310,9 +1310,10 @@ public class Textifier extends Printer {
   /**
    * Appends the Java generic type declaration corresponding to the given signature.
    *
+   * @param name a class, field or method name.
    * @param signature a class, field or method signature.
    */
-  private void appendJavaDeclaration(final String signature) {
+  private void appendJavaDeclaration(final String name, final String signature) {
     TraceSignatureVisitor traceSignatureVisitor = new TraceSignatureVisitor(access);
     new SignatureReader(signature).accept(traceSignatureVisitor);
     stringBuilder.append("// declaration: ");
@@ -1320,6 +1321,7 @@ public class Textifier extends Printer {
       stringBuilder.append(traceSignatureVisitor.getReturnType());
       stringBuilder.append(' ');
     }
+    stringBuilder.append(name);
     stringBuilder.append(traceSignatureVisitor.getDeclaration());
     if (traceSignatureVisitor.getExceptions() != null) {
       stringBuilder.append(" throws ").append(traceSignatureVisitor.getExceptions());

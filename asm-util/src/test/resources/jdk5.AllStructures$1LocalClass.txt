@@ -15,7 +15,7 @@ class jdk5/AllStructures$1LocalClass {
 
   // access flags 0x0
   // signature (I)V
-  // declaration: void (int)
+  // declaration: void <init>(int)
   <init>(Ljdk5/AllStructures;ILjava/lang/String;)V
     // annotable parameter count: 1 (visible)
     @Ljava/lang/Deprecated;() // parameter 0
@@ -48,7 +48,7 @@ class jdk5/AllStructures$1LocalClass {
    L3
     LOCALVARIABLE this Ljdk5/AllStructures$1LocalClass; L0 L3 0
     // signature Ljdk5/AllStructures.1LocalClass;
-    // declaration:  extends jdk5.AllStructures.1LocalClass
+    // declaration: this extends jdk5.AllStructures.1LocalClass
     LOCALVARIABLE value I L0 L3 2
     MAXSTACK = 3
     MAXLOCALS = 4

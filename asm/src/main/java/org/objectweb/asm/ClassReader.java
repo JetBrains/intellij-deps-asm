@@ -187,19 +187,22 @@ public class ClassReader {
     int currentCpInfoIndex = 1;
     int currentCpInfoOffset = classFileOffset + 10;
     int currentMaxStringLength = 0;
+    boolean hasBootstrapMethods = false;
     // The offset of the other entries depend on the total size of all the previous entries.
     while (currentCpInfoIndex < constantPoolCount) {
       cpInfoOffsets[currentCpInfoIndex++] = currentCpInfoOffset + 1;
       int cpInfoSize;
       switch (classFileBuffer[currentCpInfoOffset]) {
+        case Symbol.CONSTANT_INVOKE_DYNAMIC_TAG:
+        case Symbol.CONSTANT_DYNAMIC_TAG:
+          hasBootstrapMethods = true;
+          // fallthrough
         case Symbol.CONSTANT_FIELDREF_TAG:
         case Symbol.CONSTANT_METHODREF_TAG:
         case Symbol.CONSTANT_INTERFACE_METHODREF_TAG:
         case Symbol.CONSTANT_INTEGER_TAG:
         case Symbol.CONSTANT_FLOAT_TAG:
         case Symbol.CONSTANT_NAME_AND_TYPE_TAG:
-        case Symbol.CONSTANT_INVOKE_DYNAMIC_TAG:
-        case Symbol.CONSTANT_DYNAMIC_TAG:
           cpInfoSize = 5;
           break;
         case Symbol.CONSTANT_LONG_TAG:
@@ -236,11 +239,17 @@ public class ClassReader {
     this.header = currentCpInfoOffset;
 
     // Read the BootstrapMethods attribute, if any (only get the offset of each method).
+    this.bootstrapMethodOffsets =
+        hasBootstrapMethods ? readBootstrapMethods(currentMaxStringLength) : null;
+  }
+
+  private int[] readBootstrapMethods(int maxStringLength) {
+    char[] charBuffer = new char[maxStringLength];
     int currentAttributeOffset = getFirstAttributeOffset();
     int[] currentBootstrapMethodOffsets = null;
     for (int i = readUnsignedShort(currentAttributeOffset - 2); i > 0; --i) {
       // Read the attribute_info's attribute_name and attribute_length fields.
-      String attributeName = readUTF8(currentAttributeOffset, new char[maxStringLength]);
+      String attributeName = readUTF8(currentAttributeOffset, charBuffer);
       int attributeLength = readInt(currentAttributeOffset + 2);
       currentAttributeOffset += 6;
       if (Constants.BOOTSTRAP_METHODS.equals(attributeName)) {
@@ -255,10 +264,11 @@ public class ClassReader {
           currentBootstrapMethodOffset +=
               4 + readUnsignedShort(currentBootstrapMethodOffset + 2) * 2;
         }
+        return currentBootstrapMethodOffsets;
       }
       currentAttributeOffset += attributeLength;
     }
-    this.bootstrapMethodOffsets = currentBootstrapMethodOffsets;
+    return null;
   }
 
   /**

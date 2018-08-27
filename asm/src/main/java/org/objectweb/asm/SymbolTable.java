@@ -203,6 +203,7 @@ final class SymbolTable {
     // method calls below), and to account for bootstrap method entries.
     entries = new Entry[constantPoolCount * 2];
     char[] charBuffer = new char[classReader.getMaxStringLength()];
+    boolean hasBootstrapMethods = false;
     int itemIndex = 1;
     while (itemIndex < constantPoolCount) {
       int itemOffset = classReader.getItem(itemIndex);
@@ -252,6 +253,7 @@ final class SymbolTable {
           break;
         case Symbol.CONSTANT_DYNAMIC_TAG:
         case Symbol.CONSTANT_INVOKE_DYNAMIC_TAG:
+          hasBootstrapMethods = true;
           nameAndTypeItemOffset =
               classReader.getItem(classReader.readUnsignedShort(itemOffset + 2));
           addConstantDynamicOrInvokeDynamicReference(
@@ -277,6 +279,14 @@ final class SymbolTable {
     }
 
     // Copy the BootstrapMethods 'bootstrap_methods' array binary content, if any.
+    if (hasBootstrapMethods) {
+      copyBootstrapMethods(classReader, charBuffer);
+    }
+  }
+
+  private void copyBootstrapMethods(ClassReader classReader, char[] charBuffer) {
+    // find attributOffset of the 'bootstrap_methods' array
+    byte[] inputBytes = classReader.b;
     int currentAttributeOffset = classReader.getFirstAttributeOffset();
     for (int i = classReader.readUnsignedShort(currentAttributeOffset - 2); i > 0; --i) {
       String attributeName = classReader.readUTF8(currentAttributeOffset, charBuffer);

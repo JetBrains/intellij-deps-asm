@@ -278,14 +278,22 @@ final class SymbolTable {
           (itemTag == Symbol.CONSTANT_LONG_TAG || itemTag == Symbol.CONSTANT_DOUBLE_TAG) ? 2 : 1;
     }
 
-    // Copy the BootstrapMethods 'bootstrap_methods' array binary content, if any.
+    // Copy the BootstrapMethods, if any.
     if (hasBootstrapMethods) {
       copyBootstrapMethods(classReader, charBuffer);
     }
   }
 
-  private void copyBootstrapMethods(ClassReader classReader, char[] charBuffer) {
-    // find attributOffset of the 'bootstrap_methods' array
+  /**
+   * Read the BootstrapMethods 'bootstrap_methods' array binary content and add them as entries of
+   * the SymbolTable.
+   *
+   * @param classReader the ClassReader whose bootstrap methods must be copied to initialize the
+   *     SymbolTable.
+   * @param charBuffer a buffer used to read strings in the constant pool.
+   */
+  private void copyBootstrapMethods(final ClassReader classReader, final char[] charBuffer) {
+    // Find attributOffset of the 'bootstrap_methods' array.
     byte[] inputBytes = classReader.b;
     int currentAttributeOffset = classReader.getFirstAttributeOffset();
     for (int i = classReader.readUnsignedShort(currentAttributeOffset - 2); i > 0; --i) {

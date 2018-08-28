@@ -29,8 +29,8 @@ package org.objectweb.asm;
 
 /**
  * A visitor to visit a Java module. The methods of this class must be called in the following
- * order: {@code visitMainClass} | ( {@code visitPackage} | {@code visitRequire} | {@code
- * visitExport} | {@code visitOpen} | {@code visitUse} | {@code visitProvide} )* {@code visitEnd}.
+ * order: ( {@code visitMainClass} | ( {@code visitPackage} | {@code visitRequire} | {@code
+ * visitExport} | {@code visitOpen} | {@code visitUse} | {@code visitProvide} )* ) {@code visitEnd}.
  *
  * @author Remi Forax
  * @author Eric Bruneton

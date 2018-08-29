@@ -187,19 +187,22 @@ public class ClassReader {
     int currentCpInfoIndex = 1;
     int currentCpInfoOffset = classFileOffset + 10;
     int currentMaxStringLength = 0;
+    boolean hasBootstrapMethods = false;
     // The offset of the other entries depend on the total size of all the previous entries.
     while (currentCpInfoIndex < constantPoolCount) {
       cpInfoOffsets[currentCpInfoIndex++] = currentCpInfoOffset + 1;
       int cpInfoSize;
       switch (classFileBuffer[currentCpInfoOffset]) {
+        case Symbol.CONSTANT_INVOKE_DYNAMIC_TAG:
+        case Symbol.CONSTANT_DYNAMIC_TAG:
+          hasBootstrapMethods = true;
+          // fallthrough
         case Symbol.CONSTANT_FIELDREF_TAG:
         case Symbol.CONSTANT_METHODREF_TAG:
         case Symbol.CONSTANT_INTERFACE_METHODREF_TAG:
         case Symbol.CONSTANT_INTEGER_TAG:
         case Symbol.CONSTANT_FLOAT_TAG:
         case Symbol.CONSTANT_NAME_AND_TYPE_TAG:
-        case Symbol.CONSTANT_INVOKE_DYNAMIC_TAG:
-        case Symbol.CONSTANT_DYNAMIC_TAG:
           cpInfoSize = 5;
           break;
         case Symbol.CONSTANT_LONG_TAG:
@@ -236,29 +239,8 @@ public class ClassReader {
     this.header = currentCpInfoOffset;
 
     // Read the BootstrapMethods attribute, if any (only get the offset of each method).
-    int currentAttributeOffset = getFirstAttributeOffset();
-    int[] currentBootstrapMethodOffsets = null;
-    for (int i = readUnsignedShort(currentAttributeOffset - 2); i > 0; --i) {
-      // Read the attribute_info's attribute_name and attribute_length fields.
-      String attributeName = readUTF8(currentAttributeOffset, new char[maxStringLength]);
-      int attributeLength = readInt(currentAttributeOffset + 2);
-      currentAttributeOffset += 6;
-      if (Constants.BOOTSTRAP_METHODS.equals(attributeName)) {
-        // Read the num_bootstrap_methods field and create an array of this size.
-        currentBootstrapMethodOffsets = new int[readUnsignedShort(currentAttributeOffset)];
-        // Compute and store the offset of each 'bootstrap_methods' array field entry.
-        int currentBootstrapMethodOffset = currentAttributeOffset + 2;
-        for (int j = 0; j < currentBootstrapMethodOffsets.length; ++j) {
-          currentBootstrapMethodOffsets[j] = currentBootstrapMethodOffset;
-          // Skip the bootstrap_method_ref and num_bootstrap_arguments fields (2 bytes each),
-          // as well as the bootstrap_arguments array field (of size num_bootstrap_arguments * 2).
-          currentBootstrapMethodOffset +=
-              4 + readUnsignedShort(currentBootstrapMethodOffset + 2) * 2;
-        }
-      }
-      currentAttributeOffset += attributeLength;
-    }
-    this.bootstrapMethodOffsets = currentBootstrapMethodOffsets;
+    this.bootstrapMethodOffsets =
+        hasBootstrapMethods ? readBootstrapMethodsAttribute(currentMaxStringLength) : null;
   }
 
   /**
@@ -3220,6 +3202,41 @@ public class ClassReader {
 
     // Skip the ClassFile's attributes_count field.
     return currentOffset + 2;
+  }
+
+  /**
+   * Reads the BootstrapMethods attribute to compute the offset of each bootstrap method.
+   *
+   * @param maxStringLength a conservative estimate of the maximum length of the strings contained
+   *     in the constant pool of the class.
+   * @return the offsets of the bootstrap methods or null.
+   */
+  private int[] readBootstrapMethodsAttribute(final int maxStringLength) {
+    char[] charBuffer = new char[maxStringLength];
+    int currentAttributeOffset = getFirstAttributeOffset();
+    int[] currentBootstrapMethodOffsets = null;
+    for (int i = readUnsignedShort(currentAttributeOffset - 2); i > 0; --i) {
+      // Read the attribute_info's attribute_name and attribute_length fields.
+      String attributeName = readUTF8(currentAttributeOffset, charBuffer);
+      int attributeLength = readInt(currentAttributeOffset + 2);
+      currentAttributeOffset += 6;
+      if (Constants.BOOTSTRAP_METHODS.equals(attributeName)) {
+        // Read the num_bootstrap_methods field and create an array of this size.
+        currentBootstrapMethodOffsets = new int[readUnsignedShort(currentAttributeOffset)];
+        // Compute and store the offset of each 'bootstrap_methods' array field entry.
+        int currentBootstrapMethodOffset = currentAttributeOffset + 2;
+        for (int j = 0; j < currentBootstrapMethodOffsets.length; ++j) {
+          currentBootstrapMethodOffsets[j] = currentBootstrapMethodOffset;
+          // Skip the bootstrap_method_ref and num_bootstrap_arguments fields (2 bytes each),
+          // as well as the bootstrap_arguments array field (of size num_bootstrap_arguments * 2).
+          currentBootstrapMethodOffset +=
+              4 + readUnsignedShort(currentBootstrapMethodOffset + 2) * 2;
+        }
+        return currentBootstrapMethodOffsets;
+      }
+      currentAttributeOffset += attributeLength;
+    }
+    return null;
   }
 
   /**

@@ -3205,11 +3205,11 @@ public class ClassReader {
   }
 
   /**
-   * Reads the BootstrapMethod attribute to compute the offset of each bootstrap method.
+   * Reads the BootstrapMethods attribute to compute the offset of each bootstrap method.
    *
    * @param maxStringLength a conservative estimate of the maximum length of the strings contained
    *     in the constant pool of the class.
-   * @return the offset of the bootstrap methods or null.
+   * @return the offsets of the bootstrap methods or null.
    */
   private int[] readBootstrapMethodsAttribute(final int maxStringLength) {
     char[] charBuffer = new char[maxStringLength];

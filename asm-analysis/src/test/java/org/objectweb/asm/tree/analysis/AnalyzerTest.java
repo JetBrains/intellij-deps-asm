@@ -30,7 +30,6 @@ package org.objectweb.asm.tree.analysis;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
 
-import java.io.IOException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.objectweb.asm.ClassReader;
@@ -821,11 +820,7 @@ public class AnalyzerTest {
     assertMaxs(4, 6);
   }
 
-  /**
-   * Tests that Analyzer works correctly on classes with many labels.
-   *
-   * @throws IOException
-   */
+  /** Tests that Analyzer works correctly on classes with many labels. */
   @Test
   public void testManyLabels() {
     Label target = new Label();

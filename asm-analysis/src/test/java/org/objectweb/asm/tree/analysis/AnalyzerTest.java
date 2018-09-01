@@ -820,6 +820,21 @@ public class AnalyzerTest {
     assertMaxs(4, 6);
   }
 
+  /** Tests that Analyzer works correctly on classes with many labels. */
+  @Test
+  public void testManyLabels() {
+    Label target = new Label();
+    JSR(target);
+    LABEL(target);
+    for (int i = 0; i < 8192; i++) {
+      Label label = new Label();
+      GOTO(label);
+      LABEL(label);
+    }
+    RETURN();
+    assertMaxs(1, 1);
+  }
+
   /**
    * Tests an example coming from distilled down version of
    * com/sun/corba/ee/impl/protocol/CorbaClientDelegateImpl from GlassFish 2. See issue #317823.
@@ -911,9 +926,9 @@ public class AnalyzerTest {
               return new MethodNode(Opcodes.ASM5, access, name, desc, signature, exceptions) {
                 @Override
                 public void visitEnd() {
-                  Analyzer<BasicValue> a = new Analyzer<BasicValue>(new BasicInterpreter());
+                  Analyzer<BasicValue> analyzer = new Analyzer<BasicValue>(new BasicInterpreter());
                   try {
-                    Frame<BasicValue>[] frames = a.analyze("C", this);
+                    Frame<BasicValue>[] frames = analyzer.analyze("C", this);
                     int mStack = 0;
                     int mLocals = 0;
                     for (int i = 0; i < frames.length; ++i) {

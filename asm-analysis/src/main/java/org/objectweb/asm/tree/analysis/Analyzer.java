@@ -31,7 +31,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Stack;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.AbstractInsnNode;
@@ -306,10 +305,11 @@ public class Analyzer<V extends Value> implements Opcodes {
   private void findSubroutine(
       final int insnIndex, final Subroutine subroutine, final List<AbstractInsnNode> jsrInsns)
       throws AnalyzerException {
-    Stack<Integer> instructionIndicesToProcess = new Stack<Integer>();
-    instructionIndicesToProcess.push(insnIndex);
+    ArrayList<Integer> instructionIndicesToProcess = new ArrayList<Integer>();
+    instructionIndicesToProcess.add(insnIndex);
     while (!instructionIndicesToProcess.isEmpty()) {
-      int currentInsnIndex = instructionIndicesToProcess.pop();
+      int currentInsnIndex =
+          instructionIndicesToProcess.remove(instructionIndicesToProcess.size() - 1);
       if (currentInsnIndex < 0 || currentInsnIndex >= insnListSize) {
         throw new AnalyzerException(null, "Execution can fall off the end of the code");
       }
@@ -326,21 +326,21 @@ public class Analyzer<V extends Value> implements Opcodes {
           jsrInsns.add(currentInsn);
         } else {
           JumpInsnNode jumpInsn = (JumpInsnNode) currentInsn;
-          instructionIndicesToProcess.push(insnList.indexOf(jumpInsn.label));
+          instructionIndicesToProcess.add(insnList.indexOf(jumpInsn.label));
         }
       } else if (currentInsn instanceof TableSwitchInsnNode) {
         TableSwitchInsnNode tableSwitchInsn = (TableSwitchInsnNode) currentInsn;
         findSubroutine(insnList.indexOf(tableSwitchInsn.dflt), subroutine, jsrInsns);
         for (int i = tableSwitchInsn.labels.size() - 1; i >= 0; --i) {
           LabelNode labelNode = tableSwitchInsn.labels.get(i);
-          instructionIndicesToProcess.push(insnList.indexOf(labelNode));
+          instructionIndicesToProcess.add(insnList.indexOf(labelNode));
         }
       } else if (currentInsn instanceof LookupSwitchInsnNode) {
         LookupSwitchInsnNode lookupSwitchInsn = (LookupSwitchInsnNode) currentInsn;
         findSubroutine(insnList.indexOf(lookupSwitchInsn.dflt), subroutine, jsrInsns);
         for (int i = lookupSwitchInsn.labels.size() - 1; i >= 0; --i) {
           LabelNode labelNode = lookupSwitchInsn.labels.get(i);
-          instructionIndicesToProcess.push(insnList.indexOf(labelNode));
+          instructionIndicesToProcess.add(insnList.indexOf(labelNode));
         }
       }
 
@@ -349,7 +349,7 @@ public class Analyzer<V extends Value> implements Opcodes {
       if (insnHandlers != null) {
         for (int i = 0; i < insnHandlers.size(); ++i) {
           TryCatchBlockNode tryCatchBlock = insnHandlers.get(i);
-          instructionIndicesToProcess.push(insnList.indexOf(tryCatchBlock.handler));
+          instructionIndicesToProcess.add(insnList.indexOf(tryCatchBlock.handler));
         }
       }
 
@@ -368,7 +368,7 @@ public class Analyzer<V extends Value> implements Opcodes {
         case ATHROW:
           break;
         default:
-          instructionIndicesToProcess.push(currentInsnIndex + 1);
+          instructionIndicesToProcess.add(currentInsnIndex + 1);
           break;
       }
     }

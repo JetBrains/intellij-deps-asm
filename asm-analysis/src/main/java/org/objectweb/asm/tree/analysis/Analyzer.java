@@ -31,6 +31,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Stack;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.AbstractInsnNode;
@@ -305,52 +306,54 @@ public class Analyzer<V extends Value> implements Opcodes {
   private void findSubroutine(
       final int insnIndex, final Subroutine subroutine, final List<AbstractInsnNode> jsrInsns)
       throws AnalyzerException {
-    int currentInsnIndex = insnIndex;
-    while (true) {
+    Stack<Integer> instructionIndicesToProcess = new Stack<Integer>();
+    instructionIndicesToProcess.push(insnIndex);
+    while (!instructionIndicesToProcess.isEmpty()) {
+      int currentInsnIndex = instructionIndicesToProcess.pop();
       if (currentInsnIndex < 0 || currentInsnIndex >= insnListSize) {
         throw new AnalyzerException(null, "Execution can fall off the end of the code");
       }
       if (subroutines[currentInsnIndex] != null) {
-        return;
+        continue;
       }
       subroutines[currentInsnIndex] = new Subroutine(subroutine);
       AbstractInsnNode currentInsn = insnList.get(currentInsnIndex);
 
-      // Call findSubroutine recursively on the normal successors of currentInsn.
+      // Push the normal successors of currentInsn onto instructionIndicesToProcess.
       if (currentInsn instanceof JumpInsnNode) {
         if (currentInsn.getOpcode() == JSR) {
           // Do not follow a jsr, it leads to another subroutine!
           jsrInsns.add(currentInsn);
         } else {
           JumpInsnNode jumpInsn = (JumpInsnNode) currentInsn;
-          findSubroutine(insnList.indexOf(jumpInsn.label), subroutine, jsrInsns);
+          instructionIndicesToProcess.push(insnList.indexOf(jumpInsn.label));
         }
       } else if (currentInsn instanceof TableSwitchInsnNode) {
         TableSwitchInsnNode tableSwitchInsn = (TableSwitchInsnNode) currentInsn;
         findSubroutine(insnList.indexOf(tableSwitchInsn.dflt), subroutine, jsrInsns);
         for (int i = tableSwitchInsn.labels.size() - 1; i >= 0; --i) {
-          LabelNode l = tableSwitchInsn.labels.get(i);
-          findSubroutine(insnList.indexOf(l), subroutine, jsrInsns);
+          LabelNode labelNode = tableSwitchInsn.labels.get(i);
+          instructionIndicesToProcess.push(insnList.indexOf(labelNode));
         }
       } else if (currentInsn instanceof LookupSwitchInsnNode) {
         LookupSwitchInsnNode lookupSwitchInsn = (LookupSwitchInsnNode) currentInsn;
         findSubroutine(insnList.indexOf(lookupSwitchInsn.dflt), subroutine, jsrInsns);
         for (int i = lookupSwitchInsn.labels.size() - 1; i >= 0; --i) {
-          LabelNode l = lookupSwitchInsn.labels.get(i);
-          findSubroutine(insnList.indexOf(l), subroutine, jsrInsns);
+          LabelNode labelNode = lookupSwitchInsn.labels.get(i);
+          instructionIndicesToProcess.push(insnList.indexOf(labelNode));
         }
       }
 
-      // Call findSubroutine recursively on the exception handler successors of currentInsn.
+      // Push the exception handler successors of currentInsn onto instructionIndicesToProcess.
       List<TryCatchBlockNode> insnHandlers = handlers[currentInsnIndex];
       if (insnHandlers != null) {
         for (int i = 0; i < insnHandlers.size(); ++i) {
           TryCatchBlockNode tryCatchBlock = insnHandlers.get(i);
-          findSubroutine(insnList.indexOf(tryCatchBlock.handler), subroutine, jsrInsns);
+          instructionIndicesToProcess.push(insnList.indexOf(tryCatchBlock.handler));
         }
       }
 
-      // If currentInsn does not fall through to the next instruction, return.
+      // Push the next instruction, if the control flow can go from currentInsn to the next.
       switch (currentInsn.getOpcode()) {
         case GOTO:
         case RET:
@@ -363,11 +366,11 @@ public class Analyzer<V extends Value> implements Opcodes {
         case ARETURN:
         case RETURN:
         case ATHROW:
-          return;
+          break;
         default:
+          instructionIndicesToProcess.push(currentInsnIndex + 1);
           break;
       }
-      currentInsnIndex++;
     }
   }
 

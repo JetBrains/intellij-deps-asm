@@ -1,0 +1,26 @@
+package  jdk11;
+
+/**
+ * A class with JDK11 specific class file feature. A corresponding class file can be generated
+   with the OpenJDK asmtools (https://wiki.openjdk.java.net/display/CodeTools/asmtools), 
+ * version 7 or more. Usage:
+ *  
+ *  java -jar asmtools.jar jasm AllStructures.jasm
+ *
+ * @author Eric Bruneton
+ */
+super public class AllStructures
+  version 55:0
+{
+
+
+public Method "<init>":"()V"
+  stack 1 locals 1
+{
+    aload_0;
+    invokespecial  Method java/lang/Object."<init>":"()V";
+    return;
+}
+
+NestMembers AllStructures$Nested;
+} // end Class AllStructures

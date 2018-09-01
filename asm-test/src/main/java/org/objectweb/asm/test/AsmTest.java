@@ -130,8 +130,7 @@ public abstract class AsmTest {
     JDK9_MODULE("jdk9.module-info"),
     JDK11_ALL_INSTRUCTIONS("jdk11.AllInstructions"),
     JDK11_ALL_STRUCTURES("jdk11.AllStructures"),
-    JDK11_ALL_STRUCTURES_NESTED("jdk11.AllStructures$Nested"),
-    JDK11_LAMBDA_CONDY("jdk11.LambdaCondy");
+    JDK11_ALL_STRUCTURES_NESTED("jdk11.AllStructures$Nested");
 
     private final String name;
 

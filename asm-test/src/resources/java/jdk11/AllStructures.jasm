@@ -25,17 +25,29 @@
 // CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
 // THE POSSIBILITY OF SUCH DAMAGE.
-package jdk11;
+package  jdk11;
 
 /**
- * By default with jdk 11, constant lambda are compiled using constant dynamic The classfile was
- * generated with the amber (branch condy-folding) compiler.
+ * A class with JDK11 specific class file feature. A corresponding class file can be generated
+   with the OpenJDK asmtools (https://wiki.openjdk.java.net/display/CodeTools/asmtools), 
+ * version 7 or more. Usage:
+ *  
+ *  java -jar asmtools.jar jasm AllStructures.jasm
  *
- * <p>/usr/jdk/jdk-11/bin/javac -source 11 --enable-preview jdk11/LambdaCondy.java
+ * @author Eric Bruneton
  */
-public class LambdaCondy {
-  public static void main(String[] args) {
-    Runnable r = () -> System.out.println("hello condy");
-    r.run();
-  }
+super public class AllStructures
+  version 55:0
+{
+
+
+public Method "<init>":"()V"
+  stack 1 locals 1
+{
+    aload_0;
+    invokespecial  Method java/lang/Object."<init>":"()V";
+    return;
 }
+
+NestMembers AllStructures$Nested;
+} // end Class AllStructures

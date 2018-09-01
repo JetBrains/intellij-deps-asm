@@ -291,8 +291,7 @@ public class ClassReaderTest extends AsmTest implements Opcodes {
         .when(
             classParameter.isMoreRecentThan(apiParameter)
                 && classParameter != PrecompiledClass.JDK8_ARTIFICIAL_STRUCTURES
-                && classParameter != PrecompiledClass.JDK11_ALL_INSTRUCTIONS
-                && classParameter != PrecompiledClass.JDK11_LAMBDA_CONDY);
+                && classParameter != PrecompiledClass.JDK11_ALL_INSTRUCTIONS);
   }
 
   /**
@@ -430,7 +429,7 @@ public class ClassReaderTest extends AsmTest implements Opcodes {
 
   @Test
   public void testPreviewMinorVersion() {
-    ClassReader classReader = new ClassReader(PrecompiledClass.JDK11_LAMBDA_CONDY.getBytes());
+    ClassReader classReader = new ClassReader(PrecompiledClass.JDK11_ALL_INSTRUCTIONS.getBytes());
     classReader.accept(
         new ClassVisitor(Opcodes.ASM7_EXPERIMENTAL) {
           @Override

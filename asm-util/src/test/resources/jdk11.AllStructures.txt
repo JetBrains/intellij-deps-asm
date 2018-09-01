@@ -2,6 +2,7 @@
 // access flags 0x21
 public class jdk11/AllStructures {
 
+  // compiled from: AllStructures.jasm
   NESTMEMBER jdk11/AllStructures$Nested
 
   // access flags 0x1

@@ -1,0 +1,100 @@
+// ASM: a very small and fast Java bytecode manipulation framework
+// Copyright (c) 2000-2011 INRIA, France Telecom
+// All rights reserved.
+//
+// Redistribution and use in source and binary forms, with or without
+// modification, are permitted provided that the following conditions
+// are met:
+// 1. Redistributions of source code must retain the above copyright
+//    notice, this list of conditions and the following disclaimer.
+// 2. Redistributions in binary form must reproduce the above copyright
+//    notice, this list of conditions and the following disclaimer in the
+//    documentation and/or other materials provided with the distribution.
+// 3. Neither the name of the copyright holders nor the names of its
+//    contributors may be used to endorse or promote products derived from
+//    this software without specific prior written permission.
+//
+// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+// AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+// ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
+// LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+// CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+// SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+// INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+// CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+// ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
+// THE POSSIBILITY OF SUCH DAMAGE.
+package  jdk11;
+
+/**
+ * A class with all the JDK11 specific instructions. A corresponding class file can be generated
+ * with the OpenJDK asmtools (https://wiki.openjdk.java.net/display/CodeTools/asmtools), 
+ * version 7 or more. Usage:
+ *  
+ *  java -jar asmtools.jar jasm AllInstructions.jasm
+ *
+ * @author Eric Bruneton
+ */
+super public class AllInstructions
+  version 55:65535
+{
+
+
+public Method "<init>":"()V"
+  stack 1 locals 1
+{
+    aload_0;
+    invokespecial  Method java/lang/Object."<init>":"()V";
+    return;
+}
+
+public Method m:"()Ljava/lang/Object;"
+  stack 1 locals 1
+{
+    ldc  Dynamic REF_invokeStatic
+        :HandleOwner.handleField
+        :"(Ljava/lang/Object;)Ljava/lang/Object;"
+        :name
+        :"Ljava/lang/Object;" {
+      Dynamic REF_getStatic
+          :ArgumentHandleOwner.argumentHandleName
+          :"Ljava/lang/Object;"
+          :argumentName
+          :"Ljava/lang/Object;"
+    };
+    areturn;
+}
+
+public static Method main:"([Ljava/lang/String;)V"
+  stack 1 locals 2
+{
+    ldc  Dynamic REF_invokeStatic
+        :java/lang/invoke/LambdaMetafactory.metafactory
+        :"(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/Class;Ljava/lang/invoke/MethodType;Ljava/lang/invoke/MethodHandle;Ljava/lang/invoke/MethodType;)Ljava/lang/Object;"
+        :run
+        :"Ljava/lang/Runnable;" {
+      MethodType "()V",
+      MethodHandle REF_invokeStatic:AllInstructions.lambda$main$0:"()V",
+      MethodType "()V"
+    };
+    astore_1;
+    aload_1;
+    invokeinterface  InterfaceMethod java/lang/Runnable.run:"()V",  1;
+    return;
+}
+
+private static synthetic Method lambda$main$0:"()V"
+  stack 2 locals 0
+{
+    getstatic  Field java/lang/System.out:"Ljava/io/PrintStream;";
+    ldc  String "hello condy";
+    invokevirtual  Method java/io/PrintStream.println:"(Ljava/lang/String;)V";
+    return;
+}
+
+public static final InnerClass Lookup=
+    class java/lang/invoke/MethodHandles$Lookup of class java/lang/invoke/MethodHandles;
+
+} // end Class AllInstructions
+

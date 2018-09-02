@@ -204,7 +204,13 @@ public class SimpleVerifier extends BasicVerifier {
         if (type.equals(NULL_TYPE)) {
           return true;
         } else if (type.getSort() == Type.OBJECT || type.getSort() == Type.ARRAY) {
-          return isAssignableFrom(expectedType, type);
+          if (isAssignableFrom(expectedType, type)) {
+            return true;
+          } else if (getClass(expectedType).isInterface()) {
+            return Object.class.isAssignableFrom(getClass(type));
+          } else {
+            return false;
+          }
         } else {
           return false;
         }
@@ -343,11 +349,7 @@ public class SimpleVerifier extends BasicVerifier {
       }
       return false;
     }
-    Class<?> class1 = getClass(type1);
-    if (class1.isInterface()) {
-      class1 = Object.class;
-    }
-    return class1.isAssignableFrom(getClass(type2));
+    return getClass(type1).isAssignableFrom(getClass(type2));
   }
 
   /**

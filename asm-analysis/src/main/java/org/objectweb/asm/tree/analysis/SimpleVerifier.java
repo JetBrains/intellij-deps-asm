@@ -207,6 +207,10 @@ public class SimpleVerifier extends BasicVerifier {
           if (isAssignableFrom(expectedType, type)) {
             return true;
           } else if (getClass(expectedType).isInterface()) {
+            // The merge of class or interface types can only yield class types (because it is not
+            // possible in general to find an unambiguous common super interface, due to multiple
+            // inheritance). Because of this limitation, we need to relax the subtyping check here
+            // if 'value' is an interface.
             return Object.class.isAssignableFrom(getClass(type));
           } else {
             return false;

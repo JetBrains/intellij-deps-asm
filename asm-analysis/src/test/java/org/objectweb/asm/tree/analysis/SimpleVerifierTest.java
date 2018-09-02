@@ -531,6 +531,14 @@ public class SimpleVerifierTest extends AsmTest implements Opcodes {
     }.test();
   }
 
+  /**
+   * Checks that the merge of an ArrayList and an SQLException can be returned as an Iterable. The
+   * merged type is recomputed by SimpleVerifier as Object (because of limitations of the merging
+   * algorithm, due to multiple interface inheritance), but the subtyping check is relaxed if the
+   * super type is an interface type.
+   *
+   * @throws AnalyzerException
+   */
   @Test
   public void testIsAssignableFromInterface() throws AnalyzerException {
     methodNode =

@@ -27,6 +27,7 @@
 // THE POSSIBILITY OF SUCH DAMAGE.
 package org.objectweb.asm.tree.analysis;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -36,6 +37,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.Label;
@@ -458,6 +460,24 @@ public class SimpleVerifierTest extends AsmTest implements Opcodes {
     assertValid();
   }
 
+  @ParameterizedTest
+  @CsvSource({
+    "java/lang/String, java/lang/Number, java/lang/Object",
+    "java/lang/Integer, java/lang/Number, java/lang/Number",
+    "java/lang/Float, java/lang/Integer, java/lang/Number",
+    "java/lang/Long, java/util/List, java/lang/Object",
+    "java/util/Map, java/util/List, java/lang/Object"
+  })
+  public void testMergeObjectTypes(
+      final String internalName1, final String internalName2, final String expectedInternalName) {
+    BasicValue value1 = new BasicValue(Type.getObjectType(internalName1));
+    BasicValue value2 = new BasicValue(Type.getObjectType(internalName2));
+    BasicValue expectedValue = new BasicValue(Type.getObjectType(expectedInternalName));
+    SimpleVerifier verifier = new SimpleVerifier();
+    assertEquals(expectedValue, verifier.merge(value1, value2));
+    assertEquals(expectedValue, verifier.merge(value2, value1));
+  }
+
   @Test
   public void testClassNotFound() {
     Label loopLabel = new Label();
@@ -473,7 +493,7 @@ public class SimpleVerifierTest extends AsmTest implements Opcodes {
   }
 
   @Test
-  void testIsAssignableFrom() {
+  public void testIsAssignableFrom() {
     Type baseType = Type.getObjectType("C");
     Type superType = Type.getObjectType("D");
     Type interfaceType = Type.getObjectType("I");
@@ -509,6 +529,38 @@ public class SimpleVerifierTest extends AsmTest implements Opcodes {
         return superType;
       }
     }.test();
+  }
+
+  /**
+   * Checks that the merge of an ArrayList and an SQLException can be returned as an Iterable. The
+   * merged type is recomputed by SimpleVerifier as Object (because of limitations of the merging
+   * algorithm, due to multiple interface inheritance), but the subtyping check is relaxed if the
+   * super type is an interface type.
+   *
+   * @throws AnalyzerException
+   */
+  @Test
+  public void testIsAssignableFromInterface() throws AnalyzerException {
+    methodNode =
+        new MethodNode(
+            ACC_PUBLIC | ACC_STATIC,
+            "m",
+            "(Ljava/util/ArrayList;Ljava/sql/SQLException;)Ljava/lang/Iterable;",
+            null,
+            null);
+    methodNode.visitCode();
+    methodNode.visitVarInsn(ALOAD, 0);
+    Label elseLabel = new Label();
+    methodNode.visitJumpInsn(IFNULL, elseLabel);
+    methodNode.visitVarInsn(ALOAD, 0);
+    Label endIfLabel = new Label();
+    methodNode.visitJumpInsn(GOTO, endIfLabel);
+    methodNode.visitLabel(elseLabel);
+    methodNode.visitVarInsn(ALOAD, 1);
+    methodNode.visitLabel(endIfLabel);
+    methodNode.visitInsn(ARETURN);
+    methodNode.visitMaxs(1, 2);
+    assertValid();
   }
 
   /**

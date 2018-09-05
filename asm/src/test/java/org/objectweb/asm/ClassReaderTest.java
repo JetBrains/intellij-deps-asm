@@ -285,7 +285,7 @@ public class ClassReaderTest extends AsmTest implements Opcodes {
     ClassVisitor classVisitor = new EmptyClassVisitor(apiParameter.value());
     // jdk8.ArtificialStructures contains structures which require ASM5, but only inside the method
     // code. Here we skip the code, so this class can be read with ASM4. Likewise for
-    // jdk11.AllInstructions and jdk11.LambdaCondy.
+    // jdk11.AllInstructions.
     assertThat(() -> classReader.accept(classVisitor, ClassReader.SKIP_CODE))
         .succeedsOrThrows(RuntimeException.class)
         .when(

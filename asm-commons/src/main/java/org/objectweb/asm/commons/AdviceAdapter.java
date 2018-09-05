@@ -31,6 +31,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.objectweb.asm.ConstantDynamic;
 import org.objectweb.asm.Handle;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
@@ -406,7 +407,9 @@ public abstract class AdviceAdapter extends GeneratorAdapter implements Opcodes 
     super.visitLdcInsn(value);
     if (isConstructor && !superClassConstructorCalled) {
       pushValue(OTHER);
-      if (value instanceof Double || value instanceof Long) {
+      if (value instanceof Double
+          || value instanceof Long
+          || (value instanceof ConstantDynamic && ((ConstantDynamic) value).getSize() == 2)) {
         pushValue(OTHER);
       }
     }

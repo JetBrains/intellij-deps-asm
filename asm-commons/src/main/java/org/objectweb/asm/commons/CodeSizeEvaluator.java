@@ -27,6 +27,7 @@
 // THE POSSIBILITY OF SUCH DAMAGE.
 package org.objectweb.asm.commons;
 
+import org.objectweb.asm.ConstantDynamic;
 import org.objectweb.asm.Handle;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
@@ -178,7 +179,9 @@ public class CodeSizeEvaluator extends MethodVisitor implements Opcodes {
 
   @Override
   public void visitLdcInsn(final Object value) {
-    if (value instanceof Long || value instanceof Double) {
+    if (value instanceof Long
+        || value instanceof Double
+        || (value instanceof ConstantDynamic && ((ConstantDynamic) value).getSize() == 2)) {
       minSize += 3;
       maxSize += 3;
     } else {

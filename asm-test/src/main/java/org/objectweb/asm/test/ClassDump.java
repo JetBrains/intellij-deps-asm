@@ -150,7 +150,7 @@ class ClassDump {
     builder.add("magic: ", parser.u4());
     builder.add("minor_version: ", parser.u2());
     int majorVersion = parser.u2();
-    if (majorVersion > /* V11 = */ 55) {
+    if (majorVersion > /* V12 = */ 56) {
       throw new IOException("Unsupported class version");
     }
     builder.add("major_version: ", majorVersion);
@@ -1244,12 +1244,12 @@ class ClassDump {
           builder.addInsn(insnIndex, opcode);
           break;
         case 0x12: // ldc
-          builder.addInsn(insnIndex, opcode, builder.getCpInfo(parser.u1()));
+          builder.addInsn(insnIndex, 0x12, builder.getCpInfo(parser.u1()));
           bytecodeOffset += 1;
           break;
         case 0x13: // ldc_w
         case 0x14: // ldc2_w
-          builder.addInsn(insnIndex, 0x12, builder.getCpInfo(parser.u2()));
+          builder.addInsn(insnIndex, opcode == 0x13 ? 0x12 : 0x14, builder.getCpInfo(parser.u2()));
           bytecodeOffset += 2;
           break;
         case 0x6D: // ldiv

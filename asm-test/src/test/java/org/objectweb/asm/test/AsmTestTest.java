@@ -61,7 +61,7 @@ public class AsmTestTest extends AsmTest {
         assertEquals(majorVersion > /* V10 = */ 54, isMoreRecent);
         break;
       case ASM7:
-        assertEquals(majorVersion > /* V11 = */ 55, isMoreRecent);
+        assertEquals(majorVersion > /* V12 = */ 56, isMoreRecent);
         break;
       default:
         fail("Unknown API value");

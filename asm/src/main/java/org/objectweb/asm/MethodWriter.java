@@ -1291,9 +1291,13 @@ final class MethodWriter extends MethodVisitor {
     // Add the instruction to the bytecode of the method.
     Symbol constantSymbol = symbolTable.addConstant(value);
     int constantIndex = constantSymbol.index;
+    char firstDescriptorChar;
     boolean isLongOrDouble =
         constantSymbol.tag == Symbol.CONSTANT_LONG_TAG
-            || constantSymbol.tag == Symbol.CONSTANT_DOUBLE_TAG;
+            || constantSymbol.tag == Symbol.CONSTANT_DOUBLE_TAG
+            || (constantSymbol.tag == Symbol.CONSTANT_DYNAMIC_TAG
+                && ((firstDescriptorChar = constantSymbol.value.charAt(0)) == 'J'
+                    || firstDescriptorChar == 'D'));
     if (isLongOrDouble) {
       code.put12(Constants.LDC2_W, constantIndex);
     } else if (constantIndex >= 256) {

@@ -31,6 +31,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import org.objectweb.asm.ClassVisitor;
+import org.objectweb.asm.ConstantDynamic;
 import org.objectweb.asm.Handle;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
@@ -439,6 +440,19 @@ public class GeneratorAdapter extends LocalVariablesSorter {
       mv.visitInsn(Opcodes.ACONST_NULL);
     } else {
       mv.visitLdcInsn(handle);
+    }
+  }
+
+  /**
+   * Generates the instruction to push a constant dynamic on the stack.
+   *
+   * @param constantDynamic the constant dynamic to be pushed on the stack.
+   */
+  public void push(final ConstantDynamic constantDynamic) {
+    if (constantDynamic == null) {
+      mv.visitInsn(Opcodes.ACONST_NULL);
+    } else {
+      mv.visitLdcInsn(constantDynamic);
     }
   }
 

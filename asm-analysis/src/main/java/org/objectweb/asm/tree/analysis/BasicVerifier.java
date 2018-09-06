@@ -47,7 +47,7 @@ public class BasicVerifier extends BasicInterpreter {
    * use this constructor</i>. Instead, they must use the {@link #BasicVerifier(int)} version.
    */
   public BasicVerifier() {
-    super(ASM6);
+    super(ASM7);
     if (getClass() != BasicVerifier.class) {
       throw new IllegalStateException();
     }

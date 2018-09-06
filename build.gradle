@@ -44,8 +44,8 @@ subprojects {
   def snapshotSuffix = rootProject.hasProperty('release') ? '' : '-SNAPSHOT'
   group = 'org.ow2.asm'
   version = '7.0-beta' + snapshotSuffix
-  sourceCompatibility = '1.6'
-  targetCompatibility = '1.6'
+  sourceCompatibility = '1.7'
+  targetCompatibility = '1.7'
   test { useJUnitPlatform() }
   ext.provides = []  // The provided java packages, e.g. ['org.objectweb.asm']
   ext.requires = []  // The required Gradle projects, e.g. [':asm-test']
@@ -169,7 +169,7 @@ project(':tools:retrofitter') {
 // Project tasks creation and configuration
 // -----------------------------------------------------------------------------
 
-// All projects use Java 1.6 and are tested with :asm-test and JUnit.
+// All projects use Java 1.7 and are tested with :asm-test and JUnit.
 subprojects {
   apply plugin: 'com.github.sherter.google-java-format'
   googleJavaFormat.exclude 'src/resources/java/**/*'

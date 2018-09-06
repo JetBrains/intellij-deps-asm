@@ -28,7 +28,9 @@
 
 package org.objectweb.asm.commons;
 
+import org.objectweb.asm.ConstantDynamic;
 import org.objectweb.asm.Handle;
+import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.signature.SignatureReader;
 import org.objectweb.asm.signature.SignatureVisitor;
@@ -144,9 +146,13 @@ public abstract class Remapper {
   }
 
   /**
-   * Returns the given value, remapped with this remapper.
+   * Returns the given value, remapped with this remapper. Possible values are {@link String},
+   * {@link Boolean}, {@link Byte}, {@link Short}, {@link Character}, {@link Integer}, {@link Long},
+   * {@link Double}, {@link Float}, {@link String}, {@link Type}, {@link Handle}, {@link
+   * ConstantDynamic} or arrays of primitive types .
    *
-   * @param value an object. Only {@link Type} and {@link Handle} values are remapped.
+   * @param value an object. Only {@link Type}, {@link Handle} and {@link ConstantDynamic} values
+   *     are remapped.
    * @return the given value, remapped with this remapper.
    */
   public Object mapValue(final Object value) {
@@ -159,8 +165,24 @@ public abstract class Remapper {
           handle.getTag(),
           mapType(handle.getOwner()),
           mapMethodName(handle.getOwner(), handle.getName(), handle.getDesc()),
-          mapMethodDesc(handle.getDesc()),
+          handle.getTag() <= Opcodes.H_PUTSTATIC
+              ? mapDesc(handle.getDesc())
+              : mapMethodDesc(handle.getDesc()),
           handle.isInterface());
+    }
+    if (value instanceof ConstantDynamic) {
+      ConstantDynamic constantDynamic = (ConstantDynamic) value;
+      Object[] bootstrapMethodArguments = constantDynamic.getBootstrapMethodArguments();
+      Object[] remappedBootstrapMethodArguments = new Object[bootstrapMethodArguments.length];
+      for (int i = 0; i < bootstrapMethodArguments.length; ++i) {
+        remappedBootstrapMethodArguments[i] = mapValue(bootstrapMethodArguments[i]);
+      }
+      String descriptor = constantDynamic.getDescriptor();
+      return new ConstantDynamic(
+          mapInvokeDynamicMethodName(constantDynamic.getName(), descriptor),
+          mapDesc(descriptor),
+          (Handle) mapValue(constantDynamic.getBootstrapMethod()),
+          remappedBootstrapMethodArguments);
     }
     return value;
   }
@@ -228,8 +250,8 @@ public abstract class Remapper {
   }
 
   /**
-   * Maps an invokedynamic method name to its new name. The default implementation of this method
-   * returns the given name, unchanged. Subclasses can override.
+   * Maps an invokedynamic or a constant dynamic method name to its new name. The default
+   * implementation of this method returns the given name, unchanged. Subclasses can override.
    *
    * @param name the name of the method.
    * @param descriptor the descriptor of the method.

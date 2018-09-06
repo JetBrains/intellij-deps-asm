@@ -154,7 +154,7 @@ public class Retrofitter {
   static class ClassRetrofitter extends ClassVisitor {
 
     public ClassRetrofitter(ClassVisitor classVisitor) {
-      super(Opcodes.ASM7_EXPERIMENTAL, classVisitor);
+      super(Opcodes.ASM7, classVisitor);
     }
 
     @Override

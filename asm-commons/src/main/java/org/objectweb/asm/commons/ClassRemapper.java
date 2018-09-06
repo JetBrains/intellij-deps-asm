@@ -59,7 +59,7 @@ public class ClassRemapper extends ClassVisitor {
    * @param remapper the remapper to use to remap the types in the visited class.
    */
   public ClassRemapper(final ClassVisitor classVisitor, final Remapper remapper) {
-    this(Opcodes.ASM6, classVisitor, remapper);
+    this(Opcodes.ASM7, classVisitor, remapper);
   }
 
   /**
@@ -67,7 +67,7 @@ public class ClassRemapper extends ClassVisitor {
    *
    * @param api the ASM API version supported by this remapper. Must be one of {@link
    *     org.objectweb.asm.Opcodes#ASM4}, {@link org.objectweb.asm.Opcodes#ASM5}, {@link
-   *     org.objectweb.asm.Opcodes#ASM6} or {@link org.objectweb.asm.Opcodes#ASM7_EXPERIMENTAL}.
+   *     org.objectweb.asm.Opcodes#ASM6} or {@link org.objectweb.asm.Opcodes#ASM7}.
    * @param classVisitor the class visitor this remapper must deleted to.
    * @param remapper the remapper to use to remap the types in the visited class.
    */
@@ -181,13 +181,13 @@ public class ClassRemapper extends ClassVisitor {
   }
 
   @Override
-  public void visitNestHostExperimental(final String nestHost) {
-    super.visitNestHostExperimental(remapper.mapType(nestHost));
+  public void visitNestHost(final String nestHost) {
+    super.visitNestHost(remapper.mapType(nestHost));
   }
 
   @Override
-  public void visitNestMemberExperimental(final String nestMember) {
-    super.visitNestMemberExperimental(remapper.mapType(nestMember));
+  public void visitNestMember(final String nestMember) {
+    super.visitNestMember(remapper.mapType(nestMember));
   }
 
   /**

@@ -80,10 +80,9 @@ public class ClassNodeTest extends AsmTest implements Opcodes {
     assertEquals("1.0", moduleNode.version);
 
     ModuleNode otherModuleNode =
-        new ModuleNode(
-            Opcodes.ASM7_EXPERIMENTAL, "otherModule", 456, "2.0", null, null, null, null, null);
+        new ModuleNode(Opcodes.ASM7, "otherModule", 456, "2.0", null, null, null, null, null);
     moduleNode.accept(
-        new ClassVisitor(Opcodes.ASM7_EXPERIMENTAL) {
+        new ClassVisitor(Opcodes.ASM7) {
           @Override
           public ModuleVisitor visitModule(
               final String name, final int access, final String version) {
@@ -150,7 +149,7 @@ public class ClassNodeTest extends AsmTest implements Opcodes {
     assertEquals("value", annotationNode.values.get(17));
 
     annotationNode.accept(
-        new AnnotationVisitor(Opcodes.ASM7_EXPERIMENTAL) {
+        new AnnotationVisitor(Opcodes.ASM7) {
 
           @Override
           public AnnotationVisitor visitAnnotation(final String name, final String descriptor) {
@@ -501,10 +500,10 @@ public class ClassNodeTest extends AsmTest implements Opcodes {
     }
 
     @Override
-    public void visitNestHostExperimental(final String nestHost) {}
+    public void visitNestHost(final String nestHost) {}
 
     @Override
-    public void visitNestMemberExperimental(final String nestMember) {}
+    public void visitNestMember(final String nestMember) {}
 
     @Override
     public void visitAttribute(final Attribute attribute) {}

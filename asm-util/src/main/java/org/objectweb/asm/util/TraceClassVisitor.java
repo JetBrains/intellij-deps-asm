@@ -117,7 +117,7 @@ public final class TraceClassVisitor extends ClassVisitor {
    */
   public TraceClassVisitor(
       final ClassVisitor classVisitor, final Printer printer, final PrintWriter printWriter) {
-    super(Opcodes.ASM7_EXPERIMENTAL, classVisitor);
+    super(Opcodes.ASM7, classVisitor);
     this.printWriter = printWriter;
     this.p = printer;
   }
@@ -147,9 +147,9 @@ public final class TraceClassVisitor extends ClassVisitor {
   }
 
   @Override
-  public void visitNestHostExperimental(final String nestHost) {
-    p.visitNestHostExperimental(nestHost);
-    super.visitNestHostExperimental(nestHost);
+  public void visitNestHost(final String nestHost) {
+    p.visitNestHost(nestHost);
+    super.visitNestHost(nestHost);
   }
 
   @Override
@@ -180,9 +180,9 @@ public final class TraceClassVisitor extends ClassVisitor {
   }
 
   @Override
-  public void visitNestMemberExperimental(final String nestMember) {
-    p.visitNestMemberExperimental(nestMember);
-    super.visitNestMemberExperimental(nestMember);
+  public void visitNestMember(final String nestMember) {
+    p.visitNestMember(nestMember);
+    super.visitNestMember(nestMember);
   }
 
   @Override

@@ -103,6 +103,6 @@ public class SignatureReaderTest extends AsmTest {
   public void testReadInvalidSignature() {
     assertThrows(
         IllegalArgumentException.class,
-        () -> new SignatureReader("-").accept(new SignatureVisitor(Opcodes.ASM7_EXPERIMENTAL) {}));
+        () -> new SignatureReader("-").accept(new SignatureVisitor(Opcodes.ASM7) {}));
   }
 }

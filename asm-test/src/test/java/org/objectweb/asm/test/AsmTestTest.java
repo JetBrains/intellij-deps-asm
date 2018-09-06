@@ -73,7 +73,7 @@ public class AsmTestTest extends AsmTest {
   @MethodSource(ALL_CLASSES_AND_LATEST_API)
   public void testGetBytes(final PrecompiledClass classParameter, final Api apiParameter) {
     assertEquals(Api.ASM7, apiParameter);
-    assertEquals(0x01070000, apiParameter.value());
+    assertEquals(0x70000, apiParameter.value());
     assertEquals("ASM7", apiParameter.toString());
     byte[] classContent = classParameter.getBytes();
     assertThatClass(classContent).contains(classParameter.getInternalName());

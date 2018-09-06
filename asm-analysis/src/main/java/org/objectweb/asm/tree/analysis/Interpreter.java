@@ -47,7 +47,7 @@ public abstract class Interpreter<V extends Value> {
   /**
    * The ASM API version supported by this interpreter. The value of this field must be one of
    * {@link org.objectweb.asm.Opcodes#ASM4}, {@link org.objectweb.asm.Opcodes#ASM5}, {@link
-   * org.objectweb.asm.Opcodes#ASM6} or {@link org.objectweb.asm.Opcodes#ASM7_EXPERIMENTAL}.
+   * org.objectweb.asm.Opcodes#ASM6} or {@link org.objectweb.asm.Opcodes#ASM7}.
    */
   protected final int api;
 
@@ -56,7 +56,7 @@ public abstract class Interpreter<V extends Value> {
    *
    * @param api the ASM API version supported by this interpreter. Must be one of {@link
    *     org.objectweb.asm.Opcodes#ASM4}, {@link org.objectweb.asm.Opcodes#ASM5}, {@link
-   *     org.objectweb.asm.Opcodes#ASM6} or {@link org.objectweb.asm.Opcodes#ASM7_EXPERIMENTAL}.
+   *     org.objectweb.asm.Opcodes#ASM6} or {@link org.objectweb.asm.Opcodes#ASM7}.
    */
   protected Interpreter(final int api) {
     this.api = api;

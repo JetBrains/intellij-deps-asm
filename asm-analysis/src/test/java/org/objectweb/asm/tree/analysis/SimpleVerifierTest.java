@@ -497,8 +497,7 @@ public class SimpleVerifierTest extends AsmTest implements Opcodes {
     Type baseType = Type.getObjectType("C");
     Type superType = Type.getObjectType("D");
     Type interfaceType = Type.getObjectType("I");
-    new SimpleVerifier(
-        ASM7_EXPERIMENTAL, baseType, superType, Arrays.asList(interfaceType), false) {
+    new SimpleVerifier(ASM7, baseType, superType, Arrays.asList(interfaceType), false) {
 
       void test() {
         assertTrue(isAssignableFrom(baseType, baseType));
@@ -516,7 +515,7 @@ public class SimpleVerifierTest extends AsmTest implements Opcodes {
       }
     }.test();
 
-    new SimpleVerifier(ASM7_EXPERIMENTAL, interfaceType, null, null, true) {
+    new SimpleVerifier(ASM7, interfaceType, null, null, true) {
 
       void test() {
         assertTrue(isAssignableFrom(interfaceType, baseType));

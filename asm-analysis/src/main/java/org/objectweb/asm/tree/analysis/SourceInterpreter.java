@@ -62,7 +62,7 @@ public class SourceInterpreter extends Interpreter<SourceValue> implements Opcod
    *
    * @param api the ASM API version supported by this interpreter. Must be one of {@link
    *     org.objectweb.asm.Opcodes#ASM4}, {@link org.objectweb.asm.Opcodes#ASM5}, {@link
-   *     org.objectweb.asm.Opcodes#ASM6} or {@link org.objectweb.asm.Opcodes#ASM7_EXPERIMENTAL}.
+   *     org.objectweb.asm.Opcodes#ASM6} or {@link org.objectweb.asm.Opcodes#ASM7}.
    */
   protected SourceInterpreter(final int api) {
     super(api);

@@ -127,7 +127,7 @@ public class CheckClassAdapter extends ClassVisitor {
   /** Whether the {@link #visitOuterClass} method has been called. */
   private boolean visitOuterClassCalled;
 
-  /** Whether the {@link #visitNestHostExperimental} method has been called. */
+  /** Whether the {@link #visitNestHost} method has been called. */
   private boolean visitNestHostCalled;
 
   /**
@@ -200,8 +200,7 @@ public class CheckClassAdapter extends ClassVisitor {
       final PrintWriter printWriter) {
     ClassNode classNode = new ClassNode();
     classReader.accept(
-        new CheckClassAdapter(Opcodes.ASM7_EXPERIMENTAL, classNode, false) {},
-        ClassReader.SKIP_DEBUG);
+        new CheckClassAdapter(Opcodes.ASM7, classNode, false) {}, ClassReader.SKIP_DEBUG);
 
     Type syperType = classNode.superName == null ? null : Type.getObjectType(classNode.superName);
     List<MethodNode> methods = classNode.methods;
@@ -307,7 +306,7 @@ public class CheckClassAdapter extends ClassVisitor {
    * @throws IllegalStateException If a subclass calls this constructor.
    */
   public CheckClassAdapter(final ClassVisitor classVisitor, final boolean checkDataFlow) {
-    this(Opcodes.ASM6, classVisitor, checkDataFlow);
+    this(Opcodes.ASM7, classVisitor, checkDataFlow);
     if (getClass() != CheckClassAdapter.class) {
       throw new IllegalStateException();
     }
@@ -317,8 +316,7 @@ public class CheckClassAdapter extends ClassVisitor {
    * Constructs a new {@link CheckClassAdapter}.
    *
    * @param api the ASM API version implemented by this visitor. Must be one of {@link
-   *     Opcodes#ASM4}, {@link Opcodes#ASM5}, {@link Opcodes#ASM6} or {@link
-   *     Opcodes#ASM7_EXPERIMENTAL}.
+   *     Opcodes#ASM4}, {@link Opcodes#ASM5}, {@link Opcodes#ASM6} or {@link Opcodes#ASM7}.
    * @param classVisitor the class visitor to which this adapter must delegate calls.
    * @param checkDataFlow {@literal true} to perform basic data flow checks, or {@literal false} to
    *     not perform any data flow check (see {@link CheckMethodAdapter}). This option requires
@@ -423,7 +421,7 @@ public class CheckClassAdapter extends ClassVisitor {
   }
 
   @Override
-  public void visitNestHostExperimental(final String nestHost) {
+  public void visitNestHost(final String nestHost) {
     checkState();
     CheckMethodAdapter.checkInternalName(version, nestHost, "nestHost");
     if (visitNestHostCalled) {
@@ -433,11 +431,11 @@ public class CheckClassAdapter extends ClassVisitor {
       throw new IllegalStateException("visitNestHost and visitNestMember are mutually exclusive.");
     }
     visitNestHostCalled = true;
-    super.visitNestHostExperimental(nestHost);
+    super.visitNestHost(nestHost);
   }
 
   @Override
-  public void visitNestMemberExperimental(final String nestMember) {
+  public void visitNestMember(final String nestMember) {
     checkState();
     CheckMethodAdapter.checkInternalName(version, nestMember, "nestMember");
     if (visitNestHostCalled) {
@@ -451,7 +449,7 @@ public class CheckClassAdapter extends ClassVisitor {
       throw new IllegalStateException(
           "nest member " + nestMember + " should be in the package " + nestMemberPackageName);
     }
-    super.visitNestMemberExperimental(nestMember);
+    super.visitNestMember(nestMember);
   }
 
   @Override

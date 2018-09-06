@@ -100,7 +100,7 @@ public class FieldNode extends FieldVisitor {
       final String descriptor,
       final String signature,
       final Object value) {
-    this(Opcodes.ASM6, access, name, descriptor, signature, value);
+    this(Opcodes.ASM7, access, name, descriptor, signature, value);
     if (getClass() != FieldNode.class) {
       throw new IllegalStateException();
     }
@@ -197,7 +197,7 @@ public class FieldNode extends FieldVisitor {
    * in more recent versions of the ASM API than the given version.
    *
    * @param api an ASM API version. Must be one of {@link Opcodes#ASM4}, {@link Opcodes#ASM5},
-   *     {@link Opcodes#ASM6} or {@link Opcodes#ASM7_EXPERIMENTAL}.
+   *     {@link Opcodes#ASM6} or {@link Opcodes#ASM7}.
    */
   public void check(final int api) {
     if (api == Opcodes.ASM4) {

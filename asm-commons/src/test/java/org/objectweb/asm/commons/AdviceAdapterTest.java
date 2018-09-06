@@ -395,7 +395,7 @@ public class AdviceAdapterTest extends AsmTest {
       methodGenerator =
           new MethodGenerator(
               new AdviceAdapter(
-                  Opcodes.ASM6, methodVisitor, Opcodes.ACC_PUBLIC, "<init>", descriptor) {
+                  Opcodes.ASM7, methodVisitor, Opcodes.ACC_PUBLIC, "<init>", descriptor) {
 
                 @Override
                 protected void onMethodEnter() {
@@ -423,7 +423,7 @@ public class AdviceAdapterTest extends AsmTest {
     private final boolean expectedClass;
 
     MethodGenerator(final MethodVisitor methodVisitor, final boolean expectedClass) {
-      super(Opcodes.ASM6, methodVisitor);
+      super(Opcodes.ASM7, methodVisitor);
       this.expectedClass = expectedClass;
     }
 

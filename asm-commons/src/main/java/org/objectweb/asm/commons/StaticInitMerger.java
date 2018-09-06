@@ -61,7 +61,7 @@ public class StaticInitMerger extends ClassVisitor {
    *     null.
    */
   public StaticInitMerger(final String prefix, final ClassVisitor classVisitor) {
-    this(Opcodes.ASM6, prefix, classVisitor);
+    this(Opcodes.ASM7, prefix, classVisitor);
   }
 
   /**

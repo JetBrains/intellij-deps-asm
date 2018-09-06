@@ -108,7 +108,7 @@ public class Textifier extends Printer {
    * @throws IllegalStateException If a subclass calls this constructor.
    */
   public Textifier() {
-    this(Opcodes.ASM6);
+    this(Opcodes.ASM7);
     if (getClass() != Textifier.class) {
       throw new IllegalStateException();
     }
@@ -118,8 +118,7 @@ public class Textifier extends Printer {
    * Constructs a new {@link Textifier}.
    *
    * @param api the ASM API version implemented by this visitor. Must be one of {@link
-   *     Opcodes#ASM4}, {@link Opcodes#ASM5}, {@link Opcodes#ASM6} or {@link
-   *     Opcodes#ASM7_EXPERIMENTAL}.
+   *     Opcodes#ASM4}, {@link Opcodes#ASM5}, {@link Opcodes#ASM6} or {@link Opcodes#ASM7}.
    */
   protected Textifier(final int api) {
     super(api);
@@ -237,7 +236,7 @@ public class Textifier extends Printer {
   }
 
   @Override
-  public void visitNestHostExperimental(final String nestHost) {
+  public void visitNestHost(final String nestHost) {
     stringBuilder.setLength(0);
     stringBuilder.append(tab).append("NESTHOST ");
     appendDescriptor(INTERNAL_NAME, nestHost);
@@ -279,7 +278,7 @@ public class Textifier extends Printer {
   }
 
   @Override
-  public void visitNestMemberExperimental(final String nestMember) {
+  public void visitNestMember(final String nestMember) {
     stringBuilder.setLength(0);
     stringBuilder.append(tab).append("NESTMEMBER ");
     appendDescriptor(INTERNAL_NAME, nestMember);

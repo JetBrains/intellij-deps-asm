@@ -61,7 +61,7 @@ public final class TraceMethodVisitor extends MethodVisitor {
    * @param printer the printer to convert the visited method into text.
    */
   public TraceMethodVisitor(final MethodVisitor methodVisitor, final Printer printer) {
-    super(Opcodes.ASM7_EXPERIMENTAL, methodVisitor);
+    super(Opcodes.ASM7, methodVisitor);
     this.p = printer;
   }
 

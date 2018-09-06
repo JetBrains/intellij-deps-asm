@@ -366,7 +366,7 @@ public class CheckMethodAdapter extends MethodVisitor {
    */
   public CheckMethodAdapter(
       final MethodVisitor methodVisitor, final Map<Label, Integer> labelInsnIndices) {
-    this(Opcodes.ASM6, methodVisitor, labelInsnIndices);
+    this(Opcodes.ASM7, methodVisitor, labelInsnIndices);
     if (getClass() != CheckMethodAdapter.class) {
       throw new IllegalStateException();
     }
@@ -377,8 +377,7 @@ public class CheckMethodAdapter extends MethodVisitor {
    * data flow check (see {@link #CheckMethodAdapter(int,String,String,MethodVisitor,Map)}).
    *
    * @param api the ASM API version implemented by this CheckMethodAdapter. Must be one of {@link
-   *     Opcodes#ASM4}, {@link Opcodes#ASM5}, {@link Opcodes#ASM6} or {@link
-   *     Opcodes#ASM7_EXPERIMENTAL}.
+   *     Opcodes#ASM4}, {@link Opcodes#ASM5}, {@link Opcodes#ASM6} or {@link Opcodes#ASM7}.
    * @param methodVisitor the method visitor to which this adapter must delegate calls.
    * @param labelInsnIndices the index of the instruction designated by each visited label so far
    *     (in other methods). This map is updated with the labels from the visited method.
@@ -413,7 +412,7 @@ public class CheckMethodAdapter extends MethodVisitor {
       final String descriptor,
       final MethodVisitor methodVisitor,
       final Map<Label, Integer> labelInsnIndices) {
-    this(Opcodes.ASM6, access, name, descriptor, methodVisitor, labelInsnIndices);
+    this(Opcodes.ASM7, access, name, descriptor, methodVisitor, labelInsnIndices);
     if (getClass() != CheckMethodAdapter.class) {
       throw new IllegalStateException();
     }
@@ -425,8 +424,7 @@ public class CheckMethodAdapter extends MethodVisitor {
    * instruction IRETURN, or the invalid sequence IADD L2I will be detected.
    *
    * @param api the ASM API version implemented by this CheckMethodAdapter. Must be one of {@link
-   *     Opcodes#ASM4}, {@link Opcodes#ASM5}, {@link Opcodes#ASM6} or {@link
-   *     Opcodes#ASM7_EXPERIMENTAL}.
+   *     Opcodes#ASM4}, {@link Opcodes#ASM5}, {@link Opcodes#ASM6} or {@link Opcodes#ASM7}.
    * @param access the method's access flags.
    * @param name the method's name.
    * @param descriptor the method's descriptor (see {@link Type}).

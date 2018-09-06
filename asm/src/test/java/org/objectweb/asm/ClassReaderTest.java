@@ -223,7 +223,7 @@ public class ClassReaderTest extends AsmTest implements Opcodes {
     assertThat(() -> classReader.accept(classVisitor, 0))
         .succeedsOrThrows(RuntimeException.class)
         .when(
-            (hasNestHostOrMembers && apiParameter.value() < ASM7_EXPERIMENTAL)
+            (hasNestHostOrMembers && apiParameter.value() < ASM7)
                 || (hasModules && apiParameter.value() < ASM6)
                 || (hasTypeAnnotations && apiParameter.value() < ASM5));
   }
@@ -389,10 +389,10 @@ public class ClassReaderTest extends AsmTest implements Opcodes {
           }
 
           @Override
-          public void visitNestHostExperimental(final String nestHost) {}
+          public void visitNestHost(final String nestHost) {}
 
           @Override
-          public void visitNestMemberExperimental(final String nestMember) {}
+          public void visitNestMember(final String nestMember) {}
         };
     classReader.accept(classVisitor, 0);
   }
@@ -402,7 +402,7 @@ public class ClassReaderTest extends AsmTest implements Opcodes {
     final AtomicBoolean success = new AtomicBoolean(false);
     ClassReader classReader = new ClassReader(PrecompiledClass.JDK5_LOCAL_CLASS.getBytes());
     classReader.accept(
-        new ClassVisitor(Opcodes.ASM7_EXPERIMENTAL) {
+        new ClassVisitor(Opcodes.ASM7) {
           @Override
           public MethodVisitor visitMethod(
               final int access,
@@ -431,7 +431,7 @@ public class ClassReaderTest extends AsmTest implements Opcodes {
   public void testPreviewMinorVersion() {
     ClassReader classReader = new ClassReader(PrecompiledClass.JDK11_ALL_INSTRUCTIONS.getBytes());
     classReader.accept(
-        new ClassVisitor(Opcodes.ASM7_EXPERIMENTAL) {
+        new ClassVisitor(Opcodes.ASM7) {
           @Override
           public void visit(
               int version,
@@ -440,8 +440,7 @@ public class ClassReaderTest extends AsmTest implements Opcodes {
               String signature,
               String superName,
               String[] interfaces) {
-            assertTrue(
-                (version & Opcodes.V_PREVIEW_EXPERIMENTAL) == Opcodes.V_PREVIEW_EXPERIMENTAL);
+            assertTrue((version & Opcodes.V_PREVIEW) == Opcodes.V_PREVIEW);
           }
         },
         0);
@@ -461,11 +460,11 @@ public class ClassReaderTest extends AsmTest implements Opcodes {
           || invalidClass == InvalidClass.INVALID_BYTECODE_OFFSET) {
         assertThrows(
             ArrayIndexOutOfBoundsException.class,
-            () -> classReader.accept(new EmptyClassVisitor(ASM7_EXPERIMENTAL), 0));
+            () -> classReader.accept(new EmptyClassVisitor(ASM7), 0));
       } else {
         assertThrows(
             IllegalArgumentException.class,
-            () -> classReader.accept(new EmptyClassVisitor(ASM7_EXPERIMENTAL), 0));
+            () -> classReader.accept(new EmptyClassVisitor(ASM7), 0));
       }
     }
   }

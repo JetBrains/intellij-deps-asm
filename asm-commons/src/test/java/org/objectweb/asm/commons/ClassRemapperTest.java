@@ -37,9 +37,14 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassWriter;
+import org.objectweb.asm.ConstantDynamic;
+import org.objectweb.asm.Handle;
+import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.Type;
 import org.objectweb.asm.test.AsmTest;
 import org.objectweb.asm.tree.ClassNode;
+import org.objectweb.asm.tree.LdcInsnNode;
 import org.objectweb.asm.util.CheckMethodAdapter;
 
 /**
@@ -67,7 +72,7 @@ public class ClassRemapperTest extends AsmTest {
             new Remapper() {
 
               @Override
-              public String mapModuleName(String name) {
+              public String mapModuleName(final String name) {
                 return "new." + name;
               }
             });
@@ -76,6 +81,49 @@ public class ClassRemapperTest extends AsmTest {
         new ModuleHashesAttribute("algorithm", Arrays.asList("pkg.C"), Arrays.asList(new byte[0])));
     assertEquals("C", classNode.name);
     assertEquals("new.pkg.C", ((ModuleHashesAttribute) classNode.attrs.get(0)).modules.get(0));
+  }
+
+  @Test
+  public void testRenameConstantDynamic() {
+    ClassNode classNode = new ClassNode();
+    ClassRemapper classRemapper =
+        new ClassRemapper(
+            Opcodes.ASM7_EXPERIMENTAL,
+            classNode,
+            new Remapper() {
+              @Override
+              public String mapInvokeDynamicMethodName(final String name, final String descriptor) {
+                return "new." + name;
+              }
+
+              @Override
+              public String map(final String internalName) {
+                if (internalName.equals("java/lang/String")) {
+                  return "java/lang/Integer";
+                }
+                return internalName;
+              }
+            }) {
+          /* inner class so it can access to the protected constructor */
+        };
+    classRemapper.visit(Opcodes.V11, Opcodes.ACC_PUBLIC, "C", null, "java/lang/Object", null);
+    MethodVisitor methodVisitor =
+        classRemapper.visitMethod(Opcodes.ACC_PUBLIC, "hello", "()V", null, null);
+    methodVisitor.visitCode();
+    methodVisitor.visitLdcInsn(
+        new ConstantDynamic(
+            "foo",
+            "Ljava/lang/String;",
+            new Handle(Opcodes.H_INVOKESTATIC, "BSMHost", "bsm", "()Ljava/lang/String;", false)));
+    methodVisitor.visitInsn(Opcodes.POP);
+    methodVisitor.visitMaxs(1, 1);
+    methodVisitor.visitEnd();
+    classRemapper.visitEnd();
+    ConstantDynamic constantDynamic =
+        (ConstantDynamic) ((LdcInsnNode) classNode.methods.get(0).instructions.get(0)).cst;
+    assertEquals("new.foo", constantDynamic.getName());
+    assertEquals("Ljava/lang/Integer;", constantDynamic.getDescriptor());
+    assertEquals("()Ljava/lang/Integer;", constantDynamic.getBootstrapMethod().getDesc());
   }
 
   /** Tests that classes transformed with a ClassRemapper can be loaded and instantiated. */
@@ -178,6 +226,27 @@ public class ClassRemapperTest extends AsmTest {
     @Override
     public String map(final String typeName) {
       return typeName.equals(internalClassName) ? remappedInternalClassName : typeName;
+    }
+
+    @Override
+    public Object mapValue(Object value) {
+      if (value instanceof String
+          || value instanceof Boolean
+          || value instanceof Byte
+          || value instanceof Short
+          || value instanceof Character
+          || value instanceof Integer
+          || value instanceof Long
+          || value instanceof Double
+          || value instanceof Float
+          || value instanceof Type
+          || value instanceof Handle
+          || value instanceof ConstantDynamic
+          || value.getClass().isArray()) {
+        return super.mapValue(value);
+      }
+      // If this fails, add support for the new type in Remapper.mapValue(), if needed.
+      throw new IllegalArgumentException("Unsupported type of value: " + value);
     }
   }
 

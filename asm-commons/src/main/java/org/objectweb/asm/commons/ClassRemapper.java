@@ -140,7 +140,7 @@ public class ClassRemapper extends ClassVisitor {
             remapper.mapFieldName(className, name, descriptor),
             remapper.mapDesc(descriptor),
             remapper.mapSignature(signature, true),
-            remapper.mapValue(value));
+            (value == null) ? null : remapper.mapValue(value));
     return fieldVisitor == null ? null : createFieldRemapper(fieldVisitor);
   }
 

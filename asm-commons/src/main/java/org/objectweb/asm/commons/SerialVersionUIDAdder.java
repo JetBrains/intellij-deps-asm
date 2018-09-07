@@ -428,7 +428,7 @@ public class SerialVersionUIDAdder extends ClassVisitor {
     try {
       return MessageDigest.getInstance("SHA").digest(value);
     } catch (Exception e) {
-      throw new UnsupportedOperationException(e.toString());
+      throw new UnsupportedOperationException(e);
     }
   }
 

@@ -102,7 +102,7 @@ public abstract class FieldVisitor {
   public AnnotationVisitor visitTypeAnnotation(
       final int typeRef, final TypePath typePath, final String descriptor, final boolean visible) {
     if (api < Opcodes.ASM5) {
-      throw new UnsupportedOperationException();
+      throw new UnsupportedOperationException("This feature requires ASM5");
     }
     if (fv != null) {
       return fv.visitTypeAnnotation(typeRef, typePath, descriptor, visible);

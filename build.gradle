@@ -30,7 +30,7 @@ buildscript {
   repositories { mavenCentral() }
 }
 
-plugins { id 'biz.aQute.bnd.builder' version '3.3.0' apply false }
+plugins { id 'biz.aQute.bnd.builder' version '4.0.0' apply false }
 plugins { id 'com.github.sherter.google-java-format' version '0.7.1' apply false }
 plugins { id 'me.champeau.gradle.jmh' version '0.4.7' apply false }
 plugins { id 'org.sonarqube' version '2.6.2' apply false }
@@ -156,7 +156,7 @@ project(':tools:bnd-module-plugin') {
   description = "bnd plugin to build moduleinfo with ${rootProject.description}"
   // TODO: this compiles asm twice (here and in :asm), find a way to avoid this.
   sourceSets.main.java.srcDirs += project(':asm').sourceSets.main.java.srcDirs
-  depends = ['biz.aQute.bnd:biz.aQute.bnd:3.4.0']
+  depends = ['biz.aQute.bnd:biz.aQute.bnd:4.0.0']
 }
 
 project(':tools:retrofitter') {
@@ -213,13 +213,13 @@ configure(subprojects.findAll { it.provides }) {
 
   // Retrofit the code to Java 1.5, in-place, in compileJava.doLast.
   if (name != 'asm-test') {
-    task retrofit(type: JavaExec) {
-      classpath project(':tools:retrofitter').sourceSets.main.runtimeClasspath
-      main 'org.objectweb.asm.tools.Retrofitter'
-      args sourceSets.main.output.classesDirs
-    }
     compileJava.dependsOn ':tools:retrofitter:classes'
-    compileJava.doLast { tasks.retrofit.execute() }
+    compileJava.doLast {
+      def path = project(':tools:retrofitter').sourceSets.main.runtimeClasspath
+      def loader = new URLClassLoader(path.collect {f -> f.toURL()} as URL[])
+      def retrofit = loader.loadClass('org.objectweb.asm.tools.Retrofitter')
+      retrofit.main(sourceSets.main.output.classesDirs.singleFile.toString())
+    }
   }
 
   // Create one backward compatibility checking task for each 'sigtest-*' file
@@ -272,6 +272,7 @@ configure(subprojects.findAll { it.provides }) {
   if (name != 'asm-test') {
     apply plugin: 'biz.aQute.bnd.builder'
     jar.dependsOn ':tools:bnd-module-plugin:jar'
+    jar.bndfile = "${rootDir}/tools/bnd.bnd" // Avoids a Gradle 5.0 warning.
     jar.manifest.attributes(
       '-classpath': sourceSets.main.output.classesDirs.asPath,
       '-plugin': 'org.objectweb.asm.tools.ModuleInfoBndPlugin;',

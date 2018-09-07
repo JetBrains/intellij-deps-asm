@@ -36,8 +36,11 @@ import org.objectweb.asm.Attribute;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.ClassWriter;
+import org.objectweb.asm.ConstantDynamic;
+import org.objectweb.asm.Handle;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
+import org.objectweb.asm.Type;
 import org.objectweb.asm.test.AsmTest;
 
 /**
@@ -69,6 +72,29 @@ public class CodeSizeEvaluatorTest extends AsmTest {
             MethodVisitor methodVisitor =
                 super.visitMethod(access, name, descriptor, signature, exceptions);
             return new CodeSizeEvaluator(api, methodVisitor) {
+
+              @Override
+              public void visitLdcInsn(final Object value) {
+                if (value instanceof Boolean
+                    || value instanceof Byte
+                    || value instanceof Short
+                    || value instanceof Character
+                    || value instanceof Integer
+                    || value instanceof Long
+                    || value instanceof Double
+                    || value instanceof Float
+                    || value instanceof String
+                    || value instanceof Type
+                    || value instanceof Handle
+                    || value instanceof ConstantDynamic) {
+                  super.visitLdcInsn(value);
+                } else {
+                  // If this happens, add support for the new type in
+                  // CodeSizeEvaluator.visitLdcInsn(), if needed.
+                  throw new IllegalArgumentException("Unsupported type of value: " + value);
+                }
+              }
+
               @Override
               public void visitMaxs(final int maxStack, final int maxLocals) {
                 Label end = new Label();

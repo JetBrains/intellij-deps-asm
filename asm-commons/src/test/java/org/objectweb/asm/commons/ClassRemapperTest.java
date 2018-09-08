@@ -230,8 +230,7 @@ public class ClassRemapperTest extends AsmTest {
 
     @Override
     public Object mapValue(Object value) {
-      if (value instanceof String
-          || value instanceof Boolean
+      if (value instanceof Boolean
           || value instanceof Byte
           || value instanceof Short
           || value instanceof Character
@@ -239,13 +238,14 @@ public class ClassRemapperTest extends AsmTest {
           || value instanceof Long
           || value instanceof Double
           || value instanceof Float
+          || value instanceof String
           || value instanceof Type
           || value instanceof Handle
           || value instanceof ConstantDynamic
           || value.getClass().isArray()) {
         return super.mapValue(value);
       }
-      // If this fails, add support for the new type in Remapper.mapValue(), if needed.
+      // If this happens, add support for the new type in Remapper.mapValue(), if needed.
       throw new IllegalArgumentException("Unsupported type of value: " + value);
     }
   }

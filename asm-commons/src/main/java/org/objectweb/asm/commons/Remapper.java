@@ -146,10 +146,10 @@ public abstract class Remapper {
   }
 
   /**
-   * Returns the given value, remapped with this remapper. Possible values are {@link String},
-   * {@link Boolean}, {@link Byte}, {@link Short}, {@link Character}, {@link Integer}, {@link Long},
-   * {@link Double}, {@link Float}, {@link String}, {@link Type}, {@link Handle}, {@link
-   * ConstantDynamic} or arrays of primitive types .
+   * Returns the given value, remapped with this remapper. Possible values are {@link Boolean},
+   * {@link Byte}, {@link Short}, {@link Character}, {@link Integer}, {@link Long}, {@link Double},
+   * {@link Float}, {@link String}, {@link Type}, {@link Handle}, {@link ConstantDynamic} or arrays
+   * of primitive types .
    *
    * @param value an object. Only {@link Type}, {@link Handle} and {@link ConstantDynamic} values
    *     are remapped.

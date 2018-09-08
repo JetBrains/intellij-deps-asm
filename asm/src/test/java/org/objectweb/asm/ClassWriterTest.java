@@ -663,8 +663,25 @@ public class ClassWriterTest extends AsmTest {
 
     @Override
     public void visitLdcInsn(final Object value) {
-      super.visitLdcInsn(value);
-      maybeInsertDeadCode();
+      if (value instanceof Boolean
+          || value instanceof Byte
+          || value instanceof Short
+          || value instanceof Character
+          || value instanceof Integer
+          || value instanceof Long
+          || value instanceof Double
+          || value instanceof Float
+          || value instanceof String
+          || value instanceof Type
+          || value instanceof Handle
+          || value instanceof ConstantDynamic) {
+        super.visitLdcInsn(value);
+        maybeInsertDeadCode();
+      } else {
+        // If this happens, add support for the new type in
+        // MethodWriter.visitLdcInsn(), if needed.
+        throw new IllegalArgumentException("Unsupported type of value: " + value);
+      }
     }
 
     @Override

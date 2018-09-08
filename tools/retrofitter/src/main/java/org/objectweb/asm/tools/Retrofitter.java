@@ -80,7 +80,8 @@ public class Retrofitter {
    */
   public static void main(final String[] args) throws IOException {
     InputStream inputStream =
-        new GZIPInputStream(ClassLoader.getSystemResourceAsStream("jdk1.5.0.12.txt.gz"));
+        new GZIPInputStream(
+            Retrofitter.class.getClassLoader().getResourceAsStream("jdk1.5.0.12.txt.gz"));
     BufferedReader reader = new LineNumberReader(new InputStreamReader(inputStream));
     while (true) {
       String line = reader.readLine();

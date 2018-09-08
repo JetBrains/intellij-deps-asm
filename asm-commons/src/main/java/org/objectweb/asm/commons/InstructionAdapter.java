@@ -637,10 +637,10 @@ public class InstructionAdapter extends MethodVisitor {
     if (api < Opcodes.ASM5
         && (value instanceof Handle
             || (value instanceof Type && ((Type) value).getSort() == Type.METHOD))) {
-      throw new UnsupportedOperationException();
+      throw new UnsupportedOperationException("This feature requires ASM5");
     }
     if (api != Opcodes.ASM7 && value instanceof ConstantDynamic) {
-      throw new UnsupportedOperationException();
+      throw new UnsupportedOperationException("This feature requires ASM7");
     }
     if (value instanceof Integer) {
       iconst((Integer) value);

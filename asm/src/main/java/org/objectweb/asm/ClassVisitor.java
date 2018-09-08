@@ -127,7 +127,7 @@ public abstract class ClassVisitor {
    */
   public ModuleVisitor visitModule(final String name, final int access, final String version) {
     if (api < Opcodes.ASM6) {
-      throw new UnsupportedOperationException();
+      throw new UnsupportedOperationException("This feature requires ASM6");
     }
     if (cv != null) {
       return cv.visitModule(name, access, version);
@@ -147,7 +147,7 @@ public abstract class ClassVisitor {
    */
   public void visitNestHost(final String nestHost) {
     if (api < Opcodes.ASM7) {
-      throw new UnsupportedOperationException();
+      throw new UnsupportedOperationException("This feature requires ASM7");
     }
     if (cv != null) {
       cv.visitNestHost(nestHost);
@@ -203,7 +203,7 @@ public abstract class ClassVisitor {
   public AnnotationVisitor visitTypeAnnotation(
       final int typeRef, final TypePath typePath, final String descriptor, final boolean visible) {
     if (api < Opcodes.ASM5) {
-      throw new UnsupportedOperationException();
+      throw new UnsupportedOperationException("This feature requires ASM5");
     }
     if (cv != null) {
       return cv.visitTypeAnnotation(typeRef, typePath, descriptor, visible);
@@ -233,7 +233,7 @@ public abstract class ClassVisitor {
    */
   public void visitNestMember(final String nestMember) {
     if (api < Opcodes.ASM7) {
-      throw new UnsupportedOperationException();
+      throw new UnsupportedOperationException("This feature requires ASM7");
     }
     if (cv != null) {
       cv.visitNestMember(nestMember);

@@ -179,7 +179,7 @@ public class AdviceAdapterTest extends AsmTest {
           methodGenerator.visitTypeInsn(Opcodes.NEW, "C");
           methodGenerator.visitInsn(Opcodes.DUP);
           methodGenerator.visitMethodInsn(Opcodes.INVOKESPECIAL, "C", "<init>", "()V", false);
-          // No method enter here because the above call does not initializes 'this'.
+          // No method enter here because the above call does not initialize 'this'.
           methodGenerator.visitVarInsn(Opcodes.ASTORE, 1);
           methodGenerator.visitVarInsn(Opcodes.ALOAD, 0);
           methodGenerator.visitJumpInsn(Opcodes.GOTO, label1);
@@ -208,7 +208,7 @@ public class AdviceAdapterTest extends AsmTest {
           methodGenerator.visitInsn(Opcodes.DUP_X1);
           methodGenerator.visitInsn(Opcodes.POP);
           methodGenerator.visitMethodInsn(Opcodes.INVOKESPECIAL, "C", "<init>", "()V", false);
-          // No method enter here because the above call does not initializes 'this'.
+          // No method enter here because the above call does not initialize 'this'.
           methodGenerator.visitMethodInsn(Opcodes.INVOKESPECIAL, "C", "<init>", "()V", false);
           methodGenerator.expectMethodEnter();
           methodGenerator.expectMethodExit();
@@ -228,7 +228,7 @@ public class AdviceAdapterTest extends AsmTest {
           methodGenerator.visitInsn(Opcodes.DUP_X2);
           methodGenerator.visitInsn(Opcodes.POP2);
           methodGenerator.visitMethodInsn(Opcodes.INVOKESPECIAL, "C", "<init>", "()V", false);
-          // No method enter here because the above call does not initializes 'this'.
+          // No method enter here because the above call does not initialize 'this'.
           methodGenerator.visitMethodInsn(Opcodes.INVOKESPECIAL, "C", "<init>", "()V", false);
           methodGenerator.expectMethodEnter();
           methodGenerator.expectMethodExit();
@@ -247,7 +247,7 @@ public class AdviceAdapterTest extends AsmTest {
           methodGenerator.visitInsn(Opcodes.DUP2);
           methodGenerator.visitInsn(Opcodes.POP2);
           methodGenerator.visitMethodInsn(Opcodes.INVOKESPECIAL, "C", "<init>", "()V", false);
-          // No method enter here because the above call does not initializes 'this'.
+          // No method enter here because the above call does not initialize 'this'.
           methodGenerator.visitMethodInsn(Opcodes.INVOKESPECIAL, "C", "<init>", "()V", false);
           methodGenerator.expectMethodEnter();
           methodGenerator.expectMethodExit();
@@ -268,7 +268,7 @@ public class AdviceAdapterTest extends AsmTest {
           methodGenerator.visitInsn(Opcodes.POP2);
           methodGenerator.visitInsn(Opcodes.POP);
           methodGenerator.visitMethodInsn(Opcodes.INVOKESPECIAL, "C", "<init>", "()V", false);
-          // No method enter here because the above call does not initializes 'this'.
+          // No method enter here because the above call does not initialize 'this'.
           methodGenerator.visitMethodInsn(Opcodes.INVOKESPECIAL, "C", "<init>", "()V", false);
           methodGenerator.expectMethodEnter();
           methodGenerator.expectMethodExit();
@@ -289,7 +289,7 @@ public class AdviceAdapterTest extends AsmTest {
           methodGenerator.visitInsn(Opcodes.POP2);
           methodGenerator.visitInsn(Opcodes.POP2);
           methodGenerator.visitMethodInsn(Opcodes.INVOKESPECIAL, "C", "<init>", "()V", false);
-          // No method enter here because the above call does not initializes 'this'.
+          // No method enter here because the above call does not initialize 'this'.
           methodGenerator.visitMethodInsn(Opcodes.INVOKESPECIAL, "C", "<init>", "()V", false);
           methodGenerator.expectMethodEnter();
           methodGenerator.expectMethodExit();
@@ -311,7 +311,7 @@ public class AdviceAdapterTest extends AsmTest {
           methodGenerator.visitLdcInsn(123L);
           methodGenerator.visitInsn(Opcodes.LASTORE);
           methodGenerator.visitMethodInsn(Opcodes.INVOKESPECIAL, "C", "<init>", "()V", false);
-          // No method enter here because the above call does not initializes 'this'.
+          // No method enter here because the above call does not initialize 'this'.
           methodGenerator.visitMethodInsn(Opcodes.INVOKESPECIAL, "C", "<init>", "()V", false);
           methodGenerator.expectMethodEnter();
           methodGenerator.expectMethodExit();
@@ -369,6 +369,35 @@ public class AdviceAdapterTest extends AsmTest {
     assertThrows(
         IllegalArgumentException.class,
         () -> generateClass(constructorGenerator, /* expectedClass= */ false));
+  }
+
+  @Test
+  public void testOnMethodEnterWithMixedVisitors() {
+    AdviceAdapter adviceAdapter =
+        new AdviceAdapter(
+            Opcodes.ASM7, new MethodVisitor(Opcodes.ASM7) {}, Opcodes.ACC_PUBLIC, "<init>", "()V") {
+          @Override
+          protected void onMethodEnter() {
+            Label label = new Label();
+            visitLabel(label);
+            // Generate ICONST_1 with the delegate visitor. The advice adapter does not 'see' this
+            // and therefore cannot update its stack state, if it were doing so.
+            mv.visitInsn(ICONST_1);
+            // Generate IFEQ with the advice adapter itself. If the stack was updated here, it would
+            // pop from an empty stack because the previous ICONST_1 was not simulated.
+            visitJumpInsn(IFEQ, label);
+          }
+
+          @Override
+          protected void onMethodExit(final int opcode) {}
+        };
+    adviceAdapter.visitCode();
+    adviceAdapter.visitVarInsn(Opcodes.ALOAD, 0);
+    adviceAdapter.visitMethodInsn(
+        Opcodes.INVOKESPECIAL, "java/lang/Object", "<init>", "()V", false);
+    adviceAdapter.visitInsn(Opcodes.RETURN);
+    adviceAdapter.visitMaxs(0, 0);
+    adviceAdapter.visitEnd();
   }
 
   private static void testCase(final Consumer<MethodGenerator> testCaseGenerator) {

@@ -40,16 +40,10 @@ import org.objectweb.asm.Type;
 
 /**
  * A {@link MethodVisitor} to insert before, after and around advices in methods and constructors.
- *
- * <p>The behavior for constructors is the following:
- *
- * <ol>
- *   <li>as long as the INVOKESPECIAL for the object initialization has not been reached, every
- *       bytecode instruction is dispatched in the ctor code visitor
- *   <li>when this one is reached, it is only added in the ctor code visitor and a JP invoke is
- *       added
- *   <li>after that, only the other code visitor receives the instructions
- * </ol>
+ * For constructors, the code keeps track of the elements on the stack in order to detect when the
+ * super class constructor is called (note that there can be multiple such calls in different
+ * branches). {@code onMethodEnter} is called after each super class constructor call, because the
+ * object cannot be used before it is properly initialized.
  *
  * @author Eugene Kuleshov
  * @author Eric Bruneton
@@ -62,6 +56,7 @@ public abstract class AdviceAdapter extends GeneratorAdapter implements Opcodes 
   /** Any value other than "uninitialized this". */
   private static final Object OTHER = new Object();
 
+  /** Prefix of the error message when invalid opcodes are found. */
   private static final String INVALID_OPCODE = "Invalid opcode ";
 
   /** The access flags of the visited method. */
@@ -71,10 +66,15 @@ public abstract class AdviceAdapter extends GeneratorAdapter implements Opcodes 
   protected String methodDesc;
 
   /** Whether the visited method is a constructor. */
-  private boolean isConstructor;
+  private final boolean isConstructor;
 
   /**
-   * Whether the super class constructor has been called (if the visited method is a constructor).
+   * Whether the super class constructor has been called (if the visited method is a constructor),
+   * at the current instruction. There can be multiple call sites to the super constructor (e.g. for
+   * Java code such as {@code super(expr ? value1 : value2);}), in different branches. When scanning
+   * the bytecode linearly, we can move from one branch where the super constructor has been called
+   * to another where it has not been called yet. Therefore, this value can change from false to
+   * true, and vice-versa.
    */
   private boolean superClassConstructorCalled;
 
@@ -87,9 +87,11 @@ public abstract class AdviceAdapter extends GeneratorAdapter implements Opcodes 
   private List<Object> stackFrame;
 
   /**
-   * The stack map frames corresponding to the labels of the forward jumps made before the super
+   * The stack map frames corresponding to the labels of the forward jumps made *before* the super
    * class constructor has been called (note that the Java Virtual Machine forbids backward jumps
-   * before the super class constructor is called). This field is only maintained for constructors.
+   * before the super class constructor is called). Note that by definition (cf. the 'before'), when
+   * we reach a label from this map, {@link superClassConstructorCalled} must be reset to false.
+   * This field is only maintained for constructors.
    */
   private Map<Label, List<Object>> forwardJumpStackFrames;
 
@@ -478,8 +480,8 @@ public abstract class AdviceAdapter extends GeneratorAdapter implements Opcodes 
         case INVOKESPECIAL:
           Object value = popValue();
           if (value == UNINITIALIZED_THIS && !superClassConstructorCalled) {
-            onMethodEnter();
             superClassConstructorCalled = true;
+            onMethodEnter();
           }
           break;
         default:
@@ -564,9 +566,15 @@ public abstract class AdviceAdapter extends GeneratorAdapter implements Opcodes 
   @Override
   public void visitTryCatchBlock(Label start, Label end, Label handler, String type) {
     super.visitTryCatchBlock(start, end, handler, type);
-    if (isConstructor
-        && !superClassConstructorCalled
-        && !forwardJumpStackFrames.containsKey(handler)) {
+    // By definition of 'forwardJumpStackFrames', 'handler' should be pushed only if there is an
+    // instruction between 'start' and 'end' at which the super class constructor is not yet
+    // called. Unfortunately, try catch blocks must be visited before their labels, so we have no
+    // way to know this at this point. Instead, we suppose that the super class constructor has not
+    // been called at the start of *any* exception handler. If this is wrong, normally there should
+    // not be a second super class constructor call in the exception handler (an object can't be
+    // initialized twice), so this is not issue (in the sense that there is no risk to emit a wrong
+    // 'onMethodEnter').
+    if (isConstructor && !forwardJumpStackFrames.containsKey(handler)) {
       List<Object> handlerStackFrame = new ArrayList<Object>();
       handlerStackFrame.add(OTHER);
       forwardJumpStackFrames.put(handler, handlerStackFrame);

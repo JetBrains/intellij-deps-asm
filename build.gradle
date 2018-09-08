@@ -102,13 +102,6 @@ project(':asm-util') {
   dependencies { testCompile 'org.codehaus.janino:janino:3.0.7' }
 }
 
-project(':asm-xml') {
-  description = "XML API of ${parent.description}"
-  provides = ['org.objectweb.asm.xml']
-  requires = [':asm', ':asm-util']
-  minCodeCoverage = 0.8
-}
-
 // Use "gradle benchmarks:jmh [-PjmhInclude='<regex>']" to run the benchmarks.
 project(':benchmarks') {
   description = "Benchmarks for ${rootProject.description}"

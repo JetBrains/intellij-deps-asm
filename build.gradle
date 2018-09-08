@@ -28,6 +28,7 @@
 
 buildscript {
   repositories { mavenCentral() }
+  dependencies { classpath 'org.netbeans.tools:sigtest-maven-plugin:1.0' }
 }
 
 plugins { id 'biz.aQute.bnd.builder' version '3.3.0' apply false }
@@ -225,42 +226,36 @@ configure(subprojects.findAll { it.provides }) {
   // Create one backward compatibility checking task for each 'sigtest-*' file
   // in test/resources, and make the 'check' task depend on all these tasks.
   if (file('src/test/resources/').exists()) {
-    configurations { sigtest }
-    dependencies { sigtest 'org.netbeans.tools:sigtest-maven-plugin:1.0' }
     file('src/test/resources/').eachFileMatch(~/sigtest-.*/) { f ->
-      task "${f.name}" (type: JavaExec, dependsOn: 'classes') {
+      task "${f.name}"(dependsOn: 'classes') {
         inputs.files(f, sourceSets.main.java)
         outputs.file("${buildDir}/${f.name}")
-        classpath configurations.sigtest
-        main 'com.sun.tdk.signaturetest.Main'
-        args 'Test', '-ApiVersion', version, '-Backward', '-Static', '-Mode',
-            'bin', '-Classpath', project(':tools').file('jdk8-api.jar').path +
-            File.pathSeparator + sourceSets.main.output.classesDirs.asPath,
-            '-FileName', f, '-Out', outputs.getFiles()[0], '-Package'
-        args provides
-        ignoreExitValue true // The exit value is 95 in case of success...
         doLast {
-          if (!outputs.getFiles()[0].readLines().find {it =~ /STATUS:Passed/})
-            throw new GradleException()
+          def sigtest = new com.sun.tdk.signaturetest.SignatureTest()
+          def args = ['-ApiVersion', version, '-Backward', '-Static',
+              '-Mode', 'bin', '-FileName', f, '-Out', outputs.getFiles()[0],
+              '-Classpath', project(':tools').file('jdk8-api.jar').path + 
+              File.pathSeparator + sourceSets.main.output.classesDirs.asPath,
+              '-Package'] + provides
+          sigtest.run(args as String[], new PrintWriter(System.err, true), null)
+          if (!sigtest.isPassed()) throw new GradleException()
         }
       }
       check.dependsOn f.name
     }
     // Define a task to create a sigtest file for the current version.
-    task "buildSigtest" (type: JavaExec, dependsOn: 'classes') {
+    task "buildSigtest"(dependsOn: 'classes') {
       inputs.files(sourceSets.main.java)
       outputs.file("src/test/resources/sigtest-${version}.txt")
-      classpath configurations.sigtest
-      main 'com.sun.tdk.signaturetest.Main'
-      args 'Setup', '-ApiVersion', version, '-FileName', outputs.getFiles()[0],
-          '-Classpath', project(':tools').file('jdk8-api.jar').path +
-          File.pathSeparator + sourceSets.main.output.classesDirs.asPath +
-          File.pathSeparator + sourceSets.main.compileClasspath.asPath,
-          '-Package'
-      args provides
-      ignoreExitValue true // The exit value is 95 in case of success...
       doLast {
-        if (!outputs.getFiles()[0].exists()) throw new GradleException()
+        def setup = new com.sun.tdk.signaturetest.Setup()
+        def args = ['-ApiVersion', version, '-FileName', outputs.getFiles()[0],
+            '-Classpath', project(':tools').file('jdk8-api.jar').path +
+            File.pathSeparator + sourceSets.main.output.classesDirs.asPath +
+            File.pathSeparator + sourceSets.main.compileClasspath.asPath,
+            '-Package'] + provides
+        setup.run(args as String[], new PrintWriter(System.err, true), null)
+        if (!setup.isPassed()) throw new GradleException()
       }
     }
   }

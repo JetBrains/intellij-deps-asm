@@ -168,7 +168,7 @@ public class ClassRemapper extends ClassVisitor {
     super.visitInnerClass(
         remapper.mapType(name),
         outerName == null ? null : remapper.mapType(outerName),
-        innerName,
+        innerName == null ? null : remapper.mapInnerClassName(name, outerName, innerName),
         access);
   }
 

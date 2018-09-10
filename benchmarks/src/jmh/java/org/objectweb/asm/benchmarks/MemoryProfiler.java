@@ -48,6 +48,7 @@ import java.lang.management.GarbageCollectorMXBean;
 import java.lang.management.ManagementFactory;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import org.openjdk.jmh.infra.BenchmarkParams;
 import org.openjdk.jmh.infra.IterationParams;
@@ -80,6 +81,9 @@ public class MemoryProfiler implements InternalProfiler {
   @Override
   public void beforeIteration(
       final BenchmarkParams benchmarkParams, final IterationParams iterationParams) {
+    if (!appliesToBenchmark(benchmarkParams)) {
+      return;
+    }
     references = new Object[100000];
     referenceCount = 0;
     usedMemoryBeforeIteration = getUsedMemory();
@@ -90,6 +94,9 @@ public class MemoryProfiler implements InternalProfiler {
       final BenchmarkParams benchmarkParams,
       final IterationParams iterationParams,
       final IterationResult result) {
+    if (!appliesToBenchmark(benchmarkParams)) {
+      return Collections.emptyList();
+    }
     long usedMemoryAfterIteration = getUsedMemory();
     references = null;
 
@@ -99,6 +106,10 @@ public class MemoryProfiler implements InternalProfiler {
     List<Result> results = new ArrayList<Result>();
     results.add(new ScalarResult("+memory.used", usedMemoryPerOp, "bytes", AggregationPolicy.AVG));
     return results;
+  }
+
+  private static boolean appliesToBenchmark(final BenchmarkParams benchmarkParams) {
+    return benchmarkParams.getBenchmark().contains("MemoryBenchmark");
   }
 
   /**

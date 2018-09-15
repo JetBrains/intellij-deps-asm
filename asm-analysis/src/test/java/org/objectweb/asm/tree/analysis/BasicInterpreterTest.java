@@ -60,8 +60,8 @@ public class BasicInterpreterTest extends AsmTest {
    * Tests that stack map frames are correctly merged when a JSR instruction can be reached from two
    * different control flow paths, with different local variable types (#316204).
    *
-   * @throws IOException
-   * @throws AnalyzerException
+   * @throws IOException if the test class can't be loaded.
+   * @throws AnalyzerException if the test class can't be analyzed.
    */
   @Test
   public void testMergeWithJsrReachableFromTwoDifferentPaths()
@@ -80,7 +80,7 @@ public class BasicInterpreterTest extends AsmTest {
    * does not follow its required contract (namely that if the merge result is equal to the first
    * argument, the first argument should be returned - see #316326).
    *
-   * @throws AnalyzerException
+   * @throws AnalyzerException if the test class can't be analyzed.
    */
   @Test
   public void testAnalyzeWithBadInterpreter() throws AnalyzerException {
@@ -103,7 +103,7 @@ public class BasicInterpreterTest extends AsmTest {
    * Tests that the precompiled classes can be successfully analyzed with a BasicInterpreter, and
    * that Analyzer can be subclassed to use custom frames.
    *
-   * @throws AnalyzerException
+   * @throws AnalyzerException if the test class can't be analyzed.
    */
   @ParameterizedTest
   @MethodSource(ALL_CLASSES_AND_LATEST_API)
@@ -115,8 +115,8 @@ public class BasicInterpreterTest extends AsmTest {
       Analyzer<BasicValue> analyzer =
           new Analyzer<BasicValue>(new BasicInterpreter()) {
             @Override
-            protected Frame<BasicValue> newFrame(final int nLocals, final int nStack) {
-              return new CustomFrame(nLocals, nStack);
+            protected Frame<BasicValue> newFrame(final int numLocals, final int numStack) {
+              return new CustomFrame(numLocals, numStack);
             }
 
             @Override
@@ -142,8 +142,8 @@ public class BasicInterpreterTest extends AsmTest {
 
   private static class CustomFrame extends Frame<BasicValue> {
 
-    CustomFrame(final int nLocals, final int nStack) {
-      super(nLocals, nStack);
+    CustomFrame(final int numLocals, final int numStack) {
+      super(numLocals, numStack);
     }
 
     CustomFrame(final Frame<? extends BasicValue> frame) {

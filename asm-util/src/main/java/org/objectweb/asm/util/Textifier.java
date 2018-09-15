@@ -64,13 +64,25 @@ public class Textifier extends Printer {
   /** The type of class signatures. See {@link #appendDescriptor}. */
   public static final int CLASS_SIGNATURE = 5;
 
-  /** @deprecated */
+  /**
+   * Deprecated.
+   *
+   * @deprecated this constant has never been used.
+   */
   @Deprecated public static final int TYPE_DECLARATION = 6;
 
-  /** @deprecated */
+  /**
+   * Deprecated.
+   *
+   * @deprecated this constant has never been used.
+   */
   @Deprecated public static final int CLASS_DECLARATION = 7;
 
-  /** @deprecated */
+  /**
+   * Deprecated.
+   *
+   * @deprecated this constant has never been used.
+   */
   @Deprecated public static final int PARAMETERS_DECLARATION = 8;
 
   /** The type of method handle descriptors. See {@link #appendDescriptor}. */
@@ -510,6 +522,7 @@ public class Textifier extends Printer {
   // Annotations
   // -----------------------------------------------------------------------------------------------
 
+  // DontCheck(OverloadMethodsDeclarationOrder): overloads are semantically different.
   @Override
   public void visit(final String name, final Object value) {
     visitAnnotationValue(name);
@@ -775,9 +788,9 @@ public class Textifier extends Printer {
   @Override
   public void visitFrame(
       final int type,
-      final int nLocal,
+      final int numLocal,
       final Object[] local,
-      final int nStack,
+      final int numStack,
       final Object[] stack) {
     stringBuilder.setLength(0);
     stringBuilder.append(ltab);
@@ -786,18 +799,18 @@ public class Textifier extends Printer {
       case Opcodes.F_NEW:
       case Opcodes.F_FULL:
         stringBuilder.append("FULL [");
-        appendFrameTypes(nLocal, local);
+        appendFrameTypes(numLocal, local);
         stringBuilder.append("] [");
-        appendFrameTypes(nStack, stack);
+        appendFrameTypes(numStack, stack);
         stringBuilder.append(']');
         break;
       case Opcodes.F_APPEND:
         stringBuilder.append("APPEND [");
-        appendFrameTypes(nLocal, local);
+        appendFrameTypes(numLocal, local);
         stringBuilder.append(']');
         break;
       case Opcodes.F_CHOP:
-        stringBuilder.append("CHOP ").append(nLocal);
+        stringBuilder.append("CHOP ").append(numLocal);
         break;
       case Opcodes.F_SAME:
         stringBuilder.append("SAME");
@@ -860,7 +873,11 @@ public class Textifier extends Printer {
     text.add(stringBuilder.toString());
   }
 
-  /** @deprecated */
+  /**
+   * Deprecated.
+   *
+   * @deprecated use {@link #visitMethodInsn(int, String, String, String, boolean)} instead.
+   */
   @Deprecated
   @Override
   public void visitMethodInsn(
@@ -1167,6 +1184,7 @@ public class Textifier extends Printer {
    * @param visible {@literal true} if the annotation is visible at runtime.
    * @return a visitor to visit the annotation values.
    */
+  // DontCheck(OverloadMethodsDeclarationOrder): overloads are semantically different.
   public Textifier visitAnnotation(final String descriptor, final boolean visible) {
     stringBuilder.setLength(0);
     stringBuilder.append(tab).append('@');
@@ -1522,12 +1540,12 @@ public class Textifier extends Printer {
   /**
    * Appends the given stack map frame types to {@link #stringBuilder}.
    *
-   * @param nTypes the number of stack map frame types in 'frameTypes'.
+   * @param numTypes the number of stack map frame types in 'frameTypes'.
    * @param frameTypes an array of stack map frame types, in the format described in {@link
    *     org.objectweb.asm.MethodVisitor#visitFrame}.
    */
-  private void appendFrameTypes(final int nTypes, final Object[] frameTypes) {
-    for (int i = 0; i < nTypes; ++i) {
+  private void appendFrameTypes(final int numTypes, final Object[] frameTypes) {
+    for (int i = 0; i < numTypes; ++i) {
       if (i > 0) {
         stringBuilder.append(' ');
       }

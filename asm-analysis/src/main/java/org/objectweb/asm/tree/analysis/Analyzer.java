@@ -447,12 +447,12 @@ public class Analyzer<V extends Value> implements Opcodes {
   /**
    * Constructs a new frame with the given size.
    *
-   * @param nLocals the maximum number of local variables of the frame.
-   * @param nStack the maximum stack size of the frame.
+   * @param numLocals the maximum number of local variables of the frame.
+   * @param numStack the maximum stack size of the frame.
    * @return the created frame.
    */
-  protected Frame<V> newFrame(final int nLocals, final int nStack) {
-    return new Frame<V>(nLocals, nStack);
+  protected Frame<V> newFrame(final int numLocals, final int numStack) {
+    return new Frame<V>(numLocals, numStack);
   }
 
   /**

@@ -134,14 +134,15 @@ public class Method {
    * @throws IllegalArgumentException if <code>method</code> could not get parsed.
    */
   public static Method getMethod(final String method, final boolean defaultPackage) {
-    int spaceIndex = method.indexOf(' ');
+    final int spaceIndex = method.indexOf(' ');
     int currentArgumentStartIndex = method.indexOf('(', spaceIndex) + 1;
-    int endIndex = method.indexOf(')', currentArgumentStartIndex);
+    final int endIndex = method.indexOf(')', currentArgumentStartIndex);
     if (spaceIndex == -1 || currentArgumentStartIndex == 0 || endIndex == -1) {
       throw new IllegalArgumentException();
     }
-    String returnType = method.substring(0, spaceIndex);
-    String methodName = method.substring(spaceIndex + 1, currentArgumentStartIndex - 1).trim();
+    final String returnType = method.substring(0, spaceIndex);
+    final String methodName =
+        method.substring(spaceIndex + 1, currentArgumentStartIndex - 1).trim();
     StringBuilder stringBuilder = new StringBuilder();
     stringBuilder.append('(');
     int currentArgumentEndIndex;
@@ -150,11 +151,11 @@ public class Method {
       currentArgumentEndIndex = method.indexOf(',', currentArgumentStartIndex);
       if (currentArgumentEndIndex == -1) {
         argumentDescriptor =
-            getDescriptor(
+            getDescriptorInternal(
                 method.substring(currentArgumentStartIndex, endIndex).trim(), defaultPackage);
       } else {
         argumentDescriptor =
-            getDescriptor(
+            getDescriptorInternal(
                 method.substring(currentArgumentStartIndex, currentArgumentEndIndex).trim(),
                 defaultPackage);
         currentArgumentStartIndex = currentArgumentEndIndex + 1;
@@ -162,7 +163,7 @@ public class Method {
       stringBuilder.append(argumentDescriptor);
     } while (currentArgumentEndIndex != -1);
     stringBuilder.append(')');
-    stringBuilder.append(getDescriptor(returnType, defaultPackage));
+    stringBuilder.append(getDescriptorInternal(returnType, defaultPackage));
     return new Method(methodName, stringBuilder.toString());
   }
 
@@ -175,7 +176,7 @@ public class Method {
    *     option is true, or "java.lang.Object" otherwise.
    * @return the descriptor corresponding to the given type name.
    */
-  private static String getDescriptor(final String type, final boolean defaultPackage) {
+  private static String getDescriptorInternal(final String type, final boolean defaultPackage) {
     if ("".equals(type)) {
       return type;
     }

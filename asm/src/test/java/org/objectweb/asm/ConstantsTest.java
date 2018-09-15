@@ -46,11 +46,10 @@ public class ConstantsTest {
   /**
    * Tests that the constants in Constants and Opcodes satisfy some basic constraints.
    *
-   * @throws IllegalAccessException
-   * @throws IllegalArgumentException
+   * @throws IllegalAccessException if a constant can't be accessed reflectively.
    */
   @Test
-  public void testBasicConstraints() throws IllegalArgumentException, IllegalAccessException {
+  public void testBasicConstraints() throws IllegalAccessException {
     Set<Integer> asmVersions = new HashSet<>();
     Set<Integer> classVersions = new HashSet<>();
     Set<Integer> newArrayTypes = new HashSet<>();

@@ -67,12 +67,12 @@ public class StaticInitMergerTest {
     methodVisitor.visitMaxs(0, 0);
     classVisitor.visitEnd();
 
-    Class<?> aClass =
+    Class<?> mergedClass =
         new ClassLoader() {
           public Class<?> defineClass(final String name, final byte[] classFile) {
             return defineClass(name, classFile, 0, classFile.length);
           }
         }.defineClass("A", classWriter.toByteArray());
-    assertEquals(aClass.getField("counter").getInt(aClass.newInstance()), 5);
+    assertEquals(mergedClass.getField("counter").getInt(mergedClass.newInstance()), 5);
   }
 }

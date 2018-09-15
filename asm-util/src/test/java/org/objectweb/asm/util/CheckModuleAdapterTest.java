@@ -113,7 +113,7 @@ public class CheckModuleAdapterTest {
   }
 
   @Test // see issue #317804
-  public void testRequireJavaBaseTransitiveOrStaticPhaseAreIgnoredUnderJVMS9() {
+  public void testRequireJavaBaseTransitiveOrStaticPhaseAreIgnoredUnderJvms9() {
     CheckClassAdapter adapter = new CheckClassAdapter(null, false);
     adapter.visit(Opcodes.V9, Opcodes.ACC_PUBLIC, "module-info", null, null, null);
     ModuleVisitor moduleVisitor = adapter.visitModule("org.objectweb.asm", 0, null);

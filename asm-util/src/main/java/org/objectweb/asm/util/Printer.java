@@ -297,7 +297,7 @@ public abstract class Printer {
   /**
    * A buffer that can be used to create strings.
    *
-   * @deprecated
+   * @deprecated use {@link #stringBuilder} instead.
    */
   @Deprecated protected final StringBuffer buf;
 
@@ -612,6 +612,7 @@ public abstract class Printer {
    *     boolean, short, char, int, long, float or double values (this is equivalent to using {@link
    *     #visitArray} and visiting each array element in turn, but is more convenient).
    */
+  // DontCheck(OverloadMethodsDeclarationOrder): overloads are semantically different.
   public abstract void visit(String name, Object value);
 
   /**
@@ -787,7 +788,7 @@ public abstract class Printer {
    * @param type the type of this stack map frame. Must be {@link Opcodes#F_NEW} for expanded
    *     frames, or {@link Opcodes#F_FULL}, {@link Opcodes#F_APPEND}, {@link Opcodes#F_CHOP}, {@link
    *     Opcodes#F_SAME} or {@link Opcodes#F_APPEND}, {@link Opcodes#F_SAME1} for compressed frames.
-   * @param nLocal the number of local variables in the visited frame.
+   * @param numLocal the number of local variables in the visited frame.
    * @param local the local variable types in this frame. This array must not be modified. Primitive
    *     types are represented by {@link Opcodes#TOP}, {@link Opcodes#INTEGER}, {@link
    *     Opcodes#FLOAT}, {@link Opcodes#LONG}, {@link Opcodes#DOUBLE}, {@link Opcodes#NULL} or
@@ -795,11 +796,12 @@ public abstract class Printer {
    *     Reference types are represented by String objects (representing internal names), and
    *     uninitialized types by Label objects (this label designates the NEW instruction that
    *     created this uninitialized value).
-   * @param nStack the number of operand stack elements in the visited frame.
+   * @param numStack the number of operand stack elements in the visited frame.
    * @param stack the operand stack types in this frame. This array must not be modified. Its
    *     content has the same format as the "local" array.
    */
-  public abstract void visitFrame(int type, int nLocal, Object[] local, int nStack, Object[] stack);
+  public abstract void visitFrame(
+      int type, int numLocal, Object[] local, int numStack, Object[] stack);
 
   /**
    * Method instruction. See {@link org.objectweb.asm.MethodVisitor#visitInsn}
@@ -874,7 +876,7 @@ public abstract class Printer {
    *     org.objectweb.asm.Type#getInternalName()}).
    * @param name the method's name.
    * @param descriptor the method's descriptor (see {@link org.objectweb.asm.Type}).
-   * @deprecated
+   * @deprecated use {@link #visitMethodInsn(int, String, String, String, boolean)} instead.
    */
   @Deprecated
   public void visitMethodInsn(
@@ -1165,7 +1167,7 @@ public abstract class Printer {
    *
    * @param stringBuffer the buffer where the string must be added.
    * @param string the string to be added.
-   * @deprecated
+   * @deprecated use {@link #appendString(StringBuilder, String)} instead.
    */
   @Deprecated
   public static void appendString(final StringBuffer stringBuffer, final String string) {

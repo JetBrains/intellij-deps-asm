@@ -77,12 +77,12 @@ import org.objectweb.asm.tree.analysis.SimpleVerifier;
  * assertTrue(stringWriter.toString().isEmpty());
  * </pre>
  *
- * The above code pass the transformed bytecode through a <code>CheckClassAdapter</code>, with data
- * flow checks enabled. These checks are not exactly the same as the JVM verification, but provide
- * some basic type checking for each method instruction. If the bytecode has errors, the output text
- * shows the erroneous instruction number, and a dump of the failed method with information about
- * the type of the local variables and of the operand stack slots for each instruction. For example
- * (format is - insnNumber locals : stack):
+ * <p>The above code pass the transformed bytecode through a <code>CheckClassAdapter</code>, with
+ * data flow checks enabled. These checks are not exactly the same as the JVM verification, but
+ * provide some basic type checking for each method instruction. If the bytecode has errors, the
+ * output text shows the erroneous instruction number, and a dump of the failed method with
+ * information about the type of the local variables and of the operand stack slots for each
+ * instruction. For example (format is - insnNumber locals : stack):
  *
  * <pre>
  * org.objectweb.asm.tree.analysis.AnalyzerException: Error at instruction 71: Expected I, but found .
@@ -99,9 +99,9 @@ import org.objectweb.asm.tree.analysis.SimpleVerifier;
  * ...
  * </pre>
  *
- * The above output shows that the local variable 1, loaded by the <code>ILOAD 1</code> instruction
- * at position <code>00071</code> is not initialized, whereas the local variable 2 is initialized
- * and contains an int value.
+ * <p>The above output shows that the local variable 1, loaded by the <code>ILOAD 1</code>
+ * instruction at position <code>00071</code> is not initialized, whereas the local variable 2 is
+ * initialized and contains an int value.
  *
  * @author Eric Bruneton
  */

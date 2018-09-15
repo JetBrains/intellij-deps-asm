@@ -111,12 +111,16 @@ public class MethodRemapper extends MethodVisitor {
   @Override
   public void visitFrame(
       final int type,
-      final int nLocal,
+      final int numLocal,
       final Object[] local,
-      final int nStack,
+      final int numStack,
       final Object[] stack) {
     super.visitFrame(
-        type, nLocal, remapFrameTypes(nLocal, local), nStack, remapFrameTypes(nStack, stack));
+        type,
+        numLocal,
+        remapFrameTypes(numLocal, local),
+        numStack,
+        remapFrameTypes(numStack, stack));
   }
 
   private Object[] remapFrameTypes(final int numTypes, final Object[] frameTypes) {
@@ -146,7 +150,11 @@ public class MethodRemapper extends MethodVisitor {
         remapper.mapDesc(descriptor));
   }
 
-  /** @deprecated */
+  /**
+   * Deprecated.
+   *
+   * @deprecated use {@link #visitMethodInsn(int, String, String, String, boolean)} instead.
+   */
   @Deprecated
   @Override
   public void visitMethodInsn(

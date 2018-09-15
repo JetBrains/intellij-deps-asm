@@ -41,6 +41,7 @@ import org.objectweb.asm.TypePath;
 public final class TraceFieldVisitor extends FieldVisitor {
 
   /** The printer to convert the visited field into text. */
+  // DontCheck(MemberName): can't be renamed (for backward binary compatibility).
   public final Printer p;
 
   /**

@@ -298,12 +298,18 @@ public final class TraceSignatureVisitor extends SignatureVisitor {
 
   // -----------------------------------------------------------------------------------------------
 
-  /** @return the Java generic type declaration corresponding to the visited signature. */
+  /**
+   * Returns the Java generic type declaration corresponding to the visited signature.
+   *
+   * @return the Java generic type declaration corresponding to the visited signature.
+   */
   public String getDeclaration() {
     return declaration.toString();
   }
 
   /**
+   * Returns the Java generic method return type declaration corresponding to the visited signature.
+   *
    * @return the Java generic method return type declaration corresponding to the visited signature.
    */
   public String getReturnType() {
@@ -311,6 +317,8 @@ public final class TraceSignatureVisitor extends SignatureVisitor {
   }
 
   /**
+   * Returns the Java generic exception types declaration corresponding to the visited signature.
+   *
    * @return the Java generic exception types declaration corresponding to the visited signature.
    */
   public String getExceptions() {

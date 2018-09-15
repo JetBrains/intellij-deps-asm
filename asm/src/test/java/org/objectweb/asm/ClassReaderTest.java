@@ -102,7 +102,7 @@ public class ClassReaderTest extends AsmTest implements Opcodes {
     assertNotNull(interfaces);
   }
 
-  /** Tests {@link ClassReader(byte[])} and the basic ClassReader accessors. */
+  /** Tests {@link ClassReader#ClassReader(byte[])} and the basic ClassReader accessors. */
   @ParameterizedTest
   @MethodSource(ALL_CLASSES_AND_ALL_APIS)
   public void testByteArrayConstructorAndAccessors(
@@ -118,7 +118,7 @@ public class ClassReaderTest extends AsmTest implements Opcodes {
     assertNotNull(classReader.getInterfaces());
   }
 
-  /** Tests {@link ClassReader(byte[],int,int)} and the basic ClassReader accessors. */
+  /** Tests {@link ClassReader#ClassReader(byte[],int,int)} and the basic ClassReader accessors. */
   @ParameterizedTest
   @MethodSource(ALL_CLASSES_AND_LATEST_API)
   public void testByteArrayConstructorWithOffsetAndAccessors(
@@ -152,7 +152,7 @@ public class ClassReaderTest extends AsmTest implements Opcodes {
         0);
   }
 
-  /** Tests {@link ClassReader(String)} and the basic ClassReader accessors. */
+  /** Tests {@link ClassReader#ClassReader(String)} and the basic ClassReader accessors. */
   @ParameterizedTest
   @MethodSource(ALL_CLASSES_AND_ALL_APIS)
   public void testNameConstructorAndAccessors(
@@ -168,7 +168,9 @@ public class ClassReaderTest extends AsmTest implements Opcodes {
     assertNotNull(classReader.getInterfaces());
   }
 
-  /** Tests {@link ClassReader(java.io.InputStream)} and the basic ClassReader accessors. */
+  /**
+   * Tests {@link ClassReader#ClassReader(java.io.InputStream)} and the basic ClassReader accessors.
+   */
   @ParameterizedTest
   @MethodSource(ALL_CLASSES_AND_ALL_APIS)
   public void testStreamConstructorAndAccessors(
@@ -187,7 +189,7 @@ public class ClassReaderTest extends AsmTest implements Opcodes {
     assertNotNull(classReader.getInterfaces());
   }
 
-  /** Tests {@link ClassReader(java.io.InputStream)} with an empty stream. */
+  /** Tests {@link ClassReader#ClassReader(java.io.InputStream)} with an empty stream. */
   @Test
   public void testStreamConstructorWithEmptyStream() throws IOException {
     InputStream inputStream =
@@ -434,12 +436,12 @@ public class ClassReaderTest extends AsmTest implements Opcodes {
         new ClassVisitor(Opcodes.ASM7) {
           @Override
           public void visit(
-              int version,
-              int access,
-              String name,
-              String signature,
-              String superName,
-              String[] interfaces) {
+              final int version,
+              final int access,
+              final String name,
+              final String signature,
+              final String superName,
+              final String[] interfaces) {
             assertTrue((version & Opcodes.V_PREVIEW) == Opcodes.V_PREVIEW);
           }
         },

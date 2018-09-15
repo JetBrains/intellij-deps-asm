@@ -108,16 +108,17 @@ import org.objectweb.asm.Opcodes;
  *
  * @author Rajendra Inamdar, Vishal Vishnoi
  */
+// DontCheck(AbbreviationAsWordInName): can't be renamed (for backward binary compatibility).
 public class SerialVersionUIDAdder extends ClassVisitor {
 
   /** The JVM name of static initializer methods. */
   private static final String CLINIT = "<clinit>";
 
   /** A flag that indicates if we need to compute SVUID. */
-  private boolean computeSVUID;
+  private boolean computeSvuid;
 
   /** Whether the class already has a SVUID. */
-  private boolean hasSVUID;
+  private boolean hasSvuid;
 
   /** The class access flags. */
   private int access;
@@ -180,9 +181,9 @@ public class SerialVersionUIDAdder extends ClassVisitor {
       final String[] interfaces) {
     // Get the class name, access flags, and interfaces information (step 1, 2 and 3) for SVUID
     // computation.
-    computeSVUID = (access & Opcodes.ACC_ENUM) == 0;
+    computeSvuid = (access & Opcodes.ACC_ENUM) == 0;
 
-    if (computeSVUID) {
+    if (computeSvuid) {
       this.name = name;
       this.access = access;
       this.interfaces = new String[interfaces.length];
@@ -204,7 +205,7 @@ public class SerialVersionUIDAdder extends ClassVisitor {
       final String[] exceptions) {
     // Get constructor and method information (step 5 and 7). Also determine if there is a class
     // initializer (step 6).
-    if (computeSVUID) {
+    if (computeSvuid) {
       if (CLINIT.equals(name)) {
         hasStaticInitializer = true;
       }
@@ -244,11 +245,11 @@ public class SerialVersionUIDAdder extends ClassVisitor {
       final Object value) {
     // Get the class field information for step 4 of the algorithm. Also determine if the class
     // already has a SVUID.
-    if (computeSVUID) {
+    if (computeSvuid) {
       if ("serialVersionUID".equals(name)) {
         // Since the class already has SVUID, we won't be computing it.
-        computeSVUID = false;
-        hasSVUID = true;
+        computeSvuid = false;
+        hasSvuid = true;
       }
       // Collect the non private fields. Only the ACC_PUBLIC, ACC_PRIVATE, ACC_PROTECTED,
       // ACC_STATIC, ACC_FINAL, ACC_VOLATILE, and ACC_TRANSIENT flags are used when computing
@@ -290,7 +291,7 @@ public class SerialVersionUIDAdder extends ClassVisitor {
   @Override
   public void visitEnd() {
     // Add the SVUID field to the class if it doesn't have one.
-    if (computeSVUID && !hasSVUID) {
+    if (computeSvuid && !hasSvuid) {
       try {
         addSVUID(computeSVUID());
       } catch (IOException e) {
@@ -311,8 +312,9 @@ public class SerialVersionUIDAdder extends ClassVisitor {
    *
    * @return true if the class already has a SVUID field.
    */
+  // DontCheck(AbbreviationAsWordInName): can't be renamed (for backward binary compatibility).
   public boolean hasSVUID() {
-    return hasSVUID;
+    return hasSvuid;
   }
 
   /**
@@ -320,6 +322,7 @@ public class SerialVersionUIDAdder extends ClassVisitor {
    *
    * @param svuid the serialVersionUID field value.
    */
+  // DontCheck(AbbreviationAsWordInName): can't be renamed (for backward binary compatibility).
   protected void addSVUID(final long svuid) {
     FieldVisitor fieldVisitor =
         super.visitField(
@@ -335,6 +338,7 @@ public class SerialVersionUIDAdder extends ClassVisitor {
    * @return the serial version UID.
    * @throws IOException if an I/O error occurs.
    */
+  // DontCheck(AbbreviationAsWordInName): can't be renamed (for backward binary compatibility).
   protected long computeSVUID() throws IOException {
     ByteArrayOutputStream byteArrayOutputStream = null;
     DataOutputStream dataOutputStream = null;
@@ -424,6 +428,7 @@ public class SerialVersionUIDAdder extends ClassVisitor {
    * @param value the value whose SHA message digest must be computed.
    * @return the SHA-1 message digest of the given value.
    */
+  // DontCheck(AbbreviationAsWordInName): can't be renamed (for backward binary compatibility).
   protected byte[] computeSHAdigest(final byte[] value) {
     try {
       return MessageDigest.getInstance("SHA").digest(value);

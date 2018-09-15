@@ -65,7 +65,7 @@ public class MethodInsnNode extends AbstractInsnNode {
    *     org.objectweb.asm.Type#getInternalName()}).
    * @param name the method's name.
    * @param descriptor the method's descriptor (see {@link org.objectweb.asm.Type}).
-   * @deprecated
+   * @deprecated use {@link #MethodInsnNode(int, String, String, String, boolean)} instead.
    */
   @Deprecated
   public MethodInsnNode(

@@ -167,6 +167,14 @@ project(':tools:retrofitter') {
 subprojects {
   apply plugin: 'com.github.sherter.google-java-format'
   googleJavaFormat.exclude 'src/resources/java/**/*'
+  
+  // Check the coding style with Checkstyle. Fail in case of error or warning.
+  apply plugin: 'checkstyle'
+  checkstyle.toolVersion = '8.12'
+  checkstyle.configFile = file("${rootDir}/tools/checkstyle.xml")
+  checkstyle.maxErrors = 0
+  checkstyle.maxWarnings = 0
+  
   compileTestJava {
     sourceCompatibility = '1.8'
     targetCompatibility = '1.8'

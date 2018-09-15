@@ -138,12 +138,20 @@ public abstract class AsmTest {
       this.name = name;
     }
 
-    /** @return the fully qualified name of this class. */
+    /**
+     * Returns the fully qualified name of this class.
+     *
+     * @return the fully qualified name of this class.
+     */
     public String getName() {
       return name;
     }
 
-    /** @return the internal name of this class. */
+    /**
+     * Returns the internal name of this class.
+     *
+     * @return the internal name of this class.
+     */
     public String getInternalName() {
       return name.endsWith(MODULE_INFO) ? MODULE_INFO : name.replace('.', '/');
     }
@@ -183,7 +191,11 @@ public abstract class AsmTest {
       return false;
     }
 
-    /** @return the content of this class. */
+    /**
+     * Returns the content of this class.
+     *
+     * @return the content of this class.
+     */
     public byte[] getBytes() {
       return AsmTest.getBytes(name);
     }
@@ -219,7 +231,11 @@ public abstract class AsmTest {
       this.name = name;
     }
 
-    /** @return the content of this class. */
+    /**
+     * Returns the content of this class.
+     *
+     * @return the content of this class.
+     */
     public byte[] getBytes() {
       return AsmTest.getBytes(name);
     }

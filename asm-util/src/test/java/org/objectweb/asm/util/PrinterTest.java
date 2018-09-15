@@ -44,55 +44,64 @@ public class PrinterTest {
 
   static class StubPrinter extends Printer {
 
-    StubPrinter(int api) {
+    StubPrinter(final int api) {
       super(api);
     }
 
     @Override
     public void visit(
-        int version,
-        int access,
-        String name,
-        String signature,
-        String superName,
-        String[] interfaces) {
+        final int version,
+        final int access,
+        final String name,
+        final String signature,
+        final String superName,
+        final String[] interfaces) {
       // Do nothing.
     }
 
     @Override
-    public void visitSource(String source, String debug) {
+    public void visitSource(final String source, final String debug) {
       // Do nothing.
     }
 
     @Override
-    public void visitOuterClass(String owner, String name, String descriptor) {
+    public void visitOuterClass(final String owner, final String name, final String descriptor) {
       // Do nothing.
     }
 
     @Override
-    public Printer visitClassAnnotation(String descriptor, boolean visible) {
+    public Printer visitClassAnnotation(final String descriptor, final boolean visible) {
       return null;
     }
 
     @Override
-    public void visitClassAttribute(Attribute attribute) {
+    public void visitClassAttribute(final Attribute attribute) {
       // Do nothing.
     }
 
     @Override
-    public void visitInnerClass(String name, String outerName, String innerName, int access) {
+    public void visitInnerClass(
+        final String name, final String outerName, final String innerName, final int access) {
       // Do nothing.
     }
 
     @Override
     public Printer visitField(
-        int access, String name, String descriptor, String signature, Object value) {
+        final int access,
+        final String name,
+        final String descriptor,
+        final String signature,
+        final Object value) {
       return null;
     }
 
     @Override
     public Printer visitMethod(
-        int access, String name, String descriptor, String signature, String[] exceptions) {
+        final int access,
+        final String name,
+        final String descriptor,
+        final String signature,
+        final String[] exceptions) {
       return null;
     }
 
@@ -101,23 +110,24 @@ public class PrinterTest {
       // Do nothing.
     }
 
+    // DontCheck(OverloadMethodsDeclarationOrder): overloads are semantically different.
     @Override
-    public void visit(String name, Object value) {
+    public void visit(final String name, final Object value) {
       // Do nothing.
     }
 
     @Override
-    public void visitEnum(String name, String descriptor, String value) {
+    public void visitEnum(final String name, final String descriptor, final String value) {
       // Do nothing.
     }
 
     @Override
-    public Printer visitAnnotation(String name, String descriptor) {
+    public Printer visitAnnotation(final String name, final String descriptor) {
       return null;
     }
 
     @Override
-    public Printer visitArray(String name) {
+    public Printer visitArray(final String name) {
       return null;
     }
 
@@ -127,12 +137,12 @@ public class PrinterTest {
     }
 
     @Override
-    public Printer visitFieldAnnotation(String descriptor, boolean visible) {
+    public Printer visitFieldAnnotation(final String descriptor, final boolean visible) {
       return null;
     }
 
     @Override
-    public void visitFieldAttribute(Attribute attribute) {
+    public void visitFieldAttribute(final Attribute attribute) {
       // Do nothing.
     }
 
@@ -147,17 +157,18 @@ public class PrinterTest {
     }
 
     @Override
-    public Printer visitMethodAnnotation(String descriptor, boolean visible) {
+    public Printer visitMethodAnnotation(final String descriptor, final boolean visible) {
       return null;
     }
 
     @Override
-    public Printer visitParameterAnnotation(int parameter, String descriptor, boolean visible) {
+    public Printer visitParameterAnnotation(
+        final int parameter, final String descriptor, final boolean visible) {
       return null;
     }
 
     @Override
-    public void visitMethodAttribute(Attribute attribute) {
+    public void visitMethodAttribute(final Attribute attribute) {
       // Do nothing.
     }
 
@@ -167,97 +178,110 @@ public class PrinterTest {
     }
 
     @Override
-    public void visitFrame(int type, int nLocal, Object[] local, int nStack, Object[] stack) {
+    public void visitFrame(
+        final int type,
+        final int numLocal,
+        final Object[] local,
+        final int numStack,
+        final Object[] stack) {
       // Do nothing.
     }
 
     @Override
-    public void visitInsn(int opcode) {
+    public void visitInsn(final int opcode) {
       // Do nothing.
     }
 
     @Override
-    public void visitIntInsn(int opcode, int operand) {
+    public void visitIntInsn(final int opcode, final int operand) {
       // Do nothing.
     }
 
     @Override
-    public void visitVarInsn(int opcode, int var) {
+    public void visitVarInsn(final int opcode, final int var) {
       // Do nothing.
     }
 
     @Override
-    public void visitTypeInsn(int opcode, String type) {
+    public void visitTypeInsn(final int opcode, final String type) {
       // Do nothing.
     }
 
     @Override
-    public void visitFieldInsn(int opcode, String owner, String name, String descriptor) {
+    public void visitFieldInsn(
+        final int opcode, final String owner, final String name, final String descriptor) {
       // Do nothing.
     }
 
     @Override
     public void visitInvokeDynamicInsn(
-        String name,
-        String descriptor,
-        Handle bootstrapMethodHandle,
-        Object... bootstrapMethodArguments) {
+        final String name,
+        final String descriptor,
+        final Handle bootstrapMethodHandle,
+        final Object... bootstrapMethodArguments) {
       // Do nothing.
     }
 
     @Override
-    public void visitJumpInsn(int opcode, Label label) {
+    public void visitJumpInsn(final int opcode, final Label label) {
       // Do nothing.
     }
 
     @Override
-    public void visitLabel(Label label) {
+    public void visitLabel(final Label label) {
       // Do nothing.
     }
 
     @Override
-    public void visitLdcInsn(Object value) {
+    public void visitLdcInsn(final Object value) {
       // Do nothing.
     }
 
     @Override
-    public void visitIincInsn(int var, int increment) {
+    public void visitIincInsn(final int var, final int increment) {
       // Do nothing.
     }
 
     @Override
-    public void visitTableSwitchInsn(int min, int max, Label dflt, Label... labels) {
+    public void visitTableSwitchInsn(
+        final int min, final int max, final Label dflt, final Label... labels) {
       // Do nothing.
     }
 
     @Override
-    public void visitLookupSwitchInsn(Label dflt, int[] keys, Label[] labels) {
+    public void visitLookupSwitchInsn(final Label dflt, final int[] keys, final Label[] labels) {
       // Do nothing.
     }
 
     @Override
-    public void visitMultiANewArrayInsn(String descriptor, int numDimensions) {
+    public void visitMultiANewArrayInsn(final String descriptor, final int numDimensions) {
       // Do nothing.
     }
 
     @Override
-    public void visitTryCatchBlock(Label start, Label end, Label handler, String type) {
+    public void visitTryCatchBlock(
+        final Label start, final Label end, final Label handler, final String type) {
       // Do nothing.
     }
 
     @Override
     public void visitLocalVariable(
-        String name, String descriptor, String signature, Label start, Label end, int index) {
+        final String name,
+        final String descriptor,
+        final String signature,
+        final Label start,
+        final Label end,
+        final int index) {
       // Do nothing.
     }
 
     @Override
-    public void visitLineNumber(int line, Label start) {
+    public void visitLineNumber(final int line, final Label start) {
       // Do nothing.
     }
 
     @Override
-    public void visitMaxs(int maxStack, int maxLocals) {
+    public void visitMaxs(final int maxStack, final int maxLocals) {
       // Do nothing.
     }
 

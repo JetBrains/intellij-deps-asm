@@ -31,7 +31,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.io.IOException;
-import java.io.Serializable;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -45,9 +44,9 @@ import org.objectweb.asm.test.AsmTest;
  *
  * @author Eric Bruneton
  */
-public class SerialVersionUIDAdderTest extends AsmTest {
+public class SerialVersionUidAdderTest extends AsmTest {
 
-  private long computeSerialVersionUID(final String className) throws IOException {
+  private long computeSerialVersionUid(final String className) throws IOException {
     long[] svuid = new long[1];
     new ClassReader(className)
         .accept(
@@ -70,32 +69,32 @@ public class SerialVersionUIDAdderTest extends AsmTest {
 
   @Test
   public void testClass() throws Throwable {
-    long actualSvuid = computeSerialVersionUID(SerialVersionClass.class.getName());
-    assertEquals(-6502746299017468033L, actualSvuid);
+    long actualSvuid = computeSerialVersionUid(SerialVersionClass.class.getName());
+    assertEquals(-5814053375729447190L, actualSvuid);
   }
 
   @Test
   public void testAnonymousInnerClass() throws Throwable {
     long actualSvuid =
-        computeSerialVersionUID(SerialVersionAnonymousInnerClass.class.getName() + "$1");
+        computeSerialVersionUid(SerialVersionAnonymousInnerClass.class.getName() + "$1");
     assertEquals(-1842070664294792585L, actualSvuid);
   }
 
   @Test
   public void testInterface() throws Throwable {
-    long actualSvuid = computeSerialVersionUID(SerialVersionInterface.class.getName());
-    assertEquals(-1271936742430161320L, actualSvuid);
+    long actualSvuid = computeSerialVersionUid(SerialVersionInterface.class.getName());
+    assertEquals(-3857402532274192875L, actualSvuid);
   }
 
   @Test
   public void testEmptyInterface() throws Throwable {
-    long actualSvuid = computeSerialVersionUID(SerialVersionEmptyInterface.class.getName());
+    long actualSvuid = computeSerialVersionUid(SerialVersionEmptyInterface.class.getName());
     assertEquals(8675733916152748550L, actualSvuid);
   }
 
   @Test
   public void testEnum() throws Throwable {
-    long actualSvuid = computeSerialVersionUID(SerialVersionEnum.class.getName());
+    long actualSvuid = computeSerialVersionUid(SerialVersionEnum.class.getName());
     assertEquals(0L, actualSvuid);
   }
 
@@ -105,7 +104,7 @@ public class SerialVersionUIDAdderTest extends AsmTest {
    */
   @ParameterizedTest
   @MethodSource(ALL_CLASSES_AND_LATEST_API)
-  public void testAddSerialVersionUID(
+  public void testAddSerialVersionUid(
       final PrecompiledClass classParameter, final Api apiParameter) {
     ClassReader classReader = new ClassReader(classParameter.getBytes());
     ClassWriter classWriter = new ClassWriter(0);
@@ -114,34 +113,4 @@ public class SerialVersionUIDAdderTest extends AsmTest {
       assertThatClass(classWriter.toByteArray()).contains("serialVersionUID");
     }
   }
-}
-
-class SerialVersionClass implements Serializable {
-
-  protected static final int aField = 32;
-
-  static {
-  }
-
-  public static Object[] aMethod() {
-    return null;
-  }
-}
-
-class SerialVersionAnonymousInnerClass implements Serializable {
-
-  public static final SerialVersionAnonymousInnerClass anonymousInnerClass =
-      new SerialVersionAnonymousInnerClass() {};
-}
-
-interface SerialVersionInterface extends Serializable {
-  void aMethod(Object[] args);
-}
-
-interface SerialVersionEmptyInterface extends Serializable {}
-
-enum SerialVersionEnum {
-  V1,
-  V2,
-  V3
 }

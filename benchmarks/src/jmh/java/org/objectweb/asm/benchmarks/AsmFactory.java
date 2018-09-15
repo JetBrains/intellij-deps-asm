@@ -27,16 +27,13 @@
 // THE POSSIBILITY OF SUCH DAMAGE.
 package org.objectweb.asm.benchmarks;
 
+import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassWriter;
-import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.tree.ClassNode;
 
-/**
- * A "Hello World!" class generator using the ASM library.
- *
- * @author Eric Bruneton
- */
-public class ASMGenerator extends Generator {
+/** A {@link Factory} implemented with the ASM library. */
+public class AsmFactory implements Factory {
 
   @Override
   public String getVersion() {
@@ -47,39 +44,25 @@ public class ASMGenerator extends Generator {
           return version;
         }
       } catch (NoSuchFieldException e) {
+        continue;
       }
     }
     return "";
   }
 
   @Override
-  public byte[] generateClass() {
-    ClassWriter classWriter = new ClassWriter(ClassWriter.COMPUTE_MAXS);
+  public Object newClass(final byte[] classFile) {
+    ClassReader classReader = new ClassReader(classFile);
+    ClassWriter classWriter = new ClassWriter(0);
+    classReader.accept(classWriter, 0);
+    return classWriter;
+  }
 
-    classWriter.visit(
-        Opcodes.V1_1, Opcodes.ACC_PUBLIC, "HelloWorld", null, "java/lang/Object", null);
-    classWriter.visitSource("HelloWorld.java", null);
-
-    MethodVisitor methodVisitor =
-        classWriter.visitMethod(Opcodes.ACC_PUBLIC, "<init>", "()V", null, null);
-    methodVisitor.visitVarInsn(Opcodes.ALOAD, 0);
-    methodVisitor.visitMethodInsn(Opcodes.INVOKESPECIAL, "java/lang/Object", "<init>", "()V");
-    methodVisitor.visitInsn(Opcodes.RETURN);
-    methodVisitor.visitMaxs(0, 0);
-    methodVisitor.visitEnd();
-
-    methodVisitor =
-        classWriter.visitMethod(
-            Opcodes.ACC_PUBLIC + Opcodes.ACC_STATIC, "main", "([Ljava/lang/String;)V", null, null);
-    methodVisitor.visitFieldInsn(
-        Opcodes.GETSTATIC, "java/lang/System", "out", "Ljava/io/PrintStream;");
-    methodVisitor.visitLdcInsn("Hello world!");
-    methodVisitor.visitMethodInsn(
-        Opcodes.INVOKEVIRTUAL, "java/io/PrintStream", "println", "(Ljava/lang/String;)V");
-    methodVisitor.visitInsn(Opcodes.RETURN);
-    methodVisitor.visitMaxs(0, 0);
-    methodVisitor.visitEnd();
-
-    return classWriter.toByteArray();
+  @Override
+  public Object newClassNode(final byte[] classFile) {
+    ClassReader classReader = new ClassReader(classFile);
+    ClassNode classNode = new ClassNode();
+    classReader.accept(classNode, 0);
+    return classNode;
   }
 }

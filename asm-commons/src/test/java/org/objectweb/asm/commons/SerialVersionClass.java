@@ -25,37 +25,23 @@
 // CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
 // THE POSSIBILITY OF SUCH DAMAGE.
-package org.objectweb.asm.benchmarks;
+package org.objectweb.asm.commons;
 
-import java.io.ByteArrayInputStream;
-import serp.bytecode.BCClass;
-import serp.bytecode.BCMethod;
-import serp.bytecode.Code;
-import serp.bytecode.Project;
+import java.io.Serializable;
 
 /**
- * An {@link Adapter} implemented with the SERP library.
+ * Test case for SerialVersionUidAddTest.
  *
  * @author Eric Bruneton
  */
-public class SERPAdapter extends Adapter {
+class SerialVersionClass implements Serializable {
 
-  @Override
-  public byte[] readAndWrite(final byte[] classFile, final boolean computeMaxs) {
-    BCClass bcClass = new Project().loadClass(new ByteArrayInputStream(classFile));
-    bcClass.getDeclaredFields();
-    for (BCMethod bcMethod : bcClass.getDeclaredMethods()) {
-      Code code = bcMethod.getCode(false);
-      if (code != null) {
-        while (code.hasNext()) {
-          code.next();
-        }
-        if (computeMaxs) {
-          code.calculateMaxStack();
-          code.calculateMaxLocals();
-        }
-      }
-    }
-    return bcClass.toByteArray();
+  protected static final int someField = 32;
+
+  static {
+  }
+
+  public static Object[] someMethod() {
+    return null;
   }
 }

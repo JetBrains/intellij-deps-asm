@@ -252,7 +252,7 @@ public class ClassRemapperTest extends AsmTest {
     }
 
     @Override
-    public Object mapValue(Object value) {
+    public Object mapValue(final Object value) {
       if (value instanceof Boolean
           || value instanceof Byte
           || value instanceof Short

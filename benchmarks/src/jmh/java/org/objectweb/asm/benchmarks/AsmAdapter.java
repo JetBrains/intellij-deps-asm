@@ -45,7 +45,7 @@ import org.objectweb.asm.tree.ClassNode;
  *
  * @author Eric Bruneton
  */
-public class ASMAdapter extends Adapter {
+public class AsmAdapter extends Adapter {
 
   private int asmApi;
 
@@ -154,7 +154,7 @@ public class ASMAdapter extends Adapter {
           }
         };
 
-    public CountingVisitor(int api) {
+    public CountingVisitor(final int api) {
       super(api);
     }
 
@@ -286,9 +286,9 @@ public class ASMAdapter extends Adapter {
         @Override
         public void visitFrame(
             final int type,
-            final int nLocal,
+            final int numLocal,
             final Object[] local,
-            final int nStack,
+            final int numStack,
             final Object[] stack) {
           ++count;
         }

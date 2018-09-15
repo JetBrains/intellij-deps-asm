@@ -508,9 +508,15 @@ public class SimpleVerifierTest extends AsmTest implements Opcodes {
       @Override
       protected Class<?> getClass(final Type type) {
         // Return dummy classes, to make sure isAssignable in test() does not rely on them.
-        if (type == baseType) return int.class;
-        if (type == superType) return float.class;
-        if (type == interfaceType) return double.class;
+        if (type == baseType) {
+          return int.class;
+        }
+        if (type == superType) {
+          return float.class;
+        }
+        if (type == interfaceType) {
+          return double.class;
+        }
         return super.getClass(type);
       }
     }.test();
@@ -536,7 +542,7 @@ public class SimpleVerifierTest extends AsmTest implements Opcodes {
    * algorithm, due to multiple interface inheritance), but the subtyping check is relaxed if the
    * super type is an interface type.
    *
-   * @throws AnalyzerException
+   * @throws AnalyzerException if the test class can't be analyzed.
    */
   @Test
   public void testIsAssignableFromInterface() throws AnalyzerException {
@@ -565,7 +571,7 @@ public class SimpleVerifierTest extends AsmTest implements Opcodes {
   /**
    * Tests that the precompiled classes can be successfully analyzed with a SimpleVerifier.
    *
-   * @throws AnalyzerException
+   * @throws AnalyzerException if the test class can't be analyzed.
    */
   @ParameterizedTest
   @MethodSource(ALL_CLASSES_AND_LATEST_API)

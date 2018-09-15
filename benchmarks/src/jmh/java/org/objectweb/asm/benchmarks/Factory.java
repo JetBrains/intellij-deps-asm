@@ -34,16 +34,24 @@ package org.objectweb.asm.benchmarks;
  */
 public interface Factory {
 
-  /** @return the version of this factory. */
+  /**
+   * Returns the version of this factory.
+   *
+   * @return the version of this factory.
+   */
   String getVersion();
 
   /**
+   * Returns a "high level" representation of the given class.
+   *
    * @param classFile a JVMS ClassFile structure
    * @return a "high level" representation of the given class.
    */
   Object newClass(final byte[] classFile);
 
   /**
+   * Returns a tree structure representation of the given class.
+   *
    * @param classFile a JVMS ClassFile structure
    * @return a tree structure representation of the given class.
    */

@@ -27,26 +27,35 @@
 // THE POSSIBILITY OF SUCH DAMAGE.
 package org.objectweb.asm.benchmarks;
 
+import java.io.ByteArrayInputStream;
+import serp.bytecode.BCClass;
+import serp.bytecode.BCMethod;
+import serp.bytecode.Code;
+import serp.bytecode.Project;
+
 /**
- * An abstract "Hello World!" class generator.
+ * An {@link Adapter} implemented with the SERP library.
  *
  * @author Eric Bruneton
  */
-public abstract class Generator {
+public class SerpAdapter extends Adapter {
 
-  /**
-   * Returns the version of this generator.
-   *
-   * @return the version of this generator, or an empty string if there is no version.
-   */
-  public String getVersion() {
-    return "";
+  @Override
+  public byte[] readAndWrite(final byte[] classFile, final boolean computeMaxs) {
+    BCClass bcClass = new Project().loadClass(new ByteArrayInputStream(classFile));
+    bcClass.getDeclaredFields();
+    for (BCMethod bcMethod : bcClass.getDeclaredMethods()) {
+      Code code = bcMethod.getCode(false);
+      if (code != null) {
+        while (code.hasNext()) {
+          code.next();
+        }
+        if (computeMaxs) {
+          code.calculateMaxStack();
+          code.calculateMaxLocals();
+        }
+      }
+    }
+    return bcClass.toByteArray();
   }
-
-  /**
-   * Generates a "Hello World!" class.
-   *
-   * @return the JVMS ClassFile structure of the generated class.
-   */
-  public abstract byte[] generateClass();
 }

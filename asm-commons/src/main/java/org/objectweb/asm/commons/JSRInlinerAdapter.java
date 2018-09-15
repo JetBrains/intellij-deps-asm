@@ -55,6 +55,7 @@ import org.objectweb.asm.tree.TryCatchBlockNode;
  *
  * @author Niko Matsakis
  */
+// DontCheck(AbbreviationAsWordInName): can't be renamed (for backward binary compatibility).
 public class JSRInlinerAdapter extends MethodNode implements Opcodes {
 
   /**
@@ -228,8 +229,6 @@ public class JSRInlinerAdapter extends MethodNode implements Opcodes {
     // method, so we must handle this case here (we could instead detect whether execution can
     // return or not from a JSR, but this is more complicated).
     while (currentInsnIndex < instructions.size()) {
-      AbstractInsnNode currentInsnNode = instructions.get(currentInsnIndex);
-
       // Visit each instruction at most once.
       if (subroutineInsns.get(currentInsnIndex)) {
         return;
@@ -242,6 +241,7 @@ public class JSRInlinerAdapter extends MethodNode implements Opcodes {
       }
       visitedInsns.set(currentInsnIndex);
 
+      AbstractInsnNode currentInsnNode = instructions.get(currentInsnIndex);
       if (currentInsnNode.getType() == AbstractInsnNode.JUMP_INSN
           && currentInsnNode.getOpcode() != JSR) {
         // Don't follow JSR instructions in the control flow graph.

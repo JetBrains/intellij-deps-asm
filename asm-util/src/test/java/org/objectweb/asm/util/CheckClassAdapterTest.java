@@ -312,7 +312,7 @@ public class CheckClassAdapterTest extends AsmTest implements Opcodes {
     assertThatClass(classWriter.toByteArray()).isEqualTo(classFile);
   }
 
-  /** Tests that {@link CheckClassAdapter.verify()} succeeds on all precompiled classes. */
+  /** Tests that {@link CheckClassAdapter#verify()} succeeds on all precompiled classes. */
   @ParameterizedTest
   @MethodSource(ALL_CLASSES_AND_LATEST_API)
   public void testCheckClassAdapter_verify(

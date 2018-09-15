@@ -27,39 +27,39 @@
 // THE POSSIBILITY OF SUCH DAMAGE.
 package org.objectweb.asm.benchmarks;
 
-import org.aspectj.apache.bcel.Constants;
-import org.aspectj.apache.bcel.classfile.ConstantPool;
-import org.aspectj.apache.bcel.generic.ArrayType;
-import org.aspectj.apache.bcel.generic.ClassGen;
-import org.aspectj.apache.bcel.generic.InstructionFactory;
-import org.aspectj.apache.bcel.generic.InstructionList;
-import org.aspectj.apache.bcel.generic.MethodGen;
-import org.aspectj.apache.bcel.generic.Type;
+import org.apache.bcel.Const;
+import org.apache.bcel.generic.ArrayType;
+import org.apache.bcel.generic.ClassGen;
+import org.apache.bcel.generic.ConstantPoolGen;
+import org.apache.bcel.generic.InstructionFactory;
+import org.apache.bcel.generic.InstructionList;
+import org.apache.bcel.generic.MethodGen;
+import org.apache.bcel.generic.PUSH;
+import org.apache.bcel.generic.Type;
 
 /**
- * A "Hello World!" class generator using the AspectJ BCEL library.
+ * A "Hello World!" class generator using the BCEL library.
  *
  * @author Eric Bruneton
  */
-public class AspectJBCELGenerator extends Generator {
+public class BcelGenerator extends Generator {
 
   private static final Type PRINT_STREAM_TYPE = Type.getType("Ljava/io/PrintStream;");
 
   @Override
   public byte[] generateClass() {
     ClassGen classGen =
-        new ClassGen(
-            "HelloWorld", "java/lang/Object", "HelloWorld.java", Constants.ACC_PUBLIC, null);
+        new ClassGen("HelloWorld", "java/lang/Object", "HelloWorld.java", Const.ACC_PUBLIC, null);
 
-    classGen.addEmptyConstructor(Constants.ACC_PUBLIC);
+    classGen.addEmptyConstructor(Const.ACC_PUBLIC);
 
-    ConstantPool constantPoolGen = classGen.getConstantPool();
+    ConstantPoolGen constantPoolGen = classGen.getConstantPool();
     InstructionList insnList = new InstructionList();
     InstructionFactory insnFactory = new InstructionFactory(classGen);
 
     MethodGen methodGen =
         new MethodGen(
-            Constants.ACC_STATIC | Constants.ACC_PUBLIC,
+            Const.ACC_STATIC | Const.ACC_PUBLIC,
             Type.VOID,
             new Type[] {new ArrayType(Type.STRING, 1)},
             null,
@@ -68,14 +68,14 @@ public class AspectJBCELGenerator extends Generator {
             insnList,
             constantPoolGen);
     insnList.append(insnFactory.createGetStatic("java/lang/System", "out", PRINT_STREAM_TYPE));
-    insnList.append(insnFactory.createConstant("Hello world!"));
+    insnList.append(new PUSH(constantPoolGen, "Hello world!"));
     insnList.append(
         insnFactory.createInvoke(
             "java.io.PrintStream",
             "println",
             Type.VOID,
             new Type[] {Type.STRING},
-            Constants.INVOKESPECIAL));
+            Const.INVOKESPECIAL));
 
     methodGen.setMaxStack();
     classGen.addMethod(methodGen.getMethod());

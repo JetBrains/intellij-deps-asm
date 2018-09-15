@@ -65,6 +65,8 @@ import org.openjdk.jmh.results.ScalarResult;
  */
 public class MemoryProfiler implements InternalProfiler {
 
+  private static final int MAX_WAIT_MSEC = 20 * 1000;
+
   private static Object[] references;
   private static int referenceCount;
   private static long usedMemoryBeforeIteration;
@@ -120,7 +122,6 @@ public class MemoryProfiler implements InternalProfiler {
    * @see org.openjdk.jmh.runner.BaseRunner#runSystemGC()
    */
   private static long getUsedMemory() {
-    final int MAX_WAIT_MSEC = 20 * 1000;
     List<GarbageCollectorMXBean> gcBeans = new ArrayList<GarbageCollectorMXBean>();
     for (GarbageCollectorMXBean gcBean : ManagementFactory.getGarbageCollectorMXBeans()) {
       long count = gcBean.getCollectionCount();

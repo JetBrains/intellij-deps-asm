@@ -38,6 +38,7 @@ import org.objectweb.asm.Opcodes;
 public final class TraceModuleVisitor extends ModuleVisitor {
 
   /** The printer to convert the visited module into text. */
+  // DontCheck(MemberName): can't be renamed (for backward binary compatibility).
   public final Printer p;
 
   /**

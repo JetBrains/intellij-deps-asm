@@ -48,11 +48,11 @@ import org.openjdk.jmh.annotations.Warmup;
 @State(Scope.Thread)
 public class GeneratorBenchmark extends AbstractBenchmark {
 
-  private Generator asm4_0;
-  private Generator asm5_0;
-  private Generator asm6_0;
-  private Generator asm6_1;
-  private Generator asm6_2;
+  private Generator asm4dot0;
+  private Generator asm5dot0;
+  private Generator asm6dot0;
+  private Generator asm6dot1;
+  private Generator asm6dot2;
   private Generator asmCurrent;
   private Generator aspectJBcel;
   private Generator bcel;
@@ -64,7 +64,7 @@ public class GeneratorBenchmark extends AbstractBenchmark {
   private Generator mozillaClassFile;
 
   public GeneratorBenchmark() {
-    super("org.objectweb.asm.benchmarks.ASMGenerator");
+    super("org.objectweb.asm.benchmarks.AsmGenerator");
   }
 
   /**
@@ -74,14 +74,14 @@ public class GeneratorBenchmark extends AbstractBenchmark {
    */
   @Setup
   public void prepare() throws Exception {
-    asm4_0 = (Generator) new AsmBenchmarkFactory(AsmVersion.V4_0).newAsmBenchmark();
-    asm5_0 = (Generator) new AsmBenchmarkFactory(AsmVersion.V5_0).newAsmBenchmark();
-    asm6_0 = (Generator) new AsmBenchmarkFactory(AsmVersion.V6_0).newAsmBenchmark();
-    asm6_1 = (Generator) new AsmBenchmarkFactory(AsmVersion.V6_1).newAsmBenchmark();
-    asm6_2 = (Generator) new AsmBenchmarkFactory(AsmVersion.V6_2).newAsmBenchmark();
+    asm4dot0 = (Generator) new AsmBenchmarkFactory(AsmVersion.V4_0).newAsmBenchmark();
+    asm5dot0 = (Generator) new AsmBenchmarkFactory(AsmVersion.V5_0).newAsmBenchmark();
+    asm6dot0 = (Generator) new AsmBenchmarkFactory(AsmVersion.V6_0).newAsmBenchmark();
+    asm6dot1 = (Generator) new AsmBenchmarkFactory(AsmVersion.V6_1).newAsmBenchmark();
+    asm6dot2 = (Generator) new AsmBenchmarkFactory(AsmVersion.V6_2).newAsmBenchmark();
     asmCurrent = (Generator) new AsmBenchmarkFactory(AsmVersion.V_CURRENT).newAsmBenchmark();
-    aspectJBcel = new AspectJBCELGenerator();
-    bcel = new BCELGenerator();
+    aspectJBcel = new AspectjBcelGenerator();
+    bcel = new BcelGenerator();
     cojen = new CojenGenerator();
     csgBytecode = new CsgBytecodeGenerator();
     gnuByteCode = new GnuByteCodeGenerator();
@@ -90,11 +90,11 @@ public class GeneratorBenchmark extends AbstractBenchmark {
     mozillaClassFile = new MozillaClassFileGenerator();
 
     // Check that the correct versions of ASM have been loaded.
-    if (!asm4_0.getVersion().equals("ASM4")
-        || !asm5_0.getVersion().equals("ASM5")
-        || !asm6_0.getVersion().equals("ASM6")
-        || !asm6_1.getVersion().equals("ASM6")
-        || !asm6_2.getVersion().equals("ASM6")
+    if (!asm4dot0.getVersion().equals("ASM4")
+        || !asm5dot0.getVersion().equals("ASM5")
+        || !asm6dot0.getVersion().equals("ASM6")
+        || !asm6dot1.getVersion().equals("ASM6")
+        || !asm6dot2.getVersion().equals("ASM6")
         || !asmCurrent.getVersion().equals("ASM6")) {
       throw new IllegalStateException();
     }
@@ -102,27 +102,27 @@ public class GeneratorBenchmark extends AbstractBenchmark {
 
   @Benchmark
   public byte[] asm4_0() {
-    return asm4_0.generateClass();
+    return asm4dot0.generateClass();
   }
 
   @Benchmark
   public byte[] asm5_0() {
-    return asm5_0.generateClass();
+    return asm5dot0.generateClass();
   }
 
   @Benchmark
   public byte[] asm6_0() {
-    return asm6_0.generateClass();
+    return asm6dot0.generateClass();
   }
 
   @Benchmark
   public byte[] asm6_1() {
-    return asm6_1.generateClass();
+    return asm6dot1.generateClass();
   }
 
   @Benchmark
   public byte[] asm6_2() {
-    return asm6_2.generateClass();
+    return asm6dot2.generateClass();
   }
 
   @Benchmark

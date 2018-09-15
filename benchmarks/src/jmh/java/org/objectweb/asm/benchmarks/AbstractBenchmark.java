@@ -44,7 +44,10 @@ import java.util.ArrayList;
  */
 public abstract class AbstractBenchmark {
 
-  // The directories where the different versions of ASM can be found.
+  // The root directory of the ASM project.
+  private static final String ROOT_DIR = System.getProperty("user.dir");
+
+  // The sub directories or ROOT_DIR where the different versions of ASM can be found.
   private static final String BUILD_DIR = "/benchmarks/build/";
   private static final String ASM4_0 = BUILD_DIR + "asm4.0/";
   private static final String ASM5_0 = BUILD_DIR + "asm5.0.1/";
@@ -55,7 +58,6 @@ public abstract class AbstractBenchmark {
   private static final String ASM_TREE_CURRENT = "/asm-tree/build/classes/java/main/";
 
   private final String asmBenchmarkClass;
-  private final String userDir;
 
   /** Some class files that can be used as input data for benchmarks. */
   protected ArrayList<byte[]> classFiles;
@@ -98,14 +100,13 @@ public abstract class AbstractBenchmark {
    */
   protected AbstractBenchmark(final String asmBenchmarkClass) {
     this.asmBenchmarkClass = asmBenchmarkClass;
-    this.userDir = System.getProperty("user.dir");
   }
 
   /** Creates and populates {@link #classFiles} with some class files read from disk. */
   protected void prepareClasses() throws IOException {
     classFiles = new ArrayList<byte[]>();
-    findClasses(new File(userDir + ASM_CORE_CURRENT), classFiles);
-    findClasses(new File(userDir + ASM_TREE_CURRENT), classFiles);
+    findClasses(new File(ROOT_DIR + ASM_CORE_CURRENT), classFiles);
+    findClasses(new File(ROOT_DIR + ASM_TREE_CURRENT), classFiles);
   }
 
   private static void findClasses(final File directory, final ArrayList<byte[]> classFiles)
@@ -145,20 +146,20 @@ public abstract class AbstractBenchmark {
      * Constructs an {@link AsmBenchmarkFactory}.
      *
      * @param asmVersion the ASM version to use.
-     * @throws MalformedURLException
+     * @throws MalformedURLException if the ROOT_DIR path is malformed.
      */
     AsmBenchmarkFactory(final AsmVersion asmVersion) throws MalformedURLException {
-      super(asmVersion.getUrls("file://" + userDir));
+      super(asmVersion.getUrls("file://" + ROOT_DIR));
     }
 
     /**
+     * Returns a new instance of the class specified in the benchmark's constructor.
+     *
      * @return a new instance of the class specified in the benchmark's constructor.
-     * @throws ClassNotFoundException
-     * @throws IllegalAccessException
-     * @throws InstantiationException
+     * @throws ClassNotFoundException if the class can't be found.
+     * @throws ReflectiveOperationException if the class can't be instantiated.
      */
-    public Object newAsmBenchmark()
-        throws InstantiationException, IllegalAccessException, ClassNotFoundException {
+    public Object newAsmBenchmark() throws ClassNotFoundException, ReflectiveOperationException {
       return loadClass(asmBenchmarkClass).newInstance();
     }
 

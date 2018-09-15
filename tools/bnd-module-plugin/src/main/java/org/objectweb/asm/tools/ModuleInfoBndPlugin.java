@@ -49,7 +49,8 @@ public class ModuleInfoBndPlugin implements AnalyzerPlugin {
   private static final String MODULE_REQUIRES = "Module-Requires";
   private static final String MODULE_EXPORTS = "Module-Exports";
 
-  public boolean analyzeJar(Analyzer analyzer) throws Exception {
+  @Override
+  public boolean analyzeJar(final Analyzer analyzer) throws Exception {
     ClassWriter classWriter = new ClassWriter(0);
     classWriter.visit(Opcodes.V9, Opcodes.ACC_MODULE, "module-info", null, null, null);
     String moduleName =

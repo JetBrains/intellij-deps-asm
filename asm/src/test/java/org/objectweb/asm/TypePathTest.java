@@ -39,7 +39,7 @@ import org.junit.jupiter.api.Test;
  */
 public class TypePathTest {
 
-  /** Tests that {@link TypePath.getLength()} returns correct values. */
+  /** Tests that {@link TypePath#getLength()} returns correct values. */
   @Test
   public void testGetLength() {
     assertEquals(5, TypePath.fromString("[.[*0").getLength());
@@ -48,7 +48,7 @@ public class TypePathTest {
     assertEquals(2, TypePath.fromString("1;0;").getLength());
   }
 
-  /** Tests that {@link TypePath.getStep(int)} returns correct values. */
+  /** Tests that {@link TypePath#getStep(int)} returns correct values. */
   @Test
   public void testGetStep() {
     TypePath typePath = TypePath.fromString("[.[*7");

@@ -78,24 +78,33 @@ public class TraceClassVisitorTest extends AsmTest {
         new ClassVisitor(apiParameter.value()) {
 
           @Override
-          public ModuleVisitor visitModule(String name, int access, String version) {
+          public ModuleVisitor visitModule(
+              final String name, final int access, final String version) {
             return new TraceModuleVisitor(new Textifier());
           }
 
           @Override
-          public AnnotationVisitor visitAnnotation(String descriptor, boolean visible) {
+          public AnnotationVisitor visitAnnotation(final String descriptor, final boolean visible) {
             return new TraceAnnotationVisitor(new Textifier());
           }
 
           @Override
           public FieldVisitor visitField(
-              int access, String name, String descriptor, String signature, Object value) {
+              final int access,
+              final String name,
+              final String descriptor,
+              final String signature,
+              final Object value) {
             return new TraceFieldVisitor(new Textifier());
           }
 
           @Override
           public MethodVisitor visitMethod(
-              int access, String name, String descriptor, String signature, String[] exceptions) {
+              final int access,
+              final String name,
+              final String descriptor,
+              final String signature,
+              final String[] exceptions) {
             return new TraceMethodVisitor(new Textifier());
           }
         },

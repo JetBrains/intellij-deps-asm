@@ -50,7 +50,7 @@ import org.objectweb.asm.Type;
  * }
  * </pre>
  *
- * can be generated as follows:
+ * <p>can be generated as follows:
  *
  * <pre>
  * ClassWriter cw = new ClassWriter(0);

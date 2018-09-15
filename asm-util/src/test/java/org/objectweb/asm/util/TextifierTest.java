@@ -104,12 +104,12 @@ public class TextifierTest extends AsmTest {
   /**
    * Tests that the text produced with a Textifier is equal to the expected text.
    *
-   * @throws Exception
+   * @throws IOException if the expected text can't be read from disk.
    */
   @ParameterizedTest
   @MethodSource(ALL_CLASSES_AND_LATEST_API)
   public void testTextify(final PrecompiledClass classParameter, final Api apiParameter)
-      throws Exception {
+      throws IOException {
     byte[] classFile = classParameter.getBytes();
     if (classFile.length >= 32768) {
       return;

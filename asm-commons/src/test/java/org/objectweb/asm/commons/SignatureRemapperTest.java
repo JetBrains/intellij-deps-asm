@@ -60,7 +60,7 @@ public class SignatureRemapperTest {
   }
 
   @Test
-  public void testRemappingChildOnlyNestedClassExtends_IdentifiersWith$() {
+  public void testRemappingChildOnlyNestedClassExtends_IdentifiersWithDollarSign() {
     Remapper remapper =
         new SimpleRemapper(Collections.singletonMap("Outer$Inner$1", "Outer$RenamedInner$1"));
     assertEquals(

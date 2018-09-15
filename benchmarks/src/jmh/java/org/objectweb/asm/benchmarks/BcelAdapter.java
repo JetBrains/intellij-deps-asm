@@ -27,60 +27,54 @@
 // THE POSSIBILITY OF SUCH DAMAGE.
 package org.objectweb.asm.benchmarks;
 
-import org.apache.bcel.Constants;
-import org.apache.bcel.generic.ArrayType;
+import java.io.ByteArrayInputStream;
+import org.apache.bcel.classfile.ClassParser;
+import org.apache.bcel.classfile.JavaClass;
+import org.apache.bcel.classfile.Method;
 import org.apache.bcel.generic.ClassGen;
 import org.apache.bcel.generic.ConstantPoolGen;
-import org.apache.bcel.generic.InstructionFactory;
+import org.apache.bcel.generic.InstructionHandle;
 import org.apache.bcel.generic.InstructionList;
 import org.apache.bcel.generic.MethodGen;
-import org.apache.bcel.generic.PUSH;
-import org.apache.bcel.generic.Type;
 
 /**
- * A "Hello World!" class generator using the BCEL library.
+ * An {@link Adapter} implemented with the BCEL library.
  *
  * @author Eric Bruneton
  */
-public class BCELGenerator extends Generator {
-
-  private static final Type PRINT_STREAM_TYPE = Type.getType("Ljava/io/PrintStream;");
+public class BcelAdapter extends Adapter {
 
   @Override
-  public byte[] generateClass() {
-    ClassGen classGen =
-        new ClassGen(
-            "HelloWorld", "java/lang/Object", "HelloWorld.java", Constants.ACC_PUBLIC, null);
-
-    classGen.addEmptyConstructor(Constants.ACC_PUBLIC);
-
+  public byte[] readAndWrite(final byte[] classFile, final boolean computeMaxs) {
+    JavaClass javaClass;
+    try {
+      javaClass = new ClassParser(new ByteArrayInputStream(classFile), "class-name").parse();
+    } catch (Exception e) {
+      throw new IllegalArgumentException(e);
+    }
+    ClassGen classGen = new ClassGen(javaClass);
     ConstantPoolGen constantPoolGen = classGen.getConstantPool();
-    InstructionList insnList = new InstructionList();
-    InstructionFactory insnFactory = new InstructionFactory(classGen);
-
-    MethodGen methodGen =
-        new MethodGen(
-            Constants.ACC_STATIC | Constants.ACC_PUBLIC,
-            Type.VOID,
-            new Type[] {new ArrayType(Type.STRING, 1)},
-            null,
-            "main",
-            "HelloWorld",
-            insnList,
-            constantPoolGen);
-    insnList.append(insnFactory.createGetStatic("java/lang/System", "out", PRINT_STREAM_TYPE));
-    insnList.append(new PUSH(constantPoolGen, "Hello world!"));
-    insnList.append(
-        insnFactory.createInvoke(
-            "java.io.PrintStream",
-            "println",
-            Type.VOID,
-            new Type[] {Type.STRING},
-            Constants.INVOKESPECIAL));
-
-    methodGen.setMaxStack();
-    classGen.addMethod(methodGen.getMethod());
-
+    for (Method method : classGen.getMethods()) {
+      MethodGen methodGen = new MethodGen(method, classGen.getClassName(), constantPoolGen);
+      if (method.getLocalVariableTable() == null) {
+        methodGen.removeLocalVariables();
+      }
+      if (method.getLineNumberTable() == null) {
+        methodGen.removeLineNumbers();
+      }
+      InstructionList insnList = methodGen.getInstructionList();
+      if (insnList != null) {
+        InstructionHandle insnHandle = insnList.getStart();
+        while (insnHandle != null) {
+          insnHandle = insnHandle.getNext();
+        }
+        if (computeMaxs) {
+          methodGen.setMaxStack();
+          methodGen.setMaxLocals();
+        }
+      }
+      classGen.replaceMethod(method, methodGen.getMethod());
+    }
     return classGen.getJavaClass().getBytes();
   }
 }

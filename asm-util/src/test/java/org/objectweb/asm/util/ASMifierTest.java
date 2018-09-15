@@ -39,6 +39,7 @@ import java.io.StringWriter;
 import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
+import org.codehaus.commons.compiler.CompileException;
 import org.codehaus.janino.ClassLoaderIClassLoader;
 import org.codehaus.janino.IClassLoader;
 import org.codehaus.janino.Parser;
@@ -58,6 +59,7 @@ import org.objectweb.asm.test.AsmTest;
  * @author Eugene Kuleshov
  * @author Eric Bruneton
  */
+// DontCheck(AbbreviationAsWordInName)
 public class ASMifierTest extends AsmTest {
 
   private static final IClassLoader ICLASS_LOADER =
@@ -116,14 +118,19 @@ public class ASMifierTest extends AsmTest {
   /**
    * Tests that the code produced with an ASMifier compiles and generates the original class.
    *
-   * @throws Exception
+   * @throws IOException if the ASMified class can't be read.
+   * @throws CompileException if the ASMified class can't be compiled.
+   * @throws ReflectiveOperationException if the ASMified class can't be run.
    */
   @ParameterizedTest
   @MethodSource(ALL_CLASSES_AND_LATEST_API)
   public void testAsmifyCompileAndExecute(
-      final PrecompiledClass classParameter, final Api apiParameter) throws Exception {
+      final PrecompiledClass classParameter, final Api apiParameter)
+      throws IOException, CompileException, ReflectiveOperationException {
     byte[] classFile = classParameter.getBytes();
-    if (classFile.length > Short.MAX_VALUE) return;
+    if (classFile.length > Short.MAX_VALUE) {
+      return;
+    }
 
     // Produce the ASMified Java source code corresponding to classParameter.
     StringWriter stringWriter = new StringWriter();
@@ -137,7 +144,9 @@ public class ASMifierTest extends AsmTest {
     String asmifiedSource = stringWriter.toString();
 
     // Compile and execute this Java source code (skip JDK9 modules, Janino can't compile them).
-    if (classParameter == PrecompiledClass.JDK9_MODULE) return;
+    if (classParameter == PrecompiledClass.JDK9_MODULE) {
+      return;
+    }
     byte[] asmifiedClassFile = compile(classParameter.getName(), asmifiedSource);
     String asmifiedClassName = classParameter.getName() + "Dump";
     if (asmifiedClassName.indexOf('.') != -1) {
@@ -151,7 +160,8 @@ public class ASMifierTest extends AsmTest {
     assertThatClass(dumpClassFile).isEqualTo(classFile);
   }
 
-  private static byte[] compile(final String name, final String source) throws Exception {
+  private static byte[] compile(final String name, final String source)
+      throws IOException, CompileException {
     Parser parser = new Parser(new Scanner(name, new StringReader(source)));
     UnitCompiler unitCompiler = new UnitCompiler(parser.parseCompilationUnit(), ICLASS_LOADER);
     return unitCompiler.compileUnit(true, true, true)[0].toByteArray();

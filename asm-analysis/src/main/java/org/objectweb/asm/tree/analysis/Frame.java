@@ -54,28 +54,28 @@ public class Frame<V extends Value> {
   private V returnValue;
 
   /**
-   * The local variables and the operand stack of this frame. The first {@link #nLocals} elements
-   * correspond to the local variables. The following {@link #nStack} elements correspond to the
+   * The local variables and the operand stack of this frame. The first {@link #numLocals} elements
+   * correspond to the local variables. The following {@link #numStack} elements correspond to the
    * operand stack.
    */
   private V[] values;
 
   /** The number of local variables of this frame. */
-  private int nLocals;
+  private int numLocals;
 
   /** The number of elements in the operand stack. */
-  private int nStack;
+  private int numStack;
 
   /**
    * Constructs a new frame with the given size.
    *
-   * @param nLocals the maximum number of local variables of the frame.
-   * @param nStack the maximum stack size of the frame.
+   * @param numLocals the maximum number of local variables of the frame.
+   * @param numStack the maximum stack size of the frame.
    */
   @SuppressWarnings("unchecked")
-  public Frame(final int nLocals, final int nStack) {
-    this.values = (V[]) new Value[nLocals + nStack];
-    this.nLocals = nLocals;
+  public Frame(final int numLocals, final int numStack) {
+    this.values = (V[]) new Value[numLocals + numStack];
+    this.numLocals = numLocals;
   }
 
   /**
@@ -84,7 +84,7 @@ public class Frame<V extends Value> {
    * @param frame a frame.
    */
   public Frame(final Frame<? extends V> frame) {
-    this(frame.nLocals, frame.values.length - frame.nLocals);
+    this(frame.numLocals, frame.values.length - frame.numLocals);
     init(frame);
   }
 
@@ -97,7 +97,7 @@ public class Frame<V extends Value> {
   public Frame<V> init(final Frame<? extends V> frame) {
     returnValue = frame.returnValue;
     System.arraycopy(frame.values, 0, values, 0, values.length);
-    nStack = frame.nStack;
+    numStack = frame.numStack;
     return this;
   }
 
@@ -117,7 +117,7 @@ public class Frame<V extends Value> {
    * @return the maximum number of local variables of this frame.
    */
   public int getLocals() {
-    return nLocals;
+    return numLocals;
   }
 
   /**
@@ -126,7 +126,7 @@ public class Frame<V extends Value> {
    * @return the maximum stack size of this frame.
    */
   public int getMaxStackSize() {
-    return values.length - nLocals;
+    return values.length - numLocals;
   }
 
   /**
@@ -137,7 +137,7 @@ public class Frame<V extends Value> {
    * @throws IndexOutOfBoundsException if the variable does not exist.
    */
   public V getLocal(final int index) {
-    if (index >= nLocals) {
+    if (index >= numLocals) {
       throw new IndexOutOfBoundsException("Trying to access an inexistant local variable");
     }
     return values[index];
@@ -151,7 +151,7 @@ public class Frame<V extends Value> {
    * @throws IndexOutOfBoundsException if the variable does not exist.
    */
   public void setLocal(final int index, final V value) {
-    if (index >= nLocals) {
+    if (index >= numLocals) {
       throw new IndexOutOfBoundsException("Trying to access an inexistant local variable " + index);
     }
     values[index] = value;
@@ -164,7 +164,7 @@ public class Frame<V extends Value> {
    * @return the number of values in the operand stack of this frame.
    */
   public int getStackSize() {
-    return nStack;
+    return numStack;
   }
 
   /**
@@ -175,7 +175,7 @@ public class Frame<V extends Value> {
    * @throws IndexOutOfBoundsException if the operand stack slot does not exist.
    */
   public V getStack(final int index) {
-    return values[nLocals + index];
+    return values[numLocals + index];
   }
 
   /**
@@ -186,12 +186,12 @@ public class Frame<V extends Value> {
    * @throws IndexOutOfBoundsException if the stack slot does not exist.
    */
   public void setStack(final int index, final V value) throws IndexOutOfBoundsException {
-    values[nLocals + index] = value;
+    values[numLocals + index] = value;
   }
 
   /** Clears the operand stack of this frame. */
   public void clearStack() {
-    nStack = 0;
+    numStack = 0;
   }
 
   /**
@@ -201,10 +201,10 @@ public class Frame<V extends Value> {
    * @throws IndexOutOfBoundsException if the operand stack is empty.
    */
   public V pop() {
-    if (nStack == 0) {
+    if (numStack == 0) {
       throw new IndexOutOfBoundsException("Cannot pop operand off an empty stack.");
     }
-    return values[nLocals + (--nStack)];
+    return values[numLocals + (--numStack)];
   }
 
   /**
@@ -214,10 +214,10 @@ public class Frame<V extends Value> {
    * @throws IndexOutOfBoundsException if the operand stack is full.
    */
   public void push(final V value) {
-    if (nLocals + nStack >= values.length) {
+    if (numLocals + numStack >= values.length) {
       throw new IndexOutOfBoundsException("Insufficient maximum stack size.");
     }
-    values[nLocals + (nStack++)] = value;
+    values[numLocals + (numStack++)] = value;
   }
 
   /**
@@ -653,11 +653,11 @@ public class Frame<V extends Value> {
    */
   public boolean merge(final Frame<? extends V> frame, final Interpreter<V> interpreter)
       throws AnalyzerException {
-    if (nStack != frame.nStack) {
+    if (numStack != frame.numStack) {
       throw new AnalyzerException(null, "Incompatible stack heights");
     }
     boolean changed = false;
-    for (int i = 0; i < nLocals + nStack; ++i) {
+    for (int i = 0; i < numLocals + numStack; ++i) {
       V v = interpreter.merge(values[i], frame.values[i]);
       if (!v.equals(values[i])) {
         values[i] = v;
@@ -680,7 +680,7 @@ public class Frame<V extends Value> {
    */
   public boolean merge(final Frame<? extends V> frame, final boolean[] localsUsed) {
     boolean changed = false;
-    for (int i = 0; i < nLocals; ++i) {
+    for (int i = 0; i < numLocals; ++i) {
       if (!localsUsed[i] && !values[i].equals(frame.values[i])) {
         values[i] = frame.values[i];
         changed = true;

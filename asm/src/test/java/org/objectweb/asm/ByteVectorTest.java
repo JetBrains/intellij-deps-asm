@@ -100,7 +100,7 @@ public class ByteVectorTest {
   }
 
   @Test
-  public void testPutUTF8_ascii() {
+  public void testPutUtf8_ascii() {
     ByteVector byteVector = new ByteVector(0);
     byteVector.putUTF8("abc");
     assertContains(byteVector, 0, 3, 'a', 'b', 'c');
@@ -110,13 +110,13 @@ public class ByteVectorTest {
   }
 
   @Test
-  public void testPutUTF8_unicode() {
+  public void testPutUtf8_unicode() {
     ByteVector byteVector = new ByteVector(0);
-    byteVector.putUTF8("a\u0000\u0080\u0800");
+    byteVector.putUTF8(new String(new char[] {'a', 0x0000, 0x0080, 0x0800}));
     assertContains(byteVector, 0, 8, 'a', -64, -128, -62, -128, -32, -96, -128);
 
     char[] charBuffer = new char[32768];
-    Arrays.fill(charBuffer, '\u07FF');
+    Arrays.fill(charBuffer, (char) 0x07FF);
     IllegalArgumentException thrown =
         assertThrows(
             IllegalArgumentException.class, () -> byteVector.putUTF8(new String(charBuffer)));
@@ -125,7 +125,7 @@ public class ByteVectorTest {
 
   @ParameterizedTest
   @ValueSource(ints = {65535, 65536})
-  public void testPutUTF8_tooLong(int size) {
+  public void testPutUtf8_tooLong(final int size) {
     ByteVector byteVector = new ByteVector(0);
     char[] charBuffer = new char[size];
     Arrays.fill(charBuffer, 'A');

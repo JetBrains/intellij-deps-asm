@@ -190,16 +190,16 @@ public class AnalyzerAdapter extends MethodVisitor {
   @Override
   public void visitFrame(
       final int type,
-      final int nLocal,
+      final int numLocal,
       final Object[] local,
-      final int nStack,
+      final int numStack,
       final Object[] stack) {
     if (type != Opcodes.F_NEW) { // Uncompressed frame.
       throw new IllegalArgumentException(
           "AnalyzerAdapter only accepts expanded frames (see ClassReader.EXPAND_FRAMES)");
     }
 
-    super.visitFrame(type, nLocal, local, nStack, stack);
+    super.visitFrame(type, numLocal, local, numStack, stack);
 
     if (this.locals != null) {
       this.locals.clear();
@@ -208,8 +208,8 @@ public class AnalyzerAdapter extends MethodVisitor {
       this.locals = new ArrayList<Object>();
       this.stack = new ArrayList<Object>();
     }
-    visitFrameTypes(nLocal, local, this.locals);
-    visitFrameTypes(nStack, stack, this.stack);
+    visitFrameTypes(numLocal, local, this.locals);
+    visitFrameTypes(numStack, stack, this.stack);
     maxLocals = Math.max(maxLocals, this.locals.size());
     maxStack = Math.max(maxStack, this.stack.size());
   }
@@ -279,7 +279,11 @@ public class AnalyzerAdapter extends MethodVisitor {
     execute(opcode, 0, descriptor);
   }
 
-  /** @deprecated */
+  /**
+   * Deprecated.
+   *
+   * @deprecated use {@link #visitMethodInsn(int, String, String, String, boolean)} instead.
+   */
   @Deprecated
   @Override
   public void visitMethodInsn(
@@ -449,7 +453,12 @@ public class AnalyzerAdapter extends MethodVisitor {
 
   @Override
   public void visitLocalVariable(
-      String name, String descriptor, String signature, Label start, Label end, int index) {
+      final String name,
+      final String descriptor,
+      final String signature,
+      final Label start,
+      final Label end,
+      final int index) {
     char firstDescriptorChar = descriptor.charAt(0);
     maxLocals =
         Math.max(

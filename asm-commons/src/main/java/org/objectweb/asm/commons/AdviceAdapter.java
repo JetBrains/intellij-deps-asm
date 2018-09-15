@@ -436,7 +436,11 @@ public abstract class AdviceAdapter extends GeneratorAdapter implements Opcodes 
     }
   }
 
-  /** @deprecated */
+  /**
+   * Deprecated.
+   *
+   * @deprecated use {@link #visitMethodInsn(int, String, String, String, boolean)} instead.
+   */
   @Deprecated
   @Override
   public void visitMethodInsn(
@@ -564,7 +568,8 @@ public abstract class AdviceAdapter extends GeneratorAdapter implements Opcodes 
   }
 
   @Override
-  public void visitTryCatchBlock(Label start, Label end, Label handler, String type) {
+  public void visitTryCatchBlock(
+      final Label start, final Label end, final Label handler, final String type) {
     super.visitTryCatchBlock(start, end, handler, type);
     // By definition of 'forwardJumpStackFrames', 'handler' should be pushed only if there is an
     // instruction between 'start' and 'end' at which the super class constructor is not yet

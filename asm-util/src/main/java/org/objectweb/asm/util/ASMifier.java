@@ -44,6 +44,7 @@ import org.objectweb.asm.TypePath;
  *
  * @author Eric Bruneton
  */
+// DontCheck(AbbreviationAsWordInName): can't be renamed (for backward binary compatibility).
 public class ASMifier extends Printer {
 
   /** A pseudo access flag used to distinguish class access flags. */
@@ -477,6 +478,7 @@ public class ASMifier extends Printer {
   // Annotations
   // -----------------------------------------------------------------------------------------------
 
+  // DontCheck(OverloadMethodsDeclarationOrder): overloads are semantically different.
   @Override
   public void visit(final String name, final Object value) {
     stringBuilder.setLength(0);
@@ -660,42 +662,42 @@ public class ASMifier extends Printer {
   @Override
   public void visitFrame(
       final int type,
-      final int nLocal,
+      final int numLocal,
       final Object[] local,
-      final int nStack,
+      final int numStack,
       final Object[] stack) {
     stringBuilder.setLength(0);
     switch (type) {
       case Opcodes.F_NEW:
       case Opcodes.F_FULL:
-        declareFrameTypes(nLocal, local);
-        declareFrameTypes(nStack, stack);
+        declareFrameTypes(numLocal, local);
+        declareFrameTypes(numStack, stack);
         if (type == Opcodes.F_NEW) {
           stringBuilder.append(name).append(".visitFrame(Opcodes.F_NEW, ");
         } else {
           stringBuilder.append(name).append(".visitFrame(Opcodes.F_FULL, ");
         }
-        stringBuilder.append(nLocal).append(NEW_OBJECT_ARRAY);
-        appendFrameTypes(nLocal, local);
-        stringBuilder.append("}, ").append(nStack).append(NEW_OBJECT_ARRAY);
-        appendFrameTypes(nStack, stack);
+        stringBuilder.append(numLocal).append(NEW_OBJECT_ARRAY);
+        appendFrameTypes(numLocal, local);
+        stringBuilder.append("}, ").append(numStack).append(NEW_OBJECT_ARRAY);
+        appendFrameTypes(numStack, stack);
         stringBuilder.append('}');
         break;
       case Opcodes.F_APPEND:
-        declareFrameTypes(nLocal, local);
+        declareFrameTypes(numLocal, local);
         stringBuilder
             .append(name)
             .append(".visitFrame(Opcodes.F_APPEND,")
-            .append(nLocal)
+            .append(numLocal)
             .append(NEW_OBJECT_ARRAY);
-        appendFrameTypes(nLocal, local);
+        appendFrameTypes(numLocal, local);
         stringBuilder.append("}, 0, null");
         break;
       case Opcodes.F_CHOP:
         stringBuilder
             .append(name)
             .append(".visitFrame(Opcodes.F_CHOP,")
-            .append(nLocal)
+            .append(numLocal)
             .append(", null, 0, null");
         break;
       case Opcodes.F_SAME:
@@ -772,7 +774,11 @@ public class ASMifier extends Printer {
     text.add(stringBuilder.toString());
   }
 
-  /** @deprecated */
+  /**
+   * Deprecated.
+   *
+   * @deprecated use {@link #visitMethodInsn(int, String, String, String, boolean)} instead.
+   */
   @Deprecated
   @Override
   public void visitMethodInsn(
@@ -1084,6 +1090,7 @@ public class ASMifier extends Printer {
    * @param visible {@literal true} if the annotation is visible at runtime.
    * @return a new {@link ASMifier} to visit the annotation values.
    */
+  // DontCheck(OverloadMethodsDeclarationOrder): overloads are semantically different.
   public ASMifier visitAnnotation(final String descriptor, final boolean visible) {
     stringBuilder.setLength(0);
     stringBuilder
@@ -1192,6 +1199,7 @@ public class ASMifier extends Printer {
    * @param annotationVisitorId identifier of the annotation visitor variable in the produced code.
    * @return a new {@link ASMifier}.
    */
+  // DontCheck(AbbreviationAsWordInName): can't be renamed (for backward binary compatibility).
   protected ASMifier createASMifier(
       final String visitorVariableName, final int annotationVisitorId) {
     return new ASMifier(Opcodes.ASM7, visitorVariableName, annotationVisitorId);
@@ -1476,12 +1484,12 @@ public class ASMifier extends Printer {
   /**
    * Calls {@link #declareLabel} for each label in the given stack map frame types.
    *
-   * @param nTypes the number of stack map frame types in 'frameTypes'.
+   * @param numTypes the number of stack map frame types in 'frameTypes'.
    * @param frameTypes an array of stack map frame types, in the format described in {@link
    *     org.objectweb.asm.MethodVisitor#visitFrame}.
    */
-  private void declareFrameTypes(final int nTypes, final Object[] frameTypes) {
-    for (int i = 0; i < nTypes; ++i) {
+  private void declareFrameTypes(final int numTypes, final Object[] frameTypes) {
+    for (int i = 0; i < numTypes; ++i) {
       if (frameTypes[i] instanceof Label) {
         declareLabel((Label) frameTypes[i]);
       }
@@ -1491,12 +1499,12 @@ public class ASMifier extends Printer {
   /**
    * Appends the given stack map frame types to {@link #stringBuilder}.
    *
-   * @param nTypes the number of stack map frame types in 'frameTypes'.
+   * @param numTypes the number of stack map frame types in 'frameTypes'.
    * @param frameTypes an array of stack map frame types, in the format described in {@link
    *     org.objectweb.asm.MethodVisitor#visitFrame}.
    */
-  private void appendFrameTypes(final int nTypes, final Object[] frameTypes) {
-    for (int i = 0; i < nTypes; ++i) {
+  private void appendFrameTypes(final int numTypes, final Object[] frameTypes) {
+    for (int i = 0; i < numTypes; ++i) {
       if (i > 0) {
         stringBuilder.append(", ");
       }

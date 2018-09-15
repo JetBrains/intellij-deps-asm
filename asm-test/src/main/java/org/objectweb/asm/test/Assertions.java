@@ -68,6 +68,11 @@ public final class Assertions {
       this.expectedType = expectedType;
     }
 
+    /**
+     * Checks that the executable succeeds, or throws the expected exception if 'condition' is true.
+     *
+     * @param condition whether the executable is expected to throw an exception.
+     */
     public void when(final boolean condition) {
       if (condition) {
         assertThrows(expectedType, executable);

@@ -65,7 +65,7 @@ public class MethodNode extends MethodVisitor {
   /** The internal names of the method's exception classes (see {@link Type#getInternalName()}). */
   public List<String> exceptions;
 
-  /** The method parameter info (access flags and name) */
+  /** The method parameter info (access flags and name). */
   public List<ParameterNode> parameters;
 
   /** The runtime visible annotations of this method. May be {@literal null}. */
@@ -342,16 +342,16 @@ public class MethodNode extends MethodVisitor {
   @Override
   public void visitFrame(
       final int type,
-      final int nLocal,
+      final int numLocal,
       final Object[] local,
-      final int nStack,
+      final int numStack,
       final Object[] stack) {
     instructions.add(
         new FrameNode(
             type,
-            nLocal,
+            numLocal,
             local == null ? null : getLabelNodes(local),
-            nStack,
+            numStack,
             stack == null ? null : getLabelNodes(stack)));
   }
 
@@ -381,7 +381,11 @@ public class MethodNode extends MethodVisitor {
     instructions.add(new FieldInsnNode(opcode, owner, name, descriptor));
   }
 
-  /** @deprecated */
+  /**
+   * Deprecated.
+   *
+   * @deprecated use {@link #visitMethodInsn(int, String, String, String, boolean)} instead.
+   */
   @Deprecated
   @Override
   public void visitMethodInsn(

@@ -67,7 +67,7 @@ import org.objectweb.asm.TypePath;
  * }
  * </pre>
  *
- * where {@code Hello} is defined by:
+ * <p>where {@code Hello} is defined by:
  *
  * <pre>
  * public class Hello {
@@ -87,6 +87,7 @@ public final class TraceClassVisitor extends ClassVisitor {
   private final PrintWriter printWriter;
 
   /** The printer to convert the visited class into text. */
+  // DontCheck(MemberName): can't be renamed (for backward binary compatibility).
   public final Printer p;
 
   /**

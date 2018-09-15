@@ -28,7 +28,8 @@
 package org.objectweb.asm;
 
 import static java.util.stream.Collectors.toSet;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.objectweb.asm.test.Assertions.assertThat;
 
 import java.io.FileInputStream;
@@ -331,7 +332,7 @@ public class ClassWriterTest extends AsmTest {
    * Tests that a ClassReader -> ClassWriter transform with the COMPUTE_MAXS option works correctly
    * on classes with very large or deeply nested subroutines (#307600, #311642).
    *
-   * @throws IOException
+   * @throws IOException if the input class file can't be read.
    */
   @ParameterizedTest
   @ValueSource(strings = {"Issue307600.class", "Issue311642.class"})
@@ -470,7 +471,9 @@ public class ClassWriterTest extends AsmTest {
   public void testReadAndWriteWithResizeMethod(
       final PrecompiledClass classParameter, final Api apiParameter) {
     byte[] classFile = classParameter.getBytes();
-    if (classFile.length > Short.MAX_VALUE) return;
+    if (classFile.length > Short.MAX_VALUE) {
+      return;
+    }
 
     ClassReader classReader = new ClassReader(classFile);
     ClassWriter classWriter = new ClassWriterWithoutGetCommonSuperClass();

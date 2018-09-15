@@ -43,6 +43,7 @@ import org.objectweb.asm.TypePath;
 public final class TraceMethodVisitor extends MethodVisitor {
 
   /** The printer to convert the visited method into text. */
+  // DontCheck(MemberName): can't be renamed (for backward binary compatibility).
   public final Printer p;
 
   /**
@@ -121,12 +122,12 @@ public final class TraceMethodVisitor extends MethodVisitor {
   @Override
   public void visitFrame(
       final int type,
-      final int nLocal,
+      final int numLocal,
       final Object[] local,
-      final int nStack,
+      final int numStack,
       final Object[] stack) {
-    p.visitFrame(type, nLocal, local, nStack, stack);
-    super.visitFrame(type, nLocal, local, nStack, stack);
+    p.visitFrame(type, numLocal, local, numStack, stack);
+    super.visitFrame(type, numLocal, local, numStack, stack);
   }
 
   @Override
@@ -160,7 +161,11 @@ public final class TraceMethodVisitor extends MethodVisitor {
     super.visitFieldInsn(opcode, owner, name, descriptor);
   }
 
-  /** @deprecated */
+  /**
+   * Deprecated.
+   *
+   * @deprecated use {@link #visitMethodInsn(int, String, String, String, boolean)} instead.
+   */
   @Deprecated
   @Override
   public void visitMethodInsn(

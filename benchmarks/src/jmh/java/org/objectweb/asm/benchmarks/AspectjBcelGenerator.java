@@ -27,54 +27,59 @@
 // THE POSSIBILITY OF SUCH DAMAGE.
 package org.objectweb.asm.benchmarks;
 
-import java.io.ByteArrayInputStream;
-import org.aspectj.apache.bcel.classfile.ClassParser;
+import org.aspectj.apache.bcel.Constants;
 import org.aspectj.apache.bcel.classfile.ConstantPool;
-import org.aspectj.apache.bcel.classfile.JavaClass;
-import org.aspectj.apache.bcel.classfile.Method;
+import org.aspectj.apache.bcel.generic.ArrayType;
 import org.aspectj.apache.bcel.generic.ClassGen;
-import org.aspectj.apache.bcel.generic.InstructionHandle;
+import org.aspectj.apache.bcel.generic.InstructionFactory;
 import org.aspectj.apache.bcel.generic.InstructionList;
 import org.aspectj.apache.bcel.generic.MethodGen;
+import org.aspectj.apache.bcel.generic.Type;
 
 /**
- * An {@link Adapter} implemented with the AspectJ BCEL library.
+ * A "Hello World!" class generator using the AspectJ BCEL library.
  *
  * @author Eric Bruneton
  */
-public class AspectJBCELAdapter extends Adapter {
+public class AspectjBcelGenerator extends Generator {
+
+  private static final Type PRINT_STREAM_TYPE = Type.getType("Ljava/io/PrintStream;");
 
   @Override
-  public byte[] readAndWrite(final byte[] classFile, final boolean computeMaxs) {
-    JavaClass javaClass;
-    try {
-      javaClass = new ClassParser(new ByteArrayInputStream(classFile), "class-name").parse();
-    } catch (Exception e) {
-      throw new IllegalArgumentException(e);
-    }
-    ClassGen classGen = new ClassGen(javaClass);
-    ConstantPool constantPool = classGen.getConstantPool();
-    for (Method method : classGen.getMethods()) {
-      MethodGen methodGen = new MethodGen(method, classGen.getClassName(), constantPool);
-      if (method.getLocalVariableTable() == null) {
-        methodGen.removeLocalVariables();
-      }
-      if (method.getLineNumberTable() == null) {
-        methodGen.removeLineNumbers();
-      }
-      InstructionList insnList = methodGen.getInstructionList();
-      if (insnList != null) {
-        InstructionHandle insnHandle = insnList.getStart();
-        while (insnHandle != null) {
-          insnHandle = insnHandle.getNext();
-        }
-        if (computeMaxs) {
-          methodGen.setMaxStack();
-          methodGen.setMaxLocals();
-        }
-      }
-      classGen.replaceMethod(method, methodGen.getMethod());
-    }
+  public byte[] generateClass() {
+    ClassGen classGen =
+        new ClassGen(
+            "HelloWorld", "java/lang/Object", "HelloWorld.java", Constants.ACC_PUBLIC, null);
+
+    classGen.addEmptyConstructor(Constants.ACC_PUBLIC);
+
+    ConstantPool constantPoolGen = classGen.getConstantPool();
+    InstructionList insnList = new InstructionList();
+    InstructionFactory insnFactory = new InstructionFactory(classGen);
+
+    MethodGen methodGen =
+        new MethodGen(
+            Constants.ACC_STATIC | Constants.ACC_PUBLIC,
+            Type.VOID,
+            new Type[] {new ArrayType(Type.STRING, 1)},
+            null,
+            "main",
+            "HelloWorld",
+            insnList,
+            constantPoolGen);
+    insnList.append(insnFactory.createGetStatic("java/lang/System", "out", PRINT_STREAM_TYPE));
+    insnList.append(insnFactory.createConstant("Hello world!"));
+    insnList.append(
+        insnFactory.createInvoke(
+            "java.io.PrintStream",
+            "println",
+            Type.VOID,
+            new Type[] {Type.STRING},
+            Constants.INVOKESPECIAL));
+
+    methodGen.setMaxStack();
+    classGen.addMethod(methodGen.getMethod());
+
     return classGen.getJavaClass().getBytes();
   }
 }

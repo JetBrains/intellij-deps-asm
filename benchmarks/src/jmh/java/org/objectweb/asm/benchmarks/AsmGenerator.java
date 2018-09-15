@@ -27,54 +27,60 @@
 // THE POSSIBILITY OF SUCH DAMAGE.
 package org.objectweb.asm.benchmarks;
 
-import java.io.ByteArrayInputStream;
-import org.apache.bcel.classfile.ClassParser;
-import org.apache.bcel.classfile.JavaClass;
-import org.apache.bcel.classfile.Method;
-import org.apache.bcel.generic.ClassGen;
-import org.apache.bcel.generic.ConstantPoolGen;
-import org.apache.bcel.generic.InstructionHandle;
-import org.apache.bcel.generic.InstructionList;
-import org.apache.bcel.generic.MethodGen;
+import org.objectweb.asm.ClassWriter;
+import org.objectweb.asm.MethodVisitor;
+import org.objectweb.asm.Opcodes;
 
 /**
- * An {@link Adapter} implemented with the BCEL library.
+ * A "Hello World!" class generator using the ASM library.
  *
  * @author Eric Bruneton
  */
-public class BCELAdapter extends Adapter {
+public class AsmGenerator extends Generator {
 
   @Override
-  public byte[] readAndWrite(final byte[] classFile, final boolean computeMaxs) {
-    JavaClass javaClass;
-    try {
-      javaClass = new ClassParser(new ByteArrayInputStream(classFile), "class-name").parse();
-    } catch (Exception e) {
-      throw new IllegalArgumentException(e);
-    }
-    ClassGen classGen = new ClassGen(javaClass);
-    ConstantPoolGen constantPoolGen = classGen.getConstantPool();
-    for (Method method : classGen.getMethods()) {
-      MethodGen methodGen = new MethodGen(method, classGen.getClassName(), constantPoolGen);
-      if (method.getLocalVariableTable() == null) {
-        methodGen.removeLocalVariables();
-      }
-      if (method.getLineNumberTable() == null) {
-        methodGen.removeLineNumbers();
-      }
-      InstructionList insnList = methodGen.getInstructionList();
-      if (insnList != null) {
-        InstructionHandle insnHandle = insnList.getStart();
-        while (insnHandle != null) {
-          insnHandle = insnHandle.getNext();
+  public String getVersion() {
+    for (int i = 6; i >= 4; --i) {
+      try {
+        String version = "ASM" + i;
+        if (Opcodes.class.getField(version) != null) {
+          return version;
         }
-        if (computeMaxs) {
-          methodGen.setMaxStack();
-          methodGen.setMaxLocals();
-        }
+      } catch (NoSuchFieldException e) {
+        continue;
       }
-      classGen.replaceMethod(method, methodGen.getMethod());
     }
-    return classGen.getJavaClass().getBytes();
+    return "";
+  }
+
+  @Override
+  public byte[] generateClass() {
+    ClassWriter classWriter = new ClassWriter(ClassWriter.COMPUTE_MAXS);
+
+    classWriter.visit(
+        Opcodes.V1_1, Opcodes.ACC_PUBLIC, "HelloWorld", null, "java/lang/Object", null);
+    classWriter.visitSource("HelloWorld.java", null);
+
+    MethodVisitor methodVisitor =
+        classWriter.visitMethod(Opcodes.ACC_PUBLIC, "<init>", "()V", null, null);
+    methodVisitor.visitVarInsn(Opcodes.ALOAD, 0);
+    methodVisitor.visitMethodInsn(Opcodes.INVOKESPECIAL, "java/lang/Object", "<init>", "()V");
+    methodVisitor.visitInsn(Opcodes.RETURN);
+    methodVisitor.visitMaxs(0, 0);
+    methodVisitor.visitEnd();
+
+    methodVisitor =
+        classWriter.visitMethod(
+            Opcodes.ACC_PUBLIC + Opcodes.ACC_STATIC, "main", "([Ljava/lang/String;)V", null, null);
+    methodVisitor.visitFieldInsn(
+        Opcodes.GETSTATIC, "java/lang/System", "out", "Ljava/io/PrintStream;");
+    methodVisitor.visitLdcInsn("Hello world!");
+    methodVisitor.visitMethodInsn(
+        Opcodes.INVOKEVIRTUAL, "java/io/PrintStream", "println", "(Ljava/lang/String;)V");
+    methodVisitor.visitInsn(Opcodes.RETURN);
+    methodVisitor.visitMaxs(0, 0);
+    methodVisitor.visitEnd();
+
+    return classWriter.toByteArray();
   }
 }

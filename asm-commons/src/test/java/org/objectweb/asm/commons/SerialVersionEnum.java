@@ -25,28 +25,15 @@
 // CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
 // THE POSSIBILITY OF SUCH DAMAGE.
-package org.objectweb.asm.benchmarks;
+package org.objectweb.asm.commons;
 
 /**
- * An abstract "Hello World!" class generator.
+ * Test case for SerialVersionUidAddTest.
  *
  * @author Eric Bruneton
  */
-public abstract class Generator {
-
-  /**
-   * Returns the version of this generator.
-   *
-   * @return the version of this generator, or an empty string if there is no version.
-   */
-  public String getVersion() {
-    return "";
-  }
-
-  /**
-   * Generates a "Hello World!" class.
-   *
-   * @return the JVMS ClassFile structure of the generated class.
-   */
-  public abstract byte[] generateClass();
+enum SerialVersionEnum {
+  V1,
+  V2,
+  V3
 }

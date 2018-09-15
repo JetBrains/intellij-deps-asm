@@ -562,62 +562,64 @@ public class CheckMethodAdapter extends MethodVisitor {
   @Override
   public void visitFrame(
       final int type,
-      final int nLocal,
+      final int numLocal,
       final Object[] local,
-      final int nStack,
+      final int numStack,
       final Object[] stack) {
     if (insnCount == lastFrameInsnIndex) {
       throw new IllegalStateException("At most one frame can be visited at a given code location.");
     }
     lastFrameInsnIndex = insnCount;
-    int mLocal;
-    int mStack;
+    int maxNumLocal;
+    int maxNumStack;
     switch (type) {
       case Opcodes.F_NEW:
       case Opcodes.F_FULL:
-        mLocal = Integer.MAX_VALUE;
-        mStack = Integer.MAX_VALUE;
+        maxNumLocal = Integer.MAX_VALUE;
+        maxNumStack = Integer.MAX_VALUE;
         break;
 
       case Opcodes.F_SAME:
-        mLocal = 0;
-        mStack = 0;
+        maxNumLocal = 0;
+        maxNumStack = 0;
         break;
 
       case Opcodes.F_SAME1:
-        mLocal = 0;
-        mStack = 1;
+        maxNumLocal = 0;
+        maxNumStack = 1;
         break;
 
       case Opcodes.F_APPEND:
       case Opcodes.F_CHOP:
-        mLocal = 3;
-        mStack = 0;
+        maxNumLocal = 3;
+        maxNumStack = 0;
         break;
 
       default:
         throw new IllegalArgumentException("Invalid frame type " + type);
     }
 
-    if (nLocal > mLocal) {
-      throw new IllegalArgumentException("Invalid nLocal=" + nLocal + " for frame type " + type);
+    if (numLocal > maxNumLocal) {
+      throw new IllegalArgumentException(
+          "Invalid numLocal=" + numLocal + " for frame type " + type);
     }
-    if (nStack > mStack) {
-      throw new IllegalArgumentException("Invalid nStack=" + nStack + " for frame type " + type);
+    if (numStack > maxNumStack) {
+      throw new IllegalArgumentException(
+          "Invalid numStack=" + numStack + " for frame type " + type);
     }
 
     if (type != Opcodes.F_CHOP) {
-      if (nLocal > 0 && (local == null || local.length < nLocal)) {
-        throw new IllegalArgumentException("Array local[] is shorter than nLocal");
+      if (numLocal > 0 && (local == null || local.length < numLocal)) {
+        throw new IllegalArgumentException("Array local[] is shorter than numLocal");
       }
-      for (int i = 0; i < nLocal; ++i) {
+      for (int i = 0; i < numLocal; ++i) {
         checkFrameValue(local[i]);
       }
     }
-    if (nStack > 0 && (stack == null || stack.length < nStack)) {
-      throw new IllegalArgumentException("Array stack[] is shorter than nStack");
+    if (numStack > 0 && (stack == null || stack.length < numStack)) {
+      throw new IllegalArgumentException("Array stack[] is shorter than numStack");
     }
-    for (int i = 0; i < nStack; ++i) {
+    for (int i = 0; i < numStack; ++i) {
       checkFrameValue(stack[i]);
     }
     if (type == Opcodes.F_NEW) {
@@ -628,7 +630,7 @@ public class CheckMethodAdapter extends MethodVisitor {
     if (numExpandedFrames > 0 && numCompressedFrames > 0) {
       throw new IllegalArgumentException("Expanded and compressed frames must not be mixed.");
     }
-    super.visitFrame(type, nLocal, local, nStack, stack);
+    super.visitFrame(type, numLocal, local, numStack, stack);
   }
 
   @Override
@@ -701,7 +703,11 @@ public class CheckMethodAdapter extends MethodVisitor {
     ++insnCount;
   }
 
-  /** @deprecated */
+  /**
+   * Deprecated.
+   *
+   * @deprecated use {@link #visitMethodInsn(int, String, String, String, boolean)} instead.
+   */
   @Deprecated
   @Override
   public void visitMethodInsn(

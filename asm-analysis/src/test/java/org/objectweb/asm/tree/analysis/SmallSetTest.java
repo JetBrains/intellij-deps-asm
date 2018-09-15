@@ -114,7 +114,7 @@ public class SmallSetTest {
     assertThrows(UnsupportedOperationException.class, () -> iterator.remove());
   }
 
-  private SmallSet<Object> newSmallSet(Object element1, Object element2) {
+  private SmallSet<Object> newSmallSet(final Object element1, final Object element2) {
     return (SmallSet<Object>) new SmallSet<Object>(element1).union(new SmallSet<Object>(element2));
   }
 }

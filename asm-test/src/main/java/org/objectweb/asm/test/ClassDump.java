@@ -102,8 +102,8 @@ import java.util.HashMap;
  * sourcefile_index: HelloWorld.java
  * </pre>
  *
- * This class is used to compare classes in unit tests. Its source code is as close as possible to
- * the Java Virtual Machine specification for ease of reference. The constant pool and bytecode
+ * <p>This class is used to compare classes in unit tests. Its source code is as close as possible
+ * to the Java Virtual Machine specification for ease of reference. The constant pool and bytecode
  * offsets are abstracted away so that two classes which differ only by their constant pool or low
  * level byte code instruction representation (e.g. a ldc vs. a ldc_w) are still considered equal.
  * Likewise, attributes (resp. type annotations) are re-ordered into alphabetical order, so that two
@@ -276,7 +276,11 @@ class ClassDump {
       this.classContext = classContext;
     }
 
-    /** @return the number of entries used by this item in constant_pool. */
+    /**
+     * Returns the number of entries used by this item in constant_pool.
+     *
+     * @return the number of entries used by this item in constant_pool.
+     */
     int size() {
       return 1;
     }
@@ -291,7 +295,11 @@ class ClassDump {
       return classContext.getCpInfo(cpIndex, cpInfoType);
     }
 
-    /** @return the dump of this item. */
+    /**
+     * Returns the dump of this item.
+     *
+     * @return the dump of this item.
+     */
     String dump() {
       return dump;
     }
@@ -2271,6 +2279,8 @@ class ClassDump {
     }
 
     /**
+     * Returns the value associated with the given key.
+     *
      * @param key a context key.
      * @return the value associated with the given key in this context or, if not found, in the
      *     parent context (recursively).

@@ -256,11 +256,11 @@ public class SimpleVerifier extends BasicVerifier {
         }
         do {
           if (type1 == null || isInterface(type1)) {
-            return newValue(Type.getObjectType("java/lang/Object"), numDimensions);
+            return newArrayValue(Type.getObjectType("java/lang/Object"), numDimensions);
           }
           type1 = getSuperClass(type1);
           if (isAssignableFrom(type1, type2)) {
-            return newValue(type1, numDimensions);
+            return newArrayValue(type1, numDimensions);
           }
         } while (true);
       }
@@ -269,7 +269,7 @@ public class SimpleVerifier extends BasicVerifier {
     return value1;
   }
 
-  private BasicValue newValue(final Type type, final int dimensions) {
+  private BasicValue newArrayValue(final Type type, final int dimensions) {
     if (dimensions == 0) {
       return newValue(type);
     } else {

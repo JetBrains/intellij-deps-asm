@@ -59,8 +59,8 @@ import org.objectweb.asm.Type;
 public class Retrofitter {
 
   /**
-   * The fields and methods of the JDK 1.5 API. Each string has the form "<owner>
-   * <name><descriptor>".
+   * The fields and methods of the JDK 1.5 API. Each string has the form
+   * "&lt;owner&gt;&lt;name&gt;&lt;descriptor&gt;".
    */
   static final HashSet<String> API = new HashSet<String>();
 
@@ -110,10 +110,10 @@ public class Retrofitter {
    * place or into the destination file or directory, in order to make them compatible with the JDK
    * 1.5.
    *
-   * @param src source file or directory
-   * @param dst optional destination file or directory
+   * @param src source file or directory.
+   * @param dst optional destination file or directory.
    * @return true if all the source classes use only the JDK 1.5 API.
-   * @throws IOException
+   * @throws IOException if the source or destination file can't be read or written.
    */
   static boolean retrofit(final File src, final File dst) throws IOException {
     if (src.isDirectory()) {
@@ -154,7 +154,7 @@ public class Retrofitter {
   /** A ClassVisitor that retrofits classes from 1.6 to 1.5 version. */
   static class ClassRetrofitter extends ClassVisitor {
 
-    public ClassRetrofitter(ClassVisitor classVisitor) {
+    public ClassRetrofitter(final ClassVisitor classVisitor) {
       super(Opcodes.ASM7, classVisitor);
     }
 
@@ -175,7 +175,7 @@ public class Retrofitter {
    */
   static class ClassVerifier extends ClassVisitor {
 
-    /** The name of the visited class/ */
+    /** The name of the visited class. */
     String className;
 
     /** The name of the currently visited method. */
@@ -213,17 +213,18 @@ public class Retrofitter {
     public MethodVisitor visitMethod(
         final int access,
         final String name,
-        final String desc,
+        final String descriptor,
         final String signature,
         final String[] exceptions) {
-      currentMethodName = name + desc;
-      MethodVisitor mv = super.visitMethod(access, name, desc, signature, exceptions);
-      return new MethodVisitor(Opcodes.ASM4, mv) {
+      currentMethodName = name + descriptor;
+      MethodVisitor methodVisitor =
+          super.visitMethod(access, name, descriptor, signature, exceptions);
+      return new MethodVisitor(Opcodes.ASM4, methodVisitor) {
         @Override
         public void visitFieldInsn(
-            final int opcode, final String owner, final String name, final String desc) {
+            final int opcode, final String owner, final String name, final String descriptor) {
           check(owner, name);
-          super.visitFieldInsn(opcode, owner, name, desc);
+          super.visitFieldInsn(opcode, owner, name, descriptor);
         }
 
         @Override
@@ -231,16 +232,16 @@ public class Retrofitter {
             final int opcode,
             final String owner,
             final String name,
-            final String desc,
-            final boolean itf) {
-          check(owner, name + desc);
-          super.visitMethodInsn(opcode, owner, name, desc, itf);
+            final String descriptor,
+            final boolean isInterface) {
+          check(owner, name + descriptor);
+          super.visitMethodInsn(opcode, owner, name, descriptor, isInterface);
         }
 
         @Override
-        public void visitLdcInsn(Object cst) {
-          if (cst instanceof Type) {
-            int sort = ((Type) cst).getSort();
+        public void visitLdcInsn(final Object value) {
+          if (value instanceof Type) {
+            int sort = ((Type) value).getSort();
             if (sort == Type.METHOD) {
               System.err.println(
                   "ERROR: ldc with a MethodType called in "
@@ -250,7 +251,7 @@ public class Retrofitter {
                       + " is not available in JDK 1.5");
               ok = false;
             }
-          } else if (cst instanceof Handle) {
+          } else if (value instanceof Handle) {
             System.err.println(
                 "ERROR: ldc with a MethodHandle called in "
                     + className
@@ -259,12 +260,15 @@ public class Retrofitter {
                     + " is not available in JDK 1.5");
             ok = false;
           }
-          super.visitLdcInsn(cst);
+          super.visitLdcInsn(value);
         }
 
         @Override
         public void visitInvokeDynamicInsn(
-            String name, String desc, Handle bsm, Object... bsmArgs) {
+            final String name,
+            final String descriptor,
+            final Handle bootstrapMethodHandle,
+            final Object... bootstrapMethodArguments) {
           System.err.println(
               "ERROR: invokedynamic called in "
                   + className
@@ -272,7 +276,8 @@ public class Retrofitter {
                   + currentMethodName
                   + " is not available in JDK 1.5");
           ok = false;
-          super.visitInvokeDynamicInsn(name, desc, bsm, bsmArgs);
+          super.visitInvokeDynamicInsn(
+              name, descriptor, bootstrapMethodHandle, bootstrapMethodArguments);
         }
       };
     }
@@ -283,7 +288,7 @@ public class Retrofitter {
      * @param owner A class name.
      * @param member A field name or a method name and descriptor.
      */
-    void check(String owner, String member) {
+    void check(final String owner, final String member) {
       if (owner.startsWith("java/")) {
         String o = owner;
         while (o != null) {

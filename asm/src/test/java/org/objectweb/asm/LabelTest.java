@@ -40,13 +40,13 @@ import org.junit.jupiter.api.Test;
  */
 public class LabelTest {
 
-  /** Tests that {@link Label.toString()} returns strings starting with "L". */
+  /** Tests that {@link Label#toString()} returns strings starting with "L". */
   @Test
   public void testToString() {
     assertTrue(new Label().toString().startsWith("L"));
   }
 
-  /** Tests that {@link Label.getOffset()} returns a correct offset after the label is visited. */
+  /** Tests that {@link Label#getOffset()} returns a correct offset after the label is visited. */
   @Test
   public void testGetOffset() {
     Label label = new Label();
@@ -59,7 +59,7 @@ public class LabelTest {
     assertEquals(1, label.getOffset());
   }
 
-  /** Tests that {@link Label.getOffset()} throws an exception before the label is visited. */
+  /** Tests that {@link Label#getOffset()} throws an exception before the label is visited. */
   @Test
   public void testGetOffset_illegalState() {
     assertThrows(RuntimeException.class, () -> new Label().getOffset());

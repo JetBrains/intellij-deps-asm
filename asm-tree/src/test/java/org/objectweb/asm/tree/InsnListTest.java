@@ -105,8 +105,6 @@ public class InsnListTest {
 
   @Test
   public void testIterator() {
-    InsnNode insn = new InsnNode(0);
-
     // Iterate.
     ListIterator<AbstractInsnNode> iterator = list2.iterator();
     assertTrue(iterator.hasNext());
@@ -120,6 +118,7 @@ public class InsnListTest {
     assertEquals(insn1, iterator.previous());
     assertFalse(iterator.hasPrevious());
 
+    InsnNode insn = new InsnNode(0);
     list2.add(insn);
 
     // Remove.

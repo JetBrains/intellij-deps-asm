@@ -188,6 +188,11 @@ public class ModuleNode extends ModuleVisitor {
     // Nothing to do.
   }
 
+  /**
+   * Makes the given class visitor visit this module.
+   *
+   * @param classVisitor a class visitor.
+   */
   public void accept(final ClassVisitor classVisitor) {
     ModuleVisitor moduleVisitor = classVisitor.visitModule(name, access, version);
     if (moduleVisitor == null) {

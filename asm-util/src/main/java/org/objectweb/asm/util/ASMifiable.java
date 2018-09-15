@@ -30,6 +30,7 @@ import org.objectweb.asm.Label;
  *
  * @author Eugene Kuleshov
  */
+// DontCheck(AbbreviationAsWordInName): can't be renamed (for backward binary compatibility).
 public interface ASMifiable {
 
   /**

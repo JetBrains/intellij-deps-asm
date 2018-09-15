@@ -111,7 +111,11 @@ public class CodeSizeEvaluator extends MethodVisitor implements Opcodes {
     super.visitFieldInsn(opcode, owner, name, descriptor);
   }
 
-  /** @deprecated */
+  /**
+   * Deprecated.
+   *
+   * @deprecated use {@link #visitMethodInsn(int, String, String, String, boolean)} instead.
+   */
   @Deprecated
   @Override
   public void visitMethodInsn(
@@ -138,7 +142,7 @@ public class CodeSizeEvaluator extends MethodVisitor implements Opcodes {
   }
 
   private void doVisitMethodInsn(
-      int opcode,
+      final int opcode,
       final String owner,
       final String name,
       final String descriptor,

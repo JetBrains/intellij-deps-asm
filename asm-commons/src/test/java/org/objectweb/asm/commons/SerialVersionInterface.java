@@ -25,44 +25,15 @@
 // CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
 // THE POSSIBILITY OF SUCH DAMAGE.
-package org.objectweb.asm.benchmarks;
+package org.objectweb.asm.commons;
 
-import org.objectweb.asm.ClassReader;
-import org.objectweb.asm.ClassWriter;
-import org.objectweb.asm.Opcodes;
-import org.objectweb.asm.tree.ClassNode;
+import java.io.Serializable;
 
-/** A {@link Factory} implemented with the ASM library. */
-public class ASMFactory implements Factory {
-
-  @Override
-  public String getVersion() {
-    for (int i = 6; i >= 4; --i) {
-      try {
-        String version = "ASM" + i;
-        if (Opcodes.class.getField(version) != null) {
-          return version;
-        }
-      } catch (NoSuchFieldException e) {
-        continue;
-      }
-    }
-    return "";
-  }
-
-  @Override
-  public Object newClass(final byte[] classFile) {
-    ClassReader classReader = new ClassReader(classFile);
-    ClassWriter classWriter = new ClassWriter(0);
-    classReader.accept(classWriter, 0);
-    return classWriter;
-  }
-
-  @Override
-  public Object newClassNode(final byte[] classFile) {
-    ClassReader classReader = new ClassReader(classFile);
-    ClassNode classNode = new ClassNode();
-    classReader.accept(classNode, 0);
-    return classNode;
-  }
+/**
+ * Test case for SerialVersionUidAddTest.
+ *
+ * @author Eric Bruneton
+ */
+interface SerialVersionInterface extends Serializable {
+  void someMethod(Object[] args);
 }

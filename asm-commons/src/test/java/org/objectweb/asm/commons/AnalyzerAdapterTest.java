@@ -160,11 +160,11 @@ public class AnalyzerAdapterTest extends AsmTest {
     @Override
     public void visitFrame(
         final int type,
-        final int nLocal,
+        final int numLocal,
         final Object[] local,
-        final int nStack,
+        final int numStack,
         final Object[] stack) {
-      super.visitFrame(type, nLocal, local, nStack, stack);
+      super.visitFrame(type, numLocal, local, numStack, stack);
       hasOriginalFrame = true;
     }
 

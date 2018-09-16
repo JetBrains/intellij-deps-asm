@@ -948,13 +948,13 @@ public class ClassWriter extends ClassVisitor {
     Class<?> class1;
     try {
       class1 = Class.forName(type1.replace('/', '.'), false, classLoader);
-    } catch (Exception e) {
+    } catch (ClassNotFoundException e) {
       throw new TypeNotPresentException(type1, e);
     }
     Class<?> class2;
     try {
       class2 = Class.forName(type2.replace('/', '.'), false, classLoader);
-    } catch (Exception e) {
+    } catch (ClassNotFoundException e) {
       throw new TypeNotPresentException(type2, e);
     }
     if (class1.isAssignableFrom(class2)) {

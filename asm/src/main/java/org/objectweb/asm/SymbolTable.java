@@ -40,58 +40,6 @@ package org.objectweb.asm;
 final class SymbolTable {
 
   /**
-   * An entry of a SymbolTable. This concrete and private subclass of {@link Symbol} adds two fields
-   * which are only used inside SymbolTable, to implement hash sets of symbols (in order to avoid
-   * duplicate symbols). See {@link #entries}.
-   *
-   * @author Eric Bruneton
-   */
-  private static class Entry extends Symbol {
-
-    /** The hash code of this entry. */
-    final int hashCode;
-
-    /**
-     * Another entry (and so on recursively) having the same hash code (modulo the size of {@link
-     * #entries}) as this one.
-     */
-    Entry next;
-
-    Entry(
-        final int index,
-        final int tag,
-        final String owner,
-        final String name,
-        final String value,
-        final long data,
-        final int hashCode) {
-      super(index, tag, owner, name, value, data);
-      this.hashCode = hashCode;
-    }
-
-    Entry(final int index, final int tag, final String value, final int hashCode) {
-      super(index, tag, /* owner = */ null, /* name = */ null, value, /* data = */ 0);
-      this.hashCode = hashCode;
-    }
-
-    Entry(final int index, final int tag, final String value, final long data, final int hashCode) {
-      super(index, tag, /* owner = */ null, /* name = */ null, value, data);
-      this.hashCode = hashCode;
-    }
-
-    Entry(
-        final int index, final int tag, final String name, final String value, final int hashCode) {
-      super(index, tag, /* owner = */ null, name, value, /* data = */ 0);
-      this.hashCode = hashCode;
-    }
-
-    Entry(final int index, final int tag, final long data, final int hashCode) {
-      super(index, tag, /* owner = */ null, /* name = */ null, /* value = */ null, data);
-      this.hashCode = hashCode;
-    }
-  }
-
-  /**
    * The ClassWriter to which this SymbolTable belongs. This is only used to get access to {@link
    * ClassWriter#getCommonSuperClass} and to serialize custom attributes with {@link
    * Attribute#write}.
@@ -1314,5 +1262,57 @@ final class SymbolTable {
       final String value3,
       final int value4) {
     return 0x7FFFFFFF & (tag + value1.hashCode() * value2.hashCode() * value3.hashCode() * value4);
+  }
+
+  /**
+   * An entry of a SymbolTable. This concrete and private subclass of {@link Symbol} adds two fields
+   * which are only used inside SymbolTable, to implement hash sets of symbols (in order to avoid
+   * duplicate symbols). See {@link #entries}.
+   *
+   * @author Eric Bruneton
+   */
+  private static class Entry extends Symbol {
+
+    /** The hash code of this entry. */
+    final int hashCode;
+
+    /**
+     * Another entry (and so on recursively) having the same hash code (modulo the size of {@link
+     * #entries}) as this one.
+     */
+    Entry next;
+
+    Entry(
+        final int index,
+        final int tag,
+        final String owner,
+        final String name,
+        final String value,
+        final long data,
+        final int hashCode) {
+      super(index, tag, owner, name, value, data);
+      this.hashCode = hashCode;
+    }
+
+    Entry(final int index, final int tag, final String value, final int hashCode) {
+      super(index, tag, /* owner = */ null, /* name = */ null, value, /* data = */ 0);
+      this.hashCode = hashCode;
+    }
+
+    Entry(final int index, final int tag, final String value, final long data, final int hashCode) {
+      super(index, tag, /* owner = */ null, /* name = */ null, value, data);
+      this.hashCode = hashCode;
+    }
+
+    Entry(
+        final int index, final int tag, final String name, final String value, final int hashCode) {
+      super(index, tag, /* owner = */ null, name, value, /* data = */ 0);
+      this.hashCode = hashCode;
+    }
+
+    Entry(final int index, final int tag, final long data, final int hashCode) {
+      super(index, tag, /* owner = */ null, /* name = */ null, /* value = */ null, data);
+      this.hashCode = hashCode;
+    }
   }
 }

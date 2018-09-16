@@ -187,12 +187,10 @@ public class AnalyzerAdapterTest extends AsmTest {
      */
     private ArrayList<Object> toFrameTypes(final List<Object> analyzerTypes) {
       ArrayList<Object> frameTypes = new ArrayList<Object>();
-      for (int i = 0; i < analyzerTypes.size(); ++i) {
+      for (int i = 0; i < analyzerTypes.size(); ) {
         Object value = analyzerTypes.get(i);
         frameTypes.add(value);
-        if (value == Opcodes.LONG || value == Opcodes.DOUBLE) {
-          ++i;
-        }
+        i += (value == Opcodes.LONG || value == Opcodes.DOUBLE) ? 2 : 1;
       }
       return frameTypes;
     }

@@ -90,7 +90,7 @@ public abstract class AdviceAdapter extends GeneratorAdapter implements Opcodes 
    * The stack map frames corresponding to the labels of the forward jumps made *before* the super
    * class constructor has been called (note that the Java Virtual Machine forbids backward jumps
    * before the super class constructor is called). Note that by definition (cf. the 'before'), when
-   * we reach a label from this map, {@link superClassConstructorCalled} must be reset to false.
+   * we reach a label from this map, {@link #superClassConstructorCalled} must be reset to false.
    * This field is only maintained for constructors.
    */
   private Map<Label, List<Object>> forwardJumpStackFrames;

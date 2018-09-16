@@ -197,6 +197,18 @@ public class ClassRemapperTest extends AsmTest {
         .when(classParameter.isMoreRecentThanCurrentJdk());
   }
 
+  private static void checkDescriptor(final String descriptor) {
+    CheckMethodAdapter checkMethodAdapter = new CheckMethodAdapter(null);
+    checkMethodAdapter.visitCode();
+    checkMethodAdapter.visitFieldInsn(Opcodes.GETFIELD, "Owner", "name", descriptor);
+  }
+
+  private static void checkInternalName(final String internalName) {
+    CheckMethodAdapter checkMethodAdapter = new CheckMethodAdapter(null);
+    checkMethodAdapter.visitCode();
+    checkMethodAdapter.visitFieldInsn(Opcodes.GETFIELD, internalName, "name", "I");
+  }
+
   static class UpperCaseRemapper extends Remapper {
 
     private final String internalClassName;
@@ -271,17 +283,5 @@ public class ClassRemapperTest extends AsmTest {
       // If this happens, add support for the new type in Remapper.mapValue(), if needed.
       throw new IllegalArgumentException("Unsupported type of value: " + value);
     }
-  }
-
-  private static void checkDescriptor(final String descriptor) {
-    CheckMethodAdapter checkMethodAdapter = new CheckMethodAdapter(null);
-    checkMethodAdapter.visitCode();
-    checkMethodAdapter.visitFieldInsn(Opcodes.GETFIELD, "Owner", "name", descriptor);
-  }
-
-  private static void checkInternalName(final String internalName) {
-    CheckMethodAdapter checkMethodAdapter = new CheckMethodAdapter(null);
-    checkMethodAdapter.visitCode();
-    checkMethodAdapter.visitFieldInsn(Opcodes.GETFIELD, internalName, "name", "I");
   }
 }

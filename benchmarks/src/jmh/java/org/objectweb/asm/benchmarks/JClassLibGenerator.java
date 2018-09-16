@@ -29,6 +29,7 @@ package org.objectweb.asm.benchmarks;
 
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
+import java.io.IOException;
 import java.util.Arrays;
 import org.gjt.jclasslib.bytecode.ImmediateByteInstruction;
 import org.gjt.jclasslib.bytecode.ImmediateShortInstruction;
@@ -40,6 +41,7 @@ import org.gjt.jclasslib.structures.AttributeInfo;
 import org.gjt.jclasslib.structures.CPInfo;
 import org.gjt.jclasslib.structures.ClassFile;
 import org.gjt.jclasslib.structures.ConstantPoolUtil;
+import org.gjt.jclasslib.structures.InvalidByteCodeException;
 import org.gjt.jclasslib.structures.MethodInfo;
 import org.gjt.jclasslib.structures.attributes.CodeAttribute;
 import org.gjt.jclasslib.structures.attributes.SourceFileAttribute;
@@ -134,7 +136,7 @@ public class JClassLibGenerator extends Generator {
       classFile.write(dataOutputStream);
       dataOutputStream.close();
       return byteArrayOutputStream.toByteArray();
-    } catch (Exception e) {
+    } catch (IOException | InvalidByteCodeException e) {
       throw new RuntimeException("Class generation failed", e);
     }
   }

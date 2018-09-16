@@ -69,6 +69,10 @@ public class Retrofitter {
    */
   static final HashMap<String, String> HIERARCHY = new HashMap<String, String>();
 
+  private Retrofitter() {
+    // Empty.
+  }
+
   /**
    * Transforms the classes from a source directory into a destination directory to make them
    * compatible with the JDK 1.5, and checks that they only use the JDK 1.5 API.

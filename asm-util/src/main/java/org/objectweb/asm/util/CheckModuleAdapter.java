@@ -41,19 +41,19 @@ public class CheckModuleAdapter extends ModuleVisitor {
   private final boolean isOpen;
 
   /** The fully qualified names of the dependencies of the visited module. */
-  private final HashSet<String> requiredModules = new HashSet<String>();
+  private final NameSet requiredModules = new NameSet("Modules requires");
 
   /** The internal names of the packages exported by the visited module. */
-  private final HashSet<String> exportedPackages = new HashSet<String>();
+  private final NameSet exportedPackages = new NameSet("Module exports");
 
   /** The internal names of the packages opened by the visited module. */
-  private final HashSet<String> openedPackages = new HashSet<String>();
+  private final NameSet openedPackages = new NameSet("Module opens");
 
   /** The internal names of the services used by the visited module. */
-  private final HashSet<String> usedServices = new HashSet<String>();
+  private final NameSet usedServices = new NameSet("Module uses");
 
   /** The internal names of the services provided by the visited module. */
-  private final HashSet<String> providedServices = new HashSet<String>();
+  private final NameSet providedServices = new NameSet("Module provides");
 
   /** The class version number. */
   int classVersion;
@@ -109,7 +109,7 @@ public class CheckModuleAdapter extends ModuleVisitor {
   public void visitRequire(final String module, final int access, final String version) {
     checkVisitEndNotCalled();
     CheckClassAdapter.checkFullyQualifiedName(Opcodes.V9, module, "required module");
-    checkNameNotAlreadyDeclared(module, requiredModules, "Modules requires");
+    requiredModules.checkNameNotAlreadyDeclared(module);
     CheckClassAdapter.checkAccess(
         access,
         Opcodes.ACC_STATIC_PHASE
@@ -131,7 +131,7 @@ public class CheckModuleAdapter extends ModuleVisitor {
   public void visitExport(final String packaze, final int access, final String... modules) {
     checkVisitEndNotCalled();
     CheckMethodAdapter.checkInternalName(Opcodes.V9, packaze, "package name");
-    checkNameNotAlreadyDeclared(packaze, exportedPackages, "Module exports");
+    exportedPackages.checkNameNotAlreadyDeclared(packaze);
     CheckClassAdapter.checkAccess(access, Opcodes.ACC_SYNTHETIC | Opcodes.ACC_MANDATED);
     if (modules != null) {
       for (String module : modules) {
@@ -148,7 +148,7 @@ public class CheckModuleAdapter extends ModuleVisitor {
       throw new UnsupportedOperationException("An open module can not use open directive");
     }
     CheckMethodAdapter.checkInternalName(Opcodes.V9, packaze, "package name");
-    checkNameNotAlreadyDeclared(packaze, openedPackages, "Module opens");
+    openedPackages.checkNameNotAlreadyDeclared(packaze);
     CheckClassAdapter.checkAccess(access, Opcodes.ACC_SYNTHETIC | Opcodes.ACC_MANDATED);
     if (modules != null) {
       for (String module : modules) {
@@ -162,7 +162,7 @@ public class CheckModuleAdapter extends ModuleVisitor {
   public void visitUse(final String service) {
     checkVisitEndNotCalled();
     CheckMethodAdapter.checkInternalName(Opcodes.V9, service, "service");
-    checkNameNotAlreadyDeclared(service, usedServices, "Module uses");
+    usedServices.checkNameNotAlreadyDeclared(service);
     super.visitUse(service);
   }
 
@@ -170,7 +170,7 @@ public class CheckModuleAdapter extends ModuleVisitor {
   public void visitProvide(final String service, final String... providers) {
     checkVisitEndNotCalled();
     CheckMethodAdapter.checkInternalName(Opcodes.V9, service, "service");
-    checkNameNotAlreadyDeclared(service, providedServices, "Module provides");
+    providedServices.checkNameNotAlreadyDeclared(service);
     if (providers == null || providers.length == 0) {
       throw new IllegalArgumentException("Providers cannot be null or empty");
     }
@@ -187,16 +187,26 @@ public class CheckModuleAdapter extends ModuleVisitor {
     super.visitEnd();
   }
 
-  private static void checkNameNotAlreadyDeclared(
-      final String name, final HashSet<String> declaredNames, final String message) {
-    if (!declaredNames.add(name)) {
-      throw new IllegalArgumentException(message + " " + name + " already declared");
-    }
-  }
-
   private void checkVisitEndNotCalled() {
     if (visitEndCalled) {
       throw new IllegalStateException("Cannot call a visit method after visitEnd has been called");
+    }
+  }
+
+  private static class NameSet {
+
+    private final String type;
+    private final HashSet<String> names;
+
+    NameSet(final String type) {
+      this.type = type;
+      this.names = new HashSet<String>();
+    }
+
+    void checkNameNotAlreadyDeclared(final String name) {
+      if (!names.add(name)) {
+        throw new IllegalArgumentException(type + " " + name + " already declared");
+      }
     }
   }
 }

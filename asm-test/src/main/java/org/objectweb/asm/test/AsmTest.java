@@ -327,48 +327,6 @@ public abstract class AsmTest {
     return new ClassSubject(classFile);
   }
 
-  /** Helper to make assertions about a class. */
-  public static class ClassSubject {
-    /** The content of the class to be tested. */
-    private final byte[] classFile;
-
-    ClassSubject(final byte[] classFile) {
-      this.classFile = classFile;
-    }
-
-    /**
-     * Asserts that a dump of the subject class into a string representation contains the given
-     * string.
-     *
-     * @param expectedString a string which should be contained in a dump of the subject class.
-     */
-    public void contains(final String expectedString) {
-      try {
-        String dump = new ClassDump(classFile).toString();
-        assertTrue(dump.contains(expectedString));
-      } catch (IOException | IllegalArgumentException e) {
-        fail("Class can't be dumped", e);
-      }
-    }
-
-    /**
-     * Asserts that the subject class is equal to the given class, modulo some low level bytecode
-     * representation details (e.g. the order of the constants in the constant pool, the order of
-     * attributes and annotations, and low level details such as ldc vs ldc_w instructions).
-     *
-     * @param expectedClassFile a class file content which should be equal to the subject class.
-     */
-    public void isEqualTo(final byte[] expectedClassFile) {
-      try {
-        String dump = new ClassDump(classFile).toString();
-        String expectedDump = new ClassDump(expectedClassFile).toString();
-        assertEquals(expectedDump, dump);
-      } catch (IOException | IllegalArgumentException e) {
-        fail("Class can't be dumped", e);
-      }
-    }
-  }
-
   /**
    * Loads the given class in a new class loader. Also tries to instantiate the loaded class (if it
    * is not an abstract or enum class, or a module-info class), in order to check that it passes the
@@ -433,6 +391,66 @@ public abstract class AsmTest {
     return byteClassLoader.classLoaded();
   }
 
+  private static byte[] getBytes(final String name) {
+    String resourceName = name.replace('.', '/') + ".class";
+    try (InputStream inputStream = ClassLoader.getSystemResourceAsStream(resourceName)) {
+      assertNotNull(inputStream, "Class not found " + name);
+      ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+      byte[] data = new byte[INPUT_STREAM_DATA_CHUNK_SIZE];
+      int bytesRead;
+      while ((bytesRead = inputStream.read(data, 0, data.length)) != -1) {
+        outputStream.write(data, 0, bytesRead);
+      }
+      outputStream.flush();
+      return outputStream.toByteArray();
+    } catch (IOException e) {
+      fail("Can't read " + name, e);
+      return new byte[0];
+    }
+  }
+
+  /** Helper to make assertions about a class. */
+  public static class ClassSubject {
+    /** The content of the class to be tested. */
+    private final byte[] classFile;
+
+    ClassSubject(final byte[] classFile) {
+      this.classFile = classFile;
+    }
+
+    /**
+     * Asserts that a dump of the subject class into a string representation contains the given
+     * string.
+     *
+     * @param expectedString a string which should be contained in a dump of the subject class.
+     */
+    public void contains(final String expectedString) {
+      try {
+        String dump = new ClassDump(classFile).toString();
+        assertTrue(dump.contains(expectedString));
+      } catch (IOException | IllegalArgumentException e) {
+        fail("Class can't be dumped", e);
+      }
+    }
+
+    /**
+     * Asserts that the subject class is equal to the given class, modulo some low level bytecode
+     * representation details (e.g. the order of the constants in the constant pool, the order of
+     * attributes and annotations, and low level details such as ldc vs ldc_w instructions).
+     *
+     * @param expectedClassFile a class file content which should be equal to the subject class.
+     */
+    public void isEqualTo(final byte[] expectedClassFile) {
+      try {
+        String dump = new ClassDump(classFile).toString();
+        String expectedDump = new ClassDump(expectedClassFile).toString();
+        assertEquals(expectedDump, dump);
+      } catch (IOException | IllegalArgumentException e) {
+        fail("Class can't be dumped", e);
+      }
+    }
+  }
+
   /** A simple ClassLoader to test that a class can be loaded in the JVM. */
   private static class ByteClassLoader extends ClassLoader {
     private final String className;
@@ -457,24 +475,6 @@ public abstract class AsmTest {
       } else {
         return super.loadClass(name, resolve);
       }
-    }
-  }
-
-  private static byte[] getBytes(final String name) {
-    String resourceName = name.replace('.', '/') + ".class";
-    try (InputStream inputStream = ClassLoader.getSystemResourceAsStream(resourceName)) {
-      assertNotNull(inputStream, "Class not found " + name);
-      ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-      byte[] data = new byte[INPUT_STREAM_DATA_CHUNK_SIZE];
-      int bytesRead;
-      while ((bytesRead = inputStream.read(data, 0, data.length)) != -1) {
-        outputStream.write(data, 0, bytesRead);
-      }
-      outputStream.flush();
-      return outputStream.toByteArray();
-    } catch (IOException e) {
-      fail("Can't read " + name, e);
-      return new byte[0];
     }
   }
 }

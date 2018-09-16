@@ -28,6 +28,7 @@
 package org.objectweb.asm.benchmarks;
 
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import org.apache.bcel.classfile.ClassParser;
 import org.apache.bcel.classfile.JavaClass;
 import org.apache.bcel.classfile.Method;
@@ -36,6 +37,7 @@ import org.apache.bcel.generic.ConstantPoolGen;
 import org.apache.bcel.generic.InstructionHandle;
 import org.apache.bcel.generic.InstructionList;
 import org.apache.bcel.generic.MethodGen;
+import org.aspectj.apache.bcel.classfile.ClassFormatException;
 
 /**
  * An {@link Adapter} implemented with the BCEL library.
@@ -49,7 +51,7 @@ public class BcelAdapter extends Adapter {
     JavaClass javaClass;
     try {
       javaClass = new ClassParser(new ByteArrayInputStream(classFile), "class-name").parse();
-    } catch (Exception e) {
+    } catch (ClassFormatException | IOException e) {
       throw new IllegalArgumentException(e);
     }
     ClassGen classGen = new ClassGen(javaClass);

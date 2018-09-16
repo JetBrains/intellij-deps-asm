@@ -268,7 +268,7 @@ public class CheckMethodAdapterTest extends AsmTest implements Opcodes {
             }
             return new MethodVisitor(api, new CheckMethodAdapter(next)) {
 
-              private Label entryLabel = null;
+              private Label entryLabel;
 
               @Override
               public void visitLabel(final Label label) {

@@ -42,6 +42,93 @@ import org.objectweb.asm.Opcodes;
  */
 public class PrinterTest {
 
+  @Test
+  public void testUnsupportedOperations() {
+    Printer printer = new StubPrinter(Opcodes.ASM7);
+    assertThrows(UnsupportedOperationException.class, () -> printer.visitModule(null, 0, null));
+    assertThrows(UnsupportedOperationException.class, () -> printer.visitModule(null, 0, null));
+    assertThrows(
+        UnsupportedOperationException.class,
+        () -> printer.visitClassTypeAnnotation(0, null, null, false));
+    assertThrows(UnsupportedOperationException.class, () -> printer.visitMainClass(null));
+    assertThrows(UnsupportedOperationException.class, () -> printer.visitPackage(null));
+    assertThrows(UnsupportedOperationException.class, () -> printer.visitRequire(null, 0, null));
+    assertThrows(UnsupportedOperationException.class, () -> printer.visitExport(null, 0));
+    assertThrows(UnsupportedOperationException.class, () -> printer.visitOpen(null, 0));
+    assertThrows(UnsupportedOperationException.class, () -> printer.visitUse(null));
+    assertThrows(UnsupportedOperationException.class, () -> printer.visitProvide(null));
+    assertThrows(UnsupportedOperationException.class, () -> printer.visitModuleEnd());
+    assertThrows(
+        UnsupportedOperationException.class,
+        () -> printer.visitFieldTypeAnnotation(0, null, null, false));
+    assertThrows(UnsupportedOperationException.class, () -> printer.visitParameter(null, 0));
+    assertThrows(
+        UnsupportedOperationException.class,
+        () -> printer.visitMethodTypeAnnotation(0, null, null, false));
+    assertThrows(
+        UnsupportedOperationException.class, () -> printer.visitAnnotableParameterCount(0, false));
+    assertThrows(
+        UnsupportedOperationException.class,
+        () -> printer.visitInsnAnnotation(0, null, null, false));
+    assertThrows(
+        UnsupportedOperationException.class,
+        () -> printer.visitTryCatchAnnotation(0, null, null, false));
+    assertThrows(
+        UnsupportedOperationException.class,
+        () -> printer.visitLocalVariableAnnotation(0, null, null, null, null, null, false));
+    assertThrows(
+        UnsupportedOperationException.class,
+        () -> printer.visitMethodInsn(Opcodes.INVOKESPECIAL, "owner", "name", "()V"));
+    assertThrows(
+        UnsupportedOperationException.class,
+        () -> printer.visitMethodInsn(Opcodes.INVOKESPECIAL, "owner", "name", "()V", false));
+    assertThrows(
+        UnsupportedOperationException.class,
+        () -> printer.visitMethodInsn(Opcodes.INVOKESPECIAL, "owner", "name", "()V", true));
+  }
+
+  @Test
+  public void testUnsupportedOperationsAsm4() {
+    Printer printer = new StubPrinter(Opcodes.ASM4);
+    assertThrows(
+        UnsupportedOperationException.class,
+        () -> printer.visitMethodInsn(Opcodes.INVOKESPECIAL, "owner", "name", "()V"));
+    assertThrows(
+        UnsupportedOperationException.class,
+        () -> printer.visitMethodInsn(Opcodes.INVOKESPECIAL, "owner", "name", "()V", false));
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> printer.visitMethodInsn(Opcodes.INVOKESPECIAL, "owner", "name", "()V", true));
+  }
+
+  @Test
+  public void testBackwardCompatibility() {
+    Printer printer =
+        new StubPrinter(Opcodes.ASM5) {
+          public void visitMethodInsn(
+              final int opcode,
+              final String owner,
+              final String name,
+              final String descriptor,
+              final boolean isInterface) {
+            // Do nothing.
+          }
+        };
+    printer.visitMethodInsn(Opcodes.INVOKESPECIAL, "owner", "name", "()V");
+  }
+
+  @Test
+  public void testBackwardCompatibilityAsm4() {
+    Printer printer =
+        new StubPrinter(Opcodes.ASM4) {
+          public void visitMethodInsn(
+              final int opcode, final String owner, final String name, final String descriptor) {
+            // Do nothing.
+          }
+        };
+    printer.visitMethodInsn(Opcodes.INVOKESPECIAL, "owner", "name", "()V", false);
+  }
+
   static class StubPrinter extends Printer {
 
     StubPrinter(final int api) {
@@ -289,92 +376,5 @@ public class PrinterTest {
     public void visitMethodEnd() {
       // Do nothing.
     }
-  }
-
-  @Test
-  public void testUnsupportedOperations() {
-    Printer printer = new StubPrinter(Opcodes.ASM7);
-    assertThrows(UnsupportedOperationException.class, () -> printer.visitModule(null, 0, null));
-    assertThrows(UnsupportedOperationException.class, () -> printer.visitModule(null, 0, null));
-    assertThrows(
-        UnsupportedOperationException.class,
-        () -> printer.visitClassTypeAnnotation(0, null, null, false));
-    assertThrows(UnsupportedOperationException.class, () -> printer.visitMainClass(null));
-    assertThrows(UnsupportedOperationException.class, () -> printer.visitPackage(null));
-    assertThrows(UnsupportedOperationException.class, () -> printer.visitRequire(null, 0, null));
-    assertThrows(UnsupportedOperationException.class, () -> printer.visitExport(null, 0));
-    assertThrows(UnsupportedOperationException.class, () -> printer.visitOpen(null, 0));
-    assertThrows(UnsupportedOperationException.class, () -> printer.visitUse(null));
-    assertThrows(UnsupportedOperationException.class, () -> printer.visitProvide(null));
-    assertThrows(UnsupportedOperationException.class, () -> printer.visitModuleEnd());
-    assertThrows(
-        UnsupportedOperationException.class,
-        () -> printer.visitFieldTypeAnnotation(0, null, null, false));
-    assertThrows(UnsupportedOperationException.class, () -> printer.visitParameter(null, 0));
-    assertThrows(
-        UnsupportedOperationException.class,
-        () -> printer.visitMethodTypeAnnotation(0, null, null, false));
-    assertThrows(
-        UnsupportedOperationException.class, () -> printer.visitAnnotableParameterCount(0, false));
-    assertThrows(
-        UnsupportedOperationException.class,
-        () -> printer.visitInsnAnnotation(0, null, null, false));
-    assertThrows(
-        UnsupportedOperationException.class,
-        () -> printer.visitTryCatchAnnotation(0, null, null, false));
-    assertThrows(
-        UnsupportedOperationException.class,
-        () -> printer.visitLocalVariableAnnotation(0, null, null, null, null, null, false));
-    assertThrows(
-        UnsupportedOperationException.class,
-        () -> printer.visitMethodInsn(Opcodes.INVOKESPECIAL, "owner", "name", "()V"));
-    assertThrows(
-        UnsupportedOperationException.class,
-        () -> printer.visitMethodInsn(Opcodes.INVOKESPECIAL, "owner", "name", "()V", false));
-    assertThrows(
-        UnsupportedOperationException.class,
-        () -> printer.visitMethodInsn(Opcodes.INVOKESPECIAL, "owner", "name", "()V", true));
-  }
-
-  @Test
-  public void testUnsupportedOperationsAsm4() {
-    Printer printer = new StubPrinter(Opcodes.ASM4);
-    assertThrows(
-        UnsupportedOperationException.class,
-        () -> printer.visitMethodInsn(Opcodes.INVOKESPECIAL, "owner", "name", "()V"));
-    assertThrows(
-        UnsupportedOperationException.class,
-        () -> printer.visitMethodInsn(Opcodes.INVOKESPECIAL, "owner", "name", "()V", false));
-    assertThrows(
-        IllegalArgumentException.class,
-        () -> printer.visitMethodInsn(Opcodes.INVOKESPECIAL, "owner", "name", "()V", true));
-  }
-
-  @Test
-  public void testBackwardCompatibility() {
-    Printer printer =
-        new StubPrinter(Opcodes.ASM5) {
-          public void visitMethodInsn(
-              final int opcode,
-              final String owner,
-              final String name,
-              final String descriptor,
-              final boolean isInterface) {
-            // Do nothing.
-          }
-        };
-    printer.visitMethodInsn(Opcodes.INVOKESPECIAL, "owner", "name", "()V");
-  }
-
-  @Test
-  public void testBackwardCompatibilityAsm4() {
-    Printer printer =
-        new StubPrinter(Opcodes.ASM4) {
-          public void visitMethodInsn(
-              final int opcode, final String owner, final String name, final String descriptor) {
-            // Do nothing.
-          }
-        };
-    printer.visitMethodInsn(Opcodes.INVOKESPECIAL, "owner", "name", "()V", false);
   }
 }

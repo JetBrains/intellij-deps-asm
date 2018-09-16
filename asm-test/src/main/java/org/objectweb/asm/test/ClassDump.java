@@ -250,528 +250,6 @@ class ClassDump {
     }
   }
 
-  /** An abstract constant pool item. */
-  private abstract static class CpInfo {
-    /** The dump of this item. */
-    private String dump;
-    /** The context to use to get the referenced constant pool items. */
-    private final ClassContext classContext;
-
-    /**
-     * Constructs a CpInfo for an item without references to other items.
-     *
-     * @param dump the dump of this item.
-     */
-    CpInfo(final String dump) {
-      this.dump = dump;
-      this.classContext = null;
-    }
-
-    /**
-     * Constructs a CpInfo for an item with references to other items.
-     *
-     * @param classContext a context to lookup constant pool items from their index.
-     */
-    CpInfo(final ClassContext classContext) {
-      this.classContext = classContext;
-    }
-
-    /**
-     * Returns the number of entries used by this item in constant_pool.
-     *
-     * @return the number of entries used by this item in constant_pool.
-     */
-    int size() {
-      return 1;
-    }
-
-    /**
-     * @param <C> a CpInfo subclass.
-     * @param cpIndex a constant pool entry index.
-     * @param cpInfoType the expected type of the constant pool entry.
-     * @return the constant pool item with the given index.
-     */
-    <C extends CpInfo> C getCpInfo(final int cpIndex, final Class<C> cpInfoType) {
-      return classContext.getCpInfo(cpIndex, cpInfoType);
-    }
-
-    /**
-     * Returns the dump of this item.
-     *
-     * @return the dump of this item.
-     */
-    String dump() {
-      return dump;
-    }
-
-    @Override
-    public String toString() {
-      if (dump == null) {
-        dump = getClass().getSimpleName() + " " + dump();
-      }
-      return dump;
-    }
-  }
-
-  /**
-   * A CONSTANT_Class_info item.
-   *
-   * @see <a href="https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.4.1">JVMS
-   *     4.4.1</a>
-   */
-  private static class ConstantClassInfo extends CpInfo {
-    private final int nameIndex;
-
-    /**
-     * Parses a CONSTANT_Class_info item.
-     *
-     * @param parser a class parser.
-     * @param classContext a context to lookup constant pool items from their index.
-     * @throws IOException if the class can't be parsed.
-     */
-    ConstantClassInfo(final Parser parser, final ClassContext classContext) throws IOException {
-      super(classContext);
-      this.nameIndex = parser.u2();
-    }
-
-    @Override
-    String dump() {
-      return getCpInfo(nameIndex, ConstantUtf8Info.class).dump();
-    }
-  }
-
-  /**
-   * A CONSTANT_Fieldref_info item.
-   *
-   * @see <a href="https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.4.2">JVMS
-   *     4.4.2</a>
-   */
-  private static class ConstantFieldRefInfo extends CpInfo {
-    private final int classIndex;
-    private final int nameAndTypeIndex;
-
-    /**
-     * Parses a CONSTANT_Fieldref_info item.
-     *
-     * @param parser a class parser.
-     * @param classContext a context to lookup constant pool items from their index.
-     * @throws IOException if the class can't be parsed.
-     */
-    ConstantFieldRefInfo(final Parser parser, final ClassContext classContext) throws IOException {
-      super(classContext);
-      this.classIndex = parser.u2();
-      this.nameAndTypeIndex = parser.u2();
-    }
-
-    @Override
-    String dump() {
-      return getCpInfo(classIndex, ConstantClassInfo.class).dump()
-          + "."
-          + getCpInfo(nameAndTypeIndex, ConstantNameAndTypeInfo.class).dump();
-    }
-  }
-
-  /**
-   * A CONSTANT_Methodref_info item.
-   *
-   * @see <a href="https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.4.2">JVMS
-   *     4.4.2</a>
-   */
-  private static class ConstantMethodRefInfo extends CpInfo {
-    private final int classIndex;
-    private final int nameAndTypeIndex;
-
-    /**
-     * Parses a CONSTANT_Methodref_info item.
-     *
-     * @param parser a class parser.
-     * @param classContext a context to lookup constant pool items from their index.
-     * @throws IOException if the class can't be parsed.
-     */
-    ConstantMethodRefInfo(final Parser parser, final ClassContext classContext) throws IOException {
-      super(classContext);
-      this.classIndex = parser.u2();
-      this.nameAndTypeIndex = parser.u2();
-    }
-
-    @Override
-    String dump() {
-      return getCpInfo(classIndex, ConstantClassInfo.class).dump()
-          + "."
-          + getCpInfo(nameAndTypeIndex, ConstantNameAndTypeInfo.class).dump();
-    }
-  }
-
-  /**
-   * A CONSTANT_InterfaceMethodref_info item.
-   *
-   * @see <a href="https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.4.2">JVMS
-   *     4.4.2</a>
-   */
-  private static class ConstantInterfaceMethodRefInfo extends CpInfo {
-    private final int classIndex;
-    private final int nameAndTypeIndex;
-
-    /**
-     * Parses a CONSTANT_InterfaceMethodref_info item.
-     *
-     * @param parser a class parser.
-     * @param classContext a context to lookup constant pool items from their index.
-     * @throws IOException if the class can't be parsed.
-     */
-    ConstantInterfaceMethodRefInfo(final Parser parser, final ClassContext classContext)
-        throws IOException {
-      super(classContext);
-      this.classIndex = parser.u2();
-      this.nameAndTypeIndex = parser.u2();
-    }
-
-    @Override
-    String dump() {
-      return getCpInfo(classIndex, ConstantClassInfo.class).dump()
-          + "."
-          + getCpInfo(nameAndTypeIndex, ConstantNameAndTypeInfo.class).dump();
-    }
-  }
-
-  /**
-   * A CONSTANT_String_info item.
-   *
-   * @see <a href="https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.4.3">JVMS
-   *     4.4.3</a>
-   */
-  private static class ConstantStringInfo extends CpInfo {
-    final int stringIndex;
-
-    /**
-     * Parses a CONSTANT_String_info item.
-     *
-     * @param parser a class parser.
-     * @param classContext a context to lookup constant pool items from their index.
-     * @throws IOException if the class can't be parsed.
-     */
-    ConstantStringInfo(final Parser parser, final ClassContext classContext) throws IOException {
-      super(classContext);
-      this.stringIndex = parser.u2();
-    }
-
-    @Override
-    String dump() {
-      return getCpInfo(stringIndex, ConstantUtf8Info.class).dump();
-    }
-  }
-
-  /**
-   * A CONSTANT_Integer_info item.
-   *
-   * @see <a href="https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.4.4">JVMS
-   *     4.4.4</a>
-   */
-  private static class ConstantIntegerInfo extends CpInfo {
-
-    /**
-     * Parses a CONSTANT_Integer_info item.
-     *
-     * @param parser a class parser.
-     * @throws IOException if the class can't be parsed.
-     */
-    ConstantIntegerInfo(final Parser parser) throws IOException {
-      super(Integer.toString(parser.u4()));
-    }
-  }
-
-  /**
-   * A CONSTANT_Float_info item.
-   *
-   * @see <a href="https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.4.4">JVMS
-   *     4.4.4</a>
-   */
-  private static class ConstantFloatInfo extends CpInfo {
-
-    /**
-     * Parses a CONSTANT_Float_info item.
-     *
-     * @param parser a class parser.
-     * @throws IOException if the class can't be parsed.
-     */
-    ConstantFloatInfo(final Parser parser) throws IOException {
-      super(Float.toString(Float.intBitsToFloat(parser.u4())));
-    }
-  }
-
-  /**
-   * A CONSTANT_Long_info item.
-   *
-   * @see <a href="https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.4.5">JVMS
-   *     4.4.5</a>
-   */
-  private static class ConstantLongInfo extends CpInfo {
-
-    /**
-     * Parses a CONSTANT_Long_info item.
-     *
-     * @param parser a class parser.
-     * @throws IOException if the class can't be parsed.
-     */
-    ConstantLongInfo(final Parser parser) throws IOException {
-      super(Long.toString(parser.s8()));
-    }
-
-    @Override
-    int size() {
-      return 2;
-    }
-  }
-
-  /**
-   * A CONSTANT_Double_info item.
-   *
-   * @see <a href="https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.4.5">JVMS
-   *     4.4.5</a>
-   */
-  private static class ConstantDoubleInfo extends CpInfo {
-
-    /**
-     * Parses a CONSTANT_Double_info item.
-     *
-     * @param parser a class parser.
-     * @throws IOException if the class can't be parsed.
-     */
-    ConstantDoubleInfo(final Parser parser) throws IOException {
-      super(Double.toString(Double.longBitsToDouble(parser.s8())));
-    }
-
-    @Override
-    int size() {
-      return 2;
-    }
-  }
-
-  /**
-   * A CONSTANT_NameAndType_info item.
-   *
-   * @see <a href="https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.4.6">JVMS
-   *     4.4.6</a>
-   */
-  private static class ConstantNameAndTypeInfo extends CpInfo {
-    private final int nameIndex;
-    private final int descriptorIndex;
-
-    /**
-     * Parses a CONSTANT_NameAndType_info item.
-     *
-     * @param parser a class parser.
-     * @param classContext a context to lookup constant pool items from their index.
-     * @throws IOException if the class can't be parsed.
-     */
-    ConstantNameAndTypeInfo(final Parser parser, final ClassContext classContext)
-        throws IOException {
-      super(classContext);
-      this.nameIndex = parser.u2();
-      this.descriptorIndex = parser.u2();
-    }
-
-    @Override
-    String dump() {
-      return getCpInfo(nameIndex, ConstantUtf8Info.class).dump()
-          + getCpInfo(descriptorIndex, ConstantUtf8Info.class).dump();
-    }
-  }
-
-  /**
-   * A CONSTANT_Utf8_info item.
-   *
-   * @see <a href="https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.4.7">JVMS
-   *     4.4.7</a>
-   */
-  private static class ConstantUtf8Info extends CpInfo {
-
-    /**
-     * Parses a CONSTANT_Utf8_info item.
-     *
-     * @param parser a class parser.
-     * @throws IOException if the class can't be parsed.
-     */
-    ConstantUtf8Info(final Parser parser) throws IOException {
-      super(parser.utf8());
-    }
-  }
-
-  /**
-   * A CONSTANT_MethodHandle_info item.
-   *
-   * @see <a href="https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.4.8">JVMS
-   *     4.4.8</a>
-   */
-  private static class ConstantMethodHandleInfo extends CpInfo {
-    private final int referenceKind;
-    private final int referenceIndex;
-
-    /**
-     * Parses a CONSTANT_MethodHandle_info item.
-     *
-     * @param parser a class parser.
-     * @param classContext a context to lookup constant pool items from their index.
-     * @throws IOException if the class can't be parsed.
-     */
-    ConstantMethodHandleInfo(final Parser parser, final ClassContext classContext)
-        throws IOException {
-      super(classContext);
-      this.referenceKind = parser.u1();
-      this.referenceIndex = parser.u2();
-    }
-
-    @Override
-    String dump() {
-      return referenceKind + "." + getCpInfo(referenceIndex, CpInfo.class);
-    }
-  }
-
-  /**
-   * A CONSTANT_MethodType_info item.
-   *
-   * @see <a href="https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.4.9">JVMS
-   *     4.4.9</a>
-   */
-  private static class ConstantMethodTypeInfo extends CpInfo {
-    private final int descriptorIndex;
-
-    /**
-     * Parses a CONSTANT_MethodType_info item.
-     *
-     * @param parser a class parser.
-     * @param classContext a context to lookup constant pool items from their index.
-     * @throws IOException if the class can't be parsed.
-     */
-    ConstantMethodTypeInfo(final Parser parser, final ClassContext classContext)
-        throws IOException {
-      super(classContext);
-      this.descriptorIndex = parser.u2();
-    }
-
-    @Override
-    String dump() {
-      return getCpInfo(descriptorIndex, ConstantUtf8Info.class).dump();
-    }
-  }
-
-  /**
-   * A CONSTANT_InvokeDynamic_info item.
-   *
-   * @see <a href="https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.4.10">JVMS
-   *     4.4.10</a>
-   */
-  private static class ConstantInvokeDynamicInfo extends CpInfo {
-    private final int bootstrapMethodAttrIndex;
-    private final int nameAndTypeIndex;
-
-    /**
-     * Parses a CONSTANT_InvokeDynamic_info item.
-     *
-     * @param parser a class parser.
-     * @param classContext a context to lookup constant pool items from their index.
-     * @throws IOException if the class can't be parsed.
-     */
-    ConstantInvokeDynamicInfo(final Parser parser, final ClassContext classContext)
-        throws IOException {
-      super(classContext);
-      this.bootstrapMethodAttrIndex = parser.u2();
-      this.nameAndTypeIndex = parser.u2();
-    }
-
-    @Override
-    String dump() {
-      return bootstrapMethodAttrIndex
-          + "."
-          + getCpInfo(nameAndTypeIndex, ConstantNameAndTypeInfo.class).dump();
-    }
-  }
-
-  /**
-   * A CONSTANT_Module_info item.
-   *
-   * @see <a href="https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.4.11">JVMS
-   *     4.4.11</a>
-   */
-  private static class ConstantModuleInfo extends CpInfo {
-    private final int descriptorIndex;
-
-    /**
-     * Parses a CONSTANT_Module_info item.
-     *
-     * @param parser a class parser.
-     * @param classContext a context to lookup constant pool items from their index.
-     * @throws IOException if the class can't be parsed.
-     */
-    ConstantModuleInfo(final Parser parser, final ClassContext classContext) throws IOException {
-      super(classContext);
-      this.descriptorIndex = parser.u2();
-    }
-
-    @Override
-    String dump() {
-      return getCpInfo(descriptorIndex, ConstantUtf8Info.class).dump();
-    }
-  }
-
-  /**
-   * A CONSTANT_Package_info item.
-   *
-   * @see <a href="https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.4.12">JVMS
-   *     4.4.12</a>
-   */
-  private static class ConstantPackageInfo extends CpInfo {
-    private final int descriptorIndex;
-
-    /**
-     * Parses a CONSTANT_Package_info item.
-     *
-     * @param parser a class parser.
-     * @param classContext a context to lookup constant pool items from their index.
-     * @throws IOException if the class can't be parsed.
-     */
-    ConstantPackageInfo(final Parser parser, final ClassContext classContext) throws IOException {
-      super(classContext);
-      this.descriptorIndex = parser.u2();
-    }
-
-    @Override
-    String dump() {
-      return getCpInfo(descriptorIndex, ConstantUtf8Info.class).dump();
-    }
-  }
-
-  /**
-   * A CONSTANT_Dynamic_info item.
-   *
-   * @see <a href="https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.4.13">JVMS
-   *     4.4.13</a>
-   */
-  private static class ConstantDynamicInfo extends CpInfo {
-    private final int bootstrapMethodAttrIndex;
-    private final int nameAndTypeIndex;
-
-    /**
-     * Parses a CONSTANT_Dynamic_info item.
-     *
-     * @param parser a class parser.
-     * @param classContext a context to lookup constant pool items from their index.
-     * @throws IOException if the class can't be parsed.
-     */
-    ConstantDynamicInfo(final Parser parser, final ClassContext classContext) throws IOException {
-      super(classContext);
-      this.bootstrapMethodAttrIndex = parser.u2();
-      this.nameAndTypeIndex = parser.u2();
-    }
-
-    @Override
-    String dump() {
-      return bootstrapMethodAttrIndex
-          + "."
-          + getCpInfo(nameAndTypeIndex, ConstantNameAndTypeInfo.class).dump();
-    }
-  }
-
   /**
    * Parses and dumps a field_info structure.
    *
@@ -922,35 +400,6 @@ class ClassDump {
       builder.addCpInfo("catch_type: ", parser.u2());
     }
     dumpAttributeList(parser, builder);
-  }
-
-  /**
-   * The index of a bytecode instruction. This index is computed in {@link #toString}, from the
-   * bytecode offset of the instruction, after the whole class has been parsed. Indeed, due to
-   * forward references, the index of an instruction might not be known when its offset is used.
-   *
-   * <p>Dumps use instruction indices instead of bytecode offsets in order to abstract away the low
-   * level byte code instruction representation details (e.g. an ldc vs. an ldc_w).
-   */
-  private static class InstructionIndex {
-    /** An offset in bytes from the start of the bytecode of a method. */
-    private final int bytecodeOffset;
-    /** The context to use to find the index from the bytecode offset. */
-    private final MethodContext methodContext;
-
-    InstructionIndex(final int bytecodeOffset, final MethodContext methodContext) {
-      this.bytecodeOffset = bytecodeOffset;
-      this.methodContext = methodContext;
-    }
-
-    int getBytecodeOffset() {
-      return bytecodeOffset;
-    }
-
-    @Override
-    public String toString() {
-      return "<" + methodContext.getInsnIndex(bytecodeOffset) + ">";
-    }
   }
 
   /**
@@ -2120,6 +1569,557 @@ class ClassDump {
       for (int j = 0; j < numberOfStackItems; ++j) {
         dumpVerificationTypeInfo(parser, builder);
       }
+    }
+  }
+
+  /** An abstract constant pool item. */
+  private abstract static class CpInfo {
+    /** The dump of this item. */
+    private String dump;
+    /** The context to use to get the referenced constant pool items. */
+    private final ClassContext classContext;
+
+    /**
+     * Constructs a CpInfo for an item without references to other items.
+     *
+     * @param dump the dump of this item.
+     */
+    CpInfo(final String dump) {
+      this.dump = dump;
+      this.classContext = null;
+    }
+
+    /**
+     * Constructs a CpInfo for an item with references to other items.
+     *
+     * @param classContext a context to lookup constant pool items from their index.
+     */
+    CpInfo(final ClassContext classContext) {
+      this.classContext = classContext;
+    }
+
+    /**
+     * Returns the number of entries used by this item in constant_pool.
+     *
+     * @return the number of entries used by this item in constant_pool.
+     */
+    int size() {
+      return 1;
+    }
+
+    /**
+     * @param <C> a CpInfo subclass.
+     * @param cpIndex a constant pool entry index.
+     * @param cpInfoType the expected type of the constant pool entry.
+     * @return the constant pool item with the given index.
+     */
+    <C extends CpInfo> C getCpInfo(final int cpIndex, final Class<C> cpInfoType) {
+      return classContext.getCpInfo(cpIndex, cpInfoType);
+    }
+
+    /**
+     * Returns the dump of this item.
+     *
+     * @return the dump of this item.
+     */
+    String dump() {
+      return dump;
+    }
+
+    @Override
+    public String toString() {
+      if (dump == null) {
+        dump = getClass().getSimpleName() + " " + dump();
+      }
+      return dump;
+    }
+  }
+
+  /**
+   * A CONSTANT_Class_info item.
+   *
+   * @see <a href="https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.4.1">JVMS
+   *     4.4.1</a>
+   */
+  private static class ConstantClassInfo extends CpInfo {
+    private final int nameIndex;
+
+    /**
+     * Parses a CONSTANT_Class_info item.
+     *
+     * @param parser a class parser.
+     * @param classContext a context to lookup constant pool items from their index.
+     * @throws IOException if the class can't be parsed.
+     */
+    ConstantClassInfo(final Parser parser, final ClassContext classContext) throws IOException {
+      super(classContext);
+      this.nameIndex = parser.u2();
+    }
+
+    @Override
+    String dump() {
+      return getCpInfo(nameIndex, ConstantUtf8Info.class).dump();
+    }
+  }
+
+  /**
+   * A CONSTANT_Fieldref_info item.
+   *
+   * @see <a href="https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.4.2">JVMS
+   *     4.4.2</a>
+   */
+  private static class ConstantFieldRefInfo extends CpInfo {
+    private final int classIndex;
+    private final int nameAndTypeIndex;
+
+    /**
+     * Parses a CONSTANT_Fieldref_info item.
+     *
+     * @param parser a class parser.
+     * @param classContext a context to lookup constant pool items from their index.
+     * @throws IOException if the class can't be parsed.
+     */
+    ConstantFieldRefInfo(final Parser parser, final ClassContext classContext) throws IOException {
+      super(classContext);
+      this.classIndex = parser.u2();
+      this.nameAndTypeIndex = parser.u2();
+    }
+
+    @Override
+    String dump() {
+      return getCpInfo(classIndex, ConstantClassInfo.class).dump()
+          + "."
+          + getCpInfo(nameAndTypeIndex, ConstantNameAndTypeInfo.class).dump();
+    }
+  }
+
+  /**
+   * A CONSTANT_Methodref_info item.
+   *
+   * @see <a href="https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.4.2">JVMS
+   *     4.4.2</a>
+   */
+  private static class ConstantMethodRefInfo extends CpInfo {
+    private final int classIndex;
+    private final int nameAndTypeIndex;
+
+    /**
+     * Parses a CONSTANT_Methodref_info item.
+     *
+     * @param parser a class parser.
+     * @param classContext a context to lookup constant pool items from their index.
+     * @throws IOException if the class can't be parsed.
+     */
+    ConstantMethodRefInfo(final Parser parser, final ClassContext classContext) throws IOException {
+      super(classContext);
+      this.classIndex = parser.u2();
+      this.nameAndTypeIndex = parser.u2();
+    }
+
+    @Override
+    String dump() {
+      return getCpInfo(classIndex, ConstantClassInfo.class).dump()
+          + "."
+          + getCpInfo(nameAndTypeIndex, ConstantNameAndTypeInfo.class).dump();
+    }
+  }
+
+  /**
+   * A CONSTANT_InterfaceMethodref_info item.
+   *
+   * @see <a href="https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.4.2">JVMS
+   *     4.4.2</a>
+   */
+  private static class ConstantInterfaceMethodRefInfo extends CpInfo {
+    private final int classIndex;
+    private final int nameAndTypeIndex;
+
+    /**
+     * Parses a CONSTANT_InterfaceMethodref_info item.
+     *
+     * @param parser a class parser.
+     * @param classContext a context to lookup constant pool items from their index.
+     * @throws IOException if the class can't be parsed.
+     */
+    ConstantInterfaceMethodRefInfo(final Parser parser, final ClassContext classContext)
+        throws IOException {
+      super(classContext);
+      this.classIndex = parser.u2();
+      this.nameAndTypeIndex = parser.u2();
+    }
+
+    @Override
+    String dump() {
+      return getCpInfo(classIndex, ConstantClassInfo.class).dump()
+          + "."
+          + getCpInfo(nameAndTypeIndex, ConstantNameAndTypeInfo.class).dump();
+    }
+  }
+
+  /**
+   * A CONSTANT_String_info item.
+   *
+   * @see <a href="https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.4.3">JVMS
+   *     4.4.3</a>
+   */
+  private static class ConstantStringInfo extends CpInfo {
+    final int stringIndex;
+
+    /**
+     * Parses a CONSTANT_String_info item.
+     *
+     * @param parser a class parser.
+     * @param classContext a context to lookup constant pool items from their index.
+     * @throws IOException if the class can't be parsed.
+     */
+    ConstantStringInfo(final Parser parser, final ClassContext classContext) throws IOException {
+      super(classContext);
+      this.stringIndex = parser.u2();
+    }
+
+    @Override
+    String dump() {
+      return getCpInfo(stringIndex, ConstantUtf8Info.class).dump();
+    }
+  }
+
+  /**
+   * A CONSTANT_Integer_info item.
+   *
+   * @see <a href="https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.4.4">JVMS
+   *     4.4.4</a>
+   */
+  private static class ConstantIntegerInfo extends CpInfo {
+
+    /**
+     * Parses a CONSTANT_Integer_info item.
+     *
+     * @param parser a class parser.
+     * @throws IOException if the class can't be parsed.
+     */
+    ConstantIntegerInfo(final Parser parser) throws IOException {
+      super(Integer.toString(parser.u4()));
+    }
+  }
+
+  /**
+   * A CONSTANT_Float_info item.
+   *
+   * @see <a href="https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.4.4">JVMS
+   *     4.4.4</a>
+   */
+  private static class ConstantFloatInfo extends CpInfo {
+
+    /**
+     * Parses a CONSTANT_Float_info item.
+     *
+     * @param parser a class parser.
+     * @throws IOException if the class can't be parsed.
+     */
+    ConstantFloatInfo(final Parser parser) throws IOException {
+      super(Float.toString(Float.intBitsToFloat(parser.u4())));
+    }
+  }
+
+  /**
+   * A CONSTANT_Long_info item.
+   *
+   * @see <a href="https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.4.5">JVMS
+   *     4.4.5</a>
+   */
+  private static class ConstantLongInfo extends CpInfo {
+
+    /**
+     * Parses a CONSTANT_Long_info item.
+     *
+     * @param parser a class parser.
+     * @throws IOException if the class can't be parsed.
+     */
+    ConstantLongInfo(final Parser parser) throws IOException {
+      super(Long.toString(parser.s8()));
+    }
+
+    @Override
+    int size() {
+      return 2;
+    }
+  }
+
+  /**
+   * A CONSTANT_Double_info item.
+   *
+   * @see <a href="https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.4.5">JVMS
+   *     4.4.5</a>
+   */
+  private static class ConstantDoubleInfo extends CpInfo {
+
+    /**
+     * Parses a CONSTANT_Double_info item.
+     *
+     * @param parser a class parser.
+     * @throws IOException if the class can't be parsed.
+     */
+    ConstantDoubleInfo(final Parser parser) throws IOException {
+      super(Double.toString(Double.longBitsToDouble(parser.s8())));
+    }
+
+    @Override
+    int size() {
+      return 2;
+    }
+  }
+
+  /**
+   * A CONSTANT_NameAndType_info item.
+   *
+   * @see <a href="https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.4.6">JVMS
+   *     4.4.6</a>
+   */
+  private static class ConstantNameAndTypeInfo extends CpInfo {
+    private final int nameIndex;
+    private final int descriptorIndex;
+
+    /**
+     * Parses a CONSTANT_NameAndType_info item.
+     *
+     * @param parser a class parser.
+     * @param classContext a context to lookup constant pool items from their index.
+     * @throws IOException if the class can't be parsed.
+     */
+    ConstantNameAndTypeInfo(final Parser parser, final ClassContext classContext)
+        throws IOException {
+      super(classContext);
+      this.nameIndex = parser.u2();
+      this.descriptorIndex = parser.u2();
+    }
+
+    @Override
+    String dump() {
+      return getCpInfo(nameIndex, ConstantUtf8Info.class).dump()
+          + getCpInfo(descriptorIndex, ConstantUtf8Info.class).dump();
+    }
+  }
+
+  /**
+   * A CONSTANT_Utf8_info item.
+   *
+   * @see <a href="https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.4.7">JVMS
+   *     4.4.7</a>
+   */
+  private static class ConstantUtf8Info extends CpInfo {
+
+    /**
+     * Parses a CONSTANT_Utf8_info item.
+     *
+     * @param parser a class parser.
+     * @throws IOException if the class can't be parsed.
+     */
+    ConstantUtf8Info(final Parser parser) throws IOException {
+      super(parser.utf8());
+    }
+  }
+
+  /**
+   * A CONSTANT_MethodHandle_info item.
+   *
+   * @see <a href="https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.4.8">JVMS
+   *     4.4.8</a>
+   */
+  private static class ConstantMethodHandleInfo extends CpInfo {
+    private final int referenceKind;
+    private final int referenceIndex;
+
+    /**
+     * Parses a CONSTANT_MethodHandle_info item.
+     *
+     * @param parser a class parser.
+     * @param classContext a context to lookup constant pool items from their index.
+     * @throws IOException if the class can't be parsed.
+     */
+    ConstantMethodHandleInfo(final Parser parser, final ClassContext classContext)
+        throws IOException {
+      super(classContext);
+      this.referenceKind = parser.u1();
+      this.referenceIndex = parser.u2();
+    }
+
+    @Override
+    String dump() {
+      return referenceKind + "." + getCpInfo(referenceIndex, CpInfo.class);
+    }
+  }
+
+  /**
+   * A CONSTANT_MethodType_info item.
+   *
+   * @see <a href="https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.4.9">JVMS
+   *     4.4.9</a>
+   */
+  private static class ConstantMethodTypeInfo extends CpInfo {
+    private final int descriptorIndex;
+
+    /**
+     * Parses a CONSTANT_MethodType_info item.
+     *
+     * @param parser a class parser.
+     * @param classContext a context to lookup constant pool items from their index.
+     * @throws IOException if the class can't be parsed.
+     */
+    ConstantMethodTypeInfo(final Parser parser, final ClassContext classContext)
+        throws IOException {
+      super(classContext);
+      this.descriptorIndex = parser.u2();
+    }
+
+    @Override
+    String dump() {
+      return getCpInfo(descriptorIndex, ConstantUtf8Info.class).dump();
+    }
+  }
+
+  /**
+   * A CONSTANT_InvokeDynamic_info item.
+   *
+   * @see <a href="https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.4.10">JVMS
+   *     4.4.10</a>
+   */
+  private static class ConstantInvokeDynamicInfo extends CpInfo {
+    private final int bootstrapMethodAttrIndex;
+    private final int nameAndTypeIndex;
+
+    /**
+     * Parses a CONSTANT_InvokeDynamic_info item.
+     *
+     * @param parser a class parser.
+     * @param classContext a context to lookup constant pool items from their index.
+     * @throws IOException if the class can't be parsed.
+     */
+    ConstantInvokeDynamicInfo(final Parser parser, final ClassContext classContext)
+        throws IOException {
+      super(classContext);
+      this.bootstrapMethodAttrIndex = parser.u2();
+      this.nameAndTypeIndex = parser.u2();
+    }
+
+    @Override
+    String dump() {
+      return bootstrapMethodAttrIndex
+          + "."
+          + getCpInfo(nameAndTypeIndex, ConstantNameAndTypeInfo.class).dump();
+    }
+  }
+
+  /**
+   * A CONSTANT_Module_info item.
+   *
+   * @see <a href="https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.4.11">JVMS
+   *     4.4.11</a>
+   */
+  private static class ConstantModuleInfo extends CpInfo {
+    private final int descriptorIndex;
+
+    /**
+     * Parses a CONSTANT_Module_info item.
+     *
+     * @param parser a class parser.
+     * @param classContext a context to lookup constant pool items from their index.
+     * @throws IOException if the class can't be parsed.
+     */
+    ConstantModuleInfo(final Parser parser, final ClassContext classContext) throws IOException {
+      super(classContext);
+      this.descriptorIndex = parser.u2();
+    }
+
+    @Override
+    String dump() {
+      return getCpInfo(descriptorIndex, ConstantUtf8Info.class).dump();
+    }
+  }
+
+  /**
+   * A CONSTANT_Package_info item.
+   *
+   * @see <a href="https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.4.12">JVMS
+   *     4.4.12</a>
+   */
+  private static class ConstantPackageInfo extends CpInfo {
+    private final int descriptorIndex;
+
+    /**
+     * Parses a CONSTANT_Package_info item.
+     *
+     * @param parser a class parser.
+     * @param classContext a context to lookup constant pool items from their index.
+     * @throws IOException if the class can't be parsed.
+     */
+    ConstantPackageInfo(final Parser parser, final ClassContext classContext) throws IOException {
+      super(classContext);
+      this.descriptorIndex = parser.u2();
+    }
+
+    @Override
+    String dump() {
+      return getCpInfo(descriptorIndex, ConstantUtf8Info.class).dump();
+    }
+  }
+
+  /**
+   * A CONSTANT_Dynamic_info item.
+   *
+   * @see <a href="https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.4.13">JVMS
+   *     4.4.13</a>
+   */
+  private static class ConstantDynamicInfo extends CpInfo {
+    private final int bootstrapMethodAttrIndex;
+    private final int nameAndTypeIndex;
+
+    /**
+     * Parses a CONSTANT_Dynamic_info item.
+     *
+     * @param parser a class parser.
+     * @param classContext a context to lookup constant pool items from their index.
+     * @throws IOException if the class can't be parsed.
+     */
+    ConstantDynamicInfo(final Parser parser, final ClassContext classContext) throws IOException {
+      super(classContext);
+      this.bootstrapMethodAttrIndex = parser.u2();
+      this.nameAndTypeIndex = parser.u2();
+    }
+
+    @Override
+    String dump() {
+      return bootstrapMethodAttrIndex
+          + "."
+          + getCpInfo(nameAndTypeIndex, ConstantNameAndTypeInfo.class).dump();
+    }
+  }
+
+  /**
+   * The index of a bytecode instruction. This index is computed in {@link #toString}, from the
+   * bytecode offset of the instruction, after the whole class has been parsed. Indeed, due to
+   * forward references, the index of an instruction might not be known when its offset is used.
+   *
+   * <p>Dumps use instruction indices instead of bytecode offsets in order to abstract away the low
+   * level byte code instruction representation details (e.g. an ldc vs. an ldc_w).
+   */
+  private static class InstructionIndex {
+    /** An offset in bytes from the start of the bytecode of a method. */
+    private final int bytecodeOffset;
+    /** The context to use to find the index from the bytecode offset. */
+    private final MethodContext methodContext;
+
+    InstructionIndex(final int bytecodeOffset, final MethodContext methodContext) {
+      this.bytecodeOffset = bytecodeOffset;
+      this.methodContext = methodContext;
+    }
+
+    int getBytecodeOffset() {
+      return bytecodeOffset;
+    }
+
+    @Override
+    public String toString() {
+      return "<" + methodContext.getInsnIndex(bytecodeOffset) + ">";
     }
   }
 

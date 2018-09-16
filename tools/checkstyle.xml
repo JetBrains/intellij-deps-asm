@@ -134,6 +134,7 @@
     <module name="SimplifyBooleanExpression" />
     <module name="SimplifyBooleanReturn" />
     <module name="StringLiteralEquality" />
+    <module name="FinalClass" />
     <module name="FinalParameters" />
 
     <!-- Module allowing to suppress warnings with DontCheck(...) comments. -->

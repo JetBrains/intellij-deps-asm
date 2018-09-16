@@ -56,7 +56,7 @@ import org.objectweb.asm.Type;
  * @author Eric Bruneton
  * @author Eugene Kuleshov
  */
-public class Retrofitter {
+public final class Retrofitter {
 
   /**
    * The fields and methods of the JDK 1.5 API. Each string has the form

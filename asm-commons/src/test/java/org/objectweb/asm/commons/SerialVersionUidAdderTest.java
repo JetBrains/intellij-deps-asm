@@ -70,7 +70,7 @@ public class SerialVersionUidAdderTest extends AsmTest {
   @Test
   public void testClass() throws IOException {
     long actualSvuid = computeSerialVersionUid(SerialVersionClass.class.getName());
-    assertEquals(7983131370903707377L, actualSvuid);
+    assertEquals(1084684350676694225L, actualSvuid);
   }
 
   @Test

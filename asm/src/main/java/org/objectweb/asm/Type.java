@@ -37,7 +37,7 @@ import java.lang.reflect.Method;
  * @author Eric Bruneton
  * @author Chris Nokleberg
  */
-public class Type {
+public final class Type {
 
   /** The sort of the {@code void} type. See {@link #getSort}. */
   public static final int VOID = 0;

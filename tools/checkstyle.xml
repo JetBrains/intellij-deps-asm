@@ -105,6 +105,35 @@
     </module>
 
     <!-- Additional modules, not related to the Google Java Style guide. -->
+    <module name="AvoidNestedBlocks">
+      <property name="allowInSwitchCase" value="true" />
+    </module>
+    <module name="HideUtilityClassConstructor" />
+    <module name="InnerTypeLast" />
+    <module name="InterfaceIsType" />
+    <module name="MutableException" />
+    <module name="ThrowsCount" />
+    <module name="CovariantEquals" />
+    <module name="DeclarationOrder">
+      <property name="ignoreModifiers" value="true" />
+    </module>
+    <module name="DefaultComesLast" />
+    <module name="EmptyStatement" />
+    <module name="EqualsHashCode" />
+    <module name="ExplicitInitialization" />
+    <module name="IllegalCatch" />
+    <module name="IllegalThrows" />
+    <module name="IllegalType">
+      <property name="illegalClassNames"
+        value="ArrayList,LinkedList,HashSet,TreeSet,LinkedHashSet,HashMap,TreeMap,LinkedHashMap" />
+      <property name="memberModifiers" value="LITERAL_PUBLIC,LITERAL_PROTECTED" />
+    </module>
+    <module name="JavadocStyle" />
+    <module name="ModifiedControlVariable" />
+    <module name="NoClone" />
+    <module name="SimplifyBooleanExpression" />
+    <module name="SimplifyBooleanReturn" />
+    <module name="StringLiteralEquality" />
     <module name="FinalParameters" />
 
     <!-- Module allowing to suppress warnings with DontCheck(...) comments. -->
@@ -112,6 +141,11 @@
       <property name="commentFormat" value="DontCheck\((\w+)\)" />
       <property name="checkFormat" value="$1" />
       <property name="influenceFormat" value="1" />
+    </module>
+    <module name="SuppressWithNearbyCommentFilter">
+      <property name="commentFormat" value="DontCheck\(IllegalCatch\)" />
+      <property name="checkFormat" value="IllegalCatch" />
+      <property name="influenceFormat" value="-1" />
     </module>
   </module>
 </module>

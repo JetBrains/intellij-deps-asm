@@ -60,7 +60,7 @@ public abstract class AbstractBenchmark {
   private final String asmBenchmarkClass;
 
   /** Some class files that can be used as input data for benchmarks. */
-  protected ArrayList<byte[]> classFiles;
+  ArrayList<byte[]> classFiles;
 
   /** The ASM versions that can be benchmarked. */
   public enum AsmVersion {
@@ -105,15 +105,14 @@ public abstract class AbstractBenchmark {
   /** Creates and populates {@link #classFiles} with some class files read from disk. */
   protected void prepareClasses() throws IOException {
     classFiles = new ArrayList<byte[]>();
-    findClasses(new File(ROOT_DIR + ASM_CORE_CURRENT), classFiles);
-    findClasses(new File(ROOT_DIR + ASM_TREE_CURRENT), classFiles);
+    findClasses(new File(ROOT_DIR + ASM_CORE_CURRENT));
+    findClasses(new File(ROOT_DIR + ASM_TREE_CURRENT));
   }
 
-  private static void findClasses(final File directory, final ArrayList<byte[]> classFiles)
-      throws IOException {
+  private void findClasses(final File directory) throws IOException {
     for (File file : directory.listFiles()) {
       if (file.isDirectory()) {
-        findClasses(file, classFiles);
+        findClasses(file);
       } else if (file.getName().endsWith(".class")) {
         classFiles.add(readInputStream(new FileInputStream(file)));
       }
@@ -170,17 +169,17 @@ public abstract class AbstractBenchmark {
       // This is needed to make sure that the classes it references (i.e. the ASM library classes)
       // will be loaded by this class loader too.
       if (name.startsWith(asmBenchmarkClass)) {
+        byte[] classFile;
         try {
-          byte[] classFile =
-              readInputStream(getResourceAsStream(name.replace('.', '/') + ".class"));
-          Class<?> c = defineClass(name, classFile, 0, classFile.length);
-          if (resolve) {
-            resolveClass(c);
-          }
-          return c;
-        } catch (Exception e) {
+          classFile = readInputStream(getResourceAsStream(name.replace('.', '/') + ".class"));
+        } catch (IOException e) {
           throw new ClassNotFoundException(name, e);
         }
+        Class<?> c = defineClass(name, classFile, 0, classFile.length);
+        if (resolve) {
+          resolveClass(c);
+        }
+        return c;
       }
       // Look for the specified class *first* in asmDirectories, *then* using the parent class
       // loader. This is the reverse of the default lookup order, and is necessary to make sure we

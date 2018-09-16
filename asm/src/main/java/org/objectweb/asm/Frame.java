@@ -224,6 +224,38 @@ class Frame {
   private int[] initializations;
 
   // -----------------------------------------------------------------------------------------------
+  // Constructor
+  // -----------------------------------------------------------------------------------------------
+
+  /**
+   * Constructs a new Frame.
+   *
+   * @param owner the basic block to which these input and output stack map frames correspond.
+   */
+  Frame(final Label owner) {
+    this.owner = owner;
+  }
+
+  /**
+   * Sets this frame to the value of the given frame.
+   *
+   * <p>WARNING: after this method is called the two frames share the same data structures. It is
+   * recommended to discard the given frame to avoid unexpected side effects.
+   *
+   * @param frame The new frame value.
+   */
+  final void copyFrom(final Frame frame) {
+    inputLocals = frame.inputLocals;
+    inputStack = frame.inputStack;
+    outputStackStart = 0;
+    outputLocals = frame.outputLocals;
+    outputStack = frame.outputStack;
+    outputStackTop = frame.outputStackTop;
+    initializationCount = frame.initializationCount;
+    initializations = frame.initializations;
+  }
+
+  // -----------------------------------------------------------------------------------------------
   // Static methods to get abstract types from other type formats
   // -----------------------------------------------------------------------------------------------
 
@@ -334,38 +366,6 @@ class Frame {
       default:
         throw new IllegalArgumentException();
     }
-  }
-
-  // -----------------------------------------------------------------------------------------------
-  // Constructor
-  // -----------------------------------------------------------------------------------------------
-
-  /**
-   * Constructs a new Frame.
-   *
-   * @param owner the basic block to which these input and output stack map frames correspond.
-   */
-  Frame(final Label owner) {
-    this.owner = owner;
-  }
-
-  /**
-   * Sets this frame to the value of the given frame.
-   *
-   * <p>WARNING: after this method is called the two frames share the same data structures. It is
-   * recommended to discard the given frame to avoid unexpected side effects.
-   *
-   * @param frame The new frame value.
-   */
-  final void copyFrom(final Frame frame) {
-    inputLocals = frame.inputLocals;
-    inputStack = frame.inputStack;
-    outputStackStart = 0;
-    outputLocals = frame.outputLocals;
-    outputStack = frame.outputStack;
-    outputStackTop = frame.outputStackTop;
-    initializationCount = frame.initializationCount;
-    initializations = frame.initializations;
   }
 
   // -----------------------------------------------------------------------------------------------

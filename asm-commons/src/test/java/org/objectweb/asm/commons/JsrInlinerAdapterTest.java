@@ -1424,6 +1424,51 @@ public class JsrInlinerAdapterTest extends AsmTest {
     assertMethodEquals(expectedMethod, inlinedMethod);
   }
 
+  private void assertMethodEquals(final MethodNode expected, final MethodNode actual) {
+    String expectedText = getText(expected);
+    String actualText = getText(actual);
+    assertEquals(expectedText, actualText);
+  }
+
+  private String getText(final MethodNode methodNode) {
+    Textifier textifier = new Textifier();
+    methodNode.accept(new TraceMethodVisitor(textifier));
+
+    StringBuilder stringBuilder = new StringBuilder();
+    for (Object o : textifier.text) {
+      stringBuilder.append(o);
+    }
+    return stringBuilder.toString();
+  }
+
+  /** Tests that classes transformed with JSRInlinerAdapter can be loaded and instantiated. */
+  @ParameterizedTest
+  @MethodSource(ALL_CLASSES_AND_LATEST_API)
+  public void testInlineJsrAndInstantiate(
+      final PrecompiledClass classParameter, final Api apiParameter) {
+    ClassReader classReader = new ClassReader(classParameter.getBytes());
+    ClassWriter classWriter = new ClassWriter(0);
+    classReader.accept(
+        new ClassVisitor(apiParameter.value(), classWriter) {
+          @Override
+          public MethodVisitor visitMethod(
+              final int access,
+              final String name,
+              final String descriptor,
+              final String signature,
+              final String[] exceptions) {
+            MethodVisitor methodVisitor =
+                super.visitMethod(access, name, descriptor, signature, exceptions);
+            return new JSRInlinerAdapter(
+                api, methodVisitor, access, name, descriptor, signature, exceptions);
+          }
+        },
+        0);
+    assertThat(() -> loadAndInstantiate(classParameter.getName(), classWriter.toByteArray()))
+        .succeedsOrThrows(UnsupportedClassVersionError.class)
+        .when(classParameter.isMoreRecentThanCurrentJdk());
+  }
+
   private static class Generator {
 
     private final MethodNode methodNode;
@@ -1567,50 +1612,5 @@ public class JsrInlinerAdapterTest extends AsmTest {
 
       assertTrue(loadAndInstantiate("C", classWriter.toByteArray()));
     }
-  }
-
-  private void assertMethodEquals(final MethodNode expected, final MethodNode actual) {
-    String expectedText = getText(expected);
-    String actualText = getText(actual);
-    assertEquals(expectedText, actualText);
-  }
-
-  private String getText(final MethodNode methodNode) {
-    Textifier textifier = new Textifier();
-    methodNode.accept(new TraceMethodVisitor(textifier));
-
-    StringBuilder stringBuilder = new StringBuilder();
-    for (Object o : textifier.text) {
-      stringBuilder.append(o);
-    }
-    return stringBuilder.toString();
-  }
-
-  /** Tests that classes transformed with JSRInlinerAdapter can be loaded and instantiated. */
-  @ParameterizedTest
-  @MethodSource(ALL_CLASSES_AND_LATEST_API)
-  public void testInlineJsrAndInstantiate(
-      final PrecompiledClass classParameter, final Api apiParameter) {
-    ClassReader classReader = new ClassReader(classParameter.getBytes());
-    ClassWriter classWriter = new ClassWriter(0);
-    classReader.accept(
-        new ClassVisitor(apiParameter.value(), classWriter) {
-          @Override
-          public MethodVisitor visitMethod(
-              final int access,
-              final String name,
-              final String descriptor,
-              final String signature,
-              final String[] exceptions) {
-            MethodVisitor methodVisitor =
-                super.visitMethod(access, name, descriptor, signature, exceptions);
-            return new JSRInlinerAdapter(
-                api, methodVisitor, access, name, descriptor, signature, exceptions);
-          }
-        },
-        0);
-    assertThat(() -> loadAndInstantiate(classParameter.getName(), classWriter.toByteArray()))
-        .succeedsOrThrows(UnsupportedClassVersionError.class)
-        .when(classParameter.isMoreRecentThanCurrentJdk());
   }
 }

@@ -282,7 +282,8 @@ public class Analyzer<V extends Value> implements Opcodes {
       } catch (AnalyzerException e) {
         throw new AnalyzerException(
             e.node, "Error at instruction " + insnIndex + ": " + e.getMessage(), e);
-      } catch (Exception e) {
+      } catch (RuntimeException e) {
+        // DontCheck(IllegalCatch): can't be fixed, for backward compatibility.
         throw new AnalyzerException(
             insnNode, "Error at instruction " + insnIndex + ": " + e.getMessage(), e);
       }

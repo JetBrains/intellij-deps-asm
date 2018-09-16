@@ -164,15 +164,6 @@ public class AnalyzerTest {
     methodVisitor.visitTryCatchBlock(start, end, handler, null);
   }
 
-  protected static class TestClassLoader extends ClassLoader {
-
-    public TestClassLoader() {}
-
-    public Class<?> defineClass(final String name, final byte[] classFile) {
-      return defineClass(name, classFile, 0, classFile.length);
-    }
-  }
-
   /**
    * Tests a method which has the most basic <code>try{}finally{}</code> form imaginable. That is:
    *
@@ -863,7 +854,7 @@ public class AnalyzerTest {
                     }
                     assertEquals(maxStack, actualMaxStack, "maxStack");
                     assertEquals(maxLocals, actualMaxLocals, "maxLocals");
-                  } catch (Exception e) {
+                  } catch (AnalyzerException e) {
                     fail(e.getMessage());
                   }
                 }
@@ -875,11 +866,20 @@ public class AnalyzerTest {
         },
         0);
 
+    TestClassLoader loader = new TestClassLoader();
     try {
-      TestClassLoader loader = new TestClassLoader();
       loader.defineClass("C", classFile).newInstance();
-    } catch (Throwable t) {
-      fail(t.getMessage());
+    } catch (InstantiationException | IllegalAccessException e) {
+      fail(e.getMessage());
+    }
+  }
+
+  protected static class TestClassLoader extends ClassLoader {
+
+    public TestClassLoader() {}
+
+    public Class<?> defineClass(final String name, final byte[] classFile) {
+      return defineClass(name, classFile, 0, classFile.length);
     }
   }
 }

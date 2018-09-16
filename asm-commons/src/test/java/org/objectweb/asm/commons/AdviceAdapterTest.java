@@ -472,28 +472,6 @@ public class AdviceAdapterTest extends AsmTest {
     return classWriter.toByteArray();
   }
 
-  private static class MethodGenerator extends MethodVisitor {
-
-    private final boolean expectedClass;
-
-    MethodGenerator(final MethodVisitor methodVisitor, final boolean expectedClass) {
-      super(Opcodes.ASM7, methodVisitor);
-      this.expectedClass = expectedClass;
-    }
-
-    public void expectMethodEnter() {
-      if (expectedClass) {
-        generateAdvice(this, /* enter= */ true);
-      }
-    }
-
-    public void expectMethodExit() {
-      if (expectedClass) {
-        generateAdvice(this, /* enter= */ false);
-      }
-    }
-  }
-
   private static void generateAdvice(final MethodVisitor methodVisitor, final boolean enter) {
     methodVisitor.visitFieldInsn(
         Opcodes.GETSTATIC, "java/lang/System", "err", "Ljava/io/PrintStream;");
@@ -529,6 +507,28 @@ public class AdviceAdapterTest extends AsmTest {
     classReader.accept(expectedClassVisitor, ClassReader.EXPAND_FRAMES);
     classReader.accept(actualClassVisitor, ClassReader.EXPAND_FRAMES);
     assertThatClass(actualClassWriter.toByteArray()).isEqualTo(expectedClassWriter.toByteArray());
+  }
+
+  private static class MethodGenerator extends MethodVisitor {
+
+    private final boolean expectedClass;
+
+    MethodGenerator(final MethodVisitor methodVisitor, final boolean expectedClass) {
+      super(Opcodes.ASM7, methodVisitor);
+      this.expectedClass = expectedClass;
+    }
+
+    public void expectMethodEnter() {
+      if (expectedClass) {
+        generateAdvice(this, /* enter= */ true);
+      }
+    }
+
+    public void expectMethodExit() {
+      if (expectedClass) {
+        generateAdvice(this, /* enter= */ false);
+      }
+    }
   }
 
   private static class ReferenceClassAdapter extends ClassVisitor {

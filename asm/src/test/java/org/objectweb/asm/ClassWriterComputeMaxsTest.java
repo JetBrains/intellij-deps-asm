@@ -201,11 +201,11 @@ public class ClassWriterComputeMaxsTest {
         },
         0);
 
+    TestClassLoader loader = new TestClassLoader();
     try {
-      TestClassLoader loader = new TestClassLoader();
       loader.defineClass("C", classFile).newInstance();
-    } catch (Throwable t) {
-      fail(t.getMessage());
+    } catch (InstantiationException | IllegalAccessException e) {
+      fail(e.getMessage());
     }
   }
 
@@ -244,15 +244,6 @@ public class ClassWriterComputeMaxsTest {
     }
 
     assertEquals(expected, actual);
-  }
-
-  private static class TestClassLoader extends ClassLoader {
-
-    public TestClassLoader() {}
-
-    public Class<?> defineClass(final String name, final byte[] classFile) {
-      return defineClass(name, classFile, 0, classFile.length);
-    }
   }
 
   /**
@@ -1065,5 +1056,14 @@ public class ClassWriterComputeMaxsTest {
     vreturn();
 
     assertMaxs(3, 1);
+  }
+
+  private static class TestClassLoader extends ClassLoader {
+
+    public TestClassLoader() {}
+
+    public Class<?> defineClass(final String name, final byte[] classFile) {
+      return defineClass(name, classFile, 0, classFile.length);
+    }
   }
 }

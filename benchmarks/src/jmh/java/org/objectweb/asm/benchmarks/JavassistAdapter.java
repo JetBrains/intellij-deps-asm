@@ -30,6 +30,7 @@ package org.objectweb.asm.benchmarks;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
+import java.io.IOException;
 import javassist.ClassPool;
 import javassist.CtClass;
 
@@ -49,7 +50,7 @@ public class JavassistAdapter extends Adapter {
       ctClass.getClassFile().write(dataOutputStream);
       dataOutputStream.close();
       return byteArrayOutputStream.toByteArray();
-    } catch (Exception e) {
+    } catch (IOException e) {
       throw new IllegalArgumentException(e);
     }
   }

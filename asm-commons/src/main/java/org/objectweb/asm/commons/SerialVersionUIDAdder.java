@@ -32,6 +32,7 @@ import java.io.DataOutput;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -432,7 +433,7 @@ public class SerialVersionUIDAdder extends ClassVisitor {
   protected byte[] computeSHAdigest(final byte[] value) {
     try {
       return MessageDigest.getInstance("SHA").digest(value);
-    } catch (Exception e) {
+    } catch (NoSuchAlgorithmException e) {
       throw new UnsupportedOperationException(e);
     }
   }

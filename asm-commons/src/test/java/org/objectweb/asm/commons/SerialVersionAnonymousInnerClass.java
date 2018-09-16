@@ -38,4 +38,6 @@ class SerialVersionAnonymousInnerClass implements Serializable {
 
   public static final SerialVersionAnonymousInnerClass anonymousInnerClass =
       new SerialVersionAnonymousInnerClass() {};
+
+  private SerialVersionAnonymousInnerClass() {}
 }

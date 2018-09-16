@@ -28,6 +28,8 @@
 package org.objectweb.asm.benchmarks;
 
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import org.aspectj.apache.bcel.classfile.ClassFormatException;
 import org.aspectj.apache.bcel.classfile.ClassParser;
 import org.aspectj.apache.bcel.classfile.ConstantPool;
 import org.aspectj.apache.bcel.classfile.JavaClass;
@@ -49,7 +51,7 @@ public class AspectjBcelAdapter extends Adapter {
     JavaClass javaClass;
     try {
       javaClass = new ClassParser(new ByteArrayInputStream(classFile), "class-name").parse();
-    } catch (Exception e) {
+    } catch (ClassFormatException | IOException e) {
       throw new IllegalArgumentException(e);
     }
     ClassGen classGen = new ClassGen(javaClass);

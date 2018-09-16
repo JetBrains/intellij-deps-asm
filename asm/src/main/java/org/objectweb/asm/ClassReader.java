@@ -1603,18 +1603,15 @@ public class ClassReader {
 
     // Read the 'exception_table_length' and 'exception_table' field to create a label for each
     // referenced instruction, and to make methodVisitor visit the corresponding try catch blocks.
-    {
-      int exceptionTableLength = readUnsignedShort(currentOffset);
-      currentOffset += 2;
-      while (exceptionTableLength-- > 0) {
-        Label start = createLabel(readUnsignedShort(currentOffset), labels);
-        Label end = createLabel(readUnsignedShort(currentOffset + 2), labels);
-        Label handler = createLabel(readUnsignedShort(currentOffset + 4), labels);
-        String catchType =
-            readUTF8(cpInfoOffsets[readUnsignedShort(currentOffset + 6)], charBuffer);
-        currentOffset += 8;
-        methodVisitor.visitTryCatchBlock(start, end, handler, catchType);
-      }
+    int exceptionTableLength = readUnsignedShort(currentOffset);
+    currentOffset += 2;
+    while (exceptionTableLength-- > 0) {
+      Label start = createLabel(readUnsignedShort(currentOffset), labels);
+      Label end = createLabel(readUnsignedShort(currentOffset + 2), labels);
+      Label handler = createLabel(readUnsignedShort(currentOffset + 4), labels);
+      String catchType = readUTF8(cpInfoOffsets[readUnsignedShort(currentOffset + 6)], charBuffer);
+      currentOffset += 8;
+      methodVisitor.visitTryCatchBlock(start, end, handler, catchType);
     }
 
     // Read the Code attributes to create a label for each referenced instruction (the variables

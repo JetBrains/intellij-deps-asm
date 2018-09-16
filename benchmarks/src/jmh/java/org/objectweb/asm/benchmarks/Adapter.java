@@ -34,31 +34,6 @@ package org.objectweb.asm.benchmarks;
  */
 public abstract class Adapter {
 
-  /** The access flags, name, super class and interfaces of a class. */
-  public static class ClassInfo {
-
-    int access;
-    String name;
-    String superClass;
-    String[] interfaces;
-
-    /**
-     * Constructs a new {@link ClassInfo}.
-     *
-     * @param access the class's access flags.
-     * @param name the internal name of the class.
-     * @param superClass the internal of name of the super class.
-     * @param interfaces the internal names of the class's interfaces
-     */
-    public ClassInfo(
-        final int access, final String name, final String superClass, final String[] interfaces) {
-      this.access = access;
-      this.name = name;
-      this.superClass = superClass;
-      this.interfaces = interfaces;
-    }
-  }
-
   /**
    * Returns the version of this class adapter.
    *
@@ -140,5 +115,30 @@ public abstract class Adapter {
    */
   public byte[] readAndWriteWithObjectModel(final byte[] classFile) {
     throw new UnsupportedOperationException();
+  }
+
+  /** The access flags, name, super class and interfaces of a class. */
+  public static class ClassInfo {
+
+    int access;
+    String name;
+    String superClass;
+    String[] interfaces;
+
+    /**
+     * Constructs a new {@link ClassInfo}.
+     *
+     * @param access the class's access flags.
+     * @param name the internal name of the class.
+     * @param superClass the internal of name of the super class.
+     * @param interfaces the internal names of the class's interfaces
+     */
+    public ClassInfo(
+        final int access, final String name, final String superClass, final String[] interfaces) {
+      this.access = access;
+      this.name = name;
+      this.superClass = superClass;
+      this.interfaces = interfaces;
+    }
   }
 }

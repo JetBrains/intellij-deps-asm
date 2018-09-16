@@ -50,6 +50,7 @@ import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.MethodNode;
 import org.objectweb.asm.tree.TryCatchBlockNode;
 import org.objectweb.asm.tree.analysis.Analyzer;
+import org.objectweb.asm.tree.analysis.AnalyzerException;
 import org.objectweb.asm.tree.analysis.BasicValue;
 import org.objectweb.asm.tree.analysis.Frame;
 import org.objectweb.asm.tree.analysis.SimpleVerifier;
@@ -141,146 +142,6 @@ public class CheckClassAdapter extends ClassVisitor {
 
   /** The index of the instruction designated by each visited label so far. */
   private Map<Label, Integer> labelInsnIndices;
-
-  // -----------------------------------------------------------------------------------------------
-  // Static verification methods
-  // -----------------------------------------------------------------------------------------------
-
-  /**
-   * Checks the given class.
-   *
-   * <p>Usage: CheckClassAdapter &lt;binary class name or class file name&gt;
-   *
-   * @param args the command line arguments.
-   * @throws IOException if the class cannot be found, or if an IO exception occurs.
-   */
-  public static void main(final String[] args) throws IOException {
-    if (args.length != 1) {
-      System.err.println(
-          "Verifies the given class.\n"
-              + "Usage: CheckClassAdapter <fully qualified class name or class file name>");
-      return;
-    }
-
-    ClassReader classReader;
-    if (args[0].endsWith(".class")) {
-      classReader = new ClassReader(new FileInputStream(args[0]));
-    } else {
-      classReader = new ClassReader(args[0]);
-    }
-
-    verify(classReader, false, new PrintWriter(System.err));
-  }
-
-  /**
-   * Checks the given class.
-   *
-   * @param classReader the class to be checked.
-   * @param printResults whether to print the results of the bytecode verification.
-   * @param printWriter where the results (or the stack trace in case of error) must be printed.
-   */
-  public static void verify(
-      final ClassReader classReader, final boolean printResults, final PrintWriter printWriter) {
-    verify(classReader, null, printResults, printWriter);
-  }
-
-  /**
-   * Checks the given class.
-   *
-   * @param classReader the class to be checked.
-   * @param loader a <code>ClassLoader</code> which will be used to load referenced classes. May be
-   *     {@literal null}.
-   * @param printResults whether to print the results of the bytecode verification.
-   * @param printWriter where the results (or the stack trace in case of error) must be printed.
-   */
-  public static void verify(
-      final ClassReader classReader,
-      final ClassLoader loader,
-      final boolean printResults,
-      final PrintWriter printWriter) {
-    ClassNode classNode = new ClassNode();
-    classReader.accept(
-        new CheckClassAdapter(Opcodes.ASM7, classNode, false) {}, ClassReader.SKIP_DEBUG);
-
-    Type syperType = classNode.superName == null ? null : Type.getObjectType(classNode.superName);
-    List<MethodNode> methods = classNode.methods;
-
-    List<Type> interfaces = new ArrayList<Type>();
-    for (String interfaceName : classNode.interfaces) {
-      interfaces.add(Type.getObjectType(interfaceName));
-    }
-
-    for (MethodNode method : methods) {
-      SimpleVerifier verifier =
-          new SimpleVerifier(
-              Type.getObjectType(classNode.name),
-              syperType,
-              interfaces,
-              (classNode.access & Opcodes.ACC_INTERFACE) != 0);
-      Analyzer<BasicValue> analyzer = new Analyzer<BasicValue>(verifier);
-      if (loader != null) {
-        verifier.setClassLoader(loader);
-      }
-      try {
-        analyzer.analyze(classNode.name, method);
-      } catch (Exception e) {
-        e.printStackTrace(printWriter);
-      }
-      if (printResults) {
-        printAnalyzerResult(method, analyzer, printWriter);
-      }
-    }
-    printWriter.flush();
-  }
-
-  static void printAnalyzerResult(
-      final MethodNode method, final Analyzer<BasicValue> analyzer, final PrintWriter printWriter) {
-    Textifier textifier = new Textifier();
-    TraceMethodVisitor traceMethodVisitor = new TraceMethodVisitor(textifier);
-
-    printWriter.println(method.name + method.desc);
-    for (int i = 0; i < method.instructions.size(); ++i) {
-      method.instructions.get(i).accept(traceMethodVisitor);
-
-      StringBuilder stringBuilder = new StringBuilder();
-      Frame<BasicValue> frame = analyzer.getFrames()[i];
-      if (frame == null) {
-        stringBuilder.append('?');
-      } else {
-        for (int j = 0; j < frame.getLocals(); ++j) {
-          stringBuilder.append(getUnqualifiedName(frame.getLocal(j).toString())).append(' ');
-        }
-        stringBuilder.append(" : ");
-        for (int j = 0; j < frame.getStackSize(); ++j) {
-          stringBuilder.append(getUnqualifiedName(frame.getStack(j).toString())).append(' ');
-        }
-      }
-      while (stringBuilder.length() < method.maxStack + method.maxLocals + 1) {
-        stringBuilder.append(' ');
-      }
-      printWriter.print(Integer.toString(i + 100000).substring(1));
-      printWriter.print(
-          " " + stringBuilder + " : " + textifier.text.get(textifier.text.size() - 1));
-    }
-    for (TryCatchBlockNode tryCatchBlock : method.tryCatchBlocks) {
-      tryCatchBlock.accept(traceMethodVisitor);
-      printWriter.print(" " + textifier.text.get(textifier.text.size() - 1));
-    }
-    printWriter.println();
-  }
-
-  private static String getUnqualifiedName(final String name) {
-    int lastSlashIndex = name.lastIndexOf('/');
-    if (lastSlashIndex == -1) {
-      return name;
-    } else {
-      int endIndex = name.length();
-      if (name.charAt(endIndex - 1) == ';') {
-        endIndex--;
-      }
-      return name.substring(lastSlashIndex + 1, endIndex);
-    }
-  }
 
   // -----------------------------------------------------------------------------------------------
   // Constructors
@@ -1071,5 +932,145 @@ public class CheckClassAdapter extends ClassVisitor {
       return "";
     }
     return name.substring(0, index);
+  }
+
+  // -----------------------------------------------------------------------------------------------
+  // Static verification methods
+  // -----------------------------------------------------------------------------------------------
+
+  /**
+   * Checks the given class.
+   *
+   * <p>Usage: CheckClassAdapter &lt;binary class name or class file name&gt;
+   *
+   * @param args the command line arguments.
+   * @throws IOException if the class cannot be found, or if an IO exception occurs.
+   */
+  public static void main(final String[] args) throws IOException {
+    if (args.length != 1) {
+      System.err.println(
+          "Verifies the given class.\n"
+              + "Usage: CheckClassAdapter <fully qualified class name or class file name>");
+      return;
+    }
+
+    ClassReader classReader;
+    if (args[0].endsWith(".class")) {
+      classReader = new ClassReader(new FileInputStream(args[0]));
+    } else {
+      classReader = new ClassReader(args[0]);
+    }
+
+    verify(classReader, false, new PrintWriter(System.err));
+  }
+
+  /**
+   * Checks the given class.
+   *
+   * @param classReader the class to be checked.
+   * @param printResults whether to print the results of the bytecode verification.
+   * @param printWriter where the results (or the stack trace in case of error) must be printed.
+   */
+  public static void verify(
+      final ClassReader classReader, final boolean printResults, final PrintWriter printWriter) {
+    verify(classReader, null, printResults, printWriter);
+  }
+
+  /**
+   * Checks the given class.
+   *
+   * @param classReader the class to be checked.
+   * @param loader a <code>ClassLoader</code> which will be used to load referenced classes. May be
+   *     {@literal null}.
+   * @param printResults whether to print the results of the bytecode verification.
+   * @param printWriter where the results (or the stack trace in case of error) must be printed.
+   */
+  public static void verify(
+      final ClassReader classReader,
+      final ClassLoader loader,
+      final boolean printResults,
+      final PrintWriter printWriter) {
+    ClassNode classNode = new ClassNode();
+    classReader.accept(
+        new CheckClassAdapter(Opcodes.ASM7, classNode, false) {}, ClassReader.SKIP_DEBUG);
+
+    Type syperType = classNode.superName == null ? null : Type.getObjectType(classNode.superName);
+    List<MethodNode> methods = classNode.methods;
+
+    List<Type> interfaces = new ArrayList<Type>();
+    for (String interfaceName : classNode.interfaces) {
+      interfaces.add(Type.getObjectType(interfaceName));
+    }
+
+    for (MethodNode method : methods) {
+      SimpleVerifier verifier =
+          new SimpleVerifier(
+              Type.getObjectType(classNode.name),
+              syperType,
+              interfaces,
+              (classNode.access & Opcodes.ACC_INTERFACE) != 0);
+      Analyzer<BasicValue> analyzer = new Analyzer<BasicValue>(verifier);
+      if (loader != null) {
+        verifier.setClassLoader(loader);
+      }
+      try {
+        analyzer.analyze(classNode.name, method);
+      } catch (AnalyzerException e) {
+        e.printStackTrace(printWriter);
+      }
+      if (printResults) {
+        printAnalyzerResult(method, analyzer, printWriter);
+      }
+    }
+    printWriter.flush();
+  }
+
+  static void printAnalyzerResult(
+      final MethodNode method, final Analyzer<BasicValue> analyzer, final PrintWriter printWriter) {
+    Textifier textifier = new Textifier();
+    TraceMethodVisitor traceMethodVisitor = new TraceMethodVisitor(textifier);
+
+    printWriter.println(method.name + method.desc);
+    for (int i = 0; i < method.instructions.size(); ++i) {
+      method.instructions.get(i).accept(traceMethodVisitor);
+
+      StringBuilder stringBuilder = new StringBuilder();
+      Frame<BasicValue> frame = analyzer.getFrames()[i];
+      if (frame == null) {
+        stringBuilder.append('?');
+      } else {
+        for (int j = 0; j < frame.getLocals(); ++j) {
+          stringBuilder.append(getUnqualifiedName(frame.getLocal(j).toString())).append(' ');
+        }
+        stringBuilder.append(" : ");
+        for (int j = 0; j < frame.getStackSize(); ++j) {
+          stringBuilder.append(getUnqualifiedName(frame.getStack(j).toString())).append(' ');
+        }
+      }
+      while (stringBuilder.length() < method.maxStack + method.maxLocals + 1) {
+        stringBuilder.append(' ');
+      }
+      printWriter.print(Integer.toString(i + 100000).substring(1));
+      printWriter.print(
+          " " + stringBuilder + " : " + textifier.text.get(textifier.text.size() - 1));
+    }
+    for (TryCatchBlockNode tryCatchBlock : method.tryCatchBlocks) {
+      tryCatchBlock.accept(traceMethodVisitor);
+      printWriter.print(" " + textifier.text.get(textifier.text.size() - 1));
+    }
+    printWriter.println();
+  }
+
+  private static String getUnqualifiedName(final String name) {
+    int lastSlashIndex = name.lastIndexOf('/');
+    if (lastSlashIndex == -1) {
+      return name;
+    } else {
+      int endIndex = name.length();
+      if (name.charAt(endIndex - 1) == ';') {
+        endIndex--;
+      }
+      return name.substring(lastSlashIndex + 1, endIndex);
+    }
   }
 }

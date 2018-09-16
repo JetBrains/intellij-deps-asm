@@ -32,6 +32,7 @@ import net.sf.jiapi.reflect.InstructionFactory;
 import net.sf.jiapi.reflect.InstructionList;
 import net.sf.jiapi.reflect.JiapiClass;
 import net.sf.jiapi.reflect.JiapiMethod;
+import net.sf.jiapi.reflect.MethodExistsException;
 import net.sf.jiapi.reflect.Signature;
 
 /**
@@ -70,7 +71,7 @@ public class JiapiGenerator extends Generator {
       insnList.add(insnFactory.returnMethod(method));
 
       return jiapiClass.getByteCode();
-    } catch (Exception e) {
+    } catch (MethodExistsException e) {
       throw new RuntimeException("Class generation failed", e);
     }
   }

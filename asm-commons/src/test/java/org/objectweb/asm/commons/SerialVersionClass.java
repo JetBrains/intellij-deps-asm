@@ -41,9 +41,9 @@ class SerialVersionClass implements Serializable {
   static {
   }
 
-  private SerialVersionClass() {}
+  SerialVersionClass() {}
 
-  public static Object[] someMethod() {
+  public Object[] someMethod() {
     return null;
   }
 }

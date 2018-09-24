@@ -172,10 +172,11 @@ public abstract class Remapper {
     }
     if (value instanceof ConstantDynamic) {
       ConstantDynamic constantDynamic = (ConstantDynamic) value;
-      Object[] bootstrapMethodArguments = constantDynamic.getBootstrapMethodArguments();
-      Object[] remappedBootstrapMethodArguments = new Object[bootstrapMethodArguments.length];
-      for (int i = 0; i < bootstrapMethodArguments.length; ++i) {
-        remappedBootstrapMethodArguments[i] = mapValue(bootstrapMethodArguments[i]);
+      int bootstrapMethodArgumentCount = constantDynamic.getBootstrapMethodArgumentCount();
+      Object[] remappedBootstrapMethodArguments = new Object[bootstrapMethodArgumentCount];
+      for (int i = 0; i < bootstrapMethodArgumentCount; ++i) {
+        remappedBootstrapMethodArguments[i] =
+            mapValue(constantDynamic.getBootstrapMethodArgument(i));
       }
       String descriptor = constantDynamic.getDescriptor();
       return new ConstantDynamic(

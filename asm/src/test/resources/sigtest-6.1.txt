@@ -506,7 +506,7 @@ meth public static org.objectweb.asm.Type[] getArgumentTypes(java.lang.reflect.M
 supr java.lang.Object
 hfds INTERNAL,PRIMITIVE_DESCRIPTORS,sort,valueBuffer,valueLength,valueOffset
 
-CLSS public org.objectweb.asm.TypePath
+CLSS public final org.objectweb.asm.TypePath
 fld public final static int ARRAY_ELEMENT = 0
 fld public final static int INNER_TYPE = 1
 fld public final static int TYPE_ARGUMENT = 3

@@ -1215,8 +1215,9 @@ public class CheckMethodAdapter extends MethodVisitor {
       checkMethodIdentifier(this.version, constantDynamic.getName(), "constant dynamic name");
       checkDescriptor(this.version, constantDynamic.getDescriptor(), false);
       checkLdcConstant(constantDynamic.getBootstrapMethod());
-      for (Object bootstrapArgument : constantDynamic.getBootstrapMethodArguments()) {
-        checkLdcConstant(bootstrapArgument);
+      int bootstrapMethodArgumentCount = constantDynamic.getBootstrapMethodArgumentCount();
+      for (int i = 0; i < bootstrapMethodArgumentCount; ++i) {
+        checkLdcConstant(constantDynamic.getBootstrapMethodArgument(i));
       }
     } else {
       checkConstant(value);

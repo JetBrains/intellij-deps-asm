@@ -105,6 +105,7 @@ public class PrinterTest {
   public void testBackwardCompatibility() {
     Printer printer =
         new StubPrinter(Opcodes.ASM5) {
+          @Override
           public void visitMethodInsn(
               final int opcode,
               final String owner,
@@ -121,6 +122,7 @@ public class PrinterTest {
   public void testBackwardCompatibilityAsm4() {
     Printer printer =
         new StubPrinter(Opcodes.ASM4) {
+          @Override
           public void visitMethodInsn(
               final int opcode, final String owner, final String name, final String descriptor) {
             // Do nothing.

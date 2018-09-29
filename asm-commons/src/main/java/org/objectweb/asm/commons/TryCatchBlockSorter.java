@@ -95,6 +95,7 @@ public class TryCatchBlockSorter extends MethodNode {
         tryCatchBlocks,
         new Comparator<TryCatchBlockNode>() {
 
+          @Override
           public int compare(
               final TryCatchBlockNode tryCatchBlockNode1,
               final TryCatchBlockNode tryCatchBlockNode2) {

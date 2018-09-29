@@ -263,8 +263,7 @@ public class Analyzer<V extends Value> implements Opcodes {
 
         List<TryCatchBlockNode> insnHandlers = handlers[insnIndex];
         if (insnHandlers != null) {
-          for (int i = 0; i < insnHandlers.size(); ++i) {
-            TryCatchBlockNode tryCatchBlock = insnHandlers.get(i);
+          for (TryCatchBlockNode tryCatchBlock : insnHandlers) {
             Type catchType;
             if (tryCatchBlock.type == null) {
               catchType = Type.getObjectType("java/lang/Throwable");
@@ -348,8 +347,7 @@ public class Analyzer<V extends Value> implements Opcodes {
       // Push the exception handler successors of currentInsn onto instructionIndicesToProcess.
       List<TryCatchBlockNode> insnHandlers = handlers[currentInsnIndex];
       if (insnHandlers != null) {
-        for (int i = 0; i < insnHandlers.size(); ++i) {
-          TryCatchBlockNode tryCatchBlock = insnHandlers.get(i);
+        for (TryCatchBlockNode tryCatchBlock : insnHandlers) {
           instructionIndicesToProcess.add(insnList.indexOf(tryCatchBlock.handler));
         }
       }
@@ -393,12 +391,12 @@ public class Analyzer<V extends Value> implements Opcodes {
       currentLocal++;
     }
     Type[] argumentTypes = Type.getArgumentTypes(method.desc);
-    for (int i = 0; i < argumentTypes.length; ++i) {
+    for (Type argumentType : argumentTypes) {
       frame.setLocal(
           currentLocal,
-          interpreter.newParameterValue(isInstanceMethod, currentLocal, argumentTypes[i]));
+          interpreter.newParameterValue(isInstanceMethod, currentLocal, argumentType));
       currentLocal++;
-      if (argumentTypes[i].getSize() == 2) {
+      if (argumentType.getSize() == 2) {
         frame.setLocal(currentLocal, interpreter.newEmptyValue(currentLocal));
         currentLocal++;
       }

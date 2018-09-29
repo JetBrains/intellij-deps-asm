@@ -587,8 +587,7 @@ public class ClassVisitorTest extends AsmTest {
       return super.visitMethod(
           access,
           name,
-          Type.getMethodDescriptor(
-              returnType, argumentTypes.toArray(new Type[argumentTypes.size()])),
+          Type.getMethodDescriptor(returnType, argumentTypes.toArray(new Type[0])),
           signature,
           exceptions);
     }

@@ -29,7 +29,6 @@ package org.objectweb.asm;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
 
@@ -43,7 +42,7 @@ public class LabelTest {
   /** Tests that {@link Label#toString()} returns strings starting with "L". */
   @Test
   public void testToString() {
-    assertTrue(new Label().toString().startsWith("L"));
+    assertEquals('L', new Label().toString().charAt(0));
   }
 
   /** Tests that {@link Label#getOffset()} returns a correct offset after the label is visited. */

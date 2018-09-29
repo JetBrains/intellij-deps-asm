@@ -100,7 +100,7 @@ public class InsnListTest {
 
   @Test
   public void testContains() {
-    assertEquals(false, list1.contains(new InsnNode(0)));
+    assertFalse(list1.contains(new InsnNode(0)));
   }
 
   @Test
@@ -347,7 +347,7 @@ public class InsnListTest {
     assertEquals(insn, list1.getFirst());
     assertEquals(insn, list1.getLast());
     assertEquals(insn, list1.get(0));
-    assertEquals(true, list1.contains(insn));
+    assertTrue(list1.contains(insn));
     assertEquals(0, list1.indexOf(insn));
     assertEqualInsnArrays(new AbstractInsnNode[] {insn}, list1.toArray());
     assertEquals(null, insn.getPrevious());
@@ -363,7 +363,7 @@ public class InsnListTest {
     assertEquals(insn, list1.getLast());
     assertEquals(1, list1.indexOf(insn));
     assertEquals(insn, list1.get(1));
-    assertEquals(true, list1.contains(insn));
+    assertTrue(list1.contains(insn));
   }
 
   @Test
@@ -395,8 +395,8 @@ public class InsnListTest {
     assertEquals(insn1, list1.getFirst());
     assertEquals(insn2, list1.getLast());
     assertEquals(insn1, list1.get(0));
-    assertEquals(true, list1.contains(insn1));
-    assertEquals(true, list1.contains(insn2));
+    assertTrue(list1.contains(insn1));
+    assertTrue(list1.contains(insn2));
     assertEquals(0, list1.indexOf(insn1));
     assertEquals(1, list1.indexOf(insn2));
     assertEqualInsnArrays(new AbstractInsnNode[] {insn1, insn2}, list1.toArray());
@@ -411,9 +411,9 @@ public class InsnListTest {
     assertEquals(insn, list1.getFirst());
     assertEquals(insn2, list1.getLast());
     assertEquals(insn, list1.get(0));
-    assertEquals(true, list1.contains(insn));
-    assertEquals(true, list1.contains(insn1));
-    assertEquals(true, list1.contains(insn2));
+    assertTrue(list1.contains(insn));
+    assertTrue(list1.contains(insn1));
+    assertTrue(list1.contains(insn2));
     assertEquals(0, list1.indexOf(insn));
     assertEquals(1, list1.indexOf(insn1));
     assertEquals(2, list1.indexOf(insn2));
@@ -433,7 +433,7 @@ public class InsnListTest {
     assertEquals(insn, list1.getFirst());
     assertEquals(insn, list1.getLast());
     assertEquals(insn, list1.get(0));
-    assertEquals(true, list1.contains(insn));
+    assertTrue(list1.contains(insn));
     assertEquals(0, list1.indexOf(insn));
     assertEqualInsnArrays(new AbstractInsnNode[] {insn}, list1.toArray());
   }
@@ -446,7 +446,7 @@ public class InsnListTest {
     assertEquals(2, list1.size());
     assertEquals(insn, list1.getFirst());
     assertEquals(insn, list1.get(0));
-    assertEquals(true, list1.contains(insn));
+    assertTrue(list1.contains(insn));
     assertEquals(0, list1.indexOf(insn));
   }
 
@@ -471,8 +471,8 @@ public class InsnListTest {
     assertEquals(insn1, list1.getFirst());
     assertEquals(insn2, list1.getLast());
     assertEquals(insn1, list1.get(0));
-    assertEquals(true, list1.contains(insn1));
-    assertEquals(true, list1.contains(insn2));
+    assertTrue(list1.contains(insn1));
+    assertTrue(list1.contains(insn2));
     assertEquals(0, list1.indexOf(insn1));
     assertEquals(1, list1.indexOf(insn2));
     assertEqualInsnArrays(new AbstractInsnNode[] {insn1, insn2}, list1.toArray());
@@ -487,9 +487,9 @@ public class InsnListTest {
     assertEquals(insn1, list1.getFirst());
     assertEquals(insn, list1.getLast());
     assertEquals(insn1, list1.get(0));
-    assertEquals(true, list1.contains(insn));
-    assertEquals(true, list1.contains(insn1));
-    assertEquals(true, list1.contains(insn2));
+    assertTrue(list1.contains(insn));
+    assertTrue(list1.contains(insn1));
+    assertTrue(list1.contains(insn2));
     assertEquals(0, list1.indexOf(insn1));
     assertEquals(1, list1.indexOf(insn2));
     assertEquals(2, list1.indexOf(insn));
@@ -510,7 +510,7 @@ public class InsnListTest {
     assertEquals(insn1, list2.getFirst());
     assertEquals(insn2, list2.getLast());
     assertEquals(insn1, list2.get(0));
-    assertEquals(true, list2.contains(insn));
+    assertTrue(list2.contains(insn));
     assertEquals(1, list2.indexOf(insn));
     assertEqualInsnArrays(new AbstractInsnNode[] {insn1, insn, insn2}, list2.toArray());
   }
@@ -523,7 +523,7 @@ public class InsnListTest {
     assertEquals(insn1, list2.getFirst());
     assertEquals(insn, list2.getLast());
     assertEquals(insn1, list2.get(0));
-    assertEquals(true, list2.contains(insn));
+    assertTrue(list2.contains(insn));
     assertEquals(2, list2.indexOf(insn));
     assertEqualInsnArrays(new AbstractInsnNode[] {insn1, insn2, insn}, list2.toArray());
   }
@@ -536,7 +536,7 @@ public class InsnListTest {
     assertEquals(insn1, list2.getFirst());
     assertEquals(insn2, list2.getLast());
     assertEquals(insn, list2.get(1));
-    assertEquals(true, list2.contains(insn));
+    assertTrue(list2.contains(insn));
     assertEquals(1, list2.indexOf(insn));
     assertEqualInsnArrays(new AbstractInsnNode[] {insn1, insn, insn2}, list2.toArray());
   }
@@ -549,7 +549,7 @@ public class InsnListTest {
     assertEquals(insn, list2.getFirst());
     assertEquals(insn2, list2.getLast());
     assertEquals(insn, list2.get(0));
-    assertEquals(true, list2.contains(insn));
+    assertTrue(list2.contains(insn));
     assertEquals(0, list2.indexOf(insn));
     assertEqualInsnArrays(new AbstractInsnNode[] {insn, insn1, insn2}, list2.toArray());
   }
@@ -586,9 +586,9 @@ public class InsnListTest {
     assertEquals(4, list1.size());
     assertEquals(insn, list1.getFirst());
     assertEquals(insn, list1.get(0));
-    assertEquals(true, list1.contains(insn));
-    assertEquals(true, list1.contains(insn1));
-    assertEquals(true, list1.contains(insn2));
+    assertTrue(list1.contains(insn));
+    assertTrue(list1.contains(insn1));
+    assertTrue(list1.contains(insn2));
     assertEquals(0, list1.indexOf(insn));
     assertEquals(1, list1.indexOf(insn1));
     assertEquals(2, list1.indexOf(insn2));
@@ -603,9 +603,9 @@ public class InsnListTest {
     assertEquals(insn, list1.getFirst());
     assertEquals(insn2, list1.getLast());
     assertEquals(insn, list1.get(0));
-    assertEquals(true, list1.contains(insn));
-    assertEquals(true, list1.contains(insn1));
-    assertEquals(true, list1.contains(insn2));
+    assertTrue(list1.contains(insn));
+    assertTrue(list1.contains(insn1));
+    assertTrue(list1.contains(insn2));
     assertEquals(0, list1.indexOf(insn));
     assertEquals(1, list1.indexOf(insn1));
     assertEquals(2, list1.indexOf(insn2));
@@ -638,9 +638,9 @@ public class InsnListTest {
     assertEquals(4, list1.size());
     assertEquals(insn1, list1.get(1));
     assertEquals(insn2, list1.get(2));
-    assertEquals(true, list1.contains(insn));
-    assertEquals(true, list1.contains(insn1));
-    assertEquals(true, list1.contains(insn2));
+    assertTrue(list1.contains(insn));
+    assertTrue(list1.contains(insn1));
+    assertTrue(list1.contains(insn2));
     assertEquals(3, list1.indexOf(insn));
     assertEquals(1, list1.indexOf(insn1));
     assertEquals(2, list1.indexOf(insn2));
@@ -655,9 +655,9 @@ public class InsnListTest {
     assertEquals(insn1, list1.getFirst());
     assertEquals(insn, list1.getLast());
     assertEquals(insn1, list1.get(0));
-    assertEquals(true, list1.contains(insn));
-    assertEquals(true, list1.contains(insn1));
-    assertEquals(true, list1.contains(insn2));
+    assertTrue(list1.contains(insn));
+    assertTrue(list1.contains(insn1));
+    assertTrue(list1.contains(insn2));
     assertEquals(2, list1.indexOf(insn));
     assertEquals(0, list1.indexOf(insn1));
     assertEquals(1, list1.indexOf(insn2));
@@ -677,7 +677,7 @@ public class InsnListTest {
     assertEquals(0, list1.size());
     assertEquals(null, list1.getFirst());
     assertEquals(null, list1.getLast());
-    assertEquals(false, list1.contains(insn));
+    assertFalse(list1.contains(insn));
     assertEqualInsnArrays(new AbstractInsnNode[0], list1.toArray());
     assertEquals(null, insn.getPrevious());
     assertEquals(null, insn.getNext());
@@ -689,7 +689,7 @@ public class InsnListTest {
     list1.add(insn);
     list1.add(new InsnNode(0));
     list1.remove(insn);
-    assertEquals(false, list1.contains(insn));
+    assertFalse(list1.contains(insn));
     assertEquals(null, insn.getPrevious());
     assertEquals(null, insn.getNext());
   }
@@ -701,7 +701,7 @@ public class InsnListTest {
     list1.add(insn);
     list1.add(new InsnNode(0));
     list1.remove(insn);
-    assertEquals(false, list1.contains(insn));
+    assertFalse(list1.contains(insn));
     assertEquals(null, insn.getPrevious());
     assertEquals(null, insn.getNext());
   }
@@ -712,7 +712,7 @@ public class InsnListTest {
     list1.add(new InsnNode(0));
     list1.add(insn);
     list1.remove(insn);
-    assertEquals(false, list1.contains(insn));
+    assertFalse(list1.contains(insn));
     assertEquals(null, insn.getPrevious());
     assertEquals(null, insn.getNext());
   }
@@ -727,7 +727,7 @@ public class InsnListTest {
     assertEquals(0, list1.size());
     assertEquals(null, list1.getFirst());
     assertEquals(null, list1.getLast());
-    assertEquals(false, list1.contains(insn));
+    assertFalse(list1.contains(insn));
     assertEqualInsnArrays(new AbstractInsnNode[0], list1.toArray());
     assertEquals(null, insn.getPrevious());
     assertEquals(null, insn.getNext());

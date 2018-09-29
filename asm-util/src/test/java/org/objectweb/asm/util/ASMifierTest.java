@@ -148,12 +148,12 @@ public class ASMifierTest extends AsmTest {
       return;
     }
     byte[] asmifiedClassFile = compile(classParameter.getName(), asmifiedSource);
-    String asmifiedClassName = classParameter.getName() + "Dump";
-    if (asmifiedClassName.indexOf('.') != -1) {
-      asmifiedClassName = "asm." + asmifiedClassName;
+    StringBuilder asmifiedClassName = new StringBuilder(classParameter.getName()).append("Dump");
+    if (classParameter.getName().indexOf('.') != -1) {
+      asmifiedClassName.insert(0, "asm.");
     }
     Class<?> asmifiedClass =
-        new TestClassLoader().defineClass(asmifiedClassName, asmifiedClassFile);
+        new TestClassLoader().defineClass(asmifiedClassName.toString(), asmifiedClassFile);
     Method dumpMethod = asmifiedClass.getMethod("dump");
     byte[] dumpClassFile = (byte[]) dumpMethod.invoke(null);
 

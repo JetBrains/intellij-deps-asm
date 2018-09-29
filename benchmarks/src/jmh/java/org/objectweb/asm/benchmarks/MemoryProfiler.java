@@ -50,6 +50,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.openjdk.jmh.infra.BenchmarkParams;
 import org.openjdk.jmh.infra.IterationParams;
 import org.openjdk.jmh.profile.InternalProfiler;
@@ -67,7 +69,7 @@ public class MemoryProfiler implements InternalProfiler {
 
   private static final int MAX_WAIT_MSEC = 20 * 1000;
 
-  private static Object[] references;
+  private static Object[] references; // NOPMD(UnusedPrivateField): false positive.
   private static int referenceCount;
   private static long usedMemoryBeforeIteration;
 
@@ -130,13 +132,14 @@ public class MemoryProfiler implements InternalProfiler {
       }
     }
     if (gcBeans.isEmpty()) {
-      System.err.println("WARNING: MXBeans can not report GC info. Cannot get memory used.");
+      Logger.getLogger(MemoryProfiler.class.getName())
+          .log(Level.WARNING, "MXBeans can not report GC info. Cannot get memory used.");
       return -1;
     }
 
     long startGcCount = countGc(gcBeans);
     long startTimeMillis = System.currentTimeMillis();
-    System.gc();
+    System.gc(); // NOPMD(DoNotCallGarbageCollectionExplicitly): needed to measure used memory.
     while (System.currentTimeMillis() - startTimeMillis < MAX_WAIT_MSEC) {
       try {
         Thread.sleep(234);
@@ -147,7 +150,8 @@ public class MemoryProfiler implements InternalProfiler {
         return ManagementFactory.getMemoryMXBean().getHeapMemoryUsage().getUsed();
       }
     }
-    System.err.println("WARNING: System.gc() was invoked but couldn't detect a GC occurring.");
+    Logger.getLogger(MemoryProfiler.class.getName())
+        .log(Level.WARNING, "WARNING: System.gc() was invoked but couldn't detect a GC occurring.");
     return -1;
   }
 

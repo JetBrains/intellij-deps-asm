@@ -98,6 +98,7 @@ public class SourceValue implements Value {
    * @return the size of this value, in 32 bits words. This size is 1 for byte, boolean, char,
    *     short, int, float, object and array types, and 2 for long and double.
    */
+  @Override
   public int getSize() {
     return size;
   }

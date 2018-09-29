@@ -79,13 +79,13 @@ public class Frame<V extends Value> {
   }
 
   /**
-   * Constructs a copy of the given.
+   * Constructs a copy of the given Frame.
    *
    * @param frame a frame.
    */
   public Frame(final Frame<? extends V> frame) {
     this(frame.numLocals, frame.values.length - frame.numLocals);
-    init(frame);
+    init(frame); // NOPMD(ConstructorCallsOverridableMethod): can't fix for backward compatibility.
   }
 
   /**

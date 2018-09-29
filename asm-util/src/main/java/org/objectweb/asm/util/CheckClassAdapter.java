@@ -29,6 +29,7 @@ package org.objectweb.asm.util;
 
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -542,7 +543,7 @@ public class CheckClassAdapter extends ClassVisitor {
       CheckMethodAdapter.checkIdentifier(version, name, startIndex, name.length(), null);
     } catch (IllegalArgumentException e) {
       throw new IllegalArgumentException(
-          "Invalid " + source + " (must be a fully qualified name): " + name);
+          "Invalid " + source + " (must be a fully qualified name): " + name, e);
     }
   }
 
@@ -948,7 +949,7 @@ public class CheckClassAdapter extends ClassVisitor {
    */
   public static void main(final String[] args) throws IOException {
     if (args.length != 1) {
-      System.err.println(
+      System.err.println( // NOPMD(SystemPrintln): main method.
           "Verifies the given class.\n"
               + "Usage: CheckClassAdapter <fully qualified class name or class file name>");
       return;
@@ -956,7 +957,9 @@ public class CheckClassAdapter extends ClassVisitor {
 
     ClassReader classReader;
     if (args[0].endsWith(".class")) {
-      classReader = new ClassReader(new FileInputStream(args[0]));
+      InputStream inputStream =
+          new FileInputStream(args[0]); // NOPMD(AvoidFileStream): can't fix for 1.5 compatibility
+      classReader = new ClassReader(inputStream);
     } else {
       classReader = new ClassReader(args[0]);
     }

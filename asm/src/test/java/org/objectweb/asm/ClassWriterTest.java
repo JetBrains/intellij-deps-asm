@@ -32,10 +32,11 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.objectweb.asm.test.Assertions.assertThat;
 
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Random;
@@ -104,9 +105,9 @@ public class ClassWriterTest extends AsmTest {
   @Test
   public void testNewConst() {
     ClassWriter classWriter = new ClassWriter(0);
-    classWriter.newConst(new Byte((byte) 0));
-    classWriter.newConst(new Character('0'));
-    classWriter.newConst(new Short((short) 0));
+    classWriter.newConst(Byte.valueOf((byte) 0));
+    classWriter.newConst(Character.valueOf('0'));
+    classWriter.newConst(Short.valueOf((short) 0));
     classWriter.newConst(Boolean.FALSE);
     classWriter.newUTF8("A");
     classWriter.newClass("A");
@@ -339,7 +340,7 @@ public class ClassWriterTest extends AsmTest {
   public void testReadAndWriteWithComputeMaxsAndLargeSubroutines(final String classFileName)
       throws IOException {
     ClassReader classReader =
-        new ClassReader(new FileInputStream("src/test/resources/" + classFileName));
+        new ClassReader(Files.newInputStream(Paths.get("src/test/resources/" + classFileName)));
     ClassWriter classWriter = new ClassWriter(ClassWriter.COMPUTE_MAXS);
     classReader.accept(classWriter, attributes(), 0);
     classWriter.toByteArray();

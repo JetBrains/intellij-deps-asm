@@ -300,10 +300,6 @@ class ClassDump {
       dumpConstantValueAttribute(parser, builder);
     } else if (attributeName.equals("Code")) {
       dumpCodeAttribute(parser, builder);
-    } else if (attributeName.equals("CodeComment")) {
-      // empty non-standard attribute used for tests.
-    } else if (attributeName.equals("Comment")) {
-      // empty non-standard attribute used for tests.
     } else if (attributeName.equals("StackMapTable")) {
       dumpStackMapTableAttribute(parser, builder);
     } else if (attributeName.equals("Exceptions")) {
@@ -358,7 +354,8 @@ class ClassDump {
       dumpNestMembersAttribute(parser, builder);
     } else if (attributeName.equals("StackMap")) {
       dumpStackMapAttribute(parser, builder);
-    } else {
+    } else if (!attributeName.equals("CodeComment") && !attributeName.equals("Comment")) {
+      // Not a standard attribute nor one the of empty non-standard attributes used for tests.
       throw new IOException("Unknown attribute " + attributeName);
     }
   }
@@ -1039,8 +1036,8 @@ class ClassDump {
       final int attributeLength, final Parser parser, final Builder builder) throws IOException {
     byte[] attributeData = parser.bytes(attributeLength);
     StringBuilder stringBuilder = new StringBuilder();
-    for (int i = 0; i < attributeData.length; ++i) {
-      stringBuilder.append(attributeData[i]).append(',');
+    for (byte data : attributeData) {
+      stringBuilder.append(data).append(',');
     }
     builder.add("debug_extension: ", stringBuilder.toString());
   }
@@ -2385,6 +2382,7 @@ class ClassDump {
       name = stringBuilder.toString();
     }
 
+    @Override
     public int compareTo(final Builder builder) {
       return name.compareTo(builder.name);
     }

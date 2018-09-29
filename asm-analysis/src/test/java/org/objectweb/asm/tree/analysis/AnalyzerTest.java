@@ -846,10 +846,10 @@ public class AnalyzerTest {
                     Frame<BasicValue>[] frames = analyzer.analyze("C", this);
                     int actualMaxStack = 0;
                     int actualMaxLocals = 0;
-                    for (int i = 0; i < frames.length; ++i) {
-                      if (frames[i] != null) {
-                        actualMaxStack = Math.max(actualMaxStack, frames[i].getStackSize());
-                        actualMaxLocals = Math.max(actualMaxLocals, frames[i].getLocals());
+                    for (Frame<BasicValue> frame : frames) {
+                      if (frame != null) {
+                        actualMaxStack = Math.max(actualMaxStack, frame.getStackSize());
+                        actualMaxLocals = Math.max(actualMaxLocals, frame.getLocals());
                       }
                     }
                     assertEquals(maxStack, actualMaxStack, "maxStack");

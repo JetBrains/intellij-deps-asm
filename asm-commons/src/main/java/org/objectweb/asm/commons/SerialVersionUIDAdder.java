@@ -451,8 +451,7 @@ public class SerialVersionUIDAdder extends ClassVisitor {
       final DataOutput dataOutputStream,
       final boolean dotted)
       throws IOException {
-    int size = itemCollection.size();
-    Item[] items = itemCollection.toArray(new Item[size]);
+    Item[] items = itemCollection.toArray(new Item[0]);
     Arrays.sort(
         items,
         new Comparator<Item>() {

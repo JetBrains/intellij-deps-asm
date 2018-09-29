@@ -167,9 +167,11 @@ public class CheckMethodAdapterTest extends AsmTest implements Opcodes {
         RuntimeException.class,
         () -> checkMethodAdapter.visitFrame(F_FULL, 1, new Object[] {"LC;"}, 0, null));
     checkMethodAdapter.visitInsn(NOP);
+    Integer invalidFrameValue =
+        new Integer(0); // NOPMD(IntegerInstantiation): needed to build an invalid value.
     assertThrows(
         RuntimeException.class,
-        () -> checkMethodAdapter.visitFrame(F_FULL, 1, new Object[] {new Integer(0)}, 0, null));
+        () -> checkMethodAdapter.visitFrame(F_FULL, 1, new Object[] {invalidFrameValue}, 0, null));
     checkMethodAdapter.visitInsn(NOP);
     assertThrows(
         RuntimeException.class,

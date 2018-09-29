@@ -450,7 +450,8 @@ public class CheckMethodAdapter extends MethodVisitor {
             } catch (IndexOutOfBoundsException e) {
               if (maxLocals == 0 && maxStack == 0) {
                 throw new IllegalArgumentException(
-                    "Data flow checking option requires valid, non zero maxLocals and maxStack.");
+                    "Data flow checking option requires valid, non zero maxLocals and maxStack.",
+                    e);
               }
               throwError(analyzer, e);
             } catch (AnalyzerException e) {
@@ -847,8 +848,8 @@ public class CheckMethodAdapter extends MethodVisitor {
       checkLabel(labels[i], false, "label at index " + i);
     }
     super.visitTableSwitchInsn(min, max, dflt, labels);
-    for (int i = 0; i < labels.length; ++i) {
-      referencedLabels.add(labels[i]);
+    for (Label label : labels) {
+      referencedLabels.add(label);
     }
     ++insnCount;
   }
@@ -866,8 +867,8 @@ public class CheckMethodAdapter extends MethodVisitor {
     }
     super.visitLookupSwitchInsn(dflt, keys, labels);
     referencedLabels.add(dflt);
-    for (int i = 0; i < labels.length; ++i) {
-      referencedLabels.add(labels[i]);
+    for (Label label : labels) {
+      referencedLabels.add(label);
     }
     ++insnCount;
   }
@@ -1343,7 +1344,7 @@ public class CheckMethodAdapter extends MethodVisitor {
       CheckMethodAdapter.checkIdentifier(version, name, startIndex, name.length(), null);
     } catch (IllegalArgumentException e) {
       throw new IllegalArgumentException(
-          INVALID + message + " (must be an internal class name): " + name);
+          INVALID + message + " (must be an internal class name): " + name, e);
     }
   }
 
@@ -1408,8 +1409,8 @@ public class CheckMethodAdapter extends MethodVisitor {
         }
         try {
           checkInternalClassName(version, descriptor.substring(startPos + 1, endPos), null);
-        } catch (IllegalArgumentException unused) {
-          throw new IllegalArgumentException(INVALID_DESCRIPTOR + descriptor);
+        } catch (IllegalArgumentException e) {
+          throw new IllegalArgumentException(INVALID_DESCRIPTOR + descriptor, e);
         }
         return endPos + 1;
       default:

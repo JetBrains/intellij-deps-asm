@@ -175,6 +175,15 @@ subprojects {
   checkstyle.maxErrors = 0
   checkstyle.maxWarnings = 0
   
+  // Check the code with PMD.
+  apply plugin: 'pmd'
+  pmd.toolVersion = '6.5.0'
+  pmd.ruleSets = []
+  pmd.ruleSetFiles = files("${rootDir}/tools/pmd.xml")
+  // TODO remove these lines when the code is fixed.
+  pmd.ignoreFailures = true
+  pmd.consoleOutput = true
+
   compileTestJava {
     sourceCompatibility = '1.8'
     targetCompatibility = '1.8'
@@ -219,8 +228,9 @@ configure(subprojects.findAll { it.provides }) {
     compileJava.doLast {
       def path = project(':tools:retrofitter').sourceSets.main.runtimeClasspath
       def loader = new URLClassLoader(path.collect {f -> f.toURL()} as URL[])
-      def retrofit = loader.loadClass('org.objectweb.asm.tools.Retrofitter')
-      retrofit.main(sourceSets.main.output.classesDirs.singleFile.toString())
+      def retrofitter =
+          loader.loadClass('org.objectweb.asm.tools.Retrofitter').newInstance()
+      retrofitter.retrofit sourceSets.main.output.classesDirs.singleFile
     }
   }
 

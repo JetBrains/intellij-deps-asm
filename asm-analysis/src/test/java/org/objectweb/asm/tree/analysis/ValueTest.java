@@ -46,10 +46,10 @@ public class ValueTest {
 
   @Test
   public void testBasicValue() {
-    assertTrue(BasicValue.UNINITIALIZED_VALUE.equals(new BasicValue(null)));
-    assertTrue(BasicValue.INT_VALUE.equals(new BasicValue(Type.INT_TYPE)));
-    assertTrue(BasicValue.INT_VALUE.equals(BasicValue.INT_VALUE));
-    assertFalse(BasicValue.INT_VALUE.equals(new Object()));
+    assertEquals(new BasicValue(null), BasicValue.UNINITIALIZED_VALUE);
+    assertEquals(new BasicValue(Type.INT_TYPE), BasicValue.INT_VALUE);
+    assertEquals(BasicValue.INT_VALUE, BasicValue.INT_VALUE);
+    assertNotEquals(new Object(), BasicValue.INT_VALUE);
 
     assertTrue(BasicValue.REFERENCE_VALUE.isReference());
     assertTrue(new BasicValue(Type.getObjectType("[I")).isReference());
@@ -69,10 +69,10 @@ public class ValueTest {
   public void testSourceValue() {
     assertEquals(2, new SourceValue(2).getSize());
 
-    assertTrue(new SourceValue(1).equals(new SourceValue(1)));
-    assertFalse(new SourceValue(1).equals(new SourceValue(1, new InsnNode(Opcodes.NOP))));
-    assertFalse(new SourceValue(1).equals(new SourceValue(2)));
-    assertFalse(new SourceValue(1).equals(null));
+    assertEquals(new SourceValue(1), new SourceValue(1));
+    assertNotEquals(new SourceValue(1), new SourceValue(1, new InsnNode(Opcodes.NOP)));
+    assertNotEquals(new SourceValue(1), new SourceValue(2));
+    assertNotEquals(new SourceValue(1), null);
 
     assertEquals(0, new SourceValue(1).hashCode());
     assertNotEquals(0, new SourceValue(1, new InsnNode(Opcodes.NOP)).hashCode());

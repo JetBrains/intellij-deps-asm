@@ -28,6 +28,7 @@
 package org.objectweb.asm.tree;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -240,12 +241,12 @@ public class ClassNodeTest extends AsmTest implements Opcodes {
     MethodInsnNode methodInsnNode = new MethodInsnNode(INVOKESTATIC, "owner", "name", "()I");
     assertEquals(AbstractInsnNode.METHOD_INSN, methodInsnNode.getType());
     assertEquals(INVOKESTATIC, methodInsnNode.getOpcode());
-    assertEquals(false, methodInsnNode.itf);
+    assertFalse(methodInsnNode.itf);
 
     methodInsnNode = new MethodInsnNode(INVOKEINTERFACE, "owner", "name", "()I");
     assertEquals(AbstractInsnNode.METHOD_INSN, methodInsnNode.getType());
     assertEquals(INVOKEINTERFACE, methodInsnNode.getOpcode());
-    assertEquals(true, methodInsnNode.itf);
+    assertTrue(methodInsnNode.itf);
   }
 
   @Test
@@ -256,7 +257,7 @@ public class ClassNodeTest extends AsmTest implements Opcodes {
     assertEquals("owner", methodInsnNode.owner);
     assertEquals("name", methodInsnNode.name);
     assertEquals("()I", methodInsnNode.desc);
-    assertEquals(false, methodInsnNode.itf);
+    assertFalse(methodInsnNode.itf);
 
     methodInsnNode.setOpcode(INVOKESPECIAL);
     assertEquals(INVOKESPECIAL, methodInsnNode.getOpcode());

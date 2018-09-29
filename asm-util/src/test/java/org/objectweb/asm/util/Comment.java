@@ -72,11 +72,13 @@ public class Comment extends Attribute implements ASMifiable, Textifiable {
     return new ByteVector();
   }
 
+  @Override
   public void asmify(
       final StringBuffer buf, final String varName, final Map<Label, String> labelNames) {
     buf.append("Attribute ").append(varName).append(" = new org.objectweb.asm.util.Comment();");
   }
 
+  @Override
   public void textify(final StringBuffer buf, final Map<Label, String> labelNames) {}
 
   @Override

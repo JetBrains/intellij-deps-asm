@@ -168,10 +168,12 @@ final class SmallSet<T> extends AbstractSet<T> {
       this.secondElement = secondElement;
     }
 
+    @Override
     public boolean hasNext() {
       return firstElement != null;
     }
 
+    @Override
     public T next() {
       if (firstElement == null) {
         throw new NoSuchElementException();

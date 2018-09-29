@@ -34,11 +34,14 @@ import java.io.Serializable;
  *
  * @author Eric Bruneton
  */
-class SerialVersionClass implements Serializable {
+class SerialVersionClass implements Serializable { // NOPMD(MissingSerialVersionUID)
+
+  // No serial version UID on purpose, to test SerialVersionUIDAdder.
 
   protected static final int someField = 32;
 
   static {
+    assert someField > 0;
   }
 
   SerialVersionClass() {}

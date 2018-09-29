@@ -425,6 +425,7 @@ public class GeneratorAdapter extends LocalVariablesSorter {
           break;
         default:
           mv.visitLdcInsn(value);
+          break;
       }
     }
   }
@@ -915,6 +916,7 @@ public class GeneratorAdapter extends LocalVariablesSorter {
         break;
       default:
         unboxMethod = null;
+        break;
     }
     if (unboxMethod == null) {
       checkCast(type);

@@ -71,9 +71,9 @@ public class SimpleVerifierTest extends AsmTest implements Opcodes {
     methodNode.visitMaxs(10, 10);
     anaylzer.analyze("C", methodNode);
     Frame<?>[] frames = anaylzer.getFrames();
-    for (int i = 0; i < frames.length; ++i) {
-      if (frames[i] != null) {
-        frames[i].toString();
+    for (Frame<?> frame : frames) {
+      if (frame != null) {
+        frame.toString();
       }
     }
     anaylzer.getHandlers(0);

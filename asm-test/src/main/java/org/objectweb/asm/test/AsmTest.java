@@ -374,7 +374,7 @@ public abstract class AsmTest {
           arguments.add(Array.get(Array.newInstance(parameterType, 1), 0));
         }
         constructor.setAccessible(true);
-        constructor.newInstance(arguments.toArray(new Object[arguments.size()]));
+        constructor.newInstance(arguments.toArray(new Object[0]));
       }
     } catch (ClassNotFoundException e) {
       // Should never happen given the ByteClassLoader implementation.
@@ -386,7 +386,8 @@ public abstract class AsmTest {
       fail("Can't instantiate class " + className, e);
     } catch (InvocationTargetException e) {
       // If an exception occurs in the invoked constructor, it means the class was successfully
-      // verified first.
+      // verified first. Still, we fail the test to be on the safe side.
+      fail("An exception occurred in the constructor of " + className, e);
     }
     return byteClassLoader.classLoaded();
   }

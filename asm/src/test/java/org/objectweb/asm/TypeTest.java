@@ -29,9 +29,8 @@ package org.objectweb.asm;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Arrays;
 import org.junit.jupiter.api.Test;
@@ -366,21 +365,21 @@ public class TypeTest implements Opcodes {
 
   @Test
   public void testEquals() {
-    assertFalse(Type.getObjectType("I").equals(null));
-    assertFalse(Type.getObjectType("I").equals(Type.INT_TYPE));
-    assertFalse(Type.getObjectType("I").equals(Type.getObjectType("HI")));
-    assertFalse(Type.getObjectType("I").equals(Type.getObjectType("J")));
-    assertTrue(Type.getObjectType("I").equals(Type.getType("LI;")));
-    assertTrue(Type.getType("LI;").equals(Type.getObjectType("I")));
-    assertTrue(Type.INT_TYPE.equals(Type.getType("I")));
+    assertNotEquals(Type.getObjectType("I"), null);
+    assertNotEquals(Type.getObjectType("I"), Type.INT_TYPE);
+    assertNotEquals(Type.getObjectType("I"), Type.getObjectType("HI"));
+    assertNotEquals(Type.getObjectType("I"), Type.getObjectType("J"));
+    assertEquals(Type.getObjectType("I"), Type.getType("LI;"));
+    assertEquals(Type.getType("LI;"), Type.getObjectType("I"));
+    assertEquals(Type.INT_TYPE, Type.getType("I"));
   }
 
   @Test
   public void testHashcode() {
-    assertTrue(Type.getType("Ljava/lang/Object;").hashCode() != 0);
-    assertTrue(
-        Type.getType("Ljava/lang/Object;").hashCode()
-            == Type.getObjectType("java/lang/Object").hashCode());
-    assertTrue(Type.INT_TYPE.hashCode() != Type.getObjectType("I").hashCode());
+    assertNotEquals(0, Type.getType("Ljava/lang/Object;").hashCode());
+    assertEquals(
+        Type.getType("Ljava/lang/Object;").hashCode(),
+        Type.getObjectType("java/lang/Object").hashCode());
+    assertNotEquals(Type.INT_TYPE.hashCode(), Type.getObjectType("I").hashCode());
   }
 }

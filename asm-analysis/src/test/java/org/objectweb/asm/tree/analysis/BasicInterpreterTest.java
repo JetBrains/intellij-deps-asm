@@ -33,8 +33,9 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTimeoutPreemptively;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.io.FileInputStream;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -67,7 +68,7 @@ public class BasicInterpreterTest extends AsmTest {
   public void testMergeWithJsrReachableFromTwoDifferentPaths()
       throws IOException, AnalyzerException {
     ClassReader classReader =
-        new ClassReader(new FileInputStream("src/test/resources/Issue316204.class"));
+        new ClassReader(Files.newInputStream(Paths.get("src/test/resources/Issue316204.class")));
     ClassNode classNode = new ClassNode();
     classReader.accept(classNode, 0);
     Analyzer<BasicValue> analyzer = new Analyzer<>(new BasicInterpreter());

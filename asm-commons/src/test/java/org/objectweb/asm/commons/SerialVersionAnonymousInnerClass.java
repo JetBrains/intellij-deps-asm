@@ -34,7 +34,9 @@ import java.io.Serializable;
  *
  * @author Eric Bruneton
  */
-class SerialVersionAnonymousInnerClass implements Serializable {
+class SerialVersionAnonymousInnerClass implements Serializable { // NOPMD(MissingSerialVersionUID)
+
+  // No serial version UID on purpose, to test SerialVersionUIDAdder.
 
   public static final SerialVersionAnonymousInnerClass anonymousInnerClass =
       new SerialVersionAnonymousInnerClass() {};

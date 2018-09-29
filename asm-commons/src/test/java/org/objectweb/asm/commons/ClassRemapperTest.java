@@ -32,6 +32,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.objectweb.asm.test.Assertions.assertThat;
 
 import java.util.Arrays;
+import java.util.Locale;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -211,6 +212,8 @@ public class ClassRemapperTest extends AsmTest {
 
   static class UpperCaseRemapper extends Remapper {
 
+    private static final Locale LOCALE = Locale.ENGLISH;
+
     private final String internalClassName;
     private final String remappedInternalClassName;
 
@@ -219,7 +222,7 @@ public class ClassRemapperTest extends AsmTest {
       this.remappedInternalClassName =
           internalClassName.equals("module-info")
               ? internalClassName
-              : internalClassName.toUpperCase();
+              : internalClassName.toUpperCase(LOCALE);
     }
 
     String getRemappedClassName() {
@@ -245,17 +248,17 @@ public class ClassRemapperTest extends AsmTest {
       if (name.equals("<init>") || name.equals("<clinit>")) {
         return name;
       }
-      return owner.equals(internalClassName) ? name.toUpperCase() : name;
+      return owner.equals(internalClassName) ? name.toUpperCase(LOCALE) : name;
     }
 
     @Override
     public String mapInvokeDynamicMethodName(final String name, final String descriptor) {
-      return name.toUpperCase();
+      return name.toUpperCase(LOCALE);
     }
 
     @Override
     public String mapFieldName(final String owner, final String name, final String descriptor) {
-      return owner.equals(internalClassName) ? name.toUpperCase() : name;
+      return owner.equals(internalClassName) ? name.toUpperCase(LOCALE) : name;
     }
 
     @Override

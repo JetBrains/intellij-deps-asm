@@ -29,12 +29,12 @@ package org.objectweb.asm.benchmarks;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.nio.file.Files;
 import java.util.ArrayList;
 
 /**
@@ -114,7 +114,7 @@ public abstract class AbstractBenchmark {
       if (file.isDirectory()) {
         findClasses(file);
       } else if (file.getName().endsWith(".class")) {
-        classFiles.add(readInputStream(new FileInputStream(file)));
+        classFiles.add(readInputStream(Files.newInputStream(file.toPath())));
       }
     }
   }
@@ -130,11 +130,7 @@ public abstract class AbstractBenchmark {
       outputStream.flush();
       return outputStream.toByteArray();
     } finally {
-      try {
-        inputStream.close();
-      } catch (IOException e) {
-        // Nothing to do.
-      }
+      inputStream.close();
     }
   }
 

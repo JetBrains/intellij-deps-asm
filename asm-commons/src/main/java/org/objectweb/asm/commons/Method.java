@@ -162,8 +162,7 @@ public class Method {
       }
       stringBuilder.append(argumentDescriptor);
     } while (currentArgumentEndIndex != -1);
-    stringBuilder.append(')');
-    stringBuilder.append(getDescriptorInternal(returnType, defaultPackage));
+    stringBuilder.append(')').append(getDescriptorInternal(returnType, defaultPackage));
     return new Method(methodName, stringBuilder.toString());
   }
 

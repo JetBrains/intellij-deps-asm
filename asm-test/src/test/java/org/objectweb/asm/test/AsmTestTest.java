@@ -65,6 +65,7 @@ public class AsmTestTest extends AsmTest {
         break;
       default:
         fail("Unknown API value");
+        break;
     }
   }
 
@@ -133,6 +134,7 @@ public class AsmTestTest extends AsmTest {
         break;
       default:
         fail("Unknown invalid class");
+        break;
     }
   }
 }

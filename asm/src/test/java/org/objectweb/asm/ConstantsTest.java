@@ -392,6 +392,7 @@ public class ConstantsTest {
           break;
         default:
           fail("Unknown constant " + field.getName());
+          break;
       }
     }
   }

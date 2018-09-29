@@ -146,18 +146,6 @@ meth public int newUTF8(java.lang.String)
 supr org.objectweb.asm.ClassVisitor
 hfds accessFlags,compute,debugExtension,enclosingClassIndex,enclosingMethodIndex,firstAttribute,firstField,firstMethod,innerClasses,interfaceCount,interfaces,lastField,lastMethod,lastRuntimeInvisibleAnnotation,lastRuntimeInvisibleTypeAnnotation,lastRuntimeVisibleAnnotation,lastRuntimeVisibleTypeAnnotation,moduleWriter,nestHostClassIndex,nestMemberClasses,numberOfInnerClasses,numberOfNestMemberClasses,signatureIndex,sourceFileIndex,superClass,symbolTable,thisClass,version
 
-CLSS public final org.objectweb.asm.ConstantDynamic
-cons public !varargs init(java.lang.String,java.lang.String,org.objectweb.asm.Handle,java.lang.Object[])
-meth public boolean equals(java.lang.Object)
-meth public int hashCode()
-meth public java.lang.Object[] getBootstrapMethodArguments()
-meth public java.lang.String getDescriptor()
-meth public java.lang.String getName()
-meth public java.lang.String toString()
-meth public org.objectweb.asm.Handle getBootstrapMethod()
-supr java.lang.Object
-hfds bootstrapMethod,bootstrapMethodArguments,descriptor,name
-
 CLSS public abstract org.objectweb.asm.FieldVisitor
 cons public init(int)
 cons public init(int,org.objectweb.asm.FieldVisitor)
@@ -529,7 +517,7 @@ meth public static org.objectweb.asm.Type[] getArgumentTypes(java.lang.reflect.M
 supr java.lang.Object
 hfds INTERNAL,PRIMITIVE_DESCRIPTORS,sort,valueBegin,valueBuffer,valueEnd
 
-CLSS public org.objectweb.asm.TypePath
+CLSS public final org.objectweb.asm.TypePath
 fld public final static int ARRAY_ELEMENT = 0
 fld public final static int INNER_TYPE = 1
 fld public final static int TYPE_ARGUMENT = 3

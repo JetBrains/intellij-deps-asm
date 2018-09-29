@@ -1395,10 +1395,10 @@ public class ASMifier extends Printer {
       stringBuilder.append(constantDynamic.getDescriptor()).append("\", ");
       appendConstant(constantDynamic.getBootstrapMethod());
       stringBuilder.append(", new Object[] {");
-      Object[] bootstrapMethodArguments = constantDynamic.getBootstrapMethodArguments();
-      for (int i = 0; i < bootstrapMethodArguments.length; ++i) {
-        appendConstant(bootstrapMethodArguments[i]);
-        if (i != bootstrapMethodArguments.length - 1) {
+      int bootstrapMethodArgumentCount = constantDynamic.getBootstrapMethodArgumentCount();
+      for (int i = 0; i < bootstrapMethodArgumentCount; ++i) {
+        appendConstant(constantDynamic.getBootstrapMethodArgument(i));
+        if (i != bootstrapMethodArgumentCount - 1) {
           stringBuilder.append(", ");
         }
       }

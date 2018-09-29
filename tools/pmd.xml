@@ -49,6 +49,27 @@
     <!-- Too many false positives. -->
     <exclude name="UseVarargs" />
   </rule>
+  <rule ref="category/java/bestpractices.xml/ArrayIsStoredDirectly">
+    <properties>
+      <property name="violationSuppressXPath"
+          value="//MethodDeclaration[@Private='true' or 
+              @PackagePrivate='true']"/>
+    </properties>
+  </rule>
+  <rule ref="category/java/bestpractices.xml/MethodReturnsInternalArray">
+    <properties>
+      <property name="violationSuppressXPath"
+          value="//MethodDeclaration[@Private='true' or 
+              @PackagePrivate='true']"/>
+    </properties>
+  </rule>
+  <rule ref="category/java/bestpractices.xml/SystemPrintln">
+    <properties>
+      <property name="violationSuppressXPath"
+          value="//MethodDeclaration[@Static='true']
+              //MethodDeclarator[@Image='main']"/>
+    </properties>
+  </rule>
 
   <rule ref="category/java/errorprone.xml">
     <!-- Do not want this rule. -->
@@ -86,6 +107,12 @@
     <exclude name="SimpleDateFormatNeedsLocale" />
     <exclude name="StaticEJBFieldShouldBeFinal" />
     <exclude name="UseProperClassLoader" />
+  </rule>
+  <rule ref="category/java/errorprone.xml/ReturnEmptyArrayRatherThanNull">
+    <properties>
+      <property name="violationSuppressXPath"
+          value="//MethodDeclaration[@Private='true']"/>
+    </properties>
   </rule>
 
   <rule ref="category/java/performance.xml">

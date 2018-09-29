@@ -1225,7 +1225,7 @@ public abstract class Printer {
   static void main(final String usage, final Printer printer, final String[] args)
       throws IOException {
     if (args.length < 1 || args.length > 2 || (args[0].equals("-debug") && args.length != 2)) {
-      System.err.println(usage); // NOPMD(SystemPrintln): main method.
+      System.err.println(usage);
       return;
     }
 

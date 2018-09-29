@@ -47,6 +47,6 @@ class SerialVersionClass implements Serializable { // NOPMD(MissingSerialVersion
   SerialVersionClass() {}
 
   public Object[] someMethod() {
-    return null;
+    return new Object[0];
   }
 }

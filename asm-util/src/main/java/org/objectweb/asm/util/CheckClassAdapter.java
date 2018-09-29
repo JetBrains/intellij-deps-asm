@@ -949,7 +949,7 @@ public class CheckClassAdapter extends ClassVisitor {
    */
   public static void main(final String[] args) throws IOException {
     if (args.length != 1) {
-      System.err.println( // NOPMD(SystemPrintln): main method.
+      System.err.println(
           "Verifies the given class.\n"
               + "Usage: CheckClassAdapter <fully qualified class name or class file name>");
       return;

@@ -134,7 +134,10 @@ public abstract class Adapter {
      * @param interfaces the internal names of the class's interfaces
      */
     public ClassInfo(
-        final int access, final String name, final String superClass, final String[] interfaces) {
+        final int access,
+        final String name,
+        final String superClass,
+        final String[] interfaces) { // NOPMD(ArrayIsStoredDirectly): non public API.
       this.access = access;
       this.name = name;
       this.superClass = superClass;

@@ -120,8 +120,8 @@ public class Retrofitter {
       if (files == null) {
         throw new IOException("Unable to read files of " + src);
       }
-      for (int i = 0; i < files.length; ++i) {
-        retrofit(files[i], dst == null ? null : new File(dst, files[i].getName()));
+      for (File file : files) {
+        retrofit(file, dst == null ? null : new File(dst, file.getName()));
       }
     } else if (src.getName().endsWith(".class")) {
       if (dst == null || !dst.exists() || dst.lastModified() < src.lastModified()) {

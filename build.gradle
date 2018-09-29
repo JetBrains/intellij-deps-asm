@@ -44,7 +44,7 @@ subprojects {
   apply plugin: 'jacoco'
   def snapshotSuffix = rootProject.hasProperty('release') ? '' : '-SNAPSHOT'
   group = 'org.ow2.asm'
-  version = '7.0-beta' + snapshotSuffix
+  version = '7.0' + snapshotSuffix
   sourceCompatibility = '1.7'
   targetCompatibility = '1.7'
   test { useJUnitPlatform() }
@@ -180,9 +180,6 @@ subprojects {
   pmd.toolVersion = '6.5.0'
   pmd.ruleSets = []
   pmd.ruleSetFiles = files("${rootDir}/tools/pmd.xml")
-  // TODO remove these lines when the code is fixed.
-  pmd.ignoreFailures = true
-  pmd.consoleOutput = true
 
   compileTestJava {
     sourceCompatibility = '1.8'

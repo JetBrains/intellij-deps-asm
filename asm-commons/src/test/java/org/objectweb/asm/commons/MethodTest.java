@@ -29,9 +29,8 @@ package org.objectweb.asm.commons;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
 import org.objectweb.asm.Type;
@@ -102,14 +101,14 @@ public class MethodTest {
 
   @Test
   public void testEquals() {
-    assertFalse(new Method("name", "()V").equals(null));
-    assertFalse(new Method("name", "()V").equals(new Method("other", "()V")));
-    assertFalse(new Method("name", "()V").equals(new Method("name", "(I)J")));
-    assertTrue(new Method("name", "()V").equals(Method.getMethod("void name()")));
+    assertNotEquals(new Method("name", "()V"), null);
+    assertNotEquals(new Method("name", "()V"), new Method("other", "()V"));
+    assertNotEquals(new Method("name", "()V"), new Method("name", "(I)J"));
+    assertEquals(new Method("name", "()V"), Method.getMethod("void name()"));
   }
 
   @Test
   public void testHashCode() {
-    assertTrue(new Method("name", "()V").hashCode() != 0);
+    assertNotEquals(0, new Method("name", "()V").hashCode());
   }
 }

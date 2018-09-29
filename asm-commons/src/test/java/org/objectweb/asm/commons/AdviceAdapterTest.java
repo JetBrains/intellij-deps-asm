@@ -417,6 +417,16 @@ public class AdviceAdapterTest extends AsmTest {
 
     classWriter.visitField(Opcodes.ACC_STATIC, "f", "[[I", null, null);
 
+    MethodVisitor defaultConstructorVisitor =
+        classWriter.visitMethod(Opcodes.ACC_PUBLIC, "<init>", "()V", null, null);
+    defaultConstructorVisitor.visitCode();
+    defaultConstructorVisitor.visitVarInsn(Opcodes.ALOAD, 0);
+    defaultConstructorVisitor.visitMethodInsn(
+        Opcodes.INVOKESPECIAL, "java/lang/Object", "<init>", "()V", false);
+    defaultConstructorVisitor.visitInsn(Opcodes.RETURN);
+    defaultConstructorVisitor.visitMaxs(0, 0);
+    defaultConstructorVisitor.visitEnd();
+
     String descriptor = "(I)V";
     MethodVisitor methodVisitor =
         classWriter.visitMethod(Opcodes.ACC_PUBLIC, "<init>", descriptor, null, null);

@@ -29,6 +29,7 @@ package org.objectweb.asm.util;
 
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
@@ -1224,7 +1225,7 @@ public abstract class Printer {
   static void main(final String usage, final Printer printer, final String[] args)
       throws IOException {
     if (args.length < 1 || args.length > 2 || (args[0].equals("-debug") && args.length != 2)) {
-      System.err.println(usage);
+      System.err.println(usage); // NOPMD(SystemPrintln): main method.
       return;
     }
 
@@ -1244,7 +1245,9 @@ public abstract class Printer {
     if (className.endsWith(".class")
         || className.indexOf('\\') != -1
         || className.indexOf('/') != -1) {
-      new ClassReader(new FileInputStream(className)).accept(traceClassVisitor, parsingOptions);
+      InputStream inputStream =
+          new FileInputStream(className); // NOPMD(AvoidFileStream): can't fix for 1.5 compatibility
+      new ClassReader(inputStream).accept(traceClassVisitor, parsingOptions);
     } else {
       new ClassReader(className).accept(traceClassVisitor, parsingOptions);
     }

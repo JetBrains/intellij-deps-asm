@@ -28,6 +28,7 @@
 package org.objectweb.asm;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -108,7 +109,7 @@ public class ClassReaderTest extends AsmTest implements Opcodes {
   public void testByteArrayConstructorAndAccessors(
       final PrecompiledClass classParameter, final Api apiParameter) {
     ClassReader classReader = new ClassReader(classParameter.getBytes());
-    assertTrue(classReader.getAccess() != 0);
+    assertNotEquals(0, classReader.getAccess());
     assertEquals(classParameter.getInternalName(), classReader.getClassName());
     if (classParameter.getInternalName().equals("module-info")) {
       assertNull(classReader.getSuperName());
@@ -127,7 +128,7 @@ public class ClassReaderTest extends AsmTest implements Opcodes {
     byte[] byteBuffer = new byte[classFile.length + 1];
     System.arraycopy(classFile, 0, byteBuffer, 1, classFile.length);
     ClassReader classReader = new ClassReader(byteBuffer, 1, classFile.length);
-    assertTrue(classReader.getAccess() != 0);
+    assertNotEquals(0, classReader.getAccess());
     assertEquals(classParameter.getInternalName(), classReader.getClassName());
     if (classParameter.getInternalName().equals("module-info")) {
       assertNull(classReader.getSuperName());
@@ -158,7 +159,7 @@ public class ClassReaderTest extends AsmTest implements Opcodes {
   public void testNameConstructorAndAccessors(
       final PrecompiledClass classParameter, final Api apiParameter) throws IOException {
     ClassReader classReader = new ClassReader(classParameter.getName());
-    assertTrue(classReader.getAccess() != 0);
+    assertNotEquals(0, classReader.getAccess());
     assertEquals(classParameter.getInternalName(), classReader.getClassName());
     if (classParameter.getInternalName().equals("module-info")) {
       assertNull(classReader.getSuperName());
@@ -179,7 +180,7 @@ public class ClassReaderTest extends AsmTest implements Opcodes {
         new ClassReader(
             ClassLoader.getSystemResourceAsStream(
                 classParameter.getName().replace('.', '/') + ".class"));
-    assertTrue(classReader.getAccess() != 0);
+    assertNotEquals(0, classReader.getAccess());
     assertEquals(classParameter.getInternalName(), classReader.getClassName());
     if (classParameter.getInternalName().equals("module-info")) {
       assertNull(classReader.getSuperName());
@@ -442,7 +443,7 @@ public class ClassReaderTest extends AsmTest implements Opcodes {
               final String signature,
               final String superName,
               final String[] interfaces) {
-            assertTrue((version & Opcodes.V_PREVIEW) == Opcodes.V_PREVIEW);
+            assertEquals(Opcodes.V_PREVIEW, version & Opcodes.V_PREVIEW);
           }
         },
         0);

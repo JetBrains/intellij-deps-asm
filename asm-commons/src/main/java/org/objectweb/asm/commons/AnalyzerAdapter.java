@@ -554,8 +554,8 @@ public class AnalyzerAdapter extends MethodVisitor {
     if (firstDescriptorChar == '(') {
       int numSlots = 0;
       Type[] types = Type.getArgumentTypes(descriptor);
-      for (int i = 0; i < types.length; ++i) {
-        numSlots += types[i].getSize();
+      for (Type type : types) {
+        numSlots += type.getSize();
       }
       pop(numSlots);
     } else if (firstDescriptorChar == 'J' || firstDescriptorChar == 'D') {

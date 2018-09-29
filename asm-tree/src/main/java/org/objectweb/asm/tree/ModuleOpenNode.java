@@ -74,6 +74,6 @@ public class ModuleOpenNode {
    */
   public void accept(final ModuleVisitor moduleVisitor) {
     moduleVisitor.visitOpen(
-        packaze, access, modules == null ? null : modules.toArray(new String[modules.size()]));
+        packaze, access, modules == null ? null : modules.toArray(new String[0]));
   }
 }

@@ -95,6 +95,7 @@ public class SourceInterpreter extends Interpreter<SourceValue> implements Opcod
         break;
       default:
         size = 1;
+        break;
     }
     return new SourceValue(size, insn);
   }
@@ -123,6 +124,7 @@ public class SourceInterpreter extends Interpreter<SourceValue> implements Opcod
         break;
       default:
         size = 1;
+        break;
     }
     return new SourceValue(size, insn);
   }
@@ -154,6 +156,7 @@ public class SourceInterpreter extends Interpreter<SourceValue> implements Opcod
         break;
       default:
         size = 1;
+        break;
     }
     return new SourceValue(size, insn);
   }

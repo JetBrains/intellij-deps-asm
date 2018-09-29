@@ -45,7 +45,7 @@ public class CheckAnnotationAdapterTest extends AsmTest implements Opcodes {
 
   @Test
   public void testIllegalAnnotationName() {
-    assertThrows(Exception.class, () -> checkAnnotationAdapter.visit(null, new Integer(0)));
+    assertThrows(Exception.class, () -> checkAnnotationAdapter.visit(null, Integer.valueOf(0)));
   }
 
   @Test
@@ -64,6 +64,6 @@ public class CheckAnnotationAdapterTest extends AsmTest implements Opcodes {
   @Test
   public void testIllegalAnnotationValueAfterEnd() {
     checkAnnotationAdapter.visitEnd();
-    assertThrows(Exception.class, () -> checkAnnotationAdapter.visit("name", new Integer(0)));
+    assertThrows(Exception.class, () -> checkAnnotationAdapter.visit("name", Integer.valueOf(0)));
   }
 }

@@ -398,8 +398,8 @@ public class Textifier extends Printer {
     appendDescriptor(METHOD_DESCRIPTOR, descriptor);
     if (exceptions != null && exceptions.length > 0) {
       stringBuilder.append(" throws ");
-      for (int i = 0; i < exceptions.length; ++i) {
-        appendDescriptor(INTERNAL_NAME, exceptions[i]);
+      for (String exception : exceptions) {
+        appendDescriptor(INTERNAL_NAME, exception);
         stringBuilder.append(' ');
       }
     }
@@ -941,9 +941,8 @@ public class Textifier extends Printer {
       stringBuilder.append(" none");
     } else {
       stringBuilder.append('\n');
-      for (int i = 0; i < bootstrapMethodArguments.length; i++) {
+      for (Object value : bootstrapMethodArguments) {
         stringBuilder.append(tab3);
-        Object value = bootstrapMethodArguments[i];
         if (value instanceof String) {
           Printer.appendString(stringBuilder, (String) value);
         } else if (value instanceof Type) {
@@ -1551,7 +1550,7 @@ public class Textifier extends Printer {
       }
       if (frameTypes[i] instanceof String) {
         String descriptor = (String) frameTypes[i];
-        if (descriptor.startsWith("[")) {
+        if (descriptor.charAt(0) == '[') {
           appendDescriptor(FIELD_DESCRIPTOR, descriptor);
         } else {
           appendDescriptor(INTERNAL_NAME, descriptor);

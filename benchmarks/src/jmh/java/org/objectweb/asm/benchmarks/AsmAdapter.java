@@ -61,7 +61,7 @@ public class AsmAdapter extends Adapter {
       } catch (NoSuchFieldException e) {
         continue;
       } catch (IllegalAccessException e) {
-        throw new AssertionError();
+        throw new AssertionError(e);
       }
     }
     return "";

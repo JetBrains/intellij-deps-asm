@@ -31,9 +31,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.objectweb.asm.test.Assertions.assertThat;
 
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -137,7 +138,7 @@ public class LocalVariablesSorterTest extends AsmTest {
   @Test
   public void testSortLocalVariablesAndInstantiate() throws FileNotFoundException, IOException {
     ClassReader classReader =
-        new ClassReader(new FileInputStream("src/test/resources/Issue317586.class"));
+        new ClassReader(Files.newInputStream(Paths.get("src/test/resources/Issue317586.class")));
     ClassWriter classWriter = new ClassWriter(0);
     ClassVisitor classVisitor =
         new ClassVisitor(Opcodes.ASM7, classWriter) {

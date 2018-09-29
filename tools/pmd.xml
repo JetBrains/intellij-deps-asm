@@ -1,0 +1,102 @@
+<?xml version="1.0"?>
+
+<ruleset name="ASM" xmlns="http://pmd.sourceforge.net/ruleset/2.0.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://pmd.sourceforge.net/ruleset/2.0.0
+      https://pmd.sourceforge.net/ruleset_2_0_0.xsd">
+  <description>PMD rules for ASM</description>
+
+  <rule ref="category/java/bestpractices.xml">
+    <!-- Core API is using this on purpose. -->
+    <exclude name="AbstractClassWithoutAbstractMethod" />
+    <!-- Does not work, too many false positives. -->
+    <exclude name="AccessorMethodGeneration" />
+    <!-- Already covered with Checkstyle 'FinalParameters' rule. -->   
+    <exclude name="AvoidReassigningParameters" />
+    <!-- Used for legitimate purposes in some Writer classes. -->
+    <exclude name="AvoidStringBufferField" />
+    <!-- Not relevant for ASM. -->
+    <exclude name="AvoidUsingHardCodedIP" />
+    <exclude name="CheckResultSet" />
+    <!-- Already covered with Checkstyle 'InterfaceIsType' rule. -->   
+    <exclude name="ConstantsInInterface" />
+    <!-- Already covered with Checkstyle 'DefaultComesLast' rule. -->   
+    <exclude name="DefaultLabelNotLastInSwitchStmt" />
+    <!-- Not relevant for ASM (no logging and using JUnit 5). -->
+    <exclude name="GuardLogStatement" />
+    <exclude name="JUnit4SuitesShouldUseSuiteAnnotation" />
+    <exclude name="JUnit4TestShouldUseAfterAnnotation" />
+    <exclude name="JUnit4TestShouldUseBeforeAnnotation" />
+    <exclude name="JUnit4TestShouldUseTestAnnotation" />
+    <!-- Would give too verbose code. -->
+    <exclude name="JUnitAssertionsShouldIncludeMessage" />
+    <exclude name="JUnitTestContainsTooManyAsserts" />
+    <!-- Too many false positives due to our custom assertions. -->
+    <exclude name="JUnitTestsShouldIncludeAssert" />
+    <!-- Not relevant for ASM (using JUnit 5). -->
+    <exclude name="JUnitUseExpected" />
+    <!-- Already covered with Checkstyle 'IllegalType' rule. -->   
+    <exclude name="LooseCoupling" />
+    <!-- Already covered with google-java-format. -->   
+    <exclude name="OneDeclarationPerLine" />
+    <!-- Actually not a best practice. -->   
+    <exclude name="PositionLiteralsFirstInCaseInsensitiveComparisons" />
+    <exclude name="PositionLiteralsFirstInComparisons" />
+    <!-- Already covered with Checkstyle 'MissingSwitchDefault' rule. -->   
+    <exclude name="SwitchStmtsShouldHaveDefault" />
+    <!-- Already covered with google-java-format. -->
+    <exclude name="UnusedImports" />
+    <!-- Too many false positives. -->
+    <exclude name="UseVarargs" />
+  </rule>
+
+  <rule ref="category/java/errorprone.xml">
+    <!-- Do not want this rule. -->
+    <exclude name="AssignmentInOperand" />
+    <!-- Not relevant for ASM (no BigDecimal). -->
+    <exclude name="AvoidDecimalLiteralsInBigDecimalConstructor" />
+    <!-- Do not want these rules. -->
+    <exclude name="AvoidDuplicateLiterals" />
+    <exclude name="AvoidFieldNameMatchingMethodName" />
+    <exclude name="AvoidLiteralsInIfCondition" />
+    <!-- Not relevant for ASM (no Java Beans). -->
+    <exclude name="BeanMembersShouldSerialize" />
+    <!-- Too many false positives. -->
+    <exclude name="CompareObjectsWithEquals" />
+    <!-- Does not work, too  many false positives. -->
+    <exclude name="DataflowAnomalyAnalysis" />
+    <!-- Not relevant for ASM. -->
+    <exclude name="DoNotHardCodeSDCard" />
+    <exclude name="DontImportSun" />
+    <!-- Already covered with Checkstyle 'NoFinalizer' rule. -->   
+    <exclude name="FinalizeDoesNotCallSuperFinalize" />
+    <exclude name="FinalizeOnlyCallsSuperFinalize" />
+    <exclude name="FinalizeOverloaded" />
+    <exclude name="FinalizeShouldBeProtected" />
+    <!-- Not relevant for ASM (no logging and using JUnit 5). -->
+    <exclude name="InvalidSlf4jMessageFormat" />
+    <exclude name="JUnitSpelling" />
+    <exclude name="JUnitStaticSuite" />
+    <exclude name="LoggerIsNotStaticFinal" />
+    <exclude name="MoreThanOneLogger" />
+    <!-- Needed to implement custom data structures such as linked lists. -->
+    <exclude name="NullAssignment" />
+    <!-- Not relevant for ASM (no logging, no dates, no EJB). -->
+    <exclude name="ProperLogger" />
+    <exclude name="SimpleDateFormatNeedsLocale" />
+    <exclude name="StaticEJBFieldShouldBeFinal" />
+    <exclude name="UseProperClassLoader" />
+  </rule>
+
+  <rule ref="category/java/performance.xml">
+    <!-- Too many false positives. -->
+    <exclude name="AvoidInstantiatingObjectsInLoops" />
+    <!-- Shorts can be decrease memory use, without decreasing performance. -->
+    <exclude name="AvoidUsingShortType" />
+    <!-- Not relevant for ASM (no BigInteger). -->
+    <exclude name="BigIntegerInstantiation" />
+    <!-- Does not work, too many false positives. -->
+    <exclude name="InsufficientStringBufferDeclaration" />
+  </rule>
+</ruleset>
+

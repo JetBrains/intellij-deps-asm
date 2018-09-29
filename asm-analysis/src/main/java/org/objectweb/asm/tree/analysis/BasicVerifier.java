@@ -375,9 +375,9 @@ public class BasicVerifier extends BasicInterpreter {
       throws AnalyzerException {
     int opcode = insn.getOpcode();
     if (opcode == MULTIANEWARRAY) {
-      for (int i = 0; i < values.size(); ++i) {
-        if (!BasicValue.INT_VALUE.equals(values.get(i))) {
-          throw new AnalyzerException(insn, null, BasicValue.INT_VALUE, values.get(i));
+      for (BasicValue value : values) {
+        if (!BasicValue.INT_VALUE.equals(value)) {
+          throw new AnalyzerException(insn, null, BasicValue.INT_VALUE, value);
         }
       }
     } else {

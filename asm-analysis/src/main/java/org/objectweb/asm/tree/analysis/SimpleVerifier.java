@@ -291,7 +291,7 @@ public class SimpleVerifier extends BasicVerifier {
    * @return whether 'type' corresponds to an interface.
    */
   protected boolean isInterface(final Type type) {
-    if (currentClass != null && type.equals(currentClass)) {
+    if (currentClass != null && currentClass.equals(type)) {
       return isInterface;
     }
     return getClass(type).isInterface();
@@ -306,7 +306,7 @@ public class SimpleVerifier extends BasicVerifier {
    * @return the type corresponding to the super class of 'type'.
    */
   protected Type getSuperClass(final Type type) {
-    if (currentClass != null && type.equals(currentClass)) {
+    if (currentClass != null && currentClass.equals(type)) {
       return currentSuperClass;
     }
     Class<?> superClass = getClass(type).getSuperclass();
@@ -329,7 +329,7 @@ public class SimpleVerifier extends BasicVerifier {
     if (type1.equals(type2)) {
       return true;
     }
-    if (currentClass != null && type1.equals(currentClass)) {
+    if (currentClass != null && currentClass.equals(type1)) {
       if (getSuperClass(type2) == null) {
         return false;
       } else {
@@ -339,13 +339,12 @@ public class SimpleVerifier extends BasicVerifier {
         return isAssignableFrom(type1, getSuperClass(type2));
       }
     }
-    if (currentClass != null && type2.equals(currentClass)) {
+    if (currentClass != null && currentClass.equals(type2)) {
       if (isAssignableFrom(type1, currentSuperClass)) {
         return true;
       }
       if (currentClassInterfaces != null) {
-        for (int i = 0; i < currentClassInterfaces.size(); ++i) {
-          Type currentClassInterface = currentClassInterfaces.get(i);
+        for (Type currentClassInterface : currentClassInterfaces) {
           if (isAssignableFrom(type1, currentClassInterface)) {
             return true;
           }

@@ -90,6 +90,9 @@ public class ClassReader {
   /** The size of the temporary byte array used to read class input streams chunk by chunk. */
   private static final int INPUT_STREAM_DATA_CHUNK_SIZE = 4096;
 
+  //[JB: ignore invalid type annotation label offsets]
+  private static final Label INVALID_LABEL = new Label();
+
   /**
    * A byte array containing the JVMS ClassFile structure to be parsed. <i>The content of this array
    * must not be modified. This field is intended for {@link Attribute} sub classes, and is normally
@@ -2454,9 +2457,14 @@ public class ClassReader {
    * @return a Label without the {@link Label#FLAG_DEBUG_ONLY} flag set.
    */
   private Label createLabel(final int bytecodeOffset, final Label[] labels) {
-    Label label = readLabel(bytecodeOffset, labels);
-    label.flags &= ~Label.FLAG_DEBUG_ONLY;
-    return label;
+    //[JB: ignore invalid type annotation label offsets]
+    if (bytecodeOffset < labels.length) {
+      Label label = readLabel(bytecodeOffset, labels);
+      label.flags &= ~Label.FLAG_DEBUG_ONLY;
+      return label;
+    } else {
+      return INVALID_LABEL;
+    }
   }
 
   /**

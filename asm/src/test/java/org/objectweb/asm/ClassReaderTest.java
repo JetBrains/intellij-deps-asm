@@ -38,6 +38,8 @@ import static org.objectweb.asm.test.Assertions.assertThat;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.time.Duration;
 import java.util.concurrent.atomic.AtomicBoolean;
 import org.junit.jupiter.api.Test;
@@ -101,6 +103,14 @@ public class ClassReaderTest extends AsmTest implements Opcodes {
 
     interfaces = new ClassReader(Opcodes.class.getName()).getInterfaces();
     assertNotNull(interfaces);
+  }
+
+  //[JB: ignore invalid type annotation label offsets]
+  @Test
+  public void testInvalidLabels() throws IOException {
+    ClassReader classReader =
+            new ClassReader(Files.newInputStream(Paths.get("src/test/resources/Issue317789.class")));
+    classReader.accept(new EmptyClassVisitor(API_VERSION), 0);
   }
 
   /** Tests {@link ClassReader#ClassReader(byte[])} and the basic ClassReader accessors. */

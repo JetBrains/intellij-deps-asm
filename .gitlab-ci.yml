@@ -1,4 +1,4 @@
-image: gradle:4.9-jdk8-alpine
+image: gradle:4.10.2-jdk8-alpine
 
 variables:
   # Set the location of the dependency cache to a local directory, so that it

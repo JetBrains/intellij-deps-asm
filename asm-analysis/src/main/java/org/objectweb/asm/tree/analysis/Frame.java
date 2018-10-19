@@ -34,6 +34,7 @@ import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.IincInsnNode;
 import org.objectweb.asm.tree.InvokeDynamicInsnNode;
+import org.objectweb.asm.tree.LabelNode;
 import org.objectweb.asm.tree.MethodInsnNode;
 import org.objectweb.asm.tree.MultiANewArrayInsnNode;
 import org.objectweb.asm.tree.VarInsnNode;
@@ -688,6 +689,35 @@ public class Frame<V extends Value> {
     }
     return changed;
   }
+
+  /**
+   * A hook method called by {@link Analyzer#analyze(String, org.objectweb.asm.tree.MethodNode)}
+   * after interpreting a {@link org.objectweb.asm.tree.JumpInsnNode}. This method is called once
+   * for each branch, before the frame is merged with the existing frame at the branch target.
+   *
+   * <p>Overriding this method and changing the frame values allows implementing branch-sensitive
+   * analyses.
+   *
+   * @param opcode the Opcode of the jump instruction.
+   * @param conditionTrue {@literal true} when this method is called for the target branch of the
+   *     {@link org.objectweb.asm.tree.JumpInsnNode}, {@literal false} for the successor
+   *     instruction.
+   */
+  public void initForJumpTarget(final int opcode, final boolean conditionTrue) {}
+
+  /**
+   * A hook method called by {@link Analyzer#analyze(String, org.objectweb.asm.tree.MethodNode)}
+   * after interpreting a {@link org.objectweb.asm.tree.LookupSwitchInsnNode} or a {@link
+   * org.objectweb.asm.tree.TableSwitchInsnNode}. This method is called once for each possible
+   * branch target.
+   *
+   * <p>Overriding this method and changing the frame values allows implementing branch-sensitive
+   * analyses.
+   *
+   * @param opcode the Opcode of the switch instruction.
+   * @param target the target branch.
+   */
+  public void initForSwitchTarget(final int opcode, final LabelNode target) {}
 
   /**
    * Returns a string representation of this frame.

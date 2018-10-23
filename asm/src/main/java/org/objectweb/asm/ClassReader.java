@@ -2698,6 +2698,16 @@ public class ClassReader {
     return label;
   }
 
+  //[JB: ignore invalid label offsets in type annotations of bridge methods]
+  private static final Label INVALID_LABEL = new Label();
+  private Label createLabel(final int bytecodeOffset, final Label[] labels, final boolean ignoreInvalidOffset) {
+    if (ignoreInvalidOffset && bytecodeOffset >= labels.length) {
+      return INVALID_LABEL;
+    } else {
+      return createLabel(bytecodeOffset, labels);
+    }
+  }
+
   /**
    * Creates a label with the {@link Label#FLAG_DEBUG_ONLY} flag set, if there is no already
    * existing label for the given bytecode offset (otherwise does nothing). The label is created
@@ -2758,8 +2768,10 @@ public class ClassReader {
             int length = readUnsignedShort(currentOffset + 2);
             // Skip the index field (2 bytes).
             currentOffset += 6;
-            createLabel(startPc, context.currentMethodLabels);
-            createLabel(startPc + length, context.currentMethodLabels);
+            //[JB: ignore invalid type annotation label offsets in bridge methods]
+            boolean isBridge = (context.currentMethodAccessFlags & Opcodes.ACC_BRIDGE) != 0;
+            createLabel(startPc, context.currentMethodLabels, isBridge);
+            createLabel(startPc + length, context.currentMethodLabels, isBridge);
           }
           break;
         case TypeReference.CAST:
@@ -2883,10 +2895,12 @@ public class ClassReader {
           int length = readUnsignedShort(currentOffset + 2);
           int index = readUnsignedShort(currentOffset + 4);
           currentOffset += 6;
+          //[JB: ignore invalid type annotation label offsets in bridge methods]
+          boolean isBridge = (context.currentMethodAccessFlags & Opcodes.ACC_BRIDGE) != 0;
           context.currentLocalVariableAnnotationRangeStarts[i] =
-              createLabel(startPc, context.currentMethodLabels);
+              createLabel(startPc, context.currentMethodLabels, isBridge);
           context.currentLocalVariableAnnotationRangeEnds[i] =
-              createLabel(startPc + length, context.currentMethodLabels);
+              createLabel(startPc + length, context.currentMethodLabels, isBridge);
           context.currentLocalVariableAnnotationRangeIndices[i] = index;
         }
         break;

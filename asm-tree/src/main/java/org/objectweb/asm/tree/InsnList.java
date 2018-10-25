@@ -230,7 +230,6 @@ public class InsnList {
       lastInsn.nextInsn = insnNode;
       insnNode.previousInsn = lastInsn;
     }
-    insnNode.nextInsn = null;
     lastInsn = insnNode;
     cache = null;
     insnNode.index = 0; // insnNode now belongs to an InsnList.

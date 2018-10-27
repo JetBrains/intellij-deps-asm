@@ -34,6 +34,7 @@ import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.IincInsnNode;
 import org.objectweb.asm.tree.InvokeDynamicInsnNode;
+import org.objectweb.asm.tree.LabelNode;
 import org.objectweb.asm.tree.MethodInsnNode;
 import org.objectweb.asm.tree.MultiANewArrayInsnNode;
 import org.objectweb.asm.tree.VarInsnNode;
@@ -100,6 +101,26 @@ public class Frame<V extends Value> {
     numStack = frame.numStack;
     return this;
   }
+
+  /**
+   * Initializes a frame corresponding to the target or to the successor of a jump instruction. This
+   * method is called by {@link Analyzer#analyze(String, org.objectweb.asm.tree.MethodNode)} while
+   * interpreting jump instructions. It is called once for each possible target of the jump
+   * instruction, and once for its successor instruction (except for GOTO and JSR), before the frame
+   * is merged with the existing frame at this location. The default implementation of this method
+   * does nothing.
+   *
+   * <p>Overriding this method and changing the frame values allows implementing branch-sensitive
+   * analyses.
+   *
+   * @param opcode the opcode of the jump instruction. Can be IFEQ, IFNE, IFLT, IFGE, IFGT, IFLE,
+   *     IF_ICMPEQ, IF_ICMPNE, IF_ICMPLT, IF_ICMPGE, IF_ICMPGT, IF_ICMPLE, IF_ACMPEQ, IF_ACMPNE,
+   *     GOTO, JSR, IFNULL, IFNONNULL, TABLESWITCH or LOOKUPSWITCH.
+   * @param target a target of the jump instruction this frame corresponds to, or {@literal null} if
+   *     this frame corresponds to the successor of the jump instruction (i.e. the next instruction
+   *     in the instructions sequence).
+   */
+  public void initJumpTarget(final int opcode, final LabelNode target) {}
 
   /**
    * Sets the expected return type of the analyzed method.

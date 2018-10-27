@@ -190,10 +190,12 @@ public class Analyzer<V extends Value> implements Opcodes {
           if (insnNode instanceof JumpInsnNode) {
             JumpInsnNode jumpInsn = (JumpInsnNode) insnNode;
             if (insnOpcode != GOTO && insnOpcode != JSR) {
+              currentFrame.initJumpTarget(insnOpcode, /* target = */ null);
               merge(insnIndex + 1, currentFrame, subroutine);
               newControlFlowEdge(insnIndex, insnIndex + 1);
             }
             int jumpInsnIndex = insnList.indexOf(jumpInsn.label);
+            currentFrame.initJumpTarget(insnOpcode, jumpInsn.label);
             if (insnOpcode == JSR) {
               merge(
                   jumpInsnIndex,
@@ -206,20 +208,26 @@ public class Analyzer<V extends Value> implements Opcodes {
           } else if (insnNode instanceof LookupSwitchInsnNode) {
             LookupSwitchInsnNode lookupSwitchInsn = (LookupSwitchInsnNode) insnNode;
             int targetInsnIndex = insnList.indexOf(lookupSwitchInsn.dflt);
+            currentFrame.initJumpTarget(insnOpcode, lookupSwitchInsn.dflt);
             merge(targetInsnIndex, currentFrame, subroutine);
             newControlFlowEdge(insnIndex, targetInsnIndex);
             for (int i = 0; i < lookupSwitchInsn.labels.size(); ++i) {
-              targetInsnIndex = insnList.indexOf(lookupSwitchInsn.labels.get(i));
+              LabelNode label = lookupSwitchInsn.labels.get(i);
+              targetInsnIndex = insnList.indexOf(label);
+              currentFrame.initJumpTarget(insnOpcode, label);
               merge(targetInsnIndex, currentFrame, subroutine);
               newControlFlowEdge(insnIndex, targetInsnIndex);
             }
           } else if (insnNode instanceof TableSwitchInsnNode) {
             TableSwitchInsnNode tableSwitchInsn = (TableSwitchInsnNode) insnNode;
             int targetInsnIndex = insnList.indexOf(tableSwitchInsn.dflt);
+            currentFrame.initJumpTarget(insnOpcode, tableSwitchInsn.dflt);
             merge(targetInsnIndex, currentFrame, subroutine);
             newControlFlowEdge(insnIndex, targetInsnIndex);
             for (int i = 0; i < tableSwitchInsn.labels.size(); ++i) {
-              targetInsnIndex = insnList.indexOf(tableSwitchInsn.labels.get(i));
+              LabelNode label = tableSwitchInsn.labels.get(i);
+              currentFrame.initJumpTarget(insnOpcode, label);
+              targetInsnIndex = insnList.indexOf(label);
               merge(targetInsnIndex, currentFrame, subroutine);
               newControlFlowEdge(insnIndex, targetInsnIndex);
             }

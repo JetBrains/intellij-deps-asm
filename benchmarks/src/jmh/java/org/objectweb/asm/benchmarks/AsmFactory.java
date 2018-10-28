@@ -37,7 +37,7 @@ public class AsmFactory implements Factory {
 
   @Override
   public String getVersion() {
-    for (int i = 6; i >= 4; --i) {
+    for (int i = 7; i >= 4; --i) {
       try {
         String version = "ASM" + i;
         if (Opcodes.class.getField(version) != null) {

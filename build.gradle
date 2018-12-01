@@ -31,8 +31,8 @@ buildscript {
   dependencies { classpath 'org.netbeans.tools:sigtest-maven-plugin:1.0' }
 }
 
-plugins { id 'biz.aQute.bnd.builder' version '4.0.0' apply false }
-plugins { id 'com.github.sherter.google-java-format' version '0.7.1' apply false }
+plugins { id 'biz.aQute.bnd.builder' version '4.1.0' apply false }
+plugins { id 'com.github.sherter.google-java-format' version '0.8' apply false }
 plugins { id 'me.champeau.gradle.jmh' version '0.4.7' apply false }
 plugins { id 'org.sonarqube' version '2.6.2' apply false }
 
@@ -208,6 +208,7 @@ def jacocoClasses(project) {
 // and uploaded to Maven with a POM, sources and Javadoc.
 configure(subprojects.findAll { it.provides }) {
   // Code coverage configuration.
+  jacoco.toolVersion = '0.8.1'
   jacocoTestReport {
     afterEvaluate { classDirectories = jacocoClasses(project) }
   }
@@ -275,7 +276,6 @@ configure(subprojects.findAll { it.provides }) {
   if (name != 'asm-test') {
     apply plugin: 'biz.aQute.bnd.builder'
     jar.dependsOn ':tools:bnd-module-plugin:jar'
-    jar.bndfile = "${rootDir}/tools/bnd.bnd" // Avoids a Gradle 5.0 warning.
     jar.manifest.attributes(
       '-classpath': sourceSets.main.output.classesDirs.asPath,
       '-plugin': 'org.objectweb.asm.tools.ModuleInfoBndPlugin;',
@@ -421,4 +421,3 @@ configure(subprojects.findAll { it.provides }) {
     }
   }
 }
-

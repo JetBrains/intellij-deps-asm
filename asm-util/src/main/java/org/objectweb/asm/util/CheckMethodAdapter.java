@@ -966,6 +966,9 @@ public class CheckMethodAdapter extends MethodVisitor {
     checkVisitMaxsNotCalled();
     checkUnqualifiedName(version, name, "name");
     checkDescriptor(version, descriptor, false);
+    if (signature != null) {
+      CheckClassAdapter.checkFieldSignature(signature);
+    }
     checkLabel(start, true, START_LABEL);
     checkLabel(end, true, END_LABEL);
     checkUnsignedShort(index, INVALID_LOCAL_VARIABLE_INDEX);

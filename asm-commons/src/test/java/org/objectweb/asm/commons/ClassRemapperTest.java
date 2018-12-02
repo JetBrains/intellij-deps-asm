@@ -73,19 +73,45 @@ public class ClassRemapperTest extends AsmTest {
             new Remapper() {
               @Override
               public String map(final String internalName) {
-                if ("a".equals(internalName)) {
-                  return "pkg/Demo";
+                if ("pkg/C".equals(internalName)) {
+                  return "a";
                 }
-                if ("a$g".equals(internalName)) {
-                  return "pkg/Demo$Container";
+                if ("pkg/C$Inner".equals(internalName)) {
+                  return "a$b";
                 }
                 return internalName;
               }
             });
-    remapper.visit(Opcodes.V1_5, Opcodes.ACC_PUBLIC, "a", null, "java/lang/Object", null);
-    remapper.visitInnerClass("a$g", "a", "g", Opcodes.ACC_PUBLIC);
-    assertEquals("pkg/Demo", classNode.innerClasses.get(0).outerName);
-    assertEquals("Container", classNode.innerClasses.get(0).innerName);
+    remapper.visit(Opcodes.V1_5, Opcodes.ACC_PUBLIC, "pkg/C", null, "java/lang/Object", null);
+    remapper.visitInnerClass("pkg/C$Inner", "pkg/C", "Inner", Opcodes.ACC_PUBLIC);
+    assertEquals("a$b", classNode.innerClasses.get(0).name);
+    assertEquals("a", classNode.innerClasses.get(0).outerName);
+    assertEquals("b", classNode.innerClasses.get(0).innerName);
+  }
+
+  @Test
+  public void testRenameMethodLocalInnerClass() {
+    ClassNode classNode = new ClassNode();
+    ClassRemapper remapper =
+        new ClassRemapper(
+            classNode,
+            new Remapper() {
+              @Override
+              public String map(final String internalName) {
+                if ("pkg/C".equals(internalName)) {
+                  return "a";
+                }
+                if ("pkg/C$1Inner".equals(internalName)) {
+                  return "a$1b";
+                }
+                return internalName;
+              }
+            });
+    remapper.visit(Opcodes.V1_5, Opcodes.ACC_PUBLIC, "pkg/C", null, "java/lang/Object", null);
+    remapper.visitInnerClass("pkg/C$1Inner", "pkg/C", "Inner", Opcodes.ACC_PUBLIC);
+    assertEquals("a$1b", classNode.innerClasses.get(0).name);
+    assertEquals("a", classNode.innerClasses.get(0).outerName);
+    assertEquals("b", classNode.innerClasses.get(0).innerName);
   }
 
   @Test

@@ -231,6 +231,38 @@ public class ClassWriterTest extends AsmTest {
   }
 
   @Test
+  public void testComputeFramesWithHighDimensionArrays() {
+    ClassWriter classWriter = new ClassWriter(ClassWriter.COMPUTE_FRAMES);
+    classWriter.visit(Opcodes.V1_7, Opcodes.ACC_PUBLIC, "A", null, "java/lang/Object", null);
+    MethodVisitor methodVisitor =
+        classWriter.visitMethod(
+            Opcodes.ACC_STATIC,
+            "m",
+            "(I[[[[[[[[Ljava/lang/Integer;[[[[[[[[Ljava/lang/Long;)Ljava/lang/Object;",
+            null,
+            null);
+    methodVisitor.visitCode();
+    methodVisitor.visitVarInsn(Opcodes.ILOAD, 0);
+    Label thenLabel = new Label();
+    Label endIfLabel = new Label();
+    methodVisitor.visitJumpInsn(Opcodes.IFNE, thenLabel);
+    methodVisitor.visitVarInsn(Opcodes.ALOAD, 1);
+    methodVisitor.visitJumpInsn(Opcodes.GOTO, endIfLabel);
+    methodVisitor.visitLabel(thenLabel);
+    methodVisitor.visitVarInsn(Opcodes.ALOAD, 2);
+    // At this point the stack can contain either an 8 dimensions Integer array or an 8 dimensions
+    // Long array. The merged type computed with the COMPUTE_FRAMES option should therefore be an
+    // 8 dimensions Number array.
+    methodVisitor.visitLabel(endIfLabel);
+    methodVisitor.visitInsn(Opcodes.ARETURN);
+    methodVisitor.visitMaxs(0, 0);
+    methodVisitor.visitEnd();
+    classWriter.visitEnd();
+    // Check that the merged frame type is correctly computed.
+    assertThatClass(classWriter.toByteArray()).contains("[[[[[[[[Ljava/lang/Number;");
+  }
+
+  @Test
   public void testGetCommonSuperClass() {
     ClassWriter classWriter = new ClassWriter(0);
     assertEquals(

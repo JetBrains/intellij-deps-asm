@@ -54,19 +54,19 @@ package org.objectweb.asm;
  *
  * <pre>
  *   =====================================
- *   |.DIM|KIND|FLAG|...............VALUE|
+ *   |...DIM|KIND|.F|...............VALUE|
  *   =====================================
  * </pre>
  *
  * <ul>
- *   <li>the DIM field, stored in the 4 most significant bits, is a signed number of array
- *       dimensions (from -8 to 7, included). It can be retrieved with {@link #DIM_MASK} and a right
- *       shift of {@link #DIM_SHIFT}.
+ *   <li>the DIM field, stored in the 6 most significant bits, is a signed number of array
+ *       dimensions (from -32 to 31, included). It can be retrieved with {@link #DIM_MASK} and a
+ *       right shift of {@link #DIM_SHIFT}.
  *   <li>the KIND field, stored in 4 bits, indicates the kind of VALUE used. These 4 bits can be
  *       retrieved with {@link #KIND_MASK} and, without any shift, must be equal to {@link
  *       #CONSTANT_KIND}, {@link #REFERENCE_KIND}, {@link #UNINITIALIZED_KIND}, {@link #LOCAL_KIND}
  *       or {@link #STACK_KIND}.
- *   <li>the FLAGS field, stored in 4 bits, contains up to 4 boolean flags. Currently only one flag
+ *   <li>the FLAGS field, stored in 2 bits, contains up to 2 boolean flags. Currently only one flag
  *       is defined, namely {@link #TOP_IF_LONG_OR_DOUBLE_FLAG}.
  *   <li>the VALUE field, stored in the remaining 20 bits, contains either
  *       <ul>
@@ -129,17 +129,24 @@ class Frame {
   private static final int ITEM_ASM_CHAR = 11;
   private static final int ITEM_ASM_SHORT = 12;
 
+  // The size and offset in bits of each field of an abstract type.
+
+  private static final int DIM_SIZE = 6;
+  private static final int KIND_SIZE = 4;
+  private static final int FLAGS_SIZE = 2;
+  private static final int VALUE_SIZE = 32 - DIM_SIZE - KIND_SIZE - FLAGS_SIZE;
+
+  private static final int DIM_SHIFT = KIND_SIZE + FLAGS_SIZE + VALUE_SIZE;
+  private static final int KIND_SHIFT = FLAGS_SIZE + VALUE_SIZE;
+  private static final int FLAGS_SHIFT = VALUE_SIZE;
+
   // Bitmasks to get each field of an abstract type.
 
-  private static final int DIM_MASK = 0xF0000000;
-  private static final int KIND_MASK = 0x0F000000;
-  private static final int FLAGS_MASK = 0x00F00000;
-  private static final int VALUE_MASK = 0x000FFFFF;
+  private static final int DIM_MASK = ((1 << DIM_SIZE) - 1) << DIM_SHIFT;
+  private static final int KIND_MASK = ((1 << KIND_SIZE) - 1) << KIND_SHIFT;
+  private static final int VALUE_MASK = (1 << VALUE_SIZE) - 1;
 
   // Constants to manipulate the DIM field of an abstract type.
-
-  /** The number of right shift bits to use to get the array dimensions of an abstract type. */
-  private static final int DIM_SHIFT = 28;
 
   /** The constant to be added to an abstract type to get one with one more array dimension. */
   private static final int ARRAY_OF = +1 << DIM_SHIFT;
@@ -149,11 +156,11 @@ class Frame {
 
   // Possible values for the KIND field of an abstract type.
 
-  private static final int CONSTANT_KIND = 0x01000000;
-  private static final int REFERENCE_KIND = 0x02000000;
-  private static final int UNINITIALIZED_KIND = 0x03000000;
-  private static final int LOCAL_KIND = 0x04000000;
-  private static final int STACK_KIND = 0x05000000;
+  private static final int CONSTANT_KIND = 1 << KIND_SHIFT;
+  private static final int REFERENCE_KIND = 2 << KIND_SHIFT;
+  private static final int UNINITIALIZED_KIND = 3 << KIND_SHIFT;
+  private static final int LOCAL_KIND = 4 << KIND_SHIFT;
+  private static final int STACK_KIND = 5 << KIND_SHIFT;
 
   // Possible flags for the FLAGS field of an abstract type.
 
@@ -162,7 +169,7 @@ class Frame {
    * concrete type is LONG or DOUBLE, TOP should be used instead (because the value has been
    * partially overridden with an xSTORE instruction).
    */
-  private static final int TOP_IF_LONG_OR_DOUBLE_FLAG = 0x00100000 & FLAGS_MASK;
+  private static final int TOP_IF_LONG_OR_DOUBLE_FLAG = 1 << FLAGS_SHIFT;
 
   // Useful predefined abstract types (all the possible CONSTANT_KIND types).
 

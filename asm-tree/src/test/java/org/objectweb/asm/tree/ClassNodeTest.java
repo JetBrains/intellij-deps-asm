@@ -237,7 +237,8 @@ public class ClassNodeTest extends AsmTest implements Opcodes {
   }
 
   @Test
-  public void testMethodInsnNodeDeprecated() {
+  @SuppressWarnings("deprecation")
+  public void testDeprecatedMethodInsnNodeConstructor() {
     MethodInsnNode methodInsnNode = new MethodInsnNode(INVOKESTATIC, "owner", "name", "()I");
     assertEquals(AbstractInsnNode.METHOD_INSN, methodInsnNode.getType());
     assertEquals(INVOKESTATIC, methodInsnNode.getOpcode());
@@ -250,7 +251,7 @@ public class ClassNodeTest extends AsmTest implements Opcodes {
   }
 
   @Test
-  public void testMethodInsnNode() {
+  public void testMethodInsnNodeConstrutor() {
     MethodInsnNode methodInsnNode = new MethodInsnNode(INVOKESTATIC, "owner", "name", "()I", false);
     assertEquals(AbstractInsnNode.METHOD_INSN, methodInsnNode.getType());
     assertEquals(INVOKESTATIC, methodInsnNode.getOpcode());

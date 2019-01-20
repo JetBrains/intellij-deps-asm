@@ -64,7 +64,8 @@ public class AsmGenerator extends Generator {
     MethodVisitor methodVisitor =
         classWriter.visitMethod(Opcodes.ACC_PUBLIC, "<init>", "()V", null, null);
     methodVisitor.visitVarInsn(Opcodes.ALOAD, 0);
-    methodVisitor.visitMethodInsn(Opcodes.INVOKESPECIAL, "java/lang/Object", "<init>", "()V");
+    methodVisitor.visitMethodInsn(
+        Opcodes.INVOKESPECIAL, "java/lang/Object", "<init>", "()V", false);
     methodVisitor.visitInsn(Opcodes.RETURN);
     methodVisitor.visitMaxs(0, 0);
     methodVisitor.visitEnd();
@@ -76,7 +77,7 @@ public class AsmGenerator extends Generator {
         Opcodes.GETSTATIC, "java/lang/System", "out", "Ljava/io/PrintStream;");
     methodVisitor.visitLdcInsn("Hello world!");
     methodVisitor.visitMethodInsn(
-        Opcodes.INVOKEVIRTUAL, "java/io/PrintStream", "println", "(Ljava/lang/String;)V");
+        Opcodes.INVOKEVIRTUAL, "java/io/PrintStream", "println", "(Ljava/lang/String;)V", false);
     methodVisitor.visitInsn(Opcodes.RETURN);
     methodVisitor.visitMaxs(0, 0);
     methodVisitor.visitEnd();

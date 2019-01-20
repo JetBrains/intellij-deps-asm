@@ -96,7 +96,8 @@ public class ASMifierTest extends AsmTest {
   }
 
   @Test
-  public void testBackwardCompatibility() {
+  @SuppressWarnings("deprecation")
+  public void testDeprecatedVisitMethodInsn() {
     ASMifier asmifier = new ASMifier();
     asmifier.visitMethodInsn(Opcodes.INVOKESPECIAL, "owner", "name", "()V");
     assertEquals(
@@ -105,14 +106,22 @@ public class ASMifierTest extends AsmTest {
   }
 
   @Test
-  public void testBackwardCompatibilityAsm4() {
+  @SuppressWarnings("deprecation")
+  public void testDeprecatedVisitMethodInsnAsm4() {
     ASMifier asmifier = new ASMifier(Opcodes.ASM4, "classWriter", 0) {};
     asmifier.visitMethodInsn(Opcodes.INVOKESPECIAL, "owner", "name", "()V");
+    String expectedText =
+        "classWriter.visitMethodInsn(INVOKESPECIAL, \"owner\", \"name\", \"()V\", false);\n";
+    assertEquals(expectedText, asmifier.getText().get(0));
+  }
+
+  @Test
+  public void testVisitMethodInsnAsm4() {
+    ASMifier asmifier = new ASMifier(Opcodes.ASM4, "classWriter", 0) {};
     asmifier.visitMethodInsn(Opcodes.INVOKESPECIAL, "owner", "name", "()V", false);
     String expectedText =
         "classWriter.visitMethodInsn(INVOKESPECIAL, \"owner\", \"name\", \"()V\", false);\n";
     assertEquals(expectedText, asmifier.getText().get(0));
-    assertEquals(expectedText, asmifier.getText().get(1));
   }
 
   /**

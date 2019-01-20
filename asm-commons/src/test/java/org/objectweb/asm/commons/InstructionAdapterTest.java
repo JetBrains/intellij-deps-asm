@@ -102,12 +102,22 @@ public class InstructionAdapterTest extends AsmTest {
   }
 
   @Test
-  public void testIllegalVisitMethodInsn() {
+  @SuppressWarnings("deprecation")
+  public void testDeprecatedIllegalVisitMethodInsn() {
     assertThrows(
         IllegalArgumentException.class,
         () ->
             new InstructionAdapter(new MethodNode())
                 .visitMethodInsn(Opcodes.GETFIELD, "pkg/Class", "name", "I"));
+  }
+
+  @Test
+  public void testIllegalVisitMethodInsn() {
+    assertThrows(
+        IllegalArgumentException.class,
+        () ->
+            new InstructionAdapter(new MethodNode())
+                .visitMethodInsn(Opcodes.GETFIELD, "pkg/Class", "name", "I", false));
   }
 
   @Test
@@ -147,8 +157,13 @@ public class InstructionAdapterTest extends AsmTest {
   }
 
   @Test
-  public void testInvokeSpecial() {
+  @SuppressWarnings("deprecation")
+  public void testDeprecatedInvokeSpecial() {
     new InstructionAdapter(new MethodNode()).invokespecial("pkg/Class", "name", "()V");
+  }
+
+  @Test
+  public void testInvokeSpecial() {
     assertThrows(
         IllegalArgumentException.class,
         () ->
@@ -157,8 +172,13 @@ public class InstructionAdapterTest extends AsmTest {
   }
 
   @Test
-  public void testInvokeVirtual() {
+  @SuppressWarnings("deprecation")
+  public void testDeprecatedInvokeVirtual() {
     new InstructionAdapter(new MethodNode()).invokevirtual("pkg/Class", "name", "()V");
+  }
+
+  @Test
+  public void testInvokeVirtual() {
     assertThrows(
         IllegalArgumentException.class,
         () ->
@@ -167,8 +187,13 @@ public class InstructionAdapterTest extends AsmTest {
   }
 
   @Test
-  public void testInvokeStatic() {
+  @SuppressWarnings("deprecation")
+  public void testDeprecatedInvokeStatic() {
     new InstructionAdapter(new MethodNode()).invokestatic("pkg/Class", "name", "()V");
+  }
+
+  @Test
+  public void testInvokeStatic() {
     assertThrows(
         IllegalArgumentException.class,
         () ->

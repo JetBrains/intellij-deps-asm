@@ -243,8 +243,9 @@ configure(subprojects.findAll { it.provides }) {
               '-Mode', 'bin', '-FileName', f, '-Classpath',
               project(':tools').file('jdk8-api.jar').path + File.pathSeparator +
               sourceSets.main.output.classesDirs.asPath, '-Package'] + provides
-          def output = new FileWriter(outputs.getFiles()[0])
-          sigtest.run(args as String[], new PrintWriter(output, true), null)
+          outputs.getFiles()[0].withPrintWriter { printWriter -> 
+            sigtest.run(args as String[], printWriter, null)
+          }
           if (!sigtest.isPassed()) throw new GradleException()
         }
       }

@@ -42,21 +42,26 @@ import org.junit.jupiter.api.Test;
 public class HandleTest {
 
   @Test
-  public void testGetField() {
-    Handle handle = new Handle(Opcodes.H_GETFIELD, "owner", "name", "descriptor");
+  @SuppressWarnings("deprecation")
+  public void testDeprecatedConstructor() {
+    Handle handle1 = new Handle(Opcodes.H_INVOKEINTERFACE, "owner", "name", "descriptor");
+    assertTrue(handle1.isInterface());
+    assertEquals("owner.namedescriptor (9 itf)", handle1.toString());
+
+    Handle handle2 = new Handle(Opcodes.H_INVOKESPECIAL, "owner", "name", "descriptor");
+    assertFalse(handle2.isInterface());
+    assertEquals("owner.namedescriptor (7)", handle2.toString());
+  }
+
+  @Test
+  public void testConstructorAndAccessors() {
+    Handle handle = new Handle(Opcodes.H_GETFIELD, "owner", "name", "descriptor", false);
     assertEquals(Opcodes.H_GETFIELD, handle.getTag());
     assertEquals("owner", handle.getOwner());
     assertEquals("name", handle.getName());
     assertEquals("descriptor", handle.getDesc());
     assertFalse(handle.isInterface());
     assertEquals("owner.namedescriptor (1)", handle.toString());
-  }
-
-  @Test
-  public void testInvokeInterface() {
-    Handle handle = new Handle(Opcodes.H_INVOKEINTERFACE, "owner", "name", "descriptor");
-    assertTrue(handle.isInterface());
-    assertEquals("owner.namedescriptor (9 itf)", handle.toString());
   }
 
   @Test

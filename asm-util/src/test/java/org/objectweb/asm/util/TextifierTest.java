@@ -59,20 +59,26 @@ public class TextifierTest extends AsmTest {
   }
 
   @Test
-  public void testBackwardCompatibility() {
+  @SuppressWarnings("deprecation")
+  public void testDeprecatedVisitMethodInsn() {
     Textifier textifier = new Textifier();
     textifier.visitMethodInsn(Opcodes.INVOKESPECIAL, "owner", "name", "()V");
     assertEquals("    INVOKESPECIAL owner.name ()V\n", textifier.getText().get(0));
   }
 
   @Test
-  public void testBackwardCompatibilityAsm4() {
+  @SuppressWarnings("deprecation")
+  public void testDeprecatedVisitMethodInsnAsm4() {
     Textifier textifier = new Textifier(Opcodes.ASM4) {};
     textifier.visitMethodInsn(Opcodes.INVOKESPECIAL, "owner", "name", "()V");
+    assertEquals("    INVOKESPECIAL owner.name ()V\n", textifier.getText().get(0));
+  }
+
+  @Test
+  public void testVisitMethodInsnAsm4() {
+    Textifier textifier = new Textifier(Opcodes.ASM4) {};
     textifier.visitMethodInsn(Opcodes.INVOKESPECIAL, "owner", "name", "()V", false);
-    String expectedText = "    INVOKESPECIAL owner.name ()V\n";
-    assertEquals(expectedText, textifier.getText().get(0));
-    assertEquals(expectedText, textifier.getText().get(1));
+    assertEquals("    INVOKESPECIAL owner.name ()V\n", textifier.getText().get(0));
   }
 
   @Test

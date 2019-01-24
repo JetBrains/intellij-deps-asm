@@ -131,22 +131,8 @@ public class MethodVisitorTest {
    * expected result.
    */
   @Test
-  public void testBackwardCompatibilityMixedChain5() {
-    CheckMethodVisitor checkMethodVisitor = new CheckMethodVisitor();
-    MethodVisitor methodVisitor = new MethodVisitor4(checkMethodVisitor);
-    methodVisitor = new MethodVisitor4Override(methodVisitor);
-    methodVisitor = new MethodVisitor5(methodVisitor);
-    methodVisitor = new MethodVisitor5Override(methodVisitor);
-    methodVisitor.visitMethodInsn(0, "C", "m", "()V", false);
-    assertEquals("mv5v4", checkMethodVisitor.lastVisitedMethodName);
-  }
-
-  /**
-   * Tests that method visitors with different API versions can be chained together and produce the
-   * expected result.
-   */
-  @Test
-  public void testBackwardCompatibilityMixedChain4() {
+  @SuppressWarnings("deprecation")
+  public void testDeprecatedBackwardCompatibilityMixedChain() {
     CheckMethodVisitor checkMethodVisitor = new CheckMethodVisitor();
     MethodVisitor methodVisitor = new MethodVisitor5(checkMethodVisitor);
     methodVisitor = new MethodVisitor5Override(methodVisitor);
@@ -154,6 +140,21 @@ public class MethodVisitorTest {
     methodVisitor = new MethodVisitor4Override(methodVisitor);
     methodVisitor.visitMethodInsn(0, "C", "m", "()V");
     assertEquals("mv4v5", checkMethodVisitor.lastVisitedMethodName);
+  }
+
+  /**
+   * Tests that method visitors with different API versions can be chained together and produce the
+   * expected result.
+   */
+  @Test
+  public void testBackwardCompatibilityMixedChain() {
+    CheckMethodVisitor checkMethodVisitor = new CheckMethodVisitor();
+    MethodVisitor methodVisitor = new MethodVisitor4(checkMethodVisitor);
+    methodVisitor = new MethodVisitor4Override(methodVisitor);
+    methodVisitor = new MethodVisitor5(methodVisitor);
+    methodVisitor = new MethodVisitor5Override(methodVisitor);
+    methodVisitor.visitMethodInsn(0, "C", "m", "()V", false);
+    assertEquals("mv5v4", checkMethodVisitor.lastVisitedMethodName);
   }
 
   /** An ASM4 {@link MethodVisitor} which does not override the ASM4 visitMethodInsn method. */

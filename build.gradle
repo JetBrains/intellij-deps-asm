@@ -28,12 +28,12 @@
 
 buildscript {
   repositories { mavenCentral() }
-  dependencies { classpath 'org.netbeans.tools:sigtest-maven-plugin:1.0' }
+  dependencies { classpath 'org.netbeans.tools:sigtest-maven-plugin:1.1' }
 }
 
 plugins { id 'biz.aQute.bnd.builder' version '4.1.0' apply false }
 plugins { id 'com.github.sherter.google-java-format' version '0.8' apply false }
-plugins { id 'me.champeau.gradle.jmh' version '0.4.7' apply false }
+plugins { id 'me.champeau.gradle.jmh' version '0.4.8' apply false }
 plugins { id 'org.sonarqube' version '2.6.2' apply false }
 
 description = 'ASM, a very small and fast Java bytecode manipulation framework'
@@ -83,8 +83,8 @@ project(':asm-commons') {
 project(':asm-test') {
   description = "Utilities for testing ${parent.description}"
   provides = ['org.objectweb.asm.test']
-  depends = ['org.junit.jupiter:junit-jupiter-api:5.3.0',
-      'org.junit.jupiter:junit-jupiter-params:5.3.0']
+  depends = ['org.junit.jupiter:junit-jupiter-api:5.3.2',
+      'org.junit.jupiter:junit-jupiter-params:5.3.2']
   sourceCompatibility = '1.8'
   targetCompatibility = '1.8'
 }
@@ -99,7 +99,7 @@ project(':asm-util') {
   description = "Utilities for ${parent.description}"
   provides = ['org.objectweb.asm.util']
   requires = [':asm', ':asm-tree', ':asm-analysis']
-  dependencies { testCompile 'org.codehaus.janino:janino:3.0.7' }
+  dependencies { testCompile 'org.codehaus.janino:janino:3.0.11' }
 }
 
 // Use "gradle benchmarks:jmh [-PjmhInclude='<regex>']" to run the benchmarks.
@@ -170,14 +170,12 @@ subprojects {
   
   // Check the coding style with Checkstyle. Fail in case of error or warning.
   apply plugin: 'checkstyle'
-  checkstyle.toolVersion = '8.12'
   checkstyle.configFile = file("${rootDir}/tools/checkstyle.xml")
   checkstyle.maxErrors = 0
   checkstyle.maxWarnings = 0
   
   // Check the code with PMD.
   apply plugin: 'pmd'
-  pmd.toolVersion = '6.5.0'
   pmd.ruleSets = []
   pmd.ruleSetFiles = files("${rootDir}/tools/pmd.xml")
 
@@ -188,9 +186,9 @@ subprojects {
   dependencies {
     requires.each { projectName -> compile project(projectName) }
     depends.each { artifactName -> compile artifactName }
-    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.3.0',
-        'org.junit.jupiter:junit-jupiter-params:5.3.0'
-    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.3.0'
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.3.2',
+        'org.junit.jupiter:junit-jupiter-params:5.3.2'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.3.2'
     testCompile project(':asm-test')
   }
 }
@@ -210,13 +208,13 @@ configure(subprojects.findAll { it.provides }) {
   // Code coverage configuration.
   jacoco.toolVersion = '0.8.1'
   jacocoTestReport {
-    afterEvaluate { classDirectories = jacocoClasses(project) }
+    afterEvaluate { classDirectories.setFrom(jacocoClasses(project)) }
   }
   jacocoTestCoverageVerification {
     violationRules.rule {
       limit { counter = 'INSTRUCTION'; minimum = minCodeCoverage }
     }
-    afterEvaluate { classDirectories = jacocoClasses(project) }
+    afterEvaluate { classDirectories.setFrom(jacocoClasses(project)) }
   }
   check.dependsOn jacocoTestCoverageVerification
 
@@ -242,11 +240,12 @@ configure(subprojects.findAll { it.provides }) {
         doLast {
           def sigtest = new com.sun.tdk.signaturetest.SignatureTest()
           def args = ['-ApiVersion', version, '-Backward', '-Static',
-              '-Mode', 'bin', '-FileName', f, '-Out', outputs.getFiles()[0],
-              '-Classpath', project(':tools').file('jdk8-api.jar').path + 
-              File.pathSeparator + sourceSets.main.output.classesDirs.asPath,
-              '-Package'] + provides
-          sigtest.run(args as String[], new PrintWriter(System.err, true), null)
+              '-Mode', 'bin', '-FileName', f, '-Classpath',
+              project(':tools').file('jdk8-api.jar').path + File.pathSeparator +
+              sourceSets.main.output.classesDirs.asPath, '-Package'] + provides
+          outputs.getFiles()[0].withPrintWriter { printWriter -> 
+            sigtest.run(args as String[], printWriter, null)
+          }
           if (!sigtest.isPassed()) throw new GradleException()
         }
       }

@@ -103,6 +103,13 @@ public class ClassWriterTest extends AsmTest {
   }
 
   @Test
+  @SuppressWarnings("deprecation")
+  public void testDeprecatedNewConst() {
+    ClassWriter classWriter = new ClassWriter(0);
+    classWriter.newHandle(Opcodes.H_GETFIELD, "A", "h", "I");
+  }
+
+  @Test
   public void testNewConst() {
     ClassWriter classWriter = new ClassWriter(0);
     classWriter.newConst(Byte.valueOf((byte) 0));
@@ -114,7 +121,6 @@ public class ClassWriterTest extends AsmTest {
     classWriter.newMethodType("()V");
     classWriter.newModule("A");
     classWriter.newPackage("A");
-    classWriter.newHandle(Opcodes.H_GETFIELD, "A", "h", "I");
     classWriter.newHandle(Opcodes.H_GETFIELD, "A", "h", "I", false);
     classWriter.newInvokeDynamic("m", "()V", new Handle(Opcodes.H_GETFIELD, "A", "h", "I", false));
     classWriter.newConstantDynamic(

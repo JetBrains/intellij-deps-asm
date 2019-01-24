@@ -43,6 +43,15 @@ import org.objectweb.asm.Opcodes;
 public class PrinterTest {
 
   @Test
+  @SuppressWarnings("deprecation")
+  public void testDeprecatedUnsupportedOperations() {
+    Printer printer = new StubPrinter(Opcodes.ASM7);
+    assertThrows(
+        UnsupportedOperationException.class,
+        () -> printer.visitMethodInsn(Opcodes.INVOKESPECIAL, "owner", "name", "()V"));
+  }
+
+  @Test
   public void testUnsupportedOperations() {
     Printer printer = new StubPrinter(Opcodes.ASM7);
     assertThrows(UnsupportedOperationException.class, () -> printer.visitModule(null, 0, null));
@@ -78,9 +87,6 @@ public class PrinterTest {
         () -> printer.visitLocalVariableAnnotation(0, null, null, null, null, null, false));
     assertThrows(
         UnsupportedOperationException.class,
-        () -> printer.visitMethodInsn(Opcodes.INVOKESPECIAL, "owner", "name", "()V"));
-    assertThrows(
-        UnsupportedOperationException.class,
         () -> printer.visitMethodInsn(Opcodes.INVOKESPECIAL, "owner", "name", "()V", false));
     assertThrows(
         UnsupportedOperationException.class,
@@ -88,11 +94,17 @@ public class PrinterTest {
   }
 
   @Test
-  public void testUnsupportedOperationsAsm4() {
+  @SuppressWarnings("deprecation")
+  public void testDeprecatedUnsupportedOperationsAsm4() {
     Printer printer = new StubPrinter(Opcodes.ASM4);
     assertThrows(
         UnsupportedOperationException.class,
         () -> printer.visitMethodInsn(Opcodes.INVOKESPECIAL, "owner", "name", "()V"));
+  }
+
+  @Test
+  public void testUnsupportedOperationsAsm4() {
+    Printer printer = new StubPrinter(Opcodes.ASM4);
     assertThrows(
         UnsupportedOperationException.class,
         () -> printer.visitMethodInsn(Opcodes.INVOKESPECIAL, "owner", "name", "()V", false));
@@ -102,7 +114,8 @@ public class PrinterTest {
   }
 
   @Test
-  public void testBackwardCompatibility() {
+  @SuppressWarnings("deprecation")
+  public void testDeprecatedVisitMethodInsn() {
     Printer printer =
         new StubPrinter(Opcodes.ASM5) {
           @Override
@@ -119,10 +132,11 @@ public class PrinterTest {
   }
 
   @Test
-  public void testBackwardCompatibilityAsm4() {
+  public void testDeprecatedVisitMethodInsnAsm4() {
     Printer printer =
         new StubPrinter(Opcodes.ASM4) {
           @Override
+          @Deprecated
           public void visitMethodInsn(
               final int opcode, final String owner, final String name, final String descriptor) {
             // Do nothing.

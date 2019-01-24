@@ -194,10 +194,19 @@ public class CheckMethodAdapterTest extends AsmTest implements Opcodes {
   }
 
   @Test
-  public void testIllegalMethodInsn() {
+  @SuppressWarnings("deprecation")
+  public void testDeprecatedIllegalMethodInsn() {
     checkMethodAdapter.visitCode();
     assertThrows(
         RuntimeException.class, () -> checkMethodAdapter.visitMethodInsn(-1, "o", "m", "()V"));
+  }
+
+  @Test
+  public void testIllegalMethodInsn() {
+    checkMethodAdapter.visitCode();
+    assertThrows(
+        RuntimeException.class,
+        () -> checkMethodAdapter.visitMethodInsn(-1, "o", "m", "()V", false));
   }
 
   @Test

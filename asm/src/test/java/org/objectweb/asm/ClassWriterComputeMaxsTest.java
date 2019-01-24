@@ -210,22 +210,22 @@ public class ClassWriterComputeMaxsTest {
   }
 
   private void assertGraph(final String... nodes) {
-    Map<String, Set<String>> expected = new HashMap<String, Set<String>>();
+    Map<String, Set<String>> expected = new HashMap<>();
     for (String node : nodes) {
       StringTokenizer stringTokenizer = new StringTokenizer(node, "=,");
       String key = stringTokenizer.nextToken();
-      Set<String> values = new HashSet<String>();
+      Set<String> values = new HashSet<>();
       while (stringTokenizer.hasMoreTokens()) {
         values.add(stringTokenizer.nextToken());
       }
       expected.put(key, values);
     }
 
-    Map<String, Set<String>> actual = new HashMap<String, Set<String>>();
+    Map<String, Set<String>> actual = new HashMap<>();
     Label currentLabel = start;
     while (currentLabel != null) {
       String key = "N" + currentLabel.getOffset();
-      Set<String> value = new HashSet<String>();
+      Set<String> value = new HashSet<>();
       Edge outgoingEdge = currentLabel.outgoingEdges;
       if ((currentLabel.flags & Label.FLAG_SUBROUTINE_CALLER) != 0) {
         // Ignore the first outgoing edge of the basic blocks ending with a jsr: these are virtual

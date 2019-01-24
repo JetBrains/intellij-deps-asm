@@ -37,8 +37,8 @@ public class TypeBenchmark extends AbstractBenchmark {
   @Setup
   public void prepare() throws Exception {
     prepareClasses();
-    descriptors = new ArrayList<String>();
-    methodDescriptors = new ArrayList<String>();
+    descriptors = new ArrayList<>();
+    methodDescriptors = new ArrayList<>();
     for (byte[] classFile : classFiles) {
       new ClassReader(classFile).accept(new CollectTypesVisitor(), 0);
     }

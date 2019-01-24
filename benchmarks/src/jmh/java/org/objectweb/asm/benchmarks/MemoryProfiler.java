@@ -107,7 +107,7 @@ public class MemoryProfiler implements InternalProfiler {
     long usedMemoryInIteration = usedMemoryAfterIteration - usedMemoryBeforeIteration;
     double usedMemoryPerOp =
         ((double) usedMemoryInIteration) / result.getMetadata().getMeasuredOps();
-    List<Result> results = new ArrayList<Result>();
+    List<Result> results = new ArrayList<>();
     results.add(new ScalarResult("+memory.used", usedMemoryPerOp, "bytes", AggregationPolicy.AVG));
     return results;
   }
@@ -124,7 +124,7 @@ public class MemoryProfiler implements InternalProfiler {
    * @see org.openjdk.jmh.runner.BaseRunner#runSystemGC()
    */
   private static long getUsedMemory() {
-    List<GarbageCollectorMXBean> gcBeans = new ArrayList<GarbageCollectorMXBean>();
+    List<GarbageCollectorMXBean> gcBeans = new ArrayList<>();
     for (GarbageCollectorMXBean gcBean : ManagementFactory.getGarbageCollectorMXBeans()) {
       long count = gcBean.getCollectionCount();
       if (count != -1) {

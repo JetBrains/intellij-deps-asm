@@ -331,7 +331,7 @@ public abstract class Printer {
     this.api = api;
     this.buf = null;
     this.stringBuilder = new StringBuilder();
-    this.text = new ArrayList<Object>();
+    this.text = new ArrayList<>();
   }
 
   // -----------------------------------------------------------------------------------------------

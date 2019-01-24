@@ -108,7 +108,7 @@ public abstract class AbstractBenchmark {
 
   /** Creates and populates {@link #classFiles} with some class files read from disk. */
   protected void prepareClasses() throws IOException {
-    classFiles = new ArrayList<byte[]>();
+    classFiles = new ArrayList<>();
     findClasses(new File(ROOT_DIR + ASM_CORE_CURRENT));
     findClasses(new File(ROOT_DIR + ASM_TREE_CURRENT));
   }

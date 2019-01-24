@@ -70,7 +70,7 @@ public class SignatureRemapperTest {
 
   @Test
   public void testRemappingBothParentAndChildNestedClassExtends() {
-    Map<String, String> mapping = new HashMap<String, String>();
+    Map<String, String> mapping = new HashMap<>();
     mapping.put("Outer", "RenamedOuter");
     mapping.put("Outer$Inner", "RenamedOuter$RenamedInner");
     Remapper remapper = new SimpleRemapper(mapping);

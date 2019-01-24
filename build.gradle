@@ -45,6 +45,8 @@ subprojects {
   def snapshotSuffix = rootProject.hasProperty('release') ? '' : '-SNAPSHOT'
   group = 'org.ow2.asm'
   version = '7.1' + snapshotSuffix
+  sourceCompatibility = '1.8'
+  targetCompatibility = '1.8'
   test { useJUnitPlatform() }
   ext.provides = []  // The provided java packages, e.g. ['org.objectweb.asm']
   ext.requires = []  // The required Gradle projects, e.g. [':asm-test']

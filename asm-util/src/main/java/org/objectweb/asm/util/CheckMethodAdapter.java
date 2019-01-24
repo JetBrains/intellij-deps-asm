@@ -388,8 +388,8 @@ public class CheckMethodAdapter extends MethodVisitor {
       final Map<Label, Integer> labelInsnIndices) {
     super(api, methodVisitor);
     this.labelInsnIndices = labelInsnIndices;
-    this.referencedLabels = new HashSet<Label>();
-    this.handlers = new ArrayList<Label>();
+    this.referencedLabels = new HashSet<>();
+    this.handlers = new ArrayList<>();
   }
 
   /**
@@ -444,7 +444,7 @@ public class CheckMethodAdapter extends MethodVisitor {
         new MethodNode(api, access, name, descriptor, null, null) {
           @Override
           public void visitEnd() {
-            Analyzer<BasicValue> analyzer = new Analyzer<BasicValue>(new BasicVerifier());
+            Analyzer<BasicValue> analyzer = new Analyzer<>(new BasicVerifier());
             try {
               analyzer.analyze("dummy", this);
             } catch (IndexOutOfBoundsException e) {

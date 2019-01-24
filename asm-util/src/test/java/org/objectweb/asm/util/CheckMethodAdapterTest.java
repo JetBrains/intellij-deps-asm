@@ -63,7 +63,7 @@ public class CheckMethodAdapterTest extends AsmTest implements Opcodes {
   @Test
   public void testDataflowCheckRequiresMaxLocalsAndMaxStack() {
     CheckMethodAdapter checkMethodAdapterWithDataFlowCheck =
-        new CheckMethodAdapter(0, "m", "()V", null, new HashMap<Label, Integer>());
+        new CheckMethodAdapter(0, "m", "()V", null, new HashMap<>());
     checkMethodAdapterWithDataFlowCheck.visitCode();
     checkMethodAdapterWithDataFlowCheck.visitVarInsn(ALOAD, 0);
     checkMethodAdapterWithDataFlowCheck.visitInsn(RETURN);
@@ -100,8 +100,7 @@ public class CheckMethodAdapterTest extends AsmTest implements Opcodes {
   @Test
   public void testIllegalCode() {
     checkMethodAdapter =
-        new CheckMethodAdapter(
-            Opcodes.ACC_ABSTRACT, "m", "()V", null, new HashMap<Label, Integer>());
+        new CheckMethodAdapter(Opcodes.ACC_ABSTRACT, "m", "()V", null, new HashMap<>());
     assertThrows(RuntimeException.class, () -> checkMethodAdapter.visitCode());
   }
 

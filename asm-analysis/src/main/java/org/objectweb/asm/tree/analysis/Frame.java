@@ -599,7 +599,7 @@ public class Frame<V extends Value> {
       case Opcodes.INVOKESTATIC:
       case Opcodes.INVOKEINTERFACE:
         {
-          List<V> valueList = new ArrayList<V>();
+          List<V> valueList = new ArrayList<>();
           String methodDescriptor = ((MethodInsnNode) insn).desc;
           for (int i = Type.getArgumentTypes(methodDescriptor).length; i > 0; --i) {
             valueList.add(0, pop());
@@ -616,7 +616,7 @@ public class Frame<V extends Value> {
         }
       case Opcodes.INVOKEDYNAMIC:
         {
-          List<V> valueList = new ArrayList<V>();
+          List<V> valueList = new ArrayList<>();
           String methodDesccriptor = ((InvokeDynamicInsnNode) insn).desc;
           for (int i = Type.getArgumentTypes(methodDesccriptor).length; i > 0; --i) {
             valueList.add(0, pop());
@@ -648,7 +648,7 @@ public class Frame<V extends Value> {
         interpreter.unaryOperation(insn, pop());
         break;
       case Opcodes.MULTIANEWARRAY:
-        List<V> valueList = new ArrayList<V>();
+        List<V> valueList = new ArrayList<>();
         for (int i = ((MultiANewArrayInsnNode) insn).dims; i > 0; --i) {
           valueList.add(0, pop());
         }

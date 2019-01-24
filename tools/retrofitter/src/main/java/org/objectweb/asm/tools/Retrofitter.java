@@ -61,12 +61,12 @@ public class Retrofitter {
    * The fields and methods of the JDK 1.5 API. Each string has the form
    * "&lt;owner&gt;&lt;name&gt;&lt;descriptor&gt;".
    */
-  private final HashSet<String> jdkApi = new HashSet<String>();
+  private final HashSet<String> jdkApi = new HashSet<>();
 
   /**
    * The class hierarchy of the JDK 1.5 API. Maps each class name to the name of its super class.
    */
-  private final HashMap<String, String> jdkHierarchy = new HashMap<String, String>();
+  private final HashMap<String, String> jdkHierarchy = new HashMap<>();
 
   /**
    * Constructs a new {@link Retrofitter}.

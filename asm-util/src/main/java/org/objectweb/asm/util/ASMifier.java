@@ -69,7 +69,7 @@ public class ASMifier extends Printer {
   private static final Map<Integer, String> CLASS_VERSIONS;
 
   static {
-    HashMap<Integer, String> classVersions = new HashMap<Integer, String>();
+    HashMap<Integer, String> classVersions = new HashMap<>();
     classVersions.put(Opcodes.V1_1, "V1_1");
     classVersions.put(Opcodes.V1_2, "V1_2");
     classVersions.put(Opcodes.V1_3, "V1_3");
@@ -1176,7 +1176,7 @@ public class ASMifier extends Printer {
     stringBuilder.append("// ATTRIBUTE ").append(attribute.type).append('\n');
     if (attribute instanceof ASMifiable) {
       if (labelNames == null) {
-        labelNames = new HashMap<Label, String>();
+        labelNames = new HashMap<>();
       }
       stringBuilder.append("{\n");
       StringBuffer stringBuffer = new StringBuffer();
@@ -1551,7 +1551,7 @@ public class ASMifier extends Printer {
    */
   protected void declareLabel(final Label label) {
     if (labelNames == null) {
-      labelNames = new HashMap<Label, String>();
+      labelNames = new HashMap<>();
     }
     String labelName = labelNames.get(label);
     if (labelName == null) {

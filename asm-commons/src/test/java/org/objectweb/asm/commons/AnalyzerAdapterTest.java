@@ -186,7 +186,7 @@ public class AnalyzerAdapterTest extends AsmTest {
      * represented with one element in visitFrame, but with two elements in AnalyzerAdapter).
      */
     private ArrayList<Object> toFrameTypes(final List<Object> analyzerTypes) {
-      ArrayList<Object> frameTypes = new ArrayList<Object>();
+      ArrayList<Object> frameTypes = new ArrayList<>();
       for (int i = 0; i < analyzerTypes.size(); ) {
         Object value = analyzerTypes.get(i);
         frameTypes.add(value);

@@ -187,7 +187,7 @@ public class CheckClassAdapter extends ClassVisitor {
   protected CheckClassAdapter(
       final int api, final ClassVisitor classVisitor, final boolean checkDataFlow) {
     super(api, classVisitor);
-    this.labelInsnIndices = new HashMap<Label, Integer>();
+    this.labelInsnIndices = new HashMap<>();
     this.checkDataFlow = checkDataFlow;
   }
 
@@ -1000,7 +1000,7 @@ public class CheckClassAdapter extends ClassVisitor {
     Type syperType = classNode.superName == null ? null : Type.getObjectType(classNode.superName);
     List<MethodNode> methods = classNode.methods;
 
-    List<Type> interfaces = new ArrayList<Type>();
+    List<Type> interfaces = new ArrayList<>();
     for (String interfaceName : classNode.interfaces) {
       interfaces.add(Type.getObjectType(interfaceName));
     }
@@ -1012,7 +1012,7 @@ public class CheckClassAdapter extends ClassVisitor {
               syperType,
               interfaces,
               (classNode.access & Opcodes.ACC_INTERFACE) != 0);
-      Analyzer<BasicValue> analyzer = new Analyzer<BasicValue>(verifier);
+      Analyzer<BasicValue> analyzer = new Analyzer<>(verifier);
       if (loader != null) {
         verifier.setClassLoader(loader);
       }

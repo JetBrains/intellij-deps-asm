@@ -188,9 +188,9 @@ public class SerialVersionUIDAdder extends ClassVisitor {
       this.name = name;
       this.access = access;
       this.interfaces = new String[interfaces.length];
-      this.svuidFields = new ArrayList<Item>();
-      this.svuidConstructors = new ArrayList<Item>();
-      this.svuidMethods = new ArrayList<Item>();
+      this.svuidFields = new ArrayList<>();
+      this.svuidConstructors = new ArrayList<>();
+      this.svuidMethods = new ArrayList<>();
       System.arraycopy(interfaces, 0, this.interfaces, 0, interfaces.length);
     }
 

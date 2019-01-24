@@ -793,7 +793,7 @@ public class ClassWriterTest extends AsmTest {
         final String[] exceptions) {
       return new MethodVisitor(
           api, super.visitMethod(access, name, descriptor, signature, exceptions)) {
-        private final HashSet<Label> labels = new HashSet<Label>();
+        private final HashSet<Label> labels = new HashSet<>();
 
         @Override
         public void visitLabel(final Label label) {

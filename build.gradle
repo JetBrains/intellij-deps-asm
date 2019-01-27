@@ -178,6 +178,9 @@ subprojects {
   pmd.ruleSets = []
   pmd.ruleSetFiles = files("${rootDir}/tools/pmd.xml")
   pmd.consoleOutput = true
+  java.util.logging.Logger.getLogger('net.sourceforge.pmd.PMD').setFilter({
+    log -> !log.message.contains('This analysis could be faster')
+  })
 
   dependencies {
     requires.each { projectName -> compile project(projectName) }

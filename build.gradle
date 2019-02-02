@@ -51,7 +51,6 @@ subprojects {
   ext.provides = []  // The provided java packages, e.g. ['org.objectweb.asm']
   ext.requires = []  // The required Gradle projects, e.g. [':asm-test']
   ext.depends = []   // The external dependencies, e.g. ['junit:junit:4.12']
-  ext.minCodeCoverage = 0.95 // The minimum code coverage fraction.
   // Some external dependencies (such as Jacoco) depend transitively on ASM, and
   // without this rule Gradle can mix ASM jars of different versions (e.g.
   // asm-6.0.jar with the asm-tree.jar built locally).
@@ -192,13 +191,6 @@ subprojects {
   }
 }
 
-// Exclude anything deprecated or outside asm packages from code coverage.
-def jacocoClasses(project) {
-  return files(project.sourceSets.main.output.collect { fileTree(
-    dir: it, include: 'org/objectweb/asm/**', exclude: '**/Remapping*'
-  )})
-}
-
 // Configures the projects with a non-empty 'provides' property. These are the
 // ones which are published in Maven. They must be checked for code coverage and
 // backward compatibility, retrofited to Java 1.5, packaged with biz.aQute.bnd
@@ -207,13 +199,11 @@ configure(subprojects.findAll { it.provides }) {
   // Code coverage configuration.
   jacoco.toolVersion = '0.8.1'
   jacocoTestReport {
-    afterEvaluate { classDirectories.setFrom(jacocoClasses(project)) }
+    classDirectories.setFrom(sourceSets.main.output.classesDirs)
   }
   jacocoTestCoverageVerification {
-    violationRules.rule {
-      limit { counter = 'INSTRUCTION'; minimum = minCodeCoverage }
-    }
-    afterEvaluate { classDirectories.setFrom(jacocoClasses(project)) }
+    classDirectories.setFrom(sourceSets.main.output.classesDirs)
+    violationRules.rule { limit { minimum = 0.95; counter = 'INSTRUCTION' } }
   }
   check.dependsOn jacocoTestCoverageVerification
 

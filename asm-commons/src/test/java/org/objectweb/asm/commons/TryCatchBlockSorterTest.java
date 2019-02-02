@@ -27,8 +27,8 @@
 // THE POSSIBILITY OF SUCH DAMAGE.
 package org.objectweb.asm.commons;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.objectweb.asm.test.Assertions.assertThat;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -39,6 +39,7 @@ import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.test.AsmTest;
+import org.objectweb.asm.test.ClassFile;
 
 /**
  * TryCatchBlockSorter tests.
@@ -81,8 +82,12 @@ public class TryCatchBlockSorterTest extends AsmTest {
         };
 
     classReader.accept(classVisitor, 0);
-    assertThat(() -> loadAndInstantiate(classParameter.getName(), classWriter.toByteArray()))
-        .succeedsOrThrows(UnsupportedClassVersionError.class)
-        .when(classParameter.isMoreRecentThanCurrentJdk());
+    if (classParameter.isMoreRecentThanCurrentJdk()) {
+      assertThrows(
+          UnsupportedClassVersionError.class,
+          () -> new ClassFile(classWriter.toByteArray()).newInstance());
+    } else {
+      assertDoesNotThrow(() -> new ClassFile(classWriter.toByteArray()).newInstance());
+    }
   }
 }

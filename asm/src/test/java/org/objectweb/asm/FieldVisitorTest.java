@@ -27,19 +27,21 @@
 // THE POSSIBILITY OF SUCH DAMAGE.
 package org.objectweb.asm;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import org.junit.jupiter.api.Test;
 
 /**
- * FieldVisitor tests.
+ * Unit tests for {@link FieldVisitor}.
  *
  * @author Eric Bruneton
  */
 public class FieldVisitorTest {
 
   @Test
-  public void testConstuctor() {
+  public void testConstructor() {
+    assertDoesNotThrow(() -> new FieldVisitor(Opcodes.ASM4) {});
     assertThrows(IllegalArgumentException.class, () -> new FieldVisitor(0) {});
     assertThrows(IllegalArgumentException.class, () -> new FieldVisitor(Integer.MAX_VALUE) {});
   }

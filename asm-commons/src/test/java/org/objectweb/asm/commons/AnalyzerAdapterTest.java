@@ -27,8 +27,8 @@
 // THE POSSIBILITY OF SUCH DAMAGE.
 package org.objectweb.asm.commons;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.objectweb.asm.test.Assertions.assertThat;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -44,6 +44,7 @@ import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.test.AsmTest;
+import org.objectweb.asm.test.ClassFile;
 
 /**
  * AnalyzerAdapter tests.
@@ -125,7 +126,7 @@ public class AnalyzerAdapterTest extends AsmTest {
     Executable test =
         () -> {
           classReader.accept(classVisitor, ClassReader.EXPAND_FRAMES);
-          loadAndInstantiate(classParameter.getName(), classWriter.toByteArray());
+          new ClassFile(classWriter.toByteArray()).newInstance();
         };
     // jdk3.AllInstructions and jdk3.LargeMethod contain jsr/ret instructions,
     // which are not supported.
@@ -133,10 +134,10 @@ public class AnalyzerAdapterTest extends AsmTest {
         || classParameter == PrecompiledClass.JDK3_LARGE_METHOD
         || classParameter.isMoreRecentThan(apiParameter)) {
       assertThrows(RuntimeException.class, test);
+    } else if (classParameter.isMoreRecentThanCurrentJdk()) {
+      assertThrows(UnsupportedClassVersionError.class, test);
     } else {
-      assertThat(test)
-          .succeedsOrThrows(UnsupportedClassVersionError.class)
-          .when(classParameter.isMoreRecentThanCurrentJdk());
+      assertDoesNotThrow(test);
     }
   }
 

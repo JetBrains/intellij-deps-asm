@@ -32,10 +32,11 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.Set;
 import org.junit.jupiter.api.Test;
 
 /**
- * MethodWriter tests.
+ * Unit tests for {@link MethodWriter}.
  *
  * @author Eric Bruneton
  */
@@ -48,9 +49,20 @@ public class MethodWriterTest {
    */
   @Test
   public void testCanCopyMethodAttributesUpdated() {
-    // IMPORTANT: if this fails, update the list AND update MethodWriter.canCopyMethodAttributes(),
-    // if needed.
-    assertEquals(
+    Set<Object> actualAttributes =
+        Arrays.stream(Constants.class.getDeclaredFields())
+            .filter(field -> field.getType() == String.class)
+            .map(
+                field -> {
+                  try {
+                    return field.get(null);
+                  } catch (IllegalArgumentException | IllegalAccessException e) {
+                    throw new RuntimeException("Can't get field value", e);
+                  }
+                })
+            .collect(toSet());
+
+    HashSet<String> expectedAttributes =
         new HashSet<String>(
             Arrays.asList(
                 Constants.CONSTANT_VALUE,
@@ -80,17 +92,9 @@ public class MethodWriterTest {
                 Constants.MODULE_PACKAGES,
                 Constants.MODULE_MAIN_CLASS,
                 Constants.NEST_HOST,
-                Constants.NEST_MEMBERS)),
-        Arrays.stream(Constants.class.getDeclaredFields())
-            .filter(field -> field.getType() == String.class)
-            .map(
-                field -> {
-                  try {
-                    return field.get(null);
-                  } catch (IllegalArgumentException | IllegalAccessException e) {
-                    throw new RuntimeException("Can't get field value", e);
-                  }
-                })
-            .collect(toSet()));
+                Constants.NEST_MEMBERS));
+    // IMPORTANT: if this fails, update the list AND update MethodWriter.canCopyMethodAttributes(),
+    // if needed.
+    assertEquals(expectedAttributes, actualAttributes);
   }
 }

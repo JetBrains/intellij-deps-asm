@@ -27,10 +27,9 @@
 // THE POSSIBILITY OF SUCH DAMAGE.
 package org.objectweb.asm.commons;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.objectweb.asm.test.Assertions.assertThat;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -43,6 +42,7 @@ import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.test.AsmTest;
+import org.objectweb.asm.test.ClassFile;
 import org.objectweb.asm.tree.MethodNode;
 import org.objectweb.asm.util.Textifier;
 import org.objectweb.asm.util.TraceMethodVisitor;
@@ -1464,9 +1464,13 @@ public class JsrInlinerAdapterTest extends AsmTest {
           }
         },
         0);
-    assertThat(() -> loadAndInstantiate(classParameter.getName(), classWriter.toByteArray()))
-        .succeedsOrThrows(UnsupportedClassVersionError.class)
-        .when(classParameter.isMoreRecentThanCurrentJdk());
+    if (classParameter.isMoreRecentThanCurrentJdk()) {
+      assertThrows(
+          UnsupportedClassVersionError.class,
+          () -> new ClassFile(classWriter.toByteArray()).newInstance());
+    } else {
+      assertDoesNotThrow(() -> new ClassFile(classWriter.toByteArray()).newInstance());
+    }
   }
 
   private static class Generator {
@@ -1610,7 +1614,7 @@ public class JsrInlinerAdapterTest extends AsmTest {
       methodNode.accept(classWriter);
       classWriter.visitEnd();
 
-      assertTrue(loadAndInstantiate("C", classWriter.toByteArray()));
+      assertDoesNotThrow(() -> new ClassFile(classWriter.toByteArray()).newInstance());
     }
   }
 }

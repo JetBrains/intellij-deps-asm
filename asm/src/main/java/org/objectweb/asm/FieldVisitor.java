@@ -64,7 +64,7 @@ public abstract class FieldVisitor {
    *     null.
    */
   public FieldVisitor(final int api, final FieldVisitor fieldVisitor) {
-    if (api != Opcodes.ASM6 && api != Opcodes.ASM5 && api != Opcodes.ASM4 && api != Opcodes.ASM7) {
+    if (api != Opcodes.ASM7 && api != Opcodes.ASM6 && api != Opcodes.ASM5 && api != Opcodes.ASM4) {
       throw new IllegalArgumentException();
     }
     this.api = api;

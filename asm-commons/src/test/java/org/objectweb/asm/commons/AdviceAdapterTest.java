@@ -27,6 +27,8 @@
 // THE POSSIBILITY OF SUCH DAMAGE.
 package org.objectweb.asm.commons;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.function.Consumer;
@@ -44,6 +46,7 @@ import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.test.AsmTest;
+import org.objectweb.asm.test.ClassFile;
 
 /**
  * AdviceAdapter tests.
@@ -406,8 +409,8 @@ public class AdviceAdapterTest extends AsmTest {
   private static void testCase(final Consumer<MethodGenerator> testCaseGenerator) {
     byte[] actualClass = generateClass(testCaseGenerator, /* expectedClass= */ false);
     byte[] expectedClass = generateClass(testCaseGenerator, /* expectedClass= */ true);
-    assertThatClass(actualClass).isEqualTo(expectedClass);
-    loadAndInstantiate("C", actualClass);
+    assertEquals(new ClassFile(expectedClass), new ClassFile(actualClass));
+    assertDoesNotThrow(() -> new ClassFile(actualClass).newInstance());
   }
 
   private static byte[] generateClass(
@@ -516,7 +519,9 @@ public class AdviceAdapterTest extends AsmTest {
     }
     classReader.accept(expectedClassVisitor, ClassReader.EXPAND_FRAMES);
     classReader.accept(actualClassVisitor, ClassReader.EXPAND_FRAMES);
-    assertThatClass(actualClassWriter.toByteArray()).isEqualTo(expectedClassWriter.toByteArray());
+    assertEquals(
+        new ClassFile(expectedClassWriter.toByteArray()),
+        new ClassFile(actualClassWriter.toByteArray()));
   }
 
   private static class MethodGenerator extends MethodVisitor {

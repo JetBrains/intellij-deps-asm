@@ -27,17 +27,19 @@
 // THE POSSIBILITY OF SUCH DAMAGE.
 package org.objectweb.asm;
 
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Arrays;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.function.Executable;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
 /**
- * ByteVector tests.
+ * Unit tests for {@link ByteVector}.
  *
  * @author Eric Bruneton
  */
@@ -46,111 +48,135 @@ public class ByteVectorTest {
   @Test
   public void testPutByte() {
     ByteVector byteVector = new ByteVector(0);
+
     byteVector.putByte(1);
-    assertContains(byteVector, 1);
+
+    assertArrayEquals(new byte[] {1}, toArray(byteVector));
   }
 
   @Test
   public void testPut11() {
     ByteVector byteVector = new ByteVector(0);
+
     byteVector.put11(1, 2);
-    assertContains(byteVector, 1, 2);
+
+    assertArrayEquals(new byte[] {1, 2}, toArray(byteVector));
   }
 
   @Test
   public void testPutShort() {
     ByteVector byteVector = new ByteVector(0);
+
     byteVector.putShort(0x0102);
-    assertContains(byteVector, 1, 2);
+
+    assertArrayEquals(new byte[] {1, 2}, toArray(byteVector));
   }
 
   @Test
   public void testPut12() {
     ByteVector byteVector = new ByteVector(0);
+
     byteVector.put12(1, 0x0203);
-    assertContains(byteVector, 1, 2, 3);
+
+    assertArrayEquals(new byte[] {1, 2, 3}, toArray(byteVector));
   }
 
   @Test
   public void testPut112() {
     ByteVector byteVector = new ByteVector(0);
+
     byteVector.put112(1, 2, 0x0304);
-    assertContains(byteVector, 1, 2, 3, 4);
+
+    assertArrayEquals(new byte[] {1, 2, 3, 4}, toArray(byteVector));
   }
 
   @Test
   public void testPutInt() {
     ByteVector byteVector = new ByteVector(0);
+
     byteVector.putInt(0x01020304);
-    assertContains(byteVector, 1, 2, 3, 4);
+
+    assertArrayEquals(new byte[] {1, 2, 3, 4}, toArray(byteVector));
   }
 
   @Test
   public void testPut122() {
     ByteVector byteVector = new ByteVector(0);
+
     byteVector.put122(1, 0x0203, 0x0405);
-    assertContains(byteVector, 1, 2, 3, 4, 5);
+
+    assertArrayEquals(new byte[] {1, 2, 3, 4, 5}, toArray(byteVector));
   }
 
   @Test
   public void testPutLong() {
     ByteVector byteVector = new ByteVector(0);
+
     byteVector.putLong(0x0102030405060708L);
-    assertContains(byteVector, 1, 2, 3, 4, 5, 6, 7, 8);
+
+    assertArrayEquals(new byte[] {1, 2, 3, 4, 5, 6, 7, 8}, toArray(byteVector));
   }
 
   @Test
   public void testPutUtf8_ascii() {
     ByteVector byteVector = new ByteVector(0);
-    byteVector.putUTF8("abc");
-    assertContains(byteVector, 0, 3, 'a', 'b', 'c');
 
-    char[] charBuffer = new char[65536];
-    assertThrows(IllegalArgumentException.class, () -> byteVector.putUTF8(new String(charBuffer)));
+    byteVector.putUTF8("abc");
+
+    assertArrayEquals(new byte[] {0, 3, 'a', 'b', 'c'}, toArray(byteVector));
+  }
+
+  @ParameterizedTest
+  @ValueSource(ints = {65535, 65536})
+  public void testPutUtf8_ascii_tooLarge(final int size) {
+    ByteVector byteVector = new ByteVector(0);
+    char[] charBuffer = new char[size];
+    Arrays.fill(charBuffer, 'A');
+
+    Executable putUtf8 = () -> byteVector.putUTF8(new String(charBuffer));
+
+    if (size > 65535) {
+      IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, putUtf8);
+      assertEquals("UTF8 string too large", thrown.getMessage());
+    } else {
+      assertDoesNotThrow(putUtf8);
+    }
   }
 
   @Test
   public void testPutUtf8_unicode() {
     ByteVector byteVector = new ByteVector(0);
-    byteVector.putUTF8(new String(new char[] {'a', 0x0000, 0x0080, 0x0800}));
-    assertContains(byteVector, 0, 8, 'a', -64, -128, -62, -128, -32, -96, -128);
 
-    char[] charBuffer = new char[32768];
-    Arrays.fill(charBuffer, (char) 0x07FF);
-    IllegalArgumentException thrown =
-        assertThrows(
-            IllegalArgumentException.class, () -> byteVector.putUTF8(new String(charBuffer)));
-    assertEquals("UTF8 string too large", thrown.getMessage());
+    byteVector.putUTF8(new String(new char[] {'a', 0x0000, 0x0080, 0x0800}));
+
+    assertArrayEquals(
+        new byte[] {0, 8, 'a', -64, -128, -62, -128, -32, -96, -128}, toArray(byteVector));
   }
 
-  @ParameterizedTest
-  @ValueSource(ints = {65535, 65536})
-  public void testPutUtf8_tooLong(final int size) {
+  @Test
+  public void testPutUtf8_unicode_tooLarge() {
     ByteVector byteVector = new ByteVector(0);
-    char[] charBuffer = new char[size];
-    Arrays.fill(charBuffer, 'A');
-    String utf8 = new String(charBuffer);
-    if (size > 65535) {
-      IllegalArgumentException thrown =
-          assertThrows(IllegalArgumentException.class, () -> byteVector.putUTF8(utf8));
-      assertEquals("UTF8 string too large", thrown.getMessage());
-    } else {
-      byteVector.putUTF8(utf8);
-    }
+    char[] charBuffer = new char[32768];
+    Arrays.fill(charBuffer, (char) 0x07FF);
+
+    Executable putUtf8 = () -> byteVector.putUTF8(new String(charBuffer));
+
+    IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, putUtf8);
+    assertEquals("UTF8 string too large", thrown.getMessage());
   }
 
   @Test
   public void testPutByteArray() {
     ByteVector byteVector = new ByteVector(0);
+
     byteVector.putByteArray(new byte[] {0, 1, 2, 3, 4, 5}, 1, 3);
-    assertContains(byteVector, 1, 2, 3);
+
+    assertArrayEquals(new byte[] {1, 2, 3}, toArray(byteVector));
   }
 
-  private void assertContains(final ByteVector byteVector, final int... values) {
-    assertTrue(byteVector.data.length >= values.length);
-    assertEquals(values.length, byteVector.length);
-    for (int i = 0; i < values.length; ++i) {
-      assertEquals(values[i], byteVector.data[i]);
-    }
+  private static byte[] toArray(final ByteVector byteVector) {
+    byte[] result = new byte[byteVector.length];
+    System.arraycopy(byteVector.data, 0, result, 0, byteVector.length);
+    return result;
   }
 }

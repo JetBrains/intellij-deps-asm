@@ -38,14 +38,14 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
 /**
- * Type tests.
+ * Unit tests for {@link Type}.
  *
  * @author Eric Bruneton
  */
 public class TypeTest implements Opcodes {
 
   @Test
-  public void testTypeConstants() {
+  public void testGetSort_typeConstants() {
     assertEquals(Type.VOID, Type.VOID_TYPE.getSort());
     assertEquals(Type.BOOLEAN, Type.BOOLEAN_TYPE.getSort());
     assertEquals(Type.CHAR, Type.CHAR_TYPE.getSort());
@@ -55,7 +55,10 @@ public class TypeTest implements Opcodes {
     assertEquals(Type.FLOAT, Type.FLOAT_TYPE.getSort());
     assertEquals(Type.LONG, Type.LONG_TYPE.getSort());
     assertEquals(Type.DOUBLE, Type.DOUBLE_TYPE.getSort());
+  }
 
+  @Test
+  public void testGetSize_typeConstants() {
     assertEquals(0, Type.VOID_TYPE.getSize());
     assertEquals(1, Type.BOOLEAN_TYPE.getSize());
     assertEquals(1, Type.CHAR_TYPE.getSize());
@@ -65,7 +68,10 @@ public class TypeTest implements Opcodes {
     assertEquals(1, Type.FLOAT_TYPE.getSize());
     assertEquals(2, Type.LONG_TYPE.getSize());
     assertEquals(2, Type.DOUBLE_TYPE.getSize());
+  }
 
+  @Test
+  public void testGetDescriptor_typeConstants() {
     assertEquals("V", Type.VOID_TYPE.getDescriptor());
     assertEquals("Z", Type.BOOLEAN_TYPE.getDescriptor());
     assertEquals("C", Type.CHAR_TYPE.getDescriptor());
@@ -106,19 +112,21 @@ public class TypeTest implements Opcodes {
       })
   public void testGetTypeFromDescriptor(final String descriptor) {
     Type type = Type.getType(descriptor);
+
     assertEquals(descriptor, type.getDescriptor());
     assertEquals(descriptor, type.toString());
   }
 
   @Test
-  public void testGetTypeFromInvalidDescriptor() {
+  public void testGetTypeFromDescriptor_invalid() {
     assertThrows(IllegalArgumentException.class, () -> Type.getType("-"));
   }
 
   @ParameterizedTest
   @ValueSource(strings = {"I", "V", "java/lang/Object", "[I", "[LI;", "[[Ljava/lang/Object;"})
-  public void testGetObjectType(final String internalName) throws Exception {
+  public void testGetObjectType(final String internalName) {
     Type type = Type.getObjectType(internalName);
+
     assertEquals(internalName, type.getInternalName());
     assertEquals(internalName.charAt(0) == '[' ? Type.ARRAY : Type.OBJECT, type.getSort());
   }
@@ -136,6 +144,7 @@ public class TypeTest implements Opcodes {
       })
   public void testGetMethodTypeFromDescriptor(final String methodDescriptor) {
     Type type = Type.getMethodType(methodDescriptor);
+
     assertEquals(Type.METHOD, type.getSort());
     assertEquals(methodDescriptor, type.getDescriptor());
     assertEquals(methodDescriptor, type.toString());
@@ -152,10 +161,11 @@ public class TypeTest implements Opcodes {
         "()[LI;",
         "()[[Ljava/lang/Object;"
       })
-  public void testGetMethodGetArgumentsAndGetReturnType(final String methodDescriptor) {
+  public void testGetArgumentTypesGetReturnTypeAndGetMethodType(final String methodDescriptor) {
     Type[] argumentTypes = Type.getArgumentTypes(methodDescriptor);
     Type returnType = Type.getReturnType(methodDescriptor);
     Type methodType = Type.getMethodType(returnType, argumentTypes);
+
     assertEquals(Type.METHOD, methodType.getSort());
     assertEquals(methodDescriptor, methodType.getDescriptor());
     assertArrayEquals(argumentTypes, methodType.getArgumentTypes());
@@ -186,12 +196,14 @@ public class TypeTest implements Opcodes {
   @Test
   public void testGetTypeFromConstructor() throws NoSuchMethodException, SecurityException {
     Type type = Type.getType(ClassReader.class.getConstructor(byte[].class, int.class, int.class));
+
     assertEquals("([BII)V", type.getDescriptor());
   }
 
   @Test
   public void testGetTypeFromMethod() throws NoSuchMethodException, SecurityException {
     Type type = Type.getType(Arrays.class.getMethod("binarySearch", byte[].class, byte.class));
+
     assertEquals("([BB)I", type.getDescriptor());
   }
 
@@ -199,6 +211,7 @@ public class TypeTest implements Opcodes {
   public void testGetArgumentTypesFromMethod() throws NoSuchMethodException, SecurityException {
     Type[] argumentTypes =
         Type.getArgumentTypes(Arrays.class.getMethod("binarySearch", byte[].class, byte.class));
+
     assertArrayEquals(new Type[] {Type.getType(byte[].class), Type.BYTE_TYPE}, argumentTypes);
   }
 
@@ -206,6 +219,7 @@ public class TypeTest implements Opcodes {
   public void testGetReturnTypeFromMethod() throws NoSuchMethodException, SecurityException {
     Type returnType =
         Type.getReturnType(Arrays.class.getMethod("binarySearch", byte[].class, byte.class));
+
     assertEquals(Type.INT_TYPE, returnType);
   }
 
@@ -268,6 +282,7 @@ public class TypeTest implements Opcodes {
   @Test
   public void testGetArgumentsAndReturnSize() {
     Type type = Type.getType("(IZBCSDFJLI;LV;Ljava/lang/Object;[I[LI;[[Ljava/lang/Object;)V");
+
     assertEquals(17 << 2, type.getArgumentsAndReturnSizes());
   }
 
@@ -327,7 +342,6 @@ public class TypeTest implements Opcodes {
     assertEquals(AASTORE, Type.getType("Ljava/lang/Object;").getOpcode(IASTORE));
     assertEquals(AASTORE, Type.getObjectType("java/lang/Object").getOpcode(IASTORE));
     assertEquals(AASTORE, Type.getType("[I").getOpcode(IASTORE));
-
     assertEquals(RETURN, Type.VOID_TYPE.getOpcode(Opcodes.IRETURN));
     assertEquals(IRETURN, Type.BOOLEAN_TYPE.getOpcode(Opcodes.IRETURN));
     assertEquals(IRETURN, Type.BYTE_TYPE.getOpcode(Opcodes.IRETURN));
@@ -342,7 +356,6 @@ public class TypeTest implements Opcodes {
     assertEquals(ARETURN, Type.getType("Ljava/lang/Object;").getOpcode(Opcodes.IRETURN));
     assertEquals(ARETURN, Type.getObjectType("java/lang/Object").getOpcode(Opcodes.IRETURN));
     assertEquals(ARETURN, Type.getType("[I").getOpcode(Opcodes.IRETURN));
-
     assertEquals(IADD, Type.BOOLEAN_TYPE.getOpcode(IADD));
     assertEquals(IADD, Type.BYTE_TYPE.getOpcode(IADD));
     assertEquals(IADD, Type.CHAR_TYPE.getOpcode(IADD));
@@ -351,7 +364,6 @@ public class TypeTest implements Opcodes {
     assertEquals(FADD, Type.FLOAT_TYPE.getOpcode(IADD));
     assertEquals(LADD, Type.LONG_TYPE.getOpcode(IADD));
     assertEquals(DADD, Type.DOUBLE_TYPE.getOpcode(IADD));
-
     Class<UnsupportedOperationException> expectedException = UnsupportedOperationException.class;
     assertThrows(expectedException, () -> Type.VOID_TYPE.getOpcode(IADD));
     assertThrows(expectedException, () -> Type.VOID_TYPE.getOpcode(ILOAD));

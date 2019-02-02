@@ -25,60 +25,26 @@
 // CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
 // THE POSSIBILITY OF SUCH DAMAGE.
-package org.objectweb.asm.test;
+package org.objectweb.asm.tree;
 
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assumptions.assumingThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import org.junit.jupiter.api.function.Executable;
+import org.junit.jupiter.api.Test;
+import org.objectweb.asm.test.AsmTest;
 
 /**
- * Provides convenient assertions to check that an executable succeeds or throws an exception,
- * depending on some condition.
+ * Unit tests for {@link MultiANewArrayInsnNode}.
  *
  * @author Eric Bruneton
  */
-public final class Assertions {
+public class MultiANewArrayInsnNodeTest extends AsmTest {
 
-  private Assertions() {}
+  @Test
+  public void testConstructor() {
+    MultiANewArrayInsnNode multiANewArrayInsnNode = new MultiANewArrayInsnNode("[[I", 2);
 
-  public static ExecutableSubject assertThat(final Executable executable) {
-    return new ExecutableSubject(executable);
-  }
-
-  public static class ExecutableSubject {
-    private final Executable executable;
-
-    ExecutableSubject(final Executable executable) {
-      this.executable = executable;
-    }
-
-    public <T extends Throwable> ExecutableOutcomeSubject<T> succeedsOrThrows(
-        final Class<T> expectedType) {
-      return new ExecutableOutcomeSubject<>(executable, expectedType);
-    }
-  }
-
-  public static class ExecutableOutcomeSubject<T extends Throwable> {
-    private final Executable executable;
-    private final Class<T> expectedType;
-
-    ExecutableOutcomeSubject(final Executable executable, final Class<T> expectedType) {
-      this.executable = executable;
-      this.expectedType = expectedType;
-    }
-
-    /**
-     * Checks that the executable succeeds, or throws the expected exception if 'condition' is true.
-     *
-     * @param condition whether the executable is expected to throw an exception.
-     */
-    public void when(final boolean condition) {
-      if (condition) {
-        assertThrows(expectedType, executable);
-      } else {
-        assumingThat(true, executable);
-      }
-    }
+    assertEquals(AbstractInsnNode.MULTIANEWARRAY_INSN, multiANewArrayInsnNode.getType());
+    assertEquals("[[I", multiANewArrayInsnNode.desc);
+    assertEquals(2, multiANewArrayInsnNode.dims);
   }
 }

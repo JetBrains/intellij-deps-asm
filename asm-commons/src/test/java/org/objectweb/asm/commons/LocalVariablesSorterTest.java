@@ -27,9 +27,9 @@
 // THE POSSIBILITY OF SUCH DAMAGE.
 package org.objectweb.asm.commons;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.objectweb.asm.test.Assertions.assertThat;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -45,6 +45,7 @@ import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.test.AsmTest;
+import org.objectweb.asm.test.ClassFile;
 import org.objectweb.asm.tree.MethodNode;
 
 /**
@@ -130,9 +131,13 @@ public class LocalVariablesSorterTest extends AsmTest {
     }
 
     classReader.accept(classVisitor, ClassReader.EXPAND_FRAMES);
-    assertThat(() -> loadAndInstantiate(classParameter.getName(), classWriter.toByteArray()))
-        .succeedsOrThrows(UnsupportedClassVersionError.class)
-        .when(classParameter.isMoreRecentThanCurrentJdk());
+    if (classParameter.isMoreRecentThanCurrentJdk()) {
+      assertThrows(
+          UnsupportedClassVersionError.class,
+          () -> new ClassFile(classWriter.toByteArray()).newInstance());
+    } else {
+      assertDoesNotThrow(() -> new ClassFile(classWriter.toByteArray()).newInstance());
+    }
   }
 
   @Test
@@ -157,6 +162,6 @@ public class LocalVariablesSorterTest extends AsmTest {
           }
         };
     classReader.accept(classVisitor, ClassReader.EXPAND_FRAMES);
-    loadAndInstantiate("app1.Main$BadLocal", classWriter.toByteArray());
+    assertDoesNotThrow(() -> new ClassFile(classWriter.toByteArray()).newInstance());
   }
 }

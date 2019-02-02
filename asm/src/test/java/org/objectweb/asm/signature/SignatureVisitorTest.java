@@ -27,9 +27,11 @@
 // THE POSSIBILITY OF SUCH DAMAGE.
 package org.objectweb.asm.signature;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import org.junit.jupiter.api.Test;
+import org.objectweb.asm.Opcodes;
 
 /**
  * SignatureVisitor tests.
@@ -39,7 +41,8 @@ import org.junit.jupiter.api.Test;
 public class SignatureVisitorTest {
 
   @Test
-  public void testConstuctor() {
+  public void testConstructor() {
+    assertDoesNotThrow(() -> new SignatureVisitor(Opcodes.ASM4) {});
     assertThrows(IllegalArgumentException.class, () -> new SignatureVisitor(0) {});
     assertThrows(IllegalArgumentException.class, () -> new SignatureVisitor(Integer.MAX_VALUE) {});
   }

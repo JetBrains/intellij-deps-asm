@@ -35,7 +35,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.Test;
 
 /**
- * Handle tests.
+ * Unit tests for {@link Handle}.
  *
  * @author Eric Bruneton
  */
@@ -45,17 +45,18 @@ public class HandleTest {
   @SuppressWarnings("deprecation")
   public void testDeprecatedConstructor() {
     Handle handle1 = new Handle(Opcodes.H_INVOKEINTERFACE, "owner", "name", "descriptor");
-    assertTrue(handle1.isInterface());
-    assertEquals("owner.namedescriptor (9 itf)", handle1.toString());
-
     Handle handle2 = new Handle(Opcodes.H_INVOKESPECIAL, "owner", "name", "descriptor");
+
+    assertTrue(handle1.isInterface());
     assertFalse(handle2.isInterface());
+    assertEquals("owner.namedescriptor (9 itf)", handle1.toString());
     assertEquals("owner.namedescriptor (7)", handle2.toString());
   }
 
   @Test
-  public void testConstructorAndAccessors() {
+  public void testConstructor() {
     Handle handle = new Handle(Opcodes.H_GETFIELD, "owner", "name", "descriptor", false);
+
     assertEquals(Opcodes.H_GETFIELD, handle.getTag());
     assertEquals("owner", handle.getOwner());
     assertEquals("name", handle.getName());
@@ -68,6 +69,7 @@ public class HandleTest {
   public void testEquals() {
     Handle handle1 = new Handle(Opcodes.H_GETFIELD, "owner", "name", "descriptor", false);
     Handle handle2 = new Handle(Opcodes.H_GETFIELD, "owner", "name", "descriptor", false);
+
     assertEquals(handle1, handle1);
     assertEquals(handle1, handle2);
     assertNotEquals(handle1, null);
@@ -80,9 +82,10 @@ public class HandleTest {
 
   @Test
   public void testHashCode() {
-    assertNotEquals(
-        0, new Handle(Opcodes.H_INVOKESTATIC, "owner", "name", "descriptor", false).hashCode());
-    assertNotEquals(
-        0, new Handle(Opcodes.H_INVOKESTATIC, "owner", "name", "descriptor", true).hashCode());
+    Handle handle1 = new Handle(Opcodes.H_INVOKESTATIC, "owner", "name", "descriptor", false);
+    Handle handle2 = new Handle(Opcodes.H_INVOKESTATIC, "owner", "name", "descriptor", true);
+
+    assertNotEquals(0, handle1.hashCode());
+    assertNotEquals(0, handle2.hashCode());
   }
 }

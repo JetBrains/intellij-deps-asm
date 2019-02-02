@@ -27,43 +27,91 @@
 // THE POSSIBILITY OF SUCH DAMAGE.
 package org.objectweb.asm;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.function.Executable;
 
 /**
- * MethodVisitor tests.
+ * Unit tests for {@link MethodVisitor}.
  *
  * @author Eric Bruneton
  */
 public class MethodVisitorTest {
 
   @Test
-  public void testConstuctor() {
+  public void testConstructor() {
+    assertDoesNotThrow(() -> new MethodVisitor(Opcodes.ASM4) {});
     assertThrows(IllegalArgumentException.class, () -> new MethodVisitor(0) {});
     assertThrows(IllegalArgumentException.class, () -> new MethodVisitor(Integer.MAX_VALUE) {});
   }
 
   @Test
-  public void testAsm5Features() {
+  public void testVisitParameter_asm4Visitor() {
     MethodVisitor methodVisitor = new MethodVisitor(Opcodes.ASM4, null) {};
+
     assertThrows(UnsupportedOperationException.class, () -> methodVisitor.visitParameter(null, 0));
+  }
+
+  @Test
+  public void testVisitTypeAnnotation_asm4Visitor() {
+    MethodVisitor methodVisitor = new MethodVisitor(Opcodes.ASM4, null) {};
+
     assertThrows(
         UnsupportedOperationException.class,
         () -> methodVisitor.visitTypeAnnotation(0, null, null, false));
+  }
+
+  @Test
+  public void testVisitInvokeDynamicInsn_asm4Visitor() {
+    MethodVisitor methodVisitor = new MethodVisitor(Opcodes.ASM4, null) {};
+
     assertThrows(
         UnsupportedOperationException.class,
         () -> methodVisitor.visitInvokeDynamicInsn(null, null, null));
+  }
+
+  @Test
+  public void testVisitInsnAnnotation_asm4Visitor() {
+    MethodVisitor methodVisitor = new MethodVisitor(Opcodes.ASM4, null) {};
+
     assertThrows(
         UnsupportedOperationException.class,
         () -> methodVisitor.visitInsnAnnotation(0, null, null, false));
+  }
+
+  @Test
+  public void testVisitTryCatchAnnotation_asm4Visitor() {
+    MethodVisitor methodVisitor = new MethodVisitor(Opcodes.ASM4, null) {};
+
     assertThrows(
         UnsupportedOperationException.class,
         () -> methodVisitor.visitTryCatchAnnotation(0, null, null, false));
+  }
+
+  @Test
+  public void testVisitLocalVariableAnnotation_asm4Visitor() {
+    MethodVisitor methodVisitor = new MethodVisitor(Opcodes.ASM4, null) {};
+
     assertThrows(
         UnsupportedOperationException.class,
         () -> methodVisitor.visitLocalVariableAnnotation(0, null, null, null, null, null, false));
+  }
+
+  @Test
+  public void testVisitFrame_consecutiveFrames() {
+    MethodVisitor methodVisitor =
+        new ClassWriter(0).visitMethod(Opcodes.ACC_STATIC, "m", "()V", null, null);
+    methodVisitor.visitCode();
+    methodVisitor.visitFrame(Opcodes.F_SAME, 0, null, 0, null);
+
+    assertDoesNotThrow(() -> methodVisitor.visitFrame(Opcodes.F_SAME, 0, null, 0, null));
+    assertThrows(
+        IllegalStateException.class,
+        () ->
+            methodVisitor.visitFrame(Opcodes.F_APPEND, 1, new Object[] {Opcodes.INTEGER}, 0, null));
   }
 
   /**
@@ -71,20 +119,24 @@ public class MethodVisitorTest {
    * false.
    */
   @Test
-  public void testBackwardCompatibilityOk() {
-    CheckMethodVisitor checkMethodVisitor = new CheckMethodVisitor();
-    MethodVisitor methodVisitor = new MethodVisitor4(checkMethodVisitor);
+  public void testVisitMethodInsn_asm4Visitor_isNotInterface() {
+    NameRecorderMethodVisitor nameRecorderMethodVisitor = new NameRecorderMethodVisitor();
+    MethodVisitor methodVisitor = new MethodVisitor4(nameRecorderMethodVisitor);
+
     methodVisitor.visitMethodInsn(0, "C", "m", "()V", false);
-    assertEquals("m", checkMethodVisitor.lastVisitedMethodName);
+
+    assertEquals("m", nameRecorderMethodVisitor.lastVisitedMethodName);
   }
 
   /** Tests the ASM5 visitMethodInsn fails on an ASM4 visitor, if isInterface is true. */
   @Test
-  public void testBackwardCompatibilityFail() {
-    CheckMethodVisitor checkMethodVisitor = new CheckMethodVisitor();
-    MethodVisitor methodVisitor = new MethodVisitor4(checkMethodVisitor);
-    assertThrows(
-        RuntimeException.class, () -> methodVisitor.visitMethodInsn(0, "C", "m", "()V", true));
+  public void testVisitMethodInsn_asm4Visitor_isInterface() {
+    NameRecorderMethodVisitor nameRecorderMethodVisitor = new NameRecorderMethodVisitor();
+    MethodVisitor methodVisitor = new MethodVisitor4(nameRecorderMethodVisitor);
+
+    Executable visitMethodInsn5 = () -> methodVisitor.visitMethodInsn(0, "C", "m", "()V", true);
+
+    assertThrows(RuntimeException.class, visitMethodInsn5);
   }
 
   /**
@@ -92,38 +144,46 @@ public class MethodVisitorTest {
    * visitMethodInsn, provided isInterface is false.
    */
   @Test
-  public void testBackwardCompatibilityOverride() {
-    CheckMethodVisitor checkMethodVisitor = new CheckMethodVisitor();
-    MethodVisitor methodVisitor = new MethodVisitor4Override(checkMethodVisitor);
+  public void testVisitMethodInsn_overridenAsm4Visitor_isNotInterface() {
+    NameRecorderMethodVisitor nameRecorderMethodVisitor = new NameRecorderMethodVisitor();
+    MethodVisitor methodVisitor = new MethodVisitor4Override(nameRecorderMethodVisitor);
+
     methodVisitor.visitMethodInsn(0, "C", "m", "()V", false);
-    assertEquals("mv4", checkMethodVisitor.lastVisitedMethodName);
+
+    assertEquals("mv4", nameRecorderMethodVisitor.lastVisitedMethodName);
   }
 
   /** Tests the ASM5 visitMethodInsn fails on an ASM4 visitor, if isInterface is true. */
   @Test
-  public void testBackwardCompatibilityOverrideFail() {
-    CheckMethodVisitor checkMethodVisitor = new CheckMethodVisitor();
-    MethodVisitor methodVisitor = new MethodVisitor4Override(checkMethodVisitor);
-    assertThrows(
-        RuntimeException.class, () -> methodVisitor.visitMethodInsn(0, "C", "m", "()V", true));
+  public void testVisitMethodInsn_overridenAsm4Visitor_isInterface() {
+    NameRecorderMethodVisitor nameRecorderMethodVisitor = new NameRecorderMethodVisitor();
+    MethodVisitor methodVisitor = new MethodVisitor4Override(nameRecorderMethodVisitor);
+
+    Executable visitMethodInsn5 = () -> methodVisitor.visitMethodInsn(0, "C", "m", "()V", true);
+
+    assertThrows(RuntimeException.class, visitMethodInsn5);
   }
 
   /** Tests the ASM5 visitMethodInsn succeeds on an ASM5 visitor. */
   @Test
-  public void testNewMethod() {
-    CheckMethodVisitor checkMethodVisitor = new CheckMethodVisitor();
-    MethodVisitor methodVisitor = new MethodVisitor5(checkMethodVisitor);
+  public void testVisitMethodInsn_asm5Visitor() {
+    NameRecorderMethodVisitor nameRecorderMethodVisitor = new NameRecorderMethodVisitor();
+    MethodVisitor methodVisitor = new MethodVisitor5(nameRecorderMethodVisitor);
+
     methodVisitor.visitMethodInsn(0, "C", "m", "()V", false);
-    assertEquals("m", checkMethodVisitor.lastVisitedMethodName);
+
+    assertEquals("m", nameRecorderMethodVisitor.lastVisitedMethodName);
   }
 
   /** Tests the ASM5 visitMethodInsn succeeds on an ASM5 visitor which overrides this method. */
   @Test
-  public void testNewMethodOverride() {
-    CheckMethodVisitor checkMethodVisitor = new CheckMethodVisitor();
-    MethodVisitor methodVisitor = new MethodVisitor5Override(checkMethodVisitor);
+  public void testVisitMethodInsn_overridenAsm5Visitor() {
+    NameRecorderMethodVisitor nameRecorderMethodVisitor = new NameRecorderMethodVisitor();
+    MethodVisitor methodVisitor = new MethodVisitor5Override(nameRecorderMethodVisitor);
+
     methodVisitor.visitMethodInsn(0, "C", "m", "()V", false);
-    assertEquals("mv5", checkMethodVisitor.lastVisitedMethodName);
+
+    assertEquals("mv5", nameRecorderMethodVisitor.lastVisitedMethodName);
   }
 
   /**
@@ -132,14 +192,16 @@ public class MethodVisitorTest {
    */
   @Test
   @SuppressWarnings("deprecation")
-  public void testDeprecatedBackwardCompatibilityMixedChain() {
-    CheckMethodVisitor checkMethodVisitor = new CheckMethodVisitor();
-    MethodVisitor methodVisitor = new MethodVisitor5(checkMethodVisitor);
-    methodVisitor = new MethodVisitor5Override(methodVisitor);
-    methodVisitor = new MethodVisitor4(methodVisitor);
-    methodVisitor = new MethodVisitor4Override(methodVisitor);
+  public void testDeprecatedVisitMethodInsn_mixedVisitorChain() {
+    NameRecorderMethodVisitor nameRecorderMethodVisitor = new NameRecorderMethodVisitor();
+    MethodVisitor methodVisitor =
+        new MethodVisitor4Override(
+            new MethodVisitor4(
+                new MethodVisitor5Override(new MethodVisitor5(nameRecorderMethodVisitor))));
+
     methodVisitor.visitMethodInsn(0, "C", "m", "()V");
-    assertEquals("mv4v5", checkMethodVisitor.lastVisitedMethodName);
+
+    assertEquals("mv4v5", nameRecorderMethodVisitor.lastVisitedMethodName);
   }
 
   /**
@@ -147,13 +209,14 @@ public class MethodVisitorTest {
    * expected result.
    */
   @Test
-  public void testBackwardCompatibilityMixedChain() {
-    CheckMethodVisitor checkMethodVisitor = new CheckMethodVisitor();
-    MethodVisitor methodVisitor = new MethodVisitor4(checkMethodVisitor);
-    methodVisitor = new MethodVisitor4Override(methodVisitor);
-    methodVisitor = new MethodVisitor5(methodVisitor);
-    methodVisitor = new MethodVisitor5Override(methodVisitor);
+  public void testVisitMethodInsn_mixedVisitorChain() {
+    NameRecorderMethodVisitor checkMethodVisitor = new NameRecorderMethodVisitor();
+    MethodVisitor methodVisitor =
+        new MethodVisitor5Override(
+            new MethodVisitor5(new MethodVisitor4Override(new MethodVisitor4(checkMethodVisitor))));
+
     methodVisitor.visitMethodInsn(0, "C", "m", "()V", false);
+
     assertEquals("mv5v4", checkMethodVisitor.lastVisitedMethodName);
   }
 
@@ -212,10 +275,11 @@ public class MethodVisitorTest {
    * A {@link MethodVisitor} that records the name of the last visited method instruction, via the
    * ASM5 visitMethodInsn method.
    */
-  private static class CheckMethodVisitor extends MethodVisitor {
+  private static class NameRecorderMethodVisitor extends MethodVisitor {
+
     public String lastVisitedMethodName;
 
-    CheckMethodVisitor() {
+    NameRecorderMethodVisitor() {
       super(Opcodes.ASM5);
     }
 

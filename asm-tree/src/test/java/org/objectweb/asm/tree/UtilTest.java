@@ -28,19 +28,21 @@
 package org.objectweb.asm.tree;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.util.List;
 import org.junit.jupiter.api.Test;
 
 /**
- * Util tests.
+ * Unit tests for {@link Util}.
  *
  * @author Eric Bruneton
  */
 public class UtilTest {
 
   @Test
-  public void testNullAsArrayList() {
+  public void testAsArrayList_nullArray() {
     assertTrue(Util.asArrayList((Object[]) null).isEmpty());
     assertTrue(Util.asArrayList((byte[]) null).isEmpty());
     assertTrue(Util.asArrayList((boolean[]) null).isEmpty());
@@ -54,7 +56,21 @@ public class UtilTest {
 
   @Test
   public void testAsArrayListWithLength() {
-    assertEquals(3, Util.asArrayList(3).size());
-    assertEquals(3, Util.asArrayList(3, new Object[] {1, 2, 3, 4, 5}).size());
+    List<String> strings = Util.asArrayList(3);
+
+    assertEquals(3, strings.size());
+    assertNull(strings.get(0));
+    assertNull(strings.get(1));
+    assertNull(strings.get(2));
+  }
+
+  @Test
+  public void testAsArrayListWithLengthAndArray() {
+    List<Integer> ints = Util.asArrayList(3, new Integer[] {1, 2, 3, 4, 5});
+
+    assertEquals(3, ints.size());
+    assertEquals(Integer.valueOf(1), ints.get(0));
+    assertEquals(Integer.valueOf(2), ints.get(1));
+    assertEquals(Integer.valueOf(3), ints.get(2));
   }
 }

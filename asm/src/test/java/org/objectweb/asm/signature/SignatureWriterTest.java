@@ -31,10 +31,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
-import org.objectweb.asm.ClassReader;
-import org.objectweb.asm.ClassVisitor;
-import org.objectweb.asm.FieldVisitor;
-import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.test.AsmTest;
 
 /**
@@ -44,63 +40,26 @@ import org.objectweb.asm.test.AsmTest;
  */
 public class SignatureWriterTest extends AsmTest {
 
-  /**
-   * Tests that class, field and method signatures are unchanged by a SignatureReader ->
-   * SignatureWriter transform.
-   */
   @ParameterizedTest
-  @MethodSource(ALL_CLASSES_AND_LATEST_API)
-  public void testReadAndWriteSignature(
-      final PrecompiledClass classParameter, final Api apiParameter) throws Exception {
-    byte[] classFile = classParameter.getBytes();
-    ClassReader classReader = new ClassReader(classFile);
-    classReader.accept(
-        new ClassVisitor(apiParameter.value()) {
-          @Override
-          public void visit(
-              final int version,
-              final int access,
-              final String name,
-              final String signature,
-              final String superName,
-              final String[] interfaces) {
-            if (signature != null) {
-              SignatureWriter signatureWriter = new SignatureWriter();
-              new SignatureReader(signature).accept(signatureWriter);
-              assertEquals(signature, signatureWriter.toString());
-            }
-          }
+  @MethodSource({
+    "org.objectweb.asm.signature.SignaturesProviders#classSignatures",
+    "org.objectweb.asm.signature.SignaturesProviders#methodSignatures"
+  })
+  public void testReadAndWrite_classOrMethodSignature(final String signature) {
+    SignatureWriter signatureWriter = new SignatureWriter();
 
-          @Override
-          public FieldVisitor visitField(
-              final int access,
-              final String name,
-              final String descriptor,
-              final String signature,
-              final Object value) {
-            if (signature != null) {
-              SignatureWriter signatureWriter = new SignatureWriter();
-              new SignatureReader(signature).acceptType(signatureWriter);
-              assertEquals(signature, signatureWriter.toString());
-            }
-            return null;
-          }
+    new SignatureReader(signature).accept(signatureWriter);
 
-          @Override
-          public MethodVisitor visitMethod(
-              final int access,
-              final String name,
-              final String descriptor,
-              final String signature,
-              final String[] exceptions) {
-            if (signature != null) {
-              SignatureWriter signatureWriter = new SignatureWriter();
-              new SignatureReader(signature).accept(signatureWriter);
-              assertEquals(signature, signatureWriter.toString());
-            }
-            return null;
-          }
-        },
-        0);
+    assertEquals(signature, signatureWriter.toString());
+  }
+
+  @ParameterizedTest
+  @MethodSource("org.objectweb.asm.signature.SignaturesProviders#fieldSignatures")
+  public void testReadAndWrite_fieldSignature(final String signature) {
+    SignatureWriter signatureWriter = new SignatureWriter();
+
+    new SignatureReader(signature).acceptType(signatureWriter);
+
+    assertEquals(signature, signatureWriter.toString());
   }
 }

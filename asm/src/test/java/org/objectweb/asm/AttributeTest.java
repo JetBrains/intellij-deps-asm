@@ -33,7 +33,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.Test;
 
 /**
- * Attribute unit tests.
+ * Unit tests for {@link Attribute}.
  *
  * @author Eric Bruneton
  */

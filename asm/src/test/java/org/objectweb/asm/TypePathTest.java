@@ -33,7 +33,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import org.junit.jupiter.api.Test;
 
 /**
- * TypePath tests.
+ * Unit tests for {@link TypePath}.
  *
  * @author Eric Bruneton
  */
@@ -52,6 +52,7 @@ public class TypePathTest {
   @Test
   public void testGetStep() {
     TypePath typePath = TypePath.fromString("[.[*7");
+
     assertEquals(TypePath.ARRAY_ELEMENT, typePath.getStep(0));
     assertEquals(TypePath.INNER_TYPE, typePath.getStep(1));
     assertEquals(TypePath.WILDCARD_BOUND, typePath.getStep(3));
@@ -68,7 +69,6 @@ public class TypePathTest {
     assertEquals("[*0;*[", TypePath.fromString("[*0;*[").toString());
     assertEquals("10;", TypePath.fromString("10;").toString());
     assertEquals("1;0;", TypePath.fromString("1;0;").toString());
-
     assertThrows(IllegalArgumentException.class, () -> TypePath.fromString("-"));
     assertThrows(IllegalArgumentException.class, () -> TypePath.fromString("="));
     assertThrows(IllegalArgumentException.class, () -> TypePath.fromString("1-"));

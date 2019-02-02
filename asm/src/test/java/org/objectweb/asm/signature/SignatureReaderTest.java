@@ -27,15 +27,13 @@
 // THE POSSIBILITY OF SUCH DAMAGE.
 package org.objectweb.asm.signature;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.function.Executable;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
-import org.objectweb.asm.ClassReader;
-import org.objectweb.asm.ClassVisitor;
-import org.objectweb.asm.FieldVisitor;
-import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.test.AsmTest;
 
@@ -46,63 +44,39 @@ import org.objectweb.asm.test.AsmTest;
  */
 public class SignatureReaderTest extends AsmTest {
 
-  /**
-   * Tests that class, field and method signatures can be read successfully with a SignatureReader.
-   */
   @ParameterizedTest
-  @MethodSource(ALL_CLASSES_AND_LATEST_API)
-  public void testReadSignature(final PrecompiledClass classParameter, final Api apiParameter)
-      throws Exception {
-    byte[] classFile = classParameter.getBytes();
-    ClassReader classReader = new ClassReader(classFile);
-    classReader.accept(
-        new ClassVisitor(apiParameter.value()) {
-          @Override
-          public void visit(
-              final int version,
-              final int access,
-              final String name,
-              final String signature,
-              final String superName,
-              final String[] interfaces) {
-            if (signature != null) {
-              new SignatureReader(signature).accept(new SignatureVisitor(api) {});
-            }
-          }
+  @MethodSource({
+    "org.objectweb.asm.signature.SignaturesProviders#classSignatures",
+    "org.objectweb.asm.signature.SignaturesProviders#methodSignatures"
+  })
+  public void testAccept_validClassOrMethodSignature(final String signature) {
+    SignatureReader signatureReader = new SignatureReader(signature);
+    SignatureVisitor signatureVisitor = new SignatureVisitor(Opcodes.ASM7) {};
 
-          @Override
-          public FieldVisitor visitField(
-              final int access,
-              final String name,
-              final String descriptor,
-              final String signature,
-              final Object value) {
-            if (signature != null) {
-              new SignatureReader(signature).acceptType(new SignatureVisitor(api) {});
-            }
-            return null;
-          }
+    Executable acceptVisitor = () -> signatureReader.accept(signatureVisitor);
 
-          @Override
-          public MethodVisitor visitMethod(
-              final int access,
-              final String name,
-              final String descriptor,
-              final String signature,
-              final String[] exceptions) {
-            if (signature != null) {
-              new SignatureReader(signature).accept(new SignatureVisitor(api) {});
-            }
-            return null;
-          }
-        },
-        0);
+    assertDoesNotThrow(acceptVisitor);
+  }
+
+  @ParameterizedTest
+  @MethodSource("org.objectweb.asm.signature.SignaturesProviders#fieldSignatures")
+  public void testAccept_validFieldSignature(final String signature) {
+    SignatureReader signatureReader = new SignatureReader(signature);
+    SignatureVisitor signatureVisitor = new SignatureVisitor(Opcodes.ASM7) {};
+
+    Executable acceptVisitor = () -> signatureReader.acceptType(signatureVisitor);
+
+    assertDoesNotThrow(acceptVisitor);
   }
 
   @Test
-  public void testReadInvalidSignature() {
-    assertThrows(
-        IllegalArgumentException.class,
-        () -> new SignatureReader("-").accept(new SignatureVisitor(Opcodes.ASM7) {}));
+  public void testAccept_invalidSignature() {
+    String invalidSignature = "-";
+    SignatureReader signatureReader = new SignatureReader(invalidSignature);
+    SignatureVisitor signatureVisitor = new SignatureVisitor(Opcodes.ASM7) {};
+
+    Executable acceptVisitor = () -> signatureReader.accept(signatureVisitor);
+
+    assertThrows(IllegalArgumentException.class, acceptVisitor);
   }
 }

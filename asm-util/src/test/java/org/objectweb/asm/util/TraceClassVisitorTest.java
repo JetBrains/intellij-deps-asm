@@ -27,6 +27,8 @@
 // THE POSSIBILITY OF SUCH DAMAGE.
 package org.objectweb.asm.util;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import java.io.CharArrayWriter;
 import java.io.PrintWriter;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -40,6 +42,7 @@ import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.ModuleVisitor;
 import org.objectweb.asm.test.AsmTest;
+import org.objectweb.asm.test.ClassFile;
 
 /**
  * TraceClassVisitor tests. Also tests TraceAnnotationVisitor, TraceFieldVisitor, TraceMethodVisitor
@@ -61,7 +64,7 @@ public class TraceClassVisitorTest extends AsmTest {
     ClassVisitor classVisitor =
         new TraceClassVisitor(classWriter, new PrintWriter(new CharArrayWriter()));
     classReader.accept(classVisitor, new Attribute[] {new Comment(), new CodeComment()}, 0);
-    assertThatClass(classWriter.toByteArray()).isEqualTo(classFile);
+    assertEquals(new ClassFile(classFile), new ClassFile(classWriter.toByteArray()));
   }
 
   /**

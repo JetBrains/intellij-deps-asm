@@ -29,6 +29,7 @@ package org.objectweb.asm.commons;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
 import org.junit.jupiter.api.Test;
@@ -38,6 +39,7 @@ import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.test.AsmTest;
+import org.objectweb.asm.test.ClassFile;
 
 /**
  * SerialVersionUIDAdder tests.
@@ -110,7 +112,7 @@ public class SerialVersionUidAdderTest extends AsmTest {
     ClassWriter classWriter = new ClassWriter(0);
     classReader.accept(new SerialVersionUIDAdder(classWriter), 0);
     if ((classReader.getAccess() & Opcodes.ACC_ENUM) == 0) {
-      assertThatClass(classWriter.toByteArray()).contains("serialVersionUID");
+      assertTrue(new ClassFile(classWriter.toByteArray()).toString().contains("serialVersionUID"));
     }
   }
 }

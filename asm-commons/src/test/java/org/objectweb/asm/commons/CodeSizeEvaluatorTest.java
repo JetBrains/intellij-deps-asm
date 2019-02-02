@@ -27,6 +27,7 @@
 // THE POSSIBILITY OF SUCH DAMAGE.
 package org.objectweb.asm.commons;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -42,6 +43,7 @@ import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.test.AsmTest;
+import org.objectweb.asm.test.ClassFile;
 
 /**
  * CodeSizeEvaluator tests.
@@ -112,7 +114,7 @@ public class CodeSizeEvaluatorTest extends AsmTest {
       return;
     }
     classReader.accept(classVisitor, attributes(), 0);
-    assertThatClass(classWriter.toByteArray()).isEqualTo(classFile);
+    assertEquals(new ClassFile(classFile), new ClassFile(classWriter.toByteArray()));
   }
 
   private static Attribute[] attributes() {

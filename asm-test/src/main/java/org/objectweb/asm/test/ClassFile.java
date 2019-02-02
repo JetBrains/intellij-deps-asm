@@ -30,13 +30,17 @@ package org.objectweb.asm.test;
 import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
 import java.io.IOException;
+import java.lang.reflect.Array;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 
 /**
- * A dump of the content of a class file, as a verbose, human "readable" String. As an example, the
- * dump of the HelloWorld class is:
+ * A Java class file, whose content can be returned as a verbose, human "readable" string. As an
+ * example, the string representation of the HelloWorld class, obtained with the {@link #toString()}
+ * method, is:
  *
  * <pre>
  * magic: -889275714
@@ -112,29 +116,155 @@ import java.util.HashMap;
  *
  * @author Eric Bruneton
  */
-class ClassDump {
+public class ClassFile {
 
-  /** The dump of the input class. */
-  private final String dump;
+  /** The name of JDK9 module classes. */
+  static final String MODULE_INFO = "module-info";
+
+  /** The binary content of a Java class file. */
+  private final byte[] classBytes;
+
+  /** The name of the class contained in this class file, lazily computed. */
+  private String className;
+
+  /** The dump of the constant pool of {@link #classBytes}, lazily computed. */
+  private String constantPoolDump;
+
+  /** The dump of {@link #classBytes}, lazily computed. */
+  private String dump;
 
   /**
-   * Constructs a new ClassDump instance. The input byte array is parsed and converted to a string
-   * representation by this constructor. The result can then be obtained with {@link #toString}.
+   * Constructs a new ClassFile instance.
    *
-   * @param bytecode the content of a class file.
-   * @throws IOException if the class can't be parsed.
+   * @param classBytes the binary content of a Java class file.
    */
-  ClassDump(final byte[] bytecode) throws IOException {
-    Builder builder = new Builder("ClassFile", /* parent = */ null);
-    dumpClassFile(new Parser(bytecode), builder);
-    StringBuilder stringBuilder = new StringBuilder();
-    builder.build(stringBuilder);
-    this.dump = stringBuilder.toString();
+  public ClassFile(final byte[] classBytes) {
+    this.classBytes = classBytes;
   }
 
+  /**
+   * Returns a string representation of the constant pool of the class contained in this class file.
+   *
+   * @return a string representation of the constant pool of the class contained in this class file.
+   */
+  public String getConstantPoolDump() {
+    if (constantPoolDump == null) {
+      computeNameAndDumps();
+    }
+    return constantPoolDump;
+  }
+
+  /**
+   * Returns a new instance of the class contained in this class file. The class is loaded in a new
+   * class loader.
+   *
+   * @return a new instance of the class, or {@literal null} if the class is abstract, is an enum,
+   *     or a module info.
+   * @throws Exception if the class is invalid or if an error occurs in its constructor.
+   */
+  public Object newInstance() throws Exception {
+    if (className == null) {
+      computeNameAndDumps();
+    }
+    return newInstance(className, classBytes);
+  }
+
+  /**
+   * Returns a new instance of the given class. The class is loaded in a new class loader.
+   *
+   * @param className the name of the class to load.
+   * @param classContent the content of the class to load.
+   * @return a new instance of the class, or {@literal null} if the class is abstract, is an enum,
+   *     or a module info.
+   */
+  static Object newInstance(final String className, final byte[] classContent) throws Exception {
+    if (className.endsWith(MODULE_INFO)) {
+      if (Util.getMajorJavaVersion() < 9) {
+        throw new UnsupportedClassVersionError("Module info is not supported before JDK 9");
+      } else {
+        return null;
+      }
+    }
+    ByteClassLoader byteClassLoader = new ByteClassLoader(className, classContent);
+    Class<?> clazz = byteClassLoader.loadClass(className);
+    // Make sure the class is loaded from the given byte array, excluding any other source.
+    if (!byteClassLoader.classLoaded()) {
+      // This should never happen, given the implementation of ByteClassLoader.
+      throw new AssertionError("Class " + className + " loaded from wrong source");
+    }
+    if (!clazz.isEnum() && (clazz.getModifiers() & Modifier.ABSTRACT) == 0) {
+      Constructor<?> constructor = clazz.getDeclaredConstructors()[0];
+      ArrayList<Object> arguments = new ArrayList<>();
+      for (Class<?> parameterType : constructor.getParameterTypes()) {
+        arguments.add(Array.get(Array.newInstance(parameterType, 1), 0));
+      }
+      constructor.setAccessible(true);
+      return constructor.newInstance(arguments.toArray(new Object[0]));
+    }
+    return null;
+  }
+
+  /**
+   * Returns whether the given class file is the same as this one.
+   *
+   * @return true if 'other' is a {@link ClassFile} with the same string representation.
+   * @throws ClassFormatException if the class content can't be parsed.
+   */
+  @Override
+  public boolean equals(final Object other) {
+    if (other instanceof ClassFile) {
+      return toString().equals(other.toString());
+    }
+    return false;
+  }
+
+  /**
+   * Returns the hashcode of this class file.
+   *
+   * @return the hashcode of the string representation of this class file.
+   * @throws ClassFormatException if the class content can't be parsed.
+   */
+  @Override
+  public int hashCode() {
+    return toString().hashCode();
+  }
+
+  /**
+   * Returns a string representation of this class file.
+   *
+   * @return a string representation of this class file (see the class comments for more details).
+   * @throws ClassFormatException if the class content can't be parsed.
+   */
   @Override
   public String toString() {
+    if (dump == null) {
+      computeNameAndDumps();
+    }
     return dump;
+  }
+
+  /**
+   * Computes the name and the string representation of the class (and of its constant pool)
+   * contained in this class file.
+   *
+   * @throws ClassFormatException if the class content can't be parsed.
+   */
+  private void computeNameAndDumps() {
+    try {
+      Builder builder = new Builder("ClassFile", /* parent = */ null);
+      Builder constantPoolBuilder = new Builder("ConstantPool", /* parent = */ null);
+      ConstantClassInfo classInfo =
+          dumpClassFile(new Parser(classBytes), builder, constantPoolBuilder);
+      className = classInfo.dump().replace('/', '.');
+      StringBuilder stringBuilder = new StringBuilder();
+      builder.build(stringBuilder);
+      dump = stringBuilder.toString();
+      StringBuilder constantPoolStringBuilder = new StringBuilder();
+      constantPoolBuilder.build(constantPoolStringBuilder);
+      constantPoolDump = constantPoolStringBuilder.toString();
+    } catch (IOException e) {
+      throw new ClassFormatException(e.getMessage(), e);
+    }
   }
 
   /**
@@ -142,16 +272,20 @@ class ClassDump {
    *
    * @param parser a class parser.
    * @param builder a dump builder.
+   * @param constantPoolBuilder a dump builder for the constant pool.
+   * @return the ConstantClassInfo corresponding to the parsed class.
    * @throws IOException if the class can't be parsed.
    * @see <a href="https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.1">JVMS
    *     4.1</a>
    */
-  private static void dumpClassFile(final Parser parser, final Builder builder) throws IOException {
+  private static ConstantClassInfo dumpClassFile(
+      final Parser parser, final Builder builder, final Builder constantPoolBuilder)
+      throws IOException {
     builder.add("magic: ", parser.u4());
     builder.add("minor_version: ", parser.u2());
     int majorVersion = parser.u2();
     if (majorVersion > /* V12 = */ 56) {
-      throw new IOException("Unsupported class version");
+      throw new ClassFormatException("Unsupported class version");
     }
     builder.add("major_version: ", majorVersion);
     int constantPoolCount = parser.u2();
@@ -159,10 +293,13 @@ class ClassDump {
     while (cpIndex < constantPoolCount) {
       CpInfo cpInfo = parseCpInfo(parser, builder);
       builder.putCpInfo(cpIndex, cpInfo);
+      constantPoolBuilder.putCpInfo(cpIndex, cpInfo);
+      constantPoolBuilder.addCpInfo("constant_pool: ", cpIndex);
       cpIndex += cpInfo.size();
     }
     builder.add("access_flags: ", parser.u2());
-    builder.addCpInfo("this_class: ", parser.u2());
+    int thisClass = parser.u2();
+    builder.addCpInfo("this_class: ", thisClass);
     builder.addCpInfo("super_class: ", parser.u2());
     int interfaceCount = builder.add("interfaces_count: ", parser.u2());
     for (int i = 0; i < interfaceCount; ++i) {
@@ -177,6 +314,7 @@ class ClassDump {
       dumpMethodInfo(parser, builder);
     }
     dumpAttributeList(parser, builder);
+    return builder.getCpInfo(thisClass, ConstantClassInfo.class);
   }
 
   /**
@@ -246,7 +384,7 @@ class ClassDump {
       case 20:
         return new ConstantPackageInfo(parser, classContext);
       default:
-        throw new IOException("Invalid constant pool item tag " + tag);
+        throw new ClassFormatException("Invalid constant pool item tag " + tag);
     }
   }
 
@@ -356,7 +494,7 @@ class ClassDump {
       dumpStackMapAttribute(parser, builder);
     } else if (!attributeName.equals("CodeComment") && !attributeName.equals("Comment")) {
       // Not a standard attribute nor one the of empty non-standard attributes used for tests.
-      throw new IOException("Unknown attribute " + attributeName);
+      throw new ClassFormatException("Unknown attribute " + attributeName);
     }
   }
 
@@ -837,11 +975,11 @@ class ClassDump {
               bytecodeOffset += 4;
               break;
             default:
-              throw new IOException("Unknown wide opcode: " + opcode);
+              throw new ClassFormatException("Unknown wide opcode: " + opcode);
           }
           break;
         default:
-          throw new IOException("Unknown opcode: " + opcode);
+          throw new ClassFormatException("Unknown opcode: " + opcode);
       }
       insnIndex++;
     }
@@ -873,7 +1011,7 @@ class ClassDump {
         builder.addInsnIndex("SAME_LOCALS_1_STACK_ITEM ", bytecodeOffset);
         dumpVerificationTypeInfo(parser, builder);
       } else if (frameType < 247) {
-        throw new IOException("Unknown frame type " + frameType);
+        throw new ClassFormatException("Unknown frame type " + frameType);
       } else if (frameType == 247) {
         int offsetDelta = parser.u2();
         bytecodeOffset += offsetDelta + 1;
@@ -923,7 +1061,7 @@ class ClassDump {
       throws IOException {
     int tag = builder.add("tag: ", parser.u1());
     if (tag > 8) {
-      throw new IOException("Unknown verification_type_info tag: " + tag);
+      throw new ClassFormatException("Unknown verification_type_info tag: " + tag);
     }
     if (tag == 7) {
       builder.addCpInfo("cpool_index: ", parser.u2());
@@ -1191,7 +1329,7 @@ class ClassDump {
         }
         return;
       default:
-        throw new IOException("Unknown element_type tag: " + tag);
+        throw new ClassFormatException("Unknown element_type tag: " + tag);
     }
   }
 
@@ -1336,7 +1474,7 @@ class ClassDump {
         builder.add("type_argument_index: ", parser.u1());
         break;
       default:
-        throw new IOException("Unknown target_type: " + targetType);
+        throw new ClassFormatException("Unknown target_type: " + targetType);
     }
     dumpTypePath(parser, builder);
     // Sort type annotations based on the full target_info and type_path (excluding the annotation
@@ -2220,9 +2358,9 @@ class ClassDump {
     public <C extends CpInfo> C getCpInfo(final int cpIndex, final Class<C> cpInfoType) {
       Object cpInfo = get(CP_INFO_KEY | cpIndex);
       if (cpInfo == null) {
-        throw new IllegalArgumentException("Invalid constant pool index: " + cpIndex);
+        throw new ClassFormatException("Invalid constant pool index: " + cpIndex);
       } else if (!cpInfoType.isInstance(cpInfo)) {
-        throw new IllegalArgumentException(
+        throw new ClassFormatException(
             "Invalid constant pool type: "
                 + cpInfo.getClass().getName()
                 + " should be "
@@ -2235,7 +2373,7 @@ class ClassDump {
     public int getInsnIndex(final int bytecodeOffset) {
       Integer insnIndex = (Integer) get(bytecodeOffset);
       if (insnIndex == null) {
-        throw new IllegalArgumentException("Invalid bytecode offset: " + bytecodeOffset);
+        throw new ClassFormatException("Invalid bytecode offset: " + bytecodeOffset);
       }
       return insnIndex;
     }
@@ -2420,6 +2558,33 @@ class ClassDump {
     void build(final StringBuilder stringBuilder) {
       Collections.sort(children);
       super.build(stringBuilder);
+    }
+  }
+
+  /** A simple ClassLoader to test that a class can be loaded in the JVM. */
+  private static class ByteClassLoader extends ClassLoader {
+    private final String className;
+    private final byte[] classContent;
+    private boolean classLoaded;
+
+    ByteClassLoader(final String className, final byte[] classContent) {
+      this.className = className;
+      this.classContent = classContent;
+    }
+
+    boolean classLoaded() {
+      return classLoaded;
+    }
+
+    @Override
+    protected Class<?> loadClass(final String name, final boolean resolve)
+        throws ClassNotFoundException {
+      if (name.equals(className)) {
+        classLoaded = true;
+        return defineClass(className, classContent, 0, classContent.length);
+      } else {
+        return super.loadClass(name, resolve);
+      }
     }
   }
 }

@@ -52,6 +52,7 @@ import org.objectweb.asm.Attribute;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.test.AsmTest;
+import org.objectweb.asm.test.ClassFile;
 
 /**
  * ASMifier tests.
@@ -166,7 +167,7 @@ public class ASMifierTest extends AsmTest {
     Method dumpMethod = asmifiedClass.getMethod("dump");
     byte[] dumpClassFile = (byte[]) dumpMethod.invoke(null);
 
-    assertThatClass(dumpClassFile).isEqualTo(classFile);
+    assertEquals(new ClassFile(classFile), new ClassFile(dumpClassFile));
   }
 
   private static byte[] compile(final String name, final String source)

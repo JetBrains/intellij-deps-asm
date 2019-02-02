@@ -27,9 +27,9 @@
 // THE POSSIBILITY OF SUCH DAMAGE.
 package org.objectweb.asm.commons;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.objectweb.asm.test.Assertions.assertThat;
 
 import java.util.Arrays;
 import java.util.Locale;
@@ -44,6 +44,7 @@ import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.test.AsmTest;
+import org.objectweb.asm.test.ClassFile;
 import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.LdcInsnNode;
 import org.objectweb.asm.util.CheckMethodAdapter;
@@ -193,9 +194,12 @@ public class ClassRemapperTest extends AsmTest {
     }
     classReader.accept(classRemapper, 0);
     byte[] classFile = classWriter.toByteArray();
-    assertThat(() -> loadAndInstantiate(upperCaseRemapper.getRemappedClassName(), classFile))
-        .succeedsOrThrows(UnsupportedClassVersionError.class)
-        .when(classParameter.isMoreRecentThanCurrentJdk());
+    if (classParameter.isMoreRecentThanCurrentJdk()) {
+      assertThrows(
+          UnsupportedClassVersionError.class, () -> new ClassFile(classFile).newInstance());
+    } else {
+      assertDoesNotThrow(() -> new ClassFile(classFile).newInstance());
+    }
   }
 
   /**
@@ -219,9 +223,12 @@ public class ClassRemapperTest extends AsmTest {
     }
     classNode.accept(classRemapper);
     byte[] classFile = classWriter.toByteArray();
-    assertThat(() -> loadAndInstantiate(upperCaseRemapper.getRemappedClassName(), classFile))
-        .succeedsOrThrows(UnsupportedClassVersionError.class)
-        .when(classParameter.isMoreRecentThanCurrentJdk());
+    if (classParameter.isMoreRecentThanCurrentJdk()) {
+      assertThrows(
+          UnsupportedClassVersionError.class, () -> new ClassFile(classFile).newInstance());
+    } else {
+      assertDoesNotThrow(() -> new ClassFile(classFile).newInstance());
+    }
   }
 
   private static void checkDescriptor(final String descriptor) {

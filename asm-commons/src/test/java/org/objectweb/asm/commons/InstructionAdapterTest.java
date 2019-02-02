@@ -44,6 +44,7 @@ import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.test.AsmTest;
+import org.objectweb.asm.test.ClassFile;
 import org.objectweb.asm.tree.MethodNode;
 import org.objectweb.asm.util.Textifier;
 import org.objectweb.asm.util.TraceMethodVisitor;
@@ -233,7 +234,7 @@ public class InstructionAdapterTest extends AsmTest {
       assertThrows(RuntimeException.class, () -> classReader.accept(classVisitor, attributes(), 0));
     } else {
       classReader.accept(classVisitor, attributes(), 0);
-      assertThatClass(classWriter.toByteArray()).isEqualTo(classFile);
+      assertEquals(new ClassFile(classFile), new ClassFile(classWriter.toByteArray()));
     }
   }
 

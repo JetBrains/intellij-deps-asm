@@ -47,6 +47,7 @@ import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.test.AsmTest;
+import org.objectweb.asm.test.ClassFile;
 
 /**
  * CheckClassAdapter tests.
@@ -309,7 +310,7 @@ public class CheckClassAdapterTest extends AsmTest implements Opcodes {
       return;
     }
     classReader.accept(classVisitor, attributes(), 0);
-    assertThatClass(classWriter.toByteArray()).isEqualTo(classFile);
+    assertEquals(new ClassFile(classFile), new ClassFile(classWriter.toByteArray()));
   }
 
   /** Tests that {@link CheckClassAdapter#verify()} succeeds on all precompiled classes. */

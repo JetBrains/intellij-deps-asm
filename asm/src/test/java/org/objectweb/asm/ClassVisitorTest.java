@@ -27,27 +27,34 @@
 // THE POSSIBILITY OF SUCH DAMAGE.
 package org.objectweb.asm;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.function.Executable;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.objectweb.asm.test.AsmTest;
+import org.objectweb.asm.test.ClassFile;
 
 /**
- * ClassVisitor tests. Also tests FieldVisitor, MethodVisitor, ModuleVisitor and AnnotationVisitor.
+ * Unit tests for {@link ClassVisitor}. Also tests {@link FieldVisitor}, {@ink MethodVisitor},
+ * {@link ModuleVisitor} and {@link AnnotationVisitor}.
  *
  * @author Eric Bruneton
  */
 public class ClassVisitorTest extends AsmTest {
 
   @Test
-  public void testConstuctor() {
+  public void testConstructor() {
+    assertDoesNotThrow(() -> new ClassVisitor(Opcodes.ASM4) {});
     assertThrows(IllegalArgumentException.class, () -> new ClassVisitor(0) {});
     assertThrows(IllegalArgumentException.class, () -> new ClassVisitor(Integer.MAX_VALUE) {});
   }
@@ -59,81 +66,96 @@ public class ClassVisitorTest extends AsmTest {
    */
   @ParameterizedTest
   @MethodSource(ALL_CLASSES_AND_ALL_APIS)
-  public void testReadAndWriteWithEmptyVisitor(
+  public void testReadAndWrite_emptyVisitor(
       final PrecompiledClass classParameter, final Api apiParameter) {
     byte[] classFile = classParameter.getBytes();
     ClassReader classReader = new ClassReader(classFile);
     ClassWriter classWriter = new ClassWriter(0);
     ClassAdapter classAdapter = new ClassAdapter(apiParameter.value(), classWriter);
+
+    Executable transform = () -> classReader.accept(classAdapter, attributes(), 0);
+
     if (classParameter.isMoreRecentThan(apiParameter)) {
-      assertThrows(RuntimeException.class, () -> classReader.accept(classAdapter, attributes(), 0));
+      assertThrows(RuntimeException.class, transform);
     } else {
-      classReader.accept(classAdapter, attributes(), 0);
-      assertThatClass(classWriter.toByteArray()).isEqualTo(classFile);
+      assertDoesNotThrow(transform);
+      assertEquals(new ClassFile(classFile), new ClassFile(classWriter.toByteArray()));
     }
   }
 
   /**
-   * Tests that a ClassReader -> class adapter -> ClassWriter chain give the same result with or
-   * without the copy pool option.
+   * Tests that a ClassReader -> class adapter -> ClassWriter chain gives the same result with or
+   * without the copy pool option, and a class adapter that changes the method exceptions.
    */
   @ParameterizedTest
   @MethodSource(ALL_CLASSES_AND_ALL_APIS)
-  public void testReadAndWriteWithCopyPoolAndExceptionAdapter(
+  public void testReadAndWrite_copyPool_changeMethodExceptions(
       final PrecompiledClass classParameter, final Api apiParameter) {
     byte[] classFile = classParameter.getBytes();
     ClassReader classReader = new ClassReader(classFile);
     ClassWriter classWriter = new ClassWriter(0);
     ClassWriter classWriterWithCopyPool = new ClassWriter(classReader, 0);
+
     classReader.accept(new ChangeExceptionAdapter(classWriter), attributes(), 0);
     classReader.accept(new ChangeExceptionAdapter(classWriterWithCopyPool), attributes(), 0);
-    assertThatClass(classWriterWithCopyPool.toByteArray()).isEqualTo(classWriter.toByteArray());
+
+    assertEquals(
+        new ClassFile(classWriter.toByteArray()),
+        new ClassFile(classWriterWithCopyPool.toByteArray()));
   }
 
   /**
-   * Tests that a ClassReader -> class adapter -> ClassWriter chain give the same result with or
-   * without the copy pool option.
+   * Tests that a ClassReader -> class adapter -> ClassWriter chain gives the same result with or
+   * without the copy pool option, and a class adapter that changes the deprecated method flags.
    */
   @ParameterizedTest
   @MethodSource(ALL_CLASSES_AND_ALL_APIS)
-  public void testReadAndWriteWithCopyPoolAndDeprecatedAdapter(
+  public void testReadAndWrite_copyPool_changeMethodDeprecatedFlag(
       final PrecompiledClass classParameter, final Api apiParameter) {
     byte[] classFile = classParameter.getBytes();
     ClassReader classReader = new ClassReader(classFile);
     ClassWriter classWriter = new ClassWriter(0);
     ClassWriter classWriterWithCopyPool = new ClassWriter(classReader, 0);
     int access = Opcodes.ACC_DEPRECATED;
+
     classReader.accept(new ChangeAccessAdapter(classWriter, access), attributes(), 0);
     classReader.accept(new ChangeAccessAdapter(classWriterWithCopyPool, access), attributes(), 0);
-    assertThatClass(classWriterWithCopyPool.toByteArray()).isEqualTo(classWriter.toByteArray());
+
+    assertEquals(
+        new ClassFile(classWriter.toByteArray()),
+        new ClassFile(classWriterWithCopyPool.toByteArray()));
   }
 
   /**
-   * Tests that a ClassReader -> class adapter -> ClassWriter chain give the same result with or
-   * without the copy pool option.
+   * Tests that a ClassReader -> class adapter -> ClassWriter chain gives the same result with or
+   * without the copy pool option, and a class adapter that changes the synthetic method flags.
    */
   @ParameterizedTest
   @MethodSource(ALL_CLASSES_AND_ALL_APIS)
-  public void testReadAndWriteWithCopyPoolAndSyntheticAdapter(
+  public void testReadAndWrite_copyPool_changeMethodSyntheticFlag(
       final PrecompiledClass classParameter, final Api apiParameter) {
     byte[] classFile = classParameter.getBytes();
     ClassReader classReader = new ClassReader(classFile);
     ClassWriter classWriter = new ClassWriter(0);
     ClassWriter classWriterWithCopyPool = new ClassWriter(classReader, 0);
     int access = Opcodes.ACC_SYNTHETIC;
+
     classReader.accept(new ChangeAccessAdapter(classWriter, access), attributes(), 0);
     classReader.accept(new ChangeAccessAdapter(classWriterWithCopyPool, access), attributes(), 0);
-    assertThatClass(classWriterWithCopyPool.toByteArray()).isEqualTo(classWriter.toByteArray());
+
+    assertEquals(
+        new ClassFile(classWriter.toByteArray()),
+        new ClassFile(classWriterWithCopyPool.toByteArray()));
   }
 
   /**
-   * Tests that a ClassReader -> class adapter -> ClassWriter chain give the same result with or
-   * without the copy pool option, when the class version is changed (and optionally a synthetic
-   * attribute as well).
+   * Tests that a ClassReader -> class adapter -> ClassWriter chain gives the same result with or
+   * without the copy pool option, and a class adapter that changes the class version (and
+   * optionally the method synthetic flags / attributes as well).
    */
   @ParameterizedTest
   @CsvSource({"true, true", "true, false", "false, true", "false, false"})
-  public void testReadAndWriteWithCopyPoolAndSyntheticAdapter(
+  public void testReadAndWrite_copyPool_changeClassVersionAndMethodSyntheticFlag(
       final boolean upgradeVersion, final boolean changeSynthetic) {
     ClassWriter sourceClassWriter = new ClassWriter(0);
     sourceClassWriter.visit(
@@ -147,25 +169,27 @@ public class ClassVisitorTest extends AsmTest {
         .visitMethod(Opcodes.ACC_ABSTRACT | Opcodes.ACC_SYNTHETIC, "m", "()V", null, null)
         .visitEnd();
     sourceClassWriter.visitEnd();
-
     ClassReader classReader = new ClassReader(sourceClassWriter.toByteArray());
     ClassWriter classWriter = new ClassWriter(0);
     ClassWriter copyPoolClassWriter = new ClassWriter(classReader, 0);
     int version = upgradeVersion ? Opcodes.V1_5 : Opcodes.V1_4;
     int access = changeSynthetic ? Opcodes.ACC_SYNTHETIC : 0;
+
     classReader.accept(
         new ChangeVersionAdapter(new ChangeAccessAdapter(classWriter, access), version), 0);
     classReader.accept(
         new ChangeVersionAdapter(new ChangeAccessAdapter(copyPoolClassWriter, access), version), 0);
-    assertThatClass(copyPoolClassWriter.toByteArray()).isEqualTo(classWriter.toByteArray());
+
+    assertEquals(
+        new ClassFile(classWriter.toByteArray()), new ClassFile(copyPoolClassWriter.toByteArray()));
   }
 
   /**
-   * Tests that a ClassReader -> class adapter -> ClassWriter chain give the same result when the
-   * descriptor of a method is changed.
+   * Tests that a ClassReader -> class adapter -> ClassWriter chain gives the same result with or
+   * without the copy pool option, and a class adapter that changes the method descriptors.
    */
   @Test
-  public void testReadAndWriteWithCopyPoolAndChangeDescriptor() {
+  public void testReadAndWrite_copyPool_changeMethodDescriptor() {
     ClassWriter sourceClassWriter = new ClassWriter(ClassWriter.COMPUTE_MAXS);
     sourceClassWriter.visit(
         Opcodes.V1_7, Opcodes.ACC_ABSTRACT, "C", null, "java/lang/Object", null);
@@ -179,28 +203,82 @@ public class ClassVisitorTest extends AsmTest {
     methodVisitor.visitMaxs(0, 0);
     methodVisitor.visitEnd();
     sourceClassWriter.visitEnd();
-
     ClassReader classReader = new ClassReader(sourceClassWriter.toByteArray());
     ClassWriter classWriter = new ClassWriter(ClassWriter.COMPUTE_MAXS);
     ClassWriter copyPoolClassWriter = new ClassWriter(classReader, ClassWriter.COMPUTE_MAXS);
+
     classReader.accept(new AddParameterAdapter(classWriter), 0);
     classReader.accept(new AddParameterAdapter(copyPoolClassWriter), 0);
-    assertThatClass(copyPoolClassWriter.toByteArray()).isEqualTo(classWriter.toByteArray());
+
+    assertEquals(
+        new ClassFile(classWriter.toByteArray()), new ClassFile(copyPoolClassWriter.toByteArray()));
   }
 
   /** Test that classes with only visible or only invisible annotations can be read correctly. */
   @ParameterizedTest
   @ValueSource(strings = {"true", "false"})
-  public void testReadAndWriteWithRemoveAnnotationAdapter(final boolean visibilityValue) {
+  public void testReadAndWrite_removeAnnotations(final boolean visibilityValue) {
     ClassWriter classWriter = new ClassWriter(0);
     new ClassReader(PrecompiledClass.JDK8_ALL_STRUCTURES.getBytes())
         .accept(new RemoveAnnotationAdapter(classWriter, visibilityValue), 0);
     byte[] classFile = classWriter.toByteArray();
-
     ClassWriter newClassWriter = new ClassWriter(0);
+
     new ClassReader(classFile)
         .accept(new RemoveAnnotationAdapter(newClassWriter, visibilityValue), 0);
-    assertThatClass(newClassWriter.toByteArray()).isEqualTo(classFile);
+
+    assertEquals(new ClassFile(classFile), new ClassFile(newClassWriter.toByteArray()));
+  }
+
+  /**
+   * Tests that optional module data (ModulePackage, ModuleMainClass, etc) can be removed with a
+   * ClassReader -> class adapter -> ClassWriter chain.
+   */
+  @Test
+  public void testReadAndWrite_removeOptionalModuleData() {
+    byte[] classFile = PrecompiledClass.JDK9_MODULE.getBytes();
+    ClassReader classReader = new ClassReader(classFile);
+    ClassWriter classWriter = new ClassWriter(0);
+    ClassVisitor classVisitor =
+        new ClassVisitor(Opcodes.ASM7, classWriter) {
+
+          @Override
+          public ModuleVisitor visitModule(
+              final String name, final int access, final String version) {
+            return new ModuleVisitor(api, super.visitModule(name, access, version)) {
+
+              @Override
+              public void visitMainClass(final String mainClass) {}
+
+              @Override
+              public void visitPackage(final String packaze) {}
+
+              @Override
+              public void visitRequire(
+                  final String module, final int access, final String version) {
+                super.visitRequire(module, access, null);
+              }
+
+              @Override
+              public void visitExport(
+                  final String packaze, final int access, final String... modules) {
+                super.visitExport(packaze, access, (String[]) null);
+              }
+
+              @Override
+              public void visitOpen(
+                  final String packaze, final int access, final String... modules) {
+                super.visitOpen(packaze, access, (String[]) null);
+              }
+            };
+          }
+        };
+
+    classReader.accept(classVisitor, null, 0);
+
+    String classDump = new ClassFile(classWriter.toByteArray()).toString();
+    assertFalse(classDump.contains("ModulePackage"));
+    assertFalse(classDump.contains("ModuleMainClass"));
   }
 
   static Attribute[] attributes() {

@@ -32,7 +32,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import org.junit.jupiter.api.Test;
 
 /**
- * Handler tests.
+ * Unit tests for {@link Handler}.
  *
  * @author Eric Bruneton
  */
@@ -45,7 +45,9 @@ public class HandlerTest {
     Label handlerPc = new Label();
     int catchType = 123;
     String catchDescriptor = "123";
+
     Handler handler = new Handler(startPc, endPc, handlerPc, catchType, catchDescriptor);
+
     assertEquals(startPc, handler.startPc);
     assertEquals(endPc, handler.endPc);
     assertEquals(handlerPc, handler.handlerPc);
@@ -55,71 +57,95 @@ public class HandlerTest {
 
   @Test
   public void testCopyConstructor() {
-    Label startPc = new Label();
-    Label endPc = new Label();
+    Label startPc1 = new Label();
+    Label endPc1 = new Label();
     Label handlerPc = new Label();
     int catchType = 123;
     String catchDescriptor = "123";
-    Handler handler = new Handler(startPc, endPc, handlerPc, catchType, catchDescriptor);
+    Handler handler1 = new Handler(startPc1, endPc1, handlerPc, catchType, catchDescriptor);
+    Label startPc2 = new Label();
+    Label endPc2 = new Label();
 
-    Label newStartPc = new Label();
-    Label newEndPc = new Label();
-    handler = new Handler(handler, newStartPc, newEndPc);
-    assertEquals(newStartPc, handler.startPc);
-    assertEquals(newEndPc, handler.endPc);
-    assertEquals(handlerPc, handler.handlerPc);
-    assertEquals(catchType, handler.catchType);
-    assertEquals(catchDescriptor, handler.catchTypeDescriptor);
+    Handler handler2 = new Handler(handler1, startPc2, endPc2);
+
+    assertEquals(startPc2, handler2.startPc);
+    assertEquals(endPc2, handler2.endPc);
+    assertEquals(handlerPc, handler2.handlerPc);
+    assertEquals(catchType, handler2.catchType);
+    assertEquals(catchDescriptor, handler2.catchTypeDescriptor);
   }
 
   @Test
-  public void testRemoveRange() {
+  public void testRemoveRange_removeAllOrNothing() {
     Handler handler = newHandler(10, 20);
+
     assertEquals(null, Handler.removeRange(null, newLabel(0), newLabel(10)));
     assertEquals(handler, Handler.removeRange(handler, newLabel(0), newLabel(10)));
     assertEquals(handler, Handler.removeRange(handler, newLabel(20), newLabel(30)));
     assertEquals(handler, Handler.removeRange(handler, newLabel(20), null));
     assertEquals(null, Handler.removeRange(handler, newLabel(0), newLabel(30)));
-
-    Handler handler1 = Handler.removeRange(handler, newLabel(0), newLabel(15));
-    assertEquals(15, handler1.startPc.bytecodeOffset);
-    assertEquals(20, handler1.endPc.bytecodeOffset);
-    assertEquals(null, handler1.nextHandler);
-
-    Handler handler2 = Handler.removeRange(handler, newLabel(15), newLabel(30));
-    assertEquals(10, handler2.startPc.bytecodeOffset);
-    assertEquals(15, handler2.endPc.bytecodeOffset);
-    assertEquals(null, handler2.nextHandler);
-
-    Handler handler3 = Handler.removeRange(handler, newLabel(13), newLabel(17));
-    assertEquals(10, handler3.startPc.bytecodeOffset);
-    assertEquals(13, handler3.endPc.bytecodeOffset);
-    assertEquals(17, handler3.nextHandler.startPc.bytecodeOffset);
-    assertEquals(20, handler3.nextHandler.endPc.bytecodeOffset);
-    assertEquals(null, handler3.nextHandler.nextHandler);
   }
 
   @Test
-  public void testExceptionTable() {
-    assertEquals(0, Handler.getExceptionTableLength(null));
+  public void testRemoveRange_removeStart() {
+    Handler handler = Handler.removeRange(newHandler(10, 20), newLabel(0), newLabel(15));
 
+    assertEquals(15, handler.startPc.bytecodeOffset);
+    assertEquals(20, handler.endPc.bytecodeOffset);
+    assertEquals(null, handler.nextHandler);
+  }
+
+  @Test
+  public void testRemoveRange_removeEnd() {
+    Handler handler = Handler.removeRange(newHandler(10, 20), newLabel(15), newLabel(30));
+
+    assertEquals(10, handler.startPc.bytecodeOffset);
+    assertEquals(15, handler.endPc.bytecodeOffset);
+    assertEquals(null, handler.nextHandler);
+  }
+
+  @Test
+  public void testRemoveRange_removeMiddle() {
+    Handler handler = Handler.removeRange(newHandler(10, 20), newLabel(13), newLabel(17));
+
+    assertEquals(10, handler.startPc.bytecodeOffset);
+    assertEquals(13, handler.endPc.bytecodeOffset);
+    assertEquals(17, handler.nextHandler.startPc.bytecodeOffset);
+    assertEquals(20, handler.nextHandler.endPc.bytecodeOffset);
+    assertEquals(null, handler.nextHandler.nextHandler);
+  }
+
+  @Test
+  public void testGetExceptionTableLength() {
     Handler handler = newHandler(10, 20);
+
+    assertEquals(0, Handler.getExceptionTableLength(null));
     assertEquals(1, Handler.getExceptionTableLength(handler));
+  }
 
-    Handler handlerList = Handler.removeRange(handler, newLabel(13), newLabel(17));
-    assertEquals(2, Handler.getExceptionTableLength(handlerList));
+  @Test
+  public void testGetExceptionTableSize() {
+    Handler handlerList = Handler.removeRange(newHandler(10, 20), newLabel(13), newLabel(17));
+
+    assertEquals(2, Handler.getExceptionTableSize(null));
     assertEquals(18, Handler.getExceptionTableSize(handlerList));
+  }
 
+  @Test
+  public void testPutExceptionTable() {
+    Handler handlerList = Handler.removeRange(newHandler(10, 20), newLabel(13), newLabel(17));
     ByteVector byteVector = new ByteVector();
+
     Handler.putExceptionTable(handlerList, byteVector);
+
     assertEquals(18, byteVector.length);
   }
 
-  private Handler newHandler(final int startPc, final int endPc) {
+  private static Handler newHandler(final int startPc, final int endPc) {
     return new Handler(newLabel(startPc), newLabel(endPc), newLabel(0), 0, "");
   }
 
-  private Label newLabel(final int bytecodeOffset) {
+  private static Label newLabel(final int bytecodeOffset) {
     Label label = new Label();
     label.bytecodeOffset = bytecodeOffset;
     return label;

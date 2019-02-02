@@ -28,13 +28,16 @@
 package org.objectweb.asm.test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.fail;
-import static org.objectweb.asm.test.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.EnumSource;
-import org.junit.jupiter.params.provider.MethodSource;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import java.util.stream.Collectors;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.provider.Arguments;
 
 /**
  * Unit tests for {@link AsmTest}.
@@ -43,98 +46,59 @@ import org.junit.jupiter.params.provider.MethodSource;
  */
 public class AsmTestTest extends AsmTest {
 
-  /** Tests the isMoreRecentThan method. */
-  @ParameterizedTest
-  @MethodSource(ALL_CLASSES_AND_ALL_APIS)
-  public void testIsMoreRecentThan(final PrecompiledClass classParameter, final Api apiParameter) {
-    byte[] classContent = classParameter.getBytes();
-    int majorVersion = (classContent[6] & 0xFF) << 8 | (classContent[7] & 0xFF);
-    boolean isMoreRecent = classParameter.isMoreRecentThan(apiParameter);
-    switch (apiParameter) {
-      case ASM4:
-        assertEquals(majorVersion > /* V7 = */ 51, isMoreRecent);
-        break;
-      case ASM5:
-        assertEquals(majorVersion > /* V8 = */ 52, isMoreRecent);
-        break;
-      case ASM6:
-        assertEquals(majorVersion > /* V10 = */ 54, isMoreRecent);
-        break;
-      case ASM7:
-        assertEquals(majorVersion > /* V12 = */ 56, isMoreRecent);
-        break;
-      default:
-        fail("Unknown API value");
-        break;
-    }
+  @Test
+  public void testPrecompiledClass_allMethods() {
+    assertEquals("jdk3.AllInstructions", PrecompiledClass.JDK3_ALL_INSTRUCTIONS.getName());
+    assertEquals("jdk8/AllInstructions", PrecompiledClass.JDK8_ALL_INSTRUCTIONS.getInternalName());
+    assertEquals("module-info", PrecompiledClass.JDK9_MODULE.getInternalName());
+    assertFalse(PrecompiledClass.JDK3_ALL_INSTRUCTIONS.isMoreRecentThan(Api.ASM4));
+    assertTrue(PrecompiledClass.JDK8_ALL_INSTRUCTIONS.isMoreRecentThan(Api.ASM4));
+    assertFalse(PrecompiledClass.JDK8_ALL_INSTRUCTIONS.isMoreRecentThan(Api.ASM5));
+    assertTrue(PrecompiledClass.JDK9_MODULE.isMoreRecentThan(Api.ASM5));
+    assertFalse(PrecompiledClass.JDK9_MODULE.isMoreRecentThan(Api.ASM6));
+    assertTrue(PrecompiledClass.JDK11_ALL_INSTRUCTIONS.isMoreRecentThan(Api.ASM6));
+    assertFalse(PrecompiledClass.JDK11_ALL_INSTRUCTIONS.isMoreRecentThan(Api.ASM7));
+    assertNotNull(PrecompiledClass.JDK11_ALL_INSTRUCTIONS.getBytes());
+    assertEquals("jdk11.AllInstructions", PrecompiledClass.JDK11_ALL_INSTRUCTIONS.toString());
   }
 
-  /** Tests that we can get the byte array content of each precompiled class. */
-  @ParameterizedTest
-  @MethodSource(ALL_CLASSES_AND_LATEST_API)
-  public void testGetBytes(final PrecompiledClass classParameter, final Api apiParameter) {
-    assertEquals(Api.ASM7, apiParameter);
-    assertEquals(0x70000, apiParameter.value());
-    assertEquals("ASM7", apiParameter.toString());
-    byte[] classContent = classParameter.getBytes();
-    assertThatClass(classContent).contains(classParameter.getInternalName());
-    assertThatClass(classContent).isEqualTo(classContent);
+  @Test
+  public void testInvalidClass_allMethods() {
+    InvalidClass invalidBytecodeOffset = InvalidClass.INVALID_BYTECODE_OFFSET;
+
+    assertNotNull(invalidBytecodeOffset.getBytes());
+    assertEquals("invalid.InvalidBytecodeOffset", invalidBytecodeOffset.toString());
   }
 
-  /** Tests that we can load (and instantiate) each (non-abstract) precompiled class. */
-  @ParameterizedTest
-  @MethodSource(ALL_CLASSES_AND_LATEST_API)
-  public void testLoadAndInstantiate(
-      final PrecompiledClass classParameter, final Api apiParameter) {
-    assertThat(() -> loadAndInstantiate(classParameter.getName(), classParameter.getBytes()))
-        .succeedsOrThrows(UnsupportedClassVersionError.class)
-        .when(classParameter.isMoreRecentThanCurrentJdk());
+  @Test
+  public void testApi_allMethods() {
+    Api asm7 = Api.ASM7;
+
+    assertEquals(0x70000, asm7.value());
+    assertEquals("ASM7", asm7.toString());
   }
 
-  /**
-   * Tests that {@link #loadAndInstantiate(String, byte[])} fails when trying to load a class which
-   * is not well formed.
-   */
-  @ParameterizedTest
-  @EnumSource(InvalidClass.class)
-  public void testLoadAndInstantiate_invalidClass(final InvalidClass invalidClass) {
-    byte[] classContent = invalidClass.getBytes();
-    assertThrows(
-        AssertionError.class, () -> loadAndInstantiate(invalidClass.toString(), classContent));
+  @Test
+  public void testGetAllClassesAndAllApis() {
+    List<Arguments> allArguments = allClassesAndAllApis().collect(Collectors.toList());
+
+    assertEquals(
+        new HashSet<Object>(Arrays.asList(PrecompiledClass.values())),
+        allArguments.stream().map(arg -> arg.get()[0]).collect(Collectors.toSet()));
+    assertEquals(
+        new HashSet<Object>(Arrays.asList(Api.values())),
+        allArguments.stream().map(arg -> arg.get()[1]).collect(Collectors.toSet()));
   }
 
-  /**
-   * Tests that {@link #doLoadAndInstantiate(String, byte[])} fails when trying to load an invalid
-   * or unverifiable class.
-   */
-  @ParameterizedTest
-  @EnumSource(InvalidClass.class)
-  public void testDoLoadAndInstantiate_invalidClass(final InvalidClass invalidClass) {
-    byte[] classContent = invalidClass.getBytes();
-    switch (invalidClass) {
-      case INVALID_ELEMENT_VALUE:
-      case INVALID_TYPE_ANNOTATION_TARGET_TYPE:
-      case INVALID_INSN_TYPE_ANNOTATION_TARGET_TYPE:
-        break;
-      case INVALID_BYTECODE_OFFSET:
-      case INVALID_OPCODE:
-      case INVALID_WIDE_OPCODE:
-        assertThrows(
-            VerifyError.class, () -> doLoadAndInstantiate(invalidClass.toString(), classContent));
-        break;
-      case INVALID_CLASS_VERSION:
-      case INVALID_CONSTANT_POOL_INDEX:
-      case INVALID_CONSTANT_POOL_REFERENCE:
-      case INVALID_CP_INFO_TAG:
-      case INVALID_STACK_MAP_FRAME_TYPE:
-      case INVALID_VERIFICATION_TYPE_INFO:
-        assertThrows(
-            ClassFormatError.class,
-            () -> doLoadAndInstantiate(invalidClass.toString(), classContent));
-        break;
-      default:
-        fail("Unknown invalid class");
-        break;
-    }
+  @Test
+  public void testGetAllClassesAndLatestApi() {
+    List<Arguments> allArguments = allClassesAndLatestApi().collect(Collectors.toList());
+
+    assertEquals(
+        new HashSet<Object>(Arrays.asList(PrecompiledClass.values())),
+        allArguments.stream().map(arg -> arg.get()[0]).collect(Collectors.toSet()));
+    assertEquals(
+        new HashSet<Object>(Arrays.asList(Api.ASM7)),
+        allArguments.stream().map(arg -> arg.get()[1]).collect(Collectors.toSet()));
   }
 }

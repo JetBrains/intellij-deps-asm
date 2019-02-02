@@ -33,28 +33,23 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import org.junit.jupiter.api.Test;
 
 /**
- * Label tests.
+ * Unit tests for {@link Label}.
  *
  * @author Eric Bruneton
  */
 public class LabelTest {
 
-  /** Tests that {@link Label#toString()} returns strings starting with "L". */
-  @Test
-  public void testToString() {
-    assertEquals('L', new Label().toString().charAt(0));
-  }
-
   /** Tests that {@link Label#getOffset()} returns a correct offset after the label is visited. */
   @Test
   public void testGetOffset() {
-    Label label = new Label();
-    ClassWriter classWriter = new ClassWriter(0);
     MethodVisitor methodVisitor =
-        classWriter.visitMethod(Opcodes.ACC_PUBLIC, "m", "()V", null, null);
+        new ClassWriter(0).visitMethod(Opcodes.ACC_PUBLIC, "m", "()V", null, null);
     methodVisitor.visitCode();
     methodVisitor.visitVarInsn(Opcodes.ALOAD, 0);
+    Label label = new Label();
+
     methodVisitor.visitLabel(label);
+
     assertEquals(1, label.getOffset());
   }
 
@@ -62,5 +57,11 @@ public class LabelTest {
   @Test
   public void testGetOffset_illegalState() {
     assertThrows(RuntimeException.class, () -> new Label().getOffset());
+  }
+
+  /** Tests that {@link Label#toString()} returns strings starting with "L". */
+  @Test
+  public void testToString() {
+    assertEquals('L', new Label().toString().charAt(0));
   }
 }

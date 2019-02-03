@@ -28,6 +28,7 @@
 package org.objectweb.asm.util;
 
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -46,6 +47,11 @@ import org.objectweb.asm.TypePath;
  */
 // DontCheck(AbbreviationAsWordInName): can't be renamed (for backward binary compatibility).
 public class ASMifier extends Printer {
+
+  /** The help message shown when command line arguments are incorrect. */
+  private static final String USAGE =
+      "Prints the ASM code to generate the given class.\n"
+          + "Usage: ASMifier [-debug] <fully qualified class name or class file name>";
 
   /** A pseudo access flag used to distinguish class access flags. */
   private static final int ACCESS_CLASS = 0x40000;
@@ -131,10 +137,22 @@ public class ASMifier extends Printer {
    * @throws IOException if the class cannot be found, or if an IOException occurs.
    */
   public static void main(final String[] args) throws IOException {
-    String usage =
-        "Prints the ASM code to generate the given class.\n"
-            + "Usage: ASMifier [-debug] <fully qualified class name or class file name>";
-    main(usage, new ASMifier(), args);
+    main(args, new PrintWriter(System.out, true), new PrintWriter(System.err, true));
+  }
+
+  /**
+   * Prints the ASM source code to generate the given class to the given output.
+   *
+   * <p>Usage: ASMifier [-debug] &lt;binary class name or class file name&gt;
+   *
+   * @param args the command line arguments.
+   * @param output where to print the result.
+   * @param logger where to log errors.
+   * @throws IOException if the class cannot be found, or if an IOException occurs.
+   */
+  static void main(final String[] args, final PrintWriter output, final PrintWriter logger)
+      throws IOException {
+    main(args, USAGE, new ASMifier(), output, logger);
   }
 
   // -----------------------------------------------------------------------------------------------

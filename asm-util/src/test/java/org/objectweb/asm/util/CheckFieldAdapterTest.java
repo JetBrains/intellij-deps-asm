@@ -27,6 +27,7 @@
 // THE POSSIBILITY OF SUCH DAMAGE.
 package org.objectweb.asm.util;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import org.junit.jupiter.api.Test;
@@ -35,27 +36,22 @@ import org.objectweb.asm.TypeReference;
 import org.objectweb.asm.test.AsmTest;
 
 /**
- * CheckFieldAdapter tests.
+ * Unit tests for {@link CheckFieldAdapter}.
  *
  * @author Eric Bruneton
  */
 public class CheckFieldAdapterTest extends AsmTest implements Opcodes {
 
-  private CheckFieldAdapter checkFieldAdapter = new CheckFieldAdapter(null);
-
   @Test
   public void testConstructor() {
+    assertDoesNotThrow(() -> new CheckFieldAdapter(null));
     assertThrows(IllegalStateException.class, () -> new CheckFieldAdapter(null) {});
   }
 
   @Test
-  public void testIllegalFieldMemberVisitAfterEnd() {
-    checkFieldAdapter.visitEnd();
-    assertThrows(Exception.class, () -> checkFieldAdapter.visitAttribute(new Comment()));
-  }
+  public void testVisitTypeAnnotation_illegalTypeAnnotation() {
+    CheckFieldAdapter checkFieldAdapter = new CheckFieldAdapter(null);
 
-  @Test
-  public void testIllegalTypeAnnotation() {
     assertThrows(
         Exception.class,
         () ->
@@ -64,7 +60,16 @@ public class CheckFieldAdapterTest extends AsmTest implements Opcodes {
   }
 
   @Test
-  public void testIllegalFieldAttribute() {
+  public void testVisitAttribute_illegalAttribute() {
+    CheckFieldAdapter checkFieldAdapter = new CheckFieldAdapter(null);
     assertThrows(Exception.class, () -> checkFieldAdapter.visitAttribute(null));
+  }
+
+  @Test
+  public void testVisitAttribute_afterEnd() {
+    CheckFieldAdapter checkFieldAdapter = new CheckFieldAdapter(null);
+    checkFieldAdapter.visitEnd();
+
+    assertThrows(Exception.class, () -> checkFieldAdapter.visitAttribute(new Comment()));
   }
 }

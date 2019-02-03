@@ -171,7 +171,7 @@ public class CheckSignatureAdapter extends SignatureVisitor {
   @Override
   public SignatureVisitor visitInterfaceBound() {
     if (type == TYPE_SIGNATURE || !VISIT_INTERFACE_BOUND_STATES.contains(state)) {
-      throw new IllegalArgumentException();
+      throw new IllegalStateException();
     }
     return new CheckSignatureAdapter(
         TYPE_SIGNATURE, signatureVisitor == null ? null : signatureVisitor.visitInterfaceBound());
@@ -182,7 +182,7 @@ public class CheckSignatureAdapter extends SignatureVisitor {
   @Override
   public SignatureVisitor visitSuperclass() {
     if (type != CLASS_SIGNATURE || !VISIT_SUPER_CLASS_STATES.contains(state)) {
-      throw new IllegalArgumentException();
+      throw new IllegalStateException();
     }
     state = State.SUPER;
     return new CheckSignatureAdapter(
@@ -203,7 +203,7 @@ public class CheckSignatureAdapter extends SignatureVisitor {
   @Override
   public SignatureVisitor visitParameterType() {
     if (type != METHOD_SIGNATURE || !VISIT_PARAMETER_TYPE_STATES.contains(state)) {
-      throw new IllegalArgumentException();
+      throw new IllegalStateException();
     }
     state = State.PARAM;
     return new CheckSignatureAdapter(
@@ -213,7 +213,7 @@ public class CheckSignatureAdapter extends SignatureVisitor {
   @Override
   public SignatureVisitor visitReturnType() {
     if (type != METHOD_SIGNATURE || !VISIT_RETURN_TYPE_STATES.contains(state)) {
-      throw new IllegalArgumentException();
+      throw new IllegalStateException();
     }
     state = State.RETURN;
     CheckSignatureAdapter checkSignatureAdapter =

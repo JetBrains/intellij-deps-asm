@@ -109,6 +109,11 @@ import org.objectweb.asm.tree.analysis.SimpleVerifier;
  */
 public class CheckClassAdapter extends ClassVisitor {
 
+  /** The help message shown when command line arguments are incorrect. */
+  private static final String USAGE =
+      "Verifies the given class.\n"
+          + "Usage: CheckClassAdapter <fully qualified class name or class file name>";
+
   private static final String ERROR_AT = ": error at index ";
 
   /** Whether the bytecode must be checked with a BasicVerifier. */
@@ -948,10 +953,19 @@ public class CheckClassAdapter extends ClassVisitor {
    * @throws IOException if the class cannot be found, or if an IO exception occurs.
    */
   public static void main(final String[] args) throws IOException {
+    main(args, new PrintWriter(System.err, true));
+  }
+
+  /**
+   * Checks the given class.
+   *
+   * @param args the command line arguments.
+   * @param logger where to log errors.
+   * @throws IOException if the class cannot be found, or if an IO exception occurs.
+   */
+  static void main(final String[] args, final PrintWriter logger) throws IOException {
     if (args.length != 1) {
-      System.err.println(
-          "Verifies the given class.\n"
-              + "Usage: CheckClassAdapter <fully qualified class name or class file name>");
+      logger.println(USAGE);
       return;
     }
 
@@ -964,7 +978,7 @@ public class CheckClassAdapter extends ClassVisitor {
       classReader = new ClassReader(args[0]);
     }
 
-    verify(classReader, false, new PrintWriter(System.err));
+    verify(classReader, false, logger);
   }
 
   /**

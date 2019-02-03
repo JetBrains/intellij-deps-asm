@@ -35,35 +35,47 @@ import org.objectweb.asm.Type;
 import org.objectweb.asm.test.AsmTest;
 
 /**
- * CheckAnnotationAdapter tests.
+ * Unit tests for {@link CheckAnnotationAdapter}.
  *
  * @author Eric Bruneton
  */
 public class CheckAnnotationAdapterTest extends AsmTest implements Opcodes {
 
-  private CheckAnnotationAdapter checkAnnotationAdapter = new CheckAnnotationAdapter(null);
-
   @Test
-  public void testIllegalAnnotationName() {
+  public void testVisit_illegalAnnotationName() {
+    CheckAnnotationAdapter checkAnnotationAdapter = new CheckAnnotationAdapter(null);
+
     assertThrows(Exception.class, () -> checkAnnotationAdapter.visit(null, Integer.valueOf(0)));
   }
 
   @Test
-  public void testIllegalAnnotationValue() {
+  public void testVisit_illegalAnnotationValue1() {
+    CheckAnnotationAdapter checkAnnotationAdapter = new CheckAnnotationAdapter(null);
+
     assertThrows(Exception.class, () -> checkAnnotationAdapter.visit("name", new Object()));
+  }
+
+  @Test
+  public void testVisit_illegalAnnotationValue2() {
+    CheckAnnotationAdapter checkAnnotationAdapter = new CheckAnnotationAdapter(null);
+
     assertThrows(
         Exception.class, () -> checkAnnotationAdapter.visit("name", Type.getMethodType("()V")));
   }
 
   @Test
-  public void testIllegalAnnotationEnumValue() {
-    assertThrows(
-        Exception.class, () -> checkAnnotationAdapter.visitEnum("name", "Lpkg/Enum;", null));
+  public void testVisit_afterEnd() {
+    CheckAnnotationAdapter checkAnnotationAdapter = new CheckAnnotationAdapter(null);
+    checkAnnotationAdapter.visitEnd();
+
+    assertThrows(Exception.class, () -> checkAnnotationAdapter.visit("name", Integer.valueOf(0)));
   }
 
   @Test
-  public void testIllegalAnnotationValueAfterEnd() {
-    checkAnnotationAdapter.visitEnd();
-    assertThrows(Exception.class, () -> checkAnnotationAdapter.visit("name", Integer.valueOf(0)));
+  public void testVisitEnum_illegalAnnotationEnumValue() {
+    CheckAnnotationAdapter checkAnnotationAdapter = new CheckAnnotationAdapter(null);
+
+    assertThrows(
+        Exception.class, () -> checkAnnotationAdapter.visitEnum("name", "Lpkg/Enum;", null));
   }
 }

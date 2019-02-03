@@ -205,7 +205,7 @@ public class CheckModuleAdapter extends ModuleVisitor {
 
     void checkNameNotAlreadyDeclared(final String name) {
       if (!names.add(name)) {
-        throw new IllegalArgumentException(type + " " + name + " already declared");
+        throw new IllegalArgumentException(type + " '" + name + "' already declared");
       }
     }
   }

@@ -1213,24 +1213,30 @@ public abstract class Printer {
   }
 
   /**
-   * Prints a the given class to the standard output.
+   * Prints a the given class to the given output.
    *
    * <p>Command line arguments: [-debug] &lt;binary class name or class file name &gt;
    *
+   * @param args the command line arguments.
    * @param usage the help message to show when command line arguments are incorrect.
    * @param printer the printer to convert the class into text.
-   * @param args the command line arguments.
+   * @param output where to print the result.
+   * @param logger where to log errors.
    * @throws IOException if the class cannot be found, or if an IOException occurs.
    */
-  static void main(final String usage, final Printer printer, final String[] args)
+  static void main(
+      final String[] args,
+      final String usage,
+      final Printer printer,
+      final PrintWriter output,
+      final PrintWriter logger)
       throws IOException {
     if (args.length < 1 || args.length > 2 || (args[0].equals("-debug") && args.length != 2)) {
-      System.err.println(usage);
+      logger.println(usage);
       return;
     }
 
-    TraceClassVisitor traceClassVisitor =
-        new TraceClassVisitor(null, printer, new PrintWriter(System.out));
+    TraceClassVisitor traceClassVisitor = new TraceClassVisitor(null, printer, output);
 
     String className;
     int parsingOptions;

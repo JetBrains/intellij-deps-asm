@@ -28,7 +28,9 @@
 package org.objectweb.asm.util;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.util.concurrent.atomic.AtomicBoolean;
 import org.junit.jupiter.api.Test;
 import org.objectweb.asm.Attribute;
 import org.objectweb.asm.Handle;
@@ -36,88 +38,157 @@ import org.objectweb.asm.Label;
 import org.objectweb.asm.Opcodes;
 
 /**
- * Printer tests.
+ * Unit tests for {@link Printer}.
  *
  * @author Eric Bruneton
  */
 public class PrinterTest {
 
   @Test
-  @SuppressWarnings("deprecation")
-  public void testDeprecatedUnsupportedOperations() {
-    Printer printer = new StubPrinter(Opcodes.ASM7);
-    assertThrows(
-        UnsupportedOperationException.class,
-        () -> printer.visitMethodInsn(Opcodes.INVOKESPECIAL, "owner", "name", "()V"));
+  public void testVisitModule_unsupportedByDefault() {
+    Printer printer = new EmptyPrinter(Opcodes.ASM7);
+
+    assertThrows(UnsupportedOperationException.class, () -> printer.visitModule(null, 0, null));
   }
 
   @Test
-  public void testUnsupportedOperations() {
-    Printer printer = new StubPrinter(Opcodes.ASM7);
-    assertThrows(UnsupportedOperationException.class, () -> printer.visitModule(null, 0, null));
-    assertThrows(UnsupportedOperationException.class, () -> printer.visitModule(null, 0, null));
+  public void testVisitNestHost_unsupportedByDefault() {
+    Printer printer = new EmptyPrinter(Opcodes.ASM7);
+
+    assertThrows(UnsupportedOperationException.class, () -> printer.visitNestHost(null));
+  }
+
+  @Test
+  public void testVisitClassTypeAnnotation_unsupportedByDefault() {
+    Printer printer = new EmptyPrinter(Opcodes.ASM7);
+
     assertThrows(
         UnsupportedOperationException.class,
         () -> printer.visitClassTypeAnnotation(0, null, null, false));
+  }
+
+  @Test
+  public void testVisitNestMember_unsupportedByDefault() {
+    Printer printer = new EmptyPrinter(Opcodes.ASM7);
+
+    assertThrows(UnsupportedOperationException.class, () -> printer.visitNestMember(null));
+  }
+
+  @Test
+  public void testVisitMainClass_unsupportedByDefault() {
+    Printer printer = new EmptyPrinter(Opcodes.ASM7);
+
     assertThrows(UnsupportedOperationException.class, () -> printer.visitMainClass(null));
+  }
+
+  @Test
+  public void testVisitPackage_unsupportedByDefault() {
+    Printer printer = new EmptyPrinter(Opcodes.ASM7);
+
     assertThrows(UnsupportedOperationException.class, () -> printer.visitPackage(null));
+  }
+
+  @Test
+  public void testVisitRequire_unsupportedByDefault() {
+    Printer printer = new EmptyPrinter(Opcodes.ASM7);
+
     assertThrows(UnsupportedOperationException.class, () -> printer.visitRequire(null, 0, null));
+  }
+
+  @Test
+  public void testVisitExport_unsupportedByDefault() {
+    Printer printer = new EmptyPrinter(Opcodes.ASM7);
+
     assertThrows(UnsupportedOperationException.class, () -> printer.visitExport(null, 0));
+  }
+
+  @Test
+  public void testVisitOpen_unsupportedByDefault() {
+    Printer printer = new EmptyPrinter(Opcodes.ASM7);
+
     assertThrows(UnsupportedOperationException.class, () -> printer.visitOpen(null, 0));
+  }
+
+  @Test
+  public void testVisitUse_unsupportedByDefault() {
+    Printer printer = new EmptyPrinter(Opcodes.ASM7);
+
     assertThrows(UnsupportedOperationException.class, () -> printer.visitUse(null));
+  }
+
+  @Test
+  public void testVisitProvide_unsupportedByDefault() {
+    Printer printer = new EmptyPrinter(Opcodes.ASM7);
+
     assertThrows(UnsupportedOperationException.class, () -> printer.visitProvide(null));
+  }
+
+  @Test
+  public void testVisitModuleEnd_unsupportedByDefault() {
+    Printer printer = new EmptyPrinter(Opcodes.ASM7);
+
     assertThrows(UnsupportedOperationException.class, () -> printer.visitModuleEnd());
+  }
+
+  @Test
+  public void testVisitFieldTypeAnnotation_unsupportedByDefault() {
+    Printer printer = new EmptyPrinter(Opcodes.ASM7);
+
     assertThrows(
         UnsupportedOperationException.class,
         () -> printer.visitFieldTypeAnnotation(0, null, null, false));
+  }
+
+  @Test
+  public void testVisitParameter_unsupportedByDefault() {
+    Printer printer = new EmptyPrinter(Opcodes.ASM7);
+
     assertThrows(UnsupportedOperationException.class, () -> printer.visitParameter(null, 0));
+  }
+
+  @Test
+  public void testVisitMethodTypeAnnotation_unsupportedByDefault() {
+    Printer printer = new EmptyPrinter(Opcodes.ASM7);
+
     assertThrows(
         UnsupportedOperationException.class,
         () -> printer.visitMethodTypeAnnotation(0, null, null, false));
+  }
+
+  @Test
+  public void testVisitAnnotableParameterCount_unsupportedByDefault() {
+    Printer printer = new EmptyPrinter(Opcodes.ASM7);
+
     assertThrows(
         UnsupportedOperationException.class, () -> printer.visitAnnotableParameterCount(0, false));
-    assertThrows(
-        UnsupportedOperationException.class,
-        () -> printer.visitInsnAnnotation(0, null, null, false));
-    assertThrows(
-        UnsupportedOperationException.class,
-        () -> printer.visitTryCatchAnnotation(0, null, null, false));
-    assertThrows(
-        UnsupportedOperationException.class,
-        () -> printer.visitLocalVariableAnnotation(0, null, null, null, null, null, false));
-    assertThrows(
-        UnsupportedOperationException.class,
-        () -> printer.visitMethodInsn(Opcodes.INVOKESPECIAL, "owner", "name", "()V", false));
-    assertThrows(
-        UnsupportedOperationException.class,
-        () -> printer.visitMethodInsn(Opcodes.INVOKESPECIAL, "owner", "name", "()V", true));
   }
 
   @Test
   @SuppressWarnings("deprecation")
-  public void testDeprecatedUnsupportedOperationsAsm4() {
-    Printer printer = new StubPrinter(Opcodes.ASM4);
+  public void testDeprecatedVisitMethodInsn_asm4_unsupportedByDefault() {
+    Printer printer = new EmptyPrinter(Opcodes.ASM4);
+
     assertThrows(
         UnsupportedOperationException.class,
         () -> printer.visitMethodInsn(Opcodes.INVOKESPECIAL, "owner", "name", "()V"));
   }
 
   @Test
-  public void testUnsupportedOperationsAsm4() {
-    Printer printer = new StubPrinter(Opcodes.ASM4);
+  @SuppressWarnings("deprecation")
+  public void testDeprecatedVisitMethodInsn_asm5_unsupportedByDefault() {
+    Printer printer = new EmptyPrinter(Opcodes.ASM5);
+
     assertThrows(
         UnsupportedOperationException.class,
-        () -> printer.visitMethodInsn(Opcodes.INVOKESPECIAL, "owner", "name", "()V", false));
-    assertThrows(
-        IllegalArgumentException.class,
-        () -> printer.visitMethodInsn(Opcodes.INVOKESPECIAL, "owner", "name", "()V", true));
+        () -> printer.visitMethodInsn(Opcodes.INVOKESPECIAL, "owner", "name", "()V"));
   }
 
   @Test
   @SuppressWarnings("deprecation")
-  public void testDeprecatedVisitMethodInsn() {
+  public void testDeprecatedVisitMethodInsn_asm5_callsNewMethodIfOverridden() {
+    AtomicBoolean visitMethodInsnCalled = new AtomicBoolean();
     Printer printer =
-        new StubPrinter(Opcodes.ASM5) {
+        new EmptyPrinter(Opcodes.ASM5) {
           @Override
           public void visitMethodInsn(
               final int opcode,
@@ -125,29 +196,99 @@ public class PrinterTest {
               final String name,
               final String descriptor,
               final boolean isInterface) {
-            // Do nothing.
+            visitMethodInsnCalled.set(true);
           }
         };
+
     printer.visitMethodInsn(Opcodes.INVOKESPECIAL, "owner", "name", "()V");
+
+    assertTrue(visitMethodInsnCalled.get());
   }
 
   @Test
-  public void testDeprecatedVisitMethodInsnAsm4() {
+  public void testVisitMethodInsn_asm4_unsupportedByDefault() {
+    Printer printer = new EmptyPrinter(Opcodes.ASM4);
+
+    assertThrows(
+        UnsupportedOperationException.class,
+        () -> printer.visitMethodInsn(Opcodes.INVOKESPECIAL, "owner", "name", "()V", false));
+  }
+
+  @Test
+  public void testVisitMethodInsn_asm4_callsNewMethodIfOverridden() {
+    AtomicBoolean deprecatedVisitMethodInsnCalled = new AtomicBoolean();
     Printer printer =
-        new StubPrinter(Opcodes.ASM4) {
+        new EmptyPrinter(Opcodes.ASM4) {
           @Override
           @Deprecated
           public void visitMethodInsn(
               final int opcode, final String owner, final String name, final String descriptor) {
-            // Do nothing.
+            deprecatedVisitMethodInsnCalled.set(true);
           }
         };
+
     printer.visitMethodInsn(Opcodes.INVOKESPECIAL, "owner", "name", "()V", false);
+
+    assertTrue(deprecatedVisitMethodInsnCalled.get());
   }
 
-  static class StubPrinter extends Printer {
+  @Test
+  public void testVisitMethodInsn_asm4_illegalArgument() {
+    Printer printer = new EmptyPrinter(Opcodes.ASM4);
 
-    StubPrinter(final int api) {
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> printer.visitMethodInsn(Opcodes.INVOKESPECIAL, "owner", "name", "()V", true));
+  }
+
+  @Test
+  public void testVisitMethodInsn_unsupportedByDefault() {
+    Printer printer = new EmptyPrinter(Opcodes.ASM7);
+
+    assertThrows(
+        UnsupportedOperationException.class,
+        () -> printer.visitMethodInsn(Opcodes.INVOKESPECIAL, "owner", "name", "()V", false));
+  }
+
+  @Test
+  public void testVisitMethodInsn_ifItf_unsupportedByDefault() {
+    Printer printer = new EmptyPrinter(Opcodes.ASM7);
+
+    assertThrows(
+        UnsupportedOperationException.class,
+        () -> printer.visitMethodInsn(Opcodes.INVOKESPECIAL, "owner", "name", "()V", true));
+  }
+
+  @Test
+  public void testVisitInsnAnnotation_unsupportedByDefault() {
+    Printer printer = new EmptyPrinter(Opcodes.ASM7);
+
+    assertThrows(
+        UnsupportedOperationException.class,
+        () -> printer.visitInsnAnnotation(0, null, null, false));
+  }
+
+  @Test
+  public void testVisitTryCatchAnnotation_unsupportedByDefault() {
+    Printer printer = new EmptyPrinter(Opcodes.ASM7);
+
+    assertThrows(
+        UnsupportedOperationException.class,
+        () -> printer.visitTryCatchAnnotation(0, null, null, false));
+  }
+
+  @Test
+  public void testVisitLocalVariableAnnotation_unsupportedByDefault() {
+    Printer printer = new EmptyPrinter(Opcodes.ASM7);
+
+    assertThrows(
+        UnsupportedOperationException.class,
+        () -> printer.visitLocalVariableAnnotation(0, null, null, null, null, null, false));
+  }
+
+  static class EmptyPrinter extends Printer {
+
+    EmptyPrinter(final int api) {
       super(api);
     }
 

@@ -161,25 +161,6 @@ public final class TraceMethodVisitor extends MethodVisitor {
     super.visitFieldInsn(opcode, owner, name, descriptor);
   }
 
-  /**
-   * Deprecated.
-   *
-   * @deprecated use {@link #visitMethodInsn(int, String, String, String, boolean)} instead.
-   */
-  @Deprecated
-  @Override
-  public void visitMethodInsn(
-      final int opcode, final String owner, final String name, final String descriptor) {
-    if (api >= Opcodes.ASM5) {
-      super.visitMethodInsn(opcode, owner, name, descriptor);
-      return;
-    }
-    p.visitMethodInsn(opcode, owner, name, descriptor);
-    if (mv != null) {
-      mv.visitMethodInsn(opcode, owner, name, descriptor);
-    }
-  }
-
   @Override
   public void visitMethodInsn(
       final int opcode,
@@ -187,10 +168,6 @@ public final class TraceMethodVisitor extends MethodVisitor {
       final String name,
       final String descriptor,
       final boolean isInterface) {
-    if (api < Opcodes.ASM5) {
-      super.visitMethodInsn(opcode, owner, name, descriptor, isInterface);
-      return;
-    }
     p.visitMethodInsn(opcode, owner, name, descriptor, isInterface);
     if (mv != null) {
       mv.visitMethodInsn(opcode, owner, name, descriptor, isInterface);

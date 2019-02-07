@@ -79,7 +79,7 @@ public abstract class MethodVisitor {
    */
   public MethodVisitor(final int api, final MethodVisitor methodVisitor) {
     if (api != Opcodes.ASM7 && api != Opcodes.ASM6 && api != Opcodes.ASM5 && api != Opcodes.ASM4) {
-      throw new IllegalArgumentException();
+      throw new IllegalArgumentException("Unsupported api " + api);
     }
     this.api = api;
     this.mv = methodVisitor;
@@ -424,7 +424,7 @@ public abstract class MethodVisitor {
       final boolean isInterface) {
     if (api < Opcodes.ASM5) {
       if (isInterface != (opcode == Opcodes.INVOKEINTERFACE)) {
-        throw new IllegalArgumentException("INVOKESPECIAL/STATIC on interfaces requires ASM5");
+        throw new UnsupportedOperationException("INVOKESPECIAL/STATIC on interfaces requires ASM5");
       }
       visitMethodInsn(opcode, owner, name, descriptor);
       return;

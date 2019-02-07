@@ -228,7 +228,10 @@ public class ClassReaderTest extends AsmTest implements Opcodes {
 
   @Test
   public void testStreamConstructor_nullStream() {
-    assertThrows(IOException.class, () -> new ClassReader((InputStream) null));
+    Executable constructor = () -> new ClassReader((InputStream) null);
+
+    Exception exception = assertThrows(IOException.class, constructor);
+    assertEquals("Class not found", exception.getMessage());
   }
 
   /** Tests {@link ClassReader#ClassReader(java.io.InputStream)} with an empty stream. */
@@ -251,7 +254,8 @@ public class ClassReaderTest extends AsmTest implements Opcodes {
     Executable streamConstructor = () -> new ClassReader(inputStream);
 
     assertTimeoutPreemptively(
-        Duration.ofMillis(100), () -> assertThrows(RuntimeException.class, streamConstructor));
+        Duration.ofMillis(100),
+        () -> assertThrows(ArrayIndexOutOfBoundsException.class, streamConstructor));
   }
 
   /** Tests the ClassReader accept method with an empty visitor. */
@@ -265,7 +269,8 @@ public class ClassReaderTest extends AsmTest implements Opcodes {
     Executable accept = () -> classReader.accept(classVisitor, 0);
 
     if (classParameter.isMoreRecentThan(apiParameter)) {
-      assertThrows(RuntimeException.class, accept);
+      Exception exception = assertThrows(UnsupportedOperationException.class, accept);
+      assertTrue(exception.getMessage().matches(UNSUPPORTED_OPERATION_MESSAGE_PATTERN));
     } else {
       assertDoesNotThrow(accept);
     }
@@ -282,7 +287,8 @@ public class ClassReaderTest extends AsmTest implements Opcodes {
     Executable accept = () -> classReader.accept(classVisitor, ClassReader.SKIP_DEBUG);
 
     if (classParameter.isMoreRecentThan(apiParameter)) {
-      assertThrows(RuntimeException.class, accept);
+      Exception exception = assertThrows(UnsupportedOperationException.class, accept);
+      assertTrue(exception.getMessage().matches(UNSUPPORTED_OPERATION_MESSAGE_PATTERN));
     } else {
       assertDoesNotThrow(accept);
     }
@@ -299,7 +305,8 @@ public class ClassReaderTest extends AsmTest implements Opcodes {
     Executable accept = () -> classReader.accept(classVisitor, ClassReader.EXPAND_FRAMES);
 
     if (classParameter.isMoreRecentThan(apiParameter)) {
-      assertThrows(RuntimeException.class, accept);
+      Exception exception = assertThrows(UnsupportedOperationException.class, accept);
+      assertTrue(exception.getMessage().matches(UNSUPPORTED_OPERATION_MESSAGE_PATTERN));
     } else {
       assertDoesNotThrow(accept);
     }
@@ -316,7 +323,8 @@ public class ClassReaderTest extends AsmTest implements Opcodes {
     Executable accept = () -> classReader.accept(classVisitor, ClassReader.SKIP_FRAMES);
 
     if (classParameter.isMoreRecentThan(apiParameter)) {
-      assertThrows(RuntimeException.class, accept);
+      Exception exception = assertThrows(UnsupportedOperationException.class, accept);
+      assertTrue(exception.getMessage().matches(UNSUPPORTED_OPERATION_MESSAGE_PATTERN));
     } else {
       assertDoesNotThrow(accept);
     }
@@ -338,7 +346,8 @@ public class ClassReaderTest extends AsmTest implements Opcodes {
     if (classParameter.isMoreRecentThan(apiParameter)
         && classParameter != PrecompiledClass.JDK8_ARTIFICIAL_STRUCTURES
         && classParameter != PrecompiledClass.JDK11_ALL_INSTRUCTIONS) {
-      assertThrows(RuntimeException.class, accept);
+      Exception exception = assertThrows(UnsupportedOperationException.class, accept);
+      assertTrue(exception.getMessage().matches(UNSUPPORTED_OPERATION_MESSAGE_PATTERN));
     } else {
       assertDoesNotThrow(accept);
     }
@@ -408,7 +417,8 @@ public class ClassReaderTest extends AsmTest implements Opcodes {
     if (invalidClass == InvalidClass.INVALID_CONSTANT_POOL_INDEX
         || invalidClass == InvalidClass.INVALID_CONSTANT_POOL_REFERENCE
         || invalidClass == InvalidClass.INVALID_BYTECODE_OFFSET) {
-      assertThrows(ArrayIndexOutOfBoundsException.class, accept);
+      Exception exception = assertThrows(ArrayIndexOutOfBoundsException.class, accept);
+      assertTrue(Integer.valueOf(exception.getMessage()) > 0);
     } else {
       assertThrows(IllegalArgumentException.class, accept);
     }
@@ -432,7 +442,8 @@ public class ClassReaderTest extends AsmTest implements Opcodes {
     if ((hasNestHostOrMembers && apiParameter.value() < ASM7)
         || (hasModules && apiParameter.value() < ASM6)
         || (hasTypeAnnotations && apiParameter.value() < ASM5)) {
-      assertThrows(RuntimeException.class, accept);
+      Exception exception = assertThrows(UnsupportedOperationException.class, accept);
+      assertTrue(exception.getMessage().matches(UNSUPPORTED_OPERATION_MESSAGE_PATTERN));
     } else {
       assertDoesNotThrow(accept);
     }
@@ -466,6 +477,7 @@ public class ClassReaderTest extends AsmTest implements Opcodes {
           @Override
           public ModuleVisitor visitModule(
               final String name, final int access, final String version) {
+            super.visitModule(name, access, version);
             return new ModuleVisitor(api) {};
           }
 
@@ -493,7 +505,8 @@ public class ClassReaderTest extends AsmTest implements Opcodes {
     Executable accept = () -> classReader.accept(classVisitor, 0);
 
     if (classParameter.isMoreRecentThan(apiParameter)) {
-      assertThrows(RuntimeException.class, accept);
+      Exception exception = assertThrows(UnsupportedOperationException.class, accept);
+      assertTrue(exception.getMessage().matches(UNSUPPORTED_OPERATION_MESSAGE_PATTERN));
     } else {
       assertDoesNotThrow(accept);
     }

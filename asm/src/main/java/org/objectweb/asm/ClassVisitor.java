@@ -67,7 +67,7 @@ public abstract class ClassVisitor {
    */
   public ClassVisitor(final int api, final ClassVisitor classVisitor) {
     if (api != Opcodes.ASM7 && api != Opcodes.ASM6 && api != Opcodes.ASM5 && api != Opcodes.ASM4) {
-      throw new IllegalArgumentException();
+      throw new IllegalArgumentException("Unsupported api " + api);
     }
     this.api = api;
     this.cv = classVisitor;

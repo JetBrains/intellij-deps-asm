@@ -136,8 +136,8 @@ public class ByteVectorTest {
     Executable putUtf8 = () -> byteVector.putUTF8(new String(charBuffer));
 
     if (size > 65535) {
-      IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, putUtf8);
-      assertEquals("UTF8 string too large", thrown.getMessage());
+      Exception exception = assertThrows(IllegalArgumentException.class, putUtf8);
+      assertEquals("UTF8 string too large", exception.getMessage());
     } else {
       assertDoesNotThrow(putUtf8);
     }
@@ -161,8 +161,8 @@ public class ByteVectorTest {
 
     Executable putUtf8 = () -> byteVector.putUTF8(new String(charBuffer));
 
-    IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, putUtf8);
-    assertEquals("UTF8 string too large", thrown.getMessage());
+    Exception exception = assertThrows(IllegalArgumentException.class, putUtf8);
+    assertEquals("UTF8 string too large", exception.getMessage());
   }
 
   @Test

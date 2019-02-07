@@ -131,7 +131,10 @@ public class ClassWriterTest extends AsmTest {
   public void testNewConst_illegalArgument() {
     ClassWriter classWriter = newEmptyClassWriter();
 
-    assertThrows(IllegalArgumentException.class, () -> classWriter.newConst(new Object()));
+    Executable newConst = () -> classWriter.newConst(new Object());
+
+    Exception exception = assertThrows(IllegalArgumentException.class, newConst);
+    assertTrue(exception.getMessage().matches("value java\\.lang\\.Object@.*"));
   }
 
   @Test
@@ -275,10 +278,10 @@ public class ClassWriterTest extends AsmTest {
     Executable toByteArray = () -> classWriter.toByteArray();
 
     if (constantPoolCount > 65535) {
-      ClassTooLargeException thrown = assertThrows(ClassTooLargeException.class, toByteArray);
-      assertEquals("C", thrown.getClassName());
-      assertEquals(constantPoolCount, thrown.getConstantPoolCount());
-      assertEquals("Class too large: C", thrown.getMessage());
+      ClassTooLargeException exception = assertThrows(ClassTooLargeException.class, toByteArray);
+      assertEquals("C", exception.getClassName());
+      assertEquals(constantPoolCount, exception.getConstantPoolCount());
+      assertEquals("Class too large: C", exception.getMessage());
     } else {
       assertDoesNotThrow(toByteArray);
     }
@@ -303,12 +306,12 @@ public class ClassWriterTest extends AsmTest {
     Executable toByteArray = () -> classWriter.toByteArray();
 
     if (methodCodeSize > 65535) {
-      MethodTooLargeException thrown = assertThrows(MethodTooLargeException.class, toByteArray);
-      assertEquals(methodName, thrown.getMethodName());
-      assertEquals("C", thrown.getClassName());
-      assertEquals(descriptor, thrown.getDescriptor());
-      assertEquals(methodCodeSize, thrown.getCodeSize());
-      assertEquals("Method too large: C.m ()V", thrown.getMessage());
+      MethodTooLargeException exception = assertThrows(MethodTooLargeException.class, toByteArray);
+      assertEquals(methodName, exception.getMethodName());
+      assertEquals("C", exception.getClassName());
+      assertEquals(descriptor, exception.getDescriptor());
+      assertEquals(methodCodeSize, exception.getCodeSize());
+      assertEquals("Method too large: C.m ()V", exception.getMessage());
     } else {
       assertDoesNotThrow(toByteArray);
     }
@@ -434,12 +437,16 @@ public class ClassWriterTest extends AsmTest {
         "java/lang/Throwable",
         classWriter.getCommonSuperClass(
             "java/lang/IndexOutOfBoundsException", "java/lang/AssertionError"));
-    assertThrows(
-        TypeNotPresentException.class,
-        () -> classWriter.getCommonSuperClass("-", "java/lang/Object"));
-    assertThrows(
-        TypeNotPresentException.class,
-        () -> classWriter.getCommonSuperClass("java/lang/Object", "-"));
+    Exception exception =
+        assertThrows(
+            TypeNotPresentException.class,
+            () -> classWriter.getCommonSuperClass("-", "java/lang/Object"));
+    assertEquals("Type - not present", exception.getMessage());
+    exception =
+        assertThrows(
+            TypeNotPresentException.class,
+            () -> classWriter.getCommonSuperClass("java/lang/Object", "-"));
+    assertEquals("Type - not present", exception.getMessage());
   }
 
   /** Tests that a ClassReader -> ClassWriter transform leaves classes unchanged. */
@@ -594,7 +601,8 @@ public class ClassWriterTest extends AsmTest {
 
     Executable accept = () -> classReader.accept(classWriter, attributes(), 0);
 
-    assertThrows(RuntimeException.class, accept);
+    Exception exception = assertThrows(IllegalArgumentException.class, accept);
+    assertEquals("JSR/RET are not supported with computeFrames option", exception.getMessage());
   }
 
   /**

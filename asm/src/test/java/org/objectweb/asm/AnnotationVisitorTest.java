@@ -30,6 +30,7 @@ package org.objectweb.asm;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.Executable;
@@ -46,10 +47,18 @@ import org.objectweb.asm.test.ClassFile;
 public class AnnotationVisitorTest extends AsmTest {
 
   @Test
-  public void testConstructor() {
-    assertDoesNotThrow(() -> new AnnotationVisitor(Opcodes.ASM4) {});
-    assertThrows(IllegalArgumentException.class, () -> new AnnotationVisitor(0) {});
-    assertThrows(IllegalArgumentException.class, () -> new AnnotationVisitor(Integer.MAX_VALUE) {});
+  public void testConstructor_validApi() {
+    Executable constructor = () -> new AnnotationVisitor(Opcodes.ASM4) {};
+
+    assertDoesNotThrow(constructor);
+  }
+
+  @Test
+  public void testConstructor_invalidApi() {
+    Executable constructor = () -> new AnnotationVisitor(0) {};
+
+    Exception exception = assertThrows(IllegalArgumentException.class, constructor);
+    assertEquals("Unsupported api 0", exception.getMessage());
   }
 
   /**
@@ -72,8 +81,12 @@ public class AnnotationVisitorTest extends AsmTest {
     Executable deleteAnnotations = () -> classReader.accept(deleteAnnotationsAdapter, 0);
 
     if (classParameter.isMoreRecentThan(apiParameter)) {
-      assertThrows(RuntimeException.class, removeAnnotations);
-      assertThrows(RuntimeException.class, deleteAnnotations);
+      Exception removeException =
+          assertThrows(UnsupportedOperationException.class, removeAnnotations);
+      Exception deleteException =
+          assertThrows(UnsupportedOperationException.class, deleteAnnotations);
+      assertTrue(removeException.getMessage().matches(UNSUPPORTED_OPERATION_MESSAGE_PATTERN));
+      assertTrue(deleteException.getMessage().matches(UNSUPPORTED_OPERATION_MESSAGE_PATTERN));
     } else {
       assertDoesNotThrow(removeAnnotations);
       assertDoesNotThrow(deleteAnnotations);

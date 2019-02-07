@@ -31,6 +31,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.function.Executable;
 
 /**
  * Unit tests for {@link Label}.
@@ -56,12 +57,17 @@ public class LabelTest {
   /** Tests that {@link Label#getOffset()} throws an exception before the label is visited. */
   @Test
   public void testGetOffset_illegalState() {
-    assertThrows(RuntimeException.class, () -> new Label().getOffset());
+    Executable getOffset = () -> new Label().getOffset();
+
+    Exception exception = assertThrows(IllegalStateException.class, getOffset);
+    assertEquals("Label offset position has not been resolved yet", exception.getMessage());
   }
 
   /** Tests that {@link Label#toString()} returns strings starting with "L". */
   @Test
   public void testToString() {
-    assertEquals('L', new Label().toString().charAt(0));
+    String string = new Label().toString();
+
+    assertEquals('L', string.charAt(0));
   }
 }

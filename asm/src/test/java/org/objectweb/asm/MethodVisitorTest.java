@@ -30,74 +30,109 @@ package org.objectweb.asm;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.Executable;
+import org.objectweb.asm.test.AsmTest;
 
 /**
  * Unit tests for {@link MethodVisitor}.
  *
  * @author Eric Bruneton
  */
-public class MethodVisitorTest {
+public class MethodVisitorTest extends AsmTest {
 
   @Test
-  public void testConstructor() {
-    assertDoesNotThrow(() -> new MethodVisitor(Opcodes.ASM4) {});
-    assertThrows(IllegalArgumentException.class, () -> new MethodVisitor(0) {});
-    assertThrows(IllegalArgumentException.class, () -> new MethodVisitor(Integer.MAX_VALUE) {});
+  public void testConstructor_validApi() {
+    Executable constructor = () -> new MethodVisitor(Opcodes.ASM4) {};
+
+    assertDoesNotThrow(constructor);
+  }
+
+  @Test
+  public void testConstructor_invalidApi() {
+    Executable constructor = () -> new MethodVisitor(0) {};
+
+    Exception exception = assertThrows(IllegalArgumentException.class, constructor);
+    assertEquals("Unsupported api 0", exception.getMessage());
   }
 
   @Test
   public void testVisitParameter_asm4Visitor() {
     MethodVisitor methodVisitor = new MethodVisitor(Opcodes.ASM4, null) {};
 
-    assertThrows(UnsupportedOperationException.class, () -> methodVisitor.visitParameter(null, 0));
+    Executable visitParameter = () -> methodVisitor.visitParameter(null, 0);
+
+    Exception exception = assertThrows(UnsupportedOperationException.class, visitParameter);
+    assertTrue(exception.getMessage().matches(UNSUPPORTED_OPERATION_MESSAGE_PATTERN));
   }
 
   @Test
   public void testVisitTypeAnnotation_asm4Visitor() {
     MethodVisitor methodVisitor = new MethodVisitor(Opcodes.ASM4, null) {};
 
-    assertThrows(
-        UnsupportedOperationException.class,
-        () -> methodVisitor.visitTypeAnnotation(0, null, null, false));
+    Executable visitTypeAnnotation = () -> methodVisitor.visitTypeAnnotation(0, null, null, false);
+
+    Exception exception = assertThrows(UnsupportedOperationException.class, visitTypeAnnotation);
+    assertTrue(exception.getMessage().matches(UNSUPPORTED_OPERATION_MESSAGE_PATTERN));
   }
 
   @Test
   public void testVisitInvokeDynamicInsn_asm4Visitor() {
     MethodVisitor methodVisitor = new MethodVisitor(Opcodes.ASM4, null) {};
 
-    assertThrows(
-        UnsupportedOperationException.class,
-        () -> methodVisitor.visitInvokeDynamicInsn(null, null, null));
+    Executable visitInvokeDynamicInsn =
+        () -> methodVisitor.visitInvokeDynamicInsn(null, null, null);
+
+    Exception exception = assertThrows(UnsupportedOperationException.class, visitInvokeDynamicInsn);
+    assertTrue(exception.getMessage().matches(UNSUPPORTED_OPERATION_MESSAGE_PATTERN));
   }
 
   @Test
   public void testVisitInsnAnnotation_asm4Visitor() {
     MethodVisitor methodVisitor = new MethodVisitor(Opcodes.ASM4, null) {};
 
-    assertThrows(
-        UnsupportedOperationException.class,
-        () -> methodVisitor.visitInsnAnnotation(0, null, null, false));
+    Executable visitInsnAnnotation = () -> methodVisitor.visitInsnAnnotation(0, null, null, false);
+
+    Exception exception = assertThrows(UnsupportedOperationException.class, visitInsnAnnotation);
+    assertTrue(exception.getMessage().matches(UNSUPPORTED_OPERATION_MESSAGE_PATTERN));
   }
 
   @Test
   public void testVisitTryCatchAnnotation_asm4Visitor() {
     MethodVisitor methodVisitor = new MethodVisitor(Opcodes.ASM4, null) {};
 
-    assertThrows(
-        UnsupportedOperationException.class,
-        () -> methodVisitor.visitTryCatchAnnotation(0, null, null, false));
+    Executable visitTryCatchAnnotation =
+        () -> methodVisitor.visitTryCatchAnnotation(0, null, null, false);
+
+    Exception exception =
+        assertThrows(UnsupportedOperationException.class, visitTryCatchAnnotation);
+    assertTrue(exception.getMessage().matches(UNSUPPORTED_OPERATION_MESSAGE_PATTERN));
   }
 
   @Test
   public void testVisitLocalVariableAnnotation_asm4Visitor() {
     MethodVisitor methodVisitor = new MethodVisitor(Opcodes.ASM4, null) {};
 
-    assertThrows(
-        UnsupportedOperationException.class,
-        () -> methodVisitor.visitLocalVariableAnnotation(0, null, null, null, null, null, false));
+    Executable visitLocalVariableAnnotation =
+        () -> methodVisitor.visitLocalVariableAnnotation(0, null, null, null, null, null, false);
+
+    Exception exception =
+        assertThrows(UnsupportedOperationException.class, visitLocalVariableAnnotation);
+    assertTrue(exception.getMessage().matches(UNSUPPORTED_OPERATION_MESSAGE_PATTERN));
+  }
+
+  @Test
+  public void testVisitFrame_consecutiveFrames_sameFrame() {
+    MethodVisitor methodVisitor =
+        new ClassWriter(0).visitMethod(Opcodes.ACC_STATIC, "m", "()V", null, null);
+    methodVisitor.visitCode();
+    methodVisitor.visitFrame(Opcodes.F_SAME, 0, null, 0, null);
+
+    Executable visitFrame = () -> methodVisitor.visitFrame(Opcodes.F_SAME, 0, null, 0, null);
+
+    assertDoesNotThrow(visitFrame);
   }
 
   @Test
@@ -107,11 +142,11 @@ public class MethodVisitorTest {
     methodVisitor.visitCode();
     methodVisitor.visitFrame(Opcodes.F_SAME, 0, null, 0, null);
 
-    assertDoesNotThrow(() -> methodVisitor.visitFrame(Opcodes.F_SAME, 0, null, 0, null));
-    assertThrows(
-        IllegalStateException.class,
+    Executable visitFrame =
         () ->
-            methodVisitor.visitFrame(Opcodes.F_APPEND, 1, new Object[] {Opcodes.INTEGER}, 0, null));
+            methodVisitor.visitFrame(Opcodes.F_APPEND, 1, new Object[] {Opcodes.INTEGER}, 0, null);
+
+    assertThrows(IllegalStateException.class, visitFrame);
   }
 
   /**
@@ -136,7 +171,8 @@ public class MethodVisitorTest {
 
     Executable visitMethodInsn5 = () -> methodVisitor.visitMethodInsn(0, "C", "m", "()V", true);
 
-    assertThrows(RuntimeException.class, visitMethodInsn5);
+    Exception exception = assertThrows(UnsupportedOperationException.class, visitMethodInsn5);
+    assertTrue(exception.getMessage().matches(UNSUPPORTED_OPERATION_MESSAGE_PATTERN));
   }
 
   /**
@@ -161,7 +197,8 @@ public class MethodVisitorTest {
 
     Executable visitMethodInsn5 = () -> methodVisitor.visitMethodInsn(0, "C", "m", "()V", true);
 
-    assertThrows(RuntimeException.class, visitMethodInsn5);
+    Exception exception = assertThrows(UnsupportedOperationException.class, visitMethodInsn5);
+    assertTrue(exception.getMessage().matches(UNSUPPORTED_OPERATION_MESSAGE_PATTERN));
   }
 
   /** Tests the ASM5 visitMethodInsn succeeds on an ASM5 visitor. */

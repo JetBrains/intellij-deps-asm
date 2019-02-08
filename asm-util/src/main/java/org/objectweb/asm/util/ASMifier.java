@@ -774,37 +774,8 @@ public class ASMifier extends Printer {
     text.add(stringBuilder.toString());
   }
 
-  /**
-   * Deprecated.
-   *
-   * @deprecated use {@link #visitMethodInsn(int, String, String, String, boolean)} instead.
-   */
-  @Deprecated
   @Override
   public void visitMethodInsn(
-      final int opcode, final String owner, final String name, final String descriptor) {
-    if (api >= Opcodes.ASM5) {
-      super.visitMethodInsn(opcode, owner, name, descriptor);
-      return;
-    }
-    doVisitMethodInsn(opcode, owner, name, descriptor, opcode == Opcodes.INVOKEINTERFACE);
-  }
-
-  @Override
-  public void visitMethodInsn(
-      final int opcode,
-      final String owner,
-      final String name,
-      final String descriptor,
-      final boolean isInterface) {
-    if (api < Opcodes.ASM5) {
-      super.visitMethodInsn(opcode, owner, name, descriptor, isInterface);
-      return;
-    }
-    doVisitMethodInsn(opcode, owner, name, descriptor, isInterface);
-  }
-
-  private void doVisitMethodInsn(
       final int opcode,
       final String owner,
       final String name,
@@ -1202,7 +1173,7 @@ public class ASMifier extends Printer {
   // DontCheck(AbbreviationAsWordInName): can't be renamed (for backward binary compatibility).
   protected ASMifier createASMifier(
       final String visitorVariableName, final int annotationVisitorId) {
-    return new ASMifier(Opcodes.ASM7, visitorVariableName, annotationVisitorId);
+    return new ASMifier(api, visitorVariableName, annotationVisitorId);
   }
 
   /**

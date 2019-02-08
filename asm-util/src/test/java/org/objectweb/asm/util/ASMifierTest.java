@@ -50,7 +50,6 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.objectweb.asm.Attribute;
 import org.objectweb.asm.ClassReader;
-import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.test.AsmTest;
 import org.objectweb.asm.test.ClassFile;
 
@@ -94,35 +93,6 @@ public class ASMifierTest extends AsmTest {
       System.setErr(err);
       System.setOut(out);
     }
-  }
-
-  @Test
-  @SuppressWarnings("deprecation")
-  public void testDeprecatedVisitMethodInsn() {
-    ASMifier asmifier = new ASMifier();
-    asmifier.visitMethodInsn(Opcodes.INVOKESPECIAL, "owner", "name", "()V");
-    assertEquals(
-        "classWriter.visitMethodInsn(INVOKESPECIAL, \"owner\", \"name\", \"()V\", false);\n",
-        asmifier.getText().get(0));
-  }
-
-  @Test
-  @SuppressWarnings("deprecation")
-  public void testDeprecatedVisitMethodInsnAsm4() {
-    ASMifier asmifier = new ASMifier(Opcodes.ASM4, "classWriter", 0) {};
-    asmifier.visitMethodInsn(Opcodes.INVOKESPECIAL, "owner", "name", "()V");
-    String expectedText =
-        "classWriter.visitMethodInsn(INVOKESPECIAL, \"owner\", \"name\", \"()V\", false);\n";
-    assertEquals(expectedText, asmifier.getText().get(0));
-  }
-
-  @Test
-  public void testVisitMethodInsnAsm4() {
-    ASMifier asmifier = new ASMifier(Opcodes.ASM4, "classWriter", 0) {};
-    asmifier.visitMethodInsn(Opcodes.INVOKESPECIAL, "owner", "name", "()V", false);
-    String expectedText =
-        "classWriter.visitMethodInsn(INVOKESPECIAL, \"owner\", \"name\", \"()V\", false);\n";
-    assertEquals(expectedText, asmifier.getText().get(0));
   }
 
   /**

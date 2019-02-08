@@ -93,58 +93,6 @@ public class PrinterTest {
         () -> printer.visitMethodInsn(Opcodes.INVOKESPECIAL, "owner", "name", "()V", true));
   }
 
-  @Test
-  @SuppressWarnings("deprecation")
-  public void testDeprecatedUnsupportedOperationsAsm4() {
-    Printer printer = new StubPrinter(Opcodes.ASM4);
-    assertThrows(
-        UnsupportedOperationException.class,
-        () -> printer.visitMethodInsn(Opcodes.INVOKESPECIAL, "owner", "name", "()V"));
-  }
-
-  @Test
-  public void testUnsupportedOperationsAsm4() {
-    Printer printer = new StubPrinter(Opcodes.ASM4);
-    assertThrows(
-        UnsupportedOperationException.class,
-        () -> printer.visitMethodInsn(Opcodes.INVOKESPECIAL, "owner", "name", "()V", false));
-    assertThrows(
-        IllegalArgumentException.class,
-        () -> printer.visitMethodInsn(Opcodes.INVOKESPECIAL, "owner", "name", "()V", true));
-  }
-
-  @Test
-  @SuppressWarnings("deprecation")
-  public void testDeprecatedVisitMethodInsn() {
-    Printer printer =
-        new StubPrinter(Opcodes.ASM5) {
-          @Override
-          public void visitMethodInsn(
-              final int opcode,
-              final String owner,
-              final String name,
-              final String descriptor,
-              final boolean isInterface) {
-            // Do nothing.
-          }
-        };
-    printer.visitMethodInsn(Opcodes.INVOKESPECIAL, "owner", "name", "()V");
-  }
-
-  @Test
-  public void testDeprecatedVisitMethodInsnAsm4() {
-    Printer printer =
-        new StubPrinter(Opcodes.ASM4) {
-          @Override
-          @Deprecated
-          public void visitMethodInsn(
-              final int opcode, final String owner, final String name, final String descriptor) {
-            // Do nothing.
-          }
-        };
-    printer.visitMethodInsn(Opcodes.INVOKESPECIAL, "owner", "name", "()V", false);
-  }
-
   static class StubPrinter extends Printer {
 
     StubPrinter(final int api) {

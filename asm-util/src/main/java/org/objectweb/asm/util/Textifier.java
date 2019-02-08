@@ -873,37 +873,8 @@ public class Textifier extends Printer {
     text.add(stringBuilder.toString());
   }
 
-  /**
-   * Deprecated.
-   *
-   * @deprecated use {@link #visitMethodInsn(int, String, String, String, boolean)} instead.
-   */
-  @Deprecated
   @Override
   public void visitMethodInsn(
-      final int opcode, final String owner, final String name, final String descriptor) {
-    if (api >= Opcodes.ASM5) {
-      super.visitMethodInsn(opcode, owner, name, descriptor);
-      return;
-    }
-    doVisitMethodInsn(opcode, owner, name, descriptor, opcode == Opcodes.INVOKEINTERFACE);
-  }
-
-  @Override
-  public void visitMethodInsn(
-      final int opcode,
-      final String owner,
-      final String name,
-      final String descriptor,
-      final boolean isInterface) {
-    if (api < Opcodes.ASM5) {
-      super.visitMethodInsn(opcode, owner, name, descriptor, isInterface);
-      return;
-    }
-    doVisitMethodInsn(opcode, owner, name, descriptor, isInterface);
-  }
-
-  private void doVisitMethodInsn(
       final int opcode,
       final String owner,
       final String name,
@@ -1608,6 +1579,6 @@ public class Textifier extends Printer {
    * @return a new {@link Textifier}.
    */
   protected Textifier createTextifier() {
-    return new Textifier();
+    return new Textifier(api);
   }
 }

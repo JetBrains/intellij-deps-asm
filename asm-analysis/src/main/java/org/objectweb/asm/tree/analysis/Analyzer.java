@@ -233,7 +233,7 @@ public class Analyzer<V extends Value> implements Opcodes {
             }
           } else if (insnOpcode == RET) {
             if (subroutine == null) {
-              throw new AnalyzerException(insnNode, "RET instruction outside of a sub routine");
+              throw new AnalyzerException(insnNode, "RET instruction outside of a subroutine");
             }
             for (int i = 0; i < subroutine.callers.size(); ++i) {
               JumpInsnNode caller = subroutine.callers.get(i);

@@ -27,25 +27,30 @@
 // THE POSSIBILITY OF SUCH DAMAGE.
 package org.objectweb.asm.tree.analysis;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import org.junit.jupiter.api.BeforeEach;
+import java.util.List;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
-import org.objectweb.asm.ClassReader;
-import org.objectweb.asm.ClassVisitor;
-import org.objectweb.asm.ClassWriter;
+import org.junit.jupiter.api.function.Executable;
 import org.objectweb.asm.Label;
-import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.Type;
+import org.objectweb.asm.test.AsmTest;
+import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.MethodNode;
 
 /**
- * Analyzer tests.
+ * Unit tests for {@link Analyzer}.
  *
  * @author Eric Bruneton
  */
-public class AnalyzerTest {
+public class AnalyzerTest extends AsmTest {
+
+  private static final String CLASS_NAME = "C";
 
   // Some local variable numbers used in tests.
   private static final int LOCAL1 = 1;
@@ -53,9 +58,6 @@ public class AnalyzerTest {
   private static final int LOCAL3 = 3;
   private static final int LOCAL4 = 4;
   private static final int LOCAL5 = 5;
-
-  private ClassWriter classWriter;
-  private MethodVisitor methodVisitor;
 
   // Labels used to generate test cases.
   private final Label label0 = new Label();
@@ -72,96 +74,278 @@ public class AnalyzerTest {
   private final Label label11 = new Label();
   private final Label label12 = new Label();
 
-  @BeforeEach
-  public void setUp() throws Exception {
-    classWriter = new ClassWriter(0);
-    classWriter.visit(Opcodes.V1_1, Opcodes.ACC_PUBLIC, "C", null, "java/lang/Object", null);
-    methodVisitor = classWriter.visitMethod(Opcodes.ACC_PUBLIC, "<init>", "()V", null, null);
-    methodVisitor.visitCode();
-    methodVisitor.visitVarInsn(Opcodes.ALOAD, 0);
-    methodVisitor.visitMethodInsn(
-        Opcodes.INVOKESPECIAL, "java/lang/Object", "<init>", "()V", false);
-    methodVisitor.visitInsn(Opcodes.RETURN);
-    methodVisitor.visitMaxs(1, 1);
-    methodVisitor.visitEnd();
-    methodVisitor = classWriter.visitMethod(Opcodes.ACC_PUBLIC, "m", "()V", null, null);
-    methodVisitor.visitCode();
+  @Test
+  public void testAnalyze_invalidOpcode() {
+    MethodNode methodNode = new MethodNodeBuilder().insn(-1).vreturn().build();
+
+    Executable analyze = () -> newAnalyzer().analyze(CLASS_NAME, methodNode);
+
+    String message = assertThrows(AnalyzerException.class, analyze).getMessage();
+    assertTrue(message.contains("Illegal opcode -1"));
   }
 
-  private void nop() {
-    methodVisitor.visitInsn(Opcodes.NOP);
+  @Test
+  public void testAnalyze_invalidPop() {
+    MethodNode methodNode =
+        new MethodNodeBuilder().insn(Opcodes.LCONST_0).insn(Opcodes.POP).vreturn().build();
+
+    Executable analyze = () -> newAnalyzer().analyze(CLASS_NAME, methodNode);
+
+    String message = assertThrows(AnalyzerException.class, analyze).getMessage();
+    assertTrue(message.contains("Illegal use of POP"));
   }
 
-  private void push() {
-    methodVisitor.visitInsn(Opcodes.ICONST_0);
+  @Test
+  public void testAnalyze_invalidPop2() {
+    MethodNode methodNode =
+        new MethodNodeBuilder()
+            .insn(Opcodes.LCONST_0)
+            .insn(Opcodes.ICONST_0)
+            .insn(Opcodes.POP2)
+            .vreturn()
+            .build();
+
+    Executable analyze = () -> newAnalyzer().analyze(CLASS_NAME, methodNode);
+
+    String message = assertThrows(AnalyzerException.class, analyze).getMessage();
+    assertTrue(message.contains("Illegal use of POP2"));
   }
 
-  private void pop() {
-    methodVisitor.visitInsn(Opcodes.POP);
+  @Test
+  public void testAnalyze_invalidDup() {
+    MethodNode methodNode =
+        new MethodNodeBuilder().insn(Opcodes.LCONST_0).insn(Opcodes.DUP).vreturn().build();
+
+    Executable analyze = () -> newAnalyzer().analyze(CLASS_NAME, methodNode);
+
+    String message = assertThrows(AnalyzerException.class, analyze).getMessage();
+    assertTrue(message.contains("Illegal use of DUP"));
   }
 
-  private void iconst_0() {
-    methodVisitor.visitInsn(Opcodes.ICONST_0);
+  @Test
+  public void testAnalyze_invalidDupx1() {
+    MethodNode methodNode =
+        new MethodNodeBuilder()
+            .insn(Opcodes.LCONST_0)
+            .insn(Opcodes.ICONST_0)
+            .insn(Opcodes.DUP_X1)
+            .vreturn()
+            .build();
+
+    Executable analyze = () -> newAnalyzer().analyze(CLASS_NAME, methodNode);
+
+    String message = assertThrows(AnalyzerException.class, analyze).getMessage();
+    assertTrue(message.contains("Illegal use of DUP_X1"));
   }
 
-  private void istore(final int var) {
-    methodVisitor.visitVarInsn(Opcodes.ISTORE, var);
+  @Test
+  public void testAnalyze_invalidDupx2() {
+    MethodNode methodNode =
+        new MethodNodeBuilder()
+            .insn(Opcodes.LCONST_0)
+            .insn(Opcodes.ICONST_0)
+            .insn(Opcodes.ICONST_0)
+            .insn(Opcodes.DUP_X2)
+            .vreturn()
+            .build();
+
+    Executable analyze = () -> newAnalyzer().analyze(CLASS_NAME, methodNode);
+
+    String message = assertThrows(AnalyzerException.class, analyze).getMessage();
+    assertTrue(message.contains("Illegal use of DUP_X2"));
   }
 
-  private void aload(final int var) {
-    methodVisitor.visitVarInsn(Opcodes.ALOAD, var);
+  @Test
+  public void testAnalyze_invalidDup2() {
+    MethodNode methodNode =
+        new MethodNodeBuilder()
+            .insn(Opcodes.LCONST_0)
+            .insn(Opcodes.ICONST_0)
+            .insn(Opcodes.DUP2)
+            .vreturn()
+            .build();
+
+    Executable analyze = () -> newAnalyzer().analyze(CLASS_NAME, methodNode);
+
+    String message = assertThrows(AnalyzerException.class, analyze).getMessage();
+    assertTrue(message.contains("Illegal use of DUP2"));
   }
 
-  private void iload(final int var) {
-    methodVisitor.visitVarInsn(Opcodes.ILOAD, var);
+  @Test
+  public void testAnalyze_invalidDup2x1() {
+    MethodNode methodNode =
+        new MethodNodeBuilder()
+            .insn(Opcodes.LCONST_0)
+            .insn(Opcodes.ICONST_0)
+            .insn(Opcodes.ICONST_0)
+            .insn(Opcodes.DUP2_X1)
+            .vreturn()
+            .build();
+
+    Executable analyze = () -> newAnalyzer().analyze(CLASS_NAME, methodNode);
+
+    String message = assertThrows(AnalyzerException.class, analyze).getMessage();
+    assertTrue(message.contains("Illegal use of DUP2_X1"));
   }
 
-  private void astore(final int var) {
-    methodVisitor.visitVarInsn(Opcodes.ASTORE, var);
+  @Test
+  public void testAnalyze_invalidDup2x2() {
+    MethodNode methodNode =
+        new MethodNodeBuilder()
+            .insn(Opcodes.LCONST_0)
+            .insn(Opcodes.ICONST_0)
+            .insn(Opcodes.ICONST_0)
+            .insn(Opcodes.ICONST_0)
+            .insn(Opcodes.DUP2_X2)
+            .vreturn()
+            .build();
+
+    Executable analyze = () -> newAnalyzer().analyze(CLASS_NAME, methodNode);
+
+    String message = assertThrows(AnalyzerException.class, analyze).getMessage();
+    assertTrue(message.contains("Illegal use of DUP2_X2"));
   }
 
-  private void ret(final int var) {
-    methodVisitor.visitVarInsn(Opcodes.RET, var);
+  @Test
+  public void testAnalyze_invalidSwap() {
+    MethodNode methodNode =
+        new MethodNodeBuilder()
+            .insn(Opcodes.LCONST_0)
+            .insn(Opcodes.ICONST_0)
+            .insn(Opcodes.SWAP)
+            .vreturn()
+            .build();
+
+    Executable analyze = () -> newAnalyzer().analyze(CLASS_NAME, methodNode);
+
+    String message = assertThrows(AnalyzerException.class, analyze).getMessage();
+    assertTrue(message.contains("Illegal use of SWAP"));
   }
 
-  private void athrow() {
-    methodVisitor.visitInsn(Opcodes.ATHROW);
+  @Test
+  public void testAnalyze_invalidGetLocal() {
+    MethodNode methodNode = new MethodNodeBuilder().aload(10).vreturn().build();
+
+    Executable analyze = () -> newAnalyzer().analyze(CLASS_NAME, methodNode);
+
+    String message = assertThrows(AnalyzerException.class, analyze).getMessage();
+    assertTrue(message.contains("Trying to get an inexistant local variable"));
   }
 
-  private void aconst_null() {
-    methodVisitor.visitInsn(Opcodes.ACONST_NULL);
+  @Test
+  public void testAnalyze_invalidSetLocal() {
+    MethodNode methodNode = new MethodNodeBuilder().aconst_null().astore(10).vreturn().build();
+
+    Executable analyze = () -> newAnalyzer().analyze(CLASS_NAME, methodNode);
+
+    String message = assertThrows(AnalyzerException.class, analyze).getMessage();
+    assertTrue(message.contains("Trying to set an inexistant local variable"));
   }
 
-  private void vreturn() {
-    methodVisitor.visitInsn(Opcodes.RETURN);
+  @Test
+  public void testAnalyze_invalidPopFromEmptyStack() {
+    MethodNode methodNode = new MethodNodeBuilder().insn(Opcodes.POP).vreturn().build();
+
+    Executable analyze = () -> newAnalyzer().analyze(CLASS_NAME, methodNode);
+
+    String message = assertThrows(AnalyzerException.class, analyze).getMessage();
+    assertTrue(message.contains("Cannot pop operand off an empty stack."));
   }
 
-  private void label(final Label label) {
-    methodVisitor.visitLabel(label);
+  @Test
+  public void testAnalyze_invalidPushOnFullStack() {
+    MethodNode methodNode =
+        new MethodNodeBuilder(3, 3).iconst_0().iconst_0().iconst_0().iconst_0().vreturn().build();
+
+    Executable analyze = () -> newAnalyzer().analyze(CLASS_NAME, methodNode);
+
+    String message = assertThrows(AnalyzerException.class, analyze).getMessage();
+    assertTrue(message.contains("Insufficient maximum stack size."));
   }
 
-  private void iinc(final int var, final int increment) {
-    methodVisitor.visitIincInsn(var, increment);
+  @Test
+  public void testAnalyze_inconsistentStackHeights() {
+    Label ifLabel = new Label();
+    MethodNode methodNode =
+        new MethodNodeBuilder()
+            .iconst_0()
+            .ifne(ifLabel)
+            .iconst_0()
+            .label(ifLabel)
+            .vreturn()
+            .build();
+
+    Executable analyze = () -> newAnalyzer().analyze(CLASS_NAME, methodNode);
+
+    String message = assertThrows(AnalyzerException.class, analyze).getMessage();
+    assertTrue(message.contains("Incompatible stack heights"));
   }
 
-  private void go(final Label label) {
-    methodVisitor.visitJumpInsn(Opcodes.GOTO, label);
+  @Test
+  public void testAnalyze_invalidRet() {
+    MethodNode methodNode = new MethodNodeBuilder().ret(1).vreturn().build();
+
+    Executable analyze = () -> newAnalyzer().analyze(CLASS_NAME, methodNode);
+
+    String message = assertThrows(AnalyzerException.class, analyze).getMessage();
+    assertTrue(message.contains("RET instruction outside of a subroutine"));
   }
 
-  private void jsr(final Label label) {
-    methodVisitor.visitJumpInsn(Opcodes.JSR, label);
+  @Test
+  public void testAnalyze_invalidFalloffEndOfMethod() {
+    MethodNode methodNode = new MethodNodeBuilder().build();
+
+    Executable analyze = () -> newAnalyzer().analyze(CLASS_NAME, methodNode);
+
+    String message = assertThrows(AnalyzerException.class, analyze).getMessage();
+    assertTrue(message.contains("Execution can fall off the end of the code"));
   }
 
-  private void ifnonnull(final Label label) {
-    methodVisitor.visitJumpInsn(Opcodes.IFNONNULL, label);
+  @Test
+  public void testAnalyze_invalidFalloffSubroutine() {
+    Label gotoLabel = new Label();
+    Label jsrLabel = new Label();
+    MethodNode methodNode =
+        new MethodNodeBuilder()
+            .go(gotoLabel)
+            .label(jsrLabel)
+            .astore(1)
+            .ret(1)
+            .label(gotoLabel)
+            .jsr(jsrLabel)
+            .build();
+
+    Executable analyze = () -> newAnalyzer().analyze(CLASS_NAME, methodNode);
+
+    String message = assertThrows(AnalyzerException.class, analyze).getMessage();
+    assertTrue(message.contains("Execution can fall off the end of the code"));
   }
 
-  private void ifne(final Label label) {
-    methodVisitor.visitJumpInsn(Opcodes.IFNE, label);
-  }
+  @Disabled("TODO currently Analyzer can not detect this situation")
+  @Test
+  public void testAnalyze_invalidOverlappingSubroutines() {
+    // The problem is that other overlapping subroutine situations are valid, such as
+    // when a nested subroutine implicitly returns to its parent subroutine, without a RET.
+    Label subroutine1Label = new Label();
+    Label subroutine2Label = new Label();
+    Label endSubroutineLabel = new Label();
+    MethodNode methodNode =
+        new MethodNodeBuilder()
+            .jsr(subroutine1Label)
+            .jsr(subroutine2Label)
+            .vreturn()
+            .label(subroutine1Label)
+            .astore(1)
+            .go(endSubroutineLabel)
+            .label(subroutine2Label)
+            .astore(1)
+            .label(endSubroutineLabel)
+            .ret(1)
+            .build();
 
-  private void tryycatch(final Label start, final Label end, final Label handler) {
-    methodVisitor.visitTryCatchBlock(start, end, handler, null);
+    Executable analyze = () -> newAnalyzer().analyze(CLASS_NAME, methodNode);
+
+    assertThrows(AnalyzerException.class, analyze);
   }
 
   /**
@@ -177,44 +361,49 @@ public class AnalyzerTest {
    *   }
    * }
    * </pre>
+   *
+   * @throws AnalyzerException if the test fails
    */
   @Test
-  public void testBasic() {
-    iconst_0();
-    istore(1);
+  public void testAnalyze_basicTryFinally() throws AnalyzerException {
+    MethodNode methodNode =
+        new MethodNodeBuilder(4, 4)
+            .iconst_0()
+            .istore(1)
+            // Body of try block.
+            .label(label0)
+            .iinc(1, 1)
+            .go(label3)
+            // Exception handler.
+            .label(label1)
+            .astore(3)
+            .jsr(label2)
+            .aload(3)
+            .athrow()
+            // Subroutine.
+            .label(label2)
+            .astore(2)
+            .iinc(1, -1)
+            .push()
+            .push()
+            .ret(2)
+            // Non-exceptional exit from try block.
+            .label(label3)
+            .jsr(label2)
+            .push()
+            .push()
+            .label(label4)
+            .vreturn()
+            .trycatch(label0, label1, label1)
+            .trycatch(label3, label4, label1)
+            .build();
 
-    // Body of try block.
-    label(label0);
-    iinc(1, 1);
-    go(label3);
+    Frame<?>[] frames = newAnalyzer().analyze(CLASS_NAME, methodNode);
 
-    // Exception handler.
-    label(label1);
-    astore(3);
-    jsr(label2);
-    aload(3);
-    athrow();
-
-    // Subroutine.
-    label(label2);
-    astore(2);
-    iinc(1, -1);
-    push();
-    push();
-    ret(2);
-
-    // Non-exceptional exit from try block.
-    label(label3);
-    jsr(label2);
-    push();
-    push();
-    label(label4);
-    vreturn();
-
-    tryycatch(label0, label1, label1);
-    tryycatch(label3, label4, label1);
-
-    assertMaxs(4, 4);
+    MethodInfo methodInfo = computeMaxStackAndLocalsFromFrames(frames);
+    assertEquals(methodNode.maxStack, methodInfo.maxStack);
+    assertEquals(methodNode.maxLocals, methodInfo.maxLocals);
+    assertDoesNotThrow(() -> MethodNodeBuilder.buildClassWithMethod(methodNode).newInstance());
   }
 
   /**
@@ -234,52 +423,55 @@ public class AnalyzerTest {
    *   }
    * }
    * </pre>
+   *
+   * @throws AnalyzerException if the test fails
    */
   @Test
-  public void testIfElseInFinally() {
-    iconst_0();
-    istore(1);
+  public void testAnalyze_ifElseInFinally() throws AnalyzerException {
+    MethodNode methodNode =
+        new MethodNodeBuilder(5, 4)
+            .iconst_0()
+            .istore(1)
+            // Body of try block.
+            .label(label0)
+            .iinc(1, 1)
+            .go(label5)
+            // Exception handler.
+            .label(label1)
+            .astore(3)
+            .jsr(label2)
+            .push()
+            .push()
+            .aload(3)
+            .athrow()
+            // Subroutine.
+            .label(label2)
+            .astore(2)
+            .push()
+            .push()
+            .iload(1)
+            .ifne(label3)
+            .iinc(1, 2)
+            .go(label4)
+            .label(label3)
+            .iinc(1, 3)
+            .label(label4)
+            .ret(2)
+            // Non-exceptional exit from try block.
+            .label(label5)
+            .jsr(label2)
+            .label(label6)
+            .vreturn()
+            .trycatch(label0, label1, label1)
+            .trycatch(label5, label6, label1)
+            .build();
 
-    // Body of try block.
-    label(label0);
-    iinc(1, 1);
-    go(label5);
+    Frame<?>[] frames = newAnalyzer().analyze(CLASS_NAME, methodNode);
 
-    // Exception handler.
-    label(label1);
-    astore(3);
-    jsr(label2);
-    push();
-    push();
-    aload(3);
-    athrow();
-
-    // Subroutine.
-    label(label2);
-    astore(2);
-    push();
-    push();
-    iload(1);
-    ifne(label3);
-    iinc(1, 2);
-    go(label4);
-
-    label(label3);
-    iinc(1, 3);
-
-    label(label4);
-    ret(2);
-
-    // Non-exceptional exit from try block.
-    label(label5);
-    jsr(label2);
-    label(label6);
-    vreturn();
-
-    tryycatch(label0, label1, label1);
-    tryycatch(label5, label6, label1);
-
-    assertMaxs(5, 4);
+    MethodInfo methodInfo = computeMaxStackAndLocalsFromFrames(frames);
+    assertEquals(methodNode.maxStack, methodInfo.maxStack);
+    assertEquals(methodNode.maxLocals, methodInfo.maxLocals);
+    assertDoesNotThrow(() -> MethodNodeBuilder.buildClassWithMethod(methodNode).newInstance());
   }
 
   /**
@@ -299,57 +491,86 @@ public class AnalyzerTest {
    *   }
    * }
    * </pre>
+   *
+   * @throws AnalyzerException if the test fails
    */
   @Test
-  public void testSimpleNestedFinally() {
-    iconst_0();
-    istore(1);
+  public void testAnalyze_simpleNestedFinally() throws AnalyzerException {
+    MethodNode methodNode =
+        new MethodNodeBuilder(5, 6)
+            .iconst_0()
+            .istore(1)
+            // Body of try block.
+            .label(label0)
+            .iinc(1, 1)
+            .jsr(label2)
+            .go(label5)
+            // First exception handler.
+            .label(label1)
+            .astore(4)
+            .jsr(label2)
+            .aload(4)
+            .athrow()
+            // First subroutine.
+            .label(label2)
+            .astore(2)
+            .iinc(1, 2)
+            .jsr(label4)
+            .push()
+            .push()
+            .ret(2)
+            // Second exception handler.
+            .label(label3)
+            .astore(5)
+            .jsr(label4)
+            .aload(5)
+            .athrow()
+            // Second subroutine.
+            .label(label4)
+            .astore(3)
+            .push()
+            .push()
+            .iinc(1, 3)
+            .ret(3)
+            // On normal exit, try block jumps here.
+            .label(label5)
+            .vreturn()
+            .trycatch(label0, label1, label1)
+            .trycatch(label2, label3, label3)
+            .build();
 
-    // Body of try block.
-    label(label0);
-    iinc(1, 1);
-    jsr(label2);
-    go(label5);
+    Frame<?>[] frames = newAnalyzer().analyze(CLASS_NAME, methodNode);
 
-    // First exception handler.
-    label(label1);
-    astore(4);
-    jsr(label2);
-    aload(4);
-    athrow();
+    MethodInfo methodInfo = computeMaxStackAndLocalsFromFrames(frames);
+    assertEquals(methodNode.maxStack, methodInfo.maxStack);
+    assertEquals(methodNode.maxLocals, methodInfo.maxLocals);
+    assertDoesNotThrow(() -> MethodNodeBuilder.buildClassWithMethod(methodNode).newInstance());
+  }
 
-    // First subroutine.
-    label(label2);
-    astore(2);
-    iinc(1, 2);
-    jsr(label4);
-    push();
-    push();
-    ret(2);
+  @Test
+  public void testAnalyze_nestedSubroutines() throws AnalyzerException {
+    Label subroutine1Label = new Label();
+    Label subroutine2Label = new Label();
+    MethodNode methodNode =
+        new MethodNodeBuilder(1, 3)
+            .jsr(subroutine1Label)
+            .vreturn()
+            .label(subroutine1Label)
+            .astore(1)
+            .jsr(subroutine2Label)
+            .jsr(subroutine2Label)
+            .ret(1)
+            .label(subroutine2Label)
+            .astore(2)
+            .ret(2)
+            .build();
 
-    // Second exception handler.
-    label(label3);
-    astore(5);
-    jsr(label4);
-    aload(5);
-    athrow();
+    Frame<?>[] frames = newAnalyzer().analyze(CLASS_NAME, methodNode);
 
-    // Second subroutine.
-    label(label4);
-    astore(3);
-    push();
-    push();
-    iinc(1, 3);
-    ret(3);
-
-    // On normal exit, try block jumps here.
-    label(label5);
-    vreturn();
-
-    tryycatch(label0, label1, label1);
-    tryycatch(label2, label3, label3);
-
-    assertMaxs(5, 6);
+    MethodInfo methodInfo = computeMaxStackAndLocalsFromFrames(frames);
+    assertEquals(methodNode.maxStack, methodInfo.maxStack);
+    assertEquals(methodNode.maxLocals, methodInfo.maxLocals);
+    assertDoesNotThrow(() -> MethodNodeBuilder.buildClassWithMethod(methodNode).newInstance());
   }
 
   /**
@@ -372,43 +593,47 @@ public class AnalyzerTest {
    *   }
    * }
    * </pre>
+   *
+   * @throws AnalyzerException if the test fails
    */
   @Test
-  public void testSubroutineWithNoRet() {
-    iconst_0();
-    istore(1);
+  public void testAnalyze_subroutineWithNoRet() throws AnalyzerException {
+    MethodNode methodNode =
+        new MethodNodeBuilder(1, 4)
+            .iconst_0()
+            .istore(1)
+            // While loop header/try block.
+            .label(label0)
+            .iinc(1, 1)
+            .jsr(label2)
+            .go(label3)
+            // Implicit catch block.
+            .label(label1)
+            .astore(2)
+            .jsr(label2)
+            .push()
+            .push()
+            .aload(2)
+            .athrow()
+            // Subroutine which does not return.
+            .label(label2)
+            .astore(3)
+            .iinc(1, 2)
+            .go(label4)
+            // End of the loop, goes back to the top.
+            .label(label3)
+            .go(label0)
+            .label(label4)
+            .vreturn()
+            .trycatch(label0, label1, label1)
+            .build();
 
-    // While loop header/try block.
-    label(label0);
-    iinc(1, 1);
-    jsr(label2);
-    go(label3);
+    Frame<?>[] frames = newAnalyzer().analyze(CLASS_NAME, methodNode);
 
-    // Implicit catch block.
-    label(label1);
-    astore(2);
-    jsr(label2);
-    push();
-    push();
-    aload(2);
-    athrow();
-
-    // Subroutine which does not return.
-    label(label2);
-    astore(3);
-    iinc(1, 2);
-    go(label4);
-
-    // End of the loop, goes back to the top.
-    label(label3);
-    go(label0);
-
-    label(label4);
-    vreturn();
-
-    tryycatch(label0, label1, label1);
-
-    assertMaxs(1, 4);
+    MethodInfo methodInfo = computeMaxStackAndLocalsFromFrames(frames);
+    assertEquals(methodNode.maxStack, methodInfo.maxStack);
+    assertEquals(methodNode.maxLocals, methodInfo.maxLocals);
+    assertDoesNotThrow(() -> MethodNodeBuilder.buildClassWithMethod(methodNode).newInstance());
   }
 
   /**
@@ -422,20 +647,71 @@ public class AnalyzerTest {
    *   astore 0
    *   return
    * </pre>
+   *
+   * @throws AnalyzerException if the test fails
    */
   @Test
-  public void testSubroutineWithNoRet2() {
-    aconst_null();
-    jsr(label0);
-    nop();
-    label(label0);
-    astore(0);
-    astore(0);
-    vreturn();
-    label(label1);
-    methodVisitor.visitLocalVariable("i", "I", null, label0, label1, 1);
+  public void testAnalyze_subroutineWithNoRet2() throws AnalyzerException {
+    MethodNode methodNode =
+        new MethodNodeBuilder(2, 2)
+            .aconst_null()
+            .jsr(label0)
+            .nop()
+            .label(label0)
+            .astore(0)
+            .astore(0)
+            .vreturn()
+            .label(label1)
+            .localVariable("i", "I", null, label0, label1, 1)
+            .build();
 
-    assertMaxs(2, 2);
+    Frame<?>[] frames = newAnalyzer().analyze(CLASS_NAME, methodNode);
+
+    MethodInfo methodInfo = computeMaxStackAndLocalsFromFrames(frames);
+    assertEquals(methodNode.maxStack, methodInfo.maxStack);
+    assertEquals(methodNode.maxLocals, methodInfo.maxLocals);
+    assertDoesNotThrow(() -> MethodNodeBuilder.buildClassWithMethod(methodNode).newInstance());
+  }
+
+  @Test
+  public void testAnalyze_subroutineLocalsAccess() throws AnalyzerException {
+    Label startLabel = new Label();
+    Label exceptionHandler1Label = new Label();
+    Label exceptionHandler2Label = new Label();
+    Label subroutineLabel = new Label();
+    MethodNode methodNode =
+        new MethodNodeBuilder(1, 5)
+            .label(startLabel)
+            .jsr(subroutineLabel)
+            .vreturn()
+            .label(exceptionHandler1Label)
+            .astore(1)
+            .jsr(subroutineLabel)
+            .aload(1)
+            .athrow()
+            .label(subroutineLabel)
+            .astore(2)
+            .aconst_null()
+            .astore(3)
+            .ret(2)
+            .label(exceptionHandler2Label)
+            .astore(4)
+            .aload(4)
+            .athrow()
+            .trycatch(startLabel, exceptionHandler1Label, exceptionHandler1Label)
+            .trycatch(
+                startLabel,
+                exceptionHandler2Label,
+                exceptionHandler2Label,
+                "java/lang/RuntimeException")
+            .build();
+
+    Frame<?>[] frames = newAnalyzer().analyze(CLASS_NAME, methodNode);
+
+    MethodInfo methodInfo = computeMaxStackAndLocalsFromFrames(frames);
+    assertEquals(methodNode.maxStack, methodInfo.maxStack);
+    assertEquals(methodNode.maxLocals, methodInfo.maxLocals);
+    assertDoesNotThrow(() -> MethodNodeBuilder.buildClassWithMethod(methodNode).newInstance());
   }
 
   /**
@@ -459,48 +735,51 @@ public class AnalyzerTest {
    *   }
    * }
    * </pre>
+   *
+   * @throws AnalyzerException if the test fails
    */
   @Test
-  public void testImplicitExit() {
-    iconst_0();
-    istore(1);
+  public void testAnalyze_implicitExit() throws AnalyzerException {
+    MethodNode methodNode =
+        new MethodNodeBuilder(1, 4)
+            .iconst_0()
+            .istore(1)
+            // While loop header.
+            .label(label0)
+            .aconst_null()
+            .ifnonnull(label5)
+            // Try block.
+            .label(label1)
+            .iinc(1, 1)
+            .jsr(label3)
+            .go(label4)
+            // Implicit catch block.
+            .label(label2)
+            .astore(2)
+            .jsr(label3)
+            .aload(2)
+            .push()
+            .push()
+            .athrow()
+            // Subroutine which does not return.
+            .label(label3)
+            .astore(3)
+            .iinc(1, 2)
+            .go(label5)
+            // End of the loop, goes back to the top.
+            .label(label4)
+            .go(label1)
+            .label(label5)
+            .vreturn()
+            .trycatch(label1, label2, label2)
+            .build();
 
-    // While loop header.
-    label(label0);
-    aconst_null();
-    ifnonnull(label5);
+    Frame<?>[] frames = newAnalyzer().analyze(CLASS_NAME, methodNode);
 
-    // Try block.
-    label(label1);
-    iinc(1, 1);
-    jsr(label3);
-    go(label4);
-
-    // Implicit catch block.
-    label(label2);
-    astore(2);
-    jsr(label3);
-    aload(2);
-    push();
-    push();
-    athrow();
-
-    // Subroutine which does not return.
-    label(label3);
-    astore(3);
-    iinc(1, 2);
-    go(label5);
-
-    // End of the loop, goes back to the top.
-    label(label4);
-    go(label1);
-
-    label(label5);
-    vreturn();
-
-    tryycatch(label1, label2, label2);
-
-    assertMaxs(1, 4);
+    MethodInfo methodInfo = computeMaxStackAndLocalsFromFrames(frames);
+    assertEquals(methodNode.maxStack, methodInfo.maxStack);
+    assertEquals(methodNode.maxLocals, methodInfo.maxLocals);
+    assertDoesNotThrow(() -> MethodNodeBuilder.buildClassWithMethod(methodNode).newInstance());
   }
 
   /**
@@ -528,91 +807,97 @@ public class AnalyzerTest {
    *
    * <p>This example is from the paper, "Subroutine Inlining and Bytecode Abstraction to Simplify
    * Static and Dynamic Analysis" by Cyrille Artho and Armin Biere.
+   *
+   * @throws AnalyzerException if the test fails
    */
   @Test
-  public void testImplicitExitToAnotherSubroutine() {
-    iconst_0();
-    istore(1);
+  public void testAnalyze_implicitExitToAnotherSubroutine() throws AnalyzerException {
+    MethodNode methodNode =
+        new MethodNodeBuilder(5, 6)
+            .iconst_0()
+            .istore(1)
+            // First try.
+            .label(label0)
+            .jsr(label2)
+            .vreturn()
+            // Exception handler for first try.
+            .label(label1)
+            .astore(LOCAL2)
+            .jsr(label2)
+            .push()
+            .push()
+            .aload(LOCAL2)
+            .athrow()
+            // First finally handler.
+            .label(label2)
+            .astore(LOCAL4)
+            .push()
+            .push()
+            .go(label6)
+            // Body of while loop, also second try.
+            .label(label3)
+            .jsr(label5)
+            .vreturn()
+            // Exception handler for second try.
+            .label(label4)
+            .astore(LOCAL3)
+            .push()
+            .push()
+            .jsr(label5)
+            .aload(LOCAL3)
+            .athrow()
+            // Second finally handler.
+            .label(label5)
+            .astore(LOCAL5)
+            .iload(LOCAL1)
+            .ifne(label7)
+            .ret(LOCAL5)
+            // Test for the while loop.
+            .label(label6)
+            .iload(LOCAL1)
+            .ifne(label3)
+            // Exit from finally block.
+            .label(label7)
+            .ret(LOCAL4)
+            .trycatch(label0, label1, label1)
+            .trycatch(label3, label4, label4)
+            .build();
 
-    // First try.
-    label(label0);
-    jsr(label2);
-    vreturn();
+    Frame<?>[] frames = newAnalyzer().analyze(CLASS_NAME, methodNode);
 
-    // Exception handler for first try.
-    label(label1);
-    astore(LOCAL2);
-    jsr(label2);
-    push();
-    push();
-    aload(LOCAL2);
-    athrow();
-
-    // First finally handler.
-    label(label2);
-    astore(LOCAL4);
-    push();
-    push();
-    go(label6);
-
-    // Body of while loop, also second try.
-    label(label3);
-    jsr(label5);
-    vreturn();
-
-    // Exception handler for second try.
-    label(label4);
-    astore(LOCAL3);
-    push();
-    push();
-    jsr(label5);
-    aload(LOCAL3);
-    athrow();
-
-    // Second finally handler.
-    label(label5);
-    astore(LOCAL5);
-    iload(LOCAL1);
-    ifne(label7);
-    ret(LOCAL5);
-
-    // Test for the while loop.
-    label(label6);
-    iload(LOCAL1);
-    ifne(label3);
-
-    // Exit from finally block.
-    label(label7);
-    ret(LOCAL4);
-
-    tryycatch(label0, label1, label1);
-    tryycatch(label3, label4, label4);
-
-    assertMaxs(5, 6);
+    MethodInfo methodInfo = computeMaxStackAndLocalsFromFrames(frames);
+    assertEquals(methodNode.maxStack, methodInfo.maxStack);
+    assertEquals(methodNode.maxLocals, methodInfo.maxLocals);
+    assertDoesNotThrow(() -> MethodNodeBuilder.buildClassWithMethod(methodNode).newInstance());
   }
 
   @Test
-  public void testImplicitExitToAnotherSubroutine2() {
-    iconst_0();
-    istore(1);
-    jsr(label0);
-    vreturn();
+  public void testanalyze_implicitExitToAnotherSubroutine2() throws AnalyzerException {
+    MethodNode methodNode =
+        new MethodNodeBuilder(1, 4)
+            .iconst_0()
+            .istore(1)
+            .jsr(label0)
+            .vreturn()
+            .label(label0)
+            .astore(2)
+            .jsr(label1)
+            .go(label2)
+            .label(label1)
+            .astore(3)
+            .iload(1)
+            .ifne(label2)
+            .ret(3)
+            .label(label2)
+            .ret(2)
+            .build();
 
-    label(label0);
-    astore(2);
-    jsr(label1);
-    go(label2);
+    Frame<?>[] frames = newAnalyzer().analyze(CLASS_NAME, methodNode);
 
-    label(label1);
-    astore(3);
-    iload(1);
-    ifne(label2);
-    ret(3);
-
-    label(label2);
-    ret(2);
-
-    assertMaxs(1, 4);
+    MethodInfo methodInfo = computeMaxStackAndLocalsFromFrames(frames);
+    assertEquals(methodNode.maxStack, methodInfo.maxStack);
+    assertEquals(methodNode.maxLocals, methodInfo.maxLocals);
+    assertDoesNotThrow(() -> MethodNodeBuilder.buildClassWithMethod(methodNode).newInstance());
   }
 
   /**
@@ -620,39 +905,45 @@ public class AnalyzerTest {
    * subroutine and the caller.
    *
    * <p>This would not normally be produced by a java compiler.
+   *
+   * @throws AnalyzerException if the test fails
    */
   @Test
-  public void testInterleavedCode() {
-    iconst_0();
-    istore(1);
-    jsr(label0);
-    go(label1);
+  public void testAnalyze_interleavedCode() throws AnalyzerException {
+    MethodNode methodNode =
+        new MethodNodeBuilder(4, 3)
+            .iconst_0()
+            .istore(1)
+            .jsr(label0)
+            .go(label1)
+            // Subroutine 1.
+            .label(label0)
+            .astore(2)
+            .iinc(1, 1)
+            .go(label2)
+            // Second part of main subroutine.
+            .label(label1)
+            .iinc(1, 2)
+            .go(label3)
+            // Second part of subroutine 1.
+            .label(label2)
+            .iinc(1, 4)
+            .push()
+            .push()
+            .ret(2)
+            // Third part of main subroutine.
+            .label(label3)
+            .push()
+            .push()
+            .vreturn()
+            .build();
 
-    // Subroutine 1.
-    label(label0);
-    astore(2);
-    iinc(1, 1);
-    go(label2);
+    Frame<?>[] frames = newAnalyzer().analyze(CLASS_NAME, methodNode);
 
-    // Second part of main subroutine.
-    label(label1);
-    iinc(1, 2);
-    go(label3);
-
-    // Second part of subroutine 1.
-    label(label2);
-    iinc(1, 4);
-    push();
-    push();
-    ret(2);
-
-    // Third part of main subroutine.
-    label(label3);
-    push();
-    push();
-    vreturn();
-
-    assertMaxs(4, 3);
+    MethodInfo methodInfo = computeMaxStackAndLocalsFromFrames(frames);
+    assertEquals(methodNode.maxStack, methodInfo.maxStack);
+    assertEquals(methodNode.maxLocals, methodInfo.maxLocals);
+    assertDoesNotThrow(() -> MethodNodeBuilder.buildClassWithMethod(methodNode).newInstance());
   }
 
   /**
@@ -682,204 +973,298 @@ public class AnalyzerTest {
    *   }
    * }
    * </pre>
+   *
+   * @throws AnalyzerException if the test fails
    */
   @Test
-  public void testImplicitExitInTryCatch() {
-    iconst_0();
-    istore(1);
+  public void testAnalyze_implicitExitInTryCatch() throws AnalyzerException {
+    MethodNode methodNode =
+        new MethodNodeBuilder(4, 6)
+            .iconst_0()
+            .istore(1)
+            // First try.
+            .label(label0)
+            .jsr(label2)
+            .vreturn()
+            // Exception handler for first try.
+            .label(label1)
+            .astore(LOCAL2)
+            .jsr(label2)
+            .aload(LOCAL2)
+            .athrow()
+            // First finally handler.
+            .label(label2)
+            .astore(LOCAL4)
+            .go(label6)
+            // Body of while loop, also second try.
+            .label(label3)
+            .jsr(label5)
+            .push()
+            .push()
+            .vreturn()
+            // Exception handler for second try.
+            .label(label4)
+            .astore(LOCAL3)
+            .jsr(label5)
+            .aload(LOCAL3)
+            .athrow()
+            // Second finally handler.
+            .label(label5)
+            .astore(LOCAL5)
+            .iload(LOCAL1)
+            .ifne(label7)
+            .push()
+            .push()
+            .ret(LOCAL5)
+            // Test for the while loop.
+            .label(label6)
+            .iload(LOCAL1)
+            .ifne(label3)
+            // Exit from finally{} block.
+            .label(label7)
+            .ret(LOCAL4)
+            // Outermost catch.
+            .label(label8)
+            .iinc(LOCAL1, 3)
+            .vreturn()
+            .trycatch(label0, label1, label1)
+            .trycatch(label3, label4, label4)
+            .trycatch(label0, label8, label8)
+            .build();
 
-    // First try.
-    label(label0);
-    jsr(label2);
-    vreturn();
+    Frame<?>[] frames = newAnalyzer().analyze(CLASS_NAME, methodNode);
 
-    // Exception handler for first try.
-    label(label1);
-    astore(LOCAL2);
-    jsr(label2);
-    aload(LOCAL2);
-    athrow();
-
-    // First finally handler.
-    label(label2);
-    astore(LOCAL4);
-    go(label6);
-
-    // Body of while loop, also second try.
-    label(label3);
-    jsr(label5);
-    push();
-    push();
-    vreturn();
-
-    // Exception handler for second try.
-    label(label4);
-    astore(LOCAL3);
-    jsr(label5);
-    aload(LOCAL3);
-    athrow();
-
-    // Second finally handler.
-    label(label5);
-    astore(LOCAL5);
-    iload(LOCAL1);
-    ifne(label7);
-    push();
-    push();
-    ret(LOCAL5);
-
-    // Test for the while loop.
-    label(label6);
-    iload(LOCAL1);
-    ifne(label3);
-
-    // Exit from finally{} block.
-    label(label7);
-    ret(LOCAL4);
-
-    // Outermost catch.
-    label(label8);
-    iinc(LOCAL1, 3);
-    vreturn();
-
-    tryycatch(label0, label1, label1);
-    tryycatch(label3, label4, label4);
-    tryycatch(label0, label8, label8);
-
-    assertMaxs(4, 6);
+    MethodInfo methodInfo = computeMaxStackAndLocalsFromFrames(frames);
+    assertEquals(methodNode.maxStack, methodInfo.maxStack);
+    assertEquals(methodNode.maxLocals, methodInfo.maxLocals);
+    assertDoesNotThrow(() -> MethodNodeBuilder.buildClassWithMethod(methodNode).newInstance());
   }
 
-  /** Tests that Analyzer works correctly on classes with many labels. */
+  /**
+   * Tests that Analyzer works correctly on classes with many labels.
+   *
+   * @throws AnalyzerException if the test fails
+   */
   @Test
-  public void testManyLabels() {
+  public void testAnalyze_manyLabels() throws AnalyzerException {
     Label target = new Label();
-    jsr(target);
-    label(target);
+    MethodNodeBuilder methodNodeBuilder = new MethodNodeBuilder(1, 1).jsr(target).label(target);
     for (int i = 0; i < 8192; i++) {
       Label label = new Label();
-      go(label);
-      label(label);
+      methodNodeBuilder.go(label).label(label);
     }
-    vreturn();
-    assertMaxs(1, 1);
+    MethodNode methodNode = methodNodeBuilder.vreturn().build();
+
+    Frame<?>[] frames = newAnalyzer().analyze(CLASS_NAME, methodNode);
+
+    MethodInfo methodInfo = computeMaxStackAndLocalsFromFrames(frames);
+    assertEquals(methodNode.maxStack, methodInfo.maxStack);
+    assertEquals(methodNode.maxLocals, methodInfo.maxLocals);
+    assertDoesNotThrow(() -> MethodNodeBuilder.buildClassWithMethod(methodNode).newInstance());
   }
 
   /**
    * Tests an example coming from distilled down version of
    * com/sun/corba/ee/impl/protocol/CorbaClientDelegateImpl from GlassFish 2. See issue #317823.
+   *
+   * @throws AnalyzerException if the test fails
    */
   @Test
-  public void testGlassFish2CorbaClientDelegateImplExample() {
-    label(label0);
-    jsr(label4);
-    label(label1);
-    go(label5);
-    label(label2);
-    pop();
-    jsr(label4);
-    label(label3);
-    aconst_null();
-    athrow();
-    label(label4);
-    astore(1);
-    ret(1);
-    label(label5);
-    aconst_null();
-    aconst_null();
-    aconst_null();
-    pop();
-    pop();
-    pop();
-    label(label6);
-    go(label8);
-    label(label7);
-    pop();
-    go(label8);
-    aconst_null();
-    athrow();
-    label(label8);
-    iconst_0();
-    ifne(label0);
-    jsr(label12);
-    label(label9);
-    vreturn();
-    label(label10);
-    pop();
-    jsr(label12);
-    label(label11);
-    aconst_null();
-    athrow();
-    label(label12);
-    astore(2);
-    ret(2);
+  public void testAnalyze_glassFish2CorbaClientDelegateImplExample() throws AnalyzerException {
+    MethodNode methodNode =
+        new MethodNodeBuilder(3, 3)
+            .label(label0)
+            .jsr(label4)
+            .label(label1)
+            .go(label5)
+            .label(label2)
+            .pop()
+            .jsr(label4)
+            .label(label3)
+            .aconst_null()
+            .athrow()
+            .label(label4)
+            .astore(1)
+            .ret(1)
+            .label(label5)
+            .aconst_null()
+            .aconst_null()
+            .aconst_null()
+            .pop()
+            .pop()
+            .pop()
+            .label(label6)
+            .go(label8)
+            .label(label7)
+            .pop()
+            .go(label8)
+            .aconst_null()
+            .athrow()
+            .label(label8)
+            .iconst_0()
+            .ifne(label0)
+            .jsr(label12)
+            .label(label9)
+            .vreturn()
+            .label(label10)
+            .pop()
+            .jsr(label12)
+            .label(label11)
+            .aconst_null()
+            .athrow()
+            .label(label12)
+            .astore(2)
+            .ret(2)
+            .trycatch(label0, label1, label2)
+            .trycatch(label2, label3, label2)
+            .trycatch(label0, label6, label7)
+            .trycatch(label0, label9, label10)
+            .trycatch(label10, label11, label10)
+            .build();
 
-    tryycatch(label0, label1, label2);
-    tryycatch(label2, label3, label2);
-    tryycatch(label0, label6, label7);
-    tryycatch(label0, label9, label10);
-    tryycatch(label10, label11, label10);
+    Frame<?>[] frames = newAnalyzer().analyze(CLASS_NAME, methodNode);
 
-    assertMaxs(3, 3);
+    MethodInfo methodInfo = computeMaxStackAndLocalsFromFrames(frames);
+    assertEquals(methodNode.maxStack, methodInfo.maxStack);
+    assertEquals(methodNode.maxLocals, methodInfo.maxLocals);
+    assertDoesNotThrow(() -> MethodNodeBuilder.buildClassWithMethod(methodNode).newInstance());
   }
 
-  protected void assertMaxs(final int maxStack, final int maxLocals) {
-    methodVisitor.visitMaxs(maxStack, maxLocals);
-    methodVisitor.visitEnd();
-    classWriter.visitEnd();
-    byte[] classFile = classWriter.toByteArray();
-    ClassReader classReader = new ClassReader(classFile);
-    classReader.accept(
-        new ClassVisitor(Opcodes.ASM5) {
-          @Override
-          public MethodVisitor visitMethod(
-              final int access,
-              final String name,
-              final String desc,
-              final String signature,
-              final String[] exceptions) {
-            if (name.equals("m")) {
-              return new MethodNode(Opcodes.ASM5, access, name, desc, signature, exceptions) {
-                @Override
-                public void visitEnd() {
-                  Analyzer<BasicValue> analyzer = new Analyzer<BasicValue>(new BasicInterpreter());
-                  try {
-                    Frame<BasicValue>[] frames = analyzer.analyze("C", this);
-                    int actualMaxStack = 0;
-                    int actualMaxLocals = 0;
-                    for (Frame<BasicValue> frame : frames) {
-                      if (frame != null) {
-                        actualMaxStack = Math.max(actualMaxStack, frame.getStackSize());
-                        actualMaxLocals = Math.max(actualMaxLocals, frame.getLocals());
-                      }
-                    }
-                    assertEquals(maxStack, actualMaxStack, "maxStack");
-                    assertEquals(maxLocals, actualMaxLocals, "maxLocals");
-                  } catch (AnalyzerException e) {
-                    fail(e.getMessage());
-                  }
-                }
-              };
-            } else {
-              return null;
-            }
-          }
-        },
-        0);
+  private static Analyzer<MockValue> newAnalyzer() {
+    return new Analyzer<>(new MockInterpreter());
+  }
 
-    TestClassLoader loader = new TestClassLoader();
-    try {
-      loader.defineClass("C", classFile).newInstance();
-    } catch (InstantiationException | IllegalAccessException e) {
-      fail(e.getMessage());
+  private static MethodInfo computeMaxStackAndLocalsFromFrames(final Frame<?>[] frames) {
+    int maxStack = 0;
+    int maxLocals = 0;
+    for (Frame<?> frame : frames) {
+      if (frame != null) {
+        maxStack = Math.max(maxStack, frame.getStackSize());
+        maxLocals = Math.max(maxLocals, frame.getLocals());
+      }
+    }
+    return new MethodInfo(maxStack, maxLocals);
+  }
+
+  private static class MethodInfo {
+
+    public final int maxStack;
+    public final int maxLocals;
+
+    public MethodInfo(final int maxStack, final int maxLocals) {
+      this.maxStack = maxStack;
+      this.maxLocals = maxLocals;
     }
   }
 
-  protected static class TestClassLoader extends ClassLoader {
+  private static enum MockValue implements Value {
+    INT,
+    LONG,
+    REFERENCE,
+    RETURN_ADDRESS,
+    TOP;
 
-    public TestClassLoader() {}
+    @Override
+    public int getSize() {
+      return equals(LONG) ? 2 : 1;
+    }
+  }
 
-    public Class<?> defineClass(final String name, final byte[] classFile) {
-      return defineClass(name, classFile, 0, classFile.length);
+  private static class MockInterpreter extends Interpreter<MockValue> {
+
+    MockInterpreter() {
+      super(Opcodes.ASM7);
+    }
+
+    @Override
+    public MockValue newValue(final Type type) {
+      if (type == null) {
+        return MockValue.TOP;
+      }
+      switch (type.getSort()) {
+        case Type.VOID:
+          return null;
+        case Type.INT:
+          return MockValue.INT;
+        case Type.LONG:
+          return MockValue.INT;
+        case Type.OBJECT:
+          return MockValue.REFERENCE;
+        default:
+          throw new UnsupportedOperationException();
+      }
+    }
+
+    @Override
+    public MockValue newOperation(final AbstractInsnNode insn) {
+      switch (insn.getOpcode()) {
+        case Opcodes.ACONST_NULL:
+          return MockValue.REFERENCE;
+        case Opcodes.ICONST_0:
+          return MockValue.INT;
+        case Opcodes.JSR:
+          return MockValue.RETURN_ADDRESS;
+        case Opcodes.LCONST_0:
+          return MockValue.LONG;
+        default:
+          throw new UnsupportedOperationException();
+      }
+    }
+
+    @Override
+    public MockValue copyOperation(final AbstractInsnNode insn, final MockValue value) {
+      return value;
+    }
+
+    @Override
+    public MockValue unaryOperation(final AbstractInsnNode insn, final MockValue value) {
+      switch (insn.getOpcode()) {
+        case Opcodes.IFNE:
+        case Opcodes.IFNONNULL:
+        case Opcodes.ATHROW:
+          return null;
+        case Opcodes.IINC:
+          return MockValue.INT;
+        case Opcodes.NEWARRAY:
+          return MockValue.REFERENCE;
+        default:
+          throw new UnsupportedOperationException();
+      }
+    }
+
+    @Override
+    public MockValue binaryOperation(
+        final AbstractInsnNode insn, final MockValue value1, final MockValue value2) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public MockValue ternaryOperation(
+        final AbstractInsnNode insn,
+        final MockValue value1,
+        final MockValue value2,
+        final MockValue value3) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public MockValue naryOperation(
+        final AbstractInsnNode insn, final List<? extends MockValue> values) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void returnOperation(
+        final AbstractInsnNode insn, final MockValue value, final MockValue expected) {
+      // Nothing to do.
+    }
+
+    @Override
+    public MockValue merge(final MockValue value1, final MockValue value2) {
+      if (!value1.equals(value2)) {
+        return MockValue.TOP;
+      }
+      return value1;
     }
   }
 }

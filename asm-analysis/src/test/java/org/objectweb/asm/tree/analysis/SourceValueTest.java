@@ -28,52 +28,34 @@
 package org.objectweb.asm.tree.analysis;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
 import org.objectweb.asm.Opcodes;
-import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.InsnNode;
 
 /**
- * BasicValue and SourceValue tests.
+ * Unit tests for {@link SourceValue} tests.
  *
  * @author Eric Bruneton
  */
-public class ValueTest {
+public class SourceValueTest {
 
   @Test
-  public void testBasicValue() {
-    assertEquals(new BasicValue(null), BasicValue.UNINITIALIZED_VALUE);
-    assertEquals(new BasicValue(Type.INT_TYPE), BasicValue.INT_VALUE);
-    assertEquals(BasicValue.INT_VALUE, BasicValue.INT_VALUE);
-    assertNotEquals(new Object(), BasicValue.INT_VALUE);
-
-    assertTrue(BasicValue.REFERENCE_VALUE.isReference());
-    assertTrue(new BasicValue(Type.getObjectType("[I")).isReference());
-    assertFalse(BasicValue.UNINITIALIZED_VALUE.isReference());
-    assertFalse(BasicValue.INT_VALUE.isReference());
-
-    assertEquals(0, BasicValue.UNINITIALIZED_VALUE.hashCode());
-    assertNotEquals(0, BasicValue.INT_VALUE.hashCode());
-
-    assertEquals(".", BasicValue.UNINITIALIZED_VALUE.toString());
-    assertEquals("A", BasicValue.RETURNADDRESS_VALUE.toString());
-    assertEquals("R", BasicValue.REFERENCE_VALUE.toString());
-    assertEquals("LI;", new BasicValue(Type.getObjectType("I")).toString());
+  public void testGetSize() {
+    assertEquals(2, new SourceValue(2).getSize());
   }
 
   @Test
-  public void testSourceValue() {
-    assertEquals(2, new SourceValue(2).getSize());
-
+  public void testEquals() {
     assertEquals(new SourceValue(1), new SourceValue(1));
     assertNotEquals(new SourceValue(1), new SourceValue(1, new InsnNode(Opcodes.NOP)));
     assertNotEquals(new SourceValue(1), new SourceValue(2));
     assertNotEquals(new SourceValue(1), null);
+  }
 
+  @Test
+  public void testHashcode() {
     assertEquals(0, new SourceValue(1).hashCode());
     assertNotEquals(0, new SourceValue(1, new InsnNode(Opcodes.NOP)).hashCode());
   }

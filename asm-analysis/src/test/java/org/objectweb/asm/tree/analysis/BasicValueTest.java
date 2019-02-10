@@ -27,42 +27,48 @@
 // THE POSSIBILITY OF SUCH DAMAGE.
 package org.objectweb.asm.tree.analysis;
 
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.MethodSource;
-import org.objectweb.asm.ClassReader;
-import org.objectweb.asm.test.AsmTest;
-import org.objectweb.asm.tree.ClassNode;
-import org.objectweb.asm.tree.MethodNode;
+import org.objectweb.asm.Type;
 
 /**
- * BasicVerifier tests.
+ * Unit tests for {@link BasicValue}.
  *
  * @author Eric Bruneton
  */
-public class BasicVerifierTest extends AsmTest {
+public class BasicValueTest {
 
   @Test
-  public void testConstructor() {
-    assertThrows(IllegalStateException.class, () -> new BasicVerifier() {});
+  public void testIsReference() {
+    assertTrue(BasicValue.REFERENCE_VALUE.isReference());
+    assertTrue(new BasicValue(Type.getObjectType("[I")).isReference());
+    assertFalse(BasicValue.UNINITIALIZED_VALUE.isReference());
+    assertFalse(BasicValue.INT_VALUE.isReference());
   }
 
-  /**
-   * Tests that the precompiled classes can be successfully analyzed with a BasicVerifier.
-   *
-   * @throws AnalyzerException if the test class can't be analyzed.
-   */
-  @ParameterizedTest
-  @MethodSource(ALL_CLASSES_AND_LATEST_API)
-  public void testAnalyze(final PrecompiledClass classParameter, final Api apiParameter)
-      throws AnalyzerException {
-    ClassNode classNode = new ClassNode();
-    new ClassReader(classParameter.getBytes()).accept(classNode, 0);
-    for (MethodNode methodNode : classNode.methods) {
-      Analyzer<BasicValue> analyzer = new Analyzer<BasicValue>(new BasicVerifier());
-      analyzer.analyze(classNode.name, methodNode);
-    }
+  @Test
+  public void testEquals() {
+    assertEquals(new BasicValue(null), BasicValue.UNINITIALIZED_VALUE);
+    assertEquals(new BasicValue(Type.INT_TYPE), BasicValue.INT_VALUE);
+    assertEquals(BasicValue.INT_VALUE, BasicValue.INT_VALUE);
+    assertNotEquals(new Object(), BasicValue.INT_VALUE);
+  }
+
+  @Test
+  public void testHashCode() {
+    assertEquals(0, BasicValue.UNINITIALIZED_VALUE.hashCode());
+    assertNotEquals(0, BasicValue.INT_VALUE.hashCode());
+  }
+
+  @Test
+  public void testToString() {
+    assertEquals(".", BasicValue.UNINITIALIZED_VALUE.toString());
+    assertEquals("A", BasicValue.RETURNADDRESS_VALUE.toString());
+    assertEquals("R", BasicValue.REFERENCE_VALUE.toString());
+    assertEquals("LI;", new BasicValue(Type.getObjectType("I")).toString());
   }
 }

@@ -38,9 +38,10 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.Set;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.function.Executable;
 
 /**
- * SmallSet tests.
+ * Unit tests for {@link SmallSet}.
  *
  * @author Eric Bruneton
  */
@@ -52,69 +53,119 @@ public class SmallSetTest {
   private static final Object ELEMENT4 = new Object();
 
   @Test
-  public void testUnion1() {
-    SmallSet<Object> set1 = new SmallSet<Object>(ELEMENT1);
-    SmallSet<Object> set2 = new SmallSet<Object>(ELEMENT1);
+  public void testUnion_oneElement_emptySet() {
+    SmallSet<Object> set1 = new SmallSet<>(ELEMENT1);
+    SmallSet<Object> set2 = new SmallSet<>();
+
     Set<Object> union1 = set1.union(set2);
     Set<Object> union2 = set2.union(set1);
+
+    assertEquals(set1, union1);
+    assertEquals(set1, union2);
+  }
+
+  @Test
+  public void testUnion_oneElement_oneElement() {
+    SmallSet<Object> set1 = new SmallSet<>(ELEMENT1);
+    SmallSet<Object> set2 = new SmallSet<>(ELEMENT1);
+
+    Set<Object> union1 = set1.union(set2);
+    Set<Object> union2 = set2.union(set1);
+
     assertEquals(union1, union2);
     assertEquals(union1, new HashSet<Object>(Arrays.asList(ELEMENT1)));
   }
 
   @Test
-  public void testUnion2() {
+  public void testUnion_oneElement_twoElements_superSet() {
     SmallSet<Object> set1 = newSmallSet(ELEMENT1, ELEMENT2);
-    SmallSet<Object> set2 = new SmallSet<Object>(ELEMENT1);
+    SmallSet<Object> set2 = new SmallSet<>(ELEMENT1);
+
     Set<Object> union1 = set1.union(set2);
     Set<Object> union2 = set2.union(set1);
+
     assertEquals(union1, union2);
     assertEquals(union1, new HashSet<Object>(Arrays.asList(ELEMENT1, ELEMENT2)));
   }
 
   @Test
-  public void testUnion2EqualSets() {
+  public void testUnion_twoElements_twoElements_equalSets() {
     SmallSet<Object> set1 = newSmallSet(ELEMENT1, ELEMENT2);
     SmallSet<Object> set2 = newSmallSet(ELEMENT2, ELEMENT1);
+
     Set<Object> union1 = set1.union(set2);
     Set<Object> union2 = set2.union(set1);
+
     assertEquals(union1, union2);
     assertEquals(union1, new HashSet<Object>(Arrays.asList(ELEMENT1, ELEMENT2)));
   }
 
   @Test
-  public void testUnion3() {
+  public void testUnion_twoElements_oneElement_distinctSets() {
     SmallSet<Object> set1 = newSmallSet(ELEMENT1, ELEMENT2);
-    SmallSet<Object> set2 = new SmallSet<Object>(ELEMENT3);
+    SmallSet<Object> set2 = new SmallSet<>(ELEMENT3);
+
     Set<Object> union1 = set1.union(set2);
     Set<Object> union2 = set2.union(set1);
+
     assertEquals(union1, union2);
     assertEquals(union1, new HashSet<Object>(Arrays.asList(ELEMENT1, ELEMENT2, ELEMENT3)));
   }
 
   @Test
-  public void testUnion4() {
+  public void testUnion_twoElements_twoElements_distincSets() {
     SmallSet<Object> set1 = newSmallSet(ELEMENT1, ELEMENT2);
     SmallSet<Object> set2 = newSmallSet(ELEMENT3, ELEMENT4);
+
     Set<Object> union1 = set1.union(set2);
     Set<Object> union2 = set2.union(set1);
+
     assertEquals(union1, union2);
     assertEquals(
         union1, new HashSet<Object>(Arrays.asList(ELEMENT1, ELEMENT2, ELEMENT3, ELEMENT4)));
   }
 
   @Test
-  public void testIterator() {
+  public void testIterator_next_firstElement() {
     Iterator<Object> iterator = newSmallSet(ELEMENT1, ELEMENT2).iterator();
+
+    Object element = iterator.next();
+
+    assertEquals(ELEMENT1, element);
     assertTrue(iterator.hasNext());
-    assertEquals(ELEMENT1, iterator.next());
-    assertTrue(iterator.hasNext());
-    assertEquals(ELEMENT2, iterator.next());
+  }
+
+  @Test
+  public void testIterator_next_secondElement() {
+    Iterator<Object> iterator = newSmallSet(ELEMENT1, ELEMENT2).iterator();
+    iterator.next();
+
+    Object element = iterator.next();
+
+    assertEquals(ELEMENT2, element);
     assertFalse(iterator.hasNext());
-    assertThrows(NoSuchElementException.class, () -> iterator.next());
+  }
+
+  @Test
+  public void testIterator_next_noSuchElement() {
+    Iterator<Object> iterator = newSmallSet(ELEMENT1, ELEMENT2).iterator();
+    iterator.next();
+    iterator.next();
+
+    Executable next = () -> iterator.next();
+
+    assertThrows(NoSuchElementException.class, next);
+  }
+
+  @Test
+  public void testIterator_remove() {
+    Iterator<Object> iterator = newSmallSet(ELEMENT1, ELEMENT2).iterator();
+    iterator.next();
+
     assertThrows(UnsupportedOperationException.class, () -> iterator.remove());
   }
 
-  private SmallSet<Object> newSmallSet(final Object element1, final Object element2) {
+  private static SmallSet<Object> newSmallSet(final Object element1, final Object element2) {
     return (SmallSet<Object>) new SmallSet<Object>(element1).union(new SmallSet<Object>(element2));
   }
 }

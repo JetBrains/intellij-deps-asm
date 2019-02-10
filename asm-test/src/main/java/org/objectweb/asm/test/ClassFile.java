@@ -160,9 +160,10 @@ public class ClassFile {
    *
    * @return a new instance of the class, or {@literal null} if the class is abstract, is an enum,
    *     or a module info.
-   * @throws Exception if the class is invalid or if an error occurs in its constructor.
+   * @throws ReflectiveOperationException if the class is invalid or if an error occurs in its
+   *     constructor.
    */
-  public Object newInstance() throws Exception {
+  public Object newInstance() throws ReflectiveOperationException {
     if (className == null) {
       computeNameAndDumps();
     }
@@ -176,8 +177,11 @@ public class ClassFile {
    * @param classContent the content of the class to load.
    * @return a new instance of the class, or {@literal null} if the class is abstract, is an enum,
    *     or a module info.
+   * @throws ReflectiveOperationException if the class is invalid or if an error occurs in its
+   *     constructor.
    */
-  static Object newInstance(final String className, final byte[] classContent) throws Exception {
+  static Object newInstance(final String className, final byte[] classContent)
+      throws ReflectiveOperationException {
     if (className.endsWith(MODULE_INFO)) {
       if (Util.getMajorJavaVersion() < 9) {
         throw new UnsupportedClassVersionError("Module info is not supported before JDK 9");

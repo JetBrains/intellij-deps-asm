@@ -438,7 +438,7 @@ public class ClassWriter extends ClassVisitor {
    * @throws ClassTooLargeException if the constant pool of the class is too large.
    * @throws MethodTooLargeException if the Code attribute of a method is too large.
    */
-  public byte[] toByteArray() throws ClassTooLargeException, MethodTooLargeException {
+  public byte[] toByteArray() {
     // First step: compute the size in bytes of the ClassFile structure.
     // The magic field uses 4 bytes, 10 mandatory fields (minor_version, major_version,
     // constant_pool_count, access_flags, this_class, super_class, interfaces_count, fields_count,

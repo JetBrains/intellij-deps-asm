@@ -263,7 +263,7 @@ public class ASMifier extends Printer {
     stringBuilder.setLength(0);
     stringBuilder.append("classWriter.visitNestHost(");
     appendConstant(nestHost);
-    stringBuilder.append(");\n\n");
+    stringBuilder.append(END_PARAMETERS);
     text.add(stringBuilder.toString());
   }
 
@@ -1413,7 +1413,7 @@ public class ASMifier extends Printer {
       stringBuilder.append(constantDynamic.getName()).append("\", \"");
       stringBuilder.append(constantDynamic.getDescriptor()).append("\", ");
       appendConstant(constantDynamic.getBootstrapMethod());
-      stringBuilder.append(", new Object[] {");
+      stringBuilder.append(NEW_OBJECT_ARRAY);
       int bootstrapMethodArgumentCount = constantDynamic.getBootstrapMethodArgumentCount();
       for (int i = 0; i < bootstrapMethodArgumentCount; ++i) {
         appendConstant(constantDynamic.getBootstrapMethodArgument(i));

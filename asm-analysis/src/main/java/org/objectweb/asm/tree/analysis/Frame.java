@@ -120,7 +120,9 @@ public class Frame<V extends Value> {
    *     this frame corresponds to the successor of the jump instruction (i.e. the next instruction
    *     in the instructions sequence).
    */
-  public void initJumpTarget(final int opcode, final LabelNode target) {}
+  public void initJumpTarget(final int opcode, final LabelNode target) {
+    // Does nothing by default.
+  }
 
   /**
    * Sets the expected return type of the analyzed method.
@@ -206,7 +208,7 @@ public class Frame<V extends Value> {
    * @param value the new value of the stack slot.
    * @throws IndexOutOfBoundsException if the stack slot does not exist.
    */
-  public void setStack(final int index, final V value) throws IndexOutOfBoundsException {
+  public void setStack(final int index, final V value) {
     values[numLocals + index] = value;
   }
 

@@ -31,6 +31,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.MethodVisitor;
+import org.objectweb.asm.Label;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
@@ -47,7 +48,7 @@ import org.objectweb.asm.Type;
 public class DumpArtificialStructures implements Opcodes {
 
   public static void main(String[] args) throws IOException {
-    FileOutputStream fileOutputStream = new FileOutputStream("ArtificialStructures.class");
+    FileOutputStream fileOutputStream = new FileOutputStream("Artificial$()$Structures.class");
     fileOutputStream.write(dump());
     fileOutputStream.close();
   }
@@ -57,13 +58,62 @@ public class DumpArtificialStructures implements Opcodes {
     MethodVisitor methodVisitor;
 
     classWriter.visit(
-        V1_8, ACC_PUBLIC + ACC_SUPER, "jdk8/ArtificialStructures", null, "java/lang/Object", null);
+        V1_8,
+        ACC_PUBLIC + ACC_SUPER,
+        "jdk8/Artificial$()$Structures",
+        null,
+        "java/lang/Object",
+        null);
 
-    methodVisitor = classWriter.visitMethod(ACC_PUBLIC, "<init>", "()V", null, null);
+    classWriter.visitField(ACC_PUBLIC, "value", "I", null, null).visitEnd();
+
+    methodVisitor = classWriter.visitMethod(ACC_PUBLIC, "<init>", "(I)V", null, null);
     methodVisitor.visitCode();
     methodVisitor.visitVarInsn(ALOAD, 0);
     methodVisitor.visitMethodInsn(INVOKESPECIAL, "java/lang/Object", "<init>", "()V", false);
+    methodVisitor.visitVarInsn(ALOAD, 0);
+    methodVisitor.visitVarInsn(ILOAD, 1);
+    methodVisitor.visitFieldInsn(PUTFIELD, "jdk8/Artificial$()$Structures", "value", "I");
     methodVisitor.visitInsn(RETURN);
+    methodVisitor.visitMaxs(0, 0);
+    methodVisitor.visitEnd();
+
+    methodVisitor =
+        classWriter.visitMethod(
+            ACC_PRIVATE, "<init>", "(Ljdk8/Artificial$()$Structures;)V", null, null);
+    methodVisitor.visitCode();
+    methodVisitor.visitVarInsn(ALOAD, 0);
+    methodVisitor.visitMethodInsn(INVOKESPECIAL, "java/lang/Object", "<init>", "()V", false);
+    methodVisitor.visitVarInsn(ALOAD, 0);
+    methodVisitor.visitVarInsn(ALOAD, 1);
+    Label elseLabel = new Label();
+    methodVisitor.visitJumpInsn(IFNULL, elseLabel);
+    methodVisitor.visitVarInsn(ALOAD, 1);
+    methodVisitor.visitFieldInsn(GETFIELD, "jdk8/Artificial$()$Structures", "value", "I");
+    Label endIfLabel = new Label();
+    methodVisitor.visitJumpInsn(GOTO, endIfLabel);
+    methodVisitor.visitLabel(elseLabel);
+    methodVisitor.visitInsn(ICONST_0);
+    methodVisitor.visitLabel(endIfLabel);
+    methodVisitor.visitFieldInsn(PUTFIELD, "jdk8/Artificial$()$Structures", "value", "I");
+    methodVisitor.visitInsn(RETURN);
+    methodVisitor.visitMaxs(0, 0);
+    methodVisitor.visitEnd();
+
+    methodVisitor =
+        classWriter.visitMethod(
+            ACC_PUBLIC, "clone", "()Ljdk8/Artificial$()$Structures;", null, null);
+    methodVisitor.visitCode();
+    methodVisitor.visitTypeInsn(NEW, "jdk8/Artificial$()$Structures");
+    methodVisitor.visitInsn(DUP);
+    methodVisitor.visitVarInsn(ALOAD, 0);
+    methodVisitor.visitMethodInsn(
+        INVOKESPECIAL,
+        "jdk8/Artificial$()$Structures",
+        "<init>",
+        "(Ljdk8/Artificial$()$Structures;)V",
+        false);
+    methodVisitor.visitInsn(ARETURN);
     methodVisitor.visitMaxs(0, 0);
     methodVisitor.visitEnd();
 

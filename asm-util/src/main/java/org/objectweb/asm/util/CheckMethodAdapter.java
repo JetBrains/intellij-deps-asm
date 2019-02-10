@@ -1342,10 +1342,10 @@ public class CheckMethodAdapter extends MethodVisitor {
       int startIndex = 0;
       int slashIndex;
       while ((slashIndex = name.indexOf('/', startIndex + 1)) != -1) {
-        CheckMethodAdapter.checkIdentifier(version, name, startIndex, slashIndex, null);
+        checkIdentifier(version, name, startIndex, slashIndex, null);
         startIndex = slashIndex + 1;
       }
-      CheckMethodAdapter.checkIdentifier(version, name, startIndex, name.length(), null);
+      checkIdentifier(version, name, startIndex, name.length(), null);
     } catch (IllegalArgumentException e) {
       throw new IllegalArgumentException(
           INVALID + message + " (must be an internal class name): " + name, e);

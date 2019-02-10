@@ -547,7 +547,8 @@ class Frame {
    * @param descriptor a type or method descriptor (in which case its return type is pushed).
    */
   private void push(final SymbolTable symbolTable, final String descriptor) {
-    int typeDescriptorOffset = descriptor.charAt(0) == '(' ? descriptor.indexOf(')') + 1 : 0;
+    int typeDescriptorOffset =
+        descriptor.charAt(0) == '(' ? Type.getReturnTypeOffset(descriptor) : 0;
     int abstractType = getAbstractTypeFromDescriptor(symbolTable, descriptor, typeDescriptorOffset);
     if (abstractType != 0) {
       push(abstractType);

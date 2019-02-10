@@ -28,9 +28,11 @@
 package org.objectweb.asm;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.function.Executable;
 
 /**
  * Unit tests for {@link FieldVisitor}.
@@ -40,9 +42,17 @@ import org.junit.jupiter.api.Test;
 public class FieldVisitorTest {
 
   @Test
-  public void testConstructor() {
-    assertDoesNotThrow(() -> new FieldVisitor(Opcodes.ASM4) {});
-    assertThrows(IllegalArgumentException.class, () -> new FieldVisitor(0) {});
-    assertThrows(IllegalArgumentException.class, () -> new FieldVisitor(Integer.MAX_VALUE) {});
+  public void testConstructor_validApi() {
+    Executable constructor = () -> new FieldVisitor(Opcodes.ASM4) {};
+
+    assertDoesNotThrow(constructor);
+  }
+
+  @Test
+  public void testConstructor_invalidApi() {
+    Executable constructor = () -> new FieldVisitor(0) {};
+
+    Exception exception = assertThrows(IllegalArgumentException.class, constructor);
+    assertEquals("Unsupported api 0", exception.getMessage());
   }
 }

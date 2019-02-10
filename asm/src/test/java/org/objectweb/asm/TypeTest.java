@@ -34,6 +34,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.Arrays;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.function.Executable;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
@@ -119,7 +120,9 @@ public class TypeTest implements Opcodes {
 
   @Test
   public void testGetTypeFromDescriptor_invalid() {
-    assertThrows(IllegalArgumentException.class, () -> Type.getType("-"));
+    Executable getType = () -> Type.getType("-");
+
+    assertThrows(IllegalArgumentException.class, getType);
   }
 
   @ParameterizedTest

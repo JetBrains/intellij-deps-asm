@@ -104,20 +104,44 @@ public class ClassFileTest extends AsmTest {
   }
 
   @Test
-  public void testHashcodeAndToString_validClass() {
+  public void testHashcode_validClass() {
     PrecompiledClass precompiledClass = PrecompiledClass.JDK3_ALL_INSTRUCTIONS;
     ClassFile classFile = new ClassFile(precompiledClass.getBytes());
 
-    assertNotEquals(0, classFile.hashCode());
-    assertTrue(classFile.toString().contains(precompiledClass.getInternalName()));
+    int hashCode = classFile.hashCode();
+
+    assertNotEquals(0, hashCode);
   }
 
   @Test
-  public void testHashcodeAndToString_invalidClass() {
+  public void testHashcode_invalidClass() {
     InvalidClass invalidClass = InvalidClass.INVALID_CLASS_VERSION;
     ClassFile classFile = new ClassFile(invalidClass.getBytes());
 
-    assertThrows(ClassFormatException.class, () -> classFile.hashCode());
-    assertThrows(ClassFormatException.class, () -> classFile.toString());
+    Executable hashCode = () -> classFile.hashCode();
+
+    Exception exception = assertThrows(ClassFormatException.class, hashCode);
+    assertEquals("Unsupported class version", exception.getMessage());
+  }
+
+  @Test
+  public void testToString_validClass() {
+    PrecompiledClass precompiledClass = PrecompiledClass.JDK3_ALL_INSTRUCTIONS;
+    ClassFile classFile = new ClassFile(precompiledClass.getBytes());
+
+    String classString = classFile.toString();
+
+    assertTrue(classString.contains(precompiledClass.getInternalName()));
+  }
+
+  @Test
+  public void testToString_invalidClass() {
+    InvalidClass invalidClass = InvalidClass.INVALID_CLASS_VERSION;
+    ClassFile classFile = new ClassFile(invalidClass.getBytes());
+
+    Executable toString = () -> classFile.toString();
+
+    Exception exception = assertThrows(ClassFormatException.class, toString);
+    assertEquals("Unsupported class version", exception.getMessage());
   }
 }

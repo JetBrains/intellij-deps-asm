@@ -31,6 +31,7 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -53,10 +54,18 @@ import org.objectweb.asm.test.ClassFile;
 public class ClassVisitorTest extends AsmTest {
 
   @Test
-  public void testConstructor() {
-    assertDoesNotThrow(() -> new ClassVisitor(Opcodes.ASM4) {});
-    assertThrows(IllegalArgumentException.class, () -> new ClassVisitor(0) {});
-    assertThrows(IllegalArgumentException.class, () -> new ClassVisitor(Integer.MAX_VALUE) {});
+  public void testConstructor_validApi() {
+    Executable constructor = () -> new ClassVisitor(Opcodes.ASM4) {};
+
+    assertDoesNotThrow(constructor);
+  }
+
+  @Test
+  public void testConstructor_invalidApi() {
+    Executable constructor = () -> new ClassVisitor(0) {};
+
+    Exception exception = assertThrows(IllegalArgumentException.class, constructor);
+    assertEquals("Unsupported api 0", exception.getMessage());
   }
 
   /**
@@ -76,7 +85,8 @@ public class ClassVisitorTest extends AsmTest {
     Executable transform = () -> classReader.accept(classAdapter, attributes(), 0);
 
     if (classParameter.isMoreRecentThan(apiParameter)) {
-      assertThrows(RuntimeException.class, transform);
+      Exception exception = assertThrows(UnsupportedOperationException.class, transform);
+      assertTrue(exception.getMessage().matches(UNSUPPORTED_OPERATION_MESSAGE_PATTERN));
     } else {
       assertDoesNotThrow(transform);
       assertEquals(new ClassFile(classFile), new ClassFile(classWriter.toByteArray()));

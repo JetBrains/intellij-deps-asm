@@ -28,6 +28,7 @@
 package org.objectweb.asm.tree.analysis;
 
 import static java.time.Duration.ofSeconds;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTimeoutPreemptively;
@@ -36,7 +37,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.function.Executable;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.objectweb.asm.ClassReader;
@@ -46,58 +49,30 @@ import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.MethodNode;
 
 /**
- * BasicInterpreter tests.
+ * Unit tests for {@link Analyzer}, when used with a {@link BasicInterpreter}.
  *
  * @author Eric Bruneton
  */
-public class BasicInterpreterTest extends AsmTest {
+public class AnalyzerWithBasicInterpreterTest extends AsmTest {
+
+  private static final String CLASS_NAME = "C";
 
   @Test
   public void testConstructor() {
+    assertDoesNotThrow(() -> new BasicInterpreter());
     assertThrows(IllegalStateException.class, () -> new BasicInterpreter() {});
   }
 
-  /**
-   * Tests that stack map frames are correctly merged when a JSR instruction can be reached from two
-   * different control flow paths, with different local variable types (#316204).
-   *
-   * @throws IOException if the test class can't be loaded.
-   * @throws AnalyzerException if the test class can't be analyzed.
-   */
   @Test
-  public void testMergeWithJsrReachableFromTwoDifferentPaths()
-      throws IOException, AnalyzerException {
-    ClassReader classReader =
-        new ClassReader(Files.newInputStream(Paths.get("src/test/resources/Issue316204.class")));
-    ClassNode classNode = new ClassNode();
-    classReader.accept(classNode, 0);
-    Analyzer<BasicValue> analyzer = new Analyzer<>(new BasicInterpreter());
-    analyzer.analyze(classNode.name, getMethod(classNode, "basicStopBundles"));
-    assertEquals("RIR..... ", analyzer.getFrames()[104].toString());
-  }
+  public void testAnalyze_invalidNewArray() {
+    MethodNode methodNode =
+        new MethodNodeBuilder().iconst_0().intInsn(Opcodes.NEWARRAY, -1).vreturn().build();
 
-  /**
-   * Tests that the analyzer does not loop infinitely, even if the {@link Interpreter#merge} method
-   * does not follow its required contract (namely that if the merge result is equal to the first
-   * argument, the first argument should be returned - see #316326).
-   *
-   * @throws AnalyzerException if the test class can't be analyzed.
-   */
-  @Test
-  public void testAnalyzeWithBadInterpreter() throws AnalyzerException {
-    ClassNode classNode = new ClassNode();
-    new ClassReader(PrecompiledClass.JDK8_ALL_FRAMES.getBytes()).accept(classNode, 0);
-    for (MethodNode methodNode : classNode.methods) {
-      Analyzer<BasicValue> analyzer =
-          new Analyzer<BasicValue>(
-              new BasicInterpreter(Opcodes.ASM7) {
-                @Override
-                public BasicValue merge(final BasicValue value1, final BasicValue value2) {
-                  return new BasicValue(super.merge(value1, value2).getType());
-                }
-              });
-      assertTimeoutPreemptively(ofSeconds(1), () -> analyzer.analyze("Test", methodNode));
-    }
+    Executable analyze =
+        () -> new Analyzer<BasicValue>(new BasicInterpreter()).analyze(CLASS_NAME, methodNode);
+
+    String message = assertThrows(AnalyzerException.class, analyze).getMessage();
+    assertTrue(message.contains("Invalid array type"));
   }
 
   /**
@@ -108,28 +83,84 @@ public class BasicInterpreterTest extends AsmTest {
    */
   @ParameterizedTest
   @MethodSource(ALL_CLASSES_AND_LATEST_API)
-  public void testAnalyze(final PrecompiledClass classParameter, final Api apiParameter)
-      throws AnalyzerException {
+  public void testAnalyze_basicInterpreter(
+      final PrecompiledClass classParameter, final Api apiParameter) throws AnalyzerException {
     ClassNode classNode = new ClassNode();
     new ClassReader(classParameter.getBytes()).accept(classNode, 0);
-    for (MethodNode methodNode : classNode.methods) {
-      Analyzer<BasicValue> analyzer =
-          new Analyzer<BasicValue>(new BasicInterpreter()) {
-            @Override
-            protected Frame<BasicValue> newFrame(final int numLocals, final int numStack) {
-              return new CustomFrame(numLocals, numStack);
-            }
+    Analyzer<BasicValue> analyzer =
+        new Analyzer<BasicValue>(new BasicInterpreter()) {
+          @Override
+          protected Frame<BasicValue> newFrame(final int numLocals, final int numStack) {
+            return new CustomFrame(numLocals, numStack);
+          }
 
-            @Override
-            protected Frame<BasicValue> newFrame(final Frame<? extends BasicValue> src) {
-              return new CustomFrame(src);
-            }
-          };
-      analyzer.analyze(classNode.name, methodNode);
-      for (Frame<? extends BasicValue> frame : analyzer.getFrames()) {
+          @Override
+          protected Frame<BasicValue> newFrame(final Frame<? extends BasicValue> src) {
+            return new CustomFrame(src);
+          }
+        };
+
+    ArrayList<Frame<? extends BasicValue>[]> methodFrames = new ArrayList<>();
+    for (MethodNode methodNode : classNode.methods) {
+      methodFrames.add(analyzer.analyze(classNode.name, methodNode));
+    }
+
+    for (Frame<? extends BasicValue>[] frames : methodFrames) {
+      for (Frame<? extends BasicValue> frame : frames) {
         assertTrue(frame == null || frame instanceof CustomFrame);
       }
     }
+  }
+
+  /**
+   * Tests that the analyzer does not loop infinitely, even if the {@link Interpreter#merge} method
+   * does not follow its required contract (namely that if the merge result is equal to the first
+   * argument, the first argument should be returned - see #316326).
+   *
+   * @throws AnalyzerException if the test class can't be analyzed.
+   */
+  @Test
+  public void testAnalyze_badInterpreter() {
+    ClassNode classNode = new ClassNode();
+    new ClassReader(PrecompiledClass.JDK8_ALL_FRAMES.getBytes()).accept(classNode, 0);
+    Analyzer<BasicValue> analyzer =
+        new Analyzer<BasicValue>(
+            new BasicInterpreter(Opcodes.ASM7) {
+              @Override
+              public BasicValue merge(final BasicValue value1, final BasicValue value2) {
+                return new BasicValue(super.merge(value1, value2).getType());
+              }
+            });
+
+    ArrayList<Executable> analyses = new ArrayList<>();
+    for (MethodNode methodNode : classNode.methods) {
+      analyses.add(() -> analyzer.analyze(CLASS_NAME, methodNode));
+    }
+
+    for (Executable analysis : analyses) {
+      assertTimeoutPreemptively(ofSeconds(1), analysis);
+    }
+  }
+
+  /**
+   * Tests that stack map frames are correctly merged when a JSR instruction can be reached from two
+   * different control flow paths, with different local variable types (#316204).
+   *
+   * @throws IOException if the test class can't be loaded.
+   * @throws AnalyzerException if the test class can't be analyzed.
+   */
+  @Test
+  public void testAnalyze_mergeWithJsrReachableFromTwoDifferentPaths()
+      throws IOException, AnalyzerException {
+    ClassReader classReader =
+        new ClassReader(Files.newInputStream(Paths.get("src/test/resources/Issue316204.class")));
+    ClassNode classNode = new ClassNode();
+    classReader.accept(classNode, 0);
+    Analyzer<BasicValue> analyzer = new Analyzer<>(new BasicInterpreter());
+
+    analyzer.analyze(classNode.name, getMethod(classNode, "basicStopBundles"));
+
+    assertEquals("RIR..... ", analyzer.getFrames()[104].toString());
   }
 
   private static MethodNode getMethod(final ClassNode classNode, final String name) {

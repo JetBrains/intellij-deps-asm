@@ -159,7 +159,7 @@ public class Frame<V extends Value> {
    */
   public V getLocal(final int index) {
     if (index >= numLocals) {
-      throw new IndexOutOfBoundsException("Trying to access an inexistant local variable");
+      throw new IndexOutOfBoundsException("Trying to get an inexistant local variable " + index);
     }
     return values[index];
   }
@@ -173,7 +173,7 @@ public class Frame<V extends Value> {
    */
   public void setLocal(final int index, final V value) {
     if (index >= numLocals) {
-      throw new IndexOutOfBoundsException("Trying to access an inexistant local variable " + index);
+      throw new IndexOutOfBoundsException("Trying to set an inexistant local variable " + index);
     }
     values[index] = value;
   }

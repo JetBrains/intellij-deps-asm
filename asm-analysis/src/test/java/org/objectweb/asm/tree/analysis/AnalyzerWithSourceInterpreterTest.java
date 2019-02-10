@@ -27,6 +27,7 @@
 // THE POSSIBILITY OF SUCH DAMAGE.
 package org.objectweb.asm.tree.analysis;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import org.junit.jupiter.api.Test;
@@ -38,14 +39,15 @@ import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.MethodNode;
 
 /**
- * SourceInterpreter tests.
+ * Unit tests for {@link Analyzer}, when used with a {@link SourceInterpreter}.
  *
  * @author Eric Bruneton
  */
-public class SourceInterpreterTest extends AsmTest {
+public class AnalyzerWithSourceInterpreterTest extends AsmTest {
 
   @Test
   public void testConstructor() {
+    assertDoesNotThrow(() -> new SourceInterpreter());
     assertThrows(IllegalStateException.class, () -> new SourceInterpreter() {});
   }
 
@@ -56,13 +58,14 @@ public class SourceInterpreterTest extends AsmTest {
    */
   @ParameterizedTest
   @MethodSource(ALL_CLASSES_AND_LATEST_API)
-  public void testAnalyze(final PrecompiledClass classParameter, final Api apiParameter)
-      throws AnalyzerException {
+  public void testAnalyze_sourceInterpreter(
+      final PrecompiledClass classParameter, final Api apiParameter) {
     ClassNode classNode = new ClassNode();
     new ClassReader(classParameter.getBytes()).accept(classNode, 0);
+    Analyzer<SourceValue> analyzer = new Analyzer<>(new SourceInterpreter());
+
     for (MethodNode methodNode : classNode.methods) {
-      Analyzer<SourceValue> analyzer = new Analyzer<SourceValue>(new SourceInterpreter());
-      analyzer.analyze(classNode.name, methodNode);
+      assertDoesNotThrow(() -> analyzer.analyze(classNode.name, methodNode));
     }
   }
 }

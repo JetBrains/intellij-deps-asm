@@ -363,6 +363,27 @@ public final class Type {
    * @return the {@link Type} corresponding to the return type of the given method descriptor.
    */
   public static Type getReturnType(final String methodDescriptor) {
+    return getTypeInternal(
+        methodDescriptor, getReturnTypeOffset(methodDescriptor), methodDescriptor.length());
+  }
+
+  /**
+   * Returns the {@link Type} corresponding to the return type of the given method.
+   *
+   * @param method a method.
+   * @return the {@link Type} corresponding to the return type of the given method.
+   */
+  public static Type getReturnType(final Method method) {
+    return getType(method.getReturnType());
+  }
+
+  /**
+   * Returns the start index of the return type of the given method descriptor.
+   *
+   * @param methodDescriptor a method descriptor.
+   * @return the start index of the return type of the given method descriptor.
+   */
+  static int getReturnTypeOffset(final String methodDescriptor) {
     // Skip the first character, which is always a '('.
     int currentOffset = 1;
     // Skip the argument types, one at a each loop iteration.
@@ -375,17 +396,7 @@ public final class Type {
         currentOffset = methodDescriptor.indexOf(';', currentOffset) + 1;
       }
     }
-    return getTypeInternal(methodDescriptor, currentOffset + 1, methodDescriptor.length());
-  }
-
-  /**
-   * Returns the {@link Type} corresponding to the return type of the given method.
-   *
-   * @param method a method.
-   * @return the {@link Type} corresponding to the return type of the given method.
-   */
-  public static Type getReturnType(final Method method) {
-    return getType(method.getReturnType());
+    return currentOffset + 1;
   }
 
   /**

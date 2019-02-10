@@ -239,6 +239,7 @@ public class ClassRemapperTest extends AsmTest {
 
   private static void checkInternalName(final String internalName) {
     CheckMethodAdapter checkMethodAdapter = new CheckMethodAdapter(null);
+    checkMethodAdapter.version = Opcodes.V1_5;
     checkMethodAdapter.visitCode();
     checkMethodAdapter.visitFieldInsn(Opcodes.GETFIELD, internalName, "name", "I");
   }

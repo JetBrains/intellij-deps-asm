@@ -495,9 +495,12 @@ public class AnalyzerAdapter extends MethodVisitor {
     maxStack = Math.max(maxStack, stack.size());
   }
 
-  private void pushDescriptor(final String descriptor) {
-    int index = descriptor.charAt(0) == '(' ? descriptor.indexOf(')') + 1 : 0;
-    switch (descriptor.charAt(index)) {
+  private void pushDescriptor(final String fieldOrMethodDescriptor) {
+    String descriptor =
+        fieldOrMethodDescriptor.charAt(0) == '('
+            ? Type.getReturnType(fieldOrMethodDescriptor).getDescriptor()
+            : fieldOrMethodDescriptor;
+    switch (descriptor.charAt(0)) {
       case 'V':
         return;
       case 'Z':
@@ -519,18 +522,10 @@ public class AnalyzerAdapter extends MethodVisitor {
         push(Opcodes.TOP);
         return;
       case '[':
-        if (index == 0) {
-          push(descriptor);
-        } else {
-          push(descriptor.substring(index, descriptor.length()));
-        }
+        push(descriptor);
         break;
       case 'L':
-        if (index == 0) {
-          push(descriptor.substring(1, descriptor.length() - 1));
-        } else {
-          push(descriptor.substring(index + 1, descriptor.length() - 1));
-        }
+        push(descriptor.substring(1, descriptor.length() - 1));
         break;
       default:
         throw new AssertionError();

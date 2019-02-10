@@ -158,7 +158,8 @@ public class ASMifierTest extends AsmTest {
       return;
     }
     byte[] asmifiedClassFile = compile(classParameter.getName(), asmifiedSource);
-    StringBuilder asmifiedClassName = new StringBuilder(classParameter.getName()).append("Dump");
+    String javaClassName = classParameter.getName().replaceAll("[-\\(\\)]", "_");
+    StringBuilder asmifiedClassName = new StringBuilder(javaClassName).append("Dump");
     if (classParameter.getName().indexOf('.') != -1) {
       asmifiedClassName.insert(0, "asm.");
     }

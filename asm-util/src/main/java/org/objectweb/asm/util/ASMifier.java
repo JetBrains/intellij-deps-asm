@@ -158,7 +158,7 @@ public class ASMifier extends Printer {
         simpleName = name;
       } else {
         text.add("package asm." + name.substring(0, lastSlashIndex).replace('/', '.') + ";\n");
-        simpleName = name.substring(lastSlashIndex + 1).replace('-', '_');
+        simpleName = name.substring(lastSlashIndex + 1).replaceAll("[-\\(\\)]", "_");
       }
     }
     text.add("import org.objectweb.asm.AnnotationVisitor;\n");

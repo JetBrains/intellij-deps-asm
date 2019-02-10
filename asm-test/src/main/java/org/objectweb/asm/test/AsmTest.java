@@ -89,6 +89,12 @@ public abstract class AsmTest {
   public static final String ALL_CLASSES_AND_LATEST_API = "allClassesAndLatestApi";
 
   /**
+   * The expected pattern (i.e. regular expression) that ASM's UnsupportedOperationException
+   * messages are supposed to match.
+   */
+  public static final String UNSUPPORTED_OPERATION_MESSAGE_PATTERN = ".* requires ASM[567]";
+
+  /**
    * A precompiled class, hand-crafted to contain some set of class file structures. These classes
    * are not compiled as part of the build. Instead, they have been compiled beforehand, with the
    * appropriate JDKs (including some now very hard to download and install).

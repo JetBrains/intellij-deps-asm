@@ -27,9 +27,11 @@
 // THE POSSIBILITY OF SUCH DAMAGE.
 package org.objectweb.asm.util;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.function.Executable;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.test.AsmTest;
@@ -45,22 +47,30 @@ public class CheckAnnotationAdapterTest extends AsmTest implements Opcodes {
   public void testVisit_illegalAnnotationName() {
     CheckAnnotationAdapter checkAnnotationAdapter = new CheckAnnotationAdapter(null);
 
-    assertThrows(Exception.class, () -> checkAnnotationAdapter.visit(null, Integer.valueOf(0)));
+    Executable visit = () -> checkAnnotationAdapter.visit(null, Integer.valueOf(0));
+
+    Exception exception = assertThrows(IllegalArgumentException.class, visit);
+    assertEquals("Annotation value name must not be null", exception.getMessage());
   }
 
   @Test
   public void testVisit_illegalAnnotationValue1() {
     CheckAnnotationAdapter checkAnnotationAdapter = new CheckAnnotationAdapter(null);
 
-    assertThrows(Exception.class, () -> checkAnnotationAdapter.visit("name", new Object()));
+    Executable visit = () -> checkAnnotationAdapter.visit("name", new Object());
+
+    Exception exception = assertThrows(IllegalArgumentException.class, visit);
+    assertEquals("Invalid annotation value", exception.getMessage());
   }
 
   @Test
   public void testVisit_illegalAnnotationValue2() {
     CheckAnnotationAdapter checkAnnotationAdapter = new CheckAnnotationAdapter(null);
 
-    assertThrows(
-        Exception.class, () -> checkAnnotationAdapter.visit("name", Type.getMethodType("()V")));
+    Executable visit = () -> checkAnnotationAdapter.visit("name", Type.getMethodType("()V"));
+
+    Exception exception = assertThrows(IllegalArgumentException.class, visit);
+    assertEquals("Invalid annotation value", exception.getMessage());
   }
 
   @Test
@@ -68,14 +78,20 @@ public class CheckAnnotationAdapterTest extends AsmTest implements Opcodes {
     CheckAnnotationAdapter checkAnnotationAdapter = new CheckAnnotationAdapter(null);
     checkAnnotationAdapter.visitEnd();
 
-    assertThrows(Exception.class, () -> checkAnnotationAdapter.visit("name", Integer.valueOf(0)));
+    Executable visit = () -> checkAnnotationAdapter.visit("name", Integer.valueOf(0));
+
+    Exception exception = assertThrows(IllegalStateException.class, visit);
+    assertEquals(
+        "Cannot call a visit method after visitEnd has been called", exception.getMessage());
   }
 
   @Test
   public void testVisitEnum_illegalAnnotationEnumValue() {
     CheckAnnotationAdapter checkAnnotationAdapter = new CheckAnnotationAdapter(null);
 
-    assertThrows(
-        Exception.class, () -> checkAnnotationAdapter.visitEnum("name", "Lpkg/Enum;", null));
+    Executable visitEnum = () -> checkAnnotationAdapter.visitEnum("name", "Lpkg/Enum;", null);
+
+    Exception exception = assertThrows(IllegalArgumentException.class, visitEnum);
+    assertEquals("Invalid enum value", exception.getMessage());
   }
 }

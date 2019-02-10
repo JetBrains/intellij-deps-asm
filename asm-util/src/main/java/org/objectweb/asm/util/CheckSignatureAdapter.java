@@ -241,11 +241,11 @@ public class CheckSignatureAdapter extends SignatureVisitor {
     }
     if (descriptor == 'V') {
       if (!canBeVoid) {
-        throw new IllegalArgumentException();
+        throw new IllegalArgumentException("Base type descriptor can't be V");
       }
     } else {
       if ("ZCBSIFJD".indexOf(descriptor) == -1) {
-        throw new IllegalArgumentException();
+        throw new IllegalArgumentException("Base type descriptor must be one of ZCBSIFJD");
       }
     }
     state = State.SIMPLE_TYPE;
@@ -315,7 +315,7 @@ public class CheckSignatureAdapter extends SignatureVisitor {
       throw new IllegalStateException();
     }
     if ("+-=".indexOf(wildcard) == -1) {
-      throw new IllegalArgumentException();
+      throw new IllegalArgumentException("Wildcard must be one of +-=");
     }
     return new CheckSignatureAdapter(
         TYPE_SIGNATURE,

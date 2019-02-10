@@ -33,6 +33,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import java.util.Arrays;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.function.Executable;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -137,7 +138,9 @@ public class TraceSignatureVisitorTest {
   public void testVisitBaseType_invalidSignature() {
     TraceSignatureVisitor traceSignatureVisitor = new TraceSignatureVisitor(0);
 
-    assertThrows(IllegalArgumentException.class, () -> traceSignatureVisitor.visitBaseType('-'));
+    Executable visitBaseType = () -> traceSignatureVisitor.visitBaseType('-');
+
+    assertThrows(IllegalArgumentException.class, visitBaseType);
   }
 
   @ParameterizedTest

@@ -28,9 +28,11 @@
 package org.objectweb.asm.util;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.function.Executable;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.TypeReference;
 import org.objectweb.asm.test.AsmTest;
@@ -52,17 +54,23 @@ public class CheckFieldAdapterTest extends AsmTest implements Opcodes {
   public void testVisitTypeAnnotation_illegalTypeAnnotation() {
     CheckFieldAdapter checkFieldAdapter = new CheckFieldAdapter(null);
 
-    assertThrows(
-        Exception.class,
+    Executable visitTypeAnnotation =
         () ->
             checkFieldAdapter.visitTypeAnnotation(
-                TypeReference.newFormalParameterReference(0).getValue(), null, "LA;", true));
+                TypeReference.newFormalParameterReference(0).getValue(), null, "LA;", true);
+
+    Exception exception = assertThrows(IllegalArgumentException.class, visitTypeAnnotation);
+    assertEquals("Invalid type reference sort 0x16", exception.getMessage());
   }
 
   @Test
   public void testVisitAttribute_illegalAttribute() {
     CheckFieldAdapter checkFieldAdapter = new CheckFieldAdapter(null);
-    assertThrows(Exception.class, () -> checkFieldAdapter.visitAttribute(null));
+
+    Executable visitAttribute = () -> checkFieldAdapter.visitAttribute(null);
+
+    Exception exception = assertThrows(IllegalArgumentException.class, visitAttribute);
+    assertEquals("Invalid attribute (must not be null)", exception.getMessage());
   }
 
   @Test
@@ -70,6 +78,10 @@ public class CheckFieldAdapterTest extends AsmTest implements Opcodes {
     CheckFieldAdapter checkFieldAdapter = new CheckFieldAdapter(null);
     checkFieldAdapter.visitEnd();
 
-    assertThrows(Exception.class, () -> checkFieldAdapter.visitAttribute(new Comment()));
+    Executable visitAttribute = () -> checkFieldAdapter.visitAttribute(new Comment());
+
+    Exception exception = assertThrows(IllegalStateException.class, visitAttribute);
+    assertEquals(
+        "Cannot call a visit method after visitEnd has been called", exception.getMessage());
   }
 }

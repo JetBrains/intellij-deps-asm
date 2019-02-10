@@ -141,6 +141,30 @@ public class AnalyzerWithSimpleVerifierTest extends AsmTest {
   }
 
   /**
+   * Tests that the precompiled classes can be successfully analyzed with a SimpleVerifier.
+   *
+   * @throws AnalyzerException if the test class can't be analyzed.
+   */
+  @ParameterizedTest
+  @MethodSource(ALL_CLASSES_AND_LATEST_API)
+  public void testAnalyze_simpleVerifier(
+      final PrecompiledClass classParameter, final Api apiParameter) {
+    ClassNode classNode = new ClassNode();
+    new ClassReader(classParameter.getBytes()).accept(classNode, 0);
+    assumeFalse(classNode.methods.isEmpty());
+    Analyzer<BasicValue> analyzer =
+        new Analyzer<BasicValue>(
+            new SimpleVerifier(
+                Type.getObjectType(classNode.name),
+                Type.getObjectType(classNode.superName),
+                (classNode.access & Opcodes.ACC_INTERFACE) != 0));
+
+    for (MethodNode methodNode : classNode.methods) {
+      assertDoesNotThrow(() -> analyzer.analyze(classNode.name, methodNode));
+    }
+  }
+
+  /**
    * Checks that the merge of an ArrayList and an SQLException can be returned as an Iterable. The
    * merged type is recomputed by SimpleVerifier as Object (because of limitations of the merging
    * algorithm, due to multiple interface inheritance), but the subtyping check is relaxed if the
@@ -169,30 +193,6 @@ public class AnalyzerWithSimpleVerifierTest extends AsmTest {
 
     assertDoesNotThrow(analyze);
     assertDoesNotThrow(() -> MethodNodeBuilder.buildClassWithMethod(methodNode).newInstance());
-  }
-
-  /**
-   * Tests that the precompiled classes can be successfully analyzed with a SimpleVerifier.
-   *
-   * @throws AnalyzerException if the test class can't be analyzed.
-   */
-  @ParameterizedTest
-  @MethodSource(ALL_CLASSES_AND_LATEST_API)
-  public void testAnalyze_simpleVerifier(
-      final PrecompiledClass classParameter, final Api apiParameter) {
-    ClassNode classNode = new ClassNode();
-    new ClassReader(classParameter.getBytes()).accept(classNode, 0);
-    assumeFalse(classNode.methods.isEmpty());
-    Analyzer<BasicValue> analyzer =
-        new Analyzer<BasicValue>(
-            new SimpleVerifier(
-                Type.getObjectType(classNode.name),
-                Type.getObjectType(classNode.superName),
-                (classNode.access & Opcodes.ACC_INTERFACE) != 0));
-
-    for (MethodNode methodNode : classNode.methods) {
-      assertDoesNotThrow(() -> analyzer.analyze(classNode.name, methodNode));
-    }
   }
 
   private static Analyzer<BasicValue> newAnalyzer() {

@@ -32,6 +32,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.function.Executable;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.objectweb.asm.signature.SignatureReader;
@@ -52,8 +53,9 @@ public class CheckSignatureAdapterTest extends AsmTest {
         new CheckSignatureAdapter(CheckSignatureAdapter.CLASS_SIGNATURE, null);
     checkSignatureAdapter.visitSuperclass();
 
-    assertThrows(
-        IllegalStateException.class, () -> checkSignatureAdapter.visitFormalTypeParameter("T"));
+    Executable visitFormalTypeParameter = () -> checkSignatureAdapter.visitFormalTypeParameter("T");
+
+    assertThrows(IllegalStateException.class, visitFormalTypeParameter);
   }
 
   @Test
@@ -61,8 +63,9 @@ public class CheckSignatureAdapterTest extends AsmTest {
     CheckSignatureAdapter checkSignatureAdapter =
         new CheckSignatureAdapter(CheckSignatureAdapter.TYPE_SIGNATURE, null);
 
-    assertThrows(
-        IllegalStateException.class, () -> checkSignatureAdapter.visitFormalTypeParameter("T"));
+    Executable visitFormalTypeParameter = () -> checkSignatureAdapter.visitFormalTypeParameter("T");
+
+    assertThrows(IllegalStateException.class, visitFormalTypeParameter);
   }
 
   @Test
@@ -70,7 +73,9 @@ public class CheckSignatureAdapterTest extends AsmTest {
     CheckSignatureAdapter checkSignatureAdapter =
         new CheckSignatureAdapter(CheckSignatureAdapter.CLASS_SIGNATURE, null);
 
-    assertThrows(IllegalStateException.class, () -> checkSignatureAdapter.visitClassBound());
+    Executable visitClassBound = () -> checkSignatureAdapter.visitClassBound();
+
+    assertThrows(IllegalStateException.class, visitClassBound);
   }
 
   @Test
@@ -78,7 +83,9 @@ public class CheckSignatureAdapterTest extends AsmTest {
     CheckSignatureAdapter checkSignatureAdapter =
         new CheckSignatureAdapter(CheckSignatureAdapter.TYPE_SIGNATURE, null);
 
-    assertThrows(IllegalStateException.class, () -> checkSignatureAdapter.visitClassBound());
+    Executable visitClassBound = () -> checkSignatureAdapter.visitClassBound();
+
+    assertThrows(IllegalStateException.class, visitClassBound);
   }
 
   @Test
@@ -86,7 +93,9 @@ public class CheckSignatureAdapterTest extends AsmTest {
     CheckSignatureAdapter checkSignatureAdapter =
         new CheckSignatureAdapter(CheckSignatureAdapter.CLASS_SIGNATURE, null);
 
-    assertThrows(IllegalStateException.class, () -> checkSignatureAdapter.visitInterfaceBound());
+    Executable visitInterfaceBound = () -> checkSignatureAdapter.visitInterfaceBound();
+
+    assertThrows(IllegalStateException.class, visitInterfaceBound);
   }
 
   @Test
@@ -94,7 +103,9 @@ public class CheckSignatureAdapterTest extends AsmTest {
     CheckSignatureAdapter checkSignatureAdapter =
         new CheckSignatureAdapter(CheckSignatureAdapter.TYPE_SIGNATURE, null);
 
-    assertThrows(IllegalStateException.class, () -> checkSignatureAdapter.visitInterfaceBound());
+    Executable visitInterfaceBound = () -> checkSignatureAdapter.visitInterfaceBound();
+
+    assertThrows(IllegalStateException.class, visitInterfaceBound);
   }
 
   @Test
@@ -103,7 +114,9 @@ public class CheckSignatureAdapterTest extends AsmTest {
         new CheckSignatureAdapter(CheckSignatureAdapter.CLASS_SIGNATURE, null);
     checkSignatureAdapter.visitSuperclass();
 
-    assertThrows(IllegalStateException.class, () -> checkSignatureAdapter.visitSuperclass());
+    Executable visitSuperClass = () -> checkSignatureAdapter.visitSuperclass();
+
+    assertThrows(IllegalStateException.class, visitSuperClass);
   }
 
   @Test
@@ -111,7 +124,9 @@ public class CheckSignatureAdapterTest extends AsmTest {
     CheckSignatureAdapter checkSignatureAdapter =
         new CheckSignatureAdapter(CheckSignatureAdapter.METHOD_SIGNATURE, null);
 
-    assertThrows(IllegalStateException.class, () -> checkSignatureAdapter.visitSuperclass());
+    Executable visitSuperClass = () -> checkSignatureAdapter.visitSuperclass();
+
+    assertThrows(IllegalStateException.class, visitSuperClass);
   }
 
   @Test
@@ -119,7 +134,9 @@ public class CheckSignatureAdapterTest extends AsmTest {
     CheckSignatureAdapter checkSignatureAdapter =
         new CheckSignatureAdapter(CheckSignatureAdapter.CLASS_SIGNATURE, null);
 
-    assertThrows(IllegalStateException.class, () -> checkSignatureAdapter.visitInterface());
+    Executable visitInterface = () -> checkSignatureAdapter.visitInterface();
+
+    assertThrows(IllegalStateException.class, visitInterface);
   }
 
   @Test
@@ -127,7 +144,9 @@ public class CheckSignatureAdapterTest extends AsmTest {
     CheckSignatureAdapter checkSignatureAdapter =
         new CheckSignatureAdapter(CheckSignatureAdapter.METHOD_SIGNATURE, null);
 
-    assertThrows(IllegalStateException.class, () -> checkSignatureAdapter.visitInterface());
+    Executable visitInterface = () -> checkSignatureAdapter.visitInterface();
+
+    assertThrows(IllegalStateException.class, visitInterface);
   }
 
   @Test
@@ -135,7 +154,9 @@ public class CheckSignatureAdapterTest extends AsmTest {
     CheckSignatureAdapter checkSignatureAdapter =
         new CheckSignatureAdapter(CheckSignatureAdapter.CLASS_SIGNATURE, null);
 
-    assertThrows(IllegalStateException.class, () -> checkSignatureAdapter.visitParameterType());
+    Executable visitParameterType = () -> checkSignatureAdapter.visitParameterType();
+
+    assertThrows(IllegalStateException.class, visitParameterType);
   }
 
   @Test
@@ -144,7 +165,9 @@ public class CheckSignatureAdapterTest extends AsmTest {
         new CheckSignatureAdapter(CheckSignatureAdapter.METHOD_SIGNATURE, null);
     checkSignatureAdapter.visitReturnType();
 
-    assertThrows(IllegalStateException.class, () -> checkSignatureAdapter.visitParameterType());
+    Executable visitParameterType = () -> checkSignatureAdapter.visitParameterType();
+
+    assertThrows(IllegalStateException.class, visitParameterType);
   }
 
   @Test
@@ -152,7 +175,9 @@ public class CheckSignatureAdapterTest extends AsmTest {
     CheckSignatureAdapter checkSignatureAdapter =
         new CheckSignatureAdapter(CheckSignatureAdapter.CLASS_SIGNATURE, null);
 
-    assertThrows(IllegalStateException.class, () -> checkSignatureAdapter.visitReturnType());
+    Executable visitReturnType = () -> checkSignatureAdapter.visitReturnType();
+
+    assertThrows(IllegalStateException.class, visitReturnType);
   }
 
   @Test
@@ -161,7 +186,9 @@ public class CheckSignatureAdapterTest extends AsmTest {
         new CheckSignatureAdapter(CheckSignatureAdapter.METHOD_SIGNATURE, null);
     checkSignatureAdapter.visitReturnType();
 
-    assertThrows(IllegalStateException.class, () -> checkSignatureAdapter.visitReturnType());
+    Executable visitReturnType = () -> checkSignatureAdapter.visitReturnType();
+
+    assertThrows(IllegalStateException.class, visitReturnType);
   }
 
   @Test
@@ -169,7 +196,9 @@ public class CheckSignatureAdapterTest extends AsmTest {
     CheckSignatureAdapter checkSignatureAdapter =
         new CheckSignatureAdapter(CheckSignatureAdapter.CLASS_SIGNATURE, null);
 
-    assertThrows(IllegalStateException.class, () -> checkSignatureAdapter.visitExceptionType());
+    Executable visitExceptionType = () -> checkSignatureAdapter.visitExceptionType();
+
+    assertThrows(IllegalStateException.class, visitExceptionType);
   }
 
   @Test
@@ -177,40 +206,52 @@ public class CheckSignatureAdapterTest extends AsmTest {
     CheckSignatureAdapter checkSignatureAdapter =
         new CheckSignatureAdapter(CheckSignatureAdapter.METHOD_SIGNATURE, null);
 
-    assertThrows(IllegalStateException.class, () -> checkSignatureAdapter.visitExceptionType());
+    Executable visitExceptionType = () -> checkSignatureAdapter.visitExceptionType();
+
+    assertThrows(IllegalStateException.class, visitExceptionType);
   }
 
   @Test
-  public void testVisitBase_typeSignature_illegalState() {
+  public void testVisitBaseType_typeSignature_illegalState() {
     CheckSignatureAdapter checkSignatureAdapter =
         new CheckSignatureAdapter(CheckSignatureAdapter.TYPE_SIGNATURE, null);
     checkSignatureAdapter.visitBaseType('I');
 
-    assertThrows(IllegalStateException.class, () -> checkSignatureAdapter.visitBaseType('I'));
+    Executable visitBaseType = () -> checkSignatureAdapter.visitBaseType('I');
+
+    assertThrows(IllegalStateException.class, visitBaseType);
   }
 
   @Test
-  public void testVisitBase_typeSignature_illegalVoidArgument() {
+  public void testVisitBaseType_typeSignature_illegalVoidArgument() {
     CheckSignatureAdapter checkSignatureAdapter =
         new CheckSignatureAdapter(CheckSignatureAdapter.TYPE_SIGNATURE, null);
 
-    assertThrows(IllegalArgumentException.class, () -> checkSignatureAdapter.visitBaseType('V'));
+    Executable visitBaseType = () -> checkSignatureAdapter.visitBaseType('V');
+
+    Exception exception = assertThrows(IllegalArgumentException.class, visitBaseType);
+    assertEquals("Base type descriptor can't be V", exception.getMessage());
   }
 
   @Test
-  public void testVisitBase_typeSignature_illegalArgument() {
+  public void testVisitBaseType_typeSignature_illegalArgument() {
     CheckSignatureAdapter checkSignatureAdapter =
         new CheckSignatureAdapter(CheckSignatureAdapter.TYPE_SIGNATURE, null);
 
-    assertThrows(IllegalArgumentException.class, () -> checkSignatureAdapter.visitBaseType('A'));
+    Executable visitBaseType = () -> checkSignatureAdapter.visitBaseType('A');
+
+    Exception exception = assertThrows(IllegalArgumentException.class, visitBaseType);
+    assertEquals("Base type descriptor must be one of ZCBSIFJD", exception.getMessage());
   }
 
   @Test
-  public void testVisitBase_classSignature_illegalState() {
+  public void testVisitBaseType_classSignature_illegalState() {
     CheckSignatureAdapter checkSignatureAdapter =
         new CheckSignatureAdapter(CheckSignatureAdapter.CLASS_SIGNATURE, null);
 
-    assertThrows(IllegalStateException.class, () -> checkSignatureAdapter.visitBaseType('I'));
+    Executable visitBaseType = () -> checkSignatureAdapter.visitBaseType('I');
+
+    assertThrows(IllegalStateException.class, visitBaseType);
   }
 
   @Test
@@ -218,7 +259,9 @@ public class CheckSignatureAdapterTest extends AsmTest {
     CheckSignatureAdapter checkSignatureAdapter =
         new CheckSignatureAdapter(CheckSignatureAdapter.CLASS_SIGNATURE, null);
 
-    assertThrows(IllegalStateException.class, () -> checkSignatureAdapter.visitTypeVariable("T"));
+    Executable visitTypeVariable = () -> checkSignatureAdapter.visitTypeVariable("T");
+
+    assertThrows(IllegalStateException.class, visitTypeVariable);
   }
 
   @Test
@@ -226,8 +269,10 @@ public class CheckSignatureAdapterTest extends AsmTest {
     CheckSignatureAdapter checkSignatureAdapter =
         new CheckSignatureAdapter(CheckSignatureAdapter.TYPE_SIGNATURE, null);
 
-    assertThrows(
-        IllegalArgumentException.class, () -> checkSignatureAdapter.visitTypeVariable(null));
+    Executable visitTypeVariable = () -> checkSignatureAdapter.visitTypeVariable(null);
+
+    Exception exception = assertThrows(IllegalArgumentException.class, visitTypeVariable);
+    assertEquals("Invalid type variable (must not be null or empty)", exception.getMessage());
   }
 
   @Test
@@ -235,7 +280,10 @@ public class CheckSignatureAdapterTest extends AsmTest {
     CheckSignatureAdapter checkSignatureAdapter =
         new CheckSignatureAdapter(CheckSignatureAdapter.TYPE_SIGNATURE, null);
 
-    assertThrows(IllegalArgumentException.class, () -> checkSignatureAdapter.visitTypeVariable(""));
+    Executable visitTypeVariable = () -> checkSignatureAdapter.visitTypeVariable("");
+
+    Exception exception = assertThrows(IllegalArgumentException.class, visitTypeVariable);
+    assertEquals("Invalid type variable (must not be null or empty)", exception.getMessage());
   }
 
   @Test
@@ -243,8 +291,11 @@ public class CheckSignatureAdapterTest extends AsmTest {
     CheckSignatureAdapter checkSignatureAdapter =
         new CheckSignatureAdapter(CheckSignatureAdapter.TYPE_SIGNATURE, null);
 
-    assertThrows(
-        IllegalArgumentException.class, () -> checkSignatureAdapter.visitTypeVariable("LT;"));
+    Executable visitTypeVariable = () -> checkSignatureAdapter.visitTypeVariable("LT;");
+
+    Exception exception = assertThrows(IllegalArgumentException.class, visitTypeVariable);
+    assertEquals(
+        "Invalid type variable (must not contain . ; [ / < > or :): LT;", exception.getMessage());
   }
 
   @Test
@@ -253,7 +304,9 @@ public class CheckSignatureAdapterTest extends AsmTest {
         new CheckSignatureAdapter(CheckSignatureAdapter.TYPE_SIGNATURE, null);
     checkSignatureAdapter.visitTypeVariable("T");
 
-    assertThrows(IllegalStateException.class, () -> checkSignatureAdapter.visitTypeVariable("T"));
+    Executable visitTypeVariable = () -> checkSignatureAdapter.visitTypeVariable("T");
+
+    assertThrows(IllegalStateException.class, visitTypeVariable);
   }
 
   @Test
@@ -261,7 +314,9 @@ public class CheckSignatureAdapterTest extends AsmTest {
     CheckSignatureAdapter checkSignatureAdapter =
         new CheckSignatureAdapter(CheckSignatureAdapter.CLASS_SIGNATURE, null);
 
-    assertThrows(IllegalStateException.class, () -> checkSignatureAdapter.visitArrayType());
+    Executable visitArrayType = () -> checkSignatureAdapter.visitArrayType();
+
+    assertThrows(IllegalStateException.class, visitArrayType);
   }
 
   @Test
@@ -270,7 +325,9 @@ public class CheckSignatureAdapterTest extends AsmTest {
         new CheckSignatureAdapter(CheckSignatureAdapter.TYPE_SIGNATURE, null);
     checkSignatureAdapter.visitArrayType();
 
-    assertThrows(IllegalStateException.class, () -> checkSignatureAdapter.visitArrayType());
+    Executable visitArrayType = () -> checkSignatureAdapter.visitArrayType();
+
+    assertThrows(IllegalStateException.class, visitArrayType);
   }
 
   @Test
@@ -278,7 +335,9 @@ public class CheckSignatureAdapterTest extends AsmTest {
     CheckSignatureAdapter checkSignatureAdapter =
         new CheckSignatureAdapter(CheckSignatureAdapter.CLASS_SIGNATURE, null);
 
-    assertThrows(IllegalStateException.class, () -> checkSignatureAdapter.visitClassType("A"));
+    Executable visitClassType = () -> checkSignatureAdapter.visitClassType("A");
+
+    assertThrows(IllegalStateException.class, visitClassType);
   }
 
   @Test
@@ -286,7 +345,10 @@ public class CheckSignatureAdapterTest extends AsmTest {
     CheckSignatureAdapter checkSignatureAdapter =
         new CheckSignatureAdapter(CheckSignatureAdapter.TYPE_SIGNATURE, null);
 
-    assertThrows(IllegalArgumentException.class, () -> checkSignatureAdapter.visitClassType(null));
+    Executable visitClassType = () -> checkSignatureAdapter.visitClassType(null);
+
+    Exception exception = assertThrows(IllegalArgumentException.class, visitClassType);
+    assertEquals("Invalid class name (must not be null or empty)", exception.getMessage());
   }
 
   @Test
@@ -294,7 +356,10 @@ public class CheckSignatureAdapterTest extends AsmTest {
     CheckSignatureAdapter checkSignatureAdapter =
         new CheckSignatureAdapter(CheckSignatureAdapter.TYPE_SIGNATURE, null);
 
-    assertThrows(IllegalArgumentException.class, () -> checkSignatureAdapter.visitClassType(""));
+    Executable visitClassType = () -> checkSignatureAdapter.visitClassType("");
+
+    Exception exception = assertThrows(IllegalArgumentException.class, visitClassType);
+    assertEquals("Invalid class name (must not be null or empty)", exception.getMessage());
   }
 
   @Test
@@ -302,7 +367,11 @@ public class CheckSignatureAdapterTest extends AsmTest {
     CheckSignatureAdapter checkSignatureAdapter =
         new CheckSignatureAdapter(CheckSignatureAdapter.TYPE_SIGNATURE, null);
 
-    assertThrows(IllegalArgumentException.class, () -> checkSignatureAdapter.visitClassType("<A>"));
+    Executable visitClassType = () -> checkSignatureAdapter.visitClassType("<A>");
+
+    Exception exception = assertThrows(IllegalArgumentException.class, visitClassType);
+    assertEquals(
+        "Invalid class name (must not contain . ; [ < > or :): <A>", exception.getMessage());
   }
 
   @Test
@@ -311,7 +380,9 @@ public class CheckSignatureAdapterTest extends AsmTest {
         new CheckSignatureAdapter(CheckSignatureAdapter.TYPE_SIGNATURE, null);
     checkSignatureAdapter.visitClassType("A");
 
-    assertThrows(RuntimeException.class, () -> checkSignatureAdapter.visitClassType("A"));
+    Executable visitClassType = () -> checkSignatureAdapter.visitClassType("A");
+
+    assertThrows(IllegalStateException.class, visitClassType);
   }
 
   @Test
@@ -320,7 +391,9 @@ public class CheckSignatureAdapterTest extends AsmTest {
         new CheckSignatureAdapter(CheckSignatureAdapter.CLASS_SIGNATURE, null);
     SignatureVisitor signatureVisitor = checkSignatureAdapter.visitSuperclass();
 
-    assertDoesNotThrow(() -> signatureVisitor.visitClassType("Foo Bar"));
+    Executable visitClassType = () -> signatureVisitor.visitClassType("Foo Bar");
+
+    assertDoesNotThrow(visitClassType);
   }
 
   @Test
@@ -328,7 +401,9 @@ public class CheckSignatureAdapterTest extends AsmTest {
     CheckSignatureAdapter checkSignatureAdapter =
         new CheckSignatureAdapter(CheckSignatureAdapter.TYPE_SIGNATURE, null);
 
-    assertThrows(IllegalStateException.class, () -> checkSignatureAdapter.visitInnerClassType("A"));
+    Executable visitInnerClassType = () -> checkSignatureAdapter.visitInnerClassType("A");
+
+    assertThrows(IllegalStateException.class, visitInnerClassType);
   }
 
   @Test
@@ -336,7 +411,9 @@ public class CheckSignatureAdapterTest extends AsmTest {
     CheckSignatureAdapter checkSignatureAdapter =
         new CheckSignatureAdapter(CheckSignatureAdapter.TYPE_SIGNATURE, null);
 
-    assertThrows(IllegalStateException.class, () -> checkSignatureAdapter.visitTypeArgument());
+    Executable visitTypeArgument = () -> checkSignatureAdapter.visitTypeArgument();
+
+    assertThrows(IllegalStateException.class, visitTypeArgument);
   }
 
   @Test
@@ -344,7 +421,9 @@ public class CheckSignatureAdapterTest extends AsmTest {
     CheckSignatureAdapter checkSignatureAdapter =
         new CheckSignatureAdapter(CheckSignatureAdapter.TYPE_SIGNATURE, null);
 
-    assertThrows(IllegalStateException.class, () -> checkSignatureAdapter.visitTypeArgument('+'));
+    Executable visitTypeArgument = () -> checkSignatureAdapter.visitTypeArgument('+');
+
+    assertThrows(IllegalStateException.class, visitTypeArgument);
   }
 
   @Test
@@ -353,16 +432,20 @@ public class CheckSignatureAdapterTest extends AsmTest {
         new CheckSignatureAdapter(CheckSignatureAdapter.TYPE_SIGNATURE, null);
     checkSignatureAdapter.visitClassType("A");
 
-    assertThrows(
-        IllegalArgumentException.class, () -> checkSignatureAdapter.visitTypeArgument('*'));
+    Executable visitTypeArgument = () -> checkSignatureAdapter.visitTypeArgument('*');
+
+    Exception exception = assertThrows(IllegalArgumentException.class, visitTypeArgument);
+    assertEquals("Wildcard must be one of +-=", exception.getMessage());
   }
 
   @Test
-  public void testVisitlEnd_illegalState() {
+  public void testVisitEnd_illegalState() {
     CheckSignatureAdapter checkSignatureAdapter =
         new CheckSignatureAdapter(CheckSignatureAdapter.TYPE_SIGNATURE, null);
 
-    assertThrows(IllegalStateException.class, () -> checkSignatureAdapter.visitEnd());
+    Executable visitEnd = () -> checkSignatureAdapter.visitEnd();
+
+    assertThrows(IllegalStateException.class, visitEnd);
   }
 
   @ParameterizedTest
@@ -382,10 +465,12 @@ public class CheckSignatureAdapterTest extends AsmTest {
   public void testVisitMethods_classSignature_noDelegate(final String signature) {
     SignatureReader signatureReader = new SignatureReader(signature);
 
-    assertDoesNotThrow(
+    Executable visitMethods =
         () ->
             signatureReader.accept(
-                new CheckSignatureAdapter(CheckSignatureAdapter.CLASS_SIGNATURE, null)));
+                new CheckSignatureAdapter(CheckSignatureAdapter.CLASS_SIGNATURE, null));
+
+    assertDoesNotThrow(visitMethods);
   }
 
   @ParameterizedTest
@@ -405,10 +490,12 @@ public class CheckSignatureAdapterTest extends AsmTest {
   public void testVisitMethods_methodSignature_noDelegate(final String signature) {
     SignatureReader signatureReader = new SignatureReader(signature);
 
-    assertDoesNotThrow(
+    Executable visitMethods =
         () ->
             signatureReader.accept(
-                new CheckSignatureAdapter(CheckSignatureAdapter.METHOD_SIGNATURE, null)));
+                new CheckSignatureAdapter(CheckSignatureAdapter.METHOD_SIGNATURE, null));
+
+    assertDoesNotThrow(visitMethods);
   }
 
   @ParameterizedTest
@@ -428,9 +515,11 @@ public class CheckSignatureAdapterTest extends AsmTest {
   public void testVisitMethods_typeSignature_noDelegate(final String signature) {
     SignatureReader signatureReader = new SignatureReader(signature);
 
-    assertDoesNotThrow(
+    Executable visitMethods =
         () ->
             signatureReader.acceptType(
-                new CheckSignatureAdapter(CheckSignatureAdapter.TYPE_SIGNATURE, null)));
+                new CheckSignatureAdapter(CheckSignatureAdapter.TYPE_SIGNATURE, null));
+
+    assertDoesNotThrow(visitMethods);
   }
 }

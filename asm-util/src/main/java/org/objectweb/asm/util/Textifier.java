@@ -28,6 +28,7 @@
 package org.objectweb.asm.util;
 
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.HashMap;
 import java.util.Map;
 import org.objectweb.asm.Attribute;
@@ -45,6 +46,11 @@ import org.objectweb.asm.signature.SignatureReader;
  * @author Eric Bruneton
  */
 public class Textifier extends Printer {
+
+  /** The help message shown when command line arguments are incorrect. */
+  private static final String USAGE =
+      "Prints a disassembled view of the given class.\n"
+          + "Usage: Textifier [-debug] <fully qualified class name or class file name>";
 
   /** The type of internal names. See {@link #appendDescriptor}. */
   public static final int INTERNAL_NAME = 0;
@@ -145,10 +151,22 @@ public class Textifier extends Printer {
    * @throws IOException if the class cannot be found, or if an IOException occurs.
    */
   public static void main(final String[] args) throws IOException {
-    String usage =
-        "Prints a disassembled view of the given class.\n"
-            + "Usage: Textifier [-debug] <fully qualified class name or class file name>";
-    main(usage, new Textifier(), args);
+    main(args, new PrintWriter(System.out, true), new PrintWriter(System.err, true));
+  }
+
+  /**
+   * Prints a disassembled view of the given class to the given output.
+   *
+   * <p>Usage: Textifier [-debug] &lt;binary class name or class file name &gt;
+   *
+   * @param args the command line arguments.
+   * @param output where to print the result.
+   * @param logger where to log errors.
+   * @throws IOException if the class cannot be found, or if an IOException occurs.
+   */
+  public static void main(final String[] args, final PrintWriter output, final PrintWriter logger)
+      throws IOException {
+    main(args, USAGE, new Textifier(), output, logger);
   }
 
   // -----------------------------------------------------------------------------------------------

@@ -63,13 +63,6 @@
               @PackagePrivate='true']"/>
     </properties>
   </rule>
-  <rule ref="category/java/bestpractices.xml/SystemPrintln">
-    <properties>
-      <property name="violationSuppressXPath"
-          value="//MethodDeclaration[@Static='true']
-              //MethodDeclarator[@Image='main']"/>
-    </properties>
-  </rule>
 
   <rule ref="category/java/errorprone.xml">
     <!-- Do not want this rule. -->

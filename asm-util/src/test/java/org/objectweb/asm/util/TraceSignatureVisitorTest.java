@@ -40,7 +40,7 @@ import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.signature.SignatureReader;
 
 /**
- * TraceSignatureVisitor unit tests.
+ * Unit tests for {@link TraceSignatureVisitor}.
  *
  * @author Eugene Kuleshov
  */
@@ -133,32 +133,45 @@ public class TraceSignatureVisitorTest {
     return Arrays.stream(METHOD_SIGNATURES).map(values -> Arguments.of((Object[]) values));
   }
 
+  @Test
+  public void testVisitBaseType_invalidSignature() {
+    TraceSignatureVisitor traceSignatureVisitor = new TraceSignatureVisitor(0);
+
+    assertThrows(IllegalArgumentException.class, () -> traceSignatureVisitor.visitBaseType('-'));
+  }
+
   @ParameterizedTest
   @MethodSource("classSignatures")
-  public void testClassSignature(
+  public void testVisitMethods_classSignature(
       final boolean isInterface, final String declaration, final String signature) {
+    SignatureReader signatureReader = new SignatureReader(signature);
     TraceSignatureVisitor traceSignatureVisitor =
         new TraceSignatureVisitor(isInterface ? Opcodes.ACC_INTERFACE : 0);
-    SignatureReader signatureReader = new SignatureReader(signature);
+
     signatureReader.accept(traceSignatureVisitor);
+
     assertEquals(declaration, traceSignatureVisitor.getDeclaration());
   }
 
   @ParameterizedTest
   @MethodSource("fieldSignatures")
-  public void testFieldSignature(final String declaration, final String signature) {
-    TraceSignatureVisitor traceSignatureVisitor = new TraceSignatureVisitor(0);
+  public void testVisitMethods_fieldSignature(final String declaration, final String signature) {
     SignatureReader signatureReader = new SignatureReader(signature);
+    TraceSignatureVisitor traceSignatureVisitor = new TraceSignatureVisitor(0);
+
     signatureReader.acceptType(traceSignatureVisitor);
+
     assertEquals(declaration, traceSignatureVisitor.getDeclaration());
   }
 
   @ParameterizedTest
   @MethodSource("methodSignatures")
-  public void testMethodSignature(final String declaration, final String signature) {
-    TraceSignatureVisitor traceSignatureVisitor = new TraceSignatureVisitor(0);
+  public void testVisitMethods_methodSignature(final String declaration, final String signature) {
     SignatureReader signatureReader = new SignatureReader(signature);
+    TraceSignatureVisitor traceSignatureVisitor = new TraceSignatureVisitor(0);
+
     signatureReader.accept(traceSignatureVisitor);
+
     String fullMethodDeclaration =
         traceSignatureVisitor.getReturnType()
             + traceSignatureVisitor.getDeclaration()
@@ -166,11 +179,5 @@ public class TraceSignatureVisitorTest {
                 ? traceSignatureVisitor.getExceptions()
                 : "");
     assertEquals(declaration, fullMethodDeclaration);
-  }
-
-  @Test
-  public void testInvalidSignature() {
-    TraceSignatureVisitor traceSignatureVisitor = new TraceSignatureVisitor(0);
-    assertThrows(IllegalArgumentException.class, () -> traceSignatureVisitor.visitBaseType('-'));
   }
 }

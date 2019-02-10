@@ -27,10 +27,13 @@
 // THE POSSIBILITY OF SUCH DAMAGE.
 package org.objectweb.asm.util;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.io.CharArrayWriter;
 import java.io.PrintWriter;
+import java.io.StringWriter;
+import org.junit.jupiter.api.function.Executable;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.objectweb.asm.AnnotationVisitor;
@@ -45,8 +48,7 @@ import org.objectweb.asm.test.AsmTest;
 import org.objectweb.asm.test.ClassFile;
 
 /**
- * TraceClassVisitor tests. Also tests TraceAnnotationVisitor, TraceFieldVisitor, TraceMethodVisitor
- * and TraceModuleVisitor.
+ * Unit tests for {@link TraceClassVisitor}.
  *
  * @author Eric Bruneton
  */
@@ -57,60 +59,82 @@ public class TraceClassVisitorTest extends AsmTest {
    */
   @ParameterizedTest
   @MethodSource(ALL_CLASSES_AND_LATEST_API)
-  public void testTrace(final PrecompiledClass classParameter, final Api apiParameter) {
+  public void testVisitMethods(final PrecompiledClass classParameter, final Api apiParameter) {
     byte[] classFile = classParameter.getBytes();
     ClassReader classReader = new ClassReader(classFile);
     ClassWriter classWriter = new ClassWriter(0);
-    ClassVisitor classVisitor =
-        new TraceClassVisitor(classWriter, new PrintWriter(new CharArrayWriter()));
-    classReader.accept(classVisitor, new Attribute[] {new Comment(), new CodeComment()}, 0);
+    ClassVisitor traceClassVisitor =
+        new TraceClassVisitor(classWriter, new PrintWriter(new StringWriter()));
+
+    classReader.accept(traceClassVisitor, new Attribute[] {new Comment(), new CodeComment()}, 0);
+
     assertEquals(new ClassFile(classFile), new ClassFile(classWriter.toByteArray()));
   }
 
+  /** Tests that ClassReader can accept a TraceClassVisitor without delegate. */
+  @ParameterizedTest
+  @MethodSource(ALL_CLASSES_AND_LATEST_API)
+  public void testVisitMethods_noDelegate(
+      final PrecompiledClass classParameter, final Api apiParameter) {
+    byte[] classFile = classParameter.getBytes();
+    ClassReader classReader = new ClassReader(classFile);
+    StringWriter output = new StringWriter();
+
+    classReader.accept(new TraceClassVisitor(new PrintWriter(output, true)), 0);
+
+    assertTrue(output.toString().contains(classParameter.getInternalName()));
+  }
+
   /**
-   * Tests that ClassReader can accept a TraceClassVisitor, TraceAnnotationVisitor,
-   * TraceFieldVisitor or TraceMethodVisitor without delegate.
+   * Tests that ClassReader can accept a TraceAnnotationVisitor, TraceFieldVisitor,
+   * TraceMethodVisitor or TraceModuleVisitor without delegate.
    */
   @ParameterizedTest
   @MethodSource(ALL_CLASSES_AND_LATEST_API)
-  public void testTraceNoDelegate(final PrecompiledClass classParameter, final Api apiParameter) {
+  public void testVisitMethods_noNestedDelegate(
+      final PrecompiledClass classParameter, final Api apiParameter) {
     byte[] classFile = classParameter.getBytes();
     ClassReader classReader = new ClassReader(classFile);
-    classReader.accept(new TraceClassVisitor(new PrintWriter(new CharArrayWriter())), 0);
-    classReader.accept(
-        new ClassVisitor(apiParameter.value()) {
 
-          @Override
-          public ModuleVisitor visitModule(
-              final String name, final int access, final String version) {
-            return new TraceModuleVisitor(new Textifier());
-          }
+    Executable accept =
+        () ->
+            classReader.accept(
+                new ClassVisitor(apiParameter.value()) {
 
-          @Override
-          public AnnotationVisitor visitAnnotation(final String descriptor, final boolean visible) {
-            return new TraceAnnotationVisitor(new Textifier());
-          }
+                  @Override
+                  public ModuleVisitor visitModule(
+                      final String name, final int access, final String version) {
+                    return new TraceModuleVisitor(new Textifier());
+                  }
 
-          @Override
-          public FieldVisitor visitField(
-              final int access,
-              final String name,
-              final String descriptor,
-              final String signature,
-              final Object value) {
-            return new TraceFieldVisitor(new Textifier());
-          }
+                  @Override
+                  public AnnotationVisitor visitAnnotation(
+                      final String descriptor, final boolean visible) {
+                    return new TraceAnnotationVisitor(new Textifier());
+                  }
 
-          @Override
-          public MethodVisitor visitMethod(
-              final int access,
-              final String name,
-              final String descriptor,
-              final String signature,
-              final String[] exceptions) {
-            return new TraceMethodVisitor(new Textifier());
-          }
-        },
-        0);
+                  @Override
+                  public FieldVisitor visitField(
+                      final int access,
+                      final String name,
+                      final String descriptor,
+                      final String signature,
+                      final Object value) {
+                    return new TraceFieldVisitor(new Textifier());
+                  }
+
+                  @Override
+                  public MethodVisitor visitMethod(
+                      final int access,
+                      final String name,
+                      final String descriptor,
+                      final String signature,
+                      final String[] exceptions) {
+                    return new TraceMethodVisitor(new Textifier());
+                  }
+                },
+                0);
+
+    assertDoesNotThrow(accept);
   }
 }

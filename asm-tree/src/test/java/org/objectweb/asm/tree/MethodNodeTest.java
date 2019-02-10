@@ -31,6 +31,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.function.Executable;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.test.AsmTest;
@@ -49,12 +50,13 @@ public class MethodNodeTest extends AsmTest {
     assertEquals(123, methodNode.access);
     assertEquals("method", methodNode.name);
     assertEquals("()V", methodNode.desc);
-    assertThrows(IllegalStateException.class, () -> new MethodNode() {});
   }
 
   @Test
   public void testConstructor_illegalState() {
-    assertThrows(IllegalStateException.class, () -> new MethodNode() {});
+    Executable constructor = () -> new MethodNode() {};
+
+    assertThrows(IllegalStateException.class, constructor);
   }
 
   @Test

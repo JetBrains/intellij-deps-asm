@@ -33,6 +33,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.Arrays;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.function.Executable;
 import org.objectweb.asm.AnnotationVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.test.AsmTest;
@@ -53,7 +54,9 @@ public class AnnotationNodeTest extends AsmTest {
 
   @Test
   public void testConstructor_illegalState() {
-    assertThrows(IllegalStateException.class, () -> new AnnotationNode("LI;") {});
+    Executable constructor = () -> new AnnotationNode("LI;") {};
+
+    assertThrows(IllegalStateException.class, constructor);
   }
 
   @Test

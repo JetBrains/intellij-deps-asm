@@ -70,7 +70,9 @@ public class ClassNodeTest extends AsmTest {
 
   @Test
   public void testConstructor_illegalState() {
-    assertThrows(IllegalStateException.class, () -> new ClassNode() {});
+    Executable constructor = () -> new ClassNode() {};
+
+    assertThrows(IllegalStateException.class, constructor);
   }
 
   /**
@@ -86,7 +88,7 @@ public class ClassNodeTest extends AsmTest {
     Executable check = () -> classNode.check(apiParameter.value());
 
     if (classParameter.isMoreRecentThan(apiParameter)) {
-      assertThrows(RuntimeException.class, check);
+      assertThrows(UnsupportedClassVersionException.class, check);
     } else {
       assertDoesNotThrow(check);
     }

@@ -32,6 +32,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.Arrays;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.function.Executable;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.test.AsmTest;
 
@@ -57,7 +58,8 @@ public class FrameNodeTest extends AsmTest {
 
   @Test
   public void testConstructor_illegalArgument() {
-    assertThrows(
-        IllegalArgumentException.class, () -> new FrameNode(Integer.MAX_VALUE, 0, null, 0, null));
+    Executable constructor = () -> new FrameNode(Integer.MAX_VALUE, 0, null, 0, null);
+
+    assertThrows(IllegalArgumentException.class, constructor);
   }
 }

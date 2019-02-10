@@ -31,6 +31,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.function.Executable;
 import org.objectweb.asm.test.AsmTest;
 
 /**
@@ -51,7 +52,8 @@ public class FieldNodeTest extends AsmTest {
 
   @Test
   public void testConstructor_illegalState() {
-    assertThrows(
-        IllegalStateException.class, () -> new FieldNode(123, "field", "I", null, null) {});
+    Executable constructor = () -> new FieldNode(123, "field", "I", null, null) {};
+
+    assertThrows(IllegalStateException.class, constructor);
   }
 }

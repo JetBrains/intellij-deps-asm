@@ -38,6 +38,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.util.ListIterator;
 import java.util.NoSuchElementException;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.function.Executable;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
@@ -70,7 +71,9 @@ public class InsnListTest {
 
   @Test
   public void testGet_outOfBounds() {
-    assertThrows(IndexOutOfBoundsException.class, () -> newInsnList().get(0));
+    Executable get = () -> newInsnList().get(0);
+
+    assertThrows(IndexOutOfBoundsException.class, get);
   }
 
   @Test
@@ -82,7 +85,9 @@ public class InsnListTest {
   public void testIndexOf_noSuchElement() {
     InsnList insnList = newInsnList();
 
-    assertThrows(NoSuchElementException.class, () -> insnList.indexOf(new InsnNode(0)));
+    Executable indexOf = () -> insnList.indexOf(new InsnNode(0));
+
+    assertThrows(NoSuchElementException.class, indexOf);
   }
 
   @Test
@@ -117,13 +122,12 @@ public class InsnListTest {
   }
 
   @Test
-  public void testIterator_noSuchElement() {
-    assertThrows(NoSuchElementException.class, () -> new InsnList().iterator().next());
-  }
-
-  @Test
   public void testIteratorNext_noSuchElement() {
-    assertThrows(NoSuchElementException.class, () -> newInsnList().iterator().next());
+    ListIterator<AbstractInsnNode> iterator = newInsnList().iterator();
+
+    Executable next = () -> iterator.next();
+
+    assertThrows(NoSuchElementException.class, next);
   }
 
   @Test
@@ -142,7 +146,11 @@ public class InsnListTest {
 
   @Test
   public void testIteratorPrevious_noSuchElement() {
-    assertThrows(NoSuchElementException.class, () -> newInsnList().iterator().previous());
+    ListIterator<AbstractInsnNode> iterator = newInsnList().iterator();
+
+    Executable previous = () -> iterator.previous();
+
+    assertThrows(NoSuchElementException.class, previous);
   }
 
   @Test
@@ -185,7 +193,9 @@ public class InsnListTest {
     InsnList insnList = newInsnList(insn1, insn2);
     ListIterator<AbstractInsnNode> iterator = insnList.iterator(1);
 
-    assertThrows(IllegalStateException.class, () -> iterator.remove());
+    Executable remove = () -> iterator.remove();
+
+    assertThrows(IllegalStateException.class, remove);
   }
 
   @Test
@@ -227,7 +237,9 @@ public class InsnListTest {
     InsnList insnList = newInsnList(insn1, insn2);
     ListIterator<AbstractInsnNode> iterator = insnList.iterator(1);
 
-    assertThrows(IllegalStateException.class, () -> iterator.set(insn));
+    Executable set = () -> iterator.set(insn);
+
+    assertThrows(IllegalStateException.class, set);
   }
 
   @Test
@@ -272,8 +284,9 @@ public class InsnListTest {
   public void testSet_noSuchElement() {
     InsnList insnList = newInsnList();
 
-    assertThrows(
-        NoSuchElementException.class, () -> insnList.set(new InsnNode(0), new InsnNode(0)));
+    Executable set = () -> insnList.set(new InsnNode(0), new InsnNode(0));
+
+    assertThrows(NoSuchElementException.class, set);
   }
 
   @Test
@@ -316,7 +329,9 @@ public class InsnListTest {
     InsnList insnList = newInsnList();
     newInsnList(insn1, insn2);
 
-    assertThrows(IllegalArgumentException.class, () -> insnList.add(insn1));
+    Executable add = () -> insnList.add(insn1);
+
+    assertThrows(IllegalArgumentException.class, add);
   }
 
   @Test
@@ -356,7 +371,9 @@ public class InsnListTest {
   public void testAddList_illegalArgument() {
     InsnList insnList = newInsnList();
 
-    assertThrows(IllegalArgumentException.class, () -> insnList.add(insnList));
+    Executable add = () -> insnList.add(insnList);
+
+    assertThrows(IllegalArgumentException.class, add);
   }
 
   @Test
@@ -414,7 +431,9 @@ public class InsnListTest {
     InsnList insnList = newInsnList();
     newInsnList(insn1, insn2);
 
-    assertThrows(IllegalArgumentException.class, () -> insnList.insert(insn1));
+    Executable insert = () -> insnList.insert(insn1);
+
+    assertThrows(IllegalArgumentException.class, insert);
   }
 
   @Test
@@ -452,7 +471,9 @@ public class InsnListTest {
   public void testInsertList_illegalArgument() {
     InsnList insnList = newInsnList();
 
-    assertThrows(IllegalArgumentException.class, () -> insnList.insert(insnList));
+    Executable insert = () -> insnList.insert(insnList);
+
+    assertThrows(IllegalArgumentException.class, insert);
   }
 
   @Test
@@ -509,8 +530,9 @@ public class InsnListTest {
   public void testInsertAfter_noSuchElement() {
     InsnList insnList = newInsnList(insn1, insn2);
 
-    assertThrows(
-        NoSuchElementException.class, () -> insnList.insert(new InsnNode(0), new InsnNode(0)));
+    Executable insert = () -> insnList.insert(new InsnNode(0), new InsnNode(0));
+
+    assertThrows(NoSuchElementException.class, insert);
   }
 
   @Test
@@ -549,8 +571,9 @@ public class InsnListTest {
   public void testInsertListAfter_noSuchElement() {
     InsnList insnList = newInsnList(insn1, insn2);
 
-    assertThrows(
-        NoSuchElementException.class, () -> insnList.insert(new InsnNode(0), newInsnList()));
+    Executable insert = () -> insnList.insert(new InsnNode(0), newInsnList());
+
+    assertThrows(NoSuchElementException.class, insert);
   }
 
   @Test
@@ -612,9 +635,9 @@ public class InsnListTest {
   public void testInsertBefore_noSuchElement() {
     InsnList insnList = newInsnList(insn1, insn2);
 
-    assertThrows(
-        NoSuchElementException.class,
-        () -> insnList.insertBefore(new InsnNode(0), new InsnNode(0)));
+    Executable insertBefore = () -> insnList.insertBefore(new InsnNode(0), new InsnNode(0));
+
+    assertThrows(NoSuchElementException.class, insertBefore);
   }
 
   @Test
@@ -653,8 +676,9 @@ public class InsnListTest {
   public void testInsertListBefore_noSuchElement() {
     InsnList insnList = newInsnList(insn1, insn2);
 
-    assertThrows(
-        NoSuchElementException.class, () -> insnList.insertBefore(new InsnNode(0), newInsnList()));
+    Executable insertBefore = () -> insnList.insertBefore(new InsnNode(0), newInsnList());
+
+    assertThrows(NoSuchElementException.class, insertBefore);
   }
 
   @Test
@@ -716,7 +740,9 @@ public class InsnListTest {
   public void testRemove_noSuchElement() {
     InsnList insnList = newInsnList(insn1, insn2);
 
-    assertThrows(NoSuchElementException.class, () -> insnList.remove(new InsnNode(0)));
+    Executable remove = () -> insnList.remove(new InsnNode(0));
+
+    assertThrows(NoSuchElementException.class, remove);
   }
 
   @Test

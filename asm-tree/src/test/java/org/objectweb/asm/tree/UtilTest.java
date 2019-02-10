@@ -55,7 +55,7 @@ public class UtilTest {
   }
 
   @Test
-  public void testAsArrayListWithLength() {
+  public void testAsArrayList_withLength() {
     List<String> strings = Util.asArrayList(3);
 
     assertEquals(3, strings.size());
@@ -65,7 +65,7 @@ public class UtilTest {
   }
 
   @Test
-  public void testAsArrayListWithLengthAndArray() {
+  public void testAsArrayList_withLengthAndArray() {
     List<Integer> ints = Util.asArrayList(3, new Integer[] {1, 2, 3, 4, 5});
 
     assertEquals(3, ints.size());

@@ -31,6 +31,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.function.Executable;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.ModuleVisitor;
 import org.objectweb.asm.Opcodes;
@@ -59,7 +60,9 @@ public class ModuleNodeTest extends AsmTest {
 
   @Test
   public void testConstructor_illegalState() {
-    assertThrows(IllegalStateException.class, () -> new ModuleNode("module", 123, "1.0") {});
+    Executable constructor = () -> new ModuleNode("module", 123, "1.0") {};
+
+    assertThrows(IllegalStateException.class, constructor);
   }
 
   @Test

@@ -31,6 +31,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.function.Executable;
 import org.objectweb.asm.TypePath;
 import org.objectweb.asm.test.AsmTest;
 
@@ -50,15 +51,14 @@ public class TypeAnnotationNodeTest extends AsmTest {
     assertEquals(123, typeAnnotationNode.typeRef);
     assertEquals(typePath, typeAnnotationNode.typePath);
     assertEquals("LI;", typeAnnotationNode.desc);
-    assertThrows(
-        IllegalStateException.class, () -> new TypeAnnotationNode(123, typePath, "LI;") {});
   }
 
   @Test
   public void testConstructor_illegalState() {
     TypePath typePath = TypePath.fromString("[");
 
-    assertThrows(
-        IllegalStateException.class, () -> new TypeAnnotationNode(123, typePath, "LI;") {});
+    Executable constructor = () -> new TypeAnnotationNode(123, typePath, "LI;") {};
+
+    assertThrows(IllegalStateException.class, constructor);
   }
 }

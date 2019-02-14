@@ -25,23 +25,6 @@
 // CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
 // THE POSSIBILITY OF SUCH DAMAGE.
-//
-// Based on org.cache2k.benchmark.jmh.ForcedGcMemoryProfiler, with the
-// following license:
-//
-// Copyright (C) 2013 - 2017 headissue GmbH, Munich
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//      http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
 package org.objectweb.asm.benchmarks;
 
 import java.lang.management.GarbageCollectorMXBean;
@@ -52,6 +35,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.management.NotificationEmitter;
 import org.openjdk.jmh.infra.BenchmarkParams;
 import org.openjdk.jmh.infra.IterationParams;
 import org.openjdk.jmh.profile.InternalProfiler;
@@ -67,10 +51,12 @@ import org.openjdk.jmh.results.ScalarResult;
  */
 public class MemoryProfiler implements InternalProfiler {
 
-  private static final int MAX_WAIT_MSEC = 20 * 1000;
+  private static final Logger LOGGER = Logger.getLogger(MemoryProfiler.class.getName());
 
   private static Object[] references; // NOPMD(UnusedPrivateField): false positive.
   private static int referenceCount;
+
+  private static final MemoryProbe memoryProbe = new MemoryProbe();
   private static long usedMemoryBeforeIteration;
 
   public static void keepReference(final Object reference) {
@@ -90,7 +76,7 @@ public class MemoryProfiler implements InternalProfiler {
     }
     references = new Object[100000];
     referenceCount = 0;
-    usedMemoryBeforeIteration = getUsedMemory();
+    usedMemoryBeforeIteration = memoryProbe.getUsedMemory();
   }
 
   @Override
@@ -101,7 +87,7 @@ public class MemoryProfiler implements InternalProfiler {
     if (!appliesToBenchmark(benchmarkParams)) {
       return Collections.emptyList();
     }
-    long usedMemoryAfterIteration = getUsedMemory();
+    long usedMemoryAfterIteration = memoryProbe.getUsedMemory();
     references = null;
 
     long usedMemoryInIteration = usedMemoryAfterIteration - usedMemoryBeforeIteration;
@@ -116,50 +102,51 @@ public class MemoryProfiler implements InternalProfiler {
     return benchmarkParams.getBenchmark().contains("MemoryBenchmark");
   }
 
-  /**
-   * Triggers a gc, waits for completion and returns the used memory. Inspired from cache2k
-   * ForcedGcMemoryProfiler, itself inspired from the JMH approach.
-   *
-   * @see org.cache2k.benchmark.jmh.ForcedGcMemoryProfiler#getUsedMemory()
-   * @see org.openjdk.jmh.runner.BaseRunner#runSystemGC()
-   */
-  private static long getUsedMemory() {
-    List<GarbageCollectorMXBean> gcBeans = new ArrayList<>();
-    for (GarbageCollectorMXBean gcBean : ManagementFactory.getGarbageCollectorMXBeans()) {
-      long count = gcBean.getCollectionCount();
-      if (count != -1) {
-        gcBeans.add(gcBean);
+  static class MemoryProbe {
+
+    private static final int MAX_WAIT_MILLIS = 20 * 1000;
+
+    private final Object lock = new Object();
+
+    private int gcCount;
+
+    public MemoryProbe() {
+      for (GarbageCollectorMXBean gcBean : ManagementFactory.getGarbageCollectorMXBeans()) {
+        ((NotificationEmitter) gcBean)
+            .addNotificationListener((notification, handback) -> notifyGc(), null, null);
       }
     }
-    if (gcBeans.isEmpty()) {
-      Logger.getLogger(MemoryProfiler.class.getName())
-          .log(Level.WARNING, "MXBeans can not report GC info. Cannot get memory used.");
-      return -1;
-    }
 
-    long startGcCount = countGc(gcBeans);
-    long startTimeMillis = System.currentTimeMillis();
-    System.gc(); // NOPMD(DoNotCallGarbageCollectionExplicitly): needed to measure used memory.
-    while (System.currentTimeMillis() - startTimeMillis < MAX_WAIT_MSEC) {
+    public long getUsedMemory() {
       try {
-        Thread.sleep(234);
+        systemGc(System.currentTimeMillis() + MAX_WAIT_MILLIS);
       } catch (InterruptedException e) {
-        Thread.currentThread().interrupt();
+        LOGGER.log(Level.WARNING, "Can't get used memory.");
+        return -1;
       }
-      if (countGc(gcBeans) > startGcCount) {
-        return ManagementFactory.getMemoryMXBean().getHeapMemoryUsage().getUsed();
-      }
+      return ManagementFactory.getMemoryMXBean().getHeapMemoryUsage().getUsed();
     }
-    Logger.getLogger(MemoryProfiler.class.getName())
-        .log(Level.WARNING, "WARNING: System.gc() was invoked but couldn't detect a GC occurring.");
-    return -1;
-  }
 
-  private static long countGc(final List<GarbageCollectorMXBean> gcBeans) {
-    long gcCount = 0;
-    for (GarbageCollectorMXBean bean : gcBeans) {
-      gcCount += bean.getCollectionCount();
+    private void notifyGc() {
+      synchronized (lock) {
+        gcCount++;
+        lock.notifyAll();
+      }
     }
-    return gcCount;
+
+    private void systemGc(final long deadline) throws InterruptedException {
+      synchronized (lock) {
+        System.gc(); // NOPMD(DoNotCallGarbageCollectionExplicitly): needed to measure used memory.
+        int previousGcCount = gcCount;
+        while (gcCount == previousGcCount) {
+          long timeout = deadline - System.currentTimeMillis();
+          if (timeout > 0) {
+            lock.wait(timeout);
+          } else {
+            throw new InterruptedException();
+          }
+        }
+      }
+    }
   }
 }

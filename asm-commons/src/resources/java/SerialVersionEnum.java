@@ -25,13 +25,13 @@
 // CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
 // THE POSSIBILITY OF SUCH DAMAGE.
-package org.objectweb.asm.commons;
-
-import java.io.Serializable;
-
 /**
- * Test case for SerialVersionUidAddTest.
+ * Test case for SerialVersionUIDAdder.
  *
  * @author Eric Bruneton
  */
-interface SerialVersionEmptyInterface extends Serializable {}
+enum SerialVersionEnum {
+  V1,
+  V2,
+  V3
+}

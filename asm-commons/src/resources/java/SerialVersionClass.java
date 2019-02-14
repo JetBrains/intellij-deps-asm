@@ -25,23 +25,26 @@
 // CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
 // THE POSSIBILITY OF SUCH DAMAGE.
-package org.objectweb.asm.commons;
-
 import java.io.Serializable;
 
 /**
- * Test case for SerialVersionUidAddTest.
+ * Test case for SerialVersionUIDAdder.
  *
  * @author Eric Bruneton
  */
-class SerialVersionAnonymousInnerClass implements Serializable { // NOPMD(MissingSerialVersionUID)
+class SerialVersionClass implements Serializable {
 
   // No serial version UID on purpose, to test SerialVersionUIDAdder.
 
-  public static final SerialVersionAnonymousInnerClass anonymousInnerClass =
-      new SerialVersionAnonymousInnerClass() {};
+  protected static final int someField = 32;
 
-  SerialVersionAnonymousInnerClass() {}
+  static {
+    assert someField > 0;
+  }
 
-  public void someMethod() {}
+  SerialVersionClass() {}
+
+  public Object[] someMethod() {
+    return new Object[0];
+  }
 }

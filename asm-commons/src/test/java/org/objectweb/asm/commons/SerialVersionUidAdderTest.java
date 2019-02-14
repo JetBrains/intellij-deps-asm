@@ -71,32 +71,31 @@ public class SerialVersionUidAdderTest extends AsmTest {
 
   @Test
   public void testClass() throws IOException {
-    long actualSvuid = computeSerialVersionUid(SerialVersionClass.class.getName());
-    assertEquals(1084684350676694225L, actualSvuid);
+    long actualSvuid = computeSerialVersionUid("SerialVersionClass");
+    assertEquals(4654798559887898126L, actualSvuid);
   }
 
   @Test
   public void testAnonymousInnerClass() throws IOException {
-    long actualSvuid =
-        computeSerialVersionUid(SerialVersionAnonymousInnerClass.class.getName() + "$1");
-    assertEquals(-1842070664294792585L, actualSvuid);
+    long actualSvuid = computeSerialVersionUid("SerialVersionAnonymousInnerClass$1");
+    assertEquals(2591057588230880800L, actualSvuid);
   }
 
   @Test
   public void testInterface() throws IOException {
-    long actualSvuid = computeSerialVersionUid(SerialVersionInterface.class.getName());
-    assertEquals(-3857402532274192875L, actualSvuid);
+    long actualSvuid = computeSerialVersionUid("SerialVersionInterface");
+    assertEquals(682190902657822970L, actualSvuid);
   }
 
   @Test
   public void testEmptyInterface() throws IOException {
-    long actualSvuid = computeSerialVersionUid(SerialVersionEmptyInterface.class.getName());
-    assertEquals(8675733916152748550L, actualSvuid);
+    long actualSvuid = computeSerialVersionUid("SerialVersionEmptyInterface");
+    assertEquals(-2126445979242430981L, actualSvuid);
   }
 
   @Test
   public void testEnum() throws IOException {
-    long actualSvuid = computeSerialVersionUid(SerialVersionEnum.class.getName());
+    long actualSvuid = computeSerialVersionUid("SerialVersionEnum");
     assertEquals(0L, actualSvuid);
   }
 

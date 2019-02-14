@@ -162,13 +162,26 @@ public final class TraceMethodVisitor extends MethodVisitor {
   }
 
   @Override
+  @SuppressWarnings("deprecation")
   public void visitMethodInsn(
       final int opcode,
       final String owner,
       final String name,
       final String descriptor,
       final boolean isInterface) {
-    p.visitMethodInsn(opcode, owner, name, descriptor, isInterface);
+    // Call the method that p is supposed to implement, depending on its api version.
+    if (p.api < Opcodes.ASM5) {
+      if (isInterface != (opcode == Opcodes.INVOKEINTERFACE)) {
+        throw new IllegalArgumentException("INVOKESPECIAL/STATIC on interfaces require ASM5");
+      }
+      // If p is an ASMifier (resp. Textifier), or a subclass that does not override the old
+      // visitMethodInsn method, the default implementation in Printer will redirect this to the
+      // new method in ASMifier (resp. Textifier). In all other cases, p overrides the old method
+      // and this call executes it.
+      p.visitMethodInsn(opcode, owner, name, descriptor);
+    } else {
+      p.visitMethodInsn(opcode, owner, name, descriptor, isInterface);
+    }
     if (mv != null) {
       mv.visitMethodInsn(opcode, owner, name, descriptor, isInterface);
     }

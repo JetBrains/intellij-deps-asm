@@ -29,9 +29,7 @@ package org.objectweb.asm.util;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.util.concurrent.atomic.AtomicBoolean;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.Executable;
 import org.objectweb.asm.Attribute;
@@ -216,52 +214,6 @@ public class PrinterTest {
   }
 
   @Test
-  @SuppressWarnings("deprecation")
-  public void testDeprecatedVisitMethodInsn_asm4_unsupportedByDefault() {
-    Printer printer = new EmptyPrinter(Opcodes.ASM4);
-
-    Executable visitMethodInsn =
-        () -> printer.visitMethodInsn(Opcodes.INVOKESPECIAL, "owner", "name", "()V");
-
-    Exception exception = assertThrows(UnsupportedOperationException.class, visitMethodInsn);
-    assertEquals(UNSUPPORTED_OPERATION_MESSAGE, exception.getMessage());
-  }
-
-  @Test
-  @SuppressWarnings("deprecation")
-  public void testDeprecatedVisitMethodInsn_asm5_unsupportedByDefault() {
-    Printer printer = new EmptyPrinter(Opcodes.ASM5);
-
-    Executable visitMethodInsn =
-        () -> printer.visitMethodInsn(Opcodes.INVOKESPECIAL, "owner", "name", "()V");
-
-    Exception exception = assertThrows(UnsupportedOperationException.class, visitMethodInsn);
-    assertEquals(UNSUPPORTED_OPERATION_MESSAGE, exception.getMessage());
-  }
-
-  @Test
-  @SuppressWarnings("deprecation")
-  public void testDeprecatedVisitMethodInsn_asm5_callsNewMethodIfOverridden() {
-    AtomicBoolean visitMethodInsnCalled = new AtomicBoolean();
-    Printer printer =
-        new EmptyPrinter(Opcodes.ASM5) {
-          @Override
-          public void visitMethodInsn(
-              final int opcode,
-              final String owner,
-              final String name,
-              final String descriptor,
-              final boolean isInterface) {
-            visitMethodInsnCalled.set(true);
-          }
-        };
-
-    printer.visitMethodInsn(Opcodes.INVOKESPECIAL, "owner", "name", "()V");
-
-    assertTrue(visitMethodInsnCalled.get());
-  }
-
-  @Test
   public void testVisitMethodInsn_asm4_unsupportedByDefault() {
     Printer printer = new EmptyPrinter(Opcodes.ASM4);
 
@@ -270,35 +222,6 @@ public class PrinterTest {
 
     Exception exception = assertThrows(UnsupportedOperationException.class, visitMethodInsn);
     assertEquals(UNSUPPORTED_OPERATION_MESSAGE, exception.getMessage());
-  }
-
-  @Test
-  public void testVisitMethodInsn_asm4_callsNewMethodIfOverridden() {
-    AtomicBoolean deprecatedVisitMethodInsnCalled = new AtomicBoolean();
-    Printer printer =
-        new EmptyPrinter(Opcodes.ASM4) {
-          @Override
-          @Deprecated
-          public void visitMethodInsn(
-              final int opcode, final String owner, final String name, final String descriptor) {
-            deprecatedVisitMethodInsnCalled.set(true);
-          }
-        };
-
-    printer.visitMethodInsn(Opcodes.INVOKESPECIAL, "owner", "name", "()V", false);
-
-    assertTrue(deprecatedVisitMethodInsnCalled.get());
-  }
-
-  @Test
-  public void testVisitMethodInsn_asm4_illegalArgument() {
-    Printer printer = new EmptyPrinter(Opcodes.ASM4);
-
-    Executable visitMethodInsn =
-        () -> printer.visitMethodInsn(Opcodes.INVOKESPECIAL, "owner", "name", "()V", true);
-
-    Exception exception = assertThrows(IllegalArgumentException.class, visitMethodInsn);
-    assertEquals("INVOKESPECIAL/STATIC on interfaces require ASM 5", exception.getMessage());
   }
 
   @Test

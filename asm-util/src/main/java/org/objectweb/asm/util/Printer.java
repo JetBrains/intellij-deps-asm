@@ -882,12 +882,10 @@ public abstract class Printer {
   @Deprecated
   public void visitMethodInsn(
       final int opcode, final String owner, final String name, final String descriptor) {
-    if (api >= Opcodes.ASM5) {
-      boolean isInterface = opcode == Opcodes.INVOKEINTERFACE;
-      visitMethodInsn(opcode, owner, name, descriptor, isInterface);
-      return;
-    }
-    throw new UnsupportedOperationException(UNSUPPORTED_OPERATION);
+    // This method was abstract before ASM5, and was therefore always overridden (without any
+    // call to 'super'). Thus, at this point we necessarily have api >= ASM5, and we must then
+    // redirect the method call to the ASM5 visitMethodInsn() method.
+    visitMethodInsn(opcode, owner, name, descriptor, opcode == Opcodes.INVOKEINTERFACE);
   }
 
   /**
@@ -907,13 +905,6 @@ public abstract class Printer {
       final String name,
       final String descriptor,
       final boolean isInterface) {
-    if (api < Opcodes.ASM5) {
-      if (isInterface != (opcode == Opcodes.INVOKEINTERFACE)) {
-        throw new IllegalArgumentException("INVOKESPECIAL/STATIC on interfaces require ASM 5");
-      }
-      visitMethodInsn(opcode, owner, name, descriptor);
-      return;
-    }
     throw new UnsupportedOperationException(UNSUPPORTED_OPERATION);
   }
 

@@ -45,7 +45,6 @@ import org.junit.jupiter.api.function.Executable;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.objectweb.asm.ClassReader;
-import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.test.AsmTest;
 
 /**
@@ -66,49 +65,24 @@ public class TextifierTest extends AsmTest {
     assertThrows(IllegalStateException.class, () -> new Textifier() {});
   }
 
-  @Test
-  @SuppressWarnings("deprecation")
-  public void testDeprecatedVisitMethodInsn() {
-    Textifier textifier = new Textifier();
-
-    textifier.visitMethodInsn(Opcodes.INVOKESPECIAL, "owner", "name", "()V");
-
-    assertEquals("    INVOKESPECIAL owner.name ()V\n", textifier.getText().get(0));
-  }
-
-  @Test
-  @SuppressWarnings("deprecation")
-  public void testDeprecatedVisitMethodInsn_asm4() {
-    Textifier textifier = new Textifier(Opcodes.ASM4) {};
-
-    textifier.visitMethodInsn(Opcodes.INVOKESPECIAL, "owner", "name", "()V");
-
-    assertEquals("    INVOKESPECIAL owner.name ()V\n", textifier.getText().get(0));
-  }
-
-  @Test
-  public void testVisitMethodInsn_asm4() {
-    Textifier textifier = new Textifier(Opcodes.ASM4) {};
-
-    textifier.visitMethodInsn(Opcodes.INVOKESPECIAL, "owner", "name", "()V", false);
-
-    assertEquals("    INVOKESPECIAL owner.name ()V\n", textifier.getText().get(0));
-  }
-
   /**
    * Tests that the text produced with a Textifier is equal to the expected text.
    *
    * @throws IOException if the expected text can't be read from disk.
    */
   @ParameterizedTest
-  @MethodSource(ALL_CLASSES_AND_LATEST_API)
+  @MethodSource(ALL_CLASSES_AND_ALL_APIS)
   public void testTextify_precompiledClass(
       final PrecompiledClass classParameter, final Api apiParameter) throws IOException {
     byte[] classFile = classParameter.getBytes();
     StringWriter output = new StringWriter();
     assumeTrue(classFile.length < 32768);
 
-    new ClassReader(classFile).accept(new TraceClassVisitor(new PrintWriter(output, true)), 0);
+    new ClassReader(classFile)
+        .accept(
+            new TraceClassVisitor(
+                null, new Textifier(apiParameter.value()) {}, new PrintWriter(output)),
+            0);
 
     String expectedText =
         new String(

@@ -30,11 +30,19 @@ package org.objectweb.asm.tree;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import java.util.Arrays;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.Executable;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
+import org.objectweb.asm.Attribute;
+import org.objectweb.asm.ClassReader;
+import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Label;
+import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.test.AsmTest;
+import org.objectweb.asm.test.ClassFile;
 
 /**
  * Unit tests for {@link MethodNode}.
@@ -57,6 +65,41 @@ public class MethodNodeTest extends AsmTest {
     Executable constructor = () -> new MethodNode() {};
 
     assertThrows(IllegalStateException.class, constructor);
+  }
+
+  /** Tests that an uninitialized MethodNode can receive any visit method call. */
+  @ParameterizedTest
+  @MethodSource(ALL_CLASSES_AND_LATEST_API)
+  public void testVisitAndAccept_withUninitializedMethodNode(
+      final PrecompiledClass classParameter, final Api apiParameter) {
+    byte[] classFile = classParameter.getBytes();
+    ClassReader classReader = new ClassReader(classFile);
+    ClassNode classNode =
+        new ClassNode(apiParameter.value()) {
+
+          @Override
+          public MethodVisitor visitMethod(
+              final int access,
+              final String name,
+              final String descriptor,
+              final String signature,
+              final String[] exceptions) {
+            MethodNode method = new MethodNode();
+            method.access = access;
+            method.name = name;
+            method.desc = descriptor;
+            method.signature = signature;
+            method.exceptions = exceptions == null ? null : Arrays.asList(exceptions);
+            methods.add(method);
+            return method;
+          }
+        };
+    ClassWriter classWriter = new ClassWriter(0);
+
+    classReader.accept(classNode, new Attribute[] {new Comment(), new CodeComment()}, 0);
+    classNode.accept(classWriter);
+
+    assertEquals(new ClassFile(classFile), new ClassFile(classWriter.toByteArray()));
   }
 
   @Test

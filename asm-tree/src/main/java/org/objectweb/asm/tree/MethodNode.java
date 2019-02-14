@@ -485,6 +485,9 @@ public class MethodNode extends MethodVisitor {
   @Override
   public void visitTryCatchBlock(
       final Label start, final Label end, final Label handler, final String type) {
+    if (tryCatchBlocks == null) {
+      tryCatchBlocks = new ArrayList<>(1);
+    }
     tryCatchBlocks.add(
         new TryCatchBlockNode(getLabelNode(start), getLabelNode(end), getLabelNode(handler), type));
   }
@@ -516,6 +519,9 @@ public class MethodNode extends MethodVisitor {
       final Label start,
       final Label end,
       final int index) {
+    if (localVariables == null) {
+      localVariables = new ArrayList<>(1);
+    }
     localVariables.add(
         new LocalVariableNode(
             name, descriptor, signature, getLabelNode(start), getLabelNode(end), index));
@@ -682,8 +688,7 @@ public class MethodNode extends MethodVisitor {
    * @param classVisitor a class visitor.
    */
   public void accept(final ClassVisitor classVisitor) {
-    String[] exceptionsArray = new String[this.exceptions.size()];
-    this.exceptions.toArray(exceptionsArray);
+    String[] exceptionsArray = exceptions == null ? null : exceptions.toArray(new String[0]);
     MethodVisitor methodVisitor =
         classVisitor.visitMethod(access, name, desc, signature, exceptionsArray);
     if (methodVisitor != null) {

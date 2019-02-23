@@ -39,7 +39,7 @@ import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Opcodes;
 
 /**
- * ModuleHashesAttribute tests.
+ * Unit tests for {@link ModuleHashesAttribute}.
  *
  * @author Eric Bruneton
  */

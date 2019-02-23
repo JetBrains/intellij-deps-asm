@@ -37,7 +37,7 @@ import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Opcodes;
 
 /**
- * ModuleResolutionAttribute tests.
+ * Unit tests for {@link ModuleResolutionAttribute}.
  *
  * @author Eric Bruneton
  */

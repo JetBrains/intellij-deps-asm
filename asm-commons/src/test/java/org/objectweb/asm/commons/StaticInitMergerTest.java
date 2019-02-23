@@ -34,23 +34,35 @@ import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.test.ClassFile;
+import org.objectweb.asm.tree.ClassNode;
 
 /**
- * StaticInitMerger tests.
+ * Unit tests for {@link StaticInitMerger}.
  *
  * @author Eric Bruneton
  */
 public class StaticInitMergerTest {
 
   @Test
-  public void test() throws Exception {
+  public void testAllMethods_multipleStaticInitBlocks() throws Exception {
+    ClassNode classNode = newClassWithStaticInitBlocks(5);
     ClassWriter classWriter = new ClassWriter(ClassWriter.COMPUTE_MAXS);
-    ClassVisitor classVisitor = new StaticInitMerger("$clinit$", classWriter);
-    classVisitor.visit(Opcodes.V1_1, Opcodes.ACC_PUBLIC, "A", null, "java/lang/Object", null);
-    classVisitor.visitField(Opcodes.ACC_PUBLIC + Opcodes.ACC_STATIC, "counter", "I", null, null);
-    for (int i = 0; i < 5; ++i) {
+    ClassVisitor staticInitMerger = new StaticInitMerger("$clinit$", classWriter);
+
+    classNode.accept(staticInitMerger);
+
+    Object instance = new ClassFile(classWriter.toByteArray()).newInstance();
+    assertEquals(5, instance.getClass().getField("counter").getInt(instance));
+  }
+
+  private static ClassNode newClassWithStaticInitBlocks(final int numStaticInitBlocks) {
+    ClassNode classNode = new ClassNode();
+    classNode.visit(Opcodes.V1_1, Opcodes.ACC_PUBLIC, "A", null, "java/lang/Object", null);
+    classNode.visitField(Opcodes.ACC_PUBLIC + Opcodes.ACC_STATIC, "counter", "I", null, null);
+    for (int i = 0; i < numStaticInitBlocks; ++i) {
       MethodVisitor methodVisitor =
-          classVisitor.visitMethod(Opcodes.ACC_PUBLIC, "<clinit>", "()V", null, null);
+          classNode.visitMethod(Opcodes.ACC_PUBLIC, "<clinit>", "()V", null, null);
       methodVisitor.visitFieldInsn(Opcodes.GETSTATIC, "A", "counter", "I");
       methodVisitor.visitInsn(Opcodes.ICONST_1);
       methodVisitor.visitInsn(Opcodes.IADD);
@@ -59,20 +71,13 @@ public class StaticInitMergerTest {
       methodVisitor.visitMaxs(0, 0);
     }
     MethodVisitor methodVisitor =
-        classVisitor.visitMethod(Opcodes.ACC_PUBLIC, "<init>", "()V", null, null);
+        classNode.visitMethod(Opcodes.ACC_PUBLIC, "<init>", "()V", null, null);
     methodVisitor.visitVarInsn(Opcodes.ALOAD, 0);
     methodVisitor.visitMethodInsn(
         Opcodes.INVOKESPECIAL, "java/lang/Object", "<init>", "()V", false);
     methodVisitor.visitInsn(Opcodes.RETURN);
     methodVisitor.visitMaxs(0, 0);
-    classVisitor.visitEnd();
-
-    Class<?> mergedClass =
-        new ClassLoader() {
-          public Class<?> defineClass(final String name, final byte[] classFile) {
-            return defineClass(name, classFile, 0, classFile.length);
-          }
-        }.defineClass("A", classWriter.toByteArray());
-    assertEquals(mergedClass.getField("counter").getInt(mergedClass.newInstance()), 5);
+    classNode.visitEnd();
+    return classNode;
   }
 }

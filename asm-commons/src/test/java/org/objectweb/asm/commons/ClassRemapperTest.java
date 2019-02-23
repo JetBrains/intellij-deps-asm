@@ -30,10 +30,12 @@ package org.objectweb.asm.commons;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Arrays;
 import java.util.Locale;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.function.Executable;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.objectweb.asm.ClassReader;
@@ -50,23 +52,25 @@ import org.objectweb.asm.tree.LdcInsnNode;
 import org.objectweb.asm.util.CheckMethodAdapter;
 
 /**
- * ClassRemapper tests.
+ * Unit tests for {@link ClassRemapper}.
  *
  * @author Eric Bruneton
  */
 public class ClassRemapperTest extends AsmTest {
 
   @Test
-  public void testRenameClass() {
+  public void testVisit() {
     ClassNode classNode = new ClassNode();
     ClassRemapper classRemapper =
         new ClassRemapper(classNode, new SimpleRemapper("pkg/C", "new/pkg/C"));
+
     classRemapper.visit(Opcodes.V1_5, Opcodes.ACC_PUBLIC, "pkg/C", null, "java/lang/Object", null);
+
     assertEquals("new/pkg/C", classNode.name);
   }
 
   @Test
-  public void testRenameInnerClass() {
+  public void testVisitInnerClass() {
     ClassNode classNode = new ClassNode();
     ClassRemapper remapper =
         new ClassRemapper(
@@ -84,14 +88,16 @@ public class ClassRemapperTest extends AsmTest {
               }
             });
     remapper.visit(Opcodes.V1_5, Opcodes.ACC_PUBLIC, "pkg/C", null, "java/lang/Object", null);
+
     remapper.visitInnerClass("pkg/C$Inner", "pkg/C", "Inner", Opcodes.ACC_PUBLIC);
+
     assertEquals("a$b", classNode.innerClasses.get(0).name);
     assertEquals("a", classNode.innerClasses.get(0).outerName);
     assertEquals("b", classNode.innerClasses.get(0).innerName);
   }
 
   @Test
-  public void testRenameMethodLocalInnerClass() {
+  public void testVisitInnerClass_localInnerClass() {
     ClassNode classNode = new ClassNode();
     ClassRemapper remapper =
         new ClassRemapper(
@@ -109,14 +115,16 @@ public class ClassRemapperTest extends AsmTest {
               }
             });
     remapper.visit(Opcodes.V1_5, Opcodes.ACC_PUBLIC, "pkg/C", null, "java/lang/Object", null);
+
     remapper.visitInnerClass("pkg/C$1Inner", "pkg/C", "Inner", Opcodes.ACC_PUBLIC);
+
     assertEquals("a$1b", classNode.innerClasses.get(0).name);
     assertEquals("a", classNode.innerClasses.get(0).outerName);
     assertEquals("b", classNode.innerClasses.get(0).innerName);
   }
 
   @Test
-  public void testRenameModuleHashes() {
+  public void testVisitAttribute_moduleHashes() {
     ClassNode classNode = new ClassNode();
     ClassRemapper classRemapper =
         new ClassRemapper(
@@ -128,14 +136,16 @@ public class ClassRemapperTest extends AsmTest {
               }
             });
     classRemapper.visit(Opcodes.V1_5, Opcodes.ACC_PUBLIC, "C", null, "java/lang/Object", null);
+
     classRemapper.visitAttribute(
         new ModuleHashesAttribute("algorithm", Arrays.asList("pkg.C"), Arrays.asList(new byte[0])));
+
     assertEquals("C", classNode.name);
     assertEquals("new.pkg.C", ((ModuleHashesAttribute) classNode.attrs.get(0)).modules.get(0));
   }
 
   @Test
-  public void testRenameConstantDynamic() {
+  public void testVisitLdcInsn_constantDynamic() {
     ClassNode classNode = new ClassNode();
     ClassRemapper classRemapper =
         new ClassRemapper(
@@ -155,21 +165,19 @@ public class ClassRemapperTest extends AsmTest {
                 return internalName;
               }
             }) {
-          /* inner class so it can access to the protected constructor */
+          /* inner class so it can access the protected constructor */
         };
     classRemapper.visit(Opcodes.V11, Opcodes.ACC_PUBLIC, "C", null, "java/lang/Object", null);
     MethodVisitor methodVisitor =
         classRemapper.visitMethod(Opcodes.ACC_PUBLIC, "hello", "()V", null, null);
     methodVisitor.visitCode();
+
     methodVisitor.visitLdcInsn(
         new ConstantDynamic(
             "foo",
             "Ljava/lang/String;",
             new Handle(Opcodes.H_INVOKESTATIC, "BSMHost", "bsm", "()Ljava/lang/String;", false)));
-    methodVisitor.visitInsn(Opcodes.POP);
-    methodVisitor.visitMaxs(1, 1);
-    methodVisitor.visitEnd();
-    classRemapper.visitEnd();
+
     ConstantDynamic constantDynamic =
         (ConstantDynamic) ((LdcInsnNode) classNode.methods.get(0).instructions.get(0)).cst;
     assertEquals("new.foo", constantDynamic.getName());
@@ -180,25 +188,27 @@ public class ClassRemapperTest extends AsmTest {
   /** Tests that classes transformed with a ClassRemapper can be loaded and instantiated. */
   @ParameterizedTest
   @MethodSource(ALL_CLASSES_AND_ALL_APIS)
-  public void testRemapLoadAndInstantiate(
+  public void testAllMethods_precompiledClass(
       final PrecompiledClass classParameter, final Api apiParameter) {
     ClassReader classReader = new ClassReader(classParameter.getBytes());
     ClassWriter classWriter = new ClassWriter(0);
     UpperCaseRemapper upperCaseRemapper = new UpperCaseRemapper(classParameter.getInternalName());
-
     ClassRemapper classRemapper =
         new ClassRemapper(apiParameter.value(), classWriter, upperCaseRemapper);
+
+    Executable accept = () -> classReader.accept(classRemapper, 0);
+
     if (classParameter.isMoreRecentThan(apiParameter)) {
-      assertThrows(RuntimeException.class, () -> classReader.accept(classRemapper, 0));
-      return;
-    }
-    classReader.accept(classRemapper, 0);
-    byte[] classFile = classWriter.toByteArray();
-    if (classParameter.isMoreRecentThanCurrentJdk()) {
-      assertThrows(
-          UnsupportedClassVersionError.class, () -> new ClassFile(classFile).newInstance());
+      Exception exception = assertThrows(UnsupportedOperationException.class, accept);
+      assertTrue(exception.getMessage().matches(UNSUPPORTED_OPERATION_MESSAGE_PATTERN));
     } else {
-      assertDoesNotThrow(() -> new ClassFile(classFile).newInstance());
+      assertDoesNotThrow(accept);
+      Executable newInstance = () -> new ClassFile(classWriter.toByteArray()).newInstance();
+      if (classParameter.isMoreRecentThanCurrentJdk()) {
+        assertThrows(UnsupportedClassVersionError.class, newInstance);
+      } else {
+        assertDoesNotThrow(newInstance);
+      }
     }
   }
 
@@ -208,26 +218,28 @@ public class ClassRemapperTest extends AsmTest {
    */
   @ParameterizedTest
   @MethodSource(ALL_CLASSES_AND_ALL_APIS)
-  public void testRemapLoadAndInstantiateWithTreeApi(
+  public void testAllMethods_precompiledClass_fromClassNode(
       final PrecompiledClass classParameter, final Api apiParameter) {
     ClassNode classNode = new ClassNode();
     new ClassReader(classParameter.getBytes()).accept(classNode, 0);
-
     ClassWriter classWriter = new ClassWriter(0);
     UpperCaseRemapper upperCaseRemapper = new UpperCaseRemapper(classParameter.getInternalName());
     ClassRemapper classRemapper =
         new ClassRemapper(apiParameter.value(), classWriter, upperCaseRemapper);
+
+    Executable accept = () -> classNode.accept(classRemapper);
+
     if (classParameter.isMoreRecentThan(apiParameter)) {
-      assertThrows(RuntimeException.class, () -> classNode.accept(classRemapper));
-      return;
-    }
-    classNode.accept(classRemapper);
-    byte[] classFile = classWriter.toByteArray();
-    if (classParameter.isMoreRecentThanCurrentJdk()) {
-      assertThrows(
-          UnsupportedClassVersionError.class, () -> new ClassFile(classFile).newInstance());
+      Exception exception = assertThrows(UnsupportedOperationException.class, accept);
+      assertTrue(exception.getMessage().matches(UNSUPPORTED_OPERATION_MESSAGE_PATTERN));
     } else {
-      assertDoesNotThrow(() -> new ClassFile(classFile).newInstance());
+      assertDoesNotThrow(accept);
+      Executable newInstance = () -> new ClassFile(classWriter.toByteArray()).newInstance();
+      if (classParameter.isMoreRecentThanCurrentJdk()) {
+        assertThrows(UnsupportedClassVersionError.class, newInstance);
+      } else {
+        assertDoesNotThrow(newInstance);
+      }
     }
   }
 

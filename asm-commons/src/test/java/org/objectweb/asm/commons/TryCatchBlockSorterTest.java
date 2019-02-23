@@ -42,7 +42,7 @@ import org.objectweb.asm.test.AsmTest;
 import org.objectweb.asm.test.ClassFile;
 
 /**
- * TryCatchBlockSorter tests.
+ * Unit tests for {@link TryCatchBlockSorter}.
  *
  * @author Eric Bruneton
  */
@@ -50,7 +50,8 @@ public class TryCatchBlockSorterTest extends AsmTest {
 
   @Test
   public void testConstructor() {
-    new TryCatchBlockSorter(null, Opcodes.ACC_PUBLIC, "name", "()V", null, null);
+    assertDoesNotThrow(
+        () -> new TryCatchBlockSorter(null, Opcodes.ACC_PUBLIC, "name", "()V", null, null));
     assertThrows(
         IllegalStateException.class,
         () -> new TryCatchBlockSorter(null, Opcodes.ACC_PUBLIC, "name", "()V", null, null) {});
@@ -58,7 +59,7 @@ public class TryCatchBlockSorterTest extends AsmTest {
 
   @ParameterizedTest
   @MethodSource(ALL_CLASSES_AND_LATEST_API)
-  public void testSortTryCatchBlocksAndInstantiate(
+  public void testAllMethods_precompileClass(
       final PrecompiledClass classParameter, final Api apiParameter) {
     ClassReader classReader = new ClassReader(classParameter.getBytes());
     ClassWriter classWriter = new ClassWriter(0);
@@ -82,6 +83,7 @@ public class TryCatchBlockSorterTest extends AsmTest {
         };
 
     classReader.accept(classVisitor, 0);
+
     if (classParameter.isMoreRecentThanCurrentJdk()) {
       assertThrows(
           UnsupportedClassVersionError.class,

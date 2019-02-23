@@ -27,7 +27,9 @@
 // THE POSSIBILITY OF SUCH DAMAGE.
 package org.objectweb.asm.commons;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -42,61 +44,71 @@ import org.objectweb.asm.test.AsmTest;
 import org.objectweb.asm.test.ClassFile;
 
 /**
- * SerialVersionUIDAdder tests.
+ * Unit tests for {@link SerialVersionUIDAdder}.
  *
  * @author Eric Bruneton
  */
 public class SerialVersionUidAdderTest extends AsmTest {
 
-  private long computeSerialVersionUid(final String className) throws IOException {
-    long[] svuid = new long[1];
-    new ClassReader(className)
-        .accept(
-            new SerialVersionUIDAdder(Opcodes.ASM7, null) {
-              @Override
-              protected long computeSVUID() throws IOException {
-                svuid[0] = super.computeSVUID();
-                return svuid[0];
-              }
-            },
-            0);
-    return svuid[0];
-  }
-
   @Test
   public void testConstructor() {
-    new SerialVersionUIDAdder(null);
+    assertDoesNotThrow(() -> new SerialVersionUIDAdder(null));
     assertThrows(IllegalStateException.class, () -> new SerialVersionUIDAdder(null) {});
   }
 
   @Test
-  public void testClass() throws IOException {
-    long actualSvuid = computeSerialVersionUid("SerialVersionClass");
-    assertEquals(4654798559887898126L, actualSvuid);
+  public void testAllMethods_class() throws IOException {
+    ClassReader classReader = new ClassReader("SerialVersionClass");
+    SerialVersionUIDAdder svuidAdder = new SerialVersionUIDAdder(null);
+
+    classReader.accept(svuidAdder, 0);
+    long svuid = svuidAdder.computeSVUID();
+
+    assertEquals(4654798559887898126L, svuid);
   }
 
   @Test
-  public void testAnonymousInnerClass() throws IOException {
-    long actualSvuid = computeSerialVersionUid("SerialVersionAnonymousInnerClass$1");
-    assertEquals(2591057588230880800L, actualSvuid);
+  public void testAllMethods_anonymousInnerClass() throws IOException {
+    ClassReader classReader = new ClassReader("SerialVersionAnonymousInnerClass$1");
+    SerialVersionUIDAdder svuidAdder = new SerialVersionUIDAdder(null);
+
+    classReader.accept(svuidAdder, 0);
+    long svuid = svuidAdder.computeSVUID();
+
+    assertEquals(2591057588230880800L, svuid);
   }
 
   @Test
-  public void testInterface() throws IOException {
-    long actualSvuid = computeSerialVersionUid("SerialVersionInterface");
-    assertEquals(682190902657822970L, actualSvuid);
+  public void testAllMethods_interface() throws IOException {
+    ClassReader classReader = new ClassReader("SerialVersionInterface");
+    SerialVersionUIDAdder svuidAdder = new SerialVersionUIDAdder(null);
+
+    classReader.accept(svuidAdder, 0);
+    long svuid = svuidAdder.computeSVUID();
+
+    assertEquals(682190902657822970L, svuid);
   }
 
   @Test
-  public void testEmptyInterface() throws IOException {
-    long actualSvuid = computeSerialVersionUid("SerialVersionEmptyInterface");
-    assertEquals(-2126445979242430981L, actualSvuid);
+  public void testAllMethods_emptyInterface() throws IOException {
+    ClassReader classReader = new ClassReader("SerialVersionEmptyInterface");
+    SerialVersionUIDAdder svuidAdder = new SerialVersionUIDAdder(null);
+
+    classReader.accept(svuidAdder, 0);
+    long svuid = svuidAdder.computeSVUID();
+
+    assertEquals(-2126445979242430981L, svuid);
   }
 
   @Test
-  public void testEnum() throws IOException {
-    long actualSvuid = computeSerialVersionUid("SerialVersionEnum");
-    assertEquals(0L, actualSvuid);
+  public void testAllMethods_enum() throws IOException {
+    ClassReader classReader = new ClassReader("SerialVersionEnum");
+    ClassWriter classWriter = new ClassWriter(0);
+    SerialVersionUIDAdder svuidAdder = new SerialVersionUIDAdder(classWriter);
+
+    classReader.accept(svuidAdder, 0);
+
+    assertFalse(new ClassFile(classWriter.toByteArray()).toString().contains("serialVersionUID"));
   }
 
   /**
@@ -105,11 +117,13 @@ public class SerialVersionUidAdderTest extends AsmTest {
    */
   @ParameterizedTest
   @MethodSource(ALL_CLASSES_AND_LATEST_API)
-  public void testAddSerialVersionUid(
+  public void testAllMethods_precompiledClass(
       final PrecompiledClass classParameter, final Api apiParameter) {
     ClassReader classReader = new ClassReader(classParameter.getBytes());
     ClassWriter classWriter = new ClassWriter(0);
+
     classReader.accept(new SerialVersionUIDAdder(classWriter), 0);
+
     if ((classReader.getAccess() & Opcodes.ACC_ENUM) == 0) {
       assertTrue(new ClassFile(classWriter.toByteArray()).toString().contains("serialVersionUID"));
     }

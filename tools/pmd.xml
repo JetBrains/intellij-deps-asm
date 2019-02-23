@@ -31,8 +31,6 @@
     <!-- Would give too verbose code. -->
     <exclude name="JUnitAssertionsShouldIncludeMessage" />
     <exclude name="JUnitTestContainsTooManyAsserts" />
-    <!-- Too many false positives due to our custom assertions. -->
-    <exclude name="JUnitTestsShouldIncludeAssert" />
     <!-- Not relevant for ASM (using JUnit 5). -->
     <exclude name="JUnitUseExpected" />
     <!-- Already covered with Checkstyle 'IllegalType' rule. -->   

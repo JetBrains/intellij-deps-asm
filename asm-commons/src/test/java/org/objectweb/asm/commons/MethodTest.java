@@ -36,15 +36,16 @@ import org.junit.jupiter.api.Test;
 import org.objectweb.asm.Type;
 
 /**
- * Method tests.
+ * Unit tests for {@link Method}.
  *
  * @author Eric Bruneton
  */
 public class MethodTest {
 
   @Test
-  public void testConstructor1() {
+  public void testConstructor_fromDescriptor() {
     Method method = new Method("name", "(I)J");
+
     assertEquals("name", method.getName());
     assertEquals("(I)J", method.getDescriptor());
     assertEquals(Type.LONG_TYPE, method.getReturnType());
@@ -53,8 +54,9 @@ public class MethodTest {
   }
 
   @Test
-  public void testConstructor2() {
+  public void testConstructor_fromTypes() {
     Method method = new Method("name", Type.LONG_TYPE, new Type[] {Type.INT_TYPE});
+
     assertEquals("name", method.getName());
     assertEquals("(I)J", method.getDescriptor());
     assertEquals(Type.LONG_TYPE, method.getReturnType());
@@ -63,40 +65,46 @@ public class MethodTest {
   }
 
   @Test
-  public void testGetReflectMethod() throws NoSuchMethodException, SecurityException {
+  public void testGetMethod_fromMethodObject() throws ReflectiveOperationException {
     Method method = Method.getMethod(Object.class.getMethod("equals", Object.class));
+
     assertEquals("equals", method.getName());
     assertEquals("(Ljava/lang/Object;)Z", method.getDescriptor());
   }
 
   @Test
-  public void testGetReflectConstructor() throws NoSuchMethodException, SecurityException {
+  public void testGetMethod_fromConstructorObject() throws ReflectiveOperationException {
     Method method = Method.getMethod(Object.class.getConstructor());
+
     assertEquals("<init>", method.getName());
     assertEquals("()V", method.getDescriptor());
   }
 
   @Test
-  public void testGetMethod() throws NoSuchMethodException, SecurityException {
+  public void testGetMethod_fromDescriptor() {
     Method method =
         Method.getMethod(
             "boolean name(byte, char, short, int, float, long, double, pkg.Class, pkg.Class[])");
+
     assertEquals("name", method.getName());
     assertEquals("(BCSIFJDLpkg/Class;[Lpkg/Class;)Z", method.getDescriptor());
+  }
 
+  @Test
+  public void testGetMethod_fromInvalidDescriptor() {
     assertThrows(IllegalArgumentException.class, () -> Method.getMethod("name()"));
     assertThrows(IllegalArgumentException.class, () -> Method.getMethod("void name"));
     assertThrows(IllegalArgumentException.class, () -> Method.getMethod("void name(]"));
   }
 
   @Test
-  public void testGetMethodWithDefaultPackage() throws NoSuchMethodException, SecurityException {
-    assertEquals(
-        "(Ljava/lang/Object;)V",
-        Method.getMethod("void name(Object)", /* defaultPackage= */ false).getDescriptor());
-    assertEquals(
-        "(LObject;)V",
-        Method.getMethod("void name(Object)", /* defaultPackage= */ true).getDescriptor());
+  public void testGetMethod_withDefaultPackage() {
+    Method withoutDefaultPackage =
+        Method.getMethod("void name(Object)", /* defaultPackage= */ false);
+    Method withDefaultPackage = Method.getMethod("void name(Object)", /* defaultPackage= */ true);
+
+    assertEquals("(Ljava/lang/Object;)V", withoutDefaultPackage.getDescriptor());
+    assertEquals("(LObject;)V", withDefaultPackage.getDescriptor());
   }
 
   @Test

@@ -300,7 +300,7 @@ public abstract class Printer {
    *
    * @deprecated use {@link #stringBuilder} instead.
    */
-  @Deprecated protected final StringBuffer buf;
+  @Deprecated protected final StringBuffer buf = null;
 
   /** The builder used to build strings in the various visit methods. */
   protected final StringBuilder stringBuilder;
@@ -329,7 +329,6 @@ public abstract class Printer {
    */
   protected Printer(final int api) {
     this.api = api;
-    this.buf = null;
     this.stringBuilder = new StringBuilder();
     this.text = new ArrayList<>();
   }

@@ -29,7 +29,10 @@ package org.objectweb.asm.util;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import org.objectweb.asm.Attribute;
 import org.objectweb.asm.Handle;
@@ -98,6 +101,9 @@ public class Textifier extends Printer {
   private static final String DEPRECATED = "// DEPRECATED\n";
   private static final String INVISIBLE = " // invisible\n";
 
+  private static final List<String> FRAME_TYPES =
+      Collections.unmodifiableList(Arrays.asList("T", "I", "F", "D", "J", "N", "U"));
+
   /** The indentation of class members at depth level 1 (e.g. fields, methods). */
   protected String tab = "  ";
 
@@ -164,7 +170,7 @@ public class Textifier extends Printer {
    * @param logger where to log errors.
    * @throws IOException if the class cannot be found, or if an IOException occurs.
    */
-  public static void main(final String[] args, final PrintWriter output, final PrintWriter logger)
+  static void main(final String[] args, final PrintWriter output, final PrintWriter logger)
       throws IOException {
     main(args, USAGE, new Textifier(), output, logger);
   }
@@ -469,30 +475,20 @@ public class Textifier extends Printer {
   }
 
   @Override
-  public void visitExport(final String export, final int access, final String... modules) {
-    stringBuilder.setLength(0);
-    stringBuilder.append(tab).append("exports ");
-    stringBuilder.append(export);
-    if (modules != null && modules.length > 0) {
-      stringBuilder.append(" to");
-    } else {
-      stringBuilder.append(';');
-    }
-    appendRawAccess(access);
-    if (modules != null && modules.length > 0) {
-      for (int i = 0; i < modules.length; ++i) {
-        stringBuilder.append(tab2).append(modules[i]);
-        stringBuilder.append(i != modules.length - 1 ? ",\n" : ";\n");
-      }
-    }
-    text.add(stringBuilder.toString());
+  public void visitExport(final String packaze, final int access, final String... modules) {
+    visitExportOrOpen("exports ", packaze, access, modules);
   }
 
   @Override
-  public void visitOpen(final String export, final int access, final String... modules) {
+  public void visitOpen(final String packaze, final int access, final String... modules) {
+    visitExportOrOpen("opens ", packaze, access, modules);
+  }
+
+  private void visitExportOrOpen(
+      final String method, final String packaze, final int access, final String... modules) {
     stringBuilder.setLength(0);
-    stringBuilder.append(tab).append("opens ");
-    stringBuilder.append(export);
+    stringBuilder.append(tab).append(method);
+    stringBuilder.append(packaze);
     if (modules != null && modules.length > 0) {
       stringBuilder.append(" to");
     } else {
@@ -1545,31 +1541,7 @@ public class Textifier extends Printer {
           appendDescriptor(INTERNAL_NAME, descriptor);
         }
       } else if (frameTypes[i] instanceof Integer) {
-        switch (((Integer) frameTypes[i]).intValue()) {
-          case 0:
-            appendDescriptor(FIELD_DESCRIPTOR, "T");
-            break;
-          case 1:
-            appendDescriptor(FIELD_DESCRIPTOR, "I");
-            break;
-          case 2:
-            appendDescriptor(FIELD_DESCRIPTOR, "F");
-            break;
-          case 3:
-            appendDescriptor(FIELD_DESCRIPTOR, "D");
-            break;
-          case 4:
-            appendDescriptor(FIELD_DESCRIPTOR, "J");
-            break;
-          case 5:
-            appendDescriptor(FIELD_DESCRIPTOR, "N");
-            break;
-          case 6:
-            appendDescriptor(FIELD_DESCRIPTOR, "U");
-            break;
-          default:
-            throw new IllegalArgumentException();
-        }
+        stringBuilder.append(FRAME_TYPES.get(((Integer) frameTypes[i]).intValue()));
       } else {
         appendLabel((Label) frameTypes[i]);
       }

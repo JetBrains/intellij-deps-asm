@@ -452,18 +452,7 @@ public class SerialVersionUIDAdder extends ClassVisitor {
       final boolean dotted)
       throws IOException {
     Item[] items = itemCollection.toArray(new Item[0]);
-    Arrays.sort(
-        items,
-        new Comparator<Item>() {
-          @Override
-          public int compare(final Item item1, final Item item2) {
-            int result = item1.name.compareTo(item2.name);
-            if (result == 0) {
-              result = item1.descriptor.compareTo(item2.descriptor);
-            }
-            return result;
-          }
-        });
+    Arrays.sort(items, new ItemComparator());
     for (Item item : items) {
       dataOutputStream.writeUTF(item.name);
       dataOutputStream.writeInt(item.access);
@@ -485,6 +474,18 @@ public class SerialVersionUIDAdder extends ClassVisitor {
       this.name = name;
       this.access = access;
       this.descriptor = descriptor;
+    }
+  }
+
+  private static final class ItemComparator implements Comparator<Item> {
+
+    @Override
+    public int compare(final Item item1, final Item item2) {
+      int result = item1.name.compareTo(item2.name);
+      if (result == 0) {
+        result = item1.descriptor.compareTo(item2.descriptor);
+      }
+      return result;
     }
   }
 }

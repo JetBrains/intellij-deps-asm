@@ -197,7 +197,7 @@ subprojects {
 // and uploaded to Maven with a POM, sources and Javadoc.
 configure(subprojects.findAll { it.provides }) {
   // Code coverage configuration.
-  jacoco.toolVersion = '0.8.1'
+  jacoco.toolVersion = '0.8.3'
   jacocoTestReport {
     classDirectories.setFrom(sourceSets.main.output.classesDirs)
   }

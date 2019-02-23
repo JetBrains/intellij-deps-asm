@@ -37,7 +37,7 @@ import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Opcodes;
 
 /**
- * ModuleTargetAttribute tests.
+ * Unit tests for {@link ModuleTargetAttribute}.
  *
  * @author Eric Bruneton
  */

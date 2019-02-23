@@ -27,10 +27,13 @@
 // THE POSSIBILITY OF SUCH DAMAGE.
 package org.objectweb.asm.commons;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.util.ArrayList;
+import org.junit.jupiter.api.function.Executable;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.objectweb.asm.Attribute;
@@ -46,7 +49,7 @@ import org.objectweb.asm.test.AsmTest;
 import org.objectweb.asm.test.ClassFile;
 
 /**
- * CodeSizeEvaluator tests.
+ * Unit tests for {@link CodeSizeEvaluator}.
  *
  * @author Eric Bruneton
  */
@@ -58,66 +61,101 @@ public class CodeSizeEvaluatorTest extends AsmTest {
    */
   @ParameterizedTest
   @MethodSource(ALL_CLASSES_AND_ALL_APIS)
-  public void testSizeEvaluation(final PrecompiledClass classParameter, final Api apiParameter) {
+  public void testAllMethods_precompiledClass(
+      final PrecompiledClass classParameter, final Api apiParameter) {
     byte[] classFile = classParameter.getBytes();
     ClassReader classReader = new ClassReader(classFile);
     ClassWriter classWriter = new ClassWriter(0);
-    ClassVisitor classVisitor =
-        new ClassVisitor(apiParameter.value(), classWriter) {
-          @Override
-          public MethodVisitor visitMethod(
-              final int access,
-              final String name,
-              final String descriptor,
-              final String signature,
-              final String[] exceptions) {
-            MethodVisitor methodVisitor =
-                super.visitMethod(access, name, descriptor, signature, exceptions);
-            return new CodeSizeEvaluator(api, methodVisitor) {
+    ArrayList<CodeSizeEvaluation> evaluations = new ArrayList<>();
+    ClassVisitor codeSizesEvaluator =
+        new CodeSizesEvaluator(apiParameter.value(), classWriter, evaluations);
 
-              @Override
-              public void visitLdcInsn(final Object value) {
-                if (value instanceof Boolean
-                    || value instanceof Byte
-                    || value instanceof Short
-                    || value instanceof Character
-                    || value instanceof Integer
-                    || value instanceof Long
-                    || value instanceof Double
-                    || value instanceof Float
-                    || value instanceof String
-                    || value instanceof Type
-                    || value instanceof Handle
-                    || value instanceof ConstantDynamic) {
-                  super.visitLdcInsn(value);
-                } else {
-                  // If this happens, add support for the new type in
-                  // CodeSizeEvaluator.visitLdcInsn(), if needed.
-                  throw new IllegalArgumentException("Unsupported type of value: " + value);
-                }
-              }
+    Executable accept = () -> classReader.accept(codeSizesEvaluator, attributes(), 0);
 
-              @Override
-              public void visitMaxs(final int maxStack, final int maxLocals) {
-                Label end = new Label();
-                visitLabel(end);
-                super.visitMaxs(maxStack, maxLocals);
-                int actualSize = end.getOffset();
-                assertTrue(getMinSize() <= actualSize);
-                assertTrue(actualSize <= getMaxSize());
-              }
-            };
-          }
-        };
     if (classParameter.isMoreRecentThan(apiParameter)) {
-      assertThrows(RuntimeException.class, () -> classReader.accept(classVisitor, attributes(), 0));
-      return;
+      Exception exception = assertThrows(UnsupportedOperationException.class, accept);
+      assertTrue(exception.getMessage().matches(UNSUPPORTED_OPERATION_MESSAGE_PATTERN));
+    } else {
+      assertDoesNotThrow(accept);
+      for (CodeSizeEvaluation evaluation : evaluations) {
+        assertTrue(evaluation.actualSize >= evaluation.minSize);
+        assertTrue(evaluation.actualSize <= evaluation.maxSize);
+      }
+      assertEquals(new ClassFile(classFile), new ClassFile(classWriter.toByteArray()));
     }
-    classReader.accept(classVisitor, attributes(), 0);
-    assertEquals(new ClassFile(classFile), new ClassFile(classWriter.toByteArray()));
   }
 
   private static Attribute[] attributes() {
     return new Attribute[] {new Comment(), new CodeComment()};
+  }
+
+  static class CodeSizeEvaluation {
+
+    final int minSize;
+    final int maxSize;
+    final int actualSize;
+
+    CodeSizeEvaluation(final int minSize, final int maxSize, final int actualSize) {
+      this.minSize = minSize;
+      this.maxSize = maxSize;
+      this.actualSize = actualSize;
+    }
+  }
+
+  static class CodeSizesEvaluator extends ClassVisitor {
+
+    private final ArrayList<CodeSizeEvaluation> evaluations;
+
+    CodeSizesEvaluator(
+        final int api,
+        final ClassWriter classWriter,
+        final ArrayList<CodeSizeEvaluation> evaluations) {
+      super(api, classWriter);
+      this.evaluations = evaluations;
+    }
+
+    @Override
+    public MethodVisitor visitMethod(
+        final int access,
+        final String name,
+        final String descriptor,
+        final String signature,
+        final String[] exceptions) {
+      MethodVisitor methodVisitor =
+          super.visitMethod(access, name, descriptor, signature, exceptions);
+      return new CodeSizeEvaluator(api, methodVisitor) {
+
+        @Override
+        public void visitLdcInsn(final Object value) {
+          if (value instanceof Boolean
+              || value instanceof Byte
+              || value instanceof Short
+              || value instanceof Character
+              || value instanceof Integer
+              || value instanceof Long
+              || value instanceof Double
+              || value instanceof Float
+              || value instanceof String
+              || value instanceof Type
+              || value instanceof Handle
+              || value instanceof ConstantDynamic) {
+            super.visitLdcInsn(value);
+          } else {
+            // If this happens, add support for the new type in
+            // CodeSizeEvaluator.visitLdcInsn(), if needed.
+            throw new IllegalArgumentException("Unsupported type of value: " + value);
+          }
+        }
+
+        @Override
+        public void visitMaxs(final int maxStack, final int maxLocals) {
+          Label end = new Label();
+          visitLabel(end);
+          super.visitMaxs(maxStack, maxLocals);
+
+          evaluations.add(new CodeSizeEvaluation(getMinSize(), getMaxSize(), end.getOffset()));
+        }
+      };
+    }
   }
 }

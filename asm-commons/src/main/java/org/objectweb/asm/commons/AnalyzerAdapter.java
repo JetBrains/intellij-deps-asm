@@ -537,6 +537,9 @@ public class AnalyzerAdapter extends MethodVisitor {
   }
 
   private void execute(final int opcode, final int intArg, final String stringArg) {
+    if (opcode == Opcodes.JSR || opcode == Opcodes.RET) {
+      throw new IllegalArgumentException("JSR/RET are not supported");
+    }
     if (this.locals == null) {
       labels = null;
       return;
@@ -837,9 +840,6 @@ public class AnalyzerAdapter extends MethodVisitor {
         pop(4);
         push(Opcodes.INTEGER);
         break;
-      case Opcodes.JSR:
-      case Opcodes.RET:
-        throw new IllegalArgumentException("JSR/RET are not supported");
       case Opcodes.GETSTATIC:
         pushDescriptor(stringArg);
         break;

@@ -25,7 +25,6 @@
 // CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
 // THE POSSIBILITY OF SUCH DAMAGE.
-
 package org.objectweb.asm.commons;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -36,46 +35,54 @@ import java.util.Map;
 import org.junit.jupiter.api.Test;
 
 /**
- * SignatureRemapper tests.
+ * Unit tests for {@link SimpleRemapper}.
  *
  * @author Eric Bruneton
  */
-public class SignatureRemapperTest {
+public class SimpleRemapperTest {
 
   @Test
-  public void testRemappingParentOnlyNestedClassExtends() {
+  public void testMapSignature_remapParentOnly_nestedClassExtends() {
+    String inputSignature = "LOuter<Ljava/lang/Object;>.Inner;";
     Remapper remapper = new SimpleRemapper(Collections.singletonMap("Outer", "RenamedOuter"));
-    assertEquals(
-        "LRenamedOuter<Ljava/lang/Object;>.Inner;",
-        remapper.mapSignature("LOuter<Ljava/lang/Object;>.Inner;", false));
+
+    String remappedSignature = remapper.mapSignature(inputSignature, false);
+
+    assertEquals("LRenamedOuter<Ljava/lang/Object;>.Inner;", remappedSignature);
   }
 
   @Test
-  public void testRemappingChildOnlyNestedClassExtends() {
+  public void testMapSignature_remapChildOnly_nestedClassExtends() {
+    String inputSignature = "LOuter<Ljava/lang/Object;>.Inner;";
     Remapper remapper =
         new SimpleRemapper(Collections.singletonMap("Outer$Inner", "Outer$RenamedInner"));
-    assertEquals(
-        "LOuter<Ljava/lang/Object;>.RenamedInner;",
-        remapper.mapSignature("LOuter<Ljava/lang/Object;>.Inner;", false));
+
+    String remappedSignature = remapper.mapSignature(inputSignature, false);
+
+    assertEquals("LOuter<Ljava/lang/Object;>.RenamedInner;", remappedSignature);
   }
 
   @Test
-  public void testRemappingChildOnlyNestedClassExtends_IdentifiersWithDollarSign() {
+  public void testMapSignature_remapChildOnly_nestedClassExtends_identifiersWithDollarSign() {
+    String inputSignature = "LOuter<Ljava/lang/Object;>.Inner$1;";
     Remapper remapper =
         new SimpleRemapper(Collections.singletonMap("Outer$Inner$1", "Outer$RenamedInner$1"));
-    assertEquals(
-        "LOuter<Ljava/lang/Object;>.RenamedInner$1;",
-        remapper.mapSignature("LOuter<Ljava/lang/Object;>.Inner$1;", false));
+
+    String remappedSignature = remapper.mapSignature(inputSignature, false);
+
+    assertEquals("LOuter<Ljava/lang/Object;>.RenamedInner$1;", remappedSignature);
   }
 
   @Test
-  public void testRemappingBothParentAndChildNestedClassExtends() {
+  public void testMapSignature_remapBothParentAndChild_nestedClassExtends() {
+    String inputSignature = "LOuter<Ljava/lang/Object;>.Inner;";
     Map<String, String> mapping = new HashMap<>();
     mapping.put("Outer", "RenamedOuter");
     mapping.put("Outer$Inner", "RenamedOuter$RenamedInner");
     Remapper remapper = new SimpleRemapper(mapping);
-    assertEquals(
-        "LRenamedOuter<Ljava/lang/Object;>.RenamedInner;",
-        remapper.mapSignature("LOuter<Ljava/lang/Object;>.Inner;", false));
+
+    String remappedSignature = remapper.mapSignature(inputSignature, false);
+
+    assertEquals("LRenamedOuter<Ljava/lang/Object;>.RenamedInner;", remappedSignature);
   }
 }

@@ -40,6 +40,7 @@ import static org.objectweb.asm.commons.GeneratorAdapter.NE;
 import java.util.Arrays;
 import java.util.stream.Collectors;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.function.Executable;
 import org.objectweb.asm.Handle;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.Opcodes;
@@ -50,16 +51,27 @@ import org.objectweb.asm.util.Textifier;
 import org.objectweb.asm.util.TraceMethodVisitor;
 
 /**
- * GeneratorAdapter tests.
+ * Unit tests for {@link GeneratorAdapter}.
  *
  * @author Eric Bruneton
  */
 public class GeneratorAdapterTest {
 
+  private static final Type OBJECT_TYPE = Type.getObjectType("java/lang/Object");
+
   @Test
-  public void testConstructor1() {
+  public void testConstructor_illegalState() {
+    Executable constructor =
+        () -> new GeneratorAdapter(new MethodNode(), Opcodes.ACC_PUBLIC, "name", "()V") {};
+
+    assertThrows(IllegalStateException.class, constructor);
+  }
+
+  @Test
+  public void testConstructor_emptyDescriptor() {
     GeneratorAdapter generatorAdapter =
         new GeneratorAdapter(new MethodNode(), Opcodes.ACC_PUBLIC, "name", "()V");
+
     assertEquals(Opcodes.ACC_PUBLIC, generatorAdapter.getAccess());
     assertEquals("name", generatorAdapter.getName());
     assertEquals(Type.VOID_TYPE, generatorAdapter.getReturnType());
@@ -67,16 +79,10 @@ public class GeneratorAdapterTest {
   }
 
   @Test
-  public void testConstructor2() {
-    assertThrows(
-        IllegalStateException.class,
-        () -> new GeneratorAdapter(new MethodNode(), Opcodes.ACC_PUBLIC, "name", "()V") {});
-  }
-
-  @Test
-  public void testConstructor3() {
+  public void testConstructor_basicDescriptor() {
     GeneratorAdapter generatorAdapter =
         new GeneratorAdapter(new MethodNode(), Opcodes.ACC_PRIVATE, "m", "(I)F");
+
     assertEquals(Opcodes.ACC_PRIVATE, generatorAdapter.getAccess());
     assertEquals("m", generatorAdapter.getName());
     assertEquals(Type.FLOAT_TYPE, generatorAdapter.getReturnType());
@@ -84,9 +90,9 @@ public class GeneratorAdapterTest {
   }
 
   @Test
-  public void testConstructor4() {
-    new GeneratorAdapter(Opcodes.ACC_PUBLIC, new Method("name", "()V"), new MethodNode());
+  public void testConstructor_withClassVisitorAndExceptions() {
     ClassNode classNode = new ClassNode();
+
     GeneratorAdapter generatorAdapter =
         new GeneratorAdapter(
             Opcodes.ACC_PUBLIC,
@@ -94,11 +100,11 @@ public class GeneratorAdapterTest {
             "()V",
             new Type[] {Type.getObjectType("java/lang/Exception")},
             classNode);
+
     assertEquals(Opcodes.ACC_PUBLIC, generatorAdapter.getAccess());
     assertEquals("name", generatorAdapter.getName());
     assertEquals(Type.VOID_TYPE, generatorAdapter.getReturnType());
     assertArrayEquals(new Type[0], generatorAdapter.getArgumentTypes());
-
     MethodNode methodNode = classNode.methods.get(0);
     assertEquals(Opcodes.ACC_PUBLIC, methodNode.access);
     assertEquals("name", methodNode.name);
@@ -107,16 +113,16 @@ public class GeneratorAdapterTest {
   }
 
   @Test
-  public void testConstructor4WithoutExceptions() {
-    new GeneratorAdapter(Opcodes.ACC_PUBLIC, new Method("name", "()V"), new MethodNode());
+  public void testConstructor_withClassVisitorAndNoExceptions() {
     ClassNode classNode = new ClassNode();
+
     GeneratorAdapter generatorAdapter =
         new GeneratorAdapter(Opcodes.ACC_PUBLIC, new Method("name", "()V"), "()V", null, classNode);
+
     assertEquals(Opcodes.ACC_PUBLIC, generatorAdapter.getAccess());
     assertEquals("name", generatorAdapter.getName());
     assertEquals(Type.VOID_TYPE, generatorAdapter.getReturnType());
     assertArrayEquals(new Type[0], generatorAdapter.getArgumentTypes());
-
     MethodNode methodNode = classNode.methods.get(0);
     assertEquals(Opcodes.ACC_PUBLIC, methodNode.access);
     assertEquals("name", methodNode.name);
@@ -125,13 +131,13 @@ public class GeneratorAdapterTest {
   }
 
   @Test
-  public void testPushBoolean() {
+  public void testPush_boolean() {
     assertEquals("ICONST_0", new Generator().push(false));
     assertEquals("ICONST_1", new Generator().push(true));
   }
 
   @Test
-  public void testPushInt() {
+  public void testPush_int() {
     assertEquals("LDC -32769", new Generator().push(-32769));
     assertEquals("SIPUSH -32768", new Generator().push(-32768));
     assertEquals("BIPUSH -128", new Generator().push(-128));
@@ -150,14 +156,14 @@ public class GeneratorAdapterTest {
   }
 
   @Test
-  public void testPushLong() {
+  public void testPush_long() {
     assertEquals("LCONST_0", new Generator().push(0L));
     assertEquals("LCONST_1", new Generator().push(1L));
     assertEquals("LDC 2", new Generator().push(2L));
   }
 
   @Test
-  public void testPushFloat() {
+  public void testPush_float() {
     assertEquals("FCONST_0", new Generator().push(0.0f));
     assertEquals("FCONST_1", new Generator().push(1.0f));
     assertEquals("FCONST_2", new Generator().push(2.0f));
@@ -165,20 +171,20 @@ public class GeneratorAdapterTest {
   }
 
   @Test
-  public void testPushDouble() {
+  public void testPush_double() {
     assertEquals("DCONST_0", new Generator().push(0.0));
     assertEquals("DCONST_1", new Generator().push(1.0));
     assertEquals("LDC 2.0", new Generator().push(2.0));
   }
 
   @Test
-  public void testPushString() {
+  public void testPush_string() {
     assertEquals("ACONST_NULL", new Generator().push((String) null));
     assertEquals("LDC \"string\"", new Generator().push("string"));
   }
 
   @Test
-  public void testPushType() {
+  public void testPush_type() {
     assertEquals("ACONST_NULL", new Generator().push((Type) null));
     assertEquals(
         "GETSTATIC java/lang/Boolean.TYPE : Ljava/lang/Class;",
@@ -202,14 +208,12 @@ public class GeneratorAdapterTest {
     assertEquals(
         "GETSTATIC java/lang/Double.TYPE : Ljava/lang/Class;",
         new Generator().push(Type.DOUBLE_TYPE));
-    assertEquals(
-        "LDC Ljava/lang/Object;.class",
-        new Generator().push(Type.getObjectType("java/lang/Object")));
+    assertEquals("LDC Ljava/lang/Object;.class", new Generator().push(OBJECT_TYPE));
     assertEquals("LDC [I.class", new Generator().push(Type.getObjectType("[I")));
   }
 
   @Test
-  public void testPushHandle() {
+  public void testPush_handle() {
     assertEquals("ACONST_NULL", new Generator().push((Handle) null));
     assertEquals(
         "LDC pkg/Owner.nameI (2)",
@@ -219,9 +223,15 @@ public class GeneratorAdapterTest {
   @Test
   public void testLoadThis() {
     assertEquals("ALOAD 0", new Generator().loadThis());
-    assertThrows(
-        IllegalStateException.class,
-        () -> new Generator(Opcodes.ACC_STATIC, "m", "()V").loadThis());
+  }
+
+  @Test
+  public void testLoadThis_illegalState() {
+    Generator generator = new Generator(Opcodes.ACC_STATIC, "m", "()V");
+
+    Executable loadThis = () -> generator.loadThis();
+
+    assertThrows(IllegalStateException.class, loadThis);
   }
 
   @Test
@@ -271,25 +281,54 @@ public class GeneratorAdapterTest {
   }
 
   @Test
+  public void testNewLocal() {
+    Generator generator = new Generator();
+
+    int local = generator.newLocal(Type.FLOAT_TYPE);
+
+    assertEquals(Type.FLOAT_TYPE, generator.getLocalType(local));
+  }
+
+  @Test
   public void testLoadLocal() {
     Generator generator = new Generator();
     int local = generator.newLocal(Type.FLOAT_TYPE);
-    assertEquals(Type.FLOAT_TYPE, generator.getLocalType(local));
-    assertEquals("FLOAD 1", generator.loadLocal(local));
-    assertEquals("ILOAD 1", generator.loadLocal(local, Type.INT_TYPE));
+
+    String loadLocal = generator.loadLocal(local);
+
+    assertEquals("FLOAD 1", loadLocal);
+  }
+
+  @Test
+  public void testLoadLocal_withType() {
+    Generator generator = new Generator();
+    int local = generator.newLocal(Type.FLOAT_TYPE);
+
+    String loadLocal = generator.loadLocal(local, Type.INT_TYPE);
+
+    assertEquals("ILOAD 1", loadLocal);
     assertEquals(Type.INT_TYPE, generator.getLocalType(local));
-    assertEquals("ILOAD 1", generator.loadLocal(local));
   }
 
   @Test
   public void testStoreLocal() {
     Generator generator = new Generator();
     int local = generator.newLocal(Type.FLOAT_TYPE);
-    assertEquals(Type.FLOAT_TYPE, generator.getLocalType(local));
-    assertEquals("FSTORE 1", generator.storeLocal(local));
-    assertEquals("ISTORE 1", generator.storeLocal(local, Type.INT_TYPE));
+
+    String storeLocal = generator.storeLocal(local);
+
+    assertEquals("FSTORE 1", storeLocal);
+  }
+
+  @Test
+  public void testStoreLocal_withType() {
+    Generator generator = new Generator();
+    int local = generator.newLocal(Type.FLOAT_TYPE);
+
+    String storeLocal = generator.storeLocal(local, Type.INT_TYPE);
+
+    assertEquals("ISTORE 1", storeLocal);
     assertEquals(Type.INT_TYPE, generator.getLocalType(local));
-    assertEquals("ISTORE 1", generator.storeLocal(local));
   }
 
   @Test
@@ -386,19 +425,16 @@ public class GeneratorAdapterTest {
     assertEquals("D2L", new Generator().cast(Type.DOUBLE_TYPE, Type.LONG_TYPE));
     assertEquals("D2I", new Generator().cast(Type.DOUBLE_TYPE, Type.INT_TYPE));
     assertEquals("D2I I2B", new Generator().cast(Type.DOUBLE_TYPE, Type.BYTE_TYPE));
-
     assertEquals("F2D", new Generator().cast(Type.FLOAT_TYPE, Type.DOUBLE_TYPE));
     assertEquals("", new Generator().cast(Type.FLOAT_TYPE, Type.FLOAT_TYPE));
     assertEquals("F2L", new Generator().cast(Type.FLOAT_TYPE, Type.LONG_TYPE));
     assertEquals("F2I", new Generator().cast(Type.FLOAT_TYPE, Type.INT_TYPE));
     assertEquals("F2I I2B", new Generator().cast(Type.FLOAT_TYPE, Type.BYTE_TYPE));
-
     assertEquals("L2D", new Generator().cast(Type.LONG_TYPE, Type.DOUBLE_TYPE));
     assertEquals("L2F", new Generator().cast(Type.LONG_TYPE, Type.FLOAT_TYPE));
     assertEquals("", new Generator().cast(Type.LONG_TYPE, Type.LONG_TYPE));
     assertEquals("L2I", new Generator().cast(Type.LONG_TYPE, Type.INT_TYPE));
     assertEquals("L2I I2B", new Generator().cast(Type.LONG_TYPE, Type.BYTE_TYPE));
-
     assertEquals("I2D", new Generator().cast(Type.INT_TYPE, Type.DOUBLE_TYPE));
     assertEquals("I2F", new Generator().cast(Type.INT_TYPE, Type.FLOAT_TYPE));
     assertEquals("I2L", new Generator().cast(Type.INT_TYPE, Type.LONG_TYPE));
@@ -406,22 +442,29 @@ public class GeneratorAdapterTest {
     assertEquals("I2B", new Generator().cast(Type.INT_TYPE, Type.BYTE_TYPE));
     assertEquals("I2C", new Generator().cast(Type.INT_TYPE, Type.CHAR_TYPE));
     assertEquals("I2S", new Generator().cast(Type.INT_TYPE, Type.SHORT_TYPE));
-
     assertEquals("", new Generator().cast(Type.BYTE_TYPE, Type.INT_TYPE));
     assertEquals("", new Generator().cast(Type.SHORT_TYPE, Type.INT_TYPE));
+  }
 
-    assertThrows(
-        IllegalArgumentException.class, () -> new Generator().cast(Type.VOID_TYPE, Type.INT_TYPE));
-    assertThrows(
-        IllegalArgumentException.class, () -> new Generator().cast(Type.INT_TYPE, Type.VOID_TYPE));
+  @Test
+  public void testCast_fromVoid() {
+    Executable cast = () -> new Generator().cast(Type.VOID_TYPE, Type.INT_TYPE);
+
+    assertThrows(IllegalArgumentException.class, cast);
+  }
+
+  @Test
+  public void testCast_toVoid() {
+    Executable cast = () -> new Generator().cast(Type.INT_TYPE, Type.VOID_TYPE);
+
+    assertThrows(IllegalArgumentException.class, cast);
   }
 
   @Test
   public void testBox() {
-    assertEquals("", new Generator().box(Type.getObjectType("java/lang/Object")));
+    assertEquals("", new Generator().box(OBJECT_TYPE));
     assertEquals("", new Generator().box(Type.getObjectType("[I")));
     assertEquals("ACONST_NULL", new Generator().box(Type.VOID_TYPE));
-
     assertEquals(
         "NEW java/lang/Boolean DUP_X1 SWAP INVOKESPECIAL java/lang/Boolean.<init> (Z)V",
         new Generator().box(Type.BOOLEAN_TYPE));
@@ -450,10 +493,9 @@ public class GeneratorAdapterTest {
 
   @Test
   public void testValueOf() {
-    assertEquals("", new Generator().valueOf(Type.getObjectType("java/lang/Object")));
+    assertEquals("", new Generator().valueOf(OBJECT_TYPE));
     assertEquals("", new Generator().valueOf(Type.getType("[I")));
     assertEquals("ACONST_NULL", new Generator().valueOf(Type.VOID_TYPE));
-
     assertEquals(
         "INVOKESTATIC java/lang/Boolean.valueOf (Z)Ljava/lang/Boolean;",
         new Generator().valueOf(Type.BOOLEAN_TYPE));
@@ -507,7 +549,7 @@ public class GeneratorAdapterTest {
     assertEquals(
         "CHECKCAST java/lang/Number INVOKEVIRTUAL java/lang/Number.doubleValue ()D",
         new Generator().unbox(Type.DOUBLE_TYPE));
-    assertEquals("", new Generator().unbox(Type.getObjectType("java/lang/Object")));
+    assertEquals("", new Generator().unbox(OBJECT_TYPE));
     assertEquals(
         "CHECKCAST java/lang/Number",
         new Generator().unbox(Type.getObjectType("java/lang/Number")));
@@ -516,38 +558,32 @@ public class GeneratorAdapterTest {
 
   @Test
   public void testIfCmp() {
-    Generator generator = new Generator();
-    Label label = generator.newLabel();
-    assertEquals("IF_ICMPEQ L0", generator.ifCmp(Type.INT_TYPE, EQ, label));
-    assertEquals("IF_ICMPNE L0", generator.ifCmp(Type.INT_TYPE, NE, label));
-    assertEquals("IF_ICMPGE L0", generator.ifCmp(Type.INT_TYPE, GE, label));
-    assertEquals("IF_ICMPGT L0", generator.ifCmp(Type.INT_TYPE, GT, label));
-    assertEquals("IF_ICMPLE L0", generator.ifCmp(Type.INT_TYPE, LE, label));
-    assertEquals("IF_ICMPLT L0", generator.ifCmp(Type.INT_TYPE, LT, label));
-    assertEquals("LCMP IFGE L0", generator.ifCmp(Type.LONG_TYPE, GE, label));
-    assertEquals("FCMPL IFGE L0", generator.ifCmp(Type.FLOAT_TYPE, GE, label));
-    assertEquals("FCMPL IFGT L0", generator.ifCmp(Type.FLOAT_TYPE, GT, label));
-    assertEquals("FCMPG IFLE L0", generator.ifCmp(Type.FLOAT_TYPE, LE, label));
-    assertEquals("FCMPG IFLT L0", generator.ifCmp(Type.FLOAT_TYPE, LT, label));
-    assertEquals("DCMPL IFGE L0", generator.ifCmp(Type.DOUBLE_TYPE, GE, label));
-    assertEquals("DCMPL IFGT L0", generator.ifCmp(Type.DOUBLE_TYPE, GT, label));
-    assertEquals("DCMPG IFLE L0", generator.ifCmp(Type.DOUBLE_TYPE, LE, label));
-    assertEquals("DCMPG IFLT L0", generator.ifCmp(Type.DOUBLE_TYPE, LT, label));
-
-    assertEquals(
-        "IF_ACMPEQ L0", generator.ifCmp(Type.getObjectType("java/lang/Object"), EQ, label));
-    assertEquals(
-        "IF_ACMPNE L0", generator.ifCmp(Type.getObjectType("java/lang/Object"), NE, label));
+    assertEquals("IF_ICMPEQ L0", new Generator().ifCmp(Type.INT_TYPE, EQ, new Label()));
+    assertEquals("IF_ICMPNE L0", new Generator().ifCmp(Type.INT_TYPE, NE, new Label()));
+    assertEquals("IF_ICMPGE L0", new Generator().ifCmp(Type.INT_TYPE, GE, new Label()));
+    assertEquals("IF_ICMPGT L0", new Generator().ifCmp(Type.INT_TYPE, GT, new Label()));
+    assertEquals("IF_ICMPLE L0", new Generator().ifCmp(Type.INT_TYPE, LE, new Label()));
+    assertEquals("IF_ICMPLT L0", new Generator().ifCmp(Type.INT_TYPE, LT, new Label()));
+    assertEquals("LCMP IFGE L0", new Generator().ifCmp(Type.LONG_TYPE, GE, new Label()));
+    assertEquals("FCMPL IFGE L0", new Generator().ifCmp(Type.FLOAT_TYPE, GE, new Label()));
+    assertEquals("FCMPL IFGT L0", new Generator().ifCmp(Type.FLOAT_TYPE, GT, new Label()));
+    assertEquals("FCMPG IFLE L0", new Generator().ifCmp(Type.FLOAT_TYPE, LE, new Label()));
+    assertEquals("FCMPG IFLT L0", new Generator().ifCmp(Type.FLOAT_TYPE, LT, new Label()));
+    assertEquals("DCMPL IFGE L0", new Generator().ifCmp(Type.DOUBLE_TYPE, GE, new Label()));
+    assertEquals("DCMPL IFGT L0", new Generator().ifCmp(Type.DOUBLE_TYPE, GT, new Label()));
+    assertEquals("DCMPG IFLE L0", new Generator().ifCmp(Type.DOUBLE_TYPE, LE, new Label()));
+    assertEquals("DCMPG IFLT L0", new Generator().ifCmp(Type.DOUBLE_TYPE, LT, new Label()));
+    assertEquals("IF_ACMPEQ L0", new Generator().ifCmp(OBJECT_TYPE, EQ, new Label()));
+    assertEquals("IF_ACMPNE L0", new Generator().ifCmp(OBJECT_TYPE, NE, new Label()));
+    assertEquals("IF_ACMPEQ L0", new Generator().ifCmp(Type.getType("[I"), EQ, new Label()));
+    assertEquals("IF_ACMPNE L0", new Generator().ifCmp(Type.getType("[I"), NE, new Label()));
+    assertThrows(
+        IllegalArgumentException.class, () -> new Generator().ifCmp(OBJECT_TYPE, GE, new Label()));
     assertThrows(
         IllegalArgumentException.class,
-        () -> generator.ifCmp(Type.getObjectType("java/lang/Object"), GE, label));
-
-    assertEquals("IF_ACMPEQ L0", generator.ifCmp(Type.getType("[I"), EQ, label));
-    assertEquals("IF_ACMPNE L0", generator.ifCmp(Type.getType("[I"), NE, label));
+        () -> new Generator().ifCmp(Type.getType("[I"), GE, new Label()));
     assertThrows(
-        IllegalArgumentException.class, () -> generator.ifCmp(Type.getType("[I"), GE, label));
-
-    assertThrows(IllegalArgumentException.class, () -> generator.ifCmp(Type.INT_TYPE, 0, label));
+        IllegalArgumentException.class, () -> new Generator().ifCmp(Type.INT_TYPE, 0, new Label()));
   }
 
   @Test
@@ -557,27 +593,23 @@ public class GeneratorAdapterTest {
 
   @Test
   public void testIfICmp() {
-    Generator generator = new Generator();
-    Label label = generator.newLabel();
-    assertEquals("IF_ICMPEQ L0", generator.ifICmp(EQ, label));
-    assertEquals("IF_ICMPNE L0", generator.ifICmp(NE, label));
-    assertEquals("IF_ICMPGE L0", generator.ifICmp(GE, label));
-    assertEquals("IF_ICMPGT L0", generator.ifICmp(GT, label));
-    assertEquals("IF_ICMPLE L0", generator.ifICmp(LE, label));
-    assertEquals("IF_ICMPLT L0", generator.ifICmp(LT, label));
-    assertThrows(IllegalArgumentException.class, () -> generator.ifICmp(0, label));
+    assertEquals("IF_ICMPEQ L0", new Generator().ifICmp(EQ, new Label()));
+    assertEquals("IF_ICMPNE L0", new Generator().ifICmp(NE, new Label()));
+    assertEquals("IF_ICMPGE L0", new Generator().ifICmp(GE, new Label()));
+    assertEquals("IF_ICMPGT L0", new Generator().ifICmp(GT, new Label()));
+    assertEquals("IF_ICMPLE L0", new Generator().ifICmp(LE, new Label()));
+    assertEquals("IF_ICMPLT L0", new Generator().ifICmp(LT, new Label()));
+    assertThrows(IllegalArgumentException.class, () -> new Generator().ifICmp(0, new Label()));
   }
 
   @Test
   public void testIfZCmp() {
-    Generator generator = new Generator();
-    Label label = generator.newLabel();
-    assertEquals("IFEQ L0", generator.ifZCmp(EQ, label));
-    assertEquals("IFNE L0", generator.ifZCmp(NE, label));
-    assertEquals("IFGE L0", generator.ifZCmp(GE, label));
-    assertEquals("IFGT L0", generator.ifZCmp(GT, label));
-    assertEquals("IFLE L0", generator.ifZCmp(LE, label));
-    assertEquals("IFLT L0", generator.ifZCmp(LT, label));
+    assertEquals("IFEQ L0", new Generator().ifZCmp(EQ, new Label()));
+    assertEquals("IFNE L0", new Generator().ifZCmp(NE, new Label()));
+    assertEquals("IFGE L0", new Generator().ifZCmp(GE, new Label()));
+    assertEquals("IFGT L0", new Generator().ifZCmp(GT, new Label()));
+    assertEquals("IFLE L0", new Generator().ifZCmp(LE, new Label()));
+    assertEquals("IFLT L0", new Generator().ifZCmp(LT, new Label()));
   }
 
   @Test
@@ -592,7 +624,12 @@ public class GeneratorAdapterTest {
 
   @Test
   public void testGoto() {
-    assertEquals("GOTO L0", new Generator().goTo(new Label()));
+    Generator generator = new Generator();
+    Label label = generator.newLabel();
+
+    String goTo = generator.goTo(label);
+
+    assertEquals("GOTO L0", goTo);
   }
 
   @Test
@@ -762,7 +799,7 @@ public class GeneratorAdapterTest {
 
   @Test
   public void testCheckcast() {
-    assertEquals("", new Generator().checkCast(Type.getObjectType("java/lang/Object")));
+    assertEquals("", new Generator().checkCast(OBJECT_TYPE));
     assertEquals("CHECKCAST pkg/Class", new Generator().checkCast(Type.getObjectType("pkg/Class")));
   }
 

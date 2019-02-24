@@ -1164,14 +1164,12 @@ public class ASMifier extends Printer {
   public void visitAttribute(final Attribute attribute) {
     stringBuilder.setLength(0);
     stringBuilder.append("// ATTRIBUTE ").append(attribute.type).append('\n');
-    if (attribute instanceof ASMifiable) {
+    if (attribute instanceof ASMifierSupport) {
       if (labelNames == null) {
         labelNames = new HashMap<>();
       }
       stringBuilder.append("{\n");
-      StringBuffer stringBuffer = new StringBuffer();
-      ((ASMifiable) attribute).asmify(stringBuffer, "attribute", labelNames);
-      stringBuilder.append(stringBuffer.toString());
+      ((ASMifierSupport) attribute).asmify(stringBuilder, "attribute", labelNames);
       stringBuilder.append(name).append(".visitAttribute(attribute);\n");
       stringBuilder.append("}\n");
     }

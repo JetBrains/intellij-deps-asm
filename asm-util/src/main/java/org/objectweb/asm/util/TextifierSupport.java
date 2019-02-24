@@ -25,23 +25,17 @@ import java.util.Map;
 import org.objectweb.asm.Label;
 
 /**
- * An {@link org.objectweb.asm.Attribute} that can generate the ASM code to create an equivalent
- * attribute.
+ * An {@link org.objectweb.asm.Attribute} that can print a readable representation of itself.
  *
  * @author Eugene Kuleshov
- * @deprecated This interface is no longer supported (since ASM 7.1), because it uses a StringBuffer
- *     instead of a StringBuilder. Use {@link ASMifierSupport} instead.
  */
-@Deprecated
-// DontCheck(AbbreviationAsWordInName): can't be renamed (for backward binary compatibility).
-public interface ASMifiable {
+public interface TextifierSupport {
 
   /**
-   * Generates the ASM code to create an attribute equal to this attribute.
+   * Generates a human readable representation of this attribute.
    *
-   * @param outputBuffer where the generated code must be appended.
-   * @param visitorVariableName the name of the visitor variable in the produced code.
-   * @param labelNames the names of the labels in the generated code.
+   * @param outputBuilder where the human representation of this attribute must be appended.
+   * @param labelNames the human readable names of the labels.
    */
-  void asmify(StringBuffer outputBuffer, String visitorVariableName, Map<Label, String> labelNames);
+  void textify(StringBuilder outputBuilder, Map<Label, String> labelNames);
 }

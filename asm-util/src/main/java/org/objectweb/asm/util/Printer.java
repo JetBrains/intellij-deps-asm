@@ -295,13 +295,6 @@ public abstract class Printer {
    */
   protected final int api;
 
-  /**
-   * A buffer that can be used to create strings.
-   *
-   * @deprecated use {@link #stringBuilder} instead.
-   */
-  @Deprecated protected final StringBuffer buf;
-
   /** The builder used to build strings in the various visit methods. */
   protected final StringBuilder stringBuilder;
 
@@ -329,7 +322,6 @@ public abstract class Printer {
    */
   protected Printer(final int api) {
     this.api = api;
-    this.buf = null;
     this.stringBuilder = new StringBuilder();
     this.text = new ArrayList<>();
   }
@@ -1152,20 +1144,6 @@ public abstract class Printer {
         printWriter.print(o.toString());
       }
     }
-  }
-
-  /**
-   * Appends a quoted string to the given string buffer.
-   *
-   * @param stringBuffer the buffer where the string must be added.
-   * @param string the string to be added.
-   * @deprecated use {@link #appendString(StringBuilder, String)} instead.
-   */
-  @Deprecated
-  public static void appendString(final StringBuffer stringBuffer, final String string) {
-    StringBuilder stringBuilder = new StringBuilder();
-    appendString(stringBuilder, string);
-    stringBuffer.append(stringBuilder.toString());
   }
 
   /**

@@ -380,7 +380,8 @@ public class CheckClassAdapterTest extends AsmTest implements Opcodes {
    */
   @ParameterizedTest
   @MethodSource(ALL_CLASSES_AND_ALL_APIS)
-  public void testVisitMethods(final PrecompiledClass classParameter, final Api apiParameter) {
+  public void testVisitMethods_precompiledClass(
+      final PrecompiledClass classParameter, final Api apiParameter) {
     byte[] classFile = classParameter.getBytes();
     ClassReader classReader = new ClassReader(classFile);
     ClassWriter classWriter = new ClassWriter(0);
@@ -399,7 +400,34 @@ public class CheckClassAdapterTest extends AsmTest implements Opcodes {
 
   @ParameterizedTest
   @MethodSource(ALL_CLASSES_AND_LATEST_API)
-  public void testVerify(final PrecompiledClass classParameter, final Api apiParameter) {
+  public void testVisitMethods_noDelegate_precompiledClass(
+      final PrecompiledClass classParameter, final Api apiParameter) {
+    byte[] classFile = classParameter.getBytes();
+    ClassReader classReader = new ClassReader(classFile);
+    ClassVisitor classVisitor = new CheckClassAdapter(null);
+
+    Executable accept = () -> classReader.accept(classVisitor, attributes(), 0);
+
+    assertDoesNotThrow(accept);
+  }
+
+  @ParameterizedTest
+  @MethodSource(ALL_CLASSES_AND_LATEST_API)
+  public void testVisitMethods_noMemberDelegate_precompiledClass(
+      final PrecompiledClass classParameter, final Api apiParameter) {
+    byte[] classFile = classParameter.getBytes();
+    ClassReader classReader = new ClassReader(classFile);
+    ClassVisitor classVisitor = new CheckClassAdapter(new ClassVisitor(Opcodes.ASM7, null) {});
+
+    Executable accept = () -> classReader.accept(classVisitor, attributes(), 0);
+
+    assertDoesNotThrow(accept);
+  }
+
+  @ParameterizedTest
+  @MethodSource(ALL_CLASSES_AND_LATEST_API)
+  public void testVerify_precompiledClass(
+      final PrecompiledClass classParameter, final Api apiParameter) {
     ClassReader classReader = new ClassReader(classParameter.getBytes());
     StringWriter logger = new StringWriter();
 

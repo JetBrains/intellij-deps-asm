@@ -457,7 +457,9 @@ public class CheckMethodAdapter extends MethodVisitor {
             } catch (AnalyzerException e) {
               throwError(analyzer, e);
             }
-            accept(methodVisitor);
+            if (methodVisitor != null) {
+              accept(methodVisitor);
+            }
           }
 
           private void throwError(final Analyzer<BasicValue> analyzer, final Exception e) {

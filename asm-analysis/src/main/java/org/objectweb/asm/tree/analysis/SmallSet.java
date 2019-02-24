@@ -94,8 +94,11 @@ final class SmallSet<T> extends AbstractSet<T> {
   public int size() {
     if (element1 == null) {
       return 0;
+    } else if (element2 == null) {
+      return 1;
+    } else {
+      return 2;
     }
-    return element2 == null ? 1 : 2;
   }
 
   // -----------------------------------------------------------------------------------------------

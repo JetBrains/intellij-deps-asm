@@ -643,7 +643,7 @@ public class Frame<V extends Value> {
   private void executeInvokeInsn(
       final AbstractInsnNode insn, final String methodDescriptor, final Interpreter<V> interpreter)
       throws AnalyzerException {
-    List<V> valueList = new ArrayList<>();
+    ArrayList<V> valueList = new ArrayList<>();
     for (int i = Type.getArgumentTypes(methodDescriptor).length; i > 0; --i) {
       valueList.add(0, pop());
     }

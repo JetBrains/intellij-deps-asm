@@ -299,7 +299,6 @@ hfds canBeVoid,state,sv,type
 CLSS public abstract org.objectweb.asm.util.Printer
 cons protected init(int)
 fld protected final int api
-fld protected final java.lang.StringBuffer buf
 fld public final java.util.List text
 fld public final static java.lang.String[] HANDLE_TAG
 fld public final static java.lang.String[] OPCODES
@@ -352,7 +351,6 @@ meth public org.objectweb.asm.util.Printer visitInsnAnnotation(int,org.objectweb
 meth public org.objectweb.asm.util.Printer visitLocalVariableAnnotation(int,org.objectweb.asm.TypePath,org.objectweb.asm.Label[],org.objectweb.asm.Label[],int[],java.lang.String,boolean)
 meth public org.objectweb.asm.util.Printer visitMethodTypeAnnotation(int,org.objectweb.asm.TypePath,java.lang.String,boolean)
 meth public org.objectweb.asm.util.Printer visitTryCatchAnnotation(int,org.objectweb.asm.TypePath,java.lang.String,boolean)
-meth public static void appendString(java.lang.StringBuffer,java.lang.String)
 meth public void print(java.io.PrintWriter)
 meth public void visitMethodInsn(int,java.lang.String,java.lang.String,java.lang.String)
 meth public void visitMethodInsn(int,java.lang.String,java.lang.String,java.lang.String,boolean)

@@ -783,19 +783,7 @@ public class Textifier extends Printer {
 
   @Override
   public void visitMethodAttribute(final Attribute attribute) {
-    stringBuilder.setLength(0);
-    stringBuilder.append(tab).append("ATTRIBUTE ");
-    appendDescriptor(-1, attribute.type);
-
-    if (attribute instanceof Textifiable) {
-      StringBuffer stringBuffer = new StringBuffer();
-      ((Textifiable) attribute).textify(stringBuffer, labelNames);
-      stringBuilder.append(stringBuffer.toString());
-    } else {
-      stringBuilder.append(" : unknown\n");
-    }
-
-    text.add(stringBuilder.toString());
+    visitAttribute(attribute);
   }
 
   @Override
@@ -1219,10 +1207,11 @@ public class Textifier extends Printer {
     stringBuilder.append(tab).append("ATTRIBUTE ");
     appendDescriptor(-1, attribute.type);
 
-    if (attribute instanceof Textifiable) {
-      StringBuffer stringBuffer = new StringBuffer();
-      ((Textifiable) attribute).textify(stringBuffer, null);
-      stringBuilder.append(stringBuffer.toString());
+    if (attribute instanceof TextifierSupport) {
+      if (labelNames == null) {
+        labelNames = new HashMap<>();
+      }
+      ((TextifierSupport) attribute).textify(stringBuilder, labelNames);
     } else {
       stringBuilder.append(" : unknown\n");
     }

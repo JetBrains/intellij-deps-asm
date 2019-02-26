@@ -127,6 +127,13 @@ project(':benchmarks') {
     }
     classes.dependsOn "asm${version}"
   }
+  configurations.create('input-classes-java8')
+  dependencies.add('input-classes-java8', 'io.vavr:vavr:0.10.0@jar')
+  task copyInputClasses(type: Copy) {
+    from configurations.'input-classes-java8'.collect { zipTree(it) }
+    into "${buildDir}/input-classes-java8"
+  }
+  classes.dependsOn copyInputClasses
   jmh {
     jvmArgsAppend = "-Duser.dir=${rootDir}"
     resultFormat = 'CSV'
@@ -166,6 +173,7 @@ subprojects {
   
   // Check the coding style with Checkstyle. Fail in case of error or warning.
   apply plugin: 'checkstyle'
+  checkstyle.toolVersion = '8.17'
   checkstyle.configFile = file("${rootDir}/tools/checkstyle.xml")
   checkstyle.maxErrors = 0
   checkstyle.maxWarnings = 0

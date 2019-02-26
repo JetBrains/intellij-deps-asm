@@ -144,8 +144,7 @@ public abstract class AbstractBenchmark {
   }
 
   private static byte[] readInputStream(final InputStream inputStream) throws IOException {
-    try {
-      ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+    try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
       byte[] data = new byte[8192];
       int bytesRead;
       while ((bytesRead = inputStream.read(data, 0, data.length)) != -1) {
@@ -153,8 +152,6 @@ public abstract class AbstractBenchmark {
       }
       outputStream.flush();
       return outputStream.toByteArray();
-    } finally {
-      inputStream.close();
     }
   }
 

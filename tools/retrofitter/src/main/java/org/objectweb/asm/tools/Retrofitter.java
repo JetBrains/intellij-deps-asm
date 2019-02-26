@@ -134,17 +134,15 @@ public class Retrofitter {
         if (dst != null && !dst.getParentFile().exists() && !dst.getParentFile().mkdirs()) {
           throw new IOException("Cannot create directory " + dst.getParentFile());
         }
-        OutputStream outputStream = Files.newOutputStream((dst == null ? src : dst).toPath());
-        try {
+        try (OutputStream outputStream =
+            Files.newOutputStream((dst == null ? src : dst).toPath())) {
           outputStream.write(classWriter.toByteArray());
-        } finally {
-          outputStream.close();
         }
       }
     }
   }
 
-  /** A ClassVisitor that retrofits classes from 1.6 to 1.5 version. */
+  /** A ClassVisitor that retrofits classes to 1.5 version. */
   static class ClassRetrofitter extends ClassVisitor {
 
     public ClassRetrofitter(final ClassVisitor classVisitor) {
@@ -160,6 +158,36 @@ public class Retrofitter {
         final String superName,
         final String[] interfaces) {
       super.visit(Opcodes.V1_5, access, name, signature, superName, interfaces);
+    }
+
+    @Override
+    public MethodVisitor visitMethod(
+        final int access,
+        final String name,
+        final String descriptor,
+        final String signature,
+        final String[] exceptions) {
+      return new MethodVisitor(
+          api, super.visitMethod(access, name, descriptor, signature, exceptions)) {
+
+        @Override
+        public void visitMethodInsn(
+            final int opcode,
+            final String owner,
+            final String name,
+            final String descriptor,
+            final boolean isInterface) {
+          // Remove the addSuppressed() method calls generated for try-with-resources statements.
+          // This method is not defined in JDK1.5.
+          if (owner.equals("java/lang/Throwable")
+              && name.equals("addSuppressed")
+              && descriptor.equals("(Ljava/lang/Throwable;)V")) {
+            visitInsn(Opcodes.POP2);
+          } else {
+            super.visitMethodInsn(opcode, owner, name, descriptor, isInterface);
+          }
+        }
+      };
     }
   }
 

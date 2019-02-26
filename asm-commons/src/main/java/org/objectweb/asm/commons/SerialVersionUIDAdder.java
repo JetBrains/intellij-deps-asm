@@ -341,13 +341,10 @@ public class SerialVersionUIDAdder extends ClassVisitor {
    */
   // DontCheck(AbbreviationAsWordInName): can't be renamed (for backward binary compatibility).
   protected long computeSVUID() throws IOException {
-    ByteArrayOutputStream byteArrayOutputStream = null;
-    DataOutputStream dataOutputStream = null;
     long svuid = 0;
 
-    try {
-      byteArrayOutputStream = new ByteArrayOutputStream();
-      dataOutputStream = new DataOutputStream(byteArrayOutputStream);
+    try (ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+        DataOutputStream dataOutputStream = new DataOutputStream(byteArrayOutputStream)) {
 
       // 1. The class name written using UTF encoding.
       dataOutputStream.writeUTF(name.replace('/', '.'));
@@ -413,10 +410,6 @@ public class SerialVersionUIDAdder extends ClassVisitor {
       // array of five int values named sha, the hash value would be computed as follows:
       for (int i = Math.min(hashBytes.length, 8) - 1; i >= 0; i--) {
         svuid = (svuid << 8) | (hashBytes[i] & 0xFF);
-      }
-    } finally {
-      if (dataOutputStream != null) {
-        dataOutputStream.close();
       }
     }
 

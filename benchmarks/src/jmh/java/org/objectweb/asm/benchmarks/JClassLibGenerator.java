@@ -131,11 +131,11 @@ public class JClassLibGenerator extends Generator {
       classFile.setMethods(new MethodInfo[] {methodInfo1, methodInfo2});
       classFile.setAttributes(new AttributeInfo[] {sourceFileAttribute});
 
-      ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-      DataOutputStream dataOutputStream = new DataOutputStream(byteArrayOutputStream);
-      classFile.write(dataOutputStream);
-      dataOutputStream.close();
-      return byteArrayOutputStream.toByteArray();
+      try (ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+          DataOutputStream dataOutputStream = new DataOutputStream(byteArrayOutputStream)) {
+        classFile.write(dataOutputStream);
+        return byteArrayOutputStream.toByteArray();
+      }
     } catch (IOException | InvalidByteCodeException e) {
       throw new RuntimeException("Class generation failed", e);
     }

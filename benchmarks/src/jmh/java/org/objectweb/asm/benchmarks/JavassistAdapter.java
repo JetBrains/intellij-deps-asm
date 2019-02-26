@@ -45,11 +45,11 @@ public class JavassistAdapter extends Adapter {
   public byte[] readAndWrite(final byte[] classFile, final boolean computeMax) {
     try {
       CtClass ctClass = new ClassPool().makeClass(new ByteArrayInputStream(classFile));
-      ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-      DataOutputStream dataOutputStream = new DataOutputStream(byteArrayOutputStream);
-      ctClass.getClassFile().write(dataOutputStream);
-      dataOutputStream.close();
-      return byteArrayOutputStream.toByteArray();
+      try (ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+          DataOutputStream dataOutputStream = new DataOutputStream(byteArrayOutputStream)) {
+        ctClass.getClassFile().write(dataOutputStream);
+        return byteArrayOutputStream.toByteArray();
+      }
     } catch (IOException e) {
       throw new IllegalArgumentException(e);
     }

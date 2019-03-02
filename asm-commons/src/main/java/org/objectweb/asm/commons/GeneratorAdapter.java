@@ -269,7 +269,7 @@ public class GeneratorAdapter extends LocalVariablesSorter {
             method.getName(),
             method.getDescriptor(),
             signature,
-            getInternalNames(exceptions)));
+            exceptions == null ? null : getInternalNames(exceptions)));
   }
 
   /**
@@ -279,9 +279,6 @@ public class GeneratorAdapter extends LocalVariablesSorter {
    * @return the internal names of the given types.
    */
   private static String[] getInternalNames(final Type[] types) {
-    if (types == null) {
-      return null;
-    }
     String[] names = new String[types.length];
     for (int i = 0; i < names.length; ++i) {
       names[i] = types[i].getInternalName();

@@ -600,36 +600,11 @@ public class Frame<V extends Value> {
       case Opcodes.INVOKESPECIAL:
       case Opcodes.INVOKESTATIC:
       case Opcodes.INVOKEINTERFACE:
-        {
-          List<V> valueList = new ArrayList<>();
-          String methodDescriptor = ((MethodInsnNode) insn).desc;
-          for (int i = Type.getArgumentTypes(methodDescriptor).length; i > 0; --i) {
-            valueList.add(0, pop());
-          }
-          if (insn.getOpcode() != Opcodes.INVOKESTATIC) {
-            valueList.add(0, pop());
-          }
-          if (Type.getReturnType(methodDescriptor) == Type.VOID_TYPE) {
-            interpreter.naryOperation(insn, valueList);
-          } else {
-            push(interpreter.naryOperation(insn, valueList));
-          }
-          break;
-        }
+        executeInvokeInsn(insn, ((MethodInsnNode) insn).desc, interpreter);
+        break;
       case Opcodes.INVOKEDYNAMIC:
-        {
-          List<V> valueList = new ArrayList<>();
-          String methodDesccriptor = ((InvokeDynamicInsnNode) insn).desc;
-          for (int i = Type.getArgumentTypes(methodDesccriptor).length; i > 0; --i) {
-            valueList.add(0, pop());
-          }
-          if (Type.getReturnType(methodDesccriptor) == Type.VOID_TYPE) {
-            interpreter.naryOperation(insn, valueList);
-          } else {
-            push(interpreter.naryOperation(insn, valueList));
-          }
-          break;
-        }
+        executeInvokeInsn(insn, ((InvokeDynamicInsnNode) insn).desc, interpreter);
+        break;
       case Opcodes.NEW:
         push(interpreter.newOperation(insn));
         break;
@@ -662,6 +637,23 @@ public class Frame<V extends Value> {
         break;
       default:
         throw new AnalyzerException(insn, "Illegal opcode " + insn.getOpcode());
+    }
+  }
+
+  private void executeInvokeInsn(
+      final AbstractInsnNode insn, final String methodDescriptor, final Interpreter<V> interpreter)
+      throws AnalyzerException {
+    ArrayList<V> valueList = new ArrayList<>();
+    for (int i = Type.getArgumentTypes(methodDescriptor).length; i > 0; --i) {
+      valueList.add(0, pop());
+    }
+    if (insn.getOpcode() != Opcodes.INVOKESTATIC && insn.getOpcode() != Opcodes.INVOKEDYNAMIC) {
+      valueList.add(0, pop());
+    }
+    if (Type.getReturnType(methodDescriptor) == Type.VOID_TYPE) {
+      interpreter.naryOperation(insn, valueList);
+    } else {
+      push(interpreter.naryOperation(insn, valueList));
     }
   }
 

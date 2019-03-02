@@ -29,8 +29,10 @@ package org.objectweb.asm.util;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import org.objectweb.asm.Attribute;
 import org.objectweb.asm.ConstantDynamic;
@@ -67,10 +69,22 @@ public class ASMifier extends Printer {
 
   private static final String ANNOTATION_VISITOR = "annotationVisitor";
   private static final String ANNOTATION_VISITOR0 = "annotationVisitor0 = ";
-  private static final String NEW_OBJECT_ARRAY = ", new Object[] {";
+  private static final String COMMA = "\", \"";
   private static final String END_ARRAY = " });\n";
   private static final String END_PARAMETERS = ");\n\n";
+  private static final String NEW_OBJECT_ARRAY = ", new Object[] {";
   private static final String VISIT_END = ".visitEnd();\n";
+
+  private static final List<String> FRAME_TYPES =
+      Collections.unmodifiableList(
+          Arrays.asList(
+              "Opcodes.TOP",
+              "Opcodes.INTEGER",
+              "Opcodes.FLOAT",
+              "Opcodes.DOUBLE",
+              "Opcodes.LONG",
+              "Opcodes.NULL",
+              "Opcodes.UNINITIALIZED_THIS"));
 
   private static final Map<Integer, String> CLASS_VERSIONS;
 
@@ -301,7 +315,7 @@ public class ASMifier extends Printer {
     stringBuilder.setLength(0);
     stringBuilder.append("classWriter.visitNestMember(");
     appendConstant(nestMember);
-    stringBuilder.append(");\n\n");
+    stringBuilder.append(END_PARAMETERS);
     text.add(stringBuilder.toString());
   }
 
@@ -429,27 +443,18 @@ public class ASMifier extends Printer {
 
   @Override
   public void visitExport(final String packaze, final int access, final String... modules) {
-    stringBuilder.setLength(0);
-    stringBuilder.append("moduleVisitor.visitExport(");
-    appendConstant(packaze);
-    stringBuilder.append(", ");
-    appendAccessFlags(access | ACCESS_MODULE);
-    if (modules != null && modules.length > 0) {
-      stringBuilder.append(", new String[] {");
-      for (int i = 0; i < modules.length; ++i) {
-        stringBuilder.append(i == 0 ? " " : ", ");
-        appendConstant(modules[i]);
-      }
-      stringBuilder.append(" }");
-    }
-    stringBuilder.append(");\n");
-    text.add(stringBuilder.toString());
+    visitExportOrOpen("moduleVisitor.visitExport(", packaze, access, modules);
   }
 
   @Override
   public void visitOpen(final String packaze, final int access, final String... modules) {
+    visitExportOrOpen("moduleVisitor.visitOpen(", packaze, access, modules);
+  }
+
+  private void visitExportOrOpen(
+      final String visitMethod, final String packaze, final int access, final String... modules) {
     stringBuilder.setLength(0);
-    stringBuilder.append("moduleVisitor.visitOpen(");
+    stringBuilder.append(visitMethod);
     appendConstant(packaze);
     stringBuilder.append(", ");
     appendAccessFlags(access | ACCESS_MODULE);
@@ -1372,14 +1377,14 @@ public class ASMifier extends Printer {
       stringBuilder.append("new Handle(");
       Handle handle = (Handle) value;
       stringBuilder.append("Opcodes.").append(HANDLE_TAG[handle.getTag()]).append(", \"");
-      stringBuilder.append(handle.getOwner()).append("\", \"");
-      stringBuilder.append(handle.getName()).append("\", \"");
+      stringBuilder.append(handle.getOwner()).append(COMMA);
+      stringBuilder.append(handle.getName()).append(COMMA);
       stringBuilder.append(handle.getDesc()).append("\", ");
       stringBuilder.append(handle.isInterface()).append(")");
     } else if (value instanceof ConstantDynamic) {
       stringBuilder.append("new ConstantDynamic(\"");
       ConstantDynamic constantDynamic = (ConstantDynamic) value;
-      stringBuilder.append(constantDynamic.getName()).append("\", \"");
+      stringBuilder.append(constantDynamic.getName()).append(COMMA);
       stringBuilder.append(constantDynamic.getDescriptor()).append("\", ");
       appendConstant(constantDynamic.getBootstrapMethod());
       stringBuilder.append(NEW_OBJECT_ARRAY);
@@ -1499,31 +1504,7 @@ public class ASMifier extends Printer {
       if (frameTypes[i] instanceof String) {
         appendConstant(frameTypes[i]);
       } else if (frameTypes[i] instanceof Integer) {
-        switch (((Integer) frameTypes[i]).intValue()) {
-          case 0:
-            stringBuilder.append("Opcodes.TOP");
-            break;
-          case 1:
-            stringBuilder.append("Opcodes.INTEGER");
-            break;
-          case 2:
-            stringBuilder.append("Opcodes.FLOAT");
-            break;
-          case 3:
-            stringBuilder.append("Opcodes.DOUBLE");
-            break;
-          case 4:
-            stringBuilder.append("Opcodes.LONG");
-            break;
-          case 5:
-            stringBuilder.append("Opcodes.NULL");
-            break;
-          case 6:
-            stringBuilder.append("Opcodes.UNINITIALIZED_THIS");
-            break;
-          default:
-            throw new IllegalArgumentException();
-        }
+        stringBuilder.append(FRAME_TYPES.get(((Integer) frameTypes[i]).intValue()));
       } else {
         appendLabel((Label) frameTypes[i]);
       }

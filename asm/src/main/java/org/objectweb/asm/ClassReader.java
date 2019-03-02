@@ -195,8 +195,8 @@ public class ClassReader {
     int currentCpInfoIndex = 1;
     int currentCpInfoOffset = classFileOffset + 10;
     int currentMaxStringLength = 0;
+    boolean hasBootstrapMethods = false;
     boolean hasConstantDynamic = false;
-    boolean hasConstantInvokeDynamic = false;
     // The offset of the other entries depend on the total size of all the previous entries.
     while (currentCpInfoIndex < constantPoolCount) {
       cpInfoOffsets[currentCpInfoIndex++] = currentCpInfoOffset + 1;
@@ -212,11 +212,12 @@ public class ClassReader {
           break;
         case Symbol.CONSTANT_DYNAMIC_TAG:
           cpInfoSize = 5;
+          hasBootstrapMethods = true;
           hasConstantDynamic = true;
           break;
         case Symbol.CONSTANT_INVOKE_DYNAMIC_TAG:
           cpInfoSize = 5;
-          hasConstantInvokeDynamic = true;
+          hasBootstrapMethods = true;
           break;
         case Symbol.CONSTANT_LONG_TAG:
         case Symbol.CONSTANT_DOUBLE_TAG:
@@ -256,9 +257,7 @@ public class ClassReader {
 
     // Read the BootstrapMethods attribute, if any (only get the offset of each method).
     bootstrapMethodOffsets =
-        (hasConstantDynamic | hasConstantInvokeDynamic)
-            ? readBootstrapMethodsAttribute(currentMaxStringLength)
-            : null;
+        hasBootstrapMethods ? readBootstrapMethodsAttribute(currentMaxStringLength) : null;
   }
 
   /**
@@ -2096,17 +2095,15 @@ public class ClassReader {
             break;
           }
         case Constants.ASM_GOTO_W:
-          {
-            // Replace ASM_GOTO_W with GOTO_W.
-            methodVisitor.visitJumpInsn(
-                Constants.GOTO_W, labels[currentBytecodeOffset + readInt(currentOffset + 1)]);
-            // The instruction just after is a jump target (because ASM_GOTO_W is used in patterns
-            // IFNOTxxx <L> ASM_GOTO_W <l> L:..., see MethodWriter), so we need to insert a frame
-            // here.
-            insertFrame = true;
-            currentOffset += 5;
-            break;
-          }
+          // Replace ASM_GOTO_W with GOTO_W.
+          methodVisitor.visitJumpInsn(
+              Constants.GOTO_W, labels[currentBytecodeOffset + readInt(currentOffset + 1)]);
+          // The instruction just after is a jump target (because ASM_GOTO_W is used in patterns
+          // IFNOTxxx <L> ASM_GOTO_W <l> L:..., see MethodWriter), so we need to insert a frame
+          // here.
+          insertFrame = true;
+          currentOffset += 5;
+          break;
         case Constants.WIDE:
           opcode = classFileBuffer[currentOffset + 1] & 0xFF;
           if (opcode == Opcodes.IINC) {
@@ -3227,7 +3224,7 @@ public class ClassReader {
    *
    * @param maxStringLength a conservative estimate of the maximum length of the strings contained
    *     in the constant pool of the class.
-   * @return the offsets of the bootstrap methods or null.
+   * @return the offsets of the bootstrap methods.
    */
   private int[] readBootstrapMethodsAttribute(final int maxStringLength) {
     char[] charBuffer = new char[maxStringLength];
@@ -3254,7 +3251,7 @@ public class ClassReader {
       }
       currentAttributeOffset += attributeLength;
     }
-    return null;
+    throw new IllegalArgumentException();
   }
 
   /**

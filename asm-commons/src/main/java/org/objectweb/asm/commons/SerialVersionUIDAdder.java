@@ -494,7 +494,7 @@ public class SerialVersionUIDAdder extends ClassVisitor {
 
     @Override
     public int hashCode() {
-      return (name + descriptor).hashCode();
+      return name.hashCode() ^ descriptor.hashCode();
     }
   }
 }

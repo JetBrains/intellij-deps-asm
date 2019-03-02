@@ -116,12 +116,10 @@ public class ClassReader {
   private final String[] constantUtf8Values;
 
   /**
-   * The ConstantDynamic objects corresponding to the CONSTANT_Dynamic and CONSTANT_InvokeDynamic
-   * constant pool items. This cache avoids multiple parsing of a given CONSTANT_Dynamic or
-   * CONSTANT_InvokeDynamic constant pool item (ConstantDynamic values for CONSTANT_InvokeDynamic
-   * are never exposed to the user).
+   * The ConstantDynamic objects corresponding to the CONSTANT_Dynamic constant pool items. This
+   * cache avoids multiple parsing of a given CONSTANT_Dynamic constant pool item.
    */
-  private final ConstantDynamic[] constantDynamicAndInvokeDynamicValues;
+  private final ConstantDynamic[] constantDynamicValues;
 
   /**
    * The start offsets in {@link #b} of each element of the bootstrap_methods array (in the
@@ -197,7 +195,8 @@ public class ClassReader {
     int currentCpInfoIndex = 1;
     int currentCpInfoOffset = classFileOffset + 10;
     int currentMaxStringLength = 0;
-    boolean hasConstantDynamicOrInvokeDynamic = false;
+    boolean hasBootstrapMethods = false;
+    boolean hasConstantDynamic = false;
     // The offset of the other entries depend on the total size of all the previous entries.
     while (currentCpInfoIndex < constantPoolCount) {
       cpInfoOffsets[currentCpInfoIndex++] = currentCpInfoOffset + 1;
@@ -212,9 +211,13 @@ public class ClassReader {
           cpInfoSize = 5;
           break;
         case Symbol.CONSTANT_DYNAMIC_TAG:
+          cpInfoSize = 5;
+          hasBootstrapMethods = true;
+          hasConstantDynamic = true;
+          break;
         case Symbol.CONSTANT_INVOKE_DYNAMIC_TAG:
           cpInfoSize = 5;
-          hasConstantDynamicOrInvokeDynamic = true;
+          hasBootstrapMethods = true;
           break;
         case Symbol.CONSTANT_LONG_TAG:
         case Symbol.CONSTANT_DOUBLE_TAG:
@@ -249,16 +252,12 @@ public class ClassReader {
     // The Classfile's access_flags field is just after the last constant pool entry.
     header = currentCpInfoOffset;
 
-    // Allocate the cache of ConstantDynamic values, if there is at least one CONSTANT_Dynamic or
-    // CONSTANT_InvokeDynamic.
-    constantDynamicAndInvokeDynamicValues =
-        hasConstantDynamicOrInvokeDynamic ? new ConstantDynamic[constantPoolCount] : null;
+    // Allocate the cache of ConstantDynamic values, if there is at least one.
+    constantDynamicValues = hasConstantDynamic ? new ConstantDynamic[constantPoolCount] : null;
 
     // Read the BootstrapMethods attribute, if any (only get the offset of each method).
     bootstrapMethodOffsets =
-        hasConstantDynamicOrInvokeDynamic
-            ? readBootstrapMethodsAttribute(currentMaxStringLength)
-            : null;
+        hasBootstrapMethods ? readBootstrapMethodsAttribute(currentMaxStringLength) : null;
   }
 
   /**
@@ -2214,10 +2213,27 @@ public class ClassReader {
             break;
           }
         case Constants.INVOKEDYNAMIC:
-          readConstantDynamicOrInvokeDynamic(readUnsignedShort(currentOffset + 1), charBuffer)
-              .accept(methodVisitor);
-          currentOffset += 5;
-          break;
+          {
+            int cpInfoOffset = cpInfoOffsets[readUnsignedShort(currentOffset + 1)];
+            int nameAndTypeCpInfoOffset = cpInfoOffsets[readUnsignedShort(cpInfoOffset + 2)];
+            String name = readUTF8(nameAndTypeCpInfoOffset, charBuffer);
+            String descriptor = readUTF8(nameAndTypeCpInfoOffset + 2, charBuffer);
+            int bootstrapMethodOffset = bootstrapMethodOffsets[readUnsignedShort(cpInfoOffset)];
+            Handle handle =
+                (Handle) readConst(readUnsignedShort(bootstrapMethodOffset), charBuffer);
+            Object[] bootstrapMethodArguments =
+                new Object[readUnsignedShort(bootstrapMethodOffset + 2)];
+            bootstrapMethodOffset += 4;
+            for (int i = 0; i < bootstrapMethodArguments.length; i++) {
+              bootstrapMethodArguments[i] =
+                  readConst(readUnsignedShort(bootstrapMethodOffset), charBuffer);
+              bootstrapMethodOffset += 2;
+            }
+            methodVisitor.visitInvokeDynamicInsn(
+                name, descriptor, handle, bootstrapMethodArguments);
+            currentOffset += 5;
+            break;
+          }
         case Constants.NEW:
         case Constants.ANEWARRAY:
         case Constants.CHECKCAST:
@@ -3505,7 +3521,7 @@ public class ClassReader {
   }
 
   /**
-   * Reads a CONSTANT_Dynamic or CONSTANT_InvokeDynamic constant pool entry in {@link #b}.
+   * Reads a CONSTANT_Dynamic constant pool entry in {@link #b}.
    *
    * @param constantPoolEntryIndex the index of a CONSTANT_Dynamic entry in the class's constant
    *     pool table.
@@ -3513,9 +3529,9 @@ public class ClassReader {
    *     large. It is not automatically resized.
    * @return the ConstantDynamic corresponding to the specified CONSTANT_Dynamic entry.
    */
-  private ConstantDynamic readConstantDynamicOrInvokeDynamic(
+  private ConstantDynamic readConstantDynamic(
       final int constantPoolEntryIndex, final char[] charBuffer) {
-    ConstantDynamic constantDynamic = constantDynamicAndInvokeDynamicValues[constantPoolEntryIndex];
+    ConstantDynamic constantDynamic = constantDynamicValues[constantPoolEntryIndex];
     if (constantDynamic != null) {
       return constantDynamic;
     }
@@ -3531,7 +3547,7 @@ public class ClassReader {
       bootstrapMethodArguments[i] = readConst(readUnsignedShort(bootstrapMethodOffset), charBuffer);
       bootstrapMethodOffset += 2;
     }
-    return constantDynamicAndInvokeDynamicValues[constantPoolEntryIndex] =
+    return constantDynamicValues[constantPoolEntryIndex] =
         new ConstantDynamic(name, descriptor, handle, bootstrapMethodArguments);
   }
 
@@ -3576,7 +3592,7 @@ public class ClassReader {
             b[referenceCpInfoOffset - 1] == Symbol.CONSTANT_INTERFACE_METHODREF_TAG;
         return new Handle(referenceKind, owner, name, descriptor, isInterface);
       case Symbol.CONSTANT_DYNAMIC_TAG:
-        return readConstantDynamicOrInvokeDynamic(constantPoolEntryIndex, charBuffer);
+        return readConstantDynamic(constantPoolEntryIndex, charBuffer);
       default:
         throw new IllegalArgumentException();
     }

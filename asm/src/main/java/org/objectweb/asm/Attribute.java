@@ -104,14 +104,14 @@ public class Attribute {
    * ClassReader.
    *
    * @param classReader the class that contains the attribute to be read.
-   * @param offset index of the first byte of the attribute's content in {@link ClassReader#b}. The
-   *     6 attribute header bytes (attribute_name_index and attribute_length) are not taken into
+   * @param offset index of the first byte of the attribute's content in {@link ClassReader}. The 6
+   *     attribute header bytes (attribute_name_index and attribute_length) are not taken into
    *     account here.
    * @param length the length of the attribute's content (excluding the 6 attribute header bytes).
    * @param charBuffer the buffer to be used to call the ClassReader methods requiring a
    *     'charBuffer' parameter.
    * @param codeAttributeOffset index of the first byte of content of the enclosing Code attribute
-   *     in {@link ClassReader#b}, or -1 if the attribute to be read is not a code attribute. The 6
+   *     in {@link ClassReader}, or -1 if the attribute to be read is not a code attribute. The 6
    *     attribute header bytes (attribute_name_index and attribute_length) are not taken into
    *     account here.
    * @param labels the labels of the method's code, or {@literal null} if the attribute to be read
@@ -127,7 +127,7 @@ public class Attribute {
       final Label[] labels) {
     Attribute attribute = new Attribute(type);
     attribute.content = new byte[length];
-    System.arraycopy(classReader.b, offset, attribute.content, 0, length);
+    System.arraycopy(classReader.classFileBuffer, offset, attribute.content, 0, length);
     return attribute;
   }
 

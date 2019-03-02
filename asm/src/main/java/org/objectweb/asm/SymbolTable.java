@@ -139,7 +139,7 @@ final class SymbolTable {
     this.sourceClassReader = classReader;
 
     // Copy the constant pool binary content.
-    byte[] inputBytes = classReader.b;
+    byte[] inputBytes = classReader.classFileBuffer;
     int constantPoolOffset = classReader.getItem(1) - 1;
     int constantPoolLength = classReader.header - constantPoolOffset;
     constantPoolCount = classReader.getItemCount();
@@ -242,7 +242,7 @@ final class SymbolTable {
    */
   private void copyBootstrapMethods(final ClassReader classReader, final char[] charBuffer) {
     // Find attributOffset of the 'bootstrap_methods' array.
-    byte[] inputBytes = classReader.b;
+    byte[] inputBytes = classReader.classFileBuffer;
     int currentAttributeOffset = classReader.getFirstAttributeOffset();
     for (int i = classReader.readUnsignedShort(currentAttributeOffset - 2); i > 0; --i) {
       String attributeName = classReader.readUTF8(currentAttributeOffset, charBuffer);

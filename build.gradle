@@ -117,7 +117,7 @@ project(':benchmarks') {
     'org.javassist:javassist:3.21.0-GA',
     'org.mozilla:rhino:1.7.7.1'
   ]
-  ['4.0', '5.0.1', '6.0', '6.1.1', '6.2.1', '7.0'].each { version ->
+  ['4.0', '5.0.1', '6.0', '7.0', '7.1'].each { version ->
     configurations.create("asm${version}")
     dependencies.add("asm${version}", "org.ow2.asm:asm:${version}@jar")
     dependencies.add("asm${version}", "org.ow2.asm:asm-tree:${version}@jar")

@@ -1112,6 +1112,42 @@ class Frame {
   // -----------------------------------------------------------------------------------------------
 
   /**
+   * Computes the concrete output type corresponding to a given abstract output type.
+   *
+   * @param abstractOutputType an abstract output type.
+   * @param numStack the size of the input stack, used to resolve abstract output types of
+   *     STACK_KIND kind.
+   * @return the concrete output type corresponding to 'abstractOutputType'.
+   */
+  private int getConcreteOutputType(final int abstractOutputType, final int numStack) {
+    int dim = abstractOutputType & DIM_MASK;
+    int kind = abstractOutputType & KIND_MASK;
+    if (kind == LOCAL_KIND) {
+      // By definition, a LOCAL_KIND type designates the concrete type of a local variable at
+      // the beginning of the basic block corresponding to this frame (which is known when
+      // this method is called, but was not when the abstract type was computed).
+      int concreteOutputType = dim + inputLocals[abstractOutputType & VALUE_MASK];
+      if ((abstractOutputType & TOP_IF_LONG_OR_DOUBLE_FLAG) != 0
+          && (concreteOutputType == LONG || concreteOutputType == DOUBLE)) {
+        concreteOutputType = TOP;
+      }
+      return concreteOutputType;
+    } else if (kind == STACK_KIND) {
+      // By definition, a STACK_KIND type designates the concrete type of a local variable at
+      // the beginning of the basic block corresponding to this frame (which is known when
+      // this method is called, but was not when the abstract type was computed).
+      int concreteOutputType = dim + inputStack[numStack - (abstractOutputType & VALUE_MASK)];
+      if ((abstractOutputType & TOP_IF_LONG_OR_DOUBLE_FLAG) != 0
+          && (concreteOutputType == LONG || concreteOutputType == DOUBLE)) {
+        concreteOutputType = TOP;
+      }
+      return concreteOutputType;
+    } else {
+      return abstractOutputType;
+    }
+  }
+
+  /**
    * Merges the input frame of the given {@link Frame} with the input and output frames of this
    * {@link Frame}. Returns {@literal true} if the given frame has been changed by this operation
    * (the input and output frames of this {@link Frame} are never changed).
@@ -1145,29 +1181,7 @@ class Frame {
           // value at the beginning of the block.
           concreteOutputType = inputLocals[i];
         } else {
-          int dim = abstractOutputType & DIM_MASK;
-          int kind = abstractOutputType & KIND_MASK;
-          if (kind == LOCAL_KIND) {
-            // By definition, a LOCAL_KIND type designates the concrete type of a local variable at
-            // the beginning of the basic block corresponding to this frame (which is known when
-            // this method is called, but was not when the abstract type was computed).
-            concreteOutputType = dim + inputLocals[abstractOutputType & VALUE_MASK];
-            if ((abstractOutputType & TOP_IF_LONG_OR_DOUBLE_FLAG) != 0
-                && (concreteOutputType == LONG || concreteOutputType == DOUBLE)) {
-              concreteOutputType = TOP;
-            }
-          } else if (kind == STACK_KIND) {
-            // By definition, a STACK_KIND type designates the concrete type of a local variable at
-            // the beginning of the basic block corresponding to this frame (which is known when
-            // this method is called, but was not when the abstract type was computed).
-            concreteOutputType = dim + inputStack[numStack - (abstractOutputType & VALUE_MASK)];
-            if ((abstractOutputType & TOP_IF_LONG_OR_DOUBLE_FLAG) != 0
-                && (concreteOutputType == LONG || concreteOutputType == DOUBLE)) {
-              concreteOutputType = TOP;
-            }
-          } else {
-            concreteOutputType = abstractOutputType;
-          }
+          concreteOutputType = getConcreteOutputType(abstractOutputType, numStack);
         }
       } else {
         // If the local variable has never been assigned in this basic block, it is equal to its
@@ -1221,25 +1235,8 @@ class Frame {
     // Then, do this for the stack operands that have pushed in the basic block (this code is the
     // same as the one above for local variables).
     for (int i = 0; i < outputStackTop; ++i) {
-      int concreteOutputType;
       int abstractOutputType = outputStack[i];
-      int dim = abstractOutputType & DIM_MASK;
-      int kind = abstractOutputType & KIND_MASK;
-      if (kind == LOCAL_KIND) {
-        concreteOutputType = dim + inputLocals[abstractOutputType & VALUE_MASK];
-        if ((abstractOutputType & TOP_IF_LONG_OR_DOUBLE_FLAG) != 0
-            && (concreteOutputType == LONG || concreteOutputType == DOUBLE)) {
-          concreteOutputType = TOP;
-        }
-      } else if (kind == STACK_KIND) {
-        concreteOutputType = dim + inputStack[numStack - (abstractOutputType & VALUE_MASK)];
-        if ((abstractOutputType & TOP_IF_LONG_OR_DOUBLE_FLAG) != 0
-            && (concreteOutputType == LONG || concreteOutputType == DOUBLE)) {
-          concreteOutputType = TOP;
-        }
-      } else {
-        concreteOutputType = abstractOutputType;
-      }
+      int concreteOutputType = getConcreteOutputType(abstractOutputType, numStack);
       if (initializations != null) {
         concreteOutputType = getInitializedType(symbolTable, concreteOutputType);
       }

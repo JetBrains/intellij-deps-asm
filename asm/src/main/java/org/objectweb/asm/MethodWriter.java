@@ -2211,7 +2211,7 @@ final class MethodWriter extends MethodVisitor {
     output.putShort(accessFlags & ~mask).putShort(nameIndex).putShort(descriptorIndex);
     // If this method_info must be copied from an existing one, copy it now and return early.
     if (sourceOffset != 0) {
-      output.putByteArray(symbolTable.getSource().b, sourceOffset, sourceLength);
+      output.putByteArray(symbolTable.getSource().classFileBuffer, sourceOffset, sourceLength);
       return;
     }
     // For ease of reference, we use here the same attribute order as in Section 4.7 of the JVMS.

@@ -60,7 +60,7 @@ public class ClassReaderTest extends AsmTest implements Opcodes {
   public void testReadByte() throws IOException {
     ClassReader classReader = new ClassReader(getClass().getName());
 
-    assertEquals(classReader.b[0] & 0xFF, classReader.readByte(0));
+    assertEquals(classReader.classFileBuffer[0] & 0xFF, classReader.readByte(0));
   }
 
   @Test

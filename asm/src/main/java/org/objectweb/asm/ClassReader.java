@@ -1126,13 +1126,12 @@ public class ClassReader {
       MethodWriter methodWriter = (MethodWriter) methodVisitor;
       if (methodWriter.canCopyMethodAttributes(
           this,
-          methodInfoOffset,
-          currentOffset - methodInfoOffset,
           synthetic,
           (context.currentMethodAccessFlags & Opcodes.ACC_DEPRECATED) != 0,
           readUnsignedShort(methodInfoOffset + 4),
           signatureIndex,
           exceptionsOffset)) {
+        methodWriter.setMethodAttributesSource(methodInfoOffset, currentOffset - methodInfoOffset);
         return currentOffset;
       }
     }

@@ -117,9 +117,6 @@ meth public void visitTypeArgument()
 meth public void visitTypeVariable(java.lang.String)
 supr java.lang.Object
 
-CLSS public abstract interface org.objectweb.asm.util.ASMifiable
-meth public abstract void asmify(java.lang.StringBuffer,java.lang.String,java.util.Map)
-
 CLSS public org.objectweb.asm.util.ASMifier
 cons protected init(int,java.lang.String,int)
 cons public init()
@@ -356,9 +353,6 @@ meth public void visitMethodInsn(int,java.lang.String,java.lang.String,java.lang
 meth public void visitMethodInsn(int,java.lang.String,java.lang.String,java.lang.String,boolean)
 meth public void visitParameter(java.lang.String,int)
 supr java.lang.Object
-
-CLSS public abstract interface org.objectweb.asm.util.Textifiable
-meth public abstract void textify(java.lang.StringBuffer,java.util.Map)
 
 CLSS public org.objectweb.asm.util.Textifier
 cons protected init(int)

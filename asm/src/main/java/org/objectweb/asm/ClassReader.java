@@ -705,7 +705,8 @@ public class ClassReader {
    *     attribute_name_index and attribute_length fields).
    * @param modulePackagesOffset the offset of the ModulePackages attribute (excluding the
    *     attribute_info's attribute_name_index and attribute_length fields), or 0.
-   * @param moduleMainClass the string corresponding to the ModuleMainClass attribute, or null.
+   * @param moduleMainClass the string corresponding to the ModuleMainClass attribute, or {@literal
+   *     null}.
    */
   private void readModuleAttributes(
       final ClassVisitor classVisitor,
@@ -2593,7 +2594,7 @@ public class ClassReader {
    * -1 if there is no such type_annotation of if it does not have a bytecode offset.
    *
    * @param typeAnnotationOffsets the offset of each 'type_annotation' entry in a
-   *     Runtime[In]VisibleTypeAnnotations attribute, or null.
+   *     Runtime[In]VisibleTypeAnnotations attribute, or {@literal null}.
    * @param typeAnnotationIndex the index a 'type_annotation' entry in typeAnnotationOffsets.
    * @return bytecode offset corresponding to the specified JVMS 'type_annotation' structure, or -1
    *     if there is no such type_annotation of if it does not have a bytecode offset.

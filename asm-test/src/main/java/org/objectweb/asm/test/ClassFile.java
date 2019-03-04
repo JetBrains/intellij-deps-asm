@@ -2335,7 +2335,7 @@ public class ClassFile {
   private abstract static class AbstractBuilder<T> implements ClassContext, MethodContext {
     /** Flag used to distinguish CpInfo keys in {@link #context}. */
     private static final int CP_INFO_KEY = 0xF0000000;
-    /** The parent node of this node. May be null. */
+    /** The parent node of this node. May be {@literal null}. */
     private final AbstractBuilder<?> parent;
     /** The children of this builder. */
     final ArrayList<T> children;

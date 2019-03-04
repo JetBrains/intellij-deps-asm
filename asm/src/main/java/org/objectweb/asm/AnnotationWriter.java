@@ -132,6 +132,7 @@ final class AnnotationWriter extends AnnotationVisitor {
    * @param previousAnnotation the previously visited annotation of the
    *     Runtime[In]Visible[Type]Annotations attribute to which this annotation belongs, or null in
    *     other cases (e.g. nested or array annotations).
+   * @return a new {@link AnnotationWriter} for the given annotation descriptor.
    */
   static AnnotationWriter create(
       final SymbolTable symbolTable,
@@ -161,6 +162,7 @@ final class AnnotationWriter extends AnnotationVisitor {
    * @param previousAnnotation the previously visited annotation of the
    *     Runtime[In]Visible[Type]Annotations attribute to which this annotation belongs, or null in
    *     other cases (e.g. nested or array annotations).
+   * @return a new {@link AnnotationWriter} for the given type annotation reference and descriptor.
    */
   static AnnotationWriter create(
       final SymbolTable symbolTable,

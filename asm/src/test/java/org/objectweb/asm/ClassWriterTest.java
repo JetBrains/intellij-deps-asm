@@ -32,14 +32,17 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.junit.jupiter.api.Assumptions.assumeFalse;
 import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Random;
@@ -109,6 +112,35 @@ public class ClassWriterTest extends AsmTest {
     // ClassReader->ClassWriter round trip to remove the ASM specific instructions due to large
     // forward jumps).
     assertEquals(expectedFields, actualFields);
+  }
+
+  /**
+   * Checks that all the ClassVisitor methods are overridden by ClassWriter and are final.
+   * ClassWriter does not take an api version as constructor argument. Therefore, backward
+   * compatibility of user subclasses overriding some visit methods of ClassWriter would not be
+   * possible to ensure. To prevent this, the ClassWriter visit methods must be final.
+   */
+  @Test
+  public void testVisitMethods_final() {
+    ArrayList<Method> publicClassVisitorMethods = new ArrayList<>();
+    for (Method classVisitorMethod : ClassVisitor.class.getDeclaredMethods()) {
+      int modifiers = classVisitorMethod.getModifiers();
+      if (Modifier.isPublic(modifiers) && !Modifier.isStatic(modifiers)) {
+        publicClassVisitorMethods.add(classVisitorMethod);
+      }
+    }
+
+    for (Method classVisitorMethod : publicClassVisitorMethods) {
+      try {
+        Method classWriterMethod =
+            ClassWriter.class.getMethod(
+                classVisitorMethod.getName(), classVisitorMethod.getParameterTypes());
+        assertTrue(
+            Modifier.isFinal(classWriterMethod.getModifiers()), classWriterMethod + " is final");
+      } catch (NoSuchMethodException e) {
+        fail("ClassWriter must override " + classVisitorMethod);
+      }
+    }
   }
 
   @Test

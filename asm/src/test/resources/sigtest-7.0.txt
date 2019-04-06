@@ -194,8 +194,8 @@ meth public int newModule(java.lang.String)
 meth public int newNameType(java.lang.String,java.lang.String)
 meth public int newPackage(java.lang.String)
 meth public int newUTF8(java.lang.String)
-meth public void visitNestHost(java.lang.String)
-meth public void visitNestMember(java.lang.String)
+meth public final void visitNestHost(java.lang.String)
+meth public final void visitNestMember(java.lang.String)
 supr org.objectweb.asm.ClassVisitor
 hfds accessFlags,compute,debugExtension,enclosingClassIndex,enclosingMethodIndex,firstAttribute,firstField,firstMethod,innerClasses,interfaceCount,interfaces,lastField,lastMethod,lastRuntimeInvisibleAnnotation,lastRuntimeInvisibleTypeAnnotation,lastRuntimeVisibleAnnotation,lastRuntimeVisibleTypeAnnotation,moduleWriter,nestHostClassIndex,nestMemberClasses,numberOfInnerClasses,numberOfNestMemberClasses,signatureIndex,sourceFileIndex,superClass,symbolTable,thisClass,version
 

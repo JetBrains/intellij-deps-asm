@@ -324,7 +324,6 @@ fld protected java.lang.String tab
 fld protected java.lang.String tab2
 fld protected java.lang.String tab3
 fld protected java.util.Map labelNames
-fld public final static int CLASS_DECLARATION = 7
 fld public final static int CLASS_SIGNATURE = 5
 fld public final static int FIELD_DESCRIPTOR = 1
 fld public final static int FIELD_SIGNATURE = 2
@@ -332,8 +331,6 @@ fld public final static int HANDLE_DESCRIPTOR = 9
 fld public final static int INTERNAL_NAME = 0
 fld public final static int METHOD_DESCRIPTOR = 3
 fld public final static int METHOD_SIGNATURE = 4
-fld public final static int PARAMETERS_DECLARATION = 8
-fld public final static int TYPE_DECLARATION = 6
 meth protected org.objectweb.asm.util.Textifier createTextifier()
 meth protected void appendDescriptor(int,java.lang.String)
 meth protected void appendHandle(org.objectweb.asm.Handle)

@@ -31,10 +31,10 @@ buildscript {
   dependencies { classpath 'org.netbeans.tools:sigtest-maven-plugin:1.1' }
 }
 
-plugins { id 'biz.aQute.bnd.builder' version '4.1.0' apply false }
+plugins { id 'biz.aQute.bnd.builder' version '4.2.0' apply false }
 plugins { id 'com.github.sherter.google-java-format' version '0.8' apply false }
 plugins { id 'me.champeau.gradle.jmh' version '0.4.8' apply false }
-plugins { id 'org.sonarqube' version '2.6.2' apply false }
+plugins { id 'org.sonarqube' version '2.7.1' apply false }
 
 description = 'ASM, a very small and fast Java bytecode manipulation framework'
 
@@ -173,7 +173,7 @@ subprojects {
   
   // Check the coding style with Checkstyle. Fail in case of error or warning.
   apply plugin: 'checkstyle'
-  checkstyle.toolVersion = '8.17'
+  checkstyle.toolVersion = '8.20'
   checkstyle.configFile = file("${rootDir}/tools/checkstyle.xml")
   checkstyle.maxErrors = 0
   checkstyle.maxWarnings = 0
@@ -181,7 +181,7 @@ subprojects {
   // Check the code with PMD. TODO remove toolVersion when default version uses
   // ASM7 (default 6.8.0 uses ASM7_EXPERIMENTAL -> does not work with HEAD).
   apply plugin: 'pmd'
-  pmd.toolVersion = '6.3.0'
+  pmd.toolVersion = '6.14.0'
   pmd.ruleSets = []
   pmd.ruleSetFiles = files("${rootDir}/tools/pmd.xml")
   pmd.consoleOutput = true

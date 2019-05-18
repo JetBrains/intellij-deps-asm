@@ -51,14 +51,19 @@
     <properties>
       <property name="violationSuppressXPath"
           value="//MethodDeclaration[@Private='true' or 
-              @PackagePrivate='true']"/>
+              @PackagePrivate='true']" />
     </properties>
   </rule>
   <rule ref="category/java/bestpractices.xml/MethodReturnsInternalArray">
     <properties>
       <property name="violationSuppressXPath"
           value="//MethodDeclaration[@Private='true' or 
-              @PackagePrivate='true']"/>
+              @PackagePrivate='true']" />
+    </properties>
+  </rule>
+  <rule ref="category/java/bestpractices.xml/ForLoopVariableCount">
+    <properties>
+      <property name="maximumVariables" value="2" />
     </properties>
   </rule>
 

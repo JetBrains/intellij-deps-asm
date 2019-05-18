@@ -1747,6 +1747,8 @@ public class ClassFile {
     }
 
     /**
+     * Returns the constant pool item with the given index.
+     *
      * @param <C> a CpInfo subclass.
      * @param cpIndex a constant pool entry index.
      * @param cpInfoType the expected type of the constant pool entry.

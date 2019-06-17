@@ -406,6 +406,44 @@ public class AdviceAdapterTest extends AsmTest {
   }
 
   @Test
+  public void testAllMethods_constructorWithJsrRet() {
+    Label label0 = new Label();
+    Label label1 = new Label();
+    Label label2 = new Label();
+    Label label3 = new Label();
+    MethodNode inputMethod =
+        new MethodNodeBuilder("<init>", "(I)V", 3, 3)
+            .trycatch(label0, label1, label1)
+            .label(label0)
+            .aload(0)
+            .methodInsn(Opcodes.INVOKESPECIAL, "C", "<init>", "()V", false)
+            // After instrumentation, expect a before advice here, before instruction #3.
+            .go(label3)
+            .label(label1)
+            .jsr(label2)
+            // After instrumentation, expect an after advice here, before instruction #6.
+            .athrow()
+            .label(label2)
+            .astore(2)
+            .ret(2)
+            .label(label3)
+            // After instrumentation, expect an after advice here, before instruction #11.
+            .vreturn()
+            .build();
+
+    MethodNode outputMethod = new MethodNode(Opcodes.ACC_PUBLIC, "<init>", "(I)V", null, null);
+    inputMethod.accept(new BasicAdviceAdapter(outputMethod));
+
+    MethodNode expectedMethod =
+        new ExpectedMethodBuilder(inputMethod)
+            .withBeforeAdviceAt(3)
+            .withAfterAdviceAt(6, 11)
+            .build();
+    assertEquals(toText(expectedMethod), toText(outputMethod));
+    assertDoesNotThrow(() -> buildClassWithMethod(outputMethod).newInstance());
+  }
+
+  @Test
   public void testAllMethods_constructorWithLongsAndArrays() {
     MethodNode inputMethod =
         new MethodNodeBuilder("<init>", "(I)V", 6, 4)

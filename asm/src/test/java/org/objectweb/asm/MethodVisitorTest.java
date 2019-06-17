@@ -126,8 +126,10 @@ public class MethodVisitorTest extends AsmTest {
 
   @Test
   public void testVisitFrame_consecutiveFrames_sameFrame() {
+    ClassWriter classWriter = new ClassWriter(0);
+    classWriter.visit(Opcodes.V1_7, Opcodes.ACC_PUBLIC, "C", null, "D", null);
     MethodVisitor methodVisitor =
-        new ClassWriter(0).visitMethod(Opcodes.ACC_STATIC, "m", "()V", null, null);
+        classWriter.visitMethod(Opcodes.ACC_STATIC, "m", "()V", null, null);
     methodVisitor.visitCode();
     methodVisitor.visitFrame(Opcodes.F_SAME, 0, null, 0, null);
 
@@ -138,8 +140,10 @@ public class MethodVisitorTest extends AsmTest {
 
   @Test
   public void testVisitFrame_consecutiveFrames() {
+    ClassWriter classWriter = new ClassWriter(0);
+    classWriter.visit(Opcodes.V1_7, Opcodes.ACC_PUBLIC, "C", null, "D", null);
     MethodVisitor methodVisitor =
-        new ClassWriter(0).visitMethod(Opcodes.ACC_STATIC, "m", "()V", null, null);
+        classWriter.visitMethod(Opcodes.ACC_STATIC, "m", "()V", null, null);
     methodVisitor.visitCode();
     methodVisitor.visitFrame(Opcodes.F_SAME, 0, null, 0, null);
 
@@ -148,6 +152,20 @@ public class MethodVisitorTest extends AsmTest {
             methodVisitor.visitFrame(Opcodes.F_APPEND, 1, new Object[] {Opcodes.INTEGER}, 0, null);
 
     assertThrows(IllegalStateException.class, visitFrame);
+  }
+
+  @Test
+  public void testVisitFrame_compressedFrameWithV1_5class() {
+    ClassWriter classWriter = new ClassWriter(0);
+    classWriter.visit(Opcodes.V1_5, Opcodes.ACC_PUBLIC, "C", null, "D", null);
+    MethodVisitor methodVisitor =
+        new ClassWriter(0).visitMethod(Opcodes.ACC_STATIC, "m", "()V", null, null);
+    methodVisitor.visitCode();
+
+    Executable visitFrame = () -> methodVisitor.visitFrame(Opcodes.F_SAME, 0, null, 0, null);
+
+    Exception exception = assertThrows(IllegalArgumentException.class, visitFrame);
+    assertTrue(exception.getMessage().contains("versions V1_5 or less must use F_NEW frames."));
   }
 
   /** Tests the ASM4 visitMethodInsn on an ASM4 visitor. */

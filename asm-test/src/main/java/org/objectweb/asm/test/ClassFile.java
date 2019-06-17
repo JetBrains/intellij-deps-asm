@@ -288,7 +288,7 @@ public class ClassFile {
     builder.add("magic: ", parser.u4());
     builder.add("minor_version: ", parser.u2());
     int majorVersion = parser.u2();
-    if (majorVersion > /* V12 = */ 56) {
+    if (majorVersion > /* V14 = */ 58) {
       throw new ClassFormatException("Unsupported class version");
     }
     builder.add("major_version: ", majorVersion);

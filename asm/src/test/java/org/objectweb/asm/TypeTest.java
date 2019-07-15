@@ -31,7 +31,9 @@ import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTimeoutPreemptively;
 
+import java.time.Duration;
 import java.util.Arrays;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.Executable;
@@ -173,6 +175,14 @@ public class TypeTest implements Opcodes {
     assertEquals(methodDescriptor, methodType.getDescriptor());
     assertArrayEquals(argumentTypes, methodType.getArgumentTypes());
     assertEquals(returnType, methodType.getReturnType());
+  }
+
+  @Test
+  public void testGetArgumentTypesInvalidMethodDescriptor() {
+    Executable getArgumentTypes = () -> Type.getArgumentTypes("(Ljava/lang/String");
+
+    assertTimeoutPreemptively(
+        Duration.ofMillis(100), () -> assertThrows(RuntimeException.class, getArgumentTypes));
   }
 
   @Test

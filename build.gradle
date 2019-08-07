@@ -44,7 +44,7 @@ subprojects {
   apply plugin: 'jacoco'
   def snapshotSuffix = rootProject.hasProperty('release') ? '' : '-SNAPSHOT'
   group = 'org.ow2.asm'
-  version = '7.2-beta' + snapshotSuffix
+  version = '7.2' + snapshotSuffix
   sourceCompatibility = '1.8'
   targetCompatibility = '1.8'
   test { useJUnitPlatform() }
@@ -197,6 +197,14 @@ subprojects {
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.3.2'
     testCompile project(':asm-test')
   }
+
+  // Produce byte-for-byte reproducible archives.
+  tasks.withType(AbstractArchiveTask).configureEach {
+    preserveFileTimestamps = false
+    reproducibleFileOrder = true
+    dirMode = 0775
+    fileMode = 0664
+  }
 }
 
 // Configures the projects with a non-empty 'provides' property. These are the
@@ -324,9 +332,11 @@ configure(subprojects.findAll { it.provides }) {
     archives sourcesJar
   }
 
-  // Add an uploadArchives task, provided by the maven plugin, to generate the
-  // project POM and to upload it, with the classes, sources and Javadoc jars.
+  // Add an uploadArchives task, provided by the maven plugin, to generate and
+  // sign the project POM and to upload it, with the signed classes, sources
+  // and Javadoc jars.
   apply plugin: 'maven'
+  apply plugin: 'signing'
   uploadArchives.repositories.mavenDeployer {
     def nexusUserName = System.env.NEXUS_USER_NAME
     def nexusPassword = System.env.NEXUS_PASSWORD
@@ -338,6 +348,10 @@ configure(subprojects.findAll { it.provides }) {
       snapshotRepository(url: baseUrl + 'content/repositories/snapshots') {
         authentication(userName: nexusUserName, password: nexusPassword)
       }
+      signing {
+        sign configurations.archives
+      }
+      beforeDeployment { MavenDeployment deploy -> signing.signPom(deploy) }
     } else {
       repository url: 'file://localhost/tmp/myRepo/'
     }

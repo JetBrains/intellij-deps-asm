@@ -287,6 +287,7 @@ configure(subprojects.findAll { it.provides }) {
           project(':tools:bnd-module-plugin').jar.outputs.files.singleFile,
       '-removeheaders': 'Bnd-LastModified,Build-By,Created-By,Include-Resource,\
           Require-Capability,Tool',
+      'Bundle-License': 'BSD-3-Clause',
       'Bundle-DocURL': 'http://asm.ow2.org',
       'Bundle-RequiredExecutionEnvironment': 'J2SE-1.5',
       'Bundle-SymbolicName': provides[0],
@@ -369,12 +370,12 @@ configure(subprojects.findAll { it.provides }) {
       inceptionYear '2000'
       licenses {
         license {
-          name 'BSD'
-          url 'http://asm.ow2.org/license.html'
+          name 'BSD-3-Clause'
+          url 'https://asm.ow2.io/license.html'
         }
       }
 
-      url 'http://asm.ow2.org/'
+      url 'http://asm.ow2.io/'
       mailingLists {
         mailingList {
           name 'ASM Users List'

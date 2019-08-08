@@ -349,6 +349,7 @@ configure(subprojects.findAll { it.provides }) {
         authentication(userName: nexusUserName, password: nexusPassword)
       }
       signing {
+        required rootProject.hasProperty('release')
         sign configurations.archives
       }
       beforeDeployment { MavenDeployment deploy -> signing.signPom(deploy) }

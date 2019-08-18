@@ -178,16 +178,11 @@ subprojects {
   checkstyle.maxErrors = 0
   checkstyle.maxWarnings = 0
   
-  // Check the code with PMD. TODO remove toolVersion when default version uses
-  // ASM7 (default 6.8.0 uses ASM7_EXPERIMENTAL -> does not work with HEAD).
+  // Check the code with PMD.
   apply plugin: 'pmd'
-  pmd.toolVersion = '6.14.0'
   pmd.ruleSets = []
   pmd.ruleSetFiles = files("${rootDir}/tools/pmd.xml")
   pmd.consoleOutput = true
-  java.util.logging.Logger.getLogger('net.sourceforge.pmd.PMD').setFilter({
-    log -> !log.message.contains('This analysis could be faster')
-  })
 
   dependencies {
     requires.each { projectName -> compile project(projectName) }

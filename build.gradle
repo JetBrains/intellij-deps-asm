@@ -282,7 +282,7 @@ configure(subprojects.findAll { it.provides }) {
           project(':tools:bnd-module-plugin').jar.outputs.files.singleFile,
       '-removeheaders': 'Bnd-LastModified,Build-By,Created-By,Include-Resource,\
           Require-Capability,Tool',
-      'Bundle-License': 'BSD-3-Clause',
+      'Bundle-License': 'BSD-3-Clause;link=https://asm.ow2.io/LICENSE.txt',
       'Bundle-DocURL': 'http://asm.ow2.org',
       'Bundle-RequiredExecutionEnvironment': 'J2SE-1.5',
       'Bundle-SymbolicName': provides[0],

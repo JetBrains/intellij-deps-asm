@@ -44,7 +44,7 @@ subprojects {
   apply plugin: 'jacoco'
   def snapshotSuffix = rootProject.hasProperty('release') ? '' : '-SNAPSHOT'
   group = 'org.ow2.asm'
-  version = '7.2' + snapshotSuffix
+  version = '7.3' + snapshotSuffix
   sourceCompatibility = '1.8'
   targetCompatibility = '1.8'
   test { useJUnitPlatform() }

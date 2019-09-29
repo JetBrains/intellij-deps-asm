@@ -1,4 +1,4 @@
-// class version 55.65535 (-65481)
+// class version 55.0 (55)
 // access flags 0x21
 public class jdk11/AllInstructions {
 

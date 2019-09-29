@@ -42,6 +42,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.time.Duration;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.Executable;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -418,7 +420,8 @@ public class ClassReaderTest extends AsmTest implements Opcodes {
         || invalidClass == InvalidClass.INVALID_CONSTANT_POOL_REFERENCE
         || invalidClass == InvalidClass.INVALID_BYTECODE_OFFSET) {
       Exception exception = assertThrows(ArrayIndexOutOfBoundsException.class, accept);
-      assertTrue(Integer.valueOf(exception.getMessage()) > 0);
+      Matcher matcher = Pattern.compile("\\d+").matcher(exception.getMessage());
+      assertTrue(matcher.find() && Integer.valueOf(matcher.group()) > 0);
     } else {
       assertThrows(IllegalArgumentException.class, accept);
     }
@@ -545,7 +548,11 @@ public class ClassReaderTest extends AsmTest implements Opcodes {
 
   @Test
   public void testAccept_previewClass() {
-    ClassReader classReader = new ClassReader(PrecompiledClass.JDK11_ALL_INSTRUCTIONS.getBytes());
+    byte[] classFile = PrecompiledClass.JDK11_ALL_INSTRUCTIONS.getBytes();
+    // Set the minor version to 65535.
+    classFile[4] = (byte) 0xFF;
+    classFile[5] = (byte) 0xFF;
+    ClassReader classReader = new ClassReader(classFile);
     AtomicInteger classVersion = new AtomicInteger(0);
     ClassVisitor readVersionVisitor =
         new ClassVisitor(Opcodes.ASM7) {

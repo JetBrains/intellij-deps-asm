@@ -125,6 +125,7 @@ public abstract class AsmTest {
     JDK11_ALL_STRUCTURES_NESTED("jdk11.AllStructures$Nested");
 
     private final String name;
+    private byte[] bytes;
 
     PrecompiledClass(final String name) {
       this.name = name;
@@ -189,7 +190,10 @@ public abstract class AsmTest {
      * @return the content of this class.
      */
     public byte[] getBytes() {
-      return AsmTest.getBytes(name);
+      if (bytes == null) {
+        bytes = AsmTest.getBytes(name);
+      }
+      return bytes.clone();
     }
 
     @Override

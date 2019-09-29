@@ -37,7 +37,7 @@ package  jdk11;
  * @author Eric Bruneton
  */
 super public class AllInstructions
-  version 55:65535
+  version 55:0
 {
 
 

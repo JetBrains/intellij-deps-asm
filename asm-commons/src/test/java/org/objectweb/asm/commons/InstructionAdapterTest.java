@@ -174,9 +174,7 @@ public class InstructionAdapterTest extends AsmTest {
     assertEquals(
         "ICONST_0 ICONST_1 ICONST_2 BIPUSH 51 ICONST_4 ICONST_5 LDC 6 LDC 7.0 LDC 8.0 LDC \"9\" "
             + "LDC Lpkg/Class;.class LDC pkg/Class.nameI (1)",
-        textifier
-            .text
-            .stream()
+        textifier.text.stream()
             .map(text -> text.toString().trim())
             .collect(Collectors.joining(" ")));
   }

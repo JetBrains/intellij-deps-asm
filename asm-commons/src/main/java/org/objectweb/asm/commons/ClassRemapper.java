@@ -73,7 +73,7 @@ public class ClassRemapper extends ClassVisitor {
    * @param remapper the remapper to use to remap the types in the visited class.
    */
   public ClassRemapper(final ClassVisitor classVisitor, final Remapper remapper) {
-    this(Opcodes.ASM7, classVisitor, remapper);
+    this(/* latest api = */ Opcodes.ASM7, classVisitor, remapper);
   }
 
   /**
@@ -202,6 +202,11 @@ public class ClassRemapper extends ClassVisitor {
   @Override
   public void visitNestMember(final String nestMember) {
     super.visitNestMember(remapper.mapType(nestMember));
+  }
+
+  @Override
+  public void visitPermittedSubtypeExperimental(final String permittedSubtype) {
+    super.visitPermittedSubtypeExperimental(remapper.mapType(permittedSubtype));
   }
 
   /**

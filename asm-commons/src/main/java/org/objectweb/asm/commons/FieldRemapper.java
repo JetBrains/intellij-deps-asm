@@ -51,7 +51,7 @@ public class FieldRemapper extends FieldVisitor {
    * @param remapper the remapper to use to remap the types in the visited field.
    */
   public FieldRemapper(final FieldVisitor fieldVisitor, final Remapper remapper) {
-    this(Opcodes.ASM7, fieldVisitor, remapper);
+    this(/* latest api = */ Opcodes.ASM7, fieldVisitor, remapper);
   }
 
   /**

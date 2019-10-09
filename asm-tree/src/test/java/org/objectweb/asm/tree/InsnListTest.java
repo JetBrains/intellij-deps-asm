@@ -109,7 +109,7 @@ public class InsnListTest {
     InsnList dstInsnList = new InsnList();
 
     insnList.accept(
-        new MethodVisitor(Opcodes.ASM7) {
+        new MethodVisitor(/* latest */ Opcodes.ASM8_EXPERIMENTAL) {
           @Override
           public void visitInsn(final int opcode) {
             dstInsnList.add(new InsnNode(opcode));

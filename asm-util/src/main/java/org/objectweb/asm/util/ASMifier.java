@@ -123,7 +123,7 @@ public class ASMifier extends Printer {
    * @throws IllegalStateException If a subclass calls this constructor.
    */
   public ASMifier() {
-    this(Opcodes.ASM7, "classWriter", 0);
+    this(/* latest api = */ Opcodes.ASM7, "classWriter", 0);
     if (getClass() != ASMifier.class) {
       throw new IllegalStateException();
     }
@@ -316,6 +316,15 @@ public class ASMifier extends Printer {
     stringBuilder.setLength(0);
     stringBuilder.append("classWriter.visitNestMember(");
     appendConstant(nestMember);
+    stringBuilder.append(END_PARAMETERS);
+    text.add(stringBuilder.toString());
+  }
+
+  @Override
+  public void visitPermittedSubtypeExperimental(final String visitPermittedSubtype) {
+    stringBuilder.setLength(0);
+    stringBuilder.append("classWriter.visitPermittedSubtypeExperimental(");
+    appendConstant(visitPermittedSubtype);
     stringBuilder.append(END_PARAMETERS);
     text.add(stringBuilder.toString());
   }

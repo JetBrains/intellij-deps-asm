@@ -494,6 +494,8 @@ public class ClassFile {
       dumpNestHostAttribute(parser, builder);
     } else if (attributeName.equals("NestMembers")) {
       dumpNestMembersAttribute(parser, builder);
+    } else if (attributeName.equals("PermittedSubtypes")) {
+      dumpPermittedSubtypesAttribute(parser, builder);
     } else if (attributeName.equals("StackMap")) {
       dumpStackMapAttribute(parser, builder);
     } else if (!attributeName.equals("CodeComment") && !attributeName.equals("Comment")) {
@@ -1679,6 +1681,22 @@ public class ClassFile {
    *     4.7.29</a>
    */
   private static void dumpNestMembersAttribute(final Parser parser, final Builder builder)
+      throws IOException {
+    int numberOfClasses = builder.add("number_of_classes: ", parser.u2());
+    for (int i = 0; i < numberOfClasses; ++i) {
+      builder.addCpInfo("class: ", parser.u2());
+    }
+  }
+
+  /**
+   * Parses and dumps a PermittedSubtypes attribute.
+   *
+   * @param parser a class parser.
+   * @param builder a dump builder.
+   * @throws IOException if the class can't be parsed.
+   * @see <a href="https://openjdk.java.net/jeps/360">JEP 360</a>
+   */
+  private static void dumpPermittedSubtypesAttribute(final Parser parser, final Builder builder)
       throws IOException {
     int numberOfClasses = builder.add("number_of_classes: ", parser.u2());
     for (int i = 0; i < numberOfClasses; ++i) {

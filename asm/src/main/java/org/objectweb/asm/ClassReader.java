@@ -466,6 +466,8 @@ public class ClassReader {
     String nestHostClass = null;
     // - The offset of the NestMembers attribute, or 0.
     int nestMembersOffset = 0;
+    // - The offset of the PermittedSubtypes attribute, or 0
+    int permittedSubtypesOffset = 0;
     // - The non standard attributes (linked with their {@link Attribute#nextAttribute} field).
     //   This list in the <i>reverse order</i> or their order in the ClassFile structure.
     Attribute attributes = null;
@@ -488,6 +490,8 @@ public class ClassReader {
         nestHostClass = readClass(currentAttributeOffset, charBuffer);
       } else if (Constants.NEST_MEMBERS.equals(attributeName)) {
         nestMembersOffset = currentAttributeOffset;
+      } else if (Constants.PERMITTED_SUBTYPES.equals(attributeName)) {
+        permittedSubtypesOffset = currentAttributeOffset;
       } else if (Constants.SIGNATURE.equals(attributeName)) {
         signature = readUTF8(currentAttributeOffset, charBuffer);
       } else if (Constants.RUNTIME_VISIBLE_ANNOTATIONS.equals(attributeName)) {
@@ -659,6 +663,17 @@ public class ClassReader {
       while (numberOfNestMembers-- > 0) {
         classVisitor.visitNestMember(readClass(currentNestMemberOffset, charBuffer));
         currentNestMemberOffset += 2;
+      }
+    }
+
+    // Visit the PermittedSubtypes attribute.
+    if (permittedSubtypesOffset != 0) {
+      int numberOfPermittedSubtypes = readUnsignedShort(permittedSubtypesOffset);
+      int currentPermittedSubtypeOffset = permittedSubtypesOffset + 2;
+      while (numberOfPermittedSubtypes-- > 0) {
+        classVisitor.visitPermittedSubtypeExperimental(
+            readClass(currentPermittedSubtypeOffset, charBuffer));
+        currentPermittedSubtypeOffset += 2;
       }
     }
 

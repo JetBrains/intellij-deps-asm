@@ -535,13 +535,13 @@ public class MethodVisitorTest extends AsmTest {
     }
   }
 
-  /** A {@link MethodVisitor} that logs the calls to its ASM5 visitMethodInsn method. */
+  /** A {@link MethodVisitor} that logs the calls to its visitMethodInsn method. */
   private static class LogMethodVisitor extends MethodVisitor {
 
     private final StringWriter log;
 
     LogMethodVisitor(final StringWriter log) {
-      super(Opcodes.ASM7);
+      super(/* latest */ Opcodes.ASM8_EXPERIMENTAL);
       this.log = log;
     }
 

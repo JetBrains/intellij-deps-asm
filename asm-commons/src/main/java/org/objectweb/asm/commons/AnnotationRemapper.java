@@ -49,7 +49,7 @@ public class AnnotationRemapper extends AnnotationVisitor {
    * @param remapper the remapper to use to remap the types in the visited annotation.
    */
   public AnnotationRemapper(final AnnotationVisitor annotationVisitor, final Remapper remapper) {
-    this(Opcodes.ASM7, annotationVisitor, remapper);
+    this(/* latest api = */ Opcodes.ASM7, annotationVisitor, remapper);
   }
 
   /**

@@ -98,7 +98,7 @@ public class AsmTestTest extends AsmTest {
         new HashSet<Object>(Arrays.asList(PrecompiledClass.values())),
         allArguments.stream().map(arg -> arg.get()[0]).collect(Collectors.toSet()));
     assertEquals(
-        new HashSet<Object>(Arrays.asList(Api.ASM7)),
+        new HashSet<Object>(Arrays.asList(Api.ASM8)),
         allArguments.stream().map(arg -> arg.get()[1]).collect(Collectors.toSet()));
   }
 }

@@ -173,7 +173,7 @@ public class CheckClassAdapter extends ClassVisitor {
    * @throws IllegalStateException If a subclass calls this constructor.
    */
   public CheckClassAdapter(final ClassVisitor classVisitor, final boolean checkDataFlow) {
-    this(Opcodes.ASM7, classVisitor, checkDataFlow);
+    this(/* latest api = */ Opcodes.ASM7, classVisitor, checkDataFlow);
     if (getClass() != CheckClassAdapter.class) {
       throw new IllegalStateException();
     }
@@ -317,6 +317,13 @@ public class CheckClassAdapter extends ClassVisitor {
           "nest member " + nestMember + " should be in the package " + nestMemberPackageName);
     }
     super.visitNestMember(nestMember);
+  }
+
+  @Override
+  public void visitPermittedSubtypeExperimental(final String permittedSubtype) {
+    checkState();
+    CheckMethodAdapter.checkInternalName(version, permittedSubtype, "permittedSubtype");
+    super.visitPermittedSubtypeExperimental(permittedSubtype);
   }
 
   @Override
@@ -1009,7 +1016,8 @@ public class CheckClassAdapter extends ClassVisitor {
       final PrintWriter printWriter) {
     ClassNode classNode = new ClassNode();
     classReader.accept(
-        new CheckClassAdapter(Opcodes.ASM7, classNode, false) {}, ClassReader.SKIP_DEBUG);
+        new CheckClassAdapter(Opcodes.ASM8_EXPERIMENTAL, classNode, false) {},
+        ClassReader.SKIP_DEBUG);
 
     Type syperType = classNode.superName == null ? null : Type.getObjectType(classNode.superName);
     List<MethodNode> methods = classNode.methods;

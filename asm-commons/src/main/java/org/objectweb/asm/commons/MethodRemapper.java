@@ -53,7 +53,7 @@ public class MethodRemapper extends MethodVisitor {
    * @param remapper the remapper to use to remap the types in the visited method.
    */
   public MethodRemapper(final MethodVisitor methodVisitor, final Remapper remapper) {
-    this(Opcodes.ASM7, methodVisitor, remapper);
+    this(/* latest api = */ Opcodes.ASM7, methodVisitor, remapper);
   }
 
   /**

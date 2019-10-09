@@ -137,8 +137,7 @@ public class ConstantsTest {
     List<Field> verificationTypeInfoTags = getConstants(ConstantType.VERIFICATION_TYPE_INFO_TAG);
 
     Set<Integer> verificationTypeInfoTagValues =
-        verificationTypeInfoTags
-            .stream()
+        verificationTypeInfoTags.stream()
             .map(ConstantsTest::getIntegerValue)
             .collect(Collectors.toSet());
 
@@ -163,8 +162,7 @@ public class ConstantsTest {
   }
 
   private static List<Field> getConstants(final ConstantType constantType) {
-    return Arrays.asList(Constants.class.getFields())
-        .stream()
+    return Arrays.asList(Constants.class.getFields()).stream()
         .filter(field -> getType(field).equals(constantType))
         .collect(Collectors.toList());
   }
@@ -175,6 +173,7 @@ public class ConstantsTest {
       case "ASM5":
       case "ASM6":
       case "ASM7":
+      case "ASM8_EXPERIMENTAL":
         return ConstantType.ASM_VERSION;
       case "V_PREVIEW":
       case "V1_1":
@@ -217,6 +216,7 @@ public class ConstantsTest {
       case "ACC_MODULE":
         return ConstantType.ACCESS_FLAG;
       case "ACC_DEPRECATED":
+      case "ACC_SEALED":
       case "ACC_CONSTRUCTOR":
         return ConstantType.ASM_ACCESS_FLAG;
       case "T_BOOLEAN":

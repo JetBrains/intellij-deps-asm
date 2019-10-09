@@ -848,7 +848,11 @@ public class GeneratorAdapterTest {
       textifier = new Textifier();
       generatorAdapter =
           new GeneratorAdapter(
-              Opcodes.ASM7, new TraceMethodVisitor(textifier), access, name, descriptor);
+              /* latest */ Opcodes.ASM8_EXPERIMENTAL,
+              new TraceMethodVisitor(textifier),
+              access,
+              name,
+              descriptor);
     }
 
     public String push(final boolean value) {
@@ -1221,9 +1225,7 @@ public class GeneratorAdapterTest {
     @Override
     public String toString() {
       String result =
-          textifier
-              .text
-              .stream()
+          textifier.text.stream()
               .map(text -> text.toString().trim())
               .collect(Collectors.joining(" "));
       textifier.text.clear();

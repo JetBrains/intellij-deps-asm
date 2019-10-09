@@ -111,7 +111,7 @@ public class Textifier extends Printer {
    * @throws IllegalStateException If a subclass calls this constructor.
    */
   public Textifier() {
-    this(Opcodes.ASM7);
+    this(/* latest api = */ Opcodes.ASM7);
     if (getClass() != Textifier.class) {
       throw new IllegalStateException();
     }
@@ -297,6 +297,15 @@ public class Textifier extends Printer {
     stringBuilder.setLength(0);
     stringBuilder.append(tab).append("NESTMEMBER ");
     appendDescriptor(INTERNAL_NAME, nestMember);
+    stringBuilder.append('\n');
+    text.add(stringBuilder.toString());
+  }
+
+  @Override
+  public void visitPermittedSubtypeExperimental(final String permittedSubtype) {
+    stringBuilder.setLength(0);
+    stringBuilder.append(tab).append("PERMITTEDSUBTYPE ");
+    appendDescriptor(INTERNAL_NAME, permittedSubtype);
     stringBuilder.append('\n');
     text.add(stringBuilder.toString());
   }

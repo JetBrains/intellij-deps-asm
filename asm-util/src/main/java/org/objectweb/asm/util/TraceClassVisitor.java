@@ -118,7 +118,7 @@ public final class TraceClassVisitor extends ClassVisitor {
    */
   public TraceClassVisitor(
       final ClassVisitor classVisitor, final Printer printer, final PrintWriter printWriter) {
-    super(Opcodes.ASM7, classVisitor);
+    super(/* latest api = */ Opcodes.ASM8_EXPERIMENTAL, classVisitor);
     this.printWriter = printWriter;
     this.p = printer;
   }
@@ -184,6 +184,12 @@ public final class TraceClassVisitor extends ClassVisitor {
   public void visitNestMember(final String nestMember) {
     p.visitNestMember(nestMember);
     super.visitNestMember(nestMember);
+  }
+
+  @Override
+  public void visitPermittedSubtypeExperimental(final String permittedSubtype) {
+    p.visitPermittedSubtypeExperimental(permittedSubtype);
+    super.visitPermittedSubtypeExperimental(permittedSubtype);
   }
 
   @Override

@@ -177,6 +177,12 @@ public class ClassWriter extends ClassVisitor {
   /** The 'classes' array of the NestMembers attribute, or {@literal null}. */
   private ByteVector nestMemberClasses;
 
+  /** The number_of_classes field of the PermittedSubtypes attribute, or 0. */
+  private int numberOfPermittedSubtypeClasses;
+
+  /** The 'classes' array of the PermittedSubtypes attribute, or {@literal null}. */
+  private ByteVector permittedSubtypeClasses;
+
   /**
    * The first non standard attribute of this class. The next ones can be accessed with the {@link
    * Attribute#nextAttribute} field. May be {@literal null}.
@@ -234,7 +240,7 @@ public class ClassWriter extends ClassVisitor {
    *     maximum stack size nor the stack frames will be computed for these methods</i>.
    */
   public ClassWriter(final ClassReader classReader, final int flags) {
-    super(Opcodes.ASM7);
+    super(/* latest api = */ Opcodes.ASM7);
     symbolTable = classReader == null ? new SymbolTable(this) : new SymbolTable(this, classReader);
     if ((flags & COMPUTE_FRAMES) != 0) {
       this.compute = MethodWriter.COMPUTE_ALL_FRAMES;
@@ -350,6 +356,15 @@ public class ClassWriter extends ClassVisitor {
     }
     ++numberOfNestMemberClasses;
     nestMemberClasses.putShort(symbolTable.addConstantClass(nestMember).index);
+  }
+
+  @Override
+  public final void visitPermittedSubtypeExperimental(final String permittedSubtype) {
+    if (permittedSubtypeClasses == null) {
+      permittedSubtypeClasses = new ByteVector();
+    }
+    ++numberOfPermittedSubtypeClasses;
+    permittedSubtypeClasses.putShort(symbolTable.addConstantClass(permittedSubtype).index);
   }
 
   @Override
@@ -526,6 +541,11 @@ public class ClassWriter extends ClassVisitor {
       size += 8 + nestMemberClasses.length;
       symbolTable.addConstantUtf8(Constants.NEST_MEMBERS);
     }
+    if (permittedSubtypeClasses != null) {
+      ++attributesCount;
+      size += 8 + permittedSubtypeClasses.length;
+      symbolTable.addConstantUtf8(Constants.PERMITTED_SUBTYPES);
+    }
     if (firstAttribute != null) {
       attributesCount += firstAttribute.getAttributeCount();
       size += firstAttribute.computeAttributesSize(symbolTable);
@@ -630,6 +650,13 @@ public class ClassWriter extends ClassVisitor {
           .putShort(numberOfNestMemberClasses)
           .putByteArray(nestMemberClasses.data, 0, nestMemberClasses.length);
     }
+    if (permittedSubtypeClasses != null) {
+      result
+          .putShort(symbolTable.addConstantUtf8(Constants.PERMITTED_SUBTYPES))
+          .putInt(permittedSubtypeClasses.length + 2)
+          .putShort(numberOfPermittedSubtypeClasses)
+          .putByteArray(permittedSubtypeClasses.data, 0, permittedSubtypeClasses.length);
+    }
     if (firstAttribute != null) {
       firstAttribute.putAttributes(symbolTable, result);
     }
@@ -666,6 +693,8 @@ public class ClassWriter extends ClassVisitor {
     nestHostClassIndex = 0;
     numberOfNestMemberClasses = 0;
     nestMemberClasses = null;
+    numberOfPermittedSubtypeClasses = 0;
+    permittedSubtypeClasses = null;
     firstAttribute = null;
     compute = hasFrames ? MethodWriter.COMPUTE_INSERTED_FRAMES : MethodWriter.COMPUTE_NOTHING;
     new ClassReader(classFile, 0, /* checkClassVersion = */ false)

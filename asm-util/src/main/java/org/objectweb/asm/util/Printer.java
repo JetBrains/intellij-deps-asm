@@ -453,6 +453,19 @@ public abstract class Printer {
   }
 
   /**
+   * <b>Experimental, use at your own risk. This method will be renamed when it becomes stable, this
+   * will break existing code using it</b>. Visits a permitted subtypes. A permitted subtypes is one
+   * of the allowed subtypes of the current class.
+   *
+   * @param permittedSubtype the internal name of a permitted subtype.
+   * @deprecated this API is experimental.
+   */
+  @Deprecated
+  public void visitPermittedSubtypeExperimental(final String permittedSubtype) {
+    throw new UnsupportedOperationException(UNSUPPORTED_OPERATION);
+  }
+
+  /**
    * Class inner name. See {@link org.objectweb.asm.ClassVisitor#visitInnerClass}.
    *
    * @param name the internal name of an inner class (see {@link

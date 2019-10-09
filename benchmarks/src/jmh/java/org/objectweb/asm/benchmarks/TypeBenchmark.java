@@ -88,7 +88,7 @@ public class TypeBenchmark extends AbstractBenchmark {
         };
 
     CollectTypesVisitor() {
-      super(Opcodes.ASM7);
+      super(/* latest */ Opcodes.ASM8_EXPERIMENTAL);
     }
 
     @Override

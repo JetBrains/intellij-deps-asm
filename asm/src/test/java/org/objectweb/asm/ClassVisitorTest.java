@@ -250,7 +250,7 @@ public class ClassVisitorTest extends AsmTest {
     ClassReader classReader = new ClassReader(classFile);
     ClassWriter classWriter = new ClassWriter(0);
     ClassVisitor classVisitor =
-        new ClassVisitor(Opcodes.ASM7, classWriter) {
+        new ClassVisitor(/* latest */ Opcodes.ASM8_EXPERIMENTAL, classWriter) {
 
           @Override
           public ModuleVisitor visitModule(
@@ -454,7 +454,7 @@ public class ClassVisitorTest extends AsmTest {
   private static class ChangeExceptionAdapter extends ClassVisitor {
 
     ChangeExceptionAdapter(final ClassVisitor classVisitor) {
-      super(Opcodes.ASM7, classVisitor);
+      super(/* latest */ Opcodes.ASM8_EXPERIMENTAL, classVisitor);
     }
 
     @Override
@@ -476,7 +476,7 @@ public class ClassVisitorTest extends AsmTest {
     private final int newVersion;
 
     ChangeVersionAdapter(final ClassVisitor classVisitor, final int newVersion) {
-      super(Opcodes.ASM7, classVisitor);
+      super(/* latest */ Opcodes.ASM8_EXPERIMENTAL, classVisitor);
       this.newVersion = newVersion;
     }
 
@@ -497,7 +497,7 @@ public class ClassVisitorTest extends AsmTest {
     private final int accessFlags;
 
     ChangeAccessAdapter(final ClassVisitor classVisitor, final int accessFlags) {
-      super(Opcodes.ASM7, classVisitor);
+      super(/* latest */ Opcodes.ASM8_EXPERIMENTAL, classVisitor);
       this.accessFlags = accessFlags;
     }
 
@@ -518,7 +518,7 @@ public class ClassVisitorTest extends AsmTest {
     private final boolean visibilityValue;
 
     RemoveAnnotationAdapter(final ClassVisitor classVisitor, final boolean visibilityValue) {
-      super(Opcodes.ASM7, classVisitor);
+      super(/* latest */ Opcodes.ASM8_EXPERIMENTAL, classVisitor);
       this.visibilityValue = visibilityValue;
     }
 
@@ -659,7 +659,7 @@ public class ClassVisitorTest extends AsmTest {
   private static class AddParameterAdapter extends ClassVisitor {
 
     public AddParameterAdapter(final ClassVisitor classVisitor) {
-      super(Opcodes.ASM7, classVisitor);
+      super(/* latest */ Opcodes.ASM8_EXPERIMENTAL, classVisitor);
     }
 
     @Override

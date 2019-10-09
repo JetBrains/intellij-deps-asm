@@ -557,8 +557,8 @@ public class AdviceAdapterTest extends AsmTest {
     MethodNode outputMethod = new MethodNode(Opcodes.ACC_PUBLIC, "<init>", "(I)V", null, null);
     AdviceAdapter adviceAdapter =
         new AdviceAdapter(
-            Opcodes.ASM7,
-            new MethodVisitor(Opcodes.ASM7, outputMethod) {},
+            /* latest */ Opcodes.ASM8_EXPERIMENTAL,
+            new MethodVisitor(/* latest */ Opcodes.ASM8_EXPERIMENTAL, outputMethod) {},
             Opcodes.ACC_PUBLIC,
             "<init>",
             "()V") {
@@ -616,7 +616,12 @@ public class AdviceAdapterTest extends AsmTest {
   private static class BasicAdviceAdapter extends AdviceAdapter {
 
     BasicAdviceAdapter(final MethodVisitor methodVisitor) {
-      super(Opcodes.ASM7, methodVisitor, Opcodes.ACC_PUBLIC, "<init>", "(I)V");
+      super(
+          /* latest */ Opcodes.ASM8_EXPERIMENTAL,
+          methodVisitor,
+          Opcodes.ACC_PUBLIC,
+          "<init>",
+          "(I)V");
     }
 
     @Override

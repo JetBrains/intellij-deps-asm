@@ -52,7 +52,7 @@ public class CheckFieldAdapter extends FieldVisitor {
    * @throws IllegalStateException If a subclass calls this constructor.
    */
   public CheckFieldAdapter(final FieldVisitor fieldVisitor) {
-    this(Opcodes.ASM7, fieldVisitor);
+    this(/* latest api = */ Opcodes.ASM7, fieldVisitor);
     if (getClass() != CheckFieldAdapter.class) {
       throw new IllegalStateException();
     }

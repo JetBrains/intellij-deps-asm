@@ -404,7 +404,7 @@ public class CheckClassAdapterTest extends AsmTest implements Opcodes {
       final PrecompiledClass classParameter, final Api apiParameter) {
     byte[] classFile = classParameter.getBytes();
     ClassReader classReader = new ClassReader(classFile);
-    ClassVisitor classVisitor = new CheckClassAdapter(null);
+    ClassVisitor classVisitor = new CheckClassAdapter(apiParameter.value(), null, true) {};
 
     Executable accept = () -> classReader.accept(classVisitor, attributes(), 0);
 
@@ -417,7 +417,11 @@ public class CheckClassAdapterTest extends AsmTest implements Opcodes {
       final PrecompiledClass classParameter, final Api apiParameter) {
     byte[] classFile = classParameter.getBytes();
     ClassReader classReader = new ClassReader(classFile);
-    ClassVisitor classVisitor = new CheckClassAdapter(new ClassVisitor(Opcodes.ASM7, null) {});
+    ClassVisitor classVisitor =
+        new CheckClassAdapter(
+            apiParameter.value(),
+            new ClassVisitor(/* latest */ Opcodes.ASM8_EXPERIMENTAL, null) {},
+            true) {};
 
     Executable accept = () -> classReader.accept(classVisitor, attributes(), 0);
 

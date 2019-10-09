@@ -222,6 +222,9 @@ public class ClassNodeTest extends AsmTest {
     public void visitNestMember(final String nestMember) {}
 
     @Override
+    public void visitPermittedSubtypeExperimental(final String permittedSubtype) {}
+
+    @Override
     public void visitAttribute(final Attribute attribute) {}
   }
 }

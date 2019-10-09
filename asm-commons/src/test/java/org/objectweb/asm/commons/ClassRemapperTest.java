@@ -149,7 +149,7 @@ public class ClassRemapperTest extends AsmTest {
     ClassNode classNode = new ClassNode();
     ClassRemapper classRemapper =
         new ClassRemapper(
-            Opcodes.ASM7,
+            /* latest */ Opcodes.ASM8_EXPERIMENTAL,
             classNode,
             new Remapper() {
               @Override

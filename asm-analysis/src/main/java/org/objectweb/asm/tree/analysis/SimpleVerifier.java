@@ -93,7 +93,12 @@ public class SimpleVerifier extends BasicVerifier {
       final Type currentSuperClass,
       final List<Type> currentClassInterfaces,
       final boolean isInterface) {
-    this(ASM7, currentClass, currentSuperClass, currentClassInterfaces, isInterface);
+    this(
+        /* latest api = */ ASM7,
+        currentClass,
+        currentSuperClass,
+        currentClassInterfaces,
+        isInterface);
     if (getClass() != SimpleVerifier.class) {
       throw new IllegalStateException();
     }

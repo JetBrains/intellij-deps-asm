@@ -122,7 +122,8 @@ public class SerialVersionUidAdderTest extends AsmTest {
     ClassReader classReader = new ClassReader(classParameter.getBytes());
     ClassWriter classWriter = new ClassWriter(0);
 
-    classReader.accept(new SerialVersionUIDAdder(classWriter), 0);
+    classReader.accept(
+        new SerialVersionUIDAdder(/* latest */ Opcodes.ASM8_EXPERIMENTAL, classWriter), 0);
 
     if ((classReader.getAccess() & Opcodes.ACC_ENUM) == 0) {
       assertTrue(new ClassFile(classWriter.toByteArray()).toString().contains("serialVersionUID"));

@@ -1,0 +1,14 @@
+// class version 58.65535 (-65478)
+// access flags 0x601
+public abstract interface jdk14/AllStructures {
+
+  // compiled from: AllStructures.java
+  NESTMEMBER jdk14/AllStructures$RecordSubType
+  NESTMEMBER jdk14/AllStructures$ClassSubType
+  PERMITTEDSUBTYPE jdk14/AllStructures$RecordSubType
+  PERMITTEDSUBTYPE jdk14/AllStructures$ClassSubType
+  // access flags 0x19
+  public final static INNERCLASS jdk14/AllStructures$RecordSubType jdk14/AllStructures RecordSubType
+  // access flags 0x19
+  public final static INNERCLASS jdk14/AllStructures$ClassSubType jdk14/AllStructures ClassSubType
+}

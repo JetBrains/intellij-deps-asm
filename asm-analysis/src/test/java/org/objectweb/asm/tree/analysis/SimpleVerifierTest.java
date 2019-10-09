@@ -81,7 +81,12 @@ public class SimpleVerifierTest {
     Type superType = Type.getObjectType("D");
     Type interfaceType = Type.getObjectType("I");
     SimpleVerifier simpleVerifier =
-        new SimpleVerifier(Opcodes.ASM7, baseType, superType, Arrays.asList(interfaceType), false) {
+        new SimpleVerifier(
+            /* latest */ Opcodes.ASM8_EXPERIMENTAL,
+            baseType,
+            superType,
+            Arrays.asList(interfaceType),
+            false) {
 
           @Override
           public boolean isAssignableFrom(final Type type1, final Type type2) {
@@ -114,7 +119,8 @@ public class SimpleVerifierTest {
     Type baseType = Type.getObjectType("C");
     Type interfaceType = Type.getObjectType("I");
     SimpleVerifier simpleVerifier =
-        new SimpleVerifier(Opcodes.ASM7, interfaceType, null, null, true) {
+        new SimpleVerifier(
+            /* latest */ Opcodes.ASM8_EXPERIMENTAL, interfaceType, null, null, true) {
 
           @Override
           protected Type getSuperClass(final Type type) {

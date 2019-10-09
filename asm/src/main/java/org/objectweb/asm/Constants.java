@@ -27,6 +27,10 @@
 // THE POSSIBILITY OF SUCH DAMAGE.
 package org.objectweb.asm;
 
+import java.io.DataInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+
 /**
  * Defines additional JVM opcodes, access flags and constants which are not part of the ASM public
  * API.
@@ -68,6 +72,7 @@ final class Constants implements Opcodes {
   static final String MODULE_MAIN_CLASS = "ModuleMainClass";
   static final String NEST_HOST = "NestHost";
   static final String NEST_MEMBERS = "NestMembers";
+  static final String PERMITTED_SUBTYPES = "PermittedSubtypes";
 
   // ASM specific access flags.
   // WARNING: the 16 least significant bits must NOT be used, to avoid conflicts with standard
@@ -174,4 +179,27 @@ final class Constants implements Opcodes {
   static final int ASM_GOTO_W = 220;
 
   private Constants() {}
+
+  static void checkAsm8Experimental(final Object caller) {
+    Class<?> callerClass = caller.getClass();
+    if (callerClass.getName().startsWith("org.objectweb.asm.")) {
+      return;
+    }
+    String callerClassResource = callerClass.getName().replace('.', '/') + ".class";
+    InputStream inputStream = callerClass.getClassLoader().getResourceAsStream(callerClassResource);
+    if (inputStream == null) {
+      throw new IllegalStateException("Bytecode not available, can't check class version");
+    }
+    int minorVersion;
+    try (DataInputStream callerClassStream = new DataInputStream(inputStream); ) {
+      callerClassStream.readInt();
+      minorVersion = callerClassStream.readUnsignedShort();
+    } catch (IOException ioe) {
+      throw new IllegalStateException("i/O error, can't check class version", ioe);
+    }
+    if (minorVersion != 0xFFFF) {
+      throw new IllegalStateException(
+          "ASM8_EXPERIMENTAL can only be used by classes compiled with --enable-preview");
+    }
+  }
 }

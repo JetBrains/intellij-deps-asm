@@ -169,6 +169,7 @@ project(':tools:retrofitter') {
 // and tested with :asm-test and JUnit.
 subprojects {
   apply plugin: 'com.github.sherter.google-java-format'
+  googleJavaFormat.toolVersion = '1.7'
   googleJavaFormat.exclude 'src/resources/java/**/*'
   
   // Check the coding style with Checkstyle. Fail in case of error or warning.

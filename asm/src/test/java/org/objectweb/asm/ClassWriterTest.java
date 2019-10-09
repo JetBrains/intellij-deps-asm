@@ -105,6 +105,8 @@ public class ClassWriterTest extends AsmTest {
                 "nestHostClassIndex",
                 "numberOfNestMemberClasses",
                 "nestMemberClasses",
+                "numberOfPermittedSubtypeClasses",
+                "permittedSubtypeClasses",
                 "firstAttribute",
                 "compute"));
     // IMPORTANT: if this fails, update the string list AND update the logic that resets the

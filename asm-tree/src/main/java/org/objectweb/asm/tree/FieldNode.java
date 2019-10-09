@@ -99,7 +99,7 @@ public class FieldNode extends FieldVisitor {
       final String descriptor,
       final String signature,
       final Object value) {
-    this(Opcodes.ASM7, access, name, descriptor, signature, value);
+    this(/* latest api = */ Opcodes.ASM7, access, name, descriptor, signature, value);
     if (getClass() != FieldNode.class) {
       throw new IllegalStateException();
     }

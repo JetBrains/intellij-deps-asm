@@ -51,7 +51,7 @@ public class SourceInterpreter extends Interpreter<SourceValue> implements Opcod
    * version.
    */
   public SourceInterpreter() {
-    super(ASM7);
+    super(/* latest api = */ ASM7);
     if (getClass() != SourceInterpreter.class) {
       throw new IllegalStateException();
     }

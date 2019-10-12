@@ -38,11 +38,15 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.Executable;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.objectweb.asm.AnnotationVisitor;
 import org.objectweb.asm.ClassReader;
+import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.ConstantDynamic;
+import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.Handle;
 import org.objectweb.asm.MethodVisitor;
+import org.objectweb.asm.ModuleVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.test.AsmTest;
@@ -149,7 +153,7 @@ public class ClassRemapperTest extends AsmTest {
     ClassNode classNode = new ClassNode();
     ClassRemapper classRemapper =
         new ClassRemapper(
-            /* latest */ Opcodes.ASM8_EXPERIMENTAL,
+            Opcodes.ASM7,
             classNode,
             new Remapper() {
               @Override
@@ -194,7 +198,7 @@ public class ClassRemapperTest extends AsmTest {
     ClassWriter classWriter = new ClassWriter(0);
     UpperCaseRemapper upperCaseRemapper = new UpperCaseRemapper(classParameter.getInternalName());
     ClassRemapper classRemapper =
-        new ClassRemapper(apiParameter.value(), classWriter, upperCaseRemapper);
+        newClassRemapper(apiParameter.value(), classWriter, upperCaseRemapper);
 
     Executable accept = () -> classReader.accept(classRemapper, 0);
 
@@ -225,7 +229,7 @@ public class ClassRemapperTest extends AsmTest {
     ClassWriter classWriter = new ClassWriter(0);
     UpperCaseRemapper upperCaseRemapper = new UpperCaseRemapper(classParameter.getInternalName());
     ClassRemapper classRemapper =
-        new ClassRemapper(apiParameter.value(), classWriter, upperCaseRemapper);
+        newClassRemapper(apiParameter.value(), classWriter, upperCaseRemapper);
 
     Executable accept = () -> classNode.accept(classRemapper);
 
@@ -254,6 +258,69 @@ public class ClassRemapperTest extends AsmTest {
     checkMethodAdapter.version = Opcodes.V1_5;
     checkMethodAdapter.visitCode();
     checkMethodAdapter.visitFieldInsn(Opcodes.GETFIELD, internalName, "name", "I");
+  }
+
+  ClassRemapper newClassRemapper(
+      final int api, final ClassVisitor classVisitor, final Remapper remapper) {
+    // TODO: remove this test and the associated classes when no longer experimental.
+    if (api == Opcodes.ASM8_EXPERIMENTAL) {
+      return new ClassRemapperExperimental(classVisitor, remapper);
+    }
+    return new ClassRemapper(api, classVisitor, remapper);
+  }
+
+  static class ClassRemapperExperimental extends ClassRemapper {
+
+    ClassRemapperExperimental(final ClassVisitor classVisitor, final Remapper remapper) {
+      super(Opcodes.ASM8_EXPERIMENTAL, classVisitor, remapper);
+    }
+
+    @Override
+    protected FieldVisitor createFieldRemapper(final FieldVisitor fieldVisitor) {
+      return new FieldRemapper(api, fieldVisitor, remapper) {
+        @Override
+        protected AnnotationVisitor createAnnotationRemapper(
+            final AnnotationVisitor annotationVisitor) {
+          return new AnnotationRemapperExperimental(annotationVisitor, remapper);
+        }
+      };
+    }
+
+    @Override
+    protected MethodVisitor createMethodRemapper(final MethodVisitor methodVisitor) {
+      return new MethodRemapper(api, methodVisitor, remapper) {
+        @Override
+        protected AnnotationVisitor createAnnotationRemapper(
+            final AnnotationVisitor annotationVisitor) {
+          return new AnnotationRemapperExperimental(annotationVisitor, remapper);
+        }
+      };
+    }
+
+    @Override
+    protected AnnotationVisitor createAnnotationRemapper(
+        final AnnotationVisitor annotationVisitor) {
+      return new AnnotationRemapperExperimental(annotationVisitor, remapper);
+    }
+
+    @Override
+    protected ModuleVisitor createModuleRemapper(final ModuleVisitor moduleVisitor) {
+      return new ModuleRemapper(api, moduleVisitor, remapper) {};
+    }
+  }
+
+  static class AnnotationRemapperExperimental extends AnnotationRemapper {
+
+    AnnotationRemapperExperimental(
+        final AnnotationVisitor annotationVisitor, final Remapper remapper) {
+      super(Opcodes.ASM8_EXPERIMENTAL, annotationVisitor, remapper);
+    }
+
+    @Override
+    protected AnnotationVisitor createAnnotationRemapper(
+        final AnnotationVisitor annotationVisitor) {
+      return new AnnotationRemapperExperimental(annotationVisitor, remapper);
+    }
   }
 
   static class UpperCaseRemapper extends Remapper {

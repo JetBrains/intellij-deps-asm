@@ -184,6 +184,20 @@ public class ClassWriter extends ClassVisitor {
   private ByteVector permittedSubtypeClasses;
 
   /**
+   * The record components of this class, stored in a linked list of {@link RecordComponentWriter}
+   * linked via their {@link RecordComponentWriter#delegate} field. This field stores the first
+   * element of this list.
+   */
+  private RecordComponentWriter firstRecordComponent;
+
+  /**
+   * The record components of this class, stored in a linked list of {@link RecordComponentWriter}
+   * linked via their {@link RecordComponentWriter#delegate} field. This field stores the last
+   * element of this list.
+   */
+  private RecordComponentWriter lastRecordComponent;
+
+  /**
    * The first non standard attribute of this class. The next ones can be accessed with the {@link
    * Attribute#nextAttribute} field. May be {@literal null}.
    *
@@ -393,6 +407,19 @@ public class ClassWriter extends ClassVisitor {
   }
 
   @Override
+  public final RecordComponentVisitor visitRecordComponentExperimental(
+      final int access, final String name, final String descriptor, final String signature) {
+    RecordComponentWriter recordComponentWriter =
+        new RecordComponentWriter(symbolTable, access, name, descriptor, signature);
+    if (firstRecordComponent == null) {
+      firstRecordComponent = recordComponentWriter;
+    } else {
+      lastRecordComponent.delegate = recordComponentWriter;
+    }
+    return lastRecordComponent = recordComponentWriter;
+  }
+
+  @Override
   public final FieldVisitor visitField(
       final int access,
       final String name,
@@ -462,6 +489,7 @@ public class ClassWriter extends ClassVisitor {
       size += methodWriter.computeMethodInfoSize();
       methodWriter = (MethodWriter) methodWriter.mv;
     }
+
     // For ease of reference, we use here the same attribute order as in Section 4.7 of the JVMS.
     int attributesCount = 0;
     if (innerClasses != null) {
@@ -545,6 +573,19 @@ public class ClassWriter extends ClassVisitor {
       ++attributesCount;
       size += 8 + permittedSubtypeClasses.length;
       symbolTable.addConstantUtf8(Constants.PERMITTED_SUBTYPES);
+    }
+    int recordComponentCount = 0;
+    int recordSize = 0;
+    if (firstRecordComponent != null) {
+      RecordComponentWriter recordComponentWriter = firstRecordComponent;
+      while (recordComponentWriter != null) {
+        ++recordComponentCount;
+        recordSize += recordComponentWriter.computeRecordComponentInfoSize();
+        recordComponentWriter = (RecordComponentWriter) recordComponentWriter.delegate;
+      }
+      ++attributesCount;
+      size += 8 + recordSize;
+      symbolTable.addConstantUtf8(Constants.RECORD);
     }
     if (firstAttribute != null) {
       attributesCount += firstAttribute.getAttributeCount();
@@ -657,6 +698,17 @@ public class ClassWriter extends ClassVisitor {
           .putShort(numberOfPermittedSubtypeClasses)
           .putByteArray(permittedSubtypeClasses.data, 0, permittedSubtypeClasses.length);
     }
+    if (firstRecordComponent != null) {
+      result
+          .putShort(symbolTable.addConstantUtf8(Constants.RECORD))
+          .putInt(recordSize + 2)
+          .putShort(recordComponentCount);
+      RecordComponentWriter recordComponentWriter = firstRecordComponent;
+      while (recordComponentWriter != null) {
+        recordComponentWriter.putRecordComponentInfo(result);
+        recordComponentWriter = (RecordComponentWriter) recordComponentWriter.delegate;
+      }
+    }
     if (firstAttribute != null) {
       firstAttribute.putAttributes(symbolTable, result);
     }
@@ -695,6 +747,8 @@ public class ClassWriter extends ClassVisitor {
     nestMemberClasses = null;
     numberOfPermittedSubtypeClasses = 0;
     permittedSubtypeClasses = null;
+    firstRecordComponent = null;
+    lastRecordComponent = null;
     firstAttribute = null;
     compute = hasFrames ? MethodWriter.COMPUTE_INSERTED_FRAMES : MethodWriter.COMPUTE_NOTHING;
     new ClassReader(classFile, 0, /* checkClassVersion = */ false)
@@ -722,6 +776,11 @@ public class ClassWriter extends ClassVisitor {
     while (methodWriter != null) {
       methodWriter.collectAttributePrototypes(attributePrototypes);
       methodWriter = (MethodWriter) methodWriter.mv;
+    }
+    RecordComponentWriter recordComponentWriter = firstRecordComponent;
+    while (recordComponentWriter != null) {
+      recordComponentWriter.collectAttributePrototypes(attributePrototypes);
+      recordComponentWriter = (RecordComponentWriter) recordComponentWriter.delegate;
     }
     return attributePrototypes.toArray();
   }

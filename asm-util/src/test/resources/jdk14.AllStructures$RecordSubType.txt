@@ -1,0 +1,123 @@
+// class version 58.65535 (-65478)
+// access flags 0x31
+public final class jdk14/AllStructures$RecordSubType extends java/lang/Record implements jdk14/AllStructures {
+
+  // compiled from: AllStructures.java
+  NESTHOST jdk14/AllStructures
+  // access flags 0x19
+  public final static INNERCLASS jdk14/AllStructures$RecordSubType jdk14/AllStructures RecordSubType
+  // access flags 0x19
+  public final static INNERCLASS java/lang/invoke/MethodHandles$Lookup java/lang/invoke/MethodHandles Lookup
+
+  // access flags 0x0
+  I component1
+  @Ljdk14/Ann;() // invisible
+
+  // access flags 0x0
+  Ljava/lang/String; component2
+
+  // access flags 0x8012
+  private final mandated I component1
+
+  // access flags 0x8012
+  private final mandated Ljava/lang/String; component2
+
+  // access flags 0x1
+  public <init>(ILjava/lang/String;)V
+    // parameter mandated  component1
+    // parameter mandated  component2
+   L0
+    LINENUMBER 9 L0
+    ALOAD 0
+    INVOKESPECIAL java/lang/Record.<init> ()V
+    ALOAD 0
+    ILOAD 1
+    PUTFIELD jdk14/AllStructures$RecordSubType.component1 : I
+    ALOAD 0
+    ALOAD 2
+    PUTFIELD jdk14/AllStructures$RecordSubType.component2 : Ljava/lang/String;
+    RETURN
+    MAXSTACK = 2
+    MAXLOCALS = 3
+
+  // access flags 0x8001
+  public mandated toString()Ljava/lang/String;
+   L0
+    LINENUMBER 9 L0
+    ALOAD 0
+    INVOKEDYNAMIC toString(Ljdk14/AllStructures$RecordSubType;)Ljava/lang/String; [
+      // handle kind 0x6 : INVOKESTATIC
+      java/lang/invoke/ObjectMethodBuilders.bootstrap(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/TypeDescriptor;Ljava/lang/Class;Ljava/lang/String;[Ljava/lang/invoke/MethodHandle;)Ljava/lang/Object;
+      // arguments:
+      jdk14.AllStructures$RecordSubType.class, 
+      "component1;component2", 
+      // handle kind 0x1 : GETFIELD
+      jdk14/AllStructures$RecordSubType.component1(I), 
+      // handle kind 0x1 : GETFIELD
+      jdk14/AllStructures$RecordSubType.component2(Ljava/lang/String;)
+    ]
+    ARETURN
+    MAXSTACK = 1
+    MAXLOCALS = 1
+
+  // access flags 0x8011
+  public final mandated hashCode()I
+   L0
+    LINENUMBER 9 L0
+    ALOAD 0
+    INVOKEDYNAMIC hashCode(Ljdk14/AllStructures$RecordSubType;)I [
+      // handle kind 0x6 : INVOKESTATIC
+      java/lang/invoke/ObjectMethodBuilders.bootstrap(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/TypeDescriptor;Ljava/lang/Class;Ljava/lang/String;[Ljava/lang/invoke/MethodHandle;)Ljava/lang/Object;
+      // arguments:
+      jdk14.AllStructures$RecordSubType.class, 
+      "component1;component2", 
+      // handle kind 0x1 : GETFIELD
+      jdk14/AllStructures$RecordSubType.component1(I), 
+      // handle kind 0x1 : GETFIELD
+      jdk14/AllStructures$RecordSubType.component2(Ljava/lang/String;)
+    ]
+    IRETURN
+    MAXSTACK = 1
+    MAXLOCALS = 1
+
+  // access flags 0x8011
+  public final mandated equals(Ljava/lang/Object;)Z
+   L0
+    LINENUMBER 9 L0
+    ALOAD 0
+    ALOAD 1
+    INVOKEDYNAMIC equals(Ljdk14/AllStructures$RecordSubType;Ljava/lang/Object;)Z [
+      // handle kind 0x6 : INVOKESTATIC
+      java/lang/invoke/ObjectMethodBuilders.bootstrap(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/TypeDescriptor;Ljava/lang/Class;Ljava/lang/String;[Ljava/lang/invoke/MethodHandle;)Ljava/lang/Object;
+      // arguments:
+      jdk14.AllStructures$RecordSubType.class, 
+      "component1;component2", 
+      // handle kind 0x1 : GETFIELD
+      jdk14/AllStructures$RecordSubType.component1(I), 
+      // handle kind 0x1 : GETFIELD
+      jdk14/AllStructures$RecordSubType.component2(Ljava/lang/String;)
+    ]
+    IRETURN
+    MAXSTACK = 2
+    MAXLOCALS = 2
+
+  // access flags 0x8001
+  public mandated component1()I
+   L0
+    LINENUMBER 9 L0
+    ALOAD 0
+    GETFIELD jdk14/AllStructures$RecordSubType.component1 : I
+    IRETURN
+    MAXSTACK = 1
+    MAXLOCALS = 1
+
+  // access flags 0x8001
+  public mandated component2()Ljava/lang/String;
+   L0
+    LINENUMBER 9 L0
+    ALOAD 0
+    GETFIELD jdk14/AllStructures$RecordSubType.component2 : Ljava/lang/String;
+    ARETURN
+    MAXSTACK = 1
+    MAXLOCALS = 1
+}

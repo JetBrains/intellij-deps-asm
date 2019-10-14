@@ -205,12 +205,14 @@ public class ASMifier extends Printer {
     text.add("import org.objectweb.asm.Label;\n");
     text.add("import org.objectweb.asm.MethodVisitor;\n");
     text.add("import org.objectweb.asm.Opcodes;\n");
+    text.add("import org.objectweb.asm.RecordComponentVisitor;\n");
     text.add("import org.objectweb.asm.Type;\n");
     text.add("import org.objectweb.asm.TypePath;\n");
     text.add("public class " + simpleName + "Dump implements Opcodes {\n\n");
     text.add("public static byte[] dump () throws Exception {\n\n");
     text.add("ClassWriter classWriter = new ClassWriter(0);\n");
     text.add("FieldVisitor fieldVisitor;\n");
+    text.add("RecordComponentVisitor recordComponentVisitor;\n");
     text.add("MethodVisitor methodVisitor;\n");
     text.add("AnnotationVisitor annotationVisitor0;\n\n");
 
@@ -343,6 +345,27 @@ public class ASMifier extends Printer {
     appendAccessFlags(access | ACCESS_INNER);
     stringBuilder.append(END_PARAMETERS);
     text.add(stringBuilder.toString());
+  }
+
+  @Override
+  public ASMifier visitRecordComponentExperimental(
+      final int access, final String name, final String descriptor, final String signature) {
+    stringBuilder.setLength(0);
+    stringBuilder.append("{\n");
+    stringBuilder.append("recordComponentVisitor = classWriter.visitRecordComponentExperimental(");
+    appendAccessFlags(access | ACCESS_FIELD);
+    stringBuilder.append(", ");
+    appendConstant(name);
+    stringBuilder.append(", ");
+    appendConstant(descriptor);
+    stringBuilder.append(", ");
+    appendConstant(signature);
+    stringBuilder.append(");\n");
+    text.add(stringBuilder.toString());
+    ASMifier asmifier = createASMifier("recordComponentVisitor", 0);
+    text.add(asmifier.getText());
+    text.add("}\n");
+    return asmifier;
   }
 
   @Override
@@ -579,6 +602,66 @@ public class ASMifier extends Printer {
   public void visitAnnotationEnd() {
     stringBuilder.setLength(0);
     stringBuilder.append(ANNOTATION_VISITOR).append(id).append(VISIT_END);
+    text.add(stringBuilder.toString());
+  }
+
+  // -----------------------------------------------------------------------------------------------
+  // Record components
+  // -----------------------------------------------------------------------------------------------
+
+  @Override
+  public ASMifier visitRecordComponentAnnotationExperimental(
+      final String descriptor, final boolean visible) {
+    // TODO Use this call when not experimental anymore
+    // return visitAnnotation(descriptor, visible);
+    stringBuilder.setLength(0);
+    stringBuilder
+        .append("{\n")
+        .append(ANNOTATION_VISITOR0)
+        .append(name)
+        .append(".visitAnnotationExperimental(");
+    appendConstant(descriptor);
+    stringBuilder.append(", ").append(visible).append(");\n");
+    text.add(stringBuilder.toString());
+    ASMifier asmifier = createASMifier(ANNOTATION_VISITOR, 0);
+    text.add(asmifier.getText());
+    text.add("}\n");
+    return asmifier;
+  }
+
+  @Override
+  public ASMifier visitRecordComponentTypeAnnotationExperimental(
+      final int typeRef, final TypePath typePath, final String descriptor, final boolean visible) {
+    // TODO Use this call when not experimental anymore
+    // return visitTypeAnnotation(typeRef, typePath, descriptor, visible);
+    return visitTypeAnnotation(
+        "visitTypeAnnotationExperimental", typeRef, typePath, descriptor, visible);
+  }
+
+  @Override
+  public void visitRecordComponentAttributeExperimental(final Attribute attribute) {
+    // TODO Use this call when not experimental anymore
+    // visitAttribute(attribute);
+    stringBuilder.setLength(0);
+    stringBuilder.append("// ATTRIBUTE ").append(attribute.type).append('\n');
+    if (attribute instanceof ASMifierSupport) {
+      if (labelNames == null) {
+        labelNames = new HashMap<>();
+      }
+      stringBuilder.append("{\n");
+      ((ASMifierSupport) attribute).asmify(stringBuilder, "attribute", labelNames);
+      stringBuilder.append(name).append(".visitAttributeExperimental(attribute);\n");
+      stringBuilder.append("}\n");
+    }
+    text.add(stringBuilder.toString());
+  }
+
+  @Override
+  public void visitRecordComponentEndExperimental() {
+    stringBuilder.setLength(0);
+    // TODO Use this call when not experimental anymore
+    // stringBuilder.append(name).append(VISIT_END);
+    stringBuilder.append(name).append(".visitEndExperimental();\n");
     text.add(stringBuilder.toString());
   }
 

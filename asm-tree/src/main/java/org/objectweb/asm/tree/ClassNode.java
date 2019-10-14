@@ -36,6 +36,7 @@ import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.ModuleVisitor;
 import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.RecordComponentVisitor;
 import org.objectweb.asm.TypePath;
 
 /**
@@ -134,6 +135,13 @@ public class ClassNode extends ClassVisitor {
    * @deprecated this API is experimental.
    */
   @Deprecated public List<String> permittedSubtypesExperimental;
+
+  /**
+   * The record components of this class. May be {@literal null}.
+   *
+   * @deprecated this API is experimental.
+   */
+  @Deprecated public List<RecordComponentNode> recordComponentsExperimental;
 
   /** The fields of this class. */
   public List<FieldNode> fields;
@@ -258,6 +266,15 @@ public class ClassNode extends ClassVisitor {
   }
 
   @Override
+  public RecordComponentVisitor visitRecordComponentExperimental(
+      final int access, final String name, final String descriptor, final String signature) {
+    RecordComponentNode recordComponent =
+        new RecordComponentNode(access, name, descriptor, signature);
+    recordComponentsExperimental = Util.add(recordComponentsExperimental, recordComponent);
+    return recordComponent;
+  }
+
+  @Override
   public FieldVisitor visitField(
       final int access,
       final String name,
@@ -302,6 +319,9 @@ public class ClassNode extends ClassVisitor {
     if (api != Opcodes.ASM8_EXPERIMENTAL && permittedSubtypesExperimental != null) {
       throw new UnsupportedClassVersionException();
     }
+    if (api != Opcodes.ASM8_EXPERIMENTAL && recordComponentsExperimental != null) {
+      throw new UnsupportedClassVersionException();
+    }
     if (api < Opcodes.ASM7 && (nestHostClass != null || nestMembers != null)) {
       throw new UnsupportedClassVersionException();
     }
@@ -335,6 +355,11 @@ public class ClassNode extends ClassVisitor {
     if (invisibleTypeAnnotations != null) {
       for (int i = invisibleTypeAnnotations.size() - 1; i >= 0; --i) {
         invisibleTypeAnnotations.get(i).check(api);
+      }
+    }
+    if (recordComponentsExperimental != null) {
+      for (int i = recordComponentsExperimental.size() - 1; i >= 0; --i) {
+        recordComponentsExperimental.get(i).checkExperimental(api);
       }
     }
     for (int i = fields.size() - 1; i >= 0; --i) {
@@ -421,6 +446,12 @@ public class ClassNode extends ClassVisitor {
     // Visit the inner classes.
     for (int i = 0, n = innerClasses.size(); i < n; ++i) {
       innerClasses.get(i).accept(classVisitor);
+    }
+    // Visit the record components.
+    if (recordComponentsExperimental != null) {
+      for (int i = 0, n = recordComponentsExperimental.size(); i < n; ++i) {
+        recordComponentsExperimental.get(i).acceptExperimental(classVisitor);
+      }
     }
     // Visit the fields.
     for (int i = 0, n = fields.size(); i < n; ++i) {

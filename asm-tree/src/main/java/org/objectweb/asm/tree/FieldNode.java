@@ -106,7 +106,7 @@ public class FieldNode extends FieldVisitor {
   }
 
   /**
-   * Constructs a new {@link FieldNode}. <i>Subclasses must not use this constructor</i>.
+   * Constructs a new {@link FieldNode}.
    *
    * @param api the ASM API version implemented by this visitor. Must be one of {@link Opcodes#ASM4}
    *     or {@link Opcodes#ASM5}.

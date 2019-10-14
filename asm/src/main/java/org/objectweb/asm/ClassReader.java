@@ -50,10 +50,11 @@ public class ClassReader {
   public static final int SKIP_CODE = 1;
 
   /**
-   * A flag to skip the SourceFile, SourceDebugExtension, LocalVariableTable, LocalVariableTypeTable
-   * and LineNumberTable attributes. If this flag is set these attributes are neither parsed nor
-   * visited (i.e. {@link ClassVisitor#visitSource}, {@link MethodVisitor#visitLocalVariable} and
-   * {@link MethodVisitor#visitLineNumber} are not called).
+   * A flag to skip the SourceFile, SourceDebugExtension, LocalVariableTable,
+   * LocalVariableTypeTable, LineNumberTable and MethodParameters attributes. If this flag is set
+   * these attributes are neither parsed nor visited (i.e. {@link ClassVisitor#visitSource}, {@link
+   * MethodVisitor#visitLocalVariable}, {@link MethodVisitor#visitLineNumber} and {@link
+   * MethodVisitor#visitParameter} are not called).
    */
   public static final int SKIP_DEBUG = 2;
 
@@ -1164,7 +1165,7 @@ public class ClassReader {
     }
 
     // Visit the MethodParameters attribute.
-    if (methodParametersOffset != 0) {
+    if (methodParametersOffset != 0 && (context.parsingOptions & SKIP_DEBUG) == 0) {
       int parametersCount = readByte(methodParametersOffset);
       int currentParameterOffset = methodParametersOffset + 1;
       while (parametersCount-- > 0) {

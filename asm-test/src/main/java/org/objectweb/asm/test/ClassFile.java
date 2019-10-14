@@ -496,6 +496,8 @@ public class ClassFile {
       dumpNestMembersAttribute(parser, builder);
     } else if (attributeName.equals("PermittedSubtypes")) {
       dumpPermittedSubtypesAttribute(parser, builder);
+    } else if (attributeName.equals("Record")) {
+      dumpRecordAttribute(parser, builder);
     } else if (attributeName.equals("StackMap")) {
       dumpStackMapAttribute(parser, builder);
     } else if (!attributeName.equals("CodeComment") && !attributeName.equals("Comment")) {
@@ -1701,6 +1703,24 @@ public class ClassFile {
     int numberOfClasses = builder.add("number_of_classes: ", parser.u2());
     for (int i = 0; i < numberOfClasses; ++i) {
       builder.addCpInfo("class: ", parser.u2());
+    }
+  }
+
+  /**
+   * Parses and dumps a Record attribute.
+   *
+   * @param parser a class parser.
+   * @param builder a dump builder.
+   * @throws IOException if the class can't be parsed.
+   * @see <a href="https://openjdk.java.net/jeps/360">JEP 360</a>
+   */
+  private static void dumpRecordAttribute(final Parser parser, final Builder builder)
+      throws IOException {
+    int numberOfComponentRecords = builder.add("number_of_component_records: ", parser.u2());
+    for (int i = 0; i < numberOfComponentRecords; ++i) {
+      builder.addCpInfo("record_component_name: ", parser.u2());
+      builder.addCpInfo("record_component_descriptor: ", parser.u2());
+      dumpAttributeList(parser, builder);
     }
   }
 

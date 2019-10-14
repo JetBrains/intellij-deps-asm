@@ -44,6 +44,7 @@ import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.ModuleVisitor;
 import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.RecordComponentVisitor;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.TypePath;
 import org.objectweb.asm.TypeReference;
@@ -375,6 +376,20 @@ public class CheckClassAdapter extends ClassVisitor {
   }
 
   @Override
+  public RecordComponentVisitor visitRecordComponentExperimental(
+      final int access, final String name, final String descriptor, final String signature) {
+    checkState();
+    checkAccess(access, Opcodes.ACC_DEPRECATED);
+    CheckMethodAdapter.checkUnqualifiedName(version, name, "record component name");
+    CheckMethodAdapter.checkDescriptor(version, descriptor, /* canBeVoid = */ false);
+    if (signature != null) {
+      checkFieldSignature(signature);
+    }
+    return new CheckRecordComponentAdapter(
+        api, super.visitRecordComponentExperimental(access, name, descriptor, signature));
+  }
+
+  @Override
   public FieldVisitor visitField(
       final int access,
       final String name,
@@ -393,6 +408,7 @@ public class CheckClassAdapter extends ClassVisitor {
             | Opcodes.ACC_TRANSIENT
             | Opcodes.ACC_SYNTHETIC
             | Opcodes.ACC_ENUM
+            | Opcodes.ACC_MANDATED
             | Opcodes.ACC_DEPRECATED);
     CheckMethodAdapter.checkUnqualifiedName(version, name, "field name");
     CheckMethodAdapter.checkDescriptor(version, descriptor, /* canBeVoid = */ false);
@@ -427,6 +443,7 @@ public class CheckClassAdapter extends ClassVisitor {
             | Opcodes.ACC_ABSTRACT
             | Opcodes.ACC_STRICT
             | Opcodes.ACC_SYNTHETIC
+            | Opcodes.ACC_MANDATED
             | Opcodes.ACC_DEPRECATED);
     if (!"<init>".equals(name) && !"<clinit>".equals(name)) {
       CheckMethodAdapter.checkMethodIdentifier(version, name, "method name");

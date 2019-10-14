@@ -285,6 +285,31 @@ public abstract class ClassVisitor {
   }
 
   /**
+   * Visits a record component of the class.
+   *
+   * @param access the record component access flags, the only possible value is {@link
+   *     Opcodes#ACC_DEPRECATED}.
+   * @param name the record component name.
+   * @param descriptor the record component descriptor (see {@link Type}).
+   * @param signature the record component signature. May be {@literal null} if the record component
+   *     type does not use generic types.
+   * @return a visitor to visit this record component annotations and attributes, or {@literal null}
+   *     if this class visitor is not interested in visiting these annotations and attributes.
+   * @deprecated this API is experimental.
+   */
+  @Deprecated
+  public RecordComponentVisitor visitRecordComponentExperimental(
+      final int access, final String name, final String descriptor, final String signature) {
+    if (api < Opcodes.ASM8_EXPERIMENTAL) {
+      throw new UnsupportedOperationException("This feature requires ASM8_EXPERIMENTAL");
+    }
+    if (cv != null) {
+      return cv.visitRecordComponentExperimental(access, name, descriptor, signature);
+    }
+    return null;
+  }
+
+  /**
    * Visits a field of the class.
    *
    * @param access the field's access flags (see {@link Opcodes}). This parameter also indicates if

@@ -123,7 +123,8 @@ public abstract class AsmTest {
     JDK11_ALL_INSTRUCTIONS("jdk11.AllInstructions"),
     JDK11_ALL_STRUCTURES("jdk11.AllStructures"),
     JDK11_ALL_STRUCTURES_NESTED("jdk11.AllStructures$Nested"),
-    JDK14_ALL_STRUCTURES("jdk14.AllStructures");
+    JDK14_ALL_STRUCTURES("jdk14.AllStructures"),
+    JDK14_ALL_STRUCTURES_RECORD("jdk14.AllStructures$RecordSubType");
 
     private final String name;
     private byte[] bytes;

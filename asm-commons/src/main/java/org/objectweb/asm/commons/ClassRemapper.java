@@ -36,6 +36,7 @@ import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.ModuleVisitor;
 import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.RecordComponentVisitor;
 import org.objectweb.asm.TypePath;
 
 /**
@@ -139,6 +140,20 @@ public class ClassRemapper extends ClassVisitor {
       }
     }
     super.visitAttribute(attribute);
+  }
+
+  @Override
+  public RecordComponentVisitor visitRecordComponentExperimental(
+      final int access, final String name, final String descriptor, final String signature) {
+    RecordComponentVisitor recordComponentVisitor =
+        super.visitRecordComponentExperimental(
+            access,
+            remapper.mapRecordComponentNameExperimental(className, name, descriptor),
+            remapper.mapDesc(descriptor),
+            remapper.mapSignature(signature, true));
+    return recordComponentVisitor == null
+        ? null
+        : createRecordComponentRemapper(recordComponentVisitor);
   }
 
   @Override
@@ -251,5 +266,17 @@ public class ClassRemapper extends ClassVisitor {
    */
   protected ModuleVisitor createModuleRemapper(final ModuleVisitor moduleVisitor) {
     return new ModuleRemapper(api, moduleVisitor, remapper);
+  }
+
+  /**
+   * Constructs a new remapper for record components. The default implementation of this method
+   * returns a new {@link RecordComponentRemapper}.
+   *
+   * @param recordComponentVisitor the RecordComponentVisitor the remapper must delegate to.
+   * @return the newly created remapper.
+   */
+  protected RecordComponentVisitor createRecordComponentRemapper(
+      final RecordComponentVisitor recordComponentVisitor) {
+    return new RecordComponentRemapper(api, recordComponentVisitor, remapper);
   }
 }

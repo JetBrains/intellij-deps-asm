@@ -35,6 +35,7 @@ import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.ModuleVisitor;
 import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.RecordComponentVisitor;
 import org.objectweb.asm.TypePath;
 
 /**
@@ -197,6 +198,16 @@ public final class TraceClassVisitor extends ClassVisitor {
       final String name, final String outerName, final String innerName, final int access) {
     p.visitInnerClass(name, outerName, innerName, access);
     super.visitInnerClass(name, outerName, innerName, access);
+  }
+
+  @Override
+  public RecordComponentVisitor visitRecordComponentExperimental(
+      final int access, final String name, final String descriptor, final String signature) {
+    Printer recordComponentPrinter =
+        p.visitRecordComponentExperimental(access, name, descriptor, signature);
+    return new TraceRecordComponentVisitor(
+        super.visitRecordComponentExperimental(access, name, descriptor, signature),
+        recordComponentPrinter);
   }
 
   @Override

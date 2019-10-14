@@ -364,8 +364,8 @@ public class ClassReaderTest extends AsmTest implements Opcodes {
   }
 
   /**
-   * Tests the ClassReader accept method with a visitor that skips fields, methods, modules and nest
-   * host and members.
+   * Tests the ClassReader accept method with a visitor that skips fields, methods, members,
+   * modules, nest host, permitted subtypes and record.
    */
   @ParameterizedTest
   @MethodSource(ALL_CLASSES_AND_ALL_APIS)
@@ -378,6 +378,15 @@ public class ClassReaderTest extends AsmTest implements Opcodes {
           @Override
           public ModuleVisitor visitModule(
               final String name, final int access, final String version) {
+            return null;
+          }
+
+          @Override
+          public RecordComponentVisitor visitRecordComponentExperimental(
+              final int access,
+              final String name,
+              final String descriptor,
+              final String signature) {
             return null;
           }
 
@@ -450,12 +459,14 @@ public class ClassReaderTest extends AsmTest implements Opcodes {
     Executable accept = () -> classReader.accept(classVisitor, 0);
 
     boolean hasPermittedSubtypes = classParameter == PrecompiledClass.JDK14_ALL_STRUCTURES;
+    boolean hasRecord = classParameter == PrecompiledClass.JDK14_ALL_STRUCTURES_RECORD;
     boolean hasNestHostOrMembers =
         classParameter == PrecompiledClass.JDK11_ALL_STRUCTURES
             || classParameter == PrecompiledClass.JDK11_ALL_STRUCTURES_NESTED;
     boolean hasModules = classParameter == PrecompiledClass.JDK9_MODULE;
     boolean hasTypeAnnotations = classParameter == PrecompiledClass.JDK8_ALL_STRUCTURES;
-    if ((hasPermittedSubtypes && apiParameter.value() != ASM8_EXPERIMENTAL)
+    if ((hasPermittedSubtypes && apiParameter.value() < ASM8_EXPERIMENTAL)
+        || (hasRecord && apiParameter.value() < ASM8_EXPERIMENTAL)
         || (hasNestHostOrMembers && apiParameter.value() < ASM7)
         || (hasModules && apiParameter.value() < ASM6)
         || (hasTypeAnnotations && apiParameter.value() < ASM5)) {
@@ -496,6 +507,31 @@ public class ClassReaderTest extends AsmTest implements Opcodes {
               final String name, final int access, final String version) {
             super.visitModule(name, access, version);
             return new ModuleVisitor(api) {};
+          }
+
+          @Override
+          public RecordComponentVisitor visitRecordComponentExperimental(
+              final int access,
+              final String name,
+              final String descriptor,
+              final String signature) {
+            super.visitRecordComponentExperimental(access, name, descriptor, signature);
+            return new RecordComponentVisitor(api) {
+              @Override
+              public AnnotationVisitor visitAnnotationExperimental(
+                  final String descriptor, final boolean visible) {
+                return new AnnotationVisitor(api) {};
+              }
+
+              @Override
+              public AnnotationVisitor visitTypeAnnotationExperimental(
+                  final int typeRef,
+                  final TypePath typePath,
+                  final String descriptor,
+                  final boolean visible) {
+                return new AnnotationVisitor(api) {};
+              }
+            };
           }
 
           @Override
@@ -589,7 +625,7 @@ public class ClassReaderTest extends AsmTest implements Opcodes {
 
   private static class EmptyClassVisitor extends ClassVisitor {
 
-    AnnotationVisitor annotationVisitor =
+    final AnnotationVisitor annotationVisitor =
         new AnnotationVisitor(api) {
 
           @Override

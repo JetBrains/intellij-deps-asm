@@ -93,7 +93,8 @@ public class MethodWriterTest {
                 Constants.MODULE_MAIN_CLASS,
                 Constants.NEST_HOST,
                 Constants.NEST_MEMBERS,
-                Constants.PERMITTED_SUBTYPES));
+                Constants.PERMITTED_SUBTYPES,
+                Constants.RECORD));
     // IMPORTANT: if this fails, update the list AND update MethodWriter.canCopyMethodAttributes(),
     // if needed.
     assertEquals(expectedAttributes, actualAttributes);

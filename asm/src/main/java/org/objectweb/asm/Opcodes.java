@@ -314,7 +314,7 @@ public interface Opcodes {
   int ACC_SYNTHETIC = 0x1000; // class, field, method, parameter, module *
   int ACC_ANNOTATION = 0x2000; // class
   int ACC_ENUM = 0x4000; // class(?) field inner
-  int ACC_MANDATED = 0x8000; // parameter, module, module *
+  int ACC_MANDATED = 0x8000; // field, method, parameter, module, module *
   int ACC_MODULE = 0x8000; // class
 
   // ASM specific access flags.

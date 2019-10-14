@@ -288,7 +288,15 @@ public class ClassReaderTest extends AsmTest implements Opcodes {
 
     Executable accept = () -> classReader.accept(classVisitor, ClassReader.SKIP_DEBUG);
 
-    if (classParameter.isMoreRecentThan(apiParameter)) {
+    // The following jdk8 classes contain MethodParameters attributes which require ASM5. Here we
+    // skip these attributes with SKIP_DEBUG, and these classes contain no other features requiring
+    // ASM5 or more, so they can be read with ASM4.
+    if (classParameter.isMoreRecentThan(apiParameter)
+        && classParameter != PrecompiledClass.JDK8_ALL_FRAMES
+        && classParameter != PrecompiledClass.JDK8_ALL_STRUCTURES
+        && classParameter != PrecompiledClass.JDK8_ANONYMOUS_INNER_CLASS
+        && classParameter != PrecompiledClass.JDK8_INNER_CLASS
+        && classParameter != PrecompiledClass.JDK8_LARGE_METHOD) {
       Exception exception = assertThrows(UnsupportedOperationException.class, accept);
       assertTrue(exception.getMessage().matches(UNSUPPORTED_OPERATION_MESSAGE_PATTERN));
     } else {

@@ -26,7 +26,9 @@ public final class SignaturesProviders {
 
   static {
     AsmTest.allClassesAndLatestApi()
-        .forEach(argument -> collectSignatures((PrecompiledClass) argument.get()[0]));
+        .map(argument -> (PrecompiledClass) argument.get()[0])
+        .filter(precompiledClass -> !precompiledClass.isMoreRecentThan(AsmTest.Api.ASM7))
+        .forEach(precompiledClass -> collectSignatures(precompiledClass));
     assertFalse(CLASS_SIGNATURES.isEmpty());
     assertFalse(FIELD_SIGNATURES.isEmpty());
     assertFalse(METHOD_SIGNATURES.isEmpty());
@@ -37,7 +39,7 @@ public final class SignaturesProviders {
   private static void collectSignatures(final PrecompiledClass classParameter) {
     ClassReader classReader = new ClassReader(classParameter.getBytes());
     classReader.accept(
-        new ClassVisitor(/* latest */ Opcodes.ASM8_EXPERIMENTAL) {
+        new ClassVisitor(Opcodes.ASM7) {
           @Override
           public void visit(
               final int version,

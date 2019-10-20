@@ -103,8 +103,7 @@ final class RecordComponentWriter extends RecordComponentVisitor {
       final String name,
       final String descriptor,
       final String signature) {
-    // TODO: add 'latest api =' comment when no longer experimental.
-    super(Opcodes.ASM8_EXPERIMENTAL);
+    super(/* latest api = */ Opcodes.ASM7);
     this.symbolTable = symbolTable;
     this.accessFlags = accessFlags;
     this.nameIndex = symbolTable.addConstantUtf8(name);

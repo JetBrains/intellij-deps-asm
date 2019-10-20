@@ -83,7 +83,7 @@ public class ClassNodeTest extends AsmTest {
   @ParameterizedTest
   @MethodSource(ALL_CLASSES_AND_ALL_APIS)
   public void testCheck(final PrecompiledClass classParameter, final Api apiParameter) {
-    ClassNode classNode = new ClassNode(apiParameter.value());
+    ClassNode classNode = new ClassNode(apiParameter.value()) {};
     new ClassReader(classParameter.getBytes()).accept(classNode, attributes(), 0);
 
     Executable check = () -> classNode.check(apiParameter.value());
@@ -101,7 +101,7 @@ public class ClassNodeTest extends AsmTest {
   public void testVisitAndAccept(final PrecompiledClass classParameter, final Api apiParameter) {
     byte[] classFile = classParameter.getBytes();
     ClassReader classReader = new ClassReader(classFile);
-    ClassNode classNode = new ClassNode(apiParameter.value());
+    ClassNode classNode = new ClassNode(apiParameter.value()) {};
     ClassWriter classWriter = new ClassWriter(0);
 
     classReader.accept(classNode, attributes(), 0);
@@ -120,7 +120,7 @@ public class ClassNodeTest extends AsmTest {
       final PrecompiledClass classParameter, final Api apiParameter) {
     byte[] classFile = classParameter.getBytes();
     ClassReader classReader = new ClassReader(classFile);
-    ClassNode classNode = new ClassNode(apiParameter.value());
+    ClassNode classNode = new ClassNode(apiParameter.value()) {};
     ClassWriter classWriter = new ClassWriter(0);
 
     classReader.accept(classNode, attributes(), 0);
@@ -139,7 +139,7 @@ public class ClassNodeTest extends AsmTest {
       final PrecompiledClass classParameter, final Api apiParameter) {
     byte[] classFile = classParameter.getBytes();
     ClassReader classReader = new ClassReader(classFile);
-    ClassNode classNode = new ClassNode(apiParameter.value());
+    ClassNode classNode = new ClassNode(apiParameter.value()) {};
     ClassWriter classWriter = new ClassWriter(0);
 
     classReader.accept(classNode, attributes(), 0);

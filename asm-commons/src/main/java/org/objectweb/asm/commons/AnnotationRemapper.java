@@ -83,9 +83,7 @@ public class AnnotationRemapper extends AnnotationVisitor {
     if (annotationVisitor == null) {
       return null;
     } else {
-      return annotationVisitor == av
-          ? this
-          : new AnnotationRemapper(api, annotationVisitor, remapper);
+      return annotationVisitor == av ? this : createAnnotationRemapper(annotationVisitor);
     }
   }
 
@@ -95,9 +93,18 @@ public class AnnotationRemapper extends AnnotationVisitor {
     if (annotationVisitor == null) {
       return null;
     } else {
-      return annotationVisitor == av
-          ? this
-          : new AnnotationRemapper(api, annotationVisitor, remapper);
+      return annotationVisitor == av ? this : createAnnotationRemapper(annotationVisitor);
     }
+  }
+
+  /**
+   * Constructs a new remapper for annotations. The default implementation of this method returns a
+   * new {@link AnnotationRemapper}.
+   *
+   * @param annotationVisitor the AnnotationVisitor the remapper must delegate to.
+   * @return the newly created remapper.
+   */
+  protected AnnotationVisitor createAnnotationRemapper(final AnnotationVisitor annotationVisitor) {
+    return new AnnotationRemapper(api, annotationVisitor, remapper);
   }
 }

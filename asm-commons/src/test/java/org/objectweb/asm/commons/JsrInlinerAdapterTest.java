@@ -1534,7 +1534,7 @@ public class JsrInlinerAdapterTest extends AsmTest {
       MethodVisitor methodVisitor =
           super.visitMethod(access, name, descriptor, signature, exceptions);
       return new JSRInlinerAdapter(
-          api, methodVisitor, access, name, descriptor, signature, exceptions);
+          api, methodVisitor, access, name, descriptor, signature, exceptions) {};
     }
   }
 }

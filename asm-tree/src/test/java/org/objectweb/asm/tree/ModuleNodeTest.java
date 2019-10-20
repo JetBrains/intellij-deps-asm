@@ -57,7 +57,7 @@ public class ModuleNodeTest extends AsmTest {
             null,
             null,
             null,
-            null);
+            null) {};
 
     assertEquals("module1", moduleNode1.name);
     assertEquals(123, moduleNode1.access);

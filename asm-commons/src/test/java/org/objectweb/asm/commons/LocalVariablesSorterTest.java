@@ -240,7 +240,7 @@ public class LocalVariablesSorterTest extends AsmTest {
         final String[] exceptions) {
       MethodVisitor methodVisitor =
           super.visitMethod(access, name, descriptor, signature, exceptions);
-      return new LocalVariablesSorter(api, access, descriptor, methodVisitor);
+      return new LocalVariablesSorter(api, access, descriptor, methodVisitor) {};
     }
   }
 }

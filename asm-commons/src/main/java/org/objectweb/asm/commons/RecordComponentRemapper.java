@@ -53,8 +53,7 @@ public class RecordComponentRemapper extends RecordComponentVisitor {
    */
   public RecordComponentRemapper(
       final RecordComponentVisitor recordComponentVisitor, final Remapper remapper) {
-    // TODO: add 'latest api =' comment when no longer experimental.
-    this(Opcodes.ASM8_EXPERIMENTAL, recordComponentVisitor, remapper);
+    this(/* latest api = */ Opcodes.ASM7, recordComponentVisitor, remapper);
   }
 
   /**
@@ -76,9 +75,7 @@ public class RecordComponentRemapper extends RecordComponentVisitor {
       final String descriptor, final boolean visible) {
     AnnotationVisitor annotationVisitor =
         super.visitAnnotationExperimental(remapper.mapDesc(descriptor), visible);
-    return annotationVisitor == null
-        ? null
-        : new AnnotationRemapper(api, annotationVisitor, remapper);
+    return annotationVisitor == null ? null : createAnnotationRemapper(annotationVisitor);
   }
 
   @Override
@@ -87,8 +84,17 @@ public class RecordComponentRemapper extends RecordComponentVisitor {
     AnnotationVisitor annotationVisitor =
         super.visitTypeAnnotationExperimental(
             typeRef, typePath, remapper.mapDesc(descriptor), visible);
-    return annotationVisitor == null
-        ? null
-        : new AnnotationRemapper(api, annotationVisitor, remapper);
+    return annotationVisitor == null ? null : createAnnotationRemapper(annotationVisitor);
+  }
+
+  /**
+   * Constructs a new remapper for annotations. The default implementation of this method returns a
+   * new {@link AnnotationRemapper}.
+   *
+   * @param annotationVisitor the AnnotationVisitor the remapper must delegate to.
+   * @return the newly created remapper.
+   */
+  protected AnnotationVisitor createAnnotationRemapper(final AnnotationVisitor annotationVisitor) {
+    return new AnnotationRemapper(api, annotationVisitor, remapper);
   }
 }

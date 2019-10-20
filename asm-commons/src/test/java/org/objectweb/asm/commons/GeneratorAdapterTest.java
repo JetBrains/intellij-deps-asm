@@ -852,7 +852,7 @@ public class GeneratorAdapterTest {
               new TraceMethodVisitor(textifier),
               access,
               name,
-              descriptor);
+              descriptor) {};
     }
 
     public String push(final boolean value) {

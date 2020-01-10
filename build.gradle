@@ -295,6 +295,10 @@ configure(subprojects.findAll { it.provides }) {
               .collect{"${project(it).provides[0]};transitive=true"}
               .join(',')
     )
+  } else {
+    jar.manifest.attributes(
+      'Implementation-Title': project.description,
+      'Implementation-Version': "${version}")
   }
 
   // Apply the SonarQube plugin to monitor the code quality of the project.

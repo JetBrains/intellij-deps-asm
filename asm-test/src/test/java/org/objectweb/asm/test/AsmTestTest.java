@@ -60,6 +60,10 @@ public class AsmTestTest extends AsmTest {
     assertFalse(PrecompiledClass.JDK11_ALL_INSTRUCTIONS.isMoreRecentThan(Api.ASM7));
     assertNotNull(PrecompiledClass.JDK11_ALL_INSTRUCTIONS.getBytes());
     assertEquals("jdk11.AllInstructions", PrecompiledClass.JDK11_ALL_INSTRUCTIONS.toString());
+    assertTrue(PrecompiledClass.JDK14_ALL_STRUCTURES_RECORD.isMoreRecentThan(Api.ASM7));
+    assertFalse(PrecompiledClass.JDK14_ALL_STRUCTURES_RECORD.isMoreRecentThan(Api.ASM8));
+    assertTrue(PrecompiledClass.JDK15_ALL_STRUCTURES.isMoreRecentThan(Api.ASM8));
+    assertFalse(PrecompiledClass.JDK15_ALL_STRUCTURES.isMoreRecentThan(Api.ASM9));
   }
 
   @Test
@@ -98,7 +102,7 @@ public class AsmTestTest extends AsmTest {
         new HashSet<Object>(Arrays.asList(PrecompiledClass.values())),
         allArguments.stream().map(arg -> arg.get()[0]).collect(Collectors.toSet()));
     assertEquals(
-        new HashSet<Object>(Arrays.asList(Api.ASM8)),
+        new HashSet<Object>(Arrays.asList(Api.ASM9)),
         allArguments.stream().map(arg -> arg.get()[1]).collect(Collectors.toSet()));
   }
 }

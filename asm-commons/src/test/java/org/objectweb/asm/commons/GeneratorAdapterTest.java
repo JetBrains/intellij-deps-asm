@@ -848,7 +848,7 @@ public class GeneratorAdapterTest {
       textifier = new Textifier();
       generatorAdapter =
           new GeneratorAdapter(
-              /* latest */ Opcodes.ASM8_EXPERIMENTAL,
+              /* latest */ Opcodes.ASM9_EXPERIMENTAL,
               new TraceMethodVisitor(textifier),
               access,
               name,

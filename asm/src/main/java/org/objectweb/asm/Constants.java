@@ -182,7 +182,7 @@ final class Constants implements Opcodes {
 
   private Constants() {}
 
-  static void checkAsm8Experimental(final Object caller) {
+  static void checkAsmExperimental(final Object caller) {
     Class<?> callerClass = caller.getClass();
     String internalName = callerClass.getName().replace('.', '/');
     if (!isWhitelisted(internalName)) {
@@ -215,7 +215,7 @@ final class Constants implements Opcodes {
     }
     if (minorVersion != 0xFFFF) {
       throw new IllegalStateException(
-          "ASM8_EXPERIMENTAL can only be used by classes compiled with --enable-preview");
+          "ASM9_EXPERIMENTAL can only be used by classes compiled with --enable-preview");
     }
   }
 }

@@ -111,7 +111,7 @@ public class Textifier extends Printer {
    * @throws IllegalStateException If a subclass calls this constructor.
    */
   public Textifier() {
-    this(/* latest api = */ Opcodes.ASM7);
+    this(/* latest api = */ Opcodes.ASM8);
     if (getClass() != Textifier.class) {
       throw new IllegalStateException();
     }
@@ -121,7 +121,8 @@ public class Textifier extends Printer {
    * Constructs a new {@link Textifier}.
    *
    * @param api the ASM API version implemented by this visitor. Must be one of {@link
-   *     Opcodes#ASM4}, {@link Opcodes#ASM5}, {@link Opcodes#ASM6} or {@link Opcodes#ASM7}.
+   *     Opcodes#ASM4}, {@link Opcodes#ASM5}, {@link Opcodes#ASM6}, {@link Opcodes#ASM7} or {@link
+   *     Opcodes#ASM8}.
    */
   protected Textifier(final int api) {
     super(api);
@@ -329,15 +330,10 @@ public class Textifier extends Printer {
   }
 
   @Override
-  public Printer visitRecordComponentExperimental(
-      final int access, final String name, final String descriptor, final String signature) {
+  public Printer visitRecordComponent(
+      final String name, final String descriptor, final String signature) {
     stringBuilder.setLength(0);
-    stringBuilder.append('\n');
-    if ((access & Opcodes.ACC_DEPRECATED) != 0) {
-      stringBuilder.append(tab).append(DEPRECATED);
-    }
-    stringBuilder.append(tab);
-    appendRawAccess(access);
+    stringBuilder.append(tab).append("RECORDCOMONENT ");
     if (signature != null) {
       stringBuilder.append(tab);
       appendDescriptor(FIELD_SIGNATURE, signature);
@@ -346,7 +342,6 @@ public class Textifier extends Printer {
     }
 
     stringBuilder.append(tab);
-    appendAccess(access);
 
     appendDescriptor(FIELD_DESCRIPTOR, descriptor);
     stringBuilder.append(' ').append(name);
@@ -716,24 +711,23 @@ public class Textifier extends Printer {
   // -----------------------------------------------------------------------------------------------
 
   @Override
-  public Textifier visitRecordComponentAnnotationExperimental(
-      final String descriptor, final boolean visible) {
+  public Textifier visitRecordComponentAnnotation(final String descriptor, final boolean visible) {
     return visitAnnotation(descriptor, visible);
   }
 
   @Override
-  public Printer visitRecordComponentTypeAnnotationExperimental(
+  public Printer visitRecordComponentTypeAnnotation(
       final int typeRef, final TypePath typePath, final String descriptor, final boolean visible) {
     return visitTypeAnnotation(typeRef, typePath, descriptor, visible);
   }
 
   @Override
-  public void visitRecordComponentAttributeExperimental(final Attribute attribute) {
+  public void visitRecordComponentAttribute(final Attribute attribute) {
     visitAttribute(attribute);
   }
 
   @Override
-  public void visitRecordComponentEndExperimental() {
+  public void visitRecordComponentEnd() {
     // Nothing to do.
   }
 

@@ -94,7 +94,7 @@ public class SimpleVerifier extends BasicVerifier {
       final List<Type> currentClassInterfaces,
       final boolean isInterface) {
     this(
-        /* latest api = */ ASM7,
+        /* latest api = */ ASM8,
         currentClass,
         currentSuperClass,
         currentClassInterfaces,
@@ -110,7 +110,8 @@ public class SimpleVerifier extends BasicVerifier {
    *
    * @param api the ASM API version supported by this verifier. Must be one of {@link
    *     org.objectweb.asm.Opcodes#ASM4}, {@link org.objectweb.asm.Opcodes#ASM5}, {@link
-   *     org.objectweb.asm.Opcodes#ASM6} or {@link org.objectweb.asm.Opcodes#ASM7}.
+   *     org.objectweb.asm.Opcodes#ASM6}, {@link org.objectweb.asm.Opcodes#ASM7} or {@link
+   *     org.objectweb.asm.Opcodes#ASM8}.
    * @param currentClass the type of the class to be verified.
    * @param currentSuperClass the type of the super class of the class to be verified.
    * @param currentClassInterfaces the types of the interfaces directly implemented by the class to

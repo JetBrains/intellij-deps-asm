@@ -27,11 +27,16 @@
 // THE POSSIBILITY OF SUCH DAMAGE.
 package jdk14;
 
-public sealed interface AllStructures {
-  final class ClassSubType {
-  	
-  }
-  record RecordSubType(int component1, String component2) {
+import annotations.IRCA;
+import annotations.VRCA;
+import annotations.VTUA;
+import annotations.ITUA;
+
+// compiled using jdk-14/bin/javac -source 14 --enable-preview jdk14/AllStructures.java
+public class AllStructures {
+  record RecordSubType(
+      @IRCA(v = 0) @VRCA(v = 1) @VTUA(v = 2) @ITUA(v = 3) int component1,
+      @IRCA(v = 4) @VRCA(v = 5) @VTUA(v = 6) @ITUA(v = 7) String component2) {
   	
   }
 }

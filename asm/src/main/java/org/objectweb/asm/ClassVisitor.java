@@ -61,20 +61,22 @@ public abstract class ClassVisitor {
    * Constructs a new {@link ClassVisitor}.
    *
    * @param api the ASM API version implemented by this visitor. Must be one of {@link
-   *     Opcodes#ASM4}, {@link Opcodes#ASM5}, {@link Opcodes#ASM6} or {@link Opcodes#ASM7}.
+   *     Opcodes#ASM4}, {@link Opcodes#ASM5}, {@link Opcodes#ASM6}, {@link Opcodes#ASM7} or {@link
+   *     Opcodes#ASM8}.
    * @param classVisitor the class visitor to which this visitor must delegate method calls. May be
    *     null.
    */
   public ClassVisitor(final int api, final ClassVisitor classVisitor) {
-    if (api != Opcodes.ASM7
+    if (api != Opcodes.ASM8
+        && api != Opcodes.ASM7
         && api != Opcodes.ASM6
         && api != Opcodes.ASM5
         && api != Opcodes.ASM4
-        && api != Opcodes.ASM8_EXPERIMENTAL) {
+        && api != Opcodes.ASM9_EXPERIMENTAL) {
       throw new IllegalArgumentException("Unsupported api " + api);
     }
-    if (api == Opcodes.ASM8_EXPERIMENTAL) {
-      Constants.checkAsm8Experimental(this);
+    if (api == Opcodes.ASM9_EXPERIMENTAL) {
+      Constants.checkAsmExperimental(this);
     }
     this.api = api;
     this.cv = classVisitor;
@@ -257,8 +259,8 @@ public abstract class ClassVisitor {
    */
   @Deprecated
   public void visitPermittedSubtypeExperimental(final String permittedSubtype) {
-    if (api != Opcodes.ASM8_EXPERIMENTAL) {
-      throw new UnsupportedOperationException("This feature requires ASM8_EXPERIMENTAL");
+    if (api != Opcodes.ASM9_EXPERIMENTAL) {
+      throw new UnsupportedOperationException("This feature requires ASM9_EXPERIMENTAL");
     }
     if (cv != null) {
       cv.visitPermittedSubtypeExperimental(permittedSubtype);
@@ -287,24 +289,20 @@ public abstract class ClassVisitor {
   /**
    * Visits a record component of the class.
    *
-   * @param access the record component access flags, the only possible value is {@link
-   *     Opcodes#ACC_DEPRECATED}.
    * @param name the record component name.
    * @param descriptor the record component descriptor (see {@link Type}).
    * @param signature the record component signature. May be {@literal null} if the record component
    *     type does not use generic types.
    * @return a visitor to visit this record component annotations and attributes, or {@literal null}
    *     if this class visitor is not interested in visiting these annotations and attributes.
-   * @deprecated this API is experimental.
    */
-  @Deprecated
-  public RecordComponentVisitor visitRecordComponentExperimental(
-      final int access, final String name, final String descriptor, final String signature) {
-    if (api < Opcodes.ASM8_EXPERIMENTAL) {
-      throw new UnsupportedOperationException("This feature requires ASM8_EXPERIMENTAL");
+  public RecordComponentVisitor visitRecordComponent(
+      final String name, final String descriptor, final String signature) {
+    if (api < Opcodes.ASM8) {
+      throw new UnsupportedOperationException("This feature requires ASM8");
     }
     if (cv != null) {
-      return cv.visitRecordComponentExperimental(access, name, descriptor, signature);
+      return cv.visitRecordComponent(name, descriptor, signature);
     }
     return null;
   }

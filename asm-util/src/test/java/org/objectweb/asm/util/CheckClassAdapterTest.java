@@ -282,24 +282,11 @@ public class CheckClassAdapterTest extends AsmTest implements Opcodes {
   }
 
   @Test
-  public void testVisitRecordComponent_illegalAccessSynthetic() {
-    CheckClassAdapter checkClassAdapter = new CheckClassAdapter(null);
-    checkClassAdapter.visit(V14, ACC_PUBLIC, "C", null, "java/lang/Object", null);
-
-    Executable visitField =
-        () -> checkClassAdapter.visitRecordComponentExperimental(ACC_SYNTHETIC, "i", "I", null);
-
-    Exception exception = assertThrows(IllegalArgumentException.class, visitField);
-    assertEquals("Invalid access flags: 4096", exception.getMessage());
-  }
-
-  @Test
   public void testVisitRecordComponent_illegalRecordComponentSignature1() {
     CheckClassAdapter checkClassAdapter = new CheckClassAdapter(null);
     checkClassAdapter.visit(V14, ACC_PUBLIC, "C", null, "java/lang/Object", null);
 
-    Executable visitRecordComponent =
-        () -> checkClassAdapter.visitRecordComponentExperimental(0, "i", "I", "L;");
+    Executable visitRecordComponent = () -> checkClassAdapter.visitRecordComponent("i", "I", "L;");
 
     Exception exception = assertThrows(IllegalArgumentException.class, visitRecordComponent);
     assertEquals("L;: identifier expected at index 1", exception.getMessage());
@@ -310,8 +297,7 @@ public class CheckClassAdapterTest extends AsmTest implements Opcodes {
     CheckClassAdapter checkClassAdapter = new CheckClassAdapter(null);
     checkClassAdapter.visit(V14, ACC_PUBLIC, "C", null, "java/lang/Object", null);
 
-    Executable visitRecordComponent =
-        () -> checkClassAdapter.visitRecordComponentExperimental(0, "i", "I", "LC+");
+    Executable visitRecordComponent = () -> checkClassAdapter.visitRecordComponent("i", "I", "LC+");
 
     Exception exception = assertThrows(IllegalArgumentException.class, visitRecordComponent);
     assertEquals("LC+: ';' expected at index 3", exception.getMessage());
@@ -323,7 +309,7 @@ public class CheckClassAdapterTest extends AsmTest implements Opcodes {
     checkClassAdapter.visit(V14, ACC_PUBLIC, "C", null, "java/lang/Object", null);
 
     Executable visitRecordComponent =
-        () -> checkClassAdapter.visitRecordComponentExperimental(0, "i", "I", "LC;I");
+        () -> checkClassAdapter.visitRecordComponent("i", "I", "LC;I");
 
     Exception exception = assertThrows(IllegalArgumentException.class, visitRecordComponent);
     assertEquals("LC;I: error at index 3", exception.getMessage());
@@ -468,7 +454,7 @@ public class CheckClassAdapterTest extends AsmTest implements Opcodes {
     ClassVisitor classVisitor =
         new CheckClassAdapter(
             apiParameter.value(),
-            new ClassVisitor(/* latest */ Opcodes.ASM8_EXPERIMENTAL, null) {},
+            new ClassVisitor(/* latest */ Opcodes.ASM9_EXPERIMENTAL, null) {},
             true) {};
 
     Executable accept = () -> classReader.accept(classVisitor, attributes(), 0);

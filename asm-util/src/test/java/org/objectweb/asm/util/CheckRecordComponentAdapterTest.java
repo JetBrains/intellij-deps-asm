@@ -56,7 +56,7 @@ public class CheckRecordComponentAdapterTest extends AsmTest implements Opcodes 
 
     Executable visitTypeAnnotation =
         () ->
-            checkRecordComponentAdapter.visitTypeAnnotationExperimental(
+            checkRecordComponentAdapter.visitTypeAnnotation(
                 TypeReference.newFormalParameterReference(0).getValue(), null, "LA;", true);
 
     Exception exception = assertThrows(IllegalArgumentException.class, visitTypeAnnotation);
@@ -67,7 +67,7 @@ public class CheckRecordComponentAdapterTest extends AsmTest implements Opcodes 
   public void testVisitAttribute_illegalAttribute() {
     CheckRecordComponentAdapter checkRecordComponentAdapter = new CheckRecordComponentAdapter(null);
 
-    Executable visitAttribute = () -> checkRecordComponentAdapter.visitAttributeExperimental(null);
+    Executable visitAttribute = () -> checkRecordComponentAdapter.visitAttribute(null);
 
     Exception exception = assertThrows(IllegalArgumentException.class, visitAttribute);
     assertEquals("Invalid attribute (must not be null)", exception.getMessage());
@@ -76,10 +76,9 @@ public class CheckRecordComponentAdapterTest extends AsmTest implements Opcodes 
   @Test
   public void testVisitAttribute_afterEnd() {
     CheckRecordComponentAdapter checkRecordComponentAdapter = new CheckRecordComponentAdapter(null);
-    checkRecordComponentAdapter.visitEndExperimental();
+    checkRecordComponentAdapter.visitEnd();
 
-    Executable visitAttribute =
-        () -> checkRecordComponentAdapter.visitAttributeExperimental(new Comment());
+    Executable visitAttribute = () -> checkRecordComponentAdapter.visitAttribute(new Comment());
 
     Exception exception = assertThrows(IllegalStateException.class, visitAttribute);
     assertEquals(

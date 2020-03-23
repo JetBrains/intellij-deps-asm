@@ -47,6 +47,7 @@ public interface Opcodes {
   int ASM5 = 5 << 16 | 0 << 8;
   int ASM6 = 6 << 16 | 0 << 8;
   int ASM7 = 7 << 16 | 0 << 8;
+  int ASM8 = 8 << 16 | 0 << 8;
 
   /**
    * <i>Experimental, use at your own risk. This field will be renamed when it becomes stable, this
@@ -54,7 +55,7 @@ public interface Opcodes {
    *
    * @deprecated This API is experimental.
    */
-  @Deprecated int ASM8_EXPERIMENTAL = 1 << 24 | 8 << 16 | 0 << 8;
+  @Deprecated int ASM9_EXPERIMENTAL = 1 << 24 | 9 << 16 | 0 << 8;
 
   /*
    * Internal flags used to redirect calls to deprecated methods. For instance, if a visitOldStuff

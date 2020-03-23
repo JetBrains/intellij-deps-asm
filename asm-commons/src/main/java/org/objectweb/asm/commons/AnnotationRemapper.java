@@ -49,15 +49,16 @@ public class AnnotationRemapper extends AnnotationVisitor {
    * @param remapper the remapper to use to remap the types in the visited annotation.
    */
   public AnnotationRemapper(final AnnotationVisitor annotationVisitor, final Remapper remapper) {
-    this(/* latest api = */ Opcodes.ASM7, annotationVisitor, remapper);
+    this(/* latest api = */ Opcodes.ASM8, annotationVisitor, remapper);
   }
 
   /**
    * Constructs a new {@link AnnotationRemapper}.
    *
    * @param api the ASM API version supported by this remapper. Must be one of {@link
-   *     org.objectweb.asm.Opcodes#ASM4}, {@link org.objectweb.asm.Opcodes#ASM5} or {@link
-   *     org.objectweb.asm.Opcodes#ASM6}.
+   *     org.objectweb.asm.Opcodes#ASM4}, {@link org.objectweb.asm.Opcodes#ASM5}, {@link
+   *     org.objectweb.asm.Opcodes#ASM6}, {@link org.objectweb.asm.Opcodes#ASM7} or {@link
+   *     org.objectweb.asm.Opcodes#ASM8}
    * @param annotationVisitor the annotation visitor this remapper must deleted to.
    * @param remapper the remapper to use to remap the types in the visited annotation.
    */

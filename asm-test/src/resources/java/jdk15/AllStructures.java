@@ -25,45 +25,13 @@
 // CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
 // THE POSSIBILITY OF SUCH DAMAGE.
-package org.objectweb.asm.commons;
+package jdk15;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
-import org.junit.jupiter.api.Test;
-import org.objectweb.asm.Attribute;
-import org.objectweb.asm.ClassReader;
-import org.objectweb.asm.ClassVisitor;
-import org.objectweb.asm.ClassWriter;
-import org.objectweb.asm.Opcodes;
-
-/**
- * Unit tests for {@link ModuleResolutionAttribute}.
- *
- * @author Eric Bruneton
- */
-public class ModuleResolutionAttributeTest {
-
-  @Test
-  public void testWriteAndRead() {
-    ClassWriter classWriter = new ClassWriter(0);
-    classWriter.visitAttribute(new ModuleResolutionAttribute(123));
-
-    ModuleResolutionAttribute moduleResolutionAttribute = new ModuleResolutionAttribute();
-    new ClassReader(classWriter.toByteArray())
-        .accept(
-            new ClassVisitor(/* latest */ Opcodes.ASM9_EXPERIMENTAL) {
-
-              @Override
-              public void visitAttribute(final Attribute attribute) {
-                if (attribute instanceof ModuleResolutionAttribute) {
-                  moduleResolutionAttribute.resolution =
-                      ((ModuleResolutionAttribute) attribute).resolution;
-                }
-              }
-            },
-            new Attribute[] {new ModuleResolutionAttribute()},
-            0);
-
-    assertEquals(123, moduleResolutionAttribute.resolution);
+public sealed interface AllStructures {
+  final class ClassSubType implements AllStructures {
+  	
+  }
+  record RecordSubType(int component1, String component2) implements AllStructures {
+  	
   }
 }

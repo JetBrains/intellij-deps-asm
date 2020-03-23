@@ -43,16 +43,15 @@ public class RecordComponentNodeTest extends AsmTest {
 
   @Test
   public void testConstructor() {
-    RecordComponentNode fieldNode = new RecordComponentNode(123, "component", "I", null);
+    RecordComponentNode componentNode = new RecordComponentNode("component", "I", null);
 
-    assertEquals(123, fieldNode.accessExperimental);
-    assertEquals("component", fieldNode.nameExperimental);
-    assertEquals("I", fieldNode.descriptorExperimental);
+    assertEquals("component", componentNode.name);
+    assertEquals("I", componentNode.descriptor);
   }
 
   @Test
   public void testConstructor_illegalState() {
-    Executable constructor = () -> new RecordComponentNode(123, "component", "I", null) {};
+    Executable constructor = () -> new RecordComponentNode("component", "I", null) {};
 
     assertThrows(IllegalStateException.class, constructor);
   }

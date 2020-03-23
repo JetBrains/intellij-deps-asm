@@ -92,7 +92,7 @@ public abstract class AsmTest {
    * The expected pattern (i.e. regular expression) that ASM's UnsupportedOperationException
    * messages are supposed to match.
    */
-  public static final String UNSUPPORTED_OPERATION_MESSAGE_PATTERN = ".* requires ASM[5678].*";
+  public static final String UNSUPPORTED_OPERATION_MESSAGE_PATTERN = ".* requires ASM[56789].*";
 
   /**
    * A precompiled class, hand-crafted to contain some set of class file structures. These classes
@@ -123,8 +123,9 @@ public abstract class AsmTest {
     JDK11_ALL_INSTRUCTIONS("jdk11.AllInstructions"),
     JDK11_ALL_STRUCTURES("jdk11.AllStructures"),
     JDK11_ALL_STRUCTURES_NESTED("jdk11.AllStructures$Nested"),
-    JDK14_ALL_STRUCTURES("jdk14.AllStructures"),
-    JDK14_ALL_STRUCTURES_RECORD("jdk14.AllStructures$RecordSubType");
+    JDK14_ALL_STRUCTURES_RECORD("jdk14.AllStructures$RecordSubType"),
+    JDK15_ALL_STRUCTURES("jdk15.AllStructures"),
+    ;
 
     private final String name;
     private byte[] bytes;
@@ -172,6 +173,9 @@ public abstract class AsmTest {
       if (name.startsWith("jdk14.") && api.value() < Api.ASM8.value()) {
         return true;
       }
+      if (name.startsWith("jdk15.") && api.value() < Api.ASM9.value()) {
+        return true;
+      }
       return false;
     }
 
@@ -191,6 +195,9 @@ public abstract class AsmTest {
       }
       if (name.startsWith("jdk14.")) {
         return Util.getMajorJavaVersion() < 14;
+      }
+      if (name.startsWith("jdk15.")) {
+        return Util.getMajorJavaVersion() < 15;
       }
       return false;
     }
@@ -259,7 +266,9 @@ public abstract class AsmTest {
     ASM5("ASM5", 5 << 16),
     ASM6("ASM6", 6 << 16),
     ASM7("ASM7", 7 << 16),
-    ASM8("ASM8", 1 << 24 | 8 << 16 | 0 << 8);
+    ASM8("ASM8", 8 << 16),
+    ASM9("ASM9", 1 << 24 | 9 << 16 | 0 << 8),
+    ;
 
     private final String name;
     private final int value;
@@ -272,7 +281,8 @@ public abstract class AsmTest {
     /**
      * Returns the int value of this version, as expected by ASM.
      *
-     * @return one of the ASM4, ASM5, ASM6, ASM7 or ASM8 constants from the ASM Opcodes interface.
+     * @return one of the ASM4, ASM5, ASM6, ASM7, ASM8 or ASM9 constants from the ASM Opcodes
+     *     interface.
      */
     public int value() {
       return value;
@@ -281,7 +291,7 @@ public abstract class AsmTest {
     /**
      * Returns a human readable symbol corresponding to this version.
      *
-     * @return one of "ASM4", "ASM5", "ASM6" "ASM7" or or "ASM8".
+     * @return one of "ASM4", "ASM5", "ASM6" "ASM7", "ASM8" or "ASM9".
      */
     @Override
     public String toString() {
@@ -306,10 +316,10 @@ public abstract class AsmTest {
    * with {@code @MethodSource("allClassesAndLatestApi")} will be executed on all the precompiled
    * classes, with the latest api.
    *
-   * @return all the possible (precompiledClass, ASM8) pairs, for all the precompiled classes.
+   * @return all the possible (precompiledClass, ASM9) pairs, for all the precompiled classes.
    */
   public static Stream<Arguments> allClassesAndLatestApi() {
-    return classesAndApis(Api.ASM8);
+    return classesAndApis(Api.ASM9);
   }
 
   private static Stream<Arguments> classesAndApis(final Api... apis) {

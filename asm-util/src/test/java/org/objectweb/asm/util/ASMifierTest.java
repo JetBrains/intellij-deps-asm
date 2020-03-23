@@ -106,11 +106,14 @@ public class ASMifierTest extends AsmTest {
     assertEquals(new ClassFile(classFile), new ClassFile(dumpClassFile));
   }
 
-  private static byte[] compile(final String name, final String source)
-      throws IOException, CompileException {
+  private static byte[] compile(final String name, final String source) throws IOException {
     Parser parser = new Parser(new Scanner(name, new StringReader(source)));
-    UnitCompiler unitCompiler = new UnitCompiler(parser.parseCompilationUnit(), ICLASS_LOADER);
-    return unitCompiler.compileUnit(true, true, true)[0].toByteArray();
+    try {
+      UnitCompiler unitCompiler = new UnitCompiler(parser.parseCompilationUnit(), ICLASS_LOADER);
+      return unitCompiler.compileUnit(true, true, true)[0].toByteArray();
+    } catch (CompileException e) {
+      throw new AssertionError(source, e);
+    }
   }
 
   @Test

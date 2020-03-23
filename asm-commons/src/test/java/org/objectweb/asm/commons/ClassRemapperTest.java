@@ -154,7 +154,7 @@ public class ClassRemapperTest extends AsmTest {
     ClassNode classNode = new ClassNode();
     ClassRemapper classRemapper =
         new ClassRemapper(
-            Opcodes.ASM7,
+            /* latest api */ Opcodes.ASM8,
             classNode,
             new Remapper() {
               @Override
@@ -264,7 +264,7 @@ public class ClassRemapperTest extends AsmTest {
   ClassRemapper newClassRemapper(
       final int api, final ClassVisitor classVisitor, final Remapper remapper) {
     // TODO: remove this test and the associated classes when no longer experimental.
-    if (api == Opcodes.ASM8_EXPERIMENTAL) {
+    if (api == Opcodes.ASM9_EXPERIMENTAL) {
       return new ClassRemapperExperimental(classVisitor, remapper);
     }
     return new ClassRemapper(api, classVisitor, remapper);
@@ -273,7 +273,7 @@ public class ClassRemapperTest extends AsmTest {
   static class ClassRemapperExperimental extends ClassRemapper {
 
     ClassRemapperExperimental(final ClassVisitor classVisitor, final Remapper remapper) {
-      super(Opcodes.ASM8_EXPERIMENTAL, classVisitor, remapper);
+      super(Opcodes.ASM9_EXPERIMENTAL, classVisitor, remapper);
     }
 
     @Override
@@ -326,7 +326,7 @@ public class ClassRemapperTest extends AsmTest {
 
     AnnotationRemapperExperimental(
         final AnnotationVisitor annotationVisitor, final Remapper remapper) {
-      super(Opcodes.ASM8_EXPERIMENTAL, annotationVisitor, remapper);
+      super(Opcodes.ASM9_EXPERIMENTAL, annotationVisitor, remapper);
     }
 
     @Override

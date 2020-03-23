@@ -226,7 +226,8 @@ public class ConstantsTest {
       case "ASM5":
       case "ASM6":
       case "ASM7":
-      case "ASM8_EXPERIMENTAL":
+      case "ASM8":
+      case "ASM9_EXPERIMENTAL":
         return ConstantType.ASM_VERSION;
       case "V_PREVIEW":
       case "V1_1":

@@ -254,7 +254,7 @@ public class ClassWriter extends ClassVisitor {
    *     maximum stack size nor the stack frames will be computed for these methods</i>.
    */
   public ClassWriter(final ClassReader classReader, final int flags) {
-    super(/* latest api = */ Opcodes.ASM7);
+    super(/* latest api = */ Opcodes.ASM8);
     symbolTable = classReader == null ? new SymbolTable(this) : new SymbolTable(this, classReader);
     if ((flags & COMPUTE_FRAMES) != 0) {
       this.compute = MethodWriter.COMPUTE_ALL_FRAMES;
@@ -407,10 +407,10 @@ public class ClassWriter extends ClassVisitor {
   }
 
   @Override
-  public final RecordComponentVisitor visitRecordComponentExperimental(
-      final int access, final String name, final String descriptor, final String signature) {
+  public final RecordComponentVisitor visitRecordComponent(
+      final String name, final String descriptor, final String signature) {
     RecordComponentWriter recordComponentWriter =
-        new RecordComponentWriter(symbolTable, access, name, descriptor, signature);
+        new RecordComponentWriter(symbolTable, name, descriptor, signature);
     if (firstRecordComponent == null) {
       firstRecordComponent = recordComponentWriter;
     } else {

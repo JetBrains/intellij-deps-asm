@@ -90,6 +90,7 @@ public class TextifierTest extends AsmTest {
                     Paths.get("src/test/resources/" + classParameter.getName() + ".txt")),
                 StandardCharsets.UTF_8)
             .replace("\r", "");
+
     assertEquals(expectedText, output.toString());
   }
 

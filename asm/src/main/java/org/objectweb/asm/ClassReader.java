@@ -872,7 +872,6 @@ public class ClassReader {
     // Read the record component attributes (the variables are ordered as in Section 4.7 of the
     // JVMS).
 
-    int accessFlags = 0;
     // Attribute offsets exclude the attribute_name_index and attribute_length fields.
     // - The string corresponding to the Signature attribute, or null.
     String signature = null;
@@ -899,8 +898,6 @@ public class ClassReader {
       // typical classes).
       if (Constants.SIGNATURE.equals(attributeName)) {
         signature = readUTF8(currentOffset, charBuffer);
-      } else if (Constants.DEPRECATED.equals(attributeName)) {
-        accessFlags |= Opcodes.ACC_DEPRECATED;
       } else if (Constants.RUNTIME_VISIBLE_ANNOTATIONS.equals(attributeName)) {
         runtimeVisibleAnnotationsOffset = currentOffset;
       } else if (Constants.RUNTIME_VISIBLE_TYPE_ANNOTATIONS.equals(attributeName)) {
@@ -926,7 +923,7 @@ public class ClassReader {
     }
 
     RecordComponentVisitor recordComponentVisitor =
-        classVisitor.visitRecordComponentExperimental(accessFlags, name, descriptor, signature);
+        classVisitor.visitRecordComponent(name, descriptor, signature);
     if (recordComponentVisitor == null) {
       return currentOffset;
     }
@@ -942,8 +939,7 @@ public class ClassReader {
         // Parse num_element_value_pairs and element_value_pairs and visit these values.
         currentAnnotationOffset =
             readElementValues(
-                recordComponentVisitor.visitAnnotationExperimental(
-                    annotationDescriptor, /* visible = */ true),
+                recordComponentVisitor.visitAnnotation(annotationDescriptor, /* visible = */ true),
                 currentAnnotationOffset,
                 /* named = */ true,
                 charBuffer);
@@ -961,8 +957,7 @@ public class ClassReader {
         // Parse num_element_value_pairs and element_value_pairs and visit these values.
         currentAnnotationOffset =
             readElementValues(
-                recordComponentVisitor.visitAnnotationExperimental(
-                    annotationDescriptor, /* visible = */ false),
+                recordComponentVisitor.visitAnnotation(annotationDescriptor, /* visible = */ false),
                 currentAnnotationOffset,
                 /* named = */ true,
                 charBuffer);
@@ -982,7 +977,7 @@ public class ClassReader {
         // Parse num_element_value_pairs and element_value_pairs and visit these values.
         currentAnnotationOffset =
             readElementValues(
-                recordComponentVisitor.visitTypeAnnotationExperimental(
+                recordComponentVisitor.visitTypeAnnotation(
                     context.currentTypeAnnotationTarget,
                     context.currentTypeAnnotationTargetPath,
                     annotationDescriptor,
@@ -1006,7 +1001,7 @@ public class ClassReader {
         // Parse num_element_value_pairs and element_value_pairs and visit these values.
         currentAnnotationOffset =
             readElementValues(
-                recordComponentVisitor.visitTypeAnnotationExperimental(
+                recordComponentVisitor.visitTypeAnnotation(
                     context.currentTypeAnnotationTarget,
                     context.currentTypeAnnotationTargetPath,
                     annotationDescriptor,
@@ -1022,12 +1017,12 @@ public class ClassReader {
       // Copy and reset the nextAttribute field so that it can also be used in FieldWriter.
       Attribute nextAttribute = attributes.nextAttribute;
       attributes.nextAttribute = null;
-      recordComponentVisitor.visitAttributeExperimental(attributes);
+      recordComponentVisitor.visitAttribute(attributes);
       attributes = nextAttribute;
     }
 
     // Visit the end of the field.
-    recordComponentVisitor.visitEndExperimental();
+    recordComponentVisitor.visitEnd();
     return currentOffset;
   }
 

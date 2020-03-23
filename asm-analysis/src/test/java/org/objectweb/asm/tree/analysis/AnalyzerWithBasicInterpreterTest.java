@@ -125,7 +125,7 @@ public class AnalyzerWithBasicInterpreterTest extends AsmTest {
     new ClassReader(PrecompiledClass.JDK8_ALL_FRAMES.getBytes()).accept(classNode, 0);
     Analyzer<BasicValue> analyzer =
         new Analyzer<BasicValue>(
-            new BasicInterpreter(/* latest */ Opcodes.ASM8_EXPERIMENTAL) {
+            new BasicInterpreter(/* latest */ Opcodes.ASM9_EXPERIMENTAL) {
               @Override
               public BasicValue merge(final BasicValue value1, final BasicValue value2) {
                 return new BasicValue(super.merge(value1, value2).getType());

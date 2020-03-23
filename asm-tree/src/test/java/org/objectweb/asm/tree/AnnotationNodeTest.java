@@ -103,7 +103,7 @@ public class AnnotationNodeTest extends AsmTest {
     annotationNode.visitAnnotation("annotation", "Lpkg/Annotation;");
     AnnotationNode dstAnnotationNode = new AnnotationNode("LJ;");
     AnnotationVisitor skipNestedAnnotationsVisitor =
-        new AnnotationVisitor(/* latest */ Opcodes.ASM8_EXPERIMENTAL, dstAnnotationNode) {
+        new AnnotationVisitor(/* latest */ Opcodes.ASM9_EXPERIMENTAL, dstAnnotationNode) {
 
           @Override
           public AnnotationVisitor visitAnnotation(final String name, final String descriptor) {

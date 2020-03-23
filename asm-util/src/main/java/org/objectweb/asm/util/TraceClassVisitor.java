@@ -119,7 +119,7 @@ public final class TraceClassVisitor extends ClassVisitor {
    */
   public TraceClassVisitor(
       final ClassVisitor classVisitor, final Printer printer, final PrintWriter printWriter) {
-    super(/* latest api = */ Opcodes.ASM8_EXPERIMENTAL, classVisitor);
+    super(/* latest api = */ Opcodes.ASM9_EXPERIMENTAL, classVisitor);
     this.printWriter = printWriter;
     this.p = printer;
   }
@@ -201,13 +201,11 @@ public final class TraceClassVisitor extends ClassVisitor {
   }
 
   @Override
-  public RecordComponentVisitor visitRecordComponentExperimental(
-      final int access, final String name, final String descriptor, final String signature) {
-    Printer recordComponentPrinter =
-        p.visitRecordComponentExperimental(access, name, descriptor, signature);
+  public RecordComponentVisitor visitRecordComponent(
+      final String name, final String descriptor, final String signature) {
+    Printer recordComponentPrinter = p.visitRecordComponent(name, descriptor, signature);
     return new TraceRecordComponentVisitor(
-        super.visitRecordComponentExperimental(access, name, descriptor, signature),
-        recordComponentPrinter);
+        super.visitRecordComponent(name, descriptor, signature), recordComponentPrinter);
   }
 
   @Override

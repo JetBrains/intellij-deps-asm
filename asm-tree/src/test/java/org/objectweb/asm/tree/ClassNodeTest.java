@@ -209,8 +209,8 @@ public class ClassNodeTest extends AsmTest {
     public void visitAttribute(final Attribute attribute) {}
 
     @Override
-    public RecordComponentVisitor visitRecordComponentExperimental(
-        final int access, final String name, final String descriptor, final String signature) {
+    public RecordComponentVisitor visitRecordComponent(
+        final String name, final String descriptor, final String signature) {
       return null;
     }
 

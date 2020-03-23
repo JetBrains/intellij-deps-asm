@@ -146,7 +146,7 @@ public class Retrofitter {
   static class ClassRetrofitter extends ClassVisitor {
 
     public ClassRetrofitter(final ClassVisitor classVisitor) {
-      super(Opcodes.ASM7, classVisitor);
+      super(/* latest api =*/ Opcodes.ASM8, classVisitor);
     }
 
     @Override

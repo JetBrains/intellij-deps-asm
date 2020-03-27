@@ -333,7 +333,7 @@ public class Textifier extends Printer {
   public Printer visitRecordComponent(
       final String name, final String descriptor, final String signature) {
     stringBuilder.setLength(0);
-    stringBuilder.append(tab).append("RECORDCOMONENT ");
+    stringBuilder.append(tab).append("RECORDCOMPONENT ");
     if (signature != null) {
       stringBuilder.append(tab);
       appendDescriptor(FIELD_SIGNATURE, signature);

@@ -8,12 +8,14 @@ final class jdk14/AllStructures$RecordSubType extends java/lang/Record {
   final static INNERCLASS jdk14/AllStructures$RecordSubType jdk14/AllStructures RecordSubType
   // access flags 0x19
   public final static INNERCLASS java/lang/invoke/MethodHandles$Lookup java/lang/invoke/MethodHandles Lookup
-  RECORDCOMONENT   I component1
+  RECORDCOMPONENT   I component1
   @Lannotations/VRCA;(v=1)
   @Lannotations/IRCA;(v=0) // invisible
   @Lannotations/VTUA;(v=2) : FIELD, null
   @Lannotations/ITUA;(v=3) : FIELD, null // invisible
-  RECORDCOMONENT   Ljava/lang/String; component2
+  RECORDCOMPONENT   // signature Ljava/util/List<Ljava/lang/String;>;
+  // declaration: component2 extends java.util.List<java.lang.String>
+  Ljava/util/List; component2
   @Lannotations/VRCA;(v=5)
   @Lannotations/IRCA;(v=4) // invisible
   @Lannotations/VTUA;(v=6) : FIELD, null
@@ -25,12 +27,16 @@ final class jdk14/AllStructures$RecordSubType extends java/lang/Record {
   @Lannotations/ITUA;(v=3) : FIELD, null // invisible
 
   // access flags 0x12
-  private final Ljava/lang/String; component2
+  // signature Ljava/util/List<Ljava/lang/String;>;
+  // declaration: component2 extends java.util.List<java.lang.String>
+  private final Ljava/util/List; component2
   @Lannotations/VTUA;(v=6) : FIELD, null
   @Lannotations/ITUA;(v=7) : FIELD, null // invisible
 
   // access flags 0x1
-  public <init>(ILjava/lang/String;)V
+  // signature (ILjava/util/List<Ljava/lang/String;>;)V
+  // declaration: void <init>(int, java.util.List<java.lang.String>)
+  public <init>(ILjava/util/List;)V
     // parameter  component1
     // parameter  component2
   @Lannotations/VTUA;(v=2) : METHOD_FORMAL_PARAMETER 0, null
@@ -38,7 +44,7 @@ final class jdk14/AllStructures$RecordSubType extends java/lang/Record {
   @Lannotations/ITUA;(v=3) : METHOD_FORMAL_PARAMETER 0, null // invisible
   @Lannotations/ITUA;(v=7) : METHOD_FORMAL_PARAMETER 1, null // invisible
    L0
-    LINENUMBER 37 L0
+    LINENUMBER 38 L0
     ALOAD 0
     INVOKESPECIAL java/lang/Record.<init> ()V
     ALOAD 0
@@ -46,7 +52,7 @@ final class jdk14/AllStructures$RecordSubType extends java/lang/Record {
     PUTFIELD jdk14/AllStructures$RecordSubType.component1 : I
     ALOAD 0
     ALOAD 2
-    PUTFIELD jdk14/AllStructures$RecordSubType.component2 : Ljava/lang/String;
+    PUTFIELD jdk14/AllStructures$RecordSubType.component2 : Ljava/util/List;
     RETURN
     MAXSTACK = 2
     MAXLOCALS = 3
@@ -54,7 +60,7 @@ final class jdk14/AllStructures$RecordSubType extends java/lang/Record {
   // access flags 0x1
   public toString()Ljava/lang/String;
    L0
-    LINENUMBER 37 L0
+    LINENUMBER 38 L0
     ALOAD 0
     INVOKEDYNAMIC toString(Ljdk14/AllStructures$RecordSubType;)Ljava/lang/String; [
       // handle kind 0x6 : INVOKESTATIC
@@ -65,7 +71,7 @@ final class jdk14/AllStructures$RecordSubType extends java/lang/Record {
       // handle kind 0x1 : GETFIELD
       jdk14/AllStructures$RecordSubType.component1(I), 
       // handle kind 0x1 : GETFIELD
-      jdk14/AllStructures$RecordSubType.component2(Ljava/lang/String;)
+      jdk14/AllStructures$RecordSubType.component2(Ljava/util/List;)
     ]
     ARETURN
     MAXSTACK = 1
@@ -74,7 +80,7 @@ final class jdk14/AllStructures$RecordSubType extends java/lang/Record {
   // access flags 0x11
   public final hashCode()I
    L0
-    LINENUMBER 37 L0
+    LINENUMBER 38 L0
     ALOAD 0
     INVOKEDYNAMIC hashCode(Ljdk14/AllStructures$RecordSubType;)I [
       // handle kind 0x6 : INVOKESTATIC
@@ -85,7 +91,7 @@ final class jdk14/AllStructures$RecordSubType extends java/lang/Record {
       // handle kind 0x1 : GETFIELD
       jdk14/AllStructures$RecordSubType.component1(I), 
       // handle kind 0x1 : GETFIELD
-      jdk14/AllStructures$RecordSubType.component2(Ljava/lang/String;)
+      jdk14/AllStructures$RecordSubType.component2(Ljava/util/List;)
     ]
     IRETURN
     MAXSTACK = 1
@@ -94,7 +100,7 @@ final class jdk14/AllStructures$RecordSubType extends java/lang/Record {
   // access flags 0x11
   public final equals(Ljava/lang/Object;)Z
    L0
-    LINENUMBER 37 L0
+    LINENUMBER 38 L0
     ALOAD 0
     ALOAD 1
     INVOKEDYNAMIC equals(Ljdk14/AllStructures$RecordSubType;Ljava/lang/Object;)Z [
@@ -106,7 +112,7 @@ final class jdk14/AllStructures$RecordSubType extends java/lang/Record {
       // handle kind 0x1 : GETFIELD
       jdk14/AllStructures$RecordSubType.component1(I), 
       // handle kind 0x1 : GETFIELD
-      jdk14/AllStructures$RecordSubType.component2(Ljava/lang/String;)
+      jdk14/AllStructures$RecordSubType.component2(Ljava/util/List;)
     ]
     IRETURN
     MAXSTACK = 2
@@ -117,7 +123,7 @@ final class jdk14/AllStructures$RecordSubType extends java/lang/Record {
   @Lannotations/VTUA;(v=2)
   @Lannotations/ITUA;(v=3) // invisible
    L0
-    LINENUMBER 37 L0
+    LINENUMBER 38 L0
     ALOAD 0
     GETFIELD jdk14/AllStructures$RecordSubType.component1 : I
     IRETURN
@@ -125,13 +131,15 @@ final class jdk14/AllStructures$RecordSubType extends java/lang/Record {
     MAXLOCALS = 1
 
   // access flags 0x1
-  public component2()Ljava/lang/String;
+  // signature ()Ljava/util/List<Ljava/lang/String;>;
+  // declaration: java.util.List<java.lang.String> component2()
+  public component2()Ljava/util/List;
   @Lannotations/VTUA;(v=6)
   @Lannotations/ITUA;(v=7) // invisible
    L0
-    LINENUMBER 37 L0
+    LINENUMBER 38 L0
     ALOAD 0
-    GETFIELD jdk14/AllStructures$RecordSubType.component2 : Ljava/lang/String;
+    GETFIELD jdk14/AllStructures$RecordSubType.component2 : Ljava/util/List;
     ARETURN
     MAXSTACK = 1
     MAXLOCALS = 1

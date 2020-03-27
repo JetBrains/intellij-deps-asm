@@ -29,7 +29,9 @@ package org.objectweb.asm;
 
 import static java.util.stream.Collectors.toSet;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTimeoutPreemptively;
 
+import java.time.Duration;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
@@ -98,5 +100,35 @@ public class MethodWriterTest {
     // IMPORTANT: if this fails, update the list AND update MethodWriter.canCopyMethodAttributes(),
     // if needed.
     assertEquals(expectedAttributes, actualAttributes);
+  }
+
+  @Test
+  public void testRecursiveCondyFastEnough() {
+    Handle bsm =
+        new Handle(
+            Opcodes.H_INVOKESTATIC,
+            "RT",
+            "bsm",
+            "(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/Class;I)Ljava/lang/invoke/CallSite;",
+            false);
+    ConstantDynamic chain = new ConstantDynamic("condy", "I", bsm, 0);
+    for (int i = 0; i < 32; i++) {
+      chain = new ConstantDynamic("condy" + i, "I", bsm, chain);
+    }
+    ConstantDynamic condy = chain;
+
+    assertTimeoutPreemptively(
+        Duration.ofMillis(1_000),
+        () -> {
+          ClassWriter classWriter = new ClassWriter(0);
+          classWriter.visit(Opcodes.V11, Opcodes.ACC_SUPER, "Test", null, "java/lang/Object", null);
+          MethodVisitor mv = classWriter.visitMethod(Opcodes.ACC_STATIC, "m", "()V", null, null);
+          mv.visitCode();
+          mv.visitLdcInsn(condy);
+          mv.visitMaxs(0, 0);
+          mv.visitEnd();
+          classWriter.visitEnd();
+          classWriter.toByteArray();
+        });
   }
 }

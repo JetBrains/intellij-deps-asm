@@ -31,12 +31,13 @@ import annotations.IRCA;
 import annotations.VRCA;
 import annotations.VTUA;
 import annotations.ITUA;
+import java.util.List;
 
 // compiled using jdk-14/bin/javac -source 14 --enable-preview jdk14/AllStructures.java
 public class AllStructures {
   record RecordSubType(
       @IRCA(v = 0) @VRCA(v = 1) @VTUA(v = 2) @ITUA(v = 3) int component1,
-      @IRCA(v = 4) @VRCA(v = 5) @VTUA(v = 6) @ITUA(v = 7) String component2) {
+      @IRCA(v = 4) @VRCA(v = 5) @VTUA(v = 6) @ITUA(v = 7) List<String> component2) {
   	
   }
 }

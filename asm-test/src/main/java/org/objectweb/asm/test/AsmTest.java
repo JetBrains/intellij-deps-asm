@@ -173,10 +173,7 @@ public abstract class AsmTest {
       if (name.startsWith("jdk14.") && api.value() < Api.ASM8.value()) {
         return true;
       }
-      if (name.startsWith("jdk15.") && api.value() < Api.ASM9.value()) {
-        return true;
-      }
-      return false;
+      return name.startsWith("jdk15.") && api.value() < Api.ASM9.value();
     }
 
     /**

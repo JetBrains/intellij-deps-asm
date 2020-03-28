@@ -302,7 +302,14 @@ public class Textifier extends Printer {
     text.add(stringBuilder.toString());
   }
 
+  /**
+   * <b>Experimental, use at your own risk.</b>.
+   *
+   * @param permittedSubtype the internal name of a permitted subtype.
+   * @deprecated this API is experimental.
+   */
   @Override
+  @Deprecated
   public void visitPermittedSubtypeExperimental(final String permittedSubtype) {
     stringBuilder.setLength(0);
     stringBuilder.append(tab).append("PERMITTEDSUBTYPE ");

@@ -30,6 +30,7 @@ package org.objectweb.asm.util;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -825,9 +826,7 @@ public class CheckMethodAdapter extends MethodVisitor {
       checkLabel(labels[i], false, "label at index " + i);
     }
     super.visitTableSwitchInsn(min, max, dflt, labels);
-    for (Label label : labels) {
-      referencedLabels.add(label);
-    }
+    Collections.addAll(referencedLabels, labels);
     ++insnCount;
   }
 
@@ -844,9 +843,7 @@ public class CheckMethodAdapter extends MethodVisitor {
     }
     super.visitLookupSwitchInsn(dflt, keys, labels);
     referencedLabels.add(dflt);
-    for (Label label : labels) {
-      referencedLabels.add(label);
-    }
+    Collections.addAll(referencedLabels, labels);
     ++insnCount;
   }
 
@@ -1079,7 +1076,8 @@ public class CheckMethodAdapter extends MethodVisitor {
         || value == Opcodes.NULL
         || value == Opcodes.UNINITIALIZED_THIS) {
       return;
-    } else if (value instanceof String) {
+    }
+    if (value instanceof String) {
       checkInternalName(version, (String) value, "Invalid stack frame value");
     } else if (value instanceof Label) {
       referencedLabels.add((Label) value);

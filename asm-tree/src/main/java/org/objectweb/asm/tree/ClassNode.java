@@ -250,7 +250,14 @@ public class ClassNode extends ClassVisitor {
     nestMembers = Util.add(nestMembers, nestMember);
   }
 
+  /**
+   * <b>Experimental, use at your own risk.</b>.
+   *
+   * @param permittedSubtype the internal name of a permitted subtype.
+   * @deprecated this API is experimental.
+   */
   @Override
+  @Deprecated
   public void visitPermittedSubtypeExperimental(final String permittedSubtype) {
     permittedSubtypesExperimental = Util.add(permittedSubtypesExperimental, permittedSubtype);
   }

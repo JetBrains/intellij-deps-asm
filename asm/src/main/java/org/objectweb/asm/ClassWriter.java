@@ -372,7 +372,14 @@ public class ClassWriter extends ClassVisitor {
     nestMemberClasses.putShort(symbolTable.addConstantClass(nestMember).index);
   }
 
+  /**
+   * <b>Experimental, use at your own risk.</b>
+   *
+   * @param permittedSubtype the internal name of a permitted subtype.
+   * @deprecated this API is experimental.
+   */
   @Override
+  @Deprecated
   public final void visitPermittedSubtypeExperimental(final String permittedSubtype) {
     if (permittedSubtypeClasses == null) {
       permittedSubtypeClasses = new ByteVector();

@@ -1700,8 +1700,8 @@ public class ClassFile {
    */
   private static void dumpPermittedSubtypesAttribute(final Parser parser, final Builder builder)
       throws IOException {
-    int numberOfClasses = builder.add("number_of_classes: ", parser.u2());
-    for (int i = 0; i < numberOfClasses; ++i) {
+    int permittedSubTypesCount = builder.add("permitted_subtypes_count: ", parser.u2());
+    for (int i = 0; i < permittedSubTypesCount; ++i) {
       builder.addCpInfo("class: ", parser.u2());
     }
   }

@@ -219,7 +219,14 @@ public class ClassRemapper extends ClassVisitor {
     super.visitNestMember(remapper.mapType(nestMember));
   }
 
+  /**
+   * <b>Experimental, use at your own risk.</b>.
+   *
+   * @param permittedSubtype the internal name of a permitted subtype.
+   * @deprecated this API is experimental.
+   */
   @Override
+  @Deprecated
   public void visitPermittedSubtypeExperimental(final String permittedSubtype) {
     super.visitPermittedSubtypeExperimental(remapper.mapType(permittedSubtype));
   }

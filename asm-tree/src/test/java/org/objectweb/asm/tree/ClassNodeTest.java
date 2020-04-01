@@ -47,6 +47,7 @@ import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.ModuleVisitor;
+import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.RecordComponentVisitor;
 import org.objectweb.asm.TypePath;
 import org.objectweb.asm.test.AsmTest;
@@ -175,6 +176,17 @@ public class ClassNodeTest extends AsmTest {
 
     RemoveMembersClassVisitor(final int api, final ClassVisitor classVisitor) {
       super(api, classVisitor);
+    }
+
+    @Override
+    public void visit(
+        final int version,
+        final int access,
+        final String name,
+        final String signature,
+        final String superName,
+        final String[] interfaces) {
+      super.visit(version, access & ~Opcodes.ACC_RECORD, name, signature, superName, interfaces);
     }
 
     @Override

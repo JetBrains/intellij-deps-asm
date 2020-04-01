@@ -226,6 +226,7 @@ public class CheckClassAdapter extends ClassVisitor {
             | Opcodes.ACC_ANNOTATION
             | Opcodes.ACC_ENUM
             | Opcodes.ACC_DEPRECATED
+            | Opcodes.ACC_RECORD
             | Opcodes.ACC_MODULE);
     if (name == null) {
       throw new IllegalArgumentException("Illegal class name (null)");

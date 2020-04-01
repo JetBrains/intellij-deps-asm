@@ -78,6 +78,7 @@ public class Textifier extends Printer {
 
   private static final String CLASS_SUFFIX = ".class";
   private static final String DEPRECATED = "// DEPRECATED\n";
+  private static final String RECORD = "// RECORD\n";
   private static final String INVISIBLE = " // invisible\n";
 
   private static final List<String> FRAME_TYPES =
@@ -185,6 +186,9 @@ public class Textifier extends Printer {
         .append(")\n");
     if ((access & Opcodes.ACC_DEPRECATED) != 0) {
       stringBuilder.append(DEPRECATED);
+    }
+    if ((access & Opcodes.ACC_RECORD) != 0) {
+      stringBuilder.append(RECORD);
     }
     appendRawAccess(access);
 

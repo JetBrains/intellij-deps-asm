@@ -324,6 +324,7 @@ public interface Opcodes {
   // access flags, and also to make sure that these flags are automatically filtered out when
   // written in class files (because access flags are stored using 16 bits only).
 
+  int ACC_RECORD = 0x10000; // class
   int ACC_DEPRECATED = 0x20000; // class, field, method
 
   // Possible values for the type operand of the NEWARRAY instruction.

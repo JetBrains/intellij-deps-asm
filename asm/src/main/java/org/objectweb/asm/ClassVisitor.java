@@ -88,7 +88,8 @@ public abstract class ClassVisitor {
    * @param version the class version. The minor version is stored in the 16 most significant bits,
    *     and the major version in the 16 least significant bits.
    * @param access the class's access flags (see {@link Opcodes}). This parameter also indicates if
-   *     the class is deprecated.
+   *     the class is deprecated {@link Opcodes#ACC_DEPRECATED} or a record {@link
+   *     Opcodes#ACC_RECORD}.
    * @param name the internal name of the class (see {@link Type#getInternalName()}).
    * @param signature the signature of this class. May be {@literal null} if the class is not a
    *     generic one, and does not extend or implement generic classes or interfaces.
@@ -105,6 +106,9 @@ public abstract class ClassVisitor {
       final String signature,
       final String superName,
       final String[] interfaces) {
+    if (api < Opcodes.ASM8 && (access & Opcodes.ACC_RECORD) != 0) {
+      throw new UnsupportedOperationException("Records requires ASM8");
+    }
     if (cv != null) {
       cv.visit(version, access, name, signature, superName, interfaces);
     }

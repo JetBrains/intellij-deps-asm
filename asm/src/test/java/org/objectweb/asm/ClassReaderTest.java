@@ -374,6 +374,16 @@ public class ClassReaderTest extends AsmTest implements Opcodes {
     ClassReader classReader = new ClassReader(classParameter.getBytes());
     ClassVisitor classVisitor =
         new EmptyClassVisitor(apiParameter.value()) {
+          @Override
+          public void visit(
+              final int version,
+              final int access,
+              final String name,
+              final String signature,
+              final String superName,
+              final String[] interfaces) {
+            // access may contain ACC_RECORD
+          }
 
           @Override
           public ModuleVisitor visitModule(

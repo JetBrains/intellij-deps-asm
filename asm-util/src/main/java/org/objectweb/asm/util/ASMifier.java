@@ -1407,6 +1407,13 @@ public class ASMifier extends Printer {
       stringBuilder.append("ACC_DEPRECATED");
       isEmpty = false;
     }
+    if ((accessFlags & Opcodes.ACC_RECORD) != 0) {
+      if (!isEmpty) {
+        stringBuilder.append(" | ");
+      }
+      stringBuilder.append("ACC_RECORD");
+      isEmpty = false;
+    }
     if ((accessFlags & (Opcodes.ACC_MANDATED | Opcodes.ACC_MODULE)) != 0) {
       if (!isEmpty) {
         stringBuilder.append(" | ");

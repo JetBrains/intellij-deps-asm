@@ -514,6 +514,7 @@ public class ClassReader {
         runtimeInvisibleTypeAnnotationsOffset = currentAttributeOffset;
       } else if (Constants.RECORD.equals(attributeName)) {
         recordOffset = currentAttributeOffset;
+        accessFlags |= Opcodes.ACC_RECORD;
       } else if (Constants.MODULE.equals(attributeName)) {
         moduleOffset = currentAttributeOffset;
       } else if (Constants.MODULE_MAIN_CLASS.equals(attributeName)) {

@@ -79,8 +79,8 @@ public class ClassWriter extends ClassVisitor {
 
   /**
    * The access_flags field of the JVMS ClassFile structure. This field can contain ASM specific
-   * access flags, such as {@link Opcodes#ACC_DEPRECATED}, which are removed when generating the
-   * ClassFile structure.
+   * access flags, such as {@link Opcodes#ACC_DEPRECATED} or {}@link Opcodes#ACC_RECORD}, which are
+   * removed when generating the ClassFile structure.
    */
   private int accessFlags;
 
@@ -583,7 +583,7 @@ public class ClassWriter extends ClassVisitor {
     }
     int recordComponentCount = 0;
     int recordSize = 0;
-    if (firstRecordComponent != null) {
+    if ((accessFlags & Opcodes.ACC_RECORD) != 0 || firstRecordComponent != null) {
       RecordComponentWriter recordComponentWriter = firstRecordComponent;
       while (recordComponentWriter != null) {
         ++recordComponentCount;
@@ -705,7 +705,7 @@ public class ClassWriter extends ClassVisitor {
           .putShort(numberOfPermittedSubtypeClasses)
           .putByteArray(permittedSubtypeClasses.data, 0, permittedSubtypeClasses.length);
     }
-    if (firstRecordComponent != null) {
+    if ((accessFlags & Opcodes.ACC_RECORD) != 0 || firstRecordComponent != null) {
       result
           .putShort(symbolTable.addConstantUtf8(Constants.RECORD))
           .putInt(recordSize + 2)

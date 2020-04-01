@@ -40,4 +40,8 @@ public class AllStructures {
       @IRCA(v = 4) @VRCA(v = 5) @VTUA(v = 6) @ITUA(v = 7) List<String> component2) {
   	
   }
+
+  record EmptyRecord() {
+
+  }
 }

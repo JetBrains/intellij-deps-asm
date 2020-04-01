@@ -62,6 +62,8 @@ public class AsmTestTest extends AsmTest {
     assertEquals("jdk11.AllInstructions", PrecompiledClass.JDK11_ALL_INSTRUCTIONS.toString());
     assertTrue(PrecompiledClass.JDK14_ALL_STRUCTURES_RECORD.isMoreRecentThan(Api.ASM7));
     assertFalse(PrecompiledClass.JDK14_ALL_STRUCTURES_RECORD.isMoreRecentThan(Api.ASM8));
+    assertTrue(PrecompiledClass.JDK14_ALL_STRUCTURES_EMPTY_RECORD.isMoreRecentThan(Api.ASM7));
+    assertFalse(PrecompiledClass.JDK14_ALL_STRUCTURES_EMPTY_RECORD.isMoreRecentThan(Api.ASM8));
     assertTrue(PrecompiledClass.JDK15_ALL_STRUCTURES.isMoreRecentThan(Api.ASM8));
     assertFalse(PrecompiledClass.JDK15_ALL_STRUCTURES.isMoreRecentThan(Api.ASM9));
   }

@@ -40,6 +40,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.Executable;
 
@@ -215,7 +216,9 @@ public class ConstantsTest {
   }
 
   private static List<Field> getConstants(final ConstantType constantType) {
-    return Arrays.asList(Constants.class.getFields()).stream()
+    return Stream.concat(
+            Arrays.asList(Opcodes.class.getFields()).stream(),
+            Arrays.asList(Constants.class.getFields()).stream())
         .filter(field -> getType(field).equals(constantType))
         .collect(Collectors.toList());
   }

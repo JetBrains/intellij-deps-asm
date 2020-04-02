@@ -272,9 +272,10 @@ public class ConstantsTest {
       case "ACC_ENUM":
       case "ACC_MANDATED":
       case "ACC_MODULE":
-        return ConstantType.ACCESS_FLAG;
-      case "ACC_DEPRECATED":
       case "ACC_SEALED":
+        return ConstantType.ACCESS_FLAG;
+      case "ACC_RECORD":
+      case "ACC_DEPRECATED":
       case "ACC_CONSTRUCTOR":
         return ConstantType.ASM_ACCESS_FLAG;
       case "T_BOOLEAN":

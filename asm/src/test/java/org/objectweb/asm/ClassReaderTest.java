@@ -374,6 +374,16 @@ public class ClassReaderTest extends AsmTest implements Opcodes {
     ClassReader classReader = new ClassReader(classParameter.getBytes());
     ClassVisitor classVisitor =
         new EmptyClassVisitor(apiParameter.value()) {
+          @Override
+          public void visit(
+              final int version,
+              final int access,
+              final String name,
+              final String signature,
+              final String superName,
+              final String[] interfaces) {
+            // access may contain ACC_RECORD
+          }
 
           @Override
           public ModuleVisitor visitModule(
@@ -456,7 +466,9 @@ public class ClassReaderTest extends AsmTest implements Opcodes {
     Executable accept = () -> classReader.accept(classVisitor, 0);
 
     boolean hasPermittedSubtypes = classParameter == PrecompiledClass.JDK15_ALL_STRUCTURES;
-    boolean hasRecord = classParameter == PrecompiledClass.JDK14_ALL_STRUCTURES_RECORD;
+    boolean hasRecord =
+        classParameter == PrecompiledClass.JDK14_ALL_STRUCTURES_RECORD
+            || classParameter == PrecompiledClass.JDK14_ALL_STRUCTURES_EMPTY_RECORD;
     boolean hasNestHostOrMembers =
         classParameter == PrecompiledClass.JDK11_ALL_STRUCTURES
             || classParameter == PrecompiledClass.JDK11_ALL_STRUCTURES_NESTED;

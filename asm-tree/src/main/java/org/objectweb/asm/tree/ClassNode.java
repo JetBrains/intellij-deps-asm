@@ -54,7 +54,7 @@ public class ClassNode extends ClassVisitor {
 
   /**
    * The class's access flags (see {@link org.objectweb.asm.Opcodes}). This field also indicates if
-   * the class is deprecated.
+   * the class is deprecated {@link Opcodes#ACC_DEPRECATED} or a record {@link Opcodes#ACC_RECORD}.
    */
   public int access;
 
@@ -322,7 +322,7 @@ public class ClassNode extends ClassVisitor {
     if (api != Opcodes.ASM9_EXPERIMENTAL && permittedSubtypesExperimental != null) {
       throw new UnsupportedClassVersionException();
     }
-    if (api < Opcodes.ASM8 && recordComponents != null) {
+    if (api < Opcodes.ASM8 && ((access & Opcodes.ACC_RECORD) != 0 || recordComponents != null)) {
       throw new UnsupportedClassVersionException();
     }
     if (api < Opcodes.ASM7 && (nestHostClass != null || nestMembers != null)) {

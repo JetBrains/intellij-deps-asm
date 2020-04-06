@@ -1310,9 +1310,12 @@ public abstract class Printer {
     if (className.endsWith(".class")
         || className.indexOf('\\') != -1
         || className.indexOf('/') != -1) {
-      InputStream inputStream =
-          new FileInputStream(className); // NOPMD(AvoidFileStream): can't fix for 1.5 compatibility
-      new ClassReader(inputStream).accept(traceClassVisitor, parsingOptions);
+      // Can't fix PMD warning for 1.5 compatibility.
+      try (InputStream inputStream = new FileInputStream(className)) { // NOPMD(AvoidFileStream)
+        new ClassReader(inputStream).accept(traceClassVisitor, parsingOptions);
+      } catch (IOException ioe) {
+        throw ioe;
+      }
     } else {
       new ClassReader(className).accept(traceClassVisitor, parsingOptions);
     }

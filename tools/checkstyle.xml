@@ -88,7 +88,6 @@
       <property name="allowMissingParamTags" value="true" />
       <property name="allowMissingThrowsTags" value="true" />
       <property name="allowMissingReturnTag" value="true" />
-      <property name="minLineCount" value="2" />
       <property name="allowedAnnotations"
         value="Override,BeforeEach,Test,ParameterizedTest,Setup,Benchmark" />
       <property name="allowThrowsTagsForSubclasses" value="true" />

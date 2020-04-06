@@ -1003,9 +1003,12 @@ public class CheckClassAdapter extends ClassVisitor {
 
     ClassReader classReader;
     if (args[0].endsWith(".class")) {
-      InputStream inputStream =
-          new FileInputStream(args[0]); // NOPMD(AvoidFileStream): can't fix for 1.5 compatibility
-      classReader = new ClassReader(inputStream);
+      // Can't fix PMD warning for 1.5 compatibility.
+      try (InputStream inputStream = new FileInputStream(args[0])) { // NOPMD(AvoidFileStream)
+        classReader = new ClassReader(inputStream);
+      } catch (IOException ioe) {
+        throw ioe;
+      }
     } else {
       classReader = new ClassReader(args[0]);
     }

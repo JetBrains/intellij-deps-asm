@@ -74,23 +74,26 @@ public class Retrofitter {
    * @throws IOException if the JDK API description file can't be read.
    */
   public Retrofitter() throws IOException {
-    InputStream inputStream =
-        new GZIPInputStream(
-            Retrofitter.class.getClassLoader().getResourceAsStream("jdk1.5.0.12.txt.gz"));
-    BufferedReader reader = new LineNumberReader(new InputStreamReader(inputStream));
-    while (true) {
-      String line = reader.readLine();
-      if (line != null) {
-        if (line.startsWith("class")) {
-          String className = line.substring(6, line.lastIndexOf(' '));
-          String superClassName = line.substring(line.lastIndexOf(' ') + 1);
-          jdkHierarchy.put(className, superClassName);
+    try (InputStream inputStream =
+            new GZIPInputStream(
+                Retrofitter.class.getClassLoader().getResourceAsStream("jdk1.5.0.12.txt.gz"));
+        BufferedReader reader = new LineNumberReader(new InputStreamReader(inputStream))) {
+      while (true) {
+        String line = reader.readLine();
+        if (line != null) {
+          if (line.startsWith("class")) {
+            String className = line.substring(6, line.lastIndexOf(' '));
+            String superClassName = line.substring(line.lastIndexOf(' ') + 1);
+            jdkHierarchy.put(className, superClassName);
+          } else {
+            jdkApi.add(line);
+          }
         } else {
-          jdkApi.add(line);
+          break;
         }
-      } else {
-        break;
       }
+    } catch (IOException ioe) {
+      throw ioe;
     }
   }
 

@@ -52,7 +52,7 @@ public class MemoryBenchmark extends AbstractBenchmark {
   private Factory asm5dot0;
   private Factory asm6dot0;
   private Factory asm7dot0;
-  private Factory asm7dot1;
+  private Factory asm8dot0;
   private Factory asmCurrent;
 
   public MemoryBenchmark() {
@@ -71,7 +71,7 @@ public class MemoryBenchmark extends AbstractBenchmark {
     asm5dot0 = (Factory) new AsmBenchmarkFactory(AsmVersion.V5_0).newAsmBenchmark();
     asm6dot0 = (Factory) new AsmBenchmarkFactory(AsmVersion.V6_0).newAsmBenchmark();
     asm7dot0 = (Factory) new AsmBenchmarkFactory(AsmVersion.V7_0).newAsmBenchmark();
-    asm7dot1 = (Factory) new AsmBenchmarkFactory(AsmVersion.V7_1).newAsmBenchmark();
+    asm8dot0 = (Factory) new AsmBenchmarkFactory(AsmVersion.V8_0).newAsmBenchmark();
     asmCurrent = (Factory) new AsmBenchmarkFactory(AsmVersion.V_CURRENT).newAsmBenchmark();
 
     // Check that the correct versions of ASM have been loaded.
@@ -79,8 +79,8 @@ public class MemoryBenchmark extends AbstractBenchmark {
         || !asm5dot0.getVersion().equals("ASM5")
         || !asm6dot0.getVersion().equals("ASM6")
         || !asm7dot0.getVersion().equals("ASM7")
-        || !asm7dot1.getVersion().equals("ASM7")
-        || !asmCurrent.getVersion().equals("ASM7")) {
+        || !asm8dot0.getVersion().equals("ASM8")
+        || !asmCurrent.getVersion().equals("ASM8")) {
       throw new IllegalStateException();
     }
 
@@ -116,9 +116,9 @@ public class MemoryBenchmark extends AbstractBenchmark {
   }
 
   @Benchmark
-  public void newClass_asm7_1() {
+  public void newClass_asm8_0() {
     for (byte[] classFile : classFiles) {
-      MemoryProfiler.keepReference(asm7dot1.newClass(classFile));
+      MemoryProfiler.keepReference(asm8dot0.newClass(classFile));
     }
   }
 
@@ -158,9 +158,9 @@ public class MemoryBenchmark extends AbstractBenchmark {
   }
 
   @Benchmark
-  public void newClassNode_asm7_1() {
+  public void newClassNode_asm8_0() {
     for (byte[] classFile : classFiles) {
-      MemoryProfiler.keepReference(asm7dot1.newClassNode(classFile));
+      MemoryProfiler.keepReference(asm8dot0.newClassNode(classFile));
     }
   }
 

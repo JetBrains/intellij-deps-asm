@@ -212,11 +212,14 @@ public class ClassReaderTest extends AsmTest implements Opcodes {
   @MethodSource(ALL_CLASSES_AND_ALL_APIS)
   public void testStreamConstructor(final PrecompiledClass classParameter, final Api apiParameter)
       throws IOException {
-    InputStream inputStream =
+    ClassReader classReader;
+    try (InputStream inputStream =
         ClassLoader.getSystemResourceAsStream(
-            classParameter.getName().replace('.', '/') + ".class");
-
-    ClassReader classReader = new ClassReader(inputStream);
+            classParameter.getName().replace('.', '/') + ".class")) {
+      classReader = new ClassReader(inputStream);
+    } catch (IOException ioe) {
+      throw ioe;
+    }
 
     assertNotEquals(0, classReader.getAccess());
     assertEquals(classParameter.getInternalName(), classReader.getClassName());
@@ -239,7 +242,7 @@ public class ClassReaderTest extends AsmTest implements Opcodes {
   /** Tests {@link ClassReader#ClassReader(java.io.InputStream)} with an empty stream. */
   @Test
   public void testStreamConstructor_emptyStream() throws IOException {
-    InputStream inputStream =
+    try (InputStream inputStream =
         new InputStream() {
 
           @Override
@@ -251,13 +254,15 @@ public class ClassReaderTest extends AsmTest implements Opcodes {
           public int read() throws IOException {
             return -1;
           }
-        };
+        }) {
+      Executable streamConstructor = () -> new ClassReader(inputStream);
 
-    Executable streamConstructor = () -> new ClassReader(inputStream);
-
-    assertTimeoutPreemptively(
-        Duration.ofMillis(100),
-        () -> assertThrows(ArrayIndexOutOfBoundsException.class, streamConstructor));
+      assertTimeoutPreemptively(
+          Duration.ofMillis(100),
+          () -> assertThrows(ArrayIndexOutOfBoundsException.class, streamConstructor));
+    } catch (IOException ioe) {
+      throw ioe;
+    }
   }
 
   /** Tests the ClassReader accept method with an empty visitor. */

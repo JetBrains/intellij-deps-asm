@@ -53,7 +53,7 @@ public abstract class AbstractBenchmark {
   private static final String ASM5_0 = BUILD_DIR + "asm5.0.1/";
   private static final String ASM6_0 = BUILD_DIR + "asm6.0/";
   private static final String ASM7_0 = BUILD_DIR + "asm7.0/";
-  private static final String ASM7_1 = BUILD_DIR + "asm7.1/";
+  private static final String ASM8_0 = BUILD_DIR + "asm8.0.1/";
 
   // The directories where the Java 1.5 input data classes for the benchmarks can be found.
   private static final String ASM_CORE_CURRENT = "/asm/build/classes/java/main/";
@@ -85,7 +85,7 @@ public abstract class AbstractBenchmark {
     V5_0,
     V6_0,
     V7_0,
-    V7_1,
+    V8_0,
     V_CURRENT;
 
     URL[] getUrls(final String baseUrl) throws MalformedURLException {
@@ -98,8 +98,8 @@ public abstract class AbstractBenchmark {
           return new URL[] {new URL(baseUrl + ASM6_0)};
         case V7_0:
           return new URL[] {new URL(baseUrl + ASM7_0)};
-        case V7_1:
-          return new URL[] {new URL(baseUrl + ASM7_1)};
+        case V8_0:
+          return new URL[] {new URL(baseUrl + ASM8_0)};
         case V_CURRENT:
           return new URL[] {
             new URL(baseUrl + ASM_CORE_CURRENT), new URL(baseUrl + ASM_TREE_CURRENT)

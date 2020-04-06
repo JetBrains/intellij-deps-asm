@@ -91,7 +91,6 @@
     <exclude name="FinalizeOverloaded" />
     <exclude name="FinalizeShouldBeProtected" />
     <!-- Not relevant for ASM (no logging and using JUnit 5). -->
-    <exclude name="InvalidSlf4jMessageFormat" />
     <exclude name="JUnitSpelling" />
     <exclude name="JUnitStaticSuite" />
     <exclude name="LoggerIsNotStaticFinal" />

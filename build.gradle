@@ -82,8 +82,8 @@ project(':asm-commons') {
 project(':asm-test') {
   description = "Utilities for testing ${parent.description}"
   provides = ['org.objectweb.asm.test']
-  depends = ['org.junit.jupiter:junit-jupiter-api:5.3.2',
-      'org.junit.jupiter:junit-jupiter-params:5.3.2']
+  depends = ['org.junit.jupiter:junit-jupiter-api:5.6.1',
+      'org.junit.jupiter:junit-jupiter-params:5.6.1']
 }
 
 project(':asm-tree') {
@@ -188,9 +188,9 @@ subprojects {
   dependencies {
     requires.each { projectName -> api project(projectName) }
     depends.each { artifactName -> api artifactName }
-    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.3.2',
-        'org.junit.jupiter:junit-jupiter-params:5.3.2'
-    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.3.2'
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.6.1',
+        'org.junit.jupiter:junit-jupiter-params:5.6.1'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.6.1'
     testImplementation project(':asm-test')
   }
 

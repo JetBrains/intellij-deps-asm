@@ -69,15 +69,30 @@ public class HandleTest {
   public void testEquals() {
     Handle handle1 = new Handle(Opcodes.H_GETFIELD, "owner", "name", "descriptor", false);
     Handle handle2 = new Handle(Opcodes.H_GETFIELD, "owner", "name", "descriptor", false);
+    Handle nullHandle = null;
 
-    assertEquals(handle1, handle1);
-    assertEquals(handle1, handle2);
-    assertNotEquals(handle1, null);
-    assertNotEquals(handle1, new Handle(Opcodes.H_PUTFIELD, "owner", "name", "descriptor", false));
-    assertNotEquals(handle1, new Handle(Opcodes.H_GETFIELD, "o", "name", "descriptor", false));
-    assertNotEquals(handle1, new Handle(Opcodes.H_GETFIELD, "owner", "n", "descriptor", false));
-    assertNotEquals(handle1, new Handle(Opcodes.H_GETFIELD, "owner", "name", "d", false));
-    assertNotEquals(handle1, new Handle(Opcodes.H_GETFIELD, "owner", "n", "descriptor", true));
+    final boolean equalsThis = handle1.equals(handle1);
+    final boolean equalsSame = handle1.equals(handle2);
+    final boolean equalsNull = handle1.equals(nullHandle);
+    final boolean equalsHandleWithDifferentTag =
+        handle1.equals(new Handle(Opcodes.H_PUTFIELD, "owner", "name", "descriptor", false));
+    final boolean equalsHandleWithDifferentOwner =
+        handle1.equals(new Handle(Opcodes.H_GETFIELD, "o", "name", "descriptor", false));
+    final boolean equalsHandleWithDifferentName =
+        handle1.equals(new Handle(Opcodes.H_GETFIELD, "owner", "n", "descriptor", false));
+    final boolean equalsHandleWithDifferentDescriptor =
+        handle1.equals(new Handle(Opcodes.H_GETFIELD, "owner", "name", "d", false));
+    final boolean equalsHandleWithDifferentIsInterface =
+        handle1.equals(new Handle(Opcodes.H_GETFIELD, "owner", "n", "descriptor", true));
+
+    assertTrue(equalsThis);
+    assertTrue(equalsSame);
+    assertFalse(equalsNull);
+    assertFalse(equalsHandleWithDifferentTag);
+    assertFalse(equalsHandleWithDifferentOwner);
+    assertFalse(equalsHandleWithDifferentName);
+    assertFalse(equalsHandleWithDifferentDescriptor);
+    assertFalse(equalsHandleWithDifferentIsInterface);
   }
 
   @Test

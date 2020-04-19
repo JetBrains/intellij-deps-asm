@@ -29,9 +29,11 @@ package org.objectweb.asm;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTimeoutPreemptively;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.time.Duration;
 import java.util.Arrays;
@@ -390,13 +392,25 @@ public class TypeTest implements Opcodes {
 
   @Test
   public void testEquals() {
-    assertNotEquals(Type.getObjectType("I"), null);
-    assertNotEquals(Type.getObjectType("I"), Type.INT_TYPE);
-    assertNotEquals(Type.getObjectType("I"), Type.getObjectType("HI"));
-    assertNotEquals(Type.getObjectType("I"), Type.getObjectType("J"));
-    assertEquals(Type.getObjectType("I"), Type.getType("LI;"));
-    assertEquals(Type.getType("LI;"), Type.getObjectType("I"));
-    assertEquals(Type.INT_TYPE, Type.getType("I"));
+    Type nullType = null;
+
+    final boolean equalsNull = Type.getObjectType("I").equals(nullType);
+    final boolean equalsDifferentTypeSort = Type.getObjectType("I").equals(Type.INT_TYPE);
+    final boolean equalsDifferentObjectType =
+        Type.getObjectType("I").equals(Type.getObjectType("HI"));
+    final boolean equalsOtherDifferentObjectType =
+        Type.getObjectType("I").equals(Type.getObjectType("J"));
+    final boolean equalsSameType = Type.getObjectType("I").equals(Type.getType("LI;"));
+    final boolean equalsSameObjectType = Type.getType("LI;").equals(Type.getObjectType("I"));
+    final boolean equalsSamePrimitiveType = Type.INT_TYPE.equals(Type.getType("I"));
+
+    assertFalse(equalsNull);
+    assertFalse(equalsDifferentTypeSort);
+    assertFalse(equalsDifferentObjectType);
+    assertFalse(equalsOtherDifferentObjectType);
+    assertTrue(equalsSameType);
+    assertTrue(equalsSameObjectType);
+    assertTrue(equalsSamePrimitiveType);
   }
 
   @Test

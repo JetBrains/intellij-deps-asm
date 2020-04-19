@@ -28,7 +28,9 @@
 package org.objectweb.asm.tree.analysis;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
 import org.objectweb.asm.Opcodes;
@@ -48,10 +50,18 @@ public class SourceValueTest {
 
   @Test
   public void testEquals() {
-    assertEquals(new SourceValue(1), new SourceValue(1));
-    assertNotEquals(new SourceValue(1), new SourceValue(1, new InsnNode(Opcodes.NOP)));
-    assertNotEquals(new SourceValue(1), new SourceValue(2));
-    assertNotEquals(new SourceValue(1), null);
+    SourceValue nullValue = null;
+
+    boolean equalsSame = new SourceValue(1).equals(new SourceValue(1));
+    boolean equalsValueWithDifferentSource =
+        new SourceValue(1).equals(new SourceValue(1, new InsnNode(Opcodes.NOP)));
+    boolean equalsValueWithDifferentValue = new SourceValue(1).equals(new SourceValue(2));
+    boolean equalsNull = new SourceValue(1).equals(nullValue);
+
+    assertTrue(equalsSame);
+    assertFalse(equalsValueWithDifferentSource);
+    assertFalse(equalsValueWithDifferentValue);
+    assertFalse(equalsNull);
   }
 
   @Test

@@ -52,10 +52,16 @@ public class BasicValueTest {
 
   @Test
   public void testEquals() {
-    assertEquals(new BasicValue(null), BasicValue.UNINITIALIZED_VALUE);
-    assertEquals(new BasicValue(Type.INT_TYPE), BasicValue.INT_VALUE);
-    assertEquals(BasicValue.INT_VALUE, BasicValue.INT_VALUE);
-    assertNotEquals(new Object(), BasicValue.INT_VALUE);
+    boolean equalsSameUninitializedValue =
+        new BasicValue(null).equals(BasicValue.UNINITIALIZED_VALUE);
+    boolean equalsSameValue = new BasicValue(Type.INT_TYPE).equals(BasicValue.INT_VALUE);
+    boolean equalsThis = BasicValue.INT_VALUE.equals(BasicValue.INT_VALUE);
+    boolean equalsDifferentClass = BasicValue.INT_VALUE.equals(new Object());
+
+    assertTrue(equalsSameUninitializedValue);
+    assertTrue(equalsSameValue);
+    assertTrue(equalsThis);
+    assertFalse(equalsDifferentClass);
   }
 
   @Test

@@ -2,6 +2,7 @@ package org.objectweb.asm.test;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -97,10 +98,13 @@ public class ClassFileTest extends AsmTest {
     ClassFile classFile1 = new ClassFile(PrecompiledClass.JDK3_ALL_INSTRUCTIONS.getBytes());
     ClassFile classFile2 = new ClassFile(PrecompiledClass.JDK5_ALL_INSTRUCTIONS.getBytes());
 
-    assertEquals(classFile1, classFile1);
-    assertNotEquals(classFile1, classFile2);
-    assertNotEquals(classFile1, new byte[0]);
-    assertNotEquals(new byte[0], classFile1);
+    boolean equalsThis = classFile1.equals(classFile1);
+    boolean equalsDifferentClass = classFile1.equals(classFile2);
+    boolean equalsInvalidClass = classFile1.equals(new byte[0]);
+
+    assertTrue(equalsThis);
+    assertFalse(equalsDifferentClass);
+    assertFalse(equalsInvalidClass);
   }
 
   @Test

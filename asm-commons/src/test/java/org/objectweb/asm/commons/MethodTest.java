@@ -29,8 +29,10 @@ package org.objectweb.asm.commons;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
 import org.objectweb.asm.Type;
@@ -109,10 +111,19 @@ public class MethodTest {
 
   @Test
   public void testEquals() {
-    assertNotEquals(new Method("name", "()V"), null);
-    assertNotEquals(new Method("name", "()V"), new Method("other", "()V"));
-    assertNotEquals(new Method("name", "()V"), new Method("name", "(I)J"));
-    assertEquals(new Method("name", "()V"), Method.getMethod("void name()"));
+    Method nullMethod = null;
+
+    boolean equalsNull = new Method("name", "()V").equals(nullMethod);
+    boolean equalsMethodWithDifferentName =
+        new Method("name", "()V").equals(new Method("other", "()V"));
+    boolean equalsMethodWithDifferentDescriptor =
+        new Method("name", "()V").equals(new Method("name", "(I)J"));
+    boolean equalsSame = new Method("name", "()V").equals(Method.getMethod("void name()"));
+
+    assertFalse(equalsNull);
+    assertFalse(equalsMethodWithDifferentName);
+    assertFalse(equalsMethodWithDifferentDescriptor);
+    assertTrue(equalsSame);
   }
 
   @Test

@@ -32,7 +32,8 @@ package org.objectweb.asm;
  * {@code visit} [ {@code visitSource} ] [ {@code visitModule} ][ {@code visitNestHost} ][ {@code
  * visitPermittedSubtype} ][ {@code visitOuterClass} ] ( {@code visitAnnotation} | {@code
  * visitTypeAnnotation} | {@code visitAttribute} )* ( {@code visitNestMember} | {@code
- * visitInnerClass} | {@code visitField} | {@code visitMethod} )* {@code visitEnd}.
+ * visitInnerClass} | {@code visitRecordComponent} | {@code visitField} | {@code visitMethod} )*
+ * {@code visitEnd}.
  *
  * @author Eric Bruneton
  */

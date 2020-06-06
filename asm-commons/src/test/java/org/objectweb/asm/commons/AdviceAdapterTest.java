@@ -526,6 +526,42 @@ public class AdviceAdapterTest extends AsmTest {
     assertDoesNotThrow(() -> buildClassWithMethod(outputMethod).newInstance());
   }
 
+  @Test
+  public void testAllMethods_constructorWithForwardJumpAfterHandlerBlockWithoutSuccessor() {
+    Label label1 = new Label();
+    Label label2 = new Label();
+    Label label3 = new Label();
+    MethodNode inputMethod =
+        new MethodNodeBuilder("<init>", "(I)V", 3, 2)
+            .trycatch(label1, label2, label2)
+            .aload(0)
+            .methodInsn(Opcodes.INVOKESPECIAL, "java/lang/Object", "<init>", "()V", false)
+            // After instrumentation, expect a before advice here, before instruction #2.
+            .label(label1)
+            .iconst_0()
+            .go(label3)
+            .label(label2)
+            // After instrumentation, expect an after advice here, before instruction #6.
+            .athrow()
+            .label(label3)
+            .pop()
+            // After instrumentation, expect an after advice here, before instruction #9.
+            .vreturn()
+            .build();
+
+    MethodNode outputMethod = new MethodNode(Opcodes.ACC_PUBLIC, "<init>", "(I)V", null, null);
+    inputMethod.accept(new BasicAdviceAdapter(outputMethod));
+
+    MethodNode expectedMethod =
+        new ExpectedMethodBuilder(inputMethod)
+            .withBeforeAdviceAt(2)
+            .withAfterAdviceAt(6)
+            .withAfterAdviceAt(9)
+            .build();
+    assertEquals(toText(expectedMethod), toText(outputMethod));
+    assertDoesNotThrow(() -> buildClassWithMethod(outputMethod).newInstance());
+  }
+
   @ParameterizedTest
   @MethodSource(ALL_CLASSES_AND_ALL_APIS)
   public void testAllMethods_precompiledClass(

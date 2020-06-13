@@ -154,10 +154,12 @@ public abstract class AdviceAdapter extends GeneratorAdapter implements Opcodes 
           throw new IllegalArgumentException("Invalid return in constructor");
         case RETURN: // empty stack
           onMethodExit(opcode);
+          endConstructorBasicBlockWithoutSuccessor();
           break;
         case ATHROW: // 1 before n/a after
           popValue();
           onMethodExit(opcode);
+          endConstructorBasicBlockWithoutSuccessor();
           break;
         case NOP:
         case LALOAD: // remove 2 add 2
@@ -352,6 +354,7 @@ public abstract class AdviceAdapter extends GeneratorAdapter implements Opcodes 
           popValue();
           break;
         case RET:
+          endConstructorBasicBlockWithoutSuccessor();
           break;
         default:
           throw new IllegalArgumentException(INVALID_OPCODE + opcode);
@@ -529,6 +532,9 @@ public abstract class AdviceAdapter extends GeneratorAdapter implements Opcodes 
         case JSR:
           pushValue(OTHER);
           break;
+        case GOTO:
+          endConstructorBasicBlockWithoutSuccessor();
+          break;
         default:
           break;
       }
@@ -542,6 +548,7 @@ public abstract class AdviceAdapter extends GeneratorAdapter implements Opcodes 
     if (isConstructor && !superClassConstructorCalled) {
       popValue();
       addForwardJumps(dflt, labels);
+      endConstructorBasicBlockWithoutSuccessor();
     }
   }
 
@@ -552,6 +559,7 @@ public abstract class AdviceAdapter extends GeneratorAdapter implements Opcodes 
     if (isConstructor && !superClassConstructorCalled) {
       popValue();
       addForwardJumps(dflt, labels);
+      endConstructorBasicBlockWithoutSuccessor();
     }
   }
 
@@ -586,6 +594,19 @@ public abstract class AdviceAdapter extends GeneratorAdapter implements Opcodes 
       return;
     }
     forwardJumpStackFrames.put(label, new ArrayList<>(stackFrame));
+  }
+
+  private void endConstructorBasicBlockWithoutSuccessor() {
+    // The next instruction is not reachable from this instruction. If it is dead code, we
+    // should not try to simulate stack operations, and there is no need to insert advices
+    // here. If it is reachable with a backward jump, the only possible case is that the super
+    // class constructor has already been called (backward jumps are forbidden before it is
+    // called). If it is reachable with a forward jump, there are two sub-cases. Either the
+    // super class constructor has already been called when reaching the next instruction, or
+    // it has not been called. But in this case there must be a forwardJumpStackFrames entry
+    // for a Label designating the next instruction, and superClassConstructorCalled will be
+    // reset to false there. We can therefore always reset this field to true here.
+    superClassConstructorCalled = true;
   }
 
   private Object popValue() {

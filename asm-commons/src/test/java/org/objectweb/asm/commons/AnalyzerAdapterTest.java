@@ -181,7 +181,7 @@ public class AnalyzerAdapterTest extends AsmTest {
     private boolean hasOriginalFrame;
 
     AnalyzedFramesInserter(final MethodVisitor methodVisitor) {
-      super(/* latest */ Opcodes.ASM9_EXPERIMENTAL, methodVisitor);
+      super(/* latest */ Opcodes.ASM10_EXPERIMENTAL, methodVisitor);
     }
 
     void setAnalyzerAdapter(final AnalyzerAdapter analyzerAdapter) {

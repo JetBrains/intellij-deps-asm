@@ -45,7 +45,6 @@ meth public void visitInnerClass(java.lang.String,java.lang.String,java.lang.Str
 meth public void visitNestHost(java.lang.String)
 meth public void visitNestMember(java.lang.String)
 meth public void visitOuterClass(java.lang.String,java.lang.String,java.lang.String)
-meth public void visitPermittedSubtypeExperimental(java.lang.String)
 meth public void visitSource(java.lang.String,java.lang.String)
 supr java.lang.Object
 
@@ -224,7 +223,6 @@ meth public void visitNestMember(java.lang.String)
 meth public void visitOuterClass(java.lang.String,java.lang.String,java.lang.String)
 meth public void visitPackage(java.lang.String)
 meth public void visitParameter(java.lang.String,int)
-meth public void visitPermittedSubtypeExperimental(java.lang.String)
 meth public void visitRecordComponentAttribute(org.objectweb.asm.Attribute)
 meth public void visitRecordComponentEnd()
 meth public void visitRequire(java.lang.String,int,java.lang.String)
@@ -272,7 +270,6 @@ meth public void visitInnerClass(java.lang.String,java.lang.String,java.lang.Str
 meth public void visitNestHost(java.lang.String)
 meth public void visitNestMember(java.lang.String)
 meth public void visitOuterClass(java.lang.String,java.lang.String,java.lang.String)
-meth public void visitPermittedSubtypeExperimental(java.lang.String)
 meth public void visitSource(java.lang.String,java.lang.String)
 supr org.objectweb.asm.ClassVisitor
 hfds ERROR_AT,USAGE,checkDataFlow,labelInsnIndices,nestMemberPackageName,version,visitCalled,visitEndCalled,visitModuleCalled,visitNestHostCalled,visitOuterClassCalled,visitSourceCalled
@@ -454,7 +451,6 @@ meth public void visitNestHost(java.lang.String)
 meth public void visitNestMember(java.lang.String)
 meth public void visitPackage(java.lang.String)
 meth public void visitParameter(java.lang.String,int)
-meth public void visitPermittedSubtypeExperimental(java.lang.String)
 meth public void visitRecordComponentAttribute(org.objectweb.asm.Attribute)
 meth public void visitRecordComponentEnd()
 meth public void visitRequire(java.lang.String,int,java.lang.String)
@@ -543,7 +539,6 @@ meth public void visitNestMember(java.lang.String)
 meth public void visitOuterClass(java.lang.String,java.lang.String,java.lang.String)
 meth public void visitPackage(java.lang.String)
 meth public void visitParameter(java.lang.String,int)
-meth public void visitPermittedSubtypeExperimental(java.lang.String)
 meth public void visitRecordComponentAttribute(org.objectweb.asm.Attribute)
 meth public void visitRecordComponentEnd()
 meth public void visitRequire(java.lang.String,int,java.lang.String)
@@ -587,7 +582,6 @@ meth public void visitInnerClass(java.lang.String,java.lang.String,java.lang.Str
 meth public void visitNestHost(java.lang.String)
 meth public void visitNestMember(java.lang.String)
 meth public void visitOuterClass(java.lang.String,java.lang.String,java.lang.String)
-meth public void visitPermittedSubtypeExperimental(java.lang.String)
 meth public void visitSource(java.lang.String,java.lang.String)
 supr org.objectweb.asm.ClassVisitor
 hfds printWriter

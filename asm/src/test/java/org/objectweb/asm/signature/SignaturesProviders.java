@@ -39,7 +39,7 @@ public final class SignaturesProviders {
   private static void collectSignatures(final PrecompiledClass classParameter) {
     ClassReader classReader = new ClassReader(classParameter.getBytes());
     classReader.accept(
-        new ClassVisitor(/*latest api */ Opcodes.ASM8) {
+        new ClassVisitor(/*latest api */ Opcodes.ASM9) {
           @Override
           public void visit(
               final int version,

@@ -1173,7 +1173,7 @@ public class AnalyzerTest extends AsmTest {
   private static class MockInterpreter extends Interpreter<MockValue> {
 
     MockInterpreter() {
-      super(/* latest */ Opcodes.ASM9_EXPERIMENTAL);
+      super(/* latest */ Opcodes.ASM10_EXPERIMENTAL);
     }
 
     @Override

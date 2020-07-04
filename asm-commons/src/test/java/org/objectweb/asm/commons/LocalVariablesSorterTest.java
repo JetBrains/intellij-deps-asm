@@ -218,7 +218,7 @@ public class LocalVariablesSorterTest extends AsmTest {
         new ClassReader(Files.newInputStream(Paths.get("src/test/resources/Issue317586.class")));
     ClassWriter classWriter = new ClassWriter(0);
     ClassVisitor localVariablesSorter =
-        new LocalVariablesSorterClassAdapter(/* latest */ Opcodes.ASM9_EXPERIMENTAL, classWriter);
+        new LocalVariablesSorterClassAdapter(/* latest */ Opcodes.ASM10_EXPERIMENTAL, classWriter);
 
     classReader.accept(localVariablesSorter, ClassReader.EXPAND_FRAMES);
 

@@ -292,7 +292,8 @@ public abstract class Printer {
 
   /**
    * The ASM API version implemented by this class. The value of this field must be one of {@link
-   * Opcodes#ASM4}, {@link Opcodes#ASM5}, {@link Opcodes#ASM6} or {@link Opcodes#ASM7}.
+   * Opcodes#ASM4}, {@link Opcodes#ASM5}, {@link Opcodes#ASM6}, {@link Opcodes#ASM7}, {@link
+   * Opcodes#ASM8} or {@link Opcodes#ASM9}.
    */
   protected final int api;
 
@@ -454,18 +455,12 @@ public abstract class Printer {
   }
 
   /**
-   * <b>Experimental, use at your own risk. This method will be renamed when it becomes stable, this
-   * will break existing code using it</b>.
+   * Visits a permitted subclasses. A permitted subclass is one of the allowed subclasses of the
+   * current class. See {@link org.objectweb.asm.ClassVisitor#visitPermittedSubclass(String)}.
    *
-   * <p>Visits a permitted subtypes. A permitted subtypes is one of the allowed subtypes of the
-   * current class. See {@link
-   * org.objectweb.asm.ClassVisitor#visitPermittedSubtypeExperimental(String)}.
-   *
-   * @param permittedSubtype the internal name of a permitted subtype.
-   * @deprecated this API is experimental.
+   * @param permittedSubclass the internal name of a permitted subclass.
    */
-  @Deprecated
-  public void visitPermittedSubtypeExperimental(final String permittedSubtype) {
+  public void visitPermittedSubclass(final String permittedSubclass) {
     throw new UnsupportedOperationException(UNSUPPORTED_OPERATION);
   }
 

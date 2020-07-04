@@ -82,7 +82,7 @@ public class SimpleVerifierTest {
     Type interfaceType = Type.getObjectType("I");
     SimpleVerifier simpleVerifier =
         new SimpleVerifier(
-            /* latest */ Opcodes.ASM9_EXPERIMENTAL,
+            /* latest */ Opcodes.ASM10_EXPERIMENTAL,
             baseType,
             superType,
             Arrays.asList(interfaceType),
@@ -120,7 +120,7 @@ public class SimpleVerifierTest {
     Type interfaceType = Type.getObjectType("I");
     SimpleVerifier simpleVerifier =
         new SimpleVerifier(
-            /* latest */ Opcodes.ASM9_EXPERIMENTAL, interfaceType, null, null, true) {
+            /* latest */ Opcodes.ASM10_EXPERIMENTAL, interfaceType, null, null, true) {
 
           @Override
           protected Type getSuperClass(final Type type) {

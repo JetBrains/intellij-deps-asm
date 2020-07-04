@@ -454,7 +454,7 @@ public class CheckClassAdapterTest extends AsmTest implements Opcodes {
     ClassVisitor classVisitor =
         new CheckClassAdapter(
             apiParameter.value(),
-            new ClassVisitor(/* latest */ Opcodes.ASM9_EXPERIMENTAL, null) {},
+            new ClassVisitor(/* latest */ Opcodes.ASM10_EXPERIMENTAL, null) {},
             true) {};
 
     Executable accept = () -> classReader.accept(classVisitor, attributes(), 0);

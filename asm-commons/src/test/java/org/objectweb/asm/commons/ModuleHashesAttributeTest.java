@@ -60,7 +60,7 @@ public class ModuleHashesAttributeTest {
     ModuleHashesAttribute moduleHashesAttribute = new ModuleHashesAttribute();
     new ClassReader(classWriter.toByteArray())
         .accept(
-            new ClassVisitor(/* latest */ Opcodes.ASM9_EXPERIMENTAL) {
+            new ClassVisitor(/* latest */ Opcodes.ASM10_EXPERIMENTAL) {
 
               @Override
               public void visitAttribute(final Attribute attribute) {

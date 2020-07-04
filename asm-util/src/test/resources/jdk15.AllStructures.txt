@@ -5,8 +5,8 @@ public abstract interface jdk15/AllStructures {
   // compiled from: AllStructures.java
   NESTMEMBER jdk15/AllStructures$RecordSubType
   NESTMEMBER jdk15/AllStructures$ClassSubType
-  PERMITTEDSUBTYPE jdk15/AllStructures$ClassSubType
-  PERMITTEDSUBTYPE jdk15/AllStructures$RecordSubType
+  PERMITTEDSUBCLASS jdk15/AllStructures$ClassSubType
+  PERMITTEDSUBCLASS jdk15/AllStructures$RecordSubType
   // access flags 0x19
   public final static INNERCLASS jdk15/AllStructures$RecordSubType jdk15/AllStructures RecordSubType
   // access flags 0x19

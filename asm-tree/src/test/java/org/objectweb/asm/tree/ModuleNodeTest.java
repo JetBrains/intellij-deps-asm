@@ -49,7 +49,7 @@ public class ModuleNodeTest extends AsmTest {
     ModuleNode moduleNode1 = new ModuleNode("module1", 123, "1.0");
     ModuleNode moduleNode2 =
         new ModuleNode(
-            /* latest */ Opcodes.ASM9_EXPERIMENTAL,
+            /* latest */ Opcodes.ASM10_EXPERIMENTAL,
             "module2",
             456,
             "2.0",
@@ -79,7 +79,7 @@ public class ModuleNodeTest extends AsmTest {
     ModuleNode moduleNode = new ModuleNode("module", 123, "1.0");
     ModuleNode dstModuleNode = new ModuleNode("", 0, "");
     ClassVisitor copyModuleVisitor =
-        new ClassVisitor(/* latest */ Opcodes.ASM9_EXPERIMENTAL) {
+        new ClassVisitor(/* latest */ Opcodes.ASM10_EXPERIMENTAL) {
           @Override
           public ModuleVisitor visitModule(
               final String name, final int access, final String version) {

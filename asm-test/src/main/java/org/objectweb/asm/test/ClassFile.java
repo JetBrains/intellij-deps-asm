@@ -494,7 +494,7 @@ public class ClassFile {
       dumpNestHostAttribute(parser, builder);
     } else if (attributeName.equals("NestMembers")) {
       dumpNestMembersAttribute(parser, builder);
-    } else if (attributeName.equals("PermittedSubtypes")) {
+    } else if (attributeName.equals("PermittedSubclasses")) {
       dumpPermittedSubtypesAttribute(parser, builder);
     } else if (attributeName.equals("Record")) {
       dumpRecordAttribute(parser, builder);

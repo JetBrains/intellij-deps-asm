@@ -541,7 +541,7 @@ public class MethodVisitorTest extends AsmTest {
     private final StringWriter log;
 
     LogMethodVisitor(final StringWriter log) {
-      super(/* latest */ Opcodes.ASM9_EXPERIMENTAL);
+      super(/* latest */ Opcodes.ASM10_EXPERIMENTAL);
       this.log = log;
     }
 

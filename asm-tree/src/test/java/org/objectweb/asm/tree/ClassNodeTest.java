@@ -201,7 +201,7 @@ public class ClassNodeTest extends AsmTest {
     public void visitNestMember(final String nestMember) {}
 
     @Override
-    public void visitPermittedSubtypeExperimental(final String permittedSubtype) {}
+    public void visitPermittedSubclass(final String permittedSubclass) {}
 
     @Override
     public AnnotationVisitor visitAnnotation(final String descriptor, final boolean visible) {

@@ -230,7 +230,8 @@ public class ConstantsTest {
       case "ASM6":
       case "ASM7":
       case "ASM8":
-      case "ASM9_EXPERIMENTAL":
+      case "ASM9":
+      case "ASM10_EXPERIMENTAL":
         return ConstantType.ASM_VERSION;
       case "V_PREVIEW":
       case "V1_1":
@@ -248,6 +249,7 @@ public class ConstantsTest {
       case "V13":
       case "V14":
       case "V15":
+      case "V16":
         return ConstantType.CLASS_VERSION;
       case "ACC_PUBLIC":
       case "ACC_PRIVATE":

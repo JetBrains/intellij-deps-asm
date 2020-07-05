@@ -370,7 +370,7 @@ public class ClassReaderTest extends AsmTest implements Opcodes {
 
   /**
    * Tests the ClassReader accept method with a visitor that skips fields, methods, members,
-   * modules, nest host, permitted subtypes and record.
+   * modules, nest host, permitted subclasses and record.
    */
   @ParameterizedTest
   @MethodSource(ALL_CLASSES_AND_ALL_APIS)
@@ -470,7 +470,7 @@ public class ClassReaderTest extends AsmTest implements Opcodes {
 
     Executable accept = () -> classReader.accept(classVisitor, 0);
 
-    boolean hasPermittedSubtypes = classParameter == PrecompiledClass.JDK15_ALL_STRUCTURES;
+    boolean hasPermittedSubclasses = classParameter == PrecompiledClass.JDK15_ALL_STRUCTURES;
     boolean hasRecord =
         classParameter == PrecompiledClass.JDK14_ALL_STRUCTURES_RECORD
             || classParameter == PrecompiledClass.JDK14_ALL_STRUCTURES_EMPTY_RECORD;
@@ -479,7 +479,7 @@ public class ClassReaderTest extends AsmTest implements Opcodes {
             || classParameter == PrecompiledClass.JDK11_ALL_STRUCTURES_NESTED;
     boolean hasModules = classParameter == PrecompiledClass.JDK9_MODULE;
     boolean hasTypeAnnotations = classParameter == PrecompiledClass.JDK8_ALL_STRUCTURES;
-    if ((hasPermittedSubtypes && apiParameter.value() < ASM9)
+    if ((hasPermittedSubclasses && apiParameter.value() < ASM9)
         || (hasRecord && apiParameter.value() < ASM8)
         || (hasNestHostOrMembers && apiParameter.value() < ASM7)
         || (hasModules && apiParameter.value() < ASM6)

@@ -89,12 +89,12 @@ public class PrinterTest {
   }
 
   @Test
-  public void testVisitPermittedSubtype_unsupportedByDefault() {
+  public void testVisitPermittedSubclass_unsupportedByDefault() {
     Printer printer = new EmptyPrinter(/* latest */ Opcodes.ASM10_EXPERIMENTAL);
 
-    Executable visitPermittedSubtype = () -> printer.visitPermittedSubclass(null);
+    Executable visitPermittedSubclass = () -> printer.visitPermittedSubclass(null);
 
-    Exception exception = assertThrows(UnsupportedOperationException.class, visitPermittedSubtype);
+    Exception exception = assertThrows(UnsupportedOperationException.class, visitPermittedSubclass);
     assertEquals(UNSUPPORTED_OPERATION_MESSAGE, exception.getMessage());
   }
 

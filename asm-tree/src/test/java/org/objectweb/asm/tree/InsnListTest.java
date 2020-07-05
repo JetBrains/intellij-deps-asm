@@ -32,6 +32,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -264,6 +265,13 @@ public class InsnListTest {
     iterator.set(insn);
 
     assertArrayEquals(new AbstractInsnNode[] {insn, insn2}, insnList.toArray());
+  }
+
+  @Test
+  public void testIterator_cacheIsNull() {
+    InsnList insnList = newInsnList(insn1, insn2);
+    insnList.iterator();
+    assertNull(insnList.cache);
   }
 
   @Test

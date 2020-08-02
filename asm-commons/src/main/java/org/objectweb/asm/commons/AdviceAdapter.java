@@ -456,10 +456,10 @@ public abstract class AdviceAdapter extends GeneratorAdapter implements Opcodes 
     super.visitMethodInsn(opcodeAndSource, owner, name, descriptor, isInterface);
     int opcode = opcodeAndSource & ~Opcodes.SOURCE_MASK;
 
-    doVisitMethodInsn(opcode, descriptor);
+    doVisitMethodInsn(opcode, name, descriptor);
   }
 
-  private void doVisitMethodInsn(final int opcode, final String descriptor) {
+  private void doVisitMethodInsn(final int opcode, final String name, final String descriptor) {
     if (isConstructor && !superClassConstructorCalled) {
       for (Type argumentType : Type.getArgumentTypes(descriptor)) {
         popValue();
@@ -474,7 +474,9 @@ public abstract class AdviceAdapter extends GeneratorAdapter implements Opcodes 
           break;
         case INVOKESPECIAL:
           Object value = popValue();
-          if (value == UNINITIALIZED_THIS && !superClassConstructorCalled) {
+          if (value == UNINITIALIZED_THIS
+              && !superClassConstructorCalled
+              && name.equals("<init>")) {
             superClassConstructorCalled = true;
             onMethodEnter();
           }
@@ -500,7 +502,7 @@ public abstract class AdviceAdapter extends GeneratorAdapter implements Opcodes 
       final Handle bootstrapMethodHandle,
       final Object... bootstrapMethodArguments) {
     super.visitInvokeDynamicInsn(name, descriptor, bootstrapMethodHandle, bootstrapMethodArguments);
-    doVisitMethodInsn(Opcodes.INVOKEDYNAMIC, descriptor);
+    doVisitMethodInsn(Opcodes.INVOKEDYNAMIC, name, descriptor);
   }
 
   @Override

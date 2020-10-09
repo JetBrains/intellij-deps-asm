@@ -53,7 +53,7 @@ public class ASMifier extends Printer {
   /** The help message shown when command line arguments are incorrect. */
   private static final String USAGE =
       "Prints the ASM code to generate the given class.\n"
-          + "Usage: ASMifier [-debug] <fully qualified class name or class file name>";
+          + "Usage: ASMifier [-nodebug] <fully qualified class name or class file name>";
 
   /** A pseudo access flag used to distinguish class access flags. */
   private static final int ACCESS_CLASS = 0x40000;
@@ -150,7 +150,7 @@ public class ASMifier extends Printer {
   /**
    * Prints the ASM source code to generate the given class to the standard output.
    *
-   * <p>Usage: ASMifier [-debug] &lt;binary class name or class file name&gt;
+   * <p>Usage: ASMifier [-nodebug] &lt;binary class name or class file name&gt;
    *
    * @param args the command line arguments.
    * @throws IOException if the class cannot be found, or if an IOException occurs.
@@ -162,7 +162,7 @@ public class ASMifier extends Printer {
   /**
    * Prints the ASM source code to generate the given class to the given output.
    *
-   * <p>Usage: ASMifier [-debug] &lt;binary class name or class file name&gt;
+   * <p>Usage: ASMifier [-nodebug] &lt;binary class name or class file name&gt;
    *
    * @param args the command line arguments.
    * @param output where to print the result.

@@ -66,7 +66,7 @@ public class ASMifierTest extends AsmTest {
 
   private static final String EXPECTED_USAGE =
       "Prints the ASM code to generate the given class.\n"
-          + "Usage: ASMifier [-debug] <fully qualified class name or class file name>\n";
+          + "Usage: ASMifier [-nodebug] <fully qualified class name or class file name>\n";
 
   private static final IClassLoader ICLASS_LOADER =
       new ClassLoaderIClassLoader(new URLClassLoader(new URL[0]));
@@ -129,10 +129,10 @@ public class ASMifierTest extends AsmTest {
   }
 
   @Test
-  public void testMain_missingClassName_withDebug() throws IOException {
+  public void testMain_missingClassName_withNodebug() throws IOException {
     StringWriter output = new StringWriter();
     StringWriter logger = new StringWriter();
-    String[] args = {"-debug"};
+    String[] args = {"-nodebug"};
 
     ASMifier.main(args, new PrintWriter(output, true), new PrintWriter(logger, true));
 
@@ -144,7 +144,7 @@ public class ASMifierTest extends AsmTest {
   public void testMain_tooManyArguments() throws IOException {
     StringWriter output = new StringWriter();
     StringWriter logger = new StringWriter();
-    String[] args = {"-debug", getClass().getName(), "extraArgument"};
+    String[] args = {"-nodebug", getClass().getName(), "extraArgument"};
 
     ASMifier.main(args, new PrintWriter(output, true), new PrintWriter(logger, true));
 
@@ -195,10 +195,10 @@ public class ASMifierTest extends AsmTest {
   }
 
   @Test
-  public void testMain_className_withDebug() throws IOException {
+  public void testMain_className_withNodebug() throws IOException {
     StringWriter output = new StringWriter();
     StringWriter logger = new StringWriter();
-    String[] args = {"-debug", getClass().getName()};
+    String[] args = {"-nodebug", getClass().getName()};
 
     ASMifier.main(args, new PrintWriter(output, true), new PrintWriter(logger, true));
 

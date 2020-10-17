@@ -57,7 +57,7 @@ public class TextifierTest extends AsmTest {
 
   private static final String EXPECTED_USAGE =
       "Prints a disassembled view of the given class.\n"
-          + "Usage: Textifier [-debug] <fully qualified class name or class file name>\n";
+          + "Usage: Textifier [-nodebug] <fully qualified class name or class file name>\n";
 
   @Test
   public void testConstructor() {
@@ -107,10 +107,10 @@ public class TextifierTest extends AsmTest {
   }
 
   @Test
-  public void testMain_missingClassName_withDebug() throws IOException {
+  public void testMain_missingClassName_withNodebug() throws IOException {
     StringWriter output = new StringWriter();
     StringWriter logger = new StringWriter();
-    String[] args = {"-debug"};
+    String[] args = {"-nodebug"};
 
     Textifier.main(args, new PrintWriter(output, true), new PrintWriter(logger, true));
 
@@ -122,7 +122,7 @@ public class TextifierTest extends AsmTest {
   public void testMain_tooManyArguments() throws IOException {
     StringWriter output = new StringWriter();
     StringWriter logger = new StringWriter();
-    String[] args = {"-debug", getClass().getName(), "extraArgument"};
+    String[] args = {"-nodebug", getClass().getName(), "extraArgument"};
 
     Textifier.main(args, new PrintWriter(output, true), new PrintWriter(logger, true));
 
@@ -173,10 +173,10 @@ public class TextifierTest extends AsmTest {
   }
 
   @Test
-  public void testMain_className_withDebug() throws IOException {
+  public void testMain_className_withNoebug() throws IOException {
     StringWriter output = new StringWriter();
     StringWriter logger = new StringWriter();
-    String[] args = {"-debug", getClass().getName()};
+    String[] args = {"-nodebug", getClass().getName()};
 
     Textifier.main(args, new PrintWriter(output, true), new PrintWriter(logger, true));
 

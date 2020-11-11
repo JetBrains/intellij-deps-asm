@@ -44,7 +44,7 @@ subprojects {
   apply plugin: 'jacoco'
   def snapshotSuffix = rootProject.hasProperty('release') ? '' : '-SNAPSHOT'
   group = 'org.ow2.asm'
-  version = '9.0' + snapshotSuffix
+  version = '9.0.1' + snapshotSuffix
   sourceCompatibility = '1.8'
   targetCompatibility = '1.8'
   test { useJUnitPlatform() }
@@ -426,4 +426,5 @@ configure(subprojects.findAll { it.provides }) {
     required rootProject.hasProperty('release')
     sign publishing.publications.mavenJava
   }
+  tasks.withType(GenerateModuleMetadata) { enabled = false }
 }

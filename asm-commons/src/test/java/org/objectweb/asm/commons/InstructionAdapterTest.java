@@ -200,13 +200,13 @@ public class InstructionAdapterTest extends AsmTest {
   }
 
   @Test
-  public void testInvokeSpecial_illegalArgument() {
+  public void testInvokeSpecial_unsupportedOperation() {
     InstructionAdapter instructionAdapter = new InstructionAdapter(Opcodes.ASM4, null);
 
     Executable invokeSpecial =
         () -> instructionAdapter.invokespecial("pkg/Class", "name", "()V", /* isInterface= */ true);
 
-    assertThrows(IllegalArgumentException.class, invokeSpecial);
+    assertThrows(UnsupportedOperationException.class, invokeSpecial);
   }
 
   @Test
@@ -221,13 +221,13 @@ public class InstructionAdapterTest extends AsmTest {
   }
 
   @Test
-  public void testInvokeVirtual_illegalArgument() {
+  public void testInvokeVirtual_unsupportedOperation() {
     InstructionAdapter instructionAdapter = new InstructionAdapter(Opcodes.ASM4, null);
 
     Executable invokeVirtual =
         () -> instructionAdapter.invokevirtual("pkg/Class", "name", "()V", /* isInterface= */ true);
 
-    assertThrows(IllegalArgumentException.class, invokeVirtual);
+    assertThrows(UnsupportedOperationException.class, invokeVirtual);
   }
 
   @Test
@@ -242,13 +242,13 @@ public class InstructionAdapterTest extends AsmTest {
   }
 
   @Test
-  public void testInvokeStatic_illegalArgument() {
+  public void testInvokeStatic_unsupportedOperation() {
     InstructionAdapter instructionAdapter = new InstructionAdapter(Opcodes.ASM4, null);
 
     Executable invokeStatic =
         () -> instructionAdapter.invokestatic("pkg/Class", "name", "()V", /* isInterface= */ true);
 
-    assertThrows(IllegalArgumentException.class, invokeStatic);
+    assertThrows(UnsupportedOperationException.class, invokeStatic);
   }
 
   /** Tests that classes transformed with an InstructionAdapter are unchanged. */

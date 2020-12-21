@@ -113,6 +113,38 @@ public class AnalyzerWithBasicInterpreterTest extends AsmTest {
   }
 
   /**
+   * Tests that the precompiled classes can be successfully analyzed with a BasicInterpreter, even
+   * if the method node's max locals and max stack size are not set.
+   *
+   * @throws AnalyzerException if the test class can't be analyzed.
+   */
+  @ParameterizedTest
+  @MethodSource(ALL_CLASSES_AND_LATEST_API)
+  public void testAnalyzeAndComputeMaxs_basicInterpreter(
+      final PrecompiledClass classParameter, final Api apiParameter) throws AnalyzerException {
+    ClassNode classNode = new ClassNode();
+    new ClassReader(classParameter.getBytes()).accept(classNode, 0);
+    ArrayList<MethodMaxs> methodMaxs = new ArrayList<>();
+    for (MethodNode methodNode : classNode.methods) {
+      methodMaxs.add(new MethodMaxs(methodNode.maxStack, methodNode.maxLocals));
+      methodNode.maxLocals = 0;
+      methodNode.maxStack = 0;
+    }
+    Analyzer<BasicValue> analyzer = new Analyzer<BasicValue>(new BasicInterpreter());
+
+    ArrayList<MethodMaxs> analyzedMethodMaxs = new ArrayList<>();
+    for (MethodNode methodNode : classNode.methods) {
+      analyzer.analyzeAndComputeMaxs(classNode.name, methodNode);
+      analyzedMethodMaxs.add(new MethodMaxs(methodNode.maxStack, methodNode.maxLocals));
+    }
+
+    for (int i = 0; i < analyzedMethodMaxs.size(); ++i) {
+      assertTrue(analyzedMethodMaxs.get(i).maxLocals >= methodMaxs.get(i).maxLocals);
+      assertTrue(analyzedMethodMaxs.get(i).maxStack >= methodMaxs.get(i).maxStack);
+    }
+  }
+
+  /**
    * Tests that the analyzer does not loop infinitely, even if the {@link Interpreter#merge} method
    * does not follow its required contract (namely that if the merge result is equal to the first
    * argument, the first argument should be returned - see #316326).
@@ -186,6 +218,17 @@ public class AnalyzerWithBasicInterpreterTest extends AsmTest {
     public Frame<BasicValue> init(final Frame<? extends BasicValue> frame) {
       assertTrue(frame instanceof CustomFrame);
       return super.init(frame);
+    }
+  }
+
+  private static class MethodMaxs {
+
+    public final int maxStack;
+    public final int maxLocals;
+
+    public MethodMaxs(final int maxStack, final int maxLocals) {
+      this.maxStack = maxStack;
+      this.maxLocals = maxLocals;
     }
   }
 }

@@ -206,7 +206,7 @@ public abstract class AsmTest {
      */
     public byte[] getBytes() {
       if (bytes == null) {
-        bytes = AsmTest.getBytes(name);
+        bytes = AsmTest.getBytes(name, ".class");
       }
       return bytes.clone();
     }
@@ -225,12 +225,14 @@ public abstract class AsmTest {
   public enum InvalidClass {
     INVALID_BYTECODE_OFFSET("invalid.InvalidBytecodeOffset"),
     INVALID_CLASS_VERSION("invalid.InvalidClassVersion"),
+    INVALID_CODE_LENGTH("invalid.InvalidCodeLength"),
     INVALID_CONSTANT_POOL_INDEX("invalid.InvalidConstantPoolIndex"),
     INVALID_CONSTANT_POOL_REFERENCE("invalid.InvalidConstantPoolReference"),
     INVALID_CP_INFO_TAG("invalid.InvalidCpInfoTag"),
     INVALID_ELEMENT_VALUE("invalid.InvalidElementValue"),
     INVALID_INSN_TYPE_ANNOTATION_TARGET_TYPE("invalid.InvalidInsnTypeAnnotationTargetType"),
     INVALID_OPCODE("invalid.InvalidOpcode"),
+    INVALID_SOURCE_DEBUG_EXTENSION("invalid.InvalidSourceDebugExtension"),
     INVALID_STACK_MAP_FRAME_TYPE("invalid.InvalidStackMapFrameType"),
     INVALID_TYPE_ANNOTATION_TARGET_TYPE("invalid.InvalidTypeAnnotationTargetType"),
     INVALID_VERIFICATION_TYPE_INFO("invalid.InvalidVerificationTypeInfo"),
@@ -243,12 +245,21 @@ public abstract class AsmTest {
     }
 
     /**
+     * Returns the fully qualified name of this class.
+     *
+     * @return the fully qualified name of this class.
+     */
+    public String getName() {
+      return name;
+    }
+
+    /**
      * Returns the content of this class.
      *
      * @return the content of this class.
      */
     public byte[] getBytes() {
-      return AsmTest.getBytes(name);
+      return AsmTest.getBytes(name, ".clazz");
     }
 
     @Override
@@ -326,8 +337,8 @@ public abstract class AsmTest {
                 Arrays.stream(apis).map(api -> Arguments.of(precompiledClass, api)));
   }
 
-  private static byte[] getBytes(final String name) {
-    String resourceName = name.replace('.', '/') + ".class";
+  private static byte[] getBytes(final String name, final String extension) {
+    String resourceName = name.replace('.', '/') + extension;
     try (InputStream inputStream = ClassLoader.getSystemResourceAsStream(resourceName)) {
       if (inputStream == null) {
         throw new IllegalArgumentException("Class not found " + name);

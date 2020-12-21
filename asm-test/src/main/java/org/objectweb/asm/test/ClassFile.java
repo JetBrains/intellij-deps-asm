@@ -2344,6 +2344,9 @@ public class ClassFile {
     }
 
     byte[] bytes(final int length) throws IOException {
+      if (length > dataInputStream.available()) {
+        throw new ClassFormatException("Invalid length: " + length);
+      }
       byte[] bytes = new byte[length];
       dataInputStream.readFully(bytes);
       return bytes;

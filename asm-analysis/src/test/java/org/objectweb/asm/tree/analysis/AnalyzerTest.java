@@ -400,9 +400,9 @@ public class AnalyzerTest extends AsmTest {
 
     Frame<?>[] frames = newAnalyzer().analyze(CLASS_NAME, methodNode);
 
-    MethodInfo methodInfo = computeMaxStackAndLocalsFromFrames(frames);
-    assertEquals(methodNode.maxStack, methodInfo.maxStack);
-    assertEquals(methodNode.maxLocals, methodInfo.maxLocals);
+    MethodMaxs methodMaxs = computeMaxStackAndLocalsFromFrames(frames);
+    assertEquals(methodNode.maxStack, methodMaxs.maxStack);
+    assertEquals(methodNode.maxLocals, methodMaxs.maxLocals);
     assertDoesNotThrow(() -> MethodNodeBuilder.buildClassWithMethod(methodNode).newInstance());
   }
 
@@ -468,9 +468,9 @@ public class AnalyzerTest extends AsmTest {
 
     Frame<?>[] frames = newAnalyzer().analyze(CLASS_NAME, methodNode);
 
-    MethodInfo methodInfo = computeMaxStackAndLocalsFromFrames(frames);
-    assertEquals(methodNode.maxStack, methodInfo.maxStack);
-    assertEquals(methodNode.maxLocals, methodInfo.maxLocals);
+    MethodMaxs methodMaxs = computeMaxStackAndLocalsFromFrames(frames);
+    assertEquals(methodNode.maxStack, methodMaxs.maxStack);
+    assertEquals(methodNode.maxLocals, methodMaxs.maxLocals);
     assertDoesNotThrow(() -> MethodNodeBuilder.buildClassWithMethod(methodNode).newInstance());
   }
 
@@ -541,9 +541,9 @@ public class AnalyzerTest extends AsmTest {
 
     Frame<?>[] frames = newAnalyzer().analyze(CLASS_NAME, methodNode);
 
-    MethodInfo methodInfo = computeMaxStackAndLocalsFromFrames(frames);
-    assertEquals(methodNode.maxStack, methodInfo.maxStack);
-    assertEquals(methodNode.maxLocals, methodInfo.maxLocals);
+    MethodMaxs methodMaxs = computeMaxStackAndLocalsFromFrames(frames);
+    assertEquals(methodNode.maxStack, methodMaxs.maxStack);
+    assertEquals(methodNode.maxLocals, methodMaxs.maxLocals);
     assertDoesNotThrow(() -> MethodNodeBuilder.buildClassWithMethod(methodNode).newInstance());
   }
 
@@ -567,9 +567,9 @@ public class AnalyzerTest extends AsmTest {
 
     Frame<?>[] frames = newAnalyzer().analyze(CLASS_NAME, methodNode);
 
-    MethodInfo methodInfo = computeMaxStackAndLocalsFromFrames(frames);
-    assertEquals(methodNode.maxStack, methodInfo.maxStack);
-    assertEquals(methodNode.maxLocals, methodInfo.maxLocals);
+    MethodMaxs methodMaxs = computeMaxStackAndLocalsFromFrames(frames);
+    assertEquals(methodNode.maxStack, methodMaxs.maxStack);
+    assertEquals(methodNode.maxLocals, methodMaxs.maxLocals);
     assertDoesNotThrow(() -> MethodNodeBuilder.buildClassWithMethod(methodNode).newInstance());
   }
 
@@ -630,9 +630,9 @@ public class AnalyzerTest extends AsmTest {
 
     Frame<?>[] frames = newAnalyzer().analyze(CLASS_NAME, methodNode);
 
-    MethodInfo methodInfo = computeMaxStackAndLocalsFromFrames(frames);
-    assertEquals(methodNode.maxStack, methodInfo.maxStack);
-    assertEquals(methodNode.maxLocals, methodInfo.maxLocals);
+    MethodMaxs methodMaxs = computeMaxStackAndLocalsFromFrames(frames);
+    assertEquals(methodNode.maxStack, methodMaxs.maxStack);
+    assertEquals(methodNode.maxLocals, methodMaxs.maxLocals);
     assertDoesNotThrow(() -> MethodNodeBuilder.buildClassWithMethod(methodNode).newInstance());
   }
 
@@ -667,9 +667,9 @@ public class AnalyzerTest extends AsmTest {
 
     Frame<?>[] frames = newAnalyzer().analyze(CLASS_NAME, methodNode);
 
-    MethodInfo methodInfo = computeMaxStackAndLocalsFromFrames(frames);
-    assertEquals(methodNode.maxStack, methodInfo.maxStack);
-    assertEquals(methodNode.maxLocals, methodInfo.maxLocals);
+    MethodMaxs methodMaxs = computeMaxStackAndLocalsFromFrames(frames);
+    assertEquals(methodNode.maxStack, methodMaxs.maxStack);
+    assertEquals(methodNode.maxLocals, methodMaxs.maxLocals);
     assertDoesNotThrow(() -> MethodNodeBuilder.buildClassWithMethod(methodNode).newInstance());
   }
 
@@ -708,9 +708,9 @@ public class AnalyzerTest extends AsmTest {
 
     Frame<?>[] frames = newAnalyzer().analyze(CLASS_NAME, methodNode);
 
-    MethodInfo methodInfo = computeMaxStackAndLocalsFromFrames(frames);
-    assertEquals(methodNode.maxStack, methodInfo.maxStack);
-    assertEquals(methodNode.maxLocals, methodInfo.maxLocals);
+    MethodMaxs methodMaxs = computeMaxStackAndLocalsFromFrames(frames);
+    assertEquals(methodNode.maxStack, methodMaxs.maxStack);
+    assertEquals(methodNode.maxLocals, methodMaxs.maxLocals);
     assertDoesNotThrow(() -> MethodNodeBuilder.buildClassWithMethod(methodNode).newInstance());
   }
 
@@ -776,9 +776,9 @@ public class AnalyzerTest extends AsmTest {
 
     Frame<?>[] frames = newAnalyzer().analyze(CLASS_NAME, methodNode);
 
-    MethodInfo methodInfo = computeMaxStackAndLocalsFromFrames(frames);
-    assertEquals(methodNode.maxStack, methodInfo.maxStack);
-    assertEquals(methodNode.maxLocals, methodInfo.maxLocals);
+    MethodMaxs methodMaxs = computeMaxStackAndLocalsFromFrames(frames);
+    assertEquals(methodNode.maxStack, methodMaxs.maxStack);
+    assertEquals(methodNode.maxLocals, methodMaxs.maxLocals);
     assertDoesNotThrow(() -> MethodNodeBuilder.buildClassWithMethod(methodNode).newInstance());
   }
 
@@ -865,9 +865,9 @@ public class AnalyzerTest extends AsmTest {
 
     Frame<?>[] frames = newAnalyzer().analyze(CLASS_NAME, methodNode);
 
-    MethodInfo methodInfo = computeMaxStackAndLocalsFromFrames(frames);
-    assertEquals(methodNode.maxStack, methodInfo.maxStack);
-    assertEquals(methodNode.maxLocals, methodInfo.maxLocals);
+    MethodMaxs methodMaxs = computeMaxStackAndLocalsFromFrames(frames);
+    assertEquals(methodNode.maxStack, methodMaxs.maxStack);
+    assertEquals(methodNode.maxLocals, methodMaxs.maxLocals);
     assertDoesNotThrow(() -> MethodNodeBuilder.buildClassWithMethod(methodNode).newInstance());
   }
 
@@ -894,9 +894,9 @@ public class AnalyzerTest extends AsmTest {
 
     Frame<?>[] frames = newAnalyzer().analyze(CLASS_NAME, methodNode);
 
-    MethodInfo methodInfo = computeMaxStackAndLocalsFromFrames(frames);
-    assertEquals(methodNode.maxStack, methodInfo.maxStack);
-    assertEquals(methodNode.maxLocals, methodInfo.maxLocals);
+    MethodMaxs methodMaxs = computeMaxStackAndLocalsFromFrames(frames);
+    assertEquals(methodNode.maxStack, methodMaxs.maxStack);
+    assertEquals(methodNode.maxLocals, methodMaxs.maxLocals);
     assertDoesNotThrow(() -> MethodNodeBuilder.buildClassWithMethod(methodNode).newInstance());
   }
 
@@ -940,9 +940,9 @@ public class AnalyzerTest extends AsmTest {
 
     Frame<?>[] frames = newAnalyzer().analyze(CLASS_NAME, methodNode);
 
-    MethodInfo methodInfo = computeMaxStackAndLocalsFromFrames(frames);
-    assertEquals(methodNode.maxStack, methodInfo.maxStack);
-    assertEquals(methodNode.maxLocals, methodInfo.maxLocals);
+    MethodMaxs methodMaxs = computeMaxStackAndLocalsFromFrames(frames);
+    assertEquals(methodNode.maxStack, methodMaxs.maxStack);
+    assertEquals(methodNode.maxLocals, methodMaxs.maxLocals);
     assertDoesNotThrow(() -> MethodNodeBuilder.buildClassWithMethod(methodNode).newInstance());
   }
 
@@ -1034,9 +1034,9 @@ public class AnalyzerTest extends AsmTest {
 
     Frame<?>[] frames = newAnalyzer().analyze(CLASS_NAME, methodNode);
 
-    MethodInfo methodInfo = computeMaxStackAndLocalsFromFrames(frames);
-    assertEquals(methodNode.maxStack, methodInfo.maxStack);
-    assertEquals(methodNode.maxLocals, methodInfo.maxLocals);
+    MethodMaxs methodMaxs = computeMaxStackAndLocalsFromFrames(frames);
+    assertEquals(methodNode.maxStack, methodMaxs.maxStack);
+    assertEquals(methodNode.maxLocals, methodMaxs.maxLocals);
     assertDoesNotThrow(() -> MethodNodeBuilder.buildClassWithMethod(methodNode).newInstance());
   }
 
@@ -1057,9 +1057,9 @@ public class AnalyzerTest extends AsmTest {
 
     Frame<?>[] frames = newAnalyzer().analyze(CLASS_NAME, methodNode);
 
-    MethodInfo methodInfo = computeMaxStackAndLocalsFromFrames(frames);
-    assertEquals(methodNode.maxStack, methodInfo.maxStack);
-    assertEquals(methodNode.maxLocals, methodInfo.maxLocals);
+    MethodMaxs methodMaxs = computeMaxStackAndLocalsFromFrames(frames);
+    assertEquals(methodNode.maxStack, methodMaxs.maxStack);
+    assertEquals(methodNode.maxLocals, methodMaxs.maxLocals);
     assertDoesNotThrow(() -> MethodNodeBuilder.buildClassWithMethod(methodNode).newInstance());
   }
 
@@ -1124,9 +1124,9 @@ public class AnalyzerTest extends AsmTest {
 
     Frame<?>[] frames = newAnalyzer().analyze(CLASS_NAME, methodNode);
 
-    MethodInfo methodInfo = computeMaxStackAndLocalsFromFrames(frames);
-    assertEquals(methodNode.maxStack, methodInfo.maxStack);
-    assertEquals(methodNode.maxLocals, methodInfo.maxLocals);
+    MethodMaxs methodMaxs = computeMaxStackAndLocalsFromFrames(frames);
+    assertEquals(methodNode.maxStack, methodMaxs.maxStack);
+    assertEquals(methodNode.maxLocals, methodMaxs.maxLocals);
     assertDoesNotThrow(() -> MethodNodeBuilder.buildClassWithMethod(methodNode).newInstance());
   }
 
@@ -1134,24 +1134,28 @@ public class AnalyzerTest extends AsmTest {
     return new Analyzer<>(new MockInterpreter());
   }
 
-  private static MethodInfo computeMaxStackAndLocalsFromFrames(final Frame<?>[] frames) {
+  private static MethodMaxs computeMaxStackAndLocalsFromFrames(final Frame<?>[] frames) {
     int maxStack = 0;
     int maxLocals = 0;
     for (Frame<?> frame : frames) {
       if (frame != null) {
-        maxStack = Math.max(maxStack, frame.getStackSize());
+        int stackSize = 0;
+        for (int i = 0; i < frame.getStackSize(); ++i) {
+          stackSize += frame.getStack(i).getSize();
+        }
+        maxStack = Math.max(maxStack, stackSize);
         maxLocals = Math.max(maxLocals, frame.getLocals());
       }
     }
-    return new MethodInfo(maxStack, maxLocals);
+    return new MethodMaxs(maxStack, maxLocals);
   }
 
-  private static class MethodInfo {
+  private static class MethodMaxs {
 
     public final int maxStack;
     public final int maxLocals;
 
-    public MethodInfo(final int maxStack, final int maxLocals) {
+    public MethodMaxs(final int maxStack, final int maxLocals) {
       this.maxStack = maxStack;
       this.maxLocals = maxLocals;
     }

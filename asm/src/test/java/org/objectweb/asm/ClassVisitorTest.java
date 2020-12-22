@@ -358,7 +358,7 @@ public class ClassVisitorTest extends AsmTest {
     public ModuleVisitor visitModule(final String name, final int access, final String version) {
       return new ModuleVisitor(api, super.visitModule(name, access, version)) {};
     }
-  };
+  }
 
   private static class FieldAdapter extends FieldVisitor {
 

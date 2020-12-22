@@ -38,8 +38,7 @@
     <!-- Already covered with google-java-format. -->   
     <exclude name="OneDeclarationPerLine" />
     <!-- Actually not a best practice. -->   
-    <exclude name="PositionLiteralsFirstInCaseInsensitiveComparisons" />
-    <exclude name="PositionLiteralsFirstInComparisons" />
+    <exclude name="LiteralsFirstInComparisons" />
     <!-- Already covered with Checkstyle 'MissingSwitchDefault' rule. -->   
     <exclude name="SwitchStmtsShouldHaveDefault" />
     <!-- Already covered with google-java-format. -->

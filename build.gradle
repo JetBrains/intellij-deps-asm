@@ -28,13 +28,13 @@
 
 buildscript {
   repositories { mavenCentral() }
-  dependencies { classpath 'org.netbeans.tools:sigtest-maven-plugin:1.1' }
+  dependencies { classpath 'org.netbeans.tools:sigtest-maven-plugin:1.3' }
 }
 
-plugins { id 'biz.aQute.bnd.builder' version '5.0.1' apply false }
+plugins { id 'biz.aQute.bnd.builder' version '5.2.0' apply false }
 plugins { id 'com.github.sherter.google-java-format' version '0.9' apply false }
-plugins { id 'me.champeau.gradle.jmh' version '0.5.0' apply false }
-plugins { id 'org.sonarqube' version '2.8' apply false }
+plugins { id 'me.champeau.gradle.jmh' version '0.5.2' apply false }
+plugins { id 'org.sonarqube' version '3.0' apply false }
 
 description = 'ASM, a very small and fast Java bytecode manipulation framework'
 
@@ -82,8 +82,8 @@ project(':asm-commons') {
 project(':asm-test') {
   description = "Utilities for testing ${parent.description}"
   provides = ['org.objectweb.asm.test']
-  depends = ['org.junit.jupiter:junit-jupiter-api:5.6.1',
-      'org.junit.jupiter:junit-jupiter-params:5.6.1']
+  depends = ['org.junit.jupiter:junit-jupiter-api:5.7.0',
+      'org.junit.jupiter:junit-jupiter-params:5.7.0']
 }
 
 project(':asm-tree') {
@@ -153,7 +153,7 @@ project(':tools:bnd-module-plugin') {
   description = "bnd plugin to build moduleinfo with ${rootProject.description}"
   // TODO: this compiles asm twice (here and in :asm), find a way to avoid this.
   sourceSets.main.java.srcDirs += project(':asm').sourceSets.main.java.srcDirs
-  depends = ['biz.aQute.bnd:biz.aQute.bnd:4.0.0']
+  depends = ['biz.aQute.bnd:biz.aQute.bnd:5.2.0']
 }
 
 project(':tools:retrofitter') {
@@ -170,7 +170,7 @@ project(':tools:retrofitter') {
 // and tested with :asm-test and JUnit.
 subprojects {
   apply plugin: 'com.github.sherter.google-java-format'
-  googleJavaFormat.toolVersion = '1.7'
+  googleJavaFormat.toolVersion = '1.9'
   googleJavaFormat.exclude 'src/resources/java/**/*'
   
   // Check the coding style with Checkstyle. Fail in case of error or warning.
@@ -188,9 +188,9 @@ subprojects {
   dependencies {
     requires.each { projectName -> api project(projectName) }
     depends.each { artifactName -> api artifactName }
-    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.6.1',
-        'org.junit.jupiter:junit-jupiter-params:5.6.1'
-    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.6.1'
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.7.0',
+        'org.junit.jupiter:junit-jupiter-params:5.7.0'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.7.0'
     testImplementation project(':asm-test')
   }
 

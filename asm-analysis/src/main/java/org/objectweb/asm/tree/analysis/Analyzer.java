@@ -316,7 +316,7 @@ public class Analyzer<V extends Value> implements Opcodes {
       throws AnalyzerException {
     method.maxLocals = computeMaxLocals(method);
     method.maxStack = -1;
-    Frame<V>[] frames = analyze(owner, method);
+    analyze(owner, method);
     method.maxStack = computeMaxStack(frames);
     return frames;
   }

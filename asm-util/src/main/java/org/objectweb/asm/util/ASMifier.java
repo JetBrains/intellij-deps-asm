@@ -629,9 +629,7 @@ public class ASMifier extends Printer {
 
   @Override
   public void visitRecordComponentEnd() {
-    stringBuilder.setLength(0);
-    stringBuilder.append(name).append(VISIT_END);
-    text.add(stringBuilder.toString());
+    visitMemberEnd();
   }
 
   // -----------------------------------------------------------------------------------------------
@@ -656,9 +654,7 @@ public class ASMifier extends Printer {
 
   @Override
   public void visitFieldEnd() {
-    stringBuilder.setLength(0);
-    stringBuilder.append(name).append(VISIT_END);
-    text.add(stringBuilder.toString());
+    visitMemberEnd();
   }
 
   // -----------------------------------------------------------------------------------------------
@@ -1131,9 +1127,7 @@ public class ASMifier extends Printer {
 
   @Override
   public void visitMethodEnd() {
-    stringBuilder.setLength(0);
-    stringBuilder.append(name).append(VISIT_END);
-    text.add(stringBuilder.toString());
+    visitMemberEnd();
   }
 
   // -----------------------------------------------------------------------------------------------
@@ -1240,6 +1234,13 @@ public class ASMifier extends Printer {
       stringBuilder.append(name).append(".visitAttribute(attribute);\n");
       stringBuilder.append("}\n");
     }
+    text.add(stringBuilder.toString());
+  }
+
+  /** Visits the end of a field, record component or method. */
+  private void visitMemberEnd() {
+    stringBuilder.setLength(0);
+    stringBuilder.append(name).append(VISIT_END);
     text.add(stringBuilder.toString());
   }
 

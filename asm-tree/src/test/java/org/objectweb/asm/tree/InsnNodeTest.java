@@ -45,6 +45,6 @@ public class InsnNodeTest extends AsmTest {
     InsnNode insnNode = new InsnNode(Opcodes.ACONST_NULL);
 
     assertEquals(AbstractInsnNode.INSN, insnNode.getType());
-    assertEquals(insnNode.getOpcode(), Opcodes.ACONST_NULL);
+    assertEquals(Opcodes.ACONST_NULL, insnNode.getOpcode());
   }
 }

@@ -210,6 +210,7 @@ subprojects {
 configure(subprojects.findAll { it.provides }) {
   // Code coverage configuration.
   jacocoTestReport {
+    reports { xml.enabled true }
     classDirectories.setFrom(sourceSets.main.output.classesDirs)
   }
   jacocoTestCoverageVerification {

@@ -84,7 +84,7 @@ public class TryCatchBlockSorterTest extends AsmTest {
 
     classReader.accept(classVisitor, 0);
 
-    if (classParameter.isMoreRecentThanCurrentJdk()) {
+    if (classParameter.isNotCompatibleWithCurrentJdk()) {
       assertThrows(
           UnsupportedClassVersionError.class,
           () -> new ClassFile(classWriter.toByteArray()).newInstance());

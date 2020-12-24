@@ -1509,7 +1509,7 @@ public class JsrInlinerAdapterTest extends AsmTest {
 
     classReader.accept(new JsrInlinerClassAdapter(apiParameter.value(), classWriter), 0);
 
-    if (classParameter.isMoreRecentThanCurrentJdk()) {
+    if (classParameter.isNotCompatibleWithCurrentJdk()) {
       assertThrows(
           UnsupportedClassVersionError.class,
           () -> new ClassFile(classWriter.toByteArray()).newInstance());

@@ -39,7 +39,7 @@ public class ClassFileTest extends AsmTest {
 
     Executable newInstance = () -> classFile.newInstance();
 
-    if (classParameter.isMoreRecentThanCurrentJdk()) {
+    if (classParameter.isNotCompatibleWithCurrentJdk()) {
       assertThrows(UnsupportedClassVersionError.class, newInstance);
     } else {
       assertDoesNotThrow(newInstance);

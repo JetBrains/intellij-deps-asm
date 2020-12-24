@@ -94,6 +94,42 @@ public abstract class AsmTest {
    */
   public static final String UNSUPPORTED_OPERATION_MESSAGE_PATTERN = ".* requires ASM[56789].*";
 
+  /** JDK version with the corresponding ASM version. */
+  enum JdkVersion {
+    JDK7(7, Api.ASM4),
+    JDK8(8, Api.ASM5),
+    JDK9(9, Api.ASM6),
+    JDK11(11, Api.ASM7),
+    JDK14(14, Api.ASM8),
+    JDK15(15, Api.ASM9);
+
+    private final int majorVersion;
+    private final Api minimumApi;
+
+    JdkVersion(final int majorVersion, final Api minimumApi) {
+      this.majorVersion = majorVersion;
+      this.minimumApi = minimumApi;
+    }
+
+    /**
+     * Returns the major version of the current JDK version.
+     *
+     * @return the major version of the current JDK version.
+     */
+    public int majorVersion() {
+      return majorVersion;
+    }
+
+    /**
+     * Returns the minimum ASM Api version supporting the current JDK version.
+     *
+     * @return the minimum ASM Api version supporting the current JDK version.
+     */
+    public Api minimumApi() {
+      return minimumApi;
+    }
+  }
+
   /**
    * A precompiled class, hand-crafted to contain some set of class file structures. These classes
    * are not compiled as part of the build. Instead, they have been compiled beforehand, with the
@@ -112,26 +148,38 @@ public abstract class AsmTest {
     JDK5_ANNOTATION("jdk5.AllStructures$InvisibleAnnotation"),
     JDK5_ENUM("jdk5.AllStructures$EnumClass"),
     JDK5_LOCAL_CLASS("jdk5.AllStructures$1LocalClass"),
-    JDK8_ALL_FRAMES("jdk8.AllFrames"),
-    JDK8_ALL_INSTRUCTIONS("jdk8.AllInstructions"),
-    JDK8_ALL_STRUCTURES("jdk8.AllStructures"),
-    JDK8_ANONYMOUS_INNER_CLASS("jdk8.AllStructures$1"),
-    JDK8_ARTIFICIAL_STRUCTURES("jdk8.Artificial$()$Structures"),
-    JDK8_INNER_CLASS("jdk8.AllStructures$InnerClass"),
-    JDK8_LARGE_METHOD("jdk8.LargeMethod"),
-    JDK9_MODULE("jdk9.module-info"),
-    JDK11_ALL_INSTRUCTIONS("jdk11.AllInstructions"),
-    JDK11_ALL_STRUCTURES("jdk11.AllStructures"),
-    JDK11_ALL_STRUCTURES_NESTED("jdk11.AllStructures$Nested"),
-    JDK14_ALL_STRUCTURES_RECORD("jdk14.AllStructures$RecordSubType"),
-    JDK14_ALL_STRUCTURES_EMPTY_RECORD("jdk14.AllStructures$EmptyRecord"),
-    JDK15_ALL_STRUCTURES("jdk15.AllStructures");
+    JDK8_ALL_FRAMES("jdk8.AllFrames", JdkVersion.JDK8),
+    JDK8_ALL_INSTRUCTIONS("jdk8.AllInstructions", JdkVersion.JDK8),
+    JDK8_ALL_STRUCTURES("jdk8.AllStructures", JdkVersion.JDK8),
+    JDK8_ANONYMOUS_INNER_CLASS("jdk8.AllStructures$1", JdkVersion.JDK8),
+    JDK8_ARTIFICIAL_STRUCTURES("jdk8.Artificial$()$Structures", JdkVersion.JDK8),
+    JDK8_INNER_CLASS("jdk8.AllStructures$InnerClass", JdkVersion.JDK8),
+    JDK8_LARGE_METHOD("jdk8.LargeMethod", JdkVersion.JDK8),
+    JDK9_MODULE("jdk9.module-info", JdkVersion.JDK9),
+    JDK11_ALL_INSTRUCTIONS("jdk11.AllInstructions", JdkVersion.JDK11),
+    JDK11_ALL_STRUCTURES("jdk11.AllStructures", JdkVersion.JDK11),
+    JDK11_ALL_STRUCTURES_NESTED("jdk11.AllStructures$Nested", JdkVersion.JDK11),
+    JDK14_ALL_STRUCTURES_RECORD("jdk14.AllStructures$RecordSubType", JdkVersion.JDK14, true),
+    JDK14_ALL_STRUCTURES_EMPTY_RECORD("jdk14.AllStructures$EmptyRecord", JdkVersion.JDK14, true),
+    JDK15_ALL_STRUCTURES("jdk15.AllStructures", JdkVersion.JDK15, true);
 
     private final String name;
+    private final JdkVersion jdkVersion;
+    private final boolean preview;
     private byte[] bytes;
 
-    PrecompiledClass(final String name) {
+    PrecompiledClass(final String name, final JdkVersion jdkVersion, final boolean preview) {
       this.name = name;
+      this.jdkVersion = jdkVersion;
+      this.preview = preview;
+    }
+
+    PrecompiledClass(final String name, final JdkVersion jdkVersion) {
+      this(name, jdkVersion, false);
+    }
+
+    PrecompiledClass(final String name) {
+      this(name, JdkVersion.JDK7, false);
     }
 
     /**
@@ -161,42 +209,24 @@ public abstract class AsmTest {
      * @return whether this class was compiled with a JDK which is more recent than api.
      */
     public boolean isMoreRecentThan(final Api api) {
-      if (name.startsWith("jdk8.") && api.value() < Api.ASM5.value()) {
-        return true;
-      }
-      if (name.startsWith("jdk9.") && api.value() < Api.ASM6.value()) {
-        return true;
-      }
-      if (name.startsWith("jdk11.") && api.value() < Api.ASM7.value()) {
-        return true;
-      }
-      if (name.startsWith("jdk14.") && api.value() < Api.ASM8.value()) {
-        return true;
-      }
-      return name.startsWith("jdk15.") && api.value() < Api.ASM9.value();
+      return api.value() < jdkVersion.minimumApi().value();
     }
 
     /**
-     * Returns true if this class was compiled with a JDK which is more recent than the JDK used to
-     * run the tests.
+     * Returns true if this class was compiled with a JDK which is not compatible with the JDK used
+     * to run the tests.
      *
-     * @return true if this class was compiled with the JDK9 and the current JDK version is strictly
-     *     less than 9.
+     * @return true if this class was compiled with a JDK which is not compatible with the JDK used
+     *     to run the tests.
      */
-    public boolean isMoreRecentThanCurrentJdk() {
-      if (name.startsWith("jdk9.")) {
-        return Util.getMajorJavaVersion() < 9;
+    public boolean isNotCompatibleWithCurrentJdk() {
+      if (preview) {
+        if (!Util.previewFeatureEnabled()) {
+          return true;
+        }
+        return Util.getMajorJavaVersion() != jdkVersion.majorVersion();
       }
-      if (name.startsWith("jdk11.")) {
-        return Util.getMajorJavaVersion() < 11;
-      }
-      if (name.startsWith("jdk14.")) {
-        return Util.getMajorJavaVersion() < 14;
-      }
-      if (name.startsWith("jdk15.")) {
-        return Util.getMajorJavaVersion() < 15;
-      }
-      return false;
+      return Util.getMajorJavaVersion() < jdkVersion.majorVersion();
     }
 
     /**

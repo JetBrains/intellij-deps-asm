@@ -204,7 +204,7 @@ public class LocalVariablesSorterTest extends AsmTest {
     } else {
       assertDoesNotThrow(accept);
       Executable newInstance = () -> new ClassFile(classWriter.toByteArray()).newInstance();
-      if (classParameter.isMoreRecentThanCurrentJdk()) {
+      if (classParameter.isNotCompatibleWithCurrentJdk()) {
         assertThrows(UnsupportedClassVersionError.class, newInstance);
       } else {
         assertDoesNotThrow(newInstance);

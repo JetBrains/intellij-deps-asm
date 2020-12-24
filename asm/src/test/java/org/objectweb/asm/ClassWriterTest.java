@@ -585,7 +585,7 @@ public class ClassWriterTest extends AsmTest {
 
     Executable newInstance = () -> new ClassFile(classWriter.toByteArray()).newInstance();
 
-    if (classParameter.isMoreRecentThanCurrentJdk()) {
+    if (classParameter.isNotCompatibleWithCurrentJdk()) {
       assertThrows(UnsupportedClassVersionError.class, newInstance);
     } else {
       assertDoesNotThrow(newInstance);
@@ -615,7 +615,7 @@ public class ClassWriterTest extends AsmTest {
       assertEquals(new ClassFile(classFile), new ClassFile(newClassFile));
     }
     Executable newInstance = () -> new ClassFile(newClassFile).newInstance();
-    if (classParameter.isMoreRecentThanCurrentJdk()) {
+    if (classParameter.isNotCompatibleWithCurrentJdk()) {
       assertThrows(UnsupportedClassVersionError.class, newInstance);
     } else {
       assertDoesNotThrow(newInstance);
@@ -664,7 +664,7 @@ public class ClassWriterTest extends AsmTest {
       assertEquals(new ClassFile(classFile), new ClassFile(newClassFile));
     }
     Executable newInstance = () -> new ClassFile(newClassFile).newInstance();
-    if (classParameter.isMoreRecentThanCurrentJdk()) {
+    if (classParameter.isNotCompatibleWithCurrentJdk()) {
       assertThrows(UnsupportedClassVersionError.class, newInstance);
     } else {
       assertDoesNotThrow(newInstance);
@@ -690,7 +690,7 @@ public class ClassWriterTest extends AsmTest {
     byte[] newClassFile = classWriter.toByteArray();
 
     Executable newInstance = () -> new ClassFile(newClassFile).newInstance();
-    if (classParameter.isMoreRecentThanCurrentJdk()) {
+    if (classParameter.isNotCompatibleWithCurrentJdk()) {
       assertThrows(UnsupportedClassVersionError.class, newInstance);
     } else {
       assertDoesNotThrow(newInstance);
@@ -724,7 +724,7 @@ public class ClassWriterTest extends AsmTest {
     byte[] transformedClass = classWriter.toByteArray();
 
     Executable newInstance = () -> new ClassFile(transformedClass).newInstance();
-    if (classParameter.isMoreRecentThanCurrentJdk()) {
+    if (classParameter.isNotCompatibleWithCurrentJdk()) {
       assertThrows(UnsupportedClassVersionError.class, newInstance);
     } else {
       assertDoesNotThrow(newInstance);

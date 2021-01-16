@@ -943,9 +943,9 @@ public class CheckClassAdapter extends ClassVisitor {
         mask = 0xFF0000FF;
         break;
       default:
-        throw new AssertionError();
+        break;
     }
-    if ((typeRef & ~mask) != 0) {
+    if (mask == 0 || (typeRef & ~mask) != 0) {
       throw new IllegalArgumentException(
           "Invalid type reference 0x" + Integer.toHexString(typeRef));
     }

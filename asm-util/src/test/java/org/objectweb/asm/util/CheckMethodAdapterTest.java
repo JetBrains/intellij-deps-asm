@@ -595,7 +595,7 @@ public class CheckMethodAdapterTest extends AsmTest implements Opcodes {
 
     Executable visitLabel = () -> checkMethodAdapter.visitLabel(label);
 
-    Exception exception = assertThrows(IllegalArgumentException.class, visitLabel);
+    Exception exception = assertThrows(IllegalStateException.class, visitLabel);
     assertEquals("Already visited label", exception.getMessage());
   }
 

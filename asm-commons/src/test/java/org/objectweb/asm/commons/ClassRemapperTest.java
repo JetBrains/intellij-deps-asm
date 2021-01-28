@@ -38,6 +38,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.Executable;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.objectweb.asm.AnnotationVisitor;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.ClassWriter;
@@ -68,6 +69,28 @@ public class ClassRemapperTest extends AsmTest {
     classRemapper.visit(Opcodes.V1_5, Opcodes.ACC_PUBLIC, "pkg/C", null, "java/lang/Object", null);
 
     assertEquals("new/pkg/C", classNode.name);
+  }
+
+  @Test
+  public void testVisitAnnotation() {
+    ClassNode classNode = new ClassNode();
+    ClassRemapper remapper =
+        new ClassRemapper(
+            classNode,
+            new Remapper() {
+              @Override
+              public String mapAnnotationAttributeName(final String descriptor, final String name) {
+                if ("Lpkg/A;".equals(descriptor)) {
+                  return "new." + name;
+                }
+                return name;
+              }
+            });
+    remapper.visit(Opcodes.V1_5, Opcodes.ACC_PUBLIC, "pkg/C", null, "java/lang/Object", null);
+    AnnotationVisitor annotationVisitor = remapper.visitAnnotation("Lpkg/A;", true);
+    annotationVisitor.visit("attribute", "value");
+
+    assertEquals("new.attribute", classNode.visibleAnnotations.get(0).values.get(0));
   }
 
   @Test

@@ -45,7 +45,7 @@ public class ModuleRemapper extends ModuleVisitor {
    * Constructs a new {@link ModuleRemapper}. <i>Subclasses must not use this constructor</i>.
    * Instead, they must use the {@link #ModuleRemapper(int,ModuleVisitor,Remapper)} version.
    *
-   * @param moduleVisitor the module visitor this remapper must deleted to.
+   * @param moduleVisitor the module visitor this remapper must delegate to.
    * @param remapper the remapper to use to remap the types in the visited module.
    */
   public ModuleRemapper(final ModuleVisitor moduleVisitor, final Remapper remapper) {
@@ -59,7 +59,7 @@ public class ModuleRemapper extends ModuleVisitor {
    *     org.objectweb.asm.Opcodes#ASM4}, {@link org.objectweb.asm.Opcodes#ASM5}, {@link
    *     org.objectweb.asm.Opcodes#ASM6}, {@link org.objectweb.asm.Opcodes#ASM7}, {@link
    *     org.objectweb.asm.Opcodes#ASM8} or {@link org.objectweb.asm.Opcodes#ASM9}.
-   * @param moduleVisitor the module visitor this remapper must deleted to.
+   * @param moduleVisitor the module visitor this remapper must delegate to.
    * @param remapper the remapper to use to remap the types in the visited module.
    */
   protected ModuleRemapper(

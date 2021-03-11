@@ -333,7 +333,7 @@ public class ClassReader {
 
   private static int calculateBufferSize(final InputStream inputStream) throws IOException {
     int expectedLength = inputStream.available();
-    //some implementations can return 0 while holding available data
+    // some implementations can return 0 while holding available data
     if (expectedLength == 0) {
       return INPUT_STREAM_DATA_CHUNK_SIZE;
     }

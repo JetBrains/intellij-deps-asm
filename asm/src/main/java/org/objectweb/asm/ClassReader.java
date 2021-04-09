@@ -333,8 +333,13 @@ public class ClassReader {
 
   private static int calculateBufferSize(final InputStream inputStream) throws IOException {
     int expectedLength = inputStream.available();
-    // some implementations can return 0 while holding available data
-    if (expectedLength == 0) {
+    /*
+     * Some implementations can return 0 while holding available data
+     * (e.g. new FileInputStream("/proc/a_file"))
+     * Also in some pathological cases a very small number might be returned,
+     * and in this case we use default size
+     */
+    if (expectedLength < 256) {
       return INPUT_STREAM_DATA_CHUNK_SIZE;
     }
     return expectedLength;

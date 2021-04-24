@@ -1114,7 +1114,11 @@ public class CheckClassAdapter extends ClassVisitor {
       if (name.charAt(endIndex - 1) == ';') {
         endIndex--;
       }
-      return name.substring(lastSlashIndex + 1, endIndex);
+      int lastBracketIndex = name.lastIndexOf('[');
+      if (lastBracketIndex == -1) {
+        return name.substring(lastSlashIndex + 1, endIndex);
+      }
+      return name.substring(0, lastBracketIndex + 1) + name.substring(lastSlashIndex + 1, endIndex);
     }
   }
 }

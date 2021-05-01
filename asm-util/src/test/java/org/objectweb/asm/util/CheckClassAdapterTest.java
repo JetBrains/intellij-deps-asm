@@ -549,6 +549,7 @@ public class CheckClassAdapterTest extends AsmTest implements Opcodes {
     String log = logger.toString();
     assertFalse(log.startsWith(AnalyzerException.class.getName() + ": Error at instruction"));
     assertTrue(log.contains("00000 CheckClassAdapterTest  :  :     ALOAD 0"));
+    assertTrue(log.contains("00001 CheckClassAdapterTest [Object  : [Object  :     ARETURN"));
   }
 
   @Test
@@ -577,5 +578,9 @@ public class CheckClassAdapterTest extends AsmTest implements Opcodes {
 
   private static Attribute[] attributes() {
     return new Attribute[] {new Comment(), new CodeComment()};
+  }
+
+  Object methodWithObjectArrayArgument(final Object[] arg) {
+    return arg;
   }
 }

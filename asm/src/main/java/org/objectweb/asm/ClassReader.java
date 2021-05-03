@@ -88,6 +88,9 @@ public class ClassReader {
    */
   static final int EXPAND_ASM_INSNS = 256;
 
+  /** The maximum size of array to allocate. */
+  private static final int MAX_BUFFER_SIZE = Integer.MAX_VALUE - 8;
+
   /** The size of the temporary byte array used to read class input streams chunk by chunk. */
   private static final int INPUT_STREAM_DATA_CHUNK_SIZE = 4096;
 
@@ -333,6 +336,9 @@ public class ClassReader {
 
   private static int calculateBufferSize(final InputStream inputStream) throws IOException {
     int expectedLength = inputStream.available();
+    if (expectedLength > MAX_BUFFER_SIZE) {
+      throw new OutOfMemoryError("Required buffer size too large.");
+    }
     /*
      * Some implementations can return 0 while holding available data
      * (e.g. new FileInputStream("/proc/a_file"))

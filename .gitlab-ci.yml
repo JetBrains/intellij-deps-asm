@@ -18,4 +18,4 @@ build:
     - $GRADLE test jacocoTestCoverageVerification
     - if [ $NEXUS_USER_NAME ]; then $GRADLE publish; fi
     - if [ !$NEXUS_USER_NAME ]; then $GRADLE publishToMavenLocal; fi
-    - if [ $SONAR_LOGIN ]; then '$GRADLE jacocoTestReport sonarqube -Dsonar.host.url=$SONAR -Dsonar.login=${SONAR_LOGIN}'; fi
+    - if [ $SONAR_LOGIN ]; then $GRADLE jacocoTestReport sonarqube -Dsonar.host.url=$SONAR -Dsonar.login=${SONAR_LOGIN}; fi

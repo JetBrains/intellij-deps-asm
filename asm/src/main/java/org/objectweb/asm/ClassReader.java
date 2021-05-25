@@ -345,7 +345,7 @@ public class ClassReader {
     if (expectedLength < 256) {
       return INPUT_STREAM_DATA_CHUNK_SIZE;
     }
-    return expectedLength;
+    return Math.min(expectedLength, MAX_BUFFER_SIZE);
   }
 
   // -----------------------------------------------------------------------------------------------

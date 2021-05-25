@@ -336,9 +336,6 @@ public class ClassReader {
 
   private static int calculateBufferSize(final InputStream inputStream) throws IOException {
     int expectedLength = inputStream.available();
-    if (expectedLength > MAX_BUFFER_SIZE) {
-      throw new OutOfMemoryError("Required buffer size too large.");
-    }
     /*
      * Some implementations can return 0 while holding available data
      * (e.g. new FileInputStream("/proc/a_file"))

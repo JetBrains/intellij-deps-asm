@@ -484,7 +484,7 @@ public class CheckMethodAdapter extends MethodVisitor {
       checkUnqualifiedName(version, name, "name");
     }
     CheckClassAdapter.checkAccess(
-        access, Opcodes.ACC_FINAL + Opcodes.ACC_MANDATED + Opcodes.ACC_SYNTHETIC);
+        access, Opcodes.ACC_FINAL | Opcodes.ACC_MANDATED | Opcodes.ACC_SYNTHETIC);
     super.visitParameter(name, access);
   }
 

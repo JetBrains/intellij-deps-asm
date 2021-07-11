@@ -183,9 +183,8 @@ public class CheckClassAdapter extends ClassVisitor {
   /**
    * Constructs a new {@link CheckClassAdapter}.
    *
-   * @param api the ASM API version implemented by this visitor. Must be one of {@link
-   *     Opcodes#ASM4}, {@link Opcodes#ASM5}, {@link Opcodes#ASM6}, {@link Opcodes#ASM7}, {@link
-   *     Opcodes#ASM8} or {@link Opcodes#ASM9}.
+   * @param api the ASM API version implemented by this visitor. Must be one of the {@code
+   *     ASM}<i>x</i> values in {@link Opcodes}.
    * @param classVisitor the class visitor to which this adapter must delegate calls.
    * @param checkDataFlow {@literal true} to perform basic data flow checks, or {@literal false} to
    *     not perform any data flow check (see {@link CheckMethodAdapter}). This option requires

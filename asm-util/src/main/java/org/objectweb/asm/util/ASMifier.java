@@ -136,9 +136,8 @@ public class ASMifier extends Printer {
   /**
    * Constructs a new {@link ASMifier}.
    *
-   * @param api the ASM API version implemented by this class. Must be one of {@link Opcodes#ASM4},
-   *     {@link Opcodes#ASM5}, {@link Opcodes#ASM6}, {@link Opcodes#ASM7}, {@link Opcodes#ASM8} or
-   *     {@link Opcodes#ASM9}.
+   * @param api the ASM API version implemented by this class. Must be one of the {@code
+   *     ASM}<i>x</i> values in {@link Opcodes}.
    * @param visitorVariableName the name of the visitor variable in the produced code.
    * @param annotationVisitorId identifier of the annotation visitor variable in the produced code.
    */

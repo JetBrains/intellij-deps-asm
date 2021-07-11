@@ -377,9 +377,8 @@ public class CheckMethodAdapter extends MethodVisitor {
    * Constructs a new {@link CheckMethodAdapter} object. This method adapter will not perform any
    * data flow check (see {@link #CheckMethodAdapter(int,String,String,MethodVisitor,Map)}).
    *
-   * @param api the ASM API version implemented by this CheckMethodAdapter. Must be one of {@link
-   *     Opcodes#ASM4}, {@link Opcodes#ASM5}, {@link Opcodes#ASM6}, {@link Opcodes#ASM7}, {@link
-   *     Opcodes#ASM8} or {@link Opcodes#ASM9}.
+   * @param api the ASM API version implemented by this CheckMethodAdapter. Must be one of the
+   *     {@code ASM}<i>x</i> values in {@link Opcodes}.
    * @param methodVisitor the method visitor to which this adapter must delegate calls.
    * @param labelInsnIndices the index of the instruction designated by each visited label so far
    *     (in other methods). This map is updated with the labels from the visited method.
@@ -426,9 +425,8 @@ public class CheckMethodAdapter extends MethodVisitor {
    * flow checks. For instance in a method whose signature is {@code void m ()}, the invalid
    * instruction IRETURN, or the invalid sequence IADD L2I will be detected.
    *
-   * @param api the ASM API version implemented by this CheckMethodAdapter. Must be one of {@link
-   *     Opcodes#ASM4}, {@link Opcodes#ASM5}, {@link Opcodes#ASM6}, {@link Opcodes#ASM7}, {@link
-   *     Opcodes#ASM8} or {@link Opcodes#ASM9}.
+   * @param api the ASM API version implemented by this CheckMethodAdapter. Must be one of the
+   *     {@code ASM}<i>x</i> values in {@link Opcodes}.
    * @param access the method's access flags.
    * @param name the method's name.
    * @param descriptor the method's descriptor (see {@link Type}).

@@ -125,9 +125,8 @@ public class AnalyzerAdapter extends MethodVisitor {
   /**
    * Constructs a new {@link AnalyzerAdapter}.
    *
-   * @param api the ASM API version implemented by this visitor. Must be one of {@link
-   *     Opcodes#ASM4}, {@link Opcodes#ASM5}, {@link Opcodes#ASM6}, {@link Opcodes#ASM7}, {@link
-   *     Opcodes#ASM8} or {@link Opcodes#ASM9}.
+   * @param api the ASM API version implemented by this visitor. Must be one of the {@code
+   *     ASM}<i>x</i> values in {@link Opcodes}.
    * @param owner the owner's class name.
    * @param access the method's access flags (see {@link Opcodes}).
    * @param name the method's name.

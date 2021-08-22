@@ -291,9 +291,8 @@ public abstract class Printer {
   private static final String UNSUPPORTED_OPERATION = "Must be overridden";
 
   /**
-   * The ASM API version implemented by this class. The value of this field must be one of {@link
-   * Opcodes#ASM4}, {@link Opcodes#ASM5}, {@link Opcodes#ASM6}, {@link Opcodes#ASM7}, {@link
-   * Opcodes#ASM8} or {@link Opcodes#ASM9}.
+   * The ASM API version implemented by this class. The value of this field must be one of the
+   * {@code ASM}<i>x</i> values in {@link Opcodes}.
    */
   protected final int api;
 
@@ -319,8 +318,8 @@ public abstract class Printer {
   /**
    * Constructs a new {@link Printer}.
    *
-   * @param api the ASM API version implemented by this printer. Must be one of {@link
-   *     Opcodes#ASM4}, {@link Opcodes#ASM5}, {@link Opcodes#ASM6} or {@link Opcodes#ASM7}.
+   * @param api the ASM API version implemented by this printer. Must be one of the {@code
+   *     ASM}<i>x</i> values in {@link Opcodes}.
    */
   protected Printer(final int api) {
     this.api = api;

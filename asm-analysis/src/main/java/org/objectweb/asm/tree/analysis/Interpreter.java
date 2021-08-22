@@ -28,6 +28,7 @@
 package org.objectweb.asm.tree.analysis;
 
 import java.util.List;
+import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.TryCatchBlockNode;
@@ -45,18 +46,16 @@ import org.objectweb.asm.tree.TryCatchBlockNode;
 public abstract class Interpreter<V extends Value> {
 
   /**
-   * The ASM API version supported by this interpreter. The value of this field must be one of
-   * {@link org.objectweb.asm.Opcodes#ASM4}, {@link org.objectweb.asm.Opcodes#ASM5}, {@link
-   * org.objectweb.asm.Opcodes#ASM6} or {@link org.objectweb.asm.Opcodes#ASM7}.
+   * The ASM API version supported by this interpreter. The value of this field must be one of the
+   * {@code ASM}<i>x</i> values in {@link Opcodes}.
    */
   protected final int api;
 
   /**
    * Constructs a new {@link Interpreter}.
    *
-   * @param api the ASM API version supported by this interpreter. Must be one of {@link
-   *     org.objectweb.asm.Opcodes#ASM4}, {@link org.objectweb.asm.Opcodes#ASM5}, {@link
-   *     org.objectweb.asm.Opcodes#ASM6} or {@link org.objectweb.asm.Opcodes#ASM7}.
+   * @param api the ASM API version supported by this interpreter. Must be one of the {@code
+   *     ASM}<i>x</i> values in {@link Opcodes}.
    */
   protected Interpreter(final int api) {
     this.api = api;

@@ -50,6 +50,7 @@ import org.objectweb.asm.Type;
 import org.objectweb.asm.test.AsmTest;
 import org.objectweb.asm.test.ClassFile;
 import org.objectweb.asm.tree.ClassNode;
+import org.objectweb.asm.tree.InvokeDynamicInsnNode;
 import org.objectweb.asm.tree.LdcInsnNode;
 import org.objectweb.asm.util.CheckMethodAdapter;
 
@@ -207,6 +208,38 @@ public class ClassRemapperTest extends AsmTest {
     assertEquals("new.foo", constantDynamic.getName());
     assertEquals("Ljava/lang/Integer;", constantDynamic.getDescriptor());
     assertEquals("()Ljava/lang/Integer;", constantDynamic.getBootstrapMethod().getDesc());
+  }
+
+  @Test
+  public void testInvokeDynamicInsn_field() {
+    ClassNode classNode = new ClassNode();
+    ClassRemapper classRemapper =
+        new ClassRemapper(
+            /* latest api */ Opcodes.ASM9,
+            classNode,
+            new Remapper() {
+              @Override
+              public String mapFieldName(
+                  final String owner, final String name, final String descriptor) {
+                if ("a".equals(name)) {
+                  return "demo";
+                }
+                return name;
+              }
+            });
+    classRemapper.visit(Opcodes.V11, Opcodes.ACC_PUBLIC, "C", null, "java/lang/Object", null);
+    MethodVisitor methodVisitor =
+        classRemapper.visitMethod(Opcodes.ACC_PUBLIC, "hello", "()V", null, null);
+    methodVisitor.visitCode();
+
+    methodVisitor.visitInvokeDynamicInsn(
+        "foo",
+        "()Ljava/lang/String;",
+        new Handle(Opcodes.H_GETFIELD, "pkg/B", "a", "Ljava/lang/String;", false));
+
+    InvokeDynamicInsnNode invokeDynamic =
+        (InvokeDynamicInsnNode) classNode.methods.get(0).instructions.get(0);
+    assertEquals("demo", invokeDynamic.bsm.getName());
   }
 
   /** Tests that classes transformed with a ClassRemapper can be loaded and instantiated. */

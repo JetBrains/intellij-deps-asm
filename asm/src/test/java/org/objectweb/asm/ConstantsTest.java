@@ -251,6 +251,7 @@ public class ConstantsTest {
       case "V16":
       case "V17":
       case "V18":
+      case "V19":
         return ConstantType.CLASS_VERSION;
       case "ACC_PUBLIC":
       case "ACC_PRIVATE":

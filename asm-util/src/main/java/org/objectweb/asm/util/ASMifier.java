@@ -266,6 +266,7 @@ public class ASMifier extends Printer {
   @Override
   public Printer visitModule(final String name, final int flags, final String version) {
     stringBuilder.setLength(0);
+    stringBuilder.append("{\n");
     stringBuilder.append("ModuleVisitor moduleVisitor = classWriter.visitModule(");
     appendConstant(name);
     stringBuilder.append(", ");
@@ -1285,11 +1286,7 @@ public class ASMifier extends Printer {
       if (!isEmpty) {
         stringBuilder.append(" | ");
       }
-      if ((accessFlags & ACCESS_MODULE) == 0) {
-        stringBuilder.append("ACC_FINAL");
-      } else {
-        stringBuilder.append("ACC_TRANSITIVE");
-      }
+      stringBuilder.append("ACC_FINAL");
       isEmpty = false;
     }
     if ((accessFlags & Opcodes.ACC_STATIC) != 0) {

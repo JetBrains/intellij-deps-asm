@@ -39,10 +39,10 @@ import org.objectweb.asm.test.AsmTest;
  *
  * @author Eric Bruneton
  */
-public class RecordComponentNodeTest extends AsmTest {
+class RecordComponentNodeTest extends AsmTest {
 
   @Test
-  public void testConstructor() {
+  void testConstructor() {
     RecordComponentNode componentNode = new RecordComponentNode("component", "I", null);
 
     assertEquals("component", componentNode.name);
@@ -50,7 +50,7 @@ public class RecordComponentNodeTest extends AsmTest {
   }
 
   @Test
-  public void testConstructor_illegalState() {
+  void testConstructor_illegalState() {
     Executable constructor = () -> new RecordComponentNode("component", "I", null) {};
 
     assertThrows(IllegalStateException.class, constructor);

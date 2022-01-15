@@ -43,24 +43,24 @@ import org.objectweb.asm.test.AsmTest;
  *
  * @author Eric Bruneton
  */
-public class AnnotationNodeTest extends AsmTest {
+class AnnotationNodeTest extends AsmTest {
 
   @Test
-  public void testConstructor() {
+  void testConstructor() {
     AnnotationNode annotationNode = new AnnotationNode("LI;");
 
     assertEquals("LI;", annotationNode.desc);
   }
 
   @Test
-  public void testConstructor_illegalState() {
+  void testConstructor_illegalState() {
     Executable constructor = () -> new AnnotationNode("LI;") {};
 
     assertThrows(IllegalStateException.class, constructor);
   }
 
   @Test
-  public void testVisit() {
+  void testVisit() {
     AnnotationNode annotationNode = new AnnotationNode("LI;");
 
     annotationNode.visit("bytes", new byte[] {0, 1});
@@ -97,7 +97,7 @@ public class AnnotationNodeTest extends AsmTest {
   }
 
   @Test
-  public void testAnnotationNode_accept_skipNestedAnnotations() {
+  void testAnnotationNode_accept_skipNestedAnnotations() {
     AnnotationNode annotationNode = new AnnotationNode("LI;");
     annotationNode.visit("bytes", new byte[] {0, 1});
     annotationNode.visitAnnotation("annotation", "Lpkg/Annotation;");

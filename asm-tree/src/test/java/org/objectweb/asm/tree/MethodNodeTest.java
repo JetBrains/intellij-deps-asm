@@ -49,10 +49,10 @@ import org.objectweb.asm.test.ClassFile;
  *
  * @author Eric Bruneton
  */
-public class MethodNodeTest extends AsmTest {
+class MethodNodeTest extends AsmTest {
 
   @Test
-  public void testConstructor() {
+  void testConstructor() {
     MethodNode methodNode = new MethodNode(123, "method", "()V", null, null);
 
     assertEquals(123, methodNode.access);
@@ -61,7 +61,7 @@ public class MethodNodeTest extends AsmTest {
   }
 
   @Test
-  public void testConstructor_illegalState() {
+  void testConstructor_illegalState() {
     Executable constructor = () -> new MethodNode() {};
 
     assertThrows(IllegalStateException.class, constructor);
@@ -70,7 +70,7 @@ public class MethodNodeTest extends AsmTest {
   /** Tests that an uninitialized MethodNode can receive any visit method call. */
   @ParameterizedTest
   @MethodSource(ALL_CLASSES_AND_LATEST_API)
-  public void testVisitAndAccept_withUninitializedMethodNode(
+  void testVisitAndAccept_withUninitializedMethodNode(
       final PrecompiledClass classParameter, final Api apiParameter) {
     byte[] classFile = classParameter.getBytes();
     ClassReader classReader = new ClassReader(classFile);
@@ -103,7 +103,7 @@ public class MethodNodeTest extends AsmTest {
   }
 
   @Test
-  public void testClone() {
+  void testClone() {
     MethodNode methodNode = new MethodNode();
     methodNode.visitCode();
     methodNode.visitLabel(new Label());

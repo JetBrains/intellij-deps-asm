@@ -41,10 +41,10 @@ import org.objectweb.asm.Opcodes;
  *
  * @author Eric Bruneton
  */
-public class ModuleResolutionAttributeTest {
+class ModuleResolutionAttributeTest {
 
   @Test
-  public void testWriteAndRead() {
+  void testWriteAndRead() {
     ClassWriter classWriter = new ClassWriter(0);
     classWriter.visitAttribute(new ModuleResolutionAttribute(123));
 

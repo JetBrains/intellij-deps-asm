@@ -60,7 +60,7 @@ import org.objectweb.asm.test.ClassFile;
  *
  * @author Eric Bruneton
  */
-public class ClassWriterTest extends AsmTest {
+class ClassWriterTest extends AsmTest {
 
   /**
    * Tests that the non-static fields of ClassWriter are the expected ones. This test is designed to
@@ -69,7 +69,7 @@ public class ClassWriterTest extends AsmTest {
    * field is added.
    */
   @Test
-  public void testInstanceFields() {
+  void testInstanceFields() {
     Set<String> actualFields =
         Arrays.stream(ClassWriter.class.getDeclaredFields())
             .filter(field -> !Modifier.isStatic(field.getModifiers()))
@@ -125,7 +125,7 @@ public class ClassWriterTest extends AsmTest {
    * possible to ensure. To prevent this, the ClassWriter visit methods must be final.
    */
   @Test
-  public void testVisitMethods_final() {
+  void testVisitMethods_final() {
     ArrayList<Method> publicClassVisitorMethods = new ArrayList<>();
     for (Method classVisitorMethod : ClassVisitor.class.getDeclaredMethods()) {
       int modifiers = classVisitorMethod.getModifiers();
@@ -148,7 +148,7 @@ public class ClassWriterTest extends AsmTest {
   }
 
   @Test
-  public void testNewConst() {
+  void testNewConst() {
     ClassWriter classWriter = newEmptyClassWriter();
 
     classWriter.newConst(Boolean.FALSE);
@@ -164,7 +164,7 @@ public class ClassWriterTest extends AsmTest {
   }
 
   @Test
-  public void testNewConst_illegalArgument() {
+  void testNewConst_illegalArgument() {
     ClassWriter classWriter = newEmptyClassWriter();
 
     Executable newConst = () -> classWriter.newConst(new Object());
@@ -174,7 +174,7 @@ public class ClassWriterTest extends AsmTest {
   }
 
   @Test
-  public void testNewUtf8() {
+  void testNewUtf8() {
     ClassWriter classWriter = newEmptyClassWriter();
 
     classWriter.newUTF8("A");
@@ -183,7 +183,7 @@ public class ClassWriterTest extends AsmTest {
   }
 
   @Test
-  public void testNewClass() {
+  void testNewClass() {
     ClassWriter classWriter = newEmptyClassWriter();
 
     classWriter.newClass("A");
@@ -192,7 +192,7 @@ public class ClassWriterTest extends AsmTest {
   }
 
   @Test
-  public void testNewMethodType() {
+  void testNewMethodType() {
     ClassWriter classWriter = newEmptyClassWriter();
 
     classWriter.newMethodType("()V");
@@ -202,7 +202,7 @@ public class ClassWriterTest extends AsmTest {
   }
 
   @Test
-  public void testNewModule() {
+  void testNewModule() {
     ClassWriter classWriter = newEmptyClassWriter();
 
     classWriter.newModule("A");
@@ -211,7 +211,7 @@ public class ClassWriterTest extends AsmTest {
   }
 
   @Test
-  public void testNewPackage() {
+  void testNewPackage() {
     ClassWriter classWriter = newEmptyClassWriter();
 
     classWriter.newPackage("A");
@@ -221,7 +221,7 @@ public class ClassWriterTest extends AsmTest {
 
   @Test
   @SuppressWarnings("deprecation")
-  public void testDeprecatedNewHandle() {
+  void testDeprecatedNewHandle() {
     ClassWriter classWriter = newEmptyClassWriter();
 
     classWriter.newHandle(Opcodes.H_GETFIELD, "A", "h", "I");
@@ -232,7 +232,7 @@ public class ClassWriterTest extends AsmTest {
   }
 
   @Test
-  public void testNewHandle() {
+  void testNewHandle() {
     ClassWriter classWriter = newEmptyClassWriter();
 
     classWriter.newHandle(Opcodes.H_GETFIELD, "A", "h", "I", false);
@@ -243,7 +243,7 @@ public class ClassWriterTest extends AsmTest {
   }
 
   @Test
-  public void testNewConstantDynamic() {
+  void testNewConstantDynamic() {
     ClassWriter classWriter = newEmptyClassWriter();
 
     classWriter.newConstantDynamic(
@@ -259,7 +259,7 @@ public class ClassWriterTest extends AsmTest {
   }
 
   @Test
-  public void testNewInvokeDynamic() {
+  void testNewInvokeDynamic() {
     ClassWriter classWriter = newEmptyClassWriter();
 
     classWriter.newInvokeDynamic("m", "()V", new Handle(Opcodes.H_GETFIELD, "A", "h", "I", false));
@@ -273,7 +273,7 @@ public class ClassWriterTest extends AsmTest {
   }
 
   @Test
-  public void testNewField() {
+  void testNewField() {
     ClassWriter classWriter = newEmptyClassWriter();
 
     classWriter.newField("A", "f", "I");
@@ -283,7 +283,7 @@ public class ClassWriterTest extends AsmTest {
   }
 
   @Test
-  public void testNewMethod() {
+  void testNewMethod() {
     ClassWriter classWriter = newEmptyClassWriter();
 
     classWriter.newMethod("A", "m", "()V", false);
@@ -293,7 +293,7 @@ public class ClassWriterTest extends AsmTest {
   }
 
   @Test
-  public void testNewNameType() {
+  void testNewNameType() {
     ClassWriter classWriter = newEmptyClassWriter();
 
     classWriter.newNameType("m", "()V");
@@ -304,7 +304,7 @@ public class ClassWriterTest extends AsmTest {
 
   @ParameterizedTest
   @ValueSource(ints = {65535, 65536})
-  public void testToByteArray_constantPoolSizeTooLarge(final int constantPoolCount) {
+  void testToByteArray_constantPoolSizeTooLarge(final int constantPoolCount) {
     ClassWriter classWriter = newEmptyClassWriter();
     int initConstantPoolCount = 5;
     for (int i = 0; i < constantPoolCount - initConstantPoolCount; ++i) {
@@ -371,8 +371,7 @@ public class ClassWriterTest extends AsmTest {
    */
   @ParameterizedTest
   @ValueSource(strings = {"Issue307600.class", "Issue311642.class"})
-  public void testToByteArray_computeMaxs_largeSubroutines(final String classFileName)
-      throws IOException {
+  void testToByteArray_computeMaxs_largeSubroutines(final String classFileName) throws IOException {
     ClassReader classReader =
         new ClassReader(Files.newInputStream(Paths.get("src/test/resources/" + classFileName)));
     ClassWriter classWriter = new ClassWriter(ClassWriter.COMPUTE_MAXS);
@@ -384,7 +383,7 @@ public class ClassWriterTest extends AsmTest {
   }
 
   @Test
-  public void testToByteArray_computeFrames_mergeLongOrDouble() {
+  void testToByteArray_computeFrames_mergeLongOrDouble() {
     ClassWriter classWriter = new ClassWriter(ClassWriter.COMPUTE_FRAMES);
     classWriter.visit(Opcodes.V1_7, Opcodes.ACC_PUBLIC, "A", null, "java/lang/Object", null);
     // Generate a default constructor, so that we can instantiate the class.
@@ -419,7 +418,7 @@ public class ClassWriterTest extends AsmTest {
   }
 
   @Test
-  public void testToByteArray_computeFrames_highDimensionArrays() {
+  void testToByteArray_computeFrames_highDimensionArrays() {
     ClassWriter classWriter = new ClassWriter(ClassWriter.COMPUTE_FRAMES);
     classWriter.visit(Opcodes.V1_7, Opcodes.ACC_PUBLIC, "A", null, "java/lang/Object", null);
     MethodVisitor methodVisitor =
@@ -454,7 +453,7 @@ public class ClassWriterTest extends AsmTest {
   }
 
   @Test
-  public void testGetCommonSuperClass() {
+  void testGetCommonSuperClass() {
     ClassWriter classWriter = new ClassWriter(0);
 
     assertEquals(
@@ -488,7 +487,7 @@ public class ClassWriterTest extends AsmTest {
   /** Tests that a ClassReader -> ClassWriter transform leaves classes unchanged. */
   @ParameterizedTest
   @MethodSource(ALL_CLASSES_AND_ALL_APIS)
-  public void testReadAndWrite(final PrecompiledClass classParameter, final Api apiParameter) {
+  void testReadAndWrite(final PrecompiledClass classParameter, final Api apiParameter) {
     byte[] classFile = classParameter.getBytes();
     ClassReader classReader = new ClassReader(classFile);
     ClassWriter classWriter = new ClassWriter(0);
@@ -504,8 +503,7 @@ public class ClassWriterTest extends AsmTest {
    */
   @ParameterizedTest
   @MethodSource(ALL_CLASSES_AND_ALL_APIS)
-  public void testReadAndWrite_skipCode(
-      final PrecompiledClass classParameter, final Api apiParameter) {
+  void testReadAndWrite_skipCode(final PrecompiledClass classParameter, final Api apiParameter) {
     byte[] classFile = classParameter.getBytes();
     ClassReader classReader = new ClassReader(classFile);
     ClassWriter classWriter = new ClassWriter(0);
@@ -524,8 +522,7 @@ public class ClassWriterTest extends AsmTest {
    */
   @ParameterizedTest
   @MethodSource(ALL_CLASSES_AND_ALL_APIS)
-  public void testReadAndWrite_copyPool(
-      final PrecompiledClass classParameter, final Api apiParameter) {
+  void testReadAndWrite_copyPool(final PrecompiledClass classParameter, final Api apiParameter) {
     byte[] classFile = classParameter.getBytes();
     ClassReader classReader = new ClassReader(classFile);
     ClassWriter classWriter = new ClassWriter(classReader, 0);
@@ -541,7 +538,7 @@ public class ClassWriterTest extends AsmTest {
    */
   @ParameterizedTest
   @MethodSource(ALL_CLASSES_AND_ALL_APIS)
-  public void testReadAndWrite_expandFrames(
+  void testReadAndWrite_expandFrames(
       final PrecompiledClass classParameter, final Api apiParameter) {
     byte[] classFile = classParameter.getBytes();
     ClassReader classReader = new ClassReader(classFile);
@@ -559,8 +556,7 @@ public class ClassWriterTest extends AsmTest {
    */
   @ParameterizedTest
   @MethodSource(ALL_CLASSES_AND_ALL_APIS)
-  public void testReadAndWrite_computeMaxs(
-      final PrecompiledClass classParameter, final Api apiParameter) {
+  void testReadAndWrite_computeMaxs(final PrecompiledClass classParameter, final Api apiParameter) {
     byte[] classFile = classParameter.getBytes();
     ClassReader classReader = new ClassReader(classFile);
     ClassWriter classWriter = new ClassWriter(ClassWriter.COMPUTE_MAXS);
@@ -576,7 +572,7 @@ public class ClassWriterTest extends AsmTest {
    */
   @ParameterizedTest
   @MethodSource(ALL_CLASSES_AND_ALL_APIS)
-  public void testReadAndWrite_computeMaxs_newInstance(
+  void testReadAndWrite_computeMaxs_newInstance(
       final PrecompiledClass classParameter, final Api apiParameter) throws Exception {
     byte[] classFile = classParameter.getBytes();
     ClassReader classReader = new ClassReader(classFile);
@@ -598,7 +594,7 @@ public class ClassWriterTest extends AsmTest {
    */
   @ParameterizedTest
   @MethodSource(ALL_CLASSES_AND_ALL_APIS)
-  public void testReadAndWrite_computeFrames(
+  void testReadAndWrite_computeFrames(
       final PrecompiledClass classParameter, final Api apiParameter) {
     assumeFalse(hasJsrOrRetInstructions(classParameter));
     byte[] classFile = classParameter.getBytes();
@@ -628,7 +624,7 @@ public class ClassWriterTest extends AsmTest {
    */
   @ParameterizedTest
   @MethodSource(ALL_CLASSES_AND_ALL_APIS)
-  public void testReadAndWrite_computeFrames_jsrInstructions(
+  void testReadAndWrite_computeFrames_jsrInstructions(
       final PrecompiledClass classParameter, final Api apiParameter) {
     assumeTrue(hasJsrOrRetInstructions(classParameter));
     byte[] classFile = classParameter.getBytes();
@@ -647,7 +643,7 @@ public class ClassWriterTest extends AsmTest {
    */
   @ParameterizedTest
   @MethodSource(ALL_CLASSES_AND_ALL_APIS)
-  public void testReadAndWrite_skipAndComputeFrames(
+  void testReadAndWrite_skipAndComputeFrames(
       final PrecompiledClass classParameter, final Api apiParameter) {
     assumeFalse(hasJsrOrRetInstructions(classParameter));
     byte[] classFile = classParameter.getBytes();
@@ -677,7 +673,7 @@ public class ClassWriterTest extends AsmTest {
    */
   @ParameterizedTest
   @MethodSource(ALL_CLASSES_AND_ALL_APIS)
-  public void testReadAndWrite_computeFramesAndDeadCode(
+  void testReadAndWrite_computeFramesAndDeadCode(
       final PrecompiledClass classParameter, final Api apiParameter) {
     assumeFalse(
         hasJsrOrRetInstructions(classParameter) || classParameter.isMoreRecentThan(apiParameter));
@@ -705,8 +701,7 @@ public class ClassWriterTest extends AsmTest {
    */
   @ParameterizedTest
   @MethodSource(ALL_CLASSES_AND_ALL_APIS)
-  public void testReadAndWrite_largeMethod(
-      final PrecompiledClass classParameter, final Api apiParameter) {
+  void testReadAndWrite_largeMethod(final PrecompiledClass classParameter, final Api apiParameter) {
     byte[] classFile = classParameter.getBytes();
     assumeFalse(
         classFile.length > Short.MAX_VALUE || classParameter.isMoreRecentThan(apiParameter));

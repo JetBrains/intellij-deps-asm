@@ -53,7 +53,7 @@ import org.objectweb.asm.test.ClassFile;
  *
  * @author Eric Bruneton
  */
-public class CodeSizeEvaluatorTest extends AsmTest {
+class CodeSizeEvaluatorTest extends AsmTest {
 
   /**
    * Tests that the size estimations of CodeSizeEvaluator are correct, and that classes are
@@ -61,7 +61,7 @@ public class CodeSizeEvaluatorTest extends AsmTest {
    */
   @ParameterizedTest
   @MethodSource(ALL_CLASSES_AND_ALL_APIS)
-  public void testAllMethods_precompiledClass(
+  void testAllMethods_precompiledClass(
       final PrecompiledClass classParameter, final Api apiParameter) {
     byte[] classFile = classParameter.getBytes();
     ClassReader classReader = new ClassReader(classFile);

@@ -41,10 +41,10 @@ import org.objectweb.asm.test.AsmTest;
  *
  * @author Eric Bruneton
  */
-public class CheckAnnotationAdapterTest extends AsmTest implements Opcodes {
+class CheckAnnotationAdapterTest extends AsmTest implements Opcodes {
 
   @Test
-  public void testVisit_illegalAnnotationName() {
+  void testVisit_illegalAnnotationName() {
     CheckAnnotationAdapter checkAnnotationAdapter = new CheckAnnotationAdapter(null);
 
     Executable visit = () -> checkAnnotationAdapter.visit(null, Integer.valueOf(0));
@@ -54,7 +54,7 @@ public class CheckAnnotationAdapterTest extends AsmTest implements Opcodes {
   }
 
   @Test
-  public void testVisit_illegalAnnotationValue1() {
+  void testVisit_illegalAnnotationValue1() {
     CheckAnnotationAdapter checkAnnotationAdapter = new CheckAnnotationAdapter(null);
 
     Executable visit = () -> checkAnnotationAdapter.visit("name", new Object());
@@ -64,7 +64,7 @@ public class CheckAnnotationAdapterTest extends AsmTest implements Opcodes {
   }
 
   @Test
-  public void testVisit_illegalAnnotationValue2() {
+  void testVisit_illegalAnnotationValue2() {
     CheckAnnotationAdapter checkAnnotationAdapter = new CheckAnnotationAdapter(null);
 
     Executable visit = () -> checkAnnotationAdapter.visit("name", Type.getMethodType("()V"));
@@ -74,7 +74,7 @@ public class CheckAnnotationAdapterTest extends AsmTest implements Opcodes {
   }
 
   @Test
-  public void testVisit_afterEnd() {
+  void testVisit_afterEnd() {
     CheckAnnotationAdapter checkAnnotationAdapter = new CheckAnnotationAdapter(null);
     checkAnnotationAdapter.visitEnd();
 
@@ -86,7 +86,7 @@ public class CheckAnnotationAdapterTest extends AsmTest implements Opcodes {
   }
 
   @Test
-  public void testVisitEnum_illegalAnnotationEnumValue() {
+  void testVisitEnum_illegalAnnotationEnumValue() {
     CheckAnnotationAdapter checkAnnotationAdapter = new CheckAnnotationAdapter(null);
 
     Executable visitEnum = () -> checkAnnotationAdapter.visitEnum("name", "Lpkg/Enum;", null);

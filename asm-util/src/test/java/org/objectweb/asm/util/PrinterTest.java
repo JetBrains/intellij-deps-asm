@@ -42,12 +42,12 @@ import org.objectweb.asm.Opcodes;
  *
  * @author Eric Bruneton
  */
-public class PrinterTest {
+class PrinterTest {
 
   private static final String UNSUPPORTED_OPERATION_MESSAGE = "Must be overridden";
 
   @Test
-  public void testVisitModule_unsupportedByDefault() {
+  void testVisitModule_unsupportedByDefault() {
     Printer printer = new EmptyPrinter(/* latest */ Opcodes.ASM10_EXPERIMENTAL);
 
     Executable visitModule = () -> printer.visitModule(null, 0, null);
@@ -57,7 +57,7 @@ public class PrinterTest {
   }
 
   @Test
-  public void testVisitNestHost_unsupportedByDefault() {
+  void testVisitNestHost_unsupportedByDefault() {
     Printer printer = new EmptyPrinter(/* latest */ Opcodes.ASM10_EXPERIMENTAL);
 
     Executable visitNestHost = () -> printer.visitNestHost(null);
@@ -67,7 +67,7 @@ public class PrinterTest {
   }
 
   @Test
-  public void testVisitClassTypeAnnotation_unsupportedByDefault() {
+  void testVisitClassTypeAnnotation_unsupportedByDefault() {
     Printer printer = new EmptyPrinter(/* latest */ Opcodes.ASM10_EXPERIMENTAL);
 
     Executable visitClassTypeAnnotation =
@@ -79,7 +79,7 @@ public class PrinterTest {
   }
 
   @Test
-  public void testVisitNestMember_unsupportedByDefault() {
+  void testVisitNestMember_unsupportedByDefault() {
     Printer printer = new EmptyPrinter(/* latest */ Opcodes.ASM10_EXPERIMENTAL);
 
     Executable visitNestMember = () -> printer.visitNestMember(null);
@@ -89,7 +89,7 @@ public class PrinterTest {
   }
 
   @Test
-  public void testVisitPermittedSubclass_unsupportedByDefault() {
+  void testVisitPermittedSubclass_unsupportedByDefault() {
     Printer printer = new EmptyPrinter(/* latest */ Opcodes.ASM10_EXPERIMENTAL);
 
     Executable visitPermittedSubclass = () -> printer.visitPermittedSubclass(null);
@@ -99,7 +99,7 @@ public class PrinterTest {
   }
 
   @Test
-  public void testVisitMainClass_unsupportedByDefault() {
+  void testVisitMainClass_unsupportedByDefault() {
     Printer printer = new EmptyPrinter(/* latest */ Opcodes.ASM10_EXPERIMENTAL);
 
     Executable visitMainClass = () -> printer.visitMainClass(null);
@@ -109,7 +109,7 @@ public class PrinterTest {
   }
 
   @Test
-  public void testVisitPackage_unsupportedByDefault() {
+  void testVisitPackage_unsupportedByDefault() {
     Printer printer = new EmptyPrinter(/* latest */ Opcodes.ASM10_EXPERIMENTAL);
 
     Executable visitPackage = () -> printer.visitPackage(null);
@@ -119,7 +119,7 @@ public class PrinterTest {
   }
 
   @Test
-  public void testVisitRequire_unsupportedByDefault() {
+  void testVisitRequire_unsupportedByDefault() {
     Printer printer = new EmptyPrinter(/* latest */ Opcodes.ASM10_EXPERIMENTAL);
 
     Executable visitRequire = () -> printer.visitRequire(null, 0, null);
@@ -129,7 +129,7 @@ public class PrinterTest {
   }
 
   @Test
-  public void testVisitExport_unsupportedByDefault() {
+  void testVisitExport_unsupportedByDefault() {
     Printer printer = new EmptyPrinter(/* latest */ Opcodes.ASM10_EXPERIMENTAL);
 
     Executable visitExport = () -> printer.visitExport(null, 0);
@@ -139,7 +139,7 @@ public class PrinterTest {
   }
 
   @Test
-  public void testVisitOpen_unsupportedByDefault() {
+  void testVisitOpen_unsupportedByDefault() {
     Printer printer = new EmptyPrinter(/* latest */ Opcodes.ASM10_EXPERIMENTAL);
 
     Executable visitOpen = () -> printer.visitOpen(null, 0);
@@ -149,7 +149,7 @@ public class PrinterTest {
   }
 
   @Test
-  public void testVisitUse_unsupportedByDefault() {
+  void testVisitUse_unsupportedByDefault() {
     Printer printer = new EmptyPrinter(/* latest */ Opcodes.ASM10_EXPERIMENTAL);
 
     Executable visitUse = () -> printer.visitUse(null);
@@ -159,7 +159,7 @@ public class PrinterTest {
   }
 
   @Test
-  public void testVisitProvide_unsupportedByDefault() {
+  void testVisitProvide_unsupportedByDefault() {
     Printer printer = new EmptyPrinter(/* latest */ Opcodes.ASM10_EXPERIMENTAL);
 
     Executable visitProvide = () -> printer.visitProvide(null);
@@ -169,7 +169,7 @@ public class PrinterTest {
   }
 
   @Test
-  public void testVisitModuleEnd_unsupportedByDefault() {
+  void testVisitModuleEnd_unsupportedByDefault() {
     Printer printer = new EmptyPrinter(/* latest */ Opcodes.ASM10_EXPERIMENTAL);
 
     Executable visitModuleEnd = () -> printer.visitModuleEnd();
@@ -179,7 +179,7 @@ public class PrinterTest {
   }
 
   @Test
-  public void testVisitFieldTypeAnnotation_unsupportedByDefault() {
+  void testVisitFieldTypeAnnotation_unsupportedByDefault() {
     Printer printer = new EmptyPrinter(/* latest */ Opcodes.ASM10_EXPERIMENTAL);
 
     Executable visitFieldTypeAnnotation =
@@ -191,7 +191,7 @@ public class PrinterTest {
   }
 
   @Test
-  public void testVisitParameter_unsupportedByDefault() {
+  void testVisitParameter_unsupportedByDefault() {
     Printer printer = new EmptyPrinter(/* latest */ Opcodes.ASM10_EXPERIMENTAL);
 
     Executable visitParameter = () -> printer.visitParameter(null, 0);
@@ -201,7 +201,7 @@ public class PrinterTest {
   }
 
   @Test
-  public void testVisitMethodTypeAnnotation_unsupportedByDefault() {
+  void testVisitMethodTypeAnnotation_unsupportedByDefault() {
     Printer printer = new EmptyPrinter(/* latest */ Opcodes.ASM10_EXPERIMENTAL);
 
     Executable visitMethodTypeAnnotation =
@@ -213,7 +213,7 @@ public class PrinterTest {
   }
 
   @Test
-  public void testVisitAnnotableParameterCount_unsupportedByDefault() {
+  void testVisitAnnotableParameterCount_unsupportedByDefault() {
     Printer printer = new EmptyPrinter(/* latest */ Opcodes.ASM10_EXPERIMENTAL);
 
     Executable visitAnnotableParameterCount = () -> printer.visitAnnotableParameterCount(0, false);
@@ -224,7 +224,7 @@ public class PrinterTest {
   }
 
   @Test
-  public void testVisitMethodInsn_asm4_unsupportedByDefault() {
+  void testVisitMethodInsn_asm4_unsupportedByDefault() {
     Printer printer = new EmptyPrinter(Opcodes.ASM4);
 
     Executable visitMethodInsn =
@@ -235,7 +235,7 @@ public class PrinterTest {
   }
 
   @Test
-  public void testVisitMethodInsn_unsupportedByDefault() {
+  void testVisitMethodInsn_unsupportedByDefault() {
     Printer printer = new EmptyPrinter(/* latest */ Opcodes.ASM10_EXPERIMENTAL);
 
     Executable visitMethodInsn =
@@ -246,7 +246,7 @@ public class PrinterTest {
   }
 
   @Test
-  public void testVisitMethodInsn_ifItf_unsupportedByDefault() {
+  void testVisitMethodInsn_ifItf_unsupportedByDefault() {
     Printer printer = new EmptyPrinter(/* latest */ Opcodes.ASM10_EXPERIMENTAL);
 
     Executable visitMethodInsn =
@@ -257,7 +257,7 @@ public class PrinterTest {
   }
 
   @Test
-  public void testVisitInsnAnnotation_unsupportedByDefault() {
+  void testVisitInsnAnnotation_unsupportedByDefault() {
     Printer printer = new EmptyPrinter(/* latest */ Opcodes.ASM10_EXPERIMENTAL);
 
     Executable visitInsnAnnotation = () -> printer.visitInsnAnnotation(0, null, null, false);
@@ -267,7 +267,7 @@ public class PrinterTest {
   }
 
   @Test
-  public void testVisitTryCatchAnnotation_unsupportedByDefault() {
+  void testVisitTryCatchAnnotation_unsupportedByDefault() {
     Printer printer = new EmptyPrinter(/* latest */ Opcodes.ASM10_EXPERIMENTAL);
 
     Executable visitTryCatchAnnotation =
@@ -279,7 +279,7 @@ public class PrinterTest {
   }
 
   @Test
-  public void testVisitLocalVariableAnnotation_unsupportedByDefault() {
+  void testVisitLocalVariableAnnotation_unsupportedByDefault() {
     Printer printer = new EmptyPrinter(/* latest */ Opcodes.ASM10_EXPERIMENTAL);
 
     Executable visitLocalVariableAnnotation =

@@ -40,10 +40,10 @@ import org.objectweb.asm.test.AsmTest;
  *
  * @author Eric Bruneton
  */
-public class TypeAnnotationNodeTest extends AsmTest {
+class TypeAnnotationNodeTest extends AsmTest {
 
   @Test
-  public void testConstructor() {
+  void testConstructor() {
     TypePath typePath = TypePath.fromString("[");
 
     TypeAnnotationNode typeAnnotationNode = new TypeAnnotationNode(123, typePath, "LI;");
@@ -54,7 +54,7 @@ public class TypeAnnotationNodeTest extends AsmTest {
   }
 
   @Test
-  public void testConstructor_illegalState() {
+  void testConstructor_illegalState() {
     TypePath typePath = TypePath.fromString("[");
 
     Executable constructor = () -> new TypeAnnotationNode(123, typePath, "LI;") {};

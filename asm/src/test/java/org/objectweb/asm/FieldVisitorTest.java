@@ -39,17 +39,17 @@ import org.junit.jupiter.api.function.Executable;
  *
  * @author Eric Bruneton
  */
-public class FieldVisitorTest {
+class FieldVisitorTest {
 
   @Test
-  public void testConstructor_validApi() {
+  void testConstructor_validApi() {
     Executable constructor = () -> new FieldVisitor(Opcodes.ASM4) {};
 
     assertDoesNotThrow(constructor);
   }
 
   @Test
-  public void testConstructor_invalidApi() {
+  void testConstructor_invalidApi() {
     Executable constructor = () -> new FieldVisitor(0) {};
 
     Exception exception = assertThrows(IllegalArgumentException.class, constructor);

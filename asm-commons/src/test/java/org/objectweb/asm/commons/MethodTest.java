@@ -42,10 +42,10 @@ import org.objectweb.asm.Type;
  *
  * @author Eric Bruneton
  */
-public class MethodTest {
+class MethodTest {
 
   @Test
-  public void testConstructor_fromDescriptor() {
+  void testConstructor_fromDescriptor() {
     Method method = new Method("name", "(I)J");
 
     assertEquals("name", method.getName());
@@ -56,7 +56,7 @@ public class MethodTest {
   }
 
   @Test
-  public void testConstructor_fromTypes() {
+  void testConstructor_fromTypes() {
     Method method = new Method("name", Type.LONG_TYPE, new Type[] {Type.INT_TYPE});
 
     assertEquals("name", method.getName());
@@ -67,7 +67,7 @@ public class MethodTest {
   }
 
   @Test
-  public void testGetMethod_fromMethodObject() throws ReflectiveOperationException {
+  void testGetMethod_fromMethodObject() throws ReflectiveOperationException {
     Method method = Method.getMethod(Object.class.getMethod("equals", Object.class));
 
     assertEquals("equals", method.getName());
@@ -75,7 +75,7 @@ public class MethodTest {
   }
 
   @Test
-  public void testGetMethod_fromConstructorObject() throws ReflectiveOperationException {
+  void testGetMethod_fromConstructorObject() throws ReflectiveOperationException {
     Method method = Method.getMethod(Object.class.getConstructor());
 
     assertEquals("<init>", method.getName());
@@ -83,7 +83,7 @@ public class MethodTest {
   }
 
   @Test
-  public void testGetMethod_fromDescriptor() {
+  void testGetMethod_fromDescriptor() {
     Method method =
         Method.getMethod(
             "boolean name(byte, char, short, int, float, long, double, pkg.Class, pkg.Class[])");
@@ -93,14 +93,14 @@ public class MethodTest {
   }
 
   @Test
-  public void testGetMethod_fromInvalidDescriptor() {
+  void testGetMethod_fromInvalidDescriptor() {
     assertThrows(IllegalArgumentException.class, () -> Method.getMethod("name()"));
     assertThrows(IllegalArgumentException.class, () -> Method.getMethod("void name"));
     assertThrows(IllegalArgumentException.class, () -> Method.getMethod("void name(]"));
   }
 
   @Test
-  public void testGetMethod_withDefaultPackage() {
+  void testGetMethod_withDefaultPackage() {
     Method withoutDefaultPackage =
         Method.getMethod("void name(Object)", /* defaultPackage= */ false);
     Method withDefaultPackage = Method.getMethod("void name(Object)", /* defaultPackage= */ true);
@@ -110,7 +110,7 @@ public class MethodTest {
   }
 
   @Test
-  public void testEquals() {
+  void testEquals() {
     Method nullMethod = null;
 
     boolean equalsNull = new Method("name", "()V").equals(nullMethod);
@@ -127,7 +127,7 @@ public class MethodTest {
   }
 
   @Test
-  public void testHashCode() {
+  void testHashCode() {
     assertNotEquals(0, new Method("name", "()V").hashCode());
   }
 }

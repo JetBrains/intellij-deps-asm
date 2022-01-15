@@ -42,7 +42,7 @@ import org.junit.jupiter.api.Test;
  *
  * @author Eric Bruneton
  */
-public class MethodWriterTest {
+class MethodWriterTest {
 
   /**
    * Tests that the attribute name fields of Constants are the expected ones. This test is designed
@@ -50,7 +50,7 @@ public class MethodWriterTest {
    * {@link MethodWriter#canCopyMethodAttributes} method, if needed.
    */
   @Test
-  public void testCanCopyMethodAttributesUpdated() {
+  void testCanCopyMethodAttributesUpdated() {
     Set<Object> actualAttributes =
         Arrays.stream(Constants.class.getDeclaredFields())
             .filter(field -> field.getType() == String.class)
@@ -103,7 +103,7 @@ public class MethodWriterTest {
   }
 
   @Test
-  public void testRecursiveCondyFastEnough() {
+  void testRecursiveCondyFastEnough() {
     Handle bsm =
         new Handle(
             Opcodes.H_INVOKESTATIC,

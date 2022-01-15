@@ -19,10 +19,10 @@ import org.junit.jupiter.params.provider.MethodSource;
  *
  * @author Eric Bruneton
  */
-public class ClassFileTest extends AsmTest {
+class ClassFileTest extends AsmTest {
 
   @Test
-  public void testGetConstantPoolDump() {
+  void testGetConstantPoolDump() {
     ClassFile classFile = new ClassFile(PrecompiledClass.JDK3_ALL_INSTRUCTIONS.getBytes());
 
     String constantPoolDump = classFile.getConstantPoolDump();
@@ -33,8 +33,7 @@ public class ClassFileTest extends AsmTest {
   /** Tests that newInstance() succeeds for each precompiled class. */
   @ParameterizedTest
   @MethodSource(ALL_CLASSES_AND_LATEST_API)
-  public void testNewInstance_validClass(
-      final PrecompiledClass classParameter, final Api apiParameter) {
+  void testNewInstance_validClass(final PrecompiledClass classParameter, final Api apiParameter) {
     ClassFile classFile = new ClassFile(classParameter.getBytes());
 
     Executable newInstance = () -> classFile.newInstance();
@@ -49,7 +48,7 @@ public class ClassFileTest extends AsmTest {
   /** Tests that newInstance() fails when trying to load an invalid or unverifiable class. */
   @ParameterizedTest
   @EnumSource(InvalidClass.class)
-  public void testNewInstance_invalidClass(final InvalidClass invalidClass) {
+  void testNewInstance_invalidClass(final InvalidClass invalidClass) {
     ClassFile classFile = new ClassFile(invalidClass.getBytes());
 
     Executable newInstance = () -> classFile.newInstance();
@@ -63,7 +62,7 @@ public class ClassFileTest extends AsmTest {
    */
   @ParameterizedTest
   @EnumSource(InvalidClass.class)
-  public void testStaticNewInstance_invalidClass(final InvalidClass invalidClass) {
+  void testStaticNewInstance_invalidClass(final InvalidClass invalidClass) {
     String className = invalidClass.toString();
     byte[] classContent = invalidClass.getBytes();
 
@@ -96,7 +95,7 @@ public class ClassFileTest extends AsmTest {
   }
 
   @Test
-  public void testEquals() {
+  void testEquals() {
     ClassFile classFile1 = new ClassFile(PrecompiledClass.JDK3_ALL_INSTRUCTIONS.getBytes());
     ClassFile classFile2 = new ClassFile(PrecompiledClass.JDK5_ALL_INSTRUCTIONS.getBytes());
 
@@ -110,7 +109,7 @@ public class ClassFileTest extends AsmTest {
   }
 
   @Test
-  public void testHashcode_validClass() {
+  void testHashcode_validClass() {
     PrecompiledClass precompiledClass = PrecompiledClass.JDK3_ALL_INSTRUCTIONS;
     ClassFile classFile = new ClassFile(precompiledClass.getBytes());
 
@@ -120,7 +119,7 @@ public class ClassFileTest extends AsmTest {
   }
 
   @Test
-  public void testHashcode_invalidClass() {
+  void testHashcode_invalidClass() {
     InvalidClass invalidClass = InvalidClass.INVALID_CLASS_VERSION;
     ClassFile classFile = new ClassFile(invalidClass.getBytes());
 
@@ -131,7 +130,7 @@ public class ClassFileTest extends AsmTest {
   }
 
   @Test
-  public void testToString_validClass() {
+  void testToString_validClass() {
     PrecompiledClass precompiledClass = PrecompiledClass.JDK3_ALL_INSTRUCTIONS;
     ClassFile classFile = new ClassFile(precompiledClass.getBytes());
 
@@ -141,7 +140,7 @@ public class ClassFileTest extends AsmTest {
   }
 
   @Test
-  public void testToString_invalidClass() {
+  void testToString_invalidClass() {
     InvalidClass invalidClass = InvalidClass.INVALID_CLASS_VERSION;
     ClassFile classFile = new ClassFile(invalidClass.getBytes());
 

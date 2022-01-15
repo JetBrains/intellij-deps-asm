@@ -63,10 +63,10 @@ import org.objectweb.asm.tree.MethodNode;
  *
  * @author Eric Bruneton
  */
-public class AdviceAdapterTest extends AsmTest {
+class AdviceAdapterTest extends AsmTest {
 
   @Test
-  public void testAllMethods_invalidConstructor() {
+  void testAllMethods_invalidConstructor() {
     MethodNode inputMethod =
         new MethodNodeBuilder("<init>", "(I)V", 2, 2).insn(Opcodes.IRETURN).build();
 
@@ -78,7 +78,7 @@ public class AdviceAdapterTest extends AsmTest {
   }
 
   @Test
-  public void testAllMethods_simpleConstructor() {
+  void testAllMethods_simpleConstructor() {
     MethodNode inputMethod =
         new MethodNodeBuilder("<init>", "(I)V", 2, 2)
             .aload(0)
@@ -98,7 +98,7 @@ public class AdviceAdapterTest extends AsmTest {
   }
 
   @Test
-  public void testAllMethods_constructorWithTwoSuperInitInTwoBranches() {
+  void testAllMethods_constructorWithTwoSuperInitInTwoBranches() {
     Label label0 = new Label();
     Label label1 = new Label();
     MethodNode inputMethod =
@@ -138,8 +138,7 @@ public class AdviceAdapterTest extends AsmTest {
 
   @ParameterizedTest
   @ValueSource(strings = {"true", "false"})
-  public void testAllMethods_constructorWithTwoSuperInitInTwoSwitchBranches(
-      final boolean useTableSwitch) {
+  void testAllMethods_constructorWithTwoSuperInitInTwoSwitchBranches(final boolean useTableSwitch) {
     Label label0 = new Label();
     Label label1 = new Label();
     Label label2 = new Label();
@@ -181,7 +180,7 @@ public class AdviceAdapterTest extends AsmTest {
   }
 
   @Test
-  public void testAllMethods_constructorWithSuperInitsInNormalAndHandlerBranches() {
+  void testAllMethods_constructorWithSuperInitsInNormalAndHandlerBranches() {
     Label label0 = new Label();
     Label label1 = new Label();
     Label label2 = new Label();
@@ -219,7 +218,7 @@ public class AdviceAdapterTest extends AsmTest {
   }
 
   @Test
-  public void testAllMethods_constructorWithUninitThisInTwoBranches() {
+  void testAllMethods_constructorWithUninitThisInTwoBranches() {
     Label label0 = new Label();
     Label label1 = new Label();
     MethodNode inputMethod =
@@ -262,7 +261,7 @@ public class AdviceAdapterTest extends AsmTest {
   }
 
   @Test
-  public void testAllMethods_constructorWithDupX1() {
+  void testAllMethods_constructorWithDupX1() {
     MethodNode inputMethod =
         new MethodNodeBuilder("<init>", "(I)V", 3, 2)
             .typeInsn(Opcodes.NEW, "C")
@@ -290,7 +289,7 @@ public class AdviceAdapterTest extends AsmTest {
   }
 
   @Test
-  public void testAllMethods_constructorWithDupX2() {
+  void testAllMethods_constructorWithDupX2() {
     MethodNode inputMethod =
         new MethodNodeBuilder("<init>", "(I)V", 4, 2)
             .typeInsn(Opcodes.NEW, "C")
@@ -318,7 +317,7 @@ public class AdviceAdapterTest extends AsmTest {
   }
 
   @Test
-  public void testAllMethods_constructorWithDup2() {
+  void testAllMethods_constructorWithDup2() {
     MethodNode inputMethod =
         new MethodNodeBuilder("<init>", "(I)V", 4, 2)
             .typeInsn(Opcodes.NEW, "C")
@@ -346,7 +345,7 @@ public class AdviceAdapterTest extends AsmTest {
   }
 
   @Test
-  public void testAllMethods_constructorWithDup2X1() {
+  void testAllMethods_constructorWithDup2X1() {
     MethodNode inputMethod =
         new MethodNodeBuilder("<init>", "(I)V", 5, 2)
             .typeInsn(Opcodes.NEW, "C")
@@ -376,7 +375,7 @@ public class AdviceAdapterTest extends AsmTest {
   }
 
   @Test
-  public void testAllMethods_constructorWithDup2X2() {
+  void testAllMethods_constructorWithDup2X2() {
     MethodNode inputMethod =
         new MethodNodeBuilder("<init>", "(I)V", 6, 2)
             .typeInsn(Opcodes.NEW, "C")
@@ -406,7 +405,7 @@ public class AdviceAdapterTest extends AsmTest {
   }
 
   @Test
-  public void testAllMethods_constructorWithJsrRet() {
+  void testAllMethods_constructorWithJsrRet() {
     Label label0 = new Label();
     Label label1 = new Label();
     Label label2 = new Label();
@@ -444,7 +443,7 @@ public class AdviceAdapterTest extends AsmTest {
   }
 
   @Test
-  public void testAllMethods_constructorWithLongsAndArrays() {
+  void testAllMethods_constructorWithLongsAndArrays() {
     MethodNode inputMethod =
         new MethodNodeBuilder("<init>", "(I)V", 6, 4)
             .aload(0)
@@ -475,7 +474,7 @@ public class AdviceAdapterTest extends AsmTest {
   }
 
   @Test
-  public void testAllMethods_constructorWithMultiAnewArray() {
+  void testAllMethods_constructorWithMultiAnewArray() {
     MethodNode inputMethod =
         new MethodNodeBuilder("<init>", "(I)V", 3, 2)
             .aload(0)
@@ -499,7 +498,7 @@ public class AdviceAdapterTest extends AsmTest {
   }
 
   @Test
-  public void testAllMethods_constructorWithBranchesAfterSuperInit() {
+  void testAllMethods_constructorWithBranchesAfterSuperInit() {
     Label label1 = new Label();
     Label label2 = new Label();
     MethodNode inputMethod =
@@ -527,7 +526,7 @@ public class AdviceAdapterTest extends AsmTest {
   }
 
   @Test
-  public void testAllMethods_constructorWithForwardGotoAfterBlockWithoutSuccessor() {
+  void testAllMethods_constructorWithForwardGotoAfterBlockWithoutSuccessor() {
     Label label1 = new Label();
     Label label2 = new Label();
     Label label3 = new Label();
@@ -564,7 +563,7 @@ public class AdviceAdapterTest extends AsmTest {
 
   @ParameterizedTest
   @ValueSource(strings = {"lookupswitch", "tableswitch"})
-  public void testAllMethods_constructorWithForwardSwitchAfterBlockWithoutSuccessor(
+  void testAllMethods_constructorWithForwardSwitchAfterBlockWithoutSuccessor(
       final String parameter) {
     Label label1 = new Label();
     Label label2 = new Label();
@@ -602,7 +601,7 @@ public class AdviceAdapterTest extends AsmTest {
   }
 
   @Test
-  public void testAllMethods_constructorWithHandlerFallthroughToPrivateMethodCall() {
+  void testAllMethods_constructorWithHandlerFallthroughToPrivateMethodCall() {
     Label label1 = new Label();
     Label label2 = new Label();
     Label label3 = new Label();
@@ -634,7 +633,7 @@ public class AdviceAdapterTest extends AsmTest {
 
   @ParameterizedTest
   @MethodSource(ALL_CLASSES_AND_ALL_APIS)
-  public void testAllMethods_precompiledClass(
+  void testAllMethods_precompiledClass(
       final PrecompiledClass classParameter, final Api apiParameter) throws Exception {
     ClassReader classReader = new ClassReader(classParameter.getBytes());
     ClassWriter classWriter = new ClassWriter(0);
@@ -659,7 +658,7 @@ public class AdviceAdapterTest extends AsmTest {
   }
 
   @Test
-  public void testOnMethodEnter_mixedVisitors() {
+  void testOnMethodEnter_mixedVisitors() {
     MethodNode outputMethod = new MethodNode(Opcodes.ACC_PUBLIC, "<init>", "(I)V", null, null);
     AdviceAdapter adviceAdapter =
         new AdviceAdapter(

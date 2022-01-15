@@ -38,10 +38,10 @@ import org.objectweb.asm.test.AsmTest;
  *
  * @author Eric Bruneton
  */
-public class TypeInsnNodeTest extends AsmTest {
+class TypeInsnNodeTest extends AsmTest {
 
   @Test
-  public void testConstructor() {
+  void testConstructor() {
     TypeInsnNode typeInsnNode = new TypeInsnNode(Opcodes.NEW, "java/lang/Object");
 
     assertEquals(Opcodes.NEW, typeInsnNode.getOpcode());
@@ -50,7 +50,7 @@ public class TypeInsnNodeTest extends AsmTest {
   }
 
   @Test
-  public void testSetOpcode() {
+  void testSetOpcode() {
     TypeInsnNode typeInsnNode = new TypeInsnNode(Opcodes.NEW, "java/lang/Object");
 
     typeInsnNode.setOpcode(Opcodes.CHECKCAST);

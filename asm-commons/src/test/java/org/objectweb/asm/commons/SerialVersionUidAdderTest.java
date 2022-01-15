@@ -48,16 +48,16 @@ import org.objectweb.asm.test.ClassFile;
  *
  * @author Eric Bruneton
  */
-public class SerialVersionUidAdderTest extends AsmTest {
+class SerialVersionUidAdderTest extends AsmTest {
 
   @Test
-  public void testConstructor() {
+  void testConstructor() {
     assertDoesNotThrow(() -> new SerialVersionUIDAdder(null));
     assertThrows(IllegalStateException.class, () -> new SerialVersionUIDAdder(null) {});
   }
 
   @Test
-  public void testAllMethods_class() throws IOException {
+  void testAllMethods_class() throws IOException {
     ClassReader classReader = new ClassReader("SerialVersionClass");
     SerialVersionUIDAdder svuidAdder = new SerialVersionUIDAdder(null);
 
@@ -68,7 +68,7 @@ public class SerialVersionUidAdderTest extends AsmTest {
   }
 
   @Test
-  public void testAllMethods_anonymousInnerClass() throws IOException {
+  void testAllMethods_anonymousInnerClass() throws IOException {
     ClassReader classReader = new ClassReader("SerialVersionAnonymousInnerClass$1");
     SerialVersionUIDAdder svuidAdder = new SerialVersionUIDAdder(null);
 
@@ -79,7 +79,7 @@ public class SerialVersionUidAdderTest extends AsmTest {
   }
 
   @Test
-  public void testAllMethods_interface() throws IOException {
+  void testAllMethods_interface() throws IOException {
     ClassReader classReader = new ClassReader("SerialVersionInterface");
     SerialVersionUIDAdder svuidAdder = new SerialVersionUIDAdder(null);
 
@@ -90,7 +90,7 @@ public class SerialVersionUidAdderTest extends AsmTest {
   }
 
   @Test
-  public void testAllMethods_emptyInterface() throws IOException {
+  void testAllMethods_emptyInterface() throws IOException {
     ClassReader classReader = new ClassReader("SerialVersionEmptyInterface");
     SerialVersionUIDAdder svuidAdder = new SerialVersionUIDAdder(null);
 
@@ -101,7 +101,7 @@ public class SerialVersionUidAdderTest extends AsmTest {
   }
 
   @Test
-  public void testAllMethods_enum() throws IOException {
+  void testAllMethods_enum() throws IOException {
     ClassReader classReader = new ClassReader("SerialVersionEnum");
     ClassWriter classWriter = new ClassWriter(0);
     SerialVersionUIDAdder svuidAdder = new SerialVersionUIDAdder(classWriter);
@@ -117,7 +117,7 @@ public class SerialVersionUidAdderTest extends AsmTest {
    */
   @ParameterizedTest
   @MethodSource(ALL_CLASSES_AND_LATEST_API)
-  public void testAllMethods_precompiledClass(
+  void testAllMethods_precompiledClass(
       final PrecompiledClass classParameter, final Api apiParameter) {
     ClassReader classReader = new ClassReader(classParameter.getBytes());
     ClassWriter classWriter = new ClassWriter(0);

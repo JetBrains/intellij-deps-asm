@@ -37,10 +37,10 @@ import org.objectweb.asm.test.AsmTest;
  *
  * @author Eric Bruneton
  */
-public class MultiANewArrayInsnNodeTest extends AsmTest {
+class MultiANewArrayInsnNodeTest extends AsmTest {
 
   @Test
-  public void testConstructor() {
+  void testConstructor() {
     MultiANewArrayInsnNode multiANewArrayInsnNode = new MultiANewArrayInsnNode("[[I", 2);
 
     assertEquals(AbstractInsnNode.MULTIANEWARRAY_INSN, multiANewArrayInsnNode.getType());

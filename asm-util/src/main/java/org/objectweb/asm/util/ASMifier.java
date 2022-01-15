@@ -1201,9 +1201,9 @@ public class ASMifier extends Printer {
         .append("{\n")
         .append(ANNOTATION_VISITOR0)
         .append(name)
-        .append(".")
+        .append('.')
         .append(method)
-        .append("(")
+        .append('(')
         .append(typeRef);
     if (typePath == null) {
       stringBuilder.append(", null, ");
@@ -1448,7 +1448,7 @@ public class ASMifier extends Printer {
       stringBuilder.append(handle.getOwner()).append(COMMA);
       stringBuilder.append(handle.getName()).append(COMMA);
       stringBuilder.append(handle.getDesc()).append("\", ");
-      stringBuilder.append(handle.isInterface()).append(")");
+      stringBuilder.append(handle.isInterface()).append(')');
     } else if (value instanceof ConstantDynamic) {
       stringBuilder.append("new ConstantDynamic(\"");
       ConstantDynamic constantDynamic = (ConstantDynamic) value;

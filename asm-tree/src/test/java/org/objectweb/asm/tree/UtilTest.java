@@ -39,10 +39,10 @@ import org.junit.jupiter.api.Test;
  *
  * @author Eric Bruneton
  */
-public class UtilTest {
+class UtilTest {
 
   @Test
-  public void testAsArrayList_nullArray() {
+  void testAsArrayList_nullArray() {
     assertTrue(Util.asArrayList((Object[]) null).isEmpty());
     assertTrue(Util.asArrayList((byte[]) null).isEmpty());
     assertTrue(Util.asArrayList((boolean[]) null).isEmpty());
@@ -55,7 +55,7 @@ public class UtilTest {
   }
 
   @Test
-  public void testAsArrayList_withLength() {
+  void testAsArrayList_withLength() {
     List<String> strings = Util.asArrayList(3);
 
     assertEquals(3, strings.size());
@@ -65,7 +65,7 @@ public class UtilTest {
   }
 
   @Test
-  public void testAsArrayList_withLengthAndArray() {
+  void testAsArrayList_withLengthAndArray() {
     List<Integer> ints = Util.asArrayList(3, new Integer[] {1, 2, 3, 4, 5});
 
     assertEquals(3, ints.size());

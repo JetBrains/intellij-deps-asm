@@ -59,10 +59,10 @@ import org.objectweb.asm.util.CheckMethodAdapter;
  *
  * @author Eric Bruneton
  */
-public class ClassRemapperTest extends AsmTest {
+class ClassRemapperTest extends AsmTest {
 
   @Test
-  public void testVisit() {
+  void testVisit() {
     ClassNode classNode = new ClassNode();
     ClassRemapper classRemapper =
         new ClassRemapper(classNode, new SimpleRemapper("pkg/C", "new/pkg/C"));
@@ -73,7 +73,7 @@ public class ClassRemapperTest extends AsmTest {
   }
 
   @Test
-  public void testVisitAnnotation() {
+  void testVisitAnnotation() {
     ClassNode classNode = new ClassNode();
     ClassRemapper remapper =
         new ClassRemapper(
@@ -95,7 +95,7 @@ public class ClassRemapperTest extends AsmTest {
   }
 
   @Test
-  public void testVisitInnerClass() {
+  void testVisitInnerClass() {
     ClassNode classNode = new ClassNode();
     ClassRemapper remapper =
         new ClassRemapper(
@@ -122,7 +122,7 @@ public class ClassRemapperTest extends AsmTest {
   }
 
   @Test
-  public void testVisitInnerClass_localInnerClass() {
+  void testVisitInnerClass_localInnerClass() {
     ClassNode classNode = new ClassNode();
     ClassRemapper remapper =
         new ClassRemapper(
@@ -149,7 +149,7 @@ public class ClassRemapperTest extends AsmTest {
   }
 
   @Test
-  public void testVisitAttribute_moduleHashes() {
+  void testVisitAttribute_moduleHashes() {
     ClassNode classNode = new ClassNode();
     ClassRemapper classRemapper =
         new ClassRemapper(
@@ -170,7 +170,7 @@ public class ClassRemapperTest extends AsmTest {
   }
 
   @Test
-  public void testVisitLdcInsn_constantDynamic() {
+  void testVisitLdcInsn_constantDynamic() {
     ClassNode classNode = new ClassNode();
     ClassRemapper classRemapper =
         new ClassRemapper(
@@ -211,7 +211,7 @@ public class ClassRemapperTest extends AsmTest {
   }
 
   @Test
-  public void testInvokeDynamicInsn_field() {
+  void testInvokeDynamicInsn_field() {
     ClassNode classNode = new ClassNode();
     ClassRemapper classRemapper =
         new ClassRemapper(
@@ -245,7 +245,7 @@ public class ClassRemapperTest extends AsmTest {
   /** Tests that classes transformed with a ClassRemapper can be loaded and instantiated. */
   @ParameterizedTest
   @MethodSource(ALL_CLASSES_AND_ALL_APIS)
-  public void testAllMethods_precompiledClass(
+  void testAllMethods_precompiledClass(
       final PrecompiledClass classParameter, final Api apiParameter) {
     ClassReader classReader = new ClassReader(classParameter.getBytes());
     ClassWriter classWriter = new ClassWriter(0);
@@ -275,7 +275,7 @@ public class ClassRemapperTest extends AsmTest {
    */
   @ParameterizedTest
   @MethodSource(ALL_CLASSES_AND_ALL_APIS)
-  public void testAllMethods_precompiledClass_fromClassNode(
+  void testAllMethods_precompiledClass_fromClassNode(
       final PrecompiledClass classParameter, final Api apiParameter) {
     ClassNode classNode = new ClassNode();
     new ClassReader(classParameter.getBytes()).accept(classNode, 0);

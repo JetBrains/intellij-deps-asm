@@ -56,17 +56,17 @@ import org.objectweb.asm.test.AsmTest;
  *
  * @author Eric Bruneton
  */
-public class ClassReaderTest extends AsmTest implements Opcodes {
+class ClassReaderTest extends AsmTest implements Opcodes {
 
   @Test
-  public void testReadByte() throws IOException {
+  void testReadByte() throws IOException {
     ClassReader classReader = new ClassReader(getClass().getName());
 
     assertEquals(classReader.classFileBuffer[0] & 0xFF, classReader.readByte(0));
   }
 
   @Test
-  public void testGetItem() throws IOException {
+  void testGetItem() throws IOException {
     ClassReader classReader = new ClassReader(getClass().getName());
 
     int item = classReader.getItem(1);
@@ -76,21 +76,21 @@ public class ClassReaderTest extends AsmTest implements Opcodes {
   }
 
   @Test
-  public void testGetAccess() throws Exception {
+  void testGetAccess() throws Exception {
     String name = getClass().getName();
 
-    assertEquals(ACC_PUBLIC | ACC_SUPER, new ClassReader(name).getAccess());
+    assertEquals(ACC_SUPER, new ClassReader(name).getAccess());
   }
 
   @Test
-  public void testGetClassName() throws Exception {
+  void testGetClassName() throws Exception {
     String name = getClass().getName();
 
     assertEquals(name.replace('.', '/'), new ClassReader(name).getClassName());
   }
 
   @Test
-  public void testGetSuperName() throws Exception {
+  void testGetSuperName() throws Exception {
     ClassReader thisClassReader = new ClassReader(getClass().getName());
     ClassReader objectClassReader = new ClassReader(Object.class.getName());
 
@@ -99,7 +99,7 @@ public class ClassReaderTest extends AsmTest implements Opcodes {
   }
 
   @Test
-  public void testGetInterfaces() throws Exception {
+  void testGetInterfaces() throws Exception {
     ClassReader classReader = new ClassReader(getClass().getName());
 
     String[] interfaces = classReader.getInterfaces();
@@ -110,7 +110,7 @@ public class ClassReaderTest extends AsmTest implements Opcodes {
   }
 
   @Test
-  public void testGetInterfaces_empty() throws Exception {
+  void testGetInterfaces_empty() throws Exception {
     ClassReader classReader = new ClassReader(Opcodes.class.getName());
 
     String[] interfaces = classReader.getInterfaces();
@@ -121,8 +121,7 @@ public class ClassReaderTest extends AsmTest implements Opcodes {
   /** Tests {@link ClassReader#ClassReader(byte[])}. */
   @ParameterizedTest
   @MethodSource(ALL_CLASSES_AND_ALL_APIS)
-  public void testByteArrayConstructor(
-      final PrecompiledClass classParameter, final Api apiParameter) {
+  void testByteArrayConstructor(final PrecompiledClass classParameter, final Api apiParameter) {
     ClassReader classReader = new ClassReader(classParameter.getBytes());
 
     assertNotEquals(0, classReader.getAccess());
@@ -138,7 +137,7 @@ public class ClassReaderTest extends AsmTest implements Opcodes {
   /** Tests {@link ClassReader#ClassReader(byte[],int,int)} and the basic ClassReader accessors. */
   @ParameterizedTest
   @MethodSource(ALL_CLASSES_AND_LATEST_API)
-  public void testByteArrayConstructor_withOffset(
+  void testByteArrayConstructor_withOffset(
       final PrecompiledClass classParameter, final Api apiParameter) {
     byte[] classFile = classParameter.getBytes();
     byte[] byteBuffer = new byte[classFile.length + 1];
@@ -178,7 +177,7 @@ public class ClassReaderTest extends AsmTest implements Opcodes {
    */
   @ParameterizedTest
   @EnumSource(InvalidClass.class)
-  public void testByteArrayConstructor_invalidClassHeader(final InvalidClass invalidClass) {
+  void testByteArrayConstructor_invalidClassHeader(final InvalidClass invalidClass) {
     assumeTrue(
         invalidClass == InvalidClass.INVALID_CLASS_VERSION
             || invalidClass == InvalidClass.INVALID_CP_INFO_TAG);
@@ -191,7 +190,7 @@ public class ClassReaderTest extends AsmTest implements Opcodes {
   /** Tests {@link ClassReader#ClassReader(String)} and the basic ClassReader accessors. */
   @ParameterizedTest
   @MethodSource(ALL_CLASSES_AND_ALL_APIS)
-  public void testStringConstructor(final PrecompiledClass classParameter, final Api apiParameter)
+  void testStringConstructor(final PrecompiledClass classParameter, final Api apiParameter)
       throws IOException {
     ClassReader classReader = new ClassReader(classParameter.getName());
 
@@ -210,7 +209,7 @@ public class ClassReaderTest extends AsmTest implements Opcodes {
    */
   @ParameterizedTest
   @MethodSource(ALL_CLASSES_AND_ALL_APIS)
-  public void testStreamConstructor(final PrecompiledClass classParameter, final Api apiParameter)
+  void testStreamConstructor(final PrecompiledClass classParameter, final Api apiParameter)
       throws IOException {
     ClassReader classReader;
     try (InputStream inputStream =
@@ -232,7 +231,7 @@ public class ClassReaderTest extends AsmTest implements Opcodes {
   }
 
   @Test
-  public void testStreamConstructor_nullStream() {
+  void testStreamConstructor_nullStream() {
     Executable constructor = () -> new ClassReader((InputStream) null);
 
     Exception exception = assertThrows(IOException.class, constructor);
@@ -241,7 +240,7 @@ public class ClassReaderTest extends AsmTest implements Opcodes {
 
   /** Tests {@link ClassReader#ClassReader(java.io.InputStream)} with an empty stream. */
   @Test
-  public void testStreamConstructor_emptyStream() throws IOException {
+  void testStreamConstructor_emptyStream() throws IOException {
     try (InputStream inputStream =
         new InputStream() {
 
@@ -268,8 +267,7 @@ public class ClassReaderTest extends AsmTest implements Opcodes {
   /** Tests the ClassReader accept method with an empty visitor. */
   @ParameterizedTest
   @MethodSource(ALL_CLASSES_AND_ALL_APIS)
-  public void testAccept_emptyVisitor(
-      final PrecompiledClass classParameter, final Api apiParameter) {
+  void testAccept_emptyVisitor(final PrecompiledClass classParameter, final Api apiParameter) {
     ClassReader classReader = new ClassReader(classParameter.getBytes());
     ClassVisitor classVisitor = new EmptyClassVisitor(apiParameter.value());
 
@@ -286,7 +284,7 @@ public class ClassReaderTest extends AsmTest implements Opcodes {
   /** Tests the ClassReader accept method with an empty visitor and SKIP_DEBUG. */
   @ParameterizedTest
   @MethodSource(ALL_CLASSES_AND_ALL_APIS)
-  public void testAccept_emptyVisitor_skipDebug(
+  void testAccept_emptyVisitor_skipDebug(
       final PrecompiledClass classParameter, final Api apiParameter) {
     ClassReader classReader = new ClassReader(classParameter.getBytes());
     ClassVisitor classVisitor = new EmptyClassVisitor(apiParameter.value());
@@ -312,7 +310,7 @@ public class ClassReaderTest extends AsmTest implements Opcodes {
   /** Tests the ClassReader accept method with an empty visitor and EXPAND_FRAMES. */
   @ParameterizedTest
   @MethodSource(ALL_CLASSES_AND_ALL_APIS)
-  public void testAccept_emptyVisitor_expandFrames(
+  void testAccept_emptyVisitor_expandFrames(
       final PrecompiledClass classParameter, final Api apiParameter) {
     ClassReader classReader = new ClassReader(classParameter.getBytes());
     ClassVisitor classVisitor = new EmptyClassVisitor(apiParameter.value());
@@ -330,7 +328,7 @@ public class ClassReaderTest extends AsmTest implements Opcodes {
   /** Tests the ClassReader accept method with an empty visitor and SKIP_FRAMES. */
   @ParameterizedTest
   @MethodSource(ALL_CLASSES_AND_ALL_APIS)
-  public void testAccept_emptyVisitor_skipFrames(
+  void testAccept_emptyVisitor_skipFrames(
       final PrecompiledClass classParameter, final Api apiParameter) {
     ClassReader classReader = new ClassReader(classParameter.getBytes());
     ClassVisitor classVisitor = new EmptyClassVisitor(apiParameter.value());
@@ -348,7 +346,7 @@ public class ClassReaderTest extends AsmTest implements Opcodes {
   /** Tests the ClassReader accept method with an empty visitor and SKIP_CODE. */
   @ParameterizedTest
   @MethodSource(ALL_CLASSES_AND_ALL_APIS)
-  public void testAccept_emptyVisitor_skipCode(
+  void testAccept_emptyVisitor_skipCode(
       final PrecompiledClass classParameter, final Api apiParameter) {
     ClassReader classReader = new ClassReader(classParameter.getBytes());
     ClassVisitor classVisitor = new EmptyClassVisitor(apiParameter.value());
@@ -374,7 +372,7 @@ public class ClassReaderTest extends AsmTest implements Opcodes {
    */
   @ParameterizedTest
   @MethodSource(ALL_CLASSES_AND_ALL_APIS)
-  public void testAccept_emptyVisitor_skipFieldMethodAndModuleContent(
+  void testAccept_emptyVisitor_skipFieldMethodAndModuleContent(
       final PrecompiledClass classParameter, final Api apiParameter) {
     ClassReader classReader = new ClassReader(classParameter.getBytes());
     ClassVisitor classVisitor =
@@ -440,7 +438,7 @@ public class ClassReaderTest extends AsmTest implements Opcodes {
   /** Tests the ClassReader accept method with a class whose content is invalid. */
   @ParameterizedTest
   @EnumSource(InvalidClass.class)
-  public void testAccept_emptyVisitor_invalidClass(final InvalidClass invalidClass) {
+  void testAccept_emptyVisitor_invalidClass(final InvalidClass invalidClass) {
     assumeFalse(
         invalidClass == InvalidClass.INVALID_CLASS_VERSION
             || invalidClass == InvalidClass.INVALID_CP_INFO_TAG);
@@ -463,8 +461,7 @@ public class ClassReaderTest extends AsmTest implements Opcodes {
   /** Tests the ClassReader accept method with a default visitor. */
   @ParameterizedTest
   @MethodSource(ALL_CLASSES_AND_ALL_APIS)
-  public void testAccept_defaultVisitor(
-      final PrecompiledClass classParameter, final Api apiParameter) {
+  void testAccept_defaultVisitor(final PrecompiledClass classParameter, final Api apiParameter) {
     ClassReader classReader = new ClassReader(classParameter.getBytes());
     ClassVisitor classVisitor = new ClassVisitor(apiParameter.value()) {};
 
@@ -496,7 +493,7 @@ public class ClassReaderTest extends AsmTest implements Opcodes {
    */
   @ParameterizedTest
   @MethodSource(ALL_CLASSES_AND_ALL_APIS)
-  public void testAccept_defaultAnnotationFieldMethodAndModuleVisitors(
+  void testAccept_defaultAnnotationFieldMethodAndModuleVisitors(
       final PrecompiledClass classParameter, final Api apiParameter) {
     ClassReader classReader = new ClassReader(classParameter.getBytes());
     ClassVisitor classVisitor =
@@ -579,7 +576,7 @@ public class ClassReaderTest extends AsmTest implements Opcodes {
   }
 
   @Test
-  public void testAccept_parameterAnnotationIndices() {
+  void testAccept_parameterAnnotationIndices() {
     ClassReader classReader = new ClassReader(PrecompiledClass.JDK5_LOCAL_CLASS.getBytes());
     AtomicInteger parameterIndex = new AtomicInteger(-1);
     ClassVisitor readParameterIndexVisitor =
@@ -610,7 +607,7 @@ public class ClassReaderTest extends AsmTest implements Opcodes {
   }
 
   @Test
-  public void testAccept_previewClass() {
+  void testAccept_previewClass() {
     byte[] classFile = PrecompiledClass.JDK11_ALL_INSTRUCTIONS.getBytes();
     // Set the minor version to 65535.
     classFile[4] = (byte) 0xFF;

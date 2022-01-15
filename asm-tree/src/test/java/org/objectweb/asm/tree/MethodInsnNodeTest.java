@@ -40,11 +40,11 @@ import org.objectweb.asm.test.AsmTest;
  *
  * @author Eric Bruneton
  */
-public class MethodInsnNodeTest extends AsmTest {
+class MethodInsnNodeTest extends AsmTest {
 
   @Test
   @SuppressWarnings("deprecation")
-  public void testDeprecatedConstructor() {
+  void testDeprecatedConstructor() {
     MethodInsnNode methodInsnNode1 =
         new MethodInsnNode(Opcodes.INVOKESTATIC, "owner", "name", "()I");
     MethodInsnNode methodInsnNode2 =
@@ -59,7 +59,7 @@ public class MethodInsnNodeTest extends AsmTest {
   }
 
   @Test
-  public void testConstrutor() {
+  void testConstrutor() {
     MethodInsnNode methodInsnNode =
         new MethodInsnNode(Opcodes.INVOKESTATIC, "owner", "name", "()I", false);
 
@@ -72,7 +72,7 @@ public class MethodInsnNodeTest extends AsmTest {
   }
 
   @Test
-  public void testSetOpcode() {
+  void testSetOpcode() {
     MethodInsnNode methodInsnNode =
         new MethodInsnNode(Opcodes.INVOKESTATIC, "owner", "name", "()I", false);
 

@@ -38,10 +38,10 @@ import org.objectweb.asm.test.AsmTest;
  *
  * @author Eric Bruneton
  */
-public class TableSwitchInsnNodeTest extends AsmTest {
+class TableSwitchInsnNodeTest extends AsmTest {
 
   @Test
-  public void testConstructor() {
+  void testConstructor() {
     LabelNode dflt = new LabelNode();
     LabelNode[] labels = new LabelNode[] {new LabelNode()};
 

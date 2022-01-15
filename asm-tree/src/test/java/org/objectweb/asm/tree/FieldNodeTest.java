@@ -39,10 +39,10 @@ import org.objectweb.asm.test.AsmTest;
  *
  * @author Eric Bruneton
  */
-public class FieldNodeTest extends AsmTest {
+class FieldNodeTest extends AsmTest {
 
   @Test
-  public void testConstructor() {
+  void testConstructor() {
     FieldNode fieldNode = new FieldNode(123, "field", "I", null, null);
 
     assertEquals(123, fieldNode.access);
@@ -51,7 +51,7 @@ public class FieldNodeTest extends AsmTest {
   }
 
   @Test
-  public void testConstructor_illegalState() {
+  void testConstructor_illegalState() {
     Executable constructor = () -> new FieldNode(123, "field", "I", null, null) {};
 
     assertThrows(IllegalStateException.class, constructor);

@@ -42,14 +42,14 @@ import org.objectweb.asm.test.AsmTest;
  *
  * @author Eric Bruneton
  */
-public class SignatureReaderTest extends AsmTest {
+class SignatureReaderTest extends AsmTest {
 
   @ParameterizedTest
   @MethodSource({
     "org.objectweb.asm.signature.SignaturesProviders#classSignatures",
     "org.objectweb.asm.signature.SignaturesProviders#methodSignatures"
   })
-  public void testAccept_validClassOrMethodSignature(final String signature) {
+  void testAccept_validClassOrMethodSignature(final String signature) {
     SignatureReader signatureReader = new SignatureReader(signature);
     SignatureVisitor signatureVisitor =
         new SignatureVisitor(/* latest */ Opcodes.ASM10_EXPERIMENTAL) {};
@@ -61,7 +61,7 @@ public class SignatureReaderTest extends AsmTest {
 
   @ParameterizedTest
   @MethodSource("org.objectweb.asm.signature.SignaturesProviders#fieldSignatures")
-  public void testAccept_validFieldSignature(final String signature) {
+  void testAccept_validFieldSignature(final String signature) {
     SignatureReader signatureReader = new SignatureReader(signature);
     SignatureVisitor signatureVisitor =
         new SignatureVisitor(/* latest */ Opcodes.ASM10_EXPERIMENTAL) {};
@@ -72,7 +72,7 @@ public class SignatureReaderTest extends AsmTest {
   }
 
   @Test
-  public void testAccept_invalidSignature() {
+  void testAccept_invalidSignature() {
     String invalidSignature = "-";
     SignatureReader signatureReader = new SignatureReader(invalidSignature);
     SignatureVisitor signatureVisitor =

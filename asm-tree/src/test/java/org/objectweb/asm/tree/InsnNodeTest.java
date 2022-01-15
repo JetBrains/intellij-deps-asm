@@ -38,10 +38,10 @@ import org.objectweb.asm.test.AsmTest;
  *
  * @author Eric Bruneton
  */
-public class InsnNodeTest extends AsmTest {
+class InsnNodeTest extends AsmTest {
 
   @Test
-  public void testConstructor() {
+  void testConstructor() {
     InsnNode insnNode = new InsnNode(Opcodes.ACONST_NULL);
 
     assertEquals(AbstractInsnNode.INSN, insnNode.getType());

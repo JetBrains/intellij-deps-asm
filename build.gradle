@@ -31,10 +31,10 @@ buildscript {
   dependencies { classpath 'org.netbeans.tools:sigtest-maven-plugin:1.3' }
 }
 
-plugins { id 'biz.aQute.bnd.builder' version '5.2.0' apply false }
+plugins { id 'biz.aQute.bnd.builder' version '6.1.0' apply false }
 plugins { id 'com.github.sherter.google-java-format' version '0.9' apply false }
-plugins { id 'me.champeau.gradle.jmh' version '0.5.2' apply false }
-plugins { id 'org.sonarqube' version '3.0' apply false }
+plugins { id 'me.champeau.gradle.jmh' version '0.5.3' apply false }
+plugins { id 'org.sonarqube' version '3.3' apply false }
 
 description = 'ASM, a very small and fast Java bytecode manipulation framework'
 
@@ -82,8 +82,8 @@ project(':asm-commons') {
 project(':asm-test') {
   description = "Utilities for testing ${parent.description}"
   provides = ['org.objectweb.asm.test']
-  depends = ['org.junit.jupiter:junit-jupiter-api:5.7.0',
-      'org.junit.jupiter:junit-jupiter-params:5.7.0']
+  depends = ['org.junit.jupiter:junit-jupiter-api:5.8.2',
+      'org.junit.jupiter:junit-jupiter-params:5.8.2']
 }
 
 project(':asm-tree') {
@@ -96,7 +96,7 @@ project(':asm-util') {
   description = "Utilities for ${parent.description}"
   provides = ['org.objectweb.asm.util']
   requires = [':asm', ':asm-tree', ':asm-analysis']
-  dependencies { testImplementation 'org.codehaus.janino:janino:3.0.11' }
+  dependencies { testImplementation 'org.codehaus.janino:janino:3.1.6' }
 }
 
 // Use "gradle benchmarks:jmh [-PjmhInclude='<regex>']" to run the benchmarks.
@@ -153,7 +153,7 @@ project(':tools:bnd-module-plugin') {
   description = "bnd plugin to build moduleinfo with ${rootProject.description}"
   // TODO: this compiles asm twice (here and in :asm), find a way to avoid this.
   sourceSets.main.java.srcDirs += project(':asm').sourceSets.main.java.srcDirs
-  depends = ['biz.aQute.bnd:biz.aQute.bnd:5.2.0']
+  depends = ['biz.aQute.bnd:biz.aQute.bnd:6.1.0']
 }
 
 project(':tools:retrofitter') {
@@ -170,7 +170,7 @@ project(':tools:retrofitter') {
 // and tested with :asm-test and JUnit.
 subprojects {
   apply plugin: 'com.github.sherter.google-java-format'
-  googleJavaFormat.toolVersion = '1.9'
+  googleJavaFormat.toolVersion = '1.13.0'
   googleJavaFormat.exclude 'src/resources/java/**/*'
   
   // Check the coding style with Checkstyle. Fail in case of error or warning.
@@ -188,9 +188,9 @@ subprojects {
   dependencies {
     requires.each { projectName -> api project(projectName) }
     depends.each { artifactName -> api artifactName }
-    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.7.0',
-        'org.junit.jupiter:junit-jupiter-params:5.7.0'
-    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.7.0'
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.2',
+        'org.junit.jupiter:junit-jupiter-params:5.8.2'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.2'
     testImplementation project(':asm-test')
   }
 
@@ -211,7 +211,7 @@ configure(subprojects.findAll { it.provides }) {
   // Code coverage configuration.
   jacoco.toolVersion = '0.8.7'
   jacocoTestReport {
-    reports { xml.enabled true }
+    reports { xml.required = true }
     classDirectories.setFrom(sourceSets.main.output.classesDirs)
   }
   jacocoTestCoverageVerification {

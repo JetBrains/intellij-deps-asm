@@ -39,10 +39,10 @@ import org.objectweb.asm.test.AsmTest;
  *
  * @author Eric Bruneton
  */
-public class InvokeDynamicInsnNodeTest extends AsmTest {
+class InvokeDynamicInsnNodeTest extends AsmTest {
 
   @Test
-  public void testConstructor() {
+  void testConstructor() {
     Handle handle = new Handle(Opcodes.H_INVOKESTATIC, "owner", "name", "()V", false);
     Object[] bootstrapMethodArguments = new Object[] {"s"};
 

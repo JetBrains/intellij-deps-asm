@@ -45,7 +45,7 @@ import org.objectweb.asm.signature.SignatureReader;
  *
  * @author Eugene Kuleshov
  */
-public class TraceSignatureVisitorTest {
+class TraceSignatureVisitorTest {
 
   private static final String[][] CLASS_SIGNATURES = {
     {
@@ -135,7 +135,7 @@ public class TraceSignatureVisitorTest {
   }
 
   @Test
-  public void testVisitBaseType_invalidSignature() {
+  void testVisitBaseType_invalidSignature() {
     TraceSignatureVisitor traceSignatureVisitor = new TraceSignatureVisitor(0);
 
     Executable visitBaseType = () -> traceSignatureVisitor.visitBaseType('-');
@@ -145,7 +145,7 @@ public class TraceSignatureVisitorTest {
 
   @ParameterizedTest
   @MethodSource("classSignatures")
-  public void testVisitMethods_classSignature(
+  void testVisitMethods_classSignature(
       final boolean isInterface, final String declaration, final String signature) {
     SignatureReader signatureReader = new SignatureReader(signature);
     TraceSignatureVisitor traceSignatureVisitor =
@@ -158,7 +158,7 @@ public class TraceSignatureVisitorTest {
 
   @ParameterizedTest
   @MethodSource("fieldSignatures")
-  public void testVisitMethods_fieldSignature(final String declaration, final String signature) {
+  void testVisitMethods_fieldSignature(final String declaration, final String signature) {
     SignatureReader signatureReader = new SignatureReader(signature);
     TraceSignatureVisitor traceSignatureVisitor = new TraceSignatureVisitor(0);
 
@@ -169,7 +169,7 @@ public class TraceSignatureVisitorTest {
 
   @ParameterizedTest
   @MethodSource("methodSignatures")
-  public void testVisitMethods_methodSignature(final String declaration, final String signature) {
+  void testVisitMethods_methodSignature(final String declaration, final String signature) {
     SignatureReader signatureReader = new SignatureReader(signature);
     TraceSignatureVisitor traceSignatureVisitor = new TraceSignatureVisitor(0);
 

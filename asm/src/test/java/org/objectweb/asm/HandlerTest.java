@@ -36,10 +36,10 @@ import org.junit.jupiter.api.Test;
  *
  * @author Eric Bruneton
  */
-public class HandlerTest {
+class HandlerTest {
 
   @Test
-  public void testConstructor() {
+  void testConstructor() {
     Label startPc = new Label();
     Label endPc = new Label();
     Label handlerPc = new Label();
@@ -56,7 +56,7 @@ public class HandlerTest {
   }
 
   @Test
-  public void testCopyConstructor() {
+  void testCopyConstructor() {
     Label startPc1 = new Label();
     Label endPc1 = new Label();
     Label handlerPc = new Label();
@@ -76,7 +76,7 @@ public class HandlerTest {
   }
 
   @Test
-  public void testRemoveRange_removeAllOrNothing() {
+  void testRemoveRange_removeAllOrNothing() {
     Handler handler = newHandler(10, 20);
 
     assertEquals(null, Handler.removeRange(null, newLabel(0), newLabel(10)));
@@ -87,7 +87,7 @@ public class HandlerTest {
   }
 
   @Test
-  public void testRemoveRange_removeStart() {
+  void testRemoveRange_removeStart() {
     Handler handler = Handler.removeRange(newHandler(10, 20), newLabel(0), newLabel(15));
 
     assertEquals(15, handler.startPc.bytecodeOffset);
@@ -96,7 +96,7 @@ public class HandlerTest {
   }
 
   @Test
-  public void testRemoveRange_removeEnd() {
+  void testRemoveRange_removeEnd() {
     Handler handler = Handler.removeRange(newHandler(10, 20), newLabel(15), newLabel(30));
 
     assertEquals(10, handler.startPc.bytecodeOffset);
@@ -105,7 +105,7 @@ public class HandlerTest {
   }
 
   @Test
-  public void testRemoveRange_removeMiddle() {
+  void testRemoveRange_removeMiddle() {
     Handler handler = Handler.removeRange(newHandler(10, 20), newLabel(13), newLabel(17));
 
     assertEquals(10, handler.startPc.bytecodeOffset);
@@ -116,7 +116,7 @@ public class HandlerTest {
   }
 
   @Test
-  public void testGetExceptionTableLength() {
+  void testGetExceptionTableLength() {
     Handler handler = newHandler(10, 20);
 
     assertEquals(0, Handler.getExceptionTableLength(null));
@@ -124,7 +124,7 @@ public class HandlerTest {
   }
 
   @Test
-  public void testGetExceptionTableSize() {
+  void testGetExceptionTableSize() {
     Handler handlerList = Handler.removeRange(newHandler(10, 20), newLabel(13), newLabel(17));
 
     assertEquals(2, Handler.getExceptionTableSize(null));
@@ -132,7 +132,7 @@ public class HandlerTest {
   }
 
   @Test
-  public void testPutExceptionTable() {
+  void testPutExceptionTable() {
     Handler handlerList = Handler.removeRange(newHandler(10, 20), newLabel(13), newLabel(17));
     ByteVector byteVector = new ByteVector();
 

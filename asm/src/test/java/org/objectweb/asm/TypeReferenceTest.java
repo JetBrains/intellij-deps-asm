@@ -36,10 +36,10 @@ import org.junit.jupiter.api.Test;
  *
  * @author Eric Bruneton
  */
-public class TypeReferenceTest {
+class TypeReferenceTest {
 
   @Test
-  public void testNewTypeReference() {
+  void testNewTypeReference() {
     TypeReference typeReference = TypeReference.newTypeReference(TypeReference.FIELD);
 
     assertEquals(TypeReference.FIELD, typeReference.getSort());
@@ -47,7 +47,7 @@ public class TypeReferenceTest {
   }
 
   @Test
-  public void testNewTypeParameterReference() {
+  void testNewTypeParameterReference() {
     TypeReference typeReference =
         TypeReference.newTypeParameterReference(TypeReference.CLASS_TYPE_PARAMETER, 3);
 
@@ -56,7 +56,7 @@ public class TypeReferenceTest {
   }
 
   @Test
-  public void testNewTypeParameterBoundReference() {
+  void testNewTypeParameterBoundReference() {
     TypeReference typeReference =
         TypeReference.newTypeParameterBoundReference(TypeReference.CLASS_TYPE_PARAMETER, 3, 7);
 
@@ -66,7 +66,7 @@ public class TypeReferenceTest {
   }
 
   @Test
-  public void testNewSuperTypeReference() {
+  void testNewSuperTypeReference() {
     TypeReference typeReference = TypeReference.newSuperTypeReference(-1);
 
     assertEquals(TypeReference.CLASS_EXTENDS, typeReference.getSort());
@@ -74,7 +74,7 @@ public class TypeReferenceTest {
   }
 
   @Test
-  public void testNewFormalParameterReference() {
+  void testNewFormalParameterReference() {
     TypeReference typeReference = TypeReference.newFormalParameterReference(3);
 
     assertEquals(TypeReference.METHOD_FORMAL_PARAMETER, typeReference.getSort());
@@ -82,7 +82,7 @@ public class TypeReferenceTest {
   }
 
   @Test
-  public void testNewExceptionReference() {
+  void testNewExceptionReference() {
     TypeReference typeReference = TypeReference.newExceptionReference(3);
 
     assertEquals(TypeReference.THROWS, typeReference.getSort());
@@ -90,7 +90,7 @@ public class TypeReferenceTest {
   }
 
   @Test
-  public void testNewTryCatchReference() {
+  void testNewTryCatchReference() {
     TypeReference typeReference = TypeReference.newTryCatchReference(3);
 
     assertEquals(TypeReference.EXCEPTION_PARAMETER, typeReference.getSort());
@@ -98,7 +98,7 @@ public class TypeReferenceTest {
   }
 
   @Test
-  public void testNewTypeArgumentReference() {
+  void testNewTypeArgumentReference() {
     TypeReference typeReference = TypeReference.newTypeArgumentReference(TypeReference.CAST, 3);
 
     assertEquals(TypeReference.CAST, typeReference.getSort());

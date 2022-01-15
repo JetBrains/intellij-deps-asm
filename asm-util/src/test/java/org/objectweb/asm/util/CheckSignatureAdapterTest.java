@@ -45,10 +45,10 @@ import org.objectweb.asm.test.AsmTest;
  *
  * @author Eric Bruneton
  */
-public class CheckSignatureAdapterTest extends AsmTest {
+class CheckSignatureAdapterTest extends AsmTest {
 
   @Test
-  public void testVisitFormalTypeParameter_classSignature_illegalState() {
+  void testVisitFormalTypeParameter_classSignature_illegalState() {
     CheckSignatureAdapter checkSignatureAdapter =
         new CheckSignatureAdapter(CheckSignatureAdapter.CLASS_SIGNATURE, null);
     checkSignatureAdapter.visitSuperclass();
@@ -59,7 +59,7 @@ public class CheckSignatureAdapterTest extends AsmTest {
   }
 
   @Test
-  public void testVisitFormalTypeParameter_typeSignature_illegalState() {
+  void testVisitFormalTypeParameter_typeSignature_illegalState() {
     CheckSignatureAdapter checkSignatureAdapter =
         new CheckSignatureAdapter(CheckSignatureAdapter.TYPE_SIGNATURE, null);
 
@@ -69,7 +69,7 @@ public class CheckSignatureAdapterTest extends AsmTest {
   }
 
   @Test
-  public void testVisitClassBound_classSignature_illegalState() {
+  void testVisitClassBound_classSignature_illegalState() {
     CheckSignatureAdapter checkSignatureAdapter =
         new CheckSignatureAdapter(CheckSignatureAdapter.CLASS_SIGNATURE, null);
 
@@ -79,7 +79,7 @@ public class CheckSignatureAdapterTest extends AsmTest {
   }
 
   @Test
-  public void testVisitClassBound_typeSignature_illegalState() {
+  void testVisitClassBound_typeSignature_illegalState() {
     CheckSignatureAdapter checkSignatureAdapter =
         new CheckSignatureAdapter(CheckSignatureAdapter.TYPE_SIGNATURE, null);
 
@@ -89,7 +89,7 @@ public class CheckSignatureAdapterTest extends AsmTest {
   }
 
   @Test
-  public void testVisitInterfaceBound_classSignature_illegalState() {
+  void testVisitInterfaceBound_classSignature_illegalState() {
     CheckSignatureAdapter checkSignatureAdapter =
         new CheckSignatureAdapter(CheckSignatureAdapter.CLASS_SIGNATURE, null);
 
@@ -99,7 +99,7 @@ public class CheckSignatureAdapterTest extends AsmTest {
   }
 
   @Test
-  public void testVisitInterfaceBound_typeSignature_illegalState() {
+  void testVisitInterfaceBound_typeSignature_illegalState() {
     CheckSignatureAdapter checkSignatureAdapter =
         new CheckSignatureAdapter(CheckSignatureAdapter.TYPE_SIGNATURE, null);
 
@@ -109,7 +109,7 @@ public class CheckSignatureAdapterTest extends AsmTest {
   }
 
   @Test
-  public void testVisitSuperClass_classSignature_illegalState() {
+  void testVisitSuperClass_classSignature_illegalState() {
     CheckSignatureAdapter checkSignatureAdapter =
         new CheckSignatureAdapter(CheckSignatureAdapter.CLASS_SIGNATURE, null);
     checkSignatureAdapter.visitSuperclass();
@@ -120,7 +120,7 @@ public class CheckSignatureAdapterTest extends AsmTest {
   }
 
   @Test
-  public void testVisitSuperClass_methodSignature_illegalState() {
+  void testVisitSuperClass_methodSignature_illegalState() {
     CheckSignatureAdapter checkSignatureAdapter =
         new CheckSignatureAdapter(CheckSignatureAdapter.METHOD_SIGNATURE, null);
 
@@ -130,7 +130,7 @@ public class CheckSignatureAdapterTest extends AsmTest {
   }
 
   @Test
-  public void testVisitInterface_classSignature_illegalState() {
+  void testVisitInterface_classSignature_illegalState() {
     CheckSignatureAdapter checkSignatureAdapter =
         new CheckSignatureAdapter(CheckSignatureAdapter.CLASS_SIGNATURE, null);
 
@@ -140,7 +140,7 @@ public class CheckSignatureAdapterTest extends AsmTest {
   }
 
   @Test
-  public void testVisitInterface_methodSignature_illegalState() {
+  void testVisitInterface_methodSignature_illegalState() {
     CheckSignatureAdapter checkSignatureAdapter =
         new CheckSignatureAdapter(CheckSignatureAdapter.METHOD_SIGNATURE, null);
 
@@ -150,7 +150,7 @@ public class CheckSignatureAdapterTest extends AsmTest {
   }
 
   @Test
-  public void testVisitParameterType_classSignature_illegalState() {
+  void testVisitParameterType_classSignature_illegalState() {
     CheckSignatureAdapter checkSignatureAdapter =
         new CheckSignatureAdapter(CheckSignatureAdapter.CLASS_SIGNATURE, null);
 
@@ -160,7 +160,7 @@ public class CheckSignatureAdapterTest extends AsmTest {
   }
 
   @Test
-  public void testVisitParameterType_methodSignature_illegalState() {
+  void testVisitParameterType_methodSignature_illegalState() {
     CheckSignatureAdapter checkSignatureAdapter =
         new CheckSignatureAdapter(CheckSignatureAdapter.METHOD_SIGNATURE, null);
     checkSignatureAdapter.visitReturnType();
@@ -171,7 +171,7 @@ public class CheckSignatureAdapterTest extends AsmTest {
   }
 
   @Test
-  public void testVisitReturnType_classSignature_illegalState() {
+  void testVisitReturnType_classSignature_illegalState() {
     CheckSignatureAdapter checkSignatureAdapter =
         new CheckSignatureAdapter(CheckSignatureAdapter.CLASS_SIGNATURE, null);
 
@@ -181,7 +181,7 @@ public class CheckSignatureAdapterTest extends AsmTest {
   }
 
   @Test
-  public void testVisitReturnType_methodSignature_illegalState() {
+  void testVisitReturnType_methodSignature_illegalState() {
     CheckSignatureAdapter checkSignatureAdapter =
         new CheckSignatureAdapter(CheckSignatureAdapter.METHOD_SIGNATURE, null);
     checkSignatureAdapter.visitReturnType();
@@ -192,7 +192,7 @@ public class CheckSignatureAdapterTest extends AsmTest {
   }
 
   @Test
-  public void testVisitExceptionType_classSignature_illegalState() {
+  void testVisitExceptionType_classSignature_illegalState() {
     CheckSignatureAdapter checkSignatureAdapter =
         new CheckSignatureAdapter(CheckSignatureAdapter.CLASS_SIGNATURE, null);
 
@@ -202,7 +202,7 @@ public class CheckSignatureAdapterTest extends AsmTest {
   }
 
   @Test
-  public void testVisitExceptionType_methodSignature_illegalState() {
+  void testVisitExceptionType_methodSignature_illegalState() {
     CheckSignatureAdapter checkSignatureAdapter =
         new CheckSignatureAdapter(CheckSignatureAdapter.METHOD_SIGNATURE, null);
 
@@ -212,7 +212,7 @@ public class CheckSignatureAdapterTest extends AsmTest {
   }
 
   @Test
-  public void testVisitBaseType_typeSignature_illegalState() {
+  void testVisitBaseType_typeSignature_illegalState() {
     CheckSignatureAdapter checkSignatureAdapter =
         new CheckSignatureAdapter(CheckSignatureAdapter.TYPE_SIGNATURE, null);
     checkSignatureAdapter.visitBaseType('I');
@@ -223,7 +223,7 @@ public class CheckSignatureAdapterTest extends AsmTest {
   }
 
   @Test
-  public void testVisitBaseType_typeSignature_illegalVoidArgument() {
+  void testVisitBaseType_typeSignature_illegalVoidArgument() {
     CheckSignatureAdapter checkSignatureAdapter =
         new CheckSignatureAdapter(CheckSignatureAdapter.TYPE_SIGNATURE, null);
 
@@ -234,7 +234,7 @@ public class CheckSignatureAdapterTest extends AsmTest {
   }
 
   @Test
-  public void testVisitBaseType_typeSignature_illegalArgument() {
+  void testVisitBaseType_typeSignature_illegalArgument() {
     CheckSignatureAdapter checkSignatureAdapter =
         new CheckSignatureAdapter(CheckSignatureAdapter.TYPE_SIGNATURE, null);
 
@@ -245,7 +245,7 @@ public class CheckSignatureAdapterTest extends AsmTest {
   }
 
   @Test
-  public void testVisitBaseType_classSignature_illegalState() {
+  void testVisitBaseType_classSignature_illegalState() {
     CheckSignatureAdapter checkSignatureAdapter =
         new CheckSignatureAdapter(CheckSignatureAdapter.CLASS_SIGNATURE, null);
 
@@ -255,7 +255,7 @@ public class CheckSignatureAdapterTest extends AsmTest {
   }
 
   @Test
-  public void testVisitTypeVariable_classSignature_illegalState() {
+  void testVisitTypeVariable_classSignature_illegalState() {
     CheckSignatureAdapter checkSignatureAdapter =
         new CheckSignatureAdapter(CheckSignatureAdapter.CLASS_SIGNATURE, null);
 
@@ -265,7 +265,7 @@ public class CheckSignatureAdapterTest extends AsmTest {
   }
 
   @Test
-  public void testVisitTypeVariable_typeSignature_nullArgument() {
+  void testVisitTypeVariable_typeSignature_nullArgument() {
     CheckSignatureAdapter checkSignatureAdapter =
         new CheckSignatureAdapter(CheckSignatureAdapter.TYPE_SIGNATURE, null);
 
@@ -276,7 +276,7 @@ public class CheckSignatureAdapterTest extends AsmTest {
   }
 
   @Test
-  public void testVisitTypeVariable_typeSignature_emptyArgument() {
+  void testVisitTypeVariable_typeSignature_emptyArgument() {
     CheckSignatureAdapter checkSignatureAdapter =
         new CheckSignatureAdapter(CheckSignatureAdapter.TYPE_SIGNATURE, null);
 
@@ -287,7 +287,7 @@ public class CheckSignatureAdapterTest extends AsmTest {
   }
 
   @Test
-  public void testVisitTypeVariable_typeSignature_illegalArgument() {
+  void testVisitTypeVariable_typeSignature_illegalArgument() {
     CheckSignatureAdapter checkSignatureAdapter =
         new CheckSignatureAdapter(CheckSignatureAdapter.TYPE_SIGNATURE, null);
 
@@ -299,7 +299,7 @@ public class CheckSignatureAdapterTest extends AsmTest {
   }
 
   @Test
-  public void testVisitTypeVariable_typeSignature_illegalState() {
+  void testVisitTypeVariable_typeSignature_illegalState() {
     CheckSignatureAdapter checkSignatureAdapter =
         new CheckSignatureAdapter(CheckSignatureAdapter.TYPE_SIGNATURE, null);
     checkSignatureAdapter.visitTypeVariable("T");
@@ -310,7 +310,7 @@ public class CheckSignatureAdapterTest extends AsmTest {
   }
 
   @Test
-  public void testVisitArrayType_classSignature_illegalState() {
+  void testVisitArrayType_classSignature_illegalState() {
     CheckSignatureAdapter checkSignatureAdapter =
         new CheckSignatureAdapter(CheckSignatureAdapter.CLASS_SIGNATURE, null);
 
@@ -320,7 +320,7 @@ public class CheckSignatureAdapterTest extends AsmTest {
   }
 
   @Test
-  public void testVisitArrayType_typeSignature_illegalState() {
+  void testVisitArrayType_typeSignature_illegalState() {
     CheckSignatureAdapter checkSignatureAdapter =
         new CheckSignatureAdapter(CheckSignatureAdapter.TYPE_SIGNATURE, null);
     checkSignatureAdapter.visitArrayType();
@@ -331,7 +331,7 @@ public class CheckSignatureAdapterTest extends AsmTest {
   }
 
   @Test
-  public void testVisitClassType_classSignature_illegalState() {
+  void testVisitClassType_classSignature_illegalState() {
     CheckSignatureAdapter checkSignatureAdapter =
         new CheckSignatureAdapter(CheckSignatureAdapter.CLASS_SIGNATURE, null);
 
@@ -341,7 +341,7 @@ public class CheckSignatureAdapterTest extends AsmTest {
   }
 
   @Test
-  public void testVisitClassType_typeSignature_nullArgument() {
+  void testVisitClassType_typeSignature_nullArgument() {
     CheckSignatureAdapter checkSignatureAdapter =
         new CheckSignatureAdapter(CheckSignatureAdapter.TYPE_SIGNATURE, null);
 
@@ -352,7 +352,7 @@ public class CheckSignatureAdapterTest extends AsmTest {
   }
 
   @Test
-  public void testVisitClassType_typeSignature_emptyArgument() {
+  void testVisitClassType_typeSignature_emptyArgument() {
     CheckSignatureAdapter checkSignatureAdapter =
         new CheckSignatureAdapter(CheckSignatureAdapter.TYPE_SIGNATURE, null);
 
@@ -363,7 +363,7 @@ public class CheckSignatureAdapterTest extends AsmTest {
   }
 
   @Test
-  public void testVisitClassType_typeSignature_illegalArgument() {
+  void testVisitClassType_typeSignature_illegalArgument() {
     CheckSignatureAdapter checkSignatureAdapter =
         new CheckSignatureAdapter(CheckSignatureAdapter.TYPE_SIGNATURE, null);
 
@@ -375,7 +375,7 @@ public class CheckSignatureAdapterTest extends AsmTest {
   }
 
   @Test
-  public void testVisitClassType_typeSignature_illegalState() {
+  void testVisitClassType_typeSignature_illegalState() {
     CheckSignatureAdapter checkSignatureAdapter =
         new CheckSignatureAdapter(CheckSignatureAdapter.TYPE_SIGNATURE, null);
     checkSignatureAdapter.visitClassType("A");
@@ -386,7 +386,7 @@ public class CheckSignatureAdapterTest extends AsmTest {
   }
 
   @Test
-  public void testVisitClassType_nonJavaIdentifier() {
+  void testVisitClassType_nonJavaIdentifier() {
     CheckSignatureAdapter checkSignatureAdapter =
         new CheckSignatureAdapter(CheckSignatureAdapter.CLASS_SIGNATURE, null);
     SignatureVisitor signatureVisitor = checkSignatureAdapter.visitSuperclass();
@@ -397,7 +397,7 @@ public class CheckSignatureAdapterTest extends AsmTest {
   }
 
   @Test
-  public void testVisitInnerClassType_illegalState() {
+  void testVisitInnerClassType_illegalState() {
     CheckSignatureAdapter checkSignatureAdapter =
         new CheckSignatureAdapter(CheckSignatureAdapter.TYPE_SIGNATURE, null);
 
@@ -407,7 +407,7 @@ public class CheckSignatureAdapterTest extends AsmTest {
   }
 
   @Test
-  public void testVisitTypeArgument_illegalState() {
+  void testVisitTypeArgument_illegalState() {
     CheckSignatureAdapter checkSignatureAdapter =
         new CheckSignatureAdapter(CheckSignatureAdapter.TYPE_SIGNATURE, null);
 
@@ -417,7 +417,7 @@ public class CheckSignatureAdapterTest extends AsmTest {
   }
 
   @Test
-  public void testVisitTypeArgument_wildcard_illegalState() {
+  void testVisitTypeArgument_wildcard_illegalState() {
     CheckSignatureAdapter checkSignatureAdapter =
         new CheckSignatureAdapter(CheckSignatureAdapter.TYPE_SIGNATURE, null);
 
@@ -427,7 +427,7 @@ public class CheckSignatureAdapterTest extends AsmTest {
   }
 
   @Test
-  public void testVisitTypeArgument_wildcard_illegalArgument() {
+  void testVisitTypeArgument_wildcard_illegalArgument() {
     CheckSignatureAdapter checkSignatureAdapter =
         new CheckSignatureAdapter(CheckSignatureAdapter.TYPE_SIGNATURE, null);
     checkSignatureAdapter.visitClassType("A");
@@ -439,7 +439,7 @@ public class CheckSignatureAdapterTest extends AsmTest {
   }
 
   @Test
-  public void testVisitEnd_illegalState() {
+  void testVisitEnd_illegalState() {
     CheckSignatureAdapter checkSignatureAdapter =
         new CheckSignatureAdapter(CheckSignatureAdapter.TYPE_SIGNATURE, null);
 
@@ -450,7 +450,7 @@ public class CheckSignatureAdapterTest extends AsmTest {
 
   @ParameterizedTest
   @MethodSource({"org.objectweb.asm.util.SignaturesProviders#classSignatures"})
-  public void testVisitMethods_classSignature(final String signature) {
+  void testVisitMethods_classSignature(final String signature) {
     SignatureReader signatureReader = new SignatureReader(signature);
     SignatureWriter signatureWriter = new SignatureWriter();
 
@@ -462,7 +462,7 @@ public class CheckSignatureAdapterTest extends AsmTest {
 
   @ParameterizedTest
   @MethodSource({"org.objectweb.asm.util.SignaturesProviders#classSignatures"})
-  public void testVisitMethods_classSignature_noDelegate(final String signature) {
+  void testVisitMethods_classSignature_noDelegate(final String signature) {
     SignatureReader signatureReader = new SignatureReader(signature);
 
     Executable visitMethods =
@@ -475,7 +475,7 @@ public class CheckSignatureAdapterTest extends AsmTest {
 
   @ParameterizedTest
   @MethodSource({"org.objectweb.asm.util.SignaturesProviders#methodSignatures"})
-  public void testVisitMethods_methodSignature(final String signature) {
+  void testVisitMethods_methodSignature(final String signature) {
     SignatureReader signatureReader = new SignatureReader(signature);
     SignatureWriter signatureWriter = new SignatureWriter();
 
@@ -487,7 +487,7 @@ public class CheckSignatureAdapterTest extends AsmTest {
 
   @ParameterizedTest
   @MethodSource({"org.objectweb.asm.util.SignaturesProviders#methodSignatures"})
-  public void testVisitMethods_methodSignature_noDelegate(final String signature) {
+  void testVisitMethods_methodSignature_noDelegate(final String signature) {
     SignatureReader signatureReader = new SignatureReader(signature);
 
     Executable visitMethods =
@@ -500,7 +500,7 @@ public class CheckSignatureAdapterTest extends AsmTest {
 
   @ParameterizedTest
   @MethodSource({"org.objectweb.asm.util.SignaturesProviders#fieldSignatures"})
-  public void testVisitMethods_typeSignature(final String signature) {
+  void testVisitMethods_typeSignature(final String signature) {
     SignatureReader signatureReader = new SignatureReader(signature);
     SignatureWriter signatureWriter = new SignatureWriter();
 
@@ -512,7 +512,7 @@ public class CheckSignatureAdapterTest extends AsmTest {
 
   @ParameterizedTest
   @MethodSource({"org.objectweb.asm.util.SignaturesProviders#fieldSignatures"})
-  public void testVisitMethods_typeSignature_noDelegate(final String signature) {
+  void testVisitMethods_typeSignature_noDelegate(final String signature) {
     SignatureReader signatureReader = new SignatureReader(signature);
 
     Executable visitMethods =

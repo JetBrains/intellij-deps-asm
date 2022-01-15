@@ -50,12 +50,12 @@ import org.objectweb.asm.tree.MethodNode;
  *
  * @author Eric Bruneton
  */
-public class AnalyzerWithSimpleVerifierTest extends AsmTest {
+class AnalyzerWithSimpleVerifierTest extends AsmTest {
 
   private static final String CLASS_NAME = "C";
 
   @Test
-  public void testAnalyze_invalidInvokevirtual() {
+  void testAnalyze_invalidInvokevirtual() {
     MethodNode methodNode =
         new MethodNodeBuilder()
             .insn(Opcodes.ACONST_NULL)
@@ -73,7 +73,7 @@ public class AnalyzerWithSimpleVerifierTest extends AsmTest {
   }
 
   @Test
-  public void testAnalyze_invalidInvokeinterface() {
+  void testAnalyze_invalidInvokeinterface() {
     MethodNode methodNode =
         new MethodNodeBuilder()
             .insn(Opcodes.ACONST_NULL)
@@ -91,7 +91,7 @@ public class AnalyzerWithSimpleVerifierTest extends AsmTest {
   }
 
   @Test
-  public void testAnalyze_classNotFound() {
+  void testAnalyze_classNotFound() {
     Label loopLabel = new Label();
     MethodNode methodNode =
         new MethodNodeBuilder()
@@ -111,7 +111,7 @@ public class AnalyzerWithSimpleVerifierTest extends AsmTest {
   }
 
   @Test
-  public void testAnalyze_mergeStackFrames() throws AnalyzerException {
+  void testAnalyze_mergeStackFrames() throws AnalyzerException {
     Label loopLabel = new Label();
     MethodNode methodNode =
         new MethodNodeBuilder(1, 4)
@@ -147,8 +147,7 @@ public class AnalyzerWithSimpleVerifierTest extends AsmTest {
    */
   @ParameterizedTest
   @MethodSource(ALL_CLASSES_AND_LATEST_API)
-  public void testAnalyze_simpleVerifier(
-      final PrecompiledClass classParameter, final Api apiParameter) {
+  void testAnalyze_simpleVerifier(final PrecompiledClass classParameter, final Api apiParameter) {
     ClassNode classNode = new ClassNode();
     new ClassReader(classParameter.getBytes()).accept(classNode, 0);
     assumeFalse(classNode.methods.isEmpty());
@@ -173,7 +172,7 @@ public class AnalyzerWithSimpleVerifierTest extends AsmTest {
    * @throws AnalyzerException if the test class can't be analyzed.
    */
   @Test
-  public void testIsAssignableFrom_interface() throws AnalyzerException {
+  void testIsAssignableFrom_interface() throws AnalyzerException {
     Label elseLabel = new Label();
     Label endIfLabel = new Label();
     MethodNode methodNode =

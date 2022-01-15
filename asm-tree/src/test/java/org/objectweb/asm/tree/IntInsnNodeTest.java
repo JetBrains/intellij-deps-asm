@@ -38,10 +38,10 @@ import org.objectweb.asm.test.AsmTest;
  *
  * @author Eric Bruneton
  */
-public class IntInsnNodeTest extends AsmTest {
+class IntInsnNodeTest extends AsmTest {
 
   @Test
-  public void testConstructor() {
+  void testConstructor() {
     IntInsnNode intInsnNode = new IntInsnNode(Opcodes.BIPUSH, 0);
 
     assertEquals(Opcodes.BIPUSH, intInsnNode.getOpcode());
@@ -49,7 +49,7 @@ public class IntInsnNodeTest extends AsmTest {
   }
 
   @Test
-  public void testSetOpcode() {
+  void testSetOpcode() {
     IntInsnNode intInsnNode = new IntInsnNode(Opcodes.BIPUSH, 0);
 
     intInsnNode.setOpcode(Opcodes.SIPUSH);

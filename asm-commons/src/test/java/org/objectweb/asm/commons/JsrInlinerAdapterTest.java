@@ -52,7 +52,7 @@ import org.objectweb.asm.tree.MethodNode;
  *
  * @author Eric Bruneton
  */
-public class JsrInlinerAdapterTest extends AsmTest {
+class JsrInlinerAdapterTest extends AsmTest {
 
   // Some local variable numbers used in tests.
   private static final int LOCAL1 = 1;
@@ -108,7 +108,7 @@ public class JsrInlinerAdapterTest extends AsmTest {
   private final Label expectedLabel28 = new Label();
 
   @Test
-  public void testConstructor() {
+  void testConstructor() {
     new JSRInlinerAdapter(null, Opcodes.ACC_PUBLIC, "name", "()V", null, null);
     assertThrows(
         IllegalStateException.class,
@@ -131,7 +131,7 @@ public class JsrInlinerAdapterTest extends AsmTest {
    * </pre>
    */
   @Test
-  public void testInlineJsr_basicTryFinally() {
+  void testInlineJsr_basicTryFinally() {
     MethodNode inputMethod =
         new MethodNodeBuilder(1, 4)
             .iconst_0()
@@ -216,7 +216,7 @@ public class JsrInlinerAdapterTest extends AsmTest {
    * </pre>
    */
   @Test
-  public void testInlineJsr_ifElseInFinally() {
+  void testInlineJsr_ifElseInFinally() {
     MethodNode inputMethod =
         new MethodNodeBuilder(1, 4)
             .iconst_0()
@@ -323,7 +323,7 @@ public class JsrInlinerAdapterTest extends AsmTest {
    */
   @ParameterizedTest
   @ValueSource(strings = {"true", "false"})
-  public void testInlineJsr_lookupOrTableSwitchInFinally(final boolean useTableSwitch) {
+  void testInlineJsr_lookupOrTableSwitchInFinally(final boolean useTableSwitch) {
     MethodNode inputMethod =
         new MethodNodeBuilder(1, 4)
             .iconst_0()
@@ -429,7 +429,7 @@ public class JsrInlinerAdapterTest extends AsmTest {
    * </pre>
    */
   @Test
-  public void testInlineJsr_simpleNestedFinally() {
+  void testInlineJsr_simpleNestedFinally() {
     MethodNode inputMethod =
         new MethodNodeBuilder(2, 6)
             .iconst_0()
@@ -556,7 +556,7 @@ public class JsrInlinerAdapterTest extends AsmTest {
    * </pre>
    */
   @Test
-  public void testInlineJsr_subroutineWithNoRet() {
+  void testInlineJsr_subroutineWithNoRet() {
     MethodNode inputMethod =
         new MethodNodeBuilder(1, 4)
             .iconst_0()
@@ -639,7 +639,7 @@ public class JsrInlinerAdapterTest extends AsmTest {
    * </pre>
    */
   @Test
-  public void testInlineJsr_subroutineWithNoRet2() {
+  void testInlineJsr_subroutineWithNoRet2() {
     MethodNode inputMethod =
         new MethodNodeBuilder(1, 1)
             .jsr(label0)
@@ -695,7 +695,7 @@ public class JsrInlinerAdapterTest extends AsmTest {
    * </pre>
    */
   @Test
-  public void testInlineJsr_implicitExit() {
+  void testInlineJsr_implicitExit() {
     MethodNode inputMethod =
         new MethodNodeBuilder(1, 4)
             .iconst_0()
@@ -795,7 +795,7 @@ public class JsrInlinerAdapterTest extends AsmTest {
    * Static and Dynamic Analysis" by Cyrille Artho and Armin Biere.
    */
   @Test
-  public void testInlineJsr_implicitExitToAnotherSubroutine() {
+  void testInlineJsr_implicitExitToAnotherSubroutine() {
     MethodNode inputMethod =
         new MethodNodeBuilder(1, 6)
             .iconst_0()
@@ -938,7 +938,7 @@ public class JsrInlinerAdapterTest extends AsmTest {
    * <p>I don't believe this can be represented in Java.
    */
   @Test
-  public void testInlineJsr_commonCodeWhichMustBeDuplicated() {
+  void testInlineJsr_commonCodeWhichMustBeDuplicated() {
     MethodNode inputMethod =
         new MethodNodeBuilder(1, 2)
             .iconst_0()
@@ -1014,7 +1014,7 @@ public class JsrInlinerAdapterTest extends AsmTest {
    * <p>This would not normally be produced by a java compiler.
    */
   @Test
-  public void testInlineJsr_interleavedCode() {
+  void testInlineJsr_interleavedCode() {
     MethodNode inputMethod =
         new MethodNodeBuilder(1, 3)
             .iconst_0()
@@ -1108,7 +1108,7 @@ public class JsrInlinerAdapterTest extends AsmTest {
    * </pre>
    */
   @Test
-  public void testInlineJsr_implicitExitInTryCatch() {
+  void testInlineJsr_implicitExitInTryCatch() {
     MethodNode inputMethod =
         new MethodNodeBuilder(1, 6)
             .iconst_0()
@@ -1269,7 +1269,7 @@ public class JsrInlinerAdapterTest extends AsmTest {
    * com/sun/corba/ee/impl/protocol/CorbaClientDelegateImpl from GlassFish 2. See issue #317823.
    */
   @Test
-  public void testInlineJsr_glassFish2CorbaClientDelegateImplExample() {
+  void testInlineJsr_glassFish2CorbaClientDelegateImplExample() {
     MethodNode inputMethod =
         new MethodNodeBuilder(3, 3)
             .label(label0)
@@ -1420,7 +1420,7 @@ public class JsrInlinerAdapterTest extends AsmTest {
    * </pre>
    */
   @Test
-  public void testInlineJsr_basicLineNumberAndLocalVars() {
+  void testInlineJsr_basicLineNumberAndLocalVars() {
     MethodNode inputMethod =
         new MethodNodeBuilder(1, 4)
             .label(label0)
@@ -1502,7 +1502,7 @@ public class JsrInlinerAdapterTest extends AsmTest {
   /** Tests that classes transformed with JSRInlinerAdapter can be loaded and instantiated. */
   @ParameterizedTest
   @MethodSource(ALL_CLASSES_AND_LATEST_API)
-  public void testInlineJsr_precompiledClass(
+  void testInlineJsr_precompiledClass(
       final PrecompiledClass classParameter, final Api apiParameter) {
     ClassReader classReader = new ClassReader(classParameter.getBytes());
     ClassWriter classWriter = new ClassWriter(0);

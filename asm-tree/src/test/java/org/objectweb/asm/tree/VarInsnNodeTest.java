@@ -38,10 +38,10 @@ import org.objectweb.asm.test.AsmTest;
  *
  * @author Eric Bruneton
  */
-public class VarInsnNodeTest extends AsmTest {
+class VarInsnNodeTest extends AsmTest {
 
   @Test
-  public void testConstructor() {
+  void testConstructor() {
     VarInsnNode varInsnNode = new VarInsnNode(Opcodes.ALOAD, 123);
 
     assertEquals(Opcodes.ALOAD, varInsnNode.getOpcode());
@@ -50,7 +50,7 @@ public class VarInsnNodeTest extends AsmTest {
   }
 
   @Test
-  public void testSetOpcode() {
+  void testSetOpcode() {
     VarInsnNode varInsnNode = new VarInsnNode(Opcodes.ALOAD, 123);
 
     varInsnNode.setOpcode(Opcodes.ASTORE);

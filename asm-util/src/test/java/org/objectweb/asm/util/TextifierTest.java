@@ -53,14 +53,14 @@ import org.objectweb.asm.test.AsmTest;
  * @author Eugene Kuleshov
  * @author Eric Bruneton
  */
-public class TextifierTest extends AsmTest {
+class TextifierTest extends AsmTest {
 
   private static final String EXPECTED_USAGE =
       "Prints a disassembled view of the given class.\n"
           + "Usage: Textifier [-nodebug] <fully qualified class name or class file name>\n";
 
   @Test
-  public void testConstructor() {
+  void testConstructor() {
     assertDoesNotThrow(() -> new Textifier());
     assertThrows(IllegalStateException.class, () -> new Textifier() {});
   }
@@ -72,8 +72,8 @@ public class TextifierTest extends AsmTest {
    */
   @ParameterizedTest
   @MethodSource(ALL_CLASSES_AND_ALL_APIS)
-  public void testTextify_precompiledClass(
-      final PrecompiledClass classParameter, final Api apiParameter) throws IOException {
+  void testTextify_precompiledClass(final PrecompiledClass classParameter, final Api apiParameter)
+      throws IOException {
     byte[] classFile = classParameter.getBytes();
     StringWriter output = new StringWriter();
     assumeTrue(classFile.length < 32768);
@@ -95,7 +95,7 @@ public class TextifierTest extends AsmTest {
   }
 
   @Test
-  public void testMain_missingClassName() throws IOException {
+  void testMain_missingClassName() throws IOException {
     StringWriter output = new StringWriter();
     StringWriter logger = new StringWriter();
     String[] args = new String[0];
@@ -107,7 +107,7 @@ public class TextifierTest extends AsmTest {
   }
 
   @Test
-  public void testMain_missingClassName_withNodebug() throws IOException {
+  void testMain_missingClassName_withNodebug() throws IOException {
     StringWriter output = new StringWriter();
     StringWriter logger = new StringWriter();
     String[] args = {"-nodebug"};
@@ -119,7 +119,7 @@ public class TextifierTest extends AsmTest {
   }
 
   @Test
-  public void testMain_tooManyArguments() throws IOException {
+  void testMain_tooManyArguments() throws IOException {
     StringWriter output = new StringWriter();
     StringWriter logger = new StringWriter();
     String[] args = {"-nodebug", getClass().getName(), "extraArgument"};
@@ -131,7 +131,7 @@ public class TextifierTest extends AsmTest {
   }
 
   @Test
-  public void testMain_classFileNotFound() {
+  void testMain_classFileNotFound() {
     StringWriter output = new StringWriter();
     StringWriter logger = new StringWriter();
     String[] args = {"DoNotExist.class"};
@@ -145,7 +145,7 @@ public class TextifierTest extends AsmTest {
   }
 
   @Test
-  public void testMain_classNotFound() {
+  void testMain_classNotFound() {
     StringWriter output = new StringWriter();
     StringWriter logger = new StringWriter();
     String[] args = {"do\\not\\exist"};
@@ -159,35 +159,35 @@ public class TextifierTest extends AsmTest {
   }
 
   @Test
-  public void testMain_className() throws IOException {
+  void testMain_className() throws IOException {
     StringWriter output = new StringWriter();
     StringWriter logger = new StringWriter();
     String[] args = {getClass().getName()};
 
     Textifier.main(args, new PrintWriter(output, true), new PrintWriter(logger, true));
 
-    assertTrue(output.toString().contains("\npublic class org/objectweb/asm/util/TextifierTest"));
+    assertTrue(output.toString().contains("\nclass org/objectweb/asm/util/TextifierTest"));
     assertTrue(output.toString().contains("\n    LINENUMBER"));
     assertTrue(output.toString().contains("\n    LOCALVARIABLE"));
     assertEquals("", logger.toString());
   }
 
   @Test
-  public void testMain_className_withNoebug() throws IOException {
+  void testMain_className_withNoebug() throws IOException {
     StringWriter output = new StringWriter();
     StringWriter logger = new StringWriter();
     String[] args = {"-nodebug", getClass().getName()};
 
     Textifier.main(args, new PrintWriter(output, true), new PrintWriter(logger, true));
 
-    assertTrue(output.toString().contains("\npublic class org/objectweb/asm/util/TextifierTest"));
+    assertTrue(output.toString().contains("\nclass org/objectweb/asm/util/TextifierTest"));
     assertFalse(output.toString().contains("\n    LINENUMBER"));
     assertFalse(output.toString().contains("\n    LOCALVARIABLE"));
     assertEquals("", logger.toString());
   }
 
   @Test
-  public void testMain_classFile() throws IOException {
+  void testMain_classFile() throws IOException {
     StringWriter output = new StringWriter();
     StringWriter logger = new StringWriter();
     String[] args = {
@@ -196,7 +196,7 @@ public class TextifierTest extends AsmTest {
 
     Textifier.main(args, new PrintWriter(output, true), new PrintWriter(logger, true));
 
-    assertTrue(output.toString().contains("\npublic class org/objectweb/asm/util/TextifierTest"));
+    assertTrue(output.toString().contains("\nclass org/objectweb/asm/util/TextifierTest"));
     assertEquals("", logger.toString());
   }
 }

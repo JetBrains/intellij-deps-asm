@@ -43,10 +43,10 @@ import org.junit.jupiter.params.provider.ValueSource;
  *
  * @author Eric Bruneton
  */
-public class ByteVectorTest {
+class ByteVectorTest {
 
   @Test
-  public void testPutByte() {
+  void testPutByte() {
     ByteVector byteVector = new ByteVector(0);
 
     byteVector.putByte(1);
@@ -55,7 +55,7 @@ public class ByteVectorTest {
   }
 
   @Test
-  public void testPut11() {
+  void testPut11() {
     ByteVector byteVector = new ByteVector(0);
 
     byteVector.put11(1, 2);
@@ -64,7 +64,7 @@ public class ByteVectorTest {
   }
 
   @Test
-  public void testPutShort() {
+  void testPutShort() {
     ByteVector byteVector = new ByteVector(0);
 
     byteVector.putShort(0x0102);
@@ -73,7 +73,7 @@ public class ByteVectorTest {
   }
 
   @Test
-  public void testPut12() {
+  void testPut12() {
     ByteVector byteVector = new ByteVector(0);
 
     byteVector.put12(1, 0x0203);
@@ -82,7 +82,7 @@ public class ByteVectorTest {
   }
 
   @Test
-  public void testPut112() {
+  void testPut112() {
     ByteVector byteVector = new ByteVector(0);
 
     byteVector.put112(1, 2, 0x0304);
@@ -91,7 +91,7 @@ public class ByteVectorTest {
   }
 
   @Test
-  public void testPutInt() {
+  void testPutInt() {
     ByteVector byteVector = new ByteVector(0);
 
     byteVector.putInt(0x01020304);
@@ -100,7 +100,7 @@ public class ByteVectorTest {
   }
 
   @Test
-  public void testPut122() {
+  void testPut122() {
     ByteVector byteVector = new ByteVector(0);
 
     byteVector.put122(1, 0x0203, 0x0405);
@@ -109,7 +109,7 @@ public class ByteVectorTest {
   }
 
   @Test
-  public void testPutLong() {
+  void testPutLong() {
     ByteVector byteVector = new ByteVector(0);
 
     byteVector.putLong(0x0102030405060708L);
@@ -118,7 +118,7 @@ public class ByteVectorTest {
   }
 
   @Test
-  public void testPutUtf8_ascii() {
+  void testPutUtf8_ascii() {
     ByteVector byteVector = new ByteVector(0);
 
     byteVector.putUTF8("abc");
@@ -128,7 +128,7 @@ public class ByteVectorTest {
 
   @ParameterizedTest
   @ValueSource(ints = {65535, 65536})
-  public void testPutUtf8_ascii_tooLarge(final int size) {
+  void testPutUtf8_ascii_tooLarge(final int size) {
     ByteVector byteVector = new ByteVector(0);
     char[] charBuffer = new char[size];
     Arrays.fill(charBuffer, 'A');
@@ -144,7 +144,7 @@ public class ByteVectorTest {
   }
 
   @Test
-  public void testPutUtf8_unicode() {
+  void testPutUtf8_unicode() {
     ByteVector byteVector = new ByteVector(0);
 
     byteVector.putUTF8(new String(new char[] {'a', 0x0000, 0x0080, 0x0800}));
@@ -154,7 +154,7 @@ public class ByteVectorTest {
   }
 
   @Test
-  public void testPutUtf8_unicode_tooLarge() {
+  void testPutUtf8_unicode_tooLarge() {
     ByteVector byteVector = new ByteVector(0);
     char[] charBuffer = new char[32768];
     Arrays.fill(charBuffer, (char) 0x07FF);
@@ -166,7 +166,7 @@ public class ByteVectorTest {
   }
 
   @Test
-  public void testPutByteArray() {
+  void testPutByteArray() {
     ByteVector byteVector = new ByteVector(0);
 
     byteVector.putByteArray(new byte[] {0, 1, 2, 3, 4, 5}, 1, 3);

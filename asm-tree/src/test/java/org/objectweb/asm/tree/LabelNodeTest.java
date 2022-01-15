@@ -39,10 +39,10 @@ import org.objectweb.asm.test.AsmTest;
  *
  * @author Eric Bruneton
  */
-public class LabelNodeTest extends AsmTest {
+class LabelNodeTest extends AsmTest {
 
   @Test
-  public void testConstructor() {
+  void testConstructor() {
     Label label = new Label();
 
     LabelNode labelNode1 = new LabelNode();

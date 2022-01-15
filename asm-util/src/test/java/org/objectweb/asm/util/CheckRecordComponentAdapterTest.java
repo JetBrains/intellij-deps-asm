@@ -42,16 +42,16 @@ import org.objectweb.asm.test.AsmTest;
  *
  * @author Eric Bruneton
  */
-public class CheckRecordComponentAdapterTest extends AsmTest implements Opcodes {
+class CheckRecordComponentAdapterTest extends AsmTest implements Opcodes {
 
   @Test
-  public void testConstructor() {
+  void testConstructor() {
     assertDoesNotThrow(() -> new CheckRecordComponentAdapter(null));
     assertThrows(IllegalStateException.class, () -> new CheckRecordComponentAdapter(null) {});
   }
 
   @Test
-  public void testVisitTypeAnnotation_illegalTypeAnnotation() {
+  void testVisitTypeAnnotation_illegalTypeAnnotation() {
     CheckRecordComponentAdapter checkRecordComponentAdapter = new CheckRecordComponentAdapter(null);
 
     Executable visitTypeAnnotation =
@@ -64,7 +64,7 @@ public class CheckRecordComponentAdapterTest extends AsmTest implements Opcodes 
   }
 
   @Test
-  public void testVisitAttribute_illegalAttribute() {
+  void testVisitAttribute_illegalAttribute() {
     CheckRecordComponentAdapter checkRecordComponentAdapter = new CheckRecordComponentAdapter(null);
 
     Executable visitAttribute = () -> checkRecordComponentAdapter.visitAttribute(null);
@@ -74,7 +74,7 @@ public class CheckRecordComponentAdapterTest extends AsmTest implements Opcodes 
   }
 
   @Test
-  public void testVisitAttribute_afterEnd() {
+  void testVisitAttribute_afterEnd() {
     CheckRecordComponentAdapter checkRecordComponentAdapter = new CheckRecordComponentAdapter(null);
     checkRecordComponentAdapter.visitEnd();
 

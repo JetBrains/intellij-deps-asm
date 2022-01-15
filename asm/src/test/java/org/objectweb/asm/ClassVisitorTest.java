@@ -51,17 +51,17 @@ import org.objectweb.asm.test.ClassFile;
  *
  * @author Eric Bruneton
  */
-public class ClassVisitorTest extends AsmTest {
+class ClassVisitorTest extends AsmTest {
 
   @Test
-  public void testConstructor_validApi() {
+  void testConstructor_validApi() {
     Executable constructor = () -> new ClassVisitor(Opcodes.ASM4) {};
 
     assertDoesNotThrow(constructor);
   }
 
   @Test
-  public void testConstructor_invalidApi() {
+  void testConstructor_invalidApi() {
     Executable constructor = () -> new ClassVisitor(0) {};
 
     Exception exception = assertThrows(IllegalArgumentException.class, constructor);
@@ -75,7 +75,7 @@ public class ClassVisitorTest extends AsmTest {
    */
   @ParameterizedTest
   @MethodSource(ALL_CLASSES_AND_ALL_APIS)
-  public void testReadAndWrite_emptyVisitor(
+  void testReadAndWrite_emptyVisitor(
       final PrecompiledClass classParameter, final Api apiParameter) {
     byte[] classFile = classParameter.getBytes();
     ClassReader classReader = new ClassReader(classFile);
@@ -99,7 +99,7 @@ public class ClassVisitorTest extends AsmTest {
    */
   @ParameterizedTest
   @MethodSource(ALL_CLASSES_AND_ALL_APIS)
-  public void testReadAndWrite_copyPool_changeMethodExceptions(
+  void testReadAndWrite_copyPool_changeMethodExceptions(
       final PrecompiledClass classParameter, final Api apiParameter) {
     byte[] classFile = classParameter.getBytes();
     ClassReader classReader = new ClassReader(classFile);
@@ -120,7 +120,7 @@ public class ClassVisitorTest extends AsmTest {
    */
   @ParameterizedTest
   @MethodSource(ALL_CLASSES_AND_ALL_APIS)
-  public void testReadAndWrite_copyPool_changeMethodDeprecatedFlag(
+  void testReadAndWrite_copyPool_changeMethodDeprecatedFlag(
       final PrecompiledClass classParameter, final Api apiParameter) {
     byte[] classFile = classParameter.getBytes();
     ClassReader classReader = new ClassReader(classFile);
@@ -142,7 +142,7 @@ public class ClassVisitorTest extends AsmTest {
    */
   @ParameterizedTest
   @MethodSource(ALL_CLASSES_AND_ALL_APIS)
-  public void testReadAndWrite_copyPool_changeMethodSyntheticFlag(
+  void testReadAndWrite_copyPool_changeMethodSyntheticFlag(
       final PrecompiledClass classParameter, final Api apiParameter) {
     byte[] classFile = classParameter.getBytes();
     ClassReader classReader = new ClassReader(classFile);
@@ -165,7 +165,7 @@ public class ClassVisitorTest extends AsmTest {
    */
   @ParameterizedTest
   @CsvSource({"true, true", "true, false", "false, true", "false, false"})
-  public void testReadAndWrite_copyPool_changeClassVersionAndMethodSyntheticFlag(
+  void testReadAndWrite_copyPool_changeClassVersionAndMethodSyntheticFlag(
       final boolean upgradeVersion, final boolean changeSynthetic) {
     ClassWriter sourceClassWriter = new ClassWriter(0);
     sourceClassWriter.visit(
@@ -199,7 +199,7 @@ public class ClassVisitorTest extends AsmTest {
    * without the copy pool option, and a class adapter that changes the method descriptors.
    */
   @Test
-  public void testReadAndWrite_copyPool_changeMethodDescriptor() {
+  void testReadAndWrite_copyPool_changeMethodDescriptor() {
     ClassWriter sourceClassWriter = new ClassWriter(ClassWriter.COMPUTE_MAXS);
     sourceClassWriter.visit(
         Opcodes.V1_7, Opcodes.ACC_ABSTRACT, "C", null, "java/lang/Object", null);
@@ -227,7 +227,7 @@ public class ClassVisitorTest extends AsmTest {
   /** Test that classes with only visible or only invisible annotations can be read correctly. */
   @ParameterizedTest
   @ValueSource(strings = {"true", "false"})
-  public void testReadAndWrite_removeAnnotations(final boolean visibilityValue) {
+  void testReadAndWrite_removeAnnotations(final boolean visibilityValue) {
     ClassWriter classWriter = new ClassWriter(0);
     new ClassReader(PrecompiledClass.JDK8_ALL_STRUCTURES.getBytes())
         .accept(new RemoveAnnotationAdapter(classWriter, visibilityValue), 0);
@@ -245,7 +245,7 @@ public class ClassVisitorTest extends AsmTest {
    * ClassReader -> class adapter -> ClassWriter chain.
    */
   @Test
-  public void testReadAndWrite_removeOptionalModuleData() {
+  void testReadAndWrite_removeOptionalModuleData() {
     byte[] classFile = PrecompiledClass.JDK9_MODULE.getBytes();
     ClassReader classReader = new ClassReader(classFile);
     ClassWriter classWriter = new ClassWriter(0);

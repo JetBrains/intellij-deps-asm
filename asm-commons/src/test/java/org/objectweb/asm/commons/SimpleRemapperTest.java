@@ -39,10 +39,10 @@ import org.junit.jupiter.api.Test;
  *
  * @author Eric Bruneton
  */
-public class SimpleRemapperTest {
+class SimpleRemapperTest {
 
   @Test
-  public void testMapSignature_remapParentOnly_nestedClassExtends() {
+  void testMapSignature_remapParentOnly_nestedClassExtends() {
     String inputSignature = "LOuter<Ljava/lang/Object;>.Inner;";
     Remapper remapper = new SimpleRemapper(Collections.singletonMap("Outer", "RenamedOuter"));
 
@@ -52,7 +52,7 @@ public class SimpleRemapperTest {
   }
 
   @Test
-  public void testMapSignature_remapChildOnly_nestedClassExtends() {
+  void testMapSignature_remapChildOnly_nestedClassExtends() {
     String inputSignature = "LOuter<Ljava/lang/Object;>.Inner;";
     Remapper remapper =
         new SimpleRemapper(Collections.singletonMap("Outer$Inner", "Outer$RenamedInner"));
@@ -63,7 +63,7 @@ public class SimpleRemapperTest {
   }
 
   @Test
-  public void testMapSignature_remapChildOnly_nestedClassExtends_identifiersWithDollarSign() {
+  void testMapSignature_remapChildOnly_nestedClassExtends_identifiersWithDollarSign() {
     String inputSignature = "LOuter<Ljava/lang/Object;>.Inner$1;";
     Remapper remapper =
         new SimpleRemapper(Collections.singletonMap("Outer$Inner$1", "Outer$RenamedInner$1"));
@@ -74,7 +74,7 @@ public class SimpleRemapperTest {
   }
 
   @Test
-  public void testMapSignature_remapBothParentAndChild_nestedClassExtends() {
+  void testMapSignature_remapBothParentAndChild_nestedClassExtends() {
     String inputSignature = "LOuter<Ljava/lang/Object;>.Inner;";
     Map<String, String> mapping = new HashMap<>();
     mapping.put("Outer", "RenamedOuter");

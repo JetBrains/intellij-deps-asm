@@ -39,11 +39,11 @@ import org.junit.jupiter.api.Test;
  *
  * @author Eric Bruneton
  */
-public class HandleTest {
+class HandleTest {
 
   @Test
   @SuppressWarnings("deprecation")
-  public void testDeprecatedConstructor() {
+  void testDeprecatedConstructor() {
     Handle handle1 = new Handle(Opcodes.H_INVOKEINTERFACE, "owner", "name", "descriptor");
     Handle handle2 = new Handle(Opcodes.H_INVOKESPECIAL, "owner", "name", "descriptor");
 
@@ -54,7 +54,7 @@ public class HandleTest {
   }
 
   @Test
-  public void testConstructor() {
+  void testConstructor() {
     Handle handle = new Handle(Opcodes.H_GETFIELD, "owner", "name", "descriptor", false);
 
     assertEquals(Opcodes.H_GETFIELD, handle.getTag());
@@ -66,7 +66,7 @@ public class HandleTest {
   }
 
   @Test
-  public void testEquals() {
+  void testEquals() {
     Handle handle1 = new Handle(Opcodes.H_GETFIELD, "owner", "name", "descriptor", false);
     Handle handle2 = new Handle(Opcodes.H_GETFIELD, "owner", "name", "descriptor", false);
     Handle nullHandle = null;
@@ -96,7 +96,7 @@ public class HandleTest {
   }
 
   @Test
-  public void testHashCode() {
+  void testHashCode() {
     Handle handle1 = new Handle(Opcodes.H_INVOKESTATIC, "owner", "name", "descriptor", false);
     Handle handle2 = new Handle(Opcodes.H_INVOKESTATIC, "owner", "name", "descriptor", true);
 

@@ -37,15 +37,15 @@ import org.junit.jupiter.api.Test;
  *
  * @author Eric Bruneton
  */
-public class AttributeTest {
+class AttributeTest {
 
   @Test
-  public void testIsUnknown() {
+  void testIsUnknown() {
     assertTrue(new Attribute("Comment").isUnknown());
   }
 
   @Test
-  public void testGetLabels() {
+  void testGetLabels() {
     assertArrayEquals(new Label[0], new Attribute("Comment").getLabels());
   }
 }

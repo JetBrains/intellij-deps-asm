@@ -43,13 +43,13 @@ import org.objectweb.asm.Opcodes;
  *
  * @author Eric Bruneton
  */
-public class ModuleHashesAttributeTest {
+class ModuleHashesAttributeTest {
 
   private static final byte[] HASH1 = {0x1, 0x2, 0x3};
   private static final byte[] HASH2 = {0x4, 0x5, 0x6};
 
   @Test
-  public void testWriteAndRead() {
+  void testWriteAndRead() {
     ClassWriter classWriter = new ClassWriter(0);
     classWriter.visitAttribute(
         new ModuleHashesAttribute(

@@ -40,10 +40,10 @@ import org.objectweb.asm.Type;
  *
  * @author Eric Bruneton
  */
-public class BasicValueTest {
+class BasicValueTest {
 
   @Test
-  public void testIsReference() {
+  void testIsReference() {
     assertTrue(BasicValue.REFERENCE_VALUE.isReference());
     assertTrue(new BasicValue(Type.getObjectType("[I")).isReference());
     assertFalse(BasicValue.UNINITIALIZED_VALUE.isReference());
@@ -51,7 +51,7 @@ public class BasicValueTest {
   }
 
   @Test
-  public void testEquals() {
+  void testEquals() {
     boolean equalsSameUninitializedValue =
         new BasicValue(null).equals(BasicValue.UNINITIALIZED_VALUE);
     boolean equalsSameValue = new BasicValue(Type.INT_TYPE).equals(BasicValue.INT_VALUE);
@@ -65,13 +65,13 @@ public class BasicValueTest {
   }
 
   @Test
-  public void testHashCode() {
+  void testHashCode() {
     assertEquals(0, BasicValue.UNINITIALIZED_VALUE.hashCode());
     assertNotEquals(0, BasicValue.INT_VALUE.hashCode());
   }
 
   @Test
-  public void testToString() {
+  void testToString() {
     assertEquals(".", BasicValue.UNINITIALIZED_VALUE.toString());
     assertEquals("A", BasicValue.RETURNADDRESS_VALUE.toString());
     assertEquals("R", BasicValue.REFERENCE_VALUE.toString());

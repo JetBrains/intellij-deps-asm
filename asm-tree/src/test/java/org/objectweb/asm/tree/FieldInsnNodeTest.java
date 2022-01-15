@@ -38,10 +38,10 @@ import org.objectweb.asm.test.AsmTest;
  *
  * @author Eric Bruneton
  */
-public class FieldInsnNodeTest extends AsmTest {
+class FieldInsnNodeTest extends AsmTest {
 
   @Test
-  public void testConstructor() {
+  void testConstructor() {
     FieldInsnNode fieldInsnNode = new FieldInsnNode(Opcodes.GETSTATIC, "owner", "name", "I");
 
     assertEquals(AbstractInsnNode.FIELD_INSN, fieldInsnNode.getType());
@@ -52,7 +52,7 @@ public class FieldInsnNodeTest extends AsmTest {
   }
 
   @Test
-  public void testSetOpcode() {
+  void testSetOpcode() {
     FieldInsnNode fieldInsnNode = new FieldInsnNode(Opcodes.GETSTATIC, "owner", "name", "I");
 
     fieldInsnNode.setOpcode(Opcodes.PUTSTATIC);

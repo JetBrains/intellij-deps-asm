@@ -308,6 +308,7 @@ public class ClassReader {
    * @return the content of the given input stream.
    * @throws IOException if a problem occurs during reading.
    */
+  @SuppressWarnings("PMD")
   private static byte[] readStream(final InputStream inputStream, final boolean close)
       throws IOException {
     if (inputStream == null) {
@@ -337,10 +338,9 @@ public class ClassReader {
   private static int calculateBufferSize(final InputStream inputStream) throws IOException {
     int expectedLength = inputStream.available();
     /*
-     * Some implementations can return 0 while holding available data
-     * (e.g. new FileInputStream("/proc/a_file"))
-     * Also in some pathological cases a very small number might be returned,
-     * and in this case we use default size
+     * Some implementations can return 0 while holding available data (e.g. new
+     * FileInputStream("/proc/a_file")) Also in some pathological cases a very small number might be
+     * returned, and in this case we use default size
      */
     if (expectedLength < 256) {
       return INPUT_STREAM_DATA_CHUNK_SIZE;
@@ -859,7 +859,7 @@ public class ClassReader {
       currentOffset += 2;
     }
 
-    // Read the  'provides_count' and 'provides' fields.
+    // Read the 'provides_count' and 'provides' fields.
     int providesCount = readUnsignedShort(currentOffset);
     currentOffset += 2;
     while (providesCount-- > 0) {

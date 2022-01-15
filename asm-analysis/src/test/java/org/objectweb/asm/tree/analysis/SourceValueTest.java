@@ -41,15 +41,15 @@ import org.objectweb.asm.tree.InsnNode;
  *
  * @author Eric Bruneton
  */
-public class SourceValueTest {
+class SourceValueTest {
 
   @Test
-  public void testGetSize() {
+  void testGetSize() {
     assertEquals(2, new SourceValue(2).getSize());
   }
 
   @Test
-  public void testEquals() {
+  void testEquals() {
     SourceValue nullValue = null;
 
     boolean equalsSame = new SourceValue(1).equals(new SourceValue(1));
@@ -65,7 +65,7 @@ public class SourceValueTest {
   }
 
   @Test
-  public void testHashcode() {
+  void testHashcode() {
     assertEquals(0, new SourceValue(1).hashCode());
     assertNotEquals(0, new SourceValue(1, new InsnNode(Opcodes.NOP)).hashCode());
   }

@@ -38,10 +38,10 @@ import org.objectweb.asm.test.AsmTest;
  *
  * @author Eric Bruneton
  */
-public class LookupSwitchInsnNodeTest extends AsmTest {
+class LookupSwitchInsnNodeTest extends AsmTest {
 
   @Test
-  public void testConstructor() {
+  void testConstructor() {
     LabelNode dflt = new LabelNode();
     int[] keys = new int[] {1};
     LabelNode[] labels = new LabelNode[] {new LabelNode()};

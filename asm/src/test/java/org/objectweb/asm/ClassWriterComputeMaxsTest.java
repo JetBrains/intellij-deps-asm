@@ -47,7 +47,7 @@ import org.objectweb.asm.test.ClassFile;
  *
  * @author Eric Bruneton
  */
-public class ClassWriterComputeMaxsTest {
+class ClassWriterComputeMaxsTest {
 
   // Some local variable numbers used in tests.
   private static final int LOCAL1 = 1;
@@ -89,7 +89,7 @@ public class ClassWriterComputeMaxsTest {
    */
   @ParameterizedTest
   @ValueSource(ints = {1, 31, 32, 33})
-  public void testVisitMaxs_basic(final int numSubroutines) {
+  void testVisitMaxs_basic(final int numSubroutines) {
     TestCaseBuilder testCase = new TestCaseBuilder();
     for (int i = 0; i < numSubroutines; ++i) {
       Label k0 = new Label();
@@ -169,7 +169,7 @@ public class ClassWriterComputeMaxsTest {
    * </pre>
    */
   @Test
-  public void testVisitMaxs_ifElseInFinally() {
+  void testVisitMaxs_ifElseInFinally() {
     TestCaseBuilder testCase =
         new TestCaseBuilder()
             .iconst_0() // N0
@@ -247,7 +247,7 @@ public class ClassWriterComputeMaxsTest {
    * </pre>
    */
   @Test
-  public void testVisitMaxs_simpleNestedFinally() {
+  void testVisitMaxs_simpleNestedFinally() {
     TestCaseBuilder testCase =
         new TestCaseBuilder()
             .iconst_0() // N0
@@ -335,7 +335,7 @@ public class ClassWriterComputeMaxsTest {
    * </pre>
    */
   @Test
-  public void testVisitMaxs_subroutineWithNoRet() {
+  void testVisitMaxs_subroutineWithNoRet() {
     TestCaseBuilder testCase =
         new TestCaseBuilder()
             .iconst_0() // N0
@@ -391,7 +391,7 @@ public class ClassWriterComputeMaxsTest {
    * </pre>
    */
   @Test
-  public void testVisitMaxs_subroutineWithNoRet2() {
+  void testVisitMaxs_subroutineWithNoRet2() {
     TestCaseBuilder testCase =
         new TestCaseBuilder()
             .aconst_null() // N0
@@ -439,7 +439,7 @@ public class ClassWriterComputeMaxsTest {
    * </pre>
    */
   @Test
-  public void testVisitMaxs_implicitExit() {
+  void testVisitMaxs_implicitExit() {
     TestCaseBuilder testCase =
         new TestCaseBuilder()
             .iconst_0() // N0
@@ -521,7 +521,7 @@ public class ClassWriterComputeMaxsTest {
    * Static and Dynamic Analysis" by Cyrille Artho and Armin Biere.
    */
   @Test
-  public void testVisitMaxs_implicitExitToAnotherSubroutine() {
+  void testVisitMaxs_implicitExitToAnotherSubroutine() {
     TestCaseBuilder testCase =
         new TestCaseBuilder()
             .iconst_0() // N0
@@ -598,7 +598,7 @@ public class ClassWriterComputeMaxsTest {
   }
 
   @Test
-  public void testVisitMaxs_implicitExitToAnotherSubroutine2() {
+  void testVisitMaxs_implicitExitToAnotherSubroutine2() {
     TestCaseBuilder testCase =
         new TestCaseBuilder()
             .iconst_0() // N0
@@ -636,7 +636,7 @@ public class ClassWriterComputeMaxsTest {
    * <p>This would not normally be produced by a Java compiler.
    */
   @Test
-  public void testVisitMaxs_interleavedCode() {
+  void testVisitMaxs_interleavedCode() {
     TestCaseBuilder testCase =
         new TestCaseBuilder()
             .iconst_0() // N0
@@ -705,7 +705,7 @@ public class ClassWriterComputeMaxsTest {
    * </pre>
    */
   @Test
-  public void testVisitMaxs_implicitExitInTryCatch() {
+  void testVisitMaxs_implicitExitInTryCatch() {
     TestCaseBuilder testCase =
         new TestCaseBuilder()
             .iconst_0() // N0
@@ -790,7 +790,7 @@ public class ClassWriterComputeMaxsTest {
    * com/sun/corba/ee/impl/protocol/CorbaClientDelegateImpl from GlassFish 2. See issue #317823.
    */
   @Test
-  public void testVisitMaxs_glassFish2CorbaClientDelegateImplExample() {
+  void testVisitMaxs_glassFish2CorbaClientDelegateImplExample() {
     TestCaseBuilder testCase =
         new TestCaseBuilder()
             .label(label0) // N0
@@ -871,7 +871,7 @@ public class ClassWriterComputeMaxsTest {
    * the second subroutine coming first in the bytecode instructions sequence.
    */
   @Test
-  public void testVisitMaxs_implicitExitToAnotherSubroutineInverted() {
+  void testVisitMaxs_implicitExitToAnotherSubroutineInverted() {
     TestCaseBuilder testCase =
         new TestCaseBuilder()
             .go(label3) // N0
@@ -913,7 +913,7 @@ public class ClassWriterComputeMaxsTest {
    * in between, when dead code is present.
    */
   @Test
-  public void testVisitMaxs_framesWithDeadCode() {
+  void testVisitMaxs_framesWithDeadCode() {
     TestCaseBuilder testCase =
         new TestCaseBuilder(Opcodes.V1_7)
             .vreturn()
@@ -937,7 +937,7 @@ public class ClassWriterComputeMaxsTest {
   }
 
   @Test
-  public void testVisitMaxs_frameWithLong() {
+  void testVisitMaxs_frameWithLong() {
     TestCaseBuilder testCase =
         new TestCaseBuilder(Opcodes.V1_7)
             .push2()

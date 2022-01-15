@@ -38,14 +38,14 @@ import org.objectweb.asm.test.AsmTest;
  *
  * @author Eric Bruneton
  */
-public class SignatureWriterTest extends AsmTest {
+class SignatureWriterTest extends AsmTest {
 
   @ParameterizedTest
   @MethodSource({
     "org.objectweb.asm.signature.SignaturesProviders#classSignatures",
     "org.objectweb.asm.signature.SignaturesProviders#methodSignatures"
   })
-  public void testReadAndWrite_classOrMethodSignature(final String signature) {
+  void testReadAndWrite_classOrMethodSignature(final String signature) {
     SignatureWriter signatureWriter = new SignatureWriter();
 
     new SignatureReader(signature).accept(signatureWriter);
@@ -55,7 +55,7 @@ public class SignatureWriterTest extends AsmTest {
 
   @ParameterizedTest
   @MethodSource("org.objectweb.asm.signature.SignaturesProviders#fieldSignatures")
-  public void testReadAndWrite_fieldSignature(final String signature) {
+  void testReadAndWrite_fieldSignature(final String signature) {
     SignatureWriter signatureWriter = new SignatureWriter();
 
     new SignatureReader(signature).acceptType(signatureWriter);

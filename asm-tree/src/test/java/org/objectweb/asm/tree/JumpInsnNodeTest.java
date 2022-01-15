@@ -38,10 +38,10 @@ import org.objectweb.asm.test.AsmTest;
  *
  * @author Eric Bruneton
  */
-public class JumpInsnNodeTest extends AsmTest {
+class JumpInsnNodeTest extends AsmTest {
 
   @Test
-  public void testConstructor() {
+  void testConstructor() {
     LabelNode labelNode = new LabelNode();
 
     JumpInsnNode jumpInsnNode = new JumpInsnNode(Opcodes.GOTO, labelNode);
@@ -52,7 +52,7 @@ public class JumpInsnNodeTest extends AsmTest {
   }
 
   @Test
-  public void testSetOpcode() {
+  void testSetOpcode() {
     JumpInsnNode jumpInsnNode = new JumpInsnNode(Opcodes.GOTO, new LabelNode());
 
     jumpInsnNode.setOpcode(Opcodes.IFEQ);

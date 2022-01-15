@@ -52,14 +52,14 @@ import org.objectweb.asm.test.ClassFile;
  *
  * @author Eric Bruneton
  */
-public class TraceClassVisitorTest extends AsmTest {
+class TraceClassVisitorTest extends AsmTest {
 
   /**
    * Tests that classes are unchanged with a ClassReader->TraceClassVisitor->ClassWriter transform.
    */
   @ParameterizedTest
   @MethodSource(ALL_CLASSES_AND_LATEST_API)
-  public void testVisitMethods(final PrecompiledClass classParameter, final Api apiParameter) {
+  void testVisitMethods(final PrecompiledClass classParameter, final Api apiParameter) {
     byte[] classFile = classParameter.getBytes();
     ClassReader classReader = new ClassReader(classFile);
     ClassWriter classWriter = new ClassWriter(0);
@@ -74,8 +74,7 @@ public class TraceClassVisitorTest extends AsmTest {
   /** Tests that ClassReader can accept a TraceClassVisitor without delegate. */
   @ParameterizedTest
   @MethodSource(ALL_CLASSES_AND_LATEST_API)
-  public void testVisitMethods_noDelegate(
-      final PrecompiledClass classParameter, final Api apiParameter) {
+  void testVisitMethods_noDelegate(final PrecompiledClass classParameter, final Api apiParameter) {
     byte[] classFile = classParameter.getBytes();
     ClassReader classReader = new ClassReader(classFile);
     StringWriter output = new StringWriter();
@@ -91,7 +90,7 @@ public class TraceClassVisitorTest extends AsmTest {
    */
   @ParameterizedTest
   @MethodSource(ALL_CLASSES_AND_LATEST_API)
-  public void testVisitMethods_noNestedDelegate(
+  void testVisitMethods_noNestedDelegate(
       final PrecompiledClass classParameter, final Api apiParameter) {
     byte[] classFile = classParameter.getBytes();
     ClassReader classReader = new ClassReader(classFile);

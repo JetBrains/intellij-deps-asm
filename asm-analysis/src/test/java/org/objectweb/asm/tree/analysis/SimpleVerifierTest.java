@@ -45,10 +45,10 @@ import org.objectweb.asm.Type;
  *
  * @author Eric Bruneton
  */
-public class SimpleVerifierTest {
+class SimpleVerifierTest {
 
   @Test
-  public void testConstructor() {
+  void testConstructor() {
     assertDoesNotThrow(() -> new SimpleVerifier());
     assertThrows(IllegalStateException.class, () -> new SimpleVerifier() {});
   }
@@ -61,7 +61,7 @@ public class SimpleVerifierTest {
     "java/lang/Long, java/util/List, java/lang/Object",
     "java/util/Map, java/util/List, java/lang/Object"
   })
-  public void testMerge_objectTypes(
+  void testMerge_objectTypes(
       final String internalName1, final String internalName2, final String expectedInternalName) {
     BasicValue value1 = new BasicValue(Type.getObjectType(internalName1));
     BasicValue value2 = new BasicValue(Type.getObjectType(internalName2));
@@ -76,7 +76,7 @@ public class SimpleVerifierTest {
   }
 
   @Test
-  public void testIsAssignableFrom_subclassWithInterfaces() {
+  void testIsAssignableFrom_subclassWithInterfaces() {
     Type baseType = Type.getObjectType("C");
     Type superType = Type.getObjectType("D");
     Type interfaceType = Type.getObjectType("I");
@@ -115,7 +115,7 @@ public class SimpleVerifierTest {
   }
 
   @Test
-  public void testIsAssignableFrom_interface() {
+  void testIsAssignableFrom_interface() {
     Type baseType = Type.getObjectType("C");
     Type interfaceType = Type.getObjectType("I");
     SimpleVerifier simpleVerifier =

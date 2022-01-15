@@ -45,7 +45,7 @@ import org.junit.jupiter.api.function.Executable;
  *
  * @author Eric Bruneton
  */
-public class SmallSetTest {
+class SmallSetTest {
 
   private static final Object ELEMENT1 = new Object();
   private static final Object ELEMENT2 = new Object();
@@ -53,7 +53,7 @@ public class SmallSetTest {
   private static final Object ELEMENT4 = new Object();
 
   @Test
-  public void testUnion_oneElement_emptySet() {
+  void testUnion_oneElement_emptySet() {
     SmallSet<Object> set1 = new SmallSet<>(ELEMENT1);
     SmallSet<Object> set2 = new SmallSet<>();
 
@@ -65,7 +65,7 @@ public class SmallSetTest {
   }
 
   @Test
-  public void testUnion_oneElement_oneElement() {
+  void testUnion_oneElement_oneElement() {
     SmallSet<Object> set1 = new SmallSet<>(ELEMENT1);
     SmallSet<Object> set2 = new SmallSet<>(ELEMENT1);
 
@@ -77,7 +77,7 @@ public class SmallSetTest {
   }
 
   @Test
-  public void testUnion_oneElement_twoElements_superSet() {
+  void testUnion_oneElement_twoElements_superSet() {
     SmallSet<Object> set1 = newSmallSet(ELEMENT1, ELEMENT2);
     SmallSet<Object> set2 = new SmallSet<>(ELEMENT1);
 
@@ -89,7 +89,7 @@ public class SmallSetTest {
   }
 
   @Test
-  public void testUnion_twoElements_twoElements_equalSets() {
+  void testUnion_twoElements_twoElements_equalSets() {
     SmallSet<Object> set1 = newSmallSet(ELEMENT1, ELEMENT2);
     SmallSet<Object> set2 = newSmallSet(ELEMENT2, ELEMENT1);
 
@@ -101,7 +101,7 @@ public class SmallSetTest {
   }
 
   @Test
-  public void testUnion_twoElements_oneElement_distinctSets() {
+  void testUnion_twoElements_oneElement_distinctSets() {
     SmallSet<Object> set1 = newSmallSet(ELEMENT1, ELEMENT2);
     SmallSet<Object> set2 = new SmallSet<>(ELEMENT3);
 
@@ -113,7 +113,7 @@ public class SmallSetTest {
   }
 
   @Test
-  public void testUnion_twoElements_twoElements_distincSets() {
+  void testUnion_twoElements_twoElements_distincSets() {
     SmallSet<Object> set1 = newSmallSet(ELEMENT1, ELEMENT2);
     SmallSet<Object> set2 = newSmallSet(ELEMENT3, ELEMENT4);
 
@@ -126,7 +126,7 @@ public class SmallSetTest {
   }
 
   @Test
-  public void testIterator_next_firstElement() {
+  void testIterator_next_firstElement() {
     Iterator<Object> iterator = newSmallSet(ELEMENT1, ELEMENT2).iterator();
 
     Object element = iterator.next();
@@ -136,7 +136,7 @@ public class SmallSetTest {
   }
 
   @Test
-  public void testIterator_next_secondElement() {
+  void testIterator_next_secondElement() {
     Iterator<Object> iterator = newSmallSet(ELEMENT1, ELEMENT2).iterator();
     iterator.next();
 
@@ -147,7 +147,7 @@ public class SmallSetTest {
   }
 
   @Test
-  public void testIterator_next_noSuchElement() {
+  void testIterator_next_noSuchElement() {
     Iterator<Object> iterator = newSmallSet(ELEMENT1, ELEMENT2).iterator();
     iterator.next();
     iterator.next();
@@ -158,7 +158,7 @@ public class SmallSetTest {
   }
 
   @Test
-  public void testIterator_remove() {
+  void testIterator_remove() {
     Iterator<Object> iterator = newSmallSet(ELEMENT1, ELEMENT2).iterator();
     iterator.next();
 

@@ -42,10 +42,10 @@ import org.objectweb.asm.tree.ClassNode;
  *
  * @author Eric Bruneton
  */
-public class StaticInitMergerTest {
+class StaticInitMergerTest {
 
   @Test
-  public void testAllMethods_multipleStaticInitBlocks() throws Exception {
+  void testAllMethods_multipleStaticInitBlocks() throws Exception {
     ClassNode classNode = newClassWithStaticInitBlocks(5);
     ClassWriter classWriter = new ClassWriter(ClassWriter.COMPUTE_MAXS);
     ClassVisitor staticInitMerger = new StaticInitMerger("$clinit$", classWriter);

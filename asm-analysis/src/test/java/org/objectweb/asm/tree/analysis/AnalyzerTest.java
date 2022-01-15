@@ -48,7 +48,7 @@ import org.objectweb.asm.tree.MethodNode;
  *
  * @author Eric Bruneton
  */
-public class AnalyzerTest extends AsmTest {
+class AnalyzerTest extends AsmTest {
 
   private static final String CLASS_NAME = "C";
 
@@ -75,7 +75,7 @@ public class AnalyzerTest extends AsmTest {
   private final Label label12 = new Label();
 
   @Test
-  public void testAnalyze_invalidOpcode() {
+  void testAnalyze_invalidOpcode() {
     MethodNode methodNode = new MethodNodeBuilder().insn(-1).vreturn().build();
 
     Executable analyze = () -> newAnalyzer().analyze(CLASS_NAME, methodNode);
@@ -85,7 +85,7 @@ public class AnalyzerTest extends AsmTest {
   }
 
   @Test
-  public void testAnalyze_invalidPop() {
+  void testAnalyze_invalidPop() {
     MethodNode methodNode =
         new MethodNodeBuilder().insn(Opcodes.LCONST_0).insn(Opcodes.POP).vreturn().build();
 
@@ -96,7 +96,7 @@ public class AnalyzerTest extends AsmTest {
   }
 
   @Test
-  public void testAnalyze_invalidPop2() {
+  void testAnalyze_invalidPop2() {
     MethodNode methodNode =
         new MethodNodeBuilder()
             .insn(Opcodes.LCONST_0)
@@ -112,7 +112,7 @@ public class AnalyzerTest extends AsmTest {
   }
 
   @Test
-  public void testAnalyze_invalidDup() {
+  void testAnalyze_invalidDup() {
     MethodNode methodNode =
         new MethodNodeBuilder().insn(Opcodes.LCONST_0).insn(Opcodes.DUP).vreturn().build();
 
@@ -123,7 +123,7 @@ public class AnalyzerTest extends AsmTest {
   }
 
   @Test
-  public void testAnalyze_invalidDupx1() {
+  void testAnalyze_invalidDupx1() {
     MethodNode methodNode =
         new MethodNodeBuilder()
             .insn(Opcodes.LCONST_0)
@@ -139,7 +139,7 @@ public class AnalyzerTest extends AsmTest {
   }
 
   @Test
-  public void testAnalyze_invalidDupx2() {
+  void testAnalyze_invalidDupx2() {
     MethodNode methodNode =
         new MethodNodeBuilder()
             .insn(Opcodes.LCONST_0)
@@ -156,7 +156,7 @@ public class AnalyzerTest extends AsmTest {
   }
 
   @Test
-  public void testAnalyze_invalidDup2() {
+  void testAnalyze_invalidDup2() {
     MethodNode methodNode =
         new MethodNodeBuilder()
             .insn(Opcodes.LCONST_0)
@@ -172,7 +172,7 @@ public class AnalyzerTest extends AsmTest {
   }
 
   @Test
-  public void testAnalyze_invalidDup2x1() {
+  void testAnalyze_invalidDup2x1() {
     MethodNode methodNode =
         new MethodNodeBuilder()
             .insn(Opcodes.LCONST_0)
@@ -189,7 +189,7 @@ public class AnalyzerTest extends AsmTest {
   }
 
   @Test
-  public void testAnalyze_invalidDup2x2() {
+  void testAnalyze_invalidDup2x2() {
     MethodNode methodNode =
         new MethodNodeBuilder()
             .insn(Opcodes.LCONST_0)
@@ -207,7 +207,7 @@ public class AnalyzerTest extends AsmTest {
   }
 
   @Test
-  public void testAnalyze_invalidSwap() {
+  void testAnalyze_invalidSwap() {
     MethodNode methodNode =
         new MethodNodeBuilder()
             .insn(Opcodes.LCONST_0)
@@ -223,7 +223,7 @@ public class AnalyzerTest extends AsmTest {
   }
 
   @Test
-  public void testAnalyze_invalidGetLocal() {
+  void testAnalyze_invalidGetLocal() {
     MethodNode methodNode = new MethodNodeBuilder().aload(10).vreturn().build();
 
     Executable analyze = () -> newAnalyzer().analyze(CLASS_NAME, methodNode);
@@ -233,7 +233,7 @@ public class AnalyzerTest extends AsmTest {
   }
 
   @Test
-  public void testAnalyze_invalidSetLocal() {
+  void testAnalyze_invalidSetLocal() {
     MethodNode methodNode = new MethodNodeBuilder().aconst_null().astore(10).vreturn().build();
 
     Executable analyze = () -> newAnalyzer().analyze(CLASS_NAME, methodNode);
@@ -243,7 +243,7 @@ public class AnalyzerTest extends AsmTest {
   }
 
   @Test
-  public void testAnalyze_invalidPopFromEmptyStack() {
+  void testAnalyze_invalidPopFromEmptyStack() {
     MethodNode methodNode = new MethodNodeBuilder().insn(Opcodes.POP).vreturn().build();
 
     Executable analyze = () -> newAnalyzer().analyze(CLASS_NAME, methodNode);
@@ -253,7 +253,7 @@ public class AnalyzerTest extends AsmTest {
   }
 
   @Test
-  public void testAnalyze_invalidPushOnFullStack() {
+  void testAnalyze_invalidPushOnFullStack() {
     MethodNode methodNode =
         new MethodNodeBuilder(3, 3).iconst_0().iconst_0().iconst_0().iconst_0().vreturn().build();
 
@@ -264,7 +264,7 @@ public class AnalyzerTest extends AsmTest {
   }
 
   @Test
-  public void testAnalyze_inconsistentStackHeights() {
+  void testAnalyze_inconsistentStackHeights() {
     Label ifLabel = new Label();
     MethodNode methodNode =
         new MethodNodeBuilder()
@@ -282,7 +282,7 @@ public class AnalyzerTest extends AsmTest {
   }
 
   @Test
-  public void testAnalyze_invalidRet() {
+  void testAnalyze_invalidRet() {
     MethodNode methodNode = new MethodNodeBuilder().ret(1).vreturn().build();
 
     Executable analyze = () -> newAnalyzer().analyze(CLASS_NAME, methodNode);
@@ -292,7 +292,7 @@ public class AnalyzerTest extends AsmTest {
   }
 
   @Test
-  public void testAnalyze_invalidFalloffEndOfMethod() {
+  void testAnalyze_invalidFalloffEndOfMethod() {
     MethodNode methodNode = new MethodNodeBuilder().build();
 
     Executable analyze = () -> newAnalyzer().analyze(CLASS_NAME, methodNode);
@@ -302,7 +302,7 @@ public class AnalyzerTest extends AsmTest {
   }
 
   @Test
-  public void testAnalyze_invalidFalloffSubroutine() {
+  void testAnalyze_invalidFalloffSubroutine() {
     Label gotoLabel = new Label();
     Label jsrLabel = new Label();
     MethodNode methodNode =
@@ -323,7 +323,7 @@ public class AnalyzerTest extends AsmTest {
 
   @Disabled("TODO currently Analyzer can not detect this situation")
   @Test
-  public void testAnalyze_invalidOverlappingSubroutines() {
+  void testAnalyze_invalidOverlappingSubroutines() {
     // The problem is that other overlapping subroutine situations are valid, such as
     // when a nested subroutine implicitly returns to its parent subroutine, without a RET.
     Label subroutine1Label = new Label();
@@ -365,7 +365,7 @@ public class AnalyzerTest extends AsmTest {
    * @throws AnalyzerException if the test fails
    */
   @Test
-  public void testAnalyze_basicTryFinally() throws AnalyzerException {
+  void testAnalyze_basicTryFinally() throws AnalyzerException {
     MethodNode methodNode =
         new MethodNodeBuilder(4, 4)
             .iconst_0()
@@ -427,7 +427,7 @@ public class AnalyzerTest extends AsmTest {
    * @throws AnalyzerException if the test fails
    */
   @Test
-  public void testAnalyze_ifElseInFinally() throws AnalyzerException {
+  void testAnalyze_ifElseInFinally() throws AnalyzerException {
     MethodNode methodNode =
         new MethodNodeBuilder(5, 4)
             .iconst_0()
@@ -495,7 +495,7 @@ public class AnalyzerTest extends AsmTest {
    * @throws AnalyzerException if the test fails
    */
   @Test
-  public void testAnalyze_simpleNestedFinally() throws AnalyzerException {
+  void testAnalyze_simpleNestedFinally() throws AnalyzerException {
     MethodNode methodNode =
         new MethodNodeBuilder(5, 6)
             .iconst_0()
@@ -548,7 +548,7 @@ public class AnalyzerTest extends AsmTest {
   }
 
   @Test
-  public void testAnalyze_nestedSubroutines() throws AnalyzerException {
+  void testAnalyze_nestedSubroutines() throws AnalyzerException {
     Label subroutine1Label = new Label();
     Label subroutine2Label = new Label();
     MethodNode methodNode =
@@ -597,7 +597,7 @@ public class AnalyzerTest extends AsmTest {
    * @throws AnalyzerException if the test fails
    */
   @Test
-  public void testAnalyze_subroutineWithNoRet() throws AnalyzerException {
+  void testAnalyze_subroutineWithNoRet() throws AnalyzerException {
     MethodNode methodNode =
         new MethodNodeBuilder(1, 4)
             .iconst_0()
@@ -651,7 +651,7 @@ public class AnalyzerTest extends AsmTest {
    * @throws AnalyzerException if the test fails
    */
   @Test
-  public void testAnalyze_subroutineWithNoRet2() throws AnalyzerException {
+  void testAnalyze_subroutineWithNoRet2() throws AnalyzerException {
     MethodNode methodNode =
         new MethodNodeBuilder(2, 2)
             .aconst_null()
@@ -674,7 +674,7 @@ public class AnalyzerTest extends AsmTest {
   }
 
   @Test
-  public void testAnalyze_subroutineLocalsAccess() throws AnalyzerException {
+  void testAnalyze_subroutineLocalsAccess() throws AnalyzerException {
     Label startLabel = new Label();
     Label exceptionHandler1Label = new Label();
     Label exceptionHandler2Label = new Label();
@@ -739,7 +739,7 @@ public class AnalyzerTest extends AsmTest {
    * @throws AnalyzerException if the test fails
    */
   @Test
-  public void testAnalyze_implicitExit() throws AnalyzerException {
+  void testAnalyze_implicitExit() throws AnalyzerException {
     MethodNode methodNode =
         new MethodNodeBuilder(1, 4)
             .iconst_0()
@@ -811,7 +811,7 @@ public class AnalyzerTest extends AsmTest {
    * @throws AnalyzerException if the test fails
    */
   @Test
-  public void testAnalyze_implicitExitToAnotherSubroutine() throws AnalyzerException {
+  void testAnalyze_implicitExitToAnotherSubroutine() throws AnalyzerException {
     MethodNode methodNode =
         new MethodNodeBuilder(5, 6)
             .iconst_0()
@@ -872,7 +872,7 @@ public class AnalyzerTest extends AsmTest {
   }
 
   @Test
-  public void testanalyze_implicitExitToAnotherSubroutine2() throws AnalyzerException {
+  void testanalyze_implicitExitToAnotherSubroutine2() throws AnalyzerException {
     MethodNode methodNode =
         new MethodNodeBuilder(1, 4)
             .iconst_0()
@@ -909,7 +909,7 @@ public class AnalyzerTest extends AsmTest {
    * @throws AnalyzerException if the test fails
    */
   @Test
-  public void testAnalyze_interleavedCode() throws AnalyzerException {
+  void testAnalyze_interleavedCode() throws AnalyzerException {
     MethodNode methodNode =
         new MethodNodeBuilder(4, 3)
             .iconst_0()
@@ -977,7 +977,7 @@ public class AnalyzerTest extends AsmTest {
    * @throws AnalyzerException if the test fails
    */
   @Test
-  public void testAnalyze_implicitExitInTryCatch() throws AnalyzerException {
+  void testAnalyze_implicitExitInTryCatch() throws AnalyzerException {
     MethodNode methodNode =
         new MethodNodeBuilder(4, 6)
             .iconst_0()
@@ -1046,7 +1046,7 @@ public class AnalyzerTest extends AsmTest {
    * @throws AnalyzerException if the test fails
    */
   @Test
-  public void testAnalyze_manyLabels() throws AnalyzerException {
+  void testAnalyze_manyLabels() throws AnalyzerException {
     Label target = new Label();
     MethodNodeBuilder methodNodeBuilder = new MethodNodeBuilder(1, 1).jsr(target).label(target);
     for (int i = 0; i < 8192; i++) {
@@ -1070,7 +1070,7 @@ public class AnalyzerTest extends AsmTest {
    * @throws AnalyzerException if the test fails
    */
   @Test
-  public void testAnalyze_glassFish2CorbaClientDelegateImplExample() throws AnalyzerException {
+  void testAnalyze_glassFish2CorbaClientDelegateImplExample() throws AnalyzerException {
     MethodNode methodNode =
         new MethodNodeBuilder(3, 3)
             .label(label0)

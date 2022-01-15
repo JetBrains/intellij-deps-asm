@@ -42,10 +42,10 @@ import org.objectweb.asm.test.AsmTest;
  *
  * @author Eric Bruneton
  */
-public class ModuleNodeTest extends AsmTest {
+class ModuleNodeTest extends AsmTest {
 
   @Test
-  public void testConstructor() {
+  void testConstructor() {
     ModuleNode moduleNode1 = new ModuleNode("module1", 123, "1.0");
     ModuleNode moduleNode2 =
         new ModuleNode(
@@ -68,14 +68,14 @@ public class ModuleNodeTest extends AsmTest {
   }
 
   @Test
-  public void testConstructor_illegalState() {
+  void testConstructor_illegalState() {
     Executable constructor = () -> new ModuleNode("module", 123, "1.0") {};
 
     assertThrows(IllegalStateException.class, constructor);
   }
 
   @Test
-  public void testAccept() {
+  void testAccept() {
     ModuleNode moduleNode = new ModuleNode("module", 123, "1.0");
     ModuleNode dstModuleNode = new ModuleNode("", 0, "");
     ClassVisitor copyModuleVisitor =

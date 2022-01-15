@@ -50,40 +50,40 @@ import org.objectweb.asm.Opcodes;
  * @author Eric Bruneton
  * @author Eugene Kuleshov
  */
-public class InsnListTest {
+class InsnListTest {
 
   private final InsnNode insn1 = new InsnNode(0);
   private final InsnNode insn2 = new InsnNode(1);
 
   @Test
-  public void testSize_emptyList() {
+  void testSize_emptyList() {
     assertEquals(0, newInsnList().size());
   }
 
   @Test
-  public void testGetFirst_emptyList() {
+  void testGetFirst_emptyList() {
     assertEquals(null, newInsnList().getFirst());
   }
 
   @Test
-  public void testGetLast_emptyList() {
+  void testGetLast_emptyList() {
     assertEquals(null, newInsnList().getLast());
   }
 
   @Test
-  public void testGet_outOfBounds() {
+  void testGet_outOfBounds() {
     Executable get = () -> newInsnList().get(0);
 
     assertThrows(IndexOutOfBoundsException.class, get);
   }
 
   @Test
-  public void testContains() {
+  void testContains() {
     assertFalse(newInsnList().contains(new InsnNode(0)));
   }
 
   @Test
-  public void testIndexOf_noSuchElement() {
+  void testIndexOf_noSuchElement() {
     InsnList insnList = newInsnList();
 
     Executable indexOf = () -> insnList.indexOf(new InsnNode(0));
@@ -92,7 +92,7 @@ public class InsnListTest {
   }
 
   @Test
-  public void testIndexOf() {
+  void testIndexOf() {
     InsnList insnList = newInsnList(insn1, insn2);
 
     int index1 = insnList.indexOf(insn1);
@@ -103,7 +103,7 @@ public class InsnListTest {
   }
 
   @Test
-  public void testAccept_cloneListVisitor() {
+  void testAccept_cloneListVisitor() {
     InsnList insnList = newInsnList();
     insnList.add(new InsnNode(55));
     insnList.add(new InsnNode(77));
@@ -123,7 +123,7 @@ public class InsnListTest {
   }
 
   @Test
-  public void testIteratorNext_noSuchElement() {
+  void testIteratorNext_noSuchElement() {
     ListIterator<AbstractInsnNode> iterator = newInsnList().iterator();
 
     Executable next = () -> iterator.next();
@@ -132,7 +132,7 @@ public class InsnListTest {
   }
 
   @Test
-  public void testIteratorNext_nonEmptyList() {
+  void testIteratorNext_nonEmptyList() {
     InsnList insnList = newInsnList(insn1, insn2);
     ListIterator<AbstractInsnNode> iterator = insnList.iterator(1);
 
@@ -146,7 +146,7 @@ public class InsnListTest {
   }
 
   @Test
-  public void testIteratorPrevious_noSuchElement() {
+  void testIteratorPrevious_noSuchElement() {
     ListIterator<AbstractInsnNode> iterator = newInsnList().iterator();
 
     Executable previous = () -> iterator.previous();
@@ -155,7 +155,7 @@ public class InsnListTest {
   }
 
   @Test
-  public void testIteratorPrevious_nonEmptyList() {
+  void testIteratorPrevious_nonEmptyList() {
     InsnList insnList = newInsnList(insn1, insn2);
     ListIterator<AbstractInsnNode> iterator = insnList.iterator(1);
 
@@ -169,7 +169,7 @@ public class InsnListTest {
   }
 
   @Test
-  public void testIteratorAdd_emptyList() {
+  void testIteratorAdd_emptyList() {
     InsnNode insn = new InsnNode(0);
     InsnList insnList = newInsnList();
 
@@ -179,7 +179,7 @@ public class InsnListTest {
   }
 
   @Test
-  public void testIteratorAdd_firstInsn() {
+  void testIteratorAdd_firstInsn() {
     InsnNode insn = new InsnNode(0);
     InsnList insnList = newInsnList(insn1, insn2);
     ListIterator<AbstractInsnNode> iterator = insnList.iterator(1);
@@ -190,7 +190,7 @@ public class InsnListTest {
   }
 
   @Test
-  public void testIteratorRemove_illegalState() {
+  void testIteratorRemove_illegalState() {
     InsnList insnList = newInsnList(insn1, insn2);
     ListIterator<AbstractInsnNode> iterator = insnList.iterator(1);
 
@@ -200,7 +200,7 @@ public class InsnListTest {
   }
 
   @Test
-  public void testIteratorRemove_afterNext() {
+  void testIteratorRemove_afterNext() {
     InsnList insnList = newInsnList(insn1, insn2);
     ListIterator<AbstractInsnNode> iterator = insnList.iterator(1);
     iterator.next();
@@ -211,7 +211,7 @@ public class InsnListTest {
   }
 
   @Test
-  public void testIteratorRemove_afterPrevious() {
+  void testIteratorRemove_afterPrevious() {
     InsnList insnList = newInsnList(insn1, insn2);
     ListIterator<AbstractInsnNode> iterator = insnList.iterator(1);
     iterator.previous();
@@ -222,7 +222,7 @@ public class InsnListTest {
   }
 
   @Test
-  public void testIteratorAdd_lastInsn() {
+  void testIteratorAdd_lastInsn() {
     InsnNode insn = new InsnNode(0);
     InsnList insnList = newInsnList(insn1, insn2);
     ListIterator<AbstractInsnNode> iterator = insnList.iterator(2);
@@ -233,7 +233,7 @@ public class InsnListTest {
   }
 
   @Test
-  public void testIteratorSet_illegalState() {
+  void testIteratorSet_illegalState() {
     InsnNode insn = new InsnNode(0);
     InsnList insnList = newInsnList(insn1, insn2);
     ListIterator<AbstractInsnNode> iterator = insnList.iterator(1);
@@ -244,7 +244,7 @@ public class InsnListTest {
   }
 
   @Test
-  public void testIteratorSet_afterNext() {
+  void testIteratorSet_afterNext() {
     InsnNode insn = new InsnNode(0);
     InsnList insnList = newInsnList(insn1, insn2);
     ListIterator<AbstractInsnNode> iterator = insnList.iterator(1);
@@ -256,7 +256,7 @@ public class InsnListTest {
   }
 
   @Test
-  public void testIteratorSet_afterPrevious() {
+  void testIteratorSet_afterPrevious() {
     InsnNode insn = new InsnNode(0);
     InsnList insnList = newInsnList(insn1, insn2);
     ListIterator<AbstractInsnNode> iterator = insnList.iterator(1);
@@ -268,19 +268,19 @@ public class InsnListTest {
   }
 
   @Test
-  public void testIterator_cacheIsNull() {
+  void testIterator_cacheIsNull() {
     InsnList insnList = newInsnList(insn1, insn2);
     insnList.iterator();
     assertNull(insnList.cache);
   }
 
   @Test
-  public void testToArray_emptyList() {
+  void testToArray_emptyList() {
     assertEquals(0, newInsnList().toArray().length);
   }
 
   @Test
-  public void testToArray_nonEmptyList() {
+  void testToArray_nonEmptyList() {
     InsnList insnList = newInsnList(insn1, insn2);
 
     AbstractInsnNode[] insnArray = insnList.toArray();
@@ -289,7 +289,7 @@ public class InsnListTest {
   }
 
   @Test
-  public void testSet_noSuchElement() {
+  void testSet_noSuchElement() {
     InsnList insnList = newInsnList();
 
     Executable set = () -> insnList.set(new InsnNode(0), new InsnNode(0));
@@ -298,7 +298,7 @@ public class InsnListTest {
   }
 
   @Test
-  public void testSet_singleInsn() {
+  void testSet_singleInsn() {
     InsnList insnList = newInsnList();
     insnList.add(insn1);
     AbstractInsnNode insn = new InsnNode(0);
@@ -310,7 +310,7 @@ public class InsnListTest {
   }
 
   @Test
-  public void testSet_firstInsn() {
+  void testSet_firstInsn() {
     InsnList insnList = newInsnList(insn1, insn2);
     AbstractInsnNode insn = new InsnNode(0);
 
@@ -321,7 +321,7 @@ public class InsnListTest {
   }
 
   @Test
-  public void testSet_lastInsn() {
+  void testSet_lastInsn() {
     InsnList insnList = newInsnList(insn1, insn2);
     AbstractInsnNode insn = new InsnNode(0);
     insnList.toArray();
@@ -333,7 +333,7 @@ public class InsnListTest {
   }
 
   @Test
-  public void testAdd_illegalArgument() {
+  void testAdd_illegalArgument() {
     InsnList insnList = newInsnList();
     newInsnList(insn1, insn2);
 
@@ -343,7 +343,7 @@ public class InsnListTest {
   }
 
   @Test
-  public void testAdd_inEmptyList() {
+  void testAdd_inEmptyList() {
     InsnList insnList = newInsnList();
     InsnNode insn = new InsnNode(0);
 
@@ -361,7 +361,7 @@ public class InsnListTest {
   }
 
   @Test
-  public void testAdd_inNonEmptyList() {
+  void testAdd_inNonEmptyList() {
     InsnList insnList = newInsnList();
     insnList.add(insn1);
     InsnNode insn = new InsnNode(0);
@@ -376,7 +376,7 @@ public class InsnListTest {
   }
 
   @Test
-  public void testAddList_illegalArgument() {
+  void testAddList_illegalArgument() {
     InsnList insnList = newInsnList();
 
     Executable add = () -> insnList.add(insnList);
@@ -385,7 +385,7 @@ public class InsnListTest {
   }
 
   @Test
-  public void testAddList_inEmptyList_emptyList() {
+  void testAddList_inEmptyList_emptyList() {
     InsnList insnList = newInsnList();
 
     insnList.add(newInsnList());
@@ -397,7 +397,7 @@ public class InsnListTest {
   }
 
   @Test
-  public void testAddList_inEmptyList_nonEmptyList() {
+  void testAddList_inEmptyList_nonEmptyList() {
     InsnList insnList = newInsnList();
 
     insnList.add(newInsnList(insn1, insn2));
@@ -414,7 +414,7 @@ public class InsnListTest {
   }
 
   @Test
-  public void testAddList_inNonEmptyList_nonEmptyList() {
+  void testAddList_inNonEmptyList_nonEmptyList() {
     InsnList insnList = newInsnList();
     InsnNode insn = new InsnNode(0);
     insnList.add(insn);
@@ -435,7 +435,7 @@ public class InsnListTest {
   }
 
   @Test
-  public void testInsert_illegalArgument() {
+  void testInsert_illegalArgument() {
     InsnList insnList = newInsnList();
     newInsnList(insn1, insn2);
 
@@ -445,7 +445,7 @@ public class InsnListTest {
   }
 
   @Test
-  public void testInsert_inEmptyList() {
+  void testInsert_inEmptyList() {
     InsnList insnList = newInsnList();
     InsnNode insn = new InsnNode(0);
 
@@ -461,7 +461,7 @@ public class InsnListTest {
   }
 
   @Test
-  public void testInsert_inNonEmptyList() {
+  void testInsert_inNonEmptyList() {
     InsnList insnList = newInsnList();
     InsnNode insn = new InsnNode(0);
     insnList.add(new InsnNode(0));
@@ -476,7 +476,7 @@ public class InsnListTest {
   }
 
   @Test
-  public void testInsertList_illegalArgument() {
+  void testInsertList_illegalArgument() {
     InsnList insnList = newInsnList();
 
     Executable insert = () -> insnList.insert(insnList);
@@ -485,7 +485,7 @@ public class InsnListTest {
   }
 
   @Test
-  public void testInsertList_inEmptyList_emptyList() {
+  void testInsertList_inEmptyList_emptyList() {
     InsnList insnList = newInsnList();
 
     insnList.insert(newInsnList());
@@ -497,7 +497,7 @@ public class InsnListTest {
   }
 
   @Test
-  public void testInsertList_inEmptyList_nonEmptyList() {
+  void testInsertList_inEmptyList_nonEmptyList() {
     InsnList insnList = newInsnList();
 
     insnList.insert(newInsnList(insn1, insn2));
@@ -514,7 +514,7 @@ public class InsnListTest {
   }
 
   @Test
-  public void testInsertList_inNonEmptyList_nonEmptyList() {
+  void testInsertList_inNonEmptyList_nonEmptyList() {
     InsnList insnList = newInsnList();
     InsnNode insn = new InsnNode(0);
     insnList.add(insn);
@@ -535,7 +535,7 @@ public class InsnListTest {
   }
 
   @Test
-  public void testInsertAfter_noSuchElement() {
+  void testInsertAfter_noSuchElement() {
     InsnList insnList = newInsnList(insn1, insn2);
 
     Executable insert = () -> insnList.insert(new InsnNode(0), new InsnNode(0));
@@ -544,7 +544,7 @@ public class InsnListTest {
   }
 
   @Test
-  public void testInsertAfter_lastInsn() {
+  void testInsertAfter_lastInsn() {
     InsnList insnList = newInsnList(insn1, insn2);
     InsnNode insn = new InsnNode(0);
 
@@ -560,7 +560,7 @@ public class InsnListTest {
   }
 
   @Test
-  public void testInsertAfter_notLastInsn() {
+  void testInsertAfter_notLastInsn() {
     InsnList insnList = newInsnList(insn1, insn2);
     InsnNode insn = new InsnNode(0);
 
@@ -576,7 +576,7 @@ public class InsnListTest {
   }
 
   @Test
-  public void testInsertListAfter_noSuchElement() {
+  void testInsertListAfter_noSuchElement() {
     InsnList insnList = newInsnList(insn1, insn2);
 
     Executable insert = () -> insnList.insert(new InsnNode(0), newInsnList());
@@ -585,7 +585,7 @@ public class InsnListTest {
   }
 
   @Test
-  public void testInsertListAfter_lastInsn_emptyList() {
+  void testInsertListAfter_lastInsn_emptyList() {
     InsnList insnList = newInsnList();
     InsnNode insn = new InsnNode(0);
     insnList.add(insn);
@@ -599,7 +599,7 @@ public class InsnListTest {
   }
 
   @Test
-  public void testInsertListAfter_lastInsn_nonEmptyList() {
+  void testInsertListAfter_lastInsn_nonEmptyList() {
     InsnList insnList = newInsnList();
     InsnNode insn = new InsnNode(0);
     insnList.add(insn);
@@ -620,7 +620,7 @@ public class InsnListTest {
   }
 
   @Test
-  public void testInsertListAfter_notLastInsn_nonEmptyList() {
+  void testInsertListAfter_notLastInsn_nonEmptyList() {
     InsnList insnList = newInsnList();
     InsnNode insn = new InsnNode(0);
     insnList.add(insn);
@@ -640,7 +640,7 @@ public class InsnListTest {
   }
 
   @Test
-  public void testInsertBefore_noSuchElement() {
+  void testInsertBefore_noSuchElement() {
     InsnList insnList = newInsnList(insn1, insn2);
 
     Executable insertBefore = () -> insnList.insertBefore(new InsnNode(0), new InsnNode(0));
@@ -649,7 +649,7 @@ public class InsnListTest {
   }
 
   @Test
-  public void testInsertBefore_firstInsn() {
+  void testInsertBefore_firstInsn() {
     InsnList insnList = newInsnList(insn1, insn2);
     InsnNode insn = new InsnNode(0);
 
@@ -665,7 +665,7 @@ public class InsnListTest {
   }
 
   @Test
-  public void testInsertBefore_notFirstInsn() {
+  void testInsertBefore_notFirstInsn() {
     InsnList insnList = newInsnList(insn1, insn2);
     InsnNode insn = new InsnNode(0);
 
@@ -681,7 +681,7 @@ public class InsnListTest {
   }
 
   @Test
-  public void testInsertListBefore_noSuchElement() {
+  void testInsertListBefore_noSuchElement() {
     InsnList insnList = newInsnList(insn1, insn2);
 
     Executable insertBefore = () -> insnList.insertBefore(new InsnNode(0), newInsnList());
@@ -690,7 +690,7 @@ public class InsnListTest {
   }
 
   @Test
-  public void testInsertListBefore_firstInsn_emptyList() {
+  void testInsertListBefore_firstInsn_emptyList() {
     InsnList insnList = newInsnList();
     InsnNode insn = new InsnNode(0);
     insnList.add(insn);
@@ -704,7 +704,7 @@ public class InsnListTest {
   }
 
   @Test
-  public void testInsertListBefore_firstInsn_nonEmptyList() {
+  void testInsertListBefore_firstInsn_nonEmptyList() {
     InsnList insnList = newInsnList();
     InsnNode insn = new InsnNode(0);
     insnList.add(insn);
@@ -725,7 +725,7 @@ public class InsnListTest {
   }
 
   @Test
-  public void testInsertListBefore_notFirstInsn_nonEmptyList() {
+  void testInsertListBefore_notFirstInsn_nonEmptyList() {
     InsnList insnList = newInsnList();
     InsnNode insn = new InsnNode(0);
     insnList.add(new InsnNode(0));
@@ -745,7 +745,7 @@ public class InsnListTest {
   }
 
   @Test
-  public void testRemove_noSuchElement() {
+  void testRemove_noSuchElement() {
     InsnList insnList = newInsnList(insn1, insn2);
 
     Executable remove = () -> insnList.remove(new InsnNode(0));
@@ -754,7 +754,7 @@ public class InsnListTest {
   }
 
   @Test
-  public void testRemove_singleInsn() {
+  void testRemove_singleInsn() {
     InsnList insnList = newInsnList();
     InsnNode insn = new InsnNode(0);
     insnList.add(insn);
@@ -771,7 +771,7 @@ public class InsnListTest {
   }
 
   @Test
-  public void testRemove_firstInsn() {
+  void testRemove_firstInsn() {
     InsnList insnList = newInsnList();
     InsnNode insn = new InsnNode(0);
     insnList.add(insn);
@@ -785,7 +785,7 @@ public class InsnListTest {
   }
 
   @Test
-  public void testRemove_middleInsn() {
+  void testRemove_middleInsn() {
     InsnList insnList = newInsnList();
     InsnNode insn = new InsnNode(0);
     insnList.add(new InsnNode(0));
@@ -800,7 +800,7 @@ public class InsnListTest {
   }
 
   @Test
-  public void testRemove_lastInsn() {
+  void testRemove_lastInsn() {
     InsnList insnList = newInsnList();
     InsnNode insn = new InsnNode(0);
     insnList.add(new InsnNode(0));
@@ -814,7 +814,7 @@ public class InsnListTest {
   }
 
   @Test
-  public void testClear() {
+  void testClear() {
     InsnList insnList = newInsnList();
     InsnNode insn = new InsnNode(0);
     insnList.add(new InsnNode(0));
@@ -833,7 +833,7 @@ public class InsnListTest {
   }
 
   @Test
-  public void testResetLabels() {
+  void testResetLabels() {
     InsnList insnList = newInsnList();
     LabelNode labelNode = new LabelNode();
     insnList.add(new InsnNode(55));

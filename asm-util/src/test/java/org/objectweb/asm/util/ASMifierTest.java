@@ -62,7 +62,7 @@ import org.objectweb.asm.test.ClassFile;
  * @author Eric Bruneton
  */
 // DontCheck(AbbreviationAsWordInName)
-public class ASMifierTest extends AsmTest {
+class ASMifierTest extends AsmTest {
 
   private static final String EXPECTED_USAGE =
       "Prints the ASM code to generate the given class.\n"
@@ -72,7 +72,7 @@ public class ASMifierTest extends AsmTest {
       new ClassLoaderIClassLoader(new URLClassLoader(new URL[0]));
 
   @Test
-  public void testConstructor() {
+  void testConstructor() {
     assertDoesNotThrow(() -> new ASMifier());
     assertThrows(IllegalStateException.class, () -> new ASMifier() {});
   }
@@ -84,8 +84,8 @@ public class ASMifierTest extends AsmTest {
    */
   @ParameterizedTest
   @MethodSource(ALL_CLASSES_AND_LATEST_API)
-  public void testAsmify_precompiledClass(
-      final PrecompiledClass classParameter, final Api apiParameter) throws Exception {
+  void testAsmify_precompiledClass(final PrecompiledClass classParameter, final Api apiParameter)
+      throws Exception {
     byte[] classFile = classParameter.getBytes();
     assumeTrue(classFile.length < Short.MAX_VALUE);
     StringWriter output = new StringWriter();
@@ -109,7 +109,8 @@ public class ASMifierTest extends AsmTest {
   private static byte[] compile(final String name, final String source) throws IOException {
     Parser parser = new Parser(new Scanner(name, new StringReader(source)));
     try {
-      UnitCompiler unitCompiler = new UnitCompiler(parser.parseCompilationUnit(), ICLASS_LOADER);
+      UnitCompiler unitCompiler =
+          new UnitCompiler(parser.parseAbstractCompilationUnit(), ICLASS_LOADER);
       return unitCompiler.compileUnit(true, true, true)[0].toByteArray();
     } catch (CompileException e) {
       throw new AssertionError(source, e);
@@ -117,7 +118,7 @@ public class ASMifierTest extends AsmTest {
   }
 
   @Test
-  public void testMain_missingClassName() throws IOException {
+  void testMain_missingClassName() throws IOException {
     StringWriter output = new StringWriter();
     StringWriter logger = new StringWriter();
     String[] args = new String[0];
@@ -129,7 +130,7 @@ public class ASMifierTest extends AsmTest {
   }
 
   @Test
-  public void testMain_missingClassName_withNodebug() throws IOException {
+  void testMain_missingClassName_withNodebug() throws IOException {
     StringWriter output = new StringWriter();
     StringWriter logger = new StringWriter();
     String[] args = {"-nodebug"};
@@ -141,7 +142,7 @@ public class ASMifierTest extends AsmTest {
   }
 
   @Test
-  public void testMain_tooManyArguments() throws IOException {
+  void testMain_tooManyArguments() throws IOException {
     StringWriter output = new StringWriter();
     StringWriter logger = new StringWriter();
     String[] args = {"-nodebug", getClass().getName(), "extraArgument"};
@@ -153,7 +154,7 @@ public class ASMifierTest extends AsmTest {
   }
 
   @Test
-  public void testMain_classFileNotFound() {
+  void testMain_classFileNotFound() {
     StringWriter output = new StringWriter();
     StringWriter logger = new StringWriter();
     String[] args = {"DoNotExist.class"};
@@ -167,7 +168,7 @@ public class ASMifierTest extends AsmTest {
   }
 
   @Test
-  public void testMain_classNotFound() {
+  void testMain_classNotFound() {
     StringWriter output = new StringWriter();
     StringWriter logger = new StringWriter();
     String[] args = {"do\\not\\exist"};
@@ -181,7 +182,7 @@ public class ASMifierTest extends AsmTest {
   }
 
   @Test
-  public void testMain_className() throws IOException {
+  void testMain_className() throws IOException {
     StringWriter output = new StringWriter();
     StringWriter logger = new StringWriter();
     String[] args = {getClass().getName()};
@@ -195,7 +196,7 @@ public class ASMifierTest extends AsmTest {
   }
 
   @Test
-  public void testMain_className_withNodebug() throws IOException {
+  void testMain_className_withNodebug() throws IOException {
     StringWriter output = new StringWriter();
     StringWriter logger = new StringWriter();
     String[] args = {"-nodebug", getClass().getName()};
@@ -209,7 +210,7 @@ public class ASMifierTest extends AsmTest {
   }
 
   @Test
-  public void testMain_classFile() throws IOException {
+  void testMain_classFile() throws IOException {
     StringWriter output = new StringWriter();
     StringWriter logger = new StringWriter();
     String[] args = {

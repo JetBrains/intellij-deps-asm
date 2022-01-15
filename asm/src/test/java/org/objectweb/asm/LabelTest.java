@@ -38,11 +38,11 @@ import org.junit.jupiter.api.function.Executable;
  *
  * @author Eric Bruneton
  */
-public class LabelTest {
+class LabelTest {
 
   /** Tests that {@link Label#getOffset()} returns a correct offset after the label is visited. */
   @Test
-  public void testGetOffset() {
+  void testGetOffset() {
     MethodVisitor methodVisitor =
         new ClassWriter(0).visitMethod(Opcodes.ACC_PUBLIC, "m", "()V", null, null);
     methodVisitor.visitCode();
@@ -56,7 +56,7 @@ public class LabelTest {
 
   /** Tests that {@link Label#getOffset()} throws an exception before the label is visited. */
   @Test
-  public void testGetOffset_illegalState() {
+  void testGetOffset_illegalState() {
     Executable getOffset = () -> new Label().getOffset();
 
     Exception exception = assertThrows(IllegalStateException.class, getOffset);
@@ -65,7 +65,7 @@ public class LabelTest {
 
   /** Tests that {@link Label#toString()} returns strings starting with "L". */
   @Test
-  public void testToString() {
+  void testToString() {
     String string = new Label().toString();
 
     assertEquals('L', string.charAt(0));

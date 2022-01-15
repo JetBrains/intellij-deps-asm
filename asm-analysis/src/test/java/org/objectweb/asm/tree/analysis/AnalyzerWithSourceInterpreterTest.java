@@ -43,10 +43,10 @@ import org.objectweb.asm.tree.MethodNode;
  *
  * @author Eric Bruneton
  */
-public class AnalyzerWithSourceInterpreterTest extends AsmTest {
+class AnalyzerWithSourceInterpreterTest extends AsmTest {
 
   @Test
-  public void testConstructor() {
+  void testConstructor() {
     assertDoesNotThrow(() -> new SourceInterpreter());
     assertThrows(IllegalStateException.class, () -> new SourceInterpreter() {});
   }
@@ -58,7 +58,7 @@ public class AnalyzerWithSourceInterpreterTest extends AsmTest {
    */
   @ParameterizedTest
   @MethodSource(ALL_CLASSES_AND_LATEST_API)
-  public void testAnalyze_sourceInterpreter(
+  void testAnalyze_sourceInterpreter(
       final PrecompiledClass classParameter, final Api apiParameter) {
     ClassNode classNode = new ClassNode();
     new ClassReader(classParameter.getBytes()).accept(classNode, 0);

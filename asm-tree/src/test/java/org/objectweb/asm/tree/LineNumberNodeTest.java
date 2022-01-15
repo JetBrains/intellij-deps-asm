@@ -37,10 +37,10 @@ import org.objectweb.asm.test.AsmTest;
  *
  * @author Eric Bruneton
  */
-public class LineNumberNodeTest extends AsmTest {
+class LineNumberNodeTest extends AsmTest {
 
   @Test
-  public void testConstructor() {
+  void testConstructor() {
     LabelNode labelNode = new LabelNode();
 
     LineNumberNode lineNumberNode = new LineNumberNode(42, labelNode);

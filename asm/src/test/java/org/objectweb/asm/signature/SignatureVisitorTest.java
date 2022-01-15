@@ -38,10 +38,10 @@ import org.junit.jupiter.api.function.Executable;
  *
  * @author Eric Bruneton
  */
-public class SignatureVisitorTest {
+class SignatureVisitorTest {
 
   @Test
-  public void testConstructor_invalidApi() {
+  void testConstructor_invalidApi() {
     Executable constructor = () -> new SignatureVisitor(0) {};
 
     Exception exception = assertThrows(IllegalArgumentException.class, constructor);

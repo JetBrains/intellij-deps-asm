@@ -37,10 +37,10 @@ import org.objectweb.asm.test.AsmTest;
  *
  * @author Eric Bruneton
  */
-public class LdcInsnNodeTest extends AsmTest {
+class LdcInsnNodeTest extends AsmTest {
 
   @Test
-  public void testConstructor() {
+  void testConstructor() {
     LdcInsnNode ldcInsnNode = new LdcInsnNode("s");
 
     assertEquals(AbstractInsnNode.LDC_INSN, ldcInsnNode.getType());

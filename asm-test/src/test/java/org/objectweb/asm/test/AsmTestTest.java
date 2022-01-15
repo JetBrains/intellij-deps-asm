@@ -44,10 +44,10 @@ import org.junit.jupiter.params.provider.Arguments;
  *
  * @author Eric Bruneton
  */
-public class AsmTestTest extends AsmTest {
+class AsmTestTest extends AsmTest {
 
   @Test
-  public void testPrecompiledClass_allMethods() {
+  void testPrecompiledClass_allMethods() {
     assertEquals("jdk3.AllInstructions", PrecompiledClass.JDK3_ALL_INSTRUCTIONS.getName());
     assertEquals("jdk8/AllInstructions", PrecompiledClass.JDK8_ALL_INSTRUCTIONS.getInternalName());
     assertEquals("module-info", PrecompiledClass.JDK9_MODULE.getInternalName());
@@ -69,7 +69,7 @@ public class AsmTestTest extends AsmTest {
   }
 
   @Test
-  public void testInvalidClass_allMethods() {
+  void testInvalidClass_allMethods() {
     InvalidClass invalidBytecodeOffset = InvalidClass.INVALID_BYTECODE_OFFSET;
 
     assertNotNull(invalidBytecodeOffset.getBytes());
@@ -77,7 +77,7 @@ public class AsmTestTest extends AsmTest {
   }
 
   @Test
-  public void testApi_allMethods() {
+  void testApi_allMethods() {
     Api asm7 = Api.ASM7;
 
     assertEquals(0x70000, asm7.value());
@@ -85,7 +85,7 @@ public class AsmTestTest extends AsmTest {
   }
 
   @Test
-  public void testGetAllClassesAndAllApis() {
+  void testGetAllClassesAndAllApis() {
     List<Arguments> allArguments = allClassesAndAllApis().collect(Collectors.toList());
 
     assertEquals(
@@ -97,7 +97,7 @@ public class AsmTestTest extends AsmTest {
   }
 
   @Test
-  public void testGetAllClassesAndLatestApi() {
+  void testGetAllClassesAndLatestApi() {
     List<Arguments> allArguments = allClassesAndLatestApi().collect(Collectors.toList());
 
     assertEquals(

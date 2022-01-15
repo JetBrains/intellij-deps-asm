@@ -41,10 +41,10 @@ import org.objectweb.asm.test.AsmTest;
  *
  * @author Eric Bruneton
  */
-public class FrameNodeTest extends AsmTest {
+class FrameNodeTest extends AsmTest {
 
   @Test
-  public void testConstructor() {
+  void testConstructor() {
     Object[] locals = new Object[] {"l"};
     Object[] stack = new Object[] {"s", "t"};
 
@@ -57,7 +57,7 @@ public class FrameNodeTest extends AsmTest {
   }
 
   @Test
-  public void testConstructor_illegalArgument() {
+  void testConstructor_illegalArgument() {
     Executable constructor = () -> new FrameNode(Integer.MAX_VALUE, 0, null, 0, null);
 
     assertThrows(IllegalArgumentException.class, constructor);

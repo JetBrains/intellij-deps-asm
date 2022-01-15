@@ -342,7 +342,7 @@ configure(subprojects.findAll { it.provides }) {
   publishing {
     repositories {
       maven {
-        def baseUrl = 'http://repository.ow2.org/nexus/'
+        def baseUrl = 'https://repository.ow2.org/nexus/'
         def releasesUrl = baseUrl + 'service/local/staging/deploy/maven2'
         def snapshotsUrl = baseUrl + 'content/repositories/snapshots'
         name = 'nexus'

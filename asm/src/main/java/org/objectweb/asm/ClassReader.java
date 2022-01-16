@@ -308,7 +308,7 @@ public class ClassReader {
    * @return the content of the given input stream.
    * @throws IOException if a problem occurs during reading.
    */
-  @SuppressWarnings("PMD")
+  @SuppressWarnings("PMD.UseTryWithResources")
   private static byte[] readStream(final InputStream inputStream, final boolean close)
       throws IOException {
     if (inputStream == null) {

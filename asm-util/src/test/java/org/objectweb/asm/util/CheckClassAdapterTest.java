@@ -59,7 +59,7 @@ class CheckClassAdapterTest extends AsmTest implements Opcodes {
 
   private static final String EXPECTED_USAGE =
       "Verifies the given class.\n"
-          + "Usage: CheckClassAdapter <fully qualified class name or class file name>\n";
+          + "Usage: CheckClassAdapter <fully qualified class name or class file name>";
 
   @Test
   void testConstructor() {
@@ -505,7 +505,7 @@ class CheckClassAdapterTest extends AsmTest implements Opcodes {
 
     CheckClassAdapter.main(args, new PrintWriter(logger, true));
 
-    assertEquals(EXPECTED_USAGE, logger.toString());
+    assertEquals(EXPECTED_USAGE, logger.toString().trim());
   }
 
   @Test
@@ -515,7 +515,7 @@ class CheckClassAdapterTest extends AsmTest implements Opcodes {
 
     CheckClassAdapter.main(args, new PrintWriter(logger, true));
 
-    assertEquals(EXPECTED_USAGE, logger.toString());
+    assertEquals(EXPECTED_USAGE, logger.toString().trim());
   }
 
   @Test

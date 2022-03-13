@@ -57,7 +57,7 @@ class TextifierTest extends AsmTest {
 
   private static final String EXPECTED_USAGE =
       "Prints a disassembled view of the given class.\n"
-          + "Usage: Textifier [-nodebug] <fully qualified class name or class file name>\n";
+          + "Usage: Textifier [-nodebug] <fully qualified class name or class file name>";
 
   @Test
   void testConstructor() {
@@ -103,7 +103,7 @@ class TextifierTest extends AsmTest {
     Textifier.main(args, new PrintWriter(output, true), new PrintWriter(logger, true));
 
     assertEquals("", output.toString());
-    assertEquals(EXPECTED_USAGE, logger.toString());
+    assertEquals(EXPECTED_USAGE, logger.toString().trim());
   }
 
   @Test
@@ -115,7 +115,7 @@ class TextifierTest extends AsmTest {
     Textifier.main(args, new PrintWriter(output, true), new PrintWriter(logger, true));
 
     assertEquals("", output.toString());
-    assertEquals(EXPECTED_USAGE, logger.toString());
+    assertEquals(EXPECTED_USAGE, logger.toString().trim());
   }
 
   @Test
@@ -127,7 +127,7 @@ class TextifierTest extends AsmTest {
     Textifier.main(args, new PrintWriter(output, true), new PrintWriter(logger, true));
 
     assertEquals("", output.toString());
-    assertEquals(EXPECTED_USAGE, logger.toString());
+    assertEquals(EXPECTED_USAGE, logger.toString().trim());
   }
 
   @Test

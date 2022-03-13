@@ -66,7 +66,7 @@ class ASMifierTest extends AsmTest {
 
   private static final String EXPECTED_USAGE =
       "Prints the ASM code to generate the given class.\n"
-          + "Usage: ASMifier [-nodebug] <fully qualified class name or class file name>\n";
+          + "Usage: ASMifier [-nodebug] <fully qualified class name or class file name>";
 
   private static final IClassLoader ICLASS_LOADER =
       new ClassLoaderIClassLoader(new URLClassLoader(new URL[0]));
@@ -126,7 +126,7 @@ class ASMifierTest extends AsmTest {
     ASMifier.main(args, new PrintWriter(output, true), new PrintWriter(logger, true));
 
     assertEquals("", output.toString());
-    assertEquals(EXPECTED_USAGE, logger.toString());
+    assertEquals(EXPECTED_USAGE, logger.toString().trim());
   }
 
   @Test
@@ -138,7 +138,7 @@ class ASMifierTest extends AsmTest {
     ASMifier.main(args, new PrintWriter(output, true), new PrintWriter(logger, true));
 
     assertEquals("", output.toString());
-    assertEquals(EXPECTED_USAGE, logger.toString());
+    assertEquals(EXPECTED_USAGE, logger.toString().trim());
   }
 
   @Test
@@ -150,7 +150,7 @@ class ASMifierTest extends AsmTest {
     ASMifier.main(args, new PrintWriter(output, true), new PrintWriter(logger, true));
 
     assertEquals("", output.toString());
-    assertEquals(EXPECTED_USAGE, logger.toString());
+    assertEquals(EXPECTED_USAGE, logger.toString().trim());
   }
 
   @Test

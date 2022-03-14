@@ -215,7 +215,7 @@ class CheckMethodAdapterTest extends AsmTest implements Opcodes {
     checkMethodAdapter.visitInsn(NOP);
 
     Executable visitFrame =
-        () -> checkMethodAdapter.visitFrame(F_FULL, 1, new Object[] {new Float(0.0f)}, 0, null);
+        () -> checkMethodAdapter.visitFrame(F_FULL, 1, new Object[] {Float.valueOf(0.0f)}, 0, null);
 
     Exception exception = assertThrows(IllegalArgumentException.class, visitFrame);
     assertEquals("Invalid stack frame value: 0.0", exception.getMessage());

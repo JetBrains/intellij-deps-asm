@@ -102,7 +102,7 @@
     <exclude name="StaticEJBFieldShouldBeFinal" />
     <exclude name="UseProperClassLoader" />
   </rule>
-  <rule ref="category/java/errorprone.xml/ReturnEmptyArrayRatherThanNull">
+  <rule ref="category/java/errorprone.xml/ReturnEmptyCollectionRatherThanNull">
     <properties>
       <property name="violationSuppressXPath"
           value="//MethodDeclaration[@Private='true']"/>

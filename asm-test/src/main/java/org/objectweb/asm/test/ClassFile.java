@@ -202,7 +202,7 @@ public class ClassFile {
       for (Class<?> parameterType : constructor.getParameterTypes()) {
         arguments.add(Array.get(Array.newInstance(parameterType, 1), 0));
       }
-      constructor.setAccessible(true);
+      constructor.setAccessible(true); // NOPMD(AvoidAccessibilityAlteration): ok for tests.
       return constructor.newInstance(arguments.toArray(new Object[0]));
     }
     return null;

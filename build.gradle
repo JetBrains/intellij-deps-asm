@@ -28,10 +28,10 @@
 
 buildscript {
   repositories { mavenCentral() }
-  dependencies { classpath 'org.netbeans.tools:sigtest-maven-plugin:1.3' }
+  dependencies { classpath 'org.netbeans.tools:sigtest-maven-plugin:1.5' }
 }
 
-plugins { id 'biz.aQute.bnd.builder' version '6.1.0' apply false }
+plugins { id 'biz.aQute.bnd.builder' version '6.2.0' apply false }
 plugins { id 'com.github.sherter.google-java-format' version '0.9' apply false }
 plugins { id 'me.champeau.gradle.jmh' version '0.5.3' apply false }
 plugins { id 'org.sonarqube' version '3.3' apply false }
@@ -163,7 +163,7 @@ project(':tools:bnd-module-plugin') {
   description = "bnd plugin to build moduleinfo with ${rootProject.description}"
   // TODO: this compiles asm twice (here and in :asm), find a way to avoid this.
   sourceSets.main.java.srcDirs += project(':asm').sourceSets.main.java.srcDirs
-  depends = ['biz.aQute.bnd:biz.aQute.bnd:6.1.0']
+  depends = ['biz.aQute.bnd:biz.aQute.bnd:6.2.0']
 }
 
 project(':tools:retrofitter') {
@@ -180,7 +180,7 @@ project(':tools:retrofitter') {
 // and tested with :asm-test and JUnit.
 subprojects {
   apply plugin: 'com.github.sherter.google-java-format'
-  googleJavaFormat.toolVersion = '1.13.0'
+  googleJavaFormat.toolVersion = '1.15.0'
   googleJavaFormat.exclude 'src/resources/java/**/*'
   
   // Check the coding style with Checkstyle. Fail in case of error or warning.

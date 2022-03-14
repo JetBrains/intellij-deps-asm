@@ -38,13 +38,23 @@ plugins { id 'org.sonarqube' version '3.3' apply false }
 
 description = 'ASM, a very small and fast Java bytecode manipulation framework'
 
+apply plugin: 'java-platform'
+dependencies {
+  constraints {
+    api project(':asm'), project(':asm-tree'), project(':asm-analysis')
+    api project(':asm-util'), project(':asm-commons')
+  }
+}
+
+allprojects {
+  group = 'org.ow2.asm'
+  version = '9.3' + (rootProject.hasProperty('release') ? '' : '-SNAPSHOT')
+}
+
 subprojects {
   repositories { mavenCentral() }
   apply plugin: 'java-library'
   apply plugin: 'jacoco'
-  def snapshotSuffix = rootProject.hasProperty('release') ? '' : '-SNAPSHOT'
-  group = 'org.ow2.asm'
-  version = '9.3' + snapshotSuffix
   sourceCompatibility = '1.8'
   targetCompatibility = '1.8'
   test { useJUnitPlatform() }
@@ -203,10 +213,9 @@ subprojects {
   }
 }
 
-// Configures the projects with a non-empty 'provides' property. These are the
-// ones which are published in Maven. They must be checked for code coverage and
-// backward compatibility, retrofited to Java 1.5, packaged with biz.aQute.bnd
-// and uploaded to Maven with a POM, sources and Javadoc.
+// Configure the projects with a non-empty 'provides' property. They must be
+// checked for code coverage and backward compatibility, retrofited to Java 1.5,
+// and packaged with biz.aQute.bnd.
 configure(subprojects.findAll { it.provides }) {
   // Code coverage configuration.
   jacoco.toolVersion = '0.8.7'
@@ -333,10 +342,11 @@ configure(subprojects.findAll { it.provides }) {
     withJavadocJar()
     withSourcesJar()
   }
+}
 
-  // Add a publish task, provided by the maven-publish plugin, to generate and
-  // sign the project POM and to upload it, with the signed classes, sources
-  // and Javadoc jars.
+// Configure the root project, and those with a non-empty 'provides' property,
+// to be published in Maven with a POM.
+configure([rootProject] + subprojects.findAll { it.provides }) {
   apply plugin: 'maven-publish'
   apply plugin: 'signing'
   publishing {
@@ -354,8 +364,10 @@ configure(subprojects.findAll { it.provides }) {
       }
     }
     publications {
-      mavenJava(MavenPublication) {
-        from components.java
+      maven(MavenPublication) {
+        def isRoot = project == rootProject
+        artifactId (isRoot ? 'asm-bom' : project.name)
+        from (isRoot ? components.javaPlatform : components.java)
         pom.withXml {
           def parent = asNode().appendNode('parent')
           parent.appendNode('groupId', 'org.ow2')
@@ -363,7 +375,7 @@ configure(subprojects.findAll { it.provides }) {
           parent.appendNode('version', '1.5')
         }
         pom {
-          name = jar.archiveBaseName
+          name = artifactId
           description = project.description
           packaging 'jar'
           inceptionYear = '2000'
@@ -426,7 +438,7 @@ configure(subprojects.findAll { it.provides }) {
   }
   signing {
     required rootProject.hasProperty('release')
-    sign publishing.publications.mavenJava
+    sign publishing.publications.maven
   }
   tasks.withType(GenerateModuleMetadata) { enabled = false }
 }

@@ -30,6 +30,7 @@ package org.objectweb.asm;
 import static java.util.stream.Collectors.toSet;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
@@ -79,6 +80,7 @@ class ClassWriterTest extends AsmTest {
     Set<String> expectedFields =
         new HashSet<String>(
             Arrays.asList(
+                "flags",
                 "version",
                 "symbolTable",
                 "accessFlags",
@@ -510,6 +512,8 @@ class ClassWriterTest extends AsmTest {
 
     classReader.accept(classWriter, attributes(), ClassReader.SKIP_CODE);
 
+    assertFalse(classWriter.hasFlags(ClassWriter.COMPUTE_MAXS));
+    assertFalse(classWriter.hasFlags(ClassWriter.COMPUTE_FRAMES));
     assertTrue(
         new ClassFile(classWriter.toByteArray())
             .toString()
@@ -563,6 +567,8 @@ class ClassWriterTest extends AsmTest {
 
     classReader.accept(classWriter, attributes(), 0);
 
+    assertTrue(classWriter.hasFlags(ClassWriter.COMPUTE_MAXS));
+    assertFalse(classWriter.hasFlags(ClassWriter.COMPUTE_FRAMES));
     assertEquals(new ClassFile(classFile), new ClassFile(classWriter.toByteArray()));
   }
 
@@ -604,6 +610,8 @@ class ClassWriterTest extends AsmTest {
 
     byte[] newClassFile = classWriter.toByteArray();
 
+    assertFalse(classWriter.hasFlags(ClassWriter.COMPUTE_MAXS));
+    assertTrue(classWriter.hasFlags(ClassWriter.COMPUTE_FRAMES));
     // The computed stack map frames should be equal to the original ones, if any (classes before
     // JDK8 don't have ones). This is not true in general (the valid frames for a given method are
     // not unique), but this should be the case with our precompiled classes.

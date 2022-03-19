@@ -39,6 +39,7 @@ import org.objectweb.asm.AnnotationVisitor;
 import org.objectweb.asm.Attribute;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassVisitor;
+import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
@@ -161,7 +162,7 @@ public class CheckClassAdapter extends ClassVisitor {
    * @param classVisitor the class visitor to which this adapter must delegate calls.
    */
   public CheckClassAdapter(final ClassVisitor classVisitor) {
-    this(classVisitor, true);
+    this(classVisitor, /* checkDataFlow = */ true);
   }
 
   /**
@@ -169,8 +170,7 @@ public class CheckClassAdapter extends ClassVisitor {
    * Instead, they must use the {@link #CheckClassAdapter(int, ClassVisitor, boolean)} version.
    *
    * @param classVisitor the class visitor to which this adapter must delegate calls.
-   * @param checkDataFlow whether to perform basic data flow checks. This option requires valid
-   *     maxLocals and maxStack values.
+   * @param checkDataFlow whether to perform basic data flow checks.
    * @throws IllegalStateException If a subclass calls this constructor.
    */
   public CheckClassAdapter(final ClassVisitor classVisitor, final boolean checkDataFlow) {
@@ -187,8 +187,7 @@ public class CheckClassAdapter extends ClassVisitor {
    *     ASM}<i>x</i> values in {@link Opcodes}.
    * @param classVisitor the class visitor to which this adapter must delegate calls.
    * @param checkDataFlow {@literal true} to perform basic data flow checks, or {@literal false} to
-   *     not perform any data flow check (see {@link CheckMethodAdapter}). This option requires
-   *     valid maxLocals and maxStack values.
+   *     not perform any data flow check (see {@link CheckMethodAdapter}).
    */
   protected CheckClassAdapter(
       final int api, final ClassVisitor classVisitor, final boolean checkDataFlow) {
@@ -460,21 +459,17 @@ public class CheckClassAdapter extends ClassVisitor {
       }
     }
     CheckMethodAdapter checkMethodAdapter;
+    MethodVisitor methodVisitor =
+        super.visitMethod(access, name, descriptor, signature, exceptions);
     if (checkDataFlow) {
+      if (cv instanceof ClassWriter) {
+        methodVisitor =
+            new CheckMethodAdapter.MethodWriterWrapper(api, (ClassWriter) cv, methodVisitor);
+      }
       checkMethodAdapter =
-          new CheckMethodAdapter(
-              api,
-              access,
-              name,
-              descriptor,
-              super.visitMethod(access, name, descriptor, signature, exceptions),
-              labelInsnIndices);
+          new CheckMethodAdapter(api, access, name, descriptor, methodVisitor, labelInsnIndices);
     } else {
-      checkMethodAdapter =
-          new CheckMethodAdapter(
-              api,
-              super.visitMethod(access, name, descriptor, signature, exceptions),
-              labelInsnIndices);
+      checkMethodAdapter = new CheckMethodAdapter(api, methodVisitor, labelInsnIndices);
     }
     checkMethodAdapter.version = version;
     return checkMethodAdapter;

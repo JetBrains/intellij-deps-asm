@@ -38,6 +38,7 @@ import java.util.Map;
 import java.util.Set;
 import org.objectweb.asm.AnnotationVisitor;
 import org.objectweb.asm.Attribute;
+import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.ConstantDynamic;
 import org.objectweb.asm.Handle;
 import org.objectweb.asm.Label;
@@ -448,13 +449,20 @@ public class CheckMethodAdapter extends MethodVisitor {
           public void visitEnd() {
             Analyzer<BasicValue> analyzer = new Analyzer<>(new BasicVerifier());
             try {
-              analyzer.analyze("dummy", this);
-            } catch (IndexOutOfBoundsException e) {
-              if (maxLocals == 0 && maxStack == 0) {
-                throw new IllegalArgumentException(
-                    "Data flow checking option requires valid, non zero maxLocals and maxStack.",
-                    e);
+              // If 'methodVisitor' is a MethodWriter of a ClassWriter with no flags to compute the
+              // max stack and locals nor the stack map frames, we know that valid max stack and
+              // locals must be provided. Otherwise we assume they are not needed at this stage.
+              // TODO(ebruneton): similarly, check that valid stack map frames are provided if the
+              // class writer has no flags to compute them, and the class version is V1_7 or more.
+              boolean checkMaxStackAndLocals =
+                  (methodVisitor instanceof MethodWriterWrapper)
+                      && !((MethodWriterWrapper) methodVisitor).computesMaxs();
+              if (checkMaxStackAndLocals) {
+                analyzer.analyze("dummy", this);
+              } else {
+                analyzer.analyzeAndComputeMaxs("dummy", this);
               }
+            } catch (IndexOutOfBoundsException e) {
               throwError(analyzer, e);
             } catch (AnalyzerException e) {
               throwError(analyzer, e);
@@ -1437,6 +1445,20 @@ public class CheckMethodAdapter extends MethodVisitor {
     }
     if (checkVisited && labelInsnIndices.get(label) == null) {
       throw new IllegalArgumentException(INVALID + message + " (must be visited first)");
+    }
+  }
+
+  static class MethodWriterWrapper extends MethodVisitor {
+
+    private final ClassWriter owner;
+
+    MethodWriterWrapper(final int api, final ClassWriter owner, final MethodVisitor methodWriter) {
+      super(api, methodWriter);
+      this.owner = owner;
+    }
+
+    boolean computesMaxs() {
+      return owner.hasFlags(ClassWriter.COMPUTE_MAXS) || owner.hasFlags(ClassWriter.COMPUTE_FRAMES);
     }
   }
 }

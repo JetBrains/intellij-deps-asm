@@ -352,7 +352,7 @@ public class CheckMethodAdapter extends MethodVisitor {
    * @param methodvisitor the method visitor to which this adapter must delegate calls.
    */
   public CheckMethodAdapter(final MethodVisitor methodvisitor) {
-    this(methodvisitor, new HashMap<Label, Integer>());
+    this(methodvisitor, new HashMap<>());
   }
 
   /**
@@ -462,9 +462,7 @@ public class CheckMethodAdapter extends MethodVisitor {
               } else {
                 analyzer.analyzeAndComputeMaxs("dummy", this);
               }
-            } catch (IndexOutOfBoundsException e) {
-              throwError(analyzer, e);
-            } catch (AnalyzerException e) {
+            } catch (IndexOutOfBoundsException | AnalyzerException e) {
               throwError(analyzer, e);
             }
             if (methodVisitor != null) {

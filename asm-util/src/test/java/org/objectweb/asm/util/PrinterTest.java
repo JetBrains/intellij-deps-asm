@@ -446,7 +446,7 @@ class PrinterTest {
     }
 
     @Override
-    public void visitVarInsn(final int opcode, final int var) {
+    public void visitVarInsn(final int opcode, final int varIndex) {
       // Do nothing.
     }
 
@@ -486,7 +486,7 @@ class PrinterTest {
     }
 
     @Override
-    public void visitIincInsn(final int var, final int increment) {
+    public void visitIincInsn(final int varIndex, final int increment) {
       // Do nothing.
     }
 

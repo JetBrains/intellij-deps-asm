@@ -113,28 +113,28 @@ final class MethodNodeBuilder {
     return this;
   }
 
-  MethodNodeBuilder istore(final int var) {
-    methodNode.visitVarInsn(Opcodes.ISTORE, var);
+  MethodNodeBuilder istore(final int varIndex) {
+    methodNode.visitVarInsn(Opcodes.ISTORE, varIndex);
     return this;
   }
 
-  MethodNodeBuilder aload(final int var) {
-    methodNode.visitVarInsn(Opcodes.ALOAD, var);
+  MethodNodeBuilder aload(final int varIndex) {
+    methodNode.visitVarInsn(Opcodes.ALOAD, varIndex);
     return this;
   }
 
-  MethodNodeBuilder iload(final int var) {
-    methodNode.visitVarInsn(Opcodes.ILOAD, var);
+  MethodNodeBuilder iload(final int varIndex) {
+    methodNode.visitVarInsn(Opcodes.ILOAD, varIndex);
     return this;
   }
 
-  MethodNodeBuilder astore(final int var) {
-    methodNode.visitVarInsn(Opcodes.ASTORE, var);
+  MethodNodeBuilder astore(final int varIndex) {
+    methodNode.visitVarInsn(Opcodes.ASTORE, varIndex);
     return this;
   }
 
-  MethodNodeBuilder ret(final int var) {
-    methodNode.visitVarInsn(Opcodes.RET, var);
+  MethodNodeBuilder ret(final int varIndex) {
+    methodNode.visitVarInsn(Opcodes.RET, varIndex);
     return this;
   }
 
@@ -163,8 +163,8 @@ final class MethodNodeBuilder {
     return this;
   }
 
-  MethodNodeBuilder iinc(final int var, final int increment) {
-    methodNode.visitIincInsn(var, increment);
+  MethodNodeBuilder iinc(final int varIndex, final int increment) {
+    methodNode.visitIincInsn(varIndex, increment);
     return this;
   }
 

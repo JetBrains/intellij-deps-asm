@@ -823,14 +823,14 @@ public class ASMifier extends Printer {
   }
 
   @Override
-  public void visitVarInsn(final int opcode, final int var) {
+  public void visitVarInsn(final int opcode, final int varIndex) {
     stringBuilder.setLength(0);
     stringBuilder
         .append(name)
         .append(".visitVarInsn(")
         .append(OPCODES[opcode])
         .append(", ")
-        .append(var)
+        .append(varIndex)
         .append(");\n");
     text.add(stringBuilder.toString());
   }
@@ -936,12 +936,12 @@ public class ASMifier extends Printer {
   }
 
   @Override
-  public void visitIincInsn(final int var, final int increment) {
+  public void visitIincInsn(final int varIndex, final int increment) {
     stringBuilder.setLength(0);
     stringBuilder
         .append(name)
         .append(".visitIincInsn(")
-        .append(var)
+        .append(varIndex)
         .append(", ")
         .append(increment)
         .append(");\n");

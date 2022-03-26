@@ -347,8 +347,8 @@ public class MethodNode extends MethodVisitor {
   }
 
   @Override
-  public void visitVarInsn(final int opcode, final int var) {
-    instructions.add(new VarInsnNode(opcode, var));
+  public void visitVarInsn(final int opcode, final int varIndex) {
+    instructions.add(new VarInsnNode(opcode, varIndex));
   }
 
   @Override
@@ -406,8 +406,8 @@ public class MethodNode extends MethodVisitor {
   }
 
   @Override
-  public void visitIincInsn(final int var, final int increment) {
-    instructions.add(new IincInsnNode(var, increment));
+  public void visitIincInsn(final int varIndex, final int increment) {
+    instructions.add(new IincInsnNode(varIndex, increment));
   }
 
   @Override

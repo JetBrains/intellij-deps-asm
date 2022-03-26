@@ -327,8 +327,8 @@ public abstract class AdviceAdapter extends GeneratorAdapter implements Opcodes 
   }
 
   @Override
-  public void visitVarInsn(final int opcode, final int var) {
-    super.visitVarInsn(opcode, var);
+  public void visitVarInsn(final int opcode, final int varIndex) {
+    super.visitVarInsn(opcode, varIndex);
     if (isConstructor && !superClassConstructorCalled) {
       switch (opcode) {
         case ILOAD:
@@ -341,7 +341,7 @@ public abstract class AdviceAdapter extends GeneratorAdapter implements Opcodes 
           pushValue(OTHER);
           break;
         case ALOAD:
-          pushValue(var == 0 ? UNINITIALIZED_THIS : OTHER);
+          pushValue(varIndex == 0 ? UNINITIALIZED_THIS : OTHER);
           break;
         case ASTORE:
         case ISTORE:

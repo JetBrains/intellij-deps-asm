@@ -243,9 +243,9 @@ class AnalyzerAdapterTest extends AsmTest {
     }
 
     @Override
-    public void visitVarInsn(final int opcode, final int var) {
+    public void visitVarInsn(final int opcode, final int varIndex) {
       maybeInsertFrame();
-      super.visitVarInsn(opcode, var);
+      super.visitVarInsn(opcode, varIndex);
     }
 
     @Override
@@ -296,9 +296,9 @@ class AnalyzerAdapterTest extends AsmTest {
     }
 
     @Override
-    public void visitIincInsn(final int var, final int increment) {
+    public void visitIincInsn(final int varIndex, final int increment) {
       maybeInsertFrame();
-      super.visitIincInsn(var, increment);
+      super.visitIincInsn(varIndex, increment);
     }
 
     @Override

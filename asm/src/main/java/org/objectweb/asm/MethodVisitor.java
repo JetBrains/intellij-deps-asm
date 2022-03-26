@@ -351,12 +351,12 @@ public abstract class MethodVisitor {
    *
    * @param opcode the opcode of the local variable instruction to be visited. This opcode is either
    *     ILOAD, LLOAD, FLOAD, DLOAD, ALOAD, ISTORE, LSTORE, FSTORE, DSTORE, ASTORE or RET.
-   * @param var the operand of the instruction to be visited. This operand is the index of a local
-   *     variable.
+   * @param varIndex the operand of the instruction to be visited. This operand is the index of a
+   *     local variable.
    */
-  public void visitVarInsn(final int opcode, final int var) {
+  public void visitVarInsn(final int opcode, final int varIndex) {
     if (mv != null) {
-      mv.visitVarInsn(opcode, var);
+      mv.visitVarInsn(opcode, varIndex);
     }
   }
 
@@ -554,12 +554,12 @@ public abstract class MethodVisitor {
   /**
    * Visits an IINC instruction.
    *
-   * @param var index of the local variable to be incremented.
+   * @param varIndex index of the local variable to be incremented.
    * @param increment amount to increment the local variable by.
    */
-  public void visitIincInsn(final int var, final int increment) {
+  public void visitIincInsn(final int varIndex, final int increment) {
     if (mv != null) {
-      mv.visitIincInsn(var, increment);
+      mv.visitIincInsn(varIndex, increment);
     }
   }
 

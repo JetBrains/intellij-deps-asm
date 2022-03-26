@@ -242,15 +242,15 @@ public class AnalyzerAdapter extends MethodVisitor {
   }
 
   @Override
-  public void visitVarInsn(final int opcode, final int var) {
-    super.visitVarInsn(opcode, var);
+  public void visitVarInsn(final int opcode, final int varIndex) {
+    super.visitVarInsn(opcode, varIndex);
     boolean isLongOrDouble =
         opcode == Opcodes.LLOAD
             || opcode == Opcodes.DLOAD
             || opcode == Opcodes.LSTORE
             || opcode == Opcodes.DSTORE;
-    maxLocals = Math.max(maxLocals, var + (isLongOrDouble ? 2 : 1));
-    execute(opcode, var, null);
+    maxLocals = Math.max(maxLocals, varIndex + (isLongOrDouble ? 2 : 1));
+    execute(opcode, varIndex, null);
   }
 
   @Override
@@ -398,10 +398,10 @@ public class AnalyzerAdapter extends MethodVisitor {
   }
 
   @Override
-  public void visitIincInsn(final int var, final int increment) {
-    super.visitIincInsn(var, increment);
-    maxLocals = Math.max(maxLocals, var + 1);
-    execute(Opcodes.IINC, var, null);
+  public void visitIincInsn(final int varIndex, final int increment) {
+    super.visitIincInsn(varIndex, increment);
+    maxLocals = Math.max(maxLocals, varIndex + 1);
+    execute(Opcodes.IINC, varIndex, null);
   }
 
   @Override

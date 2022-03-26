@@ -679,12 +679,12 @@ public class CheckMethodAdapter extends MethodVisitor {
   }
 
   @Override
-  public void visitVarInsn(final int opcode, final int var) {
+  public void visitVarInsn(final int opcode, final int varIndex) {
     checkVisitCodeCalled();
     checkVisitMaxsNotCalled();
     checkOpcodeMethod(opcode, Method.VISIT_VAR_INSN);
-    checkUnsignedShort(var, INVALID_LOCAL_VARIABLE_INDEX);
-    super.visitVarInsn(opcode, var);
+    checkUnsignedShort(varIndex, INVALID_LOCAL_VARIABLE_INDEX);
+    super.visitVarInsn(opcode, varIndex);
     ++insnCount;
   }
 
@@ -804,12 +804,12 @@ public class CheckMethodAdapter extends MethodVisitor {
   }
 
   @Override
-  public void visitIincInsn(final int var, final int increment) {
+  public void visitIincInsn(final int varIndex, final int increment) {
     checkVisitCodeCalled();
     checkVisitMaxsNotCalled();
-    checkUnsignedShort(var, INVALID_LOCAL_VARIABLE_INDEX);
+    checkUnsignedShort(varIndex, INVALID_LOCAL_VARIABLE_INDEX);
     checkSignedShort(increment, "Invalid increment");
-    super.visitIincInsn(var, increment);
+    super.visitIincInsn(varIndex, increment);
     ++insnCount;
   }
 

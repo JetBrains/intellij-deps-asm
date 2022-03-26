@@ -107,7 +107,7 @@ public class LocalVariablesSorter extends MethodVisitor {
   }
 
   @Override
-  public void visitVarInsn(final int opcode, final int var) {
+  public void visitVarInsn(final int opcode, final int varIndex) {
     Type varType;
     switch (opcode) {
       case Opcodes.LLOAD:
@@ -134,12 +134,12 @@ public class LocalVariablesSorter extends MethodVisitor {
       default:
         throw new IllegalArgumentException("Invalid opcode " + opcode);
     }
-    super.visitVarInsn(opcode, remap(var, varType));
+    super.visitVarInsn(opcode, remap(varIndex, varType));
   }
 
   @Override
-  public void visitIincInsn(final int var, final int increment) {
-    super.visitIincInsn(remap(var, Type.INT_TYPE), increment);
+  public void visitIincInsn(final int varIndex, final int increment) {
+    super.visitIincInsn(remap(varIndex, Type.INT_TYPE), increment);
   }
 
   @Override
@@ -321,11 +321,11 @@ public class LocalVariablesSorter extends MethodVisitor {
     remappedLocalTypes[local] = type;
   }
 
-  private int remap(final int var, final Type type) {
-    if (var + type.getSize() <= firstLocal) {
-      return var;
+  private int remap(final int varIndex, final Type type) {
+    if (varIndex + type.getSize() <= firstLocal) {
+      return varIndex;
     }
-    int key = 2 * var + type.getSize() - 1;
+    int key = 2 * varIndex + type.getSize() - 1;
     int size = remappedVariableIndices.length;
     if (key >= size) {
       int[] newRemappedVariableIndices = new int[Math.max(2 * size, key + 1)];

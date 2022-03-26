@@ -828,8 +828,8 @@ class ClassWriterTest extends AsmTest {
     }
 
     @Override
-    public void visitVarInsn(final int opcode, final int var) {
-      super.visitVarInsn(opcode, var);
+    public void visitVarInsn(final int opcode, final int varIndex) {
+      super.visitVarInsn(opcode, varIndex);
       maybeInsertDeadCode();
     }
 
@@ -898,8 +898,8 @@ class ClassWriterTest extends AsmTest {
     }
 
     @Override
-    public void visitIincInsn(final int var, final int increment) {
-      super.visitIincInsn(var, increment);
+    public void visitIincInsn(final int varIndex, final int increment) {
+      super.visitIincInsn(varIndex, increment);
       maybeInsertDeadCode();
     }
 

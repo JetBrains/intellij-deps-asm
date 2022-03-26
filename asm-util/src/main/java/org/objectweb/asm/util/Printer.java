@@ -917,10 +917,10 @@ public abstract class Printer {
    *
    * @param opcode the opcode of the local variable instruction to be visited. This opcode is either
    *     ILOAD, LLOAD, FLOAD, DLOAD, ALOAD, ISTORE, LSTORE, FSTORE, DSTORE, ASTORE or RET.
-   * @param var the operand of the instruction to be visited. This operand is the index of a local
-   *     variable.
+   * @param varIndex the operand of the instruction to be visited. This operand is the index of a
+   *     local variable.
    */
-  public abstract void visitVarInsn(int opcode, int var);
+  public abstract void visitVarInsn(int opcode, int varIndex);
 
   /**
    * Method instruction. See {@link org.objectweb.asm.MethodVisitor#visitTypeInsn}.
@@ -1034,10 +1034,10 @@ public abstract class Printer {
   /**
    * Method instruction. See {@link org.objectweb.asm.MethodVisitor#visitIincInsn}.
    *
-   * @param var index of the local variable to be incremented.
+   * @param varIndex index of the local variable to be incremented.
    * @param increment amount to increment the local variable by.
    */
-  public abstract void visitIincInsn(int var, int increment);
+  public abstract void visitIincInsn(int varIndex, int increment);
 
   /**
    * Method instruction. See {@link org.objectweb.asm.MethodVisitor#visitTableSwitchInsn}.

@@ -1061,28 +1061,28 @@ class ClassWriterComputeMaxsTest {
       return this;
     }
 
-    TestCaseBuilder istore(final int var) {
-      methodVisitor.visitVarInsn(Opcodes.ISTORE, var);
+    TestCaseBuilder istore(final int varIndex) {
+      methodVisitor.visitVarInsn(Opcodes.ISTORE, varIndex);
       return this;
     }
 
-    TestCaseBuilder aload(final int var) {
-      methodVisitor.visitVarInsn(Opcodes.ALOAD, var);
+    TestCaseBuilder aload(final int varIndex) {
+      methodVisitor.visitVarInsn(Opcodes.ALOAD, varIndex);
       return this;
     }
 
-    TestCaseBuilder iload(final int var) {
-      methodVisitor.visitVarInsn(Opcodes.ILOAD, var);
+    TestCaseBuilder iload(final int varIndex) {
+      methodVisitor.visitVarInsn(Opcodes.ILOAD, varIndex);
       return this;
     }
 
-    TestCaseBuilder astore(final int var) {
-      methodVisitor.visitVarInsn(Opcodes.ASTORE, var);
+    TestCaseBuilder astore(final int varIndex) {
+      methodVisitor.visitVarInsn(Opcodes.ASTORE, varIndex);
       return this;
     }
 
-    TestCaseBuilder ret(final int var) {
-      methodVisitor.visitVarInsn(Opcodes.RET, var);
+    TestCaseBuilder ret(final int varIndex) {
+      methodVisitor.visitVarInsn(Opcodes.RET, varIndex);
       return this;
     }
 
@@ -1106,8 +1106,8 @@ class ClassWriterComputeMaxsTest {
       return this;
     }
 
-    TestCaseBuilder iinc(final int var, final int increment) {
-      methodVisitor.visitIincInsn(var, increment);
+    TestCaseBuilder iinc(final int varIndex, final int increment) {
+      methodVisitor.visitIincInsn(varIndex, increment);
       return this;
     }
 

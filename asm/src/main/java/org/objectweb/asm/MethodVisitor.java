@@ -67,7 +67,7 @@ public abstract class MethodVisitor {
    * @param api the ASM API version implemented by this visitor. Must be one of the {@code
    *     ASM}<i>x</i> values in {@link Opcodes}.
    */
-  public MethodVisitor(final int api) {
+  protected MethodVisitor(final int api) {
     this(api, null);
   }
 
@@ -79,7 +79,7 @@ public abstract class MethodVisitor {
    * @param methodVisitor the method visitor to which this visitor must delegate method calls. May
    *     be null.
    */
-  public MethodVisitor(final int api, final MethodVisitor methodVisitor) {
+  protected MethodVisitor(final int api, final MethodVisitor methodVisitor) {
     if (api != Opcodes.ASM9
         && api != Opcodes.ASM8
         && api != Opcodes.ASM7

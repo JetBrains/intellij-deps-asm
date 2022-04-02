@@ -36,6 +36,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.io.IOException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassWriter;
@@ -56,48 +57,21 @@ class SerialVersionUidAdderTest extends AsmTest {
     assertThrows(IllegalStateException.class, () -> new SerialVersionUIDAdder(null) {});
   }
 
-  @Test
-  void testAllMethods_class() throws IOException {
-    ClassReader classReader = new ClassReader("SerialVersionClass");
+  @ParameterizedTest
+  @CsvSource({
+    "SerialVersionClass,4654798559887898126",
+    "SerialVersionAnonymousInnerClass$1,2591057588230880800",
+    "SerialVersionInterface,682190902657822970",
+    "SerialVersionEmptyInterface,-2126445979242430981"
+  })
+  void testAllMethods(final String className, final long expectedSvuid) throws IOException {
+    ClassReader classReader = new ClassReader(className);
     SerialVersionUIDAdder svuidAdder = new SerialVersionUIDAdder(null);
 
     classReader.accept(svuidAdder, 0);
     long svuid = svuidAdder.computeSVUID();
 
-    assertEquals(4654798559887898126L, svuid);
-  }
-
-  @Test
-  void testAllMethods_anonymousInnerClass() throws IOException {
-    ClassReader classReader = new ClassReader("SerialVersionAnonymousInnerClass$1");
-    SerialVersionUIDAdder svuidAdder = new SerialVersionUIDAdder(null);
-
-    classReader.accept(svuidAdder, 0);
-    long svuid = svuidAdder.computeSVUID();
-
-    assertEquals(2591057588230880800L, svuid);
-  }
-
-  @Test
-  void testAllMethods_interface() throws IOException {
-    ClassReader classReader = new ClassReader("SerialVersionInterface");
-    SerialVersionUIDAdder svuidAdder = new SerialVersionUIDAdder(null);
-
-    classReader.accept(svuidAdder, 0);
-    long svuid = svuidAdder.computeSVUID();
-
-    assertEquals(682190902657822970L, svuid);
-  }
-
-  @Test
-  void testAllMethods_emptyInterface() throws IOException {
-    ClassReader classReader = new ClassReader("SerialVersionEmptyInterface");
-    SerialVersionUIDAdder svuidAdder = new SerialVersionUIDAdder(null);
-
-    classReader.accept(svuidAdder, 0);
-    long svuid = svuidAdder.computeSVUID();
-
-    assertEquals(-2126445979242430981L, svuid);
+    assertEquals(expectedSvuid, svuid);
   }
 
   @Test

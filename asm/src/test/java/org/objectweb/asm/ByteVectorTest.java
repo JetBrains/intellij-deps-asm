@@ -52,6 +52,7 @@ class ByteVectorTest {
     byteVector.putByte(1);
 
     assertArrayEquals(new byte[] {1}, toArray(byteVector));
+    assertEquals(1, byteVector.size());
   }
 
   @Test
@@ -61,6 +62,7 @@ class ByteVectorTest {
     byteVector.put11(1, 2);
 
     assertArrayEquals(new byte[] {1, 2}, toArray(byteVector));
+    assertEquals(2, byteVector.size());
   }
 
   @Test
@@ -70,6 +72,7 @@ class ByteVectorTest {
     byteVector.putShort(0x0102);
 
     assertArrayEquals(new byte[] {1, 2}, toArray(byteVector));
+    assertEquals(2, byteVector.size());
   }
 
   @Test
@@ -79,6 +82,7 @@ class ByteVectorTest {
     byteVector.put12(1, 0x0203);
 
     assertArrayEquals(new byte[] {1, 2, 3}, toArray(byteVector));
+    assertEquals(3, byteVector.size());
   }
 
   @Test
@@ -88,6 +92,7 @@ class ByteVectorTest {
     byteVector.put112(1, 2, 0x0304);
 
     assertArrayEquals(new byte[] {1, 2, 3, 4}, toArray(byteVector));
+    assertEquals(4, byteVector.size());
   }
 
   @Test
@@ -97,6 +102,7 @@ class ByteVectorTest {
     byteVector.putInt(0x01020304);
 
     assertArrayEquals(new byte[] {1, 2, 3, 4}, toArray(byteVector));
+    assertEquals(4, byteVector.size());
   }
 
   @Test
@@ -106,6 +112,7 @@ class ByteVectorTest {
     byteVector.put122(1, 0x0203, 0x0405);
 
     assertArrayEquals(new byte[] {1, 2, 3, 4, 5}, toArray(byteVector));
+    assertEquals(5, byteVector.size());
   }
 
   @Test
@@ -115,6 +122,7 @@ class ByteVectorTest {
     byteVector.putLong(0x0102030405060708L);
 
     assertArrayEquals(new byte[] {1, 2, 3, 4, 5, 6, 7, 8}, toArray(byteVector));
+    assertEquals(8, byteVector.size());
   }
 
   @Test
@@ -124,6 +132,7 @@ class ByteVectorTest {
     byteVector.putUTF8("abc");
 
     assertArrayEquals(new byte[] {0, 3, 'a', 'b', 'c'}, toArray(byteVector));
+    assertEquals(5, byteVector.size());
   }
 
   @ParameterizedTest
@@ -172,6 +181,7 @@ class ByteVectorTest {
     byteVector.putByteArray(new byte[] {0, 1, 2, 3, 4, 5}, 1, 3);
 
     assertArrayEquals(new byte[] {1, 2, 3}, toArray(byteVector));
+    assertEquals(3, byteVector.size());
   }
 
   private static byte[] toArray(final ByteVector byteVector) {

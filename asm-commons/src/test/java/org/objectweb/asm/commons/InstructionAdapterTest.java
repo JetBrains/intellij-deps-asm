@@ -62,8 +62,10 @@ class InstructionAdapterTest extends AsmTest {
 
   @Test
   void testConstructor() {
-    assertDoesNotThrow(() -> new InstructionAdapter(new MethodNode()));
-    assertThrows(IllegalStateException.class, () -> new InstructionAdapter(new MethodNode()) {});
+    MethodNode methodNode = new MethodNode();
+
+    assertDoesNotThrow(() -> new InstructionAdapter(methodNode));
+    assertThrows(IllegalStateException.class, () -> new InstructionAdapter(methodNode) {});
   }
 
   @Test

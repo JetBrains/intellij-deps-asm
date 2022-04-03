@@ -59,10 +59,12 @@ class LocalVariablesSorterTest extends AsmTest {
 
   @Test
   void testConstructor() {
-    assertDoesNotThrow(() -> new LocalVariablesSorter(Opcodes.ACC_PUBLIC, "()V", new MethodNode()));
+    MethodNode methodNode = new MethodNode();
+
+    assertDoesNotThrow(() -> new LocalVariablesSorter(Opcodes.ACC_PUBLIC, "()V", methodNode));
     assertThrows(
         IllegalStateException.class,
-        () -> new LocalVariablesSorter(Opcodes.ACC_PUBLIC, "()V", new MethodNode()) {});
+        () -> new LocalVariablesSorter(Opcodes.ACC_PUBLIC, "()V", methodNode) {});
   }
 
   @Test

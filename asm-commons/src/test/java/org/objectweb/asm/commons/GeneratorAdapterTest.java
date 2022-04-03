@@ -557,7 +557,7 @@ class GeneratorAdapterTest {
   }
 
   @Test
-  void testIfCmp() {
+  void testIfCmp() throws GeneratorException {
     assertEquals("IF_ICMPEQ L0", new Generator().ifCmp(Type.INT_TYPE, EQ, new Label()));
     assertEquals("IF_ICMPNE L0", new Generator().ifCmp(Type.INT_TYPE, NE, new Label()));
     assertEquals("IF_ICMPGE L0", new Generator().ifCmp(Type.INT_TYPE, GE, new Label()));
@@ -578,12 +578,11 @@ class GeneratorAdapterTest {
     assertEquals("IF_ACMPEQ L0", new Generator().ifCmp(Type.getType("[I"), EQ, new Label()));
     assertEquals("IF_ACMPNE L0", new Generator().ifCmp(Type.getType("[I"), NE, new Label()));
     assertThrows(
-        IllegalArgumentException.class, () -> new Generator().ifCmp(OBJECT_TYPE, GE, new Label()));
+        GeneratorException.class, () -> new Generator().ifCmp(OBJECT_TYPE, GE, new Label()));
     assertThrows(
-        IllegalArgumentException.class,
-        () -> new Generator().ifCmp(Type.getType("[I"), GE, new Label()));
+        GeneratorException.class, () -> new Generator().ifCmp(Type.getType("[I"), GE, new Label()));
     assertThrows(
-        IllegalArgumentException.class, () -> new Generator().ifCmp(Type.INT_TYPE, 0, new Label()));
+        GeneratorException.class, () -> new Generator().ifCmp(Type.INT_TYPE, 0, new Label()));
   }
 
   @Test
@@ -592,14 +591,14 @@ class GeneratorAdapterTest {
   }
 
   @Test
-  void testIfICmp() {
+  void testIfICmp() throws GeneratorException {
     assertEquals("IF_ICMPEQ L0", new Generator().ifICmp(EQ, new Label()));
     assertEquals("IF_ICMPNE L0", new Generator().ifICmp(NE, new Label()));
     assertEquals("IF_ICMPGE L0", new Generator().ifICmp(GE, new Label()));
     assertEquals("IF_ICMPGT L0", new Generator().ifICmp(GT, new Label()));
     assertEquals("IF_ICMPLE L0", new Generator().ifICmp(LE, new Label()));
     assertEquals("IF_ICMPLT L0", new Generator().ifICmp(LT, new Label()));
-    assertThrows(IllegalArgumentException.class, () -> new Generator().ifICmp(0, new Label()));
+    assertThrows(GeneratorException.class, () -> new Generator().ifICmp(0, new Label()));
   }
 
   @Test
@@ -633,7 +632,7 @@ class GeneratorAdapterTest {
   }
 
   @Test
-  void testTableSwitch() {
+  void testTableSwitch() throws GeneratorException {
     assertEquals("L0 ICONST_M1 L1", new Generator().tableSwitch(new int[0]));
     assertEquals(
         "TABLESWITCH\n"
@@ -662,8 +661,7 @@ class GeneratorAdapterTest {
             + "      4: L2\n"
             + "      default: L1 L0 ICONST_0 L2 ICONST_4 L1 ICONST_M1 L3",
         new Generator().tableSwitch(new int[] {0, 4}, true));
-    assertThrows(
-        IllegalArgumentException.class, () -> new Generator().tableSwitch(new int[] {1, 0}));
+    assertThrows(GeneratorException.class, () -> new Generator().tableSwitch(new int[] {1, 0}));
   }
 
   @Test
@@ -833,6 +831,15 @@ class GeneratorAdapterTest {
         "TRYCATCHBLOCK L0 L1 L2 pkg/Exception L2",
         new Generator()
             .catchException(new Label(), new Label(), Type.getObjectType("pkg/Exception")));
+  }
+
+  private static class GeneratorException extends Exception {
+
+    private static final long serialVersionUID = -7167830120642305483L;
+
+    public GeneratorException(final Throwable cause) {
+      super(cause);
+    }
   }
 
   private static class Generator implements TableSwitchGenerator {
@@ -1057,13 +1064,22 @@ class GeneratorAdapterTest {
       return toString();
     }
 
-    public String ifCmp(final Type type, final int mode, final Label label) {
-      generatorAdapter.ifCmp(type, mode, label);
+    public String ifCmp(final Type type, final int mode, final Label label)
+        throws GeneratorException {
+      try {
+        generatorAdapter.ifCmp(type, mode, label);
+      } catch (IllegalArgumentException e) {
+        throw new GeneratorException(e);
+      }
       return toString();
     }
 
-    public String ifICmp(final int mode, final Label label) {
-      generatorAdapter.ifICmp(mode, label);
+    public String ifICmp(final int mode, final Label label) throws GeneratorException {
+      try {
+        generatorAdapter.ifICmp(mode, label);
+      } catch (IllegalArgumentException e) {
+        throw new GeneratorException(e);
+      }
       return toString();
     }
 
@@ -1092,13 +1108,21 @@ class GeneratorAdapterTest {
       return toString();
     }
 
-    public String tableSwitch(final int[] keys) {
-      generatorAdapter.tableSwitch(keys, this);
+    public String tableSwitch(final int[] keys) throws GeneratorException {
+      try {
+        generatorAdapter.tableSwitch(keys, this);
+      } catch (IllegalArgumentException e) {
+        throw new GeneratorException(e);
+      }
       return toString();
     }
 
-    public String tableSwitch(final int[] keys, final boolean useTable) {
-      generatorAdapter.tableSwitch(keys, this, useTable);
+    public String tableSwitch(final int[] keys, final boolean useTable) throws GeneratorException {
+      try {
+        generatorAdapter.tableSwitch(keys, this, useTable);
+      } catch (IllegalArgumentException e) {
+        throw new GeneratorException(e);
+      }
       return toString();
     }
 

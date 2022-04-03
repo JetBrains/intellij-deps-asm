@@ -126,7 +126,8 @@ class TypeTest implements Opcodes {
   void testGetTypeFromDescriptor_invalid() {
     Executable getType = () -> Type.getType("-");
 
-    assertThrows(IllegalArgumentException.class, getType);
+    IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, getType);
+    assertEquals("Invalid descriptor: -", exception.getMessage());
   }
 
   @ParameterizedTest
@@ -185,6 +186,15 @@ class TypeTest implements Opcodes {
 
     assertTimeoutPreemptively(
         Duration.ofMillis(100), () -> assertThrows(RuntimeException.class, getArgumentTypes));
+  }
+
+  @Test
+  void testGetArgumentTypesInvalidArgumentDescriptor() {
+    Executable getArgumentTypes = () -> Type.getArgumentTypes("(Ljava/lang/String;-)V");
+
+    IllegalArgumentException exception =
+        assertThrows(IllegalArgumentException.class, getArgumentTypes);
+    assertEquals("Invalid descriptor: (Ljava/lang/String;-)V", exception.getMessage());
   }
 
   @Test

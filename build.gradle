@@ -33,7 +33,7 @@ buildscript {
 
 plugins { id 'biz.aQute.bnd.builder' version '6.2.0' apply false }
 plugins { id 'com.github.sherter.google-java-format' version '0.9' apply false }
-plugins { id 'me.champeau.gradle.jmh' version '0.5.3' apply false }
+plugins { id 'me.champeau.jmh' version '0.6.6' apply false }
 plugins { id 'org.sonarqube' version '3.3' apply false }
 
 description = 'ASM, a very small and fast Java bytecode manipulation framework'
@@ -112,7 +112,7 @@ project(':asm-util') {
 // Use "gradle benchmarks:jmh [-PjmhInclude='<regex>']" to run the benchmarks.
 project(':benchmarks') {
   description = "Benchmarks for ${rootProject.description}"
-  apply plugin: 'me.champeau.gradle.jmh'
+  apply plugin: 'me.champeau.jmh'
   dependencies {
     implementation files('libs/csg-bytecode-1.0.0.jar', 'libs/jclasslib.jar')
     jmh project(':asm'), project(':asm-tree') 
@@ -127,7 +127,7 @@ project(':benchmarks') {
     'org.javassist:javassist:3.21.0-GA',
     'org.mozilla:rhino:1.7.7.1'
   ]
-  ['4.0', '5.0.1', '6.0', '7.0', '8.0.1'].each { version ->
+  ['4.0', '5.0.1', '6.0', '7.0', '8.0.1', '9.0'].each { version ->
     configurations.create("asm${version}")
     dependencies.add("asm${version}", "org.ow2.asm:asm:${version}@jar")
     dependencies.add("asm${version}", "org.ow2.asm:asm-tree:${version}@jar")
@@ -146,7 +146,7 @@ project(':benchmarks') {
   }
   classes.dependsOn copyInputClasses
   jmh {
-    jvmArgsAppend = "-Duser.dir=${rootDir}"
+    jvmArgsAppend = ["-Duser.dir=${rootDir}"]
     resultFormat = 'CSV'
     profilers = ['org.objectweb.asm.benchmarks.MemoryProfiler']
     if (rootProject.hasProperty('jmhInclude')) {

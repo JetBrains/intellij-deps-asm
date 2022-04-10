@@ -52,6 +52,7 @@ public class GeneratorBenchmark extends AbstractBenchmark {
   private Generator asm6dot0;
   private Generator asm7dot0;
   private Generator asm8dot0;
+  private Generator asm9dot0;
   private Generator asmCurrent;
   private Generator aspectJBcel;
   private Generator bcel;
@@ -77,6 +78,7 @@ public class GeneratorBenchmark extends AbstractBenchmark {
     asm6dot0 = (Generator) new AsmBenchmarkFactory(AsmVersion.V6_0).newAsmBenchmark();
     asm7dot0 = (Generator) new AsmBenchmarkFactory(AsmVersion.V7_0).newAsmBenchmark();
     asm8dot0 = (Generator) new AsmBenchmarkFactory(AsmVersion.V8_0).newAsmBenchmark();
+    asm9dot0 = (Generator) new AsmBenchmarkFactory(AsmVersion.V9_0).newAsmBenchmark();
     asmCurrent = (Generator) new AsmBenchmarkFactory(AsmVersion.V_CURRENT).newAsmBenchmark();
     aspectJBcel = new AspectjBcelGenerator();
     bcel = new BcelGenerator();
@@ -92,7 +94,8 @@ public class GeneratorBenchmark extends AbstractBenchmark {
         || !asm6dot0.getVersion().equals("ASM6")
         || !asm7dot0.getVersion().equals("ASM7")
         || !asm8dot0.getVersion().equals("ASM8")
-        || !asmCurrent.getVersion().equals("ASM8")) {
+        || !asm9dot0.getVersion().equals("ASM9")
+        || !asmCurrent.getVersion().equals("ASM9")) {
       throw new IllegalStateException();
     }
   }
@@ -115,6 +118,11 @@ public class GeneratorBenchmark extends AbstractBenchmark {
   @Benchmark
   public byte[] asm8_0() {
     return asm8dot0.generateClass();
+  }
+
+  @Benchmark
+  public byte[] asm9_0() {
+    return asm9dot0.generateClass();
   }
 
   @Benchmark

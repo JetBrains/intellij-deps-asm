@@ -40,7 +40,7 @@ public class AsmGenerator extends Generator {
 
   @Override
   public String getVersion() {
-    for (int i = 8; i >= 5; --i) {
+    for (int i = 9; i >= 5; --i) {
       try {
         String version = "ASM" + i;
         if (Opcodes.class.getField(version) != null) {

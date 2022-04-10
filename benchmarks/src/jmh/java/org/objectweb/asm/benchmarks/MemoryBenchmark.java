@@ -53,6 +53,7 @@ public class MemoryBenchmark extends AbstractBenchmark {
   private Factory asm6dot0;
   private Factory asm7dot0;
   private Factory asm8dot0;
+  private Factory asm9dot0;
   private Factory asmCurrent;
 
   public MemoryBenchmark() {
@@ -72,6 +73,7 @@ public class MemoryBenchmark extends AbstractBenchmark {
     asm6dot0 = (Factory) new AsmBenchmarkFactory(AsmVersion.V6_0).newAsmBenchmark();
     asm7dot0 = (Factory) new AsmBenchmarkFactory(AsmVersion.V7_0).newAsmBenchmark();
     asm8dot0 = (Factory) new AsmBenchmarkFactory(AsmVersion.V8_0).newAsmBenchmark();
+    asm9dot0 = (Factory) new AsmBenchmarkFactory(AsmVersion.V9_0).newAsmBenchmark();
     asmCurrent = (Factory) new AsmBenchmarkFactory(AsmVersion.V_CURRENT).newAsmBenchmark();
 
     // Check that the correct versions of ASM have been loaded.
@@ -80,7 +82,8 @@ public class MemoryBenchmark extends AbstractBenchmark {
         || !asm6dot0.getVersion().equals("ASM6")
         || !asm7dot0.getVersion().equals("ASM7")
         || !asm8dot0.getVersion().equals("ASM8")
-        || !asmCurrent.getVersion().equals("ASM8")) {
+        || !asm9dot0.getVersion().equals("ASM9")
+        || !asmCurrent.getVersion().equals("ASM9")) {
       throw new IllegalStateException();
     }
 
@@ -123,6 +126,13 @@ public class MemoryBenchmark extends AbstractBenchmark {
   }
 
   @Benchmark
+  public void newClass_asm9_0() {
+    for (byte[] classFile : classFiles) {
+      MemoryProfiler.keepReference(asm9dot0.newClass(classFile));
+    }
+  }
+
+  @Benchmark
   public void newClass_asmCurrent() {
     for (byte[] classFile : classFiles) {
       MemoryProfiler.keepReference(asmCurrent.newClass(classFile));
@@ -161,6 +171,13 @@ public class MemoryBenchmark extends AbstractBenchmark {
   public void newClassNode_asm8_0() {
     for (byte[] classFile : classFiles) {
       MemoryProfiler.keepReference(asm8dot0.newClassNode(classFile));
+    }
+  }
+
+  @Benchmark
+  public void newClassNode_asm9_0() {
+    for (byte[] classFile : classFiles) {
+      MemoryProfiler.keepReference(asm9dot0.newClassNode(classFile));
     }
   }
 

@@ -33,7 +33,6 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.Executable;
-import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.TypeReference;
 import org.objectweb.asm.test.AsmTest;
 
@@ -42,7 +41,7 @@ import org.objectweb.asm.test.AsmTest;
  *
  * @author Eric Bruneton
  */
-class CheckRecordComponentAdapterTest extends AsmTest implements Opcodes {
+class CheckRecordComponentAdapterTest extends AsmTest {
 
   @Test
   void testConstructor() {

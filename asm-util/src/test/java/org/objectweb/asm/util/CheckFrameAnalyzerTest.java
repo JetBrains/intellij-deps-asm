@@ -86,19 +86,26 @@ class CheckFrameAnalyzerTest extends AsmTest {
   @Test
   void testAnalyze_missingFrameAtJumpTarget() {
     MethodNode methodNode =
-        new MethodNodeBuilder().iconst_0().ifne(label0).iconst_0().label(label0).vreturn().build();
+        new MethodNodeBuilder().iconst_0().ifne(label0).label(label0).vreturn().build();
 
     Executable analyze = () -> newAnalyzer().analyze(CLASS_NAME, methodNode);
 
     String message = assertThrows(AnalyzerException.class, analyze).getMessage();
     assertTrue(
-        message.contains("Error at instruction 1: Expected stack map frame at instruction 3"));
+        message.contains("Error at instruction 1: Expected stack map frame at instruction 2"));
   }
 
   @Test
   void testAnalyze_missingFrameAfterGoto() {
     MethodNode methodNode =
-        new MethodNodeBuilder().nop().go(label0).nop().label(label0).vreturn().build();
+        new MethodNodeBuilder()
+            .nop()
+            .go(label0)
+            .nop()
+            .label(label0)
+            .frame(Opcodes.F_SAME, null, null)
+            .vreturn()
+            .build();
 
     Executable analyze = () -> newAnalyzer().analyze(CLASS_NAME, methodNode);
 

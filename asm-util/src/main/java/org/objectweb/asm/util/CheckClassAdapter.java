@@ -464,7 +464,8 @@ public class CheckClassAdapter extends ClassVisitor {
     if (checkDataFlow) {
       if (cv instanceof ClassWriter) {
         methodVisitor =
-            new CheckMethodAdapter.MethodWriterWrapper(api, (ClassWriter) cv, methodVisitor);
+            new CheckMethodAdapter.MethodWriterWrapper(
+                api, version, (ClassWriter) cv, methodVisitor);
       }
       checkMethodAdapter =
           new CheckMethodAdapter(api, access, name, descriptor, methodVisitor, labelInsnIndices);

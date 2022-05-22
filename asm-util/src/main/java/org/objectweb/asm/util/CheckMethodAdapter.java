@@ -447,16 +447,24 @@ public class CheckMethodAdapter extends MethodVisitor {
         new MethodNode(api, access, name, descriptor, null, null) {
           @Override
           public void visitEnd() {
-            Analyzer<BasicValue> analyzer = new Analyzer<>(new BasicVerifier());
-            try {
+            boolean checkMaxStackAndLocals = false;
+            boolean checkFrames = false;
+            if (methodVisitor instanceof MethodWriterWrapper) {
+              MethodWriterWrapper methodWriter = (MethodWriterWrapper) methodVisitor;
               // If 'methodVisitor' is a MethodWriter of a ClassWriter with no flags to compute the
               // max stack and locals nor the stack map frames, we know that valid max stack and
               // locals must be provided. Otherwise we assume they are not needed at this stage.
-              // TODO(ebruneton): similarly, check that valid stack map frames are provided if the
-              // class writer has no flags to compute them, and the class version is V1_7 or more.
-              boolean checkMaxStackAndLocals =
-                  (methodVisitor instanceof MethodWriterWrapper)
-                      && !((MethodWriterWrapper) methodVisitor).computesMaxs();
+              checkMaxStackAndLocals = !methodWriter.computesMaxs();
+              // If 'methodVisitor' is a MethodWriter of a ClassWriter with no flags to compute the
+              // stack map frames, we know that valid frames must be provided. Otherwise we assume
+              // they are not needed at this stage.
+              checkFrames = methodWriter.requiresFrames() && !methodWriter.computesFrames();
+            }
+            Analyzer<BasicValue> analyzer =
+                checkFrames
+                    ? new CheckFrameAnalyzer<>(new BasicVerifier())
+                    : new Analyzer<>(new BasicVerifier());
+            try {
               if (checkMaxStackAndLocals) {
                 analyzer.analyze("dummy", this);
               } else {
@@ -1448,15 +1456,31 @@ public class CheckMethodAdapter extends MethodVisitor {
 
   static class MethodWriterWrapper extends MethodVisitor {
 
+    /** The class version number. */
+    private final int version;
+
     private final ClassWriter owner;
 
-    MethodWriterWrapper(final int api, final ClassWriter owner, final MethodVisitor methodWriter) {
+    MethodWriterWrapper(
+        final int api,
+        final int version,
+        final ClassWriter owner,
+        final MethodVisitor methodWriter) {
       super(api, methodWriter);
+      this.version = version;
       this.owner = owner;
     }
 
     boolean computesMaxs() {
       return owner.hasFlags(ClassWriter.COMPUTE_MAXS) || owner.hasFlags(ClassWriter.COMPUTE_FRAMES);
+    }
+
+    boolean computesFrames() {
+      return owner.hasFlags(ClassWriter.COMPUTE_FRAMES);
+    }
+
+    boolean requiresFrames() {
+      return (version & 0xFFFF) >= Opcodes.V1_7;
     }
   }
 }

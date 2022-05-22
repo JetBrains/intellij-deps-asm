@@ -1108,6 +1108,7 @@ class CheckMethodAdapterTest extends AsmTest implements Opcodes {
     MethodVisitor methodVisitor =
         new CheckMethodAdapter.MethodWriterWrapper(
             /* latest api = */ Opcodes.ASM9,
+            /* version = */ Opcodes.V1_5,
             classWriter,
             new MethodVisitor(/* latest api = */ Opcodes.ASM9) {});
     MethodVisitor dataFlowCheckMethodAdapter =
@@ -1123,11 +1124,12 @@ class CheckMethodAdapterTest extends AsmTest implements Opcodes {
   }
 
   @Test
-  void testVisitEnd_noInvalidMaxStackIfClassWriterWithComputeFrales() {
+  void testVisitEnd_noInvalidMaxStackIfClassWriterWithComputeFrames() {
     ClassWriter classWriter = new ClassWriter(ClassWriter.COMPUTE_FRAMES);
     MethodVisitor methodVisitor =
         new CheckMethodAdapter.MethodWriterWrapper(
             /* latest api = */ Opcodes.ASM9,
+            /* version = */ Opcodes.V1_5,
             classWriter,
             new MethodVisitor(/* latest api = */ Opcodes.ASM9) {});
     MethodVisitor dataFlowCheckMethodAdapter =
@@ -1148,6 +1150,7 @@ class CheckMethodAdapterTest extends AsmTest implements Opcodes {
     MethodVisitor methodVisitor =
         new CheckMethodAdapter.MethodWriterWrapper(
             /* latest api = */ Opcodes.ASM9,
+            /* version = */ Opcodes.V1_5,
             classWriter,
             new MethodVisitor(/* latest api = */ Opcodes.ASM9) {});
     MethodVisitor dataFlowCheckMethodAdapter =
@@ -1164,6 +1167,60 @@ class CheckMethodAdapterTest extends AsmTest implements Opcodes {
         exception
             .getMessage()
             .startsWith("Error at instruction 0: Insufficient maximum stack size. m(I)I"));
+  }
+
+  @Test
+  void testVisitEnd_noMissingFrameIfClassWriterWithComputeFrames() {
+    ClassWriter classWriter = new ClassWriter(ClassWriter.COMPUTE_FRAMES);
+    MethodVisitor methodVisitor =
+        new CheckMethodAdapter.MethodWriterWrapper(
+            /* latest api = */ Opcodes.ASM9,
+            /* version = */ Opcodes.V1_7,
+            classWriter,
+            new MethodVisitor(/* latest api = */ Opcodes.ASM9) {});
+    MethodVisitor dataFlowCheckMethodAdapter =
+        new CheckMethodAdapter(ACC_PUBLIC, "m", "(I)I", methodVisitor, new HashMap<>());
+    Label label = new Label();
+    dataFlowCheckMethodAdapter.visitCode();
+    dataFlowCheckMethodAdapter.visitVarInsn(ILOAD, 1);
+    dataFlowCheckMethodAdapter.visitJumpInsn(IFEQ, label);
+    dataFlowCheckMethodAdapter.visitLabel(label);
+    dataFlowCheckMethodAdapter.visitInsn(ICONST_0);
+    dataFlowCheckMethodAdapter.visitInsn(IRETURN);
+    dataFlowCheckMethodAdapter.visitMaxs(1, 2);
+
+    Executable visitEnd = () -> dataFlowCheckMethodAdapter.visitEnd();
+
+    assertDoesNotThrow(visitEnd);
+  }
+
+  @Test
+  void testVisitEnd_missingFrameIfClassWriterWithoutComputeFrames() {
+    ClassWriter classWriter = new ClassWriter(ClassWriter.COMPUTE_MAXS);
+    MethodVisitor methodVisitor =
+        new CheckMethodAdapter.MethodWriterWrapper(
+            /* latest api = */ Opcodes.ASM9,
+            /* version = */ Opcodes.V1_7,
+            classWriter,
+            new MethodVisitor(/* latest api = */ Opcodes.ASM9) {});
+    MethodVisitor dataFlowCheckMethodAdapter =
+        new CheckMethodAdapter(ACC_PUBLIC, "m", "(I)I", methodVisitor, new HashMap<>());
+    Label label = new Label();
+    dataFlowCheckMethodAdapter.visitCode();
+    dataFlowCheckMethodAdapter.visitVarInsn(ILOAD, 1);
+    dataFlowCheckMethodAdapter.visitJumpInsn(IFEQ, label);
+    dataFlowCheckMethodAdapter.visitLabel(label);
+    dataFlowCheckMethodAdapter.visitInsn(ICONST_0);
+    dataFlowCheckMethodAdapter.visitInsn(IRETURN);
+    dataFlowCheckMethodAdapter.visitMaxs(1, 2);
+
+    Executable visitEnd = () -> dataFlowCheckMethodAdapter.visitEnd();
+
+    Exception exception = assertThrows(IllegalArgumentException.class, visitEnd);
+    assertTrue(
+        exception
+            .getMessage()
+            .startsWith("Error at instruction 1: Expected stack map frame at instruction 2 m(I)I"));
   }
 
   @Test

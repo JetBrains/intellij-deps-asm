@@ -140,17 +140,16 @@ class CheckFrameAnalyzer<V extends Value> extends Analyzer<V> {
           currentFrame.init(oldFrame).execute(insnNode, interpreter);
 
           if (insnNode instanceof JumpInsnNode) {
-            JumpInsnNode jumpInsn = (JumpInsnNode) insnNode;
-            if (insnOpcode != GOTO && insnOpcode != JSR) {
-              checkFrame(insnIndex + 1, currentFrame, /* requireFrame = */ false);
-            } else if (insnOpcode == GOTO) {
-              endControlFlow(insnIndex);
-            }
-            int jumpInsnIndex = insnList.indexOf(jumpInsn.label);
             if (insnOpcode == JSR) {
               throw new AnalyzerException(insnNode, "JSR instructions are unsupported");
+            }
+            JumpInsnNode jumpInsn = (JumpInsnNode) insnNode;
+            int targetInsnIndex = insnList.indexOf(jumpInsn.label);
+            checkFrame(targetInsnIndex, currentFrame, /* requireFrame = */ true);
+            if (insnOpcode == GOTO) {
+              endControlFlow(insnIndex);
             } else {
-              checkFrame(jumpInsnIndex, currentFrame, /* requireFrame = */ true);
+              checkFrame(insnIndex + 1, currentFrame, /* requireFrame = */ false);
             }
           } else if (insnNode instanceof LookupSwitchInsnNode) {
             LookupSwitchInsnNode lookupSwitchInsn = (LookupSwitchInsnNode) insnNode;

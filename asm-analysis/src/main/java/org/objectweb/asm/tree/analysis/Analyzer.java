@@ -48,7 +48,7 @@ import org.objectweb.asm.tree.VarInsnNode;
  * A semantic bytecode analyzer. <i>This class does not fully check that JSR and RET instructions
  * are valid.</i>
  *
- * @param <V> type of the Value used for the analysis.
+ * @param <V> type of the {@link Value} used for the analysis.
  * @author Eric Bruneton
  */
 public class Analyzer<V extends Value> implements Opcodes {

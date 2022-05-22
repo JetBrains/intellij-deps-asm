@@ -32,7 +32,6 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.Executable;
-import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.test.AsmTest;
 
@@ -41,7 +40,7 @@ import org.objectweb.asm.test.AsmTest;
  *
  * @author Eric Bruneton
  */
-class CheckAnnotationAdapterTest extends AsmTest implements Opcodes {
+class CheckAnnotationAdapterTest extends AsmTest {
 
   @Test
   void testVisit_illegalAnnotationName() {

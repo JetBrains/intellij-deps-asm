@@ -122,7 +122,7 @@ public abstract class MethodVisitor {
    * @return a visitor to the visit the actual default value of this annotation interface method, or
    *     {@literal null} if this visitor is not interested in visiting this default value. The
    *     'name' parameters passed to the methods of this annotation visitor are ignored. Moreover,
-   *     exacly one visit method must be called on this annotation visitor, followed by visitEnd.
+   *     exactly one visit method must be called on this annotation visitor, followed by visitEnd.
    */
   public AnnotationVisitor visitAnnotationDefault() {
     if (mv != null) {
@@ -275,7 +275,8 @@ public abstract class MethodVisitor {
    * @param type the type of this stack map frame. Must be {@link Opcodes#F_NEW} for expanded
    *     frames, or {@link Opcodes#F_FULL}, {@link Opcodes#F_APPEND}, {@link Opcodes#F_CHOP}, {@link
    *     Opcodes#F_SAME} or {@link Opcodes#F_APPEND}, {@link Opcodes#F_SAME1} for compressed frames.
-   * @param numLocal the number of local variables in the visited frame.
+   * @param numLocal the number of local variables in the visited frame. Long and double values
+   *     count for one variable.
    * @param local the local variable types in this frame. This array must not be modified. Primitive
    *     types are represented by {@link Opcodes#TOP}, {@link Opcodes#INTEGER}, {@link
    *     Opcodes#FLOAT}, {@link Opcodes#LONG}, {@link Opcodes#DOUBLE}, {@link Opcodes#NULL} or
@@ -283,7 +284,8 @@ public abstract class MethodVisitor {
    *     Reference types are represented by String objects (representing internal names), and
    *     uninitialized types by Label objects (this label designates the NEW instruction that
    *     created this uninitialized value).
-   * @param numStack the number of operand stack elements in the visited frame.
+   * @param numStack the number of operand stack elements in the visited frame. Long and double
+   *     values count for one stack element.
    * @param stack the operand stack types in this frame. This array must not be modified. Its
    *     content has the same format as the "local" array.
    * @throws IllegalStateException if a frame is visited just after another one, without any

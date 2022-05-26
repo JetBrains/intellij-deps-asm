@@ -522,7 +522,7 @@ public class Analyzer<V extends Value> implements Opcodes {
 
   /**
    * Initializes this analyzer. This method is called just before the execution of control flow
-   * analysis loop in #analyze. The default implementation of this method does nothing.
+   * analysis loop in {@link #analyze}. The default implementation of this method does nothing.
    *
    * @param owner the internal name of the class to which the method belongs.
    * @param method the method to be analyzed.

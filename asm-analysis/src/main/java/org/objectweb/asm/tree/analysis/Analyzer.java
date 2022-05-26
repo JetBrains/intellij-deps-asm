@@ -132,32 +132,8 @@ public class Analyzer<V extends Value> implements Opcodes {
       }
     }
 
-    // For each instruction, compute the subroutine to which it belongs.
-    // Follow the main 'subroutine', and collect the jsr instructions to nested subroutines.
-    Subroutine main = new Subroutine(null, method.maxLocals, null);
-    List<AbstractInsnNode> jsrInsns = new ArrayList<>();
-    findSubroutine(0, main, jsrInsns);
-    // Follow the nested subroutines, and collect their own nested subroutines, until all
-    // subroutines are found.
-    Map<LabelNode, Subroutine> jsrSubroutines = new HashMap<>();
-    while (!jsrInsns.isEmpty()) {
-      JumpInsnNode jsrInsn = (JumpInsnNode) jsrInsns.remove(0);
-      Subroutine subroutine = jsrSubroutines.get(jsrInsn.label);
-      if (subroutine == null) {
-        subroutine = new Subroutine(jsrInsn.label, method.maxLocals, jsrInsn);
-        jsrSubroutines.put(jsrInsn.label, subroutine);
-        findSubroutine(insnList.indexOf(jsrInsn.label), subroutine, jsrInsns);
-      } else {
-        subroutine.callers.add(jsrInsn);
-      }
-    }
-    // Clear the main 'subroutine', which is not a real subroutine (and was used only as an
-    // intermediate step above to find the real ones).
-    for (int i = 0; i < insnListSize; ++i) {
-      if (subroutines[i] != null && subroutines[i].start == null) {
-        subroutines[i] = null;
-      }
-    }
+    // Finds the method's subroutines.
+    findSubroutines(method.maxLocals);
 
     // Initializes the data structures for the control flow analysis.
     Frame<V> currentFrame = computeInitialFrame(owner, method);
@@ -366,6 +342,42 @@ public class Analyzer<V extends Value> implements Opcodes {
       }
     }
     return maxStack;
+  }
+
+  /**
+   * Finds the subroutines of the currently analyzed method and stores them in {@link #subroutines}.
+   *
+   * @param maxLocals the maximum number of local variables of the currently analyzed method (long
+   *     and double values count for two variables).
+   * @throws AnalyzerException if the control flow graph can fall off the end of the code.
+   */
+  private void findSubroutines(final int maxLocals) throws AnalyzerException {
+    // For each instruction, compute the subroutine to which it belongs.
+    // Follow the main 'subroutine', and collect the jsr instructions to nested subroutines.
+    Subroutine main = new Subroutine(null, maxLocals, null);
+    List<AbstractInsnNode> jsrInsns = new ArrayList<>();
+    findSubroutine(0, main, jsrInsns);
+    // Follow the nested subroutines, and collect their own nested subroutines, until all
+    // subroutines are found.
+    Map<LabelNode, Subroutine> jsrSubroutines = new HashMap<>();
+    while (!jsrInsns.isEmpty()) {
+      JumpInsnNode jsrInsn = (JumpInsnNode) jsrInsns.remove(0);
+      Subroutine subroutine = jsrSubroutines.get(jsrInsn.label);
+      if (subroutine == null) {
+        subroutine = new Subroutine(jsrInsn.label, maxLocals, jsrInsn);
+        jsrSubroutines.put(jsrInsn.label, subroutine);
+        findSubroutine(insnList.indexOf(jsrInsn.label), subroutine, jsrInsns);
+      } else {
+        subroutine.callers.add(jsrInsn);
+      }
+    }
+    // Clear the main 'subroutine', which is not a real subroutine (and was used only as an
+    // intermediate step above to find the real ones).
+    for (int i = 0; i < insnListSize; ++i) {
+      if (subroutines[i] != null && subroutines[i].start == null) {
+        subroutines[i] = null;
+      }
+    }
   }
 
   /**

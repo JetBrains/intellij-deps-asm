@@ -1060,7 +1060,7 @@ class CheckMethodAdapterTest extends AsmTest implements Opcodes {
     Executable visitMaxs = () -> checkMethodAdapter.visitMaxs(0, 0);
 
     Exception exception = assertThrows(IllegalStateException.class, visitMaxs);
-    assertEquals("Undefined try catch block labels", exception.getMessage());
+    assertEquals("Undefined label used", exception.getMessage());
   }
 
   @Test
@@ -1078,7 +1078,7 @@ class CheckMethodAdapterTest extends AsmTest implements Opcodes {
     Executable visitMaxs = () -> checkMethodAdapter.visitMaxs(0, 0);
 
     Exception exception = assertThrows(IllegalStateException.class, visitMaxs);
-    assertEquals("Emty try catch block handler range", exception.getMessage());
+    assertEquals("Empty try catch block handler range", exception.getMessage());
   }
 
   @Test

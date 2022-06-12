@@ -325,6 +325,7 @@ configure(subprojects.findAll { it.provides }) {
     classpath = configurations.compileClasspath
     destinationDir = file("${javadoc.destinationDir}-private")
     options.memberLevel = JavadocMemberLevel.PRIVATE
+    options.addBooleanOption('Xdoclint:all,-missing', true)
   }
   check.dependsOn privateJavadoc
 

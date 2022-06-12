@@ -446,6 +446,8 @@ public class CheckMethodAdapter extends MethodVisitor {
         new MethodNode(api, access, name, descriptor, null, null) {
           @Override
           public void visitEnd() {
+            int originalMaxLocals = maxLocals;
+            int originalMaxStack = maxStack;
             boolean checkMaxStackAndLocals = false;
             boolean checkFrames = false;
             if (methodVisitor instanceof MethodWriterWrapper) {
@@ -473,6 +475,8 @@ public class CheckMethodAdapter extends MethodVisitor {
               throwError(analyzer, e);
             }
             if (methodVisitor != null) {
+              maxLocals = originalMaxLocals;
+              maxStack = originalMaxStack;
               accept(methodVisitor);
             }
           }

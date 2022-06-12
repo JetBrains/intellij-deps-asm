@@ -468,7 +468,7 @@ class CheckClassAdapterTest extends AsmTest implements Opcodes {
    */
   @ParameterizedTest
   @MethodSource(ALL_CLASSES_AND_ALL_APIS)
-  void testVisitMethods_precompiledClass(
+  void testVisitMethods_classWriterDelegate_precompiledClass(
       final PrecompiledClass classParameter, final Api apiParameter) {
     byte[] classFile = classParameter.getBytes();
     ClassReader classReader = new ClassReader(classFile);
@@ -481,7 +481,32 @@ class CheckClassAdapterTest extends AsmTest implements Opcodes {
       Exception exception = assertThrows(UnsupportedOperationException.class, accept);
       assertTrue(exception.getMessage().matches(UNSUPPORTED_OPERATION_MESSAGE_PATTERN));
     } else {
-      classReader.accept(classVisitor, attributes(), 0);
+      assertDoesNotThrow(accept);
+      assertEquals(new ClassFile(classFile), new ClassFile(classWriter.toByteArray()));
+    }
+  }
+
+  /**
+   * Tests that classes are unchanged with a ClassReader->CheckClassAdapter->ClassVisitor transform.
+   */
+  @ParameterizedTest
+  @MethodSource(ALL_CLASSES_AND_ALL_APIS)
+  void testVisitMethods_nonClassWriterDelegate_precompiledClass(
+      final PrecompiledClass classParameter, final Api apiParameter) {
+    byte[] classFile = classParameter.getBytes();
+    ClassReader classReader = new ClassReader(classFile);
+    ClassWriter classWriter = new ClassWriter(0);
+    ClassVisitor noOpClassVisitor =
+        new ClassVisitor(/* latest */ Opcodes.ASM10_EXPERIMENTAL, classWriter) {};
+    ClassVisitor classVisitor = new CheckClassAdapter(apiParameter.value(), noOpClassVisitor, true);
+
+    Executable accept = () -> classReader.accept(classVisitor, attributes(), 0);
+
+    if (classParameter.isMoreRecentThan(apiParameter)) {
+      Exception exception = assertThrows(UnsupportedOperationException.class, accept);
+      assertTrue(exception.getMessage().matches(UNSUPPORTED_OPERATION_MESSAGE_PATTERN));
+    } else {
+      assertDoesNotThrow(accept);
       assertEquals(new ClassFile(classFile), new ClassFile(classWriter.toByteArray()));
     }
   }

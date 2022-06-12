@@ -556,11 +556,13 @@ class ClassWriterTest extends AsmTest {
   /**
    * Tests that a ClassReader -> ClassWriter transform with the COMPUTE_MAXS option leaves classes
    * unchanged. This is not true in general (the valid max stack and max locals for a given method
-   * are not unique), but this should be the case with our precompiled classes.
+   * are not unique), but this should be the case with our precompiled classes (except
+   * jdk3.SubOptimalMaxStackAndLocals, which has non optimal max values on purpose).
    */
   @ParameterizedTest
   @MethodSource(ALL_CLASSES_AND_ALL_APIS)
   void testReadAndWrite_computeMaxs(final PrecompiledClass classParameter, final Api apiParameter) {
+    assumeTrue(classParameter != PrecompiledClass.JDK3_SUB_OPTIMAL_MAX_STACK_AND_LOCALS);
     byte[] classFile = classParameter.getBytes();
     ClassReader classReader = new ClassReader(classFile);
     ClassWriter classWriter = new ClassWriter(ClassWriter.COMPUTE_MAXS);
@@ -614,8 +616,10 @@ class ClassWriterTest extends AsmTest {
     assertTrue(classWriter.hasFlags(ClassWriter.COMPUTE_FRAMES));
     // The computed stack map frames should be equal to the original ones, if any (classes before
     // JDK8 don't have ones). This is not true in general (the valid frames for a given method are
-    // not unique), but this should be the case with our precompiled classes.
-    if (classParameter.isMoreRecentThan(Api.ASM4)) {
+    // not unique), but this should be the case with our precompiled classes (except
+    // jdk3.SubOptimalMaxStackAndLocals, which has non optimal max values on purpose).
+    if (classParameter.isMoreRecentThan(Api.ASM4)
+        && classParameter != PrecompiledClass.JDK3_SUB_OPTIMAL_MAX_STACK_AND_LOCALS) {
       assertEquals(new ClassFile(classFile), new ClassFile(newClassFile));
     }
     Executable newInstance = () -> new ClassFile(newClassFile).newInstance();
@@ -663,8 +667,10 @@ class ClassWriterTest extends AsmTest {
 
     // The computed stack map frames should be equal to the original ones, if any (classes before
     // JDK8 don't have ones). This is not true in general (the valid frames for a given method are
-    // not unique), but this should be the case with our precompiled classes.
-    if (classParameter.isMoreRecentThan(Api.ASM4)) {
+    // not unique), but this should be the case with our precompiled classes (except
+    // jdk3.SubOptimalMaxStackAndLocals, which has non optimal max values on purpose).
+    if (classParameter.isMoreRecentThan(Api.ASM4)
+        && classParameter != PrecompiledClass.JDK3_SUB_OPTIMAL_MAX_STACK_AND_LOCALS) {
       assertEquals(new ClassFile(classFile), new ClassFile(newClassFile));
     }
     Executable newInstance = () -> new ClassFile(newClassFile).newInstance();

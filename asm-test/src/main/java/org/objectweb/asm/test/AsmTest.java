@@ -143,6 +143,7 @@ public abstract class AsmTest {
     JDK3_ARTIFICIAL_STRUCTURES("jdk3.ArtificialStructures"),
     JDK3_INNER_CLASS("jdk3.AllStructures$InnerClass"),
     JDK3_LARGE_METHOD("jdk3.LargeMethod"),
+    JDK3_SUB_OPTIMAL_MAX_STACK_AND_LOCALS("jdk3.SubOptimalMaxStackAndLocals"),
     JDK5_ALL_INSTRUCTIONS("jdk5.AllInstructions"),
     JDK5_ALL_STRUCTURES("jdk5.AllStructures"),
     JDK5_ANNOTATION("jdk5.AllStructures$InvisibleAnnotation"),

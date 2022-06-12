@@ -305,6 +305,9 @@ public class Analyzer<V extends Value> implements Opcodes {
    */
   private static int computeMaxLocals(final MethodNode method) {
     int maxLocals = Type.getArgumentsAndReturnSizes(method.desc) >> 2;
+    if ((method.access & Opcodes.ACC_STATIC) != 0) {
+      maxLocals -= 1;
+    }
     for (AbstractInsnNode insnNode : method.instructions) {
       if (insnNode instanceof VarInsnNode) {
         int local = ((VarInsnNode) insnNode).var;

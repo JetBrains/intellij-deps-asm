@@ -25,29 +25,26 @@
 // CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
 // THE POSSIBILITY OF SUCH DAMAGE.
-package  jdk11;
+package  jdk3;
 
 /**
- * A class with JDK11 specific class file feature. A corresponding class file can be generated
- * with the OpenJDK asmtools (https://wiki.openjdk.java.net/display/CodeTools/asmtools), 
- * version 7 or more. Usage:
+ * A class with valid but non optimal max_stack and max_locals, on purpose (to test cases like
+ * this). A corresponding class file can be generated with the OpenJDK asmtools
+ * (https://wiki.openjdk.java.net/display/CodeTools/asmtools), version 7 or more. Usage:
  *  
- *  java -jar asmtools.jar jasm AllStructures.jasm
+ *  java -jar asmtools.jar jasm SubOptimalMaxStackAndLocals.jasm
  *
  * @author Eric Bruneton
  */
-super public class AllStructures
-  version 55:0
+super public class SubOptimalMaxStackAndLocals
+  version 47:0
 {
 
-
 public Method "<init>":"()V"
-  stack 1 locals 1
+  stack 2 locals 3
 {
     aload_0;
     invokespecial  Method java/lang/Object."<init>":"()V";
     return;
 }
-
-NestMembers AllStructures$Nested;
-} // end Class AllStructures
+} // end Class SubOptimalMaxStackAndLocals

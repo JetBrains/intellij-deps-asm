@@ -373,7 +373,7 @@ configure([rootProject] + subprojects.findAll { it.provides }) {
           def parent = asNode().appendNode('parent')
           parent.appendNode('groupId', 'org.ow2')
           parent.appendNode('artifactId', 'ow2')
-          parent.appendNode('version', '1.5')
+          parent.appendNode('version', '1.5.1')
         }
         pom {
           name = artifactId

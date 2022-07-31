@@ -36,6 +36,5 @@ include(
   'asm-tree',
   'asm-util',
   'benchmarks',
-  'tools:bnd-module-plugin',
   'tools:retrofitter')
 

@@ -60,6 +60,10 @@ subprojects {
   test { useJUnitPlatform() }
   ext.provides = []  // The provided java packages, e.g. ['org.objectweb.asm']
   ext.requires = []  // The required Gradle projects, e.g. [':asm-test']
+  ext.transitiveRequires = { ->
+    return requires.collect{p -> 
+        project(p).transitiveRequires().plus(project(p).provides[0])}.flatten()
+  }
   ext.depends = []   // The external dependencies, e.g. ['junit:junit:4.12']
   // Some external dependencies (such as Jacoco) depend transitively on ASM, and
   // without this rule Gradle can mix ASM jars of different versions (e.g.
@@ -85,7 +89,7 @@ project(':asm-analysis') {
 project(':asm-commons') {
   description = "Usefull class adapters based on ${parent.description}"
   provides = ['org.objectweb.asm.commons']
-  requires = [':asm', ':asm-tree', ':asm-analysis']
+  requires = [':asm', ':asm-tree']
   dependencies { testImplementation project(':asm-util') }
 }
 
@@ -159,16 +163,11 @@ project(':tools') {
   description = "Tools used to build ${parent.description}"
 }
 
-project(':tools:bnd-module-plugin') {
-  description = "bnd plugin to build moduleinfo with ${rootProject.description}"
-  // TODO: this compiles asm twice (here and in :asm), find a way to avoid this.
-  sourceSets.main.java.srcDirs += project(':asm').sourceSets.main.java.srcDirs
-  depends = ['biz.aQute.bnd:biz.aQute.bnd:6.2.0']
-}
-
 project(':tools:retrofitter') {
   description = "JDK 1.5 class retrofitter based on ${rootProject.description}"
-  // TODO: this compiles asm thrice (here, above and in :asm).
+  sourceCompatibility = '1.9'
+  targetCompatibility = '1.9'
+  // TODO: this compiles asm twice (here and in :asm).
   sourceSets.main.java.srcDirs += project(':asm').sourceSets.main.java.srcDirs
 }
 
@@ -215,7 +214,7 @@ subprojects {
 
 // Configure the projects with a non-empty 'provides' property. They must be
 // checked for code coverage and backward compatibility, retrofited to Java 1.5,
-// and packaged with biz.aQute.bnd.
+// and packaged with generated module-info classes.
 configure(subprojects.findAll { it.provides }) {
   // Code coverage configuration.
   jacoco.toolVersion = '0.8.8'
@@ -229,7 +228,8 @@ configure(subprojects.findAll { it.provides }) {
   }
   check.dependsOn jacocoTestCoverageVerification
 
-  // Retrofit the code to Java 1.5, in-place, in compileJava.doLast.
+  // Retrofit the code in-place to Java 1.5 and generate a module-info class
+  // from the code content, in compileJava.doLast.
   if (name != 'asm-test') {
     compileJava.dependsOn ':tools:retrofitter:classes'
     compileJava.doLast {
@@ -237,7 +237,9 @@ configure(subprojects.findAll { it.provides }) {
       def loader = new URLClassLoader(path.collect {f -> f.toURL()} as URL[])
       def retrofitter =
           loader.loadClass('org.objectweb.asm.tools.Retrofitter').newInstance()
-      retrofitter.retrofit sourceSets.main.output.classesDirs.singleFile
+      def classes = sourceSets.main.output.classesDirs.singleFile
+      retrofitter.retrofit(classes, "${version}")
+      retrofitter.verify(classes, "${version}", provides, transitiveRequires())
     }
   }
 
@@ -279,18 +281,13 @@ configure(subprojects.findAll { it.provides }) {
     }
   }
 
-  // Apply the biz.aQute.bnd plugin to package the project as an OSGi bundle, 
-  // with a custom plugin to generate and include a module-info class. Exclude
-  // the asm-test project (the DefaultPackage class prevents it from being a
-  // proper bundle).
+  // Apply the biz.aQute.bnd plugin to package the project as an OSGi bundle.
+  // Exclude the asm-test project (the DefaultPackage class prevents it from
+  // being a proper bundle).
   if (name != 'asm-test') {
     apply plugin: 'biz.aQute.bnd.builder'
-    jar.dependsOn ':tools:bnd-module-plugin:jar'
     jar.manifest.attributes(
       '-classpath': sourceSets.main.output.classesDirs.asPath,
-      '-plugin': 'org.objectweb.asm.tools.ModuleInfoBndPlugin;',
-      '-pluginpath': 
-          project(':tools:bnd-module-plugin').jar.outputs.files.singleFile,
       '-removeheaders': 'Bnd-LastModified,Build-By,Created-By,Include-Resource,\
           Require-Capability,Tool',
       'Bundle-License': 'BSD-3-Clause;link=https://asm.ow2.io/LICENSE.txt',

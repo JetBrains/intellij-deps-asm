@@ -88,18 +88,25 @@ public class ClassNode extends ClassVisitor {
   /** The module stored in this class. May be {@literal null}. */
   public ModuleNode module;
 
-  /** The internal name of the enclosing class of this class. May be {@literal null}. */
+  /**
+   * The internal name of the enclosing class of this class. Must be {@literal null} if this class
+   * has no enclosing class, or if it is a local or anonymous class.
+   */
   public String outerClass;
 
   /**
-   * The name of the method that contains this class, or {@literal null} if this class is not
-   * enclosed in a method.
+   * The name of the method that contains the class, or {@literal null} if the class has no
+   * enclosing class, or is not enclosed in a method or constructor of its enclosing class (e.g. if
+   * it is enclosed in an instance initializer, static initializer, instance variable initializer,
+   * or class variable initializer).
    */
   public String outerMethod;
 
   /**
-   * The descriptor of the method that contains this class, or {@literal null} if this class is not
-   * enclosed in a method.
+   * The descriptor of the method that contains the class, or {@literal null} if the class has no
+   * enclosing class, or is not enclosed in a method or constructor of its enclosing class (e.g. if
+   * it is enclosed in an instance initializer, static initializer, instance variable initializer,
+   * or class variable initializer).
    */
   public String outerMethodDesc;
 

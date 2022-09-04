@@ -187,7 +187,7 @@ public class Retrofitter {
       throw new IllegalArgumentException("Module name can't be infered from classes");
     }
     ModuleVisitor moduleVisitor =
-        classWriter.visitModule(moduleNames.get(0), Opcodes.ACC_OPEN, version);
+        classWriter.visitModule(moduleNames.get(0).replace('/', '.'), Opcodes.ACC_OPEN, version);
 
     for (String importName : imports) {
       if (isAsmModule(importName) && !exports.contains(importName)) {

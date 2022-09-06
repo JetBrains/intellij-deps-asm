@@ -27,6 +27,8 @@
 // THE POSSIBILITY OF SUCH DAMAGE.
 package org.objectweb.asm.signature;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.objectweb.asm.Opcodes;
 
 /**
@@ -52,7 +54,7 @@ public class SignatureWriter extends SignatureVisitor {
   /**
    * The stack used to keep track of class types that have arguments. Each element of this stack is
    * a boolean encoded in one bit. The top of the stack is the least significant bit. Pushing false
-   * = *2, pushing true = *2+1, popping = /2.
+   * {@code <<= 1}, pushing true {@code <<= 1; |= 1}, popping {@code >>>= 1}.
    *
    * <p>Class type arguments must be surrounded with '&lt;' and '&gt;' and, because
    *
@@ -62,11 +64,17 @@ public class SignatureWriter extends SignatureVisitor {
    *       SignatureWriter instances),
    * </ol>
    *
-   * <p>we need a stack to properly balance these 'parentheses'. A new element is pushed on this
+   * <p>we need a stack to properly balance these angle brackets. A new element is pushed on this
    * stack for each new visited type, and popped when the visit of this type ends (either is
    * visitEnd, or because visitInnerClassType is called).
    */
   private int argumentStack;
+
+  /** The sum of the depths of {@link #argumentStack} and {@link #deepArgStack}. */
+  private long argumentStackDepth;
+
+  /** Used when {@link #argumentStack} can no longer fit into a single 32-bit integer. */
+  private List<Integer> deepArgStack;
 
   /** Constructs a new {@link SignatureWriter}. */
   public SignatureWriter() {
@@ -159,7 +167,7 @@ public class SignatureWriter extends SignatureVisitor {
     stringBuilder.append(name);
     // Pushes 'false' on the stack, meaning that this type does not have type arguments (as far as
     // we can tell at this point).
-    argumentStack *= 2;
+    pushArgStack(false);
   }
 
   @Override
@@ -169,7 +177,7 @@ public class SignatureWriter extends SignatureVisitor {
     stringBuilder.append(name);
     // Pushes 'false' on the stack, meaning that this type does not have type arguments (as far as
     // we can tell at this point).
-    argumentStack *= 2;
+    pushArgStack(false);
   }
 
   @Override
@@ -177,7 +185,7 @@ public class SignatureWriter extends SignatureVisitor {
     // If the top of the stack is 'false', this means we are visiting the first type argument of the
     // currently visited type. We therefore need to append a '<', and to replace the top stack
     // element with 'true' (meaning that the current type does have type arguments).
-    if (argumentStack % 2 == 0) {
+    if (argumentStackDepth > 0 && !peekArgStack()) {
       argumentStack |= 1;
       stringBuilder.append('<');
     }
@@ -189,7 +197,7 @@ public class SignatureWriter extends SignatureVisitor {
     // If the top of the stack is 'false', this means we are visiting the first type argument of the
     // currently visited type. We therefore need to append a '<', and to replace the top stack
     // element with 'true' (meaning that the current type does have type arguments).
-    if (argumentStack % 2 == 0) {
+    if (argumentStackDepth > 0 && !peekArgStack()) {
       argumentStack |= 1;
       stringBuilder.append('<');
     }
@@ -232,9 +240,40 @@ public class SignatureWriter extends SignatureVisitor {
     // If the top of the stack is 'true', this means that some type arguments have been visited for
     // the type whose visit is now ending. We therefore need to append a '>', and to pop one element
     // from the stack.
-    if (argumentStack % 2 == 1) {
+    if (argumentStackDepth > 0 && popArgStack()) {
       stringBuilder.append('>');
     }
-    argumentStack /= 2;
+  }
+
+  private boolean peekArgStack() {
+    assert argumentStackDepth > 0 : this;
+    return (argumentStack & 1) == 1;
+  }
+
+  private void pushArgStack(boolean state) {
+    if (argumentStackDepth > 0 && (argumentStackDepth % 32) == 0) {
+      if (deepArgStack == null) {
+        deepArgStack = new ArrayList<>(5);
+      }
+      deepArgStack.add(argumentStack);
+      argumentStack = 0;
+    } else {
+      argumentStack <<= 1;
+    }
+    argumentStackDepth++;
+    if (state) {
+      argumentStack |= 1;
+    }
+  }
+
+  private boolean popArgStack() {
+    assert argumentStackDepth > 0 : this;
+    boolean result = (argumentStack & 1) == 1;
+    argumentStack >>>= 1;
+    argumentStackDepth--;
+    if (argumentStackDepth > 0 && (argumentStackDepth % 32) == 0) {
+      argumentStack = deepArgStack.remove(deepArgStack.size() - 1);
+    }
+    return result;
   }
 }

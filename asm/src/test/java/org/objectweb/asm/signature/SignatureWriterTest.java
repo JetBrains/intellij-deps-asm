@@ -99,7 +99,8 @@ class SignatureWriterTest extends AsmTest {
       v.visitClassType(TEST_OPEN);
       v.visitEnd();
 
-      writeDeepSignatureInner(signatureVisitor.visitTypeArgument('='), expected, currentDepth + 1, maxDepth);
+      writeDeepSignatureInner(
+          signatureVisitor.visitTypeArgument('='), expected, currentDepth + 1, maxDepth);
 
       v = signatureVisitor.visitTypeArgument('=');
       v.visitClassType(TEST_CLOSE);

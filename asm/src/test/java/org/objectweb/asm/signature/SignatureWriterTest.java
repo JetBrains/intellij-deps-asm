@@ -41,6 +41,10 @@ import org.objectweb.asm.test.AsmTest;
  */
 class SignatureWriterTest extends AsmTest {
 
+  private static final String TEST_CLOSE = "TestClose";
+  private static final String TEST_GENERIC = "TestGeneric";
+  private static final String TEST_OPEN = "TestOpen";
+
   @ParameterizedTest
   @MethodSource({
     "org.objectweb.asm.signature.SignaturesProviders#classSignatures",
@@ -105,8 +109,4 @@ class SignatureWriterTest extends AsmTest {
     signatureVisitor.visitEnd();
     expected.append(';');
   }
-
-  private static final String TEST_OPEN = "TestOpen";
-  private static final String TEST_GENERIC = "TestGeneric";
-  private static final String TEST_CLOSE = "TestClose";
 }

@@ -250,7 +250,7 @@ public class SignatureWriter extends SignatureVisitor {
     return (argumentStack & 1) == 1;
   }
 
-  private void pushArgStack(boolean state) {
+  private void pushArgStack(final boolean state) {
     if (argumentStackDepth > 0 && (argumentStackDepth % 32) == 0) {
       if (deepArgStack == null) {
         deepArgStack = new ArrayList<>(5);

@@ -70,19 +70,23 @@ class SignatureWriterTest extends AsmTest {
 
   @ParameterizedTest
   @MethodSource("deepSignatures")
-  void testWrite_deepSignature(int depth) {
+  void testWrite_deepSignature(final int depth) {
     SignatureWriter signatureWriter = new SignatureWriter();
     String expected = writeDeepSignature(signatureWriter, depth);
     assertEquals(expected, signatureWriter.toString(), "depth=" + depth);
   }
 
-  private String writeDeepSignature(SignatureVisitor signatureVisitor, int maxDepth) {
+  private String writeDeepSignature(final SignatureVisitor signatureVisitor, final int maxDepth) {
     StringBuilder expected = new StringBuilder();
     writeDeepSignatureInner(signatureVisitor, expected, 0, maxDepth);
     return expected.toString();
   }
 
-  private void writeDeepSignatureInner(SignatureVisitor signatureVisitor, StringBuilder expected, int currentDepth, int maxDepth) {
+  private void writeDeepSignatureInner(
+      final SignatureVisitor signatureVisitor,
+      final StringBuilder expected,
+      final int currentDepth,
+      final int maxDepth) {
     signatureVisitor.visitClassType(TEST_GENERIC);
     expected.append('L' + TEST_GENERIC);
     if (currentDepth < maxDepth) {

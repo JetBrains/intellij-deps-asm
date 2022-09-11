@@ -29,7 +29,6 @@ package org.objectweb.asm.signature;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import java.util.stream.IntStream;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.objectweb.asm.test.AsmTest;
@@ -40,10 +39,6 @@ import org.objectweb.asm.test.AsmTest;
  * @author Eric Bruneton
  */
 class SignatureWriterTest extends AsmTest {
-
-  private static final String TEST_CLOSE = "TestClose";
-  private static final String TEST_GENERIC = "TestGeneric";
-  private static final String TEST_OPEN = "TestOpen";
 
   @ParameterizedTest
   @MethodSource({
@@ -66,48 +61,5 @@ class SignatureWriterTest extends AsmTest {
     new SignatureReader(signature).acceptType(signatureWriter);
 
     assertEquals(signature, signatureWriter.toString());
-  }
-
-  static IntStream deepSignatures() {
-    return IntStream.range(0, 48);
-  }
-
-  @ParameterizedTest
-  @MethodSource("deepSignatures")
-  void testWrite_deepSignature(final int depth) {
-    SignatureWriter signatureWriter = new SignatureWriter();
-    String expected = writeDeepSignature(signatureWriter, depth);
-    assertEquals(expected, signatureWriter.toString(), "depth=" + depth);
-  }
-
-  private String writeDeepSignature(final SignatureVisitor signatureVisitor, final int maxDepth) {
-    StringBuilder expected = new StringBuilder();
-    writeDeepSignatureInner(signatureVisitor, expected, 0, maxDepth);
-    return expected.toString();
-  }
-
-  private void writeDeepSignatureInner(
-      final SignatureVisitor signatureVisitor,
-      final StringBuilder expected,
-      final int currentDepth,
-      final int maxDepth) {
-    signatureVisitor.visitClassType(TEST_GENERIC);
-    expected.append('L' + TEST_GENERIC);
-    if (currentDepth < maxDepth) {
-      expected.append("<L" + TEST_OPEN + ';');
-      SignatureVisitor v = signatureVisitor.visitTypeArgument('=');
-      v.visitClassType(TEST_OPEN);
-      v.visitEnd();
-
-      writeDeepSignatureInner(
-          signatureVisitor.visitTypeArgument('='), expected, currentDepth + 1, maxDepth);
-
-      v = signatureVisitor.visitTypeArgument('=');
-      v.visitClassType(TEST_CLOSE);
-      v.visitEnd();
-      expected.append('L' + TEST_CLOSE + ";>");
-    }
-    signatureVisitor.visitEnd();
-    expected.append(';');
   }
 }

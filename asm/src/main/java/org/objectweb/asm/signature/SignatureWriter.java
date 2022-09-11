@@ -53,7 +53,7 @@ public class SignatureWriter extends SignatureVisitor {
    * The stack used to keep track of class types that have arguments. Each element of this stack is
    * a boolean encoded in one bit. The top of the stack is the least significant bit. The bottom of
    * the stack is a sentinel element always equal to 1 (used to detect when the stack is full).
-   * Pushing false = {@code <<= 1}, pushing true = {@code '( <<= 1) | 1}, popping = {@code >>>= 1}.
+   * Pushing false = {@code <<= 1}, pushing true = {@code ( <<= 1) | 1}, popping = {@code >>>= 1}.
    *
    * <p>Class type arguments must be surrounded with '&lt;' and '&gt;' and, because
    *

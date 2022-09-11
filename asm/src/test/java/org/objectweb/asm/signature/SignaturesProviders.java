@@ -33,7 +33,7 @@ public final class SignaturesProviders {
     assertFalse(FIELD_SIGNATURES.isEmpty());
     assertFalse(METHOD_SIGNATURES.isEmpty());
     for (int depth = 0; depth < 48; ++depth) {
-      METHOD_SIGNATURES.add(buildDeepSignature(new StringBuilder(), depth).toString());
+      FIELD_SIGNATURES.add(buildDeepSignature(new StringBuilder(), depth).toString());
     }
   }
 

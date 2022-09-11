@@ -32,6 +32,9 @@ public final class SignaturesProviders {
     assertFalse(CLASS_SIGNATURES.isEmpty());
     assertFalse(FIELD_SIGNATURES.isEmpty());
     assertFalse(METHOD_SIGNATURES.isEmpty());
+    for (int depth = 0; depth < 48; ++depth) {
+      METHOD_SIGNATURES.add(buildDeepSignature(new StringBuilder(), depth).toString());
+    }
   }
 
   private SignaturesProviders() {}
@@ -80,6 +83,18 @@ public final class SignaturesProviders {
           }
         },
         0);
+  }
+
+  private static StringBuilder buildDeepSignature(final StringBuilder signature, final int depth) {
+    signature.append("LGeneric");
+    if (depth == 0) {
+      signature.append(';');
+    } else {
+      signature.append("<LOpen;");
+      buildDeepSignature(signature, depth - 1);
+      signature.append("LClose;>;");
+    }
+    return signature;
   }
 
   static Stream<String> classSignatures() {

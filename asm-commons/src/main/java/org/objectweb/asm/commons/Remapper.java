@@ -263,6 +263,20 @@ public abstract class Remapper {
   public String mapInnerClassName(
       final String name, final String ownerName, final String innerName) {
     final String remappedInnerName = this.mapType(name);
+
+    if (remappedInnerName.equals(name)) {
+      return innerName;
+    } else {
+      int originSplit = name.lastIndexOf('/');
+      int remappedSplit = remappedInnerName.lastIndexOf('/');
+      if (originSplit != -1 && remappedSplit != -1) {
+        if (name.substring(originSplit).equals(remappedInnerName.substring(remappedSplit))) {
+          // class name not changed
+          return innerName;
+        }
+      }
+    }
+
     if (remappedInnerName.contains("$")) {
       int index = remappedInnerName.lastIndexOf('$') + 1;
       while (index < remappedInnerName.length()

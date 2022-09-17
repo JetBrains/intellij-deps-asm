@@ -149,6 +149,33 @@ class ClassRemapperTest extends AsmTest {
   }
 
   @Test
+  void testVisitInnerClass_specialRemap() {
+    ClassNode classNode = new ClassNode();
+    ClassRemapper remapper =
+        new ClassRemapper(
+            classNode,
+            new Remapper() {
+              @Override
+              public String map(final String internalName) {
+                if ("pkg/C".equals(internalName)) {
+                  return "pkg2/C";
+                }
+                if ("pkg/C$$a".equals(internalName)) {
+                  return "pkg2/C$$a";
+                }
+                return internalName;
+              }
+            });
+    remapper.visit(Opcodes.V1_5, Opcodes.ACC_PUBLIC, "pkg/C", null, "java/lang/Object", null);
+
+    remapper.visitInnerClass("pkg/C$$a", "pkg/C", "$a", Opcodes.ACC_PUBLIC);
+
+    assertEquals("pkg2/C$$a", classNode.innerClasses.get(0).name);
+    assertEquals("pkg2/C", classNode.innerClasses.get(0).outerName);
+    assertEquals("$a", classNode.innerClasses.get(0).innerName);
+  }
+
+  @Test
   void testVisitAttribute_moduleHashes() {
     ClassNode classNode = new ClassNode();
     ClassRemapper classRemapper =

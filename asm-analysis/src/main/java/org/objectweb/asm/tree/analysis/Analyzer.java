@@ -92,7 +92,8 @@ public class Analyzer<V extends Value> implements Opcodes {
   /**
    * Analyzes the given method.
    *
-   * @param owner the internal name of the class to which 'method' belongs.
+   * @param owner the internal name of the class to which 'method' belongs (see {@link
+   *     Type#getInternalName()}).
    * @param method the method to be analyzed. The maxStack and maxLocals fields must have correct
    *     values.
    * @return the symbolic state of the execution stack frame at each bytecode instruction of the
@@ -280,7 +281,8 @@ public class Analyzer<V extends Value> implements Opcodes {
    * Analyzes the given method and computes and sets its maximum stack size and maximum number of
    * local variables.
    *
-   * @param owner the internal name of the class to which 'method' belongs.
+   * @param owner the internal name of the class to which 'method' belongs (see {@link
+   *     Type#getInternalName()}).
    * @param method the method to be analyzed.
    * @return the symbolic state of the execution stack frame at each bytecode instruction of the
    *     method. The size of the returned array is equal to the number of instructions (and labels)
@@ -468,7 +470,8 @@ public class Analyzer<V extends Value> implements Opcodes {
   /**
    * Computes the initial execution stack frame of the given method.
    *
-   * @param owner the internal name of the class to which 'method' belongs.
+   * @param owner the internal name of the class to which 'method' belongs (see {@link
+   *     Type#getInternalName()}).
    * @param method the method to be analyzed.
    * @return the initial execution stack frame of the 'method'.
    */
@@ -527,7 +530,8 @@ public class Analyzer<V extends Value> implements Opcodes {
    * Initializes this analyzer. This method is called just before the execution of control flow
    * analysis loop in {@link #analyze}. The default implementation of this method does nothing.
    *
-   * @param owner the internal name of the class to which the method belongs.
+   * @param owner the internal name of the class to which the method belongs (see {@link
+   *     Type#getInternalName()}).
    * @param method the method to be analyzed.
    * @throws AnalyzerException if a problem occurs.
    */

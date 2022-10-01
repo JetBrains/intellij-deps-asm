@@ -32,7 +32,7 @@ import org.objectweb.asm.MethodVisitor;
 
 /**
  * A node that represents a type instruction. A type instruction is an instruction which takes an
- * internal name as parameter.
+ * internal name as parameter (see {@link org.objectweb.asm.Type#getInternalName()}).
  *
  * @author Eric Bruneton
  */
@@ -40,7 +40,7 @@ public class TypeInsnNode extends AbstractInsnNode {
 
   /**
    * The operand of this instruction. Despite its name (due to historical reasons), this operand is
-   * an internal name (see {@link org.objectweb.asm.Type}).
+   * an internal name (see {@link org.objectweb.asm.Type#getInternalName()}).
    */
   public String desc;
 
@@ -50,7 +50,7 @@ public class TypeInsnNode extends AbstractInsnNode {
    * @param opcode the opcode of the type instruction to be constructed. This opcode must be NEW,
    *     ANEWARRAY, CHECKCAST or INSTANCEOF.
    * @param type the operand of the instruction to be constructed. This operand is an internal name
-   *     (see {@link org.objectweb.asm.Type}).
+   *     (see {@link org.objectweb.asm.Type#getInternalName()}).
    */
   public TypeInsnNode(final int opcode, final String type) {
     super(opcode);

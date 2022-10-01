@@ -60,9 +60,10 @@ public class AnalyzerAdapter extends MethodVisitor {
    * {@link Opcodes#TOP}, {@link Opcodes#INTEGER}, {@link Opcodes#FLOAT}, {@link Opcodes#LONG},
    * {@link Opcodes#DOUBLE},{@link Opcodes#NULL} or {@link Opcodes#UNINITIALIZED_THIS} (long and
    * double are represented by two elements, the second one being TOP). Reference types are
-   * represented by String objects (representing internal names), and uninitialized types by Label
-   * objects (this label designates the NEW instruction that created this uninitialized value). This
-   * field is {@literal null} for unreachable instructions.
+   * represented by String objects (representing internal names, see {@link
+   * Type#getInternalName()}), and uninitialized types by Label objects (this label designates the
+   * NEW instruction that created this uninitialized value). This field is {@literal null} for
+   * unreachable instructions.
    */
   public List<Object> locals;
 
@@ -71,9 +72,10 @@ public class AnalyzerAdapter extends MethodVisitor {
    * {@link Opcodes#TOP}, {@link Opcodes#INTEGER}, {@link Opcodes#FLOAT}, {@link Opcodes#LONG},
    * {@link Opcodes#DOUBLE},{@link Opcodes#NULL} or {@link Opcodes#UNINITIALIZED_THIS} (long and
    * double are represented by two elements, the second one being TOP). Reference types are
-   * represented by String objects (representing internal names), and uninitialized types by Label
-   * objects (this label designates the NEW instruction that created this uninitialized value). This
-   * field is {@literal null} for unreachable instructions.
+   * represented by String objects (representing internal names, see {@link
+   * Type#getInternalName()}), and uninitialized types by Label objects (this label designates the
+   * NEW instruction that created this uninitialized value). This field is {@literal null} for
+   * unreachable instructions.
    */
   public List<Object> stack;
 
@@ -82,9 +84,9 @@ public class AnalyzerAdapter extends MethodVisitor {
 
   /**
    * The uninitialized types in the current execution frame. This map associates internal names to
-   * Label objects. Each label designates a NEW instruction that created the currently uninitialized
-   * types, and the associated internal name represents the NEW operand, i.e. the final, initialized
-   * type value.
+   * Label objects (see {@link Type#getInternalName()}). Each label designates a NEW instruction
+   * that created the currently uninitialized types, and the associated internal name represents the
+   * NEW operand, i.e. the final, initialized type value.
    */
   public Map<Object, Object> uninitializedTypes;
 

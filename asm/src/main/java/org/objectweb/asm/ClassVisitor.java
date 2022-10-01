@@ -157,7 +157,8 @@ public abstract class ClassVisitor {
    * implicitly its own nest, so it's invalid to call this method with the visited class name as
    * argument.
    *
-   * @param nestHost the internal name of the host class of the nest.
+   * @param nestHost the internal name of the host class of the nest (see {@link
+   *     Type#getInternalName()}).
    */
   public void visitNestHost(final String nestHost) {
     if (api < Opcodes.ASM7) {
@@ -172,7 +173,8 @@ public abstract class ClassVisitor {
    * Visits the enclosing class of the class. This method must be called only if this class is a
    * local or anonymous class. See the JVMS 4.7.7 section for more details.
    *
-   * @param owner internal name of the enclosing class of the class.
+   * @param owner internal name of the enclosing class of the class (see {@link
+   *     Type#getInternalName()}).
    * @param name the name of the method that contains the class, or {@literal null} if the class is
    *     not enclosed in a method or constructor of its enclosing class (e.g. if it is enclosed in
    *     an instance initializer, static initializer, instance variable initializer, or class
@@ -247,7 +249,7 @@ public abstract class ClassVisitor {
    * the visited class is the host of a nest. A nest host is implicitly a member of its own nest, so
    * it's invalid to call this method with the visited class name as argument.
    *
-   * @param nestMember the internal name of a nest member.
+   * @param nestMember the internal name of a nest member (see {@link Type#getInternalName()}).
    */
   public void visitNestMember(final String nestMember) {
     if (api < Opcodes.ASM7) {
@@ -262,7 +264,8 @@ public abstract class ClassVisitor {
    * Visits a permitted subclasses. A permitted subclass is one of the allowed subclasses of the
    * current class.
    *
-   * @param permittedSubclass the internal name of a permitted subclass.
+   * @param permittedSubclass the internal name of a permitted subclass (see {@link
+   *     Type#getInternalName()}).
    */
   public void visitPermittedSubclass(final String permittedSubclass) {
     if (api < Opcodes.ASM9) {

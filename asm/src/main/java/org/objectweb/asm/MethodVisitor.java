@@ -281,9 +281,9 @@ public abstract class MethodVisitor {
    *     types are represented by {@link Opcodes#TOP}, {@link Opcodes#INTEGER}, {@link
    *     Opcodes#FLOAT}, {@link Opcodes#LONG}, {@link Opcodes#DOUBLE}, {@link Opcodes#NULL} or
    *     {@link Opcodes#UNINITIALIZED_THIS} (long and double are represented by a single element).
-   *     Reference types are represented by String objects (representing internal names), and
-   *     uninitialized types by Label objects (this label designates the NEW instruction that
-   *     created this uninitialized value).
+   *     Reference types are represented by String objects (representing internal names, see {@link
+   *     Type#getInternalName()}), and uninitialized types by Label objects (this label designates
+   *     the NEW instruction that created this uninitialized value).
    * @param numStack the number of operand stack elements in the visited frame. Long and double
    *     values count for one stack element.
    * @param stack the operand stack types in this frame. This array must not be modified. Its
@@ -364,7 +364,7 @@ public abstract class MethodVisitor {
 
   /**
    * Visits a type instruction. A type instruction is an instruction that takes the internal name of
-   * a class as parameter.
+   * a class as parameter (see {@link Type#getInternalName()}).
    *
    * @param opcode the opcode of the type instruction to be visited. This opcode is either NEW,
    *     ANEWARRAY, CHECKCAST or INSTANCEOF.
@@ -647,8 +647,9 @@ public abstract class MethodVisitor {
    * @param start the beginning of the exception handler's scope (inclusive).
    * @param end the end of the exception handler's scope (exclusive).
    * @param handler the beginning of the exception handler's code.
-   * @param type the internal name of the type of exceptions handled by the handler, or {@literal
-   *     null} to catch any exceptions (for "finally" blocks).
+   * @param type the internal name of the type of exceptions handled by the handler (see {@link
+   *     Type#getInternalName()}), or {@literal null} to catch any exceptions (for "finally"
+   *     blocks).
    * @throws IllegalArgumentException if one of the labels has already been visited by this visitor
    *     (by the {@link #visitLabel} method).
    */

@@ -58,14 +58,14 @@ public class ClassNode extends ClassVisitor {
    */
   public int access;
 
-  /** The internal name of this class (see {@link org.objectweb.asm.Type#getInternalName}). */
+  /** The internal name of this class (see {@link org.objectweb.asm.Type#getInternalName()}). */
   public String name;
 
   /** The signature of this class. May be {@literal null}. */
   public String signature;
 
   /**
-   * The internal of name of the super class (see {@link org.objectweb.asm.Type#getInternalName}).
+   * The internal of name of the super class (see {@link org.objectweb.asm.Type#getInternalName()}).
    * For interfaces, the super class is {@link Object}. May be {@literal null}, but only for the
    * {@link Object} class.
    */
@@ -73,7 +73,7 @@ public class ClassNode extends ClassVisitor {
 
   /**
    * The internal names of the interfaces directly implemented by this class (see {@link
-   * org.objectweb.asm.Type#getInternalName}).
+   * org.objectweb.asm.Type#getInternalName()}).
    */
   public List<String> interfaces;
 
@@ -89,8 +89,9 @@ public class ClassNode extends ClassVisitor {
   public ModuleNode module;
 
   /**
-   * The internal name of the enclosing class of this class. Must be {@literal null} if this class
-   * has no enclosing class, or if it is a local or anonymous class.
+   * The internal name of the enclosing class of this class (see {@link
+   * org.objectweb.asm.Type#getInternalName()}). Must be {@literal null} if this class has no
+   * enclosing class, or if it is a local or anonymous class.
    */
   public String outerClass;
 
@@ -128,13 +129,22 @@ public class ClassNode extends ClassVisitor {
   /** The inner classes of this class. */
   public List<InnerClassNode> innerClasses;
 
-  /** The internal name of the nest host class of this class. May be {@literal null}. */
+  /**
+   * The internal name of the nest host class of this class (see {@link
+   * org.objectweb.asm.Type#getInternalName()}). May be {@literal null}.
+   */
   public String nestHostClass;
 
-  /** The internal names of the nest members of this class. May be {@literal null}. */
+  /**
+   * The internal names of the nest members of this class (see {@link
+   * org.objectweb.asm.Type#getInternalName()}). May be {@literal null}.
+   */
   public List<String> nestMembers;
 
-  /** The internal names of the permitted subclasses of this class. May be {@literal null}. */
+  /**
+   * The internal names of the permitted subclasses of this class (see {@link
+   * org.objectweb.asm.Type#getInternalName()}). May be {@literal null}.
+   */
   public List<String> permittedSubclasses;
 
   /** The record components of this class. May be {@literal null}. */

@@ -84,6 +84,15 @@ public abstract class ClassVisitor {
   }
 
   /**
+   * The class visitor to which this visitor must delegate method calls. May be {@literal null}.
+   *
+   * @return the class visitor to which this visitor must delegate method calls, or {@literal null}.
+   */
+  public ClassVisitor getDelegate() {
+    return cv;
+  }
+
+  /**
    * Visits the header of the class.
    *
    * @param version the class version. The minor version is stored in the 16 most significant bits,

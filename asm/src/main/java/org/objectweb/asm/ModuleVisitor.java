@@ -83,6 +83,16 @@ public abstract class ModuleVisitor {
   }
 
   /**
+   * The module visitor to which this visitor must delegate method calls. May be {@literal null}.
+   *
+   * @return the module visitor to which this visitor must delegate method calls, or {@literal
+   *     null}.
+   */
+  public ModuleVisitor getDelegate() {
+    return mv;
+  }
+
+  /**
    * Visit the main class of the current module.
    *
    * @param mainClass the internal name of the main class of the current module (see {@link

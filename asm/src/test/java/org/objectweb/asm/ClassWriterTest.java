@@ -141,8 +141,10 @@ class ClassWriterTest extends AsmTest {
         Method classWriterMethod =
             ClassWriter.class.getMethod(
                 classVisitorMethod.getName(), classVisitorMethod.getParameterTypes());
-        assertTrue(
-            Modifier.isFinal(classWriterMethod.getModifiers()), classWriterMethod + " is final");
+        if (!classWriterMethod.getName().equals("getDelegate")) {
+          assertTrue(
+              Modifier.isFinal(classWriterMethod.getModifiers()), classWriterMethod + " is final");
+        }
       } catch (NoSuchMethodException e) {
         fail("ClassWriter must override " + classVisitorMethod);
       }

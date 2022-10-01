@@ -96,6 +96,16 @@ public abstract class MethodVisitor {
     this.mv = methodVisitor;
   }
 
+  /**
+   * The method visitor to which this visitor must delegate method calls. May be {@literal null}.
+   *
+   * @return the method visitor to which this visitor must delegate method calls, or {@literal
+   *     null}.
+   */
+  public MethodVisitor getDelegate() {
+    return mv;
+  }
+
   // -----------------------------------------------------------------------------------------------
   // Parameters, annotations and non standard attributes
   // -----------------------------------------------------------------------------------------------

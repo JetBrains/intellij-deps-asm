@@ -29,6 +29,7 @@ package org.objectweb.asm;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -57,6 +58,14 @@ class MethodVisitorTest extends AsmTest {
 
     Exception exception = assertThrows(IllegalArgumentException.class, constructor);
     assertEquals("Unsupported api 0", exception.getMessage());
+  }
+
+  @Test
+  void testGetDelegate() {
+    MethodVisitor delegate = new MethodVisitor(Opcodes.ASM4) {};
+    MethodVisitor visitor = new MethodVisitor(Opcodes.ASM4, delegate) {};
+
+    assertSame(delegate, visitor.getDelegate());
   }
 
   @Test

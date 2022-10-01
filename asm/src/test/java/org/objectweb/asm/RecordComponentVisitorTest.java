@@ -36,22 +36,22 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.Executable;
 
 /**
- * Unit tests for {@link FieldVisitor}.
+ * Unit tests for {@link RecordComponentVisitor}.
  *
  * @author Eric Bruneton
  */
-class FieldVisitorTest {
+class RecordComponentVisitorTest {
 
   @Test
   void testConstructor_validApi() {
-    Executable constructor = () -> new FieldVisitor(Opcodes.ASM4) {};
+    Executable constructor = () -> new RecordComponentVisitor(Opcodes.ASM4) {};
 
     assertDoesNotThrow(constructor);
   }
 
   @Test
   void testConstructor_invalidApi() {
-    Executable constructor = () -> new FieldVisitor(0) {};
+    Executable constructor = () -> new RecordComponentVisitor(0) {};
 
     Exception exception = assertThrows(IllegalArgumentException.class, constructor);
     assertEquals("Unsupported api 0", exception.getMessage());
@@ -59,8 +59,8 @@ class FieldVisitorTest {
 
   @Test
   void testGetDelegate() {
-    FieldVisitor delegate = new FieldVisitor(Opcodes.ASM4) {};
-    FieldVisitor visitor = new FieldVisitor(Opcodes.ASM4, delegate) {};
+    RecordComponentVisitor delegate = new RecordComponentVisitor(Opcodes.ASM4) {};
+    RecordComponentVisitor visitor = new RecordComponentVisitor(Opcodes.ASM4, delegate) {};
 
     assertSame(delegate, visitor.getDelegate());
   }

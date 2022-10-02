@@ -48,7 +48,7 @@ dependencies {
 
 allprojects {
   group = 'org.ow2.asm'
-  version = '9.4' + (rootProject.hasProperty('release') ? '' : '-SNAPSHOT')
+  version = '9.5' + (rootProject.hasProperty('release') ? '' : '-SNAPSHOT')
 }
 
 subprojects {

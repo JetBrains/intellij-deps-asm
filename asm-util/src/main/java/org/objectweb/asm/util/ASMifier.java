@@ -43,7 +43,7 @@ import org.objectweb.asm.Type;
 import org.objectweb.asm.TypePath;
 
 /**
- * A {@link Printer} that prints the ASM code to generate the classes if visits.
+ * A {@link Printer} that prints the ASM code to generate the classes it visits.
  *
  * @author Eric Bruneton
  */

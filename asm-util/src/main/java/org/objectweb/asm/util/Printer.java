@@ -1259,7 +1259,7 @@ public abstract class Printer {
   }
 
   /**
-   * Prints a the given class to the given output.
+   * Prints the given class to the given output.
    *
    * <p>Command line arguments: [-nodebug] &lt;binary class name or class file name &gt;
    *

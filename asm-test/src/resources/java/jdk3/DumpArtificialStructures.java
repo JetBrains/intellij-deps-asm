@@ -47,7 +47,7 @@ import org.objectweb.asm.Opcodes;
  *   <li>non standard class, field, method and code attributes,
  *   <li>the nop and swap instructions,
  *   <li>some variants of the dup_x2 and dup2_x2 instructions,
- *   <li>several line numbers per bytecode offset.
+ *   <li>several line numbers per bytecode offset, and line numbers equal to 0.
  * </ul>
  *
  * Ideally we should not use ASM to generate this class (which is later used to test ASM), but this
@@ -103,7 +103,7 @@ public class DumpArtificialStructures implements Opcodes {
     Label endIfLabel = new Label();
     methodVisitor.visitJumpInsn(GOTO, endIfLabel);
     methodVisitor.visitLabel(elseLabel);
-    methodVisitor.visitLineNumber(1, elseLabel);
+    methodVisitor.visitLineNumber(0, elseLabel);
     methodVisitor.visitLineNumber(3, elseLabel);
     methodVisitor.visitLdcInsn("0");
     methodVisitor.visitLabel(endIfLabel);

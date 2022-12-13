@@ -154,7 +154,7 @@ project(':benchmarks') {
     resultFormat = 'CSV'
     profilers = ['org.objectweb.asm.benchmarks.MemoryProfiler']
     if (rootProject.hasProperty('jmhInclude')) {
-      include = [jmhInclude]
+      includes = [jmhInclude]
     }
   }
 }

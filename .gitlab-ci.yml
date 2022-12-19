@@ -1,4 +1,4 @@
-image: gradle:7.4.1-jdk11
+image: gradle:7.6-jdk11
 
 variables:
   # Set the location of the dependency cache to a local directory, so that it

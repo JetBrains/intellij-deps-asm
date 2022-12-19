@@ -31,10 +31,10 @@ buildscript {
   dependencies { classpath 'org.netbeans.tools:sigtest-maven-plugin:1.5' }
 }
 
-plugins { id 'biz.aQute.bnd.builder' version '6.2.0' apply false }
+plugins { id 'biz.aQute.bnd.builder' version '6.4.0' apply false }
 plugins { id 'com.github.sherter.google-java-format' version '0.9' apply false }
-plugins { id 'me.champeau.jmh' version '0.6.6' apply false }
-plugins { id 'org.sonarqube' version '3.3' apply false }
+plugins { id 'me.champeau.jmh' version '0.6.8' apply false }
+plugins { id 'org.sonarqube' version '3.5.0.2730' apply false }
 
 description = 'ASM, a very small and fast Java bytecode manipulation framework'
 
@@ -96,8 +96,8 @@ project(':asm-commons') {
 project(':asm-test') {
   description = "Utilities for testing ${parent.description}"
   provides = ['org.objectweb.asm.test']
-  depends = ['org.junit.jupiter:junit-jupiter-api:5.8.2',
-      'org.junit.jupiter:junit-jupiter-params:5.8.2']
+  depends = ['org.junit.jupiter:junit-jupiter-api:5.9.1',
+      'org.junit.jupiter:junit-jupiter-params:5.9.1']
 }
 
 project(':asm-tree') {
@@ -110,7 +110,7 @@ project(':asm-util') {
   description = "Utilities for ${parent.description}"
   provides = ['org.objectweb.asm.util']
   requires = [':asm', ':asm-tree', ':asm-analysis']
-  dependencies { testImplementation 'org.codehaus.janino:janino:3.1.6' }
+  dependencies { testImplementation 'org.codehaus.janino:janino:3.1.9' }
 }
 
 // Use "gradle benchmarks:jmh [-PjmhInclude='<regex>']" to run the benchmarks.
@@ -197,9 +197,9 @@ subprojects {
   dependencies {
     requires.each { projectName -> api project(projectName) }
     depends.each { artifactName -> api artifactName }
-    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.2',
-        'org.junit.jupiter:junit-jupiter-params:5.8.2'
-    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.2'
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.9.1',
+        'org.junit.jupiter:junit-jupiter-params:5.9.1'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.9.1'
     testImplementation project(':asm-test')
   }
 

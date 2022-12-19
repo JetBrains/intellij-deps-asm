@@ -40,6 +40,7 @@ import java.io.StringReader;
 import java.io.StringWriter;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.util.ArrayList;
 import org.codehaus.commons.compiler.CompileException;
 import org.codehaus.janino.ClassLoaderIClassLoader;
 import org.codehaus.janino.IClassLoader;
@@ -108,10 +109,12 @@ class ASMifierTest extends AsmTest {
 
   private static byte[] compile(final String name, final String source) throws IOException {
     Parser parser = new Parser(new Scanner(name, new StringReader(source)));
+    ArrayList<org.codehaus.janino.util.ClassFile> generatedClassFiles = new ArrayList<>();
     try {
       UnitCompiler unitCompiler =
           new UnitCompiler(parser.parseAbstractCompilationUnit(), ICLASS_LOADER);
-      return unitCompiler.compileUnit(true, true, true)[0].toByteArray();
+      unitCompiler.compileUnit(true, true, true, generatedClassFiles);
+      return generatedClassFiles.get(0).toByteArray();
     } catch (CompileException e) {
       throw new AssertionError(source, e);
     }

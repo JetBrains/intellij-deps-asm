@@ -1101,8 +1101,12 @@ public class CheckMethodAdapter extends MethodVisitor {
    * @param method the expected visit method.
    */
   private static void checkOpcodeMethod(final int opcode, final Method method) {
-    if (opcode < Opcodes.NOP || opcode > Opcodes.IFNONNULL || OPCODE_METHODS[opcode] != method) {
+    if (opcode < Opcodes.NOP || opcode > Opcodes.IFNONNULL) {
       throw new IllegalArgumentException("Invalid opcode: " + opcode);
+    }
+    if (OPCODE_METHODS[opcode] != method) {
+      throw new IllegalArgumentException(
+          "Invalid combination of opcode and method: " + opcode + ", " + method);
     }
   }
 

@@ -434,7 +434,8 @@ class CheckMethodAdapterTest extends AsmTest implements Opcodes {
     Executable visitMethodInsn = () -> checkMethodAdapter.visitMethodInsn(42, "o", "m", "()V");
 
     Exception exception = assertThrows(IllegalArgumentException.class, visitMethodInsn);
-    assertEquals("Invalid opcode: 42", exception.getMessage());
+    assertEquals(
+        "Invalid combination of opcode and method: 42, VISIT_METHOD_INSN", exception.getMessage());
   }
 
   @Test
@@ -445,7 +446,8 @@ class CheckMethodAdapterTest extends AsmTest implements Opcodes {
         () -> checkMethodAdapter.visitMethodInsn(42, "o", "m", "()V", false);
 
     Exception exception = assertThrows(IllegalArgumentException.class, visitMethodInsn);
-    assertEquals("Invalid opcode: 42", exception.getMessage());
+    assertEquals(
+        "Invalid combination of opcode and method: 42, VISIT_METHOD_INSN", exception.getMessage());
   }
 
   @Test

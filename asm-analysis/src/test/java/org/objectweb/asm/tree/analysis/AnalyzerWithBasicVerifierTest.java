@@ -37,6 +37,7 @@ import org.junit.jupiter.api.function.Executable;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.objectweb.asm.ClassReader;
+import org.objectweb.asm.Label;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.test.AsmTest;
 import org.objectweb.asm.tree.ClassNode;
@@ -75,6 +76,32 @@ class AnalyzerWithBasicVerifierTest extends AsmTest {
 
     String message = assertThrows(AnalyzerException.class, analyze).getMessage();
     assertTrue(message.contains("Expected an object reference or a return address, but found I"));
+  }
+
+  @Test
+  void testAnalyze_invalidIloadDueToLastInstructionOfExceptionHandler() {
+    Label startTryLabel = new Label();
+    Label endTryLabel = new Label();
+    Label catchLabel = new Label();
+    MethodNode methodNode =
+        new MethodNodeBuilder()
+            .trycatch(startTryLabel, endTryLabel, catchLabel)
+            .iconst_0()
+            .istore(1)
+            .label(startTryLabel)
+            .aconst_null()
+            .astore(1)
+            .label(endTryLabel)
+            .vreturn()
+            .label(catchLabel)
+            .iload(1)
+            .vreturn()
+            .build();
+
+    Executable analyze = () -> newAnalyzer().analyze(CLASS_NAME, methodNode);
+
+    String message = assertThrows(AnalyzerException.class, analyze).getMessage();
+    assertTrue(message.contains("Error at instruction 8: Expected I, but found ."));
   }
 
   @Test

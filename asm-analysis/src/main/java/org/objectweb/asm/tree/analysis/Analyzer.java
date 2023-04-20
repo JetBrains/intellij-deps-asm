@@ -123,7 +123,7 @@ public class Analyzer<V extends Value> implements Opcodes {
       TryCatchBlockNode tryCatchBlock = method.tryCatchBlocks.get(i);
       int startIndex = insnList.indexOf(tryCatchBlock.start);
       int endIndex = insnList.indexOf(tryCatchBlock.end);
-      for (int j = startIndex; j < endIndex; ++j) {
+      for (int j = startIndex; j <= endIndex; ++j) {
         List<TryCatchBlockNode> insnHandlers = handlers[j];
         if (insnHandlers == null) {
           insnHandlers = new ArrayList<>();

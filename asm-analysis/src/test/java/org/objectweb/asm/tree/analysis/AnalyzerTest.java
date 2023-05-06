@@ -75,6 +75,24 @@ class AnalyzerTest extends AsmTest {
   private final Label label12 = new Label();
 
   @Test
+  void testAnalyze_runtimeExceptions() {
+    MethodNode methodNode = new MethodNodeBuilder().insn(Opcodes.NOP).vreturn().build();
+
+    Executable analyze =
+        () ->
+            new Analyzer<MockValue>(new MockInterpreter()) {
+
+              @Override
+              protected Frame<MockValue> newFrame(final int numLocals, final int numStack) {
+                throw new RuntimeException("newFrame error");
+              }
+            }.analyze(CLASS_NAME, methodNode);
+
+    String message = assertThrows(AnalyzerException.class, analyze).getMessage();
+    assertTrue(message.contains("newFrame error"));
+  }
+
+  @Test
   void testAnalyze_invalidOpcode() {
     MethodNode methodNode = new MethodNodeBuilder().insn(-1).vreturn().build();
 

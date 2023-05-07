@@ -118,6 +118,9 @@ class CheckFrameAnalyzer<V extends Value> extends Analyzer<V> {
   protected void init(final String owner, final MethodNode method) throws AnalyzerException {
     insnList = method.instructions;
     currentLocals = Type.getArgumentsAndReturnSizes(method.desc) >> 2;
+    if ((method.access & Opcodes.ACC_STATIC) != 0) {
+      currentLocals -= 1;
+    }
 
     Frame<V>[] frames = getFrames();
     Frame<V> currentFrame = frames[0];

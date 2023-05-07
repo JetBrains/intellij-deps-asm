@@ -75,6 +75,25 @@ public class AllFrames {
         : m0(!b, y, c, s, i + 1, f + 1f, l + 1l, d + 1d, o, p, q);
   }
 
+  // Frame types: same, same_locals_1_stack_item.
+  // Element types: primitive types and object.
+  public static int m0Static(
+      boolean b,
+      byte y,
+      char c,
+      short s,
+      int i,
+      float f,
+      long l,
+      double d,
+      Object o,
+      Object[] p,
+      Object[][] q) {
+    return b
+        ? m0Static(!b, y, c, s, i - 1, f - 1f, l - 1l, d - 1d, o, p, q)
+        : m0Static(!b, y, c, s, i + 1, f + 1f, l + 1l, d + 1d, o, p, q);
+  }
+
   // Element types: uninitialized (multiple per frame).
   public String m0(byte[] bytes, boolean b) {
     try {
@@ -87,6 +106,16 @@ public class AllFrames {
   // Frame types: append.
   // Element types: top.
   public void m1(int i, int j) {
+    int k;
+    int l = j;
+    if (i < 0) {
+      i = -i;
+    }
+  }
+
+  // Frame types: append.
+  // Element types: top.
+  public static void m1Static(int i, int j) {
     int k;
     int l = j;
     if (i < 0) {
@@ -111,8 +140,34 @@ public class AllFrames {
     return total;
   }
 
+  // Frame types: chop.
+  public static long m2Static(int n, boolean b) {
+    long total = 0;
+    if (b) {
+      int i = 0;
+      do {
+        total += i++;
+      } while (i < n);
+    } else {
+      long i = 0;
+      do {
+        total += i++;
+      } while (i < n);
+    }
+    return total;
+  }
+
   // Frame types: same_frame_extended.
   public int m3(int i) {
+    if (i < 0) {
+      i = i + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i;
+      i = i + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i;
+    }
+    return i;
+  }
+
+  // Frame types: same_frame_extended.
+  public static int m3Static(int i) {
     if (i < 0) {
       i = i + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i;
       i = i + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i;

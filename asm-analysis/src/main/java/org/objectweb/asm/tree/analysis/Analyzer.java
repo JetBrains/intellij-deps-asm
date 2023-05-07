@@ -137,9 +137,15 @@ public class Analyzer<V extends Value> implements Opcodes {
     findSubroutines(method.maxLocals);
 
     // Initializes the data structures for the control flow analysis.
-    Frame<V> currentFrame = computeInitialFrame(owner, method);
-    merge(0, currentFrame, null);
-    init(owner, method);
+    Frame<V> currentFrame;
+    try {
+      currentFrame = computeInitialFrame(owner, method);
+      merge(0, currentFrame, null);
+      init(owner, method);
+    } catch (RuntimeException e) {
+      // DontCheck(IllegalCatch): can't be fixed, for backward compatibility.
+      throw new AnalyzerException(insnList.get(0), "Error at instruction 0: " + e.getMessage(), e);
+    }
 
     // Control flow analysis.
     while (numInstructionsToProcess > 0) {

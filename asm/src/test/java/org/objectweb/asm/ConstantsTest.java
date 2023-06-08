@@ -254,6 +254,7 @@ class ConstantsTest {
       case "V19":
       case "V20":
       case "V21":
+      case "V22":
         return ConstantType.CLASS_VERSION;
       case "ACC_PUBLIC":
       case "ACC_PRIVATE":

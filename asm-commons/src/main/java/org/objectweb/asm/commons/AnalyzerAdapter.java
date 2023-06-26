@@ -308,7 +308,7 @@ public class AnalyzerAdapter extends MethodVisitor {
         if (value == Opcodes.UNINITIALIZED_THIS) {
           initializedValue = this.owner;
         } else {
-          initializedValue = uninitializedTypes.get(value);
+          initializedValue = owner;
         }
         for (int i = 0; i < locals.size(); ++i) {
           if (locals.get(i) == value) {

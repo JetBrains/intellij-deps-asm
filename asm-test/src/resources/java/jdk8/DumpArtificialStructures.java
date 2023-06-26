@@ -57,10 +57,11 @@ public class DumpArtificialStructures implements Opcodes {
     ClassWriter classWriter = new ClassWriter(ClassWriter.COMPUTE_FRAMES);
     MethodVisitor methodVisitor;
 
+    final String INTERNAL_NAME = "jdk8/Artificial$()$Structures";
     classWriter.visit(
         V1_8,
         ACC_PUBLIC + ACC_SUPER,
-        "jdk8/Artificial$()$Structures",
+        INTERNAL_NAME,
         null,
         "java/lang/Object",
         null);
@@ -73,7 +74,7 @@ public class DumpArtificialStructures implements Opcodes {
     methodVisitor.visitMethodInsn(INVOKESPECIAL, "java/lang/Object", "<init>", "()V", false);
     methodVisitor.visitVarInsn(ALOAD, 0);
     methodVisitor.visitVarInsn(ILOAD, 1);
-    methodVisitor.visitFieldInsn(PUTFIELD, "jdk8/Artificial$()$Structures", "value", "I");
+    methodVisitor.visitFieldInsn(PUTFIELD, INTERNAL_NAME, "value", "I");
     methodVisitor.visitInsn(RETURN);
     methodVisitor.visitMaxs(0, 0);
     methodVisitor.visitEnd();
@@ -89,13 +90,13 @@ public class DumpArtificialStructures implements Opcodes {
     Label elseLabel = new Label();
     methodVisitor.visitJumpInsn(IFNULL, elseLabel);
     methodVisitor.visitVarInsn(ALOAD, 1);
-    methodVisitor.visitFieldInsn(GETFIELD, "jdk8/Artificial$()$Structures", "value", "I");
+    methodVisitor.visitFieldInsn(GETFIELD, INTERNAL_NAME, "value", "I");
     Label endIfLabel = new Label();
     methodVisitor.visitJumpInsn(GOTO, endIfLabel);
     methodVisitor.visitLabel(elseLabel);
     methodVisitor.visitInsn(ICONST_0);
     methodVisitor.visitLabel(endIfLabel);
-    methodVisitor.visitFieldInsn(PUTFIELD, "jdk8/Artificial$()$Structures", "value", "I");
+    methodVisitor.visitFieldInsn(PUTFIELD, INTERNAL_NAME, "value", "I");
     methodVisitor.visitInsn(RETURN);
     methodVisitor.visitMaxs(0, 0);
     methodVisitor.visitEnd();
@@ -104,12 +105,12 @@ public class DumpArtificialStructures implements Opcodes {
         classWriter.visitMethod(
             ACC_PUBLIC, "clone", "()Ljdk8/Artificial$()$Structures;", null, null);
     methodVisitor.visitCode();
-    methodVisitor.visitTypeInsn(NEW, "jdk8/Artificial$()$Structures");
+    methodVisitor.visitTypeInsn(NEW, INTERNAL_NAME);
     methodVisitor.visitInsn(DUP);
     methodVisitor.visitVarInsn(ALOAD, 0);
     methodVisitor.visitMethodInsn(
         INVOKESPECIAL,
-        "jdk8/Artificial$()$Structures",
+        INTERNAL_NAME,
         "<init>",
         "(Ljdk8/Artificial$()$Structures;)V",
         false);
@@ -124,6 +125,50 @@ public class DumpArtificialStructures implements Opcodes {
     methodVisitor.visitLdcInsn(Type.getMethodType("(I)I"));
     methodVisitor.visitInsn(ARETURN);
     methodVisitor.visitMaxs(0, 0);
+    methodVisitor.visitEnd();
+
+    methodVisitor =
+        classWriter.visitMethod(
+            ACC_PUBLIC | ACC_STATIC, "frameWithForwardLabelReferences", "([Ljava/lang/String;)V", null, null);
+    methodVisitor.visitCode();
+    methodVisitor.visitFieldInsn(GETSTATIC, "java/lang/System", "out", "Ljava/io/PrintStream;");
+    Label labelNew = new Label();
+    methodVisitor.visitJumpInsn(GOTO, labelNew);
+
+    Label labelInit = new Label();
+    methodVisitor.visitLabel(labelInit);
+    methodVisitor.visitFrame(
+        Opcodes.F_NEW,
+        1,
+        new Object[] {"[Ljava/lang/String;"},
+        3,
+        new Object[] {"java/io/PrintStream", labelNew, labelNew});
+    methodVisitor.visitMethodInsn(INVOKESPECIAL, INTERNAL_NAME, "<init>", "()V", false);
+    Label labelAfterInit = new Label();
+    methodVisitor.visitJumpInsn(GOTO, labelAfterInit);
+
+    methodVisitor.visitLabel(labelNew);
+    methodVisitor.visitFrame(
+        Opcodes.F_NEW,
+        1,
+        new Object[] {"[Ljava/lang/String;"},
+        1,
+        new Object[] {"java/io/PrintStream"});
+    methodVisitor.visitTypeInsn(NEW, INTERNAL_NAME);
+    methodVisitor.visitInsn(DUP);
+    methodVisitor.visitJumpInsn(GOTO, labelInit);
+
+    methodVisitor.visitLabel(labelAfterInit);
+    methodVisitor.visitFrame(
+        Opcodes.F_NEW,
+        1,
+        new Object[] {"[Ljava/lang/String;"},
+        2,
+        new Object[] {"java/io/PrintStream", INTERNAL_NAME});
+    methodVisitor.visitMethodInsn(
+        INVOKEVIRTUAL, "java/io/PrintStream", "println", "(Ljava/lang/Object;)V", false);
+    methodVisitor.visitInsn(RETURN);
+    methodVisitor.visitMaxs(3, 1);
     methodVisitor.visitEnd();
 
     classWriter.visitEnd();

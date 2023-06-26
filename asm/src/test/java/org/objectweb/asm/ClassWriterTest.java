@@ -457,6 +457,64 @@ class ClassWriterTest extends AsmTest {
   }
 
   @Test
+  void testToByteArray_manyFramesWithForwardLabelReferences() {
+    ClassWriter classWriter = new ClassWriter(0);
+    classWriter.visit(Opcodes.V1_7, Opcodes.ACC_PUBLIC, "A", null, "java/lang/Object", null);
+    MethodVisitor constructor =
+        classWriter.visitMethod(Opcodes.ACC_PUBLIC, "<init>", "()V", null, null);
+    constructor.visitCode();
+    constructor.visitVarInsn(Opcodes.ALOAD, 0);
+    constructor.visitMethodInsn(Opcodes.INVOKESPECIAL, "java/lang/Object", "<init>", "()V", false);
+    constructor.visitInsn(Opcodes.RETURN);
+    constructor.visitMaxs(1, 1);
+    constructor.visitEnd();
+    MethodVisitor methodVisitor =
+        classWriter.visitMethod(Opcodes.ACC_STATIC, "m", "()V", null, null);
+    methodVisitor.visitCode();
+    Label label0 = new Label();
+    methodVisitor.visitJumpInsn(Opcodes.GOTO, label0);
+    Label label1 = new Label();
+    methodVisitor.visitLabel(label1);
+    Label[] newLabels = new Label[24];
+    for (int i = 0; i < newLabels.length; ++i) {
+      newLabels[i] = new Label();
+    }
+    methodVisitor.visitFrame(Opcodes.F_NEW, newLabels.length, newLabels, 0, null);
+    for (int i = 0; i < newLabels.length; ++i) {
+      methodVisitor.visitVarInsn(Opcodes.ALOAD, i);
+      methodVisitor.visitMethodInsn(Opcodes.INVOKESPECIAL, "A", "<init>", "()V", false);
+    }
+    Label label2 = new Label();
+    methodVisitor.visitJumpInsn(Opcodes.GOTO, label2);
+    methodVisitor.visitLabel(label0);
+    Object[] topTypes = new Object[newLabels.length];
+    for (int i = 0; i < topTypes.length; ++i) {
+      topTypes[i] = Opcodes.TOP;
+    }
+    methodVisitor.visitFrame(Opcodes.F_NEW, topTypes.length, topTypes, 0, null);
+    for (int i = 0; i < newLabels.length; ++i) {
+      methodVisitor.visitLabel(newLabels[i]);
+      methodVisitor.visitTypeInsn(Opcodes.NEW, "A");
+      methodVisitor.visitVarInsn(Opcodes.ASTORE, i);
+    }
+    methodVisitor.visitJumpInsn(Opcodes.GOTO, label1);
+    methodVisitor.visitLabel(label2);
+    String[] newTypes = new String[newLabels.length];
+    for (int i = 0; i < newTypes.length; ++i) {
+      newTypes[i] = "A";
+    }
+    methodVisitor.visitFrame(Opcodes.F_NEW, newTypes.length, newTypes, 0, null);
+    methodVisitor.visitInsn(Opcodes.RETURN);
+    methodVisitor.visitMaxs(1, newLabels.length);
+    methodVisitor.visitEnd();
+    classWriter.visitEnd();
+
+    byte[] classFile = classWriter.toByteArray();
+
+    assertDoesNotThrow(() -> new ClassFile(classFile).newInstance());
+  }
+
+  @Test
   void testGetCommonSuperClass() {
     ClassWriter classWriter = new ClassWriter(0);
 

@@ -249,6 +249,34 @@ class TypeTest implements Opcodes {
   }
 
   @Test
+  void testGetArgumentCountFromType() {
+    assertEquals(
+        14,
+        Type.getMethodType("(IZBCSDFJLI;LV;Ljava/lang/Object;[I[LI;[[Ljava/lang/Object;)V")
+            .getArgumentCount());
+  }
+
+  @Test
+  void testGetArgumentCountFromDescriptor() {
+    assertEquals(
+        14, Type.getArgumentCount("(IZBCSDFJLI;LV;Ljava/lang/Object;[I[LI;[[Ljava/lang/Object;)V"));
+    assertEquals(0, Type.getArgumentCount("()I"));
+  }
+
+  @Test
+  void testGetArgumentsAndReturnSizeFromType() {
+    assertEquals(
+        17 << 2,
+        Type.getMethodType("(IZBCSDFJLI;LV;Ljava/lang/Object;[I[LI;[[Ljava/lang/Object;)V")
+            .getArgumentsAndReturnSizes());
+    assertEquals(1 << 2 | 1, Type.getMethodType("()I").getArgumentsAndReturnSizes());
+    assertEquals(1 << 2 | 1, Type.getMethodType("()F").getArgumentsAndReturnSizes());
+    assertEquals(1 << 2 | 2, Type.getMethodType("()J").getArgumentsAndReturnSizes());
+    assertEquals(1 << 2 | 2, Type.getMethodType("()D").getArgumentsAndReturnSizes());
+    assertEquals(1 << 2 | 1, Type.getMethodType("()LD;").getArgumentsAndReturnSizes());
+  }
+
+  @Test
   void testGetArgumentsAndReturnSizeFromDescriptor() {
     assertEquals(
         17 << 2,

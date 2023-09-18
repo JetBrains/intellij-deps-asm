@@ -33,7 +33,7 @@ buildscript {
 
 plugins { id 'com.github.sherter.google-java-format' version '0.9' apply false }
 plugins { id 'me.champeau.jmh' version '0.6.8' apply false }
-plugins { id 'org.sonarqube' version '3.5.0.2730' apply false }
+plugins { id 'org.sonarqube' version '4.3.1.3277' apply false }
 
 description = 'ASM, a very small and fast Java bytecode manipulation framework'
 
@@ -313,9 +313,9 @@ configure(subprojects.findAll{it.provides}) {
   }
 
   // Apply the SonarQube plugin to monitor the code quality of the project.
-  // Use with 'gradlew sonarqube -Dsonar.host.url=https://sonarqube.ow2.org'.
+  // Use with 'gradlew sonar -Dsonar.host.url=https://sonarqube.ow2.org'.
   apply plugin: 'org.sonarqube'
-  sonarqube {
+  sonar {
     properties { property 'sonar.projectKey', "ASM:${project.name}" }
   }
 

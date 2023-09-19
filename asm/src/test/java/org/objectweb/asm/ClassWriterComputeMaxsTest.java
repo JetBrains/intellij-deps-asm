@@ -1008,7 +1008,7 @@ class ClassWriterComputeMaxsTest {
     }
   }
 
-  private static final class TestCaseBuilder {
+  private static final class TestCaseBuilder { // NOPMD(TestClassWithoutTestCases)
 
     private final ClassWriter classWriter;
     private final MethodVisitor methodVisitor;

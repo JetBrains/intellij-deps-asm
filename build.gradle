@@ -196,6 +196,8 @@ subprojects {
   pmd.ruleSets = []
   pmd.ruleSetFiles = files("${rootDir}/tools/pmd.xml")
   pmd.consoleOutput = true
+  pmdMain.dependsOn ':asm:jar'
+  pmdTest.dependsOn ':asm:jar'
 
   dependencies {
     requires.each { projectName -> api project(projectName) }
@@ -228,6 +230,9 @@ configure(subprojects.findAll{it.provides}) {
   jacocoTestCoverageVerification {
     classDirectories.setFrom(sourceSets.main.output.classesDirs)
     violationRules.rule { limit { minimum = 0.95; counter = 'INSTRUCTION' } }
+    dependsOn ':asm:jar'
+    dependsOn ':asm-tree:jar'
+    dependsOn ':asm-commons:jar'
   }
   check.dependsOn jacocoTestCoverageVerification
 
@@ -334,11 +339,11 @@ configure(subprojects.findAll{it.provides}) {
   // together with the main jar (containing the compiled code).
   task javadocJar(type: Jar, dependsOn: 'javadoc') {
     from javadoc.destinationDir
-    classifier 'javadoc'
+    archiveClassifier = 'javadoc'
   }
   task sourcesJar(type: Jar, dependsOn: 'classes') {
     from sourceSets.main.allSource
-    classifier 'sources'
+    archiveClassifier = 'sources'
   }
   java {
     withJavadocJar()

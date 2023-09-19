@@ -425,7 +425,7 @@ public class JSRInlinerAdapter extends MethodNode implements Opcodes {
   }
 
   /** An instantiation of a subroutine. */
-  private class Instantiation extends AbstractMap<LabelNode, LabelNode> {
+  private final class Instantiation extends AbstractMap<LabelNode, LabelNode> {
 
     /**
      * The instantiation from which this one was created (or {@literal null} for the instantiation

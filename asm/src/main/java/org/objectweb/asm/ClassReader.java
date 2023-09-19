@@ -188,6 +188,7 @@ public class ClassReader {
    * @param classFileOffset the offset in byteBuffer of the first byte of the ClassFile to be read.
    * @param checkClassVersion whether to check the class version or not.
    */
+  @SuppressWarnings("PMD.ConstructorCallsOverridableMethod")
   ClassReader(
       final byte[] classFileBuffer, final int classFileOffset, final boolean checkClassVersion) {
     this.classFileBuffer = classFileBuffer;

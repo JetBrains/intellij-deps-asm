@@ -672,7 +672,7 @@ public class Frame<V extends Value> {
       final AbstractInsnNode insn, final String methodDescriptor, final Interpreter<V> interpreter)
       throws AnalyzerException {
     ArrayList<V> valueList = new ArrayList<>();
-    for (int i = Type.getArgumentTypes(methodDescriptor).length; i > 0; --i) {
+    for (int i = Type.getArgumentCount(methodDescriptor); i > 0; --i) {
       valueList.add(0, pop());
     }
     if (insn.getOpcode() != Opcodes.INVOKESTATIC && insn.getOpcode() != Opcodes.INVOKEDYNAMIC) {

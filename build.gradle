@@ -248,7 +248,8 @@ configure(subprojects.findAll{it.provides}) {
       def classes = sourceSets.main.output.classesDirs.singleFile
       def requires = transitiveRequires() as List
       retrofitter.retrofit(classes, "${version}")
-      retrofitter.verify(classes, "${version}", provides, requires)
+      //[JB] Remove verification, as we don't need Java 1.5 support
+      //retrofitter.verify(classes, "${version}", provides, requires)
     }
   }
 

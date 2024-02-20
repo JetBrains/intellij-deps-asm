@@ -30,6 +30,7 @@ package org.objectweb.asm;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 
 /**
  * A parser to make a {@link ClassVisitor} visit a ClassFile structure, as defined in the Java
@@ -3823,20 +3824,30 @@ public class ClassReader {
         readUtf(cpInfoOffset + 2, readUnsignedShort(cpInfoOffset), charBuffer);
   }
 
+  // [JB] Optimized readUtf implementation
   /**
-   * Reads an UTF8 string in {@link #classFileBuffer}.
+   * Reads an UTF8 string in {@link #classFileBuffer} (the slow path when string contains a non-ASCII character).
    *
-   * @param utfOffset the start offset of the UTF8 string to be read.
-   * @param utfLength the length of the UTF8 string to be read.
-   * @param charBuffer the buffer to be used to read the string. This buffer must be sufficiently
-   *     large. It is not automatically resized.
+   * @param utfOffset           the start offset of the UTF8 string to be read.
+   * @param firstNonAsciiOffset the offset of the first non-ASCII character. The characters between utfOffset and
+   *                            firstNonAsciiOffset are assumed to be ASCII and not checked.
+   * @param utfLength           the length of the UTF8 string to be read.
+   * @param charBuffer          the buffer to be used to read the string. This buffer must be sufficiently
+   *                            large. It is not automatically resized.
    * @return the String corresponding to the specified UTF8 string.
    */
-  private String readUtf(final int utfOffset, final int utfLength, final char[] charBuffer) {
+  private String readUtfNonAscii(
+          final int utfOffset,
+          final int firstNonAsciiOffset,
+          final int utfLength,
+          final char[] charBuffer) {
     int currentOffset = utfOffset;
     int endOffset = currentOffset + utfLength;
     int strLength = 0;
     byte[] classBuffer = classFileBuffer;
+    while (currentOffset < firstNonAsciiOffset) {
+      charBuffer[strLength++] = (char) classBuffer[currentOffset++];
+    }
     while (currentOffset < endOffset) {
       int currentByte = classBuffer[currentOffset++];
       if ((currentByte & 0x80) == 0) {
@@ -3853,6 +3864,26 @@ public class ClassReader {
       }
     }
     return new String(charBuffer, 0, strLength);
+  }
+
+  /**
+   * Reads an UTF8 string in {@link #classFileBuffer}.
+   *
+   * @param utfOffset  the start offset of the UTF8 string to be read.
+   * @param utfLength  the length of the UTF8 string to be read.
+   * @param charBuffer the buffer to be used to read the string. This buffer must be sufficiently
+   *                   large. It is not automatically resized.
+   * @return the String corresponding to the specified UTF8 string.
+   */
+  private String readUtf(final int utfOffset, final int utfLength, final char[] charBuffer) {
+    int endOffset = utfOffset + utfLength;
+    byte[] classBuffer = classFileBuffer;
+    for (int currentOffset = utfOffset; currentOffset < endOffset; currentOffset++) {
+      if (classBuffer[currentOffset] < 0) {
+        return readUtfNonAscii(utfOffset, currentOffset, utfLength, charBuffer);
+      }
+    }
+    return new String(classFileBuffer, utfOffset, utfLength, StandardCharsets.ISO_8859_1);
   }
 
   /**

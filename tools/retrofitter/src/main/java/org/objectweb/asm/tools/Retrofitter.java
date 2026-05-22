@@ -346,7 +346,7 @@ public final class Retrofitter {
       }
     }
     if (moduleNames.size() != 1) {
-      throw new IllegalArgumentException("Module name can't be infered from classes");
+      throw new IllegalArgumentException("Module name can't be inferred from classes");
     }
     ModuleVisitor moduleVisitor =
         classWriter.visitModule(moduleNames.get(0).replace('/', '.'), Opcodes.ACC_OPEN, version);
@@ -445,6 +445,14 @@ public final class Retrofitter {
     }
 
     @Override
+    public AnnotationVisitor visitAnnotation(final String descriptor, final boolean visible) {
+      if (descriptor.equals("Ljava/lang/FunctionalInterface;")) {
+        return null;
+      }
+      return super.visitAnnotation(descriptor, visible);
+    }
+
+    @Override
     public void visitNestHost(final String nestHost) {
       // Remove the NestHost attribute.
     }
@@ -452,6 +460,20 @@ public final class Retrofitter {
     @Override
     public void visitNestMember(final String nestMember) {
       // Remove the NestMembers attribute.
+    }
+
+    private AnnotationVisitor removeDeprecatedForRemoval(final AnnotationVisitor av) {
+      // We use @Deprecated(forRemoval = false) instead of a plain @Deprecated
+      // but forRemoval was introduced in Java 9, so we need to remove it
+      return new AnnotationVisitor(api, av) {
+        @Override
+        public void visit(final String name, final Object value) {
+          if (name.equals("forRemoval")) {
+            return;
+          }
+          super.visit(name, value);
+        }
+      };
     }
 
     @Override
@@ -462,7 +484,17 @@ public final class Retrofitter {
         final String signature,
         final Object value) {
       addPackageReferences(Type.getType(descriptor), /* export= */ false);
-      return super.visitField(access, name, descriptor, signature, value);
+      FieldVisitor fv = super.visitField(access, name, descriptor, signature, value);
+      return new FieldVisitor(api, fv) {
+        @Override
+        public AnnotationVisitor visitAnnotation(final String descriptor, final boolean visible) {
+          AnnotationVisitor av = super.visitAnnotation(descriptor, visible);
+          if (descriptor.equals("Ljava/lang/Deprecated;")) {
+            return removeDeprecatedForRemoval(av);
+          }
+          return av;
+        }
+      };
     }
 
     @Override
@@ -479,23 +511,10 @@ public final class Retrofitter {
         @Override
         public AnnotationVisitor visitAnnotation(final String descriptor, final boolean visible) {
           AnnotationVisitor av = super.visitAnnotation(descriptor, visible);
-          if (descriptor.equals("Ljava/lang/FunctionalInterface;")) {
-            return null;
+          if (descriptor.equals("Ljava/lang/Deprecated;")) {
+            return removeDeprecatedForRemoval(av);
           }
-          if (!descriptor.equals("Ljava/lang/Deprecated;")) {
-            return av;
-          }
-          // We use @Deprecated(forRemoval = false) instead of a plain @Deprecated
-          // but forRemoval was introduced in Java 9, so we need to remove it
-          return new AnnotationVisitor(api, av) {
-            @Override
-            public void visit(final String name, final Object value) {
-              if (name.equals("forRemoval")) {
-                return;
-              }
-              super.visit(name, value);
-            }
-          };
+          return av;
         }
 
         @Override
@@ -671,9 +690,6 @@ public final class Retrofitter {
     /** The internal name of the visited class. */
     String className;
 
-    /** The name and descriptor of the currently visited method. */
-    String currentMethodName;
-
     public ClassVerifier() {
       // Make sure use we don't use Java 9 or higher classfile features.
       // We also want to make sure we don't use Java 6, 7 or 8 classfile
@@ -697,37 +713,63 @@ public final class Retrofitter {
     }
 
     @Override
+    public AnnotationVisitor visitAnnotation(final String descriptor, final boolean visible) {
+      var av = super.visitAnnotation(descriptor, visible);
+      if (descriptor.equals("Ljava/lang/FunctionalInterface;")) {
+        throw new IllegalArgumentException(
+            format("ERROR: @FunctionalInterface in %s is not available in JDK 1.5", className));
+      }
+      return av;
+    }
+
+    private AnnotationVisitor deprecatedAnnotationVisitor(
+        final String descriptor, final AnnotationVisitor av, final String member) {
+      if (descriptor.equals("Ljava/lang/Deprecated;")) {
+        return new AnnotationVisitor(Opcodes.ASM4, av) {
+          @Override
+          public void visit(final String name, final Object value) {
+            throw new IllegalArgumentException(
+                format(
+                    "ERROR: @Deprecated name %s on %s %s is not available in JDK 1.5",
+                    name, member, className));
+          }
+        };
+      }
+      return av;
+    }
+
+    @Override
+    public FieldVisitor visitField(
+        final int access,
+        final String name,
+        final String descriptor,
+        final String signature,
+        final Object value) {
+      var fv = super.visitField(access, name, descriptor, signature, value);
+      return new FieldVisitor(Opcodes.ASM4, fv) {
+        @Override
+        public AnnotationVisitor visitAnnotation(final String descriptor, final boolean visible) {
+          var av = super.visitAnnotation(descriptor, visible);
+          return deprecatedAnnotationVisitor(descriptor, av, name);
+        }
+      };
+    }
+
+    @Override
     public MethodVisitor visitMethod(
         final int access,
         final String name,
         final String descriptor,
         final String signature,
         final String[] exceptions) {
-      currentMethodName = name + descriptor;
+      String methodName = name + descriptor;
       MethodVisitor methodVisitor =
           super.visitMethod(access, name, descriptor, signature, exceptions);
       return new MethodVisitor(Opcodes.ASM4, methodVisitor) {
         @Override
         public AnnotationVisitor visitAnnotation(final String descriptor, final boolean visible) {
           var av = super.visitAnnotation(descriptor, visible);
-          if (descriptor.equals("Ljava/lang/FunctionalInterface;")) {
-            throw new IllegalArgumentException(
-                format(
-                    "ERROR: @FunctionalInterface in %s %s is not available in JDK 1.5",
-                    className, currentMethodName));
-          }
-          if (!descriptor.equals("Ljava/lang/Deprecated;")) {
-            return av;
-          }
-          return new AnnotationVisitor(Opcodes.ASM4, av) {
-            @Override
-            public void visit(final String name, final Object value) {
-              throw new IllegalArgumentException(
-                  format(
-                      "ERROR: @Deprecated name %s in %s %s is not available in JDK 1.5",
-                      name, className, currentMethodName));
-            }
-          };
+          return deprecatedAnnotationVisitor(descriptor, av, methodName);
         }
 
         @Override
@@ -735,13 +777,13 @@ public final class Retrofitter {
           throw new IllegalArgumentException(
               format(
                   "ERROR: parameter %s in %s %s is not available in JDK 1.5",
-                  name, className, currentMethodName));
+                  name, className, methodName));
         }
 
         @Override
         public void visitFieldInsn(
             final int opcode, final String owner, final String name, final String descriptor) {
-          check(owner, name);
+          check(owner, name, methodName);
         }
 
         @Override
@@ -751,7 +793,7 @@ public final class Retrofitter {
             final String name,
             final String descriptor,
             final boolean isInterface) {
-          check(owner, name + descriptor);
+          check(owner, name + descriptor, methodName);
         }
 
         @Override
@@ -762,13 +804,13 @@ public final class Retrofitter {
               throw new IllegalArgumentException(
                   format(
                       "ERROR: ldc with a MethodType called in %s %s is not available in JDK 1.5",
-                      className, currentMethodName));
+                      className, methodName));
             }
           } else if (value instanceof Handle) {
             throw new IllegalArgumentException(
                 format(
                     "ERROR: ldc with a MethodHandle called in %s %s is not available in JDK 1.5",
-                    className, currentMethodName));
+                    className, methodName));
           }
         }
 
@@ -781,7 +823,7 @@ public final class Retrofitter {
           throw new IllegalArgumentException(
               format(
                   "ERROR: invokedynamic called in %s %s is not available in JDK 1.5",
-                  className, currentMethodName));
+                  className, methodName));
         }
       };
     }
@@ -791,8 +833,9 @@ public final class Retrofitter {
      *
      * @param owner A class name.
      * @param member A field name or a method name and descriptor.
+     * @param methodName The name and descriptor of the currently visited method.
      */
-    private void check(final String owner, final String member) {
+    private void check(final String owner, final String member, final String methodName) {
       if (owner.startsWith("java/")) {
         String currentOwner = owner;
         while (currentOwner != null) {
@@ -804,7 +847,7 @@ public final class Retrofitter {
         throw new IllegalArgumentException(
             format(
                 "ERROR: %s %s called in %s %s is not defined in the JDK 1.5 API",
-                owner, member, className, currentMethodName));
+                owner, member, className, methodName));
       }
     }
   }

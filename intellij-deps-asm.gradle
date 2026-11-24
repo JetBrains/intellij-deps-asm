@@ -1,5 +1,4 @@
-//[JB] The script renames ASM packages using the given prefix, merges modules into "fat" artifacts, and publishes them.
-//[JB] Relies on build artifacts, so run `gradle jar` first.
+//[JB] The script renames ASM packages using fixed prefixes, merges modules into "fat" artifacts, and publishes them.
 
 buildscript {
   repositories { maven { url = uri("https://cache-redirector.jetbrains.com/maven-central") } }
@@ -11,66 +10,63 @@ apply plugin: com.github.jengelman.gradle.plugins.shadow.ShadowPlugin
 apply plugin: 'maven-publish'
 
 configure(project) {
-  project.ext.prefix = project.findProperty('intellij.asm.prefix') ?: 'org.jetbrains'
-  project.ext.dirPrefix = project.ext.prefix.replace('.', '/')
-
   def moduleNames = (project.findProperty('intellij.asm.modules') ?: 'commons,tree,analysis,util') as String
   def modules = ['asm'] + (moduleNames.split(',').findAll { !it.isEmpty() }.collect { "asm-${it}" } as List<String>)
 
   project.ext.jarFiles = []
   project.ext.srcDirs = []
   for (module in modules) {
-    def libsDir = file("${module}/build/libs")
-    assert libsDir.isDirectory(): "artifacts directory '${libsDir}' doesn't seem to exist"
-    def jars = libsDir.listFiles()
-    def mainJar = jars.find { it.name.matches(/${module}-[\d.]+(-[^-]+)?\.jar/) }
-    assert mainJar != null: "unable to detect main .jar in ${jars}"
-    project.ext.jarFiles += mainJar
+    // Referencing the task output makes packaging depend on building the module JAR.
+    project.ext.jarFiles += project(":${module}").tasks.named('jar', Jar).flatMap { it.archiveFile }
 
     def srcDir = file("${module}/src/main/java")
     assert srcDir.isDirectory(): "source directory '${srcDir}' doesn't seem to exist"
     project.ext.srcDirs += srcDir
-
-    if (module == 'asm') {
-      project.version = mainJar.name.find(/asm-(.+)\.jar/, { it[1] })
-    }
   }
 
-  project.ext.jarFile = "asm-all-${project.version}.jar"
-  project.ext.srcFile = "asm-all-${project.version}-sources.jar"
-
-  println "prefix: ${project.ext.prefix}"
   println "modules: ${modules}"
   println "version: ${project.version}"
 }
 
-def fatJar = tasks.register('fatJar', com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar) {
-  destinationDirectory = file("$projectDir")
-  archiveFileName = project.ext.jarFile
-  from project.ext.jarFiles.collect { zipTree(it) }
-  exclude 'module-info.class'
-  relocate 'org.objectweb.asm', "${project.ext.prefix}.org.objectweb.asm"
-}
+def variants = [
+  base: [artifactId: 'asm-all', taskPrefix: 'base', pkgPrefix: 'org.jetbrains'],
+  capture: [artifactId: 'asm-all-capture', taskPrefix: 'capture', pkgPrefix: 'org.jetbrains.capture'],
+  coverage: [artifactId: 'asm-all-coverage', taskPrefix: 'coverage', pkgPrefix: 'org.jetbrains.coverage']
+]
 
-def fatSources = tasks.register('fatSources', Jar) {
-  destinationDirectory = file("${projectDir}")
-  archiveFileName = project.ext.srcFile
-  archiveClassifier = 'sources'
-  from project.ext.srcDirs as File[]
-  def prefix = project.ext.prefix
-  filter { it.replace('org.objectweb.asm', "${prefix}.org.objectweb.asm") }
-  into project.ext.dirPrefix
+variants.each { publicationName, variant ->
+  def pkgPrefix = variant.pkgPrefix
+
+  def fatJar = tasks.register("${variant.taskPrefix}Jar", com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar) {
+    destinationDirectory = file("$projectDir")
+    archiveFileName = "${variant.artifactId}-${project.version}.jar"
+    from project.ext.jarFiles.collect { it.map { zipTree(it) } }
+    exclude 'module-info.class'
+    relocate 'org.objectweb.asm', "${pkgPrefix}.org.objectweb.asm"
+  }
+
+  def fatSources = tasks.register("${variant.taskPrefix}Sources", Jar) {
+    destinationDirectory = file("${projectDir}")
+    archiveFileName = "${variant.artifactId}-${project.version}-sources.jar"
+    archiveClassifier = 'sources'
+    from project.ext.srcDirs as File[]
+    filter { it.replace('org.objectweb.asm', "${pkgPrefix}.org.objectweb.asm") }
+    into pkgPrefix.replace('.', '/')
+  }
+
+  publishing.publications.create(publicationName, MavenPublication) {
+    groupId = 'org.jetbrains.intellij.deps'
+    artifactId = variant.artifactId
+    artifact fatJar
+    artifact fatSources
+  }
+
+  tasks.named('assemble') {
+    dependsOn fatJar, fatSources
+  }
 }
 
 publishing {
-  publications {
-    space(MavenPublication) {
-      groupId = 'org.jetbrains.intellij.deps'
-      artifactId = 'asm-all'
-      artifact fatJar
-      artifact fatSources
-    }
-  }
   repositories {
     maven {
       name = 'space'
@@ -89,6 +85,6 @@ allprojects {
   }
   tasks.withType(PublishToMavenRepository).configureEach {
     // skipping publications/repositories inherited from the upstream build
-    onlyIf { publication.name == 'space' && repository.name == 'space' }
+    onlyIf { publication.name in variants.keySet() && repository.name == 'space' }
   }
 }

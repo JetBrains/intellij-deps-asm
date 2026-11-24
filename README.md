@@ -28,7 +28,7 @@ The repository contains a fork of [ASM library](https://gitlab.ow2.org/asm/asm) 
 
 1. Run unit tests: `./gradle/gradlew test`.
 
-2. Assemble artifacts: `./gradle/gradlew clean jar -Prelease ; ./gradle/gradlew -Pintellij.asm fatJar fatSources`.
+2. Assemble artifacts: `./gradle/gradlew -Pintellij.asm clean baseJar baseSources -Prelease`.
 
 3. Use the artifacts to test IDEA's compatibility with the new release - e.g. add them to the project
    as "ASM" library roots and remote-run the "Aggregator" build configuration.
